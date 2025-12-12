@@ -1,12 +1,13 @@
-import { Html5Video, staticFile } from "remotion";
-import { ThreeCanvas } from "@remotion/three";
-import React, { useEffect, useRef, useState } from "react";
+import { ThreeCanvas, ThreeCanvasRef } from "@remotion/three";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
 import { Phone } from "./Phone";
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
-import { useTexture } from "./use-texture";
-import { getMediaMetadata } from "./helpers/get-media-metadata";
+import { MediabunnyMetadata } from "./helpers/get-media-metadata";
+import { Video } from "@remotion/media";
+import { CanvasTexture, Texture } from "three";
+import { getPhoneLayout } from "./helpers/layout";
 
 const container: React.CSSProperties = {
   backgroundColor: "white",
@@ -27,46 +28,74 @@ type MyCompSchemaType = z.infer<typeof myCompSchema>;
 export const Scene: React.FC<
   {
     readonly baseScale: number;
+    mediaMetadata: MediabunnyMetadata | null;
+    videoSrc: string | null;
   } & MyCompSchemaType
-> = ({ baseScale, phoneColor, deviceType }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+> = ({ baseScale, phoneColor, mediaMetadata, videoSrc }) => {
   const { width, height } = useVideoConfig();
-  const [videoData, setVideoData] = useState<{
-    width: number;
-    height: number;
-  } | null>(null);
 
-  const videoSrc =
-    deviceType === "phone" ? staticFile("phone.mp4") : staticFile("tablet.mp4");
+  if (!mediaMetadata) {
+    throw new Error("Media metadata is not supported yet");
+  }
+  if (!videoSrc) {
+    throw new Error("Video source is not supported yet");
+  }
 
-  useEffect(() => {
-    getMediaMetadata(videoSrc)
-      .then((data) => setVideoData(data.dimensions))
-      .catch((err) => console.log(err));
-  }, [videoSrc]);
+  const [canvasTexture] = useState(() => {
+    return new OffscreenCanvas(
+      mediaMetadata.dimensions.width,
+      mediaMetadata.dimensions.height,
+    );
+  });
 
-  const texture = useTexture(videoSrc, videoRef);
+  const [context] = useState(() => {
+    const context = canvasTexture.getContext("2d");
+    if (!context) {
+      throw new Error("Failed to get context");
+    }
+    return context;
+  });
+
+  const threeCanvasRef = useRef<ThreeCanvasRef>(null);
+
+  const aspectRatio = useMemo(
+    () => mediaMetadata.dimensions.width / mediaMetadata.dimensions.height,
+    [mediaMetadata.dimensions.width, mediaMetadata.dimensions.height],
+  );
+
+  const layout = useMemo(
+    () => getPhoneLayout(aspectRatio, baseScale),
+    [aspectRatio, baseScale],
+  );
+
+  const [texture] = useState<Texture>(() => {
+    const tex = new CanvasTexture(canvasTexture);
+    tex.repeat.y = 1 / layout.screen.height;
+    tex.repeat.x = 1 / layout.screen.width;
+    return tex;
+  });
+
+  const onVideoFrame = useCallback(
+    (frame: CanvasImageSource) => {
+      context.drawImage(frame, 0, 0);
+      texture.needsUpdate = true;
+      threeCanvasRef.current?.invalidate();
+    },
+    [context, texture],
+  );
 
   return (
     <AbsoluteFill style={container}>
-      <Html5Video
-        ref={videoRef}
-        src={videoSrc}
-        style={videoStyle}
-        pauseWhenBuffering
-      />
-      {videoData ? (
-        <ThreeCanvas linear width={width} height={height}>
-          <ambientLight intensity={1.5} color={0xffffff} />
-          <pointLight position={[10, 10, 0]} />
-          <Phone
-            phoneColor={phoneColor}
-            baseScale={baseScale}
-            videoTexture={texture}
-            aspectRatio={videoData.width / videoData.height}
-          />
-        </ThreeCanvas>
-      ) : null}
+      <Video src={videoSrc} style={videoStyle} onVideoFrame={onVideoFrame} />
+      <ThreeCanvas ref={threeCanvasRef} linear width={width} height={height}>
+        <ambientLight intensity={1.5} color={0xffffff} />
+        <pointLight position={[10, 10, 0]} />
+        <Phone
+          phoneColor={phoneColor}
+          phoneLayout={layout}
+          videoTexture={texture}
+        />
+      </ThreeCanvas>
     </AbsoluteFill>
   );
 };

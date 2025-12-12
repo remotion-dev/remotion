@@ -84,6 +84,7 @@ export class MediaPlayer {
 		bufferState,
 		isPremounting,
 		isPostmounting,
+		onVideoFrameCallback,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -100,6 +101,7 @@ export class MediaPlayer {
 		bufferState: ReturnType<typeof useBufferState>;
 		isPremounting: boolean;
 		isPostmounting: boolean;
+		onVideoFrameCallback: null | ((frame: CanvasImageSource) => void);
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -117,6 +119,7 @@ export class MediaPlayer {
 		this.isPremounting = isPremounting;
 		this.isPostmounting = isPostmounting;
 		this.nonceManager = makeNonceManager();
+		this.onVideoFrameCallback = onVideoFrameCallback;
 
 		this.input = new Input({
 			source: new UrlSource(this.src),

@@ -10,12 +10,13 @@ export const getMediaMetadata = async (src: string) => {
 
   const durationInSeconds = await input.computeDuration();
   const videoTrack = await input.getPrimaryVideoTrack();
-  const dimensions = videoTrack
-    ? {
-        width: videoTrack.displayWidth,
-        height: videoTrack.displayHeight,
-      }
-    : null;
+  if (!videoTrack) {
+    throw new Error("Video track not found");
+  }
+  const dimensions = {
+    width: videoTrack.displayWidth,
+    height: videoTrack.displayHeight,
+  };
   const packetStats = await videoTrack?.computePacketStats(50);
   const fps = packetStats?.averagePacketRate ?? null;
 
@@ -25,3 +26,5 @@ export const getMediaMetadata = async (src: string) => {
     fps,
   };
 };
+
+export type MediabunnyMetadata = Awaited<ReturnType<typeof getMediaMetadata>>;

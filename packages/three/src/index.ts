@@ -1,4 +1,4 @@
-export {ThreeCanvas, ThreeCanvasProps} from './ThreeCanvas';
+export {ThreeCanvas, ThreeCanvasProps, ThreeCanvasRef} from './ThreeCanvas';
 export {
 	UseOffthreadVideoTextureOptions,
 	useOffthreadVideoTexture,

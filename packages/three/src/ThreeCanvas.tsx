@@ -1,6 +1,13 @@
 import type {RootState} from '@react-three/fiber';
 import {Canvas, useThree} from '@react-three/fiber';
-import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useEffect,
+	useImperativeHandle,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from 'react';
 import {
 	Internals,
 	useCurrentFrame,
@@ -45,53 +52,90 @@ const FiberFrameInvalidator = () => {
 	return null;
 };
 
+type InvalidatorRef = {
+	readonly invalidate: () => void;
+};
+
+const Invalidator = React.forwardRef<InvalidatorRef, {}>((_, ref) => {
+	const {invalidate} = useThree();
+
+	useImperativeHandle(ref, () => {
+		return {
+			invalidate,
+		};
+	}, [invalidate]);
+
+	return null;
+});
+
+export type ThreeCanvasRef = {
+	invalidate: () => void;
+};
+
 /*
  * @description A wrapper for React Three Fiber's <Canvas /> which synchronizes with Remotion's useCurrentFrame().
  * @see [Documentation](https://www.remotion.dev/docs/three-canvas)
  */
-export const ThreeCanvas = (props: ThreeCanvasProps) => {
-	const {isRendering} = useRemotionEnvironment();
+export const ThreeCanvas = React.forwardRef<ThreeCanvasRef, ThreeCanvasProps>(
+	(props, ref) => {
+		const {isRendering} = useRemotionEnvironment();
 
-	// https://r3f.docs.pmnd.rs/advanced/scaling-performance#on-demand-rendering
-	const shouldUseFrameloopDemand = isRendering;
+		// https://r3f.docs.pmnd.rs/advanced/scaling-performance#on-demand-rendering
+		const shouldUseFrameloopDemand = isRendering;
 
-	const {children, width, height, style, onCreated, ...rest} = props;
-	const {delayRender, continueRender} = useDelayRender();
-	const [waitForCreated] = useState(() =>
-		delayRender('Waiting for <ThreeCanvas/> to be created'),
-	);
+		const {children, width, height, style, onCreated, ...rest} = props;
+		const {delayRender, continueRender} = useDelayRender();
+		const [waitForCreated] = useState(() =>
+			delayRender('Waiting for <ThreeCanvas/> to be created'),
+		);
 
-	validateDimension(width, 'width', 'of the <ThreeCanvas /> component');
-	validateDimension(height, 'height', 'of the <ThreeCanvas /> component');
-	const contexts = Internals.useRemotionContexts();
-	const actualStyle = {
-		width: props.width,
-		height: props.height,
-		...(style ?? {}),
-	};
+		validateDimension(width, 'width', 'of the <ThreeCanvas /> component');
+		validateDimension(height, 'height', 'of the <ThreeCanvas /> component');
+		const contexts = Internals.useRemotionContexts();
+		const actualStyle = {
+			width: props.width,
+			height: props.height,
+			...(style ?? {}),
+		};
 
-	const remotion_onCreated: typeof onCreated = useCallback(
-		(state: RootState) => {
-			continueRender(waitForCreated);
-			onCreated?.(state);
-		},
-		[onCreated, waitForCreated, continueRender],
-	);
+		const remotion_onCreated: typeof onCreated = useCallback(
+			(state: RootState) => {
+				continueRender(waitForCreated);
+				onCreated?.(state);
+			},
+			[onCreated, waitForCreated, continueRender],
+		);
 
-	return (
-		<SuspenseLoader>
-			<Canvas
-				style={actualStyle}
-				{...rest}
-				frameloop={shouldUseFrameloopDemand ? 'demand' : 'always'}
-				onCreated={remotion_onCreated}
-			>
-				<Scale width={width} height={height} />
-				<Internals.RemotionContextProvider contexts={contexts}>
-					{shouldUseFrameloopDemand && <FiberFrameInvalidator />}
-					{children}
-				</Internals.RemotionContextProvider>
-			</Canvas>
-		</SuspenseLoader>
-	);
-};
+		const invalidatorRef = useRef<InvalidatorRef>(null);
+
+		React.useImperativeHandle(
+			ref,
+			() => ({
+				invalidate: () => {
+					invalidatorRef.current?.invalidate();
+				},
+			}),
+			[],
+		);
+
+		return (
+			<SuspenseLoader>
+				<Canvas
+					style={actualStyle}
+					{...rest}
+					frameloop={shouldUseFrameloopDemand ? 'demand' : 'always'}
+					onCreated={remotion_onCreated}
+				>
+					<Scale width={width} height={height} />
+					<Internals.RemotionContextProvider contexts={contexts}>
+						{shouldUseFrameloopDemand && <FiberFrameInvalidator />}
+						<Invalidator ref={invalidatorRef} />
+						{children}
+					</Internals.RemotionContextProvider>
+				</Canvas>
+			</SuspenseLoader>
+		);
+	},
+);
+
+ThreeCanvas.displayName = 'ThreeCanvas';

@@ -13,6 +13,7 @@
   "dependencies": {
     "@react-three/fiber": "9.2.0",
     "@remotion/cli": "workspace:*",
+    "@remotion/media": "workspace:*",
     "@remotion/three": "workspace:*",
     "@remotion/zod-types": "workspace:*",
     "react": "19.2.3",

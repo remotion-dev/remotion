@@ -178,6 +178,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				isPostmounting,
 				isPremounting,
 				globalPlaybackRate,
+				onVideoFrameCallback: null,
 			});
 
 			mediaPlayerRef.current = player;

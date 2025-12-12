@@ -85,6 +85,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
 	const initialTrimBeforeRef = useRef(trimBefore);
 	const initialTrimAfterRef = useRef(trimAfter);
+	const initialOnVideoFrameRef = useRef(onVideoFrame);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
 	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
@@ -186,6 +187,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 				isPremounting,
 				isPostmounting,
 				globalPlaybackRate,
+				onVideoFrameCallback: initialOnVideoFrameRef.current ?? null,
 			});
 
 			mediaPlayerRef.current = player;
