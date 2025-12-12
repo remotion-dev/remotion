@@ -1,8 +1,6 @@
 let experimentalClientSideRenderingEnabled = false;
 
-export const setExperimentalClientSideRenderingEnabled = (
-	enabled: boolean,
-) => {
+export const setExperimentalClientSideRenderingEnabled = (enabled: boolean) => {
 	experimentalClientSideRenderingEnabled = enabled;
 };
 
