@@ -53,6 +53,7 @@ export const webpackConfig = async ({
 	keyboardShortcutsEnabled,
 	bufferStateDelayInMilliseconds,
 	poll,
+	experimentalClientSideRenderingEnabled,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -66,6 +67,7 @@ export const webpackConfig = async ({
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	poll: number | null;
+	experimentalClientSideRenderingEnabled: boolean;
 }): Promise<[string, WebpackConfiguration]> => {
 	const esbuildLoaderOptions: LoaderOptions = {
 		target: 'chrome85',
@@ -83,6 +85,8 @@ export const webpackConfig = async ({
 		'process.env.KEYBOARD_SHORTCUTS_ENABLED': keyboardShortcutsEnabled,
 		'process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS':
 			bufferStateDelayInMilliseconds,
+		'process.env.EXPERIMENTAL_CLIENT_SIDE_RENDERING_ENABLED':
+			experimentalClientSideRenderingEnabled,
 	});
 
 	const conf: WebpackConfiguration = await webpackOverride({
