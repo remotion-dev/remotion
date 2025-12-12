@@ -137,7 +137,7 @@ export function useOffthreadVideoTexture({
 
 	if (isClientSideRendering) {
 		throw new Error(
-			'useOffthreadVideoTexture() cannot be used in client side rendering.',
+			'useOffthreadVideoTexture() cannot be used in client-side rendering.',
 		);
 	}
 
