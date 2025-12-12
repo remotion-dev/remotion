@@ -34,6 +34,7 @@ export const listOfRemotionPackages = [
 	'@remotion/google-fonts',
 	'@remotion/install-whisper-cpp',
 	'@remotion/it-tests',
+	'@remotion/react18-tests',
 	'@remotion/lambda-go-example',
 	'@remotion/lambda-go',
 	'@remotion/lambda-php',
