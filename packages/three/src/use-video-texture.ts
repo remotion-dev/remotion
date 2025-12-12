@@ -1,6 +1,10 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import type {Video} from 'remotion';
-import {useCurrentFrame, useDelayRender} from 'remotion';
+import {
+	useCurrentFrame,
+	useDelayRender,
+	useRemotionEnvironment,
+} from 'remotion';
 // eslint-disable-next-line no-restricted-imports
 import type {VideoTexture} from 'three/src/textures/VideoTexture';
 
@@ -35,6 +39,15 @@ export const useVideoTexture = (
 
 		return delayRender(`Waiting for texture in useVideoTexture() to be loaded`);
 	});
+
+	const environment = useRemotionEnvironment();
+	const {isClientSideRendering} = environment;
+
+	if (isClientSideRendering) {
+		throw new Error(
+			'useVideoTexture() cannot be used in client side rendering.',
+		);
+	}
 
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
 	const [vidText] = useState(
