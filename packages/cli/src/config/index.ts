@@ -60,6 +60,10 @@ import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
 import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
 import {
+	getExperimentalClientSideRenderingEnabled,
+	setExperimentalClientSideRenderingEnabled,
+} from './experimental-client-side-rendering';
+import {
 	getFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
@@ -70,10 +74,6 @@ import {
 	getKeyboardShortcutsEnabled,
 	setKeyboardShortcutsEnabled,
 } from './keyboard-shortcuts';
-import {
-	getExperimentalClientSideRenderingEnabled,
-	setExperimentalClientSideRenderingEnabled,
-} from './experimental-client-side-rendering';
 import {getMetadata, setMetadata} from './metadata';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
@@ -189,7 +189,8 @@ declare global {
 		 */
 		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
 		/**
-		 * Enable experimental client-side rendering in the Remotion Studio.
+		 * Enable WIP client-side rendering in the Remotion Studio.
+		 * See https://www.remotion.dev/docs/client-side-rendering/ for notes.
 		 * @param enabled Boolean whether to enable client-side rendering
 		 * @default false
 		 */
