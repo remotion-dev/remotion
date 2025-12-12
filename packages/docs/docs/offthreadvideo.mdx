@@ -325,7 +325,7 @@ When a video ends, the last frame of the video remains visible by default.
 This matches the behavior of [`<Html5Video>`](/docs/html5-video#loop).
 :::
 
-You can use the following `<LoopableOffthreadVideo>` component that uses [`@remotion/media-parser`](/docs/media-parser/) to loop a video.
+You can use the following `<LoopableOffthreadVideo>` component that uses Mediabunny to [determine the duration](/docs/mediabunny/metadata) for looping a video.
 
 ```tsx twoslash title="src/LoopableOffthreadVideo.tsx"
 // @filename: get-media-metadata.ts
