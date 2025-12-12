@@ -54,6 +54,7 @@ type VideoForPreviewProps = {
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 	readonly audioStreamIndex: number;
 	readonly debugOverlay: boolean;
+	readonly headless: boolean;
 };
 
 const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
@@ -76,6 +77,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	fallbackOffthreadVideoProps,
 	audioStreamIndex,
 	debugOverlay,
+	headless,
 }) => {
 	const src = usePreload(unpreloadedSrc);
 
@@ -166,13 +168,12 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
 
 	useEffect(() => {
-		if (!canvasRef.current) return;
 		if (!sharedAudioContext) return;
 		if (!sharedAudioContext.audioContext) return;
 
 		try {
 			const player = new MediaPlayer({
-				canvas: canvasRef.current!,
+				canvas: canvasRef.current,
 				src: preloadedSrc,
 				logLevel,
 				sharedAudioContext: sharedAudioContext.audioContext,
@@ -476,6 +477,10 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 				{...fallbackOffthreadVideoProps}
 			/>
 		);
+	}
+
+	if (headless) {
+		return null;
 	}
 
 	return (

@@ -203,7 +203,7 @@ export class MediaPlayer {
 				return {type: 'no-tracks'};
 			}
 
-			if (videoTrack && this.canvas && this.context) {
+			if (videoTrack) {
 				const canDecode = await videoTrack.canDecode();
 
 				if (!canDecode) {
