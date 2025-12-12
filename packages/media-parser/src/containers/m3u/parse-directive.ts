@@ -142,5 +142,19 @@ export const parseM3uDirective = (str: string): M3uBox => {
 		};
 	}
 
+	if (directive === '#EXT-X-PROGRAM-DATE-TIME') {
+		if (!value) {
+			throw new Error('#EXT-X-PROGRAM-DATE-TIME directive must have a value');
+		}
+
+		// Store the raw ISO 8601 date-time string without validation.
+		// This directive associates media segments with absolute dates but
+		// doesn't affect parsing of tracks, dimensions, or other metadata.
+		return {
+			type: 'm3u-program-date-time',
+			dateTime: value,
+		};
+	}
+
 	throw new Error(`Unknown directive ${directive}. Value: ${value}`);
 };
