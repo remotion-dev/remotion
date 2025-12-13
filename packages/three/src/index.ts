@@ -1,31 +1,33 @@
 export {ThreeCanvas, ThreeCanvasProps} from './ThreeCanvas';
+import type {UseOffthreadVideoTextureOptions as UseOffthreadVideoTextureOptionsType} from './use-offthread-video-texture';
+import {useOffthreadVideoTexture as useOffthreadVideoTextureType} from './use-offthread-video-texture';
+import type {UseVideoTextureOptions as UseVideoTextureOptionsType} from './use-video-texture';
+import {useVideoTexture as useVideoTextureType} from './use-video-texture';
 
 /**
  * @deprecated useOffthreadVideoTexture has been deprecated.
  * Use the approach documented at https://remotion.dev/docs/videos/as-threejs-texture instead.
  */
-export type {UseOffthreadVideoTextureOptions} from './use-offthread-video-texture';
+const useOffthreadVideoTexture = useOffthreadVideoTextureType;
 /**
  * @deprecated useOffthreadVideoTexture has been deprecated.
  * Use the approach documented at https://remotion.dev/docs/videos/as-threejs-texture instead.
  */
-export const useOffthreadVideoTexture = () => {
-	throw new Error(
-		'useOffthreadVideoTexture has been deprecated. Please see https://remotion.dev/docs/videos/as-threejs-texture for alternatives.',
-	);
-};
-
+type UseOffthreadVideoTextureOptions = UseOffthreadVideoTextureOptionsType;
 /**
  * @deprecated useVideoTexture has been deprecated.
  * Use the approach documented at https://remotion.dev/docs/videos/as-threejs-texture instead.
  */
-export type {UseVideoTextureOptions} from './use-video-texture';
+const useVideoTexture = useVideoTextureType;
 /**
  * @deprecated useVideoTexture has been deprecated.
- * Use the approach documented at https://remotion.dev/docs/videos/as-threejs-texture for alternatives.
+ * Use the approach documented at https://remotion.dev/docs/videos/as-threejs-texture instead.
  */
-export const useVideoTexture = () => {
-	throw new Error(
-		'useVideoTexture has been deprecated. Please see https://remotion.dev/docs/videos/as-threejs-texture for alternatives.',
-	);
+type UseVideoTextureOptions = UseVideoTextureOptionsType;
+
+export {
+	useOffthreadVideoTexture,
+	UseOffthreadVideoTextureOptions,
+	useVideoTexture,
+	UseVideoTextureOptions,
 };
