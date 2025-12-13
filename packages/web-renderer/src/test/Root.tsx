@@ -1,6 +1,6 @@
 // bun run studio
 import React from 'react';
-import {Composition} from 'remotion';
+import {Composition, Folder} from 'remotion';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {backgroundColor} from './fixtures/background-color';
 import {border} from './fixtures/border';
@@ -26,7 +26,8 @@ import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
-import {textFixture} from './fixtures/text';
+import {paragraphs} from './fixtures/text/paragraphs';
+import {textFixture} from './fixtures/text/text';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 
 export const Root: React.FC = () => {
@@ -58,7 +59,10 @@ export const Root: React.FC = () => {
 			<Composition {...opacityZero} />
 			<Composition {...backgroundColor} />
 			<Composition {...border} />
-			<Composition {...textFixture} />
+			<Folder name="Text">
+				<Composition {...textFixture} />
+				<Composition {...paragraphs} />
+			</Folder>
 		</>
 	);
 };

@@ -1,6 +1,6 @@
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
-import {textFixture} from './fixtures/text';
+import {textFixture} from './fixtures/text/text';
 import {testImage} from './utils';
 
 test('should render text', async () => {
