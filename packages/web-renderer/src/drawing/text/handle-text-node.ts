@@ -1,3 +1,15 @@
+// Supported:
+// - fontFamily
+// - fontSize
+// - fontWeight
+// - color
+// - lineHeight
+// - direction
+
+// Not supported:
+// - writingMode
+// - textDecoration
+
 import {Internals} from 'remotion';
 import {getCollapsedText} from './get-collapsed-text';
 
@@ -5,9 +17,6 @@ export const handleTextNode = (
 	node: Text,
 	context: OffscreenCanvasRenderingContext2D,
 ) => {
-	// Save the canvas context state
-	context.save();
-
 	// Create a new span element
 	const span = document.createElement('span');
 	const parent = node.parentNode;
@@ -18,6 +27,10 @@ export const handleTextNode = (
 	parent.insertBefore(span, node);
 	span.appendChild(node);
 	const rect = span.getBoundingClientRect();
+
+	// Save the canvas context state
+	context.save();
+
 	const style = getComputedStyle(span);
 	const {
 		fontFamily,
