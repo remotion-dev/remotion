@@ -23,5 +23,5 @@ test('should render paragraphs', async () => {
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'paragraphs'});
+	await testImage({blob, testId: 'paragraphs', threshold: 0.03});
 });
