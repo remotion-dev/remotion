@@ -34,7 +34,7 @@ export const testImage = async ({
 	await expect(page.getByTestId(testId)).toMatchScreenshot(testId, {
 		comparatorOptions: {
 			threshold,
-			allowedMismatchedPixelRatio: 0.01,
+			allowedMismatchedPixelRatio: 0.001,
 		},
 	});
 };

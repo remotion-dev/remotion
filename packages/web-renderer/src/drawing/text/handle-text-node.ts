@@ -79,15 +79,17 @@ export const handleTextNode = async (
 
 			// For RTL text, fill from the right edge instead of left
 			const xPosition = isRTL ? rect.right : rect.left;
-			// TODO: Does not work with RTL
-			const lines = findLineBreaks(span);
+			const lines = findLineBreaks(span, isRTL);
+
+			let offsetTop = 0;
 
 			for (const line of lines) {
 				context.fillText(
 					line.text,
-					xPosition,
-					rect.top + baselineOffset + line.offsetTop,
+					xPosition + line.offsetHorizontal,
+					rect.top + baselineOffset + offsetTop,
 				);
+				offsetTop += line.offsetTop;
 			}
 
 			span.textContent = originalText;
