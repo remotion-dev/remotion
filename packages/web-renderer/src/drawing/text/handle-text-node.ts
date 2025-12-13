@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import {getCollapsedText} from './get-collapsed-text';
 
 export const handleTextNode = (
@@ -18,16 +19,18 @@ export const handleTextNode = (
 	span.appendChild(node);
 	const rect = span.getBoundingClientRect();
 	const style = getComputedStyle(span);
-	const {fontFamily, fontSize, fontWeight, color, lineHeight, direction} =
-		style;
+	const {
+		fontFamily,
+		fontSize,
+		fontWeight,
+		color,
+		lineHeight,
+		direction,
+		writingMode,
+	} = style;
 
 	context.font = `${fontWeight} ${fontSize} ${fontFamily}`;
 	context.fillStyle = color;
-	context.textBaseline = 'top';
-
-	// Handle RTL text rendering
-	const isRTL = direction === 'rtl';
-	context.textAlign = isRTL ? 'right' : 'left';
 
 	// Calculate the baseline position considering line height
 	const fontSizePx = parseFloat(fontSize);
@@ -37,14 +40,32 @@ export const handleTextNode = (
 
 	const baselineOffset = (lineHeightPx - fontSizePx) / 2;
 
-	// For RTL text, fill from the right edge instead of left
-	const xPosition = isRTL ? rect.right : rect.left;
+	// Handle different writing modes
+	const isVertical = writingMode !== 'horizontal-tb';
 
-	context.fillText(
-		getCollapsedText(span),
-		xPosition,
-		rect.top + baselineOffset,
-	);
+	if (isVertical) {
+		Internals.Log.warn(
+			{
+				logLevel: 'warn',
+				tag: '@remotion/web-renderer',
+			},
+			'Vertical text is not yet supported in @remotion/web-renderer',
+		);
+	} else {
+		// Horizontal text (LTR or RTL)
+		const isRTL = direction === 'rtl';
+		context.textAlign = isRTL ? 'right' : 'left';
+		context.textBaseline = 'top';
+
+		// For RTL text, fill from the right edge instead of left
+		const xPosition = isRTL ? rect.right : rect.left;
+
+		context.fillText(
+			getCollapsedText(span),
+			xPosition,
+			rect.top + baselineOffset,
+		);
+	}
 
 	// Undo the layout manipulation
 	parent.insertBefore(node, span);
