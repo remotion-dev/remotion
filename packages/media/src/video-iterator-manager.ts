@@ -60,7 +60,7 @@ export const videoIteratorManager = ({
 		);
 	};
 
-	const startVideoIterator = async (
+	const startVideoIteratorWithoutDelayPlayback = async (
 		timeToSeek: number,
 		nonce: Nonce,
 	): Promise<void> => {
@@ -69,9 +69,7 @@ export const videoIteratorManager = ({
 		videoIteratorsCreated++;
 		videoFrameIterator = iterator;
 
-		const delayHandle = delayPlaybackHandleIfNotPremounting();
 		const frameResult = await iterator.getNext();
-		delayHandle.unblock();
 
 		if (iterator.isDestroyed()) {
 			return;
@@ -91,6 +89,18 @@ export const videoIteratorManager = ({
 		}
 
 		drawFrame(frameResult.value);
+	};
+
+	const startVideoIterator = async (
+		timeToSeek: number,
+		nonce: Nonce,
+	): Promise<void> => {
+		const delayHandle = delayPlaybackHandleIfNotPremounting();
+		try {
+			await startVideoIteratorWithoutDelayPlayback(timeToSeek, nonce);
+		} finally {
+			delayHandle.unblock();
+		}
 	};
 
 	const seek = async ({newTime, nonce}: {newTime: number; nonce: Nonce}) => {
@@ -114,10 +124,14 @@ export const videoIteratorManager = ({
 			return;
 		}
 
-		// Intentionally not awaited, letting audio start as well
-		startVideoIterator(newTime, nonce).catch(() => {
-			// Ignore errors, might be stale or disposed
-		});
+		// Block at the seek level, not inside startVideoIterator
+		// This ensures only one block/unblock cycle per seek operation
+		const delayHandle = delayPlaybackHandleIfNotPremounting();
+		try {
+			await startVideoIteratorWithoutDelayPlayback(newTime, nonce);
+		} finally {
+			delayHandle.unblock();
+		}
 	};
 
 	return {
