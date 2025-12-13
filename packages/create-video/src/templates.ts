@@ -44,7 +44,8 @@ export type Template = {
 		| 'tiktok'
 		| 'code-hike'
 		| 'render-server'
-		| 'recorder';
+		| 'recorder'
+		| 'code-generation';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -529,6 +530,28 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-tiktok',
 		allowEnableTailwind: true,
+		contributedBy: null,
+	},
+	{
+		homePageLabel: 'Code Generation',
+		shortName: 'Code Generation',
+		org: 'remotion-dev',
+		repoName: 'template-code-generation',
+		description: 'AI-powered code generation for Remotion',
+		longerDescription:
+			'A template that uses AI to generate Remotion video code from prompts.',
+		promoBanner: {
+			width: 1280,
+			height: 720,
+			src: '/img/code-generation-template.png',
+		},
+		cliId: 'code-generation' as const,
+		type: 'image' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-code-generation',
+		allowEnableTailwind: false,
 		contributedBy: null,
 	},
 ].filter(truthy);
