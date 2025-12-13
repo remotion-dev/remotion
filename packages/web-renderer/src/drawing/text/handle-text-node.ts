@@ -18,11 +18,16 @@ export const handleTextNode = (
 	span.appendChild(node);
 	const rect = span.getBoundingClientRect();
 	const style = getComputedStyle(span);
-	const {fontFamily, fontSize, fontWeight, color, lineHeight} = style;
+	const {fontFamily, fontSize, fontWeight, color, lineHeight, direction} =
+		style;
 
 	context.font = `${fontWeight} ${fontSize} ${fontFamily}`;
 	context.fillStyle = color;
 	context.textBaseline = 'top';
+
+	// Handle RTL text rendering
+	const isRTL = direction === 'rtl';
+	context.textAlign = isRTL ? 'right' : 'left';
 
 	// Calculate the baseline position considering line height
 	const fontSizePx = parseFloat(fontSize);
@@ -32,9 +37,12 @@ export const handleTextNode = (
 
 	const baselineOffset = (lineHeightPx - fontSizePx) / 2;
 
+	// For RTL text, fill from the right edge instead of left
+	const xPosition = isRTL ? rect.right : rect.left;
+
 	context.fillText(
 		getCollapsedText(span),
-		rect.left,
+		xPosition,
 		rect.top + baselineOffset,
 	);
 
