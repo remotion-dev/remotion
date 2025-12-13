@@ -1,11 +1,12 @@
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 const Component: React.FC = () => {
 	return (
 		<AbsoluteFill
 			style={{
 				backgroundColor: 'white',
+				padding: 20,
 			}}
 		>
 			<div style={{width: 550}}>
@@ -18,7 +19,7 @@ const Component: React.FC = () => {
 				vertical text,
 				<p style={{writingMode: 'vertical-rl'}}>这是垂直文本</p>
 				an inline image (
-				<img width={150} src="wolf.jpg" alt="Wolf" />
+				<Img width={150} src={staticFile('1.jpg')} alt="Wolf" />
 				), and
 				<svg width={50} height={50}>
 					<circle cx={25} cy={25} r={20} fill="green" />
@@ -32,11 +33,11 @@ const Component: React.FC = () => {
 	);
 };
 
-export const simpleRotatedSvg = {
+export const textFixture = {
 	component: Component,
-	id: 'paragraph-with-strong',
-	width: 100,
-	height: 100,
+	id: 'text',
+	width: 550,
+	height: 400,
 	fps: 30,
 	durationInFrames: 100,
 } as const;

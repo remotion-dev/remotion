@@ -1,4 +1,5 @@
 import {drawElementToCanvas} from './drawing/draw-element-to-canvas';
+import {handleTextNode} from './drawing/text/handle-text-node';
 
 export const compose = async (
 	element: HTMLDivElement,
@@ -23,6 +24,8 @@ export const compose = async (
 		const node = treeWalker.currentNode;
 		if (node instanceof HTMLElement || node instanceof SVGElement) {
 			await drawElementToCanvas({element: node, context});
+		} else if (node instanceof Text) {
+			handleTextNode(node, context);
 		}
 	}
 };
