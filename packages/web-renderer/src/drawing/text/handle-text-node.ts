@@ -12,6 +12,7 @@
 
 import {Internals} from 'remotion';
 import {drawElementToCanvas} from '../draw-element-to-canvas';
+import {findLineBreaks} from './find-line-breaks.text';
 import {getCollapsedText} from './get-collapsed-text';
 
 export const handleTextNode = async (
@@ -71,14 +72,24 @@ export const handleTextNode = async (
 			context.textAlign = isRTL ? 'right' : 'left';
 			context.textBaseline = 'top';
 
+			// TODO: Inefficient, too many DOM operations, getCollapsedText reverts is befoer
+			const originalText = span.textContent;
+			const collapsedText = getCollapsedText(span);
+			span.textContent = collapsedText;
+
 			// For RTL text, fill from the right edge instead of left
 			const xPosition = isRTL ? rect.right : rect.left;
+			const lines = findLineBreaks(span);
 
-			context.fillText(
-				getCollapsedText(span),
-				xPosition,
-				rect.top + baselineOffset,
-			);
+			for (const line of lines) {
+				context.fillText(
+					line.text,
+					xPosition,
+					rect.top + baselineOffset + line.offsetTop,
+				);
+			}
+
+			span.textContent = originalText;
 
 			context.restore();
 		},
