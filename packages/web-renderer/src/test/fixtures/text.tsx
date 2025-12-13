@@ -11,7 +11,10 @@ const Component: React.FC = () => {
 		>
 			<div style={{width: 550}}>
 				Hello from{' '}
-				<a href="https://github.com/WICG/html-in-canvas">html-in-canvas</a>!
+				<a href="https://github.com/WICG/html-in-canvas">
+					remotion-web-renderer
+				</a>
+				!
 				<br />I{"'"}m multi-line, <b>formatted</b>, rotated text with emoji
 				(&#128512;), RTL text
 				<span dir="rtl">من فارسی صحبت میکنم</span>

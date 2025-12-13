@@ -1,3 +1,5 @@
+import {getCollapsedText} from './get-collapsed-text';
+
 export const handleTextNode = (
 	node: Text,
 	context: OffscreenCanvasRenderingContext2D,
@@ -16,11 +18,25 @@ export const handleTextNode = (
 	span.appendChild(node);
 	const rect = span.getBoundingClientRect();
 	const style = getComputedStyle(span);
-	const {fontFamily, fontSize, color} = style;
+	const {fontFamily, fontSize, fontWeight, color, lineHeight} = style;
 
-	context.font = `${fontSize} ${fontFamily}`;
+	context.font = `${fontWeight} ${fontSize} ${fontFamily}`;
 	context.fillStyle = color;
-	context.fillText(node.textContent, rect.left, rect.top);
+	context.textBaseline = 'top';
+
+	// Calculate the baseline position considering line height
+	const fontSizePx = parseFloat(fontSize);
+	// TODO: This is not necessarily correct, need to create text and measur to know for sure
+	const lineHeightPx =
+		lineHeight === 'normal' ? 1.2 * fontSizePx : parseFloat(lineHeight);
+
+	const baselineOffset = (lineHeightPx - fontSizePx) / 2;
+
+	context.fillText(
+		getCollapsedText(span),
+		rect.left,
+		rect.top + baselineOffset,
+	);
 
 	// Undo the layout manipulation
 	parent.insertBefore(node, span);
