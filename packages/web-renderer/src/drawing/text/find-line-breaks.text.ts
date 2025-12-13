@@ -3,9 +3,12 @@ export function findLineBreaks(span: HTMLSpanElement): Array<{
 	offsetTop: number;
 }> {
 	const textNode = span.childNodes[0] as Text;
-	const originalText = textNode.textContent || '';
+	const originalText = textNode.textContent;
 
-	const words = originalText.split(' ');
+	const segmenter = new Intl.Segmenter('en', {granularity: 'word'});
+	const segments = segmenter.segment(originalText);
+
+	const words = Array.from(segments).map((s) => s.segment);
 	const lines: Array<{text: string; offsetTop: number}> = [];
 
 	let currentLine = '';
@@ -14,7 +17,7 @@ export function findLineBreaks(span: HTMLSpanElement): Array<{
 
 	for (let i = 0; i < words.length; i += 1) {
 		const word = words[i];
-		const testText = currentLine ? `${currentLine} ${word}` : word;
+		const testText = currentLine ? `${currentLine}${word}` : word;
 
 		textNode.textContent = testText;
 
@@ -29,7 +32,7 @@ export function findLineBreaks(span: HTMLSpanElement): Array<{
 		}
 
 		// If height changed significantly, we had a line break
-		if (Math.abs(currentHeight - previousHeight) > 2) {
+		if (Math.abs(currentHeight - previousHeight) > 2 && previousHeight !== 0) {
 			// The previous line is complete, measure it
 			textNode.textContent = currentLine;
 

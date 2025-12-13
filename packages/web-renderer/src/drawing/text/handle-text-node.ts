@@ -79,6 +79,7 @@ export const handleTextNode = async (
 
 			// For RTL text, fill from the right edge instead of left
 			const xPosition = isRTL ? rect.right : rect.left;
+			// TODO: Does not work with RTL
 			const lines = findLineBreaks(span);
 
 			for (const line of lines) {
