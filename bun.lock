@@ -1389,6 +1389,7 @@
         "@remotion/google-fonts": "workspace:*",
         "@remotion/install-whisper-cpp": "workspace:*",
         "@remotion/layout-utils": "workspace:*",
+        "@remotion/media": "workspace:*",
         "@remotion/media-parser": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/zod-types": "workspace:*",
