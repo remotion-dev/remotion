@@ -11,7 +11,7 @@ export const drawElementToCanvas = async ({
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
-	draw: (dimensions: DOMRect) => Promise<void>;
+	draw: (dimensions: DOMRect) => Promise<void> | void;
 }) => {
 	const {totalMatrix, reset, dimensions, opacity} =
 		calculateTransforms(element);
