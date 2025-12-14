@@ -343,11 +343,11 @@ export class MediaPlayer {
 		}
 
 		await Promise.all([
-			await this.videoIteratorManager?.seek({
+			this.videoIteratorManager?.seek({
 				newTime,
 				nonce,
 			}),
-			await this.audioIteratorManager?.seek({
+			this.audioIteratorManager?.seek({
 				newTime,
 				nonce,
 				fps: this.fps,
