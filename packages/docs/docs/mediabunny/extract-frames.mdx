@@ -28,65 +28,51 @@ export type ExtractFramesProps = {
 };
 
 export async function extractFrames({src, timestampsInSeconds, onVideoSample, signal}: ExtractFramesProps): Promise<void> {
-  const input = new Input({
+  using input = new Input({
     formats: ALL_FORMATS,
     source: new UrlSource(src),
   });
 
-  const dispose = () => {
-    input.dispose();
-  };
-
-  if (signal) {
-    signal.addEventListener('abort', dispose, {once: true});
+  const [durationInSeconds, format, videoTrack] = await Promise.all([input.computeDuration(), input.getFormat(), input.getPrimaryVideoTrack()]);
+  if (!videoTrack) {
+    throw new Error('No video track found in the input');
+  }
+  if (signal?.aborted) {
+    throw new Error('Aborted');
   }
 
-  try {
-    const [durationInSeconds, format, videoTrack] = await Promise.all([input.computeDuration(), input.getFormat(), input.getPrimaryVideoTrack()]);
-    if (!videoTrack) {
-      throw new Error('No video track found in the input');
+  const timestamps =
+    typeof timestampsInSeconds === 'function'
+      ? await timestampsInSeconds({
+          track: {
+            width: videoTrack.displayWidth,
+            height: videoTrack.displayHeight,
+          },
+          container: format.name,
+          durationInSeconds,
+        })
+      : timestampsInSeconds;
+
+  if (timestamps.length === 0) {
+    return;
+  }
+
+  if (signal?.aborted) {
+    throw new Error('Aborted');
+  }
+
+  const sink = new VideoSampleSink(videoTrack);
+
+  for await (using videoSample of sink.samplesAtTimestamps(timestamps)) {
+    if (signal?.aborted) {
+      break;
     }
 
-    const timestamps =
-      typeof timestampsInSeconds === 'function'
-        ? await timestampsInSeconds({
-            track: {
-              width: videoTrack.displayWidth,
-              height: videoTrack.displayHeight,
-            },
-            container: format.name,
-            durationInSeconds,
-          })
-        : timestampsInSeconds;
-
-    if (timestamps.length === 0) {
-      return;
+    if (!videoSample) {
+      continue;
     }
 
-    const sink = new VideoSampleSink(videoTrack);
-
-    for await (const videoSample of sink.samplesAtTimestamps(timestamps)) {
-      if (signal?.aborted) {
-        break;
-      }
-
-      if (!videoSample) {
-        continue;
-      }
-
-      onVideoSample(videoSample);
-    }
-  } catch (error) {
-    if (error instanceof InputDisposedError) {
-      return;
-    }
-
-    throw error;
-  } finally {
-    dispose();
-    if (signal) {
-      signal.removeEventListener('abort', dispose);
-    }
+    onVideoSample(videoSample);
   }
 }
 ```
@@ -100,18 +86,12 @@ await extractFrames({
   src: 'https://remotion.media/video.mp4',
   timestampsInSeconds: [0, 1, 2, 3, 4],
   onVideoSample: (sample) => {
-    // Convert sample to VideoFrame
-    const frame = sample.toVideoFrame();
-
     // Draw frame to canvas
     const canvas = document.createElement('canvas');
-    canvas.width = frame.displayWidth;
-    canvas.height = frame.displayHeight;
+    canvas.width = sample.displayWidth;
+    canvas.height = sample.displayHeight;
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(frame, 0, 0);
-
-    // Don't forget to close the frame when done
-    frame.close();
+    sample.draw(ctx!, 0, 0);
   },
 });
 ```
@@ -141,39 +121,26 @@ await extractFrames({
     return timestamps;
   },
   onVideoSample: (sample) => {
-    // Convert to VideoFrame if needed
-    const frame = sample.toVideoFrame();
-
-    // Process the frame
+    // Process the sample
     console.log(`Frame at ${sample.timestamp}s`);
 
-    // Clean up
-    frame.close();
+    // Draw to canvas or process as needed
+    const canvas = document.createElement('canvas');
+    canvas.width = sample.displayWidth;
+    canvas.height = sample.displayHeight;
+    const ctx = canvas.getContext('2d');
+    sample.draw(ctx!, 0, 0);
   },
 });
 ```
 
-## Important notes
+## Memory management
 
-### Memory management
+The the example above, the [`using`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/using) keyword is used to automatically close the `VideoSample` and `Ìnput` objects when they goes out of scope. Make sure to keep no references to them to ensure proper cleanup.
 
-The `onVideoSample` callback receives a `VideoSample` object. You need to convert it to a `VideoFrame` using `.toVideoFrame()`, and always close the `VideoFrame` when you're done with it to prevent memory leaks:
+## Abort frame extraction
 
-```ts
-onVideoSample: (sample) => {
-  const frame = sample.toVideoFrame();
-
-  // Use the frame
-  ctx.drawImage(frame, 0, 0);
-
-  // Clean up
-  frame.close();
-};
-```
-
-### Abort handling
-
-Use an `AbortSignal` to cancel frame extraction:
+Pass an [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel frame extraction:
 
 ```ts
 const controller = new AbortController();
@@ -181,22 +148,71 @@ const controller = new AbortController();
 // Cancel after 5 seconds
 setTimeout(() => controller.abort(), 5000);
 
-await extractFrames({
-  src: 'https://example.com/video.mp4',
-  timestampsInSeconds: [0, 1, 2, 3, 4],
-  onVideoSample: (sample) => {
-    const frame = sample.toVideoFrame();
-    // Process frame
-    frame.close();
-  },
-  signal: controller.signal,
+try {
+  await extractFrames({
+    src: 'https://example.com/video.mp4',
+    timestampsInSeconds: [0, 1, 2, 3, 4],
+    onVideoSample: (sample) => {
+      using frame = sample;
+      const canvas = document.createElement('canvas');
+      canvas.width = frame.displayWidth;
+      canvas.height = frame.displayHeight;
+      const ctx = canvas.getContext('2d');
+      frame.draw(ctx!, 0, 0);
+    },
+    signal: controller.signal,
+  });
+
+  console.log('Frame extraction complete!');
+} catch (error) {
+  console.error('Frame extraction was aborted or failed:', error);
+}
+```
+
+## Setting a timeout
+
+Here is how you can set a maximum duration for extracting frames:
+
+```ts title="Fail if not able to extract within 10 seconds"
+const controller = new AbortController();
+
+const timeoutPromise = new Promise<never>((_, reject) => {
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+    reject(new Error('Frame extraction timed out after 10 seconds'));
+  }, 10000);
+
+  controller.signal.addEventListener('abort', () => clearTimeout(timeoutId), {once: true});
 });
+
+try {
+  await Promise.race([
+    extractFrames({
+      src: 'https://example.com/video.mp4',
+      timestampsInSeconds: [0, 1, 2, 3, 4],
+      onVideoSample: (sample) => {
+        using frame = sample;
+        const canvas = document.createElement('canvas');
+        canvas.width = frame.displayWidth;
+        canvas.height = frame.displayHeight;
+        const ctx = canvas.getContext('2d');
+        frame.draw(ctx!, 0, 0);
+      },
+      signal: controller.signal,
+    }),
+    timeoutPromise,
+  ]);
+
+  console.log('Frame extraction complete!');
+} catch (error) {
+  console.error('Frame extraction was aborted or failed:', error);
+}
 ```
 
 ## See also
 
-- [Extracting thumbnail](/docs/mediabunny/extract-thumbnail) - Extract a single frame from a video
+- [Extracting a single thumbnail](/docs/mediabunny/extract-thumbnail) - Extract a single frame from a video
 - [Mediabunny Documentation](https://mediabunny.dev)
 - [Packets & samples in Mediabunny](https://mediabunny.dev/guide/packets-and-samples)
-- [VideoSampleSink API](https://mediabunny.dev/api/class/VideoSampleSink)
+- [`VideoSampleSink` API](https://mediabunny.dev/api/class/VideoSampleSink)
 - [Supported formats](/docs/mediabunny/formats)
