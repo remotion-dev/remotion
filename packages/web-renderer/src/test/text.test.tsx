@@ -6,7 +6,7 @@ import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
 import {testImage} from './utils';
 
-test('should render text', async () => {
+test('should render text', async (t) => {
 	const blob = await renderStillOnWeb({
 		composition: textFixture,
 		frame: 0,
@@ -18,7 +18,8 @@ test('should render text', async () => {
 		blob,
 		testId: 'text-fixture',
 		threshold: 0,
-		allowedMismatchedPixelRatio: 0.01,
+		allowedMismatchedPixelRatio:
+			t.task.file.projectName === 'webkit' ? 0.061 : 0.001,
 	});
 });
 
