@@ -31,9 +31,9 @@ export function findLineBreaks(
 	textNode.textContent = '';
 
 	for (let i = 0; i < words.length; i += 1) {
-		const _word = words[i];
-		testText += _word;
-		let wordsToAdd = _word;
+		const word = words[i];
+		testText += word;
+		let wordsToAdd = word;
 		while (typeof words[i + 1] !== 'undefined' && words[i + 1].trim() === '') {
 			testText += words[i + 1];
 			wordsToAdd += words[i + 1];
