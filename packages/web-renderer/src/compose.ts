@@ -1,4 +1,6 @@
 import {drawElementToCanvas} from './drawing/draw-element-to-canvas';
+import {handleTextNode} from './drawing/text/handle-text-node';
+import {turnSvgIntoDrawable} from './drawing/turn-svg-into-drawable';
 
 export const compose = async (
 	element: HTMLDivElement,
@@ -9,7 +11,14 @@ export const compose = async (
 		NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
 		(node) => {
 			if (node instanceof Element) {
+				// SVG does have children, but we process SVG elements in its
+				// entirety
+				if (node.parentElement instanceof SVGSVGElement) {
+					return NodeFilter.FILTER_REJECT;
+				}
+
 				const computedStyle = getComputedStyle(node);
+
 				return computedStyle.display === 'none'
 					? NodeFilter.FILTER_REJECT
 					: NodeFilter.FILTER_ACCEPT;
@@ -22,7 +31,31 @@ export const compose = async (
 	while (treeWalker.nextNode()) {
 		const node = treeWalker.currentNode;
 		if (node instanceof HTMLElement || node instanceof SVGElement) {
-			await drawElementToCanvas({element: node, context});
+			await drawElementToCanvas({
+				element: node,
+				context,
+				draw: async (dimensions) => {
+					const drawable = await (node instanceof SVGSVGElement
+						? turnSvgIntoDrawable(node)
+						: node instanceof HTMLImageElement
+							? node
+							: node instanceof HTMLCanvasElement
+								? node
+								: null);
+
+					if (drawable) {
+						context.drawImage(
+							drawable,
+							dimensions.left,
+							dimensions.top,
+							dimensions.width,
+							dimensions.height,
+						);
+					}
+				},
+			});
+		} else if (node instanceof Text) {
+			await handleTextNode(node, context);
 		}
 	}
 };

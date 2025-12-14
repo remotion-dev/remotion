@@ -1,12 +1,6 @@
 import React from "react";
-import {
-  AbsoluteFill,
-  Html5Audio,
-  Img,
-  Sequence,
-  useVideoConfig,
-} from "remotion";
-
+import { AbsoluteFill, Img, Sequence, useVideoConfig } from "remotion";
+import { Audio } from "@remotion/media";
 import { PaginatedCaptions } from "./Captions";
 import { Spectrum } from "./Spectrum";
 import {
@@ -48,7 +42,7 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   return (
     <AbsoluteFill>
       <Sequence from={-audioOffsetInFrames}>
-        <Html5Audio pauseWhenBuffering src={audioFileUrl} />
+        <Audio src={audioFileUrl} />
         <div
           style={{
             display: "flex",

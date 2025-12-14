@@ -3,16 +3,20 @@ import {calculateTransforms} from './calculate-transforms';
 import {drawBorder} from './draw-border';
 import {setOpacity} from './opacity';
 import {setTransform} from './transform';
-import {turnSvgIntoDrawable} from './turn-svg-into-drawable';
 
 export const drawElementToCanvas = async ({
 	element,
 	context,
+	draw,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
+	draw: (
+		dimensions: DOMRect,
+		computedStyle: CSSStyleDeclaration,
+	) => Promise<void> | void;
 }) => {
-	const {totalMatrix, reset, dimensions, opacity} =
+	const {totalMatrix, reset, dimensions, opacity, computedStyle} =
 		calculateTransforms(element);
 
 	if (opacity === 0) {
@@ -25,7 +29,6 @@ export const drawElementToCanvas = async ({
 		return;
 	}
 
-	const computedStyle = getComputedStyle(element);
 	const background = computedStyle.backgroundColor;
 	const borderRadius = parseBorderRadius({
 		borderRadius: computedStyle.borderRadius,
@@ -50,15 +53,6 @@ export const drawElementToCanvas = async ({
 		opacity,
 	});
 
-	const drawable =
-		element instanceof SVGSVGElement
-			? await turnSvgIntoDrawable(element)
-			: element instanceof HTMLImageElement
-				? element
-				: element instanceof HTMLCanvasElement
-					? element
-					: null;
-
 	if (
 		background &&
 		background !== 'transparent' &&
@@ -78,15 +72,7 @@ export const drawElementToCanvas = async ({
 		context.fillStyle = originalFillStyle;
 	}
 
-	if (drawable) {
-		context.drawImage(
-			drawable,
-			dimensions.left,
-			dimensions.top,
-			dimensions.width,
-			dimensions.height,
-		);
-	}
+	await draw(dimensions, computedStyle);
 
 	drawBorder({
 		ctx: context,
