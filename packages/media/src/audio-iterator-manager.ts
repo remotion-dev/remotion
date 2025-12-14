@@ -26,6 +26,7 @@ export const audioIteratorManager = ({
 	const audioSink = new AudioBufferSink(audioTrack);
 	let audioBufferIterator: AudioIterator | null = null;
 	let audioIteratorsCreated = 0;
+	let currentDelayHandle: {unblock: () => void} | null = null;
 
 	const scheduleAudioChunk = ({
 		buffer,
@@ -114,6 +115,7 @@ export const audioIteratorManager = ({
 	}) => {
 		audioBufferIterator?.destroy();
 		const delayHandle = delayPlaybackHandleIfNotPremounting();
+		currentDelayHandle = delayHandle;
 
 		const iterator = makeAudioIterator(audioSink, startFromSecond);
 		audioIteratorsCreated++;
@@ -157,6 +159,7 @@ export const audioIteratorManager = ({
 			throw e;
 		} finally {
 			delayHandle.unblock();
+			currentDelayHandle = null;
 		}
 	};
 
@@ -328,6 +331,11 @@ export const audioIteratorManager = ({
 		destroyIterator: () => {
 			audioBufferIterator?.destroy();
 			audioBufferIterator = null;
+
+			if (currentDelayHandle) {
+				currentDelayHandle.unblock();
+				currentDelayHandle = null;
+			}
 		},
 		seek,
 		getAudioIteratorsCreated: () => audioIteratorsCreated,

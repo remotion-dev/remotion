@@ -28,6 +28,7 @@ export const videoIteratorManager = ({
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
 	let framesRendered = 0;
+	let currentDelayHandle: {unblock: () => void} | null = null;
 
 	if (canvas) {
 		canvas.width = videoTrack.displayWidth;
@@ -70,8 +71,15 @@ export const videoIteratorManager = ({
 		videoFrameIterator = iterator;
 
 		const delayHandle = delayPlaybackHandleIfNotPremounting();
-		const frameResult = await iterator.getNext();
-		delayHandle.unblock();
+		currentDelayHandle = delayHandle;
+
+		let frameResult: IteratorResult<WrappedCanvas, void>;
+		try {
+			frameResult = await iterator.getNext();
+		} finally {
+			delayHandle.unblock();
+			currentDelayHandle = null;
+		}
 
 		if (iterator.isDestroyed()) {
 			return;
@@ -125,6 +133,11 @@ export const videoIteratorManager = ({
 			videoFrameIterator?.destroy();
 			if (context && canvas) {
 				context.clearRect(0, 0, canvas.width, canvas.height);
+			}
+
+			if (currentDelayHandle) {
+				currentDelayHandle.unblock();
+				currentDelayHandle = null;
 			}
 
 			videoFrameIterator = null;
