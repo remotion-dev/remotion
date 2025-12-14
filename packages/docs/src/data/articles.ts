@@ -3447,6 +3447,15 @@ export const articles = [
 		slug: 'mediabunny/extract-frames',
 	},
 	{
+		id: 'mediabunny/extract-thumbnail',
+		title: 'Extracting a thumbnail from a video in JavaScript',
+		relativePath: 'docs/mediabunny/extract-thumbnail.mdx',
+		compId: 'articles-docs-mediabunny-extract-thumbnail',
+		crumb: 'Mediabunny',
+		noAi: false,
+		slug: 'mediabunny/extract-thumbnail',
+	},
+	{
 		id: 'mediabunny/formats',
 		title: 'Supported formats and codecs by Mediabunny',
 		relativePath: 'docs/mediabunny/formats.mdx',
@@ -6260,15 +6269,6 @@ export const articles = [
 		slug: 'use-img-and-iframe',
 	},
 	{
-		id: 'use-offthread-video-texture',
-		title: 'useOffthreadVideoTexture()',
-		relativePath: 'docs/use-offthread-video-texture.mdx',
-		compId: 'articles-docs-use-offthread-video-texture',
-		crumb: '@remotion/three',
-		noAi: false,
-		slug: 'use-offthread-video-texture',
-	},
-	{
 		id: 'use-remotion-environment',
 		title: 'useRemotionEnvironment()',
 		relativePath: 'docs/use-remotion-environment.mdx',
@@ -6285,15 +6285,6 @@ export const articles = [
 		crumb: 'API',
 		noAi: false,
 		slug: 'use-video-config',
-	},
-	{
-		id: 'use-video-texture',
-		title: 'useVideoTexture()',
-		relativePath: 'docs/use-video-texture.mdx',
-		compId: 'articles-docs-use-video-texture',
-		crumb: '@remotion/three',
-		noAi: false,
-		slug: 'use-video-texture',
 	},
 	{
 		id: 'use-windowed-audio-data',
