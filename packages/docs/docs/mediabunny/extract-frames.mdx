@@ -10,84 +10,102 @@ Extracting frames from a video file, for example to display a filmstrip in an ed
 Here's a `extractFrames()` function you can use copy and paste into your project:
 
 ```ts twoslash title="extract-frames.ts"
-import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+import {
+	ALL_FORMATS,
+	Input,
+	InputDisposedError,
+	UrlSource,
+	VideoSample,
+	VideoSampleSink,
+} from 'mediabunny';
 
 type Options = {
-  track: {width: number; height: number};
-  container: string;
-  durationInSeconds: number | null;
+	track: {width: number; height: number};
+	container: string;
+	durationInSeconds: number | null;
 };
 
-export type ExtractFramesTimestampsInSecondsFn = (options: Options) => Promise<number[]> | number[];
+export type ExtractFramesTimestampsInSecondsFn = (
+	options: Options,
+) => Promise<number[]> | number[];
 
 export type ExtractFramesProps = {
-  src: string;
-  timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
-  onVideoSample: (sample: VideoSample) => void;
-  signal?: AbortSignal;
+	src: string;
+	timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
+	onVideoSample: (sample: VideoSample) => void;
+	signal?: AbortSignal;
 };
 
-export async function extractFrames({src, timestampsInSeconds, onVideoSample, signal}: ExtractFramesProps): Promise<void> {
-  const input = new Input({
-    formats: ALL_FORMATS,
-    source: new UrlSource(src),
-  });
+export async function extractFrames({
+	src,
+	timestampsInSeconds,
+	onVideoSample,
+	signal,
+}: ExtractFramesProps): Promise<void> {
+	const input = new Input({
+		formats: ALL_FORMATS,
+		source: new UrlSource(src),
+	});
 
-  const dispose = () => {
-    input.dispose();
-  };
+	const dispose = () => {
+		input.dispose();
+	};
 
-  if (signal) {
-    signal.addEventListener('abort', dispose, {once: true});
-  }
+	if (signal) {
+		signal.addEventListener('abort', dispose, {once: true});
+	}
 
-  try {
-    const [durationInSeconds, format, videoTrack] = await Promise.all([input.computeDuration(), input.getFormat(), input.getPrimaryVideoTrack()]);
-    if (!videoTrack) {
-      throw new Error('No video track found in the input');
-    }
+	try {
+		const [durationInSeconds, format, videoTrack] = await Promise.all([
+			input.computeDuration(),
+			input.getFormat(),
+			input.getPrimaryVideoTrack(),
+		]);
+		if (!videoTrack) {
+			throw new Error('No video track found in the input');
+		}
 
-    const timestamps =
-      typeof timestampsInSeconds === 'function'
-        ? await timestampsInSeconds({
-            track: {
-              width: videoTrack.displayWidth,
-              height: videoTrack.displayHeight,
-            },
-            container: format.name,
-            durationInSeconds,
-          })
-        : timestampsInSeconds;
+		const timestamps =
+			typeof timestampsInSeconds === 'function'
+				? await timestampsInSeconds({
+						track: {
+							width: videoTrack.displayWidth,
+							height: videoTrack.displayHeight,
+						},
+						container: format.name,
+						durationInSeconds,
+					})
+				: timestampsInSeconds;
 
-    if (timestamps.length === 0) {
-      return;
-    }
+		if (timestamps.length === 0) {
+			return;
+		}
 
-    const sink = new VideoSampleSink(videoTrack);
+		const sink = new VideoSampleSink(videoTrack);
 
-    for await (const videoSample of sink.samplesAtTimestamps(timestamps)) {
-      if (signal?.aborted) {
-        break;
-      }
+		for await (const videoSample of sink.samplesAtTimestamps(timestamps)) {
+			if (signal?.aborted) {
+				break;
+			}
 
-      if (!videoSample) {
-        continue;
-      }
+			if (!videoSample) {
+				continue;
+			}
 
-      onVideoSample(videoSample);
-    }
-  } catch (error) {
-    if (error instanceof InputDisposedError) {
-      return;
-    }
+			onVideoSample(videoSample);
+		}
+	} catch (error) {
+		if (error instanceof InputDisposedError) {
+			return;
+		}
 
-    throw error;
-  } finally {
-    dispose();
-    if (signal) {
-      signal.removeEventListener('abort', dispose);
-    }
-  }
+		throw error;
+	} finally {
+		dispose();
+		if (signal) {
+			signal.removeEventListener('abort', dispose);
+		}
+	}
 }
 ```
 
@@ -97,22 +115,22 @@ export async function extractFrames({src, timestampsInSeconds, onVideoSample, si
 
 ```ts
 await extractFrames({
-  src: 'https://remotion.media/video.mp4',
-  timestampsInSeconds: [0, 1, 2, 3, 4],
-  onVideoSample: (sample) => {
-    // Convert sample to VideoFrame
-    const frame = sample.toVideoFrame();
+	src: 'https://remotion.media/video.mp4',
+	timestampsInSeconds: [0, 1, 2, 3, 4],
+	onVideoSample: (sample) => {
+		// Convert sample to VideoFrame
+		const frame = sample.toVideoFrame();
 
-    // Draw frame to canvas
-    const canvas = document.createElement('canvas');
-    canvas.width = frame.displayWidth;
-    canvas.height = frame.displayHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(frame, 0, 0);
+		// Draw frame to canvas
+		const canvas = document.createElement('canvas');
+		canvas.width = frame.displayWidth;
+		canvas.height = frame.displayHeight;
+		const ctx = canvas.getContext('2d');
+		ctx.drawImage(frame, 0, 0);
 
-    // Don't forget to close the frame when done
-    frame.close();
-  },
+		// Don't forget to close the frame when done
+		frame.close();
+	},
 });
 ```
 
@@ -127,29 +145,33 @@ const fromSeconds = 0;
 const toSeconds = 10;
 
 await extractFrames({
-  src: 'https://example.com/video.mp4',
-  timestampsInSeconds: async ({track, durationInSeconds}) => {
-    const aspectRatio = track.width / track.height;
-    const amountOfFramesFit = Math.ceil(canvasWidth / (canvasHeight * aspectRatio));
-    const segmentDuration = toSeconds - fromSeconds;
-    const timestamps: number[] = [];
+	src: 'https://example.com/video.mp4',
+	timestampsInSeconds: async ({track, durationInSeconds}) => {
+		const aspectRatio = track.width / track.height;
+		const amountOfFramesFit = Math.ceil(
+			canvasWidth / (canvasHeight * aspectRatio),
+		);
+		const segmentDuration = toSeconds - fromSeconds;
+		const timestamps: number[] = [];
 
-    for (let i = 0; i < amountOfFramesFit; i++) {
-      timestamps.push(fromSeconds + (segmentDuration / amountOfFramesFit) * (i + 0.5));
-    }
+		for (let i = 0; i < amountOfFramesFit; i++) {
+			timestamps.push(
+				fromSeconds + (segmentDuration / amountOfFramesFit) * (i + 0.5),
+			);
+		}
 
-    return timestamps;
-  },
-  onVideoSample: (sample) => {
-    // Convert to VideoFrame if needed
-    const frame = sample.toVideoFrame();
+		return timestamps;
+	},
+	onVideoSample: (sample) => {
+		// Convert to VideoFrame if needed
+		const frame = sample.toVideoFrame();
 
-    // Process the frame
-    console.log(`Frame at ${sample.timestamp}s`);
+		// Process the frame
+		console.log(`Frame at ${sample.timestamp}s`);
 
-    // Clean up
-    frame.close();
-  },
+		// Clean up
+		frame.close();
+	},
 });
 ```
 
@@ -161,13 +183,13 @@ The `onVideoSample` callback receives a `VideoSample` object. You need to conver
 
 ```ts
 onVideoSample: (sample) => {
-  const frame = sample.toVideoFrame();
+	const frame = sample.toVideoFrame();
 
-  // Use the frame
-  ctx.drawImage(frame, 0, 0);
+	// Use the frame
+	ctx.drawImage(frame, 0, 0);
 
-  // Clean up
-  frame.close();
+	// Clean up
+	frame.close();
 };
 ```
 
@@ -182,19 +204,20 @@ const controller = new AbortController();
 setTimeout(() => controller.abort(), 5000);
 
 await extractFrames({
-  src: 'https://example.com/video.mp4',
-  timestampsInSeconds: [0, 1, 2, 3, 4],
-  onVideoSample: (sample) => {
-    const frame = sample.toVideoFrame();
-    // Process frame
-    frame.close();
-  },
-  signal: controller.signal,
+	src: 'https://example.com/video.mp4',
+	timestampsInSeconds: [0, 1, 2, 3, 4],
+	onVideoSample: (sample) => {
+		const frame = sample.toVideoFrame();
+		// Process frame
+		frame.close();
+	},
+	signal: controller.signal,
 });
 ```
 
 ## See also
 
+- [Extracting thumbnail](/docs/mediabunny/extract-thumbnail) - Extract a single frame from a video
 - [Mediabunny Documentation](https://mediabunny.dev)
 - [Packets & samples in Mediabunny](https://mediabunny.dev/guide/packets-and-samples)
 - [VideoSampleSink API](https://mediabunny.dev/api/class/VideoSampleSink)
