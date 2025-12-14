@@ -62,7 +62,7 @@ export const handleTextNode = async (
 			context.fillStyle = color;
 
 			const fontSizePx = parseFloat(fontSize);
-			// TODO: This is not necessarily correct, need to create text and measur to know for sure
+			// TODO: This is not necessarily correct, need to create text and measure to know for sure
 			const lineHeightPx =
 				lineHeight === 'normal' ? 1.2 * fontSizePx : parseFloat(lineHeight);
 
