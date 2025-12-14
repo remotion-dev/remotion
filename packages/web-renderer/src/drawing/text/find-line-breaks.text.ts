@@ -1,4 +1,4 @@
-import {getCollapsedText} from './get-collapsed-text';
+import {getCollapsedTextAndDontRestore} from './get-collapsed-text';
 
 export function findLineBreaks(
 	span: HTMLSpanElement,
@@ -42,7 +42,7 @@ export function findLineBreaks(
 
 		previousRect = span.getBoundingClientRect();
 		textNode.textContent = testText;
-		const collapsedText = getCollapsedText(span);
+		const collapsedText = getCollapsedTextAndDontRestore(span);
 		textNode.textContent = collapsedText;
 		const rect = span.getBoundingClientRect();
 		const currentHeight = rect.height;
