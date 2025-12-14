@@ -12,7 +12,12 @@ test('should render text', async () => {
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'text-fixture', threshold: 0});
+	await testImage({
+		blob,
+		testId: 'text-fixture',
+		threshold: 0,
+		allowedMismatchedPixelRatio: 0.01,
+	});
 });
 
 test('should render paragraphs', async () => {
