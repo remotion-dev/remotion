@@ -11,7 +11,7 @@ export const compose = async (
 		NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
 		(node) => {
 			if (node instanceof Element) {
-				// SVG does have children, but we process SVG elements in it's
+				// SVG does have children, but we process SVG elements in its
 				// entirety
 				if (node.parentElement instanceof SVGSVGElement) {
 					return NodeFilter.FILTER_REJECT;
