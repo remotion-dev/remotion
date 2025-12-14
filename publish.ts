@@ -33,7 +33,7 @@ for (const dir of dirs) {
 
 	promises.push(
 		p(() => {
-			return $`bun publish`.cwd(packagePath);
+			return $`bun publish --tolerate-republish`.cwd(packagePath);
 		}),
 	);
 }
