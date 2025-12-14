@@ -130,7 +130,9 @@ describe('Templates should be valid', () => {
 				getFileForTemplate(template, 'remotion.config.js'),
 			]);
 			expect(entryPoint).toBeTruthy();
-			expect(contents).not.toContain('setExperimentalClientSideRenderingEnabled');
+			expect(contents).not.toContain(
+				'setExperimentalClientSideRenderingEnabled',
+			);
 		});
 
 		it(`${template.shortName} should use good tsconfig values`, async () => {
