@@ -5,6 +5,8 @@
 // - color
 // - lineHeight
 // - direction
+// - letterSpacing
+// - textTransform
 
 // Not supported:
 // - writingMode
@@ -14,6 +16,22 @@ import {Internals} from 'remotion';
 import {drawElementToCanvas} from '../draw-element-to-canvas';
 import {findLineBreaks} from './find-line-breaks.text';
 import {getCollapsedText} from './get-collapsed-text';
+
+const applyTextTransform = (text: string, transform: string): string => {
+	if (transform === 'uppercase') {
+		return text.toUpperCase();
+	}
+
+	if (transform === 'lowercase') {
+		return text.toLowerCase();
+	}
+
+	if (transform === 'capitalize') {
+		return text.replace(/\b\w/g, (char) => char.toUpperCase());
+	}
+
+	return text;
+};
 
 export const handleTextNode = async (
 	node: Text,
@@ -41,6 +59,8 @@ export const handleTextNode = async (
 				lineHeight,
 				direction,
 				writingMode,
+				letterSpacing,
+				textTransform,
 			} = style;
 			const isVertical = writingMode !== 'horizontal-tb';
 			if (isVertical) {
@@ -59,6 +79,7 @@ export const handleTextNode = async (
 
 			context.font = `${fontWeight} ${fontSize} ${fontFamily}`;
 			context.fillStyle = color;
+			context.letterSpacing = letterSpacing;
 
 			const fontSizePx = parseFloat(fontSize);
 			// TODO: This is not necessarily correct, need to create text and measure to know for sure
@@ -73,7 +94,8 @@ export const handleTextNode = async (
 
 			const originalText = span.textContent;
 			const collapsedText = getCollapsedText(span);
-			span.textContent = collapsedText;
+			const transformedText = applyTextTransform(collapsedText, textTransform);
+			span.textContent = transformedText;
 
 			// For RTL text, fill from the right edge instead of left
 			const xPosition = isRTL ? rect.right : rect.left;

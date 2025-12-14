@@ -26,8 +26,10 @@ import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
+import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
+import {textTransform} from './fixtures/text/text-transform';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 
 export const Root: React.FC = () => {
@@ -62,6 +64,8 @@ export const Root: React.FC = () => {
 			<Folder name="Text">
 				<Composition {...textFixture} />
 				<Composition {...paragraphs} />
+				<Composition {...letterSpacing} />
+				<Composition {...textTransform} />
 			</Folder>
 		</>
 	);
