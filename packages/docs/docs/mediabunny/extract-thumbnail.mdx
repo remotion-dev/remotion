@@ -16,6 +16,7 @@ import {
 	InputDisposedError,
 	UrlSource,
 	VideoSample,
+	VideoSampleSink,
 } from 'mediabunny';
 
 export type ExtractThumbnailProps = {
@@ -48,7 +49,7 @@ export async function extractThumbnail({
 			throw new Error('No video track found in the input');
 		}
 
-		const sink = videoTrack.createSampleSink();
+		const sink = new VideoSampleSink(videoTrack);
 
 		for await (const videoSample of sink.samplesAtTimestamps([
 			timestampInSeconds,
