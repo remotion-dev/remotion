@@ -1,6 +1,4 @@
-export const getCollapsedTextAndDontRestore = (
-	span: HTMLSpanElement,
-): string => {
+export const getCollapsedText = (span: HTMLSpanElement): string => {
 	const textNode = span.firstChild;
 
 	if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
@@ -52,6 +50,9 @@ export const getCollapsedTextAndDontRestore = (
 			collapsedText = collapsedInternal;
 		}
 	}
+
+	// Restore original text
+	(textNode as Text).textContent = originalText;
 
 	return collapsedText;
 };

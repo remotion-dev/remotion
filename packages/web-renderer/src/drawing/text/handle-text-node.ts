@@ -13,7 +13,7 @@
 import {Internals} from 'remotion';
 import {drawElementToCanvas} from '../draw-element-to-canvas';
 import {findLineBreaks} from './find-line-breaks.text';
-import {getCollapsedTextAndDontRestore} from './get-collapsed-text';
+import {getCollapsedText} from './get-collapsed-text';
 
 export const handleTextNode = async (
 	node: Text,
@@ -72,7 +72,7 @@ export const handleTextNode = async (
 			context.textBaseline = 'top';
 
 			const originalText = span.textContent;
-			const collapsedText = getCollapsedTextAndDontRestore(span);
+			const collapsedText = getCollapsedText(span);
 			span.textContent = collapsedText;
 
 			// For RTL text, fill from the right edge instead of left
