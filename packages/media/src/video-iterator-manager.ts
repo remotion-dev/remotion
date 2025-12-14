@@ -60,7 +60,7 @@ export const videoIteratorManager = ({
 		);
 	};
 
-	const startVideoIteratorWithoutDelayPlayback = async (
+	const startVideoIterator = async (
 		timeToSeek: number,
 		nonce: Nonce,
 	): Promise<void> => {
@@ -69,7 +69,9 @@ export const videoIteratorManager = ({
 		videoIteratorsCreated++;
 		videoFrameIterator = iterator;
 
+		const delayHandle = delayPlaybackHandleIfNotPremounting();
 		const frameResult = await iterator.getNext();
+		delayHandle.unblock();
 
 		if (iterator.isDestroyed()) {
 			return;
@@ -89,18 +91,6 @@ export const videoIteratorManager = ({
 		}
 
 		drawFrame(frameResult.value);
-	};
-
-	const startVideoIterator = async (
-		timeToSeek: number,
-		nonce: Nonce,
-	): Promise<void> => {
-		const delayHandle = delayPlaybackHandleIfNotPremounting();
-		try {
-			await startVideoIteratorWithoutDelayPlayback(timeToSeek, nonce);
-		} finally {
-			delayHandle.unblock();
-		}
 	};
 
 	const seek = async ({newTime, nonce}: {newTime: number; nonce: Nonce}) => {
@@ -124,14 +114,7 @@ export const videoIteratorManager = ({
 			return;
 		}
 
-		// Block at the seek level, not inside startVideoIterator
-		// This ensures only one block/unblock cycle per seek operation
-		const delayHandle = delayPlaybackHandleIfNotPremounting();
-		try {
-			await startVideoIteratorWithoutDelayPlayback(newTime, nonce);
-		} finally {
-			delayHandle.unblock();
-		}
+		await startVideoIterator(newTime, nonce);
 	};
 
 	return {

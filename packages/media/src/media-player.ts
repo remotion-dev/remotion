@@ -342,20 +342,21 @@ export class MediaPlayer {
 			return;
 		}
 
-		await this.videoIteratorManager?.seek({
-			newTime,
-			nonce,
-		});
-
-		await this.audioIteratorManager?.seek({
-			newTime,
-			nonce,
-			fps: this.fps,
-			playbackRate: this.playbackRate * this.globalPlaybackRate,
-			getIsPlaying: () => this.playing,
-			scheduleAudioNode: this.scheduleAudioNode,
-			bufferState: this.bufferState,
-		});
+		await Promise.all([
+			await this.videoIteratorManager?.seek({
+				newTime,
+				nonce,
+			}),
+			await this.audioIteratorManager?.seek({
+				newTime,
+				nonce,
+				fps: this.fps,
+				playbackRate: this.playbackRate * this.globalPlaybackRate,
+				getIsPlaying: () => this.playing,
+				scheduleAudioNode: this.scheduleAudioNode,
+				bufferState: this.bufferState,
+			}),
+		]);
 	}
 
 	public async play(time: number): Promise<void> {
