@@ -19,8 +19,8 @@ export const handleTextNode = async (
 	node: Text,
 	context: OffscreenCanvasRenderingContext2D,
 ) => {
-	// Create a new span element
 	const span = document.createElement('span');
+
 	const parent = node.parentNode;
 	if (!parent) {
 		throw new Error('Text node has no parent');
@@ -32,8 +32,7 @@ export const handleTextNode = async (
 	await drawElementToCanvas({
 		context,
 		element: span,
-		draw(rect) {
-			const style = getComputedStyle(span);
+		draw(rect, style) {
 			const {
 				fontFamily,
 				fontSize,

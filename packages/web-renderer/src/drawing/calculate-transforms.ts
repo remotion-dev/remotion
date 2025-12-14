@@ -35,7 +35,7 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 	const toReset: (() => void)[] = [];
 
 	let opacity = 1;
-
+	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	while (parent) {
 		const computedStyle = getComputedStyle(parent);
 
@@ -43,6 +43,10 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 		const parentOpacity = computedStyle.opacity;
 		if (parentOpacity && parentOpacity !== '') {
 			opacity *= parseFloat(parentOpacity);
+		}
+
+		if (parent === element) {
+			elementComputedStyle = computedStyle;
 		}
 
 		if (
@@ -96,6 +100,10 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 		totalMatrix.multiplySelf(transformMatrix);
 	}
 
+	if (!elementComputedStyle) {
+		throw new Error('Element computed style not found');
+	}
+
 	return {
 		dimensions,
 		totalMatrix,
@@ -106,5 +114,6 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 		},
 		nativeTransformOrigin,
 		opacity,
+		computedStyle: elementComputedStyle,
 	};
 };

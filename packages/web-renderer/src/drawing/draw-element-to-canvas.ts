@@ -11,9 +11,12 @@ export const drawElementToCanvas = async ({
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
-	draw: (dimensions: DOMRect) => Promise<void> | void;
+	draw: (
+		dimensions: DOMRect,
+		computedStyle: CSSStyleDeclaration,
+	) => Promise<void> | void;
 }) => {
-	const {totalMatrix, reset, dimensions, opacity} =
+	const {totalMatrix, reset, dimensions, opacity, computedStyle} =
 		calculateTransforms(element);
 
 	if (opacity === 0) {
@@ -26,7 +29,6 @@ export const drawElementToCanvas = async ({
 		return;
 	}
 
-	const computedStyle = getComputedStyle(element);
 	const background = computedStyle.backgroundColor;
 	const borderRadius = parseBorderRadius({
 		borderRadius: computedStyle.borderRadius,
@@ -70,7 +72,7 @@ export const drawElementToCanvas = async ({
 		context.fillStyle = originalFillStyle;
 	}
 
-	await draw(dimensions);
+	await draw(dimensions, computedStyle);
 
 	drawBorder({
 		ctx: context,
