@@ -87,7 +87,7 @@ export function findLineBreaks(
 
 		lines.push({
 			text: currentLine,
-			offsetTop: rect.height - previousRect!.height,
+			offsetTop: rect.height - previousRect.height,
 			offsetHorizontal,
 		});
 	}
