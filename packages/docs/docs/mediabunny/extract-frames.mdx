@@ -77,9 +77,7 @@ export async function extractFrames({src, timestampsInSeconds, onVideoSample, si
 }
 ```
 
-## Usage
-
-### Basic example: Extract frames at specific times
+## Example: Extract frames at specific times
 
 ```ts
 await extractFrames({
@@ -96,18 +94,84 @@ await extractFrames({
 });
 ```
 
-### Advanced: Create a filmstrip
+## Example: Create a filmstrip
 
 Extract as many frames as fit in a canvas based on the video's aspect ratio:
 
-```ts
+```tsx twoslash title="extract-frames.ts"
+import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+
+type Options = {
+  track: {width: number; height: number};
+  container: string;
+  durationInSeconds: number | null;
+};
+
+export type ExtractFramesTimestampsInSecondsFn = (options: Options) => Promise<number[]> | number[];
+
+export type ExtractFramesProps = {
+  src: string;
+  timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
+  onVideoSample: (sample: VideoSample) => void;
+  signal?: AbortSignal;
+};
+
+export async function extractFrames({src, timestampsInSeconds, onVideoSample, signal}: ExtractFramesProps): Promise<void> {
+  using input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src),
+  });
+
+  const [durationInSeconds, format, videoTrack] = await Promise.all([input.computeDuration(), input.getFormat(), input.getPrimaryVideoTrack()]);
+  if (!videoTrack) {
+    throw new Error('No video track found in the input');
+  }
+  if (signal?.aborted) {
+    throw new Error('Aborted');
+  }
+
+  const timestamps =
+    typeof timestampsInSeconds === 'function'
+      ? await timestampsInSeconds({
+          track: {
+            width: videoTrack.displayWidth,
+            height: videoTrack.displayHeight,
+          },
+          container: format.name,
+          durationInSeconds,
+        })
+      : timestampsInSeconds;
+
+  if (timestamps.length === 0) {
+    return;
+  }
+
+  if (signal?.aborted) {
+    throw new Error('Aborted');
+  }
+
+  const sink = new VideoSampleSink(videoTrack);
+
+  for await (using videoSample of sink.samplesAtTimestamps(timestamps)) {
+    if (signal?.aborted) {
+      break;
+    }
+
+    if (!videoSample) {
+      continue;
+    }
+
+    onVideoSample(videoSample);
+  }
+}
+// ---cut---
 const canvasWidth = 500;
 const canvasHeight = 80;
 const fromSeconds = 0;
 const toSeconds = 10;
 
 await extractFrames({
-  src: 'https://example.com/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   timestampsInSeconds: async ({track, durationInSeconds}) => {
     const aspectRatio = track.width / track.height;
     const amountOfFramesFit = Math.ceil(canvasWidth / (canvasHeight * aspectRatio));
@@ -142,7 +206,73 @@ The the example above, the [`using`](https://developer.mozilla.org/en-US/docs/We
 
 Pass an [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel frame extraction:
 
-```ts
+```tsx twoslash title="extract-frames.ts"
+import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+
+type Options = {
+  track: {width: number; height: number};
+  container: string;
+  durationInSeconds: number | null;
+};
+
+export type ExtractFramesTimestampsInSecondsFn = (options: Options) => Promise<number[]> | number[];
+
+export type ExtractFramesProps = {
+  src: string;
+  timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
+  onVideoSample: (sample: VideoSample) => void;
+  signal?: AbortSignal;
+};
+
+export async function extractFrames({src, timestampsInSeconds, onVideoSample, signal}: ExtractFramesProps): Promise<void> {
+  using input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src),
+  });
+
+  const [durationInSeconds, format, videoTrack] = await Promise.all([input.computeDuration(), input.getFormat(), input.getPrimaryVideoTrack()]);
+  if (!videoTrack) {
+    throw new Error('No video track found in the input');
+  }
+  if (signal?.aborted) {
+    throw new Error('Aborted');
+  }
+
+  const timestamps =
+    typeof timestampsInSeconds === 'function'
+      ? await timestampsInSeconds({
+          track: {
+            width: videoTrack.displayWidth,
+            height: videoTrack.displayHeight,
+          },
+          container: format.name,
+          durationInSeconds,
+        })
+      : timestampsInSeconds;
+
+  if (timestamps.length === 0) {
+    return;
+  }
+
+  if (signal?.aborted) {
+    throw new Error('Aborted');
+  }
+
+  const sink = new VideoSampleSink(videoTrack);
+
+  for await (using videoSample of sink.samplesAtTimestamps(timestamps)) {
+    if (signal?.aborted) {
+      break;
+    }
+
+    if (!videoSample) {
+      continue;
+    }
+
+    onVideoSample(videoSample);
+  }
+}
+// ---cut---
 const controller = new AbortController();
 
 // Cancel after 5 seconds
@@ -150,7 +280,7 @@ setTimeout(() => controller.abort(), 5000);
 
 try {
   await extractFrames({
-    src: 'https://example.com/video.mp4',
+    src: 'https://remotion.media/video.mp4',
     timestampsInSeconds: [0, 1, 2, 3, 4],
     onVideoSample: (sample) => {
       using frame = sample;
@@ -173,7 +303,73 @@ try {
 
 Here is how you can set a maximum duration for extracting frames:
 
-```ts title="Fail if not able to extract within 10 seconds"
+```ts twoslash title="Fail if not able to extract within 10 seconds"
+import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+
+type Options = {
+  track: {width: number; height: number};
+  container: string;
+  durationInSeconds: number | null;
+};
+
+export type ExtractFramesTimestampsInSecondsFn = (options: Options) => Promise<number[]> | number[];
+
+export type ExtractFramesProps = {
+  src: string;
+  timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
+  onVideoSample: (sample: VideoSample) => void;
+  signal?: AbortSignal;
+};
+
+export async function extractFrames({src, timestampsInSeconds, onVideoSample, signal}: ExtractFramesProps): Promise<void> {
+  using input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src),
+  });
+
+  const [durationInSeconds, format, videoTrack] = await Promise.all([input.computeDuration(), input.getFormat(), input.getPrimaryVideoTrack()]);
+  if (!videoTrack) {
+    throw new Error('No video track found in the input');
+  }
+  if (signal?.aborted) {
+    throw new Error('Aborted');
+  }
+
+  const timestamps =
+    typeof timestampsInSeconds === 'function'
+      ? await timestampsInSeconds({
+          track: {
+            width: videoTrack.displayWidth,
+            height: videoTrack.displayHeight,
+          },
+          container: format.name,
+          durationInSeconds,
+        })
+      : timestampsInSeconds;
+
+  if (timestamps.length === 0) {
+    return;
+  }
+
+  if (signal?.aborted) {
+    throw new Error('Aborted');
+  }
+
+  const sink = new VideoSampleSink(videoTrack);
+
+  for await (using videoSample of sink.samplesAtTimestamps(timestamps)) {
+    if (signal?.aborted) {
+      break;
+    }
+
+    if (!videoSample) {
+      continue;
+    }
+
+    onVideoSample(videoSample);
+  }
+}
+// ---cut---
 const controller = new AbortController();
 
 const timeoutPromise = new Promise<never>((_, reject) => {
@@ -188,7 +384,7 @@ const timeoutPromise = new Promise<never>((_, reject) => {
 try {
   await Promise.race([
     extractFrames({
-      src: 'https://example.com/video.mp4',
+      src: 'https://remotion.media/video.mp4',
       timestampsInSeconds: [0, 1, 2, 3, 4],
       onVideoSample: (sample) => {
         using frame = sample;
