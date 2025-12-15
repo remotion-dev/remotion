@@ -396,7 +396,11 @@ const internalRenderMediaOnWeb = async <
 			return {blob: new Blob([file], {type: mimeType})};
 		}
 
-		return {blob: new Blob([bufferTarget!.buffer!], {type: mimeType})};
+		if (!bufferTarget?.buffer) {
+			throw new Error('The resulting buffer is empty');
+		}
+
+		return {blob: new Blob([bufferTarget.buffer!], {type: mimeType})};
 	} finally {
 		cleanupFns.forEach((fn) => fn());
 	}
