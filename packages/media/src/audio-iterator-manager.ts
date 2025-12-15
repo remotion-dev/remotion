@@ -37,6 +37,7 @@ export const audioIteratorManager = ({
 		makePrewarmedAudioIteratorCache(audioSink);
 	let audioBufferIterator: AudioIterator | null = null;
 	let audioIteratorsCreated = 0;
+	let currentDelayHandle: {unblock: () => void} | null = null;
 
 	const scheduleAudioChunk = ({
 		buffer,
@@ -126,6 +127,7 @@ export const audioIteratorManager = ({
 		updatePlaybackTime(startFromSecond);
 		audioBufferIterator?.destroy();
 		const delayHandle = delayPlaybackHandleIfNotPremounting();
+		currentDelayHandle = delayHandle;
 
 		const iterator = makeAudioIterator(
 			startFromSecond,
@@ -140,18 +142,15 @@ export const audioIteratorManager = ({
 				const result = await iterator.getNext();
 
 				if (iterator.isDestroyed()) {
-					delayHandle.unblock();
 					return;
 				}
 
 				if (nonce.isStale()) {
-					delayHandle.unblock();
 					return;
 				}
 
 				if (!result.value) {
 					// media ended
-					delayHandle.unblock();
 					return;
 				}
 
@@ -172,6 +171,7 @@ export const audioIteratorManager = ({
 			throw e;
 		} finally {
 			delayHandle.unblock();
+			currentDelayHandle = null;
 		}
 	};
 
@@ -353,6 +353,11 @@ export const audioIteratorManager = ({
 			prewarmedAudioIteratorCache.destroy();
 			audioBufferIterator?.destroy();
 			audioBufferIterator = null;
+
+			if (currentDelayHandle) {
+				currentDelayHandle.unblock();
+				currentDelayHandle = null;
+			}
 		},
 		seek,
 		getAudioIteratorsCreated: () => audioIteratorsCreated,
