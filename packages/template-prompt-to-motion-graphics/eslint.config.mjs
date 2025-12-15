@@ -27,6 +27,14 @@ export default [
   js.configs.recommended,
   // TypeScript recommended (non type-checked for speed/simplicity)
   ...tseslint.configs.recommended,
+  // Set tsconfigRootDir for this package
+  {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
   // Next.js recommended rules applied to app code
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
