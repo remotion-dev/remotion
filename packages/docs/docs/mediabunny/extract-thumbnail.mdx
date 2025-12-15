@@ -33,14 +33,13 @@ export async function extractThumbnail({src, timestampInSeconds, signal}: Extrac
   }
 
   const sink = new VideoSampleSink(videoTrack);
-  const sampleIterator = sink.samplesAtTimestamps([timestampInSeconds]);
-  const sample = await sampleIterator.next();
+  const sample = await sink.getSample(timestampInSeconds);
 
-  if (!sample.value) {
+  if (!sample) {
     throw new Error(`No frame found at timestamp ${timestampInSeconds}s`);
   }
 
-  return sample.value;
+  return sample;
 }
 ```
 
@@ -72,14 +71,13 @@ export async function extractThumbnail({src, timestampInSeconds, signal}: Extrac
   }
 
   const sink = new VideoSampleSink(videoTrack);
-  const sampleIterator = sink.samplesAtTimestamps([timestampInSeconds]);
-  const sample = await sampleIterator.next();
+  const sample = await sink.getSample(timestampInSeconds);
 
-  if (!sample.value) {
+  if (!sample) {
     throw new Error(`No frame found at timestamp ${timestampInSeconds}s`);
   }
 
-  return sample.value;
+  return sample;
 }
 // ---cut---
 const sample = await extractThumbnail({
@@ -150,14 +148,13 @@ export async function extractThumbnail({src, timestampInSeconds, signal}: Extrac
   }
 
   const sink = new VideoSampleSink(videoTrack);
-  const sampleIterator = sink.samplesAtTimestamps([timestampInSeconds]);
-  const sample = await sampleIterator.next();
+  const sample = await sink.getSample(timestampInSeconds);
 
-  if (!sample.value) {
+  if (!sample) {
     throw new Error(`No frame found at timestamp ${timestampInSeconds}s`);
   }
 
-  return sample.value;
+  return sample;
 }
 // ---cut---
 const controller = new AbortController();
@@ -205,14 +202,13 @@ export async function extractThumbnail({src, timestampInSeconds, signal}: Extrac
   }
 
   const sink = new VideoSampleSink(videoTrack);
-  const sampleIterator = sink.samplesAtTimestamps([timestampInSeconds]);
-  const sample = await sampleIterator.next();
+  const sample = await sink.getSample(timestampInSeconds);
 
-  if (!sample.value) {
+  if (!sample) {
     throw new Error(`No frame found at timestamp ${timestampInSeconds}s`);
   }
 
-  return sample.value;
+  return sample;
 }
 // ---cut---
 const controller = new AbortController();
