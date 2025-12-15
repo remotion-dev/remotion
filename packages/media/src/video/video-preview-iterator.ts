@@ -1,12 +1,13 @@
-import type {CanvasSink, WrappedCanvas} from 'mediabunny';
+import type {WrappedCanvas} from 'mediabunny';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
+import type {PrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
 
 export const createVideoIterator = (
 	timeToSeek: number,
-	videoSink: CanvasSink,
+	cache: PrewarmedVideoIteratorCache,
 ) => {
 	let destroyed = false;
-	const iterator = videoSink.canvases(timeToSeek);
+	const iterator = cache.makeIteratorOrUsePrewarmed(timeToSeek);
 	let lastReturnedFrame: WrappedCanvas | null = null;
 	let iteratorEnded = false;
 

@@ -7,15 +7,22 @@ import {
 	makeAudioIterator,
 } from './audio/audio-preview-iterator';
 import type {Nonce} from './nonce-manager';
+import {makePrewarmedAudioIteratorCache} from './prewarm-iterator-for-looping';
 
 export const audioIteratorManager = ({
 	audioTrack,
 	delayPlaybackHandleIfNotPremounting,
 	sharedAudioContext,
+	getIsLooping,
+	getEndTime,
+	getStartTime,
 }: {
 	audioTrack: InputAudioTrack;
 	delayPlaybackHandleIfNotPremounting: () => {unblock: () => void};
 	sharedAudioContext: AudioContext;
+	getIsLooping: () => boolean;
+	getEndTime: () => number;
+	getStartTime: () => number;
 }) => {
 	let muted = false;
 	let currentVolume = 1;
@@ -24,6 +31,8 @@ export const audioIteratorManager = ({
 	gainNode.connect(sharedAudioContext.destination);
 
 	const audioSink = new AudioBufferSink(audioTrack);
+	const prewarmedAudioIteratorCache =
+		makePrewarmedAudioIteratorCache(audioSink);
 	let audioBufferIterator: AudioIterator | null = null;
 	let audioIteratorsCreated = 0;
 
@@ -115,7 +124,10 @@ export const audioIteratorManager = ({
 		audioBufferIterator?.destroy();
 		const delayHandle = delayPlaybackHandleIfNotPremounting();
 
-		const iterator = makeAudioIterator(audioSink, startFromSecond);
+		const iterator = makeAudioIterator(
+			startFromSecond,
+			prewarmedAudioIteratorCache,
+		);
 		audioIteratorsCreated++;
 		audioBufferIterator = iterator;
 
@@ -188,6 +200,15 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 		) => void;
 	}) => {
+		if (getIsLooping()) {
+			// If less than 1 second from the end away, we pre-warm a new iterator
+			if (getEndTime() - newTime < 1) {
+				prewarmedAudioIteratorCache.prewarmIteratorForLooping({
+					timeToSeek: getStartTime(),
+				});
+			}
+		}
+
 		if (!audioBufferIterator) {
 			await startAudioIterator({
 				nonce,
@@ -326,6 +347,7 @@ export const audioIteratorManager = ({
 		pausePlayback,
 		getAudioBufferIterator: () => audioBufferIterator,
 		destroyIterator: () => {
+			prewarmedAudioIteratorCache.destroy();
 			audioBufferIterator?.destroy();
 			audioBufferIterator = null;
 		},
