@@ -5,7 +5,7 @@ import { useCodeCompiler, CompilationResult } from "./useCodeCompiler";
 
 export interface AnimationState {
   code: string;
-  Component: React.FC | null;
+  Component: React.ComponentType | null;
   error: string | null;
   isCompiling: boolean;
 }

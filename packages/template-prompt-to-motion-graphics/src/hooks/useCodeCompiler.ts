@@ -17,7 +17,7 @@ import { ThreeCanvas } from "@remotion/three";
 import * as THREE from "three";
 
 export interface CompilationResult {
-  Component: React.FC | null;
+  Component: React.ComponentType | null;
   error: string | null;
 }
 

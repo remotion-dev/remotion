@@ -71,7 +71,7 @@ const Home: NextPage = () => {
               onKeyDown={handleKeyDown}
               placeholder="Describe your animation..."
               className="w-full bg-transparent text-white placeholder:text-[#666] focus:outline-none resize-none overflow-y-auto text-base min-h-[60px] max-h-[200px]"
-              style={{ fieldSizing: "content" } as React.CSSProperties}
+              style={{ fieldSizing: "content" }}
               disabled={isNavigating}
             />
 

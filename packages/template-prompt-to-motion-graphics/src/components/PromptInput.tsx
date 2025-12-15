@@ -206,7 +206,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
                   ? "text-base min-h-[60px] max-h-[200px]"
                   : "text-sm min-h-[40px] max-h-[150px]"
               }`}
-              style={{ fieldSizing: "content" } as React.CSSProperties}
+              style={{ fieldSizing: "content" }}
               disabled={isLoading}
             />
 
