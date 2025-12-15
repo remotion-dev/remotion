@@ -176,7 +176,7 @@ export const usePlayback = ({
 		loop,
 		pause,
 		playing,
-		setFrame,
+		setFrameAndImperative,
 		emitter,
 		playbackRate,
 		inFrame,
