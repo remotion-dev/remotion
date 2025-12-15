@@ -400,7 +400,7 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('The resulting buffer is empty');
 		}
 
-		return {blob: new Blob([bufferTarget.buffer!], {type: mimeType})};
+		return {blob: new Blob([bufferTarget.buffer], {type: mimeType})};
 	} finally {
 		cleanupFns.forEach((fn) => fn());
 	}
