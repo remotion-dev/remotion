@@ -166,6 +166,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	}
 
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
+	const initialPlaying = useRef(playing && !isPlayerBuffering);
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
@@ -193,6 +194,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 				isPostmounting: initialIsPostmounting.current,
 				globalPlaybackRate: initialGlobalPlaybackRate.current,
 				onVideoFrameCallback: initialOnVideoFrameRef.current ?? null,
+				playing: initialPlaying.current,
 			});
 
 			mediaPlayerRef.current = player;
