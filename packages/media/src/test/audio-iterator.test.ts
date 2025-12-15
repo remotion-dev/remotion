@@ -129,7 +129,6 @@ test('should not create too many iterators when the audio ends', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -156,7 +155,6 @@ test('should not create too many iterators when the audio ends', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -277,7 +275,6 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 			getIsPlaying: () => true,
 			nonce: makeNonceManager().createAsyncOperation(),
 			playbackRate,
-
 			bufferState: {
 				delayPlayback: () => ({
 					unblock: () => {},
@@ -316,7 +313,6 @@ test('should schedule audio when looping back to beginning after reaching end', 
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
