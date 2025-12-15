@@ -10,6 +10,11 @@ function mixAudio(waves: Int16Array[], length: number) {
 
 	const mixed = new Int16Array(length);
 
+	if (waves.length === 1) {
+		mixed.set(waves[0].subarray(0, length));
+		return mixed;
+	}
+
 	for (let i = 0; i < length; i++) {
 		const sum = waves.reduce((acc, wave) => {
 			return acc + (wave[i] ?? 0);
