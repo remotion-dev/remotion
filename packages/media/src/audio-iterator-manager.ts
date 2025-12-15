@@ -127,18 +127,15 @@ export const audioIteratorManager = ({
 				const result = await iterator.getNext();
 
 				if (iterator.isDestroyed()) {
-					delayHandle.unblock();
 					return;
 				}
 
 				if (nonce.isStale()) {
-					delayHandle.unblock();
 					return;
 				}
 
 				if (!result.value) {
 					// media ended
-					delayHandle.unblock();
 					return;
 				}
 
