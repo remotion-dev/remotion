@@ -133,6 +133,7 @@ function GeneratePageContent() {
             durationInFrames={durationInFrames}
             fps={fps}
             isCompiling={isCompiling}
+            isStreaming={isStreaming}
             error={error}
           />
         </div>

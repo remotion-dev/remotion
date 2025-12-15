@@ -4,10 +4,9 @@ export const textRotationCode = `import { useCurrentFrame, useVideoConfig, Absol
 
 export const MyAnimation = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
 
   // Text content - easily customizable
-  const WORDS = ["One sec please :)", "Getting started", "with your", "Code Generation"];
+  const WORDS = ["This is a", "Text rotation example", "using Remotion!"];
 
   // Animation timing
   const WORD_DURATION = 60; // frames per word

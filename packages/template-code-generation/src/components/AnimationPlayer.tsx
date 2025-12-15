@@ -23,6 +23,7 @@ interface AnimationPlayerProps {
   durationInFrames: number;
   fps: number;
   isCompiling: boolean;
+  isStreaming: boolean;
   error: string | null;
 }
 
@@ -31,8 +32,27 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
   durationInFrames,
   fps,
   isCompiling,
+  isStreaming,
   error,
 }) => {
+  if (isStreaming) {
+    return (
+      <div className="flex flex-3 flex-col items-center bg-[#0a0a0a] min-w-0">
+        <div className="w-full max-w-[1200px]">
+          <h2 className="text-sm font-medium text-[#888] mb-3">
+            Video Preview
+          </h2>
+          <div className="w-full aspect-video flex flex-col justify-center items-center gap-4 bg-[#1a1a1a] rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
+            <div className="w-12 h-12 border-4 border-[#333] border-t-[#6366f1] rounded-full animate-spin" />
+            <p className="text-[#888] text-sm">
+              Waiting for code generation to finish...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (isCompiling) {
     return (
       <div className="flex flex-3 flex-col items-center bg-[#0a0a0a] min-w-0">
