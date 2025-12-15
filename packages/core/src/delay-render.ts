@@ -175,8 +175,14 @@ export const continueRenderInternal = ({
 
 		return true;
 	});
-	if (handles.length === 0 && typeof scope !== 'undefined') {
-		scope.remotion_renderReady = true;
+
+	if (typeof scope !== 'undefined') {
+		const scopeHasPendingHandles =
+			Object.keys(scope.remotion_delayRenderTimeouts).length > 0;
+
+		if (!scopeHasPendingHandles) {
+			scope.remotion_renderReady = true;
+		}
 	}
 };
 
