@@ -72,7 +72,6 @@ test('media player should work', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
