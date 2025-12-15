@@ -454,18 +454,20 @@ export class MediaPlayer {
 		trimBefore: number | undefined,
 		unloopedTimeInSeconds: number,
 	): void {
-		this.trimBefore = trimBefore;
-
-		this.updateAfterTrimChange(unloopedTimeInSeconds);
+		if (this.trimBefore !== trimBefore) {
+			this.trimBefore = trimBefore;
+			this.updateAfterTrimChange(unloopedTimeInSeconds);
+		}
 	}
 
 	public setTrimAfter(
 		trimAfter: number | undefined,
 		unloopedTimeInSeconds: number,
 	): void {
-		this.trimAfter = trimAfter;
-
-		this.updateAfterTrimChange(unloopedTimeInSeconds);
+		if (this.trimAfter !== trimAfter) {
+			this.trimAfter = trimAfter;
+			this.updateAfterTrimChange(unloopedTimeInSeconds);
+		}
 	}
 
 	public setDebugOverlay(debugOverlay: boolean): void {
