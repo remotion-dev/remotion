@@ -1,4 +1,4 @@
-import {useContext, useEffect} from 'react';
+import {useContext, useLayoutEffect} from 'react';
 import {Internals} from 'remotion';
 import type {PlayerEmitter, ThumbnailEmitter} from './event-emitter.js';
 
@@ -11,7 +11,7 @@ export const useBufferStateEmitter = (
 		throw new Error('BufferingContextReact not found');
 	}
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const clear1 = bufferManager.listenForBuffering(() => {
 			bufferManager.buffering.current = true;
 			emitter.dispatchWaiting({});

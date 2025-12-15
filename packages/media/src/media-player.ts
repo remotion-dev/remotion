@@ -66,7 +66,7 @@ export class MediaPlayer {
 
 	private isPremounting: boolean;
 	private isPostmounting: boolean;
-	private seekPromiseChain: Promise<void> = Promise.resolve();
+	private seekPromiseChain: Promise<unknown> = Promise.resolve();
 
 	constructor({
 		canvas,
@@ -85,6 +85,7 @@ export class MediaPlayer {
 		isPremounting,
 		isPostmounting,
 		onVideoFrameCallback,
+		playing,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -102,6 +103,7 @@ export class MediaPlayer {
 		isPremounting: boolean;
 		isPostmounting: boolean;
 		onVideoFrameCallback: null | ((frame: CanvasImageSource) => void);
+		playing: boolean;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -120,6 +122,7 @@ export class MediaPlayer {
 		this.isPostmounting = isPostmounting;
 		this.nonceManager = makeNonceManager();
 		this.onVideoFrameCallback = onVideoFrameCallback;
+		this.playing = playing;
 
 		this.input = new Input({
 			source: new UrlSource(this.src),
@@ -153,12 +156,14 @@ export class MediaPlayer {
 	): Promise<MediaPlayerInitResult> {
 		const promise = this._initialize(startTimeUnresolved);
 		this.initializationPromise = promise;
+		this.seekPromiseChain = promise;
 		return promise;
 	}
 
 	private async _initialize(
 		startTimeUnresolved: number,
 	): Promise<MediaPlayerInitResult> {
+		const delayHandle = this.delayPlaybackHandleIfNotPremounting();
 		try {
 			if (this.input.disposed) {
 				return {type: 'disposed'};
@@ -259,18 +264,20 @@ export class MediaPlayer {
 			const nonce = this.nonceManager.createAsyncOperation();
 
 			try {
-				// intentionally not awaited
-				if (this.audioIteratorManager) {
-					this.audioIteratorManager.startAudioIterator({
-						nonce,
-						playbackRate: this.playbackRate * this.globalPlaybackRate,
-						startFromSecond: startTime,
-						getIsPlaying: () => this.playing,
-						scheduleAudioNode: this.scheduleAudioNode,
-					});
-				}
-
-				await this.videoIteratorManager?.startVideoIterator(startTime, nonce);
+				await Promise.all([
+					this.audioIteratorManager
+						? this.audioIteratorManager.startAudioIterator({
+								nonce,
+								playbackRate: this.playbackRate * this.globalPlaybackRate,
+								startFromSecond: startTime,
+								getIsPlaying: () => this.playing,
+								scheduleAudioNode: this.scheduleAudioNode,
+							})
+						: Promise.resolve(),
+					this.videoIteratorManager
+						? this.videoIteratorManager.startVideoIterator(startTime, nonce)
+						: Promise.resolve(),
+				]);
 			} catch (error) {
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
@@ -302,6 +309,8 @@ export class MediaPlayer {
 				error,
 			);
 			throw error;
+		} finally {
+			delayHandle.unblock();
 		}
 	}
 
