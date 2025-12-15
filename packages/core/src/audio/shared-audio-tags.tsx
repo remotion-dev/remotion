@@ -247,11 +247,13 @@ export const SharedAudioContextProvider: React.FC<{
 			audioId,
 			id,
 			premounting,
+			postmounting,
 		}: {
 			id: number;
 			aud: AudioHTMLAttributes<HTMLAudioElement>;
 			audioId: string;
 			premounting: boolean;
+			postmounting: boolean;
 		}) => {
 			let changed = false;
 
@@ -277,6 +279,7 @@ export const SharedAudioContextProvider: React.FC<{
 						...prevA,
 						props: aud,
 						premounting,
+						postmounting,
 						audioId,
 						audioMounted,
 					};
@@ -404,7 +407,7 @@ export const useSharedAudio = ({
 			if (ctx && ctx.numberOfAudioTags > 0) {
 				ctx.updateAudio({id: elem.id, aud, audioId, premounting, postmounting});
 			}
-		}, [aud, ctx, elem.id, audioId, premounting]);
+		}, [aud, ctx, elem.id, audioId, premounting, postmounting]);
 
 		effectToUse(() => {
 			return () => {
