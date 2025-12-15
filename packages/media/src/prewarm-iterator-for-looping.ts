@@ -21,11 +21,9 @@ export const makePrewarmedVideoIteratorCache = (videoSink: CanvasSink) => {
 		const prewarmedIterator = prewarmedVideoIterators.get(timeToSeek);
 		if (prewarmedIterator) {
 			prewarmedVideoIterators.delete(timeToSeek);
-			console.log('using prewarmed video iterator');
 			return prewarmedIterator;
 		}
 
-		console.log('making new video');
 		const iterator = videoSink.canvases(timeToSeek);
 		return iterator;
 	};
@@ -63,8 +61,6 @@ export const makePrewarmedAudioIteratorCache = (audioSink: AudioBufferSink) => {
 			prewarmedAudioIterators.delete(timeToSeek);
 			return prewarmedIterator;
 		}
-
-		console.log('making new audio', timeToSeek);
 
 		const iterator = audioSink.buffers(timeToSeek);
 		return iterator;
