@@ -268,7 +268,9 @@ export const SharedAudioContextProvider: React.FC<{
 						compareProps(
 							aud as Record<string, unknown>,
 							prevA.props as Record<string, unknown>,
-						) && prevA.premounting === premounting;
+						) &&
+						prevA.premounting === premounting &&
+						prevA.postmounting === postmounting;
 					if (isTheSame) {
 						return prevA;
 					}
