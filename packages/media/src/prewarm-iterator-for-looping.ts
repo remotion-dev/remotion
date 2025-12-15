@@ -29,6 +29,10 @@ export const makePrewarmedVideoIteratorCache = (videoSink: CanvasSink) => {
 	};
 
 	const destroy = () => {
+		for (const iterator of prewarmedVideoIterators.values()) {
+			iterator.return();
+		}
+
 		prewarmedVideoIterators.clear();
 	};
 
@@ -67,6 +71,10 @@ export const makePrewarmedAudioIteratorCache = (audioSink: AudioBufferSink) => {
 	};
 
 	const destroy = () => {
+		for (const iterator of prewarmedAudioIterators.values()) {
+			iterator.return();
+		}
+
 		prewarmedAudioIterators.clear();
 	};
 
