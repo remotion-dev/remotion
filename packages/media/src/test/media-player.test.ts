@@ -34,6 +34,7 @@ test('dispose should immediately unblock playback delays', async () => {
 		isPremounting: false,
 		isPostmounting: false,
 		onVideoFrameCallback: null,
+		playing: false,
 	});
 
 	await player.initialize(0);
