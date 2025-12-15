@@ -15,7 +15,7 @@ import { examples, getExampleById } from "../../templates";
 import { useAnimationState } from "../../hooks/useAnimationState";
 import { CodeEditor } from "../../components/CodeEditor";
 import { AnimationPlayer } from "../../components/AnimationPlayer";
-import { Logo } from "../../components/Logo";
+import { Header } from "../../components/Header";
 
 function DemoPageContent() {
   const searchParams = useSearchParams();
@@ -75,7 +75,7 @@ function DemoPageContent() {
       {/* Header with logo */}
       <header className="flex items-center gap-6 py-8 px-12 shrink-0">
         <div className="flex flex-col gap-2">
-          <Logo asLink />
+          <Header asLink />
           <Link
             href="/"
             className="flex items-center gap-1.5 text-xs text-[#666] hover:text-white transition-colors"
