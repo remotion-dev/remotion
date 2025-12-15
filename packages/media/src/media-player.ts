@@ -360,6 +360,10 @@ export class MediaPlayer {
 	}
 
 	public async play(time: number): Promise<void> {
+		if (this.playing) {
+			return;
+		}
+
 		const newTime = getTimeInSeconds({
 			unloopedTimeInSeconds: time,
 			playbackRate: this.playbackRate,
@@ -403,6 +407,10 @@ export class MediaPlayer {
 	};
 
 	public pause(): void {
+		if (!this.playing) {
+			return;
+		}
+
 		this.playing = false;
 		this.audioIteratorManager?.pausePlayback();
 
@@ -454,18 +462,20 @@ export class MediaPlayer {
 		trimBefore: number | undefined,
 		unloopedTimeInSeconds: number,
 	): void {
-		this.trimBefore = trimBefore;
-
-		this.updateAfterTrimChange(unloopedTimeInSeconds);
+		if (this.trimBefore !== trimBefore) {
+			this.trimBefore = trimBefore;
+			this.updateAfterTrimChange(unloopedTimeInSeconds);
+		}
 	}
 
 	public setTrimAfter(
 		trimAfter: number | undefined,
 		unloopedTimeInSeconds: number,
 	): void {
-		this.trimAfter = trimAfter;
-
-		this.updateAfterTrimChange(unloopedTimeInSeconds);
+		if (this.trimAfter !== trimAfter) {
+			this.trimAfter = trimAfter;
+			this.updateAfterTrimChange(unloopedTimeInSeconds);
+		}
 	}
 
 	public setDebugOverlay(debugOverlay: boolean): void {
