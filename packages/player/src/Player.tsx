@@ -351,6 +351,7 @@ const PlayerFn = <
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
+			frameRef: {current: frame[PLAYER_COMP_ID]},
 			playing,
 			rootId,
 			playbackRate: currentPlaybackRate,
