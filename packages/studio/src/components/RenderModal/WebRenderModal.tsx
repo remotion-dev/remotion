@@ -411,7 +411,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const onRenderVideo = useCallback(async () => {
 		setRenderProgress({renderedFrames: 0, encodedFrames: 0});
 
-		const buffer = await renderMediaOnWeb({
+		const {blob} = await renderMediaOnWeb({
 			composition: {
 				component: unresolvedComposition.component,
 				width: resolvedComposition.width,
@@ -436,13 +436,11 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				setRenderProgress(progress);
 			},
 			transparent,
+			outputTarget: 'web-fs',
 		});
 
 		setRenderProgress(null);
 
-		const blob = new Blob([buffer], {
-			type: container === 'mp4' ? 'video/mp4' : 'video/webm',
-		});
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;

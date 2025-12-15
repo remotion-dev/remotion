@@ -2,6 +2,7 @@ import {
 	AudioSampleSource,
 	BufferTarget,
 	Output,
+	StreamTarget,
 	VideoSampleSource,
 } from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
@@ -21,9 +22,11 @@ import {
 	codecToMediabunnyCodec,
 	containerToMediabunnyContainer,
 	getDefaultVideoCodecForContainer,
+	getMimeType,
 	getQualityForWebRendererQuality,
 	type WebRendererCodec,
 } from './mediabunny-mappings';
+import type {WebRendererOutputTarget} from './output-target';
 import type {
 	CompositionCalculateMetadataOrExplicit,
 	InferProps,
@@ -32,6 +35,7 @@ import {createFrame} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
 import {waitForReady} from './wait-for-ready';
+import {createWebFsTarget} from './web-fs-target';
 
 export type InputPropsIfHasProps<
 	Schema extends AnyZodObject,
@@ -69,6 +73,10 @@ export type RenderMediaOnWebProgress = {
 	// TODO: encodedDoneIn, renderEstimatedTime, progress
 };
 
+export type RenderMediaOnWebResult = {
+	blob: Blob;
+};
+
 export type RenderMediaOnWebProgressCallback = (
 	progress: RenderMediaOnWebProgress,
 ) => void;
@@ -89,6 +97,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	transparent: boolean;
 	onArtifact: OnArtifact | null;
 	onFrame: OnFrameCallback | null;
+	outputTarget: WebRendererOutputTarget;
 };
 
 export type RenderMediaOnWebOptions<
@@ -109,7 +118,6 @@ type InternalRenderMediaOnWebOptions<
 // TODO: Audio
 // TODO: Metadata
 // TODO: Validating inputs
-// TODO: Web file system API
 // TODO: Apply defaultCodec
 
 const internalRenderMediaOnWeb = async <
@@ -133,7 +141,11 @@ const internalRenderMediaOnWeb = async <
 	transparent,
 	onArtifact,
 	onFrame,
-}: InternalRenderMediaOnWebOptions<Schema, Props>) => {
+	outputTarget,
+}: InternalRenderMediaOnWebOptions<
+	Schema,
+	Props
+>): Promise<RenderMediaOnWebResult> => {
 	const cleanupFns: (() => void)[] = [];
 	const format = containerToMediabunnyContainer(container);
 
@@ -196,9 +208,18 @@ const internalRenderMediaOnWeb = async <
 		cleanupScaffold();
 	});
 
+	const webFsTarget =
+		outputTarget === 'web-fs' ? await createWebFsTarget() : null;
+
+	const bufferTarget = webFsTarget ? null : new BufferTarget();
+
+	const target = webFsTarget
+		? new StreamTarget(webFsTarget.stream)
+		: bufferTarget!;
+
 	const output = new Output({
 		format,
-		target: new BufferTarget(),
+		target,
 	});
 
 	try {
@@ -363,7 +384,15 @@ const internalRenderMediaOnWeb = async <
 		audioSampleSource.close();
 		await output.finalize();
 
-		return output.target.buffer as ArrayBuffer;
+		const mimeType = getMimeType(container);
+
+		if (webFsTarget) {
+			await webFsTarget.close();
+			const file = await webFsTarget.getBlob();
+			return {blob: new Blob([file], {type: mimeType})};
+		}
+
+		return {blob: new Blob([bufferTarget!.buffer!], {type: mimeType})};
 	} finally {
 		cleanupFns.forEach((fn) => fn());
 	}
@@ -396,5 +425,6 @@ export const renderMediaOnWeb = <
 		transparent: options.transparent ?? false,
 		onArtifact: options.onArtifact ?? null,
 		onFrame: options.onFrame ?? null,
+		outputTarget: options.outputTarget ?? 'web-fs',
 	});
 };

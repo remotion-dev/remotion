@@ -81,3 +81,14 @@ export const getQualityForWebRendererQuality = (
 			throw new Error(`Unsupported quality: ${quality satisfies never}`);
 	}
 };
+
+export const getMimeType = (container: WebRendererContainer): string => {
+	switch (container) {
+		case 'mp4':
+			return 'video/mp4';
+		case 'webm':
+			return 'video/webm';
+		default:
+			throw new Error(`Unsupported container: ${container satisfies never}`);
+	}
+};
