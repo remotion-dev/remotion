@@ -45,7 +45,7 @@ export type Template = {
 		| 'code-hike'
 		| 'render-server'
 		| 'recorder'
-		| 'code-generation';
+		| 'prompt-to-motion-graphics';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -533,19 +533,19 @@ export const FEATURED_TEMPLATES: Template[] = [
 		contributedBy: null,
 	},
 	{
-		homePageLabel: 'Code Generation',
-		shortName: 'Code Generation',
+		homePageLabel: 'Prompt to Motion graphics',
+		shortName: 'Prompt to Motion Graphics',
 		org: 'remotion-dev',
-		repoName: 'template-code-generation',
+		repoName: 'template-prompt-to-motion-graphics',
 		description: 'AI-powered code generation for Remotion',
 		longerDescription:
-			'A template that uses AI to generate Remotion video code from prompts.',
+			'A SaaS template for "Prompt to Motion Graphics" products. Generates Remotion code, streams it to the frontend, and compiles and previews it in the browser.',
 		promoBanner: {
 			width: 1280,
 			height: 720,
-			src: '/img/code-generation-template.png',
+			src: '/img/prompt-to-motion-graphics.png',
 		},
-		cliId: 'code-generation' as const,
+		cliId: 'prompt-to-motion-graphics' as const,
 		type: 'image' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
