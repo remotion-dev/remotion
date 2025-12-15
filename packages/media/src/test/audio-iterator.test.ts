@@ -19,6 +19,14 @@ const prepare = async () => {
 			unblock: () => {},
 		}),
 		sharedAudioContext: new AudioContext(),
+		getIsLooping: () => false,
+		getEndTime: () => {
+			throw new Error('not implemented');
+		},
+		getStartTime: () => {
+			throw new Error('not implemented');
+		},
+		updatePlaybackTime: () => {},
 	});
 
 	const fps = 30;
@@ -238,6 +246,14 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 			unblock: () => {},
 		}),
 		sharedAudioContext: new AudioContext(),
+		getIsLooping: () => false,
+		getEndTime: () => {
+			throw new Error('not implemented');
+		},
+		getStartTime: () => {
+			throw new Error('not implemented');
+		},
+		updatePlaybackTime: () => {},
 	});
 
 	const scheduledChunks: number[] = [];

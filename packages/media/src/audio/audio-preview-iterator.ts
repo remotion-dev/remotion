@@ -1,5 +1,6 @@
-import type {AudioBufferSink, WrappedAudioBuffer} from 'mediabunny';
+import type {WrappedAudioBuffer} from 'mediabunny';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
+import type {PrewarmedAudioIteratorCache} from '../prewarm-iterator-for-looping';
 import {allowWaitRoutine, type AllowWait} from './allow-wait';
 
 export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
@@ -11,11 +12,11 @@ export type QueuedNode = {
 };
 
 export const makeAudioIterator = (
-	audioSink: AudioBufferSink,
 	startFromSecond: number,
+	cache: PrewarmedAudioIteratorCache,
 ) => {
 	let destroyed = false;
-	const iterator = audioSink.buffers(startFromSecond);
+	const iterator = cache.makeIteratorOrUsePrewarmed(startFromSecond);
 	const queuedAudioNodes: QueuedNode[] = [];
 	const audioChunksForAfterResuming: {
 		buffer: AudioBuffer;
