@@ -279,6 +279,11 @@ export class MediaPlayer {
 					getIsLooping: () => this.loop,
 					getEndTime: () => this.getEndTime(),
 					getStartTime: () => this.getStartTime(),
+					updatePlaybackTime: (time: number) =>
+						this.setPlaybackTime(
+							time,
+							this.playbackRate * this.globalPlaybackRate,
+						),
 				});
 			}
 

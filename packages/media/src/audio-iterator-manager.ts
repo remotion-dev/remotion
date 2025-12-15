@@ -16,6 +16,7 @@ export const audioIteratorManager = ({
 	getIsLooping,
 	getEndTime,
 	getStartTime,
+	updatePlaybackTime,
 }: {
 	audioTrack: InputAudioTrack;
 	delayPlaybackHandleIfNotPremounting: () => {unblock: () => void};
@@ -23,6 +24,7 @@ export const audioIteratorManager = ({
 	getIsLooping: () => boolean;
 	getEndTime: () => number;
 	getStartTime: () => number;
+	updatePlaybackTime: (time: number) => void;
 }) => {
 	let muted = false;
 	let currentVolume = 1;
@@ -121,6 +123,7 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 		) => void;
 	}) => {
+		updatePlaybackTime(startFromSecond);
 		audioBufferIterator?.destroy();
 		const delayHandle = delayPlaybackHandleIfNotPremounting();
 

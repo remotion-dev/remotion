@@ -26,6 +26,7 @@ const prepare = async () => {
 		getStartTime: () => {
 			throw new Error('not implemented');
 		},
+		updatePlaybackTime: () => {},
 	});
 
 	const fps = 30;
@@ -252,6 +253,7 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 		getStartTime: () => {
 			throw new Error('not implemented');
 		},
+		updatePlaybackTime: () => {},
 	});
 
 	const scheduledChunks: number[] = [];
