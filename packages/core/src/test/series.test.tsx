@@ -34,6 +34,7 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 		<CanUseRemotionHooksProvider>
 			<TimelineContext.Provider
 				value={{
+					frameRef: {current: frame},
 					rootId: '',
 					frame: {
 						'my-comp': frame,

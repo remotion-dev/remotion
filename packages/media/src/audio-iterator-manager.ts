@@ -7,15 +7,24 @@ import {
 	makeAudioIterator,
 } from './audio/audio-preview-iterator';
 import type {Nonce} from './nonce-manager';
+import {makePrewarmedAudioIteratorCache} from './prewarm-iterator-for-looping';
 
 export const audioIteratorManager = ({
 	audioTrack,
 	delayPlaybackHandleIfNotPremounting,
 	sharedAudioContext,
+	getIsLooping,
+	getEndTime,
+	getStartTime,
+	updatePlaybackTime,
 }: {
 	audioTrack: InputAudioTrack;
 	delayPlaybackHandleIfNotPremounting: () => {unblock: () => void};
 	sharedAudioContext: AudioContext;
+	getIsLooping: () => boolean;
+	getEndTime: () => number;
+	getStartTime: () => number;
+	updatePlaybackTime: (time: number) => void;
 }) => {
 	let muted = false;
 	let currentVolume = 1;
@@ -24,6 +33,8 @@ export const audioIteratorManager = ({
 	gainNode.connect(sharedAudioContext.destination);
 
 	const audioSink = new AudioBufferSink(audioTrack);
+	const prewarmedAudioIteratorCache =
+		makePrewarmedAudioIteratorCache(audioSink);
 	let audioBufferIterator: AudioIterator | null = null;
 	let audioIteratorsCreated = 0;
 	let currentDelayHandle: {unblock: () => void} | null = null;
@@ -113,11 +124,15 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 		) => void;
 	}) => {
+		updatePlaybackTime(startFromSecond);
 		audioBufferIterator?.destroy();
 		const delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 
-		const iterator = makeAudioIterator(audioSink, startFromSecond);
+		const iterator = makeAudioIterator(
+			startFromSecond,
+			prewarmedAudioIteratorCache,
+		);
 		audioIteratorsCreated++;
 		audioBufferIterator = iterator;
 
@@ -188,6 +203,15 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 		) => void;
 	}) => {
+		if (getIsLooping()) {
+			// If less than 1 second from the end away, we pre-warm a new iterator
+			if (getEndTime() - newTime < 1) {
+				prewarmedAudioIteratorCache.prewarmIteratorForLooping({
+					timeToSeek: getStartTime(),
+				});
+			}
+		}
+
 		if (!audioBufferIterator) {
 			await startAudioIterator({
 				nonce,
@@ -326,6 +350,7 @@ export const audioIteratorManager = ({
 		pausePlayback,
 		getAudioBufferIterator: () => audioBufferIterator,
 		destroyIterator: () => {
+			prewarmedAudioIteratorCache.destroy();
 			audioBufferIterator?.destroy();
 			audioBufferIterator = null;
 

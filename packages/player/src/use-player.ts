@@ -20,6 +20,7 @@ type UsePlayerMethods = {
 	hasPlayed: boolean;
 	isBuffering: () => boolean;
 	toggle: (e?: SyntheticEvent | PointerEvent) => void;
+	setFrameAndImperative: (newFrame: number, videoIdToSet: string) => void;
 };
 
 export const usePlayer = (): UsePlayerMethods => {
@@ -33,7 +34,7 @@ export const usePlayer = (): UsePlayerMethods => {
 	const audioContext = useContext(Internals.SharedAudioContext);
 	const {audioAndVideoTags} = useContext(Internals.TimelineContext);
 
-	const frameRef = useRef<number>(frame);
+	const frameRef = Internals.Timeline.useTimelineFrameRef();
 	frameRef.current = frame;
 
 	const video = Internals.useVideo();
@@ -57,17 +58,23 @@ export const usePlayer = (): UsePlayerMethods => {
 
 	const {buffering} = bufferingContext;
 
+	const setFrameAndImperative = useCallback(
+		(newFrame: number, videoIdToSet: string) => {
+			setTimelinePosition((c) => ({...c, [videoIdToSet]: newFrame}));
+			frameRef.current = newFrame;
+		},
+		[frameRef, setTimelinePosition],
+	);
+
 	const seek = useCallback(
 		(newFrame: number) => {
 			if (video?.id) {
-				setTimelinePosition((c) => ({...c, [video.id]: newFrame}));
+				setFrameAndImperative(newFrame, video.id);
 			}
-
-			frameRef.current = newFrame;
 
 			emitter.dispatchSeek(newFrame);
 		},
-		[emitter, setTimelinePosition, video?.id],
+		[emitter, setFrameAndImperative, video?.id],
 	);
 
 	const play = useCallback(
@@ -112,6 +119,7 @@ export const usePlayer = (): UsePlayerMethods => {
 			emitter,
 			seek,
 			audioAndVideoTags,
+			frameRef,
 		],
 	);
 
@@ -138,7 +146,14 @@ export const usePlayer = (): UsePlayerMethods => {
 				emitter.dispatchPause();
 			}
 		}
-	}, [config, emitter, imperativePlaying, setPlaying, setTimelinePosition]);
+	}, [
+		config,
+		emitter,
+		imperativePlaying,
+		setPlaying,
+		setTimelinePosition,
+		frameRef,
+	]);
 
 	const videoId = video?.id;
 
@@ -216,12 +231,15 @@ export const usePlayer = (): UsePlayerMethods => {
 			pause,
 			seek,
 			isFirstFrame,
-			getCurrentFrame: () => frameRef.current,
+			getCurrentFrame: () => {
+				return frameRef.current;
+			},
 			isPlaying: () => imperativePlaying.current,
 			isBuffering: () => buffering.current,
 			pauseAndReturnToPlayStart,
 			hasPlayed,
 			toggle,
+			setFrameAndImperative,
 		};
 	}, [
 		buffering,
@@ -238,6 +256,8 @@ export const usePlayer = (): UsePlayerMethods => {
 		playing,
 		seek,
 		toggle,
+		setFrameAndImperative,
+		frameRef,
 	]);
 
 	return returnValue;

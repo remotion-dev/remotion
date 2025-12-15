@@ -193,7 +193,8 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		frameRange: FrameRange | null;
 		outName: OutNameInput<Provider> | null;
 		timeoutInMilliseconds: number;
-		chromiumOptions: ChromiumOptions;
+		// Non-JS SDKs may not set chromiumOptions, may be undefined
+		chromiumOptions: ChromiumOptions | undefined;
 		scale: number;
 		everyNthFrame: number;
 		numberOfGifLoops: number | null;

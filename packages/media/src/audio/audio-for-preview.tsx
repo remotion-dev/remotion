@@ -156,6 +156,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	}
 
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(bufferingContext);
+	const initialPlaying = useRef(playing && !isPlayerBuffering);
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
@@ -183,6 +184,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				isPremounting: initialIsPremounting.current,
 				globalPlaybackRate: initialGlobalPlaybackRate.current,
 				onVideoFrameCallback: null,
+				playing: initialPlaying.current,
 			});
 
 			mediaPlayerRef.current = player;

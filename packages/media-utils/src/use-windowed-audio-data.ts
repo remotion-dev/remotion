@@ -362,8 +362,16 @@ export const useWindowedAudioData = ({
 		};
 	}, [src, waveFormMap, audioUtils?.metadata, availableWindows]);
 
+	const isBeyondAudioDuration = audioUtils
+		? currentTime >= audioUtils.metadata.durationInSeconds
+		: false;
+
 	useLayoutEffect(() => {
 		if (currentAudioData) {
+			return;
+		}
+
+		if (isBeyondAudioDuration) {
 			return;
 		}
 
@@ -373,11 +381,13 @@ export const useWindowedAudioData = ({
 		return () => {
 			continueRender(handle);
 		};
-	}, [currentAudioData, src, delayRender, continueRender]);
-
-	const isBeyondAudioDuration = audioUtils
-		? currentTime >= audioUtils.metadata.durationInSeconds
-		: false;
+	}, [
+		currentAudioData,
+		src,
+		delayRender,
+		continueRender,
+		isBeyondAudioDuration,
+	]);
 
 	const audioData = isBeyondAudioDuration ? null : currentAudioData;
 

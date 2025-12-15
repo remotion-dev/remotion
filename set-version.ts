@@ -88,6 +88,10 @@ execSync('bun ensure-correct-version.ts', {
 	cwd: 'packages/media-parser',
 });
 
+execSync('rm -rf dist && rm -rf tsconfig.tsbuildinfo', {
+	cwd: 'packages/studio',
+});
+
 execSync('bun run build', {
 	stdio: 'inherit',
 });
