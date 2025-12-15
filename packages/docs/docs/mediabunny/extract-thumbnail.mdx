@@ -102,7 +102,7 @@ The function returns a [`VideoSample`](https://mediabunny.dev/api/VideoSample#vi
 You can call [`.close()`](https://mediabunny.dev/api/VideoSample#close) to explicitly close the sample and prevent the warning from being printed.
 
 ```ts title="Explicitly closing a sample"
-using sample = await extractThumbnail({
+const sample = await extractThumbnail({
   src: 'https://example.com/video.mp4',
   timestampInSeconds: 5,
 });
