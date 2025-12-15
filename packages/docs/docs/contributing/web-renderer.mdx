@@ -52,18 +52,21 @@ bunx vitest --browser webkit
 
 ## Enabling the Studio Render Button
 
-Set the following to `true` in `packages/studio/src/helpers/show-browser-rendering.ts`:
+Enable the experimental client-side rendering flag in your `remotion.config.ts`:
 
 ```ts
-export const SHOW_BROWSER_RENDERING = true;
+import {Config} from '@remotion/cli/config';
+
+Config.setExperimentalClientSideRenderingEnabled(true);
+```
+
+Or pass the `--enable-experimental-client-side-rendering` flag when starting the Studio:
+
+```sh
+npx remotion studio --enable-experimental-client-side-rendering
 ```
 
 Now, in [`packages/example`](/docs/contributing/#testing-your-changes), and in any template, you will see a "Render on web" button.
-
-Don't commit this, the CI will fail.
-
-Eventually, this flag will be removed and the button will be enabled by default.  
-If this happened and this instruction remains here, please send a PR to remove it :)
 
 ## See also
 

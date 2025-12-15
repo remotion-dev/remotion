@@ -156,6 +156,11 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	}
 
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(bufferingContext);
+	const initialPlaying = useRef(playing && !isPlayerBuffering);
+	const initialIsPremounting = useRef(isPremounting);
+	const initialIsPostmounting = useRef(isPostmounting);
+	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
+	const initialPlaybackRate = useRef(playbackRate);
 
 	useEffect(() => {
 		if (!sharedAudioContext) return;
@@ -171,13 +176,15 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				trimBefore: initialTrimBeforeRef.current,
 				fps: videoConfig.fps,
 				canvas: null,
-				playbackRate,
+				playbackRate: initialPlaybackRate.current,
 				audioStreamIndex: audioStreamIndex ?? 0,
 				debugOverlay: false,
 				bufferState: buffer,
-				isPostmounting,
-				isPremounting,
-				globalPlaybackRate,
+				isPostmounting: initialIsPostmounting.current,
+				isPremounting: initialIsPremounting.current,
+				globalPlaybackRate: initialGlobalPlaybackRate.current,
+				onVideoFrameCallback: null,
+				playing: initialPlaying.current,
 			});
 
 			mediaPlayerRef.current = player;
@@ -295,14 +302,10 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		sharedAudioContext,
 		currentTimeRef,
 		loop,
-		playbackRate,
 		videoConfig.fps,
 		audioStreamIndex,
 		disallowFallbackToHtml5Audio,
 		buffer,
-		isPremounting,
-		isPostmounting,
-		globalPlaybackRate,
 	]);
 
 	useLayoutEffect(() => {

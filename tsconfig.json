@@ -67,6 +67,9 @@
 			"path": "./packages/it-tests"
 		},
 		{
+			"path": "./packages/react18-tests"
+		},
+		{
 			"path": "./packages/eslint-config-internal"
 		},
 		{

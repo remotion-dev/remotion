@@ -3,13 +3,13 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio"
 	},
 	"name": "@remotion/studio",
-	"version": "4.0.384",
+	"version": "4.0.390",
 	"description": "APIs for interacting with the Remotion Studio",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
+		"make": "rm -rf dist && rm -rf tsconfig.tsbuildinfo && tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src",
 		"formatting": "prettier --experimental-cli src --check"
 	},

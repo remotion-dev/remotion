@@ -67,7 +67,7 @@ export class MediaPlayer {
 
 	private isPremounting: boolean;
 	private isPostmounting: boolean;
-	private seekPromiseChain: Promise<void> = Promise.resolve();
+	private seekPromiseChain: Promise<unknown> = Promise.resolve();
 
 	constructor({
 		canvas,
@@ -85,6 +85,8 @@ export class MediaPlayer {
 		bufferState,
 		isPremounting,
 		isPostmounting,
+		onVideoFrameCallback,
+		playing,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -101,6 +103,8 @@ export class MediaPlayer {
 		bufferState: ReturnType<typeof useBufferState>;
 		isPremounting: boolean;
 		isPostmounting: boolean;
+		onVideoFrameCallback: null | ((frame: CanvasImageSource) => void);
+		playing: boolean;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -118,6 +122,8 @@ export class MediaPlayer {
 		this.isPremounting = isPremounting;
 		this.isPostmounting = isPostmounting;
 		this.nonceManager = makeNonceManager();
+		this.onVideoFrameCallback = onVideoFrameCallback;
+		this.playing = playing;
 
 		this.input = new Input({
 			source: new UrlSource(this.src),
@@ -151,12 +157,14 @@ export class MediaPlayer {
 	): Promise<MediaPlayerInitResult> {
 		const promise = this._initialize(startTimeUnresolved);
 		this.initializationPromise = promise;
+		this.seekPromiseChain = promise;
 		return promise;
 	}
 
 	private async _initialize(
 		startTimeUnresolved: number,
 	): Promise<MediaPlayerInitResult> {
+		const delayHandle = this.delayPlaybackHandleIfNotPremounting();
 		try {
 			if (this.input.disposed) {
 				return {type: 'disposed'};
@@ -201,7 +209,7 @@ export class MediaPlayer {
 				return {type: 'no-tracks'};
 			}
 
-			if (videoTrack && this.canvas && this.context) {
+			if (videoTrack) {
 				const canDecode = await videoTrack.canDecode();
 
 				if (!canDecode) {
@@ -257,18 +265,20 @@ export class MediaPlayer {
 			const nonce = this.nonceManager.createAsyncOperation();
 
 			try {
-				// intentionally not awaited
-				if (this.audioIteratorManager) {
-					this.audioIteratorManager.startAudioIterator({
-						nonce,
-						playbackRate: this.playbackRate * this.globalPlaybackRate,
-						startFromSecond: startTime,
-						getIsPlaying: () => this.playing,
-						scheduleAudioNode: this.scheduleAudioNode,
-					});
-				}
-
-				await this.videoIteratorManager?.startVideoIterator(startTime, nonce);
+				await Promise.all([
+					this.audioIteratorManager
+						? this.audioIteratorManager.startAudioIterator({
+								nonce,
+								playbackRate: this.playbackRate * this.globalPlaybackRate,
+								startFromSecond: startTime,
+								getIsPlaying: () => this.playing,
+								scheduleAudioNode: this.scheduleAudioNode,
+							})
+						: Promise.resolve(),
+					this.videoIteratorManager
+						? this.videoIteratorManager.startVideoIterator(startTime, nonce)
+						: Promise.resolve(),
+				]);
 			} catch (error) {
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
@@ -300,6 +310,8 @@ export class MediaPlayer {
 				error,
 			);
 			throw error;
+		} finally {
+			delayHandle.unblock();
 		}
 	}
 
@@ -348,23 +360,28 @@ export class MediaPlayer {
 			return;
 		}
 
-		await this.videoIteratorManager?.seek({
-			newTime,
-			nonce,
-		});
-
-		await this.audioIteratorManager?.seek({
-			newTime,
-			nonce,
-			fps: this.fps,
-			playbackRate: this.playbackRate * this.globalPlaybackRate,
-			getIsPlaying: () => this.playing,
-			scheduleAudioNode: this.scheduleAudioNode,
-			bufferState: this.bufferState,
-		});
+		await Promise.all([
+			this.videoIteratorManager?.seek({
+				newTime,
+				nonce,
+			}),
+			this.audioIteratorManager?.seek({
+				newTime,
+				nonce,
+				fps: this.fps,
+				playbackRate: this.playbackRate * this.globalPlaybackRate,
+				getIsPlaying: () => this.playing,
+				scheduleAudioNode: this.scheduleAudioNode,
+				bufferState: this.bufferState,
+			}),
+		]);
 	}
 
 	public async play(time: number): Promise<void> {
+		if (this.playing) {
+			return;
+		}
+
 		const newTime = getTimeInSeconds({
 			unloopedTimeInSeconds: time,
 			playbackRate: this.playbackRate,
@@ -408,6 +425,10 @@ export class MediaPlayer {
 	};
 
 	public pause(): void {
+		if (!this.playing) {
+			return;
+		}
+
 		this.playing = false;
 		this.audioIteratorManager?.pausePlayback();
 
@@ -459,18 +480,20 @@ export class MediaPlayer {
 		trimBefore: number | undefined,
 		unloopedTimeInSeconds: number,
 	): void {
-		this.trimBefore = trimBefore;
-
-		this.updateAfterTrimChange(unloopedTimeInSeconds);
+		if (this.trimBefore !== trimBefore) {
+			this.trimBefore = trimBefore;
+			this.updateAfterTrimChange(unloopedTimeInSeconds);
+		}
 	}
 
 	public setTrimAfter(
 		trimAfter: number | undefined,
 		unloopedTimeInSeconds: number,
 	): void {
-		this.trimAfter = trimAfter;
-
-		this.updateAfterTrimChange(unloopedTimeInSeconds);
+		if (this.trimAfter !== trimAfter) {
+			this.trimAfter = trimAfter;
+			this.updateAfterTrimChange(unloopedTimeInSeconds);
+		}
 	}
 
 	public setDebugOverlay(debugOverlay: boolean): void {

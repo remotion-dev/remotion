@@ -17,8 +17,8 @@
     "@remotion/animation-utils": "workspace:*",
     "@remotion/layout-utils": "workspace:*",
     "@remotion/media-utils": "workspace:*",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "remotion": "workspace:*",
     "zod": "3.22.3"
   },

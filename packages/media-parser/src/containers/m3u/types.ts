@@ -95,6 +95,11 @@ export type M3uAllowCache = {
 	allowsCache: boolean;
 };
 
+export type M3uProgramDateTime = {
+	type: 'm3u-program-date-time';
+	dateTime: string;
+};
+
 export type M3uBox =
 	| M3uHeader
 	| M3uPlaylist
@@ -112,7 +117,8 @@ export type M3uBox =
 	| M3uMap
 	| M3uIFrameStreamInfo
 	| M3uTextValue
-	| M3uAllowCache;
+	| M3uAllowCache
+	| M3uProgramDateTime;
 
 export type M3uStructure = {
 	type: 'm3u';

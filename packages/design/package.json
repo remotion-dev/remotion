@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/design",
-	"version": "4.0.384",
+	"version": "4.0.390",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",

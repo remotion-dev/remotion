@@ -3,6 +3,7 @@ import {ID} from './id.js';
 
 export const makeTimelineContext = (frame: number): TimelineContextValue => {
 	return {
+		frameRef: {current: frame},
 		rootId: '',
 		frame: {
 			[ID]: frame,

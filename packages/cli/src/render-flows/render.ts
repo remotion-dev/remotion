@@ -578,7 +578,16 @@ export const renderVideoFlow = async ({
 			onLog,
 		});
 
-		Log.info({indent, logLevel}, chalk.blue(`\n▶ ${absoluteOutputFile}`));
+		if (!updatesDontOverwrite) {
+			updateRenderProgress({newline: true, printToConsole: true});
+		}
+
+		Log.info(
+			{indent, logLevel},
+			chalk.blue(
+				`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${makeHyperlink({url: `file://${absoluteOutputFile}`, text: relativeOutputLocation, fallback: relativeOutputLocation})}`,
+			),
+		);
 		return;
 	}
 

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media",
-	"version": "4.0.384",
+	"version": "4.0.390",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -30,11 +30,11 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"@vitest/browser-webdriverio": "4.0.7",
+		"@vitest/browser-webdriverio": "4.0.9",
 		"eslint": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"vitest": "4.0.9",
+		"vitest": "catalog:",
 		"webdriverio": "9.19.2"
 	},
 	"keywords": [],

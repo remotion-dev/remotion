@@ -1,0 +1,247 @@
+---
+image: /generated/articles-docs-mediabunny-extract-thumbnail.png
+title: Extracting a thumbnail from a video in JavaScript
+crumb: 'Mediabunny'
+sidebar_label: Extracting a thumbnail
+---
+
+Extracting a single frame (thumbnail) from a video file can be done using [Mediabunny](https://mediabunny.dev).
+
+Here's an `extractThumbnail()` function you can copy and paste into your project:
+
+```ts twoslash title="extract-thumbnail.ts"
+import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+
+export type ExtractThumbnailProps = {
+  src: string;
+  timestampInSeconds: number;
+  signal?: AbortSignal;
+};
+
+export async function extractThumbnail({src, timestampInSeconds, signal}: ExtractThumbnailProps): Promise<VideoSample> {
+  using input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src),
+  });
+
+  const videoTrack = await input.getPrimaryVideoTrack();
+  if (!videoTrack) {
+    throw new Error('No video track found in the input');
+  }
+  if (signal?.aborted) {
+    throw new Error('Aborted');
+  }
+
+  const sink = new VideoSampleSink(videoTrack);
+  const sample = await sink.getSample(timestampInSeconds);
+
+  if (!sample) {
+    throw new Error(`No frame found at timestamp ${timestampInSeconds}s`);
+  }
+
+  return sample;
+}
+```
+
+## Example
+
+Here is how you can draw a thumbnail to a canvas:
+
+```tsx twoslash
+import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+
+export type ExtractThumbnailProps = {
+  src: string;
+  timestampInSeconds: number;
+  signal?: AbortSignal;
+};
+
+export async function extractThumbnail({src, timestampInSeconds, signal}: ExtractThumbnailProps): Promise<VideoSample> {
+  using input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src),
+  });
+
+  const videoTrack = await input.getPrimaryVideoTrack();
+  if (!videoTrack) {
+    throw new Error('No video track found in the input');
+  }
+  if (signal?.aborted) {
+    throw new Error('Aborted');
+  }
+
+  const sink = new VideoSampleSink(videoTrack);
+  const sample = await sink.getSample(timestampInSeconds);
+
+  if (!sample) {
+    throw new Error(`No frame found at timestamp ${timestampInSeconds}s`);
+  }
+
+  return sample;
+}
+// ---cut---
+const sample = await extractThumbnail({
+  src: 'https://remotion.media/video.mp4',
+  timestampInSeconds: 5,
+});
+
+const canvas = document.createElement('canvas');
+canvas.width = sample.displayWidth;
+canvas.height = sample.displayHeight;
+const ctx = canvas.getContext('2d');
+sample.draw(ctx!, 0, 0);
+sample.close();
+```
+
+## Memory management
+
+The function returns a [`VideoSample`](https://mediabunny.dev/api/VideoSample#videosample) object. When it gets cleaned up by garbage collection, it will be automatically closed, but a warning will be printed.
+
+You can call [`.close()`](https://mediabunny.dev/api/VideoSample#close) to explicitly close the sample and prevent the warning from being printed.
+
+```ts title="Explicitly closing a sample"
+const sample = await extractThumbnail({
+  src: 'https://example.com/video.mp4',
+  timestampInSeconds: 5,
+});
+
+sample.draw(ctx!, 0, 0);
+sample.close();
+```
+
+Or, you can use the [`using`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/using) statement to clean up the sample when it goes out of scope.
+
+```ts
+using sample = await extractThumbnail({
+  src: 'https://example.com/video.mp4',
+  timestampInSeconds: 5,
+});
+
+sample.draw(ctx!, 0, 0);
+```
+
+## Abort frame extraction
+
+Pass an [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel thumbnail extraction:
+
+```ts twoslash
+import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+
+export type ExtractThumbnailProps = {
+  src: string;
+  timestampInSeconds: number;
+  signal?: AbortSignal;
+};
+
+export async function extractThumbnail({src, timestampInSeconds, signal}: ExtractThumbnailProps): Promise<VideoSample> {
+  using input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src),
+  });
+
+  const videoTrack = await input.getPrimaryVideoTrack();
+  if (!videoTrack) {
+    throw new Error('No video track found in the input');
+  }
+  if (signal?.aborted) {
+    throw new Error('Aborted');
+  }
+
+  const sink = new VideoSampleSink(videoTrack);
+  const sample = await sink.getSample(timestampInSeconds);
+
+  if (!sample) {
+    throw new Error(`No frame found at timestamp ${timestampInSeconds}s`);
+  }
+
+  return sample;
+}
+// ---cut---
+const controller = new AbortController();
+
+setTimeout(() => controller.abort(), 5000);
+
+try {
+  using sample = await extractThumbnail({
+    src: 'https://example.com/video.mp4',
+    timestampInSeconds: 10,
+    signal: controller.signal,
+  });
+
+  console.log('Got frame!');
+} catch (error) {
+  console.error('Thumbnail extraction was aborted or failed:', error);
+}
+```
+
+## Setting a timeout
+
+Here is how you can set a maximum duration for extracting a thumbnail:
+
+```ts twoslash title="Fail if not able to extract within 5 seconds"
+import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
+
+export type ExtractThumbnailProps = {
+  src: string;
+  timestampInSeconds: number;
+  signal?: AbortSignal;
+};
+
+export async function extractThumbnail({src, timestampInSeconds, signal}: ExtractThumbnailProps): Promise<VideoSample> {
+  using input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src),
+  });
+
+  const videoTrack = await input.getPrimaryVideoTrack();
+  if (!videoTrack) {
+    throw new Error('No video track found in the input');
+  }
+  if (signal?.aborted) {
+    throw new Error('Aborted');
+  }
+
+  const sink = new VideoSampleSink(videoTrack);
+  const sample = await sink.getSample(timestampInSeconds);
+
+  if (!sample) {
+    throw new Error(`No frame found at timestamp ${timestampInSeconds}s`);
+  }
+
+  return sample;
+}
+// ---cut---
+const controller = new AbortController();
+
+const timeoutPromise = new Promise<never>((_, reject) => {
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+    reject(new Error('Thumbnail extraction timed out after 5 seconds'));
+  }, 5000);
+
+  controller.signal.addEventListener('abort', () => clearTimeout(timeoutId), {once: true});
+});
+
+try {
+  using sample = await Promise.race([
+    extractThumbnail({
+      src: 'https://example.com/video.mp4',
+      timestampInSeconds: 10,
+      signal: controller.signal,
+    }),
+    timeoutPromise,
+  ]);
+
+  console.log('Got frame!');
+} catch (error) {
+  console.error('Thumbnail extraction was aborted or failed:', error);
+}
+```
+
+## See also
+
+- [Extracting video frames](/docs/mediabunny/extract-frames) - Extract multiple frames from a video
+- [Mediabunny Documentation](https://mediabunny.dev)
+- [Packets & samples in Mediabunny](https://mediabunny.dev/guide/packets-and-samples)
+- [`VideoSampleSink` API](https://mediabunny.dev/api/class/VideoSampleSink)
+- [Supported formats](/docs/mediabunny/formats)

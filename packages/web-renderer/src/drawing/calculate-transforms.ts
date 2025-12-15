@@ -2,7 +2,7 @@ import {parseTransformOrigin} from './parse-transform-origin';
 
 type Transform = {
 	matrix: DOMMatrix;
-	rect: HTMLElement | SVGSVGElement;
+	rect: HTMLElement | SVGElement;
 	transformOrigin: string;
 	boundingClientRect: DOMRect | null;
 };
@@ -28,13 +28,27 @@ const getGlobalTransformOrigin = (transform: Transform) => {
 	};
 };
 
-export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
+export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 	// Compute the cumulative transform by traversing parent nodes
-	let parent: HTMLElement | SVGSVGElement | null = element;
+	let parent: HTMLElement | SVGElement | null = element;
 	const transforms: Transform[] = [];
 	const toReset: (() => void)[] = [];
+
+	let opacity = 1;
+	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	while (parent) {
 		const computedStyle = getComputedStyle(parent);
+
+		// Multiply opacity values from element and all parents
+		const parentOpacity = computedStyle.opacity;
+		if (parentOpacity && parentOpacity !== '') {
+			opacity *= parseFloat(parentOpacity);
+		}
+
+		if (parent === element) {
+			elementComputedStyle = computedStyle;
+		}
+
 		if (
 			(computedStyle.transform && computedStyle.transform !== 'none') ||
 			parent === element
@@ -86,6 +100,10 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 		totalMatrix.multiplySelf(transformMatrix);
 	}
 
+	if (!elementComputedStyle) {
+		throw new Error('Element computed style not found');
+	}
+
 	return {
 		dimensions,
 		totalMatrix,
@@ -95,5 +113,7 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 			}
 		},
 		nativeTransformOrigin,
+		opacity,
+		computedStyle: elementComputedStyle,
 	};
 };

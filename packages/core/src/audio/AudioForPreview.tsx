@@ -173,6 +173,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		aud: propsToPass,
 		audioId: id,
 		premounting: Boolean(sequenceContext?.premounting),
+		postmounting: Boolean(sequenceContext?.postmounting),
 	});
 
 	useMediaInTimeline({

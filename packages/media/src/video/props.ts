@@ -47,6 +47,7 @@ type OptionalVideoProps = {
 	toneFrequency: number;
 	showInTimeline: boolean;
 	debugOverlay: boolean;
+	headless: boolean;
 };
 
 export type InnerVideoProps = MandatoryVideoProps &

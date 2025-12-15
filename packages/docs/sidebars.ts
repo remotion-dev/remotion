@@ -842,6 +842,7 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/snippets/freeze-portions',
 				'video-tags',
 				'miscellaneous/snippets/hls',
+				'videos/as-threejs-texture',
 			],
 		},
 		{
@@ -1244,6 +1245,7 @@ const sidebars: SidebarsConfig = {
 				'mediabunny/index',
 				'mediabunny/new-video',
 				'mediabunny/metadata',
+				'mediabunny/extract-thumbnail',
 				'mediabunny/extract-frames',
 				'mediabunny/can-decode',
 				'mediabunny/formats',
@@ -1420,6 +1422,7 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/undo-redo',
 				'editor-starter/copy-paste',
 				'editor-starter/cropping',
+				'editor-starter/snapping',
 				'editor-starter/fonts',
 				'editor-starter/asset-uploads',
 				'editor-starter/asset-cleanup',
