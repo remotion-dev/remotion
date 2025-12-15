@@ -19,7 +19,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 };
 
 export const Component = () => {
-	return <Video src={src} trimBefore={90} trimAfter={60 * 30} loop muted />;
+	return <Video src={src} trimBefore={90} trimAfter={60 * 30} loop />;
 };
 
 export const LoopedNewVideo = () => {
