@@ -4,7 +4,7 @@ const TARGET_NUMBER_OF_CHANNELS = 2;
 const TARGET_SAMPLE_RATE = 48000;
 
 function mixAudio(waves: Int16Array[], length: number) {
-	if (waves.length === 1) {
+	if (waves.length === 1 && waves[0].length === length) {
 		return waves[0];
 	}
 
