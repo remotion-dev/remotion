@@ -71,7 +71,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const startedDate = Date.now();
 
-	const chromiumParams = {...params.chromiumOptions};
+	const chromiumParams = {...(params.chromiumOptions ?? {})};
 
 	if (params.chromiumOptions?.gl === 'angle') {
 		RenderInternals.Log.warn(
