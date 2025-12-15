@@ -360,6 +360,10 @@ export class MediaPlayer {
 	}
 
 	public async play(time: number): Promise<void> {
+		if (this.playing) {
+			return;
+		}
+
 		const newTime = getTimeInSeconds({
 			unloopedTimeInSeconds: time,
 			playbackRate: this.playbackRate,
@@ -403,6 +407,10 @@ export class MediaPlayer {
 	};
 
 	public pause(): void {
+		if (!this.playing) {
+			return;
+		}
+
 		this.playing = false;
 		this.audioIteratorManager?.pausePlayback();
 
