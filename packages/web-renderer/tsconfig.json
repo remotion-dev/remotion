@@ -1,7 +1,7 @@
 {
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
-		"lib": ["dom", "dom.iterable"],
+		"lib": ["DOM", "DOM.Iterable", "ES2022"],
 		"rootDir": "src",
 		"outDir": "dist",
 		"module": "ESNext",
