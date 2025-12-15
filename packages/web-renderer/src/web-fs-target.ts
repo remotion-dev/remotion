@@ -1,8 +1,38 @@
 import type {StreamTargetChunk} from 'mediabunny';
 
+let sessionId: string | null = null;
+
+const getPrefix = () => {
+	if (!sessionId) {
+		sessionId = crypto.randomUUID();
+	}
+
+	return `__remotion_render:${sessionId}:`;
+};
+
+let cleanupRan = false;
+
+export const cleanupStaleOpfsFiles = async (): Promise<void> => {
+	if (cleanupRan) {
+		return;
+	}
+
+	cleanupRan = true;
+
+	const root = await navigator.storage.getDirectory();
+	for await (const [name] of root.entries()) {
+		if (
+			name.startsWith('__remotion_render:') &&
+			!name.startsWith(getPrefix())
+		) {
+			await root.removeEntry(name);
+		}
+	}
+};
+
 export const createWebFsTarget = async () => {
 	const directoryHandle = await navigator.storage.getDirectory();
-	const filename = `__remotion_render:${crypto.randomUUID()}`;
+	const filename = `${getPrefix()}${crypto.randomUUID()}`;
 
 	const fileHandle = await directoryHandle.getFileHandle(filename, {
 		create: true,

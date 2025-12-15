@@ -35,7 +35,7 @@ import {createFrame} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
 import {waitForReady} from './wait-for-ready';
-import {createWebFsTarget} from './web-fs-target';
+import {cleanupStaleOpfsFiles, createWebFsTarget} from './web-fs-target';
 
 export type InputPropsIfHasProps<
 	Schema extends AnyZodObject,
@@ -146,6 +146,10 @@ const internalRenderMediaOnWeb = async <
 	Schema,
 	Props
 >): Promise<RenderMediaOnWebResult> => {
+	if (outputTarget === 'web-fs') {
+		cleanupStaleOpfsFiles();
+	}
+
 	const cleanupFns: (() => void)[] = [];
 	const format = containerToMediabunnyContainer(container);
 
