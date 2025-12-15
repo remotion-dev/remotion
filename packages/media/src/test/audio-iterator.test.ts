@@ -58,7 +58,6 @@ test('media player should work', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -88,7 +87,6 @@ test('media player should work', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -145,7 +143,6 @@ test('should not create too many iterators when the audio ends', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -198,7 +195,6 @@ test('should create more iterators when seeking ', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -212,7 +208,6 @@ test('should create more iterators when seeking ', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
