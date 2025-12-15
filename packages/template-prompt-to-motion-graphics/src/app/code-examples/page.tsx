@@ -172,6 +172,7 @@ function DemoPageContent() {
               durationInFrames={selectedExample.durationInFrames}
               fps={selectedExample.fps}
               isCompiling={isCompiling}
+              isStreaming={false}
               error={error}
             />
           </div>

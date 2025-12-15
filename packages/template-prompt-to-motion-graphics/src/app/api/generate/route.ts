@@ -571,9 +571,12 @@ export async function POST(req: Request) {
 
   if (!apiKey) {
     return new Response(
-      JSON.stringify({ error: "OPENAI_API_KEY environment variable is not set" }),
+      JSON.stringify({
+        error:
+          'The environment variable "OPENAI_API_KEY" is not set. Add it to your .env file and try again.',
+      }),
       {
-        status: 500,
+        status: 400,
         headers: { "Content-Type": "application/json" },
       },
     );
@@ -613,7 +616,7 @@ export async function POST(req: Request) {
     console.error("Error generating code:", error);
     return new Response(
       JSON.stringify({
-        error: "Failed to generate code. Please check your API key.",
+        error: "Something went wrong while trying to reach OpenAI APIs.",
       }),
       { status: 500, headers: { "Content-Type": "application/json" } },
     );

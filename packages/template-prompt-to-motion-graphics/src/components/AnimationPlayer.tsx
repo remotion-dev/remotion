@@ -19,12 +19,13 @@ const renderErrorFallback: ErrorFallback = ({ error }) => {
 };
 
 interface AnimationPlayerProps {
-  Component: React.FC | null;
+  Component: React.ComponentType | null;
   durationInFrames: number;
   fps: number;
   isCompiling: boolean;
   isStreaming: boolean;
   error: string | null;
+  errorType?: "compilation" | "api";
 }
 
 export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
@@ -34,6 +35,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
   isCompiling,
   isStreaming,
   error,
+  errorType = "compilation",
 }) => {
   if (isStreaming) {
     return (
@@ -69,6 +71,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
   }
 
   if (error) {
+    const errorTitle = errorType === "api" ? "API Error" : "Compilation Error";
     return (
       <div className="flex flex-3 flex-col items-center bg-[#0a0a0a] min-w-0">
         <div className="w-full max-w-[1200px]">
@@ -78,7 +81,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
           <div className="w-full aspect-video flex justify-center items-center bg-[#2a1a1a] rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)] border border-[#dc2626]">
             <div className="text-center max-w-[80%]">
               <div className="text-[#dc2626] text-base font-semibold mb-2 font-sans">
-                Compilation Error
+                {errorTitle}
               </div>
               <div className="text-[#f87171] text-sm font-mono whitespace-pre-wrap break-words">
                 {error}

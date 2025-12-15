@@ -49,6 +49,7 @@ interface PromptInputProps {
   onCodeGenerated: (code: string) => void;
   onStreamingChange?: (isStreaming: boolean) => void;
   onStreamPhaseChange?: (phase: StreamPhase) => void;
+  onError?: (error: string) => void;
   variant?: "landing" | "editor";
   prompt?: string;
   onPromptChange?: (prompt: string) => void;
@@ -60,6 +61,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
       onCodeGenerated,
       onStreamingChange,
       onStreamPhaseChange,
+      onError,
       variant = "editor",
       prompt: controlledPrompt,
       onPromptChange,
@@ -89,7 +91,10 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
         });
 
         if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
+          const errorData = await response.json().catch(() => ({}));
+          const errorMessage =
+            errorData.error || `API error: ${response.status}`;
+          throw new Error(errorMessage);
         }
 
         const reader = response.body?.getReader();
@@ -142,6 +147,9 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
         }
       } catch (error) {
         console.error("Error generating code:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "An unexpected error occurred";
+        onError?.(errorMessage);
       } finally {
         setIsLoading(false);
         onStreamingChange?.(false);

@@ -35,6 +35,7 @@ function GeneratePageContent() {
   const [prompt, setPrompt] = useState(initialPrompt);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
   const [hasGeneratedOnce, setHasGeneratedOnce] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const { code, Component, error, isCompiling, setCode, compileCode } =
     useAnimationState(examples[0]?.code || "");
@@ -93,6 +94,14 @@ function GeneratePageContent() {
 
   const handleStreamingChange = useCallback((streaming: boolean) => {
     setIsStreaming(streaming);
+    // Clear API error when starting a new generation
+    if (streaming) {
+      setApiError(null);
+    }
+  }, []);
+
+  const handleApiError = useCallback((errorMessage: string) => {
+    setApiError(errorMessage);
   }, []);
 
   // Auto-trigger generation if prompt came from URL
@@ -134,7 +143,8 @@ function GeneratePageContent() {
             fps={fps}
             isCompiling={isCompiling}
             isStreaming={isStreaming}
-            error={error}
+            error={apiError || error}
+            errorType={apiError ? "api" : "compilation"}
           />
         </div>
 
@@ -143,6 +153,7 @@ function GeneratePageContent() {
           onCodeGenerated={handleCodeChange}
           onStreamingChange={handleStreamingChange}
           onStreamPhaseChange={setStreamPhase}
+          onError={handleApiError}
           prompt={prompt}
           onPromptChange={setPrompt}
         />
