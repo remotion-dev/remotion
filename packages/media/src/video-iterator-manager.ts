@@ -3,6 +3,7 @@ import {CanvasSink} from 'mediabunny';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import type {Nonce} from './nonce-manager';
+import {makePrewarmedVideoIteratorCache} from './prewarm-iterator-for-looping';
 import {
 	createVideoIterator,
 	type VideoIterator,
@@ -16,6 +17,9 @@ export const videoIteratorManager = ({
 	logLevel,
 	getOnVideoFrameCallback,
 	videoTrack,
+	getEndTime,
+	getStartTime,
+	getIsLooping,
 }: {
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => {unblock: () => void};
@@ -24,10 +28,14 @@ export const videoIteratorManager = ({
 	getOnVideoFrameCallback: () => null | ((frame: CanvasImageSource) => void);
 	logLevel: LogLevel;
 	drawDebugOverlay: () => void;
+	getEndTime: () => number;
+	getStartTime: () => number;
+	getIsLooping: () => boolean;
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
 	let framesRendered = 0;
+	let currentDelayHandle: {unblock: () => void} | null = null;
 
 	if (canvas) {
 		canvas.width = videoTrack.displayWidth;
@@ -39,6 +47,9 @@ export const videoIteratorManager = ({
 		fit: 'contain',
 		alpha: true,
 	});
+
+	const prewarmedVideoIteratorCache =
+		makePrewarmedVideoIteratorCache(canvasSink);
 
 	const drawFrame = (frame: WrappedCanvas): void => {
 		if (context && canvas) {
@@ -65,13 +76,23 @@ export const videoIteratorManager = ({
 		nonce: Nonce,
 	): Promise<void> => {
 		videoFrameIterator?.destroy();
-		const iterator = createVideoIterator(timeToSeek, canvasSink);
+		const iterator = createVideoIterator(
+			timeToSeek,
+			prewarmedVideoIteratorCache,
+		);
 		videoIteratorsCreated++;
 		videoFrameIterator = iterator;
 
 		const delayHandle = delayPlaybackHandleIfNotPremounting();
-		const frameResult = await iterator.getNext();
-		delayHandle.unblock();
+		currentDelayHandle = delayHandle;
+
+		let frameResult: IteratorResult<WrappedCanvas, void>;
+		try {
+			frameResult = await iterator.getNext();
+		} finally {
+			delayHandle.unblock();
+			currentDelayHandle = null;
+		}
 
 		if (iterator.isDestroyed()) {
 			return;
@@ -98,6 +119,15 @@ export const videoIteratorManager = ({
 			return;
 		}
 
+		if (getIsLooping()) {
+			// If less than 1 second from the end away, we pre-warm a new iterator
+			if (getEndTime() - newTime < 1) {
+				prewarmedVideoIteratorCache.prewarmIteratorForLooping({
+					timeToSeek: getStartTime(),
+				});
+			}
+		}
+
 		// Should return immediately, so it's okay to not use Promise.all here
 		const videoSatisfyResult =
 			await videoFrameIterator.tryToSatisfySeek(newTime);
@@ -122,9 +152,15 @@ export const videoIteratorManager = ({
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
 		seek,
 		destroy: () => {
+			prewarmedVideoIteratorCache.destroy();
 			videoFrameIterator?.destroy();
 			if (context && canvas) {
 				context.clearRect(0, 0, canvas.width, canvas.height);
+			}
+
+			if (currentDelayHandle) {
+				currentDelayHandle.unblock();
+				currentDelayHandle = null;
 			}
 
 			videoFrameIterator = null;

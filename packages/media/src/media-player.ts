@@ -7,7 +7,7 @@ import {
 } from './audio-iterator-manager';
 import {calculatePlaybackTime} from './calculate-playbacktime';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
-import {getTimeInSeconds} from './get-time-in-seconds';
+import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
 import {isNetworkError} from './is-type-of-error';
 import type {Nonce, NonceManager} from './nonce-manager';
 import {makeNonceManager} from './nonce-manager';
@@ -160,6 +160,21 @@ export class MediaPlayer {
 		return promise;
 	}
 
+	private getStartTime(): number {
+		return (this.trimBefore ?? 0) / this.fps;
+	}
+
+	private getEndTime(): number {
+		return calculateEndTime({
+			mediaDurationInSeconds: this.totalDuration!,
+			ifNoMediaDuration: 'fail',
+			src: this.src,
+			trimAfter: this.trimAfter,
+			trimBefore: this.trimBefore,
+			fps: this.fps,
+		});
+	}
+
 	private async _initialize(
 		startTimeUnresolved: number,
 	): Promise<MediaPlayerInitResult> {
@@ -228,6 +243,9 @@ export class MediaPlayer {
 					getOnVideoFrameCallback: () => this.onVideoFrameCallback,
 					logLevel: this.logLevel,
 					drawDebugOverlay: this.drawDebugOverlay,
+					getEndTime: () => this.getEndTime(),
+					getStartTime: () => this.getStartTime(),
+					getIsLooping: () => this.loop,
 				});
 			}
 
@@ -258,6 +276,14 @@ export class MediaPlayer {
 					delayPlaybackHandleIfNotPremounting:
 						this.delayPlaybackHandleIfNotPremounting,
 					sharedAudioContext: this.sharedAudioContext,
+					getIsLooping: () => this.loop,
+					getEndTime: () => this.getEndTime(),
+					getStartTime: () => this.getStartTime(),
+					updatePlaybackTime: (time: number) =>
+						this.setPlaybackTime(
+							time,
+							this.playbackRate * this.globalPlaybackRate,
+						),
 				});
 			}
 
