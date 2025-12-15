@@ -22,7 +22,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ text, className }) => {
       onClick={handleCopy}
       className={
         className ??
-        "flex items-center gap-1.5 px-2 py-1 text-xs text-[#888] hover:text-white hover:bg-[#3a3a3a] rounded transition-colors"
+        "flex items-center gap-1.5 px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
       }
     >
       {copied ? (

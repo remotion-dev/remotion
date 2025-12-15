@@ -71,21 +71,21 @@ function DemoPageContent() {
   const categories = Array.from(new Set(examples.map((e) => e.category)));
 
   return (
-    <div className="h-screen w-screen bg-[#0a0a0a] flex flex-col [&_::-webkit-scrollbar]:w-1.5 [&_::-webkit-scrollbar-track]:bg-transparent [&_::-webkit-scrollbar-thumb]:bg-[#333] [&_::-webkit-scrollbar-thumb]:rounded-full hover:[&_::-webkit-scrollbar-thumb]:bg-[#444]">
+    <div className="h-screen w-screen bg-background flex flex-col [&_::-webkit-scrollbar]:w-1.5 [&_::-webkit-scrollbar-track]:bg-transparent [&_::-webkit-scrollbar-thumb]:bg-border [&_::-webkit-scrollbar-thumb]:rounded-full hover:[&_::-webkit-scrollbar-thumb]:bg-secondary">
       {/* Header with logo */}
       <header className="flex items-center gap-6 py-8 px-12 shrink-0">
         <div className="flex flex-col gap-2">
           <Header asLink />
           <Link
             href="/"
-            className="flex items-center gap-1.5 text-xs text-[#666] hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground-dim hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-3 h-3" />
             Back to Home
           </Link>
         </div>
-        <div className="h-10 w-px bg-[#333]" />
-        <h1 className="text-sm font-medium text-[#888]">Example Gallery</h1>
+        <div className="h-10 w-px bg-border" />
+        <h1 className="text-sm font-medium text-muted-foreground">Example Gallery</h1>
       </header>
 
       {/* Main content with sidebar */}
@@ -101,7 +101,7 @@ function DemoPageContent() {
           >
             {categories.map((category) => (
               <div key={category} className="mb-6">
-                <h3 className="text-xs font-semibold text-[#666] uppercase tracking-wider mb-3">
+                <h3 className="text-xs font-semibold text-muted-foreground-dim uppercase tracking-wider mb-3">
                   {category}
                 </h3>
                 <div className="space-y-2">
@@ -118,14 +118,14 @@ function DemoPageContent() {
                         onClick={() => handleExampleSelect(example.id)}
                         className={`w-full text-left p-3 rounded-lg border transition-all ${
                           selectedExample.id === example.id
-                            ? "border-[#6366f1] bg-[#6366f1]/10 text-white"
-                            : "border-[#222] bg-[#111] text-gray-400 hover:border-[#333] hover:bg-[#1a1a1a]"
+                            ? "border-primary bg-primary/10 text-foreground"
+                            : "border-border-dim bg-muted text-gray-400 hover:border-border hover:bg-background-elevated"
                         }`}
                       >
                         <div className="font-medium text-sm">
                           {example.name}
                         </div>
-                        <div className="text-xs text-[#666] mt-1 line-clamp-2">
+                        <div className="text-xs text-muted-foreground-dim mt-1 line-clamp-2">
                           {example.description}
                         </div>
                       </button>
@@ -141,7 +141,7 @@ function DemoPageContent() {
           <div className="mb-4 flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg border border-[#222] bg-[#111] text-[#888] hover:text-white hover:border-[#333] transition-colors"
+              className="p-2 rounded-lg border border-border-dim bg-muted text-muted-foreground hover:text-foreground hover:border-border transition-colors"
               title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
             >
               {sidebarOpen ? (
@@ -151,10 +151,10 @@ function DemoPageContent() {
               )}
             </button>
             <div>
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-lg font-semibold text-foreground">
                 {selectedExample.name}
               </h2>
-              <p className="text-sm text-[#666]">
+              <p className="text-sm text-muted-foreground-dim">
                 {selectedExample.description}
               </p>
             </div>
@@ -186,8 +186,8 @@ export default function DemoPage() {
   return (
     <Suspense
       fallback={
-        <div className="h-screen w-screen bg-[#0a0a0a] flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-[#333] border-t-[#6366f1] rounded-full animate-spin" />
+        <div className="h-screen w-screen bg-background flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin" />
         </div>
       }
     >

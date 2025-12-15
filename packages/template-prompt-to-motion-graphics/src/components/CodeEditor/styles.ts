@@ -1,4 +1,12 @@
 export const EDITOR_STYLES = `
+  /* Override Monaco's vs-dark background to be darker than header */
+  .monaco-editor,
+  .monaco-editor .overflow-guard,
+  .monaco-editor-background,
+  .monaco-editor .inputarea.ime-input,
+  .monaco-editor .margin {
+    background-color: #1e1e1e !important;
+  }
   .readonly-line {
     background-color: rgba(80, 80, 80, 0.2) !important;
   }

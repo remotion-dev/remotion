@@ -195,13 +195,13 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
           onSubmit={handleSubmit}
           className={isLanding ? "w-full max-w-3xl" : ""}
         >
-          <div className="bg-[#1a1a1a] rounded-xl border border-[#333] p-4">
+          <div className="bg-background-elevated rounded-xl border border-border p-4">
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Describe your animation..."
-              className={`w-full bg-transparent text-white placeholder:text-[#666] focus:outline-none resize-none overflow-y-auto ${
+              className={`w-full bg-transparent text-foreground placeholder:text-muted-foreground-dim focus:outline-none resize-none overflow-y-auto ${
                 isLanding
                   ? "text-base min-h-[60px] max-h-[200px]"
                   : "text-sm min-h-[40px] max-h-[150px]"
@@ -210,21 +210,21 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
               disabled={isLoading}
             />
 
-            <div className="flex justify-between items-center mt-3 pt-3 border-t border-[#333]">
+            <div className="flex justify-between items-center mt-3 pt-3 border-t border-border">
               <Select
                 value={model}
                 onValueChange={(value) => setModel(value as ModelId)}
                 disabled={isLoading}
               >
-                <SelectTrigger className="w-auto bg-transparent border-none text-[#888] hover:text-white transition-colors">
+                <SelectTrigger className="w-auto bg-transparent border-none text-muted-foreground hover:text-foreground transition-colors">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a1a] border-[#333]">
+                <SelectContent className="bg-background-elevated border-border">
                   {MODELS.map((m) => (
                     <SelectItem
                       key={m.id}
                       value={m.id}
-                      className="text-white focus:bg-[#333] focus:text-white"
+                      className="text-foreground focus:bg-secondary focus:text-foreground"
                     >
                       {m.name}
                     </SelectItem>
@@ -235,7 +235,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
               <button
                 type="submit"
                 disabled={isLoading || !prompt.trim()}
-                className="p-2 rounded-lg bg-white text-black hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="p-2 rounded-lg bg-foreground text-background hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -251,7 +251,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
               isLanding ? "justify-center mt-6 gap-2" : ""
             }`}
           >
-            <span className="text-[#666] text-xs mr-1">Prompt Examples</span>
+            <span className="text-muted-foreground-dim text-xs mr-1">Prompt Examples</span>
             {examplePrompts.map((example) => {
               const Icon = iconMap[example.icon];
               return (
@@ -263,7 +263,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
                     borderColor: `${example.color}40`,
                     color: example.color,
                   }}
-                  className={`rounded-full bg-[#1a1a1a] border hover:brightness-125 transition-all flex items-center gap-1 px-1.5 py-0.5 text-[11px]`}
+                  className={`rounded-full bg-background-elevated border hover:brightness-125 transition-all flex items-center gap-1 px-1.5 py-0.5 text-[11px]`}
                 >
                   {Icon && (
                     <Icon className={isLanding ? "w-3 h-3" : "w-3 h-3"} />

@@ -164,8 +164,8 @@ function GeneratePageContent() {
 
 function LoadingFallback() {
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-[#0a0a0a]">
-      <Loader2 className="w-8 h-8 animate-spin text-white" />
+    <div className="flex h-screen w-screen items-center justify-center bg-background">
+      <Loader2 className="w-8 h-8 animate-spin text-foreground" />
     </div>
   );
 }

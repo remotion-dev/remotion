@@ -17,8 +17,8 @@ import { EDITOR_STYLES } from "./styles";
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
   loading: () => (
-    <div className="w-[600px] h-full flex justify-center items-center bg-[#1e1e1e]">
-      <span className="text-[#888] font-sans">Loading editor...</span>
+    <div className="w-[600px] h-full flex justify-center items-center bg-background-editor">
+      <span className="text-muted-foreground font-sans">Loading editor...</span>
     </div>
   ),
 });
@@ -271,8 +271,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   return (
     <div className="flex-2 h-full flex flex-col">
-      <h2 className="text-sm font-medium text-[#888] mb-3">Remotion Code</h2>
-      <div className="flex-1 flex flex-col bg-[#1e1e1e] rounded-lg overflow-hidden">
+      <h2 className="text-sm font-medium text-muted-foreground mb-3">Remotion Code</h2>
+      <div className="flex-1 flex flex-col bg-background-editor rounded-lg overflow-hidden">
         <EditorHeader filename="MyAnimation.tsx" code={code} />
       <style>{EDITOR_STYLES}</style>
       <div className="flex-1 overflow-hidden relative">

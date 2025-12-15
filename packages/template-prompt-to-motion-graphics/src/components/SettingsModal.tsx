@@ -36,19 +36,19 @@ export function SettingsModal({
           Settings
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] border-[#333] text-white">
+      <DialogContent className="sm:max-w-[425px] bg-background-elevated border-border text-foreground">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
-          <DialogDescription className="text-[#888]">
+          <DialogDescription className="text-muted-foreground">
             Configure your animation settings.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-6 py-4">
           <div className="grid gap-4">
-            <h3 className="text-sm font-medium text-white">Animation</h3>
+            <h3 className="text-sm font-medium text-foreground">Animation</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <label htmlFor="duration" className="text-[#888] text-sm">
+                <label htmlFor="duration" className="text-muted-foreground text-sm">
                   Duration (frames)
                 </label>
                 <input
@@ -60,11 +60,11 @@ export function SettingsModal({
                   onChange={(e) =>
                     onDurationChange(Math.max(1, parseInt(e.target.value) || 1))
                   }
-                  className="w-full px-3 py-2 rounded border border-[#333] bg-[#0f0f0f] text-white text-sm font-sans focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded border border-border bg-input text-foreground text-sm font-sans focus:outline-none focus:border-primary"
                 />
               </div>
               <div className="grid gap-2">
-                <label htmlFor="fps" className="text-[#888] text-sm">
+                <label htmlFor="fps" className="text-muted-foreground text-sm">
                   FPS
                 </label>
                 <input
@@ -78,11 +78,11 @@ export function SettingsModal({
                       Math.max(1, Math.min(60, parseInt(e.target.value) || 30)),
                     )
                   }
-                  className="w-full px-3 py-2 rounded border border-[#333] bg-[#0f0f0f] text-white text-sm font-sans focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded border border-border bg-input text-foreground text-sm font-sans focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
-            <p className="text-xs text-[#666]">
+            <p className="text-xs text-muted-foreground-dim">
               Video length: {(durationInFrames / fps).toFixed(2)}s (
               {durationInFrames} frames / {fps} FPS)
             </p>
