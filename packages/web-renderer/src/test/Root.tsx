@@ -21,6 +21,9 @@ import {opacitySimple} from './fixtures/opacity-simple';
 import {opacityZero} from './fixtures/opacity-zero';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
+import {perspectiveNested} from './fixtures/perspective-nested';
+import {perspectiveOrigin} from './fixtures/perspective-origin';
+import {perspectiveSimple} from './fixtures/perspective-simple';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
@@ -31,6 +34,7 @@ import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {unwrapped} from './fixtures/unwrapped';
 
 export const Root: React.FC = () => {
 	return (
@@ -59,6 +63,11 @@ export const Root: React.FC = () => {
 			<Composition {...opacitySimple} />
 			<Composition {...opacityNested} />
 			<Composition {...opacityZero} />
+			<Folder name="Perspective">
+				<Composition {...perspectiveSimple} />
+				<Composition {...perspectiveNested} />
+				<Composition {...perspectiveOrigin} />
+			</Folder>
 			<Composition {...backgroundColor} />
 			<Composition {...border} />
 			<Folder name="Text">
@@ -66,6 +75,9 @@ export const Root: React.FC = () => {
 				<Composition {...paragraphs} />
 				<Composition {...letterSpacing} />
 				<Composition {...textTransform} />
+			</Folder>
+			<Folder name="projects">
+				<Composition {...unwrapped} />
 			</Folder>
 		</>
 	);
