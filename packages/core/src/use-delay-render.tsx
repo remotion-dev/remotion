@@ -23,10 +23,16 @@ export const useDelayRender = (): {
 	const scope = useContext(DelayRenderContextType);
 	const logLevel = useLogLevel();
 
+	if (!scope) {
+		throw new Error(
+			'useDelayRender() was used, but there was no DelayRenderContextProvider.',
+		);
+	}
+
 	const delayRender = useCallback<DelayRenderFn>(
 		(label?: string, options?: DelayRenderOptions) => {
 			return delayRenderInternal({
-				scope: scope ?? (typeof window !== 'undefined' ? window : undefined),
+				scope,
 				environment,
 				label: label ?? null,
 				options: options ?? {},
@@ -38,7 +44,7 @@ export const useDelayRender = (): {
 	const continueRender = useCallback<ContinueRenderFn>(
 		(handle: number) => {
 			continueRenderInternal({
-				scope: scope ?? (typeof window !== 'undefined' ? window : undefined),
+				scope,
 				handle,
 				environment,
 				logLevel,

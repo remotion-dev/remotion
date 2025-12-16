@@ -16,15 +16,17 @@ export type DelayRenderScope = {
 	};
 	remotion_puppeteerTimeout: number;
 	remotion_attempt: number;
+	remotion_delayRenderHandles: number[];
 	remotion_cancelledError?: string;
 };
 
-const globalHandles: number[] = [];
 if (typeof window !== 'undefined') {
 	window.remotion_renderReady = false;
 	if (!window.remotion_delayRenderTimeouts) {
 		window.remotion_delayRenderTimeouts = {};
 	}
+
+	window.remotion_delayRenderHandles = [];
 }
 
 export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
@@ -47,13 +49,11 @@ export type DelayRenderOptions = {
  */
 export const delayRenderInternal = ({
 	scope,
-	scopedHandles,
 	environment,
 	label,
 	options,
 }: {
 	scope: DelayRenderScope;
-	scopedHandles: {ref: number[]};
 	environment: RemotionEnvironment;
 	label: string | null;
 	options: DelayRenderOptions;
@@ -66,7 +66,7 @@ export const delayRenderInternal = ({
 	}
 
 	const handle = Math.random();
-	scopedHandles.ref.push(handle);
+	scope.remotion_delayRenderHandles.push(handle);
 	const called = Error().stack?.replace(/^Error/g, '') ?? '';
 
 	if (environment.isRendering) {
@@ -115,7 +115,6 @@ export const delayRender = (
 
 	return delayRenderInternal({
 		scope: window,
-		scopedHandles: {ref: globalHandles},
 		environment: getRemotionEnvironment(),
 		label: label ?? null,
 		options: options ?? {},
@@ -128,13 +127,11 @@ export const delayRender = (
  */
 export const continueRenderInternal = ({
 	scope,
-	scopedHandles,
 	handle,
 	environment,
 	logLevel,
 }: {
 	scope: DelayRenderScope;
-	scopedHandles: {ref: number[]};
 	handle: number;
 	environment: RemotionEnvironment;
 	logLevel: LogLevel;
@@ -152,34 +149,36 @@ export const continueRenderInternal = ({
 		);
 	}
 
-	scopedHandles.ref = scopedHandles.ref.filter((h) => {
-		if (h === handle) {
-			if (environment.isRendering && scope !== undefined) {
-				if (!scope.remotion_delayRenderTimeouts[handle]) {
-					return false;
+	scope.remotion_delayRenderHandles = scope.remotion_delayRenderHandles.filter(
+		(h) => {
+			if (h === handle) {
+				if (environment.isRendering && scope !== undefined) {
+					if (!scope.remotion_delayRenderTimeouts[handle]) {
+						return false;
+					}
+
+					const {label, startTime, timeout} =
+						scope.remotion_delayRenderTimeouts[handle];
+					clearTimeout(timeout);
+					const message = [
+						label ? `"${label}"` : 'A handle',
+						DELAY_RENDER_CLEAR_TOKEN,
+						`${Date.now() - startTime}ms`,
+					]
+						.filter(truthy)
+						.join(' ');
+					Log.verbose({logLevel, tag: 'delayRender()'}, message);
+					delete scope.remotion_delayRenderTimeouts[handle];
 				}
 
-				const {label, startTime, timeout} =
-					scope.remotion_delayRenderTimeouts[handle];
-				clearTimeout(timeout);
-				const message = [
-					label ? `"${label}"` : 'A handle',
-					DELAY_RENDER_CLEAR_TOKEN,
-					`${Date.now() - startTime}ms`,
-				]
-					.filter(truthy)
-					.join(' ');
-				Log.verbose({logLevel, tag: 'delayRender()'}, message);
-				delete scope.remotion_delayRenderTimeouts[handle];
+				return false;
 			}
 
-			return false;
-		}
+			return true;
+		},
+	);
 
-		return true;
-	});
-
-	if (scopedHandles.ref.length === 0) {
+	if (scope.remotion_delayRenderHandles.length === 0) {
 		scope.remotion_renderReady = true;
 	}
 };
@@ -195,7 +194,6 @@ export const continueRender = (handle: number): void => {
 
 	continueRenderInternal({
 		scope: window,
-		scopedHandles: {ref: globalHandles},
 		handle,
 		environment: getRemotionEnvironment(),
 		logLevel: window.remotion_logLevel ?? 'info',
