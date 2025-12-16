@@ -50,7 +50,8 @@ The `text-transform` property is <a style={{color: 'green'}}>supported</a>.
 The `direction` HTML attribute is <a style={{color: 'green'}}>supported</a>.  
 The `writing-mode` property is <a style={{color: 'red'}}>not supported</a>.  
 The `text-decoration` property is <a style={{color: 'red'}}>not supported</a>.  
-The `text-shadow` property is <a style={{color: 'red'}}>not supported</a>.
+The `text-shadow` property is <a style={{color: 'red'}}>not supported</a>.  
+The `-webkit-text-stroke` property is <a style={{color: 'red'}}>not supported</a>.
 
 ## Supported elements
 
@@ -76,28 +77,26 @@ The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: '
 
 ## Unsupported styles
 
-All styles not explicitly mentioned are <a style={{color: 'red'}}>not supported</a>.  
+All styles not explicitly mentioned are <a style={{color: 'red'}}>not supported</a>.
 Here is a selection of unsupported styles:
 
+- `overflow`
+- `outline`
 - `mask-image`
 - `clip-path`
 - `box-shadow`
+- `filter` (blur, brightness, contrast, etc.)
+- `backdrop-filter`
+- `mix-blend-mode`
+- `background-blend-mode`
+- `object-fit`
+- `backface-visibility`
 - `z-index`
   - See [Z-indexing](#z-indexing) below.
-- `overflow`
-- Any other property not listed above.
+- Any other property not listed in this document.
 
-```tsx twoslash title="❌ Doesn't work: Cannot capture styles that don't change the layout"
-<canvas style={{backgroundColor: 'red'}} />
-```
-
-```tsx twoslash title="✅ Works: Styles that change the layout"
-<canvas style={{position: 'absolute', top: 100, left: 100}} />
-```
-
-Over time, we will support more elements and styles. We'll prioritize the most demanded ones.
-
-To get a better understanding of what works and what doesn't, read [how client-side rendering works](/docs/client-side-rendering/how-it-works) under the hood.
+Over time, we will support more elements and styles. We'll prioritize the most demanded ones.  
+See how you can [contribute](/docs/contributing/web-renderer) to add more supported styles.
 
 ## Z-indexing
 
