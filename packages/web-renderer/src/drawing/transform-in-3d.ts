@@ -85,32 +85,17 @@ export const transformIn3d = (
 	gl.useProgram(program);
 
 	// Create a quad (two triangles) with texture coordinates
+	// prettier-ignore
 	const vertices = new Float32Array([
 		// Position (x, y) + TexCoord (u, v)
-		0,
-		0,
-		0,
-		0, // bottom-left
-		canvasWidth,
-		0,
-		1,
-		0, // bottom-right
-		0,
-		canvasHeight,
-		0,
-		1, // top-left
-		0,
-		canvasHeight,
-		0,
-		1, // top-left
-		canvasWidth,
-		0,
-		1,
-		0, // bottom-right
-		canvasWidth,
-		canvasHeight,
-		1,
-		1, // top-right
+		// First:
+		offsetLeft, offsetTop, 0, 0, // bottom-left
+		canvasWidth + offsetLeft, offsetTop, 1, 0, // bottom-right
+		offsetLeft, canvasHeight + offsetTop, 0, 1, // top-left
+		// Second:
+		offsetLeft, canvasHeight + offsetTop, 0, 1, // top-left
+		canvasWidth + offsetLeft, offsetTop, 1, 0, // bottom-right
+		canvasWidth + offsetLeft, canvasHeight + offsetTop, 1, 1, // top-right
 	]);
 
 	const vertexBuffer = gl.createBuffer();

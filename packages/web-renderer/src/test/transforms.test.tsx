@@ -15,6 +15,7 @@ import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {withMargin} from './fixtures/transforms/with-margin';
+import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
 import {unwrapped} from './fixtures/unwrapped';
 import {testImage} from './utils';
 
@@ -191,4 +192,17 @@ test('Should render with margin', async () => {
 	});
 
 	await testImage({blob, testId: 'with-margin'});
+});
+
+test('Should render with negativemargin', async () => {
+	await page.viewport(1080, 1080);
+
+	const blob = await renderStillOnWeb({
+		composition: withNegativeMargin,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'with-negative-margin'});
 });

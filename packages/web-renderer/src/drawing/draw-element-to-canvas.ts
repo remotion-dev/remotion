@@ -55,14 +55,6 @@ export const drawElementToCanvas = async ({
 			totalMatrix: new DOMMatrix(),
 		});
 
-		console.log({
-			tempCanvasWidth,
-			tempCanvasHeight,
-			adjustedDimensions,
-			offsetLeft,
-			offsetTop,
-		});
-
 		const transformed = transformIn3d({
 			canvasWidth: tempCanvasWidth,
 			canvasHeight: tempCanvasHeight,
