@@ -53,7 +53,7 @@ export const delayRenderInternal = ({
 	options,
 }: {
 	scope: DelayRenderScope;
-	scopedHandles: number[];
+	scopedHandles: {ref: number[]};
 	environment: RemotionEnvironment;
 	label: string | null;
 	options: DelayRenderOptions;
@@ -66,7 +66,7 @@ export const delayRenderInternal = ({
 	}
 
 	const handle = Math.random();
-	scopedHandles.push(handle);
+	scopedHandles.ref.push(handle);
 	const called = Error().stack?.replace(/^Error/g, '') ?? '';
 
 	if (environment.isRendering) {
@@ -99,6 +99,27 @@ export const delayRenderInternal = ({
 	scope.remotion_renderReady = false;
 
 	return handle;
+};
+
+/*
+ * @description Call this function to signal that a frame should not be rendered until an asynchronous task (such as data fetching) is complete. Use continueRender(handle) to proceed with rendering once the task is complete.
+ * @see [Documentation](https://remotion.dev/docs/delay-render)
+ */
+export const delayRender = (
+	label?: string,
+	options?: DelayRenderOptions,
+): number => {
+	if (typeof window === 'undefined') {
+		return Math.random();
+	}
+
+	return delayRenderInternal({
+		scope: window,
+		scopedHandles: {ref: globalHandles},
+		environment: getRemotionEnvironment(),
+		label: label ?? null,
+		options: options ?? {},
+	});
 };
 
 /**
