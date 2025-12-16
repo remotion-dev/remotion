@@ -19,7 +19,7 @@ export type DelayRenderScope = {
 	remotion_cancelledError?: string;
 };
 
-let handles: number[] = [];
+const globalHandles: number[] = [];
 if (typeof window !== 'undefined') {
 	window.remotion_renderReady = false;
 	if (!window.remotion_delayRenderTimeouts) {
@@ -47,11 +47,13 @@ export type DelayRenderOptions = {
  */
 export const delayRenderInternal = ({
 	scope,
+	scopedHandles,
 	environment,
 	label,
 	options,
 }: {
 	scope: DelayRenderScope;
+	scopedHandles: number[];
 	environment: RemotionEnvironment;
 	label: string | null;
 	options: DelayRenderOptions;
@@ -64,7 +66,7 @@ export const delayRenderInternal = ({
 	}
 
 	const handle = Math.random();
-	handles.push(handle);
+	scopedHandles.push(handle);
 	const called = Error().stack?.replace(/^Error/g, '') ?? '';
 
 	if (environment.isRendering) {
@@ -105,11 +107,13 @@ export const delayRenderInternal = ({
  */
 export const continueRenderInternal = ({
 	scope,
+	scopedHandles,
 	handle,
 	environment,
 	logLevel,
 }: {
 	scope: DelayRenderScope;
+	scopedHandles: {ref: number[]};
 	handle: number;
 	environment: RemotionEnvironment;
 	logLevel: LogLevel;
@@ -127,7 +131,7 @@ export const continueRenderInternal = ({
 		);
 	}
 
-	handles = handles.filter((h) => {
+	scopedHandles.ref = scopedHandles.ref.filter((h) => {
 		if (h === handle) {
 			if (environment.isRendering && scope !== undefined) {
 				if (!scope.remotion_delayRenderTimeouts[handle]) {
@@ -154,13 +158,8 @@ export const continueRenderInternal = ({
 		return true;
 	});
 
-	if (typeof scope !== 'undefined') {
-		const scopeHasPendingHandles =
-			Object.keys(scope.remotion_delayRenderTimeouts).length > 0;
-
-		if (!scopeHasPendingHandles) {
-			scope.remotion_renderReady = true;
-		}
+	if (scopedHandles.ref.length === 0) {
+		scope.remotion_renderReady = true;
 	}
 };
 
@@ -175,6 +174,7 @@ export const continueRender = (handle: number): void => {
 
 	continueRenderInternal({
 		scope: window,
+		scopedHandles: {ref: globalHandles},
 		handle,
 		environment: getRemotionEnvironment(),
 		logLevel: window.remotion_logLevel ?? 'info',
