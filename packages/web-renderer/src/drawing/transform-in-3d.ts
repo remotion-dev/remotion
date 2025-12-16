@@ -14,7 +14,7 @@ function compileShader(
 	if (!shaderGl.getShaderParameter(shader, shaderGl.COMPILE_STATUS)) {
 		const log = shaderGl.getShaderInfoLog(shader);
 		shaderGl.deleteShader(shader);
-		throw new Error('Shader compile error:' + log);
+		throw new Error('Shader compile error: ' + log);
 	}
 
 	return shader;
@@ -79,7 +79,7 @@ export const transformIn3d = (
 	gl.linkProgram(program);
 
 	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-		throw new Error('Program link error:' + gl.getProgramInfoLog(program));
+		throw new Error('Program link error: ' + gl.getProgramInfoLog(program));
 	}
 
 	gl.useProgram(program);
