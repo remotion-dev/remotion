@@ -13,6 +13,7 @@ import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {withMargin} from './fixtures/transforms/with-margin';
 import {unwrapped} from './fixtures/unwrapped';
 import {testImage} from './utils';
 
@@ -152,7 +153,7 @@ test('flex-positioned scaled elements', async () => {
 	await testImage({blob, testId: 'flex-positioned-scaled'});
 });
 
-test('Github Unwrapped example', async () => {
+test.only('Github Unwrapped example', async () => {
 	await page.viewport(1080, 1080);
 
 	const blob = await renderStillOnWeb({
@@ -163,4 +164,30 @@ test('Github Unwrapped example', async () => {
 	});
 
 	await testImage({blob, testId: 'unwrapped'});
+});
+
+test.only('Should render orthographically if no perspective is set', async () => {
+	await page.viewport(1080, 1080);
+
+	const blob = await renderStillOnWeb({
+		composition: unwrapped,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'orthographic'});
+});
+
+test.only('Should render with margin', async () => {
+	await page.viewport(1080, 1080);
+
+	const blob = await renderStillOnWeb({
+		composition: withMargin,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'with-margin'});
 });
