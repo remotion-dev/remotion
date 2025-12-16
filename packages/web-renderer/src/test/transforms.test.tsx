@@ -194,7 +194,7 @@ test('Should render with margin', async () => {
 	await testImage({blob, testId: 'with-margin'});
 });
 
-test('Should render with negativemargin', async () => {
+test('Should render with negative margin', async () => {
 	await page.viewport(1080, 1080);
 
 	const blob = await renderStillOnWeb({
