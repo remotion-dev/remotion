@@ -16,7 +16,6 @@
 	"author": "Remotion <jonny@remotion.dev>",
 	"license": "UNLICENSED",
 	"dependencies": {
-		"@remotion/cli": "workspace:*",
 		"@remotion/licensing": "workspace:*",
 		"remotion": "workspace:*",
 		"mediabunny": "catalog:"
