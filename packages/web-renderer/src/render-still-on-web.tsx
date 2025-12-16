@@ -12,6 +12,7 @@ import type {
 	InferProps,
 } from './props-if-has-props';
 import type {InputPropsIfHasProps} from './render-media-on-web';
+import {sendUsageEvent} from './send-telemetry-event';
 import {takeScreenshot} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
 
@@ -34,6 +35,7 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	mediaCacheSizeInBytes: number | null;
 	signal: AbortSignal | null;
 	onArtifact: OnArtifact | null;
+	licenseKey: string | null;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -64,6 +66,7 @@ async function internalRenderStillOnWeb<
 	composition,
 	signal,
 	onArtifact,
+	licenseKey,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
@@ -134,6 +137,11 @@ async function internalRenderStillOnWeb<
 			await artifactsHandler.handle({imageData, frame, assets, onArtifact});
 		}
 
+		await sendUsageEvent({
+			licenseKey,
+			succeeded: true,
+		});
+
 		return imageData;
 	} finally {
 		cleanupScaffold();
@@ -155,5 +163,6 @@ export const renderStillOnWeb = <
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 		signal: options.signal ?? null,
 		onArtifact: options.onArtifact ?? null,
+		licenseKey: options.licenseKey ?? null,
 	});
 };

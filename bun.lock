@@ -2056,6 +2056,8 @@
       "name": "@remotion/web-renderer",
       "version": "4.0.391",
       "dependencies": {
+        "@remotion/cli": "workspace:*",
+        "@remotion/licensing": "workspace:*",
         "mediabunny": "catalog:",
         "remotion": "workspace:*",
       },

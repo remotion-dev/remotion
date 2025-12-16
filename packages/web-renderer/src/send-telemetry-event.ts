@@ -1,4 +1,5 @@
 import {registerUsageEvent} from '@remotion/licensing';
+import {Internals} from 'remotion';
 
 export const sendUsageEvent = async ({
 	licenseKey,
@@ -17,9 +18,16 @@ export const sendUsageEvent = async ({
 		return;
 	}
 
+	if (licenseKey === null) {
+		Internals.Log.warn(
+			{logLevel: 'warn', tag: 'web-renderer'},
+			'You need to provide a license key to use the web renderer going forward.',
+		);
+	}
+
 	await registerUsageEvent({
 		apiKey: licenseKey,
-		event: 'webcodec-conversion',
+		event: 'cloud-render',
 		host,
 		succeeded,
 	});

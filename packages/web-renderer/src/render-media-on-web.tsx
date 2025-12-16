@@ -28,11 +28,11 @@ import type {
 	CompositionCalculateMetadataOrExplicit,
 	InferProps,
 } from './props-if-has-props';
+import {sendUsageEvent} from './send-telemetry-event';
 import {createFrame} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
 import {waitForReady} from './wait-for-ready';
-import { sendUsageEvent } from './send-telemetry-event';
 
 export type InputPropsIfHasProps<
 	Schema extends AnyZodObject,
@@ -366,16 +366,10 @@ const internalRenderMediaOnWeb = async <
 		audioSampleSource.close();
 		await output.finalize();
 
-		if (licenseKey) {
-			await sendUsageEvent({
-				licenseKey,
-				succeeded: true,
-			});
-		} else if (licenseKey === "free-license") {
-			console.log('Using free license.')
-		} else {
-			console.warn('You need to provide a license key to use the web renderer.')
-		}
+		await sendUsageEvent({
+			licenseKey,
+			succeeded: true,
+		});
 
 		return output.target.buffer as ArrayBuffer;
 	} finally {
