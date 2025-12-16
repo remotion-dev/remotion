@@ -43,12 +43,12 @@ export const drawElementToCanvas = async ({
 			totalMatrix: new DOMMatrix(),
 		});
 
-		const transformed = transformIn3d(
-			dimensions.width,
-			dimensions.height,
-			totalMatrix,
-			tempCanvas,
-		);
+		const transformed = transformIn3d({
+			canvasWidth: dimensions.width,
+			canvasHeight: dimensions.height,
+			matrix: totalMatrix,
+			sourceCanvas: tempCanvas,
+		});
 		context.drawImage(transformed, 0, 0);
 	} else {
 		await drawElement({

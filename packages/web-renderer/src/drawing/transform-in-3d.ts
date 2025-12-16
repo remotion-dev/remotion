@@ -21,10 +21,17 @@ function compileShader(
 }
 
 export const transformIn3d = (
-	canvasWidth: number,
-	canvasHeight: number,
-	matrix: DOMMatrix,
-	sourceCanvas: HTMLCanvasElement | OffscreenCanvas, // Add source canvas parameter
+	{
+		canvasWidth,
+		canvasHeight,
+		matrix,
+		sourceCanvas,
+	}: {
+		canvasWidth: number;
+		canvasHeight: number;
+		matrix: DOMMatrix;
+		sourceCanvas: HTMLCanvasElement | OffscreenCanvas;
+	}, // Add source canvas parameter
 ) => {
 	const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
 	const gl = canvas.getContext('webgl');
@@ -138,24 +145,9 @@ export const transformIn3d = (
 	);
 
 	// The transform matrix
-	const transformMatrix = new Float32Array([
-		matrix.m11,
-		matrix.m12,
-		matrix.m13,
-		matrix.m14,
-		matrix.m21,
-		matrix.m22,
-		matrix.m23,
-		matrix.m24,
-		matrix.m31,
-		matrix.m32,
-		matrix.m33,
-		matrix.m34,
-		matrix.m41,
-		matrix.m42,
-		matrix.m43,
-		matrix.m44,
-	]);
+	const transformMatrix = matrix.toFloat32Array();
+
+	const zScale = 1_000_000_000; // By default infinite in chrome
 
 	// Create orthographic projection matrix for pixel coordinates
 	const projectionMatrix = new Float32Array([
@@ -169,7 +161,7 @@ export const transformIn3d = (
 		0,
 		0,
 		0,
-		1,
+		-2 / zScale,
 		0,
 		-1,
 		1,
