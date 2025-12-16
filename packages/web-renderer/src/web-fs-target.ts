@@ -25,7 +25,11 @@ export const cleanupStaleOpfsFiles = async (): Promise<void> => {
 			name.startsWith('__remotion_render:') &&
 			!name.startsWith(getPrefix())
 		) {
-			await root.removeEntry(name);
+			try {
+				await root.removeEntry(name);
+			} catch {
+				// File may be in use by another tab, skip it
+			}
 		}
 	}
 };
