@@ -76,7 +76,7 @@ export const Root: React.FC = () => {
 				<Composition {...letterSpacing} />
 				<Composition {...textTransform} />
 			</Folder>
-			<Folder name="projects">
+			<Folder name="Projects">
 				<Composition {...unwrapped} />
 			</Folder>
 		</>
