@@ -215,11 +215,9 @@ const internalRenderMediaOnWeb = async <
 	const webFsTarget =
 		outputTarget === 'web-fs' ? await createWebFsTarget() : null;
 
-	const bufferTarget = webFsTarget ? null : new BufferTarget();
-
 	const target = webFsTarget
 		? new StreamTarget(webFsTarget.stream)
-		: bufferTarget!;
+		: new BufferTarget()!;
 
 	const output = new Output({
 		format,
@@ -396,11 +394,15 @@ const internalRenderMediaOnWeb = async <
 			return {blob: new Blob([file], {type: mimeType})};
 		}
 
-		if (!bufferTarget?.buffer) {
+		if (!(target instanceof BufferTarget)) {
+			throw new Error('Expected target to be a BufferTarget');
+		}
+
+		if (!target.buffer) {
 			throw new Error('The resulting buffer is empty');
 		}
 
-		return {blob: new Blob([bufferTarget.buffer], {type: mimeType})};
+		return {blob: new Blob([target.buffer], {type: mimeType})};
 	} finally {
 		cleanupFns.forEach((fn) => fn());
 	}
