@@ -33,6 +33,7 @@ import {textTransform} from './fixtures/text/text-transform';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {withMargin} from './fixtures/transforms/with-margin';
+import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
 import {unwrapped} from './fixtures/unwrapped';
 
 export const Root: React.FC = () => {
@@ -74,6 +75,7 @@ export const Root: React.FC = () => {
 				<Composition {...unwrapped} />
 				<Composition {...orthographic} />
 				<Composition {...withMargin} />
+				<Composition {...withNegativeMargin} />
 			</Folder>
 		</>
 	);
