@@ -26,9 +26,13 @@ export const transformIn3d = (
 		canvasHeight,
 		matrix,
 		sourceCanvas,
+		offsetLeft,
+		offsetTop,
 	}: {
 		canvasWidth: number;
 		canvasHeight: number;
+		offsetLeft: number;
+		offsetTop: number;
 		matrix: DOMMatrix;
 		sourceCanvas: HTMLCanvasElement | OffscreenCanvas;
 	}, // Add source canvas parameter
