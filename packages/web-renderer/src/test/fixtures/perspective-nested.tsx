@@ -20,20 +20,22 @@ const Component: React.FC = () => {
 				backgroundColor: 'white',
 			}}
 		>
-			<div style={{perspective: '800px'}}>
+			<div style={{perspective: '800px', transformStyle: 'preserve-3d'}}>
 				<div
 					style={{
-						transform: 'rotateX(30deg)',
+						transform: 'rotateX(50deg)',
 						transformStyle: 'preserve-3d',
+						perspective: '200px',
 					}}
 				>
-					<canvas
-						ref={ref}
+					<div
 						style={{
-							transform: 'rotateY(30deg)',
+							width: 80,
+							height: 80,
+							backgroundColor: 'blue',
+							transformStyle: 'preserve-3d',
+							transform: 'rotateY(50deg)',
 						}}
-						width={80}
-						height={80}
 					/>
 				</div>
 			</div>
