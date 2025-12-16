@@ -13,6 +13,7 @@ import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {unwrapped} from './fixtures/unwrapped';
 import {testImage} from './utils';
 
 test('should be able to deal with a simple transform directly on the element', async () => {
@@ -149,4 +150,17 @@ test('flex-positioned scaled elements', async () => {
 	});
 
 	await testImage({blob, testId: 'flex-positioned-scaled'});
+});
+
+test('Github Unwrapped example', async () => {
+	await page.viewport(1080, 1080);
+
+	const blob = await renderStillOnWeb({
+		composition: unwrapped,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'unwrapped'});
 });

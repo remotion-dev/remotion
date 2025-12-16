@@ -31,6 +31,7 @@ import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {unwrapped} from './fixtures/unwrapped';
 
 export const Root: React.FC = () => {
 	return (
@@ -66,6 +67,9 @@ export const Root: React.FC = () => {
 				<Composition {...paragraphs} />
 				<Composition {...letterSpacing} />
 				<Composition {...textTransform} />
+			</Folder>
+			<Folder name="Projects">
+				<Composition {...unwrapped} />
 			</Folder>
 		</>
 	);
