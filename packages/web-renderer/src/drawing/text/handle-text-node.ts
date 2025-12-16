@@ -1,17 +1,3 @@
-// Supported:
-// - fontFamily
-// - fontSize
-// - fontWeight
-// - color
-// - lineHeight
-// - direction
-// - letterSpacing
-// - textTransform
-
-// Not supported:
-// - writingMode
-// - textDecoration
-
 import {Internals} from 'remotion';
 import {drawElementToCanvas} from '../draw-element-to-canvas';
 import {findLineBreaks} from './find-line-breaks.text';

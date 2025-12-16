@@ -85,6 +85,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 		remotion_delayRenderTimeouts: {},
 		remotion_puppeteerTimeout: delayRenderTimeoutInMilliseconds,
 		remotion_attempt: 0,
+		remotion_delayRenderHandles: [],
 	};
 
 	const timeUpdater = createRef<TimeUpdaterRef | null>();

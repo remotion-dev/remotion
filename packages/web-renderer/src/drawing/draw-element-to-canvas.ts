@@ -1,8 +1,6 @@
-import {parseBorderRadius, setBorderRadius} from './border-radius';
 import {calculateTransforms} from './calculate-transforms';
-import {drawBorder} from './draw-border';
-import {setOpacity} from './opacity';
-import {setTransform} from './transform';
+import {drawElement} from './draw-element';
+import {transformIn3d} from './transform-in-3d';
 
 export const drawElementToCanvas = async ({
 	element,
@@ -29,64 +27,53 @@ export const drawElementToCanvas = async ({
 		return;
 	}
 
-	const background = computedStyle.backgroundColor;
-	const borderRadius = parseBorderRadius({
-		borderRadius: computedStyle.borderRadius,
-		width: dimensions.width,
-		height: dimensions.height,
-	});
+	if (!totalMatrix.is2D) {
+		const offsetLeft = Math.min(dimensions.left, 0);
+		const offsetTop = Math.min(dimensions.top, 0);
 
-	const finishTransform = setTransform({
-		ctx: context,
-		transform: totalMatrix,
-	});
-	const finishBorderRadius = setBorderRadius({
-		ctx: context,
-		x: dimensions.left,
-		y: dimensions.top,
-		width: dimensions.width,
-		height: dimensions.height,
-		borderRadius,
-	});
-	const finishOpacity = setOpacity({
-		ctx: context,
-		opacity,
-	});
+		const tempCanvasWidth = Math.max(dimensions.width, dimensions.right);
+		const tempCanvasHeight = Math.max(dimensions.height, dimensions.bottom);
+		const tempCanvas = new OffscreenCanvas(tempCanvasWidth, tempCanvasHeight);
+		const context2 = tempCanvas.getContext('2d');
+		if (!context2) {
+			throw new Error('Could not get context');
+		}
 
-	if (
-		background &&
-		background !== 'transparent' &&
-		!(
-			background.startsWith('rgba') &&
-			(background.endsWith(', 0)') || background.endsWith(',0'))
-		)
-	) {
-		const originalFillStyle = context.fillStyle;
-		context.fillStyle = background;
-		context.fillRect(
-			dimensions.left,
-			dimensions.top,
+		const adjustedDimensions = new DOMRect(
+			dimensions.left - offsetLeft,
+			dimensions.top - offsetTop,
 			dimensions.width,
 			dimensions.height,
 		);
-		context.fillStyle = originalFillStyle;
+
+		await drawElement({
+			dimensions: adjustedDimensions,
+			computedStyle,
+			context: context2,
+			draw,
+			opacity,
+			totalMatrix: new DOMMatrix(),
+		});
+
+		const transformed = transformIn3d({
+			canvasWidth: tempCanvasWidth,
+			canvasHeight: tempCanvasHeight,
+			matrix: totalMatrix,
+			sourceCanvas: tempCanvas,
+			offsetLeft,
+			offsetTop,
+		});
+		context.drawImage(transformed, 0, 0);
+	} else {
+		await drawElement({
+			dimensions,
+			computedStyle,
+			context,
+			draw,
+			opacity,
+			totalMatrix,
+		});
 	}
-
-	await draw(dimensions, computedStyle);
-
-	drawBorder({
-		ctx: context,
-		x: dimensions.left,
-		y: dimensions.top,
-		width: dimensions.width,
-		height: dimensions.height,
-		borderRadius,
-		computedStyle,
-	});
-
-	finishOpacity();
-	finishBorderRadius();
-	finishTransform();
 
 	reset();
 };

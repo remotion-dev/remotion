@@ -13,7 +13,6 @@ const getForFrame = (frame: number, content: React.ReactNode) => {
 		<WrapSequenceContext>
 			<TimelineContext.Provider
 				value={{
-					frameRef: {current: frame},
 					frame: {
 						'my-comp': frame,
 					},

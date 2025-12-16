@@ -1,4 +1,4 @@
-import type {MutableRefObject, RefObject} from 'react';
+import type {MutableRefObject} from 'react';
 import {useContext, useMemo} from 'react';
 import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -56,11 +56,6 @@ export const useTimelinePosition = (): number => {
 		(env.isPlayer ? 0 : getFrameForComposition(videoConfig.id));
 
 	return Math.min(videoConfig.durationInFrames - 1, unclamped);
-};
-
-export const useTimelineFrameRef = (): RefObject<number> => {
-	const {frameRef} = useContext(TimelineContext);
-	return frameRef;
 };
 
 export const useTimelineSetFrame = (): ((
