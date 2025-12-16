@@ -20,23 +20,33 @@ function compileShader(
 	return shader;
 }
 
-export const transformIn3d = (
-	{
-		canvasWidth,
-		canvasHeight,
-		matrix,
-		sourceCanvas,
-		offsetLeft,
-		offsetTop,
-	}: {
-		canvasWidth: number;
-		canvasHeight: number;
-		offsetLeft: number;
-		offsetTop: number;
-		matrix: DOMMatrix;
-		sourceCanvas: HTMLCanvasElement | OffscreenCanvas;
-	}, // Add source canvas parameter
-) => {
+type HelperCanvas = {
+	canvas: OffscreenCanvas;
+	gl: WebGLRenderingContext;
+	program: WebGLProgram;
+};
+
+let helperCanvas: HelperCanvas | null = null;
+
+const createHelperCanvas = ({
+	canvasWidth,
+	canvasHeight,
+}: {
+	canvasWidth: number;
+	canvasHeight: number;
+}) => {
+	if (
+		helperCanvas &&
+		helperCanvas.canvas.width >= canvasWidth &&
+		helperCanvas.canvas.height >= canvasHeight
+	) {
+		// Clear and draw
+		helperCanvas.gl.clearColor(0, 0, 0, 0); // Transparent background
+		helperCanvas.gl.clear(helperCanvas.gl.COLOR_BUFFER_BIT);
+
+		return helperCanvas;
+	}
+
 	const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
 	const gl = canvas.getContext('webgl');
 
@@ -84,6 +94,41 @@ export const transformIn3d = (
 
 	gl.useProgram(program);
 
+	// Clear and draw
+	gl.clearColor(0, 0, 0, 0); // Transparent background
+	gl.clear(gl.COLOR_BUFFER_BIT);
+
+	// Enable blending for transparency
+	gl.enable(gl.BLEND);
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+	const vertexBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
+	helperCanvas = {canvas, gl, program};
+
+	return helperCanvas;
+};
+
+export const transformIn3d = (
+	{
+		canvasWidth,
+		canvasHeight,
+		matrix,
+		sourceCanvas,
+		offsetLeft,
+		offsetTop,
+	}: {
+		canvasWidth: number;
+		canvasHeight: number;
+		offsetLeft: number;
+		offsetTop: number;
+		matrix: DOMMatrix;
+		sourceCanvas: HTMLCanvasElement | OffscreenCanvas;
+	}, // Add source canvas parameter
+) => {
+	const {canvas, gl, program} = createHelperCanvas({canvasWidth, canvasHeight});
+
 	// Create a quad (two triangles) with texture coordinates
 	// prettier-ignore
 	const vertices = new Float32Array([
@@ -98,8 +143,6 @@ export const transformIn3d = (
 		canvasWidth + offsetLeft, canvasHeight + offsetTop, 1, 1, // top-right
 	]);
 
-	const vertexBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
 	const aPosition = gl.getAttribLocation(program, 'aPosition');
@@ -140,12 +183,12 @@ export const transformIn3d = (
 
 	// Create orthographic projection matrix for pixel coordinates
 	const projectionMatrix = new Float32Array([
-		2 / canvasWidth,
+		2 / canvas.width,
 		0,
 		0,
 		0,
 		0,
-		-2 / canvasHeight,
+		-2 / canvas.height,
 		0,
 		0,
 		0,
@@ -166,15 +209,10 @@ export const transformIn3d = (
 	gl.uniformMatrix4fv(uProjection, false, projectionMatrix);
 	gl.uniform1i(uTexture, 0); // Use texture unit 0
 
-	// Clear and draw
-	gl.clearColor(0, 0, 0, 0); // Transparent background
-	gl.clear(gl.COLOR_BUFFER_BIT);
-
-	// Enable blending for transparency
-	gl.enable(gl.BLEND);
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+	// Clean up resources to prevent leaks and ensure clean state for reuse
+	gl.deleteTexture(texture);
 
 	return canvas;
 };
