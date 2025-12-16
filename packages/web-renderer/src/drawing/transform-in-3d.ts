@@ -102,9 +102,6 @@ const createHelperCanvas = ({
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-	const vertexBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-
 	helperCanvas = {canvas, gl, program};
 
 	return helperCanvas;
@@ -128,6 +125,9 @@ export const transformIn3d = (
 	}, // Add source canvas parameter
 ) => {
 	const {canvas, gl, program} = createHelperCanvas({canvasWidth, canvasHeight});
+
+	const vertexBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
 	// Create a quad (two triangles) with texture coordinates
 	// prettier-ignore
@@ -213,6 +213,7 @@ export const transformIn3d = (
 
 	// Clean up resources to prevent leaks and ensure clean state for reuse
 	gl.deleteTexture(texture);
+	gl.deleteBuffer(vertexBuffer);
 
 	return canvas;
 };
