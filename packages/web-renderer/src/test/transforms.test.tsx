@@ -13,6 +13,7 @@ import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {orthographic} from './fixtures/transforms/orthographic';
 import {withMargin} from './fixtures/transforms/with-margin';
 import {unwrapped} from './fixtures/unwrapped';
 import {testImage} from './utils';
@@ -153,7 +154,7 @@ test('flex-positioned scaled elements', async () => {
 	await testImage({blob, testId: 'flex-positioned-scaled'});
 });
 
-test.only('Github Unwrapped example', async () => {
+test('Github Unwrapped example', async () => {
 	await page.viewport(1080, 1080);
 
 	const blob = await renderStillOnWeb({
@@ -166,11 +167,11 @@ test.only('Github Unwrapped example', async () => {
 	await testImage({blob, testId: 'unwrapped'});
 });
 
-test.only('Should render orthographically if no perspective is set', async () => {
+test('Should render orthographically if no perspective is set', async () => {
 	await page.viewport(1080, 1080);
 
 	const blob = await renderStillOnWeb({
-		composition: unwrapped,
+		composition: orthographic,
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',
@@ -179,7 +180,7 @@ test.only('Should render orthographically if no perspective is set', async () =>
 	await testImage({blob, testId: 'orthographic'});
 });
 
-test.only('Should render with margin', async () => {
+test('Should render with margin', async () => {
 	await page.viewport(1080, 1080);
 
 	const blob = await renderStillOnWeb({

@@ -28,7 +28,9 @@ export const drawElementToCanvas = async ({
 	}
 
 	if (!totalMatrix.is2D) {
-		const tempCanvas = new OffscreenCanvas(dimensions.width, dimensions.height);
+		const tempCanvasWidth = Math.max(dimensions.width, dimensions.right);
+		const tempCanvasHeight = Math.max(dimensions.height, dimensions.bottom);
+		const tempCanvas = new OffscreenCanvas(tempCanvasWidth, tempCanvasHeight);
 		const context2 = tempCanvas.getContext('2d');
 		if (!context2) {
 			throw new Error('Could not get context');
@@ -44,8 +46,8 @@ export const drawElementToCanvas = async ({
 		});
 
 		const transformed = transformIn3d({
-			canvasWidth: dimensions.width,
-			canvasHeight: dimensions.height,
+			canvasWidth: tempCanvasWidth,
+			canvasHeight: tempCanvasHeight,
 			matrix: totalMatrix,
 			sourceCanvas: tempCanvas,
 		});
