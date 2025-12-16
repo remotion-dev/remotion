@@ -20,17 +20,17 @@ export const useDelayRender = (): {
 	cancelRender: CancelRenderFn;
 } => {
 	const environment = useRemotionEnvironment();
-	const scope = useContext(DelayRenderContextType);
+	const scope =
+		useContext(DelayRenderContextType) ??
+		(typeof window !== 'undefined' ? window : undefined);
 	const logLevel = useLogLevel();
-
-	if (!scope) {
-		throw new Error(
-			'useDelayRender() was used, but there was no DelayRenderContextProvider.',
-		);
-	}
 
 	const delayRender = useCallback<DelayRenderFn>(
 		(label?: string, options?: DelayRenderOptions) => {
+			if (!scope) {
+				return Math.random();
+			}
+
 			return delayRenderInternal({
 				scope,
 				environment,
@@ -43,6 +43,10 @@ export const useDelayRender = (): {
 
 	const continueRender = useCallback<ContinueRenderFn>(
 		(handle: number) => {
+			if (!scope) {
+				return;
+			}
+
 			continueRenderInternal({
 				scope,
 				handle,
