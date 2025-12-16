@@ -81,7 +81,6 @@ const ThumbnailFn = <
 
 	const timelineState: TimelineContextValue = useMemo(() => {
 		const value: TimelineContextValue = {
-			frameRef: {current: frameToDisplay},
 			playing: false,
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
