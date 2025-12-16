@@ -32,6 +32,10 @@ import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {orthographic} from './fixtures/transforms/orthographic';
+import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
+import {transformWithRotate} from './fixtures/transforms/transform-with-rotate';
+import {transformWithScale} from './fixtures/transforms/transform-with-scale';
+import {transformWithTranslate} from './fixtures/transforms/transform-with-translate';
 import {withMargin} from './fixtures/transforms/with-margin';
 import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
 import {unwrapped} from './fixtures/unwrapped';
@@ -76,6 +80,10 @@ export const Root: React.FC = () => {
 				<Composition {...orthographic} />
 				<Composition {...withMargin} />
 				<Composition {...withNegativeMargin} />
+				<Composition {...transformWithScale} />
+				<Composition {...transformWithRotate} />
+				<Composition {...transformWithTranslate} />
+				<Composition {...transformWithAllShorthands} />
 			</Folder>
 		</>
 	);
