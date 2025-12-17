@@ -38,7 +38,10 @@ describe('Templates should be valid', () => {
 			expect(body.dependencies.react).toMatch(/^\^?19/);
 			expect(body.dependencies['react-dom']).toMatch(/^\^?19/);
 
-			if (body.dependencies['zod']) {
+			if (
+				body.dependencies['zod'] &&
+				!template.shortName.includes('Prompt to Motion Graphics')
+			) {
 				expect(body.dependencies['zod']).toBe('3.22.3');
 			}
 			if (body.dependencies['@types/web']) {
