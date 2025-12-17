@@ -1659,6 +1659,7 @@
         "@next/eslint-plugin-next": "15.1.6",
         "@remotion/eslint-plugin": "workspace:*",
         "@tailwindcss/postcss": "4.1.1",
+        "@types/babel__standalone": "7.1.9",
         "@types/node": "20.12.14",
         "@types/react": "19.2.7",
         "@types/react-dom": "19.2.3",
