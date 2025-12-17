@@ -40,7 +40,7 @@ const Component: React.FC = () => {
   );
 };
 
-const {blob} = await renderMediaOnWeb({
+const {getBlob} = await renderMediaOnWeb({
   composition: {
     component: Component,
     durationInFrames: 100,
