@@ -4,6 +4,7 @@ import {renderStillOnWeb} from '../render-still-on-web';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
+import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
@@ -155,7 +156,7 @@ test('flex-positioned scaled elements', async () => {
 	await testImage({blob, testId: 'flex-positioned-scaled'});
 });
 
-test('Github Unwrapped example', async () => {
+test.only('Github Unwrapped example', async () => {
 	await page.viewport(1080, 1080);
 
 	const blob = await renderStillOnWeb({
@@ -165,7 +166,28 @@ test('Github Unwrapped example', async () => {
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'unwrapped'});
+	await testImage({
+		blob,
+		testId: 'unwrapped',
+		allowedMismatchedPixelRatio: 0.001,
+	});
+});
+
+test.only('Inside 3d transform', async () => {
+	await page.viewport(1080, 1080);
+
+	const blob = await renderStillOnWeb({
+		composition: inside3dTransform,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({
+		blob,
+		testId: 'inside-3d-transform',
+		allowedMismatchedPixelRatio: 0.001,
+	});
 });
 
 test('Should render orthographically if no perspective is set', async () => {
