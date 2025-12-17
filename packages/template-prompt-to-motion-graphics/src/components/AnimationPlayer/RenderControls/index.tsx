@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ErrorComp } from "./Error";
 import { ProgressBar } from "./ProgressBar";
 import { DownloadButton } from "./DownloadButton";
-import { useRendering } from "../helpers/use-rendering";
+import { useRendering } from "../../../helpers/use-rendering";
 
 export const RenderControls: React.FC<{
   code: string;
