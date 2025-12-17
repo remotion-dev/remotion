@@ -7,29 +7,42 @@ import {skipToNextNonDescendant} from './walk-tree';
 const walkOverNode = ({
 	node,
 	context,
+	offsetLeft,
+	offsetTop,
 }: {
 	node: Node;
 	context: OffscreenCanvasRenderingContext2D;
+	offsetLeft: number;
+	offsetTop: number;
 }): Promise<DrawElementToCanvasReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
 		return drawElementToCanvas({
 			element: node,
 			context,
 			draw: drawDomElement(node),
+			offsetLeft,
+			offsetTop,
 		});
 	}
 
 	if (node instanceof Text) {
-		return handleTextNode(node, context);
+		return handleTextNode({node, context, offsetLeft, offsetTop});
 	}
 
 	throw new Error('Unknown node type');
 };
 
-export const compose = async (
-	element: HTMLElement | SVGElement,
-	context: OffscreenCanvasRenderingContext2D,
-) => {
+export const compose = async ({
+	element,
+	context,
+	offsetLeft,
+	offsetTop,
+}: {
+	element: HTMLElement | SVGElement;
+	context: OffscreenCanvasRenderingContext2D;
+	offsetLeft: number;
+	offsetTop: number;
+}) => {
 	const treeWalker = document.createTreeWalker(
 		element,
 		NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
@@ -53,7 +66,12 @@ export const compose = async (
 	);
 
 	while (true) {
-		const val = await walkOverNode({node: treeWalker.currentNode, context});
+		const val = await walkOverNode({
+			node: treeWalker.currentNode,
+			context,
+			offsetLeft,
+			offsetTop,
+		});
 		if (val === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {
 				break;

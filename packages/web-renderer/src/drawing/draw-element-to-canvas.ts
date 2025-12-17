@@ -10,10 +10,14 @@ export const drawElementToCanvas = async ({
 	element,
 	context,
 	draw,
+	offsetLeft,
+	offsetTop,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
 	draw: DrawFn;
+	offsetLeft: number;
+	offsetTop: number;
 }): Promise<DrawElementToCanvasReturnValue> => {
 	const {totalMatrix, reset, dimensions, opacity, computedStyle} =
 		calculateTransforms(element);
@@ -29,8 +33,8 @@ export const drawElementToCanvas = async ({
 	}
 
 	if (!totalMatrix.is2D) {
-		const offsetLeft = Math.min(dimensions.left, 0);
-		const offsetTop = Math.min(dimensions.top, 0);
+		const canvasOffsetLeft = Math.min(dimensions.left, 0);
+		const canvasOffsetTop = Math.min(dimensions.top, 0);
 
 		const tempCanvasWidth = Math.max(dimensions.width, dimensions.right);
 		const tempCanvasHeight = Math.max(dimensions.height, dimensions.bottom);
@@ -40,15 +44,20 @@ export const drawElementToCanvas = async ({
 			throw new Error('Could not get context');
 		}
 
-		await compose(element, context2);
+		await compose({
+			element,
+			context: context2,
+			offsetLeft: canvasOffsetLeft,
+			offsetTop: canvasOffsetTop,
+		});
 
 		const transformed = transformIn3d({
 			canvasWidth: tempCanvasWidth,
 			canvasHeight: tempCanvasHeight,
 			matrix: totalMatrix,
 			sourceCanvas: tempCanvas,
-			offsetLeft,
-			offsetTop,
+			offsetLeft: canvasOffsetLeft,
+			offsetTop: canvasOffsetTop,
 		});
 		context.drawImage(transformed, 0, 0);
 		reset();
@@ -57,7 +66,12 @@ export const drawElementToCanvas = async ({
 	}
 
 	await drawElement({
-		dimensions,
+		dimensions: new DOMRect(
+			dimensions.left - offsetLeft,
+			dimensions.top - offsetTop,
+			dimensions.width,
+			dimensions.height,
+		),
 		computedStyle,
 		context,
 		draw,

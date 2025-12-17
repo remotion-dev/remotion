@@ -2,10 +2,17 @@ import type {DrawElementToCanvasReturnValue} from '../draw-element-to-canvas';
 import {drawElementToCanvas} from '../draw-element-to-canvas';
 import {drawText} from './draw-text';
 
-export const handleTextNode = async (
-	node: Text,
-	context: OffscreenCanvasRenderingContext2D,
-): Promise<DrawElementToCanvasReturnValue> => {
+export const handleTextNode = async ({
+	node,
+	context,
+	offsetLeft,
+	offsetTop,
+}: {
+	node: Text;
+	context: OffscreenCanvasRenderingContext2D;
+	offsetLeft: number;
+	offsetTop: number;
+}): Promise<DrawElementToCanvasReturnValue> => {
 	const span = document.createElement('span');
 
 	const parent = node.parentNode;
@@ -20,6 +27,8 @@ export const handleTextNode = async (
 		context,
 		element: span,
 		draw: drawText(span),
+		offsetLeft,
+		offsetTop,
 	});
 
 	// Undo the layout manipulation
