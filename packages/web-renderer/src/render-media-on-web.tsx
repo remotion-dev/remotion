@@ -1,10 +1,20 @@
-import {BufferTarget, Output, VideoSample, VideoSampleSource} from 'mediabunny';
+import {
+	AudioSampleSource,
+	BufferTarget,
+	Output,
+	StreamTarget,
+	VideoSampleSource,
+} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
+import {addAudioSample, addVideoSampleAndCloseFrame} from './add-sample';
 import {handleArtifacts, type OnArtifact} from './artifact';
+import {onlyInlineAudio} from './audio';
+import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
+import {getDefaultAudioEncodingConfig} from './get-audio-encoding-config';
 import type {
 	WebRendererContainer,
 	WebRendererQuality,
@@ -13,17 +23,21 @@ import {
 	codecToMediabunnyCodec,
 	containerToMediabunnyContainer,
 	getDefaultVideoCodecForContainer,
+	getMimeType,
 	getQualityForWebRendererQuality,
 	type WebRendererCodec,
 } from './mediabunny-mappings';
+import type {WebRendererOutputTarget} from './output-target';
 import type {
 	CompositionCalculateMetadataOrExplicit,
 	InferProps,
 } from './props-if-has-props';
+import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {createFrame} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
 import {waitForReady} from './wait-for-ready';
+import {cleanupStaleOpfsFiles, createWebFsTarget} from './web-fs-target';
 
 export type InputPropsIfHasProps<
 	Schema extends AnyZodObject,
@@ -61,6 +75,10 @@ export type RenderMediaOnWebProgress = {
 	// TODO: encodedDoneIn, renderEstimatedTime, progress
 };
 
+export type RenderMediaOnWebResult = {
+	getBlob: () => Promise<Blob>;
+};
+
 export type RenderMediaOnWebProgressCallback = (
 	progress: RenderMediaOnWebProgress,
 ) => void;
@@ -81,6 +99,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	transparent: boolean;
 	onArtifact: OnArtifact | null;
 	onFrame: OnFrameCallback | null;
+	outputTarget: WebRendererOutputTarget | null;
 };
 
 export type RenderMediaOnWebOptions<
@@ -101,7 +120,6 @@ type InternalRenderMediaOnWebOptions<
 // TODO: Audio
 // TODO: Metadata
 // TODO: Validating inputs
-// TODO: Web file system API
 // TODO: Apply defaultCodec
 
 const internalRenderMediaOnWeb = async <
@@ -125,7 +143,22 @@ const internalRenderMediaOnWeb = async <
 	transparent,
 	onArtifact,
 	onFrame,
-}: InternalRenderMediaOnWebOptions<Schema, Props>) => {
+	outputTarget: userDesiredOutputTarget,
+}: InternalRenderMediaOnWebOptions<
+	Schema,
+	Props
+>): Promise<RenderMediaOnWebResult> => {
+	const outputTarget =
+		userDesiredOutputTarget === null
+			? (await canUseWebFsWriter())
+				? 'web-fs'
+				: 'arraybuffer'
+			: userDesiredOutputTarget;
+
+	if (outputTarget === 'web-fs') {
+		await cleanupStaleOpfsFiles();
+	}
+
 	const cleanupFns: (() => void)[] = [];
 	const format = containerToMediabunnyContainer(container);
 
@@ -182,18 +215,22 @@ const internalRenderMediaOnWeb = async <
 			defaultOutName: resolved.defaultOutName,
 		});
 
-	const artifactsHandler = handleArtifacts({
-		ref: collectAssets,
-		onArtifact,
-	});
+	const artifactsHandler = handleArtifacts();
 
 	cleanupFns.push(() => {
 		cleanupScaffold();
 	});
 
+	const webFsTarget =
+		outputTarget === 'web-fs' ? await createWebFsTarget() : null;
+
+	const target = webFsTarget
+		? new StreamTarget(webFsTarget.stream)
+		: new BufferTarget()!;
+
 	const output = new Output({
 		format,
-		target: new BufferTarget(),
+		target,
 	});
 
 	try {
@@ -239,6 +276,23 @@ const internalRenderMediaOnWeb = async <
 
 		output.addVideoTrack(videoSampleSource);
 
+		// TODO: Should be able to customize
+		const defaultAudioEncodingConfig = await getDefaultAudioEncodingConfig();
+
+		if (!defaultAudioEncodingConfig) {
+			return Promise.reject(
+				new Error('No default audio encoding config found'),
+			);
+		}
+
+		const audioSampleSource = new AudioSampleSource(defaultAudioEncodingConfig);
+
+		cleanupFns.push(() => {
+			audioSampleSource.close();
+		});
+
+		output.addAudioTrack(audioSampleSource);
+
 		await output.start();
 
 		if (signal?.aborted) {
@@ -252,8 +306,12 @@ const internalRenderMediaOnWeb = async <
 
 		const throttledOnProgress = createThrottledProgressCallback(onProgress);
 
-		for (let i = realFrameRange[0]; i <= realFrameRange[1]; i++) {
-			timeUpdater.current?.update(i);
+		for (let frame = realFrameRange[0]; frame <= realFrameRange[1]; frame++) {
+			if (signal?.aborted) {
+				throw new Error('renderMediaOnWeb() was cancelled');
+			}
+
+			timeUpdater.current?.update(frame);
 			await waitForReady({
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 				scope: delayRenderScope,
@@ -271,14 +329,28 @@ const internalRenderMediaOnWeb = async <
 				height: resolved.height,
 			});
 
-			await artifactsHandler.handle({imageData, frame: i});
+			if (signal?.aborted) {
+				throw new Error('renderMediaOnWeb() was cancelled');
+			}
+
+			const assets = collectAssets.current!.collectAssets();
+			if (onArtifact) {
+				await artifactsHandler.handle({
+					imageData,
+					frame,
+					assets,
+					onArtifact,
+				});
+			}
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 
+			const audio = onlyInlineAudio({assets, fps: resolved.fps, frame});
+
 			const timestamp = Math.round(
-				((i - realFrameRange[0]) / resolved.fps) * 1_000_000,
+				((frame - realFrameRange[0]) / resolved.fps) * 1_000_000,
 			);
 			const videoFrame = new VideoFrame(imageData, {
 				timestamp,
@@ -290,6 +362,10 @@ const internalRenderMediaOnWeb = async <
 			let frameToEncode = videoFrame;
 			if (onFrame) {
 				const returnedFrame = await onFrame(videoFrame);
+				if (signal?.aborted) {
+					throw new Error('renderMediaOnWeb() was cancelled');
+				}
+
 				frameToEncode = validateVideoFrame({
 					originalFrame: videoFrame,
 					returnedFrame,
@@ -299,11 +375,13 @@ const internalRenderMediaOnWeb = async <
 				});
 			}
 
-			await videoSampleSource.add(new VideoSample(frameToEncode));
+			await Promise.all([
+				addVideoSampleAndCloseFrame(frameToEncode, videoSampleSource),
+				audio ? addAudioSample(audio, audioSampleSource) : Promise.resolve(),
+			]);
+
 			progress.encodedFrames++;
 			throttledOnProgress?.({...progress});
-
-			frameToEncode.close();
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
@@ -314,9 +392,33 @@ const internalRenderMediaOnWeb = async <
 		onProgress?.({...progress});
 
 		videoSampleSource.close();
+		audioSampleSource.close();
 		await output.finalize();
 
-		return output.target.buffer as ArrayBuffer;
+		const mimeType = getMimeType(container);
+
+		if (webFsTarget) {
+			await webFsTarget.close();
+			return {
+				getBlob: () => {
+					return webFsTarget.getBlob();
+				},
+			};
+		}
+
+		if (!(target instanceof BufferTarget)) {
+			throw new Error('Expected target to be a BufferTarget');
+		}
+
+		return {
+			getBlob: () => {
+				if (!target.buffer) {
+					throw new Error('The resulting buffer is empty');
+				}
+
+				return Promise.resolve(new Blob([target.buffer], {type: mimeType}));
+			},
+		};
 	} finally {
 		cleanupFns.forEach((fn) => fn());
 	}
@@ -327,27 +429,34 @@ export const renderMediaOnWeb = <
 	Props extends Record<string, unknown>,
 >(
 	options: RenderMediaOnWebOptions<Schema, Props>,
-) => {
+): Promise<RenderMediaOnWebResult> => {
 	const container = options.container ?? 'mp4';
 	const codec = options.codec ?? getDefaultVideoCodecForContainer(container);
 
-	return internalRenderMediaOnWeb<Schema, Props>({
-		...options,
-		delayRenderTimeoutInMilliseconds:
-			options.delayRenderTimeoutInMilliseconds ?? 30000,
-		logLevel: options.logLevel ?? 'info',
-		schema: options.schema ?? undefined,
-		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
-		codec,
-		container,
-		signal: options.signal ?? null,
-		onProgress: options.onProgress ?? null,
-		hardwareAcceleration: options.hardwareAcceleration ?? 'no-preference',
-		keyframeIntervalInSeconds: options.keyframeIntervalInSeconds ?? 5,
-		videoBitrate: options.videoBitrate ?? 'medium',
-		frameRange: options.frameRange ?? null,
-		transparent: options.transparent ?? false,
-		onArtifact: options.onArtifact ?? null,
-		onFrame: options.onFrame ?? null,
-	});
+	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
+		.catch(() => Promise.resolve())
+		.then(() =>
+			internalRenderMediaOnWeb<Schema, Props>({
+				...options,
+				delayRenderTimeoutInMilliseconds:
+					options.delayRenderTimeoutInMilliseconds ?? 30000,
+				logLevel: options.logLevel ?? 'info',
+				schema: options.schema ?? undefined,
+				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+				codec,
+				container,
+				signal: options.signal ?? null,
+				onProgress: options.onProgress ?? null,
+				hardwareAcceleration: options.hardwareAcceleration ?? 'no-preference',
+				keyframeIntervalInSeconds: options.keyframeIntervalInSeconds ?? 5,
+				videoBitrate: options.videoBitrate ?? 'medium',
+				frameRange: options.frameRange ?? null,
+				transparent: options.transparent ?? false,
+				onArtifact: options.onArtifact ?? null,
+				onFrame: options.onFrame ?? null,
+				outputTarget: options.outputTarget ?? null,
+			}),
+		);
+
+	return onlyOneRenderAtATimeQueue.ref as Promise<RenderMediaOnWebResult>;
 };

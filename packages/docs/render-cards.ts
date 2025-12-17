@@ -30,9 +30,11 @@ const findId = (split, page) => {
 };
 
 const findTitle = (split) => {
-	const title = split
-		.find((s) => s.startsWith('title: '))
-		.replace(/^title:\s/, '');
+	const found = split.find((s) => s.startsWith('title: '));
+	if (!found) {
+		return null;
+	}
+	const title = found.replace(/^title:\s/, '');
 	if (title.startsWith('"') || title.startsWith("'")) {
 		return title.substr(1, title.length - 2);
 	}
@@ -102,6 +104,11 @@ for (const page of pages) {
 	const slug = findSlug(split);
 	const noAi = findNoAi(split);
 	const crumb = findCrumb(split);
+
+	if (!title) {
+		console.log('No title for', page, '- skipping');
+		continue;
+	}
 
 	const relativePath = page
 		.replace(process.cwd() + path.sep, '')

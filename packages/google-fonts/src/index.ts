@@ -341,6 +341,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Amaranth') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Amarna',
+		importName: 'Amarna',
+		load: () => import('./Amarna') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Amatic SC',
 		importName: 'AmaticSC',
 		load: () => import('./AmaticSC') as Promise<GoogleFont>,
@@ -746,19 +751,19 @@ export const getAvailableFonts = () => [
 		load: () => import('./B612Mono') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'BBH Sans Bartle',
-		importName: 'BBHSansBartle',
-		load: () => import('./BBHSansBartle') as Promise<GoogleFont>,
+		fontFamily: 'BBH Bartle',
+		importName: 'BBHBartle',
+		load: () => import('./BBHBartle') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'BBH Sans Bogle',
-		importName: 'BBHSansBogle',
-		load: () => import('./BBHSansBogle') as Promise<GoogleFont>,
+		fontFamily: 'BBH Bogle',
+		importName: 'BBHBogle',
+		load: () => import('./BBHBogle') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'BBH Sans Hegarty',
-		importName: 'BBHSansHegarty',
-		load: () => import('./BBHSansHegarty') as Promise<GoogleFont>,
+		fontFamily: 'BBH Hegarty',
+		importName: 'BBHHegarty',
+		load: () => import('./BBHHegarty') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'BIZ UDGothic',
@@ -1534,6 +1539,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Caudex',
 		importName: 'Caudex',
 		load: () => import('./Caudex') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Cause',
+		importName: 'Cause',
+		load: () => import('./Cause') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Caveat',
@@ -2806,6 +2816,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Geologica') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Geom',
+		importName: 'Geom',
+		load: () => import('./Geom') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Georama',
 		importName: 'Georama',
 		load: () => import('./Georama') as Promise<GoogleFont>,
@@ -2904,6 +2919,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Golos Text',
 		importName: 'GolosText',
 		load: () => import('./GolosText') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Google Sans',
+		importName: 'GoogleSans',
+		load: () => import('./GoogleSans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Google Sans Code',
@@ -4214,6 +4234,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Life Savers',
 		importName: 'LifeSavers',
 		load: () => import('./LifeSavers') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Lilex',
+		importName: 'Lilex',
+		load: () => import('./Lilex') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Lilita One',
@@ -7610,6 +7635,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Sedgwick Ave Display',
 		importName: 'SedgwickAveDisplay',
 		load: () => import('./SedgwickAveDisplay') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Sekuya',
+		importName: 'Sekuya',
+		load: () => import('./Sekuya') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Sen',

@@ -91,6 +91,7 @@ export const getConfig = ({
 		keyboardShortcutsEnabled: true,
 		bufferStateDelayInMilliseconds,
 		poll: null,
+		experimentalClientSideRenderingEnabled: false,
 	});
 };
 

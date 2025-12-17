@@ -5,9 +5,13 @@ import {withResolvers} from '../with-resolvers';
 export const testImage = async ({
 	blob,
 	testId,
+	threshold = 0.15,
+	allowedMismatchedPixelRatio = 0.001,
 }: {
 	blob: Blob;
 	testId: string;
+	threshold?: number;
+	allowedMismatchedPixelRatio?: number;
 }) => {
 	const img = document.createElement('img');
 	img.src = URL.createObjectURL(blob);
@@ -31,8 +35,8 @@ export const testImage = async ({
 
 	await expect(page.getByTestId(testId)).toMatchScreenshot(testId, {
 		comparatorOptions: {
-			threshold: 0.15,
-			allowedMismatchedPixelRatio: 0.01,
+			threshold,
+			allowedMismatchedPixelRatio,
 		},
 	});
 };

@@ -133,6 +133,8 @@ import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {NewAudioExample} from './NewAudio/NewAudio';
+import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
+import {LoopedNewVideo} from './OffthreadRemoteVideo/LoopedNewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
 import {NewVideoComp} from './OffthreadRemoteVideo/NewRemoteVideo';
@@ -148,6 +150,7 @@ import {TransitionRounding} from './TransitionRounding';
 import {TriangleComp} from './Triangle';
 import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
+import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
@@ -781,6 +784,7 @@ export const Index: React.FC = () => {
 				<OffthreadRemoteVideo />
 				<NewVideoComp />
 				<OffthreadRemoteSeries />
+				<LoopedNewVideo />
 				<LoopedOffthreadRemoteVideo />
 				<MultiChannelAudio />
 				<Composition
@@ -1790,6 +1794,15 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 			/>
+			<Composition
+				id="media-video-texture"
+				component={RemotionMediaVideoTexture}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={600}
+			/>
+			<ChangingTrimBeforeValue />
 		</>
 	);
 };

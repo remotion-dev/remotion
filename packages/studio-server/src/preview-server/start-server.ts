@@ -27,6 +27,7 @@ export const startServer = async (options: {
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
+	experimentalClientSideRenderingEnabled: boolean;
 	publicDir: string;
 	poll: number | null;
 	staticHash: string;
@@ -57,6 +58,8 @@ export const startServer = async (options: {
 		maxTimelineTracks: options?.maxTimelineTracks ?? null,
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
+		experimentalClientSideRenderingEnabled:
+			options.experimentalClientSideRenderingEnabled,
 		poll: options.poll,
 		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
 	});

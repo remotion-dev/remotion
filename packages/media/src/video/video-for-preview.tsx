@@ -54,6 +54,7 @@ type VideoForPreviewProps = {
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 	readonly audioStreamIndex: number;
 	readonly debugOverlay: boolean;
+	readonly headless: boolean;
 };
 
 const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
@@ -76,6 +77,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	fallbackOffthreadVideoProps,
 	audioStreamIndex,
 	debugOverlay,
+	headless,
 }) => {
 	const src = usePreload(unpreloadedSrc);
 
@@ -83,6 +85,9 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
+	const initialTrimBeforeRef = useRef(trimBefore);
+	const initialTrimAfterRef = useRef(trimAfter);
+	const initialOnVideoFrameRef = useRef(onVideoFrame);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
 	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
@@ -161,29 +166,35 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	}
 
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
+	const initialPlaying = useRef(playing && !isPlayerBuffering);
+	const initialIsPremounting = useRef(isPremounting);
+	const initialIsPostmounting = useRef(isPostmounting);
+	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
+	const initialPlaybackRate = useRef(playbackRate);
 
 	useEffect(() => {
-		if (!canvasRef.current) return;
 		if (!sharedAudioContext) return;
 		if (!sharedAudioContext.audioContext) return;
 
 		try {
 			const player = new MediaPlayer({
-				canvas: canvasRef.current!,
+				canvas: canvasRef.current,
 				src: preloadedSrc,
 				logLevel,
 				sharedAudioContext: sharedAudioContext.audioContext,
 				loop,
-				trimAfter,
-				trimBefore,
+				trimAfter: initialTrimAfterRef.current,
+				trimBefore: initialTrimBeforeRef.current,
 				fps: videoConfig.fps,
-				playbackRate,
+				playbackRate: initialPlaybackRate.current,
 				audioStreamIndex,
 				debugOverlay,
 				bufferState: buffer,
-				isPremounting,
-				isPostmounting,
-				globalPlaybackRate,
+				isPremounting: initialIsPremounting.current,
+				isPostmounting: initialIsPostmounting.current,
+				globalPlaybackRate: initialGlobalPlaybackRate.current,
+				onVideoFrameCallback: initialOnVideoFrameRef.current ?? null,
+				playing: initialPlaying.current,
 			});
 
 			mediaPlayerRef.current = player;
@@ -290,21 +301,15 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 			setShouldFallbackToNativeVideo(false);
 		};
 	}, [
-		preloadedSrc,
-		logLevel,
-		sharedAudioContext,
-		loop,
-		trimAfter,
-		trimBefore,
-		videoConfig.fps,
-		playbackRate,
-		disallowFallbackToOffthreadVideo,
 		audioStreamIndex,
-		debugOverlay,
 		buffer,
-		isPremounting,
-		isPostmounting,
-		globalPlaybackRate,
+		debugOverlay,
+		disallowFallbackToOffthreadVideo,
+		logLevel,
+		loop,
+		preloadedSrc,
+		sharedAudioContext,
+		videoConfig.fps,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -324,6 +329,115 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 		}
 	}, [isPlayerBuffering, playing, logLevel, mediaPlayerReady]);
 
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setTrimBefore(trimBefore, currentTimeRef.current);
+	}, [trimBefore, mediaPlayerReady]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setTrimAfter(trimAfter, currentTimeRef.current);
+	}, [trimAfter, mediaPlayerReady]);
+
+	const effectiveMuted =
+		isSequenceHidden || muted || mediaMuted || userPreferredVolume <= 0;
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) return;
+
+		mediaPlayer.setMuted(effectiveMuted);
+	}, [effectiveMuted, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setVolume(userPreferredVolume);
+	}, [userPreferredVolume, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setDebugOverlay(debugOverlay);
+	}, [debugOverlay, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setPlaybackRate(playbackRate);
+	}, [playbackRate, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setGlobalPlaybackRate(globalPlaybackRate);
+	}, [globalPlaybackRate, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setLoop(loop);
+	}, [loop, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setIsPremounting(isPremounting);
+	}, [isPremounting, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setIsPostmounting(isPostmounting);
+	}, [isPostmounting, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setFps(videoConfig.fps);
+	}, [videoConfig.fps, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
+	}, [onVideoFrame, mediaPlayerReady]);
+
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
@@ -336,115 +450,6 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 			`[VideoForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
 		);
 	}, [currentTime, logLevel, mediaPlayerReady]);
-
-	const effectiveMuted =
-		isSequenceHidden || muted || mediaMuted || userPreferredVolume <= 0;
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) return;
-
-		mediaPlayer.setMuted(effectiveMuted);
-	}, [effectiveMuted, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setVolume(userPreferredVolume);
-	}, [userPreferredVolume, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setDebugOverlay(debugOverlay);
-	}, [debugOverlay, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setPlaybackRate(playbackRate);
-	}, [playbackRate, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setGlobalPlaybackRate(globalPlaybackRate);
-	}, [globalPlaybackRate, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setLoop(loop);
-	}, [loop, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setIsPremounting(isPremounting);
-	}, [isPremounting, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setIsPostmounting(isPostmounting);
-	}, [isPostmounting, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setFps(videoConfig.fps);
-	}, [videoConfig.fps, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
-	}, [onVideoFrame, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimBefore(trimBefore);
-	}, [trimBefore, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimAfter(trimAfter);
-	}, [trimAfter, mediaPlayerReady]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -474,6 +479,10 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 				{...fallbackOffthreadVideoProps}
 			/>
 		);
+	}
+
+	if (headless) {
+		return null;
 	}
 
 	return (

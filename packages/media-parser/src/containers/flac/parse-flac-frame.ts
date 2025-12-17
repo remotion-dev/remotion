@@ -49,6 +49,10 @@ export const parseFrameHeader = ({
 	iterator.discard(2); // sync code
 	iterator.startReadingBits();
 	const blockSizeBits = getBlockSize(iterator);
+	if (blockSizeBits === null) {
+		return null;
+	}
+
 	const sampleRateBits = getSampleRate(iterator, state);
 	getChannelCount(iterator); // channel count
 	iterator.getBits(3); // bit depth

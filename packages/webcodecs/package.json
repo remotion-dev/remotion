@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.382",
+	"version": "4.0.393",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -35,7 +35,7 @@
 		"@types/dom-webcodecs": "catalog:",
 		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"playwright": "1.55.1",
+		"playwright": "catalog:",
 		"vite": "5.4.21",
 		"@playwright/test": "1.55.1",
 		"eslint": "catalog:"

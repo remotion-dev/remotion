@@ -3,6 +3,7 @@ import {CanvasSink} from 'mediabunny';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import type {Nonce} from './nonce-manager';
+import {makePrewarmedVideoIteratorCache} from './prewarm-iterator-for-looping';
 import {
 	createVideoIterator,
 	type VideoIterator,
@@ -16,21 +17,30 @@ export const videoIteratorManager = ({
 	logLevel,
 	getOnVideoFrameCallback,
 	videoTrack,
+	getEndTime,
+	getStartTime,
+	getIsLooping,
 }: {
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => {unblock: () => void};
-	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-	canvas: OffscreenCanvas | HTMLCanvasElement;
+	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
+	canvas: OffscreenCanvas | HTMLCanvasElement | null;
 	getOnVideoFrameCallback: () => null | ((frame: CanvasImageSource) => void);
 	logLevel: LogLevel;
 	drawDebugOverlay: () => void;
+	getEndTime: () => number;
+	getStartTime: () => number;
+	getIsLooping: () => boolean;
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
 	let framesRendered = 0;
+	let currentDelayHandle: {unblock: () => void} | null = null;
 
-	canvas.width = videoTrack.displayWidth;
-	canvas.height = videoTrack.displayHeight;
+	if (canvas) {
+		canvas.width = videoTrack.displayWidth;
+		canvas.height = videoTrack.displayHeight;
+	}
 
 	const canvasSink = new CanvasSink(videoTrack, {
 		poolSize: 2,
@@ -38,15 +48,21 @@ export const videoIteratorManager = ({
 		alpha: true,
 	});
 
+	const prewarmedVideoIteratorCache =
+		makePrewarmedVideoIteratorCache(canvasSink);
+
 	const drawFrame = (frame: WrappedCanvas): void => {
-		context.clearRect(0, 0, canvas.width, canvas.height);
-		context.drawImage(frame.canvas, 0, 0);
+		if (context && canvas) {
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			context.drawImage(frame.canvas, 0, 0);
+		}
+
 		framesRendered++;
 
 		drawDebugOverlay();
 		const callback = getOnVideoFrameCallback();
 		if (callback) {
-			callback(canvas);
+			callback(frame.canvas);
 		}
 
 		Internals.Log.trace(
@@ -60,13 +76,23 @@ export const videoIteratorManager = ({
 		nonce: Nonce,
 	): Promise<void> => {
 		videoFrameIterator?.destroy();
-		const iterator = createVideoIterator(timeToSeek, canvasSink);
+		const iterator = createVideoIterator(
+			timeToSeek,
+			prewarmedVideoIteratorCache,
+		);
 		videoIteratorsCreated++;
 		videoFrameIterator = iterator;
 
 		const delayHandle = delayPlaybackHandleIfNotPremounting();
-		const frameResult = await iterator.getNext();
-		delayHandle.unblock();
+		currentDelayHandle = delayHandle;
+
+		let frameResult: IteratorResult<WrappedCanvas, void>;
+		try {
+			frameResult = await iterator.getNext();
+		} finally {
+			delayHandle.unblock();
+			currentDelayHandle = null;
+		}
 
 		if (iterator.isDestroyed()) {
 			return;
@@ -93,6 +119,15 @@ export const videoIteratorManager = ({
 			return;
 		}
 
+		if (getIsLooping()) {
+			// If less than 1 second from the end away, we pre-warm a new iterator
+			if (getEndTime() - newTime < 1) {
+				prewarmedVideoIteratorCache.prewarmIteratorForLooping({
+					timeToSeek: getStartTime(),
+				});
+			}
+		}
+
 		// Should return immediately, so it's okay to not use Promise.all here
 		const videoSatisfyResult =
 			await videoFrameIterator.tryToSatisfySeek(newTime);
@@ -109,10 +144,7 @@ export const videoIteratorManager = ({
 			return;
 		}
 
-		// Intentionally not awaited, letting audio start as well
-		startVideoIterator(newTime, nonce).catch(() => {
-			// Ignore errors, might be stale or disposed
-		});
+		await startVideoIterator(newTime, nonce);
 	};
 
 	return {
@@ -120,8 +152,17 @@ export const videoIteratorManager = ({
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
 		seek,
 		destroy: () => {
+			prewarmedVideoIteratorCache.destroy();
 			videoFrameIterator?.destroy();
-			context.clearRect(0, 0, canvas.width, canvas.height);
+			if (context && canvas) {
+				context.clearRect(0, 0, canvas.width, canvas.height);
+			}
+
+			if (currentDelayHandle) {
+				currentDelayHandle.unblock();
+				currentDelayHandle = null;
+			}
+
 			videoFrameIterator = null;
 		},
 		getVideoFrameIterator: () => videoFrameIterator,

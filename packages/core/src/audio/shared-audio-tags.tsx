@@ -34,6 +34,8 @@ type AudioElem = {
 	audioId: string;
 	mediaElementSourceNode: SharedElementSourceNode | null;
 	premounting: boolean;
+	postmounting: boolean;
+	audioMounted: boolean;
 };
 
 const EMPTY_AUDIO =
@@ -44,6 +46,7 @@ type SharedContext = {
 		aud: AudioHTMLAttributes<HTMLAudioElement>;
 		audioId: string;
 		premounting: boolean;
+		postmounting: boolean;
 	}) => AudioElem;
 	unregisterAudio: (id: number) => void;
 	updateAudio: (options: {
@@ -51,6 +54,7 @@ type SharedContext = {
 		aud: AudioHTMLAttributes<HTMLAudioElement>;
 		audioId: string;
 		premounting: boolean;
+		postmounting: boolean;
 	}) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
@@ -180,8 +184,9 @@ export const SharedAudioContextProvider: React.FC<{
 			aud: AudioHTMLAttributes<HTMLAudioElement>;
 			audioId: string;
 			premounting: boolean;
+			postmounting: boolean;
 		}) => {
-			const {aud, audioId, premounting} = options;
+			const {aud, audioId, premounting, postmounting} = options;
 			const found = audios.current?.find((a) => a.audioId === audioId);
 			if (found) {
 				return found;
@@ -208,6 +213,8 @@ export const SharedAudioContextProvider: React.FC<{
 				audioId,
 				mediaElementSourceNode,
 				premounting,
+				audioMounted: Boolean(ref.current),
+				postmounting,
 			};
 			audios.current?.push(newElem);
 			rerenderAudios();
@@ -240,31 +247,43 @@ export const SharedAudioContextProvider: React.FC<{
 			audioId,
 			id,
 			premounting,
+			postmounting,
 		}: {
 			id: number;
 			aud: AudioHTMLAttributes<HTMLAudioElement>;
 			audioId: string;
 			premounting: boolean;
+			postmounting: boolean;
 		}) => {
 			let changed = false;
 
 			audios.current = audios.current?.map((prevA): AudioElem => {
+				const audioMounted = Boolean(prevA.el.current);
+				if (prevA.audioMounted !== audioMounted) {
+					changed = true;
+				}
+
 				if (prevA.id === id) {
 					const isTheSame =
 						compareProps(
 							aud as Record<string, unknown>,
 							prevA.props as Record<string, unknown>,
-						) && prevA.premounting === premounting;
+						) &&
+						prevA.premounting === premounting &&
+						prevA.postmounting === postmounting;
 					if (isTheSame) {
 						return prevA;
 					}
 
 					changed = true;
+
 					return {
 						...prevA,
 						props: aud,
 						premounting,
+						postmounting,
 						audioId,
+						audioMounted,
 					};
 				}
 
@@ -339,10 +358,12 @@ export const useSharedAudio = ({
 	aud,
 	audioId,
 	premounting,
+	postmounting,
 }: {
 	aud: AudioHTMLAttributes<HTMLAudioElement>;
 	audioId: string;
 	premounting: boolean;
+	postmounting: boolean;
 }) => {
 	const ctx = useContext(SharedAudioContext);
 
@@ -351,7 +372,7 @@ export const useSharedAudio = ({
 	 */
 	const [elem] = useState((): AudioElem => {
 		if (ctx && ctx.numberOfAudioTags > 0) {
-			return ctx.registerAudio({aud, audioId, premounting});
+			return ctx.registerAudio({aud, audioId, premounting, postmounting});
 		}
 
 		const el = React.createRef<HTMLAudioElement>();
@@ -369,6 +390,8 @@ export const useSharedAudio = ({
 			audioId,
 			mediaElementSourceNode,
 			premounting,
+			audioMounted: Boolean(el.current),
+			postmounting,
 		};
 	});
 
@@ -384,9 +407,9 @@ export const useSharedAudio = ({
 	if (typeof document !== 'undefined') {
 		effectToUse(() => {
 			if (ctx && ctx.numberOfAudioTags > 0) {
-				ctx.updateAudio({id: elem.id, aud, audioId, premounting});
+				ctx.updateAudio({id: elem.id, aud, audioId, premounting, postmounting});
 			}
-		}, [aud, ctx, elem.id, audioId, premounting]);
+		}, [aud, ctx, elem.id, audioId, premounting, postmounting]);
 
 		effectToUse(() => {
 			return () => {

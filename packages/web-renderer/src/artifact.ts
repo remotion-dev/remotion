@@ -76,42 +76,36 @@ type PreviousArtifact = {
 	filename: string;
 };
 
-export const handleArtifacts = ({
-	ref,
-	onArtifact,
-}: {
-	ref: ArtifactsRef;
-	onArtifact: OnArtifact | null;
-}) => {
+export const handleArtifacts = () => {
 	const previousArtifacts: PreviousArtifact[] = [];
 
 	const handle = async ({
 		imageData,
 		frame,
+		assets: artifactAssets,
+		onArtifact,
 	}: {
 		imageData: Blob | OffscreenCanvas | null;
 		frame: number;
+		assets: TRenderAsset[];
+		onArtifact: OnArtifact;
 	}) => {
-		const artifactAssets = ref.current!.collectAssets();
-
-		if (onArtifact) {
-			const artifacts = await onlyArtifact({
-				assets: artifactAssets,
-				frameBuffer: imageData,
-			});
-			for (const artifact of artifacts) {
-				const previousArtifact = previousArtifacts.find(
-					(a) => a.filename === artifact.filename,
+		const artifacts = await onlyArtifact({
+			assets: artifactAssets,
+			frameBuffer: imageData,
+		});
+		for (const artifact of artifacts) {
+			const previousArtifact = previousArtifacts.find(
+				(a) => a.filename === artifact.filename,
+			);
+			if (previousArtifact) {
+				throw new Error(
+					`An artifact with output "${artifact.filename}" was already registered at frame ${previousArtifact.frame}, but now registered again at frame ${frame}. Artifacts must have unique names. https://remotion.dev/docs/artifacts`,
 				);
-				if (previousArtifact) {
-					throw new Error(
-						`An artifact with output "${artifact.filename}" was already registered at frame ${previousArtifact.frame}, but now registered again at frame ${frame}. Artifacts must have unique names. https://remotion.dev/docs/artifacts`,
-					);
-				}
-
-				onArtifact(artifact);
-				previousArtifacts.push({frame, filename: artifact.filename});
 			}
+
+			onArtifact(artifact);
+			previousArtifacts.push({frame, filename: artifact.filename});
 		}
 	};
 

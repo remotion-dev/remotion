@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Html5Audio, interpolate, Sequence, useVideoConfig } from "remotion";
+import { interpolate, Sequence, useVideoConfig } from "remotion";
 import type { CanvasLayout } from "../../config/layout";
 import type { SceneAndMetadata } from "../../config/scenes";
 import {
@@ -10,6 +10,7 @@ import {
 } from "../../config/sounds";
 import { SCENE_TRANSITION_DURATION } from "../../config/transitions";
 import { getShouldTransitionOut } from "../animations/transitions";
+import { Audio } from "@remotion/media";
 
 type LoudPart = [number, number];
 
@@ -83,9 +84,8 @@ const AudioClip: React.FC<{
   }, [durationInFrames, loudParts]);
 
   return (
-    <Html5Audio
+    <Audio
       // Lint false positive: https://github.com/remotion-dev/remotion/issues/2706
-
       volume={volumeFunction}
       loopVolumeCurveBehavior="extend"
       src={src}

@@ -85,10 +85,10 @@ Buy from the same email address and then contact us at [hi@remotion.dev](mailto:
 
 ## Does this use client-side rendering / WebCodecs?
 
-No, the rendering happens using [Remotion Lambda](/docs/editor-starter/rendering).  
-That being said, our goal is to in the future make a mode where the video can be rendered on the client-side.
+No, the rendering happens using [Remotion Lambda](/docs/editor-starter/rendering).
 
-No timeline is available for this - we recommend that you only make a purchase if the current state is a fit for you!
+That being said, the goal is to create the video using [client-side rendering](/docs/client-side-rendering) in the future.  
+There is no timeline available for this yet - only buy the Editor Starter if you are satisfied with the current state.
 
 ## Do I have to use Remotion Lambda?
 
@@ -104,6 +104,8 @@ The Editor Starter previews and renders it's videos using the regular Remotion A
 The state is stored as a JSON and being fed as [input props](/docs/terminology/input-props) to the [`<Player />`](/docs/player) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
 
 So yes, the Editor Starter produces just Remotion compositions and they can also be rendered if they are decoupled from the editor user interface.
+However, it is important to understand that the Editor Starter applies an abstraction on top of Remotion where the whole state is expressed as JSON, which then maps to code.
+It is different from the code you find in regular Remotion templates, which usually do not have any abstraction layer.
 
 The Remotion composition that powers the Editor Starter is located in the `src/remotion` folder of the project.  
 You can also use the [`npx remotion studio`](/docs/cli/studio) and [`npx remotion render`](/docs/cli/studio) commands as usual.
@@ -112,7 +114,7 @@ You can also use the [`npx remotion studio`](/docs/cli/studio) and [`npx remotio
 
 The Editor Starter does not use a licensing model, it is a Remotion template that after a one-time purchase can be used indefinitely - by any Remotion user, whether they fall under the free license or company license.
 
-This makes it hard for us to provide evaluation copies because there is no way to revoke access to the code and ideas once it has been given. 
+This makes it hard for us to provide evaluation copies because there is no way to revoke access to the code and ideas once it has been given.
 
 It would also make offering this product unsustainable - we don’t want to sugarcoat the truth: 90% of users will give up when realizing the complexity of building a video product or fail on their way to build it. This is already priced in.
 

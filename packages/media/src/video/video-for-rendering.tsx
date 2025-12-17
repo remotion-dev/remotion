@@ -48,6 +48,7 @@ type InnerVideoProps = {
 	readonly toneFrequency: number;
 	readonly trimBeforeValue: number | undefined;
 	readonly trimAfterValue: number | undefined;
+	readonly headless: boolean;
 };
 
 type FallbackToOffthreadVideo = {
@@ -75,6 +76,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	toneFrequency,
 	trimAfterValue,
 	trimBeforeValue,
+	headless,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -125,7 +127,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	}
 
 	useLayoutEffect(() => {
-		if (!canvasRef.current) {
+		if (!canvasRef.current && !headless) {
 			return;
 		}
 
@@ -133,7 +135,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			return;
 		}
 
-		if (!canvasRef.current?.getContext) {
+		if (!canvasRef.current?.getContext && !headless) {
 			return setError(
 				new Error(
 					'Canvas does not have .getContext() method available. This could be because <Video> was mounted inside an <svg> tag.',
@@ -208,7 +210,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					}
 
 					if (window.remotion_isMainTab) {
-						Internals.Log.info(
+						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
 							`Cannot decode ${src}, falling back to <OffthreadVideo>`,
 						);
@@ -273,15 +275,14 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					const context = canvasRef.current?.getContext('2d', {
 						alpha: true,
 					});
-					if (!context) {
-						return;
+					// Could be in headless mode
+					if (context) {
+						context.canvas.width = imageBitmap.width;
+						context.canvas.height = imageBitmap.height;
+
+						context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
+						context.drawImage(imageBitmap, 0, 0);
 					}
-
-					context.canvas.width = imageBitmap.width;
-					context.canvas.height = imageBitmap.height;
-
-					context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
-					context.drawImage(imageBitmap, 0, 0);
 
 					imageBitmap.close();
 				} else if (videoEnabled) {
@@ -322,7 +323,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					registerRenderAsset({
 						type: 'inline-audio',
 						id,
-						audio: Array.from(audio.data),
+						audio: environment.isClientSideRendering
+							? audio.data
+							: Array.from(audio.data),
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
 						duration: (audio.numberOfFrames / TARGET_SAMPLE_RATE) * 1_000_000,
@@ -371,6 +374,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		videoEnabled,
 		maxCacheSize,
 		cancelRender,
+		headless,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -448,6 +452,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		}
 
 		return fallback;
+	}
+
+	if (headless) {
+		return null;
 	}
 
 	return <canvas ref={canvasRef} style={style} className={classNameValue} />;

@@ -38,6 +38,7 @@ test('can extract a video frame', async (t) => {
 	await testImage({
 		blob,
 		testId: 'video-tag',
+		allowedMismatchedPixelRatio: 0.01,
 	});
 });
 

@@ -121,23 +121,14 @@ const Report: React.FC = () => {
 								Remotion - &lt;OffthreadVideo&gt;
 							</Label>
 						</div>
-						<div className="flex items-center space-x-2">
-							<RadioGroupItem
-								checked={product === 'media-parser'}
-								value="media-parser"
-								id="media-parser"
-							/>
-							<Label htmlFor="media-parser">@remotion/media-parser</Label>
-						</div>
+
 						<div className="flex items-center space-x-2">
 							<RadioGroupItem
 								checked={product === 'webcodecs'}
 								value="webcodecs"
 								id="webcodecs"
 							/>
-							<Label htmlFor="webcodecs">
-								@remotion/webcodecs or remotion.dev/convert
-							</Label>
+							<Label htmlFor="webcodecs">remotion.dev/convert</Label>
 						</div>
 					</RadioGroup>
 

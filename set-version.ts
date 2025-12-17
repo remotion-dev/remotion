@@ -10,6 +10,7 @@ import {
 } from 'fs';
 import path from 'path';
 import {FEATURED_TEMPLATES} from './packages/create-video/src/templates.ts';
+import {SHOW_BROWSER_RENDERING} from './packages/studio/src/helpers/show-browser-rendering.ts';
 
 let version = process.argv[2];
 let noCommit = process.argv.includes('--no-commit');
@@ -29,6 +30,10 @@ const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', {
 
 if (currentBranch !== 'main') {
 	throw new Error('Please be on the main branch');
+}
+
+if (SHOW_BROWSER_RENDERING) {
+	throw new Error('Dont publish browser rendering');
 }
 
 const dirs = readdirSync('packages')
@@ -81,6 +86,10 @@ execSync('bun ensure-correct-version.ts', {
 });
 execSync('bun ensure-correct-version.ts', {
 	cwd: 'packages/media-parser',
+});
+
+execSync('rm -rf dist && rm -rf tsconfig.tsbuildinfo', {
+	cwd: 'packages/studio',
 });
 
 execSync('bun run build', {

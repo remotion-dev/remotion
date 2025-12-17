@@ -24,7 +24,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
-	logLevel,
+	logLevel = window.remotion_logLevel ?? 'info',
 	loop,
 	fallbackHtml5AudioProps,
 	audioStreamIndex,
@@ -66,7 +66,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`media-video-${random(
+			`media-audio-${random(
 				src,
 			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
 		[
@@ -80,6 +80,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const maxCacheSize = useMaxMediaCacheSize(
 		logLevel ?? window.remotion_logLevel,
 	);
+
+	const audioEnabled = Internals.useAudioEnabled();
 
 	useLayoutEffect(() => {
 		const timestamp = frame / fps;
@@ -95,7 +97,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		});
 
 		const shouldRenderAudio = (() => {
-			if (!window.remotion_audioEnabled) {
+			if (!audioEnabled) {
 				return false;
 			}
 
@@ -212,7 +214,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					registerRenderAsset({
 						type: 'inline-audio',
 						id,
-						audio: Array.from(audio.data),
+						audio: environment.isClientSideRendering
+							? audio.data
+							: Array.from(audio.data),
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
 						duration: (audio.numberOfFrames / TARGET_SAMPLE_RATE) * 1_000_000,
@@ -257,6 +261,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		trimBefore,
 		replaceWithHtml5Audio,
 		maxCacheSize,
+		audioEnabled,
 	]);
 
 	if (replaceWithHtml5Audio) {

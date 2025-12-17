@@ -64,6 +64,10 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	div.style.width = `${width}px`;
 	div.style.height = `${height}px`;
 	div.style.zIndex = '-9999';
+	div.style.top = '0';
+	div.style.visibility = 'hidden';
+	div.style.left = '0';
+	div.style.pointerEvents = 'none';
 
 	document.body.appendChild(div);
 
@@ -81,6 +85,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 		remotion_delayRenderTimeouts: {},
 		remotion_puppeteerTimeout: delayRenderTimeoutInMilliseconds,
 		remotion_attempt: 0,
+		remotion_delayRenderHandles: [],
 	};
 
 	const timeUpdater = createRef<TimeUpdaterRef | null>();
@@ -94,7 +99,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 			<Internals.MaxMediaCacheSizeContext.Provider
 				value={mediaCacheSizeInBytes}
 			>
-				<Internals.RemotionEnvironmentContext
+				<Internals.RemotionEnvironmentContext.Provider
 					value={{
 						isStudio: false,
 						isRendering: true,
@@ -153,16 +158,16 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 									initialFrame={initialFrame}
 									timeUpdater={timeUpdater}
 								>
-									<Internals.CanUseRemotionHooks value>
+									<Internals.CanUseRemotionHooks.Provider value>
 										{/**
 										 * @ts-expect-error	*/}
 										<Component {...resolvedProps} />
-									</Internals.CanUseRemotionHooks>
+									</Internals.CanUseRemotionHooks.Provider>
 								</UpdateTime>
 							</Internals.RenderAssetManagerProvider>
 						</Internals.CompositionManager.Provider>
 					</Internals.DelayRenderContextType.Provider>
-				</Internals.RemotionEnvironmentContext>
+				</Internals.RemotionEnvironmentContext.Provider>
 			</Internals.MaxMediaCacheSizeContext.Provider>,
 		);
 	});

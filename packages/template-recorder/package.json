@@ -39,9 +39,9 @@
     "connect": "3.7.0",
     "eslint": "9.19.0",
     "lucide-react": "0.516.0",
-    "mediabunny": "1.25.3",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
+    "mediabunny": "1.27.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "tailwind-merge": "1.14.0",
     "tailwindcss-animate": "1.0.7",
     "zod": "3.22.3"
@@ -61,7 +61,7 @@
     "@types/connect": "3.4.38",
     "@types/web": "0.0.187",
     "@types/webrtc": "0.0.44",
-    "@vitejs/plugin-react": "4.1.0",
+    "@vitejs/plugin-react": "catalog:",
     "prettier": "3.6.0",
     "prettier-plugin-organize-imports": "3.2.3"
   }

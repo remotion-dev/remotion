@@ -71,9 +71,9 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const startedDate = Date.now();
 
-	const chromiumParams = {...params.chromiumOptions};
+	const chromiumParams = {...(params.chromiumOptions ?? {})};
 
-	if (params.chromiumOptions.gl === 'angle') {
+	if (params.chromiumOptions?.gl === 'angle') {
 		RenderInternals.Log.warn(
 			{indent: false, logLevel: params.logLevel},
 			'gl=angle is not supported in Lambda. Changing to gl=swangle instead.',
@@ -141,7 +141,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		serializedInputPropsWithCustomSchema,
 		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: validateCompositionTimeout,
-		chromiumOptions: params.chromiumOptions,
+		chromiumOptions: params.chromiumOptions ?? {},
 		port: null,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
@@ -287,7 +287,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			logLevel: params.logLevel ?? 'info',
 			attempt: 1,
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
-			chromiumOptions: params.chromiumOptions,
+			chromiumOptions: params.chromiumOptions ?? {},
 			scale: params.scale,
 			everyNthFrame: params.everyNthFrame,
 			concurrencyPerLambda: params.concurrencyPerFunction,

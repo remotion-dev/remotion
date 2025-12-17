@@ -43,25 +43,34 @@ const buttonContainer: React.CSSProperties = {
 interface CounterProps {
 	readonly count: number;
 	readonly setCount: (count: number) => void;
-	readonly minCount?: number;
-	readonly step?: number;
+	readonly minCount: number;
+	readonly step: number;
+	readonly incrementStep: number;
 }
+
+const MAX_COUNT = 9999999;
 
 export const Counter: React.FC<CounterProps> = ({
 	count,
 	setCount,
-	minCount = 0,
-	step = 1,
+	minCount,
+	step,
+	incrementStep,
 }) => {
 	const decrement = () => {
 		if (count > minCount) {
-			setCount(Math.max(minCount, count - step));
+			setCount(Math.max(minCount, count - incrementStep));
 		}
 	};
 
 	const increment = () => {
-		setCount(count + step);
+		const nextValue = count + incrementStep;
+		const roundedValue = Math.round(nextValue / incrementStep) * incrementStep;
+
+		setCount(Math.min(MAX_COUNT, roundedValue));
 	};
+
+	const shrink = String(count).length > 6;
 
 	return (
 		<Card
@@ -69,12 +78,13 @@ export const Counter: React.FC<CounterProps> = ({
 			className={cn('w-[140px] flex flex-row overflow-hidden')}
 		>
 			<input
-				className={
-					'fontbrand text-2xl font-medium min-w-[80px] border-0 text-end outline-0 text-text overflow-hidden flex-1 px-0 py-0 pr-2 w-full h-full tabular-nums'
-				}
+				className={cn(
+					'fontbrand font-medium min-w-[80px] border-0 text-end outline-0 text-text overflow-hidden flex-1 px-0 py-0 pr-2 w-full h-full tabular-nums',
+					shrink ? 'text-lg' : 'text-2xl',
+				)}
 				type="number"
-				onClick={(e) => e.currentTarget.select()}
 				value={count}
+				onClick={(e) => e.currentTarget.select()}
 				onChange={(e: ChangeEvent<HTMLInputElement>) => {
 					if (e.target.value.trim() === '') {
 						setCount(step === 1 ? 1 : minCount);
@@ -82,7 +92,10 @@ export const Counter: React.FC<CounterProps> = ({
 					}
 
 					const inputValue = parseInt(e.target.value, 10);
-					const validValue = Math.max(inputValue, minCount);
+					const validValue = Math.min(
+						MAX_COUNT,
+						Math.max(inputValue, minCount),
+					);
 
 					// For steps > 1, round to the nearest valid step
 					if (step > 1) {

@@ -91,6 +91,7 @@ export type CommandLineOptions = {
 	frame: string | number;
 	['disable-headless']: boolean;
 	['disable-keyboard-shortcuts']: boolean;
+	['enable-experimental-client-side-rendering']: boolean;
 	muted: boolean;
 	height: number;
 	width: number;
@@ -200,6 +201,15 @@ export const parseCommandLine = () => {
 	if (typeof parsedCli['disable-keyboard-shortcuts'] !== 'undefined') {
 		Config.setKeyboardShortcutsEnabled(
 			!parsedCli['disable-keyboard-shortcuts'],
+		);
+	}
+
+	if (
+		typeof parsedCli['enable-experimental-client-side-rendering'] !==
+		'undefined'
+	) {
+		Config.setExperimentalClientSideRenderingEnabled(
+			parsedCli['enable-experimental-client-side-rendering'],
 		);
 	}
 

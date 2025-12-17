@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Rejang',
 	importName: 'NotoSansRejang',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Rejang:ital,wght@0,400',
 	unicodeRanges: {
 		rejang: 'U+200C-200D, U+25CC, U+A930-A95F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				rejang:
-					'https://fonts.gstatic.com/s/notosansrejang/v22/Ktk2AKuMeZjqPnXgyqrib7DIogqwB8u9WLZB.woff2',
+					'https://fonts.gstatic.com/s/notosansrejang/v23/Ktk2AKuMeZjqPnXgyqrib7DIogqwB8u9WLZB.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansrejang/v22/Ktk2AKuMeZjqPnXgyqrib7DIogqwB4q9WLZB.woff2',
+					'https://fonts.gstatic.com/s/notosansrejang/v23/Ktk2AKuMeZjqPnXgyqrib7DIogqwB4q9WLZB.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansrejang/v22/Ktk2AKuMeZjqPnXgyqrib7DIogqwB4S9WA.woff2',
+					'https://fonts.gstatic.com/s/notosansrejang/v23/Ktk2AKuMeZjqPnXgyqrib7DIogqwB4S9WA.woff2',
 			},
 		},
 	},

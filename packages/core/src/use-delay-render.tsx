@@ -20,13 +20,19 @@ export const useDelayRender = (): {
 	cancelRender: CancelRenderFn;
 } => {
 	const environment = useRemotionEnvironment();
-	const scope = useContext(DelayRenderContextType);
+	const scope =
+		useContext(DelayRenderContextType) ??
+		(typeof window !== 'undefined' ? window : undefined);
 	const logLevel = useLogLevel();
 
 	const delayRender = useCallback<DelayRenderFn>(
 		(label?: string, options?: DelayRenderOptions) => {
+			if (!scope) {
+				return Math.random();
+			}
+
 			return delayRenderInternal({
-				scope: scope ?? (typeof window !== 'undefined' ? window : undefined),
+				scope,
 				environment,
 				label: label ?? null,
 				options: options ?? {},
@@ -37,8 +43,12 @@ export const useDelayRender = (): {
 
 	const continueRender = useCallback<ContinueRenderFn>(
 		(handle: number) => {
+			if (!scope) {
+				return;
+			}
+
 			continueRenderInternal({
-				scope: scope ?? (typeof window !== 'undefined' ? window : undefined),
+				scope,
 				handle,
 				environment,
 				logLevel,

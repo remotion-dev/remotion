@@ -10,70 +10,102 @@ This feature is not available yet, but we are already writing docs.
 [Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
 :::
 
-Client-side rendering has several limitations to be aware of.
+Unlike server-side rendering, where a full screenshot it taken, in client-side rendering the layout and styles of your video are being emulated and drawn to a canvas.
 
-## Supported element types
+It is not feasible to support all CSS properties and factors affecting the visual style of a page, so only the most important styling primitives are supported.
 
-Only certain element types can be captured and rendered:
+## Supported CSS styles
 
-- `<canvas>` elements
-- `<svg>` elements
-- [`<Img>`](/docs/img) elements - supported, but subject to CORS restrictions
-- [`<Audio>`](/docs/media/audio) elements
-- [`<Video>`](/docs/media/video) elements
-- [`<Gif>`](/docs/gif), [`<AnimatedImage>`](/docs/animatedimage), [`<Lottie>`](/docs/lottie), [`<Rive>`](/docs/rive) elements
+### Positioning and layouting properties
 
-You can use HTML elements like `<div>` to influence the layout of the elements, but they will not be captured visually
+Properties such as `margin`, `left`, `display`, `width`, `height`, `flex`, `flex-direction` affect the position and size of the element. Those are all <a style={{color: 'green'}}>supported</a> because Remotion uses [`.getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) to obtain the position and size of the element.
 
-```tsx
-import {AbsoluteFill, Img, staticFile} from 'remotion';
+### Transformations
 
-export const MyComponent: React.FC = () => {
-  return (
-    /* Using Flexbox to center the elements is supported */
-    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-      {/** This text will NOT be captured but it influences the layout */}
-      <div>Hello world</div>
-      {/** This image WILL be captured because it is a supported element type */}
-      <Img src={staticFile('image.png')} />
-    </div>
-  );
-};
-```
+The CSS `transform` property is <a style={{color: 'green'}}>supported</a>.  
+The `transform-origin` property is <a style={{color: 'green'}}>supported</a>.  
+The `opacity` property is <a style={{color: 'green'}}>supported</a>.  
+The `scale`, `rotate` and `translate` transformations are <a style={{color: 'green'}}>supported</a>.  
+The `perspective` property is <a style={{color: 'red'}}>not supported</a>.  
+The `perspective-origin` property is <a style={{color: 'red'}}>not supported</a>.  
+The `transform-style` property is <a style={{color: 'red'}}>not supported</a> (defaults to `preserve-3d`, default in CSS is "flat").
 
-## Uncapturable elements and styles
+### Backgrounds
 
-Every element that is not explicitly supported is unsupported. Some important ones are:
+The `background-color` property is <a style={{color: 'green'}}>supported</a>.  
+The `background-image` property and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
 
-<!-- TODO: Block Html5Video from being used -->
+### Borders and border radius
 
-- `<Html5Video>`, `<Html5Audio>` and `<OffthreadVideo>` from the `remotion` package
-- Text elements: `<div>`, `<span>`, `<h1>`, etc.
+The `border`, `border-style`, `border-color`, `border-width` properties are <a style={{color: 'green'}}>supported</a>.  
+The `border-radius` property is <a style={{color: 'green'}}>supported</a>, including different values for vertical and horizontal radii.  
+Nested `border-radius` properties are currently [buggy](https://github.com/remotion-dev/remotion/issues/6057).  
+The `corner-shape` property is <a style={{color: 'red'}}>not supported</a>.
 
-In addition, CSS styles are not supported, except ones that change the layout of the element, such as `margin`, `left`, `transform`, etc.
+### Text properties
 
-```tsx twoslash title="❌ Doesn't work: Cannot capture styles that don't change the layout"
-<canvas style={{backgroundColor: 'red'}} />
-```
+The `color` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-family` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-size` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-weight` property is <a style={{color: 'green'}}>supported</a>.  
+The `line-height` property is <a style={{color: 'green'}}>supported</a>.  
+The `letter-spacing` property is <a style={{color: 'green'}}>supported</a>.  
+The `text-transform` property is <a style={{color: 'green'}}>supported</a>.  
+The `direction` HTML attribute is <a style={{color: 'green'}}>supported</a>.  
+The `writing-mode` property is <a style={{color: 'red'}}>not supported</a>.  
+The `text-decoration` property is <a style={{color: 'red'}}>not supported</a>.  
+The `text-shadow` property is <a style={{color: 'red'}}>not supported</a>.  
+The `-webkit-text-stroke` property is <a style={{color: 'red'}}>not supported</a>.
 
-```tsx twoslash title="✅ Works: Styles that change the layout"
-<canvas style={{position: 'absolute', top: 100, left: 100}} />
-```
+## Supported elements
 
-One exception is `<svg>` elements, which can be styled.
+The following Remotion components are supported:
 
-```tsx twoslash title="✅ Works: SVG elements can be styled with CSS"
-<svg style={{backgroundColor: 'red'}}>
-  <rect width="100%" height="100%" />
-</svg>
-```
+The [`<Video>`](/docs/media/video) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
+The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
+[`<Img>`](/docs/img) is <a style={{color: 'green'}}>supported</a>.  
+[`<Gif>`](/docs/gif) from [`@remotion/gif`](/docs/gif) is <a style={{color: 'green'}}>supported</a>.  
+[`<Rive>`](/docs/rive) from [`@remotion/rive`](/docs/rive) is <a style={{color: 'green'}}>supported</a>.  
+[`<Lottie>`](/docs/lottie) from [`@remotion/lottie`](/docs/lottie) is <a style={{color: 'green'}}>supported</a>.  
+[`<ThreeCanvas>`](/docs/three-canvas) from [`@remotion/three`](/docs/three) is <a style={{color: 'green'}}>supported</a>.  
+[`<SkiaCanvas>`](/docs/skia/skia-canvas) from [`@remotion/skia`](/docs/skia) is <a style={{color: 'green'}}>supported</a>.  
+[`<AnimatedImage>`](/docs/animatedimage) is <a style={{color: 'green'}}>supported</a> when rendering in Chrome.  
+[`<OffthreadVideo>`](/docs/offthreadvideo) is <a style={{color: 'red'}}>not supported</a>.  
+ → Use [`<Video>`](/docs/media/video) instead.  
+[`<Html5Video>`](/docs/html5-video) is <a style={{color: 'red'}}>not supported</a>.  
+ → Use [`<Video>`](/docs/media/video) instead.  
+[`<Html5Audio>`](/docs/html5-audio) is <a style={{color: 'red'}}>not supported</a>.  
+ → Use [`<Audio>`](/docs/media/audio) instead.  
+[`<AnimatedEmoji>`](/docs/animated-emoji) from [`@remotion/animated-emoji`](/docs/animated-emoji) is <a style={{color: 'red'}}>not supported</a>.  
+→ Use [`<Lottie>`](/docs/lottie) instead.
 
-To get a better understanding of what works and what doesn't, read [how client-side rendering works](/docs/client-side-rendering/how-it-works) under the hood.
+## Unsupported styles
+
+All styles not explicitly mentioned are <a style={{color: 'red'}}>not supported</a>.
+Here is a selection of unsupported styles:
+
+- `overflow`
+- `outline`
+- `mask-image`
+- `clip-path`
+- `box-shadow`
+- `filter` (blur, brightness, contrast, etc.)
+- `backdrop-filter`
+- `mix-blend-mode`
+- `background-blend-mode`
+- `object-fit`
+- `backface-visibility`
+- `z-index`
+  - See [Z-indexing](#z-indexing) below.
+- Any other property not listed in this document.
+
+Over time, we will support more elements and styles. We'll prioritize the most demanded ones.  
+See how you can [contribute](/docs/contributing/web-renderer) to add more supported styles.
 
 ## Z-indexing
 
-Is not implemented and `zIndex` CSS properties are ignored.  
-The rule is: Elements which are further down in the markup last will be on top.
+The CSS property `z-index` is not supported.  
+To control the order of the elements, [order your elements from back to front](/docs/layers).
 
 ```tsx twoslash title="The blue square will be drawn on top of the red square"
 import {AbsoluteFill} from 'remotion';

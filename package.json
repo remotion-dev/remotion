@@ -20,8 +20,10 @@
 		"watchwhisperweb": "turbo watch make --experimental-write-cache --filter='@remotion/whisper-web'",
 		"watchdesign": "turbo watch make --experimental-write-cache --filter='@remotion/promo-pages'",
 		"makewebcodecs": "turbo run make --filter='@remotion/media-parser' --filter='@remotion/webcodecs'",
-		"watchwebcodecs": "turbo watch make --experimental-write-cache --filter='@remotion/media-parser' --filter='@remotion/webcodecs'",
+		"watchmediaparser": "turbo watch make --experimental-write-cache --filter='@remotion/media-parser'",
+		"watchmediautils": "turbo watch make --experimental-write-cache --filter='@remotion/media-utils'",
 		"watchwebrenderer": "turbo watch make --experimental-write-cache --filter='@remotion/web-renderer'",
+		"watchwebcodecs": "turbo watch make --experimental-write-cache --filter='@remotion/webcodecs'",
 		"makewebrenderer": "turbo run make --filter='@remotion/web-renderer'",
 		"makecore": "turbo run make --filter='remotion'",
 		"watchcore": "turbo watch make --experimental-write-cache --filter='remotion'",
@@ -71,6 +73,8 @@
 			"!packages/template-recorder/whisper.cpp/**",
 			"!packages/template-tiktok/whisper.cpp",
 			"!packages/template-tiktok/whisper.cpp/**",
+			"!packages/template-audiogram/whisper.cpp",
+			"!packages/template-audiogram/whisper.cpp/**",
 			"!packages/bugs"
 		],
 		"catalog": {
@@ -84,8 +88,8 @@
 			"@aws-sdk/client-cloudwatch-logs": "3.936.0",
 			"@aws-sdk/client-service-quotas": "3.936.0",
 			"@aws-sdk/middleware-flexible-checksums": "3.936.0",
-			"react": "19.2.1",
-			"react-dom": "19.2.1",
+			"react": "19.2.3",
+			"react-dom": "19.2.3",
 			"eslint": "9.19.0",
 			"prettier": "3.6.0",
 			"zod": "3.22.3",
@@ -94,14 +98,19 @@
 			"@types/node": "20.12.14",
 			"@types/web": "0.0.166",
 			"@types/bun": "1.3.3",
-			"mediabunny": "1.25.3",
+			"mediabunny": "1.27.0",
 			"@mediabunny/mp3-encoder": "1.24.5",
-			"next": "16.0.7",
+			"next": "16.0.10",
 			"three": "0.178.0",
+			"sharp": "0.34.5",
 			"@react-three/fiber": "9.2.0",
 			"@types/three": "0.170.0",
 			"openai": "4.67.1",
-			"@types/dom-webcodecs": "0.1.11"
+			"@types/dom-webcodecs": "0.1.11",
+			"@vitejs/plugin-react": "4.1.0",
+			"@vitest/browser-playwright": "4.0.9",
+			"playwright": "1.55.1",
+			"vitest": "4.0.9"
 		}
 	}
 }

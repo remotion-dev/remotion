@@ -38,7 +38,7 @@ test('should be able to render an artifact for still', async () => {
 	]);
 });
 
-test('should fail to render multiple artifacts with the same filename', async () => {
+test('should fail to render multiple artifacts with the same filename', async (t) => {
 	const Component: React.FC = () => {
 		return <Artifact filename="test.txt" content="Hello World!" />;
 	};
@@ -58,6 +58,8 @@ test('should fail to render multiple artifacts with the same filename', async ()
 		onArtifact: (artifact) => {
 			artifacts.push(artifact);
 		},
+		outputTarget:
+			t.task.file.projectName === 'webkit' ? 'arraybuffer' : 'web-fs',
 	});
 	await expect(prom).rejects.toThrow(
 		'An artifact with output "test.txt" was already registered at frame 0, but now registered again at frame 1. Artifacts must have unique names. https://remotion.dev/docs/artifacts',
@@ -99,7 +101,7 @@ test('should be able to emit a thumbnail', async () => {
 	expect(content.slice(0, 8)).toEqual(pngSignature);
 });
 
-test('should succeed to render multiple artifacts with renderMediaOnWeb()', async () => {
+test('should succeed to render multiple artifacts with renderMediaOnWeb()', async (t) => {
 	const Component: React.FC = () => {
 		const frame = useCurrentFrame();
 		return (
@@ -132,6 +134,8 @@ test('should succeed to render multiple artifacts with renderMediaOnWeb()', asyn
 		onArtifact: (artifact) => {
 			artifacts.push(artifact);
 		},
+		outputTarget:
+			t.task.file.projectName === 'webkit' ? 'arraybuffer' : 'web-fs',
 	});
 
 	expect(artifacts).toEqual([
