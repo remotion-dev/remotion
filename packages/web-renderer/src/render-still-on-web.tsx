@@ -135,7 +135,7 @@ async function internalRenderStillOnWeb<
 			await artifactsHandler.handle({imageData, frame, assets, onArtifact});
 		}
 
-		return {blob: imageData};
+		return imageData;
 	} finally {
 		cleanupScaffold();
 	}
@@ -147,18 +147,20 @@ export const renderStillOnWeb = <
 >(
 	options: RenderStillOnWebOptions<Schema, Props>,
 ): Promise<Blob> => {
-	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref.then(() =>
-		internalRenderStillOnWeb<Schema, Props>({
-			...options,
-			delayRenderTimeoutInMilliseconds:
-				options.delayRenderTimeoutInMilliseconds ?? 30000,
-			logLevel: options.logLevel ?? 'info',
-			schema: options.schema ?? undefined,
-			mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
-			signal: options.signal ?? null,
-			onArtifact: options.onArtifact ?? null,
-		}),
-	);
+	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
+		.catch(() => Promise.resolve())
+		.then(() =>
+			internalRenderStillOnWeb<Schema, Props>({
+				...options,
+				delayRenderTimeoutInMilliseconds:
+					options.delayRenderTimeoutInMilliseconds ?? 30000,
+				logLevel: options.logLevel ?? 'info',
+				schema: options.schema ?? undefined,
+				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+				signal: options.signal ?? null,
+				onArtifact: options.onArtifact ?? null,
+			}),
+		);
 
 	return onlyOneRenderAtATimeQueue.ref as Promise<Blob>;
 };

@@ -433,28 +433,30 @@ export const renderMediaOnWeb = <
 	const container = options.container ?? 'mp4';
 	const codec = options.codec ?? getDefaultVideoCodecForContainer(container);
 
-	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref.then(() =>
-		internalRenderMediaOnWeb<Schema, Props>({
-			...options,
-			delayRenderTimeoutInMilliseconds:
-				options.delayRenderTimeoutInMilliseconds ?? 30000,
-			logLevel: options.logLevel ?? 'info',
-			schema: options.schema ?? undefined,
-			mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
-			codec,
-			container,
-			signal: options.signal ?? null,
-			onProgress: options.onProgress ?? null,
-			hardwareAcceleration: options.hardwareAcceleration ?? 'no-preference',
-			keyframeIntervalInSeconds: options.keyframeIntervalInSeconds ?? 5,
-			videoBitrate: options.videoBitrate ?? 'medium',
-			frameRange: options.frameRange ?? null,
-			transparent: options.transparent ?? false,
-			onArtifact: options.onArtifact ?? null,
-			onFrame: options.onFrame ?? null,
-			outputTarget: options.outputTarget ?? null,
-		}),
-	);
+	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
+		.catch(() => Promise.resolve())
+		.then(() =>
+			internalRenderMediaOnWeb<Schema, Props>({
+				...options,
+				delayRenderTimeoutInMilliseconds:
+					options.delayRenderTimeoutInMilliseconds ?? 30000,
+				logLevel: options.logLevel ?? 'info',
+				schema: options.schema ?? undefined,
+				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+				codec,
+				container,
+				signal: options.signal ?? null,
+				onProgress: options.onProgress ?? null,
+				hardwareAcceleration: options.hardwareAcceleration ?? 'no-preference',
+				keyframeIntervalInSeconds: options.keyframeIntervalInSeconds ?? 5,
+				videoBitrate: options.videoBitrate ?? 'medium',
+				frameRange: options.frameRange ?? null,
+				transparent: options.transparent ?? false,
+				onArtifact: options.onArtifact ?? null,
+				onFrame: options.onFrame ?? null,
+				outputTarget: options.outputTarget ?? null,
+			}),
+		);
 
 	return onlyOneRenderAtATimeQueue.ref as Promise<RenderMediaOnWebResult>;
 };
