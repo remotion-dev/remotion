@@ -67,11 +67,11 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 			// 2. Rotate
 			// 3. Scale
 			// 4. CSS "transform"
-			if (rotate !== '') {
+			if (rotate !== '' && rotate !== 'none') {
 				additionalMatrices.push(new DOMMatrix(`rotate(${rotate})`));
 			}
 
-			if (scale !== '') {
+			if (scale !== '' && scale !== 'none') {
 				additionalMatrices.push(new DOMMatrix(`scale(${scale})`));
 			}
 
