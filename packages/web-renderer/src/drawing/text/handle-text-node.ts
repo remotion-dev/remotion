@@ -36,7 +36,7 @@ export const handleTextNode = async (
 	await drawElementToCanvas({
 		context,
 		element: span,
-		draw(rect, style, contextToDraw) {
+		draw({dimensions: rect, computedStyle, contextToDraw}) {
 			const {
 				fontFamily,
 				fontSize,
@@ -47,7 +47,7 @@ export const handleTextNode = async (
 				writingMode,
 				letterSpacing,
 				textTransform,
-			} = style;
+			} = computedStyle;
 			const isVertical = writingMode !== 'horizontal-tb';
 			if (isVertical) {
 				// TODO: Only warn once per render.

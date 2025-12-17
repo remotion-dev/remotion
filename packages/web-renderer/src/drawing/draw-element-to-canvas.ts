@@ -1,5 +1,6 @@
 import {calculateTransforms} from './calculate-transforms';
 import {drawElement} from './draw-element';
+import type {DrawFn} from './drawn-fn';
 import {transformIn3d} from './transform-in-3d';
 
 export const drawElementToCanvas = async ({
@@ -9,11 +10,7 @@ export const drawElementToCanvas = async ({
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
-	draw: (
-		dimensions: DOMRect,
-		computedStyle: CSSStyleDeclaration,
-		contextToDraw: OffscreenCanvasRenderingContext2D,
-	) => Promise<void> | void;
+	draw: DrawFn;
 }) => {
 	const {totalMatrix, reset, dimensions, opacity, computedStyle} =
 		calculateTransforms(element);
