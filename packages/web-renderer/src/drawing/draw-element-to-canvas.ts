@@ -51,6 +51,8 @@ export const drawElementToCanvas = async ({
 			offsetTop,
 		});
 		context.drawImage(transformed, 0, 0);
+		reset();
+
 		return 'skip-children';
 	}
 
