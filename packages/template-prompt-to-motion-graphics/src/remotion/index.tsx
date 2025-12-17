@@ -15,9 +15,11 @@ const RemotionRoot: React.FC = () => {
         fps={30}
         width={1920}
         height={1080}
-        defaultProps={{
-          code: defaultCode,
-        }}
+        defaultProps={{ code: defaultCode }}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: props.durationInFrames as number,
+          fps: props.fps as number,
+        })}
       />
     </>
   );

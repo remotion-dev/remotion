@@ -31,6 +31,8 @@ function DemoPageContent() {
   }, [searchParams]);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [durationInFrames, setDurationInFrames] = useState(selectedExample.durationInFrames);
+  const [fps, setFps] = useState(selectedExample.fps);
   const selectedButtonRef = useRef<HTMLButtonElement>(null);
 
   const { code, Component, error, isCompiling, setCode, compileCode } =
@@ -52,6 +54,8 @@ function DemoPageContent() {
       if (example) {
         setCode(example.code);
         compileCode(example.code);
+        setDurationInFrames(example.durationInFrames);
+        setFps(example.fps);
         router.replace(`/code-examples?example=${exampleId}`, {
           scroll: false,
         });
@@ -169,8 +173,10 @@ function DemoPageContent() {
             />
             <AnimationPlayer
               Component={Component}
-              durationInFrames={selectedExample.durationInFrames}
-              fps={selectedExample.fps}
+              durationInFrames={durationInFrames}
+              fps={fps}
+              onDurationChange={setDurationInFrames}
+              onFpsChange={setFps}
               isCompiling={isCompiling}
               isStreaming={false}
               error={error}

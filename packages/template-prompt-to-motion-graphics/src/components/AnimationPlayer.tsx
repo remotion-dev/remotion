@@ -3,6 +3,7 @@
 import React from "react";
 import { Player, type ErrorFallback } from "@remotion/player";
 import { RenderControls } from "./RenderControls";
+import { SettingsModal } from "./SettingsModal";
 
 const renderErrorFallback: ErrorFallback = ({ error }) => {
   return (
@@ -23,17 +24,21 @@ interface AnimationPlayerProps {
   Component: React.ComponentType | null;
   durationInFrames: number;
   fps: number;
+  onDurationChange: (duration: number) => void;
+  onFpsChange: (fps: number) => void;
   isCompiling: boolean;
   isStreaming: boolean;
   error: string | null;
   errorType?: "compilation" | "api";
-  code?: string;
+  code: string;
 }
 
 export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
   Component,
   durationInFrames,
   fps,
+  onDurationChange,
+  onFpsChange,
   isCompiling,
   isStreaming,
   error,
@@ -138,7 +143,15 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
             clickToPlay={false}
           />
         </div>
-        <RenderControls code={code} />
+        <div className="flex items-center justify-between gap-6">
+          <RenderControls code={code} durationInFrames={durationInFrames} fps={fps} />
+          <SettingsModal
+            durationInFrames={durationInFrames}
+            onDurationChange={onDurationChange}
+            fps={fps}
+            onFpsChange={onFpsChange}
+          />
+        </div>
       </div>
     </div>
   );

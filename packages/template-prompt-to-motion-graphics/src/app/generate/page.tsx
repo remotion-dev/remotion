@@ -12,7 +12,6 @@ import {
   type StreamPhase,
   type PromptInputRef,
 } from "../../components/PromptInput";
-import { SettingsModal } from "../../components/SettingsModal";
 import { examples } from "../../templates";
 import { useAnimationState } from "../../hooks/useAnimationState";
 
@@ -118,17 +117,7 @@ function GeneratePageContent() {
   }, [initialPrompt, hasAutoStarted]);
 
   return (
-    <PageLayout
-      showLogoAsLink
-      rightContent={
-        <SettingsModal
-          durationInFrames={durationInFrames}
-          onDurationChange={setDurationInFrames}
-          fps={fps}
-          onFpsChange={setFps}
-        />
-      }
-    >
+    <PageLayout showLogoAsLink>
       <div className="flex-1 flex flex-col min-w-0 px-12 pb-8 gap-8 overflow-hidden">
         <div className="flex-1 flex overflow-hidden gap-8">
           <CodeEditor
@@ -141,6 +130,8 @@ function GeneratePageContent() {
             Component={Component}
             durationInFrames={durationInFrames}
             fps={fps}
+            onDurationChange={setDurationInFrames}
+            onFpsChange={setFps}
             isCompiling={isCompiling}
             isStreaming={isStreaming}
             error={apiError || error}

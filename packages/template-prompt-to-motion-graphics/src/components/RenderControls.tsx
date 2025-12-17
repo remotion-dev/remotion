@@ -4,22 +4,29 @@ import { useEffect, useRef } from "react";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ErrorComp } from "./Error";
-import { ProgressBar } from "./ProgressBar";
 import { useRendering } from "../helpers/use-rendering";
 
 export const RenderControls: React.FC<{
   code: string;
-}> = ({ code }) => {
-  const { renderMedia, state, undo } = useRendering({ code });
-  const previousCodeRef = useRef(code);
+  durationInFrames: number;
+  fps: number;
+}> = ({ code, durationInFrames, fps }) => {
+  const { renderMedia, state, undo } = useRendering({ code, durationInFrames, fps });
+  const previousPropsRef = useRef({ code, durationInFrames, fps });
 
-  // Reset rendering state when code changes
+  // Reset rendering state when code, duration, or fps changes
   useEffect(() => {
-    if (previousCodeRef.current !== code && state.status !== "init") {
+    const prev = previousPropsRef.current;
+    const hasChanged =
+      prev.code !== code ||
+      prev.durationInFrames !== durationInFrames ||
+      prev.fps !== fps;
+
+    if (hasChanged && state.status !== "init") {
       undo();
     }
-    previousCodeRef.current = code;
-  }, [code, state.status, undo]);
+    previousPropsRef.current = { code, durationInFrames, fps };
+  }, [code, durationInFrames, fps, state.status, undo]);
 
   if (
     state.status === "init" ||
@@ -47,12 +54,20 @@ export const RenderControls: React.FC<{
   }
 
   if (state.status === "rendering") {
+    const progress = Math.round(state.progress * 100);
+
     return (
-      <div className="flex flex-col gap-2">
-        <ProgressBar progress={state.progress} />
-        <p className="text-sm text-muted-foreground text-center">
-          Rendering... {Math.round(state.progress * 100)}%
-        </p>
+      <div className="flex flex-col gap-2 w-full">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Rendering...</span>
+          <span className="font-medium">{progress}%</span>
+        </div>
+        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full bg-primary transition-all duration-300 rounded-full"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       </div>
     );
   }

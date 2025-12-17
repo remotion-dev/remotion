@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,36 @@ export function SettingsModal({
   onFpsChange,
 }: SettingsModalProps) {
   const [open, setOpen] = useState(false);
+  const [localDuration, setLocalDuration] = useState(String(durationInFrames));
+  const [localFps, setLocalFps] = useState(String(fps));
+
+  // Sync local state when props change
+  useEffect(() => {
+    setLocalDuration(String(durationInFrames));
+    setLocalFps(String(fps));
+  }, [durationInFrames, fps]);
+
+  const handleDurationBlur = () => {
+    const parsed = parseInt(localDuration);
+    if (isNaN(parsed) || parsed < 1) {
+      setLocalDuration(String(durationInFrames));
+    } else {
+      const clamped = Math.min(1000, Math.max(1, parsed));
+      setLocalDuration(String(clamped));
+      onDurationChange(clamped);
+    }
+  };
+
+  const handleFpsBlur = () => {
+    const parsed = parseInt(localFps);
+    if (isNaN(parsed) || parsed < 1) {
+      setLocalFps(String(fps));
+    } else {
+      const clamped = Math.min(60, Math.max(1, parsed));
+      setLocalFps(String(clamped));
+      onFpsChange(clamped);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -56,10 +86,9 @@ export function SettingsModal({
                   type="number"
                   min={1}
                   max={1000}
-                  value={durationInFrames}
-                  onChange={(e) =>
-                    onDurationChange(Math.max(1, parseInt(e.target.value) || 1))
-                  }
+                  value={localDuration}
+                  onChange={(e) => setLocalDuration(e.target.value)}
+                  onBlur={handleDurationBlur}
                   className="w-full px-3 py-2 rounded border border-border bg-input text-foreground text-sm font-sans focus:outline-none focus:border-primary"
                 />
               </div>
@@ -72,12 +101,9 @@ export function SettingsModal({
                   type="number"
                   min={1}
                   max={60}
-                  value={fps}
-                  onChange={(e) =>
-                    onFpsChange(
-                      Math.max(1, Math.min(60, parseInt(e.target.value) || 30)),
-                    )
-                  }
+                  value={localFps}
+                  onChange={(e) => setLocalFps(e.target.value)}
+                  onBlur={handleFpsBlur}
                   className="w-full px-3 py-2 rounded border border-border bg-input text-foreground text-sm font-sans focus:outline-none focus:border-primary"
                 />
               </div>
