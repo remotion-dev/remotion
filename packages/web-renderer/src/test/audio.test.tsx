@@ -23,7 +23,7 @@ test(
 					calculateMetadata: null,
 				},
 				outputTarget:
-					t.task.file.projectName === 'webkit' ? 'buffer' : 'web-fs',
+					t.task.file.projectName === 'webkit' ? 'arraybuffer' : 'web-fs',
 			});
 			throw new Error('Did resolve' + JSON.stringify(result));
 		}).rejects.toThrow(
@@ -60,6 +60,7 @@ test('should be able to render 2 audios', async (t) => {
 		},
 		frameRange: [0, 1],
 		logLevel: 'info',
-		outputTarget: t.task.file.projectName === 'webkit' ? 'buffer' : 'web-fs',
+		outputTarget:
+			t.task.file.projectName === 'webkit' ? 'arraybuffer' : 'web-fs',
 	});
 });

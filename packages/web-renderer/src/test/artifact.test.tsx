@@ -58,7 +58,8 @@ test('should fail to render multiple artifacts with the same filename', async (t
 		onArtifact: (artifact) => {
 			artifacts.push(artifact);
 		},
-		outputTarget: t.task.file.projectName === 'webkit' ? 'buffer' : 'web-fs',
+		outputTarget:
+			t.task.file.projectName === 'webkit' ? 'arraybuffer' : 'web-fs',
 	});
 	await expect(prom).rejects.toThrow(
 		'An artifact with output "test.txt" was already registered at frame 0, but now registered again at frame 1. Artifacts must have unique names. https://remotion.dev/docs/artifacts',
@@ -133,7 +134,8 @@ test('should succeed to render multiple artifacts with renderMediaOnWeb()', asyn
 		onArtifact: (artifact) => {
 			artifacts.push(artifact);
 		},
-		outputTarget: t.task.file.projectName === 'webkit' ? 'buffer' : 'web-fs',
+		outputTarget:
+			t.task.file.projectName === 'webkit' ? 'arraybuffer' : 'web-fs',
 	});
 
 	expect(artifacts).toEqual([

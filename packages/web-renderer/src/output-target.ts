@@ -1,1 +1,1 @@
-export type WebRendererOutputTarget = 'buffer' | 'web-fs';
+export type WebRendererOutputTarget = 'arraybuffer' | 'web-fs';
