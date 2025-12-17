@@ -11,6 +11,7 @@ import type {AnyZodObject, z} from 'zod';
 import {addAudioSample, addVideoSampleAndCloseFrame} from './add-sample';
 import {handleArtifacts, type OnArtifact} from './artifact';
 import {onlyInlineAudio} from './audio';
+import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
 import {getDefaultAudioEncodingConfig} from './get-audio-encoding-config';
@@ -98,7 +99,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	transparent: boolean;
 	onArtifact: OnArtifact | null;
 	onFrame: OnFrameCallback | null;
-	outputTarget: WebRendererOutputTarget;
+	outputTarget: WebRendererOutputTarget | null;
 };
 
 export type RenderMediaOnWebOptions<
@@ -142,11 +143,18 @@ const internalRenderMediaOnWeb = async <
 	transparent,
 	onArtifact,
 	onFrame,
-	outputTarget,
+	outputTarget: userDesiredOutputTarget,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
 >): Promise<RenderMediaOnWebResult> => {
+	const outputTarget =
+		userDesiredOutputTarget === null
+			? (await canUseWebFsWriter())
+				? 'web-fs'
+				: 'arraybuffer'
+			: userDesiredOutputTarget;
+
 	if (outputTarget === 'web-fs') {
 		await cleanupStaleOpfsFiles();
 	}
@@ -444,7 +452,7 @@ export const renderMediaOnWeb = <
 			transparent: options.transparent ?? false,
 			onArtifact: options.onArtifact ?? null,
 			onFrame: options.onFrame ?? null,
-			outputTarget: options.outputTarget ?? 'web-fs',
+			outputTarget: options.outputTarget ?? null,
 		}),
 	);
 
