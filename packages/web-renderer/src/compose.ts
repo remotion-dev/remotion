@@ -1,6 +1,6 @@
+import {drawDomElement} from './drawing/draw-dom-element';
 import {drawElementToCanvas} from './drawing/draw-element-to-canvas';
 import {handleTextNode} from './drawing/text/handle-text-node';
-import {turnSvgIntoDrawable} from './drawing/turn-svg-into-drawable';
 
 export const compose = async (
 	element: HTMLDivElement,
@@ -34,25 +34,7 @@ export const compose = async (
 			await drawElementToCanvas({
 				element: node,
 				context,
-				draw: async (dimensions) => {
-					const drawable = await (node instanceof SVGSVGElement
-						? turnSvgIntoDrawable(node)
-						: node instanceof HTMLImageElement
-							? node
-							: node instanceof HTMLCanvasElement
-								? node
-								: null);
-
-					if (drawable) {
-						context.drawImage(
-							drawable,
-							dimensions.left,
-							dimensions.top,
-							dimensions.width,
-							dimensions.height,
-						);
-					}
-				},
+				draw: drawDomElement(node),
 			});
 		} else if (node instanceof Text) {
 			await handleTextNode(node, context);

@@ -1,5 +1,6 @@
 import {parseBorderRadius, setBorderRadius} from './border-radius';
 import {drawBorder} from './draw-border';
+import type {DrawFn} from './drawn-fn';
 import {setOpacity} from './opacity';
 import {setTransform} from './transform';
 
@@ -16,10 +17,7 @@ export const drawElement = async ({
 	context: OffscreenCanvasRenderingContext2D;
 	opacity: number;
 	totalMatrix: DOMMatrix;
-	draw: (
-		dimensions: DOMRect,
-		computedStyle: CSSStyleDeclaration,
-	) => Promise<void> | void;
+	draw: DrawFn;
 }) => {
 	const background = computedStyle.backgroundColor;
 	const borderRadius = parseBorderRadius({
@@ -64,7 +62,7 @@ export const drawElement = async ({
 		context.fillStyle = originalFillStyle;
 	}
 
-	await draw(dimensions, computedStyle);
+	await draw({dimensions, computedStyle, contextToDraw: context});
 
 	drawBorder({
 		ctx: context,

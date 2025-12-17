@@ -14,6 +14,7 @@ import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {displayNone} from './fixtures/display-none';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
+import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {opacityNested} from './fixtures/opacity-nested';
@@ -84,6 +85,7 @@ export const Root: React.FC = () => {
 				<Composition {...transformWithRotate} />
 				<Composition {...transformWithTranslate} />
 				<Composition {...transformWithAllShorthands} />
+				<Composition {...inside3dTransform} />
 			</Folder>
 		</>
 	);
