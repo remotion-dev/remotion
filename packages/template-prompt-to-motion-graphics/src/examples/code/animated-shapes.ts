@@ -5,7 +5,7 @@ import { Circle, Triangle, Rect, Star } from "@remotion/shapes";
 
 export const MyAnimation = () => {
   const frame = useCurrentFrame();
-  const { fpst } = useVideoConfig();
+  const { fps } = useVideoConfig();
 
   const shapes = [
     { type: "circle", color: "#6366f1", delay: 0 },
