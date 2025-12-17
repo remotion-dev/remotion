@@ -3,6 +3,8 @@ import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
 import {transformIn3d} from './transform-in-3d';
 
+export type DrawElementToCanvasReturnValue = 'continue' | 'skip-children';
+
 export const drawElementToCanvas = async ({
 	element,
 	context,
@@ -11,18 +13,18 @@ export const drawElementToCanvas = async ({
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
 	draw: DrawFn;
-}) => {
+}): Promise<DrawElementToCanvasReturnValue> => {
 	const {totalMatrix, reset, dimensions, opacity, computedStyle} =
 		calculateTransforms(element);
 
 	if (opacity === 0) {
 		reset();
-		return;
+		return 'continue';
 	}
 
 	if (dimensions.width <= 0 || dimensions.height <= 0) {
 		reset();
-		return;
+		return 'continue';
 	}
 
 	if (!totalMatrix.is2D) {
@@ -62,16 +64,19 @@ export const drawElementToCanvas = async ({
 			offsetTop,
 		});
 		context.drawImage(transformed, 0, 0);
-	} else {
-		await drawElement({
-			dimensions,
-			computedStyle,
-			context,
-			draw,
-			opacity,
-			totalMatrix,
-		});
+		return 'skip-children';
 	}
 
+	await drawElement({
+		dimensions,
+		computedStyle,
+		context,
+		draw,
+		opacity,
+		totalMatrix,
+	});
+
 	reset();
+
+	return 'continue';
 };

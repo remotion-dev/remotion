@@ -1,6 +1,30 @@
 import {drawDomElement} from './drawing/draw-dom-element';
+import type {DrawElementToCanvasReturnValue} from './drawing/draw-element-to-canvas';
 import {drawElementToCanvas} from './drawing/draw-element-to-canvas';
 import {handleTextNode} from './drawing/text/handle-text-node';
+import {skipToNextNonDescendant} from './walk-tree';
+
+const walkOverNode = ({
+	node,
+	context,
+}: {
+	node: Node;
+	context: OffscreenCanvasRenderingContext2D;
+}): Promise<DrawElementToCanvasReturnValue> => {
+	if (node instanceof HTMLElement || node instanceof SVGElement) {
+		return drawElementToCanvas({
+			element: node,
+			context,
+			draw: drawDomElement(node),
+		});
+	}
+
+	if (node instanceof Text) {
+		return handleTextNode(node, context);
+	}
+
+	throw new Error('Unknown node type');
+};
 
 export const compose = async (
 	element: HTMLDivElement,
@@ -28,16 +52,10 @@ export const compose = async (
 		},
 	);
 
-	while (treeWalker.nextNode()) {
-		const node = treeWalker.currentNode;
-		if (node instanceof HTMLElement || node instanceof SVGElement) {
-			await drawElementToCanvas({
-				element: node,
-				context,
-				draw: drawDomElement(node),
-			});
-		} else if (node instanceof Text) {
-			await handleTextNode(node, context);
+	while (treeWalker.currentNode) {
+		const val = await walkOverNode({node: treeWalker.currentNode, context});
+		if (val === 'skip-children') {
+			skipToNextNonDescendant(treeWalker);
 		}
 	}
 };
