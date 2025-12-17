@@ -1754,7 +1754,7 @@
         "connect": "3.7.0",
         "eslint": "9.19.0",
         "lucide-react": "0.516.0",
-        "mediabunny": "1.25.8",
+        "mediabunny": "1.27.0",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
@@ -1890,7 +1890,7 @@
         "@remotion/media": "workspace:*",
         "@remotion/three": "workspace:*",
         "@remotion/zod-types": "workspace:*",
-        "mediabunny": "1.25.8",
+        "mediabunny": "1.27.0",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
@@ -2148,7 +2148,7 @@
     "@vitejs/plugin-react": "4.1.0",
     "@vitest/browser-playwright": "4.0.9",
     "eslint": "9.19.0",
-    "mediabunny": "1.25.8",
+    "mediabunny": "1.27.0",
     "next": "16.0.10",
     "openai": "4.67.1",
     "playwright": "1.55.1",
@@ -5559,7 +5559,7 @@
 
     "media-typer": ["media-typer@0.3.0", "", {}, "sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ=="],
 
-    "mediabunny": ["mediabunny@1.25.8", "", { "dependencies": { "@types/dom-mediacapture-transform": "^0.1.11", "@types/dom-webcodecs": "0.1.13" } }, "sha512-2WCa9WtEbHOvg5rAWXQjVE+O/r01fpj65ymZdA2XhIeaWmdDQ40p32F0WY6tdBi+aeY+4ldwhAOpo0eyVrYTGg=="],
+    "mediabunny": ["mediabunny@1.27.0", "", { "dependencies": { "@types/dom-mediacapture-transform": "^0.1.11", "@types/dom-webcodecs": "0.1.13" } }, "sha512-u1Xm/HRs4g+cJM8IWcraaWlDmPnAr0FvEbFNbTm46bFA1GPoNRpmBeCq3aPlj9sjyqb0c7TMbW/i/pPupjwJog=="],
 
     "memfs": ["memfs@3.4.3", "", { "dependencies": { "fs-monkey": "1.0.3" } }, "sha512-eivjfi7Ahr6eQTn44nvTnR60e4a1Fs1Via2kCR5lHo/kyNoiMWaXCNJ/GpSd0ilXas2JSOl9B5FTIhflXu0hlg=="],
 
