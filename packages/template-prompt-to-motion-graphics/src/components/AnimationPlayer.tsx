@@ -45,83 +45,52 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
   errorType = "compilation",
   code,
 }) => {
-  if (isStreaming) {
-    return (
-      <div className="flex flex-col bg-background min-w-0 h-full">
-        <div className="w-full h-full flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-muted-foreground shrink-0">
-            Video Preview
-          </h2>
-          <div className="w-full aspect-video max-h-[calc(100%-80px)] flex flex-col justify-center items-center gap-4 bg-background-elevated rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
-            <div className="w-12 h-12 border-4 border-border border-t-primary rounded-full animate-spin" />
-            <p className="text-muted-foreground text-sm">
-              Waiting for code generation to finish...
-            </p>
-          </div>
+  const renderContent = () => {
+    if (isStreaming) {
+      return (
+        <div className="w-full aspect-video max-h-[calc(100%-80px)] flex flex-col justify-center items-center gap-4 bg-background-elevated rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
+          <div className="w-12 h-12 border-4 border-border border-t-primary rounded-full animate-spin" />
+          <p className="text-muted-foreground text-sm">
+            Waiting for code generation to finish...
+          </p>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (isCompiling) {
-    return (
-      <div className="flex flex-col bg-background min-w-0 h-full">
-        <div className="w-full h-full flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-muted-foreground shrink-0">
-            Video Preview
-          </h2>
-          <div className="w-full aspect-video max-h-[calc(100%-80px)] flex justify-center items-center bg-background-elevated rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
-            <div className="w-12 h-12 border-4 border-border border-t-primary rounded-full animate-spin" />
-          </div>
+    if (isCompiling) {
+      return (
+        <div className="w-full aspect-video max-h-[calc(100%-80px)] flex justify-center items-center bg-background-elevated rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
+          <div className="w-12 h-12 border-4 border-border border-t-primary rounded-full animate-spin" />
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (error) {
-    const errorTitle = errorType === "api" ? "API Error" : "Compilation Error";
-    return (
-      <div className="flex flex-col bg-background min-w-0 h-full">
-        <div className="w-full h-full flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-muted-foreground shrink-0">
-            Video Preview
-          </h2>
-          <div className="w-full aspect-video max-h-[calc(100%-80px)] flex justify-center items-center bg-background-error rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)] border border-destructive">
-            <div className="text-center max-w-[80%]">
-              <div className="text-destructive text-base font-semibold mb-2 font-sans">
-                {errorTitle}
-              </div>
-              <div className="text-destructive-foreground text-sm font-mono whitespace-pre-wrap break-words">
-                {error}
-              </div>
+    if (error) {
+      const errorTitle = errorType === "api" ? "API Error" : "Compilation Error";
+      return (
+        <div className="w-full aspect-video max-h-[calc(100%-80px)] flex justify-center items-center bg-background-error rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)] border border-destructive">
+          <div className="text-center max-w-[80%]">
+            <div className="text-destructive text-base font-semibold mb-2 font-sans">
+              {errorTitle}
+            </div>
+            <div className="text-destructive-foreground text-sm font-mono whitespace-pre-wrap break-words">
+              {error}
             </div>
           </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (!Component) {
-    return (
-      <div className="flex flex-col bg-background min-w-0 h-full">
-        <div className="w-full h-full flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-muted-foreground shrink-0">
-            Video Preview
-          </h2>
-          <div className="w-full aspect-video max-h-[calc(100%-80px)] flex justify-center items-center bg-background-elevated rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)] text-muted-foreground-dim text-lg font-sans">
-            Select an example to get started
-          </div>
+    if (!Component) {
+      return (
+        <div className="w-full aspect-video max-h-[calc(100%-80px)] flex justify-center items-center bg-background-elevated rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)] text-muted-foreground-dim text-lg font-sans">
+          Select an example to get started
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  return (
-    <div className="flex flex-col bg-background min-w-0 h-full">
-      <div className="w-full flex flex-col gap-3 h-full">
-        <h2 className="text-sm font-medium text-muted-foreground shrink-0">
-          Video Preview
-        </h2>
+    return (
+      <>
         <div className="w-full aspect-video max-h-[calc(100%-80px)] rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
           <Player
             key={Component.toString()}
@@ -152,6 +121,17 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
             onFpsChange={onFpsChange}
           />
         </div>
+      </>
+    );
+  };
+
+  return (
+    <div className="flex flex-col bg-background min-w-0 h-full">
+      <div className="w-full h-full flex flex-col gap-3">
+        <h2 className="text-sm font-medium text-muted-foreground shrink-0">
+          Video Preview
+        </h2>
+        {renderContent()}
       </div>
     </div>
   );

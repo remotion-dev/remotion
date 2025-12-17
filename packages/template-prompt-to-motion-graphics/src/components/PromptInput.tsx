@@ -3,7 +3,6 @@
 import { useState, forwardRef, useImperativeHandle } from "react";
 import {
   ArrowUp,
-  Loader2,
   Type,
   MessageCircle,
   Hash,
@@ -18,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { examplePrompts } from "@/data/examplePrompts";
 
 const iconMap: Record<string, LucideIcon> = {
@@ -148,7 +148,9 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
       } catch (error) {
         console.error("Error generating code:", error);
         const errorMessage =
-          error instanceof Error ? error.message : "An unexpected error occurred";
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred";
         onError?.(errorMessage);
       } finally {
         setIsLoading(false);
@@ -232,17 +234,15 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
                 </SelectContent>
               </Select>
 
-              <button
+              <Button
                 type="submit"
-                disabled={isLoading || !prompt.trim()}
-                className="p-2 rounded-lg bg-foreground text-background hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                size="icon-sm"
+                disabled={!prompt.trim()}
+                loading={isLoading}
+                className="bg-foreground text-background hover:bg-gray-200"
               >
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <ArrowUp className="w-5 h-5" />
-                )}
-              </button>
+                <ArrowUp className="w-5 h-5" />
+              </Button>
             </div>
           </div>
 
@@ -251,7 +251,9 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
               isLanding ? "justify-center mt-6 gap-2" : ""
             }`}
           >
-            <span className="text-muted-foreground-dim text-xs mr-1">Prompt Examples</span>
+            <span className="text-muted-foreground-dim text-xs mr-1">
+              Prompt Examples
+            </span>
             {examplePrompts.map((example) => {
               const Icon = iconMap[example.icon];
               return (
@@ -265,9 +267,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
                   }}
                   className={`rounded-full bg-background-elevated border hover:brightness-125 transition-all flex items-center gap-1 px-1.5 py-0.5 text-[11px]`}
                 >
-                  {Icon && (
-                    <Icon className={isLanding ? "w-3 h-3" : "w-3 h-3"} />
-                  )}
+                  <Icon className="w-3 h-3" />
                   {example.headline}
                 </button>
               );
