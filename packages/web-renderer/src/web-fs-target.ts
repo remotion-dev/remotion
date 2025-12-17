@@ -10,27 +10,19 @@ const getPrefix = () => {
 	return `__remotion_render:${sessionId}:`;
 };
 
-let cleanupRan = false;
-
 export const cleanupStaleOpfsFiles = async (): Promise<void> => {
-	if (cleanupRan) {
-		return;
-	}
-
-	cleanupRan = true;
-
-	const root = await navigator.storage.getDirectory();
-	for await (const [name] of root.entries()) {
-		if (
-			name.startsWith('__remotion_render:') &&
-			!name.startsWith(getPrefix())
-		) {
-			try {
+	try {
+		const root = await navigator.storage.getDirectory();
+		for await (const [name] of root.entries()) {
+			if (
+				name.startsWith('__remotion_render:') &&
+				!name.startsWith(getPrefix())
+			) {
 				await root.removeEntry(name);
-			} catch {
-				// File may be in use by another tab, skip it
 			}
 		}
+	} catch {
+		// Ignore, could already be closed
 	}
 };
 
