@@ -55,6 +55,7 @@
     "@eslint/js": "9.38.0",
     "@next/eslint-plugin-next": "15.1.6",
     "@remotion/eslint-plugin": "workspace:*",
+    "@types/babel__standalone": "7.1.9",
     "@tailwindcss/postcss": "4.1.1",
     "@types/node": "20.12.14",
     "@types/react": "19.2.7",
