@@ -11,7 +11,6 @@ import {
 
 import { EditorHeader } from "./EditorHeader";
 import { StreamingOverlay } from "./StreamingOverlay";
-import { EDITOR_STYLES } from "./styles";
 
 // Monaco must be loaded client-side only
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
@@ -271,38 +270,41 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   return (
     <div className="flex-2 h-[500px] lg:h-full flex flex-col min-w-0">
-      <h2 className="text-sm font-medium text-muted-foreground mb-3">Remotion Code</h2>
+      <h2 className="text-sm font-medium text-muted-foreground mb-3">
+        Remotion Code
+      </h2>
       <div className="flex-1 flex flex-col bg-background-editor rounded-lg overflow-hidden">
         <EditorHeader filename="MyAnimation.tsx" code={code} />
-      <style>{EDITOR_STYLES}</style>
-      <div className="flex-1 overflow-hidden relative">
-        <StreamingOverlay
-          visible={isStreaming}
-          message={streamPhase === "reasoning" ? "Thinking..." : "Generating code..."}
-        />
-        <MonacoEditor
-          height="100%"
-          language={editorLanguage}
-          theme="vs-dark"
-          path="MyAnimation.tsx"
-          value={code}
-          onChange={handleChange}
-          onMount={handleEditorMount}
-          options={{
-            minimap: { enabled: false },
-            fontSize: 14,
-            lineNumbers: "on",
-            scrollBeyondLastLine: false,
-            automaticLayout: true,
-            tabSize: 2,
-            wordWrap: "on",
-            padding: { top: 16 },
-            glyphMargin: false,
-            lineNumbersMinChars: 3,
-            folding: false,
-          }}
-        />
-      </div>
+        <div className="flex-1 overflow-hidden relative">
+          <StreamingOverlay
+            visible={isStreaming}
+            message={
+              streamPhase === "reasoning" ? "Thinking..." : "Generating code..."
+            }
+          />
+          <MonacoEditor
+            height="100%"
+            language={editorLanguage}
+            theme="vs-dark"
+            path="MyAnimation.tsx"
+            value={code}
+            onChange={handleChange}
+            onMount={handleEditorMount}
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              lineNumbers: "on",
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              tabSize: 2,
+              wordWrap: "on",
+              padding: { top: 16 },
+              glyphMargin: false,
+              lineNumbersMinChars: 3,
+              folding: false,
+            }}
+          />
+        </div>
       </div>
     </div>
   );
