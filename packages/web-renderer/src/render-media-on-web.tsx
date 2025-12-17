@@ -433,7 +433,7 @@ export const renderMediaOnWeb = <
 	const container = options.container ?? 'mp4';
 	const codec = options.codec ?? getDefaultVideoCodecForContainer(container);
 
-	const prom = onlyOneRenderAtATimeQueue.ref.then(() =>
+	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref.then(() =>
 		internalRenderMediaOnWeb<Schema, Props>({
 			...options,
 			delayRenderTimeoutInMilliseconds:
@@ -456,7 +456,5 @@ export const renderMediaOnWeb = <
 		}),
 	);
 
-	onlyOneRenderAtATimeQueue.ref = prom;
-
-	return prom;
+	return onlyOneRenderAtATimeQueue.ref as Promise<RenderMediaOnWebResult>;
 };

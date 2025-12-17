@@ -135,7 +135,7 @@ async function internalRenderStillOnWeb<
 			await artifactsHandler.handle({imageData, frame, assets, onArtifact});
 		}
 
-		return imageData;
+		return {blob: imageData};
 	} finally {
 		cleanupScaffold();
 	}
@@ -146,8 +146,8 @@ export const renderStillOnWeb = <
 	Props extends Record<string, unknown>,
 >(
 	options: RenderStillOnWebOptions<Schema, Props>,
-) => {
-	const prom = onlyOneRenderAtATimeQueue.ref.then(() =>
+): Promise<Blob> => {
+	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref.then(() =>
 		internalRenderStillOnWeb<Schema, Props>({
 			...options,
 			delayRenderTimeoutInMilliseconds:
@@ -160,7 +160,5 @@ export const renderStillOnWeb = <
 		}),
 	);
 
-	onlyOneRenderAtATimeQueue.ref = prom;
-
-	return prom;
+	return onlyOneRenderAtATimeQueue.ref as Promise<Blob>;
 };
