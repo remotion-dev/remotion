@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, forwardRef, useImperativeHandle } from "react";
+import Link from "next/link";
 import {
   ArrowUp,
+  SquareArrowOutUpRight,
   Type,
   MessageCircle,
   Hash,
@@ -46,13 +48,19 @@ export interface PromptInputRef {
 }
 
 interface PromptInputProps {
-  onCodeGenerated: (code: string) => void;
+  onCodeGenerated?: (code: string) => void;
   onStreamingChange?: (isStreaming: boolean) => void;
   onStreamPhaseChange?: (phase: StreamPhase) => void;
   onError?: (error: string) => void;
   variant?: "landing" | "editor";
   prompt?: string;
   onPromptChange?: (prompt: string) => void;
+  /** Called when landing variant submits - receives prompt and model for navigation */
+  onNavigate?: (prompt: string, model: ModelId) => void;
+  /** Whether navigation is in progress (for landing variant) */
+  isNavigating?: boolean;
+  /** Whether to show the "View Code examples" link (landing variant) */
+  showCodeExamplesLink?: boolean;
 }
 
 export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
@@ -65,6 +73,9 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
       variant = "editor",
       prompt: controlledPrompt,
       onPromptChange,
+      onNavigate,
+      isNavigating = false,
+      showCodeExamplesLink = false,
     },
     ref,
   ) {
@@ -138,7 +149,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
                 codeToShow = codeToShow.replace(/^```(?:tsx?|jsx?)?\n?/, "");
                 codeToShow = codeToShow.replace(/\n?```\s*$/, "");
 
-                onCodeGenerated(codeToShow.trim());
+                onCodeGenerated?.(codeToShow.trim());
               }
             } catch {
               // Ignore parse errors for malformed JSON
@@ -166,6 +177,14 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+      if (!prompt.trim()) return;
+
+      // Landing variant uses navigation instead of API call
+      if (isLanding && onNavigate) {
+        onNavigate(prompt, model);
+        return;
+      }
+
       await runGeneration();
     };
 
@@ -178,6 +197,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
     };
 
     const isLanding = variant === "landing";
+    const isDisabled = isLanding ? isNavigating : isLoading;
 
     return (
       <div
@@ -209,14 +229,14 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
                   : "text-sm min-h-[40px] max-h-[150px]"
               }`}
               style={{ fieldSizing: "content" }}
-              disabled={isLoading}
+              disabled={isDisabled}
             />
 
             <div className="flex justify-between items-center mt-3 pt-3 border-t border-border">
               <Select
                 value={model}
                 onValueChange={(value) => setModel(value as ModelId)}
-                disabled={isLoading}
+                disabled={isDisabled}
               >
                 <SelectTrigger className="w-auto bg-transparent border-none text-muted-foreground hover:text-foreground transition-colors">
                   <SelectValue />
@@ -237,8 +257,8 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
               <Button
                 type="submit"
                 size="icon-sm"
-                disabled={!prompt.trim()}
-                loading={isLoading}
+                disabled={!prompt.trim() || isDisabled}
+                loading={isDisabled}
                 className="bg-foreground text-background hover:bg-gray-200"
               >
                 <ArrowUp className="w-5 h-5" />
@@ -273,6 +293,18 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
               );
             })}
           </div>
+
+          {showCodeExamplesLink && (
+            <div className="flex justify-center mt-4">
+              <Link
+                href="/code-examples"
+                className="text-muted-foreground-dim hover:text-muted-foreground text-xs transition-colors flex items-center gap-1"
+              >
+                View Code examples
+                <SquareArrowOutUpRight className="w-3 h-3" />
+              </Link>
+            </div>
+          )}
         </form>
       </div>
     );
