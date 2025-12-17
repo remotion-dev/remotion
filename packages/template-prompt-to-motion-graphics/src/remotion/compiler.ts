@@ -10,6 +10,9 @@ import {
   Sequence,
 } from "remotion";
 import * as RemotionShapes from "@remotion/shapes";
+import { Lottie } from "@remotion/lottie";
+import { ThreeCanvas } from "@remotion/three";
+import * as THREE from "three";
 
 export interface CompilationResult {
   Component: React.ComponentType | null;
@@ -21,13 +24,13 @@ function extractComponentBody(code: string): string {
   // Strip import lines
   const lines = code.split("\n");
   const nonImportLines = lines.filter(
-    (line) => !line.trim().startsWith("import ")
+    (line) => !line.trim().startsWith("import "),
   );
   const codeWithoutImports = nonImportLines.join("\n");
 
   // Extract body from "export const MyAnimation = () => { ... };"
   const match = codeWithoutImports.match(
-    /export\s+const\s+\w+\s*=\s*\(\s*\)\s*=>\s*\{([\s\S]*)\};?\s*$/
+    /export\s+const\s+\w+\s*=\s*\(\s*\)\s*=>\s*\{([\s\S]*)\};?\s*$/,
   );
   if (match) {
     return match[1].trim();
@@ -71,6 +74,9 @@ export function compileCode(code: string): CompilationResult {
       "React",
       "Remotion",
       "RemotionShapes",
+      "Lottie",
+      "ThreeCanvas",
+      "THREE",
       "AbsoluteFill",
       "interpolate",
       "useCurrentFrame",
@@ -104,6 +110,9 @@ export function compileCode(code: string): CompilationResult {
       React,
       Remotion,
       RemotionShapes,
+      Lottie,
+      ThreeCanvas,
+      THREE,
       AbsoluteFill,
       interpolate,
       useCurrentFrame,

@@ -41,11 +41,6 @@ export function useAnimationState(initialCode: string = "") {
     setState((prev) => ({ ...prev, code: newCode }));
   }, []);
 
-  // Manual compilation trigger
-  const manualCompile = useCallback(() => {
-    compileCode(state.code);
-  }, [compileCode, state.code]);
-
   // Auto-compile when component mounts with initial code
   useEffect(() => {
     if (initialCode) {
@@ -57,6 +52,5 @@ export function useAnimationState(initialCode: string = "") {
     ...state,
     setCode,
     compileCode,
-    manualCompile,
   };
 }
