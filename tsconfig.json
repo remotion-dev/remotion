@@ -178,6 +178,9 @@
 			"path": "./packages/template-music-visualization"
 		},
 		{
+			"path": "./packages/template-prompt-to-motion-graphics"
+		},
+		{
 			"path": "./packages/template-stargazer"
 		},
 		{

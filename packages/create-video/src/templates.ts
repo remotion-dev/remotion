@@ -550,7 +550,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: null,
-		templateInMonorepo: 'template-code-generation',
+		templateInMonorepo: 'template-prompt-to-motion-graphics',
 		allowEnableTailwind: false,
 		contributedBy: null,
 	},

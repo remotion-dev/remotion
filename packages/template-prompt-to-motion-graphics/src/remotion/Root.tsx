@@ -1,11 +1,11 @@
 import React from "react";
-import { Composition, registerRoot } from "remotion";
+import { Composition } from "remotion";
 import { DynamicComp } from "./DynamicComp";
 
 const defaultCode = `import { AbsoluteFill } from "remotion";
 export const MyAnimation = () => <AbsoluteFill style={{ backgroundColor: "#000" }} />;`;
 
-const RemotionRoot: React.FC = () => {
+export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
@@ -24,5 +24,3 @@ const RemotionRoot: React.FC = () => {
     </>
   );
 };
-
-registerRoot(RemotionRoot);
