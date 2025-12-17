@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Player, type ErrorFallback } from "@remotion/player";
+import { RenderControls } from "./RenderControls";
 
 const renderErrorFallback: ErrorFallback = ({ error }) => {
   return (
@@ -26,6 +27,7 @@ interface AnimationPlayerProps {
   isStreaming: boolean;
   error: string | null;
   errorType?: "compilation" | "api";
+  code?: string;
 }
 
 export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
@@ -36,6 +38,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
   isStreaming,
   error,
   errorType = "compilation",
+  code,
 }) => {
   if (isStreaming) {
     return (
@@ -110,8 +113,10 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
 
   return (
     <div className="flex flex-3 flex-col items-center bg-background min-w-0">
-      <div className="w-full max-w-[1200px]">
-        <h2 className="text-sm font-medium text-muted-foreground mb-3">Video Preview</h2>
+      <div className="w-full max-w-[1200px] flex flex-col gap-3">
+        <h2 className="text-sm font-medium text-muted-foreground">
+          Video Preview
+        </h2>
         <div className="w-full aspect-video rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
           <Player
             key={Component.toString()}
@@ -133,6 +138,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
             clickToPlay={false}
           />
         </div>
+        <RenderControls code={code} />
       </div>
     </div>
   );

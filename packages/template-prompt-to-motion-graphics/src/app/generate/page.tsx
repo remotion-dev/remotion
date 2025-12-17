@@ -6,7 +6,6 @@ import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { CodeEditor } from "../../components/CodeEditor";
 import { AnimationPlayer } from "../../components/AnimationPlayer";
-import { RenderControls } from "../../components/RenderControls";
 import { PageLayout } from "../../components/PageLayout";
 import {
   PromptInput,
@@ -138,18 +137,16 @@ function GeneratePageContent() {
             isStreaming={isStreaming}
             streamPhase={streamPhase}
           />
-          <div className="flex flex-3 flex-col min-w-0 gap-4">
-            <AnimationPlayer
-              Component={Component}
-              durationInFrames={durationInFrames}
-              fps={fps}
-              isCompiling={isCompiling}
-              isStreaming={isStreaming}
-              error={apiError || error}
-              errorType={apiError ? "api" : "compilation"}
-            />
-            <RenderControls code={code} />
-          </div>
+          <AnimationPlayer
+            Component={Component}
+            durationInFrames={durationInFrames}
+            fps={fps}
+            isCompiling={isCompiling}
+            isStreaming={isStreaming}
+            error={apiError || error}
+            errorType={apiError ? "api" : "compilation"}
+            code={code}
+          />
         </div>
 
         <PromptInput

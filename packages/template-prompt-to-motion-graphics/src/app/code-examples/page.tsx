@@ -174,6 +174,7 @@ function DemoPageContent() {
               isCompiling={isCompiling}
               isStreaming={false}
               error={error}
+              code={code}
             />
           </div>
         </div>
