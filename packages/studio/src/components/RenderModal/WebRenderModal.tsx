@@ -411,7 +411,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const onRenderVideo = useCallback(async () => {
 		setRenderProgress({renderedFrames: 0, encodedFrames: 0});
 
-		const {blob} = await renderMediaOnWeb({
+		const {getBlob} = await renderMediaOnWeb({
 			composition: {
 				component: unresolvedComposition.component,
 				width: resolvedComposition.width,
@@ -441,6 +441,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 		setRenderProgress(null);
 
+		const blob = await getBlob();
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;

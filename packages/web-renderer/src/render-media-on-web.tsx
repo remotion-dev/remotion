@@ -74,7 +74,7 @@ export type RenderMediaOnWebProgress = {
 };
 
 export type RenderMediaOnWebResult = {
-	blob: Blob;
+	getBlob: () => Promise<Blob>;
 };
 
 export type RenderMediaOnWebProgressCallback = (
@@ -390,19 +390,26 @@ const internalRenderMediaOnWeb = async <
 
 		if (webFsTarget) {
 			await webFsTarget.close();
-			const file = await webFsTarget.getBlob();
-			return {blob: new Blob([file], {type: mimeType})};
+			return {
+				getBlob: () => {
+					return webFsTarget.getBlob();
+				},
+			};
 		}
 
 		if (!(target instanceof BufferTarget)) {
 			throw new Error('Expected target to be a BufferTarget');
 		}
 
-		if (!target.buffer) {
-			throw new Error('The resulting buffer is empty');
-		}
+		return {
+			getBlob: () => {
+				if (!target.buffer) {
+					throw new Error('The resulting buffer is empty');
+				}
 
-		return {blob: new Blob([target.buffer], {type: mimeType})};
+				return Promise.resolve(new Blob([target.buffer], {type: mimeType}));
+			},
+		};
 	} finally {
 		cleanupFns.forEach((fn) => fn());
 	}
