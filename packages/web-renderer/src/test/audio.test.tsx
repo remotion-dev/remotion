@@ -6,7 +6,7 @@ import {renderMediaOnWeb} from '../render-media-on-web';
 test(
 	'should not be able to set toneFrequency on web rendering',
 	{retry: 3},
-	async () => {
+	async (t) => {
 		const Component: React.FC = () => {
 			return <Audio src={staticFile('dialogue.wav')} toneFrequency={0.5} />;
 		};
@@ -22,6 +22,8 @@ test(
 					durationInFrames: 1,
 					calculateMetadata: null,
 				},
+				outputTarget:
+					t.task.file.projectName === 'webkit' ? 'arraybuffer' : 'web-fs',
 			});
 			throw new Error('Did resolve' + JSON.stringify(result));
 		}).rejects.toThrow(
@@ -58,5 +60,7 @@ test('should be able to render 2 audios', async (t) => {
 		},
 		frameRange: [0, 1],
 		logLevel: 'info',
+		outputTarget:
+			t.task.file.projectName === 'webkit' ? 'arraybuffer' : 'web-fs',
 	});
 });

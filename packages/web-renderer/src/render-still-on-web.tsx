@@ -12,6 +12,7 @@ import type {
 	InferProps,
 } from './props-if-has-props';
 import type {InputPropsIfHasProps} from './render-media-on-web';
+import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {takeScreenshot} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
 
@@ -145,15 +146,21 @@ export const renderStillOnWeb = <
 	Props extends Record<string, unknown>,
 >(
 	options: RenderStillOnWebOptions<Schema, Props>,
-) => {
-	return internalRenderStillOnWeb<Schema, Props>({
-		...options,
-		delayRenderTimeoutInMilliseconds:
-			options.delayRenderTimeoutInMilliseconds ?? 30000,
-		logLevel: options.logLevel ?? 'info',
-		schema: options.schema ?? undefined,
-		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
-		signal: options.signal ?? null,
-		onArtifact: options.onArtifact ?? null,
-	});
+): Promise<Blob> => {
+	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
+		.catch(() => Promise.resolve())
+		.then(() =>
+			internalRenderStillOnWeb<Schema, Props>({
+				...options,
+				delayRenderTimeoutInMilliseconds:
+					options.delayRenderTimeoutInMilliseconds ?? 30000,
+				logLevel: options.logLevel ?? 'info',
+				schema: options.schema ?? undefined,
+				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+				signal: options.signal ?? null,
+				onArtifact: options.onArtifact ?? null,
+			}),
+		);
+
+	return onlyOneRenderAtATimeQueue.ref as Promise<Blob>;
 };
