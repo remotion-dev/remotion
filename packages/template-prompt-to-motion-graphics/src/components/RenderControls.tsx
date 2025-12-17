@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ErrorComp } from "./Error";
+import { ProgressBar } from "./ProgressBar";
+import { DownloadButton } from "./DownloadButton";
 import { useRendering } from "../helpers/use-rendering";
 
 export const RenderControls: React.FC<{
@@ -54,45 +56,12 @@ export const RenderControls: React.FC<{
   }
 
   if (state.status === "rendering") {
-    const progress = Math.round(state.progress * 100);
-
-    return (
-      <div className="flex flex-col gap-2 w-full">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Rendering...</span>
-          <span className="font-medium">{progress}%</span>
-        </div>
-        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all duration-300 rounded-full"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-    );
+    return <ProgressBar progress={state.progress} />;
   }
 
   if (state.status === "done") {
-    return (
-      <div className="flex gap-2">
-        <a href={state.url} className="flex-1">
-          <Button className="w-full">
-            <Download className="w-4 h-4 mr-2" />
-            Download ({formatBytes(state.size)})
-          </Button>
-        </a>
-        <Button variant="outline" onClick={undo} className="flex-shrink-0">
-          Render again
-        </Button>
-      </div>
-    );
+    return <DownloadButton state={state} undo={undo} />;
   }
 
   return null;
 };
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
