@@ -541,7 +541,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		longerDescription:
 			'A SaaS template for "Prompt to Motion Graphics" products. Generates Remotion code, streams it to the frontend, and compiles and previews it in the browser.',
 		promoBanner: {
-			width: 1280,
+			width: 1002,
 			height: 720,
 			src: '/img/prompt-to-motion-graphics.png',
 		},
