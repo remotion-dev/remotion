@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://github.com/remotion-dev/logo">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-dark.gif">
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-dark.apng">
       <img alt="Animated Remotion Logo" src="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-light.gif">
     </picture>
   </a>
@@ -17,16 +17,12 @@ AI-powered code generation template for Remotion.
 
 ```console
 npm install
-# or
-bun install
 ```
 
 **Start Preview**
 
 ```console
 npm run dev
-# or
-bun dev
 ```
 
 **Render video**
@@ -47,7 +43,7 @@ When adding new capabilities to the assistant, we have to first create some exam
 
 ## Model Selection
 
-GPT5.1 Low reasoning seems to be a good middle ground between generation speed and output quality.
+GPT 5.1 Low reasoning seems to be a good middle ground between generation speed and output quality.
 
 ## Docs
 
