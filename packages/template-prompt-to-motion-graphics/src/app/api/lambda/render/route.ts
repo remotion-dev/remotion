@@ -10,6 +10,7 @@ import {
   SITE_NAME,
   TIMEOUT,
 } from "../../../../../config.mjs";
+import { COMP_NAME } from "../../../../../types/constants";
 import { RenderRequest } from "../../../../../types/schema";
 import { executeApi } from "../../../../helpers/api-response";
 
@@ -42,9 +43,9 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
       }),
       region: REGION as AwsRegion,
       serveUrl: SITE_NAME,
-      composition: body.id,
+      composition: COMP_NAME,
       inputProps: body.inputProps,
-      framesPerLambda: 10,
+      framesPerLambda: 60,
       downloadBehavior: {
         type: "download",
         fileName: "video.mp4",

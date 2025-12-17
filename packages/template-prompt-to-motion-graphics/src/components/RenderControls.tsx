@@ -1,52 +1,40 @@
-import { z } from "zod";
+"use client";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { DownloadButton } from "./DownloadButton";
 import { ErrorComp } from "./Error";
 import { ProgressBar } from "./ProgressBar";
-import { COMP_NAME, CompositionProps } from "../../types/constants";
 import { useRendering } from "../helpers/use-rendering";
 
 export const RenderControls: React.FC<{
-  text: string;
-  setText: React.Dispatch<React.SetStateAction<string>>;
-  inputProps: z.infer<typeof CompositionProps>;
-}> = ({ text, setText, inputProps }) => {
-  const { renderMedia, state, undo } = useRendering(COMP_NAME, inputProps);
+  code: string;
+}> = ({ code }) => {
+  const { renderMedia, state, undo } = useRendering({ code });
 
   return (
-    <div className="border border-unfocused-border-color p-geist rounded-geist bg-background flex flex-col">
+    <div className="flex flex-col gap-2">
       {state.status === "init" ||
       state.status === "invoking" ||
       state.status === "error" ? (
-        <div className="flex flex-col gap-geist-quarter">
-          <Input
-            disabled={state.status === "invoking"}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
-          <div className="self-end">
-            <Button
-              disabled={state.status === "invoking"}
-              loading={state.status === "invoking"}
-              onClick={renderMedia}
-            >
-              Render video
-            </Button>
-          </div>
+        <>
+          <Button
+            disabled={state.status === "invoking" || !code}
+            loading={state.status === "invoking"}
+            onClick={renderMedia}
+          >
+            Render video
+          </Button>
           {state.status === "error" ? (
             <ErrorComp message={state.error.message} />
           ) : null}
-        </div>
+        </>
       ) : null}
       {state.status === "rendering" || state.status === "done" ? (
-        <div className="flex flex-col gap-geist-quarter">
+        <div className="flex flex-col gap-2">
           <ProgressBar
             progress={state.status === "rendering" ? state.progress : 1}
           />
-          <div className="self-end">
-            <DownloadButton undo={undo} state={state} />
-          </div>
+          <DownloadButton undo={undo} state={state} />
         </div>
       ) : null}
     </div>
