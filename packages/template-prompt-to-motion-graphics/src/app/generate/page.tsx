@@ -12,7 +12,7 @@ import {
   type StreamPhase,
   type PromptInputRef,
 } from "../../components/PromptInput";
-import { examples } from "../../templates";
+import { examples } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
 
 function GeneratePageContent() {

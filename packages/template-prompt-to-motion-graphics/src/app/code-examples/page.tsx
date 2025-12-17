@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, PanelLeftClose, PanelLeft } from "lucide-react";
-import { examples, getExampleById } from "../../templates";
+import { examples, getExampleById } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
 import { CodeEditor } from "../../components/CodeEditor";
 import { AnimationPlayer } from "../../components/AnimationPlayer";

@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { examplePrompts } from "@/data/examplePrompts";
+import { examplePrompts } from "@/examples/prompts";
 
 const iconMap: Record<string, LucideIcon> = {
   Type,
