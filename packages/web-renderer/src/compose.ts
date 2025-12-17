@@ -27,7 +27,7 @@ const walkOverNode = ({
 };
 
 export const compose = async (
-	element: HTMLDivElement,
+	element: HTMLElement | SVGElement,
 	context: OffscreenCanvasRenderingContext2D,
 ) => {
 	const treeWalker = document.createTreeWalker(
@@ -52,10 +52,14 @@ export const compose = async (
 		},
 	);
 
-	while (treeWalker.currentNode) {
+	while (true) {
 		const val = await walkOverNode({node: treeWalker.currentNode, context});
 		if (val === 'skip-children') {
-			skipToNextNonDescendant(treeWalker);
+			if (!skipToNextNonDescendant(treeWalker)) {
+				break;
+			}
+		} else if (!treeWalker.nextNode()) {
+			break;
 		}
 	}
 };

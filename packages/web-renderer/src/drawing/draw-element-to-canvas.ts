@@ -1,3 +1,4 @@
+import {compose} from '../compose';
 import {calculateTransforms} from './calculate-transforms';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
@@ -39,21 +40,7 @@ export const drawElementToCanvas = async ({
 			throw new Error('Could not get context');
 		}
 
-		const adjustedDimensions = new DOMRect(
-			dimensions.left - offsetLeft,
-			dimensions.top - offsetTop,
-			dimensions.width,
-			dimensions.height,
-		);
-
-		await drawElement({
-			dimensions: adjustedDimensions,
-			computedStyle,
-			context: context2,
-			draw,
-			opacity,
-			totalMatrix: new DOMMatrix(),
-		});
+		await compose(element, context2);
 
 		const transformed = transformIn3d({
 			canvasWidth: tempCanvasWidth,
