@@ -270,7 +270,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   };
 
   return (
-    <div className="flex-2 h-full flex flex-col">
+    <div className="flex-2 h-[500px] lg:h-full flex flex-col min-w-0">
       <h2 className="text-sm font-medium text-muted-foreground mb-3">Remotion Code</h2>
       <div className="flex-1 flex flex-col bg-background-editor rounded-lg overflow-hidden">
         <EditorHeader filename="MyAnimation.tsx" code={code} />

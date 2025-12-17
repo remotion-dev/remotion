@@ -164,24 +164,26 @@ function DemoPageContent() {
             </div>
           </div>
 
-          <div className="flex-1 flex gap-8 overflow-hidden">
+          <div className="flex-1 flex flex-col lg:flex-row gap-8 overflow-auto lg:overflow-hidden">
             <CodeEditor
               code={code}
               onChange={handleCodeChange}
               isStreaming={false}
               streamPhase="idle"
             />
-            <AnimationPlayer
-              Component={Component}
-              durationInFrames={durationInFrames}
-              fps={fps}
-              onDurationChange={setDurationInFrames}
-              onFpsChange={setFps}
-              isCompiling={isCompiling}
-              isStreaming={false}
-              error={error}
-              code={code}
-            />
+            <div className="shrink-0 lg:shrink lg:flex-[2.5] lg:min-w-0 lg:h-full">
+              <AnimationPlayer
+                Component={Component}
+                durationInFrames={durationInFrames}
+                fps={fps}
+                onDurationChange={setDurationInFrames}
+                onFpsChange={setFps}
+                isCompiling={isCompiling}
+                isStreaming={false}
+                error={error}
+                code={code}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -119,25 +119,27 @@ function GeneratePageContent() {
   return (
     <PageLayout showLogoAsLink>
       <div className="flex-1 flex flex-col min-w-0 px-12 pb-8 gap-8 overflow-hidden">
-        <div className="flex-1 flex overflow-hidden gap-8">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden gap-8">
           <CodeEditor
             code={hasGeneratedOnce ? code : ""}
             onChange={handleCodeChange}
             isStreaming={isStreaming}
             streamPhase={streamPhase}
           />
-          <AnimationPlayer
-            Component={Component}
-            durationInFrames={durationInFrames}
-            fps={fps}
-            onDurationChange={setDurationInFrames}
-            onFpsChange={setFps}
-            isCompiling={isCompiling}
-            isStreaming={isStreaming}
-            error={apiError || error}
-            errorType={apiError ? "api" : "compilation"}
-            code={code}
-          />
+          <div className="shrink-0 lg:shrink lg:flex-[2.5] lg:min-w-0 lg:h-full">
+            <AnimationPlayer
+              Component={Component}
+              durationInFrames={durationInFrames}
+              fps={fps}
+              onDurationChange={setDurationInFrames}
+              onFpsChange={setFps}
+              isCompiling={isCompiling}
+              isStreaming={isStreaming}
+              error={apiError || error}
+              errorType={apiError ? "api" : "compilation"}
+              code={code}
+            />
+          </div>
         </div>
 
         <PromptInput
