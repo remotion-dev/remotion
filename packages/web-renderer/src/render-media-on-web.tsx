@@ -31,6 +31,7 @@ import type {
 	CompositionCalculateMetadataOrExplicit,
 	InferProps,
 } from './props-if-has-props';
+import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {createFrame} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
@@ -147,7 +148,7 @@ const internalRenderMediaOnWeb = async <
 	Props
 >): Promise<RenderMediaOnWebResult> => {
 	if (outputTarget === 'web-fs') {
-		cleanupStaleOpfsFiles();
+		await cleanupStaleOpfsFiles();
 	}
 
 	const cleanupFns: (() => void)[] = [];
@@ -420,28 +421,34 @@ export const renderMediaOnWeb = <
 	Props extends Record<string, unknown>,
 >(
 	options: RenderMediaOnWebOptions<Schema, Props>,
-) => {
+): Promise<RenderMediaOnWebResult> => {
 	const container = options.container ?? 'mp4';
 	const codec = options.codec ?? getDefaultVideoCodecForContainer(container);
 
-	return internalRenderMediaOnWeb<Schema, Props>({
-		...options,
-		delayRenderTimeoutInMilliseconds:
-			options.delayRenderTimeoutInMilliseconds ?? 30000,
-		logLevel: options.logLevel ?? 'info',
-		schema: options.schema ?? undefined,
-		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
-		codec,
-		container,
-		signal: options.signal ?? null,
-		onProgress: options.onProgress ?? null,
-		hardwareAcceleration: options.hardwareAcceleration ?? 'no-preference',
-		keyframeIntervalInSeconds: options.keyframeIntervalInSeconds ?? 5,
-		videoBitrate: options.videoBitrate ?? 'medium',
-		frameRange: options.frameRange ?? null,
-		transparent: options.transparent ?? false,
-		onArtifact: options.onArtifact ?? null,
-		onFrame: options.onFrame ?? null,
-		outputTarget: options.outputTarget ?? 'web-fs',
-	});
+	const prom = onlyOneRenderAtATimeQueue.ref.then(() =>
+		internalRenderMediaOnWeb<Schema, Props>({
+			...options,
+			delayRenderTimeoutInMilliseconds:
+				options.delayRenderTimeoutInMilliseconds ?? 30000,
+			logLevel: options.logLevel ?? 'info',
+			schema: options.schema ?? undefined,
+			mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+			codec,
+			container,
+			signal: options.signal ?? null,
+			onProgress: options.onProgress ?? null,
+			hardwareAcceleration: options.hardwareAcceleration ?? 'no-preference',
+			keyframeIntervalInSeconds: options.keyframeIntervalInSeconds ?? 5,
+			videoBitrate: options.videoBitrate ?? 'medium',
+			frameRange: options.frameRange ?? null,
+			transparent: options.transparent ?? false,
+			onArtifact: options.onArtifact ?? null,
+			onFrame: options.onFrame ?? null,
+			outputTarget: options.outputTarget ?? 'web-fs',
+		}),
+	);
+
+	onlyOneRenderAtATimeQueue.ref = prom;
+
+	return prom;
 };

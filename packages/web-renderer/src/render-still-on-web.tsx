@@ -12,6 +12,7 @@ import type {
 	InferProps,
 } from './props-if-has-props';
 import type {InputPropsIfHasProps} from './render-media-on-web';
+import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {takeScreenshot} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
 
@@ -146,14 +147,20 @@ export const renderStillOnWeb = <
 >(
 	options: RenderStillOnWebOptions<Schema, Props>,
 ) => {
-	return internalRenderStillOnWeb<Schema, Props>({
-		...options,
-		delayRenderTimeoutInMilliseconds:
-			options.delayRenderTimeoutInMilliseconds ?? 30000,
-		logLevel: options.logLevel ?? 'info',
-		schema: options.schema ?? undefined,
-		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
-		signal: options.signal ?? null,
-		onArtifact: options.onArtifact ?? null,
-	});
+	const prom = onlyOneRenderAtATimeQueue.ref.then(() =>
+		internalRenderStillOnWeb<Schema, Props>({
+			...options,
+			delayRenderTimeoutInMilliseconds:
+				options.delayRenderTimeoutInMilliseconds ?? 30000,
+			logLevel: options.logLevel ?? 'info',
+			schema: options.schema ?? undefined,
+			mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+			signal: options.signal ?? null,
+			onArtifact: options.onArtifact ?? null,
+		}),
+	);
+
+	onlyOneRenderAtATimeQueue.ref = prom;
+
+	return prom;
 };
