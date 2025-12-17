@@ -4,7 +4,7 @@ export const counterAnimationCode = `import { AbsoluteFill, useCurrentFrame, use
 
 export const MyAnimation = () => {
   const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
+  const { durationInFrames } = useVideoConfig();
 
   const metrics = [
     { label: "Users", target: 10000, color: "#4f46e5" },

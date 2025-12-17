@@ -1,6 +1,6 @@
 import { RemotionExample } from "./index";
 
-export const textRotationCode = `import { useCurrentFrame, useVideoConfig, AbsoluteFill, interpolate } from "remotion";
+export const textRotationCode = `import { useCurrentFrame, AbsoluteFill, interpolate } from "remotion";
 
 export const MyAnimation = () => {
   const frame = useCurrentFrame();

@@ -4,7 +4,7 @@ export const morphingHexagonsCode = `import { AbsoluteFill, useCurrentFrame, use
 
 export const MyAnimation = () => {
   const frame = useCurrentFrame();
-  const { fps, width, height } = useVideoConfig();
+  const { fps } = useVideoConfig();
 
   const hexSize = 50;
   const cols = 7;

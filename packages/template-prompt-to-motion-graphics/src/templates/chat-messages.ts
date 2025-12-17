@@ -13,7 +13,6 @@ export const MyAnimation = () => {
     { text: "Check this out!", isMe: true, delay: 135 },
   ];
 
-  const visibleMessages = messages.filter((msg) => frame >= msg.delay);
   const messageHeight = 100;
 
   return (
