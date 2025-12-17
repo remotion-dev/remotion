@@ -19,6 +19,7 @@ export const drawElement = async ({
 	draw: (
 		dimensions: DOMRect,
 		computedStyle: CSSStyleDeclaration,
+		contextToDraw: OffscreenCanvasRenderingContext2D,
 	) => Promise<void> | void;
 }) => {
 	const background = computedStyle.backgroundColor;
@@ -64,7 +65,7 @@ export const drawElement = async ({
 		context.fillStyle = originalFillStyle;
 	}
 
-	await draw(dimensions, computedStyle);
+	await draw(dimensions, computedStyle, context);
 
 	drawBorder({
 		ctx: context,

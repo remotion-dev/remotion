@@ -34,7 +34,7 @@ export const compose = async (
 			await drawElementToCanvas({
 				element: node,
 				context,
-				draw: async (dimensions) => {
+				draw: async (dimensions, style, contextToDraw) => {
 					const drawable = await (node instanceof SVGSVGElement
 						? turnSvgIntoDrawable(node)
 						: node instanceof HTMLImageElement
@@ -44,7 +44,7 @@ export const compose = async (
 								: null);
 
 					if (drawable) {
-						context.drawImage(
+						contextToDraw.drawImage(
 							drawable,
 							dimensions.left,
 							dimensions.top,

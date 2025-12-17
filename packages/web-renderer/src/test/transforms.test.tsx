@@ -156,7 +156,7 @@ test('flex-positioned scaled elements', async () => {
 	await testImage({blob, testId: 'flex-positioned-scaled'});
 });
 
-test.only('Github Unwrapped example', async () => {
+test('Github Unwrapped example', async () => {
 	await page.viewport(1080, 1080);
 
 	const blob = await renderStillOnWeb({
@@ -173,7 +173,7 @@ test.only('Github Unwrapped example', async () => {
 	});
 });
 
-test.only('Inside 3d transform', async () => {
+test('Inside 3d transform', async () => {
 	await page.viewport(1080, 1080);
 
 	const blob = await renderStillOnWeb({

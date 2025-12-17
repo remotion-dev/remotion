@@ -12,6 +12,7 @@ export const drawElementToCanvas = async ({
 	draw: (
 		dimensions: DOMRect,
 		computedStyle: CSSStyleDeclaration,
+		contextToDraw: OffscreenCanvasRenderingContext2D,
 	) => Promise<void> | void;
 }) => {
 	const {totalMatrix, reset, dimensions, opacity, computedStyle} =

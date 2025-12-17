@@ -8,6 +8,9 @@ const Component: React.FC = () => {
 				height: '100%',
 				display: 'flex',
 				flexDirection: 'column',
+				transform:
+					'matrix3d(0.304437, -0.106834, 0, 0.00011, 0.135913, 0.347567, 0, 5e-05, 0, 0, 1, 0, 64, 140, 0, 1)',
+				transformOrigin: '0px 0px 0px',
 			}}
 		>
 			<div
@@ -18,28 +21,14 @@ const Component: React.FC = () => {
 					height: '100%',
 					display: 'flex',
 					flexDirection: 'column',
-					transform:
-						'matrix3d(0.304437, -0.106834, 0, 0.00011, 0.135913, 0.347567, 0, 5e-05, 0, 0, 1, 0, 64, 140, 0, 1)',
-					transformOrigin: '0px 0px 0px',
+					backgroundColor: 'rgb(10, 17, 27)',
+					justifyContent: 'center',
+					alignItems: 'center',
+					color: 'blue',
+					fontSize: 700,
 				}}
 			>
-				<div
-					style={{
-						position: 'absolute',
-						inset: 0,
-						width: '100%',
-						height: '100%',
-						display: 'flex',
-						flexDirection: 'column',
-						backgroundColor: 'rgb(10, 17, 27)',
-						justifyContent: 'center',
-						alignItems: 'center',
-						color: 'blue',
-						fontSize: 700,
-					}}
-				>
-					<div>0</div>
-				</div>
+				<div>0</div>
 			</div>
 		</div>
 	);

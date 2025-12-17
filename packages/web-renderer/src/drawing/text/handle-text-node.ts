@@ -36,7 +36,7 @@ export const handleTextNode = async (
 	await drawElementToCanvas({
 		context,
 		element: span,
-		draw(rect, style) {
+		draw(rect, style, contextToDraw) {
 			const {
 				fontFamily,
 				fontSize,
@@ -61,11 +61,11 @@ export const handleTextNode = async (
 				return;
 			}
 
-			context.save();
+			contextToDraw.save();
 
-			context.font = `${fontWeight} ${fontSize} ${fontFamily}`;
-			context.fillStyle = color;
-			context.letterSpacing = letterSpacing;
+			contextToDraw.font = `${fontWeight} ${fontSize} ${fontFamily}`;
+			contextToDraw.fillStyle = color;
+			contextToDraw.letterSpacing = letterSpacing;
 
 			const fontSizePx = parseFloat(fontSize);
 			// TODO: This is not necessarily correct, need to create text and measure to know for sure
@@ -75,8 +75,8 @@ export const handleTextNode = async (
 			const baselineOffset = (lineHeightPx - fontSizePx) / 2;
 
 			const isRTL = direction === 'rtl';
-			context.textAlign = isRTL ? 'right' : 'left';
-			context.textBaseline = 'top';
+			contextToDraw.textAlign = isRTL ? 'right' : 'left';
+			contextToDraw.textBaseline = 'top';
 
 			const originalText = span.textContent;
 			const collapsedText = getCollapsedText(span);
@@ -90,7 +90,7 @@ export const handleTextNode = async (
 			let offsetTop = 0;
 
 			for (const line of lines) {
-				context.fillText(
+				contextToDraw.fillText(
 					line.text,
 					xPosition + line.offsetHorizontal,
 					rect.top + baselineOffset + offsetTop,
@@ -100,7 +100,7 @@ export const handleTextNode = async (
 
 			span.textContent = originalText;
 
-			context.restore();
+			contextToDraw.restore();
 		},
 	});
 
