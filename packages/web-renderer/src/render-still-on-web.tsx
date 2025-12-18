@@ -143,6 +143,14 @@ async function internalRenderStillOnWeb<
 		});
 
 		return imageData;
+	} catch {
+		sendUsageEvent({succeeded: false, licenseKey}).catch((err2) => {
+			Internals.Log.error(
+				{logLevel: 'error', tag: 'web-renderer'},
+				'Failed to send usage event',
+				err2,
+			);
+		});
 	} finally {
 		cleanupScaffold();
 	}

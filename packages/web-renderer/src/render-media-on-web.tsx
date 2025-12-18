@@ -366,12 +366,20 @@ const internalRenderMediaOnWeb = async <
 		audioSampleSource.close();
 		await output.finalize();
 
-		await sendUsageEvent({
+		sendUsageEvent({
 			licenseKey,
 			succeeded: true,
 		});
 
 		return output.target.buffer as ArrayBuffer;
+	} catch {
+		sendUsageEvent({succeeded: false, licenseKey}).catch((err2) => {
+			Internals.Log.error(
+				{logLevel: 'error', tag: 'web-renderer'},
+				'Failed to send usage event',
+				err2,
+			);
+		});
 	} finally {
 		cleanupFns.forEach((fn) => fn());
 	}
