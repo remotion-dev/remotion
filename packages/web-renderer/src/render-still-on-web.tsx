@@ -144,7 +144,7 @@ async function internalRenderStillOnWeb<
 		});
 
 		return imageData;
-	} catch {
+	} catch (err) {
 		sendUsageEvent({succeeded: false, licenseKey}).catch((err2) => {
 			Internals.Log.error(
 				{logLevel: 'error', tag: 'web-renderer'},
@@ -152,6 +152,7 @@ async function internalRenderStillOnWeb<
 				err2,
 			);
 		});
+		throw err;
 	} finally {
 		cleanupScaffold();
 	}

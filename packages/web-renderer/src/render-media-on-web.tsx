@@ -427,7 +427,7 @@ const internalRenderMediaOnWeb = async <
 				return Promise.resolve(new Blob([target.buffer], {type: mimeType}));
 			},
 		};
-	} catch {
+	} catch (err) {
 		sendUsageEvent({succeeded: false, licenseKey}).catch((err2) => {
 			Internals.Log.error(
 				{logLevel: 'error', tag: 'web-renderer'},
@@ -435,6 +435,7 @@ const internalRenderMediaOnWeb = async <
 				err2,
 			);
 		});
+		throw err;
 	} finally {
 		cleanupFns.forEach((fn) => fn());
 	}
