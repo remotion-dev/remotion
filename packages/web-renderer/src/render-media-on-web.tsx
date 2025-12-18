@@ -416,6 +416,7 @@ const internalRenderMediaOnWeb = async <
 		sendUsageEvent({
 			licenseKey,
 			succeeded: true,
+			apiName: 'renderMediaOnWeb',
 		});
 
 		return {
@@ -428,7 +429,11 @@ const internalRenderMediaOnWeb = async <
 			},
 		};
 	} catch (err) {
-		sendUsageEvent({succeeded: false, licenseKey}).catch((err2) => {
+		sendUsageEvent({
+			succeeded: false,
+			licenseKey,
+			apiName: 'renderMediaOnWeb',
+		}).catch((err2) => {
 			Internals.Log.error(
 				{logLevel: 'error', tag: 'web-renderer'},
 				'Failed to send usage event',

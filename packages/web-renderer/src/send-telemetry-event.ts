@@ -4,9 +4,11 @@ import {Internals} from 'remotion';
 export const sendUsageEvent = async ({
 	licenseKey,
 	succeeded,
+	apiName,
 }: {
 	licenseKey: string | null;
 	succeeded: boolean;
+	apiName: string;
 }) => {
 	const host =
 		typeof window === 'undefined'
@@ -21,7 +23,7 @@ export const sendUsageEvent = async ({
 	if (licenseKey === null) {
 		Internals.Log.warn(
 			{logLevel: 'warn', tag: 'web-renderer'},
-			'You need to provide a license key to use the web renderer going forward.',
+			`Pass "licenseKey" to ${apiName}(). If you qualify for the free license (https://remotion.dev/license), pass "free-license" instead.`,
 		);
 	}
 

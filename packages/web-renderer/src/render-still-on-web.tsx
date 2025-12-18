@@ -141,11 +141,16 @@ async function internalRenderStillOnWeb<
 		sendUsageEvent({
 			licenseKey,
 			succeeded: true,
+			apiName: 'renderStillOnWeb',
 		});
 
 		return imageData;
 	} catch (err) {
-		sendUsageEvent({succeeded: false, licenseKey}).catch((err2) => {
+		sendUsageEvent({
+			succeeded: false,
+			licenseKey,
+			apiName: 'renderStillOnWeb',
+		}).catch((err2) => {
 			Internals.Log.error(
 				{logLevel: 'error', tag: 'web-renderer'},
 				'Failed to send usage event',
