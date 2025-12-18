@@ -17,6 +17,7 @@ const Component: React.FC = () => {
 					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
+					transform: 'rotateY(0.001deg)',
 				}}
 			>
 				<div
@@ -32,9 +33,9 @@ const Component: React.FC = () => {
 	);
 };
 
-export const nestedRotatedRectangles = {
+export const threeDoverflow = {
 	component: Component,
-	id: 'nested-rotated-rectangles',
+	id: 'three-3-overflow',
 	width: 200,
 	height: 200,
 	fps: 30,

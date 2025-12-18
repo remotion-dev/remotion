@@ -16,7 +16,6 @@ import {displayNone} from './fixtures/display-none';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
-import {nestedRotatedRectangles} from './fixtures/nested-rotated-rectangles';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {opacityNested} from './fixtures/opacity-nested';
 import {opacitySimple} from './fixtures/opacity-simple';
@@ -32,6 +31,7 @@ import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
+import {threeDoverflow} from './fixtures/three-d-overflow';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
@@ -55,7 +55,7 @@ export const Root: React.FC = () => {
 			<Composition {...threeLevelTransformOrigins} />
 			<Composition {...pixelTransformOrigin} />
 			<Composition {...complexNestedSvg} />
-			<Composition {...nestedRotatedRectangles} />
+			<Composition {...threeDoverflow} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...flexPositionedScaled} />
