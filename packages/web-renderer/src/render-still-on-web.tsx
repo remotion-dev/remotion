@@ -137,7 +137,7 @@ async function internalRenderStillOnWeb<
 			await artifactsHandler.handle({imageData, frame, assets, onArtifact});
 		}
 
-		await sendUsageEvent({
+		sendUsageEvent({
 			licenseKey,
 			succeeded: true,
 		});

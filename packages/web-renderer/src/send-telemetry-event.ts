@@ -27,7 +27,7 @@ export const sendUsageEvent = async ({
 
 	await registerUsageEvent({
 		apiKey: licenseKey,
-		event: 'cloud-render',
+		event: 'webcodec-conversion',
 		host,
 		succeeded,
 	});
