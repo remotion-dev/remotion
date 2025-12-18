@@ -33,12 +33,6 @@ test(
 );
 
 test('should be able to render 2 audios', async (t) => {
-	if (t.task.file.projectName === 'chromium') {
-		// Chromium in CI doesn't support video codec decoding in this test environment
-		t.skip();
-		return;
-	}
-
 	const Component: React.FC = () => {
 		return (
 			<>
