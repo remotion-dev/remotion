@@ -18,7 +18,6 @@ const Component: React.FC = () => {
 					justifyContent: 'center',
 					alignItems: 'center',
 					transform: 'rotateY(0.001deg)',
-					border: '10px solid red',
 				}}
 			>
 				<div
@@ -27,6 +26,7 @@ const Component: React.FC = () => {
 						height: 100,
 						backgroundColor: 'orange',
 						transform: 'rotate(45deg)',
+						border: '4px solid red',
 					}}
 				/>
 			</div>
