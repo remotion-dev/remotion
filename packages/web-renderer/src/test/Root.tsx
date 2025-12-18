@@ -16,6 +16,7 @@ import {displayNone} from './fixtures/display-none';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
+import {nestedRotatedRectangles} from './fixtures/nested-rotated-rectangles';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {opacityNested} from './fixtures/opacity-nested';
 import {opacitySimple} from './fixtures/opacity-simple';
@@ -54,6 +55,7 @@ export const Root: React.FC = () => {
 			<Composition {...threeLevelTransformOrigins} />
 			<Composition {...pixelTransformOrigin} />
 			<Composition {...complexNestedSvg} />
+			<Composition {...nestedRotatedRectangles} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...flexPositionedScaled} />
