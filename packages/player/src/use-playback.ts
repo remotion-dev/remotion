@@ -27,7 +27,8 @@ export const usePlayback = ({
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
-	const {playing, pause, emitter, setFrameAndImperative} = usePlayer();
+	const {playing, pause, emitter} = usePlayer();
+	const setFrame = Internals.Timeline.useTimelineSetFrame();
 
 	// requestAnimationFrame() does not work if the tab is not active.
 	// This means that audio will keep playing even if it has ended.
@@ -116,7 +117,7 @@ export const usePlayback = ({
 				nextFrame !== getCurrentFrame() &&
 				(!hasEnded || moveToBeginningWhenEnded)
 			) {
-				setFrameAndImperative(nextFrame, config.id);
+				setFrame((c) => ({...c, [config.id]: nextFrame}));
 			}
 
 			if (hasEnded) {
@@ -176,7 +177,7 @@ export const usePlayback = ({
 		loop,
 		pause,
 		playing,
-		setFrameAndImperative,
+		setFrame,
 		emitter,
 		playbackRate,
 		inFrame,

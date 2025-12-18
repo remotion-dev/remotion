@@ -17,7 +17,7 @@ export const createFrame = async ({
 		throw new Error('Could not get context');
 	}
 
-	await compose(div, context);
+	await compose({element: div, context, offsetLeft: 0, offsetTop: 0});
 
 	return canvas;
 };

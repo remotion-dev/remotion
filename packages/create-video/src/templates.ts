@@ -44,7 +44,8 @@ export type Template = {
 		| 'tiktok'
 		| 'code-hike'
 		| 'render-server'
-		| 'recorder';
+		| 'recorder'
+		| 'prompt-to-motion-graphics';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -192,6 +193,28 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-recorder',
 		allowEnableTailwind: false,
 		contributedBy: null,
+	},
+	{
+		homePageLabel: 'Prompt to Motion graphics',
+		shortName: 'Prompt to Motion Graphics (Next.js)',
+		org: 'remotion-dev',
+		repoName: 'template-prompt-to-motion-graphics',
+		description: 'AI-powered code generation for Remotion',
+		longerDescription:
+			'A SaaS template for "Prompt to Motion Graphics" products. Generates Remotion code, streams it to the frontend, and compiles and previews it in the browser.',
+		promoBanner: {
+			width: 1002,
+			height: 720,
+			src: '/img/prompt-to-motion-graphics.png',
+		},
+		cliId: 'prompt-to-motion-graphics' as const,
+		type: 'image' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-prompt-to-motion-graphics',
+		allowEnableTailwind: false,
+		contributedBy: 'ASchwad',
 	},
 	{
 		homePageLabel: 'JavaScript',

@@ -1,4 +1,4 @@
-import type {MutableRefObject, RefObject} from 'react';
+import type {MutableRefObject} from 'react';
 import React, {
 	createContext,
 	useLayoutEffect,
@@ -15,7 +15,6 @@ import {useDelayRender} from './use-delay-render';
 
 export type TimelineContextValue = {
 	frame: Record<string, number>;
-	frameRef: RefObject<number>;
 	playing: boolean;
 	rootId: string;
 	playbackRate: number;
@@ -40,7 +39,6 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 
 export const TimelineContext = createContext<TimelineContextValue>({
 	frame: {},
-	frameRef: {current: 0},
 	playing: false,
 	playbackRate: 1,
 	rootId: '',
@@ -68,7 +66,6 @@ export const TimelineContextProvider: React.FC<{
 	);
 
 	const frame = frameState ?? _frame;
-	const frameRef = useRef<number>(0);
 
 	const {delayRender, continueRender} = useDelayRender();
 
@@ -116,7 +113,6 @@ export const TimelineContextProvider: React.FC<{
 			playbackRate,
 			setPlaybackRate,
 			audioAndVideoTags,
-			frameRef,
 		};
 	}, [frame, playbackRate, playing, remotionRootId]);
 

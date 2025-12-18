@@ -14,6 +14,7 @@ import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {displayNone} from './fixtures/display-none';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
+import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {opacityNested} from './fixtures/opacity-nested';
@@ -30,7 +31,16 @@ import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
+import {threeDoverflow} from './fixtures/three-d-overflow';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {orthographic} from './fixtures/transforms/orthographic';
+import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
+import {transformWithRotate} from './fixtures/transforms/transform-with-rotate';
+import {transformWithScale} from './fixtures/transforms/transform-with-scale';
+import {transformWithTranslate} from './fixtures/transforms/transform-with-translate';
+import {withMargin} from './fixtures/transforms/with-margin';
+import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
+import {unwrapped} from './fixtures/unwrapped';
 
 export const Root: React.FC = () => {
 	return (
@@ -45,6 +55,7 @@ export const Root: React.FC = () => {
 			<Composition {...threeLevelTransformOrigins} />
 			<Composition {...pixelTransformOrigin} />
 			<Composition {...complexNestedSvg} />
+			<Composition {...threeDoverflow} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...flexPositionedScaled} />
@@ -66,6 +77,17 @@ export const Root: React.FC = () => {
 				<Composition {...paragraphs} />
 				<Composition {...letterSpacing} />
 				<Composition {...textTransform} />
+			</Folder>
+			<Folder name="Projects">
+				<Composition {...unwrapped} />
+				<Composition {...orthographic} />
+				<Composition {...withMargin} />
+				<Composition {...withNegativeMargin} />
+				<Composition {...transformWithScale} />
+				<Composition {...transformWithRotate} />
+				<Composition {...transformWithTranslate} />
+				<Composition {...transformWithAllShorthands} />
+				<Composition {...inside3dTransform} />
 			</Folder>
 		</>
 	);

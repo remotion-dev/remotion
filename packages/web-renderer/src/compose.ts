@@ -1,11 +1,48 @@
+import {drawDomElement} from './drawing/draw-dom-element';
+import type {DrawElementToCanvasReturnValue} from './drawing/draw-element-to-canvas';
 import {drawElementToCanvas} from './drawing/draw-element-to-canvas';
 import {handleTextNode} from './drawing/text/handle-text-node';
-import {turnSvgIntoDrawable} from './drawing/turn-svg-into-drawable';
+import {skipToNextNonDescendant} from './walk-tree';
 
-export const compose = async (
-	element: HTMLDivElement,
-	context: OffscreenCanvasRenderingContext2D,
-) => {
+const walkOverNode = ({
+	node,
+	context,
+	offsetLeft,
+	offsetTop,
+}: {
+	node: Node;
+	context: OffscreenCanvasRenderingContext2D;
+	offsetLeft: number;
+	offsetTop: number;
+}): Promise<DrawElementToCanvasReturnValue> => {
+	if (node instanceof HTMLElement || node instanceof SVGElement) {
+		return drawElementToCanvas({
+			element: node,
+			context,
+			draw: drawDomElement(node),
+			offsetLeft,
+			offsetTop,
+		});
+	}
+
+	if (node instanceof Text) {
+		return handleTextNode({node, context, offsetLeft, offsetTop});
+	}
+
+	throw new Error('Unknown node type');
+};
+
+export const compose = async ({
+	element,
+	context,
+	offsetLeft,
+	offsetTop,
+}: {
+	element: HTMLElement | SVGElement;
+	context: OffscreenCanvasRenderingContext2D;
+	offsetLeft: number;
+	offsetTop: number;
+}) => {
 	const treeWalker = document.createTreeWalker(
 		element,
 		NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
@@ -28,34 +65,19 @@ export const compose = async (
 		},
 	);
 
-	while (treeWalker.nextNode()) {
-		const node = treeWalker.currentNode;
-		if (node instanceof HTMLElement || node instanceof SVGElement) {
-			await drawElementToCanvas({
-				element: node,
-				context,
-				draw: async (dimensions) => {
-					const drawable = await (node instanceof SVGSVGElement
-						? turnSvgIntoDrawable(node)
-						: node instanceof HTMLImageElement
-							? node
-							: node instanceof HTMLCanvasElement
-								? node
-								: null);
-
-					if (drawable) {
-						context.drawImage(
-							drawable,
-							dimensions.left,
-							dimensions.top,
-							dimensions.width,
-							dimensions.height,
-						);
-					}
-				},
-			});
-		} else if (node instanceof Text) {
-			await handleTextNode(node, context);
+	while (true) {
+		const val = await walkOverNode({
+			node: treeWalker.currentNode,
+			context,
+			offsetLeft,
+			offsetTop,
+		});
+		if (val === 'skip-children') {
+			if (!skipToNextNonDescendant(treeWalker)) {
+				break;
+			}
+		} else if (!treeWalker.nextNode()) {
+			break;
 		}
 	}
 };
