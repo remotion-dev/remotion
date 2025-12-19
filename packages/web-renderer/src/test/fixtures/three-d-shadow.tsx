@@ -34,9 +34,9 @@ const Component: React.FC = () => {
 	);
 };
 
-export const threeDoverflow = {
+export const threeDShadow = {
 	component: Component,
-	id: 'three-3-overflow',
+	id: 'three-d-shadow',
 	width: 200,
 	height: 200,
 	fps: 30,
