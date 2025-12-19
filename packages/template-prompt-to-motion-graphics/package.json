@@ -42,7 +42,7 @@
     "lucide-react": "0.555.0",
     "monaco-editor": "0.55.1",
     "monaco-jsx-syntax-highlight": "1.2.2",
-    "next": "16.0.7",
+    "next": "16.0.10",
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "remotion": "workspace:*",
