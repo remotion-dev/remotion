@@ -1,4 +1,5 @@
 import {compose} from '../compose';
+import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import {calculateTransforms} from './calculate-transforms';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
@@ -33,11 +34,18 @@ export const drawElementToCanvas = async ({
 	}
 
 	if (!totalMatrix.is2D) {
-		const canvasOffsetLeft = Math.min(dimensions.left, 0);
-		const canvasOffsetTop = Math.min(dimensions.top, 0);
+		const biggestBoundingClientRect = getBiggestBoundingClientRect(element);
+		const canvasOffsetLeft = Math.min(biggestBoundingClientRect.left, 0);
+		const canvasOffsetTop = Math.min(biggestBoundingClientRect.top, 0);
 
-		const tempCanvasWidth = Math.max(dimensions.width, dimensions.right);
-		const tempCanvasHeight = Math.max(dimensions.height, dimensions.bottom);
+		const tempCanvasWidth = Math.max(
+			biggestBoundingClientRect.width,
+			biggestBoundingClientRect.right,
+		);
+		const tempCanvasHeight = Math.max(
+			biggestBoundingClientRect.height,
+			biggestBoundingClientRect.bottom,
+		);
 		const tempCanvas = new OffscreenCanvas(tempCanvasWidth, tempCanvasHeight);
 		const context2 = tempCanvas.getContext('2d');
 		if (!context2) {
