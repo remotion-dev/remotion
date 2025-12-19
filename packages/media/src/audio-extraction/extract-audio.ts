@@ -95,19 +95,19 @@ const extractAudioInternal = async ({
 		return {data: null, durationInSeconds: mediaDurationInSeconds};
 	}
 
-	const sampleIterator = await audioManager.getIterator({
-		src,
-		timeInSeconds,
-		audioSampleSink: audio.sampleSink,
-		isMatroska,
-		actualMatroskaTimestamps,
-		logLevel,
-		maxCacheSize,
-	});
-
-	const durationInSeconds = durationNotYetApplyingPlaybackRate * playbackRate;
-
 	try {
+		const sampleIterator = await audioManager.getIterator({
+			src,
+			timeInSeconds,
+			audioSampleSink: audio.sampleSink,
+			isMatroska,
+			actualMatroskaTimestamps,
+			logLevel,
+			maxCacheSize,
+		});
+
+		const durationInSeconds = durationNotYetApplyingPlaybackRate * playbackRate;
+
 		const samples = await sampleIterator.getSamples(
 			timeInSeconds,
 			durationInSeconds,
