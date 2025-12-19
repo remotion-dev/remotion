@@ -8,7 +8,7 @@ import {type KeyframeBank} from './keyframe-bank';
 
 export const makeKeyframeManager = () => {
 	// src => {[startTimestampInSeconds]: KeyframeBank
-	const sources: Record<string, Record<number, Promise<KeyframeBank>>> = {};
+	const sources: Record<string, Record<number, KeyframeBank>> = {};
 
 	const addKeyframeBank = ({
 		src,
@@ -16,7 +16,7 @@ export const makeKeyframeManager = () => {
 		startTimestampInSeconds,
 	}: {
 		src: string;
-		bank: Promise<KeyframeBank>;
+		bank: KeyframeBank;
 		startTimestampInSeconds: number;
 	}) => {
 		sources[src] = sources[src] ?? {};
@@ -223,7 +223,7 @@ export const makeKeyframeManager = () => {
 
 		// Bank does not yet exist, we need to fetch
 		if (!existingBank) {
-			const newKeyframeBank = getFramesSinceKeyframe({
+			const newKeyframeBank = await getFramesSinceKeyframe({
 				packetSink,
 				videoSampleSink,
 				startPacket,
@@ -252,7 +252,7 @@ export const makeKeyframeManager = () => {
 		delete sources[src][startTimestampInSeconds];
 
 		// Then refetch
-		const replacementKeybank = getFramesSinceKeyframe({
+		const replacementKeybank = await getFramesSinceKeyframe({
 			packetSink,
 			videoSampleSink,
 			startPacket,
