@@ -307,7 +307,8 @@ export const useWindowedAudioData = ({
 
 		// Only fetch windows that don't already exist
 		const windowsToActuallyFetch = windowsToFetch.filter(
-			(windowIndex) => !waveFormMap[windowIndex],
+			(windowIndex) =>
+				!waveFormMap[windowIndex] && !requests.current[windowIndex],
 		);
 
 		if (windowsToActuallyFetch.length === 0) {
