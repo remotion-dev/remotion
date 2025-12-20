@@ -39,10 +39,9 @@ export const getPartialAudioData = async ({
 	// mediabunny docs: constructing the sink is virtually free and does not perform any media data reads.
 	const sink = new AudioBufferSink(track);
 
-	for await (const {buffer, timestamp, duration} of sink.buffers(
-		actualFromSeconds,
-		toSeconds,
-	)) {
+	const iterator = sink.buffers(actualFromSeconds, toSeconds);
+
+	for await (const {buffer, timestamp, duration} of iterator) {
 		if (signal.aborted) {
 			break;
 		}
@@ -72,6 +71,8 @@ export const getPartialAudioData = async ({
 		);
 		audioSamples.push(trimmedData);
 	}
+
+	await iterator.return();
 
 	const totalSamples = audioSamples.reduce(
 		(sum, sample) => sum + sample.length,
