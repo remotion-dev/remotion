@@ -1,4 +1,3 @@
-import type {InputAudioTrack} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	Input,
@@ -46,8 +45,6 @@ interface AudioMetadata {
 }
 
 interface AudioUtils {
-	input: Input;
-	track: InputAudioTrack;
 	metadata: AudioMetadata;
 	isMatroska: boolean;
 }
@@ -83,10 +80,6 @@ export const useWindowedAudioData = ({
 			requests.current = {};
 
 			setWaveformMap({});
-
-			if (audioUtils) {
-				audioUtils.input.dispose();
-			}
 		};
 	}, [audioUtils]);
 
@@ -103,9 +96,11 @@ export const useWindowedAudioData = ({
 
 			signal.addEventListener('abort', cont, {once: true});
 
+			const source = new UrlSource(src);
+
 			const input = new Input({
 				formats: ALL_FORMATS,
-				source: new UrlSource(src),
+				source,
 			});
 
 			const onAbort = () => {
@@ -138,12 +133,11 @@ export const useWindowedAudioData = ({
 				const {numberOfChannels, sampleRate} = audioTrack;
 
 				const format = await input.getFormat();
+
 				const isMatroska = format === MATROSKA || format === WEBM;
 
 				if (isMounted.current) {
 					setAudioUtils({
-						input,
-						track: audioTrack,
 						metadata: {
 							durationInSeconds,
 							numberOfChannels,
@@ -240,7 +234,7 @@ export const useWindowedAudioData = ({
 				}
 
 				const partialWaveData = await getPartialAudioData({
-					track: audioUtils.track,
+					src,
 					fromSeconds,
 					toSeconds,
 					channelIndex,
