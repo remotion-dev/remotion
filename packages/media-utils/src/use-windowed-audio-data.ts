@@ -196,7 +196,7 @@ export const useWindowedAudioData = ({
 		]
 			.filter((i) => i !== null)
 			.filter((i) => i >= 0);
-	}, [currentWindowIndex, audioUtils?.metadata, windowInSeconds]);
+	}, [currentWindowIndex, audioUtils, windowInSeconds]);
 
 	const fetchAndSetWaveformData = useCallback(
 		async (windowIndex: number) => {
@@ -361,7 +361,7 @@ export const useWindowedAudioData = ({
 			resultId: `${src}-windows-${availableWindows.join(',')}`,
 			sampleRate: audioUtils.metadata.sampleRate,
 		};
-	}, [src, waveFormMap, audioUtils?.metadata, availableWindows]);
+	}, [src, waveFormMap, audioUtils, availableWindows]);
 
 	const isBeyondAudioDuration = audioUtils
 		? currentTime >= audioUtils.metadata.durationInSeconds
