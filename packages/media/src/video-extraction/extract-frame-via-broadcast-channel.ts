@@ -3,9 +3,12 @@ import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
 import type {
 	ExtractFrameRequest,
-	ExtractFrameResponse,
+	MessageFromMainTab,
 } from './add-broadcast-channel-listener';
-import {addBroadcastChannelListener} from './add-broadcast-channel-listener';
+import {
+	addBroadcastChannelListener,
+	waitForMainTabToBeReady,
+} from './add-broadcast-channel-listener';
 
 export type ExtractFrameViaBroadcastChannelResult =
 	| {
@@ -21,7 +24,7 @@ export type ExtractFrameViaBroadcastChannelResult =
 
 addBroadcastChannelListener();
 
-export const extractFrameViaBroadcastChannel = ({
+export const extractFrameViaBroadcastChannel = async ({
 	src,
 	timeInSeconds,
 	logLevel,
@@ -70,6 +73,8 @@ export const extractFrameViaBroadcastChannel = ({
 		});
 	}
 
+	await waitForMainTabToBeReady(window.remotion_broadcastChannel!);
+
 	const requestId = crypto.randomUUID();
 
 	const resolvePromise = new Promise<
@@ -85,9 +90,13 @@ export const extractFrameViaBroadcastChannel = ({
 		| {type: 'unknown-container-format'}
 	>((resolve, reject) => {
 		const onMessage = (event: MessageEvent) => {
-			const data = event.data as ExtractFrameResponse;
+			const data = event.data as MessageFromMainTab;
 
 			if (!data) {
+				return;
+			}
+
+			if (data.type === 'main-tab-ready') {
 				return;
 			}
 
