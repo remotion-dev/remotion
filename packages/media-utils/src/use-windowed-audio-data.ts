@@ -98,7 +98,7 @@ export const useWindowedAudioData = ({
 
 			const source = new UrlSource(src);
 
-			const input = new Input({
+			using input = new Input({
 				formats: ALL_FORMATS,
 				source,
 			});
@@ -149,7 +149,6 @@ export const useWindowedAudioData = ({
 
 				continueRender(handle);
 			} catch (err) {
-				input.dispose();
 				cancelRender(err);
 			} finally {
 				signal.removeEventListener('abort', cont);
