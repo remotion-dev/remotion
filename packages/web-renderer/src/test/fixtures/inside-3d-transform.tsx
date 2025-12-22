@@ -26,6 +26,7 @@ const Component: React.FC = () => {
 					alignItems: 'center',
 					color: 'blue',
 					fontSize: 700,
+					fontFamily: 'Arial',
 				}}
 			>
 				<div>0</div>
