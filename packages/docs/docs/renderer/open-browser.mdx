@@ -73,6 +73,24 @@ Set a [scale](/docs/scaling). If you plan to use scaling, you already need to se
 
 <Options id="chrome-mode" />
 
+## Closing the browser
+
+### use the `close()` method to close a browser instance and all its pages
+
+```ts
+ const close({
+  silent: boolean
+ }) => Promise<void>;
+```
+setting the `silent` option to `true` will close the browser without generating an error.
+
+```ts
+browserInstance: puppeteer.Browser;
+browserInstance.close({silent: true})
+```
+
+
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/open-browser.ts)
