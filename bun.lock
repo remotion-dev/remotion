@@ -2120,6 +2120,7 @@
       "name": "@remotion/web-renderer",
       "version": "4.0.394",
       "dependencies": {
+        "@remotion/licensing": "workspace:*",
         "mediabunny": "catalog:",
         "remotion": "workspace:*",
       },

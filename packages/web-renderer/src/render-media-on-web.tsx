@@ -33,6 +33,7 @@ import type {
 	InferProps,
 } from './props-if-has-props';
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
+import {sendUsageEvent} from './send-telemetry-event';
 import {createFrame} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
@@ -100,6 +101,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	onArtifact: OnArtifact | null;
 	onFrame: OnFrameCallback | null;
 	outputTarget: WebRendererOutputTarget | null;
+	licenseKey: string | null;
 };
 
 export type RenderMediaOnWebOptions<
@@ -144,6 +146,7 @@ const internalRenderMediaOnWeb = async <
 	onArtifact,
 	onFrame,
 	outputTarget: userDesiredOutputTarget,
+	licenseKey,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
@@ -410,6 +413,12 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('Expected target to be a BufferTarget');
 		}
 
+		sendUsageEvent({
+			licenseKey,
+			succeeded: true,
+			apiName: 'renderMediaOnWeb',
+		});
+
 		return {
 			getBlob: () => {
 				if (!target.buffer) {
@@ -419,6 +428,19 @@ const internalRenderMediaOnWeb = async <
 				return Promise.resolve(new Blob([target.buffer], {type: mimeType}));
 			},
 		};
+	} catch (err) {
+		sendUsageEvent({
+			succeeded: false,
+			licenseKey,
+			apiName: 'renderMediaOnWeb',
+		}).catch((err2) => {
+			Internals.Log.error(
+				{logLevel: 'error', tag: 'web-renderer'},
+				'Failed to send usage event',
+				err2,
+			);
+		});
+		throw err;
 	} finally {
 		cleanupFns.forEach((fn) => fn());
 	}
@@ -455,6 +477,7 @@ export const renderMediaOnWeb = <
 				onArtifact: options.onArtifact ?? null,
 				onFrame: options.onFrame ?? null,
 				outputTarget: options.outputTarget ?? null,
+				licenseKey: options.licenseKey ?? null,
 			}),
 		);
 
