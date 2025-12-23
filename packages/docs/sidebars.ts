@@ -1118,6 +1118,7 @@ const sidebars: SidebarsConfig = {
 		{
 			type: 'category',
 			label: 'WebCodecs',
+			className: 'deprecated-item',
 			link: {
 				type: 'doc',
 				id: 'webcodecs/index',

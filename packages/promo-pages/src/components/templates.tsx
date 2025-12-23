@@ -55,7 +55,7 @@ export const Templates: React.FC = () => {
 							>
 								<Button
 									depth={0.5}
-									className="items-start justify-start text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full"
+									className="items-start justify-start text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full items-start"
 								>
 									<Item
 										label={template.homePageLabel}
@@ -79,7 +79,7 @@ export const Templates: React.FC = () => {
 					>
 						<Button
 							depth={0.5}
-							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full"
+							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full items-start"
 						>
 							<Item
 								label={'Editor Starter'}
@@ -101,7 +101,7 @@ export const Templates: React.FC = () => {
 					>
 						<Button
 							depth={0.5}
-							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full"
+							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full items-start"
 						>
 							<Item
 								label={'Mapbox Globe'}
@@ -126,7 +126,7 @@ export const Templates: React.FC = () => {
 					>
 						<Button
 							depth={0.5}
-							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full"
+							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full items-start"
 						>
 							<Item
 								label={'Watercolor Map'}
@@ -148,7 +148,7 @@ export const Templates: React.FC = () => {
 					>
 						<Button
 							depth={0.5}
-							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full"
+							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full items-start"
 						>
 							<Item
 								label={'<Timeline />'}

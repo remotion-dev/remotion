@@ -195,7 +195,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		contributedBy: null,
 	},
 	{
-		homePageLabel: 'Prompt to Motion graphics',
+		homePageLabel: 'Prompt to Motion Graphics',
 		shortName: 'Prompt to Motion Graphics (Next.js)',
 		org: 'remotion-dev',
 		repoName: 'template-prompt-to-motion-graphics',
