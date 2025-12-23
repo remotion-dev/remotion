@@ -693,6 +693,15 @@ export const articles = [
 		slug: 'client-side-rendering/migration',
 	},
 	{
+		id: 'client-side-rendering/telemetry',
+		title: 'Telemetry in client-side rendering',
+		relativePath: 'docs/client-side-rendering/telemetry.mdx',
+		compId: 'articles-docs-client-side-rendering-telemetry',
+		crumb: 'Client-side rendering',
+		noAi: false,
+		slug: 'client-side-rendering/telemetry',
+	},
+	{
 		id: 'clipper',
 		title: '<Experimental.Clipper>',
 		relativePath: 'docs/clipper.mdx',

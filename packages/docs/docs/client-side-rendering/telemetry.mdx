@@ -1,0 +1,102 @@
+---
+crumb: 'Client-side rendering'
+sidebar_label: Telemetry
+title: Telemetry in client-side rendering
+---
+
+:::warning
+This feature is not available yet, but we are already writing docs.  
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+[Client-side rendering](/docs/client-side-rendering) has telemetry that sends an event for every render performed using the [`@remotion/licensing`](/docs/licensing) package.
+
+Remotion has a [license](/docs/license) that makes it free for individuals and small companies but requires a paid license for bigger companies, whose price is determined by the amount of renders.
+
+## Sent information
+
+The following information is sent:
+
+- IP Address
+- Domain name (e.g. `https://remotion.dev`)
+- Whether this render was in production or development
+- Whether this render was a video or a still image
+
+No information about the content or metadata of the video rendered, or any user data is collected.
+
+The telemetry is designed to collect as little data as possible while ensuring accountability, and if configured with a license key makes it easy for companies to keep track of their render count.
+
+## Setting a license key
+
+If you [qualify for the free license](/docs/license), you don't need to register for a license key.  
+Pass `"free-license"` to `licenseKey` to disable any warning in the console and declare your eligibility for the free license.
+
+```tsx twoslash title="Setting a license key" {6}
+import React from 'react';
+const Component: React.FC = () => {
+  return (
+    <svg viewBox="0 0 100 100" width="100" height="100" style={{transform: 'rotate(45deg)'}}>
+      <polygon points="50,10 90,90 10,90" fill="orange" />
+    </svg>
+  );
+};
+
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  calculateMetadata: null,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+await renderMediaOnWeb({
+  composition,
+  inputProps: {},
+  licenseKey: 'free-license',
+});
+```
+
+If you have a Remotion Company License or Enterprise License, go to [remotion.pro](https://remotion.pro) and get your license key from the "Usage" tab.
+
+```tsx twoslash title="Declare eligibility for the free licnse" {6}
+import React from 'react';
+const Component: React.FC = () => {
+  return (
+    <svg viewBox="0 0 100 100" width="100" height="100" style={{transform: 'rotate(45deg)'}}>
+      <polygon points="50,10 90,90 10,90" fill="orange" />
+    </svg>
+  );
+};
+
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  calculateMetadata: null,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+await renderMediaOnWeb({
+  composition,
+  inputProps: {},
+  licenseKey: 'rm_pub_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+});
+```
+
+For tracking client-side renders, you should use the public key.  
+You can now track your usage on the same Usage tab.
+
+:::note
+Usage is not (yet) tied to billing.  
+You will need to update your render count manually periodically to reflect your usage.
+:::
