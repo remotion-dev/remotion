@@ -78,15 +78,16 @@ Set a [scale](/docs/scaling). If you plan to use scaling, you already need to se
 ### use the `close()` method to close a browser instance and all its pages
 
 ```ts
- const Browser.close({
-  silent: boolean
- }) => Promise<void>;
+interface HeadlessBrowser {
+  close(options?: { silent?: boolean }): Promise<void>;
+}
 ```
 setting the `silent` option to `true` will close the browser without generating an error.
 
 ```ts
-browserInstance: puppeteer.Browser;
-browserInstance.close({silent: true})
+let myBrowser = openBrowser("chrome")
+//other code
+myBrowser.close({silent: true})
 ```
 
 
