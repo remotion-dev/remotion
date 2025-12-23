@@ -1115,31 +1115,7 @@ const sidebars: SidebarsConfig = {
 				'media-parser/stream-selection',
 			],
 		},
-		{
-			type: 'category',
-			label: 'WebCodecs',
-			className: 'deprecated-item',
-			link: {
-				type: 'doc',
-				id: 'webcodecs/index',
-			},
-			items: [
-				{
-					type: 'link',
-					href: '/docs/webcodecs/convert-media',
-					label: 'API Reference',
-				},
-				'webcodecs/convert-a-video',
-				'webcodecs/rotate-a-video',
-				'webcodecs/resize-a-video',
-				'webcodecs/fix-mediarecorder-video',
-				'webcodecs/resample-audio-16khz',
-				'webcodecs/track-transformation',
-				'webcodecs/pause-resume-abort',
-				'webcodecs/telemetry',
-				'webcodecs/misconceptions',
-			],
-		},
+
 		{
 			type: 'category',
 			label: 'Building apps',
@@ -1323,6 +1299,7 @@ const sidebars: SidebarsConfig = {
 			label: 'Miscellaneous',
 			items: [
 				'security',
+				'accessibility',
 				'chromium-flags',
 				'miscellaneous/changing-temp-dir',
 				'miscellaneous/chrome-headless-shell',
@@ -1375,6 +1352,31 @@ const sidebars: SidebarsConfig = {
 		},
 		'license',
 		'acknowledgements',
+		{
+			type: 'category',
+			label: 'WebCodecs',
+			className: 'deprecated-item',
+			link: {
+				type: 'doc',
+				id: 'webcodecs/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/webcodecs/convert-media',
+					label: 'API Reference',
+				},
+				'webcodecs/convert-a-video',
+				'webcodecs/rotate-a-video',
+				'webcodecs/resize-a-video',
+				'webcodecs/fix-mediarecorder-video',
+				'webcodecs/resample-audio-16khz',
+				'webcodecs/track-transformation',
+				'webcodecs/pause-resume-abort',
+				'webcodecs/telemetry',
+				'webcodecs/misconceptions',
+			],
+		},
 		{
 			type: 'html',
 			value:

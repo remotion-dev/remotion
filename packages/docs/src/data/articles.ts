@@ -54,6 +54,15 @@ export const articles = [
 		slug: 'absolute-fill',
 	},
 	{
+		id: 'accessibility',
+		title: 'Accessibility statement for Remotion',
+		relativePath: 'docs/accessibility.mdx',
+		compId: 'articles-docs-accessibility',
+		crumb: 'FAQ',
+		noAi: false,
+		slug: 'accessibility',
+	},
+	{
 		id: 'acknowledgements',
 		title: 'Acknowledgements',
 		relativePath: 'docs/acknowledgements.mdx',
