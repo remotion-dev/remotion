@@ -39,6 +39,7 @@ export const drawText = (span: HTMLSpanElement) => {
 
 		const isRTL = direction === 'rtl';
 		contextToDraw.textAlign = isRTL ? 'right' : 'left';
+		contextToDraw.textBaseline = 'alphabetic';
 
 		const originalText = span.textContent;
 		const collapsedText = getCollapsedText(span);
@@ -51,9 +52,9 @@ export const drawText = (span: HTMLSpanElement) => {
 
 		let offsetTop = 0;
 
-		for (const line of lines) {
-			const {fontBoundingBoxAscent} = contextToDraw.measureText(line.text);
+		const {fontBoundingBoxAscent} = contextToDraw.measureText(lines[0].text);
 
+		for (const line of lines) {
 			contextToDraw.fillText(
 				line.text,
 				xPosition + line.offsetHorizontal,
