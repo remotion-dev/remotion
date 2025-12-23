@@ -11,7 +11,6 @@ export const drawText = (span: HTMLSpanElement) => {
 			fontSize,
 			fontWeight,
 			color,
-			lineHeight,
 			direction,
 			writingMode,
 			letterSpacing,
@@ -32,20 +31,15 @@ export const drawText = (span: HTMLSpanElement) => {
 
 		contextToDraw.save();
 
-		contextToDraw.font = `${fontWeight} ${fontSize} ${fontFamily}`;
+		const fontSizePx = parseFloat(fontSize);
+
+		contextToDraw.font = `${fontWeight} ${fontSizePx}px ${fontFamily}`;
 		contextToDraw.fillStyle = color;
 		contextToDraw.letterSpacing = letterSpacing;
 
-		const fontSizePx = parseFloat(fontSize);
-		// TODO: This is not necessarily correct, need to create text and measure to know for sure
-		const lineHeightPx =
-			lineHeight === 'normal' ? 1.2 * fontSizePx : parseFloat(lineHeight);
-
-		const baselineOffset = (lineHeightPx - fontSizePx) / 2;
-
 		const isRTL = direction === 'rtl';
 		contextToDraw.textAlign = isRTL ? 'right' : 'left';
-		contextToDraw.textBaseline = 'top';
+		contextToDraw.textBaseline = 'alphabetic';
 
 		const originalText = span.textContent;
 		const collapsedText = getCollapsedText(span);
@@ -58,11 +52,13 @@ export const drawText = (span: HTMLSpanElement) => {
 
 		let offsetTop = 0;
 
+		const {fontBoundingBoxAscent} = contextToDraw.measureText(lines[0].text);
+
 		for (const line of lines) {
 			contextToDraw.fillText(
 				line.text,
 				xPosition + line.offsetHorizontal,
-				rect.top + baselineOffset + offsetTop,
+				rect.top + offsetTop + fontBoundingBoxAscent,
 			);
 			offsetTop += line.offsetTop;
 		}
