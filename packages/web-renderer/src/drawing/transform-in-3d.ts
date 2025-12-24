@@ -24,6 +24,8 @@ type HelperCanvas = {
 	canvas: OffscreenCanvas;
 	gl: WebGLRenderingContext;
 	program: WebGLProgram;
+	vertexShader: WebGLShader;
+	fragmentShader: WebGLShader;
 };
 
 let helperCanvas: HelperCanvas | null = null;
@@ -45,6 +47,13 @@ const createHelperCanvas = ({
 		helperCanvas.gl.clear(helperCanvas.gl.COLOR_BUFFER_BIT);
 
 		return helperCanvas;
+	}
+
+	if (helperCanvas) {
+		helperCanvas.gl.deleteProgram(helperCanvas.program);
+		helperCanvas.gl.deleteShader(helperCanvas.vertexShader);
+		helperCanvas.gl.deleteShader(helperCanvas.fragmentShader);
+		helperCanvas = null;
 	}
 
 	const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
@@ -102,7 +111,7 @@ const createHelperCanvas = ({
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-	helperCanvas = {canvas, gl, program};
+	helperCanvas = {canvas, gl, program, vertexShader, fragmentShader};
 
 	return helperCanvas;
 };
