@@ -52,6 +52,25 @@ describe('Templates should be valid', () => {
 			expect(body.private).toBe(true);
 			expect(body.name).toStartWith('template-');
 
+			// Check that no dependencies use "catalog:" as version
+			if (body.dependencies) {
+				for (const [, version] of Object.entries(body.dependencies)) {
+					expect(version).not.toBe('catalog:');
+				}
+			}
+
+			if (body.devDependencies) {
+				for (const [, version] of Object.entries(body.devDependencies)) {
+					expect(version).not.toBe('catalog:');
+				}
+			}
+
+			if (body.peerDependencies) {
+				for (const [, version] of Object.entries(body.peerDependencies)) {
+					expect(version).not.toBe('catalog:');
+				}
+			}
+
 			if (!template.shortName.includes('JavaScript')) {
 				expect(body.devDependencies['typescript']).toInclude('5.9.3');
 
