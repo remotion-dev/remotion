@@ -60,6 +60,10 @@ import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
 import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
 import {
+	getExperimentalClientSideRenderingEnabled,
+	setExperimentalClientSideRenderingEnabled,
+} from './experimental-client-side-rendering';
+import {
 	getFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
@@ -127,6 +131,7 @@ const {
 	audioLatencyHintOption,
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -183,6 +188,15 @@ declare global {
 		 * @default true
 		 */
 		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
+		/**
+		 * Enable WIP client-side rendering in the Remotion Studio.
+		 * See https://www.remotion.dev/docs/client-side-rendering/ for notes.
+		 * @param enabled Boolean whether to enable client-side rendering
+		 * @default false
+		 */
+		readonly setExperimentalClientSideRenderingEnabled: (
+			enabled: boolean,
+		) => void;
 		/**
 		 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop
 		 * @param numberOfAudioTags
@@ -247,6 +261,11 @@ declare global {
 		 * Default: true
 		 */
 		readonly setChromiumHeadlessMode: (should: boolean) => void;
+		/**
+		 * Set whether to use dark mode for Chrome.
+		 * Default: false
+		 */
+		readonly setChromiumDarkMode: (should: boolean) => void;
 		/**
 		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader', 'swangle', 'vulkan' and 'angle-egl'.
 		 * Default: 'swangle' in Lambda, null elsewhere.
@@ -615,6 +634,7 @@ export const Config: FlatConfig = {
 	},
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled,
+	setExperimentalClientSideRenderingEnabled,
 	setNumberOfSharedAudioTags,
 	setWebpackPollingInMilliseconds,
 	setShouldOpenBrowser,
@@ -639,6 +659,7 @@ export const Config: FlatConfig = {
 	setDotEnvLocation,
 	setConcurrency,
 	setChromiumMultiProcessOnLinux: enableMultiprocessOnLinuxOption.setConfig,
+	setChromiumDarkMode: darkModeOption.setConfig,
 	setQuality: () => {
 		throw new Error(
 			'setQuality() has been renamed - use setJpegQuality() instead.',
@@ -722,6 +743,7 @@ export const ConfigInternals = {
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
 	getKeyboardShortcutsEnabled,
+	getExperimentalClientSideRenderingEnabled,
 	getFfmpegOverrideFunction,
 	getHeight,
 	getWidth,

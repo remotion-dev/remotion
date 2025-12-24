@@ -9,6 +9,7 @@ import {
 	useDelayRender,
 	useRemotionEnvironment,
 } from 'remotion';
+import {useMaxMediaCacheSize} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
@@ -23,7 +24,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
-	logLevel = window.remotion_logLevel,
+	logLevel = window.remotion_logLevel ?? 'info',
 	loop,
 	fallbackHtml5AudioProps,
 	audioStreamIndex,
@@ -65,7 +66,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`media-video-${random(
+			`media-audio-${random(
 				src,
 			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
 		[
@@ -75,6 +76,12 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			sequenceContext?.durationInFrames,
 		],
 	);
+
+	const maxCacheSize = useMaxMediaCacheSize(
+		logLevel ?? window.remotion_logLevel,
+	);
+
+	const audioEnabled = Internals.useAudioEnabled();
 
 	useLayoutEffect(() => {
 		const timestamp = frame / fps;
@@ -90,7 +97,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		});
 
 		const shouldRenderAudio = (() => {
-			if (!window.remotion_audioEnabled) {
+			if (!audioEnabled) {
 				return false;
 			}
 
@@ -106,7 +113,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			timeInSeconds: timestamp,
 			durationInSeconds,
 			playbackRate: playbackRate ?? 1,
-			logLevel,
+			logLevel: logLevel ?? window.remotion_logLevel,
 			includeAudio: shouldRenderAudio,
 			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,
@@ -115,6 +122,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			trimAfter,
 			trimBefore,
 			fps,
+			maxCacheSize,
 		})
 			.then((result) => {
 				if (result.type === 'unknown-container-format') {
@@ -127,7 +135,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					}
 
 					Internals.Log.warn(
-						{logLevel, tag: '@remotion/media'},
+						{
+							logLevel: logLevel ?? window.remotion_logLevel,
+							tag: '@remotion/media',
+						},
 						`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
 					);
 					setReplaceWithHtml5Audio(true);
@@ -144,11 +155,20 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					}
 
 					Internals.Log.warn(
-						{logLevel, tag: '@remotion/media'},
+						{
+							logLevel: logLevel ?? window.remotion_logLevel,
+							tag: '@remotion/media',
+						},
 						`Cannot decode ${src}, falling back to <Html5Audio>`,
 					);
 					setReplaceWithHtml5Audio(true);
 					return;
+				}
+
+				if (result.type === 'cannot-decode-alpha') {
+					throw new Error(
+						`Cannot decode alpha component for ${src}, and 'disallowFallbackToHtml5Audio' was set. But this should never happen, since you used the <Audio> tag. Please report this as a bug.`,
+					);
 				}
 
 				if (result.type === 'network-error') {
@@ -161,7 +181,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					}
 
 					Internals.Log.warn(
-						{logLevel, tag: '@remotion/media'},
+						{
+							logLevel: logLevel ?? window.remotion_logLevel,
+							tag: '@remotion/media',
+						},
 						`Network error fetching ${src}, falling back to <Html5Audio>`,
 					);
 					setReplaceWithHtml5Audio(true);
@@ -191,7 +214,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					registerRenderAsset({
 						type: 'inline-audio',
 						id,
-						audio: Array.from(audio.data),
+						audio: environment.isClientSideRendering
+							? audio.data
+							: Array.from(audio.data),
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
 						duration: (audio.numberOfFrames / TARGET_SAMPLE_RATE) * 1_000_000,
@@ -235,6 +260,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		trimAfter,
 		trimBefore,
 		replaceWithHtml5Audio,
+		maxCacheSize,
+		audioEnabled,
 	]);
 
 	if (replaceWithHtml5Audio) {

@@ -29,6 +29,7 @@ export const SharedPlayerContexts: React.FC<{
 	readonly logLevel: LogLevel;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly volumePersistenceKey?: string;
+	readonly inputProps: Record<string, unknown>;
 }> = ({
 	children,
 	timelineContext,
@@ -42,6 +43,7 @@ export const SharedPlayerContexts: React.FC<{
 	logLevel,
 	audioLatencyHint,
 	volumePersistenceKey,
+	inputProps,
 }) => {
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		const context: CompositionManagerContext = {
@@ -63,11 +65,29 @@ export const SharedPlayerContexts: React.FC<{
 				},
 			],
 			folders: [],
-			currentCompositionMetadata: null,
+			currentCompositionMetadata: {
+				defaultCodec: null,
+				defaultOutName: null,
+				defaultPixelFormat: null,
+				defaultProResProfile: null,
+				defaultVideoImageFormat: null,
+				durationInFrames,
+				fps,
+				height: compositionHeight,
+				width: compositionWidth,
+				props: inputProps,
+			},
 			canvasContent: {type: 'composition', compositionId: 'player-comp'},
 		};
 		return context;
-	}, [component, durationInFrames, compositionHeight, compositionWidth, fps]);
+	}, [
+		component,
+		durationInFrames,
+		compositionHeight,
+		compositionWidth,
+		fps,
+		inputProps,
+	]);
 
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => initiallyMuted);
 	const [mediaVolume, setMediaVolume] = useState<number>(() =>
@@ -117,35 +137,32 @@ export const SharedPlayerContexts: React.FC<{
 		<Internals.RemotionEnvironmentContext.Provider value={env}>
 			<Internals.LogLevelContext.Provider value={logLevelContext}>
 				<Internals.CanUseRemotionHooksProvider>
-					<Internals.Timeline.TimelineContext.Provider value={timelineContext}>
+					<Internals.TimelineContext.Provider value={timelineContext}>
 						<Internals.CompositionManager.Provider
 							value={compositionManagerContext}
 						>
-							<Internals.ResolveCompositionConfig>
-								<Internals.PrefetchProvider>
-									<Internals.DurationsContextProvider>
-										<Internals.MediaVolumeContext.Provider
-											value={mediaVolumeContextValue}
+							<Internals.PrefetchProvider>
+								<Internals.DurationsContextProvider>
+									<Internals.MediaVolumeContext.Provider
+										value={mediaVolumeContextValue}
+									>
+										<Internals.SetMediaVolumeContext.Provider
+											value={setMediaVolumeContextValue}
 										>
-											<Internals.SetMediaVolumeContext.Provider
-												value={setMediaVolumeContextValue}
+											<Internals.SharedAudioContextProvider
+												numberOfAudioTags={numberOfSharedAudioTags}
+												audioLatencyHint={audioLatencyHint}
 											>
-												<Internals.SharedAudioContextProvider
-													numberOfAudioTags={numberOfSharedAudioTags}
-													component={component}
-													audioLatencyHint={audioLatencyHint}
-												>
-													<Internals.BufferingProvider>
-														{children}
-													</Internals.BufferingProvider>
-												</Internals.SharedAudioContextProvider>
-											</Internals.SetMediaVolumeContext.Provider>
-										</Internals.MediaVolumeContext.Provider>
-									</Internals.DurationsContextProvider>
-								</Internals.PrefetchProvider>
-							</Internals.ResolveCompositionConfig>
+												<Internals.BufferingProvider>
+													{children}
+												</Internals.BufferingProvider>
+											</Internals.SharedAudioContextProvider>
+										</Internals.SetMediaVolumeContext.Provider>
+									</Internals.MediaVolumeContext.Provider>
+								</Internals.DurationsContextProvider>
+							</Internals.PrefetchProvider>
 						</Internals.CompositionManager.Provider>
-					</Internals.Timeline.TimelineContext.Provider>
+					</Internals.TimelineContext.Provider>
 				</Internals.CanUseRemotionHooksProvider>
 			</Internals.LogLevelContext.Provider>
 		</Internals.RemotionEnvironmentContext.Provider>

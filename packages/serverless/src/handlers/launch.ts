@@ -71,10 +71,20 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const startedDate = Date.now();
 
+	const chromiumParams = {...(params.chromiumOptions ?? {})};
+
+	if (params.chromiumOptions?.gl === 'angle') {
+		RenderInternals.Log.warn(
+			{indent: false, logLevel: params.logLevel},
+			'gl=angle is not supported in Lambda. Changing to gl=swangle instead.',
+		);
+		chromiumParams.gl = 'swangle';
+	}
+
 	const browserInstance = insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
-		chromiumOptions: params.chromiumOptions,
+		chromiumOptions: chromiumParams,
 		providerSpecifics,
 		insideFunctionSpecifics,
 	});
@@ -112,14 +122,26 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		serializedInputPropsWithCustomSchema,
 	);
 	const startTime = Date.now();
+	let validateCompositionTimeout = params.timeoutInMilliseconds;
+	const remainingTime = options.getRemainingTimeInMillis();
+	if (remainingTime / 2 < params.timeoutInMilliseconds) {
+		// delayRender() subtracts 2 seconds, must be positive
+		validateCompositionTimeout = Math.max(3000, Math.round(remainingTime / 2));
+		RenderInternals.Log.info(
+			logOptions,
+			`Lowering "timeoutInMilliseconds" to ${validateCompositionTimeout}ms (half the remaining function lifetime) so that any stuck processes will surface their errors`,
+			validateCompositionTimeout,
+		);
+	}
+
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance: instance,
 		serializedInputPropsWithCustomSchema,
 		envVariables: params.envVariables ?? {},
-		timeoutInMilliseconds: params.timeoutInMilliseconds,
-		chromiumOptions: params.chromiumOptions,
+		timeoutInMilliseconds: validateCompositionTimeout,
+		chromiumOptions: params.chromiumOptions ?? {},
 		port: null,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
@@ -265,7 +287,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			logLevel: params.logLevel ?? 'info',
 			attempt: 1,
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
-			chromiumOptions: params.chromiumOptions,
+			chromiumOptions: params.chromiumOptions ?? {},
 			scale: params.scale,
 			everyNthFrame: params.everyNthFrame,
 			concurrencyPerLambda: params.concurrencyPerFunction,

@@ -4,12 +4,12 @@ import type {
 	Codec,
 	OpenGlRenderer,
 	PixelFormat,
-	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
 import type {TypeOfOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {_InternalTypes} from 'remotion';
 import {Config, ConfigInternals} from './config';
 import {Log} from './log';
 import {parsedCli} from './parsed-cli';
@@ -33,17 +33,19 @@ const {
 	audioCodecOption,
 	publicPathOption,
 	audioLatencyHintOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: VideoImageFormat | StillImageFormat;
-	['prores-profile']: ProResProfile;
+	['prores-profile']: _InternalTypes['ProResProfile'];
 	[x264Option.cliFlag]: TypeOfOption<typeof x264Option>;
 	['bundle-cache']: string;
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
+	[darkModeOption.cliFlag]: TypeOfOption<typeof darkModeOption>;
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
 	[numberOfGifLoopsOption.cliFlag]: TypeOfOption<typeof numberOfGifLoopsOption>;
@@ -89,6 +91,7 @@ export type CommandLineOptions = {
 	frame: string | number;
 	['disable-headless']: boolean;
 	['disable-keyboard-shortcuts']: boolean;
+	['enable-experimental-client-side-rendering']: boolean;
 	muted: boolean;
 	height: number;
 	width: number;
@@ -135,6 +138,10 @@ export const parseCommandLine = () => {
 		Config.setChromiumIgnoreCertificateErrors(true);
 	}
 
+	if (parsedCli[darkModeOption.cliFlag]) {
+		Config.setChromiumDarkMode(parsedCli[darkModeOption.cliFlag]);
+	}
+
 	if (parsedCli['user-agent']) {
 		Config.setChromiumUserAgent(parsedCli['user-agent']);
 	}
@@ -175,7 +182,7 @@ export const parseCommandLine = () => {
 
 	if (parsedCli['prores-profile']) {
 		Config.setProResProfile(
-			String(parsedCli['prores-profile']) as ProResProfile,
+			String(parsedCli['prores-profile']) as _InternalTypes['ProResProfile'],
 		);
 	}
 
@@ -194,6 +201,15 @@ export const parseCommandLine = () => {
 	if (typeof parsedCli['disable-keyboard-shortcuts'] !== 'undefined') {
 		Config.setKeyboardShortcutsEnabled(
 			!parsedCli['disable-keyboard-shortcuts'],
+		);
+	}
+
+	if (
+		typeof parsedCli['enable-experimental-client-side-rendering'] !==
+		'undefined'
+	) {
+		Config.setExperimentalClientSideRenderingEnabled(
+			parsedCli['enable-experimental-client-side-rendering'],
 		);
 	}
 

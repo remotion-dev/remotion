@@ -1,13 +1,19 @@
 export const getCrossOriginValue = ({
 	crossOrigin,
 	requestsVideoFrame,
+	isClientSideRendering,
 }: {
 	crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
 	requestsVideoFrame: boolean;
+	isClientSideRendering: boolean;
 }) => {
 	// If user specifies a value explicitly, use that
 	if (crossOrigin !== undefined && crossOrigin !== null) {
 		return crossOrigin;
+	}
+
+	if (isClientSideRendering) {
+		return 'anonymous';
 	}
 
 	// We need to set anonymous because otherwise we are not allowed

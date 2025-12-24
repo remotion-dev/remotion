@@ -73,6 +73,18 @@ Set a [scale](/docs/scaling). If you plan to use scaling, you already need to se
 
 <Options id="chrome-mode" />
 
+## Closing the browser
+
+Use the `close()` method to cleanup a browser you are not using anymore:
+
+```ts
+const browser = await openBrowser('chrome');
+browser.close({silent: true});
+```
+
+If already closed or an operation is interrupted, an error is thrown.  
+Setting the `silent` option to `true` will close the browser without generating an error.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/open-browser.ts)

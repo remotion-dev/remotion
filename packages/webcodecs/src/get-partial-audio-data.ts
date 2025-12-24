@@ -42,21 +42,17 @@ const extractOverlappingAudioSamples = ({
 
 	if (numberOfChannels === 1) {
 		// Mono audio
-		data = new Float32Array(
-			sample.allocationSize({format: 'f32', planeIndex: 0}),
-		);
+		data = new Float32Array(samplesPerChannel);
 		sample.copyTo(data, {format: 'f32', planeIndex: 0});
 	} else {
 		// Multi-channel audio: extract specific channel
-		const allChannelsData = new Float32Array(
-			sample.allocationSize({format: 'f32', planeIndex: 0}),
-		);
-		sample.copyTo(allChannelsData, {format: 'f32', planeIndex: 0});
+		const interleaved = new Float32Array(samplesPerChannel * numberOfChannels);
+		sample.copyTo(interleaved, {format: 'f32', planeIndex: 0});
 
 		// Extract the specific channel (interleaved audio)
 		data = new Float32Array(samplesPerChannel);
 		for (let i = 0; i < samplesPerChannel; i++) {
-			data[i] = allChannelsData[i * numberOfChannels + channelIndex];
+			data[i] = interleaved[i * numberOfChannels + channelIndex];
 		}
 	}
 
@@ -115,8 +111,10 @@ export const getPartialAudioData = async ({
 	signal.addEventListener('abort', onAbort, {once: true});
 
 	try {
-		if (fromSeconds > 0) {
-			controller.seek(fromSeconds);
+		// expand decode window slightly to avoid gaps at boundaries
+		const seekFromSeconds = Math.max(0, fromSeconds - BUFFER_IN_SECONDS);
+		if (seekFromSeconds > 0) {
+			controller.seek(seekFromSeconds);
 		}
 
 		await parseMedia({
@@ -167,9 +165,12 @@ export const getPartialAudioData = async ({
 						throw new Error('No audio decoder found');
 					}
 
-					const fromSecondsWithBuffer =
-						fromSeconds === 0 ? fromSeconds : fromSeconds + BUFFER_IN_SECONDS;
-					const toSecondsWithBuffer = toSeconds - BUFFER_IN_SECONDS;
+					// decode a bit earlier and later than requested, trimming happens later
+					const fromSecondsWithBuffer = Math.max(
+						0,
+						fromSeconds - BUFFER_IN_SECONDS,
+					);
+					const toSecondsWithBuffer = toSeconds + BUFFER_IN_SECONDS;
 
 					// Convert timestamp using the track's timescale
 					const time = sample.timestamp / track.timescale;
@@ -193,6 +194,15 @@ export const getPartialAudioData = async ({
 					await audioDecoder.waitForQueueToBeLessThan(10);
 					// we're waiting for the queue above anyway, enqueue in sync mode
 					audioDecoder.decode(sample);
+
+					// this is called on the last sample of the track
+					// so if we have reached the end of the track, resolve the promise
+					return () => {
+						audioDecoder.flush().then(() => {
+							audioDecoder.close();
+							resolveAudioDecode();
+						});
+					};
 				};
 			},
 		});

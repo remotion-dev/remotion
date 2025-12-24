@@ -63,6 +63,14 @@ const renderHandler = async <Provider extends CloudProvider>({
 		throw new Error('Params must be renderer');
 	}
 
+	if (params.chromiumOptions.gl === 'angle') {
+		RenderInternals.Log.warn(
+			{indent: false, logLevel: params.logLevel},
+			'gl=angle is not supported in Lambda. Changing to gl=swangle instead.',
+		);
+		params.chromiumOptions.gl = 'swangle';
+	}
+
 	if (params.launchFunctionConfig.version !== VERSION) {
 		throw new Error(
 			`The version of the function that was specified as "rendererFunctionName" is ${VERSION} but the version of the function that invoked the render is ${params.launchFunctionConfig.version}. Please make sure that the version of the function that is specified as "rendererFunctionName" is the same as the version of the function that is invoked.`,
@@ -243,6 +251,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 				defaultCodec: null,
 				defaultOutName: null,
 				defaultPixelFormat: null,
+				defaultProResProfile: null,
 				defaultVideoImageFormat: null,
 			},
 			imageFormat: params.imageFormat,
@@ -345,6 +354,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			offthreadVideoThreads: params.offthreadVideoThreads,
 			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 			onLog: RenderInternals.defaultOnLog,
+			apiKey: null,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(

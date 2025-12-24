@@ -4,8 +4,6 @@ import type {
 	ColorSpace,
 	LogLevel,
 	OpenGlRenderer,
-	PixelFormat,
-	ProResProfile,
 	X264Preset,
 } from '@remotion/renderer';
 import type {SVGProps} from 'react';
@@ -49,7 +47,7 @@ export const SidebarRenderButton: React.FC<{
 
 			e.stopPropagation();
 			setSelectedModal({
-				type: 'render',
+				type: 'server-render',
 				compositionId: composition.id,
 				initialFrame: 0,
 				initialVideoImageFormat: defaults.videoImageFormat,
@@ -62,9 +60,10 @@ export const SidebarRenderButton: React.FC<{
 				minConcurrency: defaults.minConcurrency,
 				initialMuted: defaults.muted,
 				initialEnforceAudioTrack: defaults.enforceAudioTrack,
-				initialProResProfile: defaults.proResProfile as ProResProfile,
+				initialProResProfile:
+					defaults.proResProfile as _InternalTypes['ProResProfile'],
 				initialx264Preset: defaults.x264Preset as X264Preset,
-				initialPixelFormat: defaults.pixelFormat as PixelFormat,
+				initialPixelFormat: null,
 				initialAudioBitrate: defaults.audioBitrate,
 				initialVideoBitrate: defaults.videoBitrate,
 				initialEveryNthFrame: defaults.everyNthFrame,
@@ -97,6 +96,8 @@ export const SidebarRenderButton: React.FC<{
 				initialHardwareAcceleration: defaults.hardwareAcceleration,
 				initialChromeMode: defaults.chromeMode,
 				initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+				renderDefaults: defaults,
+				initialDarkMode: defaults.darkMode,
 			});
 
 			if (isMobileLayout) {

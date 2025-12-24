@@ -76,6 +76,7 @@ const innerSelectComposition = async ({
 	logLevel,
 	onServeUrlVisited,
 	mediaCacheSizeInBytes,
+	chromiumOptions,
 }: InnerSelectCompositionConfig): Promise<InternalReturnType> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
@@ -96,6 +97,7 @@ const innerSelectComposition = async ({
 		isMainTab: true,
 		mediaCacheSizeInBytes,
 		initialMemoryAvailable: getAvailableMemory(logLevel),
+		darkMode: chromiumOptions.darkMode ?? false,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -158,6 +160,7 @@ const innerSelectComposition = async ({
 		defaultOutName,
 		defaultVideoImageFormat,
 		defaultPixelFormat,
+		defaultProResProfile,
 	} = res;
 	return {
 		metadata: {
@@ -176,6 +179,7 @@ const innerSelectComposition = async ({
 			defaultOutName,
 			defaultVideoImageFormat,
 			defaultPixelFormat,
+			defaultProResProfile,
 		},
 		propsSize: size,
 	};

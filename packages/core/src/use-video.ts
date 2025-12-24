@@ -6,7 +6,9 @@ import type {VideoConfig} from './video-config.js';
 
 type ReturnType =
 	| (VideoConfig & {
-			component: LazyExoticComponent<ComponentType<Record<string, unknown>>>;
+			component:
+				| LazyExoticComponent<ComponentType<Record<string, unknown>>>
+				| ComponentType<Record<string, unknown>>;
 	  })
 	| null;
 

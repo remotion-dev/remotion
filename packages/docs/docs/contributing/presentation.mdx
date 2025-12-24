@@ -7,16 +7,17 @@ crumb: Contributing
 
 Make your custom presentation accessible for others in the `@remotion/transitions` package.
 
-## Setup the remotion project
+## Setup the Remotion project
 
-If this is your first contribution, see the <a href="https://github.com/remotion-dev/remotion/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> file for information on how to contribute and instructions to set up the remotion project.
+If this is your first contribution, see the [main instructions](/docs/contributing) first.
 
 ## How to proceed
 
-<Step>1</Step> Create a custom transition. Loook at the <a href="/docs/transitions/presentations/custom">custom presentation</a> docs to see how it's done.<br/>
-<Step>2</Step>Add your presentation to the remotion monorepository under <code>packages/transitions/src/presentations</code>.<br/>
+<Step>1</Step> Create a custom transition. Look at the <a href="/docs/transitions/presentations/custom">custom presentation</a> docs to see how it's done.
+<br />
+<Step>2</Step>Add your presentation to the remotion monorepository under <code>packages/transitions/src/presentations</code>.<br />
 <Step>3</Step> In the <code>bundle.ts</code>, add your presentation to the <code>presentations array</code>.
-<br/>
+<br />
 
 ```tsx
   const presentations = ['slide', 'flip', 'wipe', 'fade', ..., 'yourPresentation'];
@@ -53,18 +54,16 @@ Make sure to `pnpm build` in `remotion/packages/transitions` so your transition 
 
 &nbsp;&nbsp;&nbsp;&nbsp; For more help on how to write a documentation, see the [contributing to the documentation](/docs/contributing/docs) page.
 
-<Step>6</Step> Add your presentation to the table of contents at <a href="/docs/transitions/presentations">docs/transitions/presentations</a> by creating a <code>&lt;TOCItem&gt;</code> containing a link to your documentation, a <code>&lt;PresentationPreview</code> displaying your presentation and a one-liner describing what your presentation does.
+<Step>6</Step> Add your presentation to the table of contents at <a href="/docs/transitions/presentations">docs/transitions/presentations</a> by creating a <code>&lt;TOCItem&gt;</code> containing a link to your documentation, a <code>&lt;PresentationPreview</code> displaying your presentation and a
+one-liner describing what your presentation does.
 
 ```tsx title="Example TOCItem"
 <TOCItem link="/docs/transitions/presentations/yourPresentation">
   <div style={row}>
-    <PresentationPreview
-      durationRestThreshold={0.001}
-      effect={yourPresentation()}
-    />
-    <div style={{ flex: 1, marginLeft: 10 }}>
+    <PresentationPreview durationRestThreshold={0.001} effect={yourPresentation()} />
+    <div style={{flex: 1, marginLeft: 10}}>
       <strong>
-        <code>{"yourPresentation()"}</code>
+        <code>{'yourPresentation()'}</code>
       </strong>
       <div>Insert one-liner describing your presentation</div>
     </div>

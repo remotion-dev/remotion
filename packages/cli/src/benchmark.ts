@@ -56,6 +56,7 @@ const {
 	chromeModeOption,
 	offthreadVideoThreadsOption,
 	mediaCacheSizeInBytesOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -231,14 +232,16 @@ export const benchmarkCommand = async (
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
+	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
 
-	const chromiumOptions: ChromiumOptions = {
+	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,
+		darkMode,
 	};
 
 	const onBrowserDownload = defaultBrowserDownloadProgress({
@@ -526,6 +529,7 @@ export const benchmarkCommand = async (
 						commandLine: parsedCli,
 					}).value,
 					onLog: RenderInternals.defaultOnLog,
+					apiKey: null,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

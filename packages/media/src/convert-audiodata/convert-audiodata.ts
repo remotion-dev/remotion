@@ -9,6 +9,8 @@ export type ConvertAudioDataOptions = {
 	trimStartInSeconds: number;
 	trimEndInSeconds: number;
 	playbackRate: number;
+	audioDataTimestamp: number;
+	isLast: boolean;
 };
 
 const FORMAT: AudioSampleFormat = 's16';
@@ -17,6 +19,26 @@ export type PcmS16AudioData = {
 	data: Int16Array;
 	numberOfFrames: number;
 	timestamp: number;
+	durationInMicroSeconds: number;
+};
+
+export const fixFloatingPoint = (value: number) => {
+	const decimal = Math.abs(value % 1);
+
+	if (decimal < 0.0000001) {
+		return value < 0 ? Math.ceil(value) : Math.floor(value);
+	}
+
+	if (decimal > 0.9999999) {
+		return value < 0 ? Math.floor(value) : Math.ceil(value);
+	}
+
+	return value;
+};
+
+const ceilButNotIfFloatingPointIssue = (value: number) => {
+	const fixed = fixFloatingPoint(value);
+	return Math.ceil(fixed);
 };
 
 export const convertAudioData = ({
@@ -24,6 +46,8 @@ export const convertAudioData = ({
 	trimStartInSeconds,
 	trimEndInSeconds,
 	playbackRate,
+	audioDataTimestamp,
+	isLast,
 }: ConvertAudioDataOptions): PcmS16AudioData => {
 	const {
 		numberOfChannels: srcNumberOfChannels,
@@ -39,15 +63,19 @@ export const convertAudioData = ({
 	// This might lead to overlapping, hopefully aligning perfectly!
 	// Test case: https://github.com/remotion-dev/remotion/issues/5758
 
-	const frameOffset = Math.floor(trimStartInSeconds * audioData.sampleRate);
-	const unroundedFrameCount =
-		numberOfFrames -
-		(trimEndInSeconds + trimStartInSeconds) * audioData.sampleRate;
-
-	const frameCount = Math.ceil(unroundedFrameCount);
-	const newNumberOfFrames = Math.ceil(
-		unroundedFrameCount / ratio / playbackRate,
+	const frameOffset = Math.floor(
+		fixFloatingPoint(trimStartInSeconds * audioData.sampleRate),
 	);
+	const unroundedFrameCount =
+		numberOfFrames - trimEndInSeconds * audioData.sampleRate - frameOffset;
+
+	const frameCount = isLast
+		? ceilButNotIfFloatingPointIssue(unroundedFrameCount)
+		: Math.round(unroundedFrameCount);
+
+	const newNumberOfFrames = isLast
+		? ceilButNotIfFloatingPointIssue(unroundedFrameCount / ratio / playbackRate)
+		: Math.round(unroundedFrameCount / ratio / playbackRate);
 
 	if (newNumberOfFrames === 0) {
 		throw new Error(
@@ -67,6 +95,9 @@ export const convertAudioData = ({
 	const data = new Int16Array(newNumberOfFrames * TARGET_NUMBER_OF_CHANNELS);
 	const chunkSize = frameCount / newNumberOfFrames;
 
+	const timestampOffsetMicroseconds =
+		(frameOffset / audioData.sampleRate) * 1_000_000;
+
 	if (
 		newNumberOfFrames === frameCount &&
 		TARGET_NUMBER_OF_CHANNELS === srcNumberOfChannels &&
@@ -76,7 +107,11 @@ export const convertAudioData = ({
 			data: srcChannels,
 			numberOfFrames: newNumberOfFrames,
 			timestamp:
-				audioData.timestamp + (frameOffset / audioData.sampleRate) * 1_000_000,
+				audioDataTimestamp * 1_000_000 +
+				fixFloatingPoint(timestampOffsetMicroseconds),
+			durationInMicroSeconds: fixFloatingPoint(
+				(newNumberOfFrames / TARGET_SAMPLE_RATE) * 1_000_000,
+			),
 		};
 	}
 
@@ -92,7 +127,11 @@ export const convertAudioData = ({
 		data,
 		numberOfFrames: newNumberOfFrames,
 		timestamp:
-			audioData.timestamp + (frameOffset / audioData.sampleRate) * 1_000_000,
+			audioDataTimestamp * 1_000_000 +
+			fixFloatingPoint(timestampOffsetMicroseconds),
+		durationInMicroSeconds: fixFloatingPoint(
+			(newNumberOfFrames / TARGET_SAMPLE_RATE) * 1_000_000,
+		),
 	};
 
 	return newAudioData;

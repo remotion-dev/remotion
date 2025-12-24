@@ -14,7 +14,7 @@ export const getDefaultCodecs = ({
 	compositionDefaultVideoCodec: Codec | null;
 	renderType: RenderType;
 }): {
-	initialAudioCodec: AudioCodec;
+	initialAudioCodec: AudioCodec | null;
 	initialVideoCodec: Codec;
 	initialRenderType: RenderType;
 	initialVideoCodecForAudioTab: Codec;
@@ -41,7 +41,7 @@ export const getDefaultCodecs = ({
 
 	if (isVideoCodecAnAudioCodec) {
 		return {
-			initialAudioCodec: userPreferredVideoCodec as AudioCodec,
+			initialAudioCodec: null,
 			initialRenderType: 'audio',
 			initialVideoCodec: userPreferredVideoCodec as Codec,
 			initialVideoCodecForAudioTab: userPreferredVideoCodecForAudioTab,

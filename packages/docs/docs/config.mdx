@@ -139,6 +139,18 @@ Config.setKeyboardShortcutsEnabled(false);
 
 The [command line flag](/docs/cli/studio#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
 
+## `setExperimentalClientSideRenderingEnabled()`<AvailableFrom v="4.0.387" />
+
+Enable experimental [client-side rendering](/docs/client-side-rendering) in the Remotion Studio. Default `false`.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalClientSideRenderingEnabled(true);
+```
+
+The [command line flag](/docs/cli/studio#--enable-experimental-client-side-rendering) `--enable-experimental-client-side-rendering` will take precedence over this option.
+
 ## `setWebpackPollingInMilliseconds()`<AvailableFrom v="3.3.11" />
 
 Enables Webpack polling instead of the file system event listeners for hot reloading.
@@ -213,6 +225,17 @@ Config.setChromiumDisableWebSecurity(true);
 ```
 
 The [command line flag](/docs/cli/render#--disable-web-security) `--disable-web-security` will take precedence over this option.
+
+## `setChromiumDarkMode()`<AvailableFrom v="4.0.381" />
+
+<Options id="dark-mode" />
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+Config.setChromiumDarkMode(true);
+```
 
 ## `setChromiumIgnoreCertificateErrors()`<AvailableFrom v="2.6.5" />
 
@@ -629,6 +652,10 @@ Config.setCrf(16);
 ```
 
 The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence over this option.
+
+:::note
+If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`setVideoBitrate()`](#setvideobitrate) option instead.
+:::
 
 ## `setVideoBitrate()`<AvailableFrom v="3.2.32" />
 

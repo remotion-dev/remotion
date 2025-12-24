@@ -41,7 +41,7 @@ Inline JSON string isn't supported on Windows shells because it removes the `"` 
 
 ### `--concurrency`
 
-[How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have (In Node.JS `os.cpus().length`). You can also provide a percentage value (e.g. 50%).
+[How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have (In Node.JS `os.cpus().length`). You can also provide a percentage value (e.g. `50%`).
 
 ### `--pixel-format`
 
@@ -126,6 +126,10 @@ Sets the output file path, as an alternative to the `output-location` positional
 
 [To set Constant Rate Factor (CRF) of the output](/docs/config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size. This option cannot be set if `--video-bitrate` is set.
 
+:::note
+If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`--video-bitrate`](#--video-bitrate) option instead.
+:::
+
 ### `--browser-executable`<AvailableFrom v="1.5.0" />
 
 [Path to a Chrome executable](/docs/config#setbrowserexecutable). If not specified and Remotion cannot find one, it will download one during rendering.
@@ -207,6 +211,10 @@ This will most notably disable CORS in Chrome among other security features.
 ### ~`--disable-headless`~<AvailableFrom v="2.6.5" />
 
 <Options id="disable-headless" />
+
+### `--dark-mode`<AvailableFrom v="4.0.381"/>
+
+<Options id="dark-mode" />
 
 ### `--gl`
 

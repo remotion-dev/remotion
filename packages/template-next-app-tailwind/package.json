@@ -11,7 +11,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "remotion": "remotion studio",
     "render": "remotion render",
     "deploy": "node deploy.mjs"
@@ -26,19 +26,21 @@
     "@remotion/shapes": "workspace:*",
     "@remotion/tailwind-v4": "workspace:*",
     "clsx": "2.1.1",
-    "next": "15.4.7",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "next": "16.0.10",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "remotion": "workspace:*",
     "zod": "3.23.8",
     "tailwind-merge": "3.0.1"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "4.1.1",
     "@remotion/eslint-plugin": "workspace:*",
     "@eslint/eslintrc": "3.1.0",
+    "@eslint/js": "9.38.0",
     "@types/node": "20.12.14",
-    "@types/react": "19.0.0",
-    "@types/react-dom": "19.0.0",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
     "@types/web": "0.0.166",
     "autoprefixer": "10.4.20",
     "dotenv": "16.0.3",
@@ -50,6 +52,7 @@
     "postcss": "8.4.47",
     "prettier": "3.6.0",
     "tailwindcss": "4.0.3",
-    "typescript": "5.8.2"
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.46.0"
   }
 }

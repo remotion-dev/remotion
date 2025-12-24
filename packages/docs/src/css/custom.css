@@ -199,6 +199,21 @@ code {
 	transform: none !important;
 }
 
+.deprecated-item > div > a::after,
+.deprecated-item > a::after {
+	content: 'Deprecated';
+	font-size: 12px;
+	opacity: 0.4;
+	border: 1px solid;
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	margin-left: 6px;
+	border-radius: 4px;
+	transform: none !important;
+}
+
 .wip-item > div > a::after,
 .wip-item > a::after {
 	content: 'Coming Soon';
@@ -254,4 +269,10 @@ code {
 }
 .header-x-link:hover::before {
 	background-color: var(--ifm-navbar-link-hover-color);
+}
+
+@media screen and (max-width: 996px) {
+	.copy-markdown-btn {
+		display: none !important;
+	}
 }

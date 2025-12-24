@@ -1,5 +1,7 @@
+import {registerUsageEvent} from '@remotion/licensing';
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
+import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -274,6 +276,7 @@ const innerRenderStill = async ({
 		isMainTab: true,
 		mediaCacheSizeInBytes,
 		initialMemoryAvailable: getAvailableMemory(logLevel),
+		darkMode: chromiumOptions.darkMode ?? false,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -289,6 +292,7 @@ const innerRenderStill = async ({
 			defaultOutName: string | null,
 			defaultVideoImageFormat: VideoImageFormat | null,
 			defaultPixelFormat: PixelFormat | null,
+			defaultProResProfile: _InternalTypes['ProResProfile'] | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -302,6 +306,7 @@ const innerRenderStill = async ({
 				compositionDefaultOutName: defaultOutName,
 				compositionDefaultVideoImageFormat: defaultVideoImageFormat,
 				compositionDefaultPixelFormat: defaultPixelFormat,
+				compositionDefaultProResProfile: defaultProResProfile,
 			});
 		},
 		args: [
@@ -315,6 +320,7 @@ const innerRenderStill = async ({
 			composition.defaultOutName,
 			composition.defaultVideoImageFormat,
 			composition.defaultPixelFormat,
+			composition.defaultProResProfile,
 		],
 		frame: null,
 		page,
@@ -412,7 +418,29 @@ const internalRenderStillRaw = (
 				});
 			})
 
-			.then((res) => resolve(res))
+			.then((res) => {
+				if (options.apiKey === null) {
+					resolve(res);
+					return;
+				}
+
+				registerUsageEvent({
+					apiKey: options.apiKey,
+					event: 'cloud-render',
+					host: null,
+					succeeded: true,
+				})
+					.then(() => {
+						Log.verbose(options, 'Usage event sent successfully');
+					})
+					.catch((err) => {
+						Log.error(options, 'Failed to send usage event');
+						Log.error(options, err);
+					})
+					.finally(() => {
+						resolve(res);
+					});
+			})
 			.catch((err) => reject(err))
 			.finally(() => {
 				cleanup.forEach((c) => {
@@ -474,6 +502,7 @@ export const renderStill = (
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		apiKey,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -540,6 +569,7 @@ export const renderStill = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		apiKey: apiKey ?? null,
 		onLog: defaultOnLog,
 	});
 };

@@ -5,15 +5,8 @@ crumb: 'API - @remotion/media'
 ---
 
 :::note
-This is documentation for the upcoming new `<Video>` tag.  
+This is documentation for the new `<Video>` tag.  
 Not to be confused with the older [`<Html5Video>` / `<Video>`](/docs/html5-video) tag from `remotion`.
-:::
-
-:::warning
-**Experimental**: This component is in an early stage and not yet feature complete.
-We recommend that you use [`<OffthreadVideo />`](/docs/offthreadvideo) for now.
-
-See the [progress of this component on our issue tracker](https://github.com/remotion-dev/remotion/issues/5650).
 :::
 
 This component imports and displays a video, similar to [`<OffthreadVideo/>`](/docs/offthreadvideo) but during rendering, extracts the exact frame from the video using [Mediabunny](/docs/mediabunny) and displays it in a `<canvas>` tag.
@@ -201,6 +194,11 @@ export const MyComposition = () => {
 };
 ```
 
+:::note
+When a video ends (and `loop` is not set), the last frame of the video remains visible by default.  
+This matches the behavior of [`<Html5Video>`](/docs/html5-video#loop).
+:::
+
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.354" />
 
 Controls the `frame` which is returned when using the [`volume`](#volume) callback function and adding the [`loop`](#loop) attribute.
@@ -251,10 +249,15 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 
 The value must stay the same across the entire time the video tag is mounted.
 
-:::note
-Currently only works during rendering.  
-Planning to support it during preview as well.
+:::warning
+Only works in server-side rendering.  
+Does not currently work in preview or in [client-side rendering](/docs/client-side-rendering/).
 :::
+
+### `headless?`<AvailableFrom v="4.0.387" />
+
+Does not mount a `<canvas>`, but still allows you to use the [`onVideoFrame`](#onvideoframe) prop.  
+This is useful for [embedding a video as a texture in Three.js](/docs/videos/as-threejs-texture).
 
 ### `fallbackOffthreadVideoProps?`
 
@@ -277,15 +280,24 @@ Maps to [`<OffthreadVideo />` -> `toneMapped`](/docs/offthreadvideo#tonemapped)
 
 Maps to [`<OffthreadVideo />` -> `onError`](/docs/offthreadvideo#onerror)
 
+#### `crossOrigin?`
+
+Maps to [`<OffthreadVideo />` -> `crossOrigin`](/docs/offthreadvideo#crossorigin)
+
 ### `disallowFallbackToOffthreadVideo?`<AvailableFrom v="3.0.356" />
 
 By default, if the video cannot be embedded using this tag, [a fallback to `<OffthreadVideo>`](/docs/media/fallback) will be attempted.
 
 Pass this prop to disable the fallback and fail the render instead.
 
+### `debugOverlay?`
+
+Shows a debug overlay on the video. This is useful for debugging the video playback.
+
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/media/src/video/video.tsx)
+- [Comparison of video tags](/docs/video-tags)
 - [`<Audio>` (from `@remotion/media`)](/docs/media/audio)
 - [`<Html5Video>` (from `remotion`)](/docs/html5-video)
 - [`<OffthreadVideo>`](/docs/offthreadvideo)

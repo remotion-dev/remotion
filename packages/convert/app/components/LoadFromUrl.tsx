@@ -1,3 +1,4 @@
+import {Button as RemotionButton} from '@remotion/design';
 import React, {useCallback, useMemo} from 'react';
 import {Button} from './ui/button';
 import {
@@ -56,10 +57,12 @@ export const LoadFromUrl: React.FC = () => {
 	return (
 		<>
 			<a
-				className="font-brand text-brand cursor cursor-pointer hover:underline"
+				className="font-brand text-brand cursor cursor-pointer"
 				onClick={onOpenUrl}
 			>
-				Load from URL
+				<RemotionButton className="rounded-full text-sm h-10">
+					Load from URL
+				</RemotionButton>
 			</a>
 			<Dialog open={open} onOpenChange={onOpenChange}>
 				<DialogContent>

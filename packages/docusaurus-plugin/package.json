@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/docusaurus-plugin",
-	"version": "4.0.357",
+	"version": "4.0.394",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
@@ -21,11 +21,11 @@
 		"shiki": "0.10.1",
 		"@typescript/twoslash": "3.2.1",
 		"@docusaurus/types": "3.6.0",
-		"@types/dom-webcodecs": "0.1.11"
+		"@types/dom-webcodecs": "catalog:"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"private": true,
 	"repository": {

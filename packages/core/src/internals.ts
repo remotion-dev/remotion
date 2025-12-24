@@ -9,7 +9,11 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from './audio/use-audio-frame.js';
-import {BufferingContextReact, BufferingProvider} from './buffering.js';
+import {
+	BufferingContextReact,
+	BufferingProvider,
+	useIsPlayerBuffering,
+} from './buffering.js';
 import {calculateMediaDuration} from './calculate-media-duration.js';
 import {
 	CanUseRemotionHooks,
@@ -28,6 +32,7 @@ import {
 	CompositionManager,
 	CompositionSetters,
 } from './CompositionManagerContext.js';
+import {CompositionManagerProvider} from './CompositionManagerProvider.js';
 import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {
@@ -45,11 +50,16 @@ import {
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {
+	getInputPropsOverride,
+	setInputPropsOverride,
+} from './input-props-override.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
 import {Log} from './log.js';
+import {MaxMediaCacheSizeContext} from './max-video-cache-size.js';
 import {NonceContext, SetNonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
 import {portalNode} from './portal-node.js';
@@ -58,12 +68,15 @@ import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
-import {RemotionRoot} from './RemotionRoot.js';
-import {RenderAssetManager} from './RenderAssetManager.js';
+import {RemotionRootContexts} from './RemotionRoot.js';
+import {
+	RenderAssetManager,
+	RenderAssetManagerProvider,
+} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
 	PROPS_UPDATED_EXTERNALLY,
-	ResolveCompositionConfig,
+	ResolveCompositionConfigInStudio,
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
@@ -73,22 +86,26 @@ import {
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
-import type {
-	SetTimelineContextValue,
-	TimelineContextValue,
-} from './timeline-position-state.js';
 import * as TimelinePosition from './timeline-position-state.js';
 import {
 	persistCurrentFrame,
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
+import {
+	SetTimelineContext,
+	TimelineContext,
+	type SetTimelineContextValue,
+	type TimelineContextValue,
+} from './TimelineContext.js';
 import {truthy} from './truthy.js';
 import {
 	calculateScale,
 	CurrentScaleContext,
 	PreviewSizeContext,
 } from './use-current-scale.js';
+import {DelayRenderContextType} from './use-delay-render.js';
 import {useLazyComponent} from './use-lazy-component.js';
+import {useAudioEnabled, useVideoEnabled} from './use-media-enabled.js';
 import {
 	useBasicMediaInTimeline,
 	useMediaInTimeline,
@@ -138,6 +155,7 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	MaxMediaCacheSizeContext,
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
@@ -152,7 +170,8 @@ export const Internals = {
 	CompositionSetters,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
-	RemotionRoot,
+	RemotionRootContexts,
+	CompositionManagerProvider,
 	useVideo,
 	getRoot,
 	useMediaVolumeState,
@@ -177,6 +196,7 @@ export const Internals = {
 	compositionsRef,
 	portalNode,
 	waitForRoot,
+	SetTimelineContext,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
 	PrefetchProvider,
@@ -191,7 +211,7 @@ export const Internals = {
 	resolveVideoConfig,
 	useResolvedVideoConfig,
 	resolveCompositionsRef,
-	ResolveCompositionConfig,
+	ResolveCompositionConfigInStudio,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 	RenderAssetManager,
 	persistCurrentFrame,
@@ -221,6 +241,15 @@ export const Internals = {
 	OBJECTFIT_CONTAIN_CLASS_NAME,
 	InnerOffthreadVideo,
 	useBasicMediaInTimeline,
+	getInputPropsOverride,
+	setInputPropsOverride,
+	useVideoEnabled,
+	useAudioEnabled,
+	useIsPlayerBuffering,
+	TimelinePosition,
+	DelayRenderContextType,
+	TimelineContext,
+	RenderAssetManagerProvider,
 } as const;
 
 export type {

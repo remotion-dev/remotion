@@ -26,6 +26,7 @@ const {
 	chromeModeOption,
 	audioLatencyHintOption,
 	mediaCacheSizeInBytesOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -77,17 +78,6 @@ export const listCompositionsCommand = async (
 		indent: false,
 	});
 
-	const chromiumOptions: ChromiumOptions = {
-		disableWebSecurity,
-		enableMultiProcessOnLinux: enableMultiprocessOnLinuxOption.getValue({
-			commandLine: parsedCli,
-		}).value,
-		gl: glOption.getValue({commandLine: parsedCli}).value,
-		headless: headlessOption.getValue({commandLine: parsedCli}).value,
-		ignoreCertificateErrors,
-		userAgent,
-	};
-
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 	const timeoutInMilliseconds = delayRenderTimeoutInMillisecondsOption.getValue(
 		{
@@ -97,6 +87,7 @@ export const listCompositionsCommand = async (
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
 	const offthreadVideoCacheSizeInBytes =
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
@@ -114,6 +105,18 @@ export const listCompositionsCommand = async (
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+
+	const chromiumOptions: Required<ChromiumOptions> = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux: enableMultiprocessOnLinuxOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		gl: glOption.getValue({commandLine: parsedCli}).value,
+		headless: headlessOption.getValue({commandLine: parsedCli}).value,
+		ignoreCertificateErrors,
+		userAgent,
+		darkMode,
+	};
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({

@@ -13,6 +13,10 @@ This document explains a few factors and settings that can be used to control th
 The main setting to control the quality of the video is the [Constant Rate Factor (CRF)](/docs/encoding/#controlling-quality-using-the-crf-setting).  
 All ways to render a video in Remotion allow passing a CRF value. Allowed values depend on the codec.
 
+:::note
+If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`--video-bitrate`](/docs/cli/render#--video-bitrate) option instead.
+:::
+
 ## Resolution (Unsharp text)
 
 A somewhat surprising way to lose quality is the fact that many computers have a high-density display, but the dimensions of a video don't consider that.

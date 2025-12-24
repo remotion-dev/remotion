@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/rive"
 	},
 	"name": "@remotion/rive",
-	"version": "4.0.357",
+	"version": "4.0.394",
 	"description": "Embed Rive animations in a Remotion video",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -28,10 +28,10 @@
 		"react-dom": ">=18.2.0"
 	},
 	"devDependencies": {
-		"react": "19.0.0",
-		"react-dom": "19.0.0",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

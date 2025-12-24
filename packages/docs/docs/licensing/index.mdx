@@ -7,32 +7,35 @@ crumb: API
 
 _available from v4.0.237_
 
-This package allows holders of the [company license](https://remotion.pro/license) to send events to Remotion to track the following usage of Remotion products:
-
-- Cloud renders
-- WebCodecs conversions
-
+This package allows holders of the [Company License](https://remotion.pro/license) to send events to Remotion to track the usage of renders.  
 Also, it offers an API to programmatically check the usage in order to implement spend controls.
 
 ### How do I use this package?
 
-On your company license dashboard on [remotion.pro](https://remotion.pro), you can find your public and secret API key.  
-You can use the public API key to register usage points and the secret API key to get the current usage.
+Not directly - you can directly pass the `licenseKey` option to track a render.
+
+**For [`@remotion/lambda`](/docs/lambda)**: Pass the `licenseKey` option to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey) to trigger an event.  
+**For [`@remotion/renderer`](/docs/renderer)**: Pass the `licenseKey` option to [`renderMedia()`](/docs/renderer/render-media#licensekey) and [`renderStill()`](/docs/renderer/render-still#licensekey) to trigger an event.  
+**For [`@remotion/web-renderer`](/docs/client-side-rendering/telemetry)**: An event is always sent. You must pass a real `licenseKey` or declare your eligibility for the free license using `licenseKey: "free-license"` - see: [Telemetry in client-side rendering](/docs/client-side-rendering/telemetry#setting-a-license-key).  
+**For [`@remotion/cloudrun`](/docs/cloudrun)** (_deprecated_): No telemetry is implemented. Use [`@remotion/licensing`](/docs/licensing) directly to track usage.  
+**For [`@remotion/webcodecs`](/docs/webcodecs)** (_deprecated_): Telemetry is enabled by default, but Remotion will not enforce the license for this deprecated package.
+
+On your company license dashboard on [remotion.pro](https://remotion.pro), you can find your license keys under the "Usage" tab.
 
 ### Do I need to use this package?
 
-**For Remotion, the framework**: It is voluntary to use this package.  
+For all versions below Remotion 5.0, it is **voluntary** to use this package.  
+An exception is [`@remotion/web-renderer`](/docs/client-side-rendering/telemetry), which will always send telemetry events.
+
 If you are not eligible for the free license, you need to get a company license and are required to keep your seat count up to date to cover all your renders.
 
-This package makes it easier to count the number of Remotion renders without having to set up any infrastructure yourself.
-
-**For [`@remotion/webcodecs`](/docs/webcodecs)**: This package is a dependency and conversions will trigger a call to [`registerUsagePoint()`](/docs/licensing/register-usage-point) automatically.  
-**For [`@remotion/lambda`](/docs/lambda)**: This package is a dependency and renders will trigger a call to [`registerUsagePoint()`](/docs/licensing/register-usage-point) if you pass the `apiKey` option.
+From Remotion 5.0, telemetry will be enabled for every render and it will be **mandatory** for customers to report renders using the `licenseKey` option.
 
 ### Can I use this package to count renders if I am eligible for the free license?
 
-Yes, you may still create a project on [remotion.pro](https://remotion.pro) and use this package to count renders and WebCodecs conversions.  
-You do not have to pay anything for the renders. This package is only used to count the number of renders, not for billing.
+Yes, you may still create a project on [remotion.pro](https://remotion.pro) and use this package to count renders.  
+You do not have to pay anything for the renders.  
+This package is only used to count the number of renders, not for billing.
 
 ### Will I get charged based on the usage?
 

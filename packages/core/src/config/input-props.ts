@@ -1,4 +1,5 @@
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
+import {getInputPropsOverride} from '../input-props-override.js';
 import {deserializeJSONWithSpecialTypes} from '../input-props-serialization.js';
 
 let didWarnSSRImport = false;
@@ -30,6 +31,20 @@ export const getInputProps = <
 	if (getRemotionEnvironment().isPlayer) {
 		throw new Error(
 			'You cannot call `getInputProps()` from a <Player>. Instead, the props are available as React props from component that you passed as `component` prop.',
+		);
+	}
+
+	const override = getInputPropsOverride();
+	if (override) {
+		return override as T;
+	}
+
+	if (
+		typeof window === 'undefined' ||
+		typeof window.remotion_inputProps === 'undefined'
+	) {
+		throw new Error(
+			'Cannot call `getInputProps()` - window.remotion_inputProps is not set. This API is only available if you are in the Studio, or while you are rendering server-side.',
 		);
 	}
 

@@ -3,7 +3,7 @@ import {useContext, useEffect} from 'react';
 import {useLogLevel, useMountTime} from './log-level-context.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import type {PlayableMediaTag} from './timeline-position-state.js';
-import {TimelineContext} from './timeline-position-state.js';
+import {TimelineContext} from './TimelineContext.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 export const useMediaTag = ({

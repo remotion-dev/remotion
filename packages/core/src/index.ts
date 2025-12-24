@@ -9,12 +9,14 @@ import type {
 	LoopDisplay,
 	TRenderAsset,
 } from './CompositionManager.js';
+import type {DelayRenderScope} from './delay-render.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import type {LogLevel} from './log.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import {Null} from './Null.js';
+import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import {Sequence} from './Sequence.js';
 import type {VideoConfig} from './video-config.js';
@@ -37,6 +39,7 @@ declare global {
 				startTime: number;
 			};
 		};
+		remotion_delayRenderHandles: number[];
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
 		// Fallback list of seen composition IDs, populated as early as possible by <Composition>
@@ -100,6 +103,7 @@ export type BundleCompositionState = {
 	compositionDefaultOutName: string | null;
 	compositionDefaultVideoImageFormat: VideoImageFormat | null;
 	compositionDefaultPixelFormat: PixelFormat | null;
+	compositionDefaultProResProfile: ProResProfile | null;
 };
 
 export type BundleIndexState = {
@@ -122,6 +126,7 @@ export {Artifact} from './Artifact.js';
 export {Audio, Html5Audio, RemotionAudioProps} from './audio/index.js';
 export type {LoopVolumeCurveBehavior} from './audio/use-audio-frame.js';
 export {cancelRender} from './cancel-render.js';
+export type {Codec} from './codec.js';
 export {
 	CalculateMetadataFunction,
 	Composition,
@@ -255,4 +260,6 @@ export type _InternalTypes = {
 	AudioOrVideoAsset: AudioOrVideoAsset;
 	TRenderAsset: TRenderAsset;
 	LoopDisplay: LoopDisplay;
+	ProResProfile: ProResProfile;
+	DelayRenderScope: DelayRenderScope;
 };

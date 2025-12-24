@@ -1,8 +1,8 @@
 ---
 image: /generated/articles-docs-troubleshooting-delay-render-proxy.png
-title: "Loading <Img> with src http://localhost:3000/proxy"
-sidebar_label: "Loading <Img> with src=http://localhost:3000/proxy..."
-crumb: "Troubleshooting"
+title: 'Loading <Img> with src http://localhost:3000/proxy'
+sidebar_label: 'Loading <Img> with src=http://localhost:3000/proxy...'
+crumb: 'Troubleshooting'
 ---
 
 The error message `A delayRender() "Loading <Img> with src=http://localhost:3000/proxy?src=[...]&time=[...]&transparent=[...]" was called but not cleared after 28000ms. See https://remotion.dev/docs/timeout for help`:
@@ -21,6 +21,12 @@ To be able to extract a frame, `<OffthreadVideo>` needs to:
 
 Especially for large files which take some time to download, this error may occur.
 
+## Use `<Video>` from `@remotion/media`
+
+The new [`<Video>`](/docs/media/video) tag from [`@remotion/media`](/docs/media) doesn't have the constraint that the entire video needs to be downloaded in order to extract a frame. Consider using it instead of `<OffthreadVideo>`.
+
+See: [Comparison of video tags](/docs/video-tags)
+
 ## Increase the timeout
 
 Consider increasing the timeout using the [`delayRenderTimeoutInMilliseconds`](/docs/offthreadvideo/#delayrendertimeoutinmilliseconds) prop.
@@ -38,12 +44,12 @@ If you are loading a large video, consider chunking it into smaller parts and on
 For example, create a `<Series>` of `<OffthreadVideo>` components, each with a different `src` prop.
 
 ```tsx twoslash
-import { Series, useVideoConfig, OffthreadVideo, staticFile } from "remotion";
+import {Series, useVideoConfig, OffthreadVideo, staticFile} from 'remotion';
 
-const parts = ["part1.mp4", "part2.mp4", "part3.mp4"];
+const parts = ['part1.mp4', 'part2.mp4', 'part3.mp4'];
 
 const SeriesTesting: React.FC = () => {
-  const { fps } = useVideoConfig();
+  const {fps} = useVideoConfig();
 
   return (
     <Series>

@@ -33,6 +33,7 @@ export const packages = [
 	'google-fonts',
 	'install-whisper-cpp',
 	'it-tests',
+	'react18-tests',
 	'lambda-go-example',
 	'lambda-go',
 	'lambda-php',
@@ -41,6 +42,7 @@ export const packages = [
 	'lambda',
 	'lambda-client',
 	'layout-utils',
+	'rounded-text-box',
 	'licensing',
 	'lottie',
 	'mcp',
@@ -78,6 +80,7 @@ export const packages = [
 	'whisper-web',
 	'media',
 	'web-renderer',
+	'design',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
@@ -100,6 +103,8 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	lottie: 'Include Lottie animations in Remotion',
 	licensing: 'Manage your Remotion.pro license',
 	'layout-utils': 'Utilities for working with layouts',
+	'rounded-text-box':
+		'Create a TikTok-like multiline text box SVG path with rounded corners',
 	noise: 'Noise generation functions',
 	'motion-blur': 'Motion blur effect for Remotion',
 	preload: 'Preloads assets for use in Remotion',
@@ -147,6 +152,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	bugs: null,
 	docs: null,
 	'it-tests': null,
+	'react18-tests': null,
 	'lambda-python': null,
 	'lambda-ruby': null,
 	'player-example': null,
@@ -166,6 +172,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'serverless-client': null,
 	media: 'Experimental WebCodecs-based media tags',
 	'web-renderer': 'Render videos in the browser (not yet released)',
+	design: 'Design system',
 };
 export const installableMap: {[key in Pkgs]: boolean} = {
 	'svg-3d-engine': false,
@@ -205,6 +212,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'install-whisper-cpp': true,
 	'whisper-web': true,
 	'it-tests': false,
+	'react18-tests': false,
 	'lambda-go-example': false,
 	'lambda-go': false,
 	'lambda-php': false,
@@ -213,6 +221,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	lambda: true,
 	mcp: true,
 	'layout-utils': true,
+	'rounded-text-box': true,
 	licensing: true,
 	lottie: true,
 	'media-utils': true,
@@ -247,6 +256,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'example-videos': false,
 	media: true,
 	'web-renderer': false,
+	design: false,
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -267,6 +277,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	lottie: 'https://www.remotion.dev/docs/lottie',
 	licensing: 'https://www.remotion.dev/docs/licensing',
 	'layout-utils': 'https://www.remotion.dev/docs/layout-utils',
+	'rounded-text-box': 'https://www.remotion.dev/docs/rounded-text-box',
 	noise: 'https://www.remotion.dev/docs/noise',
 	mcp: 'https://www.remotion.dev/docs/ai/mcp',
 	'motion-blur': 'https://www.remotion.dev/docs/motion-blur',
@@ -294,6 +305,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	bugs: null,
 	docs: null,
 	'it-tests': null,
+	'react18-tests': null,
 	'lambda-python': null,
 	'lambda-ruby': 'https://www.remotion.dev/docs/lambda/ruby',
 	'player-example': null,
@@ -333,4 +345,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	media: 'https://remotion.dev/docs/media',
 	// TODO: Add docs
 	'web-renderer': null,
+	design: 'https://www.remotion.dev/design',
 };

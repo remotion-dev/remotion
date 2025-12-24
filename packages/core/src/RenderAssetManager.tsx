@@ -1,8 +1,10 @@
 import {
 	createContext,
 	useCallback,
+	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import type {TRenderAsset} from './CompositionManager.js';
@@ -21,32 +23,54 @@ export const RenderAssetManager = createContext<RenderAssetManagerContext>({
 	renderAssets: [],
 });
 
+export type CollectAssetsRef = {
+	collectAssets: () => TRenderAsset[];
+};
+
 export const RenderAssetManagerProvider: React.FC<{
 	children: React.ReactNode;
-}> = ({children}) => {
+	collectAssets: null | React.RefObject<CollectAssetsRef | null>;
+}> = ({children, collectAssets}) => {
 	const [renderAssets, setRenderAssets] = useState<TRenderAsset[]>([]);
+	const renderAssetsRef = useRef<TRenderAsset[]>([]);
 
 	const registerRenderAsset = useCallback((renderAsset: TRenderAsset) => {
 		validateRenderAsset(renderAsset);
-		setRenderAssets((assets) => {
-			return [...assets, renderAsset];
-		});
+		renderAssetsRef.current = [...renderAssetsRef.current, renderAsset];
+		setRenderAssets(renderAssetsRef.current);
 	}, []);
 
+	if (collectAssets) {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useImperativeHandle(collectAssets, () => {
+			return {
+				collectAssets: () => {
+					const assets = renderAssetsRef.current;
+					renderAssetsRef.current = [];
+					setRenderAssets([]);
+					return assets;
+				},
+			};
+		}, []);
+	}
+
 	const unregisterRenderAsset = useCallback((id: string) => {
-		setRenderAssets((assts) => {
-			return assts.filter((a) => a.id !== id);
-		});
+		renderAssetsRef.current = renderAssetsRef.current.filter(
+			(a) => a.id !== id,
+		);
+		setRenderAssets(renderAssetsRef.current);
 	}, []);
 
 	useLayoutEffect(() => {
 		if (typeof window !== 'undefined') {
 			window.remotion_collectAssets = () => {
-				setRenderAssets([]); // clear assets at next render
-				return renderAssets;
+				const assets = renderAssetsRef.current;
+				renderAssetsRef.current = [];
+				setRenderAssets([]);
+				return assets;
 			};
 		}
-	}, [renderAssets]);
+	}, []);
 
 	const contextValue: RenderAssetManagerContext = useMemo(() => {
 		return {

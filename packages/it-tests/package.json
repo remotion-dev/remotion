@@ -3,10 +3,10 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/it-tests"
 	},
 	"name": "@remotion/it-tests",
-	"version": "4.0.357",
+	"version": "4.0.394",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"scripts": {
-		"test": " node --test src/node-version/media-parser.mjs && bun test src/rendering --run ",
+		"test": " node --test src/node-version/media-parser.mjs && bun test src/rendering --run",
 		"testssr": "bun test src/ssr src/bundle src/webcodecs src/templates src/monorepo --timeout 40000",
 		"testlambda": "exit 0",
 		"lint": "tsc -d",
@@ -14,7 +14,7 @@
 	},
 	"private": true,
 	"devDependencies": {
-		"@types/node": "20.12.14",
+		"@types/node": "catalog:",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/lambda": "workspace:*",
@@ -49,6 +49,6 @@
 		"create-video": "workspace:*",
 		"execa": "5.1.1",
 		"remotion": "workspace:*",
-		"sharp": "0.32.6"
+		"sharp": "catalog:"
 	}
 }

@@ -5,15 +5,8 @@ crumb: 'API - @remotion/media'
 ---
 
 :::note
-This is documentation for the upcoming new `<Audio>` tag.  
+This is documentation for the new `<Audio>` tag.  
 Not to be confused with the older [`<Html5Audio>` / `<Audio>`](/docs/html5-audio) tag from `remotion`.
-:::
-
-:::warning
-**Experimental**: This component is in an early stage and not yet feature complete.
-We recommend that you use [`<Html5Audio />`](/docs/html5-audio) for now.
-
-See the [progress of this component on our issue tracker](https://github.com/remotion-dev/remotion/issues/5650).
 :::
 
 This component imports and displays a video, similar to [`<Html5Audio />`](/docs/html5-audio) from `remotion` but during rendering, extracts the exact audio using [Mediabunny](/docs/mediabunny) instead of FFmpeg.
@@ -215,6 +208,11 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 
 The value must stay the same across the entire time the video tag is mounted.
 
+:::warning
+Only works in server-side rendering.  
+Does not currently work in preview or in [client-side rendering](/docs/client-side-rendering/).
+:::
+
 ### `fallbackHtml5AudioProps?`
 
 When a [fallback to `<Html5Audio>` from `remotion`](/docs/media/fallback) happens, this prop allows you to pass props to the fallback `<Html5Audio>` component.  
@@ -235,6 +233,10 @@ Maps to [`<Html5Audio />` -> `acceptableTimeShiftInSeconds`](/docs/html5-audio#a
 #### `pauseWhenBuffering?`
 
 Maps to [`<Html5Audio />` -> `pauseWhenBuffering`](/docs/html5-audio#pausewhenbuffering)
+
+#### `crossOrigin?`
+
+Maps to [`<Html5Audio />` -> `crossOrigin`](/docs/html5-audio#crossorigin)
 
 ### `disallowFallbackToHtml5Audio?`<AvailableFrom v="3.0.356" />
 

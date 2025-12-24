@@ -1,12 +1,14 @@
 import type {Template} from 'create-video';
 import React from 'react';
 import {Blank} from './icons/blank';
+import {BrainIcon} from './icons/brain';
 import {CodeHike} from './icons/code-hike';
 import {Cubes} from './icons/cubes';
 import {JSIcon} from './icons/js';
 import {MusicIcon} from './icons/music';
 import {NextIcon} from './icons/next';
 import {OverlayIcon} from './icons/overlay';
+import {PromptToVideoIcon} from './icons/prompt-to-video';
 import {Recorder} from './icons/recorder';
 import {RemixIcon} from './icons/remix';
 import {RenderServerIcon} from './icons/render-server';
@@ -165,11 +167,13 @@ export const IconForTemplate: React.FC<{
 		return <CodeHike style={{height: scale * 36}} />;
 	}
 
-	return (
-		<Blank
-			style={{
-				height: scale * 40,
-			}}
-		/>
-	);
+	if (template.cliId === 'prompt-to-video') {
+		return <PromptToVideoIcon style={{height: scale * 36}} />;
+	}
+
+	if (template.cliId === 'prompt-to-motion-graphics') {
+		return <BrainIcon style={{height: scale * 36}} />;
+	}
+
+	throw new Error(`Unknown template: ${template.cliId satisfies never}`);
 };

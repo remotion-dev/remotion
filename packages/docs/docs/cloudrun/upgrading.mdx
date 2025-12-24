@@ -16,7 +16,7 @@ import {Prerelease} from '../../components/PrereleaseVersion';
 - Determine the newest version from the [Releases page](https://github.com/remotion-dev/remotion/releases).
 - Upgrade all packages to the newest version (`@remotion/cloudrun`, but also `remotion`, `@remotion/cli` etc.)
 
-<Prerelease onlySnippet packageName="@remotion/cloudrun" />
+<Prerelease packageName="@remotion/cloudrun" />
 
 - (Optional): Remove the old versions of the service:
 
@@ -24,19 +24,19 @@ import {Prerelease} from '../../components/PrereleaseVersion';
 You only should do this if the service is not being used anymore. If you are still using it in production, you can just skip this step.
 :::
 
-```
+```sh
 npx remotion cloudrun services rmall -y
 ```
 
 - Deploy the newest version of the Remotion Cloud Run service:
 
-```
+```sh
 npx remotion cloudrun services deploy
 ```
 
 - Update the site:
 
-```
+```sh
 npx remotion cloudrun sites create src/index.ts --site-name=my-name
 ```
 

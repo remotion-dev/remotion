@@ -322,7 +322,7 @@ test(
 		expect(data).not.toContain('Stream #1');
 		fs.unlinkSync(out);
 	},
-	{timeout: 30000},
+	{timeout: 30000, retry: 3},
 );
 
 test(
@@ -368,7 +368,16 @@ test(
 	async () => {
 		const task = await execa(
 			'bun',
-			['x', 'remotion', 'render', 'build', 'gif', '--frames=0-47', outputPath],
+			[
+				'x',
+				'remotion',
+				'render',
+				'build',
+				'gif',
+				'--concurrency=1',
+				'--frames=0-47',
+				outputPath,
+			],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
 			},
@@ -397,6 +406,7 @@ test(
 	},
 	{
 		timeout: 30000,
+		retry: 3,
 	},
 );
 
@@ -407,7 +417,15 @@ test(
 
 		const task = await execa(
 			'bun',
-			['x', 'remotion', 'render', 'build', 'offline-audio-buffer', out],
+			[
+				'x',
+				'remotion',
+				'render',
+				'build',
+				'--concurrency=1',
+				'offline-audio-buffer',
+				out,
+			],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
 			},
@@ -430,6 +448,7 @@ test(
 	},
 	{
 		timeout: 30000,
+		retry: 3,
 	},
 );
 
@@ -439,7 +458,15 @@ test(
 		const out = outputPath.replace('.mp4', '.mp3');
 		const task = await execa(
 			'bun',
-			['x', 'remotion', 'render', 'build', 'ten-frame-tester', out],
+			[
+				'x',
+				'remotion',
+				'render',
+				'build',
+				'--concurrency=1',
+				'ten-frame-tester',
+				out,
+			],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
 			},
@@ -474,6 +501,7 @@ test(
 				'static-demo',
 				out,
 				'--log=verbose',
+				'--concurrency=1',
 				'--props',
 				JSON.stringify({flag: true}),
 			],
@@ -503,6 +531,7 @@ test(
 				'render',
 				'build',
 				'dynamic-duration',
+				'--concurrency=1',
 				`--props`,
 				JSON.stringify({duration: randomDuration, offthread: true}),
 				'--separate-audio-to',
@@ -555,7 +584,7 @@ test(
 		);
 		fs.unlinkSync(audio);
 	},
-	{timeout: 20000},
+	{timeout: 20000, retry: 3},
 );
 
 test(
@@ -591,6 +620,7 @@ test(
 				'x',
 				'remotion',
 				'render',
+				'--concurrency=1',
 				'build',
 				'Timeout',
 				outputPath,

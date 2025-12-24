@@ -1,6 +1,7 @@
 import type {ComponentType} from 'react';
 import React from 'react';
 import type {CompositionManagerContext} from 'remotion';
+import {ID} from './id.js';
 
 const Mock: React.FC = () => null;
 
@@ -8,7 +9,7 @@ export const makeMockCompositionManagerContext =
 	(): CompositionManagerContext => {
 		return {
 			currentCompositionMetadata: {
-				durationInFrames: 100,
+				durationInFrames: 500,
 				fps: 30,
 				height: 100,
 				width: 100,
@@ -17,11 +18,12 @@ export const makeMockCompositionManagerContext =
 				defaultOutName: null,
 				defaultVideoImageFormat: null,
 				defaultPixelFormat: null,
+				defaultProResProfile: null,
 			},
 			folders: [],
 			compositions: [
 				{
-					id: 'markup',
+					id: ID,
 					component: React.lazy(() =>
 						Promise.resolve({
 							default: Mock as ComponentType<unknown>,
@@ -41,7 +43,7 @@ export const makeMockCompositionManagerContext =
 			],
 			canvasContent: {
 				type: 'composition',
-				compositionId: 'markup',
+				compositionId: ID,
 			},
 		};
 	};

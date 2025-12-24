@@ -66,6 +66,7 @@ export const startStudio = async ({
 	maxTimelineTracks,
 	remotionRoot,
 	keyboardShortcutsEnabled,
+	experimentalClientSideRenderingEnabled,
 	relativePublicDir,
 	webpackOverride,
 	poll,
@@ -94,6 +95,7 @@ export const startStudio = async ({
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
+	experimentalClientSideRenderingEnabled: boolean;
 	relativePublicDir: string | null;
 	webpackOverride: WebpackOverrideFn;
 	poll: number | null;
@@ -162,6 +164,7 @@ export const startStudio = async ({
 		maxTimelineTracks,
 		remotionRoot,
 		keyboardShortcutsEnabled,
+		experimentalClientSideRenderingEnabled,
 		publicDir,
 		webpackOverride,
 		poll,

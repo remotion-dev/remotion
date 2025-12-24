@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/animated-emoji",
-	"version": "4.0.357",
+	"version": "4.0.394",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -42,6 +42,6 @@
 	"description": "Google Fonts Animated Emojis as Remotion components",
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	}
 }

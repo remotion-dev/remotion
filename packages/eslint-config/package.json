@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config"
 	},
 	"name": "@remotion/eslint-config",
-	"version": "4.0.357",
+	"version": "4.0.394",
 	"description": "Default configuration for Remotion templates (ESLint <= 8)",
 	"main": "dist/index.js",
 	"files": [
@@ -30,7 +30,7 @@
 		"eslint-plugin-react": "7.37.4",
 		"eslint-plugin-react-hooks": "4.6.0",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"keywords": [
 		"remotion",

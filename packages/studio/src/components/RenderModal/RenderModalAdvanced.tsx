@@ -77,6 +77,8 @@ export const RenderModalAdvanced: React.FC<{
 	>;
 	readonly codec: Codec;
 	readonly enableMultiProcessOnLinux: boolean;
+	readonly darkMode: boolean;
+	readonly setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setChromiumMultiProcessOnLinux: React.Dispatch<
 		React.SetStateAction<boolean>
 	>;
@@ -127,6 +129,8 @@ export const RenderModalAdvanced: React.FC<{
 	chromeModeOption,
 	setChromeModeOption,
 	setHardwareAcceleration,
+	darkMode,
+	setDarkMode,
 }) => {
 	const extendedOpenGlOptions: UiOpenGlOptions[] = useMemo(() => {
 		return [
@@ -220,6 +224,13 @@ export const RenderModalAdvanced: React.FC<{
 			},
 			[setUserAgent],
 		);
+
+	const onDarkMode = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			setDarkMode(e.target.checked);
+		},
+		[setDarkMode],
+	);
 
 	const onPlayBeepSound = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -429,9 +440,11 @@ export const RenderModalAdvanced: React.FC<{
 			</div>
 			{renderMode === 'audio' ? null : (
 				<div style={optionRow}>
-					<div style={label}>Custom @remotion/media cache size</div>
-					<Spacing x={0.5} />
-					<OptionExplainerBubble id="mediaCacheSizeInBytesOption" />
+					<div style={label}>
+						Custom @remotion/media cache size
+						<Spacing x={0.5} />
+						<OptionExplainerBubble id="mediaCacheSizeInBytesOption" />
+					</div>
 					<div style={rightRow}>
 						<Checkbox
 							checked={mediaCacheSizeInBytes !== null}
@@ -454,9 +467,11 @@ export const RenderModalAdvanced: React.FC<{
 			)}
 			{renderMode === 'audio' ? null : (
 				<div style={optionRow}>
-					<div style={label}>Custom OffthreadVideo cache</div>
-					<Spacing x={0.5} />
-					<OptionExplainerBubble id="offthreadVideoCacheSizeInBytesOption" />
+					<div style={label}>
+						Custom OffthreadVideo cache
+						<Spacing x={0.5} />
+						<OptionExplainerBubble id="offthreadVideoCacheSizeInBytesOption" />
+					</div>
 					<div style={rightRow}>
 						<Checkbox
 							checked={offthreadVideoCacheSizeInBytes !== null}
@@ -480,9 +495,10 @@ export const RenderModalAdvanced: React.FC<{
 			)}
 			{renderMode === 'audio' ? null : (
 				<div style={optionRow}>
-					<div style={label}>OffthreadVideo threads</div>
-					<Spacing x={0.5} />
-					<OptionExplainerBubble id="offthreadVideoThreadsOption" />
+					<div style={label}>
+						OffthreadVideo threads <Spacing x={0.5} />
+						<OptionExplainerBubble id="offthreadVideoThreadsOption" />
+					</div>
 					<div style={rightRow}>
 						<Checkbox
 							checked={offthreadVideoThreads !== null}
@@ -563,15 +579,27 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 			</div>
 			<div style={optionRow}>
-				<div style={label}>Multi-process Chrome on Linux</div>
-				<Spacing x={0.5} />
-				<OptionExplainerBubble id="enableMultiprocessOnLinuxOption" />
+				<div style={label}>
+					Multi-process Chrome on Linux
+					<Spacing x={0.5} />
+					<OptionExplainerBubble id="enableMultiprocessOnLinuxOption" />
+				</div>
 				<div style={rightRow}>
 					<Checkbox
 						checked={enableMultiProcessOnLinux}
 						onChange={onEnableMultiProcessOnLinux}
 						name="enable-multi-process-on-linux"
 					/>
+				</div>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>
+					Dark Mode
+					<Spacing x={0.5} />
+					<OptionExplainerBubble id="darkModeOption" />
+				</div>
+				<div style={rightRow}>
+					<Checkbox checked={darkMode} onChange={onDarkMode} name="dark-mode" />
 				</div>
 			</div>
 			<div style={optionRow}>

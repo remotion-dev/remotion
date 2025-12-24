@@ -12,84 +12,228 @@ All renders are done with the following Lambda configuration:
 - 2048 MB RAM (default)
 - 10GB Disk size (default from Remotion 5.0)
 - Default [concurrency](/docs/lambda/concurrency)
-- Warm Lambda functions (expect the first render to be more expensive)
 - `us-east-1` region
+- Remotion version 4.0.381
 
-Prices may also vary based on the region, heavyness of your bundle, fluctuations in latency.  
+Prices may also vary based on the region, heaviness of your bundle, fluctuations in latency.  
 We always recommend to measure the cost of your composition yourself.
 
 ## Rendering the Hello World project
 
 Rendering the [`HelloWorld`](https://github.com/remotion-dev/template-helloworld) composition of our default template.
 
-**Cost**: $0.001
+**Warm Lambda**: $0.001, 7.56sec  
+**Cold Lambda**: $0.001, 11.02sec
 
 ## Rendering a 1 minute Video in the same S3 bucket
 
 ```tsx twoslash title="OffthreadRemoteVideo.tsx"
-import {CalculateMetadataFunction, OffthreadVideo, staticFile} from 'remotion';
+// @filename: get-media-metadata.ts
+import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 
-export const calculateMetadataFn: CalculateMetadataFunction<{}> = async () => {
+export const getMediaMetadata = async (src: string) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  const durationInSeconds = await input.computeDuration();
+  const videoTrack = await input.getPrimaryVideoTrack();
+  const dimensions = videoTrack
+    ? {
+        width: videoTrack.displayWidth,
+        height: videoTrack.displayHeight,
+      }
+    : null;
+  const packetStats = await videoTrack?.computePacketStats();
+  const fps = packetStats?.averagePacketRate ?? null;
+
   return {
-    durationInFrames: 60 * 30,
-    fps: 30,
-    width: 1280,
-    height: 720,
+    durationInSeconds,
+    dimensions,
+    fps,
   };
 };
 
-export const OffthreadRemoteVideo: React.FC = () => {
-  return <OffthreadVideo src={staticFile('bigbuckbunny.mp4')} />;
+// @filename: index.tsx
+// ---cut---
+import React from 'react';
+import {Video} from '@remotion/media';
+import {CalculateMetadataFunction, Composition, staticFile} from 'remotion';
+// https://www.remotion.dev/docs/mediabunny/metadata
+import {getMediaMetadata} from './get-media-metadata';
+
+const src = staticFile('bigbuckbunny.mp4');
+
+export const calculateMetadataFn: CalculateMetadataFunction<Record<string, unknown>> = async () => {
+  const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);
+
+  return {
+    durationInFrames: Math.round(durationInSeconds * fps!), // 1440
+    fps: fps!,
+    width: dimensions!.width,
+    height: dimensions!.height,
+  };
 };
+
+export const Component = () => {
+  return <Video src={src} />;
+};
+
+export const VideoFromFileComp = () => {
+  return <Composition component={Component} id="VideoFromFile" calculateMetadata={calculateMetadataFn} />;
+};
+
+// In Root.tsx:
+// <VideoFromFileComp />
 ```
 
 [This](https://github.com/remotion-dev/remotion/blob/main/packages/example/public/bigbuckbunny.mp4) is the video file used.
 
-**Cost**: $0.021  
+**Warm Lambda**: $0.017, 18.91sec  
+**Cold Lambda**: $0.021, 15.52sec
+
 Rendering a video inside your video increases the cost significantly.
 
 ## Rendering a 10 minute Remote HD Video
 
 ```tsx twoslash title="OffthreadRemoteVideo.tsx"
-import {CalculateMetadataFunction, OffthreadVideo} from 'remotion';
+// @filename: get-media-metadata.ts
+import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 
-export const calculateMetadataFn: CalculateMetadataFunction<{}> = async () => {
+export const getMediaMetadata = async (src: string) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  const durationInSeconds = await input.computeDuration();
+  const videoTrack = await input.getPrimaryVideoTrack();
+  const dimensions = videoTrack
+    ? {
+        width: videoTrack.displayWidth,
+        height: videoTrack.displayHeight,
+      }
+    : null;
+  const packetStats = await videoTrack?.computePacketStats();
+  const fps = packetStats?.averagePacketRate ?? null;
+
   return {
-    durationInFrames: 10 * 60 * 30,
-    fps: 30,
-    width: 1280,
-    height: 720,
+    durationInSeconds,
+    dimensions,
+    fps,
   };
 };
 
-export const OffthreadRemoteVideo: React.FC = () => {
-  return <OffthreadVideo src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />;
+// @filename: index.tsx
+// ---cut---
+import React from 'react';
+import {Video} from '@remotion/media';
+import {CalculateMetadataFunction, Composition} from 'remotion';
+// https://www.remotion.dev/docs/mediabunny/metadata
+import {getMediaMetadata} from './get-media-metadata';
+
+const src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+
+export const calculateMetadataFn: CalculateMetadataFunction<Record<string, unknown>> = async () => {
+  const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);
+
+  return {
+    durationInFrames: Math.round(durationInSeconds * fps!), // 14315
+    fps: fps!,
+    width: dimensions!.width,
+    height: dimensions!.height,
+  };
 };
+
+export const Component = () => {
+  return <Video src={src} />;
+};
+
+export const NewVideoComp = () => {
+  return <Composition component={Component} id="NewVideo" calculateMetadata={calculateMetadataFn} />;
+};
+
+// In Root.tsx:
+// <NewVideoComp />
 ```
 
-**Cost**: $0.162
+**Cold Lambda**: $0.108, 60.98sec  
+**Warm Lambda**: $0.103, 56.09sec
 
 ## Rendering a 10 second Remote 4K Video
 
 ```tsx twoslash title="OffthreadRemoteVideo.tsx"
-import {CalculateMetadataFunction, OffthreadVideo} from 'remotion';
+// @filename: get-media-metadata.ts
+import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 
-export const calculateMetadataFn: CalculateMetadataFunction<{}> = async () => {
+export const getMediaMetadata = async (src: string) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  const durationInSeconds = await input.computeDuration();
+  const videoTrack = await input.getPrimaryVideoTrack();
+  const dimensions = videoTrack
+    ? {
+        width: videoTrack.displayWidth,
+        height: videoTrack.displayHeight,
+      }
+    : null;
+  const packetStats = await videoTrack?.computePacketStats();
+  const fps = packetStats?.averagePacketRate ?? null;
+
   return {
-    durationInFrames: 10 * 30,
-    fps: 30,
-    width: 3840,
-    height: 2160,
+    durationInSeconds,
+    dimensions,
+    fps,
   };
 };
 
-export const OffthreadRemoteVideo: React.FC = () => {
-  return <OffthreadVideo src="https://videos.pexels.com/video-files/5530402/5530402-uhd_3840_2160_25fps.mp4" />;
+// @filename: index.tsx
+// ---cut---
+import React from 'react';
+import {Video} from '@remotion/media';
+import {CalculateMetadataFunction, Composition} from 'remotion';
+// https://www.remotion.dev/docs/mediabunny/metadata
+import {getMediaMetadata} from './get-media-metadata';
+
+const src = 'https://videos.pexels.com/video-files/5530402/5530402-uhd_3840_2160_25fps.mp4';
+
+export const calculateMetadataFn: CalculateMetadataFunction<Record<string, unknown>> = async () => {
+  const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);
+
+  return {
+    durationInFrames: Math.round(durationInSeconds * fps!),
+    fps: fps!,
+    width: dimensions!.width,
+    height: dimensions!.height,
+  };
 };
+
+export const Component = () => {
+  return <Video src={src} />;
+};
+
+export const NewVideoComp = () => {
+  return <Composition component={Component} id="NewVideo" calculateMetadata={calculateMetadataFn} />;
+};
+
+// In Root.tsx:
+// <NewVideoComp />
 ```
 
-**Cost**: $0.017  
-Increasing the resolution to 4K does significantly increase the time to render and therfore the cost.
+**Cold Lambda**: $0.014, 53.09sec  
+**Warm Lambda**: $0.013, 45.28sec
+
+Increasing the resolution to 4K does significantly increase the time to render and therefore the cost.
 
 ## Additional cost
 

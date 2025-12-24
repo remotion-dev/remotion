@@ -7,14 +7,13 @@ import type {
 	FrameRange,
 	LogLevel,
 	PixelFormat,
-	ProResProfile,
 	StillImageFormat,
 	ToOptions,
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {DownloadBehavior} from 'remotion';
+import type {_InternalTypes, DownloadBehavior} from 'remotion';
 import type {ExpensiveChunk} from './most-expensive-chunks';
 import type {ChunkRetry, CloudProvider, ReceivedArtifact} from './types';
 import type {EnhancedErrorInfo} from './write-error-to-storage';
@@ -125,7 +124,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	crf: number | undefined | null;
 	envVariables: Record<string, string> | undefined;
 	pixelFormat: PixelFormat | undefined | null;
-	proResProfile: ProResProfile | undefined | null;
+	proResProfile: _InternalTypes['ProResProfile'] | undefined | null;
 	x264Preset: X264Preset | null;
 	jpegQuality: number | undefined;
 	maxRetries: number;
@@ -185,7 +184,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		crf: number | null;
 		envVariables: Record<string, string> | undefined;
 		pixelFormat: PixelFormat | null;
-		proResProfile: ProResProfile | null;
+		proResProfile: _InternalTypes['ProResProfile'] | null;
 		x264Preset: X264Preset | null;
 		jpegQuality: number | undefined;
 		maxRetries: number;
@@ -194,7 +193,8 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		frameRange: FrameRange | null;
 		outName: OutNameInput<Provider> | null;
 		timeoutInMilliseconds: number;
-		chromiumOptions: ChromiumOptions;
+		// Non-JS SDKs may not set chromiumOptions, may be undefined
+		chromiumOptions: ChromiumOptions | undefined;
 		scale: number;
 		everyNthFrame: number;
 		numberOfGifLoops: number | null;
@@ -239,7 +239,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		imageFormat: VideoImageFormat;
 		codec: ServerlessCodec;
 		crf: number | null;
-		proResProfile: ProResProfile | null;
+		proResProfile: _InternalTypes['ProResProfile'] | null;
 		x264Preset: X264Preset | null;
 		pixelFormat: PixelFormat | null;
 		jpegQuality: number | undefined;

@@ -31,7 +31,7 @@ export const usePlayer = (): UsePlayerMethods => {
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
 	const audioContext = useContext(Internals.SharedAudioContext);
-	const {audioAndVideoTags} = useContext(Internals.Timeline.TimelineContext);
+	const {audioAndVideoTags} = useContext(Internals.TimelineContext);
 
 	const frameRef = useRef<number>(frame);
 	frameRef.current = frame;

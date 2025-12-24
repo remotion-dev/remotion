@@ -1,16 +1,12 @@
-import type {
-	MediaParserAudioCodec,
-	MediaParserVideoCodec,
-} from '@remotion/media-parser';
-import type {ConvertMediaContainer} from '@remotion/webcodecs';
-import {getAvailableContainers} from '@remotion/webcodecs';
+import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
 import React from 'react';
 import {
-	getActualAudioConfigIndex,
+	getActualAudioOperation,
 	getActualVideoOperation,
 } from '~/lib/get-audio-video-config-index';
 import {getAudioOperationId, getVideoOperationId} from '~/lib/operation-key';
 import {renderHumanReadableContainer} from '~/lib/render-codec-label';
+import {outputContainers, type OutputContainer} from '~/seo';
 import {AudioCodecSelection} from './AudioCodecSelection';
 import type {SupportedConfigs} from './get-supported-configs';
 import {SelectionSkeleton} from './SelectionSkeleton';
@@ -23,21 +19,19 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from './ui/select';
+} from '@remotion/design';
 import {VideoCodecSelection} from './VideoCodecSelection';
 
 export const ConvertForm: React.FC<{
-	readonly container: ConvertMediaContainer;
-	readonly setContainer: React.Dispatch<
-		React.SetStateAction<ConvertMediaContainer>
-	>;
+	readonly container: OutputContainer;
+	readonly setContainer: React.Dispatch<React.SetStateAction<OutputContainer>>;
 	readonly supportedConfigs: SupportedConfigs | null;
 	readonly videoConfigIndexSelection: Record<number, string>;
 	readonly audioConfigIndexSelection: Record<number, string>;
 	readonly setAudioConfigIndex: (trackId: number, key: string) => void;
 	readonly setVideoConfigIndex: (trackId: number, key: string) => void;
-	readonly currentAudioCodec: MediaParserAudioCodec | null;
-	readonly currentVideoCodec: MediaParserVideoCodec | null;
+	readonly currentAudioCodec: InputAudioTrack['codec'] | null;
+	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
 }> = ({
 	container,
 	setContainer,
@@ -55,13 +49,13 @@ export const ConvertForm: React.FC<{
 				<Label htmlFor="container">Container</Label>
 				<Select
 					value={container}
-					onValueChange={(v) => setContainer(v as ConvertMediaContainer)}
+					onValueChange={(v) => setContainer(v as OutputContainer)}
 				>
 					<SelectTrigger id="container">
 						<SelectValue placeholder="Select a container" />
 					</SelectTrigger>
 					<SelectContent>
-						{getAvailableContainers().map((availableContainer) => {
+						{outputContainers.map((availableContainer) => {
 							return (
 								<SelectGroup key={availableContainer}>
 									<SelectItem value={availableContainer}>
@@ -113,7 +107,7 @@ export const ConvertForm: React.FC<{
 							/>
 							<AudioCodecSelection
 								index={getAudioOperationId(
-									getActualAudioConfigIndex({
+									getActualAudioOperation({
 										audioConfigIndexSelection,
 										enableConvert: true,
 										operations: track.operations,

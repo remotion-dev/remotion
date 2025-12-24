@@ -1,0 +1,65 @@
+---
+image: /generated/articles-docs-cli-add.png
+title: npx remotion add
+sidebar_label: add
+crumb: CLI Reference
+---
+
+Adds one or more Remotion packages to your project with the same version as your other Remotion packages.
+
+```
+npx remotion add <package-name...>
+```
+
+## Examples
+
+Add a single package:
+
+```bash
+npx remotion add @remotion/transitions
+```
+
+Add multiple packages at once:
+
+```bash
+npx remotion add @remotion/transitions @remotion/three @remotion/lottie
+```
+
+This command will:
+
+1. Verify that all package names are valid Remotion packages
+2. Check which packages are already installed (and skip them)
+3. Detect the version of your currently installed Remotion packages
+4. Install the specified packages with the matching version
+
+## Flags
+
+### `--package-manager`<AvailableFrom v="4.0.367"/>
+
+_optional_
+
+Forces a specific package manager to be used. By default, Remotion will auto-detect the package manager based on your lockfile.
+
+Acceptable values are `npm`, `yarn` and `pnpm`
+
+## Package manager support
+
+`npm`, `yarn` and `pnpm` are all supported.
+
+## Additional arguments
+
+Any additional arguments you pass to this command will be forwarded as flags to the package manager, before the package name.
+
+## Use case
+
+This command is useful when you want to add new Remotion packages to your project and ensure they're installed with the same version as your other Remotion packages. This helps avoid version mismatches that could cause compatibility issues.
+
+For example, if you have `remotion@4.0.100` installed and you want to add `@remotion/transitions`, running `npx remotion add @remotion/transitions` will install `@remotion/transitions@4.0.100`.
+
+When adding multiple packages, the command will install all of them in a single operation with the same version number.
+
+## See also
+
+- [Source code of this command](https://github.com/remotion-dev/remotion/blob/main/packages/cli/src/add.ts)
+- [npx remotion upgrade](/docs/cli/upgrade)
+- [npx remotion versions](/docs/cli/versions)

@@ -12,7 +12,6 @@ import type {
 	VolumeProp,
 } from 'remotion';
 import {
-	cancelRender,
 	Internals,
 	Loop,
 	random,
@@ -21,7 +20,7 @@ import {
 	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
-import {calculateMediaDuration} from '../../../core/src/calculate-media-duration';
+import {useMaxMediaCacheSize} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
@@ -49,6 +48,7 @@ type InnerVideoProps = {
 	readonly toneFrequency: number;
 	readonly trimBeforeValue: number | undefined;
 	readonly trimAfterValue: number | undefined;
+	readonly headless: boolean;
 };
 
 type FallbackToOffthreadVideo = {
@@ -76,6 +76,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	toneFrequency,
 	trimAfterValue,
 	trimBeforeValue,
+	headless,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -107,20 +108,39 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	);
 
 	const environment = useRemotionEnvironment();
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] = useState<
 		FallbackToOffthreadVideo | false
 	>(false);
 
+	const audioEnabled = Internals.useAudioEnabled();
+	const videoEnabled = Internals.useVideoEnabled();
+
+	const maxCacheSize = useMaxMediaCacheSize(logLevel);
+
+	const [error, setError] = useState<Error | null>(null);
+
+	if (error) {
+		throw error;
+	}
+
 	useLayoutEffect(() => {
-		if (!canvasRef.current) {
+		if (!canvasRef.current && !headless) {
 			return;
 		}
 
 		if (replaceWithOffthreadVideo) {
 			return;
+		}
+
+		if (!canvasRef.current?.getContext && !headless) {
+			return setError(
+				new Error(
+					'Canvas does not have .getContext() method available. This could be because <Video> was mounted inside an <svg> tag.',
+				),
+			);
 		}
 
 		const timestamp = frame / fps;
@@ -132,7 +152,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		});
 
 		const shouldRenderAudio = (() => {
-			if (!window.remotion_audioEnabled) {
+			if (!audioEnabled) {
 				return false;
 			}
 
@@ -150,13 +170,14 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			playbackRate,
 			logLevel,
 			includeAudio: shouldRenderAudio,
-			includeVideo: window.remotion_videoEnabled,
+			includeVideo: videoEnabled,
 			isClientSideRendering: environment.isClientSideRendering,
 			loop,
 			audioStreamIndex,
 			trimAfter: trimAfterValue,
 			trimBefore: trimBeforeValue,
 			fps,
+			maxCacheSize,
 		})
 			.then((result) => {
 				if (result.type === 'unknown-container-format') {
@@ -189,9 +210,31 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					}
 
 					if (window.remotion_isMainTab) {
-						Internals.Log.info(
+						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
 							`Cannot decode ${src}, falling back to <OffthreadVideo>`,
+						);
+					}
+
+					setReplaceWithOffthreadVideo({
+						durationInSeconds: result.durationInSeconds,
+					});
+					return;
+				}
+
+				if (result.type === 'cannot-decode-alpha') {
+					if (disallowFallbackToOffthreadVideo) {
+						cancelRender(
+							new Error(
+								`Cannot decode alpha component for ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,
+							),
+						);
+					}
+
+					if (window.remotion_isMainTab) {
+						Internals.Log.info(
+							{logLevel, tag: '@remotion/media'},
+							`Cannot decode alpha component for ${src}, falling back to <OffthreadVideo>`,
 						);
 					}
 
@@ -211,9 +254,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					}
 
 					if (window.remotion_isMainTab) {
-						Internals.Log.info(
+						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
-							`Network error fetching ${src}, falling back to <OffthreadVideo>`,
+							`Network error fetching ${src} (no CORS?), falling back to <OffthreadVideo>`,
 						);
 					}
 
@@ -226,30 +269,28 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					audio,
 					durationInSeconds: assetDurationInSeconds,
 				} = result;
+
 				if (imageBitmap) {
 					onVideoFrame?.(imageBitmap);
-					const context = canvasRef.current?.getContext('2d');
-					if (!context) {
-						return;
+					const context = canvasRef.current?.getContext('2d', {
+						alpha: true,
+					});
+					// Could be in headless mode
+					if (context) {
+						context.canvas.width = imageBitmap.width;
+						context.canvas.height = imageBitmap.height;
+
+						context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
+						context.drawImage(imageBitmap, 0, 0);
 					}
 
-					context.canvas.width =
-						imageBitmap instanceof ImageBitmap
-							? imageBitmap.width
-							: imageBitmap.displayWidth;
-					context.canvas.height =
-						imageBitmap instanceof ImageBitmap
-							? imageBitmap.height
-							: imageBitmap.displayHeight;
-					context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
-					context.drawImage(imageBitmap, 0, 0);
-
 					imageBitmap.close();
-				} else if (window.remotion_videoEnabled) {
-					// In the case of https://discord.com/channels/809501355504959528/809501355504959531/1424400511070765086
+				} else if (videoEnabled) {
 					// A video that only starts at time 0.033sec
 					// we shall not crash here but clear the canvas
-					const context = canvasRef.current?.getContext('2d');
+					const context = canvasRef.current?.getContext('2d', {
+						alpha: true,
+					});
 					if (context) {
 						context.clearRect(
 							0,
@@ -282,7 +323,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					registerRenderAsset({
 						type: 'inline-audio',
 						id,
-						audio: Array.from(audio.data),
+						audio: environment.isClientSideRendering
+							? audio.data
+							: Array.from(audio.data),
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
 						duration: (audio.numberOfFrames / TARGET_SAMPLE_RATE) * 1_000_000,
@@ -292,8 +335,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 				continueRender(newHandle);
 			})
-			.catch((error) => {
-				cancelRender(error);
+			.catch((err) => {
+				cancelRender(err);
 			});
 
 		return () => {
@@ -327,6 +370,11 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		toneFrequency,
 		trimAfterValue,
 		trimBeforeValue,
+		audioEnabled,
+		videoEnabled,
+		maxCacheSize,
+		cancelRender,
+		headless,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -351,7 +399,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				}
 				style={style}
 				allowAmplificationDuringRender
-				transparent={fallbackOffthreadVideoProps?.transparent ?? false}
+				transparent={fallbackOffthreadVideoProps?.transparent ?? true}
 				toneMapped={fallbackOffthreadVideoProps?.toneMapped ?? true}
 				audioStreamIndex={audioStreamIndex ?? 0}
 				name={name}
@@ -360,14 +408,14 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				volume={volumeProp}
 				id={id}
 				onError={fallbackOffthreadVideoProps?.onError}
-				toneFrequency={fallbackOffthreadVideoProps?.toneFrequency ?? 1}
+				toneFrequency={toneFrequency}
 				// these shouldn't matter during rendering / should not appear at all
 				showInTimeline={false}
 				crossOrigin={undefined}
 				onAutoPlayError={() => undefined}
 				pauseWhenBuffering={false}
-				trimAfter={undefined}
-				trimBefore={undefined}
+				trimAfter={trimAfterValue}
+				trimBefore={trimBeforeValue}
 				useWebAudioApi={false}
 				startFrom={undefined}
 				endAt={undefined}
@@ -378,17 +426,19 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 		if (loop) {
 			if (!replaceWithOffthreadVideo.durationInSeconds) {
-				cancelRender(
-					new Error(
-						`Cannot render video ${src}: @remotion/media was unable to render, and fell back to <OffthreadVideo>. Also, "loop" was set, but <OffthreadVideo> does not support looping and @remotion/media could also not determine the duration of the video.`,
-					),
+				const err = new Error(
+					`Cannot render video ${src}: @remotion/media was unable to render, and fell back to <OffthreadVideo>. Also, "loop" was set, but <OffthreadVideo> does not support looping and @remotion/media could also not determine the duration of the video.`,
 				);
+
+				cancelRender(err);
+
+				throw err;
 			}
 
 			return (
 				<Loop
 					layout="none"
-					durationInFrames={calculateMediaDuration({
+					durationInFrames={Internals.calculateMediaDuration({
 						trimAfter: trimAfterValue,
 						mediaDurationInFrames:
 							replaceWithOffthreadVideo.durationInSeconds * fps,
@@ -402,6 +452,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		}
 
 		return fallback;
+	}
+
+	if (headless) {
+		return null;
 	}
 
 	return <canvas ref={canvasRef} style={style} className={classNameValue} />;

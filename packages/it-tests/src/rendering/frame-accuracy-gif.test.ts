@@ -25,6 +25,7 @@ const getMissedFramesforCodec = async () => {
 			'x',
 			'remotion',
 			'render',
+			'build',
 			`video-testing-mp4-offthread`,
 			'--codec=gif',
 			'--every-nth-frame=2',

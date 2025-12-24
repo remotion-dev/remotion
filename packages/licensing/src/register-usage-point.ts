@@ -31,31 +31,48 @@ export const registerUsageEvent = async ({
 	succeeded: boolean;
 	event: UsageEventType;
 }): Promise<RegisterUsageEventResponse> => {
-	const res = await fetch(`${HOST}/api/track/register-usage-point`, {
-		method: 'POST',
-		body: JSON.stringify({
-			event,
-			apiKey,
-			host,
-			succeeded,
-		}),
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	});
-	const json = (await res.json()) as ApiResponse;
+	const abortController = new AbortController();
+	const timeout = setTimeout(() => {
+		abortController.abort();
+	}, 10000);
 
-	if (json.success) {
-		return {
-			billable: json.billable,
-			classification: json.classification,
-		};
+	try {
+		const res = await fetch(`${HOST}/api/track/register-usage-point`, {
+			method: 'POST',
+			body: JSON.stringify({
+				event,
+				apiKey,
+				host,
+				succeeded,
+			}),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			signal: abortController.signal,
+		});
+		clearTimeout(timeout);
+
+		const json = (await res.json()) as ApiResponse;
+
+		if (json.success) {
+			return {
+				billable: json.billable,
+				classification: json.classification,
+			};
+		}
+
+		if (!res.ok) {
+			throw new Error(json.error);
+		}
+
+		const read = await res.json();
+		return read;
+	} catch (err) {
+		clearTimeout(timeout);
+		if (err instanceof Error && err.name === 'AbortError') {
+			throw new Error('Request timed out after 10 seconds');
+		}
+
+		throw err;
 	}
-
-	if (!res.ok) {
-		throw new Error(json.error);
-	}
-
-	const read = await res.json();
-	return read;
 };

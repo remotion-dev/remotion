@@ -46,6 +46,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>Copy and Paste</strong>
 					<div>How it is implemented in the Editor Starter</div>
 				</TOCItem>
+				<TOCItem link="/docs/editor-starter/cropping">
+					<strong>Cropping</strong>
+					<div>Mechanics, UI, state management</div>
+				</TOCItem>
 				<TOCItem link="/docs/editor-starter/fonts">
 					<strong>Fonts</strong>
 					<div>How fonts work and which ones are included</div>

@@ -206,32 +206,19 @@ export const makeInlineAudioMixing = (dir: string) => {
 		const isLast = asset.frame === totalNumberOfFrames + firstFrame - 1;
 		const samplesToShaveFromStart = trimLeftOffset * DEFAULT_SAMPLE_RATE;
 		const samplesToShaveFromEnd = trimRightOffset * DEFAULT_SAMPLE_RATE;
-		if (
-			Math.abs(Math.round(samplesToShaveFromEnd) - samplesToShaveFromEnd) >
-			0.0000001
-		) {
-			throw new Error(
-				`samplesToShaveFromEnd should be approximately an integer, is${samplesToShaveFromEnd}`,
-			);
-		}
 
-		if (
-			Math.abs(Math.round(samplesToShaveFromStart) - samplesToShaveFromStart) >
-			0.0000001
-		) {
-			throw new Error(
-				`samplesToShaveFromStart should be approximately an integer, is ${samplesToShaveFromStart}`,
-			);
-		}
+		// Higher tolerance is needed for floating point videos
+		// Rendering https://github.com/remotion-dev/remotion/pull/5920 in native frame rate
+		// could hit this case
 
 		if (isFirst) {
-			arr = arr.slice(Math.round(samplesToShaveFromStart) * NUMBER_OF_CHANNELS);
+			arr = arr.slice(Math.floor(samplesToShaveFromStart) * NUMBER_OF_CHANNELS);
 		}
 
 		if (isLast) {
 			arr = arr.slice(
 				0,
-				arr.length + Math.round(samplesToShaveFromEnd) * NUMBER_OF_CHANNELS,
+				arr.length + Math.ceil(samplesToShaveFromEnd) * NUMBER_OF_CHANNELS,
 			);
 		}
 

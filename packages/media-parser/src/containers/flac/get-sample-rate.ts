@@ -7,7 +7,7 @@ export const getSampleRate = (
 	state: ParserState,
 ): number | 'uncommon-u8' | 'uncommon-u16' | 'uncommon-u16-10' => {
 	const mode = iterator.getBits(4);
-	if (mode === 0b0000) {
+	if (mode === 0b0000 || mode === 0b1111) {
 		const structure = state.structure.getFlacStructure();
 		const sampleRate =
 			structure.boxes.find((box) => box.type === 'flac-streaminfo')

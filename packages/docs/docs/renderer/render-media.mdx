@@ -94,9 +94,9 @@ Specify a single frame (passing a `number`) or a range of frames (passing a tupl
 
 _optional_
 
-A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use (e.g. `50%`), or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
 
-### `metadata`<AvailableFrom v="4.0.216" />
+### `metadata?`<AvailableFrom v="4.0.216" />
 
 _object - optional_
 
@@ -136,6 +136,10 @@ Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and s
 _number | null - optional_
 
 The constant rate factor, controlling the quality. See: [Controlling quality using the CRF setting.](/docs/encoding/#controlling-quality-using-the-crf-setting)
+
+:::note
+If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`videoBitrate`](#videobitrate) option instead.
+:::
 
 ### `bufferSize?`<AvailableFrom v="4.0.78" />
 
@@ -276,10 +280,11 @@ import {RenderMediaOnProgress} from '@remotion/renderer';
 
 const onProgress: RenderMediaOnProgress = ({renderedFrames, encodedFrames, encodedDoneIn, renderedDoneIn, stitchStage}) => {
   if (stitchStage === 'encoding') {
-    // First pass, parallel rendering of frames and encoding into video
+    // Rendering frames and encoding into video
     console.log('Encoding...');
   } else if (stitchStage === 'muxing') {
-    // Second pass, adding audio to the video
+    // If parallel rendering and encoding is being used, a second stage is used to
+    // encode the audio and combine it with the video. This stage does not occur on every render.
     console.log('Muxing audio...');
   }
   // Amount of frames rendered into images
@@ -486,6 +491,10 @@ An option to be used only if implementing a distributed renderer, see [Distribut
 ### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 
 <Options id="on-browser-download" />
+
+### `apiKey?`<AvailableFrom v="4.0.375"/>
+
+<Options id="api-key" />
 
 ### ~~`parallelism?`~~
 

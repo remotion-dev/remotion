@@ -1,29 +1,9 @@
-import {
-	makeMockCompositionManagerContext,
-	makeTimelineContext,
-} from '@remotion/test-utils';
 import {expect, test} from 'bun:test';
-import {renderToString} from 'react-dom/server';
-import {AbsoluteFill, Internals} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 import {TransitionSeries} from '../TransitionSeries.js';
 import {fade} from '../presentations/fade.js';
 import {linearTiming} from '../timings/linear-timing.js';
-
-const renderForFrame = (frame: number, markup: React.ReactNode) => {
-	return renderToString(
-		<Internals.CanUseRemotionHooksProvider>
-			<Internals.CompositionManager.Provider
-				value={makeMockCompositionManagerContext()}
-			>
-				<Internals.Timeline.TimelineContext.Provider
-					value={makeTimelineContext(frame)}
-				>
-					{markup}
-				</Internals.Timeline.TimelineContext.Provider>
-			</Internals.CompositionManager.Provider>
-		</Internals.CanUseRemotionHooksProvider>,
-	);
-};
+import {renderForFrame} from './render-for-frame.js';
 
 const Letter: React.FC<{
 	children: React.ReactNode;

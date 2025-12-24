@@ -1,20 +1,14 @@
-import { Html5Video, staticFile } from "remotion";
-import { getVideoMetadata, VideoMetadata } from "@remotion/media-utils";
 import { ThreeCanvas } from "@remotion/three";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useMemo } from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
 import { Phone } from "./Phone";
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
-import { useTexture } from "./use-texture";
+import { MediabunnyMetadata } from "./helpers/get-media-metadata";
+import { getPhoneLayout } from "./helpers/layout";
 
 const container: React.CSSProperties = {
   backgroundColor: "white",
-};
-
-const videoStyle: React.CSSProperties = {
-  position: "absolute",
-  opacity: 0,
 };
 
 export const myCompSchema = z.object({
@@ -27,43 +21,41 @@ type MyCompSchemaType = z.infer<typeof myCompSchema>;
 export const Scene: React.FC<
   {
     readonly baseScale: number;
+    mediaMetadata: MediabunnyMetadata | null;
+    videoSrc: string | null;
   } & MyCompSchemaType
-> = ({ baseScale, phoneColor, deviceType }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+> = ({ baseScale, phoneColor, mediaMetadata, videoSrc }) => {
   const { width, height } = useVideoConfig();
-  const [videoData, setVideoData] = useState<VideoMetadata | null>(null);
 
-  const videoSrc =
-    deviceType === "phone" ? staticFile("phone.mp4") : staticFile("tablet.mp4");
+  if (!mediaMetadata) {
+    throw new Error("Media metadata is not available");
+  }
+  if (!videoSrc) {
+    throw new Error("Video source is not available");
+  }
 
-  useEffect(() => {
-    getVideoMetadata(videoSrc)
-      .then((data) => setVideoData(data))
-      .catch((err) => console.log(err));
-  }, [videoSrc]);
+  const aspectRatio = useMemo(
+    () => mediaMetadata.dimensions.width / mediaMetadata.dimensions.height,
+    [mediaMetadata.dimensions.width, mediaMetadata.dimensions.height],
+  );
 
-  const texture = useTexture(videoSrc, videoRef);
+  const layout = useMemo(
+    () => getPhoneLayout(aspectRatio, baseScale),
+    [aspectRatio, baseScale],
+  );
 
   return (
     <AbsoluteFill style={container}>
-      <Html5Video
-        ref={videoRef}
-        src={videoSrc}
-        style={videoStyle}
-        pauseWhenBuffering
-      />
-      {videoData ? (
-        <ThreeCanvas linear width={width} height={height}>
-          <ambientLight intensity={1.5} color={0xffffff} />
-          <pointLight position={[10, 10, 0]} />
-          <Phone
-            phoneColor={phoneColor}
-            baseScale={baseScale}
-            videoTexture={texture}
-            aspectRatio={videoData.aspectRatio}
-          />
-        </ThreeCanvas>
-      ) : null}
+      <ThreeCanvas linear width={width} height={height}>
+        <ambientLight intensity={1.5} color={0xffffff} />
+        <pointLight position={[10, 10, 0]} />
+        <Phone
+          phoneColor={phoneColor}
+          phoneLayout={layout}
+          mediaMetadata={mediaMetadata}
+          videoSrc={videoSrc}
+        />
+      </ThreeCanvas>
     </AbsoluteFill>
   );
 };

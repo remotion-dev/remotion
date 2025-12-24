@@ -18,10 +18,10 @@ This project is released with a [Contributor Code of Conduct](https://remotion.d
 
 ## Setup
 
-<Step>1</Step> Remotion uses [`Bun`](https://bun.com) v1.3.0 as the package manager for development in this repository. The version must be at least `1.3.0`.
+<Step>1</Step> Remotion uses [`Bun`](https://bun.com) v1.3.3 as the package manager for development in this repository. The version must be at least `1.3.3`.
 
-```
-curl -fsSL https://bun.com/install | bash -s "bun-v1.3.0"
+```sh
+curl -fsSL https://bun.com/install | bash -s "bun-v1.3.3"
 ```
 
 <Step>2</Step> Clone the Remotion repository:
@@ -108,10 +108,10 @@ bun run start
 
 ## Running the CLI
 
-You can test changes to the CLI by moving to `packages/examples` directory and using `bunx` to execute the CLI:
+You can test changes to the CLI by moving to `packages/example` directory and using `bunx` to execute the CLI:
 
 ```sh
-cd packages/examples
+cd packages/example
 # Example - Get available compositions
 bunx remotion compositions
 # Example - Render command
@@ -155,6 +155,10 @@ bun run clean
 ```
 
 in the root directory. Make sure to beforehand kill any `bun run watch` commands, as those might regenerate files as you clean them!
+
+## Developing new transition presentations
+
+To develop new transition presentations, see [here](/docs/contributing/presentation).
 
 ## Developing Rust parts
 

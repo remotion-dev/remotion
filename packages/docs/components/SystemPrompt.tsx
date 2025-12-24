@@ -1,6 +1,7 @@
 // @ts-expect-error
 import CodeBlock from '@theme/CodeBlock';
 import React from 'react';
+// eslint-disable-next-line no-restricted-imports
 import {SYSTEM_PROMPT} from '../src/helpers/system-prompt';
 
 export const SystemPrompt: React.FC = () => {

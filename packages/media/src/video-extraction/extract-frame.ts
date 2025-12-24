@@ -11,7 +11,9 @@ type ExtractFrameResult =
 			durationInSeconds: number | null;
 	  }
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
-	| {type: 'unknown-container-format'};
+	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
+	| {type: 'unknown-container-format'}
+	| {type: 'network-error'};
 
 type ExtractFrameParams = {
 	src: string;
@@ -22,6 +24,7 @@ type ExtractFrameParams = {
 	trimBefore: number | undefined;
 	playbackRate: number;
 	fps: number;
+	maxCacheSize: number;
 };
 
 const extractFrameInternal = async ({
@@ -33,6 +36,7 @@ const extractFrameInternal = async ({
 	trimBefore,
 	playbackRate,
 	fps,
+	maxCacheSize,
 }: ExtractFrameParams): Promise<ExtractFrameResult> => {
 	const sink = await getSink(src, logLevel);
 
@@ -48,6 +52,10 @@ const extractFrameInternal = async ({
 
 	if (video === 'unknown-container-format') {
 		return {type: 'unknown-container-format'};
+	}
+
+	if (video === 'network-error') {
+		return {type: 'network-error'};
 	}
 
 	let mediaDurationInSeconds: number | null = null;
@@ -82,7 +90,15 @@ const extractFrameInternal = async ({
 		timestamp: timeInSeconds,
 		src,
 		logLevel,
+		maxCacheSize,
 	});
+
+	if (keyframeBank === 'has-alpha') {
+		return {
+			type: 'cannot-decode-alpha',
+			durationInSeconds: await sink.getDuration(),
+		};
+	}
 
 	if (!keyframeBank) {
 		return {

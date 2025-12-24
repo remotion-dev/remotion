@@ -1,14 +1,23 @@
-import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
 import {
 	Internals,
 	Audio as RemotionAudio,
 	useBufferState,
 	useCurrentFrame,
+	useVideoConfig,
 } from 'remotion';
+import {getTimeInSeconds} from '../get-time-in-seconds';
+import {MediaPlayer} from '../media-player';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
-import {MediaPlayer} from '../video/media-player';
 import type {FallbackHtml5AudioProps} from './props';
 
 const {
@@ -43,7 +52,7 @@ type NewAudioForPreviewProps = {
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
 };
 
-const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
+const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	src,
 	playbackRate,
 	logLevel,
@@ -64,20 +73,24 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
+	const initialTrimBeforeRef = useRef(trimBefore);
+	const initialTrimAfterRef = useRef(trimAfter);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
 	const [shouldFallbackToNativeAudio, setShouldFallbackToNativeAudio] =
 		useState(false);
 
 	const [playing] = Timeline.usePlayingState();
-	const timelineContext = useContext(Timeline.TimelineContext);
+	const timelineContext = useContext(Internals.TimelineContext);
 	const globalPlaybackRate = timelineContext.playbackRate;
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
-	const delayHandleRef = useRef<{unblock: () => void} | null>(null);
 
 	const [mediaMuted] = useMediaMutedState();
 	const [mediaVolume] = useMediaVolumeState();
+	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
+		number | null
+	>(null);
 
 	const volumePropFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
@@ -107,10 +120,12 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 	const preloadedSrc = usePreload(src);
 
 	const parentSequence = useContext(SequenceContext);
+	const isPremounting = Boolean(parentSequence?.premounting);
+	const isPostmounting = Boolean(parentSequence?.postmounting);
 
 	const loopDisplay = useLoopDisplay({
 		loop,
-		mediaDurationInSeconds: videoConfig.durationInFrames,
+		mediaDurationInSeconds,
 		playbackRate,
 		trimAfter,
 		trimBefore,
@@ -132,6 +147,21 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		trimBefore,
 	});
 
+	const bufferingContext = useContext(Internals.BufferingContextReact);
+
+	if (!bufferingContext) {
+		throw new Error(
+			'useMediaPlayback must be used inside a <BufferingContext>',
+		);
+	}
+
+	const isPlayerBuffering = Internals.useIsPlayerBuffering(bufferingContext);
+	const initialPlaying = useRef(playing && !isPlayerBuffering);
+	const initialIsPremounting = useRef(isPremounting);
+	const initialIsPostmounting = useRef(isPostmounting);
+	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
+	const initialPlaybackRate = useRef(playbackRate);
+
 	useEffect(() => {
 		if (!sharedAudioContext) return;
 		if (!sharedAudioContext.audioContext) return;
@@ -142,12 +172,19 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 				logLevel,
 				sharedAudioContext: sharedAudioContext.audioContext,
 				loop,
-				trimAfter,
-				trimBefore,
+				trimAfter: initialTrimAfterRef.current,
+				trimBefore: initialTrimBeforeRef.current,
 				fps: videoConfig.fps,
 				canvas: null,
-				playbackRate,
+				playbackRate: initialPlaybackRate.current,
 				audioStreamIndex: audioStreamIndex ?? 0,
+				debugOverlay: false,
+				bufferState: buffer,
+				isPostmounting: initialIsPostmounting.current,
+				isPremounting: initialIsPremounting.current,
+				globalPlaybackRate: initialGlobalPlaybackRate.current,
+				onVideoFrameCallback: null,
+				playing: initialPlaying.current,
 			});
 
 			mediaPlayerRef.current = player;
@@ -155,6 +192,10 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 			player
 				.initialize(currentTimeRef.current)
 				.then((result) => {
+					if (result.type === 'disposed') {
+						return;
+					}
+
 					if (result.type === 'unknown-container-format') {
 						if (disallowFallbackToHtml5Audio) {
 							throw new Error(
@@ -217,16 +258,18 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 
 					if (result.type === 'success') {
 						setMediaPlayerReady(true);
+						setMediaDurationInSeconds(result.durationInSeconds);
+
 						Internals.Log.trace(
 							{logLevel, tag: '@remotion/media'},
-							`[NewAudioForPreview] MediaPlayer initialized successfully`,
+							`[AudioForPreview] MediaPlayer initialized successfully`,
 						);
 					}
 				})
 				.catch((error) => {
 					Internals.Log.error(
 						{logLevel, tag: '@remotion/media'},
-						'[NewAudioForPreview] Failed to initialize MediaPlayer',
+						'[AudioForPreview] Failed to initialize MediaPlayer',
 						error,
 					);
 					setShouldFallbackToNativeAudio(true);
@@ -234,22 +277,17 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		} catch (error) {
 			Internals.Log.error(
 				{logLevel, tag: '@remotion/media'},
-				'[NewAudioForPreview] MediaPlayer initialization failed',
+				'[AudioForPreview] MediaPlayer initialization failed',
 				error,
 			);
 			setShouldFallbackToNativeAudio(true);
 		}
 
 		return () => {
-			if (delayHandleRef.current) {
-				delayHandleRef.current.unblock();
-				delayHandleRef.current = null;
-			}
-
 			if (mediaPlayerRef.current) {
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
-					`[NewAudioForPreview] Disposing MediaPlayer`,
+					`[AudioForPreview] Disposing MediaPlayer`,
 				);
 				mediaPlayerRef.current.dispose();
 				mediaPlayerRef.current = null;
@@ -264,67 +302,44 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		sharedAudioContext,
 		currentTimeRef,
 		loop,
-		trimAfter,
-		trimBefore,
-		playbackRate,
 		videoConfig.fps,
 		audioStreamIndex,
 		disallowFallbackToHtml5Audio,
+		buffer,
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
 		if (!audioPlayer) return;
 
-		if (playing) {
-			audioPlayer.play().catch((error) => {
-				Internals.Log.error(
-					{logLevel, tag: '@remotion/media'},
-					'[NewAudioForPreview] Failed to play',
-					error,
-				);
-			});
+		if (playing && !isPlayerBuffering) {
+			audioPlayer.play(currentTimeRef.current);
 		} else {
 			audioPlayer.pause();
 		}
-	}, [playing, logLevel, mediaPlayerReady]);
+	}, [isPlayerBuffering, logLevel, playing]);
 
-	useEffect(() => {
-		const audioPlayer = mediaPlayerRef.current;
-		if (!audioPlayer || !mediaPlayerReady) return;
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
 
-		audioPlayer.seekTo(currentTime);
-		Internals.Log.trace(
-			{logLevel, tag: '@remotion/media'},
-			`[NewAudioForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
-		);
-	}, [currentTime, logLevel, mediaPlayerReady]);
+		mediaPlayer.setTrimBefore(trimBefore, currentTimeRef.current);
+	}, [trimBefore, mediaPlayerReady]);
 
-	useEffect(() => {
-		const audioPlayer = mediaPlayerRef.current;
-		if (!audioPlayer || !mediaPlayerReady) return;
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
 
-		audioPlayer.onBufferingChange((newBufferingState) => {
-			if (newBufferingState && !delayHandleRef.current) {
-				delayHandleRef.current = buffer.delayPlayback();
-				Internals.Log.trace(
-					{logLevel, tag: '@remotion/media'},
-					'[NewAudioForPreview] MediaPlayer buffering - blocking Remotion playback',
-				);
-			} else if (!newBufferingState && delayHandleRef.current) {
-				delayHandleRef.current.unblock();
-				delayHandleRef.current = null;
-				Internals.Log.trace(
-					{logLevel, tag: '@remotion/media'},
-					'[NewAudioForPreview] MediaPlayer unbuffering - unblocking Remotion playback',
-				);
-			}
-		});
-	}, [mediaPlayerReady, buffer, logLevel]);
+		mediaPlayer.setTrimAfter(trimAfter, currentTimeRef.current);
+	}, [trimAfter, mediaPlayerReady]);
 
 	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
 		if (!audioPlayer || !mediaPlayerReady) return;
 
@@ -340,21 +355,25 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		audioPlayer.setVolume(userPreferredVolume);
 	}, [userPreferredVolume, mediaPlayerReady]);
 
-	const effectivePlaybackRate = useMemo(
-		() => playbackRate * globalPlaybackRate,
-		[playbackRate, globalPlaybackRate],
-	);
-
 	useEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
 		if (!audioPlayer || !mediaPlayerReady) {
 			return;
 		}
 
-		audioPlayer.setPlaybackRate(effectivePlaybackRate);
-	}, [effectivePlaybackRate, mediaPlayerReady]);
+		audioPlayer.setPlaybackRate(playbackRate);
+	}, [playbackRate, mediaPlayerReady]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
+		const audioPlayer = mediaPlayerRef.current;
+		if (!audioPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		audioPlayer.setGlobalPlaybackRate(globalPlaybackRate);
+	}, [globalPlaybackRate, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
 		if (!audioPlayer || !mediaPlayerReady) {
 			return;
@@ -362,6 +381,46 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 
 		audioPlayer.setFps(videoConfig.fps);
 	}, [videoConfig.fps, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setLoop(loop);
+	}, [loop, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setIsPremounting(isPremounting);
+	}, [isPremounting, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setIsPostmounting(isPostmounting);
+	}, [isPostmounting, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const audioPlayer = mediaPlayerRef.current;
+		if (!audioPlayer || !mediaPlayerReady) return;
+
+		audioPlayer.seekTo(currentTime).catch(() => {
+			// Might be disposed
+		});
+		Internals.Log.trace(
+			{logLevel, tag: '@remotion/media'},
+			`[AudioForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
+		);
+	}, [currentTime, logLevel, mediaPlayerReady]);
 
 	if (shouldFallbackToNativeAudio && !disallowFallbackToHtml5Audio) {
 		return (
@@ -380,6 +439,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 				toneFrequency={toneFrequency}
 				audioStreamIndex={audioStreamIndex}
 				pauseWhenBuffering={fallbackHtml5AudioProps?.pauseWhenBuffering}
+				crossOrigin={fallbackHtml5AudioProps?.crossOrigin}
 				{...fallbackHtml5AudioProps}
 			/>
 		);
@@ -435,12 +495,49 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 }) => {
 	const preloadedSrc = usePreload(src);
 
+	const frame = useCurrentFrame();
+	const videoConfig = useVideoConfig();
+	const currentTime = frame / videoConfig.fps;
+
+	const showShow = useMemo(() => {
+		return (
+			getTimeInSeconds({
+				unloopedTimeInSeconds: currentTime,
+				playbackRate: playbackRate ?? 1,
+				loop: loop ?? false,
+				trimBefore,
+				trimAfter,
+				mediaDurationInSeconds: Infinity,
+				fps: videoConfig.fps,
+				ifNoMediaDuration: 'infinity',
+				src,
+			}) !== null
+		);
+	}, [
+		currentTime,
+		loop,
+		playbackRate,
+		src,
+		trimAfter,
+		trimBefore,
+		videoConfig.fps,
+	]);
+
+	if (!showShow) {
+		return null;
+	}
+
 	return (
-		<NewAudioForPreview
+		<AudioForPreviewAssertedShowing
 			audioStreamIndex={audioStreamIndex ?? 0}
 			src={preloadedSrc}
 			playbackRate={playbackRate ?? 1}
-			logLevel={logLevel ?? window.remotion_logLevel}
+			logLevel={
+				logLevel ??
+				(typeof window !== 'undefined'
+					? (window.remotion_logLevel ?? 'info')
+					: 'info')
+			}
 			muted={muted ?? false}
 			volume={volume ?? 1}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}

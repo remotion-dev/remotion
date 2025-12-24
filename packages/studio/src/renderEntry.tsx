@@ -223,10 +223,8 @@ const renderContent = (Root: React.FC) => {
 
 	if (bundleMode.type === 'composition') {
 		const markup = (
-			<Internals.RemotionRoot
-				logLevel={window.remotion_logLevel}
-				numberOfAudioTags={0}
-				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+			<Internals.CompositionManagerProvider
+				initialCanvasContent={null}
 				onlyRenderComposition={bundleMode.compositionName}
 				currentCompositionMetadata={{
 					props: NoReactInternals.deserializeJSONWithSpecialTypes(
@@ -241,11 +239,24 @@ const renderContent = (Root: React.FC) => {
 					defaultVideoImageFormat:
 						bundleMode.compositionDefaultVideoImageFormat,
 					defaultPixelFormat: bundleMode.compositionDefaultPixelFormat,
+					defaultProResProfile: bundleMode.compositionDefaultProResProfile,
 				}}
+				initialCompositions={[]}
 			>
-				<Root />
-				<GetVideoComposition state={bundleMode} />
-			</Internals.RemotionRoot>
+				<Internals.RemotionRootContexts
+					frameState={null}
+					audioEnabled={window.remotion_audioEnabled}
+					videoEnabled={window.remotion_videoEnabled}
+					logLevel={window.remotion_logLevel}
+					numberOfAudioTags={0}
+					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+				>
+					<Internals.RenderAssetManagerProvider collectAssets={null}>
+						<Root />
+						<GetVideoComposition state={bundleMode} />
+					</Internals.RenderAssetManagerProvider>
+				</Internals.RemotionRootContexts>
+			</Internals.CompositionManagerProvider>
 		);
 
 		renderToDOM(markup);
@@ -253,15 +264,25 @@ const renderContent = (Root: React.FC) => {
 
 	if (bundleMode.type === 'evaluation') {
 		const markup = (
-			<Internals.RemotionRoot
-				logLevel={window.remotion_logLevel}
-				numberOfAudioTags={0}
+			<Internals.CompositionManagerProvider
+				initialCanvasContent={null}
 				onlyRenderComposition={null}
 				currentCompositionMetadata={null}
-				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+				initialCompositions={[]}
 			>
-				<Root />
-			</Internals.RemotionRoot>
+				<Internals.RemotionRootContexts
+					frameState={null}
+					audioEnabled={window.remotion_audioEnabled}
+					videoEnabled={window.remotion_videoEnabled}
+					logLevel={window.remotion_logLevel}
+					numberOfAudioTags={0}
+					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+				>
+					<Internals.RenderAssetManagerProvider collectAssets={null}>
+						<Root />
+					</Internals.RenderAssetManagerProvider>
+				</Internals.RemotionRootContexts>
+			</Internals.CompositionManagerProvider>
 		);
 
 		renderToDOM(markup);
@@ -281,6 +302,7 @@ const renderContent = (Root: React.FC) => {
 			.then(({StudioInternals}) => {
 				window.remotion_isStudio = true;
 				window.remotion_isReadOnlyStudio = true;
+				window.remotion_inputProps = '{}';
 
 				Internals.enableSequenceStackTraces();
 				renderToDOM(<StudioInternals.Studio readOnly rootComponent={Root} />);
@@ -383,7 +405,7 @@ if (typeof window !== 'undefined') {
 					compositionHeight: c.height ?? null,
 					compositionWidth: c.width ?? null,
 					signal: new AbortController().signal,
-					originalProps,
+					inputProps: originalProps,
 					defaultProps: c.defaultProps ?? {},
 					compositionId: c.id,
 				});
@@ -448,7 +470,7 @@ if (typeof window !== 'undefined') {
 				compositionFps: selectedComp.fps ?? null,
 				compositionHeight: selectedComp.height ?? null,
 				compositionWidth: selectedComp.width ?? null,
-				originalProps,
+				inputProps: originalProps,
 				signal: abortController.signal,
 				defaultProps: selectedComp.defaultProps ?? {},
 				compositionId: selectedComp.id,

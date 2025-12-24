@@ -14,6 +14,7 @@ const chromiumOptions = z.object({
 	gl: z.enum(BrowserSafeApis.validOpenGlRenderers).optional().nullable(),
 	headless: z.boolean().optional(),
 	userAgent: z.string().optional().nullable(),
+	darkMode: z.boolean().optional(),
 });
 const logLevel = z.enum(BrowserSafeApis.logLevels);
 

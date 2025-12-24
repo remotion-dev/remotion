@@ -14,7 +14,6 @@ import type {
 	NumberOfGifLoops,
 	OnLog,
 	PixelFormat,
-	ProResProfile,
 	RenderMediaOnDownload,
 	VideoImageFormat,
 	X264Preset,
@@ -35,6 +34,7 @@ import {formatBytes, type ArtifactProgress} from '@remotion/studio-shared';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import type {_InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {defaultBrowserDownloadProgress} from '../browser-download-bar';
 import {chalk} from '../chalk';
@@ -160,7 +160,7 @@ export const renderVideoFlow = async ({
 	encodingBufferSize: string | null;
 	muted: boolean;
 	enforceAudioTrack: boolean;
-	proResProfile: ProResProfile | undefined;
+	proResProfile: _InternalTypes['ProResProfile'] | undefined;
 	x264Preset: X264Preset | null;
 	pixelFormat: PixelFormat;
 	numberOfGifLoops: NumberOfGifLoops;
@@ -578,7 +578,16 @@ export const renderVideoFlow = async ({
 			onLog,
 		});
 
-		Log.info({indent, logLevel}, chalk.blue(`\n▶ ${absoluteOutputFile}`));
+		if (!updatesDontOverwrite) {
+			updateRenderProgress({newline: true, printToConsole: true});
+		}
+
+		Log.info(
+			{indent, logLevel},
+			chalk.blue(
+				`${(exists ? '○' : '+').padEnd(LABEL_WIDTH)} ${makeHyperlink({url: `file://${absoluteOutputFile}`, text: relativeOutputLocation, fallback: relativeOutputLocation})}`,
+			),
+		);
 		return;
 	}
 
@@ -672,6 +681,7 @@ export const renderVideoFlow = async ({
 		chromeMode,
 		mediaCacheSizeInBytes,
 		onLog,
+		apiKey: null,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});

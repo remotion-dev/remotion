@@ -1,9 +1,12 @@
 {
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
+		"lib": ["DOM", "DOM.AsyncIterable", "ES2023"],
 		"rootDir": "src",
-		"outDir": "dist"
+		"outDir": "dist",
+		"module": "ESNext",
+		"moduleResolution": "bundler"
 	},
 	"include": ["src"],
-	"references": [{"path": "../core"}]
+	"references": [{"path": "../core"}, {"path": "../media"}]
 }

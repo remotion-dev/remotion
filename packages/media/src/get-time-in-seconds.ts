@@ -31,7 +31,7 @@ export const getTimeInSeconds = ({
 		? Internals.calculateMediaDuration({
 				trimAfter,
 				mediaDurationInFrames: mediaDurationInSeconds
-					? mediaDurationInSeconds! * fps
+					? mediaDurationInSeconds * fps
 					: Infinity,
 				// Playback rate was already specified before
 				playbackRate: 1,
@@ -50,4 +50,39 @@ export const getTimeInSeconds = ({
 	}
 
 	return timeInSeconds + (trimBefore ?? 0) / fps;
+};
+
+export const calculateEndTime = ({
+	mediaDurationInSeconds,
+	ifNoMediaDuration,
+	src,
+	trimAfter,
+	trimBefore,
+	fps,
+}: {
+	mediaDurationInSeconds: number | null;
+	ifNoMediaDuration: 'fail' | 'infinity';
+	src: string;
+	trimAfter: number | undefined;
+	trimBefore: number | undefined;
+	fps: number;
+}) => {
+	if (mediaDurationInSeconds === null && ifNoMediaDuration === 'fail') {
+		throw new Error(
+			`Could not determine duration of ${src}, but "loop" was set.`,
+		);
+	}
+
+	const mediaDuration =
+		Internals.calculateMediaDuration({
+			trimAfter,
+			mediaDurationInFrames: mediaDurationInSeconds
+				? mediaDurationInSeconds * fps
+				: Infinity,
+			// Playback rate was already specified before
+			playbackRate: 1,
+			trimBefore,
+		}) / fps;
+
+	return mediaDuration + (trimBefore ?? 0) / fps;
 };

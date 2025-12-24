@@ -53,7 +53,15 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 		[handle, onError, continueRender],
 	);
 
-	return <iframe {...props} ref={ref} onError={didGetError} onLoad={didLoad} />;
+	return (
+		<iframe
+			referrerPolicy="strict-origin-when-cross-origin"
+			{...props}
+			ref={ref}
+			onError={didGetError}
+			onLoad={didLoad}
+		/>
+	);
 };
 
 /*

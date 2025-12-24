@@ -1,7 +1,9 @@
+import {registerUsageEvent} from '@remotion/licensing';
 import type {ExecaChildProcess} from 'execa';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import {type RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -54,7 +56,6 @@ import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
-import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import type {OnArtifact} from './render-frames';
 import {internalRenderFrames} from './render-frames';
@@ -111,7 +112,7 @@ export type InternalRenderMediaOptions = {
 	overwrite: boolean;
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
-	proResProfile: ProResProfile | undefined;
+	proResProfile: _InternalTypes['ProResProfile'] | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	chromiumOptions: ChromiumOptions;
@@ -132,6 +133,7 @@ export type InternalRenderMediaOptions = {
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
 	metadata: Record<string, string> | null;
+	apiKey: string | null;
 	onLog: OnLog;
 } & MoreRenderMediaOptions;
 
@@ -159,7 +161,7 @@ export type RenderMediaOptions = Prettify<{
 	overwrite?: boolean;
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
-	proResProfile?: ProResProfile;
+	proResProfile?: _InternalTypes['ProResProfile'];
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
 	 */
@@ -259,6 +261,7 @@ const internalRenderMediaRaw = ({
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
 	onLog,
+	apiKey,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	const pixelFormat =
 		userPixelFormat ??
@@ -740,8 +743,8 @@ const internalRenderMediaRaw = ({
 
 				const stitchStart = Date.now();
 				return internalStitchFramesToVideo({
-					width: actualWidth,
-					height: actualHeight,
+					width: Math.round(actualWidth),
+					height: Math.round(actualHeight),
 					fps,
 					outputLocation: absoluteOutputLocation,
 					preEncodedFileLocation,
@@ -754,10 +757,10 @@ const internalRenderMediaRaw = ({
 					crf,
 					assetsInfo,
 					onProgress: (frame: number) => {
-						stitchStage = 'muxing';
 						// With seamless AAC concatenation, the amount of rendered frames
 						// might be longer, so we need to clamp it to avoid progress over 100%
 						if (preEncodedFileLocation) {
+							stitchStage = 'muxing';
 							muxedFrames = Math.min(frame, totalFramesToRender);
 						} else {
 							muxedFrames = Math.min(frame, totalFramesToRender);
@@ -804,11 +807,35 @@ const internalRenderMediaRaw = ({
 					slowestFrames,
 				};
 
+				const sendTelemetryAndResolve = () => {
+					if (apiKey === null) {
+						resolve(result);
+						return;
+					}
+
+					registerUsageEvent({
+						apiKey,
+						event: 'cloud-render',
+						host: null,
+						succeeded: true,
+					})
+						.then(() => {
+							Log.verbose({indent, logLevel}, 'Usage event sent successfully');
+						})
+						.catch((err) => {
+							Log.error({indent, logLevel}, 'Failed to send usage event');
+							Log.error({indent: true, logLevel}, err);
+						})
+						.finally(() => {
+							resolve(result);
+						});
+				};
+
 				if (isReproEnabled()) {
 					getReproWriter()
 						.onRenderSucceed({indent, logLevel, output: absoluteOutputLocation})
 						.then(() => {
-							resolve(result);
+							sendTelemetryAndResolve();
 						})
 						.catch((err) => {
 							Log.error(
@@ -816,9 +843,10 @@ const internalRenderMediaRaw = ({
 								'Could not create reproduction',
 								err,
 							);
+							sendTelemetryAndResolve();
 						});
 				} else {
-					resolve(result);
+					sendTelemetryAndResolve();
 				}
 			})
 			.catch((err) => {
@@ -946,6 +974,7 @@ export const renderMedia = ({
 	offthreadVideoThreads,
 	compositionStart,
 	mediaCacheSizeInBytes,
+	apiKey,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -1032,6 +1061,7 @@ export const renderMedia = ({
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		apiKey: apiKey ?? null,
 		onLog: defaultOnLog,
 	});
 };

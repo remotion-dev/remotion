@@ -24,6 +24,7 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
+import {DarkModeTest} from './DarkModeTest';
 import {DecoderDemo} from './DecoderDemo';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {EmojiTestbed} from './Emoji';
@@ -53,6 +54,7 @@ import {
 } from './Postmount/PostmountExample';
 import {PremountedExample} from './Premount';
 import {PremountedRemoteVideos} from './Premount/RemoteVideos';
+import ReactSvg from './ReactSvg';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {RetryDelayRender} from './RetryDelayRender';
@@ -118,10 +120,10 @@ import {parseMedia} from '@remotion/media-parser';
 import {zMatrix} from '@remotion/zod-types';
 import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
-import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
 import Amplify from './AudioTesting/Amplify';
+import {CTAEndCard} from './CallToAction';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -131,10 +133,11 @@ import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {NewAudioExample} from './NewAudio/NewAudio';
-import {NewVideoExample} from './NewVideo/NewVideo';
+import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
+import {LoopedNewVideo} from './OffthreadRemoteVideo/LoopedNewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
-import {NewRemoteVideo} from './OffthreadRemoteVideo/NewRemoteVideo';
+import {NewVideoComp} from './OffthreadRemoteVideo/NewRemoteVideo';
 import {OffthreadRemoteSeries} from './OffthreadRemoteVideo/OffthreadRemoteSeries';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
@@ -144,8 +147,10 @@ import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
+import {TriangleComp} from './Triangle';
 import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
+import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
@@ -628,12 +633,13 @@ export const Index: React.FC = () => {
 				<Still
 					id="FitTextOnNLines"
 					component={FitTextOnNLines}
-					width={1300}
-					height={350}
+					width={1600}
+					height={500}
 					schema={fitTextOnNLinesSchema}
 					defaultProps={{
-						line: 'No matter how much text I am adding, the text always fits on 2 lines and there is corner rounding like on TikTok.',
-						maxLines: 2,
+						text: 'No matter how much text I am adding, the text always fits on 3 lines and there is corner rounding like on TikTok.',
+						maxLines: 3,
+						textAlign: 'right' as const,
 					}}
 				/>
 				<Composition
@@ -659,7 +665,7 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="react-svg"
-					lazyComponent={() => import('./ReactSvg')}
+					component={ReactSvg}
 					width={1920}
 					height={1080}
 					fps={60}
@@ -670,37 +676,6 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="new-media-tags">
-				<Composition
-					id="new-video"
-					component={NewVideoExample}
-					fps={30}
-					defaultProps={{
-						src: staticFile('demo_smpte_h264_pcm.mkv'),
-					}}
-					calculateMetadata={async ({props}) => {
-						const fps = 30;
-
-						const {slowDurationInSeconds, dimensions} = await parseMedia({
-							src: props.src as string,
-							fields: {
-								slowDurationInSeconds: true,
-								dimensions: true,
-							},
-						});
-
-						if (dimensions === null) {
-							throw new Error('Dimensions are null');
-						}
-
-						return {
-							props: props,
-							durationInFrames: Math.round(slowDurationInSeconds * fps),
-							fps,
-							width: dimensions.width,
-							height: dimensions.height,
-						};
-					}}
-				/>
 				<Composition
 					id="new-audio"
 					component={NewAudioExample}
@@ -807,8 +782,9 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<OffthreadRemoteVideo />
-				<NewRemoteVideo />
+				<NewVideoComp />
 				<OffthreadRemoteSeries />
+				<LoopedNewVideo />
 				<LoopedOffthreadRemoteVideo />
 				<MultiChannelAudio />
 				<Composition
@@ -932,6 +908,12 @@ export const Index: React.FC = () => {
 				<Still
 					id="watch-static"
 					component={WatchStaticDemo}
+					width={1080}
+					height={1080}
+				/>
+				<Still
+					id="dark-mode-test"
+					component={DarkModeTest}
 					width={1080}
 					height={1080}
 				/>
@@ -1696,7 +1678,6 @@ export const Index: React.FC = () => {
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
 			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 			<Folder name="3DEngine">
-				<ThreeDEngine />
 				<Composition
 					id="3DCheck"
 					component={ThreeDCheck}
@@ -1712,7 +1693,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={273}
 					schema={whatIsRemotionSchema}
-					defaultProps={{fade: false, whiteBackground: true, reel: false}}
+					defaultProps={{fade: false, whiteBackground: false, reel: false}}
 					calculateMetadata={whatIsRemotionCalculateMetadata}
 				/>
 				<Composition
@@ -1786,6 +1767,42 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={500}
 			/>
+			<Composition
+				id="CallToAction"
+				component={CTAEndCard}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+				defaultProps={{
+					cornerRadius: 10,
+				}}
+				calculateMetadata={() => {
+					return {
+						defaultPixelFormat: 'yuva444p10le',
+						defaultCodec: 'prores',
+						defaultProResProfile: '4444',
+						defaultVideoImageFormat: 'png',
+					};
+				}}
+			/>
+			<Composition
+				id="Triangle"
+				component={TriangleComp}
+				width={100}
+				height={100}
+				fps={30}
+				durationInFrames={100}
+			/>
+			<Composition
+				id="media-video-texture"
+				component={RemotionMediaVideoTexture}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={600}
+			/>
+			<ChangingTrimBeforeValue />
 		</>
 	);
 };

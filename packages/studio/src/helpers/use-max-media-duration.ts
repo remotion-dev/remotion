@@ -1,9 +1,5 @@
-import {
-	hasBeenAborted,
-	mediaParserController,
-	parseMedia,
-} from '@remotion/media-parser';
 import {getVideoMetadata} from '@remotion/media-utils';
+import {ALL_FORMATS, Input, InputDisposedError, UrlSource} from 'mediabunny';
 import {useEffect, useState} from 'react';
 import {type TSequence} from 'remotion';
 
@@ -33,40 +29,36 @@ export const useMaxMediaDuration = (s: TSequence, fps: number) => {
 			return;
 		}
 
-		const controller = mediaParserController();
-
-		parseMedia({
-			src,
-			controller,
-			acknowledgeRemotionLicense: true,
-			onDurationInSeconds: (duration) => {
-				const durationOrInfinity = duration ?? Infinity;
-
-				cache.set(src, Math.floor(durationOrInfinity * fps));
-				setMaxMediaDuration(Math.floor(durationOrInfinity * fps));
-			},
-		}).catch((e) => {
-			if (hasBeenAborted(e)) {
-				return;
-			}
-
-			// In case of CORS errors, fall back to getVideoMetadata
-			return getVideoMetadata(src)
-				.then((metadata) => {
-					const durationOrInfinity = metadata.durationInSeconds ?? Infinity;
-
-					cache.set(src, Math.floor(durationOrInfinity * fps));
-					setMaxMediaDuration(Math.floor(durationOrInfinity * fps));
-				})
-				.catch(() => {
-					// Silently handle getVideoMetadata failures to prevent unhandled rejections
-				});
+		const input = new Input({
+			formats: ALL_FORMATS,
+			source: new UrlSource(src),
 		});
+		input
+			.computeDuration()
+			.then((duration) => {
+				cache.set(src, Math.floor(duration * fps));
+				setMaxMediaDuration(Math.floor(duration * fps));
+			})
+			.catch((e) => {
+				if (e instanceof InputDisposedError) {
+					return;
+				}
+
+				// In case of CORS errors, fall back to getVideoMetadata
+				return getVideoMetadata(src)
+					.then((metadata) => {
+						const durationOrInfinity = metadata.durationInSeconds ?? Infinity;
+
+						cache.set(src, Math.floor(durationOrInfinity * fps));
+						setMaxMediaDuration(Math.floor(durationOrInfinity * fps));
+					})
+					.catch(() => {
+						// Silently handle getVideoMetadata failures to prevent unhandled rejections
+					});
+			});
 
 		return () => {
-			try {
-				controller.abort();
-			} catch {}
+			input.dispose();
 		};
 	}, [src, fps]);
 

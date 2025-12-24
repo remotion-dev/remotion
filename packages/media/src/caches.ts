@@ -1,3 +1,4 @@
+import React from 'react';
 import {cancelRender, Internals, type LogLevel} from 'remotion';
 import {makeAudioManager} from './audio-extraction/audio-manager';
 import {makeKeyframeManager} from './video-extraction/keyframe-manager';
@@ -21,6 +22,7 @@ export const getTotalCacheStats = async () => {
 
 const getUncachedMaxCacheSize = (logLevel: LogLevel) => {
 	if (
+		typeof window !== 'undefined' &&
 		window.remotion_mediaCacheSizeInBytes !== undefined &&
 		window.remotion_mediaCacheSizeInBytes !== null
 	) {
@@ -48,16 +50,17 @@ const getUncachedMaxCacheSize = (logLevel: LogLevel) => {
 	}
 
 	if (
+		typeof window !== 'undefined' &&
 		window.remotion_initialMemoryAvailable !== undefined &&
 		window.remotion_initialMemoryAvailable !== null
 	) {
 		const value = window.remotion_initialMemoryAvailable / 2;
-		if (value < 240 * 1024 * 1024) {
+		if (value < 500 * 1024 * 1024) {
 			Internals.Log.verbose(
 				{logLevel, tag: '@remotion/media'},
-				`Using cache size set based on minimum value of 240MB (which is more than half of the available system memory!)`,
+				`Using cache size set based on minimum value of 500MB (which is more than half of the available system memory!)`,
 			);
-			return 240 * 1024 * 1024;
+			return 500 * 1024 * 1024;
 		}
 
 		if (value > 20_000 * 1024 * 1024) {
@@ -87,4 +90,13 @@ export const getMaxVideoCacheSize = (logLevel: LogLevel) => {
 
 	cachedMaxCacheSize = getUncachedMaxCacheSize(logLevel);
 	return cachedMaxCacheSize;
+};
+
+export const useMaxMediaCacheSize = (logLevel: LogLevel) => {
+	const context = React.useContext(Internals.MaxMediaCacheSizeContext);
+	if (context === null) {
+		return getMaxVideoCacheSize(logLevel);
+	}
+
+	return context;
 };

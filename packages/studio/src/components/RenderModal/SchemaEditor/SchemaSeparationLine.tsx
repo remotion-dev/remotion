@@ -121,14 +121,14 @@ export const SchemaArrayItemSeparationLine: React.FC<{
 				{showAddButton && (
 					<div
 						style={dynamicAddButtonStyle}
-						onMouseEnter={onOuterMouseEnter}
-						onMouseLeave={onOuterMouseLeave}
+						onPointerEnter={onOuterMouseEnter}
+						onPointerLeave={onOuterMouseLeave}
 					>
 						<div
 							onClick={onAdd}
 							style={inner}
-							onMouseEnter={onInnerMouseEnter}
-							onMouseLeave={onInnerMouseLeave}
+							onPointerEnter={onInnerMouseEnter}
+							onPointerLeave={onInnerMouseLeave}
 						>
 							<Plus
 								color={innerHovered ? 'white' : LIGHT_TEXT}

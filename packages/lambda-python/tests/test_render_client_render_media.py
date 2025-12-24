@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from remotion_lambda.models import RenderMediaParams, ShouldDownload, Webhook
 from remotion_lambda.remotionclient import RemotionClient
-
+from remotion_lambda.exception import RemotionInvalidArgumentException
 
 class TestRemotionClient(TestCase):
     def test_remotion_construct_request(self):
@@ -26,4 +26,10 @@ class TestRemotionClient(TestCase):
             client.construct_render_request(
                 render_params=render_params, render_type="video-or-audio"
             )
+        )
+
+    def test_remotion_construct_request_illegal_argument(self):
+       with self.assertRaises(RemotionInvalidArgumentException):
+        client = RemotionClient(
+            region="us-east-1", serve_url="", function_name=""
         )

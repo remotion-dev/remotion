@@ -116,6 +116,7 @@ const sidebars: SidebarsConfig = {
 				},
 				'cli/versions',
 				'cli/upgrade',
+				'cli/add',
 				'cli/ffmpeg',
 				'cli/ffprobe',
 				'cli/gpu',
@@ -584,6 +585,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/rounded-text-box',
+			link: {
+				type: 'doc',
+				id: 'rounded-text-box/index',
+			},
+			items: ['rounded-text-box/create-rounded-text-box'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/shapes',
 			link: {
 				type: 'doc',
@@ -832,6 +842,7 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/snippets/freeze-portions',
 				'video-tags',
 				'miscellaneous/snippets/hls',
+				'videos/as-threejs-texture',
 			],
 		},
 		{
@@ -893,6 +904,7 @@ const sidebars: SidebarsConfig = {
 				'artifacts',
 				'metadata',
 				'hardware-acceleration',
+				'hdr',
 			],
 		},
 		{
@@ -925,6 +937,21 @@ const sidebars: SidebarsConfig = {
 				'distributed-rendering',
 				'cloudflare-containers',
 				'azure-container-apps',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Client-side rendering',
+			link: {
+				type: 'doc',
+				id: 'client-side-rendering/index',
+			},
+			items: [
+				'client-side-rendering/index',
+				'client-side-rendering/how-it-works',
+				'client-side-rendering/limitations',
+				'client-side-rendering/migration',
+				'client-side-rendering/telemetry',
 			],
 		},
 		{
@@ -980,6 +1007,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/faq',
 				'lambda/light-client',
 				'lambda/custom-layers',
+				'lambda/separate-environments',
 				'lambda/custom-destination',
 				'lambda/checklist',
 				'lambda/webhooks',
@@ -1087,30 +1115,7 @@ const sidebars: SidebarsConfig = {
 				'media-parser/stream-selection',
 			],
 		},
-		{
-			type: 'category',
-			label: 'WebCodecs',
-			link: {
-				type: 'doc',
-				id: 'webcodecs/index',
-			},
-			items: [
-				{
-					type: 'link',
-					href: '/docs/webcodecs/convert-media',
-					label: 'API Reference',
-				},
-				'webcodecs/convert-a-video',
-				'webcodecs/rotate-a-video',
-				'webcodecs/resize-a-video',
-				'webcodecs/fix-mediarecorder-video',
-				'webcodecs/resample-audio-16khz',
-				'webcodecs/track-transformation',
-				'webcodecs/pause-resume-abort',
-				'webcodecs/telemetry',
-				'webcodecs/misconceptions',
-			],
-		},
+
 		{
 			type: 'category',
 			label: 'Building apps',
@@ -1119,6 +1124,7 @@ const sidebars: SidebarsConfig = {
 				'studio-into-app',
 				'player-into-remotion-project',
 				'video-uploads',
+				'validating-user-videos',
 				'presigned-urls',
 				'font-picker',
 				'building-a-timeline',
@@ -1216,6 +1222,10 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'mediabunny/index',
 				'mediabunny/new-video',
+				'mediabunny/metadata',
+				'mediabunny/extract-thumbnail',
+				'mediabunny/extract-frames',
+				'mediabunny/can-decode',
 				'mediabunny/formats',
 				'mediabunny/version',
 			],
@@ -1289,6 +1299,7 @@ const sidebars: SidebarsConfig = {
 			label: 'Miscellaneous',
 			items: [
 				'security',
+				'accessibility',
 				'chromium-flags',
 				'miscellaneous/changing-temp-dir',
 				'miscellaneous/chrome-headless-shell',
@@ -1302,6 +1313,7 @@ const sidebars: SidebarsConfig = {
 				'cors-issues',
 				'media-fragments',
 				'react-native',
+				'detect-remotion',
 			],
 		},
 		{
@@ -1332,14 +1344,39 @@ const sidebars: SidebarsConfig = {
 				'contributing/formatting',
 				'contributing/bounty',
 				'contributing/rust',
+				'contributing/web-renderer',
 				'contributing/presentation',
 				'authoring-packages',
-				'prereleases',
 				'contributing/ineligible',
 			],
 		},
 		'license',
 		'acknowledgements',
+		{
+			type: 'category',
+			label: 'WebCodecs',
+			className: 'deprecated-item',
+			link: {
+				type: 'doc',
+				id: 'webcodecs/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/webcodecs/convert-media',
+					label: 'API Reference',
+				},
+				'webcodecs/convert-a-video',
+				'webcodecs/rotate-a-video',
+				'webcodecs/resize-a-video',
+				'webcodecs/fix-mediarecorder-video',
+				'webcodecs/resample-audio-16khz',
+				'webcodecs/track-transformation',
+				'webcodecs/pause-resume-abort',
+				'webcodecs/telemetry',
+				'webcodecs/misconceptions',
+			],
+		},
 		{
 			type: 'html',
 			value:
@@ -1353,22 +1390,11 @@ const sidebars: SidebarsConfig = {
 			className: 'pro-item',
 		},
 		{
-			type: 'category',
+			type: 'link',
+			href: '/docs/timeline',
 			label: 'Timeline',
 			className: 'pro-item',
-			link: {
-				type: 'doc',
-				id: 'timeline/index',
-			},
-			items: [
-				'timeline/demo',
-				'timeline/setup',
-				'timeline/usage',
-				'timeline/faq',
-				'timeline/render',
-			],
 		},
-
 		{
 			type: 'link',
 			href: '/docs/recorder',
@@ -1399,6 +1425,8 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/tracks-items-assets',
 				'editor-starter/undo-redo',
 				'editor-starter/copy-paste',
+				'editor-starter/cropping',
+				'editor-starter/snapping',
 				'editor-starter/fonts',
 				'editor-starter/asset-uploads',
 				'editor-starter/asset-cleanup',
@@ -1409,6 +1437,28 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/production-checklist',
 				'editor-starter/features-not-included',
 				'editor-starter/faq',
+			],
+		},
+	],
+	timelineSidebar: [
+		{
+			type: 'link',
+			href: '/docs',
+			label: '← Back to the main docs',
+		},
+		{
+			type: 'category',
+			label: 'Timeline',
+			link: {
+				type: 'doc',
+				id: 'timeline/index',
+			},
+			items: [
+				'timeline/demo',
+				'timeline/setup',
+				'timeline/usage',
+				'timeline/faq',
+				'timeline/render',
 			],
 		},
 	],

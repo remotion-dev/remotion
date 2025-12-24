@@ -5,12 +5,11 @@ import type {
 	ColorSpace,
 	LogLevel,
 	OpenGlRenderer,
-	PixelFormat,
-	ProResProfile,
 	X264Preset,
 } from '@remotion/renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
+import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
@@ -69,11 +68,11 @@ export const RenderButton: React.FC = () => {
 		}
 
 		setSelectedModal({
-			type: 'render',
+			type: 'server-render',
 			compositionId: video.id,
 			initialFrame: getCurrentFrame(),
 			initialStillImageFormat: defaults.stillImageFormat,
-			initialVideoImageFormat: defaults.videoImageFormat,
+			initialVideoImageFormat: null,
 			initialJpegQuality: defaults.jpegQuality,
 			initialScale: window.remotion_renderDefaults?.scale ?? 1,
 			initialLogLevel: defaults.logLevel as LogLevel,
@@ -82,9 +81,10 @@ export const RenderButton: React.FC = () => {
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
-			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialProResProfile:
+				defaults.proResProfile as _InternalTypes['ProResProfile'],
 			initialx264Preset: defaults.x264Preset as X264Preset,
-			initialPixelFormat: defaults.pixelFormat as PixelFormat,
+			initialPixelFormat: null,
 			initialAudioBitrate: defaults.audioBitrate,
 			initialVideoBitrate: defaults.videoBitrate,
 			initialEveryNthFrame: defaults.everyNthFrame,
@@ -93,6 +93,7 @@ export const RenderButton: React.FC = () => {
 			defaultConfigurationAudioCodec: defaults.audioCodec as AudioCodec | null,
 			initialEnvVariables: window.process.env as Record<string, string>,
 			initialDisableWebSecurity: defaults.disableWebSecurity,
+			initialDarkMode: defaults.darkMode,
 			initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
 			initialHeadless: defaults.headless,
 			initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
@@ -116,6 +117,7 @@ export const RenderButton: React.FC = () => {
 			initialHardwareAcceleration: defaults.hardwareAcceleration,
 			initialChromeMode: defaults.chromeMode,
 			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+			renderDefaults: defaults,
 		});
 	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
 

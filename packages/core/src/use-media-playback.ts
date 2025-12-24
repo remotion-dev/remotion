@@ -16,10 +16,10 @@ import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.
 import {playbackLogging} from './playback-logging.js';
 import {seek} from './seek.js';
 import {
-	TimelineContext,
 	usePlayingState,
 	useTimelinePosition,
 } from './timeline-position-state.js';
+import {TimelineContext} from './TimelineContext.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useMediaBuffering} from './use-media-buffering.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';

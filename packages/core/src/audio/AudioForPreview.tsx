@@ -124,6 +124,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	const crossOriginValue = getCrossOriginValue({
 		crossOrigin,
 		requestsVideoFrame: false,
+		isClientSideRendering: false,
 	});
 
 	const propsToPass = useMemo((): AudioHTMLAttributes<HTMLAudioElement> => {
@@ -173,6 +174,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		aud: propsToPass,
 		audioId: id,
 		premounting: Boolean(sequenceContext?.premounting),
+		postmounting: Boolean(sequenceContext?.postmounting),
 	});
 
 	useMediaInTimeline({

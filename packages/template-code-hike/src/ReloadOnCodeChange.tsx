@@ -19,7 +19,9 @@ export const RefreshOnCodeChange: React.FC = () => {
     if (env.isReadOnlyStudio) {
       return;
     }
-
+    if (!env.isStudio) {
+      return;
+    }
     const { cancel } = watchPublicFolder(() => {
       const hash = getCurrentHash();
       if (hash !== files) {

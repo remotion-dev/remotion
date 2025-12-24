@@ -45,6 +45,7 @@ export const getAssetsForMarkup = async (
 	const Wrapped = () => {
 		window.remotion_audioEnabled = true;
 		window.remotion_videoEnabled = true;
+		window.remotion_logLevel = 'info';
 		const [renderAssets, setAssets] = useState<TRenderAsset[]>([]);
 
 		const registerRenderAsset = useCallback((renderAsset: TRenderAsset) => {
@@ -107,21 +108,29 @@ export const getAssetsForMarkup = async (
 
 		return (
 			<Internals.CanUseRemotionHooksProvider>
-				<Internals.RemotionRoot
-					numberOfAudioTags={0}
-					logLevel="info"
+				<Internals.CompositionManagerProvider
 					onlyRenderComposition={null}
 					currentCompositionMetadata={null}
-					audioLatencyHint="interactive"
+					initialCompositions={[]}
+					initialCanvasContent={null}
 				>
-					<Internals.CompositionManager.Provider value={value}>
-						<Internals.RenderAssetManager.Provider value={assetContext}>
-							<Internals.ResolveCompositionConfig>
-								<Markup />
-							</Internals.ResolveCompositionConfig>
-						</Internals.RenderAssetManager.Provider>
-					</Internals.CompositionManager.Provider>
-				</Internals.RemotionRoot>
+					<Internals.RemotionRootContexts
+						frameState={null}
+						audioEnabled
+						videoEnabled
+						numberOfAudioTags={0}
+						logLevel="info"
+						audioLatencyHint="interactive"
+					>
+						<Internals.RenderAssetManagerProvider collectAssets={null}>
+							<Internals.CompositionManager.Provider value={value}>
+								<Internals.RenderAssetManager.Provider value={assetContext}>
+									<Markup />
+								</Internals.RenderAssetManager.Provider>
+							</Internals.CompositionManager.Provider>
+						</Internals.RenderAssetManagerProvider>
+					</Internals.RemotionRootContexts>
+				</Internals.CompositionManagerProvider>
 			</Internals.CanUseRemotionHooksProvider>
 		);
 	};

@@ -1,7 +1,6 @@
 import {useCallback, useLayoutEffect, useMemo, useState} from 'react';
 import {
 	Internals,
-	cancelRender,
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
@@ -62,7 +61,7 @@ export const useInnerVideoTexture = ({
 	);
 
 	const [imageTexture, setImageTexture] = useState<Texture | null>(null);
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const fetchTexture = useCallback(() => {
 		const imageTextureHandle = delayRender('fetch offthread video frame', {
@@ -102,6 +101,7 @@ export const useInnerVideoTexture = ({
 		delayRenderTimeoutInMilliseconds,
 		continueRender,
 		delayRender,
+		cancelRender,
 	]);
 
 	useLayoutEffect(() => {
@@ -133,7 +133,14 @@ export function useOffthreadVideoTexture({
 
 	const env = useRemotionEnvironment();
 
-	const {isRendering} = env;
+	const {isRendering, isClientSideRendering} = env;
+
+	if (isClientSideRendering) {
+		throw new Error(
+			'useOffthreadVideoTexture() cannot be used in client-side rendering.',
+		);
+	}
+
 	if (!isRendering) {
 		throw new Error(
 			'useOffthreadVideoTexture() can only be used during rendering. Use useRemotionEnvironment().isRendering to render it conditionally.',

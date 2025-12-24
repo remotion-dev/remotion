@@ -12,14 +12,14 @@
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {
-    "@aws-sdk/client-s3": "3.787.0",
+    "@aws-sdk/client-s3": "3.936.0",
     "@remotion/cli": "workspace:*",
     "@remotion/media-utils": "workspace:*",
     "@remotion/zod-types": "workspace:*",
     "md5": "2.3.0",
     "microsoft-cognitiveservices-speech-sdk": "1.17.0",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "remotion": "workspace:*"
   },
   "devDependencies": {
@@ -27,12 +27,12 @@
     "@remotion/eslint-config-flat": "workspace:*",
     "@remotion/eslint-plugin": "workspace:*",
     "@types/md5": "2.3.0",
-    "@types/react": "19.0.0",
+    "@types/react": "19.2.7",
     "eslint": "9.19.0",
     "ts-node": "10.9.1",
-    "zod": "3.23.8",
     "prettier": "3.6.0",
     "tsx": "4.19.3",
-    "typescript": "5.8.2"
+    "typescript": "5.9.3",
+    "zod": "catalog:"
   }
 }

@@ -23,6 +23,7 @@ const {
 	headlessOption,
 	binariesDirectoryOption,
 	mediaCacheSizeInBytesOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 export const stillCommand = async (
@@ -65,13 +66,17 @@ export const stillCommand = async (
 	const headless = headlessOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-	const chromiumOptions: ChromiumOptions = {
+	const darkMode = darkModeOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,
+		darkMode,
 	};
 
 	const offthreadVideoCacheSizeInBytes =

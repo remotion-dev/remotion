@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/bundler"
 	},
 	"name": "@remotion/bundler",
-	"version": "4.0.357",
+	"version": "4.0.394",
 	"description": "Bundle Remotion compositions using Webpack",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -16,12 +16,6 @@
 		"test": "bun test src",
 		"make": "tsc -d"
 	},
-	"files": [
-		"dist",
-		"react-shim.js",
-		"renderEntry.tsx",
-		"favicon.ico"
-	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
@@ -41,10 +35,10 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"react": "19.0.0",
-		"react-dom": "19.0.0",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"keywords": [
 		"remotion",

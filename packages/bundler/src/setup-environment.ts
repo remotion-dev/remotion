@@ -1,8 +1,70 @@
-import {Internals} from 'remotion';
+// https://github.com/remotion-dev/remotion/issues/3412#issuecomment-1910120552
 
-Internals.setupEnvVariables();
+function getEnvVar() {
+	const parts = ['proc', 'ess', '.', 'en', 'v', '.', 'NOD', 'E_EN', 'V'];
+	return parts.join('');
+}
 
-Internals.CSSUtils.injectCSS(`
+const getEnvVariables = (): Record<string, string> => {
+	if (window.remotion_isStudio) {
+		// For the Studio, we already set the environment variables in index-html.ts.
+		// We just add NODE_ENV here.
+		if (!process.env.NODE_ENV) {
+			throw new Error(`${getEnvVar()} is not set`);
+		}
+
+		return {
+			NODE_ENV: process.env.NODE_ENV,
+		};
+	}
+
+	const param = window.remotion_envVariables;
+	if (!param) {
+		return {};
+	}
+
+	return {...JSON.parse(param), NODE_ENV: process.env.NODE_ENV};
+};
+
+const setupEnvVariables = () => {
+	const env = getEnvVariables();
+	if (!window.process) {
+		window.process = {} as NodeJS.Process;
+	}
+
+	if (!window.process.env) {
+		window.process.env = {};
+	}
+
+	Object.keys(env).forEach((key) => {
+		window.process.env[key] = env[key];
+	});
+};
+
+setupEnvVariables();
+
+const injected: {[key: string]: boolean} = {};
+
+export const injectCSS = (css: string) => {
+	// Skip in node
+	if (typeof document === 'undefined') {
+		return;
+	}
+
+	if (injected[css]) {
+		return;
+	}
+
+	const head = document.head || document.getElementsByTagName('head')[0];
+	const style = document.createElement('style');
+
+	style.appendChild(document.createTextNode(css));
+
+	head.prepend(style);
+	injected[css] = true;
+};
+
+injectCSS(`
   .css-reset, .css-reset * {
     font-size: 16px;
     line-height: 1.5;
@@ -89,7 +151,4 @@ Internals.CSSUtils.injectCSS(`
     background-color: #ffffff;
     appearance: none;
   }
-
-
-
 `);

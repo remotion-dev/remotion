@@ -14,9 +14,15 @@ import {
 } from "@remotion/google-fonts/Inter";
 import { cancelRender, continueRender, delayRender } from "remotion";
 
-const regular = loadRegular();
-const monospace = loadMonospace();
-const endcard = loadEndcard();
+const regular = loadRegular("normal", {
+  weights: ["600", "700"],
+});
+const monospace = loadMonospace("normal", {
+  weights: ["500"],
+});
+const endcard = loadEndcard("normal", {
+  weights: ["500"],
+});
 
 export const waitForFonts = async () => {
   await regular.waitUntilDone();

@@ -117,8 +117,14 @@ export const renderMediaSingleThread = async (
 
 		res.writeHead(200, {'Content-Type': 'text/html'});
 
-		const actualChromiumOptions: ChromiumOptions = {
+		const actualChromiumOptions: Required<ChromiumOptions> = {
 			...body.chromiumOptions,
+			ignoreCertificateErrors:
+				body.chromiumOptions?.ignoreCertificateErrors ?? false,
+			disableWebSecurity: body.chromiumOptions?.disableWebSecurity ?? false,
+			headless: body.chromiumOptions?.headless ?? true,
+			userAgent: body.chromiumOptions?.userAgent ?? null,
+			darkMode: body.chromiumOptions?.darkMode ?? false,
 			// Override the `null` value, which might come from CLI with swANGLE
 			gl: body.chromiumOptions?.gl ?? 'swangle',
 			enableMultiProcessOnLinux: true,
@@ -202,6 +208,7 @@ export const renderMediaSingleThread = async (
 			hardwareAcceleration: 'disable',
 			chromeMode: 'headless-shell',
 			onLog: RenderInternals.defaultOnLog,
+			apiKey: null,
 		});
 
 		const storage = new Storage();

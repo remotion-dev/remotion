@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-utils"
 	},
 	"name": "@remotion/media-utils",
-	"version": "4.0.357",
+	"version": "4.0.394",
 	"description": "Utilities for working with media files",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -18,7 +18,10 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "workspace:*"
+		"@remotion/media-parser": "workspace:*",
+		"@remotion/webcodecs": "workspace:*",
+		"remotion": "workspace:*",
+		"mediabunny": "catalog:"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -26,7 +29,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"keywords": [
 		"remotion",

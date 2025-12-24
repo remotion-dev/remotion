@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/tailwind"
 	},
 	"name": "@remotion/tailwind",
-	"version": "4.0.357",
+	"version": "4.0.394",
 	"description": "Enable TailwindCSS support in Remotion (TailwindCSS v3)",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -35,7 +35,7 @@
 		"@remotion/bundler": "workspace:*",
 		"autoprefixer": "10.4.20",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"keywords": [
 		"remotion",

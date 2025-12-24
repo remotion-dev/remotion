@@ -36,7 +36,7 @@ type Layout = {
   radius: number;
 };
 
-type PhoneLayout = {
+export type PhoneLayout = {
   phone: Layout & {
     thickness: number;
     bevel: number;

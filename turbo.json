@@ -7,6 +7,10 @@
 			"dependsOn": [],
 			"outputLogs": "new-only"
 		},
+		"publishprivate": {
+			"dependsOn": [],
+			"outputLogs": "new-only"
+		},
 		"clean": {},
 		"testssr": {
 			"dependsOn": ["^make", "@remotion/example#bundle"]
@@ -17,6 +21,9 @@
 		"testwebcodecs": {
 			"dependsOn": ["@remotion/webcodecs#make"]
 		},
+		"testwebrenderer": {
+			"dependsOn": ["@remotion/web-renderer#make"]
+		},
 		"make": {
 			"dependsOn": ["^make"],
 			"outputs": ["dist"],
@@ -25,6 +32,11 @@
 		"@remotion/example#bundle": {
 			"dependsOn": ["^make", "make"],
 			"outputs": ["build", "./node_modules/.cache"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/example#test": {
+			"dependsOn": ["@remotion/example#bundle"],
+			"outputs": [],
 			"outputLogs": "new-only"
 		},
 		"build-docs": {
@@ -85,12 +97,12 @@
 			"outputLogs": "new-only"
 		},
 		"@remotion/convert#build-page": {
-			"dependsOn": ["^make"],
+			"dependsOn": ["make", "^make"],
 			"outputs": ["build", ".vercel"],
 			"outputLogs": "new-only"
 		},
 		"@remotion/convert#build-spa": {
-			"dependsOn": ["^make"],
+			"dependsOn": ["make", "^make"],
 			"outputs": ["spa-dist"],
 			"outputLogs": "new-only"
 		}

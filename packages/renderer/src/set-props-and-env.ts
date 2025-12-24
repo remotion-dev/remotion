@@ -17,6 +17,7 @@ type SetPropsAndEnv = {
 	serveUrl: string;
 	initialFrame: number;
 	timeoutInMilliseconds: number | undefined;
+	darkMode: boolean;
 	proxyPort: number;
 	retriesRemaining: number;
 	audioEnabled: boolean;
@@ -46,6 +47,7 @@ const innerSetPropsAndEnv = async ({
 	isMainTab,
 	mediaCacheSizeInBytes,
 	initialMemoryAvailable,
+	darkMode,
 }: SetPropsAndEnv): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
@@ -91,6 +93,10 @@ const innerSetPropsAndEnv = async ({
 		await page.evaluateOnNewDocument((input: string) => {
 			window.remotion_envVariables = input;
 		}, JSON.stringify(envVariables));
+	}
+
+	if (darkMode) {
+		await page.setAutoDarkModeOverride();
 	}
 
 	await page.evaluateOnNewDocument(
@@ -169,6 +175,7 @@ const innerSetPropsAndEnv = async ({
 			isMainTab,
 			mediaCacheSizeInBytes,
 			initialMemoryAvailable,
+			darkMode,
 		});
 	};
 

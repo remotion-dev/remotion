@@ -53,8 +53,14 @@ export const renderStillSingleThread = async (
 
 		const tempFilePath = '/tmp/still.png';
 
-		const actualChromiumOptions: ChromiumOptions = {
+		const actualChromiumOptions: Required<ChromiumOptions> = {
 			...body.chromiumOptions,
+			darkMode: body.chromiumOptions?.darkMode ?? false,
+			disableWebSecurity: body.chromiumOptions?.disableWebSecurity ?? false,
+			headless: body.chromiumOptions?.headless ?? true,
+			userAgent: body.chromiumOptions?.userAgent ?? null,
+			ignoreCertificateErrors:
+				body.chromiumOptions?.ignoreCertificateErrors ?? false,
 			// Override the `null` value, which might come from CLI with swANGLE
 			gl: body.chromiumOptions?.gl ?? 'swangle',
 			enableMultiProcessOnLinux: true,
@@ -105,6 +111,7 @@ export const renderStillSingleThread = async (
 			chromeMode: 'headless-shell',
 			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
 			onLog: RenderInternals.defaultOnLog,
+			apiKey: null,
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 

@@ -1,0 +1,148 @@
+---
+image: /generated/articles-docs-client-side-rendering-limitations.png
+crumb: 'Client-side rendering'
+sidebar_label: Limitations
+title: Limitations of client-side rendering
+---
+
+:::warning
+This feature is not available yet, but we are already writing docs.  
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+Unlike server-side rendering, where a full screenshot it taken, in client-side rendering the layout and styles of your video are being emulated and drawn to a canvas.
+
+It is not feasible to support all CSS properties and factors affecting the visual style of a page, so only the most important styling primitives are supported.
+
+## Supported CSS styles
+
+### Positioning and layouting properties
+
+Properties such as `margin`, `left`, `display`, `width`, `height`, `flex`, `flex-direction` affect the position and size of the element. Those are all <a style={{color: 'green'}}>supported</a> because Remotion uses [`.getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) to obtain the position and size of the element.
+
+### Transformations
+
+The CSS `transform` property is <a style={{color: 'green'}}>supported</a>.  
+The `transform-origin` property is <a style={{color: 'green'}}>supported</a>.  
+The `opacity` property is <a style={{color: 'green'}}>supported</a>.  
+The `scale`, `rotate` and `translate` transformations are <a style={{color: 'green'}}>supported</a>.  
+The `perspective` property is <a style={{color: 'red'}}>not supported</a>.  
+The `perspective-origin` property is <a style={{color: 'red'}}>not supported</a>.  
+The `transform-style` property is <a style={{color: 'red'}}>not supported</a> (defaults to `preserve-3d`, default in CSS is "flat").
+
+### Backgrounds
+
+The `background-color` property is <a style={{color: 'green'}}>supported</a>.  
+The `background-image` property and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
+
+### Borders and border radius
+
+The `border`, `border-style`, `border-color`, `border-width` properties are <a style={{color: 'green'}}>supported</a>.  
+The `border-radius` property is <a style={{color: 'green'}}>supported</a>, including different values for vertical and horizontal radii.  
+Nested `border-radius` properties are currently [buggy](https://github.com/remotion-dev/remotion/issues/6057).  
+The `corner-shape` property is <a style={{color: 'red'}}>not supported</a>.
+
+### Text properties
+
+The `color` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-family` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-size` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-weight` property is <a style={{color: 'green'}}>supported</a>.  
+The `line-height` property is <a style={{color: 'green'}}>supported</a>.  
+The `letter-spacing` property is <a style={{color: 'green'}}>supported</a>.  
+The `text-transform` property is <a style={{color: 'green'}}>supported</a>.  
+The `direction` HTML attribute is <a style={{color: 'green'}}>supported</a>.  
+The `writing-mode` property is <a style={{color: 'red'}}>not supported</a>.  
+The `text-decoration` property is <a style={{color: 'red'}}>not supported</a>.  
+The `text-shadow` property is <a style={{color: 'red'}}>not supported</a>.  
+The `-webkit-text-stroke` property is <a style={{color: 'red'}}>not supported</a>.
+
+## Supported elements
+
+The following Remotion components are supported:
+
+The [`<Video>`](/docs/media/video) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
+The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
+[`<Img>`](/docs/img) is <a style={{color: 'green'}}>supported</a>.  
+[`<Gif>`](/docs/gif) from [`@remotion/gif`](/docs/gif) is <a style={{color: 'green'}}>supported</a>.  
+[`<Rive>`](/docs/rive) from [`@remotion/rive`](/docs/rive) is <a style={{color: 'green'}}>supported</a>.  
+[`<Lottie>`](/docs/lottie) from [`@remotion/lottie`](/docs/lottie) is <a style={{color: 'green'}}>supported</a>.  
+[`<ThreeCanvas>`](/docs/three-canvas) from [`@remotion/three`](/docs/three) is <a style={{color: 'green'}}>supported</a>.  
+[`<SkiaCanvas>`](/docs/skia/skia-canvas) from [`@remotion/skia`](/docs/skia) is <a style={{color: 'green'}}>supported</a>.  
+[`<AnimatedImage>`](/docs/animatedimage) is <a style={{color: 'green'}}>supported</a> when rendering in Chrome.  
+[`<OffthreadVideo>`](/docs/offthreadvideo) is <a style={{color: 'red'}}>not supported</a>.  
+ → Use [`<Video>`](/docs/media/video) instead.  
+[`<Html5Video>`](/docs/html5-video) is <a style={{color: 'red'}}>not supported</a>.  
+ → Use [`<Video>`](/docs/media/video) instead.  
+[`<Html5Audio>`](/docs/html5-audio) is <a style={{color: 'red'}}>not supported</a>.  
+ → Use [`<Audio>`](/docs/media/audio) instead.  
+[`<AnimatedEmoji>`](/docs/animated-emoji) from [`@remotion/animated-emoji`](/docs/animated-emoji) is <a style={{color: 'red'}}>not supported</a>.  
+→ Use [`<Lottie>`](/docs/lottie) instead.
+
+## Unsupported styles
+
+All styles not explicitly mentioned are <a style={{color: 'red'}}>not supported</a>.
+Here is a selection of unsupported styles:
+
+- `overflow`
+- `outline`
+- `mask-image`
+- `clip-path`
+- `box-shadow`
+- `filter` (blur, brightness, contrast, etc.)
+- `backdrop-filter`
+- `mix-blend-mode`
+- `background-blend-mode`
+- `object-fit`
+- `backface-visibility`
+- `z-index`
+  - See [Z-indexing](#z-indexing) below.
+- Any other property not listed in this document.
+
+Over time, we will support more elements and styles. We'll prioritize the most demanded ones.  
+See how you can [contribute](/docs/contributing/web-renderer) to add more supported styles.
+
+## Z-indexing
+
+The CSS property `z-index` is not supported.  
+To control the order of the elements, [order your elements from back to front](/docs/layers).
+
+```tsx twoslash title="The blue square will be drawn on top of the red square"
+import {AbsoluteFill} from 'remotion';
+
+// ---cut---
+const MyComp = () => {
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill>
+        <svg viewBox="0 0 100 100">
+          <rect x="0" y="0" width="100" height="100" fill="red" />
+        </svg>
+      </AbsoluteFill>
+      <AbsoluteFill>
+        <svg viewBox="0 0 100 100">
+          <rect x="0" y="0" width="100" height="100" fill="blue" />
+        </svg>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+```
+
+## Video and media constraints
+
+The limitations from [`@remotion/media`](/docs/media/support) apply.
+
+## Single concurrency
+
+There is no multithreading for client-side rendering.  
+However, it is fundamentally more efficient because there is less interprocess communication.  
+In addition, in the headful browser, GPU is usually available, which brings performance benefits.
+
+## See also
+
+- [Overview](/docs/client-side-rendering)
+- [How it works](/docs/client-side-rendering/how-it-works)
+- [Server-side rendering](/docs/ssr)
+- [`@remotion/renderer`](/docs/renderer)
+- [`Comparing SSR solutions`](/docs/compare-ssr)

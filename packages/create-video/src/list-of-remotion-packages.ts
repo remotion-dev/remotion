@@ -34,6 +34,7 @@ export const listOfRemotionPackages = [
 	'@remotion/google-fonts',
 	'@remotion/install-whisper-cpp',
 	'@remotion/it-tests',
+	'@remotion/react18-tests',
 	'@remotion/lambda-go-example',
 	'@remotion/lambda-go',
 	'@remotion/lambda-php',
@@ -42,6 +43,7 @@ export const listOfRemotionPackages = [
 	'@remotion/lambda',
 	'@remotion/lambda-client',
 	'@remotion/layout-utils',
+	'@remotion/rounded-text-box',
 	'@remotion/licensing',
 	'@remotion/lottie',
 	'@remotion/mcp',
@@ -79,4 +81,5 @@ export const listOfRemotionPackages = [
 	'@remotion/whisper-web',
 	'@remotion/media',
 	'@remotion/web-renderer',
+	'@remotion/design',
 ];

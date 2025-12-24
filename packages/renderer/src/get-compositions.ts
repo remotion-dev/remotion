@@ -54,6 +54,7 @@ type InnerGetCompositionsParams = {
 	page: Page;
 	proxyPort: number;
 	indent: boolean;
+	darkMode: boolean;
 } & ToOptions<typeof optionsMap.getCompositions>;
 
 const innerGetCompositions = async ({
@@ -66,6 +67,7 @@ const innerGetCompositions = async ({
 	indent,
 	logLevel,
 	mediaCacheSizeInBytes,
+	darkMode,
 }: InnerGetCompositionsParams): Promise<VideoConfig[]> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
@@ -86,6 +88,7 @@ const innerGetCompositions = async ({
 		isMainTab: true,
 		mediaCacheSizeInBytes,
 		initialMemoryAvailable: getAvailableMemory(logLevel),
+		darkMode,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -132,6 +135,7 @@ const innerGetCompositions = async ({
 			defaultOutName,
 			defaultVideoImageFormat,
 			defaultPixelFormat,
+			defaultProResProfile,
 		} = r;
 
 		return {
@@ -150,6 +154,7 @@ const innerGetCompositions = async ({
 			defaultOutName,
 			defaultVideoImageFormat,
 			defaultPixelFormat,
+			defaultProResProfile,
 		};
 	});
 };
@@ -245,6 +250,7 @@ const internalGetCompositionsRaw = async ({
 					chromeMode,
 					offthreadVideoThreads,
 					mediaCacheSizeInBytes,
+					darkMode: chromiumOptions.darkMode ?? false,
 				});
 			})
 

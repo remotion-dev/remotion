@@ -38,7 +38,10 @@ describe('Templates should be valid', () => {
 			expect(body.dependencies.react).toMatch(/^\^?19/);
 			expect(body.dependencies['react-dom']).toMatch(/^\^?19/);
 
-			if (body.dependencies['zod']) {
+			if (
+				body.dependencies['zod'] &&
+				!template.shortName.includes('Prompt to Motion Graphics')
+			) {
 				expect(body.dependencies['zod']).toBe('3.23.8');
 			}
 			if (body.dependencies['@types/web']) {
@@ -50,7 +53,7 @@ describe('Templates should be valid', () => {
 			expect(body.name).toStartWith('template-');
 
 			if (!template.shortName.includes('JavaScript')) {
-				expect(body.devDependencies['typescript']).toInclude('5.8.2');
+				expect(body.devDependencies['typescript']).toInclude('5.9.3');
 
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const eitherPluginOrConfig =
@@ -122,6 +125,17 @@ describe('Templates should be valid', () => {
 			expect(contents).not.toContain('Config.Puppeteer');
 			expect(contents).not.toContain('Config.Output');
 			expect(contents).not.toContain('Config.Preview');
+		});
+
+		it(`${template.shortName} should not use setExperimentalClientSideRenderingEnabled`, async () => {
+			const {contents, entryPoint} = await findFile([
+				getFileForTemplate(template, 'remotion.config.ts'),
+				getFileForTemplate(template, 'remotion.config.js'),
+			]);
+			expect(entryPoint).toBeTruthy();
+			expect(contents).not.toContain(
+				'setExperimentalClientSideRenderingEnabled',
+			);
 		});
 
 		it(`${template.shortName} should use good tsconfig values`, async () => {

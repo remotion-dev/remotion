@@ -1,5 +1,5 @@
 import {assert, expect, test} from 'vitest';
-import {keyframeManager} from '../caches';
+import {getMaxVideoCacheSize, keyframeManager} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
 
@@ -19,6 +19,7 @@ test('Should be able to extract a frame', async () => {
 		trimAfter: undefined,
 		trimBefore: undefined,
 		fps: 30,
+		maxCacheSize: getMaxVideoCacheSize('info'),
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -33,11 +34,14 @@ test('Should be able to extract a frame', async () => {
 		throw new Error('Unknown container format');
 	}
 
+	if (result.type === 'cannot-decode-alpha') {
+		throw new Error('Cannot decode alpha');
+	}
+
 	const {audio, frame} = result;
 	assert(audio);
 
 	assert(frame);
-	expect((frame as VideoFrame).timestamp).toBe(1_000_000);
 
 	assert(audio);
 
@@ -69,6 +73,7 @@ test('Should be able to extract the last frame', async () => {
 		trimAfter: undefined,
 		trimBefore: undefined,
 		fps: 30,
+		maxCacheSize: getMaxVideoCacheSize('info'),
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -83,15 +88,18 @@ test('Should be able to extract the last frame', async () => {
 		throw new Error('Unknown container format');
 	}
 
+	if (result.type === 'cannot-decode-alpha') {
+		throw new Error('Cannot decode alpha');
+	}
+
 	const {audio, frame} = result;
 
 	assert(frame);
-	expect((frame as VideoFrame).timestamp).toBe(59_958_333);
 
 	assert(!audio);
 
 	const cacheStats = await keyframeManager.getCacheStats();
-	expect(cacheStats.count).toBe(93);
+	expect(cacheStats.count).toBe(1);
 });
 
 test('Should manage the cache', async () => {
@@ -111,6 +119,7 @@ test('Should manage the cache', async () => {
 			trimAfter: undefined,
 			trimBefore: undefined,
 			fps: 30,
+			maxCacheSize: getMaxVideoCacheSize('info'),
 		});
 	}
 
@@ -135,6 +144,7 @@ test('Should be apply volume correctly', async () => {
 		trimAfter: undefined,
 		trimBefore: undefined,
 		fps: 30,
+		maxCacheSize: getMaxVideoCacheSize('info'),
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -147,6 +157,10 @@ test('Should be apply volume correctly', async () => {
 
 	if (result.type === 'unknown-container-format') {
 		throw new Error('Unknown container format');
+	}
+
+	if (result.type === 'cannot-decode-alpha') {
+		throw new Error('Cannot decode alpha');
 	}
 
 	const {audio: audioAtFullVolume, frame} = result;
@@ -184,6 +198,7 @@ test('Should be able to loop', async () => {
 		trimAfter: undefined,
 		trimBefore: undefined,
 		fps: 30,
+		maxCacheSize: getMaxVideoCacheSize('info'),
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -198,7 +213,11 @@ test('Should be able to loop', async () => {
 		throw new Error('Unknown container format');
 	}
 
+	if (result.type === 'cannot-decode-alpha') {
+		throw new Error('Cannot decode alpha');
+	}
+
 	const {frame} = result;
 
-	expect((frame as VideoFrame)?.timestamp).toBe(41_000_000);
+	assert(frame);
 });

@@ -16,6 +16,8 @@ test('Should be able to convert audio that is on the verge', () => {
 		trimStartInSeconds: 0.041666666666666664,
 		trimEndInSeconds: 0,
 		playbackRate: 2,
+		audioDataTimestamp: sine.timestamp / 1_000_000,
+		isLast: true,
 	});
 
 	expect(spedUp.numberOfFrames).toBe(115);
@@ -47,6 +49,8 @@ test('convert with playbackrate', () => {
 		trimStartInSeconds: 0,
 		trimEndInSeconds: 0,
 		playbackRate: 2,
+		audioDataTimestamp: sine.timestamp / 1_000_000,
+		isLast: true,
 	});
 
 	const sineSpedupArray = toInt16Array(sineSpedup);

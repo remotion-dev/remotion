@@ -3,7 +3,6 @@ import type {
 	Codec,
 	ColorSpace,
 	PixelFormat,
-	ProResProfile,
 	X264Preset,
 } from '@remotion/renderer';
 import type {RenderJob} from '@remotion/studio-shared';
@@ -18,11 +17,11 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 
 	if (job.type === 'still') {
 		return {
-			type: 'render',
+			type: 'server-render',
 			compositionId: job.compositionId,
 			initialFrame: job.frame,
 			initialStillImageFormat: job.imageFormat,
-			initialVideoImageFormat: defaults.videoImageFormat,
+			initialVideoImageFormat: null,
 			initialJpegQuality: job.jpegQuality ?? defaults.jpegQuality,
 			initialScale: job.scale,
 			initialLogLevel: job.logLevel,
@@ -31,7 +30,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
-			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialProResProfile: null,
 			initialx264Preset: defaults.x264Preset as X264Preset,
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			initialAudioBitrate: defaults.audioBitrate,
@@ -46,6 +45,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
+			initialDarkMode: job.chromiumOptions.darkMode,
 			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),
@@ -67,15 +67,16 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHardwareAcceleration: defaults.hardwareAcceleration,
 			initialChromeMode: job.chromeMode,
 			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+			renderDefaults: defaults,
 		};
 	}
 
 	if (job.type === 'sequence') {
 		return {
-			type: 'render',
+			type: 'server-render',
 			initialFrame: 0,
 			compositionId: job.compositionId,
-			initialVideoImageFormat: defaults.videoImageFormat,
+			initialVideoImageFormat: null,
 			initialJpegQuality: job.jpegQuality ?? defaults.jpegQuality,
 			initialScale: job.scale,
 			initialLogLevel: job.logLevel,
@@ -85,7 +86,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
-			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialProResProfile: null,
 			initialx264Preset: defaults.x264Preset as X264Preset,
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			initialAudioBitrate: defaults.audioBitrate,
@@ -98,6 +99,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialOpenGlRenderer: job.chromiumOptions.gl,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
+			initialDarkMode: job.chromiumOptions.darkMode,
 			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),
@@ -121,12 +123,13 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHardwareAcceleration: defaults.hardwareAcceleration,
 			initialChromeMode: job.chromeMode,
 			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+			renderDefaults: defaults,
 		};
 	}
 
 	if (job.type === 'video') {
 		return {
-			type: 'render',
+			type: 'server-render',
 			compositionId: job.compositionId,
 			initialStillImageFormat: defaults.stillImageFormat,
 			initialVideoImageFormat: job.imageFormat,
@@ -139,8 +142,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: job.muted,
 			initialEnforceAudioTrack: job.enforceAudioTrack,
-			initialProResProfile:
-				job.proResProfile ?? (defaults.proResProfile as ProResProfile),
+			initialProResProfile: job.proResProfile ?? null,
 			initialx264Preset: job.x264Preset ?? (defaults.x264Preset as X264Preset),
 			initialPixelFormat: job.pixelFormat,
 			initialAudioBitrate: job.audioBitrate,
@@ -153,7 +155,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialOpenGlRenderer: job.chromiumOptions.gl,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			initialHeadless: job.chromiumOptions.headless,
+			initialDarkMode: job.chromiumOptions.darkMode,
 			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),
@@ -176,6 +178,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHardwareAcceleration: job.hardwareAcceleration,
 			initialChromeMode: job.chromeMode,
 			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+			renderDefaults: defaults,
 		};
 	}
 

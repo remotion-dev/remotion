@@ -1,5 +1,8 @@
 src
 tsconfig.json
 dist/test
-.eslintrc.js
+eslint.config.mjs
 .prettierrc.js
+.turbo
+bundle.ts
+tsconfig.tsbuildinfo

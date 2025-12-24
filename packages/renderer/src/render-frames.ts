@@ -142,6 +142,7 @@ type InnerRenderFramesOptions = {
 	compositionStart: number;
 	binariesDirectory: string | null;
 	onLog: OnLog;
+	darkMode: boolean;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type ArtifactWithoutContent = {
@@ -236,6 +237,7 @@ const innerRenderFrames = async ({
 	imageSequencePattern,
 	mediaCacheSizeInBytes,
 	onLog,
+	darkMode,
 }: Omit<
 	InnerRenderFramesOptions,
 	'offthreadVideoCacheSizeInBytes'
@@ -299,6 +301,7 @@ const innerRenderFrames = async ({
 			isMainTab: pageIndex === 0,
 			mediaCacheSizeInBytes,
 			onLog,
+			darkMode,
 		});
 	};
 
@@ -618,6 +621,7 @@ const internalRenderFramesRaw = ({
 					imageSequencePattern,
 					mediaCacheSizeInBytes,
 					onLog,
+					darkMode: chromiumOptions.darkMode ?? false,
 				});
 			}),
 		])

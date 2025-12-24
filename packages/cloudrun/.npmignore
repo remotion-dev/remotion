@@ -4,6 +4,9 @@ terraform
 gcpInstaller
 dist/gcpInstaller
 container
-.eslintrc
+eslint.config.mjs
 .prettierrc.js
 tsconfig.tsbuildinfo
+.turbo
+build.ts
+dist/api/test
