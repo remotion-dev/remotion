@@ -75,22 +75,15 @@ Set a [scale](/docs/scaling). If you plan to use scaling, you already need to se
 
 ## Closing the browser
 
-### use the `close()` method to close a browser instance and all its pages
+Use the `close()` method to cleanup a browser you are not using anymore:
 
 ```ts
-interface HeadlessBrowser {
-  close(options?: { silent?: boolean }): Promise<void>;
-}
-```
-setting the `silent` option to `true` will close the browser without generating an error.
-
-```ts
-let myBrowser = openBrowser("chrome")
-//other code
-myBrowser.close({silent: true})
+const browser = await openBrowser('chrome');
+browser.close({silent: true});
 ```
 
-
+If already closed or an operation is interrupted, an error is thrown.  
+Setting the `silent` option to `true` will close the browser without generating an error.
 
 ## See also
 
