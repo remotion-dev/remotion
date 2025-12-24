@@ -28,6 +28,7 @@ test('should be able to use delayRender()', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'delay-render-test',

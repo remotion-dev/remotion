@@ -4,6 +4,7 @@ import {Composition, Folder} from 'remotion';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {backgroundColor} from './fixtures/background-color';
 import {border} from './fixtures/border';
+import {borderIndividualSides} from './fixtures/border-individual-sides';
 import {borderRadius} from './fixtures/border-radius';
 import {borderRadiusClamped} from './fixtures/border-radius-clamped';
 import {borderRadiusDifferent} from './fixtures/border-radius-different';
@@ -59,19 +60,22 @@ export const Root: React.FC = () => {
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...flexPositionedScaled} />
-			<Composition {...borderRadius} />
-			<Composition {...borderRadiusSimple} />
-			<Composition {...borderRadiusElliptical} />
-			<Composition {...borderRadiusDifferent} />
-			<Composition {...borderRadiusPercentage} />
-			<Composition {...borderRadiusNone} />
-			<Composition {...borderRadiusClamped} />
 			<Composition {...displayNone} />
 			<Composition {...opacitySimple} />
 			<Composition {...opacityNested} />
 			<Composition {...opacityZero} />
 			<Composition {...backgroundColor} />
-			<Composition {...border} />
+			<Folder name="border">
+				<Composition {...border} />
+				<Composition {...borderRadius} />
+				<Composition {...borderRadiusSimple} />
+				<Composition {...borderRadiusElliptical} />
+				<Composition {...borderRadiusDifferent} />
+				<Composition {...borderRadiusPercentage} />
+				<Composition {...borderRadiusNone} />
+				<Composition {...borderRadiusClamped} />
+				<Composition {...borderIndividualSides} />
+			</Folder>
 			<Folder name="Text">
 				<Composition {...textFixture} />
 				<Composition {...paragraphs} />

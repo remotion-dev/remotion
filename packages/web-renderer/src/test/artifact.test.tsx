@@ -12,6 +12,7 @@ test('should be able to render an artifact for still', async () => {
 	const artifacts: EmittedArtifact[] = [];
 
 	await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'artifact-test',
@@ -46,6 +47,7 @@ test('should fail to render multiple artifacts with the same filename', async (t
 	const artifacts: EmittedArtifact[] = [];
 
 	const prom = renderMediaOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'artifact-test',
@@ -74,6 +76,7 @@ test('should be able to emit a thumbnail', async () => {
 	const artifacts: EmittedArtifact[] = [];
 
 	await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'artifact-test',
@@ -122,6 +125,7 @@ test('should succeed to render multiple artifacts with renderMediaOnWeb()', asyn
 	const artifacts: EmittedArtifact[] = [];
 
 	await renderMediaOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'artifact-test',

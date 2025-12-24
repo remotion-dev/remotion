@@ -20,6 +20,7 @@ test('onFrame callback returning same frame should work', async (t) => {
 	};
 
 	await renderMediaOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'on-frame-same-test',
@@ -57,6 +58,7 @@ test('onFrame callback returning new frame with correct dimensions and timestamp
 	};
 
 	await renderMediaOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'on-frame-new-valid-test',
@@ -103,6 +105,7 @@ test('onFrame callback returning frame with wrong dimensions should throw', asyn
 
 	await expect(async () => {
 		await renderMediaOnWeb({
+			licenseKey: 'free-license',
 			composition: {
 				component: Component,
 				id: 'on-frame-wrong-dimensions-test',

@@ -13,6 +13,7 @@ test(
 
 		await expect(async () => {
 			const result = await renderMediaOnWeb({
+				licenseKey: 'free-license',
 				composition: {
 					component: Component,
 					id: 'audio',
@@ -49,6 +50,7 @@ test('should be able to render 2 audios', async (t) => {
 	};
 
 	await renderMediaOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'audio',

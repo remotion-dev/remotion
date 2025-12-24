@@ -44,6 +44,7 @@ test('should not give a false positive when the player is also mounted', async (
 	});
 
 	await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: MustNotBePlayer,
 			id: 'player-false-positive-test',

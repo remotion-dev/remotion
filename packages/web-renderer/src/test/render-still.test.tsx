@@ -14,6 +14,7 @@ test('should render still on web', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'render-still-test',
@@ -44,6 +45,7 @@ test('should be able to read frame number', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'frame-number-test',

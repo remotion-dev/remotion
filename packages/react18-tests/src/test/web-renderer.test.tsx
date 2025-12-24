@@ -11,6 +11,7 @@ test('should render still on web', async () => {
 	};
 
 	await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'render-still-test',

@@ -7,6 +7,7 @@ import {testImage} from './utils';
 
 test('should apply simple opacity', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: opacitySimple,
 		frame: 0,
 		inputProps: {},
@@ -18,6 +19,7 @@ test('should apply simple opacity', async () => {
 
 test('should apply nested opacity (multiply parent and child)', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: opacityNested,
 		frame: 0,
 		inputProps: {},
@@ -29,6 +31,7 @@ test('should apply nested opacity (multiply parent and child)', async () => {
 
 test('should render with zero opacity (opacity: 0)', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: opacityZero,
 		frame: 0,
 		inputProps: {},

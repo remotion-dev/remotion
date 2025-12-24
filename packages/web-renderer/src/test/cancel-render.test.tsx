@@ -24,6 +24,7 @@ test('should be able to cancel render', async (t) => {
 
 	try {
 		await renderStillOnWeb({
+			licenseKey: 'free-license',
 			composition: {
 				component: Component,
 				id: 'cancel-render-test',

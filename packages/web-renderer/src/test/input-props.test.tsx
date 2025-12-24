@@ -37,6 +37,7 @@ const HasProps: React.FC<{abc: 'def'}> = () => {
 
 test('cannot call getInputProps() while rendering client-side', async () => {
 	await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: MustAcceptInputProps,
 			id: 'input-props-test',

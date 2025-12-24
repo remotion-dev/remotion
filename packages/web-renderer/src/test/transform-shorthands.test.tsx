@@ -11,6 +11,7 @@ test('Should combine transform property with scale shorthand', async () => {
 	await page.viewport(1080, 1080);
 
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: transformWithScale,
 		frame: 0,
 		inputProps: {},
@@ -24,6 +25,7 @@ test('Should combine transform property with rotate shorthand', async () => {
 	await page.viewport(1080, 1080);
 
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: transformWithRotate,
 		frame: 0,
 		inputProps: {},
@@ -37,6 +39,7 @@ test('Should combine transform property with translate shorthand', async () => {
 	await page.viewport(1080, 1080);
 
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: transformWithTranslate,
 		frame: 0,
 		inputProps: {},
@@ -50,6 +53,7 @@ test('Should combine transform property with all CSS transform shorthands', asyn
 	await page.viewport(1080, 1080);
 
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: transformWithAllShorthands,
 		frame: 0,
 		inputProps: {},

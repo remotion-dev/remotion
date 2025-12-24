@@ -5,6 +5,7 @@ import {testImage} from './utils';
 
 test('should render background-color', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: backgroundColor,
 		frame: 0,
 		inputProps: {},
