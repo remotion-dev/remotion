@@ -330,6 +330,7 @@ const internalRenderMediaOnWeb = async <
 				div,
 				width: resolved.width,
 				height: resolved.height,
+				logLevel,
 			});
 
 			if (signal?.aborted) {
@@ -462,7 +463,7 @@ export const renderMediaOnWeb = <
 				...options,
 				delayRenderTimeoutInMilliseconds:
 					options.delayRenderTimeoutInMilliseconds ?? 30000,
-				logLevel: options.logLevel ?? 'info',
+				logLevel: options.logLevel ?? window.remotion_logLevel ?? 'info',
 				schema: options.schema ?? undefined,
 				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 				codec,

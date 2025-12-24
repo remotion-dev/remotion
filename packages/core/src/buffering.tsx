@@ -10,6 +10,7 @@ import React, {
 import type {LogLevel} from './log';
 import {LogLevelContext} from './log-level-context';
 import {playbackLogging} from './playback-logging';
+import {useRemotionEnvironment} from './use-remotion-environment';
 
 type Block = {
 	id: string;
@@ -49,23 +50,35 @@ const useBufferManager = (
 		OnBufferingCallback[]
 	>([]);
 
+	const env = useRemotionEnvironment();
+	const rendering = env.isRendering;
+
 	const buffering = useRef(false);
 
-	const addBlock: AddBlock = useCallback((block: Block) => {
-		setBlocks((b) => [...b, block]);
-		return {
-			unblock: () => {
-				setBlocks((b) => {
-					const newArr = b.filter((bx) => bx !== block);
-					if (newArr.length === b.length) {
-						return b;
-					}
+	const addBlock: AddBlock = useCallback(
+		(block: Block) => {
+			if (rendering) {
+				return {
+					unblock: () => undefined,
+				};
+			}
 
-					return newArr;
-				});
-			},
-		};
-	}, []);
+			setBlocks((b) => [...b, block]);
+			return {
+				unblock: () => {
+					setBlocks((b) => {
+						const newArr = b.filter((bx) => bx !== block);
+						if (newArr.length === b.length) {
+							return b;
+						}
+
+						return newArr;
+					});
+				},
+			};
+		},
+		[rendering],
+	);
 
 	const listenForBuffering: ListenForBuffering = useCallback(
 		(callback: OnBufferingCallback) => {
@@ -94,6 +107,10 @@ const useBufferManager = (
 	);
 
 	useEffect(() => {
+		if (rendering) {
+			return;
+		}
+
 		if (blocks.length > 0) {
 			onBufferingCallbacks.forEach((c) => c());
 			playbackLogging({
@@ -114,6 +131,10 @@ const useBufferManager = (
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
+			if (rendering) {
+				return;
+			}
+
 			if (blocks.length === 0) {
 				onResumeCallbacks.forEach((c) => c());
 				playbackLogging({

@@ -131,6 +131,7 @@ async function internalRenderStillOnWeb<
 			width: resolved.width,
 			height: resolved.height,
 			imageFormat,
+			logLevel,
 		});
 
 		const assets = collectAssets.current!.collectAssets();
@@ -176,7 +177,7 @@ export const renderStillOnWeb = <
 				...options,
 				delayRenderTimeoutInMilliseconds:
 					options.delayRenderTimeoutInMilliseconds ?? 30000,
-				logLevel: options.logLevel ?? 'info',
+				logLevel: options.logLevel ?? window.remotion_logLevel ?? 'info',
 				schema: options.schema ?? undefined,
 				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 				signal: options.signal ?? null,
