@@ -1,6 +1,7 @@
 import type {Template} from 'create-video';
 import React from 'react';
 import {Blank} from './icons/blank';
+import {BrainIcon} from './icons/brain';
 import {CodeHike} from './icons/code-hike';
 import {Cubes} from './icons/cubes';
 import {JSIcon} from './icons/js';
@@ -168,6 +169,10 @@ export const IconForTemplate: React.FC<{
 
 	if (template.cliId === 'prompt-to-video') {
 		return <PromptToVideoIcon style={{height: scale * 36}} />;
+	}
+
+	if (template.cliId === 'prompt-to-motion-graphics') {
+		return <BrainIcon style={{height: scale * 36}} />;
 	}
 
 	throw new Error(`Unknown template: ${template.cliId satisfies never}`);

@@ -1,0 +1,61 @@
+---
+image: /generated/articles-docs-accessibility.png
+sidebar_label: Accessibility
+title: Accessibility statement for Remotion
+crumb: 'FAQ'
+---
+
+This page documents how Remotion ensures its products meet accessibility standards.  
+This is a common question we get from enterprises who need to ensure their suppliers meet accessibility standards.
+
+## Remotion Player
+
+The Remotion Player is the component that most users will embed into their page if they are working on a Remotion app.  
+We do believe that the Remotion Player meets modern accessibility standards:
+
+- Keyboard navigation is possible
+- Clear focus indicators are present
+- Buttons have appropriate labels
+- Contrast ratios are sufficient
+
+## Editor Starter
+
+Out of the box, we try to follow these best practices:
+
+- Keyboard navigation is possible
+- Clear focus indicators
+- Buttons have appropriate labels
+- Contrast ratios are sufficient
+
+The Editor Starter is a template whose code is being adopted into customer code bases.  
+It therefore becomes the responsibility of the customer to ensure that the Editor Starter meets their desired accessibility standards.
+
+## Remotion Studio
+
+The Remotion Studio is not considered a product for end-users, but a helper tool for developers.  
+While we think it is doing well in terms of accessibility, we are not giving any guarantees on its accessibility.
+
+## Other products
+
+Do not expose any user interfaces and are therefore not subject to accessibility concerns.
+
+## User code
+
+Remotion runs code provided by the customer and cannot guarantee that the code meets accessibility standards.
+
+## Templates
+
+Are not part of the core Remotion framework and explicitly excluded from this accessibility statement.  
+If using a template, users must ensure themselves that the code they adopt meets their desired accessibility standards.
+
+## Reporting an accessibility issue
+
+You may [file an issue](https://remotion.dev/issue) to report an accessibility issue.  
+We will do our best to address any issues you report.
+
+Customers eligible for [prioritized support](/docs/support) may also report issues through the channels set up for them.
+
+## Certifications
+
+Remotion does not currently hold any accessibility certifications.  
+If you are interested in that Remotion obtains certain certifications, contact us at hi@remotion.dev to discuss this as an add-on for your Enterprise License.

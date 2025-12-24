@@ -4,6 +4,7 @@ import {renderStillOnWeb} from '../render-still-on-web';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
+import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
@@ -13,6 +14,10 @@ import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {orthographic} from './fixtures/transforms/orthographic';
+import {withMargin} from './fixtures/transforms/with-margin';
+import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
+import {unwrapped} from './fixtures/unwrapped';
 import {testImage} from './utils';
 
 test('should be able to deal with a simple transform directly on the element', async () => {
@@ -149,4 +154,77 @@ test('flex-positioned scaled elements', async () => {
 	});
 
 	await testImage({blob, testId: 'flex-positioned-scaled'});
+});
+
+test('Github Unwrapped example', async () => {
+	await page.viewport(1080, 1080);
+
+	const blob = await renderStillOnWeb({
+		composition: unwrapped,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({
+		blob,
+		testId: 'unwrapped',
+		allowedMismatchedPixelRatio: 0.001,
+	});
+});
+
+test('Inside 3d transform', async () => {
+	await page.viewport(1080, 1080);
+
+	const blob = await renderStillOnWeb({
+		composition: inside3dTransform,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({
+		blob,
+		testId: 'inside-3d-transform',
+		allowedMismatchedPixelRatio: 0.001,
+	});
+});
+
+test('Should render orthographically if no perspective is set', async () => {
+	await page.viewport(1080, 1080);
+
+	const blob = await renderStillOnWeb({
+		composition: orthographic,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'orthographic'});
+});
+
+test('Should render with margin', async () => {
+	await page.viewport(1080, 1080);
+
+	const blob = await renderStillOnWeb({
+		composition: withMargin,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'with-margin'});
+});
+
+test('Should render with negative margin', async () => {
+	await page.viewport(1080, 1080);
+
+	const blob = await renderStillOnWeb({
+		composition: withNegativeMargin,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'with-negative-margin'});
 });

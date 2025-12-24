@@ -1,4 +1,3 @@
-import type {InputAudioTrack} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	Input,
@@ -46,8 +45,6 @@ interface AudioMetadata {
 }
 
 interface AudioUtils {
-	input: Input;
-	track: InputAudioTrack;
 	metadata: AudioMetadata;
 	isMatroska: boolean;
 }
@@ -83,10 +80,6 @@ export const useWindowedAudioData = ({
 			requests.current = {};
 
 			setWaveformMap({});
-
-			if (audioUtils) {
-				audioUtils.input.dispose();
-			}
 		};
 	}, [audioUtils]);
 
@@ -103,9 +96,11 @@ export const useWindowedAudioData = ({
 
 			signal.addEventListener('abort', cont, {once: true});
 
-			const input = new Input({
+			const source = new UrlSource(src);
+
+			using input = new Input({
 				formats: ALL_FORMATS,
-				source: new UrlSource(src),
+				source,
 			});
 
 			const onAbort = () => {
@@ -138,12 +133,11 @@ export const useWindowedAudioData = ({
 				const {numberOfChannels, sampleRate} = audioTrack;
 
 				const format = await input.getFormat();
+
 				const isMatroska = format === MATROSKA || format === WEBM;
 
 				if (isMounted.current) {
 					setAudioUtils({
-						input,
-						track: audioTrack,
 						metadata: {
 							durationInSeconds,
 							numberOfChannels,
@@ -155,7 +149,6 @@ export const useWindowedAudioData = ({
 
 				continueRender(handle);
 			} catch (err) {
-				input.dispose();
 				cancelRender(err);
 			} finally {
 				signal.removeEventListener('abort', cont);
@@ -196,7 +189,7 @@ export const useWindowedAudioData = ({
 		]
 			.filter((i) => i !== null)
 			.filter((i) => i >= 0);
-	}, [currentWindowIndex, audioUtils?.metadata, windowInSeconds]);
+	}, [currentWindowIndex, audioUtils, windowInSeconds]);
 
 	const fetchAndSetWaveformData = useCallback(
 		async (windowIndex: number) => {
@@ -240,7 +233,7 @@ export const useWindowedAudioData = ({
 				}
 
 				const partialWaveData = await getPartialAudioData({
-					track: audioUtils.track,
+					src,
 					fromSeconds,
 					toSeconds,
 					channelIndex,
@@ -307,7 +300,8 @@ export const useWindowedAudioData = ({
 
 		// Only fetch windows that don't already exist
 		const windowsToActuallyFetch = windowsToFetch.filter(
-			(windowIndex) => !waveFormMap[windowIndex],
+			(windowIndex) =>
+				!waveFormMap[windowIndex] && !requests.current[windowIndex],
 		);
 
 		if (windowsToActuallyFetch.length === 0) {
@@ -360,7 +354,7 @@ export const useWindowedAudioData = ({
 			resultId: `${src}-windows-${availableWindows.join(',')}`,
 			sampleRate: audioUtils.metadata.sampleRate,
 		};
-	}, [src, waveFormMap, audioUtils?.metadata, availableWindows]);
+	}, [src, waveFormMap, audioUtils, availableWindows]);
 
 	const isBeyondAudioDuration = audioUtils
 		? currentTime >= audioUtils.metadata.durationInSeconds

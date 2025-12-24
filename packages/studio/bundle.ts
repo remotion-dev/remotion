@@ -12,6 +12,7 @@ const external = [
 	'@remotion/player',
 	'@remotion/renderer/client',
 	'@remotion/renderer/pure',
+	'@remotion/web-renderer',
 	'@remotion/renderer/error-handling',
 	'source-map',
 	'zod',

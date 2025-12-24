@@ -337,6 +337,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/accessibility",
+			"destination": "/docs/accessibility",
+			"permanent": false
+		},
+		{
 			"source": "/custom-controls",
 			"destination": "/docs/player/custom-controls",
 			"permanent": false

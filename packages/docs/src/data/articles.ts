@@ -54,6 +54,15 @@ export const articles = [
 		slug: 'absolute-fill',
 	},
 	{
+		id: 'accessibility',
+		title: 'Accessibility statement for Remotion',
+		relativePath: 'docs/accessibility.mdx',
+		compId: 'articles-docs-accessibility',
+		crumb: 'FAQ',
+		noAi: false,
+		slug: 'accessibility',
+	},
+	{
 		id: 'acknowledgements',
 		title: 'Acknowledgements',
 		relativePath: 'docs/acknowledgements.mdx',
@@ -691,6 +700,15 @@ export const articles = [
 		crumb: 'FAQ',
 		noAi: false,
 		slug: 'client-side-rendering/migration',
+	},
+	{
+		id: 'client-side-rendering/telemetry',
+		title: 'Telemetry in client-side rendering',
+		relativePath: 'docs/client-side-rendering/telemetry.mdx',
+		compId: 'articles-docs-client-side-rendering-telemetry',
+		crumb: 'Client-side rendering',
+		noAi: false,
+		slug: 'client-side-rendering/telemetry',
 	},
 	{
 		id: 'clipper',

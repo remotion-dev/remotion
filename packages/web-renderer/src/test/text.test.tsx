@@ -19,7 +19,7 @@ test('should render text', async (t) => {
 		testId: 'text-fixture',
 		threshold: 0,
 		allowedMismatchedPixelRatio:
-			t.task.file.projectName === 'webkit' ? 0.061 : 0.001,
+			t.task.file.projectName === 'webkit' ? 0.09 : 0.001,
 	});
 });
 

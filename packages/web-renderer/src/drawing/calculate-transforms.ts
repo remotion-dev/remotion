@@ -1,7 +1,7 @@
 import {parseTransformOrigin} from './parse-transform-origin';
 
 type Transform = {
-	matrix: DOMMatrix;
+	matrices: DOMMatrix[];
 	rect: HTMLElement | SVGElement;
 	transformOrigin: string;
 	boundingClientRect: DOMRect | null;
@@ -59,18 +59,39 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 					: computedStyle.transform;
 			const matrix = new DOMMatrix(toParse);
 
-			const {transform} = parent.style;
+			const {transform, scale, rotate} = parent.style;
+			const additionalMatrices: DOMMatrix[] = [];
+
+			// The order of transformations is:
+			// 1. Translate --> We do not have to consider it since it changes getClientBoundingRect()
+			// 2. Rotate
+			// 3. Scale
+			// 4. CSS "transform"
+			if (rotate !== '' && rotate !== 'none') {
+				additionalMatrices.push(new DOMMatrix(`rotate(${rotate})`));
+			}
+
+			if (scale !== '' && scale !== 'none') {
+				additionalMatrices.push(new DOMMatrix(`scale(${scale})`));
+			}
+
+			additionalMatrices.push(matrix);
+
 			parent.style.transform = 'none';
+			parent.style.scale = 'none';
+			parent.style.rotate = 'none';
 
 			transforms.push({
-				matrix,
 				rect: parent,
 				transformOrigin: computedStyle.transformOrigin,
 				boundingClientRect: null,
+				matrices: additionalMatrices,
 			});
 			const parentRef = parent;
 			toReset.push(() => {
 				parentRef!.style.transform = transform;
+				parentRef!.style.scale = scale;
+				parentRef!.style.rotate = rotate;
 			});
 		}
 
@@ -90,14 +111,16 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 			throw new Error('Bounding client rect not found');
 		}
 
-		const globalTransformOrigin = getGlobalTransformOrigin(transform);
+		for (const matrix of transform.matrices) {
+			const globalTransformOrigin = getGlobalTransformOrigin(transform);
 
-		const transformMatrix = new DOMMatrix()
-			.translate(globalTransformOrigin.x, globalTransformOrigin.y)
-			.multiply(transform.matrix)
-			.translate(-globalTransformOrigin.x, -globalTransformOrigin.y);
+			const transformMatrix = new DOMMatrix()
+				.translate(globalTransformOrigin.x, globalTransformOrigin.y)
+				.multiply(matrix)
+				.translate(-globalTransformOrigin.x, -globalTransformOrigin.y);
 
-		totalMatrix.multiplySelf(transformMatrix);
+			totalMatrix.multiplySelf(transformMatrix);
+		}
 	}
 
 	if (!elementComputedStyle) {

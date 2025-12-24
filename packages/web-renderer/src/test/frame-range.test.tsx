@@ -2,7 +2,7 @@ import {expect, test} from 'vitest';
 import type {RenderMediaOnWebProgress} from '../render-media-on-web';
 import {renderMediaOnWeb} from '../render-media-on-web';
 
-test('should reject with invalid frame range', async () => {
+test('should reject with invalid frame range', async (t) => {
 	const Component: React.FC = () => {
 		return null;
 	};
@@ -18,6 +18,8 @@ test('should reject with invalid frame range', async () => {
 		},
 		inputProps: {},
 		frameRange: [-10, 50],
+		outputTarget:
+			t.task.file.projectName === 'webkit' ? 'arraybuffer' : 'web-fs',
 	});
 	await expect(prom).rejects.toThrow(
 		'The "durationInFrames" of the composition was evaluated to be 20, but frame range -10-50 is not inbetween 0-19',
