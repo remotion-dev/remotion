@@ -24,23 +24,31 @@ const getBorderSideProperties = (
 	return {
 		top: {
 			width: parseBorderWidth(computedStyle.borderTopWidth),
-			color: computedStyle.borderTopColor || computedStyle.borderColor || 'black',
-			style: computedStyle.borderTopStyle || computedStyle.borderStyle || 'solid',
+			color:
+				computedStyle.borderTopColor || computedStyle.borderColor || 'black',
+			style:
+				computedStyle.borderTopStyle || computedStyle.borderStyle || 'solid',
 		},
 		right: {
 			width: parseBorderWidth(computedStyle.borderRightWidth),
-			color: computedStyle.borderRightColor || computedStyle.borderColor || 'black',
-			style: computedStyle.borderRightStyle || computedStyle.borderStyle || 'solid',
+			color:
+				computedStyle.borderRightColor || computedStyle.borderColor || 'black',
+			style:
+				computedStyle.borderRightStyle || computedStyle.borderStyle || 'solid',
 		},
 		bottom: {
 			width: parseBorderWidth(computedStyle.borderBottomWidth),
-			color: computedStyle.borderBottomColor || computedStyle.borderColor || 'black',
-			style: computedStyle.borderBottomStyle || computedStyle.borderStyle || 'solid',
+			color:
+				computedStyle.borderBottomColor || computedStyle.borderColor || 'black',
+			style:
+				computedStyle.borderBottomStyle || computedStyle.borderStyle || 'solid',
 		},
 		left: {
 			width: parseBorderWidth(computedStyle.borderLeftWidth),
-			color: computedStyle.borderLeftColor || computedStyle.borderColor || 'black',
-			style: computedStyle.borderLeftStyle || computedStyle.borderStyle || 'solid',
+			color:
+				computedStyle.borderLeftColor || computedStyle.borderColor || 'black',
+			style:
+				computedStyle.borderLeftStyle || computedStyle.borderStyle || 'solid',
 		},
 	};
 };
@@ -49,9 +57,11 @@ const getLineDashPattern = (style: string, width: number): number[] => {
 	if (style === 'dashed') {
 		return [width * 2, width];
 	}
+
 	if (style === 'dotted') {
 		return [width, width];
 	}
+
 	return [];
 };
 
@@ -208,8 +218,10 @@ const drawCorner = ({
 	// Draw corner arc - use the average of the two adjacent borders
 	// In a more sophisticated implementation, we could blend the two borders
 	const avgWidth = (border1.width + border2.width) / 2;
-	const useColor = border1.width >= border2.width ? border1.color : border2.color;
-	const useStyle = border1.width >= border2.width ? border1.style : border2.style;
+	const useColor =
+		border1.width >= border2.width ? border1.color : border2.color;
+	const useStyle =
+		border1.width >= border2.width ? border1.style : border2.style;
 
 	if (avgWidth > 0 && useStyle !== 'none' && useStyle !== 'hidden') {
 		ctx.beginPath();
