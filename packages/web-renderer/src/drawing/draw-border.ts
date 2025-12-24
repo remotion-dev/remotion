@@ -235,6 +235,150 @@ const drawCorner = ({
 	}
 };
 
+const drawUniformBorder = ({
+	ctx,
+	x,
+	y,
+	width,
+	height,
+	borderRadius,
+	borderWidth,
+	borderColor,
+	borderStyle,
+}: {
+	ctx: OffscreenCanvasRenderingContext2D;
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+	borderRadius: BorderRadiusCorners;
+	borderWidth: number;
+	borderColor: string;
+	borderStyle: string;
+}) => {
+	ctx.beginPath();
+	ctx.strokeStyle = borderColor;
+	ctx.lineWidth = borderWidth;
+	ctx.setLineDash(getLineDashPattern(borderStyle, borderWidth));
+
+	const halfWidth = borderWidth / 2;
+	const borderX = x + halfWidth;
+	const borderY = y + halfWidth;
+	const borderW = width - borderWidth;
+	const borderH = height - borderWidth;
+
+	// Adjust border radius for the border width
+	const adjustedBorderRadius = {
+		topLeft: {
+			horizontal: Math.max(0, borderRadius.topLeft.horizontal - halfWidth),
+			vertical: Math.max(0, borderRadius.topLeft.vertical - halfWidth),
+		},
+		topRight: {
+			horizontal: Math.max(0, borderRadius.topRight.horizontal - halfWidth),
+			vertical: Math.max(0, borderRadius.topRight.vertical - halfWidth),
+		},
+		bottomRight: {
+			horizontal: Math.max(0, borderRadius.bottomRight.horizontal - halfWidth),
+			vertical: Math.max(0, borderRadius.bottomRight.vertical - halfWidth),
+		},
+		bottomLeft: {
+			horizontal: Math.max(0, borderRadius.bottomLeft.horizontal - halfWidth),
+			vertical: Math.max(0, borderRadius.bottomLeft.vertical - halfWidth),
+		},
+	};
+
+	// Draw continuous path with border radius
+	ctx.moveTo(borderX + adjustedBorderRadius.topLeft.horizontal, borderY);
+
+	// Top edge
+	ctx.lineTo(
+		borderX + borderW - adjustedBorderRadius.topRight.horizontal,
+		borderY,
+	);
+
+	// Top-right corner
+	if (
+		adjustedBorderRadius.topRight.horizontal > 0 ||
+		adjustedBorderRadius.topRight.vertical > 0
+	) {
+		ctx.ellipse(
+			borderX + borderW - adjustedBorderRadius.topRight.horizontal,
+			borderY + adjustedBorderRadius.topRight.vertical,
+			adjustedBorderRadius.topRight.horizontal,
+			adjustedBorderRadius.topRight.vertical,
+			0,
+			-Math.PI / 2,
+			0,
+		);
+	}
+
+	// Right edge
+	ctx.lineTo(
+		borderX + borderW,
+		borderY + borderH - adjustedBorderRadius.bottomRight.vertical,
+	);
+
+	// Bottom-right corner
+	if (
+		adjustedBorderRadius.bottomRight.horizontal > 0 ||
+		adjustedBorderRadius.bottomRight.vertical > 0
+	) {
+		ctx.ellipse(
+			borderX + borderW - adjustedBorderRadius.bottomRight.horizontal,
+			borderY + borderH - adjustedBorderRadius.bottomRight.vertical,
+			adjustedBorderRadius.bottomRight.horizontal,
+			adjustedBorderRadius.bottomRight.vertical,
+			0,
+			0,
+			Math.PI / 2,
+		);
+	}
+
+	// Bottom edge
+	ctx.lineTo(
+		borderX + adjustedBorderRadius.bottomLeft.horizontal,
+		borderY + borderH,
+	);
+
+	// Bottom-left corner
+	if (
+		adjustedBorderRadius.bottomLeft.horizontal > 0 ||
+		adjustedBorderRadius.bottomLeft.vertical > 0
+	) {
+		ctx.ellipse(
+			borderX + adjustedBorderRadius.bottomLeft.horizontal,
+			borderY + borderH - adjustedBorderRadius.bottomLeft.vertical,
+			adjustedBorderRadius.bottomLeft.horizontal,
+			adjustedBorderRadius.bottomLeft.vertical,
+			0,
+			Math.PI / 2,
+			Math.PI,
+		);
+	}
+
+	// Left edge
+	ctx.lineTo(borderX, borderY + adjustedBorderRadius.topLeft.vertical);
+
+	// Top-left corner
+	if (
+		adjustedBorderRadius.topLeft.horizontal > 0 ||
+		adjustedBorderRadius.topLeft.vertical > 0
+	) {
+		ctx.ellipse(
+			borderX + adjustedBorderRadius.topLeft.horizontal,
+			borderY + adjustedBorderRadius.topLeft.vertical,
+			adjustedBorderRadius.topLeft.horizontal,
+			adjustedBorderRadius.topLeft.vertical,
+			0,
+			Math.PI,
+			(Math.PI * 3) / 2,
+		);
+	}
+
+	ctx.closePath();
+	ctx.stroke();
+};
+
 export const drawBorder = ({
 	ctx,
 	x,
@@ -270,107 +414,135 @@ export const drawBorder = ({
 	const originalLineWidth = ctx.lineWidth;
 	const originalLineDash = ctx.getLineDash();
 
-	// Draw corners first (they go underneath the straight edges)
-	drawCorner({
-		ctx,
-		corner: 'topLeft',
-		x,
-		y,
-		width,
-		height,
-		borderRadius,
-		topBorder: borders.top,
-		rightBorder: borders.right,
-		bottomBorder: borders.bottom,
-		leftBorder: borders.left,
-	});
+	// Check if all borders are uniform (same width, color, and style)
+	const allSidesEqual =
+		borders.top.width === borders.right.width &&
+		borders.top.width === borders.bottom.width &&
+		borders.top.width === borders.left.width &&
+		borders.top.color === borders.right.color &&
+		borders.top.color === borders.bottom.color &&
+		borders.top.color === borders.left.color &&
+		borders.top.style === borders.right.style &&
+		borders.top.style === borders.bottom.style &&
+		borders.top.style === borders.left.style &&
+		borders.top.width > 0;
 
-	drawCorner({
-		ctx,
-		corner: 'topRight',
-		x,
-		y,
-		width,
-		height,
-		borderRadius,
-		topBorder: borders.top,
-		rightBorder: borders.right,
-		bottomBorder: borders.bottom,
-		leftBorder: borders.left,
-	});
+	if (allSidesEqual) {
+		// Draw as a single continuous border for continuous dashing
+		drawUniformBorder({
+			ctx,
+			x,
+			y,
+			width,
+			height,
+			borderRadius,
+			borderWidth: borders.top.width,
+			borderColor: borders.top.color,
+			borderStyle: borders.top.style,
+		});
+	} else {
+		// Draw corners first (they go underneath the straight edges)
+		drawCorner({
+			ctx,
+			corner: 'topLeft',
+			x,
+			y,
+			width,
+			height,
+			borderRadius,
+			topBorder: borders.top,
+			rightBorder: borders.right,
+			bottomBorder: borders.bottom,
+			leftBorder: borders.left,
+		});
 
-	drawCorner({
-		ctx,
-		corner: 'bottomRight',
-		x,
-		y,
-		width,
-		height,
-		borderRadius,
-		topBorder: borders.top,
-		rightBorder: borders.right,
-		bottomBorder: borders.bottom,
-		leftBorder: borders.left,
-	});
+		drawCorner({
+			ctx,
+			corner: 'topRight',
+			x,
+			y,
+			width,
+			height,
+			borderRadius,
+			topBorder: borders.top,
+			rightBorder: borders.right,
+			bottomBorder: borders.bottom,
+			leftBorder: borders.left,
+		});
 
-	drawCorner({
-		ctx,
-		corner: 'bottomLeft',
-		x,
-		y,
-		width,
-		height,
-		borderRadius,
-		topBorder: borders.top,
-		rightBorder: borders.right,
-		bottomBorder: borders.bottom,
-		leftBorder: borders.left,
-	});
+		drawCorner({
+			ctx,
+			corner: 'bottomRight',
+			x,
+			y,
+			width,
+			height,
+			borderRadius,
+			topBorder: borders.top,
+			rightBorder: borders.right,
+			bottomBorder: borders.bottom,
+			leftBorder: borders.left,
+		});
 
-	// Draw each border side
-	drawBorderSide({
-		ctx,
-		side: 'top',
-		x,
-		y,
-		width,
-		height,
-		borderRadius,
-		borderProperties: borders.top,
-	});
+		drawCorner({
+			ctx,
+			corner: 'bottomLeft',
+			x,
+			y,
+			width,
+			height,
+			borderRadius,
+			topBorder: borders.top,
+			rightBorder: borders.right,
+			bottomBorder: borders.bottom,
+			leftBorder: borders.left,
+		});
 
-	drawBorderSide({
-		ctx,
-		side: 'right',
-		x,
-		y,
-		width,
-		height,
-		borderRadius,
-		borderProperties: borders.right,
-	});
+		// Draw each border side
+		drawBorderSide({
+			ctx,
+			side: 'top',
+			x,
+			y,
+			width,
+			height,
+			borderRadius,
+			borderProperties: borders.top,
+		});
 
-	drawBorderSide({
-		ctx,
-		side: 'bottom',
-		x,
-		y,
-		width,
-		height,
-		borderRadius,
-		borderProperties: borders.bottom,
-	});
+		drawBorderSide({
+			ctx,
+			side: 'right',
+			x,
+			y,
+			width,
+			height,
+			borderRadius,
+			borderProperties: borders.right,
+		});
 
-	drawBorderSide({
-		ctx,
-		side: 'left',
-		x,
-		y,
-		width,
-		height,
-		borderRadius,
-		borderProperties: borders.left,
-	});
+		drawBorderSide({
+			ctx,
+			side: 'bottom',
+			x,
+			y,
+			width,
+			height,
+			borderRadius,
+			borderProperties: borders.bottom,
+		});
+
+		drawBorderSide({
+			ctx,
+			side: 'left',
+			x,
+			y,
+			width,
+			height,
+			borderRadius,
+			borderProperties: borders.left,
+		});
+	}
 
 	// Restore original canvas state
 	ctx.strokeStyle = originalStrokeStyle;

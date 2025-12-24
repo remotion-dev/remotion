@@ -73,6 +73,7 @@ export const Root: React.FC = () => {
 				<Composition {...borderRadiusPercentage} />
 				<Composition {...borderRadiusNone} />
 				<Composition {...borderRadiusClamped} />
+				<Composition {...borderIndividualSides} />
 			</Folder>
 			<Folder name="Text">
 				<Composition {...textFixture} />
