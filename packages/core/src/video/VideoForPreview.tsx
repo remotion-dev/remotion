@@ -312,6 +312,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const crossOriginValue = getCrossOriginValue({
 		crossOrigin,
 		requestsVideoFrame: Boolean(onVideoFrame),
+		isClientSideRendering: false,
 	});
 
 	return (
