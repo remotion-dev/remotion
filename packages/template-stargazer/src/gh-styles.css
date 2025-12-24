@@ -213,7 +213,6 @@ svg:not(:root) {
   border-left: 0;
   border-top-right-radius: 6px;
   border-bottom-right-radius: 6px;
-  box-shadow: var(--color-shadow-small), var(--color-shadow-highlight);
   font-variant-numeric: tabular-nums;
 }
 
