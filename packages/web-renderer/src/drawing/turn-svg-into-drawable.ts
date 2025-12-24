@@ -7,6 +7,8 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const originalMarginRight = svg.style.marginRight;
 	const originalMarginTop = svg.style.marginTop;
 	const originalMarginBottom = svg.style.marginBottom;
+	const originalFill = svg.style.fill;
+	const originalColor = svg.style.color;
 
 	svg.style.transform = 'none';
 	svg.style.transformOrigin = '';
@@ -26,6 +28,8 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	svg.style.marginBottom = originalMarginBottom;
 	svg.style.transform = originalTransform;
 	svg.style.transformOrigin = originalTransformOrigin;
+	svg.style.fill = originalFill;
+	svg.style.color = originalColor;
 
 	return new Promise<HTMLImageElement>((resolve, reject) => {
 		const image = new Image();
