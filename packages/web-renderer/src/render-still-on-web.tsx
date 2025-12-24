@@ -36,7 +36,7 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	mediaCacheSizeInBytes: number | null;
 	signal: AbortSignal | null;
 	onArtifact: OnArtifact | null;
-	licenseKey: string | null;
+	licenseKey: string | undefined;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -139,7 +139,7 @@ async function internalRenderStillOnWeb<
 		}
 
 		sendUsageEvent({
-			licenseKey,
+			licenseKey: licenseKey ?? null,
 			succeeded: true,
 			apiName: 'renderStillOnWeb',
 		});
@@ -148,7 +148,7 @@ async function internalRenderStillOnWeb<
 	} catch (err) {
 		sendUsageEvent({
 			succeeded: false,
-			licenseKey,
+			licenseKey: licenseKey ?? null,
 			apiName: 'renderStillOnWeb',
 		}).catch((err2) => {
 			Internals.Log.error(
@@ -181,7 +181,7 @@ export const renderStillOnWeb = <
 				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 				signal: options.signal ?? null,
 				onArtifact: options.onArtifact ?? null,
-				licenseKey: options.licenseKey ?? null,
+				licenseKey: options.licenseKey ?? undefined,
 			}),
 		);
 

@@ -11,6 +11,7 @@ import {testImage} from './utils';
 
 test('should apply a border radius', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: borderRadius,
 		frame: 0,
 		inputProps: {},
@@ -22,6 +23,7 @@ test('should apply a border radius', async () => {
 
 test('should draw image with simple border radius', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: borderRadiusSimple,
 		frame: 0,
 		inputProps: {},
@@ -33,6 +35,7 @@ test('should draw image with simple border radius', async () => {
 
 test('should draw image with elliptical border radius', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: borderRadiusElliptical,
 		frame: 0,
 		inputProps: {},
@@ -44,6 +47,7 @@ test('should draw image with elliptical border radius', async () => {
 
 test('should draw image with different corner radii', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: borderRadiusDifferent,
 		frame: 0,
 		inputProps: {},
@@ -55,6 +59,7 @@ test('should draw image with different corner radii', async () => {
 
 test('should draw image with percentage border radius', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: borderRadiusPercentage,
 		frame: 0,
 		inputProps: {},
@@ -66,6 +71,7 @@ test('should draw image with percentage border radius', async () => {
 
 test('should draw image with no border radius', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: borderRadiusNone,
 		frame: 0,
 		inputProps: {},
@@ -77,6 +83,7 @@ test('should draw image with no border radius', async () => {
 
 test('should clamp border radius that exceeds maximum', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: borderRadiusClamped,
 		frame: 0,
 		inputProps: {},

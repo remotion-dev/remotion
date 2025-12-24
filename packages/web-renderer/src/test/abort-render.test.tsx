@@ -15,6 +15,7 @@ test('should be able to cancel renderMediaOnWeb()', async (t) => {
 	const controller = new AbortController();
 
 	const prom = renderMediaOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'abort-render-test',
@@ -43,6 +44,7 @@ test('should be able to cancel renderStillOnWeb()', async () => {
 	const controller = new AbortController();
 
 	const prom = renderStillOnWeb({
+		licenseKey: 'free-license',
 		frame: 0,
 		imageFormat: 'png',
 		composition: {

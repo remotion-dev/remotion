@@ -101,7 +101,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	onArtifact: OnArtifact | null;
 	onFrame: OnFrameCallback | null;
 	outputTarget: WebRendererOutputTarget | null;
-	licenseKey: string | null;
+	licenseKey: string | undefined;
 };
 
 export type RenderMediaOnWebOptions<
@@ -414,7 +414,7 @@ const internalRenderMediaOnWeb = async <
 		}
 
 		sendUsageEvent({
-			licenseKey,
+			licenseKey: licenseKey ?? null,
 			succeeded: true,
 			apiName: 'renderMediaOnWeb',
 		});
@@ -431,7 +431,7 @@ const internalRenderMediaOnWeb = async <
 	} catch (err) {
 		sendUsageEvent({
 			succeeded: false,
-			licenseKey,
+			licenseKey: licenseKey ?? null,
 			apiName: 'renderMediaOnWeb',
 		}).catch((err2) => {
 			Internals.Log.error(
@@ -477,7 +477,7 @@ export const renderMediaOnWeb = <
 				onArtifact: options.onArtifact ?? null,
 				onFrame: options.onFrame ?? null,
 				outputTarget: options.outputTarget ?? null,
-				licenseKey: options.licenseKey ?? null,
+				licenseKey: options.licenseKey ?? undefined,
 			}),
 		);
 

@@ -28,7 +28,7 @@ export const sendUsageEvent = async ({
 	}
 
 	await registerUsageEvent({
-		apiKey: licenseKey,
+		apiKey: licenseKey === 'free-license' ? null : licenseKey,
 		event: 'webcodec-conversion',
 		host,
 		succeeded,

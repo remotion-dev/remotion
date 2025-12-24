@@ -1,10 +1,12 @@
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {border} from './fixtures/border';
+import {borderIndividualSides} from './fixtures/border-individual-sides';
 import {testImage} from './utils';
 
 test('should render border', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: border,
 		frame: 0,
 		inputProps: {},
@@ -14,8 +16,14 @@ test('should render border', async () => {
 	await testImage({blob, testId: 'border'});
 });
 
-// TODO: Implement different borders for each side
-// https://github.com/remotion-dev/remotion/pull/6060#discussion_r2611487707
-test.todo(
-	'should render border for all sides, https://github.com/remotion-dev/remotion/pull/6060#discussion_r2611487707',
-);
+test('should render border with different styles for each side', async () => {
+	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
+		composition: borderIndividualSides,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'border-individual-sides'});
+});

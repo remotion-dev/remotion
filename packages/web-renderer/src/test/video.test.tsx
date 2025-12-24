@@ -20,6 +20,7 @@ test('can extract a video frame', async (t) => {
 	};
 
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: {
 			component: Component,
 			id: 'video-test',
@@ -60,6 +61,7 @@ test('cannot render inside an svg tag', async () => {
 
 	try {
 		await renderStillOnWeb({
+			licenseKey: 'free-license',
 			composition: {
 				component: Component,
 				width: 100,

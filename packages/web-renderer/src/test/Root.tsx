@@ -59,19 +59,21 @@ export const Root: React.FC = () => {
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...flexPositionedScaled} />
-			<Composition {...borderRadius} />
-			<Composition {...borderRadiusSimple} />
-			<Composition {...borderRadiusElliptical} />
-			<Composition {...borderRadiusDifferent} />
-			<Composition {...borderRadiusPercentage} />
-			<Composition {...borderRadiusNone} />
-			<Composition {...borderRadiusClamped} />
 			<Composition {...displayNone} />
 			<Composition {...opacitySimple} />
 			<Composition {...opacityNested} />
 			<Composition {...opacityZero} />
 			<Composition {...backgroundColor} />
-			<Composition {...border} />
+			<Folder name="border">
+				<Composition {...border} />
+				<Composition {...borderRadius} />
+				<Composition {...borderRadiusSimple} />
+				<Composition {...borderRadiusElliptical} />
+				<Composition {...borderRadiusDifferent} />
+				<Composition {...borderRadiusPercentage} />
+				<Composition {...borderRadiusNone} />
+				<Composition {...borderRadiusClamped} />
+			</Folder>
 			<Folder name="Text">
 				<Composition {...textFixture} />
 				<Composition {...paragraphs} />

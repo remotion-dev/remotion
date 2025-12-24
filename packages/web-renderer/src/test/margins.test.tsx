@@ -7,6 +7,7 @@ import {testImage} from './utils';
 test('scaled translated svg', async () => {
 	await page.viewport(300, 300);
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: scaledTranslatedSvg,
 		frame: 0,
 		inputProps: {},

@@ -8,6 +8,7 @@ import {testImage} from './utils';
 
 test('should render text', async (t) => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: textFixture,
 		frame: 0,
 		inputProps: {},
@@ -25,6 +26,7 @@ test('should render text', async (t) => {
 
 test('should render paragraphs', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: paragraphs,
 		frame: 0,
 		inputProps: {},
@@ -36,6 +38,7 @@ test('should render paragraphs', async () => {
 
 test('should render text with letter spacing', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: letterSpacing,
 		frame: 0,
 		inputProps: {},
@@ -52,6 +55,7 @@ test('should render text with letter spacing', async () => {
 
 test('should render text with text transform', async () => {
 	const blob = await renderStillOnWeb({
+		licenseKey: 'free-license',
 		composition: textTransform,
 		frame: 0,
 		inputProps: {},
