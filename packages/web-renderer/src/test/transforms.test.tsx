@@ -195,6 +195,7 @@ test('Inside 3d transform', async () => {
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',
+		logLevel: 'trace',
 	});
 
 	await testImage({

@@ -1,3 +1,5 @@
+import type {LogLevel} from 'remotion';
+import {Internals} from 'remotion';
 import {compose} from '../compose';
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import {calculateTransforms} from './calculate-transforms';
@@ -13,12 +15,14 @@ export const drawElementToCanvas = async ({
 	draw,
 	offsetLeft,
 	offsetTop,
+	logLevel,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
 	draw: DrawFn;
 	offsetLeft: number;
 	offsetTop: number;
+	logLevel: LogLevel;
 }): Promise<DrawElementToCanvasReturnValue> => {
 	const {totalMatrix, reset, dimensions, opacity, computedStyle} =
 		calculateTransforms(element);
@@ -46,6 +50,7 @@ export const drawElementToCanvas = async ({
 			biggestBoundingClientRect.height,
 			biggestBoundingClientRect.bottom,
 		);
+		const start = Date.now();
 		const tempCanvas = new OffscreenCanvas(tempCanvasWidth, tempCanvasHeight);
 		const context2 = tempCanvas.getContext('2d');
 		if (!context2) {
@@ -57,7 +62,9 @@ export const drawElementToCanvas = async ({
 			context: context2,
 			offsetLeft: canvasOffsetLeft,
 			offsetTop: canvasOffsetTop,
+			logLevel,
 		});
+		const afterCompose = Date.now();
 
 		const transformed = transformIn3d({
 			canvasWidth: tempCanvasWidth,
@@ -68,7 +75,16 @@ export const drawElementToCanvas = async ({
 			offsetTop: canvasOffsetTop,
 		});
 		context.drawImage(transformed, 0, 0);
+		const afterDraw = Date.now();
 		reset();
+
+		Internals.Log.trace(
+			{
+				logLevel,
+				tag: '@remotion/web-renderer',
+			},
+			`Transforming element in 3D - canvas size: ${tempCanvasWidth}x${tempCanvasHeight} - compose: ${afterCompose - start}ms - draw: ${afterDraw - afterCompose}ms`,
+		);
 
 		return 'skip-children';
 	}
