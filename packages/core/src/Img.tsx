@@ -13,6 +13,7 @@ import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
@@ -237,9 +238,12 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		]);
 	}
 
+	const {isClientSideRendering} = useRemotionEnvironment();
+
 	const crossOriginValue = getCrossOriginValue({
 		crossOrigin,
 		requestsVideoFrame: false,
+		isClientSideRendering,
 	});
 
 	// src gets set once we've loaded and decoded the image.
