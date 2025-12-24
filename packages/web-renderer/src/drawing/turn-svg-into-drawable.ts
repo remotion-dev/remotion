@@ -1,4 +1,6 @@
 export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
+	const {fill, color} = getComputedStyle(svg);
+
 	const originalTransform = svg.style.transform;
 	const originalTransformOrigin = svg.style.transformOrigin;
 	const originalMarginLeft = svg.style.marginLeft;
@@ -14,6 +16,8 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	svg.style.marginRight = '0';
 	svg.style.marginTop = '0';
 	svg.style.marginBottom = '0';
+	svg.style.fill = fill;
+	svg.style.color = color;
 	const svgData = new XMLSerializer().serializeToString(svg);
 
 	svg.style.marginLeft = originalMarginLeft;
