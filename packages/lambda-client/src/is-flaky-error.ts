@@ -78,8 +78,7 @@ export const isFlakyError = (err: Error): boolean => {
 		message.includes('ERR_CONNECTION_TIMED_OUT') ||
 		message.includes('ERR_NETWORK_CHANGED') ||
 		message.includes('A network error occurred') ||
-		message.includes('socket hang up') ||
-		message.includes('TimeoutError: socket hang up')
+		message.includes('socket hang up') // Also catches 'TimeoutError: socket hang up'
 	) {
 		return true;
 	}
