@@ -27,9 +27,9 @@ export type LocationAndTrending = {
 };
 
 export const getDataAndProps = async () => {
-	const location = (await fetch('https://bugs.remotion.dev/api/location').then(
-		(res) => res.json(),
-	)) as Location;
+	const location = (await fetch(
+		'https://bugs-five.vercel.app/api/location',
+	).then((res) => res.json())) as Location;
 
 	const trending = await fetch(
 		`https://bugs.remotion.dev/trending?lat=${location.latitude}&lng=${location.longitude}&country=${location.country}`,
