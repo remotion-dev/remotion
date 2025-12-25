@@ -143,6 +143,7 @@ import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {PrintProps} from './PrintProps';
 import {SmoothTextTransition} from './SmoothTextTransition';
+import {SpringSeason} from './SpringSeason';
 import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
@@ -1746,6 +1747,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="empty"
 				component={Empty}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={900}
+			/>
+			<Composition
+				id="spring-season"
+				component={SpringSeason}
 				width={1080}
 				height={1080}
 				fps={30}
