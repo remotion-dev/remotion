@@ -1,1 +1,3 @@
-export type Bitrate = `${number}${'' | 'k' | 'K' | 'm' | 'M'}`;
+type BitrateUnit = 'k' | 'K' | 'm' | 'M' | 'g' | 'G';
+
+export type Bitrate = `${number}${BitrateUnit}`;
