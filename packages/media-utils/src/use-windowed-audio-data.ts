@@ -308,11 +308,32 @@ export const useWindowedAudioData = ({
 			return;
 		}
 
-		Promise.all(
-			windowsToActuallyFetch.map((windowIndex) => {
-				return fetchAndSetWaveformData(windowIndex);
-			}),
-		).catch((err) => {
+		// Prioritize the current window where playback is at.
+		// On slow connections, this ensures the most important window loads first.
+		const currentWindowNeedsFetch = windowsToActuallyFetch.includes(
+			currentWindowIndex,
+		);
+		const otherWindowsToFetch = windowsToActuallyFetch.filter(
+			(w) => w !== currentWindowIndex,
+		);
+
+		const fetchWindows = async () => {
+			// First, load the current window where playback is at
+			if (currentWindowNeedsFetch) {
+				await fetchAndSetWaveformData(currentWindowIndex);
+			}
+
+			// Then load the surrounding windows in parallel
+			if (otherWindowsToFetch.length > 0) {
+				await Promise.all(
+					otherWindowsToFetch.map((windowIndex) => {
+						return fetchAndSetWaveformData(windowIndex);
+					}),
+				);
+			}
+		};
+
+		fetchWindows().catch((err) => {
 			if ((err as Error).stack?.includes('Cancelled')) {
 				return;
 			}
@@ -328,7 +349,13 @@ export const useWindowedAudioData = ({
 
 			cancelRender(err);
 		});
-	}, [fetchAndSetWaveformData, audioUtils, windowsToFetch, waveFormMap]);
+	}, [
+		fetchAndSetWaveformData,
+		audioUtils,
+		windowsToFetch,
+		waveFormMap,
+		currentWindowIndex,
+	]);
 
 	// Calculate available windows for reuse
 	const availableWindows = useMemo(() => {
