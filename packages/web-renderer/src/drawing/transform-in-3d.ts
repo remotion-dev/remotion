@@ -125,6 +125,8 @@ export const transformIn3d = ({
 	sourceCanvas,
 	beforeTransformOffsetLeft,
 	beforeTransformOffsetTop,
+	offsetLeft,
+	offsetTop,
 }: {
 	beforeTransformCanvasWidth: number;
 	beforeTransformCanvasHeight: number;
@@ -134,6 +136,8 @@ export const transformIn3d = ({
 	sourceCanvas: OffscreenCanvas;
 	canvasWidth: number;
 	canvasHeight: number;
+	offsetLeft: number;
+	offsetTop: number;
 }) => {
 	const {canvas, gl, program} = createHelperCanvas({
 		canvasWidth: Math.ceil(canvasWidth),
@@ -195,7 +199,7 @@ export const transformIn3d = ({
 
 	const zScale = 1_000_000_000; // By default infinite in chrome
 
-	// Create orthographic projection matrix for pixel coordinates
+	// Create orthographic projection matrix for pixel coordinates with offset
 	const projectionMatrix = new Float32Array([
 		2 / canvas.width,
 		0,
@@ -209,8 +213,8 @@ export const transformIn3d = ({
 		0,
 		-2 / zScale,
 		0,
-		-1,
-		1,
+		-1 + (2 * -offsetLeft) / canvas.width,
+		1 - (2 * -offsetTop) / canvas.height,
 		0,
 		1,
 	]);

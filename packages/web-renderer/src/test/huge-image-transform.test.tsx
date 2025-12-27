@@ -1,10 +1,10 @@
-import {test} from 'vitest';
+import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {testImage} from './utils';
 
 test('should render huge image with scale and 3D transform', async () => {
-	const {blob} = await renderStillOnWeb({
+	const {blob, internalState} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: hugeImageTransform,
 		frame: 0,
@@ -13,4 +13,6 @@ test('should render huge image with scale and 3D transform', async () => {
 	});
 
 	await testImage({blob, testId: 'huge-image-transform'});
+	expect(internalState.getDrawn3dPixels()).approximately(512 * 513, 512);
+	expect(internalState.getDrawn3dTextures()).toBe(1);
 });

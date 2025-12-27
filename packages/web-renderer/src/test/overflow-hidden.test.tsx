@@ -38,6 +38,6 @@ test('Should render overflow: hidden correctly with 3D transform', async () => {
 		allowedMismatchedPixelRatio: 0.02,
 	});
 
-	expect(internalState.getDrawn3dPixels()).toBe(22500);
+	expect(internalState.getDrawn3dPixels()).toBe(9964);
 	expect(internalState.getDrawn3dTextures()).toBe(1);
 });
