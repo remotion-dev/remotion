@@ -21,7 +21,16 @@ const Component: React.FC = () => {
 					transform: 'rotateY(45deg) rotateX(30deg)',
 				}}
 			/>
-
+			<div
+				style={{
+					position: 'absolute',
+					width: 100,
+					height: 100,
+					backgroundColor: 'red',
+					// edge case, should not invert the DOMRect
+					transform: 'scaleX(-1) rotateY(10deg) rotateX(20deg)',
+				}}
+			/>
 			<div
 				style={{
 					position: 'absolute',
