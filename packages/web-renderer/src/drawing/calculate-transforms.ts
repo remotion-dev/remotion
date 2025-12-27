@@ -1,3 +1,4 @@
+import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
 import {parseTransformOrigin} from './parse-transform-origin';
 
 type Transform = {
@@ -49,14 +50,10 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 			elementComputedStyle = computedStyle;
 		}
 
-		if (
-			(computedStyle.transform && computedStyle.transform !== 'none') ||
-			parent === element
-		) {
-			const toParse =
-				computedStyle.transform === 'none' || computedStyle.transform === ''
-					? undefined
-					: computedStyle.transform;
+		if (hasAnyTransformCssValue(computedStyle) || parent === element) {
+			const toParse = !hasTransformCssValue(computedStyle)
+				? computedStyle.transform
+				: undefined;
 			const matrix = new DOMMatrix(toParse);
 
 			const {transform, scale, rotate} = parent.style;
