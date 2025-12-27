@@ -27,6 +27,7 @@ const Component: React.FC = () => {
 						height: 100,
 						backgroundColor: 'orange',
 						transform: 'rotate(45deg)',
+						scale: 100,
 					}}
 				/>
 			</div>

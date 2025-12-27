@@ -95,7 +95,7 @@ export const compose = async ({
 			const cleanup = cleanupAfterChildren[i];
 			if (
 				!(
-					cleanup.element === treeWalker.currentNode &&
+					cleanup.element === treeWalker.currentNode ||
 					cleanup.element.contains(treeWalker.currentNode)
 				)
 			) {

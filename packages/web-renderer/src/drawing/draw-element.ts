@@ -35,10 +35,7 @@ export const drawElement = async ({
 		computedStyle.overflow === 'hidden'
 			? setBorderRadius({
 					ctx: context,
-					x: dimensions.left,
-					y: dimensions.top,
-					width: dimensions.width,
-					height: dimensions.height,
+					rect: dimensions,
 					borderRadius,
 					forceClipEvenWhenZero: true,
 				})
@@ -46,10 +43,7 @@ export const drawElement = async ({
 
 	const finishBorderRadius = setBorderRadius({
 		ctx: context,
-		x: dimensions.left,
-		y: dimensions.top,
-		width: dimensions.width,
-		height: dimensions.height,
+		rect: dimensions,
 		borderRadius,
 		forceClipEvenWhenZero: false,
 	});
