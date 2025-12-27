@@ -4,9 +4,9 @@ import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
 import {handle3dTransform} from './handle-3d-transform';
 
-export type DrawElementToCanvasReturnValue = 'continue' | 'skip-children';
+export type ProcessNodeReturnValue = 'continue' | 'skip-children';
 
-export const drawElementToCanvas = async ({
+export const processNode = async ({
 	element,
 	context,
 	draw,
@@ -22,7 +22,7 @@ export const drawElementToCanvas = async ({
 	offsetTop: number;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
-}): Promise<DrawElementToCanvasReturnValue> => {
+}): Promise<ProcessNodeReturnValue> => {
 	const transforms = calculateTransforms({element, offsetLeft, offsetTop});
 
 	const {totalMatrix, reset, dimensions, opacity, computedStyle} = transforms;

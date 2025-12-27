@@ -1,7 +1,7 @@
 import type {LogLevel} from 'remotion';
 import {drawDomElement} from './drawing/draw-dom-element';
-import type {DrawElementToCanvasReturnValue} from './drawing/draw-element-to-canvas';
-import {drawElementToCanvas} from './drawing/draw-element-to-canvas';
+import type {ProcessNodeReturnValue} from './drawing/process-node';
+import {processNode} from './drawing/process-node';
 import {handleTextNode} from './drawing/text/handle-text-node';
 import {skipToNextNonDescendant} from './walk-tree';
 
@@ -19,9 +19,9 @@ const walkOverNode = ({
 	offsetTop: number;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
-}): Promise<DrawElementToCanvasReturnValue> => {
+}): Promise<ProcessNodeReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
-		return drawElementToCanvas({
+		return processNode({
 			element: node,
 			context,
 			draw: drawDomElement(node),

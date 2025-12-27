@@ -1,6 +1,6 @@
 import type {LogLevel} from 'remotion';
-import type {DrawElementToCanvasReturnValue} from '../draw-element-to-canvas';
-import {drawElementToCanvas} from '../draw-element-to-canvas';
+import type {ProcessNodeReturnValue} from '../process-node';
+import {processNode} from '../process-node';
 import {drawText} from './draw-text';
 
 export const handleTextNode = async ({
@@ -17,7 +17,7 @@ export const handleTextNode = async ({
 	offsetTop: number;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
-}): Promise<DrawElementToCanvasReturnValue> => {
+}): Promise<ProcessNodeReturnValue> => {
 	const span = document.createElement('span');
 
 	const parent = node.parentNode;
@@ -28,7 +28,7 @@ export const handleTextNode = async ({
 	parent.insertBefore(span, node);
 	span.appendChild(node);
 
-	const value = await drawElementToCanvas({
+	const value = await processNode({
 		context,
 		element: span,
 		draw: drawText(span),
