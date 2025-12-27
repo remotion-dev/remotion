@@ -76,20 +76,44 @@ export const drawOutline = ({
 	// When outline-offset is negative, we need to shrink the radius
 	const adjustedBorderRadius = {
 		topLeft: {
-			horizontal: Math.max(0, borderRadius.topLeft.horizontal + offset),
-			vertical: Math.max(0, borderRadius.topLeft.vertical + offset),
+			horizontal:
+				borderRadius.topLeft.horizontal === 0
+					? 0
+					: Math.max(0, borderRadius.topLeft.horizontal + offset),
+			vertical:
+				borderRadius.topLeft.vertical === 0
+					? 0
+					: Math.max(0, borderRadius.topLeft.vertical + offset),
 		},
 		topRight: {
-			horizontal: Math.max(0, borderRadius.topRight.horizontal + offset),
-			vertical: Math.max(0, borderRadius.topRight.vertical + offset),
+			horizontal:
+				borderRadius.topRight.horizontal === 0
+					? 0
+					: Math.max(0, borderRadius.topRight.horizontal + offset),
+			vertical:
+				borderRadius.topRight.vertical === 0
+					? 0
+					: Math.max(0, borderRadius.topRight.vertical + offset),
 		},
 		bottomRight: {
-			horizontal: Math.max(0, borderRadius.bottomRight.horizontal + offset),
-			vertical: Math.max(0, borderRadius.bottomRight.vertical + offset),
+			horizontal:
+				borderRadius.bottomRight.horizontal === 0
+					? 0
+					: Math.max(0, borderRadius.bottomRight.horizontal + offset),
+			vertical:
+				borderRadius.bottomRight.vertical === 0
+					? 0
+					: Math.max(0, borderRadius.bottomRight.vertical + offset),
 		},
 		bottomLeft: {
-			horizontal: Math.max(0, borderRadius.bottomLeft.horizontal + offset),
-			vertical: Math.max(0, borderRadius.bottomLeft.vertical + offset),
+			horizontal:
+				borderRadius.bottomLeft.horizontal === 0
+					? 0
+					: Math.max(0, borderRadius.bottomLeft.horizontal + offset),
+			vertical:
+				borderRadius.bottomLeft.vertical === 0
+					? 0
+					: Math.max(0, borderRadius.bottomLeft.vertical + offset),
 		},
 	};
 
