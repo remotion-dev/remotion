@@ -393,18 +393,12 @@ const drawUniformBorder = ({
 
 export const drawBorder = ({
 	ctx,
-	x,
-	y,
-	width,
-	height,
+	rect,
 	borderRadius,
 	computedStyle,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
-	x: number;
-	y: number;
-	width: number;
-	height: number;
+	rect: DOMRect;
 	borderRadius: BorderRadiusCorners;
 	computedStyle: CSSStyleDeclaration;
 }) => {
@@ -443,10 +437,10 @@ export const drawBorder = ({
 		// Draw as a single continuous border for continuous dashing
 		drawUniformBorder({
 			ctx,
-			x,
-			y,
-			width,
-			height,
+			x: rect.left,
+			y: rect.top,
+			width: rect.width,
+			height: rect.height,
 			borderRadius,
 			borderWidth: borders.top.width,
 			borderColor: borders.top.color,
@@ -457,10 +451,10 @@ export const drawBorder = ({
 		drawCorner({
 			ctx,
 			corner: 'topLeft',
-			x,
-			y,
-			width,
-			height,
+			x: rect.left,
+			y: rect.top,
+			width: rect.width,
+			height: rect.height,
 			borderRadius,
 			topBorder: borders.top,
 			rightBorder: borders.right,
@@ -471,10 +465,10 @@ export const drawBorder = ({
 		drawCorner({
 			ctx,
 			corner: 'topRight',
-			x,
-			y,
-			width,
-			height,
+			x: rect.left,
+			y: rect.top,
+			width: rect.width,
+			height: rect.height,
 			borderRadius,
 			topBorder: borders.top,
 			rightBorder: borders.right,
@@ -485,10 +479,10 @@ export const drawBorder = ({
 		drawCorner({
 			ctx,
 			corner: 'bottomRight',
-			x,
-			y,
-			width,
-			height,
+			x: rect.left,
+			y: rect.top,
+			width: rect.width,
+			height: rect.height,
 			borderRadius,
 			topBorder: borders.top,
 			rightBorder: borders.right,
@@ -499,10 +493,10 @@ export const drawBorder = ({
 		drawCorner({
 			ctx,
 			corner: 'bottomLeft',
-			x,
-			y,
-			width,
-			height,
+			x: rect.left,
+			y: rect.top,
+			width: rect.width,
+			height: rect.height,
 			borderRadius,
 			topBorder: borders.top,
 			rightBorder: borders.right,
@@ -514,10 +508,10 @@ export const drawBorder = ({
 		drawBorderSide({
 			ctx,
 			side: 'top',
-			x,
-			y,
-			width,
-			height,
+			x: rect.left,
+			y: rect.top,
+			width: rect.width,
+			height: rect.height,
 			borderRadius,
 			borderProperties: borders.top,
 		});
@@ -525,10 +519,10 @@ export const drawBorder = ({
 		drawBorderSide({
 			ctx,
 			side: 'right',
-			x,
-			y,
-			width,
-			height,
+			x: rect.left,
+			y: rect.top,
+			width: rect.width,
+			height: rect.height,
 			borderRadius,
 			borderProperties: borders.right,
 		});
@@ -536,10 +530,10 @@ export const drawBorder = ({
 		drawBorderSide({
 			ctx,
 			side: 'bottom',
-			x,
-			y,
-			width,
-			height,
+			x: rect.left,
+			y: rect.top,
+			width: rect.width,
+			height: rect.height,
 			borderRadius,
 			borderProperties: borders.bottom,
 		});
@@ -547,10 +541,10 @@ export const drawBorder = ({
 		drawBorderSide({
 			ctx,
 			side: 'left',
-			x,
-			y,
-			width,
-			height,
+			x: rect.left,
+			y: rect.top,
+			width: rect.width,
+			height: rect.height,
 			borderRadius,
 			borderProperties: borders.left,
 		});

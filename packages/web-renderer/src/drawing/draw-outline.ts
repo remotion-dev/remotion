@@ -22,18 +22,12 @@ const getLineDashPattern = (style: string, width: number): number[] => {
 
 export const drawOutline = ({
 	ctx,
-	x,
-	y,
-	width,
-	height,
+	rect,
 	borderRadius,
 	computedStyle,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
-	x: number;
-	y: number;
-	width: number;
-	height: number;
+	rect: DOMRect;
 	borderRadius: BorderRadiusCorners;
 	computedStyle: CSSStyleDeclaration;
 }) => {
@@ -66,10 +60,10 @@ export const drawOutline = ({
 	const halfWidth = outlineWidth / 2;
 	const offset = outlineOffset + halfWidth;
 
-	const outlineX = x - offset;
-	const outlineY = y - offset;
-	const outlineW = width + offset * 2;
-	const outlineH = height + offset * 2;
+	const outlineX = rect.left - offset;
+	const outlineY = rect.top - offset;
+	const outlineW = rect.width + offset * 2;
+	const outlineH = rect.height + offset * 2;
 
 	// Adjust border radius for the outline offset
 	// When outline-offset is positive, we need to expand the radius

@@ -56,7 +56,7 @@ export const processNode = async ({
 	}
 
 	const {cleanupAfterChildren} = await drawElement({
-		dimensions: new DOMRect(
+		rect: new DOMRect(
 			dimensions.left - offsetLeft,
 			dimensions.top - offsetTop,
 			dimensions.width,
