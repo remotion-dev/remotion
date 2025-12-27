@@ -51,7 +51,7 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 		}
 
 		if (hasAnyTransformCssValue(computedStyle) || parent === element) {
-			const toParse = !hasTransformCssValue(computedStyle)
+			const toParse = hasTransformCssValue(computedStyle)
 				? computedStyle.transform
 				: undefined;
 			const matrix = new DOMMatrix(toParse);
