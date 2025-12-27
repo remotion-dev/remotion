@@ -190,6 +190,7 @@ export const usePlayback = ({
 		isBackgroundedRef,
 		getCurrentFrame,
 		context,
+		isPlaying,
 	]);
 
 	useEffect(() => {
