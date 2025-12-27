@@ -145,7 +145,15 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		unresolved: unresolvedComposition,
 	} = context;
 
-	const [renderMode, setRenderMode] = useState<RenderType>('video');
+	const [isVideo] = useState(() => {
+		return typeof resolvedComposition.durationInFrames === 'undefined'
+			? true
+			: resolvedComposition.durationInFrames > 1;
+	});
+
+	const [renderMode, setRenderMode] = useState<RenderType>(
+		isVideo ? 'video' : 'still',
+	);
 	const [tab, setTab] = useState<TabType>('general');
 	const [imageFormat, setImageFormat] = useState<RenderStillImageFormat>('png');
 	const [frame, setFrame] = useState(() => initialFrame);
