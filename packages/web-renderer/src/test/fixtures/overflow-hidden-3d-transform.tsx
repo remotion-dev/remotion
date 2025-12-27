@@ -7,7 +7,6 @@ const Component: React.FC = () => {
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
-				transform: 'rotateY(20deg) rotateX(20deg)',
 			}}
 		>
 			<div
@@ -19,6 +18,7 @@ const Component: React.FC = () => {
 					justifyContent: 'center',
 					alignItems: 'center',
 					overflow: 'hidden',
+					transform: 'rotateY(20deg) rotateX(20deg)',
 				}}
 			>
 				<div

@@ -1,3 +1,5 @@
+import {skipToNextNonDescendant} from './walk-tree';
+
 export const getBiggestBoundingClientRect = (
 	element: HTMLElement | SVGElement,
 ) => {
@@ -11,11 +13,19 @@ export const getBiggestBoundingClientRect = (
 	let mostBottom = -Infinity;
 
 	while (true) {
+		const computedStyle = getComputedStyle(treeWalker.currentNode as Element);
 		const rect = (treeWalker.currentNode as Element).getBoundingClientRect();
 		mostLeft = Math.min(mostLeft, rect.left);
 		mostTop = Math.min(mostTop, rect.top);
 		mostRight = Math.max(mostRight, rect.right);
 		mostBottom = Math.max(mostBottom, rect.bottom);
+
+		if (computedStyle.overflow === 'hidden') {
+			if (!skipToNextNonDescendant(treeWalker)) {
+				break;
+			}
+		}
+
 		if (!treeWalker.nextNode()) {
 			break;
 		}
