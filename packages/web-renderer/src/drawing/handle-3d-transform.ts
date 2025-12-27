@@ -6,7 +6,6 @@ import type {InternalState} from '../internal-state';
 import {clampRectToParentBounds} from './clamp-rect-to-parent-bounds';
 import {getPreTransformRect} from './get-pretransform-rect';
 import {transformIn3d} from './transform-in-3d';
-import {transformDOMRect} from './transform-rect-with-matrix';
 
 export const handle3dTransform = async ({
 	element,
@@ -34,11 +33,6 @@ export const handle3dTransform = async ({
 		parentRect: unclampedBiggestBoundingClientRect,
 	});
 
-	const rectAfterTransforms = transformDOMRect({
-		rect: preTransformRect,
-		matrix: totalMatrix,
-	});
-
 	const start = Date.now();
 	const tempCanvas = new OffscreenCanvas(
 		Math.ceil(preTransformRect.width),
@@ -60,20 +54,13 @@ export const handle3dTransform = async ({
 	});
 	const afterCompose = Date.now();
 
-	const transformed = transformIn3d({
-		beforeTransformCanvasWidth: preTransformRect.width,
-		beforeTransformCanvasHeight: preTransformRect.height,
+	const {canvas: transformed, rect: transformedRect} = transformIn3d({
+		untransformedRect: preTransformRect,
 		matrix: totalMatrix,
 		sourceCanvas: tempCanvas,
-		beforeTransformOffsetLeft: preTransformRect.x,
-		beforeTransformOffsetTop: preTransformRect.y,
-		canvasWidth: rectAfterTransforms.width,
-		canvasHeight: rectAfterTransforms.height,
-		offsetLeft: rectAfterTransforms.x,
-		offsetTop: rectAfterTransforms.y,
 	});
 
-	context.drawImage(transformed, rectAfterTransforms.x, rectAfterTransforms.y);
+	context.drawImage(transformed, transformedRect.x, transformedRect.y);
 	const afterDraw = Date.now();
 
 	Internals.Log.trace(
@@ -81,10 +68,10 @@ export const handle3dTransform = async ({
 			logLevel,
 			tag: '@remotion/web-renderer',
 		},
-		`Transforming element in 3D - canvas size: ${rectAfterTransforms.width}x${rectAfterTransforms.height} - compose: ${afterCompose - start}ms - draw: ${afterDraw - afterCompose}ms`,
+		`Transforming element in 3D - canvas size: ${transformedRect.width}x${transformedRect.height} - compose: ${afterCompose - start}ms - draw: ${afterDraw - afterCompose}ms`,
 	);
 	internalState.add3DTransform({
-		canvasWidth: Math.ceil(rectAfterTransforms.width),
-		canvasHeight: Math.ceil(rectAfterTransforms.height),
+		canvasWidth: Math.ceil(transformedRect.width),
+		canvasHeight: Math.ceil(transformedRect.height),
 	});
 };
