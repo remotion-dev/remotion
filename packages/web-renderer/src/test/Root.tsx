@@ -33,6 +33,8 @@ import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
+import {overflowHidden} from './fixtures/overflow-hidden';
+import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
 import {threeDoverflow} from './fixtures/three-d-overflow';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {orthographic} from './fixtures/transforms/orthographic';
@@ -58,6 +60,8 @@ export const Root: React.FC = () => {
 			<Composition {...pixelTransformOrigin} />
 			<Composition {...complexNestedSvg} />
 			<Composition {...threeDoverflow} />
+			<Composition {...overflowHidden} />
+			<Composition {...overflowHidden3dTransform} />
 			<Composition {...hugeImageTransform} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
