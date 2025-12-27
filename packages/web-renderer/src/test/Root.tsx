@@ -22,10 +22,9 @@ import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {opacityNested} from './fixtures/opacity-nested';
 import {opacitySimple} from './fixtures/opacity-simple';
 import {opacityZero} from './fixtures/opacity-zero';
+import {outline} from './fixtures/outline';
 import {overflowHidden} from './fixtures/overflow-hidden';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
-import {outline} from './fixtures/outline';
-import {overflowY} from './fixtures/overflow-y';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
@@ -64,7 +63,6 @@ export const Root: React.FC = () => {
 			<Composition {...threeDoverflow} />
 			<Composition {...overflowHidden} />
 			<Composition {...overflowHidden3dTransform} />
-			<Composition {...overflowY} />
 			<Composition {...hugeImageTransform} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
