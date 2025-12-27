@@ -12,7 +12,7 @@ test('can display an image', async () => {
 		);
 	};
 
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: {
 			component: Component,

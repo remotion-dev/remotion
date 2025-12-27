@@ -1,3 +1,6 @@
+import {parseOutlineOffset, parseOutlineWidth} from './drawing/draw-outline';
+import {skipToNextNonDescendant} from './walk-tree';
+
 export const getBiggestBoundingClientRect = (
 	element: HTMLElement | SVGElement,
 ) => {
@@ -11,11 +14,24 @@ export const getBiggestBoundingClientRect = (
 	let mostBottom = -Infinity;
 
 	while (true) {
+		const computedStyle = getComputedStyle(treeWalker.currentNode as Element);
+		const outlineWidth = parseOutlineWidth(computedStyle.outlineWidth);
+		const outlineOffset = parseOutlineOffset(computedStyle.outlineOffset);
 		const rect = (treeWalker.currentNode as Element).getBoundingClientRect();
-		mostLeft = Math.min(mostLeft, rect.left);
-		mostTop = Math.min(mostTop, rect.top);
-		mostRight = Math.max(mostRight, rect.right);
-		mostBottom = Math.max(mostBottom, rect.bottom);
+		mostLeft = Math.min(mostLeft, rect.left - outlineOffset - outlineWidth);
+		mostTop = Math.min(mostTop, rect.top - outlineOffset - outlineWidth);
+		mostRight = Math.max(mostRight, rect.right + outlineOffset + outlineWidth);
+		mostBottom = Math.max(
+			mostBottom,
+			rect.bottom + outlineOffset + outlineWidth,
+		);
+
+		if (computedStyle.overflow === 'hidden') {
+			if (!skipToNextNonDescendant(treeWalker)) {
+				break;
+			}
+		}
+
 		if (!treeWalker.nextNode()) {
 			break;
 		}

@@ -19,7 +19,7 @@ test('can extract a video frame', async (t) => {
 		);
 	};
 
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: {
 			component: Component,

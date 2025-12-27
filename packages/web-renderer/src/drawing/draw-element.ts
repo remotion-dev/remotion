@@ -1,18 +1,20 @@
 import {parseBorderRadius, setBorderRadius} from './border-radius';
 import {drawBorder} from './draw-border';
+import {drawOutline} from './draw-outline';
 import type {DrawFn} from './drawn-fn';
 import {setOpacity} from './opacity';
+import {setOverflowHidden} from './overflow';
 import {setTransform} from './transform';
 
 export const drawElement = async ({
-	dimensions,
+	rect,
 	computedStyle,
 	context,
 	draw,
 	opacity,
 	totalMatrix,
 }: {
-	dimensions: DOMRect;
+	rect: DOMRect;
 	computedStyle: CSSStyleDeclaration;
 	context: OffscreenCanvasRenderingContext2D;
 	opacity: number;
@@ -22,21 +24,20 @@ export const drawElement = async ({
 	const background = computedStyle.backgroundColor;
 	const borderRadius = parseBorderRadius({
 		borderRadius: computedStyle.borderRadius,
-		width: dimensions.width,
-		height: dimensions.height,
+		width: rect.width,
+		height: rect.height,
 	});
 
 	const finishTransform = setTransform({
 		ctx: context,
 		transform: totalMatrix,
 	});
+
 	const finishBorderRadius = setBorderRadius({
 		ctx: context,
-		x: dimensions.left,
-		y: dimensions.top,
-		width: dimensions.width,
-		height: dimensions.height,
+		rect,
 		borderRadius,
+		forceClipEvenWhenZero: false,
 	});
 	const finishOpacity = setOpacity({
 		ctx: context,
@@ -53,28 +54,42 @@ export const drawElement = async ({
 	) {
 		const originalFillStyle = context.fillStyle;
 		context.fillStyle = background;
-		context.fillRect(
-			dimensions.left,
-			dimensions.top,
-			dimensions.width,
-			dimensions.height,
-		);
+		context.fillRect(rect.left, rect.top, rect.width, rect.height);
 		context.fillStyle = originalFillStyle;
 	}
 
-	await draw({dimensions, computedStyle, contextToDraw: context});
+	await draw({dimensions: rect, computedStyle, contextToDraw: context});
 
 	drawBorder({
 		ctx: context,
-		x: dimensions.left,
-		y: dimensions.top,
-		width: dimensions.width,
-		height: dimensions.height,
+		rect,
 		borderRadius,
 		computedStyle,
 	});
 
-	finishOpacity();
 	finishBorderRadius();
+
+	// Drawing outline ignores overflow: hidden, finishing it and starting a new one for the outline
+	drawOutline({
+		ctx: context,
+		rect,
+		borderRadius,
+		computedStyle,
+	});
+
+	const finishOverflowHidden = setOverflowHidden({
+		ctx: context,
+		rect,
+		borderRadius,
+		overflowHidden: computedStyle.overflow === 'hidden',
+	});
+
 	finishTransform();
+
+	return {
+		cleanupAfterChildren: () => {
+			finishOpacity();
+			finishOverflowHidden();
+		},
+	};
 };

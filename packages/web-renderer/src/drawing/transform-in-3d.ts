@@ -1,3 +1,5 @@
+import {transformDOMRect} from './transform-rect-with-matrix';
+
 function compileShader(
 	shaderGl: WebGLRenderingContext,
 	source: string,
@@ -117,27 +119,22 @@ const createHelperCanvas = ({
 };
 
 export const transformIn3d = ({
-	beforeTransformCanvasWidth,
-	beforeTransformCanvasHeight,
-	canvasWidth,
-	canvasHeight,
 	matrix,
 	sourceCanvas,
-	beforeTransformOffsetLeft,
-	beforeTransformOffsetTop,
+	untransformedRect,
 }: {
-	beforeTransformCanvasWidth: number;
-	beforeTransformCanvasHeight: number;
-	beforeTransformOffsetLeft: number;
-	beforeTransformOffsetTop: number;
+	untransformedRect: DOMRect;
 	matrix: DOMMatrix;
 	sourceCanvas: OffscreenCanvas;
-	canvasWidth: number;
-	canvasHeight: number;
 }) => {
+	const rectAfterTransforms = transformDOMRect({
+		rect: untransformedRect,
+		matrix,
+	});
+
 	const {canvas, gl, program} = createHelperCanvas({
-		canvasWidth: Math.ceil(canvasWidth),
-		canvasHeight: Math.ceil(canvasHeight),
+		canvasWidth: Math.ceil(rectAfterTransforms.width),
+		canvasHeight: Math.ceil(rectAfterTransforms.height),
 	});
 
 	const vertexBuffer = gl.createBuffer();
@@ -148,13 +145,13 @@ export const transformIn3d = ({
 	const vertices = new Float32Array([
 		// Position (x, y) + TexCoord (u, v)
 		// First:
-		beforeTransformOffsetLeft, beforeTransformOffsetTop, 0, 0, // bottom-left
-		beforeTransformCanvasWidth + beforeTransformOffsetLeft, beforeTransformOffsetTop, 1, 0, // bottom-right
-		beforeTransformOffsetLeft, beforeTransformCanvasHeight + beforeTransformOffsetTop, 0, 1, // top-left
+		untransformedRect.x, untransformedRect.y, 0, 0, // bottom-left
+		untransformedRect.x + untransformedRect.width, untransformedRect.y, 1, 0, // bottom-right
+		untransformedRect.x, untransformedRect.y + untransformedRect.height, 0, 1, // top-left
 		// Second:
-		beforeTransformOffsetLeft, beforeTransformCanvasHeight + beforeTransformOffsetTop, 0, 1, // top-left
-		beforeTransformCanvasWidth + beforeTransformOffsetLeft, beforeTransformOffsetTop, 1, 0, // bottom-right
-		beforeTransformCanvasWidth + beforeTransformOffsetLeft, beforeTransformCanvasHeight + beforeTransformOffsetTop, 1, 1, // top-right
+		untransformedRect.x, untransformedRect.y + untransformedRect.height, 0, 1, // top-left
+		untransformedRect.x + untransformedRect.width, untransformedRect.y, 1, 0, // bottom-right
+		untransformedRect.x + untransformedRect.width, untransformedRect.y + untransformedRect.height, 1, 1, // top-right
 	]);
 
 	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
@@ -195,7 +192,7 @@ export const transformIn3d = ({
 
 	const zScale = 1_000_000_000; // By default infinite in chrome
 
-	// Create orthographic projection matrix for pixel coordinates
+	// Create orthographic projection matrix for pixel coordinates with offset
 	const projectionMatrix = new Float32Array([
 		2 / canvas.width,
 		0,
@@ -209,8 +206,8 @@ export const transformIn3d = ({
 		0,
 		-2 / zScale,
 		0,
-		-1,
-		1,
+		-1 + (2 * -rectAfterTransforms.x) / canvas.width,
+		1 - (2 * -rectAfterTransforms.y) / canvas.height,
 		0,
 		1,
 	]);
@@ -229,5 +226,5 @@ export const transformIn3d = ({
 	gl.deleteTexture(texture);
 	gl.deleteBuffer(vertexBuffer);
 
-	return canvas;
+	return {canvas, rect: rectAfterTransforms};
 };

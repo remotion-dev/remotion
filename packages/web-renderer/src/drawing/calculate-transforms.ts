@@ -3,7 +3,7 @@ import {parseTransformOrigin} from './parse-transform-origin';
 
 type Transform = {
 	matrices: DOMMatrix[];
-	rect: HTMLElement | SVGElement;
+	element: Element;
 	transformOrigin: string;
 	boundingClientRect: DOMRect | null;
 };
@@ -51,16 +51,9 @@ export const calculateTransforms = ({
 	const transforms: Transform[] = [];
 	const toReset: (() => void)[] = [];
 
-	let opacity = 1;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	while (parent) {
 		const computedStyle = getComputedStyle(parent);
-
-		// Multiply opacity values from element and all parents
-		const parentOpacity = computedStyle.opacity;
-		if (parentOpacity && parentOpacity !== '') {
-			opacity *= parseFloat(parentOpacity);
-		}
 
 		if (parent === element) {
 			elementComputedStyle = computedStyle;
@@ -95,7 +88,7 @@ export const calculateTransforms = ({
 			parent.style.rotate = 'none';
 
 			transforms.push({
-				rect: parent,
+				element: parent,
 				transformOrigin: computedStyle.transformOrigin,
 				boundingClientRect: null,
 				matrices: additionalMatrices,
@@ -112,7 +105,7 @@ export const calculateTransforms = ({
 	}
 
 	for (const transform of transforms) {
-		transform.boundingClientRect = transform.rect.getBoundingClientRect();
+		transform.boundingClientRect = transform.element.getBoundingClientRect();
 	}
 
 	const dimensions = transforms[0].boundingClientRect!;
@@ -120,10 +113,6 @@ export const calculateTransforms = ({
 
 	const totalMatrix = new DOMMatrix();
 	for (const transform of transforms.slice().reverse()) {
-		if (!transform.boundingClientRect) {
-			throw new Error('Bounding client rect not found');
-		}
-
 		for (const matrix of transform.matrices) {
 			const globalTransformOrigin = getGlobalTransformOrigin({
 				transform,
@@ -153,7 +142,10 @@ export const calculateTransforms = ({
 			}
 		},
 		nativeTransformOrigin,
-		opacity,
 		computedStyle: elementComputedStyle,
+		opacity:
+			elementComputedStyle.opacity && elementComputedStyle.opacity !== ''
+				? parseFloat(elementComputedStyle.opacity)
+				: 1,
 	};
 };

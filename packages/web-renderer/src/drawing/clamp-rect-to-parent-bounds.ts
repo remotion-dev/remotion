@@ -1,22 +1,14 @@
-export const clampRectToParentBounds = ({
-	rect,
-	parentRect,
+export const getNarrowerRect = ({
+	firstRect,
+	secondRect,
 }: {
-	rect: DOMRect;
-	parentRect: DOMRect;
+	firstRect: DOMRect;
+	secondRect: DOMRect;
 }) => {
-	return new DOMRect(
-		Math.max(rect.left, parentRect.left),
-		Math.max(rect.top, parentRect.top),
-		Math.max(
-			0,
-			Math.min(rect.right, parentRect.right) -
-				Math.max(rect.left, parentRect.left),
-		),
-		Math.max(
-			0,
-			Math.min(rect.bottom, parentRect.bottom) -
-				Math.max(rect.top, parentRect.top),
-		),
-	);
+	const left = Math.max(firstRect.left, secondRect.left);
+	const top = Math.max(firstRect.top, secondRect.top);
+	const bottom = Math.min(firstRect.bottom, secondRect.bottom);
+	const right = Math.min(firstRect.right, secondRect.right);
+
+	return new DOMRect(left, top, right - left, bottom - top);
 };

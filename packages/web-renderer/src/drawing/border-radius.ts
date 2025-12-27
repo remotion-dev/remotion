@@ -153,18 +153,14 @@ export function parseBorderRadius({
 
 export function setBorderRadius({
 	ctx,
-	x,
-	y,
-	width,
-	height,
+	rect,
 	borderRadius,
+	forceClipEvenWhenZero = false,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
-	x: number;
-	y: number;
-	width: number;
-	height: number;
+	rect: DOMRect;
 	borderRadius: BorderRadiusCorners;
+	forceClipEvenWhenZero: boolean;
 }) {
 	if (
 		borderRadius.topLeft.horizontal === 0 &&
@@ -174,7 +170,8 @@ export function setBorderRadius({
 		borderRadius.bottomRight.horizontal === 0 &&
 		borderRadius.bottomRight.vertical === 0 &&
 		borderRadius.bottomLeft.horizontal === 0 &&
-		borderRadius.bottomLeft.vertical === 0
+		borderRadius.bottomLeft.vertical === 0 &&
+		!forceClipEvenWhenZero
 	) {
 		return () => {};
 	}
@@ -183,10 +180,13 @@ export function setBorderRadius({
 	ctx.beginPath();
 
 	// Start at top-left corner, after the horizontal radius
-	ctx.moveTo(x + borderRadius.topLeft.horizontal, y);
+	ctx.moveTo(rect.left + borderRadius.topLeft.horizontal, rect.top);
 
 	// Top edge to top-right corner
-	ctx.lineTo(x + width - borderRadius.topRight.horizontal, y);
+	ctx.lineTo(
+		rect.left + rect.width - borderRadius.topRight.horizontal,
+		rect.top,
+	);
 
 	// Top-right corner (elliptical arc)
 	if (
@@ -194,8 +194,8 @@ export function setBorderRadius({
 		borderRadius.topRight.vertical > 0
 	) {
 		ctx.ellipse(
-			x + width - borderRadius.topRight.horizontal,
-			y + borderRadius.topRight.vertical,
+			rect.left + rect.width - borderRadius.topRight.horizontal,
+			rect.top + borderRadius.topRight.vertical,
 			borderRadius.topRight.horizontal,
 			borderRadius.topRight.vertical,
 			0,
@@ -205,7 +205,10 @@ export function setBorderRadius({
 	}
 
 	// Right edge to bottom-right corner
-	ctx.lineTo(x + width, y + height - borderRadius.bottomRight.vertical);
+	ctx.lineTo(
+		rect.left + rect.width,
+		rect.top + rect.height - borderRadius.bottomRight.vertical,
+	);
 
 	// Bottom-right corner (elliptical arc)
 	if (
@@ -213,8 +216,8 @@ export function setBorderRadius({
 		borderRadius.bottomRight.vertical > 0
 	) {
 		ctx.ellipse(
-			x + width - borderRadius.bottomRight.horizontal,
-			y + height - borderRadius.bottomRight.vertical,
+			rect.left + rect.width - borderRadius.bottomRight.horizontal,
+			rect.top + rect.height - borderRadius.bottomRight.vertical,
 			borderRadius.bottomRight.horizontal,
 			borderRadius.bottomRight.vertical,
 			0,
@@ -224,7 +227,10 @@ export function setBorderRadius({
 	}
 
 	// Bottom edge to bottom-left corner
-	ctx.lineTo(x + borderRadius.bottomLeft.horizontal, y + height);
+	ctx.lineTo(
+		rect.left + borderRadius.bottomLeft.horizontal,
+		rect.top + rect.height,
+	);
 
 	// Bottom-left corner (elliptical arc)
 	if (
@@ -232,8 +238,8 @@ export function setBorderRadius({
 		borderRadius.bottomLeft.vertical > 0
 	) {
 		ctx.ellipse(
-			x + borderRadius.bottomLeft.horizontal,
-			y + height - borderRadius.bottomLeft.vertical,
+			rect.left + borderRadius.bottomLeft.horizontal,
+			rect.top + rect.height - borderRadius.bottomLeft.vertical,
 			borderRadius.bottomLeft.horizontal,
 			borderRadius.bottomLeft.vertical,
 			0,
@@ -243,7 +249,7 @@ export function setBorderRadius({
 	}
 
 	// Left edge to top-left corner
-	ctx.lineTo(x, y + borderRadius.topLeft.vertical);
+	ctx.lineTo(rect.left, rect.top + borderRadius.topLeft.vertical);
 
 	// Top-left corner (elliptical arc)
 	if (
@@ -251,8 +257,8 @@ export function setBorderRadius({
 		borderRadius.topLeft.vertical > 0
 	) {
 		ctx.ellipse(
-			x + borderRadius.topLeft.horizontal,
-			y + borderRadius.topLeft.vertical,
+			rect.left + borderRadius.topLeft.horizontal,
+			rect.top + borderRadius.topLeft.vertical,
 			borderRadius.topLeft.horizontal,
 			borderRadius.topLeft.vertical,
 			0,

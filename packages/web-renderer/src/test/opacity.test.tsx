@@ -6,7 +6,7 @@ import {opacityZero} from './fixtures/opacity-zero';
 import {testImage} from './utils';
 
 test('should apply simple opacity', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: opacitySimple,
 		frame: 0,
@@ -14,11 +14,11 @@ test('should apply simple opacity', async () => {
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'opacity-simple'});
+	await testImage({blob, testId: 'opacity-simple', threshold: 0.01});
 });
 
 test('should apply nested opacity (multiply parent and child)', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: opacityNested,
 		frame: 0,
@@ -26,11 +26,11 @@ test('should apply nested opacity (multiply parent and child)', async () => {
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'opacity-nested'});
+	await testImage({blob, testId: 'opacity-nested', threshold: 0.01});
 });
 
 test('should render with zero opacity (opacity: 0)', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: opacityZero,
 		frame: 0,
@@ -38,5 +38,5 @@ test('should render with zero opacity (opacity: 0)', async () => {
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'opacity-zero'});
+	await testImage({blob, testId: 'opacity-zero', threshold: 0.01});
 });

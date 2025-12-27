@@ -1,5 +1,6 @@
 import type {LogLevel} from 'remotion';
 import {compose} from './compose';
+import type {InternalState} from './internal-state';
 import type {RenderStillOnWebImageFormat} from './render-still-on-web';
 
 export const createFrame = async ({
@@ -7,11 +8,13 @@ export const createFrame = async ({
 	width,
 	height,
 	logLevel,
+	internalState,
 }: {
 	div: HTMLDivElement;
 	width: number;
 	height: number;
 	logLevel: LogLevel;
+	internalState: InternalState;
 }) => {
 	const canvas = new OffscreenCanvas(width, height);
 	const context = canvas.getContext('2d');
@@ -23,10 +26,9 @@ export const createFrame = async ({
 	await compose({
 		element: div,
 		context,
-		offsetLeft: 0,
-		offsetTop: 0,
 		logLevel,
 		parentRect: new DOMRect(0, 0, width, height),
+		internalState,
 	});
 
 	return canvas;
@@ -38,14 +40,22 @@ export const takeScreenshot = async ({
 	height,
 	imageFormat,
 	logLevel,
+	internalState,
 }: {
 	div: HTMLDivElement;
 	width: number;
 	height: number;
 	imageFormat: RenderStillOnWebImageFormat;
 	logLevel: LogLevel;
+	internalState: InternalState;
 }) => {
-	const frame = await createFrame({div, width, height, logLevel});
+	const frame = await createFrame({
+		div,
+		width,
+		height,
+		logLevel,
+		internalState,
+	});
 
 	const imageData = await frame.convertToBlob({
 		type: `image/${imageFormat}`,
