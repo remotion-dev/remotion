@@ -1,4 +1,5 @@
 import type {LogLevel} from 'remotion';
+import type {InternalState} from '../internal-state';
 import {calculateTransforms} from './calculate-transforms';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
@@ -16,6 +17,7 @@ export const processNode = async ({
 	offsetTop,
 	logLevel,
 	parentRect,
+	internalState,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -24,6 +26,7 @@ export const processNode = async ({
 	offsetTop: number;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
+	internalState: InternalState;
 }): Promise<ProcessNodeReturnValue> => {
 	const transforms = calculateTransforms({element, offsetLeft, offsetTop});
 
@@ -46,6 +49,7 @@ export const processNode = async ({
 			parentRect,
 			context,
 			logLevel,
+			internalState,
 		});
 		reset();
 		return {type: 'skip-children'};

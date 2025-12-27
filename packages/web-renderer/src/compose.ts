@@ -3,6 +3,7 @@ import {drawDomElement} from './drawing/draw-dom-element';
 import type {ProcessNodeReturnValue} from './drawing/process-node';
 import {processNode} from './drawing/process-node';
 import {handleTextNode} from './drawing/text/handle-text-node';
+import type {InternalState} from './internal-state';
 import {skipToNextNonDescendant} from './walk-tree';
 
 const walkOverNode = ({
@@ -12,6 +13,7 @@ const walkOverNode = ({
 	offsetTop,
 	logLevel,
 	parentRect,
+	internalState,
 }: {
 	node: Node;
 	context: OffscreenCanvasRenderingContext2D;
@@ -19,6 +21,7 @@ const walkOverNode = ({
 	offsetTop: number;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
+	internalState: InternalState;
 }): Promise<ProcessNodeReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
 		return processNode({
@@ -29,6 +32,7 @@ const walkOverNode = ({
 			offsetTop,
 			logLevel,
 			parentRect,
+			internalState,
 		});
 	}
 
@@ -40,6 +44,7 @@ const walkOverNode = ({
 			offsetTop,
 			logLevel,
 			parentRect,
+			internalState,
 		});
 	}
 
@@ -58,6 +63,7 @@ export const compose = async ({
 	offsetTop,
 	logLevel,
 	parentRect,
+	internalState,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -65,6 +71,7 @@ export const compose = async ({
 	offsetTop: number;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
+	internalState: InternalState;
 }) => {
 	const cleanupAfterChildren: CleanupAfterChildrenFn[] = [];
 
@@ -113,6 +120,7 @@ export const compose = async ({
 			offsetTop,
 			logLevel,
 			parentRect,
+			internalState,
 		});
 		if (val.type === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {

@@ -15,6 +15,8 @@ import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
 import {getDefaultAudioEncodingConfig} from './get-audio-encoding-config';
+import type {InternalState} from './internal-state';
+import {makeInternalState} from './internal-state';
 import type {
 	WebRendererContainer,
 	WebRendererQuality,
@@ -78,6 +80,7 @@ export type RenderMediaOnWebProgress = {
 
 export type RenderMediaOnWebResult = {
 	getBlob: () => Promise<Blob>;
+	internalState: InternalState;
 };
 
 export type RenderMediaOnWebProgressCallback = (
@@ -218,6 +221,8 @@ const internalRenderMediaOnWeb = async <
 			defaultOutName: resolved.defaultOutName,
 		});
 
+	const internalState = makeInternalState();
+
 	const artifactsHandler = handleArtifacts();
 
 	cleanupFns.push(() => {
@@ -331,6 +336,7 @@ const internalRenderMediaOnWeb = async <
 				width: resolved.width,
 				height: resolved.height,
 				logLevel,
+				internalState,
 			});
 
 			if (signal?.aborted) {
@@ -407,6 +413,7 @@ const internalRenderMediaOnWeb = async <
 				getBlob: () => {
 					return webFsTarget.getBlob();
 				},
+				internalState,
 			};
 		}
 
@@ -428,6 +435,7 @@ const internalRenderMediaOnWeb = async <
 
 				return Promise.resolve(new Blob([target.buffer], {type: mimeType}));
 			},
+			internalState,
 		};
 	} catch (err) {
 		sendUsageEvent({

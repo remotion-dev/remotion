@@ -4,7 +4,7 @@ import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {testImage} from './utils';
 
 test('should render huge image with scale and 3D transform', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: hugeImageTransform,
 		frame: 0,

@@ -2,6 +2,7 @@ import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import {compose} from '../compose';
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
+import type {InternalState} from '../internal-state';
 import {canvasOffsetFromRect} from './canvas-offset-from-rect';
 import {clampRectToParentBounds} from './clamp-rect-to-parent-bounds';
 import {getPreTransformRect} from './get-pretransform-rect';
@@ -13,12 +14,14 @@ export const handle3dTransform = async ({
 	parentRect,
 	context,
 	logLevel,
+	internalState,
 }: {
 	element: HTMLElement | SVGElement;
 	totalMatrix: DOMMatrix;
 	parentRect: DOMRect;
 	context: OffscreenCanvasRenderingContext2D;
 	logLevel: LogLevel;
+	internalState: InternalState;
 }) => {
 	const unclampedBiggestBoundingClientRect =
 		getBiggestBoundingClientRect(element);
@@ -58,6 +61,7 @@ export const handle3dTransform = async ({
 		offsetTop: offsetBeforeTransforms.offsetTop,
 		logLevel,
 		parentRect: preTransformRect,
+		internalState,
 	});
 	const afterCompose = Date.now();
 
@@ -81,4 +85,8 @@ export const handle3dTransform = async ({
 		},
 		`Transforming element in 3D - canvas size: ${offsetAfterTransforms.canvasWidth}x${offsetAfterTransforms.canvasHeight} - compose: ${afterCompose - start}ms - draw: ${afterDraw - afterCompose}ms`,
 	);
+	internalState.add3DTransform({
+		canvasWidth: offsetAfterTransforms.canvasWidth,
+		canvasHeight: offsetAfterTransforms.canvasHeight,
+	});
 };

@@ -21,7 +21,7 @@ import {unwrapped} from './fixtures/unwrapped';
 import {testImage} from './utils';
 
 test('should be able to deal with a simple transform directly on the element', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: simpleRotatedSvg,
 		frame: 0,
@@ -33,7 +33,7 @@ test('should be able to deal with a simple transform directly on the element', a
 });
 
 test('should be able to deal with a simple transform on the parent', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: parentRotatedSvg,
 		frame: 0,
@@ -45,7 +45,7 @@ test('should be able to deal with a simple transform on the parent', async () =>
 });
 
 test('should be able to deal with a transform-origin on itself', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: selfTransformOrigin,
 		frame: 0,
@@ -57,7 +57,7 @@ test('should be able to deal with a transform-origin on itself', async () => {
 });
 
 test('should be able to deal with a transform-origin on parent', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: parentTransformOrigin,
 		frame: 0,
@@ -69,7 +69,7 @@ test('should be able to deal with a transform-origin on parent', async () => {
 });
 
 test('accumulated transforms', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: accumulatedTransforms,
 		frame: 0,
@@ -81,7 +81,7 @@ test('accumulated transforms', async () => {
 });
 
 test('transformed canvases', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: rotatedCanvas,
 		frame: 0,
@@ -93,7 +93,7 @@ test('transformed canvases', async () => {
 });
 
 test('multi-level nested transforms with distinct transform-origins', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: multiLevelTransformOrigins,
 		frame: 0,
@@ -105,7 +105,7 @@ test('multi-level nested transforms with distinct transform-origins', async () =
 });
 
 test('three-level nested transforms with varying origins', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: threeLevelTransformOrigins,
 		frame: 0,
@@ -117,7 +117,7 @@ test('three-level nested transforms with varying origins', async () => {
 });
 
 test('nested transforms with pixel-based transform-origins', async () => {
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: pixelTransformOrigin,
 		frame: 0,
@@ -131,7 +131,7 @@ test('nested transforms with pixel-based transform-origins', async () => {
 test('complicated example', async () => {
 	await page.viewport(1080, 1080);
 
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: complexNestedSvg,
 		frame: 0,
@@ -144,7 +144,7 @@ test('complicated example', async () => {
 
 test('even harder case', async () => {
 	await page.viewport(1080, 1080);
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: nestedTranslateScale,
 		frame: 0,
@@ -157,7 +157,7 @@ test('even harder case', async () => {
 
 test('flex-positioned scaled elements', async () => {
 	await page.viewport(200, 200);
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: flexPositionedScaled,
 		frame: 0,
@@ -171,7 +171,7 @@ test('flex-positioned scaled elements', async () => {
 test('Github Unwrapped example', async () => {
 	await page.viewport(1080, 1080);
 
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: unwrapped,
 		frame: 0,
@@ -189,7 +189,7 @@ test('Github Unwrapped example', async () => {
 test('Inside 3d transform', async () => {
 	await page.viewport(1080, 1080);
 
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: inside3dTransform,
 		frame: 0,
@@ -207,7 +207,7 @@ test('Inside 3d transform', async () => {
 test('Should render orthographically if no perspective is set', async () => {
 	await page.viewport(1080, 1080);
 
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: orthographic,
 		frame: 0,
@@ -221,7 +221,7 @@ test('Should render orthographically if no perspective is set', async () => {
 test('Should render with margin', async () => {
 	await page.viewport(1080, 1080);
 
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: withMargin,
 		frame: 0,
@@ -235,7 +235,7 @@ test('Should render with margin', async () => {
 test('Should render with negative margin', async () => {
 	await page.viewport(1080, 1080);
 
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: withNegativeMargin,
 		frame: 0,
