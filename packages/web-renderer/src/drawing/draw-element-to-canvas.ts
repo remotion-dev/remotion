@@ -9,7 +9,6 @@ import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
 import {getPreTransformRect} from './get-pretransform-rect';
 import {transformIn3d} from './transform-in-3d';
-import {transformDOMRect} from './transform-rect-with-matrix';
 
 export type DrawElementToCanvasReturnValue = 'continue' | 'skip-children';
 
@@ -44,17 +43,15 @@ export const drawElementToCanvas = async ({
 	}
 
 	if (!totalMatrix.is2D) {
+		const unclampedBiggestBoundingClientRect =
+			getBiggestBoundingClientRect(element);
 		const biggestBoundingClientRect = clampRectToParentBounds({
-			rect: getBiggestBoundingClientRect(element),
+			rect: unclampedBiggestBoundingClientRect,
 			parentRect,
 		});
-		const preTransformRect = getPreTransformRect(
-			biggestBoundingClientRect,
-			totalMatrix,
-		);
-		const parentRectAfterTransforms = transformDOMRect({
-			rect: preTransformRect,
-			matrix: totalMatrix,
+		const preTransformRect = clampRectToParentBounds({
+			rect: getPreTransformRect(biggestBoundingClientRect, totalMatrix),
+			parentRect: unclampedBiggestBoundingClientRect,
 		});
 
 		const offsetBeforeTransforms = canvasOffsetFromRect({
@@ -62,7 +59,7 @@ export const drawElementToCanvas = async ({
 		});
 
 		const offsetAfterTransforms = canvasOffsetFromRect({
-			rect: parentRectAfterTransforms,
+			rect: biggestBoundingClientRect,
 		});
 
 		const start = Date.now();
@@ -70,7 +67,9 @@ export const drawElementToCanvas = async ({
 			Math.ceil(offsetBeforeTransforms.canvasWidth),
 			Math.ceil(offsetBeforeTransforms.canvasHeight),
 		);
-		const context2 = tempCanvas.getContext('2d');
+		const context2 = tempCanvas.getContext('2d', {
+			alpha: true,
+		});
 		if (!context2) {
 			throw new Error('Could not get context');
 		}
