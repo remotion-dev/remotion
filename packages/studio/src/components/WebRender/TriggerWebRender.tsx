@@ -1,5 +1,6 @@
 import {PlayerInternals} from '@remotion/player';
 import {useCallback, useContext} from 'react';
+import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import {useTimelineInOutFramePosition} from '../../state/in-out';
 import {ModalsContext} from '../../state/modals';
@@ -28,6 +29,12 @@ export const TriggerWebRender = () => {
 			return null;
 		}
 
+		const defaults = window.remotion_renderDefaults;
+
+		if (!defaults) {
+			throw new TypeError('Expected defaults');
+		}
+
 		const frame = getCurrentFrame();
 
 		setSelectedModal({
@@ -37,6 +44,7 @@ export const TriggerWebRender = () => {
 			defaultProps: video.defaultProps,
 			inFrameMark: inFrame,
 			outFrameMark: outFrame,
+			initialLogLevel: defaults.logLevel as LogLevel,
 		});
 	}, [
 		getCurrentFrame,

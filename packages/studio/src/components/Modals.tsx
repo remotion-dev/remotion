@@ -47,6 +47,7 @@ export const Modals: React.FC<{
 					defaultProps={modalContextType.defaultProps}
 					inFrameMark={modalContextType.inFrameMark}
 					outFrameMark={modalContextType.outFrameMark}
+					initialLogLevel={modalContextType.initialLogLevel}
 				/>
 			)}
 			{modalContextType &&
