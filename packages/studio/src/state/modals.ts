@@ -27,6 +27,7 @@ export type WebRenderModalState = {
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
+	initialLogLevel: LogLevel;
 };
 
 export type RenderModalState = {

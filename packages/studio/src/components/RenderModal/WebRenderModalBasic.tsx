@@ -5,10 +5,9 @@ import type {
 	WebRendererContainer,
 } from '@remotion/web-renderer';
 import type React from 'react';
-import {useCallback, useMemo} from 'react';
+import {useMemo} from 'react';
 import type {VideoConfig} from 'remotion';
 import {Checkmark} from '../../icons/Checkmark';
-import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
@@ -17,6 +16,7 @@ import {RightAlignInput} from '../NewComposition/RemInput';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {FrameRangeSetting} from './FrameRangeSetting';
+import {humanReadableLogLevel} from './human-readable-loglevel';
 import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import {RenderModalOutputName} from './RenderModalOutputName';
@@ -93,6 +93,24 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 			},
 		];
 	}, [imageFormat, setStillFormat]);
+
+	const logLevelOptions = useMemo((): ComboboxValue[] => {
+		return (['trace', 'verbose', 'info', 'warn', 'error'] as const).map(
+			(level): ComboboxValue => {
+				return {
+					label: humanReadableLogLevel(level),
+					onClick: () => setLogLevel(level),
+					leftItem: logLevel === level ? <Checkmark /> : null,
+					id: level,
+					keyHint: null,
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: level,
+				};
+			},
+		);
+	}, [logLevel, setLogLevel]);
 
 	const containerOptions = useMemo((): ComboboxValue[] => {
 		return [
@@ -181,13 +199,6 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 		];
 	}, [codec, setCodec]);
 
-	const onVerboseLoggingChanged = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			setLogLevel(e.target.checked ? 'verbose' : 'info');
-		},
-		[setLogLevel],
-	);
-
 	return (
 		<div style={tabContainer}>
 			{renderMode === 'still' ? (
@@ -265,14 +276,14 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 			/>
 			<div style={optionRow}>
 				<div style={label}>
-					Verbose logging <Spacing x={0.5} />
+					Log Level <Spacing x={0.5} />
 					<OptionExplainerBubble id="logLevelOption" />
 				</div>
 				<div style={rightRow}>
-					<Checkbox
-						checked={logLevel === 'verbose'}
-						onChange={onVerboseLoggingChanged}
-						name="verbose-logging"
+					<Combobox
+						values={logLevelOptions}
+						selectedId={logLevel}
+						title="Log Level"
 					/>
 				</div>
 			</div>

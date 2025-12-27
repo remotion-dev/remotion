@@ -46,6 +46,7 @@ import {WebRenderModalPicture} from './WebRenderModalPicture';
 type WebRenderModalProps = {
 	readonly compositionId: string;
 	readonly initialFrame: number;
+	readonly initialLogLevel: LogLevel;
 	readonly defaultProps: Record<string, unknown>;
 	readonly inFrameMark: number | null;
 	readonly outFrameMark: number | null;
@@ -132,6 +133,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	defaultProps,
 	inFrameMark,
 	outFrameMark,
+	initialLogLevel,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
@@ -157,7 +159,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [tab, setTab] = useState<TabType>('general');
 	const [imageFormat, setImageFormat] = useState<RenderStillImageFormat>('png');
 	const [frame, setFrame] = useState(() => initialFrame);
-	const [logLevel, setLogLevel] = useState<LogLevel>('info');
+	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
 	const [inputProps, setInputProps] = useState(() => defaultProps);
 	const [delayRenderTimeout, setDelayRenderTimeout] = useState(30000);
 	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
