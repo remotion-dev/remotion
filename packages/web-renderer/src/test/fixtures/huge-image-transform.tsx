@@ -6,14 +6,15 @@ const Component: React.FC = () => {
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
-				transform: 'rotateY(15deg) rotateX(5deg)',
+				transform: 'rotateY(15deg)',
+				overflow: 'hidden',
 			}}
 		>
 			<Img
 				src={staticFile('1.jpg')}
 				style={{
 					width: '100%',
-					scale: 2.5,
+					scale: 100,
 				}}
 			/>
 		</AbsoluteFill>
@@ -23,8 +24,8 @@ const Component: React.FC = () => {
 export const hugeImageTransform = {
 	component: Component,
 	id: 'huge-image-transform',
-	width: 2048 / 4,
-	height: Math.floor(1367 / 4),
+	width: 512,
+	height: 512,
 	fps: 30,
 	durationInFrames: 1,
 } as const;
