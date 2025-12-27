@@ -153,7 +153,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			: resolvedComposition.durationInFrames > 1;
 	});
 
-	const [renderMode, setRenderMode] = useState<RenderType>(
+	const [renderType, setRenderMode] = useState<RenderType>(
 		isVideo ? 'video' : 'still',
 	);
 	const [tab, setTab] = useState<TabType>('general');
@@ -215,7 +215,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [initialOutName] = useState(() => {
 		return getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
-			defaultExtension: container,
+			defaultExtension:
+				renderType === 'still'
+					? imageFormat
+					: isVideo
+						? container
+						: imageFormat,
 			type: 'asset',
 			compositionDefaultOutName: resolvedComposition.defaultOutName,
 			clientSideRender: true,
@@ -269,7 +274,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					onRenderModeChange('still');
 				},
 				key: 'still',
-				selected: renderMode === 'still',
+				selected: renderType === 'still',
 			},
 		];
 
@@ -281,12 +286,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					onRenderModeChange('video');
 				},
 				key: 'video',
-				selected: renderMode === 'video',
+				selected: renderType === 'video',
 			});
 		}
 
 		return options;
-	}, [renderMode, resolvedComposition.durationInFrames, onRenderModeChange]);
+	}, [renderType, resolvedComposition.durationInFrames, onRenderModeChange]);
 
 	const onFrameSetDirectly = useCallback(
 		(newFrame: number) => {
@@ -315,7 +320,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		}, []);
 
 	const outnameValidation = useMemo(() => {
-		if (renderMode === 'still') {
+		if (renderType === 'still') {
 			return validateOutnameForStill({
 				outName,
 				stillImageFormat: imageFormat,
@@ -368,7 +373,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		} catch (err) {
 			return {valid: false as const, error: err as Error};
 		}
-	}, [outName, imageFormat, renderMode, container]);
+	}, [outName, imageFormat, renderType, container]);
 
 	const onRenderStill = useCallback(async () => {
 		const blob = await renderStillOnWeb({
@@ -486,12 +491,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	]);
 
 	const onRender = useCallback(async () => {
-		if (renderMode === 'still') {
+		if (renderType === 'still') {
 			await onRenderStill();
 		} else {
 			await onRenderVideo();
 		}
-	}, [renderMode, onRenderStill, onRenderVideo]);
+	}, [renderType, onRenderStill, onRenderVideo]);
 
 	return (
 		<div style={outerModalStyle}>
@@ -507,7 +512,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				>
 					{renderProgress
 						? `Rendering... ${renderProgress.renderedFrames}/${finalEndFrame}`
-						: `Render ${renderMode}`}
+						: `Render ${renderType}`}
 
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
@@ -534,7 +539,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						</div>
 						Input Props
 					</VerticalTab>
-					{renderMode === 'video' ? (
+					{renderType === 'video' ? (
 						<VerticalTab
 							style={horizontalTab}
 							selected={tab === 'picture'}
@@ -560,7 +565,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				<div style={optionsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					{tab === 'general' ? (
 						<WebRenderModalBasic
-							renderMode={renderMode}
+							renderMode={renderType}
 							resolvedComposition={resolvedComposition}
 							imageFormat={imageFormat}
 							setStillFormat={setStillFormat}
@@ -596,7 +601,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						/>
 					) : tab === 'picture' ? (
 						<WebRenderModalPicture
-							renderMode={renderMode}
+							renderMode={renderType}
 							videoBitrate={videoBitrate}
 							setVideoBitrate={setVideoBitrate}
 							keyframeIntervalInSeconds={keyframeIntervalInSeconds}
@@ -606,7 +611,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						/>
 					) : (
 						<WebRenderModalAdvanced
-							renderMode={renderMode}
+							renderMode={renderType}
 							delayRenderTimeout={delayRenderTimeout}
 							setDelayRenderTimeout={setDelayRenderTimeout}
 							mediaCacheSizeInBytes={mediaCacheSizeInBytes}
