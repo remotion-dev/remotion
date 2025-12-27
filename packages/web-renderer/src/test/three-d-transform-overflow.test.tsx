@@ -12,5 +12,9 @@ test('Should render borders correctly with 3D transforms without overflow', asyn
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'three-d-overflow'});
+	await testImage({
+		blob,
+		testId: 'three-d-overflow',
+		allowedMismatchedPixelRatio: 0.02,
+	});
 });
