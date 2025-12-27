@@ -84,6 +84,8 @@ export const drawElement = async ({
 		computedStyle,
 	});
 
+	finishBorderRadius();
+
 	drawOutline({
 		ctx: context,
 		x: dimensions.left,
@@ -95,7 +97,6 @@ export const drawElement = async ({
 	});
 
 	finishOpacity();
-	finishBorderRadius();
 	finishTransform();
 
 	return {
