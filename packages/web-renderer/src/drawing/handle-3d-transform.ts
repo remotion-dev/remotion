@@ -5,6 +5,7 @@ import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect'
 import type {InternalState} from '../internal-state';
 import {getNarrowerRect} from './clamp-rect-to-parent-bounds';
 import {getPreTransformRect} from './get-pretransform-rect';
+import {doRectsIntersect} from './go-rects-intersect';
 import {transformIn3d} from './transform-in-3d';
 
 export const handle3dTransform = async ({
@@ -33,6 +34,14 @@ export const handle3dTransform = async ({
 		firstRect: unclampedBiggestBoundingClientRect,
 		secondRect: biggestPossiblePretransformRect,
 	});
+
+	if (preTransformRect.width <= 0 || preTransformRect.height <= 0) {
+		return;
+	}
+
+	if (!doRectsIntersect(preTransformRect, parentRect)) {
+		return;
+	}
 
 	const start = Date.now();
 	const tempCanvas = new OffscreenCanvas(
