@@ -23,8 +23,9 @@ export const drawElementToCanvas = async ({
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 }): Promise<DrawElementToCanvasReturnValue> => {
-	const {totalMatrix, reset, dimensions, opacity, computedStyle} =
-		calculateTransforms({element, offsetLeft, offsetTop});
+	const transforms = calculateTransforms({element, offsetLeft, offsetTop});
+
+	const {totalMatrix, reset, dimensions, opacity, computedStyle} = transforms;
 
 	if (opacity === 0) {
 		reset();
