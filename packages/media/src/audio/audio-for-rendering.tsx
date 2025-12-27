@@ -87,15 +87,6 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		const timestamp = frame / fps;
 		const durationInSeconds = 1 / fps;
 
-		if (replaceWithHtml5Audio) {
-			return;
-		}
-
-		const newHandle = delayRender(`Extracting audio for frame ${frame}`, {
-			retries: delayRenderRetries ?? undefined,
-			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
-		});
-
 		const shouldRenderAudio = (() => {
 			if (!audioEnabled) {
 				return false;
@@ -107,6 +98,19 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 			return true;
 		})();
+
+		if (!shouldRenderAudio) {
+			return;
+		}
+
+		if (replaceWithHtml5Audio) {
+			return;
+		}
+
+		const newHandle = delayRender(`Extracting audio for frame ${frame}`, {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
 
 		extractFrameViaBroadcastChannel({
 			src,
