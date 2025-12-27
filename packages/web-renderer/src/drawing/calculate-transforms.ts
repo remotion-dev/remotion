@@ -51,16 +51,9 @@ export const calculateTransforms = ({
 	const transforms: Transform[] = [];
 	const toReset: (() => void)[] = [];
 
-	let opacity = 1;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	while (parent) {
 		const computedStyle = getComputedStyle(parent);
-
-		// Multiply opacity values from element and all parents
-		const parentOpacity = computedStyle.opacity;
-		if (parentOpacity && parentOpacity !== '') {
-			opacity *= parseFloat(parentOpacity);
-		}
 
 		if (parent === element) {
 			elementComputedStyle = computedStyle;
@@ -149,7 +142,10 @@ export const calculateTransforms = ({
 			}
 		},
 		nativeTransformOrigin,
-		opacity,
 		computedStyle: elementComputedStyle,
+		opacity:
+			elementComputedStyle.opacity && elementComputedStyle.opacity !== ''
+				? parseFloat(elementComputedStyle.opacity)
+				: 1,
 	};
 };

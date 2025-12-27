@@ -22,7 +22,6 @@ export const handle3dTransform = async ({
 	logLevel: LogLevel;
 	internalState: InternalState;
 }) => {
-	// The actual box
 	const unclampedBiggestBoundingClientRect =
 		getBiggestBoundingClientRect(element);
 

@@ -3,6 +3,7 @@ import {drawBorder} from './draw-border';
 import {drawOutline} from './draw-outline';
 import type {DrawFn} from './drawn-fn';
 import {setOpacity} from './opacity';
+import {setOverflowHidden} from './overflow';
 import {setTransform} from './transform';
 
 export const drawElement = async ({
@@ -31,16 +32,6 @@ export const drawElement = async ({
 		ctx: context,
 		transform: totalMatrix,
 	});
-
-	const finishOverflowHiddenClip =
-		computedStyle.overflow === 'hidden'
-			? setBorderRadius({
-					ctx: context,
-					rect,
-					borderRadius,
-					forceClipEvenWhenZero: true,
-				})
-			: () => {};
 
 	const finishBorderRadius = setBorderRadius({
 		ctx: context,
@@ -78,6 +69,7 @@ export const drawElement = async ({
 
 	finishBorderRadius();
 
+	// Drawing outline ignores overflow: hidden, finishing it and starting a new one for the outline
 	drawOutline({
 		ctx: context,
 		rect,
@@ -85,12 +77,19 @@ export const drawElement = async ({
 		computedStyle,
 	});
 
-	finishOpacity();
+	const finishOverflowHidden = setOverflowHidden({
+		ctx: context,
+		rect,
+		borderRadius,
+		overflowHidden: computedStyle.overflow === 'hidden',
+	});
+
 	finishTransform();
 
 	return {
 		cleanupAfterChildren: () => {
-			finishOverflowHiddenClip();
+			finishOpacity();
+			finishOverflowHidden();
 		},
 	};
 };

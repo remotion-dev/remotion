@@ -1,10 +1,10 @@
 import type {BorderRadiusCorners} from './border-radius';
 
-const parseOutlineWidth = (value: string): number => {
+export const parseOutlineWidth = (value: string): number => {
 	return parseFloat(value) || 0;
 };
 
-const parseOutlineOffset = (value: string): number => {
+export const parseOutlineOffset = (value: string): number => {
 	return parseFloat(value) || 0;
 };
 
