@@ -376,7 +376,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	}, [outName, imageFormat, renderMode, container]);
 
 	const onRenderStill = useCallback(async () => {
-		const blob = await renderStillOnWeb({
+		const {blob} = await renderStillOnWeb({
 			composition: {
 				component: unresolvedComposition.component,
 				width: resolvedComposition.width,
