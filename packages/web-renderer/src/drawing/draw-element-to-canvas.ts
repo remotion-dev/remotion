@@ -3,8 +3,11 @@ import {Internals} from 'remotion';
 import {compose} from '../compose';
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import {calculateTransforms} from './calculate-transforms';
+import {canvasOffsetFromRect} from './canvas-offset-from-rect';
+import {clampRectToParentBounds} from './clamp-rect-to-parent-bounds';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
+import {getPreTransformRect} from './get-pretransform-rect';
 import {transformIn3d} from './transform-in-3d';
 
 export type DrawElementToCanvasReturnValue = 'continue' | 'skip-children';
@@ -16,6 +19,7 @@ export const drawElementToCanvas = async ({
 	offsetLeft,
 	offsetTop,
 	logLevel,
+	parentRect,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -23,6 +27,7 @@ export const drawElementToCanvas = async ({
 	offsetLeft: number;
 	offsetTop: number;
 	logLevel: LogLevel;
+	parentRect: DOMRect;
 }): Promise<DrawElementToCanvasReturnValue> => {
 	const {totalMatrix, reset, dimensions, opacity, computedStyle} =
 		calculateTransforms({element, offsetLeft, offsetTop});
@@ -38,21 +43,33 @@ export const drawElementToCanvas = async ({
 	}
 
 	if (!totalMatrix.is2D) {
-		const biggestBoundingClientRect = getBiggestBoundingClientRect(element);
-		const canvasOffsetLeft = Math.min(biggestBoundingClientRect.left, 0);
-		const canvasOffsetTop = Math.min(biggestBoundingClientRect.top, 0);
+		const unclampedBiggestBoundingClientRect =
+			getBiggestBoundingClientRect(element);
+		const biggestBoundingClientRect = clampRectToParentBounds({
+			rect: unclampedBiggestBoundingClientRect,
+			parentRect,
+		});
+		const preTransformRect = clampRectToParentBounds({
+			rect: getPreTransformRect(biggestBoundingClientRect, totalMatrix),
+			parentRect: unclampedBiggestBoundingClientRect,
+		});
 
-		const tempCanvasWidth = Math.max(
-			biggestBoundingClientRect.width,
-			biggestBoundingClientRect.right,
-		);
-		const tempCanvasHeight = Math.max(
-			biggestBoundingClientRect.height,
-			biggestBoundingClientRect.bottom,
-		);
+		const offsetBeforeTransforms = canvasOffsetFromRect({
+			rect: preTransformRect,
+		});
+
+		const offsetAfterTransforms = canvasOffsetFromRect({
+			rect: biggestBoundingClientRect,
+		});
+
 		const start = Date.now();
-		const tempCanvas = new OffscreenCanvas(tempCanvasWidth, tempCanvasHeight);
-		const context2 = tempCanvas.getContext('2d');
+		const tempCanvas = new OffscreenCanvas(
+			Math.ceil(offsetBeforeTransforms.canvasWidth),
+			Math.ceil(offsetBeforeTransforms.canvasHeight),
+		);
+		const context2 = tempCanvas.getContext('2d', {
+			alpha: true,
+		});
 		if (!context2) {
 			throw new Error('Could not get context');
 		}
@@ -60,19 +77,22 @@ export const drawElementToCanvas = async ({
 		await compose({
 			element,
 			context: context2,
-			offsetLeft: canvasOffsetLeft,
-			offsetTop: canvasOffsetTop,
+			offsetLeft: offsetBeforeTransforms.offsetLeft,
+			offsetTop: offsetBeforeTransforms.offsetTop,
 			logLevel,
+			parentRect: preTransformRect,
 		});
 		const afterCompose = Date.now();
 
 		const transformed = transformIn3d({
-			canvasWidth: tempCanvasWidth,
-			canvasHeight: tempCanvasHeight,
+			beforeTransformCanvasWidth: offsetBeforeTransforms.canvasWidth,
+			beforeTransformCanvasHeight: offsetBeforeTransforms.canvasHeight,
 			matrix: totalMatrix,
 			sourceCanvas: tempCanvas,
-			offsetLeft: canvasOffsetLeft,
-			offsetTop: canvasOffsetTop,
+			beforeTransformOffsetLeft: offsetBeforeTransforms.offsetLeft,
+			beforeTransformOffsetTop: offsetBeforeTransforms.offsetTop,
+			canvasWidth: offsetAfterTransforms.canvasWidth,
+			canvasHeight: offsetAfterTransforms.canvasHeight,
 		});
 		context.drawImage(transformed, 0, 0);
 		const afterDraw = Date.now();
@@ -83,7 +103,7 @@ export const drawElementToCanvas = async ({
 				logLevel,
 				tag: '@remotion/web-renderer',
 			},
-			`Transforming element in 3D - canvas size: ${tempCanvasWidth}x${tempCanvasHeight} - compose: ${afterCompose - start}ms - draw: ${afterDraw - afterCompose}ms`,
+			`Transforming element in 3D - canvas size: ${offsetAfterTransforms.canvasWidth}x${offsetAfterTransforms.canvasHeight} - compose: ${afterCompose - start}ms - draw: ${afterDraw - afterCompose}ms`,
 		);
 
 		return 'skip-children';

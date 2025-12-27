@@ -11,12 +11,14 @@ const walkOverNode = ({
 	offsetLeft,
 	offsetTop,
 	logLevel,
+	parentRect,
 }: {
 	node: Node;
 	context: OffscreenCanvasRenderingContext2D;
 	offsetLeft: number;
 	offsetTop: number;
 	logLevel: LogLevel;
+	parentRect: DOMRect;
 }): Promise<DrawElementToCanvasReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
 		return drawElementToCanvas({
@@ -26,11 +28,19 @@ const walkOverNode = ({
 			offsetLeft,
 			offsetTop,
 			logLevel,
+			parentRect,
 		});
 	}
 
 	if (node instanceof Text) {
-		return handleTextNode({node, context, offsetLeft, offsetTop, logLevel});
+		return handleTextNode({
+			node,
+			context,
+			offsetLeft,
+			offsetTop,
+			logLevel,
+			parentRect,
+		});
 	}
 
 	throw new Error('Unknown node type');
@@ -42,12 +52,14 @@ export const compose = async ({
 	offsetLeft,
 	offsetTop,
 	logLevel,
+	parentRect,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
 	offsetLeft: number;
 	offsetTop: number;
 	logLevel: LogLevel;
+	parentRect: DOMRect;
 }) => {
 	const treeWalker = document.createTreeWalker(
 		element,
@@ -78,6 +90,7 @@ export const compose = async ({
 			offsetLeft,
 			offsetTop,
 			logLevel,
+			parentRect,
 		});
 		if (val === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {

@@ -116,24 +116,29 @@ const createHelperCanvas = ({
 	return helperCanvas;
 };
 
-export const transformIn3d = (
-	{
-		canvasWidth,
-		canvasHeight,
-		matrix,
-		sourceCanvas,
-		offsetLeft,
-		offsetTop,
-	}: {
-		canvasWidth: number;
-		canvasHeight: number;
-		offsetLeft: number;
-		offsetTop: number;
-		matrix: DOMMatrix;
-		sourceCanvas: HTMLCanvasElement | OffscreenCanvas;
-	}, // Add source canvas parameter
-) => {
-	const {canvas, gl, program} = createHelperCanvas({canvasWidth, canvasHeight});
+export const transformIn3d = ({
+	beforeTransformCanvasWidth,
+	beforeTransformCanvasHeight,
+	canvasWidth,
+	canvasHeight,
+	matrix,
+	sourceCanvas,
+	beforeTransformOffsetLeft,
+	beforeTransformOffsetTop,
+}: {
+	beforeTransformCanvasWidth: number;
+	beforeTransformCanvasHeight: number;
+	beforeTransformOffsetLeft: number;
+	beforeTransformOffsetTop: number;
+	matrix: DOMMatrix;
+	sourceCanvas: OffscreenCanvas;
+	canvasWidth: number;
+	canvasHeight: number;
+}) => {
+	const {canvas, gl, program} = createHelperCanvas({
+		canvasWidth: Math.ceil(canvasWidth),
+		canvasHeight: Math.ceil(canvasHeight),
+	});
 
 	const vertexBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -143,13 +148,13 @@ export const transformIn3d = (
 	const vertices = new Float32Array([
 		// Position (x, y) + TexCoord (u, v)
 		// First:
-		offsetLeft, offsetTop, 0, 0, // bottom-left
-		canvasWidth + offsetLeft, offsetTop, 1, 0, // bottom-right
-		offsetLeft, canvasHeight + offsetTop, 0, 1, // top-left
+		beforeTransformOffsetLeft, beforeTransformOffsetTop, 0, 0, // bottom-left
+		beforeTransformCanvasWidth + beforeTransformOffsetLeft, beforeTransformOffsetTop, 1, 0, // bottom-right
+		beforeTransformOffsetLeft, beforeTransformCanvasHeight + beforeTransformOffsetTop, 0, 1, // top-left
 		// Second:
-		offsetLeft, canvasHeight + offsetTop, 0, 1, // top-left
-		canvasWidth + offsetLeft, offsetTop, 1, 0, // bottom-right
-		canvasWidth + offsetLeft, canvasHeight + offsetTop, 1, 1, // top-right
+		beforeTransformOffsetLeft, beforeTransformCanvasHeight + beforeTransformOffsetTop, 0, 1, // top-left
+		beforeTransformCanvasWidth + beforeTransformOffsetLeft, beforeTransformOffsetTop, 1, 0, // bottom-right
+		beforeTransformCanvasWidth + beforeTransformOffsetLeft, beforeTransformCanvasHeight + beforeTransformOffsetTop, 1, 1, // top-right
 	]);
 
 	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);

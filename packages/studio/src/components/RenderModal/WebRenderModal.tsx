@@ -153,7 +153,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			: resolvedComposition.durationInFrames > 1;
 	});
 
-	const [renderType, setRenderMode] = useState<RenderType>(
+	const [renderMode, setRenderMode] = useState<RenderType>(
 		isVideo ? 'video' : 'still',
 	);
 	const [tab, setTab] = useState<TabType>('general');
@@ -216,7 +216,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		return getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
 			defaultExtension:
-				renderType === 'still'
+				renderMode === 'still'
 					? imageFormat
 					: isVideo
 						? container
@@ -274,7 +274,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					onRenderModeChange('still');
 				},
 				key: 'still',
-				selected: renderType === 'still',
+				selected: renderMode === 'still',
 			},
 		];
 
@@ -286,12 +286,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					onRenderModeChange('video');
 				},
 				key: 'video',
-				selected: renderType === 'video',
+				selected: renderMode === 'video',
 			});
 		}
 
 		return options;
-	}, [renderType, resolvedComposition.durationInFrames, onRenderModeChange]);
+	}, [renderMode, resolvedComposition.durationInFrames, onRenderModeChange]);
 
 	const onFrameSetDirectly = useCallback(
 		(newFrame: number) => {
@@ -320,7 +320,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		}, []);
 
 	const outnameValidation = useMemo(() => {
-		if (renderType === 'still') {
+		if (renderMode === 'still') {
 			return validateOutnameForStill({
 				outName,
 				stillImageFormat: imageFormat,
@@ -373,7 +373,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		} catch (err) {
 			return {valid: false as const, error: err as Error};
 		}
-	}, [outName, imageFormat, renderType, container]);
+	}, [outName, imageFormat, renderMode, container]);
 
 	const onRenderStill = useCallback(async () => {
 		const blob = await renderStillOnWeb({
@@ -491,12 +491,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	]);
 
 	const onRender = useCallback(async () => {
-		if (renderType === 'still') {
+		if (renderMode === 'still') {
 			await onRenderStill();
 		} else {
 			await onRenderVideo();
 		}
-	}, [renderType, onRenderStill, onRenderVideo]);
+	}, [renderMode, onRenderStill, onRenderVideo]);
 
 	return (
 		<div style={outerModalStyle}>
@@ -512,7 +512,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				>
 					{renderProgress
 						? `Rendering... ${renderProgress.renderedFrames}/${finalEndFrame}`
-						: `Render ${renderType}`}
+						: `Render ${renderMode}`}
 
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
@@ -539,7 +539,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						</div>
 						Input Props
 					</VerticalTab>
-					{renderType === 'video' ? (
+					{renderMode === 'video' ? (
 						<VerticalTab
 							style={horizontalTab}
 							selected={tab === 'picture'}
@@ -565,7 +565,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				<div style={optionsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					{tab === 'general' ? (
 						<WebRenderModalBasic
-							renderMode={renderType}
+							renderMode={renderMode}
 							resolvedComposition={resolvedComposition}
 							imageFormat={imageFormat}
 							setStillFormat={setStillFormat}
@@ -601,7 +601,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						/>
 					) : tab === 'picture' ? (
 						<WebRenderModalPicture
-							renderMode={renderType}
+							renderMode={renderMode}
 							videoBitrate={videoBitrate}
 							setVideoBitrate={setVideoBitrate}
 							keyframeIntervalInSeconds={keyframeIntervalInSeconds}
@@ -611,7 +611,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						/>
 					) : (
 						<WebRenderModalAdvanced
-							renderMode={renderType}
+							renderMode={renderMode}
 							delayRenderTimeout={delayRenderTimeout}
 							setDelayRenderTimeout={setDelayRenderTimeout}
 							mediaCacheSizeInBytes={mediaCacheSizeInBytes}

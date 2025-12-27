@@ -9,12 +9,14 @@ export const handleTextNode = async ({
 	offsetLeft,
 	offsetTop,
 	logLevel,
+	parentRect,
 }: {
 	node: Text;
 	context: OffscreenCanvasRenderingContext2D;
 	offsetLeft: number;
 	offsetTop: number;
 	logLevel: LogLevel;
+	parentRect: DOMRect;
 }): Promise<DrawElementToCanvasReturnValue> => {
 	const span = document.createElement('span');
 
@@ -33,6 +35,7 @@ export const handleTextNode = async ({
 		offsetLeft,
 		offsetTop,
 		logLevel,
+		parentRect,
 	});
 
 	// Undo the layout manipulation

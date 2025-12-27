@@ -20,7 +20,14 @@ export const createFrame = async ({
 		throw new Error('Could not get context');
 	}
 
-	await compose({element: div, context, offsetLeft: 0, offsetTop: 0, logLevel});
+	await compose({
+		element: div,
+		context,
+		offsetLeft: 0,
+		offsetTop: 0,
+		logLevel,
+		parentRect: new DOMRect(0, 0, width, height),
+	});
 
 	return canvas;
 };
