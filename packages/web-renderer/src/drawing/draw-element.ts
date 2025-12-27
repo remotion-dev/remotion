@@ -1,5 +1,6 @@
 import {parseBorderRadius, setBorderRadius} from './border-radius';
 import {drawBorder} from './draw-border';
+import {drawOutline} from './draw-outline';
 import type {DrawFn} from './drawn-fn';
 import {setOpacity} from './opacity';
 import {setTransform} from './transform';
@@ -74,6 +75,16 @@ export const drawElement = async ({
 	await draw({dimensions, computedStyle, contextToDraw: context});
 
 	drawBorder({
+		ctx: context,
+		x: dimensions.left,
+		y: dimensions.top,
+		width: dimensions.width,
+		height: dimensions.height,
+		borderRadius,
+		computedStyle,
+	});
+
+	drawOutline({
 		ctx: context,
 		x: dimensions.left,
 		y: dimensions.top,

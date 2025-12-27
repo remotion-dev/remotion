@@ -24,6 +24,7 @@ import {opacitySimple} from './fixtures/opacity-simple';
 import {opacityZero} from './fixtures/opacity-zero';
 import {overflowHidden} from './fixtures/overflow-hidden';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
+import {outline} from './fixtures/outline';
 import {overflowY} from './fixtures/overflow-y';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
@@ -73,6 +74,7 @@ export const Root: React.FC = () => {
 			<Composition {...opacityNested} />
 			<Composition {...opacityZero} />
 			<Composition {...backgroundColor} />
+			<Composition {...outline} />
 			<Folder name="border">
 				<Composition {...border} />
 				<Composition {...borderRadius} />
