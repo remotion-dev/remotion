@@ -83,6 +83,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
+			initialHeadless: job.chromiumOptions.headless,
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
 			initialProResProfile: null,
@@ -96,7 +97,6 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEnvVariables: job.envVariables,
 			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
 			initialOpenGlRenderer: job.chromiumOptions.gl,
-			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
 			initialDarkMode: job.chromiumOptions.darkMode,
@@ -153,7 +153,6 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEnvVariables: job.envVariables,
 			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
 			initialOpenGlRenderer: job.chromiumOptions.gl,
-			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
 			initialDarkMode: job.chromiumOptions.darkMode,
