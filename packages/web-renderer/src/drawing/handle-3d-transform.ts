@@ -3,7 +3,6 @@ import {Internals} from 'remotion';
 import {compose} from '../compose';
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
-import {canvasOffsetFromRect} from './canvas-offset-from-rect';
 import {clampRectToParentBounds} from './clamp-rect-to-parent-bounds';
 import {getPreTransformRect} from './get-pretransform-rect';
 import {transformIn3d} from './transform-in-3d';
@@ -40,14 +39,10 @@ export const handle3dTransform = async ({
 		matrix: totalMatrix,
 	});
 
-	const offsetBeforeTransforms = canvasOffsetFromRect({
-		rect: preTransformRect,
-	});
-
 	const start = Date.now();
 	const tempCanvas = new OffscreenCanvas(
-		Math.ceil(offsetBeforeTransforms.canvasWidth),
-		Math.ceil(offsetBeforeTransforms.canvasHeight),
+		Math.ceil(preTransformRect.width),
+		Math.ceil(preTransformRect.height),
 	);
 	const context2 = tempCanvas.getContext('2d', {
 		alpha: true,
@@ -59,8 +54,6 @@ export const handle3dTransform = async ({
 	await compose({
 		element,
 		context: context2,
-		offsetLeft: offsetBeforeTransforms.offsetLeft,
-		offsetTop: offsetBeforeTransforms.offsetTop,
 		logLevel,
 		parentRect: preTransformRect,
 		internalState,
@@ -68,12 +61,12 @@ export const handle3dTransform = async ({
 	const afterCompose = Date.now();
 
 	const transformed = transformIn3d({
-		beforeTransformCanvasWidth: offsetBeforeTransforms.canvasWidth,
-		beforeTransformCanvasHeight: offsetBeforeTransforms.canvasHeight,
+		beforeTransformCanvasWidth: preTransformRect.width,
+		beforeTransformCanvasHeight: preTransformRect.height,
 		matrix: totalMatrix,
 		sourceCanvas: tempCanvas,
-		beforeTransformOffsetLeft: offsetBeforeTransforms.offsetLeft,
-		beforeTransformOffsetTop: offsetBeforeTransforms.offsetTop,
+		beforeTransformOffsetLeft: preTransformRect.x,
+		beforeTransformOffsetTop: preTransformRect.y,
 		canvasWidth: rectAfterTransforms.width,
 		canvasHeight: rectAfterTransforms.height,
 		offsetLeft: rectAfterTransforms.x,

@@ -7,16 +7,12 @@ import {drawText} from './draw-text';
 export const handleTextNode = async ({
 	node,
 	context,
-	offsetLeft,
-	offsetTop,
 	logLevel,
 	parentRect,
 	internalState,
 }: {
 	node: Text;
 	context: OffscreenCanvasRenderingContext2D;
-	offsetLeft: number;
-	offsetTop: number;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
@@ -35,8 +31,6 @@ export const handleTextNode = async ({
 		context,
 		element: span,
 		draw: drawText(span),
-		offsetLeft,
-		offsetTop,
 		logLevel,
 		parentRect,
 		internalState,

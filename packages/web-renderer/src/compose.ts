@@ -9,16 +9,12 @@ import {skipToNextNonDescendant} from './walk-tree';
 const walkOverNode = ({
 	node,
 	context,
-	offsetLeft,
-	offsetTop,
 	logLevel,
 	parentRect,
 	internalState,
 }: {
 	node: Node;
 	context: OffscreenCanvasRenderingContext2D;
-	offsetLeft: number;
-	offsetTop: number;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
@@ -28,8 +24,6 @@ const walkOverNode = ({
 			element: node,
 			context,
 			draw: drawDomElement(node),
-			offsetLeft,
-			offsetTop,
 			logLevel,
 			parentRect,
 			internalState,
@@ -40,8 +34,6 @@ const walkOverNode = ({
 		return handleTextNode({
 			node,
 			context,
-			offsetLeft,
-			offsetTop,
 			logLevel,
 			parentRect,
 			internalState,
@@ -59,16 +51,12 @@ type CleanupAfterChildrenFn = {
 export const compose = async ({
 	element,
 	context,
-	offsetLeft,
-	offsetTop,
 	logLevel,
 	parentRect,
 	internalState,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
-	offsetLeft: number;
-	offsetTop: number;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
@@ -116,8 +104,6 @@ export const compose = async ({
 		const val = await walkOverNode({
 			node: treeWalker.currentNode,
 			context,
-			offsetLeft,
-			offsetTop,
 			logLevel,
 			parentRect,
 			internalState,

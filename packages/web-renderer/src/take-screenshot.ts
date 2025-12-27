@@ -26,8 +26,6 @@ export const createFrame = async ({
 	await compose({
 		element: div,
 		context,
-		offsetLeft: 0,
-		offsetTop: 0,
 		logLevel,
 		parentRect: new DOMRect(0, 0, width, height),
 		internalState,
