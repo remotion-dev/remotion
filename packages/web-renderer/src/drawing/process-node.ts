@@ -45,7 +45,7 @@ export const processNode = async ({
 	if (!totalMatrix.is2D) {
 		await handle3dTransform({
 			element,
-			totalMatrix,
+			matrix: totalMatrix,
 			parentRect,
 			context,
 			logLevel,

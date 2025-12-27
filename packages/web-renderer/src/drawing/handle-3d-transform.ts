@@ -3,34 +3,36 @@ import {Internals} from 'remotion';
 import {compose} from '../compose';
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
-import {clampRectToParentBounds} from './clamp-rect-to-parent-bounds';
+import {getNarrowerRect} from './clamp-rect-to-parent-bounds';
 import {getPreTransformRect} from './get-pretransform-rect';
 import {transformIn3d} from './transform-in-3d';
 
 export const handle3dTransform = async ({
 	element,
-	totalMatrix,
+	matrix,
 	parentRect,
 	context,
 	logLevel,
 	internalState,
 }: {
 	element: HTMLElement | SVGElement;
-	totalMatrix: DOMMatrix;
+	matrix: DOMMatrix;
 	parentRect: DOMRect;
 	context: OffscreenCanvasRenderingContext2D;
 	logLevel: LogLevel;
 	internalState: InternalState;
 }) => {
+	// The actual box
 	const unclampedBiggestBoundingClientRect =
 		getBiggestBoundingClientRect(element);
-	const biggestBoundingClientRect = clampRectToParentBounds({
-		rect: unclampedBiggestBoundingClientRect,
+
+	const biggestPossiblePretransformRect = getPreTransformRect(
 		parentRect,
-	});
-	const preTransformRect = clampRectToParentBounds({
-		rect: getPreTransformRect(biggestBoundingClientRect, totalMatrix),
-		parentRect: unclampedBiggestBoundingClientRect,
+		matrix,
+	);
+	const preTransformRect = getNarrowerRect({
+		firstRect: unclampedBiggestBoundingClientRect,
+		secondRect: biggestPossiblePretransformRect,
 	});
 
 	const start = Date.now();
@@ -38,16 +40,10 @@ export const handle3dTransform = async ({
 		Math.ceil(preTransformRect.width),
 		Math.ceil(preTransformRect.height),
 	);
-	const context2 = tempCanvas.getContext('2d', {
-		alpha: true,
-	});
-	if (!context2) {
-		throw new Error('Could not get context');
-	}
 
 	await compose({
 		element,
-		context: context2,
+		context: tempCanvas.getContext('2d')!,
 		logLevel,
 		parentRect: preTransformRect,
 		internalState,
@@ -56,7 +52,7 @@ export const handle3dTransform = async ({
 
 	const {canvas: transformed, rect: transformedRect} = transformIn3d({
 		untransformedRect: preTransformRect,
-		matrix: totalMatrix,
+		matrix,
 		sourceCanvas: tempCanvas,
 	});
 
