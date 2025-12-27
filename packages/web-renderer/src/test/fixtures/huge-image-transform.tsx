@@ -7,7 +7,6 @@ const Component: React.FC = () => {
 				justifyContent: 'center',
 				alignItems: 'center',
 				transform: 'rotateY(15deg)',
-				overflow: 'hidden',
 			}}
 		>
 			<Img
