@@ -30,6 +30,20 @@ export const drawElement = async ({
 		ctx: context,
 		transform: totalMatrix,
 	});
+
+	const finishOverflowHiddenClip =
+		computedStyle.overflow === 'hidden'
+			? setBorderRadius({
+					ctx: context,
+					x: dimensions.left,
+					y: dimensions.top,
+					width: dimensions.width,
+					height: dimensions.height,
+					borderRadius,
+					forceClipEvenWhenZero: true,
+				})
+			: () => {};
+
 	const finishBorderRadius = setBorderRadius({
 		ctx: context,
 		x: dimensions.left,
@@ -37,6 +51,7 @@ export const drawElement = async ({
 		width: dimensions.width,
 		height: dimensions.height,
 		borderRadius,
+		forceClipEvenWhenZero: false,
 	});
 	const finishOpacity = setOpacity({
 		ctx: context,
@@ -77,4 +92,10 @@ export const drawElement = async ({
 	finishOpacity();
 	finishBorderRadius();
 	finishTransform();
+
+	return {
+		cleanupAfterChildren: () => {
+			finishOverflowHiddenClip();
+		},
+	};
 };

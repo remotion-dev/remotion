@@ -46,6 +46,11 @@ const walkOverNode = ({
 	throw new Error('Unknown node type');
 };
 
+type CleanupAfterChildrenFn = {
+	element: Node;
+	cleanupFn: () => void;
+};
+
 export const compose = async ({
 	element,
 	context,
@@ -61,6 +66,8 @@ export const compose = async ({
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 }) => {
+	const cleanupAfterChildren: CleanupAfterChildrenFn[] = [];
+
 	const treeWalker = document.createTreeWalker(
 		element,
 		NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
@@ -84,6 +91,21 @@ export const compose = async ({
 	);
 
 	while (true) {
+		for (let i = 0; i < cleanupAfterChildren.length; ) {
+			const cleanup = cleanupAfterChildren[i];
+			if (
+				!(
+					cleanup.element === treeWalker.currentNode &&
+					cleanup.element.contains(treeWalker.currentNode)
+				)
+			) {
+				cleanup.cleanupFn();
+				cleanupAfterChildren.splice(i, 1);
+			} else {
+				i++;
+			}
+		}
+
 		const val = await walkOverNode({
 			node: treeWalker.currentNode,
 			context,
@@ -92,12 +114,23 @@ export const compose = async ({
 			logLevel,
 			parentRect,
 		});
-		if (val === 'skip-children') {
+		if (val.type === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {
 				break;
 			}
-		} else if (!treeWalker.nextNode()) {
-			break;
+		} else {
+			cleanupAfterChildren.push({
+				element: treeWalker.currentNode,
+				cleanupFn: val.cleanupAfterChildren,
+			});
+
+			if (!treeWalker.nextNode()) {
+				break;
+			}
 		}
+	}
+
+	for (const cleanup of cleanupAfterChildren) {
+		cleanup.cleanupFn();
 	}
 };

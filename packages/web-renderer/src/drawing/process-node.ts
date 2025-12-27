@@ -4,7 +4,9 @@ import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
 import {handle3dTransform} from './handle-3d-transform';
 
-export type ProcessNodeReturnValue = 'continue' | 'skip-children';
+export type ProcessNodeReturnValue =
+	| {type: 'continue'; cleanupAfterChildren: () => void}
+	| {type: 'skip-children'};
 
 export const processNode = async ({
 	element,
@@ -29,12 +31,12 @@ export const processNode = async ({
 
 	if (opacity === 0) {
 		reset();
-		return 'continue';
+		return {type: 'continue', cleanupAfterChildren: () => {}};
 	}
 
 	if (dimensions.width <= 0 || dimensions.height <= 0) {
 		reset();
-		return 'continue';
+		return {type: 'continue', cleanupAfterChildren: () => {}};
 	}
 
 	if (!totalMatrix.is2D) {
@@ -46,10 +48,10 @@ export const processNode = async ({
 			logLevel,
 		});
 		reset();
-		return 'skip-children';
+		return {type: 'skip-children'};
 	}
 
-	await drawElement({
+	const {cleanupAfterChildren} = await drawElement({
 		dimensions: new DOMRect(
 			dimensions.left - offsetLeft,
 			dimensions.top - offsetTop,
@@ -65,5 +67,5 @@ export const processNode = async ({
 
 	reset();
 
-	return 'continue';
+	return {type: 'continue', cleanupAfterChildren};
 };

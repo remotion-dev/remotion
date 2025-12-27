@@ -158,6 +158,7 @@ export function setBorderRadius({
 	width,
 	height,
 	borderRadius,
+	forceClipEvenWhenZero = false,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	x: number;
@@ -165,6 +166,7 @@ export function setBorderRadius({
 	width: number;
 	height: number;
 	borderRadius: BorderRadiusCorners;
+	forceClipEvenWhenZero: boolean;
 }) {
 	if (
 		borderRadius.topLeft.horizontal === 0 &&
@@ -174,7 +176,8 @@ export function setBorderRadius({
 		borderRadius.bottomRight.horizontal === 0 &&
 		borderRadius.bottomRight.vertical === 0 &&
 		borderRadius.bottomLeft.horizontal === 0 &&
-		borderRadius.bottomLeft.vertical === 0
+		borderRadius.bottomLeft.vertical === 0 &&
+		!forceClipEvenWhenZero
 	) {
 		return () => {};
 	}
