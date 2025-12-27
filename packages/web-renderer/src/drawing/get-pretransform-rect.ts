@@ -23,6 +23,13 @@ export function getPreTransformRect(
 
 	const inverse2D = effective2D.inverse();
 
+	const wasNotInvertible = isNaN(inverse2D.m11);
+
+	// For example, a 90 degree rotation, is not being rendered
+	if (wasNotInvertible) {
+		return new DOMRect(0, 0, 0, 0);
+	}
+
 	// 4. Transform target rect corners using the 2D inverse
 	const corners = [
 		new DOMPoint(targetRect.x, targetRect.y),

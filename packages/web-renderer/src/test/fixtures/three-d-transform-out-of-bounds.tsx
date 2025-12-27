@@ -21,13 +21,15 @@ const Component: React.FC = () => {
 					transform: 'rotateY(45deg) rotateX(30deg)',
 				}}
 			/>
+
 			<div
 				style={{
 					position: 'absolute',
 					width: 100,
 					height: 100,
 					backgroundColor: 'red',
-					transform: 'scaleX(-1) rotateY(10deg) rotateX(20deg)',
+					// should not be rendered, because it is a 90 degree rotation
+					transform: 'rotateY(90deg)',
 				}}
 			/>
 		</AbsoluteFill>
