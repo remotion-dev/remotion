@@ -64,7 +64,12 @@ export const handle3dTransform = async ({
 		sourceCanvas: tempCanvas,
 	});
 
-	context.drawImage(transformed, transformedRect.x, transformedRect.y);
+	context.drawImage(
+		transformed,
+		transformedRect.x - parentRect.x,
+		transformedRect.y - parentRect.y,
+	);
+
 	const afterDraw = Date.now();
 
 	Internals.Log.trace(

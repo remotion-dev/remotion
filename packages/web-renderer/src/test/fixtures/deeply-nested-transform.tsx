@@ -10,32 +10,27 @@ const Component: React.FC = () => {
 				flexDirection: 'column',
 				justifyContent: 'center',
 				alignItems: 'center',
+				backgroundColor: 'white',
 			}}
 		>
 			<div
 				style={{
-					position: 'relative',
-					transform: 'scale(1) rotateY(9deg) rotateX(0rad) translateY(0px)',
+					width: 40,
+					height: 40,
+					transform: 'rotateY(1deg)',
+					backgroundColor: 'yellow',
 				}}
 			>
 				<div
 					style={{
-						display: 'inline-flex',
-						flexDirection: 'row',
-						padding: '20px 70px 20px 20px',
-						alignItems: 'center',
+						width: 150,
+						height: 150,
+						position: 'absolute',
+						backgroundColor: 'red',
+						transform: 'rotateY(-0.5rad)',
+						opacity: 0.5,
 					}}
-				>
-					<div
-						style={{
-							width: 160,
-							height: 160,
-							transform: 'rotateY(-0.413981rad)',
-							position: 'absolute',
-							backgroundColor: 'red',
-						}}
-					/>
-				</div>
+				/>
 			</div>
 		</div>
 	);
@@ -44,8 +39,8 @@ const Component: React.FC = () => {
 export const deeplyNestedTransform = {
 	component: Component,
 	id: 'deeply-nested-transform',
-	width: 1080,
-	height: 1080,
+	width: 200,
+	height: 200,
 	fps: 30,
 	durationInFrames: 100,
 } as const;

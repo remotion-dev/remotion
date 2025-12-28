@@ -10,12 +10,14 @@ export const handleTextNode = async ({
 	logLevel,
 	parentRect,
 	internalState,
+	rootElement,
 }: {
 	node: Text;
 	context: OffscreenCanvasRenderingContext2D;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
+	rootElement: HTMLElement | SVGElement;
 }): Promise<ProcessNodeReturnValue> => {
 	const span = document.createElement('span');
 
@@ -34,6 +36,7 @@ export const handleTextNode = async ({
 		logLevel,
 		parentRect,
 		internalState,
+		rootElement,
 	});
 
 	// Undo the layout manipulation

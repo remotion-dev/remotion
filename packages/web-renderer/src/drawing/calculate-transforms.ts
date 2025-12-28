@@ -20,31 +20,21 @@ const getInternalTransformOrigin = (transform: Transform) => {
 	return origin;
 };
 
-const getGlobalTransformOrigin = ({
-	transform,
-	offsetLeft,
-	offsetTop,
-}: {
-	transform: Transform;
-	offsetLeft: number;
-	offsetTop: number;
-}) => {
+const getGlobalTransformOrigin = ({transform}: {transform: Transform}) => {
 	const {x: originX, y: originY} = getInternalTransformOrigin(transform);
 
 	return {
-		x: originX + transform.boundingClientRect!.left - offsetLeft,
-		y: originY + transform.boundingClientRect!.top - offsetTop,
+		x: originX + transform.boundingClientRect!.left,
+		y: originY + transform.boundingClientRect!.top,
 	};
 };
 
 export const calculateTransforms = ({
 	element,
-	offsetLeft,
-	offsetTop,
+	rootElement,
 }: {
 	element: HTMLElement | SVGElement;
-	offsetLeft: number;
-	offsetTop: number;
+	rootElement: HTMLElement | SVGElement;
 }) => {
 	// Compute the cumulative transform by traversing parent nodes
 	let parent: HTMLElement | SVGElement | null = element;
@@ -108,6 +98,10 @@ export const calculateTransforms = ({
 			});
 		}
 
+		if (parent === rootElement) {
+			break;
+		}
+
 		parent = parent.parentElement;
 	}
 
@@ -123,8 +117,6 @@ export const calculateTransforms = ({
 		for (const matrix of transform.matrices) {
 			const globalTransformOrigin = getGlobalTransformOrigin({
 				transform,
-				offsetLeft,
-				offsetTop,
 			});
 
 			const transformMatrix = new DOMMatrix()
