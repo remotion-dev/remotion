@@ -6,7 +6,7 @@ import type {DrawFn} from './drawn-fn';
 import {handle3dTransform} from './handle-3d-transform';
 
 export type ProcessNodeReturnValue =
-	| {type: 'continue'; cleanupAfterChildren: () => void}
+	| {type: 'continue'; cleanupAfterChildren: null | (() => void)}
 	| {type: 'skip-children'};
 
 export const processNode = async ({
@@ -35,12 +35,12 @@ export const processNode = async ({
 
 	if (opacity === 0) {
 		reset();
-		return {type: 'continue', cleanupAfterChildren: () => {}};
+		return {type: 'continue', cleanupAfterChildren: null};
 	}
 
 	if (dimensions.width <= 0 || dimensions.height <= 0) {
 		reset();
-		return {type: 'continue', cleanupAfterChildren: () => {}};
+		return {type: 'continue', cleanupAfterChildren: null};
 	}
 
 	if (!totalMatrix.is2D) {
