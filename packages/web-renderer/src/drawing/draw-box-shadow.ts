@@ -1,10 +1,10 @@
 import type {BorderRadiusCorners} from './border-radius';
+import {drawRoundedRectPath} from './draw-rounded';
 
 interface BoxShadow {
 	offsetX: number;
 	offsetY: number;
 	blurRadius: number;
-	spreadRadius: number;
 	color: string;
 	inset: boolean;
 }
@@ -33,7 +33,6 @@ export const parseBoxShadow = (boxShadowValue: string): BoxShadow[] => {
 			offsetX: 0,
 			offsetY: 0,
 			blurRadius: 0,
-			spreadRadius: 0,
 			color: 'rgba(0, 0, 0, 0.5)',
 			inset: false,
 		};
@@ -64,162 +63,12 @@ export const parseBoxShadow = (boxShadowValue: string): BoxShadow[] => {
 			if (values.length >= 3) {
 				shadow.blurRadius = Math.max(0, values[2]); // Blur cannot be negative
 			}
-
-			if (values.length >= 4) {
-				shadow.spreadRadius = values[3]; // Spread can be negative
-			}
 		}
 
 		shadows.push(shadow);
 	}
 
 	return shadows;
-};
-
-/**
- * Draws a path following the border radius of a rectangle
- */
-const drawRoundedRectPath = (
-	ctx: OffscreenCanvasRenderingContext2D,
-	x: number,
-	y: number,
-	width: number,
-	height: number,
-	borderRadius: BorderRadiusCorners,
-) => {
-	ctx.beginPath();
-
-	// Start from top-left corner, after the radius
-	ctx.moveTo(x + borderRadius.topLeft.horizontal, y);
-
-	// Top edge
-	ctx.lineTo(x + width - borderRadius.topRight.horizontal, y);
-
-	// Top-right corner
-	if (
-		borderRadius.topRight.horizontal > 0 ||
-		borderRadius.topRight.vertical > 0
-	) {
-		ctx.ellipse(
-			x + width - borderRadius.topRight.horizontal,
-			y + borderRadius.topRight.vertical,
-			borderRadius.topRight.horizontal,
-			borderRadius.topRight.vertical,
-			0,
-			-Math.PI / 2,
-			0,
-		);
-	}
-
-	// Right edge
-	ctx.lineTo(x + width, y + height - borderRadius.bottomRight.vertical);
-
-	// Bottom-right corner
-	if (
-		borderRadius.bottomRight.horizontal > 0 ||
-		borderRadius.bottomRight.vertical > 0
-	) {
-		ctx.ellipse(
-			x + width - borderRadius.bottomRight.horizontal,
-			y + height - borderRadius.bottomRight.vertical,
-			borderRadius.bottomRight.horizontal,
-			borderRadius.bottomRight.vertical,
-			0,
-			0,
-			Math.PI / 2,
-		);
-	}
-
-	// Bottom edge
-	ctx.lineTo(x + borderRadius.bottomLeft.horizontal, y + height);
-
-	// Bottom-left corner
-	if (
-		borderRadius.bottomLeft.horizontal > 0 ||
-		borderRadius.bottomLeft.vertical > 0
-	) {
-		ctx.ellipse(
-			x + borderRadius.bottomLeft.horizontal,
-			y + height - borderRadius.bottomLeft.vertical,
-			borderRadius.bottomLeft.horizontal,
-			borderRadius.bottomLeft.vertical,
-			0,
-			Math.PI / 2,
-			Math.PI,
-		);
-	}
-
-	// Left edge
-	ctx.lineTo(x, y + borderRadius.topLeft.vertical);
-
-	// Top-left corner
-	if (
-		borderRadius.topLeft.horizontal > 0 ||
-		borderRadius.topLeft.vertical > 0
-	) {
-		ctx.ellipse(
-			x + borderRadius.topLeft.horizontal,
-			y + borderRadius.topLeft.vertical,
-			borderRadius.topLeft.horizontal,
-			borderRadius.topLeft.vertical,
-			0,
-			Math.PI,
-			(Math.PI * 3) / 2,
-		);
-	}
-
-	ctx.closePath();
-};
-
-/**
- * Adjusts border radius for spread radius
- */
-const adjustBorderRadiusForSpread = (
-	borderRadius: BorderRadiusCorners,
-	spread: number,
-): BorderRadiusCorners => {
-	return {
-		topLeft: {
-			horizontal:
-				borderRadius.topLeft.horizontal === 0
-					? 0
-					: Math.max(0, borderRadius.topLeft.horizontal + spread),
-			vertical:
-				borderRadius.topLeft.vertical === 0
-					? 0
-					: Math.max(0, borderRadius.topLeft.vertical + spread),
-		},
-		topRight: {
-			horizontal:
-				borderRadius.topRight.horizontal === 0
-					? 0
-					: Math.max(0, borderRadius.topRight.horizontal + spread),
-			vertical:
-				borderRadius.topRight.vertical === 0
-					? 0
-					: Math.max(0, borderRadius.topRight.vertical + spread),
-		},
-		bottomRight: {
-			horizontal:
-				borderRadius.bottomRight.horizontal === 0
-					? 0
-					: Math.max(0, borderRadius.bottomRight.horizontal + spread),
-			vertical:
-				borderRadius.bottomRight.vertical === 0
-					? 0
-					: Math.max(0, borderRadius.bottomRight.vertical + spread),
-		},
-		bottomLeft: {
-			horizontal:
-				borderRadius.bottomLeft.horizontal === 0
-					? 0
-					: Math.max(0, borderRadius.bottomLeft.horizontal + spread),
-			vertical:
-				borderRadius.bottomLeft.vertical === 0
-					? 0
-					: Math.max(0, borderRadius.bottomLeft.vertical + spread),
-		},
-	};
 };
 
 export const drawBoxShadow = ({
@@ -261,28 +110,16 @@ export const drawBoxShadow = ({
 		ctx.shadowOffsetX = shadow.offsetX;
 		ctx.shadowOffsetY = shadow.offsetY;
 
-		// Calculate shadow rectangle with spread
-		const shadowX = rect.left + shadow.spreadRadius;
-		const shadowY = rect.top + shadow.spreadRadius;
-		const shadowW = rect.width - shadow.spreadRadius * 2;
-		const shadowH = rect.height - shadow.spreadRadius * 2;
-
-		// Adjust border radius for spread
-		const adjustedBorderRadius = adjustBorderRadiusForSpread(
-			borderRadius,
-			-shadow.spreadRadius,
-		);
-
 		// Fill the shape (this will cast the shadow)
-		ctx.fillStyle = shadow.color;
-		drawRoundedRectPath(
+		ctx.fillStyle = 'red';
+		drawRoundedRectPath({
 			ctx,
-			shadowX,
-			shadowY,
-			shadowW,
-			shadowH,
-			adjustedBorderRadius,
-		);
+			x: rect.left,
+			y: rect.top,
+			width: rect.width,
+			height: rect.height,
+			borderRadius,
+		});
 		ctx.fill();
 	}
 

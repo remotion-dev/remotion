@@ -32,6 +32,16 @@ const Component: React.FC = () => {
 				}}
 			/>
 
+			{/* Box shadow with spread radius */}
+			<div
+				style={{
+					backgroundColor: 'white',
+					width: 100,
+					height: 80,
+					boxShadow: '0 4px 10px 8px rgba(0, 0, 0, 0.3)',
+				}}
+			/>
+
 			{/* Box shadow with overflow: hidden */}
 			<div
 				style={{
