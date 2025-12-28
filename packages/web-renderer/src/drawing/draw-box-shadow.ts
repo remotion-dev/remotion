@@ -1,3 +1,5 @@
+import type {LogLevel} from 'remotion';
+import {Internals} from 'remotion';
 import type {BorderRadiusCorners} from './border-radius';
 import {drawRoundedRectPath} from './draw-rounded';
 
@@ -9,10 +11,6 @@ interface BoxShadow {
 	inset: boolean;
 }
 
-/**
- * Parse a box-shadow CSS property value into an array of BoxShadow objects.
- * Handles multiple shadows separated by commas.
- */
 export const parseBoxShadow = (boxShadowValue: string): BoxShadow[] => {
 	if (!boxShadowValue || boxShadowValue === 'none') {
 		return [];
@@ -71,16 +69,18 @@ export const parseBoxShadow = (boxShadowValue: string): BoxShadow[] => {
 	return shadows;
 };
 
-export const drawBoxShadow = ({
+export const setDropShadow = ({
 	ctx,
 	rect,
 	borderRadius,
 	computedStyle,
+	logLevel,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
 	borderRadius: BorderRadiusCorners;
 	computedStyle: CSSStyleDeclaration;
+	logLevel: LogLevel;
 }) => {
 	const shadows = parseBoxShadow(computedStyle.boxShadow);
 
@@ -88,45 +88,75 @@ export const drawBoxShadow = ({
 		return;
 	}
 
-	// Save original canvas state
-	const originalShadowBlur = ctx.shadowBlur;
-	const originalShadowColor = ctx.shadowColor;
-	const originalShadowOffsetX = ctx.shadowOffsetX;
-	const originalShadowOffsetY = ctx.shadowOffsetY;
-	const originalFillStyle = ctx.fillStyle;
-
 	// Draw shadows from last to first (so first shadow appears on top)
 	for (let i = shadows.length - 1; i >= 0; i--) {
 		const shadow = shadows[i];
 
+		const newLeft = rect.left + Math.min(shadow.offsetX, 0) - shadow.blurRadius;
+		const newRight =
+			rect.right + Math.max(shadow.offsetX, 0) + shadow.blurRadius;
+		const newTop = rect.top + Math.min(shadow.offsetY, 0) - shadow.blurRadius;
+		const newBottom =
+			rect.bottom + Math.max(shadow.offsetY, 0) + shadow.blurRadius;
+		const newRect = new DOMRect(
+			newLeft,
+			newTop,
+			newRight - newLeft,
+			newBottom - newTop,
+		);
+
+		const leftOffset = rect.left - newLeft;
+		const topOffset = rect.top - newTop;
+
+		const newCanvas = new OffscreenCanvas(newRect.width, newRect.height);
+		const newCtx = newCanvas.getContext('2d');
+		if (!newCtx) {
+			throw new Error('Failed to get context');
+		}
+
 		if (shadow.inset) {
-			// TODO: Inset shadows need different handling
-			continue;
+			// TODO: Only warn once per render.
+			Internals.Log.warn(
+				{
+					logLevel,
+					tag: '@remotion/web-renderer',
+				},
+				'Detected "box-shadow" with "inset". This is not yet supported in @remotion/web-renderer',
+			);
+			return;
 		}
 
 		// Apply shadow properties to canvas
-		ctx.shadowBlur = shadow.blurRadius;
-		ctx.shadowColor = shadow.color;
-		ctx.shadowOffsetX = shadow.offsetX;
-		ctx.shadowOffsetY = shadow.offsetY;
+		newCtx.shadowBlur = shadow.blurRadius;
+		newCtx.shadowColor = shadow.color;
+		newCtx.shadowOffsetX = shadow.offsetX;
+		newCtx.shadowOffsetY = shadow.offsetY;
 
-		// Fill the shape (this will cast the shadow)
-		ctx.fillStyle = 'red';
+		newCtx.fillStyle = 'black';
 		drawRoundedRectPath({
-			ctx,
-			x: rect.left,
-			y: rect.top,
+			ctx: newCtx,
+			x: leftOffset,
+			y: topOffset,
 			width: rect.width,
 			height: rect.height,
 			borderRadius,
 		});
-		ctx.fill();
-	}
+		newCtx.fill();
 
-	// Restore original canvas state
-	ctx.shadowBlur = originalShadowBlur;
-	ctx.shadowColor = originalShadowColor;
-	ctx.shadowOffsetX = originalShadowOffsetX;
-	ctx.shadowOffsetY = originalShadowOffsetY;
-	ctx.fillStyle = originalFillStyle;
+		// Cut out the shape, leaving only shadow
+		newCtx.shadowColor = 'transparent';
+		newCtx.globalCompositeOperation = 'destination-out';
+
+		drawRoundedRectPath({
+			ctx: newCtx,
+			x: leftOffset,
+			y: topOffset,
+			width: rect.width,
+			height: rect.height,
+			borderRadius,
+		});
+		newCtx.fill();
+
+		ctx.drawImage(newCanvas, rect.left - leftOffset, rect.top - topOffset);
+	}
 };

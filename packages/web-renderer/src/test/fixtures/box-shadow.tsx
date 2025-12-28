@@ -14,7 +14,7 @@ const Component: React.FC = () => {
 			{/* Plain box shadow */}
 			<div
 				style={{
-					backgroundColor: 'white',
+					backgroundColor: 'rgba(255, 255, 255, 0.01)',
 					width: 100,
 					height: 80,
 					boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',

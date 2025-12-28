@@ -1,6 +1,7 @@
+import type {LogLevel} from 'remotion';
 import {parseBorderRadius, setBorderRadius} from './border-radius';
 import {drawBorder} from './draw-border';
-import {drawBoxShadow} from './draw-box-shadow';
+import {setDropShadow} from './draw-box-shadow';
 import {drawOutline} from './draw-outline';
 import type {DrawFn} from './drawn-fn';
 import {setOpacity} from './opacity';
@@ -15,6 +16,7 @@ export const drawElement = async ({
 	opacity,
 	totalMatrix,
 	parentRect,
+	logLevel,
 }: {
 	rect: DOMRect;
 	computedStyle: CSSStyleDeclaration;
@@ -23,6 +25,7 @@ export const drawElement = async ({
 	totalMatrix: DOMMatrix;
 	draw: DrawFn;
 	parentRect: DOMRect;
+	logLevel: LogLevel;
 }) => {
 	const background = computedStyle.backgroundColor;
 	const borderRadius = parseBorderRadius({
@@ -43,13 +46,13 @@ export const drawElement = async ({
 	});
 
 	// Draw box shadow before border radius clip and background
-	drawBoxShadow({
+	setDropShadow({
 		ctx: context,
+		computedStyle,
 		rect,
 		borderRadius,
-		computedStyle,
+		logLevel,
 	});
-
 	const finishBorderRadius = setBorderRadius({
 		ctx: context,
 		rect,

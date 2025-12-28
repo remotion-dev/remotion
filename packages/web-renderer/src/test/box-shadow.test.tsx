@@ -12,5 +12,5 @@ test('should render box-shadow', async () => {
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'box-shadow'});
+	await testImage({blob, testId: 'box-shadow', threshold: 0.01});
 });
