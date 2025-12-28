@@ -46,14 +46,9 @@ export const calculateTransforms = ({
 	while (parent) {
 		const computedStyle = getComputedStyle(parent);
 
-		// Multiply opacity values from element and all parents
-		const parentOpacity = computedStyle.opacity;
-		if (parentOpacity && parentOpacity !== '') {
-			opacity *= parseFloat(parentOpacity);
-		}
-
 		if (parent === element) {
 			elementComputedStyle = computedStyle;
+			opacity = parseFloat(computedStyle.opacity);
 		}
 
 		if (hasAnyTransformCssValue(computedStyle) || parent === element) {

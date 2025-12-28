@@ -88,10 +88,10 @@ export const drawElement = async ({
 	});
 
 	finishTransform();
-	finishOpacity();
 
 	return {
 		cleanupAfterChildren: () => {
+			finishOpacity();
 			finishOverflowHidden();
 		},
 	};
