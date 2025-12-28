@@ -16,6 +16,7 @@ export const processNode = async ({
 	logLevel,
 	parentRect,
 	internalState,
+	rootElement,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -23,11 +24,11 @@ export const processNode = async ({
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
+	rootElement: HTMLElement | SVGElement;
 }): Promise<ProcessNodeReturnValue> => {
 	const transforms = calculateTransforms({
 		element,
-		offsetLeft: parentRect.x,
-		offsetTop: parentRect.y,
+		rootElement,
 	});
 
 	const {totalMatrix, reset, dimensions, opacity, computedStyle} = transforms;
@@ -67,6 +68,7 @@ export const processNode = async ({
 		draw,
 		opacity,
 		totalMatrix,
+		parentRect,
 	});
 
 	reset();

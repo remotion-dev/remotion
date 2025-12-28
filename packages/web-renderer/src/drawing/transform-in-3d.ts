@@ -59,7 +59,9 @@ const createHelperCanvas = ({
 	}
 
 	const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
-	const gl = canvas.getContext('webgl');
+	const gl = canvas.getContext('webgl', {
+		premultipliedAlpha: true,
+	});
 
 	if (!gl) {
 		throw new Error('WebGL not supported');
@@ -79,14 +81,18 @@ const createHelperCanvas = ({
         }
     `;
 
-	// Fragment shader - now samples from texture
+	// Fragment shader - samples from texture and unpremultiplies alpha
 	const fsSource = `
         precision mediump float;
         uniform sampler2D uTexture;
         varying vec2 vTexCoord;
 
         void main() {
-            gl_FragColor = texture2D(uTexture, vTexCoord);
+            vec4 color = texture2D(uTexture, vTexCoord);
+            if (color.a > 0.0) {
+                color.rgb /= color.a;
+            }
+            gl_FragColor = color;
         }
     `;
 
@@ -174,8 +180,11 @@ export const transformIn3d = ({
 	// Set texture parameters
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
 	// Upload the source canvas as a texture
 	gl.texImage2D(
@@ -186,6 +195,9 @@ export const transformIn3d = ({
 		gl.UNSIGNED_BYTE,
 		sourceCanvas,
 	);
+
+	gl.enable(gl.BLEND);
+	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
 	// The transform matrix
 	const transformMatrix = matrix.toFloat32Array();

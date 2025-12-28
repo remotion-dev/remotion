@@ -13,7 +13,9 @@ import {borderRadiusNone} from './fixtures/border-radius-none';
 import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
+import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
 import {displayNone} from './fixtures/display-none';
+import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
@@ -37,6 +39,7 @@ import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
 import {threeDoverflow} from './fixtures/three-d-overflow';
+import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bounds';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
@@ -61,6 +64,7 @@ export const Root: React.FC = () => {
 			<Composition {...pixelTransformOrigin} />
 			<Composition {...complexNestedSvg} />
 			<Composition {...threeDoverflow} />
+			<Composition {...threeDTransformOutOfBounds} />
 			<Composition {...overflowHidden} />
 			<Composition {...overflowHidden3dTransform} />
 			<Composition {...hugeImageTransform} />
@@ -100,6 +104,8 @@ export const Root: React.FC = () => {
 				<Composition {...transformWithTranslate} />
 				<Composition {...transformWithAllShorthands} />
 				<Composition {...inside3dTransform} />
+				<Composition {...flexContainer} />
+				<Composition {...deeplyNestedTransform} />
 			</Folder>
 		</>
 	);

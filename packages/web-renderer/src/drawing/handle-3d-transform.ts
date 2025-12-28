@@ -4,6 +4,7 @@ import {compose} from '../compose';
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
 import {getNarrowerRect} from './clamp-rect-to-parent-bounds';
+import {doRectsIntersect} from './do-rects-intersect';
 import {getPreTransformRect} from './get-pretransform-rect';
 import {transformIn3d} from './transform-in-3d';
 
@@ -34,6 +35,14 @@ export const handle3dTransform = async ({
 		secondRect: biggestPossiblePretransformRect,
 	});
 
+	if (preTransformRect.width <= 0 || preTransformRect.height <= 0) {
+		return;
+	}
+
+	if (!doRectsIntersect(preTransformRect, parentRect)) {
+		return;
+	}
+
 	const start = Date.now();
 	const tempCanvas = new OffscreenCanvas(
 		Math.ceil(preTransformRect.width),
@@ -55,7 +64,12 @@ export const handle3dTransform = async ({
 		sourceCanvas: tempCanvas,
 	});
 
-	context.drawImage(transformed, transformedRect.x, transformedRect.y);
+	context.drawImage(
+		transformed,
+		Math.round(transformedRect.x - parentRect.x),
+		Math.round(transformedRect.y - parentRect.y),
+	);
+
 	const afterDraw = Date.now();
 
 	Internals.Log.trace(

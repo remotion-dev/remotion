@@ -57,16 +57,19 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 
 	const div = document.createElement('div');
 
-	// Match same behavior as renderEntry.tsx
-	div.style.display = 'flex';
-	div.style.backgroundColor = 'transparent';
+	// Match same behavior as in portal-node.ts
 	div.style.position = 'fixed';
+	div.style.display = 'flex';
+	div.style.flexDirection = 'column';
+	div.style.backgroundColor = 'transparent';
 	div.style.width = `${width}px`;
 	div.style.height = `${height}px`;
 	div.style.zIndex = '-9999';
 	div.style.top = '0';
-	div.style.visibility = 'hidden';
 	div.style.left = '0';
+	div.style.right = '0';
+	div.style.bottom = '0';
+	div.style.visibility = 'hidden';
 	div.style.pointerEvents = 'none';
 
 	document.body.appendChild(div);

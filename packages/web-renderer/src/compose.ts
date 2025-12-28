@@ -12,12 +12,14 @@ const walkOverNode = ({
 	logLevel,
 	parentRect,
 	internalState,
+	rootElement,
 }: {
 	node: Node;
 	context: OffscreenCanvasRenderingContext2D;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
+	rootElement: HTMLElement | SVGElement;
 }): Promise<ProcessNodeReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
 		return processNode({
@@ -27,6 +29,7 @@ const walkOverNode = ({
 			logLevel,
 			parentRect,
 			internalState,
+			rootElement,
 		});
 	}
 
@@ -37,6 +40,7 @@ const walkOverNode = ({
 			logLevel,
 			parentRect,
 			internalState,
+			rootElement,
 		});
 	}
 
@@ -107,6 +111,7 @@ export const compose = async ({
 			logLevel,
 			parentRect,
 			internalState,
+			rootElement: element,
 		});
 		if (val.type === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {

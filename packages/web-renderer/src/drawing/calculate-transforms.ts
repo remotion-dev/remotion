@@ -20,40 +20,37 @@ const getInternalTransformOrigin = (transform: Transform) => {
 	return origin;
 };
 
-const getGlobalTransformOrigin = ({
-	transform,
-	offsetLeft,
-	offsetTop,
-}: {
-	transform: Transform;
-	offsetLeft: number;
-	offsetTop: number;
-}) => {
+const getGlobalTransformOrigin = ({transform}: {transform: Transform}) => {
 	const {x: originX, y: originY} = getInternalTransformOrigin(transform);
 
 	return {
-		x: originX + transform.boundingClientRect!.left - offsetLeft,
-		y: originY + transform.boundingClientRect!.top - offsetTop,
+		x: originX + transform.boundingClientRect!.left,
+		y: originY + transform.boundingClientRect!.top,
 	};
 };
 
 export const calculateTransforms = ({
 	element,
-	offsetLeft,
-	offsetTop,
+	rootElement,
 }: {
 	element: HTMLElement | SVGElement;
-	offsetLeft: number;
-	offsetTop: number;
+	rootElement: HTMLElement | SVGElement;
 }) => {
 	// Compute the cumulative transform by traversing parent nodes
 	let parent: HTMLElement | SVGElement | null = element;
 	const transforms: Transform[] = [];
 	const toReset: (() => void)[] = [];
 
+	let opacity = 1;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	while (parent) {
 		const computedStyle = getComputedStyle(parent);
+
+		// Multiply opacity values from element and all parents
+		const parentOpacity = computedStyle.opacity;
+		if (parentOpacity && parentOpacity !== '') {
+			opacity *= parseFloat(parentOpacity);
+		}
 
 		if (parent === element) {
 			elementComputedStyle = computedStyle;
@@ -101,6 +98,10 @@ export const calculateTransforms = ({
 			});
 		}
 
+		if (parent === rootElement) {
+			break;
+		}
+
 		parent = parent.parentElement;
 	}
 
@@ -116,8 +117,6 @@ export const calculateTransforms = ({
 		for (const matrix of transform.matrices) {
 			const globalTransformOrigin = getGlobalTransformOrigin({
 				transform,
-				offsetLeft,
-				offsetTop,
 			});
 
 			const transformMatrix = new DOMMatrix()
@@ -143,9 +142,6 @@ export const calculateTransforms = ({
 		},
 		nativeTransformOrigin,
 		computedStyle: elementComputedStyle,
-		opacity:
-			elementComputedStyle.opacity && elementComputedStyle.opacity !== ''
-				? parseFloat(elementComputedStyle.opacity)
-				: 1,
+		opacity,
 	};
 };

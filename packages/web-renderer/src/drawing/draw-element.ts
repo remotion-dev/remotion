@@ -13,6 +13,7 @@ export const drawElement = async ({
 	draw,
 	opacity,
 	totalMatrix,
+	parentRect,
 }: {
 	rect: DOMRect;
 	computedStyle: CSSStyleDeclaration;
@@ -20,6 +21,7 @@ export const drawElement = async ({
 	opacity: number;
 	totalMatrix: DOMMatrix;
 	draw: DrawFn;
+	parentRect: DOMRect;
 }) => {
 	const background = computedStyle.backgroundColor;
 	const borderRadius = parseBorderRadius({
@@ -31,6 +33,7 @@ export const drawElement = async ({
 	const finishTransform = setTransform({
 		ctx: context,
 		transform: totalMatrix,
+		parentRect,
 	});
 
 	const finishBorderRadius = setBorderRadius({
@@ -85,10 +88,10 @@ export const drawElement = async ({
 	});
 
 	finishTransform();
+	finishOpacity();
 
 	return {
 		cleanupAfterChildren: () => {
-			finishOpacity();
 			finishOverflowHidden();
 		},
 	};
