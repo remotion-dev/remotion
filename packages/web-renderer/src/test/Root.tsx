@@ -22,6 +22,7 @@ import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
+import {lineHeight} from './fixtures/line-height';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {opacityInherited} from './fixtures/opacity-inherited';
@@ -107,6 +108,7 @@ export const Root: React.FC = () => {
 				<Composition {...paragraphs} />
 				<Composition {...letterSpacing} />
 				<Composition {...textTransform} />
+				<Composition {...lineHeight} />
 			</Folder>
 			<Folder name="Projects">
 				<Composition {...unwrapped} />

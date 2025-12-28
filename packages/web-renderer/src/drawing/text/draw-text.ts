@@ -59,15 +59,22 @@ export const drawText = ({
 
 		let offsetTop = 0;
 
-		const {fontBoundingBoxAscent} = contextToDraw.measureText(lines[0].text);
+		const measurements = contextToDraw.measureText(lines[0].text);
+		const {fontBoundingBoxDescent, fontBoundingBoxAscent} = measurements;
+
+		const fontHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
 
 		for (const line of lines) {
+			// Calculate leading
+			const leading = line.height - fontHeight;
+			const halfLeading = leading / 2;
+
 			contextToDraw.fillText(
 				line.text,
 				xPosition + line.offsetHorizontal,
-				rect.top + offsetTop + fontBoundingBoxAscent,
+				rect.top + halfLeading + fontBoundingBoxAscent + offsetTop,
 			);
-			offsetTop += line.offsetTop;
+			offsetTop += line.height;
 		}
 
 		span.textContent = originalText;

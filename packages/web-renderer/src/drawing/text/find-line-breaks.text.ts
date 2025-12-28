@@ -5,7 +5,7 @@ export function findLineBreaks(
 	rtl: boolean,
 ): Array<{
 	text: string;
-	offsetTop: number;
+	height: number;
 	offsetHorizontal: number;
 }> {
 	const textNode = span.childNodes[0] as Text;
@@ -20,7 +20,7 @@ export function findLineBreaks(
 
 	const lines: Array<{
 		text: string;
-		offsetTop: number;
+		height: number;
 		offsetHorizontal: number;
 	}> = [];
 
@@ -62,7 +62,7 @@ export function findLineBreaks(
 
 			lines.push({
 				text: shouldCollapse ? currentLine.trim() : currentLine,
-				offsetTop: currentHeight - previousRect.height,
+				height: currentHeight - previousRect.height,
 				offsetHorizontal,
 			});
 
@@ -87,7 +87,7 @@ export function findLineBreaks(
 
 		lines.push({
 			text: currentLine,
-			offsetTop: rect.height - previousRect.height,
+			height: rect.height - lines.reduce((acc, curr) => acc + curr.height, 0),
 			offsetHorizontal,
 		});
 	}
