@@ -48,6 +48,7 @@ import {transformWithScale} from './fixtures/transforms/transform-with-scale';
 import {transformWithTranslate} from './fixtures/transforms/transform-with-translate';
 import {withMargin} from './fixtures/transforms/with-margin';
 import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
+import {transparentImage} from './fixtures/transparent-image';
 import {unwrapped} from './fixtures/unwrapped';
 
 export const Root: React.FC = () => {
@@ -94,7 +95,7 @@ export const Root: React.FC = () => {
 				<Composition {...letterSpacing} />
 				<Composition {...textTransform} />
 			</Folder>
-			<Folder name="Projects">
+			<Folder name="Unwrappedtests">
 				<Composition {...unwrapped} />
 				<Composition {...orthographic} />
 				<Composition {...withMargin} />
@@ -106,6 +107,7 @@ export const Root: React.FC = () => {
 				<Composition {...inside3dTransform} />
 				<Composition {...flexContainer} />
 				<Composition {...deeplyNestedTransform} />
+				<Composition {...transparentImage} />
 			</Folder>
 		</>
 	);
