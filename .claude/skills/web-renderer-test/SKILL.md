@@ -73,6 +73,6 @@ test('should render background-color', async () => {
 ## Adding a new test
 
 1. Add a new fixture in `packages/web-renderer/src/test/fixtures`.
-2. Important: Add the fixture to `packages/web-renderer/src/test/Root.tsx` to add a way to preview it.
+2. **Important**: Add the fixture to `packages/web-renderer/src/test/Root.tsx` to add a way to preview it.
 3. Add a new test in `packages/web-renderer/src/test`.
 4. Run `bunx vitest src/test/video.test.tsx` to execute the test.

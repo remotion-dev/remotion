@@ -21,7 +21,9 @@ import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
+import {opacityInherited} from './fixtures/opacity-inherited';
 import {opacityNested} from './fixtures/opacity-nested';
+import {opacityReset} from './fixtures/opacity-reset';
 import {opacitySimple} from './fixtures/opacity-simple';
 import {opacityZero} from './fixtures/opacity-zero';
 import {outline} from './fixtures/outline';
@@ -73,9 +75,13 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
-			<Composition {...opacitySimple} />
-			<Composition {...opacityNested} />
-			<Composition {...opacityZero} />
+			<Folder name="Opacity">
+				<Composition {...opacitySimple} />
+				<Composition {...opacityNested} />
+				<Composition {...opacityZero} />
+				<Composition {...opacityReset} />
+				<Composition {...opacityInherited} />
+			</Folder>
 			<Composition {...threeDTransformOpacity} />
 			<Composition {...backgroundColor} />
 			<Composition {...outline} />
