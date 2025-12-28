@@ -35,7 +35,7 @@ export const processNode = async ({
 
 	if (opacity === 0) {
 		reset();
-		return {type: 'continue', cleanupAfterChildren: null};
+		return {type: 'skip-children'};
 	}
 
 	if (dimensions.width <= 0 || dimensions.height <= 0) {
