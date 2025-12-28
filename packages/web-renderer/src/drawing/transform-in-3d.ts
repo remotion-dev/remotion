@@ -88,11 +88,7 @@ const createHelperCanvas = ({
         varying vec2 vTexCoord;
 
         void main() {
-            vec4 color = texture2D(uTexture, vTexCoord);
-            if (color.a > 0.0) {
-                color.rgb /= color.a;
-            }
-            gl_FragColor = color;
+            gl_FragColor = texture2D(uTexture, vTexCoord);
         }
     `;
 
