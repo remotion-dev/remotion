@@ -4,6 +4,8 @@ import {borderRadius} from './fixtures/border-radius';
 import {borderRadiusClamped} from './fixtures/border-radius-clamped';
 import {borderRadiusDifferent} from './fixtures/border-radius-different';
 import {borderRadiusElliptical} from './fixtures/border-radius-elliptical';
+import {borderRadiusNested} from './fixtures/border-radius-nested';
+import {borderRadiusNestedOverflowHidden} from './fixtures/border-radius-nested-overflow-hidden';
 import {borderRadiusNone} from './fixtures/border-radius-none';
 import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
@@ -91,4 +93,28 @@ test('should clamp border radius that exceeds maximum', async () => {
 	});
 
 	await testImage({blob, testId: 'draw-border-radius-clamped'});
+});
+
+test('should render nested border radii correctly', async () => {
+	const {blob} = await renderStillOnWeb({
+		licenseKey: 'free-license',
+		composition: borderRadiusNested,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'border-radius-nested'});
+});
+
+test('should render nested border radii with overflow hidden', async () => {
+	const {blob} = await renderStillOnWeb({
+		licenseKey: 'free-license',
+		composition: borderRadiusNestedOverflowHidden,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'border-radius-nested-overflow-hidden'});
 });
