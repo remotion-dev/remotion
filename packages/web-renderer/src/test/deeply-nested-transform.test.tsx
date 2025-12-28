@@ -1,18 +1,18 @@
 import {test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
-import {flexContainer} from './fixtures/flex-container';
+import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
 import {testImage} from './utils';
 
-test('the container should be the same as in rendering', async () => {
+test('github unwrapped transform', async () => {
 	page.viewport(400, 400);
 	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
-		composition: flexContainer,
+		composition: deeplyNestedTransform,
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'flex-container'});
+	await testImage({blob, testId: 'deeply-nested-transform'});
 });

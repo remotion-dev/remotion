@@ -4,8 +4,8 @@ import {compose} from '../compose';
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
 import {getNarrowerRect} from './clamp-rect-to-parent-bounds';
+import {doRectsIntersect} from './do-rects-intersect';
 import {getPreTransformRect} from './get-pretransform-rect';
-import {doRectsIntersect} from './go-rects-intersect';
 import {transformIn3d} from './transform-in-3d';
 
 export const handle3dTransform = async ({
