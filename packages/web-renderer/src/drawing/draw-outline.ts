@@ -1,4 +1,5 @@
 import type {BorderRadiusCorners} from './border-radius';
+import {drawRoundedRectPath} from './draw-rounded';
 
 export const parseOutlineWidth = (value: string): number => {
 	return parseFloat(value) || 0;
@@ -50,7 +51,6 @@ export const drawOutline = ({
 	const originalLineWidth = ctx.lineWidth;
 	const originalLineDash = ctx.getLineDash();
 
-	ctx.beginPath();
 	ctx.strokeStyle = outlineColor;
 	ctx.lineWidth = outlineWidth;
 	ctx.setLineDash(getLineDashPattern(outlineStyle, outlineWidth));
@@ -111,95 +111,14 @@ export const drawOutline = ({
 		},
 	};
 
-	// Draw continuous path with border radius
-	ctx.moveTo(outlineX + adjustedBorderRadius.topLeft.horizontal, outlineY);
-
-	// Top edge
-	ctx.lineTo(
-		outlineX + outlineW - adjustedBorderRadius.topRight.horizontal,
-		outlineY,
-	);
-
-	// Top-right corner
-	if (
-		adjustedBorderRadius.topRight.horizontal > 0 ||
-		adjustedBorderRadius.topRight.vertical > 0
-	) {
-		ctx.ellipse(
-			outlineX + outlineW - adjustedBorderRadius.topRight.horizontal,
-			outlineY + adjustedBorderRadius.topRight.vertical,
-			adjustedBorderRadius.topRight.horizontal,
-			adjustedBorderRadius.topRight.vertical,
-			0,
-			-Math.PI / 2,
-			0,
-		);
-	}
-
-	// Right edge
-	ctx.lineTo(
-		outlineX + outlineW,
-		outlineY + outlineH - adjustedBorderRadius.bottomRight.vertical,
-	);
-
-	// Bottom-right corner
-	if (
-		adjustedBorderRadius.bottomRight.horizontal > 0 ||
-		adjustedBorderRadius.bottomRight.vertical > 0
-	) {
-		ctx.ellipse(
-			outlineX + outlineW - adjustedBorderRadius.bottomRight.horizontal,
-			outlineY + outlineH - adjustedBorderRadius.bottomRight.vertical,
-			adjustedBorderRadius.bottomRight.horizontal,
-			adjustedBorderRadius.bottomRight.vertical,
-			0,
-			0,
-			Math.PI / 2,
-		);
-	}
-
-	// Bottom edge
-	ctx.lineTo(
-		outlineX + adjustedBorderRadius.bottomLeft.horizontal,
-		outlineY + outlineH,
-	);
-
-	// Bottom-left corner
-	if (
-		adjustedBorderRadius.bottomLeft.horizontal > 0 ||
-		adjustedBorderRadius.bottomLeft.vertical > 0
-	) {
-		ctx.ellipse(
-			outlineX + adjustedBorderRadius.bottomLeft.horizontal,
-			outlineY + outlineH - adjustedBorderRadius.bottomLeft.vertical,
-			adjustedBorderRadius.bottomLeft.horizontal,
-			adjustedBorderRadius.bottomLeft.vertical,
-			0,
-			Math.PI / 2,
-			Math.PI,
-		);
-	}
-
-	// Left edge
-	ctx.lineTo(outlineX, outlineY + adjustedBorderRadius.topLeft.vertical);
-
-	// Top-left corner
-	if (
-		adjustedBorderRadius.topLeft.horizontal > 0 ||
-		adjustedBorderRadius.topLeft.vertical > 0
-	) {
-		ctx.ellipse(
-			outlineX + adjustedBorderRadius.topLeft.horizontal,
-			outlineY + adjustedBorderRadius.topLeft.vertical,
-			adjustedBorderRadius.topLeft.horizontal,
-			adjustedBorderRadius.topLeft.vertical,
-			0,
-			Math.PI,
-			(Math.PI * 3) / 2,
-		);
-	}
-
-	ctx.closePath();
+	drawRoundedRectPath({
+		ctx,
+		x: outlineX,
+		y: outlineY,
+		width: outlineW,
+		height: outlineH,
+		borderRadius: adjustedBorderRadius,
+	});
 	ctx.stroke();
 
 	// Restore original canvas state

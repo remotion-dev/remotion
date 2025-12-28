@@ -69,6 +69,7 @@ export const processNode = async ({
 		opacity,
 		totalMatrix,
 		parentRect,
+		logLevel,
 	});
 
 	reset();

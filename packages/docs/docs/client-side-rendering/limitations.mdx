@@ -41,7 +41,6 @@ The `background-image` property and other `background-*` properties are <a style
 
 The `border`, `border-style`, `border-color`, `border-width` properties are <a style={{color: 'green'}}>supported</a>.  
 The `border-radius` property is <a style={{color: 'green'}}>supported</a>, including different values for vertical and horizontal radii.  
-Nested `border-radius` properties are currently [buggy](https://github.com/remotion-dev/remotion/issues/6057).  
 The `corner-shape` property is <a style={{color: 'red'}}>not supported</a>.  
 The `outline` property is <a style={{color: 'green'}}>supported</a>.
 
@@ -59,6 +58,12 @@ The `writing-mode` property is <a style={{color: 'red'}}>not supported</a>.
 The `text-decoration` property is <a style={{color: 'red'}}>not supported</a>.  
 The `text-shadow` property is <a style={{color: 'red'}}>not supported</a>.  
 The `-webkit-text-stroke` property is <a style={{color: 'red'}}>not supported</a>.
+
+## Shadows
+
+Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.  
+`inset` shadows are <a style={{color: 'red'}}>not supported</a>.  
+"Spread radius" is <a style={{color: 'red'}}>not supported</a>.
 
 ## Supported elements
 
@@ -89,7 +94,6 @@ Here is a selection of unsupported styles:
 
 - `mask-image`
 - `clip-path`
-- `box-shadow`
 - `filter` (blur, brightness, contrast, etc.)
 - `backdrop-filter`
 - `mix-blend-mode`
