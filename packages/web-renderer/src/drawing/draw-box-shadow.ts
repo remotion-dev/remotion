@@ -123,7 +123,7 @@ export const setDropShadow = ({
 				},
 				'Detected "box-shadow" with "inset". This is not yet supported in @remotion/web-renderer',
 			);
-			return;
+			continue;
 		}
 
 		// Apply shadow properties to canvas
