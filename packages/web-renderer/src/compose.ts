@@ -118,10 +118,13 @@ export const compose = async ({
 				break;
 			}
 		} else {
-			cleanupAfterChildren.push({
-				element: treeWalker.currentNode,
-				cleanupFn: val.cleanupAfterChildren,
-			});
+			if (val.cleanupAfterChildren) {
+				// Last registered must be cleaned up first
+				cleanupAfterChildren.unshift({
+					element: treeWalker.currentNode,
+					cleanupFn: val.cleanupAfterChildren,
+				});
+			}
 
 			if (!treeWalker.nextNode()) {
 				break;

@@ -39,6 +39,7 @@ import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
 import {threeDoverflow} from './fixtures/three-d-overflow';
+import {threeDTransformOpacity} from './fixtures/three-d-transform-opacity';
 import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bounds';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {orthographic} from './fixtures/transforms/orthographic';
@@ -75,6 +76,7 @@ export const Root: React.FC = () => {
 			<Composition {...opacitySimple} />
 			<Composition {...opacityNested} />
 			<Composition {...opacityZero} />
+			<Composition {...threeDTransformOpacity} />
 			<Composition {...backgroundColor} />
 			<Composition {...outline} />
 			<Folder name="border">
