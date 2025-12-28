@@ -9,6 +9,8 @@ import {borderRadius} from './fixtures/border-radius';
 import {borderRadiusClamped} from './fixtures/border-radius-clamped';
 import {borderRadiusDifferent} from './fixtures/border-radius-different';
 import {borderRadiusElliptical} from './fixtures/border-radius-elliptical';
+import {borderRadiusNested} from './fixtures/border-radius-nested';
+import {borderRadiusNestedOverflowHidden} from './fixtures/border-radius-nested-overflow-hidden';
 import {borderRadiusNone} from './fixtures/border-radius-none';
 import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
@@ -94,6 +96,8 @@ export const Root: React.FC = () => {
 				<Composition {...borderRadiusPercentage} />
 				<Composition {...borderRadiusNone} />
 				<Composition {...borderRadiusClamped} />
+				<Composition {...borderRadiusNested} />
+				<Composition {...borderRadiusNestedOverflowHidden} />
 				<Composition {...borderIndividualSides} />
 			</Folder>
 			<Folder name="Text">
