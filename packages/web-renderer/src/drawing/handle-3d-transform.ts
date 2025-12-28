@@ -66,8 +66,8 @@ export const handle3dTransform = async ({
 
 	context.drawImage(
 		transformed,
-		transformedRect.x - parentRect.x,
-		transformedRect.y - parentRect.y,
+		Math.round(transformedRect.x - parentRect.x),
+		Math.round(transformedRect.y - parentRect.y),
 	);
 
 	const afterDraw = Date.now();
