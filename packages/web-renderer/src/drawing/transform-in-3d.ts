@@ -1,3 +1,4 @@
+import {roundToExpandRect} from './round-to-expand-rect';
 import {transformDOMRect} from './transform-rect-with-matrix';
 
 function compileShader(
@@ -129,14 +130,16 @@ export const transformIn3d = ({
 	matrix: DOMMatrix;
 	sourceCanvas: OffscreenCanvas;
 }) => {
-	const rectAfterTransforms = transformDOMRect({
-		rect: untransformedRect,
-		matrix,
-	});
+	const rectAfterTransforms = roundToExpandRect(
+		transformDOMRect({
+			rect: untransformedRect,
+			matrix,
+		}),
+	);
 
 	const {canvas, gl, program} = createHelperCanvas({
-		canvasWidth: Math.ceil(rectAfterTransforms.width),
-		canvasHeight: Math.ceil(rectAfterTransforms.height),
+		canvasWidth: rectAfterTransforms.width,
+		canvasHeight: rectAfterTransforms.height,
 	});
 
 	const vertexBuffer = gl.createBuffer();
