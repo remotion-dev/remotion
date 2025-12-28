@@ -59,7 +59,9 @@ const createHelperCanvas = ({
 	}
 
 	const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
-	const gl = canvas.getContext('webgl');
+	const gl = canvas.getContext('webgl', {
+		premultipliedAlpha: false,
+	});
 
 	if (!gl) {
 		throw new Error('WebGL not supported');
@@ -177,6 +179,8 @@ export const transformIn3d = ({
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
+	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+
 	// Upload the source canvas as a texture
 	gl.texImage2D(
 		gl.TEXTURE_2D,
@@ -186,6 +190,9 @@ export const transformIn3d = ({
 		gl.UNSIGNED_BYTE,
 		sourceCanvas,
 	);
+
+	gl.enable(gl.BLEND);
+	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); // For premultiplied
 
 	// The transform matrix
 	const transformMatrix = matrix.toFloat32Array();
