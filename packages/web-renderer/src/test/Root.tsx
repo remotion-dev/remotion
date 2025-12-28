@@ -13,7 +13,9 @@ import {borderRadiusNone} from './fixtures/border-radius-none';
 import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
+import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
 import {displayNone} from './fixtures/display-none';
+import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
@@ -102,6 +104,8 @@ export const Root: React.FC = () => {
 				<Composition {...transformWithTranslate} />
 				<Composition {...transformWithAllShorthands} />
 				<Composition {...inside3dTransform} />
+				<Composition {...flexContainer} />
+				<Composition {...deeplyNestedTransform} />
 			</Folder>
 		</>
 	);
