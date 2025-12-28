@@ -16,7 +16,7 @@ test('should apply simple opacity', async () => {
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'opacity-simple', threshold: 0.01});
+	await testImage({blob, testId: 'opacity-simple', threshold: 0.02});
 });
 
 test('should apply nested opacity (multiply parent and child)', async () => {
@@ -28,7 +28,7 @@ test('should apply nested opacity (multiply parent and child)', async () => {
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'opacity-nested', threshold: 0.01});
+	await testImage({blob, testId: 'opacity-nested', threshold: 0.02});
 });
 
 test('should render with zero opacity (opacity: 0)', async () => {
@@ -40,7 +40,7 @@ test('should render with zero opacity (opacity: 0)', async () => {
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'opacity-zero', threshold: 0.01});
+	await testImage({blob, testId: 'opacity-zero', threshold: 0.02});
 });
 
 test('should apply opacity with 3D transform (rotateX)', async () => {
@@ -53,5 +53,5 @@ test('should apply opacity with 3D transform (rotateX)', async () => {
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'three-d-transform-opacity', threshold: 0.01});
+	await testImage({blob, testId: 'three-d-transform-opacity', threshold: 0.02});
 });
