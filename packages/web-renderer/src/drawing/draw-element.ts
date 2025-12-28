@@ -1,5 +1,6 @@
 import {parseBorderRadius, setBorderRadius} from './border-radius';
 import {drawBorder} from './draw-border';
+import {drawBoxShadow} from './draw-box-shadow';
 import {drawOutline} from './draw-outline';
 import type {DrawFn} from './drawn-fn';
 import {setOpacity} from './opacity';
@@ -39,6 +40,14 @@ export const drawElement = async ({
 	const finishOpacity = setOpacity({
 		ctx: context,
 		opacity,
+	});
+
+	// Draw box shadow before border radius clip and background
+	drawBoxShadow({
+		ctx: context,
+		rect,
+		borderRadius,
+		computedStyle,
 	});
 
 	const finishBorderRadius = setBorderRadius({

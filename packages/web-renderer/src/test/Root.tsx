@@ -12,6 +12,7 @@ import {borderRadiusElliptical} from './fixtures/border-radius-elliptical';
 import {borderRadiusNone} from './fixtures/border-radius-none';
 import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
+import {boxShadow} from './fixtures/box-shadow';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
 import {displayNone} from './fixtures/display-none';
@@ -85,6 +86,7 @@ export const Root: React.FC = () => {
 			<Composition {...threeDTransformOpacity} />
 			<Composition {...backgroundColor} />
 			<Composition {...outline} />
+			<Composition {...boxShadow} />
 			<Folder name="border">
 				<Composition {...border} />
 				<Composition {...borderRadius} />
