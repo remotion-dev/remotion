@@ -36,15 +36,16 @@ export const drawElement = async ({
 		parentRect,
 	});
 
+	const finishOpacity = setOpacity({
+		ctx: context,
+		opacity,
+	});
+
 	const finishBorderRadius = setBorderRadius({
 		ctx: context,
 		rect,
 		borderRadius,
 		forceClipEvenWhenZero: false,
-	});
-	const finishOpacity = setOpacity({
-		ctx: context,
-		opacity,
 	});
 
 	if (
