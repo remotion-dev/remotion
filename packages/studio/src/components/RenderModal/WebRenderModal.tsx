@@ -14,6 +14,7 @@ import {AudioIcon} from '../../icons/audio';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
+import {GearIcon} from '../../icons/gear';
 import type {WebRenderModalState} from '../../state/modals';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -43,6 +44,7 @@ import {
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
 import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
+import {WebRenderModalLicense} from './WebRenderModalLicense';
 import {WebRenderModalPicture} from './WebRenderModalPicture';
 
 type WebRenderModalProps = {
@@ -56,7 +58,13 @@ type WebRenderModalProps = {
 
 export type RenderType = 'still' | 'video';
 
-type TabType = 'general' | 'data' | 'picture' | 'audio' | 'advanced';
+type TabType =
+	| 'general'
+	| 'data'
+	| 'picture'
+	| 'audio'
+	| 'advanced'
+	| 'license';
 
 const invalidCharacters = ['?', '*', '+', ':', '%'];
 
@@ -187,6 +195,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		useState<RenderMediaOnWebProgress | null>(null);
 	const [transparent, setTransparent] = useState(false);
 	const [muted, setMuted] = useState(false);
+
+	// License state
+	const [freeLicense, setFreeLicense] = useState(false);
+	const [licenseKey, setLicenseKey] = useState('');
 
 	const finalEndFrame = useMemo(() => {
 		if (endFrame === null) {
@@ -378,6 +390,14 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		}
 	}, [outName, imageFormat, renderMode, container]);
 
+	const finalLicenseKey = useMemo(() => {
+		if (freeLicense) {
+			return 'free-license';
+		}
+
+		return licenseKey || undefined;
+	}, [freeLicense, licenseKey]);
+
 	const onRenderStill = useCallback(async () => {
 		const {blob} = await renderStillOnWeb({
 			composition: {
@@ -396,6 +416,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
 			mediaCacheSizeInBytes,
 			logLevel,
+			licenseKey: finalLicenseKey,
 		});
 
 		const url = URL.createObjectURL(blob);
@@ -424,6 +445,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.defaultProps,
 		unresolvedComposition.calculateMetadata,
 		resolvedComposition.id,
+		finalLicenseKey,
 	]);
 
 	const onRenderVideo = useCallback(async () => {
@@ -456,6 +478,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			transparent,
 			muted,
 			outputTarget: 'web-fs',
+			licenseKey: finalLicenseKey,
 		});
 
 		setRenderProgress(null);
@@ -493,6 +516,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.defaultProps,
 		resolvedComposition.id,
 		unresolvedComposition.calculateMetadata,
+		finalLicenseKey,
 	]);
 
 	const onRender = useCallback(async () => {
@@ -578,6 +602,16 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						</div>
 						Advanced
 					</VerticalTab>
+					<VerticalTab
+						style={horizontalTab}
+						selected={tab === 'license'}
+						onClick={() => setTab('license')}
+					>
+						<div style={iconContainer}>
+							<GearIcon style={icon} />
+						</div>
+						License
+					</VerticalTab>
 				</div>
 				<div style={optionsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					{tab === 'general' ? (
@@ -628,7 +662,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						/>
 					) : tab === 'audio' ? (
 						<WebRenderModalAudio muted={muted} setMuted={setMuted} />
-					) : (
+					) : tab === 'advanced' ? (
 						<WebRenderModalAdvanced
 							renderMode={renderMode}
 							delayRenderTimeout={delayRenderTimeout}
@@ -637,6 +671,13 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setMediaCacheSizeInBytes={setMediaCacheSizeInBytes}
 							hardwareAcceleration={hardwareAcceleration}
 							setHardwareAcceleration={setHardwareAcceleration}
+						/>
+					) : (
+						<WebRenderModalLicense
+							freeLicense={freeLicense}
+							setFreeLicense={setFreeLicense}
+							licenseKey={licenseKey}
+							setLicenseKey={setLicenseKey}
 						/>
 					)}
 				</div>
