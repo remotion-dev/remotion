@@ -1,21 +1,24 @@
 import type {LogLevel} from 'remotion';
-import type {DrawElementToCanvasReturnValue} from '../draw-element-to-canvas';
-import {drawElementToCanvas} from '../draw-element-to-canvas';
+import type {InternalState} from '../../internal-state';
+import type {ProcessNodeReturnValue} from '../process-node';
+import {processNode} from '../process-node';
 import {drawText} from './draw-text';
 
 export const handleTextNode = async ({
 	node,
 	context,
-	offsetLeft,
-	offsetTop,
 	logLevel,
+	parentRect,
+	internalState,
+	rootElement,
 }: {
 	node: Text;
 	context: OffscreenCanvasRenderingContext2D;
-	offsetLeft: number;
-	offsetTop: number;
 	logLevel: LogLevel;
-}): Promise<DrawElementToCanvasReturnValue> => {
+	parentRect: DOMRect;
+	internalState: InternalState;
+	rootElement: HTMLElement | SVGElement;
+}): Promise<ProcessNodeReturnValue> => {
 	const span = document.createElement('span');
 
 	const parent = node.parentNode;
@@ -26,13 +29,14 @@ export const handleTextNode = async ({
 	parent.insertBefore(span, node);
 	span.appendChild(node);
 
-	const value = await drawElementToCanvas({
+	const value = await processNode({
 		context,
 		element: span,
-		draw: drawText(span),
-		offsetLeft,
-		offsetTop,
+		draw: drawText({span, logLevel}),
 		logLevel,
+		parentRect,
+		internalState,
+		rootElement,
 	});
 
 	// Undo the layout manipulation

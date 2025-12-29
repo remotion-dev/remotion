@@ -9,18 +9,31 @@ import {borderRadius} from './fixtures/border-radius';
 import {borderRadiusClamped} from './fixtures/border-radius-clamped';
 import {borderRadiusDifferent} from './fixtures/border-radius-different';
 import {borderRadiusElliptical} from './fixtures/border-radius-elliptical';
+import {borderRadiusNested} from './fixtures/border-radius-nested';
+import {borderRadiusNestedOverflowHidden} from './fixtures/border-radius-nested-overflow-hidden';
 import {borderRadiusNone} from './fixtures/border-radius-none';
 import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
+import {boxShadow} from './fixtures/box-shadow';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
+import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
 import {displayNone} from './fixtures/display-none';
+import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
+import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
+import {lineHeight} from './fixtures/line-height';
+import {linearGradient} from './fixtures/linear-gradient';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
+import {opacityInherited} from './fixtures/opacity-inherited';
 import {opacityNested} from './fixtures/opacity-nested';
+import {opacityReset} from './fixtures/opacity-reset';
 import {opacitySimple} from './fixtures/opacity-simple';
 import {opacityZero} from './fixtures/opacity-zero';
+import {outline} from './fixtures/outline';
+import {overflowHidden} from './fixtures/overflow-hidden';
+import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
@@ -33,6 +46,8 @@ import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
 import {threeDoverflow} from './fixtures/three-d-overflow';
+import {threeDTransformOpacity} from './fixtures/three-d-transform-opacity';
+import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bounds';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
@@ -57,14 +72,26 @@ export const Root: React.FC = () => {
 			<Composition {...pixelTransformOrigin} />
 			<Composition {...complexNestedSvg} />
 			<Composition {...threeDoverflow} />
+			<Composition {...threeDTransformOutOfBounds} />
+			<Composition {...overflowHidden} />
+			<Composition {...overflowHidden3dTransform} />
+			<Composition {...hugeImageTransform} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
-			<Composition {...opacitySimple} />
-			<Composition {...opacityNested} />
-			<Composition {...opacityZero} />
+			<Folder name="Opacity">
+				<Composition {...opacitySimple} />
+				<Composition {...opacityNested} />
+				<Composition {...opacityZero} />
+				<Composition {...opacityReset} />
+				<Composition {...opacityInherited} />
+			</Folder>
+			<Composition {...threeDTransformOpacity} />
 			<Composition {...backgroundColor} />
+			<Composition {...linearGradient} />
+			<Composition {...outline} />
+			<Composition {...boxShadow} />
 			<Folder name="border">
 				<Composition {...border} />
 				<Composition {...borderRadius} />
@@ -74,6 +101,8 @@ export const Root: React.FC = () => {
 				<Composition {...borderRadiusPercentage} />
 				<Composition {...borderRadiusNone} />
 				<Composition {...borderRadiusClamped} />
+				<Composition {...borderRadiusNested} />
+				<Composition {...borderRadiusNestedOverflowHidden} />
 				<Composition {...borderIndividualSides} />
 			</Folder>
 			<Folder name="Text">
@@ -81,6 +110,7 @@ export const Root: React.FC = () => {
 				<Composition {...paragraphs} />
 				<Composition {...letterSpacing} />
 				<Composition {...textTransform} />
+				<Composition {...lineHeight} />
 			</Folder>
 			<Folder name="Projects">
 				<Composition {...unwrapped} />
@@ -92,6 +122,8 @@ export const Root: React.FC = () => {
 				<Composition {...transformWithTranslate} />
 				<Composition {...transformWithAllShorthands} />
 				<Composition {...inside3dTransform} />
+				<Composition {...flexContainer} />
+				<Composition {...deeplyNestedTransform} />
 			</Folder>
 		</>
 	);

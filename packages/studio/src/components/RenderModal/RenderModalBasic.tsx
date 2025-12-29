@@ -1,13 +1,11 @@
 import type {Codec, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {ChangeEvent} from 'react';
 import React, {useCallback, useMemo} from 'react';
 import type {_InternalTypes, VideoConfig} from 'remotion';
 import {labelProResProfile} from '../../helpers/prores-labels';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkmark} from '../../icons/Checkmark';
-import {Checkbox} from '../Checkbox';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {InputDragger} from '../NewComposition/InputDragger';
@@ -20,6 +18,7 @@ import {OptionExplainerBubble} from './OptionExplainerBubble';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalOutputName} from './RenderModalOutputName';
 import {humanReadableCodec} from './human-readable-codec';
+import {humanReadableLogLevel} from './human-readable-loglevel';
 import {input, label, optionRow, rightRow} from './layout';
 
 const container: React.CSSProperties = {
@@ -135,12 +134,23 @@ export const RenderModalBasic: React.FC<{
 		[setOutName],
 	);
 
-	const onVerboseLoggingChanged = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			setVerboseLogging(e.target.checked ? 'verbose' : 'info');
-		},
-		[setVerboseLogging],
-	);
+	const logLevelOptions = useMemo((): ComboboxValue[] => {
+		return (['trace', 'verbose', 'info', 'warn', 'error'] as const).map(
+			(level): ComboboxValue => {
+				return {
+					label: humanReadableLogLevel(level),
+					onClick: () => setVerboseLogging(level),
+					leftItem: logLevel === level ? <Checkmark /> : null,
+					id: level,
+					keyHint: null,
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: level,
+				};
+			},
+		);
+	}, [logLevel, setVerboseLogging]);
 
 	return (
 		<div style={container}>
@@ -220,14 +230,14 @@ export const RenderModalBasic: React.FC<{
 			/>
 			<div style={optionRow}>
 				<div style={label}>
-					Verbose logging <Spacing x={0.5} />
+					Log Level <Spacing x={0.5} />
 					<OptionExplainerBubble id="logLevelOption" />
 				</div>
 				<div style={rightRow}>
-					<Checkbox
-						checked={logLevel === 'verbose'}
-						onChange={onVerboseLoggingChanged}
-						name="verbose-logging"
+					<Combobox
+						values={logLevelOptions}
+						selectedId={logLevel}
+						title="Log Level"
 					/>
 				</div>
 			</div>

@@ -7,6 +7,8 @@ import type {AnyZodObject} from 'zod';
 import type {OnArtifact} from './artifact';
 import {handleArtifacts} from './artifact';
 import {createScaffold} from './create-scaffold';
+import type {InternalState} from './internal-state';
+import {makeInternalState} from './internal-state';
 import type {
 	CompositionCalculateMetadataOrExplicit,
 	InferProps,
@@ -88,6 +90,8 @@ async function internalRenderStillOnWeb<
 		return Promise.reject(new Error('renderStillOnWeb() was cancelled'));
 	}
 
+	const internalState = makeInternalState();
+
 	const {delayRenderScope, div, cleanupScaffold, collectAssets} =
 		await createScaffold({
 			width: resolved.width,
@@ -132,6 +136,7 @@ async function internalRenderStillOnWeb<
 			height: resolved.height,
 			imageFormat,
 			logLevel,
+			internalState,
 		});
 
 		const assets = collectAssets.current!.collectAssets();
@@ -145,7 +150,7 @@ async function internalRenderStillOnWeb<
 			apiName: 'renderStillOnWeb',
 		});
 
-		return imageData;
+		return {blob: imageData, internalState};
 	} catch (err) {
 		sendUsageEvent({
 			succeeded: false,
@@ -169,7 +174,7 @@ export const renderStillOnWeb = <
 	Props extends Record<string, unknown>,
 >(
 	options: RenderStillOnWebOptions<Schema, Props>,
-): Promise<Blob> => {
+): Promise<{blob: Blob; internalState: InternalState}> => {
 	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
 		.then(() =>
@@ -186,5 +191,8 @@ export const renderStillOnWeb = <
 			}),
 		);
 
-	return onlyOneRenderAtATimeQueue.ref as Promise<Blob>;
+	return onlyOneRenderAtATimeQueue.ref as Promise<{
+		blob: Blob;
+		internalState: InternalState;
+	}>;
 };

@@ -1,3 +1,6 @@
+import {roundToExpandRect} from './round-to-expand-rect';
+import {transformDOMRect} from './transform-rect-with-matrix';
+
 function compileShader(
 	shaderGl: WebGLRenderingContext,
 	source: string,
@@ -57,7 +60,9 @@ const createHelperCanvas = ({
 	}
 
 	const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
-	const gl = canvas.getContext('webgl');
+	const gl = canvas.getContext('webgl', {
+		premultipliedAlpha: true,
+	});
 
 	if (!gl) {
 		throw new Error('WebGL not supported');
@@ -77,7 +82,7 @@ const createHelperCanvas = ({
         }
     `;
 
-	// Fragment shader - now samples from texture
+	// Fragment shader - samples from texture and unpremultiplies alpha
 	const fsSource = `
         precision mediump float;
         uniform sampler2D uTexture;
@@ -116,24 +121,26 @@ const createHelperCanvas = ({
 	return helperCanvas;
 };
 
-export const transformIn3d = (
-	{
-		canvasWidth,
-		canvasHeight,
-		matrix,
-		sourceCanvas,
-		offsetLeft,
-		offsetTop,
-	}: {
-		canvasWidth: number;
-		canvasHeight: number;
-		offsetLeft: number;
-		offsetTop: number;
-		matrix: DOMMatrix;
-		sourceCanvas: HTMLCanvasElement | OffscreenCanvas;
-	}, // Add source canvas parameter
-) => {
-	const {canvas, gl, program} = createHelperCanvas({canvasWidth, canvasHeight});
+export const transformIn3d = ({
+	matrix,
+	sourceCanvas,
+	untransformedRect,
+}: {
+	untransformedRect: DOMRect;
+	matrix: DOMMatrix;
+	sourceCanvas: OffscreenCanvas;
+}) => {
+	const rectAfterTransforms = roundToExpandRect(
+		transformDOMRect({
+			rect: untransformedRect,
+			matrix,
+		}),
+	);
+
+	const {canvas, gl, program} = createHelperCanvas({
+		canvasWidth: rectAfterTransforms.width,
+		canvasHeight: rectAfterTransforms.height,
+	});
 
 	const vertexBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -143,13 +150,13 @@ export const transformIn3d = (
 	const vertices = new Float32Array([
 		// Position (x, y) + TexCoord (u, v)
 		// First:
-		offsetLeft, offsetTop, 0, 0, // bottom-left
-		canvasWidth + offsetLeft, offsetTop, 1, 0, // bottom-right
-		offsetLeft, canvasHeight + offsetTop, 0, 1, // top-left
+		untransformedRect.x, untransformedRect.y, 0, 0, // bottom-left
+		untransformedRect.x + untransformedRect.width, untransformedRect.y, 1, 0, // bottom-right
+		untransformedRect.x, untransformedRect.y + untransformedRect.height, 0, 1, // top-left
 		// Second:
-		offsetLeft, canvasHeight + offsetTop, 0, 1, // top-left
-		canvasWidth + offsetLeft, offsetTop, 1, 0, // bottom-right
-		canvasWidth + offsetLeft, canvasHeight + offsetTop, 1, 1, // top-right
+		untransformedRect.x, untransformedRect.y + untransformedRect.height, 0, 1, // top-left
+		untransformedRect.x + untransformedRect.width, untransformedRect.y, 1, 0, // bottom-right
+		untransformedRect.x + untransformedRect.width, untransformedRect.y + untransformedRect.height, 1, 1, // top-right
 	]);
 
 	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
@@ -172,8 +179,11 @@ export const transformIn3d = (
 	// Set texture parameters
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
 	// Upload the source canvas as a texture
 	gl.texImage2D(
@@ -185,12 +195,15 @@ export const transformIn3d = (
 		sourceCanvas,
 	);
 
+	gl.enable(gl.BLEND);
+	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
 	// The transform matrix
 	const transformMatrix = matrix.toFloat32Array();
 
 	const zScale = 1_000_000_000; // By default infinite in chrome
 
-	// Create orthographic projection matrix for pixel coordinates
+	// Create orthographic projection matrix for pixel coordinates with offset
 	const projectionMatrix = new Float32Array([
 		2 / canvas.width,
 		0,
@@ -204,8 +217,8 @@ export const transformIn3d = (
 		0,
 		-2 / zScale,
 		0,
-		-1,
-		1,
+		-1 + (2 * -rectAfterTransforms.x) / canvas.width,
+		1 - (2 * -rectAfterTransforms.y) / canvas.height,
 		0,
 		1,
 	]);
@@ -224,5 +237,5 @@ export const transformIn3d = (
 	gl.deleteTexture(texture);
 	gl.deleteBuffer(vertexBuffer);
 
-	return canvas;
+	return {canvas, rect: rectAfterTransforms};
 };

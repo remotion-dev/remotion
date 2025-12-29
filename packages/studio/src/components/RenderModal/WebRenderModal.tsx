@@ -46,6 +46,7 @@ import {WebRenderModalPicture} from './WebRenderModalPicture';
 type WebRenderModalProps = {
 	readonly compositionId: string;
 	readonly initialFrame: number;
+	readonly initialLogLevel: LogLevel;
 	readonly defaultProps: Record<string, unknown>;
 	readonly inFrameMark: number | null;
 	readonly outFrameMark: number | null;
@@ -132,6 +133,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	defaultProps,
 	inFrameMark,
 	outFrameMark,
+	initialLogLevel,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
@@ -145,11 +147,19 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		unresolved: unresolvedComposition,
 	} = context;
 
-	const [renderMode, setRenderMode] = useState<RenderType>('video');
+	const [isVideo] = useState(() => {
+		return typeof resolvedComposition.durationInFrames === 'undefined'
+			? true
+			: resolvedComposition.durationInFrames > 1;
+	});
+
+	const [renderMode, setRenderMode] = useState<RenderType>(
+		isVideo ? 'video' : 'still',
+	);
 	const [tab, setTab] = useState<TabType>('general');
 	const [imageFormat, setImageFormat] = useState<RenderStillImageFormat>('png');
 	const [frame, setFrame] = useState(() => initialFrame);
-	const [logLevel, setLogLevel] = useState<LogLevel>('info');
+	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
 	const [inputProps, setInputProps] = useState(() => defaultProps);
 	const [delayRenderTimeout, setDelayRenderTimeout] = useState(30000);
 	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
@@ -205,7 +215,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [initialOutName] = useState(() => {
 		return getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
-			defaultExtension: container,
+			defaultExtension:
+				renderMode === 'still'
+					? imageFormat
+					: isVideo
+						? container
+						: imageFormat,
 			type: 'asset',
 			compositionDefaultOutName: resolvedComposition.defaultOutName,
 			clientSideRender: true,
@@ -361,7 +376,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	}, [outName, imageFormat, renderMode, container]);
 
 	const onRenderStill = useCallback(async () => {
-		const blob = await renderStillOnWeb({
+		const {blob} = await renderStillOnWeb({
 			composition: {
 				component: unresolvedComposition.component,
 				width: resolvedComposition.width,

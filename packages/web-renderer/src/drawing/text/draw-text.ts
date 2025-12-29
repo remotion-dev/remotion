@@ -1,10 +1,17 @@
+import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import type {DrawFn} from '../drawn-fn';
 import {applyTextTransform} from './apply-text-transform';
 import {findLineBreaks} from './find-line-breaks.text';
 import {getCollapsedText} from './get-collapsed-text';
 
-export const drawText = (span: HTMLSpanElement) => {
+export const drawText = ({
+	span,
+	logLevel,
+}: {
+	span: HTMLSpanElement;
+	logLevel: LogLevel;
+}) => {
 	const drawFn: DrawFn = ({dimensions: rect, computedStyle, contextToDraw}) => {
 		const {
 			fontFamily,
@@ -21,7 +28,7 @@ export const drawText = (span: HTMLSpanElement) => {
 			// TODO: Only warn once per render.
 			Internals.Log.warn(
 				{
-					logLevel: 'warn',
+					logLevel,
 					tag: '@remotion/web-renderer',
 				},
 				'Detected "writing-mode" CSS property. Vertical text is not yet supported in @remotion/web-renderer',
@@ -52,15 +59,22 @@ export const drawText = (span: HTMLSpanElement) => {
 
 		let offsetTop = 0;
 
-		const {fontBoundingBoxAscent} = contextToDraw.measureText(lines[0].text);
+		const measurements = contextToDraw.measureText(lines[0].text);
+		const {fontBoundingBoxDescent, fontBoundingBoxAscent} = measurements;
+
+		const fontHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
 
 		for (const line of lines) {
+			// Calculate leading
+			const leading = line.height - fontHeight;
+			const halfLeading = leading / 2;
+
 			contextToDraw.fillText(
 				line.text,
 				xPosition + line.offsetHorizontal,
-				rect.top + offsetTop + fontBoundingBoxAscent,
+				rect.top + halfLeading + fontBoundingBoxAscent + offsetTop,
 			);
-			offsetTop += line.offsetTop;
+			offsetTop += line.height;
 		}
 
 		span.textContent = originalText;

@@ -27,7 +27,7 @@ export const usePlayback = ({
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
-	const {playing, pause, emitter} = usePlayer();
+	const {playing, pause, emitter, isPlaying} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 
 	// requestAnimationFrame() does not work if the tab is not active.
@@ -92,6 +92,10 @@ export const usePlayback = ({
 
 		const callback = () => {
 			if (hasBeenStopped) {
+				return;
+			}
+
+			if (!isPlaying()) {
 				return;
 			}
 
@@ -186,6 +190,7 @@ export const usePlayback = ({
 		isBackgroundedRef,
 		getCurrentFrame,
 		context,
+		isPlaying,
 	]);
 
 	useEffect(() => {

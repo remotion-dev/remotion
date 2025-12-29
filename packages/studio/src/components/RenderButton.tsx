@@ -13,7 +13,7 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
-import {RenderIcon} from '../icons/render';
+import {ThinRenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ModalsContext} from '../state/modals';
 import {Button} from './Button';
@@ -134,7 +134,7 @@ export const RenderButton: React.FC = () => {
 			disabled={connectionStatus !== 'connected'}
 		>
 			<Row align="center">
-				<RenderIcon svgProps={iconStyle} />
+				<ThinRenderIcon fill="currentcolor" svgProps={iconStyle} />
 				<Spacing x={1} />
 				<span style={label}>Render</span>
 			</Row>

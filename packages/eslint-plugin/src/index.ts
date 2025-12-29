@@ -43,7 +43,6 @@ const recommendedRuleConfig = {
 	'@remotion/staticfile-no-remote': 'error',
 	'@remotion/no-background-image': 'error',
 	'@remotion/non-pure-animation': 'warn',
-	'@remotion/slow-css-property': 'warn',
 	'@remotion/v4-config-import': 'error',
 } as const;
 
