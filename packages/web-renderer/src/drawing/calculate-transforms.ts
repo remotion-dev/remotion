@@ -54,6 +54,18 @@ export const calculateTransforms = ({
 			opacity = parseFloat(computedStyle.opacity);
 			const maskImageValue = getMaskImageValue(computedStyle);
 			maskImageInfo = maskImageValue ? parseMaskImage(maskImageValue) : null;
+
+			const originalMaskImage = parent.style.maskImage;
+			const originalWebkitMaskImage = parent.style.webkitMaskImage;
+			parent.style.maskImage = 'none';
+			parent.style.webkitMaskImage = 'none';
+
+			const parentRef = parent;
+
+			toReset.push(() => {
+				parentRef!.style.maskImage = originalMaskImage;
+				parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
+			});
 		}
 
 		if (hasAnyTransformCssValue(computedStyle) || parent === element) {

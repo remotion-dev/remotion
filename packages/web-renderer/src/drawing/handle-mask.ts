@@ -34,16 +34,6 @@ export const handleMask = async ({
 		return;
 	}
 
-	const previousMaskImage = element.style.maskImage;
-	const previousWebkitMaskImage = element.style.webkitMaskImage;
-	element.style.maskImage = 'none';
-	element.style.webkitMaskImage = 'none';
-
-	const reset = () => {
-		element.style.maskImage = previousMaskImage;
-		element.style.webkitMaskImage = previousWebkitMaskImage;
-	};
-
 	const {tempCanvas, tempContext} = await precomposeDOMElement({
 		boundingRect,
 		element,
@@ -88,6 +78,4 @@ export const handleMask = async ({
 	);
 
 	context.setTransform(previousTransform);
-
-	reset();
 };
