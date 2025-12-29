@@ -399,16 +399,12 @@ export const RenderButton: React.FC = () => {
 
 	return (
 		<>
-			<div
-				ref={containerRef}
-				style={containerStyle}
-				id="render-modal-button"
-				title={tooltip}
-			>
+			<div ref={containerRef} style={containerStyle} title={tooltip}>
 				<button
 					type="button"
 					style={mainButtonStyle}
 					onClick={onClick}
+					id="render-modal-button"
 					disabled={connectionStatus !== 'connected'}
 				>
 					<Row align="center">
