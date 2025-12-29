@@ -317,9 +317,8 @@ export const useWindowedAudioData = ({
 
 		// Prioritize the current window where playback is at.
 		// On slow connections, this ensures the most important window loads first.
-		const currentWindowNeedsFetch = windowsToActuallyFetch.includes(
-			currentWindowIndex,
-		);
+		const currentWindowNeedsFetch =
+			windowsToActuallyFetch.includes(currentWindowIndex);
 		const otherWindowsToFetch = windowsToActuallyFetch.filter(
 			(w) => w !== currentWindowIndex,
 		);
