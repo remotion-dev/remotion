@@ -4,6 +4,8 @@ import {calculateTransforms} from './calculate-transforms';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
 import {handle3dTransform} from './handle-3d-transform';
+import {handleMask} from './handle-mask';
+import {getMaskImageValue, parseMaskImage} from './mask-image';
 
 export type ProcessNodeReturnValue =
 	| {type: 'continue'; cleanupAfterChildren: null | (() => void)}
@@ -43,6 +45,33 @@ export const processNode = async ({
 		return {type: 'continue', cleanupAfterChildren: null};
 	}
 
+	const rect = new DOMRect(
+		dimensions.left - parentRect.x,
+		dimensions.top - parentRect.y,
+		dimensions.width,
+		dimensions.height,
+	);
+
+	// Check for mask-image
+	const maskImageValue = getMaskImageValue(computedStyle);
+	const maskGradientInfo = maskImageValue
+		? parseMaskImage(maskImageValue)
+		: null;
+
+	if (maskGradientInfo) {
+		await handleMask({
+			element,
+			parentRect,
+			context,
+			logLevel,
+			internalState,
+			gradientInfo: maskGradientInfo,
+			rect,
+		});
+		reset();
+		return {type: 'skip-children'};
+	}
+
 	if (!totalMatrix.is2D) {
 		await handle3dTransform({
 			element,
@@ -57,12 +86,7 @@ export const processNode = async ({
 	}
 
 	const {cleanupAfterChildren} = await drawElement({
-		rect: new DOMRect(
-			dimensions.left - parentRect.x,
-			dimensions.top - parentRect.y,
-			dimensions.width,
-			dimensions.height,
-		),
+		rect,
 		computedStyle,
 		context,
 		draw,
