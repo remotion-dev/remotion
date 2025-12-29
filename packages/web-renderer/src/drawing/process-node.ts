@@ -1,7 +1,7 @@
 import {Internals, type LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
 import {calculateTransforms} from './calculate-transforms';
-import {getWiderRect} from './clamp-rect-to-parent-bounds';
+import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
 import {doRectsIntersect} from './do-rects-intersect';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
@@ -67,14 +67,14 @@ export const processNode = async ({
 
 		let precomposeRect: DOMRect | null = null;
 		if (precompositing.needsMaskImage) {
-			precomposeRect = getWiderRect({
+			precomposeRect = getWiderRectAndExpand({
 				firstRect: precomposeRect,
 				secondRect: getPrecomposeRectForMask(element),
 			});
 		}
 
 		if (precompositing.needs3DTransformViaWebGL) {
-			precomposeRect = getWiderRect({
+			precomposeRect = getWiderRectAndExpand({
 				firstRect: precomposeRect,
 				secondRect: getPrecomposeRectFor3DTransform({
 					element,

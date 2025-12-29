@@ -1,10 +1,9 @@
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {LinearGradientInfo} from './parse-linear-gradient';
 import {createCanvasGradient} from './parse-linear-gradient';
-import {roundToExpandRect} from './round-to-expand-rect';
 
 export const getPrecomposeRectForMask = (element: HTMLElement | SVGElement) => {
-	const boundingRect = roundToExpandRect(getBiggestBoundingClientRect(element));
+	const boundingRect = getBiggestBoundingClientRect(element);
 
 	return boundingRect;
 };

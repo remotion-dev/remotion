@@ -1,7 +1,6 @@
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import {getNarrowerRect} from './clamp-rect-to-parent-bounds';
 import {getPreTransformRect} from './get-pretransform-rect';
-import {roundToExpandRect} from './round-to-expand-rect';
 import {transformIn3d} from './transform-in-3d';
 
 export const getPrecomposeRectFor3DTransform = ({
@@ -20,12 +19,10 @@ export const getPrecomposeRectFor3DTransform = ({
 		parentRect,
 		matrix,
 	);
-	const preTransformRect = roundToExpandRect(
-		getNarrowerRect({
-			firstRect: unclampedBiggestBoundingClientRect,
-			secondRect: biggestPossiblePretransformRect,
-		}),
-	);
+	const preTransformRect = getNarrowerRect({
+		firstRect: unclampedBiggestBoundingClientRect,
+		secondRect: biggestPossiblePretransformRect,
+	});
 
 	return preTransformRect;
 };
