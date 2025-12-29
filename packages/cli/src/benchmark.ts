@@ -233,6 +233,15 @@ export const benchmarkCommand = async (
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
+	const experimentalClientSideRenderingEnabled =
+		ConfigInternals.getExperimentalClientSideRenderingEnabled();
+
+	if (experimentalClientSideRenderingEnabled) {
+		Log.warn(
+			{indent: false, logLevel},
+			'Enabling WIP client-side rendering. Please see caveats on https://www.remotion.dev/docs/client-side-rendering/.',
+		);
+	}
 
 	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
@@ -294,6 +303,7 @@ export const benchmarkCommand = async (
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint: null,
+			experimentalClientSideRenderingEnabled,
 		});
 
 	registerCleanupJob(`Deleting bundle`, () => cleanupBundle());

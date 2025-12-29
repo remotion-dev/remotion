@@ -9,7 +9,7 @@ import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
 import {addAudioSample, addVideoSampleAndCloseFrame} from './add-sample';
-import {handleArtifacts, type OnArtifact} from './artifact';
+import {handleArtifacts, type WebRendererOnArtifact} from './artifact';
 import {onlyInlineAudio} from './audio';
 import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createScaffold} from './create-scaffold';
@@ -27,7 +27,7 @@ import {
 	getDefaultVideoCodecForContainer,
 	getMimeType,
 	getQualityForWebRendererQuality,
-	type WebRendererCodec,
+	type WebRendererVideoCodec,
 } from './mediabunny-mappings';
 import type {WebRendererOutputTarget} from './output-target';
 import type {
@@ -92,7 +92,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	logLevel: LogLevel;
 	schema: Schema | undefined;
 	mediaCacheSizeInBytes: number | null;
-	codec: WebRendererCodec;
+	videoCodec: WebRendererVideoCodec;
 	container: WebRendererContainer;
 	signal: AbortSignal | null;
 	onProgress: RenderMediaOnWebProgressCallback | null;
@@ -101,10 +101,11 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	videoBitrate: number | WebRendererQuality;
 	frameRange: FrameRange | null;
 	transparent: boolean;
-	onArtifact: OnArtifact | null;
+	onArtifact: WebRendererOnArtifact | null;
 	onFrame: OnFrameCallback | null;
 	outputTarget: WebRendererOutputTarget | null;
 	licenseKey: string | undefined;
+	muted: boolean;
 };
 
 export type RenderMediaOnWebOptions<
@@ -137,7 +138,7 @@ const internalRenderMediaOnWeb = async <
 	logLevel,
 	mediaCacheSizeInBytes,
 	schema,
-	codec,
+	videoCodec: codec,
 	container,
 	signal,
 	onProgress,
@@ -150,6 +151,7 @@ const internalRenderMediaOnWeb = async <
 	onFrame,
 	outputTarget: userDesiredOutputTarget,
 	licenseKey,
+	muted,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
@@ -214,7 +216,7 @@ const internalRenderMediaOnWeb = async <
 			logLevel,
 			mediaCacheSizeInBytes,
 			schema: schema ?? null,
-			audioEnabled: true,
+			audioEnabled: !muted,
 			videoEnabled: true,
 			initialFrame: 0,
 			defaultCodec: resolved.defaultCodec,
@@ -285,21 +287,25 @@ const internalRenderMediaOnWeb = async <
 		output.addVideoTrack(videoSampleSource);
 
 		// TODO: Should be able to customize
-		const defaultAudioEncodingConfig = await getDefaultAudioEncodingConfig();
+		let audioSampleSource: AudioSampleSource | null = null;
 
-		if (!defaultAudioEncodingConfig) {
-			return Promise.reject(
-				new Error('No default audio encoding config found'),
-			);
+		if (!muted) {
+			const defaultAudioEncodingConfig = await getDefaultAudioEncodingConfig();
+
+			if (!defaultAudioEncodingConfig) {
+				return Promise.reject(
+					new Error('No default audio encoding config found'),
+				);
+			}
+
+			audioSampleSource = new AudioSampleSource(defaultAudioEncodingConfig);
+
+			cleanupFns.push(() => {
+				audioSampleSource?.close();
+			});
+
+			output.addAudioTrack(audioSampleSource);
 		}
-
-		const audioSampleSource = new AudioSampleSource(defaultAudioEncodingConfig);
-
-		cleanupFns.push(() => {
-			audioSampleSource.close();
-		});
-
-		output.addAudioTrack(audioSampleSource);
 
 		await output.start();
 
@@ -357,7 +363,9 @@ const internalRenderMediaOnWeb = async <
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 
-			const audio = onlyInlineAudio({assets, fps: resolved.fps, frame});
+			const audio = muted
+				? null
+				: onlyInlineAudio({assets, fps: resolved.fps, frame});
 
 			const timestamp = Math.round(
 				((frame - realFrameRange[0]) / resolved.fps) * 1_000_000,
@@ -387,7 +395,9 @@ const internalRenderMediaOnWeb = async <
 
 			await Promise.all([
 				addVideoSampleAndCloseFrame(frameToEncode, videoSampleSource),
-				audio ? addAudioSample(audio, audioSampleSource) : Promise.resolve(),
+				audio && audioSampleSource
+					? addAudioSample(audio, audioSampleSource)
+					: Promise.resolve(),
 			]);
 
 			progress.encodedFrames++;
@@ -402,7 +412,7 @@ const internalRenderMediaOnWeb = async <
 		onProgress?.({...progress});
 
 		videoSampleSource.close();
-		audioSampleSource.close();
+		audioSampleSource?.close();
 		await output.finalize();
 
 		const mimeType = getMimeType(container);
@@ -462,7 +472,8 @@ export const renderMediaOnWeb = <
 	options: RenderMediaOnWebOptions<Schema, Props>,
 ): Promise<RenderMediaOnWebResult> => {
 	const container = options.container ?? 'mp4';
-	const codec = options.codec ?? getDefaultVideoCodecForContainer(container);
+	const codec =
+		options.videoCodec ?? getDefaultVideoCodecForContainer(container);
 
 	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
@@ -474,7 +485,7 @@ export const renderMediaOnWeb = <
 				logLevel: options.logLevel ?? window.remotion_logLevel ?? 'info',
 				schema: options.schema ?? undefined,
 				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
-				codec,
+				videoCodec: codec,
 				container,
 				signal: options.signal ?? null,
 				onProgress: options.onProgress ?? null,
@@ -487,6 +498,7 @@ export const renderMediaOnWeb = <
 				onFrame: options.onFrame ?? null,
 				outputTarget: options.outputTarget ?? null,
 				licenseKey: options.licenseKey ?? undefined,
+				muted: options.muted ?? false,
 			}),
 		);
 

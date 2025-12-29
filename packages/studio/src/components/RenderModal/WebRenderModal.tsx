@@ -2,14 +2,15 @@ import type {LogLevel} from '@remotion/renderer';
 import {getDefaultOutLocation} from '@remotion/studio-shared';
 import type {
 	RenderMediaOnWebProgress,
-	RenderStillImageFormat,
-	WebRendererCodec,
+	RenderStillOnWebImageFormat,
 	WebRendererContainer,
 	WebRendererQuality,
+	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
 import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
+import {AudioIcon} from '../../icons/audio';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
@@ -40,6 +41,7 @@ import {
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
+import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
 import {WebRenderModalPicture} from './WebRenderModalPicture';
 
@@ -54,13 +56,13 @@ type WebRenderModalProps = {
 
 export type RenderType = 'still' | 'video';
 
-type TabType = 'general' | 'data' | 'picture' | 'advanced';
+type TabType = 'general' | 'data' | 'picture' | 'audio' | 'advanced';
 
 const invalidCharacters = ['?', '*', '+', ':', '%'];
 
 const isValidStillExtension = (
 	extension: string,
-	stillImageFormat: RenderStillImageFormat,
+	stillImageFormat: RenderStillOnWebImageFormat,
 ): boolean => {
 	if (stillImageFormat === 'jpeg' && extension === 'jpg') {
 		return true;
@@ -74,7 +76,7 @@ const validateOutnameForStill = ({
 	stillImageFormat,
 }: {
 	outName: string;
-	stillImageFormat: RenderStillImageFormat;
+	stillImageFormat: RenderStillOnWebImageFormat;
 }): {valid: true} | {valid: false; error: Error} => {
 	try {
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
@@ -157,7 +159,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		isVideo ? 'video' : 'still',
 	);
 	const [tab, setTab] = useState<TabType>('general');
-	const [imageFormat, setImageFormat] = useState<RenderStillImageFormat>('png');
+	const [imageFormat, setImageFormat] =
+		useState<RenderStillOnWebImageFormat>('png');
 	const [frame, setFrame] = useState(() => initialFrame);
 	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
 	const [inputProps, setInputProps] = useState(() => defaultProps);
@@ -168,7 +171,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [saving, setSaving] = useState(false);
 
 	// Video-specific state
-	const [codec, setCodec] = useState<WebRendererCodec>('h264');
+	const [codec, setCodec] = useState<WebRendererVideoCodec>('h264');
 	const [container, setContainer] = useState<WebRendererContainer>('mp4');
 	const [videoBitrate, setVideoBitrate] = useState<WebRendererQuality>('high');
 	const [hardwareAcceleration, setHardwareAcceleration] = useState<
@@ -184,6 +187,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [renderProgress, setRenderProgress] =
 		useState<RenderMediaOnWebProgress | null>(null);
 	const [transparent, setTransparent] = useState(false);
+	const [muted, setMuted] = useState(false);
 
 	const finalEndFrame = useMemo(() => {
 		if (endFrame === null) {
@@ -229,7 +233,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 	const [outName, setOutName] = useState(() => initialOutName);
 
-	const setStillFormat = useCallback((format: RenderStillImageFormat) => {
+	const setStillFormat = useCallback((format: RenderStillOnWebImageFormat) => {
 		setImageFormat(format);
 		setOutName((prev) => {
 			const newFileName = getStringBeforeSuffix(prev) + '.' + format;
@@ -441,7 +445,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
 			mediaCacheSizeInBytes,
 			logLevel,
-			codec,
+			videoCodec: codec,
 			container,
 			videoBitrate,
 			hardwareAcceleration,
@@ -451,6 +455,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				setRenderProgress(progress);
 			},
 			transparent,
+			muted,
 			outputTarget: 'web-fs',
 		});
 
@@ -485,6 +490,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.fps,
 		outName,
 		transparent,
+		muted,
 		resolvedComposition.defaultProps,
 		resolvedComposition.id,
 		unresolvedComposition.calculateMetadata,
@@ -551,6 +557,18 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							Picture
 						</VerticalTab>
 					) : null}
+					{renderMode === 'video' ? (
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'audio'}
+							onClick={() => setTab('audio')}
+						>
+							<div style={iconContainer}>
+								<AudioIcon style={icon} />
+							</div>
+							Audio
+						</VerticalTab>
+					) : null}
 					<VerticalTab
 						style={horizontalTab}
 						selected={tab === 'advanced'}
@@ -609,6 +627,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							transparent={transparent}
 							setTransparent={setTransparent}
 						/>
+					) : tab === 'audio' ? (
+						<WebRenderModalAudio muted={muted} setMuted={setMuted} />
 					) : (
 						<WebRenderModalAdvanced
 							renderMode={renderMode}

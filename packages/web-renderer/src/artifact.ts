@@ -66,7 +66,7 @@ export const onlyArtifact = async ({
 	return result.filter(NoReactInternals.truthy);
 };
 
-export type OnArtifact = (asset: EmittedArtifact) => void;
+export type WebRendererOnArtifact = (asset: EmittedArtifact) => void;
 export type ArtifactsRef = React.RefObject<{
 	collectAssets: () => TRenderAsset[];
 } | null>;
@@ -88,7 +88,7 @@ export const handleArtifacts = () => {
 		imageData: Blob | OffscreenCanvas | null;
 		frame: number;
 		assets: TRenderAsset[];
-		onArtifact: OnArtifact;
+		onArtifact: WebRendererOnArtifact;
 	}) => {
 		const artifacts = await onlyArtifact({
 			assets: artifactAssets,

@@ -4,7 +4,7 @@ import {
 	type LogLevel,
 } from 'remotion';
 import type {AnyZodObject} from 'zod';
-import type {OnArtifact} from './artifact';
+import type {WebRendererOnArtifact} from './artifact';
 import {handleArtifacts} from './artifact';
 import {createScaffold} from './create-scaffold';
 import type {InternalState} from './internal-state';
@@ -37,7 +37,7 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	schema: Schema | undefined;
 	mediaCacheSizeInBytes: number | null;
 	signal: AbortSignal | null;
-	onArtifact: OnArtifact | null;
+	onArtifact: WebRendererOnArtifact | null;
 	licenseKey: string | undefined;
 };
 
