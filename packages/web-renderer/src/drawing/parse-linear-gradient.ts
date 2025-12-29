@@ -302,10 +302,13 @@ export const createCanvasGradient = ({
 	const halfWidth = rect.width / 2;
 	const halfHeight = rect.height / 2;
 
-	// Calculate the length from center to edge along the gradient line
-	const length =
-		Math.abs(cos) * halfWidth + Math.abs(sin) * halfHeight ||
-		Math.sqrt(halfWidth ** 2 + halfHeight ** 2);
+	// Calculate the length from center to edge along the gradient line.
+	// Primary formula should always be > 0 for valid angles and non-zero rects;
+	// fall back to diagonal length only for degenerate or invalid cases.
+	let length = Math.abs(cos) * halfWidth + Math.abs(sin) * halfHeight;
+	if (!Number.isFinite(length) || length === 0) {
+		length = Math.sqrt(halfWidth ** 2 + halfHeight ** 2);
+	}
 
 	const x0 = centerX - cos * length;
 	const y0 = centerY - sin * length;
