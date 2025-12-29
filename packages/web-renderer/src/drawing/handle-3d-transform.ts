@@ -1,28 +1,17 @@
-import type {LogLevel} from 'remotion';
-import {Internals} from 'remotion';
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
-import type {InternalState} from '../internal-state';
 import {getNarrowerRect} from './clamp-rect-to-parent-bounds';
-import {doRectsIntersect} from './do-rects-intersect';
 import {getPreTransformRect} from './get-pretransform-rect';
-import {precomposeDOMElement} from './precompose';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {transformIn3d} from './transform-in-3d';
 
-export const handle3dTransform = async ({
+export const getPrecomposeRectFor3DTransform = ({
 	element,
-	matrix,
 	parentRect,
-	context,
-	logLevel,
-	internalState,
+	matrix,
 }: {
 	element: HTMLElement | SVGElement;
-	matrix: DOMMatrix;
 	parentRect: DOMRect;
-	context: OffscreenCanvasRenderingContext2D;
-	logLevel: LogLevel;
-	internalState: InternalState;
+	matrix: DOMMatrix;
 }) => {
 	const unclampedBiggestBoundingClientRect =
 		getBiggestBoundingClientRect(element);
@@ -38,51 +27,27 @@ export const handle3dTransform = async ({
 		}),
 	);
 
-	if (preTransformRect.width <= 0 || preTransformRect.height <= 0) {
-		return;
-	}
+	return preTransformRect;
+};
 
-	if (!doRectsIntersect(preTransformRect, parentRect)) {
-		return;
-	}
-
-	const start = Date.now();
-	const {tempCanvas} = await precomposeDOMElement({
-		boundingRect: preTransformRect,
-		element,
-		logLevel,
-		internalState,
-	});
-
-	const afterCompose = Date.now();
-
+export const handle3dTransform = ({
+	matrix,
+	precomposeRect,
+	tempCanvas,
+}: {
+	matrix: DOMMatrix;
+	precomposeRect: DOMRect;
+	tempCanvas: OffscreenCanvas;
+}) => {
 	const {canvas: transformed, rect: transformedRect} = transformIn3d({
-		untransformedRect: preTransformRect,
+		untransformedRect: precomposeRect,
 		matrix,
 		sourceCanvas: tempCanvas,
 	});
 
 	if (transformedRect.width <= 0 || transformedRect.height <= 0) {
-		return;
+		return null;
 	}
 
-	context.drawImage(
-		transformed,
-		transformedRect.x - parentRect.x,
-		transformedRect.y - parentRect.y,
-	);
-
-	const afterDraw = Date.now();
-
-	Internals.Log.trace(
-		{
-			logLevel,
-			tag: '@remotion/web-renderer',
-		},
-		`Transforming element in 3D - canvas size: ${transformedRect.width}x${transformedRect.height} - compose: ${afterCompose - start}ms - draw: ${afterDraw - afterCompose}ms`,
-	);
-	internalState.add3DTransform({
-		canvasWidth: transformedRect.width,
-		canvasHeight: transformedRect.height,
-	});
+	return [transformed, transformedRect] as const;
 };

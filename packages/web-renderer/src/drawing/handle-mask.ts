@@ -1,48 +1,27 @@
-import type {LogLevel} from 'remotion';
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
-import type {InternalState} from '../internal-state';
-import {doRectsIntersect} from './do-rects-intersect';
 import type {LinearGradientInfo} from './parse-linear-gradient';
 import {createCanvasGradient} from './parse-linear-gradient';
-import {precomposeDOMElement} from './precompose';
 import {roundToExpandRect} from './round-to-expand-rect';
 
-export const handleMask = async ({
-	element,
-	parentRect,
-	context,
-	logLevel,
-	internalState,
-	gradientInfo,
-	rect,
-}: {
-	element: HTMLElement | SVGElement;
-	parentRect: DOMRect;
-	context: OffscreenCanvasRenderingContext2D;
-	logLevel: LogLevel;
-	internalState: InternalState;
-	gradientInfo: LinearGradientInfo;
-	rect: DOMRect;
-}) => {
+export const getPrecomposeRectForMask = (element: HTMLElement | SVGElement) => {
 	const boundingRect = roundToExpandRect(getBiggestBoundingClientRect(element));
 
-	if (boundingRect.width <= 0 || boundingRect.height <= 0) {
-		return;
-	}
+	return boundingRect;
+};
 
-	if (!doRectsIntersect(boundingRect, parentRect)) {
-		return;
-	}
-
-	const {tempCanvas, tempContext} = await precomposeDOMElement({
-		boundingRect,
-		element,
-		logLevel,
-		internalState,
-	});
-
-	const rectOffsetX = rect.left - boundingRect.left;
-	const rectOffsetY = rect.top - boundingRect.top;
+export const handleMask = ({
+	gradientInfo,
+	rect,
+	precomposeRect,
+	tempContext,
+}: {
+	gradientInfo: LinearGradientInfo;
+	rect: DOMRect;
+	precomposeRect: DOMRect;
+	tempContext: OffscreenCanvasRenderingContext2D;
+}) => {
+	const rectOffsetX = rect.left - precomposeRect.left;
+	const rectOffsetY = rect.top - precomposeRect.top;
 
 	const rectToFill = new DOMRect(
 		rectOffsetX,
@@ -65,17 +44,4 @@ export const handleMask = async ({
 		rectToFill.width,
 		rectToFill.height,
 	);
-
-	const previousTransform = context.getTransform();
-	context.setTransform(new DOMMatrix());
-
-	context.drawImage(
-		tempCanvas,
-		boundingRect.left,
-		boundingRect.top,
-		boundingRect.width,
-		boundingRect.height,
-	);
-
-	context.setTransform(previousTransform);
 };

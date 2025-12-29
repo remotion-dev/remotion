@@ -12,3 +12,21 @@ export const getNarrowerRect = ({
 
 	return new DOMRect(left, top, right - left, bottom - top);
 };
+
+export const getWiderRect = ({
+	firstRect,
+	secondRect,
+}: {
+	firstRect: DOMRect | null;
+	secondRect: DOMRect;
+}) => {
+	if (firstRect === null) {
+		return secondRect;
+	}
+
+	const left = Math.min(firstRect.left, secondRect.left);
+	const top = Math.min(firstRect.top, secondRect.top);
+	const bottom = Math.max(firstRect.bottom, secondRect.bottom);
+	const right = Math.max(firstRect.right, secondRect.right);
+	return new DOMRect(left, top, right - left, bottom - top);
+};
