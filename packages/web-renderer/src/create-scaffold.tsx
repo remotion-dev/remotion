@@ -72,11 +72,11 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	div.style.visibility = 'hidden';
 	div.style.pointerEvents = 'none';
 
-	const randomClassName = `remotion-scaffold-${Math.random().toString(36).substring(2, 15)}`;
-	div.className = randomClassName;
+	const scaffoldClassName = `remotion-scaffold-${Math.random().toString(36).substring(2, 15)}`;
+	div.className = scaffoldClassName;
 
 	const cleanupCSS = Internals.CSSUtils.injectCSS(
-		Internals.CSSUtils.makeDefaultPreviewCSS(`.${randomClassName}`, 'white'),
+		Internals.CSSUtils.makeDefaultPreviewCSS(`.${scaffoldClassName}`, 'white'),
 	);
 
 	document.body.appendChild(div);
