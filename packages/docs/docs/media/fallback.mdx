@@ -50,3 +50,11 @@ export const MyComp: React.FC = () => {
 ```
 
 If a fallback is prevented, the render will be cancelled instead.
+
+## Fallback is not possible in client-side rendering
+
+When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, fallback to [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Html5Audio>`](/docs/html5-audio) is **not possible**.
+
+This is because these fallback components require server-side capabilities that are not available in the browser.
+
+If a media file cannot be rendered using [`@remotion/media`](/docs/media) during client-side rendering, the render will fail with an error message describing the issue.

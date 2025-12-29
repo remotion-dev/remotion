@@ -130,6 +130,15 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		})
 			.then((result) => {
 				if (result.type === 'unknown-container-format') {
+					if (environment.isClientSideRendering) {
+						cancelRender(
+							new Error(
+								`Cannot render audio "${src}": Unknown container format. See supported formats: https://www.remotion.dev/docs/mediabunny/formats`,
+							),
+						);
+						return;
+					}
+
 					if (disallowFallbackToHtml5Audio) {
 						cancelRender(
 							new Error(
@@ -150,6 +159,15 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				}
 
 				if (result.type === 'cannot-decode') {
+					if (environment.isClientSideRendering) {
+						cancelRender(
+							new Error(
+								`Cannot render audio "${src}": The audio could not be decoded by the browser.`,
+							),
+						);
+						return;
+					}
+
 					if (disallowFallbackToHtml5Audio) {
 						cancelRender(
 							new Error(
@@ -176,6 +194,15 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				}
 
 				if (result.type === 'network-error') {
+					if (environment.isClientSideRendering) {
+						cancelRender(
+							new Error(
+								`Cannot render audio "${src}": Network error while fetching the audio (possibly CORS).`,
+							),
+						);
+						return;
+					}
+
 					if (disallowFallbackToHtml5Audio) {
 						cancelRender(
 							new Error(

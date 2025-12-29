@@ -264,6 +264,10 @@ This is useful for [embedding a video as a texture in Three.js](/docs/videos/as-
 When a [fallback to `<OffthreadVideo>`](/docs/media/fallback) happens, this prop allows you to pass props to the fallback `<OffthreadVideo>` component.  
 Only props that are not supported by `<Video>` from `@remotion/media` need to be specified here - props that apply for both tags will automatically be forwarded and do not need to be specified here.
 
+:::note
+This prop has no effect when using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, as fallback is not possible. See [Fallback is not possible in client-side rendering](/docs/media/fallback#fallback-is-not-possible-in-client-side-rendering).
+:::
+
 #### `acceptableTimeShiftInSeconds?`
 
 Maps to [`<OffthreadVideo />` -> `acceptableTimeShiftInSeconds`](/docs/offthreadvideo#acceptabletimeshiftinseconds)
@@ -289,6 +293,10 @@ Maps to [`<OffthreadVideo />` -> `crossOrigin`](/docs/offthreadvideo#crossorigin
 By default, if the video cannot be embedded using this tag, [a fallback to `<OffthreadVideo>`](/docs/media/fallback) will be attempted.
 
 Pass this prop to disable the fallback and fail the render instead.
+
+:::note
+When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, fallback is not possible and the render will always fail if the video cannot be embedded. See [Fallback is not possible in client-side rendering](/docs/media/fallback#fallback-is-not-possible-in-client-side-rendering).
+:::
 
 ### `debugOverlay?`
 
