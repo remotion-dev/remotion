@@ -1,7 +1,7 @@
 import type {LogLevel} from 'remotion';
 import {parseBorderRadius, setBorderRadius} from './border-radius';
 import {drawBorder} from './draw-border';
-import {setDropShadow} from './draw-box-shadow';
+import {setBoxShadow} from './draw-box-shadow';
 import {drawOutline} from './draw-outline';
 import type {DrawFn} from './drawn-fn';
 import {setOpacity} from './opacity';
@@ -46,7 +46,7 @@ export const drawElement = async ({
 	});
 
 	// Draw box shadow before border radius clip and background
-	setDropShadow({
+	setBoxShadow({
 		ctx: context,
 		computedStyle,
 		rect,
