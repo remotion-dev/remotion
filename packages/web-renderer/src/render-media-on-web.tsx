@@ -9,7 +9,7 @@ import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
 import {addAudioSample, addVideoSampleAndCloseFrame} from './add-sample';
-import {handleArtifacts, type OnArtifact} from './artifact';
+import {handleArtifacts, type WebRendererOnArtifact} from './artifact';
 import {onlyInlineAudio} from './audio';
 import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createScaffold} from './create-scaffold';
@@ -27,7 +27,7 @@ import {
 	getDefaultVideoCodecForContainer,
 	getMimeType,
 	getQualityForWebRendererQuality,
-	type WebRendererCodec,
+	type WebRendererVideoCodec,
 } from './mediabunny-mappings';
 import type {WebRendererOutputTarget} from './output-target';
 import type {
@@ -92,7 +92,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	logLevel: LogLevel;
 	schema: Schema | undefined;
 	mediaCacheSizeInBytes: number | null;
-	codec: WebRendererCodec;
+	videoCodec: WebRendererVideoCodec;
 	container: WebRendererContainer;
 	signal: AbortSignal | null;
 	onProgress: RenderMediaOnWebProgressCallback | null;
@@ -101,7 +101,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	videoBitrate: number | WebRendererQuality;
 	frameRange: FrameRange | null;
 	transparent: boolean;
-	onArtifact: OnArtifact | null;
+	onArtifact: WebRendererOnArtifact | null;
 	onFrame: OnFrameCallback | null;
 	outputTarget: WebRendererOutputTarget | null;
 	licenseKey: string | undefined;
@@ -138,7 +138,7 @@ const internalRenderMediaOnWeb = async <
 	logLevel,
 	mediaCacheSizeInBytes,
 	schema,
-	codec,
+	videoCodec: codec,
 	container,
 	signal,
 	onProgress,
@@ -472,7 +472,8 @@ export const renderMediaOnWeb = <
 	options: RenderMediaOnWebOptions<Schema, Props>,
 ): Promise<RenderMediaOnWebResult> => {
 	const container = options.container ?? 'mp4';
-	const codec = options.codec ?? getDefaultVideoCodecForContainer(container);
+	const codec =
+		options.videoCodec ?? getDefaultVideoCodecForContainer(container);
 
 	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
@@ -484,7 +485,7 @@ export const renderMediaOnWeb = <
 				logLevel: options.logLevel ?? window.remotion_logLevel ?? 'info',
 				schema: options.schema ?? undefined,
 				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
-				codec,
+				videoCodec: codec,
 				container,
 				signal: options.signal ?? null,
 				onProgress: options.onProgress ?? null,

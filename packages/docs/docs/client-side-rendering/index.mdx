@@ -6,13 +6,13 @@ title: Client-side rendering
 ---
 
 :::warning
-This feature is not available yet, but we are already writing docs.  
+Very experimental feature - expect bugs and breaking changes at any time.  
 [Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
 :::
 
 Client-side rendering is a new additional capability of Remotion that allows you to render videos, images, and audio directly in the browser, without requiring server-side infrastructure.
 
-It is currently in development and will be released as a new package called `@remotion/web-renderer`.
+It is currently released as an experimental alpha under the [`@remotion/web-renderer`](/docs/web-renderer) package.
 
 ## Key differences from server-side rendering
 
@@ -25,7 +25,7 @@ Unlike server-side rendering with [`@remotion/renderer`](/docs/renderer), client
 
 ## APIs
 
-The package will provide APIs called `renderStillOnWeb()` and `renderMediaOnWeb()`.
+The package will provide APIs called [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) and [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
 
 Here is an example of how to use it:
 
@@ -56,7 +56,7 @@ const {getBlob} = await renderMediaOnWeb({
 
 ## Status
 
-Client-side rendering is currently in active development.
+Client-side rendering is currently in heavy iteration.
 
 [View the current status and progress →](https://github.com/remotion-dev/remotion/issues/5913)
 

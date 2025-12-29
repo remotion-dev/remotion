@@ -2,10 +2,10 @@ import type {LogLevel} from '@remotion/renderer';
 import {getDefaultOutLocation} from '@remotion/studio-shared';
 import type {
 	RenderMediaOnWebProgress,
-	RenderStillImageFormat,
-	WebRendererCodec,
+	RenderStillOnWebImageFormat,
 	WebRendererContainer,
 	WebRendererQuality,
+	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
 import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
@@ -62,7 +62,7 @@ const invalidCharacters = ['?', '*', '+', ':', '%'];
 
 const isValidStillExtension = (
 	extension: string,
-	stillImageFormat: RenderStillImageFormat,
+	stillImageFormat: RenderStillOnWebImageFormat,
 ): boolean => {
 	if (stillImageFormat === 'jpeg' && extension === 'jpg') {
 		return true;
@@ -76,7 +76,7 @@ const validateOutnameForStill = ({
 	stillImageFormat,
 }: {
 	outName: string;
-	stillImageFormat: RenderStillImageFormat;
+	stillImageFormat: RenderStillOnWebImageFormat;
 }): {valid: true} | {valid: false; error: Error} => {
 	try {
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
@@ -159,7 +159,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		isVideo ? 'video' : 'still',
 	);
 	const [tab, setTab] = useState<TabType>('general');
-	const [imageFormat, setImageFormat] = useState<RenderStillImageFormat>('png');
+	const [imageFormat, setImageFormat] =
+		useState<RenderStillOnWebImageFormat>('png');
 	const [frame, setFrame] = useState(() => initialFrame);
 	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
 	const [inputProps, setInputProps] = useState(() => defaultProps);
@@ -170,7 +171,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [saving, setSaving] = useState(false);
 
 	// Video-specific state
-	const [codec, setCodec] = useState<WebRendererCodec>('h264');
+	const [codec, setCodec] = useState<WebRendererVideoCodec>('h264');
 	const [container, setContainer] = useState<WebRendererContainer>('mp4');
 	const [videoBitrate, setVideoBitrate] = useState<WebRendererQuality>('high');
 	const [hardwareAcceleration, setHardwareAcceleration] = useState<
@@ -232,7 +233,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 	const [outName, setOutName] = useState(() => initialOutName);
 
-	const setStillFormat = useCallback((format: RenderStillImageFormat) => {
+	const setStillFormat = useCallback((format: RenderStillOnWebImageFormat) => {
 		setImageFormat(format);
 		setOutName((prev) => {
 			const newFileName = getStringBeforeSuffix(prev) + '.' + format;
@@ -444,7 +445,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
 			mediaCacheSizeInBytes,
 			logLevel,
-			codec,
+			videoCodec: codec,
 			container,
 			videoBitrate,
 			hardwareAcceleration,

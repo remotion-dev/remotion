@@ -772,6 +772,23 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/web-renderer',
+			link: {
+				type: 'doc',
+				id: 'web-renderer/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/client-side-rendering',
+					label: 'Guide',
+				},
+				'web-renderer/render-media-on-web',
+				'web-renderer/render-still-on-web',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/whisper-web',
 			link: {
 				type: 'doc',
@@ -947,7 +964,11 @@ const sidebars: SidebarsConfig = {
 				id: 'client-side-rendering/index',
 			},
 			items: [
-				'client-side-rendering/index',
+				{
+					type: 'link',
+					href: '/docs/web-renderer',
+					label: 'API Reference',
+				},
 				'client-side-rendering/how-it-works',
 				'client-side-rendering/limitations',
 				'client-side-rendering/migration',

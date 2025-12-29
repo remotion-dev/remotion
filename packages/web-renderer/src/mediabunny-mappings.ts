@@ -11,7 +11,7 @@ import {
 	type VideoCodec,
 } from 'mediabunny';
 
-export type WebRendererCodec = 'h264' | 'h265' | 'vp8' | 'vp9' | 'av1';
+export type WebRendererVideoCodec = 'h264' | 'h265' | 'vp8' | 'vp9' | 'av1';
 export type WebRendererContainer = 'mp4' | 'webm';
 export type WebRendererQuality =
 	| 'very-low'
@@ -20,7 +20,9 @@ export type WebRendererQuality =
 	| 'high'
 	| 'very-high';
 
-export const codecToMediabunnyCodec = (codec: WebRendererCodec): VideoCodec => {
+export const codecToMediabunnyCodec = (
+	codec: WebRendererVideoCodec,
+): VideoCodec => {
 	switch (codec) {
 		case 'h264':
 			return 'avc';
@@ -52,7 +54,7 @@ export const containerToMediabunnyContainer = (
 
 export const getDefaultVideoCodecForContainer = (
 	container: WebRendererContainer,
-): WebRendererCodec => {
+): WebRendererVideoCodec => {
 	switch (container) {
 		case 'mp4':
 			return 'h264';
