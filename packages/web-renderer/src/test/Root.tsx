@@ -23,6 +23,7 @@ import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {lineHeight} from './fixtures/line-height';
+import {linearGradient} from './fixtures/linear-gradient';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {opacityInherited} from './fixtures/opacity-inherited';
@@ -88,6 +89,7 @@ export const Root: React.FC = () => {
 			</Folder>
 			<Composition {...threeDTransformOpacity} />
 			<Composition {...backgroundColor} />
+			<Composition {...linearGradient} />
 			<Composition {...outline} />
 			<Composition {...boxShadow} />
 			<Folder name="border">

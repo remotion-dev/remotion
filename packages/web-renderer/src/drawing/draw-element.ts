@@ -1,11 +1,15 @@
 import type {LogLevel} from 'remotion';
 import {parseBorderRadius, setBorderRadius} from './border-radius';
 import {drawBorder} from './draw-border';
-import {setDropShadow} from './draw-box-shadow';
+import {setBoxShadow} from './draw-box-shadow';
 import {drawOutline} from './draw-outline';
 import type {DrawFn} from './drawn-fn';
 import {setOpacity} from './opacity';
 import {setOverflowHidden} from './overflow';
+import {
+	createCanvasGradient,
+	parseLinearGradient,
+} from './parse-linear-gradient';
 import {setTransform} from './transform';
 
 export const drawElement = async ({
@@ -28,6 +32,7 @@ export const drawElement = async ({
 	logLevel: LogLevel;
 }) => {
 	const background = computedStyle.backgroundColor;
+	const {backgroundImage} = computedStyle;
 	const borderRadius = parseBorderRadius({
 		borderRadius: computedStyle.borderRadius,
 		width: rect.width,
@@ -46,7 +51,7 @@ export const drawElement = async ({
 	});
 
 	// Draw box shadow before border radius clip and background
-	setDropShadow({
+	setBoxShadow({
 		ctx: context,
 		computedStyle,
 		rect,
@@ -60,7 +65,27 @@ export const drawElement = async ({
 		forceClipEvenWhenZero: false,
 	});
 
+	// Try to draw linear gradient first
+	let gradientDrawn = false;
+	if (backgroundImage && backgroundImage !== 'none') {
+		const gradientInfo = parseLinearGradient(backgroundImage);
+		if (gradientInfo) {
+			const gradient = createCanvasGradient({
+				ctx: context,
+				rect,
+				gradientInfo,
+			});
+			const originalFillStyle = context.fillStyle;
+			context.fillStyle = gradient;
+			context.fillRect(rect.left, rect.top, rect.width, rect.height);
+			context.fillStyle = originalFillStyle;
+			gradientDrawn = true;
+		}
+	}
+
+	// Fallback to solid background color if no gradient was drawn
 	if (
+		!gradientDrawn &&
 		background &&
 		background !== 'transparent' &&
 		!(
