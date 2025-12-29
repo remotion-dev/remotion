@@ -24,6 +24,7 @@ import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
 } from '../helpers/colors';
+import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {CaretDown} from '../icons/caret';
 import {ThinRenderIcon} from '../icons/render';
@@ -100,6 +101,10 @@ export type RenderType = 'server-render' | 'client-render';
 const RENDER_TYPE_STORAGE_KEY = 'remotion.renderType';
 
 const getInitialRenderType = (): RenderType => {
+	if (!SHOW_BROWSER_RENDERING) {
+		return 'server-render';
+	}
+
 	try {
 		const stored = localStorage.getItem(RENDER_TYPE_STORAGE_KEY);
 		if (stored === 'server-render' || stored === 'client-render') {
@@ -239,7 +244,7 @@ export const RenderButton: React.FC = () => {
 	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
 
 	const onClick = useCallback(() => {
-		if (renderType === 'server-render') {
+		if (!SHOW_BROWSER_RENDERING || renderType === 'server-render') {
 			openServerRenderModal();
 		} else {
 			openClientRenderModal();
@@ -401,7 +406,9 @@ export const RenderButton: React.FC = () => {
 	}, [connectionStatus]);
 
 	const renderLabel =
-		renderType === 'server-render' ? 'Render' : 'Render on web';
+		!SHOW_BROWSER_RENDERING || renderType === 'server-render'
+			? 'Render'
+			: 'Render on web';
 
 	if (!video) {
 		return null;
@@ -409,13 +416,33 @@ export const RenderButton: React.FC = () => {
 
 	return (
 		<>
+			<button
+				style={{display: 'none'}}
+				id="render-modal-button-server"
+				disabled={
+					connectionStatus !== 'connected' && renderType === 'server-render'
+				}
+				onClick={openServerRenderModal}
+				type="button"
+			/>{' '}
+			<button
+				style={{display: 'none'}}
+				id="render-modal-button-client"
+				disabled={
+					connectionStatus !== 'connected' && renderType === 'server-render'
+				}
+				onClick={openClientRenderModal}
+				type="button"
+			/>
 			<div ref={containerRef} style={containerStyle} title={tooltip}>
 				<button
 					type="button"
 					style={mainButtonStyle}
 					onClick={onClick}
 					id="render-modal-button"
-					disabled={connectionStatus !== 'connected'}
+					disabled={
+						connectionStatus !== 'connected' && renderType === 'server-render'
+					}
 				>
 					<Row align="center" style={mainButtonContent}>
 						<ThinRenderIcon fill="currentcolor" svgProps={iconStyle} />
@@ -423,16 +450,20 @@ export const RenderButton: React.FC = () => {
 						<span style={label}>{renderLabel}</span>
 					</Row>
 				</button>
-				<div style={dividerStyle} />
-				<button
-					ref={dropdownRef}
-					type="button"
-					style={dropdownTriggerStyle}
-					disabled={connectionStatus !== 'connected'}
-					className={MENU_INITIATOR_CLASSNAME}
-				>
-					<CaretDown />
-				</button>
+				{SHOW_BROWSER_RENDERING ? (
+					<>
+						<div style={dividerStyle} />
+						<button
+							ref={dropdownRef}
+							type="button"
+							style={dropdownTriggerStyle}
+							disabled={connectionStatus !== 'connected'}
+							className={MENU_INITIATOR_CLASSNAME}
+						>
+							<CaretDown />
+						</button>
+					</>
+				) : null}
 			</div>
 			{portalStyle
 				? ReactDOM.createPortal(
