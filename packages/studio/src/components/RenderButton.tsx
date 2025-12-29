@@ -250,23 +250,31 @@ export const RenderButton: React.FC = () => {
 		setDropdownOpened(false);
 	}, []);
 
-	const handleRenderTypeChange = useCallback((newType: RenderType) => {
-		setRenderType(newType);
-		try {
-			localStorage.setItem(RENDER_TYPE_STORAGE_KEY, newType);
-		} catch {
-			// localStorage might not be available
-		}
+	const handleRenderTypeChange = useCallback(
+		(newType: RenderType) => {
+			setRenderType(newType);
+			try {
+				localStorage.setItem(RENDER_TYPE_STORAGE_KEY, newType);
+			} catch {
+				// localStorage might not be available
+			}
 
-		setDropdownOpened(false);
-	}, []);
+			setDropdownOpened(false);
 
+			if (newType === 'server-render') {
+				openServerRenderModal();
+			} else {
+				openClientRenderModal();
+			}
+		},
+		[openServerRenderModal, openClientRenderModal],
+	);
 	const dropdownValues: ComboboxValue[] = useMemo(() => {
 		return [
 			{
 				type: 'item' as const,
 				id: 'server-render',
-				label: 'Render',
+				label: 'Server-side render',
 				value: 'server-render',
 				onClick: () => handleRenderTypeChange('server-render'),
 				keyHint: null,
@@ -277,7 +285,7 @@ export const RenderButton: React.FC = () => {
 			{
 				type: 'item' as const,
 				id: 'client-render',
-				label: 'Client side render',
+				label: 'Client-side render',
 				value: 'client-render',
 				onClick: () => handleRenderTypeChange('client-render'),
 				keyHint: null,
