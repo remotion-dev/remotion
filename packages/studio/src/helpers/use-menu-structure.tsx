@@ -30,6 +30,7 @@ import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
 import {openInEditor} from './open-in-editor';
 import {pickColor} from './pick-color';
+import {SHOW_BROWSER_RENDERING} from './show-browser-rendering';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
 
 type Structure = Menu[];
@@ -87,8 +88,8 @@ const getFileMenu = ({
 						}
 
 						const renderButton = document.getElementById(
-							'render-modal-button',
-						) as HTMLDivElement;
+							'render-modal-button-server',
+						) as HTMLButtonElement;
 
 						renderButton.click();
 					},
@@ -98,6 +99,27 @@ const getFileMenu = ({
 					subMenu: null,
 					quickSwitcherLabel: 'Render...',
 				},
+		SHOW_BROWSER_RENDERING && !readOnlyStudio
+			? {
+					id: 'render-on-web',
+					value: 'render-on-web',
+					label: 'Render on web...',
+					onClick: () => {
+						closeMenu();
+
+						const renderButton = document.getElementById(
+							'render-modal-button-client',
+						) as HTMLButtonElement;
+
+						renderButton.click();
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'Render on web...',
+				}
+			: null,
 		window.remotion_editorName && !readOnlyStudio
 			? {
 					type: 'divider' as const,

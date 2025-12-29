@@ -298,6 +298,7 @@ export const renderVideoFlow = async ({
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint,
+			experimentalClientSideRenderingEnabled: false,
 		},
 	);
 

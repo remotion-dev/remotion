@@ -4,6 +4,7 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {registerCleanupJob} from './cleanup-before-quit';
+import {ConfigInternals} from './config';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
@@ -117,6 +118,16 @@ export const listCompositionsCommand = async (
 		darkMode,
 	};
 
+	const experimentalClientSideRenderingEnabled =
+		ConfigInternals.getExperimentalClientSideRenderingEnabled();
+
+	if (experimentalClientSideRenderingEnabled) {
+		Log.warn(
+			{indent: false, logLevel},
+			'Enabling WIP client-side rendering. Please see caveats on https://www.remotion.dev/docs/client-side-rendering/.',
+		);
+	}
+
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
 			remotionRoot,
@@ -139,6 +150,7 @@ export const listCompositionsCommand = async (
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint,
+			experimentalClientSideRenderingEnabled,
 		});
 
 	registerCleanupJob(`Cleanup bundle`, () => cleanupBundle());
