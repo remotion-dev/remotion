@@ -23,7 +23,6 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
-	SELECTED_BACKGROUND,
 } from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {CaretDown} from '../icons/caret';
@@ -75,8 +74,8 @@ const dividerStyle: React.CSSProperties = {
 };
 
 const dropdownTriggerStyle: React.CSSProperties = {
-	paddingLeft: 4,
-	paddingRight: 4,
+	paddingLeft: 6,
+	paddingRight: 6,
 	paddingTop: 7,
 	paddingBottom: 7,
 	background: 'transparent',
@@ -85,6 +84,11 @@ const dropdownTriggerStyle: React.CSSProperties = {
 	cursor: 'pointer',
 	display: 'flex',
 	alignItems: 'center',
+};
+
+const mainButtonContent: React.CSSProperties = {
+	paddingLeft: 4,
+	paddingRight: 6,
 };
 
 const label: React.CSSProperties = {
@@ -382,16 +386,14 @@ export const RenderButton: React.FC = () => {
 	const containerStyle = useMemo((): React.CSSProperties => {
 		return {
 			...splitButtonContainer,
-			borderColor: dropdownOpened
-				? SELECTED_BACKGROUND
-				: INPUT_BORDER_COLOR_UNHOVERED,
+			borderColor: INPUT_BORDER_COLOR_UNHOVERED,
 			opacity: connectionStatus !== 'connected' ? 0.7 : 1,
 			cursor: connectionStatus !== 'connected' ? 'inherit' : 'pointer',
 		};
-	}, [connectionStatus, dropdownOpened]);
+	}, [connectionStatus]);
 
 	const renderLabel =
-		renderType === 'server-render' ? 'Render' : 'Client render';
+		renderType === 'server-render' ? 'Render' : 'Render on web';
 
 	if (!video) {
 		return null;
@@ -407,7 +409,7 @@ export const RenderButton: React.FC = () => {
 					id="render-modal-button"
 					disabled={connectionStatus !== 'connected'}
 				>
-					<Row align="center">
+					<Row align="center" style={mainButtonContent}>
 						<ThinRenderIcon fill="currentcolor" svgProps={iconStyle} />
 						<Spacing x={1} />
 						<span style={label}>{renderLabel}</span>
