@@ -181,6 +181,15 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		})
 			.then((result) => {
 				if (result.type === 'unknown-container-format') {
+					if (environment.isClientSideRendering) {
+						cancelRender(
+							new Error(
+								`Cannot render video "${src}": Unknown container format. See supported formats: https://www.remotion.dev/docs/mediabunny/formats`,
+							),
+						);
+						return;
+					}
+
 					if (disallowFallbackToOffthreadVideo) {
 						cancelRender(
 							new Error(
@@ -201,6 +210,15 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				}
 
 				if (result.type === 'cannot-decode') {
+					if (environment.isClientSideRendering) {
+						cancelRender(
+							new Error(
+								`Cannot render video "${src}": The video could not be decoded by the browser.`,
+							),
+						);
+						return;
+					}
+
 					if (disallowFallbackToOffthreadVideo) {
 						cancelRender(
 							new Error(
@@ -223,6 +241,15 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				}
 
 				if (result.type === 'cannot-decode-alpha') {
+					if (environment.isClientSideRendering) {
+						cancelRender(
+							new Error(
+								`Cannot render video "${src}": The alpha channel could not be decoded by the browser.`,
+							),
+						);
+						return;
+					}
+
 					if (disallowFallbackToOffthreadVideo) {
 						cancelRender(
 							new Error(
@@ -245,6 +272,15 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				}
 
 				if (result.type === 'network-error') {
+					if (environment.isClientSideRendering) {
+						cancelRender(
+							new Error(
+								`Cannot render video "${src}": Network error while fetching the video (possibly CORS).`,
+							),
+						);
+						return;
+					}
+
 					if (disallowFallbackToOffthreadVideo) {
 						cancelRender(
 							new Error(
