@@ -12,7 +12,7 @@ export type GetPartialAudioDataProps = {
 	toSeconds: number;
 	channelIndex: number;
 	signal: AbortSignal;
-	isMatroska?: boolean;
+	isMatroska: boolean;
 };
 
 export const getPartialAudioData = async ({
