@@ -19,5 +19,5 @@ test('Should not render items that are out of bounds', async () => {
 	});
 
 	expect(internalState.getDrawn3dPixels()).toBe(12464);
-	expect(internalState.getDrawn3dTextures()).toBe(1);
+	expect(internalState.getPrecomposedTiles()).toBe(2);
 });

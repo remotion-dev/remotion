@@ -147,7 +147,7 @@ export const processNode = async ({
 				},
 				`Transforming element in 3D - canvas size: ${precomposeRect.width}x${precomposeRect.height} - compose: ${Date.now() - start}ms`,
 			);
-			internalState.add3DTransform({
+			internalState.addPrecompose({
 				canvasWidth: precomposeRect.width,
 				canvasHeight: precomposeRect.height,
 			});
