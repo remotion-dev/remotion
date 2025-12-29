@@ -1,10 +1,10 @@
 import type {LogLevel} from 'remotion';
-import {compose} from '../compose';
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
 import {doRectsIntersect} from './do-rects-intersect';
 import type {LinearGradientInfo} from './parse-linear-gradient';
 import {createCanvasGradient} from './parse-linear-gradient';
+import {precomposeDOMElement} from './precompose';
 import {roundToExpandRect} from './round-to-expand-rect';
 
 export const handleMask = async ({
@@ -24,6 +24,16 @@ export const handleMask = async ({
 	gradientInfo: LinearGradientInfo;
 	rect: DOMRect;
 }) => {
+	const boundingRect = roundToExpandRect(getBiggestBoundingClientRect(element));
+
+	if (boundingRect.width <= 0 || boundingRect.height <= 0) {
+		return;
+	}
+
+	if (!doRectsIntersect(boundingRect, parentRect)) {
+		return;
+	}
+
 	const previousMaskImage = element.style.maskImage;
 	const previousWebkitMaskImage = element.style.webkitMaskImage;
 	element.style.maskImage = 'none';
@@ -34,35 +44,15 @@ export const handleMask = async ({
 		element.style.webkitMaskImage = previousWebkitMaskImage;
 	};
 
-	const boundingRect = roundToExpandRect(getBiggestBoundingClientRect(element));
-
-	if (boundingRect.width <= 0 || boundingRect.height <= 0) {
-		reset();
-		return;
-	}
-
-	if (!doRectsIntersect(boundingRect, parentRect)) {
-		reset();
-		return;
-	}
-
-	const tempCanvas = new OffscreenCanvas(
-		boundingRect.width,
-		boundingRect.height,
-	);
-
-	const tempContext = tempCanvas.getContext('2d')!;
+	const {tempCanvas, tempContext} = await precomposeDOMElement({
+		boundingRect,
+		element,
+		logLevel,
+		internalState,
+	});
 
 	const rectOffsetX = rect.left - boundingRect.left;
 	const rectOffsetY = rect.top - boundingRect.top;
-
-	await compose({
-		element,
-		context: tempContext,
-		logLevel,
-		parentRect: boundingRect,
-		internalState,
-	});
 
 	const rectToFill = new DOMRect(
 		rectOffsetX,
@@ -87,7 +77,6 @@ export const handleMask = async ({
 	);
 
 	const previousTransform = context.getTransform();
-
 	context.setTransform(new DOMMatrix());
 
 	context.drawImage(

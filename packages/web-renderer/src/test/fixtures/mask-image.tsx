@@ -85,7 +85,7 @@ const Component: React.FC = () => {
 					maskImage: 'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,1))',
 				}}
 			/>
-			{/* Using rgba in mask */}
+			{/* children content */}
 			<div
 				style={{
 					width: 100,
@@ -95,6 +95,25 @@ const Component: React.FC = () => {
 				}}
 			>
 				<AbsoluteFill style={{backgroundColor: 'blue'}} />
+			</div>
+			{/* children content with 3d transform and box shadow */}
+			<div
+				style={{
+					width: 100,
+					height: 80,
+					backgroundColor: 'magenta',
+					boxShadow: '0 10px 10px rgba(0, 0, 0, 0.5)',
+					position: 'relative',
+					// Mask image should be ignored!
+					maskImage: 'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,1))',
+					transform: 'rotateX(20deg) rotateY(20deg)',
+				}}
+			>
+				<AbsoluteFill
+					style={{
+						backgroundColor: 'blue',
+					}}
+				/>
 			</div>
 		</AbsoluteFill>
 	);

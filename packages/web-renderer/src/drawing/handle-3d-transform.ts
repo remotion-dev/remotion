@@ -1,11 +1,11 @@
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
-import {compose} from '../compose';
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
 import {getNarrowerRect} from './clamp-rect-to-parent-bounds';
 import {doRectsIntersect} from './do-rects-intersect';
 import {getPreTransformRect} from './get-pretransform-rect';
+import {precomposeDOMElement} from './precompose';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {transformIn3d} from './transform-in-3d';
 
@@ -47,18 +47,13 @@ export const handle3dTransform = async ({
 	}
 
 	const start = Date.now();
-	const tempCanvas = new OffscreenCanvas(
-		preTransformRect.width,
-		preTransformRect.height,
-	);
-
-	await compose({
+	const {tempCanvas} = await precomposeDOMElement({
+		boundingRect: preTransformRect,
 		element,
-		context: tempCanvas.getContext('2d')!,
 		logLevel,
-		parentRect: preTransformRect,
 		internalState,
 	});
+
 	const afterCompose = Date.now();
 
 	const {canvas: transformed, rect: transformedRect} = transformIn3d({

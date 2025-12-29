@@ -5,7 +5,6 @@ import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
 import {handle3dTransform} from './handle-3d-transform';
 import {handleMask} from './handle-mask';
-import {getMaskImageValue, parseMaskImage} from './mask-image';
 
 export type ProcessNodeReturnValue =
 	| {type: 'continue'; cleanupAfterChildren: null | (() => void)}
@@ -28,12 +27,17 @@ export const processNode = async ({
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
 }): Promise<ProcessNodeReturnValue> => {
-	const transforms = calculateTransforms({
+	const {
+		totalMatrix,
+		reset,
+		dimensions,
+		opacity,
+		computedStyle,
+		precompositing,
+	} = calculateTransforms({
 		element,
 		rootElement,
 	});
-
-	const {totalMatrix, reset, dimensions, opacity, computedStyle} = transforms;
 
 	if (opacity === 0) {
 		reset();
@@ -52,27 +56,21 @@ export const processNode = async ({
 		dimensions.height,
 	);
 
-	// Check for mask-image
-	const maskImageValue = getMaskImageValue(computedStyle);
-	const maskGradientInfo = maskImageValue
-		? parseMaskImage(maskImageValue)
-		: null;
-
-	if (maskGradientInfo) {
+	if (precompositing.needsMaskImage) {
 		await handleMask({
 			element,
 			parentRect,
 			context,
 			logLevel,
 			internalState,
-			gradientInfo: maskGradientInfo,
+			gradientInfo: precompositing.needsMaskImage,
 			rect,
 		});
 		reset();
 		return {type: 'skip-children'};
 	}
 
-	if (!totalMatrix.is2D) {
+	if (precompositing.needs3DTransformViaWebGL) {
 		await handle3dTransform({
 			element,
 			matrix: totalMatrix,
