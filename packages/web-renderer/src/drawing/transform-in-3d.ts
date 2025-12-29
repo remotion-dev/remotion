@@ -1,6 +1,3 @@
-import {roundToExpandRect} from './round-to-expand-rect';
-import {transformDOMRect} from './transform-rect-with-matrix';
-
 function compileShader(
 	shaderGl: WebGLRenderingContext,
 	source: string,
@@ -94,18 +91,13 @@ export const transformIn3d = ({
 	matrix,
 	sourceCanvas,
 	untransformedRect,
+	rectAfterTransforms,
 }: {
 	untransformedRect: DOMRect;
 	matrix: DOMMatrix;
 	sourceCanvas: OffscreenCanvas;
+	rectAfterTransforms: DOMRect;
 }) => {
-	const rectAfterTransforms = roundToExpandRect(
-		transformDOMRect({
-			rect: untransformedRect,
-			matrix,
-		}),
-	);
-
 	const {canvas, gl, program} = createHelperCanvas({
 		canvasWidth: rectAfterTransforms.width,
 		canvasHeight: rectAfterTransforms.height,
@@ -219,5 +211,14 @@ export const transformIn3d = ({
 	// Reset blend function to the initial state
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-	return {canvas, rect: rectAfterTransforms};
+	return {
+		canvas,
+		rect: rectAfterTransforms,
+		cleanup: () => {
+			const loseContext = gl.getExtension('WEBGL_lose_context');
+			if (loseContext) {
+				loseContext.loseContext();
+			}
+		},
+	};
 };

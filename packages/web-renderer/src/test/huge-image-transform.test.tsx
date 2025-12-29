@@ -13,6 +13,6 @@ test('should render huge image with scale and 3D transform', async () => {
 	});
 
 	await testImage({blob, testId: 'huge-image-transform'});
-	expect(internalState.getDrawn3dPixels()).approximately(512 * 513, 512);
+	expect(internalState.getDrawn3dPixels()).toBe(272384);
 	expect(internalState.getPrecomposedTiles()).toBe(1);
 });

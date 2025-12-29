@@ -11,6 +11,8 @@ import {
 } from './handle-3d-transform';
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
 import {precomposeDOMElement} from './precompose';
+import {roundToExpandRect} from './round-to-expand-rect';
+import {transformDOMRect} from './transform-rect-with-matrix';
 
 export type ProcessNodeReturnValue =
 	| {type: 'continue'; cleanupAfterChildren: null | (() => void)}
@@ -104,6 +106,14 @@ export const processNode = async ({
 		});
 
 		let drawable: OffscreenCanvas | null = tempCanvas;
+		let cleanupWebGL: () => void = () => {};
+
+		const rectAfterTransforms = roundToExpandRect(
+			transformDOMRect({
+				rect: precomposeRect,
+				matrix: totalMatrix,
+			}),
+		);
 
 		if (precompositing.needsMaskImage) {
 			handleMask({
@@ -119,11 +129,12 @@ export const processNode = async ({
 				matrix: totalMatrix,
 				precomposeRect,
 				tempCanvas: drawable,
+				rectAfterTransforms,
 			});
 			if (t) {
-				const [transformed, transformedRect] = t;
+				const [transformed, cleanup] = t;
 				drawable = transformed;
-				precomposeRect = transformedRect;
+				cleanupWebGL = cleanup;
 			}
 		}
 
@@ -132,10 +143,10 @@ export const processNode = async ({
 			context.setTransform(new DOMMatrix());
 			context.drawImage(
 				drawable,
-				precomposeRect.left - parentRect.x,
-				precomposeRect.top - parentRect.y,
-				precomposeRect.width,
-				precomposeRect.height,
+				rectAfterTransforms.left - parentRect.x,
+				rectAfterTransforms.top - parentRect.y,
+				rectAfterTransforms.width,
+				rectAfterTransforms.height,
 			);
 
 			context.setTransform(previousTransform);
@@ -154,6 +165,8 @@ export const processNode = async ({
 		}
 
 		reset();
+		cleanupWebGL();
+
 		return {type: 'skip-children'};
 	}
 

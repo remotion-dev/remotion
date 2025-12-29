@@ -31,20 +31,27 @@ export const handle3dTransform = ({
 	matrix,
 	precomposeRect,
 	tempCanvas,
+	rectAfterTransforms,
 }: {
 	matrix: DOMMatrix;
 	precomposeRect: DOMRect;
 	tempCanvas: OffscreenCanvas;
+	rectAfterTransforms: DOMRect;
 }) => {
-	const {canvas: transformed, rect: transformedRect} = transformIn3d({
+	const {
+		canvas: transformed,
+		rect: transformedRect,
+		cleanup,
+	} = transformIn3d({
 		untransformedRect: precomposeRect,
 		matrix,
 		sourceCanvas: tempCanvas,
+		rectAfterTransforms,
 	});
 
 	if (transformedRect.width <= 0 || transformedRect.height <= 0) {
 		return null;
 	}
 
-	return [transformed, transformedRect] as const;
+	return [transformed, cleanup] as const;
 };
