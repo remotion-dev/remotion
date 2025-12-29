@@ -64,20 +64,27 @@ export const handleMask = async ({
 		internalState,
 	});
 
+	const rectToFill = new DOMRect(
+		rectOffsetX,
+		rectOffsetY,
+		rect.width,
+		rect.height,
+	);
+
 	const gradient = createCanvasGradient({
 		ctx: tempContext,
-		rect: new DOMRect(
-			rectOffsetX,
-			rectOffsetY,
-			boundingRect.width,
-			boundingRect.height,
-		),
+		rect: rectToFill,
 		gradientInfo,
 	});
 
 	tempContext.globalCompositeOperation = 'destination-in';
 	tempContext.fillStyle = gradient;
-	tempContext.fillRect(rectOffsetX, rectOffsetY, rect.width, rect.height);
+	tempContext.fillRect(
+		rectToFill.left,
+		rectToFill.top,
+		rectToFill.width,
+		rectToFill.height,
+	);
 
 	const previousTransform = context.getTransform();
 
