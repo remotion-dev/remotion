@@ -72,6 +72,13 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	div.style.visibility = 'hidden';
 	div.style.pointerEvents = 'none';
 
+	const scaffoldClassName = `remotion-scaffold-${Math.random().toString(36).substring(2, 15)}`;
+	div.className = scaffoldClassName;
+
+	const cleanupCSS = Internals.CSSUtils.injectCSS(
+		Internals.CSSUtils.makeDefaultPreviewCSS(`.${scaffoldClassName}`, 'white'),
+	);
+
 	document.body.appendChild(div);
 
 	const {promise, resolve, reject} = withResolvers<void>();
@@ -184,6 +191,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 		cleanupScaffold: () => {
 			root.unmount();
 			div.remove();
+			cleanupCSS();
 		},
 		timeUpdater,
 		collectAssets,

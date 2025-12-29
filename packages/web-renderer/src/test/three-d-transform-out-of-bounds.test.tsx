@@ -18,6 +18,6 @@ test('Should not render items that are out of bounds', async () => {
 		allowedMismatchedPixelRatio: 0.03,
 	});
 
-	expect(internalState.getDrawn3dPixels()).toBe(9964);
-	expect(internalState.getDrawn3dTextures()).toBe(1);
+	expect(internalState.getDrawn3dPixels()).toBe(12500);
+	expect(internalState.getPrecomposedTiles()).toBe(2);
 });

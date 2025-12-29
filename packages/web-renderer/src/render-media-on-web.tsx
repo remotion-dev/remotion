@@ -105,6 +105,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	onFrame: OnFrameCallback | null;
 	outputTarget: WebRendererOutputTarget | null;
 	licenseKey: string | undefined;
+	muted: boolean;
 };
 
 export type RenderMediaOnWebOptions<
@@ -150,6 +151,7 @@ const internalRenderMediaOnWeb = async <
 	onFrame,
 	outputTarget: userDesiredOutputTarget,
 	licenseKey,
+	muted,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
@@ -214,7 +216,7 @@ const internalRenderMediaOnWeb = async <
 			logLevel,
 			mediaCacheSizeInBytes,
 			schema: schema ?? null,
-			audioEnabled: true,
+			audioEnabled: !muted,
 			videoEnabled: true,
 			initialFrame: 0,
 			defaultCodec: resolved.defaultCodec,
@@ -285,21 +287,25 @@ const internalRenderMediaOnWeb = async <
 		output.addVideoTrack(videoSampleSource);
 
 		// TODO: Should be able to customize
-		const defaultAudioEncodingConfig = await getDefaultAudioEncodingConfig();
+		let audioSampleSource: AudioSampleSource | null = null;
 
-		if (!defaultAudioEncodingConfig) {
-			return Promise.reject(
-				new Error('No default audio encoding config found'),
-			);
+		if (!muted) {
+			const defaultAudioEncodingConfig = await getDefaultAudioEncodingConfig();
+
+			if (!defaultAudioEncodingConfig) {
+				return Promise.reject(
+					new Error('No default audio encoding config found'),
+				);
+			}
+
+			audioSampleSource = new AudioSampleSource(defaultAudioEncodingConfig);
+
+			cleanupFns.push(() => {
+				audioSampleSource?.close();
+			});
+
+			output.addAudioTrack(audioSampleSource);
 		}
-
-		const audioSampleSource = new AudioSampleSource(defaultAudioEncodingConfig);
-
-		cleanupFns.push(() => {
-			audioSampleSource.close();
-		});
-
-		output.addAudioTrack(audioSampleSource);
 
 		await output.start();
 
@@ -357,7 +363,9 @@ const internalRenderMediaOnWeb = async <
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 
-			const audio = onlyInlineAudio({assets, fps: resolved.fps, frame});
+			const audio = muted
+				? null
+				: onlyInlineAudio({assets, fps: resolved.fps, frame});
 
 			const timestamp = Math.round(
 				((frame - realFrameRange[0]) / resolved.fps) * 1_000_000,
@@ -387,7 +395,9 @@ const internalRenderMediaOnWeb = async <
 
 			await Promise.all([
 				addVideoSampleAndCloseFrame(frameToEncode, videoSampleSource),
-				audio ? addAudioSample(audio, audioSampleSource) : Promise.resolve(),
+				audio && audioSampleSource
+					? addAudioSample(audio, audioSampleSource)
+					: Promise.resolve(),
 			]);
 
 			progress.encodedFrames++;
@@ -402,7 +412,7 @@ const internalRenderMediaOnWeb = async <
 		onProgress?.({...progress});
 
 		videoSampleSource.close();
-		audioSampleSource.close();
+		audioSampleSource?.close();
 		await output.finalize();
 
 		const mimeType = getMimeType(container);
@@ -487,6 +497,7 @@ export const renderMediaOnWeb = <
 				onFrame: options.onFrame ?? null,
 				outputTarget: options.outputTarget ?? null,
 				licenseKey: options.licenseKey ?? undefined,
+				muted: options.muted ?? false,
 			}),
 		);
 

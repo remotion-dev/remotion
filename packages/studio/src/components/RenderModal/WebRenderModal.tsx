@@ -10,6 +10,7 @@ import type {
 import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
+import {AudioIcon} from '../../icons/audio';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
@@ -40,6 +41,7 @@ import {
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
+import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
 import {WebRenderModalPicture} from './WebRenderModalPicture';
 
@@ -54,7 +56,7 @@ type WebRenderModalProps = {
 
 export type RenderType = 'still' | 'video';
 
-type TabType = 'general' | 'data' | 'picture' | 'advanced';
+type TabType = 'general' | 'data' | 'picture' | 'audio' | 'advanced';
 
 const invalidCharacters = ['?', '*', '+', ':', '%'];
 
@@ -184,6 +186,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [renderProgress, setRenderProgress] =
 		useState<RenderMediaOnWebProgress | null>(null);
 	const [transparent, setTransparent] = useState(false);
+	const [muted, setMuted] = useState(false);
 
 	const finalEndFrame = useMemo(() => {
 		if (endFrame === null) {
@@ -451,6 +454,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				setRenderProgress(progress);
 			},
 			transparent,
+			muted,
 			outputTarget: 'web-fs',
 		});
 
@@ -485,6 +489,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.fps,
 		outName,
 		transparent,
+		muted,
 		resolvedComposition.defaultProps,
 		resolvedComposition.id,
 		unresolvedComposition.calculateMetadata,
@@ -551,6 +556,18 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							Picture
 						</VerticalTab>
 					) : null}
+					{renderMode === 'video' ? (
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'audio'}
+							onClick={() => setTab('audio')}
+						>
+							<div style={iconContainer}>
+								<AudioIcon style={icon} />
+							</div>
+							Audio
+						</VerticalTab>
+					) : null}
 					<VerticalTab
 						style={horizontalTab}
 						selected={tab === 'advanced'}
@@ -609,6 +626,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							transparent={transparent}
 							setTransparent={setTransparent}
 						/>
+					) : tab === 'audio' ? (
+						<WebRenderModalAudio muted={muted} setMuted={setMuted} />
 					) : (
 						<WebRenderModalAdvanced
 							renderMode={renderMode}
