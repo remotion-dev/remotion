@@ -35,7 +35,8 @@ The `transform-style` property is <a style={{color: 'red'}}>not supported</a> (d
 ### Backgrounds
 
 The `background-color` property is <a style={{color: 'green'}}>supported</a>.  
-The `background-image` property and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
+`background-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.  
+Other `background-image` values and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
 
 ### Borders and border radius
 
@@ -65,6 +66,11 @@ Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.
 `inset` shadows are <a style={{color: 'red'}}>not supported</a>.  
 "Spread radius" is <a style={{color: 'red'}}>not supported</a>.
 
+## Masks
+
+`mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.  
+Other `mask-image` values are <a style={{color: 'red'}}>not supported</a>.
+
 ## Supported elements
 
 The following Remotion components are supported:
@@ -92,7 +98,6 @@ The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: '
 All styles not explicitly mentioned are <a style={{color: 'red'}}>not supported</a>.
 Here is a selection of unsupported styles:
 
-- `mask-image`
 - `clip-path`
 - `filter` (blur, brightness, contrast, etc.)
 - `backdrop-filter`

@@ -1,6 +1,3 @@
-import {roundToExpandRect} from './round-to-expand-rect';
-import {transformDOMRect} from './transform-rect-with-matrix';
-
 function compileShader(
 	shaderGl: WebGLRenderingContext,
 	source: string,
@@ -23,16 +20,6 @@ function compileShader(
 	return shader;
 }
 
-type HelperCanvas = {
-	canvas: OffscreenCanvas;
-	gl: WebGLRenderingContext;
-	program: WebGLProgram;
-	vertexShader: WebGLShader;
-	fragmentShader: WebGLShader;
-};
-
-let helperCanvas: HelperCanvas | null = null;
-
 const createHelperCanvas = ({
 	canvasWidth,
 	canvasHeight,
@@ -40,25 +27,6 @@ const createHelperCanvas = ({
 	canvasWidth: number;
 	canvasHeight: number;
 }) => {
-	if (
-		helperCanvas &&
-		helperCanvas.canvas.width >= canvasWidth &&
-		helperCanvas.canvas.height >= canvasHeight
-	) {
-		// Clear and draw
-		helperCanvas.gl.clearColor(0, 0, 0, 0); // Transparent background
-		helperCanvas.gl.clear(helperCanvas.gl.COLOR_BUFFER_BIT);
-
-		return helperCanvas;
-	}
-
-	if (helperCanvas) {
-		helperCanvas.gl.deleteProgram(helperCanvas.program);
-		helperCanvas.gl.deleteShader(helperCanvas.vertexShader);
-		helperCanvas.gl.deleteShader(helperCanvas.fragmentShader);
-		helperCanvas = null;
-	}
-
 	const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
 	const gl = canvas.getContext('webgl', {
 		premultipliedAlpha: true,
@@ -116,27 +84,20 @@ const createHelperCanvas = ({
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-	helperCanvas = {canvas, gl, program, vertexShader, fragmentShader};
-
-	return helperCanvas;
+	return {canvas, gl, program, vertexShader, fragmentShader};
 };
 
 export const transformIn3d = ({
 	matrix,
 	sourceCanvas,
 	untransformedRect,
+	rectAfterTransforms,
 }: {
 	untransformedRect: DOMRect;
 	matrix: DOMMatrix;
 	sourceCanvas: OffscreenCanvas;
+	rectAfterTransforms: DOMRect;
 }) => {
-	const rectAfterTransforms = roundToExpandRect(
-		transformDOMRect({
-			rect: untransformedRect,
-			matrix,
-		}),
-	);
-
 	const {canvas, gl, program} = createHelperCanvas({
 		canvasWidth: rectAfterTransforms.width,
 		canvasHeight: rectAfterTransforms.height,
@@ -234,8 +195,30 @@ export const transformIn3d = ({
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 
 	// Clean up resources to prevent leaks and ensure clean state for reuse
+	gl.disableVertexAttribArray(aPosition);
+	gl.disableVertexAttribArray(aTexCoord);
+
+	// Clean up resources to prevent leaks and ensure clean state for reuse
 	gl.deleteTexture(texture);
 	gl.deleteBuffer(vertexBuffer);
 
-	return {canvas, rect: rectAfterTransforms};
+	gl.bindTexture(gl.TEXTURE_2D, null);
+	gl.deleteTexture(texture);
+
+	// Reset pixel store state
+	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+
+	// Reset blend function to the initial state
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+	return {
+		canvas,
+		rect: rectAfterTransforms,
+		cleanup: () => {
+			const loseContext = gl.getExtension('WEBGL_lose_context');
+			if (loseContext) {
+				loseContext.loseContext();
+			}
+		},
+	};
 };
