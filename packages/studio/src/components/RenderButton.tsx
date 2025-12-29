@@ -100,9 +100,13 @@ export type RenderType = 'server-render' | 'client-render';
 
 const RENDER_TYPE_STORAGE_KEY = 'remotion.renderType';
 
-const getInitialRenderType = (): RenderType => {
+const getInitialRenderType = (readOnlyStudio: boolean): RenderType => {
 	if (!SHOW_BROWSER_RENDERING) {
 		return 'server-render';
+	}
+
+	if (readOnlyStudio) {
+		return 'client-render';
 	}
 
 	try {
@@ -117,11 +121,14 @@ const getInitialRenderType = (): RenderType => {
 	return 'server-render';
 };
 
-export const RenderButton: React.FC = () => {
+export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
+	readOnlyStudio,
+}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {setSelectedModal} = useContext(ModalsContext);
-	const [renderType, setRenderType] =
-		useState<RenderType>(getInitialRenderType);
+	const [renderType, setRenderType] = useState<RenderType>(() =>
+		getInitialRenderType(readOnlyStudio),
+	);
 	const [dropdownOpened, setDropdownOpened] = useState(false);
 	const dropdownRef = useRef<HTMLButtonElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -406,9 +413,21 @@ export const RenderButton: React.FC = () => {
 	}, [connectionStatus]);
 
 	const renderLabel =
-		!SHOW_BROWSER_RENDERING || renderType === 'server-render'
-			? 'Render'
-			: 'Render on web';
+		renderType === 'server-render' ? 'Render' : 'Render on web';
+
+	const shouldShowDropdown = useMemo(() => {
+		// Server render is not available
+		if (readOnlyStudio) {
+			return false;
+		}
+
+		// client render is not available
+		if (!SHOW_BROWSER_RENDERING) {
+			return false;
+		}
+
+		return true;
+	}, [readOnlyStudio]);
 
 	if (!video) {
 		return null;
@@ -450,7 +469,7 @@ export const RenderButton: React.FC = () => {
 						<span style={label}>{renderLabel}</span>
 					</Row>
 				</button>
-				{SHOW_BROWSER_RENDERING ? (
+				{shouldShowDropdown ? (
 					<>
 						<div style={dividerStyle} />
 						<button

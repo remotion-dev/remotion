@@ -205,6 +205,7 @@ export const renderStillFlow = async ({
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint,
+			experimentalClientSideRenderingEnabled: false,
 		},
 	);
 

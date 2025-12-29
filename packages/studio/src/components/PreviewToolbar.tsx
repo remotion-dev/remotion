@@ -7,6 +7,7 @@ import {
 	useIsVideoComposition,
 } from '../helpers/is-current-selected-still';
 import {useMobileLayout} from '../helpers/mobile-layout';
+import {shouldShowRenderButton} from '../helpers/should-show-render-button';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
@@ -211,7 +212,9 @@ export const PreviewToolbar: React.FC<{
 				<Flex />
 				{!isMobileLayout && <FpsCounter playbackSpeed={playbackRate} />}
 				<Spacing x={2} />
-				{readOnlyStudio ? null : <RenderButton />}
+				{shouldShowRenderButton(readOnlyStudio) ? (
+					<RenderButton readOnlyStudio={readOnlyStudio} />
+				) : null}
 				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
