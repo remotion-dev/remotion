@@ -1,4 +1,6 @@
 import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
+import {getMaskImageValue, parseMaskImage} from './mask-image';
+import type {LinearGradientInfo} from './parse-linear-gradient';
 import {parseTransformOrigin} from './parse-transform-origin';
 
 type Transform = {
@@ -43,12 +45,27 @@ export const calculateTransforms = ({
 
 	let opacity = 1;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
+	let maskImageInfo: LinearGradientInfo | null = null;
 	while (parent) {
 		const computedStyle = getComputedStyle(parent);
 
 		if (parent === element) {
 			elementComputedStyle = computedStyle;
 			opacity = parseFloat(computedStyle.opacity);
+			const maskImageValue = getMaskImageValue(computedStyle);
+			maskImageInfo = maskImageValue ? parseMaskImage(maskImageValue) : null;
+
+			const originalMaskImage = parent.style.maskImage;
+			const originalWebkitMaskImage = parent.style.webkitMaskImage;
+			parent.style.maskImage = 'none';
+			parent.style.webkitMaskImage = 'none';
+
+			const parentRef = parent;
+
+			toReset.push(() => {
+				parentRef!.style.maskImage = originalMaskImage;
+				parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
+			});
 		}
 
 		if (hasAnyTransformCssValue(computedStyle) || parent === element) {
@@ -127,6 +144,9 @@ export const calculateTransforms = ({
 		throw new Error('Element computed style not found');
 	}
 
+	const needs3DTransformViaWebGL = !totalMatrix.is2D;
+	const needsMaskImage = maskImageInfo !== null;
+
 	return {
 		dimensions,
 		totalMatrix,
@@ -138,5 +158,11 @@ export const calculateTransforms = ({
 		nativeTransformOrigin,
 		computedStyle: elementComputedStyle,
 		opacity,
+		maskImageInfo,
+		precompositing: {
+			needs3DTransformViaWebGL,
+			needsMaskImage: maskImageInfo,
+			needsPrecompositing: Boolean(needs3DTransformViaWebGL || needsMaskImage),
+		},
 	};
 };

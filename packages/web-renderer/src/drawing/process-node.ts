@@ -1,9 +1,18 @@
-import type {LogLevel} from 'remotion';
+import {Internals, type LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
 import {calculateTransforms} from './calculate-transforms';
+import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
+import {doRectsIntersect} from './do-rects-intersect';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
-import {handle3dTransform} from './handle-3d-transform';
+import {
+	getPrecomposeRectFor3DTransform,
+	handle3dTransform,
+} from './handle-3d-transform';
+import {getPrecomposeRectForMask, handleMask} from './handle-mask';
+import {precomposeDOMElement} from './precompose';
+import {roundToExpandRect} from './round-to-expand-rect';
+import {transformDOMRect} from './transform-rect-with-matrix';
 
 export type ProcessNodeReturnValue =
 	| {type: 'continue'; cleanupAfterChildren: null | (() => void)}
@@ -26,12 +35,17 @@ export const processNode = async ({
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
 }): Promise<ProcessNodeReturnValue> => {
-	const transforms = calculateTransforms({
+	const {
+		totalMatrix,
+		reset,
+		dimensions,
+		opacity,
+		computedStyle,
+		precompositing,
+	} = calculateTransforms({
 		element,
 		rootElement,
 	});
-
-	const {totalMatrix, reset, dimensions, opacity, computedStyle} = transforms;
 
 	if (opacity === 0) {
 		reset();
@@ -43,26 +57,121 @@ export const processNode = async ({
 		return {type: 'continue', cleanupAfterChildren: null};
 	}
 
-	if (!totalMatrix.is2D) {
-		await handle3dTransform({
+	const rect = new DOMRect(
+		dimensions.left - parentRect.x,
+		dimensions.top - parentRect.y,
+		dimensions.width,
+		dimensions.height,
+	);
+
+	if (precompositing.needsPrecompositing) {
+		const start = Date.now();
+
+		let precomposeRect: DOMRect | null = null;
+		if (precompositing.needsMaskImage) {
+			precomposeRect = getWiderRectAndExpand({
+				firstRect: precomposeRect,
+				secondRect: getPrecomposeRectForMask(element),
+			});
+		}
+
+		if (precompositing.needs3DTransformViaWebGL) {
+			precomposeRect = getWiderRectAndExpand({
+				firstRect: precomposeRect,
+				secondRect: getPrecomposeRectFor3DTransform({
+					element,
+					parentRect,
+					matrix: totalMatrix,
+				}),
+			});
+		}
+
+		if (!precomposeRect) {
+			throw new Error('Precompose rect not found');
+		}
+
+		if (precomposeRect.width <= 0 || precomposeRect.height <= 0) {
+			return {type: 'continue', cleanupAfterChildren: null};
+		}
+
+		if (!doRectsIntersect(precomposeRect, parentRect)) {
+			return {type: 'continue', cleanupAfterChildren: null};
+		}
+
+		const {tempCanvas, tempContext} = await precomposeDOMElement({
+			boundingRect: precomposeRect,
 			element,
-			matrix: totalMatrix,
-			parentRect,
-			context,
 			logLevel,
 			internalState,
 		});
+
+		let drawable: OffscreenCanvas | null = tempCanvas;
+		let cleanupWebGL: () => void = () => {};
+
+		const rectAfterTransforms = roundToExpandRect(
+			transformDOMRect({
+				rect: precomposeRect,
+				matrix: totalMatrix,
+			}),
+		);
+
+		if (precompositing.needsMaskImage) {
+			handleMask({
+				gradientInfo: precompositing.needsMaskImage,
+				rect,
+				precomposeRect,
+				tempContext,
+			});
+		}
+
+		if (precompositing.needs3DTransformViaWebGL) {
+			const t = handle3dTransform({
+				matrix: totalMatrix,
+				precomposeRect,
+				tempCanvas: drawable,
+				rectAfterTransforms,
+			});
+			if (t) {
+				const [transformed, cleanup] = t;
+				drawable = transformed;
+				cleanupWebGL = cleanup;
+			}
+		}
+
+		const previousTransform = context.getTransform();
+		if (drawable) {
+			context.setTransform(new DOMMatrix());
+			context.drawImage(
+				drawable,
+				rectAfterTransforms.left - parentRect.x,
+				rectAfterTransforms.top - parentRect.y,
+				rectAfterTransforms.width,
+				rectAfterTransforms.height,
+			);
+
+			context.setTransform(previousTransform);
+
+			Internals.Log.trace(
+				{
+					logLevel,
+					tag: '@remotion/web-renderer',
+				},
+				`Transforming element in 3D - canvas size: ${precomposeRect.width}x${precomposeRect.height} - compose: ${Date.now() - start}ms`,
+			);
+			internalState.addPrecompose({
+				canvasWidth: precomposeRect.width,
+				canvasHeight: precomposeRect.height,
+			});
+		}
+
 		reset();
+		cleanupWebGL();
+
 		return {type: 'skip-children'};
 	}
 
 	const {cleanupAfterChildren} = await drawElement({
-		rect: new DOMRect(
-			dimensions.left - parentRect.x,
-			dimensions.top - parentRect.y,
-			dimensions.width,
-			dimensions.height,
-		),
+		rect,
 		computedStyle,
 		context,
 		draw,

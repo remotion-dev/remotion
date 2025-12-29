@@ -1,3 +1,5 @@
+import {roundToExpandRect} from './round-to-expand-rect';
+
 export const getNarrowerRect = ({
 	firstRect,
 	secondRect,
@@ -11,4 +13,22 @@ export const getNarrowerRect = ({
 	const right = Math.min(firstRect.right, secondRect.right);
 
 	return new DOMRect(left, top, right - left, bottom - top);
+};
+
+export const getWiderRectAndExpand = ({
+	firstRect,
+	secondRect,
+}: {
+	firstRect: DOMRect | null;
+	secondRect: DOMRect;
+}) => {
+	if (firstRect === null) {
+		return roundToExpandRect(secondRect);
+	}
+
+	const left = Math.min(firstRect.left, secondRect.left);
+	const top = Math.min(firstRect.top, secondRect.top);
+	const bottom = Math.max(firstRect.bottom, secondRect.bottom);
+	const right = Math.max(firstRect.right, secondRect.right);
+	return roundToExpandRect(new DOMRect(left, top, right - left, bottom - top));
 };
