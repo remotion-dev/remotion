@@ -51,23 +51,38 @@ export const handleMask = async ({
 		boundingRect.height,
 	);
 
+	const tempContext = tempCanvas.getContext('2d')!;
+
+	const rectOffsetX = rect.left - boundingRect.left;
+	const rectOffsetY = rect.top - boundingRect.top;
+
 	await compose({
 		element,
-		context: tempCanvas.getContext('2d')!,
+		context: tempContext,
 		logLevel,
 		parentRect: boundingRect,
 		internalState,
 	});
 
+	const gradient = createCanvasGradient({
+		ctx: tempContext,
+		rect: new DOMRect(
+			rectOffsetX,
+			rectOffsetY,
+			boundingRect.width,
+			boundingRect.height,
+		),
+		gradientInfo,
+	});
+
+	tempContext.globalCompositeOperation = 'destination-in';
+	tempContext.fillStyle = gradient;
+	tempContext.fillRect(rectOffsetX, rectOffsetY, rect.width, rect.height);
+
 	const previousTransform = context.getTransform();
-	const previousCompositeOperation = context.globalCompositeOperation;
-	context.setTransform(1, 0, 0, 1, 0, 0);
 
-	// Apply the mask using destination-in
-	// This keeps only the parts of the fill where the mask has alpha > 0
-	context.globalCompositeOperation = 'destination-in';
+	context.setTransform(new DOMMatrix());
 
-	console.log(boundingRect);
 	context.drawImage(
 		tempCanvas,
 		boundingRect.left,
@@ -76,17 +91,7 @@ export const handleMask = async ({
 		boundingRect.height,
 	);
 
-	const gradient = createCanvasGradient({
-		ctx: context,
-		rect,
-		gradientInfo,
-	});
-
-	context.fillStyle = gradient;
-	context.fillRect(rect.left, rect.top, rect.width, rect.height);
-
 	context.setTransform(previousTransform);
-	context.globalCompositeOperation = previousCompositeOperation;
 
 	reset();
 };
