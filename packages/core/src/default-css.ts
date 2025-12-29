@@ -24,6 +24,7 @@ export const injectCSS = (css: string): (() => void) => {
 			if (styleElement.parentNode) {
 				styleElement.parentNode.removeChild(styleElement);
 			}
+
 			delete injected[css];
 		}
 	};
