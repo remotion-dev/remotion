@@ -101,7 +101,9 @@ const parseColorStops = (colorStopsStr: string): ColorStop[] | null => {
 			continue;
 		}
 
-		const remaining = trimmed.substring(colorMatch.index! + colorStr.length).trim();
+		const remaining = trimmed
+			.substring(colorMatch.index! + colorStr.length)
+			.trim();
 
 		// Canvas API supports CSS colors directly, so we can use the color string as-is
 		const normalizedColor = colorStr;
@@ -180,15 +182,11 @@ const parseColorStops = (colorStopsStr: string): ColorStop[] | null => {
 				stops[i].position = i / (stops.length - 1);
 			}
 		}
-	} else {
-		// Handle trailing stops without explicit positions
-		if (lastExplicitIndex < stops.length - 1) {
-			const numImplicit = stops.length - 1 - lastExplicitIndex;
-			const step = (1 - lastExplicitPosition) / (numImplicit + 1);
-			for (let i = lastExplicitIndex + 1; i < stops.length; i++) {
-				stops[i].position =
-					lastExplicitPosition + step * (i - lastExplicitIndex);
-			}
+	} else if (lastExplicitIndex < stops.length - 1) {
+		const numImplicit = stops.length - 1 - lastExplicitIndex;
+		const step = (1 - lastExplicitPosition) / (numImplicit + 1);
+		for (let i = lastExplicitIndex + 1; i < stops.length; i++) {
+			stops[i].position = lastExplicitPosition + step * (i - lastExplicitIndex);
 		}
 	}
 
@@ -209,7 +207,7 @@ const extractGradientContent = (backgroundImage: string): string | null => {
 
 	// Find matching closing parenthesis, handling nested parens from rgb(), rgba(), etc.
 	let depth = 0;
-	let contentStart = startIndex + prefix.length;
+	const contentStart = startIndex + prefix.length;
 	for (let i = contentStart; i < backgroundImage.length; i++) {
 		const char = backgroundImage[i];
 		if (char === '(') {
@@ -218,6 +216,7 @@ const extractGradientContent = (backgroundImage: string): string | null => {
 			if (depth === 0) {
 				return backgroundImage.substring(contentStart, i).trim();
 			}
+
 			depth--;
 		}
 	}
@@ -306,8 +305,7 @@ export const createCanvasGradient = ({
 	// Calculate the length from center to edge along the gradient line.
 	// Primary formula should always be > 0 for valid angles and non-zero rects;
 	// fall back to diagonal length only for degenerate or invalid cases.
-	let length =
-		Math.abs(cos) * halfWidth + Math.abs(sin) * halfHeight;
+	let length = Math.abs(cos) * halfWidth + Math.abs(sin) * halfHeight;
 	if (!Number.isFinite(length) || length === 0) {
 		length = Math.sqrt(halfWidth ** 2 + halfHeight ** 2);
 	}
