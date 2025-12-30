@@ -133,7 +133,6 @@ const {
 	imageSequencePatternOption,
 	darkModeOption,
 	publicLicenseKeyOption,
-	privateLicenseKeyOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -730,7 +729,6 @@ export const Config: FlatConfig = {
 	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
-	setPrivateLicenseKey: privateLicenseKeyOption.setConfig,
 };
 
 export const ConfigInternals = {
