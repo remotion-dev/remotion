@@ -2,7 +2,6 @@ import React, {useCallback} from 'react';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {Checkbox} from '../Checkbox';
 import {RemotionInput} from '../NewComposition/RemInput';
-import {InlineEyeButton} from './InlineEyeIcon';
 import {optionRow} from './layout';
 
 type WebRenderModalLicenseProps = {
@@ -61,12 +60,6 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 		setFreeLicense((prev) => !prev);
 	}, [setFreeLicense]);
 
-	const [showInPlainText, setShowInPlainText] = React.useState(false);
-
-	const togglePlainText = useCallback(() => {
-		setShowInPlainText((prev) => !prev);
-	}, []);
-
 	const onLicenseKeyChange: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
@@ -91,6 +84,7 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 						checked={freeLicense}
 						onChange={onFreeLicenseChange}
 						name="free-license"
+						rounded
 					/>
 
 					<div style={checkboxLabel}>
@@ -129,10 +123,6 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 								rightAlign={false}
 								style={inputStyle}
 								disabled={freeLicense}
-							/>
-							<InlineEyeButton
-								enabled={!showInPlainText}
-								onClick={togglePlainText}
 							/>
 						</div>
 					</div>

@@ -132,6 +132,8 @@ const {
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
 	darkModeOption,
+	publicLicenseKeyOption,
+	privateLicenseKeyOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -535,6 +537,18 @@ declare global {
 		 * @param pattern The pattern string, e.g. 'frame_[frame].[ext]'.
 		 */
 		readonly setImageSequencePattern: (pattern: string | null) => void;
+		/**
+		 * Set the public license key for your company license.
+		 * Obtain it from the "Usage" tab on https://remotion.pro
+		 * Pass "free-license" if you are eligible for the free license.
+		 */
+		readonly setPublicLicenseKey: (key: string | null) => void;
+		/**
+		 * Set the private license key for your company license.
+		 * Obtain it from the "Usage" tab on https://remotion.pro
+		 * Pass "free-license" if you are eligible for the free license.
+		 */
+		readonly setPrivateLicenseKey: (key: string | null) => void;
 	}
 }
 
@@ -715,6 +729,8 @@ export const Config: FlatConfig = {
 	setImageSequencePattern: imageSequencePatternOption.setConfig,
 	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
+	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
+	setPrivateLicenseKey: privateLicenseKeyOption.setConfig,
 };
 
 export const ConfigInternals = {

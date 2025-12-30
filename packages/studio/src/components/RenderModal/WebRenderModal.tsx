@@ -52,6 +52,7 @@ type WebRenderModalProps = {
 	readonly compositionId: string;
 	readonly initialFrame: number;
 	readonly initialLogLevel: LogLevel;
+	readonly initialLicenseKey: string | null;
 	readonly defaultProps: Record<string, unknown>;
 	readonly inFrameMark: number | null;
 	readonly outFrameMark: number | null;
@@ -145,6 +146,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	inFrameMark,
 	outFrameMark,
 	initialLogLevel,
+	initialLicenseKey,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
@@ -198,9 +200,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [transparent, setTransparent] = useState(false);
 	const [muted, setMuted] = useState(false);
 
-	// License state
 	const [freeLicense, setFreeLicense] = useState(false);
-	const [licenseKey, setLicenseKey] = useState('');
+	const [licenseKey, setLicenseKey] = useState(initialLicenseKey ?? '');
 
 	const finalEndFrame = useMemo(() => {
 		if (endFrame === null) {

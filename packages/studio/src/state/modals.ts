@@ -28,6 +28,7 @@ export type WebRenderModalState = {
 	inFrameMark: number | null;
 	outFrameMark: number | null;
 	initialLogLevel: LogLevel;
+	initialLicenseKey: string | null;
 };
 
 export type RenderModalState = {

@@ -34,6 +34,8 @@ const {
 	publicPathOption,
 	audioLatencyHintOption,
 	darkModeOption,
+	publicLicenseKeyOption,
+	privateLicenseKeyOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -115,6 +117,9 @@ export type CommandLineOptions = {
 	>;
 	repro: boolean;
 	'image-sequence-pattern': string;
+	'license-key': string;
+	[publicLicenseKeyOption.cliFlag]: string;
+	[privateLicenseKeyOption.cliFlag]: string;
 };
 
 export const parseCommandLine = () => {
@@ -184,6 +189,21 @@ export const parseCommandLine = () => {
 		Config.setProResProfile(
 			String(parsedCli['prores-profile']) as _InternalTypes['ProResProfile'],
 		);
+	}
+
+	if (
+		parsedCli['license-key'] &&
+		parsedCli['license-key'].startsWith('rm_pub_')
+	) {
+		Config.setPublicLicenseKey(parsedCli['license-key']);
+	}
+
+	if (parsedCli['private-license-key']) {
+		Config.setPrivateLicenseKey(parsedCli['private-license-key']);
+	}
+
+	if (parsedCli['public-license-key']) {
+		Config.setPublicLicenseKey(parsedCli['public-license-key']);
 	}
 
 	if (typeof parsedCli.quality !== 'undefined') {
