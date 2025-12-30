@@ -2,7 +2,7 @@
 image: /generated/articles-docs-img.png
 title: <Img>
 id: img
-crumb: "API"
+crumb: 'API'
 ---
 
 The `<Img>` tag can be used like a regular `<img>` HTML tag.
@@ -16,12 +16,12 @@ If you use `<Img>`, Remotion will ensure that the image is loaded before renderi
 [Put an image into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.
 
 ```tsx twoslash
-import { AbsoluteFill, Img, staticFile } from "remotion";
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Img src={staticFile("hi.png")} />
+      <Img src={staticFile('hi.png')} />
     </AbsoluteFill>
   );
 };
@@ -30,12 +30,12 @@ export const MyComp: React.FC = () => {
 You can also load a remote image:
 
 ```tsx twoslash
-import { AbsoluteFill, Img } from "remotion";
+import {AbsoluteFill, Img} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Img src={"https://picsum.photos/200/300"} />
+      <Img src={'https://picsum.photos/200/300'} />
     </AbsoluteFill>
   );
 };
@@ -46,13 +46,13 @@ export const MyComp: React.FC = () => {
 To use the `<Img>` tag in a resilient way, handle the error that occurs when an image can not be loaded:
 
 ```tsx twoslash
-import { AbsoluteFill, Img, staticFile } from "remotion";
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
       <Img
-        src={staticFile("hi.png")}
+        src={staticFile('hi.png')}
         onError={(event) => {
           // Handle image loading error here
         }}
@@ -85,6 +85,34 @@ Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delay
 
 Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.  
 Prefer the [`maxRetries`](#maxretries) prop over this.
+
+### `errorBehavior`<AvailableFrom v="4.0.398" />
+
+_optional_
+
+Controls what happens when the image cannot be drawn to the canvas during [client-side rendering](/docs/client-side-rendering). This can happen when:
+
+- The image fails to load (404, network error, invalid URL)
+- The image is tainted due to CORS restrictions
+
+**Values:**
+
+- `"fail"` (default): The render will fail with an error message explaining the problem.
+- `"ignore"`: The image will be skipped and nothing will be rendered in its place.
+
+```tsx twoslash
+import {AbsoluteFill, Img} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Img src="https://example.com/maybe-cors-enabled.png" errorBehavior="ignore" />
+    </AbsoluteFill>
+  );
+};
+```
+
+This prop is primarily useful for client-side rendering where CORS restrictions are enforced. See [Migrating to client-side rendering](/docs/client-side-rendering/migration#ensure-assets-are-available-via-cors) for more information.
 
 ## Other props
 

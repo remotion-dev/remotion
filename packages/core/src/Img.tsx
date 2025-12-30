@@ -32,11 +32,20 @@ export type ImgProps = NativeImgProps & {
 	readonly pauseWhenLoading?: boolean;
 	readonly delayRenderRetries?: number;
 	readonly delayRenderTimeoutInMilliseconds?: number;
-	readonly onImageFrame?: (imgelement: HTMLImageElement) => void;
+	readonly onImageFrame?: (imageElement: HTMLImageElement) => void;
 	readonly src: string;
+	/**
+	 * @description Controls what happens when the image fails to load or cannot be drawn to canvas (e.g., due to CORS restrictions).
+	 * @default 'fail'
+	 * @see [Documentation](https://remotion.dev/docs/img)
+	 */
+	readonly errorBehavior?: 'fail' | 'ignore';
 };
 
-type Expected = Omit<NativeImgProps, 'onError' | 'src' | 'crossOrigin'>;
+type Expected = Omit<
+	NativeImgProps,
+	'onError' | 'src' | 'crossOrigin' | 'errorBehavior'
+>;
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
@@ -51,6 +60,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		delayRenderTimeoutInMilliseconds,
 		onImageFrame,
 		crossOrigin,
+		errorBehavior,
 		...props
 	},
 	ref,
@@ -254,6 +264,9 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			crossOrigin={crossOriginValue}
 			onError={didGetError}
 			decoding="sync"
+			data-remotion-error-behavior={
+				errorBehavior === 'ignore' ? 'ignore' : undefined
+			}
 		/>
 	);
 };

@@ -29,7 +29,45 @@ Start using the [`useDelayRender()`](/docs/use-delay-render) hook instead, which
 
 ## Ensure assets are available via CORS
 
-Unlike server-side rendering, where video and audio assets are downloaded in a Node.js process, and where images can be captured even if they are [tainted](https://www.unblu.com/en/docs/latest/knowledge-base/configuration/collaboration-layers/embedded-co-browsing/html-tainted-canvas-limitation.html), in client-side rendering, CORS is enforced and images and canvas may not be tainted.
+Unlike server-side rendering, where video and audio assets are downloaded in a Node.js process, and where images can be captured even if they are [tainted](https://developer.mozilla.org/en-US/docs/Web/HTML/How_to/CORS_enabled_image#security_and_tainted_canvases), in client-side rendering, CORS is enforced and images and canvas may not be tainted.
+
+### Why CORS is required
+
+Client-side rendering draws images to a `<canvas>` element. For security reasons, browsers restrict access to image data from different origins. If an image from another domain is drawn to a canvas without proper CORS headers, the canvas becomes "tainted" and its contents cannot be extracted.
+
+### Common error messages
+
+If you use an image that doesn't support CORS, you'll see an error like:
+
+```
+Could not draw image with src="https://example.com/image.png" to canvas:
+The image is tainted due to CORS restrictions.
+The server hosting this image must respond with the "Access-Control-Allow-Origin" header.
+```
+
+If an image fails to load entirely (e.g., 404 error, invalid URL), you'll see:
+
+```
+Could not draw image with src="https://example.com/image.png" to canvas:
+The image is in a broken state.
+This usually means the image failed to load - check that the URL is valid and accessible.
+```
+
+### Solutions
+
+1. **Host images with CORS headers**: Ensure your image server responds with `Access-Control-Allow-Origin: *` or a specific origin.
+
+2. **Self-host images**: Download remote images and serve them from your own domain.
+
+3. **Use a CORS proxy**: Route requests through a proxy that adds CORS headers.
+
+4. **Use `errorBehavior="ignore"`**: If you want to gracefully skip images that fail to load or are tainted, use the [`errorBehavior`](/docs/img#errorbehavior) prop on `<Img>`:
+
+```tsx
+<Img src="https://example.com/maybe-cors-enabled.png" errorBehavior="ignore" />
+```
+
+This will render nothing instead of failing the render if the image cannot be drawn to canvas.
 
 ## Use `@remotion/media`
 
