@@ -52,9 +52,9 @@ export const Installation: React.FC<{
 				defaultValue="npm"
 				values={[
 					{label: 'npm', value: 'npm'},
-					{label: 'yarn', value: 'yarn'},
-					{label: 'pnpm', value: 'pnpm'},
 					{label: 'bun', value: 'bun'},
+					{label: 'pnpm', value: 'pnpm'},
+					{label: 'yarn', value: 'yarn'},
 				]}
 			>
 				<TabItem value="npm">

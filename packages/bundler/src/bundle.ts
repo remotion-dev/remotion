@@ -1,4 +1,4 @@
-import type {GitSource} from '@remotion/studio-shared';
+import type {GitSource, RenderDefaults} from '@remotion/studio-shared';
 import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import fs, {promises} from 'node:fs';
 import os from 'node:os';
@@ -62,11 +62,13 @@ export const getConfig = ({
 	options,
 	bufferStateDelayInMilliseconds,
 	maxTimelineTracks,
+	experimentalClientSideRenderingEnabled,
 }: {
 	outDir: string;
 	entryPoint: string;
 	resolvedRemotionRoot: string;
 	bufferStateDelayInMilliseconds: number | null;
+	experimentalClientSideRenderingEnabled: boolean;
 	maxTimelineTracks: number | null;
 	onProgress?: (progress: number) => void;
 	options?: LegacyBundleOptions;
@@ -91,7 +93,7 @@ export const getConfig = ({
 		keyboardShortcutsEnabled: true,
 		bufferStateDelayInMilliseconds,
 		poll: null,
-		experimentalClientSideRenderingEnabled: false,
+		experimentalClientSideRenderingEnabled,
 	});
 };
 
@@ -104,6 +106,8 @@ type NewBundleOptions = {
 	maxTimelineTracks: number | null;
 	bufferStateDelayInMilliseconds: number | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	experimentalClientSideRenderingEnabled: boolean;
+	renderDefaults: RenderDefaults | null;
 };
 
 type MandatoryBundleOptions = {
@@ -218,6 +222,8 @@ export const internalBundle = async (
 		bufferStateDelayInMilliseconds:
 			actualArgs.bufferStateDelayInMilliseconds ?? null,
 		maxTimelineTracks: actualArgs.maxTimelineTracks ?? null,
+		experimentalClientSideRenderingEnabled:
+			actualArgs.experimentalClientSideRenderingEnabled ?? false,
 	});
 
 	const output = await promisified([config]);
@@ -300,7 +306,7 @@ export const internalBundle = async (
 		}),
 		includeFavicon: true,
 		title: 'Remotion Bundle',
-		renderDefaults: undefined,
+		renderDefaults: actualArgs.renderDefaults ?? undefined,
 		publicFolderExists: `${publicPath + (publicPath.endsWith('/') ? '' : '/')}public`,
 		gitSource: actualArgs.gitSource ?? null,
 		projectName: getProjectName({
@@ -352,6 +358,9 @@ export async function bundle(...args: Arguments): Promise<string> {
 		rootDir: actualArgs.rootDir ?? null,
 		webpackOverride: actualArgs.webpackOverride ?? ((f) => f),
 		audioLatencyHint: actualArgs.audioLatencyHint ?? null,
+		experimentalClientSideRenderingEnabled:
+			actualArgs.experimentalClientSideRenderingEnabled ?? false,
+		renderDefaults: actualArgs.renderDefaults ?? null,
 	});
 	return result;
 }

@@ -1,8 +1,8 @@
 import type {LogLevel} from '@remotion/renderer';
 import type {
-	RenderStillImageFormat,
-	WebRendererCodec,
+	RenderStillOnWebImageFormat,
 	WebRendererContainer,
+	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
 import type React from 'react';
 import {useMemo} from 'react';
@@ -25,15 +25,15 @@ import type {RenderType} from './WebRenderModal';
 type WebRenderModalBasicProps = {
 	readonly renderMode: RenderType;
 	readonly resolvedComposition: VideoConfig;
-	readonly imageFormat: RenderStillImageFormat;
-	readonly setStillFormat: (format: RenderStillImageFormat) => void;
+	readonly imageFormat: RenderStillOnWebImageFormat;
+	readonly setStillFormat: (format: RenderStillOnWebImageFormat) => void;
 	readonly frame: number;
 	readonly onFrameChanged: (e: string) => void;
 	readonly onFrameSetDirectly: (newFrame: number) => void;
 	readonly container: WebRendererContainer;
 	readonly setContainerFormat: (container: WebRendererContainer) => void;
-	readonly codec: WebRendererCodec;
-	readonly setCodec: (codec: WebRendererCodec) => void;
+	readonly codec: WebRendererVideoCodec;
+	readonly setCodec: (codec: WebRendererVideoCodec) => void;
 	readonly startFrame: number | null;
 	readonly setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	readonly endFrame: number | null;

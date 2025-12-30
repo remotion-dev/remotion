@@ -102,6 +102,8 @@ export const internalDeploySiteRaw = async ({
 			onSymlinkDetected: () => undefined,
 			outDir: null,
 			audioLatencyHint: null,
+			experimentalClientSideRenderingEnabled: false,
+			renderDefaults: null,
 		}),
 	]);
 

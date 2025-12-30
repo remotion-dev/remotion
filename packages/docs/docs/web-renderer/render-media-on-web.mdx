@@ -1,0 +1,291 @@
+---
+image: /generated/articles-docs-web-renderer-render-media-on-web.png
+id: render-media-on-web
+title: renderMediaOnWeb()
+crumb: '@remotion/web-renderer'
+---
+
+:::warning
+Very experimental feature - expect bugs and breaking changes at any time.  
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+_Available from v4.397 - Part of the `@remotion/web-renderer` package._
+
+Renders a video or audio in the browser.  
+If you want to render a single frame to an image, use [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web).
+
+```tsx twoslash title="Example usage"
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+import {Video} from '@remotion/media';
+
+const Component: React.FC = () => {
+  return <Video src="https://remotion.media/video.mp4" />;
+};
+
+const {getBlob} = await renderMediaOnWeb({
+  composition: {
+    component: Component,
+    durationInFrames: 100,
+    fps: 30,
+    width: 1920,
+    height: 1080,
+    id: 'my-composition',
+  },
+});
+
+const blob = await getBlob();
+```
+
+## Arguments
+
+An object with the following properties:
+
+### `composition`
+
+An object describing a composition. The object should have the following properties:
+
+- `id`: A unique identifier for the composition.
+- `component`: A React component that renders the video content.
+- `durationInFrames`: The duration of the video in frames.
+- `fps`: The frame rate of the video.
+- `width`: The width of the video in pixels.
+- `height`: The height of the video in pixels.
+- `defaultProps?`: Optional default props to pass to the component.
+- `calculateMetadata?`: Optional function to calculate metadata. If provided, `width`, `height`, `fps`, and `durationInFrames` can be omitted and will be calculated dynamically.
+
+### `inputProps?`
+
+_object - optional_
+
+[Input Props to pass to the component.](/docs/passing-props#passing-input-props-in-the-cli)  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
+
+:::note
+You cannot use [`getInputProps()`](/docs/get-input-props) to read input props in client-side rendering.
+:::
+
+### `container?`
+
+_string_ <TsType type="WebRendererContainer" source="@remotion/web-renderer" />
+
+The container format to use for the output video. Default is `mp4`.
+
+### `videoCodec?`
+
+_string_ <TsType type="WebRendererVideoCodec" source="@remotion/web-renderer" />
+
+Which codec should be used to encode the video.  
+Default depends on the container:
+
+- For `mp4` container: `h264`
+- For `webm` container: `vp8`
+
+### `frameRange?`
+
+_number | [number, number]_ <TsType type="FrameRange" source="@remotion/web-renderer" />
+
+Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
+
+### `onProgress?`
+
+_function_ <TsType type="RenderMediaOnWebProgressCallback" source="@remotion/web-renderer" />
+
+React to render progress. The callback receives an object with the following properties:
+
+```tsx twoslash
+import type {RenderMediaOnWebProgressCallback} from '@remotion/web-renderer';
+
+const onProgress: RenderMediaOnWebProgressCallback = ({renderedFrames, encodedFrames}) => {
+  console.log(`Rendered ${renderedFrames} frames`);
+  console.log(`Encoded ${encodedFrames} frames`);
+};
+```
+
+### `videoBitrate?`
+
+_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+
+Controls the quality and file size of the output video. Can be either a number representing the bitrate in bits per second, or one of the preset quality levels:
+
+- `"very-low"`: Smallest file size, lowest quality
+- `"low"`: Small file size, lower quality
+- `"medium"`: Balanced file size and quality (default)
+- `"high"`: Larger file size, higher quality
+- `"very-high"`: Largest file size, highest quality
+
+### `hardwareAcceleration?`
+
+_"no-preference" | "prefer-hardware" | "prefer-software"_
+
+Controls whether to prefer hardware or software encoding:
+
+- `"no-preference"`: Let the browser decide (default)
+- `"prefer-hardware"`: Prefer GPU-based encoding for better performance
+- `"prefer-software"`: Prefer CPU-based encoding for broader compatibility
+
+### `keyframeIntervalInSeconds?`
+
+_number_
+
+The interval in seconds between keyframes.  
+Lower values result in better seeking performance but larger file sizes.  
+Default is `5`.
+
+### `transparent?`
+
+_boolean_
+
+If set to `true`, the video will be encoded with an alpha channel, allowing for transparent backgrounds.  
+The composition must render with a transparent background for this to work.
+
+Default is `false`.
+
+### `muted?`
+
+_boolean_
+
+If set to `true`, no audio will be included in the output video.
+
+### `delayRenderTimeoutInMilliseconds?`
+
+_number_
+
+A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout).  
+Default is `30000`.
+
+### `logLevel?`
+
+_string_ <TsType type="LogLevel" source="remotion" />
+
+Determines how much information is logged during rendering.  
+Default is `"info"`.
+
+### `signal?`
+
+_AbortSignal_
+
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) that allows the render to be cancelled.
+
+```tsx twoslash
+const Component: React.FC = () => null;
+
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+const controller = new AbortController();
+
+// Cancel after 10 seconds
+setTimeout(() => controller.abort(), 10000);
+
+const {getBlob} = await renderMediaOnWeb({
+  signal: controller.signal,
+  composition,
+});
+```
+
+### `mediaCacheSizeInBytes?`
+
+_number | null_
+
+<Options id="media-cache-size-in-bytes" />
+
+### `onArtifact?`
+
+_function_ <TsType type="WebRendererOnArtifact" source="@remotion/web-renderer" />
+
+[Handle an artifact](/docs/artifacts#using-rendermedia-renderstill-or-renderframes) that was emitted by the [`<Artifact>`](/docs/artifact) component.
+
+### `onFrame?`
+
+_function_ <TsType type="OnFrameCallback" source="@remotion/web-renderer" />
+
+A callback that receives each `VideoFrame` before it is encoded. This allows you to process or modify frames. The callback must return the same `VideoFrame` or a new `VideoFrame` with the same dimensions and timestamp.
+
+```tsx twoslash
+import type {OnFrameCallback} from '@remotion/web-renderer';
+
+const onFrame: OnFrameCallback = (frame) => {
+  // Process the frame...
+  return frame;
+};
+```
+
+### `outputTarget?`
+
+_string_ <TsType type="WebRendererOutputTarget" source="@remotion/web-renderer" />
+
+Controls how the output is stored:
+
+- `"arraybuffer"`: Store the output in memory as an ArrayBuffer
+- `"web-fs"`: Use the [Origin Private File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system) for better memory efficiency with large files
+
+By default, Remotion will automatically choose `"web-fs"` if available, otherwise `"arraybuffer"`.
+
+### `schema?`
+
+_Zod schema_ <TsType type="AnyZodObject" source="zod" />
+
+A Zod schema to validate the input props.  
+See [Schemas](/docs/schemas) for more information.
+
+### `licenseKey?`
+
+_string_
+
+A [license key](/docs/licensing) to use for this render.  
+See [Telemetry in client-side rendering](/docs/client-side-rendering/telemetry) for more information.
+
+## Return value
+
+Returns a promise resolving to an object with the following properties:
+
+### `getBlob()`
+
+A function that returns a `Promise<Blob>` containing the rendered video. Call this function to retrieve the final video file.
+
+```tsx twoslash title="Download the video"
+const Component: React.FC = () => null;
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  id: 'my-composition',
+};
+
+// ---cut---
+
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+const result = await renderMediaOnWeb({
+  composition,
+});
+
+const blob = await result.getBlob();
+
+// Download the video
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'video.mp4';
+a.click();
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/web-renderer/src/render-media-on-web.tsx)
+- [Client-side rendering](/docs/client-side-rendering)
+- [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web)
+- [`renderMedia()`](/docs/renderer/render-media)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
