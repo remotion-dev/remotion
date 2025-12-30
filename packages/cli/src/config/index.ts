@@ -542,12 +542,6 @@ declare global {
 		 * Pass "free-license" if you are eligible for the free license.
 		 */
 		readonly setPublicLicenseKey: (key: string | null) => void;
-		/**
-		 * Set the private license key for your company license.
-		 * Obtain it from the "Usage" tab on https://remotion.pro
-		 * Pass "free-license" if you are eligible for the free license.
-		 */
-		readonly setPrivateLicenseKey: (key: string | null) => void;
 	}
 }
 
