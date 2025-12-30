@@ -452,7 +452,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 	const onRenderVideo = useCallback(async () => {
 		setRenderProgress({renderedFrames: 0, encodedFrames: 0});
-		console.log({finalLicenseKey});
 
 		const {getBlob} = await renderMediaOnWeb({
 			composition: {
