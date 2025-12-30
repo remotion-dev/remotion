@@ -134,7 +134,11 @@ export type InternalRenderMediaOptions = {
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
 	metadata: Record<string, string> | null;
+	/**
+	 * @deprecated Use `licenseKey` instead
+	 */
 	apiKey: string | null;
+	licenseKey: string | null;
 	onLog: OnLog;
 } & MoreRenderMediaOptions;
 
@@ -263,6 +267,7 @@ const internalRenderMediaRaw = ({
 	mediaCacheSizeInBytes,
 	onLog,
 	apiKey,
+	licenseKey,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	const pixelFormat =
 		userPixelFormat ??
@@ -819,6 +824,7 @@ const internalRenderMediaRaw = ({
 						event: 'cloud-render',
 						host: null,
 						succeeded: true,
+						licenseKey,
 					})
 						.then(() => {
 							Log.verbose({indent, logLevel}, 'Usage event sent successfully');
@@ -976,6 +982,7 @@ export const renderMedia = ({
 	compositionStart,
 	mediaCacheSizeInBytes,
 	apiKey,
+	licenseKey,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -1063,6 +1070,7 @@ export const renderMedia = ({
 		chromeMode: chromeMode ?? 'headless-shell',
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		apiKey: apiKey ?? null,
+		licenseKey: licenseKey ?? null,
 		onLog: defaultOnLog,
 	});
 };

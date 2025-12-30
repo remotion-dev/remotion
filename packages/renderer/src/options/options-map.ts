@@ -14,6 +14,7 @@ import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenatio
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {imageSequencePatternOption} from './image-sequence-pattern';
 import {jpegQualityOption} from './jpeg-quality';
+import {licenseKeyOption} from './license-key';
 import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
@@ -58,6 +59,7 @@ export const optionsMap = {
 		hardwareAcceleration: hardwareAccelerationOption,
 		chromeMode: chromeModeOption,
 		apiKey: apiKeyOption,
+		licenseKey: licenseKeyOption,
 	},
 	stitchFramesToVideo: {
 		separateAudioTo: separateAudioOption,

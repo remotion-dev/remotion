@@ -25,11 +25,16 @@ export const registerUsageEvent = async ({
 	host,
 	succeeded,
 	event,
+	licenseKey,
 }: {
+	/**
+	 * @deprecated Use `licenseKey` instead
+	 */
 	apiKey: string | null;
 	host: string | null;
 	succeeded: boolean;
 	event: UsageEventType;
+	licenseKey?: string | null;
 }): Promise<RegisterUsageEventResponse> => {
 	const abortController = new AbortController();
 	const timeout = setTimeout(() => {
@@ -41,7 +46,7 @@ export const registerUsageEvent = async ({
 			method: 'POST',
 			body: JSON.stringify({
 				event,
-				apiKey,
+				apiKey: licenseKey ?? apiKey,
 				host,
 				succeeded,
 			}),
