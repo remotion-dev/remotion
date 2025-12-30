@@ -446,6 +446,7 @@ class RenderStillParams:
     force_width: Optional[int] = None
     # **DEPRECATED** - Use `license_key` instead. Will be removed in a future version.
     api_key: Optional[int] = None
+    license_key: Optional[str] = None
     storage_class: Optional[str] = None
     force_height: Optional[int] = None
     force_bucket_name: Optional[str] = None
@@ -501,6 +502,7 @@ class RenderStillParams:
             or PlayInBrowser(type='play-in-browser'),
             'forceWidth': self.force_width,
             'apiKey': self.api_key,
+            'licenseKey': self.license_key,
             'forceHeight': self.force_height,
             'forceBucketName': self.force_bucket_name,
             'deleteAfter': self.delete_after,
