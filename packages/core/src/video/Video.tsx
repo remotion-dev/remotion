@@ -47,7 +47,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (environment.isClientSideRendering) {
 		throw new Error(
-			'<Html5Video> is not supported in @remotion/web-renderer. See https://remotion.dev/docs/client-side-rendering/limitations for alternatives.',
+			'<Html5Video> is not supported in @remotion/web-renderer. Use <Video> from @remotion/media instead. See https://remotion.dev/docs/client-side-rendering/limitations',
 		);
 	}
 

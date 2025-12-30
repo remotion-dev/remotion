@@ -28,7 +28,9 @@ test('<Html5Video> throws in web-renderer', async () => {
 			imageFormat: 'png',
 			delayRenderTimeoutInMilliseconds: 5000,
 		}),
-	).rejects.toThrow('<Html5Video> is not supported in @remotion/web-renderer');
+	).rejects.toThrow(
+		'<Html5Video> is not supported in @remotion/web-renderer. Use <Video> from @remotion/media instead. See https://remotion.dev/docs/client-side-rendering/limitations',
+	);
 });
 
 test('<Html5Audio> throws in web-renderer', async () => {
@@ -57,7 +59,9 @@ test('<Html5Audio> throws in web-renderer', async () => {
 			imageFormat: 'png',
 			delayRenderTimeoutInMilliseconds: 5000,
 		}),
-	).rejects.toThrow('<Html5Audio> is not supported in @remotion/web-renderer');
+	).rejects.toThrow(
+		'<Html5Audio> is not supported in @remotion/web-renderer. Use <Audio> from @remotion/media instead. See https://remotion.dev/docs/client-side-rendering/limitations',
+	);
 });
 
 test('<OffthreadVideo> throws in web-renderer', async () => {
@@ -87,6 +91,6 @@ test('<OffthreadVideo> throws in web-renderer', async () => {
 			delayRenderTimeoutInMilliseconds: 5000,
 		}),
 	).rejects.toThrow(
-		'<OffthreadVideo> is not supported in @remotion/web-renderer',
+		'<OffthreadVideo> is not supported in @remotion/web-renderer. Use <Video> from @remotion/media instead. See https://remotion.dev/docs/client-side-rendering/limitations',
 	);
 });
