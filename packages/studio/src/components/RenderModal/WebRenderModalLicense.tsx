@@ -1,9 +1,9 @@
-import type React from 'react';
-import {useCallback} from 'react';
+import React, {useCallback} from 'react';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {Checkbox} from '../Checkbox';
 import {RemotionInput} from '../NewComposition/RemInput';
-import {label, optionRow, rightRow} from './layout';
+import {InlineEyeButton} from './InlineEyeIcon';
+import {optionRow} from './layout';
 
 type WebRenderModalLicenseProps = {
 	readonly freeLicense: boolean;
@@ -27,8 +27,23 @@ const descriptionStyle: React.CSSProperties = {
 	lineHeight: 1.5,
 };
 
+const checkboxLabel: React.CSSProperties = {
+	fontSize: 15,
+	lineHeight: '40px',
+	color: LIGHT_TEXT,
+	flex: 1,
+	fontFamily: 'sans-serif',
+};
+
 const inputStyle: React.CSSProperties = {
 	minWidth: 250,
+};
+
+const justifyCenter: React.CSSProperties = {
+	display: 'flex',
+	alignItems: 'center',
+	gap: 10,
+	flex: 1,
 };
 
 export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
@@ -40,6 +55,12 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 	const onFreeLicenseChange = useCallback(() => {
 		setFreeLicense((prev) => !prev);
 	}, [setFreeLicense]);
+
+	const [showInPlainText, setShowInPlainText] = React.useState(false);
+
+	const togglePlainText = useCallback(() => {
+		setShowInPlainText((prev) => !prev);
+	}, []);
 
 	const onLicenseKeyChange: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback(
@@ -56,33 +77,44 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 				headcount of 3 or less people.
 			</div>
 			<div style={optionRow}>
-				<div style={label}>I am eligible for the free license</div>
-				<div style={rightRow}>
+				<div style={justifyCenter}>
 					<Checkbox
 						checked={freeLicense}
 						onChange={onFreeLicenseChange}
 						name="free-license"
 					/>
+
+					<div style={checkboxLabel}>
+						I am eligible for the free license, {"don't"} print a warning
+					</div>
 				</div>
 			</div>
-			<div style={descriptionStyle}>
-				If you are not eligible for the free license, you need to obtain a
-				company license. If you have one, add your public license key below.
-			</div>
-			<div style={optionRow}>
-				<div style={label}>License Key</div>
-				<div style={rightRow}>
-					<RemotionInput
-						value={licenseKey}
-						onChange={onLicenseKeyChange}
-						placeholder="Enter your license key"
-						status="ok"
-						rightAlign={false}
-						style={inputStyle}
-						disabled={freeLicense}
-					/>
-				</div>
-			</div>
+			{freeLicense ? null : (
+				<>
+					<div style={descriptionStyle}>
+						If you are not eligible for the free license, you need to obtain a
+						company license. <br /> If you have one, add your public license key
+						below.
+					</div>
+					<div style={optionRow}>
+						<div style={justifyCenter}>
+							<RemotionInput
+								value={licenseKey}
+								onChange={onLicenseKeyChange}
+								placeholder="remotion.pro public license key (starts with rm_pub_)"
+								status="ok"
+								rightAlign={false}
+								style={inputStyle}
+								disabled={freeLicense}
+							/>
+							<InlineEyeButton
+								enabled={!showInPlainText}
+								onClick={togglePlainText}
+							/>
+						</div>
+					</div>
+				</>
+			)}
 		</div>
 	);
 };
