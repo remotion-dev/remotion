@@ -27,8 +27,13 @@ const descriptionStyle: React.CSSProperties = {
 	lineHeight: 1.5,
 };
 
+const descriptionLink: React.CSSProperties = {
+	color: 'white',
+	fontSize: 14,
+};
+
 const checkboxLabel: React.CSSProperties = {
-	fontSize: 15,
+	fontSize: 14,
 	lineHeight: '40px',
 	color: LIGHT_TEXT,
 	flex: 1,
@@ -73,8 +78,12 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 	return (
 		<div style={tabContainer}>
 			<div style={descriptionStyle}>
-				Remotion can be used for free if you are an individual or company with a
-				headcount of 3 or less people.
+				Remotion is free if you are an individual or company with a headcount of
+				3 or less. See{' '}
+				<a style={descriptionLink} href="https://remotion.dev/license">
+					LICENSE.md
+				</a>
+				.
 			</div>
 			<div style={optionRow}>
 				<div style={justifyCenter}>
@@ -92,9 +101,15 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 			{freeLicense ? null : (
 				<>
 					<div style={descriptionStyle}>
-						If you are not eligible for the free license, you need to obtain a
-						company license. <br /> If you have one, add your public license key
-						below.
+						If you are not eligible for the free license, you need to obtain a{' '}
+						<a
+							style={descriptionLink}
+							target="_blank"
+							href="https://remotion.pro/license"
+						>
+							Company License
+						</a>
+						. <br /> If you have one, add your public license key below.
 					</div>
 					<div style={optionRow}>
 						<div style={justifyCenter}>
