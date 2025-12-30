@@ -355,6 +355,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 			onLog: RenderInternals.defaultOnLog,
 			apiKey: null,
+			licenseKey: null,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(
