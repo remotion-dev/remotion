@@ -319,7 +319,9 @@ class RenderMediaParams:
     media_cache_size_in_bytes: Optional[int] = None
     offthreadvideo_threads: Optional[int] = None
     force_width: Optional[int] = None
+    # **DEPRECATED** - Use `license_key` instead. Will be removed in a future version.
     api_key: Optional[str] = None
+    license_key: Optional[str] = None
     audio_codec: Optional[str] = None
     storage_class: Optional[str] = None
     renderer_function_name: Optional[str] = None
@@ -375,6 +377,7 @@ class RenderMediaParams:
             'offthreadVideoThreads': self.offthreadvideo_threads,
             'forceWidth': self.force_width,
             'apiKey': self.api_key,
+            'licenseKey': self.license_key,
             'bucketName': self.bucket_name,
             'audioCodec': self.audio_codec,
             'x264Preset': self.x264_preset,
@@ -441,6 +444,7 @@ class RenderStillParams:
         default_factory=lambda: PlayInBrowser(type='play-in-browser')
     )
     force_width: Optional[int] = None
+    # **DEPRECATED** - Use `license_key` instead. Will be removed in a future version.
     api_key: Optional[int] = None
     storage_class: Optional[str] = None
     force_height: Optional[int] = None

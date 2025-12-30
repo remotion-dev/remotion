@@ -47,6 +47,7 @@ class RenderParams
     protected $forceHeight = null;
     protected $forceWidth = null;
     protected $apiKey = null;
+    protected $licenseKey = null;
     protected $offthreadVideoCacheSizeInBytes = null;
     protected $mediaCacheSizeInBytes = null;
     protected $offthreadVideoThreads = null;
@@ -90,6 +91,7 @@ class RenderParams
         ?int    $forceHeight = null,
         ?int    $forceWidth = null,
         ?int    $apiKey = null,
+        ?string $licenseKey = null,
         ?int    $offthreadVideoCacheSizeInBytes = null,
         ?int    $mediaCacheSizeInBytes = null,
         ?int    $offthreadVideoThreads = null,
@@ -145,6 +147,7 @@ class RenderParams
         $this->forceHeight = $forceHeight;
         $this->forceWidth = $forceWidth;
         $this->apiKey = $apiKey;
+        $this->licenseKey = $licenseKey;
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
         $this->mediaCacheSizeInBytes = $mediaCacheSizeInBytes;
         $this->offthreadVideoThreads = $offthreadVideoThreads;
@@ -199,6 +202,7 @@ class RenderParams
             'forceHeight' => $this->getForceHeight(),
             'forceWidth' => $this->getForceWidth(),
             'apiKey' => $this->getApiKey(),
+            'licenseKey' => $this->getLicenseKey(),
             'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
             'mediaCacheSizeInBytes' => $this->getMediaCacheSizeInBytes(),
             'offthreadVideoThreads' => $this->getOffthreadVideoThreads(),
@@ -756,6 +760,11 @@ class RenderParams
         $this->apiKey = $apiKey;
     }
 
+    public function setLicenseKey($licenseKey)
+    {
+        $this->licenseKey = $licenseKey;
+    }
+
     public function setOffthreadVideoCacheSizeInBytes($offthreadVideoCacheSizeInBytes)
     {
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
@@ -829,6 +838,11 @@ class RenderParams
     public function getApiKey()
     {
         return $this->apiKey;
+    }
+
+    public function getLicenseKey()
+    {
+        return $this->licenseKey;
     }
 
     public function getOffthreadVideoCacheSizeInBytes()
