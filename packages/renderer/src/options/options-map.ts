@@ -76,6 +76,7 @@ export const optionsMap = {
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
 		apiKey: apiKeyOption,
+		licenseKey: licenseKeyOption,
 	},
 	getCompositions: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
@@ -127,6 +128,7 @@ export const optionsMap = {
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		apiKey: apiKeyOption,
+		licenseKey: licenseKeyOption,
 	},
 	renderStillOnLambda: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
@@ -138,6 +140,7 @@ export const optionsMap = {
 		scale: scaleOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		apiKey: apiKeyOption,
+		licenseKey: licenseKeyOption,
 	},
 	getCompositionsOnLambda: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,

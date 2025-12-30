@@ -97,6 +97,7 @@ export const convertMedia = async function <
 	progressIntervalInMs,
 	rotate,
 	apiKey,
+	licenseKey,
 	resize,
 	onAudioCodec,
 	onContainer,
@@ -153,7 +154,11 @@ export const convertMedia = async function <
 	progressIntervalInMs?: number;
 	rotate?: number;
 	resize?: ResizeOperation;
+	/**
+	 * @deprecated Use `licenseKey` instead
+	 */
 	apiKey?: string | null;
+	licenseKey?: string | null;
 	fields?: F;
 	seekingHints?: ParseMediaOptions<F>['seekingHints'];
 } & MediaParserInternalTypes['ParseMediaCallbacks']): Promise<ConvertMediaResult> {
@@ -357,16 +362,20 @@ export const convertMedia = async function <
 			});
 		})
 		.then(() => {
-			sendUsageEvent({succeeded: true, apiKey: apiKey ?? null}).catch((err) => {
+			sendUsageEvent({
+				succeeded: true,
+				licenseKey: licenseKey ?? apiKey ?? null,
+			}).catch((err) => {
 				Log.error('Failed to send usage event', err);
 			});
 		})
 		.catch((err) => {
-			sendUsageEvent({succeeded: false, apiKey: apiKey ?? null}).catch(
-				(err2) => {
-					Log.error('Failed to send usage event', err2);
-				},
-			);
+			sendUsageEvent({
+				succeeded: false,
+				licenseKey: licenseKey ?? apiKey ?? null,
+			}).catch((err2) => {
+				Log.error('Failed to send usage event', err2);
+			});
 			reject(err);
 		})
 		.finally(() => {

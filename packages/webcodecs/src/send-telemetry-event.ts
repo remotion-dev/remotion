@@ -1,10 +1,10 @@
 import {registerUsageEvent} from '@remotion/licensing';
 
 export const sendUsageEvent = async ({
-	apiKey,
+	licenseKey,
 	succeeded,
 }: {
-	apiKey: string | null;
+	licenseKey: string | null;
 	succeeded: boolean;
 }) => {
 	const host =
@@ -18,7 +18,8 @@ export const sendUsageEvent = async ({
 	}
 
 	await registerUsageEvent({
-		apiKey,
+		apiKey: null,
+		licenseKey,
 		event: 'webcodec-conversion',
 		host,
 		succeeded,
