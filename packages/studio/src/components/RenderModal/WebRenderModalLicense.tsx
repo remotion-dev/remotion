@@ -109,7 +109,15 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 						>
 							Company License
 						</a>
-						. <br /> If you have one, add your public license key below.
+						. <br /> If you have one, add your public license from{' '}
+						<a
+							href="https://remotion.pro/dashboard"
+							target="_blank"
+							style={descriptionLink}
+						>
+							remotion.pro
+						</a>{' '}
+						key below.
 					</div>
 					<div style={optionRow}>
 						<div style={justifyCenter}>

@@ -11,6 +11,7 @@ import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {AudioIcon} from '../../icons/audio';
+import {CertificateIcon} from '../../icons/certificate';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
@@ -451,6 +452,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 	const onRenderVideo = useCallback(async () => {
 		setRenderProgress({renderedFrames: 0, encodedFrames: 0});
+		console.log({finalLicenseKey});
 
 		const {getBlob} = await renderMediaOnWeb({
 			composition: {
@@ -599,9 +601,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						onClick={() => setTab('advanced')}
 					>
 						<div style={iconContainer}>
-							<FileIcon style={icon} />
+							<GearIcon style={icon} />
 						</div>
-						Advanced
+						Other
 					</VerticalTab>
 					<VerticalTab
 						style={horizontalTab}
@@ -609,7 +611,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						onClick={() => setTab('license')}
 					>
 						<div style={iconContainer}>
-							<GearIcon style={icon} />
+							<CertificateIcon style={icon} />
 						</div>
 						License
 					</VerticalTab>
