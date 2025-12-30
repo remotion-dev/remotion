@@ -353,6 +353,8 @@ export const renderCommand = async ({
 		metadata: metadata ?? null,
 		apiKey:
 			parsedLambdaCli[BrowserSafeApis.options.apiKeyOption.cliFlag] ?? null,
+		licenseKey:
+			parsedLambdaCli[BrowserSafeApis.options.licenseKeyOption.cliFlag] ?? null,
 		storageClass: parsedLambdaCli['storage-class'] ?? null,
 		requestHandler: null,
 	});

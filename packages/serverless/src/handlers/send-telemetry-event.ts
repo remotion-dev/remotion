@@ -3,17 +3,17 @@ import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 
 export const sendTelemetryEvent = async (
-	apiKey: string | null,
+	licenseKey: string | null,
 	logLevel: LogLevel,
 ) => {
-	if (apiKey === null) {
+	if (licenseKey === null) {
 		return Promise.resolve();
 	}
 
 	try {
 		// https://www.remotion.dev/docs/licensing
 		await registerUsageEvent({
-			apiKey,
+			apiKey: licenseKey,
 			event: 'cloud-render',
 			host: null,
 			succeeded: true,

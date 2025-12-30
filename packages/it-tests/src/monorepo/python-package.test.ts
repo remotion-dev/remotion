@@ -111,6 +111,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 				Author: 'Lunar',
 			},
 			apiKey: null,
+			licenseKey: null,
 			storageClass: null,
 			mediaCacheSizeInBytes: null,
 		});
@@ -195,6 +196,7 @@ test('Python package should create the same renderStill payload as normal Lambda
 			onInit: () => undefined,
 			forcePathStyle: false,
 			apiKey: null,
+			licenseKey: null,
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,

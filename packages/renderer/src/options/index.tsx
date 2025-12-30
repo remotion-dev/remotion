@@ -24,6 +24,7 @@ import {headlessOption} from './headless';
 import {imageSequencePatternOption} from './image-sequence-pattern';
 import {jpegQualityOption} from './jpeg-quality';
 import {audioLatencyHintOption} from './latency-hint';
+import {licenseKeyOption} from './license-key';
 import {logLevelOption} from './log-level';
 import {metadataOption} from './metadata';
 import {mutedOption} from './mute';
@@ -90,6 +91,7 @@ export const allOptions = {
 	hardwareAccelerationOption,
 	chromeModeOption,
 	apiKeyOption,
+	licenseKeyOption,
 	audioLatencyHintOption,
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,

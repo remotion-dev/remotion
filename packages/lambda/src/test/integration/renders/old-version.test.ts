@@ -61,6 +61,7 @@ test(
 					forcePathStyle: false,
 					metadata: {Author: 'Lunar'},
 					apiKey: null,
+					licenseKey: null,
 					storageClass: null,
 					mediaCacheSizeInBytes: null,
 				},

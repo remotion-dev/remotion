@@ -279,6 +279,8 @@ export const stillCommand = async ({
 		storageClass: parsedLambdaCli['storage-class'] ?? null,
 		apiKey:
 			parsedLambdaCli[BrowserSafeApis.options.apiKeyOption.cliFlag] ?? null,
+		licenseKey:
+			parsedLambdaCli[BrowserSafeApis.options.licenseKeyOption.cliFlag] ?? null,
 		downloadBehavior: {type: 'play-in-browser'},
 		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
 		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
