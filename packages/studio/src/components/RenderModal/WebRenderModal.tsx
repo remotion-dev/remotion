@@ -200,8 +200,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [transparent, setTransparent] = useState(false);
 	const [muted, setMuted] = useState(false);
 
-	const [freeLicense, setFreeLicense] = useState(false);
-	const [licenseKey, setLicenseKey] = useState(initialLicenseKey ?? '');
+	const [licenseKey, setLicenseKey] = useState(initialLicenseKey);
 
 	const finalEndFrame = useMemo(() => {
 		if (endFrame === null) {
@@ -393,14 +392,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		}
 	}, [outName, imageFormat, renderMode, container]);
 
-	const finalLicenseKey = useMemo(() => {
-		if (freeLicense) {
-			return 'free-license';
-		}
-
-		return licenseKey || undefined;
-	}, [freeLicense, licenseKey]);
-
 	const onRenderStill = useCallback(async () => {
 		const {blob} = await renderStillOnWeb({
 			composition: {
@@ -419,7 +410,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
 			mediaCacheSizeInBytes,
 			logLevel,
-			licenseKey: finalLicenseKey,
+			licenseKey: licenseKey ?? undefined,
 		});
 
 		const url = URL.createObjectURL(blob);
@@ -448,7 +439,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.defaultProps,
 		unresolvedComposition.calculateMetadata,
 		resolvedComposition.id,
-		finalLicenseKey,
+		licenseKey,
 	]);
 
 	const onRenderVideo = useCallback(async () => {
@@ -481,7 +472,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			transparent,
 			muted,
 			outputTarget: 'web-fs',
-			licenseKey: finalLicenseKey,
+			licenseKey: licenseKey ?? undefined,
 		});
 
 		setRenderProgress(null);
@@ -519,7 +510,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.defaultProps,
 		resolvedComposition.id,
 		unresolvedComposition.calculateMetadata,
-		finalLicenseKey,
+		licenseKey,
 	]);
 
 	const onRender = useCallback(async () => {
@@ -677,10 +668,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						/>
 					) : (
 						<WebRenderModalLicense
-							freeLicense={freeLicense}
-							setFreeLicense={setFreeLicense}
 							licenseKey={licenseKey}
 							setLicenseKey={setLicenseKey}
+							initialPublicLicenseKey={initialLicenseKey}
 						/>
 					)}
 				</div>
