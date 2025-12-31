@@ -5,7 +5,7 @@ import type {
 } from '@remotion/web-renderer';
 import {getSupportedAudioCodecsForContainer} from '@remotion/web-renderer';
 import {getEncodableAudioCodecs} from 'mediabunny';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -19,19 +19,6 @@ import {getQualityOptions} from './quality-options';
 const container: React.CSSProperties = {
 	flex: 1,
 	overflowY: 'auto',
-};
-
-const warningStyle: React.CSSProperties = {
-	backgroundColor: 'rgba(255, 193, 7, 0.15)',
-	border: '1px solid rgba(255, 193, 7, 0.4)',
-	borderRadius: 4,
-	padding: '8px 12px',
-	marginLeft: 16,
-	marginRight: 16,
-	marginTop: 8,
-	fontSize: 13,
-	lineHeight: 1.4,
-	color: '#ffc107',
 };
 
 const humanReadableWebAudioCodec = (
@@ -73,10 +60,9 @@ export const WebRenderModalAudio: React.FC<{
 	>(() => getSupportedAudioCodecsForContainer(videoContainer));
 
 	useEffect(() => {
-		const containerSupported =
-			getSupportedAudioCodecsForContainer(videoContainer);
-		getEncodableAudioCodecs(containerSupported, {}).then((encodable) => {
-			const filtered = containerSupported.filter((c) => encodable.includes(c));
+		const supported = getSupportedAudioCodecsForContainer(videoContainer);
+		getEncodableAudioCodecs(supported, {}).then((encodable) => {
+			const filtered = supported.filter((c) => encodable.includes(c));
 			setEncodableCodecs(filtered);
 		});
 	}, [videoContainer]);
@@ -87,12 +73,19 @@ export const WebRenderModalAudio: React.FC<{
 		}
 	}, [encodableCodecs, audioCodec, setAudioCodec]);
 
-	const audioCodecOptions = useCallback((): ComboboxValue[] => {
-		return encodableCodecs.map((codec) => {
+	const containerSupported = useMemo(
+		() => getSupportedAudioCodecsForContainer(videoContainer),
+		[videoContainer],
+	);
+
+	const audioCodecOptions = useMemo((): ComboboxValue[] => {
+		return containerSupported.map((codec) => {
+			const isEncodable = encodableCodecs.includes(codec);
 			return {
-				label: humanReadableWebAudioCodec(codec),
+				label: isEncodable
+					? humanReadableWebAudioCodec(codec)
+					: `${humanReadableWebAudioCodec(codec)} (not available)`,
 				onClick: () => setAudioCodec(codec),
-				key: codec,
 				leftItem: audioCodec === codec ? <Checkmark /> : null,
 				id: codec,
 				keyHint: null,
@@ -100,16 +93,17 @@ export const WebRenderModalAudio: React.FC<{
 				subMenu: null,
 				type: 'item',
 				value: codec,
+				disabled: !isEncodable,
 			};
 		});
-	}, [encodableCodecs, audioCodec, setAudioCodec]);
+	}, [containerSupported, encodableCodecs, audioCodec, setAudioCodec]);
 
 	const audioBitrateOptions = useMemo(
 		(): ComboboxValue[] => getQualityOptions(audioBitrate, setAudioBitrate),
 		[audioBitrate, setAudioBitrate],
 	);
 
-	const showAudioCodecSelector = !muted && encodableCodecs.length >= 2;
+	const showAudioCodecSelector = !muted && containerSupported.length >= 2;
 
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
@@ -137,28 +131,19 @@ export const WebRenderModalAudio: React.FC<{
 				</>
 			) : null}
 			{showAudioCodecSelector ? (
-				<>
-					<div style={optionRow}>
-						<div style={label}>
-							Audio Codec
-							<Spacing x={0.5} />
-						</div>
-						<div style={rightRow}>
-							<Combobox
-								values={audioCodecOptions()}
-								selectedId={audioCodec}
-								title="AudioCodec"
-							/>
-						</div>
+				<div style={optionRow}>
+					<div style={label}>
+						Audio Codec
+						<Spacing x={0.5} />
 					</div>
-					{audioCodec === 'aac' ? (
-						<div style={warningStyle}>
-							AAC encoding is not supported in Firefox. If rendering in Firefox,
-							the render will fail. Consider using Opus for cross-browser
-							compatibility.
-						</div>
-					) : null}
-				</>
+					<div style={rightRow}>
+						<Combobox
+							values={audioCodecOptions}
+							selectedId={audioCodec}
+							title="AudioCodec"
+						/>
+					</div>
+				</div>
 			) : null}
 		</div>
 	);

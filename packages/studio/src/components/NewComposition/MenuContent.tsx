@@ -72,6 +72,10 @@ export const MenuContent: React.FC<{
 		setSelectedItem(id);
 	}, []);
 
+	const isItemSelectable = useCallback((v: ComboboxValue) => {
+		return v.type !== 'divider' && !v.disabled;
+	}, []);
+
 	const onArrowUp = useCallback(() => {
 		setSelectedItem((prevItem) => {
 			if (prevItem === null) {
@@ -84,41 +88,41 @@ export const MenuContent: React.FC<{
 			}
 
 			const previousItems = values.filter(
-				(v, i) => i < index && v.type !== 'divider',
+				(v, i) => i < index && isItemSelectable(v),
 			);
 			if (previousItems.length > 0) {
 				return previousItems[previousItems.length - 1].id as MenuId;
 			}
 
-			const firstNonDivider = values.find((v) => v.type !== 'divider');
-			if (firstNonDivider) {
-				return firstNonDivider.id as MenuId;
+			const firstSelectable = values.find((v) => isItemSelectable(v));
+			if (firstSelectable) {
+				return firstSelectable.id as MenuId;
 			}
 
 			throw new Error('could not find previous item');
 		});
-	}, [topItemCanBeUnselected, values]);
+	}, [topItemCanBeUnselected, values, isItemSelectable]);
 
 	const onArrowDown = useCallback(() => {
 		setSelectedItem((prevItem) => {
 			const index = values.findIndex((val) => val.id === prevItem);
-			const nextItem = values.find((v, i) => i > index && v.type !== 'divider');
+			const nextItem = values.find((v, i) => i > index && isItemSelectable(v));
 			if (nextItem) {
 				return nextItem.id;
 			}
 
-			const lastNonDivider = values
+			const lastSelectable = values
 				.slice()
 				.reverse()
-				.find((v) => v.type !== 'divider');
+				.find((v) => isItemSelectable(v));
 
-			if (lastNonDivider) {
-				return lastNonDivider.id;
+			if (lastSelectable) {
+				return lastSelectable.id;
 			}
 
 			throw new Error('could not find next item');
 		});
-	}, [values]);
+	}, [values, isItemSelectable]);
 
 	const onEnter = useCallback(() => {
 		if (selectedItem === null) {
@@ -132,6 +136,10 @@ export const MenuContent: React.FC<{
 
 		if (item.type === 'divider') {
 			throw new Error('cannot find divider');
+		}
+
+		if (item.disabled) {
+			return;
 		}
 
 		if (item.subMenu) {
@@ -342,6 +350,7 @@ export const MenuContent: React.FC<{
 						onNextMenu={onNextMenu}
 						subMenuActivated={subMenuActivated}
 						setSubMenuActivated={setSubMenuActivated}
+						disabled={item.disabled}
 					/>
 				);
 			})}
