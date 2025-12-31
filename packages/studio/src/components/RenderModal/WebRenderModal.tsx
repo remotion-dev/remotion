@@ -3,11 +3,16 @@ import {getDefaultOutLocation} from '@remotion/studio-shared';
 import type {
 	RenderMediaOnWebProgress,
 	RenderStillOnWebImageFormat,
+	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererQuality,
 	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
-import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
+import {
+	getDefaultAudioCodecForContainer,
+	renderMediaOnWeb,
+	renderStillOnWeb,
+} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {AudioIcon} from '../../icons/audio';
@@ -173,6 +178,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	// Video-specific state
 	const [codec, setCodec] = useState<WebRendererVideoCodec>('h264');
 	const [container, setContainer] = useState<WebRendererContainer>('mp4');
+	const [audioCodec, setAudioCodec] = useState<WebRendererAudioCodec>('aac');
+	const [audioBitrate, setAudioBitrate] =
+		useState<WebRendererQuality>('medium');
 	const [videoBitrate, setVideoBitrate] = useState<WebRendererQuality>('high');
 	const [hardwareAcceleration, setHardwareAcceleration] = useState<
 		'no-preference' | 'prefer-hardware' | 'prefer-software'
@@ -244,6 +252,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const setContainerFormat = useCallback(
 		(newContainer: WebRendererContainer) => {
 			setContainer(newContainer);
+			setAudioCodec(getDefaultAudioCodecForContainer(newContainer));
 			setOutName((prev) => {
 				const newFileName = getStringBeforeSuffix(prev) + '.' + newContainer;
 				return newFileName;
@@ -446,6 +455,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			mediaCacheSizeInBytes,
 			logLevel,
 			videoCodec: codec,
+			audioCodec,
+			audioBitrate,
 			container,
 			videoBitrate,
 			hardwareAcceleration,
@@ -479,6 +490,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		mediaCacheSizeInBytes,
 		logLevel,
 		codec,
+		audioCodec,
+		audioBitrate,
 		container,
 		videoBitrate,
 		hardwareAcceleration,
@@ -628,7 +641,15 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setTransparent={setTransparent}
 						/>
 					) : tab === 'audio' ? (
-						<WebRenderModalAudio muted={muted} setMuted={setMuted} />
+						<WebRenderModalAudio
+							muted={muted}
+							setMuted={setMuted}
+							audioCodec={audioCodec}
+							setAudioCodec={setAudioCodec}
+							audioBitrate={audioBitrate}
+							setAudioBitrate={setAudioBitrate}
+							container={container}
+						/>
 					) : (
 						<WebRenderModalAdvanced
 							renderMode={renderMode}

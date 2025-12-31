@@ -1,6 +1,7 @@
 import {
 	AudioSampleSource,
 	BufferTarget,
+	canEncodeAudio,
 	Output,
 	StreamTarget,
 	VideoSampleSource,
@@ -14,19 +15,22 @@ import {onlyInlineAudio} from './audio';
 import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
-import {getDefaultAudioEncodingConfig} from './get-audio-encoding-config';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
 import type {
+	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererQuality,
 } from './mediabunny-mappings';
 import {
+	audioCodecToMediabunnyAudioCodec,
 	codecToMediabunnyCodec,
 	containerToMediabunnyContainer,
+	getDefaultAudioCodecForContainer,
 	getDefaultVideoCodecForContainer,
 	getMimeType,
 	getQualityForWebRendererQuality,
+	getSupportedAudioCodecsForContainer,
 	type WebRendererVideoCodec,
 } from './mediabunny-mappings';
 import type {WebRendererOutputTarget} from './output-target';
@@ -93,6 +97,9 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	schema: Schema | undefined;
 	mediaCacheSizeInBytes: number | null;
 	videoCodec: WebRendererVideoCodec;
+	audioCodec: WebRendererAudioCodec;
+	audioBitrate: number | WebRendererQuality;
+	userSpecifiedAudioCodec: boolean;
 	container: WebRendererContainer;
 	signal: AbortSignal | null;
 	onProgress: RenderMediaOnWebProgressCallback | null;
@@ -139,6 +146,9 @@ const internalRenderMediaOnWeb = async <
 	mediaCacheSizeInBytes,
 	schema,
 	videoCodec: codec,
+	audioCodec,
+	audioBitrate,
+	userSpecifiedAudioCodec,
 	container,
 	signal,
 	onProgress,
@@ -286,19 +296,72 @@ const internalRenderMediaOnWeb = async <
 
 		output.addVideoTrack(videoSampleSource);
 
-		// TODO: Should be able to customize
 		let audioSampleSource: AudioSampleSource | null = null;
 
 		if (!muted) {
-			const defaultAudioEncodingConfig = await getDefaultAudioEncodingConfig();
-
-			if (!defaultAudioEncodingConfig) {
+			const supportedAudioCodecs =
+				getSupportedAudioCodecsForContainer(container);
+			if (!supportedAudioCodecs.includes(audioCodec)) {
 				return Promise.reject(
-					new Error('No default audio encoding config found'),
+					new Error(
+						`Audio codec "${audioCodec}" is not supported for container "${container}". Supported audio codecs: ${supportedAudioCodecs.join(', ')}`,
+					),
 				);
 			}
 
-			audioSampleSource = new AudioSampleSource(defaultAudioEncodingConfig);
+			const resolvedAudioBitrate =
+				typeof audioBitrate === 'number'
+					? audioBitrate
+					: getQualityForWebRendererQuality(audioBitrate);
+
+			let finalAudioCodec = audioCodec;
+			const mediabunnyAudioCodec = audioCodecToMediabunnyAudioCodec(audioCodec);
+			const canEncode = await canEncodeAudio(mediabunnyAudioCodec, {
+				bitrate: resolvedAudioBitrate,
+			});
+
+			if (!canEncode) {
+				if (userSpecifiedAudioCodec) {
+					return Promise.reject(
+						new Error(
+							`Audio codec "${audioCodec}" cannot be encoded by this browser. This is common for AAC on Firefox. Try using "opus" instead.`,
+						),
+					);
+				}
+
+				let fallbackCodec: WebRendererAudioCodec | null = null;
+				for (const supportedCodec of supportedAudioCodecs) {
+					if (supportedCodec !== audioCodec) {
+						const fallbackMediabunnyCodec =
+							audioCodecToMediabunnyAudioCodec(supportedCodec);
+						const canEncodeFallback = await canEncodeAudio(
+							fallbackMediabunnyCodec,
+							{
+								bitrate: resolvedAudioBitrate,
+							},
+						);
+						if (canEncodeFallback) {
+							fallbackCodec = supportedCodec;
+							break;
+						}
+					}
+				}
+
+				if (!fallbackCodec) {
+					return Promise.reject(
+						new Error(
+							`No audio codec can be encoded by this browser for container "${container}".`,
+						),
+					);
+				}
+
+				finalAudioCodec = fallbackCodec;
+			}
+
+			audioSampleSource = new AudioSampleSource({
+				codec: audioCodecToMediabunnyAudioCodec(finalAudioCodec),
+				bitrate: resolvedAudioBitrate,
+			});
 
 			cleanupFns.push(() => {
 				audioSampleSource?.close();
@@ -474,6 +537,9 @@ export const renderMediaOnWeb = <
 	const container = options.container ?? 'mp4';
 	const codec =
 		options.videoCodec ?? getDefaultVideoCodecForContainer(container);
+	const userSpecifiedAudioCodec = options.audioCodec !== undefined;
+	const audioCodec =
+		options.audioCodec ?? getDefaultAudioCodecForContainer(container);
 
 	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
@@ -486,6 +552,9 @@ export const renderMediaOnWeb = <
 				schema: options.schema ?? undefined,
 				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 				videoCodec: codec,
+				audioCodec,
+				audioBitrate: options.audioBitrate ?? 'medium',
+				userSpecifiedAudioCodec,
 				container,
 				signal: options.signal ?? null,
 				onProgress: options.onProgress ?? null,
