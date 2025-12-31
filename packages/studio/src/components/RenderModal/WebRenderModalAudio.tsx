@@ -140,7 +140,7 @@ export const WebRenderModalAudio: React.FC<{
 						<Combobox
 							values={audioCodecOptions}
 							selectedId={audioCodec}
-							title="AudioCodec"
+							title="Audio Codec"
 						/>
 					</div>
 				</div>
