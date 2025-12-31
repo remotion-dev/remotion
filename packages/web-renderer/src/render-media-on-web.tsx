@@ -99,7 +99,6 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	videoCodec: WebRendererVideoCodec;
 	audioCodec: WebRendererAudioCodec;
 	audioBitrate: number | WebRendererQuality;
-	userSpecifiedAudioCodec: boolean;
 	container: WebRendererContainer;
 	signal: AbortSignal | null;
 	onProgress: RenderMediaOnWebProgressCallback | null;
@@ -127,7 +126,9 @@ type InternalRenderMediaOnWebOptions<
 	Props extends Record<string, unknown>,
 > = MandatoryRenderMediaOnWebOptions<Schema, Props> &
 	OptionalRenderMediaOnWebOptions<Schema> &
-	InputPropsIfHasProps<Schema, Props>;
+	InputPropsIfHasProps<Schema, Props> & {
+		userSpecifiedAudioCodec: boolean;
+	};
 
 // TODO: More containers
 // TODO: Audio
@@ -545,7 +546,8 @@ export const renderMediaOnWeb = <
 		.catch(() => Promise.resolve())
 		.then(() =>
 			internalRenderMediaOnWeb<Schema, Props>({
-				...options,
+				composition: options.composition,
+				inputProps: options.inputProps,
 				delayRenderTimeoutInMilliseconds:
 					options.delayRenderTimeoutInMilliseconds ?? 30000,
 				logLevel: options.logLevel ?? window.remotion_logLevel ?? 'info',
@@ -568,7 +570,7 @@ export const renderMediaOnWeb = <
 				outputTarget: options.outputTarget ?? null,
 				licenseKey: options.licenseKey ?? undefined,
 				muted: options.muted ?? false,
-			}),
+			} as InternalRenderMediaOnWebOptions<Schema, Props>),
 		);
 
 	return onlyOneRenderAtATimeQueue.ref as Promise<RenderMediaOnWebResult>;
