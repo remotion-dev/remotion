@@ -7,8 +7,9 @@ import {renderStillOnWeb} from '../render-still-on-web';
 // - Chromium/Firefox: Image fails to load when crossOrigin="anonymous" is set
 //   and the redirect response doesn't have CORS headers → "broken state" error
 // - WebKit: May handle the redirect differently and succeed in some cases
-// This test verifies we get a readable error message for CORS-related failures.
-test('should throw readable error for image that fails to load due to CORS', async (t) => {
+// This test verifies we get a readable error message when an image fails to load,
+// whether due to CORS restrictions or other broken-state load failures.
+test('should throw readable error when image fails to load or is blocked by CORS', async (t) => {
 	const Component: React.FC = () => {
 		return (
 			<AbsoluteFill>
