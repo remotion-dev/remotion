@@ -42,6 +42,7 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
+import {WebRendererExperimentalBadge} from './WebRendererExperimentalBadge';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
 import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
@@ -539,6 +540,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
+			</div>
+			<div style={containerStyle}>
+				<WebRendererExperimentalBadge />
 			</div>
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
