@@ -25,7 +25,7 @@ Unlike server-side rendering with [`@remotion/renderer`](/docs/renderer), client
 
 ## APIs
 
-The package will provide APIs called [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) and [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
+The package provides APIs called [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) and [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
 
 Here is an example of how to use it:
 
@@ -52,6 +52,16 @@ const {getBlob} = await renderMediaOnWeb({
   },
   inputProps: {},
 });
+```
+
+## Enable in the Studio
+
+To enable client-side rendering in the Studio, you need to call `Config.setExperimentalClientSideRenderingEnabled(true)` in your `remotion.config.ts` file.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalClientSideRenderingEnabled(true);
 ```
 
 ## Status
