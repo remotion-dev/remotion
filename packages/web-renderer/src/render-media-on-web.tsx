@@ -418,6 +418,12 @@ const internalRenderMediaOnWeb = async <
 		const mimeType = getMimeType(container);
 
 		if (webFsTarget) {
+			sendUsageEvent({
+				licenseKey: licenseKey ?? null,
+				succeeded: true,
+				apiName: 'renderMediaOnWeb',
+			});
+
 			await webFsTarget.close();
 			return {
 				getBlob: () => {
