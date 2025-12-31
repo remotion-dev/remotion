@@ -147,6 +147,34 @@ _boolean_
 
 If set to `true`, no audio will be included in the output video.
 
+### `audioCodec?`
+
+_string_ <TsType type="WebRendererAudioCodec" source="@remotion/web-renderer" />
+
+Which codec should be used to encode the audio.  
+Default depends on the container:
+
+- For `mp4` container: `aac`
+- For `webm` container: `opus`
+
+:::note
+AAC encoding is not supported in Firefox. If you don't specify an audio codec and the default cannot be encoded by the browser, Remotion will automatically fall back to a supported codec.
+
+If you explicitly specify `aac` and render in Firefox, the render will fail with an error.
+:::
+
+### `audioBitrate?`
+
+_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+
+Controls the quality and file size of the audio. Can be either a number representing the bitrate in bits per second, or one of the preset quality levels:
+
+- `"very-low"`: Smallest file size, lowest quality
+- `"low"`: Small file size, lower quality
+- `"medium"`: Balanced file size and quality (default)
+- `"high"`: Larger file size, higher quality
+- `"very-high"`: Largest file size, highest quality
+
 ### `delayRenderTimeoutInMilliseconds?`
 
 _number_
