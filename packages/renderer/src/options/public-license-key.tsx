@@ -37,6 +37,12 @@ export const publicLicenseKeyOption = {
 		};
 	},
 	setConfig: (value: string | null) => {
+		if (value && value !== 'free-license' && !value.startsWith('rm_pub_')) {
+			throw new Error(
+				'Invalid public license key. It must start with "rm_pub_" or be "free-license".',
+			);
+		}
+
 		currentPublicLicenseKey = value;
 	},
 	type: null as string | null,
