@@ -52,14 +52,6 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 				dimensions.height,
 			);
 		} catch (err) {
-			// Check if we should ignore errors for this element
-			if (
-				node instanceof HTMLImageElement &&
-				node.dataset.remotionErrorBehavior === 'ignore'
-			) {
-				return;
-			}
-
 			// Provide readable error messages for image errors
 			if (node instanceof HTMLImageElement) {
 				const readableError = getReadableImageError(err, node);

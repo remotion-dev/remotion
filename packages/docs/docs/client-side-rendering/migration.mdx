@@ -61,14 +61,6 @@ This usually means the image failed to load - check that the URL is valid and ac
 
 3. **Use a CORS proxy**: Route requests through a proxy that adds CORS headers.
 
-4. **Use `errorBehavior="ignore"`**: If you want to gracefully skip images that fail to load or are tainted, use the [`errorBehavior`](/docs/img#errorbehavior) prop on `<Img>`:
-
-```tsx
-<Img src="https://example.com/maybe-cors-enabled.png" errorBehavior="ignore" />
-```
-
-This will render nothing instead of failing the render if the image cannot be drawn to canvas.
-
 ## Use `@remotion/media`
 
 The only video and audio tags that are supported are [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from `@remotion/media`.  

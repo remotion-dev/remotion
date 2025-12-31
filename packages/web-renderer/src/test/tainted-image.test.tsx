@@ -1,14 +1,14 @@
 import {AbsoluteFill, Img} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
-import {testImage} from './utils';
 
-// Note: The behavior of tainted images varies by browser:
+// Note: The behavior varies by browser when loading an image that redirects
+// without CORS headers (like https://github.com/JonnyBurger.png):
 // - Chromium/Firefox: Image fails to load when crossOrigin="anonymous" is set
-//   and server doesn't support CORS → "broken state" error
-// - WebKit: Image may load as tainted but still render in some cases
-// This test verifies we get a readable error message in either case.
-test('should throw readable error for tainted or broken image', async (t) => {
+//   and the redirect response doesn't have CORS headers → "broken state" error
+// - WebKit: May handle the redirect differently and succeed in some cases
+// This test verifies we get a readable error message for CORS-related failures.
+test('should throw readable error for image that fails to load due to CORS', async (t) => {
 	const Component: React.FC = () => {
 		return (
 			<AbsoluteFill>
@@ -50,32 +50,4 @@ test('should throw readable error for tainted or broken image', async (t) => {
 			err.message.includes('Could not draw image');
 		expect(hasReadableError).toBe(true);
 	}
-});
-
-test('should render nothing when errorBehavior="ignore" for tainted image', async () => {
-	const Component: React.FC = () => {
-		return (
-			<AbsoluteFill style={{backgroundColor: 'red'}}>
-				<Img src="https://github.com/JonnyBurger.png" errorBehavior="ignore" />
-			</AbsoluteFill>
-		);
-	};
-
-	// Should not throw, should render just the red background
-	const {blob} = await renderStillOnWeb({
-		licenseKey: 'free-license',
-		composition: {
-			component: Component,
-			id: 'ignore-error-test',
-			width: 100,
-			height: 100,
-			fps: 30,
-			durationInFrames: 1,
-		},
-		frame: 0,
-		inputProps: {},
-		imageFormat: 'png',
-	});
-
-	await testImage({blob, testId: 'tainted-image-ignored'});
 });
