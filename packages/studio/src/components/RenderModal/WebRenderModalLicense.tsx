@@ -183,7 +183,7 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 						rounded
 					/>
 					<div style={checkboxLabel} onClick={onFreeLicenseChange}>
-						I am eligible for the free license, {"don't"} print a warning
+						I am eligible for the Free License, {"don't"} print a warning
 					</div>
 				</div>
 			</div>
@@ -207,7 +207,7 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 					/>
 
 					<div style={checkboxLabel} onClick={onCompanyLicenseChange}>
-						I have a company license
+						I have a Company License
 					</div>
 				</div>
 			</div>
