@@ -218,7 +218,6 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		preferLossless: boolean;
 		forcePathStyle: boolean;
 		metadata: Record<string, string> | null;
-		apiKey: string | null;
 		licenseKey: string | null;
 		storageClass: Provider['storageClass'] | null;
 	};
