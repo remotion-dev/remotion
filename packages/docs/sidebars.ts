@@ -1394,7 +1394,6 @@ const sidebars: SidebarsConfig = {
 				'webcodecs/resample-audio-16khz',
 				'webcodecs/track-transformation',
 				'webcodecs/pause-resume-abort',
-				'webcodecs/telemetry',
 				'webcodecs/misconceptions',
 			],
 		},

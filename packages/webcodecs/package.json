@@ -27,8 +27,7 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "Remotion License (See https://remotion.dev/docs/webcodecs#license)",
 	"dependencies": {
-		"@remotion/media-parser": "workspace:*",
-		"@remotion/licensing": "workspace:*"
+		"@remotion/media-parser": "workspace:*"
 	},
 	"peerDependencies": {},
 	"devDependencies": {

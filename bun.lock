@@ -2148,7 +2148,6 @@
       "name": "@remotion/webcodecs",
       "version": "4.0.398",
       "dependencies": {
-        "@remotion/licensing": "workspace:*",
         "@remotion/media-parser": "workspace:*",
       },
       "devDependencies": {
