@@ -2997,13 +2997,13 @@ export const articles = [
 		slug: 'licensing/index',
 	},
 	{
-		id: 'register-usage-point',
-		title: 'registerUsagePoint()',
-		relativePath: 'docs/licensing/register-usage-point.mdx',
-		compId: 'articles-docs-licensing-register-usage-point',
+		id: 'register-usage-event',
+		title: 'registerUsageEvent()',
+		relativePath: 'docs/licensing/register-usage-event.mdx',
+		compId: 'articles-docs-licensing-register-usage-event',
 		crumb: '@remotion/licensing',
 		noAi: false,
-		slug: 'licensing/register-usage-point',
+		slug: 'licensing/register-usage-event',
 	},
 	{
 		id: 'loop',

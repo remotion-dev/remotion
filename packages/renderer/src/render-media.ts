@@ -820,11 +820,10 @@ const internalRenderMediaRaw = ({
 					}
 
 					registerUsageEvent({
-						apiKey,
 						event: 'cloud-render',
 						host: null,
 						succeeded: true,
-						licenseKey,
+						licenseKey: licenseKey ?? apiKey ?? null,
 					})
 						.then(() => {
 							Log.verbose({indent, logLevel}, 'Usage event sent successfully');

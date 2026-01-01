@@ -25,7 +25,8 @@
 	"dependencies": {},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "catalog:"
+		"eslint": "catalog:",
+		"remotion": "workspace:*"
 	},
 	"homepage": "https://www.remotion.dev/docs/licensing",
 	"exports": {

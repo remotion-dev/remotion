@@ -2,6 +2,6 @@ export {
 	UsageEventClassification as Classification,
 	RegisterUsageEventResponse,
 	registerUsageEvent,
-} from './register-usage-point';
+} from './register-usage-event';
 
 export {EventCount, GetUsageResponse, getUsage} from './get-usage';

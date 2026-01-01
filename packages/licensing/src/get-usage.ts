@@ -1,4 +1,4 @@
-import {HOST} from './register-usage-point';
+import {HOST} from './register-usage-event';
 
 export type EventCount = {
 	billable: number;

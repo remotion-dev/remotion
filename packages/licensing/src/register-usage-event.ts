@@ -1,4 +1,5 @@
 export const HOST = 'https://www.remotion.pro';
+import type {NoReactInternals} from 'remotion/no-react';
 
 type ApiResponse =
 	| {
@@ -20,26 +21,40 @@ type UsageEventType = 'webcodec-conversion' | 'cloud-render';
 
 export type UsageEventClassification = 'billable' | 'development' | 'failed';
 
+type EitherApiKeyOrLicenseKey =
+	true extends typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+		? {
+				licenseKey: string | null;
+			}
+		:
+				| {
+						/**
+						 * @deprecated Use `licenseKey` instead
+						 */
+						apiKey: string | null;
+				  }
+				| {
+						licenseKey: string | null;
+				  };
+
 export const registerUsageEvent = async ({
-	apiKey,
 	host,
 	succeeded,
 	event,
-	licenseKey,
+	...apiOrLicenseKey
 }: {
-	/**
-	 * @deprecated Use `licenseKey` instead
-	 */
-	apiKey: string | null;
 	host: string | null;
 	succeeded: boolean;
 	event: UsageEventType;
-	licenseKey?: string | null;
-}): Promise<RegisterUsageEventResponse> => {
+} & EitherApiKeyOrLicenseKey): Promise<RegisterUsageEventResponse> => {
 	const abortController = new AbortController();
 	const timeout = setTimeout(() => {
 		abortController.abort();
 	}, 10000);
+
+	const apiKey = 'apiKey' in apiOrLicenseKey ? apiOrLicenseKey.apiKey : null;
+	const licenseKey =
+		'licenseKey' in apiOrLicenseKey ? apiOrLicenseKey.licenseKey : null;
 
 	try {
 		const res = await fetch(`${HOST}/api/track/register-usage-point`, {

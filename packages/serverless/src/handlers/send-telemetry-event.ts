@@ -13,7 +13,7 @@ export const sendTelemetryEvent = async (
 	try {
 		// https://www.remotion.dev/docs/licensing
 		await registerUsageEvent({
-			apiKey: licenseKey,
+			licenseKey,
 			event: 'cloud-render',
 			host: null,
 			succeeded: true,

@@ -866,6 +866,7 @@
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "eslint": "catalog:",
+        "remotion": "workspace:*",
       },
     },
     "packages/lottie": {

@@ -425,8 +425,7 @@ const internalRenderStillRaw = (
 				}
 
 				registerUsageEvent({
-					apiKey: options.apiKey,
-					licenseKey: options.licenseKey,
+					licenseKey: options.licenseKey ?? options.apiKey ?? null,
 					event: 'cloud-render',
 					host: null,
 					succeeded: true,
