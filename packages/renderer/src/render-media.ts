@@ -108,10 +108,10 @@ type EitherApiKeyOrLicenseKey =
 						/**
 						 * @deprecated Use `licenseKey` instead
 						 */
-						apiKey: string | null;
+						apiKey?: string | null;
 				  }
 				| {
-						licenseKey: string | null;
+						licenseKey?: string | null;
 				  };
 
 export type InternalRenderMediaOptions = {
