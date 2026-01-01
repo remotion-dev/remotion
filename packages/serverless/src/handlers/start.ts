@@ -125,7 +125,6 @@ export const startHandler = async <Provider extends CloudProvider>({
 		preferLossless: params.preferLossless,
 		forcePathStyle: params.forcePathStyle,
 		metadata: params.metadata,
-		apiKey: params.apiKey,
 		licenseKey: params.licenseKey,
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		storageClass: params.storageClass,

@@ -217,7 +217,6 @@ test(
 				preferLossless: false,
 				forcePathStyle: false,
 				metadata: null,
-				apiKey: null,
 				licenseKey: null,
 				storageClass: null,
 			},
