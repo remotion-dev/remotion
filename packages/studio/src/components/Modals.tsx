@@ -48,6 +48,7 @@ export const Modals: React.FC<{
 					inFrameMark={modalContextType.inFrameMark}
 					outFrameMark={modalContextType.outFrameMark}
 					initialLogLevel={modalContextType.initialLogLevel}
+					initialLicenseKey={modalContextType.initialLicenseKey}
 				/>
 			)}
 			{modalContextType &&

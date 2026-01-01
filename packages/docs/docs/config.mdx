@@ -871,6 +871,20 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
 
+## `setPublicLicenseKey()`<AvailableFrom v="4.0.398" />
+
+<Options id="public-license-key" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPublicLicenseKey('your-license-key');
+```
+
+The [command line flag](/docs/cli/studio#--public-license-key) `--public-license-key` will take precedence over this option.
+
 ## ~~`setQuality()`~~
 
 Renamed to `setJpegQuality` in `v4.0.0`.

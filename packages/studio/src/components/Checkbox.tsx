@@ -1,7 +1,8 @@
-import React, {useMemo} from 'react';
+import React, {useEffect, useMemo, useRef} from 'react';
 import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
+	LIGHT_TEXT,
 } from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
 
@@ -11,6 +12,13 @@ const background: React.CSSProperties = {
 	height: size,
 	width: size,
 	position: 'relative',
+};
+
+const bullet: React.CSSProperties = {
+	width: 10,
+	height: 10,
+	backgroundColor: LIGHT_TEXT,
+	borderRadius: '50%',
 };
 
 const box: React.CSSProperties = {
@@ -30,8 +38,10 @@ export const Checkbox: React.FC<{
 	readonly checked: boolean;
 	readonly onChange: React.ChangeEventHandler<HTMLInputElement>;
 	readonly name: string;
+	readonly rounded?: boolean;
 	readonly disabled?: boolean;
-}> = ({checked, onChange, disabled, name}) => {
+}> = ({checked, onChange, disabled, name, rounded}) => {
+	const ref = useRef<HTMLInputElement>(null);
 	const input: React.CSSProperties = useMemo(() => {
 		return {
 			appearance: 'none',
@@ -46,9 +56,20 @@ export const Checkbox: React.FC<{
 		};
 	}, [disabled]);
 
+	useEffect(() => {
+		if (ref.current) {
+			ref.current.style.setProperty(
+				'border-radius',
+				rounded ? '50%' : '0%',
+				'important',
+			);
+		}
+	}, [rounded]);
+
 	return (
 		<div style={background}>
 			<input
+				ref={ref}
 				style={input}
 				type={'checkbox'}
 				checked={checked}
@@ -56,7 +77,9 @@ export const Checkbox: React.FC<{
 				disabled={disabled}
 				name={name}
 			/>
-			<div style={box}>{checked ? <Checkmark /> : null}</div>
+			<div style={box}>
+				{checked ? rounded ? <div style={bullet} /> : <Checkmark /> : null}
+			</div>
 		</div>
 	);
 };

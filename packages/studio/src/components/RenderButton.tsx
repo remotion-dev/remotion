@@ -247,6 +247,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			inFrameMark: inFrame,
 			outFrameMark: outFrame,
 			initialLogLevel: defaults.logLevel as LogLevel,
+			initialLicenseKey: defaults.publicLicenseKey,
 		});
 	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
 
