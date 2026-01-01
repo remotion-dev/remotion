@@ -42,7 +42,7 @@ describe('Templates should be valid', () => {
 				body.dependencies['zod'] &&
 				!template.shortName.includes('Prompt to Motion Graphics')
 			) {
-				expect(body.dependencies['zod']).toBe('3.22.3');
+				expect(body.dependencies['zod']).toBe('3.23.8');
 			}
 			if (body.dependencies['@types/web']) {
 				expect(body.dependencies['@types/web']).toInclude('0.0.166');

@@ -42,6 +42,8 @@
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"@types/semver": "^7.3.4",
+		"zod": "3.23.8",
+		"@remotion/zod-types": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:"
 	},
