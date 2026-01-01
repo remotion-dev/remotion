@@ -97,7 +97,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	schema: Schema | undefined;
 	mediaCacheSizeInBytes: number | null;
 	videoCodec: WebRendererVideoCodec;
-	audioCodec: WebRendererAudioCodec;
+	audioCodec: WebRendererAudioCodec | null;
 	audioBitrate: number | WebRendererQuality;
 	container: WebRendererContainer;
 	signal: AbortSignal | null;
@@ -126,12 +126,9 @@ type InternalRenderMediaOnWebOptions<
 	Props extends Record<string, unknown>,
 > = MandatoryRenderMediaOnWebOptions<Schema, Props> &
 	OptionalRenderMediaOnWebOptions<Schema> &
-	InputPropsIfHasProps<Schema, Props> & {
-		userSpecifiedAudioCodec: boolean;
-	};
+	InputPropsIfHasProps<Schema, Props>;
 
 // TODO: More containers
-// TODO: Audio
 // TODO: Metadata
 // TODO: Validating inputs
 // TODO: Apply defaultCodec
@@ -147,9 +144,8 @@ const internalRenderMediaOnWeb = async <
 	mediaCacheSizeInBytes,
 	schema,
 	videoCodec: codec,
-	audioCodec,
+	audioCodec: unresolvedAudioCodec,
 	audioBitrate,
-	userSpecifiedAudioCodec,
 	container,
 	signal,
 	onProgress,
@@ -189,6 +185,10 @@ const internalRenderMediaOnWeb = async <
 			new Error(`Codec ${codec} is not supported for container ${container}`),
 		);
 	}
+
+	const audioCodec =
+		unresolvedAudioCodec ?? getDefaultAudioCodecForContainer(container);
+	const userSpecifiedAudioCodec = unresolvedAudioCodec !== undefined;
 
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
@@ -323,11 +323,19 @@ const internalRenderMediaOnWeb = async <
 
 			if (!canEncode) {
 				if (userSpecifiedAudioCodec) {
-					return Promise.reject(
-						new Error(
-							`Audio codec "${audioCodec}" cannot be encoded by this browser. This is common for AAC on Firefox. Try using "opus" instead.`,
-						),
-					);
+					let errorMessage = `Audio codec "${audioCodec}" cannot be encoded by this browser.`;
+					const isFirefox =
+						typeof navigator !== 'undefined' &&
+						/firefox/i.test(navigator.userAgent);
+					if (audioCodec === 'aac' && isFirefox) {
+						errorMessage +=
+							' AAC encoding is not supported in Firefox. Try using "opus" instead.';
+					} else {
+						errorMessage +=
+							' This is common for AAC on Firefox. Try using "opus" instead.';
+					}
+
+					return Promise.reject(new Error(errorMessage));
 				}
 
 				let fallbackCodec: WebRendererAudioCodec | null = null;
@@ -544,9 +552,6 @@ export const renderMediaOnWeb = <
 	const container = options.container ?? 'mp4';
 	const codec =
 		options.videoCodec ?? getDefaultVideoCodecForContainer(container);
-	const userSpecifiedAudioCodec = options.audioCodec !== undefined;
-	const audioCodec =
-		options.audioCodec ?? getDefaultAudioCodecForContainer(container);
 
 	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
@@ -560,9 +565,8 @@ export const renderMediaOnWeb = <
 				schema: options.schema ?? undefined,
 				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 				videoCodec: codec,
-				audioCodec,
+				audioCodec: options.audioCodec ?? null,
 				audioBitrate: options.audioBitrate ?? 'medium',
-				userSpecifiedAudioCodec,
 				container,
 				signal: options.signal ?? null,
 				onProgress: options.onProgress ?? null,
