@@ -375,7 +375,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'licensing/index',
 			},
-			items: ['licensing/register-usage-point', 'licensing/get-usage'],
+			items: ['licensing/register-usage-event', 'licensing/get-usage'],
 		},
 		{
 			type: 'category',
