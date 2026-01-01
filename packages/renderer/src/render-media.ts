@@ -98,6 +98,22 @@ export type RenderMediaOnProgress = (progress: {
 
 type MoreRenderMediaOptions = ToOptions<typeof optionsMap.renderMedia>;
 
+type EitherApiKeyOrLicenseKey =
+	true extends typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+		? {
+				licenseKey: string | null;
+			}
+		:
+				| {
+						/**
+						 * @deprecated Use `licenseKey` instead
+						 */
+						apiKey: string | null;
+				  }
+				| {
+						licenseKey: string | null;
+				  };
+
 export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
 	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
@@ -134,13 +150,9 @@ export type InternalRenderMediaOptions = {
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
 	metadata: Record<string, string> | null;
-	/**
-	 * @deprecated Use `licenseKey` instead
-	 */
-	apiKey: string | null;
-	licenseKey: string | null;
 	onLog: OnLog;
-} & MoreRenderMediaOptions;
+} & EitherApiKeyOrLicenseKey &
+	MoreRenderMediaOptions;
 
 type Prettify<T> = {
 	[K in keyof T]: T[K];
@@ -198,6 +210,7 @@ export type RenderMediaOptions = Prettify<{
 	metadata?: Record<string, string> | null;
 	compositionStart?: number;
 }> &
+	EitherApiKeyOrLicenseKey &
 	Partial<MoreRenderMediaOptions>;
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -266,7 +279,6 @@ const internalRenderMediaRaw = ({
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
 	onLog,
-	apiKey,
 	licenseKey,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	const pixelFormat =
@@ -814,7 +826,7 @@ const internalRenderMediaRaw = ({
 				};
 
 				const sendTelemetryAndResolve = () => {
-					if (apiKey === null) {
+					if (licenseKey === null) {
 						resolve(result);
 						return;
 					}
@@ -823,7 +835,7 @@ const internalRenderMediaRaw = ({
 						event: 'cloud-render',
 						host: null,
 						succeeded: true,
-						licenseKey: licenseKey ?? apiKey ?? null,
+						licenseKey: licenseKey ?? null,
 					})
 						.then(() => {
 							Log.verbose({indent, logLevel}, 'Usage event sent successfully');
@@ -980,8 +992,7 @@ export const renderMedia = ({
 	offthreadVideoThreads,
 	compositionStart,
 	mediaCacheSizeInBytes,
-	apiKey,
-	licenseKey,
+	...apiKeyOrLicenseKey
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -993,6 +1004,11 @@ export const renderMedia = ({
 			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
 		);
 	}
+
+	const licenseKey =
+		'licenseKey' in apiKeyOrLicenseKey ? apiKeyOrLicenseKey.licenseKey : null;
+	const apiKey =
+		'apiKey' in apiKeyOrLicenseKey ? apiKeyOrLicenseKey.apiKey : null;
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
@@ -1068,8 +1084,7 @@ export const renderMedia = ({
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
-		apiKey: apiKey ?? null,
-		licenseKey: licenseKey ?? null,
+		licenseKey: licenseKey ?? apiKey ?? null,
 		onLog: defaultOnLog,
 	});
 };

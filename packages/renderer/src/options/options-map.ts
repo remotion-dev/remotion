@@ -58,7 +58,6 @@ export const optionsMap = {
 		onBrowserDownload: onBrowserDownloadOption,
 		hardwareAcceleration: hardwareAccelerationOption,
 		chromeMode: chromeModeOption,
-		apiKey: apiKeyOption,
 		licenseKey: licenseKeyOption,
 	},
 	stitchFramesToVideo: {
