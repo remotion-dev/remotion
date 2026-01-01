@@ -356,6 +356,10 @@ const internalRenderMediaOnWeb = async <
 					}
 				}
 
+				Internals.Log.warn(
+					{logLevel, tag: '@remotion/web-renderer'},
+					`Falling back from audio codec "${audioCodec}" to "${fallbackCodec}" for container "${container}" because the original codec cannot be encoded by this browser.`,
+				);
 				if (!fallbackCodec) {
 					return Promise.reject(
 						new Error(
