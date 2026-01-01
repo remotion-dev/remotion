@@ -46,7 +46,6 @@ class RenderParams
     protected $webhook = null;
     protected $forceHeight = null;
     protected $forceWidth = null;
-    protected $apiKey = null;
     protected $licenseKey = null;
     protected $offthreadVideoCacheSizeInBytes = null;
     protected $mediaCacheSizeInBytes = null;
@@ -90,7 +89,6 @@ class RenderParams
         ?string $webhook = null,
         ?int    $forceHeight = null,
         ?int    $forceWidth = null,
-        ?int    $apiKey = null,
         ?string $licenseKey = null,
         ?int    $offthreadVideoCacheSizeInBytes = null,
         ?int    $mediaCacheSizeInBytes = null,
@@ -146,7 +144,6 @@ class RenderParams
         $this->webhook = $webhook;
         $this->forceHeight = $forceHeight;
         $this->forceWidth = $forceWidth;
-        $this->apiKey = $apiKey;
         $this->licenseKey = $licenseKey;
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
         $this->mediaCacheSizeInBytes = $mediaCacheSizeInBytes;
@@ -201,7 +198,6 @@ class RenderParams
             'webhook' => $this->getWebhook(),
             'forceHeight' => $this->getForceHeight(),
             'forceWidth' => $this->getForceWidth(),
-            'apiKey' => $this->getApiKey(),
             'licenseKey' => $this->getLicenseKey(),
             'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
             'mediaCacheSizeInBytes' => $this->getMediaCacheSizeInBytes(),
@@ -755,10 +751,6 @@ class RenderParams
         $this->forceWidth = $forceWidth;
     }
 
-    public function setApiKey($apiKey)
-    {
-        $this->apiKey = $apiKey;
-    }
 
     public function setLicenseKey($licenseKey)
     {
@@ -835,10 +827,6 @@ class RenderParams
         return $this->forceWidth;
     }
 
-    public function getApiKey()
-    {
-        return $this->apiKey;
-    }
 
     public function getLicenseKey()
     {
