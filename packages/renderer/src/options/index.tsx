@@ -36,6 +36,7 @@ import type {AnyRemotionOption} from './option';
 import {overwriteOption} from './overwrite';
 import {preferLosslessAudioOption} from './prefer-lossless';
 import {publicDirOption} from './public-dir';
+import {publicLicenseKeyOption} from './public-license-key';
 import {publicPathOption} from './public-path';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
@@ -97,6 +98,7 @@ export const allOptions = {
 	imageSequencePatternOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	publicLicenseKeyOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

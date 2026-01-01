@@ -13,6 +13,10 @@ Wraps the native [`<video>`](https://developer.mozilla.org/en-US/docs/Web/API/HT
 Prefer [one of the other video tags](/docs/video-tags) which perform better.
 :::
 
+:::warning Not supported in client-side rendering
+`<Html5Video>` is not supported in [`@remotion/web-renderer`](/docs/client-side-rendering). Use [`<Video>`](/docs/media/video) from `@remotion/media` instead.
+:::
+
 ## API
 
 [Put a video file into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.

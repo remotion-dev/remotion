@@ -11,9 +11,11 @@ import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {AudioIcon} from '../../icons/audio';
+import {CertificateIcon} from '../../icons/certificate';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
+import {GearIcon} from '../../icons/gear';
 import type {WebRenderModalState} from '../../state/modals';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -40,15 +42,18 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
+import {WebRendererExperimentalBadge} from './WebRendererExperimentalBadge';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
 import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
+import {WebRenderModalLicense} from './WebRenderModalLicense';
 import {WebRenderModalPicture} from './WebRenderModalPicture';
 
 type WebRenderModalProps = {
 	readonly compositionId: string;
 	readonly initialFrame: number;
 	readonly initialLogLevel: LogLevel;
+	readonly initialLicenseKey: string | null;
 	readonly defaultProps: Record<string, unknown>;
 	readonly inFrameMark: number | null;
 	readonly outFrameMark: number | null;
@@ -56,7 +61,13 @@ type WebRenderModalProps = {
 
 export type RenderType = 'still' | 'video';
 
-type TabType = 'general' | 'data' | 'picture' | 'audio' | 'advanced';
+type TabType =
+	| 'general'
+	| 'data'
+	| 'picture'
+	| 'audio'
+	| 'advanced'
+	| 'license';
 
 const invalidCharacters = ['?', '*', '+', ':', '%'];
 
@@ -136,6 +147,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	inFrameMark,
 	outFrameMark,
 	initialLogLevel,
+	initialLicenseKey,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
@@ -188,6 +200,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		useState<RenderMediaOnWebProgress | null>(null);
 	const [transparent, setTransparent] = useState(false);
 	const [muted, setMuted] = useState(false);
+
+	const [licenseKey, setLicenseKey] = useState(initialLicenseKey);
 
 	const finalEndFrame = useMemo(() => {
 		if (endFrame === null) {
@@ -397,6 +411,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
 			mediaCacheSizeInBytes,
 			logLevel,
+			licenseKey: licenseKey ?? undefined,
 		});
 
 		const url = URL.createObjectURL(blob);
@@ -425,6 +440,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.defaultProps,
 		unresolvedComposition.calculateMetadata,
 		resolvedComposition.id,
+		licenseKey,
 	]);
 
 	const onRenderVideo = useCallback(async () => {
@@ -457,6 +473,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			transparent,
 			muted,
 			outputTarget: 'web-fs',
+			licenseKey: licenseKey ?? undefined,
 		});
 
 		setRenderProgress(null);
@@ -494,6 +511,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.defaultProps,
 		resolvedComposition.id,
 		unresolvedComposition.calculateMetadata,
+		licenseKey,
 	]);
 
 	const onRender = useCallback(async () => {
@@ -522,6 +540,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
+			</div>
+			<div style={containerStyle}>
+				<WebRendererExperimentalBadge />
 			</div>
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
@@ -575,9 +596,19 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						onClick={() => setTab('advanced')}
 					>
 						<div style={iconContainer}>
-							<FileIcon style={icon} />
+							<GearIcon style={icon} />
 						</div>
-						Advanced
+						Other
+					</VerticalTab>
+					<VerticalTab
+						style={horizontalTab}
+						selected={tab === 'license'}
+						onClick={() => setTab('license')}
+					>
+						<div style={iconContainer}>
+							<CertificateIcon style={icon} />
+						</div>
+						License
 					</VerticalTab>
 				</div>
 				<div style={optionsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
@@ -629,7 +660,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						/>
 					) : tab === 'audio' ? (
 						<WebRenderModalAudio muted={muted} setMuted={setMuted} />
-					) : (
+					) : tab === 'advanced' ? (
 						<WebRenderModalAdvanced
 							renderMode={renderMode}
 							delayRenderTimeout={delayRenderTimeout}
@@ -638,6 +669,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setMediaCacheSizeInBytes={setMediaCacheSizeInBytes}
 							hardwareAcceleration={hardwareAcceleration}
 							setHardwareAcceleration={setHardwareAcceleration}
+						/>
+					) : (
+						<WebRenderModalLicense
+							licenseKey={licenseKey}
+							setLicenseKey={setLicenseKey}
+							initialPublicLicenseKey={initialLicenseKey}
 						/>
 					)}
 				</div>

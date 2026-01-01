@@ -31,6 +31,7 @@ const {
 	chromeModeOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	publicLicenseKeyOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -116,6 +117,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const publicLicenseKey = publicLicenseKeyOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
@@ -173,5 +177,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		hardwareAcceleration,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		publicLicenseKey,
 	};
 };

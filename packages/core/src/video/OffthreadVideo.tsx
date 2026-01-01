@@ -32,6 +32,12 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 	} = props;
 	const environment = useRemotionEnvironment();
 
+	if (environment.isClientSideRendering) {
+		throw new Error(
+			'<OffthreadVideo> is not supported in @remotion/web-renderer. Use <Video> from @remotion/media instead. See https://remotion.dev/docs/client-side-rendering/limitations',
+		);
+	}
+
 	const onDuration = useCallback(() => undefined, []);
 
 	if (typeof props.src !== 'string') {
