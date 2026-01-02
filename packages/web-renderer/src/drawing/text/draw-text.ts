@@ -22,6 +22,7 @@ export const drawText = ({
 			writingMode,
 			letterSpacing,
 			textTransform,
+			webkitTextFillColor,
 		} = computedStyle;
 		const isVertical = writingMode !== 'horizontal-tb';
 		if (isVertical) {
@@ -41,7 +42,8 @@ export const drawText = ({
 		const fontSizePx = parseFloat(fontSize);
 
 		contextToDraw.font = `${fontWeight} ${fontSizePx}px ${fontFamily}`;
-		contextToDraw.fillStyle = color;
+		// -webkit-text-fill-color overrides color, and defaults to the value of `color`
+		contextToDraw.fillStyle = webkitTextFillColor;
 		contextToDraw.letterSpacing = letterSpacing;
 
 		const isRTL = direction === 'rtl';
