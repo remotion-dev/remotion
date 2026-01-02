@@ -17,7 +17,7 @@
     "@remotion/media-utils": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/zod-types": "workspace:*",
-    "mediabunny": "1.27.2",
+    "mediabunny": "1.27.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "workspace:*",
