@@ -39,10 +39,12 @@ export const defaultBrowserDownloadProgress = ({
 	indent,
 	logLevel,
 	quiet,
+	UIprogressUpdater
 }: {
 	indent: boolean;
 	logLevel: LogLevel;
 	quiet: boolean;
+	UIprogressUpdater: (progress: number) => void
 }): OnBrowserDownload => {
 	return ({chromeMode}) => {
 		if (chromeMode === 'chrome-for-testing') {
@@ -104,6 +106,7 @@ export const defaultBrowserDownloadProgress = ({
 		return {
 			version: null,
 			onProgress: (progress) => {
+				UIprogressUpdater(progress.percent)
 				if (progress.percent === 1) {
 					doneIn = Date.now() - startedAt;
 				}

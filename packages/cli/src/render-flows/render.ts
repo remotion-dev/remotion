@@ -181,6 +181,23 @@ export const renderVideoFlow = async ({
 	imageSequencePattern: string | null;
 	mediaCacheSizeInBytes: number | null;
 }) => {
+
+		let bundlingProgress: BundlingState = {
+		doneIn: null,
+		progress: 0,
+	};
+
+	let renderingProgress: RenderingProgressInput | null = null;
+	let stitchingProgress: StitchingProgressInput | null = null;
+	let copyingState: CopyingState = {
+		bytes: 0,
+		doneIn: null,
+	};
+	const logsProgress: AggregateRenderProgress['logs'] = [];
+
+	let artifactState: ArtifactProgress = {received: []};
+
+
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
 	printFact('verbose')({
@@ -195,6 +212,7 @@ export const renderVideoFlow = async ({
 	const downloads: DownloadProgress[] = [];
 	const onBrowserDownload = defaultBrowserDownloadProgress({
 		indent,
+		UIprogressUpdater: updateBrowserProgress,
 		logLevel,
 		quiet: quietFlagProvided(),
 	});
@@ -229,20 +247,23 @@ export const renderVideoFlow = async ({
 		indent,
 	});
 
-	let bundlingProgress: BundlingState = {
-		doneIn: null,
-		progress: 0,
-	};
 
-	let renderingProgress: RenderingProgressInput | null = null;
-	let stitchingProgress: StitchingProgressInput | null = null;
-	let copyingState: CopyingState = {
-		bytes: 0,
-		doneIn: null,
-	};
-	const logsProgress: AggregateRenderProgress['logs'] = [];
 
-	let artifactState: ArtifactProgress = {received: []};
+ function updateBrowserProgress(progress: number) {
+			const aggregateRenderProgress: AggregateRenderProgress = {
+			rendering: renderingProgress,
+			stitching: shouldOutputImageSequence ? null : stitchingProgress,
+			downloads,
+			bundling: bundlingProgress,
+			copyingState,
+			artifactState,
+			logs: logsProgress,
+		};
+
+	
+		onProgress({message: "downloading Chrome headless shell", value: progress, ...aggregateRenderProgress});
+
+ }	
 
 	const updateRenderProgress = ({
 		newline,
