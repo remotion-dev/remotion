@@ -60,8 +60,7 @@ export const drawBackground = async ({
 		element.style.backgroundClip = originalBackgroundClip;
 		element.style.webkitBackgroundClip = originalWebkitBackgroundClip;
 		contextToDraw = drawn;
-
-		context.globalCompositeOperation = 'source-in';
+		contextToDraw.globalCompositeOperation = 'source-in';
 	}
 
 	if (backgroundImage && backgroundImage !== 'none') {
