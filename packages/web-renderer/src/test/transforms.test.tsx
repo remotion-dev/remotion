@@ -13,12 +13,12 @@ import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
+import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {withMargin} from './fixtures/transforms/with-margin';
 import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
 import {unwrapped} from './fixtures/unwrapped';
-import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {testImage} from './utils';
 
 test('should be able to deal with a simple transform directly on the element', async () => {
