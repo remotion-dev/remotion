@@ -11,6 +11,19 @@ export const fitSvgIntoItsContainer = ({
 		height: number;
 	};
 }) => {
+	// If was already fitting, no need to calculate and lose precision
+	if (
+		Math.round(containerSize.width) === Math.round(elementSize.width) &&
+		Math.round(containerSize.height) === Math.round(elementSize.height)
+	) {
+		return {
+			width: containerSize.width,
+			height: containerSize.height,
+			top: containerSize.top,
+			left: containerSize.left,
+		};
+	}
+
 	const heightRatio = containerSize.height / elementSize.height;
 	const widthRatio = containerSize.width / elementSize.width;
 
