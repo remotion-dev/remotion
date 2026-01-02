@@ -24,6 +24,17 @@ export const fitSvgIntoItsContainer = ({
 		};
 	}
 
+	if (containerSize.width <= 0 || containerSize.height <= 0) {
+		throw new Error(
+			`Container must have positive dimensions, but got ${containerSize.width}x${containerSize.height}`,
+		);
+	}
+
+	if (elementSize.width <= 0 || elementSize.height <= 0) {
+		throw new Error(
+			`Element must have positive dimensions, but got ${elementSize.width}x${elementSize.height}`,
+		);
+	}
 	const heightRatio = containerSize.height / elementSize.height;
 	const widthRatio = containerSize.width / elementSize.width;
 
