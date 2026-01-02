@@ -43,6 +43,7 @@ import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
+import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
@@ -119,6 +120,7 @@ export const Root: React.FC = () => {
 				<Composition {...textTransform} />
 				<Composition {...lineHeight} />
 				<Composition {...webkitTextFillColor} />
+				<Composition {...backgroundClipText} />
 			</Folder>
 			<Folder name="Projects">
 				<Composition {...unwrapped} />
