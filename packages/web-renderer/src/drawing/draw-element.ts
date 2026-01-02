@@ -33,7 +33,7 @@ export const drawElement = async ({
 	element: HTMLElement | SVGElement;
 	internalState: InternalState;
 }) => {
-	const {backgroundImage, backgroundColor} = computedStyle;
+	const {backgroundImage, backgroundColor, backgroundClip} = computedStyle;
 	const borderRadius = parseBorderRadius({
 		borderRadius: computedStyle.borderRadius,
 		width: rect.width,
@@ -71,10 +71,11 @@ export const drawElement = async ({
 		context,
 		rect,
 		backgroundColor,
-		backgroundClipText: computedStyle.backgroundClip.includes('text'),
+		backgroundClip,
 		element,
 		logLevel,
 		internalState,
+		computedStyle,
 	});
 
 	await draw({dimensions: rect, computedStyle, contextToDraw: context});
