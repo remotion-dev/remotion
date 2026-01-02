@@ -412,7 +412,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		],
 	},
 	{
-		title: 'Vibrantsnap - Record Smater, Engage Faster',
+		title: 'Vibrantsnap - Record Smarter, Engage Faster',
 		type: 'mux_video',
 		time: '0',
 		muxId: 'QGqk00IyzHuEBm6hRPMLkl00hgf9zeFWEAeHqStVQ02wiI',
