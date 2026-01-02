@@ -18,6 +18,7 @@ export const handleTextNode = async ({
 	parentRect: DOMRect;
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
+	onlyBackgroundClip: boolean;
 }): Promise<ProcessNodeReturnValue> => {
 	const span = document.createElement('span');
 
@@ -37,6 +38,7 @@ export const handleTextNode = async ({
 		parentRect,
 		internalState,
 		rootElement,
+		onlyBackgroundClip: false,
 	});
 
 	// Undo the layout manipulation

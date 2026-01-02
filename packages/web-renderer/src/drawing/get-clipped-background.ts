@@ -2,14 +2,14 @@ import type {LogLevel} from 'remotion';
 import {compose} from '../compose';
 import type {InternalState} from '../internal-state';
 
-export const precomposeDOMElement = async ({
-	boundingRect,
+export const getClippedBackground = async ({
 	element,
+	boundingRect,
 	logLevel,
 	internalState,
 }: {
-	boundingRect: DOMRect;
 	element: HTMLElement | SVGElement;
+	boundingRect: DOMRect;
 	logLevel: LogLevel;
 	internalState: InternalState;
 }) => {
@@ -26,8 +26,8 @@ export const precomposeDOMElement = async ({
 		logLevel,
 		parentRect: boundingRect,
 		internalState,
-		onlyBackgroundClip: false,
+		onlyBackgroundClip: true,
 	});
 
-	return {tempCanvas, tempContext};
+	return tempContext;
 };

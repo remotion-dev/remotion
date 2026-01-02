@@ -18,6 +18,7 @@ export const drawElement = async ({
 	totalMatrix,
 	parentRect,
 	logLevel,
+	onlyBackgroundClip,
 }: {
 	rect: DOMRect;
 	computedStyle: CSSStyleDeclaration;
@@ -27,6 +28,7 @@ export const drawElement = async ({
 	draw: DrawFn;
 	parentRect: DOMRect;
 	logLevel: LogLevel;
+	onlyBackgroundClip: boolean;
 }) => {
 	const {backgroundImage, backgroundColor} = computedStyle;
 	const borderRadius = parseBorderRadius({
@@ -66,17 +68,19 @@ export const drawElement = async ({
 		context,
 		rect,
 		backgroundColor,
-		backgroundClipText: computedStyle.backgroundClip === 'text',
+		backgroundClipText: onlyBackgroundClip,
 	});
 
-	await draw({dimensions: rect, computedStyle, contextToDraw: context});
+	if (!onlyBackgroundClip) {
+		await draw({dimensions: rect, computedStyle, contextToDraw: context});
 
-	drawBorder({
-		ctx: context,
-		rect,
-		borderRadius,
-		computedStyle,
-	});
+		drawBorder({
+			ctx: context,
+			rect,
+			borderRadius,
+			computedStyle,
+		});
+	}
 
 	finishBorderRadius();
 
@@ -86,6 +90,7 @@ export const drawElement = async ({
 		rect,
 		borderRadius,
 		computedStyle,
+		onlyBackgroundClip,
 	});
 
 	const finishOverflowHidden = setOverflowHidden({

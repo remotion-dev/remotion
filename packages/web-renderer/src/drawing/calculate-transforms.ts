@@ -46,7 +46,6 @@ export const calculateTransforms = ({
 	let opacity = 1;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	let maskImageInfo: LinearGradientInfo | null = null;
-	let needsBackgroundClipText = false;
 	while (parent) {
 		const computedStyle = getComputedStyle(parent);
 
@@ -55,7 +54,6 @@ export const calculateTransforms = ({
 			opacity = parseFloat(computedStyle.opacity);
 			const maskImageValue = getMaskImageValue(computedStyle);
 			maskImageInfo = maskImageValue ? parseMaskImage(maskImageValue) : null;
-			needsBackgroundClipText = computedStyle.backgroundClip.includes('text');
 
 			const originalMaskImage = parent.style.maskImage;
 			const originalWebkitMaskImage = parent.style.webkitMaskImage;
@@ -164,10 +162,7 @@ export const calculateTransforms = ({
 		precompositing: {
 			needs3DTransformViaWebGL,
 			needsMaskImage: maskImageInfo,
-			needsPrecompositing: Boolean(
-				needs3DTransformViaWebGL || needsMaskImage || needsBackgroundClipText,
-			),
-			needsBackgroundClipText,
+			needsPrecompositing: Boolean(needs3DTransformViaWebGL || needsMaskImage),
 		},
 	};
 };
