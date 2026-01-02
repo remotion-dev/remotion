@@ -186,27 +186,6 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		],
 	},
 	{
-		title: 'MotionShot - Video guides',
-		type: 'mux_video',
-		time: '0',
-		muxId: 'q8DK3k322cMIfMwPTSu5GYEnovEvoYA4aprLH8cp5pY',
-		description:
-			'Make guides & tutorials for your products, internal tools, SOPs, step-by-step processing and export them into MP4, GIF, PDF, or embed into your own webpage.',
-		height: 1080,
-		width: 1920,
-		submittedOn: new Date('04-24-2024'),
-		links: [
-			{
-				type: 'website',
-				url: 'https://www.motionshot.app/',
-			},
-		],
-		author: {
-			url: 'https://twitter.com/pramodk73',
-			name: 'Pramod Kumar',
-		},
-	},
-	{
 		title: 'Watercolor Map - Animated Map',
 		type: 'mux_video',
 		time: '1',
