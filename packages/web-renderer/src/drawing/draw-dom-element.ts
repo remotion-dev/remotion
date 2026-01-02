@@ -1,4 +1,5 @@
 import type {DrawFn} from './drawn-fn';
+import {fitSvgIntoItsContainer} from './fit-svg-into-its-dimensions';
 import {turnSvgIntoDrawable} from './turn-svg-into-drawable';
 
 const getReadableImageError = (
@@ -44,12 +45,19 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 		}
 
 		try {
+			const fitted = fitSvgIntoItsContainer({
+				containerSize: dimensions,
+				elementSize: {
+					width: drawable.width,
+					height: drawable.height,
+				},
+			});
 			contextToDraw.drawImage(
 				drawable,
-				dimensions.left,
-				dimensions.top,
-				dimensions.width,
-				dimensions.height,
+				fitted.left,
+				fitted.top,
+				fitted.width,
+				fitted.height,
 			);
 		} catch (err) {
 			// Provide readable error messages for image errors

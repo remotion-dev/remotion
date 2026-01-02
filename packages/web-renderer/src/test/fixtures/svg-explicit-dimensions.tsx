@@ -12,29 +12,33 @@ import {AbsoluteFill} from 'remotion';
  */
 const Component: React.FC = () => {
 	return (
-		<AbsoluteFill
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				backgroundColor: '#f0f0f0',
-			}}
-		>
-			<div
+		<AbsoluteFill style={{}}>
+			<AbsoluteFill
 				style={{
-					width: 256,
-					height: 284,
-					backgroundColor: '#e0e0e0',
-					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
+					backgroundColor: '#f0f0f0',
+					width: 1080,
+					height: 1080,
+					scale: 1 / 4,
+					transformOrigin: '0 0',
 				}}
 			>
-				<svg viewBox="0 0 1080 1080" width={1080} height={1080} fill="none">
-					<rect x="0" y="0" width="1080" height="1080" fill="#3498db" />
-					<circle cx="540" cy="540" r="400" fill="#e74c3c" />
-					<rect x="340" y="340" width="400" height="400" fill="#2ecc71" />
-				</svg>
-			</div>
+				<div
+					style={{
+						width: 256,
+						height: 284,
+						backgroundColor: '#e0e0e0',
+						display: 'flex',
+					}}
+				>
+					<svg viewBox="0 0 1080 1080" width={1080} height={1080} fill="none">
+						<rect x="0" y="0" width="1080" height="1080" fill="#3498db" />
+						<circle cx="540" cy="540" r="400" fill="#e74c3c" />
+						<rect x="340" y="340" width="400" height="400" fill="#2ecc71" />
+					</svg>
+				</div>
+			</AbsoluteFill>
 		</AbsoluteFill>
 	);
 };
@@ -42,8 +46,8 @@ const Component: React.FC = () => {
 export const svgExplicitDimensions = {
 	component: Component,
 	id: 'svg-explicit-dimensions',
-	width: 1080,
-	height: 1080,
+	width: 1080 / 4,
+	height: 1080 / 4,
 	fps: 30,
 	durationInFrames: 1,
 } as const;
