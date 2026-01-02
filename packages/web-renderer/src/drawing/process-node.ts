@@ -179,6 +179,8 @@ export const processNode = async ({
 		totalMatrix,
 		parentRect,
 		logLevel,
+		element,
+		internalState,
 	});
 
 	reset();
