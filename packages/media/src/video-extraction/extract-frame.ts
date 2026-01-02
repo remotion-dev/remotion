@@ -40,14 +40,21 @@ const extractFrameInternal = async ({
 }: ExtractFrameParams): Promise<ExtractFrameResult> => {
 	const sink = await getSink(src, logLevel);
 
-	const video = await sink.getVideo();
+	const [video, mediaDurationInSecondsRaw] = await Promise.all([
+		sink.getVideo(),
+		loop ? sink.getDuration() : Promise.resolve(null),
+	]);
+
+	const mediaDurationInSeconds: number | null = loop
+		? mediaDurationInSecondsRaw
+		: null;
 
 	if (video === 'no-video-track') {
 		throw new Error(`No video track found for ${src}`);
 	}
 
 	if (video === 'cannot-decode') {
-		return {type: 'cannot-decode', durationInSeconds: await sink.getDuration()};
+		return {type: 'cannot-decode', durationInSeconds: mediaDurationInSeconds};
 	}
 
 	if (video === 'unknown-container-format') {
@@ -56,12 +63,6 @@ const extractFrameInternal = async ({
 
 	if (video === 'network-error') {
 		return {type: 'network-error'};
-	}
-
-	let mediaDurationInSeconds: number | null = null;
-
-	if (loop) {
-		mediaDurationInSeconds = await sink.getDuration();
 	}
 
 	const timeInSeconds = getTimeInSeconds({
