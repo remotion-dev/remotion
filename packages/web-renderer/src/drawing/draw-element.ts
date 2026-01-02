@@ -104,6 +104,8 @@ export const drawElement = async ({
 		rect,
 		borderRadius,
 		overflowHidden: computedStyle.overflow === 'hidden',
+		computedStyle,
+		backgroundClip,
 	});
 
 	finishTransform();
