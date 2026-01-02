@@ -47,74 +47,72 @@ export const drawBackground = async ({
 		}
 	};
 
-	const boundingRects = getBoxBasedOnBackgroundClip(
+	const boundingRect = getBoxBasedOnBackgroundClip(
 		rect,
 		computedStyle,
 		backgroundClip,
 	);
 
-	for (const boundingRect of boundingRects) {
-		if (backgroundClip.includes('text')) {
-			offsetLeft = boundingRect.left;
-			offsetTop = boundingRect.top;
-			const originalBackgroundClip = element.style.backgroundClip;
-			const originalWebkitBackgroundClip = element.style.webkitBackgroundClip;
-			element.style.backgroundClip = 'initial';
-			element.style.webkitBackgroundClip = 'initial';
-			const drawn = await getClippedBackground({
-				element,
-				boundingRect,
-				logLevel,
-				internalState,
+	if (backgroundClip.includes('text')) {
+		offsetLeft = boundingRect.left;
+		offsetTop = boundingRect.top;
+		const originalBackgroundClip = element.style.backgroundClip;
+		const originalWebkitBackgroundClip = element.style.webkitBackgroundClip;
+		element.style.backgroundClip = 'initial';
+		element.style.webkitBackgroundClip = 'initial';
+		const drawn = await getClippedBackground({
+			element,
+			boundingRect,
+			logLevel,
+			internalState,
+		});
+		element.style.backgroundClip = originalBackgroundClip;
+		element.style.webkitBackgroundClip = originalWebkitBackgroundClip;
+		contextToDraw = drawn;
+		contextToDraw.globalCompositeOperation = 'source-in';
+	}
+
+	if (backgroundImage && backgroundImage !== 'none') {
+		const gradientInfo = parseLinearGradient(backgroundImage);
+		if (gradientInfo) {
+			const gradient = createCanvasGradient({
+				ctx: contextToDraw,
+				rect: boundingRect,
+				gradientInfo,
+				offsetLeft,
+				offsetTop,
 			});
-			element.style.backgroundClip = originalBackgroundClip;
-			element.style.webkitBackgroundClip = originalWebkitBackgroundClip;
-			contextToDraw = drawn;
-			contextToDraw.globalCompositeOperation = 'source-in';
-		}
-
-		if (backgroundImage && backgroundImage !== 'none') {
-			const gradientInfo = parseLinearGradient(backgroundImage);
-			if (gradientInfo) {
-				const gradient = createCanvasGradient({
-					ctx: contextToDraw,
-					rect: boundingRect,
-					gradientInfo,
-					offsetLeft,
-					offsetTop,
-				});
-				const originalFillStyle = contextToDraw.fillStyle;
-				contextToDraw.fillStyle = gradient;
-				contextToDraw.fillRect(
-					boundingRect.left - offsetLeft,
-					boundingRect.top - offsetTop,
-					boundingRect.width,
-					boundingRect.height,
-				);
-				contextToDraw.fillStyle = originalFillStyle;
-				continue;
-			}
-		}
-
-		// Fallback to solid background color if no gradient was drawn
-		if (
-			backgroundColor &&
-			backgroundColor !== 'transparent' &&
-			!(
-				backgroundColor.startsWith('rgba') &&
-				(backgroundColor.endsWith(', 0)') || backgroundColor.endsWith(',0'))
-			)
-		) {
 			const originalFillStyle = contextToDraw.fillStyle;
-			contextToDraw.fillStyle = backgroundColor;
+			contextToDraw.fillStyle = gradient;
 			contextToDraw.fillRect(
 				boundingRect.left - offsetLeft,
-				boundingRect.top - offsetLeft,
+				boundingRect.top - offsetTop,
 				boundingRect.width,
 				boundingRect.height,
 			);
 			contextToDraw.fillStyle = originalFillStyle;
+			return finish();
 		}
+	}
+
+	// Fallback to solid background color if no gradient was drawn
+	if (
+		backgroundColor &&
+		backgroundColor !== 'transparent' &&
+		!(
+			backgroundColor.startsWith('rgba') &&
+			(backgroundColor.endsWith(', 0)') || backgroundColor.endsWith(',0'))
+		)
+	) {
+		const originalFillStyle = contextToDraw.fillStyle;
+		contextToDraw.fillStyle = backgroundColor;
+		contextToDraw.fillRect(
+			boundingRect.left - offsetLeft,
+			boundingRect.top - offsetLeft,
+			boundingRect.width,
+			boundingRect.height,
+		);
+		contextToDraw.fillStyle = originalFillStyle;
 	}
 
 	finish();

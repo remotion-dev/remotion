@@ -36,19 +36,23 @@ const getContentBox = (
 export const getBoxBasedOnBackgroundClip = (
 	rect: DOMRect,
 	computedStyle: CSSStyleDeclaration,
-	backgroundClip: string,
+	backgroundClip: string | undefined,
 ) => {
+	if (!backgroundClip) {
+		return rect;
+	}
+
 	if (backgroundClip.includes('text')) {
-		return [rect];
+		return rect;
 	}
 
 	if (backgroundClip.includes('padding-box')) {
-		return [getPaddingBox(rect, computedStyle)];
+		return getPaddingBox(rect, computedStyle);
 	}
 
 	if (backgroundClip.includes('content-box')) {
-		return [getContentBox(rect, computedStyle)];
+		return getContentBox(rect, computedStyle);
 	}
 
-	return [rect, getPaddingBox(rect, computedStyle)];
+	return rect;
 };

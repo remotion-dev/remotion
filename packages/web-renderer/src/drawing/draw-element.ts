@@ -64,6 +64,8 @@ export const drawElement = async ({
 		rect,
 		borderRadius,
 		forceClipEvenWhenZero: false,
+		computedStyle,
+		backgroundClip,
 	});
 
 	await drawBackground({
@@ -80,14 +82,14 @@ export const drawElement = async ({
 
 	await draw({dimensions: rect, computedStyle, contextToDraw: context});
 
+	finishBorderRadius();
+
 	drawBorder({
 		ctx: context,
 		rect,
 		borderRadius,
 		computedStyle,
 	});
-
-	finishBorderRadius();
 
 	// Drawing outline ignores overflow: hidden, finishing it and starting a new one for the outline
 	drawOutline({
