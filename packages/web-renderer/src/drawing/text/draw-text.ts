@@ -17,7 +17,6 @@ export const drawText = ({
 			fontFamily,
 			fontSize,
 			fontWeight,
-			color,
 			direction,
 			writingMode,
 			letterSpacing,
