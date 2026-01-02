@@ -42,6 +42,7 @@ import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
+import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
@@ -79,6 +80,7 @@ export const Root: React.FC = () => {
 			<Composition {...hugeImageTransform} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
+			<Composition {...svgExplicitDimensions} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
 			<Folder name="Opacity">
