@@ -53,8 +53,6 @@ export const drawBackground = async ({
 		backgroundClip,
 	);
 
-	console.log(boundingRects);
-
 	for (const boundingRect of boundingRects) {
 		if (backgroundClip.includes('text')) {
 			offsetLeft = boundingRect.left;
@@ -94,7 +92,7 @@ export const drawBackground = async ({
 					boundingRect.height,
 				);
 				contextToDraw.fillStyle = originalFillStyle;
-				return finish();
+				continue;
 			}
 		}
 

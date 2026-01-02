@@ -2,14 +2,15 @@ import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
 const baseStyle: React.CSSProperties = {
-	border: '0.8em darkviolet',
-	borderStyle: 'dashed',
+	border: '0.8em rgba(0, 0, 0, 0.2)',
+	borderStyle: 'solid',
 	margin: '1em 0',
 	padding: '1.4em',
 	background: 'linear-gradient(60deg, red, yellow, red, yellow, red)',
 	fontWeight: 900,
 	fontSize: '1.2em',
 	fontFamily: 'sans-serif',
+	borderRadius: 20,
 };
 
 const Component: React.FC = () => {
