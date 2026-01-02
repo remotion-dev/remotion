@@ -18,6 +18,7 @@ import {orthographic} from './fixtures/transforms/orthographic';
 import {withMargin} from './fixtures/transforms/with-margin';
 import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
 import {unwrapped} from './fixtures/unwrapped';
+import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {testImage} from './utils';
 
 test('should be able to deal with a simple transform directly on the element', async () => {
@@ -244,4 +245,18 @@ test('Should render with negative margin', async () => {
 	});
 
 	await testImage({blob, testId: 'with-negative-margin'});
+});
+
+test('SVG with explicit width/height props should render at specified size (issue #6186)', async () => {
+	await page.viewport(1080, 1080);
+
+	const {blob} = await renderStillOnWeb({
+		licenseKey: 'free-license',
+		composition: svgExplicitDimensions,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'svg-explicit-dimensions'});
 });
