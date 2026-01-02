@@ -26,18 +26,12 @@ export const drawOutline = ({
 	rect,
 	borderRadius,
 	computedStyle,
-	onlyBackgroundClip,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
 	borderRadius: BorderRadiusCorners;
 	computedStyle: CSSStyleDeclaration;
-	onlyBackgroundClip: boolean;
 }) => {
-	if (onlyBackgroundClip) {
-		return;
-	}
-
 	const outlineWidth = parseOutlineWidth(computedStyle.outlineWidth);
 	const {outlineStyle} = computedStyle;
 	const outlineColor = computedStyle.outlineColor || 'black';

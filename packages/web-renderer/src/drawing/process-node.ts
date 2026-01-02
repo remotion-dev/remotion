@@ -26,7 +26,6 @@ export const processNode = async ({
 	parentRect,
 	internalState,
 	rootElement,
-	onlyBackgroundClip,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -35,7 +34,6 @@ export const processNode = async ({
 	parentRect: DOMRect;
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
-	onlyBackgroundClip: boolean;
 }): Promise<ProcessNodeReturnValue> => {
 	const {
 		totalMatrix,
@@ -181,7 +179,8 @@ export const processNode = async ({
 		totalMatrix,
 		parentRect,
 		logLevel,
-		onlyBackgroundClip,
+		element,
+		internalState,
 	});
 
 	reset();

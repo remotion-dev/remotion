@@ -1,4 +1,5 @@
 import type {LogLevel} from 'remotion';
+import type {InternalState} from '../internal-state';
 import {parseBorderRadius, setBorderRadius} from './border-radius';
 import {drawBackground} from './draw-background';
 import {drawBorder} from './draw-border';
@@ -18,7 +19,8 @@ export const drawElement = async ({
 	totalMatrix,
 	parentRect,
 	logLevel,
-	onlyBackgroundClip,
+	element,
+	internalState,
 }: {
 	rect: DOMRect;
 	computedStyle: CSSStyleDeclaration;
@@ -28,7 +30,8 @@ export const drawElement = async ({
 	draw: DrawFn;
 	parentRect: DOMRect;
 	logLevel: LogLevel;
-	onlyBackgroundClip: boolean;
+	element: HTMLElement | SVGElement;
+	internalState: InternalState;
 }) => {
 	const {backgroundImage, backgroundColor} = computedStyle;
 	const borderRadius = parseBorderRadius({
@@ -63,24 +66,25 @@ export const drawElement = async ({
 		forceClipEvenWhenZero: false,
 	});
 
-	drawBackground({
+	await drawBackground({
 		backgroundImage,
 		context,
 		rect,
 		backgroundColor,
-		backgroundClipText: onlyBackgroundClip,
+		backgroundClipText: computedStyle.backgroundClip.includes('text'),
+		element,
+		logLevel,
+		internalState,
 	});
 
-	if (!onlyBackgroundClip) {
-		await draw({dimensions: rect, computedStyle, contextToDraw: context});
+	await draw({dimensions: rect, computedStyle, contextToDraw: context});
 
-		drawBorder({
-			ctx: context,
-			rect,
-			borderRadius,
-			computedStyle,
-		});
-	}
+	drawBorder({
+		ctx: context,
+		rect,
+		borderRadius,
+		computedStyle,
+	});
 
 	finishBorderRadius();
 
@@ -90,7 +94,6 @@ export const drawElement = async ({
 		rect,
 		borderRadius,
 		computedStyle,
-		onlyBackgroundClip,
 	});
 
 	const finishOverflowHidden = setOverflowHidden({
