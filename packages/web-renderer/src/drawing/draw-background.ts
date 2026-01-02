@@ -7,13 +7,20 @@ export const drawBackground = ({
 	backgroundImage,
 	context,
 	rect,
-	background,
+	backgroundColor,
+	backgroundClipText,
 }: {
 	backgroundImage: string;
 	context: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
-	background: string;
+	backgroundColor: string;
+	backgroundClipText: boolean;
 }) => {
+	if (backgroundClipText) {
+		context.globalCompositeOperation = 'source-in';
+		return;
+	}
+
 	if (backgroundImage && backgroundImage !== 'none') {
 		const gradientInfo = parseLinearGradient(backgroundImage);
 		if (gradientInfo) {
@@ -32,15 +39,15 @@ export const drawBackground = ({
 
 	// Fallback to solid background color if no gradient was drawn
 	if (
-		background &&
-		background !== 'transparent' &&
+		backgroundColor &&
+		backgroundColor !== 'transparent' &&
 		!(
-			background.startsWith('rgba') &&
-			(background.endsWith(', 0)') || background.endsWith(',0'))
+			backgroundColor.startsWith('rgba') &&
+			(backgroundColor.endsWith(', 0)') || backgroundColor.endsWith(',0'))
 		)
 	) {
 		const originalFillStyle = context.fillStyle;
-		context.fillStyle = background;
+		context.fillStyle = backgroundColor;
 		context.fillRect(rect.left, rect.top, rect.width, rect.height);
 		context.fillStyle = originalFillStyle;
 	}
