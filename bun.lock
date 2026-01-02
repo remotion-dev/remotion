@@ -1498,7 +1498,7 @@
         "@remotion/media": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/zod-types": "workspace:*",
-        "mediabunny": "1.27.2",
+        "mediabunny": "1.27.3",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
@@ -1818,7 +1818,7 @@
         "connect": "3.7.0",
         "eslint": "9.19.0",
         "lucide-react": "0.516.0",
-        "mediabunny": "1.27.2",
+        "mediabunny": "1.27.3",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
@@ -1954,7 +1954,7 @@
         "@remotion/media": "workspace:*",
         "@remotion/three": "workspace:*",
         "@remotion/zod-types": "workspace:*",
-        "mediabunny": "1.27.2",
+        "mediabunny": "1.27.3",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
@@ -2201,7 +2201,7 @@
     "@aws-sdk/lib-storage": "3.936.0",
     "@aws-sdk/middleware-flexible-checksums": "3.936.0",
     "@aws-sdk/s3-request-presigner": "3.936.0",
-    "@mediabunny/mp3-encoder": "1.27.2",
+    "@mediabunny/mp3-encoder": "1.27.3",
     "@react-three/fiber": "9.2.0",
     "@types/bun": "1.3.3",
     "@types/dom-webcodecs": "0.1.11",
@@ -2213,7 +2213,7 @@
     "@vitejs/plugin-react": "4.1.0",
     "@vitest/browser-playwright": "4.0.9",
     "eslint": "9.19.0",
-    "mediabunny": "1.27.2",
+    "mediabunny": "1.27.3",
     "next": "16.0.10",
     "openai": "4.67.1",
     "playwright": "1.55.1",
@@ -3106,7 +3106,7 @@
 
     "@mdx-js/react": ["@mdx-js/react@2.3.0", "", { "dependencies": { "@types/mdx": "2.0.5", "@types/react": "19.0.0" }, "peerDependencies": { "react": "19.0.0" } }, "sha512-zQH//gdOmuu7nt2oJR29vFhDv88oGPmVw6BggmrHeMI+xgEkp1B2dX9/bMBSYtK0dyLX/aOmesKS09g222K1/g=="],
 
-    "@mediabunny/mp3-encoder": ["@mediabunny/mp3-encoder@1.27.2", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-Dq7cG3wZeZdKNIqZFVq8GXCBpRw7DGRcJou5PTtU96V2irltWi6FUQhj9ScVkOeZBudb9yPRF2EUW9Hf+1QGmQ=="],
+    "@mediabunny/mp3-encoder": ["@mediabunny/mp3-encoder@1.27.3", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-PooSfVayczJFD+N3KDMQmTwPAzcCDN7fKySL1Gn//WKIigWkkxdJui0wCemgb4BiaUY+Bszm8A+kTao1TW7D1w=="],
 
     "@mediafox/core": ["@mediafox/core@1.0.4", "", { "peerDependencies": { "mediabunny": "^1.23.0", "typescript": ">=5.0.0" } }, "sha512-1j8PKp835RUVzZt1vcymrgZqhaMobfP7SswbTisusvTgIZL8y5n2QFhSCnn7dze+a53VgnWyzkHOYdtVR1Gdew=="],
 
@@ -5652,7 +5652,7 @@
 
     "media-typer": ["media-typer@0.3.0", "", {}, "sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ=="],
 
-    "mediabunny": ["mediabunny@1.27.2", "", { "dependencies": { "@types/dom-mediacapture-transform": "^0.1.11", "@types/dom-webcodecs": "0.1.13" } }, "sha512-0g/vmb6X0xmnzqW0U44weF9CmzcUFFQRHrjzoVpSL2KXuhWIWcW3u9wIcohHiTY78jfr0SauYKLxjOQReaMxXQ=="],
+    "mediabunny": ["mediabunny@1.27.3", "", { "dependencies": { "@types/dom-mediacapture-transform": "^0.1.11", "@types/dom-webcodecs": "0.1.13" } }, "sha512-hlzmgzMznp9DhA5fMJKS5yEAyfCUMxAc+DbSPxD4J1J2cYVl1L+pZLndkt5xLlD5aB5eHEnphHMW14ammMlUXg=="],
 
     "memfs": ["memfs@3.4.3", "", { "dependencies": { "fs-monkey": "1.0.3" } }, "sha512-eivjfi7Ahr6eQTn44nvTnR60e4a1Fs1Via2kCR5lHo/kyNoiMWaXCNJ/GpSd0ilXas2JSOl9B5FTIhflXu0hlg=="],
 
