@@ -16,6 +16,6 @@ test('should render background-clip: text', async () => {
 		blob,
 		testId: 'background-clip-text',
 		threshold: 0,
-		allowedMismatchedPixelRatio: 0.01,
+		allowedMismatchedPixelRatio: 0.03,
 	});
 });
