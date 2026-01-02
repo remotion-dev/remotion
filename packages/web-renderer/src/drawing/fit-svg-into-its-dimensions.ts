@@ -35,6 +35,7 @@ export const fitSvgIntoItsContainer = ({
 			`Element must have positive dimensions, but got ${elementSize.width}x${elementSize.height}`,
 		);
 	}
+
 	const heightRatio = containerSize.height / elementSize.height;
 	const widthRatio = containerSize.width / elementSize.width;
 
