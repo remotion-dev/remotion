@@ -539,7 +539,7 @@ export const benchmarkCommand = async (
 						commandLine: parsedCli,
 					}).value,
 					onLog: RenderInternals.defaultOnLog,
-					apiKey: null,
+					licenseKey: null,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

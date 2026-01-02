@@ -18,7 +18,7 @@ Not directly - you can directly pass the `licenseKey` option to track a render.
 **For [`@remotion/renderer`](/docs/renderer)**: Pass the `licenseKey` option to [`renderMedia()`](/docs/renderer/render-media#licensekey) and [`renderStill()`](/docs/renderer/render-still#licensekey) to trigger an event.  
 **For [`@remotion/web-renderer`](/docs/client-side-rendering/telemetry)**: An event is always sent. You must pass a real `licenseKey` or declare your eligibility for the free license using `licenseKey: "free-license"` - see: [Telemetry in client-side rendering](/docs/client-side-rendering/telemetry#setting-a-license-key).  
 **For [`@remotion/cloudrun`](/docs/cloudrun)** (_deprecated_): No telemetry is implemented. Use [`@remotion/licensing`](/docs/licensing) directly to track usage.  
-**For [`@remotion/webcodecs`](/docs/webcodecs)** (_deprecated_): Telemetry is enabled by default, but Remotion will not enforce the license for this deprecated package.
+**For [`@remotion/webcodecs`](/docs/webcodecs)** (_deprecated_): Telemetry has been removed in v4.0.399, as we have given up on monetizing this package.
 
 On your company license dashboard on [remotion.pro](https://remotion.pro), you can find your license keys under the "Usage" tab.
 

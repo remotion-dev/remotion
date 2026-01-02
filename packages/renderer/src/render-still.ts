@@ -425,7 +425,7 @@ const internalRenderStillRaw = (
 				}
 
 				registerUsageEvent({
-					apiKey: options.apiKey,
+					licenseKey: options.licenseKey ?? options.apiKey ?? null,
 					event: 'cloud-render',
 					host: null,
 					succeeded: true,
@@ -503,6 +503,7 @@ export const renderStill = (
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
 		apiKey,
+		licenseKey,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -570,6 +571,7 @@ export const renderStill = (
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		apiKey: apiKey ?? null,
+		licenseKey: licenseKey ?? null,
 		onLog: defaultOnLog,
 	});
 };

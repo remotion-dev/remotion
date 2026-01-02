@@ -402,6 +402,7 @@ export const renderStillFlow = async ({
 			});
 		},
 		apiKey: null,
+		licenseKey: null,
 	});
 
 	aggregate.rendering = {
