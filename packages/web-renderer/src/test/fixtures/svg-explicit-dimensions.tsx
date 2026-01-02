@@ -29,7 +29,7 @@ const Component: React.FC = () => {
 					alignItems: 'center',
 				}}
 			>
-				<svg viewBox="0 0 1080 1080" fill="none">
+				<svg viewBox="0 0 1080 1080" width={1080} height={1080} fill="none">
 					<rect x="0" y="0" width="1080" height="1080" fill="#3498db" />
 					<circle cx="540" cy="540" r="400" fill="#e74c3c" />
 					<rect x="340" y="340" width="400" height="400" fill="#2ecc71" />
