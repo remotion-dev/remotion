@@ -47,6 +47,7 @@ import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
+import {webkitTextFillColor} from './fixtures/text/webkit-text-fill-color';
 import {threeDoverflow} from './fixtures/three-d-overflow';
 import {threeDTransformOpacity} from './fixtures/three-d-transform-opacity';
 import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bounds';
@@ -117,6 +118,7 @@ export const Root: React.FC = () => {
 				<Composition {...letterSpacing} />
 				<Composition {...textTransform} />
 				<Composition {...lineHeight} />
+				<Composition {...webkitTextFillColor} />
 			</Folder>
 			<Folder name="Projects">
 				<Composition {...unwrapped} />
