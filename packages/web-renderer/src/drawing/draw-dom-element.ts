@@ -119,10 +119,7 @@ export const drawDomElement = (node: HTMLElement | SVGElement) => {
 		}
 
 		// Handle replaced elements (img, canvas) with object-fit support
-		if (
-			node instanceof HTMLImageElement ||
-			node instanceof HTMLCanvasElement
-		) {
+		if (node instanceof HTMLImageElement || node instanceof HTMLCanvasElement) {
 			try {
 				drawReplacedElement({
 					drawable: node,
