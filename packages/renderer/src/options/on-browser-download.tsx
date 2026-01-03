@@ -2,6 +2,7 @@ import type {ChromeMode} from './chrome-mode';
 import type {AnyRemotionOption} from './option';
 
 export type DownloadBrowserProgressFn = (progress: {
+	alreadyAvailable: boolean;
 	percent: number;
 	downloadedBytes: number;
 	totalSizeInBytes: number;

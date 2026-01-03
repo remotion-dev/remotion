@@ -164,6 +164,7 @@ export const downloadBrowser = async ({
 					downloadedBytes: progress.downloaded,
 					totalSizeInBytes: progress.totalSize,
 					percent: progress.percent,
+					alreadyAvailable: false,
 				});
 			},
 			indent,

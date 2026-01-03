@@ -1,5 +1,6 @@
 import type {ChromeMode, LogLevel, OnBrowserDownload} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserForRenderingState} from '@remotion/studio-shared/src/render-job';
 import {chalk} from './chalk';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
@@ -39,12 +40,12 @@ export const defaultBrowserDownloadProgress = ({
 	indent,
 	logLevel,
 	quiet,
-	UIprogressUpdater
+	UIprogressUpdater,
 }: {
 	indent: boolean;
 	logLevel: LogLevel;
 	quiet: boolean;
-	UIprogressUpdater: (progress: number) => void
+	UIprogressUpdater?: (progress: BrowserForRenderingState) => void;
 }): OnBrowserDownload => {
 	return ({chromeMode}) => {
 		if (chromeMode === 'chrome-for-testing') {
@@ -106,10 +107,14 @@ export const defaultBrowserDownloadProgress = ({
 		return {
 			version: null,
 			onProgress: (progress) => {
-				UIprogressUpdater(progress.percent)
 				if (progress.percent === 1) {
 					doneIn = Date.now() - startedAt;
 				}
+				UIprogressUpdater?.({
+					alreadyAvailable: progress.alreadyAvailable,
+					progress: progress.percent,
+					doneIn,
+				});
 
 				cliOutput.update(
 					makeDownloadProgress({

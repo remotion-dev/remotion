@@ -31,6 +31,7 @@ import type {
 	StitchingProgressInput,
 } from '@remotion/studio-server';
 import {formatBytes, type ArtifactProgress} from '@remotion/studio-shared';
+import {BrowserForRenderingState} from '@remotion/studio-shared/src/render-job';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -181,14 +182,14 @@ export const renderVideoFlow = async ({
 	imageSequencePattern: string | null;
 	mediaCacheSizeInBytes: number | null;
 }) => {
-
-		let bundlingProgress: BundlingState = {
-		doneIn: null,
-		progress: 0,
-	};
-
+	let bundlingProgress: BundlingState | null = null;
 	let renderingProgress: RenderingProgressInput | null = null;
 	let stitchingProgress: StitchingProgressInput | null = null;
+	let browserState: BrowserForRenderingState = {
+		progress: 0,
+		doneIn: 0,
+		alreadyAvailable: true,
+	};
 	let copyingState: CopyingState = {
 		bytes: 0,
 		doneIn: null,
@@ -196,7 +197,6 @@ export const renderVideoFlow = async ({
 	const logsProgress: AggregateRenderProgress['logs'] = [];
 
 	let artifactState: ArtifactProgress = {received: []};
-
 
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
@@ -216,7 +216,6 @@ export const renderVideoFlow = async ({
 		logLevel,
 		quiet: quietFlagProvided(),
 	});
-
 	await RenderInternals.internalEnsureBrowser({
 		browserExecutable,
 		indent,
@@ -247,10 +246,10 @@ export const renderVideoFlow = async ({
 		indent,
 	});
 
-
-
- function updateBrowserProgress(progress: number) {
-			const aggregateRenderProgress: AggregateRenderProgress = {
+	function updateBrowserProgress(progress: BrowserForRenderingState) {
+		browserState = progress;
+		const aggregateRenderProgress: AggregateRenderProgress = {
+			browser: browserState,
 			rendering: renderingProgress,
 			stitching: shouldOutputImageSequence ? null : stitchingProgress,
 			downloads,
@@ -260,10 +259,12 @@ export const renderVideoFlow = async ({
 			logs: logsProgress,
 		};
 
-	
-		onProgress({message: "downloading Chrome headless shell", value: progress, ...aggregateRenderProgress});
-
- }	
+		onProgress({
+			message: 'downloading Chrome headless shell',
+			value: progress.progress,
+			...aggregateRenderProgress,
+		});
+	}
 
 	const updateRenderProgress = ({
 		newline,
@@ -276,6 +277,7 @@ export const renderVideoFlow = async ({
 			rendering: renderingProgress,
 			stitching: shouldOutputImageSequence ? null : stitchingProgress,
 			downloads,
+			browser: browserState,
 			bundling: bundlingProgress,
 			copyingState,
 			artifactState,
