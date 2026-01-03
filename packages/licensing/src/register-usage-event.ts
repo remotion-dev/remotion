@@ -90,6 +90,7 @@ export const registerUsageEvent = async ({
 		return read;
 	} catch (err) {
 		if (isNetworkError(err as Error)) {
+			// eslint-disable-next-line no-console
 			console.log('Failed to send usage event', err);
 		}
 
