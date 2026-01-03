@@ -53,8 +53,8 @@ export type BundlingState = {
 export type BrowserForRenderingState = {
 	progress: number;
 	doneIn: number | null;
-	alreadyAvailable: boolean
-}
+	alreadyAvailable: boolean;
+};
 
 export type BrowserProgressLog = {
 	logLevel: LogLevel;

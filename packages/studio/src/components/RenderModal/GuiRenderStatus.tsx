@@ -59,17 +59,18 @@ const BrowserSetupProgress: React.FC<{
 }> = ({progress, doneIn, alreadyAvailable}) => {
 	return (
 		<div style={progressItem}>
-			{(progress === 1 || alreadyAvailable) ? (
+			{progress === 1 || alreadyAvailable ? (
 				<SuccessIcon />
 			) : (
 				<CircularProgress progress={progress} />
 			)}
 			<Spacing x={1} />
 			<div style={label}>
-				{
-					alreadyAvailable ? 'Headless browser already available' : progress === 1 ? 'Downloaded Headless Browser' : `Downloading Headless Browser ${Math.round(progress * 100)}%`
-				}
-			
+				{alreadyAvailable
+					? 'Headless browser already available'
+					: progress === 1
+						? 'Downloaded Headless Browser'
+						: `Downloading Headless Browser ${Math.round(progress * 100)}%`}
 			</div>
 			{doneIn ? <div style={right}>{doneIn}ms</div> : null}
 		</div>
@@ -194,10 +195,12 @@ export const GuiRenderStatus: React.FC<{
 		<div>
 			<Spacing y={0.5} />
 			<BrowserSetupProgress {...job.progress.browser} />
-			{job.progress. bundling && <BundlingProgress
-				progress={job.progress.bundling.progress}
-				doneIn={job.progress.bundling.doneIn}
-			/>}
+			{job.progress.bundling && (
+				<BundlingProgress
+					progress={job.progress.bundling.progress}
+					doneIn={job.progress.bundling.doneIn}
+				/>
+			)}
 			{job.progress.rendering ? (
 				<RenderingProgress progress={job.progress.rendering} />
 			) : null}

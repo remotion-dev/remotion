@@ -30,8 +30,7 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
-import {formatBytes, type ArtifactProgress} from '@remotion/studio-shared';
-import {BrowserForRenderingState} from '@remotion/studio-shared/src/render-job';
+import {type BrowserForRenderingState, formatBytes, type ArtifactProgress} from '@remotion/studio-shared';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -212,7 +211,7 @@ export const renderVideoFlow = async ({
 	const downloads: DownloadProgress[] = [];
 	const onBrowserDownload = defaultBrowserDownloadProgress({
 		indent,
-		UIprogressUpdater: updateBrowserProgress,
+		uiProgressUpdater: updateBrowserProgress,
 		logLevel,
 		quiet: quietFlagProvided(),
 	});

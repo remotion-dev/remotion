@@ -1,12 +1,13 @@
 import type {ChromeMode, LogLevel, OnBrowserDownload} from '@remotion/renderer';
+import type { BrowserForRenderingState } from '@remotion/studio-shared';
 import {RenderInternals} from '@remotion/renderer';
-import {BrowserForRenderingState} from '@remotion/studio-shared/src/render-job';
 import {chalk} from './chalk';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {LABEL_WIDTH, createOverwriteableCliOutput} from './progress-bar';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {truthy} from './truthy';
+
 
 const makeDownloadProgress = ({
 	bytesDownloaded,
@@ -40,12 +41,12 @@ export const defaultBrowserDownloadProgress = ({
 	indent,
 	logLevel,
 	quiet,
-	UIprogressUpdater,
+	uiProgressUpdater,
 }: {
 	indent: boolean;
 	logLevel: LogLevel;
 	quiet: boolean;
-	UIprogressUpdater?: (progress: BrowserForRenderingState) => void;
+	uiProgressUpdater?: (progress: BrowserForRenderingState) => void;
 }): OnBrowserDownload => {
 	return ({chromeMode}) => {
 		if (chromeMode === 'chrome-for-testing') {
@@ -110,7 +111,8 @@ export const defaultBrowserDownloadProgress = ({
 				if (progress.percent === 1) {
 					doneIn = Date.now() - startedAt;
 				}
-				UIprogressUpdater?.({
+
+				uiProgressUpdater?.({
 					alreadyAvailable: progress.alreadyAvailable,
 					progress: progress.percent,
 					doneIn,
