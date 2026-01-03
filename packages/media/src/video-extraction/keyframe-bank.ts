@@ -3,6 +3,7 @@ import {Internals, type LogLevel} from 'remotion';
 import {SAFE_BACK_WINDOW_IN_SECONDS} from '../caches';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import {renderTimestampRange} from '../render-timestamp-range';
+import {getAllocationSize} from './get-allocation-size';
 
 export type KeyframeBank = {
 	src: string;
@@ -71,7 +72,7 @@ export const makeKeyframeBank = ({
 					continue;
 				}
 
-				allocationSize -= frames[frameTimestamp].allocationSize();
+				allocationSize -= getAllocationSize(frames[frameTimestamp]);
 
 				frameTimestamps.splice(frameTimestamps.indexOf(frameTimestamp), 1);
 				frames[frameTimestamp].close();
@@ -109,7 +110,7 @@ export const makeKeyframeBank = ({
 	const addFrame = (frame: VideoSample) => {
 		frames[frame.timestamp] = frame;
 		frameTimestamps.push(frame.timestamp);
-		allocationSize += frame.allocationSize();
+		allocationSize += getAllocationSize(frame);
 
 		lastUsed = Date.now();
 	};
@@ -210,7 +211,7 @@ export const makeKeyframeBank = ({
 				continue;
 			}
 
-			allocationSize -= frames[frameTimestamp].allocationSize();
+			allocationSize -= getAllocationSize(frames[frameTimestamp]);
 			frames[frameTimestamp].close();
 			delete frames[frameTimestamp];
 			framesDeleted++;
