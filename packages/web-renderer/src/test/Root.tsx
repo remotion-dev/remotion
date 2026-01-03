@@ -24,6 +24,7 @@ import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
+import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
@@ -134,6 +135,7 @@ export const Root: React.FC = () => {
 				<Composition {...inside3dTransform} />
 				<Composition {...flexContainer} />
 				<Composition {...deeplyNestedTransform} />
+				<Composition {...manyLayers} />
 			</Folder>
 		</>
 	);
