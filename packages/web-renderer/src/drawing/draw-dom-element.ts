@@ -1,3 +1,4 @@
+import {calculateObjectFit, parseObjectFit} from './calculate-object-fit';
 import type {DrawFn} from './drawn-fn';
 import {fitSvgIntoItsContainer} from './fit-svg-into-its-dimensions';
 import {turnSvgIntoDrawable} from './turn-svg-into-drawable';
@@ -30,45 +31,112 @@ const getReadableImageError = (
 	return null;
 };
 
-export const drawDomElement = (node: HTMLElement | SVGElement) => {
-	const domDrawFn: DrawFn = async ({dimensions, contextToDraw}) => {
-		const drawable = await (node instanceof SVGSVGElement
-			? turnSvgIntoDrawable(node)
-			: node instanceof HTMLImageElement
-				? node
-				: node instanceof HTMLCanvasElement
-					? node
-					: null);
+/**
+ * Draw an SVG element using "contain" behavior (the default for SVGs).
+ */
+const drawSvg = ({
+	drawable,
+	dimensions,
+	contextToDraw,
+}: {
+	drawable: HTMLImageElement;
+	dimensions: DOMRect;
+	contextToDraw: OffscreenCanvasRenderingContext2D;
+}) => {
+	const fitted = fitSvgIntoItsContainer({
+		containerSize: dimensions,
+		elementSize: {
+			width: drawable.width,
+			height: drawable.height,
+		},
+	});
+	contextToDraw.drawImage(
+		drawable,
+		fitted.left,
+		fitted.top,
+		fitted.width,
+		fitted.height,
+	);
+};
 
-		if (!drawable) {
+/**
+ * Draw an image or canvas element using the object-fit CSS property.
+ */
+const drawReplacedElement = ({
+	drawable,
+	dimensions,
+	computedStyle,
+	contextToDraw,
+}: {
+	drawable: HTMLImageElement | HTMLCanvasElement;
+	dimensions: DOMRect;
+	computedStyle: CSSStyleDeclaration;
+	contextToDraw: OffscreenCanvasRenderingContext2D;
+}) => {
+	const objectFit = parseObjectFit(computedStyle.objectFit);
+
+	const intrinsicSize =
+		drawable instanceof HTMLImageElement
+			? {width: drawable.naturalWidth, height: drawable.naturalHeight}
+			: {width: drawable.width, height: drawable.height};
+
+	const result = calculateObjectFit({
+		objectFit,
+		containerSize: {
+			width: dimensions.width,
+			height: dimensions.height,
+			left: dimensions.left,
+			top: dimensions.top,
+		},
+		intrinsicSize,
+	});
+
+	// Use the 9-argument drawImage to support source cropping (for cover mode)
+	contextToDraw.drawImage(
+		drawable,
+		result.sourceX,
+		result.sourceY,
+		result.sourceWidth,
+		result.sourceHeight,
+		result.destX,
+		result.destY,
+		result.destWidth,
+		result.destHeight,
+	);
+};
+
+export const drawDomElement = (node: HTMLElement | SVGElement) => {
+	const domDrawFn: DrawFn = async ({
+		dimensions,
+		contextToDraw,
+		computedStyle,
+	}) => {
+		// Handle SVG elements separately - they use "contain" behavior by default
+		if (node instanceof SVGSVGElement) {
+			const drawable = await turnSvgIntoDrawable(node);
+			drawSvg({drawable, dimensions, contextToDraw});
 			return;
 		}
 
-		try {
-			const fitted = fitSvgIntoItsContainer({
-				containerSize: dimensions,
-				elementSize: {
-					width: drawable.width,
-					height: drawable.height,
-				},
-			});
-			contextToDraw.drawImage(
-				drawable,
-				fitted.left,
-				fitted.top,
-				fitted.width,
-				fitted.height,
-			);
-		} catch (err) {
-			// Provide readable error messages for image errors
-			if (node instanceof HTMLImageElement) {
-				const readableError = getReadableImageError(err, node);
-				if (readableError) {
-					throw readableError;
+		// Handle replaced elements (img, canvas) with object-fit support
+		if (node instanceof HTMLImageElement || node instanceof HTMLCanvasElement) {
+			try {
+				drawReplacedElement({
+					drawable: node,
+					dimensions,
+					computedStyle,
+					contextToDraw,
+				});
+			} catch (err) {
+				if (node instanceof HTMLImageElement) {
+					const readableError = getReadableImageError(err, node);
+					if (readableError) {
+						throw readableError;
+					}
 				}
-			}
 
-			throw err;
+				throw err;
+			}
 		}
 	};
 

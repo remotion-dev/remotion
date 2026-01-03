@@ -11,7 +11,8 @@
 		"lint": "eslint src",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"testwebrenderer": "vitest src/test --browser --run",
-		"studio": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts"
+		"studio": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts --public-dir=../example-videos/videos",
+		"remotion": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts --public-dir=../example-videos/videos"
 	},
 	"author": "Remotion <jonny@remotion.dev>",
 	"license": "UNLICENSED",
