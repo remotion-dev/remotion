@@ -154,14 +154,12 @@ export const makeKeyframeBank = ({
 			adjustedTimestamp = startTimestampInSeconds;
 		}
 
+		// If we request a timestamp after the end of the video, return the last frame
+		// same behavior as <video>
 		if (
 			roundTo4Digits(adjustedTimestamp) > roundTo4Digits(endTimestampInSeconds)
 		) {
-			return Promise.reject(
-				new Error(
-					`Timestamp is after end timestamp (requested: ${timestampInSeconds}sec, end: ${endTimestampInSeconds}sec)`,
-				),
-			);
+			adjustedTimestamp = endTimestampInSeconds;
 		}
 
 		await ensureEnoughFramesForTimestamp(adjustedTimestamp);
