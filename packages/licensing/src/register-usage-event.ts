@@ -85,6 +85,8 @@ export const registerUsageEvent = async ({
 		if (!res.ok) {
 			throw new Error(json.error);
 		}
+
+		throw new Error('Unexpected response from server');
 	} catch (err) {
 		if (isNetworkError(err as Error)) {
 			// eslint-disable-next-line no-console
