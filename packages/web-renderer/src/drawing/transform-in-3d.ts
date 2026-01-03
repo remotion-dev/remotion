@@ -118,8 +118,6 @@ const createHelperCanvas = ({
 	gl.deleteShader(fragmentShader);
 
 	const cleanup = () => {
-		gl.deleteShader(vertexShader);
-		gl.deleteShader(fragmentShader);
 		gl.deleteProgram(program);
 		const loseContext = gl.getExtension('WEBGL_lose_context');
 		if (loseContext) {
