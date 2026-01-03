@@ -100,6 +100,7 @@ const calculateCover = ({
 			destHeight: 0,
 		};
 	}
+
 	const containerAspect = containerSize.width / containerSize.height;
 	const imageAspect = intrinsicSize.width / intrinsicSize.height;
 
