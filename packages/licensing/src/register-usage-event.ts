@@ -85,9 +85,6 @@ export const registerUsageEvent = async ({
 		if (!res.ok) {
 			throw new Error(json.error);
 		}
-
-		const read = await res.json();
-		return read;
 	} catch (err) {
 		if (isNetworkError(err as Error)) {
 			// eslint-disable-next-line no-console
