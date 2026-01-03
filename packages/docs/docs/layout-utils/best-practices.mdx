@@ -101,7 +101,7 @@ waitForFonts()
 // @filename: WaitForFonts.tsx
 // ---cut---
 import React, {useEffect, useState} from 'react';
-import {cancelRender, continueRender, delayRender} from 'remotion';
+import {cancelRender, continueRender, useDelayRender} from 'remotion';
 import {waitForFonts} from './fonts';
 
 export const WaitForFonts: React.FC<{
