@@ -1,5 +1,6 @@
 export const HOST = 'https://www.remotion.pro';
 import type {NoReactInternals} from 'remotion/no-react';
+import {isNetworkError} from './is-network-error';
 
 type ApiResponse =
 	| {
@@ -88,6 +89,10 @@ export const registerUsageEvent = async ({
 		const read = await res.json();
 		return read;
 	} catch (err) {
+		if (isNetworkError(err as Error)) {
+			console.log('Failed to send usage event', err);
+		}
+
 		clearTimeout(timeout);
 		if (err instanceof Error && err.name === 'AbortError') {
 			throw new Error('Request timed out after 10 seconds');
