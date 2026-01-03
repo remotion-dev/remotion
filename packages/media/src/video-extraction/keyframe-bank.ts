@@ -110,9 +110,9 @@ export const makeKeyframeBank = ({
 	const addFrame = (frame: VideoSample) => {
 		if (frames[frame.timestamp]) {
 			allocationSize -= getAllocationSize(frames[frame.timestamp]);
+			frameTimestamps.splice(frameTimestamps.indexOf(frame.timestamp), 1);
 			frames[frame.timestamp].close();
 			delete frames[frame.timestamp];
-			frameTimestamps.splice(frameTimestamps.indexOf(frame.timestamp), 1);
 		}
 
 		frames[frame.timestamp] = frame;
