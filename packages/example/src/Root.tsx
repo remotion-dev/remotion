@@ -137,7 +137,7 @@ import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore
 import {LoopedNewVideo} from './OffthreadRemoteVideo/LoopedNewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
-import {NewVideoComp} from './OffthreadRemoteVideo/NewRemoteVideo';
+import {NewVideoComp} from './OffthreadRemoteVideo/NewVideo';
 import {OffthreadRemoteSeries} from './OffthreadRemoteVideo/OffthreadRemoteSeries';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
