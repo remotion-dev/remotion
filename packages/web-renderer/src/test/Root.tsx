@@ -26,6 +26,7 @@ import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
+import {objectFit} from './fixtures/object-fit';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {opacityInherited} from './fixtures/opacity-inherited';
@@ -81,6 +82,7 @@ export const Root: React.FC = () => {
 			<Composition {...overflowHidden} />
 			<Composition {...overflowHidden3dTransform} />
 			<Composition {...hugeImageTransform} />
+			<Composition {...objectFit} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
