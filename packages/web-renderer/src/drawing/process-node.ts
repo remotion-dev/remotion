@@ -106,7 +106,6 @@ export const processNode = async ({
 		});
 
 		let drawable: OffscreenCanvas | null = tempCanvas;
-		let cleanupWebGL: () => void = () => {};
 
 		const rectAfterTransforms = roundToExpandRect(
 			transformDOMRect({
@@ -130,11 +129,10 @@ export const processNode = async ({
 				precomposeRect,
 				tempCanvas: drawable,
 				rectAfterTransforms,
+				internalState,
 			});
 			if (t) {
-				const [transformed, cleanup] = t;
-				drawable = transformed;
-				cleanupWebGL = cleanup;
+				drawable = t;
 			}
 		}
 
@@ -143,6 +141,10 @@ export const processNode = async ({
 			context.setTransform(new DOMMatrix());
 			context.drawImage(
 				drawable,
+				0,
+				drawable.height - rectAfterTransforms.height,
+				rectAfterTransforms.width,
+				rectAfterTransforms.height,
 				rectAfterTransforms.left - parentRect.x,
 				rectAfterTransforms.top - parentRect.y,
 				rectAfterTransforms.width,
@@ -165,7 +167,6 @@ export const processNode = async ({
 		}
 
 		reset();
-		cleanupWebGL();
 
 		return {type: 'skip-children'};
 	}
