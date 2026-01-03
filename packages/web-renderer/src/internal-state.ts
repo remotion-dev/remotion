@@ -39,8 +39,6 @@ export const makeInternalState = () => {
 		},
 		helperCanvasState,
 		cleanup: () => {
-			drawnPrecomposedPixels = 0;
-			precomposedTextures = 0;
 			if (helperCanvasState.current) {
 				helperCanvasState.current.cleanup();
 			}
