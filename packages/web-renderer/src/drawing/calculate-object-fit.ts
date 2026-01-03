@@ -87,6 +87,19 @@ const calculateCover = ({
 	containerSize,
 	intrinsicSize,
 }: ObjectFitParams): ObjectFitResult => {
+	// Guard against zero or non-positive heights to avoid division by zero and NaN/Infinity.
+	if (containerSize.height <= 0 || intrinsicSize.height <= 0) {
+		return {
+			sourceX: 0,
+			sourceY: 0,
+			sourceWidth: 0,
+			sourceHeight: 0,
+			destX: containerSize.left,
+			destY: containerSize.top,
+			destWidth: 0,
+			destHeight: 0,
+		};
+	}
 	const containerAspect = containerSize.width / containerSize.height;
 	const imageAspect = intrinsicSize.width / intrinsicSize.height;
 
