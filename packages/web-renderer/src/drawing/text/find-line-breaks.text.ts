@@ -47,6 +47,7 @@ export function findLineBreaks(
 
 	const words = Array.from(segments).map((s) => s.segment);
 
+	// If the text would be centered in a flexbox container
 	const lines: Array<{
 		text: string;
 		height: number;

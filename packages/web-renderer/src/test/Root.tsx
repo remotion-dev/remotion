@@ -46,6 +46,7 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
+import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
 import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
@@ -124,6 +125,7 @@ export const Root: React.FC = () => {
 				<Composition {...lineHeight} />
 				<Composition {...webkitTextFillColor} />
 				<Composition {...backgroundClipText} />
+				<Composition {...backgroundClipText3dTransform} />
 			</Folder>
 			<Folder name="Projects">
 				<Composition {...unwrapped} />
