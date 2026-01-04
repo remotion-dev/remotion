@@ -6737,15 +6737,6 @@ export const articles = [
 		slug: 'webcodecs/rotate-a-video',
 	},
 	{
-		id: 'telemetry',
-		title: 'Telemetry in @remotion/webcodecs',
-		relativePath: 'docs/webcodecs/telemetry.mdx',
-		compId: 'articles-docs-webcodecs-telemetry',
-		crumb: '@remotion/webcodecs',
-		noAi: false,
-		slug: 'webcodecs/telemetry',
-	},
-	{
 		id: 'track-transformation',
 		title: 'Track Transformation',
 		relativePath: 'docs/webcodecs/track-transformation.mdx',

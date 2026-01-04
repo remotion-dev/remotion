@@ -2,6 +2,7 @@
 import React from 'react';
 import {Composition, Folder} from 'remotion';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
+import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
 import {backgroundColor} from './fixtures/background-color';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
@@ -100,6 +101,7 @@ export const Root: React.FC = () => {
 			<Composition {...backgroundColor} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
+				<Composition {...backfaceVisibilityMask} />
 				<Composition {...linearGradient} />
 			</Folder>
 			<Composition {...outline} />

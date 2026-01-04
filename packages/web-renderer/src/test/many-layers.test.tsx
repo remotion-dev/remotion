@@ -15,8 +15,8 @@ test('should render many layers efficiently', async () => {
 	});
 
 	await testImage({blob, testId: 'many layers'});
-	expect(internalState.getDrawn3dPixels()).toBeGreaterThanOrEqual(2300113);
-	expect(internalState.getDrawn3dPixels()).toBeLessThanOrEqual(2559467);
-	expect(internalState.getPrecomposedTiles()).toBeGreaterThanOrEqual(21);
-	expect(internalState.getPrecomposedTiles()).toBeLessThanOrEqual(23);
+	expect(internalState.getDrawn3dPixels()).toBeGreaterThanOrEqual(2191609);
+	expect(internalState.getDrawn3dPixels()).toBeLessThanOrEqual(2450963);
+	expect(internalState.getPrecomposedTiles()).toBeGreaterThanOrEqual(17);
+	expect(internalState.getPrecomposedTiles()).toBeLessThanOrEqual(19);
 });
