@@ -25,36 +25,10 @@ const Component: React.FC = () => {
 			<p
 				style={{
 					...baseStyle,
-					backgroundClip: 'border-box',
-				}}
-			>
-				The background extends behind the border.
-			</p>
-			<p
-				style={{
-					...baseStyle,
-					backgroundClip: 'padding-box',
-				}}
-			>
-				The background extends to the inside edge of the border.
-			</p>
-			<p
-				style={{
-					...baseStyle,
 					backgroundClip: 'content-box',
 				}}
 			>
 				The background extends only to the edge of the content box.
-			</p>
-			<p
-				style={{
-					...baseStyle,
-					backgroundClip: 'text',
-					WebkitBackgroundClip: 'text',
-					color: 'rgba(0, 0, 0, 0.2)',
-				}}
-			>
-				The background is clipped to the foreground text.
 			</p>
 		</AbsoluteFill>
 	);
