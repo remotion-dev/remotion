@@ -159,6 +159,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	forcePathStyle: boolean;
 	metadata: Record<string, string> | null;
 	apiKey: string | null;
+	licenseKey: string | null;
 	storageClass: Provider['storageClass'] | null;
 };
 
@@ -217,7 +218,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		preferLossless: boolean;
 		forcePathStyle: boolean;
 		metadata: Record<string, string> | null;
-		apiKey: string | null;
+		licenseKey: string | null;
 		storageClass: Provider['storageClass'] | null;
 	};
 	status: ServerlessStatusPayload<Provider>;
@@ -301,6 +302,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		streamed: boolean;
 		forcePathStyle: boolean;
 		apiKey: string | null;
+		licenseKey: string | null;
 		storageClass: Provider['storageClass'] | null;
 	};
 	compositions: {

@@ -10,6 +10,7 @@ def get_render_still_on_lambda_payload(
   force_path_style: false,
   force_width: nil,
   api_key: nil,
+  license_key: nil,
   image_format: "jpeg",
   input_props: {},
   jpeg_quality: 80,
@@ -30,6 +31,10 @@ def get_render_still_on_lambda_payload(
   frame: 0
 )
 
+if api_key != nil
+  warn "[DEPRECATED] The 'api_key' parameter is deprecated and will be removed in a future version. Please use 'license_key' instead."
+end
+
 payload = {
     composition: composition,
     chromiumOptions: chromium_options,
@@ -40,6 +45,7 @@ payload = {
     forcePathStyle: force_path_style,
     forceWidth: force_width,
     apiKey: api_key,
+    licenseKey: license_key,
     imageFormat: image_format,
     inputProps: {
       type: "payload",

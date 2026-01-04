@@ -2,6 +2,7 @@
 import React from 'react';
 import {Composition, Folder} from 'remotion';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
+import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
 import {backgroundColor} from './fixtures/background-color';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
@@ -24,9 +25,11 @@ import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
+import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
+import {objectFit} from './fixtures/object-fit';
 import {opacityInherited} from './fixtures/opacity-inherited';
 import {opacityNested} from './fixtures/opacity-nested';
 import {opacityReset} from './fixtures/opacity-reset';
@@ -42,10 +45,14 @@ import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
+import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
+import {backgroundClipText} from './fixtures/text/background-clip-text';
+import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
 import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
 import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
+import {webkitTextFillColor} from './fixtures/text/webkit-text-fill-color';
 import {threeDoverflow} from './fixtures/three-d-overflow';
 import {threeDTransformOpacity} from './fixtures/three-d-transform-opacity';
 import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bounds';
@@ -77,8 +84,10 @@ export const Root: React.FC = () => {
 			<Composition {...overflowHidden} />
 			<Composition {...overflowHidden3dTransform} />
 			<Composition {...hugeImageTransform} />
+			<Composition {...objectFit} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
+			<Composition {...svgExplicitDimensions} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
 			<Folder name="Opacity">
@@ -92,6 +101,7 @@ export const Root: React.FC = () => {
 			<Composition {...backgroundColor} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
+				<Composition {...backfaceVisibilityMask} />
 				<Composition {...linearGradient} />
 			</Folder>
 			<Composition {...outline} />
@@ -115,6 +125,9 @@ export const Root: React.FC = () => {
 				<Composition {...letterSpacing} />
 				<Composition {...textTransform} />
 				<Composition {...lineHeight} />
+				<Composition {...webkitTextFillColor} />
+				<Composition {...backgroundClipText} />
+				<Composition {...backgroundClipText3dTransform} />
 			</Folder>
 			<Folder name="Projects">
 				<Composition {...unwrapped} />
@@ -128,6 +141,7 @@ export const Root: React.FC = () => {
 				<Composition {...inside3dTransform} />
 				<Composition {...flexContainer} />
 				<Composition {...deeplyNestedTransform} />
+				<Composition {...manyLayers} />
 			</Folder>
 		</>
 	);

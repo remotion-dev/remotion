@@ -49,6 +49,7 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 		quiet: quietFlagProvided(),
 		indent: false,
 		logLevel,
+		onProgress: () => undefined,
 	});
 
 	await RenderInternals.internalEnsureBrowser({
@@ -79,6 +80,7 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 			indent: false,
 			logLevel,
 			quiet: quietFlagProvided(),
+			onProgress: () => undefined,
 		}),
 		chromeMode,
 		onLog: RenderInternals.defaultOnLog,

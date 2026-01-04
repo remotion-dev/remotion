@@ -165,6 +165,7 @@ async function internalRenderStillOnWeb<
 		});
 		throw err;
 	} finally {
+		internalState.cleanup();
 		cleanupScaffold();
 	}
 }

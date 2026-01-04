@@ -1,7 +1,7 @@
 import {Video} from '@remotion/media';
 import {CalculateMetadataFunction, Composition} from 'remotion';
 // https://www.remotion.dev/docs/mediabunny/metadata
-import {getMediaMetadata} from '../get-media-metadata';
+import {getMediaMetadata} from './get-media-metadata';
 
 const src = 'https://remotion.media/video.mp4';
 

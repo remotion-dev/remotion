@@ -52,6 +52,14 @@ export const processNode = async ({
 		return {type: 'skip-children'};
 	}
 
+	// When backfaceVisibility is 'hidden', don't render if the element is rotated
+	// to show its backface. The backface is visible when the z-component of the
+	// transformed normal vector (0, 0, 1) is negative, which corresponds to m33 < 0.
+	if (computedStyle.backfaceVisibility === 'hidden' && totalMatrix.m33 < 0) {
+		reset();
+		return {type: 'skip-children'};
+	}
+
 	if (dimensions.width <= 0 || dimensions.height <= 0) {
 		reset();
 		return {type: 'continue', cleanupAfterChildren: null};
@@ -106,7 +114,6 @@ export const processNode = async ({
 		});
 
 		let drawable: OffscreenCanvas | null = tempCanvas;
-		let cleanupWebGL: () => void = () => {};
 
 		const rectAfterTransforms = roundToExpandRect(
 			transformDOMRect({
@@ -130,11 +137,10 @@ export const processNode = async ({
 				precomposeRect,
 				tempCanvas: drawable,
 				rectAfterTransforms,
+				internalState,
 			});
 			if (t) {
-				const [transformed, cleanup] = t;
-				drawable = transformed;
-				cleanupWebGL = cleanup;
+				drawable = t;
 			}
 		}
 
@@ -143,6 +149,10 @@ export const processNode = async ({
 			context.setTransform(new DOMMatrix());
 			context.drawImage(
 				drawable,
+				0,
+				drawable.height - rectAfterTransforms.height,
+				rectAfterTransforms.width,
+				rectAfterTransforms.height,
 				rectAfterTransforms.left - parentRect.x,
 				rectAfterTransforms.top - parentRect.y,
 				rectAfterTransforms.width,
@@ -165,7 +175,6 @@ export const processNode = async ({
 		}
 
 		reset();
-		cleanupWebGL();
 
 		return {type: 'skip-children'};
 	}
@@ -179,6 +188,8 @@ export const processNode = async ({
 		totalMatrix,
 		parentRect,
 		logLevel,
+		element,
+		internalState,
 	});
 
 	reset();

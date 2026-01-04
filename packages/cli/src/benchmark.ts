@@ -257,6 +257,7 @@ export const benchmarkCommand = async (
 		indent: false,
 		logLevel,
 		quiet: quietFlagProvided(),
+		onProgress: () => undefined,
 	});
 
 	const indent = false;
@@ -539,7 +540,7 @@ export const benchmarkCommand = async (
 						commandLine: parsedCli,
 					}).value,
 					onLog: RenderInternals.defaultOnLog,
-					apiKey: null,
+					licenseKey: null,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

@@ -20,7 +20,9 @@ It is not feasible to support all CSS properties and factors affecting the visua
 
 Properties such as `margin`, `left`, `display`, `width`, `height`, `flex`, `flex-direction` affect the position and size of the element. Those are all <a style={{color: 'green'}}>supported</a> because Remotion uses [`.getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) to obtain the position and size of the element.
 
-The `overflow` property is <a style={{color: 'green'}}>supported</a>.
+The `overflow` property is <a style={{color: 'green'}}>supported</a>.  
+The `object-fit` property is <a style={{color: 'green'}}>supported</a>.  
+The `object-position` property is <a style={{color: 'red'}}>not supported</a> and content is always centered within its container.
 
 ### Transformations
 
@@ -30,12 +32,14 @@ The `opacity` property is <a style={{color: 'green'}}>supported</a>.
 The `scale`, `rotate` and `translate` transformations are <a style={{color: 'green'}}>supported</a>.  
 The `perspective` property is <a style={{color: 'red'}}>not supported</a>.  
 The `perspective-origin` property is <a style={{color: 'red'}}>not supported</a>.  
-The `transform-style` property is <a style={{color: 'red'}}>not supported</a> (defaults to `preserve-3d`, default in CSS is "flat").
+The `transform-style` property is <a style={{color: 'red'}}>not supported</a> (defaults to `preserve-3d`, default in CSS is "flat").  
+The `backface-visibility` property is <a style={{color: 'green'}}>supported</a>.
 
 ### Backgrounds
 
 The `background-color` property is <a style={{color: 'green'}}>supported</a>.  
 `background-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.  
+The `background-clip` property is <a style={{color: 'green'}}>supported</a>.  
 Other `background-image` values and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
 
 ### Borders and border radius
@@ -48,6 +52,7 @@ The `outline` property is <a style={{color: 'green'}}>supported</a>.
 ### Text properties
 
 The `color` property is <a style={{color: 'green'}}>supported</a>.  
+The `-webkit-text-fill-color` property is <a style={{color: 'green'}}>supported</a>.  
 The `font-family` property is <a style={{color: 'green'}}>supported</a>.  
 The `font-size` property is <a style={{color: 'green'}}>supported</a>.  
 The `font-weight` property is <a style={{color: 'green'}}>supported</a>.  
@@ -103,8 +108,6 @@ Here is a selection of unsupported styles:
 - `backdrop-filter`
 - `mix-blend-mode`
 - `background-blend-mode`
-- `object-fit`
-- `backface-visibility`
 - `z-index`
   - See [Z-indexing](#z-indexing) below.
 - Any other property not listed in this document.

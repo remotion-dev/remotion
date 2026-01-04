@@ -1,5 +1,34 @@
 import {getCollapsedText} from './get-collapsed-text';
 
+// Punctuation that cannot start a line according to Unicode line breaking rules
+// When these would start a line, the browser moves the preceding word to the new line
+const cannotStartLine = (segment: string): boolean => {
+	if (segment.length === 0) return false;
+	const firstChar = segment[0];
+	const forbiddenLineStarts = [
+		'.',
+		',',
+		';',
+		':',
+		'!',
+		'?',
+		')',
+		']',
+		'}',
+		'"',
+		"'",
+		'"',
+		`'`,
+		'»',
+		'…',
+		'‥',
+		'·',
+		'%',
+		'‰',
+	];
+	return forbiddenLineStarts.includes(firstChar);
+};
+
 export function findLineBreaks(
 	span: HTMLSpanElement,
 	rtl: boolean,
@@ -18,6 +47,7 @@ export function findLineBreaks(
 
 	const words = Array.from(segments).map((s) => s.segment);
 
+	// If the text would be centered in a flexbox container
 	const lines: Array<{
 		text: string;
 		height: number;
@@ -60,13 +90,42 @@ export function findLineBreaks(
 			const shouldCollapse =
 				!computedStyle.whiteSpaceCollapse.includes('preserve');
 
+			let textForPreviousLine = currentLine;
+			let textForNewLine = wordsToAdd;
+
+			// If the segment that triggered the break can't start a line (e.g., punctuation),
+			// the browser would have moved the preceding word to the new line as well
+			if (cannotStartLine(word)) {
+				const currentLineSegments = Array.from(
+					segmenter.segment(currentLine),
+				).map((s) => s.segment);
+
+				// Find the last non-whitespace segment (the word to move)
+				let lastWordIndex = currentLineSegments.length - 1;
+				while (
+					lastWordIndex >= 0 &&
+					currentLineSegments[lastWordIndex].trim() === ''
+				) {
+					lastWordIndex--;
+				}
+
+				if (lastWordIndex >= 0) {
+					// Move the last word (and any trailing whitespace) to the new line
+					textForPreviousLine = currentLineSegments
+						.slice(0, lastWordIndex)
+						.join('');
+					textForNewLine =
+						currentLineSegments.slice(lastWordIndex).join('') + wordsToAdd;
+				}
+			}
+
 			lines.push({
-				text: shouldCollapse ? currentLine.trim() : currentLine,
+				text: shouldCollapse ? textForPreviousLine.trim() : textForPreviousLine,
 				height: currentHeight - previousRect.height,
 				offsetHorizontal,
 			});
 
-			currentLine = wordsToAdd;
+			currentLine = textForNewLine;
 		} else {
 			currentLine += wordsToAdd;
 		}

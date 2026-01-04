@@ -13,6 +13,7 @@ import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
+import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {withMargin} from './fixtures/transforms/with-margin';
@@ -244,4 +245,18 @@ test('Should render with negative margin', async () => {
 	});
 
 	await testImage({blob, testId: 'with-negative-margin'});
+});
+
+test('SVG with explicit width/height props should render at specified size (issue #6186)', async () => {
+	await page.viewport(1080, 1080);
+
+	const {blob} = await renderStillOnWeb({
+		licenseKey: 'free-license',
+		composition: svgExplicitDimensions,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'svg-explicit-dimensions'});
 });

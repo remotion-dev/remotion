@@ -3,7 +3,7 @@
 
 import {expect, test} from 'bun:test';
 import {getUsage} from '../get-usage';
-import {registerUsageEvent} from '../register-usage-point';
+import {registerUsageEvent} from '../register-usage-event';
 
 test('Should be able to track production usage', async () => {
 	const result = await registerUsageEvent({

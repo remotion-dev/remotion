@@ -37,13 +37,11 @@ import {
 	availableVideoCodecs,
 	type ConvertMediaVideoCodec,
 } from './get-available-video-codecs';
-import {Log} from './log';
 import {makeAudioTrackHandler} from './on-audio-track';
 import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import {makeVideoTrackHandler} from './on-video-track';
 import {type ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
 import type {ResizeOperation} from './resizing/mode';
-import {sendUsageEvent} from './send-telemetry-event';
 import {throttledStateUpdate} from './throttled-state-update';
 import {
 	webcodecsController,
@@ -96,7 +94,6 @@ export const convertMedia = async function <
 	writer,
 	progressIntervalInMs,
 	rotate,
-	apiKey,
 	resize,
 	onAudioCodec,
 	onContainer,
@@ -153,7 +150,6 @@ export const convertMedia = async function <
 	progressIntervalInMs?: number;
 	rotate?: number;
 	resize?: ResizeOperation;
-	apiKey?: string | null;
 	fields?: F;
 	seekingHints?: ParseMediaOptions<F>['seekingHints'];
 } & MediaParserInternalTypes['ParseMediaCallbacks']): Promise<ConvertMediaResult> {
@@ -356,17 +352,8 @@ export const convertMedia = async function <
 				finalState: throttledState.get(),
 			});
 		})
-		.then(() => {
-			sendUsageEvent({succeeded: true, apiKey: apiKey ?? null}).catch((err) => {
-				Log.error('Failed to send usage event', err);
-			});
-		})
+		.then(() => {})
 		.catch((err) => {
-			sendUsageEvent({succeeded: false, apiKey: apiKey ?? null}).catch(
-				(err2) => {
-					Log.error('Failed to send usage event', err2);
-				},
-			);
 			reject(err);
 		})
 		.finally(() => {
