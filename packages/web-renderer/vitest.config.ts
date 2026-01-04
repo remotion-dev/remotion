@@ -11,6 +11,7 @@ function truthy<T>(value: T): value is Truthy<T> {
 
 export default defineConfig({
 	test: {
+		maxConcurrency: 5,
 		browser: {
 			enabled: true,
 			provider: playwright(),
