@@ -42,17 +42,12 @@ export function findLineBreaks(
 	const originalRect = span.getBoundingClientRect();
 	const computedStyle = getComputedStyle(span);
 
-	// If the text would be centered in a flexbox container
-	// the horizontal offset would change and we would detect this as offsetHorizontal
-	span.style.width = originalRect.width + 'px';
-	span.style.display = 'block';
-	span.style.textAlign = 'left';
-
 	const segmenter = new Intl.Segmenter('en', {granularity: 'word'});
 	const segments = segmenter.segment(originalText);
 
 	const words = Array.from(segments).map((s) => s.segment);
 
+	// If the text would be centered in a flexbox container
 	const lines: Array<{
 		text: string;
 		height: number;
@@ -158,10 +153,6 @@ export function findLineBreaks(
 
 	// Reset to original text
 	textNode.textContent = originalText;
-
-	span.style.width = '';
-	span.style.display = '';
-	span.style.textAlign = '';
 
 	return lines;
 }
