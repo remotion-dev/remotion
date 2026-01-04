@@ -2,7 +2,7 @@
 image: /generated/articles-docs-stills.png
 id: stills
 title: Still images
-crumb: "How to generate"
+crumb: 'How to generate'
 ---
 
 _Available from v2.3_
@@ -14,6 +14,10 @@ If you already have a Remotion project, read on how you can render stills.
 ## Defining a still
 
 Use the [`<Still />`](/docs/still) component instead of the [`<Composition />`](/docs/composition) one to define a still. The timeline will disappear, and you will not have to define a duration or FPS value.
+
+## Previewing a still in the browser
+
+You can use the [`<Thumbnail>`](/docs/player/thumbnail) component from `@remotion/player` to preview a still image in a regular React app (Next.js, Vite, Create React App, etc.). This is useful if you want to display your still in a web application before rendering it.
 
 ## Rendering via CLI
 
