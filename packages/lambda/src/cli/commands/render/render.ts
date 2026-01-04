@@ -253,6 +253,7 @@ export const renderCommand = async ({
 					indent,
 					logLevel,
 					quiet: CliInternals.quietFlagProvided(),
+					onProgress: () => undefined,
 				}),
 				chromeMode: 'headless-shell',
 				mediaCacheSizeInBytes: mediaCacheSizeInBytes,

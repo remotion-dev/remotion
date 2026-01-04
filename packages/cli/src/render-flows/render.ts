@@ -33,7 +33,7 @@ import type {
 import {
 	formatBytes,
 	type ArtifactProgress,
-	type BrowserForRenderingState,
+	type BrowserDownloadState,
 } from '@remotion/studio-shared';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
@@ -188,7 +188,7 @@ export const renderVideoFlow = async ({
 	let bundlingProgress: BundlingState | null = null;
 	let renderingProgress: RenderingProgressInput | null = null;
 	let stitchingProgress: StitchingProgressInput | null = null;
-	let browserState: BrowserForRenderingState = {
+	let browserState: BrowserDownloadState = {
 		progress: 0,
 		doneIn: 0,
 		alreadyAvailable: true,
@@ -215,7 +215,7 @@ export const renderVideoFlow = async ({
 	const downloads: DownloadProgress[] = [];
 	const onBrowserDownload = defaultBrowserDownloadProgress({
 		indent,
-		uiProgressUpdater: updateBrowserProgress,
+		onProgress: updateBrowserProgress,
 		logLevel,
 		quiet: quietFlagProvided(),
 	});
@@ -249,7 +249,7 @@ export const renderVideoFlow = async ({
 		indent,
 	});
 
-	function updateBrowserProgress(progress: BrowserForRenderingState) {
+	function updateBrowserProgress(progress: BrowserDownloadState) {
 		browserState = progress;
 		const aggregateRenderProgress: AggregateRenderProgress = {
 			browser: browserState,

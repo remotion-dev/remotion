@@ -154,6 +154,8 @@ export const renderStillFlow = async ({
 		quiet: quietFlagProvided(),
 		indent,
 		logLevel,
+		// TODO: Could also show progress in Studio here
+		onProgress: () => undefined,
 	});
 
 	await RenderInternals.internalEnsureBrowser({

@@ -326,7 +326,7 @@ export const makeRenderingAndStitchingProgress = ({
 		: 0;
 
 	const progress =
-		(bundling?.progress || 0) * 0.3 +
+		(bundling?.progress ?? 0) * 0.3 +
 		renderProgress * 0.6 +
 		stitchingProgress * 0.1;
 

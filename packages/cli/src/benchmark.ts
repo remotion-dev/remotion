@@ -257,6 +257,7 @@ export const benchmarkCommand = async (
 		indent: false,
 		logLevel,
 		quiet: quietFlagProvided(),
+		onProgress: () => undefined,
 	});
 
 	const indent = false;

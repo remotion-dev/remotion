@@ -50,7 +50,7 @@ export type BundlingState = {
 	doneIn: number | null;
 };
 
-export type BrowserForRenderingState = {
+export type BrowserDownloadState = {
 	progress: number;
 	doneIn: number | null;
 	alreadyAvailable: boolean;
@@ -67,7 +67,7 @@ export type AggregateRenderProgress = {
 	stitching: StitchingProgressInput | null;
 	downloads: DownloadProgress[];
 	bundling: BundlingState | null;
-	browser: BrowserForRenderingState;
+	browser: BrowserDownloadState;
 	copyingState: CopyingState;
 	artifactState: ArtifactProgress;
 	logs: BrowserProgressLog[];

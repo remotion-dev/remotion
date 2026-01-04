@@ -71,8 +71,8 @@ const BrowserSetupProgress: React.FC<{
 				{alreadyAvailable && startedBundling
 					? 'Headless browser already available'
 					: progress === 1
-						? 'Downloaded Headless Browser'
-						: `Downloading Headless Browser ${Math.round(progress * 100)}%`}
+						? 'Downloaded Headless Shell'
+						: `Downloading Headless Shell ${Math.round(progress * 100)}%`}
 			</div>
 			{doneIn ? <div style={right}>{doneIn}ms</div> : null}
 		</div>
