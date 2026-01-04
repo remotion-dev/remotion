@@ -1,13 +1,12 @@
 import type {ChromeMode, LogLevel, OnBrowserDownload} from '@remotion/renderer';
-import type { BrowserForRenderingState } from '@remotion/studio-shared';
 import {RenderInternals} from '@remotion/renderer';
+import type {BrowserForRenderingState} from '@remotion/studio-shared';
 import {chalk} from './chalk';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {LABEL_WIDTH, createOverwriteableCliOutput} from './progress-bar';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {truthy} from './truthy';
-
 
 const makeDownloadProgress = ({
 	bytesDownloaded,

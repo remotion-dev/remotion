@@ -30,7 +30,11 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
-import {type BrowserForRenderingState, formatBytes, type ArtifactProgress} from '@remotion/studio-shared';
+import {
+	formatBytes,
+	type ArtifactProgress,
+	type BrowserForRenderingState,
+} from '@remotion/studio-shared';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
