@@ -6,9 +6,9 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
-				<TOCItem link="/docs/licensing/register-usage-point">
-					<strong>{'registerUsagePoint()'}</strong>
-					<div>Register a cloud render or WebCodecs conversion</div>
+				<TOCItem link="/docs/licensing/register-usage-event">
+					<strong>{'registerUsageEvent()'}</strong>
+					<div>Register a render</div>
 				</TOCItem>
 				<TOCItem link="/docs/licensing/get-usage">
 					<strong>{'getUsage()'}</strong>

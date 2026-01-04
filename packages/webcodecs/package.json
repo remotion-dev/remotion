@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.398",
+	"version": "4.0.399",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -27,8 +27,7 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "Remotion License (See https://remotion.dev/docs/webcodecs#license)",
 	"dependencies": {
-		"@remotion/media-parser": "workspace:*",
-		"@remotion/licensing": "workspace:*"
+		"@remotion/media-parser": "workspace:*"
 	},
 	"peerDependencies": {},
 	"devDependencies": {

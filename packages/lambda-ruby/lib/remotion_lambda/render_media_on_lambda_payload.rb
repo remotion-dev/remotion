@@ -21,6 +21,7 @@ def get_render_media_on_lambda_payload(
   force_path_style: false,
   force_width: nil,
   api_key: nil,
+  license_key: nil,
   frame_range: nil,
   frames_per_lambda: nil,
   image_format: "jpeg",
@@ -50,6 +51,10 @@ def get_render_media_on_lambda_payload(
   chromium_options: {}
 )
 
+if api_key != nil
+  warn "[DEPRECATED] The 'api_key' parameter is deprecated and will be removed in a future version. Please use 'license_key' instead."
+end
+
 payload = {
     audioBitrate: audio_bitrate,
     audioCodec: audio_codec,
@@ -71,6 +76,7 @@ payload = {
     forcePathStyle: force_path_style,
     forceWidth: force_width,
     apiKey: api_key,
+    licenseKey: license_key,
     frameRange: frame_range,
     framesPerLambda: frames_per_lambda,
     imageFormat: image_format,

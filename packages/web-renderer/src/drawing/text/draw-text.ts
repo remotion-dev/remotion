@@ -8,20 +8,22 @@ import {getCollapsedText} from './get-collapsed-text';
 export const drawText = ({
 	span,
 	logLevel,
+	onlyBackgroundClip,
 }: {
 	span: HTMLSpanElement;
 	logLevel: LogLevel;
+	onlyBackgroundClip: boolean;
 }) => {
 	const drawFn: DrawFn = ({dimensions: rect, computedStyle, contextToDraw}) => {
 		const {
 			fontFamily,
 			fontSize,
 			fontWeight,
-			color,
 			direction,
 			writingMode,
 			letterSpacing,
 			textTransform,
+			webkitTextFillColor,
 		} = computedStyle;
 		const isVertical = writingMode !== 'horizontal-tb';
 		if (isVertical) {
@@ -41,7 +43,13 @@ export const drawText = ({
 		const fontSizePx = parseFloat(fontSize);
 
 		contextToDraw.font = `${fontWeight} ${fontSizePx}px ${fontFamily}`;
-		contextToDraw.fillStyle = color;
+		contextToDraw.fillStyle =
+			// If text is being applied with backgroundClipText, we need to use a solid color otherwise it won't get
+			// applied in canvas
+			onlyBackgroundClip
+				? 'black'
+				: // -webkit-text-fill-color overrides color, and defaults to the value of `color`
+					webkitTextFillColor;
 		contextToDraw.letterSpacing = letterSpacing;
 
 		const isRTL = direction === 'rtl';

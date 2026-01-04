@@ -197,6 +197,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		indent: false,
 		metadata: options.metadata ?? null,
 		apiKey: options.apiKey ?? null,
+		licenseKey: options.licenseKey ?? null,
 		storageClass: options.storageClass ?? null,
 		requestHandler: options.requestHandler ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,

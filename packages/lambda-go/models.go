@@ -42,6 +42,7 @@ type RemotionOptions struct {
 	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
 	ForceWidth                     interface{}            `json:"forceWidth"`
 	ApiKey                         interface{}            `json:"apiKey"`
+	LicenseKey                     interface{}            `json:"licenseKey"`
 	BucketName                     interface{}            `json:"bucketName"`
 	AudioCodec                     interface{}            `json:"audioCodec"`
 	StorageClass                   interface{}            `json:"storageClass"`
@@ -96,6 +97,7 @@ type renderInternalOptions struct {
 	ForceHeight                    interface{}            `json:"forceHeight"`
 	ForceWidth                     interface{}            `json:"forceWidth"`
 	ApiKey                         interface{}            `json:"apiKey"`
+	LicenseKey                     interface{}            `json:"licenseKey"`
 	BucketName                     interface{}            `json:"bucketName"`
 	AudioCodec                     interface{}            `json:"audioCodec"`
 	StorageClass                   interface{}            `json:"storageClass"`

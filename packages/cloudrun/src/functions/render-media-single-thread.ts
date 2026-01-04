@@ -209,6 +209,7 @@ export const renderMediaSingleThread = async (
 			chromeMode: 'headless-shell',
 			onLog: RenderInternals.defaultOnLog,
 			apiKey: null,
+			licenseKey: null,
 		});
 
 		const storage = new Storage();

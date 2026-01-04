@@ -279,10 +279,14 @@ export const createCanvasGradient = ({
 	ctx,
 	rect,
 	gradientInfo,
+	offsetLeft,
+	offsetTop,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
 	gradientInfo: LinearGradientInfo;
+	offsetLeft: number;
+	offsetTop: number;
 }): CanvasGradient => {
 	// Convert angle to radians
 	// CSS angles: 0deg = to top, 90deg = to right, 180deg = to bottom, 270deg = to left
@@ -290,8 +294,8 @@ export const createCanvasGradient = ({
 
 	const angleRad = ((gradientInfo.angle - 90) * Math.PI) / 180;
 
-	const centerX = rect.left + rect.width / 2;
-	const centerY = rect.top + rect.height / 2;
+	const centerX = rect.left - offsetLeft + rect.width / 2;
+	const centerY = rect.top - offsetTop + rect.height / 2;
 
 	// Calculate gradient line endpoints
 	// The gradient line passes through the center and has the specified angle

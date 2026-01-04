@@ -1,4 +1,6 @@
 export const HOST = 'https://www.remotion.pro';
+import type {NoReactInternals} from 'remotion/no-react';
+import {isNetworkError} from './is-network-error';
 
 type ApiResponse =
 	| {
@@ -20,28 +22,47 @@ type UsageEventType = 'webcodec-conversion' | 'cloud-render';
 
 export type UsageEventClassification = 'billable' | 'development' | 'failed';
 
+type EitherApiKeyOrLicenseKey =
+	true extends typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+		? {
+				licenseKey: string | null;
+			}
+		:
+				| {
+						/**
+						 * @deprecated Use `licenseKey` instead
+						 */
+						apiKey: string | null;
+				  }
+				| {
+						licenseKey: string | null;
+				  };
+
 export const registerUsageEvent = async ({
-	apiKey,
 	host,
 	succeeded,
 	event,
+	...apiOrLicenseKey
 }: {
-	apiKey: string | null;
 	host: string | null;
 	succeeded: boolean;
 	event: UsageEventType;
-}): Promise<RegisterUsageEventResponse> => {
+} & EitherApiKeyOrLicenseKey): Promise<RegisterUsageEventResponse> => {
 	const abortController = new AbortController();
 	const timeout = setTimeout(() => {
 		abortController.abort();
 	}, 10000);
+
+	const apiKey = 'apiKey' in apiOrLicenseKey ? apiOrLicenseKey.apiKey : null;
+	const licenseKey =
+		'licenseKey' in apiOrLicenseKey ? apiOrLicenseKey.licenseKey : null;
 
 	try {
 		const res = await fetch(`${HOST}/api/track/register-usage-point`, {
 			method: 'POST',
 			body: JSON.stringify({
 				event,
-				apiKey,
+				apiKey: licenseKey ?? apiKey,
 				host,
 				succeeded,
 			}),
@@ -65,9 +86,13 @@ export const registerUsageEvent = async ({
 			throw new Error(json.error);
 		}
 
-		const read = await res.json();
-		return read;
+		throw new Error('Unexpected response from server');
 	} catch (err) {
+		if (isNetworkError(err as Error)) {
+			// eslint-disable-next-line no-console
+			console.log('Failed to send usage event', err);
+		}
+
 		clearTimeout(timeout);
 		if (err instanceof Error && err.name === 'AbortError') {
 			throw new Error('Request timed out after 10 seconds');

@@ -69,7 +69,7 @@ export const parseBoxShadow = (boxShadowValue: string): BoxShadow[] => {
 	return shadows;
 };
 
-export const setBoxShadow = ({
+export const drawBorderRadius = ({
 	ctx,
 	rect,
 	borderRadius,

@@ -375,7 +375,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'licensing/index',
 			},
-			items: ['licensing/register-usage-point', 'licensing/get-usage'],
+			items: ['licensing/register-usage-event', 'licensing/get-usage'],
 		},
 		{
 			type: 'category',
@@ -1394,7 +1394,6 @@ const sidebars: SidebarsConfig = {
 				'webcodecs/resample-audio-16khz',
 				'webcodecs/track-transformation',
 				'webcodecs/pause-resume-abort',
-				'webcodecs/telemetry',
 				'webcodecs/misconceptions',
 			],
 		},

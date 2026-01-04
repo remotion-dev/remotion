@@ -1,5 +1,5 @@
 import type {VideoSample} from 'mediabunny';
-import {type LogLevel} from 'remotion';
+import {Internals, type LogLevel} from 'remotion';
 import {keyframeManager} from '../caches';
 import {getSink} from '../get-sink';
 import {getTimeInSeconds} from '../get-time-in-seconds';
@@ -40,14 +40,21 @@ const extractFrameInternal = async ({
 }: ExtractFrameParams): Promise<ExtractFrameResult> => {
 	const sink = await getSink(src, logLevel);
 
-	const video = await sink.getVideo();
+	const [video, mediaDurationInSecondsRaw] = await Promise.all([
+		sink.getVideo(),
+		loop ? sink.getDuration() : Promise.resolve(null),
+	]);
+
+	const mediaDurationInSeconds: number | null = loop
+		? mediaDurationInSecondsRaw
+		: null;
 
 	if (video === 'no-video-track') {
 		throw new Error(`No video track found for ${src}`);
 	}
 
 	if (video === 'cannot-decode') {
-		return {type: 'cannot-decode', durationInSeconds: await sink.getDuration()};
+		return {type: 'cannot-decode', durationInSeconds: mediaDurationInSeconds};
 	}
 
 	if (video === 'unknown-container-format') {
@@ -56,12 +63,6 @@ const extractFrameInternal = async ({
 
 	if (video === 'network-error') {
 		return {type: 'network-error'};
-	}
-
-	let mediaDurationInSeconds: number | null = null;
-
-	if (loop) {
-		mediaDurationInSeconds = await sink.getDuration();
 	}
 
 	const timeInSeconds = getTimeInSeconds({
@@ -84,33 +85,49 @@ const extractFrameInternal = async ({
 		};
 	}
 
-	const keyframeBank = await keyframeManager.requestKeyframeBank({
-		packetSink: video.packetSink,
-		videoSampleSink: video.sampleSink,
-		timestamp: timeInSeconds,
-		src,
-		logLevel,
-		maxCacheSize,
-	});
+	// Must catch https://github.com/Vanilagy/mediabunny/issues/235
+	// https://discord.com/channels/@me/1127949286789881897/1455728482150518906
+	// Should be able to remove once upgraded to Chrome 145
+	try {
+		const keyframeBank = await keyframeManager.requestKeyframeBank({
+			packetSink: video.packetSink,
+			videoSampleSink: video.sampleSink,
+			timestamp: timeInSeconds,
+			src,
+			logLevel,
+			maxCacheSize,
+		});
 
-	if (keyframeBank === 'has-alpha') {
-		return {
-			type: 'cannot-decode-alpha',
-			durationInSeconds: await sink.getDuration(),
-		};
-	}
+		if (keyframeBank === 'has-alpha') {
+			return {
+				type: 'cannot-decode-alpha',
+				durationInSeconds: await sink.getDuration(),
+			};
+		}
 
-	if (!keyframeBank) {
+		if (!keyframeBank) {
+			return {
+				type: 'success',
+				frame: null,
+				durationInSeconds: await sink.getDuration(),
+			};
+		}
+
+		const frame = await keyframeBank.getFrameFromTimestamp(timeInSeconds);
+
 		return {
 			type: 'success',
-			frame: null,
+			frame,
 			durationInSeconds: await sink.getDuration(),
 		};
+	} catch (err) {
+		Internals.Log.info(
+			{logLevel, tag: '@remotion/media'},
+			`Error decoding ${src} at time ${timeInSeconds}: ${err}`,
+			err,
+		);
+		return {type: 'cannot-decode', durationInSeconds: mediaDurationInSeconds};
 	}
-
-	const frame = await keyframeBank.getFrameFromTimestamp(timeInSeconds);
-
-	return {type: 'success', frame, durationInSeconds: await sink.getDuration()};
 };
 
 type ExtractFrameReturnType = Awaited<ReturnType<typeof extractFrameInternal>>;
