@@ -78,6 +78,8 @@ export const drawElement = async ({
 		logLevel,
 		internalState,
 		computedStyle,
+		offsetLeft: parentRect.left,
+		offsetTop: parentRect.top,
 	});
 
 	await draw({dimensions: rect, computedStyle, contextToDraw: context});

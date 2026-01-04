@@ -17,6 +17,8 @@ export const drawBackground = async ({
 	logLevel,
 	internalState,
 	computedStyle,
+	offsetLeft: parentOffsetLeft,
+	offsetTop: parentOffsetTop,
 }: {
 	backgroundImage: string;
 	context: OffscreenCanvasRenderingContext2D;
@@ -27,6 +29,8 @@ export const drawBackground = async ({
 	logLevel: LogLevel;
 	internalState: InternalState;
 	computedStyle: CSSStyleDeclaration;
+	offsetLeft: number;
+	offsetTop: number;
 }) => {
 	let contextToDraw = context;
 
@@ -62,7 +66,12 @@ export const drawBackground = async ({
 		element.style.webkitBackgroundClip = 'initial';
 		const drawn = await getClippedBackground({
 			element,
-			boundingRect,
+			boundingRect: new DOMRect(
+				boundingRect.left + parentOffsetLeft,
+				boundingRect.top + parentOffsetTop,
+				boundingRect.width,
+				boundingRect.height,
+			),
 			logLevel,
 			internalState,
 		});
