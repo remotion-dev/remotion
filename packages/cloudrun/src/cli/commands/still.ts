@@ -149,6 +149,7 @@ export const stillCommand = async (
 					indent,
 					logLevel,
 					quiet: CliInternals.quietFlagProvided(),
+					onProgress: () => undefined,
 				}),
 				chromeMode: 'headless-shell',
 				offthreadVideoThreads: 1,
