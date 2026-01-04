@@ -15,6 +15,7 @@ import type {
 	AggregateRenderProgress,
 	JobProgressCallback,
 } from '@remotion/studio-server';
+import type {BrowserDownloadState} from '@remotion/studio-shared';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
@@ -150,12 +151,20 @@ export const renderStillFlow = async ({
 		onProgress({message, value: progress, ...aggregate});
 	};
 
+	function updateBrowserProgress(progress: BrowserDownloadState) {
+		aggregate.browser = progress;
+		onProgress({
+			message: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
+			value: progress.progress,
+			...aggregate,
+		});
+	}
+
 	const onBrowserDownload = defaultBrowserDownloadProgress({
 		quiet: quietFlagProvided(),
 		indent,
 		logLevel,
-		// TODO: Could also show progress in Studio here
-		onProgress: () => undefined,
+		onProgress: updateBrowserProgress,
 	});
 
 	await RenderInternals.internalEnsureBrowser({
