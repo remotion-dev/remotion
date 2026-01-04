@@ -1,5 +1,7 @@
+- Ensure we are on main branch and status is clean
 - Go to `package.json`
 - Find the `overrides` section and find `caniuse-lite`
 - Look on npm for the latest version of `caniuse-lite`
 - Update the version in the `overrides` section
 - Run `bun i` to install the new version
+- Git commit "Upgrade caniuse-lite to <version>" and push
