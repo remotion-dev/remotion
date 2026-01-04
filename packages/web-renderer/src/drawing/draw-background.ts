@@ -108,7 +108,7 @@ export const drawBackground = async ({
 		contextToDraw.fillStyle = backgroundColor;
 		contextToDraw.fillRect(
 			boundingRect.left - offsetLeft,
-			boundingRect.top - offsetLeft,
+			boundingRect.top - offsetTop,
 			boundingRect.width,
 			boundingRect.height,
 		);
