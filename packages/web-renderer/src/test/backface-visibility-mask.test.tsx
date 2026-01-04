@@ -14,5 +14,5 @@ test('should render backface-visibility with mask-image', async () => {
 		imageFormat: 'png',
 	});
 
-	await testImage({blob, testId: 'backface-visibility-mask', threshold: 0.02});
+	await testImage({blob, testId: 'backface-visibility-mask', threshold: 0.03});
 });

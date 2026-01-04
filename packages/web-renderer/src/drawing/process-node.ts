@@ -55,10 +55,7 @@ export const processNode = async ({
 	// When backfaceVisibility is 'hidden', don't render if the element is rotated
 	// to show its backface. The backface is visible when the z-component of the
 	// transformed normal vector (0, 0, 1) is negative, which corresponds to m33 < 0.
-	if (
-		computedStyle.backfaceVisibility === 'hidden' &&
-		totalMatrix.m33 < 0
-	) {
+	if (computedStyle.backfaceVisibility === 'hidden' && totalMatrix.m33 < 0) {
 		reset();
 		return {type: 'skip-children'};
 	}
