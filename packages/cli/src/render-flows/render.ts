@@ -263,7 +263,7 @@ export const renderVideoFlow = async ({
 		};
 
 		onProgress({
-			message: 'Downloading Headless Shell',
+			message: `Downloading Headless Shell ${Math.round(progress.progress * 100)}%`,
 			value: progress.progress,
 			...aggregateRenderProgress,
 		});
