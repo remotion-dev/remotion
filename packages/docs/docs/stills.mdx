@@ -35,9 +35,25 @@ By default the frame with number of a composition is being rendered, you can con
 
 You can use the [`renderStill()`](/docs/renderer/render-still) Node.JS API to render a still frame programmatically.
 
-## Rendering using serverless
+## Rendering in the browser
+
+:::warning
+Very experimental feature - expect bugs and breaking changes at any time.  
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+You can use the [`renderStillOnWeb()`](/docs/renderer/render-still-on-web) browser API to render a still frame programmatically.
+
+## Rendering using Remotion Lambda
 
 You can use [Remotion Lambda](/lambda) to render stills:
 
-- Via [CLI](/docs/lambda/cli/still)
-- Via the [renderStillOnLambda](/docs/lambda/renderstillonlambda) API.
+- Via the [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) API.
+- Via the [`npx remotion lambda still`](/docs/lambda/cli/still) CLI command.
+
+## Rendering using Cloud Run
+
+You can use [Cloud Run](/cloudrun) to render stills:
+
+- Via the [`renderStillOnCloudRun()`](/docs/cloudrun/renderstilloncloudrun) API.
+- Via the [`npx remotion cloudrun still`](/docs/cloudrun/cli/still) CLI command.
