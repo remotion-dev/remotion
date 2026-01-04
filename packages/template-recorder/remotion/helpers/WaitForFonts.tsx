@@ -16,18 +16,24 @@ export const WaitForFonts: React.FC<{
   );
 
   useEffect(() => {
-    const delay = delayRender("Waiting for fonts to be loaded");
+    if (fontsLoaded) {
+      return;
+    }
 
     waitForFonts()
       .then(() => {
-        continueRender(handle);
-        continueRender(delay);
         setFontsLoaded(true);
       })
       .catch((err) => {
         cancelRender(err);
       });
   }, [fontsLoaded, handle, continueRender, delayRender]);
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      continueRender(handle);
+    }
+  }, [continueRender, fontsLoaded, handle]);
 
   if (!fontsLoaded) {
     return null;

@@ -101,34 +101,35 @@ waitForFonts()
 // @filename: WaitForFonts.tsx
 // ---cut---
 import React, {useEffect, useState} from 'react';
-import {cancelRender, continueRender, delayRender} from 'remotion';
+import {cancelRender, continueRender, useDelayRender} from 'remotion';
 import {waitForFonts} from './fonts';
 
 export const WaitForFonts: React.FC<{
   children: React.ReactNode;
 }> = ({children}) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const [handle] = useState(() => delayRender('<WaitForFonts> component'));
+  const {delayRender, continueRender} = useDelayRender();
+  const [handle] = useState(() => delayRender('Waiting for fonts to be loaded'));
 
   useEffect(() => {
-    return () => {
-      continueRender(handle);
-    };
-  }, [handle]);
-
-  useEffect(() => {
-    const delay = delayRender('Waiting for fonts to be loaded');
+    if (fontsLoaded) {
+      return;
+    }
 
     waitForFonts()
       .then(() => {
-        continueRender(handle);
-        continueRender(delay);
         setFontsLoaded(true);
       })
       .catch((err) => {
         cancelRender(err);
       });
-  }, [fontsLoaded, handle]);
+  }, [fontsLoaded, handle, continueRender, delayRender]);
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      continueRender(handle);
+    }
+  }, [continueRender, fontsLoaded, handle]);
 
   if (!fontsLoaded) {
     return null;
