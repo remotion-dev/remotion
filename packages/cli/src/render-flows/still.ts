@@ -155,7 +155,7 @@ export const renderStillFlow = async ({
 		aggregate.browser = progress;
 		onProgress({
 			message: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
-			value: progress.progress,
+			value: 0,
 			...aggregate,
 		});
 	}
