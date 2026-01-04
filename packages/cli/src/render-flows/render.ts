@@ -263,7 +263,7 @@ export const renderVideoFlow = async ({
 		};
 
 		onProgress({
-			message: 'downloading Chrome headless shell',
+			message: 'Downloading Headless Shell',
 			value: progress.progress,
 			...aggregateRenderProgress,
 		});
