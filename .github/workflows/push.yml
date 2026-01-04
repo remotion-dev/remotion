@@ -151,6 +151,8 @@ jobs:
             node_version: 16
           - os: macos-latest
             node_version: 25
+    env:
+      BUN_INSTALL_CACHE_DIR: ${{ matrix.os == 'windows-latest' && 'D:\.bun\install\cache' || '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -159,6 +161,14 @@ jobs:
       - uses: oven-sh/setup-bun@v2.0.2
         with:
           bun-version: 1.3.3
+      - name: Cache Bun dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/cache@v4
+        with:
+          path: D:\.bun\install\cache
+          key: ${{ matrix.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: |
+            ${{ matrix.os }}-bun-
       - name: Install
         run: bun ci
       - name: Build & Test
