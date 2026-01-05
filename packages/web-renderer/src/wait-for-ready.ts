@@ -1,5 +1,20 @@
-import type {_InternalTypes} from 'remotion';
 import {withResolvers} from './with-resolvers';
+
+// Local type definition to avoid tsgo declaration emit issues with nested type imports
+type DelayRenderScope = {
+	remotion_renderReady: boolean;
+	remotion_delayRenderTimeouts: {
+		[key: string]: {
+			label: string | null;
+			timeout: number | Timer;
+			startTime: number;
+		};
+	};
+	remotion_puppeteerTimeout: number;
+	remotion_attempt: number;
+	remotion_delayRenderHandles: number[];
+	remotion_cancelledError?: string;
+};
 
 export const waitForReady = ({
 	timeoutInMilliseconds,
@@ -8,10 +23,10 @@ export const waitForReady = ({
 	apiName,
 }: {
 	timeoutInMilliseconds: number;
-	scope: _InternalTypes['DelayRenderScope'];
+	scope: DelayRenderScope;
 	signal: AbortSignal | null;
 	apiName: 'renderMediaOnWeb' | 'renderStillOnWeb';
-}) => {
+}): Promise<void> => {
 	const start = Date.now();
 	const {promise, resolve, reject} = withResolvers<void>();
 

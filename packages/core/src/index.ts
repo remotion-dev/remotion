@@ -261,5 +261,6 @@ export type _InternalTypes = {
 	TRenderAsset: TRenderAsset;
 	LoopDisplay: LoopDisplay;
 	ProResProfile: ProResProfile;
-	DelayRenderScope: DelayRenderScope;
 };
+
+export type {DelayRenderScope};
