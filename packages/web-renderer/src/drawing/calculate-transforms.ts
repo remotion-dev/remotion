@@ -144,7 +144,7 @@ export const calculateTransforms = ({
 		throw new Error('Element computed style not found');
 	}
 
-	const needs3DTransformViaWebGL = !totalMatrix.is2D;
+	const needs3DTransformViaWebGL = !totalMatrix.isIdentity;
 	const needsMaskImage = maskImageInfo !== null;
 
 	return {

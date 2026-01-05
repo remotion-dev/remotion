@@ -20,8 +20,8 @@ test('Should render overflow: hidden correctly', async () => {
 		allowedMismatchedPixelRatio: 0.02,
 	});
 
-	expect(internalState.getDrawn3dPixels()).toBe(0);
-	expect(internalState.getPrecomposedTiles()).toBe(0);
+	expect(internalState.getDrawn3dPixels()).toBe(10000);
+	expect(internalState.getPrecomposedTiles()).toBe(1);
 });
 
 test('Should render overflow: hidden correctly with 3D transform', async () => {
@@ -39,6 +39,6 @@ test('Should render overflow: hidden correctly with 3D transform', async () => {
 		allowedMismatchedPixelRatio: 0.02,
 	});
 
-	expect(internalState.getDrawn3dPixels()).toBe(10000);
-	expect(internalState.getPrecomposedTiles()).toBe(1);
+	expect(internalState.getDrawn3dPixels()).toBe(10004);
+	expect(internalState.getPrecomposedTiles()).toBe(2);
 });

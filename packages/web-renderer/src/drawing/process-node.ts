@@ -124,16 +124,13 @@ export const processNode = async ({
 		}
 
 		if (precompositing.needs3DTransformViaWebGL) {
-			const t = handle3dTransform({
+			drawable = handle3dTransform({
 				matrix: totalMatrix,
 				precomposeRect,
 				tempCanvas: drawable,
 				rectAfterTransforms,
 				internalState,
 			});
-			if (t) {
-				drawable = t;
-			}
 		}
 
 		const previousTransform = context.getTransform();
