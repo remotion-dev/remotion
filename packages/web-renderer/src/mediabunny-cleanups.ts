@@ -37,18 +37,3 @@ export const makeVideoSampleSourceCleanup = (
 		},
 	};
 };
-
-export const makeAudioSampleSourceCleanup = (
-	encodingConfig: AudioEncodingConfig,
-): {
-	audioSampleSource: AudioSampleSource;
-	[Symbol.dispose]: () => void;
-} => {
-	const audioSampleSource = new AudioSampleSource(encodingConfig);
-	return {
-		audioSampleSource,
-		[Symbol.dispose]: () => {
-			audioSampleSource.close();
-		},
-	};
-};
