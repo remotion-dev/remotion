@@ -180,6 +180,7 @@ export const listCompositionsCommand = async (
 			indent: false,
 			logLevel,
 			quiet: quietFlagProvided(),
+			onProgress: () => undefined,
 		}),
 		chromeMode,
 		mediaCacheSizeInBytes,

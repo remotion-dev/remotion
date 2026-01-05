@@ -22,7 +22,6 @@ import {
   TransitionToNextSubtitles,
 } from "./TransitionBetweenSubtitles";
 
-const LINE_HEIGHT = 2;
 const SUBTITLES_FONT_SIZE = 56;
 
 export const AnimatedCaptions: React.FC<{
@@ -79,7 +78,6 @@ export const AnimatedCaptions: React.FC<{
     return {
       fontSize: SUBTITLES_FONT_SIZE,
       display: "flex",
-      lineHeight: LINE_HEIGHT,
       borderWidth: getBorderWidthForSubtitles(),
       borderStyle: "solid",
       borderColor: COLORS[theme].BORDER_COLOR,

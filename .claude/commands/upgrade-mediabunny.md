@@ -1,0 +1,6 @@
+- Find the latest version of Mediabunny: `npm view mediabunny version`
+- Look in the root package.json and update the version of Mediabunny to that version.
+- Also upgrade @mediabunny/mp3-encoder to the same version.
+- Look in packages/template-\*/package.json and update the version of Mediabunny to the desired version.
+- Update `packages/docs/docs/mediabunny/version.mdx` compatiblity table. To find the next version this upgrade is going to be applied, look in the root package.json for the version and increment the patch version by one
+- Run `bun i` in the end.

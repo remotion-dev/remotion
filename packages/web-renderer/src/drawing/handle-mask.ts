@@ -33,6 +33,8 @@ export const handleMask = ({
 		ctx: tempContext,
 		rect: rectToFill,
 		gradientInfo,
+		offsetLeft: 0,
+		offsetTop: 0,
 	});
 
 	tempContext.globalCompositeOperation = 'destination-in';

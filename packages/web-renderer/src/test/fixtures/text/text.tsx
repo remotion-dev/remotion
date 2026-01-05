@@ -2,8 +2,6 @@ import React from 'react';
 import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 const Component: React.FC = () => {
-	// TODO: Bug - if we apply the rotate to the child,
-	// it does not apply.
 	return (
 		<AbsoluteFill
 			style={{

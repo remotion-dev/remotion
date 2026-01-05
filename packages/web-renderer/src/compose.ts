@@ -4,6 +4,7 @@ import type {ProcessNodeReturnValue} from './drawing/process-node';
 import {processNode} from './drawing/process-node';
 import {handleTextNode} from './drawing/text/handle-text-node';
 import type {InternalState} from './internal-state';
+import {createTreeWalkerCleanupAfterChildren} from './tree-walker-cleanup-after-children';
 import {skipToNextNonDescendant} from './walk-tree';
 
 const walkOverNode = ({
@@ -13,6 +14,7 @@ const walkOverNode = ({
 	parentRect,
 	internalState,
 	rootElement,
+	onlyBackgroundClip,
 }: {
 	node: Node;
 	context: OffscreenCanvasRenderingContext2D;
@@ -20,6 +22,7 @@ const walkOverNode = ({
 	parentRect: DOMRect;
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
+	onlyBackgroundClip: boolean;
 }): Promise<ProcessNodeReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
 		return processNode({
@@ -41,15 +44,32 @@ const walkOverNode = ({
 			parentRect,
 			internalState,
 			rootElement,
+			onlyBackgroundClip,
 		});
 	}
 
 	throw new Error('Unknown node type');
 };
 
-type CleanupAfterChildrenFn = {
-	element: Node;
-	cleanupFn: () => void;
+const getFilterFunction = (node: Node) => {
+	if (!(node instanceof Element)) {
+		// Must be a text node!
+		return NodeFilter.FILTER_ACCEPT;
+	}
+
+	// SVG does have children, but we process SVG elements in its
+	// entirety
+	if (node.parentElement instanceof SVGSVGElement) {
+		return NodeFilter.FILTER_REJECT;
+	}
+
+	const computedStyle = getComputedStyle(node);
+
+	if (computedStyle.display === 'none') {
+		return NodeFilter.FILTER_REJECT;
+	}
+
+	return NodeFilter.FILTER_ACCEPT;
 };
 
 export const compose = async ({
@@ -58,52 +78,39 @@ export const compose = async ({
 	logLevel,
 	parentRect,
 	internalState,
+	onlyBackgroundClip,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
+	onlyBackgroundClip: boolean;
 }) => {
-	const cleanupAfterChildren: CleanupAfterChildrenFn[] = [];
-
 	const treeWalker = document.createTreeWalker(
 		element,
-		NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
-		(node) => {
-			if (node instanceof Element) {
-				// SVG does have children, but we process SVG elements in its
-				// entirety
-				if (node.parentElement instanceof SVGSVGElement) {
-					return NodeFilter.FILTER_REJECT;
-				}
-
-				const computedStyle = getComputedStyle(node);
-
-				return computedStyle.display === 'none'
-					? NodeFilter.FILTER_REJECT
-					: NodeFilter.FILTER_ACCEPT;
-			}
-
-			return NodeFilter.FILTER_ACCEPT;
-		},
+		onlyBackgroundClip
+			? NodeFilter.SHOW_TEXT
+			: NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+		getFilterFunction,
 	);
 
-	while (true) {
-		for (let i = 0; i < cleanupAfterChildren.length; ) {
-			const cleanup = cleanupAfterChildren[i];
-			if (
-				!(
-					cleanup.element === treeWalker.currentNode ||
-					cleanup.element.contains(treeWalker.currentNode)
-				)
-			) {
-				cleanup.cleanupFn();
-				cleanupAfterChildren.splice(i, 1);
-			} else {
-				i++;
-			}
+	// Skip to the first text node
+	if (onlyBackgroundClip) {
+		treeWalker.nextNode();
+		if (!treeWalker.currentNode) {
+			return;
 		}
+	}
+
+	const {
+		checkCleanUpAtBeginningOfIteration,
+		addCleanup,
+		cleanupInTheEndOfTheIteration,
+	} = createTreeWalkerCleanupAfterChildren(treeWalker);
+
+	while (true) {
+		checkCleanUpAtBeginningOfIteration();
 
 		const val = await walkOverNode({
 			node: treeWalker.currentNode,
@@ -112,6 +119,7 @@ export const compose = async ({
 			parentRect,
 			internalState,
 			rootElement: element,
+			onlyBackgroundClip,
 		});
 		if (val.type === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {
@@ -119,11 +127,7 @@ export const compose = async ({
 			}
 		} else {
 			if (val.cleanupAfterChildren) {
-				// Last registered must be cleaned up first
-				cleanupAfterChildren.unshift({
-					element: treeWalker.currentNode,
-					cleanupFn: val.cleanupAfterChildren,
-				});
+				addCleanup(treeWalker.currentNode, val.cleanupAfterChildren);
 			}
 
 			if (!treeWalker.nextNode()) {
@@ -132,7 +136,5 @@ export const compose = async ({
 		}
 	}
 
-	for (const cleanup of cleanupAfterChildren) {
-		cleanup.cleanupFn();
-	}
+	cleanupInTheEndOfTheIteration();
 };

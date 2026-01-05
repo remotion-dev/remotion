@@ -11,9 +11,6 @@
 	"references": [
 		{
 			"path": "../media-parser"
-		},
-		{
-			"path": "../licensing"
 		}
 	]
 }

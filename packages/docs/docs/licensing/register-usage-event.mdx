@@ -1,25 +1,20 @@
 ---
-image: /generated/articles-docs-licensing-register-usage-point.png
-id: register-usage-point
-title: registerUsagePoint()
-slug: /licensing/register-usage-point
+image: /generated/articles-docs-licensing-register-usage-event.png
+id: register-usage-event
+title: registerUsageEvent()
+slug: /licensing/register-usage-event
 crumb: '@remotion/licensing'
 ---
 
 Registers a usage point for your Remotion license.  
 Allows for accurate and up to date reporting and to track your usage on the Remotion dashboard.
 
-:::note
-[`@remotion/webcodecs` automatically calls this function for you.](/docs/webcodecs/telemetry)  
-You do not need to call this function if you are using `@remotion/webcodecs`.
-:::
-
 ```tsx twoslash title="Register a usage point"
 import {registerUsageEvent} from '@remotion/licensing';
 
 await registerUsageEvent({
   apiKey: 'rm_pub_xxxxx',
-  event: 'webcodec-conversion',
+  event: 'cloud-render',
   host: 'https://myapp.com',
   succeeded: true,
 });

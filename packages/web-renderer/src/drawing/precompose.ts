@@ -26,6 +26,7 @@ export const precomposeDOMElement = async ({
 		logLevel,
 		parentRect: boundingRect,
 		internalState,
+		onlyBackgroundClip: false,
 	});
 
 	return {tempCanvas, tempContext};

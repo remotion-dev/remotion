@@ -29,7 +29,25 @@ Start using the [`useDelayRender()`](/docs/use-delay-render) hook instead, which
 
 ## Ensure assets are available via CORS
 
-Unlike server-side rendering, where video and audio assets are downloaded in a Node.js process, and where images can be captured even if they are [tainted](https://www.unblu.com/en/docs/latest/knowledge-base/configuration/collaboration-layers/embedded-co-browsing/html-tainted-canvas-limitation.html), in client-side rendering, CORS is enforced and images and canvas may not be tainted.
+Unlike server-side rendering, where video and audio assets are downloaded in a Node.js process, and where images can be captured even if they are [tainted](https://developer.mozilla.org/en-US/docs/Web/HTML/How_to/CORS_enabled_image#security_and_tainted_canvases), in client-side rendering, CORS is enforced and images and canvas may not be tainted.
+
+### Common error messages
+
+If you use an image that doesn't support CORS, you'll see an error like:
+
+```
+Could not draw image with src="https://example.com/image.png" to canvas:
+The image is tainted due to CORS restrictions.
+The server hosting this image must respond with the "Access-Control-Allow-Origin" header.
+```
+
+If an image fails to load entirely (e.g., 404 error, invalid URL), you'll see:
+
+```
+Could not draw image with src="https://example.com/image.png" to canvas:
+The image is in a broken state.
+This usually means the image failed to load - check that the URL is valid and accessible.
+```
 
 ## Use `@remotion/media`
 

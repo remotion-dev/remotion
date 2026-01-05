@@ -46,7 +46,7 @@ class RenderParams
     protected $webhook = null;
     protected $forceHeight = null;
     protected $forceWidth = null;
-    protected $apiKey = null;
+    protected $licenseKey = null;
     protected $offthreadVideoCacheSizeInBytes = null;
     protected $mediaCacheSizeInBytes = null;
     protected $offthreadVideoThreads = null;
@@ -89,7 +89,7 @@ class RenderParams
         ?string $webhook = null,
         ?int    $forceHeight = null,
         ?int    $forceWidth = null,
-        ?int    $apiKey = null,
+        ?string $licenseKey = null,
         ?int    $offthreadVideoCacheSizeInBytes = null,
         ?int    $mediaCacheSizeInBytes = null,
         ?int    $offthreadVideoThreads = null,
@@ -144,7 +144,7 @@ class RenderParams
         $this->webhook = $webhook;
         $this->forceHeight = $forceHeight;
         $this->forceWidth = $forceWidth;
-        $this->apiKey = $apiKey;
+        $this->licenseKey = $licenseKey;
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
         $this->mediaCacheSizeInBytes = $mediaCacheSizeInBytes;
         $this->offthreadVideoThreads = $offthreadVideoThreads;
@@ -179,6 +179,7 @@ class RenderParams
             'logLevel' => $this->getLogLevel(),
             'frameRange' => $this->getFrameRange(),
             'outName' => $this->getOutName(),
+            'apiKey' => null,
             'timeoutInMilliseconds' => $this->getTimeoutInMilliseconds(),
             'chromiumOptions' => $this->getChromiumOptions() === null ? new stdClass() : $this->getChromiumOptions(),
             'scale' => $this->getScale(),
@@ -198,7 +199,7 @@ class RenderParams
             'webhook' => $this->getWebhook(),
             'forceHeight' => $this->getForceHeight(),
             'forceWidth' => $this->getForceWidth(),
-            'apiKey' => $this->getApiKey(),
+            'licenseKey' => $this->getLicenseKey(),
             'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
             'mediaCacheSizeInBytes' => $this->getMediaCacheSizeInBytes(),
             'offthreadVideoThreads' => $this->getOffthreadVideoThreads(),
@@ -751,9 +752,10 @@ class RenderParams
         $this->forceWidth = $forceWidth;
     }
 
-    public function setApiKey($apiKey)
+
+    public function setLicenseKey($licenseKey)
     {
-        $this->apiKey = $apiKey;
+        $this->licenseKey = $licenseKey;
     }
 
     public function setOffthreadVideoCacheSizeInBytes($offthreadVideoCacheSizeInBytes)
@@ -826,9 +828,10 @@ class RenderParams
         return $this->forceWidth;
     }
 
-    public function getApiKey()
+
+    public function getLicenseKey()
     {
-        return $this->apiKey;
+        return $this->licenseKey;
     }
 
     public function getOffthreadVideoCacheSizeInBytes()

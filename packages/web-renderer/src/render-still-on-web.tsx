@@ -124,6 +124,7 @@ async function internalRenderStillOnWeb<
 			scope: delayRenderScope,
 			signal,
 			apiName: 'renderStillOnWeb',
+			internalState: null,
 		});
 
 		if (signal?.aborted) {
@@ -165,6 +166,7 @@ async function internalRenderStillOnWeb<
 		});
 		throw err;
 	} finally {
+		internalState.cleanup();
 		cleanupScaffold();
 	}
 }

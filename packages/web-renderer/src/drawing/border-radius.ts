@@ -1,4 +1,5 @@
 import {drawRoundedRectPath} from './draw-rounded';
+import {getBoxBasedOnBackgroundClip} from './get-padding-box';
 
 export type BorderRadiusCorners = {
 	topLeft: {horizontal: number; vertical: number};
@@ -158,11 +159,15 @@ export function setBorderRadius({
 	rect,
 	borderRadius,
 	forceClipEvenWhenZero = false,
+	computedStyle,
+	backgroundClip,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
 	borderRadius: BorderRadiusCorners;
 	forceClipEvenWhenZero: boolean;
+	computedStyle: CSSStyleDeclaration;
+	backgroundClip: string;
 }) {
 	if (
 		borderRadius.topLeft.horizontal === 0 &&
@@ -180,13 +185,63 @@ export function setBorderRadius({
 
 	ctx.save();
 
+	const boundingRect = getBoxBasedOnBackgroundClip(
+		rect,
+		computedStyle,
+		backgroundClip,
+	);
+
+	// See background-clip tests for why this logic matters!
+	const actualBorderRadius: BorderRadiusCorners = {
+		topLeft: {
+			horizontal: Math.max(
+				0,
+				borderRadius.topLeft.horizontal - (boundingRect.left - rect.left),
+			),
+			vertical: Math.max(
+				0,
+				borderRadius.topLeft.vertical - (boundingRect.top - rect.top),
+			),
+		},
+		topRight: {
+			horizontal: Math.max(
+				0,
+				borderRadius.topRight.horizontal - (rect.right - boundingRect.right),
+			),
+			vertical: Math.max(
+				0,
+				borderRadius.topRight.vertical - (boundingRect.top - rect.top),
+			),
+		},
+		bottomRight: {
+			horizontal: Math.max(
+				0,
+				borderRadius.bottomRight.horizontal - (rect.right - boundingRect.right),
+			),
+			vertical: Math.max(
+				0,
+				borderRadius.bottomRight.vertical - (rect.bottom - boundingRect.bottom),
+			),
+		},
+		bottomLeft: {
+			horizontal: Math.max(
+				0,
+				borderRadius.bottomLeft.horizontal - (boundingRect.left - rect.left),
+			),
+			vertical: Math.max(
+				0,
+				borderRadius.bottomLeft.vertical - (rect.bottom - boundingRect.bottom),
+			),
+		},
+	};
+
 	drawRoundedRectPath({
 		ctx,
-		x: rect.left,
-		y: rect.top,
-		width: rect.width,
-		height: rect.height,
-		borderRadius,
+		x: boundingRect.left,
+		y: boundingRect.top,
+		width: boundingRect.width,
+		height: boundingRect.height,
+		borderRadius: actualBorderRadius,
 	});
 	ctx.clip();
 

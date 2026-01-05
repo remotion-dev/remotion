@@ -60,7 +60,7 @@
 	},
 	"packageManager": "bun@1.3.3",
 	"overrides": {
-		"caniuse-lite": "1.0.30001724"
+		"caniuse-lite": "1.0.30001762"
 	},
 	"workspaces": {
 		"packages": [
@@ -98,8 +98,8 @@
 			"@types/node": "20.12.14",
 			"@types/web": "0.0.166",
 			"@types/bun": "1.3.3",
-			"mediabunny": "1.27.2",
-			"@mediabunny/mp3-encoder": "1.27.2",
+			"mediabunny": "1.27.3",
+			"@mediabunny/mp3-encoder": "1.27.3",
 			"next": "16.0.10",
 			"three": "0.178.0",
 			"sharp": "0.34.5",

@@ -6,11 +6,15 @@ export const setOverflowHidden = ({
 	rect,
 	borderRadius,
 	overflowHidden,
+	computedStyle,
+	backgroundClip,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
 	borderRadius: BorderRadiusCorners;
 	overflowHidden: boolean;
+	computedStyle: CSSStyleDeclaration;
+	backgroundClip: string;
 }) => {
 	if (!overflowHidden) {
 		return () => {};
@@ -21,5 +25,7 @@ export const setOverflowHidden = ({
 		rect,
 		borderRadius,
 		forceClipEvenWhenZero: true,
+		computedStyle,
+		backgroundClip,
 	});
 };

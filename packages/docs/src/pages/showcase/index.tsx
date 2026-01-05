@@ -32,15 +32,15 @@ const PageHeader: React.FC = () => {
 					the versatility and creativity enabled by Remotion.{' '}
 				</p>
 				<p>
-					Have you leveraged {"Remotion's"} capabilities for your own project?
+					We are looking to feature the most impressive and successful projects
+					using Remotion. Do you think this is you?
 					<a
 						target="_blank"
 						href="mailto:hi@remotion.dev?subject=Showcase+page"
 					>
 						{' '}
-						Contact us
+						Let us know!
 					</a>{' '}
-					to feature your Remotion-based creation right here.
 				</p>
 				<p>
 					See more projects, applications, examples and libraries on the{' '}

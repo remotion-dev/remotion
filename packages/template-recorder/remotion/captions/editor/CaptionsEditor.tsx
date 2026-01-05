@@ -116,7 +116,7 @@ export const CaptionsEditor: React.FC<{
               index={i}
               longestNumberLength={longestNumberLength}
               caption={caption}
-              isInitialCaption={caption.startMs === initialCaption.endMs}
+              isInitialCaption={caption.startMs === initialCaption.startMs}
               trimStart={trimStart}
               onUpdateText={onChangeText}
             />
