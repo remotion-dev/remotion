@@ -1,0 +1,108 @@
+---
+image: /generated/articles-docs-web-renderer-can-render-video-codec.png
+id: can-render-video-codec
+title: canRenderVideoCodec()
+crumb: '@remotion/web-renderer'
+---
+
+:::warning
+Very experimental feature - expect bugs and breaking changes at any time.
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+_Available from v4.0.401 - Part of the `@remotion/web-renderer` package._
+
+Checks if the browser supports encoding video with the specified codec and options.
+Use this function to verify browser capabilities before attempting to render.
+
+```tsx twoslash title="Example usage"
+import {canRenderVideoCodec} from '@remotion/web-renderer';
+
+const canRender = await canRenderVideoCodec('h264', {
+  width: 1920,
+  height: 1080,
+  bitrate: 'high',
+});
+
+if (canRender) {
+  console.log('H.264 encoding is supported!');
+} else {
+  console.log('H.264 encoding is not supported, try a different codec.');
+}
+```
+
+## Arguments
+
+### `codec`
+
+_string_ <TsType type="WebRendererVideoCodec" source="@remotion/web-renderer" />
+
+The video codec to check support for. One of:
+
+- `"h264"` - H.264/AVC codec (widely supported)
+- `"h265"` - H.265/HEVC codec
+- `"vp8"` - VP8 codec (WebM)
+- `"vp9"` - VP9 codec (WebM)
+- `"av1"` - AV1 codec
+
+### `options?`
+
+_object_ <TsType type="CanRenderVideoCodecOptions" source="@remotion/web-renderer" />
+
+An optional object with the following properties:
+
+#### `width?`
+
+_number_
+
+The width of the video in pixels.
+Specifying this allows the browser to check if it can encode video at this resolution.
+
+#### `height?`
+
+_number_
+
+The height of the video in pixels.
+Specifying this allows the browser to check if it can encode video at this resolution.
+
+#### `bitrate?`
+
+_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+
+The target bitrate for encoding. Can be either:
+
+- A number representing bits per second
+- A quality preset: `"very-low"`, `"low"`, `"medium"`, `"high"`, or `"very-high"`
+
+## Return value
+
+Returns `Promise<boolean>` - resolves to `true` if the browser supports encoding with the specified configuration, `false` otherwise.
+
+## Example: Finding a supported codec
+
+```tsx twoslash title="Find supported codec"
+import {canRenderVideoCodec} from '@remotion/web-renderer';
+import type {WebRendererVideoCodec} from '@remotion/web-renderer';
+
+const findSupportedCodec = async (): Promise<WebRendererVideoCodec | null> => {
+  const codecs: WebRendererVideoCodec[] = ['h264', 'vp8', 'vp9', 'av1', 'h265'];
+
+  for (const codec of codecs) {
+    if (await canRenderVideoCodec(codec)) {
+      return codec;
+    }
+  }
+
+  return null;
+};
+
+const codec = await findSupportedCodec();
+console.log('Supported codec:', codec);
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/web-renderer/src/can-render-video-codec.ts)
+- [`canRenderAudioCodec()`](/docs/web-renderer/can-render-audio-codec)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web)
+- [Mediabunny `canEncodeVideo()`](https://mediabunny.dev/api/canEncodeVideo)

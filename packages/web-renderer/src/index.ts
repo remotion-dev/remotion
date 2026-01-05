@@ -1,8 +1,13 @@
 import './symbol-dispose';
 
 export type {EmittedArtifact, WebRendererOnArtifact} from './artifact';
+export {canRenderAudioCodec} from './can-render-audio-codec';
+export type {CanRenderAudioCodecOptions} from './can-render-audio-codec';
+export {canRenderVideoCodec} from './can-render-video-codec';
+export type {CanRenderVideoCodecOptions} from './can-render-video-codec';
 export type {FrameRange} from './frame-range';
 export type {
+	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererQuality,
 	WebRendererVideoCodec,

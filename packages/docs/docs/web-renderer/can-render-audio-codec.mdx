@@ -1,0 +1,103 @@
+---
+image: /generated/articles-docs-web-renderer-can-render-audio-codec.png
+id: can-render-audio-codec
+title: canRenderAudioCodec()
+crumb: '@remotion/web-renderer'
+---
+
+:::warning
+Very experimental feature - expect bugs and breaking changes at any time.
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+_Available from v4.0.401 - Part of the `@remotion/web-renderer` package._
+
+Checks if the browser supports encoding audio with the specified codec and options.
+Use this function to verify browser capabilities before attempting to render.
+
+```tsx twoslash title="Example usage"
+import {canRenderAudioCodec} from '@remotion/web-renderer';
+
+const canRender = await canRenderAudioCodec('aac', {
+  sampleRate: 44100,
+  numberOfChannels: 2,
+  bitrate: 'medium',
+});
+
+if (canRender) {
+  console.log('AAC encoding is supported!');
+} else {
+  console.log('AAC encoding is not supported, try opus instead.');
+}
+```
+
+## Arguments
+
+### `codec`
+
+_string_ <TsType type="WebRendererAudioCodec" source="@remotion/web-renderer" />
+
+The audio codec to check support for. One of:
+
+- `"aac"` - AAC codec (widely supported, used in MP4)
+- `"opus"` - Opus codec (used in WebM)
+
+### `options?`
+
+_object_ <TsType type="CanRenderAudioCodecOptions" source="@remotion/web-renderer" />
+
+An optional object with the following properties:
+
+#### `numberOfChannels?`
+
+_number_
+
+The number of audio channels (e.g., `2` for stereo).
+
+#### `sampleRate?`
+
+_number_
+
+The audio sample rate in Hz (e.g., `44100` or `48000`).
+
+#### `bitrate?`
+
+_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+
+The target bitrate for encoding. Can be either:
+
+- A number representing bits per second
+- A quality preset: `"very-low"`, `"low"`, `"medium"`, `"high"`, or `"very-high"`
+
+## Return value
+
+Returns `Promise<boolean>` - resolves to `true` if the browser supports encoding with the specified configuration, `false` otherwise.
+
+## Example: Finding a supported codec
+
+```tsx twoslash title="Find supported audio codec"
+import {canRenderAudioCodec} from '@remotion/web-renderer';
+import type {WebRendererAudioCodec} from '@remotion/web-renderer';
+
+const findSupportedAudioCodec = async (): Promise<WebRendererAudioCodec | null> => {
+  const codecs: WebRendererAudioCodec[] = ['aac', 'opus'];
+
+  for (const codec of codecs) {
+    if (await canRenderAudioCodec(codec)) {
+      return codec;
+    }
+  }
+
+  return null;
+};
+
+const codec = await findSupportedAudioCodec();
+console.log('Supported audio codec:', codec);
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/web-renderer/src/can-render-audio-codec.ts)
+- [`canRenderVideoCodec()`](/docs/web-renderer/can-render-video-codec)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web)
+- [Mediabunny `canEncodeAudio()`](https://mediabunny.dev/api/canEncodeAudio)
