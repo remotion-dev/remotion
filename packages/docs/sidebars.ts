@@ -785,6 +785,7 @@ const sidebars: SidebarsConfig = {
 				},
 				'web-renderer/render-media-on-web',
 				'web-renderer/render-still-on-web',
+				'web-renderer/can-render',
 				'web-renderer/can-render-video-codec',
 				'web-renderer/can-render-audio-codec',
 			],

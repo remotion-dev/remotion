@@ -12,8 +12,12 @@ Very experimental feature - expect bugs and breaking changes at any time.
 
 _Available from v4.0.401 - Part of the `@remotion/web-renderer` package._
 
-Checks if the browser supports encoding audio with the specified codec and options.
-Use this function to verify browser capabilities before attempting to render.
+:::tip
+For most use cases, prefer [`canRender()`](/docs/web-renderer/can-render) which mirrors `renderMediaOnWeb()` options and checks both video and audio codec support.
+:::
+
+A lower-level utility that checks if the browser supports encoding audio with a specific codec.
+Use this for granular codec checks when you need more control than `canRender()` provides.
 
 ```tsx twoslash title="Example usage"
 import {canRenderAudioCodec} from '@remotion/web-renderer';
@@ -98,6 +102,7 @@ console.log('Supported audio codec:', codec);
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/web-renderer/src/can-render-audio-codec.ts)
+- [`canRender()`](/docs/web-renderer/can-render)
 - [`canRenderVideoCodec()`](/docs/web-renderer/can-render-video-codec)
 - [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web)
 - [Mediabunny `canEncodeAudio()`](https://mediabunny.dev/api/canEncodeAudio)

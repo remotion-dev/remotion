@@ -14,13 +14,17 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'renderStillOnWeb()'}</strong>
 					<div>Render a still image in the browser</div>
 				</TOCItem>
+				<TOCItem link="/docs/web-renderer/can-render">
+					<strong>{'canRender()'}</strong>
+					<div>Check if browser supports rendering</div>
+				</TOCItem>
 				<TOCItem link="/docs/web-renderer/can-render-video-codec">
 					<strong>{'canRenderVideoCodec()'}</strong>
-					<div>Check if video codec encoding is supported</div>
+					<div>Check video codec support</div>
 				</TOCItem>
 				<TOCItem link="/docs/web-renderer/can-render-audio-codec">
 					<strong>{'canRenderAudioCodec()'}</strong>
-					<div>Check if audio codec encoding is supported</div>
+					<div>Check audio codec support</div>
 				</TOCItem>
 			</Grid>
 		</div>

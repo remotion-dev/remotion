@@ -1,0 +1,228 @@
+---
+image: /generated/articles-docs-web-renderer-can-render.png
+id: can-render
+title: canRender()
+crumb: '@remotion/web-renderer'
+---
+
+:::warning
+Very experimental feature - expect bugs and breaking changes at any time.
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+_Available from v4.0.401 - Part of the `@remotion/web-renderer` package._
+
+Checks if the browser supports rendering with the specified configuration.
+Use this function to verify browser capabilities before calling [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
+
+The options mirror `renderMediaOnWeb()` options with the same defaults, making it easy to check compatibility with your exact render configuration.
+
+```tsx twoslash title="Example usage"
+import {canRender} from '@remotion/web-renderer';
+
+const result = await canRender({
+  container: 'mp4',
+  width: 1920,
+  height: 1080,
+});
+
+if (result.canRender) {
+  console.log('Ready to render!');
+} else {
+  if (!result.video.supported) {
+    console.log(`Video codec ${result.video.codec} is not supported`);
+  }
+  if (result.audio && !result.audio.supported) {
+    console.log('No supported audio codec found');
+  }
+}
+```
+
+## Arguments
+
+### `options?`
+
+_object_ <TsType type="CanRenderOptions" source="@remotion/web-renderer" />
+
+An optional object with the following properties. These mirror `renderMediaOnWeb()` options:
+
+#### `container?`
+
+_string_ <TsType type="WebRendererContainer" source="@remotion/web-renderer" />
+
+The container format to check support for. Default is `'mp4'`.
+
+#### `videoCodec?`
+
+_string_ <TsType type="WebRendererVideoCodec" source="@remotion/web-renderer" />
+
+The video codec to check support for. Default depends on the container:
+- For `'mp4'`: `'h264'`
+- For `'webm'`: `'vp8'`
+
+#### `width?`
+
+_number_
+
+The width of the video in pixels. Specifying this allows the browser to check if it can encode at this resolution.
+
+#### `height?`
+
+_number_
+
+The height of the video in pixels. Specifying this allows the browser to check if it can encode at this resolution.
+
+#### `videoBitrate?`
+
+_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+
+The target video bitrate. Can be a number (bits per second) or a quality preset:
+`'very-low'`, `'low'`, `'medium'`, `'high'`, `'very-high'`.
+
+Default is `'medium'`.
+
+#### `hardwareAcceleration?`
+
+_"no-preference" | "prefer-hardware" | "prefer-software"_
+
+Hardware acceleration preference. Default is `'no-preference'`.
+
+#### `muted?`
+
+_boolean_
+
+If `true`, skip the audio codec check. Default is `false`.
+
+## Return value
+
+Returns `Promise<CanRenderResult>` with the following structure:
+
+```tsx twoslash
+import type {CanRenderResult} from '@remotion/web-renderer';
+
+const result: CanRenderResult = {
+  // true if all required codecs are supported
+  canRender: true,
+  video: {
+    // The video codec that was checked
+    codec: 'h264',
+    // Whether the video codec is supported
+    supported: true,
+  },
+  // null if muted is true
+  audio: {
+    // The audio codec that was checked (null if none supported)
+    codec: 'aac',
+    // Whether audio encoding is supported
+    supported: true,
+  },
+};
+```
+
+### `canRender`
+
+_boolean_
+
+`true` if all required codecs are supported and rendering can proceed.
+
+### `video`
+
+_object_
+
+Video codec support information:
+- `codec`: The video codec that was checked
+- `supported`: Whether the video codec is supported with the given parameters
+
+### `audio`
+
+_object | null_
+
+Audio codec support information, or `null` if `muted` is `true`:
+- `codec`: The audio codec that was checked, or `null` if no supported codec was found
+- `supported`: Whether audio encoding is supported
+
+## Example: Providing user feedback
+
+```tsx twoslash title="User-friendly error messages"
+import {canRender} from '@remotion/web-renderer';
+
+const checkRenderSupport = async () => {
+  const result = await canRender({
+    container: 'mp4',
+    videoCodec: 'h264',
+    width: 1920,
+    height: 1080,
+  });
+
+  if (result.canRender) {
+    return {supported: true, message: null};
+  }
+
+  const issues: string[] = [];
+
+  if (!result.video.supported) {
+    issues.push(
+      `Your browser does not support ${result.video.codec.toUpperCase()} video encoding. ` +
+      'Try using Chrome or Edge for best compatibility.'
+    );
+  }
+
+  if (result.audio && !result.audio.supported) {
+    issues.push(
+      'Your browser does not support audio encoding. ' +
+      'You can still render with the muted option.'
+    );
+  }
+
+  return {
+    supported: false,
+    message: issues.join(' '),
+  };
+};
+```
+
+## Example: Checking before render
+
+```tsx twoslash title="Pre-render validation"
+import {canRender, renderMediaOnWeb} from '@remotion/web-renderer';
+
+const Component: React.FC = () => null;
+
+const renderVideo = async () => {
+  const config = {
+    container: 'mp4' as const,
+    videoCodec: 'h264' as const,
+  };
+
+  // Check support first
+  const support = await canRender(config);
+
+  if (!support.canRender) {
+    throw new Error('Browser does not support this render configuration');
+  }
+
+  // Proceed with render using the same config
+  const result = await renderMediaOnWeb({
+    composition: {
+      component: Component,
+      durationInFrames: 100,
+      fps: 30,
+      width: 1920,
+      height: 1080,
+      id: 'my-video',
+    },
+    ...config,
+  });
+
+  return result.getBlob();
+};
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/web-renderer/src/can-render.ts)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web)
+- [`canRenderVideoCodec()`](/docs/web-renderer/can-render-video-codec)
+- [`canRenderAudioCodec()`](/docs/web-renderer/can-render-audio-codec)
+- [Mediabunny `canEncodeVideo()`](https://mediabunny.dev/api/canEncodeVideo)
+- [Mediabunny `canEncodeAudio()`](https://mediabunny.dev/api/canEncodeAudio)
