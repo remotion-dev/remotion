@@ -154,17 +154,20 @@ async function internalRenderStillOnWeb<
 
 		return {blob: imageData, internalState};
 	} catch (err) {
-		sendUsageEvent({
-			succeeded: false,
-			licenseKey: licenseKey ?? null,
-			apiName: 'renderStillOnWeb',
-		}).catch((err2) => {
-			Internals.Log.error(
-				{logLevel: 'error', tag: 'web-renderer'},
-				'Failed to send usage event',
-				err2,
-			);
-		});
+		if (!signal?.aborted) {
+			sendUsageEvent({
+				succeeded: false,
+				licenseKey: licenseKey ?? null,
+				apiName: 'renderStillOnWeb',
+			}).catch((err2) => {
+				Internals.Log.error(
+					{logLevel: 'error', tag: 'web-renderer'},
+					'Failed to send usage event',
+					err2,
+				);
+			});
+		}
+
 		throw err;
 	}
 }
