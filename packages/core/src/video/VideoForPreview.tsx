@@ -7,31 +7,31 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {SequenceContext} from '../SequenceContext.js';
-import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
-import type {IsExact} from '../audio/props.js';
-import {SharedAudioContext} from '../audio/shared-audio-tags.js';
-import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
-import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
-import {getCrossOriginValue} from '../get-cross-origin-value.js';
-import {useLogLevel, useMountTime} from '../log-level-context.js';
-import {playbackLogging} from '../playback-logging.js';
-import {usePreload} from '../prefetch.js';
-import {useVolume} from '../use-amplification.js';
-import {useMediaInTimeline} from '../use-media-in-timeline.js';
-import {useMediaPlayback} from '../use-media-playback.js';
-import {useMediaTag} from '../use-media-tag.js';
-import {useVideoConfig} from '../use-video-config.js';
-import {VERSION} from '../version.js';
+import { SequenceContext } from '../SequenceContext.js';
+import { SequenceVisibilityToggleContext } from '../SequenceManager.js';
+import type { IsExact } from '../audio/props.js';
+import { SharedAudioContext } from '../audio/shared-audio-tags.js';
+import { makeSharedElementSourceNode } from '../audio/shared-element-source-node.js';
+import { useFrameForVolumeProp } from '../audio/use-audio-frame.js';
+import { getCrossOriginValue } from '../get-cross-origin-value.js';
+import { useLogLevel, useMountTime } from '../log-level-context.js';
+import { playbackLogging } from '../playback-logging.js';
+import { usePreload } from '../prefetch.js';
+import { useVolume } from '../use-amplification.js';
+import { useMediaInTimeline } from '../use-media-in-timeline.js';
+import { useMediaPlayback } from '../use-media-playback.js';
+import { useMediaTag } from '../use-media-tag.js';
+import { useVideoConfig } from '../use-video-config.js';
+import { VERSION } from '../version.js';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
-import {evaluateVolume} from '../volume-prop.js';
-import {warnAboutTooHighVolume} from '../volume-safeguard.js';
-import {useEmitVideoFrame} from './emit-video-frame.js';
-import type {NativeVideoProps, OnVideoFrame, RemotionVideoProps} from './props';
-import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
+import { evaluateVolume } from '../volume-prop.js';
+import { warnAboutTooHighVolume } from '../volume-safeguard.js';
+import { useEmitVideoFrame } from './emit-video-frame.js';
+import type { NativeVideoProps, OnVideoFrame, RemotionVideoProps } from './props';
+import { isIosSafari, useAppendVideoFragment } from './video-fragment.js';
 
 type VideoForPreviewProps = RemotionVideoProps & {
 	readonly onlyWarnForMediaSeekingError: boolean;
@@ -109,9 +109,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const volumePropFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
-	const {fps, durationInFrames} = useVideoConfig();
+	const { fps, durationInFrames } = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
-	const {hidden} = useContext(SequenceVisibilityToggleContext);
+	const { hidden } = useContext(SequenceVisibilityToggleContext);
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
 
@@ -203,16 +203,15 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	useState(() =>
 		playbackLogging({
 			logLevel,
-			message: `Mounting video with source = ${actualSrc}, v=${VERSION}, user agent=${
-				typeof navigator === 'undefined' ? 'server' : navigator.userAgent
-			}`,
+			message: `Mounting video with source = ${actualSrc}, v=${VERSION}, user agent=${typeof navigator === 'undefined' ? 'server' : navigator.userAgent
+				}`,
 			tag: 'video',
 			mountTime,
 		}),
 	);
 
 	useEffect(() => {
-		const {current} = videoRef;
+		const { current } = videoRef;
 		if (!current) {
 			return;
 		}
@@ -248,7 +247,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			}
 		};
 
-		current.addEventListener('error', errorHandler, {once: true});
+		current.addEventListener('error', errorHandler, { once: true });
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
@@ -258,10 +257,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		useRef<VideoForPreviewProps['onDuration']>(onDuration);
 	currentOnDurationCallback.current = onDuration;
 
-	useEmitVideoFrame({ref: videoRef, onVideoFrame});
+	useEmitVideoFrame({ ref: videoRef, onVideoFrame });
 
 	useEffect(() => {
-		const {current} = videoRef;
+		const { current } = videoRef;
 		if (!current) {
 			return;
 		}
@@ -282,7 +281,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [src]);
 
 	useEffect(() => {
-		const {current} = videoRef;
+		const { current } = videoRef;
 
 		if (!current) {
 			return;
@@ -301,6 +300,38 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			current.preload = 'auto';
 		}
 	}, []);
+
+	useEffect(() => {
+		const { current } = videoRef;
+		if (!current) {
+			return;
+		}
+
+		if (src && src.toString().includes('.m3u8')) {
+			// Dynamic import to avoid build issues if Hls is not strictly required for all consumers
+			import('hls.js').then(({ default: Hls }) => {
+				if (Hls.isSupported()) {
+					const hls = new Hls();
+					hls.loadSource(src as string);
+					hls.attachMedia(current);
+					hls.on(Hls.Events.MANIFEST_PARSED, () => {
+						// Optional: handle manifest parsed
+					});
+
+					// Cleanup
+					return () => {
+						hls.destroy();
+					};
+				} else if (current.canPlayType('application/vnd.apple.mpegurl')) {
+					// Native HLS support (Safari)
+					current.src = src as string;
+				}
+			}).catch(() => {
+				// Fallback or ignore if hls.js missing
+				console.warn('Hls.js failed to load or is not available');
+			});
+		}
+	}, [src]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
