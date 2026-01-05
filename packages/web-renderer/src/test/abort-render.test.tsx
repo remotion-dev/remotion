@@ -1,5 +1,6 @@
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
+import '../symbol-dispose';
 import {renderStillOnWeb} from '../render-still-on-web';
 
 test('should be able to cancel renderMediaOnWeb()', async (t) => {

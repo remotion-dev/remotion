@@ -2,6 +2,7 @@ import {Audio, Video} from '@remotion/media';
 import {staticFile} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
+import '../symbol-dispose';
 
 test(
 	'should not be able to set toneFrequency on web rendering',

@@ -2,6 +2,7 @@ import {test} from 'vitest';
 
 import {useCurrentFrame} from 'remotion';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {testImage} from './utils';
 
 test('should render still on web', async () => {

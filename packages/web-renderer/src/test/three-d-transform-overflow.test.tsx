@@ -1,5 +1,6 @@
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {threeDoverflow} from './fixtures/three-d-overflow';
 import {testImage} from './utils';
 

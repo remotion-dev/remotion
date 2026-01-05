@@ -1,6 +1,7 @@
 import {AbsoluteFill, Html5Audio, Html5Video, OffthreadVideo} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 
 test('<Html5Video> throws in web-renderer', async () => {
 	const Component: React.FC = () => {

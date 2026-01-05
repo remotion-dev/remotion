@@ -2,6 +2,7 @@ import {getInputProps, useVideoConfig} from 'remotion';
 import {expect, test} from 'vitest';
 import {makeInternalState} from '../internal-state';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 
 const MustAcceptInputProps: React.FC<{
 	abc: string;

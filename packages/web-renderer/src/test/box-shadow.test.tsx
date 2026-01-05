@@ -1,5 +1,6 @@
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {boxShadow} from './fixtures/box-shadow';
 import {testImage} from './utils';
 
