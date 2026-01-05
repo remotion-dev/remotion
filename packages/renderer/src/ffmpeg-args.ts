@@ -137,29 +137,16 @@ export const generateFfmpegArgs = ({
 
 	const resolvedColorSpace = colorSpace ?? DEFAULT_COLOR_SPACE;
 
-	// Build video filter chain - multiple filters are combined with commas
-	const videoFilters: string[] = [];
-
-	// Premultiply filter for ProRes with alpha - applied before colorspace
-	// conversion so alpha premultiplication happens on the original RGB values
-	if (!hasPreencoded && needsPremultiplyFilter({codec, pixelFormat})) {
-		videoFilters.push('premultiply=inplace=1');
-	}
-
-	// Colorspace conversion filter
-	if (!hasPreencoded) {
-		if (resolvedColorSpace === 'bt709') {
-			// https://www.canva.dev/blog/engineering/a-journey-through-colour-space-with-ffmpeg/
-			// "Color range" section
-			videoFilters.push('zscale=matrix=709:matrixin=709:range=limited');
-		} else if (resolvedColorSpace === 'bt2020-ncl') {
-			// BT.2020 also uses the limited range where the digital code value
-			// for black is at 16,16,16 and not 0,0,0 in an 8-bit video system.
-			videoFilters.push(
-				'zscale=matrix=2020_ncl:matrixin=2020_ncl:range=limited',
-			);
+	// Helper to prepend premultiply filter when needed for ProRes with alpha
+	const prependPremultiplyFilter = (baseFilter: string): string => {
+		if (needsPremultiplyFilter({codec, pixelFormat})) {
+			// Premultiply filter is applied before colorspace conversion
+			// so alpha premultiplication happens on the original RGB values
+			return `premultiply=inplace=1,${baseFilter}`;
 		}
-	}
+
+		return baseFilter;
+	};
 
 	const colorSpaceOptions: string[][] =
 		resolvedColorSpace === 'bt709'
@@ -168,6 +155,16 @@ export const generateFfmpegArgs = ({
 					['-color_primaries:v', 'bt709'],
 					['-color_trc:v', 'bt709'],
 					['-color_range', 'tv'],
+					hasPreencoded
+						? []
+						: // https://www.canva.dev/blog/engineering/a-journey-through-colour-space-with-ffmpeg/
+							// "Color range" section
+							[
+								'-vf',
+								prependPremultiplyFilter(
+									'zscale=matrix=709:matrixin=709:range=limited',
+								),
+							],
 				]
 			: resolvedColorSpace === 'bt2020-ncl'
 				? [
@@ -175,12 +172,18 @@ export const generateFfmpegArgs = ({
 						['-color_primaries:v', 'bt2020'],
 						['-color_trc:v', 'arib-std-b67'],
 						['-color_range', 'tv'],
+						hasPreencoded
+							? []
+							: [
+									'-vf',
+									prependPremultiplyFilter(
+										// BT.2020 also uses the limited range where the digital code value
+										// for black is at 16,16,16 and not 0,0,0 in an 8-bit video system.
+										'zscale=matrix=2020_ncl:matrixin=2020_ncl:range=limited',
+									),
+								],
 					]
 				: [];
-
-	// Combine all video filters into single -vf argument
-	const videoFilterArg: string[] | null =
-		videoFilters.length > 0 ? ['-vf', videoFilters.join(',')] : null;
 
 	return [
 		['-c:v', hasPreencoded ? 'copy' : encoderName],
@@ -188,7 +191,6 @@ export const generateFfmpegArgs = ({
 		// -c:v is the same as -vcodec as -codec:video
 		// and specified the video codec.
 		...colorSpaceOptions,
-		videoFilterArg,
 		...firstEncodingStepOnly({
 			codec,
 			crf,
