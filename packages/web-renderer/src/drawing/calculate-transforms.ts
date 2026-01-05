@@ -150,7 +150,7 @@ export const calculateTransforms = ({
 	return {
 		dimensions,
 		totalMatrix,
-		reset: () => {
+		[Symbol.dispose]: () => {
 			for (const reset of toReset) {
 				reset();
 			}
