@@ -23,6 +23,7 @@ export const makeInternalState = () => {
 	let waitForReadyTime = 0;
 	let addSampleTime = 0;
 	let createFrameTime = 0;
+	let audioMixingTime = 0;
 
 	const helperCanvasState: HelperCanvasState = {
 		current: null,
@@ -58,6 +59,10 @@ export const makeInternalState = () => {
 		getCreateFrameTime: () => createFrameTime,
 		addCreateFrameTime: (time: number) => {
 			createFrameTime += time;
+		},
+		getAudioMixingTime: () => audioMixingTime,
+		addAudioMixingTime: (time: number) => {
+			audioMixingTime += time;
 		},
 	};
 };

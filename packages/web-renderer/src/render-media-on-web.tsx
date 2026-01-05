@@ -353,24 +353,6 @@ const internalRenderMediaOnWeb = async <
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 
-			const assets = collectAssets.current!.collectAssets();
-			if (onArtifact) {
-				await artifactsHandler.handle({
-					imageData,
-					frame,
-					assets,
-					onArtifact,
-				});
-			}
-
-			if (signal?.aborted) {
-				throw new Error('renderMediaOnWeb() was cancelled');
-			}
-
-			const audio = muted
-				? null
-				: onlyInlineAudio({assets, fps: resolved.fps, frame});
-
 			const timestamp = Math.round(
 				((frame - realFrameRange[0]) / resolved.fps) * 1_000_000,
 			);
@@ -396,6 +378,26 @@ const internalRenderMediaOnWeb = async <
 					expectedTimestamp: timestamp,
 				});
 			}
+
+			const audioCombineStart = performance.now();
+			const assets = collectAssets.current!.collectAssets();
+			if (onArtifact) {
+				await artifactsHandler.handle({
+					imageData,
+					frame,
+					assets,
+					onArtifact,
+				});
+			}
+
+			if (signal?.aborted) {
+				throw new Error('renderMediaOnWeb() was cancelled');
+			}
+
+			const audio = muted
+				? null
+				: onlyInlineAudio({assets, fps: resolved.fps, frame});
+			internalState.addAudioMixingTime(performance.now() - audioCombineStart);
 
 			const addSampleStart = performance.now();
 			await Promise.all([
@@ -423,7 +425,7 @@ const internalRenderMediaOnWeb = async <
 
 		Internals.Log.verbose(
 			{logLevel, tag: 'web-renderer'},
-			`Render timings: waitForReady=${internalState.getWaitForReadyTime().toFixed(2)}ms, createFrame=${internalState.getCreateFrameTime().toFixed(2)}ms, addSample=${internalState.getAddSampleTime().toFixed(2)}ms`,
+			`Render timings: waitForReady=${internalState.getWaitForReadyTime().toFixed(2)}ms, createFrame=${internalState.getCreateFrameTime().toFixed(2)}ms, addSample=${internalState.getAddSampleTime().toFixed(2)}ms, audioMixing=${internalState.getAudioMixingTime().toFixed(2)}ms`,
 		);
 
 		const mimeType = getMimeType(container);
