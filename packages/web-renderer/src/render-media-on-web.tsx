@@ -1,10 +1,4 @@
-import {
-	AudioSampleSource,
-	BufferTarget,
-	Output,
-	StreamTarget,
-	VideoSampleSource,
-} from 'mediabunny';
+import {BufferTarget, StreamTarget} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
@@ -14,9 +8,13 @@ import {onlyInlineAudio} from './audio';
 import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
-import {getDefaultAudioEncodingConfig} from './get-audio-encoding-config';
+import {addAudioSampleSource} from './get-audio-sample-source';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
+import {
+	makeOutputWithCleanup,
+	makeVideoSampleSourceCleanup,
+} from './mediabunny-cleanups';
 import type {
 	WebRendererContainer,
 	WebRendererQuality,
@@ -167,7 +165,6 @@ const internalRenderMediaOnWeb = async <
 		await cleanupStaleOpfsFiles();
 	}
 
-	const cleanupFns: (() => void)[] = [];
 	const format = containerToMediabunnyContainer(container);
 
 	if (
@@ -235,7 +232,7 @@ const internalRenderMediaOnWeb = async <
 		? new StreamTarget(webFsTarget.stream)
 		: new BufferTarget()!;
 
-	const output = new Output({
+	using outputWithCleanup = makeOutputWithCleanup({
 		format,
 		target,
 	});
@@ -257,15 +254,7 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('renderMediaOnWeb() was cancelled');
 		}
 
-		cleanupFns.push(() => {
-			if (output.state === 'finalized' || output.state === 'canceled') {
-				return;
-			}
-
-			output.cancel();
-		});
-
-		const videoSampleSource = new VideoSampleSource({
+		using videoSampleSource = makeVideoSampleSourceCleanup({
 			codec: codecToMediabunnyCodec(codec),
 			bitrate:
 				typeof videoBitrate === 'number'
@@ -278,34 +267,14 @@ const internalRenderMediaOnWeb = async <
 			alpha: transparent ? 'keep' : 'discard',
 		});
 
-		cleanupFns.push(() => {
-			videoSampleSource.close();
+		outputWithCleanup.output.addVideoTrack(videoSampleSource.videoSampleSource);
+
+		using audioSampleSource = await addAudioSampleSource({
+			muted,
+			output: outputWithCleanup.output,
 		});
 
-		output.addVideoTrack(videoSampleSource);
-
-		// TODO: Should be able to customize
-		let audioSampleSource: AudioSampleSource | null = null;
-
-		if (!muted) {
-			const defaultAudioEncodingConfig = await getDefaultAudioEncodingConfig();
-
-			if (!defaultAudioEncodingConfig) {
-				return Promise.reject(
-					new Error('No default audio encoding config found'),
-				);
-			}
-
-			audioSampleSource = new AudioSampleSource(defaultAudioEncodingConfig);
-
-			cleanupFns.push(() => {
-				audioSampleSource?.close();
-			});
-
-			output.addAudioTrack(audioSampleSource);
-		}
-
-		await output.start();
+		await outputWithCleanup.output.start();
 
 		if (signal?.aborted) {
 			throw new Error('renderMediaOnWeb() was cancelled');
@@ -398,9 +367,12 @@ const internalRenderMediaOnWeb = async <
 
 			const addSampleStart = performance.now();
 			await Promise.all([
-				addVideoSampleAndCloseFrame(frameToEncode, videoSampleSource),
+				addVideoSampleAndCloseFrame(
+					frameToEncode,
+					videoSampleSource.videoSampleSource,
+				),
 				audio && audioSampleSource
-					? addAudioSample(audio, audioSampleSource)
+					? addAudioSample(audio, audioSampleSource.audioSampleSource)
 					: Promise.resolve(),
 			]);
 			internalState.addAddSampleTime(performance.now() - addSampleStart);
@@ -416,16 +388,14 @@ const internalRenderMediaOnWeb = async <
 		// Call progress one final time to ensure final state is reported
 		onProgress?.({...progress});
 
-		videoSampleSource.close();
-		audioSampleSource?.close();
-		await output.finalize();
+		videoSampleSource.videoSampleSource.close();
+		audioSampleSource?.audioSampleSource.close();
+		await outputWithCleanup.output.finalize();
 
 		Internals.Log.verbose(
 			{logLevel, tag: 'web-renderer'},
 			`Render timings: waitForReady=${internalState.getWaitForReadyTime().toFixed(2)}ms, createFrame=${internalState.getCreateFrameTime().toFixed(2)}ms, addSample=${internalState.getAddSampleTime().toFixed(2)}ms, audioMixing=${internalState.getAudioMixingTime().toFixed(2)}ms`,
 		);
-
-		const mimeType = getMimeType(container);
 
 		if (webFsTarget) {
 			sendUsageEvent({
@@ -459,7 +429,9 @@ const internalRenderMediaOnWeb = async <
 					throw new Error('The resulting buffer is empty');
 				}
 
-				return Promise.resolve(new Blob([target.buffer], {type: mimeType}));
+				return Promise.resolve(
+					new Blob([target.buffer], {type: getMimeType(container)}),
+				);
 			},
 			internalState,
 		};
@@ -479,8 +451,6 @@ const internalRenderMediaOnWeb = async <
 		}
 
 		throw err;
-	} finally {
-		cleanupFns.forEach((fn) => fn());
 	}
 };
 
