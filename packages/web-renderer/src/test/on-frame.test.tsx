@@ -1,6 +1,7 @@
 import {useCurrentFrame} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
+import '../symbol-dispose';
 
 test('onFrame callback returning same frame should work', async (t) => {
 	if (t.task.file.projectName === 'webkit') {

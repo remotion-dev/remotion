@@ -1,6 +1,7 @@
 import {test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {flexContainer} from './fixtures/flex-container';
 import {testImage} from './utils';
 

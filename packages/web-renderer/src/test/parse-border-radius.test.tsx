@@ -1,5 +1,6 @@
 import {expect, test} from 'vitest';
 import {parseBorderRadius} from '../drawing/border-radius';
+import '../symbol-dispose';
 
 test('should parse single pixel value', () => {
 	const result = parseBorderRadius({

@@ -1,6 +1,7 @@
 import {expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {manyLayers} from './fixtures/many-layers';
 import {testImage} from './utils';
 

@@ -1,6 +1,7 @@
 import {test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';

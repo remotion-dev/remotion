@@ -1,8 +1,8 @@
 import {createRef, type ComponentType} from 'react';
 import {flushSync} from 'react-dom';
 import ReactDOM from 'react-dom/client';
-import type {Codec, LogLevel, TRenderAsset} from 'remotion';
-import {Internals, type _InternalTypes} from 'remotion';
+import type {Codec, DelayRenderScope, LogLevel, TRenderAsset} from 'remotion';
+import {Internals} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import type {TimeUpdaterRef} from './update-time';
 import {UpdateTime} from './update-time';
@@ -43,13 +43,13 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	defaultCodec: Codec | null;
 	defaultOutName: string | null;
 }): Promise<{
-	delayRenderScope: _InternalTypes['DelayRenderScope'];
+	delayRenderScope: DelayRenderScope;
 	div: HTMLDivElement;
-	cleanupScaffold: () => void;
 	timeUpdater: React.RefObject<TimeUpdaterRef | null>;
 	collectAssets: React.RefObject<{
 		collectAssets: () => TRenderAsset[];
 	} | null>;
+	[Symbol.dispose]: () => void;
 }> {
 	if (!ReactDOM.createRoot) {
 		throw new Error('@remotion/web-renderer requires React 18 or higher');
@@ -90,7 +90,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 		},
 	});
 
-	const delayRenderScope: _InternalTypes['DelayRenderScope'] = {
+	const delayRenderScope: DelayRenderScope = {
 		remotion_renderReady: true,
 		remotion_delayRenderTimeouts: {},
 		remotion_puppeteerTimeout: delayRenderTimeoutInMilliseconds,
@@ -188,7 +188,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	return {
 		delayRenderScope,
 		div,
-		cleanupScaffold: () => {
+		[Symbol.dispose]: () => {
 			root.unmount();
 			div.remove();
 			cleanupCSS();

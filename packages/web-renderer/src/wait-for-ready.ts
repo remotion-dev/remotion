@@ -1,4 +1,4 @@
-import type {_InternalTypes} from 'remotion';
+import type {DelayRenderScope} from 'remotion';
 import type {InternalState} from './internal-state';
 import {withResolvers} from './with-resolvers';
 
@@ -10,7 +10,7 @@ export const waitForReady = ({
 	internalState,
 }: {
 	timeoutInMilliseconds: number;
-	scope: _InternalTypes['DelayRenderScope'];
+	scope: DelayRenderScope;
 	signal: AbortSignal | null;
 	apiName: 'renderMediaOnWeb' | 'renderStillOnWeb';
 	internalState: InternalState | null;

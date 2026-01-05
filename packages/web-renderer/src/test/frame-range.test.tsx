@@ -1,6 +1,7 @@
 import {expect, test} from 'vitest';
 import type {RenderMediaOnWebProgress} from '../render-media-on-web';
 import {renderMediaOnWeb} from '../render-media-on-web';
+import '../symbol-dispose';
 
 test('should reject with invalid frame range', async (t) => {
 	const Component: React.FC = () => {

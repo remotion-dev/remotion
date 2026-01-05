@@ -1,5 +1,6 @@
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {objectFit} from './fixtures/object-fit';
 import {testImage} from './utils';
 

@@ -174,7 +174,7 @@ export const buildPackage = async ({
 			}
 		}
 	}
-	validateExports(newExports);
+	validateExports(newExports, pkg.type === 'module');
 	await Bun.write(
 		path.join(process.cwd(), 'package.json'),
 		JSON.stringify(

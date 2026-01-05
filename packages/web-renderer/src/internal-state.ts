@@ -43,7 +43,7 @@ export const makeInternalState = () => {
 			precomposedTextures++;
 		},
 		helperCanvasState,
-		cleanup: () => {
+		[Symbol.dispose]: () => {
 			if (helperCanvasState.current) {
 				helperCanvasState.current.cleanup();
 			}

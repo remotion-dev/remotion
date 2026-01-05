@@ -39,6 +39,9 @@ export default defineConfig({
 			screenshotFailures: false,
 		},
 	},
+	esbuild: {
+		target: 'es2022',
+	},
 	plugins: [react()],
 	publicDir: path.join(__dirname, '..', 'example-videos', 'videos'),
 });

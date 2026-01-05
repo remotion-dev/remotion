@@ -1,5 +1,6 @@
 import {describe, expect, test} from 'vitest';
 import {parseLinearGradient} from '../drawing/parse-linear-gradient';
+import '../symbol-dispose';
 
 describe('parseLinearGradient', () => {
 	test('should parse simple gradient with named colors', () => {

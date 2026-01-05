@@ -1,5 +1,6 @@
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {testImage} from './utils';
 

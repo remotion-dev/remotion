@@ -3,6 +3,7 @@ import {flushSync} from 'react-dom';
 import {useDelayRender} from 'remotion';
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {testImage} from './utils';
 
 test('should be able to use delayRender()', async () => {
