@@ -7,7 +7,7 @@ import {textFixture} from './fixtures/text/text';
 import {textTransform} from './fixtures/text/text-transform';
 import {testImage} from './utils';
 
-test('should render text', async (t) => {
+test('should render text', async () => {
 	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: textFixture,
