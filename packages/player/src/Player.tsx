@@ -408,6 +408,7 @@ const PlayerFn = <
 				audioLatencyHint={audioLatencyHint}
 				volumePersistenceKey={volumePersistenceKey}
 				inputProps={actualInputProps}
+				audioEnabled
 			>
 				<Internals.SetTimelineContext.Provider value={setTimelineContextValue}>
 					<PlayerEmitterProvider currentPlaybackRate={currentPlaybackRate}>
