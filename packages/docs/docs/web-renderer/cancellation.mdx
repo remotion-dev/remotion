@@ -65,11 +65,12 @@ try {
   });
 } catch (error) {
   if (abortController.signal.aborted) {
-    // Render was cancelled by the user
-    return;
+    // Render was cancelled by the user, handle gracefully
+    console.log('Render was cancelled');
+  } else {
+    // Handle actual errors
+    throw error;
   }
-  // Handle actual errors
-  throw error;
 }
 ```
 
