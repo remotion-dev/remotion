@@ -4,8 +4,7 @@ import type {
 	WebRendererQuality,
 } from '@remotion/web-renderer';
 import {getSupportedAudioCodecsForContainer} from '@remotion/web-renderer';
-import {getEncodableAudioCodecs} from 'mediabunny';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -19,6 +18,19 @@ import {getQualityOptions} from './quality-options';
 const container: React.CSSProperties = {
 	flex: 1,
 	overflowY: 'auto',
+};
+
+const fallbackNoticeStyle: React.CSSProperties = {
+	backgroundColor: 'rgba(59, 130, 246, 0.15)',
+	border: '1px solid rgba(59, 130, 246, 0.4)',
+	borderRadius: 4,
+	padding: '8px 12px',
+	marginLeft: 16,
+	marginRight: 16,
+	marginTop: 8,
+	fontSize: 13,
+	lineHeight: 1.4,
+	color: '#60a5fa',
 };
 
 const humanReadableWebAudioCodec = (
@@ -46,6 +58,8 @@ export const WebRenderModalAudio: React.FC<{
 		React.SetStateAction<WebRendererQuality>
 	>;
 	readonly container: WebRendererContainer;
+	readonly encodableCodecs: WebRendererAudioCodec[];
+	readonly effectiveAudioCodec: WebRendererAudioCodec;
 }> = ({
 	muted,
 	setMuted,
@@ -54,25 +68,9 @@ export const WebRenderModalAudio: React.FC<{
 	audioBitrate,
 	setAudioBitrate,
 	container: videoContainer,
+	encodableCodecs,
+	effectiveAudioCodec,
 }) => {
-	const [encodableCodecs, setEncodableCodecs] = useState<
-		WebRendererAudioCodec[]
-	>(() => getSupportedAudioCodecsForContainer(videoContainer));
-
-	useEffect(() => {
-		const supported = getSupportedAudioCodecsForContainer(videoContainer);
-		getEncodableAudioCodecs(supported, {}).then((encodable) => {
-			const filtered = supported.filter((c) => encodable.includes(c));
-			setEncodableCodecs(filtered);
-		});
-	}, [videoContainer]);
-
-	useEffect(() => {
-		if (!encodableCodecs.includes(audioCodec) && encodableCodecs.length > 0) {
-			setAudioCodec(encodableCodecs[0]);
-		}
-	}, [encodableCodecs, audioCodec, setAudioCodec]);
-
 	const containerSupported = useMemo(
 		() => getSupportedAudioCodecsForContainer(videoContainer),
 		[videoContainer],
@@ -82,9 +80,7 @@ export const WebRenderModalAudio: React.FC<{
 		return containerSupported.map((codec) => {
 			const isEncodable = encodableCodecs.includes(codec);
 			return {
-				label: isEncodable
-					? humanReadableWebAudioCodec(codec)
-					: `${humanReadableWebAudioCodec(codec)} (not available)`,
+				label: humanReadableWebAudioCodec(codec),
 				onClick: () => setAudioCodec(codec),
 				leftItem: audioCodec === codec ? <Checkmark /> : null,
 				id: codec,
@@ -102,8 +98,6 @@ export const WebRenderModalAudio: React.FC<{
 		(): ComboboxValue[] => getQualityOptions(audioBitrate, setAudioBitrate),
 		[audioBitrate, setAudioBitrate],
 	);
-
-	const showAudioCodecSelector = !muted && containerSupported.length >= 2;
 
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
@@ -130,19 +124,24 @@ export const WebRenderModalAudio: React.FC<{
 					</div>
 				</>
 			) : null}
-			{showAudioCodecSelector ? (
-				<div style={optionRow}>
-					<div style={label}>
-						Audio Codec
-						<Spacing x={0.5} />
-					</div>
-					<div style={rightRow}>
-						<Combobox
-							values={audioCodecOptions}
-							selectedId={audioCodec}
-							title="Audio Codec"
-						/>
-					</div>
+			<div style={optionRow}>
+				<div style={label}>
+					Audio Codec
+					<Spacing x={0.5} />
+				</div>
+				<div style={rightRow}>
+					<Combobox
+						values={audioCodecOptions}
+						selectedId={audioCodec}
+						title="Audio Codec"
+					/>
+				</div>
+			</div>
+			{effectiveAudioCodec !== audioCodec ? (
+				<div style={fallbackNoticeStyle}>
+					{humanReadableWebAudioCodec(audioCodec)} is not available in this
+					browser. Using {humanReadableWebAudioCodec(effectiveAudioCodec)}{' '}
+					instead.
 				</div>
 			) : null}
 		</div>
