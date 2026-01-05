@@ -45,11 +45,11 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 }): Promise<{
 	delayRenderScope: DelayRenderScope;
 	div: HTMLDivElement;
-	cleanupScaffold: () => void;
 	timeUpdater: React.RefObject<TimeUpdaterRef | null>;
 	collectAssets: React.RefObject<{
 		collectAssets: () => TRenderAsset[];
 	} | null>;
+	[Symbol.dispose]: () => void;
 }> {
 	if (!ReactDOM.createRoot) {
 		throw new Error('@remotion/web-renderer requires React 18 or higher');
@@ -188,7 +188,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	return {
 		delayRenderScope,
 		div,
-		cleanupScaffold: () => {
+		[Symbol.dispose]: () => {
 			root.unmount();
 			div.remove();
 			cleanupCSS();

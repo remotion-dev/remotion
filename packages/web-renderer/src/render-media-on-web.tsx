@@ -203,33 +203,30 @@ const internalRenderMediaOnWeb = async <
 		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
 	}
 
-	const {delayRenderScope, div, cleanupScaffold, timeUpdater, collectAssets} =
-		await createScaffold({
-			width: resolved.width,
-			height: resolved.height,
-			fps: resolved.fps,
-			durationInFrames: resolved.durationInFrames,
-			Component: composition.component,
-			resolvedProps: resolved.props,
-			id: resolved.id,
-			delayRenderTimeoutInMilliseconds,
-			logLevel,
-			mediaCacheSizeInBytes,
-			schema: schema ?? null,
-			audioEnabled: !muted,
-			videoEnabled: true,
-			initialFrame: 0,
-			defaultCodec: resolved.defaultCodec,
-			defaultOutName: resolved.defaultOutName,
-		});
+	using scaffold = await createScaffold({
+		width: resolved.width,
+		height: resolved.height,
+		fps: resolved.fps,
+		durationInFrames: resolved.durationInFrames,
+		Component: composition.component,
+		resolvedProps: resolved.props,
+		id: resolved.id,
+		delayRenderTimeoutInMilliseconds,
+		logLevel,
+		mediaCacheSizeInBytes,
+		schema: schema ?? null,
+		audioEnabled: !muted,
+		videoEnabled: true,
+		initialFrame: 0,
+		defaultCodec: resolved.defaultCodec,
+		defaultOutName: resolved.defaultOutName,
+	});
+
+	const {delayRenderScope, div, timeUpdater, collectAssets} = scaffold;
 
 	const internalState = makeInternalState();
 
 	const artifactsHandler = handleArtifacts();
-
-	cleanupFns.push(() => {
-		cleanupScaffold();
-	});
 
 	const webFsTarget =
 		outputTarget === 'web-fs' ? await createWebFsTarget() : null;
