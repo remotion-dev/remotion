@@ -785,6 +785,7 @@ const sidebars: SidebarsConfig = {
 				},
 				'web-renderer/render-media-on-web',
 				'web-renderer/render-still-on-web',
+				'web-renderer/cancellation',
 			],
 		},
 		{

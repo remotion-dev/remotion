@@ -6458,6 +6458,15 @@ export const articles = [
 		slug: 'watchstaticfile',
 	},
 	{
+		id: 'cancellation',
+		title: 'Cancelling renders',
+		relativePath: 'docs/web-renderer/cancellation.mdx',
+		compId: 'articles-docs-web-renderer-cancellation',
+		crumb: '@remotion/web-renderer',
+		noAi: false,
+		slug: 'web-renderer/cancellation',
+	},
+	{
 		id: 'web-renderer/index',
 		title: '@remotion/web-renderer',
 		relativePath: 'docs/web-renderer/index.mdx',

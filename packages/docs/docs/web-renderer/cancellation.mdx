@@ -1,0 +1,136 @@
+---
+image: /generated/articles-docs-web-renderer-cancellation.png
+id: cancellation
+title: Cancelling renders
+crumb: '@remotion/web-renderer'
+---
+
+Both [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) and [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) support cancellation via the [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) API.
+
+## Using AbortController
+
+Create an [`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) and pass its `signal` to the render function:
+
+```tsx twoslash title="Cancel after timeout"
+const Component: React.FC = () => null;
+
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+const abortController = new AbortController();
+
+// Cancel after 10 seconds
+setTimeout(() => abortController.abort(), 10000);
+
+const {getBlob} = await renderMediaOnWeb({
+  signal: abortController.signal,
+  composition,
+});
+```
+
+## Detecting user-initiated cancellation
+
+When a render is cancelled, an error is thrown. To distinguish between a user-initiated cancellation and an actual error, check if the signal was aborted:
+
+```tsx twoslash title="Handle cancellation in catch block"
+const Component: React.FC = () => null;
+
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+const abortController = new AbortController();
+
+try {
+  const {getBlob} = await renderMediaOnWeb({
+    signal: abortController.signal,
+    composition,
+  });
+} catch (error) {
+  if (abortController.signal.aborted) {
+    // Render was cancelled by the user
+    return;
+  }
+  // Handle actual errors
+  throw error;
+}
+```
+
+## User-triggered cancellation
+
+A common use case is to allow users to cancel an ongoing render via a button:
+
+```tsx twoslash title="Cancel via button click"
+const Component: React.FC = () => null;
+
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+import {useCallback, useRef} from 'react';
+
+const RenderButton: React.FC = () => {
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const startRender = useCallback(async () => {
+    abortControllerRef.current = new AbortController();
+
+    try {
+      const {getBlob} = await renderMediaOnWeb({
+        signal: abortControllerRef.current.signal,
+        composition,
+      });
+      const blob = await getBlob();
+      // Use the blob...
+    } catch (error) {
+      if (abortControllerRef.current?.signal.aborted) {
+        console.log('Render cancelled');
+        return;
+      }
+      throw error;
+    }
+  }, []);
+
+  const cancelRender = useCallback(() => {
+    abortControllerRef.current?.abort();
+  }, []);
+
+  return (
+    <>
+      <button onClick={startRender}>Start Render</button>
+      <button onClick={cancelRender}>Cancel</button>
+    </>
+  );
+};
+```
+
+## See also
+
+- [MDN: AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
+- [MDN: AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web)
+- [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web)
