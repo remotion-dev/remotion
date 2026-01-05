@@ -16,6 +16,7 @@ import {borderRadiusNone} from './fixtures/border-radius-none';
 import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {boxShadow} from './fixtures/box-shadow';
+import {threeDFlattening} from './fixtures/clipped';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
 import {displayNone} from './fixtures/display-none';
@@ -142,6 +143,7 @@ export const Root: React.FC = () => {
 				<Composition {...flexContainer} />
 				<Composition {...deeplyNestedTransform} />
 				<Composition {...manyLayers} />
+				<Composition {...threeDFlattening} />
 			</Folder>
 		</>
 	);
