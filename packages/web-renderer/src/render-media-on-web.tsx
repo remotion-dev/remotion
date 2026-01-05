@@ -224,7 +224,7 @@ const internalRenderMediaOnWeb = async <
 
 	const {delayRenderScope, div, timeUpdater, collectAssets} = scaffold;
 
-	const internalState = makeInternalState();
+	using internalState = makeInternalState();
 
 	const artifactsHandler = handleArtifacts();
 

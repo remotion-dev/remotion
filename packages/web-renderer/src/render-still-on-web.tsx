@@ -90,7 +90,7 @@ async function internalRenderStillOnWeb<
 		return Promise.reject(new Error('renderStillOnWeb() was cancelled'));
 	}
 
-	const internalState = makeInternalState();
+	using internalState = makeInternalState();
 
 	using scaffold = await createScaffold({
 		width: resolved.width,
@@ -165,8 +165,6 @@ async function internalRenderStillOnWeb<
 			);
 		});
 		throw err;
-	} finally {
-		internalState.cleanup();
 	}
 }
 
