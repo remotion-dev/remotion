@@ -9,7 +9,7 @@
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
 		"testwebrenderer": "vitest src/test --browser --run",
 		"studio": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts --public-dir=../example-videos/videos",
 		"remotion": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts --public-dir=../example-videos/videos"
@@ -25,6 +25,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/media": "workspace:*",
+		"@typescript/native-preview": "7.0.0-dev.20260105.1",
 		"@vitejs/plugin-react": "catalog:",
 		"@vitest/browser-playwright": "catalog:",
 		"playwright": "catalog:",
