@@ -158,7 +158,7 @@ export const processNode = async ({
 					logLevel,
 					tag: '@remotion/web-renderer',
 				},
-				`Transforming element in 3D - canvas size: ${precomposeRect.width}x${precomposeRect.height} - compose: ${Date.now() - start}ms`,
+				`Transforming element in 3D - canvas size: ${precomposeRect.width}x${precomposeRect.height} - compose: ${Date.now() - start}ms - helper canvas: ${drawable.width}x${drawable.height}`,
 			);
 			internalState.addPrecompose({
 				canvasWidth: precomposeRect.width,
