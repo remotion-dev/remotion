@@ -785,7 +785,6 @@ const sidebars: SidebarsConfig = {
 				},
 				'web-renderer/render-media-on-web',
 				'web-renderer/render-still-on-web',
-				'web-renderer/cancellation',
 			],
 		},
 		{
@@ -973,6 +972,7 @@ const sidebars: SidebarsConfig = {
 				'client-side-rendering/how-it-works',
 				'client-side-rendering/limitations',
 				'client-side-rendering/migration',
+				'client-side-rendering/cancellation',
 				'client-side-rendering/telemetry',
 			],
 		},

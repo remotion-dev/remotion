@@ -666,6 +666,15 @@ export const articles = [
 		slug: 'cli/versions',
 	},
 	{
+		id: 'cancellation',
+		title: 'Cancelling renders',
+		relativePath: 'docs/client-side-rendering/cancellation.mdx',
+		compId: 'articles-docs-client-side-rendering-cancellation',
+		crumb: '@remotion/web-renderer',
+		noAi: false,
+		slug: 'client-side-rendering/cancellation',
+	},
+	{
 		id: 'client-side-rendering/how-it-works',
 		title: 'How client-side rendering works',
 		relativePath: 'docs/client-side-rendering/how-it-works.mdx',
@@ -6456,15 +6465,6 @@ export const articles = [
 		crumb: 'API',
 		noAi: false,
 		slug: 'watchstaticfile',
-	},
-	{
-		id: 'cancellation',
-		title: 'Cancelling renders',
-		relativePath: 'docs/web-renderer/cancellation.mdx',
-		compId: 'articles-docs-web-renderer-cancellation',
-		crumb: '@remotion/web-renderer',
-		noAi: false,
-		slug: 'web-renderer/cancellation',
 	},
 	{
 		id: 'web-renderer/index',
