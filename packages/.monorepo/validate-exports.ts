@@ -18,7 +18,7 @@ export const validateExports = (exports: Exports, isModule: boolean) => {
 		if (!value.import || !value.module || !value) {
 			throw new Error(`Missing import for ${key}`);
 		}
-		if (value.require && !isModule) {
+		if (!value.require && !isModule) {
 			throw new Error(`Missing require for ${key}`);
 		}
 		const paths = Object.keys(value);
