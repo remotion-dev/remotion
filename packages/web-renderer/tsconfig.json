@@ -6,7 +6,9 @@
 		"outDir": "dist",
 		"target": "ES2022",
 		"module": "ESNext",
-		"moduleResolution": "bundler"
+		"moduleResolution": "bundler",
+		"declaration": true,
+		"emitDeclarationOnly": true
 	},
 	"include": ["src"],
 	"references": [{"path": "../core"}, {"path": "../media"}]
