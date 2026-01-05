@@ -22,7 +22,7 @@ export const addAudioSampleSource = async ({
 	const defaultAudioEncodingConfig = await getDefaultAudioEncodingConfig();
 
 	if (!defaultAudioEncodingConfig) {
-		return Promise.reject(new Error('No default audio encoding config found'));
+		throw new Error('No default audio encoding config found');
 	}
 
 	const audioSampleSource = new AudioSampleSource(defaultAudioEncodingConfig);
