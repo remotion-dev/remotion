@@ -37,7 +37,7 @@ const {getBlob} = await renderMediaOnWeb({
 });
 ```
 
-## Detecting user-initiated cancellation
+## Detecting if a render was cancelled
 
 When a render is cancelled, an error is thrown. To distinguish between a user-initiated cancellation and an actual error, check if the signal was aborted:
 
@@ -72,61 +72,6 @@ try {
     throw error;
   }
 }
-```
-
-## User-triggered cancellation
-
-A common use case is to allow users to cancel an ongoing render via a button:
-
-```tsx twoslash title="Cancel via button click"
-const Component: React.FC = () => null;
-
-const composition = {
-  component: Component,
-  durationInFrames: 100,
-  fps: 30,
-  width: 100,
-  height: 100,
-  id: 'my-composition',
-};
-
-// ---cut---
-import {renderMediaOnWeb} from '@remotion/web-renderer';
-import {useCallback, useRef} from 'react';
-
-const RenderButton: React.FC = () => {
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  const startRender = useCallback(async () => {
-    abortControllerRef.current = new AbortController();
-
-    try {
-      const {getBlob} = await renderMediaOnWeb({
-        signal: abortControllerRef.current.signal,
-        composition,
-      });
-      const blob = await getBlob();
-      // Use the blob...
-    } catch (error) {
-      if (abortControllerRef.current?.signal.aborted) {
-        console.log('Render cancelled');
-        return;
-      }
-      throw error;
-    }
-  }, []);
-
-  const cancelRender = useCallback(() => {
-    abortControllerRef.current?.abort();
-  }, []);
-
-  return (
-    <>
-      <button onClick={startRender}>Start Render</button>
-      <button onClick={cancelRender}>Cancel</button>
-    </>
-  );
-};
 ```
 
 ## See also
