@@ -1,11 +1,10 @@
 import type {
-	AudioEncodingConfig,
 	OutputFormat,
 	OutputOptions,
 	Target,
 	VideoEncodingConfig,
 } from 'mediabunny';
-import {AudioSampleSource, Output, VideoSampleSource} from 'mediabunny';
+import {Output, VideoSampleSource} from 'mediabunny';
 
 export const makeOutputWithCleanup = <T extends OutputFormat, U extends Target>(
 	options: OutputOptions<T, U>,
