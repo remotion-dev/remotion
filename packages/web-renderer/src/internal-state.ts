@@ -20,6 +20,10 @@ export const makeInternalState = () => {
 	let drawnPrecomposedPixels = 0;
 	let precomposedTextures = 0;
 
+	let waitForReadyTime = 0;
+	let addSampleTime = 0;
+	let createFrameTime = 0;
+
 	const helperCanvasState: HelperCanvasState = {
 		current: null,
 	};
@@ -42,6 +46,18 @@ export const makeInternalState = () => {
 			if (helperCanvasState.current) {
 				helperCanvasState.current.cleanup();
 			}
+		},
+		getWaitForReadyTime: () => waitForReadyTime,
+		addWaitForReadyTime: (time: number) => {
+			waitForReadyTime += time;
+		},
+		getAddSampleTime: () => addSampleTime,
+		addAddSampleTime: (time: number) => {
+			addSampleTime += time;
+		},
+		getCreateFrameTime: () => createFrameTime,
+		addCreateFrameTime: (time: number) => {
+			createFrameTime += time;
 		},
 	};
 };
