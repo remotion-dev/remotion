@@ -1,5 +1,8 @@
 import {canEncodeVideo} from 'mediabunny';
-import type {WebRendererQuality, WebRendererVideoCodec} from './mediabunny-mappings';
+import type {
+	WebRendererQuality,
+	WebRendererVideoCodec,
+} from './mediabunny-mappings';
 import {
 	codecToMediabunnyCodec,
 	getQualityForWebRendererQuality,
