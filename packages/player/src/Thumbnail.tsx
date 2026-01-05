@@ -127,6 +127,7 @@ const ThumbnailFn = <
 				logLevel={logLevel}
 				audioLatencyHint="playback"
 				inputProps={passedInputProps}
+				audioEnabled={false}
 			>
 				<ThumbnailEmitterContext.Provider value={emitter}>
 					<ThumbnailUI

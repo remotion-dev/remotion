@@ -118,7 +118,8 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly numberOfAudioTags: number;
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
-}> = ({children, numberOfAudioTags, audioLatencyHint}) => {
+	readonly audioEnabled: boolean;
+}> = ({children, numberOfAudioTags, audioLatencyHint, audioEnabled}) => {
 	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
@@ -129,7 +130,11 @@ export const SharedAudioContextProvider: React.FC<{
 	}
 
 	const logLevel = useLogLevel();
-	const audioContext = useSingletonAudioContext(logLevel, audioLatencyHint);
+	const audioContext = useSingletonAudioContext({
+		logLevel,
+		latencyHint: audioLatencyHint,
+		audioEnabled,
+	});
 	const refs = useMemo(() => {
 		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
 			const ref = createRef<HTMLAudioElement>();
