@@ -253,6 +253,7 @@ const internalRenderMediaOnWeb = async <
 			scope: delayRenderScope,
 			signal,
 			apiName: 'renderMediaOnWeb',
+			internalState,
 		});
 
 		if (signal?.aborted) {
@@ -331,12 +332,14 @@ const internalRenderMediaOnWeb = async <
 				scope: delayRenderScope,
 				signal,
 				apiName: 'renderMediaOnWeb',
+				internalState,
 			});
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 
+			const createFrameStart = performance.now();
 			const imageData = await createFrame({
 				div,
 				width: resolved.width,
@@ -344,6 +347,7 @@ const internalRenderMediaOnWeb = async <
 				logLevel,
 				internalState,
 			});
+			internalState.addCreateFrameTime(performance.now() - createFrameStart);
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
@@ -393,12 +397,14 @@ const internalRenderMediaOnWeb = async <
 				});
 			}
 
+			const addSampleStart = performance.now();
 			await Promise.all([
 				addVideoSampleAndCloseFrame(frameToEncode, videoSampleSource),
 				audio && audioSampleSource
 					? addAudioSample(audio, audioSampleSource)
 					: Promise.resolve(),
 			]);
+			internalState.addAddSampleTime(performance.now() - addSampleStart);
 
 			progress.encodedFrames++;
 			throttledOnProgress?.({...progress});
@@ -414,6 +420,11 @@ const internalRenderMediaOnWeb = async <
 		videoSampleSource.close();
 		audioSampleSource?.close();
 		await output.finalize();
+
+		Internals.Log.verbose(
+			{logLevel, tag: 'web-renderer'},
+			`Render timings: waitForReady=${internalState.getWaitForReadyTime().toFixed(2)}ms, createFrame=${internalState.getCreateFrameTime().toFixed(2)}ms, addSample=${internalState.getAddSampleTime().toFixed(2)}ms`,
+		);
 
 		const mimeType = getMimeType(container);
 
