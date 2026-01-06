@@ -35,7 +35,7 @@ export class MediaPlayer {
 	private globalPlaybackRate: number;
 	private audioStreamIndex: number;
 
-	private sharedAudioContext: AudioContext;
+	private sharedAudioContext: AudioContext | null;
 
 	audioIteratorManager: AudioIteratorManager | null = null;
 	videoIteratorManager: VideoIteratorManager | null = null;
@@ -90,7 +90,7 @@ export class MediaPlayer {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
 		logLevel: LogLevel;
-		sharedAudioContext: AudioContext;
+		sharedAudioContext: AudioContext | null;
 		loop: boolean;
 		trimBefore: number | undefined;
 		trimAfter: number | undefined;
@@ -270,7 +270,7 @@ export class MediaPlayer {
 				this.playbackRate * this.globalPlaybackRate,
 			);
 
-			if (audioTrack) {
+			if (audioTrack && this.sharedAudioContext) {
 				this.audioIteratorManager = audioIteratorManager({
 					audioTrack,
 					delayPlaybackHandleIfNotPremounting:
@@ -372,7 +372,7 @@ export class MediaPlayer {
 			return;
 		}
 
-		const currentPlaybackTime = this.getPlaybackTime();
+		const currentPlaybackTime = this.getAudioPlaybackTime();
 		if (currentPlaybackTime === newTime) {
 			return;
 		}
@@ -424,7 +424,10 @@ export class MediaPlayer {
 			});
 		}
 
-		if (this.sharedAudioContext.state === 'suspended') {
+		if (
+			this.sharedAudioContext &&
+			this.sharedAudioContext.state === 'suspended'
+		) {
 			await this.sharedAudioContext.resume();
 		}
 
@@ -517,13 +520,17 @@ export class MediaPlayer {
 		this.debugOverlay = debugOverlay;
 	}
 
-	private updateAfterPlaybackRateChange(): void {
+	private updateAudioTimeAfterPlaybackRateChange(): void {
 		if (!this.audioIteratorManager) {
 			return;
 		}
 
+		if (!this.sharedAudioContext) {
+			return;
+		}
+
 		this.setPlaybackTime(
-			this.getPlaybackTime(),
+			this.getAudioPlaybackTime(),
 			this.playbackRate * this.globalPlaybackRate,
 		);
 
@@ -543,12 +550,12 @@ export class MediaPlayer {
 
 	public setPlaybackRate(rate: number): void {
 		this.playbackRate = rate;
-		this.updateAfterPlaybackRateChange();
+		this.updateAudioTimeAfterPlaybackRateChange();
 	}
 
 	public setGlobalPlaybackRate(rate: number): void {
 		this.globalPlaybackRate = rate;
-		this.updateAfterPlaybackRateChange();
+		this.updateAudioTimeAfterPlaybackRateChange();
 	}
 
 	public setFps(fps: number): void {
@@ -590,10 +597,14 @@ export class MediaPlayer {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 	) => {
-		const currentTime = this.getPlaybackTime();
+		const currentTime = this.getAudioPlaybackTime();
 		const delayWithoutPlaybackRate = mediaTimestamp - currentTime;
 		const delay =
 			delayWithoutPlaybackRate / (this.playbackRate * this.globalPlaybackRate);
+
+		if (!this.sharedAudioContext) {
+			throw new Error('Shared audio context not found');
+		}
 
 		if (delay >= 0) {
 			node.start(this.sharedAudioContext.currentTime + delay);
@@ -602,7 +613,11 @@ export class MediaPlayer {
 		}
 	};
 
-	private getPlaybackTime(): number {
+	private getAudioPlaybackTime(): number {
+		if (!this.sharedAudioContext) {
+			throw new Error('Shared audio context not found');
+		}
+
 		return calculatePlaybackTime({
 			audioSyncAnchor: this.audioSyncAnchor,
 			currentTime: this.sharedAudioContext.currentTime,
@@ -611,6 +626,10 @@ export class MediaPlayer {
 	}
 
 	private setPlaybackTime(time: number, playbackRate: number): void {
+		if (!this.sharedAudioContext) {
+			return;
+		}
+
 		this.audioSyncAnchor =
 			this.sharedAudioContext.currentTime - time / playbackRate;
 	}
@@ -626,8 +645,8 @@ export class MediaPlayer {
 		if (this.context && this.canvas) {
 			drawPreviewOverlay({
 				context: this.context,
-				audioTime: this.sharedAudioContext.currentTime,
-				audioContextState: this.sharedAudioContext.state,
+				audioTime: this.sharedAudioContext?.currentTime ?? null,
+				audioContextState: this.sharedAudioContext?.state ?? null,
 				audioSyncAnchor: this.audioSyncAnchor,
 				audioIteratorManager: this.audioIteratorManager,
 				playing: this.playing,
