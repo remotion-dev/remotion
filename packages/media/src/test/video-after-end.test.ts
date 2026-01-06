@@ -3,7 +3,7 @@ import {getMaxVideoCacheSize, keyframeManager} from '../caches';
 import {extractFrame} from '../video-extraction/extract-frame';
 
 test('Should render last frame for timestamps after video end', async () => {
-	await keyframeManager.clearAll('info');
+	keyframeManager.clearAll('info');
 
 	const result = await extractFrame({
 		src: '/video.mp4',
@@ -18,7 +18,7 @@ test('Should render last frame for timestamps after video end', async () => {
 	});
 
 	assert(result.type === 'success');
-	expect(result.frame?.timestamp).toBe(9.96);
+	expect(result.sample?.timestamp).toBe(9.96);
 
-	await keyframeManager.clearAll('info');
+	keyframeManager.clearAll('info');
 });
