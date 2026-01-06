@@ -77,6 +77,8 @@ export const indexHtml = ({
 		}
 		<script>window.remotion_projectName = ${JSON.stringify(projectName)};</script>
 		<script>window.remotion_publicPath = ${JSON.stringify(publicPath)};</script>
+		<script>window.remotion_audioEnabled = true;</script>
+		<script>window.remotion_videoEnabled = true;</script>
 		<script>window.remotion_renderDefaults = ${JSON.stringify(
 			renderDefaults,
 		)};</script>

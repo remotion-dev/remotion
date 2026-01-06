@@ -174,7 +174,6 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 
 	useEffect(() => {
 		if (!sharedAudioContext) return;
-		if (!sharedAudioContext.audioContext) return;
 
 		try {
 			const player = new MediaPlayer({
