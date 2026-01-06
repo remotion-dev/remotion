@@ -9,6 +9,7 @@ import {Checkbox} from '../Checkbox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {Spacing} from '../layout';
+import {WebRenderModalLicenseKeyValidation} from './WebRenderModalLicenseKeyValidation';
 
 type WebRenderModalLicenseProps = {
 	readonly licenseKey: string | null;
@@ -255,6 +256,12 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 							<div style={codeLineSmall}>
 								{"Config.setPublicLicenseKey('" + licenseKey + "');"}
 							</div>
+						</>
+					) : null}
+					{licenseValidation.valid && licenseKey.length > 0 ? (
+						<>
+							<Spacing y={1} block />
+							<WebRenderModalLicenseKeyValidation licenseKey={licenseKey} />
 						</>
 					) : null}
 				</div>
