@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/web-renderer"
 	},
 	"name": "@remotion/web-renderer",
-	"version": "4.0.401",
+	"version": "4.0.402",
 	"main": "dist/index.js",
 	"type": "module",
 	"sideEffects": false,
