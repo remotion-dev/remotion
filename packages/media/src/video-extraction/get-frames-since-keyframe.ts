@@ -187,7 +187,7 @@ export const getFramesSinceKeyframe = async ({
 	);
 
 	const keyframeBank = makeKeyframeBank({
-		startTimestampInSeconds: startPacket.timestamp,
+		startTimestampInSeconds: roundTo4Digits(requestedTimestamp),
 		endTimestampInSeconds: nextKeyPacket ? nextKeyPacket.timestamp : Infinity,
 		sampleIterator,
 		logLevel,

@@ -4,7 +4,7 @@ import {makeAudioManager} from './audio-extraction/audio-manager';
 import {makeKeyframeManager} from './video-extraction/keyframe-manager';
 
 // Frames can be out of order, but we don't expect them to be more than 1 second out of order
-export const SAFE_WINDOW_OF_MONOTOCY = 1;
+export const SAFE_WINDOW_OF_MONOTOCY = 0.2;
 
 export const keyframeManager = makeKeyframeManager();
 export const audioManager = makeAudioManager();

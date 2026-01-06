@@ -155,13 +155,6 @@ export const makeKeyframeBank = ({
 		// Test case: https://github.com/remotion-dev/remotion/issues/5915
 		let adjustedTimestamp = timestampInSeconds;
 
-		if (
-			roundTo4Digits(timestampInSeconds) <
-			roundTo4Digits(startTimestampInSeconds)
-		) {
-			adjustedTimestamp = startTimestampInSeconds;
-		}
-
 		// If we request a timestamp after the end of the video, return the last frame
 		// same behavior as <video>
 		if (
@@ -188,7 +181,8 @@ export const makeKeyframeBank = ({
 			}
 		}
 
-		return null;
+		// Return first frame we have
+		return frames[frameTimestamps[0]] ?? null;
 	};
 
 	const hasTimestampInSecond = async (timestamp: number) => {

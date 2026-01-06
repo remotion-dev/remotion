@@ -127,8 +127,10 @@ export const makeKeyframeManager = () => {
 		maxCacheSize: number,
 	) => {
 		let cacheStats = await getTotalCacheStats();
+		let attempts = 0;
+		const maxAttempts = 3;
 
-		while (cacheStats.totalSize > maxCacheSize) {
+		while (cacheStats.totalSize > maxCacheSize && attempts < maxAttempts) {
 			const {finish} = await deleteOldestKeyframeBank(logLevel);
 			if (finish) {
 				break;
@@ -143,6 +145,14 @@ export const makeKeyframeManager = () => {
 			);
 
 			cacheStats = await getTotalCacheStats();
+			attempts++;
+		}
+
+		if (cacheStats.totalSize > maxCacheSize && attempts >= maxAttempts) {
+			Internals.Log.warn(
+				{logLevel, tag: '@remotion/media'},
+				`Exceeded max cache size after ${maxAttempts} attempts. Remaining cache size: ${(cacheStats.totalSize / 1024 / 1024).toFixed(1)} MB, target was ${(maxCacheSize / 1024 / 1024).toFixed(1)} MB.`,
+			);
 		}
 	};
 
