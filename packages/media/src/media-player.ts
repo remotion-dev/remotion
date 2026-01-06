@@ -372,25 +372,27 @@ export class MediaPlayer {
 			return;
 		}
 
-		const currentPlaybackTime = this.getAudioPlaybackTime();
-		if (currentPlaybackTime === newTime) {
-			return;
-		}
+		const shouldSeekAudio =
+			this.audioIteratorManager &&
+			this.sharedAudioContext &&
+			this.getAudioPlaybackTime() !== newTime;
 
 		await Promise.all([
 			this.videoIteratorManager?.seek({
 				newTime,
 				nonce,
 			}),
-			this.audioIteratorManager?.seek({
-				newTime,
-				nonce,
-				fps: this.fps,
-				playbackRate: this.playbackRate * this.globalPlaybackRate,
-				getIsPlaying: () => this.playing,
-				scheduleAudioNode: this.scheduleAudioNode,
-				bufferState: this.bufferState,
-			}),
+			shouldSeekAudio
+				? this.audioIteratorManager?.seek({
+						newTime,
+						nonce,
+						fps: this.fps,
+						playbackRate: this.playbackRate * this.globalPlaybackRate,
+						getIsPlaying: () => this.playing,
+						scheduleAudioNode: this.scheduleAudioNode,
+						bufferState: this.bufferState,
+					})
+				: null,
 		]);
 	}
 
