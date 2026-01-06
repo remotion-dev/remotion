@@ -188,6 +188,71 @@ const internalRenderMediaOnWeb = async <
 	const userSpecifiedAudioCodec =
 		unresolvedAudioCodec !== undefined && unresolvedAudioCodec !== null;
 
+	const resolvedAudioBitrate =
+		typeof audioBitrate === 'number'
+			? audioBitrate
+			: getQualityForWebRendererQuality(audioBitrate);
+
+	let finalAudioCodec: WebRendererAudioCodec | null = null;
+	if (!muted) {
+		const supportedAudioCodecs = getSupportedAudioCodecsForContainer(container);
+		if (!supportedAudioCodecs.includes(audioCodec)) {
+			return Promise.reject(
+				new Error(
+					`Audio codec "${audioCodec}" is not supported for container "${container}". Supported audio codecs: ${supportedAudioCodecs.join(', ')}`,
+				),
+			);
+		}
+
+		finalAudioCodec = audioCodec;
+		const mediabunnyAudioCodec = audioCodecToMediabunnyAudioCodec(audioCodec);
+		const canEncode = await canEncodeAudio(mediabunnyAudioCodec, {
+			bitrate: resolvedAudioBitrate,
+		});
+
+		if (!canEncode) {
+			if (userSpecifiedAudioCodec) {
+				return Promise.reject(
+					new Error(
+						`Audio codec "${audioCodec}" cannot be encoded by this browser. This is common for AAC on Firefox. Try using "opus" instead.`,
+					),
+				);
+			}
+
+			let fallbackCodec: WebRendererAudioCodec | null = null;
+			for (const supportedCodec of supportedAudioCodecs) {
+				if (supportedCodec !== audioCodec) {
+					const fallbackMediabunnyCodec =
+						audioCodecToMediabunnyAudioCodec(supportedCodec);
+					const canEncodeFallback = await canEncodeAudio(
+						fallbackMediabunnyCodec,
+						{
+							bitrate: resolvedAudioBitrate,
+						},
+					);
+					if (canEncodeFallback) {
+						fallbackCodec = supportedCodec;
+						break;
+					}
+				}
+			}
+
+			if (!fallbackCodec) {
+				return Promise.reject(
+					new Error(
+						`No audio codec can be encoded by this browser for container "${container}".`,
+					),
+				);
+			}
+
+			Internals.Log.warn(
+				{logLevel, tag: '@remotion/web-renderer'},
+				`Falling back from audio codec "${audioCodec}" to "${fallbackCodec}" for container "${container}" because the original codec cannot be encoded by this browser.`,
+			);
+			finalAudioCodec = fallbackCodec;
+		}
+	}
+
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
 			(composition.calculateMetadata as CalculateMetadataFunction<
@@ -280,73 +345,6 @@ const internalRenderMediaOnWeb = async <
 		});
 
 		outputWithCleanup.output.addVideoTrack(videoSampleSource.videoSampleSource);
-
-		const resolvedAudioBitrate =
-			typeof audioBitrate === 'number'
-				? audioBitrate
-				: getQualityForWebRendererQuality(audioBitrate);
-
-		// Resolve audio codec (with fallback if needed)
-		let finalAudioCodec: WebRendererAudioCodec | null = null;
-		if (!muted) {
-			const supportedAudioCodecs =
-				getSupportedAudioCodecsForContainer(container);
-			if (!supportedAudioCodecs.includes(audioCodec)) {
-				return Promise.reject(
-					new Error(
-						`Audio codec "${audioCodec}" is not supported for container "${container}". Supported audio codecs: ${supportedAudioCodecs.join(', ')}`,
-					),
-				);
-			}
-
-			finalAudioCodec = audioCodec;
-			const mediabunnyAudioCodec = audioCodecToMediabunnyAudioCodec(audioCodec);
-			const canEncode = await canEncodeAudio(mediabunnyAudioCodec, {
-				bitrate: resolvedAudioBitrate,
-			});
-
-			if (!canEncode) {
-				if (userSpecifiedAudioCodec) {
-					return Promise.reject(
-						new Error(
-							`Audio codec "${audioCodec}" cannot be encoded by this browser. This is common for AAC on Firefox. Try using "opus" instead.`,
-						),
-					);
-				}
-
-				let fallbackCodec: WebRendererAudioCodec | null = null;
-				for (const supportedCodec of supportedAudioCodecs) {
-					if (supportedCodec !== audioCodec) {
-						const fallbackMediabunnyCodec =
-							audioCodecToMediabunnyAudioCodec(supportedCodec);
-						const canEncodeFallback = await canEncodeAudio(
-							fallbackMediabunnyCodec,
-							{
-								bitrate: resolvedAudioBitrate,
-							},
-						);
-						if (canEncodeFallback) {
-							fallbackCodec = supportedCodec;
-							break;
-						}
-					}
-				}
-
-				if (!fallbackCodec) {
-					return Promise.reject(
-						new Error(
-							`No audio codec can be encoded by this browser for container "${container}".`,
-						),
-					);
-				}
-
-				Internals.Log.warn(
-					{logLevel, tag: '@remotion/web-renderer'},
-					`Falling back from audio codec "${audioCodec}" to "${fallbackCodec}" for container "${container}" because the original codec cannot be encoded by this browser.`,
-				);
-				finalAudioCodec = fallbackCodec;
-			}
-		}
 
 		using audioSampleSource = createAudioSampleSource({
 			muted,
@@ -556,8 +554,7 @@ export const renderMediaOnWeb = <
 		.catch(() => Promise.resolve())
 		.then(() =>
 			internalRenderMediaOnWeb<Schema, Props>({
-				composition: options.composition,
-				inputProps: options.inputProps,
+				...options,
 				delayRenderTimeoutInMilliseconds:
 					options.delayRenderTimeoutInMilliseconds ?? 30000,
 				logLevel: options.logLevel ?? window.remotion_logLevel ?? 'info',
@@ -579,7 +576,7 @@ export const renderMediaOnWeb = <
 				outputTarget: options.outputTarget ?? null,
 				licenseKey: options.licenseKey ?? undefined,
 				muted: options.muted ?? false,
-			} as InternalRenderMediaOnWebOptions<Schema, Props>),
+			}),
 		);
 
 	return onlyOneRenderAtATimeQueue.ref as Promise<RenderMediaOnWebResult>;
