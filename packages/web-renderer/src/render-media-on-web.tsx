@@ -6,9 +6,9 @@ import {addAudioSample, addVideoSampleAndCloseFrame} from './add-sample';
 import {handleArtifacts, type WebRendererOnArtifact} from './artifact';
 import {onlyInlineAudio} from './audio';
 import {canUseWebFsWriter} from './can-use-webfs-target';
+import {createAudioSampleSource} from './create-audio-sample-source';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
-import {createAudioSampleSource} from './get-audio-sample-source';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
 import {
@@ -355,7 +355,8 @@ const internalRenderMediaOnWeb = async <
 				: null,
 			bitrate: resolvedAudioBitrate,
 		});
-		if (audioSampleSource.audioSampleSource) {
+
+		if (audioSampleSource) {
 			outputWithCleanup.output.addAudioTrack(
 				audioSampleSource.audioSampleSource,
 			);
@@ -458,7 +459,7 @@ const internalRenderMediaOnWeb = async <
 					frameToEncode,
 					videoSampleSource.videoSampleSource,
 				),
-				audio && audioSampleSource.audioSampleSource
+				audio && audioSampleSource
 					? addAudioSample(audio, audioSampleSource.audioSampleSource)
 					: Promise.resolve(),
 			]);
@@ -476,7 +477,7 @@ const internalRenderMediaOnWeb = async <
 		onProgress?.({...progress});
 
 		videoSampleSource.videoSampleSource.close();
-		audioSampleSource.audioSampleSource?.close();
+		audioSampleSource?.audioSampleSource.close();
 		await outputWithCleanup.output.finalize();
 
 		Internals.Log.verbose(
