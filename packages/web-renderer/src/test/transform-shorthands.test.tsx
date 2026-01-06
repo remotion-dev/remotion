@@ -1,6 +1,7 @@
 import {test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
 import {transformWithRotate} from './fixtures/transforms/transform-with-rotate';
 import {transformWithScale} from './fixtures/transforms/transform-with-scale';

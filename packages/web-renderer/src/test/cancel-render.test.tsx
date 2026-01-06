@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import {useDelayRender} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 
 test('should be able to cancel render', async (t) => {
 	const Component: React.FC = () => {

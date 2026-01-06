@@ -1,5 +1,6 @@
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {testImage} from './utils';
 

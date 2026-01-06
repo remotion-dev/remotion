@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/paths"
 	},
 	"name": "@remotion/paths",
-	"version": "4.0.399",
+	"version": "4.0.402",
 	"description": "Utilities for working with SVG paths",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

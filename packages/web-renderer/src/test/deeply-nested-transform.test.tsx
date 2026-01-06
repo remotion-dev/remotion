@@ -1,6 +1,7 @@
 import {test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
 import {testImage} from './utils';
 

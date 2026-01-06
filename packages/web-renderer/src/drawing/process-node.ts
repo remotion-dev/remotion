@@ -35,20 +35,14 @@ export const processNode = async ({
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
 }): Promise<ProcessNodeReturnValue> => {
-	const {
-		totalMatrix,
-		reset,
-		dimensions,
-		opacity,
-		computedStyle,
-		precompositing,
-	} = calculateTransforms({
+	using transforms = calculateTransforms({
 		element,
 		rootElement,
 	});
 
+	const {opacity, computedStyle, totalMatrix, dimensions, precompositing} =
+		transforms;
 	if (opacity === 0) {
-		reset();
 		return {type: 'skip-children'};
 	}
 
@@ -56,12 +50,10 @@ export const processNode = async ({
 	// to show its backface. The backface is visible when the z-component of the
 	// transformed normal vector (0, 0, 1) is negative, which corresponds to m33 < 0.
 	if (computedStyle.backfaceVisibility === 'hidden' && totalMatrix.m33 < 0) {
-		reset();
 		return {type: 'skip-children'};
 	}
 
 	if (dimensions.width <= 0 || dimensions.height <= 0) {
-		reset();
 		return {type: 'continue', cleanupAfterChildren: null};
 	}
 
@@ -166,15 +158,13 @@ export const processNode = async ({
 					logLevel,
 					tag: '@remotion/web-renderer',
 				},
-				`Transforming element in 3D - canvas size: ${precomposeRect.width}x${precomposeRect.height} - compose: ${Date.now() - start}ms`,
+				`Transforming element in 3D - canvas size: ${precomposeRect.width}x${precomposeRect.height} - compose: ${Date.now() - start}ms - helper canvas: ${drawable.width}x${drawable.height}`,
 			);
 			internalState.addPrecompose({
 				canvasWidth: precomposeRect.width,
 				canvasHeight: precomposeRect.height,
 			});
 		}
-
-		reset();
 
 		return {type: 'skip-children'};
 	}
@@ -191,8 +181,6 @@ export const processNode = async ({
 		element,
 		internalState,
 	});
-
-	reset();
 
 	return {type: 'continue', cleanupAfterChildren};
 };

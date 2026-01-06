@@ -1,11 +1,4 @@
-import {
-	AudioSampleSource,
-	BufferTarget,
-	canEncodeAudio,
-	Output,
-	StreamTarget,
-	VideoSampleSource,
-} from 'mediabunny';
+import {BufferTarget, canEncodeAudio, StreamTarget} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
@@ -15,8 +8,13 @@ import {onlyInlineAudio} from './audio';
 import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
+import {createAudioSampleSource} from './get-audio-sample-source';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
+import {
+	makeOutputWithCleanup,
+	makeVideoSampleSourceCleanup,
+} from './mediabunny-cleanups';
 import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
@@ -174,7 +172,6 @@ const internalRenderMediaOnWeb = async <
 		await cleanupStaleOpfsFiles();
 	}
 
-	const cleanupFns: (() => void)[] = [];
 	const format = containerToMediabunnyContainer(container);
 
 	if (
@@ -188,7 +185,8 @@ const internalRenderMediaOnWeb = async <
 
 	const audioCodec =
 		unresolvedAudioCodec ?? getDefaultAudioCodecForContainer(container);
-	const userSpecifiedAudioCodec = unresolvedAudioCodec !== undefined;
+	const userSpecifiedAudioCodec =
+		unresolvedAudioCodec !== undefined && unresolvedAudioCodec !== null;
 
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
@@ -214,33 +212,30 @@ const internalRenderMediaOnWeb = async <
 		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
 	}
 
-	const {delayRenderScope, div, cleanupScaffold, timeUpdater, collectAssets} =
-		await createScaffold({
-			width: resolved.width,
-			height: resolved.height,
-			fps: resolved.fps,
-			durationInFrames: resolved.durationInFrames,
-			Component: composition.component,
-			resolvedProps: resolved.props,
-			id: resolved.id,
-			delayRenderTimeoutInMilliseconds,
-			logLevel,
-			mediaCacheSizeInBytes,
-			schema: schema ?? null,
-			audioEnabled: !muted,
-			videoEnabled: true,
-			initialFrame: 0,
-			defaultCodec: resolved.defaultCodec,
-			defaultOutName: resolved.defaultOutName,
-		});
+	using scaffold = await createScaffold({
+		width: resolved.width,
+		height: resolved.height,
+		fps: resolved.fps,
+		durationInFrames: resolved.durationInFrames,
+		Component: composition.component,
+		resolvedProps: resolved.props,
+		id: resolved.id,
+		delayRenderTimeoutInMilliseconds,
+		logLevel,
+		mediaCacheSizeInBytes,
+		schema: schema ?? null,
+		audioEnabled: !muted,
+		videoEnabled: true,
+		initialFrame: 0,
+		defaultCodec: resolved.defaultCodec,
+		defaultOutName: resolved.defaultOutName,
+	});
 
-	const internalState = makeInternalState();
+	const {delayRenderScope, div, timeUpdater, collectAssets} = scaffold;
+
+	using internalState = makeInternalState();
 
 	const artifactsHandler = handleArtifacts();
-
-	cleanupFns.push(() => {
-		cleanupScaffold();
-	});
 
 	const webFsTarget =
 		outputTarget === 'web-fs' ? await createWebFsTarget() : null;
@@ -249,7 +244,7 @@ const internalRenderMediaOnWeb = async <
 		? new StreamTarget(webFsTarget.stream)
 		: new BufferTarget()!;
 
-	const output = new Output({
+	using outputWithCleanup = makeOutputWithCleanup({
 		format,
 		target,
 	});
@@ -271,15 +266,7 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('renderMediaOnWeb() was cancelled');
 		}
 
-		cleanupFns.push(() => {
-			if (output.state === 'finalized' || output.state === 'canceled') {
-				return;
-			}
-
-			output.cancel();
-		});
-
-		const videoSampleSource = new VideoSampleSource({
+		using videoSampleSource = makeVideoSampleSourceCleanup({
 			codec: codecToMediabunnyCodec(codec),
 			bitrate:
 				typeof videoBitrate === 'number'
@@ -292,14 +279,15 @@ const internalRenderMediaOnWeb = async <
 			alpha: transparent ? 'keep' : 'discard',
 		});
 
-		cleanupFns.push(() => {
-			videoSampleSource.close();
-		});
+		outputWithCleanup.output.addVideoTrack(videoSampleSource.videoSampleSource);
 
-		output.addVideoTrack(videoSampleSource);
+		const resolvedAudioBitrate =
+			typeof audioBitrate === 'number'
+				? audioBitrate
+				: getQualityForWebRendererQuality(audioBitrate);
 
-		let audioSampleSource: AudioSampleSource | null = null;
-
+		// Resolve audio codec (with fallback if needed)
+		let finalAudioCodec: WebRendererAudioCodec | null = null;
 		if (!muted) {
 			const supportedAudioCodecs =
 				getSupportedAudioCodecsForContainer(container);
@@ -311,12 +299,7 @@ const internalRenderMediaOnWeb = async <
 				);
 			}
 
-			const resolvedAudioBitrate =
-				typeof audioBitrate === 'number'
-					? audioBitrate
-					: getQualityForWebRendererQuality(audioBitrate);
-
-			let finalAudioCodec = audioCodec;
+			finalAudioCodec = audioCodec;
 			const mediabunnyAudioCodec = audioCodecToMediabunnyAudioCodec(audioCodec);
 			const canEncode = await canEncodeAudio(mediabunnyAudioCodec, {
 				bitrate: resolvedAudioBitrate,
@@ -324,19 +307,11 @@ const internalRenderMediaOnWeb = async <
 
 			if (!canEncode) {
 				if (userSpecifiedAudioCodec) {
-					let errorMessage = `Audio codec "${audioCodec}" cannot be encoded by this browser.`;
-					const isFirefox =
-						typeof navigator !== 'undefined' &&
-						/firefox/i.test(navigator.userAgent);
-					if (audioCodec === 'aac' && isFirefox) {
-						errorMessage +=
-							' AAC encoding is not supported in Firefox. Try using "opus" instead.';
-					} else {
-						errorMessage +=
-							' This is common for AAC on Firefox. Try using "opus" instead.';
-					}
-
-					return Promise.reject(new Error(errorMessage));
+					return Promise.reject(
+						new Error(
+							`Audio codec "${audioCodec}" cannot be encoded by this browser. This is common for AAC on Firefox. Try using "opus" instead.`,
+						),
+					);
 				}
 
 				let fallbackCodec: WebRendererAudioCodec | null = null;
@@ -357,10 +332,6 @@ const internalRenderMediaOnWeb = async <
 					}
 				}
 
-				Internals.Log.warn(
-					{logLevel, tag: '@remotion/web-renderer'},
-					`Falling back from audio codec "${audioCodec}" to "${fallbackCodec}" for container "${container}" because the original codec cannot be encoded by this browser.`,
-				);
 				if (!fallbackCodec) {
 					return Promise.reject(
 						new Error(
@@ -369,22 +340,28 @@ const internalRenderMediaOnWeb = async <
 					);
 				}
 
+				Internals.Log.warn(
+					{logLevel, tag: '@remotion/web-renderer'},
+					`Falling back from audio codec "${audioCodec}" to "${fallbackCodec}" for container "${container}" because the original codec cannot be encoded by this browser.`,
+				);
 				finalAudioCodec = fallbackCodec;
 			}
-
-			audioSampleSource = new AudioSampleSource({
-				codec: audioCodecToMediabunnyAudioCodec(finalAudioCodec),
-				bitrate: resolvedAudioBitrate,
-			});
-
-			cleanupFns.push(() => {
-				audioSampleSource?.close();
-			});
-
-			output.addAudioTrack(audioSampleSource);
 		}
 
-		await output.start();
+		using audioSampleSource = createAudioSampleSource({
+			muted,
+			codec: finalAudioCodec
+				? audioCodecToMediabunnyAudioCodec(finalAudioCodec)
+				: null,
+			bitrate: resolvedAudioBitrate,
+		});
+		if (audioSampleSource.audioSampleSource) {
+			outputWithCleanup.output.addAudioTrack(
+				audioSampleSource.audioSampleSource,
+			);
+		}
+
+		await outputWithCleanup.output.start();
 
 		if (signal?.aborted) {
 			throw new Error('renderMediaOnWeb() was cancelled');
@@ -429,24 +406,6 @@ const internalRenderMediaOnWeb = async <
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 
-			const assets = collectAssets.current!.collectAssets();
-			if (onArtifact) {
-				await artifactsHandler.handle({
-					imageData,
-					frame,
-					assets,
-					onArtifact,
-				});
-			}
-
-			if (signal?.aborted) {
-				throw new Error('renderMediaOnWeb() was cancelled');
-			}
-
-			const audio = muted
-				? null
-				: onlyInlineAudio({assets, fps: resolved.fps, frame});
-
 			const timestamp = Math.round(
 				((frame - realFrameRange[0]) / resolved.fps) * 1_000_000,
 			);
@@ -473,11 +432,34 @@ const internalRenderMediaOnWeb = async <
 				});
 			}
 
+			const audioCombineStart = performance.now();
+			const assets = collectAssets.current!.collectAssets();
+			if (onArtifact) {
+				await artifactsHandler.handle({
+					imageData,
+					frame,
+					assets,
+					onArtifact,
+				});
+			}
+
+			if (signal?.aborted) {
+				throw new Error('renderMediaOnWeb() was cancelled');
+			}
+
+			const audio = muted
+				? null
+				: onlyInlineAudio({assets, fps: resolved.fps, frame});
+			internalState.addAudioMixingTime(performance.now() - audioCombineStart);
+
 			const addSampleStart = performance.now();
 			await Promise.all([
-				addVideoSampleAndCloseFrame(frameToEncode, videoSampleSource),
-				audio && audioSampleSource
-					? addAudioSample(audio, audioSampleSource)
+				addVideoSampleAndCloseFrame(
+					frameToEncode,
+					videoSampleSource.videoSampleSource,
+				),
+				audio && audioSampleSource.audioSampleSource
+					? addAudioSample(audio, audioSampleSource.audioSampleSource)
 					: Promise.resolve(),
 			]);
 			internalState.addAddSampleTime(performance.now() - addSampleStart);
@@ -493,16 +475,14 @@ const internalRenderMediaOnWeb = async <
 		// Call progress one final time to ensure final state is reported
 		onProgress?.({...progress});
 
-		videoSampleSource.close();
-		audioSampleSource?.close();
-		await output.finalize();
+		videoSampleSource.videoSampleSource.close();
+		audioSampleSource.audioSampleSource?.close();
+		await outputWithCleanup.output.finalize();
 
 		Internals.Log.verbose(
 			{logLevel, tag: 'web-renderer'},
-			`Render timings: waitForReady=${internalState.getWaitForReadyTime().toFixed(2)}ms, createFrame=${internalState.getCreateFrameTime().toFixed(2)}ms, addSample=${internalState.getAddSampleTime().toFixed(2)}ms`,
+			`Render timings: waitForReady=${internalState.getWaitForReadyTime().toFixed(2)}ms, createFrame=${internalState.getCreateFrameTime().toFixed(2)}ms, addSample=${internalState.getAddSampleTime().toFixed(2)}ms, audioMixing=${internalState.getAudioMixingTime().toFixed(2)}ms`,
 		);
-
-		const mimeType = getMimeType(container);
 
 		if (webFsTarget) {
 			sendUsageEvent({
@@ -536,25 +516,28 @@ const internalRenderMediaOnWeb = async <
 					throw new Error('The resulting buffer is empty');
 				}
 
-				return Promise.resolve(new Blob([target.buffer], {type: mimeType}));
+				return Promise.resolve(
+					new Blob([target.buffer], {type: getMimeType(container)}),
+				);
 			},
 			internalState,
 		};
 	} catch (err) {
-		sendUsageEvent({
-			succeeded: false,
-			licenseKey: licenseKey ?? null,
-			apiName: 'renderMediaOnWeb',
-		}).catch((err2) => {
-			Internals.Log.error(
-				{logLevel: 'error', tag: 'web-renderer'},
-				'Failed to send usage event',
-				err2,
-			);
-		});
+		if (!signal?.aborted) {
+			sendUsageEvent({
+				succeeded: false,
+				licenseKey: licenseKey ?? null,
+				apiName: 'renderMediaOnWeb',
+			}).catch((err2) => {
+				Internals.Log.error(
+					{logLevel: 'error', tag: 'web-renderer'},
+					'Failed to send usage event',
+					err2,
+				);
+			});
+		}
+
 		throw err;
-	} finally {
-		cleanupFns.forEach((fn) => fn());
 	}
 };
 

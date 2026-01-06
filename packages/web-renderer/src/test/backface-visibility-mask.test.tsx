@@ -1,6 +1,7 @@
 import {test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
 import {testImage} from './utils';
 

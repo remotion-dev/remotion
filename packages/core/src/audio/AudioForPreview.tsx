@@ -25,7 +25,7 @@ import {
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import type {IsExact, NativeAudioProps, RemotionAudioProps} from './props.js';
-import {SharedAudioContext, useSharedAudio} from './shared-audio-tags.js';
+import {useSharedAudio} from './shared-audio-tags.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForPreviewProps = RemotionAudioProps & {
@@ -164,11 +164,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 			props.loop,
 		],
 	);
-
-	const context = useContext(SharedAudioContext);
-	if (!context) {
-		throw new Error('SharedAudioContext not found');
-	}
 
 	const {el: audioRef, mediaElementSourceNode} = useSharedAudio({
 		aud: propsToPass,

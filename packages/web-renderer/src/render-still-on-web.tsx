@@ -90,27 +90,28 @@ async function internalRenderStillOnWeb<
 		return Promise.reject(new Error('renderStillOnWeb() was cancelled'));
 	}
 
-	const internalState = makeInternalState();
+	using internalState = makeInternalState();
 
-	const {delayRenderScope, div, cleanupScaffold, collectAssets} =
-		await createScaffold({
-			width: resolved.width,
-			height: resolved.height,
-			delayRenderTimeoutInMilliseconds,
-			logLevel,
-			resolvedProps: resolved.props,
-			id: resolved.id,
-			mediaCacheSizeInBytes,
-			audioEnabled: false,
-			Component: composition.component,
-			videoEnabled: true,
-			durationInFrames: resolved.durationInFrames,
-			fps: resolved.fps,
-			schema: schema ?? null,
-			initialFrame: frame,
-			defaultCodec: resolved.defaultCodec,
-			defaultOutName: resolved.defaultOutName,
-		});
+	using scaffold = await createScaffold({
+		width: resolved.width,
+		height: resolved.height,
+		delayRenderTimeoutInMilliseconds,
+		logLevel,
+		resolvedProps: resolved.props,
+		id: resolved.id,
+		mediaCacheSizeInBytes,
+		audioEnabled: false,
+		Component: composition.component,
+		videoEnabled: true,
+		durationInFrames: resolved.durationInFrames,
+		fps: resolved.fps,
+		schema: schema ?? null,
+		initialFrame: frame,
+		defaultCodec: resolved.defaultCodec,
+		defaultOutName: resolved.defaultOutName,
+	});
+
+	const {delayRenderScope, div, collectAssets} = scaffold;
 
 	const artifactsHandler = handleArtifacts();
 
@@ -153,21 +154,21 @@ async function internalRenderStillOnWeb<
 
 		return {blob: imageData, internalState};
 	} catch (err) {
-		sendUsageEvent({
-			succeeded: false,
-			licenseKey: licenseKey ?? null,
-			apiName: 'renderStillOnWeb',
-		}).catch((err2) => {
-			Internals.Log.error(
-				{logLevel: 'error', tag: 'web-renderer'},
-				'Failed to send usage event',
-				err2,
-			);
-		});
+		if (!signal?.aborted) {
+			sendUsageEvent({
+				succeeded: false,
+				licenseKey: licenseKey ?? null,
+				apiName: 'renderStillOnWeb',
+			}).catch((err2) => {
+				Internals.Log.error(
+					{logLevel: 'error', tag: 'web-renderer'},
+					'Failed to send usage event',
+					err2,
+				);
+			});
+		}
+
 		throw err;
-	} finally {
-		internalState.cleanup();
-		cleanupScaffold();
 	}
 }
 

@@ -1,5 +1,6 @@
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bounds';
 import {testImage} from './utils';
 

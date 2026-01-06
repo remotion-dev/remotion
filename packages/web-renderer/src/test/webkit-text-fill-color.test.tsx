@@ -1,5 +1,6 @@
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {webkitTextFillColor} from './fixtures/text/webkit-text-fill-color';
 import {testImage} from './utils';
 

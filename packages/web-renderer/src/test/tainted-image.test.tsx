@@ -1,6 +1,7 @@
 import {AbsoluteFill, Img} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 
 // Note: The behavior varies by browser when loading an image that redirects
 // without CORS headers (like https://github.com/JonnyBurger.png):

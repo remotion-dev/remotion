@@ -1,5 +1,6 @@
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {lineHeight} from './fixtures/line-height';
 import {testImage} from './utils';
 
