@@ -1,6 +1,6 @@
 import type {VideoSample} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
-import {SAFE_WINDOW_OF_MONOTOCY} from '../caches';
+import {SAFE_WINDOW_OF_MONOTONICITY} from '../caches';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {getAllocationSize} from './get-allocation-size';
@@ -103,7 +103,7 @@ export const makeKeyframeBank = ({
 
 		return (
 			roundTo4Digits(lastFrame.timestamp + lastFrame.duration) >
-			roundTo4Digits(timestamp) + SAFE_WINDOW_OF_MONOTOCY
+			roundTo4Digits(timestamp) + SAFE_WINDOW_OF_MONOTONICITY
 		);
 	};
 
@@ -136,7 +136,7 @@ export const makeKeyframeBank = ({
 
 			deleteFramesBeforeTimestamp({
 				logLevel: parentLogLevel,
-				timestampInSeconds: timestampInSeconds - SAFE_WINDOW_OF_MONOTOCY,
+				timestampInSeconds: timestampInSeconds - SAFE_WINDOW_OF_MONOTONICITY,
 			});
 		}
 

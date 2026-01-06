@@ -1,7 +1,7 @@
 import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {canBrowserUseWebGl2} from '../browser-can-use-webgl2';
-import {getTotalCacheStats, SAFE_WINDOW_OF_MONOTOCY} from '../caches';
+import {getTotalCacheStats, SAFE_WINDOW_OF_MONOTONICITY} from '../caches';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {getFramesSinceKeyframe} from './get-frames-since-keyframe';
 import {type KeyframeBank} from './keyframe-bank';
@@ -165,7 +165,7 @@ export const makeKeyframeManager = () => {
 		src: string;
 		logLevel: LogLevel;
 	}) => {
-		const threshold = timestampInSeconds - SAFE_WINDOW_OF_MONOTOCY;
+		const threshold = timestampInSeconds - SAFE_WINDOW_OF_MONOTONICITY;
 
 		if (!sources[src]) {
 			return;
