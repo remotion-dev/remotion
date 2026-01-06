@@ -8,7 +8,10 @@ import {getAllocationSize} from './get-allocation-size';
 export type KeyframeBank = {
 	src: string;
 	getFrameFromTimestamp: (timestamp: number) => Promise<VideoSample | null>;
-	prepareForDeletion: (logLevel: LogLevel) => {framesDeleted: number};
+	prepareForDeletion: (
+		logLevel: LogLevel,
+		reason: string,
+	) => {framesDeleted: number};
 	deleteFramesBeforeTimestamp: ({
 		logLevel,
 		timestampInSeconds,
@@ -225,12 +228,12 @@ export const makeKeyframeBank = async ({
 	}
 
 	const startTimestampInSeconds = firstFrame.value.timestamp;
-	addFrame(firstFrame.value, parentLogLevel);
 
 	Internals.Log.verbose(
 		{logLevel: parentLogLevel, tag: '@remotion/media'},
 		`Creating keyframe bank from ${startTimestampInSeconds}sec`,
 	);
+	addFrame(firstFrame.value, parentLogLevel);
 
 	const getRangeOfTimestamps = () => {
 		if (frameTimestamps.length === 0) {
@@ -243,12 +246,12 @@ export const makeKeyframeBank = async ({
 		};
 	};
 
-	const prepareForDeletion = (logLevel: LogLevel) => {
+	const prepareForDeletion = (logLevel: LogLevel, reason: string) => {
 		const range = getRangeOfTimestamps();
 		if (range) {
 			Internals.Log.verbose(
 				{logLevel, tag: '@remotion/media'},
-				`Preparing for deletion of keyframe bank from ${range?.firstTimestamp}sec to ${range?.lastTimestamp}sec`,
+				`Preparing for deletion (${reason}) of keyframe bank from ${range?.firstTimestamp}sec to ${range?.lastTimestamp}sec`,
 			);
 		}
 
@@ -286,10 +289,13 @@ export const makeKeyframeBank = async ({
 			return true;
 		}
 
+		if (roundedTimestamp < firstFrameTimestamp) {
+			return false;
+		}
+
 		if (
-			roundedTimestamp < firstFrameTimestamp ||
-			roundedTimestamp + BIGGEST_ALLOWED_JUMP_FORWARD_SECONDS >
-				lastFrameTimestamp
+			roundedTimestamp - BIGGEST_ALLOWED_JUMP_FORWARD_SECONDS >
+			lastFrameTimestamp
 		) {
 			return false;
 		}

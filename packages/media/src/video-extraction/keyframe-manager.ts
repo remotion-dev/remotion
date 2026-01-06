@@ -101,7 +101,10 @@ export const makeKeyframeManager = () => {
 
 		if (mostInThePastBank) {
 			const range = mostInThePastBank.getRangeOfTimestamps();
-			const {framesDeleted} = mostInThePastBank.prepareForDeletion(logLevel);
+			const {framesDeleted} = mostInThePastBank.prepareForDeletion(
+				logLevel,
+				'deleted oldest keyframe bank to stay under max cache size',
+			);
 			delete sources[mostInThePastSrc][mostInThePastIndex];
 			if (range) {
 				Internals.Log.verbose(
@@ -171,13 +174,13 @@ export const makeKeyframeManager = () => {
 				continue;
 			}
 
-			const {firstTimestamp} = range;
+			const {lastTimestamp} = range;
 
-			if (firstTimestamp < threshold) {
-				bank.prepareForDeletion(logLevel);
+			if (lastTimestamp < threshold) {
+				bank.prepareForDeletion(logLevel, 'cleared before threshold');
 				Internals.Log.verbose(
 					{logLevel, tag: '@remotion/media'},
-					`[Video] Cleared frames for src ${src} from ${firstTimestamp}sec to ${firstTimestamp}sec`,
+					`[Video] Cleared frames for src ${src} from ${range.firstTimestamp}sec to ${range.lastTimestamp}sec`,
 				);
 				const bankIndex = banks.indexOf(bank);
 				delete sources[src][bankIndex];
@@ -215,6 +218,10 @@ export const makeKeyframeManager = () => {
 
 		// Bank does not yet exist, we need to fetch
 		if (!existingBank) {
+			Internals.Log.trace(
+				{logLevel, tag: '@remotion/media'},
+				`Creating new keyframe bank for src ${src} at timestamp ${timestamp}`,
+			);
 			const newKeyframeBank = await makeKeyframeBank({
 				videoSampleSink,
 				logLevel,
@@ -228,7 +235,11 @@ export const makeKeyframeManager = () => {
 		}
 
 		// Bank exists and still has the frame we want
-		if (await existingBank.hasTimestampInSecond(timestamp)) {
+		if (existingBank.canSatisfyTimestamp(timestamp)) {
+			Internals.Log.trace(
+				{logLevel, tag: '@remotion/media'},
+				`Keyframe bank exists and satisfies timestamp ${timestamp}`,
+			);
 			return existingBank;
 		}
 
@@ -239,7 +250,7 @@ export const makeKeyframeManager = () => {
 
 		// Bank exists but frames have already been evicted!
 		// First delete it entirely
-		existingBank.prepareForDeletion(logLevel);
+		existingBank.prepareForDeletion(logLevel, 'already existed but evicted');
 		sources[src] = sources[src].filter((bank) => bank !== existingBank);
 
 		// Then refetch
@@ -292,7 +303,7 @@ export const makeKeyframeManager = () => {
 			const banks = sources[src];
 
 			for (const bank of banks) {
-				bank.prepareForDeletion(logLevel);
+				bank.prepareForDeletion(logLevel, 'clearAll');
 			}
 
 			sources[src] = [];
