@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
 
 const textStyle: React.CSSProperties = {
 	color: LIGHT_TEXT,
@@ -15,6 +15,13 @@ const linkStyle: React.CSSProperties = {
 	cursor: 'pointer',
 };
 
+const projectNameStyle: React.CSSProperties = {
+	color: BLUE,
+	fontSize: 14,
+	fontFamily: 'monospace',
+	lineHeight: 1.5,
+};
+
 type WebRenderModalLicenseKeyValidationProps = {
 	readonly licenseKey: string | null;
 };
@@ -26,7 +33,7 @@ type LicenseKeyValidationResult = {
 	readonly projectSlug: string;
 };
 
-const PRO_HOST = 'http://localhost:3001';
+const PRO_HOST = 'https://remotion.pro';
 
 export const WebRenderModalLicenseKeyValidation: React.FC<
 	WebRenderModalLicenseKeyValidationProps
@@ -65,9 +72,12 @@ export const WebRenderModalLicenseKeyValidation: React.FC<
 			{validation && !validation.isValid && '⚠️ Invalid license key'}
 			{validation && validation.isValid && (
 				<div>
-					<span style={textStyle}>✅ {validation.projectName}. </span>
+					<span style={projectNameStyle}>{validation.projectName}</span>
 					{validation.hasActiveSubscription && (
-						<span style={textStyle}>You have an active Company License. </span>
+						<span style={textStyle}>
+							{' '}
+							- You have an active Company License.{' '}
+						</span>
 					)}
 					<span style={textStyle}>
 						Check your{' '}
