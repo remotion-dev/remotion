@@ -1,6 +1,5 @@
-import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
+import type {VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
-import {canBrowserUseWebGl2} from '../browser-can-use-webgl2';
 import {getTotalCacheStats, SAFE_WINDOW_OF_MONOTONICITY} from '../caches';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {type KeyframeBank, makeKeyframeBank} from './keyframe-bank';
@@ -57,7 +56,7 @@ export const makeKeyframeManager = () => {
 		return {count, totalSize};
 	};
 
-	const getTheKeyframeBankMostInThePast = async () => {
+	const getTheKeyframeBankMostInThePast = () => {
 		let mostInThePast = null;
 		let mostInThePastBank = null;
 
@@ -196,38 +195,16 @@ export const makeKeyframeManager = () => {
 	};
 
 	const getKeyframeBankOrRefetch = async ({
-		packetSink,
 		timestamp,
 		videoSampleSink,
 		src,
 		logLevel,
 	}: {
-		packetSink: EncodedPacketSink;
 		timestamp: number;
 		videoSampleSink: VideoSampleSink;
 		src: string;
 		logLevel: LogLevel;
-	}): Promise<KeyframeBank | 'has-alpha' | null> => {
-		// Try to get the keypacket at the requested timestamp.
-		// If it returns null (timestamp is before the first keypacket), fall back to the first packet.
-		// This matches mediabunny's internal behavior and handles videos that don't start at timestamp 0.
-		const startPacket = await packetSink.getFirstPacket({
-			verifyKeyPackets: true,
-		});
-
-		// TODO: Should move out of this function
-		const hasAlpha = startPacket?.sideData.alpha;
-		if (hasAlpha && !canBrowserUseWebGl2()) {
-			return 'has-alpha';
-		}
-
-		if (!startPacket) {
-			// e.g. https://discord.com/channels/809501355504959528/809501355504959531/1424400511070765086
-			// The video has an offset and the first frame is at time 0.033sec
-			// we shall not crash here but handle it gracefully
-			return null;
-		}
-
+	}): Promise<KeyframeBank | null> => {
 		// The start packet timestamp can be higher than the packets following it
 		// https://discord.com/channels/809501355504959528/1001500302375125055/1456710188865159343
 		// e.g. key packet timestamp is 0.08sec, but the next packet is 0.04sec
@@ -279,7 +256,6 @@ export const makeKeyframeManager = () => {
 	};
 
 	const requestKeyframeBank = async ({
-		packetSink,
 		timestamp,
 		videoSampleSink,
 		src,
@@ -287,7 +263,6 @@ export const makeKeyframeManager = () => {
 		maxCacheSize,
 	}: {
 		timestamp: number;
-		packetSink: EncodedPacketSink;
 		videoSampleSink: VideoSampleSink;
 		src: string;
 		logLevel: LogLevel;
@@ -295,14 +270,13 @@ export const makeKeyframeManager = () => {
 	}) => {
 		await ensureToStayUnderMaxCacheSize(logLevel, maxCacheSize);
 
-		await clearKeyframeBanksBeforeTime({
+		clearKeyframeBanksBeforeTime({
 			timestampInSeconds: timestamp,
 			src,
 			logLevel,
 		});
 
 		const keyframeBank = await getKeyframeBankOrRefetch({
-			packetSink,
 			timestamp,
 			videoSampleSink,
 			src,
@@ -331,14 +305,12 @@ export const makeKeyframeManager = () => {
 
 	return {
 		requestKeyframeBank: ({
-			packetSink,
 			timestamp,
 			videoSampleSink,
 			src,
 			logLevel,
 			maxCacheSize,
 		}: {
-			packetSink: EncodedPacketSink;
 			timestamp: number;
 			videoSampleSink: VideoSampleSink;
 			src: string;
@@ -347,7 +319,6 @@ export const makeKeyframeManager = () => {
 		}) => {
 			queue = queue.then(() =>
 				requestKeyframeBank({
-					packetSink,
 					timestamp,
 					videoSampleSink,
 					src,
@@ -355,7 +326,7 @@ export const makeKeyframeManager = () => {
 					maxCacheSize,
 				}),
 			);
-			return queue as Promise<KeyframeBank | 'has-alpha' | null>;
+			return queue as Promise<KeyframeBank>;
 		},
 		getCacheStats,
 		clearAll,

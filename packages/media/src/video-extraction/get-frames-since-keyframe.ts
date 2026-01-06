@@ -9,12 +9,12 @@ import {
 	VideoSampleSink,
 	WEBM,
 } from 'mediabunny';
+import {canBrowserUseWebGl2} from '../browser-can-use-webgl2';
 import {isNetworkError} from '../is-type-of-error';
 import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
 
 type VideoSinks = {
 	sampleSink: VideoSampleSink;
-	packetSink: EncodedPacketSink;
 };
 
 type AudioSinks = {
@@ -31,6 +31,7 @@ export type VideoSinkResult =
 	| VideoSinks
 	| 'no-video-track'
 	| 'cannot-decode'
+	| 'cannot-decode-alpha'
 	| 'unknown-container-format'
 	| 'network-error';
 
@@ -83,9 +84,23 @@ export const getSinks = async (src: string) => {
 			return 'cannot-decode';
 		}
 
+		const sampleSink = new VideoSampleSink(videoTrack);
+		const packetSink = new EncodedPacketSink(videoTrack);
+
+		// Try to get the keypacket at the requested timestamp.
+		// If it returns null (timestamp is before the first keypacket), fall back to the first packet.
+		// This matches mediabunny's internal behavior and handles videos that don't start at timestamp 0.
+		const startPacket = await packetSink.getFirstPacket({
+			verifyKeyPackets: true,
+		});
+
+		const hasAlpha = startPacket?.sideData.alpha;
+		if (hasAlpha && !canBrowserUseWebGl2()) {
+			return 'cannot-decode-alpha';
+		}
+
 		return {
-			sampleSink: new VideoSampleSink(videoTrack),
-			packetSink: new EncodedPacketSink(videoTrack),
+			sampleSink,
 		};
 	};
 

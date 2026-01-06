@@ -65,6 +65,13 @@ const extractFrameInternal = async ({
 		return {type: 'network-error'};
 	}
 
+	if (video === 'cannot-decode-alpha') {
+		return {
+			type: 'cannot-decode-alpha',
+			durationInSeconds: mediaDurationInSeconds,
+		};
+	}
+
 	const timeInSeconds = getTimeInSeconds({
 		loop,
 		mediaDurationInSeconds,
@@ -90,20 +97,12 @@ const extractFrameInternal = async ({
 	// Should be able to remove once upgraded to Chrome 145
 	try {
 		const keyframeBank = await keyframeManager.requestKeyframeBank({
-			packetSink: video.packetSink,
 			videoSampleSink: video.sampleSink,
 			timestamp: timeInSeconds,
 			src,
 			logLevel,
 			maxCacheSize,
 		});
-
-		if (keyframeBank === 'has-alpha') {
-			return {
-				type: 'cannot-decode-alpha',
-				durationInSeconds: await sink.getDuration(),
-			};
-		}
 
 		if (!keyframeBank) {
 			return {
