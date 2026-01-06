@@ -1,11 +1,15 @@
 import React, {useEffect} from 'react';
-import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT} from '../../helpers/colors';
+import {Checkmark} from '../../icons/Checkmark';
 
 const textStyle: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontSize: 14,
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
+	display: 'flex',
+	alignItems: 'center',
+	gap: 8,
 };
 
 const linkStyle: React.CSSProperties = {
@@ -13,13 +17,6 @@ const linkStyle: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
 	cursor: 'pointer',
-};
-
-const projectNameStyle: React.CSSProperties = {
-	color: BLUE,
-	fontSize: 14,
-	fontFamily: 'monospace',
-	lineHeight: 1.5,
 };
 
 type WebRenderModalLicenseKeyValidationProps = {
@@ -72,23 +69,29 @@ export const WebRenderModalLicenseKeyValidation: React.FC<
 			{validation && !validation.isValid && '⚠️ Invalid license key'}
 			{validation && validation.isValid && (
 				<div>
-					<span style={projectNameStyle}>{validation.projectName}</span>
-					{validation.hasActiveSubscription && (
-						<span style={textStyle}>
-							{' '}
-							- You have an active Company License.{' '}
-						</span>
-					)}
-					<span style={textStyle}>
-						Check your{' '}
+					<div style={textStyle}>
+						<Checkmark /> Belongs to{' '}
+						<a
+							href={`${PRO_HOST}/projects/${validation.projectSlug}`}
+							target="_blank"
+							style={linkStyle}
+						>
+							{validation.projectName}
+						</a>{' '}
+						- View{' '}
 						<a
 							href={`${PRO_HOST}/projects/${validation.projectSlug}/usage#client-renders-usage`}
 							target="_blank"
 							style={linkStyle}
 						>
-							usage here
+							usage
 						</a>
-					</span>
+					</div>
+					{validation.hasActiveSubscription && (
+						<div style={textStyle}>
+							<Checkmark /> Active Company License
+						</div>
+					)}
 				</div>
 			)}
 		</div>
