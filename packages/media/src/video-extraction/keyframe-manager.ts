@@ -1,7 +1,7 @@
 import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {canBrowserUseWebGl2} from '../browser-can-use-webgl2';
-import {getTotalCacheStats, SAFE_BACK_WINDOW_IN_SECONDS} from '../caches';
+import {getTotalCacheStats, SAFE_WINDOW_OF_MONOTOCY} from '../caches';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {getFramesSinceKeyframe} from './get-frames-since-keyframe';
 import {type KeyframeBank} from './keyframe-bank';
@@ -155,7 +155,7 @@ export const makeKeyframeManager = () => {
 		src: string;
 		logLevel: LogLevel;
 	}) => {
-		const threshold = timestampInSeconds - SAFE_BACK_WINDOW_IN_SECONDS;
+		const threshold = timestampInSeconds - SAFE_WINDOW_OF_MONOTOCY;
 
 		if (!sources[src]) {
 			return;
@@ -218,7 +218,10 @@ export const makeKeyframeManager = () => {
 			return null;
 		}
 
-		const startTimestampInSeconds = startPacket.timestamp;
+		// The start packet timestamp can higher than the packets following it
+		// https://discord.com/channels/809501355504959528/1001500302375125055/1456710188865159343
+		// e.g. key packet timestamp is 0.08sec, but the next packet is 0.04sec
+		const startTimestampInSeconds = Math.min(timestamp, startPacket.timestamp);
 		const existingBank = sources[src]?.[startTimestampInSeconds];
 
 		// Bank does not yet exist, we need to fetch
@@ -229,6 +232,7 @@ export const makeKeyframeManager = () => {
 				startPacket,
 				logLevel,
 				src,
+				requestedTimestamp: startTimestampInSeconds,
 			});
 
 			addKeyframeBank({src, bank: newKeyframeBank, startTimestampInSeconds});
@@ -258,6 +262,7 @@ export const makeKeyframeManager = () => {
 			startPacket,
 			logLevel,
 			src,
+			requestedTimestamp: timestamp,
 		});
 
 		addKeyframeBank({src, bank: replacementKeybank, startTimestampInSeconds});

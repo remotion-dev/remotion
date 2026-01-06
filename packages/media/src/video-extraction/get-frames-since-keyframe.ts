@@ -10,6 +10,7 @@ import {
 	WEBM,
 } from 'mediabunny';
 import type {LogLevel} from 'remotion';
+import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import {isNetworkError} from '../is-type-of-error';
 import {makeKeyframeBank} from './keyframe-bank';
 import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
@@ -162,20 +163,27 @@ export const getFramesSinceKeyframe = async ({
 	startPacket,
 	logLevel,
 	src,
+	requestedTimestamp,
 }: {
 	packetSink: EncodedPacketSink;
 	videoSampleSink: VideoSampleSink;
 	startPacket: EncodedPacket;
 	logLevel: LogLevel;
 	src: string;
+	requestedTimestamp: number;
 }) => {
 	const nextKeyPacket = await packetSink.getNextKeyPacket(startPacket, {
 		verifyKeyPackets: true,
 	});
 
 	const sampleIterator = videoSampleSink.samples(
-		startPacket.timestamp,
-		nextKeyPacket ? nextKeyPacket.timestamp : Infinity,
+		// The start packet timestamp can higher than the packets following it
+		// https://discord.com/channels/809501355504959528/1001500302375125055/1456710188865159343
+		// e.g. key packet timestamp is 0.08sec, but the next packet is 0.04sec
+
+		// Rounding to 4 digits because of https://github.com/Vanilagy/mediabunny/issues/269
+		roundTo4Digits(requestedTimestamp),
+		nextKeyPacket ? roundTo4Digits(nextKeyPacket.timestamp) : Infinity,
 	);
 
 	const keyframeBank = makeKeyframeBank({
