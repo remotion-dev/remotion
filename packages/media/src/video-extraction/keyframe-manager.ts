@@ -228,7 +228,7 @@ export const makeKeyframeManager = () => {
 			return null;
 		}
 
-		// The start packet timestamp can higher than the packets following it
+		// The start packet timestamp can be higher than the packets following it
 		// https://discord.com/channels/809501355504959528/1001500302375125055/1456710188865159343
 		// e.g. key packet timestamp is 0.08sec, but the next packet is 0.04sec
 		const startTimestampInSeconds = Math.min(timestamp, startPacket.timestamp);
