@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
 	BLUE,
 	INPUT_BACKGROUND,
@@ -11,8 +11,8 @@ import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {Spacing} from '../layout';
 import type {LicenseKeyDetails} from './WebRenderModalLicenseKeyDetails';
 import {
-	useLicenseKeyDetails,
 	WebRenderModalLicenseKeyDetails,
+	fetchLicenseKeyDetails,
 } from './WebRenderModalLicenseKeyDetails';
 
 type WebRenderModalLicenseProps = {
@@ -113,10 +113,7 @@ type LicenseKeyValidation = {
 	details: LicenseKeyDetails | null;
 };
 
-const validateLicenseKey = (
-	key: string,
-	details: LicenseKeyDetails | null,
-): LicenseKeyValidation => {
+const validateLicenseKey = (key: string): LicenseKeyValidation => {
 	if (key.length === 0) {
 		return {valid: false, message: null, details: null};
 	}
@@ -147,22 +144,6 @@ const validateLicenseKey = (
 		};
 	}
 
-	if (details && !details.isValid) {
-		return {
-			valid: false,
-			message: 'License key is invalid or has been reset',
-			details: null,
-		};
-	}
-
-	if (details?.isValid) {
-		return {
-			valid: true,
-			message: null,
-			details,
-		};
-	}
-
 	return {valid: true, message: null, details: null};
 };
 
@@ -171,8 +152,48 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 	setLicenseKey,
 	initialPublicLicenseKey,
 }) => {
-	const {details: licenseKeyDetails, isLoading} =
-		useLicenseKeyDetails(licenseKey);
+	const [licenseValidation, setLicenseValidation] =
+		useState<LicenseKeyValidation>({valid: true, message: null, details: null});
+	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => {
+		if (licenseKey === null || licenseKey === 'free-license') {
+			return setLicenseValidation({
+				valid: true,
+				message: null,
+				details: null,
+			});
+		}
+
+		const validation = validateLicenseKey(licenseKey);
+		if (!validation.valid) {
+			return setLicenseValidation(validation);
+		}
+
+		setLicenseValidation({valid: true, message: null, details: null});
+		setIsLoading(true);
+		fetchLicenseKeyDetails(licenseKey)
+			.then((details) => {
+				setIsLoading(false);
+				if (details.isValid) {
+					setLicenseValidation({valid: true, message: null, details});
+				} else {
+					setLicenseValidation({
+						valid: false,
+						message: 'License key is invalid or has been reset',
+						details: null,
+					});
+				}
+			})
+			.catch(() => {
+				setIsLoading(false);
+				setLicenseValidation({
+					valid: false,
+					message: 'Failed to fetch license key details',
+					details: null,
+				});
+			});
+	}, [licenseKey]);
 
 	const onFreeLicenseChange = useCallback(() => {
 		setLicenseKey('free-license');
@@ -189,14 +210,6 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 			},
 			[setLicenseKey],
 		);
-
-	const licenseValidation = useMemo(() => {
-		if (licenseKey === null || licenseKey === 'free-license') {
-			return {valid: true, message: null, details: null};
-		}
-
-		return validateLicenseKey(licenseKey, licenseKeyDetails);
-	}, [licenseKey, licenseKeyDetails]);
 
 	return (
 		<div style={tabContainer}>
