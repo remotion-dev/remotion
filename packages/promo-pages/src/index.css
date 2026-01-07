@@ -146,11 +146,6 @@ body {
 	font-feature-settings: 'ss03' on;
 }
 
-/* Experts page styles */
-.experts-container {
-	position: relative;
-}
-
 .experts-pagetitle {
 	font-size: 3em;
 	text-align: center;

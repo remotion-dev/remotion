@@ -1,3 +1,4 @@
+import {Card} from '@remotion/design';
 import React, {useMemo} from 'react';
 import {random} from 'remotion';
 import {BlueButton} from '../homepage/layout/Button';
@@ -63,15 +64,12 @@ const wrapperStyle: React.CSSProperties = {
 };
 
 const cardStyle: React.CSSProperties = {
-	boxShadow: 'var(--box-shadow)',
 	padding: 16,
 	borderRadius: 6,
 	marginBottom: 16,
 	display: 'flex',
 	flexDirection: 'column',
 	alignItems: 'center',
-	backgroundColor: 'var(--ifm-navbar-background-color)',
-	transition: 'all 0.3s ease-in-out',
 };
 
 const profileStyle: React.CSSProperties = {
@@ -116,12 +114,12 @@ export const ExpertsPageContent: React.FC<ExpertsPageProps> = ({Link}) => {
 	}, []);
 
 	return (
-		<div className="experts-container">
+		<div className="relative bg-[var(--background)]">
 			<div style={wrapperStyle}>
 				<h1 className="experts-pagetitle">Find a Remotion Expert</h1>
 				<p className="experts-tagline">
-					Get help by booking a call or hiring these freelancers to work on
-					your Remotion project.
+					Get help by booking a call or hiring these freelancers to work on your
+					Remotion project.
 					<br />
 					They appear in random order.{' '}
 				</p>
@@ -165,7 +163,7 @@ export const ExpertsPageContent: React.FC<ExpertsPageProps> = ({Link}) => {
 				<br />
 				{expertsInRandomOrder.map((e) => {
 					return (
-						<div key={e.name} className="experts-card" style={cardStyle}>
+						<Card key={e.name} style={cardStyle}>
 							<Link
 								style={linkStyle}
 								className="experts-card-content"
@@ -326,7 +324,7 @@ export const ExpertsPageContent: React.FC<ExpertsPageProps> = ({Link}) => {
 									</>
 								) : null}
 							</div>
-						</div>
+						</Card>
 					);
 				})}
 			</div>
