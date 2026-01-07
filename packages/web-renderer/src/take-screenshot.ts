@@ -50,14 +50,17 @@ export const takeScreenshot = async ({
 	logLevel: LogLevel;
 	internalState: InternalState;
 }) => {
-	const f = await createFrame({
+	const frame = await createFrame({
 		div,
 		width,
 		height,
 		logLevel,
 		internalState,
 	});
-	return f.convertToBlob({
+
+	const imageData = await frame.convertToBlob({
 		type: `image/${imageFormat}`,
 	});
+
+	return imageData;
 };
