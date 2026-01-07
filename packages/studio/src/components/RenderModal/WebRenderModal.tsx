@@ -10,12 +10,10 @@ import type {
 } from '@remotion/web-renderer';
 import {
 	getDefaultAudioCodecForContainer,
-	getSupportedAudioCodecsForContainer,
 	renderMediaOnWeb,
 	renderStillOnWeb,
 } from '@remotion/web-renderer';
-import {getEncodableAudioCodecs} from 'mediabunny';
-import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {AudioIcon} from '../../icons/audio';
 import {CertificateIcon} from '../../icons/certificate';
@@ -55,6 +53,8 @@ import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
 import {WebRenderModalLicense} from './WebRenderModalLicense';
 import {WebRenderModalPicture} from './WebRenderModalPicture';
+import {useEncodableAudioCodecs} from './use-encodable-audio-codecs';
+import {useEncodableVideoCodecs} from './use-encodable-video-codecs';
 
 type WebRenderModalProps = {
 	readonly compositionId: string;
@@ -210,27 +210,27 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		useState<RenderMediaOnWebProgress | null>(null);
 	const [transparent, setTransparent] = useState(false);
 	const [muted, setMuted] = useState(false);
-	const [encodableCodecs, setEncodableCodecs] = useState<
-		WebRendererAudioCodec[]
-	>(() => getSupportedAudioCodecsForContainer(container));
 
 	const [licenseKey, setLicenseKey] = useState(initialLicenseKey);
 
-	useEffect(() => {
-		const supported = getSupportedAudioCodecsForContainer(container);
-		getEncodableAudioCodecs(supported, {}).then((encodable) => {
-			const filtered = supported.filter((c) => encodable.includes(c));
-			setEncodableCodecs(filtered);
-		});
-	}, [container]);
+	const encodableAudioCodecs = useEncodableAudioCodecs(container);
+	const encodableVideoCodecs = useEncodableVideoCodecs(container);
 
 	const effectiveAudioCodec = useMemo((): WebRendererAudioCodec => {
-		if (encodableCodecs.includes(audioCodec)) {
+		if (encodableAudioCodecs.includes(audioCodec)) {
 			return audioCodec;
 		}
 
-		return encodableCodecs[0] ?? audioCodec;
-	}, [audioCodec, encodableCodecs]);
+		return encodableAudioCodecs[0] ?? audioCodec;
+	}, [audioCodec, encodableAudioCodecs]);
+
+	const effectiveVideoCodec = useMemo((): WebRendererVideoCodec => {
+		if (encodableVideoCodecs.includes(codec)) {
+			return codec;
+		}
+
+		return encodableVideoCodecs[0] ?? codec;
+	}, [codec, encodableVideoCodecs]);
 
 	const finalEndFrame = useMemo(() => {
 		if (endFrame === null) {
@@ -304,7 +304,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					const newFileName = getStringBeforeSuffix(prev) + '.' + container;
 					return newFileName;
 				});
-			} else {
+			} else if (newMode === 'still') {
 				setOutName((prev) => {
 					const newFileName = getStringBeforeSuffix(prev) + '.' + imageFormat;
 					return newFileName;
@@ -491,7 +491,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
 			mediaCacheSizeInBytes,
 			logLevel,
-			videoCodec: codec,
+			videoCodec: effectiveVideoCodec,
 			audioCodec: effectiveAudioCodec,
 			audioBitrate,
 			container,
@@ -527,7 +527,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		delayRenderTimeout,
 		mediaCacheSizeInBytes,
 		logLevel,
-		codec,
+		effectiveVideoCodec,
 		effectiveAudioCodec,
 		audioBitrate,
 		container,
@@ -657,8 +657,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							onFrameSetDirectly={onFrameSetDirectly}
 							container={container}
 							setContainerFormat={setContainerFormat}
-							codec={codec}
 							setCodec={setCodec}
+							encodableVideoCodecs={encodableVideoCodecs}
+							effectiveVideoCodec={effectiveVideoCodec}
 							startFrame={finalStartFrame}
 							setStartFrame={setStartFrame}
 							endFrame={finalEndFrame}
@@ -701,7 +702,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							audioBitrate={audioBitrate}
 							setAudioBitrate={setAudioBitrate}
 							container={container}
-							encodableCodecs={encodableCodecs}
+							encodableCodecs={encodableAudioCodecs}
 							effectiveAudioCodec={effectiveAudioCodec}
 						/>
 					) : tab === 'advanced' ? (

@@ -4,7 +4,9 @@ export type {EmittedArtifact, WebRendererOnArtifact} from './artifact';
 export type {FrameRange} from './frame-range';
 export {
 	getDefaultAudioCodecForContainer,
+	getDefaultVideoCodecForContainer,
 	getSupportedAudioCodecsForContainer,
+	getSupportedVideoCodecsForContainer,
 } from './mediabunny-mappings';
 export type {
 	WebRendererAudioCodec,

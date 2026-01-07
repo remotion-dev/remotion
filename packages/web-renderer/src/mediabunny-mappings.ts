@@ -109,6 +109,25 @@ export const getDefaultAudioCodecForContainer = (
 	}
 };
 
+const WEB_RENDERER_VIDEO_CODECS: WebRendererVideoCodec[] = [
+	'h264',
+	'h265',
+	'vp8',
+	'vp9',
+	'av1',
+];
+
+export const getSupportedVideoCodecsForContainer = (
+	container: WebRendererContainer,
+): WebRendererVideoCodec[] => {
+	const format = containerToMediabunnyContainer(container);
+	const allSupported = format.getSupportedVideoCodecs();
+
+	return WEB_RENDERER_VIDEO_CODECS.filter((codec) =>
+		allSupported.includes(codecToMediabunnyCodec(codec)),
+	);
+};
+
 const WEB_RENDERER_AUDIO_CODECS: WebRendererAudioCodec[] = ['aac', 'opus'];
 
 export const getSupportedAudioCodecsForContainer = (
