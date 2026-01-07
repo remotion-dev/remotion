@@ -127,7 +127,7 @@ export default () => {
 				<div style={layout}>
 					<BackButton link="/experts" color="white" text="Back to Experts" />
 					<div style={headerRow}>
-						<img style={img} src={expert.image} />
+						<img alt={expert.name} style={img} src={expert.image} />
 						<h2 className="big-title-on-desktop" style={title}>
 							{expert.name}
 						</h2>
