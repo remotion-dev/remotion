@@ -65,6 +65,7 @@ const ExpertCard: React.FC<ExpertCardProps> = ({expert, Link}) => {
 			>
 				<img
 					src={expert.image}
+					alt={`Profile picture of ${expert.name}`}
 					className="w-[250px] h-[250px] rounded-xl border-effect object-cover"
 				/>
 			</Link>
