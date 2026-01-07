@@ -6,6 +6,7 @@ import {RED, UNDERLAY_RED} from './colors';
 
 type ExtraProps = {
 	readonly size: Size;
+	readonly fullWidth?: boolean;
 	readonly background: string;
 	readonly hoverColor?: string;
 	readonly color: string;
@@ -19,7 +20,10 @@ type Props = DetailedHTMLProps<
 	HTMLButtonElement
 > &
 	ExtraProps;
-type MandatoryProps = Omit<ExtraProps, 'background' | 'color' | 'hoverColor'>;
+type MandatoryProps = Omit<
+	ExtraProps,
+	'background' | 'color' | 'hoverColor' | 'fullWidth'
+> & {fullWidth?: boolean};
 type PrestyledProps = DetailedHTMLProps<
 	ButtonHTMLAttributes<HTMLButtonElement>,
 	HTMLButtonElement
@@ -27,8 +31,16 @@ type PrestyledProps = DetailedHTMLProps<
 	MandatoryProps;
 
 export const Button: React.FC<Props> = (props) => {
-	const {children, loading, hoverColor, color, size, className, ...other} =
-		props;
+	const {
+		children,
+		loading,
+		hoverColor,
+		fullWidth,
+		color,
+		size,
+		className,
+		...other
+	} = props;
 	const actualDisabled = other.disabled || loading;
 
 	return (
@@ -49,6 +61,7 @@ export const Button: React.FC<Props> = (props) => {
 				cursor: props.disabled ? 'default' : 'pointer',
 				backgroundColor: props.background,
 				opacity: props.disabled ? 0.7 : 1,
+				...(fullWidth ? {width: '100%'} : {}),
 			}}
 		>
 			{children}

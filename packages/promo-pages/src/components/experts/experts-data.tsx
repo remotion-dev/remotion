@@ -5,10 +5,10 @@ export type Expert = {
 	image: string;
 	website: string | null;
 	description: React.ReactNode;
-	x: React.ReactNode;
-	github: React.ReactNode;
-	linkedin: React.ReactNode;
-	email: React.ReactNode;
+	x: string | null;
+	github: string | null;
+	linkedin: string | null;
+	email: string | null;
 	videocall: string | null;
 	slug: string;
 	since: number;
@@ -477,7 +477,7 @@ export const experts: Expert[] = [
 		linkedin: 'in/sambowenhughes/',
 		email: 'sambowenhughes@icloud.com',
 		videocall: 'https://calendly.com/hello-reactvideoeditor/30min',
-		since: new Date().getTime(),
+		since: new Date('2025-06-03').getTime(),
 		description: (
 			<div>
 				Full-stack engineer with 10+ years experience. I built{' '}
