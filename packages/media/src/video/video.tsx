@@ -141,6 +141,7 @@ export const Video: React.FC<VideoProps> = ({
 	debugOverlay,
 	headless,
 }) => {
+	const fallbackLogLevel = Internals.useLogLevel();
 	return (
 		<InnerVideo
 			audioStreamIndex={audioStreamIndex ?? 0}
@@ -153,12 +154,7 @@ export const Video: React.FC<VideoProps> = ({
 				disallowFallbackToOffthreadVideo ?? false
 			}
 			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps ?? {}}
-			logLevel={
-				logLevel ??
-				(typeof window !== 'undefined'
-					? (window.remotion_logLevel ?? 'info')
-					: 'info')
-			}
+			logLevel={logLevel ?? fallbackLogLevel}
 			loop={loop ?? false}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
 			muted={muted ?? false}

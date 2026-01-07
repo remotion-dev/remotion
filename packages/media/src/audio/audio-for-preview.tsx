@@ -495,6 +495,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 }) => {
 	const preloadedSrc = usePreload(src);
 
+	const defaultLogLevel = Internals.useLogLevel();
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const currentTime = frame / videoConfig.fps;
@@ -532,12 +533,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			audioStreamIndex={audioStreamIndex ?? 0}
 			src={preloadedSrc}
 			playbackRate={playbackRate ?? 1}
-			logLevel={
-				logLevel ??
-				(typeof window !== 'undefined'
-					? (window.remotion_logLevel ?? 'info')
-					: 'info')
-			}
+			logLevel={logLevel ?? defaultLogLevel}
 			muted={muted ?? false}
 			volume={volume ?? 1}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}

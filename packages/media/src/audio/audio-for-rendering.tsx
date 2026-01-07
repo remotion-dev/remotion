@@ -24,7 +24,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
-	logLevel = window.remotion_logLevel ?? 'info',
+	logLevel: overriddenLogLevel,
 	loop,
 	fallbackHtml5AudioProps,
 	audioStreamIndex,
@@ -36,6 +36,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	trimAfter,
 	trimBefore,
 }) => {
+	const defaultLogLevel = Internals.useLogLevel();
+	const logLevel = overriddenLogLevel ?? defaultLogLevel;
 	const frame = useCurrentFrame();
 	const absoluteFrame = Internals.useTimelinePosition();
 
@@ -77,9 +79,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		],
 	);
 
-	const maxCacheSize = useMaxMediaCacheSize(
-		logLevel ?? window.remotion_logLevel,
-	);
+	const maxCacheSize = useMaxMediaCacheSize(logLevel);
 
 	const audioEnabled = Internals.useAudioEnabled();
 
@@ -117,7 +117,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			timeInSeconds: timestamp,
 			durationInSeconds,
 			playbackRate: playbackRate ?? 1,
-			logLevel: logLevel ?? window.remotion_logLevel,
+			logLevel,
 			includeAudio: shouldRenderAudio,
 			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,
@@ -149,7 +149,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 					Internals.Log.warn(
 						{
-							logLevel: logLevel ?? window.remotion_logLevel,
+							logLevel,
 							tag: '@remotion/media',
 						},
 						`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
@@ -178,7 +178,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 					Internals.Log.warn(
 						{
-							logLevel: logLevel ?? window.remotion_logLevel,
+							logLevel,
 							tag: '@remotion/media',
 						},
 						`Cannot decode ${src}, falling back to <Html5Audio>`,
@@ -213,7 +213,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 					Internals.Log.warn(
 						{
-							logLevel: logLevel ?? window.remotion_logLevel,
+							logLevel,
 							tag: '@remotion/media',
 						},
 						`Network error fetching ${src}, falling back to <Html5Audio>`,

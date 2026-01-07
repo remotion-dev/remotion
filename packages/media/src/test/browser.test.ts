@@ -4,7 +4,7 @@ import {applyVolume} from '../convert-audiodata/apply-volume';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
 
 test('Should be able to extract a frame', async () => {
-	await keyframeManager.clearAll('info');
+	keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',
@@ -40,10 +40,7 @@ test('Should be able to extract a frame', async () => {
 
 	const {audio, frame} = result;
 	assert(audio);
-
 	assert(frame);
-
-	assert(audio);
 
 	// duration = 1 / 30
 	// channels = 2
@@ -53,12 +50,12 @@ test('Should be able to extract a frame', async () => {
 	// we round down start and round up duration
 	expect(audio.data.byteLength).toBe(6404);
 
-	const cacheStats = await keyframeManager.getCacheStats();
-	expect(cacheStats.count).toBe(25);
+	const cacheStats = keyframeManager.getCacheStats();
+	expect(cacheStats.count).toBe(5);
 });
 
 test('Should be able to extract the last frame', async () => {
-	await keyframeManager.clearAll('info');
+	keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',
@@ -95,15 +92,14 @@ test('Should be able to extract the last frame', async () => {
 	const {audio, frame} = result;
 
 	assert(frame);
-
 	assert(!audio);
 
-	const cacheStats = await keyframeManager.getCacheStats();
+	const cacheStats = keyframeManager.getCacheStats();
 	expect(cacheStats.count).toBe(1);
 });
 
 test('Should manage the cache', async () => {
-	await keyframeManager.clearAll('info');
+	keyframeManager.clearAll('info');
 
 	for (let i = 0; i < 50; i++) {
 		await extractFrameAndAudio({
@@ -123,9 +119,9 @@ test('Should manage the cache', async () => {
 		});
 	}
 
-	const cacheStats = await keyframeManager.getCacheStats();
-	expect(cacheStats.count).toBe(725);
-	expect(cacheStats.totalSize).toBe(1002240000);
+	const cacheStats = keyframeManager.getCacheStats();
+	expect(cacheStats.count).toBe(250);
+	expect(cacheStats.totalSize).toBe(345600000);
 });
 
 test('Should be apply volume correctly', async () => {

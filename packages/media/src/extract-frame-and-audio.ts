@@ -35,7 +35,7 @@ export const extractFrameAndAudio = async ({
 	maxCacheSize: number;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	try {
-		const [frame, audio] = await Promise.all([
+		const [video, audio] = await Promise.all([
 			includeVideo
 				? extractFrame({
 						src,
@@ -66,71 +66,52 @@ export const extractFrameAndAudio = async ({
 				: null,
 		]);
 
-		if (frame?.type === 'cannot-decode') {
+		if (video?.type === 'cannot-decode') {
 			return {
 				type: 'cannot-decode',
-				durationInSeconds: frame.durationInSeconds,
+				durationInSeconds: video.durationInSeconds,
 			};
 		}
 
-		if (frame?.type === 'unknown-container-format') {
+		if (video?.type === 'unknown-container-format') {
 			return {type: 'unknown-container-format'};
 		}
 
-		if (frame?.type === 'cannot-decode-alpha') {
+		if (video?.type === 'cannot-decode-alpha') {
 			return {
 				type: 'cannot-decode-alpha',
-				durationInSeconds: frame.durationInSeconds,
+				durationInSeconds: video.durationInSeconds,
 			};
 		}
 
-		if (frame?.type === 'network-error') {
+		if (video?.type === 'network-error') {
 			return {type: 'network-error'};
 		}
 
 		if (audio === 'unknown-container-format') {
-			if (frame !== null) {
-				frame?.frame?.close();
-			}
-
 			return {type: 'unknown-container-format'};
 		}
 
 		if (audio === 'network-error') {
-			if (frame !== null) {
-				frame?.frame?.close();
-			}
-
 			return {type: 'network-error'};
 		}
 
 		if (audio === 'cannot-decode') {
-			if (frame?.type === 'success' && frame.frame !== null) {
-				frame?.frame.close();
-			}
-
 			return {
 				type: 'cannot-decode',
 				durationInSeconds:
-					frame?.type === 'success' ? frame.durationInSeconds : null,
-			};
-		}
-
-		if (!frame?.frame) {
-			return {
-				type: 'success',
-				frame: null,
-				audio: audio?.data ?? null,
-				durationInSeconds: audio?.durationInSeconds ?? null,
+					video?.type === 'success' ? video.durationInSeconds : null,
 			};
 		}
 
 		return {
 			type: 'success',
-			frame: await rotateFrame({
-				frame: frame.frame.toVideoFrame(),
-				rotation: frame.frame.rotation,
-			}),
+			frame: video?.sample
+				? await rotateFrame({
+						frame: video.sample.toVideoFrame(),
+						rotation: video.sample.rotation,
+					})
+				: null,
 			audio: audio?.data ?? null,
 			durationInSeconds: audio?.durationInSeconds ?? null,
 		};

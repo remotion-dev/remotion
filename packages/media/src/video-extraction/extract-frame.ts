@@ -7,7 +7,7 @@ import {getTimeInSeconds} from '../get-time-in-seconds';
 type ExtractFrameResult =
 	| {
 			type: 'success';
-			frame: VideoSample | null;
+			sample: VideoSample | null;
 			durationInSeconds: number | null;
 	  }
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
@@ -65,6 +65,13 @@ const extractFrameInternal = async ({
 		return {type: 'network-error'};
 	}
 
+	if (video === 'cannot-decode-alpha') {
+		return {
+			type: 'cannot-decode-alpha',
+			durationInSeconds: mediaDurationInSeconds,
+		};
+	}
+
 	const timeInSeconds = getTimeInSeconds({
 		loop,
 		mediaDurationInSeconds,
@@ -80,7 +87,7 @@ const extractFrameInternal = async ({
 	if (timeInSeconds === null) {
 		return {
 			type: 'success',
-			frame: null,
+			sample: null,
 			durationInSeconds: await sink.getDuration(),
 		};
 	}
@@ -90,7 +97,6 @@ const extractFrameInternal = async ({
 	// Should be able to remove once upgraded to Chrome 145
 	try {
 		const keyframeBank = await keyframeManager.requestKeyframeBank({
-			packetSink: video.packetSink,
 			videoSampleSink: video.sampleSink,
 			timestamp: timeInSeconds,
 			src,
@@ -98,17 +104,10 @@ const extractFrameInternal = async ({
 			maxCacheSize,
 		});
 
-		if (keyframeBank === 'has-alpha') {
-			return {
-				type: 'cannot-decode-alpha',
-				durationInSeconds: await sink.getDuration(),
-			};
-		}
-
 		if (!keyframeBank) {
 			return {
 				type: 'success',
-				frame: null,
+				sample: null,
 				durationInSeconds: await sink.getDuration(),
 			};
 		}
@@ -117,7 +116,7 @@ const extractFrameInternal = async ({
 
 		return {
 			type: 'success',
-			frame,
+			sample: frame,
 			durationInSeconds: await sink.getDuration(),
 		};
 	} catch (err) {

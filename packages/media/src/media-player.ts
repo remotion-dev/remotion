@@ -107,7 +107,7 @@ export class MediaPlayer {
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
-		this.logLevel = logLevel ?? window.remotion_logLevel;
+		this.logLevel = logLevel;
 		this.sharedAudioContext = sharedAudioContext;
 		this.playbackRate = playbackRate;
 		this.globalPlaybackRate = globalPlaybackRate;

@@ -1,36 +1,24 @@
-import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
+import type {VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
-import {canBrowserUseWebGl2} from '../browser-can-use-webgl2';
-import {getTotalCacheStats, SAFE_BACK_WINDOW_IN_SECONDS} from '../caches';
+import {getTotalCacheStats, SAFE_WINDOW_OF_MONOTONICITY} from '../caches';
 import {renderTimestampRange} from '../render-timestamp-range';
-import {getFramesSinceKeyframe} from './get-frames-since-keyframe';
-import {type KeyframeBank} from './keyframe-bank';
+import {type KeyframeBank, makeKeyframeBank} from './keyframe-bank';
 
 export const makeKeyframeManager = () => {
-	// src => {[startTimestampInSeconds]: KeyframeBank
-	const sources: Record<string, Record<number, Promise<KeyframeBank>>> = {};
+	let sources: Record<string, KeyframeBank[]> = {};
 
-	const addKeyframeBank = ({
-		src,
-		bank,
-		startTimestampInSeconds,
-	}: {
-		src: string;
-		bank: Promise<KeyframeBank>;
-		startTimestampInSeconds: number;
-	}) => {
-		sources[src] = sources[src] ?? {};
-		sources[src][startTimestampInSeconds] = bank;
+	const addKeyframeBank = ({src, bank}: {src: string; bank: KeyframeBank}) => {
+		sources[src] = sources[src] ?? [];
+		sources[src].push(bank);
 	};
 
-	const logCacheStats = async (logLevel: LogLevel) => {
+	const logCacheStats = (logLevel: LogLevel) => {
 		let count = 0;
 		let totalSize = 0;
 
 		for (const src in sources) {
-			for (const bank in sources[src]) {
-				const v = await sources[src][bank];
-				const {size, timestamps} = v.getOpenFrameCount();
+			for (const bank of sources[src]) {
+				const {size, timestamps} = bank.getOpenFrameCount();
 				count += timestamps.length;
 				totalSize += size;
 				if (size === 0) {
@@ -50,14 +38,13 @@ export const makeKeyframeManager = () => {
 		);
 	};
 
-	const getCacheStats = async () => {
+	const getCacheStats = () => {
 		let count = 0;
 		let totalSize = 0;
 
 		for (const src in sources) {
-			for (const bank in sources[src]) {
-				const v = await sources[src][bank];
-				const {timestamps, size} = v.getOpenFrameCount();
+			for (const bank of sources[src]) {
+				const {timestamps, size} = bank.getOpenFrameCount();
 				count += timestamps.length;
 				totalSize += size;
 				if (size === 0) {
@@ -69,20 +56,20 @@ export const makeKeyframeManager = () => {
 		return {count, totalSize};
 	};
 
-	const getTheKeyframeBankMostInThePast = async () => {
+	const getTheKeyframeBankMostInThePast = () => {
 		let mostInThePast = null;
 		let mostInThePastBank = null;
 
 		let numberOfBanks = 0;
 
 		for (const src in sources) {
-			for (const b in sources[src]) {
-				const bank = await sources[src][b];
+			for (const bank of sources[src]) {
+				const index = sources[src].indexOf(bank);
 
 				const lastUsed = bank.getLastUsed();
 				if (mostInThePast === null || lastUsed < mostInThePast) {
 					mostInThePast = lastUsed;
-					mostInThePastBank = {src, bank};
+					mostInThePastBank = {src, bank, index};
 				}
 
 				numberOfBanks++;
@@ -100,7 +87,11 @@ export const makeKeyframeManager = () => {
 		logLevel: LogLevel,
 	): Promise<{finish: boolean}> => {
 		const {
-			mostInThePastBank: {bank: mostInThePastBank, src: mostInThePastSrc},
+			mostInThePastBank: {
+				bank: mostInThePastBank,
+				src: mostInThePastSrc,
+				index: mostInThePastIndex,
+			},
 			numberOfBanks,
 		} = await getTheKeyframeBankMostInThePast();
 
@@ -109,14 +100,18 @@ export const makeKeyframeManager = () => {
 		}
 
 		if (mostInThePastBank) {
-			const {framesDeleted} = mostInThePastBank.prepareForDeletion(logLevel);
-			delete sources[mostInThePastSrc][
-				mostInThePastBank.startTimestampInSeconds
-			];
-			Internals.Log.verbose(
-				{logLevel, tag: '@remotion/media'},
-				`Deleted ${framesDeleted} frames for src ${mostInThePastSrc} from ${mostInThePastBank.startTimestampInSeconds}sec to ${mostInThePastBank.endTimestampInSeconds}sec to free up memory.`,
+			const range = mostInThePastBank.getRangeOfTimestamps();
+			const {framesDeleted} = mostInThePastBank.prepareForDeletion(
+				logLevel,
+				'deleted oldest keyframe bank to stay under max cache size',
 			);
+			delete sources[mostInThePastSrc][mostInThePastIndex];
+			if (range) {
+				Internals.Log.verbose(
+					{logLevel, tag: '@remotion/media'},
+					`Deleted ${framesDeleted} frames for src ${mostInThePastSrc} from ${range?.firstTimestamp}sec to ${range?.lastTimestamp}sec to free up memory.`,
+				);
+			}
 		}
 
 		return {finish: false};
@@ -127,8 +122,10 @@ export const makeKeyframeManager = () => {
 		maxCacheSize: number,
 	) => {
 		let cacheStats = await getTotalCacheStats();
+		let attempts = 0;
+		const maxAttempts = 3;
 
-		while (cacheStats.totalSize > maxCacheSize) {
+		while (cacheStats.totalSize > maxCacheSize && attempts < maxAttempts) {
 			const {finish} = await deleteOldestKeyframeBank(logLevel);
 			if (finish) {
 				break;
@@ -143,10 +140,18 @@ export const makeKeyframeManager = () => {
 			);
 
 			cacheStats = await getTotalCacheStats();
+			attempts++;
+		}
+
+		if (cacheStats.totalSize > maxCacheSize && attempts >= maxAttempts) {
+			Internals.Log.warn(
+				{logLevel, tag: '@remotion/media'},
+				`Exceeded max cache size after ${maxAttempts} attempts. Remaining cache size: ${(cacheStats.totalSize / 1024 / 1024).toFixed(1)} MB, target was ${(maxCacheSize / 1024 / 1024).toFixed(1)} MB.`,
+			);
 		}
 	};
 
-	const clearKeyframeBanksBeforeTime = async ({
+	const clearKeyframeBanksBeforeTime = ({
 		timestampInSeconds,
 		src,
 		logLevel,
@@ -155,25 +160,30 @@ export const makeKeyframeManager = () => {
 		src: string;
 		logLevel: LogLevel;
 	}) => {
-		const threshold = timestampInSeconds - SAFE_BACK_WINDOW_IN_SECONDS;
+		const threshold = timestampInSeconds - SAFE_WINDOW_OF_MONOTONICITY;
 
 		if (!sources[src]) {
 			return;
 		}
 
-		const banks = Object.keys(sources[src]);
+		const banks = sources[src];
 
-		for (const startTimeInSeconds of banks) {
-			const bank = await sources[src][startTimeInSeconds as unknown as number];
-			const {endTimestampInSeconds, startTimestampInSeconds} = bank;
+		for (const bank of banks) {
+			const range = bank.getRangeOfTimestamps();
+			if (!range) {
+				continue;
+			}
 
-			if (endTimestampInSeconds < threshold) {
-				bank.prepareForDeletion(logLevel);
+			const {lastTimestamp} = range;
+
+			if (lastTimestamp < threshold) {
+				bank.prepareForDeletion(logLevel, 'cleared before threshold');
 				Internals.Log.verbose(
 					{logLevel, tag: '@remotion/media'},
-					`[Video] Cleared frames for src ${src} from ${startTimestampInSeconds}sec to ${endTimestampInSeconds}sec`,
+					`[Video] Cleared frames for src ${src} from ${range.firstTimestamp}sec to ${range.lastTimestamp}sec`,
 				);
-				delete sources[src][startTimeInSeconds as unknown as number];
+				const bankIndex = banks.indexOf(bank);
+				delete sources[src][bankIndex];
 			} else {
 				bank.deleteFramesBeforeTimestamp({
 					timestampInSeconds: threshold,
@@ -182,62 +192,54 @@ export const makeKeyframeManager = () => {
 			}
 		}
 
-		await logCacheStats(logLevel);
+		sources[src] = sources[src].filter((bank) => bank !== undefined);
+
+		logCacheStats(logLevel);
 	};
 
 	const getKeyframeBankOrRefetch = async ({
-		packetSink,
 		timestamp,
 		videoSampleSink,
 		src,
 		logLevel,
 	}: {
-		packetSink: EncodedPacketSink;
 		timestamp: number;
 		videoSampleSink: VideoSampleSink;
 		src: string;
 		logLevel: LogLevel;
-	}): Promise<KeyframeBank | 'has-alpha' | null> => {
-		// Try to get the keypacket at the requested timestamp.
-		// If it returns null (timestamp is before the first keypacket), fall back to the first packet.
-		// This matches mediabunny's internal behavior and handles videos that don't start at timestamp 0.
-		const startPacket =
-			(await packetSink.getKeyPacket(timestamp, {
-				verifyKeyPackets: true,
-			})) ?? (await packetSink.getFirstPacket({verifyKeyPackets: true}));
-
-		const hasAlpha = startPacket?.sideData.alpha;
-		if (hasAlpha && !canBrowserUseWebGl2()) {
-			return 'has-alpha';
-		}
-
-		if (!startPacket) {
-			// e.g. https://discord.com/channels/809501355504959528/809501355504959531/1424400511070765086
-			// The video has an offset and the first frame is at time 0.033sec
-			// we shall not crash here but handle it gracefully
-			return null;
-		}
-
-		const startTimestampInSeconds = startPacket.timestamp;
-		const existingBank = sources[src]?.[startTimestampInSeconds];
+	}): Promise<KeyframeBank | null> => {
+		// The start packet timestamp can be higher than the packets following it
+		// https://discord.com/channels/809501355504959528/1001500302375125055/1456710188865159343
+		// e.g. key packet timestamp is 0.08sec, but the next packet is 0.04sec
+		const existingBanks = sources[src] ?? [];
+		const existingBank = existingBanks?.find((bank) =>
+			bank.canSatisfyTimestamp(timestamp),
+		);
 
 		// Bank does not yet exist, we need to fetch
 		if (!existingBank) {
-			const newKeyframeBank = getFramesSinceKeyframe({
-				packetSink,
+			Internals.Log.trace(
+				{logLevel, tag: '@remotion/media'},
+				`Creating new keyframe bank for src ${src} at timestamp ${timestamp}`,
+			);
+			const newKeyframeBank = await makeKeyframeBank({
 				videoSampleSink,
-				startPacket,
 				logLevel,
 				src,
+				requestedTimestamp: timestamp,
 			});
 
-			addKeyframeBank({src, bank: newKeyframeBank, startTimestampInSeconds});
+			addKeyframeBank({src, bank: newKeyframeBank});
 
 			return newKeyframeBank;
 		}
 
 		// Bank exists and still has the frame we want
-		if (await (await existingBank).hasTimestampInSecond(timestamp)) {
+		if (existingBank.canSatisfyTimestamp(timestamp)) {
+			Internals.Log.trace(
+				{logLevel, tag: '@remotion/media'},
+				`Keyframe bank exists and satisfies timestamp ${timestamp}`,
+			);
 			return existingBank;
 		}
 
@@ -248,25 +250,23 @@ export const makeKeyframeManager = () => {
 
 		// Bank exists but frames have already been evicted!
 		// First delete it entirely
-		await (await existingBank).prepareForDeletion(logLevel);
-		delete sources[src][startTimestampInSeconds];
+		existingBank.prepareForDeletion(logLevel, 'already existed but evicted');
+		sources[src] = sources[src].filter((bank) => bank !== existingBank);
 
 		// Then refetch
-		const replacementKeybank = getFramesSinceKeyframe({
-			packetSink,
+		const replacementKeybank = await makeKeyframeBank({
 			videoSampleSink,
-			startPacket,
+			requestedTimestamp: timestamp,
 			logLevel,
 			src,
 		});
 
-		addKeyframeBank({src, bank: replacementKeybank, startTimestampInSeconds});
+		addKeyframeBank({src, bank: replacementKeybank});
 
 		return replacementKeybank;
 	};
 
 	const requestKeyframeBank = async ({
-		packetSink,
 		timestamp,
 		videoSampleSink,
 		src,
@@ -274,7 +274,6 @@ export const makeKeyframeManager = () => {
 		maxCacheSize,
 	}: {
 		timestamp: number;
-		packetSink: EncodedPacketSink;
 		videoSampleSink: VideoSampleSink;
 		src: string;
 		logLevel: LogLevel;
@@ -282,14 +281,13 @@ export const makeKeyframeManager = () => {
 	}) => {
 		await ensureToStayUnderMaxCacheSize(logLevel, maxCacheSize);
 
-		await clearKeyframeBanksBeforeTime({
+		clearKeyframeBanksBeforeTime({
 			timestampInSeconds: timestamp,
 			src,
 			logLevel,
 		});
 
 		const keyframeBank = await getKeyframeBankOrRefetch({
-			packetSink,
 			timestamp,
 			videoSampleSink,
 			src,
@@ -299,33 +297,31 @@ export const makeKeyframeManager = () => {
 		return keyframeBank;
 	};
 
-	const clearAll = async (logLevel: LogLevel) => {
+	const clearAll = (logLevel: LogLevel) => {
 		const srcs = Object.keys(sources);
 		for (const src of srcs) {
-			const banks = Object.keys(sources[src]);
+			const banks = sources[src];
 
-			for (const startTimeInSeconds of banks) {
-				const bank =
-					await sources[src][startTimeInSeconds as unknown as number];
-
-				bank.prepareForDeletion(logLevel);
-				delete sources[src][startTimeInSeconds as unknown as number];
+			for (const bank of banks) {
+				bank.prepareForDeletion(logLevel, 'clearAll');
 			}
+
+			sources[src] = [];
 		}
+
+		sources = {};
 	};
 
 	let queue = Promise.resolve<unknown>(undefined);
 
 	return {
 		requestKeyframeBank: ({
-			packetSink,
 			timestamp,
 			videoSampleSink,
 			src,
 			logLevel,
 			maxCacheSize,
 		}: {
-			packetSink: EncodedPacketSink;
 			timestamp: number;
 			videoSampleSink: VideoSampleSink;
 			src: string;
@@ -334,7 +330,6 @@ export const makeKeyframeManager = () => {
 		}) => {
 			queue = queue.then(() =>
 				requestKeyframeBank({
-					packetSink,
 					timestamp,
 					videoSampleSink,
 					src,
@@ -342,7 +337,7 @@ export const makeKeyframeManager = () => {
 					maxCacheSize,
 				}),
 			);
-			return queue as Promise<KeyframeBank | 'has-alpha' | null>;
+			return queue as Promise<KeyframeBank>;
 		},
 		getCacheStats,
 		clearAll,
