@@ -1,6 +1,7 @@
 import React from 'react';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT, WARNING_COLOR} from '../../helpers/colors';
 import {CheckCircleFilled} from '../../icons/check-circle-filled';
+import {WarningTriangle} from '../NewComposition/ValidationMessage';
 
 const textStyle: React.CSSProperties = {
 	color: LIGHT_TEXT,
@@ -62,7 +63,7 @@ export const WebRenderModalLicenseKeyDetails: React.FC<
 	WebRenderModalLicenseKeyDetailsProps
 > = ({details}) => {
 	return (
-		<>
+		<div>
 			<div style={bulletStyle}>
 				<CheckCircleFilled style={{...icon, fill: LIGHT_TEXT}} />
 				<div style={textStyle}>
@@ -85,12 +86,20 @@ export const WebRenderModalLicenseKeyDetails: React.FC<
 				</div>
 			</div>
 
-			{details.hasActiveSubscription && (
+			{details.hasActiveSubscription ? (
 				<div style={bulletStyle}>
 					<CheckCircleFilled style={{...icon, fill: LIGHT_TEXT}} />
 					<div style={textStyle}>Active Company License</div>
 				</div>
+			) : (
+				<div style={bulletStyle}>
+					<WarningTriangle
+						type="warning"
+						style={{...icon, fill: WARNING_COLOR}}
+					/>
+					<div style={textStyle}>No active Company License</div>
+				</div>
 			)}
-		</>
+		</div>
 	);
 };
