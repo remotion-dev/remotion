@@ -1,6 +1,6 @@
 import Head from '@docusaurus/Head';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {useLocation} from '@docusaurus/router';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import Layout from '@theme/Layout';
 import React from 'react';
