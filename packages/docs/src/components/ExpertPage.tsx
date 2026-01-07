@@ -1,13 +1,12 @@
 import Head from '@docusaurus/Head';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {useLocation} from '@docusaurus/router';
 import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import Layout from '@theme/Layout';
 import React from 'react';
 import {Button} from '../../components/layout/Button';
-import {Spacer} from '../../components/layout/Spacer';
-
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {PALETTE} from '../../components/layout/colors';
+import {Spacer} from '../../components/layout/Spacer';
 import {BackButton} from './BackButton';
 import {Seo} from './Seo';
 
