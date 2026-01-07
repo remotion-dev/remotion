@@ -1,15 +1,16 @@
 import type {HelperCanvasState, InternalState} from '../internal-state';
 
-// Vertex shader - now includes texture coordinates
+// Vertex shader - now includes texture coordinates and w values for perspective
 const vsSource = `
 		attribute vec2 aPosition;
 		attribute vec2 aTexCoord;
+		attribute float aW;
 		uniform mat4 uTransform;
 		uniform mat4 uProjection;
 		varying vec2 vTexCoord;
 
 		void main() {
-				gl_Position = uProjection * uTransform * vec4(aPosition, 0.0, 1.0);
+				gl_Position = uProjection * uTransform * vec4(aPosition, 0.0, aW);
 				vTexCoord = aTexCoord;
 		}
 `;
@@ -108,6 +109,7 @@ const createHelperCanvas = ({
 	const locations = {
 		aPosition: gl.getAttribLocation(program, 'aPosition'),
 		aTexCoord: gl.getAttribLocation(program, 'aTexCoord'),
+		aW: gl.getAttribLocation(program, 'aW'),
 		uTransform: gl.getUniformLocation(program, 'uTransform'),
 		uProjection: gl.getUniformLocation(program, 'uProjection'),
 		uTexture: gl.getUniformLocation(program, 'uTexture'),
@@ -136,13 +138,23 @@ export const transformIn3d = ({
 	untransformedRect,
 	rectAfterTransforms,
 	internalState,
+	w1,
+	w2,
+	w3,
+	w4,
 }: {
 	untransformedRect: DOMRect;
 	matrix: DOMMatrix;
 	sourceCanvas: OffscreenCanvas;
 	rectAfterTransforms: DOMRect;
 	internalState: InternalState;
+	w1: number;
+	w2: number;
+	w3: number;
+	w4: number;
 }) => {
+	console.log(w1, w2, w3, w4);
+
 	const {canvas, gl, program, locations} = createHelperCanvas({
 		canvasWidth: rectAfterTransforms.width,
 		canvasHeight: rectAfterTransforms.height,
@@ -167,23 +179,27 @@ export const transformIn3d = ({
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
 	// prettier-ignore
+	// Each vertex: x, y, texU, texV, w
 	const vertices = new Float32Array([
-		untransformedRect.x, untransformedRect.y, 0, 0,
-		untransformedRect.x + untransformedRect.width, untransformedRect.y, 1, 0,
-		untransformedRect.x, untransformedRect.y + untransformedRect.height, 0, 1,
-		untransformedRect.x, untransformedRect.y + untransformedRect.height, 0, 1,
-		untransformedRect.x + untransformedRect.width, untransformedRect.y, 1, 0,
-		untransformedRect.x + untransformedRect.width, untransformedRect.y + untransformedRect.height, 1, 1,
+		untransformedRect.x, untransformedRect.y, 0, 0, w1,
+		untransformedRect.x + untransformedRect.width, untransformedRect.y, 1, 0, w2,
+		untransformedRect.x, untransformedRect.y + untransformedRect.height, 0, 1, w3,
+		untransformedRect.x, untransformedRect.y + untransformedRect.height, 0, 1, w3,
+		untransformedRect.x + untransformedRect.width, untransformedRect.y, 1, 0, w2,
+		untransformedRect.x + untransformedRect.width, untransformedRect.y + untransformedRect.height, 1, 1, w4,
 	]);
 
 	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-	// Setup attributes using cached locations
+	// Setup attributes using cached locations (stride = 5 floats = 20 bytes)
 	gl.enableVertexAttribArray(locations.aPosition);
-	gl.vertexAttribPointer(locations.aPosition, 2, gl.FLOAT, false, 4 * 4, 0);
+	gl.vertexAttribPointer(locations.aPosition, 2, gl.FLOAT, false, 5 * 4, 0);
 
 	gl.enableVertexAttribArray(locations.aTexCoord);
-	gl.vertexAttribPointer(locations.aTexCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
+	gl.vertexAttribPointer(locations.aTexCoord, 2, gl.FLOAT, false, 5 * 4, 2 * 4);
+
+	gl.enableVertexAttribArray(locations.aW);
+	gl.vertexAttribPointer(locations.aW, 1, gl.FLOAT, false, 5 * 4, 4 * 4);
 
 	// Create and configure texture
 	const texture = gl.createTexture();
@@ -236,6 +252,7 @@ export const transformIn3d = ({
 	// Clean up per-frame resources only
 	gl.disableVertexAttribArray(locations.aPosition);
 	gl.disableVertexAttribArray(locations.aTexCoord);
+	gl.disableVertexAttribArray(locations.aW);
 	gl.deleteTexture(texture);
 	gl.deleteBuffer(vertexBuffer);
 	gl.bindTexture(gl.TEXTURE_2D, null);

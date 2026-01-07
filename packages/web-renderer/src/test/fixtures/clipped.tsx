@@ -15,7 +15,7 @@ const Component: React.FC = () => {
 				<AbsoluteFill
 					style={{
 						transform:
-							'matrix3d(0.304437, -0.106834, 0, 0.00021, 0.135913, 0.347567, 0, 0, 0, 0, 1, 0, 64, 140, 0, 1)',
+							'matrix3d(0.304437, -0.106834, 0, 0.00012, 0.135913, 0.347567, 0, 0, 0, 0, 1, 0, 64, 140, 0, 1)',
 						transformOrigin: '0px 0px',
 						backgroundColor: 'black',
 					}}

@@ -10755,12 +10755,15 @@ function renderTextureWithPerspective(
 
 	// Use explicit corners if provided (Correct 3D Path)
 	if (browserCorners && browserCorners.length === 4) {
+		console.log(browserCorners);
 		const [p1, p2, p3, p4] = browserCorners;
 		// We pass X, Y, and W (depth/scale factor)
 		const w1 = p1.w || 1;
 		const w2 = p2.w || 1;
 		const w3 = p3.w || 1;
 		const w4 = p4.w || 1;
+
+		console.log(w1, w2, w3, w4);
 
 		positions = new Float32Array([
 			p1.x,

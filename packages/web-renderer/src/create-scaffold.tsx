@@ -64,13 +64,10 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	div.style.backgroundColor = 'transparent';
 	div.style.width = `${width}px`;
 	div.style.height = `${height}px`;
-	div.style.zIndex = '-9999';
 	div.style.top = '0';
 	div.style.left = '0';
 	div.style.right = '0';
 	div.style.bottom = '0';
-	div.style.visibility = 'hidden';
-	div.style.pointerEvents = 'none';
 
 	const scaffoldClassName = `remotion-scaffold-${Math.random().toString(36).substring(2, 15)}`;
 	div.className = scaffoldClassName;
