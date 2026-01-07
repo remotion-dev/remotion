@@ -5,10 +5,10 @@ export type Expert = {
 	image: string;
 	website: string | null;
 	description: React.ReactNode;
-	x: React.ReactNode;
-	github: React.ReactNode;
-	linkedin: React.ReactNode;
-	email: React.ReactNode;
+	x: string | null;
+	github: string | null;
+	linkedin: string | null;
+	email: string | null;
 	videocall: string | null;
 	slug: string;
 	since: number;
