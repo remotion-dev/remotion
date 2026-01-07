@@ -1661,21 +1661,6 @@ export const getAvailableFonts = () => [
 		load: () => import('./Chilanka') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'Chiron GoRound TC',
-		importName: 'ChironGoRoundTC',
-		load: () => import('./ChironGoRoundTC') as Promise<GoogleFont>,
-	},
-	{
-		fontFamily: 'Chiron Hei HK',
-		importName: 'ChironHeiHK',
-		load: () => import('./ChironHeiHK') as Promise<GoogleFont>,
-	},
-	{
-		fontFamily: 'Chiron Sung HK',
-		importName: 'ChironSungHK',
-		load: () => import('./ChironSungHK') as Promise<GoogleFont>,
-	},
-	{
 		fontFamily: 'Chivo',
 		importName: 'Chivo',
 		load: () => import('./Chivo') as Promise<GoogleFont>,
