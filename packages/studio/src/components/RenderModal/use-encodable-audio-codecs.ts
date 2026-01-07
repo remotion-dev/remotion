@@ -2,8 +2,10 @@ import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
 } from '@remotion/web-renderer';
-import {getSupportedAudioCodecsForContainer} from '@remotion/web-renderer';
-import {getEncodableAudioCodecs} from 'mediabunny';
+import {
+	getEncodableAudioCodecs,
+	getSupportedAudioCodecsForContainer,
+} from '@remotion/web-renderer';
 import {useEffect, useRef, useState} from 'react';
 
 type CacheEntry = {
@@ -43,21 +45,25 @@ export const useEncodableAudioCodecs = (
 			status: 'fetching',
 		};
 
-		getEncodableAudioCodecs(supported, {}).then((encodable) => {
-			const filtered = supported.filter((c) => encodable.includes(c));
+		getEncodableAudioCodecs(container)
+			.then((encodable) => {
+				cacheRef.current[container] = {
+					codecs: encodable,
+					status: 'done',
+				};
 
-			// Update cache
-			cacheRef.current[container] = {
-				codecs: filtered,
-				status: 'done',
-			};
-
-			// Update state - always safe because we're updating for a specific container key
-			setCodecsByContainer((prev) => ({
-				...prev,
-				[container]: filtered,
-			}));
-		});
+				setCodecsByContainer((prev) => ({
+					...prev,
+					[container]: encodable,
+				}));
+			})
+			.catch(() => {
+				// On error, keep using the supported codecs fallback
+				cacheRef.current[container] = {
+					codecs: supported,
+					status: 'done',
+				};
+			});
 	}, [container]);
 
 	// Return codecs for current container, or fall back to supported codecs

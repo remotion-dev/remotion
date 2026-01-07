@@ -14,6 +14,18 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'renderStillOnWeb()'}</strong>
 					<div>Render a still image in the browser</div>
 				</TOCItem>
+				<TOCItem link="/docs/web-renderer/can-render-media-on-web">
+					<strong>{'canRenderMediaOnWeb()'}</strong>
+					<div>Check if a render can be performed</div>
+				</TOCItem>
+				<TOCItem link="/docs/web-renderer/get-encodable-video-codecs">
+					<strong>{'getEncodableVideoCodecs()'}</strong>
+					<div>Get video codecs the browser can encode</div>
+				</TOCItem>
+				<TOCItem link="/docs/web-renderer/get-encodable-audio-codecs">
+					<strong>{'getEncodableAudioCodecs()'}</strong>
+					<div>Get audio codecs the browser can encode</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

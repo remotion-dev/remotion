@@ -1,0 +1,165 @@
+---
+image: /generated/articles-docs-web-renderer-can-render-media-on-web.png
+id: can-render-media-on-web
+title: canRenderMediaOnWeb()
+crumb: '@remotion/web-renderer'
+---
+
+:::warning
+Very experimental feature - expect bugs and breaking changes at any time.  
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+_Part of the `@remotion/web-renderer` package._
+
+Checks if a render can be performed with the given configuration before actually attempting it.
+This is useful for providing feedback to users about browser compatibility and configuration issues.
+
+```tsx twoslash title="Example usage"
+import {canRenderMediaOnWeb} from '@remotion/web-renderer';
+
+const result = await canRenderMediaOnWeb({
+  container: 'mp4',
+  videoCodec: 'h264',
+  width: 1920,
+  height: 1080,
+});
+
+if (!result.canRender) {
+  for (const issue of result.issues) {
+    console.error(issue.message);
+  }
+} else {
+  console.log('Ready to render!');
+  console.log('Video codec:', result.resolvedVideoCodec);
+  console.log('Audio codec:', result.resolvedAudioCodec);
+}
+```
+
+## Arguments
+
+An object with the following properties:
+
+### `width`
+
+_number - required_
+
+The width of the video in pixels.
+
+### `height`
+
+_number - required_
+
+The height of the video in pixels.
+
+### `container?`
+
+_string_ <TsType type="WebRendererContainer" source="@remotion/web-renderer" />
+
+The container format. Default is `"mp4"`.
+
+### `videoCodec?`
+
+_string_ <TsType type="WebRendererVideoCodec" source="@remotion/web-renderer" />
+
+The video codec to use. Default depends on the container:
+
+- For `mp4` container: `"h264"`
+- For `webm` container: `"vp8"`
+
+### `audioCodec?`
+
+_string | null_ <TsType type="WebRendererAudioCodec" source="@remotion/web-renderer" />
+
+The audio codec to use. Default depends on the container:
+
+- For `mp4` container: `"aac"`
+- For `webm` container: `"opus"`
+
+### `transparent?`
+
+_boolean_
+
+Whether the video should have an alpha channel. Default is `false`.
+
+Only `vp8` and `vp9` codecs support transparency.
+
+### `muted?`
+
+_boolean_
+
+If `true`, audio codec checks are skipped. Default is `false`.
+
+### `videoBitrate?`
+
+_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+
+The video bitrate. Can be a number (bits per second) or a quality preset: `"very-low"`, `"low"`, `"medium"`, `"high"`, `"very-high"`.
+
+Default is `"medium"`.
+
+### `audioBitrate?`
+
+_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+
+The audio bitrate. Can be a number (bits per second) or a quality preset: `"very-low"`, `"low"`, `"medium"`, `"high"`, `"very-high"`.
+
+Default is `"medium"`.
+
+## Return value
+
+Returns a `Promise` that resolves to an object with the following properties:
+
+### `canRender`
+
+_boolean_
+
+`true` if the render can proceed, `false` if there are blocking issues.
+
+### `issues`
+
+_CanRenderIssue[]_
+
+An array of issues found during the check. Each issue has:
+
+- `type`: The type of issue (see [Issue types](#issue-types) below)
+- `message`: A human-readable description of the issue
+- `severity`: Either `"error"` (blocking) or `"warning"` (non-blocking, e.g. fallback was used)
+
+### `resolvedVideoCodec`
+
+_string_ <TsType type="WebRendererVideoCodec" source="@remotion/web-renderer" />
+
+The video codec that will be used for rendering.
+
+### `resolvedAudioCodec`
+
+_string | null_ <TsType type="WebRendererAudioCodec" source="@remotion/web-renderer" />
+
+The audio codec that will be used for rendering. This may differ from the requested codec if a fallback was applied. `null` if `muted` is `true`.
+
+### `resolvedOutputTarget`
+
+_"web-fs" | "arraybuffer"_
+
+The output target that will be used. See [`renderMediaOnWeb()` outputTarget](/docs/web-renderer/render-media-on-web#outputtarget) for details.
+
+## Issue types
+
+The following issue types may be returned:
+
+| Type                            | Description                                                   |
+| ------------------------------- | ------------------------------------------------------------- |
+| `webcodecs-unavailable`         | WebCodecs API is not available in this browser                |
+| `container-codec-mismatch`      | The video codec is not supported for the selected container   |
+| `invalid-dimensions`            | H.264 and H.265 require width and height to be multiples of 2 |
+| `video-codec-unsupported`       | The browser cannot encode the selected video codec            |
+| `audio-codec-unsupported`       | The browser cannot encode the selected audio codec            |
+| `transparent-video-unsupported` | Transparency requires VP8 or VP9 codec                        |
+| `webgl-unsupported`             | WebGL is required for 3D CSS transforms                       |
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/web-renderer/src/can-render-media-on-web.ts)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web)
+- [Client-side rendering limitations](/docs/client-side-rendering/limitations)

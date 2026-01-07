@@ -2,8 +2,10 @@ import type {
 	WebRendererContainer,
 	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
-import {getSupportedVideoCodecsForContainer} from '@remotion/web-renderer';
-import {getEncodableVideoCodecs} from 'mediabunny';
+import {
+	getEncodableVideoCodecs,
+	getSupportedVideoCodecsForContainer,
+} from '@remotion/web-renderer';
 import {useEffect, useRef, useState} from 'react';
 
 type CacheEntry = {
@@ -12,25 +14,6 @@ type CacheEntry = {
 };
 
 type Cache = Partial<Record<WebRendererContainer, CacheEntry>>;
-
-const webRendererToMediabunnyCodec = (
-	codec: WebRendererVideoCodec,
-): 'avc' | 'hevc' | 'vp8' | 'vp9' | 'av1' => {
-	switch (codec) {
-		case 'h264':
-			return 'avc';
-		case 'h265':
-			return 'hevc';
-		case 'vp8':
-			return 'vp8';
-		case 'vp9':
-			return 'vp9';
-		case 'av1':
-			return 'av1';
-		default:
-			throw new Error(`Unsupported codec: ${codec satisfies never}`);
-	}
-};
 
 export const useEncodableVideoCodecs = (
 	container: WebRendererContainer,
@@ -62,25 +45,25 @@ export const useEncodableVideoCodecs = (
 			status: 'fetching',
 		};
 
-		const mediabunnyCodecs = supported.map(webRendererToMediabunnyCodec);
+		getEncodableVideoCodecs(container)
+			.then((encodable) => {
+				cacheRef.current[container] = {
+					codecs: encodable,
+					status: 'done',
+				};
 
-		getEncodableVideoCodecs(mediabunnyCodecs, {}).then((encodable) => {
-			const filtered = supported.filter((c) =>
-				encodable.includes(webRendererToMediabunnyCodec(c)),
-			);
-
-			// Update cache
-			cacheRef.current[container] = {
-				codecs: filtered,
-				status: 'done',
-			};
-
-			// Update state - always safe because we're updating for a specific container key
-			setCodecsByContainer((prev) => ({
-				...prev,
-				[container]: filtered,
-			}));
-		});
+				setCodecsByContainer((prev) => ({
+					...prev,
+					[container]: encodable,
+				}));
+			})
+			.catch(() => {
+				// On error, keep using the supported codecs fallback
+				cacheRef.current[container] = {
+					codecs: supported,
+					status: 'done',
+				};
+			});
 	}, [container]);
 
 	// Return codecs for current container, or fall back to supported codecs

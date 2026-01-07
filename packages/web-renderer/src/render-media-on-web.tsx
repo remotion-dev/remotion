@@ -1,4 +1,4 @@
-import {BufferTarget, canEncodeAudio, StreamTarget} from 'mediabunny';
+import {BufferTarget, StreamTarget} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
@@ -24,11 +24,9 @@ import {
 	audioCodecToMediabunnyAudioCodec,
 	codecToMediabunnyCodec,
 	containerToMediabunnyContainer,
-	getDefaultAudioCodecForContainer,
 	getDefaultVideoCodecForContainer,
 	getMimeType,
 	getQualityForWebRendererQuality,
-	getSupportedAudioCodecsForContainer,
 	type WebRendererVideoCodec,
 } from './mediabunny-mappings';
 import type {WebRendererOutputTarget} from './output-target';
@@ -37,6 +35,7 @@ import type {
 	InferProps,
 } from './props-if-has-props';
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
+import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
 import {createFrame} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
@@ -183,11 +182,6 @@ const internalRenderMediaOnWeb = async <
 		);
 	}
 
-	const audioCodec =
-		unresolvedAudioCodec ?? getDefaultAudioCodecForContainer(container);
-	const userSpecifiedAudioCodec =
-		unresolvedAudioCodec !== undefined && unresolvedAudioCodec !== null;
-
 	const resolvedAudioBitrate =
 		typeof audioBitrate === 'number'
 			? audioBitrate
@@ -195,62 +189,27 @@ const internalRenderMediaOnWeb = async <
 
 	let finalAudioCodec: WebRendererAudioCodec | null = null;
 	if (!muted) {
-		const supportedAudioCodecs = getSupportedAudioCodecsForContainer(container);
-		if (!supportedAudioCodecs.includes(audioCodec)) {
-			return Promise.reject(
-				new Error(
-					`Audio codec "${audioCodec}" is not supported for container "${container}". Supported audio codecs: ${supportedAudioCodecs.join(', ')}`,
-				),
-			);
-		}
-
-		finalAudioCodec = audioCodec;
-		const mediabunnyAudioCodec = audioCodecToMediabunnyAudioCodec(audioCodec);
-		const canEncode = await canEncodeAudio(mediabunnyAudioCodec, {
+		const audioResult = await resolveAudioCodec({
+			container,
+			requestedCodec: unresolvedAudioCodec,
+			userSpecifiedAudioCodec:
+				unresolvedAudioCodec !== undefined && unresolvedAudioCodec !== null,
 			bitrate: resolvedAudioBitrate,
 		});
 
-		if (!canEncode) {
-			if (userSpecifiedAudioCodec) {
-				return Promise.reject(
-					new Error(
-						`Audio codec "${audioCodec}" cannot be encoded by this browser. This is common for AAC on Firefox. Try using "opus" instead.`,
-					),
-				);
-			}
-
-			let fallbackCodec: WebRendererAudioCodec | null = null;
-			for (const supportedCodec of supportedAudioCodecs) {
-				if (supportedCodec !== audioCodec) {
-					const fallbackMediabunnyCodec =
-						audioCodecToMediabunnyAudioCodec(supportedCodec);
-					const canEncodeFallback = await canEncodeAudio(
-						fallbackMediabunnyCodec,
-						{
-							bitrate: resolvedAudioBitrate,
-						},
-					);
-					if (canEncodeFallback) {
-						fallbackCodec = supportedCodec;
-						break;
-					}
-				}
-			}
-
-			if (!fallbackCodec) {
-				return Promise.reject(
-					new Error(
-						`No audio codec can be encoded by this browser for container "${container}".`,
-					),
-				);
+		// log warnings and reject on errors
+		for (const issue of audioResult.issues) {
+			if (issue.severity === 'error') {
+				return Promise.reject(new Error(issue.message));
 			}
 
 			Internals.Log.warn(
 				{logLevel, tag: '@remotion/web-renderer'},
-				`Falling back from audio codec "${audioCodec}" to "${fallbackCodec}" for container "${container}" because the original codec cannot be encoded by this browser.`,
+				issue.message,
 			);
-			finalAudioCodec = fallbackCodec;
 		}
+
+		finalAudioCodec = audioResult.codec;
 	}
 
 	const resolved = await Internals.resolveVideoConfig({

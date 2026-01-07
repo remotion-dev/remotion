@@ -1,0 +1,56 @@
+---
+image: /generated/articles-docs-web-renderer-get-encodable-audio-codecs.png
+id: get-encodable-audio-codecs
+title: getEncodableAudioCodecs()
+crumb: '@remotion/web-renderer'
+---
+
+:::warning
+Very experimental feature - expect bugs and breaking changes at any time.  
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+_Part of the `@remotion/web-renderer` package._
+
+Returns the audio codecs that the current browser can encode for a given container format.
+
+Use this function to dynamically show users which audio codecs are available in their browser.
+
+```tsx twoslash title="Example usage"
+import {getEncodableAudioCodecs} from '@remotion/web-renderer';
+
+const codecs = await getEncodableAudioCodecs('mp4');
+console.log(codecs); // e.g. ['aac', 'opus'] or ['opus'] on Firefox
+```
+
+## Arguments
+
+### `container`
+
+_string_ <TsType type="WebRendererContainer" source="@remotion/web-renderer" /> - required
+
+The container format: `"mp4"` or `"webm"`.
+
+### `options?`
+
+_object_ <TsType type="GetEncodableCodecsOptions" source="@remotion/web-renderer" />
+
+Optional configuration:
+
+- `bitrate?`: A number (bits per second) or quality preset (`"very-low"`, `"low"`, `"medium"`, `"high"`, `"very-high"`)
+
+## Return value
+
+Returns a `Promise<WebRendererAudioCodec[]>` - an array of audio codec identifiers that the browser can encode.
+
+Possible values: `"aac"`, `"opus"`
+
+:::note
+AAC encoding is not supported in Firefox. On Firefox, only `["opus"]` will be returned for both containers.
+:::
+
+## See also
+
+- [`getEncodableVideoCodecs()`](/docs/web-renderer/get-encodable-video-codecs)
+- [`canRenderMediaOnWeb()`](/docs/web-renderer/can-render-media-on-web)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web)
