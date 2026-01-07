@@ -116,12 +116,16 @@ export const processNode = async ({
 			transformedTopRight,
 			transformedBottomLeft,
 			transformedBottomRight,
+			rectWithoutPerspective,
 		} = transformDOMRect({
 			rect: precomposeRect,
 			matrix: totalMatrix,
 		});
 
 		const rectAfterTransforms = roundToExpandRect(rect_);
+		const rectAfterTransformsWithoutPerspective = roundToExpandRect(
+			rectWithoutPerspective,
+		);
 
 		if (precompositing.needsMaskImage) {
 			handleMask({
@@ -143,6 +147,7 @@ export const processNode = async ({
 				transformedTopRight,
 				transformedBottomLeft,
 				transformedBottomRight,
+				rectAfterTransformsWithoutPerspective,
 			});
 			if (t) {
 				drawable = t;

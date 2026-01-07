@@ -38,6 +38,7 @@ export const handle3dTransform = ({
 	transformedTopRight,
 	transformedBottomLeft,
 	transformedBottomRight,
+	rectAfterTransformsWithoutPerspective,
 }: {
 	matrix: DOMMatrix;
 	precomposeRect: DOMRect;
@@ -48,6 +49,7 @@ export const handle3dTransform = ({
 	transformedTopRight: DOMPointReadOnly;
 	transformedBottomLeft: DOMPointReadOnly;
 	transformedBottomRight: DOMPointReadOnly;
+	rectAfterTransformsWithoutPerspective: DOMRect;
 }) => {
 	const {canvas: transformed, rect: transformedRect} = transformIn3d({
 		untransformedRect: precomposeRect,
@@ -59,6 +61,7 @@ export const handle3dTransform = ({
 		transformedTopRight,
 		transformedBottomLeft,
 		transformedBottomRight,
+		rectAfterTransformsWithoutPerspective,
 	});
 
 	if (transformedRect.width <= 0 || transformedRect.height <= 0) {

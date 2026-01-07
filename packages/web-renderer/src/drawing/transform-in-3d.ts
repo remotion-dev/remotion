@@ -137,6 +137,7 @@ export const transformIn3d = ({
 	sourceCanvas,
 	untransformedRect,
 	rectAfterTransforms,
+	rectAfterTransformsWithoutPerspective,
 	internalState,
 	transformedTopLeft,
 	transformedTopRight,
@@ -147,6 +148,7 @@ export const transformIn3d = ({
 	matrix: DOMMatrix;
 	sourceCanvas: OffscreenCanvas;
 	rectAfterTransforms: DOMRect;
+	rectAfterTransformsWithoutPerspective: DOMRect;
 	internalState: InternalState;
 	transformedTopLeft: DOMPointReadOnly;
 	transformedTopRight: DOMPointReadOnly;
@@ -176,6 +178,12 @@ export const transformIn3d = ({
 	const vertexBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
+	console.log(
+		transformedBottomLeft.w,
+		transformedBottomRight.w,
+		transformedTopLeft.w,
+		transformedTopRight.w,
+	);
 	// prettier-ignore
 	// Each vertex: x, y, texU, texV, w
 	const vertices = new Float32Array([
