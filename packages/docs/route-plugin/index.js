@@ -6,7 +6,10 @@ module.exports = function () {
 		name: 'slug-plugin',
 		loadContent() {
 			const experts = fs.readFileSync(
-				path.join(__dirname, '../src/data/experts.tsx'),
+				path.join(
+					__dirname,
+					'../../../packages/promo-pages/src/components/experts/experts-data.tsx',
+				),
 				'utf-8',
 			);
 			const templates = fs.readFileSync(
