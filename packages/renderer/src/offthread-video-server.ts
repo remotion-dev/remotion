@@ -225,7 +225,12 @@ export const startOffthreadVideoServer = ({
 						'Could not extract frame from compositor',
 						err,
 					);
-					if (!response.headersSent) {
+					if (response.headersSent) {
+						Log.error(
+							{indent, logLevel},
+							'Cannot propagate error message to client because headers have already been sent',
+						);
+					} else {
 						response.writeHead(500);
 						response.write(JSON.stringify({error: err.stack}));
 					}
