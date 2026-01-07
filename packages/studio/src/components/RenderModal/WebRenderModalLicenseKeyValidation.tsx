@@ -22,7 +22,7 @@ const linkStyle: React.CSSProperties = {
 const bulletStyle: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
-	gap: 8,
+	gap: 6,
 };
 
 const icon: React.CSSProperties = {
