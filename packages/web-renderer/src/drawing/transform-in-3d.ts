@@ -138,23 +138,21 @@ export const transformIn3d = ({
 	untransformedRect,
 	rectAfterTransforms,
 	internalState,
-	w1,
-	w2,
-	w3,
-	w4,
+	transformedTopLeft,
+	transformedTopRight,
+	transformedBottomLeft,
+	transformedBottomRight,
 }: {
 	untransformedRect: DOMRect;
 	matrix: DOMMatrix;
 	sourceCanvas: OffscreenCanvas;
 	rectAfterTransforms: DOMRect;
 	internalState: InternalState;
-	w1: number;
-	w2: number;
-	w3: number;
-	w4: number;
+	transformedTopLeft: DOMPointReadOnly;
+	transformedTopRight: DOMPointReadOnly;
+	transformedBottomLeft: DOMPointReadOnly;
+	transformedBottomRight: DOMPointReadOnly;
 }) => {
-	console.log(w1, w2, w3, w4);
-
 	const {canvas, gl, program, locations} = createHelperCanvas({
 		canvasWidth: rectAfterTransforms.width,
 		canvasHeight: rectAfterTransforms.height,
@@ -181,12 +179,12 @@ export const transformIn3d = ({
 	// prettier-ignore
 	// Each vertex: x, y, texU, texV, w
 	const vertices = new Float32Array([
-		untransformedRect.x, untransformedRect.y, 0, 0, w1,
-		untransformedRect.x + untransformedRect.width, untransformedRect.y, 1, 0, w2,
-		untransformedRect.x, untransformedRect.y + untransformedRect.height, 0, 1, w3,
-		untransformedRect.x, untransformedRect.y + untransformedRect.height, 0, 1, w3,
-		untransformedRect.x + untransformedRect.width, untransformedRect.y, 1, 0, w2,
-		untransformedRect.x + untransformedRect.width, untransformedRect.y + untransformedRect.height, 1, 1, w4,
+		untransformedRect.x, untransformedRect.y, 0, 0, transformedTopLeft.w, // top left
+		untransformedRect.x + untransformedRect.width, untransformedRect.y, 1, 0, transformedTopRight.w, // top right
+		untransformedRect.x, untransformedRect.y + untransformedRect.height, 0, 1, transformedBottomLeft.w, // bottom left
+		untransformedRect.x, untransformedRect.y + untransformedRect.height, 0, 1, transformedBottomLeft.w, // bottom left
+		untransformedRect.x + untransformedRect.width, untransformedRect.y, 1, 0, transformedTopRight.w, // top right
+		untransformedRect.x + untransformedRect.width, untransformedRect.y + untransformedRect.height, 1, 1, transformedBottomRight.w, // bottom right
 	]);
 
 	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);

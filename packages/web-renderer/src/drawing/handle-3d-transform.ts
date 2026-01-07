@@ -34,20 +34,20 @@ export const handle3dTransform = ({
 	tempCanvas,
 	rectAfterTransforms,
 	internalState,
-	w1,
-	w2,
-	w3,
-	w4,
+	transformedTopLeft,
+	transformedTopRight,
+	transformedBottomLeft,
+	transformedBottomRight,
 }: {
 	matrix: DOMMatrix;
 	precomposeRect: DOMRect;
 	tempCanvas: OffscreenCanvas;
 	rectAfterTransforms: DOMRect;
 	internalState: InternalState;
-	w1: number;
-	w2: number;
-	w3: number;
-	w4: number;
+	transformedTopLeft: DOMPointReadOnly;
+	transformedTopRight: DOMPointReadOnly;
+	transformedBottomLeft: DOMPointReadOnly;
+	transformedBottomRight: DOMPointReadOnly;
 }) => {
 	const {canvas: transformed, rect: transformedRect} = transformIn3d({
 		untransformedRect: precomposeRect,
@@ -55,10 +55,10 @@ export const handle3dTransform = ({
 		sourceCanvas: tempCanvas,
 		rectAfterTransforms,
 		internalState,
-		w1,
-		w2,
-		w3,
-		w4,
+		transformedTopLeft,
+		transformedTopRight,
+		transformedBottomLeft,
+		transformedBottomRight,
 	});
 
 	if (transformedRect.width <= 0 || transformedRect.height <= 0) {

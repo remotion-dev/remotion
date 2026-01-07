@@ -43,7 +43,7 @@ export const takeScreenshot = async ({
 	imageFormat,
 	logLevel,
 	internalState,
-	useRenoun = true,
+	useRenoun = false,
 }: {
 	div: HTMLDivElement;
 	width: number;

@@ -77,12 +77,15 @@ export const processNode = async ({
 
 		if (precompositing.needs3DTransformViaWebGL) {
 			precomposeRect = getWiderRectAndExpand({
-				firstRect: precomposeRect,
-				secondRect: getPrecomposeRectFor3DTransform({
-					element,
-					parentRect,
-					matrix: totalMatrix,
+				firstRect: getWiderRectAndExpand({
+					firstRect: precomposeRect,
+					secondRect: getPrecomposeRectFor3DTransform({
+						element,
+						parentRect,
+						matrix: totalMatrix,
+					}),
 				}),
+				secondRect: rect,
 			});
 		}
 
@@ -109,10 +112,10 @@ export const processNode = async ({
 
 		const {
 			rect: rect_,
-			w1,
-			w2,
-			w3,
-			w4,
+			transformedTopLeft,
+			transformedTopRight,
+			transformedBottomLeft,
+			transformedBottomRight,
 		} = transformDOMRect({
 			rect: precomposeRect,
 			matrix: totalMatrix,
@@ -136,10 +139,10 @@ export const processNode = async ({
 				tempCanvas: drawable,
 				rectAfterTransforms,
 				internalState,
-				w1,
-				w2,
-				w3,
-				w4,
+				transformedTopLeft,
+				transformedTopRight,
+				transformedBottomLeft,
+				transformedBottomRight,
 			});
 			if (t) {
 				drawable = t;

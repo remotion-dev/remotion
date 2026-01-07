@@ -10763,8 +10763,6 @@ function renderTextureWithPerspective(
 		const w3 = p3.w || 1;
 		const w4 = p4.w || 1;
 
-		console.log(w1, w2, w3, w4);
-
 		positions = new Float32Array([
 			p1.x,
 			p1.y,
