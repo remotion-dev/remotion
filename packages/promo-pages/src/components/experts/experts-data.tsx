@@ -477,7 +477,7 @@ export const experts: Expert[] = [
 		linkedin: 'in/sambowenhughes/',
 		email: 'sambowenhughes@icloud.com',
 		videocall: 'https://calendly.com/hello-reactvideoeditor/30min',
-		since: new Date('2024-01-07').getTime(),
+		since: new Date('2025-06-03').getTime(),
 		description: (
 			<div>
 				Full-stack engineer with 10+ years experience. I built{' '}

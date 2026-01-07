@@ -27,7 +27,6 @@ const infoCard: React.CSSProperties = {
 	flexDirection: 'row',
 	display: 'flex',
 	fontSize: 13,
-	maxWidth: 700,
 	border: '1px solid var(--ifm-color-emphasis-300)',
 	borderRadius: 8,
 };
@@ -236,13 +235,11 @@ export const ExpertsPageContent: React.FC<ExpertsPageProps> = ({Link}) => {
 					</svg>
 					<div style={{flex: 1}}>
 						Remotion Experts are independent freelancers with proven Remotion
-						expertise and portfolios. However, perform due diligence before
-						hiring. <br /> Remotion does not arbitrate disputes between experts
-						and clients.
+						expertise and portfolios. However,{' '}
+						<strong> perform due diligence </strong> before hiring. <br />{' '}
+						Remotion does not arbitrate disputes between experts and clients.
 					</div>
 				</div>
-
-				<br />
 				<br />
 				<div className="flex flex-col gap-12 md:gap-4">
 					{expertsInRandomOrder.map((e) => {

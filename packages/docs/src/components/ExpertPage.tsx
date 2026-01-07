@@ -1,10 +1,10 @@
 import Head from '@docusaurus/Head';
 import {useLocation} from '@docusaurus/router';
+import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import Layout from '@theme/Layout';
 import React from 'react';
 import {Button} from '../../components/layout/Button';
 import {Spacer} from '../../components/layout/Spacer';
-import {experts} from '../data/experts';
 
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {PALETTE} from '../../components/layout/colors';
@@ -17,6 +17,7 @@ const layout: React.CSSProperties = {
 	paddingLeft: 16,
 	paddingRight: 16,
 	paddingTop: 30,
+	textAlign: 'left',
 };
 
 const header: React.CSSProperties = {
@@ -56,7 +57,6 @@ const emailButton: React.CSSProperties = {
 
 const description: React.CSSProperties = {
 	fontSize: 20,
-	minWidth: 900,
 };
 
 const socialIcon: React.CSSProperties = {
@@ -324,8 +324,9 @@ export default () => {
 						</svg>
 						<div style={{flex: 1}}>
 							Remotion Experts are independent freelancers with proven Remotion
-							expertise and portfolios. However, perform due diligence before
-							hiring.
+							expertise and portfolios. However,{' '}
+							<strong> perform due diligence </strong> before hiring. Remotion
+							does not arbitrate disputes between experts and clients.
 						</div>
 					</div>
 					<Spacer />
