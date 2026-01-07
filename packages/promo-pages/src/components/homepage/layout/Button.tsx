@@ -23,7 +23,7 @@ type Props = DetailedHTMLProps<
 type MandatoryProps = Omit<
 	ExtraProps,
 	'background' | 'color' | 'hoverColor' | 'fullWidth'
-> & {fullWidth?: boolean};
+> & {readonly fullWidth?: boolean};
 type PrestyledProps = DetailedHTMLProps<
 	ButtonHTMLAttributes<HTMLButtonElement>,
 	HTMLButtonElement
