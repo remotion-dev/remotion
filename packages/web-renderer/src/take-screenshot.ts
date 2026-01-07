@@ -2,7 +2,6 @@ import type {LogLevel} from 'remotion';
 import {compose} from './compose';
 import type {InternalState} from './internal-state';
 import type {RenderStillOnWebImageFormat} from './render-still-on-web';
-import {screenshot} from './renoun';
 
 export const createFrame = async ({
 	div,
@@ -43,7 +42,6 @@ export const takeScreenshot = async ({
 	imageFormat,
 	logLevel,
 	internalState,
-	useRenoun = false,
 }: {
 	div: HTMLDivElement;
 	width: number;
@@ -51,26 +49,15 @@ export const takeScreenshot = async ({
 	imageFormat: RenderStillOnWebImageFormat;
 	logLevel: LogLevel;
 	internalState: InternalState;
-	useRenoun?: boolean;
 }) => {
-	if (!useRenoun) {
-		const f = await createFrame({
-			div,
-			width,
-			height,
-			logLevel,
-			internalState,
-		});
-		return f.convertToBlob({
-			type: `image/${imageFormat}`,
-		});
-	}
-
-	const frame = screenshot(div, {width, height, includeFixed: 'all'});
-
-	const imageData = await frame.blob({
-		format: imageFormat,
+	const f = await createFrame({
+		div,
+		width,
+		height,
+		logLevel,
+		internalState,
 	});
-
-	return imageData;
+	return f.convertToBlob({
+		type: `image/${imageFormat}`,
+	});
 };
