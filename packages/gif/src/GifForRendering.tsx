@@ -71,8 +71,8 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			let done = false;
 			let aborted = false;
 			const newHandle = delayRender('Loading <Gif /> with src=' + resolvedSrc, {
-			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
-		});
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+			});
 
 			Internals.Log.verbose(
 				{logLevel, tag: null},
