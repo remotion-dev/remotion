@@ -56,6 +56,7 @@ const emailButton: React.CSSProperties = {
 
 const description: React.CSSProperties = {
 	fontSize: 20,
+	minWidth: 900,
 };
 
 const socialIcon: React.CSSProperties = {
@@ -323,8 +324,8 @@ export default () => {
 						</svg>
 						<div style={{flex: 1}}>
 							Remotion Experts are independent freelancers with proven Remotion
-							expertise and portfolios. However, due diligence is recommended
-							before hiring.
+							expertise and portfolios. However, perform due diligence before
+							hiring.
 						</div>
 					</div>
 					<Spacer />

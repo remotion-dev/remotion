@@ -1,39 +1,24 @@
-import {Card} from '@remotion/design';
 import React, {useMemo} from 'react';
 import {random} from 'remotion';
-import {BlueButton} from '../homepage/layout/Button';
-import {Spacer} from '../homepage/Spacer';
-import {experts} from './experts-data';
 import {
 	EmailLogo,
 	GitHubLogo,
 	LinkedInLogo,
-	PersonalWebsite,
 	TwitterLogo,
-	VideoCallLogo,
-} from './experts-icons';
+} from '../team/TeamCards';
+import type {Expert} from './experts-data';
+import {experts} from './experts-data';
+import {PersonalWebsite} from './experts-icons';
+
+const arrowIcon: React.CSSProperties = {
+	height: 16,
+	marginLeft: 10,
+};
 
 const dateString = (date: Date) =>
 	date.getDate() + '-' + date.getMonth() + '-' + date.getFullYear();
 
 const todayHash = dateString(new Date());
-
-const docsButtonStyle: React.CSSProperties = {
-	textDecoration: 'none',
-};
-
-const flex: React.CSSProperties = {
-	flex: 1,
-};
-
-const linkStyle: React.CSSProperties = {
-	textDecoration: 'none',
-	color: 'inherit',
-	width: '100%',
-	display: 'flex',
-	flexDirection: 'row',
-	paddingTop: 8,
-};
 
 const infoCard: React.CSSProperties = {
 	backgroundColor: 'var(--footer-background)',
@@ -42,9 +27,7 @@ const infoCard: React.CSSProperties = {
 	flexDirection: 'row',
 	display: 'flex',
 	fontSize: 13,
-	alignItems: 'center',
 	maxWidth: 700,
-	margin: '20px auto',
 	border: '1px solid var(--ifm-color-emphasis-300)',
 	borderRadius: 8,
 };
@@ -61,35 +44,134 @@ const wrapperStyle: React.CSSProperties = {
 	paddingTop: 60,
 	paddingLeft: 20,
 	paddingRight: 20,
+	paddingBottom: 100,
 };
 
-const cardStyle: React.CSSProperties = {
-	padding: 16,
-	borderRadius: 6,
-	marginBottom: 16,
-	display: 'flex',
-	flexDirection: 'column',
-	alignItems: 'center',
+type ExpertCardProps = {
+	readonly expert: Expert;
+	readonly Link: React.ComponentType<{
+		style?: React.CSSProperties;
+		className?: string;
+		href: string;
+		children: React.ReactNode;
+	}>;
 };
 
-const profileStyle: React.CSSProperties = {
-	height: 200,
-	borderRadius: 100,
-};
-
-const spacerStyle: React.CSSProperties = {
-	height: 20,
-	width: 20,
-};
-
-const titleStyle: React.CSSProperties = {
-	fontSize: '1.2rem',
-	marginBottom: 0,
-	fontWeight: 'bold',
-};
-
-const rightStyle: React.CSSProperties = {
-	width: '100%',
+const ExpertCard: React.FC<ExpertCardProps> = ({expert, Link}) => {
+	return (
+		<div className="flex-1 rounded-[15px] flex flex-col md:flex-row gap-2 md:gap-4">
+			<Link
+				href={`/experts/${expert.slug}`}
+				className="no-underline text-inherit"
+			>
+				<img
+					src={expert.image}
+					className="w-[250px] h-[250px] rounded-xl border-effect object-cover"
+				/>
+			</Link>
+			<div className="flex flex-col border-effect px-4 py-3 bg-pane flex-1">
+				<Link
+					href={`/experts/${expert.slug}`}
+					className="no-underline text-inherit"
+				>
+					<h2 className="text-[1.6em] mb-1 mt-3 text-[var(--ifm-color-primary)] font-brand">
+						{expert.name}
+					</h2>
+				</Link>
+				<div className="mt-2 mb-3 leading-normal font-brand">
+					{expert.description}
+				</div>
+				<div className="leading-6 mb-4">
+					<Link
+						className="no-underline text-brand font-brand font-bold inline-flex flex-row items-center"
+						href={`/experts/${expert.slug}`}
+					>
+						View profile{' '}
+						<svg
+							style={arrowIcon}
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 448 512"
+						>
+							<path
+								fill="currentColor"
+								d="M438.6 278.6l-160 160C272.4 444.9 264.2 448 256 448s-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L338.8 288H32C14.33 288 .0016 273.7 .0016 256S14.33 224 32 224h306.8l-105.4-105.4c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l160 160C451.1 245.9 451.1 266.1 438.6 278.6z"
+							/>
+						</svg>
+					</Link>
+					{expert.videocall ? (
+						<>
+							<br />
+							<a
+								className="no-underline text-brand font-brand font-bold inline-flex flex-row items-center"
+								target="_blank"
+								href={expert.videocall}
+							>
+								Book a call{' '}
+								<svg
+									style={arrowIcon}
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 448 512"
+								>
+									<path
+										fill="currentColor"
+										d="M438.6 278.6l-160 160C272.4 444.9 264.2 448 256 448s-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L338.8 288H32C14.33 288 .0016 273.7 .0016 256S14.33 224 32 224h306.8l-105.4-105.4c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l160 160C451.1 245.9 451.1 266.1 438.6 278.6z"
+									/>
+								</svg>
+							</a>
+						</>
+					) : null}
+				</div>
+				<div className="flex-1" />
+				<div className="gap-3 flex flex-row flex-wrap">
+					{expert.website ? (
+						<a
+							className="no-underline text-inherit"
+							target="_blank"
+							href={expert.website}
+						>
+							<PersonalWebsite />
+						</a>
+					) : null}
+					{expert.x ? (
+						<a
+							className="no-underline text-inherit"
+							target="_blank"
+							href={`https://x.com/${expert.x}`}
+						>
+							<TwitterLogo />
+						</a>
+					) : null}
+					{expert.github ? (
+						<a
+							className="no-underline text-inherit"
+							target="_blank"
+							href={`https://github.com/${expert.github}`}
+						>
+							<GitHubLogo />
+						</a>
+					) : null}
+					{expert.linkedin ? (
+						<a
+							className="no-underline text-inherit"
+							target="_blank"
+							href={`https://www.linkedin.com/${expert.linkedin}`}
+						>
+							<LinkedInLogo />
+						</a>
+					) : null}
+					{expert.email ? (
+						<a
+							className="no-underline text-inherit"
+							target="_blank"
+							href={`mailto:${expert.email}`}
+						>
+							<EmailLogo />
+						</a>
+					) : null}
+				</div>
+			</div>
+		</div>
+	);
 };
 
 type ExpertsPageProps = {
@@ -154,179 +236,19 @@ export const ExpertsPageContent: React.FC<ExpertsPageProps> = ({Link}) => {
 					</svg>
 					<div style={{flex: 1}}>
 						Remotion Experts are independent freelancers with proven Remotion
-						expertise and portfolios. However, due diligence is recommended
-						before hiring.
+						expertise and portfolios. However, perform due diligence before
+						hiring. <br /> Remotion does not arbitrate disputes between experts
+						and clients.
 					</div>
 				</div>
 
 				<br />
 				<br />
-				{expertsInRandomOrder.map((e) => {
-					return (
-						<Card key={e.name} style={cardStyle}>
-							<Link
-								style={linkStyle}
-								className="experts-card-content"
-								href={`/experts/${e.slug}`}
-							>
-								<img
-									className="experts-profile"
-									style={profileStyle}
-									src={e.image}
-								/>
-								<div style={spacerStyle} />
-								<div style={rightStyle}>
-									<div style={titleStyle}>{e.name}</div>
-									<p>{e.description}</p>
-								</div>
-							</Link>
-							<Spacer />
-							<Spacer />
-							<Spacer />
-							<Spacer />
-							<div
-								style={{
-									display: 'flex',
-									flexDirection: 'row',
-									width: '100%',
-								}}
-								className="experts-buttons-in-column"
-							>
-								{e.website ? (
-									<div style={flex} className="experts-docs-button">
-										<a
-											style={docsButtonStyle}
-											target={'_blank'}
-											href={`${e.website}`}
-										>
-											<BlueButton loading={false} fullWidth size="sm">
-												<PersonalWebsite /> Website
-											</BlueButton>
-										</a>
-									</div>
-								) : null}
-
-								{e.x ? (
-									<>
-										{e.website ? (
-											<>
-												<Spacer />
-												<Spacer />
-											</>
-										) : null}
-
-										<div style={flex} className="experts-docs-button">
-											<a
-												style={docsButtonStyle}
-												target={'_blank'}
-												href={`https://x.com/${e.x}`}
-											>
-												<BlueButton loading={false} fullWidth size="sm">
-													<TwitterLogo /> X
-												</BlueButton>
-											</a>
-										</div>
-									</>
-								) : null}
-
-								{e.github ? (
-									<>
-										{/* Check if the expert has a website and a GitHub profile, but not a Twitter */}
-										{e.website && !e.x ? (
-											<>
-												<Spacer />
-												<Spacer />
-											</>
-										) : null}
-
-										{e.x ? (
-											<>
-												<Spacer />
-												<Spacer />
-											</>
-										) : null}
-
-										<div style={flex} className="experts-docs-button">
-											<a
-												style={docsButtonStyle}
-												target={'_blank'}
-												href={`https://github.com/${e.github}`}
-											>
-												<BlueButton loading={false} fullWidth size="sm">
-													<GitHubLogo /> GitHub
-												</BlueButton>
-											</a>
-										</div>
-									</>
-								) : null}
-							</div>
-							<Spacer />
-							<Spacer />
-							<div
-								style={{
-									display: 'flex',
-									flexDirection: 'row',
-									width: '100%',
-								}}
-								className="experts-buttons-in-column"
-							>
-								{e.linkedin ? (
-									<div style={flex} className="experts-docs-button">
-										<a
-											style={docsButtonStyle}
-											target={'_blank'}
-											href={`https://www.linkedin.com/${e.linkedin}`}
-										>
-											<BlueButton loading={false} fullWidth size="sm">
-												<LinkedInLogo /> LinkedIn
-											</BlueButton>
-										</a>
-									</div>
-								) : null}
-
-								{e.email ? (
-									<>
-										{e.linkedin ? (
-											<>
-												<Spacer />
-												<Spacer />
-											</>
-										) : null}
-										<div style={flex} className="experts-docs-button">
-											<a
-												style={docsButtonStyle}
-												target={'_blank'}
-												href={`mailto:${e.email}`}
-											>
-												<BlueButton loading={false} fullWidth size="sm">
-													<EmailLogo /> Email
-												</BlueButton>
-											</a>
-										</div>
-									</>
-								) : null}
-
-								{e.videocall ? (
-									<>
-										<Spacer />
-										<Spacer />
-										<div style={flex} className="experts-docs-button">
-											<a
-												style={docsButtonStyle}
-												target={'_blank'}
-												href={e.videocall}
-											>
-												<BlueButton loading={false} fullWidth size="sm">
-													<VideoCallLogo /> Call
-												</BlueButton>
-											</a>
-										</div>
-									</>
-								) : null}
-							</div>
-						</Card>
-					);
-				})}
+				<div className="flex flex-col gap-12 md:gap-4">
+					{expertsInRandomOrder.map((e) => {
+						return <ExpertCard key={e.name} expert={e} Link={Link} />;
+					})}
+				</div>
 			</div>
 		</div>
 	);
