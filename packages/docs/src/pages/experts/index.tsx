@@ -1,8 +1,8 @@
 import Head from '@docusaurus/Head';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import Layout from '@theme/Layout';
 import {ExpertsPageContent} from '@remotion/promo-pages/dist/experts.js';
+import Layout from '@theme/Layout';
 import React from 'react';
 import {Seo} from '../../components/Seo';
 
