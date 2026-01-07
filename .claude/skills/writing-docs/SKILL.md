@@ -18,6 +18,8 @@ Documentation lives in `packages/docs/docs` as `.mdx` files.
 
 **Public API only**: Documentation is for public APIs only. Do not mention, reference, or compare against internal/private APIs or implementation details. Users should only see what is exported and intended for public use.
 
+**Use headings for all fields**: When documenting API options or return values, each property should be its own heading. Use `###` for top-level properties and `####` for nested properties within an options object. Do not use bullet points for individual fields.
+
 ## Language guidelines
 
 - **Keep it brief**: Developers don't like to read. Extra words cause information loss.
