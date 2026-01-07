@@ -1,4 +1,7 @@
-import type {WebRendererAudioCodec, WebRendererContainer} from '@remotion/web-renderer';
+import type {
+	WebRendererAudioCodec,
+	WebRendererContainer,
+} from '@remotion/web-renderer';
 import {getSupportedAudioCodecsForContainer} from '@remotion/web-renderer';
 import {getEncodableAudioCodecs} from 'mediabunny';
 import {useEffect, useRef, useState} from 'react';
