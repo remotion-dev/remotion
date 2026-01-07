@@ -170,24 +170,3 @@ body {
 		text-align: left;
 	}
 }
-
-@media screen and (max-width: 600px) {
-	.experts-card .experts-buttons-in-column {
-		flex-direction: column !important;
-	}
-}
-
-@media screen and (max-width: 600px) {
-	.experts-card-content {
-		flex-direction: column !important;
-		align-items: center;
-		justify-content: center;
-	}
-}
-
-@media screen and (max-width: 600px) {
-	.experts-profile {
-		width: 150px;
-		height: auto;
-	}
-}
