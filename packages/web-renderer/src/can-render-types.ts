@@ -13,7 +13,8 @@ export type CanRenderIssueType =
 	| 'webcodecs-unavailable'
 	| 'container-codec-mismatch'
 	| 'transparent-video-unsupported'
-	| 'invalid-dimensions';
+	| 'invalid-dimensions'
+	| 'output-target-unsupported';
 
 export type CanRenderIssue = {
 	type: CanRenderIssueType;
@@ -39,4 +40,5 @@ export type CanRenderMediaOnWebOptions = {
 	muted?: boolean;
 	videoBitrate?: number | WebRendererQuality;
 	audioBitrate?: number | WebRendererQuality;
+	outputTarget?: WebRendererOutputTarget | null;
 };

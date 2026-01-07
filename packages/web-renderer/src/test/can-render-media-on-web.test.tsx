@@ -157,3 +157,15 @@ test('should use default WebM codecs', async () => {
 	// Default video codec for webm is vp8
 	expect(result.resolvedVideoCodec).toBe('vp8');
 });
+
+test('should auto-detect outputTarget when null is passed', async () => {
+	const result = await canRenderMediaOnWeb({
+		container: 'mp4',
+		videoCodec: 'h264',
+		width: 1920,
+		height: 1080,
+		outputTarget: null,
+	});
+
+	expect(['web-fs', 'arraybuffer']).toContain(result.resolvedOutputTarget);
+});

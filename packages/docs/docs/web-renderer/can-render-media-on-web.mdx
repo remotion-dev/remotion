@@ -106,6 +106,18 @@ The audio bitrate. Can be a number (bits per second) or a quality preset: `"very
 
 Default is `"medium"`.
 
+### `outputTarget?`
+
+_string | null_ <TsType type="WebRendererOutputTarget" source="@remotion/web-renderer" />
+
+The output target to use for rendering. Can be:
+
+- `"web-fs"`: Use the File System Access API for streaming writes to disk
+- `"arraybuffer"`: Buffer the entire video in memory
+- `null`: Auto-detect based on browser support (default)
+
+If `"web-fs"` is requested but not supported by the browser, an `output-target-unsupported` error will be returned.
+
 ## Return value
 
 Returns a `Promise` that resolves to an object with the following properties:
@@ -118,7 +130,7 @@ _boolean_
 
 ### `issues`
 
-_CanRenderIssue[]_
+<TsType type="CanRenderIssue[]" source="@remotion/web-renderer" />
 
 An array of issues found during the check. Each issue has:
 
@@ -140,7 +152,7 @@ The audio codec that will be used for rendering. This may differ from the reques
 
 ### `resolvedOutputTarget`
 
-_"web-fs" | "arraybuffer"_
+<TsType type="WebRendererOutputTarget" source="@remotion/web-renderer" />
 
 The output target that will be used. See [`renderMediaOnWeb()` outputTarget](/docs/web-renderer/render-media-on-web#outputtarget) for details.
 
@@ -157,6 +169,7 @@ The following issue types may be returned:
 | `audio-codec-unsupported`       | The browser cannot encode the selected audio codec            |
 | `transparent-video-unsupported` | Transparency requires VP8 or VP9 codec                        |
 | `webgl-unsupported`             | WebGL is required for 3D CSS transforms                       |
+| `output-target-unsupported`     | The requested output target is not supported by this browser  |
 
 ## See also
 

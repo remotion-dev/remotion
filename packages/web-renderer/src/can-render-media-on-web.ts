@@ -106,9 +106,26 @@ export const canRenderMediaOnWeb = async (
 		issues.push(webglIssue);
 	}
 
-	const resolvedOutputTarget = (await canUseWebFsWriter())
-		? 'web-fs'
-		: 'arraybuffer';
+	const canUseWebFs = await canUseWebFsWriter();
+
+	let resolvedOutputTarget: CanRenderMediaOnWebResult['resolvedOutputTarget'];
+
+	if (options.outputTarget === 'web-fs') {
+		if (!canUseWebFs) {
+			issues.push({
+				type: 'output-target-unsupported',
+				message:
+					'The "web-fs" output target is not supported in this browser. The File System Access API is required.',
+				severity: 'error',
+			});
+		}
+
+		resolvedOutputTarget = 'web-fs';
+	} else if (options.outputTarget === 'arraybuffer') {
+		resolvedOutputTarget = 'arraybuffer';
+	} else {
+		resolvedOutputTarget = canUseWebFs ? 'web-fs' : 'arraybuffer';
+	}
 
 	return {
 		canRender: issues.filter((i) => i.severity === 'error').length === 0,

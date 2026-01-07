@@ -11,7 +11,8 @@ export type {FrameRange} from './frame-range';
 export {
 	getEncodableAudioCodecs,
 	getEncodableVideoCodecs,
-	type GetEncodableCodecsOptions,
+	type GetEncodableAudioCodecsOptions,
+	type GetEncodableVideoCodecsOptions,
 } from './get-encodable-codecs';
 export {
 	getDefaultAudioCodecForContainer,

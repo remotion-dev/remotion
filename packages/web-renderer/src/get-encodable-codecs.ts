@@ -13,21 +13,25 @@ import {
 	type WebRendererVideoCodec,
 } from './mediabunny-mappings';
 
-export type GetEncodableCodecsOptions = {
-	bitrate?: number | WebRendererQuality;
+export type GetEncodableVideoCodecsOptions = {
+	videoBitrate?: number | WebRendererQuality;
+};
+
+export type GetEncodableAudioCodecsOptions = {
+	audioBitrate?: number | WebRendererQuality;
 };
 
 export const getEncodableVideoCodecs = async (
 	container: WebRendererContainer,
-	options?: GetEncodableCodecsOptions,
+	options?: GetEncodableVideoCodecsOptions,
 ): Promise<WebRendererVideoCodec[]> => {
 	const supported = getSupportedVideoCodecsForContainer(container);
 	const mediabunnyCodecs = supported.map(codecToMediabunnyCodec);
 
-	const resolvedBitrate = options?.bitrate
-		? typeof options.bitrate === 'number'
-			? options.bitrate
-			: getQualityForWebRendererQuality(options.bitrate)
+	const resolvedBitrate = options?.videoBitrate
+		? typeof options.videoBitrate === 'number'
+			? options.videoBitrate
+			: getQualityForWebRendererQuality(options.videoBitrate)
 		: undefined;
 
 	const encodable = await mediabunnyGetEncodableVideoCodecs(mediabunnyCodecs, {
@@ -39,14 +43,14 @@ export const getEncodableVideoCodecs = async (
 
 export const getEncodableAudioCodecs = async (
 	container: WebRendererContainer,
-	options?: GetEncodableCodecsOptions,
+	options?: GetEncodableAudioCodecsOptions,
 ): Promise<WebRendererAudioCodec[]> => {
 	const supported = getSupportedAudioCodecsForContainer(container);
 
-	const resolvedBitrate = options?.bitrate
-		? typeof options.bitrate === 'number'
-			? options.bitrate
-			: getQualityForWebRendererQuality(options.bitrate)
+	const resolvedBitrate = options?.audioBitrate
+		? typeof options.audioBitrate === 'number'
+			? options.audioBitrate
+			: getQualityForWebRendererQuality(options.audioBitrate)
 		: undefined;
 
 	const encodable = await mediabunnyGetEncodableAudioCodecs(supported, {

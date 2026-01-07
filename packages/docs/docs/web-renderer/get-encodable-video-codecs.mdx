@@ -20,7 +20,7 @@ Use this function to dynamically show users which video codecs are available in 
 import {getEncodableVideoCodecs} from '@remotion/web-renderer';
 
 const codecs = await getEncodableVideoCodecs('mp4');
-console.log(codecs); // e.g. ['h264', 'h265', 'vp8', 'vp9', 'av1']
+console.log(codecs); // e.g. ['h264', 'h265', 'av1']
 ```
 
 ## Arguments
@@ -33,11 +33,15 @@ The container format: `"mp4"` or `"webm"`.
 
 ### `options?`
 
-_object_ <TsType type="GetEncodableCodecsOptions" source="@remotion/web-renderer" />
+_object_ <TsType type="GetEncodableVideoCodecsOptions" source="@remotion/web-renderer" />
 
-Optional configuration:
+Optional configuration object.
 
-- `bitrate?`: A number (bits per second) or quality preset (`"very-low"`, `"low"`, `"medium"`, `"high"`, `"very-high"`)
+#### `videoBitrate?`
+
+_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+
+A number (bits per second) or quality preset (`"very-low"`, `"low"`, `"medium"`, `"high"`, `"very-high"`).
 
 ## Return value
 

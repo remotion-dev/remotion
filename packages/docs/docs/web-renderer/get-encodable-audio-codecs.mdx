@@ -33,11 +33,15 @@ The container format: `"mp4"` or `"webm"`.
 
 ### `options?`
 
-_object_ <TsType type="GetEncodableCodecsOptions" source="@remotion/web-renderer" />
+_object_ <TsType type="GetEncodableAudioCodecsOptions" source="@remotion/web-renderer" />
 
-Optional configuration:
+Optional configuration object.
 
-- `bitrate?`: A number (bits per second) or quality preset (`"very-low"`, `"low"`, `"medium"`, `"high"`, `"very-high"`)
+#### `audioBitrate?`
+
+_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+
+A number (bits per second) or quality preset (`"very-low"`, `"low"`, `"medium"`, `"high"`, `"very-high"`).
 
 ## Return value
 
