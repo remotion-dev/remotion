@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react';
-import {LIGHT_TEXT} from '../../helpers/colors';
-import {Checkmark} from '../../icons/Checkmark';
+import {LIGHT_TEXT, WARNING_COLOR} from '../../helpers/colors';
+import {CheckCircleFilled} from '../../icons/check-circle-filled';
+import {WarningTriangle} from '../NewComposition/ValidationMessage';
 
 const textStyle: React.CSSProperties = {
 	color: LIGHT_TEXT,
@@ -9,7 +10,6 @@ const textStyle: React.CSSProperties = {
 	lineHeight: 1.5,
 	display: 'flex',
 	alignItems: 'center',
-	gap: 8,
 };
 
 const linkStyle: React.CSSProperties = {
@@ -17,6 +17,18 @@ const linkStyle: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
 	cursor: 'pointer',
+};
+
+const bulletStyle: React.CSSProperties = {
+	display: 'flex',
+	alignItems: 'center',
+	gap: 8,
+};
+
+const icon: React.CSSProperties = {
+	width: 14,
+	height: 14,
+	flexShrink: 0,
 };
 
 type WebRenderModalLicenseKeyValidationProps = {
@@ -66,30 +78,42 @@ export const WebRenderModalLicenseKeyValidation: React.FC<
 	return (
 		<div style={textStyle}>
 			{isLoading && 'Validating license key...'}
-			{validation && !validation.isValid && '⚠️ Invalid license key'}
+			{validation && !validation.isValid && (
+				<div style={bulletStyle}>
+					<WarningTriangle
+						type="warning"
+						style={{...icon, fill: WARNING_COLOR}}
+					/>
+					<div style={textStyle}>Invalid license key</div>
+				</div>
+			)}
 			{validation && validation.isValid && (
 				<div>
-					<div style={textStyle}>
-						<Checkmark /> Belongs to{' '}
-						<a
-							href={`${PRO_HOST}/projects/${validation.projectSlug}`}
-							target="_blank"
-							style={linkStyle}
-						>
-							{validation.projectName}
-						</a>{' '}
-						- View{' '}
-						<a
-							href={`${PRO_HOST}/projects/${validation.projectSlug}/usage#client-renders-usage`}
-							target="_blank"
-							style={linkStyle}
-						>
-							usage
-						</a>
+					<div style={bulletStyle}>
+						<CheckCircleFilled style={{...icon, fill: LIGHT_TEXT}} />
+						<div style={textStyle}>
+							Belongs to&nbsp;
+							<a
+								href={`${PRO_HOST}/projects/${validation.projectSlug}`}
+								target="_blank"
+								style={linkStyle}
+							>
+								{validation.projectName}
+							</a>
+							&nbsp;- View&nbsp;
+							<a
+								href={`${PRO_HOST}/projects/${validation.projectSlug}/usage#client-renders-usage`}
+								target="_blank"
+								style={linkStyle}
+							>
+								usage
+							</a>
+						</div>
 					</div>
 					{validation.hasActiveSubscription && (
-						<div style={textStyle}>
-							<Checkmark /> Active Company License
+						<div style={bulletStyle}>
+							<CheckCircleFilled style={{...icon, fill: LIGHT_TEXT}} />
+							<div style={textStyle}>Active Company License</div>
 						</div>
 					)}
 				</div>
