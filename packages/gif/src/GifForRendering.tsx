@@ -119,7 +119,14 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 				continueRender(newHandle);
 				continueRender(renderHandle);
 			};
-		}, [renderHandle, logLevel, resolvedSrc, delayRender, continueRender]);
+		}, [
+			renderHandle,
+			logLevel,
+			resolvedSrc,
+			delayRender,
+			continueRender,
+			delayRenderTimeoutInMilliseconds,
+		]);
 
 		if (error) {
 			Internals.Log.error({logLevel, tag: null}, error.stack);
