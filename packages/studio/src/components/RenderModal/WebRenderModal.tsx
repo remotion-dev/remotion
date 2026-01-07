@@ -3,11 +3,16 @@ import {getDefaultOutLocation} from '@remotion/studio-shared';
 import type {
 	RenderMediaOnWebProgress,
 	RenderStillOnWebImageFormat,
+	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererQuality,
 	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
-import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
+import {
+	getDefaultAudioCodecForContainer,
+	renderMediaOnWeb,
+	renderStillOnWeb,
+} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {AudioIcon} from '../../icons/audio';
@@ -42,6 +47,8 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
+import {useEncodableAudioCodecs} from './use-encodable-audio-codecs';
+import {useEncodableVideoCodecs} from './use-encodable-video-codecs';
 import {WebRendererExperimentalBadge} from './WebRendererExperimentalBadge';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
 import {WebRenderModalAudio} from './WebRenderModalAudio';
@@ -185,6 +192,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	// Video-specific state
 	const [codec, setCodec] = useState<WebRendererVideoCodec>('h264');
 	const [container, setContainer] = useState<WebRendererContainer>('mp4');
+	const [audioCodec, setAudioCodec] = useState<WebRendererAudioCodec>('aac');
+	const [audioBitrate, setAudioBitrate] =
+		useState<WebRendererQuality>('medium');
 	const [videoBitrate, setVideoBitrate] = useState<WebRendererQuality>('high');
 	const [hardwareAcceleration, setHardwareAcceleration] = useState<
 		'no-preference' | 'prefer-hardware' | 'prefer-software'
@@ -202,6 +212,25 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [muted, setMuted] = useState(false);
 
 	const [licenseKey, setLicenseKey] = useState(initialLicenseKey);
+
+	const encodableAudioCodecs = useEncodableAudioCodecs(container);
+	const encodableVideoCodecs = useEncodableVideoCodecs(container);
+
+	const effectiveAudioCodec = useMemo((): WebRendererAudioCodec => {
+		if (encodableAudioCodecs.includes(audioCodec)) {
+			return audioCodec;
+		}
+
+		return encodableAudioCodecs[0] ?? audioCodec;
+	}, [audioCodec, encodableAudioCodecs]);
+
+	const effectiveVideoCodec = useMemo((): WebRendererVideoCodec => {
+		if (encodableVideoCodecs.includes(codec)) {
+			return codec;
+		}
+
+		return encodableVideoCodecs[0] ?? codec;
+	}, [codec, encodableVideoCodecs]);
 
 	const finalEndFrame = useMemo(() => {
 		if (endFrame === null) {
@@ -258,6 +287,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const setContainerFormat = useCallback(
 		(newContainer: WebRendererContainer) => {
 			setContainer(newContainer);
+			setAudioCodec(getDefaultAudioCodecForContainer(newContainer));
 			setOutName((prev) => {
 				const newFileName = getStringBeforeSuffix(prev) + '.' + newContainer;
 				return newFileName;
@@ -274,7 +304,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					const newFileName = getStringBeforeSuffix(prev) + '.' + container;
 					return newFileName;
 				});
-			} else {
+			} else if (newMode === 'still') {
 				setOutName((prev) => {
 					const newFileName = getStringBeforeSuffix(prev) + '.' + imageFormat;
 					return newFileName;
@@ -461,7 +491,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
 			mediaCacheSizeInBytes,
 			logLevel,
-			videoCodec: codec,
+			videoCodec: effectiveVideoCodec,
+			audioCodec: effectiveAudioCodec,
+			audioBitrate,
 			container,
 			videoBitrate,
 			hardwareAcceleration,
@@ -495,7 +527,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		delayRenderTimeout,
 		mediaCacheSizeInBytes,
 		logLevel,
-		codec,
+		effectiveVideoCodec,
+		effectiveAudioCodec,
+		audioBitrate,
 		container,
 		videoBitrate,
 		hardwareAcceleration,
@@ -623,8 +657,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							onFrameSetDirectly={onFrameSetDirectly}
 							container={container}
 							setContainerFormat={setContainerFormat}
-							codec={codec}
 							setCodec={setCodec}
+							encodableVideoCodecs={encodableVideoCodecs}
+							effectiveVideoCodec={effectiveVideoCodec}
 							startFrame={finalStartFrame}
 							setStartFrame={setStartFrame}
 							endFrame={finalEndFrame}
@@ -659,7 +694,17 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setTransparent={setTransparent}
 						/>
 					) : tab === 'audio' ? (
-						<WebRenderModalAudio muted={muted} setMuted={setMuted} />
+						<WebRenderModalAudio
+							muted={muted}
+							setMuted={setMuted}
+							audioCodec={audioCodec}
+							setAudioCodec={setAudioCodec}
+							audioBitrate={audioBitrate}
+							setAudioBitrate={setAudioBitrate}
+							container={container}
+							encodableCodecs={encodableAudioCodecs}
+							effectiveAudioCodec={effectiveAudioCodec}
+						/>
 					) : tab === 'advanced' ? (
 						<WebRenderModalAdvanced
 							renderMode={renderMode}

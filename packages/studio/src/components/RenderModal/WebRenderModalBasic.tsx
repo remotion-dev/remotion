@@ -32,8 +32,9 @@ type WebRenderModalBasicProps = {
 	readonly onFrameSetDirectly: (newFrame: number) => void;
 	readonly container: WebRendererContainer;
 	readonly setContainerFormat: (container: WebRendererContainer) => void;
-	readonly codec: WebRendererVideoCodec;
 	readonly setCodec: (codec: WebRendererVideoCodec) => void;
+	readonly encodableVideoCodecs: WebRendererVideoCodec[];
+	readonly effectiveVideoCodec: WebRendererVideoCodec;
 	readonly startFrame: number | null;
 	readonly setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	readonly endFrame: number | null;
@@ -59,8 +60,9 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 	onFrameSetDirectly,
 	container,
 	setContainerFormat,
-	codec,
 	setCodec,
+	encodableVideoCodecs,
+	effectiveVideoCodec,
 	startFrame,
 	setStartFrame,
 	endFrame,
@@ -139,65 +141,30 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 		];
 	}, [container, setContainerFormat]);
 
+	const codecLabels: Record<WebRendererVideoCodec, string> = useMemo(
+		() => ({
+			h264: 'H.264',
+			h265: 'H.265',
+			vp8: 'VP8',
+			vp9: 'VP9',
+			av1: 'AV1',
+		}),
+		[],
+	);
+
 	const codecOptions = useMemo((): ComboboxValue[] => {
-		return [
-			{
-				label: 'H.264',
-				onClick: () => setCodec('h264'),
-				leftItem: codec === 'h264' ? <Checkmark /> : null,
-				id: 'h264',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'h264',
-			},
-			{
-				label: 'H.265',
-				onClick: () => setCodec('h265'),
-				leftItem: codec === 'h265' ? <Checkmark /> : null,
-				id: 'h265',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'h265',
-			},
-			{
-				label: 'VP8',
-				onClick: () => setCodec('vp8'),
-				leftItem: codec === 'vp8' ? <Checkmark /> : null,
-				id: 'vp8',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'vp8',
-			},
-			{
-				label: 'VP9',
-				onClick: () => setCodec('vp9'),
-				leftItem: codec === 'vp9' ? <Checkmark /> : null,
-				id: 'vp9',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'vp9',
-			},
-			{
-				label: 'AV1',
-				onClick: () => setCodec('av1'),
-				leftItem: codec === 'av1' ? <Checkmark /> : null,
-				id: 'av1',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'av1',
-			},
-		];
-	}, [codec, setCodec]);
+		return encodableVideoCodecs.map((c) => ({
+			label: codecLabels[c],
+			onClick: () => setCodec(c),
+			leftItem: effectiveVideoCodec === c ? <Checkmark /> : null,
+			id: c,
+			keyHint: null,
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item' as const,
+			value: c,
+		}));
+	}, [encodableVideoCodecs, effectiveVideoCodec, setCodec, codecLabels]);
 
 	return (
 		<div style={tabContainer}>
@@ -252,7 +219,7 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 						<div style={rightRow}>
 							<Combobox
 								values={codecOptions}
-								selectedId={codec}
+								selectedId={effectiveVideoCodec}
 								title="Codec"
 							/>
 						</div>

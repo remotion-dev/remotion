@@ -1,4 +1,4 @@
-import type {Quality} from 'mediabunny';
+import type {AudioCodec, Quality} from 'mediabunny';
 import {
 	Mp4OutputFormat,
 	QUALITY_HIGH,
@@ -13,6 +13,7 @@ import {
 
 export type WebRendererVideoCodec = 'h264' | 'h265' | 'vp8' | 'vp9' | 'av1';
 export type WebRendererContainer = 'mp4' | 'webm';
+export type WebRendererAudioCodec = 'aac' | 'opus';
 export type WebRendererQuality =
 	| 'very-low'
 	| 'low'
@@ -93,4 +94,55 @@ export const getMimeType = (container: WebRendererContainer): string => {
 		default:
 			throw new Error(`Unsupported container: ${container satisfies never}`);
 	}
+};
+
+export const getDefaultAudioCodecForContainer = (
+	container: WebRendererContainer,
+): WebRendererAudioCodec => {
+	switch (container) {
+		case 'mp4':
+			return 'aac';
+		case 'webm':
+			return 'opus';
+		default:
+			throw new Error(`Unsupported container: ${container satisfies never}`);
+	}
+};
+
+const WEB_RENDERER_VIDEO_CODECS: WebRendererVideoCodec[] = [
+	'h264',
+	'h265',
+	'vp8',
+	'vp9',
+	'av1',
+];
+
+export const getSupportedVideoCodecsForContainer = (
+	container: WebRendererContainer,
+): WebRendererVideoCodec[] => {
+	const format = containerToMediabunnyContainer(container);
+	const allSupported = format.getSupportedVideoCodecs();
+
+	return WEB_RENDERER_VIDEO_CODECS.filter((codec) =>
+		allSupported.includes(codecToMediabunnyCodec(codec)),
+	);
+};
+
+const WEB_RENDERER_AUDIO_CODECS: WebRendererAudioCodec[] = ['aac', 'opus'];
+
+export const getSupportedAudioCodecsForContainer = (
+	container: WebRendererContainer,
+): WebRendererAudioCodec[] => {
+	const format = containerToMediabunnyContainer(container);
+	const allSupported = format.getSupportedAudioCodecs();
+
+	return WEB_RENDERER_AUDIO_CODECS.filter((codec) =>
+		allSupported.includes(codec),
+	);
+};
+
+export const audioCodecToMediabunnyAudioCodec = (
+	audioCodec: WebRendererAudioCodec,
+): AudioCodec => {
+	return audioCodec;
 };
