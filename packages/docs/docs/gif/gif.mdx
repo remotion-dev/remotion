@@ -112,6 +112,21 @@ Values:
 - `< 1`: Slows down the GIF speed (e.g., 0.5 plays it at half speed).
 - `> 1:` Speeds up the GIF speed (e.g., 2.0 plays it at double speed).
 
+### delayRenderTimeoutInMilliseconds<AvailableFrom v="4.0.403" />
+
+_optional_
+
+Modifies the timeout of the internal [`delayRender()`](/docs/delay-render) call when loading the GIF. By default, Remotion will wait 30 seconds for the GIF to load before timing out. You can increase or decrease this timeout by passing a custom value.
+
+See: [Modifying the timeout](/docs/delay-render#modifying-the-timeout)
+
+```tsx
+<Gif
+  src="https://example.com/large-gif.gif"
+  delayRenderTimeoutInMilliseconds={60000} // 60 seconds
+/>
+```
+
 ## Differences to `<AnimatedImage>`
 
 - `<Gif>` does not support animated AVIF and WebP images.
