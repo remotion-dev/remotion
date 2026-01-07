@@ -75,13 +75,13 @@ export const WebRenderModalLicenseKeyDetails: React.FC<
 					>
 						{details.projectName}
 					</a>
-					&nbsp;- View&nbsp;
+					&nbsp;-&nbsp;
 					<a
 						href={`${PRO_HOST}/projects/${details.projectSlug}/usage#client-renders-usage`}
 						target="_blank"
 						style={linkStyle}
 					>
-						usage
+						View usage
 					</a>
 				</div>
 			</div>
