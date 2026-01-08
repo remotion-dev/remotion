@@ -1,13 +1,12 @@
 import Head from '@docusaurus/Head';
 import {useLocation} from '@docusaurus/router';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import Layout from '@theme/Layout';
 import React from 'react';
 import {Button} from '../../components/layout/Button';
-import {Spacer} from '../../components/layout/Spacer';
-import {experts} from '../data/experts';
-
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {PALETTE} from '../../components/layout/colors';
+import {Spacer} from '../../components/layout/Spacer';
 import {BackButton} from './BackButton';
 import {Seo} from './Seo';
 
@@ -17,6 +16,7 @@ const layout: React.CSSProperties = {
 	paddingLeft: 16,
 	paddingRight: 16,
 	paddingTop: 30,
+	textAlign: 'left',
 };
 
 const header: React.CSSProperties = {
@@ -127,7 +127,7 @@ export default () => {
 				<div style={layout}>
 					<BackButton link="/experts" color="white" text="Back to Experts" />
 					<div style={headerRow}>
-						<img style={img} src={expert.image} />
+						<img alt={expert.name} style={img} src={expert.image} />
 						<h2 className="big-title-on-desktop" style={title}>
 							{expert.name}
 						</h2>
@@ -323,8 +323,9 @@ export default () => {
 						</svg>
 						<div style={{flex: 1}}>
 							Remotion Experts are independent freelancers with proven Remotion
-							expertise and portfolios. However, due diligence is recommended
-							before hiring.
+							expertise and portfolios. However,{' '}
+							<strong> perform due diligence </strong> before hiring. Remotion
+							does not arbitrate disputes between experts and clients.
 						</div>
 					</div>
 					<Spacer />

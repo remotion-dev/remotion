@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.402",
+	"version": "4.0.403",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -996,15 +996,6 @@
 			],
 			"Chilanka": [
 				"dist/cjs/Chilanka.d.ts"
-			],
-			"ChironGoRoundTC": [
-				"dist/cjs/ChironGoRoundTC.d.ts"
-			],
-			"ChironHeiHK": [
-				"dist/cjs/ChironHeiHK.d.ts"
-			],
-			"ChironSungHK": [
-				"dist/cjs/ChironSungHK.d.ts"
 			],
 			"Chivo": [
 				"dist/cjs/Chivo.d.ts"

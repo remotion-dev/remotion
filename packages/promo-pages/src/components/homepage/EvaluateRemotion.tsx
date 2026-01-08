@@ -2,31 +2,14 @@
 // with specified alignment and positioning requirements.
 
 import React, {useEffect, useState} from 'react';
+import {experts} from '../experts';
 import {BlueButton} from './layout/Button';
 
 const EvaluateRemotionSection: React.FC = () => {
 	const [dailyAvatars, setDailyAvatars] = useState<string[]>([]);
 
 	useEffect(() => {
-		const avatars = [
-			'/img/freelancers/alex.jpeg',
-			'/img/freelancers/antoine.jpeg',
-			'/img/freelancers/ayush.png',
-			'/img/freelancers/benjamin.jpeg',
-			'/img/freelancers/karel.jpeg',
-			'/img/freelancers/lorenzo.jpeg',
-			'/img/freelancers/mickael.jpeg',
-			'/img/freelancers/mohit.jpeg',
-			'/img/freelancers/pramod.jpg',
-			'/img/freelancers/pranav.jpg',
-			'/img/freelancers/rahul.png',
-			'/img/freelancers/ray.jpeg',
-			'/img/freelancers/stephen.png',
-			'/img/freelancers/umungo.png',
-			'/img/freelancers/yehor.jpeg',
-			'/img/freelancers/andrei.png',
-			// Add more avatar paths here
-		];
+		const avatars = experts.map((expert) => expert.image);
 
 		const selectedAvatars: string[] = [];
 		for (let i = 0; i < 3; i++) {
