@@ -110,22 +110,12 @@ export const processNode = async ({
 
 		let drawable: OffscreenCanvas | null = tempCanvas;
 
-		const {
-			rect: rect_,
-			transformedTopLeft,
-			transformedTopRight,
-			transformedBottomLeft,
-			transformedBottomRight,
-			rectWithoutPerspective,
-		} = transformDOMRect({
+		const {rect: rect_} = transformDOMRect({
 			rect: precomposeRect,
 			matrix: totalMatrix,
 		});
 
 		const rectAfterTransforms = roundToExpandRect(rect_);
-		const rectAfterTransformsWithoutPerspective = roundToExpandRect(
-			rectWithoutPerspective,
-		);
 
 		if (precompositing.needsMaskImage) {
 			handleMask({
@@ -139,15 +129,10 @@ export const processNode = async ({
 		if (precompositing.needs3DTransformViaWebGL) {
 			const t = handle3dTransform({
 				matrix: totalMatrix,
-				precomposeRect,
+				sourceRect: precomposeRect,
 				tempCanvas: drawable,
 				rectAfterTransforms,
 				internalState,
-				transformedTopLeft,
-				transformedTopRight,
-				transformedBottomLeft,
-				transformedBottomRight,
-				rectAfterTransformsWithoutPerspective,
 			});
 			if (t) {
 				drawable = t;

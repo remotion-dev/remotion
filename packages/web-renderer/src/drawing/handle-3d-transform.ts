@@ -30,38 +30,23 @@ export const getPrecomposeRectFor3DTransform = ({
 
 export const handle3dTransform = ({
 	matrix,
-	precomposeRect,
+	sourceRect,
 	tempCanvas,
 	rectAfterTransforms,
 	internalState,
-	transformedTopLeft,
-	transformedTopRight,
-	transformedBottomLeft,
-	transformedBottomRight,
-	rectAfterTransformsWithoutPerspective,
 }: {
 	matrix: DOMMatrix;
-	precomposeRect: DOMRect;
+	sourceRect: DOMRect;
 	tempCanvas: OffscreenCanvas;
 	rectAfterTransforms: DOMRect;
 	internalState: InternalState;
-	transformedTopLeft: DOMPointReadOnly;
-	transformedTopRight: DOMPointReadOnly;
-	transformedBottomLeft: DOMPointReadOnly;
-	transformedBottomRight: DOMPointReadOnly;
-	rectAfterTransformsWithoutPerspective: DOMRect;
 }) => {
 	const {canvas: transformed, rect: transformedRect} = transformIn3d({
-		untransformedRect: precomposeRect,
+		sourceRect,
 		matrix,
 		sourceCanvas: tempCanvas,
-		rectAfterTransforms,
+		destRect: rectAfterTransforms,
 		internalState,
-		transformedTopLeft,
-		transformedTopRight,
-		transformedBottomLeft,
-		transformedBottomRight,
-		rectAfterTransformsWithoutPerspective,
 	});
 
 	if (transformedRect.width <= 0 || transformedRect.height <= 0) {
