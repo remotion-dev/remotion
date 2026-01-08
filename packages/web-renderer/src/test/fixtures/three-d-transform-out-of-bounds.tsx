@@ -27,7 +27,6 @@ const Component: React.FC = () => {
 					width: 100,
 					height: 100,
 					backgroundColor: 'red',
-					// edge case, should not invert the DOMRect
 					transform: 'scaleX(-1) rotateY(10deg) rotateX(20deg)',
 				}}
 			/>
@@ -37,7 +36,6 @@ const Component: React.FC = () => {
 					width: 100,
 					height: 100,
 					backgroundColor: 'red',
-					// should not be rendered, because it is a 90 degree rotation
 					transform: 'rotateY(90deg)',
 				}}
 			/>

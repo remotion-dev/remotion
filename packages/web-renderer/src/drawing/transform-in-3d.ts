@@ -250,8 +250,5 @@ export const transformIn3d = ({
 	gl.disable(gl.BLEND);
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 
-	return {
-		canvas,
-		rect: destRect,
-	};
+	return canvas;
 };
