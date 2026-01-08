@@ -59,6 +59,8 @@ export const processNode = async ({
 	if (precompositing.needsPrecompositing) {
 		const elementsIn3dRenderingContext = [element];
 
+		const planes = [];
+
 		for (const e of elementsIn3dRenderingContext) {
 			const results = await precomposeAndDraw({
 				element: e,
@@ -70,21 +72,25 @@ export const processNode = async ({
 				rect,
 			});
 			if (results === null) {
-				return {type: 'continue', cleanupAfterChildren: null};
+				continue;
 			}
 
+			planes.push(results);
+		}
+
+		for (const plane of planes) {
 			const previousTransform = context.getTransform();
 			context.setTransform(new DOMMatrix());
 			context.drawImage(
-				results.drawable,
+				plane.drawable,
 				0,
-				results.drawable.height - results.rectAfterTransforms.height,
-				results.rectAfterTransforms.width,
-				results.rectAfterTransforms.height,
-				results.rectAfterTransforms.left - parentRect.x,
-				results.rectAfterTransforms.top - parentRect.y,
-				results.rectAfterTransforms.width,
-				results.rectAfterTransforms.height,
+				plane.drawable.height - plane.rectAfterTransforms.height,
+				plane.rectAfterTransforms.width,
+				plane.rectAfterTransforms.height,
+				plane.rectAfterTransforms.left - parentRect.x,
+				plane.rectAfterTransforms.top - parentRect.y,
+				plane.rectAfterTransforms.width,
+				plane.rectAfterTransforms.height,
 			);
 
 			context.setTransform(previousTransform);
