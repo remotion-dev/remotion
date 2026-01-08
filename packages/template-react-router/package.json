@@ -28,7 +28,7 @@
     "isbot": "4.1.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-router": "7.5.2",
+    "react-router": "7.12.0",
     "react-router-dom": "7.2.0",
     "remotion": "workspace:*",
     "tailwindcss": "4.0.0",
