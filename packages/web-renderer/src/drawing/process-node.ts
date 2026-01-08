@@ -5,13 +5,11 @@ import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
 import {doRectsIntersect} from './do-rects-intersect';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
-import {
-	getPrecomposeRectFor3DTransform,
-	handle3dTransform,
-} from './handle-3d-transform';
+import {getPrecomposeRectFor3DTransform} from './handle-3d-transform';
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
 import {precomposeDOMElement} from './precompose';
 import {roundToExpandRect} from './round-to-expand-rect';
+import {transformIn3d} from './transform-in-3d';
 import {transformDOMRect} from './transform-rect-with-matrix';
 
 export type ProcessNodeReturnValue =
@@ -42,6 +40,7 @@ export const processNode = async ({
 
 	const {opacity, computedStyle, totalMatrix, dimensions, precompositing} =
 		transforms;
+
 	if (opacity === 0) {
 		return {type: 'skip-children'};
 	}
@@ -109,7 +108,7 @@ export const processNode = async ({
 			internalState,
 		});
 
-		let drawable: OffscreenCanvas | null = tempCanvas;
+		let drawable: OffscreenCanvas = tempCanvas;
 
 		const rectAfterTransforms = roundToExpandRect(
 			transformDOMRect({
@@ -117,6 +116,10 @@ export const processNode = async ({
 				matrix: totalMatrix,
 			}),
 		);
+
+		if (rectAfterTransforms.width <= 0 || rectAfterTransforms.height <= 0) {
+			return {type: 'continue', cleanupAfterChildren: null};
+		}
 
 		if (precompositing.needsMaskImage) {
 			handleMask({
@@ -128,47 +131,42 @@ export const processNode = async ({
 		}
 
 		if (precompositing.needs3DTransformViaWebGL) {
-			const t = handle3dTransform({
+			drawable = transformIn3d({
 				matrix: totalMatrix,
 				sourceRect: precomposeRect,
-				tempCanvas: drawable,
-				rectAfterTransforms,
+				sourceCanvas: drawable,
+				destRect: rectAfterTransforms,
 				internalState,
 			});
-			if (t) {
-				drawable = t;
-			}
 		}
 
 		const previousTransform = context.getTransform();
-		if (drawable) {
-			context.setTransform(new DOMMatrix());
-			context.drawImage(
-				drawable,
-				0,
-				drawable.height - rectAfterTransforms.height,
-				rectAfterTransforms.width,
-				rectAfterTransforms.height,
-				rectAfterTransforms.left - parentRect.x,
-				rectAfterTransforms.top - parentRect.y,
-				rectAfterTransforms.width,
-				rectAfterTransforms.height,
-			);
+		context.setTransform(new DOMMatrix());
+		context.drawImage(
+			drawable,
+			0,
+			drawable.height - rectAfterTransforms.height,
+			rectAfterTransforms.width,
+			rectAfterTransforms.height,
+			rectAfterTransforms.left - parentRect.x,
+			rectAfterTransforms.top - parentRect.y,
+			rectAfterTransforms.width,
+			rectAfterTransforms.height,
+		);
 
-			context.setTransform(previousTransform);
+		context.setTransform(previousTransform);
 
-			Internals.Log.trace(
-				{
-					logLevel,
-					tag: '@remotion/web-renderer',
-				},
-				`Transforming element in 3D - canvas size: ${precomposeRect.width}x${precomposeRect.height} - compose: ${Date.now() - start}ms - helper canvas: ${drawable.width}x${drawable.height}`,
-			);
-			internalState.addPrecompose({
-				canvasWidth: precomposeRect.width,
-				canvasHeight: precomposeRect.height,
-			});
-		}
+		Internals.Log.trace(
+			{
+				logLevel,
+				tag: '@remotion/web-renderer',
+			},
+			`Transforming element in 3D - canvas size: ${precomposeRect.width}x${precomposeRect.height} - compose: ${Date.now() - start}ms - helper canvas: ${drawable.width}x${drawable.height}`,
+		);
+		internalState.addPrecompose({
+			canvasWidth: precomposeRect.width,
+			canvasHeight: precomposeRect.height,
+		});
 
 		return {type: 'skip-children'};
 	}
