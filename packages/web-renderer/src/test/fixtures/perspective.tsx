@@ -50,11 +50,12 @@ const Cube: React.FC<{readonly perspective: string}> = ({perspective}) => {
 				}}
 			>
 				<Face
-					backgroundColor="rgb(90 90 90 / 0.7)"
-					transform="translateZ(25px)"
+					backgroundColor="rgb(210 0 210 / 0.7)"
+					transform="rotateX(-90deg) translateZ(25px)"
 				>
-					1
+					6
 				</Face>
+
 				<Face
 					backgroundColor="rgb(0 210 0 / 0.7)"
 					transform="rotateY(180deg) translateZ(25px)"
@@ -80,10 +81,10 @@ const Cube: React.FC<{readonly perspective: string}> = ({perspective}) => {
 					5
 				</Face>
 				<Face
-					backgroundColor="rgb(210 0 210 / 0.7)"
-					transform="rotateX(-90deg) translateZ(25px)"
+					backgroundColor="rgb(90 90 90 / 0.7)"
+					transform="translateZ(25px)"
 				>
-					6
+					1
 				</Face>
 			</div>
 		</div>
