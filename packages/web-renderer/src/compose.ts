@@ -1,5 +1,6 @@
 import type {LogLevel} from 'remotion';
 import {drawDomElement} from './drawing/draw-dom-element';
+import type {ElementAndBounds} from './drawing/elements-and-bounds';
 import type {ProcessNodeReturnValue} from './drawing/process-node';
 import {processNode} from './drawing/process-node';
 import {handleTextNode} from './drawing/text/handle-text-node';
@@ -78,7 +79,7 @@ const getFilterFunction = (node: Node) => {
 };
 
 type ComposeReturnValue = {
-	elementsToBeRenderedIndependently: Element[];
+	elementsToBeRenderedIndependently: ElementAndBounds[];
 };
 
 export const compose = async ({
@@ -106,7 +107,7 @@ export const compose = async ({
 		getFilterFunction,
 	);
 
-	const elementsToBeRenderedIndependently: Element[] = [];
+	const elementsToBeRenderedIndependently: ElementAndBounds[] = [];
 
 	// Skip to the first text node
 	if (onlyBackgroundClip) {
@@ -148,7 +149,7 @@ export const compose = async ({
 				break;
 			}
 		} else if (val.type === 'is-plane-in-3d-rendering-context') {
-			elementsToBeRenderedIndependently.push(treeWalker.currentNode as Element);
+			elementsToBeRenderedIndependently.push(val.elementAndBounds);
 			if (!skipToNextNonDescendant(treeWalker)) {
 				break;
 			}

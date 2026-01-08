@@ -3,6 +3,7 @@ import type {InternalState} from '../internal-state';
 import type {Precompositing} from './calculate-transforms';
 import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
 import {doRectsIntersect} from './do-rects-intersect';
+import type {ElementAndBounds} from './elements-and-bounds';
 import {getPrecomposeRectFor3DTransform} from './handle-3d-transform';
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
 import {precomposeDOMElement} from './precompose';
@@ -31,7 +32,7 @@ export const precomposeAndDraw = async ({
 }) => {
 	const start = Date.now();
 
-	const elementsToBeRenderedIndependently: Element[] = [];
+	const elementsToBeRenderedIndependently: ElementAndBounds[] = [];
 
 	let precomposeRect: DOMRect | null = null;
 	if (precompositing.needsMaskImage) {

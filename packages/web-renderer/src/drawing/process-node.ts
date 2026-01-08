@@ -3,11 +3,15 @@ import type {InternalState} from '../internal-state';
 import {calculateTransforms} from './calculate-transforms';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
+import type {ElementAndBounds} from './elements-and-bounds';
 import {precomposeAndDraw} from './precompose-and-draw';
 
 export type ProcessNodeReturnValue =
 	| {type: 'continue'; cleanupAfterChildren: null | (() => void)}
-	| {type: 'is-plane-in-3d-rendering-context'}
+	| {
+			type: 'is-plane-in-3d-rendering-context';
+			elementAndBounds: ElementAndBounds;
+	  }
 	| {type: 'skip-children'};
 
 export const processNode = async ({
@@ -66,26 +70,37 @@ export const processNode = async ({
 	);
 
 	if (precompositing.needsPrecompositing) {
-		const elementsIn3dRenderingContext: Element[] = [element];
+		const elementsIn3dRenderingContext: ElementAndBounds[] = [
+			{
+				element,
+				bounds: rect,
+				transform: totalMatrix,
+			},
+		];
 
 		if (isIn3dRenderingContext) {
-			return {type: 'is-plane-in-3d-rendering-context'};
+			return {
+				type: 'is-plane-in-3d-rendering-context',
+				elementAndBounds: {
+					element,
+					bounds: rect,
+					transform: totalMatrix,
+				},
+			};
 		}
 
 		const planes = [];
 
 		while (elementsIn3dRenderingContext.length > 0) {
-			const el = elementsIn3dRenderingContext.shift()! as
-				| HTMLElement
-				| SVGElement;
+			const el = elementsIn3dRenderingContext.shift()!;
 			const results = await precomposeAndDraw({
-				element: el,
+				element: el.element as HTMLElement | SVGElement,
 				logLevel,
 				parentRect,
 				internalState,
 				precompositing,
-				totalMatrix,
-				rect,
+				totalMatrix: el.transform,
+				rect: el.bounds,
 				isIn3dRenderingContext: establishes3DRenderingContext,
 			});
 
