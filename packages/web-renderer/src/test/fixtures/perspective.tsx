@@ -27,6 +27,7 @@ const Face: React.FC<{
 	);
 };
 
+// TODO: z-indexing is out of scope for now
 const Cube: React.FC<{readonly perspective: string}> = ({perspective}) => {
 	return (
 		<div
