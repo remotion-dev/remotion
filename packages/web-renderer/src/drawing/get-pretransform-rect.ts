@@ -85,7 +85,7 @@ export function getPreTransformRect(
 		const inverted = invertProjectivePoint(corner.x, corner.y, matrix);
 		if (inverted === null) {
 			// Transform is degenerate at this point
-			return new DOMRect(0, 0, 0, 0);
+			return null;
 		}
 
 		invertedCorners.push(inverted);
