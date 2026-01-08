@@ -71,24 +71,17 @@ export const processNode = async ({
 	);
 
 	if (precompositing.needsPrecompositing) {
+		const elementAndBounds: ElementAndBounds = {
+			element,
+			bounds: rect,
+			transform: totalMatrix,
+			parentRect,
+		};
 		if (isIn3dRenderingContext) {
-			return {
-				type: 'is-plane-in-3d-rendering-context',
-				elementAndBounds: {
-					element,
-					bounds: rect,
-					transform: totalMatrix,
-				},
-			};
+			return {type: 'is-plane-in-3d-rendering-context', elementAndBounds};
 		}
 
-		const elementsIn3dRenderingContext: ElementAndBounds[] = [
-			{
-				element,
-				bounds: rect,
-				transform: totalMatrix,
-			},
-		];
+		const elementsIn3dRenderingContext: ElementAndBounds[] = [elementAndBounds];
 
 		const planes = [];
 
@@ -98,7 +91,7 @@ export const processNode = async ({
 			const results = await precomposeAndDraw({
 				element: el.element as HTMLElement | SVGElement,
 				logLevel,
-				parentRect,
+				parentRect: el.parentRect,
 				internalState,
 				// TODO: This should be element specific
 				precompositing,
