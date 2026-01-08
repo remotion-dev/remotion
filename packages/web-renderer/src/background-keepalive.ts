@@ -63,6 +63,26 @@ export function createBackgroundKeepalive({
 		}
 	};
 
+	worker.onerror = (event) => {
+		Internals.Log.error(
+			{logLevel, tag: '@remotion/web-renderer'},
+			'Background keepalive worker encountered an error and will be terminated.',
+			event,
+		);
+
+		const resolvers = pendingResolvers;
+		pendingResolvers = [];
+		for (const resolve of resolvers) {
+			resolve();
+		}
+
+		if (!disposed) {
+			disposed = true;
+			worker?.terminate();
+			worker = null;
+			URL.revokeObjectURL(workerUrl);
+		}
+	};
 	worker.postMessage({type: 'start', intervalMs});
 
 	return {
