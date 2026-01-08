@@ -152,6 +152,14 @@ There is no multithreading for client-side rendering.
 However, it is fundamentally more efficient because there is less interprocess communication.  
 In addition, in the headful browser, GPU is usually available, which brings performance benefits.
 
+## Background tabs
+
+When the browser tab running the render is moved to the background, browsers throttle `requestAnimationFrame` to conserve resources. This could cause rendering to pause or slow down significantly.
+
+Remotion automatically works around this by using a Web Worker timer as a fallback. When the tab is backgrounded and RAF is throttled, the Worker timer takes over to keep the render progressing.
+
+The Worker timer is less precise than `requestAnimationFrame`, so rendering in a background tab will be slower than in a foreground tab. For best performance, keep the tab visible during rendering.
+
 ## See also
 
 - [Overview](/docs/client-side-rendering)
