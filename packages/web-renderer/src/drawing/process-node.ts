@@ -110,12 +110,12 @@ export const processNode = async ({
 
 		let drawable: OffscreenCanvas | null = tempCanvas;
 
-		const {rect: rect_} = transformDOMRect({
-			rect: precomposeRect,
-			matrix: totalMatrix,
-		});
-
-		const rectAfterTransforms = roundToExpandRect(rect_);
+		const rectAfterTransforms = roundToExpandRect(
+			transformDOMRect({
+				rect: precomposeRect,
+				matrix: totalMatrix,
+			}),
+		);
 
 		if (precompositing.needsMaskImage) {
 			handleMask({
