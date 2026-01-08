@@ -22,12 +22,14 @@ export const calculateTransforms = ({
 }) => {
 	// Compute the cumulative transform by traversing parent nodes
 	let parent: HTMLElement | SVGElement | null = element;
-	const transforms: Transform[] = [];
+	const transforms: (Transform | null)[] = [];
 	const toReset: (() => void)[] = [];
 
 	let opacity = 1;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	let maskImageInfo: LinearGradientInfo | null = null;
+	let isPreserve3D = false;
+
 	while (parent) {
 		const computedStyle = getComputedStyle(parent);
 
@@ -50,6 +52,7 @@ export const calculateTransforms = ({
 			});
 		}
 
+		// TODO: If no transform, perspective does not get applied
 		if (hasAnyTransformCssValue(computedStyle) || parent === element) {
 			const toParse = hasTransformCssValue(computedStyle)
 				? computedStyle.transform
@@ -87,6 +90,7 @@ export const calculateTransforms = ({
 				computedStyle.perspective !== '' &&
 				computedStyle.perspective !== 'none'
 			) {
+				console.log(computedStyle.perspective);
 				transformToPush.perspective = new DOMMatrix(
 					`perspective(${computedStyle.perspective})`,
 				);
@@ -109,6 +113,12 @@ export const calculateTransforms = ({
 				parentRef!.style.rotate = rotate;
 				parentRef!.style.perspective = perspective;
 			});
+		} else {
+			transforms.push(null);
+		}
+
+		if (computedStyle.transformStyle === 'preserve-3d') {
+			isPreserve3D = true;
 		}
 
 		if (parent === rootElement) {
@@ -119,12 +129,17 @@ export const calculateTransforms = ({
 	}
 
 	for (const transform of transforms) {
+		if (!transform) {
+			continue;
+		}
+
 		transform.boundingClientRect = transform.element.getBoundingClientRect();
 		if (transform.perspective) {
 			const origin = getAbsoluteOrigin({
 				origin: transform.perspectiveOrigin,
 				boundingClientRect: transform.boundingClientRect!,
 			});
+			console.log(origin, transform.perspectiveOrigin, element);
 			const perspectiveMatrix = new DOMMatrix()
 				.translate(origin.x, origin.y)
 				.multiply(transform.perspective)
@@ -138,7 +153,12 @@ export const calculateTransforms = ({
 
 	for (let i = 0; i < reversedMatrixes.length; i++) {
 		const transform = reversedMatrixes[i];
-		const parentTransform = reversedMatrixes[i + 1];
+		if (!transform) {
+			continue;
+		}
+
+		const parentTransform = reversedMatrixes[i - 1];
+
 		for (const matrix of transform.matrices) {
 			const globalTransformOrigin = getAbsoluteOrigin({
 				origin: transform.transformOrigin,
@@ -162,11 +182,11 @@ export const calculateTransforms = ({
 		throw new Error('Element computed style not found');
 	}
 
-	const needs3DTransformViaWebGL = !totalMatrix.is2D;
+	const needs3DTransformViaWebGL = !totalMatrix.is2D && !isPreserve3D;
 	const needsMaskImage = maskImageInfo !== null;
 
 	return {
-		dimensions: transforms[0].boundingClientRect!,
+		dimensions: transforms[0]!.boundingClientRect!,
 		totalMatrix,
 		[Symbol.dispose]: () => {
 			for (const reset of toReset) {

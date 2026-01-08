@@ -27,7 +27,7 @@ const Face: React.FC<{
 	);
 };
 
-// TODO: z-indexing is out of scope for now
+// TODO: z-indexing is out of scope for
 const Cube: React.FC<{readonly perspective: string}> = ({perspective}) => {
 	return (
 		<div
@@ -51,17 +51,16 @@ const Cube: React.FC<{readonly perspective: string}> = ({perspective}) => {
 				}}
 			>
 				<Face
-					backgroundColor="rgb(210 0 210 / 0.7)"
-					transform="rotateX(-90deg) translateZ(25px)"
-				>
-					6
-				</Face>
-
-				<Face
 					backgroundColor="rgb(0 210 0 / 0.7)"
 					transform="rotateY(180deg) translateZ(25px)"
 				>
 					2
+				</Face>
+				<Face
+					backgroundColor="rgb(210 0 210 / 0.7)"
+					transform="rotateX(-90deg) translateZ(25px)"
+				>
+					6
 				</Face>
 				<Face
 					backgroundColor="rgb(210 0 0 / 0.7)"
@@ -100,8 +99,8 @@ const PerspectiveVariants: React.FC = () => {
 				flexWrap: 'wrap',
 			}}
 		>
-			<Cube perspective="none" />
 			<Cube perspective="800px" />
+			<Cube perspective="none" />
 			<Cube perspective="23rem" />
 			<Cube perspective="5.5cm" />
 		</AbsoluteFill>
