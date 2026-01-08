@@ -9,8 +9,8 @@ export const SAFE_WINDOW_OF_MONOTONICITY = 0.2;
 export const keyframeManager = makeKeyframeManager();
 export const audioManager = makeAudioManager();
 
-export const getTotalCacheStats = async () => {
-	const keyframeManagerCacheStats = await keyframeManager.getCacheStats();
+export const getTotalCacheStats = () => {
+	const keyframeManagerCacheStats = keyframeManager.getCacheStats();
 	const audioManagerCacheStats = audioManager.getCacheStats();
 
 	return {
