@@ -1,4 +1,3 @@
-import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
 import {getMaskImageValue, parseMaskImage} from './mask-image';
 import type {LinearGradientInfo} from './parse-linear-gradient';
 import {getAbsoluteOrigin} from './transform-perspective-origin';
@@ -14,132 +13,132 @@ type Transform = {
 };
 
 export const calculateTransforms = ({
-	element,
+	element: elToRender,
 	rootElement,
 }: {
 	element: HTMLElement | SVGElement;
 	rootElement: HTMLElement | SVGElement;
 }) => {
 	// Compute the cumulative transform by traversing parent nodes
-	let parent: HTMLElement | SVGElement | null = element;
-	const transforms: (Transform | null)[] = [];
+	let currentEl: HTMLElement | SVGElement | null = elToRender;
+	const transforms: Transform[] = [];
 	const toReset: (() => void)[] = [];
 
 	let opacity = 1;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	let maskImageInfo: LinearGradientInfo | null = null;
-	let isPreserve3D = false;
+	let establishes3DRenderingContext = false;
 
-	while (parent) {
-		const computedStyle = getComputedStyle(parent);
+	while (currentEl) {
+		const computedStyle = getComputedStyle(currentEl);
 
-		if (parent === element) {
+		if (currentEl === elToRender) {
 			elementComputedStyle = computedStyle;
 			opacity = parseFloat(computedStyle.opacity);
+			establishes3DRenderingContext =
+				computedStyle.transformStyle === 'preserve-3d';
 			const maskImageValue = getMaskImageValue(computedStyle);
-			maskImageInfo = maskImageValue ? parseMaskImage(maskImageValue) : null;
 
-			const originalMaskImage = parent.style.maskImage;
-			const originalWebkitMaskImage = parent.style.webkitMaskImage;
-			parent.style.maskImage = 'none';
-			parent.style.webkitMaskImage = 'none';
+			if (maskImageValue) {
+				maskImageInfo = parseMaskImage(maskImageValue);
 
-			const parentRef = parent;
+				const originalMaskImage = currentEl.style.maskImage;
+				const originalWebkitMaskImage = currentEl.style.webkitMaskImage;
+				currentEl.style.maskImage = 'none';
+				currentEl.style.webkitMaskImage = 'none';
 
+				const parentRef = currentEl;
+
+				toReset.push(() => {
+					parentRef!.style.maskImage = originalMaskImage;
+					parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
+				});
+			}
+		}
+
+		const transformToPush: Transform = {
+			element: currentEl,
+			transformOrigin: computedStyle.transformOrigin,
+			boundingClientRect: null,
+			matrices: [],
+			perspectiveOrigin: computedStyle.perspectiveOrigin,
+			perspective: null,
+			perspectiveMatrix: null,
+		};
+
+		transforms.push(transformToPush);
+
+		if (
+			computedStyle.perspective !== '' &&
+			computedStyle.perspective !== 'none'
+		) {
+			transformToPush.perspective = new DOMMatrix(
+				`perspective(${computedStyle.perspective})`,
+			);
+			transformToPush.perspectiveOrigin = computedStyle.perspectiveOrigin;
+
+			const originalPerspective = currentEl.style.perspective;
+			currentEl.style.perspective = 'none';
+			const parentRef = currentEl;
 			toReset.push(() => {
-				parentRef!.style.maskImage = originalMaskImage;
-				parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
+				parentRef!.style.perspective = originalPerspective;
 			});
 		}
 
-		// TODO: If no transform, perspective does not get applied
-		if (hasAnyTransformCssValue(computedStyle) || parent === element) {
-			const toParse = hasTransformCssValue(computedStyle)
-				? computedStyle.transform
-				: undefined;
-			const matrix = new DOMMatrix(toParse);
-
-			const additionalMatrices: DOMMatrix[] = [];
-
-			const transformToPush: Transform = {
-				element: parent,
-				transformOrigin: computedStyle.transformOrigin,
-				boundingClientRect: null,
-				matrices: additionalMatrices,
-				perspectiveOrigin: computedStyle.perspectiveOrigin,
-				perspective: null,
-				perspectiveMatrix: null,
-			};
-
-			const {transform, scale, rotate, perspective} = parent.style;
-
-			// The order of transformations is:
-			// 1. Translate --> We do not have to consider it since it changes getClientBoundingRect()
-			// 2. Rotate
-			// 3. Scale
-			// 4. CSS "transform"
-			if (rotate !== '' && rotate !== 'none') {
-				additionalMatrices.push(new DOMMatrix(`rotate(${rotate})`));
-			}
-
-			if (scale !== '' && scale !== 'none') {
-				additionalMatrices.push(new DOMMatrix(`scale(${scale})`));
-			}
-
-			if (
-				computedStyle.perspective !== '' &&
-				computedStyle.perspective !== 'none'
-			) {
-				console.log(computedStyle.perspective);
-				transformToPush.perspective = new DOMMatrix(
-					`perspective(${computedStyle.perspective})`,
-				);
-
-				transformToPush.perspectiveOrigin = computedStyle.perspectiveOrigin;
-			}
-
-			additionalMatrices.push(matrix);
-
-			parent.style.transform = 'none';
-			parent.style.scale = 'none';
-			parent.style.rotate = 'none';
-			parent.style.perspective = 'none';
-
-			transforms.push(transformToPush);
-			const parentRef = parent;
+		// The order of transformations is:
+		// 1. Translate --> We do not have to consider it since it changes getClientBoundingRect()
+		// 2. Rotate
+		// 3. Scale
+		// 4. CSS "transform"
+		if (computedStyle.rotate !== '' && computedStyle.rotate !== 'none') {
+			transformToPush.matrices.push(
+				new DOMMatrix(`rotate(${computedStyle.rotate})`),
+			);
+			const originalRotate = currentEl.style.rotate;
+			currentEl.style.rotate = 'none';
+			const parentRef = currentEl;
 			toReset.push(() => {
-				parentRef!.style.transform = transform;
-				parentRef!.style.scale = scale;
-				parentRef!.style.rotate = rotate;
-				parentRef!.style.perspective = perspective;
+				parentRef!.style.rotate = originalRotate;
 			});
-		} else {
-			transforms.push(null);
 		}
 
-		if (computedStyle.transformStyle === 'preserve-3d') {
-			isPreserve3D = true;
+		if (computedStyle.scale !== '' && computedStyle.scale !== 'none') {
+			transformToPush.matrices.push(
+				new DOMMatrix(`scale(${computedStyle.scale})`),
+			);
+			const originalScale = currentEl.style.scale;
+			currentEl.style.scale = 'none';
+			const parentRef = currentEl;
+			toReset.push(() => {
+				parentRef!.style.scale = originalScale;
+			});
 		}
 
-		if (parent === rootElement) {
+		if (computedStyle.transform !== '' && computedStyle.transform !== 'none') {
+			transformToPush.matrices.push(new DOMMatrix(computedStyle.transform));
+			const originalTransform = currentEl.style.transform;
+			currentEl.style.transform = 'none';
+			const parentRef = currentEl;
+			toReset.push(() => {
+				parentRef!.style.transform = originalTransform;
+			});
+		}
+
+		if (currentEl === rootElement) {
 			break;
 		}
 
-		parent = parent.parentElement;
+		currentEl = currentEl.parentElement;
 	}
 
 	for (const transform of transforms) {
-		if (!transform) {
-			continue;
-		}
-
 		transform.boundingClientRect = transform.element.getBoundingClientRect();
+
 		if (transform.perspective) {
 			const origin = getAbsoluteOrigin({
 				origin: transform.perspectiveOrigin,
 				boundingClientRect: transform.boundingClientRect!,
 			});
-			console.log(origin, transform.perspectiveOrigin, element);
 			const perspectiveMatrix = new DOMMatrix()
 				.translate(origin.x, origin.y)
 				.multiply(transform.perspective)
@@ -173,7 +172,7 @@ export const calculateTransforms = ({
 			totalMatrix.multiplySelf(transformMatrix);
 		}
 
-		if (parentTransform && parentTransform.perspectiveMatrix) {
+		if (parentTransform && parentTransform.perspective) {
 			totalMatrix.multiplySelf(parentTransform.perspectiveMatrix!);
 		}
 	}
@@ -182,7 +181,7 @@ export const calculateTransforms = ({
 		throw new Error('Element computed style not found');
 	}
 
-	const needs3DTransformViaWebGL = !totalMatrix.is2D && !isPreserve3D;
+	const needs3DTransformViaWebGL = !totalMatrix.is2D;
 	const needsMaskImage = maskImageInfo !== null;
 
 	return {
@@ -196,6 +195,7 @@ export const calculateTransforms = ({
 		computedStyle: elementComputedStyle,
 		opacity,
 		maskImageInfo,
+		establishes3DRenderingContext,
 		precompositing: {
 			needs3DTransformViaWebGL,
 			needsMaskImage: maskImageInfo,
