@@ -20,6 +20,10 @@ export const getPrecomposeRectFor3DTransform = ({
 		parentRect,
 		matrix,
 	);
+	if (!biggestPossiblePretransformRect) {
+		return null;
+	}
+
 	const preTransformRect = getNarrowerRect({
 		firstRect: unclampedBiggestBoundingClientRect,
 		secondRect: biggestPossiblePretransformRect,
@@ -30,28 +34,28 @@ export const getPrecomposeRectFor3DTransform = ({
 
 export const handle3dTransform = ({
 	matrix,
-	precomposeRect,
+	sourceRect,
 	tempCanvas,
 	rectAfterTransforms,
 	internalState,
 }: {
 	matrix: DOMMatrix;
-	precomposeRect: DOMRect;
+	sourceRect: DOMRect;
 	tempCanvas: OffscreenCanvas;
 	rectAfterTransforms: DOMRect;
 	internalState: InternalState;
 }) => {
-	const {canvas: transformed, rect: transformedRect} = transformIn3d({
-		untransformedRect: precomposeRect,
-		matrix,
-		sourceCanvas: tempCanvas,
-		rectAfterTransforms,
-		internalState,
-	});
-
-	if (transformedRect.width <= 0 || transformedRect.height <= 0) {
+	if (rectAfterTransforms.width <= 0 || rectAfterTransforms.height <= 0) {
 		return null;
 	}
+
+	const transformed = transformIn3d({
+		sourceRect,
+		matrix,
+		sourceCanvas: tempCanvas,
+		destRect: rectAfterTransforms,
+		internalState,
+	});
 
 	return transformed;
 };

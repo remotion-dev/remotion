@@ -6,7 +6,8 @@ type HelperCanvas = {
 		aPosition: number;
 		aTexCoord: number;
 		uTransform: WebGLUniformLocation | null;
-		uProjection: WebGLUniformLocation | null;
+		uResolution: WebGLUniformLocation | null;
+		uOffset: WebGLUniformLocation | null;
 		uTexture: WebGLUniformLocation | null;
 	};
 	cleanup: () => void;

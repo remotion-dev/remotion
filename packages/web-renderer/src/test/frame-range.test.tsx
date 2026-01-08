@@ -54,6 +54,7 @@ test('should render with valid frame range', async (t) => {
 		},
 		inputProps: {},
 		frameRange: [10, 15],
+		licenseKey: 'free-license',
 	});
 	expect(finalProgress).toEqual({
 		renderedFrames: 6,
