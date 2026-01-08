@@ -5,6 +5,7 @@ import type {AnyZodObject, z} from 'zod';
 import {addAudioSample, addVideoSampleAndCloseFrame} from './add-sample';
 import {handleArtifacts, type WebRendererOnArtifact} from './artifact';
 import {onlyInlineAudio} from './audio';
+import {createBackgroundKeepalive} from './background-keepalive';
 import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createAudioSampleSource} from './create-audio-sample-source';
 import {createScaffold} from './create-scaffold';
@@ -259,6 +260,11 @@ const internalRenderMediaOnWeb = async <
 
 	using internalState = makeInternalState();
 
+	using keepalive = createBackgroundKeepalive({
+		fps: resolved.fps,
+		logLevel,
+	});
+
 	const artifactsHandler = handleArtifacts();
 
 	const webFsTarget =
@@ -284,6 +290,7 @@ const internalRenderMediaOnWeb = async <
 			signal,
 			apiName: 'renderMediaOnWeb',
 			internalState,
+			keepalive,
 		});
 
 		if (signal?.aborted) {
@@ -343,6 +350,7 @@ const internalRenderMediaOnWeb = async <
 				scope: delayRenderScope,
 				signal,
 				apiName: 'renderMediaOnWeb',
+				keepalive,
 				internalState,
 			});
 

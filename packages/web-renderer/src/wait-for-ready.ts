@@ -1,4 +1,5 @@
-import type {DelayRenderScope} from 'remotion';
+/* eslint-disable @typescript-eslint/no-use-before-define */ import type {DelayRenderScope} from 'remotion';
+import type {BackgroundKeepalive} from './background-keepalive';
 import type {InternalState} from './internal-state';
 import {withResolvers} from './with-resolvers';
 
@@ -8,12 +9,14 @@ export const waitForReady = ({
 	signal,
 	apiName,
 	internalState,
+	keepalive,
 }: {
 	timeoutInMilliseconds: number;
 	scope: DelayRenderScope;
 	signal: AbortSignal | null;
 	apiName: 'renderMediaOnWeb' | 'renderStillOnWeb';
 	internalState: InternalState | null;
+	keepalive: BackgroundKeepalive | null;
 }) => {
 	const start = performance.now();
 	const {promise, resolve, reject} = withResolvers<void>();
@@ -58,10 +61,25 @@ export const waitForReady = ({
 			return;
 		}
 
-		requestAnimationFrame(check);
+		scheduleNextCheck();
 	};
 
-	requestAnimationFrame(check);
+	// schedule both raf and worker timer - whichever fires first wins.
+	// when tab is visible, raf fires first. when backgrounded, worker wins.
+	const scheduleNextCheck = () => {
+		const rafTick = new Promise<void>((res) => {
+			requestAnimationFrame(() => res());
+		});
+
+		// browsers throttle RAF when tab is backgrounded, so race against worker
+		const backgroundSafeTick = keepalive
+			? Promise.race([rafTick, keepalive.waitForTick()])
+			: rafTick;
+
+		backgroundSafeTick.then(check);
+	};
+
+	scheduleNextCheck();
 
 	return promise;
 };
