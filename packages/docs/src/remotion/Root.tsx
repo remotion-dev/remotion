@@ -2,7 +2,7 @@ import {CreateVideoInternals} from 'create-video';
 import React from 'react';
 import {Folder, Still} from 'remotion';
 import {articles} from '../data/articles';
-import {experts} from '../data/experts';
+import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
 import {Expert} from './Expert';

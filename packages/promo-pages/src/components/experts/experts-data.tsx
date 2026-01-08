@@ -528,7 +528,7 @@ export const experts: Expert[] = [
 		linkedin: 'in/amirtadrisi/',
 		email: 'amir@cubite.io',
 		videocall: null,
-		since: new Date('2024-11-01').getTime(),
+		since: new Date('2025-01-01').getTime(),
 		description: (
 			<div>
 				<p>
