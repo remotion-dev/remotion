@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */ import type {DelayRenderScope} from 'remotion';
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import type {DelayRenderScope} from 'remotion';
 import type {BackgroundKeepalive} from './background-keepalive';
 import type {InternalState} from './internal-state';
 import {withResolvers} from './with-resolvers';
