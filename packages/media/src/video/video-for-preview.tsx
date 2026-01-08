@@ -18,7 +18,11 @@ import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
-import type {FallbackOffthreadVideoProps} from './props';
+import type {
+	FallbackOffthreadVideoProps,
+	MediaErrorAction,
+	MediaErrorEvent,
+} from './props';
 
 const {
 	useUnsafeVideoConfig,
@@ -55,6 +59,9 @@ type VideoForPreviewProps = {
 	readonly audioStreamIndex: number;
 	readonly debugOverlay: boolean;
 	readonly headless: boolean;
+	readonly onError:
+		| ((event: MediaErrorEvent) => MediaErrorAction)
+		| undefined;
 };
 
 const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
@@ -78,6 +85,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	audioStreamIndex,
 	debugOverlay,
 	headless,
+	onError,
 }) => {
 	const src = usePreload(unpreloadedSrc);
 
@@ -204,63 +212,64 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 						return;
 					}
 
-					if (result.type === 'unknown-container-format') {
-						if (disallowFallbackToOffthreadVideo) {
-							throw new Error(
-								`Unknown container format ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
+					const handleError = (error: Error, fallbackMessage: string) => {
+						if (onError) {
+							const action = onError({error});
+							if (action === 'fail') {
+								throw error;
+							}
+
+							// action === 'fallback'
+							Internals.Log.warn(
+								{logLevel, tag: '@remotion/media'},
+								fallbackMessage,
 							);
+							setShouldFallbackToNativeVideo(true);
+							return;
+						}
+
+						if (disallowFallbackToOffthreadVideo) {
+							throw error;
 						}
 
 						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
-							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <OffthreadVideo>`,
+							fallbackMessage,
 						);
 						setShouldFallbackToNativeVideo(true);
+					};
+
+					if (result.type === 'unknown-container-format') {
+						handleError(
+							new Error(`Unknown container format ${preloadedSrc}.`),
+							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <OffthreadVideo>`,
+						);
 						return;
 					}
 
 					if (result.type === 'network-error') {
-						if (disallowFallbackToOffthreadVideo) {
-							throw new Error(
-								`Network error fetching ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
-							);
-						}
-
-						Internals.Log.warn(
-							{logLevel, tag: '@remotion/media'},
+						handleError(
+							new Error(`Network error fetching ${preloadedSrc}.`),
 							`Network error fetching ${preloadedSrc}, falling back to <OffthreadVideo>`,
 						);
-						setShouldFallbackToNativeVideo(true);
 						return;
 					}
 
 					if (result.type === 'cannot-decode') {
-						if (disallowFallbackToOffthreadVideo) {
-							throw new Error(
-								`Cannot decode ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
-							);
-						}
-
-						Internals.Log.warn(
-							{logLevel, tag: '@remotion/media'},
+						handleError(
+							new Error(`Cannot decode ${preloadedSrc}.`),
 							`Cannot decode ${preloadedSrc}, falling back to <OffthreadVideo>`,
 						);
-						setShouldFallbackToNativeVideo(true);
 						return;
 					}
 
 					if (result.type === 'no-tracks') {
-						if (disallowFallbackToOffthreadVideo) {
-							throw new Error(
-								`No video or audio tracks found for ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
-							);
-						}
-
-						Internals.Log.warn(
-							{logLevel, tag: '@remotion/media'},
+						handleError(
+							new Error(
+								`No video or audio tracks found for ${preloadedSrc}.`,
+							),
 							`No video or audio tracks found for ${preloadedSrc}, falling back to <OffthreadVideo>`,
 						);
-						setShouldFallbackToNativeVideo(true);
 						return;
 					}
 
@@ -270,6 +279,13 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 					}
 				})
 				.catch((error) => {
+					if (onError) {
+						const action = onError({error});
+						if (action === 'fail') {
+							throw error;
+						}
+					}
+
 					Internals.Log.error(
 						{logLevel, tag: '@remotion/media'},
 						'[VideoForPreview] Failed to initialize MediaPlayer',
@@ -278,6 +294,13 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 					setShouldFallbackToNativeVideo(true);
 				});
 		} catch (error) {
+			if (onError) {
+				const action = onError({error: error as Error});
+				if (action === 'fail') {
+					throw error;
+				}
+			}
+
 			Internals.Log.error(
 				{logLevel, tag: '@remotion/media'},
 				'[VideoForPreview] MediaPlayer initialization failed',
@@ -309,6 +332,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 		preloadedSrc,
 		sharedAudioContext,
 		videoConfig.fps,
+		onError,
 	]);
 
 	const classNameValue = useMemo(() => {

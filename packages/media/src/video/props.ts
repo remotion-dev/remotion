@@ -5,6 +5,12 @@ import type {
 	VolumeProp,
 } from 'remotion';
 
+export type MediaErrorAction = 'fallback' | 'fail';
+
+export type MediaErrorEvent = {
+	error: Error;
+};
+
 export type FallbackOffthreadVideoProps = {
 	acceptableTimeShiftInSeconds?: number;
 	transparent?: boolean;
@@ -48,6 +54,7 @@ type OptionalVideoProps = {
 	showInTimeline: boolean;
 	debugOverlay: boolean;
 	headless: boolean;
+	onError: ((event: MediaErrorEvent) => MediaErrorAction) | undefined;
 };
 
 export type InnerVideoProps = MandatoryVideoProps &

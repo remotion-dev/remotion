@@ -25,7 +25,11 @@ import {applyVolume} from '../convert-audiodata/apply-volume';
 import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
-import type {FallbackOffthreadVideoProps} from './props';
+import type {
+	FallbackOffthreadVideoProps,
+	MediaErrorAction,
+	MediaErrorEvent,
+} from './props';
 
 type InnerVideoProps = {
 	readonly className: string | undefined;
@@ -49,6 +53,9 @@ type InnerVideoProps = {
 	readonly trimBeforeValue: number | undefined;
 	readonly trimAfterValue: number | undefined;
 	readonly headless: boolean;
+	readonly onError:
+		| ((event: MediaErrorEvent) => MediaErrorAction)
+		| undefined;
 };
 
 type FallbackToOffthreadVideo = {
@@ -77,6 +84,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	trimAfterValue,
 	trimBeforeValue,
 	headless,
+	onError,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -180,123 +188,96 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			maxCacheSize,
 		})
 			.then((result) => {
-				if (result.type === 'unknown-container-format') {
+				const handleError = (
+					error: Error,
+					clientSideError: Error,
+					fallbackMessage: string,
+					durationInSeconds: number | null,
+				) => {
 					if (environment.isClientSideRendering) {
-						cancelRender(
-							new Error(
-								`Cannot render video "${src}": Unknown container format. See supported formats: https://www.remotion.dev/docs/mediabunny/formats`,
-							),
-						);
+						cancelRender(clientSideError);
+						return;
+					}
+
+					if (onError) {
+						const action = onError({error});
+						if (action === 'fail') {
+							cancelRender(error);
+							return;
+						}
+
+						// action === 'fallback'
+						if (window.remotion_isMainTab) {
+							Internals.Log.warn(
+								{logLevel, tag: '@remotion/media'},
+								fallbackMessage,
+							);
+						}
+
+						setReplaceWithOffthreadVideo({durationInSeconds});
 						return;
 					}
 
 					if (disallowFallbackToOffthreadVideo) {
-						cancelRender(
-							new Error(
-								`Unknown container format ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,
-							),
-						);
+						cancelRender(error);
+						return;
 					}
 
 					if (window.remotion_isMainTab) {
-						Internals.Log.info(
+						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
-							`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <OffthreadVideo>`,
+							fallbackMessage,
 						);
 					}
 
-					setReplaceWithOffthreadVideo({durationInSeconds: null});
+					setReplaceWithOffthreadVideo({durationInSeconds});
+				};
+
+				if (result.type === 'unknown-container-format') {
+					handleError(
+						new Error(`Unknown container format ${src}.`),
+						new Error(
+							`Cannot render video "${src}": Unknown container format. See supported formats: https://www.remotion.dev/docs/mediabunny/formats`,
+						),
+						`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <OffthreadVideo>`,
+						null,
+					);
 					return;
 				}
 
 				if (result.type === 'cannot-decode') {
-					if (environment.isClientSideRendering) {
-						cancelRender(
-							new Error(
-								`Cannot render video "${src}": The video could not be decoded by the browser.`,
-							),
-						);
-						return;
-					}
-
-					if (disallowFallbackToOffthreadVideo) {
-						cancelRender(
-							new Error(
-								`Cannot decode ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,
-							),
-						);
-					}
-
-					if (window.remotion_isMainTab) {
-						Internals.Log.warn(
-							{logLevel, tag: '@remotion/media'},
-							`Cannot decode ${src}, falling back to <OffthreadVideo>`,
-						);
-					}
-
-					setReplaceWithOffthreadVideo({
-						durationInSeconds: result.durationInSeconds,
-					});
+					handleError(
+						new Error(`Cannot decode ${src}.`),
+						new Error(
+							`Cannot render video "${src}": The video could not be decoded by the browser.`,
+						),
+						`Cannot decode ${src}, falling back to <OffthreadVideo>`,
+						result.durationInSeconds,
+					);
 					return;
 				}
 
 				if (result.type === 'cannot-decode-alpha') {
-					if (environment.isClientSideRendering) {
-						cancelRender(
-							new Error(
-								`Cannot render video "${src}": The alpha channel could not be decoded by the browser.`,
-							),
-						);
-						return;
-					}
-
-					if (disallowFallbackToOffthreadVideo) {
-						cancelRender(
-							new Error(
-								`Cannot decode alpha component for ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,
-							),
-						);
-					}
-
-					if (window.remotion_isMainTab) {
-						Internals.Log.info(
-							{logLevel, tag: '@remotion/media'},
-							`Cannot decode alpha component for ${src}, falling back to <OffthreadVideo>`,
-						);
-					}
-
-					setReplaceWithOffthreadVideo({
-						durationInSeconds: result.durationInSeconds,
-					});
+					handleError(
+						new Error(`Cannot decode alpha component for ${src}.`),
+						new Error(
+							`Cannot render video "${src}": The alpha channel could not be decoded by the browser.`,
+						),
+						`Cannot decode alpha component for ${src}, falling back to <OffthreadVideo>`,
+						result.durationInSeconds,
+					);
 					return;
 				}
 
 				if (result.type === 'network-error') {
-					if (environment.isClientSideRendering) {
-						cancelRender(
-							new Error(
-								`Cannot render video "${src}": Network error while fetching the video (possibly CORS).`,
-							),
-						);
-						return;
-					}
-
-					if (disallowFallbackToOffthreadVideo) {
-						cancelRender(
-							new Error(
-								`Cannot decode ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,
-							),
-						);
-					}
-
-					if (window.remotion_isMainTab) {
-						Internals.Log.warn(
-							{logLevel, tag: '@remotion/media'},
-							`Network error fetching ${src} (no CORS?), falling back to <OffthreadVideo>`,
-						);
-					}
-
-					setReplaceWithOffthreadVideo({durationInSeconds: null});
+					handleError(
+						new Error(`Network error fetching ${src}.`),
+						new Error(
+							`Cannot render video "${src}": Network error while fetching the video (possibly CORS).`,
+						),
+						`Network error fetching ${src} (no CORS?), falling back to <OffthreadVideo>`,
+						null,
+					);
 					return;
 				}
 
@@ -411,6 +392,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		maxCacheSize,
 		cancelRender,
 		headless,
+		onError,
 	]);
 
 	const classNameValue = useMemo(() => {
