@@ -83,9 +83,7 @@ export const makeKeyframeManager = () => {
 		return {mostInThePastBank, numberOfBanks};
 	};
 
-	const deleteOldestKeyframeBank = async (
-		logLevel: LogLevel,
-	): Promise<{finish: boolean}> => {
+	const deleteOldestKeyframeBank = (logLevel: LogLevel): {finish: boolean} => {
 		const {
 			mostInThePastBank: {
 				bank: mostInThePastBank,
@@ -93,7 +91,7 @@ export const makeKeyframeManager = () => {
 				index: mostInThePastIndex,
 			},
 			numberOfBanks,
-		} = await getTheKeyframeBankMostInThePast();
+		} = getTheKeyframeBankMostInThePast();
 
 		if (numberOfBanks < 2) {
 			return {finish: true};
@@ -105,7 +103,7 @@ export const makeKeyframeManager = () => {
 				logLevel,
 				'deleted oldest keyframe bank to stay under max cache size',
 			);
-			delete sources[mostInThePastSrc][mostInThePastIndex];
+			sources[mostInThePastSrc].splice(mostInThePastIndex, 1);
 			if (range) {
 				Internals.Log.verbose(
 					{logLevel, tag: '@remotion/media'},
@@ -117,16 +115,16 @@ export const makeKeyframeManager = () => {
 		return {finish: false};
 	};
 
-	const ensureToStayUnderMaxCacheSize = async (
+	const ensureToStayUnderMaxCacheSize = (
 		logLevel: LogLevel,
 		maxCacheSize: number,
 	) => {
-		let cacheStats = await getTotalCacheStats();
+		let cacheStats = getTotalCacheStats();
 		let attempts = 0;
 		const maxAttempts = 3;
 
 		while (cacheStats.totalSize > maxCacheSize && attempts < maxAttempts) {
-			const {finish} = await deleteOldestKeyframeBank(logLevel);
+			const {finish} = deleteOldestKeyframeBank(logLevel);
 			if (finish) {
 				break;
 			}
@@ -139,7 +137,7 @@ export const makeKeyframeManager = () => {
 				(maxCacheSize / 1024 / 1024).toFixed(1),
 			);
 
-			cacheStats = await getTotalCacheStats();
+			cacheStats = getTotalCacheStats();
 			attempts++;
 		}
 
@@ -279,7 +277,7 @@ export const makeKeyframeManager = () => {
 		logLevel: LogLevel;
 		maxCacheSize: number;
 	}) => {
-		await ensureToStayUnderMaxCacheSize(logLevel, maxCacheSize);
+		ensureToStayUnderMaxCacheSize(logLevel, maxCacheSize);
 
 		clearKeyframeBanksBeforeTime({
 			timestampInSeconds: timestamp,
