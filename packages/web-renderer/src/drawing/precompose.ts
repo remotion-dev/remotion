@@ -7,24 +7,31 @@ export const precomposeDOMElement = async ({
 	element,
 	logLevel,
 	internalState,
+	isIn3dRenderingContext,
 }: {
 	boundingRect: DOMRect;
 	element: HTMLElement | SVGElement;
 	logLevel: LogLevel;
 	internalState: InternalState;
+	isIn3dRenderingContext: boolean;
 }) => {
 	const canvas = new OffscreenCanvas(boundingRect.width, boundingRect.height);
 
 	const context = canvas.getContext('2d')!;
 
-	await compose({
-		element,
+	const {elementsToBeRenderedIndependently} = await compose({
+		rootElement: element,
 		context,
 		logLevel,
 		parentRect: boundingRect,
 		internalState,
 		onlyBackgroundClip: false,
+		isIn3dRenderingContext,
 	});
 
-	return {tempCanvas: canvas, tempContext: context};
+	return {
+		tempCanvas: canvas,
+		tempContext: context,
+		elementsToBeRenderedIndependently,
+	};
 };

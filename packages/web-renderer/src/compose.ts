@@ -15,6 +15,7 @@ const walkOverNode = ({
 	internalState,
 	rootElement,
 	onlyBackgroundClip,
+	rootElementEstablishes3DRenderingContext,
 }: {
 	node: Node;
 	context: OffscreenCanvasRenderingContext2D;
@@ -23,6 +24,7 @@ const walkOverNode = ({
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
 	onlyBackgroundClip: boolean;
+	rootElementEstablishes3DRenderingContext: boolean;
 }): Promise<ProcessNodeReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
 		return processNode({
@@ -33,6 +35,9 @@ const walkOverNode = ({
 			parentRect,
 			internalState,
 			rootElement,
+			isIn3dRenderingContext:
+				node.parentElement === rootElement &&
+				rootElementEstablishes3DRenderingContext,
 		});
 	}
 
@@ -72,34 +77,42 @@ const getFilterFunction = (node: Node) => {
 	return NodeFilter.FILTER_ACCEPT;
 };
 
+type ComposeReturnValue = {
+	elementsToBeRenderedIndependently: Element[];
+};
+
 export const compose = async ({
-	element,
+	rootElement,
 	context,
 	logLevel,
 	parentRect,
 	internalState,
 	onlyBackgroundClip,
+	isIn3dRenderingContext,
 }: {
-	element: HTMLElement | SVGElement;
+	rootElement: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
 	onlyBackgroundClip: boolean;
-}) => {
+	isIn3dRenderingContext: boolean;
+}): Promise<ComposeReturnValue> => {
 	const treeWalker = document.createTreeWalker(
-		element,
+		rootElement,
 		onlyBackgroundClip
 			? NodeFilter.SHOW_TEXT
 			: NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
 		getFilterFunction,
 	);
 
+	const elementsToBeRenderedIndependently: Element[] = [];
+
 	// Skip to the first text node
 	if (onlyBackgroundClip) {
 		treeWalker.nextNode();
 		if (!treeWalker.currentNode) {
-			return;
+			return {elementsToBeRenderedIndependently};
 		}
 	}
 
@@ -118,14 +131,15 @@ export const compose = async ({
 			logLevel,
 			parentRect,
 			internalState,
-			rootElement: element,
+			rootElement,
 			onlyBackgroundClip,
+			rootElementEstablishes3DRenderingContext: isIn3dRenderingContext,
 		});
 		if (val.type === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {
 				break;
 			}
-		} else {
+		} else if (val.type === 'continue') {
 			if (val.cleanupAfterChildren) {
 				addCleanup(treeWalker.currentNode, val.cleanupAfterChildren);
 			}
@@ -133,8 +147,19 @@ export const compose = async ({
 			if (!treeWalker.nextNode()) {
 				break;
 			}
+		} else if (val.type === 'is-plane-in-3d-rendering-context') {
+			elementsToBeRenderedIndependently.push(treeWalker.currentNode as Element);
+			if (!skipToNextNonDescendant(treeWalker)) {
+				break;
+			}
+		} else {
+			throw new Error(
+				'Unknown node type ' + JSON.stringify(val satisfies never),
+			);
 		}
 	}
 
 	cleanupInTheEndOfTheIteration();
+
+	return {elementsToBeRenderedIndependently};
 };

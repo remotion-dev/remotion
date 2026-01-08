@@ -18,6 +18,7 @@ export const precomposeAndDraw = async ({
 	precompositing,
 	totalMatrix,
 	rect,
+	isIn3dRenderingContext,
 }: {
 	element: HTMLElement | SVGElement;
 	logLevel: LogLevel;
@@ -26,8 +27,11 @@ export const precomposeAndDraw = async ({
 	precompositing: Precompositing;
 	totalMatrix: DOMMatrix;
 	rect: DOMRect;
+	isIn3dRenderingContext: boolean;
 }) => {
 	const start = Date.now();
+
+	const elementsToBeRenderedIndependently: Element[] = [];
 
 	let precomposeRect: DOMRect | null = null;
 	if (precompositing.needsMaskImage) {
@@ -64,12 +68,21 @@ export const precomposeAndDraw = async ({
 		return null;
 	}
 
-	const {tempCanvas, tempContext} = await precomposeDOMElement({
+	const {
+		tempCanvas,
+		tempContext,
+		elementsToBeRenderedIndependently: newElementsToBeRenderedIndependently,
+	} = await precomposeDOMElement({
 		boundingRect: precomposeRect,
 		element,
 		logLevel,
 		internalState,
+		isIn3dRenderingContext,
 	});
+
+	elementsToBeRenderedIndependently.push(
+		...newElementsToBeRenderedIndependently,
+	);
 
 	let drawable: OffscreenCanvas = tempCanvas;
 
@@ -115,5 +128,5 @@ export const precomposeAndDraw = async ({
 		canvasHeight: precomposeRect.height,
 	});
 
-	return {drawable, rectAfterTransforms};
+	return {drawable, rectAfterTransforms, elementsToBeRenderedIndependently};
 };

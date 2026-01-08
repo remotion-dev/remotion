@@ -7,6 +7,7 @@ import {precomposeAndDraw} from './precompose-and-draw';
 
 export type ProcessNodeReturnValue =
 	| {type: 'continue'; cleanupAfterChildren: null | (() => void)}
+	| {type: 'is-plane-in-3d-rendering-context'}
 	| {type: 'skip-children'};
 
 export const processNode = async ({
@@ -17,6 +18,7 @@ export const processNode = async ({
 	parentRect,
 	internalState,
 	rootElement,
+	isIn3dRenderingContext,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -25,14 +27,21 @@ export const processNode = async ({
 	parentRect: DOMRect;
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
+	isIn3dRenderingContext: boolean;
 }): Promise<ProcessNodeReturnValue> => {
 	using transforms = calculateTransforms({
 		element,
 		rootElement,
 	});
 
-	const {opacity, computedStyle, totalMatrix, dimensions, precompositing} =
-		transforms;
+	const {
+		opacity,
+		computedStyle,
+		totalMatrix,
+		dimensions,
+		precompositing,
+		establishes3DRenderingContext,
+	} = transforms;
 
 	if (opacity === 0) {
 		return {type: 'skip-children'};
@@ -57,22 +66,35 @@ export const processNode = async ({
 	);
 
 	if (precompositing.needsPrecompositing) {
-		const elementsIn3dRenderingContext = [element];
+		const elementsIn3dRenderingContext: Element[] = [element];
+
+		if (isIn3dRenderingContext) {
+			return {type: 'is-plane-in-3d-rendering-context'};
+		}
 
 		const planes = [];
 
-		for (const e of elementsIn3dRenderingContext) {
+		while (elementsIn3dRenderingContext.length > 0) {
+			const el = elementsIn3dRenderingContext.shift()! as
+				| HTMLElement
+				| SVGElement;
 			const results = await precomposeAndDraw({
-				element: e,
+				element: el,
 				logLevel,
 				parentRect,
 				internalState,
 				precompositing,
 				totalMatrix,
 				rect,
+				isIn3dRenderingContext: establishes3DRenderingContext,
 			});
+
 			if (results === null) {
 				continue;
+			}
+
+			for (const e of results.elementsToBeRenderedIndependently) {
+				elementsIn3dRenderingContext.push(e);
 			}
 
 			planes.push(results);

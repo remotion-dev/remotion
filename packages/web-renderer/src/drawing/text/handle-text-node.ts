@@ -39,6 +39,7 @@ export const handleTextNode = async ({
 		parentRect,
 		internalState,
 		rootElement,
+		isIn3dRenderingContext: false,
 	});
 
 	// Undo the layout manipulation
