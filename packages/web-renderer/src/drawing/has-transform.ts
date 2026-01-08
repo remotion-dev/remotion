@@ -10,10 +10,15 @@ export const hasScaleCssValue = (style: CSSStyleDeclaration) => {
 	return style.scale !== 'none' && style.scale !== '';
 };
 
+export const hasPerspectiveCssValue = (style: CSSStyleDeclaration) => {
+	return style.perspective !== 'none' && style.perspective !== '';
+};
+
 export const hasAnyTransformCssValue = (style: CSSStyleDeclaration) => {
 	return (
 		hasTransformCssValue(style) ||
 		hasRotateCssValue(style) ||
-		hasScaleCssValue(style)
+		hasScaleCssValue(style) ||
+		hasPerspectiveCssValue(style)
 	);
 };

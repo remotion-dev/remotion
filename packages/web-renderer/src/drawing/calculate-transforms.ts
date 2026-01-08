@@ -1,34 +1,16 @@
 import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
 import {getMaskImageValue, parseMaskImage} from './mask-image';
 import type {LinearGradientInfo} from './parse-linear-gradient';
-import {parseTransformOrigin} from './parse-transform-origin';
+import {getAbsoluteOrigin} from './transform-perspective-origin';
 
 type Transform = {
 	matrices: DOMMatrix[];
 	element: Element;
 	transformOrigin: string;
 	boundingClientRect: DOMRect | null;
-};
-
-const getInternalTransformOrigin = (transform: Transform) => {
-	const centerX = transform.boundingClientRect!.width / 2;
-	const centerY = transform.boundingClientRect!.height / 2;
-
-	const origin = parseTransformOrigin(transform.transformOrigin) ?? {
-		x: centerX,
-		y: centerY,
-	};
-
-	return origin;
-};
-
-const getGlobalTransformOrigin = ({transform}: {transform: Transform}) => {
-	const {x: originX, y: originY} = getInternalTransformOrigin(transform);
-
-	return {
-		x: originX + transform.boundingClientRect!.left,
-		y: originY + transform.boundingClientRect!.top,
-	};
+	perspectiveOrigin: string;
+	perspective: DOMMatrix | null;
+	perspectiveMatrix: DOMMatrix | null;
 };
 
 export const calculateTransforms = ({
@@ -74,8 +56,19 @@ export const calculateTransforms = ({
 				: undefined;
 			const matrix = new DOMMatrix(toParse);
 
-			const {transform, scale, rotate} = parent.style;
 			const additionalMatrices: DOMMatrix[] = [];
+
+			const transformToPush: Transform = {
+				element: parent,
+				transformOrigin: computedStyle.transformOrigin,
+				boundingClientRect: null,
+				matrices: additionalMatrices,
+				perspectiveOrigin: computedStyle.perspectiveOrigin,
+				perspective: null,
+				perspectiveMatrix: null,
+			};
+
+			const {transform, scale, rotate, perspective} = parent.style;
 
 			// The order of transformations is:
 			// 1. Translate --> We do not have to consider it since it changes getClientBoundingRect()
@@ -90,23 +83,31 @@ export const calculateTransforms = ({
 				additionalMatrices.push(new DOMMatrix(`scale(${scale})`));
 			}
 
+			if (
+				computedStyle.perspective !== '' &&
+				computedStyle.perspective !== 'none'
+			) {
+				transformToPush.perspective = new DOMMatrix(
+					`perspective(${computedStyle.perspective})`,
+				);
+
+				transformToPush.perspectiveOrigin = computedStyle.perspectiveOrigin;
+			}
+
 			additionalMatrices.push(matrix);
 
 			parent.style.transform = 'none';
 			parent.style.scale = 'none';
 			parent.style.rotate = 'none';
+			parent.style.perspective = 'none';
 
-			transforms.push({
-				element: parent,
-				transformOrigin: computedStyle.transformOrigin,
-				boundingClientRect: null,
-				matrices: additionalMatrices,
-			});
+			transforms.push(transformToPush);
 			const parentRef = parent;
 			toReset.push(() => {
 				parentRef!.style.transform = transform;
 				parentRef!.style.scale = scale;
 				parentRef!.style.rotate = rotate;
+				parentRef!.style.perspective = perspective;
 			});
 		}
 
@@ -119,16 +120,29 @@ export const calculateTransforms = ({
 
 	for (const transform of transforms) {
 		transform.boundingClientRect = transform.element.getBoundingClientRect();
+		if (transform.perspective) {
+			const origin = getAbsoluteOrigin({
+				origin: transform.perspectiveOrigin,
+				boundingClientRect: transform.boundingClientRect!,
+			});
+			const perspectiveMatrix = new DOMMatrix()
+				.translate(origin.x, origin.y)
+				.multiply(transform.perspective)
+				.translate(-origin.x, -origin.y);
+			transform.perspectiveMatrix = perspectiveMatrix;
+		}
 	}
 
-	const dimensions = transforms[0].boundingClientRect!;
-	const nativeTransformOrigin = getInternalTransformOrigin(transforms[0]);
-
 	const totalMatrix = new DOMMatrix();
-	for (const transform of transforms.slice().reverse()) {
+	const reversedMatrixes = transforms.slice().reverse();
+
+	for (let i = 0; i < reversedMatrixes.length; i++) {
+		const transform = reversedMatrixes[i];
+		const parentTransform = reversedMatrixes[i + 1];
 		for (const matrix of transform.matrices) {
-			const globalTransformOrigin = getGlobalTransformOrigin({
-				transform,
+			const globalTransformOrigin = getAbsoluteOrigin({
+				origin: transform.transformOrigin,
+				boundingClientRect: transform.boundingClientRect!,
 			});
 
 			const transformMatrix = new DOMMatrix()
@@ -137,6 +151,10 @@ export const calculateTransforms = ({
 				.translate(-globalTransformOrigin.x, -globalTransformOrigin.y);
 
 			totalMatrix.multiplySelf(transformMatrix);
+		}
+
+		if (parentTransform && parentTransform.perspectiveMatrix) {
+			totalMatrix.multiplySelf(parentTransform.perspectiveMatrix!);
 		}
 	}
 
@@ -148,14 +166,13 @@ export const calculateTransforms = ({
 	const needsMaskImage = maskImageInfo !== null;
 
 	return {
-		dimensions,
+		dimensions: transforms[0].boundingClientRect!,
 		totalMatrix,
 		[Symbol.dispose]: () => {
 			for (const reset of toReset) {
 				reset();
 			}
 		},
-		nativeTransformOrigin,
 		computedStyle: elementComputedStyle,
 		opacity,
 		maskImageInfo,
