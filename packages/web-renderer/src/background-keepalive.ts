@@ -83,6 +83,7 @@ export function createBackgroundKeepalive({
 			URL.revokeObjectURL(workerUrl);
 		}
 	};
+
 	worker.postMessage({type: 'start', intervalMs});
 
 	return {
