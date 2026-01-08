@@ -76,6 +76,7 @@ export const processNode = async ({
 			bounds: rect,
 			transform: totalMatrix,
 			parentRect,
+			precompositing,
 		};
 		if (isIn3dRenderingContext) {
 			return {type: 'is-plane-in-3d-rendering-context', elementAndBounds};
@@ -93,8 +94,7 @@ export const processNode = async ({
 				logLevel,
 				parentRect: el.parentRect,
 				internalState,
-				// TODO: This should be element specific
-				precompositing,
+				precompositing: el.precompositing,
 				totalMatrix: el.transform,
 				rect: el.bounds,
 				isIn3dRenderingContext: establishes3DRenderingContext
