@@ -80,10 +80,15 @@ export const calculateTransforms = ({
 			transformToPush.perspectiveOrigin = computedStyle.perspectiveOrigin;
 
 			const originalPerspective = currentEl.style.perspective;
-			currentEl.style.perspective = 'none';
+			const originalPerspectiveOrigin = currentEl.style.perspectiveOrigin;
+			// Cannot remove perspective because that can influence the layout, see perspective.test.tsx
+			currentEl.style.perspective = '1000000000000px';
+			currentEl.style.perspectiveOrigin = '';
+
 			const parentRef = currentEl;
 			toReset.push(() => {
 				parentRef!.style.perspective = originalPerspective;
+				parentRef!.style.perspectiveOrigin = originalPerspectiveOrigin;
 			});
 		}
 
