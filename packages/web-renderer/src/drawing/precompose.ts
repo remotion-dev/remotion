@@ -13,21 +13,18 @@ export const precomposeDOMElement = async ({
 	logLevel: LogLevel;
 	internalState: InternalState;
 }) => {
-	const tempCanvas = new OffscreenCanvas(
-		boundingRect.width,
-		boundingRect.height,
-	);
+	const canvas = new OffscreenCanvas(boundingRect.width, boundingRect.height);
 
-	const tempContext = tempCanvas.getContext('2d')!;
+	const context = canvas.getContext('2d')!;
 
 	await compose({
 		element,
-		context: tempContext,
+		context,
 		logLevel,
 		parentRect: boundingRect,
 		internalState,
 		onlyBackgroundClip: false,
 	});
 
-	return {tempCanvas, tempContext};
+	return {tempCanvas: canvas, tempContext: context};
 };

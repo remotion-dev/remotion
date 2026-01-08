@@ -12,7 +12,6 @@ import {transformDOMRect} from './transform-rect-with-matrix';
 
 export const precomposeAndDraw = async ({
 	element,
-	context,
 	logLevel,
 	parentRect,
 	internalState,
@@ -21,7 +20,6 @@ export const precomposeAndDraw = async ({
 	rect,
 }: {
 	element: HTMLElement | SVGElement;
-	context: OffscreenCanvasRenderingContext2D;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
@@ -105,22 +103,6 @@ export const precomposeAndDraw = async ({
 		});
 	}
 
-	const previousTransform = context.getTransform();
-	context.setTransform(new DOMMatrix());
-	context.drawImage(
-		drawable,
-		0,
-		drawable.height - rectAfterTransforms.height,
-		rectAfterTransforms.width,
-		rectAfterTransforms.height,
-		rectAfterTransforms.left - parentRect.x,
-		rectAfterTransforms.top - parentRect.y,
-		rectAfterTransforms.width,
-		rectAfterTransforms.height,
-	);
-
-	context.setTransform(previousTransform);
-
 	Internals.Log.trace(
 		{
 			logLevel,
@@ -133,5 +115,5 @@ export const precomposeAndDraw = async ({
 		canvasHeight: precomposeRect.height,
 	});
 
-	return {drawable};
+	return {drawable, rectAfterTransforms};
 };

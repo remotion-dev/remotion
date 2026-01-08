@@ -60,9 +60,8 @@ export const processNode = async ({
 		const elementsIn3dRenderingContext = [element];
 
 		for (const e of elementsIn3dRenderingContext) {
-			const retValue = await precomposeAndDraw({
+			const results = await precomposeAndDraw({
 				element: e,
-				context,
 				logLevel,
 				parentRect,
 				internalState,
@@ -70,9 +69,25 @@ export const processNode = async ({
 				totalMatrix,
 				rect,
 			});
-			if (retValue === null) {
+			if (results === null) {
 				return {type: 'continue', cleanupAfterChildren: null};
 			}
+
+			const previousTransform = context.getTransform();
+			context.setTransform(new DOMMatrix());
+			context.drawImage(
+				results.drawable,
+				0,
+				results.drawable.height - results.rectAfterTransforms.height,
+				results.rectAfterTransforms.width,
+				results.rectAfterTransforms.height,
+				results.rectAfterTransforms.left - parentRect.x,
+				results.rectAfterTransforms.top - parentRect.y,
+				results.rectAfterTransforms.width,
+				results.rectAfterTransforms.height,
+			);
+
+			context.setTransform(previousTransform);
 		}
 
 		return {type: 'skip-children'};
