@@ -11,9 +11,6 @@ export const getPrecomposeRectFor3DTransform = ({
 	parentRect: DOMRect;
 	matrix: DOMMatrix;
 }) => {
-	const unclampedBiggestBoundingClientRect =
-		getBiggestBoundingClientRect(element);
-
 	const biggestPossiblePretransformRect = getPreTransformRect(
 		parentRect,
 		matrix,
@@ -21,6 +18,9 @@ export const getPrecomposeRectFor3DTransform = ({
 	if (!biggestPossiblePretransformRect) {
 		return null;
 	}
+
+	const unclampedBiggestBoundingClientRect =
+		getBiggestBoundingClientRect(element);
 
 	const preTransformRect = getNarrowerRect({
 		firstRect: unclampedBiggestBoundingClientRect,

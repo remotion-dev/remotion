@@ -30,7 +30,7 @@ export const createFrame = async ({
 		parentRect: new DOMRect(0, 0, width, height),
 		internalState,
 		onlyBackgroundClip: false,
-		isIn3dRenderingContext: false,
+		isIn3dRenderingContext: null,
 	});
 
 	return canvas;

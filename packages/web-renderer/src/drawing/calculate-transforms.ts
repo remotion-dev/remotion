@@ -15,9 +15,11 @@ type Transform = {
 export const calculateTransforms = ({
 	element: elToRender,
 	rootElement,
+	threeDRenderingContext,
 }: {
 	element: HTMLElement | SVGElement;
 	rootElement: HTMLElement | SVGElement;
+	threeDRenderingContext: DOMMatrix | null;
 }) => {
 	// Compute the cumulative transform by traversing parent nodes
 	let currentEl: HTMLElement | SVGElement | null = elToRender;
@@ -139,15 +141,15 @@ export const calculateTransforms = ({
 				origin: transform.perspectiveOrigin,
 				boundingClientRect: transform.boundingClientRect!,
 			});
-			const perspectiveMatrix = new DOMMatrix()
+
+			transform.perspectiveMatrix = new DOMMatrix()
 				.translate(origin.x, origin.y)
 				.multiply(transform.perspective)
 				.translate(-origin.x, -origin.y);
-			transform.perspectiveMatrix = perspectiveMatrix;
 		}
 	}
 
-	const totalMatrix = new DOMMatrix();
+	let totalMatrix = new DOMMatrix();
 	const reversedMatrixes = transforms.slice().reverse();
 
 	for (let i = 0; i < reversedMatrixes.length; i++) {
@@ -172,8 +174,12 @@ export const calculateTransforms = ({
 			totalMatrix.multiplySelf(transformMatrix);
 		}
 
-		if (parentTransform && parentTransform.perspective) {
-			totalMatrix.multiplySelf(parentTransform.perspectiveMatrix!);
+		if (
+			parentTransform &&
+			parentTransform.perspective &&
+			parentTransform.perspectiveMatrix
+		) {
+			totalMatrix = parentTransform.perspectiveMatrix?.multiply(totalMatrix);
 		}
 	}
 

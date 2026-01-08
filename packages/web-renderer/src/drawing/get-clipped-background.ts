@@ -27,7 +27,7 @@ export const getClippedBackground = async ({
 		parentRect: boundingRect,
 		internalState,
 		onlyBackgroundClip: true,
-		isIn3dRenderingContext: false,
+		isIn3dRenderingContext: null,
 	});
 
 	return tempContext;

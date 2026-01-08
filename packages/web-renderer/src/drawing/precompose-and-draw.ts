@@ -28,7 +28,7 @@ export const precomposeAndDraw = async ({
 	precompositing: Precompositing;
 	totalMatrix: DOMMatrix;
 	rect: DOMRect;
-	isIn3dRenderingContext: boolean;
+	isIn3dRenderingContext: DOMMatrix | null;
 }) => {
 	const start = Date.now();
 

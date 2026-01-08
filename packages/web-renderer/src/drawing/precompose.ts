@@ -13,7 +13,7 @@ export const precomposeDOMElement = async ({
 	element: HTMLElement | SVGElement;
 	logLevel: LogLevel;
 	internalState: InternalState;
-	isIn3dRenderingContext: boolean;
+	isIn3dRenderingContext: DOMMatrix | null;
 }) => {
 	const canvas = new OffscreenCanvas(boundingRect.width, boundingRect.height);
 

@@ -25,7 +25,7 @@ const walkOverNode = ({
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
 	onlyBackgroundClip: boolean;
-	rootElementEstablishes3DRenderingContext: boolean;
+	rootElementEstablishes3DRenderingContext: DOMMatrix | null;
 }): Promise<ProcessNodeReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
 		return processNode({
@@ -37,8 +37,9 @@ const walkOverNode = ({
 			internalState,
 			rootElement,
 			isIn3dRenderingContext:
-				node.parentElement === rootElement &&
-				rootElementEstablishes3DRenderingContext,
+				node.parentElement === rootElement
+					? rootElementEstablishes3DRenderingContext
+					: null,
 		});
 	}
 
@@ -97,7 +98,7 @@ export const compose = async ({
 	parentRect: DOMRect;
 	internalState: InternalState;
 	onlyBackgroundClip: boolean;
-	isIn3dRenderingContext: boolean;
+	isIn3dRenderingContext: DOMMatrix | null;
 }): Promise<ComposeReturnValue> => {
 	const treeWalker = document.createTreeWalker(
 		rootElement,

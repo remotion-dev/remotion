@@ -31,11 +31,12 @@ export const processNode = async ({
 	parentRect: DOMRect;
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
-	isIn3dRenderingContext: boolean;
+	isIn3dRenderingContext: DOMMatrix | null;
 }): Promise<ProcessNodeReturnValue> => {
 	using transforms = calculateTransforms({
 		element,
 		rootElement,
+		threeDRenderingContext: isIn3dRenderingContext,
 	});
 
 	const {
@@ -70,14 +71,6 @@ export const processNode = async ({
 	);
 
 	if (precompositing.needsPrecompositing) {
-		const elementsIn3dRenderingContext: ElementAndBounds[] = [
-			{
-				element,
-				bounds: rect,
-				transform: totalMatrix,
-			},
-		];
-
 		if (isIn3dRenderingContext) {
 			return {
 				type: 'is-plane-in-3d-rendering-context',
@@ -89,19 +82,31 @@ export const processNode = async ({
 			};
 		}
 
+		const elementsIn3dRenderingContext: ElementAndBounds[] = [
+			{
+				element,
+				bounds: rect,
+				transform: totalMatrix,
+			},
+		];
+
 		const planes = [];
 
 		while (elementsIn3dRenderingContext.length > 0) {
 			const el = elementsIn3dRenderingContext.shift()!;
+
 			const results = await precomposeAndDraw({
 				element: el.element as HTMLElement | SVGElement,
 				logLevel,
 				parentRect,
 				internalState,
+				// TODO: This should be element specific
 				precompositing,
 				totalMatrix: el.transform,
 				rect: el.bounds,
-				isIn3dRenderingContext: establishes3DRenderingContext,
+				isIn3dRenderingContext: establishes3DRenderingContext
+					? totalMatrix
+					: null,
 			});
 
 			if (results === null) {
