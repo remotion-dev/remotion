@@ -17,7 +17,7 @@
   ],
   "dependencies": {
     "clsx": "2.1.1",
-    "@react-router/node": "7.2.0",
+    "@react-router/node": "7.9.4",
     "@react-router/serve": "7.2.0",
     "@remotion/cli": "workspace:*",
     "@remotion/lambda": "workspace:*",
