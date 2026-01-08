@@ -1,16 +1,9 @@
-import {Internals, type LogLevel} from 'remotion';
+import {type LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
 import {calculateTransforms} from './calculate-transforms';
-import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
-import {doRectsIntersect} from './do-rects-intersect';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
-import {getPrecomposeRectFor3DTransform} from './handle-3d-transform';
-import {getPrecomposeRectForMask, handleMask} from './handle-mask';
-import {precomposeDOMElement} from './precompose';
-import {roundToExpandRect} from './round-to-expand-rect';
-import {transformIn3d} from './transform-in-3d';
-import {transformDOMRect} from './transform-rect-with-matrix';
+import {precomposeAndDraw} from './precompose-and-draw';
 
 export type ProcessNodeReturnValue =
 	| {type: 'continue'; cleanupAfterChildren: null | (() => void)}
@@ -64,109 +57,23 @@ export const processNode = async ({
 	);
 
 	if (precompositing.needsPrecompositing) {
-		const start = Date.now();
+		const elementsIn3dRenderingContext = [element];
 
-		let precomposeRect: DOMRect | null = null;
-		if (precompositing.needsMaskImage) {
-			precomposeRect = roundToExpandRect(getPrecomposeRectForMask(element));
-		}
-
-		if (precompositing.needs3DTransformViaWebGL) {
-			const tentativePrecomposeRect = getPrecomposeRectFor3DTransform({
-				element,
+		for (const e of elementsIn3dRenderingContext) {
+			const retValue = await precomposeAndDraw({
+				element: e,
+				context,
+				logLevel,
 				parentRect,
-				matrix: totalMatrix,
+				internalState,
+				precompositing,
+				totalMatrix,
+				rect,
 			});
-			if (!tentativePrecomposeRect) {
+			if (retValue === null) {
 				return {type: 'continue', cleanupAfterChildren: null};
 			}
-
-			precomposeRect = roundToExpandRect(
-				getWiderRectAndExpand({
-					firstRect: precomposeRect,
-					secondRect: tentativePrecomposeRect,
-				}),
-			);
 		}
-
-		if (!precomposeRect) {
-			throw new Error('Precompose rect not found');
-		}
-
-		if (precomposeRect.width <= 0 || precomposeRect.height <= 0) {
-			return {type: 'continue', cleanupAfterChildren: null};
-		}
-
-		if (!doRectsIntersect(precomposeRect, parentRect)) {
-			return {type: 'continue', cleanupAfterChildren: null};
-		}
-
-		const {tempCanvas, tempContext} = await precomposeDOMElement({
-			boundingRect: precomposeRect,
-			element,
-			logLevel,
-			internalState,
-		});
-
-		let drawable: OffscreenCanvas = tempCanvas;
-
-		const rectAfterTransforms = roundToExpandRect(
-			transformDOMRect({
-				rect: precomposeRect,
-				matrix: totalMatrix,
-			}),
-		);
-
-		if (rectAfterTransforms.width <= 0 || rectAfterTransforms.height <= 0) {
-			return {type: 'continue', cleanupAfterChildren: null};
-		}
-
-		if (precompositing.needsMaskImage) {
-			handleMask({
-				gradientInfo: precompositing.needsMaskImage,
-				rect,
-				precomposeRect,
-				tempContext,
-			});
-		}
-
-		if (precompositing.needs3DTransformViaWebGL) {
-			drawable = transformIn3d({
-				matrix: totalMatrix,
-				sourceRect: precomposeRect,
-				sourceCanvas: drawable,
-				destRect: rectAfterTransforms,
-				internalState,
-			});
-		}
-
-		const previousTransform = context.getTransform();
-		context.setTransform(new DOMMatrix());
-		context.drawImage(
-			drawable,
-			0,
-			drawable.height - rectAfterTransforms.height,
-			rectAfterTransforms.width,
-			rectAfterTransforms.height,
-			rectAfterTransforms.left - parentRect.x,
-			rectAfterTransforms.top - parentRect.y,
-			rectAfterTransforms.width,
-			rectAfterTransforms.height,
-		);
-
-		context.setTransform(previousTransform);
-
-		Internals.Log.trace(
-			{
-				logLevel,
-				tag: '@remotion/web-renderer',
-			},
-			`Transforming element in 3D - canvas size: ${precomposeRect.width}x${precomposeRect.height} - compose: ${Date.now() - start}ms - helper canvas: ${drawable.width}x${drawable.height}`,
-		);
-		internalState.addPrecompose({
-			canvasWidth: precomposeRect.width,
-			canvasHeight: precomposeRect.height,
-		});
 
 		return {type: 'skip-children'};
 	}

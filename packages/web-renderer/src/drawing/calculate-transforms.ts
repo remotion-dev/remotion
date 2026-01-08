@@ -203,3 +203,9 @@ export const calculateTransforms = ({
 		},
 	};
 };
+
+export type Precompositing = {
+	needs3DTransformViaWebGL: boolean;
+	needsMaskImage: LinearGradientInfo | null;
+	needsPrecompositing: boolean;
+};
