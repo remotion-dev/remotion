@@ -2,7 +2,7 @@
 
 import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
 import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js';
-import {z} from 'zod';
+import * as z from 'zod/v4';
 
 const HOST = 'https://mcp.remotion.dev';
 
@@ -16,14 +16,14 @@ server.registerTool(
 	{
 		title: 'Search the Remotion documentation',
 		description: 'Search the Remotion documentation',
-		inputSchema: z.object({
+		inputSchema: {
 			query: z.string({
-				description: 'The query to search for. Keep it short and concise.',
+				message: 'The query to search for. Keep it short and concise.',
 			}),
-		}),
-		outputSchema: z.object({
+		},
+		outputSchema: {
 			content: z.array(z.object({type: z.literal('text'), text: z.string()})),
-		}),
+		},
 	},
 	async ({query}: {query: string}) => {
 		const res = await fetch(
