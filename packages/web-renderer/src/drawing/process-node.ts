@@ -69,21 +69,25 @@ export const processNode = async ({
 
 		let precomposeRect: DOMRect | null = null;
 		if (precompositing.needsMaskImage) {
-			precomposeRect = getWiderRectAndExpand({
-				firstRect: precomposeRect,
-				secondRect: getPrecomposeRectForMask(element),
-			});
+			precomposeRect = roundToExpandRect(getPrecomposeRectForMask(element));
 		}
 
 		if (precompositing.needs3DTransformViaWebGL) {
-			precomposeRect = getWiderRectAndExpand({
-				firstRect: precomposeRect,
-				secondRect: getPrecomposeRectFor3DTransform({
-					element,
-					parentRect,
-					matrix: totalMatrix,
-				}),
+			const tentativePrecomposeRect = getPrecomposeRectFor3DTransform({
+				element,
+				parentRect,
+				matrix: totalMatrix,
 			});
+			if (!tentativePrecomposeRect) {
+				return {type: 'continue', cleanupAfterChildren: null};
+			}
+
+			precomposeRect = roundToExpandRect(
+				getWiderRectAndExpand({
+					firstRect: precomposeRect,
+					secondRect: tentativePrecomposeRect,
+				}),
+			);
 		}
 
 		if (!precomposeRect) {
@@ -126,7 +130,7 @@ export const processNode = async ({
 		if (precompositing.needs3DTransformViaWebGL) {
 			const t = handle3dTransform({
 				matrix: totalMatrix,
-				precomposeRect,
+				sourceRect: precomposeRect,
 				tempCanvas: drawable,
 				rectAfterTransforms,
 				internalState,
