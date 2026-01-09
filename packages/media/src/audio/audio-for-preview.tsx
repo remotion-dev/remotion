@@ -54,9 +54,7 @@ type NewAudioForPreviewProps = {
 	readonly toneFrequency: number | undefined;
 	readonly audioStreamIndex: number | undefined;
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
-	readonly onError:
-		| ((event: MediaErrorEvent) => MediaErrorAction)
-		| undefined;
+	readonly onError: ((event: MediaErrorEvent) => MediaErrorAction) | undefined;
 };
 
 const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
@@ -233,9 +231,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 
 					if (result.type === 'unknown-container-format') {
 						handleError(
-							new Error(
-								`Unknown container format ${preloadedSrc}.`,
-							),
+							new Error(`Unknown container format ${preloadedSrc}.`),
 							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
 						);
 						return;
@@ -259,9 +255,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 
 					if (result.type === 'no-tracks') {
 						handleError(
-							new Error(
-								`No video or audio tracks found for ${preloadedSrc}.`,
-							),
+							new Error(`No video or audio tracks found for ${preloadedSrc}.`),
 							`No video or audio tracks found for ${preloadedSrc}, falling back to <Html5Audio>`,
 						);
 						return;

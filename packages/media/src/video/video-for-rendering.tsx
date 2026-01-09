@@ -53,9 +53,7 @@ type InnerVideoProps = {
 	readonly trimBeforeValue: number | undefined;
 	readonly trimAfterValue: number | undefined;
 	readonly headless: boolean;
-	readonly onError:
-		| ((event: MediaErrorEvent) => MediaErrorAction)
-		| undefined;
+	readonly onError: ((event: MediaErrorEvent) => MediaErrorAction) | undefined;
 };
 
 type FallbackToOffthreadVideo = {

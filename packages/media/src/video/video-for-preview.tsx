@@ -59,9 +59,7 @@ type VideoForPreviewProps = {
 	readonly audioStreamIndex: number;
 	readonly debugOverlay: boolean;
 	readonly headless: boolean;
-	readonly onError:
-		| ((event: MediaErrorEvent) => MediaErrorAction)
-		| undefined;
+	readonly onError: ((event: MediaErrorEvent) => MediaErrorAction) | undefined;
 };
 
 const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
@@ -265,9 +263,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 
 					if (result.type === 'no-tracks') {
 						handleError(
-							new Error(
-								`No video or audio tracks found for ${preloadedSrc}.`,
-							),
+							new Error(`No video or audio tracks found for ${preloadedSrc}.`),
 							`No video or audio tracks found for ${preloadedSrc}, falling back to <OffthreadVideo>`,
 						);
 						return;
