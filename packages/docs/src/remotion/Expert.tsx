@@ -1,6 +1,6 @@
+import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import React from 'react';
 import {AbsoluteFill, Img, staticFile} from 'remotion';
-import {experts} from '../data/experts';
 import './font.css';
 
 export const Expert: React.FC<{

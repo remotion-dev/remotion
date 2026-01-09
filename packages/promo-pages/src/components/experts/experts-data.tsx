@@ -518,4 +518,53 @@ export const experts: Expert[] = [
 			</div>
 		),
 	},
+	{
+		slug: 'amir-tadrisi',
+		name: 'Amir Tadrisi',
+		image: '/img/freelancers/amir.jpeg',
+		website: 'https://vidbuilder.ai',
+		x: 'amirtds',
+		github: 'amirtds',
+		linkedin: 'in/amirtadrisi/',
+		email: 'amir@cubite.io',
+		videocall: null,
+		since: new Date('2025-01-01').getTime(),
+		description: (
+			<div>
+				<p>
+					Founder of{' '}
+					<a target={'_blank'} href="https://vidbuilder.ai">
+						VidBuilder.ai
+					</a>{' '}
+					and hands-on Remotion expert for companies that need premium,
+					custom-built <strong>explainer</strong> and{' '}
+					<strong>educational</strong> videos. When a team needs the best
+					partner to own their video pipeline end-to-end, I&apos;m the person
+					they call.
+				</p>
+				<ul>
+					<li>
+						<strong>Discovery:</strong> I interview stakeholders, study brand
+						guidelines, and map each storyboard beat to measurable product or
+						education goals.
+					</li>
+					<li>
+						<strong>Custom engineering:</strong> I build a dedicated Remotion
+						codebase with component systems tailored to your content, allowing
+						rapid iteration on visuals, motion, and data integrations.
+					</li>
+					<li>
+						<strong>Collaborative delivery:</strong> Every client receives a
+						private VidBuilder.ai workspace so their team can tweak scripts,
+						colors, and clips without incurring new engineering costs.
+					</li>
+				</ul>
+				<p>
+					Whether you&apos;re launching a new onboarding journey, explainer or
+					demo videos for your SaaS product, or an internal academy, I&apos;m
+					here to help.
+				</p>
+			</div>
+		),
+	},
 ];
