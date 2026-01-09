@@ -539,8 +539,8 @@ export const experts: Expert[] = [
 					and hands-on Remotion expert for companies that need premium,
 					custom-built <strong>explainer</strong> and{' '}
 					<strong>educational</strong> videos. When a team needs the best
-					partner to own their video pipeline end-to-end, I'm the person they
-					call.
+					partner to own their video pipeline end-to-end, I&apos;m the person
+					they call.
 				</p>
 				<ul>
 					<li>
@@ -560,9 +560,9 @@ export const experts: Expert[] = [
 					</li>
 				</ul>
 				<p>
-					Whether you're launching a new onboarding journey, explainer or demo
-					videos for your SaaS product, or an internal academy, I'm here to
-					help.
+					Whether you&apos;re launching a new onboarding journey, explainer or
+					demo videos for your SaaS product, or an internal academy, I&apos;m
+					here to help.
 				</p>
 			</div>
 		),
