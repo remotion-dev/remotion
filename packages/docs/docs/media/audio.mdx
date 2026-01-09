@@ -115,34 +115,34 @@ A name and that will be shown as the label of the sequence in the timeline of th
 
 ### `onError?`<AvailableFrom v="4.0.404" />
 
-Handle errors that occur during audio loading. The callback receives an object with an `error` property and should return either `'fallback'` or `'fail'`.
+Handle errors that occur during audio processing. The callback receives an `Error` and should return either `'fallback'` or `'fail'`.
 
-- Return `'fallback'` to fall back to [`<Html5Audio>`](/docs/html5-audio) (default behavior when this prop is not specified)
+- Return `'fallback'` to fall back to [`<Html5Audio>`](/docs/html5-audio) (default behavior)
 - Return `'fail'` to fail the render immediately
 
 ```tsx twoslash
-import {AbsoluteFill, staticFile} from 'remotion';
 import {Audio} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
-      <Audio
-        src={staticFile('audio.mp3')}
-        onError={({error}) => {
-          console.log('Audio error:', error.message);
-          // Return 'fail' to fail the render, or 'fallback' to use Html5Audio
-          return 'fallback';
-        }}
-      />
-    </AbsoluteFill>
+    <Audio
+      src={'https://remotion.media/audio.mp3'}
+      onError={(error) => {
+        console.log('Audio error:', error.message);
+
+        // Return 'fail' to fail the render, or 'fallback' to use <Html5Audio>
+        return 'fallback';
+      }}
+    />
   );
 };
 ```
 
 :::note
-This callback is invoked when an error occurs in the `@remotion/media` audio processing. If you return `'fallback'`, the component will fall back to [`<Html5Audio>`](/docs/html5-audio) which may have its own error handling via [`fallbackHtml5AudioProps.onError`](#onerror-1).
-:::
+
+- In client-side rendering, the render will always fail regardless of the return value.
+- If you return `'fallback'`, the component will fall back to [`<Html5Audio>`](/docs/html5-audio) which may have its own error handling via [`fallbackHtml5AudioProps.onError`](#onerror-1).
+  :::
 
 ### `playbackRate?`<AvailableFrom v="4.0.354" />
 

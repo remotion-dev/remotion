@@ -117,34 +117,35 @@ A name and that will be shown as the label of the sequence in the timeline of th
 
 ### `onError?`<AvailableFrom v="4.0.404" />
 
-Handle errors that occur during video loading. The callback receives an object with an `error` property and should return either `'fallback'` or `'fail'`.
+Handle errors that occur during video processing. The callback receives an `Error` property and should return either `'fallback'` or `'fail'`.
 
-- Return `'fallback'` to fall back to [`<OffthreadVideo>`](/docs/offthreadvideo) (default behavior when this prop is not specified)
+- Return `'fallback'` to fall back to [`<OffthreadVideo>`](/docs/offthreadvideo) (default behavior)
 - Return `'fail'` to fail the render immediately
 
 ```tsx twoslash
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Video} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
-      <Video
-        src={staticFile('video.webm')}
-        onError={({error}) => {
-          console.log('Video error:', error.message);
-          // Return 'fail' to fail the render, or 'fallback' to use OffthreadVideo
-          return 'fallback';
-        }}
-      />
-    </AbsoluteFill>
+    <Video
+      src={'https://remotion.media/video.mp4'}
+      onError={(error) => {
+        console.log('Video error:', error.message);
+
+        // Return 'fail' to fail the render, or 'fallback' to use <OffthreadVideo>
+        return 'fallback';
+      }}
+    />
   );
 };
 ```
 
 :::note
-This callback is invoked when an error occurs in the `@remotion/media` video processing. If you return `'fallback'`, the component will fall back to [`<OffthreadVideo>`](/docs/offthreadvideo) which may have its own error handling via [`fallbackOffthreadVideoProps.onError`](#onerror-1).
-:::
+
+- In client-side rendering, the render will always fail regardless of the return value.
+- If you return `'fallback'`, the component will fall back to [`<OffthreadVideo>`](/docs/offthreadvideo) which may have its own error handling via [`fallbackOffthreadVideoProps.onError`](#onerror-1).
+  :::
 
 ### `playbackRate?`<AvailableFrom v="4.0.354" />
 
