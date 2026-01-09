@@ -2,7 +2,7 @@
 
 import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
 import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js';
-import {z, type ZodRawShape} from 'zod';
+import {z} from 'zod';
 
 const HOST = 'https://mcp.remotion.dev';
 
@@ -11,22 +11,25 @@ const server = new McpServer({
 	version: '1.0.0',
 });
 
-const toolSchema = {
-	query: z.string().describe('The query to search for. Keep it short and concise.'),
-} satisfies ZodRawShape;
-
-(server.tool as Function)(
+server.registerTool(
 	'remotion-documentation',
-	'Search the Remotion documentation',
-	toolSchema,
+	{
+		title: 'Search the Remotion documentation',
+		description: 'Search the Remotion documentation',
+		inputSchema: z.object({
+			query: z.string({
+				description: 'The query to search for. Keep it short and concise.',
+			}),
+		}),
+		outputSchema: z.object({
+			content: z.array(z.object({type: z.literal('text'), text: z.string()})),
+		}),
+	},
 	async ({query}: {query: string}) => {
 		const res = await fetch(
 			`${HOST}/mcp/67cad4626afeae106c6ffb50?query=${query}`,
 		);
-
-		return {
-			content: [{type: 'text' as const, text: await res.text()}],
-		};
+		return {content: [{type: 'text' as const, text: await res.text()}]};
 	},
 );
 
