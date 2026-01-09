@@ -1,4 +1,5 @@
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
+import type {MediaOnError} from '../on-error';
 
 export type FallbackHtml5AudioProps = {
 	crossOrigin?: '' | 'anonymous' | 'use-credentials' | undefined;
@@ -32,4 +33,5 @@ export type AudioProps = {
 	toneFrequency?: number;
 	delayRenderRetries?: number;
 	delayRenderTimeoutInMilliseconds?: number;
+	onError?: MediaOnError;
 };

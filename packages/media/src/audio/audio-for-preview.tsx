@@ -16,6 +16,7 @@ import {
 } from 'remotion';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
+import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import type {FallbackHtml5AudioProps} from './props';
@@ -50,6 +51,7 @@ type NewAudioForPreviewProps = {
 	readonly toneFrequency: number | undefined;
 	readonly audioStreamIndex: number | undefined;
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
+	readonly onError: MediaOnError | undefined;
 };
 
 const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
@@ -69,6 +71,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	toneFrequency,
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
+	onError,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
@@ -196,63 +199,54 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 						return;
 					}
 
-					if (result.type === 'unknown-container-format') {
-						if (disallowFallbackToHtml5Audio) {
-							throw new Error(
-								`Unknown container format ${preloadedSrc}, and 'disallowFallbackToHtml5Audio' was set.`,
+					const handleError = (error: Error, fallbackMessage: string) => {
+						const [action, errorToUse] = callOnErrorAndResolve({
+							onError,
+							error,
+							disallowFallback: disallowFallbackToHtml5Audio,
+							isClientSideRendering: false,
+							clientSideError: error,
+						});
+						if (action === 'fail') {
+							throw errorToUse;
+						} else {
+							Internals.Log.warn(
+								{logLevel, tag: '@remotion/media'},
+								fallbackMessage,
 							);
+							setShouldFallbackToNativeAudio(true);
 						}
+					};
 
-						Internals.Log.warn(
-							{logLevel, tag: '@remotion/media'},
+					if (result.type === 'unknown-container-format') {
+						handleError(
+							new Error(`Unknown container format ${preloadedSrc}.`),
 							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
 						);
-						setShouldFallbackToNativeAudio(true);
 						return;
 					}
 
 					if (result.type === 'network-error') {
-						if (disallowFallbackToHtml5Audio) {
-							throw new Error(
-								`Network error fetching ${preloadedSrc}, and 'disallowFallbackToHtml5Audio' was set.`,
-							);
-						}
-
-						Internals.Log.warn(
-							{logLevel, tag: '@remotion/media'},
+						handleError(
+							new Error(`Network error fetching ${preloadedSrc}.`),
 							`Network error fetching ${preloadedSrc}, falling back to <Html5Audio>`,
 						);
-						setShouldFallbackToNativeAudio(true);
 						return;
 					}
 
 					if (result.type === 'cannot-decode') {
-						if (disallowFallbackToHtml5Audio) {
-							throw new Error(
-								`Cannot decode ${preloadedSrc}, and 'disallowFallbackToHtml5Audio' was set.`,
-							);
-						}
-
-						Internals.Log.warn(
-							{logLevel, tag: '@remotion/media'},
+						handleError(
+							new Error(`Cannot decode ${preloadedSrc}.`),
 							`Cannot decode ${preloadedSrc}, falling back to <Html5Audio>`,
 						);
-						setShouldFallbackToNativeAudio(true);
 						return;
 					}
 
 					if (result.type === 'no-tracks') {
-						if (disallowFallbackToHtml5Audio) {
-							throw new Error(
-								`No video or audio tracks found for ${preloadedSrc}, and 'disallowFallbackToHtml5Audio' was set.`,
-							);
-						}
-
-						Internals.Log.warn(
-							{logLevel, tag: '@remotion/media'},
+						handleError(
+							new Error(`No video or audio tracks found for ${preloadedSrc}.`),
 							`No video or audio tracks found for ${preloadedSrc}, falling back to <Html5Audio>`,
 						);
-						setShouldFallbackToNativeAudio(true);
 						return;
 					}
 
@@ -267,18 +261,40 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 					}
 				})
 				.catch((error) => {
-					Internals.Log.error(
-						{logLevel, tag: '@remotion/media'},
-						'[AudioForPreview] Failed to initialize MediaPlayer',
+					const [action, errorToUse] = callOnErrorAndResolve({
+						onError,
 						error,
-					);
-					setShouldFallbackToNativeAudio(true);
+						disallowFallback: disallowFallbackToHtml5Audio,
+						isClientSideRendering: false,
+						clientSideError: error,
+					});
+					if (action === 'fail') {
+						throw errorToUse;
+					} else {
+						Internals.Log.error(
+							{logLevel, tag: '@remotion/media'},
+							'[AudioForPreview] Failed to initialize MediaPlayer',
+							error,
+						);
+						setShouldFallbackToNativeAudio(true);
+					}
 				});
 		} catch (error) {
+			const [action, errorToUse] = callOnErrorAndResolve({
+				error: error as Error,
+				onError,
+				disallowFallback: disallowFallbackToHtml5Audio,
+				isClientSideRendering: false,
+				clientSideError: error as Error,
+			});
+			if (action === 'fail') {
+				throw errorToUse;
+			}
+
 			Internals.Log.error(
 				{logLevel, tag: '@remotion/media'},
 				'[AudioForPreview] MediaPlayer initialization failed',
-				error,
+				errorToUse,
 			);
 			setShouldFallbackToNativeAudio(true);
 		}
@@ -306,6 +322,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		audioStreamIndex,
 		disallowFallbackToHtml5Audio,
 		buffer,
+		onError,
 	]);
 
 	useLayoutEffect(() => {
@@ -473,6 +490,7 @@ type InnerAudioProps = {
 	readonly toneFrequency?: number;
 	readonly audioStreamIndex?: number;
 	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
+	readonly onError?: MediaOnError;
 };
 
 export const AudioForPreview: React.FC<InnerAudioProps> = ({
@@ -492,6 +510,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	toneFrequency,
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
+	onError,
 }) => {
 	const preloadedSrc = usePreload(src);
 
@@ -545,6 +564,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			stack={stack}
 			disallowFallbackToHtml5Audio={disallowFallbackToHtml5Audio ?? false}
 			toneFrequency={toneFrequency}
+			onError={onError}
 			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
 		/>
 	);

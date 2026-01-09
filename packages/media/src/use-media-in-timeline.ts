@@ -1,5 +1,5 @@
 import {useContext, useEffect, useState} from 'react';
-import type {_InternalTypes} from 'remotion';
+import type {LoopDisplay} from 'remotion';
 import {Internals, useCurrentFrame, type VolumeProp} from 'remotion';
 
 export const useMediaInTimeline = ({
@@ -27,7 +27,7 @@ export const useMediaInTimeline = ({
 	showInTimeline: boolean;
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
-	loopDisplay: _InternalTypes['LoopDisplay'] | undefined;
+	loopDisplay: LoopDisplay | undefined;
 	trimBefore: number | undefined;
 	trimAfter: number | undefined;
 }) => {

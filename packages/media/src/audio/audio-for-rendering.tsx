@@ -13,6 +13,7 @@ import {useMaxMediaCacheSize} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
+import {callOnErrorAndResolve} from '../on-error';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {AudioProps} from './props';
 
@@ -35,6 +36,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	toneFrequency,
 	trimAfter,
 	trimBefore,
+	onError,
 }) => {
 	const defaultLogLevel = Internals.useLogLevel();
 	const logLevel = overriddenLogLevel ?? defaultLogLevel;
@@ -129,61 +131,49 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			maxCacheSize,
 		})
 			.then((result) => {
-				if (result.type === 'unknown-container-format') {
-					if (environment.isClientSideRendering) {
-						cancelRender(
-							new Error(
-								`Cannot render audio "${src}": Unknown container format. See supported formats: https://www.remotion.dev/docs/mediabunny/formats`,
-							),
-						);
-						return;
-					}
-
-					if (disallowFallbackToHtml5Audio) {
-						cancelRender(
-							new Error(
-								`Unknown container format ${src}, and 'disallowFallbackToHtml5Audio' was set. Failing the render.`,
-							),
-						);
+				const handleError = (
+					error: Error,
+					clientSideError: Error,
+					fallbackMessage: string,
+				) => {
+					const [action, errorToUse] = callOnErrorAndResolve({
+						onError,
+						error,
+						disallowFallback: disallowFallbackToHtml5Audio ?? false,
+						isClientSideRendering: environment.isClientSideRendering,
+						clientSideError,
+					});
+					if (action === 'fail') {
+						cancelRender(errorToUse);
 					}
 
 					Internals.Log.warn(
-						{
-							logLevel,
-							tag: '@remotion/media',
-						},
+						{logLevel, tag: '@remotion/media'},
+						fallbackMessage,
+					);
+
+					setReplaceWithHtml5Audio(true);
+				};
+
+				if (result.type === 'unknown-container-format') {
+					handleError(
+						new Error(`Unknown container format ${src}.`),
+						new Error(
+							`Cannot render audio "${src}": Unknown container format. See supported formats: https://www.remotion.dev/docs/mediabunny/formats`,
+						),
 						`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
 					);
-					setReplaceWithHtml5Audio(true);
 					return;
 				}
 
 				if (result.type === 'cannot-decode') {
-					if (environment.isClientSideRendering) {
-						cancelRender(
-							new Error(
-								`Cannot render audio "${src}": The audio could not be decoded by the browser.`,
-							),
-						);
-						return;
-					}
-
-					if (disallowFallbackToHtml5Audio) {
-						cancelRender(
-							new Error(
-								`Cannot decode ${src}, and 'disallowFallbackToHtml5Audio' was set. Failing the render.`,
-							),
-						);
-					}
-
-					Internals.Log.warn(
-						{
-							logLevel,
-							tag: '@remotion/media',
-						},
+					handleError(
+						new Error(`Cannot decode ${src}.`),
+						new Error(
+							`Cannot render audio "${src}": The audio could not be decoded by the browser.`,
+						),
 						`Cannot decode ${src}, falling back to <Html5Audio>`,
 					);
-					setReplaceWithHtml5Audio(true);
 					return;
 				}
 
@@ -194,31 +184,13 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				}
 
 				if (result.type === 'network-error') {
-					if (environment.isClientSideRendering) {
-						cancelRender(
-							new Error(
-								`Cannot render audio "${src}": Network error while fetching the audio (possibly CORS).`,
-							),
-						);
-						return;
-					}
-
-					if (disallowFallbackToHtml5Audio) {
-						cancelRender(
-							new Error(
-								`Cannot decode ${src}, and 'disallowFallbackToHtml5Audio' was set. Failing the render.`,
-							),
-						);
-					}
-
-					Internals.Log.warn(
-						{
-							logLevel,
-							tag: '@remotion/media',
-						},
+					handleError(
+						new Error(`Network error fetching ${src}.`),
+						new Error(
+							`Cannot render audio "${src}": Network error while fetching the audio (possibly CORS).`,
+						),
 						`Network error fetching ${src}, falling back to <Html5Audio>`,
 					);
-					setReplaceWithHtml5Audio(true);
 					return;
 				}
 
@@ -293,6 +265,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		replaceWithHtml5Audio,
 		maxCacheSize,
 		audioEnabled,
+		onError,
 	]);
 
 	if (replaceWithHtml5Audio) {
