@@ -126,6 +126,7 @@ async function internalRenderStillOnWeb<
 			signal,
 			apiName: 'renderStillOnWeb',
 			internalState: null,
+			keepalive: null,
 		});
 
 		if (signal?.aborted) {
