@@ -207,30 +207,6 @@ test('should retry multiple times before succeeding', async () => {
 	});
 });
 
-test('should work with apiKey parameter (legacy)', async () => {
-	server.use(
-		http.post(`${HOST}/api/track/register-usage-point`, () => {
-			return HttpResponse.json({
-				success: true,
-				billable: true,
-				classification: 'billable',
-			});
-		}),
-	);
-
-	const result = await registerUsageEvent({
-		apiKey: 'rm_pub_test123',
-		host: 'https://test.com',
-		succeeded: true,
-		event: 'webcodec-conversion',
-	});
-
-	expect(result).toEqual({
-		billable: true,
-		classification: 'billable',
-	});
-});
-
 test('should call sleep with correct backoff values between retries', async () => {
 	const sleepCalls: number[] = [];
 	spyOn(usageEventModule, 'sleep').mockImplementation((ms: number) => {
