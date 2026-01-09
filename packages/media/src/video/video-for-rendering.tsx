@@ -53,7 +53,9 @@ type InnerVideoProps = {
 	readonly trimBeforeValue: number | undefined;
 	readonly trimAfterValue: number | undefined;
 	readonly headless: boolean;
-	readonly onError: ((event: MediaErrorEvent) => MediaErrorAction) | undefined;
+	readonly onError:
+		| ((event: MediaErrorEvent) => MediaErrorAction | undefined)
+		| undefined;
 };
 
 type FallbackToOffthreadVideo = {
@@ -187,10 +189,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		})
 			.then((result) => {
 				const handleError = (
-					error: Error,
+					err: Error,
 					clientSideError: Error,
 					fallbackMessage: string,
-					durationInSeconds: number | null,
+					mediaDurationInSeconds: number | null,
 				) => {
 					if (environment.isClientSideRendering) {
 						cancelRender(clientSideError);
@@ -198,9 +200,12 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					}
 
 					if (onError) {
-						const action = onError({error});
+						const action =
+							onError({error: err}) ??
+							(disallowFallbackToOffthreadVideo ? 'fail' : 'fallback');
+
 						if (action === 'fail') {
-							cancelRender(error);
+							cancelRender(err);
 							return;
 						}
 
@@ -212,12 +217,14 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 							);
 						}
 
-						setReplaceWithOffthreadVideo({durationInSeconds});
+						setReplaceWithOffthreadVideo({
+							durationInSeconds: mediaDurationInSeconds,
+						});
 						return;
 					}
 
 					if (disallowFallbackToOffthreadVideo) {
-						cancelRender(error);
+						cancelRender(err);
 						return;
 					}
 
@@ -228,7 +235,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						);
 					}
 
-					setReplaceWithOffthreadVideo({durationInSeconds});
+					setReplaceWithOffthreadVideo({
+						durationInSeconds: mediaDurationInSeconds,
+					});
 				};
 
 				if (result.type === 'unknown-container-format') {

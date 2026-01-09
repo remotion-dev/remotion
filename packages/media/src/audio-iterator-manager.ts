@@ -1,6 +1,6 @@
 import type {InputAudioTrack, WrappedAudioBuffer} from 'mediabunny';
 import {AudioBufferSink, InputDisposedError} from 'mediabunny';
-import type {useBufferState} from 'remotion';
+import type {UseBufferState} from 'remotion';
 import type {AudioIterator} from './audio/audio-preview-iterator';
 import {
 	isAlreadyQueued,
@@ -197,7 +197,7 @@ export const audioIteratorManager = ({
 		fps: number;
 		playbackRate: number;
 		getIsPlaying: () => boolean;
-		bufferState: ReturnType<typeof useBufferState>;
+		bufferState: UseBufferState;
 		scheduleAudioNode: (
 			node: AudioBufferSourceNode,
 			mediaTimestamp: number,
