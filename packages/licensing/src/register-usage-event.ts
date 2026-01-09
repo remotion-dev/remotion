@@ -2,6 +2,18 @@ export const HOST = 'https://www.remotion.pro';
 import type {NoReactInternals} from 'remotion/no-react';
 import {isNetworkError} from './is-network-error';
 
+const DEFAULT_MAX_RETRIES = 3;
+
+const exponentialBackoffMs = (attempt: number): number => {
+	return 1000 * 2 ** (attempt - 1);
+};
+
+const sleep = (ms: number): Promise<void> => {
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms);
+	});
+};
+
 type ApiResponse =
 	| {
 			success: true;
@@ -48,56 +60,77 @@ export const registerUsageEvent = async ({
 	succeeded: boolean;
 	event: UsageEventType;
 } & EitherApiKeyOrLicenseKey): Promise<RegisterUsageEventResponse> => {
-	const abortController = new AbortController();
-	const timeout = setTimeout(() => {
-		abortController.abort();
-	}, 10000);
-
 	const apiKey = 'apiKey' in apiOrLicenseKey ? apiOrLicenseKey.apiKey : null;
 	const licenseKey =
 		'licenseKey' in apiOrLicenseKey ? apiOrLicenseKey.licenseKey : null;
 
-	try {
-		const res = await fetch(`${HOST}/api/track/register-usage-point`, {
-			method: 'POST',
-			body: JSON.stringify({
-				event,
-				apiKey: licenseKey ?? apiKey,
-				host,
-				succeeded,
-			}),
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			signal: abortController.signal,
-		});
-		clearTimeout(timeout);
+	let lastError: Error | undefined;
+	const totalAttempts = DEFAULT_MAX_RETRIES + 1;
 
-		const json = (await res.json()) as ApiResponse;
+	for (let attempt = 1; attempt <= totalAttempts; attempt++) {
+		const abortController = new AbortController();
+		const timeout = setTimeout(() => {
+			abortController.abort();
+		}, 10000);
 
-		if (json.success) {
-			return {
-				billable: json.billable,
-				classification: json.classification,
-			};
+		try {
+			const res = await fetch(`${HOST}/api/track/register-usage-point`, {
+				method: 'POST',
+				body: JSON.stringify({
+					event,
+					apiKey: licenseKey ?? apiKey,
+					host,
+					succeeded,
+				}),
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				signal: abortController.signal,
+			});
+			clearTimeout(timeout);
+
+			const json = (await res.json()) as ApiResponse;
+
+			if (json.success) {
+				return {
+					billable: json.billable,
+					classification: json.classification,
+				};
+			}
+
+			if (!res.ok) {
+				throw new Error(json.error);
+			}
+
+			throw new Error(
+				`Unexpected response from server: ${JSON.stringify(json)}`,
+			);
+		} catch (err) {
+			clearTimeout(timeout);
+
+			const error = err as Error;
+			const isTimeout = error.name === 'AbortError';
+			const isRetryable = isNetworkError(error) || isTimeout;
+
+			if (!isRetryable) {
+				throw err;
+			}
+
+			lastError = isTimeout
+				? new Error('Request timed out after 10 seconds')
+				: error;
+
+			if (attempt < totalAttempts) {
+				const backoffMs = exponentialBackoffMs(attempt);
+				// eslint-disable-next-line no-console
+				console.log(
+					`Failed to send usage event (attempt ${attempt}/${totalAttempts}), retrying in ${backoffMs}ms...`,
+					err,
+				);
+				await sleep(backoffMs);
+			}
 		}
-
-		if (!res.ok) {
-			throw new Error(json.error);
-		}
-
-		throw new Error('Unexpected response from server');
-	} catch (err) {
-		if (isNetworkError(err as Error)) {
-			// eslint-disable-next-line no-console
-			console.log('Failed to send usage event', err);
-		}
-
-		clearTimeout(timeout);
-		if (err instanceof Error && err.name === 'AbortError') {
-			throw new Error('Request timed out after 10 seconds');
-		}
-
-		throw err;
 	}
+
+	throw lastError;
 };
