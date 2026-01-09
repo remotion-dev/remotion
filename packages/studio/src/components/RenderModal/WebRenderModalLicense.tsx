@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
 	BLUE,
 	INPUT_BACKGROUND,
@@ -9,6 +9,11 @@ import {Checkbox} from '../Checkbox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {Spacing} from '../layout';
+import type {LicenseKeyDetails} from './WebRenderModalLicenseKeyDetails';
+import {
+	WebRenderModalLicenseKeyDetails,
+	fetchLicenseKeyDetails,
+} from './WebRenderModalLicenseKeyDetails';
 
 type WebRenderModalLicenseProps = {
 	readonly licenseKey: string | null;
@@ -102,17 +107,22 @@ const codeLineSmall: React.CSSProperties = {
 const LICENSE_KEY_LENGTH = 55;
 const LICENSE_KEY_PREFIX = 'rm_pub_';
 
-const validateLicenseKey = (
-	key: string,
-): {valid: boolean; message: string | null} => {
+type LicenseKeyValidation = {
+	valid: boolean;
+	message: string | null;
+	details: LicenseKeyDetails | null;
+};
+
+const validateLicenseKey = (key: string): LicenseKeyValidation => {
 	if (key.length === 0) {
-		return {valid: false, message: null};
+		return {valid: false, message: null, details: null};
 	}
 
 	if (!key.startsWith(LICENSE_KEY_PREFIX)) {
 		return {
 			valid: false,
 			message: `License key must start with "${LICENSE_KEY_PREFIX}"`,
+			details: null,
 		};
 	}
 
@@ -122,6 +132,7 @@ const validateLicenseKey = (
 			valid: false,
 			message:
 				'License key must contain only alphanumeric characters after the prefix',
+			details: null,
 		};
 	}
 
@@ -129,10 +140,11 @@ const validateLicenseKey = (
 		return {
 			valid: false,
 			message: `License key must be ${LICENSE_KEY_LENGTH} characters long`,
+			details: null,
 		};
 	}
 
-	return {valid: true, message: null};
+	return {valid: true, message: null, details: null};
 };
 
 export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
@@ -140,6 +152,49 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 	setLicenseKey,
 	initialPublicLicenseKey,
 }) => {
+	const [licenseValidation, setLicenseValidation] =
+		useState<LicenseKeyValidation>({valid: true, message: null, details: null});
+	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => {
+		if (licenseKey === null || licenseKey === 'free-license') {
+			return setLicenseValidation({
+				valid: true,
+				message: null,
+				details: null,
+			});
+		}
+
+		const validation = validateLicenseKey(licenseKey);
+		if (!validation.valid) {
+			return setLicenseValidation(validation);
+		}
+
+		setLicenseValidation({valid: true, message: null, details: null});
+		setIsLoading(true);
+		fetchLicenseKeyDetails(licenseKey)
+			.then((details) => {
+				setIsLoading(false);
+				if (details.isValid) {
+					setLicenseValidation({valid: true, message: null, details});
+				} else {
+					setLicenseValidation({
+						valid: false,
+						message: 'License key is invalid or has been reset',
+						details: null,
+					});
+				}
+			})
+			.catch(() => {
+				setIsLoading(false);
+				setLicenseValidation({
+					valid: false,
+					message: 'Failed to fetch license key details',
+					details: null,
+				});
+			});
+	}, [licenseKey]);
+
 	const onFreeLicenseChange = useCallback(() => {
 		setLicenseKey('free-license');
 	}, [setLicenseKey]);
@@ -155,14 +210,6 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 			},
 			[setLicenseKey],
 		);
-
-	const licenseValidation = useMemo(() => {
-		if (licenseKey === null || licenseKey === 'free-license') {
-			return {valid: true, message: null};
-		}
-
-		return validateLicenseKey(licenseKey);
-	}, [licenseKey]);
 
 	return (
 		<div style={tabContainer}>
@@ -257,6 +304,20 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 							</div>
 						</>
 					) : null}
+					{isLoading && (
+						<>
+							<Spacing y={1} block />
+							Loading license key details...
+						</>
+					)}
+					{licenseValidation.details && (
+						<>
+							<Spacing y={1} block />
+							<WebRenderModalLicenseKeyDetails
+								details={licenseValidation.details}
+							/>
+						</>
+					)}
 				</div>
 			) : null}
 			{licenseKey === null ? (
