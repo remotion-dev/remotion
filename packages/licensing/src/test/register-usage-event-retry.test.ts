@@ -1,8 +1,7 @@
-import {expect, test, beforeAll, afterEach, afterAll} from 'bun:test';
+import {afterAll, afterEach, beforeAll, expect, test} from 'bun:test';
+import {delay, http, HttpResponse} from 'msw';
 import {setupServer} from 'msw/node';
-import {http, HttpResponse, delay} from 'msw';
-import {registerUsageEvent} from '../register-usage-event';
-import {HOST} from '../register-usage-event';
+import {HOST, registerUsageEvent} from '../register-usage-event';
 
 const server = setupServer();
 
@@ -52,6 +51,7 @@ test('should retry and succeed after transient network error', async () => {
 				// Simulate network error on first attempt
 				return HttpResponse.error();
 			}
+
 			return HttpResponse.json({
 				success: true,
 				billable: true,
@@ -222,6 +222,7 @@ test('should handle timeout and retry', async () => {
 					classification: 'billable',
 				});
 			}
+
 			return HttpResponse.json({
 				success: true,
 				billable: true,
@@ -254,6 +255,7 @@ test('should retry multiple times before succeeding', async () => {
 			if (attemptCount < 4) {
 				return HttpResponse.error();
 			}
+
 			return HttpResponse.json({
 				success: true,
 				billable: false,
