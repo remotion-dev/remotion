@@ -4,8 +4,7 @@ import type {
 	OnVideoFrame,
 	VolumeProp,
 } from 'remotion';
-
-export type MediaErrorAction = 'fallback' | 'fail';
+import type {MediaOnError} from '../on-error';
 
 export type MediaErrorEvent = {
 	error: Error;
@@ -54,7 +53,7 @@ type OptionalVideoProps = {
 	showInTimeline: boolean;
 	debugOverlay: boolean;
 	headless: boolean;
-	onError: ((event: MediaErrorEvent) => MediaErrorAction) | undefined;
+	onError: MediaOnError | undefined;
 };
 
 export type InnerVideoProps = MandatoryVideoProps &

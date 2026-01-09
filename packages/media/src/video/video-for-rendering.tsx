@@ -24,12 +24,9 @@ import {useMaxMediaCacheSize} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
+import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
-import type {
-	FallbackOffthreadVideoProps,
-	MediaErrorAction,
-	MediaErrorEvent,
-} from './props';
+import type {FallbackOffthreadVideoProps} from './props';
 
 type InnerVideoProps = {
 	readonly className: string | undefined;
@@ -53,9 +50,7 @@ type InnerVideoProps = {
 	readonly trimBeforeValue: number | undefined;
 	readonly trimAfterValue: number | undefined;
 	readonly headless: boolean;
-	readonly onError:
-		| ((event: MediaErrorEvent) => MediaErrorAction | undefined)
-		| undefined;
+	readonly onError: MediaOnError | undefined;
 };
 
 type FallbackToOffthreadVideo = {
@@ -199,35 +194,20 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						return;
 					}
 
-					if (onError) {
-						const action =
-							onError({error: err}) ??
-							(disallowFallbackToOffthreadVideo ? 'fail' : 'fallback');
+					const [action, errorToUse] = callOnErrorAndResolve({
+						onError,
+						error: err,
+						disallowFallback: disallowFallbackToOffthreadVideo,
+						isClientSideRendering: environment.isClientSideRendering,
+						clientSideError: err,
+					});
 
-						if (action === 'fail') {
-							cancelRender(err);
-							return;
-						}
-
-						// action === 'fallback'
-						if (window.remotion_isMainTab) {
-							Internals.Log.warn(
-								{logLevel, tag: '@remotion/media'},
-								fallbackMessage,
-							);
-						}
-
-						setReplaceWithOffthreadVideo({
-							durationInSeconds: mediaDurationInSeconds,
-						});
+					if (action === 'fail') {
+						cancelRender(errorToUse);
 						return;
 					}
 
-					if (disallowFallbackToOffthreadVideo) {
-						cancelRender(err);
-						return;
-					}
-
+					// action === 'fallback'
 					if (window.remotion_isMainTab) {
 						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},

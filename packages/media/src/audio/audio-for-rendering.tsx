@@ -13,6 +13,7 @@ import {useMaxMediaCacheSize} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
+import {callOnErrorAndResolve} from '../on-error';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {AudioProps} from './props';
 
@@ -135,36 +136,22 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					clientSideError: Error,
 					fallbackMessage: string,
 				) => {
-					if (environment.isClientSideRendering) {
-						cancelRender(clientSideError);
-						return;
-					}
-
-					if (onError) {
-						const action = onError({error});
-						if (action === 'fail') {
-							cancelRender(error);
-							return;
-						}
-
-						// action === 'fallback'
-						Internals.Log.warn(
-							{logLevel, tag: '@remotion/media'},
-							fallbackMessage,
-						);
-						setReplaceWithHtml5Audio(true);
-						return;
-					}
-
-					if (disallowFallbackToHtml5Audio) {
-						cancelRender(error);
-						return;
+					const [action, errorToUse] = callOnErrorAndResolve({
+						onError,
+						error,
+						disallowFallback: disallowFallbackToHtml5Audio ?? false,
+						isClientSideRendering: environment.isClientSideRendering,
+						clientSideError,
+					});
+					if (action === 'fail') {
+						cancelRender(errorToUse);
 					}
 
 					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
 						fallbackMessage,
 					);
+
 					setReplaceWithHtml5Audio(true);
 				};
 

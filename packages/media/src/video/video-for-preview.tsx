@@ -16,13 +16,10 @@ import {
 } from 'remotion';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
+import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
-import type {
-	FallbackOffthreadVideoProps,
-	MediaErrorAction,
-	MediaErrorEvent,
-} from './props';
+import type {FallbackOffthreadVideoProps} from './props';
 
 const {
 	useUnsafeVideoConfig,
@@ -59,7 +56,7 @@ type VideoForPreviewProps = {
 	readonly audioStreamIndex: number;
 	readonly debugOverlay: boolean;
 	readonly headless: boolean;
-	readonly onError: ((event: MediaErrorEvent) => MediaErrorAction) | undefined;
+	readonly onError: MediaOnError | undefined;
 };
 
 const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
@@ -211,25 +208,18 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 					}
 
 					const handleError = (error: Error, fallbackMessage: string) => {
-						if (onError) {
-							const action = onError({error});
-							if (action === 'fail') {
-								throw error;
-							}
-
-							// action === 'fallback'
-							Internals.Log.warn(
-								{logLevel, tag: '@remotion/media'},
-								fallbackMessage,
-							);
-							setShouldFallbackToNativeVideo(true);
-							return;
+						const [action, errorToUse] = callOnErrorAndResolve({
+							onError,
+							error,
+							disallowFallback: disallowFallbackToOffthreadVideo,
+							isClientSideRendering: false,
+							clientSideError: error,
+						});
+						if (action === 'fail') {
+							throw errorToUse;
 						}
 
-						if (disallowFallbackToOffthreadVideo) {
-							throw error;
-						}
-
+						// action === 'fallback'
 						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
 							fallbackMessage,
@@ -275,32 +265,40 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 					}
 				})
 				.catch((error) => {
-					if (onError) {
-						const action = onError({error});
-						if (action === 'fail') {
-							throw error;
-						}
+					const [action, errorToUse] = callOnErrorAndResolve({
+						onError,
+						error,
+						disallowFallback: disallowFallbackToOffthreadVideo,
+						isClientSideRendering: false,
+						clientSideError: error,
+					});
+					if (action === 'fail') {
+						throw errorToUse;
 					}
 
 					Internals.Log.error(
 						{logLevel, tag: '@remotion/media'},
 						'[VideoForPreview] Failed to initialize MediaPlayer',
-						error,
+						errorToUse,
 					);
 					setShouldFallbackToNativeVideo(true);
 				});
 		} catch (error) {
-			if (onError) {
-				const action = onError({error: error as Error});
-				if (action === 'fail') {
-					throw error;
-				}
+			const [action, errorToUse] = callOnErrorAndResolve({
+				error: error as Error,
+				onError,
+				disallowFallback: disallowFallbackToOffthreadVideo,
+				isClientSideRendering: false,
+				clientSideError: error as Error,
+			});
+			if (action === 'fail') {
+				throw errorToUse;
 			}
 
 			Internals.Log.error(
 				{logLevel, tag: '@remotion/media'},
 				'[VideoForPreview] MediaPlayer initialization failed',
-				error,
+				errorToUse,
 			);
 			setShouldFallbackToNativeVideo(true);
 		}
