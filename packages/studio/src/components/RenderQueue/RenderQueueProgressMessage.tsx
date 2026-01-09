@@ -1,7 +1,8 @@
-import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext} from 'react';
 import {ModalsContext} from '../../state/modals';
 import {useZIndex} from '../../state/z-index';
+import type {AnyRenderJob} from './context';
+import {isClientRenderJob} from './context';
 import {renderQueueItemSubtitleStyle} from './item-style';
 
 const outputLocation: React.CSSProperties = {
@@ -9,7 +10,7 @@ const outputLocation: React.CSSProperties = {
 };
 
 export const RenderQueueProgressMessage: React.FC<{
-	readonly job: RenderJob;
+	readonly job: AnyRenderJob;
 }> = ({job}) => {
 	if (job.status !== 'running') {
 		throw new Error('should not have rendered this component');
@@ -18,12 +19,28 @@ export const RenderQueueProgressMessage: React.FC<{
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {tabIndex} = useZIndex();
 
+	const isClientJob = isClientRenderJob(job);
+
 	const onClick = useCallback(() => {
+		if (isClientJob) {
+			return;
+		}
+
 		setSelectedModal({
 			type: 'render-progress',
 			jobId: job.id,
 		});
-	}, [job, setSelectedModal]);
+	}, [job, isClientJob, setSelectedModal]);
+
+	if (isClientJob) {
+		const {renderedFrames, totalFrames} = job.progress;
+		const message = `Rendering frame ${renderedFrames}/${totalFrames}`;
+		return (
+			<span style={outputLocation} title={message}>
+				{message}
+			</span>
+		);
+	}
 
 	return (
 		<button

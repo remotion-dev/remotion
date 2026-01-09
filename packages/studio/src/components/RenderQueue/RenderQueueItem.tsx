@@ -8,9 +8,11 @@ import React, {
 } from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
-import {getBackgroundFromHoverState} from '../../helpers/colors';
+import {BLUE, getBackgroundFromHoverState} from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
+import type {AnyRenderJob} from './context';
+import {isClientRenderJob} from './context';
 import {
 	RenderQueueCopyToClipboard,
 	supportsCopyingToClipboard,
@@ -23,6 +25,17 @@ import {RenderQueueOutputName} from './RenderQueueOutputName';
 import {RenderQueueProgressMessage} from './RenderQueueProgressMessage';
 import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
 import {RenderQueueRepeatItem} from './RenderQueueRepeat';
+
+const webBadgeStyle: React.CSSProperties = {
+	fontSize: 9,
+	backgroundColor: BLUE,
+	color: 'white',
+	padding: '2px 4px',
+	borderRadius: 3,
+	marginLeft: 6,
+	fontWeight: 'bold',
+	textTransform: 'uppercase',
+};
 
 const container: React.CSSProperties = {
 	padding: 12,
@@ -54,12 +67,14 @@ const subtitle: React.CSSProperties = {
 const SELECTED_CLASSNAME = '__remotion_selected_classname';
 
 export const RenderQueueItem: React.FC<{
-	readonly job: RenderJob;
+	readonly job: AnyRenderJob;
 	readonly selected: boolean;
 }> = ({job, selected}) => {
 	const [hovered, setHovered] = useState(false);
 
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
+
+	const isClientJob = isClientRenderJob(job);
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -69,19 +84,20 @@ export const RenderQueueItem: React.FC<{
 		setHovered(false);
 	}, []);
 
-	const isHoverable = job.status === 'done';
+	const isHoverable = job.status === 'done' && !isClientJob;
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...container,
 			backgroundColor: getBackgroundFromHoverState({
-				hovered: isHoverable && hovered && job.type !== 'sequence',
+				hovered:
+					isHoverable && hovered && !isClientJob && job.type !== 'sequence',
 				selected,
 			}),
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 		};
-	}, [hovered, isHoverable, job.type, selected]);
+	}, [hovered, isHoverable, isClientJob, job.type, selected]);
 
 	const scrollCurrentIntoView = useCallback(() => {
 		document
@@ -91,6 +107,10 @@ export const RenderQueueItem: React.FC<{
 
 	const onClick: React.MouseEventHandler = useCallback(() => {
 		if (job.status !== 'done') {
+			return;
+		}
+
+		if (isClientJob) {
 			return;
 		}
 
@@ -111,7 +131,7 @@ export const RenderQueueItem: React.FC<{
 			return {type: 'output', path: `/${job.outName}`};
 		});
 		pushUrl(`/outputs/${job.outName}`);
-	}, [job, scrollCurrentIntoView, selected, setCanvasContent]);
+	}, [job, isClientJob, scrollCurrentIntoView, selected, setCanvasContent]);
 
 	useEffect(() => {
 		if (selected) {
@@ -131,7 +151,10 @@ export const RenderQueueItem: React.FC<{
 			<RenderQueueItemStatus job={job} />
 			<Spacing x={1} />
 			<div style={right}>
-				<div style={title}>{job.compositionId}</div>
+				<div style={title}>
+					{job.compositionId}
+					{isClientJob ? <span style={webBadgeStyle}>Web</span> : null}
+				</div>
 				<div style={subtitle}>
 					{job.status === 'done' ? (
 						<RenderQueueOutputName job={job} />
@@ -143,8 +166,8 @@ export const RenderQueueItem: React.FC<{
 				</div>
 			</div>
 			<Spacing x={1} />
-			{supportsCopyingToClipboard(job) ? (
-				<RenderQueueCopyToClipboard job={job} />
+			{!isClientJob && supportsCopyingToClipboard(job as RenderJob) ? (
+				<RenderQueueCopyToClipboard job={job as RenderJob} />
 			) : null}
 			{job.status === 'done' || job.status === 'failed' ? (
 				<RenderQueueRepeatItem job={job} />
@@ -154,7 +177,9 @@ export const RenderQueueItem: React.FC<{
 			) : (
 				<RenderQueueRemoveItem job={job} />
 			)}
-			{job.status === 'done' ? <RenderQueueOpenInFinderItem job={job} /> : null}
+			{job.status === 'done' && !isClientJob ? (
+				<RenderQueueOpenInFinderItem job={job as RenderJob} />
+			) : null}
 		</Row>
 	);
 };

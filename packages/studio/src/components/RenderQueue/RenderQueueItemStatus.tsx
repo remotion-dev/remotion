@@ -1,4 +1,3 @@
-import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext} from 'react';
 import {FAIL_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
@@ -6,6 +5,8 @@ import {
 	CircularProgress,
 	RENDER_STATUS_INDICATOR_SIZE,
 } from './CircularProgress';
+import type {AnyRenderJob} from './context';
+import {isClientRenderJob} from './context';
 
 const iconStyle: React.CSSProperties = {
 	height: RENDER_STATUS_INDICATOR_SIZE,
@@ -21,10 +22,12 @@ const invisibleStyle: React.CSSProperties = {
 };
 
 export const RenderQueueItemStatus: React.FC<{
-	readonly job: RenderJob;
+	readonly job: AnyRenderJob;
 }> = ({job}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const [hovered, setHovered] = React.useState(false);
+
+	const isClientJob = isClientRenderJob(job);
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -37,12 +40,16 @@ export const RenderQueueItemStatus: React.FC<{
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
+			if (isClientJob) {
+				return;
+			}
+
 			setSelectedModal({
 				type: 'render-progress',
 				jobId: job.id,
 			});
 		},
-		[job.id, setSelectedModal],
+		[job.id, isClientJob, setSelectedModal],
 	);
 
 	if (job.status === 'failed') {
@@ -70,6 +77,19 @@ export const RenderQueueItemStatus: React.FC<{
 	}
 
 	if (job.status === 'done') {
+		if (isClientJob) {
+			return (
+				<div>
+					<svg style={iconStyle} viewBox="0 0 512 512">
+						<path
+							fill={LIGHT_TEXT}
+							d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512zM369 209L241 337l-17 17-17-17-64-64-17-17L160 222.1l17 17 47 47L335 175l17-17L385.9 192l-17 17z"
+						/>
+					</svg>
+				</div>
+			);
+		}
+
 		return (
 			<button
 				type="button"
@@ -89,10 +109,25 @@ export const RenderQueueItemStatus: React.FC<{
 	}
 
 	if (job.status === 'running') {
-		// Add a minimum progress to avoid the progress bar from disappearing
+		let progressValue: number;
+		if (isClientJob) {
+			const {renderedFrames, totalFrames} = job.progress;
+			progressValue = totalFrames > 0 ? renderedFrames / totalFrames : 0;
+		} else {
+			progressValue = job.progress.value;
+		}
+
+		if (isClientJob) {
+			return (
+				<div>
+					<CircularProgress progress={Math.max(0.07, progressValue)} />
+				</div>
+			);
+		}
+
 		return (
 			<button type="button" style={invisibleStyle} onClick={onClick}>
-				<CircularProgress progress={Math.max(0.07, job.progress.value)} />
+				<CircularProgress progress={Math.max(0.07, progressValue)} />
 			</button>
 		);
 	}

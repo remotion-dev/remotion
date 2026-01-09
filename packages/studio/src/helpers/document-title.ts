@@ -1,10 +1,12 @@
 import type {RenderJob} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
+import type {AnyRenderJob} from '../components/RenderQueue/context';
+import {isClientRenderJob} from '../components/RenderQueue/context';
 
 let currentItemName: string | null = null;
 let unsavedProps = false;
 let tabInactive = false;
-let renderJobs: RenderJob[] = [];
+let renderJobs: AnyRenderJob[] = [];
 
 export const setCurrentCanvasContentId = (id: string | null) => {
 	if (!id) {
@@ -24,7 +26,7 @@ export const setUnsavedProps = (unsaved: boolean) => {
 	unsavedProps = unsaved;
 };
 
-export const setRenderJobs = (jobs: RenderJob[]) => {
+export const setRenderJobs = (jobs: AnyRenderJob[]) => {
 	renderJobs = jobs;
 	updateTitle();
 };
@@ -56,7 +58,7 @@ const updateTitle = () => {
 
 const getProgressInBrackets = (
 	selectedCompositionId: string,
-	jobs: RenderJob[],
+	jobs: AnyRenderJob[],
 ): string | null => {
 	const currentRender = jobs.find((job) => job.status === 'running');
 	if (!currentRender) {
@@ -67,7 +69,17 @@ const getProgressInBrackets = (
 		throw new Error('expected running job');
 	}
 
-	const progInPercent = Math.ceil(currentRender.progress.value * 100);
+	let progInPercent: number;
+	if (isClientRenderJob(currentRender)) {
+		const {renderedFrames, totalFrames} = currentRender.progress;
+		progInPercent =
+			totalFrames > 0 ? Math.ceil((renderedFrames / totalFrames) * 100) : 0;
+	} else {
+		progInPercent = Math.ceil(
+			(currentRender as RenderJob & {status: 'running'}).progress.value * 100,
+		);
+	}
+
 	const progressInBrackets =
 		currentRender.compositionId === selectedCompositionId
 			? `[${progInPercent}%]`

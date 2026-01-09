@@ -42,8 +42,8 @@ export const RenderStatusModal: React.FC<{readonly jobId: string}> = ({
 	jobId,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
-	const {jobs} = useContext(RenderQueueContext);
-	const job = jobs.find((j) => j.id === jobId);
+	const {serverJobs} = useContext(RenderQueueContext);
+	const job = serverJobs.find((j) => j.id === jobId);
 	if (!job) {
 		throw new Error('job not found');
 	}

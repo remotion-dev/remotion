@@ -1,29 +1,60 @@
-import type {RenderJob} from '@remotion/studio-shared';
+import type {ClientRenderJob, RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {makeRetryPayload} from '../../helpers/retry-payload';
+import type {WebRenderModalState} from '../../state/modals';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
+import type {AnyRenderJob} from './context';
+import {isClientRenderJob} from './context';
+
+const makeClientRetryPayload = (job: ClientRenderJob): WebRenderModalState => {
+	return {
+		type: 'web-render',
+		compositionId: job.compositionId,
+		initialFrame: job.type === 'client-still' ? job.frame : 0,
+		initialLogLevel: job.logLevel,
+		initialLicenseKey: job.licenseKey,
+		defaultProps: job.inputProps,
+		inFrameMark: job.type === 'client-video' ? job.startFrame : null,
+		outFrameMark: job.type === 'client-video' ? job.endFrame : null,
+	};
+};
 
 export const RenderQueueRepeatItem: React.FC<{
-	readonly job: RenderJob;
+	readonly job: AnyRenderJob;
 }> = ({job}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const isMobileLayout = useMobileLayout();
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 
+	const isClientJob = isClientRenderJob(job);
+
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
-			const retryPayload = makeRetryPayload(job);
-			setSelectedModal(retryPayload);
+
+			if (isClientJob) {
+				const retryPayload = makeClientRetryPayload(job);
+				setSelectedModal(retryPayload);
+			} else {
+				const retryPayload = makeRetryPayload(job as RenderJob);
+				setSelectedModal(retryPayload);
+			}
+
 			if (isMobileLayout) {
 				setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
 			}
 		},
-		[isMobileLayout, job, setSelectedModal, setSidebarCollapsedState],
+		[
+			isMobileLayout,
+			job,
+			isClientJob,
+			setSelectedModal,
+			setSidebarCollapsedState,
+		],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {

@@ -1,21 +1,31 @@
-import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useMemo} from 'react';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {cancelRenderJob} from './actions';
+import {cancelClientJob} from './client-render-queue';
+import type {AnyRenderJob} from './context';
+import {isClientRenderJob} from './context';
 
 export const RenderQueueCancelButton: React.FC<{
-	readonly job: RenderJob;
+	readonly job: AnyRenderJob;
 }> = ({job}) => {
+	const isClientJob = isClientRenderJob(job);
+
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
+
+			if (isClientJob) {
+				cancelClientJob(job.id);
+				return;
+			}
+
 			cancelRenderJob(job).catch((err) => {
 				showNotification(`Could not cancel job: ${err.message}`, 2000);
 			});
 		},
-		[job],
+		[job, isClientJob],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {

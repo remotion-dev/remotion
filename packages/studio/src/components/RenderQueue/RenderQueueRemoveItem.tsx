@@ -1,16 +1,27 @@
-import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useMemo} from 'react';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {removeRenderJob} from './actions';
+import {removeClientJob} from './client-render-queue';
+import type {AnyRenderJob} from './context';
+import {isClientRenderJob} from './context';
 
 export const RenderQueueRemoveItem: React.FC<{
-	readonly job: RenderJob;
+	readonly job: AnyRenderJob;
 }> = ({job}) => {
+	const isClientJob = isClientRenderJob(job);
+
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
+
+			if (isClientJob) {
+				removeClientJob(job.id);
+				showNotification('Removed job', 2000);
+				return;
+			}
+
 			removeRenderJob(job)
 				.then(() => {
 					showNotification('Removed job', 2000);
@@ -19,7 +30,7 @@ export const RenderQueueRemoveItem: React.FC<{
 					showNotification(`Could not remove item: ${err.message}`, 2000);
 				});
 		},
-		[job],
+		[job, isClientJob],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {
