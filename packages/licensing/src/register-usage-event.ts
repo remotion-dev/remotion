@@ -4,11 +4,11 @@ import {isNetworkError} from './is-network-error';
 
 const DEFAULT_MAX_RETRIES = 3;
 
-const exponentialBackoffMs = (attempt: number): number => {
+export const exponentialBackoffMs = (attempt: number): number => {
 	return 1000 * 2 ** (attempt - 1);
 };
 
-const sleep = (ms: number): Promise<void> => {
+export const sleep = (ms: number): Promise<void> => {
 	return new Promise((resolve) => {
 		setTimeout(resolve, ms);
 	});
