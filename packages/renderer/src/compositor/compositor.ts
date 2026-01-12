@@ -15,6 +15,7 @@ import type {
 import {serializeCommand} from './serialize-command';
 
 export type Compositor = {
+	shutDownOrKill: () => Promise<void>;
 	finishCommands: () => Promise<void>;
 	executeCommand: <T extends keyof CompositorCommand>(
 		type: T,
@@ -200,72 +201,98 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		stderrChunks = [];
 	});
 
-	return {
-		waitForDone: () => {
-			return new Promise<void>((res, rej) => {
-				if (runningStatus.type === 'quit-without-error') {
-					rej(
-						new Error(
-							`Compositor quit${
-								runningStatus.signal
-									? ` with signal ${runningStatus.signal}`
-									: ''
-							}`,
-						),
-					);
-					return;
-				}
-
-				if (runningStatus.type === 'quit-with-error') {
-					rej(
-						new Error(
-							`Compositor quit${
-								runningStatus.signal
-									? ` with signal ${runningStatus.signal}`
-									: ''
-							}: ${runningStatus.error}`,
-						),
-					);
-					return;
-				}
-
-				resolve = res;
-				reject = rej;
-			});
-		},
-		finishCommands: (): Promise<void> => {
-			if (runningStatus.type === 'quit-with-error') {
-				return Promise.reject(
-					new Error(
-						`Compositor quit${
-							runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
-						}: ${runningStatus.error}`,
-					),
-				);
-			}
-
+	const waitForDone = () => {
+		return new Promise<void>((res, rej) => {
 			if (runningStatus.type === 'quit-without-error') {
-				return Promise.reject(
+				rej(
 					new Error(
 						`Compositor quit${
 							runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
 						}`,
 					),
 				);
+				return;
 			}
 
-			return new Promise<void>((res, rej) => {
-				child.stdin.write('EOF\n', (e) => {
-					if (e) {
-						rej(e);
-						return;
-					}
+			if (runningStatus.type === 'quit-with-error') {
+				rej(
+					new Error(
+						`Compositor quit${
+							runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+						}: ${runningStatus.error}`,
+					),
+				);
+				return;
+			}
 
-					res();
-				});
+			resolve = res;
+			reject = rej;
+		});
+	};
+
+	const finishCommands = async (): Promise<void> => {
+		// Prevent this function from throwing an error if instead a rejected promise should be returned
+		await Promise.resolve();
+
+		if (runningStatus.type === 'quit-with-error') {
+			return Promise.reject(
+				new Error(
+					`Compositor quit${
+						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+					}: ${runningStatus.error}`,
+				),
+			);
+		}
+
+		if (runningStatus.type === 'quit-without-error') {
+			return Promise.reject(
+				new Error(
+					`Compositor quit${
+						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+					}`,
+				),
+			);
+		}
+
+		return new Promise<void>((res, rej) => {
+			child.stdin.write('EOF\n', (e) => {
+				if (e) {
+					rej(e);
+					return;
+				}
+
+				res();
 			});
-		},
+		});
+	};
 
+	const shutDownOrKill = () => {
+		const shutDownCase = async () => {
+			await waitForDone();
+			await finishCommands();
+		};
+
+		let timeout: NodeJS.Timeout | null = null;
+
+		const killCase = async () => {
+			await new Promise((res) => {
+				timeout = setTimeout(res, 5000);
+			});
+
+			child.kill('SIGKILL');
+		};
+
+		return Promise.race([shutDownCase(), killCase()]).finally(() => {
+			if (timeout !== null) {
+				clearTimeout(timeout);
+			}
+		});
+	};
+
+	return {
+		shutDownOrKill,
+		waitForDone,
+		finishCommands,
 		executeCommand: <Type extends keyof CompositorCommand>(
 			command: Type,
 			params: CompositorCommand[Type],
