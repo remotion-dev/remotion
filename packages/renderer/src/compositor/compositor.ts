@@ -268,8 +268,8 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 
 	const shutDownOrKill = () => {
 		const shutDownCase = async () => {
-			await waitForDone();
 			await finishCommands();
+			await waitForDone();
 		};
 
 		let timeout: NodeJS.Timeout | null = null;
