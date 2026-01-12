@@ -27,8 +27,6 @@ export const createFrame = async ({
 		throw new Error('Could not get context');
 	}
 
-	context.scale(scale, scale);
-
 	await compose({
 		element: div,
 		context,
@@ -36,6 +34,7 @@ export const createFrame = async ({
 		parentRect: new DOMRect(0, 0, width, height),
 		internalState,
 		onlyBackgroundClip: false,
+		scale,
 	});
 
 	return canvas;
