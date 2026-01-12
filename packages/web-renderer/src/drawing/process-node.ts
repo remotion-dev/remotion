@@ -26,6 +26,7 @@ export const processNode = async ({
 	parentRect,
 	internalState,
 	rootElement,
+	scale,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -34,6 +35,7 @@ export const processNode = async ({
 	parentRect: DOMRect;
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
+	scale: number;
 }): Promise<ProcessNodeReturnValue> => {
 	using transforms = calculateTransforms({
 		element,
@@ -57,6 +59,8 @@ export const processNode = async ({
 		return {type: 'continue', cleanupAfterChildren: null};
 	}
 
+	// i need to keep the rect in CSS pixel coordinates
+	// so that scaling can be applied via transform matrix
 	const rect = new DOMRect(
 		dimensions.left - parentRect.x,
 		dimensions.top - parentRect.y,
@@ -149,10 +153,10 @@ export const processNode = async ({
 				drawable.height - rectAfterTransforms.height,
 				rectAfterTransforms.width,
 				rectAfterTransforms.height,
-				rectAfterTransforms.left - parentRect.x,
-				rectAfterTransforms.top - parentRect.y,
-				rectAfterTransforms.width,
-				rectAfterTransforms.height,
+				(rectAfterTransforms.left - parentRect.x) * scale,
+				(rectAfterTransforms.top - parentRect.y) * scale,
+				rectAfterTransforms.width * scale,
+				rectAfterTransforms.height * scale,
 			);
 
 			context.setTransform(previousTransform);
@@ -184,6 +188,7 @@ export const processNode = async ({
 		logLevel,
 		element,
 		internalState,
+		scale,
 	});
 
 	return {type: 'continue', cleanupAfterChildren};

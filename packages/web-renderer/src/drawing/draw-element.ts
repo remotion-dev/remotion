@@ -21,6 +21,7 @@ export const drawElement = async ({
 	logLevel,
 	element,
 	internalState,
+	scale,
 }: {
 	rect: DOMRect;
 	computedStyle: CSSStyleDeclaration;
@@ -32,6 +33,7 @@ export const drawElement = async ({
 	logLevel: LogLevel;
 	element: HTMLElement | SVGElement;
 	internalState: InternalState;
+	scale: number;
 }) => {
 	const {backgroundImage, backgroundColor, backgroundClip} = computedStyle;
 	const borderRadius = parseBorderRadius({
@@ -44,6 +46,7 @@ export const drawElement = async ({
 		ctx: context,
 		transform: totalMatrix,
 		parentRect,
+		scale,
 	});
 
 	const finishOpacity = setOpacity({

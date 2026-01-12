@@ -27,6 +27,7 @@ export const getClippedBackground = async ({
 		parentRect: boundingRect,
 		internalState,
 		onlyBackgroundClip: true,
+		scale: 1, // this canvas needs to be 1:1 scale (for clipping to work)
 	});
 
 	return tempContext;

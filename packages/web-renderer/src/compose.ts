@@ -15,6 +15,7 @@ const walkOverNode = ({
 	internalState,
 	rootElement,
 	onlyBackgroundClip,
+	scale,
 }: {
 	node: Node;
 	context: OffscreenCanvasRenderingContext2D;
@@ -23,6 +24,7 @@ const walkOverNode = ({
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
 	onlyBackgroundClip: boolean;
+	scale: number;
 }): Promise<ProcessNodeReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
 		return processNode({
@@ -33,6 +35,7 @@ const walkOverNode = ({
 			parentRect,
 			internalState,
 			rootElement,
+			scale,
 		});
 	}
 
@@ -45,6 +48,7 @@ const walkOverNode = ({
 			internalState,
 			rootElement,
 			onlyBackgroundClip,
+			scale,
 		});
 	}
 
@@ -79,6 +83,7 @@ export const compose = async ({
 	parentRect,
 	internalState,
 	onlyBackgroundClip,
+	scale,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -86,6 +91,7 @@ export const compose = async ({
 	parentRect: DOMRect;
 	internalState: InternalState;
 	onlyBackgroundClip: boolean;
+	scale: number;
 }) => {
 	const treeWalker = document.createTreeWalker(
 		element,
@@ -120,6 +126,7 @@ export const compose = async ({
 			internalState,
 			rootElement: element,
 			onlyBackgroundClip,
+			scale,
 		});
 		if (val.type === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {

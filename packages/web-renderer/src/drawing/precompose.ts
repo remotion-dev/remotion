@@ -27,6 +27,7 @@ export const precomposeDOMElement = async ({
 		parentRect: boundingRect,
 		internalState,
 		onlyBackgroundClip: false,
+		scale: 1, // precompose can happen at original size; scaling is only needed when drawing to main canvas
 	});
 
 	return {tempCanvas, tempContext};
