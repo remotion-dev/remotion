@@ -4,7 +4,6 @@ const DEFAULT_THROTTLE_MS = 250;
 
 export type ThrottledProgressResult = {
 	throttled: RenderMediaOnWebProgressCallback;
-	cleanup: () => void;
 	[Symbol.dispose]: () => void;
 };
 
@@ -67,5 +66,5 @@ export const createThrottledProgressCallback = (
 		pendingUpdate = null;
 	};
 
-	return {throttled, cleanup, [Symbol.dispose]: cleanup};
+	return {throttled, [Symbol.dispose]: cleanup};
 };
