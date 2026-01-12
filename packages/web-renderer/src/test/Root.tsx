@@ -43,6 +43,7 @@ import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
+import {scaleFixture} from './fixtures/scale';
 import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
@@ -66,7 +67,6 @@ import {transformWithTranslate} from './fixtures/transforms/transform-with-trans
 import {withMargin} from './fixtures/transforms/with-margin';
 import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
 import {unwrapped} from './fixtures/unwrapped';
-import {scaleFixture} from './fixtures/scale';
 
 export const Root: React.FC = () => {
 	return (
@@ -92,6 +92,7 @@ export const Root: React.FC = () => {
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
+			<Composition {...scaleFixture} />
 			<Folder name="Opacity">
 				<Composition {...opacitySimple} />
 				<Composition {...opacityNested} />
@@ -146,7 +147,6 @@ export const Root: React.FC = () => {
 				<Composition {...manyLayers} />
 				<Composition {...threeDFlattening} />
 			</Folder>
-			<Composition {...scaleFixture} />
 		</>
 	);
 };
