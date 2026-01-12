@@ -2,6 +2,12 @@ import type {RenderMediaOnWebProgressCallback} from './render-media-on-web';
 
 const DEFAULT_THROTTLE_MS = 250;
 
+export type ThrottledProgressResult = {
+	throttled: RenderMediaOnWebProgressCallback;
+	cleanup: () => void;
+	[Symbol.dispose]: () => void;
+};
+
 /**
  * Creates a throttled version of a progress callback that ensures it's not called
  * more frequently than the specified interval (default: 250ms)
@@ -9,7 +15,7 @@ const DEFAULT_THROTTLE_MS = 250;
 export const createThrottledProgressCallback = (
 	callback: RenderMediaOnWebProgressCallback | null,
 	throttleMs: number = DEFAULT_THROTTLE_MS,
-): RenderMediaOnWebProgressCallback | null => {
+): ThrottledProgressResult | null => {
 	if (!callback) {
 		return null;
 	}
@@ -52,5 +58,14 @@ export const createThrottledProgressCallback = (
 		}
 	};
 
-	return throttled;
+	const cleanup = () => {
+		if (timeoutId !== null) {
+			clearTimeout(timeoutId);
+			timeoutId = null;
+		}
+
+		pendingUpdate = null;
+	};
+
+	return {throttled, cleanup, [Symbol.dispose]: cleanup};
 };

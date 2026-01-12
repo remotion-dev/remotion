@@ -98,3 +98,38 @@ test('should throttle onProgress callback to 250ms', {retry: 2}, async (t) => {
 		}
 	}
 });
+
+test('should not fire stale progress callbacks after render completes', async () => {
+	let renderCompleted = false;
+	let staleCallbackReceived = false;
+	let callbackCallCount = 0;
+
+	const Component: React.FC = () => null;
+
+	await renderMediaOnWeb({
+		composition: {
+			component: Component,
+			id: 'stale-progress-test',
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 60,
+		},
+		inputProps: {},
+		onProgress: () => {
+			callbackCallCount++;
+			if (renderCompleted) {
+				staleCallbackReceived = true;
+			}
+		},
+		licenseKey: 'free-license',
+	});
+
+	renderCompleted = true;
+
+	// eslint-disable-next-line
+	await new Promise((resolve) => setTimeout(resolve, 500));
+
+	expect(staleCallbackReceived).toBe(false);
+	expect(callbackCallCount).toBeGreaterThan(0);
+});
