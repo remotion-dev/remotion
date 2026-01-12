@@ -40,6 +40,7 @@ import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
 import {createFrame} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
+import {validateScale} from './validate-scale';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
 import {waitForReady} from './wait-for-ready';
 import {cleanupStaleOpfsFiles, createWebFsTarget} from './web-fs-target';
@@ -110,6 +111,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	outputTarget: WebRendererOutputTarget | null;
 	licenseKey: string | undefined;
 	muted: boolean;
+	scale: number;
 };
 
 export type RenderMediaOnWebOptions<
@@ -157,10 +159,12 @@ const internalRenderMediaOnWeb = async <
 	outputTarget: userDesiredOutputTarget,
 	licenseKey,
 	muted,
+	scale,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
 >): Promise<RenderMediaOnWebResult> => {
+	validateScale(scale);
 	const outputTarget =
 		userDesiredOutputTarget === null
 			? (await canUseWebFsWriter())
@@ -363,6 +367,7 @@ const internalRenderMediaOnWeb = async <
 				div,
 				width: resolved.width,
 				height: resolved.height,
+				scale,
 				logLevel,
 				internalState,
 			});
@@ -392,8 +397,8 @@ const internalRenderMediaOnWeb = async <
 				frameToEncode = validateVideoFrame({
 					originalFrame: videoFrame,
 					returnedFrame,
-					expectedWidth: resolved.width,
-					expectedHeight: resolved.height,
+					expectedWidth: Math.round(resolved.width * scale),
+					expectedHeight: Math.round(resolved.height * scale),
 					expectedTimestamp: timestamp,
 				});
 			}
@@ -543,6 +548,7 @@ export const renderMediaOnWeb = <
 				outputTarget: options.outputTarget ?? null,
 				licenseKey: options.licenseKey ?? undefined,
 				muted: options.muted ?? false,
+				scale: options.scale ?? 1,
 			}),
 		);
 

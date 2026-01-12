@@ -7,21 +7,27 @@ export const createFrame = async ({
 	div,
 	width,
 	height,
+	scale,
 	logLevel,
 	internalState,
 }: {
 	div: HTMLDivElement;
 	width: number;
 	height: number;
+	scale: number;
 	logLevel: LogLevel;
 	internalState: InternalState;
 }) => {
-	const canvas = new OffscreenCanvas(width, height);
+	const scaledWidth = Math.round(width * scale);
+	const scaledHeight = Math.round(height * scale);
+	const canvas = new OffscreenCanvas(scaledWidth, scaledHeight);
 	const context = canvas.getContext('2d');
 
 	if (!context) {
 		throw new Error('Could not get context');
 	}
+
+	context.scale(scale, scale);
 
 	await compose({
 		element: div,
@@ -39,6 +45,7 @@ export const takeScreenshot = async ({
 	div,
 	width,
 	height,
+	scale,
 	imageFormat,
 	logLevel,
 	internalState,
@@ -46,6 +53,7 @@ export const takeScreenshot = async ({
 	div: HTMLDivElement;
 	width: number;
 	height: number;
+	scale: number;
 	imageFormat: RenderStillOnWebImageFormat;
 	logLevel: LogLevel;
 	internalState: InternalState;
@@ -54,6 +62,7 @@ export const takeScreenshot = async ({
 		div,
 		width,
 		height,
+		scale,
 		logLevel,
 		internalState,
 	});

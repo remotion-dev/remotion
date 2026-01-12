@@ -17,6 +17,7 @@ import type {InputPropsIfHasProps} from './render-media-on-web';
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {sendUsageEvent} from './send-telemetry-event';
 import {takeScreenshot} from './take-screenshot';
+import {validateScale} from './validate-scale';
 import {waitForReady} from './wait-for-ready';
 
 export type RenderStillOnWebImageFormat = 'png' | 'jpeg' | 'webp';
@@ -39,6 +40,7 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	signal: AbortSignal | null;
 	onArtifact: WebRendererOnArtifact | null;
 	licenseKey: string | undefined;
+	scale: number;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -70,7 +72,10 @@ async function internalRenderStillOnWeb<
 	signal,
 	onArtifact,
 	licenseKey,
+	scale,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
+	validateScale(scale);
+
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
 			(composition.calculateMetadata as CalculateMetadataFunction<
@@ -137,6 +142,7 @@ async function internalRenderStillOnWeb<
 			div,
 			width: resolved.width,
 			height: resolved.height,
+			scale,
 			imageFormat,
 			logLevel,
 			internalState,
@@ -192,6 +198,7 @@ export const renderStillOnWeb = <
 				signal: options.signal ?? null,
 				onArtifact: options.onArtifact ?? null,
 				licenseKey: options.licenseKey ?? undefined,
+				scale: options.scale ?? 1,
 			}),
 		);
 
