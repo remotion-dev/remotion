@@ -66,6 +66,7 @@ import {transformWithTranslate} from './fixtures/transforms/transform-with-trans
 import {withMargin} from './fixtures/transforms/with-margin';
 import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
 import {unwrapped} from './fixtures/unwrapped';
+import {scaleFixture} from './fixtures/scale';
 
 export const Root: React.FC = () => {
 	return (
@@ -145,6 +146,7 @@ export const Root: React.FC = () => {
 				<Composition {...manyLayers} />
 				<Composition {...threeDFlattening} />
 			</Folder>
+			<Composition {...scaleFixture} />
 		</>
 	);
 };
