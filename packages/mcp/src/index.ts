@@ -21,9 +21,6 @@ server.registerTool(
 				message: 'The query to search for. Keep it short and concise.',
 			}),
 		},
-		outputSchema: {
-			content: z.array(z.object({type: z.literal('text'), text: z.string()})),
-		},
 	},
 	async ({query}: {query: string}) => {
 		const res = await fetch(
