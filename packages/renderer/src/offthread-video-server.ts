@@ -80,17 +80,8 @@ export const startOffthreadVideoServer = ({
 	});
 
 	return {
-		close: async () => {
-			// Note: This is being used as a promise:
-			//     .close().then()
-			// but if finishCommands() fails, it acts like a sync function,
-			// therefore we have to catch an error and put a promise rejection
-			try {
-				await compositor.finishCommands();
-				return compositor.waitForDone();
-			} catch (err) {
-				return Promise.reject(err);
-			}
+		close: () => {
+			return compositor.shutDownOrKill();
 		},
 		listener: (req, response) => {
 			if (!req.url) {
