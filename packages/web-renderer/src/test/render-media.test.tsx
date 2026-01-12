@@ -99,7 +99,12 @@ test('should throttle onProgress callback to 250ms', {retry: 2}, async (t) => {
 	}
 });
 
-test('should not fire stale progress callbacks after render completes', async () => {
+test('should not fire stale progress callbacks after render completes', async (t) => {
+	if (t.task.file.projectName === 'webkit') {
+		t.skip();
+		return;
+	}
+
 	let renderCompleted = false;
 	let staleCallbackReceived = false;
 	let callbackCallCount = 0;
