@@ -22,10 +22,7 @@ import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
 import {DismissableModal} from '../NewComposition/DismissableModal';
-import {
-	addClientStillJob,
-	addClientVideoJob,
-} from '../RenderQueue/client-render-queue';
+import {RenderQueueContext} from '../RenderQueue/context';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {VerticalTab} from '../Tabs/vertical';
@@ -157,6 +154,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 }) => {
 	const context = useContext(ResolvedCompositionContext);
 	const {setSelectedModal} = useContext(ModalsContext);
+	const {addClientStillJob, addClientVideoJob} = useContext(RenderQueueContext);
 	if (!context) {
 		throw new Error(
 			'Should not be able to render without resolving comp first',
@@ -498,6 +496,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		transparent,
 		muted,
 		setSelectedModal,
+		addClientStillJob,
+		addClientVideoJob,
 	]);
 
 	return (

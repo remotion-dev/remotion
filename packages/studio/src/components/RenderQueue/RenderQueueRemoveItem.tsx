@@ -1,16 +1,16 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {removeRenderJob} from './actions';
-import {removeClientJob} from './client-render-queue';
 import type {AnyRenderJob} from './context';
-import {isClientRenderJob} from './context';
+import {isClientRenderJob, RenderQueueContext} from './context';
 
 export const RenderQueueRemoveItem: React.FC<{
 	readonly job: AnyRenderJob;
 }> = ({job}) => {
 	const isClientJob = isClientRenderJob(job);
+	const {removeClientJob} = useContext(RenderQueueContext);
 
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
@@ -30,7 +30,7 @@ export const RenderQueueRemoveItem: React.FC<{
 					showNotification(`Could not remove item: ${err.message}`, 2000);
 				});
 		},
-		[job, isClientJob],
+		[job, isClientJob, removeClientJob],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {
