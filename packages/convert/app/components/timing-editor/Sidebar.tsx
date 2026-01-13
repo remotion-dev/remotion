@@ -2,7 +2,6 @@ import {Button} from '@remotion/design';
 import React, {useState} from 'react';
 import {TextMarkLogo} from '../TextMarkLogo';
 import {CodeModal} from './CodeModal';
-import {ReplayIcon} from './ReplayIcon';
 import {TimingComponentEditor} from './TimingComponentEditor';
 import type {MixingMode, TimingComponent, TimingConfig} from './types';
 
@@ -20,7 +19,6 @@ export const Sidebar: React.FC<{
 	) => void;
 	readonly onChange: (componentId: string, config: TimingConfig) => void;
 	readonly onRelease: (componentId: string) => void;
-	readonly onReplay: () => void;
 	readonly addComponent: () => void;
 	readonly removeComponent: (componentId: string) => void;
 	readonly onMixingModeChange: (componentId: string, mode: MixingMode) => void;
@@ -32,7 +30,6 @@ export const Sidebar: React.FC<{
 	onChange,
 	setDraggedConfig,
 	onRelease,
-	onReplay,
 	addComponent,
 	removeComponent,
 	onMixingModeChange,
@@ -51,14 +48,6 @@ export const Sidebar: React.FC<{
 						className="px-3 h-10 text-sm rounded-full"
 					>
 						Get Code
-					</Button>
-					<Button
-						type="button"
-						depth={0.7}
-						onClick={onReplay}
-						className="rounded-full w-10 h-10"
-					>
-						<ReplayIcon />
 					</Button>
 				</div>
 			</div>

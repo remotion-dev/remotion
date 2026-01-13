@@ -11,7 +11,6 @@ const row: React.CSSProperties = {
 	position: 'absolute',
 	right: PADDING_RIGHT,
 	bottom: PADDING_BOTTOM - 12,
-	cursor: 'pointer',
 	fontVariantNumeric: 'tabular-nums',
 };
 

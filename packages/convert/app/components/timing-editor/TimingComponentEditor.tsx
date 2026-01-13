@@ -57,7 +57,7 @@ export const TimingComponentEditor: React.FC<{
 					</div>
 				</div>
 			) : null}
-			<Card className="p-3 mb-3 relative group">
+			<Card className="p-3 mb-3 relative group mt-7">
 				{canRemove ? (
 					<div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
 						<Button
@@ -71,15 +71,15 @@ export const TimingComponentEditor: React.FC<{
 						</Button>
 					</div>
 				) : null}
-				<div className="flex items-center justify-between mb-5">
+				<div className="flex items-center justify-center mb-5 -mt-8">
 					<Tabs
 						value={config.type}
 						onValueChange={(value) =>
 							onModeChange(value as 'spring' | 'interpolate' | 'sine')
 						}
-						className="flex-1"
+						style={{width: '70%'}}
 					>
-						<TabsList style={{width: '100%'}}>
+						<TabsList>
 							<TabsTrigger value="spring" style={{flex: 1}}>
 								Spring
 							</TabsTrigger>

@@ -8,6 +8,7 @@ import {
 	DEFAULT_SPRING_CONFIG,
 } from './defaults';
 import {HARDCODED_FPS} from './generate-code';
+import {ReplayButton} from './ReplayButton';
 import {Sidebar} from './Sidebar';
 import type {MixingMode, TimingComponent, TimingConfig} from './types';
 
@@ -156,24 +157,28 @@ export function TimingEditor() {
 					setDraggedConfig={setDraggedConfig}
 					onRelease={onRelease}
 					onChange={onChange}
-					onReplay={onReplay}
 					addComponent={addComponent}
 					removeComponent={removeComponent}
 					onMixingModeChange={onMixingModeChange}
 				/>
-				<div className="flex flex-col w-full h-auto flex-1 ">
-					<CanvasWrapper
-						components={components}
-						draggedState={draggedState}
-						draggedDuration={draggedDuration}
-						duration={duration}
-						fps={HARDCODED_FPS}
-						replayKey={replayKey}
-					/>
-					<div className="hidden md:flex flex-row justify-center">
+				<div className="flex flex-col w-full h-auto flex-1">
+					<div className="absolute right-4 top-4">
+						<ReplayButton onReplay={onReplay} />
+					</div>
+					<div className="hidden md:flex flex-row justify-center items-center flex-1">
 						<AnimationPreview animation="Scale" id="spring-scale" />
 						<AnimationPreview animation="Translate" id="spring-translate" />
 						<AnimationPreview animation="Rotate" id="spring-rotate" />
+					</div>
+					<div className="h-[300px]">
+						<CanvasWrapper
+							components={components}
+							draggedState={draggedState}
+							draggedDuration={draggedDuration}
+							duration={duration}
+							fps={HARDCODED_FPS}
+							replayKey={replayKey}
+						/>
 					</div>
 				</div>
 			</div>

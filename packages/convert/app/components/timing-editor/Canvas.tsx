@@ -20,6 +20,7 @@ export const Canvas: React.FC<{
 			width: '100%',
 			height: '100%',
 			backgroundColor: 'var(--background)',
+			fontFeatureSettings: '"ss03"',
 		};
 	}, []);
 

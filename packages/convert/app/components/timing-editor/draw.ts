@@ -1,7 +1,6 @@
 import {measureText} from '@remotion/layout-utils';
 import {
 	AXIS_LABEL_WIDTH,
-	LINE_WIDTH,
 	PADDING_BOTTOM,
 	PADDING_LEFT,
 	PADDING_RIGHT,
@@ -114,7 +113,6 @@ export const draw = ({
 	const range = max - min;
 
 	context.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-	context.lineWidth = LINE_WIDTH * window.devicePixelRatio;
 	context.lineCap = 'round';
 
 	const getYForValue = (value: number) => {
@@ -125,7 +123,8 @@ export const draw = ({
 		);
 	};
 
-	const lineEndX =
+	// Short line end for min value (needs space for time info)
+	const shortLineEndX =
 		width -
 		PADDING_RIGHT -
 		measureText({
@@ -138,14 +137,19 @@ export const draw = ({
 		23 -
 		16;
 
+	// Full width line end for other values
+	const fullLineEndX = width - PADDING_RIGHT;
+
 	const formatAxisLabel = (value: number) => {
 		return value.toFixed(2);
 	};
 
-	const drawAxisLine = (value: number) => {
+	const drawAxisLine = (value: number, isMin: boolean) => {
 		const y = getYForValue(value);
+		const lineEndX = isMin ? shortLineEndX : fullLineEndX;
 
 		// Draw the line
+		context.lineWidth = 1 * window.devicePixelRatio;
 		context.beginPath();
 		context.moveTo(PADDING_LEFT, y);
 		context.lineTo(lineEndX, y);
@@ -165,21 +169,21 @@ export const draw = ({
 	};
 
 	// Draw max line with label
-	drawAxisLine(max);
+	drawAxisLine(max, false);
 
 	// Draw min line with label (only if different from max)
 	if (min !== max) {
-		drawAxisLine(min);
+		drawAxisLine(min, true);
 	}
 
 	// Draw 0 line if it's within range but not already drawn as min or max
 	if (min < 0 && max > 0) {
-		drawAxisLine(0);
+		drawAxisLine(0, false);
 	}
 
 	// Draw 1 line if it's within range but not already drawn as min or max
 	if (min < 1 && max > 1) {
-		drawAxisLine(1);
+		drawAxisLine(1, false);
 	}
 
 	const toStop: (() => void)[] = [];
