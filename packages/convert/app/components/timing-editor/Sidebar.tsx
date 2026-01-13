@@ -1,7 +1,8 @@
-import {Card} from '@remotion/design';
+import {Button, Card} from '@remotion/design';
 import React from 'react';
 import {Tabs, TabsList, TabsTrigger} from '~/components/ui/tabs';
 import {InterpolateEditor} from './InterpolateEditor';
+import {ReplayIcon} from './ReplayIcon';
 import {SineEditor} from './SineEditor';
 import {SpringEditor} from './SpringEditor';
 import type {TimingComponent, TimingConfig} from './types';
@@ -119,16 +120,16 @@ export const Sidebar: React.FC<{
 	removeComponent,
 }) => {
 	return (
-		<div className="p-4 flex flex-col flex-1 w-full overflow-y-auto md:w-[400px] md:h-full md:flex-none overflow-y-auto">
+		<div className="p-4 flex flex-col flex-1 w-full md:w-[400px] md:h-full md:flex-none overflow-y-auto">
 			<div className="flex items-center justify-between mb-4">
 				<div className="font-brand font-bold text-xl">Timing Editor</div>
-				<button
+				<Button
 					type="button"
 					onClick={onReplay}
-					className="px-3 py-1 text-sm bg-[#0b84f3] text-white rounded font-brand font-medium hover:bg-[#0a75d9] transition-colors"
+					className="rounded-full w-10 h-10"
 				>
-					Replay
-				</button>
+					<ReplayIcon />
+				</Button>
 			</div>
 
 			{components.map((component) => (
