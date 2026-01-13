@@ -98,6 +98,7 @@ export const CodeModal: React.FC<{
 										type="button"
 										onClick={() => handleCopy('imports')}
 										className="h-7 px-2 text-xs w-[60px]"
+										depth={0.5}
 									>
 										{copied === 'imports' ? 'Copied!' : 'Copy'}
 									</Button>
@@ -117,7 +118,8 @@ export const CodeModal: React.FC<{
 								<Button
 									type="button"
 									onClick={() => handleCopy('code')}
-									className="h-7 px-2 text-xs"
+									className="h-7 px-2 text-xs w-[60px]"
+									depth={0.5}
 								>
 									{copied === 'code' ? 'Copied!' : 'Copy'}
 								</Button>
