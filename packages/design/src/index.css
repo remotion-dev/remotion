@@ -17,6 +17,7 @@
 	--font-brand: 'GTPlanar', sans-serif;
 	--font-brand--font-feature-settings: 'ss03' 1;
 	--color-brand: #0b84f3;
+	--color-warn: #ff3232;
 	--color-text: var(--text-color);
 	--color-button-bg: var(--plain-button);
 	--color-card-bg: white;

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media",
-	"version": "4.0.403",
+	"version": "4.0.405",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -12,13 +12,14 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
+	"type": "module",
 	"scripts": {
 		"if-node-18+": "node -e \"const [maj]=process.versions.node.split('.').map(Number); process.exit(maj>=18?0:1)\"",
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
-		"watch": "tsc -w",
+		"watch": "tsgo -w",
 		"test": "node src/test/execute.mjs",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
 		"mediabunny": "catalog:",
@@ -35,7 +36,8 @@
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"vitest": "catalog:",
-		"webdriverio": "9.19.2"
+		"webdriverio": "9.19.2",
+		"@typescript/native-preview": "7.0.0-dev.20260105.1"
 	},
 	"keywords": [],
 	"publishConfig": {
@@ -44,7 +46,6 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"require": "./dist/index.js",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/design",
-	"version": "4.0.403",
+	"version": "4.0.405",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -25,6 +25,7 @@
 		"clsx": "^2.1.1",
 		"remotion": "workspace:*",
 		"@radix-ui/react-select": "2.1.1",
+		"@radix-ui/react-tabs": "^1.1.0",
 		"lucide-react": "0.439.0"
 	},
 	"peerDependencies": {

@@ -11,6 +11,7 @@ import {ExtrudeDiv} from '../3DContext/Div3D';
 import {
 	RotateX,
 	RotateY,
+	Scale,
 	TranslateX,
 	TranslateY,
 } from '../3DContext/transformation-context';
@@ -31,6 +32,7 @@ export const CallToAction: React.FC<{
 			height={height}
 			depth={depth}
 			cornerRadius={cornerRadius}
+			backFace={<AbsoluteFill className="bg-white rounded-full border-4" />}
 		>
 			<AbsoluteFill
 				className="bg-white justify-center items-center"
@@ -59,24 +61,26 @@ export const CTAEndCard: React.FC = () => {
 			config: {
 				damping: 200,
 			},
-			durationInFrames: 40,
+			durationInFrames: 100,
+			durationRestThreshold: 0.000001,
 		}) + stat;
 
-	const progress =
-		spring({
-			fps,
-			frame,
-			durationInFrames: 25,
-			delay: 60,
-			config: {
-				damping: 14,
-			},
-		}) + stat;
+	const shrink = spring({
+		fps,
+		frame,
+		config: {
+			damping: 200,
+		},
+		delay: 60,
+		durationInFrames: 10,
+	});
 
-	const WIDTH = interpolate(progress, [0, 1], [350, 350 * 10]);
-	const HEIGHT = interpolate(progress, [0, 1], [100, 400 * 6]);
+	const progress = 0.01;
 
-	const up = interpolate(jumpUp, [0, 1], [600, 0]);
+	const WIDTH = interpolate(progress, [0, 1], [450, 350 * 10]);
+	const HEIGHT = interpolate(progress, [0, 1], [110, 400 * 6]);
+
+	const up = interpolate(jumpUp, [0, 1], [600, 0]) - frame * 1;
 
 	return (
 		<AbsoluteFill
@@ -87,21 +91,35 @@ export const CTAEndCard: React.FC = () => {
 			<div className="flex flex-row">
 				<div style={{position: 'absolute'}}>
 					<DepthContext value={50}>
-						<RotateX radians={visualControl('x', -0.4) * jumpUp + 0.1}>
-							<RotateY radians={visualControl('y', -0.4) * jumpUp}>
-								<TranslateX px={(width - WIDTH) / 2}>
-									<TranslateY px={(height - HEIGHT) / 2 + up + 200}>
-										<CallToAction
-											cornerRadius={HEIGHT / 2}
-											width={WIDTH}
-											height={HEIGHT}
-										>
-											<AtRemotionButton progress={progress} />
-										</CallToAction>
-									</TranslateY>
-								</TranslateX>
-							</RotateY>
-						</RotateX>
+						<Scale factor={(1 - shrink) * 1.2}>
+							<RotateX
+								radians={
+									visualControl('x', -0.4) * jumpUp +
+									0.1 -
+									(Math.PI / 2) * shrink
+								}
+							>
+								<RotateY
+									radians={
+										-0.2 +
+										interpolate(jumpUp, [0, 1], [Math.PI * 2, 0]) -
+										frame * 0.004
+									}
+								>
+									<TranslateX px={(width - WIDTH) / 2}>
+										<TranslateY px={(height - HEIGHT) / 2 + up + 200}>
+											<CallToAction
+												cornerRadius={HEIGHT / 2}
+												width={WIDTH}
+												height={HEIGHT}
+											>
+												<AtRemotionButton progress={progress} />
+											</CallToAction>
+										</TranslateY>
+									</TranslateX>
+								</RotateY>
+							</RotateX>
+						</Scale>
 					</DepthContext>
 				</div>
 			</div>

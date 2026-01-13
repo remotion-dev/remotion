@@ -21,6 +21,13 @@ The current Remotion version can be found in `packages/core/src/version.ts`. The
 
 Pull request titles should be in the format `\`[package-name]\``: [commit-message]`. For example, "`@remotion/player`: Add new feature.
 
+## Before committing
+
+If committing your work:
+
+1. Run `bun run stylecheck` to ensure CI passes
+2. Include `bun.lock` when dependencies change
+
 ## Contributing
 
 Read the full [contribution guide](/packages/docs/docs/contributing/index.mdx).

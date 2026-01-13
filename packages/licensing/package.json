@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/licensing"
 	},
 	"name": "@remotion/licensing",
-	"version": "4.0.403",
+	"version": "4.0.405",
 	"description": "Manage your Remotion.pro license",
 	"main": "dist",
 	"sideEffects": false,
@@ -11,7 +11,7 @@
 		"lint": "eslint src",
 		"formatting": "prettier --experimental-cli src --check",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
-		"test": "bun test src/test/prod-domain.test.ts"
+		"test": "bun test src/test/prod-domain.test.ts src/test/register-usage-event-retry.test.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -26,6 +26,7 @@
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
+		"msw": "^2.7.1",
 		"remotion": "workspace:*"
 	},
 	"homepage": "https://www.remotion.dev/docs/licensing",
