@@ -2,13 +2,10 @@
 image: /generated/articles-docs-loop.png
 id: loop
 title: <Loop>
-crumb: "API"
+crumb: 'API'
 ---
 
-import {
-  LoopExamples,
-  BlueSquare,
-} from "../components/LoopExamples/LoopExamples";
+import {LoopExamples, BlueSquare} from '../components/LoopExamples/LoopExamples';
 
 ```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
@@ -21,7 +18,7 @@ The `<Loop />` component allows you to quickly lay out an animation so it repeat
 
 ```tsx twoslash title="MyComp.tsx"
 // @include: example-BlueSquare
-import { Loop } from "remotion";
+import {Loop} from 'remotion';
 // ---cut---
 const MyComp = () => {
   return (
@@ -86,7 +83,7 @@ const MyComp = () => {
 
 ```tsx twoslash
 // @include: example-BlueSquare
-import { Loop } from "remotion";
+import {Loop} from 'remotion';
 // ---cut---
 const MyComp = () => {
   return (
@@ -104,7 +101,7 @@ const MyComp = () => {
 
 ```tsx twoslash
 // @include: example-BlueSquare
-import { Loop } from "remotion";
+import {Loop} from 'remotion';
 // ---cut---
 const MyComp = () => {
   return (
@@ -122,7 +119,7 @@ const MyComp = () => {
 
 ```tsx twoslash
 // @include: example-BlueSquare
-import { Loop } from "remotion";
+import {Loop} from 'remotion';
 // ---cut---
 const MyComp = () => {
   return (
@@ -146,8 +143,8 @@ If inside a loop, an object with two properties is returned:
 - `iteration`: The current iteration of the loop, starting at 0.
 
 ```tsx twoslash
-import React from "react";
-import { Loop, useCurrentFrame } from "remotion";
+import React from 'react';
+import {Loop, useCurrentFrame} from 'remotion';
 
 const LoopedVideo: React.FC = () => {
   return (
@@ -171,6 +168,10 @@ const Child = () => {
   return <div>{frame}</div>;
 };
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

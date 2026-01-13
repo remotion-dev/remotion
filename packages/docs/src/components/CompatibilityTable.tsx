@@ -141,6 +141,8 @@ type Props = {
 	readonly serverSideRendering: CompatValue;
 	readonly player: CompatValue;
 	readonly studio: CompatValue;
+	readonly hideBrowsers?: boolean;
+	readonly hideServers?: boolean;
 };
 
 type Item = {key: keyof Props; label: string; icon?: React.FC; link?: string};
@@ -154,7 +156,7 @@ const browsers: Item[] = [
 const servers: Item[] = [
 	{key: 'nodejs', label: 'Node.js', icon: NodejsIcon},
 	{key: 'bun', label: 'Bun', icon: BunIcon},
-	{key: 'serverlessFunctions', label: 'Serverless'},
+	{key: 'serverlessFunctions', label: 'Serverless Functions'},
 ];
 
 const environments: Item[] = [
@@ -172,9 +174,13 @@ const environments: Item[] = [
 	{key: 'studio', label: 'Studio', link: '/docs/studio'},
 ];
 
-const allItems = [...browsers, ...servers, ...environments];
-
 export const CompatibilityTable: React.FC<Props> = (props) => {
+	const {hideBrowsers, hideServers} = props;
+
+	const visibleBrowsers = hideBrowsers ? [] : browsers;
+	const visibleServers = hideServers ? [] : servers;
+	const allItems = [...visibleBrowsers, ...visibleServers, ...environments];
+
 	for (const {key, label} of allItems) {
 		if (props[key] === undefined) {
 			throw new Error(`CompatibilityTable: "${label}" (${key}) is required`);
@@ -185,12 +191,16 @@ export const CompatibilityTable: React.FC<Props> = (props) => {
 		<table style={table}>
 			<thead>
 				<tr>
-					<th colSpan={browsers.length} style={sectionTh}>
-						Browsers
-					</th>
-					<th colSpan={servers.length} style={sectionTh}>
-						Servers
-					</th>
+					{!hideBrowsers && (
+						<th colSpan={browsers.length} style={sectionTh}>
+							Browsers
+						</th>
+					)}
+					{!hideServers && (
+						<th colSpan={servers.length} style={sectionTh}>
+							Servers
+						</th>
+					)}
 					<th colSpan={environments.length} style={sectionTh}>
 						Environments
 					</th>
