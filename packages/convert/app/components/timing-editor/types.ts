@@ -45,10 +45,16 @@ export type SineTimingConfig = {
 	frameOffset: number;
 };
 
+export type ConstantTimingConfig = {
+	type: 'constant';
+	value: number;
+};
+
 export type TimingConfig =
 	| SpringTimingConfig
 	| InterpolateTimingConfig
-	| SineTimingConfig;
+	| SineTimingConfig
+	| ConstantTimingConfig;
 
 export type MixingMode = 'additive' | 'subtractive';
 

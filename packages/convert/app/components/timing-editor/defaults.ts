@@ -1,4 +1,5 @@
 import type {
+	ConstantTimingConfig,
 	EasingType,
 	InterpolateTimingConfig,
 	SineTimingConfig,
@@ -43,6 +44,11 @@ export const DEFAULT_SINE_CONFIG: SineTimingConfig = {
 	amplitude: DEFAULT_SINE_AMPLITUDE,
 	frequency: DEFAULT_SINE_FREQUENCY,
 	frameOffset: DEFAULT_SINE_FRAME_OFFSET,
+};
+
+export const DEFAULT_CONSTANT_CONFIG: ConstantTimingConfig = {
+	type: 'constant',
+	value: 1,
 };
 
 export const EASING_OPTIONS: {value: EasingType; label: string}[] = [

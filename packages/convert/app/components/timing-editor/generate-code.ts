@@ -156,6 +156,19 @@ const generateSineCode = (
 	return `const ${varName} = ${amplitudeStr}Math.sin((2 * Math.PI * ${frequency} * ${frameExpr}) / ${framesToFpsExpr(durationInFrames)});`;
 };
 
+const generateConstantCode = (
+	component: TimingComponent,
+	varName: string,
+): string => {
+	if (component.config.type !== 'constant') {
+		throw new Error('Expected constant config');
+	}
+
+	const {value} = component.config;
+
+	return `const ${varName} = ${value};`;
+};
+
 export type GeneratedCode = {
 	imports: string;
 	code: string;
@@ -210,8 +223,10 @@ export const generateCode = (components: TimingComponent[]): GeneratedCode => {
 			varDeclarations.push(generateSpringCode(component, varName));
 		} else if (component.config.type === 'interpolate') {
 			varDeclarations.push(generateInterpolateCode(component, varName));
-		} else {
+		} else if (component.config.type === 'sine') {
 			varDeclarations.push(generateSineCode(component, varName));
+		} else {
+			varDeclarations.push(generateConstantCode(component, varName));
 		}
 	});
 

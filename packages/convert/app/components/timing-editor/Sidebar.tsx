@@ -11,7 +11,7 @@ export const Sidebar: React.FC<{
 	readonly calculatedDurationInFrames: number;
 	readonly onModeChange: (
 		componentId: string,
-		mode: 'spring' | 'interpolate' | 'sine',
+		mode: 'spring' | 'interpolate' | 'sine' | 'constant',
 	) => void;
 	readonly setDraggedConfig: (
 		componentId: string,

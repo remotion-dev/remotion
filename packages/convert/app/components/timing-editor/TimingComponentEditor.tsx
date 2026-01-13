@@ -1,5 +1,6 @@
 import {Button, Card, Tabs, TabsList, TabsTrigger} from '@remotion/design';
 import React from 'react';
+import {ConstantEditor} from './ConstantEditor';
 import {InterpolateEditor} from './InterpolateEditor';
 import {MinusIcon} from './minus-icon';
 import {MixingButton} from './MixingButton';
@@ -13,7 +14,7 @@ export const TimingComponentEditor: React.FC<{
 	readonly component: TimingComponent;
 	readonly draggedConfig: TimingConfig | null;
 	readonly calculatedDurationInFrames: number;
-	readonly onModeChange: (mode: 'spring' | 'interpolate' | 'sine') => void;
+	readonly onModeChange: (mode: 'spring' | 'interpolate' | 'sine' | 'constant') => void;
 	readonly setDraggedConfig: (config: TimingConfig) => void;
 	readonly onChange: (config: TimingConfig) => void;
 	readonly onRelease: () => void;
@@ -74,9 +75,9 @@ export const TimingComponentEditor: React.FC<{
 					<Tabs
 						value={config.type}
 						onValueChange={(value) =>
-							onModeChange(value as 'spring' | 'interpolate' | 'sine')
+							onModeChange(value as 'spring' | 'interpolate' | 'sine' | 'constant')
 						}
-						style={{width: '70%'}}
+						style={{width: '90%'}}
 					>
 						<TabsList>
 							<TabsTrigger value="spring" style={{flex: 1}}>
@@ -87,6 +88,9 @@ export const TimingComponentEditor: React.FC<{
 							</TabsTrigger>
 							<TabsTrigger value="sine" style={{flex: 1}}>
 								Sine
+							</TabsTrigger>
+							<TabsTrigger value="constant" style={{flex: 1}}>
+								Constant
 							</TabsTrigger>
 						</TabsList>
 					</Tabs>
@@ -107,8 +111,14 @@ export const TimingComponentEditor: React.FC<{
 						onRelease={onRelease}
 						onChange={onChange}
 					/>
-				) : (
+				) : config.type === 'sine' ? (
 					<SineEditor
+						config={config}
+						onChange={setDraggedConfig}
+						onRelease={onRelease}
+					/>
+				) : (
+					<ConstantEditor
 						config={config}
 						onChange={setDraggedConfig}
 						onRelease={onRelease}

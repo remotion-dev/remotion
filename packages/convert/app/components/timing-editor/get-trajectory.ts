@@ -79,6 +79,10 @@ export const getTrajectory = (
 		});
 	}
 
+	if (config.type === 'constant') {
+		return new Array(durationInFrames).fill(config.value);
+	}
+
 	// Interpolate mode
 	const {easing, delay: interpolateDelay} = config;
 	const easingFn = getEasingFunction(easing);

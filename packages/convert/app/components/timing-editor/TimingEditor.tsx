@@ -3,6 +3,7 @@ import {measureSpring} from 'remotion';
 import {AnimationPreview, type AnimationType} from './AnimationPreview';
 import {CanvasWrapper} from './CanvasWrapper';
 import {
+	DEFAULT_CONSTANT_CONFIG,
 	DEFAULT_INTERPOLATE_CONFIG,
 	DEFAULT_SINE_CONFIG,
 	DEFAULT_SPRING_CONFIG,
@@ -31,7 +32,10 @@ export function TimingEditor() {
 	}, []);
 
 	const onModeChange = useCallback(
-		(componentId: string, mode: 'spring' | 'interpolate' | 'sine') => {
+		(
+			componentId: string,
+			mode: 'spring' | 'interpolate' | 'sine' | 'constant',
+		) => {
 			setComponents((prev) =>
 				prev.map((c) => {
 					if (c.id !== componentId) return c;
@@ -43,7 +47,11 @@ export function TimingEditor() {
 						return {...c, config: DEFAULT_INTERPOLATE_CONFIG};
 					}
 
-					return {...c, config: DEFAULT_SINE_CONFIG};
+					if (mode === 'sine') {
+						return {...c, config: DEFAULT_SINE_CONFIG};
+					}
+
+					return {...c, config: DEFAULT_CONSTANT_CONFIG};
 				}),
 			);
 			setDraggedState(null);
@@ -96,8 +104,12 @@ export function TimingEditor() {
 			return cfg.delay + cfg.durationInFrames;
 		}
 
-		// sine
-		return cfg.durationInFrames;
+		if (cfg.type === 'sine') {
+			return cfg.durationInFrames;
+		}
+
+		// constant - does not influence duration
+		return 0;
 	};
 
 	const addComponent = useCallback(() => {
@@ -138,7 +150,9 @@ export function TimingEditor() {
 	});
 
 	// Calculate max duration across all configs
+	// If all components are constant (or result in 0 duration), use 1 frame minimum
 	const duration = Math.max(
+		HARDCODED_FPS,
 		...currentComponents.map((c) => getDuration(c.config)),
 	);
 
