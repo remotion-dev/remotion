@@ -47,7 +47,7 @@ export function TimingEditor() {
 
 	// Load initial state from URL hash (client-side only for SSR)
 	useEffect(() => {
-		const hash = window.location.hash;
+		const {hash} = window.location;
 		if (hash.startsWith('#config=')) {
 			const encoded = hash.slice('#config='.length);
 			const savedState = decodeState(encoded);
