@@ -48,8 +48,9 @@ export const Sidebar: React.FC<{
 				<SpringEditor
 					config={config}
 					calculatedDurationInFrames={calculatedDurationInFrames}
-					onChange={setDraggedConfig}
+					onDragChange={setDraggedConfig}
 					onRelease={onRelease}
+					onChange={onChange}
 				/>
 			) : config.type === 'interpolate' ? (
 				<InterpolateEditor
