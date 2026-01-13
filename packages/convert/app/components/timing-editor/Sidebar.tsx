@@ -14,25 +14,8 @@ export const Sidebar: React.FC<{
 	readonly onRelease: () => void;
 }> = ({config, calculatedDurationInFrames, onModeChange, onChange, onRelease}) => {
 	return (
-		<div
-			id="spring-sidebar"
-			className="p-4"
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				borderRight: '1px solid #242424',
-			}}
-		>
-			<div
-				style={{
-					fontFamily: 'GTPlanar',
-					fontWeight: 'bold',
-					fontSize: 20,
-					marginBottom: 16,
-				}}
-			>
-				Timing Editor
-			</div>
+		<div className="p-4 flex flex-col border-r border-[#242424] flex-1 w-full overflow-y-auto md:w-[400px] md:h-full md:flex-none">
+			<div className="font-brand font-bold text-xl mb-4">Timing Editor</div>
 			<Tabs
 				value={config.type}
 				onValueChange={(value) =>

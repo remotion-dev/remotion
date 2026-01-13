@@ -77,9 +77,6 @@ export const draw = ({
 		16;
 
 	const formatAxisLabel = (value: number) => {
-		if (Number.isInteger(value)) {
-			return value.toString();
-		}
 		return value.toFixed(2);
 	};
 

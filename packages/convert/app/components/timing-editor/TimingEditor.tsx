@@ -70,26 +70,8 @@ export function TimingEditor() {
 	const draggedDuration = draggedConfig ? getDuration(draggedConfig) : null;
 
 	return (
-		<div
-			style={{
-				display: 'flex',
-				justifyContent: 'center',
-				alignItems: 'center',
-				height: '100%',
-				width: '100%',
-				position: 'absolute',
-				flexDirection: 'column',
-			}}
-		>
-			<div
-				id="spring-app"
-				style={{
-					display: 'flex',
-					overflow: 'hidden',
-					width: '100%',
-					flex: 1,
-				}}
-			>
+		<div className="flex justify-center items-center h-full w-full absolute flex-col">
+			<div className="flex overflow-hidden w-full flex-1 flex-col md:flex-row">
 				<Sidebar
 					config={currentConfig}
 					calculatedDurationInFrames={duration}
@@ -97,7 +79,7 @@ export function TimingEditor() {
 					onChange={onChange}
 					onRelease={onRelease}
 				/>
-				<div id="spring-canvas">
+				<div className="flex flex-col h-[300px] w-full border-b border-[#242424] md:h-auto md:flex-1 md:border-b-0">
 					<CanvasWrapper
 						config={config}
 						draggedConfig={draggedConfig}
@@ -105,7 +87,7 @@ export function TimingEditor() {
 						duration={duration}
 						fps={fps}
 					/>
-					<div id="spring-animation-preview">
+					<div className="hidden md:flex flex-row justify-center">
 						<AnimationPreview animation="Scale" id="spring-scale" />
 						<AnimationPreview animation="Translate" id="spring-translate" />
 						<AnimationPreview animation="Rotate" id="spring-rotate" />
