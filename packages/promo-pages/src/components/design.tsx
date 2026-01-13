@@ -213,15 +213,7 @@ export const DesignPage: React.FC = () => {
 					>
 						Remotion documentation
 					</Link>{' '}
-					for more information. You can also wrap{' '}
-					<Link
-						href="https://www.remotion.dev/docs/use-current-frame"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<InlineCode>useCurrentFrame()</InlineCode>
-					</Link>{' '}
-					in a link.
+					for more information.
 				</p>
 				<br />
 				<br />
