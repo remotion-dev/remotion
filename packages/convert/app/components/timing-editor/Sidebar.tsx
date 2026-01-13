@@ -3,7 +3,6 @@ import {Slider} from '~/components/ui/slider';
 import {Tabs, TabsList, TabsTrigger} from '~/components/ui/tabs';
 import {CheckboxWithLabel} from './CheckboxWithLabel';
 import {EASING_OPTIONS} from './defaults';
-import {PADDING_LEFT} from './draw-trajectory';
 import {SliderLabel} from './SliderLabel';
 import {Spacing} from './Spacing';
 import type {EasingType, TimingConfig} from './types';
@@ -44,14 +43,13 @@ export const Sidebar: React.FC<{
 	return (
 		<div
 			id="spring-sidebar"
+			className="p-4"
 			style={{
-				padding: PADDING_LEFT,
 				display: 'flex',
 				flexDirection: 'column',
 				borderRight: '1px solid #242424',
 			}}
 		>
-			<Spacing y={3} />
 			<Tabs
 				value={config.type}
 				onValueChange={(value) =>
@@ -87,7 +85,6 @@ export const Sidebar: React.FC<{
 						value={config.springConfig.mass}
 						toggleable={null}
 					/>
-					<br />
 					<Slider
 						min={1}
 						max={200}
@@ -100,7 +97,6 @@ export const Sidebar: React.FC<{
 						value={config.springConfig.damping}
 						toggleable={null}
 					/>
-					<br />
 					<Slider
 						min={1}
 						max={200}
@@ -112,8 +108,7 @@ export const Sidebar: React.FC<{
 						toggleable={null}
 						label="stiffness"
 						value={config.springConfig.stiffness}
-						/>
-					<br />
+					/>
 					<Slider
 						min={0}
 						max={400}
@@ -124,7 +119,6 @@ export const Sidebar: React.FC<{
 						onPointerUp={onRelease}
 					/>
 					<SliderLabel label="delay" toggleable={null} value={config.delay} />
-					<br />
 					<Slider
 						min={1}
 						max={200}
@@ -146,7 +140,6 @@ export const Sidebar: React.FC<{
 						}}
 						value={config.durationInFrames ?? null}
 					/>
-					<br />
 					<CheckboxWithLabel
 						checked={config.springConfig.overshootClamping}
 						id="overshootClamping"

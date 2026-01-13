@@ -1,9 +1,8 @@
-import {interpolate, interpolateColors} from 'remotion';
-
-const gradient = ['#42e9f5', '#4290f5'] as const;
+import {interpolate} from 'remotion';
 
 export const LINE_WIDTH = 5;
-export const PADDING_LEFT = 25;
+export const AXIS_LABEL_WIDTH = 40;
+export const PADDING_LEFT = 25 + AXIS_LABEL_WIDTH;
 export const PADDING_RIGHT = 20;
 export const PADDING_TOP = 20;
 export const PADDING_BOTTOM = 20;
@@ -82,18 +81,13 @@ export const drawTrajectory = ({
 			context.moveTo(lastX, lastY);
 			context.lineWidth = LINE_WIDTH;
 			context.lineCap = 'round';
-			const color = interpolateColors(
-				i,
-				[0, springTrajectory.length - 1],
-				gradient,
-			);
 			const x = getX({i, segmentWidth});
 			const y = getY({canvasHeight, i, min, max, springTrajectory});
 
 			lastX = x;
 			lastY = y;
 
-			context.strokeStyle = primary ? color : '#eee';
+			context.strokeStyle = primary ? '#0b84f3' : '#eee';
 			context.lineTo(x, y);
 			context.stroke();
 			context.closePath();
