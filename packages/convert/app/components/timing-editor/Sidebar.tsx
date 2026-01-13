@@ -1,5 +1,6 @@
 import {Button} from '@remotion/design';
-import React from 'react';
+import React, {useState} from 'react';
+import {CodeModal} from './CodeModal';
 import {ReplayIcon} from './ReplayIcon';
 import {TimingComponentEditor} from './TimingComponentEditor';
 import type {MixingMode, TimingComponent, TimingConfig} from './types';
@@ -35,17 +36,30 @@ export const Sidebar: React.FC<{
 	removeComponent,
 	onMixingModeChange,
 }) => {
+	const [codeModalOpen, setCodeModalOpen] = useState(false);
+
 	return (
 		<div className="p-4 flex flex-col flex-1 w-full md:w-[400px] md:h-full md:flex-none overflow-y-auto">
 			<div className="flex items-center justify-between mb-4">
 				<div className="font-brand font-bold text-xl">Timing Editor</div>
-				<Button
-					type="button"
-					onClick={onReplay}
-					className="rounded-full w-10 h-10"
-				>
-					<ReplayIcon />
-				</Button>
+				<div className="flex gap-2">
+					<Button
+						type="button"
+						depth={0.7}
+						onClick={() => setCodeModalOpen(true)}
+						className="px-3 h-10 text-sm rounded-full"
+					>
+						Get Code
+					</Button>
+					<Button
+						type="button"
+						depth={0.7}
+						onClick={onReplay}
+						className="rounded-full w-10 h-10"
+					>
+						<ReplayIcon />
+					</Button>
+				</div>
 			</div>
 			{components.map((component, index) => (
 				<TimingComponentEditor
@@ -77,6 +91,11 @@ export const Sidebar: React.FC<{
 					+ Add component
 				</Button>
 			</div>
+			<CodeModal
+				open={codeModalOpen}
+				onOpenChange={setCodeModalOpen}
+				components={components}
+			/>
 		</div>
 	);
 };
