@@ -1,13 +1,13 @@
 import {PlayerInternals} from '@remotion/player';
 import {useRef} from 'react';
 import {Canvas} from './Canvas';
-import type {DraggedConfig} from './types';
+import type {TimingConfig} from './types';
 
 export const CanvasWrapper: React.FC<{
-	readonly draggedConfig: DraggedConfig | null;
+	readonly draggedConfig: TimingConfig | null;
 	readonly draggedDuration: number | null;
 	readonly duration: number;
-	readonly config: DraggedConfig;
+	readonly config: TimingConfig;
 	readonly fps: number;
 }> = ({config, draggedConfig, draggedDuration, duration, fps}) => {
 	const outer = useRef<HTMLDivElement>(null);

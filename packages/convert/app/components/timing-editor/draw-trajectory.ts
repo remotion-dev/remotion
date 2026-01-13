@@ -67,6 +67,7 @@ export const drawTrajectory = ({
 					setTimeout(resolve, intervalBetweenDraw - timeSinceLastDraw);
 				});
 			}
+
 			if (stopped) {
 				break;
 			}
@@ -100,6 +101,7 @@ export const drawTrajectory = ({
 				if (scaleEl) {
 					scaleEl.style.transform = `scale(${springTrajectory[i]})`;
 				}
+
 				if (translateEl) {
 					translateEl.style.transform = `translateY(${interpolate(
 						springTrajectory[i],
@@ -107,6 +109,7 @@ export const drawTrajectory = ({
 						[100, 0],
 					)}px)`;
 				}
+
 				if (rotateEl) {
 					rotateEl.style.transform = `rotate(${interpolate(
 						springTrajectory[i],

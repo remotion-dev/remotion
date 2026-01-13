@@ -1,15 +1,15 @@
 import React, {useEffect, useMemo, useRef} from 'react';
 import {draw, stopDrawing} from './draw';
-import type {DraggedConfig} from './types';
+import type {TimingConfig} from './types';
 import {AnimationDuration} from './AnimationDuration';
 
 export const Canvas: React.FC<{
 	readonly width: number;
 	readonly height: number;
-	readonly draggedConfig: DraggedConfig | null;
+	readonly draggedConfig: TimingConfig | null;
 	readonly draggedDuration: number | null;
 	readonly duration: number;
-	readonly config: DraggedConfig;
+	readonly config: TimingConfig;
 	readonly fps: number;
 }> = ({height, width, draggedConfig, draggedDuration, config, duration, fps}) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);

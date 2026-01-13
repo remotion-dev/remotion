@@ -8,7 +8,7 @@ import {
 	PADDING_TOP,
 	drawTrajectory,
 } from './draw-trajectory';
-import type {DraggedConfig} from './types';
+import type {TimingConfig} from './types';
 
 export let stopDrawing = () => {};
 
@@ -26,8 +26,8 @@ export const draw = ({
 	ref: HTMLCanvasElement;
 	duration: number;
 	fps: number;
-	config: DraggedConfig;
-	draggedConfig: DraggedConfig | null;
+	config: TimingConfig;
+	draggedConfig: TimingConfig | null;
 	draggedDuration: number | null;
 	width: number;
 	height: number;

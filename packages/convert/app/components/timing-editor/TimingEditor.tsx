@@ -1,61 +1,73 @@
 import {useCallback, useState} from 'react';
-import type {SpringConfig} from 'remotion';
 import {measureSpring} from 'remotion';
 import {AnimationPreview} from './AnimationPreview';
 import {CanvasWrapper} from './CanvasWrapper';
-import {DEFAULT_DAMPING, DEFAULT_MASS, DEFAULT_STIFFNESS} from './defaults';
+import {
+	DEFAULT_INTERPOLATE_CONFIG,
+	DEFAULT_SPRING_CONFIG,
+} from './defaults';
 import {Header} from './Header';
 import {Sidebar} from './Sidebar';
-import type {DraggedConfig} from './types';
+import type {EasingType, TimingConfig} from './types';
 
 const fps = 60;
 
 export function TimingEditor() {
-	const [config, setConfig] = useState<
-		SpringConfig & {
-			reverse: boolean;
-			durationInFrames: number | null;
-			delay: number;
-		}
-	>({
-		damping: DEFAULT_DAMPING,
-		mass: DEFAULT_MASS,
-		stiffness: DEFAULT_STIFFNESS,
-		overshootClamping: false,
-		reverse: false,
-		durationInFrames: null,
-		delay: 0,
-	});
+	const [config, setConfig] = useState<TimingConfig>(DEFAULT_SPRING_CONFIG);
+	const [draggedConfig, setDraggedConfig] = useState<TimingConfig | null>(null);
 
-	const [draggedConfig, setDraggedConfig] = useState<DraggedConfig | null>(
-		null,
-	);
+	const onModeChange = useCallback((mode: 'spring' | 'interpolate') => {
+		if (mode === 'spring') {
+			setConfig(DEFAULT_SPRING_CONFIG);
+		} else {
+			setConfig(DEFAULT_INTERPOLATE_CONFIG);
+		}
+
+		setDraggedConfig(null);
+	}, []);
 
 	const onMassChange = useCallback(
 		(e: [number]) => {
-			setDraggedConfig({...config, mass: e[0]});
+			if (config.type !== 'spring') return;
+			setDraggedConfig({
+				...config,
+				springConfig: {...config.springConfig, mass: e[0]},
+			});
 		},
 		[config],
 	);
 
 	const onDampingChange = useCallback(
 		(e: number[]) => {
-			setDraggedConfig({...config, damping: e[0]});
+			if (config.type !== 'spring') return;
+			setDraggedConfig({
+				...config,
+				springConfig: {...config.springConfig, damping: e[0]},
+			});
 		},
 		[config],
 	);
 
 	const onStiffnessChange = useCallback(
 		(e: number[]) => {
-			setDraggedConfig({...config, stiffness: e[0]});
+			if (config.type !== 'spring') return;
+			setDraggedConfig({
+				...config,
+				springConfig: {...config.springConfig, stiffness: e[0]},
+			});
 		},
 		[config],
 	);
 
 	const onDurationInFramesChange = useCallback(
 		(e: number | null) => {
-			setDraggedConfig({...config, durationInFrames: e});
-			setConfig({...config, durationInFrames: e});
+			if (config.type === 'spring') {
+				setDraggedConfig({...config, durationInFrames: e});
+				setConfig({...config, durationInFrames: e});
+			} else if (e !== null) {
+				setDraggedConfig({...config, durationInFrames: e});
+				setConfig({...config, durationInFrames: e});
+			}
 		},
 		[config],
 	);
@@ -70,57 +82,68 @@ export function TimingEditor() {
 
 	const onOvershootClampingChange = useCallback(
 		(checked: boolean) => {
-			setDraggedConfig({
+			if (config.type !== 'spring') return;
+			const newConfig = {
 				...config,
-				overshootClamping: checked,
-			});
-			setConfig({
-				...config,
-				overshootClamping: checked,
-			});
+				springConfig: {...config.springConfig, overshootClamping: checked},
+			};
+			setDraggedConfig(newConfig);
+			setConfig(newConfig);
 		},
 		[config],
 	);
 
 	const onReverseChange = useCallback(
 		(checked: boolean) => {
-			setDraggedConfig({
-				...config,
-				reverse: checked,
-			});
-			setConfig({
-				...config,
-				reverse: checked,
-			});
+			if (config.type !== 'spring') return;
+			const newConfig = {...config, reverse: checked};
+			setDraggedConfig(newConfig);
+			setConfig(newConfig);
+		},
+		[config],
+	);
+
+	const onEasingChange = useCallback(
+		(easing: EasingType) => {
+			if (config.type !== 'interpolate') return;
+			const newConfig = {...config, easing};
+			setDraggedConfig(null);
+			setConfig(newConfig);
 		},
 		[config],
 	);
 
 	const onRelease = useCallback(() => {
 		if (draggedConfig) {
-			setConfig(draggedConfig as DraggedConfig);
+			setConfig(draggedConfig);
 		}
 
 		setDraggedConfig(null);
 	}, [draggedConfig]);
 
+	const currentConfig = draggedConfig ?? config;
+
 	const duration =
-		config.delay +
-		(config.durationInFrames
-			? config.durationInFrames
-			: measureSpring({
+		currentConfig.delay +
+		(currentConfig.type === 'spring'
+			? currentConfig.durationInFrames ??
+				measureSpring({
 					fps,
 					threshold: 0.001,
-					config,
-				}));
+					config: currentConfig.springConfig,
+				})
+			: currentConfig.durationInFrames);
+
 	const draggedDuration = draggedConfig
-		? draggedConfig.durationInFrames
-			? draggedConfig.durationInFrames + draggedConfig.delay
-			: measureSpring({
-					fps,
-					threshold: 0.001,
-					config: draggedConfig,
-				}) + draggedConfig.delay
+		? draggedConfig.delay +
+			(draggedConfig.type === 'spring'
+				? draggedConfig.durationInFrames ??
+					measureSpring({
+						fps,
+						threshold: 0.001,
+						config: draggedConfig.springConfig,
+					})
+				: draggedConfig.durationInFrames)
 		: null;
 
 	return (
@@ -148,16 +171,9 @@ export function TimingEditor() {
 				}}
 			>
 				<Sidebar
-					mass={draggedConfig?.mass ?? config.mass}
-					damping={draggedConfig?.damping ?? config.damping}
-					stiffness={draggedConfig?.stiffness ?? config.stiffness}
-					overshootClamping={config.overshootClamping}
-					reverse={config.reverse}
-					fixedDurationInFrames={
-						draggedConfig?.durationInFrames ?? config.durationInFrames
-					}
+					config={currentConfig}
 					calculatedDurationInFrames={duration}
-					delay={draggedConfig?.delay ?? config.delay}
+					onModeChange={onModeChange}
 					onMassChange={onMassChange}
 					onDampingChange={onDampingChange}
 					onStiffnessChange={onStiffnessChange}
@@ -166,6 +182,7 @@ export function TimingEditor() {
 					onReverseChange={onReverseChange}
 					onDurationInFramesChange={onDurationInFramesChange}
 					onDelayChange={onDelayChange}
+					onEasingChange={onEasingChange}
 				/>
 				<div id="spring-canvas">
 					<CanvasWrapper
