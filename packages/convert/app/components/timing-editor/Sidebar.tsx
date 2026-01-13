@@ -1,3 +1,4 @@
+import {Card} from '@remotion/design';
 import React from 'react';
 import {Tabs, TabsList, TabsTrigger} from '~/components/ui/tabs';
 import {InterpolateEditor} from './InterpolateEditor';
@@ -24,8 +25,17 @@ export const Sidebar: React.FC<{
 	onReplay,
 }) => {
 	return (
-		<div className="p-4 flex flex-col border-r border-[#242424] flex-1 w-full overflow-y-auto md:w-[400px] md:h-full md:flex-none">
-			<div className="font-brand font-bold text-xl mb-4">Timing Editor</div>
+		<Card className="p-4 flex flex-col flex-1 w-full overflow-y-auto md:w-[400px] md:h-full md:flex-none">
+			<div className="flex items-center justify-between mb-4">
+				<div className="font-brand font-bold text-xl">Timing Editor</div>
+				<button
+					type="button"
+					onClick={onReplay}
+					className="px-3 py-1 text-sm bg-[#0b84f3] text-white rounded font-brand font-medium hover:bg-[#0a75d9] transition-colors"
+				>
+					Replay
+				</button>
+			</div>
 			<Tabs
 				value={config.type}
 				onValueChange={(value) =>
@@ -68,14 +78,6 @@ export const Sidebar: React.FC<{
 					onRelease={onRelease}
 				/>
 			)}
-			<Spacing y={2} />
-			<button
-				type="button"
-				onClick={onReplay}
-				className="mt-auto px-4 py-2 bg-[#0b84f3] text-white rounded-md font-brand font-medium hover:bg-[#0a75d9] transition-colors"
-			>
-				Replay
-			</button>
-		</div>
+		</Card>
 	);
 };

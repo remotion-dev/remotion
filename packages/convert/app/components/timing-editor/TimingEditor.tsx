@@ -72,7 +72,7 @@ export function TimingEditor() {
 
 	return (
 		<div className="flex justify-center items-center h-full w-full absolute flex-col">
-			<div className="flex overflow-hidden w-full flex-1 flex-col md:flex-row">
+			<div className="flex overflow-hidden w-full flex-1 flex-col md:flex-row p-2">
 				<Sidebar
 					config={currentConfig}
 					calculatedDurationInFrames={duration}
