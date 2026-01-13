@@ -2,10 +2,7 @@ import {useCallback, useState} from 'react';
 import {measureSpring} from 'remotion';
 import {AnimationPreview} from './AnimationPreview';
 import {CanvasWrapper} from './CanvasWrapper';
-import {
-	DEFAULT_INTERPOLATE_CONFIG,
-	DEFAULT_SPRING_CONFIG,
-} from './defaults';
+import {DEFAULT_INTERPOLATE_CONFIG, DEFAULT_SPRING_CONFIG} from './defaults';
 import {Header} from './Header';
 import {Sidebar} from './Sidebar';
 import type {EasingType, TimingConfig} from './types';
@@ -65,8 +62,8 @@ export function TimingEditor() {
 				setDraggedConfig({...config, durationInFrames: e});
 				setConfig({...config, durationInFrames: e});
 			} else if (e !== null) {
+				// Interpolate mode: only set draggedConfig during drag
 				setDraggedConfig({...config, durationInFrames: e});
-				setConfig({...config, durationInFrames: e});
 			}
 		},
 		[config],
@@ -75,7 +72,10 @@ export function TimingEditor() {
 	const onDelayChange = useCallback(
 		(e: number) => {
 			setDraggedConfig({...config, delay: e});
-			setConfig({...config, delay: e});
+			// Only immediately commit for spring mode
+			if (config.type === 'spring') {
+				setConfig({...config, delay: e});
+			}
 		},
 		[config],
 	);
@@ -126,23 +126,23 @@ export function TimingEditor() {
 	const duration =
 		currentConfig.delay +
 		(currentConfig.type === 'spring'
-			? currentConfig.durationInFrames ??
+			? (currentConfig.durationInFrames ??
 				measureSpring({
 					fps,
 					threshold: 0.001,
 					config: currentConfig.springConfig,
-				})
+				}))
 			: currentConfig.durationInFrames);
 
 	const draggedDuration = draggedConfig
 		? draggedConfig.delay +
 			(draggedConfig.type === 'spring'
-				? draggedConfig.durationInFrames ??
+				? (draggedConfig.durationInFrames ??
 					measureSpring({
 						fps,
 						threshold: 0.001,
 						config: draggedConfig.springConfig,
-					})
+					}))
 				: draggedConfig.durationInFrames)
 		: null;
 
@@ -162,7 +162,6 @@ export function TimingEditor() {
 			<div
 				id="spring-app"
 				style={{
-					boxShadow: '0 3px 10px var(--shadow-color)',
 					display: 'flex',
 					borderRadius: 8,
 					overflow: 'hidden',
