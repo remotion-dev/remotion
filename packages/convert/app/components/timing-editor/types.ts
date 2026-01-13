@@ -37,4 +37,15 @@ export type InterpolateTimingConfig = {
 	delay: number;
 };
 
-export type TimingConfig = SpringTimingConfig | InterpolateTimingConfig;
+export type SineTimingConfig = {
+	type: 'sine';
+	durationInFrames: number;
+	amplitude: number;
+	frequency: number;
+	frameOffset: number;
+};
+
+export type TimingConfig =
+	| SpringTimingConfig
+	| InterpolateTimingConfig
+	| SineTimingConfig;

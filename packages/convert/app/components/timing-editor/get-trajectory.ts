@@ -67,6 +67,18 @@ export const getTrajectory = (
 		});
 	}
 
+	if (config.type === 'sine') {
+		const {amplitude, frequency, frameOffset} = config;
+		const sineDuration = config.durationInFrames;
+
+		return new Array(durationInFrames).fill(true).map((_, i) => {
+			return (
+				amplitude *
+				Math.sin((2 * Math.PI * frequency * (i + frameOffset)) / sineDuration)
+			);
+		});
+	}
+
 	// Interpolate mode
 	const {easing, delay: interpolateDelay} = config;
 	const easingFn = getEasingFunction(easing);

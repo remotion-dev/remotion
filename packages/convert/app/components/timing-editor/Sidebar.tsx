@@ -11,7 +11,7 @@ import type {EasingType, TimingConfig} from './types';
 export const Sidebar: React.FC<{
 	readonly config: TimingConfig;
 	readonly calculatedDurationInFrames: number;
-	readonly onModeChange: (mode: 'spring' | 'interpolate') => void;
+	readonly onModeChange: (mode: 'spring' | 'interpolate' | 'sine') => void;
 	readonly onMassChange: (e: [number]) => void;
 	readonly onDampingChange: (e: [number]) => void;
 	readonly onStiffnessChange: (e: [number]) => void;
@@ -21,6 +21,9 @@ export const Sidebar: React.FC<{
 	readonly onOvershootClampingChange: (checked: boolean) => void;
 	readonly onReverseChange: (checked: boolean) => void;
 	readonly onEasingChange: (easing: EasingType) => void;
+	readonly onAmplitudeChange: (e: number) => void;
+	readonly onFrequencyChange: (e: number) => void;
+	readonly onFrameOffsetChange: (e: number) => void;
 }> = ({
 	config,
 	calculatedDurationInFrames,
@@ -34,6 +37,9 @@ export const Sidebar: React.FC<{
 	onReverseChange,
 	onDelayChange,
 	onEasingChange,
+	onAmplitudeChange,
+	onFrequencyChange,
+	onFrameOffsetChange,
 }) => {
 	return (
 		<div
@@ -49,7 +55,7 @@ export const Sidebar: React.FC<{
 			<Tabs
 				value={config.type}
 				onValueChange={(value) =>
-					onModeChange(value as 'spring' | 'interpolate')
+					onModeChange(value as 'spring' | 'interpolate' | 'sine')
 				}
 			>
 				<TabsList style={{width: '100%'}}>
@@ -58,6 +64,9 @@ export const Sidebar: React.FC<{
 					</TabsTrigger>
 					<TabsTrigger value="interpolate" style={{flex: 1}}>
 						Interpolate
+					</TabsTrigger>
+					<TabsTrigger value="sine" style={{flex: 1}}>
+						Sine
 					</TabsTrigger>
 				</TabsList>
 			</Tabs>
@@ -149,7 +158,7 @@ export const Sidebar: React.FC<{
 						onCheckedChange={onReverseChange}
 					/>
 				</>
-			) : (
+			) : config.type === 'interpolate' ? (
 				<>
 					<label
 						htmlFor="easing-select"
@@ -207,6 +216,70 @@ export const Sidebar: React.FC<{
 						onPointerUp={onRelease}
 					/>
 					<SliderLabel label="delay" toggleable={null} value={config.delay} />
+				</>
+			) : (
+				<>
+					<Slider
+						min={1}
+						max={200}
+						value={[config.durationInFrames]}
+						onValueChange={(val) => {
+							onDurationInFramesChange(val[0]);
+						}}
+						onPointerUp={onRelease}
+					/>
+					<SliderLabel
+						label="durationInFrames"
+						toggleable={null}
+						value={config.durationInFrames}
+					/>
+					<br />
+					<Slider
+						min={0.1}
+						max={2}
+						step={0.1}
+						value={[config.amplitude]}
+						onValueChange={(val) => {
+							onAmplitudeChange(val[0]);
+						}}
+						onPointerUp={onRelease}
+					/>
+					<SliderLabel
+						label="amplitude"
+						toggleable={null}
+						value={config.amplitude}
+					/>
+					<br />
+					<Slider
+						min={0.1}
+						max={10}
+						step={0.1}
+						value={[config.frequency]}
+						onValueChange={(val) => {
+							onFrequencyChange(val[0]);
+						}}
+						onPointerUp={onRelease}
+					/>
+					<SliderLabel
+						label="frequency"
+						toggleable={null}
+						value={config.frequency}
+					/>
+					<br />
+					<Slider
+						min={0}
+						max={100}
+						value={[config.frameOffset]}
+						onValueChange={(val) => {
+							onFrameOffsetChange(val[0]);
+						}}
+						onPointerUp={onRelease}
+					/>
+					<SliderLabel
+						label="frameOffset"
+						toggleable={null}
+						value={config.frameOffset}
+					/>
 				</>
 			)}
 			<Spacing y={2} />

@@ -1,4 +1,9 @@
-import type {EasingType, InterpolateTimingConfig, SpringTimingConfig} from './types';
+import type {
+	EasingType,
+	InterpolateTimingConfig,
+	SineTimingConfig,
+	SpringTimingConfig,
+} from './types';
 
 export const DEFAULT_DAMPING = 10;
 export const DEFAULT_MASS = 1;
@@ -6,6 +11,11 @@ export const DEFAULT_STIFFNESS = 100;
 
 export const DEFAULT_INTERPOLATE_DURATION = 30;
 export const DEFAULT_EASING: EasingType = 'ease-out-cubic';
+
+export const DEFAULT_SINE_DURATION = 60;
+export const DEFAULT_SINE_AMPLITUDE = 1;
+export const DEFAULT_SINE_FREQUENCY = 1;
+export const DEFAULT_SINE_FRAME_OFFSET = 0;
 
 export const DEFAULT_SPRING_CONFIG: SpringTimingConfig = {
 	type: 'spring',
@@ -25,6 +35,14 @@ export const DEFAULT_INTERPOLATE_CONFIG: InterpolateTimingConfig = {
 	easing: DEFAULT_EASING,
 	durationInFrames: DEFAULT_INTERPOLATE_DURATION,
 	delay: 0,
+};
+
+export const DEFAULT_SINE_CONFIG: SineTimingConfig = {
+	type: 'sine',
+	durationInFrames: DEFAULT_SINE_DURATION,
+	amplitude: DEFAULT_SINE_AMPLITUDE,
+	frequency: DEFAULT_SINE_FREQUENCY,
+	frameOffset: DEFAULT_SINE_FRAME_OFFSET,
 };
 
 export const EASING_OPTIONS: {value: EasingType; label: string}[] = [

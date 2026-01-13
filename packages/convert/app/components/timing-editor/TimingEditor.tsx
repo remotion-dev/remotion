@@ -2,7 +2,11 @@ import {useCallback, useState} from 'react';
 import {measureSpring} from 'remotion';
 import {AnimationPreview} from './AnimationPreview';
 import {CanvasWrapper} from './CanvasWrapper';
-import {DEFAULT_INTERPOLATE_CONFIG, DEFAULT_SPRING_CONFIG} from './defaults';
+import {
+	DEFAULT_INTERPOLATE_CONFIG,
+	DEFAULT_SINE_CONFIG,
+	DEFAULT_SPRING_CONFIG,
+} from './defaults';
 import {Header} from './Header';
 import {Sidebar} from './Sidebar';
 import type {EasingType, TimingConfig} from './types';
@@ -13,15 +17,20 @@ export function TimingEditor() {
 	const [config, setConfig] = useState<TimingConfig>(DEFAULT_SPRING_CONFIG);
 	const [draggedConfig, setDraggedConfig] = useState<TimingConfig | null>(null);
 
-	const onModeChange = useCallback((mode: 'spring' | 'interpolate') => {
-		if (mode === 'spring') {
-			setConfig(DEFAULT_SPRING_CONFIG);
-		} else {
-			setConfig(DEFAULT_INTERPOLATE_CONFIG);
-		}
+	const onModeChange = useCallback(
+		(mode: 'spring' | 'interpolate' | 'sine') => {
+			if (mode === 'spring') {
+				setConfig(DEFAULT_SPRING_CONFIG);
+			} else if (mode === 'interpolate') {
+				setConfig(DEFAULT_INTERPOLATE_CONFIG);
+			} else {
+				setConfig(DEFAULT_SINE_CONFIG);
+			}
 
-		setDraggedConfig(null);
-	}, []);
+			setDraggedConfig(null);
+		},
+		[],
+	);
 
 	const onMassChange = useCallback(
 		(e: [number]) => {
@@ -71,6 +80,7 @@ export function TimingEditor() {
 
 	const onDelayChange = useCallback(
 		(e: number) => {
+			if (config.type === 'sine') return;
 			setDraggedConfig({...config, delay: e});
 			// Only immediately commit for spring mode
 			if (config.type === 'spring') {
@@ -113,6 +123,30 @@ export function TimingEditor() {
 		[config],
 	);
 
+	const onAmplitudeChange = useCallback(
+		(amplitude: number) => {
+			if (config.type !== 'sine') return;
+			setDraggedConfig({...config, amplitude});
+		},
+		[config],
+	);
+
+	const onFrequencyChange = useCallback(
+		(frequency: number) => {
+			if (config.type !== 'sine') return;
+			setDraggedConfig({...config, frequency});
+		},
+		[config],
+	);
+
+	const onFrameOffsetChange = useCallback(
+		(frameOffset: number) => {
+			if (config.type !== 'sine') return;
+			setDraggedConfig({...config, frameOffset});
+		},
+		[config],
+	);
+
 	const onRelease = useCallback(() => {
 		if (draggedConfig) {
 			setConfig(draggedConfig);
@@ -123,28 +157,29 @@ export function TimingEditor() {
 
 	const currentConfig = draggedConfig ?? config;
 
-	const duration =
-		currentConfig.delay +
-		(currentConfig.type === 'spring'
-			? (currentConfig.durationInFrames ??
-				measureSpring({
-					fps,
-					threshold: 0.001,
-					config: currentConfig.springConfig,
-				}))
-			: currentConfig.durationInFrames);
-
-	const draggedDuration = draggedConfig
-		? draggedConfig.delay +
-			(draggedConfig.type === 'spring'
-				? (draggedConfig.durationInFrames ??
+	const getDuration = (cfg: TimingConfig) => {
+		if (cfg.type === 'spring') {
+			return (
+				cfg.delay +
+				(cfg.durationInFrames ??
 					measureSpring({
 						fps,
 						threshold: 0.001,
-						config: draggedConfig.springConfig,
+						config: cfg.springConfig,
 					}))
-				: draggedConfig.durationInFrames)
-		: null;
+			);
+		}
+
+		if (cfg.type === 'interpolate') {
+			return cfg.delay + cfg.durationInFrames;
+		}
+
+		// sine
+		return cfg.durationInFrames;
+	};
+
+	const duration = getDuration(currentConfig);
+	const draggedDuration = draggedConfig ? getDuration(draggedConfig) : null;
 
 	return (
 		<div
@@ -182,6 +217,9 @@ export function TimingEditor() {
 					onDurationInFramesChange={onDurationInFramesChange}
 					onDelayChange={onDelayChange}
 					onEasingChange={onEasingChange}
+					onAmplitudeChange={onAmplitudeChange}
+					onFrequencyChange={onFrequencyChange}
+					onFrameOffsetChange={onFrameOffsetChange}
 				/>
 				<div id="spring-canvas">
 					<CanvasWrapper
