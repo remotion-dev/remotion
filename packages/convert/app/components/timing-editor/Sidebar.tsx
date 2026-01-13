@@ -47,7 +47,7 @@ export const Sidebar: React.FC<{
 					<ReplayIcon />
 				</Button>
 			</div>
-			{components.map((component) => (
+			{components.map((component, index) => (
 				<TimingComponentEditor
 					key={component.id}
 					component={component}
@@ -64,6 +64,7 @@ export const Sidebar: React.FC<{
 					onRemove={() => removeComponent(component.id)}
 					canRemove={components.length > 1}
 					onMixingModeChange={(mode) => onMixingModeChange(component.id, mode)}
+					isFirst={index === 0}
 				/>
 			))}
 			<div className="flex row justify-center">

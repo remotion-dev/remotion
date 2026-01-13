@@ -1,5 +1,4 @@
 import {measureText} from '@remotion/layout-utils';
-import {getTrajectory} from './get-trajectory';
 import {
 	AXIS_LABEL_WIDTH,
 	LINE_WIDTH,
@@ -9,6 +8,7 @@ import {
 	PADDING_TOP,
 	drawTrajectory,
 } from './draw-trajectory';
+import {getTrajectory} from './get-trajectory';
 import type {MixingMode, TimingComponent, TimingConfig} from './types';
 
 export let stopDrawing = () => {};
@@ -37,6 +37,7 @@ const combineTrajectories = (
 				sum += value;
 			}
 		}
+
 		result.push(sum);
 	}
 
@@ -75,14 +76,17 @@ export const draw = ({
 		if (draggedState && draggedState.componentId === c.id) {
 			return draggedState.config;
 		}
+
 		return c.config;
 	});
 
 	// Get committed configs (without dragged state)
 	const committedConfigs = components.map((c) => c.config);
 
-	// Get mixing modes
-	const mixingModes = components.map((c) => c.mixingMode);
+	// Get mixing modes (first is always additive)
+	const mixingModes = components.map((c, index) =>
+		index === 0 ? 'additive' : c.mixingMode,
+	);
 
 	// Calculate trajectories for current state (with dragged)
 	const currentTrajectories = currentConfigs.map((config) =>

@@ -21,6 +21,7 @@ export const TimingComponentEditor: React.FC<{
 	readonly onRemove: () => void;
 	readonly canRemove: boolean;
 	readonly onMixingModeChange: (mode: MixingMode) => void;
+	readonly isFirst: boolean;
 }> = ({
 	component,
 	draggedConfig,
@@ -32,27 +33,30 @@ export const TimingComponentEditor: React.FC<{
 	onRemove,
 	canRemove,
 	onMixingModeChange,
+	isFirst,
 }) => {
 	const config = draggedConfig ?? component.config;
 
 	return (
 		<>
-			<div className="flex items-center justify-center gap-2 mb-3">
-				<div className="flex gap-1">
-					<MixingButton
-						onClick={() => onMixingModeChange('additive')}
-						active={component.mixingMode === 'additive'}
-					>
-						<PlusIcon />
-					</MixingButton>
-					<MixingButton
-						onClick={() => onMixingModeChange('subtractive')}
-						active={component.mixingMode === 'subtractive'}
-					>
-						<MinusIcon />
-					</MixingButton>
+			{!isFirst ? (
+				<div className="flex items-center justify-center gap-2 mb-3">
+					<div className="flex gap-1">
+						<MixingButton
+							onClick={() => onMixingModeChange('additive')}
+							active={component.mixingMode === 'additive'}
+						>
+							<PlusIcon />
+						</MixingButton>
+						<MixingButton
+							onClick={() => onMixingModeChange('subtractive')}
+							active={component.mixingMode === 'subtractive'}
+						>
+							<MinusIcon />
+						</MixingButton>
+					</div>
 				</div>
-			</div>
+			) : null}
 			<Card className="p-3 mb-3 relative group">
 				{canRemove ? (
 					<div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
