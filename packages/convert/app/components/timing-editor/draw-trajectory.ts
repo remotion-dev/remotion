@@ -15,17 +15,20 @@ const getX = ({i, segmentWidth}: {i: number; segmentWidth: number}) => {
 const getY = ({
 	canvasHeight,
 	i,
+	min,
 	max,
 	springTrajectory,
 }: {
 	canvasHeight: number;
 	i: number;
+	min: number;
 	max: number;
 	springTrajectory: number[];
 }) => {
+	const range = max - min;
+	const normalizedValue = range === 0 ? 0.5 : (springTrajectory[i] - min) / range;
 	return (
-		(canvasHeight - PADDING_TOP - PADDING_BOTTOM) *
-			(1 - springTrajectory[i] / max) +
+		(canvasHeight - PADDING_TOP - PADDING_BOTTOM) * (1 - normalizedValue) +
 		PADDING_TOP
 	);
 };
@@ -36,6 +39,7 @@ export const drawTrajectory = ({
 	canvasWidth,
 	springTrajectory,
 	primary,
+	min,
 	max,
 	animate,
 	fps,
@@ -45,16 +49,18 @@ export const drawTrajectory = ({
 	canvasWidth: number;
 	canvasHeight: number;
 	springTrajectory: number[];
+	min: number;
 	max: number;
 	animate: boolean;
 	fps: number;
 }) => {
 	const intervalBetweenDraw = 1000 / fps;
 	const segmentWidth =
-		(canvasWidth - PADDING_LEFT - PADDING_RIGHT) / (springTrajectory.length - 1);
+		(canvasWidth - PADDING_LEFT - PADDING_RIGHT) /
+		(springTrajectory.length - 1);
 
 	let lastX = getX({i: 0, segmentWidth});
-	let lastY = getY({i: 0, canvasHeight, max, springTrajectory});
+	let lastY = getY({i: 0, canvasHeight, min, max, springTrajectory});
 	let lastDraw = Date.now();
 
 	let stopped = false;
@@ -82,12 +88,12 @@ export const drawTrajectory = ({
 				gradient,
 			);
 			const x = getX({i, segmentWidth});
-			const y = getY({canvasHeight, i, max, springTrajectory});
+			const y = getY({canvasHeight, i, min, max, springTrajectory});
 
 			lastX = x;
 			lastY = y;
 
-			context.strokeStyle = primary ? color : '#333';
+			context.strokeStyle = primary ? color : '#eee';
 			context.lineTo(x, y);
 			context.stroke();
 			context.closePath();

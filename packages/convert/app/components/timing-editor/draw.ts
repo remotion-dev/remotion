@@ -45,43 +45,55 @@ export const draw = ({
 		? getTrajectory(draggedDuration ?? duration, fps, draggedConfig)
 		: [];
 
-	const max = draggedConfig
-		? Math.max(...draggedTrajectory)
-		: Math.max(...trajectory);
+	const activeTrajectory = draggedConfig ? draggedTrajectory : trajectory;
+	const max = Math.max(...activeTrajectory);
+	const min = Math.min(...activeTrajectory);
+	const range = max - min;
 
 	context.strokeStyle = 'rgba(255, 255, 255, 0.05)';
 	context.lineWidth = LINE_WIDTH * window.devicePixelRatio;
 	context.lineCap = 'round';
 
-	// Draw 0 line
-	const zeroHeight = height - PADDING_BOTTOM;
-	context.beginPath();
-	context.moveTo(PADDING_LEFT, zeroHeight);
-	context.lineTo(
-		width -
-			PADDING_RIGHT -
-			measureText({
-				fontFamily: 'GTPlanar',
-				fontSize: 15,
-				text: labelText,
-				fontWeight: 'medium',
-				letterSpacing: undefined,
-			}).width -
-			23 -
-			16,
-		zeroHeight,
-	);
-	context.stroke();
-	context.closePath();
+	const getYForValue = (value: number) => {
+		const normalizedValue = range === 0 ? 0.5 : (value - min) / range;
+		return (
+			(height - PADDING_TOP - PADDING_BOTTOM) * (1 - normalizedValue) +
+			PADDING_TOP
+		);
+	};
 
-	// Draw 1 line
-	const oneHeight =
-		(height - PADDING_TOP - PADDING_BOTTOM) * (1 - 1 / max) + PADDING_TOP;
-	context.beginPath();
-	context.moveTo(PADDING_LEFT, oneHeight);
-	context.lineTo(width - PADDING_RIGHT, oneHeight);
-	context.stroke();
-	context.closePath();
+	const lineEndX =
+		width -
+		PADDING_RIGHT -
+		measureText({
+			fontFamily: 'GTPlanar',
+			fontSize: 15,
+			text: labelText,
+			fontWeight: 'medium',
+			letterSpacing: undefined,
+		}).width -
+		23 -
+		16;
+
+	// Draw 0 line (if 0 is within the range)
+	if (min <= 0 && max >= 0) {
+		const zeroHeight = getYForValue(0);
+		context.beginPath();
+		context.moveTo(PADDING_LEFT, zeroHeight);
+		context.lineTo(lineEndX, zeroHeight);
+		context.stroke();
+		context.closePath();
+	}
+
+	// Draw 1 line (if 1 is within the range)
+	if (min <= 1 && max >= 1) {
+		const oneHeight = getYForValue(1);
+		context.beginPath();
+		context.moveTo(PADDING_LEFT, oneHeight);
+		context.lineTo(width - PADDING_RIGHT, oneHeight);
+		context.stroke();
+		context.closePath();
+	}
 
 	const toStop: (() => void)[] = [];
 
@@ -90,6 +102,7 @@ export const draw = ({
 		canvasHeight: height,
 		canvasWidth: width,
 		context,
+		min,
 		max,
 		primary: !draggedConfig,
 		animate: !draggedConfig,
@@ -104,6 +117,7 @@ export const draw = ({
 				canvasHeight: height,
 				canvasWidth: width,
 				context,
+				min,
 				max,
 				primary: true,
 				animate: false,
