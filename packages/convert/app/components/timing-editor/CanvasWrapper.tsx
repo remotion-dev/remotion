@@ -1,16 +1,16 @@
 import {PlayerInternals} from '@remotion/player';
 import {useRef} from 'react';
 import {Canvas} from './Canvas';
-import type {TimingConfig} from './types';
+import type {TimingComponent, TimingConfig} from './types';
 
 export const CanvasWrapper: React.FC<{
-	readonly draggedConfig: TimingConfig | null;
+	readonly components: TimingComponent[];
+	readonly draggedState: {componentId: string; config: TimingConfig} | null;
 	readonly draggedDuration: number | null;
 	readonly duration: number;
-	readonly config: TimingConfig;
 	readonly fps: number;
 	readonly replayKey: number;
-}> = ({config, draggedConfig, draggedDuration, duration, fps, replayKey}) => {
+}> = ({components, draggedState, draggedDuration, duration, fps, replayKey}) => {
 	const outer = useRef<HTMLDivElement>(null);
 
 	const elementSize = PlayerInternals.useElementSize(outer, {
@@ -31,8 +31,8 @@ export const CanvasWrapper: React.FC<{
 		>
 			{elementSize ? (
 				<Canvas
-					config={config}
-					draggedConfig={draggedConfig}
+					components={components}
+					draggedState={draggedState}
 					draggedDuration={draggedDuration}
 					duration={duration}
 					fps={fps}

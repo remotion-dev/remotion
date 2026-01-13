@@ -49,3 +49,8 @@ export type TimingConfig =
 	| SpringTimingConfig
 	| InterpolateTimingConfig
 	| SineTimingConfig;
+
+export type TimingComponent = {
+	id: string;
+	config: TimingConfig;
+};

@@ -1,23 +1,22 @@
 import React, {useEffect, useMemo, useRef} from 'react';
 import {AnimationDuration} from './AnimationDuration';
 import {draw, stopDrawing} from './draw';
-import type {TimingConfig} from './types';
+import type {TimingComponent, TimingConfig} from './types';
 
 export const Canvas: React.FC<{
 	readonly width: number;
 	readonly height: number;
-	readonly draggedConfig: TimingConfig | null;
+	readonly components: TimingComponent[];
+	readonly draggedState: {componentId: string; config: TimingConfig} | null;
 	readonly draggedDuration: number | null;
 	readonly duration: number;
-	readonly config: TimingConfig;
 	readonly fps: number;
 	readonly replayKey: number;
 }> = ({
 	height,
 	width,
-	draggedConfig,
-	draggedDuration,
-	config,
+	components,
+	draggedState,
 	duration,
 	fps,
 	replayKey,
@@ -38,8 +37,8 @@ export const Canvas: React.FC<{
 
 	const durationLabel =
 		durationType === 'seconds'
-			? `${((draggedDuration ?? duration) / fps).toFixed(2)}sec`
-			: `${draggedDuration ?? duration} frames`;
+			? `${(duration / fps).toFixed(2)}sec`
+			: `${Math.round(duration)} frames`;
 
 	useEffect(() => {
 		if (!canvasRef.current) {
@@ -49,20 +48,18 @@ export const Canvas: React.FC<{
 		stopDrawing();
 		draw({
 			ref: canvasRef.current,
-			duration: draggedDuration ?? duration,
-			config,
-			draggedConfig,
+			duration,
+			components,
+			draggedState,
 			fps,
-			draggedDuration,
 			height,
 			width,
 			labelText: durationLabel,
 		});
 	}, [
-		draggedDuration,
 		duration,
-		config,
-		draggedConfig,
+		components,
+		draggedState,
 		fps,
 		width,
 		height,

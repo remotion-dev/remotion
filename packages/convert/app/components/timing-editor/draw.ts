@@ -9,17 +9,34 @@ import {
 	PADDING_TOP,
 	drawTrajectory,
 } from './draw-trajectory';
-import type {TimingConfig} from './types';
+import type {TimingComponent, TimingConfig} from './types';
 
 export let stopDrawing = () => {};
+
+const sumTrajectories = (trajectories: number[][]): number[] => {
+	if (trajectories.length === 0) return [];
+	const maxLength = Math.max(...trajectories.map((t) => t.length));
+	const result: number[] = [];
+
+	for (let i = 0; i < maxLength; i++) {
+		let sum = 0;
+		for (const trajectory of trajectories) {
+			// If trajectory is shorter, use its last value (or 0 if empty)
+			const value = i < trajectory.length ? trajectory[i] : (trajectory[trajectory.length - 1] ?? 0);
+			sum += value;
+		}
+		result.push(sum);
+	}
+
+	return result;
+};
 
 export const draw = ({
 	ref,
 	duration,
 	fps,
-	config,
-	draggedConfig,
-	draggedDuration,
+	components,
+	draggedState,
 	height,
 	width,
 	labelText,
@@ -27,9 +44,8 @@ export const draw = ({
 	ref: HTMLCanvasElement;
 	duration: number;
 	fps: number;
-	config: TimingConfig;
-	draggedConfig: TimingConfig | null;
-	draggedDuration: number | null;
+	components: TimingComponent[];
+	draggedState: {componentId: string; config: TimingConfig} | null;
 	width: number;
 	height: number;
 	labelText: string;
@@ -41,14 +57,35 @@ export const draw = ({
 	}
 
 	context.clearRect(0, 0, width, height);
-	const trajectory = getTrajectory(duration, fps, config);
-	const draggedTrajectory = draggedConfig
-		? getTrajectory(draggedDuration ?? duration, fps, draggedConfig)
-		: [];
 
-	const activeTrajectory = draggedConfig ? draggedTrajectory : trajectory;
-	const max = Math.max(...activeTrajectory);
-	const min = Math.min(...activeTrajectory);
+	// Get configs, applying dragged state if any
+	const currentConfigs = components.map((c) => {
+		if (draggedState && draggedState.componentId === c.id) {
+			return draggedState.config;
+		}
+		return c.config;
+	});
+
+	// Get committed configs (without dragged state)
+	const committedConfigs = components.map((c) => c.config);
+
+	// Calculate trajectories for current state (with dragged)
+	const currentTrajectories = currentConfigs.map((config) =>
+		getTrajectory(duration, fps, config),
+	);
+
+	// Calculate trajectories for committed state (without dragged)
+	const committedTrajectories = committedConfigs.map((config) =>
+		getTrajectory(duration, fps, config),
+	);
+
+	// Sum the trajectories
+	const combinedTrajectory = sumTrajectories(currentTrajectories);
+	const committedCombinedTrajectory = sumTrajectories(committedTrajectories);
+
+	// Use combined trajectory for min/max calculation
+	const max = Math.max(...combinedTrajectory);
+	const min = Math.min(...combinedTrajectory);
 	const range = max - min;
 
 	context.strokeStyle = 'rgba(0, 0, 0, 0.1)';
@@ -122,34 +159,37 @@ export const draw = ({
 
 	const toStop: (() => void)[] = [];
 
-	const stopPrimary = drawTrajectory({
-		springTrajectory: trajectory,
-		canvasHeight: height,
-		canvasWidth: width,
-		context,
-		min,
-		max,
-		primary: !draggedConfig,
-		animate: !draggedConfig,
-		fps,
-	});
-	toStop.push(stopPrimary);
-
-	if (draggedConfig) {
+	// If dragging, show committed trajectory as faded background
+	if (draggedState) {
 		toStop.push(
 			drawTrajectory({
-				springTrajectory: draggedTrajectory,
+				springTrajectory: committedCombinedTrajectory,
 				canvasHeight: height,
 				canvasWidth: width,
 				context,
 				min,
 				max,
-				primary: true,
+				primary: false,
 				animate: false,
 				fps,
 			}),
 		);
 	}
+
+	// Draw the combined trajectory (animated if not dragging)
+	toStop.push(
+		drawTrajectory({
+			springTrajectory: combinedTrajectory,
+			canvasHeight: height,
+			canvasWidth: width,
+			context,
+			min,
+			max,
+			primary: true,
+			animate: !draggedState,
+			fps,
+		}),
+	);
 
 	stopDrawing = () => {
 		toStop.forEach((stop) => stop());
