@@ -2,7 +2,7 @@
 image: /generated/articles-docs-spring.png
 id: spring
 title: spring()
-crumb: "API"
+crumb: 'API'
 ---
 
 A physics-based animation primitive.
@@ -10,10 +10,10 @@ A physics-based animation primitive.
 Example:
 
 ```tsx twoslash title="spring-example.ts"
-import { spring, useCurrentFrame, useVideoConfig } from "remotion";
+import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
 // ---cut---
 const frame = useCurrentFrame();
-const { fps } = useVideoConfig();
+const {fps} = useVideoConfig();
 
 const value = spring({
   frame,
@@ -24,9 +24,9 @@ const value = spring({
 });
 ```
 
-## Spring Editor
+## Timing Editor
 
-Visit [springs.remotion.dev](https://springs.remotion.dev) to play around with the spring animation parameters and see how they affect the animation.
+Visit [remotion.dev/timing-editor](https://www.remotion.dev/timing-editor) to play around with the spring animation parameters and see how they affect the animation.
 
 ## Parameters
 
