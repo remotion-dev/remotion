@@ -45,7 +45,6 @@ export const Sidebar: React.FC<{
 					<ReplayIcon />
 				</Button>
 			</div>
-
 			{components.map((component) => (
 				<TimingComponentEditor
 					key={component.id}
@@ -64,13 +63,15 @@ export const Sidebar: React.FC<{
 					canRemove={components.length > 1}
 				/>
 			))}
-			<button
-				type="button"
-				onClick={addComponent}
-				className="w-full px-3 py-2 text-sm border border-dashed border-[#444] text-[#888] hover:border-[#666] hover:text-[#aaa] rounded font-brand font-medium transition-colors"
-			>
-				+ Add Timing Component
-			</button>
+			<div className="flex row justify-center">
+				<Button
+					type="button"
+					onClick={addComponent}
+					className="px-3 py-0 text-sm h-9 rounded-full font-brand font-medium"
+				>
+					+ Add component
+				</Button>
+			</div>
 		</div>
 	);
 };
