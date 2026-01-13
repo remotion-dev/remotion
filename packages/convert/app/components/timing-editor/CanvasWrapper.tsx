@@ -9,7 +9,8 @@ export const CanvasWrapper: React.FC<{
 	readonly duration: number;
 	readonly config: TimingConfig;
 	readonly fps: number;
-}> = ({config, draggedConfig, draggedDuration, duration, fps}) => {
+	readonly replayKey: number;
+}> = ({config, draggedConfig, draggedDuration, duration, fps, replayKey}) => {
 	const outer = useRef<HTMLDivElement>(null);
 
 	const elementSize = PlayerInternals.useElementSize(outer, {
@@ -37,6 +38,7 @@ export const CanvasWrapper: React.FC<{
 					fps={fps}
 					height={elementSize.height * window.devicePixelRatio}
 					width={elementSize.width * window.devicePixelRatio}
+					replayKey={replayKey}
 				/>
 			) : null}
 		</div>

@@ -11,6 +11,7 @@ export const Canvas: React.FC<{
 	readonly duration: number;
 	readonly config: TimingConfig;
 	readonly fps: number;
+	readonly replayKey: number;
 }> = ({
 	height,
 	width,
@@ -19,6 +20,7 @@ export const Canvas: React.FC<{
 	config,
 	duration,
 	fps,
+	replayKey,
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -65,6 +67,7 @@ export const Canvas: React.FC<{
 		width,
 		height,
 		durationLabel,
+		replayKey,
 	]);
 
 	return (

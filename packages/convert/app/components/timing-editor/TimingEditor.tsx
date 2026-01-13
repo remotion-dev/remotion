@@ -15,6 +15,11 @@ const fps = 60;
 export function TimingEditor() {
 	const [config, setConfig] = useState<TimingConfig>(DEFAULT_SPRING_CONFIG);
 	const [draggedConfig, setDraggedConfig] = useState<TimingConfig | null>(null);
+	const [replayKey, setReplayKey] = useState(0);
+
+	const onReplay = useCallback(() => {
+		setReplayKey((k) => k + 1);
+	}, []);
 
 	const onModeChange = useCallback(
 		(mode: 'spring' | 'interpolate' | 'sine') => {
@@ -75,6 +80,7 @@ export function TimingEditor() {
 					setDraggedConfig={setDraggedConfig}
 					onRelease={onRelease}
 					onChange={setConfig}
+					onReplay={onReplay}
 				/>
 				<div className="flex flex-col h-[300px] w-full border-b border-[#242424] md:h-auto md:flex-1 md:border-b-0">
 					<CanvasWrapper
@@ -83,6 +89,7 @@ export function TimingEditor() {
 						draggedDuration={draggedDuration}
 						duration={duration}
 						fps={fps}
+						replayKey={replayKey}
 					/>
 					<div className="hidden md:flex flex-row justify-center">
 						<AnimationPreview animation="Scale" id="spring-scale" />

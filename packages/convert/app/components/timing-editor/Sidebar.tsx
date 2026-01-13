@@ -13,6 +13,7 @@ export const Sidebar: React.FC<{
 	readonly setDraggedConfig: (config: TimingConfig) => void;
 	readonly onChange: (config: TimingConfig) => void;
 	readonly onRelease: () => void;
+	readonly onReplay: () => void;
 }> = ({
 	config,
 	calculatedDurationInFrames,
@@ -20,6 +21,7 @@ export const Sidebar: React.FC<{
 	onChange,
 	setDraggedConfig,
 	onRelease,
+	onReplay,
 }) => {
 	return (
 		<div className="p-4 flex flex-col border-r border-[#242424] flex-1 w-full overflow-y-auto md:w-[400px] md:h-full md:flex-none">
@@ -67,6 +69,13 @@ export const Sidebar: React.FC<{
 				/>
 			)}
 			<Spacing y={2} />
+			<button
+				type="button"
+				onClick={onReplay}
+				className="mt-auto px-4 py-2 bg-[#0b84f3] text-white rounded-md font-brand font-medium hover:bg-[#0a75d9] transition-colors"
+			>
+				Replay
+			</button>
 		</div>
 	);
 };
