@@ -2,7 +2,9 @@ import {
 	Button,
 	Card,
 	Counter,
+	InlineCode,
 	Input,
+	Link,
 	Select,
 	SelectContent,
 	SelectItem,
@@ -113,6 +115,48 @@ export const DesignPage: React.FC = () => {
 				<Explainer>Circular</Explainer>
 				<Button className="rounded-full bg-brand w-12 h-12" />
 				<div className="h-8" />
+				<Explainer>Remove</Explainer>
+				<Button
+					className="hover:text-white hover:bg-warn transition-colors w-10 h-10 p-0 rounded-full"
+					depth={0.5}
+				>
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 10 10"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M1 1L9 9M1 9L9 1"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+						/>
+					</svg>
+				</Button>
+				<div className="h-8" />
+				<Explainer>Remove (small)</Explainer>
+				<Button
+					className="hover:text-white hover:bg-warn transition-colors w-6 h-6 p-0 rounded-full"
+					depth={0.5}
+				>
+					<svg
+						width="10"
+						height="10"
+						viewBox="0 0 10 10"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M1 1L9 9M1 9L9 1"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+						/>
+					</svg>
+				</Button>
+				<div className="h-8" />
 				<h2 className="text-brand">&lt;Counter /&gt;</h2>
 				<Counter
 					count={count}
@@ -151,6 +195,34 @@ export const DesignPage: React.FC = () => {
 				<h2 className="text-brand">&lt;Textarea /&gt;</h2>
 				<Textarea placeholder="Enter your message" />
 				<br />
+				<br />
+				<h2 className="text-brand">&lt;InlineCode /&gt;</h2>
+				<p className="font-brand">
+					Use <InlineCode>useCurrentFrame()</InlineCode> to get the current
+					frame and <InlineCode>useVideoConfig()</InlineCode> to get the video
+					configuration.
+				</p>
+				<br />
+				<h2 className="text-brand">&lt;Link /&gt;</h2>
+				<p className="font-brand">
+					See the{' '}
+					<Link
+						href="https://www.remotion.dev/docs"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Remotion documentation
+					</Link>{' '}
+					for more information. You can also wrap{' '}
+					<Link
+						href="https://www.remotion.dev/docs/use-current-frame"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<InlineCode>useCurrentFrame()</InlineCode>
+					</Link>{' '}
+					in a link.
+				</p>
 				<br />
 				<br />
 				<h1>Example form set</h1>
