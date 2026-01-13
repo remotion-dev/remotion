@@ -1,6 +1,5 @@
-import {Button, Card} from '@remotion/design';
+import {Button, Card, Tabs, TabsList, TabsTrigger} from '@remotion/design';
 import React from 'react';
-import {Tabs, TabsList, TabsTrigger} from '~/components/ui/tabs';
 import {InterpolateEditor} from './InterpolateEditor';
 import {MinusIcon} from './minus-icon';
 import {MixingButton} from './MixingButton';
@@ -57,7 +56,7 @@ export const TimingComponentEditor: React.FC<{
 					</div>
 				</div>
 			) : null}
-			<Card className="p-3 mb-3 relative group mt-7">
+			<Card className="p-3 mb-3 relative group mt-5">
 				{canRemove ? (
 					<div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
 						<Button

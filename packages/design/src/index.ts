@@ -19,5 +19,6 @@ export {
 	SelectValue,
 } from './Select';
 export {Switch} from './Switch';
+export {Tabs, TabsContent, TabsList, TabsTrigger} from './Tabs';
 export {Textarea} from './Textarea';
 export {Triangle} from './Triangle';

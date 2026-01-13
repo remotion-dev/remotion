@@ -25,6 +25,7 @@
 		"clsx": "^2.1.1",
 		"remotion": "workspace:*",
 		"@radix-ui/react-select": "2.1.1",
+		"@radix-ui/react-tabs": "^1.1.0",
 		"lucide-react": "0.439.0"
 	},
 	"peerDependencies": {

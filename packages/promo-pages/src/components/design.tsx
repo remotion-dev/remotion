@@ -11,6 +11,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 	Switch,
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
 	Textarea,
 } from '@remotion/design';
 import {useCallback, useState} from 'react';
@@ -187,6 +191,24 @@ export const DesignPage: React.FC = () => {
 						<SelectItem value="option3">Option 3</SelectItem>
 					</SelectContent>
 				</Select>
+				<br />
+				<h2 className="text-brand">&lt;Tabs /&gt;</h2>
+				<Tabs defaultValue="tab1">
+					<TabsList>
+						<TabsTrigger value="tab1">Tab 1</TabsTrigger>
+						<TabsTrigger value="tab2">Tab 2</TabsTrigger>
+						<TabsTrigger value="tab3">Tab 3</TabsTrigger>
+					</TabsList>
+					<TabsContent value="tab1">
+						<div className="font-brand">Content for Tab 1</div>
+					</TabsContent>
+					<TabsContent value="tab2">
+						<div className="font-brand">Content for Tab 2</div>
+					</TabsContent>
+					<TabsContent value="tab3">
+						<div className="font-brand">Content for Tab 3</div>
+					</TabsContent>
+				</Tabs>
 				<br />
 				<h2 className="text-brand">&lt;Input /&gt;</h2>
 				<Input placeholder="Enter your email" />

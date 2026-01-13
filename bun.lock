@@ -329,6 +329,7 @@
       "version": "4.0.405",
       "dependencies": {
         "@radix-ui/react-select": "2.1.1",
+        "@radix-ui/react-tabs": "^1.1.0",
         "@remotion/paths": "workspace:*",
         "@remotion/shapes": "workspace:*",
         "@remotion/svg-3d-engine": "workspace:*",
