@@ -149,7 +149,7 @@ export const draw = ({
 		const lineEndX = isMin ? shortLineEndX : fullLineEndX;
 
 		// Draw the line
-		context.lineWidth = 1 * window.devicePixelRatio;
+		context.lineWidth = 1 * Number(window.devicePixelRatio);
 		context.beginPath();
 		context.moveTo(PADDING_LEFT, y);
 		context.lineTo(lineEndX, y);
@@ -176,13 +176,13 @@ export const draw = ({
 		drawAxisLine(min, true);
 	}
 
-	// Draw 0 line if it's within range but not already drawn as min or max
-	if (min < 0 && max > 0) {
+	// Draw 0 line if it's within range and not too close to min
+	if (min < 0 && max > 0 && (min < -0.1 || min > 0.1)) {
 		drawAxisLine(0, false);
 	}
 
-	// Draw 1 line if it's within range but not already drawn as min or max
-	if (min < 1 && max > 1) {
+	// Draw 1 line if it's within range and not too close to max
+	if (min < 1 && max > 1 && (max < 0.9 || max > 1.1)) {
 		drawAxisLine(1, false);
 	}
 

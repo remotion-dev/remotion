@@ -91,9 +91,7 @@ export const SpringEditor: React.FC<{
 				min={0.02}
 				max={3.33}
 				step={0.01}
-				value={[
-					(config.durationInFrames ?? calculatedDurationInFrames) / 60,
-				]}
+				value={[(config.durationInFrames ?? calculatedDurationInFrames) / 60]}
 				style={{opacity: config.durationInFrames === null ? 0.5 : 1}}
 				onValueChange={(val) => {
 					onDragChange({
@@ -125,6 +123,7 @@ export const SpringEditor: React.FC<{
 			<CheckboxWithLabel
 				checked={config.springConfig.overshootClamping}
 				id="overshootClamping"
+				className="-mt-5"
 				onCheckedChange={(checked) => {
 					onChange({
 						...config,

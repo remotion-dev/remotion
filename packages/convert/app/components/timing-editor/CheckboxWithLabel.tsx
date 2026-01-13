@@ -15,9 +15,10 @@ export const CheckboxWithLabel: React.FC<{
 	readonly id: string;
 	readonly onCheckedChange: (checked: boolean) => void;
 	readonly checked: boolean;
-}> = ({id, checked, onCheckedChange}) => {
+	readonly className?: string;
+}> = ({id, checked, onCheckedChange, className}) => {
 	return (
-		<div style={row}>
+		<div style={row} className={className}>
 			<Checkbox id={id} checked={checked} onCheckedChange={onCheckedChange} />
 			<Spacing x={1} />
 			<Label htmlFor={id}>
