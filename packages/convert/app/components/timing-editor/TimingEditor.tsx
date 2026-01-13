@@ -1,4 +1,4 @@
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {measureSpring} from 'remotion';
 import {AnimationPreview, type AnimationType} from './AnimationPreview';
 import {CanvasWrapper} from './CanvasWrapper';
@@ -11,6 +11,24 @@ import {
 import {HARDCODED_FPS} from './generate-code';
 import {Sidebar} from './Sidebar';
 import type {MixingMode, TimingComponent, TimingConfig} from './types';
+
+type SavedState = {
+	components: TimingComponent[];
+	selectedAnimation: AnimationType;
+};
+
+const encodeState = (state: SavedState): string => {
+	return btoa(JSON.stringify(state));
+};
+
+const decodeState = (hash: string): SavedState | null => {
+	try {
+		const json = atob(hash);
+		return JSON.parse(json) as SavedState;
+	} catch {
+		return null;
+	}
+};
 
 let nextId = 1;
 const generateId = () => `timing-${nextId++}`;
@@ -26,6 +44,37 @@ export function TimingEditor() {
 	const [replayKey, setReplayKey] = useState(0);
 	const [selectedAnimation, setSelectedAnimation] =
 		useState<AnimationType>('Scale');
+
+	// Load initial state from URL hash (client-side only for SSR)
+	useEffect(() => {
+		const hash = window.location.hash;
+		if (hash.startsWith('#config=')) {
+			const encoded = hash.slice('#config='.length);
+			const savedState = decodeState(encoded);
+			if (savedState) {
+				// Update nextId to avoid ID collisions
+				for (const comp of savedState.components) {
+					const match = comp.id.match(/^timing-(\d+)$/);
+					if (match) {
+						const id = parseInt(match[1], 10);
+						if (id >= nextId) {
+							nextId = id + 1;
+						}
+					}
+				}
+
+				setComponents(savedState.components);
+				setSelectedAnimation(savedState.selectedAnimation);
+			}
+		}
+	}, []);
+
+	// Update URL hash when state changes
+	useEffect(() => {
+		const state: SavedState = {components, selectedAnimation};
+		const encoded = encodeState(state);
+		window.location.hash = `config=${encoded}`;
+	}, [components, selectedAnimation]);
 
 	const onReplay = useCallback(() => {
 		setReplayKey((k) => k + 1);
@@ -162,7 +211,7 @@ export function TimingEditor() {
 		: null;
 
 	return (
-		<div className="flex justify-center items-center min-h-screen flex-col bg-[#F9FAFC]">
+		<div className="flex justify-center items-center h-screen flex-col bg-[#F9FAFC]">
 			<div className="flex overflow-hidden w-full flex-1 flex-col md:flex-row">
 				<Sidebar
 					components={components}
@@ -176,7 +225,7 @@ export function TimingEditor() {
 					removeComponent={removeComponent}
 					onMixingModeChange={onMixingModeChange}
 				/>
-				<div className="flex flex-col w-full h-auto flex-1">
+				<div className="flex flex-col w-full h-screen flex-1">
 					<div className="hidden md:flex flex-row justify-center items-center flex-1">
 						<AnimationPreview
 							animation={selectedAnimation}
