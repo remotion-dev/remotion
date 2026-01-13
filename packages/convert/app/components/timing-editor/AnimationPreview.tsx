@@ -20,7 +20,7 @@ export const AnimationPreview: React.FC<{
 					style={{
 						height: 50,
 						width: 50,
-						backgroundColor: 'white',
+						backgroundColor: 'black',
 						borderRadius: 10,
 					}}
 				/>

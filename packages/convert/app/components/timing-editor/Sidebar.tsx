@@ -47,7 +47,7 @@ export const Sidebar: React.FC<{
 				padding: PADDING_LEFT,
 				display: 'flex',
 				flexDirection: 'column',
-				borderLeft: '1px solid #242424',
+				borderRight: '1px solid #242424',
 			}}
 		>
 			<Spacing y={3} />

@@ -147,20 +147,6 @@ export function TimingEditor() {
 					flex: 1,
 				}}
 			>
-				<div id="spring-canvas">
-					<CanvasWrapper
-						config={config}
-						draggedConfig={draggedConfig}
-						draggedDuration={draggedDuration}
-						duration={duration}
-						fps={fps}
-					/>
-					<div id="spring-animation-preview">
-						<AnimationPreview animation="Scale" id="spring-scale" />
-						<AnimationPreview animation="Translate" id="spring-translate" />
-						<AnimationPreview animation="Rotate" id="spring-rotate" />
-					</div>
-				</div>
 				<Sidebar
 					mass={draggedConfig?.mass ?? config.mass}
 					damping={draggedConfig?.damping ?? config.damping}
@@ -181,6 +167,20 @@ export function TimingEditor() {
 					onDurationInFramesChange={onDurationInFramesChange}
 					onDelayChange={onDelayChange}
 				/>
+				<div id="spring-canvas">
+					<CanvasWrapper
+						config={config}
+						draggedConfig={draggedConfig}
+						draggedDuration={draggedDuration}
+						duration={duration}
+						fps={fps}
+					/>
+					<div id="spring-animation-preview">
+						<AnimationPreview animation="Scale" id="spring-scale" />
+						<AnimationPreview animation="Translate" id="spring-translate" />
+						<AnimationPreview animation="Rotate" id="spring-rotate" />
+					</div>
+				</div>
 			</div>
 		</div>
 	);
