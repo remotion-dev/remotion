@@ -9,8 +9,8 @@ export const DEFAULT_DAMPING = 10;
 export const DEFAULT_MASS = 1;
 export const DEFAULT_STIFFNESS = 100;
 
-export const DEFAULT_INTERPOLATE_DURATION = 30;
-export const DEFAULT_EASING: EasingType = 'ease-out-cubic';
+export const DEFAULT_INTERPOLATE_DURATION = 60;
+export const DEFAULT_EASING: EasingType = 'ease-in-out-cubic';
 
 export const DEFAULT_SINE_DURATION = 60;
 export const DEFAULT_SINE_AMPLITUDE = 1;

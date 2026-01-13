@@ -1,6 +1,6 @@
 import {useCallback, useState} from 'react';
 import {measureSpring} from 'remotion';
-import {AnimationPreview} from './AnimationPreview';
+import {AnimationPreview, type AnimationType} from './AnimationPreview';
 import {CanvasWrapper} from './CanvasWrapper';
 import {
 	DEFAULT_INTERPOLATE_CONFIG,
@@ -8,7 +8,6 @@ import {
 	DEFAULT_SPRING_CONFIG,
 } from './defaults';
 import {HARDCODED_FPS} from './generate-code';
-import {ReplayButton} from './ReplayButton';
 import {Sidebar} from './Sidebar';
 import type {MixingMode, TimingComponent, TimingConfig} from './types';
 
@@ -24,6 +23,8 @@ export function TimingEditor() {
 		config: TimingConfig;
 	} | null>(null);
 	const [replayKey, setReplayKey] = useState(0);
+	const [selectedAnimation, setSelectedAnimation] =
+		useState<AnimationType>('Scale');
 
 	const onReplay = useCallback(() => {
 		setReplayKey((k) => k + 1);
@@ -147,7 +148,7 @@ export function TimingEditor() {
 		: null;
 
 	return (
-		<div className="flex justify-center items-center h-full w-full absolute flex-col">
+		<div className="flex justify-center items-center min-h-screen flex-col bg-[#F9FAFC]">
 			<div className="flex overflow-hidden w-full flex-1 flex-col md:flex-row">
 				<Sidebar
 					components={components}
@@ -162,13 +163,13 @@ export function TimingEditor() {
 					onMixingModeChange={onMixingModeChange}
 				/>
 				<div className="flex flex-col w-full h-auto flex-1">
-					<div className="absolute right-4 top-4">
-						<ReplayButton onReplay={onReplay} />
-					</div>
 					<div className="hidden md:flex flex-row justify-center items-center flex-1">
-						<AnimationPreview animation="Scale" id="spring-scale" />
-						<AnimationPreview animation="Translate" id="spring-translate" />
-						<AnimationPreview animation="Rotate" id="spring-rotate" />
+						<AnimationPreview
+							animation={selectedAnimation}
+							id={`spring-${selectedAnimation.toLowerCase()}`}
+							onAnimationChange={setSelectedAnimation}
+							onReplay={onReplay}
+						/>
 					</div>
 					<div className="h-[300px]">
 						<CanvasWrapper

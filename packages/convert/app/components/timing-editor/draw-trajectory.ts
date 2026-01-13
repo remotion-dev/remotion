@@ -25,7 +25,8 @@ const getY = ({
 	springTrajectory: number[];
 }) => {
 	const range = max - min;
-	const normalizedValue = range === 0 ? 0.5 : (springTrajectory[i] - min) / range;
+	const normalizedValue =
+		range === 0 ? 0.5 : (springTrajectory[i] - min) / range;
 	return (
 		(canvasHeight - PADDING_TOP - PADDING_BOTTOM) * (1 - normalizedValue) +
 		PADDING_TOP
@@ -96,7 +97,7 @@ export const drawTrajectory = ({
 			if (animate) {
 				const scaleEl = document.getElementById('spring-scale');
 				const translateEl = document.getElementById('spring-translate');
-				const rotateEl = document.getElementById('spring-rotate');
+				const opacityEl = document.getElementById('spring-opacity');
 
 				if (scaleEl) {
 					scaleEl.style.transform = `scale(${springTrajectory[i]})`;
@@ -106,16 +107,12 @@ export const drawTrajectory = ({
 					translateEl.style.transform = `translateY(${interpolate(
 						springTrajectory[i],
 						[0, 1],
-						[100, 0],
+						[300, 0],
 					)}px)`;
 				}
 
-				if (rotateEl) {
-					rotateEl.style.transform = `rotate(${interpolate(
-						springTrajectory[i],
-						[0, 1],
-						[Math.PI * 2, 0],
-					)}rad)`;
+				if (opacityEl) {
+					opacityEl.style.opacity = springTrajectory[i].toString();
 				}
 			}
 		}
