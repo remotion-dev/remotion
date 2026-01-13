@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
-import {BLUE, getBackgroundFromHoverState} from '../../helpers/colors';
+import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
 import type {AnyRenderJob} from './context';
@@ -25,17 +25,6 @@ import {RenderQueueOutputName} from './RenderQueueOutputName';
 import {RenderQueueProgressMessage} from './RenderQueueProgressMessage';
 import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
 import {RenderQueueRepeatItem} from './RenderQueueRepeat';
-
-const webBadgeStyle: React.CSSProperties = {
-	fontSize: 9,
-	backgroundColor: BLUE,
-	color: 'white',
-	padding: '2px 4px',
-	borderRadius: 3,
-	marginLeft: 6,
-	fontWeight: 'bold',
-	textTransform: 'uppercase',
-};
 
 const container: React.CSSProperties = {
 	padding: 12,
@@ -151,10 +140,7 @@ export const RenderQueueItem: React.FC<{
 			<RenderQueueItemStatus job={job} />
 			<Spacing x={1} />
 			<div style={right}>
-				<div style={title}>
-					{job.compositionId}
-					{isClientJob ? <span style={webBadgeStyle}>Web</span> : null}
-				</div>
+				<div style={title}>{job.compositionId}</div>
 				<div style={subtitle}>
 					{job.status === 'done' ? (
 						<RenderQueueOutputName job={job} />
