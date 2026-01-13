@@ -7,10 +7,9 @@ import {
 	DEFAULT_SINE_CONFIG,
 	DEFAULT_SPRING_CONFIG,
 } from './defaults';
+import {HARDCODED_FPS} from './generate-code';
 import {Sidebar} from './Sidebar';
 import type {MixingMode, TimingComponent, TimingConfig} from './types';
-
-const fps = 60;
 
 let nextId = 1;
 const generateId = () => `timing-${nextId++}`;
@@ -78,11 +77,40 @@ export function TimingEditor() {
 		);
 	}, []);
 
+	const getDuration = (cfg: TimingConfig) => {
+		if (cfg.type === 'spring') {
+			return (
+				cfg.delay +
+				(cfg.durationInFrames ??
+					measureSpring({
+						fps: HARDCODED_FPS,
+						threshold: 0.001,
+						config: cfg.springConfig,
+					}))
+			);
+		}
+
+		if (cfg.type === 'interpolate') {
+			return cfg.delay + cfg.durationInFrames;
+		}
+
+		// sine
+		return cfg.durationInFrames;
+	};
+
 	const addComponent = useCallback(() => {
-		setComponents((prev) => [
-			...prev,
-			{id: generateId(), config: DEFAULT_SPRING_CONFIG, mixingMode: 'additive'},
-		]);
+		setComponents((prev) => {
+			// Calculate total duration of existing components
+			const totalDuration = Math.max(...prev.map((c) => getDuration(c.config)));
+			const newConfig = {
+				...DEFAULT_SPRING_CONFIG,
+				delay: totalDuration,
+			};
+			return [
+				...prev,
+				{id: generateId(), config: newConfig, mixingMode: 'subtractive'},
+			];
+		});
 	}, []);
 
 	const removeComponent = useCallback((componentId: string) => {
@@ -97,27 +125,6 @@ export function TimingEditor() {
 		},
 		[],
 	);
-
-	const getDuration = (cfg: TimingConfig) => {
-		if (cfg.type === 'spring') {
-			return (
-				cfg.delay +
-				(cfg.durationInFrames ??
-					measureSpring({
-						fps,
-						threshold: 0.001,
-						config: cfg.springConfig,
-					}))
-			);
-		}
-
-		if (cfg.type === 'interpolate') {
-			return cfg.delay + cfg.durationInFrames;
-		}
-
-		// sine
-		return cfg.durationInFrames;
-	};
 
 	// Get current configs (applying dragged state if any)
 	const currentComponents = components.map((c) => {
@@ -154,13 +161,13 @@ export function TimingEditor() {
 					removeComponent={removeComponent}
 					onMixingModeChange={onMixingModeChange}
 				/>
-				<div className="flex flex-col h-[300px] w-full border-b border-[#242424] md:h-auto md:flex-1 md:border-b-0">
+				<div className="flex flex-col w-full h-auto flex-1 ">
 					<CanvasWrapper
 						components={components}
 						draggedState={draggedState}
 						draggedDuration={draggedDuration}
 						duration={duration}
-						fps={fps}
+						fps={HARDCODED_FPS}
 						replayKey={replayKey}
 					/>
 					<div className="hidden md:flex flex-row justify-center">

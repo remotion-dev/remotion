@@ -17,17 +17,9 @@ const row: React.CSSProperties = {
 
 export const AnimationDuration: React.FC<{
 	readonly durationLabel: string;
-	readonly setDurationType: React.Dispatch<
-		React.SetStateAction<'seconds' | 'frames'>
-	>;
-}> = ({durationLabel, setDurationType}) => {
+}> = ({durationLabel}) => {
 	return (
-		<div
-			style={row}
-			onClick={() => {
-				setDurationType((prev) => (prev === 'seconds' ? 'frames' : 'seconds'));
-			}}
-		>
+		<div style={row}>
 			<svg height="1em" viewBox="0 0 512 512">
 				<path
 					fill="black"

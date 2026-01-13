@@ -11,18 +11,20 @@ export const SineEditor: React.FC<{
 	return (
 		<>
 			<Slider
-				min={1}
-				max={200}
-				value={[config.durationInFrames]}
+				min={0.02}
+				max={3.33}
+				step={0.01}
+				value={[config.durationInFrames / 60]}
 				onValueChange={(val) => {
-					onChange({...config, durationInFrames: val[0]});
+					onChange({...config, durationInFrames: Math.round(val[0] * 60)});
 				}}
 				onPointerUp={onRelease}
 			/>
 			<SliderLabel
-				label="durationInFrames"
+				label="duration"
+				suffix="s"
 				toggleable={null}
-				value={config.durationInFrames}
+				value={Number((config.durationInFrames / 60).toFixed(2))}
 			/>
 			<Slider
 				min={0.1}
@@ -56,17 +58,19 @@ export const SineEditor: React.FC<{
 			/>
 			<Slider
 				min={0}
-				max={100}
-				value={[config.frameOffset]}
+				max={1.67}
+				step={0.01}
+				value={[config.frameOffset / 60]}
 				onValueChange={(val) => {
-					onChange({...config, frameOffset: val[0]});
+					onChange({...config, frameOffset: Math.round(val[0] * 60)});
 				}}
 				onPointerUp={onRelease}
 			/>
 			<SliderLabel
-				label="frameOffset"
+				label="offset"
+				suffix="s"
 				toggleable={null}
-				value={config.frameOffset}
+				value={Number((config.frameOffset / 60).toFixed(2))}
 			/>
 		</>
 	);

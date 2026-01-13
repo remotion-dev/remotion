@@ -47,29 +47,37 @@ export const InterpolateEditor: React.FC<{
 				))}
 			</select>
 			<Slider
-				min={1}
-				max={200}
-				value={[config.durationInFrames]}
+				min={0.02}
+				max={3.33}
+				step={0.01}
+				value={[config.durationInFrames / 60]}
 				onValueChange={(val) => {
-					onDragChange({...config, durationInFrames: val[0]});
+					onDragChange({...config, durationInFrames: Math.round(val[0] * 60)});
 				}}
 				onPointerUp={onRelease}
 			/>
 			<SliderLabel
-				label="durationInFrames"
+				label="duration"
+				suffix="s"
 				toggleable={null}
-				value={config.durationInFrames}
+				value={Number((config.durationInFrames / 60).toFixed(2))}
 			/>
 			<Slider
 				min={0}
-				max={400}
-				value={[config.delay]}
+				max={6.67}
+				step={0.01}
+				value={[config.delay / 60]}
 				onValueChange={(val) => {
-					onDragChange({...config, delay: val[0]});
+					onDragChange({...config, delay: Math.round(val[0] * 60)});
 				}}
 				onPointerUp={onRelease}
 			/>
-			<SliderLabel label="delay" toggleable={null} value={config.delay} />
+			<SliderLabel
+				label="delay"
+				suffix="s"
+				toggleable={null}
+				value={Number((config.delay / 60).toFixed(2))}
+			/>
 		</>
 	);
 };

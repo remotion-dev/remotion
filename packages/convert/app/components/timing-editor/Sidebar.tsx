@@ -1,5 +1,6 @@
 import {Button} from '@remotion/design';
 import React, {useState} from 'react';
+import {TextMarkLogo} from '../TextMarkLogo';
 import {CodeModal} from './CodeModal';
 import {ReplayIcon} from './ReplayIcon';
 import {TimingComponentEditor} from './TimingComponentEditor';
@@ -41,7 +42,7 @@ export const Sidebar: React.FC<{
 	return (
 		<div className="p-4 flex flex-col flex-1 w-full md:w-[400px] md:h-full md:flex-none overflow-y-auto">
 			<div className="flex items-center justify-between mb-4">
-				<div className="font-brand font-bold text-xl">Timing Editor</div>
+				<TextMarkLogo text="Timing Editor" />
 				<div className="flex gap-2">
 					<Button
 						type="button"

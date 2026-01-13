@@ -73,26 +73,39 @@ export const SpringEditor: React.FC<{
 			/>
 			<Slider
 				min={0}
-				max={400}
-				value={[config.delay]}
+				max={6.67}
+				step={0.01}
+				value={[config.delay / 60]}
 				onValueChange={(val) => {
-					onDragChange({...config, delay: val[0]});
-				}}
-				onPointerUp={onRelease}
-			/>
-			<SliderLabel label="delay" toggleable={null} value={config.delay} />
-			<Slider
-				min={1}
-				max={200}
-				value={[config.durationInFrames ?? calculatedDurationInFrames]}
-				style={{opacity: config.durationInFrames === null ? 0.5 : 1}}
-				onValueChange={(val) => {
-					onDragChange({...config, durationInFrames: val[0]});
+					onDragChange({...config, delay: Math.round(val[0] * 60)});
 				}}
 				onPointerUp={onRelease}
 			/>
 			<SliderLabel
-				label="durationInFrames"
+				label="delay"
+				suffix="s"
+				toggleable={null}
+				value={Number((config.delay / 60).toFixed(2))}
+			/>
+			<Slider
+				min={0.02}
+				max={3.33}
+				step={0.01}
+				value={[
+					(config.durationInFrames ?? calculatedDurationInFrames) / 60,
+				]}
+				style={{opacity: config.durationInFrames === null ? 0.5 : 1}}
+				onValueChange={(val) => {
+					onDragChange({
+						...config,
+						durationInFrames: Math.round(val[0] * 60),
+					});
+				}}
+				onPointerUp={onRelease}
+			/>
+			<SliderLabel
+				label="duration"
+				suffix="s"
 				toggleable={(enabled) => {
 					if (enabled) {
 						onDragChange({
@@ -103,7 +116,11 @@ export const SpringEditor: React.FC<{
 						onDragChange({...config, durationInFrames: null});
 					}
 				}}
-				value={config.durationInFrames ?? null}
+				value={
+					config.durationInFrames !== null
+						? Number((config.durationInFrames / 60).toFixed(2))
+						: null
+				}
 			/>
 			<CheckboxWithLabel
 				checked={config.springConfig.overshootClamping}

@@ -1,4 +1,4 @@
-import {Button} from '@remotion/design';
+import {Button, InlineCode, Link} from '@remotion/design';
 import React, {useEffect, useState} from 'react';
 import {codeToHtml} from 'shikiji';
 import {
@@ -80,58 +80,84 @@ export const CodeModal: React.FC<{
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<div className="overflow-y-auto max-h-[500px]">
-				<DialogContent className="max-w-2xl">
-					<DialogHeader>
-						<DialogDescription>
-							Copy this code into your Remotion project:
-						</DialogDescription>
-					</DialogHeader>
-					<div className="space-y-4">
-						{generated.imports ? (
-							<div>
-								<div className="flex items-center justify-between mb-2">
-									<span className="text-sm font-medium text-muted-foreground">
-										Imports
-									</span>
-									<Button
-										type="button"
-										onClick={() => handleCopy('imports')}
-										className="h-7 px-2 text-xs w-[60px]"
-										depth={0.5}
-									>
-										{copied === 'imports' ? 'Copied!' : 'Copy'}
-									</Button>
-								</div>
-								<CodeBlock
-									code={generated.imports}
-									highlightedHtml={highlightedImports}
-								/>
-							</div>
-						) : null}
-
+			<DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+				<DialogHeader>
+					<DialogDescription>
+						Copy this code into your Remotion project:
+					</DialogDescription>
+				</DialogHeader>
+				<div className="space-y-4 overflow-y-auto flex-1 min-h-0">
+					{generated.imports ? (
 						<div>
-							<div className="flex items-center justify-between mb-2">
+							<div className="flex items-center gap-2 mb-2">
 								<span className="text-sm font-medium text-muted-foreground">
-									Code
+									Imports
 								</span>
 								<Button
 									type="button"
-									onClick={() => handleCopy('code')}
+									onClick={() => handleCopy('imports')}
 									className="h-7 px-2 text-xs w-[60px]"
 									depth={0.5}
 								>
-									{copied === 'code' ? 'Copied!' : 'Copy'}
+									{copied === 'imports' ? 'Copied!' : 'Copy'}
 								</Button>
 							</div>
 							<CodeBlock
-								code={generated.code}
-								highlightedHtml={highlightedCode}
+								code={generated.imports}
+								highlightedHtml={highlightedImports}
 							/>
 						</div>
+					) : null}
+
+					<div>
+						<div className="flex items-center gap-2 mb-2">
+							<span className="text-sm font-medium text-muted-foreground">
+								Code
+							</span>
+							<Button
+								type="button"
+								onClick={() => handleCopy('code')}
+								className="h-7 px-2 text-xs w-[60px]"
+								depth={0.5}
+							>
+								{copied === 'code' ? 'Copied!' : 'Copy'}
+							</Button>
+						</div>
+						<CodeBlock
+							code={generated.code}
+							highlightedHtml={highlightedCode}
+						/>
 					</div>
-				</DialogContent>
-			</div>
+				</div>
+				<DialogDescription>
+					<InlineCode>frame</InlineCode> is from the{' '}
+					<Link
+						href="https://www.remotion.dev/docs/use-current-frame"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<InlineCode>useCurrentFrame()</InlineCode>
+					</Link>{' '}
+					hook. <div className="h-[2px]" />
+					<InlineCode>fps</InlineCode> is from the{' '}
+					<Link
+						href="https://www.remotion.dev/docs/use-video-config"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<InlineCode>useVideoConfig()</InlineCode>
+					</Link>{' '}
+					hook. <div className="h-[2px]" />
+					See also:{' '}
+					<Link
+						href="https://www.remotion.dev/docs/animating-properties"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Animating properties
+					</Link>
+				</DialogDescription>
+			</DialogContent>
 		</Dialog>
 	);
 };

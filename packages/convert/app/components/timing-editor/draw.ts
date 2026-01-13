@@ -174,12 +174,12 @@ export const draw = ({
 
 	// Draw 0 line if it's within range but not already drawn as min or max
 	if (min < 0 && max > 0) {
-		const zeroY = getYForValue(0);
-		context.beginPath();
-		context.moveTo(PADDING_LEFT, zeroY);
-		context.lineTo(lineEndX, zeroY);
-		context.stroke();
-		context.closePath();
+		drawAxisLine(0);
+	}
+
+	// Draw 1 line if it's within range but not already drawn as min or max
+	if (min < 1 && max > 1) {
+		drawAxisLine(1);
 	}
 
 	const toStop: (() => void)[] = [];

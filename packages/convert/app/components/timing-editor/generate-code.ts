@@ -1,5 +1,13 @@
 import type {EasingType, TimingComponent} from './types';
 
+export const HARDCODED_FPS = 60;
+
+const framesToFpsExpr = (frames: number): string => {
+	const seconds = frames / HARDCODED_FPS;
+	const rounded = Number(seconds.toFixed(2));
+	return `${rounded} * fps`;
+};
+
 const getEasingCode = (easing: EasingType): string => {
 	switch (easing) {
 		case 'linear':
@@ -85,11 +93,11 @@ const generateSpringCode = (
 	}
 
 	if (durationInFrames !== null) {
-		lines.push(`  durationInFrames: ${durationInFrames},`);
+		lines.push(`  durationInFrames: ${framesToFpsExpr(durationInFrames)},`);
 	}
 
 	if (delay > 0) {
-		lines.push(`  delay: ${delay},`);
+		lines.push(`  delay: ${framesToFpsExpr(delay)},`);
 	}
 
 	if (reverse) {
@@ -112,12 +120,12 @@ const generateInterpolateCode = (
 	const {easing, durationInFrames, delay} = component.config;
 	const easingCode = getEasingCode(easing);
 
-	const frameExpr = delay > 0 ? `frame - ${delay}` : 'frame';
+	const frameExpr = delay > 0 ? `frame - ${framesToFpsExpr(delay)}` : 'frame';
 
 	const lines: string[] = [
 		`const ${varName} = interpolate(`,
 		`  ${frameExpr},`,
-		`  [0, ${durationInFrames}],`,
+		`  [0, ${framesToFpsExpr(durationInFrames)}],`,
 		'  [0, 1],',
 		'  {',
 		`    easing: ${easingCode},`,
@@ -138,12 +146,14 @@ const generateSineCode = (
 		throw new Error('Expected sine config');
 	}
 
-	const {durationInFrames, amplitude, frequency, frameOffset} = component.config;
+	const {durationInFrames, amplitude, frequency, frameOffset} =
+		component.config;
 
-	const frameExpr = frameOffset !== 0 ? `(frame + ${frameOffset})` : 'frame';
+	const frameExpr =
+		frameOffset !== 0 ? `(frame + ${framesToFpsExpr(frameOffset)})` : 'frame';
 	const amplitudeStr = amplitude !== 1 ? `${amplitude} * ` : '';
 
-	return `const ${varName} = ${amplitudeStr}Math.sin((2 * Math.PI * ${frequency} * ${frameExpr}) / ${durationInFrames});`;
+	return `const ${varName} = ${amplitudeStr}Math.sin((2 * Math.PI * ${frequency} * ${frameExpr}) / ${framesToFpsExpr(durationInFrames)});`;
 };
 
 export type GeneratedCode = {
@@ -160,7 +170,9 @@ export const generateCode = (components: TimingComponent[]): GeneratedCode => {
 	}
 
 	const hasSpring = components.some((c) => c.config.type === 'spring');
-	const hasInterpolate = components.some((c) => c.config.type === 'interpolate');
+	const hasInterpolate = components.some(
+		(c) => c.config.type === 'interpolate',
+	);
 	const needsEasing =
 		hasInterpolate &&
 		components.some(
@@ -206,7 +218,7 @@ export const generateCode = (components: TimingComponent[]): GeneratedCode => {
 	// Generate total line with mixing modes
 	let totalExpr = varNames[0];
 	for (let i = 1; i < components.length; i++) {
-		const mixingMode = components[i].mixingMode;
+		const {mixingMode} = components[i];
 		const operator = mixingMode === 'subtractive' ? '-' : '+';
 		totalExpr += ` ${operator} ${varNames[i]}`;
 	}

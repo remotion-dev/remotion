@@ -17,7 +17,8 @@ export const SliderLabel: React.FC<{
 	readonly label: string;
 	readonly value: number | null;
 	readonly toggleable: null | ((newValue: boolean) => void);
-}> = ({label, value, toggleable}) => {
+	readonly suffix?: string;
+}> = ({label, value, toggleable, suffix}) => {
 	return (
 		<div style={row}>
 			<div style={{flex: 1}}>
@@ -31,7 +32,7 @@ export const SliderLabel: React.FC<{
 				<label htmlFor={label}>{label}</label>
 			</div>
 			<div style={{...valueLabel, opacity: value === null ? 0.5 : 1}}>
-				{value ?? 'undefined'}
+				{value !== null ? `${value}${suffix ?? ''}` : 'undefined'}
 			</div>
 		</div>
 	);

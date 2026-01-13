@@ -12,15 +12,7 @@ export const Canvas: React.FC<{
 	readonly duration: number;
 	readonly fps: number;
 	readonly replayKey: number;
-}> = ({
-	height,
-	width,
-	components,
-	draggedState,
-	duration,
-	fps,
-	replayKey,
-}) => {
+}> = ({height, width, components, draggedState, duration, fps, replayKey}) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	const canvasStyle: React.CSSProperties = useMemo(() => {
@@ -31,14 +23,7 @@ export const Canvas: React.FC<{
 		};
 	}, []);
 
-	const [durationType, setDurationType] = React.useState<'seconds' | 'frames'>(
-		'seconds',
-	);
-
-	const durationLabel =
-		durationType === 'seconds'
-			? `${(duration / fps).toFixed(2)}sec`
-			: `${Math.round(duration)} frames`;
+	const durationLabel = `${(duration / fps).toFixed(2)}sec`;
 
 	useEffect(() => {
 		if (!canvasRef.current) {
@@ -75,10 +60,7 @@ export const Canvas: React.FC<{
 				height={height}
 				style={canvasStyle}
 			/>
-			<AnimationDuration
-				setDurationType={setDurationType}
-				durationLabel={durationLabel}
-			/>
+			<AnimationDuration durationLabel={durationLabel} />
 		</>
 	);
 };
