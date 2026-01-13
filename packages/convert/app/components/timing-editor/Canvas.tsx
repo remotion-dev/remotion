@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useRef} from 'react';
+import {AnimationDuration} from './AnimationDuration';
 import {draw, stopDrawing} from './draw';
 import type {TimingConfig} from './types';
-import {AnimationDuration} from './AnimationDuration';
 
 export const Canvas: React.FC<{
 	readonly width: number;
@@ -11,7 +11,15 @@ export const Canvas: React.FC<{
 	readonly duration: number;
 	readonly config: TimingConfig;
 	readonly fps: number;
-}> = ({height, width, draggedConfig, draggedDuration, config, duration, fps}) => {
+}> = ({
+	height,
+	width,
+	draggedConfig,
+	draggedDuration,
+	config,
+	duration,
+	fps,
+}) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	const canvasStyle: React.CSSProperties = useMemo(() => {

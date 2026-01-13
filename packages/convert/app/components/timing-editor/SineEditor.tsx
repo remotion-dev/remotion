@@ -24,7 +24,6 @@ export const SineEditor: React.FC<{
 				toggleable={null}
 				value={config.durationInFrames}
 			/>
-			<br />
 			<Slider
 				min={0.1}
 				max={2}
@@ -35,8 +34,11 @@ export const SineEditor: React.FC<{
 				}}
 				onPointerUp={onRelease}
 			/>
-			<SliderLabel label="amplitude" toggleable={null} value={config.amplitude} />
-			<br />
+			<SliderLabel
+				label="amplitude"
+				toggleable={null}
+				value={config.amplitude}
+			/>
 			<Slider
 				min={0.1}
 				max={10}
@@ -47,8 +49,11 @@ export const SineEditor: React.FC<{
 				}}
 				onPointerUp={onRelease}
 			/>
-			<SliderLabel label="frequency" toggleable={null} value={config.frequency} />
-			<br />
+			<SliderLabel
+				label="frequency"
+				toggleable={null}
+				value={config.frequency}
+			/>
 			<Slider
 				min={0}
 				max={100}

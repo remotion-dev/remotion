@@ -31,10 +31,6 @@ export function TimingEditor() {
 		[],
 	);
 
-	const onChange = useCallback((newConfig: TimingConfig) => {
-		setDraggedConfig(newConfig);
-	}, []);
-
 	const onRelease = useCallback(() => {
 		if (draggedConfig) {
 			setConfig(draggedConfig);
@@ -76,8 +72,9 @@ export function TimingEditor() {
 					config={currentConfig}
 					calculatedDurationInFrames={duration}
 					onModeChange={onModeChange}
-					onChange={onChange}
+					setDraggedConfig={setDraggedConfig}
 					onRelease={onRelease}
+					onChange={setConfig}
 				/>
 				<div className="flex flex-col h-[300px] w-full border-b border-[#242424] md:h-auto md:flex-1 md:border-b-0">
 					<CanvasWrapper

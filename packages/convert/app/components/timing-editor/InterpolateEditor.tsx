@@ -6,9 +6,10 @@ import type {EasingType, InterpolateTimingConfig} from './types';
 
 export const InterpolateEditor: React.FC<{
 	readonly config: InterpolateTimingConfig;
+	readonly onDragChange: (config: InterpolateTimingConfig) => void;
 	readonly onChange: (config: InterpolateTimingConfig) => void;
 	readonly onRelease: () => void;
-}> = ({config, onChange, onRelease}) => {
+}> = ({config, onDragChange, onRelease, onChange}) => {
 	return (
 		<>
 			<label
@@ -26,6 +27,7 @@ export const InterpolateEditor: React.FC<{
 				value={config.easing}
 				onChange={(e) => {
 					onChange({...config, easing: e.target.value as EasingType});
+					onRelease();
 				}}
 				style={{
 					padding: '8px 12px',
@@ -49,7 +51,7 @@ export const InterpolateEditor: React.FC<{
 				max={200}
 				value={[config.durationInFrames]}
 				onValueChange={(val) => {
-					onChange({...config, durationInFrames: val[0]});
+					onDragChange({...config, durationInFrames: val[0]});
 				}}
 				onPointerUp={onRelease}
 			/>
@@ -58,13 +60,12 @@ export const InterpolateEditor: React.FC<{
 				toggleable={null}
 				value={config.durationInFrames}
 			/>
-			<br />
 			<Slider
 				min={0}
 				max={400}
 				value={[config.delay]}
 				onValueChange={(val) => {
-					onChange({...config, delay: val[0]});
+					onDragChange({...config, delay: val[0]});
 				}}
 				onPointerUp={onRelease}
 			/>
