@@ -8,7 +8,7 @@ import {
 	DEFAULT_SPRING_CONFIG,
 } from './defaults';
 import {Sidebar} from './Sidebar';
-import type {TimingComponent, TimingConfig} from './types';
+import type {MixingMode, TimingComponent, TimingConfig} from './types';
 
 const fps = 60;
 
@@ -17,7 +17,7 @@ const generateId = () => `timing-${nextId++}`;
 
 export function TimingEditor() {
 	const [components, setComponents] = useState<TimingComponent[]>([
-		{id: generateId(), config: DEFAULT_SPRING_CONFIG},
+		{id: generateId(), config: DEFAULT_SPRING_CONFIG, mixingMode: 'additive'},
 	]);
 	const [draggedState, setDraggedState] = useState<{
 		componentId: string;
@@ -81,13 +81,22 @@ export function TimingEditor() {
 	const addComponent = useCallback(() => {
 		setComponents((prev) => [
 			...prev,
-			{id: generateId(), config: DEFAULT_SPRING_CONFIG},
+			{id: generateId(), config: DEFAULT_SPRING_CONFIG, mixingMode: 'additive'},
 		]);
 	}, []);
 
 	const removeComponent = useCallback((componentId: string) => {
 		setComponents((prev) => prev.filter((c) => c.id !== componentId));
 	}, []);
+
+	const onMixingModeChange = useCallback(
+		(componentId: string, mode: MixingMode) => {
+			setComponents((prev) =>
+				prev.map((c) => (c.id === componentId ? {...c, mixingMode: mode} : c)),
+			);
+		},
+		[],
+	);
 
 	const getDuration = (cfg: TimingConfig) => {
 		if (cfg.type === 'spring') {
@@ -143,6 +152,7 @@ export function TimingEditor() {
 					onReplay={onReplay}
 					addComponent={addComponent}
 					removeComponent={removeComponent}
+					onMixingModeChange={onMixingModeChange}
 				/>
 				<div className="flex flex-col h-[300px] w-full border-b border-[#242424] md:h-auto md:flex-1 md:border-b-0">
 					<CanvasWrapper

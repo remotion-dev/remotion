@@ -9,21 +9,33 @@ import {
 	PADDING_TOP,
 	drawTrajectory,
 } from './draw-trajectory';
-import type {TimingComponent, TimingConfig} from './types';
+import type {MixingMode, TimingComponent, TimingConfig} from './types';
 
 export let stopDrawing = () => {};
 
-const sumTrajectories = (trajectories: number[][]): number[] => {
+const combineTrajectories = (
+	trajectories: number[][],
+	mixingModes: MixingMode[],
+): number[] => {
 	if (trajectories.length === 0) return [];
 	const maxLength = Math.max(...trajectories.map((t) => t.length));
 	const result: number[] = [];
 
 	for (let i = 0; i < maxLength; i++) {
 		let sum = 0;
-		for (const trajectory of trajectories) {
+		for (let j = 0; j < trajectories.length; j++) {
+			const trajectory = trajectories[j];
+			const mixingMode = mixingModes[j];
 			// If trajectory is shorter, use its last value (or 0 if empty)
-			const value = i < trajectory.length ? trajectory[i] : (trajectory[trajectory.length - 1] ?? 0);
-			sum += value;
+			const value =
+				i < trajectory.length
+					? trajectory[i]
+					: (trajectory[trajectory.length - 1] ?? 0);
+			if (mixingMode === 'subtractive') {
+				sum -= value;
+			} else {
+				sum += value;
+			}
 		}
 		result.push(sum);
 	}
@@ -69,6 +81,9 @@ export const draw = ({
 	// Get committed configs (without dragged state)
 	const committedConfigs = components.map((c) => c.config);
 
+	// Get mixing modes
+	const mixingModes = components.map((c) => c.mixingMode);
+
 	// Calculate trajectories for current state (with dragged)
 	const currentTrajectories = currentConfigs.map((config) =>
 		getTrajectory(duration, fps, config),
@@ -79,9 +94,15 @@ export const draw = ({
 		getTrajectory(duration, fps, config),
 	);
 
-	// Sum the trajectories
-	const combinedTrajectory = sumTrajectories(currentTrajectories);
-	const committedCombinedTrajectory = sumTrajectories(committedTrajectories);
+	// Combine the trajectories with mixing modes
+	const combinedTrajectory = combineTrajectories(
+		currentTrajectories,
+		mixingModes,
+	);
+	const committedCombinedTrajectory = combineTrajectories(
+		committedTrajectories,
+		mixingModes,
+	);
 
 	// Use combined trajectory for min/max calculation
 	const max = Math.max(...combinedTrajectory);

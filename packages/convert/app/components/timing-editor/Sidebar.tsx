@@ -2,7 +2,7 @@ import {Button} from '@remotion/design';
 import React from 'react';
 import {ReplayIcon} from './ReplayIcon';
 import {TimingComponentEditor} from './TimingComponentEditor';
-import type {TimingComponent, TimingConfig} from './types';
+import type {MixingMode, TimingComponent, TimingConfig} from './types';
 
 export const Sidebar: React.FC<{
 	readonly components: TimingComponent[];
@@ -21,6 +21,7 @@ export const Sidebar: React.FC<{
 	readonly onReplay: () => void;
 	readonly addComponent: () => void;
 	readonly removeComponent: (componentId: string) => void;
+	readonly onMixingModeChange: (componentId: string, mode: MixingMode) => void;
 }> = ({
 	components,
 	draggedState,
@@ -32,6 +33,7 @@ export const Sidebar: React.FC<{
 	onReplay,
 	addComponent,
 	removeComponent,
+	onMixingModeChange,
 }) => {
 	return (
 		<div className="p-4 flex flex-col flex-1 w-full md:w-[400px] md:h-full md:flex-none overflow-y-auto">
@@ -61,12 +63,14 @@ export const Sidebar: React.FC<{
 					onRelease={() => onRelease(component.id)}
 					onRemove={() => removeComponent(component.id)}
 					canRemove={components.length > 1}
+					onMixingModeChange={(mode) => onMixingModeChange(component.id, mode)}
 				/>
 			))}
 			<div className="flex row justify-center">
 				<Button
 					type="button"
 					onClick={addComponent}
+					depth={0.5}
 					className="px-3 py-0 text-sm h-9 rounded-full font-brand font-medium"
 				>
 					+ Add component

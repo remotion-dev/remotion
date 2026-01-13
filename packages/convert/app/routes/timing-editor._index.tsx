@@ -1,10 +1,16 @@
 import {TimingEditor} from '~/components/timing-editor';
+import {TitleProvider} from '~/lib/title-context';
+import type {RouteAction} from '~/seo';
+
+const routeAction: RouteAction = {
+	type: 'timing-editor',
+};
 
 const SpringEditorPage = () => {
 	return (
-		<div className="dark timing-editor-page">
+		<TitleProvider routeAction={routeAction}>
 			<TimingEditor />
-		</div>
+		</TitleProvider>
 	);
 };
 

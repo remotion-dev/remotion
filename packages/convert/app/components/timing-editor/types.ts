@@ -50,7 +50,10 @@ export type TimingConfig =
 	| InterpolateTimingConfig
 	| SineTimingConfig;
 
+export type MixingMode = 'additive' | 'subtractive';
+
 export type TimingComponent = {
 	id: string;
 	config: TimingConfig;
+	mixingMode: MixingMode;
 };
