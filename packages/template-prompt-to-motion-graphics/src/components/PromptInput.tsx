@@ -31,12 +31,13 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 export const MODELS = [
-  { id: "gpt-5-mini", name: "GPT-5 Mini" },
-  { id: "gpt-5.1-codex", name: "GPT-5.1 Codex" },
-  { id: "gpt-5.1:none", name: "GPT-5.1 (No Reasoning)" },
-  { id: "gpt-5.1:low", name: "GPT-5.1 (Low Reasoning)" },
-  { id: "gpt-5.1:medium", name: "GPT-5.1 (Medium Reasoning)" },
-  { id: "gpt-5.1:high", name: "GPT-5.1 (High Reasoning)" },
+  { id: "gpt-5.2:none", name: "GPT-5.2 (No Reasoning)" },
+  { id: "gpt-5.2:low", name: "GPT-5.2 (Low Reasoning)" },
+  { id: "gpt-5.2:medium", name: "GPT-5.2 (Medium Reasoning)" },
+  { id: "gpt-5.2:high", name: "GPT-5.2 (High Reasoning)" },
+  { id: "gpt-5.2-pro:medium", name: "GPT-5.2 Pro (Medium)" },
+  { id: "gpt-5.2-pro:high", name: "GPT-5.2 Pro (High)" },
+  { id: "gpt-5.2-pro:xhigh", name: "GPT-5.2 Pro (XHigh)" },
 ] as const;
 
 export type ModelId = (typeof MODELS)[number]["id"];
@@ -80,7 +81,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
     ref,
   ) {
     const [uncontrolledPrompt, setUncontrolledPrompt] = useState("");
-    const [model, setModel] = useState<ModelId>("gpt-5.1:low");
+    const [model, setModel] = useState<ModelId>("gpt-5.2:low");
 
     // Support both controlled and uncontrolled modes
     const prompt =
