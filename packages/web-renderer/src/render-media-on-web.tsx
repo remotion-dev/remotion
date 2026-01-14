@@ -348,7 +348,6 @@ const internalRenderMediaOnWeb = async <
 			}
 
 			timeUpdater.current?.update(frame);
-			checkForError(errorHolder);
 
 			await waitForReady({
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
