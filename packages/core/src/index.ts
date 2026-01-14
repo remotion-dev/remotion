@@ -135,10 +135,7 @@ export {
 	CompProps,
 	StillProps,
 } from './Composition.js';
-export type {
-	CanvasContent,
-	ClientRenderOutput,
-} from './CompositionManagerContext.js';
+export type {CanvasContent} from './CompositionManagerContext.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
 export {DownloadBehavior} from './download-behavior.js';

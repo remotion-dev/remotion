@@ -1,5 +1,4 @@
 import React, {useContext, useEffect, useState} from 'react';
-import type {ClientRenderOutput} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
@@ -23,8 +22,8 @@ const errMsgStyle: React.CSSProperties = {
 export const RenderPreview: React.FC<{
 	readonly path: string;
 	readonly assetMetadata: AssetMetadata | null;
-	readonly clientRender?: ClientRenderOutput;
-}> = ({path, assetMetadata, clientRender}) => {
+	readonly getBlob?: () => Promise<Blob>;
+}> = ({path, assetMetadata, getBlob}) => {
 	const fileType = getPreviewFileType(path);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
@@ -32,7 +31,7 @@ export const RenderPreview: React.FC<{
 	const [blobUrl, setBlobUrl] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (!clientRender) {
+		if (!getBlob) {
 			setBlobUrl(null);
 			return;
 		}
@@ -40,7 +39,7 @@ export const RenderPreview: React.FC<{
 		let cancelled = false;
 		let blobUrlToRevoke: string | null = null;
 
-		clientRender.getBlob().then((blob) => {
+		getBlob().then((blob) => {
 			if (cancelled) return;
 			blobUrlToRevoke = URL.createObjectURL(blob);
 			setBlobUrl(blobUrlToRevoke);
@@ -52,7 +51,7 @@ export const RenderPreview: React.FC<{
 				URL.revokeObjectURL(blobUrlToRevoke);
 			}
 		};
-	}, [clientRender]);
+	}, [getBlob]);
 
 	const src = blobUrl ?? remotion_outputsBase + path;
 
@@ -60,7 +59,7 @@ export const RenderPreview: React.FC<{
 		return <div style={errMsgStyle}>Studio server disconnected</div>;
 	}
 
-	if (clientRender && !blobUrl) {
+	if (getBlob && !blobUrl) {
 		return <div style={msgStyle}>Loading preview...</div>;
 	}
 

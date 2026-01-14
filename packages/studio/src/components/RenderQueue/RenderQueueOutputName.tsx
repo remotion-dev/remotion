@@ -22,14 +22,20 @@ export const RenderQueueOutputName: React.FC<{
 		};
 	}, [deletedOutputLocation]);
 
-	const title = isClientJob
-		? `Downloaded as ${job.outName}`
-		: deletedOutputLocation
-			? 'File was deleted'
-			: job.outName;
+	const getTitle = (): string => {
+		if (isClientJob) {
+			return `Downloaded as ${job.outName}`;
+		}
+
+		if (deletedOutputLocation) {
+			return 'File was deleted';
+		}
+
+		return job.outName;
+	};
 
 	return (
-		<span style={style} title={title}>
+		<span style={style} title={getTitle()}>
 			{job.outName}
 		</span>
 	);

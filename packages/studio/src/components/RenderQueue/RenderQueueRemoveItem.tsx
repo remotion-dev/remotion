@@ -22,9 +22,9 @@ export const RenderQueueRemoveItem: React.FC<{
 			if (isClientJob) {
 				if (
 					canvasContent &&
-					canvasContent.type === 'output' &&
-					canvasContent.clientRender &&
-					canvasContent.path === `/${job.outName}`
+					canvasContent.type === 'output-blob' &&
+					job.status === 'done' &&
+					canvasContent.getBlob === job.getBlob
 				) {
 					setCanvasContent(null);
 				}

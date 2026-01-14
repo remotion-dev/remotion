@@ -103,12 +103,12 @@ export const RenderQueueItem: React.FC<{
 			const clientJob = job as ClientRenderJob & {status: 'done'};
 
 			setCanvasContent({
-				type: 'output',
-				path: `/${job.outName}`,
-				clientRender: {
-					getBlob: clientJob.getBlob,
-					metadata: clientJob.metadata,
-				},
+				type: 'output-blob',
+				displayName: job.outName,
+				getBlob: clientJob.getBlob,
+				width: clientJob.metadata.width,
+				height: clientJob.metadata.height,
+				sizeInBytes: clientJob.metadata.sizeInBytes,
 			});
 			return;
 		}

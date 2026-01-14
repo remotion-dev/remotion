@@ -19,15 +19,6 @@ export type BaseMetadata = Pick<
 	| 'defaultProResProfile'
 >;
 
-export type ClientRenderOutput = {
-	getBlob: () => Promise<Blob>;
-	metadata: {
-		width: number;
-		height: number;
-		sizeInBytes: number;
-	};
-};
-
 export type CanvasContent =
 	| {
 			type: 'composition';
@@ -40,7 +31,14 @@ export type CanvasContent =
 	| {
 			type: 'output';
 			path: string;
-			clientRender?: ClientRenderOutput;
+	  }
+	| {
+			type: 'output-blob';
+			displayName: string;
+			getBlob: () => Promise<Blob>;
+			width: number;
+			height: number;
+			sizeInBytes: number;
 	  };
 
 export type CompositionManagerSetters = {

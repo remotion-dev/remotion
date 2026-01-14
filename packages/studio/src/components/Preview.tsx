@@ -193,27 +193,48 @@ const CompWhenItHasDimensions: React.FC<{
 		canvasContent,
 	]);
 
-	return (
-		<div style={outer}>
-			{canvasContent.type === 'asset' ? (
+	if (canvasContent.type === 'asset') {
+		return (
+			<div style={outer}>
 				<StaticFilePreview
 					assetMetadata={assetMetadata}
 					currentAsset={canvasContent.asset}
 				/>
-			) : canvasContent.type === 'output' ? (
+			</div>
+		);
+	}
+
+	if (canvasContent.type === 'output') {
+		return (
+			<div style={outer}>
 				<RenderPreview
 					path={canvasContent.path}
 					assetMetadata={assetMetadata}
-					clientRender={canvasContent.clientRender}
 				/>
-			) : (
-				<PortalContainer
-					contentDimensions={contentDimensions as Dimensions}
-					scale={scale}
-					xCorrection={xCorrection}
-					yCorrection={yCorrection}
+			</div>
+		);
+	}
+
+	if (canvasContent.type === 'output-blob') {
+		return (
+			<div style={outer}>
+				<RenderPreview
+					path={canvasContent.displayName}
+					assetMetadata={assetMetadata}
+					getBlob={canvasContent.getBlob}
 				/>
-			)}
+			</div>
+		);
+	}
+
+	return (
+		<div style={outer}>
+			<PortalContainer
+				contentDimensions={contentDimensions as Dimensions}
+				scale={scale}
+				xCorrection={xCorrection}
+				yCorrection={yCorrection}
+			/>
 		</div>
 	);
 };
