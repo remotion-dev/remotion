@@ -36,6 +36,16 @@ export const getAssetMetadata = async (
 	canvasContent: CanvasContent,
 	addTime: boolean,
 ): Promise<AssetMetadata> => {
+	if (canvasContent.type === 'output' && canvasContent.clientRender) {
+		const {metadata} = canvasContent.clientRender;
+		return {
+			type: 'found',
+			size: metadata.sizeInBytes,
+			dimensions: {width: metadata.width, height: metadata.height},
+			fetchedAt: Date.now(),
+		};
+	}
+
 	const src = getSrcFromCanvasContent(canvasContent);
 
 	const file = await fetch(src, {

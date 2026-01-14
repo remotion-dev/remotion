@@ -1,4 +1,4 @@
-import type {RenderJob} from '@remotion/studio-shared';
+import type {ClientRenderJob, RenderJob} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -73,20 +73,20 @@ export const RenderQueueItem: React.FC<{
 		setHovered(false);
 	}, []);
 
-	const isHoverable = job.status === 'done' && !isClientJob;
+	const isHoverable =
+		job.status === 'done' && (isClientJob || job.type !== 'sequence');
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...container,
 			backgroundColor: getBackgroundFromHoverState({
-				hovered:
-					isHoverable && hovered && !isClientJob && job.type !== 'sequence',
+				hovered: isHoverable && hovered,
 				selected,
 			}),
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 		};
-	}, [hovered, isHoverable, isClientJob, job.type, selected]);
+	}, [hovered, isHoverable, selected]);
 
 	const scrollCurrentIntoView = useCallback(() => {
 		document
@@ -100,6 +100,16 @@ export const RenderQueueItem: React.FC<{
 		}
 
 		if (isClientJob) {
+			const clientJob = job as ClientRenderJob & {status: 'done'};
+
+			setCanvasContent({
+				type: 'output',
+				path: `/${job.outName}`,
+				clientRender: {
+					getBlob: clientJob.getBlob,
+					metadata: clientJob.metadata,
+				},
+			});
 			return;
 		}
 

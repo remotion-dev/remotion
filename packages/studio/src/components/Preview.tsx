@@ -204,6 +204,7 @@ const CompWhenItHasDimensions: React.FC<{
 				<RenderPreview
 					path={canvasContent.path}
 					assetMetadata={assetMetadata}
+					clientRender={canvasContent.clientRender}
 				/>
 			) : (
 				<PortalContainer

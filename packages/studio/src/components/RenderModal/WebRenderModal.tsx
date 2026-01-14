@@ -18,10 +18,15 @@ import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import type {WebRenderModalState} from '../../state/modals';
 import {ModalsContext} from '../../state/modals';
+import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
 import {DismissableModal} from '../NewComposition/DismissableModal';
+import {
+	optionsSidebarTabs,
+	persistSelectedOptionsSidebarPanel,
+} from '../OptionsPanel';
 import {RenderQueueContext} from '../RenderQueue/context';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
@@ -154,6 +159,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 }) => {
 	const context = useContext(ResolvedCompositionContext);
 	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSidebarCollapsedState} = useContext(SidebarContext);
 	const {addClientStillJob, addClientVideoJob} = useContext(RenderQueueContext);
 	if (!context) {
 		throw new Error(
@@ -465,6 +471,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			);
 		}
 
+		setSidebarCollapsedState({left: null, right: 'expanded'});
+		persistSelectedOptionsSidebarPanel('renders');
+		optionsSidebarTabs.current?.selectRendersPanel();
 		setSelectedModal(null);
 	}, [
 		renderMode,
@@ -476,6 +485,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.durationInFrames,
 		resolvedComposition.defaultProps,
 		resolvedComposition.id,
+		setSidebarCollapsedState,
 		outName,
 		imageFormat,
 		frame,

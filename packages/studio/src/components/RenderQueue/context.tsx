@@ -1,8 +1,10 @@
 import type {
 	ClientRenderJob,
 	ClientRenderJobProgress,
+	ClientRenderMetadata,
 	ClientStillRenderJob,
 	ClientVideoRenderJob,
+	GetBlobCallback,
 	RenderJob,
 } from '@remotion/studio-shared';
 import React, {
@@ -57,7 +59,11 @@ type RenderQueueContextType = {
 		jobId: string,
 		progress: ClientRenderJobProgress,
 	) => void;
-	markClientJobDone: (jobId: string) => void;
+	markClientJobDone: (
+		jobId: string,
+		getBlob: GetBlobCallback,
+		metadata: ClientRenderMetadata,
+	) => void;
 	markClientJobFailed: (jobId: string, error: Error) => void;
 	removeClientJob: (jobId: string) => void;
 	cancelClientJob: (jobId: string) => void;
@@ -186,17 +192,26 @@ export const RenderQueueContextProvider: React.FC<{
 		[],
 	);
 
-	const markClientJobDone = useCallback((jobId: string): void => {
-		deleteAbortController(jobId);
-		cleanupCompositionForJob(jobId);
+	const markClientJobDone = useCallback(
+		(
+			jobId: string,
+			getBlob: GetBlobCallback,
+			metadata: ClientRenderMetadata,
+		): void => {
+			deleteAbortController(jobId);
+			cleanupCompositionForJob(jobId);
 
-		setClientJobs((prev) =>
-			prev.map((job) =>
-				job.id === jobId ? ({...job, status: 'done'} as ClientRenderJob) : job,
-			),
-		);
-		setCurrentlyProcessing(null);
-	}, []);
+			setClientJobs((prev) =>
+				prev.map((job) =>
+					job.id === jobId
+						? ({...job, status: 'done', getBlob, metadata} as ClientRenderJob)
+						: job,
+				),
+			);
+			setCurrentlyProcessing(null);
+		},
+		[],
+	);
 
 	const markClientJobFailed = useCallback(
 		(jobId: string, error: Error): void => {

@@ -1,4 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
+import {Internals} from 'remotion';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -11,12 +12,23 @@ export const RenderQueueRemoveItem: React.FC<{
 }> = ({job}) => {
 	const isClientJob = isClientRenderJob(job);
 	const {removeClientJob} = useContext(RenderQueueContext);
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
 
 			if (isClientJob) {
+				if (
+					canvasContent &&
+					canvasContent.type === 'output' &&
+					canvasContent.clientRender &&
+					canvasContent.path === `/${job.outName}`
+				) {
+					setCanvasContent(null);
+				}
+
 				removeClientJob(job.id);
 				showNotification('Removed job', 2000);
 				return;
@@ -30,7 +42,7 @@ export const RenderQueueRemoveItem: React.FC<{
 					showNotification(`Could not remove item: ${err.message}`, 2000);
 				});
 		},
-		[job, isClientJob, removeClientJob],
+		[job, isClientJob, removeClientJob, canvasContent, setCanvasContent],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {

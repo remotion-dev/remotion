@@ -195,18 +195,24 @@ export type RenderJobWithCleanup = RenderJob & {
 	cleanup: (() => void)[];
 };
 
-// Client-side render job types (for browser-based rendering)
-
 export type ClientRenderJobProgress = {
 	renderedFrames: number;
 	encodedFrames: number;
 	totalFrames: number;
 };
 
+export type GetBlobCallback = () => Promise<Blob>;
+
+export type ClientRenderMetadata = {
+	width: number;
+	height: number;
+	sizeInBytes: number;
+};
+
 type ClientRenderJobDynamicStatus =
 	| {status: 'idle'}
 	| {status: 'running'; progress: ClientRenderJobProgress}
-	| {status: 'done'}
+	| {status: 'done'; getBlob: GetBlobCallback; metadata: ClientRenderMetadata}
 	| {
 			status: 'failed';
 			error: {message: string; stack: string | undefined};

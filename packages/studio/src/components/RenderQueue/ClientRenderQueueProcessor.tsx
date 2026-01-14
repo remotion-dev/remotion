@@ -1,8 +1,10 @@
 import type {
 	ClientRenderJob,
 	ClientRenderJobProgress,
+	ClientRenderMetadata,
 	ClientStillRenderJob,
 	ClientVideoRenderJob,
+	GetBlobCallback,
 } from '@remotion/studio-shared';
 import type {
 	WebRendererAudioCodec,
@@ -13,6 +15,12 @@ import type {
 import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useEffect} from 'react';
 import {RenderQueueContext} from './context';
+
+type RenderResult = {
+	getBlob: GetBlobCallback;
+	width: number;
+	height: number;
+};
 
 const downloadBlob = (blob: Blob, filename: string): void => {
 	const url = URL.createObjectURL(blob);
@@ -37,7 +45,10 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 	} = useContext(RenderQueueContext);
 
 	const processStillJob = useCallback(
-		async (job: ClientStillRenderJob, signal: AbortSignal): Promise<void> => {
+		async (
+			job: ClientStillRenderJob,
+			signal: AbortSignal,
+		): Promise<RenderResult> => {
 			const compositionRef = getCompositionForJob(job.id);
 			if (!compositionRef) {
 				throw new Error(`Composition not found for job ${job.id}`);
@@ -64,7 +75,11 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				signal,
 			});
 
-			downloadBlob(blob, job.outName);
+			return {
+				getBlob: () => Promise.resolve(blob),
+				width: compositionRef.width,
+				height: compositionRef.height,
+			};
 		},
 		[getCompositionForJob],
 	);
@@ -74,7 +89,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 			job: ClientVideoRenderJob,
 			signal: AbortSignal,
 			onProgress: (jobId: string, progress: ClientRenderJobProgress) => void,
-		): Promise<void> => {
+		): Promise<RenderResult> => {
 			const compositionRef = getCompositionForJob(job.id);
 			if (!compositionRef) {
 				throw new Error(`Composition not found for job ${job.id}`);
@@ -122,8 +137,11 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				licenseKey: job.licenseKey ?? undefined,
 			});
 
-			const blob = await getBlob();
-			downloadBlob(blob, job.outName);
+			return {
+				getBlob,
+				width: compositionRef.width,
+				height: compositionRef.height,
+			};
 		},
 		[getCompositionForJob],
 	);
@@ -133,17 +151,29 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 			const abortController = getAbortController(job.id);
 
 			try {
+				let result: RenderResult;
+
 				if (job.type === 'client-still') {
-					await processStillJob(job, abortController.signal);
+					result = await processStillJob(job, abortController.signal);
 				} else if (job.type === 'client-video') {
-					await processVideoJob(
+					result = await processVideoJob(
 						job,
 						abortController.signal,
 						updateClientJobProgress,
 					);
+				} else {
+					throw new Error(`Unknown job type`);
 				}
 
-				markClientJobDone(job.id);
+				const blob = await result.getBlob();
+				downloadBlob(blob, job.outName);
+
+				const metadata: ClientRenderMetadata = {
+					width: result.width,
+					height: result.height,
+					sizeInBytes: blob.size,
+				};
+				markClientJobDone(job.id, result.getBlob, metadata);
 			} catch (err) {
 				if (abortController.signal.aborted) {
 					markClientJobFailed(job.id, new Error('Render was cancelled'));

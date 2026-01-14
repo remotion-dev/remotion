@@ -1,4 +1,5 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
+import type {ClientRenderOutput} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
@@ -22,14 +23,45 @@ const errMsgStyle: React.CSSProperties = {
 export const RenderPreview: React.FC<{
 	readonly path: string;
 	readonly assetMetadata: AssetMetadata | null;
-}> = ({path, assetMetadata}) => {
+	readonly clientRender?: ClientRenderOutput;
+}> = ({path, assetMetadata, clientRender}) => {
 	const fileType = getPreviewFileType(path);
-	const src = remotion_outputsBase + path;
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 
+	const [blobUrl, setBlobUrl] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (!clientRender) {
+			setBlobUrl(null);
+			return;
+		}
+
+		let cancelled = false;
+		let blobUrlToRevoke: string | null = null;
+
+		clientRender.getBlob().then((blob) => {
+			if (cancelled) return;
+			blobUrlToRevoke = URL.createObjectURL(blob);
+			setBlobUrl(blobUrlToRevoke);
+		});
+
+		return () => {
+			cancelled = true;
+			if (blobUrlToRevoke) {
+				URL.revokeObjectURL(blobUrlToRevoke);
+			}
+		};
+	}, [clientRender]);
+
+	const src = blobUrl ?? remotion_outputsBase + path;
+
 	if (connectionStatus === 'disconnected') {
 		return <div style={errMsgStyle}>Studio server disconnected</div>;
+	}
+
+	if (clientRender && !blobUrl) {
+		return <div style={msgStyle}>Loading preview...</div>;
 	}
 
 	return (

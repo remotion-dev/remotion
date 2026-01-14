@@ -1,4 +1,3 @@
-import type {RenderJob} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 import type {AnyRenderJob} from '../components/RenderQueue/context';
 import {isClientRenderJob} from '../components/RenderQueue/context';
@@ -75,9 +74,7 @@ const getProgressInBrackets = (
 		progInPercent =
 			totalFrames > 0 ? Math.ceil((renderedFrames / totalFrames) * 100) : 0;
 	} else {
-		progInPercent = Math.ceil(
-			(currentRender as RenderJob & {status: 'running'}).progress.value * 100,
-		);
+		progInPercent = Math.ceil(currentRender.progress.value * 100);
 	}
 
 	const progressInBrackets =
