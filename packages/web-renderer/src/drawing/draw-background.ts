@@ -1,11 +1,11 @@
 import type {LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
-import {getClippedBackground} from './get-clipped-background';
 import {getBoxBasedOnBackgroundClip} from './get-padding-box';
 import {
 	createCanvasGradient,
 	parseLinearGradient,
 } from './parse-linear-gradient';
+import {precomposeDOMElement} from './precompose';
 
 export const drawBackground = async ({
 	backgroundImage,
@@ -68,7 +68,7 @@ export const drawBackground = async ({
 		const originalWebkitBackgroundClip = element.style.webkitBackgroundClip;
 		element.style.backgroundClip = 'initial';
 		element.style.webkitBackgroundClip = 'initial';
-		const drawn = await getClippedBackground({
+		const onlyBackgroundClip = await precomposeDOMElement({
 			element,
 			boundingRect: new DOMRect(
 				boundingRect.left + parentOffsetLeft,
@@ -79,10 +79,11 @@ export const drawBackground = async ({
 			logLevel,
 			internalState,
 			scale,
+			onlyBackgroundClip: true,
 		});
 		element.style.backgroundClip = originalBackgroundClip;
 		element.style.webkitBackgroundClip = originalWebkitBackgroundClip;
-		contextToDraw = drawn;
+		contextToDraw = onlyBackgroundClip;
 		contextToDraw.globalCompositeOperation = 'source-in';
 	}
 

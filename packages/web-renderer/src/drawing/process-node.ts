@@ -107,15 +107,16 @@ export const processNode = async ({
 			return {type: 'continue', cleanupAfterChildren: null};
 		}
 
-		const {tempCanvas, tempContext} = await precomposeDOMElement({
+		const tempContext = await precomposeDOMElement({
 			boundingRect: precomposeRect,
 			element,
 			logLevel,
 			internalState,
 			scale,
+			onlyBackgroundClip: false,
 		});
 
-		let drawable: OffscreenCanvas | null = tempCanvas;
+		let drawable: OffscreenCanvas | null = tempContext.canvas;
 
 		const rectAfterTransforms = roundToExpandRect(
 			scaleRect({

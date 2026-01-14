@@ -8,12 +8,14 @@ export const precomposeDOMElement = async ({
 	logLevel,
 	internalState,
 	scale,
+	onlyBackgroundClip,
 }: {
 	boundingRect: DOMRect;
 	element: HTMLElement | SVGElement;
 	logLevel: LogLevel;
 	internalState: InternalState;
 	scale: number;
+	onlyBackgroundClip: boolean;
 }) => {
 	const tempCanvas = new OffscreenCanvas(
 		Math.ceil(boundingRect.width * scale),
@@ -28,9 +30,9 @@ export const precomposeDOMElement = async ({
 		logLevel,
 		parentRect: boundingRect,
 		internalState,
-		onlyBackgroundClip: false,
+		onlyBackgroundClip,
 		scale,
 	});
 
-	return {tempCanvas, tempContext};
+	return tempContext;
 };
