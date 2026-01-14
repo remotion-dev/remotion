@@ -57,6 +57,10 @@ export const defaultRotateOrMirorState = (
 		return 'crop';
 	}
 
+	if (action.type === 'timing-editor') {
+		return null;
+	}
+
 	throw new Error(
 		'Rotate is not enabled by default ' + (action satisfies never),
 	);
@@ -112,6 +116,10 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	}
 
 	if (action.type === 'crop-format') {
+		return true;
+	}
+
+	if (action.type === 'timing-editor') {
 		return true;
 	}
 
@@ -190,7 +198,8 @@ export const getOrderOfSections = (
 		action.type === 'generic-resize' ||
 		action.type === 'resize-format' ||
 		action.type === 'report' ||
-		action.type === 'transcribe'
+		action.type === 'transcribe' ||
+		action.type === 'timing-editor'
 	) {
 		return {
 			resize: 0,

@@ -22,7 +22,7 @@ const Row: React.FC<{
 	readonly disableDelete?: boolean;
 }> = ({value, onChange, onDelete, disableDelete}) => {
 	return (
-		<div className="flex flex-row gap-2">
+		<div className="flex flex-row gap-2 items-center">
 			<Input
 				placeholder="Enter username"
 				className="w-full block flex-1"
@@ -30,20 +30,25 @@ const Row: React.FC<{
 				onChange={(e) => onChange(e.target.value)}
 			/>
 			<Button
-				className="rounded-full h-14 w-14 justify-center items-center"
+				className="hover:text-white hover:bg-warn transition-colors w-10 h-10 p-0 rounded-full"
 				onClick={onDelete}
 				type="button"
 				disabled={disableDelete}
 				aria-label="Delete member"
+				depth={0.5}
 			>
 				<svg
+					width="16"
+					height="16"
+					viewBox="0 0 10 10"
+					fill="none"
 					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 384 512"
-					className="h-4"
 				>
 					<path
-						fill="currentcolor"
-						d="M55.1 73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L147.2 256 9.9 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192.5 301.3 329.9 438.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.8 256 375.1 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192.5 210.7 55.1 73.4z"
+						d="M1 1L9 9M1 9L9 1"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						strokeLinecap="round"
 					/>
 				</svg>
 			</Button>

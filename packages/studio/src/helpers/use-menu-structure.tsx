@@ -700,10 +700,10 @@ export const useMenuStructure = (
 					{
 						id: 'spring-editor',
 						value: 'spring-editor',
-						label: 'spring() Editor',
+						label: 'Timing Editor',
 						onClick: () => {
 							closeMenu();
-							window.open('https://springs.remotion.dev', '_blank');
+							window.open('https://www.remotion.dev/timing-editor', '_blank');
 						},
 						leftItem: null,
 						keyHint: null,

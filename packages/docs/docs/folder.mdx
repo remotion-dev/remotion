@@ -2,7 +2,7 @@
 image: /generated/articles-docs-folder.png
 title: <Folder>
 id: folder
-crumb: "API"
+crumb: 'API'
 ---
 
 _Available from v3.0.1_
@@ -12,32 +12,18 @@ By wrapping a [`<Composition />`](/docs/composition) inside a `<Folder />`, you 
 ## Example
 
 ```tsx twoslash
-import React from "react";
+import React from 'react';
 const Component: React.FC = () => null;
 // ---cut---
-import { Composition, Folder } from "remotion";
+import {Composition, Folder} from 'remotion';
 
 export const Video = () => {
   return (
     <>
       <Folder name="Visuals">
-        <Composition
-          id="CompInFolder"
-          durationInFrames={100}
-          fps={30}
-          width={1080}
-          height={1080}
-          component={Component}
-        />
+        <Composition id="CompInFolder" durationInFrames={100} fps={30} width={1080} height={1080} component={Component} />
       </Folder>
-      <Composition
-        id="CompOutsideFolder"
-        durationInFrames={100}
-        fps={30}
-        width={1080}
-        height={1080}
-        component={Component}
-      />
+      <Composition id="CompOutsideFolder" durationInFrames={100} fps={30} width={1080} height={1080} component={Component} />
     </>
   );
 };
@@ -45,13 +31,17 @@ export const Video = () => {
 
 will create a tree structure in the sidebar that looks like this:
 
-<img src="/img/folders.png"/>
+<img src="/img/folders.png" />
 
 ## Folder behavior
 
 - They only visually change the sidebar in the Remotion Studio and have no further behavior.
 - Folder names can only contain `a-z`, `A-Z`, `0-9` and `-`.
 - Folders can be nested.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs={false} bun={false} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player={false} studio hideServers />
 
 ## See also
 

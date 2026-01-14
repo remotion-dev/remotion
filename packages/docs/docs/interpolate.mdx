@@ -2,15 +2,10 @@
 image: /generated/articles-docs-interpolate.png
 title: interpolate()
 id: interpolate
-crumb: "API"
+crumb: 'API'
 ---
 
-<YouTube
-  minutes={6}
-  href="https://www.youtube.com/watch?v=sff_CdWw_-c"
-  thumb="https://i.ytimg.com/vi/sff_CdWw_-c/hqdefault.jpg?sqp=-oaymwEcCPYBEIoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDPXdTFxf6qNNfkSr_91y0xVTXaXQ"
-  title="How to interpolate()"
-/>
+<YouTube minutes={6} href="https://www.youtube.com/watch?v=sff_CdWw_-c" thumb="https://i.ytimg.com/vi/sff_CdWw_-c/hqdefault.jpg?sqp=-oaymwEcCPYBEIoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDPXdTFxf6qNNfkSr_91y0xVTXaXQ" title="How to interpolate()" />
 
 Allows you to map a range of values to another using a concise syntax.
 
@@ -23,7 +18,7 @@ At frame 20, we want the opacity to be 1.
 Using the following snippet, we can calculate the current opacity for any frame:
 
 ```ts twoslash
-import { interpolate, useCurrentFrame } from "remotion";
+import {interpolate, useCurrentFrame} from 'remotion';
 
 const frame = useCurrentFrame(); // 10
 const opacity = interpolate(frame, [0, 20], [0, 1]); // 0.5
@@ -38,10 +33,10 @@ At the end, the opacity should be 0.
 We can interpolate over multiple points in one go and use [`useVideoConfig()`](/docs/use-video-config) to determine the duration of the composition.
 
 ```ts twoslash
-import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const frame = useCurrentFrame();
-const { durationInFrames } = useVideoConfig();
+const {durationInFrames} = useVideoConfig();
 const opacity = interpolate(
   frame,
   [0, 20, durationInFrames - 20, durationInFrames],
@@ -88,7 +83,7 @@ We can then apply it to an HTML element.
 // @include: example-spring
 const marginLeft = interpolate(driver, [0, 1], [0, 200]);
 // ---cut---
-const Component: React.FC = () => <div style={{ marginLeft }}></div>;
+const Component: React.FC = () => <div style={{marginLeft}}></div>;
 ```
 
 ## Example: Prevent the output from going outside the output range
@@ -96,7 +91,7 @@ const Component: React.FC = () => <div style={{ marginLeft }}></div>;
 Consider the following interpolation which is supposed to animate the scale over 20 frames:
 
 ```tsx twoslash
-import { interpolate, useCurrentFrame } from "remotion";
+import {interpolate, useCurrentFrame} from 'remotion';
 const frame = useCurrentFrame();
 // ---cut---
 const scale = interpolate(frame, [0, 20], [0, 1]);
@@ -106,26 +101,24 @@ This works, but after 20 frames, the value keeps growing. For example, at frame 
 To prevent this, this we can use the `extrapolateLeft` and `extrapolateRight` options and set them to `'clamp'` to prevent the result going outside the output range.
 
 ```tsx twoslash
-import { interpolate, useCurrentFrame } from "remotion";
+import {interpolate, useCurrentFrame} from 'remotion';
 const frame = useCurrentFrame();
 // ---cut---
 const scale = interpolate(frame, [0, 20], [0, 1], {
-  extrapolateRight: "clamp",
+  extrapolateRight: 'clamp',
 });
 ```
 
-## Reference
+## API
 
-### Params
+Takes four arguments:
 
 1. The input value.
 2. The range of values that you expect the input to assume.
 3. The range of output values that you want the input to map to.
-4. Options object.
+4. Options object:
 
-### Options
-
-#### extrapolateLeft
+### extrapolateLeft?
 
 _Default_: `extend`
 
@@ -136,7 +129,7 @@ What should happen if the input value is outside the left side of the input rang
 - `wrap`: Loops the value change.
 - `identity`: Return the input value instead.
 
-#### extrapolateRight
+### extrapolateRight?
 
 _Default_: `extend`
 
@@ -145,15 +138,15 @@ Same as [extrapolateLeft](#extrapolateleft), except for values outside right the
 Example:
 
 ```tsx twoslash
-import { interpolate } from "remotion";
+import {interpolate} from 'remotion';
 // ---cut---
-interpolate(1.5, [0, 1], [0, 2], { extrapolateRight: "extend" }); // 3
-interpolate(1.5, [0, 1], [0, 2], { extrapolateRight: "clamp" }); // 2
-interpolate(1.5, [0, 1], [0, 2], { extrapolateRight: "identity" }); // 1.5
-interpolate(1.5, [0, 1], [0, 2], { extrapolateRight: "wrap" }); // 1
+interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'extend'}); // 3
+interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'clamp'}); // 2
+interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'identity'}); // 1.5
+interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'wrap'}); // 1
 ```
 
-#### easing
+### easing?
 
 _Default_: `(x) => x`
 
@@ -161,22 +154,22 @@ Function which allows you to customize the input, for example to apply a certain
 By default, the input is left unmodified, resulting in a pure linear interpolation. [Read the documentation for the built-in easing functions](/docs/easing).
 
 ```ts twoslash
-import { useCurrentFrame } from "remotion";
+import {useCurrentFrame} from 'remotion';
 const frame = useCurrentFrame();
 // ---cut---
-import { interpolate, Easing } from "remotion";
+import {interpolate, Easing} from 'remotion';
 
 interpolate(frame, [0, 100], [0, 1], {
   easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
-  extrapolateLeft: "clamp",
-  extrapolateRight: "clamp",
+  extrapolateLeft: 'clamp',
+  extrapolateRight: 'clamp',
 });
 
 //this is Remotion2.0 feature
 interpolate(frame, [0, 10, 40, 100], [0, 0.2, 0.6, 1], {
   easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
-  extrapolateLeft: "clamp",
-  extrapolateRight: "clamp",
+  extrapolateLeft: 'clamp',
+  extrapolateRight: 'clamp',
 });
 ```
 
@@ -185,11 +178,15 @@ interpolate(frame, [0, 10, 40, 100], [0, 0.2, 0.6, 1], {
 Since `v3.3.77`, types for the options are exported from Remotion.
 
 ```tsx twoslash
-import { ExtrapolateType, InterpolateOptions } from "remotion";
+import {ExtrapolateType, InterpolateOptions} from 'remotion';
 
-const extrapolate: ExtrapolateType = "clamp";
-const option: InterpolateOptions = { extrapolateLeft: extrapolate };
+const extrapolate: ExtrapolateType = 'clamp';
+const option: InterpolateOptions = {extrapolateLeft: extrapolate};
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
 
 ## See also
 

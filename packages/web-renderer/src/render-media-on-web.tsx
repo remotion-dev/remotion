@@ -279,6 +279,9 @@ const internalRenderMediaOnWeb = async <
 		target,
 	});
 
+	using throttledProgress = createThrottledProgressCallback(onProgress);
+	const throttledOnProgress = throttledProgress?.throttled ?? null;
+
 	try {
 		if (signal?.aborted) {
 			throw new Error('renderMediaOnWeb() was cancelled');
@@ -336,8 +339,6 @@ const internalRenderMediaOnWeb = async <
 			renderedFrames: 0,
 			encodedFrames: 0,
 		};
-
-		const throttledOnProgress = createThrottledProgressCallback(onProgress);
 
 		for (let frame = realFrameRange[0]; frame <= realFrameRange[1]; frame++) {
 			if (signal?.aborted) {

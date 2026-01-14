@@ -2,7 +2,7 @@
 image: /generated/articles-docs-use-current-scale.png
 title: useCurrentScale()
 id: use-current-scale
-crumb: "API"
+crumb: 'API'
 ---
 
 # useCurrentScale()<AvailableFrom v="4.0.125" />
@@ -14,7 +14,7 @@ In the [Studio](/docs/terminology/studio), it will correspond to the zoom level 
 In the [Player](/docs/terminology/player), it will correspond to the scale that is needed to fit the video canvas in the Player.
 
 ```tsx twoslash title="MyComp.tsx"
-import { Sequence, useCurrentScale } from "remotion";
+import {Sequence, useCurrentScale} from 'remotion';
 
 const MyVideo = () => {
   const scale = useCurrentScale();
@@ -28,14 +28,18 @@ If you want to avoid this error and return a default scale, you can pass an opti
 In this case, the hook will return `1`.
 
 ```tsx twoslash title="MyComp.tsx"
-import { useCurrentScale } from "remotion";
+import {useCurrentScale} from 'remotion';
 
 const MyRegularReactComponent = () => {
-  const scale = useCurrentScale({ dontThrowIfOutsideOfRemotion: true });
+  const scale = useCurrentScale({dontThrowIfOutsideOfRemotion: true});
 
   return <div>The current scale is {scale}</div>;
 };
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="Returns 1" bun="Returns 1" serverlessFunctions="Returns 1" clientSideRendering="Returns 1" serverSideRendering="Returns 1" player studio />
 
 ## See also
 

@@ -103,6 +103,10 @@ extraPages.push({
 	type: 'transcribe',
 });
 
+extraPages.push({
+	type: 'timing-editor',
+});
+
 for (const page of extraPages) {
 	const slug = seo.makeSlug(page);
 	const pageTitle = seo.getPageTitle(page);
