@@ -11,7 +11,7 @@ export const handleTextNode = async ({
 	parentRect,
 	internalState,
 	rootElement,
-	onlyBackgroundClip,
+	onlyBackgroundClipText,
 	scale,
 }: {
 	node: Text;
@@ -20,7 +20,7 @@ export const handleTextNode = async ({
 	parentRect: DOMRect;
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
-	onlyBackgroundClip: boolean;
+	onlyBackgroundClipText: boolean;
 	scale: number;
 }): Promise<ProcessNodeReturnValue> => {
 	const span = document.createElement('span');
@@ -36,7 +36,7 @@ export const handleTextNode = async ({
 	const value = await processNode({
 		context,
 		element: span,
-		draw: drawText({span, logLevel, onlyBackgroundClip}),
+		draw: drawText({span, logLevel, onlyBackgroundClipText}),
 		logLevel,
 		parentRect,
 		internalState,

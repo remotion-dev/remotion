@@ -14,7 +14,7 @@ const walkOverNode = ({
 	parentRect,
 	internalState,
 	rootElement,
-	onlyBackgroundClip,
+	onlyBackgroundClipText,
 	scale,
 }: {
 	node: Node;
@@ -23,7 +23,7 @@ const walkOverNode = ({
 	parentRect: DOMRect;
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
-	onlyBackgroundClip: boolean;
+	onlyBackgroundClipText: boolean;
 	scale: number;
 }): Promise<ProcessNodeReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
@@ -47,7 +47,7 @@ const walkOverNode = ({
 			parentRect,
 			internalState,
 			rootElement,
-			onlyBackgroundClip,
+			onlyBackgroundClipText,
 			scale,
 		});
 	}
@@ -82,7 +82,7 @@ export const compose = async ({
 	logLevel,
 	parentRect,
 	internalState,
-	onlyBackgroundClip,
+	onlyBackgroundClipText,
 	scale,
 }: {
 	element: HTMLElement | SVGElement;
@@ -90,19 +90,19 @@ export const compose = async ({
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
-	onlyBackgroundClip: boolean;
+	onlyBackgroundClipText: boolean;
 	scale: number;
 }) => {
 	const treeWalker = document.createTreeWalker(
 		element,
-		onlyBackgroundClip
+		onlyBackgroundClipText
 			? NodeFilter.SHOW_TEXT
 			: NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
 		getFilterFunction,
 	);
 
 	// Skip to the first text node
-	if (onlyBackgroundClip) {
+	if (onlyBackgroundClipText) {
 		treeWalker.nextNode();
 		if (!treeWalker.currentNode) {
 			return;
@@ -125,7 +125,7 @@ export const compose = async ({
 			parentRect,
 			internalState,
 			rootElement: element,
-			onlyBackgroundClip,
+			onlyBackgroundClipText,
 			scale,
 		});
 		if (val.type === 'skip-children') {

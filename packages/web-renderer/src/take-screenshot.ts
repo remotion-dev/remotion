@@ -32,7 +32,7 @@ export const createFrame = async ({
 		logLevel,
 		parentRect: new DOMRect(0, 0, width, height),
 		internalState,
-		onlyBackgroundClip: false,
+		onlyBackgroundClipText: false,
 		scale,
 	});
 

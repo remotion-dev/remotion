@@ -82,7 +82,7 @@ export const drawBackground = async ({
 			logLevel,
 			internalState,
 			scale,
-			onlyBackgroundClip: true,
+			onlyBackgroundClipText: true,
 		});
 		onlyBackgroundClipText.setTransform(new DOMMatrix().scale(scale, scale));
 		element.style.backgroundClip = originalBackgroundClip;

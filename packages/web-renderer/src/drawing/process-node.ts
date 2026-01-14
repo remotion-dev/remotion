@@ -113,7 +113,7 @@ export const processNode = async ({
 			logLevel,
 			internalState,
 			scale,
-			onlyBackgroundClip: false,
+			onlyBackgroundClipText: false,
 		});
 
 		let drawable: OffscreenCanvas | null = tempContext.canvas;
