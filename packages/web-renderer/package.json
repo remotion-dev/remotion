@@ -12,6 +12,7 @@
 		"lint": "eslint src",
 		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts",
 		"testwebrenderer": "vitest src/test --browser --run",
+		"watch": "tsgo -w",
 		"studio": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts --public-dir=../example-videos/videos",
 		"remotion": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts --public-dir=../example-videos/videos"
 	},

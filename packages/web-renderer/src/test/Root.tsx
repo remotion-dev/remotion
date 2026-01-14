@@ -38,6 +38,7 @@ import {opacitySimple} from './fixtures/opacity-simple';
 import {opacityZero} from './fixtures/opacity-zero';
 import {outline} from './fixtures/outline';
 import {overflowHidden} from './fixtures/overflow-hidden';
+import {perspectiveVariants} from './fixtures/perspective';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
@@ -130,6 +131,7 @@ export const Root: React.FC = () => {
 				<Composition {...backgroundClipText} />
 				<Composition {...backgroundClipText3dTransform} />
 			</Folder>
+			<Composition {...perspectiveVariants} />
 			<Folder name="Projects">
 				<Composition {...unwrapped} />
 				<Composition {...orthographic} />

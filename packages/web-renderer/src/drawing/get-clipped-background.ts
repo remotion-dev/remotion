@@ -21,12 +21,13 @@ export const getClippedBackground = async ({
 	const tempContext = tempCanvas.getContext('2d')!;
 
 	await compose({
-		element,
+		rootElement: element,
 		context: tempContext,
 		logLevel,
 		parentRect: boundingRect,
 		internalState,
 		onlyBackgroundClip: true,
+		isIn3dRenderingContext: null,
 	});
 
 	return tempContext;

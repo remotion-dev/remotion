@@ -1,134 +1,174 @@
-import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
 import {getMaskImageValue, parseMaskImage} from './mask-image';
 import type {LinearGradientInfo} from './parse-linear-gradient';
-import {parseTransformOrigin} from './parse-transform-origin';
+import {getAbsoluteOrigin} from './transform-perspective-origin';
 
 type Transform = {
 	matrices: DOMMatrix[];
 	element: Element;
 	transformOrigin: string;
 	boundingClientRect: DOMRect | null;
-};
-
-const getInternalTransformOrigin = (transform: Transform) => {
-	const centerX = transform.boundingClientRect!.width / 2;
-	const centerY = transform.boundingClientRect!.height / 2;
-
-	const origin = parseTransformOrigin(transform.transformOrigin) ?? {
-		x: centerX,
-		y: centerY,
-	};
-
-	return origin;
-};
-
-const getGlobalTransformOrigin = ({transform}: {transform: Transform}) => {
-	const {x: originX, y: originY} = getInternalTransformOrigin(transform);
-
-	return {
-		x: originX + transform.boundingClientRect!.left,
-		y: originY + transform.boundingClientRect!.top,
-	};
+	perspectiveOrigin: string;
+	perspective: DOMMatrix | null;
+	perspectiveMatrix: DOMMatrix | null;
 };
 
 export const calculateTransforms = ({
-	element,
+	element: elToRender,
 	rootElement,
+	threeDRenderingContext,
 }: {
 	element: HTMLElement | SVGElement;
 	rootElement: HTMLElement | SVGElement;
+	threeDRenderingContext: DOMMatrix | null;
 }) => {
 	// Compute the cumulative transform by traversing parent nodes
-	let parent: HTMLElement | SVGElement | null = element;
+	let currentEl: HTMLElement | SVGElement | null = elToRender;
 	const transforms: Transform[] = [];
 	const toReset: (() => void)[] = [];
 
 	let opacity = 1;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	let maskImageInfo: LinearGradientInfo | null = null;
-	while (parent) {
-		const computedStyle = getComputedStyle(parent);
+	let establishes3DRenderingContext = false;
 
-		if (parent === element) {
+	while (currentEl) {
+		const computedStyle = getComputedStyle(currentEl);
+
+		if (currentEl === elToRender) {
 			elementComputedStyle = computedStyle;
 			opacity = parseFloat(computedStyle.opacity);
+			establishes3DRenderingContext =
+				computedStyle.transformStyle === 'preserve-3d';
 			const maskImageValue = getMaskImageValue(computedStyle);
-			maskImageInfo = maskImageValue ? parseMaskImage(maskImageValue) : null;
 
-			const originalMaskImage = parent.style.maskImage;
-			const originalWebkitMaskImage = parent.style.webkitMaskImage;
-			parent.style.maskImage = 'none';
-			parent.style.webkitMaskImage = 'none';
+			if (maskImageValue) {
+				maskImageInfo = parseMaskImage(maskImageValue);
 
-			const parentRef = parent;
+				const originalMaskImage = currentEl.style.maskImage;
+				const originalWebkitMaskImage = currentEl.style.webkitMaskImage;
+				currentEl.style.maskImage = 'none';
+				currentEl.style.webkitMaskImage = 'none';
 
+				const parentRef = currentEl;
+
+				toReset.push(() => {
+					parentRef!.style.maskImage = originalMaskImage;
+					parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
+				});
+			}
+		}
+
+		const transformToPush: Transform = {
+			element: currentEl,
+			transformOrigin: computedStyle.transformOrigin,
+			boundingClientRect: null,
+			matrices: [],
+			perspectiveOrigin: computedStyle.perspectiveOrigin,
+			perspective: null,
+			perspectiveMatrix: null,
+		};
+
+		transforms.push(transformToPush);
+
+		if (
+			computedStyle.perspective !== '' &&
+			computedStyle.perspective !== 'none'
+		) {
+			transformToPush.perspective = new DOMMatrix(
+				`perspective(${computedStyle.perspective})`,
+			);
+			transformToPush.perspectiveOrigin = computedStyle.perspectiveOrigin;
+
+			const originalPerspective = currentEl.style.perspective;
+			const originalPerspectiveOrigin = currentEl.style.perspectiveOrigin;
+			// Cannot remove perspective because that can influence the layout, see perspective.test.tsx
+			currentEl.style.perspective = '1000000000000px';
+			currentEl.style.perspectiveOrigin = '';
+
+			const parentRef = currentEl;
 			toReset.push(() => {
-				parentRef!.style.maskImage = originalMaskImage;
-				parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
+				parentRef!.style.perspective = originalPerspective;
+				parentRef!.style.perspectiveOrigin = originalPerspectiveOrigin;
 			});
 		}
 
-		if (hasAnyTransformCssValue(computedStyle) || parent === element) {
-			const toParse = hasTransformCssValue(computedStyle)
-				? computedStyle.transform
-				: undefined;
-			const matrix = new DOMMatrix(toParse);
-
-			const {transform, scale, rotate} = parent.style;
-			const additionalMatrices: DOMMatrix[] = [];
-
-			// The order of transformations is:
-			// 1. Translate --> We do not have to consider it since it changes getClientBoundingRect()
-			// 2. Rotate
-			// 3. Scale
-			// 4. CSS "transform"
-			if (rotate !== '' && rotate !== 'none') {
-				additionalMatrices.push(new DOMMatrix(`rotate(${rotate})`));
-			}
-
-			if (scale !== '' && scale !== 'none') {
-				additionalMatrices.push(new DOMMatrix(`scale(${scale})`));
-			}
-
-			additionalMatrices.push(matrix);
-
-			parent.style.transform = 'none';
-			parent.style.scale = 'none';
-			parent.style.rotate = 'none';
-
-			transforms.push({
-				element: parent,
-				transformOrigin: computedStyle.transformOrigin,
-				boundingClientRect: null,
-				matrices: additionalMatrices,
-			});
-			const parentRef = parent;
+		// The order of transformations is:
+		// 1. Translate --> We do not have to consider it since it changes getClientBoundingRect()
+		// 2. Rotate
+		// 3. Scale
+		// 4. CSS "transform"
+		if (computedStyle.rotate !== '' && computedStyle.rotate !== 'none') {
+			transformToPush.matrices.push(
+				new DOMMatrix(`rotate(${computedStyle.rotate})`),
+			);
+			const originalRotate = currentEl.style.rotate;
+			currentEl.style.rotate = 'none';
+			const parentRef = currentEl;
 			toReset.push(() => {
-				parentRef!.style.transform = transform;
-				parentRef!.style.scale = scale;
-				parentRef!.style.rotate = rotate;
+				parentRef!.style.rotate = originalRotate;
 			});
 		}
 
-		if (parent === rootElement) {
+		if (computedStyle.scale !== '' && computedStyle.scale !== 'none') {
+			transformToPush.matrices.push(
+				new DOMMatrix(`scale(${computedStyle.scale})`),
+			);
+			const originalScale = currentEl.style.scale;
+			currentEl.style.scale = 'none';
+			const parentRef = currentEl;
+			toReset.push(() => {
+				parentRef!.style.scale = originalScale;
+			});
+		}
+
+		if (computedStyle.transform !== '' && computedStyle.transform !== 'none') {
+			transformToPush.matrices.push(new DOMMatrix(computedStyle.transform));
+			const originalTransform = currentEl.style.transform;
+			currentEl.style.transform = 'none';
+			const parentRef = currentEl;
+			toReset.push(() => {
+				parentRef!.style.transform = originalTransform;
+			});
+		}
+
+		if (currentEl === rootElement) {
 			break;
 		}
 
-		parent = parent.parentElement;
+		currentEl = currentEl.parentElement;
 	}
 
 	for (const transform of transforms) {
 		transform.boundingClientRect = transform.element.getBoundingClientRect();
+
+		if (transform.perspective) {
+			const origin = getAbsoluteOrigin({
+				origin: transform.perspectiveOrigin,
+				boundingClientRect: transform.boundingClientRect!,
+			});
+
+			transform.perspectiveMatrix = new DOMMatrix()
+				.translate(origin.x, origin.y)
+				.multiply(transform.perspective)
+				.translate(-origin.x, -origin.y);
+		}
 	}
 
-	const dimensions = transforms[0].boundingClientRect!;
-	const nativeTransformOrigin = getInternalTransformOrigin(transforms[0]);
+	let totalMatrix = new DOMMatrix();
+	const reversedMatrixes = transforms.slice().reverse();
 
-	const totalMatrix = new DOMMatrix();
-	for (const transform of transforms.slice().reverse()) {
+	for (let i = 0; i < reversedMatrixes.length; i++) {
+		const transform = reversedMatrixes[i];
+		if (!transform) {
+			continue;
+		}
+
+		const parentTransform = reversedMatrixes[i - 1];
+
 		for (const matrix of transform.matrices) {
-			const globalTransformOrigin = getGlobalTransformOrigin({
-				transform,
+			const globalTransformOrigin = getAbsoluteOrigin({
+				origin: transform.transformOrigin,
+				boundingClientRect: transform.boundingClientRect!,
 			});
 
 			const transformMatrix = new DOMMatrix()
@@ -137,6 +177,14 @@ export const calculateTransforms = ({
 				.translate(-globalTransformOrigin.x, -globalTransformOrigin.y);
 
 			totalMatrix.multiplySelf(transformMatrix);
+		}
+
+		if (
+			parentTransform &&
+			parentTransform.perspective &&
+			parentTransform.perspectiveMatrix
+		) {
+			totalMatrix = parentTransform.perspectiveMatrix?.multiply(totalMatrix);
 		}
 	}
 
@@ -148,21 +196,27 @@ export const calculateTransforms = ({
 	const needsMaskImage = maskImageInfo !== null;
 
 	return {
-		dimensions,
+		dimensions: transforms[0]!.boundingClientRect!,
 		totalMatrix,
 		[Symbol.dispose]: () => {
 			for (const reset of toReset) {
 				reset();
 			}
 		},
-		nativeTransformOrigin,
 		computedStyle: elementComputedStyle,
 		opacity,
 		maskImageInfo,
+		establishes3DRenderingContext,
 		precompositing: {
 			needs3DTransformViaWebGL,
 			needsMaskImage: maskImageInfo,
 			needsPrecompositing: Boolean(needs3DTransformViaWebGL || needsMaskImage),
 		},
 	};
+};
+
+export type Precompositing = {
+	needs3DTransformViaWebGL: boolean;
+	needsMaskImage: LinearGradientInfo | null;
+	needsPrecompositing: boolean;
 };

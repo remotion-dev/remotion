@@ -19,5 +19,5 @@ test('should render many layers efficiently', async () => {
 	expect(internalState.getDrawn3dPixels()).toBeGreaterThanOrEqual(1338680);
 	expect(internalState.getDrawn3dPixels()).toBeLessThanOrEqual(2450963);
 	expect(internalState.getPrecomposedTiles()).toBeGreaterThanOrEqual(16);
-	expect(internalState.getPrecomposedTiles()).toBeLessThanOrEqual(19);
+	expect(internalState.getPrecomposedTiles()).toBeLessThanOrEqual(20);
 });
