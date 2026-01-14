@@ -110,7 +110,7 @@ export const drawBackground = async ({
 				boundingRect.height,
 			);
 			contextToDraw.fillStyle = originalFillStyle;
-			return finish();
+			return;
 		}
 	}
 
@@ -133,6 +133,4 @@ export const drawBackground = async ({
 		);
 		contextToDraw.fillStyle = originalFillStyle;
 	}
-
-	finish();
 };
