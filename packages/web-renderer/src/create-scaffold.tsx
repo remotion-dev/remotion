@@ -6,9 +6,18 @@ import {Internals} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import type {TimeUpdaterRef} from './update-time';
 import {UpdateTime} from './update-time';
-import {withResolvers} from './with-resolvers';
 
-export async function createScaffold<Props extends Record<string, unknown>>({
+export type ErrorHolder = {
+	error: Error | null;
+};
+
+export function checkForError(errorHolder: ErrorHolder): void {
+	if (errorHolder.error) {
+		throw errorHolder.error;
+	}
+}
+
+export function createScaffold<Props extends Record<string, unknown>>({
 	width,
 	height,
 	delayRenderTimeoutInMilliseconds,
@@ -42,15 +51,16 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	videoEnabled: boolean;
 	defaultCodec: Codec | null;
 	defaultOutName: string | null;
-}): Promise<{
+}): {
 	delayRenderScope: DelayRenderScope;
 	div: HTMLDivElement;
 	timeUpdater: React.RefObject<TimeUpdaterRef | null>;
 	collectAssets: React.RefObject<{
 		collectAssets: () => TRenderAsset[];
 	} | null>;
+	errorHolder: ErrorHolder;
 	[Symbol.dispose]: () => void;
-}> {
+} {
 	if (!ReactDOM.createRoot) {
 		throw new Error('@remotion/web-renderer requires React 18 or higher');
 	}
@@ -81,12 +91,11 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 
 	document.body.appendChild(div);
 
-	const {promise, resolve, reject} = withResolvers<void>();
+	const errorHolder: ErrorHolder = {error: null};
 
-	// TODO: This might not work in React 18
 	const root = ReactDOM.createRoot(div, {
 		onUncaughtError: (err) => {
-			reject(err);
+			errorHolder.error = err instanceof Error ? err : new Error(String(err));
 		},
 	});
 
@@ -182,12 +191,10 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 		);
 	});
 
-	resolve();
-	await promise;
-
 	return {
 		delayRenderScope,
 		div,
+		errorHolder,
 		[Symbol.dispose]: () => {
 			root.unmount();
 			div.remove();

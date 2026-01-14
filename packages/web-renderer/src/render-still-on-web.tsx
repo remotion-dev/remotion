@@ -6,7 +6,7 @@ import {
 import type {AnyZodObject} from 'zod';
 import type {WebRendererOnArtifact} from './artifact';
 import {handleArtifacts} from './artifact';
-import {createScaffold} from './create-scaffold';
+import {checkForError, createScaffold} from './create-scaffold';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
 import type {
@@ -92,7 +92,7 @@ async function internalRenderStillOnWeb<
 
 	using internalState = makeInternalState();
 
-	using scaffold = await createScaffold({
+	using scaffold = createScaffold({
 		width: resolved.width,
 		height: resolved.height,
 		delayRenderTimeoutInMilliseconds,
@@ -111,7 +111,7 @@ async function internalRenderStillOnWeb<
 		defaultOutName: resolved.defaultOutName,
 	});
 
-	const {delayRenderScope, div, collectAssets} = scaffold;
+	const {delayRenderScope, div, collectAssets, errorHolder} = scaffold;
 
 	const artifactsHandler = handleArtifacts();
 
@@ -128,6 +128,7 @@ async function internalRenderStillOnWeb<
 			internalState: null,
 			keepalive: null,
 		});
+		checkForError(errorHolder);
 
 		if (signal?.aborted) {
 			throw new Error('renderStillOnWeb() was cancelled');
