@@ -44,27 +44,15 @@ export const drawBackground = async ({
 		context.globalCompositeOperation = originalCompositeOperation;
 		if (context !== contextToDraw) {
 			const sourceCanvas = contextToDraw.canvas;
-			const destinationX = offsetLeft;
-			const destinationY = offsetTop;
-			const sourceWidth = sourceCanvas.width;
-			const sourceHeight = sourceCanvas.height;
 
-			context.strokeStyle = 'red';
-			context.lineWidth = 5;
-			context.strokeRect(
-				destinationX,
-				destinationY,
-				sourceWidth * 0.5,
-				sourceHeight,
-			);
 			context.drawImage(
 				sourceCanvas,
-				destinationX,
-				destinationY,
+				offsetLeft,
+				offsetTop,
 				// The context currently has a transform of `scale(scale, scale)`, and we requested
 				// a canvas with extra scale as well, dividing, since the context will multiply it again.
-				sourceWidth / scale,
-				sourceHeight / scale,
+				sourceCanvas.width / scale,
+				sourceCanvas.height / scale,
 			);
 		}
 	};
