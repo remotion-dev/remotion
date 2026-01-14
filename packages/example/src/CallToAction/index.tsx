@@ -71,7 +71,7 @@ export const CTAEndCard: React.FC = () => {
 		config: {
 			damping: 200,
 		},
-		delay: 60,
+		delay: 110,
 		durationInFrames: 10,
 	});
 
@@ -101,13 +101,12 @@ export const CTAEndCard: React.FC = () => {
 							>
 								<RotateY
 									radians={
-										-0.2 +
 										interpolate(jumpUp, [0, 1], [Math.PI * 2, 0]) -
 										frame * 0.004
 									}
 								>
 									<TranslateX px={(width - WIDTH) / 2}>
-										<TranslateY px={(height - HEIGHT) / 2 + up + 200}>
+										<TranslateY px={(height - HEIGHT) / 2 + up + 350}>
 											<CallToAction
 												cornerRadius={HEIGHT / 2}
 												width={WIDTH}
