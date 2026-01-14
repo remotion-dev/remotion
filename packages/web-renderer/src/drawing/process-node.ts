@@ -133,6 +133,7 @@ export const processNode = async ({
 				rect,
 				precomposeRect,
 				tempContext,
+				scale,
 			});
 		}
 

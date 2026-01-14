@@ -13,20 +13,22 @@ export const handleMask = ({
 	rect,
 	precomposeRect,
 	tempContext,
+	scale,
 }: {
 	gradientInfo: LinearGradientInfo;
 	rect: DOMRect;
 	precomposeRect: DOMRect;
 	tempContext: OffscreenCanvasRenderingContext2D;
+	scale: number;
 }) => {
-	const rectOffsetX = rect.left - precomposeRect.left;
-	const rectOffsetY = rect.top - precomposeRect.top;
+	const rectOffsetX = (rect.left - precomposeRect.left) * scale;
+	const rectOffsetY = (rect.top - precomposeRect.top) * scale;
 
 	const rectToFill = new DOMRect(
 		rectOffsetX,
 		rectOffsetY,
-		rect.width,
-		rect.height,
+		rect.width * scale,
+		rect.height * scale,
 	);
 
 	const gradient = createCanvasGradient({
