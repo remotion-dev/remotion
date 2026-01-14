@@ -38,8 +38,9 @@ import type {
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
-import {createFrame} from './take-screenshot';
+import {createLayer} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
+import {validateScale} from './validate-scale';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
 import {waitForReady} from './wait-for-ready';
 import {cleanupStaleOpfsFiles, createWebFsTarget} from './web-fs-target';
@@ -110,6 +111,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	outputTarget: WebRendererOutputTarget | null;
 	licenseKey: string | undefined;
 	muted: boolean;
+	scale: number;
 };
 
 export type RenderMediaOnWebOptions<
@@ -157,10 +159,12 @@ const internalRenderMediaOnWeb = async <
 	outputTarget: userDesiredOutputTarget,
 	licenseKey,
 	muted,
+	scale,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
 >): Promise<RenderMediaOnWebResult> => {
+	validateScale(scale);
 	const outputTarget =
 		userDesiredOutputTarget === null
 			? (await canUseWebFsWriter())
@@ -360,12 +364,13 @@ const internalRenderMediaOnWeb = async <
 			}
 
 			const createFrameStart = performance.now();
-			const imageData = await createFrame({
-				div,
-				width: resolved.width,
-				height: resolved.height,
+			const layer = await createLayer({
+				element: div,
+				scale,
 				logLevel,
 				internalState,
+				onlyBackgroundClipText: false,
+				cutout: new DOMRect(0, 0, resolved.width, resolved.height),
 			});
 			internalState.addCreateFrameTime(performance.now() - createFrameStart);
 
@@ -376,7 +381,7 @@ const internalRenderMediaOnWeb = async <
 			const timestamp = Math.round(
 				((frame - realFrameRange[0]) / resolved.fps) * 1_000_000,
 			);
-			const videoFrame = new VideoFrame(imageData, {
+			const videoFrame = new VideoFrame(layer.canvas, {
 				timestamp,
 			});
 			progress.renderedFrames++;
@@ -393,8 +398,8 @@ const internalRenderMediaOnWeb = async <
 				frameToEncode = validateVideoFrame({
 					originalFrame: videoFrame,
 					returnedFrame,
-					expectedWidth: resolved.width,
-					expectedHeight: resolved.height,
+					expectedWidth: Math.round(resolved.width * scale),
+					expectedHeight: Math.round(resolved.height * scale),
 					expectedTimestamp: timestamp,
 				});
 			}
@@ -403,7 +408,7 @@ const internalRenderMediaOnWeb = async <
 			const assets = collectAssets.current!.collectAssets();
 			if (onArtifact) {
 				await artifactsHandler.handle({
-					imageData,
+					imageData: layer.canvas,
 					frame,
 					assets,
 					onArtifact,
@@ -544,6 +549,7 @@ export const renderMediaOnWeb = <
 				outputTarget: options.outputTarget ?? null,
 				licenseKey: options.licenseKey ?? undefined,
 				muted: options.muted ?? false,
+				scale: options.scale ?? 1,
 			}),
 		);
 

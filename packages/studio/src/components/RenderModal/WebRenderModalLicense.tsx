@@ -260,7 +260,7 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 			</div>
 			{licenseKey !== 'free-license' && licenseKey !== null ? (
 				<div style={paddedDescriptionStyle}>
-					Add your public license from{' '}
+					Add your public license key from{' '}
 					<a
 						href="https://remotion.pro/dashboard"
 						target="_blank"
@@ -268,7 +268,7 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 					>
 						remotion.pro
 					</a>{' '}
-					key below.
+					below.
 					<Spacing y={1} block />
 					<RemotionInput
 						value={licenseKey}

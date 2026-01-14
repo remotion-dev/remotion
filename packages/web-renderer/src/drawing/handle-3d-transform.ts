@@ -38,12 +38,14 @@ export const handle3dTransform = ({
 	tempCanvas,
 	rectAfterTransforms,
 	internalState,
+	scale,
 }: {
 	matrix: DOMMatrix;
 	sourceRect: DOMRect;
 	tempCanvas: OffscreenCanvas;
 	rectAfterTransforms: DOMRect;
 	internalState: InternalState;
+	scale: number;
 }) => {
 	if (rectAfterTransforms.width <= 0 || rectAfterTransforms.height <= 0) {
 		return null;
@@ -55,6 +57,7 @@ export const handle3dTransform = ({
 		sourceCanvas: tempCanvas,
 		destRect: rectAfterTransforms,
 		internalState,
+		scale,
 	});
 
 	return transformed;

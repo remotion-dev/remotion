@@ -43,6 +43,8 @@ import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
+import {scaleFixture} from './fixtures/scale';
+import {scalePrecomposeFixture} from './fixtures/scale-precompose';
 import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
@@ -91,6 +93,8 @@ export const Root: React.FC = () => {
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
+			<Composition {...scaleFixture} />
+			<Composition {...scalePrecomposeFixture} />
 			<Folder name="Opacity">
 				<Composition {...opacitySimple} />
 				<Composition {...opacityNested} />

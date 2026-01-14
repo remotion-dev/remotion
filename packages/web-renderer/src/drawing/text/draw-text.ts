@@ -8,11 +8,11 @@ import {getCollapsedText} from './get-collapsed-text';
 export const drawText = ({
 	span,
 	logLevel,
-	onlyBackgroundClip,
+	onlyBackgroundClipText,
 }: {
 	span: HTMLSpanElement;
 	logLevel: LogLevel;
-	onlyBackgroundClip: boolean;
+	onlyBackgroundClipText: boolean;
 }) => {
 	const drawFn: DrawFn = ({dimensions: rect, computedStyle, contextToDraw}) => {
 		const {
@@ -46,7 +46,7 @@ export const drawText = ({
 		contextToDraw.fillStyle =
 			// If text is being applied with backgroundClipText, we need to use a solid color otherwise it won't get
 			// applied in canvas
-			onlyBackgroundClip
+			onlyBackgroundClipText
 				? 'black'
 				: // -webkit-text-fill-color overrides color, and defaults to the value of `color`
 					webkitTextFillColor;
