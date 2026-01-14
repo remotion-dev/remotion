@@ -29,6 +29,8 @@ import {
 	skewDemo,
 	slidePresentationDemo,
 	slidePresentationDemoLongThreshold,
+	springDampingDemo,
+	springDemo,
 	starDemo,
 	translateDemo,
 	triangleDemo,
@@ -71,6 +73,8 @@ const demos: DemoType[] = [
 	cubePresentationDemo,
 	animationMathDemo,
 	roundedTextBoxDemo,
+	springDemo,
+	springDampingDemo,
 ];
 
 export const Demo: React.FC<{

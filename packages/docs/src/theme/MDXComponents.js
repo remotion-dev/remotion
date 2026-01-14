@@ -11,6 +11,7 @@ import {
 	MinBunVersion,
 	MinNodeVersion,
 } from '../components/AvailableFrom';
+import {CompatibilityTable} from '../components/CompatibilityTable';
 import {Credits} from '../components/Credits';
 import {Options} from '../components/Options';
 import {TsType} from '../components/TsType';
@@ -33,4 +34,5 @@ export default {
 	TitleStep,
 	JumpToVideoLink,
 	RawMarkdownCarrier,
+	CompatibilityTable,
 };
