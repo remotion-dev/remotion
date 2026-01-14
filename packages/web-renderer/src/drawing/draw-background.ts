@@ -19,6 +19,7 @@ export const drawBackground = async ({
 	computedStyle,
 	offsetLeft: parentOffsetLeft,
 	offsetTop: parentOffsetTop,
+	scale,
 }: {
 	backgroundImage: string;
 	context: OffscreenCanvasRenderingContext2D;
@@ -31,6 +32,7 @@ export const drawBackground = async ({
 	computedStyle: CSSStyleDeclaration;
 	offsetLeft: number;
 	offsetTop: number;
+	scale: number;
 }) => {
 	let contextToDraw = context;
 
@@ -74,6 +76,7 @@ export const drawBackground = async ({
 			),
 			logLevel,
 			internalState,
+			scale,
 		});
 		element.style.backgroundClip = originalBackgroundClip;
 		element.style.webkitBackgroundClip = originalWebkitBackgroundClip;

@@ -7,11 +7,13 @@ export const getClippedBackground = async ({
 	boundingRect,
 	logLevel,
 	internalState,
+	scale,
 }: {
 	element: HTMLElement | SVGElement;
 	boundingRect: DOMRect;
 	logLevel: LogLevel;
 	internalState: InternalState;
+	scale: number;
 }) => {
 	const tempCanvas = new OffscreenCanvas(
 		boundingRect.width,
@@ -27,7 +29,7 @@ export const getClippedBackground = async ({
 		parentRect: boundingRect,
 		internalState,
 		onlyBackgroundClip: true,
-		scale: 1, // this canvas needs to be 1:1 scale (for clipping to work)
+		scale,
 	});
 
 	return tempContext;
