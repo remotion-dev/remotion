@@ -597,6 +597,13 @@ RESERVED NAMES (CRITICAL):
 - ALWAYS set backgroundColor on AbsoluteFill from frame 0 - never fade in backgrounds
 - NEVER NEVER NEVER use fade-in for the AbsoluteFill container - always have it fully visible from frame 0
 
+OUTPUT FORMAT (CRITICAL):
+- Output ONLY the code. No explanations, no questions, no commentary.
+- Do NOT ask follow-up questions like "Do you want X or Y?"
+- Do NOT add text before or after the code block
+- The response must start with "import" and end with "};", nothing else
+- If the prompt is ambiguous, make a reasonable choice and implement it - do not ask for clarification
+
 `;
 
 export async function POST(req: Request) {

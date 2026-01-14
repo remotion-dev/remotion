@@ -21,7 +21,10 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { examplePrompts } from "@/examples/prompts";
-import { validateGptResponse } from "@/helpers/validate-response";
+import {
+  validateGptResponse,
+  extractComponentCode,
+} from "@/helpers/sanitize-response";
 
 const iconMap: Record<string, LucideIcon> = {
   Type,
@@ -171,10 +174,14 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
           }
         }
 
-        // Sanitize the final response (strip markdown code block wrappers)
+        // Sanitize the final response (strip markdown code block wrappers and trailing text)
         let finalCode = accumulatedText;
         finalCode = finalCode.replace(/^```(?:tsx?|jsx?)?\n?/, "");
         finalCode = finalCode.replace(/\n?```\s*$/, "");
+        finalCode = extractComponentCode(finalCode);
+
+        // Update the editor with the cleaned code
+        onCodeGenerated?.(finalCode);
 
         const validation = validateGptResponse(finalCode);
         if (!validation.isValid && validation.error) {
