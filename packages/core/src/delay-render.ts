@@ -95,7 +95,10 @@ export const delayRenderInternal = ({
 				if (environment.isClientSideRendering) {
 					const error = Error(message);
 					// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/stack
-					scope.remotion_cancelledError = `Error: ${message}\n${error.stack}`;
+					const stack = error.stack ?? '';
+					scope.remotion_cancelledError = stack.startsWith('Error:')
+						? stack
+						: `${message}\n${stack}`;
 				} else {
 					cancelRenderInternal(scope, Error(message));
 				}

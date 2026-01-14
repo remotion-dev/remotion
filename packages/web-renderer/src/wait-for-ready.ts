@@ -46,7 +46,8 @@ export const waitForReady = ({
 			cancelled = true;
 			internalState?.addWaitForReadyTime(performance.now() - start);
 			const stack = scope.remotion_cancelledError;
-			const error = new Error(stack.split('\n')[0]);
+			const message = stack.split('\n')[0].replace(/^Error: /, '');
+			const error = new Error(message);
 			error.stack = stack;
 			reject(error);
 			return;
