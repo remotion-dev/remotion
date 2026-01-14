@@ -17,7 +17,7 @@ const Component: React.FC = () => {
 					padding: 5,
 					backgroundColor: '#f0f0f0',
 					borderRadius: 3,
-					transform: 'translateZ(1px)',
+					transform: 'translateZ(1px) rotateY(45deg) rotateX(45deg)',
 				}}
 			>
 				Precompose Test

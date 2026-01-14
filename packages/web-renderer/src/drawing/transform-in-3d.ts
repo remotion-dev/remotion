@@ -147,12 +147,14 @@ export const transformIn3d = ({
 	sourceRect,
 	destRect,
 	internalState,
+	scale,
 }: {
 	sourceRect: DOMRect;
 	matrix: DOMMatrix;
 	sourceCanvas: OffscreenCanvas;
 	destRect: DOMRect;
 	internalState: InternalState;
+	scale: number;
 }) => {
 	const {canvas, gl, program, locations} = createHelperCanvas({
 		canvasWidth: destRect.width,
@@ -226,8 +228,9 @@ export const transformIn3d = ({
 		sourceCanvas,
 	);
 
-	// Set uniforms using cached locations
-	const transformMatrix = matrix.toFloat32Array();
+	const actualMatrix =
+		scale !== 1 ? new DOMMatrix().scale(scale, scale).multiply(matrix) : matrix;
+	const transformMatrix = actualMatrix.toFloat32Array();
 
 	gl.uniformMatrix4fv(locations.uTransform, false, transformMatrix);
 	gl.uniform2f(locations.uResolution, destRect.width, destRect.height);

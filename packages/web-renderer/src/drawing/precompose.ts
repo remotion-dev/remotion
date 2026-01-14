@@ -7,15 +7,17 @@ export const precomposeDOMElement = async ({
 	element,
 	logLevel,
 	internalState,
+	scale,
 }: {
 	boundingRect: DOMRect;
 	element: HTMLElement | SVGElement;
 	logLevel: LogLevel;
 	internalState: InternalState;
+	scale: number;
 }) => {
 	const tempCanvas = new OffscreenCanvas(
-		boundingRect.width,
-		boundingRect.height,
+		Math.ceil(boundingRect.width * scale),
+		Math.ceil(boundingRect.height * scale),
 	);
 
 	const tempContext = tempCanvas.getContext('2d')!;
@@ -27,7 +29,7 @@ export const precomposeDOMElement = async ({
 		parentRect: boundingRect,
 		internalState,
 		onlyBackgroundClip: false,
-		scale: 1, // precompose can happen at original size; scaling is only needed when drawing to main canvas
+		scale,
 	});
 
 	return {tempCanvas, tempContext};

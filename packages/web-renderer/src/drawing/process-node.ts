@@ -12,6 +12,7 @@ import {
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
 import {precomposeDOMElement} from './precompose';
 import {roundToExpandRect} from './round-to-expand-rect';
+import {scaleRect} from './scale-rect';
 import {transformDOMRect} from './transform-rect-with-matrix';
 
 export type ProcessNodeReturnValue =
@@ -111,14 +112,18 @@ export const processNode = async ({
 			element,
 			logLevel,
 			internalState,
+			scale,
 		});
 
 		let drawable: OffscreenCanvas | null = tempCanvas;
 
 		const rectAfterTransforms = roundToExpandRect(
-			transformDOMRect({
-				rect: precomposeRect,
-				matrix: totalMatrix,
+			scaleRect({
+				scale,
+				rect: transformDOMRect({
+					rect: precomposeRect,
+					matrix: totalMatrix,
+				}),
 			}),
 		);
 
@@ -138,6 +143,7 @@ export const processNode = async ({
 				tempCanvas: drawable,
 				rectAfterTransforms,
 				internalState,
+				scale,
 			});
 			if (t) {
 				drawable = t;
@@ -153,10 +159,10 @@ export const processNode = async ({
 				drawable.height - rectAfterTransforms.height,
 				rectAfterTransforms.width,
 				rectAfterTransforms.height,
-				(rectAfterTransforms.left - parentRect.x) * scale,
-				(rectAfterTransforms.top - parentRect.y) * scale,
-				rectAfterTransforms.width * scale,
-				rectAfterTransforms.height * scale,
+				rectAfterTransforms.left - parentRect.x,
+				rectAfterTransforms.top - parentRect.y,
+				rectAfterTransforms.width,
+				rectAfterTransforms.height,
 			);
 
 			context.setTransform(previousTransform);
