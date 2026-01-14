@@ -59,7 +59,8 @@ export function cancelRenderInternal(
 	}
 
 	if (scope) {
-		scope.remotion_cancelledError = error.stack;
+		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/stack
+		scope.remotion_cancelledError = `Error: ${error.message}\n${error.stack}`;
 	}
 
 	throw error;

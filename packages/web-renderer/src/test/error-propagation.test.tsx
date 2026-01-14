@@ -23,8 +23,8 @@ test('should propagate errors thrown in useEffect', async (t) => {
 		return <div>Hello</div>;
 	};
 
-	try {
-		await renderStillOnWeb({
+	await expect(
+		renderStillOnWeb({
 			licenseKey: 'free-license',
 			composition: {
 				component: ThrowsInUseEffect,
@@ -37,11 +37,8 @@ test('should propagate errors thrown in useEffect', async (t) => {
 			frame: 0,
 			inputProps: {},
 			imageFormat: 'png',
-		});
-		expect.fail('Expected render to throw');
-	} catch (err) {
-		expect(err).toBeInstanceOf(UseEffectError);
-	}
+		}),
+	).rejects.toThrow(UseEffectError);
 });
 
 test('should propagate errors thrown on a specific frame', async (t) => {
@@ -59,8 +56,8 @@ test('should propagate errors thrown on a specific frame', async (t) => {
 		return <div>Frame {frame}</div>;
 	};
 
-	try {
-		await renderMediaOnWeb({
+	await expect(
+		renderMediaOnWeb({
 			licenseKey: 'free-license',
 			composition: {
 				component: ThrowsOnFrame5,
@@ -71,11 +68,8 @@ test('should propagate errors thrown on a specific frame', async (t) => {
 				durationInFrames: 10,
 			},
 			inputProps: {},
-		});
-		expect.fail('Expected render to throw');
-	} catch (err) {
-		expect(err).toBeInstanceOf(FrameRenderError);
-	}
+		}),
+	).rejects.toThrow(FrameRenderError);
 });
 
 test('should propagate errors thrown in useEffect on a specific frame', async (t) => {
@@ -96,8 +90,8 @@ test('should propagate errors thrown in useEffect on a specific frame', async (t
 		return <div>Frame {frame}</div>;
 	};
 
-	try {
-		await renderMediaOnWeb({
+	await expect(
+		renderMediaOnWeb({
 			licenseKey: 'free-license',
 			composition: {
 				component: ThrowsInUseEffectOnFrame3,
@@ -108,11 +102,8 @@ test('should propagate errors thrown in useEffect on a specific frame', async (t
 				durationInFrames: 10,
 			},
 			inputProps: {},
-		});
-		expect.fail('Expected render to throw');
-	} catch (err) {
-		expect(err).toBeInstanceOf(UseEffectOnFrameError);
-	}
+		}),
+	).rejects.toThrow(UseEffectOnFrameError);
 });
 
 test('should propagate errors thrown during initial render', async (t) => {
@@ -125,8 +116,8 @@ test('should propagate errors thrown during initial render', async (t) => {
 		throw new InitialRenderError('Error during initial render');
 	};
 
-	try {
-		await renderStillOnWeb({
+	await expect(
+		renderStillOnWeb({
 			licenseKey: 'free-license',
 			composition: {
 				component: ThrowsDuringRender,
@@ -139,16 +130,11 @@ test('should propagate errors thrown during initial render', async (t) => {
 			frame: 0,
 			inputProps: {},
 			imageFormat: 'png',
-		});
-		expect.fail('Expected render to throw');
-	} catch (err) {
-		expect(err).toBeInstanceOf(InitialRenderError);
-	}
+		}),
+	).rejects.toThrow(InitialRenderError);
 });
 
-// TODO: delayRender timeout errors escape in real browsers because cancelRenderInternalthrows synchronously from setTimeout. In puppeteer this is caught via Runtime.exceptionThrown,
-// but in real browsers it escapes. Need to investigate a fix in core.
-test.skip('should propagate delayRender timeout errors', async (t) => {
+test('should propagate delayRender timeout errors', async (t) => {
 	if (t.task.file.projectName === 'webkit') {
 		t.skip();
 		return;
@@ -164,8 +150,8 @@ test.skip('should propagate delayRender timeout errors', async (t) => {
 		return <div>Loading...</div>;
 	};
 
-	try {
-		await renderMediaOnWeb({
+	await expect(
+		renderMediaOnWeb({
 			licenseKey: 'free-license',
 			composition: {
 				component: NeverContinues,
@@ -177,13 +163,6 @@ test.skip('should propagate delayRender timeout errors', async (t) => {
 			},
 			inputProps: {},
 			delayRenderTimeoutInMilliseconds: 3000,
-		});
-		expect.fail('Expected render to throw');
-	} catch (err) {
-		expect(err).toBeInstanceOf(Error);
-		const error = err as Error;
-		// Check message or stack since Firefox doesn't include message in first line of stack
-		const errorText = error.message + (error.stack ?? '');
-		expect(errorText).toMatch(/delayRender.*Waiting forever/);
-	}
+		}),
+	).rejects.toThrow(/delayRender.*Waiting forever/);
 });

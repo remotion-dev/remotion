@@ -91,7 +91,14 @@ export const delayRenderInternal = ({
 					.filter(truthy)
 					.join(' ');
 
-				cancelRenderInternal(scope, Error(message));
+				// in client-side rendering, don't throw (would be uncaught from setTimeout)
+				if (environment.isClientSideRendering) {
+					const error = Error(message);
+					// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/stack
+					scope.remotion_cancelledError = `Error: ${message}\n${error.stack}`;
+				} else {
+					cancelRenderInternal(scope, Error(message));
+				}
 			}, timeoutToUse),
 		};
 	}
