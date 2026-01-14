@@ -582,6 +582,11 @@ EXPORT FORMAT:
 - Always export as: export const MyAnimation = () => { ... };
 - Do not use default exports
 
+RESERVED NAMES (CRITICAL):
+- NEVER use "spring" as a variable name - it shadows the spring() function from Remotion
+- If you need a variable for spring season data, use "springData", "springSeason", or "springPhase" instead
+- Similarly avoid naming variables: interpolate, useCurrentFrame, useVideoConfig, AbsoluteFill, Sequence
+
 - Use creative animations with smooth transitions
 - Component should use frame-based animations with interpolate()
 - Make it visually impressive and modern
