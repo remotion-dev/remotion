@@ -16,8 +16,8 @@ export const getClippedBackground = async ({
 	scale: number;
 }) => {
 	const tempCanvas = new OffscreenCanvas(
-		boundingRect.width,
-		boundingRect.height,
+		Math.ceil(boundingRect.width * scale),
+		Math.ceil(boundingRect.height * scale),
 	);
 
 	const tempContext = tempCanvas.getContext('2d')!;

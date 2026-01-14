@@ -25,6 +25,7 @@ export const drawText = ({
 			textTransform,
 			webkitTextFillColor,
 		} = computedStyle;
+		console.log('context to draw', contextToDraw.getTransform());
 		const isVertical = writingMode !== 'horizontal-tb';
 		if (isVertical) {
 			// TODO: Only warn once per render.
@@ -77,6 +78,12 @@ export const drawText = ({
 			const leading = line.height - fontHeight;
 			const halfLeading = leading / 2;
 
+			console.log(
+				'draw',
+				line.text,
+				xPosition + line.offsetHorizontal,
+				rect.top + halfLeading + fontBoundingBoxAscent + offsetTop,
+			);
 			contextToDraw.fillText(
 				line.text,
 				xPosition + line.offsetHorizontal,

@@ -21,12 +21,9 @@ export const handleMask = ({
 	tempContext: OffscreenCanvasRenderingContext2D;
 	scale: number;
 }) => {
-	const rectOffsetX = (rect.left - precomposeRect.left) * scale;
-	const rectOffsetY = (rect.top - precomposeRect.top) * scale;
-
 	const rectToFill = new DOMRect(
-		rectOffsetX,
-		rectOffsetY,
+		(rect.left - precomposeRect.left) * scale,
+		(rect.top - precomposeRect.top) * scale,
 		rect.width * scale,
 		rect.height * scale,
 	);
