@@ -1,5 +1,11 @@
 import type {DelayRenderScope} from './delay-render.js';
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/stack
+export const getErrorStackWithMessage = (error: Error): string => {
+	const stack = error.stack ?? '';
+	return stack.startsWith('Error:') ? stack : `${error.message}\n${stack}`;
+};
+
 const isErrorLike = (err: unknown): boolean => {
 	if (err instanceof Error) {
 		return true;
@@ -59,11 +65,7 @@ export function cancelRenderInternal(
 	}
 
 	if (scope) {
-		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/stack
-		const stack = error.stack ?? '';
-		scope.remotion_cancelledError = stack.startsWith('Error:')
-			? stack
-			: `${error.message}\n${stack}`;
+		scope.remotion_cancelledError = getErrorStackWithMessage(error);
 	}
 
 	throw error;

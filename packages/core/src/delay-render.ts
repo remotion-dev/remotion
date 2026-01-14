@@ -1,4 +1,7 @@
-import {cancelRenderInternal} from './cancel-render.js';
+import {
+	cancelRenderInternal,
+	getErrorStackWithMessage,
+} from './cancel-render.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {LogLevel} from './log.js';
 import {Log} from './log.js';
@@ -93,12 +96,9 @@ export const delayRenderInternal = ({
 
 				// in client-side rendering, don't throw (would be uncaught from setTimeout)
 				if (environment.isClientSideRendering) {
-					const error = Error(message);
-					// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/stack
-					const stack = error.stack ?? '';
-					scope.remotion_cancelledError = stack.startsWith('Error:')
-						? stack
-						: `${message}\n${stack}`;
+					scope.remotion_cancelledError = getErrorStackWithMessage(
+						Error(message),
+					);
 				} else {
 					cancelRenderInternal(scope, Error(message));
 				}
