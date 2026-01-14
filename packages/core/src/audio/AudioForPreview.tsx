@@ -232,7 +232,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	 */
 	const effectToUse = React.useInsertionEffect ?? React.useLayoutEffect;
 
-	// Disconnecting the SharedElementSourceNodes if the Player unmounts to prevent leak.
+	// Disconnecting the SharedElementSourceNodes if the Audio tag unmounts to prevent leak.
 	// https://github.com/remotion-dev/remotion/issues/6285
 	// But useInsertionEffect will fire before other effects, meaning the
 	// nodes might still be used. Using rAF to ensure it's after other effects.
@@ -242,7 +242,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 				cleanupOnMediaTagUnmount();
 			});
 		};
-	}, [mediaElementSourceNode]);
+	}, [cleanupOnMediaTagUnmount]);
 
 	useImperativeHandle(ref, () => {
 		return audioRef.current as HTMLAudioElement;
