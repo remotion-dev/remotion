@@ -416,12 +416,14 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				toneFrequency={toneFrequency}
 				// these shouldn't matter during rendering / should not appear at all
 				showInTimeline={false}
-				crossOrigin={undefined}
-				onAutoPlayError={() => undefined}
-				pauseWhenBuffering={false}
+				crossOrigin={fallbackOffthreadVideoProps?.crossOrigin}
+				onAutoPlayError={fallbackOffthreadVideoProps?.onAutoPlayError ?? null}
+				pauseWhenBuffering={
+					fallbackOffthreadVideoProps?.pauseWhenBuffering ?? false
+				}
 				trimAfter={trimAfterValue}
 				trimBefore={trimBeforeValue}
-				useWebAudioApi={false}
+				useWebAudioApi={fallbackOffthreadVideoProps?.useWebAudioApi ?? false}
 				startFrom={undefined}
 				endAt={undefined}
 				stack={stack}
