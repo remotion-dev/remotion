@@ -43,16 +43,14 @@ export const drawBackground = async ({
 	const finish = () => {
 		context.globalCompositeOperation = originalCompositeOperation;
 		if (context !== contextToDraw) {
-			const sourceCanvas = contextToDraw.canvas;
-
 			context.drawImage(
-				sourceCanvas,
+				contextToDraw.canvas,
 				offsetLeft,
 				offsetTop,
 				// The context currently has a transform of `scale(scale, scale)`, and we requested
 				// a canvas with extra scale as well, dividing, since the context will multiply it again.
-				sourceCanvas.width / scale,
-				sourceCanvas.height / scale,
+				contextToDraw.canvas.width / scale,
+				contextToDraw.canvas.height / scale,
 			);
 		}
 	};
