@@ -16,7 +16,7 @@ import type {
 import type {InputPropsIfHasProps} from './render-media-on-web';
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {sendUsageEvent} from './send-telemetry-event';
-import {takeScreenshot} from './take-screenshot';
+import {createFrame} from './take-screenshot';
 import {validateScale} from './validate-scale';
 import {waitForReady} from './wait-for-ready';
 
@@ -138,14 +138,17 @@ async function internalRenderStillOnWeb<
 			throw new Error('renderStillOnWeb() was cancelled');
 		}
 
-		const imageData = await takeScreenshot({
+		const capturedFrame = await createFrame({
 			div,
 			width: resolved.width,
 			height: resolved.height,
 			scale,
-			imageFormat,
 			logLevel,
 			internalState,
+		});
+
+		const imageData = await capturedFrame.convertToBlob({
+			type: `image/${imageFormat}`,
 		});
 
 		const assets = collectAssets.current!.collectAssets();
