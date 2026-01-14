@@ -1,8 +1,8 @@
 import type {LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
+import {createLayer} from '../take-screenshot';
 import {getBackgroundFill} from './get-background-fill';
 import {getBoxBasedOnBackgroundClip} from './get-padding-box';
-import {precomposeDOMElement} from './precompose';
 
 export const drawBackground = async ({
 	backgroundImage,
@@ -68,9 +68,9 @@ export const drawBackground = async ({
 		const originalWebkitBackgroundClip = element.style.webkitBackgroundClip;
 		element.style.backgroundClip = 'initial';
 		element.style.webkitBackgroundClip = 'initial';
-		const onlyBackgroundClipText = await precomposeDOMElement({
+		const onlyBackgroundClipText = await createLayer({
 			element,
-			boundingRect: new DOMRect(
+			cutout: new DOMRect(
 				boundingRect.left + parentOffsetLeft,
 				boundingRect.top + parentOffsetTop,
 				boundingRect.width,

@@ -38,7 +38,7 @@ import type {
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
-import {createFrame} from './take-screenshot';
+import {createLayer} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
 import {validateScale} from './validate-scale';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
@@ -363,13 +363,13 @@ const internalRenderMediaOnWeb = async <
 			}
 
 			const createFrameStart = performance.now();
-			const imageData = await createFrame({
-				div,
-				width: resolved.width,
-				height: resolved.height,
+			const layer = await createLayer({
+				element: div,
 				scale,
 				logLevel,
 				internalState,
+				onlyBackgroundClipText: false,
+				cutout: new DOMRect(0, 0, resolved.width, resolved.height),
 			});
 			internalState.addCreateFrameTime(performance.now() - createFrameStart);
 
@@ -380,7 +380,7 @@ const internalRenderMediaOnWeb = async <
 			const timestamp = Math.round(
 				((frame - realFrameRange[0]) / resolved.fps) * 1_000_000,
 			);
-			const videoFrame = new VideoFrame(imageData, {
+			const videoFrame = new VideoFrame(layer.canvas, {
 				timestamp,
 			});
 			progress.renderedFrames++;
@@ -407,7 +407,7 @@ const internalRenderMediaOnWeb = async <
 			const assets = collectAssets.current!.collectAssets();
 			if (onArtifact) {
 				await artifactsHandler.handle({
-					imageData,
+					imageData: layer.canvas,
 					frame,
 					assets,
 					onArtifact,

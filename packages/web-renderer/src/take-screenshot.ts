@@ -2,23 +2,23 @@ import type {LogLevel} from 'remotion';
 import {compose} from './compose';
 import type {InternalState} from './internal-state';
 
-export const createFrame = async ({
-	div,
-	width,
-	height,
+export const createLayer = async ({
+	element,
 	scale,
 	logLevel,
 	internalState,
+	onlyBackgroundClipText,
+	cutout,
 }: {
-	div: HTMLDivElement;
-	width: number;
-	height: number;
+	element: HTMLElement | SVGElement;
 	scale: number;
 	logLevel: LogLevel;
 	internalState: InternalState;
+	onlyBackgroundClipText: boolean;
+	cutout: DOMRect;
 }) => {
-	const scaledWidth = Math.round(width * scale);
-	const scaledHeight = Math.round(height * scale);
+	const scaledWidth = Math.ceil(cutout.width * scale);
+	const scaledHeight = Math.ceil(cutout.height * scale);
 	const canvas = new OffscreenCanvas(scaledWidth, scaledHeight);
 	const context = canvas.getContext('2d');
 
@@ -27,14 +27,14 @@ export const createFrame = async ({
 	}
 
 	await compose({
-		element: div,
+		element,
 		context,
 		logLevel,
-		parentRect: new DOMRect(0, 0, width, height),
+		parentRect: cutout,
 		internalState,
-		onlyBackgroundClipText: false,
+		onlyBackgroundClipText,
 		scale,
 	});
 
-	return canvas;
+	return context;
 };
