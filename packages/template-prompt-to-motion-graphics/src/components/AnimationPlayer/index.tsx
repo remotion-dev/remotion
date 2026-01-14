@@ -29,7 +29,7 @@ interface AnimationPlayerProps {
   isCompiling: boolean;
   isStreaming: boolean;
   error: string | null;
-  errorType?: "compilation" | "api";
+  errorType?: "compilation" | "api" | "validation";
   code: string;
 }
 
@@ -66,7 +66,12 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
     }
 
     if (error) {
-      const errorTitle = errorType === "api" ? "API Error" : "Compilation Error";
+      const errorTitle =
+        errorType === "validation"
+          ? "Invalid Prompt"
+          : errorType === "api"
+            ? "API Error"
+            : "Compilation Error";
       return (
         <div className="w-full aspect-video max-h-[calc(100%-80px)] flex justify-center items-center bg-background-error rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)] border border-destructive">
           <div className="text-center max-w-[80%]">

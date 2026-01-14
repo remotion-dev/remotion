@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { examplePrompts } from "@/examples/prompts";
+import { validateGptResponse } from "@/helpers/validate-response";
 
 const iconMap: Record<string, LucideIcon> = {
   Type,
@@ -44,6 +45,8 @@ export type ModelId = (typeof MODELS)[number]["id"];
 
 export type StreamPhase = "idle" | "reasoning" | "generating";
 
+export type GenerationErrorType = "validation" | "api";
+
 export interface PromptInputRef {
   triggerGeneration: () => void;
 }
@@ -52,7 +55,7 @@ interface PromptInputProps {
   onCodeGenerated?: (code: string) => void;
   onStreamingChange?: (isStreaming: boolean) => void;
   onStreamPhaseChange?: (phase: StreamPhase) => void;
-  onError?: (error: string) => void;
+  onError?: (error: string, type: GenerationErrorType) => void;
   variant?: "landing" | "editor";
   prompt?: string;
   onPromptChange?: (prompt: string) => void;
@@ -106,6 +109,11 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
           const errorData = await response.json().catch(() => ({}));
           const errorMessage =
             errorData.error || `API error: ${response.status}`;
+          // Check if this is a validation error from the API
+          if (errorData.type === "validation") {
+            onError?.(errorMessage, "validation");
+            return;
+          }
           throw new Error(errorMessage);
         }
 
@@ -151,11 +159,26 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
                 codeToShow = codeToShow.replace(/\n?```\s*$/, "");
 
                 onCodeGenerated?.(codeToShow.trim());
+              } else if (event.type === "error") {
+                throw new Error(event.error);
               }
-            } catch {
-              // Ignore parse errors for malformed JSON
+            } catch (parseError) {
+              // Only re-throw if it's an actual Error we created, not a JSON parse error
+              if (parseError instanceof Error && parseError.message !== "Unexpected token") {
+                throw parseError;
+              }
             }
           }
+        }
+
+        // Sanitize the final response (strip markdown code block wrappers)
+        let finalCode = accumulatedText;
+        finalCode = finalCode.replace(/^```(?:tsx?|jsx?)?\n?/, "");
+        finalCode = finalCode.replace(/\n?```\s*$/, "");
+
+        const validation = validateGptResponse(finalCode);
+        if (!validation.isValid && validation.error) {
+          onError?.(validation.error, "validation");
         }
       } catch (error) {
         console.error("Error generating code:", error);
@@ -163,7 +186,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
           error instanceof Error
             ? error.message
             : "An unexpected error occurred";
-        onError?.(errorMessage);
+        onError?.(errorMessage, "api");
       } finally {
         setIsLoading(false);
         onStreamingChange?.(false);

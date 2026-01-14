@@ -11,6 +11,7 @@ import {
   PromptInput,
   type StreamPhase,
   type PromptInputRef,
+  type GenerationErrorType,
 } from "../../components/PromptInput";
 import { examples } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
@@ -34,7 +35,10 @@ function GeneratePageContent() {
   const [prompt, setPrompt] = useState(initialPrompt);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
   const [hasGeneratedOnce, setHasGeneratedOnce] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
+  const [generationError, setGenerationError] = useState<{
+    message: string;
+    type: GenerationErrorType;
+  } | null>(null);
 
   const { code, Component, error, isCompiling, setCode, compileCode } =
     useAnimationState(examples[0]?.code || "");
@@ -93,15 +97,18 @@ function GeneratePageContent() {
 
   const handleStreamingChange = useCallback((streaming: boolean) => {
     setIsStreaming(streaming);
-    // Clear API error when starting a new generation
+    // Clear errors when starting a new generation
     if (streaming) {
-      setApiError(null);
+      setGenerationError(null);
     }
   }, []);
 
-  const handleApiError = useCallback((errorMessage: string) => {
-    setApiError(errorMessage);
-  }, []);
+  const handleError = useCallback(
+    (message: string, type: GenerationErrorType) => {
+      setGenerationError({ message, type });
+    },
+    [],
+  );
 
   // Auto-trigger generation if prompt came from URL
   const promptInputRef = useRef<PromptInputRef>(null);
@@ -121,22 +128,22 @@ function GeneratePageContent() {
       <div className="flex-1 flex flex-col min-w-0 px-12 pb-8 gap-8 overflow-hidden">
         <div className="flex-1 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden gap-8">
           <CodeEditor
-            code={hasGeneratedOnce ? code : ""}
+            code={hasGeneratedOnce && !generationError ? code : ""}
             onChange={handleCodeChange}
             isStreaming={isStreaming}
             streamPhase={streamPhase}
           />
           <div className="shrink-0 lg:shrink lg:flex-[2.5] lg:min-w-0 lg:h-full">
             <AnimationPlayer
-              Component={Component}
+              Component={generationError ? null : Component}
               durationInFrames={durationInFrames}
               fps={fps}
               onDurationChange={setDurationInFrames}
               onFpsChange={setFps}
               isCompiling={isCompiling}
               isStreaming={isStreaming}
-              error={apiError || error}
-              errorType={apiError ? "api" : "compilation"}
+              error={generationError?.message || error}
+              errorType={generationError?.type || "compilation"}
               code={code}
             />
           </div>
@@ -147,7 +154,7 @@ function GeneratePageContent() {
           onCodeGenerated={handleCodeChange}
           onStreamingChange={handleStreamingChange}
           onStreamPhaseChange={setStreamPhase}
-          onError={handleApiError}
+          onError={handleError}
           prompt={prompt}
           onPromptChange={setPrompt}
         />
