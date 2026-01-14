@@ -40,19 +40,22 @@ export const drawBackground = async ({
 	let offsetLeft = 0;
 	let offsetTop = 0;
 
-	const finish = () => {
-		context.globalCompositeOperation = originalCompositeOperation;
-		if (context !== contextToDraw) {
-			context.drawImage(
-				contextToDraw.canvas,
-				offsetLeft,
-				offsetTop,
-				// The context currently has a transform of `scale(scale, scale)`, and we requested
-				// a canvas with extra scale as well, dividing, since the context will multiply it again.
-				contextToDraw.canvas.width / scale,
-				contextToDraw.canvas.height / scale,
-			);
-		}
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	using _ = {
+		[Symbol.dispose]: () => {
+			context.globalCompositeOperation = originalCompositeOperation;
+			if (context !== contextToDraw) {
+				context.drawImage(
+					contextToDraw.canvas,
+					offsetLeft,
+					offsetTop,
+					// The context currently has a transform of `scale(scale, scale)`, and we requested
+					// a canvas with extra scale as well, dividing, since the context will multiply it again.
+					contextToDraw.canvas.width / scale,
+					contextToDraw.canvas.height / scale,
+				);
+			}
+		},
 	};
 
 	const boundingRect = getBoxBasedOnBackgroundClip(
@@ -68,7 +71,7 @@ export const drawBackground = async ({
 		const originalWebkitBackgroundClip = element.style.webkitBackgroundClip;
 		element.style.backgroundClip = 'initial';
 		element.style.webkitBackgroundClip = 'initial';
-		const onlyBackgroundClip = await precomposeDOMElement({
+		const onlyBackgroundClipText = await precomposeDOMElement({
 			element,
 			boundingRect: new DOMRect(
 				boundingRect.left + parentOffsetLeft,
@@ -81,9 +84,10 @@ export const drawBackground = async ({
 			scale,
 			onlyBackgroundClip: true,
 		});
+		onlyBackgroundClipText.setTransform(new DOMMatrix().scale(scale, scale));
 		element.style.backgroundClip = originalBackgroundClip;
 		element.style.webkitBackgroundClip = originalWebkitBackgroundClip;
-		contextToDraw = onlyBackgroundClip;
+		contextToDraw = onlyBackgroundClipText;
 		contextToDraw.globalCompositeOperation = 'source-in';
 	}
 
