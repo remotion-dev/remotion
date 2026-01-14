@@ -1,10 +1,7 @@
 import type {LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
+import {getBackgroundFill} from './get-background-fill';
 import {getBoxBasedOnBackgroundClip} from './get-padding-box';
-import {
-	createCanvasGradient,
-	parseLinearGradient,
-} from './parse-linear-gradient';
 import {precomposeDOMElement} from './precompose';
 
 export const drawBackground = async ({
@@ -91,46 +88,26 @@ export const drawBackground = async ({
 		contextToDraw.globalCompositeOperation = 'source-in';
 	}
 
-	if (backgroundImage && backgroundImage !== 'none') {
-		const gradientInfo = parseLinearGradient(backgroundImage);
-		if (gradientInfo) {
-			const gradient = createCanvasGradient({
-				ctx: contextToDraw,
-				rect: boundingRect,
-				gradientInfo,
-				offsetLeft,
-				offsetTop,
-			});
-			const originalFillStyle = contextToDraw.fillStyle;
-			contextToDraw.fillStyle = gradient;
-			contextToDraw.fillRect(
-				boundingRect.left - offsetLeft,
-				boundingRect.top - offsetTop,
-				boundingRect.width,
-				boundingRect.height,
-			);
-			contextToDraw.fillStyle = originalFillStyle;
-			return;
-		}
+	const backgroundFill = getBackgroundFill({
+		backgroundImage,
+		backgroundColor,
+		contextToDraw,
+		boundingRect,
+		offsetLeft,
+		offsetTop,
+	});
+
+	if (!backgroundFill) {
+		return;
 	}
 
-	// Fallback to solid background color if no gradient was drawn
-	if (
-		backgroundColor &&
-		backgroundColor !== 'transparent' &&
-		!(
-			backgroundColor.startsWith('rgba') &&
-			(backgroundColor.endsWith(', 0)') || backgroundColor.endsWith(',0'))
-		)
-	) {
-		const originalFillStyle = contextToDraw.fillStyle;
-		contextToDraw.fillStyle = backgroundColor;
-		contextToDraw.fillRect(
-			boundingRect.left - offsetLeft,
-			boundingRect.top - offsetTop,
-			boundingRect.width,
-			boundingRect.height,
-		);
-		contextToDraw.fillStyle = originalFillStyle;
-	}
+	const originalFillStyle = contextToDraw.fillStyle;
+	contextToDraw.fillStyle = backgroundFill;
+	contextToDraw.fillRect(
+		boundingRect.left - offsetLeft,
+		boundingRect.top - offsetTop,
+		boundingRect.width,
+		boundingRect.height,
+	);
+	contextToDraw.fillStyle = originalFillStyle;
 };
