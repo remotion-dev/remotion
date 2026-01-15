@@ -337,6 +337,10 @@ export const stillCommand = async ({
 			logLevel,
 			providerSpecifics: providerSpecifics,
 			forcePathStyle: parsedLambdaCli['force-path-style'],
+			signal: new AbortController().signal,
+			customCredentials: null,
+			onProgress: () => undefined,
+			requestHandler: null,
 		});
 		const relativePath = path.relative(process.cwd(), outputPath);
 		Log.info(

@@ -37,7 +37,7 @@
 		"react-dom": "catalog:",
 		"vitest": "catalog:",
 		"webdriverio": "9.19.2",
-		"@typescript/native-preview": "7.0.0-dev.20260105.1"
+		"@typescript/native-preview": "catalog:"
 	},
 	"keywords": [],
 	"publishConfig": {

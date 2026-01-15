@@ -110,7 +110,8 @@
 			"@vitejs/plugin-react": "4.1.0",
 			"@vitest/browser-playwright": "4.0.9",
 			"playwright": "1.55.1",
-			"vitest": "4.0.9"
+			"vitest": "4.0.9",
+			"@typescript/native-preview": "7.0.0-dev.20260105.1"
 		}
 	}
 }

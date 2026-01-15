@@ -169,6 +169,7 @@ export const downloadBrowser = async ({
 			},
 			indent,
 			logLevel,
+			abortSignal: new AbortController().signal,
 		});
 		await extractZip(archivePath, {dir: outputPath});
 		const chromePath = path.join(outputPath, 'chrome-linux', 'chrome');
