@@ -61,7 +61,7 @@ export const drawText = ({
 
 		// For RTL text, fill from the right edge instead of left
 		const xPosition = isRTL ? rect.right : rect.left;
-		const lines = findLineBreaks(span, isRTL);
+		const lines = findLineBreaks(span);
 
 		let offsetTop = 0;
 

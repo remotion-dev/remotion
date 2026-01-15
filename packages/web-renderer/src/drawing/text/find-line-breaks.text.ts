@@ -29,10 +29,7 @@ const cannotStartLine = (segment: string): boolean => {
 	return forbiddenLineStarts.includes(firstChar);
 };
 
-export function findLineBreaks(
-	span: HTMLSpanElement,
-	rtl: boolean,
-): Array<{
+export function findLineBreaks(span: HTMLSpanElement): Array<{
 	text: string;
 	height: number;
 	offsetHorizontal: number;
@@ -86,10 +83,6 @@ export function findLineBreaks(
 
 		// If height changed significantly, we had a line break
 		if (isLineBreak) {
-			const offsetHorizontal = rtl
-				? previousRect.right! - originalRect.right
-				: previousRect.left! - originalRect.left;
-
 			let textForPreviousLine = currentLine;
 			let textForNewLine = collapsedText;
 
@@ -135,14 +128,7 @@ export function findLineBreaks(
 	if (currentLine) {
 		textNode.textContent = testText;
 
-		const rects = span.getClientRects();
 		const rect = span.getBoundingClientRect();
-
-		const lastRect = rects[rects.length - 1];
-
-		const offsetHorizontal = rtl
-			? lastRect.right - originalRect.right
-			: lastRect.left - originalRect.left;
 
 		lines.push({
 			text: currentLine,
@@ -154,6 +140,5 @@ export function findLineBreaks(
 	// Reset to original text
 	textNode.textContent = originalText;
 
-	console.log({lines});
 	return lines;
 }
