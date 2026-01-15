@@ -21,6 +21,8 @@ type Options = {
 	abortSignal: AbortSignal;
 };
 
+const CANCELLED_ERROR = 'cancelled';
+
 const incorrectContentLengthToken = 'Download finished with';
 
 const downloadFileWithoutRetries = ({
@@ -76,7 +78,7 @@ const downloadFileWithoutRetries = ({
 		let closeConnection = () => undefined;
 
 		const onAbort = () => {
-			rejectAndFlag(new Error('aborted'));
+			rejectAndFlag(new Error(CANCELLED_ERROR));
 			closeConnection();
 		};
 
@@ -180,6 +182,10 @@ export const downloadFile = async (
 		return res;
 	} catch (err) {
 		const {message} = err as Error;
+		if (message === CANCELLED_ERROR) {
+			throw err;
+		}
+
 		if (
 			message === 'aborted' ||
 			message.includes('ECONNRESET') ||
