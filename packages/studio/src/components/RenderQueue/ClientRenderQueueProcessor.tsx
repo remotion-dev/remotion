@@ -41,6 +41,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 		updateClientJobProgress,
 		markClientJobDone,
 		markClientJobFailed,
+		markClientJobCancelled,
 		setProcessJobCallback,
 	} = useContext(RenderQueueContext);
 
@@ -178,7 +179,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				markClientJobDone(job.id, result.getBlob, metadata);
 			} catch (err) {
 				if (abortController.signal.aborted) {
-					markClientJobFailed(job.id, new Error('Render was cancelled'));
+					markClientJobCancelled(job.id);
 				} else {
 					markClientJobFailed(job.id, err as Error);
 				}
@@ -191,6 +192,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 			updateClientJobProgress,
 			markClientJobDone,
 			markClientJobFailed,
+			markClientJobCancelled,
 		],
 	);
 

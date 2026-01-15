@@ -213,6 +213,7 @@ type ClientRenderJobDynamicStatus =
 	| {status: 'idle'}
 	| {status: 'running'; progress: ClientRenderJobProgress}
 	| {status: 'done'; getBlob: GetBlobCallback; metadata: ClientRenderMetadata}
+	| {status: 'cancelled'}
 	| {
 			status: 'failed';
 			error: {message: string; stack: string | undefined};

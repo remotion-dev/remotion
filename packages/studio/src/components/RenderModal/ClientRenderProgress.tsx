@@ -82,9 +82,13 @@ const DoneStatus: React.FC<{
 export const ClientRenderProgress: React.FC<{
 	readonly job: ClientRenderJob;
 }> = ({job}) => {
-	if (job.status === 'idle' || job.status === 'failed') {
+	if (
+		job.status === 'idle' ||
+		job.status === 'failed' ||
+		job.status === 'cancelled'
+	) {
 		throw new Error(
-			'This component should not be rendered when the job is idle or failed',
+			'This component should not be rendered when the job is idle, failed, or cancelled',
 		);
 	}
 

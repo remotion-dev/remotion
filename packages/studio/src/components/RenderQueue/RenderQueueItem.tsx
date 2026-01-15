@@ -13,6 +13,7 @@ import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
+import {RenderQueueCancelledMessage} from './RenderQueueCancelledMessage';
 import {
 	RenderQueueCopyToClipboard,
 	supportsCopyingToClipboard,
@@ -158,6 +159,8 @@ export const RenderQueueItem: React.FC<{
 						<RenderQueueError job={job} />
 					) : job.status === 'running' ? (
 						<RenderQueueProgressMessage job={job} />
+					) : job.status === 'cancelled' ? (
+						<RenderQueueCancelledMessage />
 					) : null}
 				</div>
 			</div>
@@ -165,7 +168,9 @@ export const RenderQueueItem: React.FC<{
 			{!isClientJob && supportsCopyingToClipboard(job as RenderJob) ? (
 				<RenderQueueCopyToClipboard job={job as RenderJob} />
 			) : null}
-			{job.status === 'done' || job.status === 'failed' ? (
+			{job.status === 'done' ||
+			job.status === 'failed' ||
+			job.status === 'cancelled' ? (
 				<RenderQueueRepeatItem job={job} />
 			) : null}
 			{job.status === 'running' ? (

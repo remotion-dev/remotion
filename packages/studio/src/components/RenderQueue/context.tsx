@@ -65,6 +65,7 @@ type RenderQueueContextType = {
 		metadata: ClientRenderMetadata,
 	) => void;
 	markClientJobFailed: (jobId: string, error: Error) => void;
+	markClientJobCancelled: (jobId: string) => void;
 	removeClientJob: (jobId: string) => void;
 	cancelClientJob: (jobId: string) => void;
 	setProcessJobCallback: (
@@ -86,6 +87,7 @@ export const RenderQueueContext = React.createContext<RenderQueueContextType>({
 	updateClientJobProgress: noop,
 	markClientJobDone: noop,
 	markClientJobFailed: noop,
+	markClientJobCancelled: noop,
 	removeClientJob: noop,
 	cancelClientJob: noop,
 	setProcessJobCallback: noop,
@@ -234,6 +236,23 @@ export const RenderQueueContextProvider: React.FC<{
 		[],
 	);
 
+	const markClientJobCancelled = useCallback((jobId: string): void => {
+		deleteAbortController(jobId);
+		cleanupCompositionForJob(jobId);
+
+		setClientJobs((prev) =>
+			prev.map((job) =>
+				job.id === jobId
+					? {
+							...job,
+							status: 'cancelled',
+						}
+					: job,
+			),
+		);
+		setCurrentlyProcessing(null);
+	}, []);
+
 	const removeClientJob = useCallback((jobId: string): void => {
 		setClientJobs((prev) => {
 			const jobToRemove = prev.find((j) => j.id === jobId);
@@ -282,6 +301,7 @@ export const RenderQueueContextProvider: React.FC<{
 			updateClientJobProgress,
 			markClientJobDone,
 			markClientJobFailed,
+			markClientJobCancelled,
 			removeClientJob,
 			cancelClientJob,
 			setProcessJobCallback,
@@ -296,6 +316,7 @@ export const RenderQueueContextProvider: React.FC<{
 		updateClientJobProgress,
 		markClientJobDone,
 		markClientJobFailed,
+		markClientJobCancelled,
 		removeClientJob,
 		cancelClientJob,
 		setProcessJobCallback,
