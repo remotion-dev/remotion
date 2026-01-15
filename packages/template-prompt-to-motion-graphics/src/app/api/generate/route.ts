@@ -139,6 +139,8 @@ export async function POST(req: Request) {
       schema: z.object({ valid: z.boolean() }),
     });
 
+    console.log("Validation result:", validationResult.object.valid ? "valid" : "invalid");
+
     if (!validationResult.object.valid) {
       return new Response(
         JSON.stringify({
