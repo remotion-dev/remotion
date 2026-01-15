@@ -116,7 +116,7 @@ export const makeKeyframeBank = async ({
 
 		return (
 			roundTo4Digits(lastFrame.timestamp + lastFrame.duration) >
-			roundTo4Digits(timestamp) + SAFE_WINDOW_OF_MONOTONICITY
+			roundTo4Digits(timestamp)
 		);
 	};
 
