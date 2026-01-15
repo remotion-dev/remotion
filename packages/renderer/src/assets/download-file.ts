@@ -1,5 +1,4 @@
 import {createWriteStream} from 'node:fs';
-import type {CancelSignal} from '..';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
@@ -19,7 +18,7 @@ type Options = {
 		| undefined;
 	logLevel: LogLevel;
 	indent: boolean;
-	cancelSignal: CancelSignal;
+	abortSignal: AbortSignal;
 };
 
 const incorrectContentLengthToken = 'Download finished with';
@@ -28,7 +27,7 @@ const downloadFileWithoutRetries = ({
 	onProgress,
 	url,
 	to: toFn,
-	cancelSignal,
+	abortSignal,
 }: Options) => {
 	return new Promise<Response>((resolve, reject) => {
 		let rejected = false;
@@ -81,7 +80,7 @@ const downloadFileWithoutRetries = ({
 			closeConnection();
 		};
 
-		cancelSignal(() => {
+		abortSignal.addEventListener('abort', () => {
 			onAbort();
 		});
 
@@ -91,6 +90,11 @@ const downloadFileWithoutRetries = ({
 					request.destroy();
 					response.destroy();
 				};
+
+				if (abortSignal.aborted) {
+					onAbort();
+					return;
+				}
 
 				const contentDisposition =
 					response.headers['content-disposition'] ?? null;
@@ -159,6 +163,9 @@ const downloadFileWithoutRetries = ({
 			})
 			.catch((err) => {
 				rejectAndFlag(err);
+			})
+			.finally(() => {
+				abortSignal.removeEventListener('abort', onAbort);
 			});
 	});
 };

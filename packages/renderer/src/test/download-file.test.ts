@@ -21,6 +21,7 @@ test(
 			onProgress: () => undefined,
 			indent: false,
 			logLevel: 'info',
+			abortSignal: new AbortController().signal,
 		});
 		const data = await fs.promises.readFile(to, 'utf8');
 
@@ -45,6 +46,7 @@ test('Should fail to download invalid files', async () => {
 			onProgress: () => undefined,
 			indent: false,
 			logLevel: 'info',
+			abortSignal: new AbortController().signal,
 		}),
 	).toThrow(
 		typeof Bun === 'undefined'
