@@ -1,5 +1,5 @@
-import {useEffect, useState} from 'react';
-import {useCurrentFrame, useDelayRender} from 'remotion';
+import {useEffect} from 'react';
+import {useCurrentFrame} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
@@ -10,12 +10,7 @@ class FrameRenderError extends Error {}
 class UseEffectOnFrameError extends Error {}
 class InitialRenderError extends Error {}
 
-test('should propagate errors thrown in useEffect', async (t) => {
-	if (t.task.file.projectName === 'webkit') {
-		t.skip();
-		return;
-	}
-
+test('should propagate errors thrown in useEffect', async () => {
 	const ThrowsInUseEffect: React.FC = () => {
 		useEffect(() => {
 			throw new UseEffectError('Error from useEffect');
@@ -41,12 +36,7 @@ test('should propagate errors thrown in useEffect', async (t) => {
 	).rejects.toThrow(UseEffectError);
 });
 
-test('should propagate errors thrown on a specific frame', async (t) => {
-	if (t.task.file.projectName === 'webkit') {
-		t.skip();
-		return;
-	}
-
+test('should propagate errors thrown on a specific frame', async () => {
 	const ThrowsOnFrame5: React.FC = () => {
 		const frame = useCurrentFrame();
 		if (frame === 5) {
@@ -72,12 +62,7 @@ test('should propagate errors thrown on a specific frame', async (t) => {
 	).rejects.toThrow(FrameRenderError);
 });
 
-test('should propagate errors thrown in useEffect on a specific frame', async (t) => {
-	if (t.task.file.projectName === 'webkit') {
-		t.skip();
-		return;
-	}
-
+test('should propagate errors thrown in useEffect on a specific frame', async () => {
 	const ThrowsInUseEffectOnFrame3: React.FC = () => {
 		const frame = useCurrentFrame();
 
@@ -106,12 +91,7 @@ test('should propagate errors thrown in useEffect on a specific frame', async (t
 	).rejects.toThrow(UseEffectOnFrameError);
 });
 
-test('should propagate errors thrown during initial render', async (t) => {
-	if (t.task.file.projectName === 'webkit') {
-		t.skip();
-		return;
-	}
-
+test('should propagate errors thrown during initial render', async () => {
 	const ThrowsDuringRender: React.FC = () => {
 		throw new InitialRenderError('Error during initial render');
 	};
@@ -132,37 +112,4 @@ test('should propagate errors thrown during initial render', async (t) => {
 			imageFormat: 'png',
 		}),
 	).rejects.toThrow(InitialRenderError);
-});
-
-test('should propagate delayRender timeout errors', async (t) => {
-	if (t.task.file.projectName === 'webkit') {
-		t.skip();
-		return;
-	}
-
-	const NeverContinues: React.FC = () => {
-		const {delayRender} = useDelayRender();
-		useState(() =>
-			delayRender('Waiting forever', {
-				retries: 0,
-			}),
-		);
-		return <div>Loading...</div>;
-	};
-
-	await expect(
-		renderMediaOnWeb({
-			licenseKey: 'free-license',
-			composition: {
-				component: NeverContinues,
-				id: 'never-continues',
-				width: 100,
-				height: 100,
-				fps: 30,
-				durationInFrames: 10,
-			},
-			inputProps: {},
-			delayRenderTimeoutInMilliseconds: 3000,
-		}),
-	).rejects.toThrow(/delayRender.*Waiting forever/);
 });

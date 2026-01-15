@@ -36,12 +36,7 @@ class UseEffectError extends Error {
 
 // in react 18, errors were re-thrown
 // in react 19, errors are not re-thrown and onUncaughtError was introduced
-test('should propagate errors thrown in useEffect (React 18)', async (t) => {
-	if (t.task.file.projectName === 'webkit') {
-		t.skip();
-		return;
-	}
-
+test('should propagate errors thrown in useEffect (React 18)', async () => {
 	const ThrowsInUseEffect: React.FC = () => {
 		useEffect(() => {
 			throw new UseEffectError('Error from useEffect');
