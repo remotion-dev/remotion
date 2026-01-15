@@ -7,6 +7,10 @@ import { animatedShapesExample } from "./animated-shapes";
 import { morphingHexagonsExample } from "./morphing-hexagons";
 import { lottieAnimationExample } from "./lottie-animation";
 import { fallingSpheresExample } from "./falling-spheres";
+import { goldPriceChartExample } from "./gold-price-chart";
+import { typewriterHighlightExample } from "./typewriter-highlight";
+import { wordCarouselExample } from "./word-carousel";
+import { staggeredListExample } from "./staggered-list";
 
 export interface RemotionExample {
   id: string;
@@ -28,6 +32,10 @@ export const examples: RemotionExample[] = [
   morphingHexagonsExample,
   lottieAnimationExample,
   fallingSpheresExample,
+  goldPriceChartExample,
+  typewriterHighlightExample,
+  wordCarouselExample,
+  staggeredListExample,
 ];
 
 export function getExampleById(id: string): RemotionExample | undefined {
