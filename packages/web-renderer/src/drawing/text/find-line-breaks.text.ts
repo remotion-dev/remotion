@@ -1,179 +1,37 @@
-import {getCollapsedText} from './get-collapsed-text';
-
-// Punctuation that cannot start a line according to Unicode line breaking rules
-// When these would start a line, the browser moves the preceding word to the new line
-const cannotStartLine = (segment: string): boolean => {
-	if (segment.length === 0) return false;
-	const firstChar = segment[0];
-	const forbiddenLineStarts = [
-		'.',
-		',',
-		';',
-		':',
-		'!',
-		'?',
-		')',
-		']',
-		'}',
-		'"',
-		"'",
-		'"',
-		`'`,
-		'»',
-		'…',
-		'‥',
-		'·',
-		'%',
-		'‰',
-	];
-	return forbiddenLineStarts.includes(firstChar);
-};
-
-type RectMeasurement = {
-	rectList: DOMRectList;
+type Token = {
+	text: string;
 	rect: DOMRect;
 };
 
-const getRectMeasurement = (el: HTMLSpanElement) => {
-	const rectList = el.getClientRects();
-	const rect = el.getBoundingClientRect();
-	return {rectList, rect};
-};
-
-export function findLineBreaks(
-	span: HTMLSpanElement,
-	rtl: boolean,
-): {
-	lines: {
-		text: string;
-		height: number;
-		offsetHorizontal: number;
-	}[];
-	xPosition: number;
-} {
-	const textNode = span.childNodes[0] as Text;
-	const originalText = textNode.textContent;
-	textNode.textContent = '';
-	const originalRect = span.getBoundingClientRect();
-
+export const findWords = (span: HTMLSpanElement) => {
+	const originalText = span.textContent;
 	const segmenter = new Intl.Segmenter('en', {granularity: 'word'});
-	const segments = segmenter.segment(originalText);
-
+	const segments = segmenter.segment(span.textContent);
 	const words = Array.from(segments).map((s) => s.segment);
 
-	const lines: Array<{
-		text: string;
-		height: number;
-		offsetHorizontal: number;
-	}> = [];
+	const tokens: Token[] = [];
 
-	let currentLine = '';
-	let testText = '';
-	let previousRect: RectMeasurement;
-
-	for (let i = 0; i < words.length; i += 1) {
+	for (let i = 0; i < words.length; i++) {
+		const wordsBefore = words.slice(0, i);
+		const wordsAfter = words.slice(i);
 		const word = words[i];
-		let wordsToAdd = word;
-		while (typeof words[i + 1] !== 'undefined' && wordsToAdd.trim() === '') {
-			wordsToAdd += words[i + 1];
-			i++;
-		}
 
-		previousRect = getRectMeasurement(span);
-		testText += wordsToAdd;
-		const previousText = textNode.textContent;
-		textNode.textContent = testText;
-		const rect = span.getBoundingClientRect();
-		const currentHeight = rect.height;
+		const wordsBeforeText = wordsBefore.join('');
+		const wordsAfterText = wordsAfter.join('');
 
-		const isLineBreak =
-			previousRect &&
-			previousRect.rect.height !== 0 &&
-			Math.abs(currentHeight - previousRect.rect.height) > 2;
+		const beforeNode = document.createTextNode(wordsBeforeText);
+		const afterNode = document.createTextNode(wordsAfterText);
+		const interstitialNode = document.createElement('span');
+		interstitialNode.textContent = word;
+		span.textContent = '';
+		span.appendChild(beforeNode);
+		span.appendChild(interstitialNode);
+		span.appendChild(afterNode);
 
-		const {collapsedText} = getCollapsedText({
-			span,
-			previousText,
-			wordsToAdd,
-			canCollapseStart: isLineBreak || lines.length === 0,
-		});
-
-		// If height changed significantly, we had a line break
-		if (isLineBreak) {
-			let textForPreviousLine = currentLine;
-			let textForNewLine = collapsedText;
-
-			// If the segment that triggered the break can't start a line (e.g., punctuation),
-			// the browser would have moved the preceding word to the new line as well
-			if (cannotStartLine(word)) {
-				const currentLineSegments = Array.from(
-					segmenter.segment(currentLine),
-				).map((s) => s.segment);
-
-				// Find the last non-whitespace segment (the word to move)
-				let lastWordIndex = currentLineSegments.length - 1;
-				while (
-					lastWordIndex >= 0 &&
-					currentLineSegments[lastWordIndex].trim() === ''
-				) {
-					lastWordIndex--;
-				}
-
-				if (lastWordIndex >= 0) {
-					// Move the last word (and any trailing whitespace) to the new line
-					textForPreviousLine = currentLineSegments
-						.slice(0, lastWordIndex)
-						.join('');
-					textForNewLine =
-						currentLineSegments.slice(lastWordIndex).join('') + collapsedText;
-				}
-			}
-
-			const rects = getRectMeasurement(span);
-			const lastRect = rects.rectList[rects.rectList.length - 1];
-
-			let offsetHorizontal = rtl
-				? lastRect.right - originalRect.right
-				: lastRect.left - originalRect.left;
-
-			if (lines.length === 0) {
-				offsetHorizontal = 0;
-			}
-
-			lines.push({
-				text: textForPreviousLine,
-				height: currentHeight - previousRect.rect.height,
-				offsetHorizontal,
-			});
-
-			currentLine = textForNewLine;
-		} else {
-			currentLine += collapsedText;
-		}
+		const rect = interstitialNode.getBoundingClientRect();
+		span.textContent = originalText;
+		tokens.push({text: word, rect});
 	}
 
-	// Add the last line
-	if (currentLine) {
-		textNode.textContent = testText;
-
-		const rects = getRectMeasurement(span);
-		const lastRect = rects.rectList[rects.rectList.length - 1];
-
-		const offsetHorizontal = rtl
-			? lastRect.right - originalRect.right
-			: lastRect.left - originalRect.left;
-
-		lines.push({
-			text: currentLine,
-			height:
-				rects.rect.height - lines.reduce((acc, curr) => acc + curr.height, 0),
-			offsetHorizontal,
-		});
-	}
-
-	// Reset to original text
-	textNode.textContent = originalText;
-
-	const originalXPosition = rtl ? originalRect.right : originalRect.left;
-	return {lines, xPosition: originalXPosition};
-}
+	return tokens;
+};

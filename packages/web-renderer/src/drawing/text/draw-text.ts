@@ -2,7 +2,7 @@ import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import type {DrawFn} from '../drawn-fn';
 import {applyTextTransform} from './apply-text-transform';
-import {findLineBreaks} from './find-line-breaks.text';
+import {findWords} from './find-line-breaks.text';
 
 export const drawText = ({
 	span,
@@ -59,26 +59,22 @@ export const drawText = ({
 		const transformedText = applyTextTransform(originalText, textTransform);
 		span.textContent = transformedText;
 
-		const {lines, xPosition} = findLineBreaks(span, isRTL);
+		const tokens = findWords(span);
 
-		let offsetTop = 0;
+		for (const token of tokens) {
+			const measurements = contextToDraw.measureText(token.text);
+			const {fontBoundingBoxDescent, fontBoundingBoxAscent} = measurements;
 
-		const measurements = contextToDraw.measureText(lines[0].text);
-		const {fontBoundingBoxDescent, fontBoundingBoxAscent} = measurements;
-
-		const fontHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
-
-		for (const line of lines) {
+			const fontHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
 			// Calculate leading
-			const leading = line.height - fontHeight;
+			const leading = rect.height - fontHeight;
 			const halfLeading = leading / 2;
 
 			contextToDraw.fillText(
-				line.text,
-				xPosition + line.offsetHorizontal,
-				rect.top + halfLeading + fontBoundingBoxAscent + offsetTop,
+				token.text,
+				token.rect.left,
+				token.rect.top + fontBoundingBoxAscent,
 			);
-			offsetTop += line.height;
 		}
 
 		span.textContent = originalText;
