@@ -129,11 +129,9 @@ export const Modals: React.FC<{
 					/>
 				)}
 
-			{modalContextType &&
-				canRender &&
-				modalContextType.type === 'render-progress' && (
-					<RenderStatusModal jobId={modalContextType.jobId} />
-				)}
+			{modalContextType && modalContextType.type === 'render-progress' && (
+				<RenderStatusModal jobId={modalContextType.jobId} />
+			)}
 
 			{modalContextType && modalContextType.type === 'update' && (
 				<UpdateModal

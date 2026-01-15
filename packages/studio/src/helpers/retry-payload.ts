@@ -5,9 +5,9 @@ import type {
 	PixelFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import type {RenderJob} from '@remotion/studio-shared';
+import type {ClientRenderJob, RenderJob} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
-import type {RenderModalState} from '../state/modals';
+import type {RenderModalState, WebRenderModalState} from '../state/modals';
 
 export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 	const defaults = window.remotion_renderDefaults;
@@ -184,4 +184,19 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 	}
 
 	throw new Error(`Job ${JSON.stringify(job)} Not implemented`);
+};
+
+export const makeClientRetryPayload = (
+	job: ClientRenderJob,
+): WebRenderModalState => {
+	return {
+		type: 'web-render',
+		compositionId: job.compositionId,
+		initialFrame: job.type === 'client-still' ? job.frame : 0,
+		initialLogLevel: job.logLevel,
+		initialLicenseKey: job.licenseKey,
+		defaultProps: job.inputProps,
+		inFrameMark: job.type === 'client-video' ? job.startFrame : null,
+		outFrameMark: job.type === 'client-video' ? job.endFrame : null,
+	};
 };

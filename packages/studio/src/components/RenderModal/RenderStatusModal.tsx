@@ -1,5 +1,9 @@
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext} from 'react';
-import {makeRetryPayload} from '../../helpers/retry-payload';
+import {
+	makeClientRetryPayload,
+	makeRetryPayload,
+} from '../../helpers/retry-payload';
 import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -7,8 +11,9 @@ import {ModalContainer} from '../ModalContainer';
 import {ModalHeader} from '../ModalHeader';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {cancelRenderJob, removeRenderJob} from '../RenderQueue/actions';
-import {RenderQueueContext} from '../RenderQueue/context';
+import {isClientRenderJob, RenderQueueContext} from '../RenderQueue/context';
 import {Flex, SPACING_UNIT} from '../layout';
+import {ClientRenderProgress} from './ClientRenderProgress';
 import {GuiRenderStatus} from './GuiRenderStatus';
 
 const container: React.CSSProperties = {
@@ -42,35 +47,53 @@ export const RenderStatusModal: React.FC<{readonly jobId: string}> = ({
 	jobId,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
-	const {serverJobs} = useContext(RenderQueueContext);
-	const job = serverJobs.find((j) => j.id === jobId);
+	const {jobs, removeClientJob, cancelClientJob} =
+		useContext(RenderQueueContext);
+
+	const job = jobs.find((j) => j.id === jobId);
 	if (!job) {
 		throw new Error('job not found');
 	}
+
+	const isClientJob = isClientRenderJob(job);
 
 	const onQuit = useCallback(() => {
 		setSelectedModal(null);
 	}, [setSelectedModal]);
 
 	const onRetry = useCallback(() => {
-		const retryPayload = makeRetryPayload(job);
-		setSelectedModal(retryPayload);
-	}, [job, setSelectedModal]);
+		if (isClientJob) {
+			const retryPayload = makeClientRetryPayload(job);
+			setSelectedModal(retryPayload);
+		} else {
+			const retryPayload = makeRetryPayload(job);
+			setSelectedModal(retryPayload);
+		}
+	}, [job, isClientJob, setSelectedModal]);
 
 	const onClickOnRemove = useCallback(() => {
 		setSelectedModal(null);
-		removeRenderJob(job).catch((err) => {
-			showNotification(`Could not remove job: ${err.message}`, 2000);
-		});
-	}, [job, setSelectedModal]);
+		if (isClientJob) {
+			removeClientJob(job.id);
+			showNotification('Removed render', 2000);
+		} else {
+			removeRenderJob(job).catch((err) => {
+				showNotification(`Could not remove job: ${err.message}`, 2000);
+			});
+		}
+	}, [job, isClientJob, removeClientJob, setSelectedModal]);
 
 	const onClickOnCancel = useCallback(() => {
-		cancelRenderJob(job).catch((err) => {
-			showNotification(`Could not cancel job: ${err.message}`, 2000);
-		});
-	}, [job]);
+		if (isClientJob) {
+			cancelClientJob(job.id);
+		} else {
+			cancelRenderJob(job).catch((err) => {
+				showNotification(`Could not cancel job: ${err.message}`, 2000);
+			});
+		}
+	}, [job, isClientJob, cancelClientJob]);
 
-	if (!job || job.status === 'idle') {
+	if (job.status === 'idle') {
 		throw new Error('should not have rendered this modal');
 	}
 
@@ -86,9 +109,12 @@ export const RenderStatusModal: React.FC<{readonly jobId: string}> = ({
 						</div>
 					</>
 				) : null}
-				{job.status === 'done' || job.status === 'running' ? (
-					<GuiRenderStatus job={job} />
-				) : null}
+				{(job.status === 'done' || job.status === 'running') &&
+					(isClientJob ? (
+						<ClientRenderProgress job={job} />
+					) : (
+						<GuiRenderStatus job={job as RenderJob} />
+					))}
 				<div style={spacer} />
 				<div style={buttonRow}>
 					{job.status === 'running' ? (

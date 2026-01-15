@@ -22,25 +22,15 @@ export const RenderQueueProgressMessage: React.FC<{
 	const isClientJob = isClientRenderJob(job);
 
 	const onClick = useCallback(() => {
-		if (isClientJob) {
-			return;
-		}
-
 		setSelectedModal({
 			type: 'render-progress',
 			jobId: job.id,
 		});
-	}, [job, isClientJob, setSelectedModal]);
+	}, [job.id, setSelectedModal]);
 
-	if (isClientJob) {
-		const {renderedFrames, totalFrames} = job.progress;
-		const message = `Rendering frame ${renderedFrames}/${totalFrames}`;
-		return (
-			<span style={outputLocation} title={message}>
-				{message}
-			</span>
-		);
-	}
+	const message = isClientJob
+		? `Rendering frame ${job.progress.renderedFrames}/${job.progress.totalFrames}`
+		: job.progress.message;
 
 	return (
 		<button
@@ -48,9 +38,9 @@ export const RenderQueueProgressMessage: React.FC<{
 			type="button"
 			style={outputLocation}
 			tabIndex={tabIndex}
-			title={job.progress.message}
+			title={message}
 		>
-			{job.progress.message}
+			{message}
 		</button>
 	);
 };

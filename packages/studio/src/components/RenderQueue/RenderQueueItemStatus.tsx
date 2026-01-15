@@ -40,28 +40,24 @@ export const RenderQueueItemStatus: React.FC<{
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
-			if (isClientJob) {
-				return;
-			}
-
 			setSelectedModal({
 				type: 'render-progress',
 				jobId: job.id,
 			});
 		},
-		[job.id, isClientJob, setSelectedModal],
+		[job.id, setSelectedModal],
 	);
 
 	if (job.status === 'failed') {
 		return (
-			<div>
+			<button type="button" style={invisibleStyle} onClick={onClick}>
 				<svg style={iconStyle} viewBox="0 0 512 512">
 					<path
 						fill={FAIL_COLOR}
 						d="M0 160V352L160 512H352L512 352V160L352 0H160L0 160zm353.9 32l-17 17-47 47 47 47 17 17L320 353.9l-17-17-47-47-47 47-17 17L158.1 320l17-17 47-47-47-47-17-17L192 158.1l17 17 47 47 47-47 17-17L353.9 192z"
 					/>
 				</svg>
-			</div>
+			</button>
 		);
 	}
 
@@ -77,19 +73,6 @@ export const RenderQueueItemStatus: React.FC<{
 	}
 
 	if (job.status === 'done') {
-		if (isClientJob) {
-			return (
-				<div>
-					<svg style={iconStyle} viewBox="0 0 512 512">
-						<path
-							fill={LIGHT_TEXT}
-							d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512zM369 209L241 337l-17 17-17-17-64-64-17-17L160 222.1l17 17 47 47L335 175l17-17L385.9 192l-17 17z"
-						/>
-					</svg>
-				</div>
-			);
-		}
-
 		return (
 			<button
 				type="button"
@@ -109,19 +92,17 @@ export const RenderQueueItemStatus: React.FC<{
 	}
 
 	if (job.status === 'running') {
+		let progressValue: number;
 		if (isClientJob) {
 			const {renderedFrames, totalFrames} = job.progress;
-			const progressValue = totalFrames > 0 ? renderedFrames / totalFrames : 0;
-			return (
-				<div>
-					<CircularProgress progress={Math.max(0.07, progressValue)} />
-				</div>
-			);
+			progressValue = totalFrames > 0 ? renderedFrames / totalFrames : 0;
+		} else {
+			progressValue = job.progress.value;
 		}
 
 		return (
 			<button type="button" style={invisibleStyle} onClick={onClick}>
-				<CircularProgress progress={Math.max(0.07, job.progress.value)} />
+				<CircularProgress progress={Math.max(0.07, progressValue)} />
 			</button>
 		);
 	}
