@@ -5,7 +5,7 @@ import {whiteSpaceCollapsing} from './fixtures/whitespace-collapsing';
 import {whiteSpaceCollapsing2} from './fixtures/whitespace-collapsing-2';
 import {testImage} from './utils';
 
-test('should render box-decoration-break', async () => {
+test('small test for whitespace collapsing', async () => {
 	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: whiteSpaceCollapsing,
@@ -17,7 +17,7 @@ test('should render box-decoration-break', async () => {
 	await testImage({blob, testId: 'whitespace-collapsing', threshold: 0.02});
 });
 
-test('should render box-decoration-break', async () => {
+test('3 lines of text for whitespace collapsing', async () => {
 	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: whiteSpaceCollapsing2,

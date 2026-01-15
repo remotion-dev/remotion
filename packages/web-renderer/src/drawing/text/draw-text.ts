@@ -3,7 +3,6 @@ import {Internals} from 'remotion';
 import type {DrawFn} from '../drawn-fn';
 import {applyTextTransform} from './apply-text-transform';
 import {findLineBreaks} from './find-line-breaks.text';
-import {getCollapsedText} from './get-collapsed-text';
 
 export const drawText = ({
 	span,
@@ -57,8 +56,7 @@ export const drawText = ({
 		contextToDraw.textBaseline = 'alphabetic';
 
 		const originalText = span.textContent;
-		const {collapsedText} = getCollapsedText(span);
-		const transformedText = applyTextTransform(collapsedText, textTransform);
+		const transformedText = applyTextTransform(originalText, textTransform);
 		span.textContent = transformedText;
 
 		// For RTL text, fill from the right edge instead of left
