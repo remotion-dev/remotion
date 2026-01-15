@@ -1,4 +1,5 @@
 import {createWriteStream} from 'node:fs';
+import type {CancelSignal} from '..';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
@@ -18,11 +19,17 @@ type Options = {
 		| undefined;
 	logLevel: LogLevel;
 	indent: boolean;
+	cancelSignal: CancelSignal;
 };
 
 const incorrectContentLengthToken = 'Download finished with';
 
-const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
+const downloadFileWithoutRetries = ({
+	onProgress,
+	url,
+	to: toFn,
+	cancelSignal,
+}: Options) => {
 	return new Promise<Response>((resolve, reject) => {
 		let rejected = false;
 		let resolved = false;
@@ -69,6 +76,15 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 
 		let closeConnection = () => undefined;
 
+		const onAbort = () => {
+			rejectAndFlag(new Error('aborted'));
+			closeConnection();
+		};
+
+		cancelSignal(() => {
+			onAbort();
+		});
+
 		readFile(url)
 			.then(({response, request}) => {
 				closeConnection = () => {
@@ -111,7 +127,6 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 				writeStream.on('error', (err) => rejectAndFlag(err));
 				response.on('error', (err) => {
 					closeConnection();
-
 					rejectAndFlag(err);
 				});
 				response.pipe(writeStream).on('error', (err) => rejectAndFlag(err));
