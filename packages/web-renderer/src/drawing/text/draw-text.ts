@@ -13,7 +13,7 @@ export const drawText = ({
 	logLevel: LogLevel;
 	onlyBackgroundClipText: boolean;
 }) => {
-	const drawFn: DrawFn = ({dimensions: rect, computedStyle, contextToDraw}) => {
+	const drawFn: DrawFn = ({computedStyle, contextToDraw}) => {
 		const {
 			fontFamily,
 			fontSize,
