@@ -27,7 +27,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/media": "workspace:*",
-		"@typescript/native-preview": "7.0.0-dev.20260105.1",
+		"@typescript/native-preview": "catalog:",
 		"@vitejs/plugin-react": "catalog:",
 		"@vitest/browser-playwright": "catalog:",
 		"playwright": "catalog:",

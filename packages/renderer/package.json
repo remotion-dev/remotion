@@ -12,7 +12,8 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"watch": "tsgo -w",
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
@@ -38,6 +39,7 @@
 		"@happy-dom/global-registrator": "14.5.1",
 		"react": "catalog:",
 		"react-dom": "catalog:",
+		"@typescript/native-preview": "catalog:",
 		"@types/ws": "8.5.10",
 		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
