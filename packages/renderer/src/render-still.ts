@@ -429,6 +429,7 @@ const internalRenderStillRaw = (
 					event: 'cloud-render',
 					host: null,
 					succeeded: true,
+					isStill: true,
 				})
 					.then(() => {
 						Log.verbose(options, 'Usage event sent successfully');

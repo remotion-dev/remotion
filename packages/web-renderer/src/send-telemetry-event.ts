@@ -5,10 +5,12 @@ export const sendUsageEvent = async ({
 	licenseKey,
 	succeeded,
 	apiName,
+	isStill,
 }: {
 	licenseKey: string | null;
 	succeeded: boolean;
 	apiName: string;
+	isStill?: boolean;
 }) => {
 	const host =
 		typeof window === 'undefined'
@@ -32,5 +34,6 @@ export const sendUsageEvent = async ({
 		event: 'webcodec-conversion',
 		host,
 		succeeded,
+		isStill,
 	});
 };

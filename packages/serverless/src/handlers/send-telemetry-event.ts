@@ -5,6 +5,7 @@ import {RenderInternals} from '@remotion/renderer';
 export const sendTelemetryEvent = async (
 	licenseKey: string | null,
 	logLevel: LogLevel,
+	isStill?: boolean,
 ) => {
 	if (licenseKey === null) {
 		return Promise.resolve();
@@ -17,6 +18,7 @@ export const sendTelemetryEvent = async (
 			event: 'cloud-render',
 			host: null,
 			succeeded: true,
+			isStill,
 		});
 		RenderInternals.Log.info({indent: false, logLevel}, 'Telemetry event sent');
 	} catch (err) {
