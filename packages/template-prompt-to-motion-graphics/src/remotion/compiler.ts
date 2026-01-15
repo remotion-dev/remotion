@@ -13,6 +13,16 @@ import * as RemotionShapes from "@remotion/shapes";
 import { Lottie } from "@remotion/lottie";
 import { ThreeCanvas } from "@remotion/three";
 import * as THREE from "three";
+import {
+  TransitionSeries,
+  linearTiming,
+  springTiming,
+} from "@remotion/transitions";
+import { fade } from "@remotion/transitions/fade";
+import { slide } from "@remotion/transitions/slide";
+import { wipe } from "@remotion/transitions/wipe";
+import { flip } from "@remotion/transitions/flip";
+import { clockWipe } from "@remotion/transitions/clock-wipe";
 
 export interface CompilationResult {
   Component: React.ComponentType | null;
@@ -103,6 +113,15 @@ export function compileCode(code: string): CompilationResult {
       "makeEllipse",
       "makeHeart",
       "makePie",
+      // Transitions
+      "TransitionSeries",
+      "linearTiming",
+      "springTiming",
+      "fade",
+      "slide",
+      "wipe",
+      "flip",
+      "clockWipe",
       wrappedCode,
     );
 
@@ -139,6 +158,15 @@ export function compileCode(code: string): CompilationResult {
       RemotionShapes.makeEllipse,
       RemotionShapes.makeHeart,
       RemotionShapes.makePie,
+      // Transitions
+      TransitionSeries,
+      linearTiming,
+      springTiming,
+      fade,
+      slide,
+      wipe,
+      flip,
+      clockWipe,
     );
 
     if (typeof Component !== "function") {
