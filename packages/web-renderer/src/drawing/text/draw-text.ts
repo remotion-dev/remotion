@@ -8,9 +8,11 @@ export const drawText = ({
 	span,
 	logLevel,
 	onlyBackgroundClipText,
+	parentRect,
 }: {
 	span: HTMLSpanElement;
 	logLevel: LogLevel;
+	parentRect: DOMRect;
 	onlyBackgroundClipText: boolean;
 }) => {
 	const drawFn: DrawFn = ({computedStyle, contextToDraw}) => {
@@ -72,8 +74,8 @@ export const drawText = ({
 
 			contextToDraw.fillText(
 				token.text,
-				token.rect.left,
-				token.rect.top + fontBoundingBoxAscent + halfLeading,
+				(isRTL ? token.rect.right : token.rect.left) - parentRect.x,
+				token.rect.top + fontBoundingBoxAscent + halfLeading - parentRect.y,
 			);
 		}
 
