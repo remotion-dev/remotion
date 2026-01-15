@@ -7,4 +7,3 @@ export const setEnableAskAiFeature = (enabled: boolean) => {
 export const getEnableAskAiFeature = () => {
 	return askAiEnabled;
 };
-

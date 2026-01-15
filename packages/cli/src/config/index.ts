@@ -45,6 +45,7 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
+import {getEnableAskAiFeature, setEnableAskAiFeature} from './ask-ai';
 import {setBrowserExecutable} from './browser-executable';
 import {
 	getBufferStateDelayInMilliseconds,
@@ -63,7 +64,6 @@ import {
 	getExperimentalClientSideRenderingEnabled,
 	setExperimentalClientSideRenderingEnabled,
 } from './experimental-client-side-rendering';
-import {getEnableAskAiFeature, setEnableAskAiFeature} from './ask-ai';
 import {
 	getFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
