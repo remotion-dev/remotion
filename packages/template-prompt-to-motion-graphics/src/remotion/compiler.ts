@@ -29,25 +29,24 @@ export interface CompilationResult {
   error: string | null;
 }
 
-// Extract component body from full ES6 code with imports
+// Strip imports and extract component body from LLM-generated code
+// Safety layer in case LLM includes full ES6 syntax despite instructions
 function extractComponentBody(code: string): string {
-  // Strip import lines
-  const lines = code.split("\n");
-  const nonImportLines = lines.filter(
-    (line) => !line.trim().startsWith("import "),
-  );
-  const codeWithoutImports = nonImportLines.join("\n");
+  // Strip import statements
+  const cleaned = code.replace(/^import\s+.*$/gm, "").trim();
 
   // Extract body from "export const MyAnimation = () => { ... };"
-  const match = codeWithoutImports.match(
-    /export\s+const\s+\w+\s*=\s*\(\s*\)\s*=>\s*\{([\s\S]*)\};?\s*$/,
+  const match = cleaned.match(
+    /^([\s\S]*?)export\s+const\s+\w+\s*=\s*\(\s*\)\s*=>\s*\{([\s\S]*)\};?\s*$/,
   );
+
   if (match) {
-    return match[1].trim();
+    const helpers = match[1].trim();
+    const body = match[2].trim();
+    return helpers ? `${helpers}\n\n${body}` : body;
   }
 
-  // Fallback: return code as-is (backward compatible with body-only input)
-  return code;
+  return cleaned;
 }
 
 // Standalone compile function for use outside React components
