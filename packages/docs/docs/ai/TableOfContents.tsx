@@ -22,6 +22,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'System Prompt'}</strong>
 					<div>to teach LLMs Remotion rules</div>
 				</TOCItem>
+				<TOCItem link="/docs/ai/generate">
+					<strong>{'Code Generation'}</strong>
+					<div>Generate Remotion code from prompts</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

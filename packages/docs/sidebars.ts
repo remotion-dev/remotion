@@ -1167,7 +1167,21 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'ai/index',
 			},
-			items: ['ai/bolt', 'ai/chatbot', 'ai/mcp', 'ai/system-prompt'],
+			items: [
+				'ai/bolt',
+				'ai/chatbot',
+				{
+					type: 'category',
+					label: 'Code Generation',
+					link: {
+						type: 'doc',
+						id: 'ai/generate',
+					},
+					items: ['ai/generate-code', 'ai/generate-compile'],
+				},
+				'ai/mcp',
+				'ai/system-prompt',
+			],
 		},
 		{
 			type: 'category',

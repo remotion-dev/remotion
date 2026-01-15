@@ -1,0 +1,76 @@
+---
+image: /generated/articles-docs-ai-generate-compile.png
+crumb: 'AI'
+title: Browser Compilation and Preview
+sidebar_label: Compilation & Preview
+---
+
+This page covers how to compile AI-generated Remotion code in the browser and display it in a live preview.
+
+## Overview
+
+To show a live preview without a server round-trip, the compilation pipeline:
+
+1. **Extracts** the component body from the ES6 module format (removing imports)
+2. **Transpiles** JSX/TypeScript to JavaScript using Babel in the browser
+3. **Injects** Remotion APIs via a Function constructor
+4. **Renders** the compiled component in the Remotion Player
+
+:::note
+This is a fast approach for prototyping and demos. For production apps, this approach carries some security considerations since AI-generated code runs in the user's browser. Consider Web Worker or iframe isolation to improve the security profile.
+:::
+
+## Compilation Steps
+
+### 1. Extract Component Body
+
+The generated code arrives in ES6 module format with imports. Since we're injecting APIs directly, strip the import statements and extract just the component definition.
+
+### 2. Babel Transpilation
+
+Use `@babel/standalone` to transpile JSX and TypeScript in the browser. This converts the React/TypeScript code into plain JavaScript that can be executed.
+
+Install via npm/yarn or include via CDN:
+
+```bash
+bun add @babel/standalone
+```
+
+### 3. API Injection
+
+Create a Function constructor with all Remotion APIs passed as arguments. This makes `useCurrentFrame`, `spring`, `interpolate`, `Sequence`, `AbsoluteFill`, and other Remotion functions available to the generated code without requiring actual imports.
+
+### 4. Player Rendering
+
+Pass the compiled component to the Remotion Player for live preview. Handle errors gracefully to show meaningful feedback when compilation fails.
+
+## Available APIs
+
+The template injects a curated set of APIs that cover most animation needs:
+
+**Core Remotion:**
+
+- `useCurrentFrame`, `useVideoConfig`
+- `spring`, `interpolate`, `interpolateColors`, `Easing`
+- `Sequence`, `Series`, `AbsoluteFill`
+- `Img`, `Audio`, `Video`, `OffthreadVideo`
+
+**Extended Libraries:**
+
+- `@remotion/shapes` - Rect, Circle, Triangle, Ellipse, Pie
+- `@remotion/lottie` - Lottie animation support
+- `@remotion/three` - ThreeCanvas for 3D scenes
+
+## Error Handling
+
+Wrap compilation in error handling to provide useful feedback:
+
+- **Syntax errors** - Show the specific parse error from Babel
+- **Missing exports** - Indicate the component couldn't be found
+- **Runtime errors** - Catch and display errors during component execution
+
+## See Also
+
+- [Code Generation](/docs/ai/generate-code) - Guide on generating code with AI
+- [Player](/docs/player) - Remotion Player documentation
+- [Template](https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics) - Reference implementation with full source code

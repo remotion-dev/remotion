@@ -1,0 +1,62 @@
+---
+image: /generated/articles-docs-ai-generate.png
+crumb: 'AI'
+title: Generate Remotion Code from Prompts
+sidebar_label: Code Generation
+---
+
+You can generate Remotion code from natural language prompts using AI. The [Prompt to Motion Graphics](https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics) template demonstrates a complete implementation of this workflow.
+
+## Architecture
+
+```
+User Prompt → Validation → Skill Detection → Code Generation → Sanitization → Live Preview
+```
+
+1. **Validation** - Filter invalid prompts before expensive model calls
+2. **Skill Detection** - Identify relevant domain expertise to inject
+3. **Code Generation** - Generate Remotion component using [System Prompt](/docs/ai/system-prompt) + skills
+4. **Sanitization & Compilation** - Clean response and compile in-browser for live preview
+
+## Usage Tips
+
+**Prompting best practices:**
+
+- Be specific about colors, timing, and layout
+- Include data directly in the prompt for charts
+- Describe the animation feel ("bouncy spring", "smooth fade")
+
+**Images:**
+
+- Direct image uploads are not supported
+- Reference images via URL - the code will use Remotion's `<Img>` component
+- Example: _"Create a DVD screensaver animation of this image https://example.com/logo.png"_
+
+**What works well:**
+
+- Kinetic typography and text animations
+- Data visualizations with animated entrances
+- Chat/messaging UI mockups
+- Social media content (Stories, Reels, TikTok)
+- Logo animations and brand intros
+
+## Deep Dives
+
+- [Code Generation Details](/docs/ai/generate-code) - Validation, skill detection, system prompts, and sanitization
+- [Compilation & Preview](/docs/ai/generate-compile) - Browser compilation and preview rendering
+
+## Template
+
+The [Prompt to Motion Graphics template](https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics) provides a complete reference implementation.
+
+To get started:
+
+```bash
+npx create-video@latest --prompt-to-motion-graphics
+```
+
+## See Also
+
+- [System Prompt](/docs/ai/system-prompt) - The foundation prompt for teaching LLMs Remotion
+- [MCP](/docs/ai/mcp) - Model Context Protocol for editor AI integration
+- [Bolt.new](/docs/ai/bolt) - Another approach using Bolt's online AI tool
