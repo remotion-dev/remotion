@@ -28,6 +28,7 @@ export const startServer = async (options: {
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
+	askAiEnabled: boolean;
 	publicDir: string;
 	poll: number | null;
 	staticHash: string;
@@ -60,6 +61,7 @@ export const startServer = async (options: {
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		experimentalClientSideRenderingEnabled:
 			options.experimentalClientSideRenderingEnabled,
+		askAiEnabled: options.askAiEnabled,
 		poll: options.poll,
 		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
 	});

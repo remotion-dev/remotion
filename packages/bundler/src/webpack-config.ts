@@ -54,6 +54,7 @@ export const webpackConfig = async ({
 	bufferStateDelayInMilliseconds,
 	poll,
 	experimentalClientSideRenderingEnabled,
+	askAiEnabled,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -68,6 +69,7 @@ export const webpackConfig = async ({
 	remotionRoot: string;
 	poll: number | null;
 	experimentalClientSideRenderingEnabled: boolean;
+	askAiEnabled: boolean;
 }): Promise<[string, WebpackConfiguration]> => {
 	const esbuildLoaderOptions: LoaderOptions = {
 		target: 'chrome85',
@@ -87,6 +89,7 @@ export const webpackConfig = async ({
 			bufferStateDelayInMilliseconds,
 		'process.env.EXPERIMENTAL_CLIENT_SIDE_RENDERING_ENABLED':
 			experimentalClientSideRenderingEnabled,
+		'process.env.ASK_AI_ENABLED': askAiEnabled,
 	});
 
 	const conf: WebpackConfiguration = await webpackOverride({

@@ -91,6 +91,7 @@ export const getConfig = ({
 		maxTimelineTracks,
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: true,
+		askAiEnabled: true,
 		bufferStateDelayInMilliseconds,
 		poll: null,
 		experimentalClientSideRenderingEnabled,

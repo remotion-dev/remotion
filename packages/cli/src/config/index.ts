@@ -63,6 +63,7 @@ import {
 	getExperimentalClientSideRenderingEnabled,
 	setExperimentalClientSideRenderingEnabled,
 } from './experimental-client-side-rendering';
+import {getEnableAskAiFeature, setEnableAskAiFeature} from './ask-ai';
 import {
 	getFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
@@ -189,6 +190,12 @@ declare global {
 		 * @default true
 		 */
 		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
+		/**
+		 * Enable Ask AI feature in the Remotion Studio.
+		 * If disabled, the Cmd/Ctrl+I keybinding and menu entry are removed.
+		 * @default true
+		 */
+		readonly setEnableAskAiFeature: (enabled: boolean) => void;
 		/**
 		 * Enable WIP client-side rendering in the Remotion Studio.
 		 * See https://www.remotion.dev/docs/client-side-rendering/ for notes.
@@ -641,6 +648,7 @@ export const Config: FlatConfig = {
 	},
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled,
+	setEnableAskAiFeature,
 	setExperimentalClientSideRenderingEnabled,
 	setNumberOfSharedAudioTags,
 	setWebpackPollingInMilliseconds,
@@ -751,6 +759,7 @@ export const ConfigInternals = {
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
 	getKeyboardShortcutsEnabled,
+	getEnableAskAiFeature,
 	getExperimentalClientSideRenderingEnabled,
 	getFfmpegOverrideFunction,
 	getHeight,

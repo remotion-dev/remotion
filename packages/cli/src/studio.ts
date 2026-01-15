@@ -140,6 +140,7 @@ export const studioCommand = async (
 		getEnvVariables: () => envVariables,
 		desiredPort,
 		keyboardShortcutsEnabled,
+		askAiEnabled: ConfigInternals.getEnableAskAiFeature(),
 		experimentalClientSideRenderingEnabled,
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,

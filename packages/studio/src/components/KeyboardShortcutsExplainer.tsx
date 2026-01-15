@@ -298,16 +298,20 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						</div>
 						<div style={right}>Save</div>
 					</Row>
-					<br />
-					<div style={title}>AI</div>
-					<Row align="center">
-						<div style={left}>
-							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
-							<Spacing x={0.3} />
-							<kbd style={key}>I</kbd>
-						</div>
-						<div style={right}>Ask AI</div>
-					</Row>
+					{process.env.ASK_AI_ENABLED ? (
+						<>
+							<br />
+							<div style={title}>AI</div>
+							<Row align="center">
+								<div style={left}>
+									<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+									<Spacing x={0.3} />
+									<kbd style={key}>I</kbd>
+								</div>
+								<div style={right}>Ask AI</div>
+							</Row>
+						</>
+					) : null}
 				</Column>
 			</Row>
 		</div>
