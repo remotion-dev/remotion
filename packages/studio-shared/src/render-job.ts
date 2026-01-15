@@ -228,6 +228,7 @@ type ClientRenderJobBase = {
 	mediaCacheSizeInBytes: number | null;
 	logLevel: LogLevel;
 	licenseKey: string | null;
+	scale: number;
 };
 
 export type ClientStillRenderJob = ClientRenderJobBase & {

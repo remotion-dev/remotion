@@ -16,6 +16,9 @@ export type FallbackOffthreadVideoProps = {
 	toneMapped?: boolean;
 	onError?: (err: Error) => void;
 	crossOrigin?: '' | 'anonymous' | 'use-credentials' | undefined;
+	useWebAudioApi?: boolean;
+	pauseWhenBuffering?: boolean;
+	onAutoPlayError?: null | (() => void);
 };
 
 type MandatoryVideoProps = {

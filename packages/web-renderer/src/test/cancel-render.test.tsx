@@ -4,7 +4,7 @@ import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 
-test('should be able to cancel render', async (t) => {
+test('should be able to cancel render', async () => {
 	const Component: React.FC = () => {
 		const {delayRender, cancelRender} = useDelayRender();
 
@@ -15,7 +15,7 @@ test('should be able to cancel render', async (t) => {
 				try {
 					cancelRender(new Error('This should be the error message'));
 				} catch {
-					// yo
+					// cancelRender throws, we catch it here
 				}
 			});
 		}, [cancelRender]);
@@ -23,8 +23,8 @@ test('should be able to cancel render', async (t) => {
 		return null;
 	};
 
-	try {
-		await renderStillOnWeb({
+	await expect(
+		renderStillOnWeb({
 			licenseKey: 'free-license',
 			composition: {
 				component: Component,
@@ -37,15 +37,6 @@ test('should be able to cancel render', async (t) => {
 			frame: 20,
 			inputProps: {},
 			imageFormat: 'png',
-		});
-	} catch (error) {
-		if (
-			t.task.file.projectName === 'firefox' ||
-			t.task.file.projectName === 'webkit'
-		) {
-			expect(error).not.toMatch(/This should be the error message/);
-		} else {
-			expect(error).toMatch(/This should be the error message/);
-		}
-	}
+		}),
+	).rejects.toThrow(/This should be the error message/);
 });

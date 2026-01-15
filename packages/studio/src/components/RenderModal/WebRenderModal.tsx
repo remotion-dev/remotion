@@ -212,6 +212,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	);
 	const [transparent, setTransparent] = useState(false);
 	const [muted, setMuted] = useState(false);
+	const [scale, setScale] = useState(1);
 
 	const [licenseKey, setLicenseKey] = useState(initialLicenseKey);
 
@@ -441,6 +442,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					mediaCacheSizeInBytes,
 					logLevel,
 					licenseKey,
+					scale,
 				},
 				compositionRef,
 			);
@@ -466,6 +468,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					mediaCacheSizeInBytes,
 					logLevel,
 					licenseKey,
+					scale,
 				},
 				compositionRef,
 			);
@@ -551,18 +554,16 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						</div>
 						Input Props
 					</VerticalTab>
-					{renderMode === 'video' ? (
-						<VerticalTab
-							style={horizontalTab}
-							selected={tab === 'picture'}
-							onClick={() => setTab('picture')}
-						>
-							<div style={iconContainer}>
-								<PicIcon style={icon} />
-							</div>
-							Picture
-						</VerticalTab>
-					) : null}
+					<VerticalTab
+						style={horizontalTab}
+						selected={tab === 'picture'}
+						onClick={() => setTab('picture')}
+					>
+						<div style={iconContainer}>
+							<PicIcon style={icon} />
+						</div>
+						Picture
+					</VerticalTab>
 					{renderMode === 'video' ? (
 						<VerticalTab
 							style={horizontalTab}
@@ -643,6 +644,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setKeyframeIntervalInSeconds={setKeyframeIntervalInSeconds}
 							transparent={transparent}
 							setTransparent={setTransparent}
+							scale={scale}
+							setScale={setScale}
+							compositionWidth={resolvedComposition.width}
+							compositionHeight={resolvedComposition.height}
 						/>
 					) : tab === 'audio' ? (
 						<WebRenderModalAudio

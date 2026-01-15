@@ -6,7 +6,7 @@ import {
 import type {AnyZodObject} from 'zod';
 import type {WebRendererOnArtifact} from './artifact';
 import {handleArtifacts} from './artifact';
-import {createScaffold} from './create-scaffold';
+import {checkForError, createScaffold} from './create-scaffold';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
 import type {
@@ -16,7 +16,8 @@ import type {
 import type {InputPropsIfHasProps} from './render-media-on-web';
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {sendUsageEvent} from './send-telemetry-event';
-import {takeScreenshot} from './take-screenshot';
+import {createLayer} from './take-screenshot';
+import {validateScale} from './validate-scale';
 import {waitForReady} from './wait-for-ready';
 
 export type RenderStillOnWebImageFormat = 'png' | 'jpeg' | 'webp';
@@ -39,6 +40,7 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	signal: AbortSignal | null;
 	onArtifact: WebRendererOnArtifact | null;
 	licenseKey: string | undefined;
+	scale: number;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -70,7 +72,10 @@ async function internalRenderStillOnWeb<
 	signal,
 	onArtifact,
 	licenseKey,
+	scale,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
+	validateScale(scale);
+
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
 			(composition.calculateMetadata as CalculateMetadataFunction<
@@ -92,7 +97,7 @@ async function internalRenderStillOnWeb<
 
 	using internalState = makeInternalState();
 
-	using scaffold = await createScaffold({
+	using scaffold = createScaffold({
 		width: resolved.width,
 		height: resolved.height,
 		delayRenderTimeoutInMilliseconds,
@@ -111,7 +116,7 @@ async function internalRenderStillOnWeb<
 		defaultOutName: resolved.defaultOutName,
 	});
 
-	const {delayRenderScope, div, collectAssets} = scaffold;
+	const {delayRenderScope, div, collectAssets, errorHolder} = scaffold;
 
 	const artifactsHandler = handleArtifacts();
 
@@ -128,18 +133,23 @@ async function internalRenderStillOnWeb<
 			internalState: null,
 			keepalive: null,
 		});
+		checkForError(errorHolder);
 
 		if (signal?.aborted) {
 			throw new Error('renderStillOnWeb() was cancelled');
 		}
 
-		const imageData = await takeScreenshot({
-			div,
-			width: resolved.width,
-			height: resolved.height,
-			imageFormat,
+		const capturedFrame = await createLayer({
+			element: div,
+			scale,
 			logLevel,
 			internalState,
+			onlyBackgroundClipText: false,
+			cutout: new DOMRect(0, 0, resolved.width, resolved.height),
+		});
+
+		const imageData = await capturedFrame.canvas.convertToBlob({
+			type: `image/${imageFormat}`,
 		});
 
 		const assets = collectAssets.current!.collectAssets();
@@ -192,6 +202,7 @@ export const renderStillOnWeb = <
 				signal: options.signal ?? null,
 				onArtifact: options.onArtifact ?? null,
 				licenseKey: options.licenseKey ?? undefined,
+				scale: options.scale ?? 1,
 			}),
 		);
 

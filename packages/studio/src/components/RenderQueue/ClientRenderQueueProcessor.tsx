@@ -72,6 +72,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 				logLevel: job.logLevel,
 				licenseKey: job.licenseKey ?? undefined,
+				scale: job.scale,
 				signal,
 			});
 
@@ -125,6 +126,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				frameRange: [job.startFrame, job.endFrame],
 				transparent: job.transparent,
 				muted: job.muted,
+				scale: job.scale,
 				signal,
 				onProgress: (progress) => {
 					onProgress(job.id, {

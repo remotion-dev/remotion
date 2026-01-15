@@ -254,6 +254,7 @@ export const downloadAsset = async ({
 			}),
 		indent,
 		logLevel,
+		abortSignal: downloadMap.cleanupController.signal,
 	});
 
 	notifyAssetIsDownloaded({src, downloadMap, downloadDir, to});

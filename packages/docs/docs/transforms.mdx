@@ -55,7 +55,7 @@ Values below `0` and above `1` are accepted, but have no further effect.
 The scale determines how big an element is. `1` is the natural size, `2` will make the element twice as tall and wide.  
 Values below `1` will make the element smaller. `0` makes the element invisible. Values below `0` are accepted and will make the element bigger again, but mirrored.
 
-You can set the scale of an element using the `transform` property.
+You can set the scale of an element using the `scale` property.
 
 ```tsx twoslash {6} title="MyComponent.tsx"
 <div
@@ -63,7 +63,7 @@ You can set the scale of an element using the `transform` property.
     height: 100,
     width: 100,
     backgroundColor: 'red',
-    transform: `scale(0.5)`,
+    scale: 0.5,
   }}
 />
 ```

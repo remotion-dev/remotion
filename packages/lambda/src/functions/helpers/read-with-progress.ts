@@ -27,6 +27,7 @@ export const lambdaDownloadFileWithProgress = async ({
 	logLevel,
 	forcePathStyle,
 	requestHandler,
+	abortSignal,
 }: {
 	bucketName: string;
 	key: string;
@@ -38,6 +39,7 @@ export const lambdaDownloadFileWithProgress = async ({
 	logLevel: LogLevel;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler;
+	abortSignal: AbortSignal;
 }): Promise<{sizeInBytes: number; to: string}> => {
 	const client = LambdaClientInternals.getS3Client({
 		region,
@@ -66,6 +68,7 @@ export const lambdaDownloadFileWithProgress = async ({
 		to: () => outputPath,
 		indent: false,
 		logLevel,
+		abortSignal,
 	});
 
 	return {sizeInBytes, to};

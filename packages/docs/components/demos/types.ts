@@ -19,6 +19,7 @@ import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
 import {RectDemo} from './Rect';
 import {RoundedTextBox} from './RoundedTextBox';
+import {SpringDemo} from './Spring';
 import {StarDemo} from './Star';
 import {AnimationMath} from './SubtractAnimations';
 import {
@@ -822,4 +823,85 @@ export const animationMathDemo: DemoType = {
 	id: 'animation-math',
 	autoPlay: true,
 	options: [],
+};
+
+export const springDemo: DemoType = {
+	comp: SpringDemo,
+	compHeight: 400,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'spring',
+	autoPlay: true,
+	options: [
+		{
+			name: 'damping',
+			type: 'numeric',
+			default: 10,
+			min: 0,
+			max: 100,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'mass',
+			type: 'numeric',
+			default: 1,
+			min: 0.1,
+			max: 10,
+			step: 0.1,
+			optional: 'no',
+		},
+		{
+			name: 'stiffness',
+			type: 'numeric',
+			default: 100,
+			min: 1,
+			max: 500,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'durationInFrames',
+			type: 'numeric',
+			default: 30,
+			min: 1,
+			max: 120,
+			step: 1,
+			optional: 'default-disabled',
+		},
+		{
+			name: 'overshootClamping',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
+		},
+		{
+			name: 'reverse',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
+		},
+	],
+};
+
+export const springDampingDemo: DemoType = {
+	comp: SpringDemo,
+	compHeight: 400,
+	compWidth: 1280,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'spring-damping',
+	autoPlay: true,
+	options: [
+		{
+			name: 'damping',
+			type: 'numeric',
+			default: 100,
+			min: 1,
+			max: 200,
+			step: 1,
+			optional: 'no',
+		},
+	],
 };
