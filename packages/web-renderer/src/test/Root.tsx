@@ -68,6 +68,8 @@ import {transformWithTranslate} from './fixtures/transforms/transform-with-trans
 import {withMargin} from './fixtures/transforms/with-margin';
 import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
 import {unwrapped} from './fixtures/unwrapped';
+import {whiteSpaceCollapsing} from './fixtures/whitespace-collapsing';
+import {whiteSpaceCollapsing2} from './fixtures/whitespace-collapsing-2';
 
 export const Root: React.FC = () => {
 	return (
@@ -133,6 +135,8 @@ export const Root: React.FC = () => {
 				<Composition {...webkitTextFillColor} />
 				<Composition {...backgroundClipText} />
 				<Composition {...backgroundClipText3dTransform} />
+				<Composition {...whiteSpaceCollapsing} />
+				<Composition {...whiteSpaceCollapsing2} />
 			</Folder>
 			<Folder name="Projects">
 				<Composition {...unwrapped} />

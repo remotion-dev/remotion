@@ -36,7 +36,7 @@ export const handleTextNode = async ({
 	const value = await processNode({
 		context,
 		element: span,
-		draw: drawText({span, logLevel, onlyBackgroundClipText}),
+		draw: drawText({span, logLevel, onlyBackgroundClipText, parentRect}),
 		logLevel,
 		parentRect,
 		internalState,

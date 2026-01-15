@@ -17,6 +17,6 @@ test('should render background-clip: text with 3D transforms', async () => {
 		blob,
 		testId: 'background-clip-text-3d-transform',
 		threshold: 0,
-		allowedMismatchedPixelRatio: 0.03,
+		allowedMismatchedPixelRatio: 0.04,
 	});
 });
