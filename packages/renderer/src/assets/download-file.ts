@@ -82,9 +82,7 @@ const downloadFileWithoutRetries = ({
 			closeConnection();
 		};
 
-		abortSignal.addEventListener('abort', () => {
-			onAbort();
-		});
+		abortSignal.addEventListener('abort', onAbort);
 
 		readFile(url)
 			.then(({response, request}) => {
