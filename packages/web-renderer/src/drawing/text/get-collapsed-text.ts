@@ -1,4 +1,10 @@
-export const getCollapsedText = (span: HTMLSpanElement): string => {
+export const getCollapsedText = (
+	span: HTMLSpanElement,
+): {
+	collapsedText: string;
+	leading: boolean;
+	trailing: boolean;
+} => {
 	const textNode = span.firstChild;
 
 	if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
@@ -16,6 +22,9 @@ export const getCollapsedText = (span: HTMLSpanElement): string => {
 
 	const originalWidth = measureWidth(originalText);
 
+	let leading = false;
+	let trailing = false;
+
 	// Test leading whitespace
 	if (/^\s/.test(collapsedText)) {
 		const trimmedLeading = collapsedText.replace(/^\s+/, '');
@@ -24,6 +33,7 @@ export const getCollapsedText = (span: HTMLSpanElement): string => {
 		if (newWidth === originalWidth) {
 			// Whitespace was collapsed by the browser
 			collapsedText = trimmedLeading;
+			leading = true;
 		}
 	}
 
@@ -36,6 +46,7 @@ export const getCollapsedText = (span: HTMLSpanElement): string => {
 		if (newWidth === currentWidth) {
 			// Whitespace was collapsed by the browser
 			collapsedText = trimmedTrailing;
+			trailing = true;
 		}
 	}
 
@@ -54,5 +65,5 @@ export const getCollapsedText = (span: HTMLSpanElement): string => {
 	// Restore original text
 	(textNode as Text).textContent = originalText;
 
-	return collapsedText;
+	return {collapsedText, leading, trailing};
 };

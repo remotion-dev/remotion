@@ -40,7 +40,6 @@ export function findLineBreaks(
 	const textNode = span.childNodes[0] as Text;
 	const originalText = textNode.textContent;
 	const originalRect = span.getBoundingClientRect();
-	const computedStyle = getComputedStyle(span);
 
 	const segmenter = new Intl.Segmenter('en', {granularity: 'word'});
 	const segments = segmenter.segment(originalText);
@@ -72,7 +71,7 @@ export function findLineBreaks(
 
 		previousRect = span.getBoundingClientRect();
 		textNode.textContent = testText;
-		const collapsedText = getCollapsedText(span);
+		const {collapsedText, leading, trailing} = getCollapsedText(span);
 		textNode.textContent = collapsedText;
 		const rect = span.getBoundingClientRect();
 		const currentHeight = rect.height;
@@ -86,9 +85,6 @@ export function findLineBreaks(
 			const offsetHorizontal = rtl
 				? previousRect.right! - originalRect.right
 				: previousRect.left! - originalRect.left;
-
-			const shouldCollapse =
-				!computedStyle.whiteSpaceCollapse.includes('preserve');
 
 			let textForPreviousLine = currentLine;
 			let textForNewLine = wordsToAdd;
@@ -119,8 +115,17 @@ export function findLineBreaks(
 				}
 			}
 
+			let effectiveText = textForPreviousLine;
+			if (leading) {
+				effectiveText = effectiveText.trimStart();
+			}
+
+			if (trailing) {
+				effectiveText = effectiveText.trimEnd();
+			}
+
 			lines.push({
-				text: shouldCollapse ? textForPreviousLine.trim() : textForPreviousLine,
+				text: effectiveText,
 				height: currentHeight - previousRect.height,
 				offsetHorizontal,
 			});

@@ -57,7 +57,7 @@ export const drawText = ({
 		contextToDraw.textBaseline = 'alphabetic';
 
 		const originalText = span.textContent;
-		const collapsedText = getCollapsedText(span);
+		const {collapsedText} = getCollapsedText(span);
 		const transformedText = applyTextTransform(collapsedText, textTransform);
 		span.textContent = transformedText;
 
