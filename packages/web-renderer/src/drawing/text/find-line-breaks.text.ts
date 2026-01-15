@@ -29,11 +29,28 @@ const cannotStartLine = (segment: string): boolean => {
 	return forbiddenLineStarts.includes(firstChar);
 };
 
-export function findLineBreaks(span: HTMLSpanElement): Array<{
-	text: string;
-	height: number;
-	offsetHorizontal: number;
-}> {
+type RectMeasurement = {
+	rectList: DOMRectList;
+	rect: DOMRect;
+};
+
+const getRectMeasurement = (el: HTMLSpanElement) => {
+	const rectList = el.getClientRects();
+	const rect = el.getBoundingClientRect();
+	return {rectList, rect};
+};
+
+export function findLineBreaks(
+	span: HTMLSpanElement,
+	rtl: boolean,
+): {
+	lines: {
+		text: string;
+		height: number;
+		offsetHorizontal: number;
+	}[];
+	xPosition: number;
+} {
 	const textNode = span.childNodes[0] as Text;
 	const originalText = textNode.textContent;
 	textNode.textContent = '';
@@ -52,7 +69,7 @@ export function findLineBreaks(span: HTMLSpanElement): Array<{
 
 	let currentLine = '';
 	let testText = '';
-	let previousRect: DOMRect = originalRect;
+	let previousRect: RectMeasurement;
 
 	for (let i = 0; i < words.length; i += 1) {
 		const word = words[i];
@@ -62,7 +79,7 @@ export function findLineBreaks(span: HTMLSpanElement): Array<{
 			i++;
 		}
 
-		previousRect = span.getBoundingClientRect();
+		previousRect = getRectMeasurement(span);
 		testText += wordsToAdd;
 		const previousText = textNode.textContent;
 		textNode.textContent = testText;
@@ -71,8 +88,8 @@ export function findLineBreaks(span: HTMLSpanElement): Array<{
 
 		const isLineBreak =
 			previousRect &&
-			previousRect.height !== 0 &&
-			Math.abs(currentHeight - previousRect.height) > 2;
+			previousRect.rect.height !== 0 &&
+			Math.abs(currentHeight - previousRect.rect.height) > 2;
 
 		const {collapsedText} = getCollapsedText({
 			span,
@@ -112,10 +129,21 @@ export function findLineBreaks(span: HTMLSpanElement): Array<{
 				}
 			}
 
+			const rects = getRectMeasurement(span);
+			const lastRect = rects.rectList[rects.rectList.length - 1];
+
+			let offsetHorizontal = rtl
+				? lastRect.right - originalRect.right
+				: lastRect.left - originalRect.left;
+
+			if (lines.length === 0) {
+				offsetHorizontal = 0;
+			}
+
 			lines.push({
 				text: textForPreviousLine,
-				height: currentHeight - previousRect.height,
-				offsetHorizontal: 0,
+				height: currentHeight - previousRect.rect.height,
+				offsetHorizontal,
 			});
 
 			currentLine = textForNewLine;
@@ -128,17 +156,24 @@ export function findLineBreaks(span: HTMLSpanElement): Array<{
 	if (currentLine) {
 		textNode.textContent = testText;
 
-		const rect = span.getBoundingClientRect();
+		const rects = getRectMeasurement(span);
+		const lastRect = rects.rectList[rects.rectList.length - 1];
+
+		const offsetHorizontal = rtl
+			? lastRect.right - originalRect.right
+			: lastRect.left - originalRect.left;
 
 		lines.push({
 			text: currentLine,
-			height: rect.height - lines.reduce((acc, curr) => acc + curr.height, 0),
-			offsetHorizontal: 0,
+			height:
+				rects.rect.height - lines.reduce((acc, curr) => acc + curr.height, 0),
+			offsetHorizontal,
 		});
 	}
 
 	// Reset to original text
 	textNode.textContent = originalText;
 
-	return lines;
+	const originalXPosition = rtl ? originalRect.right : originalRect.left;
+	return {lines, xPosition: originalXPosition};
 }
