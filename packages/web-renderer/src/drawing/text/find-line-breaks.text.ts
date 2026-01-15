@@ -13,7 +13,7 @@ export const findWords = (span: HTMLSpanElement) => {
 
 	for (let i = 0; i < words.length; i++) {
 		const wordsBefore = words.slice(0, i);
-		const wordsAfter = words.slice(i);
+		const wordsAfter = words.slice(i + 1);
 		const word = words[i];
 
 		const wordsBeforeText = wordsBefore.join('');

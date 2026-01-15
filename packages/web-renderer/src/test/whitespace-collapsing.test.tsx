@@ -5,7 +5,7 @@ import {whiteSpaceCollapsing} from './fixtures/whitespace-collapsing';
 import {whiteSpaceCollapsing2} from './fixtures/whitespace-collapsing-2';
 import {testImage} from './utils';
 
-test.only('small test for whitespace collapsing', async () => {
+test('small test for whitespace collapsing', async () => {
 	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: whiteSpaceCollapsing,

@@ -62,18 +62,18 @@ export const drawText = ({
 		const tokens = findWords(span);
 
 		for (const token of tokens) {
-			const measurements = contextToDraw.measureText(token.text);
+			const measurements = contextToDraw.measureText(originalText);
 			const {fontBoundingBoxDescent, fontBoundingBoxAscent} = measurements;
 
 			const fontHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
 			// Calculate leading
-			const leading = rect.height - fontHeight;
+			const leading = token.rect.height - fontHeight;
 			const halfLeading = leading / 2;
 
 			contextToDraw.fillText(
 				token.text,
 				token.rect.left,
-				token.rect.top + fontBoundingBoxAscent,
+				token.rect.top + fontBoundingBoxAscent + halfLeading,
 			);
 		}
 
