@@ -790,6 +790,20 @@ Config.setEnableCrossSiteIsolation(true);
 
 The [command line flag](/docs/cli/studio#--cross-site-isolation) `--cross-site-isolation` will take precedence over this option.
 
+## `setAskAIEnabled()`<AvailableFrom v="4.0.407" />
+
+<Options id="disable-ask-ai" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setAskAIEnabled(false);
+```
+
+The [command line flag](/docs/cli/studio#--cross-site-isolation) `--cross-site-isolation` will take precedence over this option.
+
 ## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.0.111" />
 
 Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state. Default `300`.
