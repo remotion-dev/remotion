@@ -96,6 +96,64 @@ console.log('Hello');
 
 Demos must be implemented in `packages/docs/components/demos/index.tsx`.
 
+### AvailableFrom
+
+Use to indicate when a feature or parameter was added. No import needed - it's globally available.
+
+```md
+## myFunction()<AvailableFrom v="4.0.123" />
+```
+
+For section headings:
+
+```md
+## Saving to another cloud<AvailableFrom v="3.2.23" />
+```
+
+### Optional parameters
+
+For optional parameters in API documentation:
+
+1. **Add `?` to the heading** - this indicates the parameter is optional
+2. **Do NOT add `_optional_` text** - the `?` suffix is sufficient
+3. **Include default value in description** - mention it naturally in the text
+
+```md
+### onError?
+
+Called when an error occurs. Default: errors are thrown.
+```
+
+**Do NOT do this:**
+
+```md
+### onError?
+
+_optional_
+
+Called when an error occurs.
+```
+
+### Combining optional and AvailableFrom
+
+When a parameter is both optional and was added in a specific version:
+
+```md
+### onError?<AvailableFrom v="4.0.50" />
+
+Called when an error occurs.
+```
+
+### "Optional since" pattern
+
+If a parameter became optional in a specific version (was previously required):
+
+```md
+### codec?
+
+Optional since <AvailableFrom v="5.0.0" inline />. Previously required.
+```
+
 ## Generating preview cards
 
 After adding or editing a page, generate social media preview cards:
