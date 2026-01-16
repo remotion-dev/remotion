@@ -667,7 +667,7 @@ export const useMenuStructure = (
 				label: 'Tools',
 				leaveLeftPadding: false,
 				items: [
-				 !process.env.DISABLE_ASK_AI ?	{
+				 process.env.ASK_AI_ENABLED ?	{
 						id: 'ask-ai',
 						value: 'ask-ai',
 						label: 'Ask AI',

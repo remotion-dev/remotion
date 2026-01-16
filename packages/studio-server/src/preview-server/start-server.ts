@@ -44,7 +44,7 @@ export const startServer = async (options: {
 	forceIPv4: boolean;
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	enableCrossSiteIsolation: boolean;
-	disableAskAI: boolean
+	AskAIEnabled: boolean
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
@@ -63,7 +63,7 @@ export const startServer = async (options: {
 			options.experimentalClientSideRenderingEnabled,
 		poll: options.poll,
 		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
-		disableAskAI: options.disableAskAI
+		AskAIEnabled: options.AskAIEnabled
 	});
 
 	const compiler = webpack(config);

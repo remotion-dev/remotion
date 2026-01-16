@@ -44,7 +44,7 @@ export const GlobalKeybindings: React.FC = () => {
 			commandCtrlKey: true,
 			preventDefault: true,
 		});
-		const cmdIKey = !process.env.DISABLE_ASK_AI ? keybindings.registerKeybinding({
+		const cmdIKey = process.env.ASK_AI_ENABLED ? keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'i',
 			callback: () => {

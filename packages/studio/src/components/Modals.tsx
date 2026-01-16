@@ -152,7 +152,7 @@ export const Modals: React.FC<{
 					initialMode={modalContextType.mode}
 				/>
 			)}
-			{ !process.env.DISABLE_ASK_AI && <AskAiModal />}
+			{ process.env.ASK_AI_ENABLED && <AskAiModal />}
 		</>
 	);
 };

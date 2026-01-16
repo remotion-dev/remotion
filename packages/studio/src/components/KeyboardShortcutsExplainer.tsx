@@ -298,7 +298,7 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						</div>
 						<div style={right}>Save</div>
 					</Row>
-				{ !process.env.DISABLE_ASK_AI &&
+				{ process.env.ASK_AI_ENABLED &&
 					<>
 				<br />
 					<div style={title}>AI</div>
