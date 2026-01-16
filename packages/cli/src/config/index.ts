@@ -496,7 +496,7 @@ declare global {
 		/**
 		 * Enables or disables the Ask AI Modal in Studio
 		 */
-		readonly setAskAIEnabled: (AskAIEnabled: boolean) => void;
+		readonly setAskAIEnabled: (askAIEnabled: boolean) => void;
 
 		/**
 		 * Removes the --single-process flag that gets passed to

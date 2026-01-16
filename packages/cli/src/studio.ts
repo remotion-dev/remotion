@@ -128,7 +128,7 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const AskAIEnabled = AskAIOption.getValue({
+	const askAIEnabled = AskAIOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -170,7 +170,7 @@ export const studioCommand = async (
 		forceIPv4: parsedCli.ipv4,
 		audioLatencyHint: parsedCli['audio-latency-hint'],
 		enableCrossSiteIsolation,
-		AskAIEnabled,
+		askAIEnabled,
 	});
 
 	// If the server is restarted through the UI, let's do the whole thing again.
