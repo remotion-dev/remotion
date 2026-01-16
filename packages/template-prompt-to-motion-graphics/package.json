@@ -48,7 +48,7 @@
     "react-dom": "19.2.1",
     "remotion": "workspace:*",
     "tailwind-merge": "3.4.0",
-    "three": "0.176.0",
+    "three": "0.178.0",
     "zod": "4.1.13"
   },
   "devDependencies": {
