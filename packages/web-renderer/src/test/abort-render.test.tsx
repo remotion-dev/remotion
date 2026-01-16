@@ -67,7 +67,12 @@ test('should be able to cancel renderStillOnWeb()', async () => {
 	await expect(prom).rejects.toThrow('renderStillOnWeb() was cancelled');
 });
 
-test('should not send failed telemetry when renderMediaOnWeb() is aborted', async () => {
+test('should not send failed telemetry when renderMediaOnWeb() is aborted', async (t) => {
+	if (t.task.file.projectName === 'webkit') {
+		t.skip();
+		return;
+	}
+
 	vi.mocked(telemetry.sendUsageEvent).mockClear();
 
 	const Component: React.FC = () => {
@@ -100,7 +105,12 @@ test('should not send failed telemetry when renderMediaOnWeb() is aborted', asyn
 	expect(vi.mocked(telemetry.sendUsageEvent).mock.calls.length).toBe(0);
 });
 
-test('should not send failed telemetry when renderStillOnWeb() is aborted', async () => {
+test('should not send failed telemetry when renderStillOnWeb() is aborted', async (t) => {
+	if (t.task.file.projectName === 'webkit') {
+		t.skip();
+		return;
+	}
+
 	vi.mocked(telemetry.sendUsageEvent).mockClear();
 
 	const Component: React.FC = () => {

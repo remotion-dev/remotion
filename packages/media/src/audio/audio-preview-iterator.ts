@@ -120,16 +120,17 @@ export const makeAudioIterator = (
 				const bufferEndTimestamp = roundTo4Digits(
 					buffer.buffer.timestamp + buffer.buffer.duration,
 				);
+
 				const timestamp = roundTo4Digits(time);
 
-				if (roundTo4Digits(time) < bufferTimestamp) {
+				if (timestamp < bufferTimestamp) {
 					return {
 						type: 'not-satisfied' as const,
-						reason: `iterator is too far, most recently returned ${bufferTimestamp}-${bufferEndTimestamp}, requested ${time}`,
+						reason: `iterator is too far, most recently returned ${bufferTimestamp}-${bufferEndTimestamp}, requested ${timestamp}`,
 					};
 				}
 
-				if (bufferTimestamp <= timestamp && bufferEndTimestamp > timestamp) {
+				if (bufferTimestamp <= timestamp && bufferEndTimestamp >= timestamp) {
 					onBufferScheduled(buffer.buffer);
 					return {
 						type: 'satisfied' as const,

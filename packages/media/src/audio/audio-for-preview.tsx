@@ -164,6 +164,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(playbackRate);
+	const initialMuted = useRef(muted);
 
 	useEffect(() => {
 		if (!sharedAudioContext) return;
@@ -193,7 +194,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 			mediaPlayerRef.current = player;
 
 			player
-				.initialize(currentTimeRef.current)
+				.initialize(currentTimeRef.current, initialMuted.current)
 				.then((result) => {
 					if (result.type === 'disposed') {
 						return;
