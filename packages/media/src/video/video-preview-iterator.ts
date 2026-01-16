@@ -74,7 +74,9 @@ export const createVideoIterator = async (
 			if (roundTo4Digits(time) < frameTimestamp) {
 				const lastFrameWasInitialFrame = lastReturnedFrame === initialFrame;
 				const firstFrameDoesSatisfy =
-					lastFrameWasInitialFrame && roundTo4Digits(time) >= timeToSeek;
+					lastFrameWasInitialFrame &&
+					roundTo4Digits(time) >= roundTo4Digits(timeToSeek);
+
 				if (firstFrameDoesSatisfy) {
 					return {
 						type: 'satisfied' as const,

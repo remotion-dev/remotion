@@ -222,7 +222,6 @@ export const audioIteratorManager = ({
 		}
 
 		const queuedPeriod = audioBufferIterator.getQueuedPeriod();
-
 		const currentTimeIsAlreadyQueued = isAlreadyQueued(newTime, queuedPeriod);
 
 		if (!currentTimeIsAlreadyQueued) {
@@ -258,6 +257,10 @@ export const audioIteratorManager = ({
 					scheduleAudioNode,
 				});
 				return;
+			}
+
+			if (audioSatisfyResult.type === 'satisfied') {
+				// fall through
 			}
 		}
 
