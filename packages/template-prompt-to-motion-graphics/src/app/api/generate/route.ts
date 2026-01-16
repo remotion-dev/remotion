@@ -36,7 +36,6 @@ INVALID prompts include:
 
 Return true if the prompt is valid for motion graphics generation, false otherwise.`;
 
-
 const SYSTEM_PROMPT = `
 You are an expert in generating React components for Remotion animations.
 
@@ -106,7 +105,6 @@ NEVER use these as variable names - they shadow imports:
 
 `;
 
-
 export async function POST(req: Request) {
   const { prompt, model = "gpt-5-mini" } = await req.json();
 
@@ -138,8 +136,6 @@ export async function POST(req: Request) {
       prompt: `User prompt: "${prompt}"`,
       schema: z.object({ valid: z.boolean() }),
     });
-
-    console.log("Validation result:", validationResult.object.valid ? "valid" : "invalid");
 
     if (!validationResult.object.valid) {
       return new Response(
