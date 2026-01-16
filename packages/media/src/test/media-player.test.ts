@@ -9,9 +9,13 @@ test('dispose should immediately unblock playback delays', async () => {
 		delayPlayback: () => {
 			activeBlocks++;
 			delayPlaybackCalled();
+			let unblocked = false;
 			return {
 				unblock: () => {
-					activeBlocks--;
+					if (!unblocked) {
+						unblocked = true;
+						activeBlocks--;
+					}
 				},
 			};
 		},

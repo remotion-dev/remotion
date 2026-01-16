@@ -3,7 +3,7 @@ import {getMaxVideoCacheSize, keyframeManager} from '../caches';
 import {extractFrame} from '../video-extraction/extract-frame';
 
 test('Should render first frame for videos starting after timestamp 0', async () => {
-	await keyframeManager.clearAll('info');
+	keyframeManager.clearAll('info');
 
 	// This video's first video frame is at 0.15 seconds (150ms)
 	// Requesting frame at 0sec should clamp to first available frame (0.15s)
@@ -42,5 +42,5 @@ test('Should render first frame for videos starting after timestamp 0', async ()
 	const hasNonZeroPixels = buffer.some((byte) => byte > 0);
 	expect(hasNonZeroPixels).toBe(true);
 
-	await keyframeManager.clearAll('info');
+	keyframeManager.clearAll('info');
 });
