@@ -1,19 +1,19 @@
 import type {AnyRemotionOption} from './option';
 
-let disableAskAI = false;
+let AskAIEnabled = true;
 
 const cliFlag = 'disable-ask-ai' as const;
 
-export const disableAskAIOption = {
-  name: 'Disable the Ask AI option',
+export const AskAIOption = {
+  name: 'Disable or Enable the Ask AI option',
   cliFlag,
   description: () => (
     <>
-      If the Cmd + I shortcut of the Ask AI modal conflicts with your studio, you can disable it.
+      If the Cmd + I shortcut of the Ask AI modal conflicts with your studio, you can disable it using this.
     </>
   ),
   ssrName: null,
-  docLink: 'https://www.remotion.dev/docs/config#setdisabledaskai',
+  docLink: 'https://www.remotion.dev/docs/config#setaskaienabled',
   type: false as boolean,
   getValue: ({commandLine}) => {
     if (commandLine[cliFlag] !== undefined) {
@@ -24,11 +24,11 @@ export const disableAskAIOption = {
     }
 
     return {
-      value: disableAskAI,
+      value: AskAIEnabled,
       source: 'config',
     };
   },
   setConfig(value) {
-    disableAskAI = value;
+    AskAIEnabled = value;
   },
 } satisfies AnyRemotionOption<boolean>;

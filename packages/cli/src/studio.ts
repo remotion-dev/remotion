@@ -36,7 +36,7 @@ const {
 	publicDirOption,
 	disableGitSourceOption,
 	enableCrossSiteIsolationOption,
-	disableAskAIOption
+	AskAIOption
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -128,7 +128,7 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const disableAskAIModal = disableAskAIOption.getValue({
+	const AskAIEnabled = AskAIOption.getValue({
 		commandLine: parsedCli
 	}).value
 
@@ -170,7 +170,7 @@ export const studioCommand = async (
 		forceIPv4: parsedCli.ipv4,
 		audioLatencyHint: parsedCli['audio-latency-hint'],
 		enableCrossSiteIsolation,
-		AskAIEnabled: !disableAskAIModal
+		AskAIEnabled
 	});
 
 	// If the server is restarted through the UI, let's do the whole thing again.

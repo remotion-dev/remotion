@@ -90,6 +90,7 @@ import {
 	setWebpackPollingInMilliseconds,
 } from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
+import { AskAIOption } from '@remotion/renderer/src/options/disable-ask-ai';
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
@@ -492,6 +493,13 @@ declare global {
 			disallowParallelEncoding: boolean,
 		) => void;
 
+				/**
+		 * disables the Ask AI Modal in Studio
+		 */
+		readonly setAskAIEnabled: (
+			AskAIEnabled: boolean,
+		) => void;
+
 		/**
 		 * Removes the --single-process flag that gets passed to
 			Chromium on Linux by default. This will make the render faster because
@@ -722,6 +730,7 @@ export const Config: FlatConfig = {
 	setImageSequencePattern: imageSequencePatternOption.setConfig,
 	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
+	setAskAIEnabled: AskAIOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
 };
 
