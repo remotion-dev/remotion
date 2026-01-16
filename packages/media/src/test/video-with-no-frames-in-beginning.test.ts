@@ -62,6 +62,8 @@ test('in preview, should properly buffer and draw frames', async () => {
 
 	const iteratorsCreated2 = manager.getVideoIteratorsCreated();
 	expect(iteratorsCreated2).toBe(2);
+
+	manager.destroy();
 });
 
 test('in rendering, should also be smart', async () => {
