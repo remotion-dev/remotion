@@ -3,7 +3,9 @@ import type {AnyRemotionOption} from './option';
 let askAIEnabled = true;
 
 const cliFlag = 'disable-ask-ai' as const;
-
+export const getCurrentValueOfAskAI = () => {
+	return askAIEnabled;
+};
 export const AskAIOption = {
 	name: 'Disable or Enable the Ask AI option',
 	cliFlag,
@@ -18,8 +20,9 @@ export const AskAIOption = {
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
+			askAIEnabled = false;
 			return {
-				value: commandLine[cliFlag] as boolean,
+				value: askAIEnabled,
 				source: 'cli',
 			};
 		}
@@ -30,6 +33,7 @@ export const AskAIOption = {
 		};
 	},
 	setConfig(value) {
+		console.log('called ', value);
 		askAIEnabled = value;
 	},
 } satisfies AnyRemotionOption<boolean>;

@@ -202,6 +202,8 @@ export const bundleOnCli = async ({
 		onSymlinkDetected,
 		outDir: outDir ?? null,
 		publicPath,
+		askAIEnabled: ConfigInternals.getAskAI(),
+		keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
 	};
 
 	const [hash] = await BundlerInternals.getConfig({

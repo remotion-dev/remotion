@@ -733,6 +733,7 @@ export const Config: FlatConfig = {
 };
 
 export const ConfigInternals = {
+	getAskAI: BrowserSafeApis.getCurrentValueOfAskAI,
 	getRange,
 	getBrowser,
 	getPixelFormat,

@@ -15,6 +15,7 @@ import {validStillImageFormats, validVideoImageFormats} from './image-format';
 import {DEFAULT_JPEG_QUALITY} from './jpeg-quality';
 import {logLevels} from './log-level';
 import {allOptions} from './options';
+import {getCurrentValueOfAskAI} from './options/ask-ai';
 import {
 	defaultAudioCodecs,
 	getExtensionFromAudioCodec,
@@ -69,4 +70,5 @@ export const BrowserSafeApis = {
 	getOutputCodecOrUndefined,
 	getExtensionFromAudioCodec,
 	validChromeModeOptions,
+	getCurrentValueOfAskAI,
 };
