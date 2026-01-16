@@ -9,7 +9,7 @@ export const AskAIOption = {
 	cliFlag,
 	description: () => (
 		<>
-			If the Cmd + I shortcut of the Ask AI modal conflicts with your studio,
+			If the Cmd + I shortcut of the Ask AI modal conflicts with your Studio,
 			you can disable it using this.
 		</>
 	),
