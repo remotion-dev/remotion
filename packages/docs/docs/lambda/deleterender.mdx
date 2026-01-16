@@ -36,9 +36,7 @@ The bucket name in which the render was stored. This should be the same variable
 
 The ID of the render. You can retrieve this ID by calling [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
 
-### `customCredentials`
-
-_optional, available from v3.2.23_
+### `customCredentials?`<AvailableFrom v="3.2.23" />
 
 If the render was saved to a [different cloud](/docs/lambda/custom-destination#saving-to-another-cloud), pass an object with the same `endpoint`, `accessKeyId` and `secretAccessKey` as you passed to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#outname) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#outname).
 

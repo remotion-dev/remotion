@@ -20,16 +20,7 @@ export const MyComponent: React.FC = () => {
   const {width, height} = useVideoConfig();
   const ref = useRef<HTMLCanvasElement>(null);
 
-  return (
-    <Gif
-      ref={ref}
-      src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif"
-      width={width}
-      height={height}
-      fit="fill"
-      playbackRate={2}
-    />
-  );
+  return <Gif ref={ref} src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif" width={width} height={height} fit="fill" playbackRate={2} />;
 };
 ```
 
@@ -48,13 +39,10 @@ Remote GIFs need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/
   <summary>More info</summary>
   <ul>
     <li>
-      Remotion's origin is usually <code>http://localhost:3000</code>, but it
-      may be different if rendering on Lambda or the port is busy.
+      Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
     </li>
     <li>
-      You can{' '}
-      <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
-      during renders.
+      You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
     </li>
   </ul>
 </details>
@@ -112,9 +100,7 @@ Values:
 - `< 1`: Slows down the GIF speed (e.g., 0.5 plays it at half speed).
 - `> 1:` Speeds up the GIF speed (e.g., 2.0 plays it at double speed).
 
-### delayRenderTimeoutInMilliseconds<AvailableFrom v="4.0.403" />
-
-_optional_
+### `delayRenderTimeoutInMilliseconds?`<AvailableFrom v="4.0.403" />
 
 Modifies the timeout of the internal [`delayRender()`](/docs/delay-render) call when loading the GIF. By default, Remotion will wait 30 seconds for the GIF to load before timing out. You can increase or decrease this timeout by passing a custom value.
 

@@ -12,7 +12,7 @@ const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
-_available from v2.5.0_
+<AvailableFrom v="2.5.0" />
 
 The `<Loop />` component allows you to quickly lay out an animation so it repeats itself.
 
@@ -41,23 +41,17 @@ The Loop component is a high order component and accepts, besides it's children,
 
 How many frames one iteration of the loop should be long.
 
-### `times`
+### `times?`
 
-_optional_
+How many times to loop the content. Default: `Infinity`.
 
-How many times to loop the content. By default it will be `Infinity`.
+### `layout?`
 
-### `layout`
-
-_optional_
-
-Either `"absolute-fill"` _(default)_ or `"none"`.  
+Either `"absolute-fill"` or `"none"`. Default: `"absolute-fill"`.  
 By default, your content will be absolutely positioned.  
 If you would like to disable layout side effects, pass `layout="none"`.
 
-### `style`<AvailableFrom v="3.3.4"/>
-
-_optional_
+### `style?`<AvailableFrom v="3.3.4"/>
 
 CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 

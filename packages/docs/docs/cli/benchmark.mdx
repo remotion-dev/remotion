@@ -5,7 +5,7 @@ sidebar_label: benchmark
 crumb: CLI Reference
 ---
 
-_available from v3.2.28_
+<AvailableFrom v="3.2.28" />
 
 Measures render time by running a render multiple times, if desired with multiple compositions and concurrency values to compare against each other.
 
@@ -19,93 +19,63 @@ If `composition-ids` is not passed, Remotion will let you select compositions fr
 
 ## Flags
 
-### `--runs`
-
-_optional. Default is 3_
+### `--runs?`
 
 Specify how many times video must be rendered. Default value is 3.
 
-### `--concurrencies`
-
-_optional_
+### `--concurrencies?`
 
 You can specify which concurrency value should be used while rendering the video. Multiple concurrency values can be passed separated by comma. Learn more about [concurrency](/docs/terminology/concurrency)
 
-### `--codec`
-
-_optional_
+### `--codec?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--codec)
 
-### `--audio-codec`<AvailableFrom v="3.3.42" />
-
-_optional_
+### `--audio-codec?`<AvailableFrom v="3.3.42" />
 
 <Options id="audio-codec" />
 
-### `--crf`
-
-_optional_
+### `--crf?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--crf)
 
-### `--frames`
-
-_optional_
+### `--frames?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--frames)
 
-### `--image-format`
-
-_optional_
+### `--image-format?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--image-format)
 
-### `--pixel-format`
-
-_optional_
+### `--pixel-format?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--pixel-format)
 
-### `--props`
-
-_optional_
+### `--props?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--props)
 
-### `--prores-profile`
-
-_optional_
+### `--prores-profile?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--prores-profile)
 
-### `--jpeg-quality`
-
-_optional, available from v4.0.0_
+### `--jpeg-quality?`<AvailableFrom v="4.0.0" />
 
 Inherited from [`npx remotion render`](/docs/cli/render#--jpeg-quality)
 
 ### ~~`--quality`~~
 
-_optional, removed in v4.0.0_
+Removed in v4.0.0. Renamed to `--jpeg-quality`.
 
-Renamed to `--jpeg-quality`.
-
-### `--log`
-
-_optional_
+### `--log?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--log)
 
-### `--ignore-certificate-errors`
-
-_optional_
+### `--ignore-certificate-errors?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--ignore-certificate-errors)
 
-### `--disable-web-security`
-
-_optional_
+### `--disable-web-security?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--disable-web-security)
 
@@ -115,17 +85,13 @@ Inherited from [`npx remotion render`](/docs/cli/render#--disable-web-security)
 
 ### ~`--disable-headless?`~
 
-_optional_
-
 <Options id="disable-headless" />
 
 ### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
 
 <Options cli id="enable-multiprocess-on-linux" />
 
-### `--gl`
-
-_optional_
+### `--gl?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--gl)
 
@@ -133,93 +99,63 @@ Inherited from [`npx remotion render`](/docs/cli/render#--gl)
 
 <Options id="chrome-mode" />
 
-### `--timeout`
-
-_optional_
+### `--timeout?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--timeout)
 
-### `--scale`
-
-_optional_
+### `--scale?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--scale)
 
-### `--port`
-
-_optional_
+### `--port?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--port)
 
-### `--number-of-gif-loops`
-
-_optional_
+### `--number-of-gif-loops?`
 
 <Options id="number-of-gif-loops" />
 
-### `--every-nth-frame`
-
-_optional_
+### `--every-nth-frame?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--every-nth-frame)
 
-### `--log`
-
-_optional_
+### `--log?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--log)
 
-### `--muted`
-
-_optional_
+### `--muted?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--muted)
 
-### `--enforce-audio-track`
-
-_optional_
+### `--enforce-audio-track?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--enforce-audio-track)
 
-### `--disallow-parallel-encoding`<AvailableFrom v="4.0.315" />
-
-_optional_
+### `--disallow-parallel-encoding?`<AvailableFrom v="4.0.315" />
 
 Inherited from [`npx remotion render`](/docs/cli/render#--disallow-parallel-encoding)
 
-### `--browser-executable`
-
-_optional_
+### `--browser-executable?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--browser-executable)
 
-### `--public-dir`
-
-_optional_
+### `--public-dir?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--public-dir)
 
-### `--config`
-
-_optional_
+### `--config?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--config)
 
-### `--bundle-cache`
-
-_optional_
+### `--bundle-cache?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--bundle-cache)
 
-### `--video-bitrate`
-
-_optional_
+### `--video-bitrate?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--video-bitrate)
 
-### `--audio-bitrate`
-
-_optional_
+### `--audio-bitrate?`
 
 Inherited from [`npx remotion render`](/docs/cli/render#--audio-bitrate)
 
@@ -245,12 +181,8 @@ Inherited from [`npx remotion render`](/docs/cli/render#--audio-bitrate)
 
 ### ~~`--ffmpeg-executable`~~
 
-_optional, removed in v4.0_
-
-Inherited from [`npx remotion render`](/docs/cli/render#--ffmpeg-executable)
+Removed in v4.0. Inherited from [`npx remotion render`](/docs/cli/render#--ffmpeg-executable)
 
 ### ~~`--ffprobe-executable`~~
 
-_optional, removed in v4.0_
-
-Inherited from [`npx remotion render`](/docs/cli/render#--ffprobe-executable-)
+Removed in v4.0. Inherited from [`npx remotion render`](/docs/cli/render#--ffprobe-executable-)

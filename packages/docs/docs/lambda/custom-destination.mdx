@@ -53,20 +53,16 @@ If you like to use this feature:
 
 This feature is not supported from the CLI.
 
-## Saving to another cloud
-
-_Available from v3.2.23_
+## Saving to another cloud<AvailableFrom v="3.2.23" />
 
 You can upload the file to another S3-compatible provider.
 
 - List of working providers (non-exhaustive):
-
   - ✅ [Supabase](/docs/lambda/supabase)
   - ✅ [Cloudflare](/docs/lambda/r2)
   - ✅ DigitalOcean Spaces
   - ✅ Google Cloud Storage  
     Notes about Google Cloud Storage:
-
     - GCP does support allowing underscores for bucket names, but we validate against it. Do not use underscores in your bucket name.
     - The bucket needs to have uniform access control and NOT fine-grained access.
     - To get your `accessKeyId` and `secretAccessKey`, create a service account that has Cloud Storage read + write permissions. Then run the following command:
