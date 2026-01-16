@@ -8,7 +8,7 @@ import {onlyInlineAudio} from './audio';
 import {createBackgroundKeepalive} from './background-keepalive';
 import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createAudioSampleSource} from './create-audio-sample-source';
-import {createScaffold} from './create-scaffold';
+import {checkForError, createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
@@ -241,7 +241,7 @@ const internalRenderMediaOnWeb = async <
 		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
 	}
 
-	using scaffold = await createScaffold({
+	using scaffold = createScaffold({
 		width: resolved.width,
 		height: resolved.height,
 		fps: resolved.fps,
@@ -260,7 +260,8 @@ const internalRenderMediaOnWeb = async <
 		defaultOutName: resolved.defaultOutName,
 	});
 
-	const {delayRenderScope, div, timeUpdater, collectAssets} = scaffold;
+	const {delayRenderScope, div, timeUpdater, collectAssets, errorHolder} =
+		scaffold;
 
 	using internalState = makeInternalState();
 
@@ -299,6 +300,7 @@ const internalRenderMediaOnWeb = async <
 			internalState,
 			keepalive,
 		});
+		checkForError(errorHolder);
 
 		if (signal?.aborted) {
 			throw new Error('renderMediaOnWeb() was cancelled');
@@ -350,6 +352,7 @@ const internalRenderMediaOnWeb = async <
 			}
 
 			timeUpdater.current?.update(frame);
+
 			await waitForReady({
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 				scope: delayRenderScope,
@@ -358,6 +361,7 @@ const internalRenderMediaOnWeb = async <
 				keepalive,
 				internalState,
 			});
+			checkForError(errorHolder);
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');

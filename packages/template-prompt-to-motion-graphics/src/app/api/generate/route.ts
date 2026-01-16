@@ -1,5 +1,35 @@
-import { streamText } from "ai";
+import { streamText, generateObject } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
+import { z } from "zod";
+
+const VALIDATION_PROMPT = `You are a prompt classifier for a motion graphics generation tool.
+
+Determine if the user's prompt is asking for motion graphics/animation content that can be created as a React/Remotion component.
+
+VALID prompts include requests for:
+- Animated text, titles, or typography
+- Data visualizations (charts, graphs, progress bars)
+- UI animations (buttons, cards, transitions)
+- Logo animations or brand intros
+- Social media content (stories, reels, posts)
+- Explainer animations
+- Kinetic typography
+- Abstract motion graphics
+- Animated illustrations
+- Product showcases
+- Countdown timers
+- Loading animations
+- Any visual/animated content
+
+INVALID prompts include:
+- Questions (e.g., "What is 2+2?", "How do I...")
+- Requests for text/written content (poems, essays, stories, code explanations)
+- Conversations or chat
+- Non-visual tasks (calculations, translations, summaries)
+- Requests completely unrelated to visual content
+
+Return true if the prompt is valid for motion graphics generation, false otherwise.`;
+
 
 const SYSTEM_PROMPT = `
 You are an expert in generating React components for Remotion animations.
@@ -552,6 +582,11 @@ EXPORT FORMAT:
 - Always export as: export const MyAnimation = () => { ... };
 - Do not use default exports
 
+RESERVED NAMES (CRITICAL):
+- NEVER use "spring" as a variable name - it shadows the spring() function from Remotion
+- If you need a variable for spring season data, use "springData", "springSeason", or "springPhase" instead
+- Similarly avoid naming variables: interpolate, useCurrentFrame, useVideoConfig, AbsoluteFill, Sequence
+
 - Use creative animations with smooth transitions
 - Component should use frame-based animations with interpolate()
 - Make it visually impressive and modern
@@ -561,6 +596,13 @@ EXPORT FORMAT:
 - ALWAYS make sure to show all contents on the screen WITHOUT going off-screen or being cut off
 - ALWAYS set backgroundColor on AbsoluteFill from frame 0 - never fade in backgrounds
 - NEVER NEVER NEVER use fade-in for the AbsoluteFill container - always have it fully visible from frame 0
+
+OUTPUT FORMAT (CRITICAL):
+- Output ONLY the code. No explanations, no questions, no commentary.
+- Do NOT ask follow-up questions like "Do you want X or Y?"
+- Do NOT add text before or after the code block
+- The response must start with "import" and end with "};", nothing else
+- If the prompt is ambiguous, make a reasonable choice and implement it - do not ask for clarification
 
 `;
 
@@ -586,6 +628,30 @@ export async function POST(req: Request) {
   const [modelName, reasoningEffort] = model.split(":");
 
   const openai = createOpenAI({ apiKey });
+
+  // Validate the prompt first
+  try {
+    const validationResult = await generateObject({
+      model: openai("gpt-5.2"),
+      system: VALIDATION_PROMPT,
+      prompt: `User prompt: "${prompt}"`,
+      schema: z.object({ valid: z.boolean() }),
+    });
+
+    if (!validationResult.object.valid) {
+      return new Response(
+        JSON.stringify({
+          error:
+            "No valid motion graphics prompt. Please describe an animation or visual content you'd like to create.",
+          type: "validation",
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+  } catch (validationError) {
+    // On validation error, allow through rather than blocking
+    console.error("Validation error:", validationError);
+  }
 
   try {
     const result = streamText({

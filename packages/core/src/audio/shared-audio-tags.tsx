@@ -36,6 +36,7 @@ type AudioElem = {
 	premounting: boolean;
 	postmounting: boolean;
 	audioMounted: boolean;
+	cleanupOnMediaTagUnmount: () => void;
 };
 
 const EMPTY_AUDIO =
@@ -151,6 +152,29 @@ export const SharedAudioContextProvider: React.FC<{
 		});
 	}, [audioContext, numberOfAudioTags]);
 
+	/**
+	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.
+	 * - useInsertionEffect only fires once. If it's available we are in React 18.
+	 * - useLayoutEffect only fires once in React 17.
+	 *
+	 * Need to import it from React to fix React 17 ESM support.
+	 */
+	const effectToUse = React.useInsertionEffect ?? React.useLayoutEffect;
+
+	// Disconnecting the SharedElementSourceNodes if the Player unmounts to prevent leak.
+	// https://github.com/remotion-dev/remotion/issues/6285
+	// But useInsertionEffect will fire before other effects, meaning the
+	// nodes might still be used. Using rAF to ensure it's after other effects.
+	effectToUse(() => {
+		return () => {
+			requestAnimationFrame(() => {
+				refs.forEach(({mediaElementSourceNode}) => {
+					mediaElementSourceNode?.cleanup();
+				});
+			});
+		};
+	}, [refs]);
+
 	const takenAudios = useRef<(false | number)[]>(
 		new Array(numberOfAudioTags).fill(false),
 	);
@@ -220,6 +244,9 @@ export const SharedAudioContextProvider: React.FC<{
 				premounting,
 				audioMounted: Boolean(ref.current),
 				postmounting,
+				cleanupOnMediaTagUnmount: () => {
+					// Don't disconnect here, only when the Player unmounts.
+				},
 			};
 			audios.current?.push(newElem);
 			rerenderAudios();
@@ -380,6 +407,7 @@ export const useSharedAudio = ({
 			return ctx.registerAudio({aud, audioId, premounting, postmounting});
 		}
 
+		// numberOfSharedAudioTags is 0
 		const el = React.createRef<HTMLAudioElement>();
 		const mediaElementSourceNode = ctx?.audioContext
 			? makeSharedElementSourceNode({
@@ -397,6 +425,9 @@ export const useSharedAudio = ({
 			premounting,
 			audioMounted: Boolean(el.current),
 			postmounting,
+			cleanupOnMediaTagUnmount: () => {
+				mediaElementSourceNode?.cleanup();
+			},
 		};
 	});
 

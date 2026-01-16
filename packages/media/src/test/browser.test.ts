@@ -51,7 +51,7 @@ test('Should be able to extract a frame', async () => {
 	expect(audio.data.byteLength).toBe(6404);
 
 	const cacheStats = keyframeManager.getCacheStats();
-	expect(cacheStats.count).toBe(5);
+	expect(cacheStats.count).toBe(1);
 });
 
 test('Should be able to extract the last frame', async () => {
@@ -120,12 +120,12 @@ test('Should manage the cache', async () => {
 	}
 
 	const cacheStats = keyframeManager.getCacheStats();
-	expect(cacheStats.count).toBe(250);
-	expect(cacheStats.totalSize).toBe(345600000);
+	expect(cacheStats.count).toBe(50);
+	expect(cacheStats.totalSize).toBe(69120000);
 });
 
 test('Should be apply volume correctly', async () => {
-	await keyframeManager.clearAll('info');
+	keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',

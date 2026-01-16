@@ -49,6 +49,7 @@ export type DownloadMap = {
 	allowCleanup: () => void;
 	isPreventedFromCleanup: () => boolean;
 	inlineAudioMixing: InlineAudioMixing;
+	cleanupController: AbortController;
 };
 
 export type RenderAssetInfo = {
@@ -99,6 +100,7 @@ export const makeDownloadMap = (): DownloadMap => {
 			return prevented;
 		},
 		inlineAudioMixing: makeInlineAudioMixing(dir),
+		cleanupController: new AbortController(),
 	};
 };
 
@@ -106,6 +108,8 @@ export const cleanDownloadMap = (downloadMap: DownloadMap) => {
 	if (downloadMap.isPreventedFromCleanup()) {
 		return;
 	}
+
+	downloadMap.cleanupController.abort();
 
 	deleteDirectory(downloadMap.downloadDir);
 	deleteDirectory(downloadMap.complexFilter);

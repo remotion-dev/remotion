@@ -21,6 +21,10 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { examplePrompts } from "@/examples/prompts";
+import {
+  validateGptResponse,
+  extractComponentCode,
+} from "@/helpers/sanitize-response";
 
 const iconMap: Record<string, LucideIcon> = {
   Type,
@@ -31,17 +35,20 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 export const MODELS = [
-  { id: "gpt-5-mini", name: "GPT-5 Mini" },
-  { id: "gpt-5.1-codex", name: "GPT-5.1 Codex" },
-  { id: "gpt-5.1:none", name: "GPT-5.1 (No Reasoning)" },
-  { id: "gpt-5.1:low", name: "GPT-5.1 (Low Reasoning)" },
-  { id: "gpt-5.1:medium", name: "GPT-5.1 (Medium Reasoning)" },
-  { id: "gpt-5.1:high", name: "GPT-5.1 (High Reasoning)" },
+  { id: "gpt-5.2:none", name: "GPT-5.2 (No Reasoning)" },
+  { id: "gpt-5.2:low", name: "GPT-5.2 (Low Reasoning)" },
+  { id: "gpt-5.2:medium", name: "GPT-5.2 (Medium Reasoning)" },
+  { id: "gpt-5.2:high", name: "GPT-5.2 (High Reasoning)" },
+  { id: "gpt-5.2-pro:medium", name: "GPT-5.2 Pro (Medium)" },
+  { id: "gpt-5.2-pro:high", name: "GPT-5.2 Pro (High)" },
+  { id: "gpt-5.2-pro:xhigh", name: "GPT-5.2 Pro (XHigh)" },
 ] as const;
 
 export type ModelId = (typeof MODELS)[number]["id"];
 
 export type StreamPhase = "idle" | "reasoning" | "generating";
+
+export type GenerationErrorType = "validation" | "api";
 
 export interface PromptInputRef {
   triggerGeneration: () => void;
@@ -51,7 +58,7 @@ interface PromptInputProps {
   onCodeGenerated?: (code: string) => void;
   onStreamingChange?: (isStreaming: boolean) => void;
   onStreamPhaseChange?: (phase: StreamPhase) => void;
-  onError?: (error: string) => void;
+  onError?: (error: string, type: GenerationErrorType) => void;
   variant?: "landing" | "editor";
   prompt?: string;
   onPromptChange?: (prompt: string) => void;
@@ -80,7 +87,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
     ref,
   ) {
     const [uncontrolledPrompt, setUncontrolledPrompt] = useState("");
-    const [model, setModel] = useState<ModelId>("gpt-5.1:low");
+    const [model, setModel] = useState<ModelId>("gpt-5.2:low");
 
     // Support both controlled and uncontrolled modes
     const prompt =
@@ -105,6 +112,11 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
           const errorData = await response.json().catch(() => ({}));
           const errorMessage =
             errorData.error || `API error: ${response.status}`;
+          // Check if this is a validation error from the API
+          if (errorData.type === "validation") {
+            onError?.(errorMessage, "validation");
+            return;
+          }
           throw new Error(errorMessage);
         }
 
@@ -150,11 +162,30 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
                 codeToShow = codeToShow.replace(/\n?```\s*$/, "");
 
                 onCodeGenerated?.(codeToShow.trim());
+              } else if (event.type === "error") {
+                throw new Error(event.error);
               }
-            } catch {
-              // Ignore parse errors for malformed JSON
+            } catch (parseError) {
+              // Only re-throw if it's an actual Error we created, not a JSON parse error
+              if (parseError instanceof Error && parseError.message !== "Unexpected token") {
+                throw parseError;
+              }
             }
           }
+        }
+
+        // Sanitize the final response (strip markdown code block wrappers and trailing text)
+        let finalCode = accumulatedText;
+        finalCode = finalCode.replace(/^```(?:tsx?|jsx?)?\n?/, "");
+        finalCode = finalCode.replace(/\n?```\s*$/, "");
+        finalCode = extractComponentCode(finalCode);
+
+        // Update the editor with the cleaned code
+        onCodeGenerated?.(finalCode);
+
+        const validation = validateGptResponse(finalCode);
+        if (!validation.isValid && validation.error) {
+          onError?.(validation.error, "validation");
         }
       } catch (error) {
         console.error("Error generating code:", error);
@@ -162,7 +193,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
           error instanceof Error
             ? error.message
             : "An unexpected error occurred";
-        onError?.(errorMessage);
+        onError?.(errorMessage, "api");
       } finally {
         setIsLoading(false);
         onStreamingChange?.(false);
