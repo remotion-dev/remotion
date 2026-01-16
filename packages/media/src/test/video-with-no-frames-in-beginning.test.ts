@@ -93,6 +93,7 @@ test('same goes for audio', async () => {
 			throw new Error('not implemented');
 		},
 		updatePlaybackTime: () => {},
+		initialMuted: false,
 	});
 
 	const nonceManager = makeNonceManager();

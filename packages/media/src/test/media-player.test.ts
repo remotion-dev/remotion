@@ -41,7 +41,7 @@ test('dispose should immediately unblock playback delays', async () => {
 		playing: false,
 	});
 
-	await player.initialize(0);
+	await player.initialize(0, false);
 
 	const seekDelayPromise = new Promise<void>((resolve) => {
 		delayPlaybackCalled = resolve;

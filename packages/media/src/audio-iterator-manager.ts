@@ -18,6 +18,7 @@ export const audioIteratorManager = ({
 	getEndTime,
 	getStartTime,
 	updatePlaybackTime,
+	initialMuted,
 }: {
 	audioTrack: InputAudioTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
@@ -25,9 +26,10 @@ export const audioIteratorManager = ({
 	getIsLooping: () => boolean;
 	getEndTime: () => number;
 	getStartTime: () => number;
+	initialMuted: boolean;
 	updatePlaybackTime: (time: number) => void;
 }) => {
-	let muted = false;
+	let muted = initialMuted;
 	let currentVolume = 1;
 
 	const gainNode = sharedAudioContext.createGain();
@@ -56,6 +58,10 @@ export const audioIteratorManager = ({
 	}) => {
 		if (!audioBufferIterator) {
 			throw new Error('Audio buffer iterator not found');
+		}
+
+		if (muted) {
+			return;
 		}
 
 		const node = sharedAudioContext.createBufferSource();
@@ -90,6 +96,10 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 		) => void;
 	}) => {
+		if (muted) {
+			return;
+		}
+
 		if (getIsPlaying()) {
 			scheduleAudioChunk({
 				buffer: buffer.buffer,
@@ -125,6 +135,10 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 		) => void;
 	}) => {
+		if (muted) {
+			return;
+		}
+
 		updatePlaybackTime(startFromSecond);
 		audioBufferIterator?.destroy();
 		using delayHandle = delayPlaybackHandleIfNotPremounting();
@@ -201,6 +215,10 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 		) => void;
 	}) => {
+		if (muted) {
+			return;
+		}
+
 		if (getIsLooping()) {
 			// If less than 1 second from the end away, we pre-warm a new iterator
 			if (getEndTime() - newTime < 1) {
@@ -331,6 +349,10 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 		) => void;
 	}) => {
+		if (muted) {
+			return;
+		}
+
 		if (!audioBufferIterator) {
 			return;
 		}
