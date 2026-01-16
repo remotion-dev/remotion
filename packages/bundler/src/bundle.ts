@@ -94,6 +94,7 @@ export const getConfig = ({
 		bufferStateDelayInMilliseconds,
 		poll: null,
 		experimentalClientSideRenderingEnabled,
+		disableAskAI: false
 	});
 };
 

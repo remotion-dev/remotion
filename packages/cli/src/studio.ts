@@ -36,6 +36,7 @@ const {
 	publicDirOption,
 	disableGitSourceOption,
 	enableCrossSiteIsolationOption,
+	disableAskAIOption
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -127,6 +128,10 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
+	const disableAskAIModal = disableAskAIOption.getValue({
+		commandLine: parsedCli
+	}).value
+
 	const gitSource = getGitSource({remotionRoot, disableGitSource, logLevel});
 
 	await StudioServerInternals.startStudio({
@@ -165,6 +170,7 @@ export const studioCommand = async (
 		forceIPv4: parsedCli.ipv4,
 		audioLatencyHint: parsedCli['audio-latency-hint'],
 		enableCrossSiteIsolation,
+		disableAskAI: disableAskAIModal
 	});
 
 	// If the server is restarted through the UI, let's do the whole thing again.

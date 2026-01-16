@@ -667,7 +667,7 @@ export const useMenuStructure = (
 				label: 'Tools',
 				leaveLeftPadding: false,
 				items: [
-					{
+				 !process.env.DISABLE_ASK_AI ?	{
 						id: 'ask-ai',
 						value: 'ask-ai',
 						label: 'Ask AI',
@@ -680,7 +680,7 @@ export const useMenuStructure = (
 						subMenu: null,
 						type: 'item' as const,
 						quickSwitcherLabel: 'Ask AI',
-					},
+					} : null,
 					'EyeDropper' in window
 						? {
 								id: 'color-picker',

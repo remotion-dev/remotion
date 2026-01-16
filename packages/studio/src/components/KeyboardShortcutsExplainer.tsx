@@ -298,7 +298,9 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						</div>
 						<div style={right}>Save</div>
 					</Row>
-					<br />
+				{ !process.env.DISABLE_ASK_AI &&
+					<>
+				<br />
 					<div style={title}>AI</div>
 					<Row align="center">
 						<div style={left}>
@@ -308,6 +310,8 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						</div>
 						<div style={right}>Ask AI</div>
 					</Row>
+				</>
+				}
 				</Column>
 			</Row>
 		</div>

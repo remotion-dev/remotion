@@ -44,7 +44,7 @@ export const GlobalKeybindings: React.FC = () => {
 			commandCtrlKey: true,
 			preventDefault: true,
 		});
-		const cmdIKey = keybindings.registerKeybinding({
+		const cmdIKey = !process.env.DISABLE_ASK_AI ? keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'i',
 			callback: () => {
@@ -54,7 +54,7 @@ export const GlobalKeybindings: React.FC = () => {
 			keepRegisteredWhenNotHighestContext: true,
 			commandCtrlKey: true,
 			preventDefault: true,
-		});
+		}) : null;
 
 		const cKey = keybindings.registerKeybinding({
 			event: 'keypress',
@@ -108,7 +108,7 @@ export const GlobalKeybindings: React.FC = () => {
 			cKey.unregister();
 			questionMark.unregister();
 			cmdKKey.unregister();
-			cmdIKey.unregister();
+			cmdIKey?.unregister();
 			pageDown.unregister();
 			pageUp.unregister();
 		};

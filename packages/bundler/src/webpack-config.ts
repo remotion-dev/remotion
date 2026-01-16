@@ -54,6 +54,7 @@ export const webpackConfig = async ({
 	bufferStateDelayInMilliseconds,
 	poll,
 	experimentalClientSideRenderingEnabled,
+	disableAskAI
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -67,6 +68,7 @@ export const webpackConfig = async ({
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	poll: number | null;
+	disableAskAI: boolean,
 	experimentalClientSideRenderingEnabled: boolean;
 }): Promise<[string, WebpackConfiguration]> => {
 	const esbuildLoaderOptions: LoaderOptions = {
@@ -82,6 +84,7 @@ export const webpackConfig = async ({
 
 	const define = new webpack.DefinePlugin({
 		'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
+		'process.env.DISABLE_ASK_AI': disableAskAI,
 		'process.env.KEYBOARD_SHORTCUTS_ENABLED': keyboardShortcutsEnabled,
 		'process.env.BUFFER_STATE_DELAY_IN_MILLISECONDS':
 			bufferStateDelayInMilliseconds,
