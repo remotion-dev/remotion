@@ -22,7 +22,10 @@ test('in preview, should properly buffer and draw frames', async () => {
 		getStartTime: () => {
 			throw new Error('not implemented');
 		},
-		delayPlaybackHandleIfNotPremounting: () => ({unblock: () => {}}),
+		delayPlaybackHandleIfNotPremounting: () => ({
+			unblock: () => {},
+			[Symbol.dispose]: () => {},
+		}),
 		context: null,
 		canvas: null,
 		videoTrack,

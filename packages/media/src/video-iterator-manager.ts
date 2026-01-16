@@ -2,6 +2,7 @@ import type {InputVideoTrack, WrappedCanvas} from 'mediabunny';
 import {CanvasSink} from 'mediabunny';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
+import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedVideoIteratorCache} from './prewarm-iterator-for-looping';
 import {
@@ -22,7 +23,7 @@ export const videoIteratorManager = ({
 	getIsLooping,
 }: {
 	videoTrack: InputVideoTrack;
-	delayPlaybackHandleIfNotPremounting: () => {unblock: () => void};
+	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
 	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
 	canvas: OffscreenCanvas | HTMLCanvasElement | null;
 	getOnVideoFrameCallback: () => null | ((frame: CanvasImageSource) => void);
@@ -76,41 +77,34 @@ export const videoIteratorManager = ({
 		nonce: Nonce,
 	): Promise<void> => {
 		videoFrameIterator?.destroy();
-		const delayHandle = delayPlaybackHandleIfNotPremounting();
+		using delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 
-		try {
-			const iterator = await createVideoIterator(
-				timeToSeek,
-				prewarmedVideoIteratorCache,
-			);
-			videoIteratorsCreated++;
-			videoFrameIterator = iterator;
+		const iterator = await createVideoIterator(
+			timeToSeek,
+			prewarmedVideoIteratorCache,
+		);
+		videoIteratorsCreated++;
+		videoFrameIterator = iterator;
 
-			const frameResult = iterator.initialFrame;
-
-			if (iterator.isDestroyed()) {
-				return;
-			}
-
-			if (nonce.isStale()) {
-				return;
-			}
-
-			if (videoFrameIterator.isDestroyed()) {
-				return;
-			}
-
-			if (!frameResult) {
-				// media ended
-				return;
-			}
-
-			drawFrame(frameResult);
-		} finally {
-			delayHandle.unblock();
-			currentDelayHandle = null;
+		if (iterator.isDestroyed()) {
+			return;
 		}
+
+		if (nonce.isStale()) {
+			return;
+		}
+
+		if (videoFrameIterator.isDestroyed()) {
+			return;
+		}
+
+		if (!iterator.initialFrame) {
+			// media ended
+			return;
+		}
+
+		drawFrame(iterator.initialFrame);
 	};
 
 	const seek = async ({newTime, nonce}: {newTime: number; nonce: Nonce}) => {
@@ -127,7 +121,6 @@ export const videoIteratorManager = ({
 			}
 		}
 
-		// Should return immediately, so it's okay to not use Promise.all here
 		const videoSatisfyResult =
 			await videoFrameIterator.tryToSatisfySeek(newTime);
 

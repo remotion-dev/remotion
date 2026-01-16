@@ -7,6 +7,7 @@ import {
 } from './audio-iterator-manager';
 import {calculatePlaybackTime} from './calculate-playbacktime';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
+import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
 import {isNetworkError} from './is-type-of-error';
 import type {Nonce, NonceManager} from './nonce-manager';
@@ -178,7 +179,7 @@ export class MediaPlayer {
 	private async _initialize(
 		startTimeUnresolved: number,
 	): Promise<MediaPlayerInitResult> {
-		const delayHandle = this.delayPlaybackHandleIfNotPremounting();
+		using _ = this.delayPlaybackHandleIfNotPremounting();
 		try {
 			if (this.input.disposed) {
 				return {type: 'disposed'};
@@ -335,8 +336,6 @@ export class MediaPlayer {
 				error,
 			);
 			throw error;
-		} finally {
-			delayHandle.unblock();
 		}
 	}
 
@@ -436,15 +435,23 @@ export class MediaPlayer {
 		this.drawDebugOverlay();
 	}
 
-	private delayPlaybackHandleIfNotPremounting = () => {
-		if (this.isPremounting || this.isPostmounting) {
-			return {
-				unblock: () => {},
-			};
-		}
+	private delayPlaybackHandleIfNotPremounting =
+		(): DelayPlaybackIfNotPremounting => {
+			if (this.isPremounting || this.isPostmounting) {
+				return {
+					unblock: () => {},
+					[Symbol.dispose]: () => {},
+				};
+			}
 
-		return this.bufferState.delayPlayback();
-	};
+			const {unblock} = this.bufferState.delayPlayback();
+			return {
+				unblock,
+				[Symbol.dispose]: () => {
+					unblock();
+				},
+			};
+		};
 
 	public pause(): void {
 		if (!this.playing) {

@@ -6,6 +6,7 @@ import {
 	isAlreadyQueued,
 	makeAudioIterator,
 } from './audio/audio-preview-iterator';
+import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedAudioIteratorCache} from './prewarm-iterator-for-looping';
 
@@ -19,7 +20,7 @@ export const audioIteratorManager = ({
 	updatePlaybackTime,
 }: {
 	audioTrack: InputAudioTrack;
-	delayPlaybackHandleIfNotPremounting: () => {unblock: () => void};
+	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
 	sharedAudioContext: AudioContext;
 	getIsLooping: () => boolean;
 	getEndTime: () => number;
@@ -126,7 +127,7 @@ export const audioIteratorManager = ({
 	}) => {
 		updatePlaybackTime(startFromSecond);
 		audioBufferIterator?.destroy();
-		const delayHandle = delayPlaybackHandleIfNotPremounting();
+		using delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 
 		const iterator = makeAudioIterator(
@@ -169,9 +170,6 @@ export const audioIteratorManager = ({
 			}
 
 			throw e;
-		} finally {
-			delayHandle.unblock();
-			currentDelayHandle = null;
 		}
 	};
 

@@ -17,6 +17,7 @@ const prepare = async () => {
 		audioTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
 			unblock: () => {},
+			[Symbol.dispose]: () => {},
 		}),
 		sharedAudioContext: new AudioContext(),
 		getIsLooping: () => false,
@@ -244,6 +245,7 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 		audioTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
 			unblock: () => {},
+			[Symbol.dispose]: () => {},
 		}),
 		sharedAudioContext: new AudioContext(),
 		getIsLooping: () => false,
