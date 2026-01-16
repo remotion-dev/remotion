@@ -90,7 +90,6 @@ import {
 	setWebpackPollingInMilliseconds,
 } from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
-import { AskAIOption } from '@remotion/renderer/src/options/disable-ask-ai';
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
@@ -133,6 +132,7 @@ const {
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
 	darkModeOption,
+	AskAIOption,
 	publicLicenseKeyOption,
 } = BrowserSafeApis.options;
 
