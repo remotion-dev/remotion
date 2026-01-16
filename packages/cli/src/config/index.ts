@@ -493,12 +493,10 @@ declare global {
 			disallowParallelEncoding: boolean,
 		) => void;
 
-				/**
+		/**
 		 * disables the Ask AI Modal in Studio
 		 */
-		readonly setAskAIEnabled: (
-			AskAIEnabled: boolean,
-		) => void;
+		readonly setAskAIEnabled: (AskAIEnabled: boolean) => void;
 
 		/**
 		 * Removes the --single-process flag that gets passed to

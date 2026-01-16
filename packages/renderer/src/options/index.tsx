@@ -1,4 +1,5 @@
 import {apiKeyOption} from './api-key';
+import {AskAIOption} from './ask-ai';
 import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
 import {beepOnFinishOption} from './beep-on-finish';
@@ -9,7 +10,6 @@ import {crfOption} from './crf';
 import {enableCrossSiteIsolationOption} from './cross-site-isolation';
 import {darkModeOption} from './dark-mode';
 import {deleteAfterOption} from './delete-after';
-import {AskAIOption} from './ask-ai';
 import {disableGitSourceOption} from './disable-git-source';
 import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
 import {enableLambdaInsights} from './enable-lambda-insights';
@@ -100,7 +100,7 @@ export const allOptions = {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	publicLicenseKeyOption,
-	AskAIOption
+	AskAIOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

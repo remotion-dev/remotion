@@ -82,7 +82,7 @@ export const startStudio = async ({
 	forceIPv4,
 	audioLatencyHint,
 	enableCrossSiteIsolation,
-	AskAIEnabled
+	AskAIEnabled,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -111,7 +111,7 @@ export const startStudio = async ({
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
-	AskAIEnabled: boolean
+	AskAIEnabled: boolean;
 }) => {
 	try {
 		if (typeof Bun === 'undefined') {
@@ -185,7 +185,7 @@ export const startStudio = async ({
 		forceIPv4,
 		audioLatencyHint,
 		enableCrossSiteIsolation,
-		AskAIEnabled
+		AskAIEnabled,
 	});
 
 	const cleanupLiveEventsListener = setLiveEventsListener(liveEventsServer);

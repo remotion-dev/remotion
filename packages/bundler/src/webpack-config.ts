@@ -54,7 +54,7 @@ export const webpackConfig = async ({
 	bufferStateDelayInMilliseconds,
 	poll,
 	experimentalClientSideRenderingEnabled,
-	AskAIEnabled
+	AskAIEnabled,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -68,7 +68,7 @@ export const webpackConfig = async ({
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	poll: number | null;
-	AskAIEnabled: boolean,
+	AskAIEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
 }): Promise<[string, WebpackConfiguration]> => {
 	const esbuildLoaderOptions: LoaderOptions = {
