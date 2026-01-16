@@ -2,14 +2,16 @@ import type {WrappedCanvas} from 'mediabunny';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import type {PrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
 
-export const createVideoIterator = (
+export const createVideoIterator = async (
 	timeToSeek: number,
 	cache: PrewarmedVideoIteratorCache,
 ) => {
 	let destroyed = false;
 	const iterator = cache.makeIteratorOrUsePrewarmed(timeToSeek);
-	let lastReturnedFrame: WrappedCanvas | null = null;
 	let iteratorEnded = false;
+
+	const initialFrame = (await iterator.next())?.value ?? null;
+	let lastReturnedFrame = initialFrame;
 
 	const getNextOrNullIfNotAvailable = async () => {
 		const next = iterator.next();
@@ -68,7 +70,18 @@ export const createVideoIterator = (
 	> => {
 		if (lastReturnedFrame) {
 			const frameTimestamp = roundTo4Digits(lastReturnedFrame.timestamp);
+
 			if (roundTo4Digits(time) < frameTimestamp) {
+				const lastFrameWasInitialFrame = lastReturnedFrame === initialFrame;
+				const firstFrameDoesSatify =
+					lastFrameWasInitialFrame && roundTo4Digits(time) > timeToSeek;
+				if (firstFrameDoesSatify) {
+					return {
+						type: 'satisfied' as const,
+						frame: lastReturnedFrame,
+					};
+				}
+
 				return {
 					type: 'not-satisfied' as const,
 					reason: `iterator is too far, most recently returned ${frameTimestamp}`,
@@ -147,9 +160,7 @@ export const createVideoIterator = (
 
 	return {
 		destroy,
-		getNext: () => {
-			return iterator.next();
-		},
+		initialFrame,
 		isDestroyed: () => {
 			return destroyed;
 		},
@@ -157,4 +168,4 @@ export const createVideoIterator = (
 	};
 };
 
-export type VideoIterator = ReturnType<typeof createVideoIterator>;
+export type VideoIterator = Awaited<ReturnType<typeof createVideoIterator>>;

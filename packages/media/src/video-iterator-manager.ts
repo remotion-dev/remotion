@@ -76,42 +76,41 @@ export const videoIteratorManager = ({
 		nonce: Nonce,
 	): Promise<void> => {
 		videoFrameIterator?.destroy();
-		const iterator = createVideoIterator(
-			timeToSeek,
-			prewarmedVideoIteratorCache,
-		);
-		videoIteratorsCreated++;
-		videoFrameIterator = iterator;
-
 		const delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 
-		let frameResult: IteratorResult<WrappedCanvas, void>;
 		try {
-			frameResult = await iterator.getNext();
+			const iterator = await createVideoIterator(
+				timeToSeek,
+				prewarmedVideoIteratorCache,
+			);
+			videoIteratorsCreated++;
+			videoFrameIterator = iterator;
+
+			const frameResult = iterator.initialFrame;
+
+			if (iterator.isDestroyed()) {
+				return;
+			}
+
+			if (nonce.isStale()) {
+				return;
+			}
+
+			if (videoFrameIterator.isDestroyed()) {
+				return;
+			}
+
+			if (!frameResult) {
+				// media ended
+				return;
+			}
+
+			drawFrame(frameResult);
 		} finally {
 			delayHandle.unblock();
 			currentDelayHandle = null;
 		}
-
-		if (iterator.isDestroyed()) {
-			return;
-		}
-
-		if (nonce.isStale()) {
-			return;
-		}
-
-		if (videoFrameIterator.isDestroyed()) {
-			return;
-		}
-
-		if (!frameResult.value) {
-			// media ended
-			return;
-		}
-
-		drawFrame(frameResult.value);
 	};
 
 	const seek = async ({newTime, nonce}: {newTime: number; nonce: Nonce}) => {
