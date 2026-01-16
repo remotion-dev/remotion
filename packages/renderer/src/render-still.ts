@@ -421,7 +421,7 @@ const internalRenderStillRaw = (
 			})
 
 			.then((res) => {
-				if (options.apiKey === null) {
+				if (options.apiKey === null && options.licenseKey === null) {
 					resolve(res);
 					return;
 				}

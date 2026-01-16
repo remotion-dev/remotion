@@ -85,8 +85,8 @@ export const registerUsageEvent = async ({
 					apiKey: licenseKey ?? apiKey,
 					host,
 					succeeded,
-					isStill,
-					isProduction,
+					isStill: isStill ?? false,
+					isProduction: isProduction ?? undefined,
 				}),
 				headers: {
 					'Content-Type': 'application/json',
