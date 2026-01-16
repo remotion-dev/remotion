@@ -210,6 +210,7 @@ export const renderMediaSingleThread = async (
 			onLog: RenderInternals.defaultOnLog,
 			apiKey: null,
 			licenseKey: null,
+			isProduction: null,
 		});
 
 		const storage = new Storage();

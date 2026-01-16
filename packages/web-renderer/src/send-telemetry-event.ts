@@ -11,8 +11,8 @@ export const sendUsageEvent = async ({
 	licenseKey: string | null;
 	succeeded: boolean;
 	apiName: string;
-	isStill?: boolean;
-	isProduction?: boolean;
+	isStill: boolean | null;
+	isProduction: boolean | null;
 }) => {
 	const host =
 		typeof window === 'undefined'

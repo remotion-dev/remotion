@@ -5,8 +5,8 @@ import {RenderInternals} from '@remotion/renderer';
 export const sendTelemetryEvent = async (
 	licenseKey: string | null,
 	logLevel: LogLevel,
-	isStill?: boolean,
-	isProduction?: boolean,
+	isStill: boolean | null,
+	isProduction: boolean | null,
 ) => {
 	if (licenseKey === null) {
 		return Promise.resolve();

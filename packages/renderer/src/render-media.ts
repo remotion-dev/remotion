@@ -151,7 +151,7 @@ export type InternalRenderMediaOptions = {
 	onArtifact: OnArtifact | null;
 	metadata: Record<string, string> | null;
 	onLog: OnLog;
-	isProduction?: boolean;
+	isProduction: boolean | null;
 } & EitherApiKeyOrLicenseKey &
 	MoreRenderMediaOptions;
 
@@ -1091,6 +1091,6 @@ export const renderMedia = ({
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		licenseKey: licenseKey ?? apiKey ?? null,
 		onLog: defaultOnLog,
-		isProduction,
+		isProduction: isProduction ?? null,
 	});
 };

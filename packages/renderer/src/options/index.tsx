@@ -22,6 +22,7 @@ import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
 import {imageSequencePatternOption} from './image-sequence-pattern';
+import {isProductionKeyOption} from './is-production-key';
 import {jpegQualityOption} from './jpeg-quality';
 import {audioLatencyHintOption} from './latency-hint';
 import {licenseKeyOption} from './license-key';
@@ -99,6 +100,7 @@ export const allOptions = {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	publicLicenseKeyOption,
+	isProductionKeyOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

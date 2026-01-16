@@ -152,6 +152,7 @@ async function internalRenderStillOnWeb<
 			succeeded: true,
 			apiName: 'renderStillOnWeb',
 			isStill: true,
+			isProduction: null,
 		});
 
 		return {blob: imageData, internalState};
@@ -162,6 +163,7 @@ async function internalRenderStillOnWeb<
 				licenseKey: licenseKey ?? null,
 				apiName: 'renderStillOnWeb',
 				isStill: true,
+				isProduction: null,
 			}).catch((err2) => {
 				Internals.Log.error(
 					{logLevel: 'error', tag: 'web-renderer'},

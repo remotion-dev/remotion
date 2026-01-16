@@ -88,7 +88,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	metadata: Record<string, string> | null;
 	storageClass: StorageClass | null;
 	requestHandler: RequestHandler | null;
-	isProduction?: boolean;
+	isProduction: boolean | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
@@ -225,7 +225,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		storageClass: storageClass ?? null,
-		isProduction,
+		isProduction: isProduction ?? null,
 	};
 };
 
@@ -332,6 +332,6 @@ export const makeLambdaRenderStillPayload = async ({
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		storageClass: storageClass ?? null,
-		isProduction,
+		isProduction: isProduction ?? null,
 	};
 };

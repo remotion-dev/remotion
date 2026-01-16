@@ -414,6 +414,7 @@ export const renderStillFlow = async ({
 		},
 		apiKey: null,
 		licenseKey: null,
+		isProduction: null,
 	});
 
 	aggregate.rendering = {

@@ -76,7 +76,7 @@ type InternalRenderStillOptions = {
 	port: number | null;
 	onArtifact: OnArtifact | null;
 	onLog: OnLog;
-	isProduction?: boolean;
+	isProduction: boolean | null;
 } & ToOptions<typeof optionsMap.renderStill>;
 
 export type RenderStillOptions = {
@@ -578,6 +578,6 @@ export const renderStill = (
 		apiKey: apiKey ?? null,
 		licenseKey: licenseKey ?? null,
 		onLog: defaultOnLog,
-		isProduction,
+		isProduction: isProduction ?? null,
 	});
 };

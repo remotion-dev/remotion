@@ -541,6 +541,7 @@ export const benchmarkCommand = async (
 					}).value,
 					onLog: RenderInternals.defaultOnLog,
 					licenseKey: null,
+					isProduction: null,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

@@ -456,6 +456,8 @@ const internalRenderMediaOnWeb = async <
 				licenseKey: licenseKey ?? null,
 				succeeded: true,
 				apiName: 'renderMediaOnWeb',
+				isStill: null,
+				isProduction: null,
 			});
 
 			await webFsTarget.close();
@@ -475,6 +477,8 @@ const internalRenderMediaOnWeb = async <
 			licenseKey: licenseKey ?? null,
 			succeeded: true,
 			apiName: 'renderMediaOnWeb',
+			isStill: null,
+			isProduction: null,
 		});
 
 		return {
@@ -495,6 +499,8 @@ const internalRenderMediaOnWeb = async <
 				succeeded: false,
 				licenseKey: licenseKey ?? null,
 				apiName: 'renderMediaOnWeb',
+				isStill: null,
+				isProduction: null,
 			}).catch((err2) => {
 				Internals.Log.error(
 					{logLevel: 'error', tag: 'web-renderer'},

@@ -311,6 +311,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			metadata: params.metadata,
 			offthreadVideoThreads: params.offthreadVideoThreads,
 			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			isProduction: params.isProduction,
 		};
 		return payload;
 	});
@@ -724,7 +725,12 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		});
 		clearTimeout(webhookDueToTimeout);
 
-		sendTelemetryEvent(params.licenseKey ?? null, params.logLevel);
+		sendTelemetryEvent(
+			params.licenseKey ?? null,
+			params.logLevel,
+			null,
+			params.isProduction,
+		);
 
 		if (!params.webhook || webhookInvoked) {
 			return;
