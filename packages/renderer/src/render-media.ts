@@ -151,6 +151,7 @@ export type InternalRenderMediaOptions = {
 	onArtifact: OnArtifact | null;
 	metadata: Record<string, string> | null;
 	onLog: OnLog;
+	isProduction?: boolean;
 } & EitherApiKeyOrLicenseKey &
 	MoreRenderMediaOptions;
 
@@ -209,6 +210,7 @@ export type RenderMediaOptions = Prettify<{
 	onArtifact?: OnArtifact;
 	metadata?: Record<string, string> | null;
 	compositionStart?: number;
+	isProduction?: boolean;
 }> &
 	EitherApiKeyOrLicenseKey &
 	Partial<MoreRenderMediaOptions>;
@@ -280,6 +282,7 @@ const internalRenderMediaRaw = ({
 	mediaCacheSizeInBytes,
 	onLog,
 	licenseKey,
+	isProduction,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	const pixelFormat =
 		userPixelFormat ??
@@ -836,6 +839,7 @@ const internalRenderMediaRaw = ({
 						host: null,
 						succeeded: true,
 						licenseKey: licenseKey ?? null,
+						isProduction,
 					})
 						.then(() => {
 							Log.verbose({indent, logLevel}, 'Usage event sent successfully');
@@ -992,6 +996,7 @@ export const renderMedia = ({
 	offthreadVideoThreads,
 	compositionStart,
 	mediaCacheSizeInBytes,
+	isProduction,
 	...apiKeyOrLicenseKey
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
@@ -1086,5 +1091,6 @@ export const renderMedia = ({
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		licenseKey: licenseKey ?? apiKey ?? null,
 		onLog: defaultOnLog,
+		isProduction,
 	});
 };

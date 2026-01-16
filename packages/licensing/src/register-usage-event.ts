@@ -55,12 +55,14 @@ export const registerUsageEvent = async ({
 	succeeded,
 	event,
 	isStill,
+	isProduction,
 	...apiOrLicenseKey
 }: {
 	host: string | null;
 	succeeded: boolean;
 	event: UsageEventType;
 	isStill?: boolean;
+	isProduction?: boolean;
 } & EitherApiKeyOrLicenseKey): Promise<RegisterUsageEventResponse> => {
 	const apiKey = 'apiKey' in apiOrLicenseKey ? apiOrLicenseKey.apiKey : null;
 	const licenseKey =
@@ -84,6 +86,7 @@ export const registerUsageEvent = async ({
 					host,
 					succeeded,
 					isStill,
+					isProduction,
 				}),
 				headers: {
 					'Content-Type': 'application/json',

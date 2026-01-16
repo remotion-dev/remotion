@@ -74,6 +74,7 @@ export type RenderMediaOnLambdaInput = {
 	metadata?: Record<string, string> | null;
 	storageClass?: StorageClass | null;
 	requestHandler?: RequestHandler;
+	isProduction?: boolean;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
@@ -201,6 +202,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		storageClass: options.storageClass ?? null,
 		requestHandler: options.requestHandler ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+		isProduction: options.isProduction,
 	};
 };
 

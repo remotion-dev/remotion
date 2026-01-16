@@ -76,6 +76,7 @@ type InternalRenderStillOptions = {
 	port: number | null;
 	onArtifact: OnArtifact | null;
 	onLog: OnLog;
+	isProduction?: boolean;
 } & ToOptions<typeof optionsMap.renderStill>;
 
 export type RenderStillOptions = {
@@ -108,6 +109,7 @@ export type RenderStillOptions = {
 	 */
 	quality?: never;
 	onArtifact?: OnArtifact;
+	isProduction?: boolean;
 } & Partial<ToOptions<typeof optionsMap.renderStill>>;
 
 type CleanupFn = () => Promise<unknown>;
@@ -430,6 +432,7 @@ const internalRenderStillRaw = (
 					host: null,
 					succeeded: true,
 					isStill: true,
+					isProduction: options.isProduction,
 				})
 					.then(() => {
 						Log.verbose(options, 'Usage event sent successfully');
@@ -505,6 +508,7 @@ export const renderStill = (
 		mediaCacheSizeInBytes,
 		apiKey,
 		licenseKey,
+		isProduction,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -574,5 +578,6 @@ export const renderStill = (
 		apiKey: apiKey ?? null,
 		licenseKey: licenseKey ?? null,
 		onLog: defaultOnLog,
+		isProduction,
 	});
 };

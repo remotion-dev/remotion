@@ -161,6 +161,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	apiKey: string | null;
 	licenseKey: string | null;
 	storageClass: Provider['storageClass'] | null;
+	isProduction?: boolean;
 };
 
 export type ServerlessPayloads<Provider extends CloudProvider> = {
@@ -304,6 +305,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		apiKey: string | null;
 		licenseKey: string | null;
 		storageClass: Provider['storageClass'] | null;
+		isProduction?: boolean;
 	};
 	compositions: {
 		type: ServerlessRoutines.compositions;

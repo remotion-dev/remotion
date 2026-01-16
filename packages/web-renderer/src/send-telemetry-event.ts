@@ -6,11 +6,13 @@ export const sendUsageEvent = async ({
 	succeeded,
 	apiName,
 	isStill,
+	isProduction,
 }: {
 	licenseKey: string | null;
 	succeeded: boolean;
 	apiName: string;
 	isStill?: boolean;
+	isProduction?: boolean;
 }) => {
 	const host =
 		typeof window === 'undefined'
@@ -35,5 +37,6 @@ export const sendUsageEvent = async ({
 		host,
 		succeeded,
 		isStill,
+		isProduction,
 	});
 };
