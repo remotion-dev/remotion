@@ -494,7 +494,7 @@ declare global {
 		) => void;
 
 		/**
-		 * disables the Ask AI Modal in Studio
+		 * Enables or disables the Ask AI Modal in Studio
 		 */
 		readonly setAskAIEnabled: (AskAIEnabled: boolean) => void;
 
