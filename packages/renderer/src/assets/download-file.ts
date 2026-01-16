@@ -37,6 +37,8 @@ const downloadFileWithoutRetries = ({
 		let timeout: Timer | undefined;
 
 		const resolveAndFlag = (val: Response) => {
+			abortSignal.removeEventListener('abort', onAbort);
+
 			resolved = true;
 			resolve(val);
 			if (timeout) {
@@ -45,6 +47,8 @@ const downloadFileWithoutRetries = ({
 		};
 
 		const rejectAndFlag = (err: Error) => {
+			abortSignal.removeEventListener('abort', onAbort);
+
 			if (timeout) {
 				clearTimeout(timeout);
 			}
@@ -163,9 +167,6 @@ const downloadFileWithoutRetries = ({
 			})
 			.catch((err) => {
 				rejectAndFlag(err);
-			})
-			.finally(() => {
-				abortSignal.removeEventListener('abort', onAbort);
 			});
 	});
 };
