@@ -330,6 +330,8 @@ export const rules = ({react}: {react: boolean}) => {
 				vars: 'all',
 				args: 'after-used',
 				ignoreRestSiblings: true,
+				argsIgnorePattern: '^_',
+				varsIgnorePattern: '^_',
 			},
 		],
 		'@typescript-eslint/no-shadow': [

@@ -39,15 +39,15 @@ export const makeKeyframeBank = async ({
 	logLevel: parentLogLevel,
 	src,
 	videoSampleSink,
-	requestedTimestamp,
+	initialTimestampRequest,
 }: {
 	logLevel: LogLevel;
 	src: string;
 	videoSampleSink: VideoSampleSink;
-	requestedTimestamp: number;
+	initialTimestampRequest: number;
 }) => {
 	const sampleIterator = videoSampleSink.samples(
-		roundTo4Digits(requestedTimestamp),
+		roundTo4Digits(initialTimestampRequest),
 	);
 
 	const frames: Record<number, VideoSample> = {};
@@ -290,7 +290,13 @@ export const makeKeyframeBank = async ({
 		}
 
 		if (roundedTimestamp < firstFrameTimestamp) {
-			return false;
+			const firstFrameIsInitialFrame =
+				firstFrameTimestamp === startTimestampInSeconds;
+
+			const firstFrameDoesSatisfy =
+				firstFrameIsInitialFrame && roundedTimestamp >= initialTimestampRequest;
+
+			return firstFrameDoesSatisfy;
 		}
 
 		if (
