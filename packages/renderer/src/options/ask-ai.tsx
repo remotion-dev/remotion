@@ -6,6 +6,7 @@ const cliFlag = 'disable-ask-ai' as const;
 export const getCurrentValueOfAskAI = () => {
 	return askAIEnabled;
 };
+
 export const AskAIOption = {
 	name: 'Disable or Enable the Ask AI option',
 	cliFlag,
@@ -33,7 +34,6 @@ export const AskAIOption = {
 		};
 	},
 	setConfig(value) {
-		console.log('called ', value);
 		askAIEnabled = value;
 	},
 } satisfies AnyRemotionOption<boolean>;
