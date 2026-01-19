@@ -3,9 +3,6 @@ import type {AnyRemotionOption} from './option';
 let askAIEnabled = true;
 
 const cliFlag = 'disable-ask-ai' as const;
-export const getCurrentValueOfAskAI = () => {
-	return askAIEnabled;
-};
 
 export const askAIOption = {
 	name: 'Disable or Enable the Ask AI option',

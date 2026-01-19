@@ -45,8 +45,6 @@ const onProgress = (progress: number) => {
 
 ### `webpackOverride?`
 
-_optional_
-
 A function to override the webpack config reducer-style. Takes a function which gives you the current webpack config which you can transform and return a modified version of it. For example:
 
 ```ts twoslash
@@ -62,37 +60,25 @@ const webpackOverride: WebpackOverrideFn = (webpackConfig) => {
 
 ### `outDir?`
 
-_optional_
-
 Specify a desired output directory. If no passed, the webpack bundle will be created in a temp dir.
 
 ### `askAIEnabled?`
 
-_optional_
-
-A `boolean` specifying whether the studio should show the Ask AI modal on CMD+I shortcut. Default `true`, disable this if it conflicts with your studio.
+<Options id="disable-ask-ai" />
 
 ### `keyboardShortcutsEnabled?`
 
-_optional_
-
-A `boolean` specifying whether the studio respond to the predefined keyboard shortcuts.. Default `true`.
+A `boolean` specifying whether the Studio responds to the predefined keyboard shortcuts.. Default `true`.
 
 ### `enableCaching?`
-
-_optional_
 
 A `boolean` specifying whether Webpack caching should be enabled. Default `true`, it is recommended to leave caching enabled at all times since file changes should be recognized by Webpack nonetheless.
 
 ### `publicPath?`
 
-_optional_
-
 <Options id="public-path" />
 
 ### `rootDir?`<AvailableFrom v="3.1.6" />
-
-_optional_
 
 The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
 

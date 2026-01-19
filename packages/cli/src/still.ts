@@ -2,7 +2,6 @@ import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
-import {ConfigInternals} from './config';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
@@ -29,6 +28,7 @@ const {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	askAIOption,
+	experimentalClientSideRenderingOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -185,6 +185,7 @@ export const still = async (
 		mediaCacheSizeInBytes,
 		askAIEnabled,
 		experimentalClientSideRenderingEnabled:
-			ConfigInternals.getExperimentalClientSideRenderingEnabled(),
+			experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
+				.value,
 	});
 };

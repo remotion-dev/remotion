@@ -60,10 +60,6 @@ import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
 import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
 import {
-	getExperimentalClientSideRenderingEnabled,
-	setExperimentalClientSideRenderingEnabled,
-} from './experimental-client-side-rendering';
-import {
 	getFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
@@ -134,6 +130,7 @@ const {
 	darkModeOption,
 	askAIOption,
 	publicLicenseKeyOption,
+	experimentalClientSideRenderingOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -647,7 +644,8 @@ export const Config: FlatConfig = {
 	},
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled,
-	setExperimentalClientSideRenderingEnabled,
+	setExperimentalClientSideRenderingEnabled:
+		experimentalClientSideRenderingOption.setConfig,
 	setNumberOfSharedAudioTags,
 	setWebpackPollingInMilliseconds,
 	setShouldOpenBrowser,
@@ -758,7 +756,6 @@ export const ConfigInternals = {
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
 	getKeyboardShortcutsEnabled,
-	getExperimentalClientSideRenderingEnabled,
 	getFfmpegOverrideFunction,
 	getHeight,
 	getWidth,

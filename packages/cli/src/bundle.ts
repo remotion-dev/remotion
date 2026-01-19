@@ -20,6 +20,7 @@ const {
 	disableGitSourceOption,
 	audioLatencyHintOption,
 	askAIOption,
+	experimentalClientSideRenderingOption,
 } = BrowserSafeApis.options;
 
 export const bundleCommand = async (
@@ -65,7 +66,8 @@ export const bundleCommand = async (
 	}
 
 	const experimentalClientSideRenderingEnabled =
-		ConfigInternals.getExperimentalClientSideRenderingEnabled();
+		experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
+			.value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 
 	if (experimentalClientSideRenderingEnabled) {

@@ -37,6 +37,7 @@ const {
 	disableGitSourceOption,
 	enableCrossSiteIsolationOption,
 	askAIOption,
+	experimentalClientSideRenderingOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -103,7 +104,8 @@ export const studioCommand = async (
 		ConfigInternals.getKeyboardShortcutsEnabled();
 
 	const experimentalClientSideRenderingEnabled =
-		ConfigInternals.getExperimentalClientSideRenderingEnabled();
+		experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
+			.value;
 
 	if (experimentalClientSideRenderingEnabled) {
 		Log.warn(

@@ -4,7 +4,6 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {registerCleanupJob} from './cleanup-before-quit';
-import {ConfigInternals} from './config';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
@@ -28,6 +27,7 @@ const {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	askAIOption: askAIOption,
+	experimentalClientSideRenderingOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -121,7 +121,8 @@ export const listCompositionsCommand = async (
 	};
 
 	const experimentalClientSideRenderingEnabled =
-		ConfigInternals.getExperimentalClientSideRenderingEnabled();
+		experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
+			.value;
 
 	if (experimentalClientSideRenderingEnabled) {
 		Log.warn(

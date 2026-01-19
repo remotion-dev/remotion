@@ -1,6 +1,7 @@
 import {apiKeyOption} from './api-key';
 import {askAIOption} from './ask-ai';
 import {audioBitrateOption} from './audio-bitrate';
+import {experimentalClientSideRenderingOption} from './experimental-client-side-rendering';
 import {audioCodecOption} from './audio-codec';
 import {beepOnFinishOption} from './beep-on-finish';
 import {binariesDirectoryOption} from './binaries-directory';
@@ -101,6 +102,7 @@ export const allOptions = {
 	darkModeOption,
 	publicLicenseKeyOption,
 	askAIOption,
+	experimentalClientSideRenderingOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;
