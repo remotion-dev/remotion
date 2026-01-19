@@ -4,10 +4,10 @@ import {
 	COMPOSITION_WIDTH,
 	MyAnimation,
 } from '../skills/charts/assets/animated-shapes';
+import {MyAnimation as BarChartAnimation} from '../skills/charts/assets/bar-chart';
 import {MyAnimation as ChatMessagesAnimation} from '../skills/example-chat-messages/assets/example';
 import {MyAnimation as CounterAnimation} from '../skills/example-counter/assets/example';
 import {MyAnimation as FallingSpheresAnimation} from '../skills/example-falling-spheres/assets/example';
-import {MyAnimation as BarChartAnimation} from '../skills/charts/assets/bar-chart';
 import {MyAnimation as HistogramAnimation} from '../skills/example-histogram/assets/example';
 import {MyAnimation as ProgressBarAnimation} from '../skills/example-progress-bar/assets/example';
 import {MyAnimation as StaggeredListAnimation} from '../skills/example-staggered-list/assets/example';
@@ -88,8 +88,8 @@ export const RemotionRoot = () => {
 				component={BarChartAnimation}
 				durationInFrames={120}
 				fps={30}
-				width={1080}
-				height={1080}
+				width={1280}
+				height={720}
 			/>
 			<Composition
 				id="TypewriterHighlight"
