@@ -290,6 +290,7 @@ export const stillCommand = async ({
 		offthreadVideoThreads: null,
 		requestHandler: null,
 		mediaCacheSizeInBytes,
+		isProduction: null,
 	});
 	Log.info(
 		{indent: false, logLevel},

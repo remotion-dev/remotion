@@ -225,7 +225,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		storageClass: storageClass ?? null,
-		isProduction: isProduction ?? null,
+		isProduction,
 	};
 };
 
@@ -332,6 +332,6 @@ export const makeLambdaRenderStillPayload = async ({
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		storageClass: storageClass ?? null,
-		isProduction: isProduction ?? null,
+		isProduction,
 	};
 };
