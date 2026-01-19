@@ -10,10 +10,12 @@ Use `<Sequence>` to delay when an element appears in the timeline.
 ```tsx
 import { Sequence } from "remotion";
 
-<Sequence from={30} durationInFrames={90}>
+const {fps} = useVideoConfig();
+
+<Sequence from={1 * fps} durationInFrames={2 * fps} premountFor={1 * fps}>
   <Title />
 </Sequence>
-<Sequence from={60} durationInFrames={60}>
+<Sequence from={2 * fps} durationInFrames={2 * fps} preMountFor={1 * fps}>
   <Subtitle />
 </Sequence>
 ```
@@ -23,6 +25,17 @@ If the items should not be wrapped, use the `layout` prop:
 
 ```tsx
 <Sequence layout="none">
+  <Title />
+</Sequence>
+```
+
+## Premounting
+
+This loads the component in the timeline before it is actually played.  
+Always premount any `<Sequence>`!
+
+```tsx
+<Sequence premountFor={1 * fps}>
   <Title />
 </Sequence>
 ```
