@@ -1,58 +1,39 @@
 ---
 name: 3d
-description: 3D animation patterns using ThreeCanvas for Remotion. Use when creating 3D objects, ThreeJS content, spatial animations, rotating cubes, or 3D scenes.
+description: 3D content in Remotion using Three.js and React Three Fiber.
 metadata:
-  impact: MEDIUM
-  tags: 3d, three, threejs, webgl, spatial
+  tags: 3d, three, threejs
 ---
 
-## ThreeCanvas Setup
+# Using Three.js and React Three Fiber in Remotion
 
-Always wrap 3D content in ThreeCanvas and include proper lighting.
+Follow React Three Fiber and Three.js best practices.  
+Only the following Remotion-specific rules need to be followed:
 
-**Incorrect (missing ThreeCanvas wrapper):**
+## Prerequisites
 
-```tsx
-<mesh rotation={[0, frame * 0.02, 0]}>
-  <boxGeometry args={[2, 2, 2]} />
-  <meshStandardMaterial color="#4a9eff" />
-</mesh>
+First, the `@remotion/three` package needs to be installed.  
+If it is not, use the following command:
+
+```bash
+npx remotion add @remotion/three # If project uses npm
+bunx remotion add @remotion/three # If project uses bun
+yarn remotion add @remotion/three # If project uses yarn
+pnpm exec remotion add @remotion/three # If project uses pnpm
 ```
 
-**Correct (proper ThreeCanvas setup):**
+## Using ThreeCanvas
+
+You MUST wrap 3D content in `<ThreeCanvas>` and include proper lighting.  
+`<ThreeCanvas>` MUST have a `width` and `height` prop.
 
 ```tsx
 import { ThreeCanvas } from "@remotion/three";
+import { useVideoConfig } from "remotion";
 
-<ThreeCanvas>
-  <ambientLight intensity={0.5} />
-  <pointLight position={[10, 10, 10]} />
-  <mesh rotation={[0, frame * 0.02, 0]}>
-    <boxGeometry args={[2, 2, 2]} />
-    <meshStandardMaterial color="#4a9eff" />
-  </mesh>
-</ThreeCanvas>
-```
+const { width, height } = useVideoConfig();
 
-## Lighting Setup
-
-Every 3D scene needs ambient + directional light for depth.
-
-**Incorrect (no lighting - objects appear flat/black):**
-
-```tsx
-<ThreeCanvas>
-  <mesh>
-    <sphereGeometry args={[1, 32, 32]} />
-    <meshStandardMaterial color="red" />
-  </mesh>
-</ThreeCanvas>
-```
-
-**Correct (proper lighting):**
-
-```tsx
-<ThreeCanvas>
+<ThreeCanvas width={width} height={height}>
   <ambientLight intensity={0.4} />
   <directionalLight position={[5, 5, 5]} intensity={0.8} />
   <mesh>
@@ -62,13 +43,21 @@ Every 3D scene needs ambient + directional light for depth.
 </ThreeCanvas>
 ```
 
-## Frame-Based Rotation
+## No animations not driven by `useCurrentFrame()`
 
-Use frame directly for smooth continuous rotation.
+Shaders, models etc MUST NOT animate by themselves.  
+No animations are allowed unless they are driven by `useCurrentFrame()`.  
+Otherwise, it will cause flickering during rendering.  
+
+Using `useFrame()` from `@react-three/fiber` is forbidden.
+
+## Animate using `useCurrentFrame()`
+
+Use `useCurrentFrame()` to perform animations.
 
 ```tsx
 const frame = useCurrentFrame();
-const rotationY = frame * 0.02; // Adjust speed with multiplier
+const rotationY = frame * 0.02;
 
 <mesh rotation={[0, rotationY, 0]}>
   <boxGeometry args={[2, 2, 2]} />
@@ -76,46 +65,22 @@ const rotationY = frame * 0.02; // Adjust speed with multiplier
 </mesh>
 ```
 
-## Floating/Hovering Animation
+## Using `<Sequence>` inside `<ThreeCanvas>`
 
-Use sine wave on Y position for organic floating effect.
-
-```tsx
-const frame = useCurrentFrame();
-const floatY = Math.sin(frame * 0.1) * 0.3; // Amplitude 0.3, speed 0.1
-
-<mesh position={[0, floatY, 0]}>
-  {/* geometry and material */}
-</mesh>
-```
-
-## Spring-Based Scale Entrance
-
-Use spring() for bouncy 3D object entrances.
+The `layout` prop of any `<Sequence>` inside a `<ThreeCanvas>` must be set to `none`.
 
 ```tsx
-const scaleProgress = spring({
-  frame,
-  fps,
-  config: { damping: 12, stiffness: 100 }
-});
+import { Sequence } from "remotion";
+import { ThreeCanvas } from "@remotion/three";
 
-<mesh scale={[scaleProgress, scaleProgress, scaleProgress]}>
-  {/* geometry and material */}
-</mesh>
-```
+const { width, height } = useVideoConfig();
 
-## Camera Positioning
-
-Position camera at reasonable distance for scene visibility.
-
-```tsx
-<ThreeCanvas camera={{ position: [0, 0, 5], fov: 75 }}>
-  {/* scene content */}
+<ThreeCanvas width={width} height={height}>
+  <Sequence layout="none">
+    <mesh>
+      <boxGeometry args={[2, 2, 2]} />
+      <meshStandardMaterial color="#4a9eff" />
+    </mesh>
+  </Sequence>
 </ThreeCanvas>
 ```
-
-## Complete Examples
-
-For full working code examples, see:
-- [Falling Spheres Example](assets/falling-spheres.tsx) - 3D bouncing spheres with physics simulation
