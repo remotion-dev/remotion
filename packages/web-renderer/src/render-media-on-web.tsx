@@ -178,6 +178,9 @@ const internalRenderMediaOnWeb = async <
 
 	const format = containerToMediabunnyContainer(container);
 
+	// eslint-disable-next-line no-console
+	console.log('Test change:');
+
 	if (
 		codec &&
 		!format.getSupportedCodecs().includes(codecToMediabunnyCodec(codec))
