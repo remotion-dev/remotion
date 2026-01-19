@@ -4,5 +4,15 @@
 	},
 	"name": "skills",
 	"private": true,
-	"version": "4.0.407"
+	"version": "4.0.407",
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@remotion/bundler": "workspace:*",
+		"remotion": "workspace:*",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"@remotion/shapes": "workspace:*",
+		"@remotion/cli": "workspace:*"
+	}
 }
