@@ -1,27 +1,12 @@
 ---
 name: sequencing
-description: Timing and sequencing patterns for Remotion. Use when elements appear at different times, creating staggered animations, choreographed entrances, or complex timing.
+description: Sequencing patterns for Remotion - delay, trim, limit duration of items
 metadata:
   impact: HIGH
-  tags: sequence, series, timing, delay, choreography
+  tags: sequence, series, timing, delay, trim
 ---
 
-## Sequence for Delayed Elements
-
-Use Sequence to delay when an element appears in the timeline.
-
-**Incorrect (manual frame checks):**
-
-```tsx
-{
-  frame >= 30 && <Title />;
-}
-{
-  frame >= 60 && <Subtitle />;
-}
-```
-
-**Correct (Sequence component):**
+Use `<Sequence>` to delay when an element appears in the timeline.
 
 ```tsx
 import { Sequence } from "remotion";
@@ -34,9 +19,18 @@ import { Sequence } from "remotion";
 </Sequence>
 ```
 
-## Series for Sequential Playback
+This will by default wrap the component in an absolute fill element.  
+If the items should not be wrapped, use the `layout` prop:
 
-Use Series when elements should play one after another without overlap.
+```tsx
+<Sequence layout="none">
+  <Title />
+</Sequence>
+```
+
+## Series
+
+Use `<Series>` when elements should play one after another without overlap.
 
 ```tsx
 import {Series} from 'remotion';
@@ -51,10 +45,12 @@ import {Series} from 'remotion';
   <Series.Sequence durationInFrames={30}>
     <Outro />
   </Series.Sequence>
-</Series>;
+</Series>
 ```
 
-## Series with Offset for Overlap
+Same as with `<Sequence>`, the items will be wrapped in an absolute fill element by default when using `<Series.Sequence>`, unless the `layout` prop is set to `none`.
+
+### Series with overlaps
 
 Use negative offset for overlapping sequences:
 
@@ -70,34 +66,15 @@ Use negative offset for overlapping sequences:
 </Series>
 ```
 
-## Staggered Element Entrances
+## Frame References Inside Sequences
 
-For staggered animations of multiple items, calculate delays:
-
-**Incorrect (hardcoded delays):**
+Inside a Sequence, `useCurrentFrame()` returns the local frame (starting from 0):
 
 ```tsx
-const items = data.map((item, i) => {
-  const delay = i === 0 ? 0 : i === 1 ? 10 : i === 2 ? 20 : 30;
-  // ...
-});
-```
-
-**Correct (calculated stagger):**
-
-```tsx
-const STAGGER_DELAY = 8;
-const BASE_DELAY = 15;
-
-const items = data.map((item, i) => {
-  const delay = BASE_DELAY + i * STAGGER_DELAY;
-  const progress = spring({
-    frame: frame - delay,
-    fps,
-    config: {damping: 15, stiffness: 120},
-  });
-  return <Item key={i} style={{opacity: progress, transform: `translateY(${(1 - progress) * 20}px)`}} />;
-});
+<Sequence from={60} durationInFrames={30}>
+  <MyComponent />
+  {/* Inside MyComponent, useCurrentFrame() returns 0-29, not 60-89 */}
+</Sequence>
 ```
 
 ## Nested Sequences
@@ -107,24 +84,13 @@ Sequences can be nested for complex timing:
 ```tsx
 <Sequence from={0} durationInFrames={120}>
   <Background />
-  <Sequence from={15} durationInFrames={90}>
+  <Sequence from={15} durationInFrames={90} layout="none">
     <Title />
   </Sequence>
-  <Sequence from={45} durationInFrames={60}>
+  <Sequence from={45} durationInFrames={60} layout="none">
     <Subtitle />
   </Sequence>
 </Sequence>
 ```
 
-## Frame References Inside Sequences
 
-Inside a Sequence, useCurrentFrame() returns the local frame (starting from 0):
-
-```tsx
-<Sequence from={60} durationInFrames={30}>
-  <MyComponent />
-  {/* Inside MyComponent, useCurrentFrame() returns 0-29, not 60-89 */}
-</Sequence>
-```
-
-## Complete Examples
