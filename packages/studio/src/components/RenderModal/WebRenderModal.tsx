@@ -511,6 +511,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		setSelectedModal,
 		addClientStillJob,
 		addClientVideoJob,
+		scale,
 	]);
 
 	return (
