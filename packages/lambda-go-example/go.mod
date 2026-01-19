@@ -1,7 +1,5 @@
 module main.go
 
-go 1.24.3
-
 require (
 	github.com/go-playground/validator/v10 v10.13.0
 	github.com/joho/godotenv v1.5.1
