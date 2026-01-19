@@ -24,6 +24,12 @@ import {
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 
+const {
+	disableGitSourceOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+} = BrowserSafeApis.options;
+
 export const SITES_CREATE_SUBCOMMAND = 'create';
 
 export const sitesCreateSubcommand = async (
@@ -138,16 +144,25 @@ export const sitesCreateSubcommand = async (
 	const bundleStart = Date.now();
 	let uploadStart = Date.now();
 
-	const disableGitSource =
-		BrowserSafeApis.options.disableGitSourceOption.getValue({
-			commandLine: CliInternals.parsedCli,
-		}).value;
+	const disableGitSource = disableGitSourceOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const gitSource = CliInternals.getGitSource({
 		remotionRoot,
 		disableGitSource,
 		logLevel,
 	});
+
+	const askAIEnabled = askAIOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const experimentalClientSideRenderingEnabled =
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
+	const keyboardShortcutsEnabled =
+		ConfigInternals.getKeyboardShortcutsEnabled();
 
 	const {serveUrl, siteName, stats} = await internalDeploySiteRaw({
 		entryPoint: file,
@@ -179,6 +194,9 @@ export const sitesCreateSubcommand = async (
 			ignoreRegisterRootWarning: true,
 			publicDir: null,
 			rootDir: remotionRoot,
+			askAIEnabled,
+			experimentalClientSideRenderingEnabled,
+			keyboardShortcutsEnabled,
 		},
 		indent: false,
 		privacy: parsedCloudrunCli.privacy ?? 'public',
