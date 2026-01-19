@@ -21,6 +21,7 @@ Read individual rule files for detailed explanations and code examples:
 - [rules/can-decode.md](rules/can-decode.md) - Check if a video can be decoded by the browser using Mediabunny
 - [rules/charts.md](rules/charts.md) - Chart and data visualization patterns for Remotion
 - [rules/compositions.md](rules/compositions.md) - Defining compositions, stills, folders, default props and dynamic metadata
+- [rules/display-captions.md](rules/display-captions.md) - Displaying captions in Remotion with TikTok-style pages and word highlighting
 - [rules/extract-frames.md](rules/extract-frames.md) - Extract frames from videos at specific timestamps using Mediabunny
 - [rules/fonts.md](rules/fonts.md) - Loading Google Fonts and local fonts in Remotion
 - [rules/get-audio-duration.md](rules/get-audio-duration.md) - Getting the duration of an audio file in seconds with Mediabunny
