@@ -2,16 +2,15 @@
 image: /generated/articles-docs-transforms.png
 id: transforms
 title: Transforms
-crumb: "The fundamentals"
+crumb: 'The fundamentals'
 ---
 
-import {Transforms} from '../components/DocsDark'
+import {Transforms} from '../components/DocsDark';
 import {MuxVideo} from '../src/components/MuxVideo';
 import {TransformsTutorial} from '../src/components/tutorials';
 
 <TransformsTutorial />
-Animation occurs when the visual properties of an element transform over time.  
-Let's look at five common ways to transform an element.
+Animation occurs when the visual properties of an element transform over time. Let's look at five common ways to transform an element.
 
 Already familiar with how to apply CSS transforms in React? [Skip this page](/docs/animating-properties).
 
@@ -19,11 +18,16 @@ Already familiar with how to apply CSS transforms in React? [Skip this page](/do
 
 <Transforms />
 
-<p align="center" style={{
-  fontStyle: "italic",
-  fontSize: "0.9em",
-  marginTop: 10
-}}>From left to right: Opacity, Scale, Skew, Translate, Rotate</p>
+<p
+  align="center"
+  style={{
+    fontStyle: 'italic',
+    fontSize: '0.9em',
+    marginTop: 10,
+  }}
+>
+  From left to right: Opacity, Scale, Skew, Translate, Rotate
+</p>
 
 ### Opacity
 
@@ -36,7 +40,7 @@ You can set the opacity of an element using the `opacity` property.
   style={{
     height: 100,
     width: 100,
-    backgroundColor: "red",
+    backgroundColor: 'red',
     opacity: 0.5,
   }}
 />
@@ -51,15 +55,15 @@ Values below `0` and above `1` are accepted, but have no further effect.
 The scale determines how big an element is. `1` is the natural size, `2` will make the element twice as tall and wide.  
 Values below `1` will make the element smaller. `0` makes the element invisible. Values below `0` are accepted and will make the element bigger again, but mirrored.
 
-You can set the scale of an element using the `transform` property.
+You can set the scale of an element using the `scale` property.
 
 ```tsx twoslash {6} title="MyComponent.tsx"
 <div
   style={{
     height: 100,
     width: 100,
-    backgroundColor: "red",
-    transform: `scale(0.5)`,
+    backgroundColor: 'red',
+    scale: 0.5,
   }}
 />
 ```
@@ -81,7 +85,7 @@ See the explorer below to see how skewing affects an element.
   style={{
     height: 100,
     width: 100,
-    backgroundColor: "red",
+    backgroundColor: 'red',
     transform: `skew(20deg)`,
   }}
 />
@@ -100,7 +104,7 @@ You can set the translation of an element using the `transform` property.
   style={{
     height: 100,
     width: 100,
-    backgroundColor: "red",
+    backgroundColor: 'red',
     transform: `translateX(100px)`,
   }}
 />
@@ -121,7 +125,7 @@ You can set the translation of an element using the `transform` property.
   style={{
     height: 100,
     width: 100,
-    backgroundColor: "red",
+    backgroundColor: 'red',
     transform: `rotate(45deg)`, // the same as rotateZ(45deg)
   }}
 />
@@ -146,7 +150,7 @@ If both transformations use the `transform` property, specify multiple transform
   style={{
     height: 100,
     width: 100,
-    backgroundColor: "red",
+    backgroundColor: 'red',
     transform: `translateX(100px) scale(2)`,
   }}
 />
@@ -156,10 +160,10 @@ Note that the order matters. The transformations are applied in the order they a
 
 ## Using the `makeTransform()` helper
 
-Install [@remotion/animation-utils](/docs/animation-utils/) to [get a type-safe helper function](/docs/animation-utils/make-transform) to generate `transform` strings.
+Install [`@remotion/animation-utils`](/docs/animation-utils/) to [get a type-safe helper function](/docs/animation-utils/make-transform) to generate `transform` strings.
 
 ```tsx twoslash
-import { makeTransform, rotate, translate } from "@remotion/animation-utils";
+import {makeTransform, rotate, translate} from '@remotion/animation-utils';
 
 const transform = translate(50, 50);
 // => "translate(50px, 50px)"

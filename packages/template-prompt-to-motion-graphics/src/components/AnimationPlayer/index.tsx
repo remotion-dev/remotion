@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Player, type ErrorFallback } from "@remotion/player";
+import { ErrorDisplay, type ErrorType } from "../ErrorDisplay";
 import { RenderControls } from "./RenderControls";
 import { SettingsModal } from "./SettingsModal";
 
@@ -29,7 +30,7 @@ interface AnimationPlayerProps {
   isCompiling: boolean;
   isStreaming: boolean;
   error: string | null;
-  errorType?: "compilation" | "api";
+  errorType?: ErrorType;
   code: string;
 }
 
@@ -66,19 +67,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
     }
 
     if (error) {
-      const errorTitle = errorType === "api" ? "API Error" : "Compilation Error";
-      return (
-        <div className="w-full aspect-video max-h-[calc(100%-80px)] flex justify-center items-center bg-background-error rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)] border border-destructive">
-          <div className="text-center max-w-[80%]">
-            <div className="text-destructive text-base font-semibold mb-2 font-sans">
-              {errorTitle}
-            </div>
-            <div className="text-destructive-foreground text-sm font-mono whitespace-pre-wrap break-words">
-              {error}
-            </div>
-          </div>
-        </div>
-      );
+      return <ErrorDisplay error={error} errorType={errorType} />;
     }
 
     if (!Component) {

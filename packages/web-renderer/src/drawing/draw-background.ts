@@ -1,11 +1,8 @@
 import type {LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
-import {getClippedBackground} from './get-clipped-background';
+import {createLayer} from '../take-screenshot';
+import {getBackgroundFill} from './get-background-fill';
 import {getBoxBasedOnBackgroundClip} from './get-padding-box';
-import {
-	createCanvasGradient,
-	parseLinearGradient,
-} from './parse-linear-gradient';
 
 export const drawBackground = async ({
 	backgroundImage,
@@ -19,6 +16,7 @@ export const drawBackground = async ({
 	computedStyle,
 	offsetLeft: parentOffsetLeft,
 	offsetTop: parentOffsetTop,
+	scale,
 }: {
 	backgroundImage: string;
 	context: OffscreenCanvasRenderingContext2D;
@@ -31,6 +29,7 @@ export const drawBackground = async ({
 	computedStyle: CSSStyleDeclaration;
 	offsetLeft: number;
 	offsetTop: number;
+	scale: number;
 }) => {
 	let contextToDraw = context;
 
@@ -38,17 +37,22 @@ export const drawBackground = async ({
 	let offsetLeft = 0;
 	let offsetTop = 0;
 
-	const finish = () => {
-		context.globalCompositeOperation = originalCompositeOperation;
-		if (context !== contextToDraw) {
-			context.drawImage(
-				contextToDraw.canvas,
-				offsetLeft,
-				offsetTop,
-				contextToDraw.canvas.width,
-				contextToDraw.canvas.height,
-			);
-		}
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	using _ = {
+		[Symbol.dispose]: () => {
+			context.globalCompositeOperation = originalCompositeOperation;
+			if (context !== contextToDraw) {
+				context.drawImage(
+					contextToDraw.canvas,
+					offsetLeft,
+					offsetTop,
+					// The context currently has a transform of `scale(scale, scale)`, and we requested
+					// a canvas with extra scale as well, dividing, since the context will multiply it again.
+					contextToDraw.canvas.width / scale,
+					contextToDraw.canvas.height / scale,
+				);
+			}
+		},
 	};
 
 	const boundingRect = getBoxBasedOnBackgroundClip(
@@ -64,9 +68,9 @@ export const drawBackground = async ({
 		const originalWebkitBackgroundClip = element.style.webkitBackgroundClip;
 		element.style.backgroundClip = 'initial';
 		element.style.webkitBackgroundClip = 'initial';
-		const drawn = await getClippedBackground({
+		const onlyBackgroundClipText = await createLayer({
 			element,
-			boundingRect: new DOMRect(
+			cutout: new DOMRect(
 				boundingRect.left + parentOffsetLeft,
 				boundingRect.top + parentOffsetTop,
 				boundingRect.width,
@@ -74,55 +78,36 @@ export const drawBackground = async ({
 			),
 			logLevel,
 			internalState,
+			scale,
+			onlyBackgroundClipText: true,
 		});
+		onlyBackgroundClipText.setTransform(new DOMMatrix().scale(scale, scale));
 		element.style.backgroundClip = originalBackgroundClip;
 		element.style.webkitBackgroundClip = originalWebkitBackgroundClip;
-		contextToDraw = drawn;
+		contextToDraw = onlyBackgroundClipText;
 		contextToDraw.globalCompositeOperation = 'source-in';
 	}
 
-	if (backgroundImage && backgroundImage !== 'none') {
-		const gradientInfo = parseLinearGradient(backgroundImage);
-		if (gradientInfo) {
-			const gradient = createCanvasGradient({
-				ctx: contextToDraw,
-				rect: boundingRect,
-				gradientInfo,
-				offsetLeft,
-				offsetTop,
-			});
-			const originalFillStyle = contextToDraw.fillStyle;
-			contextToDraw.fillStyle = gradient;
-			contextToDraw.fillRect(
-				boundingRect.left - offsetLeft,
-				boundingRect.top - offsetTop,
-				boundingRect.width,
-				boundingRect.height,
-			);
-			contextToDraw.fillStyle = originalFillStyle;
-			return finish();
-		}
+	const backgroundFill = getBackgroundFill({
+		backgroundImage,
+		backgroundColor,
+		contextToDraw,
+		boundingRect,
+		offsetLeft,
+		offsetTop,
+	});
+
+	if (!backgroundFill) {
+		return;
 	}
 
-	// Fallback to solid background color if no gradient was drawn
-	if (
-		backgroundColor &&
-		backgroundColor !== 'transparent' &&
-		!(
-			backgroundColor.startsWith('rgba') &&
-			(backgroundColor.endsWith(', 0)') || backgroundColor.endsWith(',0'))
-		)
-	) {
-		const originalFillStyle = contextToDraw.fillStyle;
-		contextToDraw.fillStyle = backgroundColor;
-		contextToDraw.fillRect(
-			boundingRect.left - offsetLeft,
-			boundingRect.top - offsetTop,
-			boundingRect.width,
-			boundingRect.height,
-		);
-		contextToDraw.fillStyle = originalFillStyle;
-	}
-
-	finish();
+	const originalFillStyle = contextToDraw.fillStyle;
+	contextToDraw.fillStyle = backgroundFill;
+	contextToDraw.fillRect(
+		boundingRect.left - offsetLeft,
+		boundingRect.top - offsetTop,
+		boundingRect.width,
+		boundingRect.height,
+	);
+	contextToDraw.fillStyle = originalFillStyle;
 };

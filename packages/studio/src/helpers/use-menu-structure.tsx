@@ -667,20 +667,22 @@ export const useMenuStructure = (
 				label: 'Tools',
 				leaveLeftPadding: false,
 				items: [
-					{
-						id: 'ask-ai',
-						value: 'ask-ai',
-						label: 'Ask AI',
-						onClick: () => {
-							closeMenu();
-							askAiModalRef.current?.toggle();
-						},
-						leftItem: null,
-						keyHint: `${cmdOrCtrlCharacter}+I`,
-						subMenu: null,
-						type: 'item' as const,
-						quickSwitcherLabel: 'Ask AI',
-					},
+					process.env.ASK_AI_ENABLED
+						? {
+								id: 'ask-ai',
+								value: 'ask-ai',
+								label: 'Ask AI',
+								onClick: () => {
+									closeMenu();
+									askAiModalRef.current?.toggle();
+								},
+								leftItem: null,
+								keyHint: `${cmdOrCtrlCharacter}+I`,
+								subMenu: null,
+								type: 'item' as const,
+								quickSwitcherLabel: 'Ask AI',
+							}
+						: null,
 					'EyeDropper' in window
 						? {
 								id: 'color-picker',
@@ -700,10 +702,10 @@ export const useMenuStructure = (
 					{
 						id: 'spring-editor',
 						value: 'spring-editor',
-						label: 'spring() Editor',
+						label: 'Timing Editor',
 						onClick: () => {
 							closeMenu();
-							window.open('https://springs.remotion.dev', '_blank');
+							window.open('https://www.remotion.dev/timing-editor', '_blank');
 						},
 						leftItem: null,
 						keyHint: null,

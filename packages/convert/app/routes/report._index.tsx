@@ -8,7 +8,13 @@ import {Label} from '~/components/ui/label';
 import {RadioGroup, RadioGroupItem} from '~/components/ui/radio';
 import {Textarea} from '~/components/ui/textarea';
 
-type Product = 'remotion' | 'media-parser' | 'webcodecs';
+type Product =
+	| 'remotion'
+	| 'media-parser'
+	| 'webcodecs'
+	| 'remotion-audio'
+	| 'remotion-video'
+	| 'other';
 type Usage = 'public-testset' | 'internally' | 'confidential';
 
 // 1GB file size limit
@@ -31,6 +37,7 @@ const Report: React.FC = () => {
 	const [url, setUrl] = useState<string | null>(null);
 	const [filename, setFilename] = useState<string | null>(null);
 	const [product, setProduct] = useState<Product | null>(null);
+	const [remotionVersion, setRemotionVersion] = useState('');
 	const [usage, setUsage] = useState<Usage | null>(null);
 	const [contact, setContact] = useState('');
 	const [fileSizeError, setFileSizeError] = useState<string | null>(null);
@@ -39,12 +46,18 @@ const Report: React.FC = () => {
 		type: 'idle',
 	});
 
+	const requiresRemotionVersion =
+		product === 'remotion' ||
+		product === 'remotion-audio' ||
+		product === 'remotion-video';
+
 	const submitPossible =
 		url &&
 		description &&
 		product &&
 		usage &&
 		contact &&
+		(!requiresRemotionVersion || remotionVersion) &&
 		(submitStatus.type === 'idle' || submitStatus.type === 'error');
 
 	const submit = useCallback(async () => {
@@ -64,6 +77,7 @@ const Report: React.FC = () => {
 					usage,
 					contact,
 					filename,
+					remotionVersion: requiresRemotionVersion ? remotionVersion : null,
 				}),
 				headers: {
 					'content-type': 'application/json',
@@ -73,7 +87,17 @@ const Report: React.FC = () => {
 		} catch (err) {
 			setSubmitStatus({type: 'error', err: err as Error});
 		}
-	}, [contact, description, filename, product, submitPossible, url, usage]);
+	}, [
+		contact,
+		description,
+		filename,
+		product,
+		remotionVersion,
+		requiresRemotionVersion,
+		submitPossible,
+		url,
+		usage,
+	]);
 
 	return (
 		<Page className="flex-col">
@@ -121,7 +145,26 @@ const Report: React.FC = () => {
 								Remotion - &lt;OffthreadVideo&gt;
 							</Label>
 						</div>
-
+						<div className="flex items-center space-x-2">
+							<RadioGroupItem
+								checked={product === 'remotion-audio'}
+								value="remotion-audio"
+								id="remotion-audio"
+							/>
+							<Label htmlFor="remotion-audio">
+								Remotion - &lt;Audio&gt; from @remotion/media
+							</Label>
+						</div>
+						<div className="flex items-center space-x-2">
+							<RadioGroupItem
+								checked={product === 'remotion-video'}
+								value="remotion-video"
+								id="remotion-video"
+							/>
+							<Label htmlFor="remotion-video">
+								Remotion - &lt;Video&gt; from @remotion/media
+							</Label>
+						</div>
 						<div className="flex items-center space-x-2">
 							<RadioGroupItem
 								checked={product === 'webcodecs'}
@@ -130,7 +173,41 @@ const Report: React.FC = () => {
 							/>
 							<Label htmlFor="webcodecs">remotion.dev/convert</Label>
 						</div>
+						<div className="flex items-center space-x-2">
+							<RadioGroupItem
+								checked={product === 'other'}
+								value="other"
+								id="other"
+							/>
+							<Label htmlFor="other">Other (mention below)</Label>
+						</div>
 					</RadioGroup>
+
+					{requiresRemotionVersion && (
+						<>
+							<h2 className="font-brand mt-5 font-bold">
+								Which version of Remotion are you using?
+							</h2>
+							<p className="text-muted-foreground text-sm">
+								Run `npx remotion version` to see. See{' '}
+								<a
+									href="https://remotion.dev/changelog"
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									remotion.dev/changelog
+								</a>{' '}
+								for latest version.
+							</p>
+							<Input
+								name="remotionVersion"
+								className="mt-3"
+								placeholder="e.g. 4.0.100"
+								value={remotionVersion}
+								onChange={(e) => setRemotionVersion(e.target.value)}
+							/>
+						</>
+					)}
 
 					<h2 className="font-brand mt-5 font-bold">Describe the issue:</h2>
 					<Textarea

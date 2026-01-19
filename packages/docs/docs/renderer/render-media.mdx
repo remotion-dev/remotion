@@ -54,7 +54,7 @@ Prefer a specific port that will be used to serve the Remotion project. If not s
 
 ### `outputLocation?`
 
-_string - optional since v3.0.26_
+_string, since v3.0.26_
 
 Where to save the output artifact to. Either an absolute path or a relative path that will be resolved relative to the current working directory. Must be a file path (not a folder).
 
@@ -75,7 +75,7 @@ Choose a suitable codec for your output media. Refer to the [Encoding guide](/do
 
 ### `inputProps?`
 
-_object - optional_
+_object_
 
 [Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
 Must be a JSON object.  
@@ -86,19 +86,17 @@ Make sure to also pass the same `inputProps` to [`selectComposition()`](/docs/re
 
 ### `frameRange?`
 
-_number | [number, number] - optional_
+_number | [number, number]_
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
 ### `concurrency?`
 
-_optional_
-
 A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use (e.g. `50%`), or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
 
 ### `metadata?`<AvailableFrom v="4.0.216" />
 
-_object - optional_
+_object_
 
 <Options id="metadata" />
 
@@ -133,7 +131,7 @@ Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and s
 
 ### `crf?`
 
-_number | null - optional_
+_number | null_
 
 The constant rate factor, controlling the quality. See: [Controlling quality using the CRF setting.](/docs/encoding/#controlling-quality-using-the-crf-setting)
 
@@ -151,7 +149,7 @@ If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot s
 
 ### `imageFormat?`
 
-_"jpeg" (default) | "png" | "none" - optional since v3.2.27_
+_"jpeg" (default) | "png" | "none", since v3.2.27_
 
 In which image format the frames should be rendered.
 
@@ -161,31 +159,25 @@ In which image format the frames should be rendered.
 
 ### `browserExecutable?`<AvailableFrom v="3.0.11" />
 
-_optional_
-
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
 ### `everyNthFrame?`<AvailableFrom v="3.1.0" />
-
-_optional_
 
 Renders only every nth frame. For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
 
 ### `numberOfGifLoops?`<AvailableFrom v="3.1.0" />
 
-_optional_
-
 <Options id="number-of-gif-loops" />
 
 ### `pixelFormat?`
 
-_string - optional_
+_string_
 
 [A custom pixel format to use.](/docs/transparent-videos/) Usually used for special use cases like transparent videos.
 
 ### `envVariables?`
 
-`Record<string, string> - optional`
+`Record<string, string>`
 
 An object containing environment variables to be injected in your project.
 
@@ -193,7 +185,7 @@ See: [Environment variables](/docs/env-variables/)
 
 ### `jpegQuality?`
 
-_number - optional_
+_number_
 
 Sets the quality of the generated JPEG images. Must be an integer between 0 and 100. Default is to leave it up to the browser, [current default is 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
@@ -201,7 +193,7 @@ Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
 
 ### `muted?`<AvailableFrom v="3.2.1" />
 
-_boolean - optional_
+_boolean_
 
 If set to true, no audio is being rendered.
 
@@ -211,13 +203,13 @@ If set to true, no audio is being rendered.
 
 ### `enforceAudioTrack?`<AvailableFrom v="3.2.1" />
 
-_boolean - optional_
+_boolean_
 
 Render a silent audio track if there wouldn't be any otherwise.
 
 ### `puppeteerInstance?`
 
-_puppeteer.Browser - optional_
+_puppeteer.Browser_
 
 An already open [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
@@ -227,19 +219,17 @@ Despite the name, not actually compatible with `puppeteer`, only with [`openBrow
 
 ### `scale?`
 
-_optional_
-
 Scales the output dimensions by a factor. See [Scaling](/docs/scaling) to learn more about this feature.
 
 ### `overwrite?`
 
-_boolean - optional_
+_boolean_
 
 If set to false, the output file will not be written if a file already exists.
 
 ### `onStart?`
 
-_function_ - optional
+_function_
 
 Callback function that gets called once the renderer has prepared to start rendering and has calculated the amount of frames that are going to be rendered:
 
@@ -263,7 +253,7 @@ const onStart = ({
 
 ### `onProgress?`
 
-_function - optional_
+_function_
 
 React to render progress. The following callback function is similar to how Remotion displays render progress on it's CLI:
 
@@ -308,7 +298,7 @@ The `progress` attribute is available from v3.2.17.
 
 ### `onDownload?`
 
-_function - optional_
+_function_
 
 If an audio (or a video with sound) is included in your project, Remotion needs to download it in order to use it's audio in the output file. You can use this callback to react to a download happening and progressing.
 
@@ -331,19 +321,19 @@ const onDownload: RenderMediaOnDownload = (src) => {
 
 ### `proResProfile?`
 
-_string - optional_
+_string_
 
 Sets a ProRes profile. Only applies to videos rendered with `prores` codec. See [Encoding guide](/docs/encoding/#controlling-quality-using-prores-profile) for possible options.
 
 ### `x264Preset?`
 
-_string - optional_
+_string_
 
 <Options id="x264-preset" />
 
 ### `onBrowserLog?`
 
-_function - optional_
+_function_
 
 Catch a console message being printed. Example:
 
@@ -360,19 +350,13 @@ const onBrowserLog = (log: BrowserLog) => {
 
 ### `timeoutInMilliseconds?`
 
-_optional_
-
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
 ### `cancelSignal?`<AvailableFrom v="3.0.15" />
 
-_optional_
-
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
 ### `chromiumOptions?`<AvailableFrom v="2.6.5" />
-
-_optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
@@ -416,7 +400,7 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 ### `ffmpegOverride?`<AvailableFrom v="3.2.22" />
 
-_function - optional_
+_function_
 
 Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
@@ -507,13 +491,13 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### ~~`dumpBrowserLogs?`~~
 
-_optional - default `false`, deprecated in v4.0_
+_default `false`, deprecated in v4.0_
 
 Deprecated in favor of [`logLevel`](#loglevel).
 
 ### ~~`verbose?`~~
 
-_optional, deprecated in v4.0_
+_deprecated in v4.0_
 
 Deprecated in favor of [`logLevel`](#loglevel).
 
@@ -526,13 +510,13 @@ The only argument `slowestFrames` is an array of the 10 slowest frames in the sh
 
 ### ~~`ffmpegExecutable`~~
 
-_removed in v4.0, string, optional_
+_removed in v4.0, string_
 
 An absolute path overriding the `ffmpeg` executable to use.
 
 ### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
 
-_removed in v4.0, optional_
+_removed in v4.0_
 
 An absolute path overriding the `ffprobe` executable to use.
 

@@ -1,4 +1,4 @@
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 
 interface HeaderProps {
@@ -8,7 +8,13 @@ interface HeaderProps {
 export function Header({ asLink = false }: HeaderProps) {
   const content = (
     <div className="flex items-center gap-3">
-      <Image src="/logo-white.svg" alt="Remotion" width={32} height={32} />
+      <img
+        src="/logo-white.svg"
+        alt="Remotion"
+        style={{
+          width: 32,
+        }}
+      />
       <span className="text-xl font-bold text-white font-sans">
         Remotion - Prompt to Motion Graphics
       </span>

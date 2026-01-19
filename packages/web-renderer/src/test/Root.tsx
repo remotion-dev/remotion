@@ -43,6 +43,8 @@ import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
+import {scaleFixture} from './fixtures/scale';
+import {scalePrecomposeFixture} from './fixtures/scale-precompose';
 import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
@@ -66,6 +68,8 @@ import {transformWithTranslate} from './fixtures/transforms/transform-with-trans
 import {withMargin} from './fixtures/transforms/with-margin';
 import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
 import {unwrapped} from './fixtures/unwrapped';
+import {whiteSpaceCollapsing} from './fixtures/whitespace-collapsing';
+import {whiteSpaceCollapsing2} from './fixtures/whitespace-collapsing-2';
 
 export const Root: React.FC = () => {
 	return (
@@ -91,6 +95,8 @@ export const Root: React.FC = () => {
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
+			<Composition {...scaleFixture} />
+			<Composition {...scalePrecomposeFixture} />
 			<Folder name="Opacity">
 				<Composition {...opacitySimple} />
 				<Composition {...opacityNested} />
@@ -129,6 +135,8 @@ export const Root: React.FC = () => {
 				<Composition {...webkitTextFillColor} />
 				<Composition {...backgroundClipText} />
 				<Composition {...backgroundClipText3dTransform} />
+				<Composition {...whiteSpaceCollapsing} />
+				<Composition {...whiteSpaceCollapsing2} />
 			</Folder>
 			<Folder name="Projects">
 				<Composition {...unwrapped} />

@@ -1,55 +1,8 @@
 import type {LogLevel} from 'remotion';
-import {drawDomElement} from './drawing/draw-dom-element';
-import type {ProcessNodeReturnValue} from './drawing/process-node';
-import {processNode} from './drawing/process-node';
-import {handleTextNode} from './drawing/text/handle-text-node';
 import type {InternalState} from './internal-state';
 import {createTreeWalkerCleanupAfterChildren} from './tree-walker-cleanup-after-children';
+import {walkOverNode} from './walk-over-node';
 import {skipToNextNonDescendant} from './walk-tree';
-
-const walkOverNode = ({
-	node,
-	context,
-	logLevel,
-	parentRect,
-	internalState,
-	rootElement,
-	onlyBackgroundClip,
-}: {
-	node: Node;
-	context: OffscreenCanvasRenderingContext2D;
-	logLevel: LogLevel;
-	parentRect: DOMRect;
-	internalState: InternalState;
-	rootElement: HTMLElement | SVGElement;
-	onlyBackgroundClip: boolean;
-}): Promise<ProcessNodeReturnValue> => {
-	if (node instanceof HTMLElement || node instanceof SVGElement) {
-		return processNode({
-			element: node,
-			context,
-			draw: drawDomElement(node),
-			logLevel,
-			parentRect,
-			internalState,
-			rootElement,
-		});
-	}
-
-	if (node instanceof Text) {
-		return handleTextNode({
-			node,
-			context,
-			logLevel,
-			parentRect,
-			internalState,
-			rootElement,
-			onlyBackgroundClip,
-		});
-	}
-
-	throw new Error('Unknown node type');
-};
 
 const getFilterFunction = (node: Node) => {
 	if (!(node instanceof Element)) {
@@ -78,36 +31,35 @@ export const compose = async ({
 	logLevel,
 	parentRect,
 	internalState,
-	onlyBackgroundClip,
+	onlyBackgroundClipText,
+	scale,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
-	onlyBackgroundClip: boolean;
+	onlyBackgroundClipText: boolean;
+	scale: number;
 }) => {
 	const treeWalker = document.createTreeWalker(
 		element,
-		onlyBackgroundClip
+		onlyBackgroundClipText
 			? NodeFilter.SHOW_TEXT
 			: NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
 		getFilterFunction,
 	);
 
 	// Skip to the first text node
-	if (onlyBackgroundClip) {
+	if (onlyBackgroundClipText) {
 		treeWalker.nextNode();
 		if (!treeWalker.currentNode) {
 			return;
 		}
 	}
 
-	const {
-		checkCleanUpAtBeginningOfIteration,
-		addCleanup,
-		cleanupInTheEndOfTheIteration,
-	} = createTreeWalkerCleanupAfterChildren(treeWalker);
+	using treeWalkerClean = createTreeWalkerCleanupAfterChildren(treeWalker);
+	const {checkCleanUpAtBeginningOfIteration, addCleanup} = treeWalkerClean;
 
 	while (true) {
 		checkCleanUpAtBeginningOfIteration();
@@ -119,7 +71,8 @@ export const compose = async ({
 			parentRect,
 			internalState,
 			rootElement: element,
-			onlyBackgroundClip,
+			onlyBackgroundClipText,
+			scale,
 		});
 		if (val.type === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {
@@ -135,6 +88,4 @@ export const compose = async ({
 			}
 		}
 	}
-
-	cleanupInTheEndOfTheIteration();
 };

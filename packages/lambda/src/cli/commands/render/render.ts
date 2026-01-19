@@ -513,6 +513,9 @@ export const renderCommand = async ({
 					},
 					providerSpecifics: providerSpecifics,
 					forcePathStyle: parsedLambdaCli['force-path-style'],
+					signal: new AbortController().signal,
+					customCredentials: null,
+					requestHandler: null,
 				});
 				downloadOrNothing = download;
 				progressBar.update(

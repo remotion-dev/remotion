@@ -43,6 +43,6 @@ export const createTreeWalkerCleanupAfterChildren = (
 	return {
 		checkCleanUpAtBeginningOfIteration,
 		addCleanup,
-		cleanupInTheEndOfTheIteration,
+		[Symbol.dispose]: cleanupInTheEndOfTheIteration,
 	};
 };

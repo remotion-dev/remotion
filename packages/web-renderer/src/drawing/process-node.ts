@@ -1,5 +1,6 @@
 import {Internals, type LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
+import {createLayer} from '../take-screenshot';
 import {calculateTransforms} from './calculate-transforms';
 import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
 import {doRectsIntersect} from './do-rects-intersect';
@@ -10,8 +11,8 @@ import {
 	handle3dTransform,
 } from './handle-3d-transform';
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
-import {precomposeDOMElement} from './precompose';
 import {roundToExpandRect} from './round-to-expand-rect';
+import {scaleRect} from './scale-rect';
 import {transformDOMRect} from './transform-rect-with-matrix';
 
 export type ProcessNodeReturnValue =
@@ -26,6 +27,7 @@ export const processNode = async ({
 	parentRect,
 	internalState,
 	rootElement,
+	scale,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -34,6 +36,7 @@ export const processNode = async ({
 	parentRect: DOMRect;
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
+	scale: number;
 }): Promise<ProcessNodeReturnValue> => {
 	using transforms = calculateTransforms({
 		element,
@@ -102,19 +105,24 @@ export const processNode = async ({
 			return {type: 'continue', cleanupAfterChildren: null};
 		}
 
-		const {tempCanvas, tempContext} = await precomposeDOMElement({
-			boundingRect: precomposeRect,
+		const tempContext = await createLayer({
+			cutout: precomposeRect,
 			element,
 			logLevel,
 			internalState,
+			scale,
+			onlyBackgroundClipText: false,
 		});
 
-		let drawable: OffscreenCanvas | null = tempCanvas;
+		let drawable: OffscreenCanvas | null = tempContext.canvas;
 
 		const rectAfterTransforms = roundToExpandRect(
-			transformDOMRect({
-				rect: precomposeRect,
-				matrix: totalMatrix,
+			scaleRect({
+				scale,
+				rect: transformDOMRect({
+					rect: precomposeRect,
+					matrix: totalMatrix,
+				}),
 			}),
 		);
 
@@ -124,6 +132,7 @@ export const processNode = async ({
 				rect,
 				precomposeRect,
 				tempContext,
+				scale,
 			});
 		}
 
@@ -134,6 +143,7 @@ export const processNode = async ({
 				tempCanvas: drawable,
 				rectAfterTransforms,
 				internalState,
+				scale,
 			});
 			if (t) {
 				drawable = t;
@@ -141,34 +151,33 @@ export const processNode = async ({
 		}
 
 		const previousTransform = context.getTransform();
-		if (drawable) {
-			context.setTransform(new DOMMatrix());
-			context.drawImage(
-				drawable,
-				0,
-				drawable.height - rectAfterTransforms.height,
-				rectAfterTransforms.width,
-				rectAfterTransforms.height,
-				rectAfterTransforms.left - parentRect.x,
-				rectAfterTransforms.top - parentRect.y,
-				rectAfterTransforms.width,
-				rectAfterTransforms.height,
-			);
 
-			context.setTransform(previousTransform);
+		context.setTransform(new DOMMatrix());
+		context.drawImage(
+			drawable,
+			0,
+			drawable.height - rectAfterTransforms.height,
+			rectAfterTransforms.width,
+			rectAfterTransforms.height,
+			rectAfterTransforms.left - parentRect.x,
+			rectAfterTransforms.top - parentRect.y,
+			rectAfterTransforms.width,
+			rectAfterTransforms.height,
+		);
 
-			Internals.Log.trace(
-				{
-					logLevel,
-					tag: '@remotion/web-renderer',
-				},
-				`Transforming element in 3D - canvas size: ${precomposeRect.width}x${precomposeRect.height} - compose: ${Date.now() - start}ms - helper canvas: ${drawable.width}x${drawable.height}`,
-			);
-			internalState.addPrecompose({
-				canvasWidth: precomposeRect.width,
-				canvasHeight: precomposeRect.height,
-			});
-		}
+		context.setTransform(previousTransform);
+
+		Internals.Log.trace(
+			{
+				logLevel,
+				tag: '@remotion/web-renderer',
+			},
+			`Transforming element in 3D - canvas size: ${precomposeRect.width}x${precomposeRect.height} - compose: ${Date.now() - start}ms - helper canvas: ${drawable.width}x${drawable.height}`,
+		);
+		internalState.addPrecompose({
+			canvasWidth: precomposeRect.width,
+			canvasHeight: precomposeRect.height,
+		});
 
 		return {type: 'skip-children'};
 	}
@@ -184,6 +193,7 @@ export const processNode = async ({
 		logLevel,
 		element,
 		internalState,
+		scale,
 	});
 
 	return {type: 'continue', cleanupAfterChildren};

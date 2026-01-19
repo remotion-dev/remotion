@@ -2,19 +2,20 @@ import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import type {DrawFn} from '../drawn-fn';
 import {applyTextTransform} from './apply-text-transform';
-import {findLineBreaks} from './find-line-breaks.text';
-import {getCollapsedText} from './get-collapsed-text';
+import {findWords} from './find-line-breaks.text';
 
 export const drawText = ({
 	span,
 	logLevel,
-	onlyBackgroundClip,
+	onlyBackgroundClipText,
+	parentRect,
 }: {
 	span: HTMLSpanElement;
 	logLevel: LogLevel;
-	onlyBackgroundClip: boolean;
+	parentRect: DOMRect;
+	onlyBackgroundClipText: boolean;
 }) => {
-	const drawFn: DrawFn = ({dimensions: rect, computedStyle, contextToDraw}) => {
+	const drawFn: DrawFn = ({computedStyle, contextToDraw}) => {
 		const {
 			fontFamily,
 			fontSize,
@@ -46,7 +47,7 @@ export const drawText = ({
 		contextToDraw.fillStyle =
 			// If text is being applied with backgroundClipText, we need to use a solid color otherwise it won't get
 			// applied in canvas
-			onlyBackgroundClip
+			onlyBackgroundClipText
 				? 'black'
 				: // -webkit-text-fill-color overrides color, and defaults to the value of `color`
 					webkitTextFillColor;
@@ -57,32 +58,25 @@ export const drawText = ({
 		contextToDraw.textBaseline = 'alphabetic';
 
 		const originalText = span.textContent;
-		const collapsedText = getCollapsedText(span);
-		const transformedText = applyTextTransform(collapsedText, textTransform);
+		const transformedText = applyTextTransform(originalText, textTransform);
 		span.textContent = transformedText;
 
-		// For RTL text, fill from the right edge instead of left
-		const xPosition = isRTL ? rect.right : rect.left;
-		const lines = findLineBreaks(span, isRTL);
+		const tokens = findWords(span);
 
-		let offsetTop = 0;
+		for (const token of tokens) {
+			const measurements = contextToDraw.measureText(originalText);
+			const {fontBoundingBoxDescent, fontBoundingBoxAscent} = measurements;
 
-		const measurements = contextToDraw.measureText(lines[0].text);
-		const {fontBoundingBoxDescent, fontBoundingBoxAscent} = measurements;
-
-		const fontHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
-
-		for (const line of lines) {
+			const fontHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
 			// Calculate leading
-			const leading = line.height - fontHeight;
+			const leading = token.rect.height - fontHeight;
 			const halfLeading = leading / 2;
 
 			contextToDraw.fillText(
-				line.text,
-				xPosition + line.offsetHorizontal,
-				rect.top + halfLeading + fontBoundingBoxAscent + offsetTop,
+				token.text,
+				(isRTL ? token.rect.right : token.rect.left) - parentRect.x,
+				token.rect.top + fontBoundingBoxAscent + halfLeading - parentRect.y,
 			);
-			offsetTop += line.height;
 		}
 
 		span.textContent = originalText;

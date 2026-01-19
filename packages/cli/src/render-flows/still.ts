@@ -82,6 +82,9 @@ export const renderStillFlow = async ({
 	offthreadVideoThreads,
 	audioLatencyHint,
 	mediaCacheSizeInBytes,
+	askAIEnabled,
+	experimentalClientSideRenderingEnabled,
+	keyboardShortcutsEnabled,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -116,6 +119,9 @@ export const renderStillFlow = async ({
 	chromeMode: ChromeMode;
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	mediaCacheSizeInBytes: number | null;
+	askAIEnabled: boolean;
+	experimentalClientSideRenderingEnabled: boolean;
+	keyboardShortcutsEnabled: boolean;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -216,7 +222,9 @@ export const renderStillFlow = async ({
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint,
-			experimentalClientSideRenderingEnabled: false,
+			experimentalClientSideRenderingEnabled,
+			askAIEnabled,
+			keyboardShortcutsEnabled,
 		},
 	);
 

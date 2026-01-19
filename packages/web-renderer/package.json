@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/web-renderer"
 	},
 	"name": "@remotion/web-renderer",
-	"version": "4.0.405",
+	"version": "4.0.407",
 	"main": "dist/index.js",
 	"type": "module",
 	"sideEffects": false,
@@ -11,6 +11,7 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts",
+		"watch": "tsgo -w",
 		"testwebrenderer": "vitest src/test --browser --run",
 		"studio": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts --public-dir=../example-videos/videos",
 		"remotion": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts --public-dir=../example-videos/videos"
@@ -26,7 +27,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/media": "workspace:*",
-		"@typescript/native-preview": "7.0.0-dev.20260105.1",
+		"@typescript/native-preview": "catalog:",
 		"@vitejs/plugin-react": "catalog:",
 		"@vitest/browser-playwright": "catalog:",
 		"playwright": "catalog:",

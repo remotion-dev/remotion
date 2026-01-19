@@ -57,19 +57,7 @@ For text nodes, more layout calculations need to be made.
 
 Normally, it is not possible to get the bounding box of a text node, but by wrapping a text node in a `<span>` element, we can call `.getBoundingClientRect()` on the span to get the bounding box and resolve the transforms as described [above](#frame-capture-process).
 
-Using the Canvas 2D API, text is drawn to the canvas, and styles such as `font-weight`, `font-size` are applied by getting the [computed style](https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle) of the `<span>`.
-
-Several edge cases require special handling:
-
-**White space collapsing**: When a text node starts with whitespace and lands at the beginning of a line, or contains multiple consecutive spaces, the browser may collapse them. To detect this, whitespace is temporarily removed from the string, then added back to the DOM to check if the layout changes, indicating whether whitespace collapsing is applied.
-
-**Line wrapping**: The exact point where text wraps to a new line is not directly detectable. To determine this, the `<span>` is cleared and filled word by word. When the bounding box grows its height, it indicates that the last word wrapped to a new line.
-
-**Non-Latin characters**: Languages like Chinese don't require spaces between characters for word wrapping eligibility. Instead of using `.split(' ')`, the [Intl.Segmenter API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter) is used to identify word boundaries for proper line breaking.
-
-**RTL support**: Right-to-left text (e.g., Arabic or Persian) within a left-to-right string that wraps across multiple lines requires special handling. For example, "من فارسی صحبت میکنم" should render as "من فارسی صحبت" on the first line and "میکنم" on the second line, meaning the word order changes when split across lines. When `.getClientRects()` returns multiple rectangles for the same node (indicating non-contiguous layout), the second line must be drawn with a large horizontal offset from the right edge, which is not obvious since RTL line breaks normally reset the position to the right edge.
-
-**Vertical text**: Vertical text layout is not supported by the Canvas API and is out of scope for now.
+Then `Intl.Segmenter` is used to split the text into words, and each token is again wrapped in a `<span>`. For each token, `.getBoundingClientRect()` is called and the tokens are drawn to the canvas.
 
 In the end, the DOM is reset to its original state.
 

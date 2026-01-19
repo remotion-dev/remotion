@@ -1,22 +1,25 @@
 import type {LogLevel} from 'remotion';
 import {compose} from './compose';
 import type {InternalState} from './internal-state';
-import type {RenderStillOnWebImageFormat} from './render-still-on-web';
 
-export const createFrame = async ({
-	div,
-	width,
-	height,
+export const createLayer = async ({
+	element,
+	scale,
 	logLevel,
 	internalState,
+	onlyBackgroundClipText,
+	cutout,
 }: {
-	div: HTMLDivElement;
-	width: number;
-	height: number;
+	element: HTMLElement | SVGElement;
+	scale: number;
 	logLevel: LogLevel;
 	internalState: InternalState;
+	onlyBackgroundClipText: boolean;
+	cutout: DOMRect;
 }) => {
-	const canvas = new OffscreenCanvas(width, height);
+	const scaledWidth = Math.ceil(cutout.width * scale);
+	const scaledHeight = Math.ceil(cutout.height * scale);
+	const canvas = new OffscreenCanvas(scaledWidth, scaledHeight);
 	const context = canvas.getContext('2d');
 
 	if (!context) {
@@ -24,43 +27,14 @@ export const createFrame = async ({
 	}
 
 	await compose({
-		element: div,
+		element,
 		context,
 		logLevel,
-		parentRect: new DOMRect(0, 0, width, height),
+		parentRect: cutout,
 		internalState,
-		onlyBackgroundClip: false,
+		onlyBackgroundClipText,
+		scale,
 	});
 
-	return canvas;
-};
-
-export const takeScreenshot = async ({
-	div,
-	width,
-	height,
-	imageFormat,
-	logLevel,
-	internalState,
-}: {
-	div: HTMLDivElement;
-	width: number;
-	height: number;
-	imageFormat: RenderStillOnWebImageFormat;
-	logLevel: LogLevel;
-	internalState: InternalState;
-}) => {
-	const frame = await createFrame({
-		div,
-		width,
-		height,
-		logLevel,
-		internalState,
-	});
-
-	const imageData = await frame.convertToBlob({
-		type: `image/${imageFormat}`,
-	});
-
-	return imageData;
+	return context;
 };

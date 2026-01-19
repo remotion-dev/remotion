@@ -2,13 +2,19 @@ import {
 	Button,
 	Card,
 	Counter,
+	InlineCode,
 	Input,
+	Link,
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
 	Switch,
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
 	Textarea,
 } from '@remotion/design';
 import {useCallback, useState} from 'react';
@@ -113,6 +119,48 @@ export const DesignPage: React.FC = () => {
 				<Explainer>Circular</Explainer>
 				<Button className="rounded-full bg-brand w-12 h-12" />
 				<div className="h-8" />
+				<Explainer>Remove</Explainer>
+				<Button
+					className="hover:text-white hover:bg-warn transition-colors w-10 h-10 p-0 rounded-full"
+					depth={0.5}
+				>
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 10 10"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M1 1L9 9M1 9L9 1"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+						/>
+					</svg>
+				</Button>
+				<div className="h-8" />
+				<Explainer>Remove (small)</Explainer>
+				<Button
+					className="hover:text-white hover:bg-warn transition-colors w-6 h-6 p-0 rounded-full"
+					depth={0.5}
+				>
+					<svg
+						width="10"
+						height="10"
+						viewBox="0 0 10 10"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M1 1L9 9M1 9L9 1"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+						/>
+					</svg>
+				</Button>
+				<div className="h-8" />
 				<h2 className="text-brand">&lt;Counter /&gt;</h2>
 				<Counter
 					count={count}
@@ -144,6 +192,24 @@ export const DesignPage: React.FC = () => {
 					</SelectContent>
 				</Select>
 				<br />
+				<h2 className="text-brand">&lt;Tabs /&gt;</h2>
+				<Tabs defaultValue="tab1">
+					<TabsList>
+						<TabsTrigger value="tab1">Tab 1</TabsTrigger>
+						<TabsTrigger value="tab2">Tab 2</TabsTrigger>
+						<TabsTrigger value="tab3">Tab 3</TabsTrigger>
+					</TabsList>
+					<TabsContent value="tab1">
+						<div className="font-brand">Content for Tab 1</div>
+					</TabsContent>
+					<TabsContent value="tab2">
+						<div className="font-brand">Content for Tab 2</div>
+					</TabsContent>
+					<TabsContent value="tab3">
+						<div className="font-brand">Content for Tab 3</div>
+					</TabsContent>
+				</Tabs>
+				<br />
 				<h2 className="text-brand">&lt;Input /&gt;</h2>
 				<Input placeholder="Enter your email" />
 				<br />
@@ -151,6 +217,26 @@ export const DesignPage: React.FC = () => {
 				<h2 className="text-brand">&lt;Textarea /&gt;</h2>
 				<Textarea placeholder="Enter your message" />
 				<br />
+				<br />
+				<h2 className="text-brand">&lt;InlineCode /&gt;</h2>
+				<p className="font-brand">
+					Use <InlineCode>useCurrentFrame()</InlineCode> to get the current
+					frame and <InlineCode>useVideoConfig()</InlineCode> to get the video
+					configuration.
+				</p>
+				<br />
+				<h2 className="text-brand">&lt;Link /&gt;</h2>
+				<p className="font-brand">
+					See the{' '}
+					<Link
+						href="https://www.remotion.dev/docs"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Remotion documentation
+					</Link>{' '}
+					for more information.
+				</p>
 				<br />
 				<br />
 				<h1>Example form set</h1>

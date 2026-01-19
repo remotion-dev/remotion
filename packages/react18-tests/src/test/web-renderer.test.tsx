@@ -1,5 +1,6 @@
 import {renderStillOnWeb} from '@remotion/web-renderer';
-import {test} from 'vitest';
+import React, {useEffect} from 'react';
+import {expect, test} from 'vitest';
 
 test('should render still on web', async () => {
 	const Component: React.FC = () => {
@@ -27,4 +28,36 @@ test('should render still on web', async () => {
 	});
 
 	// It worked!
+});
+
+class UseEffectError extends Error {
+	name = 'UseEffectError';
+}
+
+// in react 18, errors were re-thrown
+// in react 19, errors are not re-thrown and onUncaughtError was introduced
+test('should propagate errors thrown in useEffect (React 18)', async () => {
+	const ThrowsInUseEffect: React.FC = () => {
+		useEffect(() => {
+			throw new UseEffectError('Error from useEffect');
+		}, []);
+		return <div>Hello</div>;
+	};
+
+	await expect(
+		renderStillOnWeb({
+			licenseKey: 'free-license',
+			composition: {
+				component: ThrowsInUseEffect,
+				id: 'throws-in-useeffect-react18',
+				width: 100,
+				height: 100,
+				fps: 30,
+				durationInFrames: 30,
+			},
+			frame: 0,
+			inputProps: {},
+			imageFormat: 'png',
+		}),
+	).rejects.toThrow(UseEffectError);
 });

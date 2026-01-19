@@ -8,7 +8,7 @@ import {onlyInlineAudio} from './audio';
 import {createBackgroundKeepalive} from './background-keepalive';
 import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createAudioSampleSource} from './create-audio-sample-source';
-import {createScaffold} from './create-scaffold';
+import {checkForError, createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
@@ -38,8 +38,9 @@ import type {
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
-import {createFrame} from './take-screenshot';
+import {createLayer} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
+import {validateScale} from './validate-scale';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
 import {waitForReady} from './wait-for-ready';
 import {cleanupStaleOpfsFiles, createWebFsTarget} from './web-fs-target';
@@ -110,6 +111,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	outputTarget: WebRendererOutputTarget | null;
 	licenseKey: string | undefined;
 	muted: boolean;
+	scale: number;
 };
 
 export type RenderMediaOnWebOptions<
@@ -157,10 +159,12 @@ const internalRenderMediaOnWeb = async <
 	outputTarget: userDesiredOutputTarget,
 	licenseKey,
 	muted,
+	scale,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
 >): Promise<RenderMediaOnWebResult> => {
+	validateScale(scale);
 	const outputTarget =
 		userDesiredOutputTarget === null
 			? (await canUseWebFsWriter())
@@ -237,7 +241,7 @@ const internalRenderMediaOnWeb = async <
 		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
 	}
 
-	using scaffold = await createScaffold({
+	using scaffold = createScaffold({
 		width: resolved.width,
 		height: resolved.height,
 		fps: resolved.fps,
@@ -256,7 +260,8 @@ const internalRenderMediaOnWeb = async <
 		defaultOutName: resolved.defaultOutName,
 	});
 
-	const {delayRenderScope, div, timeUpdater, collectAssets} = scaffold;
+	const {delayRenderScope, div, timeUpdater, collectAssets, errorHolder} =
+		scaffold;
 
 	using internalState = makeInternalState();
 
@@ -295,6 +300,7 @@ const internalRenderMediaOnWeb = async <
 			internalState,
 			keepalive,
 		});
+		checkForError(errorHolder);
 
 		if (signal?.aborted) {
 			throw new Error('renderMediaOnWeb() was cancelled');
@@ -346,6 +352,7 @@ const internalRenderMediaOnWeb = async <
 			}
 
 			timeUpdater.current?.update(frame);
+
 			await waitForReady({
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 				scope: delayRenderScope,
@@ -354,18 +361,20 @@ const internalRenderMediaOnWeb = async <
 				keepalive,
 				internalState,
 			});
+			checkForError(errorHolder);
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 
 			const createFrameStart = performance.now();
-			const imageData = await createFrame({
-				div,
-				width: resolved.width,
-				height: resolved.height,
+			const layer = await createLayer({
+				element: div,
+				scale,
 				logLevel,
 				internalState,
+				onlyBackgroundClipText: false,
+				cutout: new DOMRect(0, 0, resolved.width, resolved.height),
 			});
 			internalState.addCreateFrameTime(performance.now() - createFrameStart);
 
@@ -376,7 +385,7 @@ const internalRenderMediaOnWeb = async <
 			const timestamp = Math.round(
 				((frame - realFrameRange[0]) / resolved.fps) * 1_000_000,
 			);
-			const videoFrame = new VideoFrame(imageData, {
+			const videoFrame = new VideoFrame(layer.canvas, {
 				timestamp,
 			});
 			progress.renderedFrames++;
@@ -393,8 +402,8 @@ const internalRenderMediaOnWeb = async <
 				frameToEncode = validateVideoFrame({
 					originalFrame: videoFrame,
 					returnedFrame,
-					expectedWidth: resolved.width,
-					expectedHeight: resolved.height,
+					expectedWidth: Math.round(resolved.width * scale),
+					expectedHeight: Math.round(resolved.height * scale),
 					expectedTimestamp: timestamp,
 				});
 			}
@@ -403,7 +412,7 @@ const internalRenderMediaOnWeb = async <
 			const assets = collectAssets.current!.collectAssets();
 			if (onArtifact) {
 				await artifactsHandler.handle({
-					imageData,
+					imageData: layer.canvas,
 					frame,
 					assets,
 					onArtifact,
@@ -550,6 +559,7 @@ export const renderMediaOnWeb = <
 				outputTarget: options.outputTarget ?? null,
 				licenseKey: options.licenseKey ?? undefined,
 				muted: options.muted ?? false,
+				scale: options.scale ?? 1,
 			}),
 		);
 

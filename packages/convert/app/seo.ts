@@ -75,6 +75,9 @@ export type RouteAction =
 	  }
 	| {
 			type: 'transcribe';
+	  }
+	| {
+			type: 'timing-editor';
 	  };
 
 export const getHeaderTitle = (routeAction: RouteAction) => {
@@ -120,6 +123,10 @@ export const getHeaderTitle = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'transcribe') {
 		return 'Fast video and audio transcription in the browser';
+	}
+
+	if (routeAction.type === 'timing-editor') {
+		return 'Remotion Timing Editor';
 	}
 
 	if (routeAction.type === 'generic-crop') {
@@ -176,6 +183,10 @@ export const getPageTitle = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'transcribe') {
 		return `Online Audio and Video Transcriber - Remotion Convert`;
+	}
+
+	if (routeAction.type === 'timing-editor') {
+		return `Remotion Timing Editor - Springs, easing, interpolation, and more`;
 	}
 
 	if (routeAction.type === 'generic-crop') {
@@ -240,6 +251,10 @@ export const getDescription = (routeAction: RouteAction) => {
 		return `A free and local online audio and video transcriber, powered by Whisper. No upload required, no watermarks, no limits.`;
 	}
 
+	if (routeAction.type === 'timing-editor') {
+		return `Design and visualize animation timing curves with springs, easing functions, and sine waves.`;
+	}
+
 	if (routeAction.type === 'generic-crop') {
 		return `The fastest online video cropper, powered by WebCodecs. No upload required, no watermarks, no limits.`;
 	}
@@ -294,6 +309,10 @@ export const makeSlug = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'transcribe') {
 		return '/transcribe';
+	}
+
+	if (routeAction.type === 'timing-editor') {
+		return '/timing-editor';
 	}
 
 	if (routeAction.type === 'generic-crop') {
