@@ -6,7 +6,8 @@
 		"resolveJsonModule": false,
 		"skipLibCheck": true,
 		"jsx": "react-jsx",
-		"noEmit": true
+		"noEmit": true,
+		"include": ["./src", "./skills"],
 	},
 	"references": []
 }
