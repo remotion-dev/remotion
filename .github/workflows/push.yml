@@ -22,12 +22,11 @@ jobs:
       - name: Check for changes
         id: check
         run: |
-          npx turbo-ignore @remotion/webcodecs --task=testwebcodecs
-          echo "should_run=false" >> $GITHUB_OUTPUT
-        continue-on-error: true
-      - name: Set should_run if changes detected
-        if: steps.check.outcome == 'failure'
-        run: echo "should_run=true" >> $GITHUB_OUTPUT
+          if npx turbo-ignore @remotion/webcodecs --task=testwebcodecs; then
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          fi
   check-webrenderer:
     runs-on: ubuntu-latest
     name: Check webrenderer changes
@@ -40,12 +39,11 @@ jobs:
       - name: Check for changes
         id: check
         run: |
-          npx turbo-ignore @remotion/web-renderer --task=testwebrenderer
-          echo "should_run=false" >> $GITHUB_OUTPUT
-        continue-on-error: true
-      - name: Set should_run if changes detected
-        if: steps.check.outcome == 'failure'
-        run: echo "should_run=true" >> $GITHUB_OUTPUT
+          if npx turbo-ignore @remotion/web-renderer --task=testwebrenderer; then
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          fi
   lambda-tests:
     runs-on: ubuntu-latest
     name: Lambda integration
