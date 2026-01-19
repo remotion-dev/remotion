@@ -1,0 +1,8 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/skills"
+	},
+	"name": "skills",
+	"private": true,
+	"version": "4.0.407"
+}
