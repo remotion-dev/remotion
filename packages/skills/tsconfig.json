@@ -7,7 +7,7 @@
 		"skipLibCheck": true,
 		"jsx": "react-jsx",
 		"noEmit": true,
-		"include": ["./src", "./skills"],
 	},
+	"include": ["./src", "./skills"],
 	"references": []
 }
