@@ -34,6 +34,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	audioLatencyHint,
 	experimentalClientSideRenderingEnabled,
 	askAIEnabled,
+	keyboardShortcutsEnabled,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -55,6 +56,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	experimentalClientSideRenderingEnabled: boolean;
 	askAIEnabled: boolean;
+	keyboardShortcutsEnabled: boolean;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -97,7 +99,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		audioLatencyHint,
 		experimentalClientSideRenderingEnabled,
 		askAIEnabled,
-		keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
+		keyboardShortcutsEnabled,
 	});
 
 	return {

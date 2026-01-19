@@ -126,6 +126,7 @@ export const renderVideoFlow = async ({
 	mediaCacheSizeInBytes,
 	askAIEnabled,
 	experimentalClientSideRenderingEnabled,
+	keyboardShortcutsEnabled,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -188,6 +189,7 @@ export const renderVideoFlow = async ({
 	mediaCacheSizeInBytes: number | null;
 	askAIEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
+	keyboardShortcutsEnabled: boolean;
 }) => {
 	let bundlingProgress: BundlingState | null = null;
 	let renderingProgress: RenderingProgressInput | null = null;
@@ -330,6 +332,7 @@ export const renderVideoFlow = async ({
 			audioLatencyHint,
 			experimentalClientSideRenderingEnabled,
 			askAIEnabled,
+			keyboardShortcutsEnabled,
 		},
 	);
 

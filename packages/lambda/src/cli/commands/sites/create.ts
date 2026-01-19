@@ -37,6 +37,7 @@ const {
 	disableGitSourceOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const sitesCreateSubcommand = async (
@@ -176,8 +177,9 @@ export const sitesCreateSubcommand = async (
 		experimentalClientSideRenderingOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
-	const keyboardShortcutsEnabled =
-		ConfigInternals.getKeyboardShortcutsEnabled();
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const {serveUrl, siteName, stats} = await LambdaInternals.internalDeploySite({
 		entryPoint: file,

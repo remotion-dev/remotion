@@ -59,6 +59,7 @@ const {
 	darkModeOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -239,6 +240,9 @@ export const benchmarkCommand = async (
 		experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
 			.value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	if (experimentalClientSideRenderingEnabled) {
 		Log.warn(
@@ -310,6 +314,7 @@ export const benchmarkCommand = async (
 			audioLatencyHint: null,
 			experimentalClientSideRenderingEnabled,
 			askAIEnabled,
+			keyboardShortcutsEnabled,
 		});
 
 	registerCleanupJob(`Deleting bundle`, () => cleanupBundle());

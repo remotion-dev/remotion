@@ -29,6 +29,7 @@ const {
 	darkModeOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -131,6 +132,9 @@ export const still = async (
 	}).value;
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
@@ -187,5 +191,6 @@ export const still = async (
 		experimentalClientSideRenderingEnabled:
 			experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
 				.value,
+		keyboardShortcutsEnabled,
 	});
 };

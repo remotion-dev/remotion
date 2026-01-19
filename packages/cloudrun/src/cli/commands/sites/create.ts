@@ -28,6 +28,7 @@ const {
 	disableGitSourceOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const SITES_CREATE_SUBCOMMAND = 'create';
@@ -161,8 +162,9 @@ export const sitesCreateSubcommand = async (
 		experimentalClientSideRenderingOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
-	const keyboardShortcutsEnabled =
-		ConfigInternals.getKeyboardShortcutsEnabled();
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const {serveUrl, siteName, stats} = await internalDeploySiteRaw({
 		entryPoint: file,

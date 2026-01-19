@@ -7,8 +7,12 @@ import {getCliOptions} from '../get-cli-options';
 import {parsedCli} from '../parsed-cli';
 import {renderVideoFlow} from '../render-flows/render';
 
-const {publicDirOption, askAIOption, experimentalClientSideRenderingOption} =
-	BrowserSafeApis.options;
+const {
+	publicDirOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
+} = BrowserSafeApis.options;
 
 export const processVideoJob = async ({
 	job,
@@ -33,6 +37,9 @@ export const processVideoJob = async ({
 		commandLine: parsedCli,
 	}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const {browserExecutable, ffmpegOverride} = getCliOptions({
 		isStill: true,
@@ -109,5 +116,6 @@ export const processVideoJob = async ({
 		experimentalClientSideRenderingEnabled:
 			experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
 				.value,
+		keyboardShortcutsEnabled,
 	});
 };

@@ -28,6 +28,7 @@ const {
 	darkModeOption,
 	askAIOption: askAIOption,
 	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -123,6 +124,9 @@ export const listCompositionsCommand = async (
 	const experimentalClientSideRenderingEnabled =
 		experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
 			.value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	if (experimentalClientSideRenderingEnabled) {
 		Log.warn(
@@ -155,6 +159,7 @@ export const listCompositionsCommand = async (
 			audioLatencyHint,
 			experimentalClientSideRenderingEnabled,
 			askAIEnabled,
+			keyboardShortcutsEnabled,
 		});
 
 	registerCleanupJob(`Cleanup bundle`, () => cleanupBundle());

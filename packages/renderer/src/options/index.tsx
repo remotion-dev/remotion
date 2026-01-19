@@ -25,6 +25,7 @@ import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
 import {imageSequencePatternOption} from './image-sequence-pattern';
 import {jpegQualityOption} from './jpeg-quality';
+import {keyboardShortcutsOption} from './keyboard-shortcuts';
 import {audioLatencyHintOption} from './latency-hint';
 import {licenseKeyOption} from './license-key';
 import {logLevelOption} from './log-level';
@@ -103,6 +104,7 @@ export const allOptions = {
 	publicLicenseKeyOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

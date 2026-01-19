@@ -84,6 +84,7 @@ export const renderStillFlow = async ({
 	mediaCacheSizeInBytes,
 	askAIEnabled,
 	experimentalClientSideRenderingEnabled,
+	keyboardShortcutsEnabled,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -120,6 +121,7 @@ export const renderStillFlow = async ({
 	mediaCacheSizeInBytes: number | null;
 	askAIEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
+	keyboardShortcutsEnabled: boolean;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -222,6 +224,7 @@ export const renderStillFlow = async ({
 			audioLatencyHint,
 			experimentalClientSideRenderingEnabled,
 			askAIEnabled,
+			keyboardShortcutsEnabled,
 		},
 	);
 

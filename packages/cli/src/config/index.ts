@@ -66,10 +66,6 @@ import {
 import {setFrameRange} from './frame-range';
 import {getHeight, overrideHeight} from './height';
 import {setImageSequence} from './image-sequence';
-import {
-	getKeyboardShortcutsEnabled,
-	setKeyboardShortcutsEnabled,
-} from './keyboard-shortcuts';
 import {getMetadata, setMetadata} from './metadata';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
@@ -131,6 +127,7 @@ const {
 	askAIOption,
 	publicLicenseKeyOption,
 	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -643,7 +640,7 @@ export const Config: FlatConfig = {
 		);
 	},
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
-	setKeyboardShortcutsEnabled,
+	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setExperimentalClientSideRenderingEnabled:
 		experimentalClientSideRenderingOption.setConfig,
 	setNumberOfSharedAudioTags,
@@ -755,7 +752,6 @@ export const ConfigInternals = {
 	setStillFrame,
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
-	getKeyboardShortcutsEnabled,
 	getFfmpegOverrideFunction,
 	getHeight,
 	getWidth,

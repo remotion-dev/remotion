@@ -38,6 +38,7 @@ const {
 	enableCrossSiteIsolationOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -100,8 +101,9 @@ export const studioCommand = async (
 		false,
 	);
 
-	const keyboardShortcutsEnabled =
-		ConfigInternals.getKeyboardShortcutsEnabled();
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const experimentalClientSideRenderingEnabled =
 		experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
