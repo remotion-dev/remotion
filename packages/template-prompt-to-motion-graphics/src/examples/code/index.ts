@@ -4,7 +4,6 @@ import { counterAnimationExample } from "./counter-animation";
 import { histogramExample } from "./histogram";
 import { progressBarExample } from "./progress-bar";
 import { animatedShapesExample } from "./animated-shapes";
-import { morphingHexagonsExample } from "./morphing-hexagons";
 import { lottieAnimationExample } from "./lottie-animation";
 import { fallingSpheresExample } from "./falling-spheres";
 import { goldPriceChartExample } from "./gold-price-chart";
@@ -29,7 +28,6 @@ export const examples: RemotionExample[] = [
   histogramExample,
   progressBarExample,
   animatedShapesExample,
-  morphingHexagonsExample,
   lottieAnimationExample,
   fallingSpheresExample,
   goldPriceChartExample,
