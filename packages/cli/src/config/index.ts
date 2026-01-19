@@ -132,7 +132,7 @@ const {
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
 	darkModeOption,
-	askAIOption: AskAIOption,
+	askAIOption,
 	publicLicenseKeyOption,
 } = BrowserSafeApis.options;
 
@@ -728,7 +728,7 @@ export const Config: FlatConfig = {
 	setImageSequencePattern: imageSequencePatternOption.setConfig,
 	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
-	setAskAIEnabled: AskAIOption.setConfig,
+	setAskAIEnabled: askAIOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
 };
 
