@@ -90,20 +90,6 @@ Remote URLs can be used directly without `staticFile()`:
 <Video src="https://example.com/video.mp4" />
 ```
 
-## Dynamic asset paths
-
-Use template literals for dynamic file references:
-
-```tsx
-const frame = useCurrentFrame();
-
-// Image sequence
-<Img src={staticFile(`/frames/frame${frame}.png`)} />
-
-// Selecting based on props
-<Img src={staticFile(`/avatars/${props.userId}.png`)} />
-```
-
 ## Important notes
 
 - Assets must exist in `public/` before bundling - files added after bundling are not accessible
