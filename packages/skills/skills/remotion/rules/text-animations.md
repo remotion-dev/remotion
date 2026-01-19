@@ -97,7 +97,7 @@ const finalOpacity = interpolate(frame, [highlightStart, highlightStart + 8], [0
 
 For full working code examples, see:
 
-- [Typewriter](assets/typewriter.tsx) - Typewriter effect with blinking cursor and dramatic pause
-- [Word Highlight](assets/word-highlight.tsx) - Spring-animated highlight wipe on a word in a sentence
-- [Word Carousel](assets/word-carousel.tsx) - Rotating words with crossfade and blur
-- [Text Rotation](assets/text-rotation.tsx) - Rotating words with dissolve and blur effects
+- [Typewriter](assets/text-animations-typewriter.tsx) - Typewriter effect with blinking cursor and dramatic pause
+- [Word Highlight](assets/text-animations-word-highlight.tsx) - Spring-animated highlight wipe on a word in a sentence
+- [Word Carousel](assets/text-animations-word-carousel.tsx) - Rotating words with crossfade and blur
+- [Text Rotation](assets/text-animations-text-rotation.tsx) - Rotating words with dissolve and blur effects

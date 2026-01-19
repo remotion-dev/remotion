@@ -104,6 +104,4 @@ const offset = interpolate(progress, [0, 1], [segmentLength, 0]);
 ## Complete Examples
 
 For full working code examples, see:
-- [Bar Chart Example](assets/bar-chart.tsx) - Bar chart with Y-axis labels and staggered springs
-- [Counter Animation Example](../example-counter/SKILL.md) - Animated number counters
-- [Animated Shapes Example](assets/animated-shapes.tsx) - Bouncing and rotating SVG shapes with spring animations
+- [Bar Chart Example](assets/charts/bar-chart.tsx) - Bar chart with Y-axis labels and staggered springs
