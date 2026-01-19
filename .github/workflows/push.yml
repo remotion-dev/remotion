@@ -10,6 +10,42 @@ env:
   TURBO_TELEMETRY_DISABLED: 1
   TURBO_NO_UPDATE_NOTIFIER: 1
 jobs:
+  check-webcodecs:
+    runs-on: ubuntu-latest
+    name: Check webcodecs changes
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check for changes
+        id: check
+        run: |
+          npx turbo-ignore @remotion/webcodecs --task=testwebcodecs
+          echo "should_run=false" >> $GITHUB_OUTPUT
+        continue-on-error: true
+      - name: Set should_run if changes detected
+        if: steps.check.outcome == 'failure'
+        run: echo "should_run=true" >> $GITHUB_OUTPUT
+  check-webrenderer:
+    runs-on: ubuntu-latest
+    name: Check webrenderer changes
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check for changes
+        id: check
+        run: |
+          npx turbo-ignore @remotion/web-renderer --task=testwebrenderer
+          echo "should_run=false" >> $GITHUB_OUTPUT
+        continue-on-error: true
+      - name: Set should_run if changes detected
+        if: steps.check.outcome == 'failure'
+        run: echo "should_run=true" >> $GITHUB_OUTPUT
   lambda-tests:
     runs-on: ubuntu-latest
     name: Lambda integration
@@ -59,6 +95,8 @@ jobs:
         run: |
           cd packages/player-example && bun run build-site
   webcodecs-tests:
+    needs: check-webcodecs
+    if: needs.check-webcodecs.outputs.should_run == 'true'
     runs-on: macos-latest
     name: Webcodecs tests
     steps:
@@ -79,6 +117,8 @@ jobs:
         run: |
           bun run testwebcodecs
   webrenderer-tests:
+    needs: check-webrenderer
+    if: needs.check-webrenderer.outputs.should_run == 'true'
     runs-on: macos-latest
     name: Web renderer tests
     steps:
