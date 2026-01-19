@@ -1176,7 +1176,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'captions/index',
 			},
-			items: ['captions/transcribing'],
+			items: [ 'captions/importing', 'captions/transcribing', 'captions/displaying', 'captions/exporting'],
 		},
 		{
 			type: 'category',

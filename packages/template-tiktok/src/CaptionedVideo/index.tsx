@@ -76,7 +76,7 @@ export const CaptionedVideo: React.FC<{
     } catch (e) {
       cancelRender(e);
     }
-  }, [handle, subtitlesFile]);
+  }, [continueRender, handle, subtitlesFile]);
 
   useEffect(() => {
     fetchSubtitles();
