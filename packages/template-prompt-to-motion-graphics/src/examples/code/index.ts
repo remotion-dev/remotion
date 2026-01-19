@@ -9,7 +9,6 @@ import { fallingSpheresExample } from "./falling-spheres";
 import { goldPriceChartExample } from "./gold-price-chart";
 import { typewriterHighlightExample } from "./typewriter-highlight";
 import { wordCarouselExample } from "./word-carousel";
-import { staggeredListExample } from "./staggered-list";
 
 export interface RemotionExample {
   id: string;
@@ -33,7 +32,6 @@ export const examples: RemotionExample[] = [
   goldPriceChartExample,
   typewriterHighlightExample,
   wordCarouselExample,
-  staggeredListExample,
 ];
 
 export function getExampleById(id: string): RemotionExample | undefined {

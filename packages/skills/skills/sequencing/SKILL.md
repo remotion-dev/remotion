@@ -13,8 +13,12 @@ Use Sequence to delay when an element appears in the timeline.
 **Incorrect (manual frame checks):**
 
 ```tsx
-{frame >= 30 && <Title />}
-{frame >= 60 && <Subtitle />}
+{
+  frame >= 30 && <Title />;
+}
+{
+  frame >= 60 && <Subtitle />;
+}
 ```
 
 **Correct (Sequence component):**
@@ -35,7 +39,7 @@ import { Sequence } from "remotion";
 Use Series when elements should play one after another without overlap.
 
 ```tsx
-import { Series } from "remotion";
+import {Series} from 'remotion';
 
 <Series>
   <Series.Sequence durationInFrames={45}>
@@ -47,7 +51,7 @@ import { Series } from "remotion";
   <Series.Sequence durationInFrames={30}>
     <Outro />
   </Series.Sequence>
-</Series>
+</Series>;
 ```
 
 ## Series with Offset for Overlap
@@ -90,9 +94,9 @@ const items = data.map((item, i) => {
   const progress = spring({
     frame: frame - delay,
     fps,
-    config: { damping: 15, stiffness: 120 }
+    config: {damping: 15, stiffness: 120},
   });
-  return <Item key={i} style={{ opacity: progress, transform: `translateY(${(1 - progress) * 20}px)` }} />;
+  return <Item key={i} style={{opacity: progress, transform: `translateY(${(1 - progress) * 20}px)`}} />;
 });
 ```
 
@@ -124,6 +128,3 @@ Inside a Sequence, useCurrentFrame() returns the local frame (starting from 0):
 ```
 
 ## Complete Examples
-
-For full working code examples, see:
-- [Staggered List Example](../example-staggered-list/SKILL.md) - Feature list with staggered spring entrances

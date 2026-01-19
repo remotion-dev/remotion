@@ -36,7 +36,6 @@ const EXAMPLE_SKILLS = [
   "example-gold-price-chart",
   "example-typewriter-highlight",
   "example-word-carousel",
-  "example-staggered-list",
 ] as const;
 
 export const SKILL_NAMES = [...GUIDANCE_SKILLS, ...EXAMPLE_SKILLS] as const;
@@ -69,13 +68,13 @@ const exampleIdMap: Record<(typeof EXAMPLE_SKILLS)[number], string> = {
   "example-gold-price-chart": "gold-price-chart",
   "example-typewriter-highlight": "typewriter-highlight",
   "example-word-carousel": "word-carousel",
-  "example-staggered-list": "staggered-list",
 };
 
 export function getSkillContent(skillName: SkillName): string {
   // Handle example skills - return the code directly
   if (skillName.startsWith("example-")) {
-    const exampleId = exampleIdMap[skillName as (typeof EXAMPLE_SKILLS)[number]];
+    const exampleId =
+      exampleIdMap[skillName as (typeof EXAMPLE_SKILLS)[number]];
     const example = examples.find((e) => e.id === exampleId);
     if (example) {
       return `## Example: ${example.name}\n${example.description}\n\n\`\`\`tsx\n${example.code}\n\`\`\``;
@@ -84,7 +83,9 @@ export function getSkillContent(skillName: SkillName): string {
   }
 
   // Handle guidance skills - return imported markdown content
-  return guidanceSkillContent[skillName as (typeof GUIDANCE_SKILLS)[number]] || "";
+  return (
+    guidanceSkillContent[skillName as (typeof GUIDANCE_SKILLS)[number]] || ""
+  );
 }
 
 export function getCombinedSkillContent(skills: SkillName[]): string {
@@ -125,6 +126,5 @@ Code examples (complete working references):
 - example-gold-price-chart: bar chart with Y-axis labels, monthly data, staggered animations
 - example-typewriter-highlight: typewriter effect with cursor blink, pause, and word highlight
 - example-word-carousel: rotating words with crossfade and blur transitions
-- example-staggered-list: feature list with staggered spring entrances
 
 Return an array of matching category names. Return an empty array if none apply.`;
