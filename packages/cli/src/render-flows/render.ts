@@ -124,6 +124,9 @@ export const renderVideoFlow = async ({
 	audioLatencyHint,
 	imageSequencePattern,
 	mediaCacheSizeInBytes,
+	askAIEnabled,
+	experimentalClientSideRenderingEnabled,
+	keyboardShortcutsEnabled,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -184,6 +187,9 @@ export const renderVideoFlow = async ({
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	imageSequencePattern: string | null;
 	mediaCacheSizeInBytes: number | null;
+	askAIEnabled: boolean;
+	experimentalClientSideRenderingEnabled: boolean;
+	keyboardShortcutsEnabled: boolean;
 }) => {
 	let bundlingProgress: BundlingState | null = null;
 	let renderingProgress: RenderingProgressInput | null = null;
@@ -324,7 +330,9 @@ export const renderVideoFlow = async ({
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint,
-			experimentalClientSideRenderingEnabled: false,
+			experimentalClientSideRenderingEnabled,
+			askAIEnabled,
+			keyboardShortcutsEnabled,
 		},
 	);
 

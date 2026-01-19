@@ -667,20 +667,22 @@ export const useMenuStructure = (
 				label: 'Tools',
 				leaveLeftPadding: false,
 				items: [
-					{
-						id: 'ask-ai',
-						value: 'ask-ai',
-						label: 'Ask AI',
-						onClick: () => {
-							closeMenu();
-							askAiModalRef.current?.toggle();
-						},
-						leftItem: null,
-						keyHint: `${cmdOrCtrlCharacter}+I`,
-						subMenu: null,
-						type: 'item' as const,
-						quickSwitcherLabel: 'Ask AI',
-					},
+					process.env.ASK_AI_ENABLED
+						? {
+								id: 'ask-ai',
+								value: 'ask-ai',
+								label: 'Ask AI',
+								onClick: () => {
+									closeMenu();
+									askAiModalRef.current?.toggle();
+								},
+								leftItem: null,
+								keyHint: `${cmdOrCtrlCharacter}+I`,
+								subMenu: null,
+								type: 'item' as const,
+								quickSwitcherLabel: 'Ask AI',
+							}
+						: null,
 					'EyeDropper' in window
 						? {
 								id: 'color-picker',
