@@ -2,7 +2,6 @@
 name: trimming
 description: Trimming patterns for Remotion - cut the beginning or end of animations
 metadata:
-  impact: HIGH
   tags: sequence, trim, clip, cut, offset
 ---
 

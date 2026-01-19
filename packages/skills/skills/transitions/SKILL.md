@@ -2,7 +2,6 @@
 name: transitions
 description: Scene transition patterns for Remotion. Use when creating scene changes, fades between clips, slide transitions, wipes, or multi-scene videos.
 metadata:
-  impact: HIGH
   tags: transitions, fade, slide, wipe, scenes
 ---
 

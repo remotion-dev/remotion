@@ -2,7 +2,6 @@
 name: audio
 description: Using audio in Remotion - importing, trimming, volume, speed, pitch
 metadata:
-  impact: HIGH
   tags: audio, media, trim, volume, speed, loop, pitch, mute
 ---
 

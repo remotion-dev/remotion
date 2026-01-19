@@ -2,7 +2,6 @@
 name: timing
 description: Interpolation curves in Remotion - linear, easing, spring animations 
 metadata:
-  impact: HIGH
   tags: spring, bounce, easing, interpolation
 ---
 

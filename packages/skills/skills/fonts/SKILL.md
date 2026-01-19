@@ -2,7 +2,6 @@
 name: fonts
 description: Loading Google Fonts and local fonts in Remotion
 metadata:
-  impact: HIGH
   tags: fonts, google-fonts, typography, text
 ---
 

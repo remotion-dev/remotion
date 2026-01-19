@@ -2,7 +2,6 @@
 name: videos
 description: Embedding videos in Remotion - trimming, volume, speed, looping, pitch
 metadata:
-  impact: HIGH
   tags: video, media, trim, volume, speed, loop, pitch
 ---
 

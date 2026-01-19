@@ -2,7 +2,6 @@
 name: text-animations
 description: Typography and text animation patterns for Remotion.
 metadata:
-  impact: HIGH
   tags: typography, text, typewriter, kinetic, animation
 ---
 

@@ -2,7 +2,6 @@
 name: measuring-text
 description: Measuring text dimensions, fitting text to containers, and checking overflow
 metadata:
-  impact: MEDIUM
   tags: measure, text, layout, dimensions, fitText, fillTextBox
 ---
 

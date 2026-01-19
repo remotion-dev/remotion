@@ -2,7 +2,6 @@
 name: compositions
 description: Defining compositions, stills, folders, default props and dynamic metadata
 metadata:
-  impact: HIGH
   tags: composition, still, folder, props, metadata
 ---
 
