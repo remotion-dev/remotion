@@ -105,8 +105,8 @@ const offset = interpolate(progress, [0, 1], [segmentLength, 0]);
 ## Complete Examples
 
 For full working code examples, see:
+- [Bar Chart Example](assets/bar-chart.tsx) - Bar chart with Y-axis labels and staggered springs
 - [Histogram Example](../example-histogram/SKILL.md) - Animated bar chart with @remotion/shapes
-- [Gold Price Chart Example](../example-gold-price-chart/SKILL.md) - Bar chart with Y-axis labels and staggered springs
 - [Progress Bar Example](../example-progress-bar/SKILL.md) - Loading bar from 0 to 100%
 - [Counter Animation Example](../example-counter/SKILL.md) - Animated number counters
 - [Animated Shapes Example](assets/animated-shapes.tsx) - Bouncing and rotating SVG shapes with spring animations

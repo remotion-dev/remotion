@@ -7,7 +7,7 @@ import {
 import {MyAnimation as ChatMessagesAnimation} from '../skills/example-chat-messages/assets/example';
 import {MyAnimation as CounterAnimation} from '../skills/example-counter/assets/example';
 import {MyAnimation as FallingSpheresAnimation} from '../skills/example-falling-spheres/assets/example';
-import {MyAnimation as GoldPriceChartAnimation} from '../skills/example-gold-price-chart/assets/example';
+import {MyAnimation as BarChartAnimation} from '../skills/charts/assets/bar-chart';
 import {MyAnimation as HistogramAnimation} from '../skills/example-histogram/assets/example';
 import {MyAnimation as ProgressBarAnimation} from '../skills/example-progress-bar/assets/example';
 import {MyAnimation as StaggeredListAnimation} from '../skills/example-staggered-list/assets/example';
@@ -84,8 +84,8 @@ export const RemotionRoot = () => {
 				height={1080}
 			/>
 			<Composition
-				id="GoldPriceChart"
-				component={GoldPriceChartAnimation}
+				id="BarChart"
+				component={BarChartAnimation}
 				durationInFrames={120}
 				fps={30}
 				width={1080}
