@@ -37,6 +37,7 @@ Read individual rule files for detailed explanations and code examples:
 - [rules/tailwind.md](rules/tailwind.md) - Using TailwindCSS in Remotion
 - [rules/text-animations.md](rules/text-animations.md) - Typography and text animation patterns for Remotion
 - [rules/timing.md](rules/timing.md) - Interpolation curves in Remotion - linear, easing, spring animations
+- [rules/transcribe-captions.md](rules/transcribe-captions.md) - Transcribing audio to generate captions in Remotion
 - [rules/transitions.md](rules/transitions.md) - Scene transition patterns for Remotion
 - [rules/trimming.md](rules/trimming.md) - Trimming patterns for Remotion - cut the beginning or end of animations
 - [rules/videos.md](rules/videos.md) - Embedding videos in Remotion - trimming, volume, speed, looping, pitch
