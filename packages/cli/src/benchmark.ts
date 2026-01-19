@@ -237,8 +237,9 @@ export const benchmarkCommand = async (
 	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
 	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
-			.value;
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: parsedCli,
+		}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,

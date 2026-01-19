@@ -106,8 +106,9 @@ export const studioCommand = async (
 	}).value;
 
 	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
-			.value;
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: parsedCli,
+		}).value;
 
 	if (experimentalClientSideRenderingEnabled) {
 		Log.warn(

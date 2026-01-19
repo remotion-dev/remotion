@@ -66,8 +66,9 @@ export const bundleCommand = async (
 	}
 
 	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
-			.value;
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: parsedCli,
+		}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,

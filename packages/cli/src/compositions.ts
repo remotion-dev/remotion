@@ -26,7 +26,7 @@ const {
 	audioLatencyHintOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
-	askAIOption: askAIOption,
+	askAIOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
@@ -122,8 +122,9 @@ export const listCompositionsCommand = async (
 	};
 
 	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
-			.value;
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: parsedCli,
+		}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
