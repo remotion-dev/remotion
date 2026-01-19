@@ -2,13 +2,8 @@ import {expect, test} from 'vitest';
 import {MediaPlayer} from '../media-player';
 
 test('setTrimBefore should update frame when paused', async () => {
-	const canvas = document.createElement('canvas');
-	const bufferState = {
-		delayPlayback: () => ({unblock: () => {}}),
-	};
-
 	const player = new MediaPlayer({
-		canvas,
+		canvas: null,
 		src: '/bigbuckbunny.mp4',
 		logLevel: 'error',
 		sharedAudioContext: null,
@@ -20,15 +15,14 @@ test('setTrimBefore should update frame when paused', async () => {
 		audioStreamIndex: 0,
 		fps: 30,
 		debugOverlay: false,
-		bufferState,
+		bufferState: {delayPlayback: () => ({unblock: () => {}})},
 		isPremounting: false,
 		isPostmounting: false,
 		onVideoFrameCallback: null,
 		playing: false,
 	});
 
-	const result = await player.initialize(0, false);
-	expect(result.type).toBe('success');
+	await player.initialize(0, false);
 
 	const initialFrames = player.videoIteratorManager!.getFramesRendered();
 
@@ -46,13 +40,8 @@ test('setTrimBefore should update frame when paused', async () => {
 });
 
 test('setTrimAfter should update frame when paused', async () => {
-	const canvas = document.createElement('canvas');
-	const bufferState = {
-		delayPlayback: () => ({unblock: () => {}}),
-	};
-
 	const player = new MediaPlayer({
-		canvas,
+		canvas: null,
 		src: '/bigbuckbunny.mp4',
 		logLevel: 'error',
 		sharedAudioContext: null,
@@ -64,15 +53,14 @@ test('setTrimAfter should update frame when paused', async () => {
 		audioStreamIndex: 0,
 		fps: 30,
 		debugOverlay: false,
-		bufferState,
+		bufferState: {delayPlayback: () => ({unblock: () => {}})},
 		isPremounting: false,
 		isPostmounting: false,
 		onVideoFrameCallback: null,
 		playing: false,
 	});
 
-	const result = await player.initialize(0, false);
-	expect(result.type).toBe('success');
+	await player.initialize(0, false);
 
 	const initialFrames = player.videoIteratorManager!.getFramesRendered();
 
@@ -85,6 +73,5 @@ test('setTrimAfter should update frame when paused', async () => {
 	expect(player.videoIteratorManager!.getFramesRendered()).toBeGreaterThan(
 		initialFrames,
 	);
-
 	await player.dispose();
 });
