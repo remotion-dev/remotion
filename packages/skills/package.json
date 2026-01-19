@@ -2,6 +2,9 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/skills"
 	},
+	"scripts": {
+		"dev": "remotion studio"
+	},
 	"name": "skills",
 	"private": true,
 	"version": "4.0.407",
@@ -13,6 +16,7 @@
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"@remotion/shapes": "workspace:*",
+		"@remotion/three": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@typescript/native-preview": "catalog:",
 		"@remotion/lottie": "workspace:*"
