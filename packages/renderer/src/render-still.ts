@@ -432,7 +432,7 @@ const internalRenderStillRaw = (
 					host: null,
 					succeeded: true,
 					isStill: true,
-					isProduction: options.isProduction,
+					isProduction: options.isProduction ?? undefined,
 				})
 					.then(() => {
 						Log.verbose(options, 'Usage event sent successfully');

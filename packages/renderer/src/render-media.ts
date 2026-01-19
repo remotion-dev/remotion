@@ -839,7 +839,7 @@ const internalRenderMediaRaw = ({
 						host: null,
 						succeeded: true,
 						licenseKey: licenseKey ?? null,
-						isProduction,
+						isProduction: isProduction ?? undefined,
 					})
 						.then(() => {
 							Log.verbose({indent, logLevel}, 'Usage event sent successfully');

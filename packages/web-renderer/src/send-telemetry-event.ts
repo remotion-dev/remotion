@@ -36,7 +36,7 @@ export const sendUsageEvent = async ({
 		event: 'webcodec-conversion',
 		host,
 		succeeded,
-		isStill,
-		isProduction,
+		isStill: isStill ?? undefined,
+		isProduction: isProduction ?? undefined,
 	});
 };

@@ -19,8 +19,8 @@ export const sendTelemetryEvent = async (
 			event: 'cloud-render',
 			host: null,
 			succeeded: true,
-			isStill,
-			isProduction,
+			isStill: isStill ?? undefined,
+			isProduction: isProduction ?? undefined,
 		});
 		RenderInternals.Log.info({indent: false, logLevel}, 'Telemetry event sent');
 	} catch (err) {
