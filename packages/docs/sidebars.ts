@@ -218,7 +218,7 @@ const sidebars: SidebarsConfig = {
 			label: '@remotion/captions',
 			link: {
 				type: 'doc',
-				id: 'captions/index',
+				id: 'captions/api',
 			},
 			items: [
 				'captions/caption',
@@ -1168,6 +1168,15 @@ const sidebars: SidebarsConfig = {
 				id: 'ai/index',
 			},
 			items: ['ai/bolt', 'ai/chatbot', 'ai/mcp', 'ai/system-prompt'],
+		},
+		{
+			type: 'category',
+			label: 'Captions',
+			link: {
+				type: 'doc',
+				id: 'captions/index',
+			},
+			items: ['captions/transcribing'],
 		},
 		{
 			type: 'category',

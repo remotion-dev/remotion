@@ -1,0 +1,43 @@
+---
+image: /generated/articles-docs-captions-transcribing.png
+title: Transcribing audio
+crumb: '@remotion/captions'
+---
+
+# Transcribing audio
+
+Remotion provides several built-in options for transcribing audio to generate captions:
+
+- [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp) - Transcribe audio locally on a server using [Whisper.cpp](https://github.com/ggerganov/whisper.cpp)
+- [`@remotion/whisper-web`](/docs/whisper-web) - Transcribe audio in the browser using WebAssembly
+- [`@remotion/openai-whisper`](/docs/openai-whisper) - Use the OpenAI Whisper API for cloud-based transcription
+
+## Comparison
+
+|                      | [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)          | [`@remotion/whisper-web`](/docs/whisper-web)             | [`@remotion/openai-whisper`](/docs/openai-whisper)                 |
+| -------------------- | --------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------ |
+| **Environment**      | Server (Node.js)                                                      | Client (Browser)                                         | Cloud (API)                                                        |
+| **Speed**            | Fast (depends on hardware)                                            | Slow (WASM overhead)                                     | Fast                                                               |
+| **Cost**             | Free                                                                  | Free                                                     | Paid (OpenAI API pricing)                                          |
+| **Offline support**  | ✅                                                                    | ✅                                                       | ❌                                                                 |
+| **No server needed** | ❌                                                                    | ✅                                                       | ✅                                                                 |
+| **Convert function** | [`convertToCaptions()`](/docs/install-whisper-cpp/convert-to-captions) | [`toCaptions()`](/docs/whisper-web/to-captions)          | [`openaiWhisperApiToCaptions()`](/docs/openai-whisper/openai-whisper-api-to-captions) |
+
+## The `Caption` type
+
+All of these options can output captions in the [`Caption`](/docs/captions/caption) type format, which is recommended for use with Remotion. This format:
+
+- Enables usage of the APIs in [`@remotion/captions`](/docs/captions/api), such as [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions)
+- Matches the format used in the [Remotion Editor Starter](https://github.com/remotion-dev/template-video-editor)
+- Is compatible with the [Animated Captions](https://github.com/remotion-dev/animated-captions) package
+
+## Alternatives
+
+You can use other ways of transcribing audio, such as [ElevenLabs](https://elevenlabs.io/).  
+You can also define your own caption format and not rely on the `Caption` type - this page is solely about the built-in options.
+
+
+## See also
+
+- [`Caption`](/docs/captions/caption) - The caption data structure
+- [`@remotion/captions`](/docs/captions/api) - Caption manipulation utilities
