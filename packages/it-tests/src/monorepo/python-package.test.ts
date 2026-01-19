@@ -114,6 +114,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			licenseKey: null,
 			storageClass: null,
 			mediaCacheSizeInBytes: null,
+			isProduction: null,
 		});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const parsedJson = JSON.parse(jsonOutput);
@@ -200,6 +201,7 @@ test('Python package should create the same renderStill payload as normal Lambda
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			isProduction: null,
 		});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const {streamed: _, ...parsedJson} = JSON.parse(jsonOutput);
