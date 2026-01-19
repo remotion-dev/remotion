@@ -9,9 +9,9 @@ import {MyAnimation as ChatMessagesAnimation} from '../skills/example-chat-messa
 import {MyAnimation as CounterAnimation} from '../skills/example-counter/assets/example';
 import {MyAnimation as FallingSpheresAnimation} from '../skills/3d/assets/falling-spheres';
 import {MyAnimation as StaggeredListAnimation} from '../skills/example-staggered-list/assets/example';
-import {MyAnimation as TextRotationAnimation} from '../skills/example-text-rotation/assets/example';
-import {MyAnimation as TypewriterHighlightAnimation} from '../skills/example-typewriter-highlight/assets/example';
-import {MyAnimation as WordCarouselAnimation} from '../skills/example-word-carousel/assets/example';
+import {MyAnimation as TextRotationAnimation} from '../skills/text-animations/assets/text-rotation';
+import {MyAnimation as TypewriterHighlightAnimation} from '../skills/text-animations/assets/typewriter-highlight';
+import {MyAnimation as WordCarouselAnimation} from '../skills/text-animations/assets/word-carousel';
 import {MyAnimation as LottieAnimation} from '../skills/lottie/assets/example';
 
 export const RemotionRoot = () => {
