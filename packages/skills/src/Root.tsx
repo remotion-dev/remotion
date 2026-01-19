@@ -8,8 +8,6 @@ import {MyAnimation as BarChartAnimation} from '../skills/charts/assets/bar-char
 import {MyAnimation as ChatMessagesAnimation} from '../skills/example-chat-messages/assets/example';
 import {MyAnimation as CounterAnimation} from '../skills/example-counter/assets/example';
 import {MyAnimation as FallingSpheresAnimation} from '../skills/example-falling-spheres/assets/example';
-import {MyAnimation as HistogramAnimation} from '../skills/example-histogram/assets/example';
-import {MyAnimation as ProgressBarAnimation} from '../skills/example-progress-bar/assets/example';
 import {MyAnimation as StaggeredListAnimation} from '../skills/example-staggered-list/assets/example';
 import {MyAnimation as TextRotationAnimation} from '../skills/example-text-rotation/assets/example';
 import {MyAnimation as TypewriterHighlightAnimation} from '../skills/example-typewriter-highlight/assets/example';
@@ -31,22 +29,6 @@ export const RemotionRoot = () => {
 				id="LottieAnimation"
 				component={LottieAnimation}
 				durationInFrames={150}
-				fps={30}
-				width={1080}
-				height={1080}
-			/>
-			<Composition
-				id="Histogram"
-				component={HistogramAnimation}
-				durationInFrames={90}
-				fps={30}
-				width={1080}
-				height={1080}
-			/>
-			<Composition
-				id="ProgressBar"
-				component={ProgressBarAnimation}
-				durationInFrames={90}
 				fps={30}
 				width={1080}
 				height={1080}
