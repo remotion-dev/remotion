@@ -39,11 +39,26 @@ export const RenderPreview: React.FC<{
 		let cancelled = false;
 		let blobUrlToRevoke: string | null = null;
 
-		getBlob().then((blob) => {
-			if (cancelled) return;
-			blobUrlToRevoke = URL.createObjectURL(blob);
-			setBlobUrl(blobUrlToRevoke);
-		});
+		getBlob()
+			.then((blob) => {
+				const url = URL.createObjectURL(blob);
+				if (cancelled) {
+					URL.revokeObjectURL(url);
+					return;
+				}
+
+				blobUrlToRevoke = url;
+				setBlobUrl(url);
+			})
+			.catch((err) => {
+				if (cancelled) {
+					return;
+				}
+
+				// eslint-disable-next-line no-console
+				console.error('Failed to load render preview blob:', err);
+				setBlobUrl(null);
+			});
 
 		return () => {
 			cancelled = true;
