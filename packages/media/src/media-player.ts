@@ -501,6 +501,17 @@ export class MediaPlayer {
 				newMediaTime,
 				this.playbackRate * this.globalPlaybackRate,
 			);
+
+			// when paused, seek video to display the correct frame
+			if (!this.playing && this.videoIteratorManager) {
+				const nonce = this.nonceManager.createAsyncOperation();
+				this.seekPromiseChain = this.seekPromiseChain.then(() =>
+					this.videoIteratorManager?.seek({
+						newTime: newMediaTime,
+						nonce,
+					}),
+				);
+			}
 		}
 
 		// audio iterator will be re-created on next play/seek
