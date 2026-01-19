@@ -29,15 +29,19 @@ export const RenderPreview: React.FC<{
 		.previewServerState.type;
 
 	const [blobUrl, setBlobUrl] = useState<string | null>(null);
+	const [blobError, setBlobError] = useState<Error | null>(null);
 
 	useEffect(() => {
 		if (!getBlob) {
 			setBlobUrl(null);
+			setBlobError(null);
 			return;
 		}
 
 		let cancelled = false;
 		let blobUrlToRevoke: string | null = null;
+
+		setBlobError(null);
 
 		getBlob()
 			.then((blob) => {
@@ -55,9 +59,7 @@ export const RenderPreview: React.FC<{
 					return;
 				}
 
-				// eslint-disable-next-line no-console
-				console.error('Failed to load render preview blob:', err);
-				setBlobUrl(null);
+				setBlobError(err instanceof Error ? err : new Error(String(err)));
 			});
 
 		return () => {
@@ -72,6 +74,12 @@ export const RenderPreview: React.FC<{
 
 	if (connectionStatus === 'disconnected') {
 		return <div style={errMsgStyle}>Studio server disconnected</div>;
+	}
+
+	if (getBlob && blobError) {
+		return (
+			<div style={errMsgStyle}>Failed to load preview: {blobError.message}</div>
+		);
 	}
 
 	if (getBlob && !blobUrl) {
