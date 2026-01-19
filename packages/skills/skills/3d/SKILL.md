@@ -118,4 +118,4 @@ Position camera at reasonable distance for scene visibility.
 ## Complete Examples
 
 For full working code examples, see:
-- [Falling Spheres Example](../example-falling-spheres/SKILL.md) - 3D bouncing spheres with physics simulation
+- [Falling Spheres Example](assets/falling-spheres.tsx) - 3D bouncing spheres with physics simulation
