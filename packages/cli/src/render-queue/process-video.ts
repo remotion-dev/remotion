@@ -8,7 +8,7 @@ import {getCliOptions} from '../get-cli-options';
 import {parsedCli} from '../parsed-cli';
 import {renderVideoFlow} from '../render-flows/render';
 
-const {publicDirOption, AskAIOption} = BrowserSafeApis.options;
+const {publicDirOption, askAIOption} = BrowserSafeApis.options;
 
 export const processVideoJob = async ({
 	job,
@@ -32,7 +32,7 @@ export const processVideoJob = async ({
 	const publicDir = publicDirOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const askAIEnabled = AskAIOption.getValue({commandLine: parsedCli}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 
 	const {browserExecutable, ffmpegOverride} = getCliOptions({
 		isStill: true,

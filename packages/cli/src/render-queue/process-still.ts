@@ -7,7 +7,7 @@ import {getCliOptions} from '../get-cli-options';
 import {parsedCli} from '../parsed-cli';
 import {renderStillFlow} from '../render-flows/still';
 
-const {publicDirOption, AskAIOption} = BrowserSafeApis.options;
+const {publicDirOption, askAIOption} = BrowserSafeApis.options;
 
 export const processStill = async ({
 	job,
@@ -35,7 +35,7 @@ export const processStill = async ({
 	const publicDir = publicDirOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const askAIEnabled = AskAIOption.getValue({commandLine: parsedCli}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 	const experimentalClientSideRenderingEnabled =
 		ConfigInternals.getExperimentalClientSideRenderingEnabled();
 

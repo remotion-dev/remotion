@@ -7,7 +7,7 @@ export const getCurrentValueOfAskAI = () => {
 	return askAIEnabled;
 };
 
-export const AskAIOption = {
+export const askAIOption = {
 	name: 'Disable or Enable the Ask AI option',
 	cliFlag,
 	description: () => (

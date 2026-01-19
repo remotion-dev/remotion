@@ -46,7 +46,7 @@ const {
 	imageSequencePatternOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
-	AskAIOption,
+	askAIOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -181,7 +181,7 @@ export const render = async (
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
-	const askAIEnabled = AskAIOption.getValue({commandLine: parsedCli}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,

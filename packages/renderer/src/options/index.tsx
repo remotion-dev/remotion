@@ -1,5 +1,5 @@
 import {apiKeyOption} from './api-key';
-import {AskAIOption} from './ask-ai';
+import {askAIOption} from './ask-ai';
 import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
 import {beepOnFinishOption} from './beep-on-finish';
@@ -100,7 +100,7 @@ export const allOptions = {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	publicLicenseKeyOption,
-	AskAIOption,
+	askAIOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

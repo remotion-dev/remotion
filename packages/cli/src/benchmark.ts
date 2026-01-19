@@ -57,7 +57,7 @@ const {
 	offthreadVideoThreadsOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
-	AskAIOption,
+	askAIOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -236,7 +236,7 @@ export const benchmarkCommand = async (
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
 	const experimentalClientSideRenderingEnabled =
 		ConfigInternals.getExperimentalClientSideRenderingEnabled();
-	const askAIEnabled = AskAIOption.getValue({commandLine: parsedCli}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 
 	if (experimentalClientSideRenderingEnabled) {
 		Log.warn(

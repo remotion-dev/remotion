@@ -36,7 +36,7 @@ const {
 	publicDirOption,
 	disableGitSourceOption,
 	enableCrossSiteIsolationOption,
-	AskAIOption,
+	askAIOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -128,7 +128,7 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const askAIEnabled = AskAIOption.getValue({
+	const askAIEnabled = askAIOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 

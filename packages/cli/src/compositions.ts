@@ -27,7 +27,7 @@ const {
 	audioLatencyHintOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
-	AskAIOption,
+	askAIOption: askAIOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -106,7 +106,7 @@ export const listCompositionsCommand = async (
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const askAIEnabled = AskAIOption.getValue({commandLine: parsedCli}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,

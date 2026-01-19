@@ -132,7 +132,7 @@ const {
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
 	darkModeOption,
-	AskAIOption,
+	askAIOption: AskAIOption,
 	publicLicenseKeyOption,
 } = BrowserSafeApis.options;
 
