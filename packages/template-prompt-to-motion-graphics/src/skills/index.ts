@@ -26,12 +26,9 @@ const GUIDANCE_SKILLS = [
 const EXAMPLE_SKILLS = [
   "example-histogram",
   "example-progress-bar",
-  "example-counter",
   "example-text-rotation",
-  "example-chat-messages",
   "example-falling-spheres",
   "example-animated-shapes",
-  "example-morphing-hexagons",
   "example-lottie",
   "example-gold-price-chart",
   "example-typewriter-highlight",
@@ -58,12 +55,9 @@ const guidanceSkillContent: Record<(typeof GUIDANCE_SKILLS)[number], string> = {
 const exampleIdMap: Record<(typeof EXAMPLE_SKILLS)[number], string> = {
   "example-histogram": "histogram",
   "example-progress-bar": "progress-bar",
-  "example-counter": "counter-animation",
   "example-text-rotation": "text-rotation",
-  "example-chat-messages": "chat-messages",
   "example-falling-spheres": "falling-spheres",
   "example-animated-shapes": "animated-shapes",
-  "example-morphing-hexagons": "morphing-hexagons",
   "example-lottie": "lottie-animation",
   "example-gold-price-chart": "gold-price-chart",
   "example-typewriter-highlight": "typewriter-highlight",
@@ -116,12 +110,9 @@ Guidance categories (patterns and rules):
 Code examples (complete working references):
 - example-histogram: animated bar chart with spring animations and @remotion/shapes
 - example-progress-bar: loading bar animation from 0 to 100%
-- example-counter: animated number counters with multiple metrics
 - example-text-rotation: rotating words with fade/blur transitions
-- example-chat-messages: WhatsApp-style chat bubbles with staggered entrance
 - example-falling-spheres: 3D bouncing spheres with ThreeJS and physics simulation
 - example-animated-shapes: bouncing/rotating SVG shapes (circle, triangle, rect, star)
-- example-morphing-hexagons: pulsing hexagon grid with color-shifting effects
 - example-lottie: loading and displaying Lottie animations from URL
 - example-gold-price-chart: bar chart with Y-axis labels, monthly data, staggered animations
 - example-typewriter-highlight: typewriter effect with cursor blink, pause, and word highlight

@@ -1,6 +1,5 @@
 import { textRotationExample } from "./text-rotation";
 import { chatMessagesExample } from "./chat-messages";
-import { counterAnimationExample } from "./counter-animation";
 import { histogramExample } from "./histogram";
 import { progressBarExample } from "./progress-bar";
 import { animatedShapesExample } from "./animated-shapes";
@@ -23,7 +22,6 @@ export interface RemotionExample {
 export const examples: RemotionExample[] = [
   textRotationExample,
   chatMessagesExample,
-  counterAnimationExample,
   histogramExample,
   progressBarExample,
   animatedShapesExample,

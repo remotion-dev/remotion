@@ -6,7 +6,6 @@ import {
 	MyAnimation,
 } from '../skills/charts/assets/animated-shapes';
 import {MyAnimation as BarChartAnimation} from '../skills/charts/assets/bar-chart';
-import {MyAnimation as CounterAnimation} from '../skills/example-counter/assets/example';
 import {MyAnimation as LottieAnimation} from '../skills/lottie/assets/example';
 import {MyAnimation as TextRotationAnimation} from '../skills/text-animations/assets/text-rotation';
 import {MyAnimation as TypewriterAnimation} from '../skills/text-animations/assets/typewriter';
@@ -33,19 +32,11 @@ export const RemotionRoot = () => {
 				height={1080}
 			/>
 			<Composition
-				id="Counter"
-				component={CounterAnimation}
-				durationInFrames={90}
-				fps={30}
-				width={1080}
-				height={1080}
-			/>
-			<Composition
 				id="TextRotation"
 				component={TextRotationAnimation}
 				durationInFrames={180}
 				fps={30}
-				width={1080}
+				width={1920}
 				height={1080}
 			/>
 			<Composition
@@ -69,7 +60,7 @@ export const RemotionRoot = () => {
 				component={TypewriterAnimation}
 				durationInFrames={180}
 				fps={30}
-				width={1080}
+				width={1920}
 				height={1080}
 			/>
 			<Composition

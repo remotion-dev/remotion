@@ -1,71 +1,74 @@
-import { useCurrentFrame, AbsoluteFill, interpolate } from "remotion";
+import {
+	AbsoluteFill,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
+
+const WORDS = ['This is a', 'Text rotation example', 'using Remotion!'];
+
+const FONT_SIZE = 120;
+const FONT_WEIGHT = 'bold';
+const COLOR_TEXT = '#eee';
+const COLOR_BACKGROUND = '#1a1a2e';
+const BLUR_AMOUNT = 10;
 
 export const MyAnimation = () => {
-  const frame = useCurrentFrame();
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
 
-  // Text content - easily customizable
-  const WORDS = ["This is a", "Text rotation example", "using Remotion!"];
+	const WORD_DURATION = 0 * fps;
+	const FADE_IN_DURATION = 0.5 * fps;
+	const FADE_OUT_START = 1.5 * fps;
 
-  // Animation timing
-  const WORD_DURATION = 60; // frames per word
-  const FADE_IN_DURATION = 15;
-  const FADE_OUT_START = 45;
+	const currentWordIndex = Math.floor(frame / WORD_DURATION) % WORDS.length;
+	const frameInWord = frame % WORD_DURATION;
 
-  // Visual styling
-  const FONT_SIZE = 120;
-  const FONT_WEIGHT = "bold";
-  const COLOR_TEXT = "#eee";
-  const COLOR_BACKGROUND = "#1a1a2e";
-  const BLUR_AMOUNT = 10;
+	// Fade in/out animation
+	const opacity = interpolate(
+		frameInWord,
+		[0, FADE_IN_DURATION, FADE_OUT_START, WORD_DURATION],
+		[0, 1, 1, 0],
+		{extrapolateRight: 'clamp'},
+	);
 
-  const currentWordIndex = Math.floor(frame / WORD_DURATION) % WORDS.length;
-  const frameInWord = frame % WORD_DURATION;
+	// Scale animation
+	const scale = interpolate(
+		frameInWord,
+		[0, FADE_IN_DURATION, FADE_OUT_START, WORD_DURATION],
+		[0.8, 1, 1, 1.2],
+		{extrapolateRight: 'clamp'},
+	);
 
-  // Fade in/out animation
-  const opacity = interpolate(
-    frameInWord,
-    [0, FADE_IN_DURATION, FADE_OUT_START, WORD_DURATION],
-    [0, 1, 1, 0],
-    { extrapolateRight: "clamp" }
-  );
+	// Blur animation
+	const blur = interpolate(
+		frameInWord,
+		[0, FADE_IN_DURATION, FADE_OUT_START, WORD_DURATION],
+		[BLUR_AMOUNT, 0, 0, BLUR_AMOUNT],
+		{extrapolateRight: 'clamp'},
+	);
 
-  // Scale animation
-  const scale = interpolate(
-    frameInWord,
-    [0, FADE_IN_DURATION, FADE_OUT_START, WORD_DURATION],
-    [0.8, 1, 1, 1.2],
-    { extrapolateRight: "clamp" }
-  );
-
-  // Blur animation
-  const blur = interpolate(
-    frameInWord,
-    [0, FADE_IN_DURATION, FADE_OUT_START, WORD_DURATION],
-    [BLUR_AMOUNT, 0, 0, BLUR_AMOUNT],
-    { extrapolateRight: "clamp" }
-  );
-
-  return (
-    <AbsoluteFill
-      style={{
-        backgroundColor: COLOR_BACKGROUND,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <h1
-        style={{
-          fontSize: FONT_SIZE,
-          fontWeight: FONT_WEIGHT,
-          color: COLOR_TEXT,
-          opacity,
-          transform: `scale(${scale})`,
-          filter: `blur(${blur}px)`,
-          fontFamily: "system-ui, sans-serif",
-        }}
-      >
-        {WORDS[currentWordIndex]}
-      </h1>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundColor: COLOR_BACKGROUND,
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
+			<div
+				style={{
+					fontSize: FONT_SIZE,
+					fontWeight: FONT_WEIGHT,
+					color: COLOR_TEXT,
+					opacity,
+					transform: `scale(${scale})`,
+					filter: `blur(${blur}px)`,
+					fontFamily: 'system-ui, sans-serif',
+				}}
+			>
+				{WORDS[currentWordIndex]}
+			</div>
+		</AbsoluteFill>
+	);
 };
