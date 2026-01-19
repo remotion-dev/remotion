@@ -1,12 +1,13 @@
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {JobProgressCallback, RenderJob} from '@remotion/studio-server';
+import {ConfigInternals} from '../config';
 import {getRendererPortFromConfigFile} from '../config/preview-server';
 import {convertEntryPointToServeUrl} from '../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../get-cli-options';
 import {parsedCli} from '../parsed-cli';
 import {renderStillFlow} from '../render-flows/still';
 
-const {publicDirOption} = BrowserSafeApis.options;
+const {publicDirOption, AskAIOption} = BrowserSafeApis.options;
 
 export const processStill = async ({
 	job,
@@ -34,6 +35,9 @@ export const processStill = async ({
 	const publicDir = publicDirOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const askAIEnabled = AskAIOption.getValue({commandLine: parsedCli}).value;
+	const experimentalClientSideRenderingEnabled =
+		ConfigInternals.getExperimentalClientSideRenderingEnabled();
 
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 
@@ -72,5 +76,7 @@ export const processStill = async ({
 		chromeMode: job.chromeMode,
 		audioLatencyHint: null,
 		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+		askAIEnabled,
+		experimentalClientSideRenderingEnabled,
 	});
 };

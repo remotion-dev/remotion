@@ -33,6 +33,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	publicPath,
 	audioLatencyHint,
 	experimentalClientSideRenderingEnabled,
+	askAIEnabled,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -53,6 +54,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	publicPath: string | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	experimentalClientSideRenderingEnabled: boolean;
+	askAIEnabled: boolean;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -94,6 +96,8 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		publicPath,
 		audioLatencyHint,
 		experimentalClientSideRenderingEnabled,
+		askAIEnabled,
+		keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
 	});
 
 	return {
@@ -119,6 +123,8 @@ export const bundleOnCli = async ({
 	publicPath,
 	audioLatencyHint,
 	experimentalClientSideRenderingEnabled,
+	askAIEnabled,
+	keyboardShortcutsEnabled,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -139,6 +145,8 @@ export const bundleOnCli = async ({
 	publicPath: string | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	experimentalClientSideRenderingEnabled: boolean;
+	keyboardShortcutsEnabled: boolean;
+	askAIEnabled: boolean;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -202,8 +210,8 @@ export const bundleOnCli = async ({
 		onSymlinkDetected,
 		outDir: outDir ?? null,
 		publicPath,
-		askAIEnabled: ConfigInternals.getAskAI(),
-		keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
+		askAIEnabled,
+		keyboardShortcutsEnabled,
 	};
 
 	const [hash] = await BundlerInternals.getConfig({

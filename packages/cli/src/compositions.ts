@@ -27,6 +27,7 @@ const {
 	audioLatencyHintOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	AskAIOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -105,6 +106,7 @@ export const listCompositionsCommand = async (
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const askAIEnabled = AskAIOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
@@ -151,6 +153,7 @@ export const listCompositionsCommand = async (
 			publicPath,
 			audioLatencyHint,
 			experimentalClientSideRenderingEnabled,
+			askAIEnabled,
 		});
 
 	registerCleanupJob(`Cleanup bundle`, () => cleanupBundle());

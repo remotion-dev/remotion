@@ -2,6 +2,7 @@ import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
+import {ConfigInternals} from './config';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
@@ -45,6 +46,7 @@ const {
 	imageSequencePatternOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	AskAIOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -179,6 +181,7 @@ export const render = async (
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
+	const askAIEnabled = AskAIOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
@@ -272,5 +275,8 @@ export const render = async (
 		offthreadVideoThreads,
 		audioLatencyHint,
 		imageSequencePattern,
+		askAIEnabled,
+		experimentalClientSideRenderingEnabled:
+			ConfigInternals.getExperimentalClientSideRenderingEnabled(),
 	});
 };

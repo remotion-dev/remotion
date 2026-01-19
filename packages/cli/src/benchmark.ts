@@ -57,6 +57,7 @@ const {
 	offthreadVideoThreadsOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	AskAIOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -235,6 +236,7 @@ export const benchmarkCommand = async (
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
 	const experimentalClientSideRenderingEnabled =
 		ConfigInternals.getExperimentalClientSideRenderingEnabled();
+	const askAIEnabled = AskAIOption.getValue({commandLine: parsedCli}).value;
 
 	if (experimentalClientSideRenderingEnabled) {
 		Log.warn(
@@ -305,6 +307,7 @@ export const benchmarkCommand = async (
 			publicPath,
 			audioLatencyHint: null,
 			experimentalClientSideRenderingEnabled,
+			askAIEnabled,
 		});
 
 	registerCleanupJob(`Deleting bundle`, () => cleanupBundle());

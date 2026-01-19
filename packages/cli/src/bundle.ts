@@ -19,6 +19,7 @@ const {
 	publicDirOption,
 	disableGitSourceOption,
 	audioLatencyHintOption,
+	AskAIOption,
 } = BrowserSafeApis.options;
 
 export const bundleCommand = async (
@@ -65,6 +66,7 @@ export const bundleCommand = async (
 
 	const experimentalClientSideRenderingEnabled =
 		ConfigInternals.getExperimentalClientSideRenderingEnabled();
+	const askAIEnabled = AskAIOption.getValue({commandLine: parsedCli}).value;
 
 	if (experimentalClientSideRenderingEnabled) {
 		Log.warn(
@@ -150,6 +152,8 @@ export const bundleCommand = async (
 		publicPath,
 		audioLatencyHint,
 		experimentalClientSideRenderingEnabled,
+		askAIEnabled,
+		keyboardShortcutsEnabled: ConfigInternals.getKeyboardShortcutsEnabled(),
 	});
 
 	Log.info(

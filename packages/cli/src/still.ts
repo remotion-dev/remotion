@@ -2,6 +2,7 @@ import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {registerCleanupJob} from './cleanup-before-quit';
+import {ConfigInternals} from './config';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
@@ -27,6 +28,7 @@ const {
 	audioLatencyHintOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	AskAIOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -128,6 +130,7 @@ export const still = async (
 		commandLine: parsedCli,
 	}).value;
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
+	const askAIEnabled = AskAIOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
@@ -180,5 +183,8 @@ export const still = async (
 		chromeMode,
 		audioLatencyHint,
 		mediaCacheSizeInBytes,
+		askAIEnabled,
+		experimentalClientSideRenderingEnabled:
+			ConfigInternals.getExperimentalClientSideRenderingEnabled(),
 	});
 };
