@@ -13,6 +13,8 @@
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"@remotion/shapes": "workspace:*",
-		"@remotion/cli": "workspace:*"
+		"@remotion/cli": "workspace:*",
+		"@typescript/native-preview": "catalog:",
+		"@remotion/lottie": "workspace:*"
 	}
 }

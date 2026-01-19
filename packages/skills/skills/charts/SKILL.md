@@ -109,3 +109,4 @@ For full working code examples, see:
 - [Gold Price Chart Example](../example-gold-price-chart/SKILL.md) - Bar chart with Y-axis labels and staggered springs
 - [Progress Bar Example](../example-progress-bar/SKILL.md) - Loading bar from 0 to 100%
 - [Counter Animation Example](../example-counter/SKILL.md) - Animated number counters
+- [Animated Shapes Example](assets/animated-shapes.tsx) - Bouncing and rotating SVG shapes with spring animations
