@@ -66,6 +66,3 @@ Lottie supports the `style` prop to allow styles and animations:
 return <Lottie animationData={animationData} style={{width: 400, height: 400}} />;
 ```
 
-### Example
-
-See an example in [assets/example.tsx](assets/example.tsx).

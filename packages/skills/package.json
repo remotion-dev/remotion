@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "remotion studio"
 	},
-	"name": "skills",
+	"name": "@remotion/skills",
 	"private": true,
 	"version": "4.0.407",
 	"devDependencies": {
