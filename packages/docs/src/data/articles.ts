@@ -6575,6 +6575,15 @@ export const articles = [
 		slug: 'web-renderer/render-still-on-web',
 	},
 	{
+		id: 'types',
+		title: 'TypeScript Types Reference',
+		relativePath: 'docs/web-renderer/types.mdx',
+		compId: 'articles-docs-web-renderer-types',
+		crumb: '@remotion/web-renderer',
+		noAi: false,
+		slug: 'web-renderer/types',
+	},
+	{
 		id: 'buffer-writer',
 		title: 'bufferWriter',
 		relativePath: 'docs/webcodecs/buffer-writer.mdx',
