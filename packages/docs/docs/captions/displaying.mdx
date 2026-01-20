@@ -2,13 +2,12 @@
 image: /generated/articles-docs-captions-displaying.png
 sidebar_label: Displaying
 title: Displaying captions
-crumb: '@remotion/captions'
+crumb: Captions
 ---
 
 # Displaying captions
 
 This guide explains how to display captions in Remotion, assuming you already have captions in the [`Caption`](/docs/captions/caption) format - see [Transcribing audio](/docs/captions/transcribing) for how to generate them.
-
 
 ## Fetching captions
 
@@ -85,9 +84,7 @@ const SWITCH_CAPTIONS_EVERY_MS = 1200;
 
 const pages: TikTokPage[] = [];
 
-const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => (
-  <div>{page.text}</div>
-);
+const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => <div>{page.text}</div>;
 
 // ---cut---
 
@@ -99,10 +96,7 @@ const CaptionedContent: React.FC = () => {
       {pages.map((page, index) => {
         const nextPage = pages[index + 1] ?? null;
         const startFrame = (page.startMs / 1000) * fps;
-        const endFrame = Math.min(
-          nextPage ? (nextPage.startMs / 1000) * fps : Infinity,
-          startFrame + (SWITCH_CAPTIONS_EVERY_MS / 1000) * fps,
-        );
+        const endFrame = Math.min(nextPage ? (nextPage.startMs / 1000) * fps : Infinity, startFrame + (SWITCH_CAPTIONS_EVERY_MS / 1000) * fps);
         const durationInFrames = endFrame - startFrame;
 
         if (durationInFrames <= 0) {
@@ -110,11 +104,7 @@ const CaptionedContent: React.FC = () => {
         }
 
         return (
-          <Sequence
-            key={index}
-            from={startFrame}
-            durationInFrames={durationInFrames}
-          >
+          <Sequence key={index} from={startFrame} durationInFrames={durationInFrames}>
             <CaptionPage page={page} />
           </Sequence>
         );
@@ -160,8 +150,7 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
         }}
       >
         {page.tokens.map((token) => {
-          const isActive =
-            token.fromMs <= absoluteTimeMs && token.toMs > absoluteTimeMs;
+          const isActive = token.fromMs <= absoluteTimeMs && token.toMs > absoluteTimeMs;
 
           return (
             <span
@@ -187,14 +176,7 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 
 ```tsx twoslash title="Full captioned video example"
 import {useState, useEffect, useCallback, useMemo} from 'react';
-import {
-  AbsoluteFill,
-  Sequence,
-  staticFile,
-  useCurrentFrame,
-  useDelayRender,
-  useVideoConfig,
-} from 'remotion';
+import {AbsoluteFill, Sequence, staticFile, useCurrentFrame, useDelayRender, useVideoConfig} from 'remotion';
 import {createTikTokStyleCaptions} from '@remotion/captions';
 import type {Caption, TikTokPage} from '@remotion/captions';
 
@@ -223,8 +205,7 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
         }}
       >
         {page.tokens.map((token) => {
-          const isActive =
-            token.fromMs <= absoluteTimeMs && token.toMs > absoluteTimeMs;
+          const isActive = token.fromMs <= absoluteTimeMs && token.toMs > absoluteTimeMs;
 
           return (
             <span
@@ -275,10 +256,7 @@ export const CaptionedVideo: React.FC = () => {
       {pages.map((page, index) => {
         const nextPage = pages[index + 1] ?? null;
         const startFrame = (page.startMs / 1000) * fps;
-        const endFrame = Math.min(
-          nextPage ? (nextPage.startMs / 1000) * fps : Infinity,
-          startFrame + (SWITCH_CAPTIONS_EVERY_MS / 1000) * fps,
-        );
+        const endFrame = Math.min(nextPage ? (nextPage.startMs / 1000) * fps : Infinity, startFrame + (SWITCH_CAPTIONS_EVERY_MS / 1000) * fps);
         const durationInFrames = endFrame - startFrame;
 
         if (durationInFrames <= 0) {
@@ -286,11 +264,7 @@ export const CaptionedVideo: React.FC = () => {
         }
 
         return (
-          <Sequence
-            key={index}
-            from={startFrame}
-            durationInFrames={durationInFrames}
-          >
+          <Sequence key={index} from={startFrame} durationInFrames={durationInFrames}>
             <CaptionPage page={page} />
           </Sequence>
         );

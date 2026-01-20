@@ -2,7 +2,7 @@
 image: /generated/articles-docs-captions-exporting.png
 sidebar_label: Exporting
 title: Exporting subtitles
-crumb: '@remotion/captions'
+crumb: Captions
 ---
 
 # Exporting subtitles
@@ -11,12 +11,11 @@ This guide covers different ways to export subtitles from your Remotion video.
 
 ## Burned-in subtitles
 
-If you want the subtitles to be part of the video itself (burned in), follow the instructions in [Displaying captions](/docs/captions/displaying) to render the captions, then simply [render the video](/docs/render) as usual.  
+If you want the subtitles to be part of the video itself (burned in), follow the instructions in [Displaying captions](/docs/captions/displaying) to render the captions, then simply [render the video](/docs/render) as usual.
 
 ```bash
 npx remotion render
 ```
-
 
 ## Exporting as a separate .srt file
 
@@ -58,9 +57,7 @@ export const MyComp: React.FC = () => {
   return (
     <>
       {/* Only emit the artifact on the first frame */}
-      {frame === 0 ? (
-        <Artifact filename="subtitles.srt" content={srtContent} />
-      ) : null}
+      {frame === 0 ? <Artifact filename="subtitles.srt" content={srtContent} /> : null}
       {/* Rest of your video content */}
     </>
   );
