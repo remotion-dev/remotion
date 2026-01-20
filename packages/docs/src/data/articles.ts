@@ -508,7 +508,7 @@ export const articles = [
 		title: 'Importing .srt subtitles into Remotion',
 		relativePath: 'docs/captions/importing.mdx',
 		compId: 'articles-docs-captions-importing',
-		crumb: '@remotion/captions',
+		crumb: 'Captions',
 		noAi: false,
 		slug: 'captions/importing',
 	},
