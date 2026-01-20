@@ -14,9 +14,9 @@ Documentation lives in `packages/docs/docs` as `.mdx` files.
 3. Write the content following guidelines below
 4. Run `bun render-cards.ts` in `packages/docs` to generate social preview cards
 
-**One API per page**: Each function or API should have its own dedicated documentation page. Do not combine multiple APIs (e.g., `getEncodableVideoCodecs()` and `getEncodableAudioCodecs()`) on a single page. This is the established pattern throughout the codebase.
+**One API per page**: Each function or API should have its own dedicated documentation page. Do not combine multiple APIs (e.g., `getEncodableVideoCodecs()` and `getEncodableAudioCodecs()`) on a single page.
 
-**Public API only**: Documentation is for public APIs only. Do not mention, reference, or compare against internal/private APIs or implementation details. Users should only see what is exported and intended for public use.
+**Public API only**: Documentation is for public APIs only. Do not mention, reference, or compare against internal/private APIs or implementation details.
 
 **Use headings for all fields**: When documenting API options or return values, each property should be its own heading. Use `###` for top-level properties and `####` for nested properties within an options object. Do not use bullet points for individual fields.
 
@@ -115,6 +115,7 @@ For section headings:
 For optional parameters in API documentation:
 
 1. **Add `?` to the heading** - this indicates the parameter is optional
+   --> Don't do it if it is a CLI flag (beginning with `--`) - CLI flags are always optional
 2. **Do NOT add `_optional_` text** - the `?` suffix is sufficient
 3. **Include default value in description** - mention it naturally in the text
 
