@@ -348,8 +348,7 @@ export class MediaPlayer {
 
 		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
 		await this.seekPromiseChain;
-	}
-
+	};
 
 	public async seekTo(time: number): Promise<void> {
 		const newTime = getTimeInSeconds({
@@ -370,7 +369,6 @@ export class MediaPlayer {
 
 		await this.seekToWithQueue(newTime);
 	}
-
 
 	public async seekToDoNotCallDirectly(
 		newTime: number,
@@ -485,7 +483,9 @@ export class MediaPlayer {
 		this.audioIteratorManager.setVolume(volume);
 	}
 
-	private updateAfterTrimChange(unloopedTimeInSeconds: number): void {
+	private async updateAfterTrimChange(
+		unloopedTimeInSeconds: number,
+	): Promise<void> {
 		if (!this.audioIteratorManager && !this.videoIteratorManager) {
 			return;
 		}
@@ -502,6 +502,10 @@ export class MediaPlayer {
 			src: this.src,
 		});
 
+		// audio iterator will be re-created on next play/seek
+		// video iterator doesn't need to be re-created
+		this.audioIteratorManager?.destroyIterator();
+
 		if (newMediaTime !== null) {
 			this.setPlaybackTime(
 				newMediaTime,
@@ -509,32 +513,28 @@ export class MediaPlayer {
 			);
 
 			if (!this.playing && this.videoIteratorManager) {
-				this.seekToWithQueue(newMediaTime);
+				await this.seekToWithQueue(newMediaTime);
 			}
 		}
-
-		// audio iterator will be re-created on next play/seek
-		// video iterator doesn't need to be re-created
-		this.audioIteratorManager?.destroyIterator();
 	}
 
-	public setTrimBefore(
+	public async setTrimBefore(
 		trimBefore: number | undefined,
 		unloopedTimeInSeconds: number,
-	): void {
+	): Promise<void> {
 		if (this.trimBefore !== trimBefore) {
 			this.trimBefore = trimBefore;
-			this.updateAfterTrimChange(unloopedTimeInSeconds);
+			await this.updateAfterTrimChange(unloopedTimeInSeconds);
 		}
 	}
 
-	public setTrimAfter(
+	public async setTrimAfter(
 		trimAfter: number | undefined,
 		unloopedTimeInSeconds: number,
-	): void {
+	): Promise<void> {
 		if (this.trimAfter !== trimAfter) {
 			this.trimAfter = trimAfter;
-			this.updateAfterTrimChange(unloopedTimeInSeconds);
+			await this.updateAfterTrimChange(unloopedTimeInSeconds);
 		}
 	}
 
