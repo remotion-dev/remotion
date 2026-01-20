@@ -1,12 +1,4 @@
-import type {
-	ClientRenderJob,
-	ClientRenderJobProgress,
-	ClientRenderMetadata,
-	ClientStillRenderJob,
-	ClientVideoRenderJob,
-	GetBlobCallback,
-	RenderJob,
-} from '@remotion/studio-shared';
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {
 	createRef,
 	useCallback,
@@ -28,6 +20,14 @@ import {
 	getCompositionForJob,
 	registerCompositionForJob,
 } from './client-render-queue';
+import type {
+	ClientRenderJob,
+	ClientRenderJobProgress,
+	ClientRenderMetadata,
+	ClientStillRenderJob,
+	ClientVideoRenderJob,
+	GetBlobCallback,
+} from './client-side-render-types';
 
 declare global {
 	interface Window {

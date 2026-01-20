@@ -1,9 +1,9 @@
-import type {ClientRenderJob} from '@remotion/studio-shared';
 import {formatBytes} from '@remotion/studio-shared';
 import React from 'react';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {CircularProgress} from '../RenderQueue/CircularProgress';
+import type {ClientRenderJob} from '../RenderQueue/client-side-render-types';
 import {SuccessIcon} from '../RenderQueue/SuccessIcon';
 
 const progressItem: React.CSSProperties = {

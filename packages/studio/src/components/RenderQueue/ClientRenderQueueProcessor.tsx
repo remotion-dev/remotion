@@ -1,12 +1,4 @@
 import type {
-	ClientRenderJob,
-	ClientRenderJobProgress,
-	ClientRenderMetadata,
-	ClientStillRenderJob,
-	ClientVideoRenderJob,
-	GetBlobCallback,
-} from '@remotion/studio-shared';
-import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererQuality,
@@ -14,6 +6,14 @@ import type {
 } from '@remotion/web-renderer';
 import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useEffect} from 'react';
+import type {
+	ClientRenderJob,
+	ClientRenderJobProgress,
+	ClientRenderMetadata,
+	ClientStillRenderJob,
+	ClientVideoRenderJob,
+	GetBlobCallback,
+} from './client-side-render-types';
 import {RenderQueueContext} from './context';
 
 type RenderResult = {

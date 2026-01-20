@@ -1,9 +1,9 @@
+import type {ComponentType} from 'react';
+import type {CalculateMetadataFunction} from 'remotion';
 import type {
 	ClientStillRenderJob,
 	ClientVideoRenderJob,
-} from '@remotion/studio-shared';
-import type {ComponentType} from 'react';
-import type {CalculateMetadataFunction} from 'remotion';
+} from './client-side-render-types';
 
 export type CompositionRef = {
 	component: ComponentType<Record<string, unknown>>;

@@ -1,4 +1,4 @@
-import type {ClientRenderJob, RenderJob} from '@remotion/studio-shared';
+import type {RenderJob} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -11,6 +11,7 @@ import {Internals} from 'remotion';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
+import type {ClientRenderJob} from './client-side-render-types';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
 import {RenderQueueCancelledMessage} from './RenderQueueCancelledMessage';

@@ -5,8 +5,9 @@ import type {
 	PixelFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import type {ClientRenderJob, RenderJob} from '@remotion/studio-shared';
+import type {RenderJob} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
+import type {ClientRenderJob} from '../components/RenderQueue/client-side-render-types';
 import type {RenderModalState, WebRenderModalState} from '../state/modals';
 
 export const makeRetryPayload = (job: RenderJob): RenderModalState => {
