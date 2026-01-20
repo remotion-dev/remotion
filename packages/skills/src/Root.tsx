@@ -1,35 +1,13 @@
 import {Composition} from 'remotion';
-import {
-	COMPOSITION_HEIGHT,
-	COMPOSITION_WIDTH,
-	MyAnimation,
-} from '../skills/remotion/charts/assets/animated-shapes';
-import {MyAnimation as BarChartAnimation} from '../skills/remotion/charts/assets/bar-chart';
-import {MyAnimation as LottieAnimation} from '../skills/remotion/lottie/assets/example';
-import {MyAnimation as TextRotationAnimation} from '../skills/remotion/text-animations/assets/text-rotation';
-import {MyAnimation as TypewriterAnimation} from '../skills/remotion/text-animations/assets/typewriter';
-import {MyAnimation as WordCarouselAnimation} from '../skills/remotion/text-animations/assets/word-carousel';
-import {MyAnimation as WordHighlightAnimation} from '../skills/remotion/text-animations/assets/word-highlight';
+import {MyAnimation as BarChartAnimation} from '../skills/remotion/rules/assets/charts-bar-chart';
+import {MyAnimation as TextRotationAnimation} from '../skills/remotion/rules/assets/text-animations-text-rotation';
+import {MyAnimation as TypewriterAnimation} from '../skills/remotion/rules/assets/text-animations-typewriter';
+import {MyAnimation as WordCarouselAnimation} from '../skills/remotion/rules/assets/text-animations-word-carousel';
+import {MyAnimation as WordHighlightAnimation} from '../skills/remotion/rules/assets/text-animations-word-highlight';
 
 export const RemotionRoot = () => {
 	return (
 		<>
-			<Composition
-				id="AnimatedShapes"
-				component={MyAnimation}
-				durationInFrames={100}
-				fps={30}
-				width={COMPOSITION_WIDTH}
-				height={COMPOSITION_HEIGHT}
-			/>
-			<Composition
-				id="LottieAnimation"
-				component={LottieAnimation}
-				durationInFrames={150}
-				fps={30}
-				width={1080}
-				height={1080}
-			/>
 			<Composition
 				id="TextRotation"
 				component={TextRotationAnimation}
@@ -53,6 +31,10 @@ export const RemotionRoot = () => {
 				fps={30}
 				width={1920}
 				height={1080}
+				defaultProps={{
+					fullText: 'From prompt to motion graphics. This is Remotion.',
+					pauseAfter: 'From prompt to motion graphics.',
+				}}
 			/>
 			<Composition
 				id="WordHighlight"

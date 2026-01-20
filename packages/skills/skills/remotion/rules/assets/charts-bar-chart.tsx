@@ -8,13 +8,10 @@ const COLOR_AXIS = '#333333';
 
 // Ideal composition size: 1280x720
 
-const Title: React.FC<{title: string; opacity: number}> = ({
-	title,
-	opacity,
-}) => (
-	<div style={{textAlign: 'center', opacity, marginBottom: 40}}>
+const Title: React.FC<{children: React.ReactNode}> = ({children}) => (
+	<div style={{textAlign: 'center', marginBottom: 40}}>
 		<div style={{color: COLOR_TEXT, fontSize: 48, fontWeight: 600}}>
-			{title}
+			{children}
 		</div>
 	</div>
 );
@@ -137,12 +134,6 @@ export const MyAnimation = () => {
 	const chartHeight = height - 280;
 	const yAxisSteps = [2000, 2400, 2800];
 
-	const headerOpacity = spring({
-		frame,
-		fps,
-		config: {damping: 20, stiffness: 100},
-	});
-
 	return (
 		<AbsoluteFill
 			style={{
@@ -153,7 +144,7 @@ export const MyAnimation = () => {
 				fontFamily: 'Inter, sans-serif',
 			}}
 		>
-			<Title title="Gold Price 2024" opacity={headerOpacity} />
+			<Title>Gold Price 2024</Title>
 
 			<div style={{display: 'flex', flex: 1}}>
 				<YAxis steps={yAxisSteps} height={chartHeight} />

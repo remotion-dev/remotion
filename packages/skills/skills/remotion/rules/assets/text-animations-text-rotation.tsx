@@ -17,7 +17,7 @@ export const MyAnimation = () => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
-	const WORD_DURATION = 0 * fps;
+	const WORD_DURATION = 2 * fps;
 	const FADE_IN_DURATION = 0.5 * fps;
 	const FADE_OUT_START = 1.5 * fps;
 
