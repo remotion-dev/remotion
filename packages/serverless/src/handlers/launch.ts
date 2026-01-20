@@ -311,7 +311,6 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			metadata: params.metadata,
 			offthreadVideoThreads: params.offthreadVideoThreads,
 			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
-			isProduction: params.isProduction,
 		};
 		return payload;
 	});

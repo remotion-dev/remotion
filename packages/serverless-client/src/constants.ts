@@ -274,7 +274,6 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		progressEveryNthFrame: number;
 		forcePathStyle: boolean;
 		metadata: Record<string, string> | null;
-		isProduction: boolean;
 	};
 	still: {
 		type: ServerlessRoutines.still;

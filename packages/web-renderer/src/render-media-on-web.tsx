@@ -109,7 +109,8 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	onArtifact: WebRendererOnArtifact | null;
 	onFrame: OnFrameCallback | null;
 	outputTarget: WebRendererOutputTarget | null;
-	licenseKey: string | undefined;
+	licenseKey: string | null;
+	isProduction: boolean;
 	muted: boolean;
 	scale: number;
 };
@@ -160,6 +161,7 @@ const internalRenderMediaOnWeb = async <
 	licenseKey,
 	muted,
 	scale,
+	isProduction,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
@@ -466,7 +468,7 @@ const internalRenderMediaOnWeb = async <
 				succeeded: true,
 				apiName: 'renderMediaOnWeb',
 				isStill: false,
-				isProduction: null,
+				isProduction: isProduction ?? true,
 			});
 
 			await webFsTarget.close();
@@ -487,7 +489,7 @@ const internalRenderMediaOnWeb = async <
 			succeeded: true,
 			apiName: 'renderMediaOnWeb',
 			isStill: false,
-			isProduction: null,
+			isProduction: isProduction ?? true,
 		});
 
 		return {
@@ -509,7 +511,7 @@ const internalRenderMediaOnWeb = async <
 				licenseKey: licenseKey ?? null,
 				apiName: 'renderMediaOnWeb',
 				isStill: false,
-				isProduction: null,
+				isProduction: isProduction ?? true,
 			}).catch((err2) => {
 				Internals.Log.error(
 					{logLevel: 'error', tag: 'web-renderer'},
@@ -557,9 +559,10 @@ export const renderMediaOnWeb = <
 				onArtifact: options.onArtifact ?? null,
 				onFrame: options.onFrame ?? null,
 				outputTarget: options.outputTarget ?? null,
-				licenseKey: options.licenseKey ?? undefined,
+				licenseKey: options.licenseKey ?? null,
 				muted: options.muted ?? false,
 				scale: options.scale ?? 1,
+				isProduction: options.isProduction ?? true,
 			}),
 		);
 

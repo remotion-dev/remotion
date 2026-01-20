@@ -354,8 +354,9 @@ const renderHandler = async <Provider extends CloudProvider>({
 			offthreadVideoThreads: params.offthreadVideoThreads,
 			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 			onLog: RenderInternals.defaultOnLog,
+			// Not doing telemetry for the individual chunks
 			licenseKey: null,
-			isProduction: null,
+			isProduction: false,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(
