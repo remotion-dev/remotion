@@ -9,9 +9,9 @@ export const isProductionOption = {
 	cliFlag,
 	description: () => (
 		<>
-			Pass <code>true</code> if you are rendering in production and the default
-			is&nbsp;<code>true</code>. All the production renders are considered as
-			billable renders on the Pro platform.
+			Pass <code>false</code> if this a development render to not count it as a
+			billable render on remotion.pro. Only can be used in conjuction with{' '}
+			<code>licenseKey</code>.
 		</>
 	),
 	ssrName: 'isProduction' as const,
