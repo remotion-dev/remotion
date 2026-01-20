@@ -60,8 +60,8 @@ Control what happens when the animation finishes:
 // Play once, show final frame
 <AnimatedImage src={staticFile("animation.gif")} width={500} height={500} loopBehavior="pause-after-finish" />
 
-// Play once, then unmount
-<AnimatedImage src={staticFile("animation.gif")} width={500} height={500} loopBehavior="unmount-after-finish" />
+// Play once, then clear canvas
+<AnimatedImage src={staticFile("animation.gif")} width={500} height={500} loopBehavior="clear-after-finish" />
 ```
 
 ## Styling
