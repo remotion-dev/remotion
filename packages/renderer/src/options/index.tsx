@@ -24,7 +24,7 @@ import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
 import {imageSequencePatternOption} from './image-sequence-pattern';
-import {isProductionKeyOption} from './is-production-key';
+import {isProductionOption} from './is-production';
 import {jpegQualityOption} from './jpeg-quality';
 import {keyboardShortcutsOption} from './keyboard-shortcuts';
 import {audioLatencyHintOption} from './latency-hint';
@@ -103,7 +103,7 @@ export const allOptions = {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	publicLicenseKeyOption,
-	isProductionKeyOption,
+	isProductionOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,

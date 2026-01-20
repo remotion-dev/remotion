@@ -359,7 +359,7 @@ export const renderCommand = async ({
 		storageClass: parsedLambdaCli['storage-class'] ?? null,
 		requestHandler: null,
 		isProduction:
-			parsedLambdaCli[BrowserSafeApis.options.isProductionKeyOption.cliFlag] ??
+			parsedLambdaCli[BrowserSafeApis.options.isProductionOption.cliFlag] ??
 			true,
 	});
 

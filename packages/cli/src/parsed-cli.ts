@@ -35,6 +35,7 @@ export const BooleanFlags = [
 	'compatible-only',
 	'force-path-style',
 	'onlyAllocateCpuDuringRequestProcessing',
+	BrowserSafeApis.options.isProductionOption.cliFlag,
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {

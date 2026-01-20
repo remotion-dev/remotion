@@ -1,19 +1,20 @@
 import type {AnyRemotionOption} from './option';
 
-const cliFlag = 'is-production-key' as const;
+const cliFlag = 'is-production' as const;
 
 let currentIsProductionKey: boolean | null = null;
 
-export const isProductionKeyOption = {
-	name: 'Is Production Key',
+export const isProductionOption = {
+	name: 'Is Production',
 	cliFlag,
 	description: () => (
 		<>
-			Pass "true" if you are rendering in production. All the production renders
-			are considered as billable renders on the Pro platform.
+			Pass "true" if you are rendering in production and the default value is
+			"true". All the production renders are considered as billable renders on
+			the Pro platform.
 		</>
 	),
-	ssrName: 'isProductionKey' as const,
+	ssrName: 'isProduction' as const,
 	docLink: 'https://www.remotion.dev/docs/licensing',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
