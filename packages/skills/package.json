@@ -19,6 +19,7 @@
 		"@remotion/three": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@typescript/native-preview": "catalog:",
-		"@remotion/lottie": "workspace:*"
+		"@remotion/lottie": "workspace:*",
+		"@remotion/google-fonts": "workspace:*"
 	}
 }

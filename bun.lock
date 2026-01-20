@@ -1271,6 +1271,7 @@
         "@remotion/bundler": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/eslint-config-internal": "workspace:*",
+        "@remotion/google-fonts": "workspace:*",
         "@remotion/lottie": "workspace:*",
         "@remotion/shapes": "workspace:*",
         "@remotion/three": "workspace:*",

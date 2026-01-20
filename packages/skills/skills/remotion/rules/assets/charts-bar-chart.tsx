@@ -1,4 +1,7 @@
+import {loadFont} from '@remotion/google-fonts/Inter';
 import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+
+const {fontFamily} = loadFont();
 
 const COLOR_BAR = '#D4AF37';
 const COLOR_TEXT = '#ffffff';
@@ -141,7 +144,7 @@ export const MyAnimation = () => {
 				padding: 60,
 				display: 'flex',
 				flexDirection: 'column',
-				fontFamily: 'Inter, sans-serif',
+				fontFamily,
 			}}
 		>
 			<Title>Gold Price 2024</Title>

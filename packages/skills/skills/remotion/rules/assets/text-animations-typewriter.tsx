@@ -15,6 +15,8 @@ const CHAR_FRAMES = 2;
 const CURSOR_BLINK_FRAMES = 16;
 const PAUSE_SECONDS = 1;
 
+// Ideal composition size: 1280x720
+
 const getTypedText = ({
 	frame,
 	fullText,
