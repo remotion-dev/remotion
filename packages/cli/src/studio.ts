@@ -36,6 +36,9 @@ const {
 	publicDirOption,
 	disableGitSourceOption,
 	enableCrossSiteIsolationOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -98,11 +101,14 @@ export const studioCommand = async (
 		false,
 	);
 
-	const keyboardShortcutsEnabled =
-		ConfigInternals.getKeyboardShortcutsEnabled();
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const experimentalClientSideRenderingEnabled =
-		ConfigInternals.getExperimentalClientSideRenderingEnabled();
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: parsedCli,
+		}).value;
 
 	if (experimentalClientSideRenderingEnabled) {
 		Log.warn(
@@ -124,6 +130,10 @@ export const studioCommand = async (
 	}).value;
 
 	const enableCrossSiteIsolation = enableCrossSiteIsolationOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const askAIEnabled = askAIOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -165,6 +175,7 @@ export const studioCommand = async (
 		forceIPv4: parsedCli.ipv4,
 		audioLatencyHint: parsedCli['audio-latency-hint'],
 		enableCrossSiteIsolation,
+		askAIEnabled,
 	});
 
 	// If the server is restarted through the UI, let's do the whole thing again.

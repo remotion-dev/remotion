@@ -1,4 +1,4 @@
-import type {bundle} from '@remotion/bundler';
+import type {BundlerInternals} from '@remotion/bundler';
 import type {
 	ChromiumOptions,
 	EmittedArtifact,
@@ -134,7 +134,7 @@ export type InsideFunctionSpecifics<Provider extends CloudProvider> = {
 
 export type FullClientSpecifics<Provider extends CloudProvider> = {
 	id: '__remotion_full_client_specifics';
-	bundleSite: typeof bundle;
+	bundleSite: typeof BundlerInternals.internalBundle;
 	readDirectory: ReadDir;
 	uploadDir: UploadDir<Provider>;
 	createFunction: CreateFunction<Provider>;

@@ -50,6 +50,8 @@ export type MandatoryLegacyBundleOptions = {
 	publicDir: string | null;
 	onPublicDirCopyProgress: (bytes: number) => void;
 	onSymlinkDetected: (path: string) => void;
+	keyboardShortcutsEnabled: boolean;
+	askAIEnabled: boolean;
 };
 
 export type LegacyBundleOptions = Partial<MandatoryLegacyBundleOptions>;
@@ -90,10 +92,11 @@ export const getConfig = ({
 		enableCaching: options?.enableCaching ?? true,
 		maxTimelineTracks,
 		remotionRoot: resolvedRemotionRoot,
-		keyboardShortcutsEnabled: true,
+		keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
 		bufferStateDelayInMilliseconds,
 		poll: null,
 		experimentalClientSideRenderingEnabled,
+		askAIEnabled: options?.askAIEnabled ?? true,
 	});
 };
 
@@ -221,9 +224,9 @@ export const internalBundle = async (
 		// Should be null to keep cache hash working
 		bufferStateDelayInMilliseconds:
 			actualArgs.bufferStateDelayInMilliseconds ?? null,
-		maxTimelineTracks: actualArgs.maxTimelineTracks ?? null,
+		maxTimelineTracks: actualArgs.maxTimelineTracks,
 		experimentalClientSideRenderingEnabled:
-			actualArgs.experimentalClientSideRenderingEnabled ?? false,
+			actualArgs.experimentalClientSideRenderingEnabled,
 	});
 
 	const output = await promisified([config]);
@@ -361,6 +364,8 @@ export async function bundle(...args: Arguments): Promise<string> {
 		experimentalClientSideRenderingEnabled:
 			actualArgs.experimentalClientSideRenderingEnabled ?? false,
 		renderDefaults: actualArgs.renderDefaults ?? null,
+		askAIEnabled: actualArgs.askAIEnabled ?? true,
+		keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled ?? true,
 	});
 	return result;
 }

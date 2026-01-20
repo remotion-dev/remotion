@@ -5,7 +5,6 @@ import {StudioServerInternals} from '@remotion/studio-server';
 import {existsSync, readdirSync, readFileSync, rmSync, writeFileSync} from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
-import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
 import {getGitSource} from './get-github-repository';
 import {Log} from './log';
@@ -19,6 +18,9 @@ const {
 	publicDirOption,
 	disableGitSourceOption,
 	audioLatencyHintOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const bundleCommand = async (
@@ -64,7 +66,13 @@ export const bundleCommand = async (
 	}
 
 	const experimentalClientSideRenderingEnabled =
-		ConfigInternals.getExperimentalClientSideRenderingEnabled();
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	if (experimentalClientSideRenderingEnabled) {
 		Log.warn(
@@ -150,6 +158,8 @@ export const bundleCommand = async (
 		publicPath,
 		audioLatencyHint,
 		experimentalClientSideRenderingEnabled,
+		askAIEnabled,
+		keyboardShortcutsEnabled,
 	});
 
 	Log.info(

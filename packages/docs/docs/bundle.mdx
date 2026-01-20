@@ -62,6 +62,14 @@ const webpackOverride: WebpackOverrideFn = (webpackConfig) => {
 
 Specify a desired output directory. If no passed, the webpack bundle will be created in a temp dir.
 
+### `askAIEnabled?`
+
+<Options id="disable-ask-ai" />
+
+### `keyboardShortcutsEnabled?`
+
+A `boolean` specifying whether the Studio responds to the predefined keyboard shortcuts.. Default `true`.
+
 ### `enableCaching?`
 
 A `boolean` specifying whether Webpack caching should be enabled. Default `true`, it is recommended to leave caching enabled at all times since file changes should be recognized by Webpack nonetheless.

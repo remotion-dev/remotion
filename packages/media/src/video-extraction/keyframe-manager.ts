@@ -224,7 +224,7 @@ export const makeKeyframeManager = () => {
 				videoSampleSink,
 				logLevel,
 				src,
-				requestedTimestamp: timestamp,
+				initialTimestampRequest: timestamp,
 			});
 
 			addKeyframeBank({src, bank: newKeyframeBank});
@@ -254,7 +254,7 @@ export const makeKeyframeManager = () => {
 		// Then refetch
 		const replacementKeybank = await makeKeyframeBank({
 			videoSampleSink,
-			requestedTimestamp: timestamp,
+			initialTimestampRequest: timestamp,
 			logLevel,
 			src,
 		});
