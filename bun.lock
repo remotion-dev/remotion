@@ -1264,6 +1264,24 @@
         "react-dom": ">=16.8.0",
       },
     },
+    "packages/skills": {
+      "name": "@remotion/skills",
+      "version": "4.0.407",
+      "devDependencies": {
+        "@remotion/bundler": "workspace:*",
+        "@remotion/cli": "workspace:*",
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@remotion/google-fonts": "workspace:*",
+        "@remotion/lottie": "workspace:*",
+        "@remotion/shapes": "workspace:*",
+        "@remotion/three": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "remotion": "workspace:*",
+      },
+    },
     "packages/streaming": {
       "name": "@remotion/streaming",
       "version": "4.0.407",
@@ -3546,6 +3564,8 @@
     "@remotion/shapes": ["@remotion/shapes@workspace:packages/shapes"],
 
     "@remotion/skia": ["@remotion/skia@workspace:packages/skia"],
+
+    "@remotion/skills": ["@remotion/skills@workspace:packages/skills"],
 
     "@remotion/streaming": ["@remotion/streaming@workspace:packages/streaming"],
 
