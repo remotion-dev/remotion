@@ -6,7 +6,7 @@ import path from 'node:path';
 import {Log} from './log';
 import {mkdirp} from './mkdirp';
 import prompts from './prompts';
-import {isTmpFlagSelected} from './select-template';
+import {isFlagSelected, isTmpFlagSelected} from './select-template';
 import type {Template} from './templates';
 import {validateName} from './validate-name';
 
@@ -61,11 +61,10 @@ export const resolveProjectRoot = async (options?: {
 		projectName = options.directoryArgument;
 	} else {
 		// Print selected template info before prompting for directory
-		if (options?.selectedTemplate) {
+		if (options?.selectedTemplate && isFlagSelected) {
 			Log.info(
 				`Selected template: ${chalk.blue(options.selectedTemplate.shortName)}`,
 			);
-			Log.info();
 		}
 
 		try {

@@ -168,7 +168,8 @@ export const getDevCommand = (manager: PackageManager, template: Template) => {
 export const getPackageManagerVersion = (
 	manager: PackageManager,
 ): Promise<string> => {
-	const cmd: `${PackageManager} -v` = `${manager} -v`;
+	const cmd: string =
+		manager === 'npm' ? 'npm -v --loglevel=error' : `${manager} -v`;
 
 	return new Promise((resolve, reject) => {
 		exec(cmd, (error, stdout, stderr) => {
@@ -193,7 +194,8 @@ export const getPackageManagerVersionOrNull = async (
 	try {
 		const version = await getPackageManagerVersion(manager);
 		return version;
-	} catch {
+	} catch (err) {
+		console.log({err});
 		Log.warn(`Could not determine the version of ${manager}.`);
 		return null;
 	}
