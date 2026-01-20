@@ -99,16 +99,16 @@ As argument, you get an object with the following properties:
 
 The function must return an pure JSON-serializable object, which can contain the following properties:
 
-- `props` _optional_: The [final props](/docs/props-resolution) the component receives. It must have the [same shape](/docs/data-fetching#usage) as the `props` received by this function. The props must be a plain object and must not contain any non-JSON-serializable values, except `Date`, `Map`, `Set` and [`staticFile()`](/docs/staticfile).
-- `durationInFrames` _optional_: The duration of the composition in frames
-- `width` _optional_: The width of the composition in pixels
-- `height` _optional_: The height of the composition in pixels
-- `fps` _optional_: The frames per second of the composition
-- `defaultCodec` _optional_: The default codec to use for the composition.
-- `defaultOutName` _optional_: The default output name when rendering (without file extension) <AvailableFrom v="4.0.268" />
-- `defaultVideoImageFormat` _optional_: The default video image format (`'png'`, `'jpeg'`, or `'none'`) <AvailableFrom v="4.0.316" />
-- `defaultPixelFormat` _optional_: The default pixel format (`'yuv420p'`, `'yuva420p'`, `'yuv422p'`, `'yuv444p'`, `'yuv420p10le'`, `'yuv422p10le'`, `'yuv444p10le'`, or `'yuva444p10le'`) <AvailableFrom v="4.0.316" />
-- `defaultProResProfile` _optional_: The default ProRes profile (`'4444-xq'`, `'4444'`, `'hq'`, `'standard'`, `'light'`, or `'proxy'`) <AvailableFrom v="4.0.367" />
+- `props`: The [final props](/docs/props-resolution) the component receives. It must have the [same shape](/docs/data-fetching#usage) as the `props` received by this function. The props must be a plain object and must not contain any non-JSON-serializable values, except `Date`, `Map`, `Set` and [`staticFile()`](/docs/staticfile). Optional.
+- `durationInFrames`: The duration of the composition in frames. Optional.
+- `width`: The width of the composition in pixels. Optional.
+- `height`: The height of the composition in pixels. Optional.
+- `fps`: The frames per second of the composition. Optional.
+- `defaultCodec`: The default codec to use for the composition. Optional.
+- `defaultOutName`: The default output name when rendering (without file extension). Optional. <AvailableFrom v="4.0.268" />
+- `defaultVideoImageFormat`: The default video image format (`'png'`, `'jpeg'`, or `'none'`). Optional. <AvailableFrom v="4.0.316" />
+- `defaultPixelFormat`: The default pixel format (`'yuv420p'`, `'yuva420p'`, `'yuv422p'`, `'yuv444p'`, `'yuv420p10le'`, `'yuv422p10le'`, `'yuv444p10le'`, or `'yuva444p10le'`). Optional. <AvailableFrom v="4.0.316" />
+- `defaultProResProfile`: The default ProRes profile (`'4444-xq'`, `'4444'`, `'hq'`, `'standard'`, `'light'`, or `'proxy'`). Optional. <AvailableFrom v="4.0.367" />
 
 If you return a field, it will take precendence over the props directly passed to the composition. The defaultCodec returned will have a higher priority than the config file, but less priority than explicitly passing the option to renderMedia() i.e. the composition will be rendered with this codec if nothing with higher priority was specified.
 

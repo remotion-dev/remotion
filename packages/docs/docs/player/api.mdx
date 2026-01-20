@@ -62,45 +62,31 @@ The height you would like the video to have when rendered as an MP4. Use `style=
 
 Pass props to the component that you have specified using the `component` prop. The Typescript definition takes the shape of the props that you have given to your `component`.
 
-### `loop`
-
-_optional_
+### `loop?`
 
 Whether the video should restart when it ends. Default `false`.
 
-### `autoPlay`
-
-_optional_
+### `autoPlay?`
 
 Whether the video should start immediately after loaded. Default `false`.
 
-### `controls`
-
-_optional_
+### `controls?`
 
 Whether the video should display a seek bar and a play/pause button. Default `false.`
 
-### `showVolumeControls`
-
-_optional_
+### `showVolumeControls?`
 
 Whether the video should display a volume slider and a mute button. Only has an effect if `controls` is also set to true. Default `true`.
 
-### `allowFullscreen`
-
-_optional_
+### `allowFullscreen?`
 
 Whether the video can go fullscreen. By default `true`.
 
-### `clickToPlay`
-
-_optional_
+### `clickToPlay?`
 
 A boolean property defining whether you can play, pause or resume the video with a single click into the player. Default `true` if `controls` are true, otherwise `false`.
 
-### `doubleClickToFullscreen`
-
-_optional_
+### `doubleClickToFullscreen?`
 
 A boolean property defining whether you can go fullscreen and exit fullscreen in the video with double click into the player. If enabled, clicking on the video once will delay pausing the video for 200ms to wait for a possible second click. Default `false`.
 
@@ -108,39 +94,27 @@ A boolean property defining whether you can go fullscreen and exit fullscreen in
 This option is not supported on mobile. You do not double-tap on mobile to go to fullscreen.
 :::
 
-### `spaceKeyToPlayOrPause`
-
-_optional_
+### `spaceKeyToPlayOrPause?`
 
 A boolean property defining whether you can play or pause a video using space key. If enabled, playing the video and subsequently pressing the space key pauses and resumes the video. Only works if `controls` is true. Default `true`.
 
-### `moveToBeginningWhenEnded`<AvailableFrom v="3.1.3" />
-
-_optional_
+### `moveToBeginningWhenEnded?`<AvailableFrom v="3.1.3" />
 
 A boolean property defining whether the video position should go back to zero once the video has ended. Only works if `loop` is disabled. Default `true`.
 
-### `style`
-
-_optional_
+### `style?`
 
 A regular `style` prop for a HTMLDivElement. You can pass a different height and width if you would like different dimensions for the player than the original composition dimensions.
 
-### `className`<AvailableFrom v="3.1.3" />
-
-_optional_
+### `className?`<AvailableFrom v="3.1.3" />
 
 A HTML class name to be applied to the container.
 
-### `initialFrame`<AvailableFrom v="3.1.14" />
-
-_optional_
+### `initialFrame?`<AvailableFrom v="3.1.14" />
 
 Start the playback from a specific frame. Default `0`. Once the player is mounted, this property cannot be changed.
 
-### `numberOfSharedAudioTags`<AvailableFrom v="2.3.1" />
-
-_optional_
+### `numberOfSharedAudioTags?`<AvailableFrom v="2.3.1" />
 
 If you use an [`<Html5Audio />`](/docs/html5-audio) tag, it might not play in some browsers (specifically iOS Safari) due to browser autoplay policies. This is why the Remotion Player pre-mounts a set of audio tags with silent audio that get played upon user interaction. These audio tags can then be used to play real audio later and will not be subject to the autoplay policy of the browser.
 
@@ -150,9 +124,7 @@ If you'd like to opt out of this behavior, you can pass `0` to mount native audi
 
 Once you have set this prop, you cannot change it anymore or an error will be thrown.
 
-### `playbackRate`
-
-_optional_
+### `playbackRate?`
 
 A number between -4 and 4 (excluding 0) for the speed that the Player will run the media.
 
@@ -160,15 +132,11 @@ A `playbackRate` of `2` means the video plays twice as fast. A playbackRate of `
 
 Default `1`.
 
-### `errorFallback`
-
-_optional_
+### `errorFallback?`
 
 A callback for rendering a custom error message. See [Handling errors](#handling-errors) section for an example.
 
-### `renderLoading`
-
-_optional_
+### `renderLoading?`
 
 A callback function that allows you to return a custom UI that gets displayed while the player is loading.
 
@@ -201,9 +169,7 @@ const MyApp: React.FC = () => {
 A player needs to be loaded if it contains elements that use React Suspense, or if the `lazyComponent` prop is being used.
 :::
 
-### `renderPoster`<AvailableFrom v="3.2.14" />
-
-_optional_
+### `renderPoster?`<AvailableFrom v="3.2.14" />
 
 A callback function that allows you to return a custom UI that gets overlayed over the Player.
 
@@ -244,63 +210,43 @@ const MyApp: React.FC = () => {
 };
 ```
 
-### `showPosterWhenUnplayed`<AvailableFrom v="3.2.14" />
-
-_optional_
+### `showPosterWhenUnplayed?`<AvailableFrom v="3.2.14" />
 
 Render the poster when the video is in its initial state and has not been played yet. Requires [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
-### `showPosterWhenPaused`<AvailableFrom v="3.2.14" />
-
-_optional_
+### `showPosterWhenPaused?`<AvailableFrom v="3.2.14" />
 
 Render the poster when the video is paused. Although considered a paused state, the poster will not render while the user is scrubbing through the video. Requires [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
-### `showPosterWhenEnded`<AvailableFrom v="3.2.14" />
-
-_optional_
+### `showPosterWhenEnded?`<AvailableFrom v="3.2.14" />
 
 Render the poster when the video has ended. Requires [`moveToBeginning`](#movetobeginningwhenended) to be set to `false`. [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
-### `showPosterWhenBuffering`<AvailableFrom v="4.0.111" />
-
-_optional_
+### `showPosterWhenBuffering?`<AvailableFrom v="4.0.111" />
 
 Render a poster when the `<Player>` is in the [buffering state](/docs/player/buffer-state) and [playing](/docs/player/buffer-state#possible-states). You may for example show a spinner in the center of the video.
 
-### `showPosterWhenBufferingAndPaused`<AvailableFrom v="4.0.290" />
-
-_optional_
+### `showPosterWhenBufferingAndPaused?`<AvailableFrom v="4.0.290" />
 
 Render a poster when the `<Player>` is in the [buffering state](/docs/player/buffer-state) and [paused](/docs/player/buffer-state#possible-states). You may for example show a spinner in the center of the video.
 
-### `inFrame`<AvailableFrom v="3.2.15" />
-
-_optional_
+### `inFrame?`<AvailableFrom v="3.2.15" />
 
 Limit playback to only play after a certain frame. The video will start from this frame and move to this position once it has ended. Must be an integer, not smaller than `0`, not bigger than [`outFrame`](#outframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the beginning of the video.
 
-### `outFrame`<AvailableFrom v="3.2.15" />
-
-_optional_
+### `outFrame?`<AvailableFrom v="3.2.15" />
 
 Limit playback to only play before a certain frame. The video will end at this frame and move to the beginning once it has ended. Must be an integer, not smaller than `1`, not smaller than [`inFrame`](#inframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the end of the video.
 
-### `initiallyShowControls`<AvailableFrom v="3.2.24" />
-
-_optional_
+### `initiallyShowControls?`<AvailableFrom v="3.2.24" />
 
 If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true` since `v3.2.24`, before that unsupported.
 
-### `initiallyMuted`<AvailableFrom v="3.3.81" />
-
-_optional_
+### `initiallyMuted?`<AvailableFrom v="3.3.81" />
 
 If true, the player is muted in its initial state. This is useful if the video must autoplay regardless of the [autoplay](/docs/player/autoplay) policy of the browser.
 
-### `renderPlayPauseButton`<AvailableFrom v="3.2.32" />
-
-_optional_
+### `renderPlayPauseButton?`<AvailableFrom v="3.2.32" />
 
 Allows you to customize the Play/Pause button of the controls.  
 Must be a callback function that returns a valid React element.
@@ -336,9 +282,7 @@ Since v4.0.111, a `isBuffering` parameter is being passed in the callback which 
 
 Since v4.0.111, You can return `null` in the callback to fall back to the default UI.
 
-### `renderFullscreenButton`<AvailableFrom v="3.2.32" />
-
-_optional_
+### `renderFullscreenButton?`<AvailableFrom v="3.2.32" />
 
 Allows you to customise the fullscreen button of the player controls, must return a valid React element. If fullscreen is disabled or not available in a browser, it will not be rendered.
 
@@ -363,9 +307,7 @@ export const App: React.FC = () => {
 };
 ```
 
-### `renderMuteButton`<AvailableFrom v="4.0.188" />
-
-_optional_
+### `renderMuteButton?`<AvailableFrom v="4.0.188" />
 
 Allows you to customize the Mute button of the controls, must return a valid React element.  
 Action is disabled, you must attach click handlers yourself using the [`PlayerRef`](#playerref).  
@@ -416,23 +358,17 @@ export const App: React.FC = () => {
 };
 ```
 
-### `alwaysShowControls`<AvailableFrom v="3.3.55" />
-
-_optional_
+### `alwaysShowControls?`<AvailableFrom v="3.3.55" />
 
 If true, displays the player controls at all times even if the mouse is outside the player area. This settings override the default behavior, which automatically hides the controls after a period of mouse inactivity over the player area. Default `false`.
 
-### `hideControlsWhenPointerDoesntMove`<AvailableFrom v="4.0.124" />
-
-_optional_
+### `hideControlsWhenPointerDoesntMove?`<AvailableFrom v="4.0.124" />
 
 Hides the player controls after 3 seconds of mouse inactivity while the mouse is over the player. By default, this behavior is enabled (`true`). The [`alwaysShowControls`](#alwaysshowcontrols) prop is respected, meaning, if it is set to `true`, then the controls will never hide.
 
 You may also pass in a number to customize the hide delay in milliseconds, by default `3000`.
 
-### `showPlaybackRateControl`<AvailableFrom v="3.3.98" />
-
-_optional_
+### `showPlaybackRateControl?`<AvailableFrom v="3.3.98" />
 
 If `true`, displays a gear icon allowing the user to change the playback rate.
 
@@ -468,9 +404,7 @@ Makes the Player render things outside of the canvas. Useful if you have interac
 Controls what happens when the user presses the Play/Pause button on their keyboard or uses other controls such as Chromes built-in controls.  
 See [Media Keys Behavior](/docs/player/media-keys) for more information.
 
-### `overrideInternalClassName`<AvailableFrom v="4.0.233" />
-
-_optional_
+### `overrideInternalClassName?`<AvailableFrom v="4.0.233" />
 
 A HTML class name to be used in place of the default `__remotion-player`.
 
