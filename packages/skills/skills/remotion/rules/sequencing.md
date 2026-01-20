@@ -15,7 +15,7 @@ const {fps} = useVideoConfig();
 <Sequence from={1 * fps} durationInFrames={2 * fps} premountFor={1 * fps}>
   <Title />
 </Sequence>
-<Sequence from={2 * fps} durationInFrames={2 * fps} preMountFor={1 * fps}>
+<Sequence from={2 * fps} durationInFrames={2 * fps} premountFor={1 * fps}>
   <Subtitle />
 </Sequence>
 ```
@@ -57,7 +57,7 @@ import {Series} from 'remotion';
   <Series.Sequence durationInFrames={30}>
     <Outro />
   </Series.Sequence>
-</Series>
+</Series>;
 ```
 
 Same as with `<Sequence>`, the items will be wrapped in an absolute fill element by default when using `<Series.Sequence>`, unless the `layout` prop is set to `none`.
@@ -104,5 +104,3 @@ Sequences can be nested for complex timing:
   </Sequence>
 </Sequence>
 ```
-
-
