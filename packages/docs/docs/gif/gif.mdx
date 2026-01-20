@@ -20,7 +20,16 @@ export const MyComponent: React.FC = () => {
   const {width, height} = useVideoConfig();
   const ref = useRef<HTMLCanvasElement>(null);
 
-  return <Gif ref={ref} src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif" width={width} height={height} fit="fill" playbackRate={2} />;
+  return (
+    <Gif
+      ref={ref}
+      src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif"
+      width={width}
+      height={height}
+      fit="fill"
+      playbackRate={2}
+    />
+  );
 };
 ```
 
@@ -28,7 +37,6 @@ export const MyComponent: React.FC = () => {
 
 ### `src`
 
-_required_
 
 The source of the GIF. Can be an URL or a local image - see [Importing assets](/docs/assets).
 
