@@ -194,8 +194,7 @@ export const getPackageManagerVersionOrNull = async (
 	try {
 		const version = await getPackageManagerVersion(manager);
 		return version;
-	} catch (err) {
-		console.log({err});
+	} catch {
 		Log.warn(`Could not determine the version of ${manager}.`);
 		return null;
 	}
