@@ -9,9 +9,9 @@ export const isProductionOption = {
 	cliFlag,
 	description: () => (
 		<>
-			Pass "true" if you are rendering in production and the default value is
-			"true". All the production renders are considered as billable renders on
-			the Pro platform.
+			Pass <code>true</code> if you are rendering in production and the default
+			is&nbsp;<code>true</code>. All the production renders are considered as
+			billable renders on the Pro platform.
 		</>
 	),
 	ssrName: 'isProduction' as const,
@@ -20,14 +20,14 @@ export const isProductionOption = {
 		if (commandLine[cliFlag] !== undefined) {
 			return {
 				source: 'cli',
-				value: commandLine[cliFlag] as string | null,
+				value: commandLine[cliFlag] as boolean | null,
 			};
 		}
 
 		if (currentIsProductionKey !== null) {
 			return {
 				source: 'config',
-				value: currentIsProductionKey.toString(),
+				value: currentIsProductionKey,
 			};
 		}
 
@@ -36,8 +36,8 @@ export const isProductionOption = {
 			value: null,
 		};
 	},
-	setConfig: (value: string | null) => {
-		currentIsProductionKey = value === 'true';
+	setConfig: (value: boolean | null) => {
+		currentIsProductionKey = value;
 	},
-	type: null as string | null,
-} satisfies AnyRemotionOption<string | null>;
+	type: false as boolean | null,
+} satisfies AnyRemotionOption<boolean | null>;
