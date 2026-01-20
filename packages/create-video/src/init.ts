@@ -7,7 +7,9 @@ import {
 	addTailwindToConfig,
 } from './add-tailwind';
 import {createYarnYmlFile} from './add-yarn2-support';
+import {askSkills} from './ask-skills';
 import {askTailwind} from './ask-tailwind';
+import {installSkills} from './install-skills';
 import {createPublicFolder} from './create-public-folder';
 import {degit} from './degit';
 import {getLatestRemotionVersion} from './latest-remotion-version';
@@ -136,6 +138,8 @@ export const init = async () => {
 		? await askTailwind()
 		: false;
 
+	const shouldInstallSkills = await askSkills();
+
 	const pkgManager = selectPackageManager();
 	const pkgManagerVersion = await getPackageManagerVersionOrNull(pkgManager);
 
@@ -175,6 +179,10 @@ export const init = async () => {
 	});
 
 	await getGitStatus(projectRoot);
+
+	if (shouldInstallSkills) {
+		await installSkills(projectRoot);
+	}
 
 	const relativeToCurrent = path.relative(process.cwd(), projectRoot);
 	const cdToFolder = relativeToCurrent.startsWith('.')
