@@ -1,18 +1,13 @@
 import type {LogLevel} from '@remotion/renderer';
 import {getDefaultOutLocation} from '@remotion/studio-shared';
 import type {
-	RenderMediaOnWebProgress,
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererQuality,
 	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
-import {
-	getDefaultAudioCodecForContainer,
-	renderMediaOnWeb,
-	renderStillOnWeb,
-} from '@remotion/web-renderer';
+import {getDefaultAudioCodecForContainer} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {AudioIcon} from '../../icons/audio';
@@ -22,10 +17,17 @@ import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import type {WebRenderModalState} from '../../state/modals';
+import {ModalsContext} from '../../state/modals';
+import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
 import {DismissableModal} from '../NewComposition/DismissableModal';
+import {
+	optionsSidebarTabs,
+	persistSelectedOptionsSidebarPanel,
+} from '../OptionsPanel';
+import {RenderQueueContext} from '../RenderQueue/context';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {VerticalTab} from '../Tabs/vertical';
@@ -141,7 +143,6 @@ const validateOutnameForStill = ({
 	}
 };
 
-// TODO: Add to queue
 // TODO: Switch to server-side rendering
 // TODO: Filter out codecs that are not supported for the container
 // TODO: Add more containers
@@ -157,6 +158,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	initialLicenseKey,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
+	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSidebarCollapsedState} = useContext(SidebarContext);
+	const {addClientStillJob, addClientVideoJob} = useContext(RenderQueueContext);
 	if (!context) {
 		throw new Error(
 			'Should not be able to render without resolving comp first',
@@ -206,8 +210,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [endFrame, setEndFrame] = useState<number | null>(
 		() => outFrameMark ?? null,
 	);
-	const [renderProgress, setRenderProgress] =
-		useState<RenderMediaOnWebProgress | null>(null);
 	const [transparent, setTransparent] = useState(false);
 	const [muted, setMuted] = useState(false);
 	const [scale, setScale] = useState(1);
@@ -251,14 +253,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 		return Math.max(0, Math.min(finalEndFrame, startFrame));
 	}, [finalEndFrame, startFrame]);
-
-	const frameRange = useMemo(() => {
-		if (startFrame === null && endFrame === null) {
-			return null;
-		}
-
-		return [finalStartFrame, finalEndFrame] as [number, number];
-	}, [endFrame, finalEndFrame, finalStartFrame, startFrame]);
 
 	const [initialOutName] = useState(() => {
 		return getDefaultOutLocation({
@@ -424,142 +418,101 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		}
 	}, [outName, imageFormat, renderMode, container]);
 
-	const onRenderStill = useCallback(async () => {
-		const {blob} = await renderStillOnWeb({
-			composition: {
-				component: unresolvedComposition.component,
-				width: resolvedComposition.width,
-				height: resolvedComposition.height,
-				fps: resolvedComposition.fps,
-				durationInFrames: resolvedComposition.durationInFrames,
-				defaultProps: resolvedComposition.defaultProps,
-				calculateMetadata: unresolvedComposition.calculateMetadata,
-				id: resolvedComposition.id,
-			},
-			frame,
-			imageFormat,
-			inputProps,
-			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
-			mediaCacheSizeInBytes,
-			logLevel,
-			licenseKey: licenseKey ?? undefined,
-			scale,
-		});
+	const onAddToQueue = useCallback(() => {
+		const compositionRef = {
+			component: unresolvedComposition.component,
+			calculateMetadata: unresolvedComposition.calculateMetadata ?? null,
+			width: resolvedComposition.width,
+			height: resolvedComposition.height,
+			fps: resolvedComposition.fps,
+			durationInFrames: resolvedComposition.durationInFrames,
+			defaultProps: resolvedComposition.defaultProps,
+		};
 
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		// Extract just the filename from the path
-		const filename = outName.includes('/')
-			? outName.substring(outName.lastIndexOf('/') + 1)
-			: outName;
-		a.download = filename;
-		a.click();
-		URL.revokeObjectURL(url);
+		if (renderMode === 'still') {
+			addClientStillJob(
+				{
+					type: 'client-still',
+					compositionId: resolvedComposition.id,
+					outName,
+					imageFormat,
+					frame,
+					inputProps,
+					delayRenderTimeout,
+					mediaCacheSizeInBytes,
+					logLevel,
+					licenseKey,
+					scale,
+				},
+				compositionRef,
+			);
+		} else {
+			addClientVideoJob(
+				{
+					type: 'client-video',
+					compositionId: resolvedComposition.id,
+					outName,
+					container,
+					videoCodec: effectiveVideoCodec,
+					audioCodec: effectiveAudioCodec,
+					startFrame: finalStartFrame,
+					endFrame: finalEndFrame,
+					audioBitrate,
+					videoBitrate,
+					hardwareAcceleration,
+					keyframeIntervalInSeconds,
+					transparent,
+					muted,
+					inputProps,
+					delayRenderTimeout,
+					mediaCacheSizeInBytes,
+					logLevel,
+					licenseKey,
+					scale,
+				},
+				compositionRef,
+			);
+		}
+
+		setSidebarCollapsedState({left: null, right: 'expanded'});
+		persistSelectedOptionsSidebarPanel('renders');
+		optionsSidebarTabs.current?.selectRendersPanel();
+		setSelectedModal(null);
 	}, [
+		renderMode,
 		unresolvedComposition.component,
-		frame,
-		imageFormat,
-		logLevel,
-		inputProps,
-		delayRenderTimeout,
-		mediaCacheSizeInBytes,
-		resolvedComposition.durationInFrames,
+		unresolvedComposition.calculateMetadata,
 		resolvedComposition.width,
 		resolvedComposition.height,
 		resolvedComposition.fps,
-		outName,
+		resolvedComposition.durationInFrames,
 		resolvedComposition.defaultProps,
-		unresolvedComposition.calculateMetadata,
 		resolvedComposition.id,
-		licenseKey,
-		scale,
-	]);
-
-	const onRenderVideo = useCallback(async () => {
-		setRenderProgress({renderedFrames: 0, encodedFrames: 0});
-
-		const {getBlob} = await renderMediaOnWeb({
-			composition: {
-				component: unresolvedComposition.component,
-				width: resolvedComposition.width,
-				height: resolvedComposition.height,
-				fps: resolvedComposition.fps,
-				durationInFrames: resolvedComposition.durationInFrames,
-				defaultProps: resolvedComposition.defaultProps,
-				id: resolvedComposition.id,
-				calculateMetadata: unresolvedComposition.calculateMetadata,
-			},
-			inputProps,
-			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
-			mediaCacheSizeInBytes,
-			logLevel,
-			videoCodec: effectiveVideoCodec,
-			audioCodec: effectiveAudioCodec,
-			audioBitrate,
-			container,
-			videoBitrate,
-			hardwareAcceleration,
-			keyframeIntervalInSeconds,
-			frameRange,
-			onProgress: (progress) => {
-				setRenderProgress(progress);
-			},
-			transparent,
-			muted,
-			outputTarget: 'web-fs',
-			licenseKey: licenseKey ?? undefined,
-			scale,
-		});
-
-		setRenderProgress(null);
-
-		const blob = await getBlob();
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		// Extract just the filename from the path
-		const filename = outName.includes('/')
-			? outName.substring(outName.lastIndexOf('/') + 1)
-			: outName;
-		a.download = filename;
-		a.click();
-		URL.revokeObjectURL(url);
-	}, [
-		unresolvedComposition.component,
+		setSidebarCollapsedState,
+		outName,
+		imageFormat,
+		frame,
 		inputProps,
 		delayRenderTimeout,
 		mediaCacheSizeInBytes,
 		logLevel,
+		licenseKey,
+		container,
 		effectiveVideoCodec,
 		effectiveAudioCodec,
+		finalStartFrame,
+		finalEndFrame,
 		audioBitrate,
-		container,
 		videoBitrate,
 		hardwareAcceleration,
 		keyframeIntervalInSeconds,
-		frameRange,
-		resolvedComposition.durationInFrames,
-		resolvedComposition.width,
-		resolvedComposition.height,
-		resolvedComposition.fps,
-		outName,
 		transparent,
 		muted,
-		resolvedComposition.defaultProps,
-		resolvedComposition.id,
-		unresolvedComposition.calculateMetadata,
-		licenseKey,
+		setSelectedModal,
+		addClientStillJob,
+		addClientVideoJob,
 		scale,
 	]);
-
-	const onRender = useCallback(async () => {
-		if (renderMode === 'still') {
-			await onRenderStill();
-		} else {
-			await onRenderVideo();
-		}
-	}, [renderMode, onRenderStill, onRenderVideo]);
 
 	return (
 		<div style={outerModalStyle}>
@@ -569,14 +522,11 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				<div style={flexer} />
 				<Button
 					autoFocus
-					onClick={onRender}
+					onClick={onAddToQueue}
 					style={buttonStyle}
 					disabled={!outnameValidation.valid}
 				>
-					{renderProgress
-						? `Rendering... ${renderProgress.renderedFrames}/${finalEndFrame}`
-						: `Render ${renderMode}`}
-
+					Render {renderMode}
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
 			</div>

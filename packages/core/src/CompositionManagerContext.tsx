@@ -31,6 +31,14 @@ export type CanvasContent =
 	| {
 			type: 'output';
 			path: string;
+	  }
+	| {
+			type: 'output-blob';
+			displayName: string;
+			getBlob: () => Promise<Blob>;
+			width: number;
+			height: number;
+			sizeInBytes: number;
 	  };
 
 export type CompositionManagerSetters = {
