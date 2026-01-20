@@ -5,78 +5,39 @@ metadata:
   tags: charts, data, visualization, bar-chart, pie-chart, graphs
 ---
 
+# Charts in Remotion
+
+You can create bar charts in Remotion by using regular React code - HTML and SVG is allowed, as well as D3.js.
+
+## No animations not powered by `useCurrentFrame()`
+
+Disable all animations by third party libraries.  
+They will cause flickering during rendering.  
+Instead, drive all animations from `useCurrentFrame()`.
+
 ## Bar Chart Animations
 
-Stagger bar entrances with 3-5 frame delays and use spring() for organic motion.
+See [Bar Chart Example](assets/charts/bar-chart.tsx) for a basic example implmentation.
 
-**Incorrect (all bars animate together):**
+### Staggered Bars
 
-```tsx
-const bars = data.map((item, i) => {
-  const height = spring({ frame, fps, config: { damping: 18 } });
-  return <div style={{ height: height * item.value }} />;
-});
-```
-
-**Correct (staggered entrances):**
+You can animate the height of the bars and stagger them like this:
 
 ```tsx
 const STAGGER_DELAY = 5;
+const frame = useCurrentFrame();
+const {fps} = useVideoConfig();
 
 const bars = data.map((item, i) => {
   const delay = i * STAGGER_DELAY;
   const height = spring({
-    frame: frame - delay,
+    frame,
     fps,
-    config: { damping: 18, stiffness: 80 }
+    delay,
+    config: {damping: 200},
   });
-  return <div style={{ height: height * item.value }} />;
+  return <div style={{height: height * item.value}} />;
 });
-```
-
-## Always Include Y-Axis Labels
-
-Charts without axis labels are hard to read. Always add labeled tick marks.
-
-**Incorrect (no axis):**
-
-```tsx
-<div style={{ display: "flex", alignItems: "flex-end", gap: 8 }}>
-  {bars}
-</div>
-```
-
-**Correct (with Y-axis):**
-
-```tsx
-const yAxisSteps = [0, 25, 50, 75, 100];
-
-<div style={{ display: "flex" }}>
-  <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-    {yAxisSteps.reverse().map(step => (
-      <span style={{ fontSize: 12, color: "#888" }}>{step}</span>
-    ))}
-  </div>
-  <div style={{ display: "flex", alignItems: "flex-end", gap: 8, borderLeft: "1px solid #333" }}>
-    {bars}
-  </div>
-</div>
-```
-
-## Value Labels Inside Bars
-
-Position value labels inside bars when height is sufficient, fade in after bar animates.
-
-```tsx
-const barHeight = normalizedHeight * progress;
-
-<div style={{ height: barHeight, backgroundColor: COLOR_BAR }}>
-  {barHeight > 30 && (
-    <span style={{ opacity: progress, fontSize: 11 }}>
-      {item.value.toLocaleString()}
-    </span>
-  )}
-</div>
 ```
 
 ## Pie Chart Animation
@@ -84,24 +45,14 @@ const barHeight = normalizedHeight * progress;
 Animate segments using stroke-dashoffset, starting from 12 o'clock.
 
 ```tsx
+const frame = useCurrentFrame();
+const {fps} = useVideoConfig();
+
+const progress = interpolate(frame, [0, 100], [0, 1]);
+
 const circumference = 2 * Math.PI * radius;
 const segmentLength = (value / total) * circumference;
 const offset = interpolate(progress, [0, 1], [segmentLength, 0]);
 
-<circle
-  r={radius}
-  cx={center}
-  cy={center}
-  fill="none"
-  stroke={color}
-  strokeWidth={strokeWidth}
-  strokeDasharray={`${segmentLength} ${circumference}`}
-  strokeDashoffset={offset}
-  transform={`rotate(-90 ${center} ${center})`}
-/>
+<circle r={radius} cx={center} cy={center} fill="none" stroke={color} strokeWidth={strokeWidth} strokeDasharray={`${segmentLength} ${circumference}`} strokeDashoffset={offset} transform={`rotate(-90 ${center} ${center})`} />;
 ```
-
-## Complete Examples
-
-For full working code examples, see:
-- [Bar Chart Example](assets/charts/bar-chart.tsx) - Bar chart with Y-axis labels and staggered springs
