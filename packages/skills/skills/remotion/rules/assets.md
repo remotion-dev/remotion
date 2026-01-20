@@ -9,18 +9,7 @@ metadata:
 
 ## The public folder
 
-Place assets in the `public/` folder at your project root:
-
-```
-my-video/
-├─ public/
-│  ├─ logo.png
-│  ├─ background.mp4
-│  ├─ music.mp3
-│  ├─ font.woff2
-├─ src/
-├─ package.json
-```
+Place assets in the `public/` folder at your project root.
 
 ## Using staticFile()
 
@@ -35,13 +24,6 @@ export const MyComposition = () => {
 ```
 
 The function returns an encoded URL that works correctly when deploying to subdirectories.
-
-## Supported formats
-
-**Images:** PNG, SVG, JPG, JPEG, WEBP, GIF, BMP
-**Videos:** WEBM, MOV, MP4
-**Audio:** MP3, WAV, AAC, M4A
-**Fonts:** WOFF, WOFF2, OTF, TTF, EOT
 
 ## Using with components
 
@@ -92,6 +74,5 @@ Remote URLs can be used directly without `staticFile()`:
 
 ## Important notes
 
-- Assets must exist in `public/` before bundling - files added after bundling are not accessible
 - Remotion components (`<Img>`, `<Video>`, `<Audio>`) ensure assets are fully loaded before rendering
 - Special characters in filenames (`#`, `?`, `&`) are automatically encoded
