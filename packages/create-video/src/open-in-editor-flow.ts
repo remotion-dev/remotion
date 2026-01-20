@@ -7,7 +7,7 @@ import {
 	isVsCodeDerivative,
 	launchEditor,
 } from './open-in-editor';
-import {yesOrNo} from './yesno';
+import prompts from './prompts';
 
 export const openInEditorFlow = async (projectRoot: string) => {
 	const editors = await guessEditor();
@@ -19,9 +19,13 @@ export const openInEditorFlow = async (projectRoot: string) => {
 
 	const displayName = getDisplayNameForEditor(guiEditor.command);
 
-	const should = await yesOrNo({
-		defaultValue: true,
-		question: `💻 Open in ${displayName}? (Y/n):`,
+	const should = await prompts({
+		message: `💻 Open in ${displayName}?`,
+		initial: true,
+		type: 'toggle',
+		name: 'answer',
+		active: 'Yes',
+		inactive: 'No',
 	});
 
 	if (should) {

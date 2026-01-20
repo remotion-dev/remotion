@@ -22,6 +22,21 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'System Prompt'}</strong>
 					<div>to teach LLMs Remotion rules</div>
 				</TOCItem>
+				<TOCItem link="/docs/ai/skills">
+					<strong>{'Agent Skills'}</strong>
+					<div>Skill files for Claude Code, Codex, etc.</div>
+				</TOCItem>
+				<TOCItem link="/templates/prompt-to-motion-graphics">
+					<strong>{'Prompt to Motion Graphics template'}</strong>
+					<div>A SaaS template for "Prompt to Motion Graphics" products.</div>
+				</TOCItem>
+				<TOCItem link="/templates/prompt-to-video">
+					<strong>{'Prompt to Video'}</strong>
+					<div>
+						A template that turns prompts into short videos with a script,
+						images and voiceover.
+					</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

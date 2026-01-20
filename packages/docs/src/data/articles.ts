@@ -117,6 +117,15 @@ export const articles = [
 		slug: 'ai/mcp',
 	},
 	{
+		id: 'ai/skills',
+		title: 'Agent Skills',
+		relativePath: 'docs/ai/skills.mdx',
+		compId: 'articles-docs-ai-skills',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/skills',
+	},
+	{
 		id: 'ai/system-prompt',
 		title: 'Remotion System Prompt for LLMs',
 		relativePath: 'docs/ai/system-prompt.mdx',

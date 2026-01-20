@@ -7,9 +7,11 @@ import {
 	addTailwindToConfig,
 } from './add-tailwind';
 import {createYarnYmlFile} from './add-yarn2-support';
+import {askSkills} from './ask-skills';
 import {askTailwind} from './ask-tailwind';
 import {createPublicFolder} from './create-public-folder';
 import {degit} from './degit';
+import {installSkills} from './install-skills';
 import {getLatestRemotionVersion} from './latest-remotion-version';
 import {Log} from './log';
 import {openInEditorFlow} from './open-in-editor-flow';
@@ -22,9 +24,9 @@ import {
 	getRenderCommand,
 	selectPackageManager,
 } from './pkg-managers';
+import prompts from './prompts';
 import {resolveProjectRoot} from './resolve-project-root';
 import {getDirectoryArgument, selectTemplate} from './select-template';
-import {yesOrNo} from './yesno';
 
 const gitExists = (commandToCheck: string, argsToCheck: string[]) => {
 	try {
@@ -88,7 +90,6 @@ export const init = async () => {
 
 	// Select template first
 	const selectedTemplate = await selectTemplate();
-	Log.info(`Selected ${chalk.blue(selectedTemplate.shortName)}.`);
 
 	// If Editor Starter (paid) is selected, show purchase link and exit
 	if (selectedTemplate.cliId === 'editor-starter') {
@@ -107,7 +108,6 @@ export const init = async () => {
 		directoryArgument,
 		selectedTemplate,
 	});
-	Log.info();
 
 	const result = await checkGitAvailability(projectRoot, 'git', ['--version']);
 
@@ -119,13 +119,17 @@ export const init = async () => {
 	}
 
 	if (result.type === 'is-git-repo') {
-		const should = await yesOrNo({
-			defaultValue: false,
-			question: `You are already inside a Git repo (${path.resolve(
+		const {shouldContinue} = await prompts({
+			type: 'toggle',
+			name: 'shouldContinue',
+			message: `You are already inside a Git repo (${path.resolve(
 				result.location,
-			)}).\nThis might lead to a Git Submodule being created. Do you want to continue? (y/N):`,
+			)}).\nThis might lead to a Git Submodule being created. Do you want to continue?`,
+			initial: false,
+			active: 'Yes',
+			inactive: 'No',
 		});
-		if (!should) {
+		if (!shouldContinue) {
 			process.exit(1);
 		}
 	}
@@ -135,6 +139,8 @@ export const init = async () => {
 	const shouldOverrideTailwind = selectedTemplate.allowEnableTailwind
 		? await askTailwind()
 		: false;
+
+	const shouldInstallSkills = await askSkills();
 
 	const pkgManager = selectPackageManager();
 	const pkgManagerVersion = await getPackageManagerVersionOrNull(pkgManager);
@@ -175,6 +181,10 @@ export const init = async () => {
 	});
 
 	await getGitStatus(projectRoot);
+
+	if (shouldInstallSkills) {
+		await installSkills(projectRoot);
+	}
 
 	const relativeToCurrent = path.relative(process.cwd(), projectRoot);
 	const cdToFolder = relativeToCurrent.startsWith('.')
