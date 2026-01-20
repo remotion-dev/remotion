@@ -339,7 +339,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'animated-emoji': 'https://www.remotion.dev/docs/animated-emoji',
 	webcodecs: 'https://remotion.dev/webcodecs',
 	convert: 'https://convert.remotion.dev',
-	captions: 'https://remotion.dev/docs/captions',
+	captions: 'https://remotion.dev/docs/captions/api',
 	'openai-whisper': 'https://www.remotion.dev/docs/openai-whisper',
 	'eslint-config-internal': null,
 	compositor: null,

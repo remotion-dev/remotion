@@ -30,5 +30,5 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"homepage": "https://remotion.dev/docs/captions"
+	"homepage": "https://remotion.dev/docs/captions/api"
 }
