@@ -342,6 +342,15 @@ export class MediaPlayer {
 		}
 	}
 
+	private seekToWithQueue = async (newTime: number) => {
+		const nonce = this.nonceManager.createAsyncOperation();
+		await this.seekPromiseChain;
+
+		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
+		await this.seekPromiseChain;
+	}
+
+
 	public async seekTo(time: number): Promise<void> {
 		const newTime = getTimeInSeconds({
 			unloopedTimeInSeconds: time,
@@ -359,12 +368,9 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		const nonce = this.nonceManager.createAsyncOperation();
-		await this.seekPromiseChain;
-
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
-		await this.seekPromiseChain;
+		await this.seekToWithQueue(newTime);
 	}
+
 
 	public async seekToDoNotCallDirectly(
 		newTime: number,
@@ -502,15 +508,8 @@ export class MediaPlayer {
 				this.playbackRate * this.globalPlaybackRate,
 			);
 
-			// when paused, seek video to display the correct frame
 			if (!this.playing && this.videoIteratorManager) {
-				const nonce = this.nonceManager.createAsyncOperation();
-				this.seekPromiseChain = this.seekPromiseChain.then(() =>
-					this.videoIteratorManager?.seek({
-						newTime: newMediaTime,
-						nonce,
-					}),
-				);
+				this.seekToWithQueue(newMediaTime);
 			}
 		}
 
