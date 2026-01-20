@@ -1,55 +1,43 @@
 ---
 name: gif
-description: Displaying GIFs synchronized with Remotion's timeline
+description: Displaying GIFs, APNG, AVIF and WebP in Remotion
 metadata:
-  tags: gif, animation, images, animated
+  tags: gif, animation, images, animated, apng, avif, webp
 ---
 
-# Using GIFs in Remotion
-
-## Prerequisites
-
-Install @remotion/gif if it is not already installed:
-
-```bash
-npx remotion add @remotion/gif # If project uses npm
-bunx remotion add @remotion/gif # If project uses bun
-yarn remotion add @remotion/gif # If project uses yarn
-pnpm exec remotion add @remotion/gif # If project uses pnpm
-```
+# Using Animated images in Remotion
 
 ## Basic usage
 
-Use `<Gif>` to display a GIF synchronized with Remotion's timeline:
+Use `<AnimatedImage>` to display a GIF, APNG, AVIF or WebP image synchronized with Remotion's timeline:
 
 ```tsx
-import { Gif } from "@remotion/gif";
-import { staticFile } from "remotion";
+import {AnimatedImage, staticFile} from 'remotion';
 
 export const MyComposition = () => {
-  return <Gif src={staticFile("animation.gif")} width={500} height={500} />;
+  return <AnimatedImage src={staticFile('animation.gif')} width={500} height={500} />;
 };
 ```
 
 Remote URLs are also supported (must have CORS enabled):
 
 ```tsx
-<Gif src="https://example.com/animation.gif" width={500} height={500} />
+<AnimatedImage src="https://example.com/animation.gif" width={500} height={500} />
 ```
 
 ## Sizing and fit
 
-Control how the GIF fills its container with the `fit` prop:
+Control how the image fills its container with the `fit` prop:
 
 ```tsx
 // Stretch to fill (default)
-<Gif src={staticFile("animation.gif")} width={500} height={300} fit="fill" />
+<AnimatedImage src={staticFile("animation.gif")} width={500} height={300} fit="fill" />
 
 // Maintain aspect ratio, fit inside container
-<Gif src={staticFile("animation.gif")} width={500} height={300} fit="contain" />
+<AnimatedImage src={staticFile("animation.gif")} width={500} height={300} fit="contain" />
 
 // Fill container, crop if needed
-<Gif src={staticFile("animation.gif")} width={500} height={300} fit="cover" />
+<AnimatedImage src={staticFile("animation.gif")} width={500} height={300} fit="cover" />
 ```
 
 ## Playback speed
@@ -57,38 +45,37 @@ Control how the GIF fills its container with the `fit` prop:
 Use `playbackRate` to control the animation speed:
 
 ```tsx
-<Gif src={staticFile("animation.gif")} width={500} height={500} playbackRate={2} /> {/* 2x speed */}
-<Gif src={staticFile("animation.gif")} width={500} height={500} playbackRate={0.5} /> {/* Half speed */}
+<AnimatedImage src={staticFile("animation.gif")} width={500} height={500} playbackRate={2} /> {/* 2x speed */}
+<AnimatedImage src={staticFile("animation.gif")} width={500} height={500} playbackRate={0.5} /> {/* Half speed */}
 ```
 
 ## Looping behavior
 
-Control what happens when the GIF finishes:
+Control what happens when the animation finishes:
 
 ```tsx
 // Loop indefinitely (default)
-<Gif src={staticFile("animation.gif")} width={500} height={500} loopBehavior="loop" />
+<AnimatedImage src={staticFile("animation.gif")} width={500} height={500} loopBehavior="loop" />
 
 // Play once, show final frame
-<Gif src={staticFile("animation.gif")} width={500} height={500} loopBehavior="pause-after-finish" />
+<AnimatedImage src={staticFile("animation.gif")} width={500} height={500} loopBehavior="pause-after-finish" />
 
 // Play once, then unmount
-<Gif src={staticFile("animation.gif")} width={500} height={500} loopBehavior="unmount-after-finish" />
+<AnimatedImage src={staticFile("animation.gif")} width={500} height={500} loopBehavior="unmount-after-finish" />
 ```
-
 
 ## Styling
 
 Use the `style` prop for additional CSS (use `width` and `height` props for sizing):
 
 ```tsx
-<Gif
-  src={staticFile("animation.gif")}
+<AnimatedImage
+  src={staticFile('animation.gif')}
   width={500}
   height={500}
   style={{
     borderRadius: 20,
-    position: "absolute",
+    position: 'absolute',
     top: 100,
     left: 50,
   }}
@@ -97,26 +84,55 @@ Use the `style` prop for additional CSS (use `width` and `height` props for sizi
 
 ## Getting GIF duration
 
-Use `getGifDurationInSeconds()` to get the duration of a GIF:
+Use `getGifDurationInSeconds()` from `@remotion/gif` to get the duration of a GIF.
+
+```bash
+npx remotion add @remotion/gif # If project uses npm
+bunx remotion add @remotion/gif # If project uses bun
+yarn remotion add @remotion/gif # If project uses yarn
+pnpm exec remotion add @remotion/gif # If project uses pnpm
+```
 
 ```tsx
-import { getGifDurationInSeconds } from "@remotion/gif";
-import { staticFile } from "remotion";
+import {getGifDurationInSeconds} from '@remotion/gif';
+import {staticFile} from 'remotion';
 
-const duration = await getGifDurationInSeconds(staticFile("animation.gif"));
+const duration = await getGifDurationInSeconds(staticFile('animation.gif'));
 console.log(duration); // e.g. 2.5
 ```
 
 This is useful for setting the composition duration to match the GIF:
 
 ```tsx
-import { getGifDurationInSeconds } from "@remotion/gif";
-import { staticFile, CalculateMetadataFunction } from "remotion";
+import {getGifDurationInSeconds} from '@remotion/gif';
+import {staticFile, CalculateMetadataFunction} from 'remotion';
 
 const calculateMetadata: CalculateMetadataFunction = async () => {
-  const duration = await getGifDurationInSeconds(staticFile("animation.gif"));
+  const duration = await getGifDurationInSeconds(staticFile('animation.gif'));
   return {
     durationInFrames: Math.ceil(duration * 30),
   };
 };
 ```
+
+## Alternative
+
+If `<AnimatedImage>` does not work (only supported in Chrome and Firefox), you can use `<Gif>` from `@remotion/gif` instead.
+
+```bash
+npx remotion add @remotion/gif # If project uses npm
+bunx remotion add @remotion/gif # If project uses bun
+yarn remotion add @remotion/gif # If project uses yarn
+pnpm exec remotion add @remotion/gif # If project uses pnpm
+```
+
+```tsx
+import {Gif} from '@remotion/gif';
+import {staticFile} from 'remotion';
+
+export const MyComposition = () => {
+  return <Gif src={staticFile('animation.gif')} width={500} height={500} />;
+};
+```
+
+The `<Gif>` component has the same props as `<AnimatedImage>` but only supports GIF files.
