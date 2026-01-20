@@ -26,6 +26,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'getEncodableAudioCodecs()'}</strong>
 					<div>Get audio codecs the browser can encode</div>
 				</TOCItem>
+				<TOCItem link="/docs/web-renderer/types">
+					<strong>{'Types'}</strong>
+					<div>TypeScript types reference</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

@@ -1,0 +1,190 @@
+---
+image: /generated/articles-docs-web-renderer-types.png
+id: types
+sidebar_label: Types
+title: TypeScript Types Reference
+slug: /web-renderer/types
+crumb: '@remotion/web-renderer'
+---
+
+:::warning
+Very experimental feature - expect bugs and breaking changes at any time.
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+The following types are part of the API of `@remotion/web-renderer`:
+
+## `WebRendererContainer`
+
+```tsx twoslash
+import type {WebRendererContainer} from '@remotion/web-renderer';
+//                ^?
+```
+
+More values may be added in the future, this would not be considered a breaking change.
+
+## `WebRendererVideoCodec`
+
+```tsx twoslash
+import type {WebRendererVideoCodec} from '@remotion/web-renderer';
+//                ^?
+```
+
+More values may be added in the future, this would not be considered a breaking change.
+
+## `WebRendererAudioCodec`
+
+```tsx twoslash
+import type {WebRendererAudioCodec} from '@remotion/web-renderer';
+//                ^?
+```
+
+More values may be added in the future, this would not be considered a breaking change.
+
+## `WebRendererQuality`
+
+```tsx twoslash
+import type {WebRendererQuality} from '@remotion/web-renderer';
+//                ^?
+```
+
+## `WebRendererOutputTarget`
+
+```tsx twoslash
+import type {WebRendererOutputTarget} from '@remotion/web-renderer';
+//                ^?
+```
+
+- `'arraybuffer'`: Returns the output as a `Blob` in memory
+- `'web-fs'`: Uses the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API) to write to a file
+
+## `FrameRange`
+
+```tsx twoslash
+import type {FrameRange} from '@remotion/web-renderer';
+//                ^?
+```
+
+- A single number renders only that frame
+- A tuple `[start, end]` renders frames from `start` to `end` (inclusive)
+
+## `RenderStillOnWebImageFormat`
+
+```tsx twoslash
+import type {RenderStillOnWebImageFormat} from '@remotion/web-renderer';
+//                ^?
+```
+
+## `RenderMediaOnWebProgress`
+
+```tsx twoslash
+import type {RenderMediaOnWebProgress} from '@remotion/web-renderer';
+//                ^?
+```
+
+- `renderedFrames`: The number of frames that have been rendered
+- `encodedFrames`: The number of frames that have been encoded
+
+## `RenderMediaOnWebProgressCallback`
+
+```tsx twoslash
+import type {RenderMediaOnWebProgressCallback} from '@remotion/web-renderer';
+//                ^?
+```
+
+## `RenderMediaOnWebResult`
+
+```tsx twoslash
+import type {RenderMediaOnWebResult} from '@remotion/web-renderer';
+//                ^?
+```
+
+- `getBlob()`: Returns a `Promise<Blob>` containing the rendered video
+- `internalState`: Internal state object (not for public use)
+
+## `RenderMediaOnWebOptions`
+
+```tsx twoslash
+import type {RenderMediaOnWebOptions} from '@remotion/web-renderer';
+//                ^?
+```
+
+## `RenderStillOnWebOptions`
+
+```tsx twoslash
+import type {RenderStillOnWebOptions} from '@remotion/web-renderer';
+//                ^?
+```
+
+## `CanRenderMediaOnWebOptions`
+
+```tsx twoslash
+import type {CanRenderMediaOnWebOptions} from '@remotion/web-renderer';
+//                ^?
+```
+
+## `CanRenderMediaOnWebResult`
+
+```tsx twoslash
+import type {CanRenderMediaOnWebResult} from '@remotion/web-renderer';
+//                ^?
+```
+
+- `canRender`: Whether the render can be performed
+- `issues`: An array of [`CanRenderIssue`](#canrenderissue) objects
+- `videoCodec`: The resolved video codec
+- `audioCodec`: The resolved audio codec
+- `outputTarget`: The resolved output target
+
+## `CanRenderIssue`
+
+```tsx twoslash
+import type {CanRenderIssue} from '@remotion/web-renderer';
+//                ^?
+```
+
+- `type`: The type of issue (e.g., `'video-codec-unsupported'`, `'webcodecs-unavailable'`)
+- `message`: A human-readable description of the issue
+- `severity`: Either `'error'` or `'warning'`
+
+## `EmittedArtifact`
+
+```tsx twoslash
+import type {EmittedArtifact} from '@remotion/web-renderer';
+//                ^?
+```
+
+- `filename`: The name of the artifact file
+- `content`: The content of the artifact as a `string` or `Uint8Array`
+- `frame`: The frame number at which the artifact was emitted
+- `downloadBehavior`: How the artifact should be handled for download
+
+## `WebRendererOnArtifact`
+
+```tsx twoslash
+import type {WebRendererOnArtifact} from '@remotion/web-renderer';
+//                ^?
+```
+
+## `OnFrameCallback`
+
+```tsx twoslash
+import type {OnFrameCallback} from '@remotion/web-renderer';
+//                ^?
+```
+
+A callback that receives each rendered `VideoFrame` and can transform it before encoding.
+
+## `GetEncodableVideoCodecsOptions`
+
+```tsx twoslash
+import type {GetEncodableVideoCodecsOptions} from '@remotion/web-renderer';
+//                ^?
+```
+
+## `GetEncodableAudioCodecsOptions`
+
+```tsx twoslash
+import type {GetEncodableAudioCodecsOptions} from '@remotion/web-renderer';
+//                ^?
+```
