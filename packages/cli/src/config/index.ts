@@ -60,20 +60,12 @@ import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
 import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
 import {
-	getExperimentalClientSideRenderingEnabled,
-	setExperimentalClientSideRenderingEnabled,
-} from './experimental-client-side-rendering';
-import {
 	getFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
 import {setFrameRange} from './frame-range';
 import {getHeight, overrideHeight} from './height';
 import {setImageSequence} from './image-sequence';
-import {
-	getKeyboardShortcutsEnabled,
-	setKeyboardShortcutsEnabled,
-} from './keyboard-shortcuts';
 import {getMetadata, setMetadata} from './metadata';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
@@ -132,7 +124,10 @@ const {
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
 	darkModeOption,
+	askAIOption,
 	publicLicenseKeyOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -493,6 +488,11 @@ declare global {
 		) => void;
 
 		/**
+		 * Enables or disables the Ask AI Modal in Studio
+		 */
+		readonly setAskAIEnabled: (askAIEnabled: boolean) => void;
+
+		/**
 		 * Removes the --single-process flag that gets passed to
 			Chromium on Linux by default. This will make the render faster because
 			multiple processes can be used, but may cause issues with some Linux
@@ -640,8 +640,9 @@ export const Config: FlatConfig = {
 		);
 	},
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
-	setKeyboardShortcutsEnabled,
-	setExperimentalClientSideRenderingEnabled,
+	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
+	setExperimentalClientSideRenderingEnabled:
+		experimentalClientSideRenderingOption.setConfig,
 	setNumberOfSharedAudioTags,
 	setWebpackPollingInMilliseconds,
 	setShouldOpenBrowser,
@@ -722,6 +723,7 @@ export const Config: FlatConfig = {
 	setImageSequencePattern: imageSequencePatternOption.setConfig,
 	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
+	setAskAIEnabled: askAIOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
 };
 
@@ -750,8 +752,6 @@ export const ConfigInternals = {
 	setStillFrame,
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
-	getKeyboardShortcutsEnabled,
-	getExperimentalClientSideRenderingEnabled,
 	getFfmpegOverrideFunction,
 	getHeight,
 	getWidth,

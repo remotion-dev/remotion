@@ -31,6 +31,11 @@ export const TitleUpdater: React.FC = () => {
 			return;
 		}
 
+		if (canvasContent.type === 'output-blob') {
+			setCurrentCanvasContentId(canvasContent.displayName);
+			return;
+		}
+
 		setCurrentCanvasContentId(canvasContent.asset);
 	}, [canvasContent]);
 

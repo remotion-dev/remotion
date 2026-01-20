@@ -1265,12 +1265,13 @@
       },
     },
     "packages/skills": {
-      "name": "skills",
+      "name": "@remotion/skills",
       "version": "4.0.407",
       "devDependencies": {
         "@remotion/bundler": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/eslint-config-internal": "workspace:*",
+        "@remotion/google-fonts": "workspace:*",
         "@remotion/lottie": "workspace:*",
         "@remotion/shapes": "workspace:*",
         "@remotion/three": "workspace:*",
@@ -3563,6 +3564,8 @@
     "@remotion/shapes": ["@remotion/shapes@workspace:packages/shapes"],
 
     "@remotion/skia": ["@remotion/skia@workspace:packages/skia"],
+
+    "@remotion/skills": ["@remotion/skills@workspace:packages/skills"],
 
     "@remotion/streaming": ["@remotion/streaming@workspace:packages/streaming"],
 
@@ -6659,8 +6662,6 @@
     "sisteransi": ["sisteransi@1.0.5", "", {}, "sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg=="],
 
     "sitemap": ["sitemap@7.1.1", "", { "dependencies": { "@types/node": "17.0.17", "@types/sax": "1.2.3", "arg": "5.0.2", "sax": "1.2.4" }, "bin": { "sitemap": "dist/cli.js" } }, "sha512-mK3aFtjz4VdJN0igpIJrinf3EO8U8mxOPsTBzSsy06UtjZQJ3YY3o3Xa7zSc5nMqcMrRwlChHZ18Kxg0caiPBg=="],
-
-    "skills": ["skills@workspace:packages/skills"],
 
     "skin-tone": ["skin-tone@2.0.0", "", { "dependencies": { "unicode-emoji-modifier-base": "1.0.0" } }, "sha512-kUMbT1oBJCpgrnKoSr0o6wPtvRWT9W9UKvGLwfJYO2WuahZRHOpEyL1ckyMGgMWh0UdpmaoFqKKD29WTomNEGA=="],
 

@@ -355,7 +355,7 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 	}
 
 	if (!progress.rendering) {
-		return `Getting compositions`;
+		return `Getting composition`;
 	}
 
 	// Get render estimated time value and extract hours, minutes, and seconds

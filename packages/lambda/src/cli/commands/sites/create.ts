@@ -35,6 +35,9 @@ const {
 	publicDirOption,
 	throwIfSiteExistsOption,
 	disableGitSourceOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const sitesCreateSubcommand = async (
@@ -167,6 +170,17 @@ export const sitesCreateSubcommand = async (
 		logLevel,
 	});
 
+	const askAIEnabled = askAIOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const experimentalClientSideRenderingEnabled =
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
 	const {serveUrl, siteName, stats} = await LambdaInternals.internalDeploySite({
 		entryPoint: file,
 		siteName: desiredSiteName ?? implementation.randomHash(),
@@ -209,6 +223,9 @@ export const sitesCreateSubcommand = async (
 			enableCaching: ConfigInternals.getWebpackCaching(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 			bypassBucketNameValidation: Boolean(parsedLambdaCli['force-bucket-name']),
+			askAIEnabled,
+			experimentalClientSideRenderingEnabled,
+			keyboardShortcutsEnabled,
 		},
 		region: getAwsRegion(),
 		privacy:

@@ -59,9 +59,7 @@ Pass the component in directly **or** pass a function that returns a dynamic imp
 If you use `lazyComponent`, Remotion will use React Suspense to load the component. Components will be compiled by Webpack as they are needed, which will reduce startup time of Remotion. If you use `lazyComponent`, you need to use a default export for your component. This is a restriction of React Suspense.
 :::
 
-### `defaultProps`
-
-_optional_
+### `defaultProps?`
 
 Give your component default props. Default props can be overriden using the [Props editor](/docs/visual-editing) and with [Input Props](/docs/props-resolution).
 
@@ -148,7 +146,7 @@ export const Video = () => {
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player={false} studio  hideServers />
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player={false} studio hideServers />
 
 ## See also
 

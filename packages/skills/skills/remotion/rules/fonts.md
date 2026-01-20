@@ -11,6 +11,18 @@ metadata:
 
 The recommended way to use Google Fonts. It's type-safe and automatically blocks rendering until the font is ready.
 
+### Prerequisites
+
+First, the @remotion/google-fonts package needs to be installed.
+If it is not installed, use the following command:
+
+```bash
+npx remotion add @remotion/google-fonts # If project uses npm
+bunx remotion add @remotion/google-fonts # If project uses bun
+yarn remotion add @remotion/google-fonts # If project uses yarn
+pnpm exec remotion add @remotion/google-fonts # If project uses pnpm
+```
+
 ```tsx
 import { loadFont } from "@remotion/google-fonts/Lobster";
 
