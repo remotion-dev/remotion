@@ -1167,7 +1167,13 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'ai/index',
 			},
-			items: ['ai/bolt', 'ai/chatbot', 'ai/mcp', 'ai/system-prompt'],
+			items: [
+				'ai/bolt',
+				'ai/chatbot',
+				'ai/mcp',
+				'ai/system-prompt',
+				'ai/skills',
+			],
 		},
 		{
 			type: 'category',
@@ -1176,7 +1182,12 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'captions/index',
 			},
-			items: [ 'captions/importing', 'captions/transcribing', 'captions/displaying', 'captions/exporting'],
+			items: [
+				'captions/importing',
+				'captions/transcribing',
+				'captions/displaying',
+				'captions/exporting',
+			],
 		},
 		{
 			type: 'category',
