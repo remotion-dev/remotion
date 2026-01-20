@@ -220,7 +220,7 @@ test(
 				metadata: null,
 				licenseKey: null,
 				storageClass: null,
-				isProduction: null,
+				isProduction: true,
 			},
 			timeoutInTest: 1000,
 			requestHandler: null,

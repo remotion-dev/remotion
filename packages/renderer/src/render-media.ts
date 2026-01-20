@@ -1,4 +1,4 @@
-import {registerUsageEvent} from '@remotion/licensing';
+import {LicensingInternals} from '@remotion/licensing';
 import type {ExecaChildProcess} from 'execa';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -834,12 +834,13 @@ const internalRenderMediaRaw = ({
 						return;
 					}
 
-					registerUsageEvent({
+					LicensingInternals.internalRegisterUsageEvent({
 						event: 'cloud-render',
 						host: null,
 						succeeded: true,
 						licenseKey: licenseKey ?? null,
-						isProduction: isProduction ?? undefined,
+						isProduction: isProduction ?? true,
+						isStill: false,
 					})
 						.then(() => {
 							Log.verbose({indent, logLevel}, 'Usage event sent successfully');

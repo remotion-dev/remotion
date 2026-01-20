@@ -1,4 +1,4 @@
-import {registerUsageEvent} from '@remotion/licensing';
+import {LicensingInternals, } from '@remotion/licensing';
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
 import type {_InternalTypes} from 'remotion';
@@ -426,13 +426,14 @@ const internalRenderStillRaw = (
 					return;
 				}
 
-				registerUsageEvent({
+				LicensingInternals.internalRegisterUsageEvent({
 					licenseKey: options.licenseKey ?? options.apiKey ?? null,
 					event: 'cloud-render',
 					host: null,
 					succeeded: true,
 					isStill: true,
-					isProduction: options.isProduction ?? undefined,
+					isProduction: options.isProduction ?? true,
+				
 				})
 					.then(() => {
 						Log.verbose(options, 'Usage event sent successfully');

@@ -292,7 +292,7 @@ export const stillCommand = async ({
 		mediaCacheSizeInBytes,
 		isProduction:
 			parsedLambdaCli[BrowserSafeApis.options.isProductionKeyOption.cliFlag] ??
-			null,
+			true,
 	});
 	Log.info(
 		{indent: false, logLevel},

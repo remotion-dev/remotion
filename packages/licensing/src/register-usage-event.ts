@@ -50,20 +50,32 @@ type EitherApiKeyOrLicenseKey =
 						licenseKey: string | null;
 				  };
 
-export const registerUsageEvent = async ({
+type RegisterUsageEventMandatoryOptions = {
+	host: string | null;
+	succeeded: boolean;
+	event: UsageEventType;
+} & EitherApiKeyOrLicenseKey;
+
+type OptionalRegisterUsageEventOptional = {
+	isStill: boolean;
+	isProduction: boolean;
+};
+
+
+type InternalRegisterUsageEventOptions = RegisterUsageEventMandatoryOptions &
+	OptionalRegisterUsageEventOptional;
+
+type RegisterUsageEventOptions = RegisterUsageEventMandatoryOptions &
+	Partial<OptionalRegisterUsageEventOptional>;
+
+export const internalRegisterUsageEvent = async ({
 	host,
 	succeeded,
 	event,
 	isStill,
 	isProduction,
 	...apiOrLicenseKey
-}: {
-	host: string | null;
-	succeeded: boolean;
-	event: UsageEventType;
-	isStill?: boolean;
-	isProduction?: boolean;
-} & EitherApiKeyOrLicenseKey): Promise<RegisterUsageEventResponse> => {
+}: InternalRegisterUsageEventOptions): Promise<RegisterUsageEventResponse> => {
 	const apiKey = 'apiKey' in apiOrLicenseKey ? apiOrLicenseKey.apiKey : null;
 	const licenseKey =
 		'licenseKey' in apiOrLicenseKey ? apiOrLicenseKey.licenseKey : null;
@@ -139,4 +151,14 @@ export const registerUsageEvent = async ({
 	}
 
 	throw lastError;
+};
+
+export const registerUsageEvent =  (
+	options: RegisterUsageEventOptions,
+): Promise<RegisterUsageEventResponse> => {
+	return internalRegisterUsageEvent({
+		...options,
+		isStill: options.isStill ?? false,
+		isProduction: options.isProduction ?? true,
+	});
 };

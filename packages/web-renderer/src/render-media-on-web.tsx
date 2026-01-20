@@ -465,7 +465,7 @@ const internalRenderMediaOnWeb = async <
 				licenseKey: licenseKey ?? null,
 				succeeded: true,
 				apiName: 'renderMediaOnWeb',
-				isStill: null,
+				isStill: false,
 				isProduction: null,
 			});
 
@@ -486,7 +486,7 @@ const internalRenderMediaOnWeb = async <
 			licenseKey: licenseKey ?? null,
 			succeeded: true,
 			apiName: 'renderMediaOnWeb',
-			isStill: null,
+			isStill: false,
 			isProduction: null,
 		});
 
@@ -508,7 +508,7 @@ const internalRenderMediaOnWeb = async <
 				succeeded: false,
 				licenseKey: licenseKey ?? null,
 				apiName: 'renderMediaOnWeb',
-				isStill: null,
+				isStill: false,
 				isProduction: null,
 			}).catch((err2) => {
 				Internals.Log.error(

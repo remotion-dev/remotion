@@ -63,7 +63,7 @@ test(
 					licenseKey: null,
 					storageClass: null,
 					mediaCacheSizeInBytes: null,
-					isProduction: null,
+					isProduction: true,
 				},
 				functionName: 'remotion-dev-render',
 				region: 'us-east-1',

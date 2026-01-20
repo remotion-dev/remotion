@@ -221,7 +221,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		metadata: Record<string, string> | null;
 		licenseKey: string | null;
 		storageClass: Provider['storageClass'] | null;
-		isProduction: boolean | null;
+		isProduction: boolean;
 	};
 	status: ServerlessStatusPayload<Provider>;
 	renderer: {

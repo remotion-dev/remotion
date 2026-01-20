@@ -360,7 +360,7 @@ export const renderCommand = async ({
 		requestHandler: null,
 		isProduction:
 			parsedLambdaCli[BrowserSafeApis.options.isProductionKeyOption.cliFlag] ??
-			null,
+			true,
 	});
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({
