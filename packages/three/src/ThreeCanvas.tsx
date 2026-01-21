@@ -33,18 +33,20 @@ const Scale = ({
 	return null;
 };
 
-const ManualFrameRenderer = ({
-	onRendered,
-}: {
-	readonly onRendered: () => void;
-}) => {
+const ManualFrameRenderer = () => {
 	const {advance} = useThree();
 	const frame = useCurrentFrame();
+	const {delayRender, continueRender} = useDelayRender();
 
 	useEffect(() => {
+		if (frame === 0) {
+			return;
+		}
+
+		const handle = delayRender(`Waiting for R3F to render frame ${frame}`);
 		advance(performance.now());
-		onRendered();
-	}, [frame, advance, onRendered]);
+		continueRender(handle);
+	}, [frame, advance, delayRender, continueRender]);
 
 	return null;
 };
@@ -58,12 +60,10 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 	const {isRendering} = useRemotionEnvironment();
 	const {delayRender, continueRender} = useDelayRender();
 	const contexts = Internals.useRemotionContexts();
-	const frame = useCurrentFrame();
 
 	const [waitForCreated] = useState(() =>
 		delayRender('Waiting for <ThreeCanvas/> to be created'),
 	);
-	const [frameDelayHandle, setFrameDelayHandle] = useState<number | null>(null);
 
 	validateDimension(width, 'width', 'of the <ThreeCanvas /> component');
 	validateDimension(height, 'height', 'of the <ThreeCanvas /> component');
@@ -86,24 +86,6 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 		[onCreated, waitForCreated, continueRender, isRendering],
 	);
 
-	useLayoutEffect(() => {
-		if (!isRendering || frame === 0) {
-			return;
-		}
-
-		const handle = delayRender(`Waiting for R3F to render frame ${frame}`);
-		setFrameDelayHandle(handle);
-
-		return () => continueRender(handle);
-	}, [frame, isRendering, delayRender, continueRender]);
-
-	const handleRendered = useCallback(() => {
-		if (frameDelayHandle !== null) {
-			continueRender(frameDelayHandle);
-			setFrameDelayHandle(null);
-		}
-	}, [frameDelayHandle, continueRender]);
-
 	return (
 		<SuspenseLoader>
 			<Canvas
@@ -114,7 +96,7 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 			>
 				<Scale width={width} height={height} />
 				<Internals.RemotionContextProvider contexts={contexts}>
-					{isRendering && <ManualFrameRenderer onRendered={handleRendered} />}
+					{isRendering && <ManualFrameRenderer />}
 					{children}
 				</Internals.RemotionContextProvider>
 			</Canvas>
