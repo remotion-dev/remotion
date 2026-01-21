@@ -204,7 +204,7 @@ export const renderStillOnLambda = (
 		scale: input.scale ?? 1,
 		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
 		forcePathStyle: input.forcePathStyle ?? false,
-		licenseKey: input.apiKey ?? input.licenseKey ?? null,
+		licenseKey: input.licenseKey ?? input.apiKey ?? null,
 		offthreadVideoThreads: input.offthreadVideoThreads ?? null,
 		storageClass: input.storageClass ?? null,
 		requestHandler: input.requestHandler ?? null,
