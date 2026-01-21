@@ -88,7 +88,9 @@ export type InnerRenderMediaOnLambdaInput = {
 	metadata: Record<string, string> | null;
 	storageClass: StorageClass | null;
 	requestHandler: RequestHandler | null;
-} & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
+} & ToOptions<
+	Omit<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda, 'apiKey'>
+>;
 
 export const makeLambdaRenderMediaPayload = async ({
 	rendererFunctionName,
@@ -136,7 +138,6 @@ export const makeLambdaRenderMediaPayload = async ({
 	preferLossless,
 	forcePathStyle,
 	metadata,
-	apiKey,
 	licenseKey,
 	offthreadVideoThreads,
 	storageClass,

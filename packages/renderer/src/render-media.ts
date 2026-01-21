@@ -1084,7 +1084,7 @@ export const renderMedia = ({
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
-		licenseKey: licenseKey ?? apiKey ?? null,
+		licenseKey: apiKey ?? licenseKey ?? null,
 		onLog: defaultOnLog,
 	});
 };

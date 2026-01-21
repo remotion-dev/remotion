@@ -108,8 +108,12 @@ export type RenderStillOptions = {
 	 */
 	quality?: never;
 	onArtifact?: OnArtifact;
-	// TODO: Make apiKey deprecated with TS
-} & Partial<ToOptions<typeof optionsMap.renderStill>>;
+} & {
+	/**
+	 * @deprecated Use `licenseKey` instead
+	 */
+	apiKey?: string | null;
+} & Partial<ToOptions<Omit<typeof optionsMap.renderStill, 'apiKey'>>>;
 
 type CleanupFn = () => Promise<unknown>;
 type RenderStillReturnValue = {buffer: Buffer | null};
