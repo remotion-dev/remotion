@@ -76,7 +76,7 @@ type InternalRenderStillOptions = {
 	port: number | null;
 	onArtifact: OnArtifact | null;
 	onLog: OnLog;
-} & ToOptions<typeof optionsMap.renderStill>;
+} & ToOptions<Omit<typeof optionsMap.renderStill, 'apiKey'>>;
 
 export type RenderStillOptions = {
 	port?: number | null;
@@ -108,6 +108,7 @@ export type RenderStillOptions = {
 	 */
 	quality?: never;
 	onArtifact?: OnArtifact;
+	// TODO: Make apiKey deprecated with TS
 } & Partial<ToOptions<typeof optionsMap.renderStill>>;
 
 type CleanupFn = () => Promise<unknown>;
@@ -419,13 +420,13 @@ const internalRenderStillRaw = (
 			})
 
 			.then((res) => {
-				if (options.apiKey === null) {
+				if (options.licenseKey === null) {
 					resolve(res);
 					return;
 				}
 
 				registerUsageEvent({
-					licenseKey: options.licenseKey ?? options.apiKey ?? null,
+					licenseKey: options.licenseKey,
 					event: 'cloud-render',
 					host: null,
 					succeeded: true,
@@ -570,8 +571,7 @@ export const renderStill = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
-		apiKey: apiKey ?? null,
-		licenseKey: licenseKey ?? null,
+		licenseKey: apiKey ?? licenseKey ?? null,
 		onLog: defaultOnLog,
 	});
 };
