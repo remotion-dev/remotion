@@ -44,8 +44,7 @@ payload = {
     forceHeight: force_height,
     forcePathStyle: force_path_style,
     forceWidth: force_width,
-    apiKey: api_key,
-    licenseKey: license_key,
+    licenseKey: license_key || api_key,
     imageFormat: image_format,
     inputProps: {
       type: "payload",
