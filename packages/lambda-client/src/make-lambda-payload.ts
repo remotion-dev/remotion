@@ -88,9 +88,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	metadata: Record<string, string> | null;
 	storageClass: StorageClass | null;
 	requestHandler: RequestHandler | null;
-} & ToOptions<
-	Omit<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda, 'apiKey'>
->;
+} & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
 	rendererFunctionName,
@@ -142,6 +140,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	offthreadVideoThreads,
 	storageClass,
 	requestHandler,
+	apiKey,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
@@ -325,7 +324,7 @@ export const makeLambdaRenderStillPayload = async ({
 		streamed: true,
 		forcePathStyle,
 		apiKey: apiKey ?? null,
-		licenseKey: licenseKey ?? null,
+		licenseKey: apiKey ?? licenseKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		storageClass: storageClass ?? null,

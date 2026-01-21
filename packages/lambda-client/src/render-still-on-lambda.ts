@@ -171,6 +171,10 @@ export const renderStillOnLambda = (
 		 * @deprecated Renamed to `logLevel`
 		 */
 		dumpBrowserLogs?: boolean;
+		/**
+		 * @deprecated Use `licenseKey` instead
+		 */
+		apiKey?: string | null;
 	},
 ) => {
 	return internalRenderStillOnLambda({

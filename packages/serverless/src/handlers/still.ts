@@ -334,7 +334,6 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		chromeMode: 'headless-shell',
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		onLog: RenderInternals.defaultOnLog,
-		apiKey: null,
 		licenseKey: null,
 	});
 

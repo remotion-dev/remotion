@@ -111,7 +111,6 @@ export const renderStillSingleThread = async (
 			chromeMode: 'headless-shell',
 			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
 			onLog: RenderInternals.defaultOnLog,
-			apiKey: null,
 			licenseKey: null,
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
