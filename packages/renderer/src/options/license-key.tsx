@@ -2,7 +2,7 @@ import type {AnyRemotionOption} from './option';
 
 let currentLicenseKey: string | null = null;
 
-const cliFlag = 'licenseKey-key' as const;
+const cliFlag = 'license-key' as const;
 
 export const licenseKeyOption = {
 	name: 'License key',

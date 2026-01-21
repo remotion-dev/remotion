@@ -716,7 +716,6 @@ export const renderVideoFlow = async ({
 		chromeMode,
 		mediaCacheSizeInBytes,
 		onLog,
-		apiKey: null,
 		licenseKey: null,
 	});
 	if (!updatesDontOverwrite) {

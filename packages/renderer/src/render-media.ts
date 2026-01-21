@@ -151,8 +151,8 @@ export type InternalRenderMediaOptions = {
 	onArtifact: OnArtifact | null;
 	metadata: Record<string, string> | null;
 	onLog: OnLog;
-} & EitherApiKeyOrLicenseKey &
-	MoreRenderMediaOptions;
+	licenseKey: string | null;
+} & MoreRenderMediaOptions;
 
 type Prettify<T> = {
 	[K in keyof T]: T[K];
