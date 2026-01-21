@@ -55,10 +55,10 @@ type OptionalParameters = {
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
 
 export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
-	OptionalParameters;
+	Omit<OptionalParameters, 'apiKey'>;
 
 export type RenderStillOnLambdaInput = MandatoryParameters &
-	Partial<OptionalParameters> & {
+	Partial<Omit<OptionalParameters, 'apiKey'>> & {
 		requestHandler?: RequestHandler;
 	};
 
@@ -204,8 +204,7 @@ export const renderStillOnLambda = (
 		scale: input.scale ?? 1,
 		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
 		forcePathStyle: input.forcePathStyle ?? false,
-		apiKey: input.apiKey ?? null,
-		licenseKey: input.licenseKey ?? null,
+		licenseKey: input.apiKey ?? input.licenseKey ?? null,
 		offthreadVideoThreads: input.offthreadVideoThreads ?? null,
 		storageClass: input.storageClass ?? null,
 		requestHandler: input.requestHandler ?? null,

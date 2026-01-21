@@ -362,7 +362,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			forcePathStyle: params.forcePathStyle,
 		}),
 		server.closeServer(true),
-		sendTelemetryEvent(params.licenseKey ?? params.apiKey, params.logLevel),
+		sendTelemetryEvent(params.licenseKey, params.logLevel),
 	]);
 
 	const estimatedPrice = providerSpecifics.estimatePrice({

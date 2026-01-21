@@ -301,7 +301,6 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		deleteAfter: DeleteAfter | null;
 		streamed: boolean;
 		forcePathStyle: boolean;
-		apiKey: string | null;
 		licenseKey: string | null;
 		storageClass: Provider['storageClass'] | null;
 	};
