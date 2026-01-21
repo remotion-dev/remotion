@@ -1,3 +1,4 @@
+import type {EitherApiKeyOrLicenseKey} from './register-usage-event';
 import {HOST} from './register-usage-event';
 
 export type EventCount = {
@@ -23,16 +24,19 @@ export type GetUsageResponse = {
 };
 
 export const getUsage = async ({
-	apiKey,
 	since,
+	...apiOrLicenseKey
 }: {
-	apiKey: string;
 	since?: number | null;
-}): Promise<GetUsageResponse> => {
+} & EitherApiKeyOrLicenseKey): Promise<GetUsageResponse> => {
+	const apiKey = 'apiKey' in apiOrLicenseKey ? apiOrLicenseKey.apiKey : null;
+	const licenseKey =
+		'licenseKey' in apiOrLicenseKey ? apiOrLicenseKey.licenseKey : null;
+
 	const res = await fetch(`${HOST}/api/track/get-usage`, {
 		method: 'POST',
 		body: JSON.stringify({
-			apiKey,
+			apiKey: licenseKey ?? apiKey,
 			since: since ?? null,
 		}),
 		headers: {

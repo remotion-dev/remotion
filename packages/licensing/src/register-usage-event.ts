@@ -34,7 +34,7 @@ type UsageEventType = 'webcodec-conversion' | 'cloud-render';
 
 export type UsageEventClassification = 'billable' | 'development' | 'failed';
 
-type EitherApiKeyOrLicenseKey =
+export type EitherApiKeyOrLicenseKey =
 	true extends typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 		? {
 				licenseKey: string | null;

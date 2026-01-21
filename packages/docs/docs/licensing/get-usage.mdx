@@ -40,11 +40,11 @@ console.log(usage);
 
 An object with the following properties:
 
-### `apiKey`
+### `licenseKey`
 
 Type: `string`
 
-Your Remotion secret API key. You can get it from your Remotion.pro dashboard.
+Your Remotion license key. You can get it from your Remotion.pro dashboard.
 
 ### `since`
 
@@ -53,6 +53,14 @@ Type: `number`
 The timestamp since when you want to get the usage.  
 The default is since the beginning of the current month in UTC.  
 The lowest timestamp you can use is 90 days ago (`Date.now() - 90 * 24 * 60 * 60 * 1000`).
+
+### ~~`apiKey`~~
+
+_deprecated in v4.0.407_
+
+Type: `string`
+
+Your Remotion secret API key. You can get it from your Remotion.pro dashboard.
 
 ## Return value
 
