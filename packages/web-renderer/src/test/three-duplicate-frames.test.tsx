@@ -6,7 +6,6 @@ import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import '../symbol-dispose';
 
-// Rotating mesh - every frame should be visually different
 const Mesh: React.FC = () => {
 	const frame = useCurrentFrame();
 	return (
@@ -78,7 +77,7 @@ test(
 				width: 400,
 				height: 400,
 				fps: 60,
-				durationInFrames: 300, // 5 seconds
+				durationInFrames: 300,
 			},
 			inputProps: {},
 			licenseKey: 'free-license',
@@ -89,7 +88,6 @@ test(
 			},
 		});
 
-		// Count duplicate consecutive frames
 		const duplicates: number[] = [];
 		for (let i = 1; i < framePixelData.length; i++) {
 			if (framesAreIdentical(framePixelData[i - 1], framePixelData[i])) {
@@ -97,13 +95,6 @@ test(
 			}
 		}
 
-		if (duplicates.length > 0) {
-			console.log(
-				`Found ${duplicates.length} duplicate frames at positions: ${duplicates.join(', ')}`,
-			);
-		}
-
-		// Target: 0% duplicate frames
 		expect(duplicates.length).toBe(0);
 	},
 );
