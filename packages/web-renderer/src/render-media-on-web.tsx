@@ -425,7 +425,7 @@ const internalRenderMediaOnWeb = async <
 
 			const audio = muted
 				? null
-				: onlyInlineAudio({assets, fps: resolved.fps, frame});
+				: onlyInlineAudio({assets, fps: resolved.fps, timestamp});
 			internalState.addAudioMixingTime(performance.now() - audioCombineStart);
 
 			const addSampleStart = performance.now();
