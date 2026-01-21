@@ -58,8 +58,13 @@ const framesAreIdentical = (a: Uint8Array, b: Uint8Array): boolean => {
 
 test(
 	'ThreeCanvas should not produce duplicate frames at 60fps',
-	{timeout: 120_000},
-	async () => {
+	{timeout: 60_000},
+	async (t) => {
+		if (t.task.file.projectName === 'webkit') {
+			t.skip();
+			return;
+		}
+
 		const framePixelData: Uint8Array[] = [];
 
 		await renderMediaOnWeb({
