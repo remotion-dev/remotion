@@ -1,6 +1,12 @@
 import type {RootState} from '@react-three/fiber';
 import {Canvas, useThree} from '@react-three/fiber';
-import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from 'react';
 import {
 	Internals,
 	useCurrentFrame,
@@ -33,20 +39,18 @@ const Scale = ({
 	return null;
 };
 
-const ManualFrameRenderer = () => {
+const ManualFrameRenderer = ({
+	onRendered,
+}: {
+	readonly onRendered: () => void;
+}) => {
 	const {advance} = useThree();
 	const frame = useCurrentFrame();
-	const {delayRender, continueRender} = useDelayRender();
 
 	useEffect(() => {
-		if (frame === 0) {
-			return;
-		}
-
-		const handle = delayRender(`Waiting for R3F to render frame ${frame}`);
 		advance(performance.now());
-		continueRender(handle);
-	}, [frame, advance, delayRender, continueRender]);
+		onRendered();
+	}, [frame, advance, onRendered]);
 
 	return null;
 };
@@ -60,10 +64,12 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 	const {isRendering} = useRemotionEnvironment();
 	const {delayRender, continueRender} = useDelayRender();
 	const contexts = Internals.useRemotionContexts();
+	const frame = useCurrentFrame();
 
 	const [waitForCreated] = useState(() =>
 		delayRender('Waiting for <ThreeCanvas/> to be created'),
 	);
+	const frameDelayHandle = useRef<number | null>(null);
 
 	validateDimension(width, 'width', 'of the <ThreeCanvas /> component');
 	validateDimension(height, 'height', 'of the <ThreeCanvas /> component');
@@ -86,6 +92,29 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 		[onCreated, waitForCreated, continueRender, isRendering],
 	);
 
+	useLayoutEffect(() => {
+		if (!isRendering || frame === 0) {
+			return;
+		}
+
+		frameDelayHandle.current = delayRender(
+			`Waiting for R3F to render frame ${frame}`,
+		);
+
+		return () => {
+			if (frameDelayHandle.current !== null) {
+				continueRender(frameDelayHandle.current);
+			}
+		};
+	}, [frame, isRendering, delayRender, continueRender]);
+
+	const handleRendered = useCallback(() => {
+		if (frameDelayHandle.current !== null) {
+			continueRender(frameDelayHandle.current);
+			frameDelayHandle.current = null;
+		}
+	}, [continueRender]);
+
 	return (
 		<SuspenseLoader>
 			<Canvas
@@ -96,7 +125,7 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 			>
 				<Scale width={width} height={height} />
 				<Internals.RemotionContextProvider contexts={contexts}>
-					{isRendering && <ManualFrameRenderer />}
+					{isRendering && <ManualFrameRenderer onRendered={handleRendered} />}
 					{children}
 				</Internals.RemotionContextProvider>
 			</Canvas>
