@@ -60,7 +60,7 @@ const ManualFrameRenderer = ({
  * @see [Documentation](https://www.remotion.dev/docs/three-canvas)
  */
 export const ThreeCanvas = (props: ThreeCanvasProps) => {
-	const {children, width, height, style, onCreated, ...rest} = props;
+	const {children, width, height, style, frameloop, onCreated, ...rest} = props;
 	const {isRendering} = useRemotionEnvironment();
 	const {delayRender, continueRender} = useDelayRender();
 	const contexts = Internals.useRemotionContexts();
@@ -120,7 +120,7 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 			<Canvas
 				style={actualStyle}
 				{...rest}
-				frameloop={isRendering ? 'never' : 'always'}
+				frameloop={isRendering ? 'never' : (frameloop ?? 'always')}
 				onCreated={remotion_onCreated}
 			>
 				<Scale width={width} height={height} />
