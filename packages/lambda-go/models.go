@@ -96,7 +96,7 @@ type renderInternalOptions struct {
 	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
 	ForceHeight                    interface{}            `json:"forceHeight"`
 	ForceWidth                     interface{}            `json:"forceWidth"`
-	ApiKey                         interface{}            `json:"apiKey"`
+	ApiKey                         interface{}            `json:"apiKey,omitempty"`
 	LicenseKey                     interface{}            `json:"licenseKey"`
 	BucketName                     interface{}            `json:"bucketName"`
 	AudioCodec                     interface{}            `json:"audioCodec"`
