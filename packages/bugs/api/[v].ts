@@ -8,6 +8,12 @@ type Bug = {
 
 export const bugs: Bug[] = [
 	{
+		title: 'Keyboard shortcuts are broken in the Studio',
+		description: 'Upgrade to 4.0.409.',
+		link: 'https://remotion.dev/changelog',
+		versions: ['4.0.408'],
+	},
+	{
 		title: 'Severe issues with video. Upgrade to 4.0.402.',
 		description: 'Videos might not appear.',
 		link: 'https://remotion.dev/changelog',
