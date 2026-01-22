@@ -104,3 +104,15 @@ Sequences can be nested for complex timing:
   </Sequence>
 </Sequence>
 ```
+
+## Nesting compositions within another
+
+To add a composition within another composition, you can use the `<Sequence>` component with a `width` and `height` prop to specify the size of the composition.
+
+```tsx
+<AbsoluteFill>
+  <Sequence width={COMPOSITION_WIDTH} height={COMPOSITION_HEIGHT}>
+    <CompositionComponent />
+  </Sequence>
+</AbsoluteFill>
+```
