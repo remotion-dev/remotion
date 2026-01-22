@@ -61,7 +61,6 @@ type OptionalRegisterUsageEventOptional = {
 	isProduction: boolean;
 };
 
-
 type InternalRegisterUsageEventOptions = RegisterUsageEventMandatoryOptions &
 	OptionalRegisterUsageEventOptional;
 
@@ -153,7 +152,7 @@ export const internalRegisterUsageEvent = async ({
 	throw lastError;
 };
 
-export const registerUsageEvent =  (
+export const registerUsageEvent = (
 	options: RegisterUsageEventOptions,
 ): Promise<RegisterUsageEventResponse> => {
 	return internalRegisterUsageEvent({
