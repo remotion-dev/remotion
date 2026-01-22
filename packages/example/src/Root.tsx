@@ -39,6 +39,7 @@ import {HlsDemo} from './Hls/HlsDemo';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
+import {LogoAnimation} from './LogoAnimation';
 import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
@@ -674,6 +675,14 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						transparent: true,
 					}}
+				/>
+				<Composition
+					id="logo-animation"
+					component={LogoAnimation}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={480}
 				/>
 			</Folder>
 			<Folder name="new-media-tags">
