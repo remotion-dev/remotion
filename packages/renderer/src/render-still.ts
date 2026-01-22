@@ -1,4 +1,4 @@
-import {LicensingInternals, } from '@remotion/licensing';
+import {LicensingInternals} from '@remotion/licensing';
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
 import type {_InternalTypes} from 'remotion';
@@ -433,7 +433,6 @@ const internalRenderStillRaw = (
 					succeeded: true,
 					isStill: true,
 					isProduction: options.isProduction ?? true,
-				
 				})
 					.then(() => {
 						Log.verbose(options, 'Usage event sent successfully');
