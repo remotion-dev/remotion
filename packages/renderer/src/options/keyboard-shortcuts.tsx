@@ -15,7 +15,7 @@ export const keyboardShortcutsOption = {
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
-			keyboardShortcutsEnabled = false;
+			keyboardShortcutsEnabled = commandLine[cliFlag] === false;
 			return {
 				value: keyboardShortcutsEnabled,
 				source: 'cli',
