@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Vai',
 	importName: 'NotoSansVai',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Vai:ital,wght@0,400',
 	unicodeRanges: {
 		vai: 'U+A500-A62B',
@@ -15,11 +15,11 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				vai: 'https://fonts.gstatic.com/s/notosansvai/v18/NaPecZTSBuhTirw6IaFn_UrUdPLmDbRS.woff2',
+				vai: 'https://fonts.gstatic.com/s/notosansvai/v19/NaPecZTSBuhTirw6IaFn_UrUdPLmDbRS.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansvai/v18/NaPecZTSBuhTirw6IaFn_UrUdM3mDbRS.woff2',
+					'https://fonts.gstatic.com/s/notosansvai/v19/NaPecZTSBuhTirw6IaFn_UrUdM3mDbRS.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansvai/v18/NaPecZTSBuhTirw6IaFn_UrUdMPmDQ.woff2',
+					'https://fonts.gstatic.com/s/notosansvai/v19/NaPecZTSBuhTirw6IaFn_UrUdMPmDQ.woff2',
 			},
 		},
 	},

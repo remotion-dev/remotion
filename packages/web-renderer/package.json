@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/web-renderer"
 	},
 	"name": "@remotion/web-renderer",
-	"version": "4.0.407",
+	"version": "4.0.408",
 	"main": "dist/index.js",
 	"type": "module",
 	"sideEffects": false,
@@ -58,5 +58,6 @@
 		"renderer",
 		"web"
 	],
-	"description": "Render videos in the browser (not yet released)"
+	"description": "Render videos in the browser (not yet released)",
+	"homepage": "https://www.remotion.dev/docs/web-renderer/"
 }
