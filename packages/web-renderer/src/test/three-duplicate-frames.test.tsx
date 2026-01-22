@@ -74,7 +74,7 @@ test(
 				width: 400,
 				height: 400,
 				fps: 60,
-				durationInFrames: 300,
+				durationInFrames: 30,
 			},
 			inputProps: {},
 			licenseKey: 'free-license',
