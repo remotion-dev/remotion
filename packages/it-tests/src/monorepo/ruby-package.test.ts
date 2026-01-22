@@ -135,7 +135,6 @@ test('Render Media payload', async () => {
 			metadata: {
 				Author: 'Lunar',
 			},
-			apiKey: null,
 			licenseKey: null,
 			storageClass: null,
 			requestHandler: null,
@@ -181,7 +180,6 @@ test('Render Still payload', async () => {
 			indent: false,
 			onInit: () => undefined,
 			forcePathStyle: false,
-			apiKey: null,
 			licenseKey: null,
 			offthreadVideoThreads: null,
 			storageClass: null,
