@@ -24,9 +24,12 @@
 		"mediabunny": "catalog:"
 	},
 	"devDependencies": {
+		"@react-three/fiber": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/media": "workspace:*",
+		"@remotion/three": "workspace:*",
+		"@types/three": "catalog:",
 		"@typescript/native-preview": "catalog:",
 		"@vitejs/plugin-react": "catalog:",
 		"@vitest/browser-playwright": "catalog:",
@@ -34,6 +37,7 @@
 		"eslint": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
+		"three": "catalog:",
 		"vitest": "catalog:",
 		"vitest-browser-react": "^2.0.2",
 		"zod": "catalog:"

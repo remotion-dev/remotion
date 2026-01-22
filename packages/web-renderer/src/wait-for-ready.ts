@@ -84,7 +84,8 @@ export const waitForReady = ({
 		backgroundSafeTick.then(check);
 	};
 
-	scheduleNextCheck();
+	// check immediately first - if already ready, don't wait for RAF
+	check();
 
 	return promise;
 };
