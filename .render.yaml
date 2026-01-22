@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: remotion-dashboard
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npx remotion studio
+    nodeVersion: "18"
