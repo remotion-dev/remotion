@@ -237,7 +237,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	rive: true,
 	shapes: true,
 	skia: true,
-	skills: true,
+	skills: false,
 	'promo-pages': false,
 	streaming: false,
 	serverless: false,
