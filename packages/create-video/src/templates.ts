@@ -52,6 +52,7 @@ export type Template = {
 	templateInMonorepo: string;
 	allowEnableTailwind: boolean;
 	contributedBy: string | null;
+	showStackblitz: boolean;
 } & DynamicTemplate;
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
@@ -82,6 +83,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-helloworld',
 		allowEnableTailwind: true,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Next.js (App dir)',
@@ -104,6 +106,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-next-app',
 		allowEnableTailwind: false,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Next.js (App dir + TailwindCSS)',
@@ -126,6 +129,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-next-app-tailwind',
 		allowEnableTailwind: false,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Next.js (Pages dir)',
@@ -148,6 +152,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-next-pages',
 		allowEnableTailwind: false,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 
 	{
@@ -171,6 +176,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-blank',
 		allowEnableTailwind: true,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Recorder',
@@ -193,6 +199,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-recorder',
 		allowEnableTailwind: false,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Prompt to Motion Graphics',
@@ -215,6 +222,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-prompt-to-motion-graphics',
 		allowEnableTailwind: false,
 		contributedBy: 'ASchwad',
+		showStackblitz: false,
 	},
 	{
 		homePageLabel: 'JavaScript',
@@ -238,6 +246,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-javascript',
 		allowEnableTailwind: true,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Render Server (Express.js)',
@@ -260,6 +269,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-render-server',
 		allowEnableTailwind: false,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'React Router 7',
@@ -282,6 +292,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-react-router',
 		allowEnableTailwind: false,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: '3D',
@@ -304,6 +315,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-three',
 		allowEnableTailwind: false,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Stills',
@@ -326,6 +338,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-still',
 		allowEnableTailwind: false,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Azure)',
@@ -348,6 +361,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-tts-azure',
 		allowEnableTailwind: false,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Google)',
@@ -370,6 +384,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-tts-google',
 		allowEnableTailwind: false,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Audiogram',
@@ -392,6 +407,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-audiogram',
 		allowEnableTailwind: true,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Music Visualization',
@@ -414,6 +430,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-music-visualization',
 		allowEnableTailwind: true,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Prompt to Video',
@@ -436,6 +453,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-prompt-to-video',
 		allowEnableTailwind: true,
 		contributedBy: 'webmonch',
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Skia',
@@ -457,6 +475,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-skia',
 		allowEnableTailwind: false,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Overlay',
@@ -484,6 +503,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-overlay',
 		allowEnableTailwind: true,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Code Hike',
@@ -509,6 +529,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-code-hike',
 		allowEnableTailwind: false,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Stargazer',
@@ -531,6 +552,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-stargazer',
 		allowEnableTailwind: true,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'TikTok',
@@ -553,6 +575,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-tiktok',
 		allowEnableTailwind: true,
 		contributedBy: null,
+		showStackblitz: true,
 	},
 ].filter(truthy);
 

@@ -435,22 +435,24 @@ export const TemplateModalContent: React.FC<{
 								</div>
 							</a>
 						)}
-						<a
-							target="_blank"
-							className="text-inherit inline-flex flex-row items-center cursor-pointer select-none"
-							href={`https://stackblitz.com/github/${template.org}/${template.repoName}`}
-						>
-							<div className="flex flex-row items-center pt-1 pb-1 align-middle pr-4">
-								<div className="w-6 h-9 mr-3 inline-flex items-center justify-center">
-									<StackBlitzIcon />
+						{template.showStackblitz ? (
+							<a
+								target="_blank"
+								className="text-inherit inline-flex flex-row items-center cursor-pointer select-none"
+								href={`https://stackblitz.com/github/${template.org}/${template.repoName}`}
+							>
+								<div className="flex flex-row items-center pt-1 pb-1 align-middle pr-4">
+									<div className="w-6 h-9 mr-3 inline-flex items-center justify-center">
+										<StackBlitzIcon />
+									</div>
+									Try online{' '}
+									<span className="whitespace-pre text-[var(--light-text-color)]">
+										{' '}
+										via StackBlitz
+									</span>
 								</div>
-								Try online{' '}
-								<span className="whitespace-pre text-[var(--light-text-color)]">
-									{' '}
-									via StackBlitz
-								</span>
-							</div>
-						</a>
+							</a>
+						) : null}
 						{template.allowEnableTailwind ? (
 							<div className="flex flex-row items-center pt-1 pb-1 align-middle pr-4">
 								<div className="w-6 h-9 mr-3 inline-flex items-center justify-center">
