@@ -201,7 +201,7 @@ class RenderParams
             'webhook' => $this->getWebhook(),
             'forceHeight' => $this->getForceHeight(),
             'forceWidth' => $this->getForceWidth(),
-            'licenseKey' => $this->getLicenseKey() ?? $this->getLicenseKey(),
+            'licenseKey' => $this->getLicenseKey(),
             'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
             'mediaCacheSizeInBytes' => $this->getMediaCacheSizeInBytes(),
             'offthreadVideoThreads' => $this->getOffthreadVideoThreads(),
