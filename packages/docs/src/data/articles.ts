@@ -99,6 +99,15 @@ export const articles = [
 		slug: 'ai/chatbot',
 	},
 	{
+		id: 'ai/claude-code',
+		title: 'Prompting videos with Claude Code',
+		relativePath: 'docs/ai/claude-code.mdx',
+		compId: 'articles-docs-ai-claude-code',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/claude-code',
+	},
+	{
 		id: 'ai/index',
 		title: 'Building with Remotion and AI',
 		relativePath: 'docs/ai/index.mdx',
