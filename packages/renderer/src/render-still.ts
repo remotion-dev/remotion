@@ -1,4 +1,4 @@
-import {registerUsageEvent} from '@remotion/licensing';
+import {LicensingInternals} from '@remotion/licensing';
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
 import type {_InternalTypes} from 'remotion';
@@ -76,6 +76,7 @@ type InternalRenderStillOptions = {
 	port: number | null;
 	onArtifact: OnArtifact | null;
 	onLog: OnLog;
+	isProduction: boolean | null;
 } & ToOptions<Omit<typeof optionsMap.renderStill, 'apiKey'>>;
 
 export type RenderStillOptions = {
@@ -108,12 +109,8 @@ export type RenderStillOptions = {
 	 */
 	quality?: never;
 	onArtifact?: OnArtifact;
-} & {
-	/**
-	 * @deprecated Use `licenseKey` instead
-	 */
-	apiKey?: string | null;
-} & Partial<ToOptions<Omit<typeof optionsMap.renderStill, 'apiKey'>>>;
+	isProduction?: boolean;
+} & Partial<ToOptions<typeof optionsMap.renderStill>>;
 
 type CleanupFn = () => Promise<unknown>;
 type RenderStillReturnValue = {buffer: Buffer | null};
@@ -429,11 +426,13 @@ const internalRenderStillRaw = (
 					return;
 				}
 
-				registerUsageEvent({
+				LicensingInternals.internalRegisterUsageEvent({
 					licenseKey: options.licenseKey,
 					event: 'cloud-render',
 					host: null,
 					succeeded: true,
+					isStill: true,
+					isProduction: options.isProduction ?? true,
 				})
 					.then(() => {
 						Log.verbose(options, 'Usage event sent successfully');
@@ -509,6 +508,7 @@ export const renderStill = (
 		mediaCacheSizeInBytes,
 		apiKey,
 		licenseKey,
+		isProduction,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -577,5 +577,6 @@ export const renderStill = (
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		licenseKey: licenseKey ?? apiKey ?? null,
 		onLog: defaultOnLog,
+		isProduction: isProduction ?? null,
 	});
 };

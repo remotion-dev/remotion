@@ -74,6 +74,7 @@ export type RenderMediaOnLambdaInput = {
 	metadata?: Record<string, string> | null;
 	storageClass?: StorageClass | null;
 	requestHandler?: RequestHandler;
+	isProduction?: boolean;
 } & {
 	/**
 	 * @deprecated Use `licenseKey` instead
@@ -209,6 +210,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		storageClass: options.storageClass ?? null,
 		requestHandler: options.requestHandler ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+		isProduction: options.isProduction ?? null,
 	};
 };
 

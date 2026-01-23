@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Chakma',
 	importName: 'NotoSansChakma',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Chakma:ital,wght@0,400',
 	unicodeRanges: {
 		chakma: 'U+09E6-09EF, U+1040-1049, U+200C-200D, U+25CC, U+11100-1114F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				chakma:
-					'https://fonts.gstatic.com/s/notosanschakma/v18/Y4GQYbJ8VTEp4t3MKJSMjg5OIzhi0M_ZQyYB.woff2',
+					'https://fonts.gstatic.com/s/notosanschakma/v19/Y4GQYbJ8VTEp4t3MKJSMjg5OIzhi0M_ZQyYB.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanschakma/v18/Y4GQYbJ8VTEp4t3MKJSMjg5OIzhi0JHZQyYB.woff2',
+					'https://fonts.gstatic.com/s/notosanschakma/v19/Y4GQYbJ8VTEp4t3MKJSMjg5OIzhi0JHZQyYB.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanschakma/v18/Y4GQYbJ8VTEp4t3MKJSMjg5OIzhi0J_ZQw.woff2',
+					'https://fonts.gstatic.com/s/notosanschakma/v19/Y4GQYbJ8VTEp4t3MKJSMjg5OIzhi0J_ZQw.woff2',
 			},
 		},
 	},

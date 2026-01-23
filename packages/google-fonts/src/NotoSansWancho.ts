@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Wancho',
 	importName: 'NotoSansWancho',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Wancho:ital,wght@0,400',
 	unicodeRanges: {
 		wancho: 'U+25CC, U+1E2C0-1E2FF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				wancho:
-					'https://fonts.gstatic.com/s/notosanswancho/v18/zrf-0GXXyfn6Fs0lH9P4cUubP0GBmGvipxRf.woff2',
+					'https://fonts.gstatic.com/s/notosanswancho/v19/zrf-0GXXyfn6Fs0lH9P4cUubP0GBmGvipxRf.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanswancho/v18/zrf-0GXXyfn6Fs0lH9P4cUubP0GBmAripxRf.woff2',
+					'https://fonts.gstatic.com/s/notosanswancho/v19/zrf-0GXXyfn6Fs0lH9P4cUubP0GBmAripxRf.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanswancho/v18/zrf-0GXXyfn6Fs0lH9P4cUubP0GBmATipw.woff2',
+					'https://fonts.gstatic.com/s/notosanswancho/v19/zrf-0GXXyfn6Fs0lH9P4cUubP0GBmATipw.woff2',
 			},
 		},
 	},

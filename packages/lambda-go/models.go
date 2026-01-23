@@ -50,6 +50,7 @@ type RemotionOptions struct {
 	Gl                             string                 `json:"gl"`
 	X264Preset                     interface{}            `json:"x264Preset"`
 	DeleteAfter                    *string                `json:"deleteAfter"`
+	IsProduction                   *bool                  `json:"isProduction"`
 }
 
 type renderInternalOptions struct {
@@ -105,6 +106,7 @@ type renderInternalOptions struct {
 	Gl                             *string                `json:"gl,omitempty"`
 	X264Preset                     interface{}            `json:"x264Preset"`
 	DeleteAfter                    *string                `json:"deleteAfter"`
+	IsProduction                   *bool                  `json:"isProduction"`
 }
 
 type RawInvokeResponse struct {

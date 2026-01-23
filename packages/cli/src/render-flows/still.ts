@@ -421,6 +421,7 @@ export const renderStillFlow = async ({
 			});
 		},
 		licenseKey: null,
+		isProduction: null,
 	});
 
 	aggregate.rendering = {

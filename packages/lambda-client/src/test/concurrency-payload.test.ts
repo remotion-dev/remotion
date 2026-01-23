@@ -55,6 +55,7 @@ test('Should include concurrency field in payload', async () => {
 		storageClass: null,
 		requestHandler: null,
 		preferLossless: false,
+		isProduction: null,
 	});
 
 	expect(payload.type).toBe(ServerlessRoutines.start);
@@ -114,6 +115,7 @@ test('Should handle null concurrency', async () => {
 		storageClass: null,
 		requestHandler: null,
 		preferLossless: false,
+		isProduction: null,
 	});
 
 	expect(payload.type).toBe(ServerlessRoutines.start);

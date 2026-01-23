@@ -139,6 +139,7 @@ test('Render Media payload', async () => {
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			isProduction: null,
 		});
 
 	expect(JSON.parse(output)).toEqual(nativeVersion);
@@ -185,6 +186,7 @@ test('Render Still payload', async () => {
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			isProduction: null,
 		});
 
 	expect(JSON.parse(output)).toEqual({...nativeVersion, streamed: false});

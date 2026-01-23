@@ -39,8 +39,9 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	mediaCacheSizeInBytes: number | null;
 	signal: AbortSignal | null;
 	onArtifact: WebRendererOnArtifact | null;
-	licenseKey: string | undefined;
+	licenseKey: string | null;
 	scale: number;
+	isProduction: boolean;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -73,6 +74,7 @@ async function internalRenderStillOnWeb<
 	onArtifact,
 	licenseKey,
 	scale,
+	isProduction,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
 	validateScale(scale);
 
@@ -161,6 +163,8 @@ async function internalRenderStillOnWeb<
 			licenseKey: licenseKey ?? null,
 			succeeded: true,
 			apiName: 'renderStillOnWeb',
+			isStill: true,
+			isProduction,
 		});
 
 		return {blob: imageData, internalState};
@@ -170,6 +174,8 @@ async function internalRenderStillOnWeb<
 				succeeded: false,
 				licenseKey: licenseKey ?? null,
 				apiName: 'renderStillOnWeb',
+				isStill: true,
+				isProduction,
 			}).catch((err2) => {
 				Internals.Log.error(
 					{logLevel: 'error', tag: 'web-renderer'},
@@ -201,8 +207,10 @@ export const renderStillOnWeb = <
 				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 				signal: options.signal ?? null,
 				onArtifact: options.onArtifact ?? null,
-				licenseKey: options.licenseKey ?? undefined,
+				// Must allow undefined to print warning
+				licenseKey: options.licenseKey ?? null,
 				scale: options.scale ?? 1,
+				isProduction: options.isProduction ?? true,
 			}),
 		);
 

@@ -335,6 +335,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		onLog: RenderInternals.defaultOnLog,
 		licenseKey: null,
+		isProduction: null,
 	});
 
 	const {size} = await fs.promises.stat(outputPath);
@@ -362,7 +363,12 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			forcePathStyle: params.forcePathStyle,
 		}),
 		server.closeServer(true),
-		sendTelemetryEvent(params.licenseKey, params.logLevel),
+		sendTelemetryEvent({
+			licenseKey: params.licenseKey,
+			logLevel: params.logLevel,
+			isStill: true,
+			isProduction: params.isProduction ?? true,
+		}),
 	]);
 
 	const estimatedPrice = providerSpecifics.estimatePrice({

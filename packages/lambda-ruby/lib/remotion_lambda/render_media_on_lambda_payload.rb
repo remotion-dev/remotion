@@ -48,7 +48,8 @@ def get_render_media_on_lambda_payload(
   video_bitrate: nil,
   webhook: nil,
   x264_preset: nil,
-  chromium_options: {}
+  chromium_options: {},
+  is_production: nil
 )
 
 if api_key != nil
@@ -107,7 +108,8 @@ payload = {
     videoBitrate: video_bitrate,
     webhook: webhook,
     x264Preset: x264_preset,
-    bucketName: bucket_name
+    bucketName: bucket_name,
+    isProduction: is_production
   }
   payload
 end

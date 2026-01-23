@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Osage',
 	importName: 'NotoSansOsage',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Osage:ital,wght@0,400',
 	unicodeRanges: {
 		osage: 'U+0301, U+0304, U+030B, U+0358, U+25CC, U+104B0-104FF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				osage:
-					'https://fonts.gstatic.com/s/notosansosage/v19/oPWX_kB6kP4jCuhpgEGmw4mtAVtnyn22y3PV.woff2',
+					'https://fonts.gstatic.com/s/notosansosage/v20/oPWX_kB6kP4jCuhpgEGmw4mtAVtnyn22y3PV.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansosage/v19/oPWX_kB6kP4jCuhpgEGmw4mtAVtnT1yT9ko.woff2',
+					'https://fonts.gstatic.com/s/notosansosage/v20/oPWX_kB6kP4jCuhpgEGmw4mtAVtnT1yT9ko.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansosage/v19/oPWX_kB6kP4jCuhpgEGmw4mtAVtnQVyT.woff2',
+					'https://fonts.gstatic.com/s/notosansosage/v20/oPWX_kB6kP4jCuhpgEGmw4mtAVtnQVyT.woff2',
 			},
 		},
 	},

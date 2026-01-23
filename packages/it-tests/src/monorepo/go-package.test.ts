@@ -85,6 +85,7 @@ test(
 				storageClass: null,
 				requestHandler: null,
 				mediaCacheSizeInBytes: null,
+				isProduction: null,
 			});
 
 		expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));

@@ -212,12 +212,6 @@ export const parseCommandLine = () => {
 		Config.setScale(parsedCli.scale);
 	}
 
-	if (typeof parsedCli['disable-keyboard-shortcuts'] !== 'undefined') {
-		Config.setKeyboardShortcutsEnabled(
-			!parsedCli['disable-keyboard-shortcuts'],
-		);
-	}
-
 	if (
 		typeof parsedCli['enable-experimental-client-side-rendering'] !==
 		'undefined'

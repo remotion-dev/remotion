@@ -112,6 +112,7 @@ export const renderStillSingleThread = async (
 			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
 			onLog: RenderInternals.defaultOnLog,
 			licenseKey: null,
+			isProduction: null,
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 

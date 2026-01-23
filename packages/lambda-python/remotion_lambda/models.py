@@ -331,6 +331,7 @@ class RenderMediaParams:
     delete_after: Optional[str] = None
     encoding_buffer_size: Optional[str] = None
     encoding_max_rate: Optional[str] = None
+    is_production: Optional[bool] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -383,6 +384,7 @@ class RenderMediaParams:
             'deleteAfter': self.delete_after,
             'encodingBufferSize': self.encoding_buffer_size,
             'encodingMaxRate': self.encoding_max_rate,
+            'isProduction': self.is_production,
             'type': 'start',
         }
 
@@ -456,6 +458,7 @@ class RenderStillParams:
     media_cache_size_in_bytes: Optional[int] = None
     offthreadvideo_threads: Optional[int] = None
     streamed: bool = False
+    is_production: Optional[bool] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -509,6 +512,7 @@ class RenderStillParams:
             'mediaCacheSizeInBytes': self.media_cache_size_in_bytes,
             'offthreadVideoThreads': self.offthreadvideo_threads,
             'streamed': self.streamed,
+            'isProduction': self.is_production,
         }
 
         if self.force_path_style is not None:

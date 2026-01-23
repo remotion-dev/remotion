@@ -52,6 +52,7 @@ type OptionalParameters = {
 	forcePathStyle: boolean;
 	storageClass: StorageClass | null;
 	requestHandler: RequestHandler | null | undefined;
+	isProduction: boolean | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
 
 export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
@@ -209,5 +210,6 @@ export const renderStillOnLambda = (
 		storageClass: input.storageClass ?? null,
 		requestHandler: input.requestHandler ?? null,
 		mediaCacheSizeInBytes: input.mediaCacheSizeInBytes ?? null,
+		isProduction: input.isProduction ?? null,
 	});
 };

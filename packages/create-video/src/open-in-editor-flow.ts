@@ -19,7 +19,7 @@ export const openInEditorFlow = async (projectRoot: string) => {
 
 	const displayName = getDisplayNameForEditor(guiEditor.command);
 
-	const should = await prompts({
+	const {answer} = await prompts({
 		message: `💻 Open in ${displayName}?`,
 		initial: true,
 		type: 'toggle',
@@ -28,7 +28,7 @@ export const openInEditorFlow = async (projectRoot: string) => {
 		inactive: 'No',
 	});
 
-	if (should) {
+	if (answer) {
 		await launchEditor({
 			colNumber: 1,
 			editor: guiEditor,
