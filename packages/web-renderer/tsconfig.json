@@ -11,5 +11,9 @@
 		"emitDeclarationOnly": true
 	},
 	"include": ["src"],
-	"references": [{"path": "../core"}, {"path": "../media"}]
+	"references": [
+		{"path": "../core"},
+		{"path": "../media"},
+		{"path": "../licensing"}
+	]
 }

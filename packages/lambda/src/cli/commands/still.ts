@@ -290,6 +290,9 @@ export const stillCommand = async ({
 		offthreadVideoThreads: null,
 		requestHandler: null,
 		mediaCacheSizeInBytes,
+		isProduction:
+			parsedLambdaCli[BrowserSafeApis.options.isProductionOption.cliFlag] ??
+			true,
 	});
 	Log.info(
 		{indent: false, logLevel},

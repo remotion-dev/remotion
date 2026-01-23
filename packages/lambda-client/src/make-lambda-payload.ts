@@ -88,6 +88,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	metadata: Record<string, string> | null;
 	storageClass: StorageClass | null;
 	requestHandler: RequestHandler | null;
+	isProduction: boolean | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
@@ -141,6 +142,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	offthreadVideoThreads,
 	storageClass,
 	requestHandler,
+	isProduction,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
@@ -223,6 +225,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		storageClass: storageClass ?? null,
+		isProduction,
 	};
 };
 
@@ -273,6 +276,7 @@ export const makeLambdaRenderStillPayload = async ({
 	requestHandler,
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
+	isProduction,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
@@ -328,5 +332,6 @@ export const makeLambdaRenderStillPayload = async ({
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		storageClass: storageClass ?? null,
+		isProduction,
 	};
 };

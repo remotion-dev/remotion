@@ -718,6 +718,7 @@ export const renderVideoFlow = async ({
 		onLog,
 		apiKey: null,
 		licenseKey: null,
+		isProduction: null,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});

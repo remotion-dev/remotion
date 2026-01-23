@@ -113,6 +113,7 @@ export const renderStillSingleThread = async (
 			onLog: RenderInternals.defaultOnLog,
 			apiKey: null,
 			licenseKey: null,
+			isProduction: null,
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 
