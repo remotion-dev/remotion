@@ -34,7 +34,7 @@ type UsageEventType = 'webcodec-conversion' | 'cloud-render';
 
 export type UsageEventClassification = 'billable' | 'development' | 'failed';
 
-type EitherApiKeyOrLicenseKey =
+export type EitherApiKeyOrLicenseKey =
 	true extends typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 		? {
 				licenseKey: string | null;
@@ -54,7 +54,7 @@ type RegisterUsageEventMandatoryOptions = {
 	host: string | null;
 	succeeded: boolean;
 	event: UsageEventType;
-} & EitherApiKeyOrLicenseKey;
+};
 
 type OptionalRegisterUsageEventOptional = {
 	isStill: boolean;
@@ -62,9 +62,10 @@ type OptionalRegisterUsageEventOptional = {
 };
 
 type InternalRegisterUsageEventOptions = RegisterUsageEventMandatoryOptions &
-	OptionalRegisterUsageEventOptional;
+	OptionalRegisterUsageEventOptional & {licenseKey: string | null};
 
 type RegisterUsageEventOptions = RegisterUsageEventMandatoryOptions &
+	EitherApiKeyOrLicenseKey &
 	Partial<OptionalRegisterUsageEventOptional>;
 
 export const internalRegisterUsageEvent = async ({
@@ -73,12 +74,8 @@ export const internalRegisterUsageEvent = async ({
 	event,
 	isStill,
 	isProduction,
-	...apiOrLicenseKey
+	licenseKey,
 }: InternalRegisterUsageEventOptions): Promise<RegisterUsageEventResponse> => {
-	const apiKey = 'apiKey' in apiOrLicenseKey ? apiOrLicenseKey.apiKey : null;
-	const licenseKey =
-		'licenseKey' in apiOrLicenseKey ? apiOrLicenseKey.licenseKey : null;
-
 	let lastError: Error | undefined;
 	const totalAttempts = DEFAULT_MAX_RETRIES + 1;
 
@@ -93,7 +90,7 @@ export const internalRegisterUsageEvent = async ({
 				method: 'POST',
 				body: JSON.stringify({
 					event,
-					apiKey: licenseKey ?? apiKey,
+					apiKey: licenseKey,
 					host,
 					succeeded,
 					isStill,
@@ -155,9 +152,13 @@ export const internalRegisterUsageEvent = async ({
 export const registerUsageEvent = (
 	options: RegisterUsageEventOptions,
 ): Promise<RegisterUsageEventResponse> => {
+	const licenseKey = 'licenseKey' in options ? options.licenseKey : null;
+	const apiKey = 'apiKey' in options ? options.apiKey : null;
+
 	return internalRegisterUsageEvent({
 		...options,
 		isStill: options.isStill ?? false,
 		isProduction: options.isProduction ?? true,
+		licenseKey: licenseKey ?? apiKey ?? null,
 	});
 };

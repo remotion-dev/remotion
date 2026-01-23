@@ -89,7 +89,9 @@ export type InnerRenderMediaOnLambdaInput = {
 	storageClass: StorageClass | null;
 	requestHandler: RequestHandler | null;
 	isProduction: boolean | null;
-} & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
+} & ToOptions<
+	Omit<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda, 'apiKey'>
+>;
 
 export const makeLambdaRenderMediaPayload = async ({
 	rendererFunctionName,
@@ -137,7 +139,6 @@ export const makeLambdaRenderMediaPayload = async ({
 	preferLossless,
 	forcePathStyle,
 	metadata,
-	apiKey,
 	licenseKey,
 	offthreadVideoThreads,
 	storageClass,
@@ -220,7 +221,6 @@ export const makeLambdaRenderMediaPayload = async ({
 		preferLossless: preferLossless ?? false,
 		forcePathStyle: forcePathStyle ?? false,
 		metadata: metadata ?? null,
-		apiKey: apiKey ?? null,
 		licenseKey: licenseKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
@@ -270,7 +270,6 @@ export const makeLambdaRenderStillPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 	forcePathStyle,
-	apiKey,
 	licenseKey,
 	storageClass,
 	requestHandler,
@@ -327,7 +326,6 @@ export const makeLambdaRenderStillPayload = async ({
 		type: ServerlessRoutines.still,
 		streamed: true,
 		forcePathStyle,
-		apiKey: apiKey ?? null,
 		licenseKey: licenseKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,

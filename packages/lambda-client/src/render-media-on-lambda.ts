@@ -75,7 +75,16 @@ export type RenderMediaOnLambdaInput = {
 	storageClass?: StorageClass | null;
 	requestHandler?: RequestHandler;
 	isProduction?: boolean;
-} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
+} & {
+	/**
+	 * @deprecated Use `licenseKey` instead
+	 */
+	apiKey?: string | null;
+} & Partial<
+		ToOptions<
+			Omit<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda, 'apiKey'>
+		>
+	>;
 
 export type RenderMediaOnLambdaOutput = {
 	renderId: string;
@@ -197,8 +206,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		forcePathStyle: options.forcePathStyle ?? false,
 		indent: false,
 		metadata: options.metadata ?? null,
-		apiKey: options.apiKey ?? null,
-		licenseKey: options.licenseKey ?? null,
+		licenseKey: options.licenseKey ?? options.apiKey ?? null,
 		storageClass: options.storageClass ?? null,
 		requestHandler: options.requestHandler ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,

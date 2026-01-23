@@ -208,7 +208,6 @@ export const renderMediaSingleThread = async (
 			hardwareAcceleration: 'disable',
 			chromeMode: 'headless-shell',
 			onLog: RenderInternals.defaultOnLog,
-			apiKey: null,
 			licenseKey: null,
 			isProduction: null,
 		});

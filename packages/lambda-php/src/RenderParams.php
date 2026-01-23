@@ -182,7 +182,6 @@ class RenderParams
             'logLevel' => $this->getLogLevel(),
             'frameRange' => $this->getFrameRange(),
             'outName' => $this->getOutName(),
-            'apiKey' => null,
             'timeoutInMilliseconds' => $this->getTimeoutInMilliseconds(),
             'chromiumOptions' => $this->getChromiumOptions() === null ? new stdClass() : $this->getChromiumOptions(),
             'scale' => $this->getScale(),

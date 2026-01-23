@@ -334,7 +334,6 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		chromeMode: 'headless-shell',
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		onLog: RenderInternals.defaultOnLog,
-		apiKey: null,
 		licenseKey: null,
 		isProduction: null,
 	});
@@ -365,7 +364,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		}),
 		server.closeServer(true),
 		sendTelemetryEvent({
-			licenseKey: params.licenseKey ?? params.apiKey,
+			licenseKey: params.licenseKey,
 			logLevel: params.logLevel,
 			isStill: true,
 			isProduction: params.isProduction ?? true,

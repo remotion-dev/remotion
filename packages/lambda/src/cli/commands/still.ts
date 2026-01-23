@@ -278,8 +278,6 @@ export const stillCommand = async ({
 		},
 		deleteAfter: deleteAfter ?? null,
 		storageClass: parsedLambdaCli['storage-class'] ?? null,
-		apiKey:
-			parsedLambdaCli[BrowserSafeApis.options.apiKeyOption.cliFlag] ?? null,
 		licenseKey:
 			parsedLambdaCli[BrowserSafeApis.options.licenseKeyOption.cliFlag] ?? null,
 		downloadBehavior: {type: 'play-in-browser'},

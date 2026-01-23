@@ -337,19 +337,25 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 
 Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
 
-### `apiKey?`<AvailableFrom v="4.0.253"/>
-
-<Options id="api-key" />
-
 ### `storageClass?`<AvailableFrom v="4.0.305"/>
 
 An [identifier](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-compare) for the S3 storage class of the rendered media. Default: `undefined` (which is `STANDARD`).
+
+### `licenseKey?`<AvailableFrom v="4.0.409"/>
+
+<Options id="license-key" />
 
 ### `isProduction?`<AvailableFrom v="4.0.409"/>
 
 _default `true`_
 
 <Options id="is-production" />
+
+### ~~`apiKey?`<AvailableFrom v="4.0.253"/>~~
+
+_deprecated in v4.0.409_
+
+<Options id="api-key" />
 
 ### ~~`dumpBrowserLogs?`~~
 

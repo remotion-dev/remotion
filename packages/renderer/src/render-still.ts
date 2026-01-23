@@ -77,7 +77,7 @@ type InternalRenderStillOptions = {
 	onArtifact: OnArtifact | null;
 	onLog: OnLog;
 	isProduction: boolean | null;
-} & ToOptions<typeof optionsMap.renderStill>;
+} & ToOptions<Omit<typeof optionsMap.renderStill, 'apiKey'>>;
 
 export type RenderStillOptions = {
 	port?: number | null;
@@ -110,7 +110,12 @@ export type RenderStillOptions = {
 	quality?: never;
 	onArtifact?: OnArtifact;
 	isProduction?: boolean;
-} & Partial<ToOptions<typeof optionsMap.renderStill>>;
+} & Partial<ToOptions<typeof optionsMap.renderStill>> & {
+		/**
+		 * @deprecated Use `licenseKey` instead
+		 */
+		apiKey?: string | null;
+	};
 
 type CleanupFn = () => Promise<unknown>;
 type RenderStillReturnValue = {buffer: Buffer | null};
@@ -421,13 +426,13 @@ const internalRenderStillRaw = (
 			})
 
 			.then((res) => {
-				if (options.apiKey === null && options.licenseKey === null) {
+				if (options.licenseKey === null) {
 					resolve(res);
 					return;
 				}
 
 				LicensingInternals.internalRegisterUsageEvent({
-					licenseKey: options.licenseKey ?? options.apiKey ?? null,
+					licenseKey: options.licenseKey,
 					event: 'cloud-render',
 					host: null,
 					succeeded: true,
@@ -575,8 +580,7 @@ export const renderStill = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
-		apiKey: apiKey ?? null,
-		licenseKey: licenseKey ?? null,
+		licenseKey: licenseKey ?? apiKey ?? null,
 		onLog: defaultOnLog,
 		isProduction: isProduction ?? null,
 	});
