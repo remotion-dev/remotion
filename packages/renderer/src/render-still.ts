@@ -110,7 +110,12 @@ export type RenderStillOptions = {
 	quality?: never;
 	onArtifact?: OnArtifact;
 	isProduction?: boolean;
-} & Partial<ToOptions<typeof optionsMap.renderStill>>;
+} & Partial<ToOptions<typeof optionsMap.renderStill>> & {
+		/**
+		 * @deprecated Use `licenseKey` instead
+		 */
+		apiKey?: string | null;
+	};
 
 type CleanupFn = () => Promise<unknown>;
 type RenderStillReturnValue = {buffer: Buffer | null};
