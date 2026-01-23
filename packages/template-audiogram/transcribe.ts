@@ -72,9 +72,34 @@ async function transcribeAudio(options: TranscriptionOptions) {
   );
 
   // Cut the audio starting from speech start time and convert to 16-bit WAV
-  execSync(
-    `npx remotion ffmpeg -i "${options.audioPath}" -ss ${options.speechStartsAtSecond} -ar 16000 -ac 1 "${tempAudioForWhisper}" -y`,
+  // Use array syntax to prevent command injection vulnerabilities
+  const { spawnSync } = require('child_process');
+  const result = spawnSync(
+    'npx',
+    [
+      'remotion',
+      'ffmpeg',
+      '-i',
+      options.audioPath,
+      '-ss',
+      options.speechStartsAtSecond.toString(),
+      '-ar',
+      '16000',
+      '-ac',
+      '1',
+      tempAudioForWhisper,
+      '-y',
+    ],
+    { encoding: 'utf8' }
   );
+  
+  if (result.error) {
+    throw result.error;
+  }
+  
+  if (result.status !== 0) {
+    throw new Error(`FFmpeg command failed with exit code ${result.status}: ${result.stderr}`);
+  }
 
   const whisperCppOutput = await transcribe({
     model: WHISPER_MODEL,
