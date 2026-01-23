@@ -467,6 +467,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/docs/miscellaneous/vercel-functions",
+			"destination": "/docs/miscellaneous/vercel",
+			"permanent": false
+		},
+		{
 			"source": "/system-prompt",
 			"destination": "/docs/ai/system-prompt",
 			"permanent": false
