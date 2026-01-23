@@ -63,13 +63,37 @@ function truthy<T>(value: T): value is Truthy<T> {
 
 export const FEATURED_TEMPLATES: Template[] = [
 	{
+		homePageLabel: 'Blank',
+		shortName: 'Blank',
+		description: 'Nothing except an empty canvas',
+		org: 'remotion-dev',
+		repoName: 'template-empty',
+		longerDescription:
+			'A template containing nothing but an empty canvas. Recommended if you already used Remotion or plan to write your code with AI.',
+		promoVideo: {
+			muxId: 'JD00x15y859GjqO7C9hpILkrSddGzd55K4lfj02dv8gU4',
+			width: 1280,
+			height: 720,
+		},
+		cliId: 'blank' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: 'Blank',
+		previewURL: 'https://template-empty.vercel.app/?/MyComp',
+		templateInMonorepo: 'template-blank',
+		allowEnableTailwind: true,
+		contributedBy: null,
+		showStackblitz: true,
+	},
+
+	{
 		homePageLabel: 'Hello World',
 		shortName: 'Hello World',
 		org: 'remotion-dev',
 		repoName: 'template-helloworld',
-		description: 'A "Hello World" starter template',
+		description: 'A playground with a simple animation',
 		longerDescription:
-			'A basic template with TypeScript, Prettier and ESLint preconfigured. Our recommended choice for beginners.',
+			'A basic template with TypeScript, Prettier and ESLint preconfigured.',
 		promoVideo: {
 			muxId: 'vKvV6aa7GXGlR01cmpc6J8Zz4Gkj9d2hBSnVYoef00900I',
 			height: 1080,
@@ -155,29 +179,6 @@ export const FEATURED_TEMPLATES: Template[] = [
 		showStackblitz: true,
 	},
 
-	{
-		homePageLabel: 'Blank',
-		shortName: 'Blank',
-		description: 'Nothing except an empty canvas',
-		org: 'remotion-dev',
-		repoName: 'template-empty',
-		longerDescription:
-			'A template containing nothing but an empty canvas. Recommended for people who already worked with Remotion.',
-		promoVideo: {
-			muxId: 'JD00x15y859GjqO7C9hpILkrSddGzd55K4lfj02dv8gU4',
-			width: 1280,
-			height: 720,
-		},
-		cliId: 'blank' as const,
-		type: 'video' as const,
-		defaultBranch: 'main',
-		featuredOnHomePage: 'Blank',
-		previewURL: 'https://template-empty.vercel.app/?/MyComp',
-		templateInMonorepo: 'template-blank',
-		allowEnableTailwind: true,
-		contributedBy: null,
-		showStackblitz: true,
-	},
 	{
 		homePageLabel: 'Recorder',
 		shortName: 'Recorder',
