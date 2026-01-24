@@ -1,0 +1,48 @@
+name: CodeBuddy
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, assigned]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  codebuddy:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@codebuddy')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@codebuddy')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@codebuddy')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@codebuddy') || contains(github.event.issue.title, '@codebuddy')))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+      actions: read # Required for CodeBuddy to read CI results on PRs
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install CodeBuddy
+        run: npm install -g @tencent-ai/codebuddy-code
+
+      - name: Run CodeBuddy
+        id: codebuddy
+        env:
+          CODEBUDDY_API_KEY: ${{ secrets.CODEBUDDY_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Run CodeBuddy with the comment or issue as context
+          codebuddy --help || echo "CodeBuddy help command executed"

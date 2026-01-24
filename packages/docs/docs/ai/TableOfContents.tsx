@@ -18,6 +18,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'Bolt.new'}</strong>
 					<div>Use Bolt.new to prompt Remotion videos</div>
 				</TOCItem>
+				<TOCItem link="/docs/ai/codebuddy">
+					<strong>{'CodeBuddy'}</strong>
+					<div>Use CodeBuddy to prompt Remotion videos</div>
+				</TOCItem>
 				<TOCItem link="/docs/ai/system-prompt">
 					<strong>{'System Prompt'}</strong>
 					<div>to teach LLMs Remotion rules</div>

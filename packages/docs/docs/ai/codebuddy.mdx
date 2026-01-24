@@ -1,0 +1,71 @@
+---
+image: /generated/articles-docs-ai-codebuddy.png
+crumb: 'AI'
+title: Prompting videos with CodeBuddy
+sidebar_label: CodeBuddy
+---
+
+You can create videos just from prompting using CodeBuddy.  
+This is an easy way to get started with Remotion!
+
+## Prerequisites
+
+You first need to install [CodeBuddy](https://www.codebuddy.ai/docs/zh/cli/overview) and [Node.js](https://nodejs.org/en).
+
+## Installing CodeBuddy
+
+Install CodeBuddy globally using npm:
+
+```bash
+npm install -g @tencent-ai/codebuddy-code
+```
+
+## Start a new project
+
+Create a new project using the following command:
+
+```bash
+npx create-video@latest
+```
+
+This will create a new project - we recommend the following settings:
+
+- Select the [Empty](https://remotion.dev/templates/empty) template
+- Say yes to use [TailwindCSS](/docs/tailwind)
+- Say yes to install [Skills](/docs/ai/skills)
+
+## Start the preview
+
+First, go into the directory that was created.  
+If you named your project `my-video`, you would run the following command:
+
+```bash
+cd my-video
+```
+
+Start the project using the following command:
+
+```bash
+npm run dev
+```
+
+## Start CodeBuddy
+
+Open a separate terminal window and start CodeBuddy:
+
+```bash
+cd my-video
+codebuddy
+```
+
+You can now prompt a video!
+
+## Help and Documentation
+
+For more information about CodeBuddy commands and features, you can run:
+
+```bash
+codebuddy --help
+```
+
+Visit the [official CodeBuddy documentation](https://www.codebuddy.ai/docs/zh/cli/overview) for more details.
