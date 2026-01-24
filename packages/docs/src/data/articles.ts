@@ -108,6 +108,15 @@ export const articles = [
 		slug: 'ai/claude-code',
 	},
 	{
+		id: 'ai/codebuddy',
+		title: 'Prompting videos with CodeBuddy',
+		relativePath: 'docs/ai/codebuddy.mdx',
+		compId: 'articles-docs-ai-codebuddy',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/codebuddy',
+	},
+	{
 		id: 'ai/index',
 		title: 'Building with Remotion and AI',
 		relativePath: 'docs/ai/index.mdx',
