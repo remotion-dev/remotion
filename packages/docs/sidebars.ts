@@ -846,7 +846,7 @@ const sidebars: SidebarsConfig = {
 				'measuring',
 				'using-randomness',
 				'noise-visualization',
-				'maps',
+				'map-animations',
 				'animation-math',
 			],
 		},
