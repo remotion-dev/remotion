@@ -347,7 +347,7 @@ _map.addSource('markers', {
 _map.addLayer({
   id: 'city-markers',
   type: 'circle',
-  source: 'cities',
+  source: 'markers',
   paint: {
     'circle-radius': 40,
     'circle-color': '#FF4444',
@@ -359,7 +359,7 @@ _map.addLayer({
 _map.addLayer({
   id: 'labels',
   type: 'symbol',
-  source: 'cities',
+  source: 'markers',
   layout: {
     'text-field': ['get', 'name'],
     'text-font': ['DIN Pro Bold', 'Arial Unicode MS Bold'],
