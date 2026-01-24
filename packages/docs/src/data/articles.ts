@@ -3143,8 +3143,8 @@ export const articles = [
 	{
 		id: 'map-animations',
 		title: 'Map animations in Remotion',
-		relativePath: 'docs/map-animations.mdx',
-		compId: 'articles-docs-map-animations',
+		relativePath: 'docs/maps.mdx',
+		compId: 'articles-docs-maps',
 		crumb: 'Techniques',
 		noAi: false,
 		slug: 'map-animations',
