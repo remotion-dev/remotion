@@ -40,6 +40,7 @@ import {
 import {render} from './render';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
+import {skillsCommand} from './skills';
 import {studioCommand} from './studio';
 import {upgradeCommand} from './upgrade';
 import {
@@ -138,6 +139,8 @@ export const cli = async () => {
 				logLevel,
 				args: additionalArgs,
 			});
+		} else if (command === 'skills') {
+			await skillsCommand(args);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {

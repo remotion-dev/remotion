@@ -146,6 +146,18 @@ export const printHelp = (logLevel: LogLevel) => {
 		{indent: false, logLevel},
 		chalk.gray('https://www.remotion.dev/docs/cli/add'),
 	);
+	
+	Log.info({indent: false, logLevel});
+	Log.info(
+		{indent: false, logLevel},
+		chalk.blue('remotion skills add') +
+			chalk.gray(' | ') +
+			chalk.blue('update'),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		'Install or update skills from remotion-dev/skills.',
+	);
 
 	Log.info({indent: false, logLevel});
 	Log.info(
