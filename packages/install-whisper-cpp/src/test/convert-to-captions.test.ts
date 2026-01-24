@@ -939,19 +939,46 @@ test('Convert to captions - whitespace preservation disabled (default)', () => {
 			text: 'Hello',
 			offsets: {from: 0, to: 100},
 			timestamps: {from: '00:00:00,000', to: '00:00:00,100'},
-			tokens: [{t_dtw: 0, text: 'Hello'}],
+			tokens: [
+				{
+					t_dtw: 0,
+					text: 'Hello',
+					timestamps: {from: '00:00:00,000', to: '00:00:00,100'},
+					offsets: {from: 0, to: 5},
+					id: 1,
+					p: 0.99,
+				},
+			],
 		},
 		{
 			text: ' world,',
 			offsets: {from: 100, to: 300},
 			timestamps: {from: '00:00:00,100', to: '00:00:00,300'},
-			tokens: [{t_dtw: 100, text: ' world,'}],
+			tokens: [
+				{
+					t_dtw: 100,
+					text: ' world,',
+					timestamps: {from: '00:00:00,100', to: '00:00:00,300'},
+					offsets: {from: 5, to: 12},
+					id: 2,
+					p: 0.99,
+				},
+			],
 		},
 		{
 			text: ' this',
 			offsets: {from: 300, to: 500},
 			timestamps: {from: '00:00:00,300', to: '00:00:00,500'},
-			tokens: [{t_dtw: 500, text: ' this'}],
+			tokens: [
+				{
+					t_dtw: 500,
+					text: ' this',
+					timestamps: {from: '00:00:00,500', to: '00:00:00,700'},
+					offsets: {from: 12, to: 17},
+					id: 3,
+					p: 0.99,
+				},
+			],
 		},
 	];
 
@@ -973,19 +1000,46 @@ test('Convert to captions - whitespace preservation enabled', () => {
 			text: 'Hello',
 			offsets: {from: 0, to: 100},
 			timestamps: {from: '00:00:00,000', to: '00:00:00,100'},
-			tokens: [{t_dtw: 0, text: 'Hello'}],
+			tokens: [
+				{
+					t_dtw: 0,
+					text: 'Hello',
+					timestamps: {from: '00:00:00,000', to: '00:00:00,100'},
+					offsets: {from: 0, to: 5},
+					id: 1,
+					p: 0.99,
+				},
+			],
 		},
 		{
 			text: ' world,',
 			offsets: {from: 100, to: 300},
 			timestamps: {from: '00:00:00,100', to: '00:00:00,300'},
-			tokens: [{t_dtw: 100, text: ' world,'}],
+			tokens: [
+				{
+					t_dtw: 100,
+					text: ' world,',
+					timestamps: {from: '00:00:00,100', to: '00:00:00,300'},
+					offsets: {from: 5, to: 12},
+					id: 2,
+					p: 0.99,
+				},
+			],
 		},
 		{
 			text: ' this',
 			offsets: {from: 300, to: 500},
 			timestamps: {from: '00:00:00,300', to: '00:00:00,500'},
-			tokens: [{t_dtw: 500, text: ' this'}],
+			tokens: [
+				{
+					t_dtw: 500,
+					text: ' this',
+					timestamps: {from: '00:00:00,500', to: '00:00:00,700'},
+					offsets: {from: 12, to: 17},
+					id: 3,
+					p: 0.99,
+				},
+			],
 		},
 	];
 
@@ -1007,7 +1061,16 @@ test('Convert to captions - skips items without tokens (safe token access)', () 
 			text: 'Hello',
 			offsets: {from: 0, to: 100},
 			timestamps: {from: '00:00:00,000', to: '00:00:00,100'},
-			tokens: [{t_dtw: 0, text: 'Hello'}],
+			tokens: [
+				{
+					t_dtw: 0,
+					text: 'Hello',
+					timestamps: {from: '00:00:00,000', to: '00:00:00,100'},
+					offsets: {from: 0, to: 5},
+					id: 1,
+					p: 0.99,
+				},
+			],
 		},
 		{
 			text: ' world',
@@ -1019,7 +1082,16 @@ test('Convert to captions - skips items without tokens (safe token access)', () 
 			text: ' test',
 			offsets: {from: 200, to: 300},
 			timestamps: {from: '00:00:00,200', to: '00:00:00,300'},
-			tokens: [{t_dtw: 300, text: ' test'}],
+			tokens: [
+				{
+					t_dtw: 300,
+					text: ' test',
+					timestamps: {from: '00:00:00,300', to: '00:00:00,400'},
+					offsets: {from: 11, to: 16},
+					id: 3,
+					p: 0.99,
+				},
+			],
 		},
 	];
 
@@ -1040,18 +1112,28 @@ test('Convert to captions - handles missing tokens gracefully', () => {
 			text: 'Hello',
 			offsets: {from: 0, to: 100},
 			timestamps: {from: '00:00:00,000', to: '00:00:00,100'},
-			tokens: null,
+			tokens: [],
 		},
 		{
 			text: ' world',
 			offsets: {from: 100, to: 200},
 			timestamps: {from: '00:00:00,100', to: '00:00:00,200'},
+			tokens: [],
 		},
 		{
 			text: ' test',
 			offsets: {from: 200, to: 300},
 			timestamps: {from: '00:00:00,200', to: '00:00:00,300'},
-			tokens: [{t_dtw: 300, text: ' test'}],
+			tokens: [
+				{
+					t_dtw: 300,
+					text: ' test',
+					timestamps: {from: '00:00:00,300', to: '00:00:00,400'},
+					offsets: {from: 12, to: 17},
+					id: 3,
+					p: 0.99,
+				},
+			],
 		},
 	];
 
@@ -1070,8 +1152,22 @@ test('Convert to captions - pure time-based gap calculation', () => {
 			offsets: {from: 0, to: 100},
 			timestamps: {from: '00:00:00,000', to: '00:00:00,100'},
 			tokens: [
-				{t_dtw: 0, text: 'First'},
-				{t_dtw: 100, text: ''},
+				{
+					t_dtw: 0,
+					text: 'First',
+					timestamps: {from: '00:00:00,000', to: '00:00:00,100'},
+					offsets: {from: 0, to: 5},
+					id: 1,
+					p: 0.99,
+				},
+				{
+					t_dtw: 100,
+					text: '',
+					timestamps: {from: '00:00:00,100', to: '00:00:00,100'},
+					offsets: {from: 5, to: 5},
+					id: 2,
+					p: 0.99,
+				},
 			],
 		},
 		{
@@ -1079,8 +1175,22 @@ test('Convert to captions - pure time-based gap calculation', () => {
 			offsets: {from: 100, to: 200},
 			timestamps: {from: '00:00:00,100', to: '00:00:00,200'},
 			tokens: [
-				{t_dtw: 500, text: ' second'},
-				{t_dtw: 600, text: ''},
+				{
+					t_dtw: 500,
+					text: ' second',
+					timestamps: {from: '00:00:05,000', to: '00:00:06,000'},
+					offsets: {from: 5, to: 12},
+					id: 3,
+					p: 0.99,
+				},
+				{
+					t_dtw: 600,
+					text: '',
+					timestamps: {from: '00:00:06,000', to: '00:00:06,000'},
+					offsets: {from: 12, to: 12},
+					id: 4,
+					p: 0.99,
+				},
 			],
 		},
 	];
