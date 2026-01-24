@@ -10,7 +10,7 @@ The [Mapbox documentation](https://docs.mapbox.com/mapbox-gl-js/api/) has the AP
 
 ## Prerequisites
 
-Mapbox and `@turf/turf` needs to be installed.
+Mapbox and `@turf/turf` need to be installed.
 
 Search the project for lockfiles and run the correct command depending on the package manager:
 
@@ -81,7 +81,7 @@ export const MyComposition = () => {
       zoom: 11.53,
       center: [6.5615, 46.0598],
       pitch: 65,
-      bearing: -180,
+      bearing: 0,
       style: '⁠mapbox://styles/mapbox/standard',
       interactive: false,
       fadeDuration: 0,
