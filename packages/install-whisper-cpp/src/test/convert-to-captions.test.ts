@@ -4,7 +4,7 @@ import {convertToCaptions} from '../convert-to-captions';
 import {toCaptions} from '../to-captions';
 import {examplePayload} from './example-payload';
 
-test('Convert to captions - 200ms together', async () => {
+test('Convert to captions - 200ms together', () => {
 	const {captions} = toCaptions({
 		whisperCppOutput: examplePayload,
 	});
@@ -929,5 +929,155 @@ test('Convert to captions - 0ms together', () => {
 		{text: 'much', startInSeconds: 61.76},
 		{text: '(electronic', startInSeconds: 62.88},
 		{text: 'beeping)', startInSeconds: 63.02},
+	]);
+});
+
+// Tests for whitespace preservation feature
+test('Convert to captions - whitespace preservation disabled (default)', () => {
+	const mockTranscription = [
+		{
+			text: 'Hello',
+			offsets: {from: 0, to: 100},
+			tokens: [{t_dtw: 0, text: 'Hello'}],
+		},
+		{
+			text: ' world,',
+			offsets: {from: 100, to: 300},
+			tokens: [{t_dtw: 100, text: ' world,'}],
+		},
+		{
+			text: ' this',
+			offsets: {from: 300, to: 500},
+			tokens: [{t_dtw: 500, text: ' this'}],
+		},
+	];
+
+	const {captions} = convertToCaptions({
+		transcription: mockTranscription,
+		combineTokensWithinMilliseconds: 200,
+		preserveWhitespace: false,
+	});
+
+	expect(captions).toEqual([
+		{text: 'Hello world,', startInSeconds: 0.0},
+		{text: 'this', startInSeconds: 5.0},
+	]);
+});
+
+test('Convert to captions - whitespace preservation enabled', () => {
+	const mockTranscription = [
+		{
+			text: 'Hello',
+			offsets: {from: 0, to: 100},
+			tokens: [{t_dtw: 0, text: 'Hello'}],
+		},
+		{
+			text: ' world,',
+			offsets: {from: 100, to: 300},
+			tokens: [{t_dtw: 100, text: ' world,'}],
+		},
+		{
+			text: ' this',
+			offsets: {from: 300, to: 500},
+			tokens: [{t_dtw: 500, text: ' this'}],
+		},
+	];
+
+	const {captions} = convertToCaptions({
+		transcription: mockTranscription,
+		combineTokensWithinMilliseconds: 200,
+		preserveWhitespace: true,
+	});
+
+	expect(captions).toEqual([
+		{text: 'Hello world,', startInSeconds: 0.0},
+		{text: ' this', startInSeconds: 5.0},
+	]);
+});
+
+test('Convert to captions - skips items without tokens (safe token access)', () => {
+	const mockTranscription = [
+		{
+			text: 'Hello',
+			offsets: {from: 0, to: 100},
+			tokens: [{t_dtw: 0, text: 'Hello'}],
+		},
+		{
+			text: ' world',
+			offsets: {from: 100, to: 200},
+			tokens: [],
+		},
+		{
+			text: ' test',
+			offsets: {from: 200, to: 300},
+			tokens: [{t_dtw: 300, text: ' test'}],
+		},
+	];
+
+	const {captions} = convertToCaptions({
+		transcription: mockTranscription,
+		combineTokensWithinMilliseconds: 200,
+	});
+
+	expect(captions).toEqual([
+		{text: 'Hello', startInSeconds: 0.0},
+		{text: 'test', startInSeconds: 3.0},
+	]);
+});
+
+test('Convert to captions - handles missing tokens gracefully', () => {
+	const mockTranscription = [
+		{
+			text: 'Hello',
+			offsets: {from: 0, to: 100},
+			tokens: null,
+		},
+		{
+			text: ' world',
+			offsets: {from: 100, to: 200},
+		},
+		{
+			text: ' test',
+			offsets: {from: 200, to: 300},
+			tokens: [{t_dtw: 300, text: ' test'}],
+		},
+	];
+
+	const {captions} = convertToCaptions({
+		transcription: mockTranscription,
+		combineTokensWithinMilliseconds: 200,
+	});
+
+	expect(captions).toEqual([{text: 'test', startInSeconds: 3.0}]);
+});
+
+test('Convert to captions - pure time-based gap calculation', () => {
+	const mockTranscription = [
+		{
+			text: 'First',
+			offsets: {from: 0, to: 100},
+			tokens: [
+				{t_dtw: 0, text: 'First'},
+				{t_dtw: 100, text: ''},
+			],
+		},
+		{
+			text: ' second',
+			offsets: {from: 100, to: 200},
+			tokens: [
+				{t_dtw: 500, text: ' second'},
+				{t_dtw: 600, text: ''},
+			],
+		},
+	];
+
+	const {captions} = convertToCaptions({
+		transcription: mockTranscription,
+		combineTokensWithinMilliseconds: 200,
+	});
+
+	expect(captions).toEqual([
+		{text: 'First', startInSeconds: 0.0},
+		{text: 'second', startInSeconds: 5.0},
 	]);
 });

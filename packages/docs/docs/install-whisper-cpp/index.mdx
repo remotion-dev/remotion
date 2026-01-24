@@ -13,51 +13,131 @@ import {TableOfContents} from './install-whisper-cpp';
 
 <Installation pkg="@remotion/install-whisper-cpp" />
 
-## Example usage
+## Step-by-step setup
+
+### 1. Place your video file
+
+First, place your video file in the `public` folder of your Remotion project:
+
+```
+your-remotion-project/
+├── public/
+│   └── video.mp4  👈 Your video file goes here
+├── src/
+└── package.json
+```
+
+### 2. Install and setup Whisper.cpp
 
 Install Whisper `1.5.5` (the latest version at the time of writing that we find works well and supports token-level timestamps) and the `medium.en` model to the `whisper.cpp` folder.
 
-```tsx twoslash title="install-whisper.cpp"
+```tsx twoslash title="setup-whisper.ts"
 import path from 'path';
-import {downloadWhisperModel, installWhisperCpp, transcribe, convertToCaptions} from '@remotion/install-whisper-cpp';
+import {downloadWhisperModel, installWhisperCpp} from '@remotion/install-whisper-cpp';
 
-const to = path.join(process.cwd(), 'whisper.cpp');
+const whisperFolder = path.join(process.cwd(), 'whisper.cpp');
 
 await installWhisperCpp({
-  to,
+  to: whisperFolder,
   version: '1.5.5',
 });
 
 await downloadWhisperModel({
   model: 'medium.en',
-  folder: to,
+  folder: whisperFolder,
 });
 
-// Convert the audio to a 16KHz wav file first if needed:
-// import {execSync} from 'child_process';
-// execSync('ffmpeg -i /path/to/audio.mp4 -ar 16000 /path/to/audio.wav -y');
+console.log('Whisper.cpp setup complete!');
+```
+
+### 3. Transcribe your video
+
+```tsx twoslash title="transcribe-video.ts"
+import path from 'path';
+import {execSync} from 'child_process';
+import {staticFile} from 'remotion';
+import {transcribe, convertToCaptions} from '@remotion/install-whisper-cpp';
+
+const whisperFolder = path.join(process.cwd(), 'whisper.cpp');
+
+const videoPath = staticFile('video.mp4'); 
+const audioPath = path.join(process.cwd(), 'temp-audio.wav');
+
+execSync(`ffmpeg -i "${videoPath}" -ar 16000 -ac 1 "${audioPath}" -y`);
 
 const {transcription} = await transcribe({
   model: 'medium.en',
-  whisperPath: to,
+  whisperPath: whisperFolder,
   whisperCppVersion: '1.5.5',
-  inputPath: '/path/to/audio.wav',
+  inputPath: audioPath,
   tokenLevelTimestamps: true,
+  splitOnWord: false,
 });
 
-for (const token of transcription) {
-  console.log(token.timestamps.from, token.timestamps.to, token.text);
-}
-
-// Optional: Apply our recommended postprocessing
 const {captions} = convertToCaptions({
   transcription,
-  combineTokensWithinMilliseconds: 200,
+  combineTokensWithinMilliseconds: 200, 
 });
 
-for (const line of captions) {
-  console.log(line.text, line.startInSeconds);
-}
+import {writeFileSync} from 'fs';
+const captionsPath = path.join(process.cwd(), 'public', 'captions.json');
+writeFileSync(captionsPath, JSON.stringify(captions, null, 2));
+
+console.log('Captions saved to public/captions.json');
+
+execSync(`rm "${audioPath}"`);
+```
+
+### 4. Use captions in your Remotion component
+
+```tsx twoslash title="MyVideo.tsx"
+import {staticFile, useVideoConfig, AbsoluteFill} from 'remotion';
+import {loadFont} from '@remotion/google-fonts/Inter';
+import {Caption, parseSrt} from '@remotion/captions';
+import captionsData from '../public/captions.json';
+
+const {fontFamily} = loadFont();
+
+export const MyVideo: React.FC = () => {
+  const {fps} = useVideoConfig();
+  const captions: Caption[] = captionsData;
+
+  return (
+    <AbsoluteFill>
+      <Video src={staticFile('video.mp4')} />
+      <AbsoluteFill
+        style={{
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          paddingBottom: 100,
+        }}
+      >
+        {captions.map((caption) => {
+          const startFrame = caption.startInSeconds * fps;
+          const endFrame = (caption.startInSeconds + caption.durationInSeconds) * fps;
+
+          return (
+            <Sequence key={caption.text} from={startFrame} durationInFrames={endFrame - startFrame}>
+              <div
+                style={{
+                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                  color: 'white',
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  fontFamily,
+                  fontSize: '24px',
+                  textAlign: 'center',
+                }}
+              >
+                {caption.text}
+              </div>
+            </Sequence>
+          );
+        })}
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
 ```
 
 ## Functions
