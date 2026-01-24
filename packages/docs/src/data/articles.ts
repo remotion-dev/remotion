@@ -3141,6 +3141,15 @@ export const articles = [
 		slug: 'lottie/staticfile',
 	},
 	{
+		id: 'map-animations',
+		title: 'Map animations in Remotion',
+		relativePath: 'docs/maps.mdx',
+		compId: 'articles-docs-maps',
+		crumb: 'Techniques',
+		noAi: false,
+		slug: 'map-animations',
+	},
+	{
 		id: 'measure-spring',
 		title: 'measureSpring()',
 		relativePath: 'docs/measure-spring.mdx',
