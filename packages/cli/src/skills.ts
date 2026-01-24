@@ -10,12 +10,11 @@ export const skillsCommand = async (args: string[]) => {
 		);
 	}
 
-	const command = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-	const fullArgs = ['exec', 'skills', subcommand, 'remotion-dev/skills', ...restArgs];
+	const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+	const fullArgs = ['skills', subcommand, 'remotion-dev/skills', ...restArgs];
 
 	const child = spawn(command, fullArgs, {
 		stdio: 'inherit',
-		shell: true,
 	});
 
 	return new Promise<void>((resolve, reject) => {
@@ -23,8 +22,7 @@ export const skillsCommand = async (args: string[]) => {
 			if (code === 0) {
 				resolve();
 			} else {
-				// Don't log here because npx/skills should have already logged its own errors
-				process.exit(code ?? 1);
+				reject(new Error(`The skills command failed with exit code ${code}`));
 			}
 		});
 

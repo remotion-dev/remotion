@@ -39,8 +39,8 @@ import {
 } from './progress-bar';
 import {render} from './render';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
-import {still} from './still';
 import {skillsCommand} from './skills';
+import {still} from './still';
 import {studioCommand} from './studio';
 import {upgradeCommand} from './upgrade';
 import {
