@@ -297,7 +297,7 @@ useEffect(() => {
     },
   };
 
-  const source = map.getSource('route') as mapboxgl.GeoJSONSource;
+  const source = map.getSource('trace') as mapboxgl.GeoJSONSource;
   if (source) {
     source.setData(lineData);
   }
