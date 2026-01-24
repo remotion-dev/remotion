@@ -10,7 +10,7 @@ The [Mapbox documentation](https://docs.mapbox.com/mapbox-gl-js/api/) has the AP
 
 ## Prerequisites
 
-Mapbox and `@turf/turf` needs to be installed.
+Mapbox and `@turf/turf` need to be installed.
 
 Search the project for lockfiles and run the correct command depending on the package manager:
 
