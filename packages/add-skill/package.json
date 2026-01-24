@@ -1,0 +1,52 @@
+{
+  "name": "@remotion/add-skill",
+  "version": "1.0.0",
+  "description": "Install agent skills onto coding agents (including CodeBuddy support)",
+  "type": "module",
+  "bin": {
+    "add-skill": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsx src/index.ts",
+    "test": "bunx tsx tests/codebuddy.test.ts && bunx tsx tests/source-parser.test.ts && bunx tsx tests/skill-path.test.ts",
+    "test:codebuddy": "bunx tsx tests/codebuddy.test.ts",
+    "test:parser": "bunx tsx tests/source-parser.test.ts",
+    "test:path": "bunx tsx tests/skill-path.test.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "cli",
+    "agent-skills",
+    "skills",
+    "ai-agents",
+    "codebuddy",
+    "remotion"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/remotion-dev/remotion.git",
+    "directory": "packages/add-skill"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@clack/prompts": "^0.9.1",
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "gray-matter": "^4.0.3",
+    "simple-git": "^3.27.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

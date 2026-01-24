@@ -6,6 +6,7 @@ coverage
 /.idea/
 */**/.env
 .cache
+.agents
 packages/example/out
 .env
 .vscode/taskmarks.json

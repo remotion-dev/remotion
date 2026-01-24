@@ -1,14 +1,16 @@
 import execa from 'execa';
 import {Log} from './log';
+import {resolve} from 'path';
 
 export const installSkills = async (projectRoot: string) => {
 	try {
+		const addSkillSrcPath = resolve(__dirname, '../../add-skill/src/index.ts');
 		await execa(
 			'npx',
 			[
 				'-y',
-				'--loglevel=error',
-				'add-skill@1.0.20',
+				'tsx',
+				addSkillSrcPath,
 				'remotion-dev/skills',
 				'--yes',
 			],

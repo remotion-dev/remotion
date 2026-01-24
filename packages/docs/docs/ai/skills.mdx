@@ -7,13 +7,32 @@ sidebar_label: Skills
 
 Remotion maintains a list of [Agent Skills](https://agentskills.io/home) that define best practices for working in Remotion projects.
 
-These skills are useful for AI agents like Claude Code, Codex or Cursor.
+These skills are useful for AI agents like Claude Code, Codex, Cursor, CodeBuddy, and more.
 
 You can install them by running:
 
 ```bash
 npx skills add remotion-dev/skills
 ```
+
+:::note
+**Using the local development version with CodeBuddy support:**
+
+If you're working with the Remotion repository locally and want to use the version that includes CodeBuddy support, use:
+
+```bash
+# Using the wrapper script
+bun run skills:add remotion-dev/skills
+
+# Or directly with tsx
+bunx tsx packages/add-skill/src/index.ts remotion-dev/skills
+
+# Or using the built version
+node scripts/skills-add.js remotion-dev/skills
+```
+
+The standard `npx skills add` command uses the npm package which may not include CodeBuddy support yet.
+:::
 
 You are also offered the option to add skills when you create a new Remotion project:
 
