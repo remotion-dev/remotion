@@ -338,7 +338,7 @@ _map.addSource('markers', {
       {
         type: 'Feature',
         properties: {name: 'Point 1'},
-        geometry: {type: 'Point', coordinates: LA_COORDS},
+        geometry: {type: 'Point', coordinates: [-118.2437, 34.0522]},
       },
     ],
   },
