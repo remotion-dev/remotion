@@ -11,7 +11,7 @@ export const getInstallCommand = ({
 	version: string;
 	additionalArgs: string[];
 }): string[] => {
-	const pkgList = packages.map((p) => `${p}@${version}`);
+	const pkgList = packages.map((p) => (version ? `${p}@${version}` : p));
 
 	const commands: {[key in PackageManager]: string[]} = {
 		npm: [
