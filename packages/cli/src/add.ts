@@ -67,7 +67,6 @@ export const addCommand = async ({
 		allDeps.includes(pkg),
 	);
 
-
 	// Get the version from the first installed Remotion package
 	const packageJsonPath = `${remotionRoot}/node_modules/${installedRemotionPackages[0]}/package.json`;
 	let targetVersion: string | null = null;
