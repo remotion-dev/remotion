@@ -116,6 +116,7 @@ export const addCommand = async ({
 		if (EXTRA_PACKAGES[pkg]) {
 			return `${pkg}@${EXTRA_PACKAGES[pkg]}`;
 		}
+
 		return `${pkg}@${targetVersion}`;
 	});
 
