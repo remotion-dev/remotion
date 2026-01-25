@@ -16,7 +16,7 @@ const config: Config = {
 	organizationName: 'remotion-dev', // Usually your GitHub org/user name.
 	projectName: 'remotion', // Usually your repo name.
 	future: {
-		experimental_faster: true,
+		experimental_faster: false,
 		v4: {
 			removeLegacyPostBuildHeadAttribute: true,
 		},
