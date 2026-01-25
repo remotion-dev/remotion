@@ -14,6 +14,7 @@ import {
 import {CompatibilityTable} from '../components/CompatibilityTable';
 import {Credits} from '../components/Credits';
 import {Options} from '../components/Options';
+import {SuggestedPrompts} from '../components/SuggestedPrompts';
 import {TsType} from '../components/TsType';
 import RawMarkdownCarrier from './RawMarkdownCarrier/index';
 
@@ -35,4 +36,5 @@ export default {
 	JumpToVideoLink,
 	RawMarkdownCarrier,
 	CompatibilityTable,
+	SuggestedPrompts,
 };

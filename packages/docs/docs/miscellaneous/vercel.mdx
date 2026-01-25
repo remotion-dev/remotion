@@ -1,0 +1,113 @@
+---
+image: /generated/articles-docs-miscellaneous-vercel.png
+sidebar_label: Vercel
+title: Remotion on Vercel
+crumb: 'Deployment'
+---
+
+Remotion integrates well with Vercel.
+
+## Deployment
+
+You can deploy any Remotion project on Vercel by connecting the repository and setting the following settings:
+
+- **Build Command**: `bunx remotion bundle`
+- **Output Directory**: `build`
+- **Installation Command**: _Leave default_
+
+## Client-side rendering
+
+Enable [experimental client-side rendering](/docs/client-side-rendering) in your `remotion.config.ts` file:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalClientSideRenderingEnabled(true);
+```
+
+This will make it possible to render videos client-side on your Vercel deployment.
+
+## Triggering Lambda renders from Vercel Serverless functions
+
+You can trigger [Remotion Lambda renders](/docs/lambda) from Vercel Serverless functions.  
+See an example endpoint for rendering a video:
+
+<details>
+<summary>App router example</summary>
+
+```ts twoslash title="src/app/api/lambda/render/route.ts"
+import {AwsRegion, RenderMediaOnLambdaOutput} from '@remotion/lambda/client';
+import {renderMediaOnLambda, speculateFunctionName} from '@remotion/lambda/client';
+import {NextResponse} from 'next/server';
+
+const DISK = 10240;
+const RAM = 2048;
+const REGION = 'eu-central-1';
+const SITE_NAME = 'https://remotion-helloworld.vercel.app';
+const TIMEOUT = 120;
+
+export const POST = async (req: Request, res: NextResponse) => {
+  if (!process.env.AWS_ACCESS_KEY_ID && !process.env.REMOTION_AWS_ACCESS_KEY_ID) {
+    throw new TypeError('Set up Remotion Lambda to render videos. See the README.md for how to do so.');
+  }
+  if (!process.env.AWS_SECRET_ACCESS_KEY && !process.env.REMOTION_AWS_SECRET_ACCESS_KEY) {
+    throw new TypeError('The environment variable REMOTION_AWS_SECRET_ACCESS_KEY is missing. Add it to your .env file.');
+  }
+
+  const body = await req.json();
+
+  const result = await renderMediaOnLambda({
+    codec: 'h264',
+    functionName: speculateFunctionName({
+      diskSizeInMb: DISK,
+      memorySizeInMb: RAM,
+      timeoutInSeconds: TIMEOUT,
+    }),
+    region: REGION as AwsRegion,
+    serveUrl: SITE_NAME,
+    composition: body.id,
+    inputProps: body.inputProps,
+    downloadBehavior: {
+      type: 'download',
+      fileName: 'video.mp4',
+    },
+  });
+
+  return result;
+};
+```
+
+</details>
+
+See also:
+
+- [App router - Example Render endpoint](https://github.com/remotion-dev/remotion/blob/main/packages/template-next-app-tailwind/src/app/api/lambda/render/route.ts)
+- [App router - Example Progress endpoint](https://github.com/remotion-dev/remotion/blob/main/packages/template-next-app-tailwind/src/app/api/lambda/progress/route.ts)
+- [Pages router - Example Render endpoint](https://github.com/remotion-dev/remotion/blob/main/packages/template-next-pages/src/pages/api/lambda/render.ts)
+- [Pages router - Example Progress endpoint](https://github.com/remotion-dev/remotion/blob/main/packages/template-next-pages/src/pages/api/lambda/progress.ts)
+
+## Rendering from a Vercel deployment
+
+Deployments can be used as [Serve URLs](/docs/terminology/serve-url) to render videos using any [server-side rendering](/docs/ssr) primitive.
+
+Example:
+
+```bash
+npx remotion render https://remotion-helloworld.vercel.app HelloWorld
+```
+
+## Rendering inside Vercel Functions
+
+It is currently not possible to render videos or stills on Vercel Serverless functions due to the 50MB maximum function size. Since Chromium is a dependency of Remotion, it alone almost entirely fills the quota available.
+
+We recommend you to resort to client-side rendering or Remotion Lambda.
+
+## Next.js Templates
+
+We currently offer 3 Next.js templates:
+
+- [Next.js (App dir)](/templates/next)
+- [Next.js (App dir + TailwindCSS)](/templates/next-tailwind)
+- [Next.js (Pages router)](/templates/next-pages-dir)
+
+These templates are recommended for building applications that can generate videos.

@@ -846,6 +846,7 @@ const sidebars: SidebarsConfig = {
 				'measuring',
 				'using-randomness',
 				'noise-visualization',
+				'maps',
 				'animation-math',
 			],
 		},
@@ -1369,8 +1370,8 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'miscellaneous/render-in-browser',
 				'miscellaneous/automatic-duration',
-				'miscellaneous/vercel-functions',
 				'miscellaneous/nextjs',
+				'miscellaneous/vercel',
 				'miscellaneous/render-on-edge',
 				'miscellaneous/embed-studio',
 				'miscellaneous/absolute-paths',
