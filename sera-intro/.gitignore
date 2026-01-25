@@ -1,0 +1,9 @@
+node_modules
+.DS_Store
+out
+.remotion
+dist
+build
+.env
+.env.local
+*.log
