@@ -9,6 +9,8 @@
  */
 
 import assert from 'node:assert';
+import { join } from 'path';
+import { homedir } from 'os';
 import { agents, detectInstalledAgents, getAgentConfig } from '../src/agents.js';
 import type { AgentType } from '../src/types.js';
 
@@ -40,7 +42,9 @@ test('CodeBuddy agent exists in agents record', () => {
 test('CodeBuddy has correct skills directories', () => {
   const config = agents.codebuddy;
   assert.strictEqual(config.skillsDir, '.codebuddy/skills');
-  assert.ok(config.globalSkillsDir.includes('.codebuddy/skills'));
+  // Check that globalSkillsDir ends with the expected path (cross-platform)
+  const expectedGlobalPath = join(homedir(), '.codebuddy/skills');
+  assert.strictEqual(config.globalSkillsDir, expectedGlobalPath);
 });
 
 // Test: CodeBuddy is a valid AgentType
