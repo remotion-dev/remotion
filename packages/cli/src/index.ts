@@ -51,13 +51,9 @@ import {
 
 export const cli = async () => {
 	const [command, ...args] = parsedCli._;
-	if (parsedCli.help) {
-		printHelp('info');
-		process.exit(0);
-	}
 
 	const remotionRoot = RenderInternals.findRemotionRoot();
-	if (command !== VERSIONS_COMMAND) {
+	if (command !== VERSIONS_COMMAND && !parsedCli.help) {
 		await validateVersionsBeforeCommand(remotionRoot, 'info');
 	}
 
@@ -150,6 +146,8 @@ export const cli = async () => {
 		} else if (command === 'help') {
 			printHelp(logLevel);
 			process.exit(0);
+		} else if (parsedCli.help) {
+			printHelp(logLevel);
 		} else {
 			if (command) {
 				Log.error({indent: false, logLevel}, `Command ${command} not found.`);

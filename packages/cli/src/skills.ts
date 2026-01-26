@@ -25,8 +25,8 @@ export const printSkillsHelp = (logLevel: LogLevel) => {
 	);
 };
 
-export const skillsCommand = async (args: string[], logLevel: LogLevel) => {
-	const subcommand = args[0]; // add | update
+export const skillsCommand = (args: string[], logLevel: LogLevel) => {
+	const subcommand = args[0];
 	const restArgs = args.slice(1);
 
 	if (!subcommand || !['add', 'update'].includes(subcommand)) {
