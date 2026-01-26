@@ -219,8 +219,8 @@ const handleAddAsset = ({
 	publicDir: string;
 }): Promise<void> => {
 	try {
-		const origin = req.headers.origin;
-		const host = req.headers.host;
+		const {origin} = req.headers;
+		const {host} = req.headers;
 
 		if (origin) {
 			const originUrl = new URL(origin);
