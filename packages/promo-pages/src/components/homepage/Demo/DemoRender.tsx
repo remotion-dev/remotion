@@ -107,7 +107,8 @@ export const RenderButton: React.FC<{
 					id: 'homepage-demo',
 					defaultProps: inputProps,
 				},
-				scale: 2,
+				muted: typeof AudioEncoder === 'undefined',
+				scale: 1,
 				inputProps,
 				onProgress: ({renderedFrames}) => {
 					setState({
