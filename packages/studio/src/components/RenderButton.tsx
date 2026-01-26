@@ -8,14 +8,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {SVGProps} from 'react';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
@@ -140,6 +133,47 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 	});
 
 	const refresh = size?.refresh;
+
+	const onPointerDown = useCallback(() => {
+		setDropdownOpened((o) => {
+			if (!o) {
+				refresh?.();
+			}
+
+			return !o;
+		});
+	}, [refresh]);
+
+	const onClickDropdown = useCallback(
+		(e: React.MouseEvent) => {
+			e.stopPropagation();
+			const isKeyboardInitiated = e.detail === 0;
+			if (!isKeyboardInitiated) {
+				return;
+			}
+
+			setDropdownOpened((o) => {
+				if (!o) {
+					refresh?.();
+
+					window.addEventListener(
+						'pointerup',
+						(evt) => {
+							if (!isMenuItem(evt.target as HTMLElement)) {
+								setDropdownOpened(false);
+							}
+						},
+						{
+							once: true,
+						},
+					);
+				}
+
+				return !o;
+			});
+		},
+		[refresh],
+	);
 
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
@@ -309,59 +343,6 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 		];
 	}, [handleRenderTypeChange]);
 
-	useEffect(() => {
-		const {current} = dropdownRef;
-		if (!current) {
-			return;
-		}
-
-		const onPointerDown = () => {
-			return setDropdownOpened((o) => {
-				if (!o) {
-					refresh?.();
-				}
-
-				return !o;
-			});
-		};
-
-		const onClickDropdown = (e: MouseEvent | PointerEvent) => {
-			e.stopPropagation();
-			const isKeyboardInitiated = e.detail === 0;
-			if (!isKeyboardInitiated) {
-				return;
-			}
-
-			return setDropdownOpened((o) => {
-				if (!o) {
-					refresh?.();
-
-					window.addEventListener(
-						'pointerup',
-						(evt) => {
-							if (!isMenuItem(evt.target as HTMLElement)) {
-								setDropdownOpened(false);
-							}
-						},
-						{
-							once: true,
-						},
-					);
-				}
-
-				return !o;
-			});
-		};
-
-		current.addEventListener('pointerdown', onPointerDown);
-		current.addEventListener('click', onClickDropdown);
-
-		return () => {
-			current.removeEventListener('pointerdown', onPointerDown);
-			current.removeEventListener('click', onClickDropdown);
-		};
-	}, [refresh]);
-
 	const spaceToBottom = useMemo(() => {
 		const margin = 10;
 		if (size && dropdownOpened) {
@@ -448,9 +429,6 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			<button
 				style={{display: 'none'}}
 				id="render-modal-button-client"
-				disabled={
-					connectionStatus !== 'connected' && renderType === 'server-render'
-				}
 				onClick={openClientRenderModal}
 				type="button"
 			/>
@@ -479,6 +457,8 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 							style={dropdownTriggerStyle}
 							disabled={connectionStatus !== 'connected'}
 							className={MENU_INITIATOR_CLASSNAME}
+							onPointerDown={onPointerDown}
+							onClick={onClickDropdown}
 						>
 							<CaretDown />
 						</button>
