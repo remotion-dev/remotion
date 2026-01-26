@@ -1,3 +1,4 @@
+import type {PlayerRef} from '@remotion/player';
 import {renderMediaOnWeb} from '@remotion/web-renderer';
 import React, {useCallback} from 'react';
 import {z} from 'zod';
@@ -71,7 +72,8 @@ const style: React.CSSProperties = {
 export const RenderButton: React.FC<{
 	readonly renderData: z.infer<typeof data> | null;
 	readonly onError: () => void;
-}> = ({renderData, onError}) => {
+	readonly playerRef: React.RefObject<PlayerRef | null>;
+}> = ({renderData, onError, playerRef}) => {
 	const [state, setState] = React.useState<State>({
 		type: 'idle',
 	});
@@ -93,7 +95,7 @@ export const RenderButton: React.FC<{
 				onClickRight: () => {},
 			};
 
-			console.log(inputProps);
+			playerRef.current!.pause();
 
 			const {getBlob} = await renderMediaOnWeb({
 				composition: {
@@ -105,6 +107,7 @@ export const RenderButton: React.FC<{
 					id: 'homepage-demo',
 					defaultProps: inputProps,
 				},
+				scale: 2,
 				inputProps,
 				onProgress: ({renderedFrames}) => {
 					setState({
@@ -122,11 +125,11 @@ export const RenderButton: React.FC<{
 			a.click();
 			URL.revokeObjectURL(url);
 			setState({type: 'done'});
-		} catch (err) {
+		} catch {
 			setState({type: 'error'});
 			onError();
 		}
-	}, [onError, renderData]);
+	}, [onError, renderData, playerRef]);
 
 	return (
 		<button
