@@ -6,6 +6,10 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
+				<TOCItem link="/docs/ai/claude-code">
+					<strong>{'Claude Code'}</strong>
+					<div>Use Claude Code to prompt Remotion videos</div>
+				</TOCItem>
 				<TOCItem link="/docs/ai/chatbot">
 					<strong>{'Chatbot'}</strong>
 					<div>Use the chatbot to get help with Remotion</div>
