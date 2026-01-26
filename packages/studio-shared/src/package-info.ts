@@ -86,6 +86,28 @@ export const packages = [
 
 export type Pkgs = (typeof packages)[number];
 
+export type ExtraPackage = {
+	name: string;
+	version: string;
+	description: string;
+	docsUrl: string;
+};
+
+export const extraPackages: ExtraPackage[] = [
+	{
+		name: 'zod',
+		version: '3.22.3',
+		description: 'Schema validation library for defining component props',
+		docsUrl: 'https://www.remotion.dev/docs/schemas',
+	},
+	{
+		name: 'mediabunny',
+		version: '1.29.0',
+		description: 'Multimedia library used by Remotion',
+		docsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
+	},
+];
+
 export const descriptions: {[key in Pkgs]: string | null} = {
 	compositor: 'Rust binary for Remotion',
 	player: 'React component for embedding a Remotion preview into your app',

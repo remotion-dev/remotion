@@ -52,8 +52,10 @@ export {
 	Pkgs,
 	apiDocs,
 	descriptions,
+	extraPackages,
 	installableMap,
 	packages,
+	type ExtraPackage,
 } from './package-info';
 export {PackageManager} from './package-manager';
 export {ProjectInfo} from './project-info';
