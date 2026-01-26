@@ -1,9 +1,34 @@
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
-import {spawn} from 'node:child_process';
+import {execSync, spawn} from 'node:child_process';
 import {chalk} from './chalk';
+import {EXTRA_PACKAGES} from './extra-packages';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
+
+const getExtraPackageVersionsForRemotionVersion = (
+	remotionVersion: string,
+): Record<string, string> => {
+	try {
+		const output = execSync(
+			`npm view @remotion/studio@${remotionVersion} dependencies --json`,
+			{encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe']},
+		);
+		const dependencies = JSON.parse(output) as Record<string, string>;
+
+		const extraVersions: Record<string, string> = {};
+		for (const pkg of Object.keys(EXTRA_PACKAGES)) {
+			if (dependencies[pkg]) {
+				extraVersions[pkg] = dependencies[pkg];
+			}
+		}
+
+		return extraVersions;
+	} catch {
+		// If we can't fetch the versions, return the default versions from EXTRA_PACKAGES
+		return EXTRA_PACKAGES;
+	}
+};
 
 export const upgradeCommand = async ({
 	remotionRoot,
@@ -55,18 +80,45 @@ export const upgradeCommand = async ({
 		);
 	}
 
-	const toUpgrade = listOfRemotionPackages.filter(
-		(u) =>
-			dependencies.includes(u) ||
-			devDependencies.includes(u) ||
-			optionalDependencies.includes(u) ||
-			peerDependencies.includes(u),
+	const allDeps = [
+		...dependencies,
+		...devDependencies,
+		...optionalDependencies,
+		...peerDependencies,
+	];
+
+	const remotionToUpgrade = listOfRemotionPackages.filter((u) =>
+		allDeps.includes(u),
 	);
+
+	// Check if extra packages (zod, mediabunny) are installed
+	const installedExtraPackages = Object.keys(EXTRA_PACKAGES).filter((pkg) =>
+		allDeps.includes(pkg),
+	);
+
+	// Get the correct versions for extra packages for this Remotion version
+	const extraPackageVersions =
+		getExtraPackageVersionsForRemotionVersion(targetVersion);
+
+	// Build the list of packages to upgrade
+	const packagesWithVersions = [
+		...remotionToUpgrade.map((pkg) => `${pkg}@${targetVersion}`),
+		...installedExtraPackages.map(
+			(pkg) => `${pkg}@${extraPackageVersions[pkg]}`,
+		),
+	];
+
+	if (installedExtraPackages.length > 0) {
+		Log.info(
+			{indent: false, logLevel},
+			`Also upgrading extra packages: ${installedExtraPackages.map((pkg) => `${pkg}@${extraPackageVersions[pkg]}`).join(', ')}`,
+		);
+	}
 
 	const command = StudioServerInternals.getInstallCommand({
 		manager: manager.manager,
-		packages: toUpgrade,
-		version: targetVersion,
+		packages: packagesWithVersions,
+		version: '',
 		additionalArgs: args,
 	});
 
