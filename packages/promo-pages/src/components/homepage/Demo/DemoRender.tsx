@@ -1,7 +1,8 @@
-import type {EnhancedErrorInfo} from '@remotion/lambda';
+import {renderMediaOnWeb} from '@remotion/web-renderer';
 import React, {useCallback} from 'react';
 import {z} from 'zod';
 import {PALETTE} from '../layout/colors';
+import {HomepageVideoComp} from './Comp';
 import {DemoErrorIcon} from './DemoErrorIcon';
 import {DoneCheckmark} from './DoneCheckmark';
 import {Progress} from './Progress';
@@ -83,49 +84,45 @@ export const RenderButton: React.FC<{
 		try {
 			setState({type: 'invoking'});
 
-			const {renderId, bucketName} = await (
-				await fetch('https://bugs.remotion.dev/render', {
-					method: 'post',
-					headers: {'content-type': 'application/json'},
-					body: JSON.stringify(renderData),
-				})
-			).json();
-			setState({type: 'progress', progress: 0});
+			const durationInFrames = 120;
+			const inputProps = {
+				...renderData,
+				onToggle: () => {},
+				updateCardOrder: () => {},
+				onClickLeft: () => {},
+				onClickRight: () => {},
+			};
 
-			let done = false;
+			console.log(inputProps);
 
-			while (!done) {
-				const progress = (await (
-					await fetch('https://bugs.remotion.dev/progress', {
-						method: 'post',
-						headers: {'content-type': 'application/json'},
-						body: JSON.stringify({renderId, bucketName}),
-					})
-				).json()) as {
-					overallProgress: number;
-					outputFile: string | null;
-					errors: EnhancedErrorInfo[];
-					fatalErrorEncountered: boolean;
-				};
-				setState({
-					type: 'progress',
-					progress: progress.overallProgress,
-				});
+			const {getBlob} = await renderMediaOnWeb({
+				composition: {
+					component: HomepageVideoComp,
+					durationInFrames,
+					fps: 30,
+					width: 640,
+					height: 360,
+					id: 'homepage-demo',
+					defaultProps: inputProps,
+				},
+				inputProps,
+				onProgress: ({renderedFrames}) => {
+					setState({
+						type: 'progress',
+						progress: renderedFrames / durationInFrames,
+					});
+				},
+			});
 
-				if (progress.outputFile) {
-					done = true;
-					const a = document.createElement('a');
-					a.href = progress.outputFile;
-					a.download = 'remotion.dev.mp4';
-					a.click();
-					setState({type: 'done'});
-				}
-
-				if (progress.fatalErrorEncountered) {
-					done = true;
-				}
-			}
-		} catch {
+			const blob = await getBlob();
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = 'remotion.dev.mp4';
+			a.click();
+			URL.revokeObjectURL(url);
+			setState({type: 'done'});
+		} catch (err) {
 			setState({type: 'error'});
 			onError();
 		}
