@@ -2,9 +2,11 @@ import execa from 'execa';
 import {Log} from './log';
 
 export const installSkills = async (projectRoot: string) => {
+	const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+
 	try {
 		await execa(
-			'npx',
+			command,
 			[
 				'-y',
 				'--loglevel=error',

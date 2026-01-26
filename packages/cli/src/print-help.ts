@@ -150,9 +150,7 @@ export const printHelp = (logLevel: LogLevel) => {
 	Log.info({indent: false, logLevel});
 	Log.info(
 		{indent: false, logLevel},
-		chalk.blue('remotion skills add') +
-			chalk.gray(' | ') +
-			chalk.blue('update'),
+		chalk.blue('remotion skills ') + chalk.gray('<add | update>'),
 	);
 	Log.info(
 		{indent: false, logLevel},
