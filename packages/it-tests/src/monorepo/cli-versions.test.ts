@@ -12,5 +12,5 @@ test('should return list of versions', async () => {
 
 	expect(text).toInclude(`On version: ${VERSION}`);
 	expect(text).toInclude(`- @remotion/three`);
-	expect(text).toInclude(`Great! All packages have the same version`);
+	expect(text).toInclude(`Great! All packages have the correct version`);
 });
