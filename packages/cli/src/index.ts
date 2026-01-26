@@ -140,7 +140,7 @@ export const cli = async () => {
 				args: additionalArgs,
 			});
 		} else if (command === 'skills') {
-			await skillsCommand(args);
+			await skillsCommand(args, logLevel);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {
