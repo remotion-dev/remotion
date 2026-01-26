@@ -219,6 +219,16 @@ const handleAddAsset = ({
 	publicDir: string;
 }): Promise<void> => {
 	try {
+		const origin = req.headers.origin;
+		const host = req.headers.host;
+
+		if (origin) {
+			const originUrl = new URL(origin);
+			if (originUrl.host !== host) {
+				throw new Error('Request from different origin not allowed');
+			}
+		}
+
 		const query = new URLSearchParams(search);
 
 		const filePath = query.get('filePath');
@@ -366,7 +376,7 @@ export const handleRoutes = ({
 		return handleOpenInEditor(remotionRoot, request, response, logLevel);
 	}
 
-	if (url.pathname === '/api/add-asset') {
+	if (url.pathname === `${staticHash}/api/add-asset`) {
 		return handleAddAsset({
 			req: request,
 			res: response,
