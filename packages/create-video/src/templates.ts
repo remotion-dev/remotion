@@ -552,7 +552,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-stargazer',
 		allowEnableTailwind: true,
-		contributedBy: null,
+		contributedBy: 'pomber',
 		showStackblitz: true,
 	},
 	{
