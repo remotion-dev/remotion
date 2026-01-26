@@ -1,14 +1,10 @@
 import type {EmojiName} from '@remotion/animated-emoji';
-import {
-	getLottieMetadata,
-	Lottie,
-	type LottieAnimationData,
-} from '@remotion/lottie';
-
+import type {Lottie, LottieAnimationData} from '@remotion/lottie';
 import React, {useEffect, useMemo, useState} from 'react';
-import {useDelayRender, useVideoConfig} from 'remotion';
+import {cancelRender, useDelayRender, useVideoConfig} from 'remotion';
 
 type Data = {
+	Lottie: typeof Lottie;
 	duration: number;
 	data: LottieAnimationData;
 };
@@ -21,7 +17,7 @@ export const DisplayedEmoji: React.FC<{
 	const [browser, setBrowser] = useState<boolean>(
 		typeof document !== 'undefined',
 	);
-	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const {delayRender, continueRender} = useDelayRender();
 
 	const src = useMemo(() => {
 		if (emoji === 'melting') {
@@ -39,13 +35,19 @@ export const DisplayedEmoji: React.FC<{
 		throw new Error('Unknown emoji');
 	}, [emoji]);
 
-	const [handle] = useState(() => delayRender('Loading emojis!'));
+	const [handle] = useState(() => delayRender());
 
 	useEffect(() => {
-		fetch(src)
-			.then((res) => res.json())
-			.then((json) => {
+		Promise.all([
+			fetch(src).then((res) => res.json()),
+			import('@remotion/lottie').then(({Lottie, getLottieMetadata}) => ({
+				Lottie,
+				getLottieMetadata,
+			})),
+		])
+			.then(([json, {Lottie, getLottieMetadata}]) => {
 				setData({
+					Lottie,
 					duration: getLottieMetadata(json)?.durationInSeconds as number,
 					data: json,
 				});
@@ -54,7 +56,7 @@ export const DisplayedEmoji: React.FC<{
 			.catch((err) => {
 				cancelRender(err);
 			});
-	}, [handle, src, continueRender, cancelRender]);
+	}, [handle, src, continueRender]);
 
 	useEffect(() => {
 		if (typeof document !== 'undefined') {
@@ -76,7 +78,7 @@ export const DisplayedEmoji: React.FC<{
 	const closestRatio = closestInteger / ratio;
 
 	return (
-		<Lottie
+		<data.Lottie
 			style={{
 				height: 100,
 				width: '100%',

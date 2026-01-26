@@ -1,9 +1,7 @@
-import type {PlayerRef} from '@remotion/player';
-import {renderMediaOnWeb} from '@remotion/web-renderer';
+import type {EnhancedErrorInfo} from '@remotion/lambda';
 import React, {useCallback} from 'react';
 import {z} from 'zod';
 import {PALETTE} from '../layout/colors';
-import {HomepageVideoComp} from './Comp';
 import {DemoErrorIcon} from './DemoErrorIcon';
 import {DoneCheckmark} from './DoneCheckmark';
 import {Progress} from './Progress';
@@ -72,8 +70,7 @@ const style: React.CSSProperties = {
 export const RenderButton: React.FC<{
 	readonly renderData: z.infer<typeof data> | null;
 	readonly onError: () => void;
-	readonly playerRef: React.RefObject<PlayerRef | null>;
-}> = ({renderData, onError, playerRef}) => {
+}> = ({renderData, onError}) => {
 	const [state, setState] = React.useState<State>({
 		type: 'idle',
 	});
@@ -86,51 +83,53 @@ export const RenderButton: React.FC<{
 		try {
 			setState({type: 'invoking'});
 
-			const durationInFrames = 120;
-			const inputProps = {
-				...renderData,
-				onToggle: () => {},
-				updateCardOrder: () => {},
-				onClickLeft: () => {},
-				onClickRight: () => {},
-			};
+			const {renderId, bucketName} = await (
+				await fetch('https://bugs.remotion.dev/render', {
+					method: 'post',
+					headers: {'content-type': 'application/json'},
+					body: JSON.stringify(renderData),
+				})
+			).json();
+			setState({type: 'progress', progress: 0});
 
-			playerRef.current!.pause();
+			let done = false;
 
-			const {getBlob} = await renderMediaOnWeb({
-				composition: {
-					component: HomepageVideoComp,
-					durationInFrames,
-					fps: 30,
-					width: 640,
-					height: 360,
-					id: 'homepage-demo',
-					defaultProps: inputProps,
-				},
-				muted: typeof AudioEncoder === 'undefined',
-				scale: 1,
-				inputProps,
-				onProgress: ({renderedFrames}) => {
-					setState({
-						type: 'progress',
-						progress: renderedFrames / durationInFrames,
-					});
-				},
-			});
+			while (!done) {
+				const progress = (await (
+					await fetch('https://bugs.remotion.dev/progress', {
+						method: 'post',
+						headers: {'content-type': 'application/json'},
+						body: JSON.stringify({renderId, bucketName}),
+					})
+				).json()) as {
+					overallProgress: number;
+					outputFile: string | null;
+					errors: EnhancedErrorInfo[];
+					fatalErrorEncountered: boolean;
+				};
+				setState({
+					type: 'progress',
+					progress: progress.overallProgress,
+				});
 
-			const blob = await getBlob();
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = 'remotion.dev.mp4';
-			a.click();
-			URL.revokeObjectURL(url);
-			setState({type: 'done'});
+				if (progress.outputFile) {
+					done = true;
+					const a = document.createElement('a');
+					a.href = progress.outputFile;
+					a.download = 'remotion.dev.mp4';
+					a.click();
+					setState({type: 'done'});
+				}
+
+				if (progress.fatalErrorEncountered) {
+					done = true;
+				}
+			}
 		} catch {
 			setState({type: 'error'});
 			onError();
 		}
-	}, [onError, renderData, playerRef]);
+	}, [onError, renderData]);
 
 	return (
 		<button
