@@ -1,12 +1,25 @@
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {spawn} from 'node:child_process';
+import fs from 'node:fs';
 import {chalk} from './chalk';
+import {EXTRA_PACKAGES} from './extra-packages';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
-const EXTRA_PACKAGES: Record<string, string> = {
-	zod: '3.22.2',
-	mediabunny: '1.29.0',
+import {resolveFrom} from './resolve-from';
+
+const getInstalledVersion = (
+	remotionRoot: string,
+	pkg: string,
+): string | null => {
+	try {
+		const pkgJsonPath = resolveFrom(remotionRoot, `${pkg}/package.json`);
+		const file = fs.readFileSync(pkgJsonPath, 'utf-8');
+		const packageJson = JSON.parse(file);
+		return packageJson.version;
+	} catch {
+		return null;
+	}
 };
 
 export const addCommand = async ({
@@ -47,14 +60,47 @@ export const addCommand = async ({
 		...peerDependencies,
 	];
 
-	const alreadyInstalled = packageNames.filter((pkg) => allDeps.includes(pkg));
-	const toInstall = packageNames.filter((pkg) => !allDeps.includes(pkg));
+	const alreadyInstalled: string[] = [];
+	const toInstall: string[] = [];
+	const toUpgrade: {pkg: string; from: string; to: string}[] = [];
+
+	for (const pkg of packageNames) {
+		const isInstalled = allDeps.includes(pkg);
+		const requiredVersion = EXTRA_PACKAGES[pkg];
+
+		if (!isInstalled) {
+			toInstall.push(pkg);
+		} else if (requiredVersion) {
+			// For extra packages, check if the version is correct
+			const installedVersion = getInstalledVersion(remotionRoot, pkg);
+			if (installedVersion !== requiredVersion) {
+				toUpgrade.push({
+					pkg,
+					from: installedVersion ?? 'unknown',
+					to: requiredVersion,
+				});
+				toInstall.push(pkg);
+			} else {
+				alreadyInstalled.push(pkg);
+			}
+		} else {
+			alreadyInstalled.push(pkg);
+		}
+	}
 
 	// Log already installed packages
 	for (const pkg of alreadyInstalled) {
 		Log.info(
 			{indent: false, logLevel},
 			`○ ${pkg} ${chalk.gray('(already installed)')}`,
+		);
+	}
+
+	// Log packages that will be upgraded
+	for (const {pkg, from, to} of toUpgrade) {
+		Log.info(
+			{indent: false, logLevel},
+			`↑ ${pkg} ${chalk.yellow(`${from} → ${to}`)}`,
 		);
 	}
 
@@ -79,10 +125,7 @@ export const addCommand = async ({
 				toInstall.length === 1
 					? toInstall[0]
 					: `${toInstall.length} packages (${toInstall.join(', ')})`;
-			Log.info(
-				{indent: false, logLevel},
-				`Installing ${packageList} to match your other Remotion packages (zod and mediabunny exception)`,
-			);
+			Log.info({indent: false, logLevel}, `Installing ${packageList}`);
 		} catch (err) {
 			throw new Error(
 				`Could not determine version of installed Remotion packages: ${(err as Error).message}`,
@@ -137,6 +180,7 @@ export const addCommand = async ({
 			...process.env,
 			ADBLOCK: '1',
 			DISABLE_OPENCOLLECTIVE: '1',
+			npm_config_loglevel: 'error',
 		},
 		stdio: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')
 			? 'inherit'
@@ -157,14 +201,14 @@ export const addCommand = async ({
 		});
 	});
 
-	for (const pkg of alreadyInstalled) {
-		Log.info(
-			{indent: false, logLevel},
-			`○ ${pkg}@${targetVersion} ${chalk.gray('(already installed)')}`,
-		);
-	}
+	const upgradedPkgs = new Set(toUpgrade.map((u) => u.pkg));
 
 	for (const pkg of toInstall) {
+		if (upgradedPkgs.has(pkg)) {
+			// Already logged as upgrade
+			continue;
+		}
+
 		if (EXTRA_PACKAGES[pkg]) {
 			Log.info({indent: false, logLevel}, `+ ${pkg}@${EXTRA_PACKAGES[pkg]}`);
 		} else {
