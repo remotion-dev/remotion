@@ -150,7 +150,6 @@ export const Demo: React.FC = () => {
 									}
 								: null
 						}
-						playerRef={ref}
 					/>
 				</PlayerControls>
 			</div>

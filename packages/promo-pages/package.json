@@ -13,12 +13,11 @@
 	"dependencies": {
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/design": "workspace:*",
-		"@remotion/web-renderer": "workspace:*",
+		"@remotion/lambda": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/shapes": "workspace:*",
-		"@remotion/media": "workspace:*",
 		"@remotion/svg-3d-engine": "workspace:*",
 		"create-video": "workspace:*",
 		"hls.js": "1.5.19",

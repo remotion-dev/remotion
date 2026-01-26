@@ -1,8 +1,8 @@
 import type {EmojiName} from '@remotion/animated-emoji';
-import {Audio} from '@remotion/media';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
 	AbsoluteFill,
+	Html5Audio,
 	prefetch,
 	staticFile,
 	type CalculateMetadataFunction,
@@ -151,7 +151,7 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 				onRight={onClickRight}
 				emojiName={emoji}
 			/>
-			{audioSrc ? <Audio src={audioSrc} /> : null}
+			{audioSrc ? <Html5Audio src={audioSrc} /> : null}
 		</AbsoluteFill>
 	);
 };
