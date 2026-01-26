@@ -693,6 +693,15 @@ export const articles = [
 		slug: 'cli/render',
 	},
 	{
+		id: 'cli/skills',
+		title: 'npx remotion skills',
+		relativePath: 'docs/cli/skills.mdx',
+		compId: 'articles-docs-cli-skills',
+		crumb: 'CLI Reference',
+		noAi: false,
+		slug: 'cli/skills',
+	},
+	{
 		id: 'cli/still',
 		title: 'npx remotion still',
 		relativePath: 'docs/cli/still.mdx',
@@ -3141,13 +3150,13 @@ export const articles = [
 		slug: 'lottie/staticfile',
 	},
 	{
-		id: 'map-animations',
+		id: 'maps',
 		title: 'Map animations in Remotion',
 		relativePath: 'docs/maps.mdx',
 		compId: 'articles-docs-maps',
 		crumb: 'Techniques',
 		noAi: false,
-		slug: 'map-animations',
+		slug: 'maps',
 	},
 	{
 		id: 'measure-spring',
