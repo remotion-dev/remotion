@@ -18386,6 +18386,26 @@ export const googleFonts: Font[] = [
 		menu: 'https://fonts.gstatic.com/s/kurale/v14/4iCs6KV9e9dXjhoKeQ72.woff2',
 	},
 	{
+		family: 'LINE Seed JP',
+		variants: ['100', 'regular', '700', '800'],
+		subsets: ['cyrillic', 'greek-ext', 'japanese', 'latin', 'latin-ext'],
+		version: 'v1',
+		lastModified: '2026-01-22',
+		files: {
+			'100':
+				'https://fonts.gstatic.com/s/lineseedjp/v1/MwQvbh7r89it6QsEXfZb-jMn6ZFLh361TW5b.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/lineseedjp/v1/MwQubh7r89it6QsEXfZb-jMnMbRuqFC5RHdCZg.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/lineseedjp/v1/MwQubh7r89it6QsEXfZb-jMnLbduqFC5RHdCZg.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/lineseedjp/v1/MwQxbh7r89it6QsEXfZb-jMfiJtKpXulTQ.woff2',
+		},
+		category: 'sans-serif',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/lineseedjp/v1/MwQxbh7r89it6QsEXfZb-jMvjJFL.woff2',
+	},
+	{
 		family: 'LXGW Marker Gothic',
 		variants: ['regular'],
 		subsets: [

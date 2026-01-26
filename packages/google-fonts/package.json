@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.409",
+	"version": "4.0.410",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -2382,6 +2382,9 @@
 			],
 			"Kurale": [
 				"dist/cjs/Kurale.d.ts"
+			],
+			"LINESeedJP": [
+				"dist/cjs/LINESeedJP.d.ts"
 			],
 			"LXGWMarkerGothic": [
 				"dist/cjs/LXGWMarkerGothic.d.ts"
