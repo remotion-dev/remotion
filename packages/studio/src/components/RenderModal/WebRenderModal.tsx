@@ -1,10 +1,4 @@
-import type {
-	AudioCodec,
-	Codec,
-	LogLevel,
-	StillImageFormat,
-	VideoImageFormat,
-} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {getDefaultOutLocation} from '@remotion/studio-shared';
 import type {
@@ -73,16 +67,15 @@ type WebRenderModalProps = {
 	readonly defaultProps: Record<string, unknown>;
 	readonly inFrameMark: number | null;
 	readonly outFrameMark: number | null;
-	readonly initialVideoImageFormat: VideoImageFormat | null;
-	readonly initialStillImageFormat: StillImageFormat;
+	readonly initialStillImageFormat: RenderStillOnWebImageFormat;
 	readonly initialScale: number;
 	readonly initialDelayRenderTimeout: number;
 	readonly initialDefaultOutName: string | null;
-	readonly initialContainer: string | null;
-	readonly initialVideoCodec: Codec | null;
-	readonly initialAudioCodec: AudioCodec | null;
-	readonly initialAudioBitrate: string | null;
-	readonly initialVideoBitrate: string | null;
+	readonly initialContainer: WebRendererContainer | null;
+	readonly initialVideoCodec: WebRendererVideoCodec | null;
+	readonly initialAudioCodec: WebRendererAudioCodec | null;
+	readonly initialAudioBitrate: WebRendererQuality | null;
+	readonly initialVideoBitrate: WebRendererQuality | null;
 	readonly initialHardwareAcceleration: HardwareAccelerationOption | null;
 	readonly initialKeyframeIntervalInSeconds: number | null;
 	readonly initialTransparent: boolean | null;
@@ -219,7 +212,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	);
 	const [tab, setTab] = useState<TabType>('general');
 	const [imageFormat, setImageFormat] = useState<RenderStillOnWebImageFormat>(
-		() => (initialStillImageFormat as RenderStillOnWebImageFormat) ?? 'png',
+		() => initialStillImageFormat ?? 'png',
 	);
 	const [frame, setFrame] = useState(() => initialFrame);
 	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
@@ -229,24 +222,24 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	);
 	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
 		number | null
-	>(initialMediaCacheSizeInBytes ?? null);
+	>(initialMediaCacheSizeInBytes);
 	const [saving, setSaving] = useState(false);
 
 	// Video-specific state
 	const [codec, setCodec] = useState<WebRendererVideoCodec>(
-		(initialVideoCodec as WebRendererVideoCodec) ?? 'h264',
+		initialVideoCodec ?? 'h264',
 	);
 	const [container, setContainer] = useState<WebRendererContainer>(
-		(initialContainer as WebRendererContainer) ?? 'mp4',
+		initialContainer ?? 'mp4',
 	);
 	const [audioCodec, setAudioCodec] = useState<WebRendererAudioCodec>(
-		(initialAudioCodec as WebRendererAudioCodec) ?? 'aac',
+		initialAudioCodec ?? 'aac',
 	);
 	const [audioBitrate, setAudioBitrate] = useState<WebRendererQuality>(
-		(initialAudioBitrate as WebRendererQuality) ?? 'medium',
+		initialAudioBitrate ?? 'medium',
 	);
 	const [videoBitrate, setVideoBitrate] = useState<WebRendererQuality>(
-		(initialVideoBitrate as WebRendererQuality) ?? 'high',
+		initialVideoBitrate ?? 'high',
 	);
 	const [hardwareAcceleration, setHardwareAcceleration] = useState<
 		'no-preference' | 'prefer-hardware' | 'prefer-software'
@@ -260,14 +253,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		initialKeyframeIntervalInSeconds ?? 5,
 	);
 	const [startFrame, setStartFrame] = useState<number | null>(
-		() => inFrameMark ?? null,
+		() => inFrameMark,
 	);
-	const [endFrame, setEndFrame] = useState<number | null>(
-		() => outFrameMark ?? null,
-	);
-	const [transparent, setTransparent] = useState(
-		initialTransparent ?? false,
-	);
+	const [endFrame, setEndFrame] = useState<number | null>(() => outFrameMark);
+	const [transparent, setTransparent] = useState(initialTransparent ?? false);
 	const [muted, setMuted] = useState(initialMuted ?? false);
 	const [scale, setScale] = useState(initialScale ?? 1);
 

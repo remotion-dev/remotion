@@ -3,7 +3,6 @@ import type {
 	Codec,
 	ColorSpace,
 	PixelFormat,
-	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
@@ -205,22 +204,17 @@ export const makeClientRetryPayload = (
 		initialScale: job.scale,
 		initialDelayRenderTimeout: job.delayRenderTimeout,
 		initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
-		initialAudioBitrate:
-			job.type === 'client-video' ? job.audioBitrate : null,
-		initialAudioCodec:
-			job.type === 'client-video' ? (job.audioCodec as AudioCodec) : null,
+		initialAudioBitrate: job.type === 'client-video' ? job.audioBitrate : null,
+		initialAudioCodec: job.type === 'client-video' ? job.audioCodec : null,
 		initialContainer: job.type === 'client-video' ? job.container : null,
 		initialHardwareAcceleration:
 			job.type === 'client-video'
 				? (job.hardwareAcceleration as HardwareAccelerationOption)
 				: null,
-		initialVideoBitrate:
-			job.type === 'client-video' ? job.videoBitrate : null,
-		initialVideoCodec:
-			job.type === 'client-video' ? (job.videoCodec as Codec) : null,
+		initialVideoBitrate: job.type === 'client-video' ? job.videoBitrate : null,
+		initialVideoCodec: job.type === 'client-video' ? job.videoCodec : null,
 		initialStillImageFormat:
 			job.type === 'client-still' ? job.imageFormat : 'png',
-		initialVideoImageFormat: null,
 		initialKeyframeIntervalInSeconds:
 			job.type === 'client-video' ? job.keyframeIntervalInSeconds : null,
 		initialMuted: job.type === 'client-video' ? job.muted : null,
