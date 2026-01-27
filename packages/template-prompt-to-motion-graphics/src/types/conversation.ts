@@ -1,10 +1,32 @@
+export interface EditOperation {
+  description: string;
+  old_string: string;
+  new_string: string;
+  lineNumber?: number;
+}
+
+export interface AssistantMetadata {
+  /** Which skills were detected for this generation */
+  skills?: string[];
+  /** Whether this was a tool-based edit or full replacement */
+  editType?: "tool_edit" | "full_replacement";
+  /** The edit operations applied (if tool_edit) */
+  edits?: EditOperation[];
+  /** Model used for generation */
+  model?: string;
+}
+
 export interface ConversationMessage {
   id: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "error";
   content: string;
   timestamp: number;
   /** For assistant messages, store the code snapshot at time of generation */
   codeSnapshot?: string;
+  /** For assistant messages, store metadata about the generation */
+  metadata?: AssistantMetadata;
+  /** For error messages, store the error type */
+  errorType?: "edit_failed" | "api" | "validation";
 }
 
 export interface ConversationState {

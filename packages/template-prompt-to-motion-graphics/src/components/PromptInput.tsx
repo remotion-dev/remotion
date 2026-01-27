@@ -13,7 +13,10 @@ import {
   Pencil,
   type LucideIcon,
 } from "lucide-react";
-import type { ConversationContextMessage } from "@/types/conversation";
+import type {
+  ConversationContextMessage,
+  AssistantMetadata,
+} from "@/types/conversation";
 import {
   Select,
   SelectContent,
@@ -81,7 +84,16 @@ interface PromptInputProps {
   /** Callback when a message is sent (for history tracking) */
   onMessageSent?: (prompt: string) => void;
   /** Callback when generation completes (for history tracking) */
-  onGenerationComplete?: (code: string) => void;
+  onGenerationComplete?: (
+    code: string,
+    summary?: string,
+    metadata?: AssistantMetadata
+  ) => void;
+  /** Callback when an error occurs (for history tracking) */
+  onErrorMessage?: (
+    message: string,
+    errorType: "edit_failed" | "api" | "validation"
+  ) => void;
 }
 
 export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
@@ -103,6 +115,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
       hasManualEdits = false,
       onMessageSent,
       onGenerationComplete,
+      onErrorMessage,
     },
     ref,
   ) {
@@ -143,14 +156,42 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
           const errorData = await response.json().catch(() => ({}));
           const errorMessage =
             errorData.error || `API error: ${response.status}`;
-          // Check if this is a validation error from the API
+          // Check if this is a validation error or edit failure from the API
+          if (errorData.type === "edit_failed") {
+            onError?.(errorMessage, "validation");
+            onErrorMessage?.(errorMessage, "edit_failed");
+            return;
+          }
           if (errorData.type === "validation") {
             onError?.(errorMessage, "validation");
+            onErrorMessage?.(errorMessage, "validation");
             return;
           }
           throw new Error(errorMessage);
         }
 
+        // Check content type to determine response format
+        const contentType = response.headers.get("content-type") || "";
+
+        // FOLLOW-UP: Non-streaming JSON response with metadata
+        if (contentType.includes("application/json")) {
+          const data = await response.json();
+          const { code, summary, metadata } = data;
+
+          // Update the editor with the code
+          onCodeGenerated?.(code);
+
+          // Track generation completion with metadata and summary
+          onGenerationComplete?.(code, summary, metadata);
+
+          const validation = validateGptResponse(code);
+          if (!validation.isValid && validation.error) {
+            onError?.(validation.error, "validation");
+          }
+          return;
+        }
+
+        // INITIAL: Streaming SSE response
         const reader = response.body?.getReader();
         if (!reader) {
           throw new Error("No response body");
@@ -198,7 +239,10 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
               }
             } catch (parseError) {
               // Only re-throw if it's an actual Error we created, not a JSON parse error
-              if (parseError instanceof Error && parseError.message !== "Unexpected token") {
+              if (
+                parseError instanceof Error &&
+                parseError.message !== "Unexpected token"
+              ) {
                 throw parseError;
               }
             }
@@ -214,7 +258,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
         // Update the editor with the cleaned code
         onCodeGenerated?.(finalCode);
 
-        // Track generation completion for history
+        // Track generation completion for history (no metadata for streaming)
         onGenerationComplete?.(finalCode);
 
         const validation = validateGptResponse(finalCode);

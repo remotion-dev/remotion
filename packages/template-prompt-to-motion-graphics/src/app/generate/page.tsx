@@ -17,6 +17,7 @@ import {
 import { examples } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
 import { useConversationState } from "../../hooks/useConversationState";
+import type { AssistantMetadata } from "../../types/conversation";
 
 function GeneratePageContent() {
   const searchParams = useSearchParams();
@@ -48,6 +49,7 @@ function GeneratePageContent() {
     hasManualEdits,
     addUserMessage,
     addAssistantMessage,
+    addErrorMessage,
     markManualEdit,
     clearConversation,
     getRecentContext,
@@ -118,8 +120,9 @@ function GeneratePageContent() {
 
   // Handle generation complete for history
   const handleGenerationComplete = useCallback(
-    (generatedCode: string) => {
-      addAssistantMessage("Generated code", generatedCode);
+    (generatedCode: string, summary?: string, metadata?: AssistantMetadata) => {
+      const content = summary || "Generated animation";
+      addAssistantMessage(content, generatedCode, metadata);
     },
     [addAssistantMessage],
   );
@@ -212,6 +215,7 @@ function GeneratePageContent() {
             hasManualEdits={hasManualEdits}
             onMessageSent={handleMessageSent}
             onGenerationComplete={handleGenerationComplete}
+            onErrorMessage={addErrorMessage}
           />
         </div>
       </div>

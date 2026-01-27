@@ -105,23 +105,143 @@ NEVER use these as variable names - they shadow imports:
 
 `;
 
-const FOLLOW_UP_PROMPT_ADDITION = `
+const FOLLOW_UP_SYSTEM_PROMPT = `
+You are an expert at making targeted edits to React/Remotion animation components.
 
-## FOLLOW-UP EDIT MODE
+Given the current code and a user request, decide whether to:
+1. Use targeted edits (for small, specific changes)
+2. Provide full replacement code (for major restructuring)
 
-You are refining an existing animation component. The user has provided:
-1. The current code (which may include their manual edits)
-2. Their new request for changes
+## WHEN TO USE TARGETED EDITS (type: "edit")
+- Changing colors, text, numbers, timing values
+- Adding or removing a single element
+- Modifying styles or properties
+- Small additions (new variable, new element)
+- Changes affecting <30% of the code
 
-CRITICAL RULES FOR FOLLOW-UP EDITS:
-- Preserve the overall structure and working parts of the existing code
-- Only modify what the user specifically asks to change
-- Keep existing variable names, colors, and timing unless asked to change them
-- If the user made manual edits, incorporate and respect those changes
-- Never start from scratch unless explicitly asked
-- Maintain existing imports and only add new ones if needed
-- Output the COMPLETE updated code, not just the changed parts
+## WHEN TO USE FULL REPLACEMENT (type: "full")
+- Completely different animation style
+- Major structural reorganization
+- User asks to "start fresh" or "rewrite"
+- Changes affect >50% of the code
+
+## EDIT FORMAT
+For targeted edits, each edit needs:
+- old_string: The EXACT string to find (including whitespace/indentation)
+- new_string: The replacement string
+
+CRITICAL:
+- old_string must match the code EXACTLY character-for-character
+- Include enough surrounding context to make old_string unique
+- If multiple similar lines exist, include more surrounding code
+- Preserve indentation exactly as it appears in the original
+
+## PRESERVING USER EDITS
+If the user has made manual edits, preserve them unless explicitly asked to change.
 `;
+
+// Schema for follow-up edit responses
+// Note: Using a flat object schema because OpenAI doesn't support discriminated unions
+const FollowUpResponseSchema = z.object({
+  type: z
+    .enum(["edit", "full"])
+    .describe('Use "edit" for small targeted changes, "full" for major restructuring'),
+  summary: z
+    .string()
+    .describe(
+      "A brief 1-sentence summary of what changes were made, e.g. 'Changed background color to blue and increased font size'"
+    ),
+  edits: z
+    .array(
+      z.object({
+        description: z
+          .string()
+          .describe(
+            "Brief description of this edit, e.g. 'Update background color', 'Increase animation duration'"
+          ),
+        old_string: z
+          .string()
+          .describe("The exact string to find (must match exactly)"),
+        new_string: z.string().describe("The replacement string"),
+      })
+    )
+    .optional()
+    .describe("Required when type is 'edit': array of search-replace operations"),
+  code: z
+    .string()
+    .optional()
+    .describe(
+      "Required when type is 'full': the complete replacement code starting with imports"
+    ),
+});
+
+type EditOperation = {
+  description: string;
+  old_string: string;
+  new_string: string;
+  lineNumber?: number;
+};
+
+// Calculate line number where a string occurs in code
+function getLineNumber(code: string, searchString: string): number {
+  const index = code.indexOf(searchString);
+  if (index === -1) return -1;
+  return code.substring(0, index).split("\n").length;
+}
+
+// Apply edit operations to code and enrich with line numbers
+function applyEdits(
+  code: string,
+  edits: EditOperation[]
+): {
+  success: boolean;
+  result: string;
+  error?: string;
+  enrichedEdits?: EditOperation[];
+} {
+  let result = code;
+  const enrichedEdits: EditOperation[] = [];
+
+  for (let i = 0; i < edits.length; i++) {
+    const edit = edits[i];
+    const { old_string, new_string, description } = edit;
+
+    // Check if the old_string exists
+    if (!result.includes(old_string)) {
+      return {
+        success: false,
+        result: code,
+        error: `Edit ${i + 1} failed: Could not find the specified text`,
+      };
+    }
+
+    // Check for multiple matches (ambiguous)
+    const matches = result.split(old_string).length - 1;
+    if (matches > 1) {
+      return {
+        success: false,
+        result: code,
+        error: `Edit ${i + 1} failed: Found ${matches} matches. The edit target is ambiguous.`,
+      };
+    }
+
+    // Get line number before applying edit
+    const lineNumber = getLineNumber(result, old_string);
+
+    // Apply the edit
+    result = result.replace(old_string, new_string);
+
+    // Store enriched edit with line number
+    enrichedEdits.push({
+      description,
+      old_string,
+      new_string,
+      lineNumber,
+    });
+  }
+
+  return { success: true, result, enrichedEdits };
+}
 
 interface ConversationContextMessage {
   role: "user" | "assistant";
@@ -135,6 +255,17 @@ interface GenerateRequest {
   conversationHistory?: ConversationContextMessage[];
   isFollowUp?: boolean;
   hasManualEdits?: boolean;
+}
+
+interface GenerateResponse {
+  code: string;
+  summary: string;
+  metadata: {
+    skills: string[];
+    editType: "tool_edit" | "full_replacement";
+    edits?: EditOperation[];
+    model: string;
+  };
 }
 
 export async function POST(req: Request) {
@@ -212,36 +343,29 @@ export async function POST(req: Request) {
 
   // Load skill-specific content and enhance the system prompt
   const skillContent = getCombinedSkillContent(detectedSkills);
-  let enhancedSystemPrompt = skillContent
+  const enhancedSystemPrompt = skillContent
     ? `${SYSTEM_PROMPT}\n\n## SKILL-SPECIFIC GUIDANCE\n${skillContent}`
     : SYSTEM_PROMPT;
 
-  // Add follow-up mode instructions if applicable
+  // FOLLOW-UP MODE: Use non-streaming generateObject for faster edits
   if (isFollowUp && currentCode) {
-    enhancedSystemPrompt += FOLLOW_UP_PROMPT_ADDITION;
-  }
+    try {
+      // Build context for the edit request
+      const contextMessages = conversationHistory.slice(-6);
+      let conversationContext = "";
+      if (contextMessages.length > 0) {
+        conversationContext =
+          "\n\n## RECENT CONVERSATION:\n" +
+          contextMessages
+            .map((m) => `${m.role.toUpperCase()}: ${m.content}`)
+            .join("\n");
+      }
 
-  // Build the full prompt with context for follow-up edits
-  let fullPrompt = prompt;
+      const manualEditNotice = hasManualEdits
+        ? "\n\nNOTE: The user has made manual edits to the code. Preserve these changes."
+        : "";
 
-  if (isFollowUp && currentCode) {
-    // Include conversation context (last 3 exchanges)
-    const contextMessages = conversationHistory.slice(-6);
-    let conversationContext = "";
-    if (contextMessages.length > 0) {
-      conversationContext =
-        "\n\n## RECENT CONVERSATION:\n" +
-        contextMessages
-          .map((m) => `${m.role.toUpperCase()}: ${m.content}`)
-          .join("\n");
-    }
-
-    // Include manual edit notice
-    const manualEditNotice = hasManualEdits
-      ? "\n\nNOTE: The user has made manual edits to the code. Preserve these changes while applying the new request."
-      : "";
-
-    fullPrompt = `## CURRENT CODE:
+      const editPrompt = `## CURRENT CODE:
 \`\`\`tsx
 ${currentCode}
 \`\`\`
@@ -251,14 +375,96 @@ ${manualEditNotice}
 ## USER REQUEST:
 ${prompt}
 
-Please modify the existing code according to the user's request. Output only the complete updated code.`;
+Analyze the request and decide: use targeted edits (type: "edit") for small changes, or full replacement (type: "full") for major restructuring.`;
+
+      console.log(
+        "Follow-up edit with prompt:",
+        prompt,
+        "model:",
+        modelName,
+        "skills:",
+        detectedSkills.length > 0 ? detectedSkills.join(", ") : "general"
+      );
+
+      const editResult = await generateObject({
+        model: openai(modelName),
+        system: FOLLOW_UP_SYSTEM_PROMPT,
+        prompt: editPrompt,
+        schema: FollowUpResponseSchema,
+      });
+
+      const response = editResult.object;
+      let finalCode: string;
+      let editType: "tool_edit" | "full_replacement";
+      let appliedEdits: EditOperation[] | undefined;
+
+      if (response.type === "edit" && response.edits) {
+        // Apply the edits to the current code
+        const result = applyEdits(currentCode, response.edits);
+        if (!result.success) {
+          // If edits fail, return error
+          return new Response(
+            JSON.stringify({
+              error: result.error,
+              type: "edit_failed",
+            }),
+            { status: 400, headers: { "Content-Type": "application/json" } }
+          );
+        }
+        finalCode = result.result;
+        editType = "tool_edit";
+        // Use enriched edits with line numbers
+        appliedEdits = result.enrichedEdits;
+        console.log(`Applied ${response.edits.length} edit(s) successfully`);
+      } else if (response.type === "full" && response.code) {
+        // Full replacement
+        finalCode = response.code;
+        editType = "full_replacement";
+        console.log("Using full code replacement");
+      } else {
+        // Invalid response - missing required fields
+        return new Response(
+          JSON.stringify({
+            error: "Invalid AI response: missing required fields",
+            type: "edit_failed",
+          }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      // Return the result with metadata
+      const responseData: GenerateResponse = {
+        code: finalCode,
+        summary: response.summary,
+        metadata: {
+          skills: detectedSkills,
+          editType,
+          edits: appliedEdits,
+          model: modelName,
+        },
+      };
+
+      return new Response(JSON.stringify(responseData), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      console.error("Error in follow-up edit:", error);
+      return new Response(
+        JSON.stringify({
+          error: "Something went wrong while processing the edit request.",
+        }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
   }
 
+  // INITIAL GENERATION: Use streaming for new animations
   try {
     const result = streamText({
       model: openai(modelName),
       system: enhancedSystemPrompt,
-      prompt: fullPrompt,
+      prompt,
       ...(reasoningEffort && {
         providerOptions: {
           openai: {
@@ -275,9 +481,7 @@ Please modify the existing code according to the user's request. Output only the
       modelName,
       "skills:",
       detectedSkills.length > 0 ? detectedSkills.join(", ") : "general",
-      "isFollowUp:",
-      isFollowUp,
-      reasoningEffort ? `reasoning_effort: ${reasoningEffort}` : "",
+      reasoningEffort ? `reasoning_effort: ${reasoningEffort}` : ""
     );
 
     return result.toUIMessageStreamResponse({
@@ -289,7 +493,7 @@ Please modify the existing code according to the user's request. Output only the
       JSON.stringify({
         error: "Something went wrong while trying to reach OpenAI APIs.",
       }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
