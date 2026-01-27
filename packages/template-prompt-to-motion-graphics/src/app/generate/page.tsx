@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { CodeEditor } from "../../components/CodeEditor";
 import { AnimationPlayer } from "../../components/AnimationPlayer";
 import { PageLayout } from "../../components/PageLayout";
+import { ChatHistory } from "../../components/ChatHistory";
 import {
   PromptInput,
   type StreamPhase,
@@ -15,6 +16,7 @@ import {
 } from "../../components/PromptInput";
 import { examples } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
+import { useConversationState } from "../../hooks/useConversationState";
 
 function GeneratePageContent() {
   const searchParams = useSearchParams();
@@ -39,6 +41,21 @@ function GeneratePageContent() {
     message: string;
     type: GenerationErrorType;
   } | null>(null);
+
+  // Conversation state for follow-up edits
+  const {
+    messages,
+    hasManualEdits,
+    addUserMessage,
+    addAssistantMessage,
+    markManualEdit,
+    clearConversation,
+    getRecentContext,
+    isFirstGeneration,
+  } = useConversationState();
+
+  // Sidebar collapse state
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const { code, Component, error, isCompiling, setCode, compileCode } =
     useAnimationState(examples[0]?.code || "");
@@ -68,6 +85,11 @@ function GeneratePageContent() {
       setCode(newCode);
       setHasGeneratedOnce(true);
 
+      // Mark as manual edit if not streaming (user typing)
+      if (!isStreamingRef.current) {
+        markManualEdit(newCode);
+      }
+
       // Clear existing debounce
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
@@ -83,7 +105,23 @@ function GeneratePageContent() {
         compileCode(newCode);
       }, 500);
     },
-    [setCode, compileCode],
+    [setCode, compileCode, markManualEdit],
+  );
+
+  // Handle message sent for history
+  const handleMessageSent = useCallback(
+    (promptText: string) => {
+      addUserMessage(promptText);
+    },
+    [addUserMessage],
+  );
+
+  // Handle generation complete for history
+  const handleGenerationComplete = useCallback(
+    (generatedCode: string) => {
+      addAssistantMessage("Generated code", generatedCode);
+    },
+    [addAssistantMessage],
   );
 
   // Cleanup debounce on unmount
@@ -125,39 +163,57 @@ function GeneratePageContent() {
 
   return (
     <PageLayout showLogoAsLink>
-      <div className="flex-1 flex flex-col min-w-0 px-12 pb-8 gap-8 overflow-hidden">
-        <div className="flex-1 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden gap-8">
-          <CodeEditor
-            code={hasGeneratedOnce && !generationError ? code : ""}
-            onChange={handleCodeChange}
-            isStreaming={isStreaming}
-            streamPhase={streamPhase}
-          />
-          <div className="shrink-0 lg:shrink lg:flex-[2.5] lg:min-w-0 lg:h-full">
-            <AnimationPlayer
-              Component={generationError ? null : Component}
-              durationInFrames={durationInFrames}
-              fps={fps}
-              onDurationChange={setDurationInFrames}
-              onFpsChange={setFps}
-              isCompiling={isCompiling}
-              isStreaming={isStreaming}
-              error={generationError?.message || error}
-              errorType={generationError?.type || "compilation"}
-              code={code}
-            />
-          </div>
-        </div>
-
-        <PromptInput
-          ref={promptInputRef}
-          onCodeGenerated={handleCodeChange}
-          onStreamingChange={handleStreamingChange}
-          onStreamPhaseChange={setStreamPhase}
-          onError={handleError}
-          prompt={prompt}
-          onPromptChange={setPrompt}
+      <div className="flex-1 flex min-w-0 overflow-hidden">
+        {/* Chat History Sidebar */}
+        <ChatHistory
+          messages={messages}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          onClear={clearConversation}
+          hasManualEdits={hasManualEdits}
         />
+
+        {/* Main content area */}
+        <div className="flex-1 flex flex-col min-w-0 px-12 pb-8 gap-8 overflow-hidden">
+          <div className="flex-1 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden gap-8">
+            <CodeEditor
+              code={hasGeneratedOnce && !generationError ? code : ""}
+              onChange={handleCodeChange}
+              isStreaming={isStreaming}
+              streamPhase={streamPhase}
+            />
+            <div className="shrink-0 lg:shrink lg:flex-[2.5] lg:min-w-0 lg:h-full">
+              <AnimationPlayer
+                Component={generationError ? null : Component}
+                durationInFrames={durationInFrames}
+                fps={fps}
+                onDurationChange={setDurationInFrames}
+                onFpsChange={setFps}
+                isCompiling={isCompiling}
+                isStreaming={isStreaming}
+                error={generationError?.message || error}
+                errorType={generationError?.type || "compilation"}
+                code={code}
+              />
+            </div>
+          </div>
+
+          <PromptInput
+            ref={promptInputRef}
+            onCodeGenerated={handleCodeChange}
+            onStreamingChange={handleStreamingChange}
+            onStreamPhaseChange={setStreamPhase}
+            onError={handleError}
+            prompt={prompt}
+            onPromptChange={setPrompt}
+            currentCode={code}
+            conversationHistory={getRecentContext(3)}
+            isFollowUp={!isFirstGeneration}
+            hasManualEdits={hasManualEdits}
+            onMessageSent={handleMessageSent}
+            onGenerationComplete={handleGenerationComplete}
+          />
+        </div>
       </div>
     </PageLayout>
   );

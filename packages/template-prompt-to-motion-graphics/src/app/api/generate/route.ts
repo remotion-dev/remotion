@@ -105,8 +105,47 @@ NEVER use these as variable names - they shadow imports:
 
 `;
 
+const FOLLOW_UP_PROMPT_ADDITION = `
+
+## FOLLOW-UP EDIT MODE
+
+You are refining an existing animation component. The user has provided:
+1. The current code (which may include their manual edits)
+2. Their new request for changes
+
+CRITICAL RULES FOR FOLLOW-UP EDITS:
+- Preserve the overall structure and working parts of the existing code
+- Only modify what the user specifically asks to change
+- Keep existing variable names, colors, and timing unless asked to change them
+- If the user made manual edits, incorporate and respect those changes
+- Never start from scratch unless explicitly asked
+- Maintain existing imports and only add new ones if needed
+- Output the COMPLETE updated code, not just the changed parts
+`;
+
+interface ConversationContextMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+interface GenerateRequest {
+  prompt: string;
+  model?: string;
+  currentCode?: string;
+  conversationHistory?: ConversationContextMessage[];
+  isFollowUp?: boolean;
+  hasManualEdits?: boolean;
+}
+
 export async function POST(req: Request) {
-  const { prompt, model = "gpt-5-mini" } = await req.json();
+  const {
+    prompt,
+    model = "gpt-5-mini",
+    currentCode,
+    conversationHistory = [],
+    isFollowUp = false,
+    hasManualEdits = false,
+  }: GenerateRequest = await req.json();
 
   const apiKey = process.env.OPENAI_API_KEY;
 
@@ -128,28 +167,30 @@ export async function POST(req: Request) {
 
   const openai = createOpenAI({ apiKey });
 
-  // Validate the prompt first
-  try {
-    const validationResult = await generateObject({
-      model: openai("gpt-5.2"),
-      system: VALIDATION_PROMPT,
-      prompt: `User prompt: "${prompt}"`,
-      schema: z.object({ valid: z.boolean() }),
-    });
+  // Validate the prompt first (skip for follow-ups with existing code)
+  if (!isFollowUp) {
+    try {
+      const validationResult = await generateObject({
+        model: openai("gpt-5.2"),
+        system: VALIDATION_PROMPT,
+        prompt: `User prompt: "${prompt}"`,
+        schema: z.object({ valid: z.boolean() }),
+      });
 
-    if (!validationResult.object.valid) {
-      return new Response(
-        JSON.stringify({
-          error:
-            "No valid motion graphics prompt. Please describe an animation or visual content you'd like to create.",
-          type: "validation",
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
-      );
+      if (!validationResult.object.valid) {
+        return new Response(
+          JSON.stringify({
+            error:
+              "No valid motion graphics prompt. Please describe an animation or visual content you'd like to create.",
+            type: "validation",
+          }),
+          { status: 400, headers: { "Content-Type": "application/json" } },
+        );
+      }
+    } catch (validationError) {
+      // On validation error, allow through rather than blocking
+      console.error("Validation error:", validationError);
     }
-  } catch (validationError) {
-    // On validation error, allow through rather than blocking
-    console.error("Validation error:", validationError);
   }
 
   // Detect which skills apply to this prompt
@@ -171,15 +212,53 @@ export async function POST(req: Request) {
 
   // Load skill-specific content and enhance the system prompt
   const skillContent = getCombinedSkillContent(detectedSkills);
-  const enhancedSystemPrompt = skillContent
+  let enhancedSystemPrompt = skillContent
     ? `${SYSTEM_PROMPT}\n\n## SKILL-SPECIFIC GUIDANCE\n${skillContent}`
     : SYSTEM_PROMPT;
+
+  // Add follow-up mode instructions if applicable
+  if (isFollowUp && currentCode) {
+    enhancedSystemPrompt += FOLLOW_UP_PROMPT_ADDITION;
+  }
+
+  // Build the full prompt with context for follow-up edits
+  let fullPrompt = prompt;
+
+  if (isFollowUp && currentCode) {
+    // Include conversation context (last 3 exchanges)
+    const contextMessages = conversationHistory.slice(-6);
+    let conversationContext = "";
+    if (contextMessages.length > 0) {
+      conversationContext =
+        "\n\n## RECENT CONVERSATION:\n" +
+        contextMessages
+          .map((m) => `${m.role.toUpperCase()}: ${m.content}`)
+          .join("\n");
+    }
+
+    // Include manual edit notice
+    const manualEditNotice = hasManualEdits
+      ? "\n\nNOTE: The user has made manual edits to the code. Preserve these changes while applying the new request."
+      : "";
+
+    fullPrompt = `## CURRENT CODE:
+\`\`\`tsx
+${currentCode}
+\`\`\`
+${conversationContext}
+${manualEditNotice}
+
+## USER REQUEST:
+${prompt}
+
+Please modify the existing code according to the user's request. Output only the complete updated code.`;
+  }
 
   try {
     const result = streamText({
       model: openai(modelName),
       system: enhancedSystemPrompt,
-      prompt,
+      prompt: fullPrompt,
       ...(reasoningEffort && {
         providerOptions: {
           openai: {
@@ -196,6 +275,8 @@ export async function POST(req: Request) {
       modelName,
       "skills:",
       detectedSkills.length > 0 ? detectedSkills.join(", ") : "general",
+      "isFollowUp:",
+      isFollowUp,
       reasoningEffort ? `reasoning_effort: ${reasoningEffort}` : "",
     );
 

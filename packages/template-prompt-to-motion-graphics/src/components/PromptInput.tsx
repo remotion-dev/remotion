@@ -10,8 +10,10 @@ import {
   Hash,
   BarChart3,
   Disc,
+  Pencil,
   type LucideIcon,
 } from "lucide-react";
+import type { ConversationContextMessage } from "@/types/conversation";
 import {
   Select,
   SelectContent,
@@ -68,6 +70,18 @@ interface PromptInputProps {
   isNavigating?: boolean;
   /** Whether to show the "View Code examples" link (landing variant) */
   showCodeExamplesLink?: boolean;
+  /** Current code in the editor for follow-up context */
+  currentCode?: string;
+  /** Conversation history for context */
+  conversationHistory?: ConversationContextMessage[];
+  /** Whether this is a follow-up edit (has existing code) */
+  isFollowUp?: boolean;
+  /** Whether the code has manual edits */
+  hasManualEdits?: boolean;
+  /** Callback when a message is sent (for history tracking) */
+  onMessageSent?: (prompt: string) => void;
+  /** Callback when generation completes (for history tracking) */
+  onGenerationComplete?: (code: string) => void;
 }
 
 export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
@@ -83,6 +97,12 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
       onNavigate,
       isNavigating = false,
       showCodeExamplesLink = false,
+      currentCode,
+      conversationHistory = [],
+      isFollowUp = false,
+      hasManualEdits = false,
+      onMessageSent,
+      onGenerationComplete,
     },
     ref,
   ) {
@@ -101,11 +121,22 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
       setIsLoading(true);
       onStreamingChange?.(true);
       onStreamPhaseChange?.("reasoning");
+
+      // Track the message for history
+      onMessageSent?.(prompt);
+
       try {
         const response = await fetch("/api/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt, model }),
+          body: JSON.stringify({
+            prompt,
+            model,
+            currentCode: isFollowUp ? currentCode : undefined,
+            conversationHistory: isFollowUp ? conversationHistory : [],
+            isFollowUp,
+            hasManualEdits,
+          }),
         });
 
         if (!response.ok) {
@@ -183,6 +214,9 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
         // Update the editor with the cleaned code
         onCodeGenerated?.(finalCode);
 
+        // Track generation completion for history
+        onGenerationComplete?.(finalCode);
+
         const validation = validateGptResponse(finalCode);
         if (!validation.isValid && validation.error) {
           onError?.(validation.error, "validation");
@@ -249,6 +283,13 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
           className={isLanding ? "w-full max-w-3xl" : ""}
         >
           <div className="bg-background-elevated rounded-xl border border-border p-4">
+            {isFollowUp && !isLanding && (
+              <div className="text-xs text-muted-foreground-dim mb-2 flex items-center gap-1">
+                <Pencil className="w-3 h-3" />
+                Editing existing animation
+                {hasManualEdits && " (includes your edits)"}
+              </div>
+            )}
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
