@@ -33,8 +33,35 @@ export interface CompilationResult {
 // Strip imports and extract component body from LLM-generated code
 // Safety layer in case LLM includes full ES6 syntax despite instructions
 function extractComponentBody(code: string): string {
-  // Strip import statements
-  const cleaned = code.replace(/^import\s+.*$/gm, "").trim();
+  // Strip all import statements (handles multi-line imports with newlines in braces)
+  let cleaned = code;
+
+  // Remove type imports: import type { ... } from "...";
+  cleaned = cleaned.replace(
+    /import\s+type\s*\{[\s\S]*?\}\s*from\s*["'][^"']+["'];?/g,
+    "",
+  );
+  // Remove combined default + named imports: import X, { ... } from "...";
+  cleaned = cleaned.replace(
+    /import\s+\w+\s*,\s*\{[\s\S]*?\}\s*from\s*["'][^"']+["'];?/g,
+    "",
+  );
+  // Remove multi-line named imports: import { ... } from "...";
+  cleaned = cleaned.replace(
+    /import\s*\{[\s\S]*?\}\s*from\s*["'][^"']+["'];?/g,
+    "",
+  );
+  // Remove namespace imports: import * as X from "...";
+  cleaned = cleaned.replace(
+    /import\s+\*\s+as\s+\w+\s+from\s*["'][^"']+["'];?/g,
+    "",
+  );
+  // Remove default imports: import X from "...";
+  cleaned = cleaned.replace(/import\s+\w+\s+from\s*["'][^"']+["'];?/g, "");
+  // Remove side-effect imports: import "...";
+  cleaned = cleaned.replace(/import\s*["'][^"']+["'];?/g, "");
+
+  cleaned = cleaned.trim();
 
   // Extract body from "export const MyAnimation = () => { ... };"
   const match = cleaned.match(
