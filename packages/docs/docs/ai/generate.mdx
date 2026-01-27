@@ -1,0 +1,189 @@
+---
+image: /generated/articles-docs-ai-generate.png
+crumb: 'AI'
+title: Generate Remotion Code with AI
+sidebar_label: Code Generation
+---
+
+This guide shows how to generate Remotion component code from natural language prompts using the [Vercel AI SDK](https://sdk.vercel.ai/). It focuses on a programmatic and API-based way to generate Remotion code. To do that properly, you will also learn about giving the right context and guardrails for the LLM to follow your task closely.
+
+## Installation
+
+```bash
+npm install ai @ai-sdk/openai zod
+```
+
+## Basic Example
+
+The AI SDK makes switching between LLM providers easy and provides a unified interface for both streaming and batch API requests.
+
+This simple system prompt here instructs the model in basic terms what the request is about and what the model's purpose is. This prompt relies completely on the training of the model about Remotion. Not ideal but great for a simple start.
+
+```ts twoslash title="generate.ts"
+import {generateText} from 'ai';
+import {openai} from '@ai-sdk/openai';
+
+const systemPrompt = `You are a Remotion component generator.
+Generate a single React component that uses Remotion.
+
+Rules:
+- Export the component as a named export called "MyComposition"
+- Use useCurrentFrame() and useVideoConfig() from "remotion"
+- Use spring() for animations
+- Only output the code, no markdown or explanations`;
+
+const {text: code, usage} = await generateText({
+  model: openai('gpt-5.2'),
+  system: systemPrompt,
+  prompt: 'Create a countdown from 5 to 1 with spring animations',
+});
+
+console.log(code); // "import {useCurrentFrame, ...} export const MyComposition ..."
+console.log(usage); // { inputTokens: 89, outputTokens: 205, totalTokens: 294 }
+```
+
+The result includes usage metadata for tracking token consumption. The `text` property contains the generated code as a string. With formatting it looks like this:
+
+```tsx
+import {useCurrentFrame, useVideoConfig, spring, AbsoluteFill} from 'remotion';
+
+export const MyComposition: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  // ... rest of the component
+};
+```
+
+The code you get as a result would require further prompting techniques or sanitation as it often includes ```jsx tags for markdown.
+
+## Structured Output with Zod
+
+Having more properties and metadata around the code you generated is beneficial. Classic properties go from reasoning, FPS, width to height.
+
+Most bigger LLM providers offer a structured output mode for their endpoints by now, so you can define exactly which properties you are expecting. For more control over the output, use `generateText` with the `output` property to get structured output with validation. Often this is enough for the model to understand that you actually expect stringified code for the code property, but you can still add one more note about it in the system prompt.
+
+```ts twoslash title="generate-structured.ts"
+import {generateText, Output} from 'ai';
+import {openai} from '@ai-sdk/openai';
+import {z} from 'zod';
+
+const systemPrompt = `You are a Remotion component generator.
+Generate a React component that uses Remotion. For the code property, ALWAYS directly output the code as string without any markdown tags.
+
+Rules:
+- The component should be a named export called "MyComposition"
+- Use useCurrentFrame() and useVideoConfig() from "remotion"
+- Use spring() for smooth animations
+- Keep it self-contained with no external dependencies`;
+
+const {output} = await generateText({
+  model: openai('gpt-5.2'),
+  system: systemPrompt,
+  prompt: 'Create a text animation that types out "Hello World" letter by letter',
+  maxRetries: 3,
+  output: Output.object({
+    schema: z.object({
+      code: z.string().describe('The complete React component code'),
+      title: z.string().describe('A short title for this composition'),
+      durationInFrames: z.number().describe('Recommended duration in frames'),
+      fps: z.number().min(1).max(120).describe('Recommended frames per second'),
+    }),
+  }),
+});
+
+console.log(output.code);
+console.log(`Recommended: ${output.fps}fps`);
+```
+
+The structured output guarantees you receive valid JSON with all required fields, making it easier to configure the Player or rendering pipeline. You can also go beyond just the type and enter result ranges like for the FPS where we would expect the result to be between 1 and 120.  
+If there is a schema mismatch, the AI SDK will automatically retry up to `maxRetries` times (default is 2).
+
+## Better Remotion Context in the System Prompt
+
+Now that you know the basics of the AI SDK, let's improve the output quality. Finding the perfect system prompt is complex. Depending on what you would like to build, you could optimize for specific animation types, maybe even your corporate branding.
+
+However, a great starting place is to use Remotion's [System Prompt](/docs/ai/system-prompt) which teaches the general LLM Remotion's APIs and best practices. You can iterate from there, generate a couple components and tune it to your needs.
+
+But be careful, context rot is real. Context rot is the degrading output quality and instruction following by the model with an increasing amount of context. So be considerate at what and how much you write into the system prompt.
+
+## Skills (Dynamic System Prompt)
+
+Instead of one large system prompt, you can use **skills** - modular knowledge units that get injected based on the user's request.
+
+As a human, we wouldnt read the whole documentation before we start implementing. We would take a look at the problem and think what we need to solve it. Then we would only read the docs for the relevant tools. THis is exactly what the Skills strategy is all about.
+
+In technical terms: A classifier model first analyzes the prompt and returns matching skill names, then only the relevant expertise is added to the system prompt.
+
+This approach keeps the base prompt lightweight and improves output quality for specialized domains like:
+
+- **charts** - Data visualization patterns, bar charts, pie charts, staggered animations
+- **typography** - Kinetic text, typewriter effects, word carousels, text highlights
+- **transitions** - Scene changes, TransitionSeries, fade/slide/wipe effects
+- **spring-physics** - Organic motion, spring configs, bounce effects
+- **3d** - Three.js integration, 3D scenes, camera setup
+
+The [Prompt to Motion Graphics template](https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics) implements this skill-based approach. You can also install Remotion's Agent Skills for AI coding assistants like Claude Code:
+
+```bash
+npx skills add remotion-dev/skills
+```
+
+See the [Agent Skills documentation](/docs/ai/skills) for more details.
+
+Here's a minimal example of how skill detection works:
+
+```ts twoslash title="skill-detection.ts"
+import {generateText, Output} from 'ai';
+import {openai} from '@ai-sdk/openai';
+import {z} from 'zod';
+
+const SKILL_NAMES = ['charts', 'typography', 'transitions', 'spring-physics', '3d'] as const;
+
+// Step 1: Detect which skills are needed
+const {output: detectedSkills} = await generateText({
+  model: openai('gpt-5-mini'), // Use a fast, cheap model for classification
+  prompt: 'Create a bouncy bar chart showing quarterly sales data',
+  output: Output.object({
+    schema: z.object({
+      skills: z.array(z.enum(SKILL_NAMES)).describe('Matching skill categories'),
+    }),
+  }),
+});
+
+console.log(detectedSkills.skills); // ["charts", "spring-physics"]
+
+// Step 2: Load only the relevant skill content
+const skillContent = detectedSkills.skills
+  .map((skill) => loadSkillMarkdown(skill)) // Your function to load skill files
+  .join('\n\n');
+
+// Step 3: Generate code with focused context
+const {output} = await generateText({
+  model: openai('gpt-5.2'),
+  system: baseSystemPrompt + '\n\n' + skillContent,
+  prompt: 'Create a bouncy bar chart showing quarterly sales data',
+  output: Output.object({
+    schema: z.object({
+      code: z.string().describe('The complete React component code'),
+      // metadata, your other properties, ...
+    }),
+  }),
+});
+```
+
+## Next Steps
+
+Once you have the generated code string, you need to compile and render it. The next guide will show how to turn this code string into a live preview using `@babel/standalone`.
+
+## Template
+
+For a production-ready implementation with validation, skill detection, and streaming, see the [Prompt to Motion Graphics template](https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics):
+
+```bash
+npx create-video@latest --prompt-to-motion-graphics
+```
+
+## See Also
+
+- [System Prompt](/docs/ai/system-prompt) - The full system prompt for teaching LLMs Remotion
+- [Agent Skills](/docs/ai/skills) - Modular knowledge units for AI coding assistants

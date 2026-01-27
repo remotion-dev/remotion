@@ -1167,7 +1167,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'ai/index',
 			},
-			items: ['ai/bolt', 'ai/chatbot', 'ai/mcp', 'ai/system-prompt'],
+			items: ['ai/bolt', 'ai/chatbot', 'ai/generate', 'ai/mcp', 'ai/system-prompt'],
 		},
 		{
 			type: 'category',
