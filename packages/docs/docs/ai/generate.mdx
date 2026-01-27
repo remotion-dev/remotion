@@ -58,7 +58,7 @@ The code you get as a result would require further prompting techniques or sanit
 
 ## Structured Output with Zod
 
-Having more properties and metadata around the code you generated is beneficial. Classic properties go from reasoning, FPS, width to height.
+Having more properties and metadata around the code you generated is beneficial. Common properties include reasoning, FPS, width, and height.
 
 Most bigger LLM providers offer a structured output mode for their endpoints by now, so you can define exactly which properties you are expecting. For more control over the output, use `generateText` with the `output` property to get structured output with validation. Often this is enough for the model to understand that you actually expect stringified code for the code property, but you can still add one more note about it in the system prompt.
 
@@ -95,7 +95,7 @@ console.log(output.code);
 console.log(`Recommended: ${output.fps}fps`);
 ```
 
-The structured output guarantees you receive valid JSON with all required fields, making it easier to configure the Player or rendering pipeline. You can also go beyond just the type and enter result ranges like for the FPS where we would expect the result to be between 1 and 120.  
+The structured output guarantees you receive valid JSON with all required fields, making it easier to configure the Player or rendering pipeline. You can also go beyond just the type and enter result ranges like for the FPS where you would expect the result to be between 1 and 120.  
 If there is a schema mismatch, the AI SDK will automatically retry up to `maxRetries` times (default is 2).
 
 ## Better Remotion Context in the System Prompt
@@ -110,7 +110,7 @@ But be careful, context rot is real. Context rot is the degrading output quality
 
 Instead of one large system prompt, you can use **skills** - modular knowledge units that get injected based on the user's request.
 
-As a human, we wouldnt read the whole documentation before we start implementing. We would take a look at the problem and think what we need to solve it. Then we would only read the docs for the relevant tools. THis is exactly what the Skills strategy is all about.
+As a human, you wouldn't read the whole documentation before you start implementing. You would take a look at the problem and think about what you need to solve it. Then you would only read the docs for the relevant tools. This is exactly what the skills strategy is all about.
 
 In technical terms: A classifier model first analyzes the prompt and returns matching skill names, then only the relevant expertise is added to the system prompt.
 
