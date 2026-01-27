@@ -115,7 +115,7 @@ export function useAutoCorrection({
       );
 
       onClearGenerationError();
-      onTriggerCorrection("Please try again", {
+      onTriggerCorrection("Retry the previous request", {
         error: generationError.message,
         attemptNumber: nextAttempt,
         maxAttempts,

@@ -60,6 +60,7 @@ function GeneratePageContent() {
     addErrorMessage,
     markManualEdit,
     getRecentContext,
+    getPreviouslyUsedSkills,
     isFirstGeneration,
   } = useConversationState();
 
@@ -89,7 +90,8 @@ function GeneratePageContent() {
       setErrorCorrection(context);
       setPrompt(correctionPrompt);
       setTimeout(() => {
-        chatHistoryRef.current?.triggerGeneration();
+        // Use silent mode to avoid showing retry as a user message
+        chatHistoryRef.current?.triggerGeneration({ silent: true });
       }, 100);
     }, []),
     onAddErrorMessage: addErrorMessage,
@@ -213,6 +215,7 @@ function GeneratePageContent() {
           onPromptChange={setPrompt}
           currentCode={code}
           conversationHistory={getRecentContext(3)}
+          previouslyUsedSkills={getPreviouslyUsedSkills()}
           isFollowUp={!isFirstGeneration}
           onMessageSent={handleMessageSent}
           onGenerationComplete={handleGenerationComplete}

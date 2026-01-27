@@ -263,6 +263,8 @@ interface GenerateRequest {
   hasManualEdits?: boolean;
   /** Error correction context for self-healing loops */
   errorCorrection?: ErrorCorrectionContext;
+  /** Skills already used in this conversation (to avoid redundant skill content) */
+  previouslyUsedSkills?: string[];
 }
 
 interface GenerateResponse {
@@ -285,6 +287,7 @@ export async function POST(req: Request) {
     isFollowUp = false,
     hasManualEdits = false,
     errorCorrection,
+    previouslyUsedSkills = [],
   }: GenerateRequest = await req.json();
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -350,8 +353,19 @@ export async function POST(req: Request) {
     console.error("Skill detection error:", skillError);
   }
 
-  // Load skill-specific content and enhance the system prompt
-  const skillContent = getCombinedSkillContent(detectedSkills);
+  // Filter out skills that were already used in the conversation to avoid redundant context
+  const newSkills = detectedSkills.filter(
+    (skill) => !previouslyUsedSkills.includes(skill),
+  );
+  if (previouslyUsedSkills.length > 0 && newSkills.length < detectedSkills.length) {
+    console.log(
+      `Skipping ${detectedSkills.length - newSkills.length} previously used skills:`,
+      detectedSkills.filter((s) => previouslyUsedSkills.includes(s)),
+    );
+  }
+
+  // Load skill-specific content only for NEW skills (previously used skills are already in context)
+  const skillContent = getCombinedSkillContent(newSkills as SkillName[]);
   const enhancedSystemPrompt = skillContent
     ? `${SYSTEM_PROMPT}\n\n## SKILL-SPECIFIC GUIDANCE\n${skillContent}`
     : SYSTEM_PROMPT;

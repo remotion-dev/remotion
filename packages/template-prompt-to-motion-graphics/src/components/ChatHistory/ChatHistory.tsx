@@ -44,7 +44,7 @@ import {
 } from "@/helpers/sanitize-response";
 
 export interface ChatHistoryRef {
-  triggerGeneration: () => void;
+  triggerGeneration: (options?: { silent?: boolean }) => void;
 }
 
 interface ChatHistoryProps {
@@ -61,6 +61,8 @@ interface ChatHistoryProps {
   onPromptChange?: (prompt: string) => void;
   currentCode?: string;
   conversationHistory?: ConversationContextMessage[];
+  /** Skills already used in this conversation (to avoid redundant skill content) */
+  previouslyUsedSkills?: string[];
   isFollowUp?: boolean;
   onMessageSent?: (prompt: string) => void;
   onGenerationComplete?: (
@@ -91,6 +93,7 @@ export const ChatHistory = forwardRef<ChatHistoryRef, ChatHistoryProps>(
       onPromptChange,
       currentCode,
       conversationHistory = [],
+      previouslyUsedSkills = [],
       isFollowUp = false,
       onMessageSent,
       onGenerationComplete,
@@ -118,13 +121,16 @@ export const ChatHistory = forwardRef<ChatHistoryRef, ChatHistoryProps>(
       triggerGeneration: runGeneration,
     }));
 
-    const runGeneration = async () => {
+    const runGeneration = async (options?: { silent?: boolean }) => {
       if (!prompt.trim() || isLoading) return;
 
       setIsLoading(true);
       onStreamingChange?.(true);
       onStreamPhaseChange?.("reasoning");
-      onMessageSent?.(prompt);
+      // Only add user message if not a silent retry
+      if (!options?.silent) {
+        onMessageSent?.(prompt);
+      }
       setPrompt(""); // Clear input immediately after sending
 
       try {
@@ -136,6 +142,7 @@ export const ChatHistory = forwardRef<ChatHistoryRef, ChatHistoryProps>(
             model,
             currentCode: isFollowUp ? currentCode : undefined,
             conversationHistory: isFollowUp ? conversationHistory : [],
+            previouslyUsedSkills: isFollowUp ? previouslyUsedSkills : [],
             isFollowUp,
             hasManualEdits,
             errorCorrection,

@@ -105,6 +105,17 @@ export function useConversationState() {
     [state.messages],
   );
 
+  // Get all skills that have been used in the conversation (to avoid redundant skill content)
+  const getPreviouslyUsedSkills = useCallback((): string[] => {
+    const allSkills = new Set<string>();
+    state.messages.forEach((m) => {
+      if (m.role === "assistant" && m.metadata?.skills) {
+        m.metadata.skills.forEach((skill) => allSkills.add(skill));
+      }
+    });
+    return Array.from(allSkills);
+  }, [state.messages]);
+
   return {
     ...state,
     addUserMessage,
@@ -113,6 +124,7 @@ export function useConversationState() {
     markManualEdit,
     clearConversation,
     getRecentContext,
+    getPreviouslyUsedSkills,
     isFirstGeneration: state.messages.length === 0,
   };
 }
