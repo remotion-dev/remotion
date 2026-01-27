@@ -3,8 +3,10 @@ import type {
 	Codec,
 	ColorSpace,
 	PixelFormat,
+	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {RenderJob} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 import type {ClientRenderJob} from '../components/RenderQueue/client-side-render-types';
@@ -199,5 +201,29 @@ export const makeClientRetryPayload = (
 		defaultProps: job.inputProps,
 		inFrameMark: job.type === 'client-video' ? job.startFrame : null,
 		outFrameMark: job.type === 'client-video' ? job.endFrame : null,
+		initialDefaultOutName: job.outName,
+		initialScale: job.scale,
+		initialDelayRenderTimeout: job.delayRenderTimeout,
+		initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+		initialAudioBitrate:
+			job.type === 'client-video' ? job.audioBitrate : null,
+		initialAudioCodec:
+			job.type === 'client-video' ? (job.audioCodec as AudioCodec) : null,
+		initialContainer: job.type === 'client-video' ? job.container : null,
+		initialHardwareAcceleration:
+			job.type === 'client-video'
+				? (job.hardwareAcceleration as HardwareAccelerationOption)
+				: null,
+		initialVideoBitrate:
+			job.type === 'client-video' ? job.videoBitrate : null,
+		initialVideoCodec:
+			job.type === 'client-video' ? (job.videoCodec as Codec) : null,
+		initialStillImageFormat:
+			job.type === 'client-still' ? job.imageFormat : 'png',
+		initialVideoImageFormat: null,
+		initialKeyframeIntervalInSeconds:
+			job.type === 'client-video' ? job.keyframeIntervalInSeconds : null,
+		initialMuted: job.type === 'client-video' ? job.muted : null,
+		initialTransparent: job.type === 'client-video' ? job.transparent : null,
 	};
 };

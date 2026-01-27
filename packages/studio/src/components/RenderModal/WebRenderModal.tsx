@@ -1,4 +1,11 @@
-import type {LogLevel} from '@remotion/renderer';
+import type {
+	AudioCodec,
+	Codec,
+	LogLevel,
+	StillImageFormat,
+	VideoImageFormat,
+} from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {getDefaultOutLocation} from '@remotion/studio-shared';
 import type {
 	RenderStillOnWebImageFormat,
@@ -66,6 +73,21 @@ type WebRenderModalProps = {
 	readonly defaultProps: Record<string, unknown>;
 	readonly inFrameMark: number | null;
 	readonly outFrameMark: number | null;
+	readonly initialVideoImageFormat: VideoImageFormat | null;
+	readonly initialStillImageFormat: StillImageFormat;
+	readonly initialScale: number;
+	readonly initialDelayRenderTimeout: number;
+	readonly initialDefaultOutName: string | null;
+	readonly initialContainer: string | null;
+	readonly initialVideoCodec: Codec | null;
+	readonly initialAudioCodec: AudioCodec | null;
+	readonly initialAudioBitrate: string | null;
+	readonly initialVideoBitrate: string | null;
+	readonly initialHardwareAcceleration: HardwareAccelerationOption | null;
+	readonly initialKeyframeIntervalInSeconds: number | null;
+	readonly initialTransparent: boolean | null;
+	readonly initialMuted: boolean | null;
+	readonly initialMediaCacheSizeInBytes: number | null;
 };
 
 export type RenderType = 'still' | 'video';
@@ -156,6 +178,20 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	outFrameMark,
 	initialLogLevel,
 	initialLicenseKey,
+	initialStillImageFormat,
+	initialDefaultOutName,
+	initialScale,
+	initialDelayRenderTimeout,
+	initialMediaCacheSizeInBytes,
+	initialContainer,
+	initialVideoCodec,
+	initialAudioCodec,
+	initialAudioBitrate,
+	initialVideoBitrate,
+	initialHardwareAcceleration,
+	initialKeyframeIntervalInSeconds,
+	initialTransparent,
+	initialMuted,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -182,37 +218,58 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		isVideo ? 'video' : 'still',
 	);
 	const [tab, setTab] = useState<TabType>('general');
-	const [imageFormat, setImageFormat] =
-		useState<RenderStillOnWebImageFormat>('png');
+	const [imageFormat, setImageFormat] = useState<RenderStillOnWebImageFormat>(
+		() => (initialStillImageFormat as RenderStillOnWebImageFormat) ?? 'png',
+	);
 	const [frame, setFrame] = useState(() => initialFrame);
 	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
 	const [inputProps, setInputProps] = useState(() => defaultProps);
-	const [delayRenderTimeout, setDelayRenderTimeout] = useState(30000);
+	const [delayRenderTimeout, setDelayRenderTimeout] = useState(
+		initialDelayRenderTimeout ?? 30000,
+	);
 	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
 		number | null
-	>(null);
+	>(initialMediaCacheSizeInBytes ?? null);
 	const [saving, setSaving] = useState(false);
 
 	// Video-specific state
-	const [codec, setCodec] = useState<WebRendererVideoCodec>('h264');
-	const [container, setContainer] = useState<WebRendererContainer>('mp4');
-	const [audioCodec, setAudioCodec] = useState<WebRendererAudioCodec>('aac');
-	const [audioBitrate, setAudioBitrate] =
-		useState<WebRendererQuality>('medium');
-	const [videoBitrate, setVideoBitrate] = useState<WebRendererQuality>('high');
+	const [codec, setCodec] = useState<WebRendererVideoCodec>(
+		(initialVideoCodec as WebRendererVideoCodec) ?? 'h264',
+	);
+	const [container, setContainer] = useState<WebRendererContainer>(
+		(initialContainer as WebRendererContainer) ?? 'mp4',
+	);
+	const [audioCodec, setAudioCodec] = useState<WebRendererAudioCodec>(
+		(initialAudioCodec as WebRendererAudioCodec) ?? 'aac',
+	);
+	const [audioBitrate, setAudioBitrate] = useState<WebRendererQuality>(
+		(initialAudioBitrate as WebRendererQuality) ?? 'medium',
+	);
+	const [videoBitrate, setVideoBitrate] = useState<WebRendererQuality>(
+		(initialVideoBitrate as WebRendererQuality) ?? 'high',
+	);
 	const [hardwareAcceleration, setHardwareAcceleration] = useState<
 		'no-preference' | 'prefer-hardware' | 'prefer-software'
-	>('no-preference');
-	const [keyframeIntervalInSeconds, setKeyframeIntervalInSeconds] = useState(5);
+	>(
+		(initialHardwareAcceleration as
+			| 'no-preference'
+			| 'prefer-hardware'
+			| 'prefer-software') ?? 'no-preference',
+	);
+	const [keyframeIntervalInSeconds, setKeyframeIntervalInSeconds] = useState(
+		initialKeyframeIntervalInSeconds ?? 5,
+	);
 	const [startFrame, setStartFrame] = useState<number | null>(
 		() => inFrameMark ?? null,
 	);
 	const [endFrame, setEndFrame] = useState<number | null>(
 		() => outFrameMark ?? null,
 	);
-	const [transparent, setTransparent] = useState(false);
-	const [muted, setMuted] = useState(false);
-	const [scale, setScale] = useState(1);
+	const [transparent, setTransparent] = useState(
+		initialTransparent ?? false,
+	);
+	const [muted, setMuted] = useState(initialMuted ?? false);
+	const [scale, setScale] = useState(initialScale ?? 1);
 
 	const [licenseKey, setLicenseKey] = useState(initialLicenseKey);
 
@@ -254,7 +311,11 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		return Math.max(0, Math.min(finalEndFrame, startFrame));
 	}, [finalEndFrame, startFrame]);
 
-	const [initialOutName] = useState(() => {
+	const [initialOutNameState] = useState(() => {
+		if (initialDefaultOutName) {
+			return initialDefaultOutName;
+		}
+
 		return getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
 			defaultExtension:
@@ -269,7 +330,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		});
 	});
 
-	const [outName, setOutName] = useState(() => initialOutName);
+	const [outName, setOutName] = useState(() => initialOutNameState);
 
 	const setStillFormat = useCallback((format: RenderStillOnWebImageFormat) => {
 		setImageFormat(format);

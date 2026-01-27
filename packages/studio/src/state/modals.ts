@@ -28,7 +28,22 @@ export type WebRenderModalState = {
 	inFrameMark: number | null;
 	outFrameMark: number | null;
 	initialLogLevel: LogLevel;
+	initialVideoImageFormat: VideoImageFormat | null;
+	initialStillImageFormat: StillImageFormat;
+	initialScale: number;
+	initialDelayRenderTimeout: number;
+	initialDefaultOutName: string | null;
+	initialContainer: string | null;
+	initialVideoCodec: Codec | null;
+	initialAudioCodec: AudioCodec | null;
+	initialAudioBitrate: string | null;
+	initialVideoBitrate: string | null;
+	initialHardwareAcceleration: HardwareAccelerationOption | null;
+	initialKeyframeIntervalInSeconds: number | null;
+	initialTransparent: boolean | null;
+	initialMuted: boolean | null;
 	initialLicenseKey: string | null;
+	initialMediaCacheSizeInBytes: number | null;
 };
 
 export type RenderModalState = {
