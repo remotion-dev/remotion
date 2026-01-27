@@ -10,9 +10,9 @@ export const installSkills = async (projectRoot: string) => {
 			[
 				'-y',
 				'--loglevel=error',
-				'add-skill@1.0.20',
+				'skills',
+				'add',
 				'remotion-dev/skills',
-				'--yes',
 			],
 			{
 				cwd: projectRoot,
@@ -22,6 +22,6 @@ export const installSkills = async (projectRoot: string) => {
 	} catch (e) {
 		Log.error('Error installing skills:', e);
 		Log.error('You can install them manually by running:');
-		Log.error('  npx add-skill remotion-dev/skills');
+		Log.error('  npx skills add remotion-dev/skills');
 	}
 };
