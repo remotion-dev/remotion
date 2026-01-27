@@ -1,10 +1,10 @@
 import type {LogLevel} from '@remotion/renderer';
-import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {getDefaultOutLocation} from '@remotion/studio-shared';
 import type {
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
 	WebRendererContainer,
+	WebRendererHardwareAcceleration,
 	WebRendererQuality,
 	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
@@ -76,7 +76,7 @@ type WebRenderModalProps = {
 	readonly initialAudioCodec: WebRendererAudioCodec | null;
 	readonly initialAudioBitrate: WebRendererQuality | null;
 	readonly initialVideoBitrate: WebRendererQuality | null;
-	readonly initialHardwareAcceleration: HardwareAccelerationOption | null;
+	readonly initialHardwareAcceleration: WebRendererHardwareAcceleration | null;
 	readonly initialKeyframeIntervalInSeconds: number | null;
 	readonly initialTransparent: boolean | null;
 	readonly initialMuted: boolean | null;
@@ -241,14 +241,13 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [videoBitrate, setVideoBitrate] = useState<WebRendererQuality>(
 		initialVideoBitrate ?? 'high',
 	);
-	const [hardwareAcceleration, setHardwareAcceleration] = useState<
-		'no-preference' | 'prefer-hardware' | 'prefer-software'
-	>(
-		(initialHardwareAcceleration as
-			| 'no-preference'
-			| 'prefer-hardware'
-			| 'prefer-software') ?? 'no-preference',
-	);
+	const [hardwareAcceleration, setHardwareAcceleration] =
+		useState<WebRendererHardwareAcceleration>(
+			(initialHardwareAcceleration as
+				| 'no-preference'
+				| 'prefer-hardware'
+				| 'prefer-software') ?? 'no-preference',
+		);
 	const [keyframeIntervalInSeconds, setKeyframeIntervalInSeconds] = useState(
 		initialKeyframeIntervalInSeconds ?? 5,
 	);
