@@ -15,10 +15,13 @@ import {
 import { examples } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
 import { useConversationState } from "../../hooks/useConversationState";
+import { useAutoCorrection } from "../../hooks/useAutoCorrection";
 import type {
   AssistantMetadata,
   ErrorCorrectionContext,
 } from "../../types/conversation";
+
+const MAX_CORRECTION_ATTEMPTS = 3;
 
 function GeneratePageContent() {
   const searchParams = useSearchParams();
@@ -45,7 +48,6 @@ function GeneratePageContent() {
   } | null>(null);
 
   // Self-correction state
-  const MAX_CORRECTION_ATTEMPTS = 3;
   const [errorCorrection, setErrorCorrection] =
     useState<ErrorCorrectionContext | null>(null);
 
@@ -67,12 +69,35 @@ function GeneratePageContent() {
   const { code, Component, error, isCompiling, setCode, compileCode } =
     useAnimationState(examples[0]?.code || "");
 
-  // Debounce compilation
+  // Refs
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const isStreamingRef = useRef(isStreaming);
   const codeRef = useRef(code);
+  const chatHistoryRef = useRef<ChatHistoryRef>(null);
 
+  // Auto-correction hook
+  const { markAsAiGenerated, markAsUserEdited } = useAutoCorrection({
+    maxAttempts: MAX_CORRECTION_ATTEMPTS,
+    compilationError: error,
+    generationError,
+    isStreaming,
+    isCompiling,
+    hasGeneratedOnce,
+    code,
+    errorCorrection,
+    onTriggerCorrection: useCallback((correctionPrompt: string, context: ErrorCorrectionContext) => {
+      setErrorCorrection(context);
+      setPrompt(correctionPrompt);
+      setTimeout(() => {
+        chatHistoryRef.current?.triggerGeneration();
+      }, 100);
+    }, []),
+    onAddErrorMessage: addErrorMessage,
+    onClearGenerationError: useCallback(() => setGenerationError(null), []),
+    onClearErrorCorrection: useCallback(() => setErrorCorrection(null), []),
+  });
+
+  // Sync refs
   useEffect(() => {
     codeRef.current = code;
   }, [code]);
@@ -81,74 +106,12 @@ function GeneratePageContent() {
     const wasStreaming = isStreamingRef.current;
     isStreamingRef.current = isStreaming;
 
-    // Compile when streaming ends
+    // Compile when streaming ends - mark as AI change
     if (wasStreaming && !isStreaming) {
+      markAsAiGenerated();
       compileCode(codeRef.current);
     }
-  }, [isStreaming, compileCode]);
-
-  // Auto-correction effect: trigger when compilation error occurs after generation
-  const lastPromptRef = useRef<string>("");
-  useEffect(() => {
-    // Only auto-correct if:
-    // 1. There's a compilation error (not generation error)
-    // 2. We're not currently streaming
-    // 3. We haven't exceeded max attempts
-    // 4. We have code to correct
-    if (
-      error &&
-      !isStreaming &&
-      !isCompiling &&
-      !generationError &&
-      hasGeneratedOnce &&
-      code.trim()
-    ) {
-      const currentAttempt = errorCorrection?.attemptNumber ?? 0;
-
-      if (currentAttempt < MAX_CORRECTION_ATTEMPTS) {
-        // Set up auto-correction
-        const nextAttempt = currentAttempt + 1;
-        console.log(
-          `Auto-correction attempt ${nextAttempt}/${MAX_CORRECTION_ATTEMPTS} for error:`,
-          error
-        );
-
-        // Add error to conversation history
-        addErrorMessage(`Compilation error: ${error}`, "validation");
-
-        setErrorCorrection({
-          error,
-          attemptNumber: nextAttempt,
-          maxAttempts: MAX_CORRECTION_ATTEMPTS,
-        });
-
-        // Store prompt for auto-trigger and set it
-        const correctionPrompt = "Fix the compilation error";
-        lastPromptRef.current = correctionPrompt;
-        setPrompt(correctionPrompt);
-
-        // Trigger generation after a short delay
-        setTimeout(() => {
-          chatHistoryRef.current?.triggerGeneration();
-        }, 100);
-      }
-    }
-
-    // Clear error correction state on successful compilation
-    if (!error && !isCompiling && errorCorrection) {
-      setErrorCorrection(null);
-    }
-  }, [
-    error,
-    isStreaming,
-    isCompiling,
-    generationError,
-    hasGeneratedOnce,
-    code,
-    errorCorrection,
-    addErrorMessage,
-    setPrompt,
-  ]);
+  }, [isStreaming, compileCode, markAsAiGenerated]);
 
   const handleCodeChange = useCallback(
     (newCode: string) => {
@@ -158,6 +121,7 @@ function GeneratePageContent() {
       // Mark as manual edit if not streaming (user typing)
       if (!isStreamingRef.current) {
         markManualEdit(newCode);
+        markAsUserEdited();
       }
 
       // Clear existing debounce
@@ -175,7 +139,7 @@ function GeneratePageContent() {
         compileCode(newCode);
       }, 500);
     },
-    [setCode, compileCode, markManualEdit],
+    [setCode, compileCode, markManualEdit, markAsUserEdited],
   );
 
   // Handle message sent for history
@@ -191,8 +155,9 @@ function GeneratePageContent() {
     (generatedCode: string, summary?: string, metadata?: AssistantMetadata) => {
       const content = summary || "Generated your animation, any follow up edits?";
       addAssistantMessage(content, generatedCode, metadata);
+      markAsAiGenerated();
     },
-    [addAssistantMessage],
+    [addAssistantMessage, markAsAiGenerated],
   );
 
   // Cleanup debounce on unmount
@@ -220,12 +185,9 @@ function GeneratePageContent() {
   );
 
   // Auto-trigger generation if prompt came from URL
-  const chatHistoryRef = useRef<ChatHistoryRef>(null);
-
   useEffect(() => {
     if (initialPrompt && !hasAutoStarted && chatHistoryRef.current) {
       setHasAutoStarted(true);
-      // Small delay to ensure component is mounted
       setTimeout(() => {
         chatHistoryRef.current?.triggerGeneration();
       }, 100);
