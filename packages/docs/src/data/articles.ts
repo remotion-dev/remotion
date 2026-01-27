@@ -3150,6 +3150,15 @@ export const articles = [
 		slug: 'lottie/staticfile',
 	},
 	{
+		id: 'lovable-for-motion-graphics',
+		title: 'Is Remotion building Lovable for Motion Graphics?',
+		relativePath: 'docs/lovable-for-motion-graphics.mdx',
+		compId: 'articles-docs-lovable-for-motion-graphics',
+		crumb: null,
+		noAi: false,
+		slug: 'lovable-for-motion-graphics',
+	},
+	{
 		id: 'maps',
 		title: 'Map animations in Remotion',
 		relativePath: 'docs/maps.mdx',
