@@ -10,131 +10,129 @@ export const typewriterHighlightCode = `import {
 
 export const MyAnimation = () => {
   /*
-   * Typewriter with blinking cursor, dramatic pause, spring-based highlight, and layer crossfade.
+   * Centered "Hello world" appears with a typewriter reveal and a smoothly blinking caret.
+   * After the full phrase is typed, the word "world" crossfades into a yellow-highlighted final state.
    */
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width } = useVideoConfig();
 
-  const COLOR_BG = "#ffffff";
+  const COLOR_BG = "#FFFFFF";
   const COLOR_TEXT = "#000000";
-  const COLOR_HIGHLIGHT = "#A7C7E7";
+  const COLOR_HIGHLIGHT = "#FFE44D";
 
-  const FULL_TEXT = "From prompt to motion graphics. This is Remotion.";
-  const HIGHLIGHT_WORD = "Remotion";
-  const CARET_SYMBOL = "\u258C";
-  const SPLIT_AFTER = " This is Remotion.";
+  const FULL_TEXT = "Hello world";
+  const HIGHLIGHT_WORD = "world";
+  const CARET_SYMBOL = "▌";
 
-  const FONT_SIZE = 72;
-  const FONT_WEIGHT = 700;
-  const CHAR_FRAMES = 2;
+  const FONT_SIZE = Math.max(54, Math.round(width * 0.07));
+  const FONT_WEIGHT = 800;
+  const LINE_HEIGHT = 1.05;
+
+  const CHAR_FRAMES = 3;
   const CURSOR_BLINK_FRAMES = 16;
-  const HIGHLIGHT_DELAY = 6;
+
+  const HIGHLIGHT_DELAY = 10;
   const HIGHLIGHT_WIPE_DURATION = 18;
-  const CROSSFADE_DURATION = 8;
-  const WAIT_AFTER_PRE_SECONDS = 1;
+  const CROSSFADE_DURATION = 10;
 
-  const WAIT_AFTER_PRE_FRAMES = Math.round(fps * WAIT_AFTER_PRE_SECONDS);
-  const f = frame;
+  const entranceProgress = spring({
+    fps,
+    frame,
+    config: { damping: 18, stiffness: 140, mass: 0.9 },
+    durationInFrames: 26,
+  });
 
-  const splitIndex = FULL_TEXT.indexOf(SPLIT_AFTER);
-  const preLen = splitIndex >= 0 ? splitIndex : FULL_TEXT.length;
-  const postLen = FULL_TEXT.length - preLen;
+  const containerTranslateX = interpolate(entranceProgress, [0, 1], [18, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const containerOpacity = interpolate(entranceProgress, [0, 1], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
-  let typedChars = 0;
-  if (f < preLen * CHAR_FRAMES) {
-    typedChars = Math.floor(f / CHAR_FRAMES);
-  } else if (f < preLen * CHAR_FRAMES + WAIT_AFTER_PRE_FRAMES) {
-    typedChars = preLen;
-  } else {
-    const postPhase = f - preLen * CHAR_FRAMES - WAIT_AFTER_PRE_FRAMES;
-    typedChars = Math.min(
-      FULL_TEXT.length,
-      preLen + Math.floor(postPhase / CHAR_FRAMES),
-    );
-  }
+  const typedChars = Math.min(
+    FULL_TEXT.length,
+    Math.floor(frame / CHAR_FRAMES),
+  );
   const typedText = FULL_TEXT.slice(0, typedChars);
   const typingDone = typedChars >= FULL_TEXT.length;
 
   const caretOpacity = !typingDone
     ? interpolate(
-        f % CURSOR_BLINK_FRAMES,
+        frame % CURSOR_BLINK_FRAMES,
         [0, CURSOR_BLINK_FRAMES / 2, CURSOR_BLINK_FRAMES],
         [1, 0, 1],
         { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
       )
     : 0;
 
-  const highlightIndex = FULL_TEXT.indexOf(HIGHLIGHT_WORD);
-  const hasHighlight = highlightIndex >= 0;
-  const preText = hasHighlight ? FULL_TEXT.slice(0, highlightIndex) : FULL_TEXT;
-  const postText = hasHighlight
-    ? FULL_TEXT.slice(highlightIndex + HIGHLIGHT_WORD.length)
-    : "";
+  const typeEndFrame = FULL_TEXT.length * CHAR_FRAMES;
+  const highlightStart = typeEndFrame + HIGHLIGHT_DELAY;
 
-  const typeEnd =
-    preLen * CHAR_FRAMES + WAIT_AFTER_PRE_FRAMES + postLen * CHAR_FRAMES;
-  const highlightStart = typeEnd + HIGHLIGHT_DELAY;
-
-  const typedOpacity = interpolate(
-    f,
-    [highlightStart - CROSSFADE_DURATION, highlightStart + CROSSFADE_DURATION],
-    [1, 0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-  );
-  const finalOpacity = interpolate(
-    f,
+  const typedLayerOpacity = 1;
+  const finalLayerOpacity = interpolate(
+    frame,
     [highlightStart, highlightStart + CROSSFADE_DURATION],
     [0, 1],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
 
-  const entrance = spring({
-    fps,
-    frame: f,
-    config: { damping: 200, stiffness: 120 },
-    durationInFrames: 20,
-  });
-  const containerScale = interpolate(entrance, [0, 1], [0.98, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const highlightWordIndex = FULL_TEXT.indexOf(HIGHLIGHT_WORD);
+  const hasHighlight = highlightWordIndex >= 0;
+
+  const preText = hasHighlight ? FULL_TEXT.slice(0, highlightWordIndex) : "";
+  const postText = hasHighlight
+    ? FULL_TEXT.slice(highlightWordIndex + HIGHLIGHT_WORD.length)
+    : "";
 
   const highlightProgress = spring({
     fps,
-    frame: f - highlightStart,
-    config: { damping: 200, stiffness: 180 },
+    frame: frame - highlightStart,
+    config: { damping: 22, stiffness: 180, mass: 0.9 },
     durationInFrames: HIGHLIGHT_WIPE_DURATION,
   });
-  const highlightScaleX = Math.max(0, Math.min(1, highlightProgress));
+
+  const highlightScaleX = interpolate(highlightProgress, [0, 1], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
     <AbsoluteFill
       style={{
         backgroundColor: COLOR_BG,
+        fontFamily: "Inter, sans-serif",
+        padding: Math.max(44, Math.round(width * 0.06)),
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "Inter, sans-serif",
       }}
     >
       <div
-        style={{ position: "relative", transform: \`scale(\${containerScale})\` }}
+        style={{
+          position: "relative",
+          opacity: containerOpacity,
+          transform: \`translateX(\${containerTranslateX}px)\`,
+        }}
       >
-        {/* Typing layer */}
+        {/* Typewriter layer */}
         <div
           style={{
             color: COLOR_TEXT,
             fontSize: FONT_SIZE,
             fontWeight: FONT_WEIGHT,
-            lineHeight: 1.15,
-            whiteSpace: "pre-wrap",
-            opacity: typedOpacity,
+            lineHeight: LINE_HEIGHT,
+            letterSpacing: -0.5,
+            whiteSpace: "pre",
+            opacity: typedLayerOpacity,
           }}
         >
           <span>{typedText}</span>
           <span style={{ opacity: caretOpacity }}>{CARET_SYMBOL}</span>
         </div>
-        {/* Final layer with highlight */}
+
+        {/* Final highlighted layer */}
         <div
           style={{
             position: "absolute",
@@ -142,9 +140,10 @@ export const MyAnimation = () => {
             color: COLOR_TEXT,
             fontSize: FONT_SIZE,
             fontWeight: FONT_WEIGHT,
-            lineHeight: 1.15,
-            whiteSpace: "pre-wrap",
-            opacity: finalOpacity,
+            lineHeight: LINE_HEIGHT,
+            letterSpacing: -0.5,
+            whiteSpace: "pre",
+            opacity: finalLayerOpacity,
           }}
         >
           {hasHighlight ? (
@@ -154,14 +153,14 @@ export const MyAnimation = () => {
                 <span
                   style={{
                     position: "absolute",
-                    left: 0,
-                    right: 0,
+                    left: "-0.12em",
+                    right: "-0.12em",
                     top: "50%",
                     height: "1.05em",
                     transform: \`translateY(-50%) scaleX(\${highlightScaleX})\`,
                     transformOrigin: "left center",
                     backgroundColor: COLOR_HIGHLIGHT,
-                    borderRadius: "0.18em",
+                    borderRadius: "0.2em",
                     zIndex: 0,
                   }}
                 />
@@ -183,9 +182,9 @@ export const MyAnimation = () => {
 export const typewriterHighlightExample: RemotionExample = {
   id: "typewriter-highlight",
   name: "Typewriter with Highlight",
-  description: "Typewriter effect with blinking cursor, pause, and spring-animated word highlight",
+  description: "Typewriter effect with blinking cursor and spring-animated word highlight",
   category: "Text",
-  durationInFrames: 180,
+  durationInFrames: 90,
   fps: 30,
   code: typewriterHighlightCode,
 };

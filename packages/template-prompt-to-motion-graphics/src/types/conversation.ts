@@ -41,3 +41,12 @@ export interface ConversationContextMessage {
   role: "user" | "assistant";
   content: string;
 }
+
+export interface ErrorCorrectionContext {
+  /** The compilation error message */
+  error: string;
+  /** Number of correction attempts so far */
+  attemptNumber: number;
+  /** Maximum correction attempts allowed */
+  maxAttempts: number;
+}

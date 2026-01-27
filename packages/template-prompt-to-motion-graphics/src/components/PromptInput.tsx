@@ -11,11 +11,13 @@ import {
   BarChart3,
   Disc,
   Pencil,
+  AlertTriangle,
   type LucideIcon,
 } from "lucide-react";
 import type {
   ConversationContextMessage,
   AssistantMetadata,
+  ErrorCorrectionContext,
 } from "@/types/conversation";
 import {
   Select,
@@ -94,6 +96,8 @@ interface PromptInputProps {
     message: string,
     errorType: "edit_failed" | "api" | "validation"
   ) => void;
+  /** Error correction context for self-healing loops */
+  errorCorrection?: ErrorCorrectionContext;
 }
 
 export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
@@ -116,6 +120,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
       onMessageSent,
       onGenerationComplete,
       onErrorMessage,
+      errorCorrection,
     },
     ref,
   ) {
@@ -149,6 +154,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
             conversationHistory: isFollowUp ? conversationHistory : [],
             isFollowUp,
             hasManualEdits,
+            errorCorrection,
           }),
         });
 
@@ -327,7 +333,14 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
           className={isLanding ? "w-full max-w-3xl" : ""}
         >
           <div className="bg-background-elevated rounded-xl border border-border p-4">
-            {isFollowUp && !isLanding && (
+            {errorCorrection && !isLanding && (
+              <div className="text-xs text-amber-500 mb-2 flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" />
+                Auto-fixing error (attempt {errorCorrection.attemptNumber}/
+                {errorCorrection.maxAttempts})
+              </div>
+            )}
+            {isFollowUp && !errorCorrection && !isLanding && (
               <div className="text-xs text-muted-foreground-dim mb-2 flex items-center gap-1">
                 <Pencil className="w-3 h-3" />
                 Editing existing animation

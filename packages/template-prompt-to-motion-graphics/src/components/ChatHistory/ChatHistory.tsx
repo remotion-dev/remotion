@@ -84,7 +84,26 @@ export function ChatHistory({
             </div>
           )}
           {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
+            <div key={message.id} className="space-y-2">
+              <ChatMessage message={message} />
+              {/* Show skills as separate bubble */}
+              {message.role === "assistant" &&
+                message.metadata?.skills &&
+                message.metadata.skills.length > 0 && (
+                  <SkillsBubble skills={message.metadata.skills} />
+                )}
+              {/* Show each edit as separate bubble */}
+              {message.role === "assistant" &&
+                message.metadata?.editType === "tool_edit" &&
+                message.metadata.edits?.map((edit, i) => (
+                  <EditBubble key={i} edit={edit} />
+                ))}
+              {/* Show full replacement indicator */}
+              {message.role === "assistant" &&
+                message.metadata?.editType === "full_replacement" && (
+                  <FullReplacementBubble />
+                )}
+            </div>
           ))}
         </div>
       )}
@@ -95,7 +114,6 @@ export function ChatHistory({
 function ChatMessage({ message }: { message: ConversationMessage }) {
   const isUser = message.role === "user";
   const isError = message.role === "error";
-  const metadata = message.metadata;
 
   // User messages - simple display
   if (isUser) {
@@ -126,65 +144,68 @@ function ChatMessage({ message }: { message: ConversationMessage }) {
     );
   }
 
-  // Assistant messages - Claude Code style with details
+  // Assistant messages - just summary, edits/skills shown as separate bubbles
   return (
-    <div className="rounded-lg p-2 text-sm bg-secondary text-secondary-foreground space-y-2">
-      {/* Summary as main content */}
+    <div className="rounded-lg p-2 text-sm bg-secondary text-secondary-foreground">
       <div className="font-medium text-foreground">{message.content}</div>
-
-      {/* Edit details - Claude Code style with line numbers */}
-      {metadata?.editType === "tool_edit" && metadata.edits && (
-        <div className="space-y-1 border-l-2 border-green-500/30 pl-2">
-          <div className="text-[10px] uppercase tracking-wide text-muted-foreground-dim font-medium">
-            Changes
-          </div>
-          {metadata.edits.map((edit, i) => (
-            <div
-              key={i}
-              className="flex items-start gap-1.5 text-xs text-muted-foreground"
-            >
-              <CheckCircle2 className="w-3 h-3 text-green-500 mt-0.5 shrink-0" />
-              <span className="flex-1">{edit.description}</span>
-              {edit.lineNumber && (
-                <span className="text-[10px] text-muted-foreground-dim font-mono">
-                  L{edit.lineNumber}
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Full replacement indicator */}
-      {metadata?.editType === "full_replacement" && (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground border-l-2 border-blue-500/30 pl-2">
-          <FileCode className="w-3 h-3 text-blue-500" />
-          <span>Full code rewrite</span>
-        </div>
-      )}
-
-      {/* Used Skills section */}
-      {metadata?.skills && metadata.skills.length > 0 && (
-        <div className="border-l-2 border-purple-500/30 pl-2">
-          <div className="text-[10px] uppercase tracking-wide text-muted-foreground-dim font-medium mb-1">
-            Used Skills
-          </div>
-          <div className="flex items-center gap-1 flex-wrap">
-            {metadata.skills.map((skill) => (
-              <span
-                key={skill}
-                className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-400 font-medium"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Timestamp */}
-      <div className="text-[10px] text-muted-foreground-dim pt-1 border-t border-border/30">
+      <div className="text-[10px] text-muted-foreground-dim mt-1">
         {new Date(message.timestamp).toLocaleTimeString()}
+      </div>
+    </div>
+  );
+}
+
+function SkillsBubble({ skills }: { skills: string[] }) {
+  return (
+    <div className="rounded-lg p-2 text-sm bg-purple-500/10 border border-purple-500/20">
+      <div className="flex items-center gap-1.5 text-purple-400 mb-1.5">
+        <FileCode className="w-3 h-3" />
+        <span className="text-[10px] uppercase tracking-wide font-medium">
+          Skills Used
+        </span>
+      </div>
+      <div className="flex items-center gap-1 flex-wrap">
+        {skills.map((skill) => (
+          <span
+            key={skill}
+            className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-medium"
+          >
+            {skill}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EditBubble({
+  edit,
+}: {
+  edit: { description: string; lineNumber?: number };
+}) {
+  return (
+    <div className="rounded-lg p-2 text-sm bg-green-500/10 border border-green-500/20">
+      <div className="flex items-start gap-1.5">
+        <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="text-xs text-green-300">{edit.description}</div>
+          {edit.lineNumber && (
+            <div className="text-[10px] text-muted-foreground-dim font-mono mt-0.5">
+              Line {edit.lineNumber}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FullReplacementBubble() {
+  return (
+    <div className="rounded-lg p-2 text-sm bg-blue-500/10 border border-blue-500/20">
+      <div className="flex items-center gap-1.5 text-blue-400">
+        <FileCode className="w-3.5 h-3.5" />
+        <span className="text-xs">Full code rewrite</span>
       </div>
     </div>
   );

@@ -248,6 +248,12 @@ interface ConversationContextMessage {
   content: string;
 }
 
+interface ErrorCorrectionContext {
+  error: string;
+  attemptNumber: number;
+  maxAttempts: number;
+}
+
 interface GenerateRequest {
   prompt: string;
   model?: string;
@@ -255,6 +261,8 @@ interface GenerateRequest {
   conversationHistory?: ConversationContextMessage[];
   isFollowUp?: boolean;
   hasManualEdits?: boolean;
+  /** Error correction context for self-healing loops */
+  errorCorrection?: ErrorCorrectionContext;
 }
 
 interface GenerateResponse {
@@ -271,11 +279,12 @@ interface GenerateResponse {
 export async function POST(req: Request) {
   const {
     prompt,
-    model = "gpt-5-mini",
+    model = "gpt-5.2",
     currentCode,
     conversationHistory = [],
     isFollowUp = false,
     hasManualEdits = false,
+    errorCorrection,
   }: GenerateRequest = await req.json();
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -365,12 +374,33 @@ export async function POST(req: Request) {
         ? "\n\nNOTE: The user has made manual edits to the code. Preserve these changes."
         : "";
 
+      // Error correction context for self-healing
+      let errorCorrectionNotice = "";
+      if (errorCorrection) {
+        errorCorrectionNotice = `
+
+## COMPILATION ERROR (ATTEMPT ${errorCorrection.attemptNumber}/${errorCorrection.maxAttempts})
+The previous code failed to compile with this error:
+\`\`\`
+${errorCorrection.error}
+\`\`\`
+
+CRITICAL: Fix this compilation error. Common issues include:
+- Syntax errors (missing brackets, semicolons)
+- Invalid JSX (unclosed tags, invalid attributes)
+- Undefined variables or imports
+- TypeScript type errors
+
+Focus ONLY on fixing the error. Do not make other changes.`;
+      }
+
       const editPrompt = `## CURRENT CODE:
 \`\`\`tsx
 ${currentCode}
 \`\`\`
 ${conversationContext}
 ${manualEditNotice}
+${errorCorrectionNotice}
 
 ## USER REQUEST:
 ${prompt}
