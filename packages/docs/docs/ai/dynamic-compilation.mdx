@@ -88,7 +88,7 @@ The JSX syntax is converted to `React.createElement()` calls, and type annotatio
 
 ## The Core Idea
 
-Let's start with the simplest possible case - a component with no imports, just pure JSX:
+Starting with the simplest possible case - a component with no imports, just pure JSX:
 
 ```tsx
 const code = `
@@ -146,7 +146,7 @@ const Component = createComponent(React);
 ```
 
 <details>
-<summary>That was too fast/shallow, how does it work exactly?</summary>
+<summary>How does the Function constructor work?</summary>
 
 The `Function` constructor in JavaScript creates a new function from strings. The syntax is:
 
@@ -169,7 +169,7 @@ For this use case:
 - The function body contains the transpiled component code plus `return MyComponent;`
 - When `createComponent(React)` is called, the actual React library gets bound to the `React` variable
 
-The key insight: `React` inside the transpiled code refers to whatever we pass in when calling the function.
+The key insight: `React` inside the transpiled code refers to whatever value is passed when calling the function.
 
 </details>
 
@@ -181,7 +181,7 @@ Just React won't be enough for animations. Remotion components need access to AP
 To make in-browser dynamic compilation work, all libraries used within the animation code must be passed in. Since not all of them are known upfront, you can provide a broad range of libraries to support most use cases.
 :::
 
-Think of it like the following - this is just a handful, but it gives you the right idea:
+Here's an example with a few Remotion APIs:
 
 ```tsx
 import {AbsoluteFill, useCurrentFrame, spring} from 'remotion';
@@ -352,7 +352,7 @@ For production applications, consider:
 
 ## See Also
 
-For a ready for use implementation of the Dynamic Compilation and more, see the [Prompt to Motion Graphics template](https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics):
+For a ready-to-use implementation of dynamic compilation and more, see the [Prompt to Motion Graphics template](https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics):
 
 ```bash
 npx create-video@latest --prompt-to-motion-graphics

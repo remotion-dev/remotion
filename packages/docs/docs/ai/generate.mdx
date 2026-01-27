@@ -17,7 +17,7 @@ npm install ai @ai-sdk/openai zod
 
 The AI SDK makes switching between LLM providers easy and provides a unified interface for both streaming and batch API requests.
 
-This simple system prompt here instructs the model in basic terms what the request is about and what the model's purpose is. This prompt relies completely on the training of the model about Remotion. Not ideal but great for a simple start.
+This simple system prompt instructs the model about the request and its purpose. It relies entirely on the model's existing knowledge of Remotion - not ideal, but a good starting point.
 
 ```ts title="generate.ts"
 import {generateText} from 'ai';
@@ -54,11 +54,11 @@ export const MyComposition: React.FC = () => {
 };
 ```
 
-The code you get as a result would require further prompting techniques or sanitation as it often includes ```jsx tags for markdown.
+Note that the raw output often includes markdown code fences (like ` ```jsx `), which require additional prompting or sanitation to remove.
 
 ## Structured Output with Zod
 
-Having more properties and metadata around the code you generated is beneficial. Common properties include reasoning, FPS, width, and height.
+Adding metadata alongside the generated code is useful. Common properties include reasoning, FPS, width, and height.
 
 Most bigger LLM providers offer a structured output mode for their endpoints by now, so you can define exactly which properties you are expecting. For more control over the output, use `generateText` with the `output` property to get structured output with validation. Often this is enough for the model to understand that you actually expect stringified code for the code property, but you can still add one more note about it in the system prompt.
 
@@ -100,11 +100,11 @@ If there is a schema mismatch, the AI SDK will automatically retry up to `maxRet
 
 ## Better Remotion Context in the System Prompt
 
-Now that you know the basics of the AI SDK, let's improve the output quality. Finding the perfect system prompt is complex. Depending on what you would like to build, you could optimize for specific animation types, maybe even your corporate branding.
+With the basics covered, the next step is improving output quality. Finding the perfect system prompt is complex. Depending on what you want to build, you could optimize for specific animation types or even your corporate branding.
 
 However, a great starting place is to use Remotion's [System Prompt](/docs/ai/system-prompt) which teaches the general LLM Remotion's APIs and best practices. You can iterate from there, generate a couple components and tune it to your needs.
 
-But be careful, context rot is real. Context rot is the degrading output quality and instruction following by the model with an increasing amount of context. So be considerate at what and how much you write into the system prompt.
+Be careful of context rot - the degradation in output quality and instruction-following that occurs as context grows. Be selective about what goes into the system prompt.
 
 ## Skills (Dynamic System Prompt)
 
@@ -173,12 +173,11 @@ const {output} = await generateText({
 
 ## Next Steps
 
-Now what can you even do with this component code? Could be a first draft for an animation that you would like to use in your software or an inspiration to learn other ways to use the Remotion APIs.
-Making it easy to see this generated component code is important. But you need to compile and render it. The [next guide](/docs/ai/dynamic-compilation) will show how to turn this code string into a live preview right within your browser.
+The generated component code could serve as a first draft for an animation or as inspiration for learning Remotion's APIs. To preview it, you need to compile and render it. The [next guide](/docs/ai/dynamic-compilation) shows how to turn this code string into a live preview in the browser.
 
 ## See Also
 
-For an remotion code generation implementation with validation, skill detection, streaming and more, see the [Prompt to Motion Graphics template](https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics):
+For a Remotion code generation implementation with validation, skill detection, streaming and more, see the [Prompt to Motion Graphics template](https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics):
 
 ```bash
 npx create-video@latest --prompt-to-motion-graphics
