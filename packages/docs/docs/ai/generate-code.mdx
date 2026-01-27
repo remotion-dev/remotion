@@ -1,0 +1,99 @@
+---
+image: /generated/articles-docs-ai-generate-code.png
+crumb: 'AI'
+title: Code Generation Details
+sidebar_label: Code Generation Details
+---
+
+This page covers the process of generating Remotion code from natural language prompts using AI.
+
+## Validation
+
+Before calling an expensive code generation model, run a validation step to filter invalid requests early. This could potentially be done with a cheaper and faster model than GPT5.2
+
+**Valid prompts** describe visual, animated content: animated text, data visualizations, UI animations, social media content, abstract motion graphics.
+
+**Invalid prompts** should be filtered: questions, conversational requests, non-visual tasks.
+
+Use a lightweight model call with structured output returning a boolean. On failure, return a helpful error message before any expensive API calls are made.
+
+## Skill Detection
+
+After validation, analyze the prompt to identify which **skills** are relevant. Skills are modular knowledge units that provide domain-specific guidance.
+
+### How Skills Work
+
+1. A classifier model analyzes the user prompt
+2. It returns an array of matching skill names
+3. The relevant skill content is injected into the system prompt
+4. Only pertinent expertise is included, keeping context focused
+
+### Skill Categories
+
+Skills enable contextual expertise without bloating every prompt.
+
+#### Guidance Skills
+
+| Skill              | Purpose                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| **charts**         | Data visualization patterns - bar charts, pie charts, axis labels, staggered animations |
+| **typography**     | Kinetic text - typewriter effects, word carousels, text highlights                      |
+| **messaging**      | Chat UI - bubble layouts, WhatsApp/iMessage styling, staggered entrances                |
+| **transitions**    | Scene changes - TransitionSeries, fade/slide/wipe effects                               |
+| **sequencing**     | Timing control - Sequence, Series, staggered delays                                     |
+| **spring-physics** | Organic motion - spring configs, bounce effects, chained animations                     |
+| **social-media**   | Platform-specific formats - aspect ratios, safe zones                                   |
+| **3d**             | Three.js integration - 3D scenes, camera setup                                          |
+
+#### Example Skills
+
+Example skills provide complete working code references (histogram, chat messages, typewriter effects, etc.) that demonstrate these patterns in action. Think of them as implementation archetypes that can be adapted for the user's prompt. The current archetypes can be also checked out live in the `Code Examples` area of the app.
+
+### Benefits
+
+- Base prompt stays lightweight
+- Context is relevant to the specific request
+- Reduces token usage on simple prompts
+- Improves output quality for specialized domains
+- Can easily be extended for more guidance and examples
+
+## System Prompt Design
+
+A previous approach of using a single System Prompt without skills can be found [here](/docs/ai/system-prompt).
+
+In our system prompt, we limit the guidance to absolutely critical elements that every generation requires. Then we inject the detected skills to the system prompt.
+
+Key principles that emphasize on every prompt, regardless of the injected skills:
+
+### Constants-First Pattern
+
+All customizable values should be defined as constants at the top. This makes it easy for users to modify colors, text, and timing without digging through the component.
+
+### Spring Physics
+
+Prefer `spring()` over `interpolate()` for natural, organic motion. Linear animations feel mechanical - spring physics adds life and polish.
+
+### Crossfade Layers
+
+For smooth state transitions, use overlapping opacity animations rather than abrupt switches. This prevents jarring visual jumps.
+
+### Reserved Names
+
+Warn against shadowing Remotion's built-in functions: `spring`, `interpolate`, `useCurrentFrame`, `useVideoConfig`, `Sequence`, `AbsoluteFill`.
+
+## Sanitization
+
+AI responses often contain extra content that needs to be cleaned:
+
+1. **Strip markdown wrappers** - Remove ` ```tsx ` code block markers
+2. **Extract component code** - Use brace-counting to find where the component ends, cutting off trailing commentary
+3. **Validate structure** - Check that the output contains a valid exported React component
+
+## Streaming
+
+For better UX, stream the generated code using Server-Sent Events. This provides real-time feedback as the code is generated, rather than waiting for the complete response.
+
+## See Also
+
+- [Browser Compilation](/docs/ai/generate-compile) - Compile and preview generated code in the browser
+- [System Prompt](/docs/ai/system-prompt) - The foundation prompt for teaching LLMs Remotion
