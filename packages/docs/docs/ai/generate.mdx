@@ -19,7 +19,7 @@ The AI SDK makes switching between LLM providers easy and provides a unified int
 
 This simple system prompt here instructs the model in basic terms what the request is about and what the model's purpose is. This prompt relies completely on the training of the model about Remotion. Not ideal but great for a simple start.
 
-```ts twoslash title="generate.ts"
+```ts title="generate.ts"
 import {generateText} from 'ai';
 import {openai} from '@ai-sdk/openai';
 
@@ -62,7 +62,7 @@ Having more properties and metadata around the code you generated is beneficial.
 
 Most bigger LLM providers offer a structured output mode for their endpoints by now, so you can define exactly which properties you are expecting. For more control over the output, use `generateText` with the `output` property to get structured output with validation. Often this is enough for the model to understand that you actually expect stringified code for the code property, but you can still add one more note about it in the system prompt.
 
-```ts twoslash title="generate-structured.ts"
+```ts title="generate-structured.ts"
 import {generateText, Output} from 'ai';
 import {openai} from '@ai-sdk/openai';
 import {z} from 'zod';
@@ -132,7 +132,7 @@ See the [Agent Skills documentation](/docs/ai/skills) for more details.
 
 Here's a minimal example of how skill detection works:
 
-```ts twoslash title="skill-detection.ts"
+```ts title="skill-detection.ts"
 import {generateText, Output} from 'ai';
 import {openai} from '@ai-sdk/openai';
 import {z} from 'zod';
@@ -176,15 +176,13 @@ const {output} = await generateText({
 Now what can you even do with this component code? Could be a first draft for an animation that you would like to use in your software or an inspiration to learn other ways to use the Remotion APIs.
 Making it easy to see this generated component code is important. But you need to compile and render it. The [next guide](/docs/ai/dynamic-compilation) will show how to turn this code string into a live preview right within your browser.
 
-## Template
+## See Also
 
 For an remotion code generation implementation with validation, skill detection, streaming and more, see the [Prompt to Motion Graphics template](https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics):
 
 ```bash
 npx create-video@latest --prompt-to-motion-graphics
 ```
-
-## See Also
 
 - [Dynamic Compilation](/docs/ai/dynamic-compilation)
 - [System Prompt](/docs/ai/system-prompt) - The full system prompt for teaching LLMs Remotion
