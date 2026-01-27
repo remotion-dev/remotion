@@ -8,6 +8,7 @@ import {
   useVideoConfig,
   spring,
   Sequence,
+  Img,
 } from "remotion";
 import * as RemotionShapes from "@remotion/shapes";
 import { Lottie } from "@remotion/lottie";
@@ -75,6 +76,7 @@ export function compileCode(code: string): CompilationResult {
       useVideoConfig,
       spring,
       Sequence,
+      Img,
     };
 
     const wrappedCode = `${transpiled.code}\nreturn DynamicAnimation;`;
@@ -92,6 +94,7 @@ export function compileCode(code: string): CompilationResult {
       "useVideoConfig",
       "spring",
       "Sequence",
+      "Img",
       "useState",
       "useEffect",
       "useMemo",
@@ -137,6 +140,7 @@ export function compileCode(code: string): CompilationResult {
       useVideoConfig,
       spring,
       Sequence,
+      Img,
       useState,
       useEffect,
       useMemo,
