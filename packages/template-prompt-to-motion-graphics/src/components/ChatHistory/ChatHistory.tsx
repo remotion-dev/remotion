@@ -261,7 +261,7 @@ export const ChatHistory = forwardRef<ChatHistoryRef, ChatHistoryProps>(
       <div
         className={cn(
           "flex flex-col bg-background transition-all duration-300 shrink-0",
-          isCollapsed ? "w-12" : "w-96",
+          isCollapsed ? "w-12" : "w-[420px]",
         )}
       >
         {/* Header */}
@@ -423,35 +423,28 @@ function ChatMessage({ message }: { message: ConversationMessage }) {
         <span className="text-xs text-muted-foreground-dim">{time}</span>
       </div>
 
-      {/* Summary */}
+      {/* Summary with optional skills icon */}
       <div className="text-sm text-foreground leading-relaxed">
         {message.content}
+        {metadata?.skills && metadata.skills.length > 0 && (
+          <span className="relative inline-flex ml-1.5 group align-middle">
+            <BookOpen className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-background-elevated border border-border rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+              <span className="text-[10px] text-muted-foreground">
+                Skills: {metadata.skills.join(", ")}
+              </span>
+            </div>
+          </span>
+        )}
       </div>
-
-      {/* Skills used - inline tags */}
-      {metadata?.skills && metadata.skills.length > 0 && (
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {metadata.skills.map((skill) => (
-            <span
-              key={skill}
-              className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground inline-flex items-center gap-1"
-            >
-              <BookOpen className="w-3 h-3" />
-              Skill: {skill}
-            </span>
-          ))}
-        </div>
-      )}
 
       {/* Edits - clean list */}
       {metadata?.editType === "tool_edit" && metadata.edits && (
-        <div className="space-y-1.5 pl-1">
+        <div className="space-y-1.5 pl-1 mt-2">
           {metadata.edits.map((edit, i) => (
             <div key={i} className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                <PenLine className="w-3 h-3 text-muted-foreground" />
-              </div>
-              <div className="flex-1 min-w-0  leading-none">
+              <PenLine className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <div className="flex-1 min-w-0 leading-none">
                 <span className="text-xs text-muted-foreground">
                   {edit.description}
                 </span>
