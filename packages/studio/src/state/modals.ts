@@ -16,6 +16,7 @@ import type {
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
 	WebRendererContainer,
+	WebRendererHardwareAcceleration,
 	WebRendererQuality,
 	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
@@ -44,7 +45,7 @@ export type WebRenderModalState = {
 	initialAudioCodec: WebRendererAudioCodec | null;
 	initialAudioBitrate: WebRendererQuality | null;
 	initialVideoBitrate: WebRendererQuality | null;
-	initialHardwareAcceleration: HardwareAccelerationOption | null;
+	initialHardwareAcceleration: WebRendererHardwareAcceleration | null;
 	initialKeyframeIntervalInSeconds: number | null;
 	initialTransparent: boolean | null;
 	initialMuted: boolean | null;
