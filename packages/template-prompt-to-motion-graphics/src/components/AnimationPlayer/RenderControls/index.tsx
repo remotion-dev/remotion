@@ -13,7 +13,11 @@ export const RenderControls: React.FC<{
   durationInFrames: number;
   fps: number;
 }> = ({ code, durationInFrames, fps }) => {
-  const { renderMedia, state, undo } = useRendering({ code, durationInFrames, fps });
+  const { renderMedia, state, undo } = useRendering({
+    code,
+    durationInFrames,
+    fps,
+  });
   const previousPropsRef = useRef({ code, durationInFrames, fps });
 
   // Reset rendering state when code, duration, or fps changes
