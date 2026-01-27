@@ -8,11 +8,15 @@ sidebar_label: Dynamic Compilation
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-This guide shows how to take Remotion code (a string) and compile it in the browser to display a live preview. No server round-trip required. This is especially useful for AI-generated workflows where the code reuqires dynamic compilation to be shown as it was only just generated and never ran through the build process.
+This guide shows how to take Remotion code (a string) and compile it in the browser to display a live preview. No server round-trip required.
 
 ## The Goal
 
-You have a code string from an AI model:
+When thinking of a Lovable for Animations and Motion Graphics, user will submit their prompt, receive AI-generated code and then the users want to see their animation. Building a sandboxing environment for these snippets is an option, but also quite an overhead for previewing a single React Component.
+
+In this guide, you will learn how to leverage dynamic compilation of the code right within the browser to get a Remotion Preview of the component.
+
+If you followed the guide in [Code Generation](/docs/ai/generate), you will have Remotion code like the following:
 
 ```ts
 const generatedCode = `
@@ -22,20 +26,27 @@ export const MyComposition = () => {
   const frame = useCurrentFrame();
   return (
     <AbsoluteFill style={{ backgroundColor: "white", justifyContent: "center", alignItems: "center" }}>
-      <div style={{ fontSize: 100 }}>{frame}</div>
+      <div style={{ fontSize: 100 }}>{**/some animation/**}</div>
     </AbsoluteFill>
   );
 };
 `;
 ```
 
-And you want to turn it into a live, interactive preview:
+If we think of the compilation as just a hook, the usage looks like this:
 
 ```tsx
-<Player component={CompiledComponent} durationInFrames={150} fps={30} />
+import {Player} from '@remotion/player';
+import {useCompilation} from './useCompilation';
+
+export const Preview: React.FC<{code: string}> = ({code}) => {
+  const {Component} = useCompilation(code);
+
+  return <Player component={Component} durationInFrames={150} fps={30} compositionWidth={1920} compositionHeight={1080} />;
+};
 ```
 
-This page shows exactly how to bridge that gap.
+The rest of this page will go into detail what we will need to do behind the scenes to get a hook like `useCompilation` to work.
 
 ## Installation
 
@@ -43,7 +54,37 @@ This page shows exactly how to bridge that gap.
 npm install @babel/standalone remotion @remotion/player
 ```
 
-`@babel/standalone` runs Babel entirely in the browser, allowing you to transpile JSX and TypeScript without a build server.
+`@babel/standalone` runs Babel entirely in the browser:
+
+- Transpiles JSX syntax (`<div>`) into `React.createElement()` calls
+- Strips TypeScript type annotations so the code can run as plain JavaScript
+- No build server or bundler required - everything happens client-side
+
+**How is this different from normal React development?**
+
+During typical development, your code exists as files on disk. When you run `npm run dev`, Vite or Webpack runs a dev server that reads those files, transforms JSX/TypeScript, and serves the compiled JavaScript to your browser. Similarly, `npm run build` pre-compiles everything into static files that can be deployed. In both cases, the transformation happens before the browser ever sees the code.
+
+With AI-generated code, there are no files - the code is created dynamically in response to a user prompt. By the time it exists, we're already in the browser. So we need Babel to run client-side to do the same JSX/TypeScript transformation that would normally happen during dev or build.
+
+**Example: What does Babel output?**
+
+Before (JSX + TypeScript):
+
+```tsx
+const MyComponent: React.FC = () => {
+  return <div style={{color: 'red'}}>Hello</div>;
+};
+```
+
+After (plain JavaScript):
+
+```js
+const MyComponent = () => {
+  return React.createElement('div', {style: {color: 'red'}}, 'Hello');
+};
+```
+
+The JSX syntax is converted to `React.createElement()` calls, and type annotations are stripped. This is what browsers can actually execute.
 
 ## Basic Compilation
 
