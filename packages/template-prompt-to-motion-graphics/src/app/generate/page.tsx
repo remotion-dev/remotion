@@ -7,11 +7,9 @@ import { Loader2 } from "lucide-react";
 import { CodeEditor } from "../../components/CodeEditor";
 import { AnimationPlayer } from "../../components/AnimationPlayer";
 import { PageLayout } from "../../components/PageLayout";
-import { ChatHistory } from "../../components/ChatHistory";
+import { ChatHistory, type ChatHistoryRef } from "../../components/ChatHistory";
 import {
-  PromptInput,
   type StreamPhase,
-  type PromptInputRef,
   type GenerationErrorType,
 } from "../../components/PromptInput";
 import { examples } from "../../examples/code";
@@ -59,7 +57,6 @@ function GeneratePageContent() {
     addAssistantMessage,
     addErrorMessage,
     markManualEdit,
-    clearConversation,
     getRecentContext,
     isFirstGeneration,
   } = useConversationState();
@@ -132,7 +129,7 @@ function GeneratePageContent() {
 
         // Trigger generation after a short delay
         setTimeout(() => {
-          promptInputRef.current?.triggerGeneration();
+          chatHistoryRef.current?.triggerGeneration();
         }, 100);
       }
     }
@@ -192,7 +189,7 @@ function GeneratePageContent() {
   // Handle generation complete for history
   const handleGenerationComplete = useCallback(
     (generatedCode: string, summary?: string, metadata?: AssistantMetadata) => {
-      const content = summary || "Generated animation";
+      const content = summary || "Generated your animation, any follow up edits?";
       addAssistantMessage(content, generatedCode, metadata);
     },
     [addAssistantMessage],
@@ -223,14 +220,14 @@ function GeneratePageContent() {
   );
 
   // Auto-trigger generation if prompt came from URL
-  const promptInputRef = useRef<PromptInputRef>(null);
+  const chatHistoryRef = useRef<ChatHistoryRef>(null);
 
   useEffect(() => {
-    if (initialPrompt && !hasAutoStarted && promptInputRef.current) {
+    if (initialPrompt && !hasAutoStarted && chatHistoryRef.current) {
       setHasAutoStarted(true);
       // Small delay to ensure component is mounted
       setTimeout(() => {
-        promptInputRef.current?.triggerGeneration();
+        chatHistoryRef.current?.triggerGeneration();
       }, 100);
     }
   }, [initialPrompt, hasAutoStarted]);
@@ -240,11 +237,25 @@ function GeneratePageContent() {
       <div className="flex-1 flex min-w-0 overflow-hidden">
         {/* Chat History Sidebar */}
         <ChatHistory
+          ref={chatHistoryRef}
           messages={messages}
           isCollapsed={isSidebarCollapsed}
           onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          onClear={clearConversation}
           hasManualEdits={hasManualEdits}
+          // PromptInput props for embedded input
+          onCodeGenerated={handleCodeChange}
+          onStreamingChange={handleStreamingChange}
+          onStreamPhaseChange={setStreamPhase}
+          onError={handleError}
+          prompt={prompt}
+          onPromptChange={setPrompt}
+          currentCode={code}
+          conversationHistory={getRecentContext(3)}
+          isFollowUp={!isFirstGeneration}
+          onMessageSent={handleMessageSent}
+          onGenerationComplete={handleGenerationComplete}
+          onErrorMessage={addErrorMessage}
+          errorCorrection={errorCorrection ?? undefined}
         />
 
         {/* Main content area */}
@@ -271,24 +282,6 @@ function GeneratePageContent() {
               />
             </div>
           </div>
-
-          <PromptInput
-            ref={promptInputRef}
-            onCodeGenerated={handleCodeChange}
-            onStreamingChange={handleStreamingChange}
-            onStreamPhaseChange={setStreamPhase}
-            onError={handleError}
-            prompt={prompt}
-            onPromptChange={setPrompt}
-            currentCode={code}
-            conversationHistory={getRecentContext(3)}
-            isFollowUp={!isFirstGeneration}
-            hasManualEdits={hasManualEdits}
-            onMessageSent={handleMessageSent}
-            onGenerationComplete={handleGenerationComplete}
-            onErrorMessage={addErrorMessage}
-            errorCorrection={errorCorrection ?? undefined}
-          />
         </div>
       </div>
     </PageLayout>

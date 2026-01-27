@@ -98,6 +98,10 @@ interface PromptInputProps {
   ) => void;
   /** Error correction context for self-healing loops */
   errorCorrection?: ErrorCorrectionContext;
+  /** Whether to show example prompts below input (default: true) */
+  showExamplePrompts?: boolean;
+  /** Compact mode for sidebar embedding */
+  compact?: boolean;
 }
 
 export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
@@ -121,6 +125,8 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
       onGenerationComplete,
       onErrorMessage,
       errorCorrection,
+      showExamplePrompts = true,
+      compact = false,
     },
     ref,
   ) {
@@ -332,7 +338,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
           onSubmit={handleSubmit}
           className={isLanding ? "w-full max-w-3xl" : ""}
         >
-          <div className="bg-background-elevated rounded-xl border border-border p-4">
+          <div className={`bg-background-elevated rounded-xl border border-border ${compact ? "p-3" : "p-4"}`}>
             {errorCorrection && !isLanding && (
               <div className="text-xs text-amber-500 mb-2 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
@@ -351,17 +357,19 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Describe your animation..."
+              placeholder={compact ? "Describe changes..." : "Describe your animation..."}
               className={`w-full bg-transparent text-foreground placeholder:text-muted-foreground-dim focus:outline-none resize-none overflow-y-auto ${
                 isLanding
                   ? "text-base min-h-[60px] max-h-[200px]"
-                  : "text-sm min-h-[40px] max-h-[150px]"
+                  : compact
+                    ? "text-sm min-h-[32px] max-h-[100px]"
+                    : "text-sm min-h-[40px] max-h-[150px]"
               }`}
               style={{ fieldSizing: "content" }}
               disabled={isDisabled}
             />
 
-            <div className="flex justify-between items-center mt-3 pt-3 border-t border-border">
+            <div className={`flex justify-between items-center ${compact ? "mt-2 pt-2" : "mt-3 pt-3"} border-t border-border`}>
               <Select
                 value={model}
                 onValueChange={(value) => setModel(value as ModelId)}
@@ -395,33 +403,35 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
             </div>
           </div>
 
-          <div
-            className={`flex flex-wrap items-center gap-1.5 mt-3 ${
-              isLanding ? "justify-center mt-6 gap-2" : ""
-            }`}
-          >
-            <span className="text-muted-foreground-dim text-xs mr-1">
-              Prompt Examples
-            </span>
-            {examplePrompts.map((example) => {
-              const Icon = iconMap[example.icon];
-              return (
-                <button
-                  key={example.id}
-                  type="button"
-                  onClick={() => setPrompt(example.prompt)}
-                  style={{
-                    borderColor: `${example.color}40`,
-                    color: example.color,
-                  }}
-                  className={`rounded-full bg-background-elevated border hover:brightness-125 transition-all flex items-center gap-1 px-1.5 py-0.5 text-[11px]`}
-                >
-                  <Icon className="w-3 h-3" />
-                  {example.headline}
-                </button>
-              );
-            })}
-          </div>
+          {showExamplePrompts && (
+            <div
+              className={`flex flex-wrap items-center gap-1.5 mt-3 ${
+                isLanding ? "justify-center mt-6 gap-2" : ""
+              }`}
+            >
+              <span className="text-muted-foreground-dim text-xs mr-1">
+                Prompt Examples
+              </span>
+              {examplePrompts.map((example) => {
+                const Icon = iconMap[example.icon];
+                return (
+                  <button
+                    key={example.id}
+                    type="button"
+                    onClick={() => setPrompt(example.prompt)}
+                    style={{
+                      borderColor: `${example.color}40`,
+                      color: example.color,
+                    }}
+                    className={`rounded-full bg-background-elevated border hover:brightness-125 transition-all flex items-center gap-1 px-1.5 py-0.5 text-[11px]`}
+                  >
+                    <Icon className="w-3 h-3" />
+                    {example.headline}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {showCodeExamplesLink && (
             <div className="flex justify-center mt-4">
