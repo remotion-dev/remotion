@@ -724,7 +724,12 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		});
 		clearTimeout(webhookDueToTimeout);
 
-		sendTelemetryEvent(params.licenseKey ?? null, params.logLevel);
+		sendTelemetryEvent({
+			licenseKey: params.licenseKey ?? null,
+			logLevel: params.logLevel,
+			isStill: false,
+			isProduction: params.isProduction ?? true,
+		});
 
 		if (!params.webhook || webhookInvoked) {
 			return;

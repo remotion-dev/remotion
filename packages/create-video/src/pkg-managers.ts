@@ -168,7 +168,8 @@ export const getDevCommand = (manager: PackageManager, template: Template) => {
 export const getPackageManagerVersion = (
 	manager: PackageManager,
 ): Promise<string> => {
-	const cmd: `${PackageManager} -v` = `${manager} -v`;
+	const cmd: string =
+		manager === 'npm' ? 'npm -v --loglevel=error' : `${manager} -v`;
 
 	return new Promise((resolve, reject) => {
 		exec(cmd, (error, stdout, stderr) => {

@@ -3971,6 +3971,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Kurale') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'LINE Seed JP',
+		importName: 'LINESeedJP',
+		load: () => import('./LINESeedJP') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'LXGW Marker Gothic',
 		importName: 'LXGWMarkerGothic',
 		load: () => import('./LXGWMarkerGothic') as Promise<GoogleFont>,

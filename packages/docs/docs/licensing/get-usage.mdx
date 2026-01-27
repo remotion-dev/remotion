@@ -15,7 +15,7 @@ You should only call this API from the backend to avoid exposing your secret key
 import {getUsage} from '@remotion/licensing';
 
 const usage = await getUsage({
-  apiKey: 'rm_sec_xxxxx',
+  licenseKey: 'rm_sec_xxxxx',
   since: Date.now() - 1000 * 60 * 60 * 24 * 30, // 30 days ago
 });
 
@@ -40,11 +40,11 @@ console.log(usage);
 
 An object with the following properties:
 
-### `apiKey`
+### `licenseKey`<AvailableFrom v="4.0.409"/>
 
 Type: `string`
 
-Your Remotion secret API key. You can get it from your Remotion.pro dashboard.
+Your Remotion license key. You can get it from your Remotion.pro dashboard.
 
 ### `since`
 
@@ -53,6 +53,14 @@ Type: `number`
 The timestamp since when you want to get the usage.  
 The default is since the beginning of the current month in UTC.  
 The lowest timestamp you can use is 90 days ago (`Date.now() - 90 * 24 * 60 * 60 * 1000`).
+
+### ~~`apiKey`~~
+
+_deprecated in v4.0.409_
+
+Type: `string`
+
+Your Remotion secret API key. You can get it from your Remotion.pro dashboard.
 
 ## Return value
 

@@ -48,7 +48,6 @@ test('Should include concurrency field in payload', async () => {
 		indent: false,
 		forcePathStyle: false,
 		metadata: null,
-		apiKey: null,
 		licenseKey: null,
 		offthreadVideoCacheSizeInBytes: null,
 		mediaCacheSizeInBytes: null,
@@ -56,6 +55,7 @@ test('Should include concurrency field in payload', async () => {
 		storageClass: null,
 		requestHandler: null,
 		preferLossless: false,
+		isProduction: null,
 	});
 
 	expect(payload.type).toBe(ServerlessRoutines.start);
@@ -108,7 +108,6 @@ test('Should handle null concurrency', async () => {
 		indent: false,
 		forcePathStyle: false,
 		metadata: null,
-		apiKey: null,
 		licenseKey: null,
 		offthreadVideoCacheSizeInBytes: null,
 		mediaCacheSizeInBytes: null,
@@ -116,6 +115,7 @@ test('Should handle null concurrency', async () => {
 		storageClass: null,
 		requestHandler: null,
 		preferLossless: false,
+		isProduction: null,
 	});
 
 	expect(payload.type).toBe(ServerlessRoutines.start);

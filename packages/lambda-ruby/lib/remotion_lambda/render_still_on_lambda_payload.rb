@@ -28,7 +28,8 @@ def get_render_still_on_lambda_payload(
   serve_url: "testbed-v6",
   timeout_in_milliseconds: 30000,
   chromium_options: {},
-  frame: 0
+  frame: 0,
+  is_production: nil
 )
 
 if api_key != nil
@@ -44,8 +45,7 @@ payload = {
     forceHeight: force_height,
     forcePathStyle: force_path_style,
     forceWidth: force_width,
-    apiKey: api_key,
-    licenseKey: license_key,
+    licenseKey: license_key || api_key,
     imageFormat: image_format,
     inputProps: {
       type: "payload",
@@ -69,6 +69,7 @@ payload = {
     attempt: 1,
     streamed: false,
     frame: frame,
+    isProduction: is_production
   }
   payload
 end

@@ -48,7 +48,8 @@ def get_render_media_on_lambda_payload(
   video_bitrate: nil,
   webhook: nil,
   x264_preset: nil,
-  chromium_options: {}
+  chromium_options: {},
+  is_production: nil
 )
 
 if api_key != nil
@@ -75,8 +76,7 @@ payload = {
     forceHeight: force_height,
     forcePathStyle: force_path_style,
     forceWidth: force_width,
-    apiKey: api_key,
-    licenseKey: license_key,
+    licenseKey: license_key || api_key,
     frameRange: frame_range,
     framesPerLambda: frames_per_lambda,
     imageFormat: image_format,
@@ -108,7 +108,8 @@ payload = {
     videoBitrate: video_bitrate,
     webhook: webhook,
     x264Preset: x264_preset,
-    bucketName: bucket_name
+    bucketName: bucket_name,
+    isProduction: is_production
   }
   payload
 end

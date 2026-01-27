@@ -4,7 +4,6 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {registerCleanupJob} from './cleanup-before-quit';
-import {ConfigInternals} from './config';
 import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
@@ -27,6 +26,9 @@ const {
 	audioLatencyHintOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -105,6 +107,7 @@ export const listCompositionsCommand = async (
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
@@ -119,7 +122,12 @@ export const listCompositionsCommand = async (
 	};
 
 	const experimentalClientSideRenderingEnabled =
-		ConfigInternals.getExperimentalClientSideRenderingEnabled();
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	if (experimentalClientSideRenderingEnabled) {
 		Log.warn(
@@ -151,6 +159,8 @@ export const listCompositionsCommand = async (
 			publicPath,
 			audioLatencyHint,
 			experimentalClientSideRenderingEnabled,
+			askAIEnabled,
+			keyboardShortcutsEnabled,
 		});
 
 	registerCleanupJob(`Cleanup bundle`, () => cleanupBundle());

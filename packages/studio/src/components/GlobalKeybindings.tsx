@@ -44,17 +44,19 @@ export const GlobalKeybindings: React.FC = () => {
 			commandCtrlKey: true,
 			preventDefault: true,
 		});
-		const cmdIKey = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 'i',
-			callback: () => {
-				askAiModalRef.current?.toggle();
-			},
-			triggerIfInputFieldFocused: true,
-			keepRegisteredWhenNotHighestContext: true,
-			commandCtrlKey: true,
-			preventDefault: true,
-		});
+		const cmdIKey = process.env.ASK_AI_ENABLED
+			? keybindings.registerKeybinding({
+					event: 'keydown',
+					key: 'i',
+					callback: () => {
+						askAiModalRef.current?.toggle();
+					},
+					triggerIfInputFieldFocused: true,
+					keepRegisteredWhenNotHighestContext: true,
+					commandCtrlKey: true,
+					preventDefault: true,
+				})
+			: null;
 
 		const cKey = keybindings.registerKeybinding({
 			event: 'keypress',
@@ -108,7 +110,7 @@ export const GlobalKeybindings: React.FC = () => {
 			cKey.unregister();
 			questionMark.unregister();
 			cmdKKey.unregister();
-			cmdIKey.unregister();
+			cmdIKey?.unregister();
 			pageDown.unregister();
 			pageUp.unregister();
 		};

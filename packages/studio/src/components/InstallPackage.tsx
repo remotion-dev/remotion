@@ -1,5 +1,10 @@
-import type {PackageManager, Pkgs} from '@remotion/studio-shared';
-import {apiDocs, descriptions, installableMap} from '@remotion/studio-shared';
+import type {ExtraPackage, PackageManager, Pkgs} from '@remotion/studio-shared';
+import {
+	apiDocs,
+	descriptions,
+	extraPackages,
+	installableMap,
+} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect} from 'react';
 import {VERSION} from 'remotion';
 import {installPackages} from '../api/install-package';
@@ -155,6 +160,34 @@ export const InstallPackageModal: React.FC<{
 									</Row>
 								);
 							})}
+						{extraPackages.map((extraPkg: ExtraPackage) => {
+							const isInstalled =
+								window.remotion_installedPackages?.includes(extraPkg.name) ??
+								false;
+
+							return (
+								<Row key={extraPkg.name} align="center">
+									<Checkbox
+										checked={map[extraPkg.name]}
+										name={extraPkg.name}
+										onChange={() => {
+											setMap((prev) => ({
+												...prev,
+												[extraPkg.name]: !prev[extraPkg.name],
+											}));
+										}}
+										disabled={!canSelectPackages || isInstalled}
+									/>
+									<Spacing x={1.5} />
+									<InstallablePackageComp
+										description={extraPkg.description}
+										isInstalled={isInstalled}
+										link={extraPkg.docsUrl}
+										pkg={`${extraPkg.name}@${extraPkg.version}`}
+									/>
+								</Row>
+							);
+						})}
 					</div>
 				)}
 			</div>

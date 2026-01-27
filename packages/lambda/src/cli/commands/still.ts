@@ -278,8 +278,6 @@ export const stillCommand = async ({
 		},
 		deleteAfter: deleteAfter ?? null,
 		storageClass: parsedLambdaCli['storage-class'] ?? null,
-		apiKey:
-			parsedLambdaCli[BrowserSafeApis.options.apiKeyOption.cliFlag] ?? null,
 		licenseKey:
 			parsedLambdaCli[BrowserSafeApis.options.licenseKeyOption.cliFlag] ?? null,
 		downloadBehavior: {type: 'play-in-browser'},
@@ -290,6 +288,9 @@ export const stillCommand = async ({
 		offthreadVideoThreads: null,
 		requestHandler: null,
 		mediaCacheSizeInBytes,
+		isProduction:
+			parsedLambdaCli[BrowserSafeApis.options.isProductionOption.cliFlag] ??
+			true,
 	});
 	Log.info(
 		{indent: false, logLevel},

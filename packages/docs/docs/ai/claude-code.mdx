@@ -1,0 +1,62 @@
+---
+image: /generated/articles-docs-ai-claude-code.png
+crumb: 'AI'
+title: Prompting videos with Claude Code
+sidebar_label: Claude Code
+---
+
+<YouTube minutes={8} href="https://www.youtube.com/watch?v=Xtd4DjU9AU8" thumb="https://i.ytimg.com/vi/Xtd4DjU9AU8/hqdefault.jpg" title="Creating videos just from prompting" />
+
+You can create videos just from prompting.  
+This is an easy way to get started with Remotion!
+
+## Prerequisites
+
+You first need to install [Claude Code](https://claude.com/product/claude-code) and [Node.js](https://nodejs.org/en).  
+Claude Code requires a paid subscription.
+
+## Start a new project
+
+Create a new project using the following command:
+
+```bash
+npx create-video@latest
+```
+
+This will create a new project - we recommend the following settings:
+
+- Select the [Blank](https://remotion.dev/templates/blank) template
+- Say yes to use [TailwindCSS](/docs/tailwind)
+- Say yes to install [Skills](/docs/ai/skills)
+
+## Start the preview
+
+First, go into the directory that was created.  
+If you named your project `my-video`, you would run the following command:
+
+```bash
+cd my-video
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Start the project using the following command:
+
+```bash
+npm run dev
+```
+
+## Start Claude
+
+Open a separate terminal window and start Claude:
+
+```bash
+cd my-video
+claude
+```
+
+You can now prompt a video! See our video above for a few ideas on how to start.

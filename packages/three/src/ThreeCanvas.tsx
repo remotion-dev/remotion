@@ -1,6 +1,12 @@
 import type {RootState} from '@react-three/fiber';
 import {Canvas, useThree} from '@react-three/fiber';
-import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from 'react';
 import {
 	Internals,
 	useCurrentFrame,
@@ -33,14 +39,18 @@ const Scale = ({
 	return null;
 };
 
-const FiberFrameInvalidator = () => {
-	const {invalidate} = useThree();
-
+const ManualFrameRenderer = ({
+	onRendered,
+}: {
+	readonly onRendered: () => void;
+}) => {
+	const {advance} = useThree();
 	const frame = useCurrentFrame();
 
 	useEffect(() => {
-		invalidate();
-	}, [frame, invalidate]);
+		advance(performance.now());
+		onRendered();
+	}, [frame, advance, onRendered]);
 
 	return null;
 };
@@ -50,45 +60,72 @@ const FiberFrameInvalidator = () => {
  * @see [Documentation](https://www.remotion.dev/docs/three-canvas)
  */
 export const ThreeCanvas = (props: ThreeCanvasProps) => {
+	const {children, width, height, style, frameloop, onCreated, ...rest} = props;
 	const {isRendering} = useRemotionEnvironment();
-
-	// https://r3f.docs.pmnd.rs/advanced/scaling-performance#on-demand-rendering
-	const shouldUseFrameloopDemand = isRendering;
-
-	const {children, width, height, style, onCreated, ...rest} = props;
 	const {delayRender, continueRender} = useDelayRender();
+	const contexts = Internals.useRemotionContexts();
+	const frame = useCurrentFrame();
+
 	const [waitForCreated] = useState(() =>
 		delayRender('Waiting for <ThreeCanvas/> to be created'),
 	);
+	const frameDelayHandle = useRef<number | null>(null);
 
 	validateDimension(width, 'width', 'of the <ThreeCanvas /> component');
 	validateDimension(height, 'height', 'of the <ThreeCanvas /> component');
-	const contexts = Internals.useRemotionContexts();
+
 	const actualStyle = {
-		width: props.width,
-		height: props.height,
-		...(style ?? {}),
+		width,
+		height,
+		...style,
 	};
 
 	const remotion_onCreated: typeof onCreated = useCallback(
 		(state: RootState) => {
+			if (isRendering) {
+				state.advance(performance.now());
+			}
+
 			continueRender(waitForCreated);
 			onCreated?.(state);
 		},
-		[onCreated, waitForCreated, continueRender],
+		[onCreated, waitForCreated, continueRender, isRendering],
 	);
+
+	useLayoutEffect(() => {
+		if (!isRendering || frame === 0) {
+			return;
+		}
+
+		frameDelayHandle.current = delayRender(
+			`Waiting for R3F to render frame ${frame}`,
+		);
+
+		return () => {
+			if (frameDelayHandle.current !== null) {
+				continueRender(frameDelayHandle.current);
+			}
+		};
+	}, [frame, isRendering, delayRender, continueRender]);
+
+	const handleRendered = useCallback(() => {
+		if (frameDelayHandle.current !== null) {
+			continueRender(frameDelayHandle.current);
+			frameDelayHandle.current = null;
+		}
+	}, [continueRender]);
 
 	return (
 		<SuspenseLoader>
 			<Canvas
 				style={actualStyle}
 				{...rest}
-				frameloop={shouldUseFrameloopDemand ? 'demand' : 'always'}
+				frameloop={isRendering ? 'never' : (frameloop ?? 'always')}
 				onCreated={remotion_onCreated}
 			>
 				<Scale width={width} height={height} />
 				<Internals.RemotionContextProvider contexts={contexts}>
-					{shouldUseFrameloopDemand && <FiberFrameInvalidator />}
+					{isRendering && <ManualFrameRenderer onRendered={handleRendered} />}
 					{children}
 				</Internals.RemotionContextProvider>
 			</Canvas>

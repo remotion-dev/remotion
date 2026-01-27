@@ -1,5 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import {
+	extraPackages,
 	type InstallPackageRequest,
 	type InstallPackageResponse,
 } from '@remotion/studio-shared';
@@ -9,12 +10,23 @@ import {getInstallCommand} from '../../helpers/install-command';
 import type {ApiHandler} from '../api-types';
 import {getPackageManager, lockFilePaths} from '../get-package-manager';
 
+const extraPackageNames = extraPackages.map((pkg) => pkg.name);
+
+const isExtraPackage = (packageName: string): boolean => {
+	return extraPackageNames.includes(packageName);
+};
+
+const getExtraPackageVersion = (packageName: string): string | null => {
+	const pkg = extraPackages.find((p) => p.name === packageName);
+	return pkg ? pkg.version : null;
+};
+
 export const handleInstallPackage: ApiHandler<
 	InstallPackageRequest,
 	InstallPackageResponse
 > = async ({logLevel, remotionRoot, input: {packageNames}}) => {
 	for (const packageName of packageNames) {
-		if (!packageName.startsWith('@remotion/')) {
+		if (!packageName.startsWith('@remotion/') && !isExtraPackage(packageName)) {
 			return Promise.reject(
 				new Error(`Package ${packageName} is not allowed to be installed.`),
 			);
@@ -30,10 +42,20 @@ export const handleInstallPackage: ApiHandler<
 		);
 	}
 
+	// Build packages with appropriate versions
+	const packagesWithVersions = packageNames.map((pkg) => {
+		const extraVersion = getExtraPackageVersion(pkg);
+		if (extraVersion) {
+			return `${pkg}@${extraVersion}`;
+		}
+
+		return `${pkg}@${VERSION}`;
+	});
+
 	const command = getInstallCommand({
 		manager: manager.manager,
-		packages: packageNames,
-		version: VERSION,
+		packages: packagesWithVersions,
+		version: '',
 		additionalArgs: [],
 	});
 

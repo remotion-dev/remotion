@@ -58,6 +58,7 @@ class RenderParams
     protected $deleteAfter = null;
     protected $forcePathStyle = false;
     protected $storageClass = null;
+    protected $isProduction = null;
 
     public function __construct(
         ?array  $data = null,
@@ -105,7 +106,8 @@ class RenderParams
         ?string $maxRate = null,
         ?bool   $preferLossless = false,
         ?bool   $forcePathStyle = false,
-        ?array  $metadata = null
+        ?array  $metadata = null,
+        ?bool   $isProduction = null
     )
     {
         if ($chromiumOptions === null) {
@@ -158,6 +160,7 @@ class RenderParams
         $this->deleteAfter = $deleteAfter;
         $this->preferLossless = $preferLossless;
         $this->forcePathStyle = $forcePathStyle;
+        $this->isProduction = $isProduction;
     }
 
     private array $inputProps = array();
@@ -179,7 +182,6 @@ class RenderParams
             'logLevel' => $this->getLogLevel(),
             'frameRange' => $this->getFrameRange(),
             'outName' => $this->getOutName(),
-            'apiKey' => null,
             'timeoutInMilliseconds' => $this->getTimeoutInMilliseconds(),
             'chromiumOptions' => $this->getChromiumOptions() === null ? new stdClass() : $this->getChromiumOptions(),
             'scale' => $this->getScale(),
@@ -209,6 +211,7 @@ class RenderParams
             'x264Preset' => $this->getX264Preset(),
             'deleteAfter' => $this->getDeleteAfter(),
             'forcePathStyle' => $this->getForcePathStyle(),
+            'isProduction' => $this->getIsProduction(),
             'type' => 'start'
         ];
 
@@ -984,6 +987,17 @@ class RenderParams
     public function setDeleteAfter($deleteAfter)
     {
         $this->deleteAfter = $deleteAfter;
+        return $this;
+    }
+
+    public function getIsProduction()
+    {
+        return $this->isProduction;
+    }
+
+    public function setIsProduction($isProduction)
+    {
+        $this->isProduction = $isProduction;
         return $this;
     }
 }

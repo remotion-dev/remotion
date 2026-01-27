@@ -81,11 +81,11 @@ test(
 				metadata: {
 					Author: 'Remotion',
 				},
-				apiKey: null,
 				licenseKey: null,
 				storageClass: null,
 				requestHandler: null,
 				mediaCacheSizeInBytes: null,
+				isProduction: null,
 			});
 
 		expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));

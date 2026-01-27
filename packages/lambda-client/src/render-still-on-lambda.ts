@@ -52,13 +52,14 @@ type OptionalParameters = {
 	forcePathStyle: boolean;
 	storageClass: StorageClass | null;
 	requestHandler: RequestHandler | null | undefined;
+	isProduction: boolean | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
 
 export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
-	OptionalParameters;
+	Omit<OptionalParameters, 'apiKey'>;
 
 export type RenderStillOnLambdaInput = MandatoryParameters &
-	Partial<OptionalParameters> & {
+	Partial<Omit<OptionalParameters, 'apiKey'>> & {
 		requestHandler?: RequestHandler;
 	};
 
@@ -171,6 +172,10 @@ export const renderStillOnLambda = (
 		 * @deprecated Renamed to `logLevel`
 		 */
 		dumpBrowserLogs?: boolean;
+		/**
+		 * @deprecated Use `licenseKey` instead
+		 */
+		apiKey?: string | null;
 	},
 ) => {
 	return internalRenderStillOnLambda({
@@ -200,11 +205,11 @@ export const renderStillOnLambda = (
 		scale: input.scale ?? 1,
 		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
 		forcePathStyle: input.forcePathStyle ?? false,
-		apiKey: input.apiKey ?? null,
-		licenseKey: input.licenseKey ?? null,
+		licenseKey: input.licenseKey ?? input.apiKey ?? null,
 		offthreadVideoThreads: input.offthreadVideoThreads ?? null,
 		storageClass: input.storageClass ?? null,
 		requestHandler: input.requestHandler ?? null,
 		mediaCacheSizeInBytes: input.mediaCacheSizeInBytes ?? null,
+		isProduction: input.isProduction ?? null,
 	});
 };

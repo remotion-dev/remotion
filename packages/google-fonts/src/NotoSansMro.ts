@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Mro',
 	importName: 'NotoSansMro',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Mro:ital,wght@0,400',
 	unicodeRanges: {
 		mro: 'U+16A40-16A6F',
@@ -15,11 +15,11 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				mro: 'https://fonts.gstatic.com/s/notosansmro/v19/qWcsB6--pZv9TqnUQMhe9b39aK_6kjQYug.woff2',
+				mro: 'https://fonts.gstatic.com/s/notosansmro/v20/qWcsB6--pZv9TqnUQMhe9b39aK_6kjQYug.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmro/v19/qWcsB6--pZv9TqnUQMhe9b39aDXbtwkh.woff2',
+					'https://fonts.gstatic.com/s/notosansmro/v20/qWcsB6--pZv9TqnUQMhe9b39aDXbtwkh.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmro/v19/qWcsB6--pZv9TqnUQMhe9b39aDvbtw.woff2',
+					'https://fonts.gstatic.com/s/notosansmro/v20/qWcsB6--pZv9TqnUQMhe9b39aDvbtw.woff2',
 			},
 		},
 	},

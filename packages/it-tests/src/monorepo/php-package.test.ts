@@ -126,11 +126,11 @@ class Semantic
 				metadata: {
 					Author: 'Remotion',
 				},
-				apiKey: null,
 				licenseKey: null,
 				storageClass: null,
 				requestHandler: null,
 				mediaCacheSizeInBytes: null,
+				isProduction: null,
 			});
 		const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 		const parsedJson = JSON.parse(jsonOutput);

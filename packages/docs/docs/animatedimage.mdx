@@ -76,6 +76,10 @@ The looping behavior of the animated image. Can be one of these values:
 - `'pause-after-finish'`: The animated image will play once and then show the last frame.
 - `'clear-after-finish'`: The animated image will play once and then clear the canvas.
 
+### `playbackRate?`
+
+The playback rate of the animated image. Defaults to `1`. For example, `2` will play the animation twice as fast, `0.5` will play it at half speed.
+
 ### `ref?`<AvailableFrom v="3.3.88" />
 
 You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to `<AnimatedImage />`. If you use TypeScript, you need to type it with `HTMLCanvasElement`.

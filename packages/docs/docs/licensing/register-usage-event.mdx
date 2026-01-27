@@ -13,7 +13,7 @@ Allows for accurate and up to date reporting and to track your usage on the Remo
 import {registerUsageEvent} from '@remotion/licensing';
 
 await registerUsageEvent({
-  apiKey: 'rm_pub_xxxxx',
+  licenseKey: 'rm_pub_xxxxx',
   event: 'cloud-render',
   host: 'https://myapp.com',
   succeeded: true,
@@ -24,7 +24,7 @@ await registerUsageEvent({
 
 An object with the following properties:
 
-### `licenseKey`
+### `licenseKey`<AvailableFrom v="4.0.409"/>
 
 Type: `string`
 

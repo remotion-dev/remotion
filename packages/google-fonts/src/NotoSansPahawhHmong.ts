@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Pahawh Hmong',
 	importName: 'NotoSansPahawhHmong',
-	version: 'v19',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Pahawh+Hmong:ital,wght@0,400',
 	unicodeRanges: {
 		'pahawh-hmong': 'U+200C-200D, U+25CC, U+16B00-16B8F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'pahawh-hmong':
-					'https://fonts.gstatic.com/s/notosanspahawhhmong/v19/bWtp7e_KfBziStx7lIzKKaMUOBEA3UPQDW7kn7wUV4IjKw.woff2',
+					'https://fonts.gstatic.com/s/notosanspahawhhmong/v21/bWtp7e_KfBziStx7lIzKKaMUOBEA3UPQDW7kn7wUV4IjKw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanspahawhhmong/v19/bWtp7e_KfBziStx7lIzKKaMUOBEA3UPQDW7knz41cr8a.woff2',
+					'https://fonts.gstatic.com/s/notosanspahawhhmong/v21/bWtp7e_KfBziStx7lIzKKaMUOBEA3UPQDW7knz41cr8a.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanspahawhhmong/v19/bWtp7e_KfBziStx7lIzKKaMUOBEA3UPQDW7knzA1cg.woff2',
+					'https://fonts.gstatic.com/s/notosanspahawhhmong/v21/bWtp7e_KfBziStx7lIzKKaMUOBEA3UPQDW7knzA1cg.woff2',
 			},
 		},
 	},

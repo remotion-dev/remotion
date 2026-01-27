@@ -41,7 +41,6 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		OffthreadVideoThreads:          options.OffthreadVideoThreads,
 		X264Preset:                     options.X264Preset,
 		ForceWidth:                     options.ForceWidth,
-		ApiKey:                         options.ApiKey,
 		BucketName:                     options.BucketName,
 		AudioCodec:                     options.AudioCodec,
 		ForceBucketName:                options.ForceBucketName,
@@ -155,6 +154,12 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		internalParams.Metadata = map[string]interface{}{}
 	} else {
 		internalParams.Metadata = options.Metadata
+	}
+
+	if options.LicenseKey != nil {
+		internalParams.LicenseKey = options.LicenseKey
+	} else {
+		internalParams.LicenseKey = options.ApiKey
 	}
 
 	return &internalParams, nil

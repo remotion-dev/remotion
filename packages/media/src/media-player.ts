@@ -7,6 +7,7 @@ import {
 } from './audio-iterator-manager';
 import {calculatePlaybackTime} from './calculate-playbacktime';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
+import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
 import {isNetworkError} from './is-type-of-error';
 import type {Nonce, NonceManager} from './nonce-manager';
@@ -153,8 +154,9 @@ export class MediaPlayer {
 
 	public initialize(
 		startTimeUnresolved: number,
+		initialMuted: boolean,
 	): Promise<MediaPlayerInitResult> {
-		const promise = this._initialize(startTimeUnresolved);
+		const promise = this._initialize(startTimeUnresolved, initialMuted);
 		this.initializationPromise = promise;
 		this.seekPromiseChain = promise;
 		return promise;
@@ -177,8 +179,9 @@ export class MediaPlayer {
 
 	private async _initialize(
 		startTimeUnresolved: number,
+		initialMuted: boolean,
 	): Promise<MediaPlayerInitResult> {
-		const delayHandle = this.delayPlaybackHandleIfNotPremounting();
+		using _ = this.delayPlaybackHandleIfNotPremounting();
 		try {
 			if (this.input.disposed) {
 				return {type: 'disposed'};
@@ -284,6 +287,7 @@ export class MediaPlayer {
 							time,
 							this.playbackRate * this.globalPlaybackRate,
 						),
+					initialMuted,
 				});
 			}
 
@@ -335,10 +339,16 @@ export class MediaPlayer {
 				error,
 			);
 			throw error;
-		} finally {
-			delayHandle.unblock();
 		}
 	}
+
+	private seekToWithQueue = async (newTime: number) => {
+		const nonce = this.nonceManager.createAsyncOperation();
+		await this.seekPromiseChain;
+
+		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
+		await this.seekPromiseChain;
+	};
 
 	public async seekTo(time: number): Promise<void> {
 		const newTime = getTimeInSeconds({
@@ -357,11 +367,7 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		const nonce = this.nonceManager.createAsyncOperation();
-		await this.seekPromiseChain;
-
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
-		await this.seekPromiseChain;
+		await this.seekToWithQueue(newTime);
 	}
 
 	public async seekToDoNotCallDirectly(
@@ -436,15 +442,23 @@ export class MediaPlayer {
 		this.drawDebugOverlay();
 	}
 
-	private delayPlaybackHandleIfNotPremounting = () => {
-		if (this.isPremounting || this.isPostmounting) {
-			return {
-				unblock: () => {},
-			};
-		}
+	private delayPlaybackHandleIfNotPremounting =
+		(): DelayPlaybackIfNotPremounting => {
+			if (this.isPremounting || this.isPostmounting) {
+				return {
+					unblock: () => {},
+					[Symbol.dispose]: () => {},
+				};
+			}
 
-		return this.bufferState.delayPlayback();
-	};
+			const {unblock} = this.bufferState.delayPlayback();
+			return {
+				unblock,
+				[Symbol.dispose]: () => {
+					unblock();
+				},
+			};
+		};
 
 	public pause(): void {
 		if (!this.playing) {
@@ -469,7 +483,9 @@ export class MediaPlayer {
 		this.audioIteratorManager.setVolume(volume);
 	}
 
-	private updateAfterTrimChange(unloopedTimeInSeconds: number): void {
+	private async updateAfterTrimChange(
+		unloopedTimeInSeconds: number,
+	): Promise<void> {
 		if (!this.audioIteratorManager && !this.videoIteratorManager) {
 			return;
 		}
@@ -486,35 +502,39 @@ export class MediaPlayer {
 			src: this.src,
 		});
 
+		// audio iterator will be re-created on next play/seek
+		// video iterator doesn't need to be re-created
+		this.audioIteratorManager?.destroyIterator();
+
 		if (newMediaTime !== null) {
 			this.setPlaybackTime(
 				newMediaTime,
 				this.playbackRate * this.globalPlaybackRate,
 			);
-		}
 
-		// audio iterator will be re-created on next play/seek
-		// video iterator doesn't need to be re-created
-		this.audioIteratorManager?.destroyIterator();
+			if (!this.playing && this.videoIteratorManager) {
+				await this.seekToWithQueue(newMediaTime);
+			}
+		}
 	}
 
-	public setTrimBefore(
+	public async setTrimBefore(
 		trimBefore: number | undefined,
 		unloopedTimeInSeconds: number,
-	): void {
+	): Promise<void> {
 		if (this.trimBefore !== trimBefore) {
 			this.trimBefore = trimBefore;
-			this.updateAfterTrimChange(unloopedTimeInSeconds);
+			await this.updateAfterTrimChange(unloopedTimeInSeconds);
 		}
 	}
 
-	public setTrimAfter(
+	public async setTrimAfter(
 		trimAfter: number | undefined,
 		unloopedTimeInSeconds: number,
-	): void {
+	): Promise<void> {
 		if (this.trimAfter !== trimAfter) {
 			this.trimAfter = trimAfter;
-			this.updateAfterTrimChange(unloopedTimeInSeconds);
+			await this.updateAfterTrimChange(unloopedTimeInSeconds);
 		}
 	}
 

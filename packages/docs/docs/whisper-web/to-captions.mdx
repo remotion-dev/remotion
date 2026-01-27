@@ -6,7 +6,7 @@ crumb: '@remotion/whisper-web'
 
 # toCaptions()
 
-Converts the output from [`transcribe()`](/docs/whisper-web/transcribe) into an array of [`Caption`](/docs/captions/caption) objects, so you can use the functions from [`@remotion/captions`](/docs/captions).
+Converts the output from [`transcribe()`](/docs/whisper-web/transcribe) into an array of [`Caption`](/docs/captions/caption) objects, so you can use the functions from [`@remotion/captions`](/docs/captions/api).
 
 ```tsx twoslash
 import {toCaptions, transcribe, resampleTo16Khz} from '@remotion/whisper-web';
@@ -55,4 +55,4 @@ console.log(captions); /*
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-web/src/to-captions.ts)
 - [`@remotion/whisper-web`](/docs/whisper-web)
-- [`@remotion/captions`](/docs/captions)
+- [`@remotion/captions`](/docs/captions/api)

@@ -10,7 +10,9 @@ Very experimental feature - expect bugs and breaking changes at any time.
 [Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
 :::
 
-_Available from v4.397 - Part of the `@remotion/web-renderer` package._
+_Part of the `@remotion/web-renderer` package._
+
+<AvailableFrom v="4.0.397" />
 
 Renders a single frame to an image in the browser.  
 If you want to render a video instead, use [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
@@ -99,7 +101,7 @@ Default is `"info"`.
 
 ### `signal?`
 
-_AbortSignal - optional_
+_AbortSignal_
 
 An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) that allows the render to be cancelled.
 
@@ -135,13 +137,13 @@ See [Cancelling renders](/docs/client-side-rendering/cancellation) for more deta
 
 ### `mediaCacheSizeInBytes?`
 
-_number | null - optional_
+_number | null_
 
 <Options id="media-cache-size-in-bytes" />
 
 ### `onArtifact?`
 
-_function - optional_
+_function_
 
 [Handle an artifact](/docs/artifacts#using-rendermedia-renderstill-or-renderframes) that was emitted by the [`<Artifact>`](/docs/artifact) component.
 
@@ -158,6 +160,12 @@ _string_
 
 A [license key](/docs/licensing) to use for this render.  
 See [Telemetry in client-side rendering](/docs/client-side-rendering/telemetry) for more information.
+
+### `isProduction?`<AvailableFrom v="4.0.409"/>
+
+_default `true`_
+
+<Options id="is-production" />
 
 ## Return value
 

@@ -9,13 +9,11 @@ export const remotion_outputsBase = window.remotion_staticBase.replace(
 	'outputs',
 );
 
-const getSrcFromCanvasContent = (canvasContent: CanvasContent) => {
+const getSrcFromCanvasContent = (
+	canvasContent: CanvasContent & {type: 'asset' | 'output'},
+) => {
 	if (canvasContent.type === 'asset') {
 		return staticFile(canvasContent.asset);
-	}
-
-	if (canvasContent.type === 'composition') {
-		throw new Error('cannot get dimensions for composition');
 	}
 
 	return remotion_outputsBase + canvasContent.path;
@@ -36,6 +34,19 @@ export const getAssetMetadata = async (
 	canvasContent: CanvasContent,
 	addTime: boolean,
 ): Promise<AssetMetadata> => {
+	if (canvasContent.type === 'output-blob') {
+		return {
+			type: 'found',
+			size: canvasContent.sizeInBytes,
+			dimensions: {width: canvasContent.width, height: canvasContent.height},
+			fetchedAt: Date.now(),
+		};
+	}
+
+	if (canvasContent.type === 'composition') {
+		throw new Error('cannot get dimensions for composition');
+	}
+
 	const src = getSrcFromCanvasContent(canvasContent);
 
 	const file = await fetch(src, {

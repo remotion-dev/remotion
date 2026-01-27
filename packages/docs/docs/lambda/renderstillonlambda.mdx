@@ -75,17 +75,13 @@ One of:
 
 ### `frame?`
 
-_optional - default `0`_
-
-Which frame of the composition should be rendered. Frames are zero-indexed.
+Which frame of the composition should be rendered. Default: `0`. Frames are zero-indexed.
 
 From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 ### `imageFormat?`
 
-_optional - default `"png"`_
-
-See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat).
+See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat). Default: `"png"`.
 
 ### `onInit?`<AvailableFrom v="4.0.6" />
 
@@ -129,8 +125,6 @@ await renderStillOnLambda({
 
 ### `jpegQuality?`
 
-_optional_
-
 Sets the quality of the generated JPEG images. Must be an integer between 0 and 100. Default is to leave it up to the browser, [current default is 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 Only applies if `imageFormat` is `"jpeg"`, otherwise this option is invalid.
@@ -141,9 +135,7 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `maxRetries?`
 
-_optional - default `1`_
-
-How often a frame render may be retried until it fails.
+How often a frame render may be retried until it fails. Default: `1`.
 
 :::note
 A retry only gets executed if a the error is in the [list of flaky errors](https://github.com/remotion-dev/remotion/blob/main/packages/lambda-client/src/is-flaky-error.ts).
@@ -151,31 +143,21 @@ A retry only gets executed if a the error is in the [list of flaky errors](https
 
 ### `envVariables?`
 
-_optional - default `{}`_
+See [`renderStill() -> envVariables`](/docs/renderer/render-still#envvariables). Default: `{}`.
 
-See [`renderStill() -> envVariables`](/docs/renderer/render-still#envvariables).
-
-### `forceHeight?`
-
-_optional, available from v3.2.40_
+### `forceHeight?`<AvailableFrom v="3.2.40" />
 
 Overrides the default composition height.
 
-### `forceWidth?`
-
-_optional, available from v3.2.40_
+### `forceWidth?`<AvailableFrom v="3.2.40" />
 
 Overrides the default composition width.
 
 ### `scale?`
 
-_optional_
-
 <Options id="scale" />
 
 ### `outName?`
-
-_optional_
 
 It can either be:
 
@@ -185,13 +167,9 @@ It can either be:
 
 ### `timeoutInMilliseconds?`
 
-_optional_
-
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
-### `downloadBehavior?`
-
-_optional, available since v3.1.5_
+### `downloadBehavior?`<AvailableFrom v="3.1.5" />
 
 How the output file should behave when accessed through the S3 output link in the browser.  
 Either:
@@ -217,8 +195,6 @@ Either:
 
 ### `chromiumOptions?`
 
-_optional_
-
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
 #### `disableWebSecurity`
@@ -243,13 +219,9 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 ### `forceBucketName?`
 
-_optional_
-
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
 ### `logLevel?`
-
-_optional_
 
 <Options id="log" />
 
@@ -263,11 +235,19 @@ Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, yo
 
 An [identifier](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-compare) for the S3 storage class of the rendered media. Default: `undefined` (which is `STANDARD`).
 
+### `licenseKey?`<AvailableFrom v="4.0.409"/>
+
+<Options id="license-key" />
+
+### `isProduction?`<AvailableFrom v="4.0.409"/>
+
+_default `true`_
+
+<Options id="is-production" />
+
 ### ~~`dumpBrowserLogs?`~~
 
-_optional - default `false`, deprecated in v4.0_
-
-Deprecated in favor of [`logLevel`](#loglevel).
+Deprecated in v4.0 in favor of [`logLevel`](#loglevel).
 
 ## Return value
 
@@ -297,9 +277,7 @@ The size of the output image in bytes.
 
 A unique alphanumeric identifier for this render. Useful for obtaining status and finding the relevant files in the S3 bucket.
 
-### `cloudWatchLogs`
-
-_Available from v3.2.10_
+### `cloudWatchLogs`<AvailableFrom v="3.2.10" />
 
 A link to CloudWatch (if you haven't disabled it) that you can visit to see the logs for the render.
 

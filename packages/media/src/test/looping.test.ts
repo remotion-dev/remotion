@@ -3,7 +3,7 @@ import {getMaxVideoCacheSize} from '../caches';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {extractFrame} from '../video-extraction/extract-frame';
 
-const fps = 25;
+const fps = 30;
 const trimBefore = 100;
 const trimAfter = 200;
 const playbackRate = 2;
@@ -23,7 +23,7 @@ test(
 				loop,
 				mediaDurationInSeconds: 10,
 				playbackRate,
-				src: 'https://remotion.media/video.mp4',
+				src: '/video.mp4',
 				trimAfter,
 				trimBefore,
 				unloopedTimeInSeconds: timeInFrames / fps,
@@ -32,7 +32,7 @@ test(
 			realTimestamps.push(realTimestamp);
 
 			const result = await extractFrame({
-				src: 'https://remotion.media/video.mp4',
+				src: '/video.mp4',
 				timeInSeconds: timeInFrames / fps,
 				logLevel: 'info',
 				loop,
@@ -48,11 +48,9 @@ test(
 		}
 
 		expect(realTimestamps).toEqual([
-			7.76, 7.84, 7.92, 4, 4.079999999999998, 4.16,
+			6.466666666666666, 6.533333333333332, 6.6000000000000005,
+			3.3333333333333335, 3.4, 3.4666666666666663,
 		]);
-		expect(outputTimestamps).toEqual([
-			7.733333333333333, 7.833333333333333, 7.9, 4, 4.066666666666666,
-			4.133333333333334,
-		]);
+		expect(outputTimestamps).toEqual([6.44, 6.52, 6.6, 3.32, 3.4, 3.44]);
 	},
 );

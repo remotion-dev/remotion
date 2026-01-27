@@ -28,6 +28,9 @@ type Options = {
 	rootDir?: string;
 	bypassBucketNameValidation?: boolean;
 	gitSource?: GitSource | null;
+	keyboardShortcutsEnabled?: boolean;
+	askAIEnabled?: boolean;
+	experimentalClientSideRenderingEnabled?: boolean;
 };
 
 type OptionalParameters = {
@@ -102,8 +105,11 @@ export const internalDeploySiteRaw = async ({
 			onSymlinkDetected: () => undefined,
 			outDir: null,
 			audioLatencyHint: null,
-			experimentalClientSideRenderingEnabled: false,
+			experimentalClientSideRenderingEnabled:
+				options?.experimentalClientSideRenderingEnabled ?? false,
 			renderDefaults: null,
+			askAIEnabled: options?.askAIEnabled ?? true,
+			keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
 		}),
 	]);
 

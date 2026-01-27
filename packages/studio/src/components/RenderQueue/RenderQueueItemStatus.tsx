@@ -1,4 +1,3 @@
-import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext} from 'react';
 import {FAIL_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
@@ -6,6 +5,8 @@ import {
 	CircularProgress,
 	RENDER_STATUS_INDICATOR_SIZE,
 } from './CircularProgress';
+import type {AnyRenderJob} from './context';
+import {isClientRenderJob} from './context';
 
 const iconStyle: React.CSSProperties = {
 	height: RENDER_STATUS_INDICATOR_SIZE,
@@ -21,10 +22,12 @@ const invisibleStyle: React.CSSProperties = {
 };
 
 export const RenderQueueItemStatus: React.FC<{
-	readonly job: RenderJob;
+	readonly job: AnyRenderJob;
 }> = ({job}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const [hovered, setHovered] = React.useState(false);
+
+	const isClientJob = isClientRenderJob(job);
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -47,14 +50,14 @@ export const RenderQueueItemStatus: React.FC<{
 
 	if (job.status === 'failed') {
 		return (
-			<div>
+			<button type="button" style={invisibleStyle} onClick={onClick}>
 				<svg style={iconStyle} viewBox="0 0 512 512">
 					<path
 						fill={FAIL_COLOR}
 						d="M0 160V352L160 512H352L512 352V160L352 0H160L0 160zm353.9 32l-17 17-47 47 47 47 17 17L320 353.9l-17-17-47-47-47 47-17 17L158.1 320l17-17 47-47-47-47-17-17L192 158.1l17 17 47 47 47-47 17-17L353.9 192z"
 					/>
 				</svg>
-			</div>
+			</button>
 		);
 	}
 
@@ -89,11 +92,29 @@ export const RenderQueueItemStatus: React.FC<{
 	}
 
 	if (job.status === 'running') {
-		// Add a minimum progress to avoid the progress bar from disappearing
+		let progressValue: number;
+		if (isClientJob) {
+			const {renderedFrames, totalFrames} = job.progress;
+			progressValue = totalFrames > 0 ? renderedFrames / totalFrames : 0;
+		} else {
+			progressValue = job.progress.value;
+		}
+
 		return (
 			<button type="button" style={invisibleStyle} onClick={onClick}>
-				<CircularProgress progress={Math.max(0.07, job.progress.value)} />
+				<CircularProgress progress={Math.max(0.07, progressValue)} />
 			</button>
+		);
+	}
+
+	if (job.status === 'cancelled') {
+		return (
+			<svg style={iconStyle} viewBox="0 0 512 512">
+				<path
+					fill={FAIL_COLOR}
+					d="M0 160V352L160 512H352L512 352V160L352 0H160L0 160zm353.9 32l-17 17-47 47 47 47 17 17L320 353.9l-17-17-47-47-47 47-17 17L158.1 320l17-17 47-47-47-47-17-17L192 158.1l17 17 47 47 47-47 17-17L353.9 192z"
+				/>
+			</svg>
 		);
 	}
 

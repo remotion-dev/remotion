@@ -79,9 +79,9 @@ _number_
 
 The number of frames in each chunk. All chunks must have the same number of frames, except the last one.
 
-### `audioCodec`
+### `audioCodec?`
 
-_"pcm-16" | "aac" | "mp3" | "opus" | null - optional_
+_"pcm-16" | "aac" | "mp3" | "opus" | null_
 
 Audio codec to use for the output file. If not specified, it will be determined based on the video codec.
 
@@ -100,13 +100,13 @@ Do not change the value, even if you use the `frameRange` or `everyNthFrame` opt
 
 ### `frameRange?`
 
-_number | [number, number] | null - optional_
+_number | [number, number] | null_
 
 Like [`frameRange`](/docs/renderer/render-media#framerange) that you would pass to [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda). The range of frames of which the video exists once all chunks are combined.
 
 ### `everyNthFrame?`
 
-_number - optional_
+_number_
 
 Like [`everyNthFrame`](/docs/renderer/render-media#everynthframe) that you would pass to [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
 
@@ -114,7 +114,7 @@ Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/
 
 ### `onProgress?`
 
-_function - optional_
+_function_
 
 Callback function to track the progress of the combining operation.
 
@@ -129,31 +129,31 @@ const onProgress: CombineChunksOnProgress = ({totalProgress, frames}) => {
 
 ### `audioBitrate?`
 
-_string | null - optional_
+_string | null_
 
 Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/render-media) call.
 
 ### `numberOfGifLoops?`
 
-_number | null - optional_
+_number | null_
 
 Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/render-media) call.
 
 ### `logLevel?`
 
-_"verbose" | "info" | "warn" | "error" - optional_
+_"verbose" | "info" | "warn" | "error"_
 
 Controls the verbosity of logging. Default is `"info"`.
 
 ### `binariesDirectory?`
 
-_string | null - optional_
+_string | null_
 
 A directory containing FFmpeg binaries to use instead of the bundled or system-installed ones.
 
 ### `cancelSignal?`
 
-_CancelSignal - optional_
+_CancelSignal_
 
 A token that allows the combining process to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 

@@ -1,14 +1,32 @@
 import {$} from 'bun';
-import {CreateVideoInternals, Template} from 'create-video';
+import {CreateVideoInternals} from 'create-video';
 import {cpSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
+
+type MinimalTemplate = {
+	shortName: string;
+	org: string;
+	repoName: string;
+	defaultBranch: string;
+	templateInMonorepo: string;
+};
 
 const folders = CreateVideoInternals.FEATURED_TEMPLATES.filter(
 	(t) => t.templateInMonorepo !== null,
 );
 
-const publish = async (template: Template) => {
+const skillsTemplate: MinimalTemplate = {
+	defaultBranch: 'main',
+	templateInMonorepo: 'skills',
+	org: 'remotion-dev',
+	repoName: 'skills',
+	shortName: 'Skills',
+};
+
+const templates = [skillsTemplate, ...folders];
+
+const publish = async (template: MinimalTemplate) => {
 	const folder = path.join(
 		__dirname,
 		'..',
@@ -65,6 +83,6 @@ const publish = async (template: Template) => {
 	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
 };
 
-for (const template of folders) {
+for (const template of templates) {
 	await publish(template);
 }

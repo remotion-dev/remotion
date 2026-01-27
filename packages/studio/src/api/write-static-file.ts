@@ -9,7 +9,10 @@ export const writeStaticFile = async ({
 		throw new Error('writeStaticFile() is not available in read-only Studio');
 	}
 
-	const url = new URL('/api/add-asset', window.location.origin);
+	const url = new URL(
+		`${window.remotion_staticBase}/api/add-asset`,
+		window.location.origin,
+	);
 
 	if (filePath.includes('\\')) {
 		return Promise.reject(new Error('File path cannot contain backslashes'));

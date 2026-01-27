@@ -10,7 +10,9 @@ Very experimental feature - expect bugs and breaking changes at any time.
 [Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
 :::
 
-_Available from v4.397 - Part of the `@remotion/web-renderer` package._
+_Part of the `@remotion/web-renderer` package._
+
+<AvailableFrom v="4.0.397" />
 
 Renders a video or audio in the browser.  
 If you want to render a single frame to an image, use [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web).
@@ -56,7 +58,7 @@ An object describing a composition. The object should have the following propert
 
 ### `inputProps?`
 
-_object - optional_
+_object_
 
 [Input Props to pass to the component.](/docs/passing-props#passing-input-props-in-the-cli)  
 You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
@@ -280,6 +282,12 @@ _string_
 
 A [license key](/docs/licensing) to use for this render.  
 See [Telemetry in client-side rendering](/docs/client-side-rendering/telemetry) for more information.
+
+### `isProduction?`<AvailableFrom v="4.0.409"/>
+
+_default `true`_
+
+<Options id="is-production" />
 
 ## Return value
 

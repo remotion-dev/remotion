@@ -1,4 +1,5 @@
 import {apiKeyOption} from './api-key';
+import {askAIOption} from './ask-ai';
 import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
 import {beepOnFinishOption} from './beep-on-finish';
@@ -16,13 +17,16 @@ import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
 import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
+import {experimentalClientSideRenderingOption} from './experimental-client-side-rendering';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
 import {imageSequencePatternOption} from './image-sequence-pattern';
+import {isProductionOption} from './is-production';
 import {jpegQualityOption} from './jpeg-quality';
+import {keyboardShortcutsOption} from './keyboard-shortcuts';
 import {audioLatencyHintOption} from './latency-hint';
 import {licenseKeyOption} from './license-key';
 import {logLevelOption} from './log-level';
@@ -99,6 +103,10 @@ export const allOptions = {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	publicLicenseKeyOption,
+	isProductionOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

@@ -79,6 +79,12 @@ export const exampleVideos = {
 	),
 	flac: path.join(__dirname, '..', 'videos', 'sample.flac'),
 	webp: path.join(__dirname, '..', 'videos', '1.webp'),
+	noFramesInBeginning: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'no-frames-in-beginning.webm',
+	),
 	pdf: path.join(
 		docsPackage,
 		'static',

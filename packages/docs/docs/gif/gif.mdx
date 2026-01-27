@@ -37,8 +37,6 @@ export const MyComponent: React.FC = () => {
 
 ### `src`
 
-_required_
-
 The source of the GIF. Can be an URL or a local image - see [Importing assets](/docs/assets).
 
 :::note
@@ -112,9 +110,7 @@ Values:
 - `< 1`: Slows down the GIF speed (e.g., 0.5 plays it at half speed).
 - `> 1:` Speeds up the GIF speed (e.g., 2.0 plays it at double speed).
 
-### delayRenderTimeoutInMilliseconds<AvailableFrom v="4.0.403" />
-
-_optional_
+### `delayRenderTimeoutInMilliseconds?`<AvailableFrom v="4.0.403" />
 
 Modifies the timeout of the internal [`delayRender()`](/docs/delay-render) call when loading the GIF. By default, Remotion will wait 30 seconds for the GIF to load before timing out. You can increase or decrease this timeout by passing a custom value.
 

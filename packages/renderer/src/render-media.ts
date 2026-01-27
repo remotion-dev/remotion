@@ -1,4 +1,4 @@
-import {registerUsageEvent} from '@remotion/licensing';
+import {LicensingInternals} from '@remotion/licensing';
 import type {ExecaChildProcess} from 'execa';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -151,8 +151,9 @@ export type InternalRenderMediaOptions = {
 	onArtifact: OnArtifact | null;
 	metadata: Record<string, string> | null;
 	onLog: OnLog;
-} & EitherApiKeyOrLicenseKey &
-	MoreRenderMediaOptions;
+	licenseKey: string | null;
+	isProduction: boolean | null;
+} & MoreRenderMediaOptions;
 
 type Prettify<T> = {
 	[K in keyof T]: T[K];
@@ -209,6 +210,7 @@ export type RenderMediaOptions = Prettify<{
 	onArtifact?: OnArtifact;
 	metadata?: Record<string, string> | null;
 	compositionStart?: number;
+	isProduction?: boolean;
 }> &
 	EitherApiKeyOrLicenseKey &
 	Partial<MoreRenderMediaOptions>;
@@ -280,6 +282,7 @@ const internalRenderMediaRaw = ({
 	mediaCacheSizeInBytes,
 	onLog,
 	licenseKey,
+	isProduction,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	const pixelFormat =
 		userPixelFormat ??
@@ -831,11 +834,13 @@ const internalRenderMediaRaw = ({
 						return;
 					}
 
-					registerUsageEvent({
+					LicensingInternals.internalRegisterUsageEvent({
 						event: 'cloud-render',
 						host: null,
 						succeeded: true,
 						licenseKey: licenseKey ?? null,
+						isProduction: isProduction ?? true,
+						isStill: false,
 					})
 						.then(() => {
 							Log.verbose({indent, logLevel}, 'Usage event sent successfully');
@@ -992,6 +997,7 @@ export const renderMedia = ({
 	offthreadVideoThreads,
 	compositionStart,
 	mediaCacheSizeInBytes,
+	isProduction,
 	...apiKeyOrLicenseKey
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
@@ -1086,5 +1092,6 @@ export const renderMedia = ({
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		licenseKey: licenseKey ?? apiKey ?? null,
 		onLog: defaultOnLog,
+		isProduction: isProduction ?? null,
 	});
 };

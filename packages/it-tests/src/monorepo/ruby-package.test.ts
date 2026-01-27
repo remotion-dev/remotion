@@ -135,11 +135,11 @@ test('Render Media payload', async () => {
 			metadata: {
 				Author: 'Lunar',
 			},
-			apiKey: null,
 			licenseKey: null,
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			isProduction: null,
 		});
 
 	expect(JSON.parse(output)).toEqual(nativeVersion);
@@ -181,12 +181,12 @@ test('Render Still payload', async () => {
 			indent: false,
 			onInit: () => undefined,
 			forcePathStyle: false,
-			apiKey: null,
 			licenseKey: null,
 			offthreadVideoThreads: null,
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			isProduction: null,
 		});
 
 	expect(JSON.parse(output)).toEqual({...nativeVersion, streamed: false});

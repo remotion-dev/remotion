@@ -3,10 +3,10 @@ image: /generated/articles-docs-transparent-videos.png
 id: transparent-videos
 title: Rendering transparent videos
 sidebar_label: Transparent videos
-crumb: 'Techniques'
+crumb: "Techniques"
 ---
 
-import {TransparentVideoDemo} from '../components/TransparentVideoDemo';
+import { TransparentVideoDemo } from "../components/TransparentVideoDemo";
 
 ```twoslash include example
 const MyVideo: React.FC<{
@@ -38,11 +38,11 @@ In order to create a transparent video, you need at least version 1.4 of Remotio
 If you want to set these options and persist them, add this to your `remotion.config.ts` file (create it if you don't yet have one);
 
 ```tsx twoslash
-import {Config} from '@remotion/cli/config';
+import { Config } from "@remotion/cli/config";
 
-Config.setVideoImageFormat('png');
-Config.setPixelFormat('yuva420p');
-Config.setCodec('vp8');
+Config.setVideoImageFormat("png");
+Config.setPixelFormat("yuva420p");
+Config.setCodec("vp8");
 ```
 
 You can also set the settings on the command line:
@@ -51,26 +51,95 @@ You can also set the settings on the command line:
 --image-format=png --pixel-format=yuva420p --codec=vp8
 ```
 
+or set them as the default export settings for a composition:
+
+```tsx twoslash
+import { Composition } from "remotion";
+
+const MyVideo: React.FC = () => {
+  return null;
+};
+
+type Props = {};
+// ---cut---
+
+import { CalculateMetadataFunction } from "remotion";
+
+const calculateMetadata: CalculateMetadataFunction<Props> = async ({
+  props,
+}) => {
+  return {
+    defaultCodec: "vp8",
+    defaultVideoImageFormat: "png",
+    defaultPixelFormat: "yuva420p",
+  };
+};
+
+<Composition
+  id="my-video"
+  component={MyVideo}
+  durationInFrames={150}
+  fps={30}
+  width={1920}
+  height={1080}
+  calculateMetadata={calculateMetadata}
+/>;
+```
+
 ## Creating a ProRes video with Alpha channels
 
 If you want to export a transparent video for use in another video editing program, Apple ProRes is a more suitable option.
 ProRes is supported by Final Cut Pro, Adobe Premiere and Davinci Resolve.
 
-Supported since v2.1.7, you can set the codec to `prores` and choose a ProRes profile with alpha support: Either: `4444` or `hq`. The pixel format must be `yuva444p10le`.
+Supported since v2.1.7, you can set the codec to `prores` and choose a ProRes profile with alpha support: Either `4444` or `4444-xq`. The pixel format must be `yuva444p10le`.
 
 ```tsx twoslash
-import {Config} from '@remotion/cli/config';
+import { Config } from "@remotion/cli/config";
 
-Config.setVideoImageFormat('png');
-Config.setPixelFormat('yuva444p10le');
-Config.setCodec('prores');
-Config.setProResProfile('4444');
+Config.setVideoImageFormat("png");
+Config.setPixelFormat("yuva444p10le");
+Config.setCodec("prores");
+Config.setProResProfile("4444");
 ```
 
 You can also set the settings on the command line:
 
 ```bash
 --image-format=png --pixel-format=yuva444p10le --codec=prores --prores-profile=4444
+```
+
+or set them as the default export settings for a composition:
+
+```tsx twoslash
+import { Composition } from "remotion";
+const MyVideo: React.FC<Props> = () => {
+  return null;
+};
+
+type Props = {};
+// ---cut---
+import { CalculateMetadataFunction } from "remotion";
+
+const calculateMetadata: CalculateMetadataFunction<Props> = async ({
+  props,
+}) => {
+  return {
+    defaultCodec: "prores",
+    defaultVideoImageFormat: "png",
+    defaultPixelFormat: "yuva444p10le",
+    defaultProResProfile: "4444",
+  };
+};
+
+<Composition
+  id="my-video"
+  component={MyVideo}
+  durationInFrames={150}
+  fps={30}
+  width={1920}
+  height={1080}
+  calculateMetadata={calculateMetadata}
+/>;
 ```
 
 ## Enabling transparency when using `<OffthreadVideo>`
@@ -90,7 +159,7 @@ Given the poor browser support, consider making two versions of a video, one wit
 It's a good practice to set a default when defining the composition:
 
 ```tsx twoslash {7-9}
-import {Composition} from 'remotion';
+import { Composition } from "remotion";
 // @include: example-MyVideo
 // ---cut---
 <Composition

@@ -1,9 +1,26 @@
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {spawn} from 'node:child_process';
+import fs from 'node:fs';
 import {chalk} from './chalk';
+import {EXTRA_PACKAGES} from './extra-packages';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
+import {resolveFrom} from './resolve-from';
+
+const getInstalledVersion = (
+	remotionRoot: string,
+	pkg: string,
+): string | null => {
+	try {
+		const pkgJsonPath = resolveFrom(remotionRoot, `${pkg}/package.json`);
+		const file = fs.readFileSync(pkgJsonPath, 'utf-8');
+		const packageJson = JSON.parse(file);
+		return packageJson.version;
+	} catch {
+		return null;
+	}
+};
 
 export const addCommand = async ({
 	remotionRoot,
@@ -20,11 +37,11 @@ export const addCommand = async ({
 }) => {
 	// Validate that all package names are Remotion packages
 	const invalidPackages = packageNames.filter(
-		(pkg) => !listOfRemotionPackages.includes(pkg),
+		(pkg) => !listOfRemotionPackages.includes(pkg) && !EXTRA_PACKAGES[pkg],
 	);
 	if (invalidPackages.length > 0) {
 		throw new Error(
-			`The following packages are not Remotion packages: ${invalidPackages.join(', ')}. Must be one of the Remotion packages.`,
+			`The following packages are not Remotion packages: ${invalidPackages.join(', ')}. Must be one of the Remotion packages or one of the supported extra packages: ${Object.keys(EXTRA_PACKAGES).join(', ')}.`,
 		);
 	}
 
@@ -43,8 +60,33 @@ export const addCommand = async ({
 		...peerDependencies,
 	];
 
-	const alreadyInstalled = packageNames.filter((pkg) => allDeps.includes(pkg));
-	const toInstall = packageNames.filter((pkg) => !allDeps.includes(pkg));
+	const alreadyInstalled: string[] = [];
+	const toInstall: string[] = [];
+	const toUpgrade: {pkg: string; from: string; to: string}[] = [];
+
+	for (const pkg of packageNames) {
+		const isInstalled = allDeps.includes(pkg);
+		const requiredVersion = EXTRA_PACKAGES[pkg];
+
+		if (!isInstalled) {
+			toInstall.push(pkg);
+		} else if (requiredVersion) {
+			// For extra packages, check if the version is correct
+			const installedVersion = getInstalledVersion(remotionRoot, pkg);
+			if (installedVersion !== requiredVersion) {
+				toUpgrade.push({
+					pkg,
+					from: installedVersion ?? 'unknown',
+					to: requiredVersion,
+				});
+				toInstall.push(pkg);
+			} else {
+				alreadyInstalled.push(pkg);
+			}
+		} else {
+			alreadyInstalled.push(pkg);
+		}
+	}
 
 	// Log already installed packages
 	for (const pkg of alreadyInstalled) {
@@ -54,41 +96,49 @@ export const addCommand = async ({
 		);
 	}
 
+	// Log packages that will be upgraded
+	for (const {pkg, from, to} of toUpgrade) {
+		Log.info(
+			{indent: false, logLevel},
+			`↑ ${pkg} ${chalk.yellow(`${from} → ${to}`)}`,
+		);
+	}
+
 	// If nothing to install, return early
 	if (toInstall.length === 0) {
 		return;
 	}
 
-	// Find the version of installed Remotion packages
 	const installedRemotionPackages = listOfRemotionPackages.filter((pkg) =>
 		allDeps.includes(pkg),
 	);
 
-	if (installedRemotionPackages.length === 0) {
-		throw new Error(
-			'No Remotion packages found in your project. Install Remotion first.',
-		);
-	}
-
 	// Get the version from the first installed Remotion package
 	const packageJsonPath = `${remotionRoot}/node_modules/${installedRemotionPackages[0]}/package.json`;
-	let targetVersion: string;
+	let targetVersion: string | null = null;
 
-	try {
-		const packageJson = require(packageJsonPath);
-		targetVersion = packageJson.version;
-		const packageList =
-			toInstall.length === 1
-				? toInstall[0]
-				: `${toInstall.length} packages (${toInstall.join(', ')})`;
-		Log.info(
-			{indent: false, logLevel},
-			`Installing ${packageList}@${targetVersion} to match your other Remotion packages`,
-		);
-	} catch (err) {
-		throw new Error(
-			`Could not determine version of installed Remotion packages: ${(err as Error).message}`,
-		);
+	if (installedRemotionPackages.length > 0) {
+		try {
+			const packageJson = require(packageJsonPath);
+			targetVersion = packageJson.version;
+			const packageList =
+				toInstall.length === 1
+					? toInstall[0]
+					: `${toInstall.length} packages (${toInstall.join(', ')})`;
+			Log.info({indent: false, logLevel}, `Installing ${packageList}`);
+		} catch (err) {
+			throw new Error(
+				`Could not determine version of installed Remotion packages: ${(err as Error).message}`,
+			);
+		}
+	} else {
+		// If no Remotion packages are installed, we can only install extra packages
+		const notExtraPackages = toInstall.filter((pkg) => !EXTRA_PACKAGES[pkg]);
+		if (notExtraPackages.length > 0) {
+			throw new Error(
+				'No Remotion packages found in your project. Install Remotion first.',
+			);
+		}
 	}
 
 	const manager = StudioServerInternals.getPackageManager(
@@ -105,10 +155,18 @@ export const addCommand = async ({
 		);
 	}
 
+	const packagesWithVersions = toInstall.map((pkg) => {
+		if (EXTRA_PACKAGES[pkg]) {
+			return `${pkg}@${EXTRA_PACKAGES[pkg]}`;
+		}
+
+		return `${pkg}@${targetVersion}`;
+	});
+
 	const command = StudioServerInternals.getInstallCommand({
 		manager: manager.manager,
-		packages: toInstall,
-		version: targetVersion,
+		packages: packagesWithVersions,
+		version: '',
 		additionalArgs: args,
 	});
 
@@ -122,6 +180,7 @@ export const addCommand = async ({
 			...process.env,
 			ADBLOCK: '1',
 			DISABLE_OPENCOLLECTIVE: '1',
+			npm_config_loglevel: 'error',
 		},
 		stdio: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')
 			? 'inherit'
@@ -142,14 +201,18 @@ export const addCommand = async ({
 		});
 	});
 
-	for (const pkg of alreadyInstalled) {
-		Log.info(
-			{indent: false, logLevel},
-			`○ ${pkg}@${targetVersion} ${chalk.gray('(already installed)')}`,
-		);
-	}
+	const upgradedPkgs = new Set(toUpgrade.map((u) => u.pkg));
 
 	for (const pkg of toInstall) {
-		Log.info({indent: false, logLevel}, `+ ${pkg}@${targetVersion}`);
+		if (upgradedPkgs.has(pkg)) {
+			// Already logged as upgrade
+			continue;
+		}
+
+		if (EXTRA_PACKAGES[pkg]) {
+			Log.info({indent: false, logLevel}, `+ ${pkg}@${EXTRA_PACKAGES[pkg]}`);
+		} else {
+			Log.info({indent: false, logLevel}, `+ ${pkg}@${targetVersion}`);
+		}
 	}
 };

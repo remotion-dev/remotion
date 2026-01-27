@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cause',
 	importName: 'Cause',
-	version: 'v1',
+	version: 'v2',
 	url: 'https://fonts.googleapis.com/css2?family=Cause:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,48 +15,48 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NdbJHPBw.woff2',
-				latin: 'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NTbJE.woff2',
+					'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NdbJHPBw.woff2',
+				latin: 'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NTbJE.woff2',
 			},
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NdbJHPBw.woff2',
-				latin: 'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NTbJE.woff2',
+					'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NdbJHPBw.woff2',
+				latin: 'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NTbJE.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NdbJHPBw.woff2',
-				latin: 'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NTbJE.woff2',
+					'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NdbJHPBw.woff2',
+				latin: 'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NTbJE.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NdbJHPBw.woff2',
-				latin: 'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NTbJE.woff2',
+					'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NdbJHPBw.woff2',
+				latin: 'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NTbJE.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NdbJHPBw.woff2',
-				latin: 'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NTbJE.woff2',
+					'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NdbJHPBw.woff2',
+				latin: 'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NTbJE.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NdbJHPBw.woff2',
-				latin: 'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NTbJE.woff2',
+					'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NdbJHPBw.woff2',
+				latin: 'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NTbJE.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NdbJHPBw.woff2',
-				latin: 'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NTbJE.woff2',
+					'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NdbJHPBw.woff2',
+				latin: 'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NTbJE.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NdbJHPBw.woff2',
-				latin: 'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NTbJE.woff2',
+					'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NdbJHPBw.woff2',
+				latin: 'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NTbJE.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NdbJHPBw.woff2',
-				latin: 'https://fonts.gstatic.com/s/cause/v1/or3sQ6760-mf03NTbJE.woff2',
+					'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NdbJHPBw.woff2',
+				latin: 'https://fonts.gstatic.com/s/cause/v2/or3sQ6760-mf03NTbJE.woff2',
 			},
 		},
 	},

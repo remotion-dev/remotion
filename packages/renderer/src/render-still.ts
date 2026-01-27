@@ -1,4 +1,4 @@
-import {registerUsageEvent} from '@remotion/licensing';
+import {LicensingInternals} from '@remotion/licensing';
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
 import type {_InternalTypes} from 'remotion';
@@ -76,7 +76,8 @@ type InternalRenderStillOptions = {
 	port: number | null;
 	onArtifact: OnArtifact | null;
 	onLog: OnLog;
-} & ToOptions<typeof optionsMap.renderStill>;
+	isProduction: boolean | null;
+} & ToOptions<Omit<typeof optionsMap.renderStill, 'apiKey'>>;
 
 export type RenderStillOptions = {
 	port?: number | null;
@@ -108,7 +109,13 @@ export type RenderStillOptions = {
 	 */
 	quality?: never;
 	onArtifact?: OnArtifact;
-} & Partial<ToOptions<typeof optionsMap.renderStill>>;
+	isProduction?: boolean;
+} & Partial<ToOptions<typeof optionsMap.renderStill>> & {
+		/**
+		 * @deprecated Use `licenseKey` instead
+		 */
+		apiKey?: string | null;
+	};
 
 type CleanupFn = () => Promise<unknown>;
 type RenderStillReturnValue = {buffer: Buffer | null};
@@ -419,16 +426,18 @@ const internalRenderStillRaw = (
 			})
 
 			.then((res) => {
-				if (options.apiKey === null) {
+				if (options.licenseKey === null) {
 					resolve(res);
 					return;
 				}
 
-				registerUsageEvent({
-					licenseKey: options.licenseKey ?? options.apiKey ?? null,
+				LicensingInternals.internalRegisterUsageEvent({
+					licenseKey: options.licenseKey,
 					event: 'cloud-render',
 					host: null,
 					succeeded: true,
+					isStill: true,
+					isProduction: options.isProduction ?? true,
 				})
 					.then(() => {
 						Log.verbose(options, 'Usage event sent successfully');
@@ -504,6 +513,7 @@ export const renderStill = (
 		mediaCacheSizeInBytes,
 		apiKey,
 		licenseKey,
+		isProduction,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -570,8 +580,8 @@ export const renderStill = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
-		apiKey: apiKey ?? null,
-		licenseKey: licenseKey ?? null,
+		licenseKey: licenseKey ?? apiKey ?? null,
 		onLog: defaultOnLog,
+		isProduction: isProduction ?? null,
 	});
 };
