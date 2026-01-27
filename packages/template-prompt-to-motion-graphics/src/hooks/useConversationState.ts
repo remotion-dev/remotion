@@ -11,6 +11,7 @@ export function useConversationState() {
     messages: [],
     hasManualEdits: false,
     lastGenerationTimestamp: null,
+    pendingMessage: undefined,
   });
 
   // Track the last AI-generated code to detect manual edits
@@ -86,7 +87,25 @@ export function useConversationState() {
       messages: [],
       hasManualEdits: false,
       lastGenerationTimestamp: null,
+      pendingMessage: undefined,
     });
+  }, []);
+
+  const setPendingMessage = useCallback((skills?: string[]) => {
+    setState((prev) => ({
+      ...prev,
+      pendingMessage: {
+        skills,
+        startedAt: Date.now(),
+      },
+    }));
+  }, []);
+
+  const clearPendingMessage = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      pendingMessage: undefined,
+    }));
   }, []);
 
   // Get the last N conversation exchanges for context (excludes error messages)
@@ -125,6 +144,8 @@ export function useConversationState() {
     clearConversation,
     getRecentContext,
     getPreviouslyUsedSkills,
+    setPendingMessage,
+    clearPendingMessage,
     isFirstGeneration: state.messages.length === 0,
   };
 }

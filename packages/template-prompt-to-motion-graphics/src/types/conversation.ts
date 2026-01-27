@@ -35,6 +35,11 @@ export interface ConversationState {
   hasManualEdits: boolean;
   /** Timestamp of last AI generation - compare with code changes to detect manual edits */
   lastGenerationTimestamp: number | null;
+  /** Pending assistant message shown during generation */
+  pendingMessage?: {
+    skills?: string[];
+    startedAt: number;
+  };
 }
 
 export interface ConversationContextMessage {

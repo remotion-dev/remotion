@@ -55,20 +55,29 @@ function GeneratePageContent() {
   const {
     messages,
     hasManualEdits,
+    pendingMessage,
     addUserMessage,
     addAssistantMessage,
     addErrorMessage,
     markManualEdit,
     getRecentContext,
     getPreviouslyUsedSkills,
+    setPendingMessage,
+    clearPendingMessage,
     isFirstGeneration,
   } = useConversationState();
 
   // Sidebar collapse state
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const { code, Component, error, isCompiling, setCode, compileCode } =
+  const { code, Component, error: compilationError, isCompiling, setCode, compileCode } =
     useAnimationState(examples[0]?.code || "");
+
+  // Runtime errors from the Player (e.g., "cannot access variable before initialization")
+  const [runtimeError, setRuntimeError] = useState<string | null>(null);
+
+  // Combined error for display - either compilation or runtime error
+  const codeError = compilationError || runtimeError;
 
   // Refs
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -76,10 +85,10 @@ function GeneratePageContent() {
   const codeRef = useRef(code);
   const chatHistoryRef = useRef<ChatHistoryRef>(null);
 
-  // Auto-correction hook
+  // Auto-correction hook - use combined code error (compilation + runtime)
   const { markAsAiGenerated, markAsUserEdited } = useAutoCorrection({
     maxAttempts: MAX_CORRECTION_ATTEMPTS,
-    compilationError: error,
+    compilationError: codeError,
     generationError,
     isStreaming,
     isCompiling,
@@ -176,12 +185,23 @@ function GeneratePageContent() {
     // Clear errors when starting a new generation
     if (streaming) {
       setGenerationError(null);
+      setRuntimeError(null);
     }
   }, []);
 
   const handleError = useCallback(
     (message: string, type: GenerationErrorType) => {
       setGenerationError({ message, type });
+    },
+    [],
+  );
+
+  // Handle runtime errors from the Player (e.g., "cannot access variable before initialization")
+  const handleRuntimeError = useCallback(
+    (errorMessage: string) => {
+      // Set runtime error - this will be combined with compilation errors via codeError
+      // The useAutoCorrection hook will pick this up via the compilationError prop
+      setRuntimeError(errorMessage);
     },
     [],
   );
@@ -203,6 +223,7 @@ function GeneratePageContent() {
         <ChatHistory
           ref={chatHistoryRef}
           messages={messages}
+          pendingMessage={pendingMessage}
           isCollapsed={isSidebarCollapsed}
           onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           hasManualEdits={hasManualEdits}
@@ -221,6 +242,8 @@ function GeneratePageContent() {
           onGenerationComplete={handleGenerationComplete}
           onErrorMessage={addErrorMessage}
           errorCorrection={errorCorrection ?? undefined}
+          onPendingMessage={setPendingMessage}
+          onClearPendingMessage={clearPendingMessage}
         />
 
         {/* Main content area */}
@@ -241,9 +264,10 @@ function GeneratePageContent() {
                 onFpsChange={setFps}
                 isCompiling={isCompiling}
                 isStreaming={isStreaming}
-                error={generationError?.message || error}
+                error={generationError?.message || codeError}
                 errorType={generationError?.type || "compilation"}
                 code={code}
+                onRuntimeError={handleRuntimeError}
               />
             </div>
           </div>

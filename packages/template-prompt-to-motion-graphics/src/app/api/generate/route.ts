@@ -528,8 +528,43 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
       reasoningEffort ? `reasoning_effort: ${reasoningEffort}` : ""
     );
 
-    return result.toUIMessageStreamResponse({
+    // Get the original stream response
+    const originalResponse = result.toUIMessageStreamResponse({
       sendReasoning: true,
+    });
+
+    // Create metadata event to prepend
+    const metadataEvent = `data: ${JSON.stringify({
+      type: "metadata",
+      skills: detectedSkills,
+    })}\n\n`;
+
+    // Create a new stream that prepends metadata before the LLM stream
+    const originalBody = originalResponse.body;
+    if (!originalBody) {
+      return originalResponse;
+    }
+
+    const reader = originalBody.getReader();
+    const encoder = new TextEncoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        // Send metadata event first
+        controller.enqueue(encoder.encode(metadataEvent));
+
+        // Then pipe through the original stream
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          controller.enqueue(value);
+        }
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: originalResponse.headers,
     });
   } catch (error) {
     console.error("Error generating code:", error);

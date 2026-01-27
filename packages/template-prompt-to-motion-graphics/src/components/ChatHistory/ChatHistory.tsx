@@ -18,6 +18,11 @@ import {
   BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type {
   ConversationMessage,
@@ -49,6 +54,10 @@ export interface ChatHistoryRef {
 
 interface ChatHistoryProps {
   messages: ConversationMessage[];
+  pendingMessage?: {
+    skills?: string[];
+    startedAt: number;
+  };
   isCollapsed: boolean;
   onToggleCollapse: () => void;
   hasManualEdits: boolean;
@@ -75,12 +84,15 @@ interface ChatHistoryProps {
     errorType: "edit_failed" | "api" | "validation",
   ) => void;
   errorCorrection?: ErrorCorrectionContext;
+  onPendingMessage?: (skills?: string[]) => void;
+  onClearPendingMessage?: () => void;
 }
 
 export const ChatHistory = forwardRef<ChatHistoryRef, ChatHistoryProps>(
   function ChatHistory(
     {
       messages,
+      pendingMessage,
       isCollapsed,
       onToggleCollapse,
       hasManualEdits,
@@ -99,6 +111,8 @@ export const ChatHistory = forwardRef<ChatHistoryRef, ChatHistoryProps>(
       onGenerationComplete,
       onErrorMessage,
       errorCorrection,
+      onPendingMessage,
+      onClearPendingMessage,
     },
     ref,
   ) {
@@ -186,6 +200,7 @@ export const ChatHistory = forwardRef<ChatHistoryRef, ChatHistoryProps>(
         const decoder = new TextDecoder();
         let accumulatedText = "";
         let buffer = "";
+        let streamMetadata: AssistantMetadata = {};
 
         while (true) {
           const { done, value } = await reader.read();
@@ -202,7 +217,15 @@ export const ChatHistory = forwardRef<ChatHistoryRef, ChatHistoryProps>(
 
             try {
               const event = JSON.parse(data);
-              if (event.type === "reasoning-start") {
+              if (event.type === "metadata") {
+                // Capture metadata (skills, etc.) sent at start of stream
+                streamMetadata = {
+                  ...streamMetadata,
+                  skills: event.skills,
+                };
+                // Show pending message with skills immediately
+                onPendingMessage?.(event.skills);
+              } else if (event.type === "reasoning-start") {
                 onStreamPhaseChange?.("reasoning");
               } else if (event.type === "text-start") {
                 onStreamPhaseChange?.("generating");
@@ -231,7 +254,12 @@ export const ChatHistory = forwardRef<ChatHistoryRef, ChatHistoryProps>(
         finalCode = finalCode.replace(/\n?```\s*$/, "");
         finalCode = extractComponentCode(finalCode);
         onCodeGenerated?.(finalCode);
-        onGenerationComplete?.(finalCode);
+        onClearPendingMessage?.();
+        onGenerationComplete?.(
+          finalCode,
+          undefined,
+          streamMetadata.skills?.length ? streamMetadata : undefined,
+        );
 
         const validation = validateGptResponse(finalCode);
         if (!validation.isValid && validation.error) {
@@ -248,6 +276,7 @@ export const ChatHistory = forwardRef<ChatHistoryRef, ChatHistoryProps>(
         setIsLoading(false);
         onStreamingChange?.(false);
         onStreamPhaseChange?.("idle");
+        onClearPendingMessage?.();
       }
     };
 
@@ -322,6 +351,9 @@ export const ChatHistory = forwardRef<ChatHistoryRef, ChatHistoryProps>(
             {messages.map((message) => (
               <ChatMessage key={message.id} message={message} />
             ))}
+            {pendingMessage && (
+              <PendingMessage skills={pendingMessage.skills} />
+            )}
             <div ref={messagesEndRef} />
           </div>
         )}
@@ -434,14 +466,16 @@ function ChatMessage({ message }: { message: ConversationMessage }) {
       <div className="text-sm text-foreground leading-relaxed">
         {message.content}
         {metadata?.skills && metadata.skills.length > 0 && (
-          <span className="relative inline-flex ml-1.5 group align-middle">
-            <BookOpen className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-background-elevated border border-border rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-              <span className="text-[10px] text-muted-foreground">
-                Skills: {metadata.skills.join(", ")}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex ml-1.5 align-middle cursor-help">
+                <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
               </span>
-            </div>
-          </span>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={4}>
+              Skills used: {metadata.skills.join(", ")}
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
 
@@ -473,6 +507,34 @@ function ChatMessage({ message }: { message: ConversationMessage }) {
           <span className="text-xs">Full code rewrite</span>
         </div>
       )}
+    </div>
+  );
+}
+
+function PendingMessage({ skills }: { skills?: string[] }) {
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-medium text-blue-400">Assistant</span>
+        <span className="text-xs text-muted-foreground-dim">now</span>
+      </div>
+
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="w-3 h-3 border-2 border-muted-foreground border-t-blue-400 rounded-full animate-spin" />
+        <span>Generating...</span>
+        {skills && skills.length > 0 && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex align-middle cursor-help">
+                <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={4}>
+              Skills used: {skills.join(", ")}
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </div>
     </div>
   );
 }
