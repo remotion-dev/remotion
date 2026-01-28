@@ -82,8 +82,6 @@ interface ChatSidebarProps {
   fps?: number;
   durationInFrames?: number;
   currentFrame?: number;
-  // Initial model from URL
-  initialModel?: ModelId;
 }
 
 export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
@@ -114,11 +112,10 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
       fps = 30,
       durationInFrames = 150,
       currentFrame = 0,
-      initialModel,
     },
     ref,
   ) {
-    const [model, setModel] = useState<ModelId>(initialModel ?? MODELS[2].id);
+    const [model, setModel] = useState<ModelId>(MODELS[1].id);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const promptRef = useRef<string>("");
 

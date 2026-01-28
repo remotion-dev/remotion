@@ -8,8 +8,7 @@ import { CodeEditor } from "../../components/CodeEditor";
 import { AnimationPlayer } from "../../components/AnimationPlayer";
 import { PageLayout } from "../../components/PageLayout";
 import { ChatSidebar, type ChatSidebarRef } from "../../components/ChatSidebar";
-import type { StreamPhase, GenerationErrorType, ModelId } from "../../types/generation";
-import { MODELS } from "../../types/generation";
+import type { StreamPhase, GenerationErrorType } from "../../types/generation";
 import { examples } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
 import { useConversationState } from "../../hooks/useConversationState";
@@ -25,7 +24,6 @@ const MAX_CORRECTION_ATTEMPTS = 3;
 function GeneratePageContent() {
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt") || "";
-  const initialModel = (searchParams.get("model") as ModelId) || MODELS[2].id;
 
   // If we have an initial prompt from URL, start in streaming state
   // so syntax highlighting is disabled from the beginning
@@ -264,8 +262,6 @@ function GeneratePageContent() {
           fps={fps}
           durationInFrames={durationInFrames}
           currentFrame={currentFrame}
-          // Initial model from URL
-          initialModel={initialModel}
         />
 
         {/* Main content area */}
