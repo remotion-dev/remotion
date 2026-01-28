@@ -32,7 +32,7 @@ test('Should render first frame for videos starting after timestamp 0', async ()
 
 	// Frame timestamp should be at video start (0.15s), NOT at requested time (0s)
 	// This proves we're returning the first actual frame
-	expect(result.frame.timestamp).toBeCloseTo(0.15, 2);
+	expect(result.frame.timestamp).toBeCloseTo(0.15 * 1_000_000, 2);
 
 	// Verify frame has pixel data (not completely black)
 	// testsrc generates a test pattern with colors and gradients
