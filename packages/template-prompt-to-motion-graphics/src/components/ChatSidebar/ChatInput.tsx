@@ -196,8 +196,8 @@ export function ChatInput({
               onValueChange={(value) => onModelChange(value as ModelId)}
               disabled={isLoading}
             >
-              <SelectTrigger className="w-auto bg-transparent border-none text-muted-foreground hover:text-foreground transition-colors text-xs h-7 px-2">
-                <SelectValue />
+              <SelectTrigger className="max-w-[140px] bg-transparent border-none text-muted-foreground hover:text-foreground transition-colors text-xs h-7 px-2 truncate">
+                <SelectValue className="truncate" />
               </SelectTrigger>
               <SelectContent className="bg-background-elevated border-border">
                 {MODELS.map((m) => (
@@ -243,7 +243,7 @@ export function ChatInput({
                 size="icon-sm"
                 disabled={!prompt.trim() || isLoading}
                 loading={isLoading}
-                className="bg-foreground text-background hover:bg-gray-200 h-7 w-7"
+                className="bg-foreground text-background hover:bg-gray-200 h-7 w-7 ml-1"
               >
                 <ArrowUp className="w-4 h-4" />
               </Button>
