@@ -21,6 +21,8 @@ export interface ConversationMessage {
   role: "user" | "assistant" | "error";
   content: string;
   timestamp: number;
+  /** For user messages, store attached image as base64 data URL */
+  attachedImage?: string;
   /** For assistant messages, store the code snapshot at time of generation */
   codeSnapshot?: string;
   /** For assistant messages, store metadata about the generation */

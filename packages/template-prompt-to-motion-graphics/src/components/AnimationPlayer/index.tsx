@@ -33,6 +33,7 @@ interface AnimationPlayerProps {
   errorType?: ErrorType;
   code: string;
   onRuntimeError?: (error: string) => void;
+  onFrameChange?: (frame: number) => void;
 }
 
 export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
@@ -47,10 +48,12 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
   errorType = "compilation",
   code,
   onRuntimeError,
+  onFrameChange,
 }) => {
   const playerRef = useRef<PlayerRef>(null);
 
   // Listen for runtime errors from the Player's error boundary
+  // Component is included in deps because the Player remounts when Component changes (via key={Component.toString()})
   useEffect(() => {
     const player = playerRef.current;
     if (!player || !onRuntimeError) return;
@@ -63,7 +66,25 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
     return () => {
       player.removeEventListener("error", handleError);
     };
-  }, [onRuntimeError]);
+  }, [onRuntimeError, Component]);
+
+  // Listen for frame changes and report to parent
+  // Component is included in deps because the Player remounts when Component changes (via key={Component.toString()})
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player || !onFrameChange) return;
+
+    const handleFrameUpdate = (e: {
+      detail: { frame: number };
+    }) => {
+      onFrameChange(e.detail.frame);
+    };
+
+    player.addEventListener("frameupdate", handleFrameUpdate);
+    return () => {
+      player.removeEventListener("frameupdate", handleFrameUpdate);
+    };
+  }, [onFrameChange, Component]);
 
   const renderContent = () => {
     if (isStreaming) {

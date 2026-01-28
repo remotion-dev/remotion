@@ -273,6 +273,8 @@ interface GenerateRequest {
   errorCorrection?: ErrorCorrectionContext;
   /** Skills already used in this conversation (to avoid redundant skill content) */
   previouslyUsedSkills?: string[];
+  /** Base64 image data URL for visual context */
+  frameImage?: string;
 }
 
 interface GenerateResponse {
@@ -296,6 +298,7 @@ export async function POST(req: Request) {
     hasManualEdits = false,
     errorCorrection,
     previouslyUsedSkills = [],
+    frameImage,
   }: GenerateRequest = await req.json();
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -442,7 +445,7 @@ Focus ONLY on fixing the error. Do not make other changes.`;
         }
       }
 
-      const editPrompt = `## CURRENT CODE:
+      const editPromptText = `## CURRENT CODE:
 \`\`\`tsx
 ${currentCode}
 \`\`\`
@@ -452,6 +455,7 @@ ${errorCorrectionNotice}
 
 ## USER REQUEST:
 ${prompt}
+${frameImage ? "\n(See the attached image for visual reference)" : ""}
 
 Analyze the request and decide: use targeted edits (type: "edit") for small changes, or full replacement (type: "full") for major restructuring.`;
 
@@ -461,13 +465,30 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
         "model:",
         modelName,
         "skills:",
-        detectedSkills.length > 0 ? detectedSkills.join(", ") : "general"
+        detectedSkills.length > 0 ? detectedSkills.join(", ") : "general",
+        frameImage ? "(with image)" : ""
       );
+
+      // Build messages array - include image if provided
+      const editMessages: Array<{
+        role: "user";
+        content: Array<{ type: "text"; text: string } | { type: "image"; image: string }>;
+      }> = [
+        {
+          role: "user" as const,
+          content: frameImage
+            ? [
+                { type: "text" as const, text: editPromptText },
+                { type: "image" as const, image: frameImage },
+              ]
+            : [{ type: "text" as const, text: editPromptText }],
+        },
+      ];
 
       const editResult = await generateObject({
         model: openai(modelName),
         system: FOLLOW_UP_SYSTEM_PROMPT,
-        prompt: editPrompt,
+        messages: editMessages,
         schema: FollowUpResponseSchema,
       });
 
@@ -540,10 +561,30 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
 
   // INITIAL GENERATION: Use streaming for new animations
   try {
+    // Build messages for initial generation (supports image reference)
+    const initialPromptText = frameImage
+      ? `${prompt}\n\n(See the attached image for visual reference)`
+      : prompt;
+
+    const initialMessages: Array<{
+      role: "user";
+      content: Array<{ type: "text"; text: string } | { type: "image"; image: string }>;
+    }> = [
+      {
+        role: "user" as const,
+        content: frameImage
+          ? [
+              { type: "text" as const, text: initialPromptText },
+              { type: "image" as const, image: frameImage },
+            ]
+          : [{ type: "text" as const, text: initialPromptText }],
+      },
+    ];
+
     const result = streamText({
       model: openai(modelName),
       system: enhancedSystemPrompt,
-      prompt,
+      messages: initialMessages,
       ...(reasoningEffort && {
         providerOptions: {
           openai: {
@@ -560,7 +601,8 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
       modelName,
       "skills:",
       detectedSkills.length > 0 ? detectedSkills.join(", ") : "general",
-      reasoningEffort ? `reasoning_effort: ${reasoningEffort}` : ""
+      reasoningEffort ? `reasoning_effort: ${reasoningEffort}` : "",
+      frameImage ? "(with image)" : ""
     );
 
     // Get the original stream response

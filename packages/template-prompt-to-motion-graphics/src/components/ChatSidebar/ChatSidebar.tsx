@@ -6,6 +6,7 @@ import {
   useImperativeHandle,
   useRef,
   useEffect,
+  type ComponentType,
 } from "react";
 import {
   PanelLeftClose,
@@ -40,7 +41,7 @@ import { ChatInput } from "./ChatInput";
 import { useGenerationApi } from "@/hooks/useGenerationApi";
 
 export interface ChatSidebarRef {
-  triggerGeneration: (options?: { silent?: boolean }) => void;
+  triggerGeneration: (options?: { silent?: boolean; attachedImage?: string }) => void;
 }
 
 interface ChatSidebarProps {
@@ -63,7 +64,7 @@ interface ChatSidebarProps {
   conversationHistory?: ConversationContextMessage[];
   previouslyUsedSkills?: string[];
   isFollowUp?: boolean;
-  onMessageSent?: (prompt: string) => void;
+  onMessageSent?: (prompt: string, attachedImage?: string) => void;
   onGenerationComplete?: (
     code: string,
     summary?: string,
@@ -76,6 +77,13 @@ interface ChatSidebarProps {
   errorCorrection?: ErrorCorrectionContext;
   onPendingMessage?: (skills?: string[]) => void;
   onClearPendingMessage?: () => void;
+  // Frame capture props
+  Component?: ComponentType | null;
+  fps?: number;
+  durationInFrames?: number;
+  currentFrame?: number;
+  // Initial model from URL
+  initialModel?: ModelId;
 }
 
 export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
@@ -102,10 +110,15 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
       errorCorrection,
       onPendingMessage,
       onClearPendingMessage,
+      Component,
+      fps = 30,
+      durationInFrames = 150,
+      currentFrame = 0,
+      initialModel,
     },
     ref,
   ) {
-    const [model, setModel] = useState<ModelId>(MODELS[2].id);
+    const [model, setModel] = useState<ModelId>(initialModel ?? MODELS[2].id);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const promptRef = useRef<string>("");
 
@@ -121,7 +134,10 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    const handleGeneration = async (options?: { silent?: boolean }) => {
+    const handleGeneration = async (options?: {
+      silent?: boolean;
+      attachedImage?: string;
+    }) => {
       const currentPrompt = promptRef.current;
       if (!currentPrompt.trim()) return;
 
@@ -137,6 +153,7 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
           isFollowUp,
           hasManualEdits,
           errorCorrection,
+          frameImage: options?.attachedImage,
         },
         {
           onCodeGenerated,
@@ -231,7 +248,13 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
               model={model}
               onModelChange={setModel}
               isLoading={isLoading}
-              onSubmit={handleGeneration}
+              onSubmit={(attachedImage) =>
+                handleGeneration({ attachedImage })
+              }
+              Component={Component}
+              fps={fps}
+              durationInFrames={durationInFrames}
+              currentFrame={currentFrame}
             />
           </>
         )}
@@ -259,6 +282,14 @@ function ChatMessage({ message }: { message: ConversationMessage }) {
         </div>
         <div className="text-sm text-foreground leading-relaxed bg-secondary/50 rounded-lg px-3 py-2">
           {message.content}
+          {message.attachedImage && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={message.attachedImage}
+              alt="Attached"
+              className="h-20 w-auto rounded border border-border object-cover mt-2"
+            />
+          )}
         </div>
       </div>
     );

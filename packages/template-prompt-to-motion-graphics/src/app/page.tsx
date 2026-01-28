@@ -11,8 +11,14 @@ const Home: NextPage = () => {
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
 
-  const handleNavigate = (prompt: string, model: ModelId) => {
+  const handleNavigate = (prompt: string, model: ModelId, attachedImage?: string) => {
     setIsNavigating(true);
+    // Store image in sessionStorage (too large for URL params)
+    if (attachedImage) {
+      sessionStorage.setItem("initialAttachedImage", attachedImage);
+    } else {
+      sessionStorage.removeItem("initialAttachedImage");
+    }
     const params = new URLSearchParams({ prompt, model });
     router.push(`/generate?${params.toString()}`);
   };

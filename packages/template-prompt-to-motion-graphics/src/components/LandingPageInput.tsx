@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type DragEvent } from "react";
 import Link from "next/link";
 import {
   ArrowUp,
@@ -10,8 +10,10 @@ import {
   Hash,
   BarChart3,
   Disc,
+  X,
   type LucideIcon,
 } from "lucide-react";
+import { fileToBase64 } from "@/helpers/capture-frame";
 import {
   Select,
   SelectContent,
@@ -32,7 +34,7 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 interface LandingPageInputProps {
-  onNavigate: (prompt: string, model: ModelId) => void;
+  onNavigate: (prompt: string, model: ModelId, attachedImage?: string) => void;
   isNavigating?: boolean;
   showCodeExamplesLink?: boolean;
 }
@@ -44,11 +46,13 @@ export function LandingPageInput({
 }: LandingPageInputProps) {
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState<ModelId>("gpt-5.2:medium");
+  const [attachedImage, setAttachedImage] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isNavigating) return;
-    onNavigate(prompt, model);
+    onNavigate(prompt, model, attachedImage ?? undefined);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -59,6 +63,45 @@ export function LandingPageInput({
     }
   };
 
+  const handlePaste = async (e: React.ClipboardEvent) => {
+    const items = Array.from(e.clipboardData.items);
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) {
+          const base64 = await fileToBase64(file);
+          setAttachedImage(base64);
+        }
+        break;
+      }
+    }
+  };
+
+  const handleDragOver = (e: DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    for (const file of files) {
+      if (file.type.startsWith("image/")) {
+        const base64 = await fileToBase64(file);
+        setAttachedImage(base64);
+        break;
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center flex-1 px-4">
       <h1 className="text-5xl font-bold text-white mb-10 text-center">
@@ -66,12 +109,39 @@ export function LandingPageInput({
       </h1>
 
       <form onSubmit={handleSubmit} className="w-full max-w-3xl">
-        <div className="bg-background-elevated rounded-xl border border-border p-4">
+        <div
+          className={`bg-background-elevated rounded-xl border p-4 transition-colors ${
+            isDragging ? "border-blue-500 bg-blue-500/10" : "border-border"
+          }`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          {/* Image preview */}
+          {attachedImage && (
+            <div className="mb-3 relative inline-block">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={attachedImage}
+                alt="Attached"
+                className="h-20 w-auto rounded border border-border object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => setAttachedImage(null)}
+                className="absolute -top-1.5 -right-1.5 bg-background border border-border rounded-full p-0.5 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Describe your animation..."
+            onPaste={handlePaste}
+            placeholder={isDragging ? "Drop image here..." : "Describe your animation..."}
             className="w-full bg-transparent text-foreground placeholder:text-muted-foreground-dim focus:outline-none resize-none overflow-y-auto text-base min-h-[60px] max-h-[200px]"
             style={{ fieldSizing: "content" }}
             disabled={isNavigating}

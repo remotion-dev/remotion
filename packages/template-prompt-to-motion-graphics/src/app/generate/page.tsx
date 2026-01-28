@@ -8,7 +8,8 @@ import { CodeEditor } from "../../components/CodeEditor";
 import { AnimationPlayer } from "../../components/AnimationPlayer";
 import { PageLayout } from "../../components/PageLayout";
 import { ChatSidebar, type ChatSidebarRef } from "../../components/ChatSidebar";
-import type { StreamPhase, GenerationErrorType } from "../../types/generation";
+import type { StreamPhase, GenerationErrorType, ModelId } from "../../types/generation";
+import { MODELS } from "../../types/generation";
 import { examples } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
 import { useConversationState } from "../../hooks/useConversationState";
@@ -24,6 +25,7 @@ const MAX_CORRECTION_ATTEMPTS = 3;
 function GeneratePageContent() {
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt") || "";
+  const initialModel = (searchParams.get("model") as ModelId) || MODELS[2].id;
 
   // If we have an initial prompt from URL, start in streaming state
   // so syntax highlighting is disabled from the beginning
@@ -33,6 +35,7 @@ function GeneratePageContent() {
     examples[0]?.durationInFrames || 150,
   );
   const [fps, setFps] = useState(examples[0]?.fps || 30);
+  const [currentFrame, setCurrentFrame] = useState(0);
   const [isStreaming, setIsStreaming] = useState(willAutoStart);
   const [streamPhase, setStreamPhase] = useState<StreamPhase>(
     willAutoStart ? "reasoning" : "idle",
@@ -154,8 +157,8 @@ function GeneratePageContent() {
 
   // Handle message sent for history
   const handleMessageSent = useCallback(
-    (promptText: string) => {
-      addUserMessage(promptText);
+    (promptText: string, attachedImage?: string) => {
+      addUserMessage(promptText, attachedImage);
     },
     [addUserMessage],
   );
@@ -185,6 +188,8 @@ function GeneratePageContent() {
     if (streaming) {
       setGenerationError(null);
       setRuntimeError(null);
+      // Reset error correction state for fresh retry attempts
+      setErrorCorrection(null);
     }
   }, []);
 
@@ -209,8 +214,13 @@ function GeneratePageContent() {
   useEffect(() => {
     if (initialPrompt && !hasAutoStarted && chatSidebarRef.current) {
       setHasAutoStarted(true);
+      // Check for initial attached image from sessionStorage
+      const storedImage = sessionStorage.getItem("initialAttachedImage");
+      if (storedImage) {
+        sessionStorage.removeItem("initialAttachedImage");
+      }
       setTimeout(() => {
-        chatSidebarRef.current?.triggerGeneration();
+        chatSidebarRef.current?.triggerGeneration({ attachedImage: storedImage ?? undefined });
       }, 100);
     }
   }, [initialPrompt, hasAutoStarted]);
@@ -243,6 +253,13 @@ function GeneratePageContent() {
           errorCorrection={errorCorrection ?? undefined}
           onPendingMessage={setPendingMessage}
           onClearPendingMessage={clearPendingMessage}
+          // Frame capture props
+          Component={Component}
+          fps={fps}
+          durationInFrames={durationInFrames}
+          currentFrame={currentFrame}
+          // Initial model from URL
+          initialModel={initialModel}
         />
 
         {/* Main content area */}
@@ -267,6 +284,7 @@ function GeneratePageContent() {
                 errorType={generationError?.type || "compilation"}
                 code={code}
                 onRuntimeError={handleRuntimeError}
+                onFrameChange={setCurrentFrame}
               />
             </div>
           </div>

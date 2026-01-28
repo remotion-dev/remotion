@@ -22,7 +22,7 @@ interface GenerationCallbacks {
   onStreamingChange?: (isStreaming: boolean) => void;
   onStreamPhaseChange?: (phase: StreamPhase) => void;
   onError?: (error: string, type: GenerationErrorType, failedEdit?: FailedEditInfo) => void;
-  onMessageSent?: (prompt: string) => void;
+  onMessageSent?: (prompt: string, attachedImage?: string) => void;
   onGenerationComplete?: (
     code: string,
     summary?: string,
@@ -44,6 +44,7 @@ interface GenerationContext {
   isFollowUp: boolean;
   hasManualEdits: boolean;
   errorCorrection?: ErrorCorrectionContext;
+  frameImage?: string;
 }
 
 interface UseGenerationApiReturn {
@@ -77,6 +78,7 @@ export function useGenerationApi(): UseGenerationApiReturn {
         isFollowUp,
         hasManualEdits,
         errorCorrection,
+        frameImage,
       } = context;
 
       const {
@@ -97,7 +99,7 @@ export function useGenerationApi(): UseGenerationApiReturn {
 
       // Only add user message if not a silent retry
       if (!options?.silent) {
-        onMessageSent?.(prompt);
+        onMessageSent?.(prompt, frameImage);
       }
 
       try {
@@ -113,6 +115,7 @@ export function useGenerationApi(): UseGenerationApiReturn {
             isFollowUp,
             hasManualEdits,
             errorCorrection,
+            frameImage,
           }),
         });
 
