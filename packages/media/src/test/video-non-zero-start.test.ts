@@ -24,21 +24,21 @@ test('Should render first frame for videos starting after timestamp 0', async ()
 	// Should successfully extract (no error thrown)
 	expect(result.type).toBe('success');
 	assert(result.type === 'success');
-	assert(result.sample, 'Frame should be returned');
+	assert(result.frame, 'Frame should be returned');
 
 	// Frame should have valid dimensions
-	expect(result.sample.codedWidth).toBe(640);
-	expect(result.sample.codedHeight).toBe(480);
+	expect(result.frame.codedWidth).toBe(640);
+	expect(result.frame.codedHeight).toBe(480);
 
 	// Frame timestamp should be at video start (0.15s), NOT at requested time (0s)
 	// This proves we're returning the first actual frame
-	expect(result.sample.timestamp).toBeCloseTo(0.15, 2);
+	expect(result.frame.timestamp).toBeCloseTo(0.15 * 1_000_000, 2);
 
 	// Verify frame has pixel data (not completely black)
 	// testsrc generates a test pattern with colors and gradients
-	const bufferSize = result.sample.codedWidth * result.sample.codedHeight * 4;
+	const bufferSize = result.frame.codedWidth * result.frame.codedHeight * 4;
 	const buffer = new Uint8Array(bufferSize);
-	await result.sample.copyTo(buffer);
+	await result.frame.copyTo(buffer);
 	const hasNonZeroPixels = buffer.some((byte) => byte > 0);
 	expect(hasNonZeroPixels).toBe(true);
 

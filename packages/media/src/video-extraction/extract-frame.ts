@@ -1,4 +1,3 @@
-import type {VideoSample} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {keyframeManager} from '../caches';
 import {getSink} from '../get-sink';
@@ -7,7 +6,8 @@ import {getTimeInSeconds} from '../get-time-in-seconds';
 type ExtractFrameResult =
 	| {
 			type: 'success';
-			sample: VideoSample | null;
+			frame: VideoFrame | null;
+			rotation: number;
 			durationInSeconds: number | null;
 	  }
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
@@ -87,7 +87,8 @@ const extractFrameInternal = async ({
 	if (timeInSeconds === null) {
 		return {
 			type: 'success',
-			sample: null,
+			frame: null,
+			rotation: 0,
 			durationInSeconds: await sink.getDuration(),
 		};
 	}
@@ -107,16 +108,19 @@ const extractFrameInternal = async ({
 		if (!keyframeBank) {
 			return {
 				type: 'success',
-				sample: null,
+				frame: null,
+				rotation: 0,
 				durationInSeconds: await sink.getDuration(),
 			};
 		}
 
 		const frame = await keyframeBank.getFrameFromTimestamp(timeInSeconds);
+		const rotation = frame?.rotation ?? 0;
 
 		return {
 			type: 'success',
-			sample: frame,
+			frame: frame?.toVideoFrame() ?? null,
+			rotation,
 			durationInSeconds: await sink.getDuration(),
 		};
 	} catch (err) {
