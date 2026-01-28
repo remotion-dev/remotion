@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type ComponentType, type DragEvent } from "react";
-import { ArrowUp, Camera, X } from "lucide-react";
+import { useState, useRef, type ComponentType, type DragEvent, type ChangeEvent } from "react";
+import { ArrowUp, Camera, X, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -13,13 +13,15 @@ import {
 import { type ModelId, MODELS } from "@/types/generation";
 import { captureFrame, fileToBase64 } from "@/helpers/capture-frame";
 
+const MAX_ATTACHED_IMAGES = 4;
+
 interface ChatInputProps {
   prompt: string;
   onPromptChange: (prompt: string) => void;
   model: ModelId;
   onModelChange: (model: ModelId) => void;
   isLoading: boolean;
-  onSubmit: (attachedImage?: string) => void;
+  onSubmit: (attachedImages?: string[]) => void;
   // Frame capture props
   Component?: ComponentType | null;
   fps?: number;
@@ -39,15 +41,35 @@ export function ChatInput({
   durationInFrames = 150,
   currentFrame = 0,
 }: ChatInputProps) {
-  const [attachedImage, setAttachedImage] = useState<string | null>(null);
+  const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
-    onSubmit(attachedImage ?? undefined);
-    setAttachedImage(null); // Clear after submit
+    onSubmit(attachedImages.length > 0 ? attachedImages : undefined);
+    setAttachedImages([]); // Clear after submit
+  };
+
+  const addImages = (newImages: string[]) => {
+    setAttachedImages((prev) => {
+      const combined = [...prev, ...newImages];
+      return combined.slice(0, MAX_ATTACHED_IMAGES);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setAttachedImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+    const base64Images = await Promise.all(imageFiles.map(fileToBase64));
+    addImages(base64Images);
+    e.target.value = "";
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -59,7 +81,7 @@ export function ChatInput({
   };
 
   const handleCapture = async () => {
-    if (!Component || isCapturing) return;
+    if (!Component || isCapturing || attachedImages.length >= MAX_ATTACHED_IMAGES) return;
 
     setIsCapturing(true);
     try {
@@ -69,7 +91,7 @@ export function ChatInput({
         fps,
         durationInFrames,
       });
-      setAttachedImage(base64);
+      addImages([base64]);
     } catch (error) {
       console.error("Failed to capture frame:", error);
     } finally {
@@ -79,16 +101,14 @@ export function ChatInput({
 
   const handlePaste = async (e: React.ClipboardEvent) => {
     const items = Array.from(e.clipboardData.items);
-    for (const item of items) {
-      if (item.type.startsWith("image/")) {
-        e.preventDefault();
-        const file = item.getAsFile();
-        if (file) {
-          const base64 = await fileToBase64(file);
-          setAttachedImage(base64);
-        }
-        break;
-      }
+    const imageItems = items.filter((item) => item.type.startsWith("image/"));
+    if (imageItems.length > 0) {
+      e.preventDefault();
+      const files = imageItems
+        .map((item) => item.getAsFile())
+        .filter((f): f is File => f !== null);
+      const base64Images = await Promise.all(files.map(fileToBase64));
+      addImages(base64Images);
     }
   };
 
@@ -107,16 +127,12 @@ export function ChatInput({
     setIsDragging(false);
 
     const files = Array.from(e.dataTransfer.files);
-    for (const file of files) {
-      if (file.type.startsWith("image/")) {
-        const base64 = await fileToBase64(file);
-        setAttachedImage(base64);
-        break;
-      }
-    }
+    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+    const base64Images = await Promise.all(imageFiles.map(fileToBase64));
+    addImages(base64Images);
   };
 
-  const canCapture = Component && !isLoading && !isCapturing;
+  const canCapture = Component && !isLoading && !isCapturing && attachedImages.length < MAX_ATTACHED_IMAGES;
 
   return (
     <div className="p-4">
@@ -129,22 +145,26 @@ export function ChatInput({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          {/* Image preview */}
-          {attachedImage && (
-            <div className="mb-2 relative inline-block">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={attachedImage}
-                alt="Attached"
-                className="h-16 w-auto rounded border border-border object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => setAttachedImage(null)}
-                className="absolute -top-1.5 -right-1.5 bg-background border border-border rounded-full p-0.5 hover:bg-destructive hover:text-destructive-foreground transition-colors"
-              >
-                <X className="w-3 h-3" />
-              </button>
+          {/* Image previews */}
+          {attachedImages.length > 0 && (
+            <div className="mb-2 flex gap-2 overflow-x-auto pb-1 pt-2">
+              {attachedImages.map((img, index) => (
+                <div key={index} className="relative flex-shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={img}
+                    alt={`Attached ${index + 1}`}
+                    className="h-16 w-auto rounded border border-border object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute -top-1.5 -right-1.5 bg-background border border-border rounded-full p-0.5 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
             </div>
           )}
 
@@ -154,12 +174,22 @@ export function ChatInput({
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             placeholder={
-              isDragging ? "Drop image here..." : "Tune your animation..."
+              isDragging ? "Drop images here..." : "Tune your animation... (paste or drop images)"
             }
             className="w-full bg-transparent text-foreground placeholder:text-muted-foreground-dim focus:outline-none resize-none text-sm min-h-[36px] max-h-[120px]"
             style={{ fieldSizing: "content" } as React.CSSProperties}
             disabled={isLoading}
           />
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+
           <div className="flex justify-between items-center mt-2 pt-2 border-t border-border/50">
             <Select
               value={model}
@@ -187,12 +217,25 @@ export function ChatInput({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLoading || attachedImages.length >= MAX_ATTACHED_IMAGES}
+                className="text-muted-foreground hover:text-foreground h-7 w-7"
+                title="Attach images"
+              >
+                <Paperclip className="w-4 h-4" />
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 disabled={!canCapture}
                 onClick={handleCapture}
-                className="text-muted-foreground hover:text-foreground h-7 w-7"
-                title="Capture current frame"
+                className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
+                title="Use current frame of Preview as image in chat"
               >
-                <Camera className="w-4 h-4" />
+                <Camera className="w-3.5 h-3.5 mr-1" />
+                Use Frame
               </Button>
 
               <Button

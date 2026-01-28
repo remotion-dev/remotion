@@ -157,8 +157,8 @@ function GeneratePageContent() {
 
   // Handle message sent for history
   const handleMessageSent = useCallback(
-    (promptText: string, attachedImage?: string) => {
-      addUserMessage(promptText, attachedImage);
+    (promptText: string, attachedImages?: string[]) => {
+      addUserMessage(promptText, attachedImages);
     },
     [addUserMessage],
   );
@@ -214,13 +214,19 @@ function GeneratePageContent() {
   useEffect(() => {
     if (initialPrompt && !hasAutoStarted && chatSidebarRef.current) {
       setHasAutoStarted(true);
-      // Check for initial attached image from sessionStorage
-      const storedImage = sessionStorage.getItem("initialAttachedImage");
-      if (storedImage) {
-        sessionStorage.removeItem("initialAttachedImage");
+      // Check for initial attached images from sessionStorage
+      const storedImagesJson = sessionStorage.getItem("initialAttachedImages");
+      let storedImages: string[] | undefined;
+      if (storedImagesJson) {
+        try {
+          storedImages = JSON.parse(storedImagesJson);
+        } catch {
+          // Ignore parse errors
+        }
+        sessionStorage.removeItem("initialAttachedImages");
       }
       setTimeout(() => {
-        chatSidebarRef.current?.triggerGeneration({ attachedImage: storedImage ?? undefined });
+        chatSidebarRef.current?.triggerGeneration({ attachedImages: storedImages });
       }, 100);
     }
   }, [initialPrompt, hasAutoStarted]);

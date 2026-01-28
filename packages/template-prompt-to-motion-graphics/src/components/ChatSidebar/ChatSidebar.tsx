@@ -41,7 +41,7 @@ import { ChatInput } from "./ChatInput";
 import { useGenerationApi } from "@/hooks/useGenerationApi";
 
 export interface ChatSidebarRef {
-  triggerGeneration: (options?: { silent?: boolean; attachedImage?: string }) => void;
+  triggerGeneration: (options?: { silent?: boolean; attachedImages?: string[] }) => void;
 }
 
 interface ChatSidebarProps {
@@ -64,7 +64,7 @@ interface ChatSidebarProps {
   conversationHistory?: ConversationContextMessage[];
   previouslyUsedSkills?: string[];
   isFollowUp?: boolean;
-  onMessageSent?: (prompt: string, attachedImage?: string) => void;
+  onMessageSent?: (prompt: string, attachedImages?: string[]) => void;
   onGenerationComplete?: (
     code: string,
     summary?: string,
@@ -136,7 +136,7 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
 
     const handleGeneration = async (options?: {
       silent?: boolean;
-      attachedImage?: string;
+      attachedImages?: string[];
     }) => {
       const currentPrompt = promptRef.current;
       if (!currentPrompt.trim()) return;
@@ -153,7 +153,7 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
           isFollowUp,
           hasManualEdits,
           errorCorrection,
-          frameImage: options?.attachedImage,
+          frameImages: options?.attachedImages,
         },
         {
           onCodeGenerated,
@@ -248,8 +248,8 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
               model={model}
               onModelChange={setModel}
               isLoading={isLoading}
-              onSubmit={(attachedImage) =>
-                handleGeneration({ attachedImage })
+              onSubmit={(attachedImages) =>
+                handleGeneration({ attachedImages })
               }
               Component={Component}
               fps={fps}
@@ -282,13 +282,18 @@ function ChatMessage({ message }: { message: ConversationMessage }) {
         </div>
         <div className="text-sm text-foreground leading-relaxed bg-secondary/50 rounded-lg px-3 py-2">
           {message.content}
-          {message.attachedImage && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={message.attachedImage}
-              alt="Attached"
-              className="h-20 w-auto rounded border border-border object-cover mt-2"
-            />
+          {message.attachedImages && message.attachedImages.length > 0 && (
+            <div className="flex gap-2 mt-2 overflow-x-auto">
+              {message.attachedImages.map((img, index) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={index}
+                  src={img}
+                  alt={`Attached ${index + 1}`}
+                  className="h-20 w-auto rounded border border-border object-cover flex-shrink-0"
+                />
+              ))}
+            </div>
           )}
         </div>
       </div>

@@ -273,8 +273,8 @@ interface GenerateRequest {
   errorCorrection?: ErrorCorrectionContext;
   /** Skills already used in this conversation (to avoid redundant skill content) */
   previouslyUsedSkills?: string[];
-  /** Base64 image data URL for visual context */
-  frameImage?: string;
+  /** Base64 image data URLs for visual context */
+  frameImages?: string[];
 }
 
 interface GenerateResponse {
@@ -298,7 +298,7 @@ export async function POST(req: Request) {
     hasManualEdits = false,
     errorCorrection,
     previouslyUsedSkills = [],
-    frameImage,
+    frameImages,
   }: GenerateRequest = await req.json();
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -455,7 +455,7 @@ ${errorCorrectionNotice}
 
 ## USER REQUEST:
 ${prompt}
-${frameImage ? "\n(See the attached image for visual reference)" : ""}
+${frameImages && frameImages.length > 0 ? `\n(See the attached ${frameImages.length === 1 ? "image" : "images"} for visual reference)` : ""}
 
 Analyze the request and decide: use targeted edits (type: "edit") for small changes, or full replacement (type: "full") for major restructuring.`;
 
@@ -466,22 +466,25 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
         modelName,
         "skills:",
         detectedSkills.length > 0 ? detectedSkills.join(", ") : "general",
-        frameImage ? "(with image)" : ""
+        frameImages && frameImages.length > 0 ? `(with ${frameImages.length} image(s))` : ""
       );
 
-      // Build messages array - include image if provided
+      // Build messages array - include images if provided
+      const editMessageContent: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [
+        { type: "text" as const, text: editPromptText },
+      ];
+      if (frameImages && frameImages.length > 0) {
+        for (const img of frameImages) {
+          editMessageContent.push({ type: "image" as const, image: img });
+        }
+      }
       const editMessages: Array<{
         role: "user";
         content: Array<{ type: "text"; text: string } | { type: "image"; image: string }>;
       }> = [
         {
           role: "user" as const,
-          content: frameImage
-            ? [
-                { type: "text" as const, text: editPromptText },
-                { type: "image" as const, image: frameImage },
-              ]
-            : [{ type: "text" as const, text: editPromptText }],
+          content: editMessageContent,
         },
       ];
 
@@ -561,10 +564,20 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
 
   // INITIAL GENERATION: Use streaming for new animations
   try {
-    // Build messages for initial generation (supports image reference)
-    const initialPromptText = frameImage
-      ? `${prompt}\n\n(See the attached image for visual reference)`
+    // Build messages for initial generation (supports image references)
+    const hasImages = frameImages && frameImages.length > 0;
+    const initialPromptText = hasImages
+      ? `${prompt}\n\n(See the attached ${frameImages.length === 1 ? "image" : "images"} for visual reference)`
       : prompt;
+
+    const initialMessageContent: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [
+      { type: "text" as const, text: initialPromptText },
+    ];
+    if (hasImages) {
+      for (const img of frameImages) {
+        initialMessageContent.push({ type: "image" as const, image: img });
+      }
+    }
 
     const initialMessages: Array<{
       role: "user";
@@ -572,12 +585,7 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
     }> = [
       {
         role: "user" as const,
-        content: frameImage
-          ? [
-              { type: "text" as const, text: initialPromptText },
-              { type: "image" as const, image: frameImage },
-            ]
-          : [{ type: "text" as const, text: initialPromptText }],
+        content: initialMessageContent,
       },
     ];
 
@@ -602,7 +610,7 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
       "skills:",
       detectedSkills.length > 0 ? detectedSkills.join(", ") : "general",
       reasoningEffort ? `reasoning_effort: ${reasoningEffort}` : "",
-      frameImage ? "(with image)" : ""
+      hasImages ? `(with ${frameImages.length} image(s))` : ""
     );
 
     // Get the original stream response

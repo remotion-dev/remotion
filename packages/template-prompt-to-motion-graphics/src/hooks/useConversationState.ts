@@ -18,13 +18,13 @@ export function useConversationState() {
   // Track the last AI-generated code to detect manual edits
   const lastAiCodeRef = useRef<string>("");
 
-  const addUserMessage = useCallback((content: string, attachedImage?: string) => {
+  const addUserMessage = useCallback((content: string, attachedImages?: string[]) => {
     const message: ConversationMessage = {
       id: `user-${Date.now()}`,
       role: "user",
       content,
       timestamp: Date.now(),
-      attachedImage,
+      attachedImages,
     };
     setState((prev) => ({
       ...prev,
