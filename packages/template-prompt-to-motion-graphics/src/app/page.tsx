@@ -3,7 +3,8 @@
 import { useState } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/navigation";
-import { PromptInput, type ModelId } from "@/components/PromptInput";
+import { LandingPageInput } from "@/components/LandingPageInput";
+import type { ModelId } from "@/types/generation";
 import { PageLayout } from "@/components/PageLayout";
 
 const Home: NextPage = () => {
@@ -18,8 +19,7 @@ const Home: NextPage = () => {
 
   return (
     <PageLayout>
-      <PromptInput
-        variant="landing"
+      <LandingPageInput
         onNavigate={handleNavigate}
         isNavigating={isNavigating}
         showCodeExamplesLink

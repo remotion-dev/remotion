@@ -8,10 +8,7 @@ import { CodeEditor } from "../../components/CodeEditor";
 import { AnimationPlayer } from "../../components/AnimationPlayer";
 import { PageLayout } from "../../components/PageLayout";
 import { ChatSidebar, type ChatSidebarRef } from "../../components/ChatSidebar";
-import {
-  type StreamPhase,
-  type GenerationErrorType,
-} from "../../components/PromptInput";
+import type { StreamPhase, GenerationErrorType } from "../../types/generation";
 import { examples } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
 import { useConversationState } from "../../hooks/useConversationState";
@@ -60,7 +57,7 @@ function GeneratePageContent() {
     addAssistantMessage,
     addErrorMessage,
     markManualEdit,
-    getRecentContext,
+    getFullContext,
     getPreviouslyUsedSkills,
     setPendingMessage,
     clearPendingMessage,
@@ -227,7 +224,7 @@ function GeneratePageContent() {
           isCollapsed={isSidebarCollapsed}
           onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           hasManualEdits={hasManualEdits}
-          // PromptInput props for embedded input
+          // Generation props for embedded input
           onCodeGenerated={handleCodeChange}
           onStreamingChange={handleStreamingChange}
           onStreamPhaseChange={setStreamPhase}
@@ -235,7 +232,7 @@ function GeneratePageContent() {
           prompt={prompt}
           onPromptChange={setPrompt}
           currentCode={code}
-          conversationHistory={getRecentContext(3)}
+          conversationHistory={getFullContext()}
           previouslyUsedSkills={getPreviouslyUsedSkills()}
           isFollowUp={!isFirstGeneration}
           onMessageSent={handleMessageSent}

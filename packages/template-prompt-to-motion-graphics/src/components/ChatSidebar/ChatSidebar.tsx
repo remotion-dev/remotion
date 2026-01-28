@@ -34,7 +34,7 @@ import {
   type GenerationErrorType,
   type ModelId,
   MODELS,
-} from "../PromptInput";
+} from "@/types/generation";
 import { ChatInput } from "./ChatInput";
 import { useGenerationApi } from "@/hooks/useGenerationApi";
 

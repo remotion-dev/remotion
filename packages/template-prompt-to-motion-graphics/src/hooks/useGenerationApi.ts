@@ -4,7 +4,7 @@ import type {
   AssistantMetadata,
   ErrorCorrectionContext,
 } from "@/types/conversation";
-import type { StreamPhase, GenerationErrorType, ModelId } from "@/components/PromptInput";
+import type { StreamPhase, GenerationErrorType, ModelId } from "@/types/generation";
 import {
   validateGptResponse,
   extractComponentCode,

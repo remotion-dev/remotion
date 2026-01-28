@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type ModelId, MODELS } from "../PromptInput";
+import { type ModelId, MODELS } from "@/types/generation";
 
 interface ChatInputProps {
   prompt: string;
@@ -35,7 +35,8 @@ export function ChatInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+    // Submit on Enter (Shift+Enter for new line)
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }

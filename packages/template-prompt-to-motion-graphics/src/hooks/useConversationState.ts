@@ -108,21 +108,16 @@ export function useConversationState() {
     }));
   }, []);
 
-  // Get the last N conversation exchanges for context (excludes error messages)
-  const getRecentContext = useCallback(
-    (count: number = 3): ConversationContextMessage[] => {
-      // Filter out error messages - they're not part of the conversation context for the AI
-      const conversationMessages = state.messages.filter(
-        (m) => m.role === "user" || m.role === "assistant",
-      );
-      const recentMessages = conversationMessages.slice(-count * 2);
-      return recentMessages.map((m) => ({
+  // Get full conversation context (excludes error messages)
+  const getFullContext = useCallback((): ConversationContextMessage[] => {
+    // Filter out error messages - they're not part of the conversation context for the AI
+    return state.messages
+      .filter((m) => m.role === "user" || m.role === "assistant")
+      .map((m) => ({
         role: m.role as "user" | "assistant",
         content: m.role === "user" ? m.content : "[Generated Code]",
       }));
-    },
-    [state.messages],
-  );
+  }, [state.messages]);
 
   // Get all skills that have been used in the conversation (to avoid redundant skill content)
   const getPreviouslyUsedSkills = useCallback((): string[] => {
@@ -142,7 +137,7 @@ export function useConversationState() {
     addErrorMessage,
     markManualEdit,
     clearConversation,
-    getRecentContext,
+    getFullContext,
     getPreviouslyUsedSkills,
     setPendingMessage,
     clearPendingMessage,
