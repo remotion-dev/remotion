@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 import { CodeEditor } from "../../components/CodeEditor";
 import { AnimationPlayer } from "../../components/AnimationPlayer";
 import { PageLayout } from "../../components/PageLayout";
-import { ChatHistory, type ChatHistoryRef } from "../../components/ChatHistory";
+import { ChatSidebar, type ChatSidebarRef } from "../../components/ChatSidebar";
 import {
   type StreamPhase,
   type GenerationErrorType,
@@ -83,7 +83,7 @@ function GeneratePageContent() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isStreamingRef = useRef(isStreaming);
   const codeRef = useRef(code);
-  const chatHistoryRef = useRef<ChatHistoryRef>(null);
+  const chatSidebarRef = useRef<ChatSidebarRef>(null);
 
   // Auto-correction hook - use combined code error (compilation + runtime)
   const { markAsAiGenerated, markAsUserEdited } = useAutoCorrection({
@@ -100,7 +100,7 @@ function GeneratePageContent() {
       setPrompt(correctionPrompt);
       setTimeout(() => {
         // Use silent mode to avoid showing retry as a user message
-        chatHistoryRef.current?.triggerGeneration({ silent: true });
+        chatSidebarRef.current?.triggerGeneration({ silent: true });
       }, 100);
     }, []),
     onAddErrorMessage: addErrorMessage,
@@ -208,10 +208,10 @@ function GeneratePageContent() {
 
   // Auto-trigger generation if prompt came from URL
   useEffect(() => {
-    if (initialPrompt && !hasAutoStarted && chatHistoryRef.current) {
+    if (initialPrompt && !hasAutoStarted && chatSidebarRef.current) {
       setHasAutoStarted(true);
       setTimeout(() => {
-        chatHistoryRef.current?.triggerGeneration();
+        chatSidebarRef.current?.triggerGeneration();
       }, 100);
     }
   }, [initialPrompt, hasAutoStarted]);
@@ -220,8 +220,8 @@ function GeneratePageContent() {
     <PageLayout showLogoAsLink>
       <div className="flex-1 flex min-w-0 overflow-hidden">
         {/* Chat History Sidebar */}
-        <ChatHistory
-          ref={chatHistoryRef}
+        <ChatSidebar
+          ref={chatSidebarRef}
           messages={messages}
           pendingMessage={pendingMessage}
           isCollapsed={isSidebarCollapsed}
