@@ -105,7 +105,7 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
     },
     ref,
   ) {
-    const [model, setModel] = useState<ModelId>(MODELS[1].id);
+    const [model, setModel] = useState<ModelId>(MODELS[2].id);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const promptRef = useRef<string>("");
 

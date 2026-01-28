@@ -43,7 +43,7 @@ export function LandingPageInput({
   showCodeExamplesLink = false,
 }: LandingPageInputProps) {
   const [prompt, setPrompt] = useState("");
-  const [model, setModel] = useState<ModelId>("gpt-5.2:low");
+  const [model, setModel] = useState<ModelId>("gpt-5.2:medium");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
