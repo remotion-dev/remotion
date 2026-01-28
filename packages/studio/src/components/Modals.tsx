@@ -40,16 +40,7 @@ export const Modals: React.FC<{
 			)}
 
 			{modalContextType && modalContextType.type === 'web-render' && (
-				<WebRenderModalWithLoader
-					type="web-render"
-					initialFrame={modalContextType.initialFrame}
-					compositionId={modalContextType.compositionId}
-					defaultProps={modalContextType.defaultProps}
-					inFrameMark={modalContextType.inFrameMark}
-					outFrameMark={modalContextType.outFrameMark}
-					initialLogLevel={modalContextType.initialLogLevel}
-					initialLicenseKey={modalContextType.initialLicenseKey}
-				/>
+				<WebRenderModalWithLoader {...modalContextType} />
 			)}
 			{modalContextType &&
 				canRender &&
