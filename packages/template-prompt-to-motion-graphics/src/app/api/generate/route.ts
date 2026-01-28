@@ -198,6 +198,7 @@ function applyEdits(
   result: string;
   error?: string;
   enrichedEdits?: EditOperation[];
+  failedEdit?: EditOperation;
 } {
   let result = code;
   const enrichedEdits: EditOperation[] = [];
@@ -212,6 +213,7 @@ function applyEdits(
         success: false,
         result: code,
         error: `Edit ${i + 1} failed: Could not find the specified text`,
+        failedEdit: edit,
       };
     }
 
@@ -222,6 +224,7 @@ function applyEdits(
         success: false,
         result: code,
         error: `Edit ${i + 1} failed: Found ${matches} matches. The edit target is ambiguous.`,
+        failedEdit: edit,
       };
     }
 
@@ -252,6 +255,11 @@ interface ErrorCorrectionContext {
   error: string;
   attemptNumber: number;
   maxAttempts: number;
+  failedEdit?: {
+    description: string;
+    old_string: string;
+    new_string: string;
+  };
 }
 
 interface GenerateRequest {
@@ -391,7 +399,32 @@ export async function POST(req: Request) {
       // Error correction context for self-healing
       let errorCorrectionNotice = "";
       if (errorCorrection) {
-        errorCorrectionNotice = `
+        const failedEditInfo = errorCorrection.failedEdit
+          ? `
+
+The previous edit attempt failed. Here's what was tried:
+- Description: ${errorCorrection.failedEdit.description}
+- Tried to find: \`${errorCorrection.failedEdit.old_string}\`
+- Wanted to replace with: \`${errorCorrection.failedEdit.new_string}\`
+
+The old_string was either not found or matched multiple locations. You MUST include more surrounding context to make the match unique.`
+          : "";
+
+        const isEditFailure = errorCorrection.error.includes("Edit") && errorCorrection.error.includes("failed");
+
+        if (isEditFailure) {
+          errorCorrectionNotice = `
+
+## EDIT FAILED (ATTEMPT ${errorCorrection.attemptNumber}/${errorCorrection.maxAttempts})
+${errorCorrection.error}
+${failedEditInfo}
+
+CRITICAL: Your previous edit target was ambiguous or not found. To fix this:
+1. Include MORE surrounding code context in old_string to make it unique
+2. Make sure old_string matches the code EXACTLY (including whitespace)
+3. If the code structure changed, look at the current code carefully`;
+        } else {
+          errorCorrectionNotice = `
 
 ## COMPILATION ERROR (ATTEMPT ${errorCorrection.attemptNumber}/${errorCorrection.maxAttempts})
 The previous code failed to compile with this error:
@@ -406,6 +439,7 @@ CRITICAL: Fix this compilation error. Common issues include:
 - TypeScript type errors
 
 Focus ONLY on fixing the error. Do not make other changes.`;
+        }
       }
 
       const editPrompt = `## CURRENT CODE:
@@ -446,11 +480,12 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
         // Apply the edits to the current code
         const result = applyEdits(currentCode, response.edits);
         if (!result.success) {
-          // If edits fail, return error
+          // If edits fail, return error with the failed edit details
           return new Response(
             JSON.stringify({
               error: result.error,
               type: "edit_failed",
+              failedEdit: result.failedEdit,
             }),
             { status: 400, headers: { "Content-Type": "application/json" } }
           );

@@ -4,6 +4,7 @@ import type {
   ConversationState,
   ConversationContextMessage,
   AssistantMetadata,
+  EditOperation,
 } from "@/types/conversation";
 
 export function useConversationState() {
@@ -54,13 +55,18 @@ export function useConversationState() {
   );
 
   const addErrorMessage = useCallback(
-    (content: string, errorType: "edit_failed" | "api" | "validation") => {
+    (
+      content: string,
+      errorType: "edit_failed" | "api" | "validation",
+      failedEdit?: EditOperation,
+    ) => {
       const message: ConversationMessage = {
         id: `error-${Date.now()}`,
         role: "error",
         content,
         timestamp: Date.now(),
         errorType,
+        failedEdit,
       };
       setState((prev) => ({
         ...prev,

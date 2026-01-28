@@ -16,6 +16,7 @@ import { useAutoCorrection } from "../../hooks/useAutoCorrection";
 import type {
   AssistantMetadata,
   ErrorCorrectionContext,
+  EditOperation,
 } from "../../types/conversation";
 
 const MAX_CORRECTION_ATTEMPTS = 3;
@@ -42,6 +43,7 @@ function GeneratePageContent() {
   const [generationError, setGenerationError] = useState<{
     message: string;
     type: GenerationErrorType;
+    failedEdit?: EditOperation;
   } | null>(null);
 
   // Self-correction state
@@ -187,8 +189,8 @@ function GeneratePageContent() {
   }, []);
 
   const handleError = useCallback(
-    (message: string, type: GenerationErrorType) => {
-      setGenerationError({ message, type });
+    (message: string, type: GenerationErrorType, failedEdit?: EditOperation) => {
+      setGenerationError({ message, type, failedEdit });
     },
     [],
   );

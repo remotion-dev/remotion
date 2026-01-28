@@ -1,12 +1,12 @@
 import { useEffect, useRef, useCallback } from "react";
-import type { ErrorCorrectionContext } from "@/types/conversation";
+import type { ErrorCorrectionContext, EditOperation } from "@/types/conversation";
 
 interface AutoCorrectionConfig {
   maxAttempts: number;
   /** Compilation error from useAnimationState */
   compilationError: string | null;
   /** Generation/API error */
-  generationError: { message: string; type: string } | null;
+  generationError: { message: string; type: string; failedEdit?: EditOperation } | null;
   /** Whether code is currently being generated */
   isStreaming: boolean;
   /** Whether code is currently being compiled */
@@ -19,7 +19,7 @@ interface AutoCorrectionConfig {
   errorCorrection: ErrorCorrectionContext | null;
   /** Callbacks */
   onTriggerCorrection: (prompt: string, errorContext: ErrorCorrectionContext) => void;
-  onAddErrorMessage: (message: string, type: "edit_failed" | "api" | "validation") => void;
+  onAddErrorMessage: (message: string, type: "edit_failed" | "api" | "validation", failedEdit?: EditOperation) => void;
   onClearGenerationError: () => void;
   onClearErrorCorrection: () => void;
 }
@@ -119,6 +119,7 @@ export function useAutoCorrection({
         error: generationError.message,
         attemptNumber: nextAttempt,
         maxAttempts,
+        failedEdit: generationError.failedEdit,
       });
     }
   }, [

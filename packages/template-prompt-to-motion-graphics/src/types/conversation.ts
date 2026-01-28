@@ -27,6 +27,8 @@ export interface ConversationMessage {
   metadata?: AssistantMetadata;
   /** For error messages, store the error type */
   errorType?: "edit_failed" | "api" | "validation";
+  /** For edit_failed errors, store the failed edit operation */
+  failedEdit?: EditOperation;
 }
 
 export interface ConversationState {
@@ -54,4 +56,6 @@ export interface ErrorCorrectionContext {
   attemptNumber: number;
   /** Maximum correction attempts allowed */
   maxAttempts: number;
+  /** The edit operation that failed (for edit_failed errors) */
+  failedEdit?: EditOperation;
 }

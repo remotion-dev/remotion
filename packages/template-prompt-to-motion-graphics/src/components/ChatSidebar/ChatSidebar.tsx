@@ -28,6 +28,7 @@ import type {
   ConversationContextMessage,
   AssistantMetadata,
   ErrorCorrectionContext,
+  EditOperation,
 } from "@/types/conversation";
 import {
   type StreamPhase,
@@ -55,7 +56,7 @@ interface ChatSidebarProps {
   onCodeGenerated?: (code: string) => void;
   onStreamingChange?: (isStreaming: boolean) => void;
   onStreamPhaseChange?: (phase: StreamPhase) => void;
-  onError?: (error: string, type: GenerationErrorType) => void;
+  onError?: (error: string, type: GenerationErrorType, failedEdit?: EditOperation) => void;
   prompt: string;
   onPromptChange: (prompt: string) => void;
   currentCode?: string;
