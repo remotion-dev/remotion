@@ -1380,6 +1380,7 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/parse-media-vs-get-video-metadata',
 				'miscellaneous/pexels',
 				'compare/motion-canvas',
+				'lovable-for-motion-graphics',
 			],
 		},
 		{
