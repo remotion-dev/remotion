@@ -106,10 +106,10 @@ export const extractFrameAndAudio = async ({
 
 		return {
 			type: 'success',
-			frame: video?.sample
+			frame: video?.frame
 				? await rotateFrame({
-						frame: video.sample.toVideoFrame(),
-						rotation: video.sample.rotation,
+						frame: video.frame,
+						rotation: video.rotation,
 					})
 				: null,
 			audio: audio?.data ?? null,

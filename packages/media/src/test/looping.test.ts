@@ -44,7 +44,7 @@ test(
 			});
 			expect(result.type).toBe('success');
 			assert(result.type === 'success');
-			outputTimestamps.push(result.sample?.timestamp ?? 0);
+			outputTimestamps.push(result.frame?.timestamp ?? 0);
 		}
 
 		expect(realTimestamps).toEqual([
