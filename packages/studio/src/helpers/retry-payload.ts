@@ -5,8 +5,8 @@ import type {
 	PixelFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {RenderJob} from '@remotion/studio-shared';
+import type {WebRendererHardwareAcceleration} from '@remotion/web-renderer';
 import {NoReactInternals} from 'remotion/no-react';
 import type {ClientRenderJob} from '../components/RenderQueue/client-side-render-types';
 import type {RenderModalState, WebRenderModalState} from '../state/modals';
@@ -209,7 +209,7 @@ export const makeClientRetryPayload = (
 		initialContainer: job.type === 'client-video' ? job.container : null,
 		initialHardwareAcceleration:
 			job.type === 'client-video'
-				? (job.hardwareAcceleration as HardwareAccelerationOption)
+				? (job.hardwareAcceleration as WebRendererHardwareAcceleration)
 				: null,
 		initialVideoBitrate: job.type === 'client-video' ? job.videoBitrate : null,
 		initialVideoCodec: job.type === 'client-video' ? job.videoCodec : null,
