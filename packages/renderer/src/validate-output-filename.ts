@@ -1,6 +1,8 @@
+import {NoReactInternals} from 'remotion/no-react';
 import type {Codec} from './codec';
 import type {FileExtension} from './file-extensions';
 import {defaultFileExtensionMap} from './file-extensions';
+import {makeFileExtensionMap} from './get-extension-from-codec';
 import type {AudioCodec, supportedAudioCodecs} from './options/audio-codec';
 import {resolveAudioCodec} from './options/audio-codec';
 
@@ -23,6 +25,16 @@ export const validateOutputFilename = <T extends Codec>({
 				defaultFileExtensionMap,
 			).join(', ')}`,
 		);
+	}
+
+	const supportedCodecsForExtension = makeFileExtensionMap()[extension] ?? [];
+	const extensionMismatch = NoReactInternals.getCodecContainerMismatch({
+		codec,
+		container: extension,
+		supportedCodecs: supportedCodecsForExtension,
+	});
+	if (extensionMismatch && supportedCodecsForExtension.length > 0) {
+		throw new TypeError(extensionMismatch);
 	}
 
 	const map = defaultFileExtensionMap[codec];

@@ -1,4 +1,5 @@
 import {canEncodeVideo} from 'mediabunny';
+import {NoReactInternals} from 'remotion/no-react';
 import type {
 	CanRenderIssue,
 	CanRenderMediaOnWebOptions,
@@ -8,9 +9,9 @@ import {canUseWebFsWriter} from './can-use-webfs-target';
 import {checkWebGLSupport} from './check-webgl-support';
 import {
 	codecToMediabunnyCodec,
-	containerToMediabunnyContainer,
 	getDefaultVideoCodecForContainer,
 	getQualityForWebRendererQuality,
+	getSupportedVideoCodecsForContainer,
 } from './mediabunny-mappings';
 import {resolveAudioCodec} from './resolve-audio-codec';
 import {validateDimensions} from './validate-dimensions';
@@ -51,13 +52,16 @@ export const canRenderMediaOnWeb = async (
 			? options.audioBitrate
 			: getQualityForWebRendererQuality(options.audioBitrate ?? 'medium');
 
-	const format = containerToMediabunnyContainer(container);
-	if (
-		!format.getSupportedCodecs().includes(codecToMediabunnyCodec(videoCodec))
-	) {
+	const supportedCodecs = getSupportedVideoCodecsForContainer(container);
+	const mismatch = NoReactInternals.getCodecContainerMismatch({
+		codec: videoCodec,
+		container,
+		supportedCodecs,
+	});
+	if (mismatch) {
 		issues.push({
 			type: 'container-codec-mismatch',
-			message: `Codec ${videoCodec} is not supported for container ${container}`,
+			message: mismatch,
 			severity: 'error',
 		});
 	}
