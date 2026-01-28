@@ -4,6 +4,17 @@ export interface ValidationResult {
 }
 
 /**
+ * Strip markdown code fences from a string.
+ * Handles ```tsx, ```ts, ```jsx, ```js and plain ``` fences.
+ */
+export function stripMarkdownFences(code: string): string {
+  let result = code;
+  result = result.replace(/^```(?:tsx?|jsx?)?\n?/, "");
+  result = result.replace(/\n?```\s*$/, "");
+  return result.trim();
+}
+
+/**
  * Lightweight validation to check if GPT response contains JSX content.
  * This is a fallback check after the LLM pre-validation.
  */
