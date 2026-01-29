@@ -603,6 +603,8 @@ const PlayerOnly: React.FC<
 	hideControlsWhenPointerDoesntMove,
 	...props
 }) => {
+	const [showMoreMenu, setShowMoreMenu] = useState(false);
+
 	const renderLoading: RenderLoading = useCallback(() => {
 		return (
 			<AbsoluteFill style={{backgroundColor: 'yellow'}}>
@@ -645,6 +647,17 @@ const PlayerOnly: React.FC<
 		);
 	}, []);
 
+	const menuItemStyle: React.CSSProperties = {
+		display: 'block',
+		width: '100%',
+		textAlign: 'left',
+		background: 'transparent',
+		border: 'none',
+		color: 'white',
+		padding: '6px 8px',
+		cursor: 'pointer',
+	}
+
 	return (
 		<Player
 			ref={playerRef}
@@ -686,6 +699,92 @@ const PlayerOnly: React.FC<
 				minWidth: 300,
 				minHeight: 300,
 				display: 'block',
+			}}
+			additionalControls={{
+				end: (helpers) => {
+					const helperRef = helpers.playerRef;
+					const isFullscreen = Boolean(helpers.isFullscreen);
+
+					return (
+						<div style={{position: 'relative', display: 'inline-block'}}>
+							<button
+								type='button'
+								aria-label='More options'
+								title='More options'
+								onClick={() => {
+									helperRef.current?.pause();
+									setShowMoreMenu((v) => !v);
+								}}
+								style={{
+									fontSize:18,
+									padding: '0 8px',
+									cursor: 'pointer',
+									background: 'transparent',
+									color: 'white',
+									border: 'none',
+								}}
+							>
+								...
+							</button>
+							{showMoreMenu ? (
+								<div
+									role='menu'
+									aria-label='More player options'
+									style={{
+										position: 'absolute',
+										bottom: '120%',
+										right: 0,
+										background: '#111',
+										color: '#fff',
+										borderRadius: 6,
+										padding: 8,
+										minWidth: 160,
+										boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+										zIndex: 100,
+									}}
+								>
+									<button
+										type='button'
+										style={menuItemStyle}
+										onClick={() => {
+											helperRef.current?.seekTo(0);
+											helperRef.current?.play();
+											setShowMoreMenu(false);
+										}}
+									>
+										Restart video
+									</button>
+									
+									<button
+										type='button'
+										style={menuItemStyle}
+										onClick={() => {
+											if (isFullscreen) {
+												helperRef.current?.exitFullscreen();
+											} else {
+												helperRef.current?.requestFullscreen();
+											}
+											setShowMoreMenu(false);
+										}}
+									>
+										{isFullscreen ? 'Exit fullscreen' : 'enter fullscreen'}	
+									</button>
+
+									<button
+										type='button'
+										style={menuItemStyle}
+										onClick={() => {
+											alert('Download transcript (demo)');
+											setShowMoreMenu(false);
+										}}
+									>
+										Download transcript
+									</button>
+								</div>
+							): null}
+						</div>
+					)
+				}
 			}}
 		/>
 	);

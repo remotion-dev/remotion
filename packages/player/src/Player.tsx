@@ -22,6 +22,7 @@ import type {RenderMuteButton} from './MediaVolumeSlider.js';
 import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
+	AdditionalControlsRenders,
 } from './PlayerControls.js';
 import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
@@ -96,6 +97,7 @@ export type PlayerProps<
 	readonly acknowledgeRemotionLicense?: boolean;
 	readonly audioLatencyHint?: AudioContextLatencyCategory;
 	readonly volumePersistenceKey?: string;
+	readonly additionalControls?: AdditionalControlsRenders;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -165,6 +167,7 @@ const PlayerFn = <
 		acknowledgeRemotionLicense,
 		audioLatencyHint = 'interactive',
 		volumePersistenceKey,
+		additionalControls,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -461,6 +464,7 @@ const PlayerFn = <
 							browserMediaControlsBehavior={browserMediaControlsBehavior}
 							overrideInternalClassName={overrideInternalClassName ?? undefined}
 							noSuspense={Boolean(noSuspense)}
+							additionalControls={additionalControls}
 						/>
 					</PlayerEmitterProvider>
 				</Internals.SetTimelineContext.Provider>

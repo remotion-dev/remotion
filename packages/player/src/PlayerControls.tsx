@@ -14,6 +14,7 @@ import {
 	useVideoControlsResize,
 } from './use-video-controls-resize.js';
 import type {Size} from './utils/use-element-size.js';
+import type { PlayerRef } from './player-methods.js';
 
 export type RenderPlayPauseButton = (props: {
 	playing: boolean;
@@ -23,6 +24,20 @@ export type RenderPlayPauseButton = (props: {
 export type RenderFullscreenButton = (props: {
 	isFullscreen: boolean;
 }) => ReactNode;
+
+export type PlayerControlHelpers = {
+	playerRef: React.RefObject<PlayerRef | null>;
+	isFullscreen: boolean;
+	isPlaying: boolean;
+	toggle: (e?: SyntheticEvent | PointerEvent) => void;
+	requestFullscreen: () => void;
+	exitFullscreen: () => void;
+};
+
+export type AdditionalControlsRenders = {
+	start?: (helpers: PlayerControlHelpers) => React.ReactNode;
+	end?: (helpers: PlayerControlHelpers) => React.ReactNode;
+}
 
 const gradientSteps = [
 	0, 0.013, 0.049, 0.104, 0.175, 0.259, 0.352, 0.45, 0.55, 0.648, 0.741, 0.825,
@@ -120,6 +135,8 @@ export const Controls: React.FC<{
 	readonly renderVolumeSlider: RenderVolumeSlider | null;
 	readonly playing: boolean;
 	readonly toggle: (e?: SyntheticEvent | PointerEvent) => void;
+	readonly additionalControls?: AdditionalControlsRenders;
+	readonly additionalControlsHelpers?: PlayerControlHelpers;
 }> = ({
 	durationInFrames,
 	isFullscreen,
@@ -148,6 +165,8 @@ export const Controls: React.FC<{
 	renderVolumeSlider,
 	playing,
 	toggle,
+	additionalControls,
+	additionalControlsHelpers,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
@@ -289,6 +308,24 @@ export const Controls: React.FC<{
 			[onDoubleClick],
 		);
 
+	const helpers: PlayerControlHelpers = useMemo(() => {
+		if (additionalControlsHelpers) {
+			return additionalControlsHelpers;
+		}
+		return {
+			playerRef: {current: null},
+			isFullscreen,
+			isPlaying: playing,
+			toggle,
+			requestFullscreen: () => {
+				// fallback no-op
+			},
+			exitFullscreen: () => {
+				// fallback no-op
+			},
+		};
+	}, [additionalControlsHelpers, isFullscreen, playing, toggle]);
+
 	return (
 		<div
 			ref={ref}
@@ -337,6 +374,14 @@ export const Controls: React.FC<{
 						maxTimeLabelWidth={maxTimeLabelWidth}
 					/>
 					<div style={xSpacer} />
+					{additionalControls?.start ? (
+						<>
+							<div style={xSpacer} />
+							<div aria-hidden={false}>
+								{additionalControls.start(helpers)}
+							</div>
+						</>
+					) : null}
 				</div>
 				<div style={flex1} />
 				{playbackRates && canvasSize && (
@@ -348,6 +393,14 @@ export const Controls: React.FC<{
 				{playbackRates && supportsFullscreen && allowFullscreen ? (
 					<div style={xSpacer} />
 				) : null}
+
+				{additionalControls?.end ? (
+					<>
+						<div style={xSpacer} />
+						<div aria-hidden={false}>{additionalControls.end(helpers)}</div>
+					</>
+				): null}
+
 				<div style={fullscreen}>
 					{supportsFullscreen && allowFullscreen ? (
 						<button
