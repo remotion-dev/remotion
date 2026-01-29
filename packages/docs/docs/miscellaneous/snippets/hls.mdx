@@ -6,9 +6,7 @@ id: hls
 crumb: 'Video'
 ---
 
-## Native support in Chrome v142+
-
-As of Chrome v142 (October 2025), Chrome supports native HLS playback. This means [`<OffthreadVideo />`](/docs/offthreadvideo) can play HLS / HTTP Live streaming / `.m3u8` files natively during preview without any additional setup in Chrome browsers.
+Remotion does not currently support HLS / HTTP Live streaming / `.m3u8` files natively.
 
 For full HLS support across all browsers and during rendering, we will support HLS through [`@remotion/media`](/docs/media/video) once [Mediabunny](/docs/mediabunny) has added support for it.
 While we don't control the timeline, we have mutually agreed that HLS should be put high on the roadmap.
@@ -21,12 +19,8 @@ You can play HLS videos during preview in the [`<Player>`](/docs/player) and in 
 Note the following caveats:
 
 <Step>1</Step> This code only shows how to connect the video tag to the HLS stream, it has not been tested on a real project. <br />
-<Step>2</Step> Audio will not work when rendering a video to an MP4 using this code. Use an alternative source during rendering. See <a href="/docs/video-tags#using-a-different-tag-in-preview-and-rendering">&lt;OffthreadVideo&gt; while rendering</a> and
-<a href="/docs/use-remotion-environment">
-  <code>useRemotionEnvironment()</code>
-</a>
-for how to use different components based on whether you are rendering or previewing.
-<br />
+<Step>2</Step> Audio will not work when rendering a video to an MP4 using this code. Use an alternative source during rendering.
+<br /> See [ Using a different tag in preview and rendering](/docs/video-tags#using-a-different-tag-in-preview-and-rendering) and [`useRemotionEnvironment()`](/docs/use-remotion-environment) for how to use different components based on whether you are rendering or previewing.
 <br />
 
 ```tsx twoslash title="HlsDemo.tsx"
@@ -73,6 +67,11 @@ export const HlsDemo: React.FC = () => {
   );
 };
 ```
+
+## Native support in Chrome v142+
+
+As of Chrome v142 (October 2025), Chrome supports native HLS playback.  
+This means [`<OffthreadVideo />`](/docs/offthreadvideo) can play HLS / HTTP Live streaming / `.m3u8` files natively during preview (not rendering) without any additional setup in Chrome browsers.
 
 ## See also
 
