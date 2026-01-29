@@ -35,9 +35,7 @@ const wait = async (milliSeconds: number) => {
   });
 };
 
-export const useRendering = (
-  inputProps: z.infer<typeof CompositionProps>,
-) => {
+export const useRendering = (inputProps: z.infer<typeof CompositionProps>) => {
   const [state, setState] = useState<State>({
     status: "init",
   });

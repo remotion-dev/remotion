@@ -1,25 +1,25 @@
 {
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/skills"
-	},
-	"scripts": {
-		"dev": "remotion studio"
-	},
-	"name": "@remotion/skills",
-	"private": true,
-	"version": "4.0.411",
-	"devDependencies": {
-		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "catalog:",
-		"@remotion/bundler": "workspace:*",
-		"remotion": "workspace:*",
-		"react": "catalog:",
-		"react-dom": "catalog:",
-		"@remotion/shapes": "workspace:*",
-		"@remotion/three": "workspace:*",
-		"@remotion/cli": "workspace:*",
-		"@typescript/native-preview": "catalog:",
-		"@remotion/lottie": "workspace:*",
-		"@remotion/google-fonts": "workspace:*"
-	}
+  "repository": {
+    "url": "https://github.com/remotion-dev/remotion/tree/main/packages/skills"
+  },
+  "scripts": {
+    "dev": "remotion studio"
+  },
+  "name": "@remotion/skills",
+  "private": true,
+  "version": "4.0.411",
+  "devDependencies": {
+    "@remotion/eslint-config-internal": "workspace:*",
+    "eslint": "catalog:",
+    "@remotion/bundler": "workspace:*",
+    "remotion": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@remotion/shapes": "workspace:*",
+    "@remotion/three": "workspace:*",
+    "@remotion/cli": "workspace:*",
+    "@typescript/native-preview": "catalog:",
+    "@remotion/lottie": "workspace:*",
+    "@remotion/google-fonts": "workspace:*"
+  }
 }

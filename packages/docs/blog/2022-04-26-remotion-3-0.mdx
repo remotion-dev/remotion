@@ -34,7 +34,7 @@ Previously, rendering frames, and stitching them together to a video has been a 
 
 Additionally, downloading audio assets now happens earlier in the rendering pipeline and if you rely on remote audio, you should see a handsome speedup as well.
 
-<video src="/img/renderandencode.mp4" muted autoPlay loop playsInline/>
+<video src="/img/renderandencode.mp4" muted autoPlay loop playsInline />
 
 ## New `renderMedia()` API
 
@@ -48,11 +48,15 @@ Since opening and closing a browser instance can take time, we introduce a new A
 
 We are taking an initiative to make error easier to understand. While much of error handling has been handled by third-party libraries until now, we've inlined the logic, allowing us to streamline it. Minified errors are being symbolicated, we've implemented a new error overlay, and timeout errors are more descriptive. Let us know what you think!
 
-<img src="/img/stacktrace.png"/>
+<img src="/img/stacktrace.png" />
 
-<p align="center"><sup>A minified error that happened inside a Chrome browser inside a remote Lambda function displays a proper stacktrace!</sup></p>
-<img src="/img/browserstacktrace.png"/>
-<p align="center"><sup>Our custom error overlay has the ability to open the troublesome file in your default editor, and look for similar GitHub issues.</sup></p>
+<p align="center">
+  <sup>A minified error that happened inside a Chrome browser inside a remote Lambda function displays a proper stacktrace!</sup>
+</p>
+<img src="/img/browserstacktrace.png" />
+<p align="center">
+  <sup>Our custom error overlay has the ability to open the troublesome file in your default editor, and look for similar GitHub issues.</sup>
+</p>
 
 ## Config file can now import other files.
 

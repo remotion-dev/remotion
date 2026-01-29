@@ -122,7 +122,11 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
           />
         </div>
         <div className="flex items-center justify-between gap-6">
-          <RenderControls code={code} durationInFrames={durationInFrames} fps={fps} />
+          <RenderControls
+            code={code}
+            durationInFrames={durationInFrames}
+            fps={fps}
+          />
           <SettingsModal
             durationInFrames={durationInFrames}
             onDurationChange={onDurationChange}

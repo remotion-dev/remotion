@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-studio-watch-static-file.png
 title: watchStaticFile()
-crumb: "@remotion/studio"
+crumb: '@remotion/studio'
 ---
 
 # watchStaticFile()<AvailableFrom v="4.0.144"/>
@@ -20,19 +20,16 @@ This feature is only available within the Remotion Studio environment. In the Pl
 ## Example
 
 ```tsx twoslash title="example.tsx"
-import { StaticFile, watchStaticFile } from "@remotion/studio";
+import {StaticFile, watchStaticFile} from '@remotion/studio';
 
 // Watch for changes in a specific static file
-const { cancel } = watchStaticFile(
-  "your-static-file.jpg",
-  (newData: StaticFile | null) => {
-    if (newData) {
-      console.log(`File ${newData.name} has been added or modified.`);
-    } else {
-      console.log("File has been deleted.");
-    }
-  },
-);
+const {cancel} = watchStaticFile('your-static-file.jpg', (newData: StaticFile | null) => {
+  if (newData) {
+    console.log(`File ${newData.name} has been added or modified.`);
+  } else {
+    console.log('File has been deleted.');
+  }
+});
 
 // To stop watching for changes, call the cancel function
 cancel();

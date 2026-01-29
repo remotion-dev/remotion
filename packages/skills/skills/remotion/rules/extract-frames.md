@@ -29,7 +29,7 @@ type Options = {
 };
 
 export type ExtractFramesTimestampsInSecondsFn = (
-  options: Options
+  options: Options,
 ) => Promise<number[]> | number[];
 
 export type ExtractFramesProps = {
@@ -133,14 +133,14 @@ await extractFrames({
   timestampsInSeconds: async ({ track, durationInSeconds }) => {
     const aspectRatio = track.width / track.height;
     const amountOfFramesFit = Math.ceil(
-      canvasWidth / (canvasHeight * aspectRatio)
+      canvasWidth / (canvasHeight * aspectRatio),
     );
     const segmentDuration = toSeconds - fromSeconds;
     const timestamps: number[] = [];
 
     for (let i = 0; i < amountOfFramesFit; i++) {
       timestamps.push(
-        fromSeconds + (segmentDuration / amountOfFramesFit) * (i + 0.5)
+        fromSeconds + (segmentDuration / amountOfFramesFit) * (i + 0.5),
       );
     }
 

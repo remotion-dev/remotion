@@ -1,6 +1,6 @@
 import {bundle} from '@remotion/bundler';
-import {webpackOverride} from './src/webpack-override.mjs';
 import {renderMedia, selectComposition} from '@remotion/renderer';
+import {webpackOverride} from './src/webpack-override.mjs';
 
 const serveUrl = await bundle({
 	entryPoint: 'src/index.ts',

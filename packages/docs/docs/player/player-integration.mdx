@@ -219,6 +219,7 @@ type AdditionalControlsRenderers = {
   end?: (helpers: PlayerControlHelpers) => React.ReactNode;
 };
 ```
+
 :::note
 start — renders controls on the left side of the control bar (near play/pause).
 end — renders controls on the right side of the control bar (near fullscreen and other action icons).
@@ -243,8 +244,8 @@ export const Example: React.FC = () => {
       fps={30}
       controls
       additionalControls={{
-        end: ({ playerRef, isFullscreen }) => (
-          <div style={{ position: 'relative', display: 'inline-block' }}>
+        end: ({playerRef, isFullscreen}) => (
+          <div style={{position: 'relative', display: 'inline-block'}}>
             <button
               aria-label="More options"
               onClick={() => {
@@ -256,20 +257,27 @@ export const Example: React.FC = () => {
             </button>
 
             {open && (
-              <div
-                role="menu"
-                style={{ position: 'absolute', bottom: '120%', right: 0 }}
-              >
-                <button onClick={() => { playerRef.current?.seekTo(0); }}>
+              <div role="menu" style={{position: 'absolute', bottom: '120%', right: 0}}>
+                <button
+                  onClick={() => {
+                    playerRef.current?.seekTo(0);
+                  }}
+                >
                   Restart
                 </button>
-                <button onClick={() => {
-                  if (isFullscreen) playerRef.current?.exitFullscreen();
-                  else playerRef.current?.requestFullscreen();
-                }}>
+                <button
+                  onClick={() => {
+                    if (isFullscreen) playerRef.current?.exitFullscreen();
+                    else playerRef.current?.requestFullscreen();
+                  }}
+                >
                   {isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
                 </button>
-                <button onClick={() => { /* download transcript */ }}>
+                <button
+                  onClick={() => {
+                    /* download transcript */
+                  }}
+                >
                   Download transcript
                 </button>
               </div>

@@ -38,7 +38,7 @@ pnpm i zod@3.22.3
 Then, a Zod schema can be defined alongside the component:
 
 ```tsx title="src/MyComposition.tsx"
-import {z} from 'zod';
+import { z } from "zod";
 
 export const MyCompositionSchema = z.object({
   title: z.string(),
@@ -56,11 +56,22 @@ const MyComponent: React.FC<z.infer<typeof MyCompositionSchema>> = () => {
 In the root file, the schema can be passed to the composition:
 
 ```tsx title="src/Root.tsx"
-import {Composition} from 'remotion';
-import {MycComponent, MyCompositionSchema} from './MyComposition';
+import { Composition } from "remotion";
+import { MycComponent, MyCompositionSchema } from "./MyComposition";
 
 export const RemotionRoot = () => {
-  return <Composition id="MyComposition" component={MyComponent} durationInFrames={100} fps={30} width={1080} height={1080} defaultProps={{title: 'Hello World'}} schema={MyCompositionSchema} />;
+  return (
+    <Composition
+      id="MyComposition"
+      component={MyComponent}
+      durationInFrames={100}
+      fps={30}
+      width={1080}
+      height={1080}
+      defaultProps={{ title: "Hello World" }}
+      schema={MyCompositionSchema}
+    />
+  );
 };
 ```
 
@@ -86,7 +97,7 @@ pnpm exec remotion add @remotion/zod-types # If project uses pnpm
 Then import `zColor` from `@remotion/zod-types`:
 
 ```tsx
-import {zColor} from '@remotion/zod-types';
+import { zColor } from "@remotion/zod-types";
 ```
 
 Then use it in the schema:

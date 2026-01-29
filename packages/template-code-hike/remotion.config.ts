@@ -1,4 +1,4 @@
-import {Config} from '@remotion/cli/config';
+import { Config } from "@remotion/cli/config";
 
-Config.setVideoImageFormat('jpeg');
+Config.setVideoImageFormat("jpeg");
 Config.setOverwriteOutput(true);

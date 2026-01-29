@@ -1,4 +1,12 @@
 import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@remotion/design';
+import {
 	deleteModel,
 	type DownloadWhisperModelParams,
 	getAvailableModels,
@@ -8,14 +16,6 @@ import {
 import {useCallback, useEffect, useState} from 'react';
 import {formatBytes} from '../../lib/format-bytes';
 import {Label} from '../ui/label';
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@remotion/design';
 
 export default function DownloadModel({
 	selectedModel,

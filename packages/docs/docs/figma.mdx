@@ -2,7 +2,7 @@
 image: /generated/articles-docs-figma.png
 id: figma
 title: Import from Figma
-crumb: "The best of both"
+crumb: 'The best of both'
 ---
 
 You can export a design from Figma as an SVG file and import it as a React component in Remotion and then animate it.
@@ -44,32 +44,26 @@ Locate the element that you want to animate and add a style property to it.
 In this case, let's animate the `<g>` element that contains the rocket.
 
 ```tsx twoslash
-import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const Rocket: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const {fps} = useVideoConfig();
 
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "pink",
-        justifyContent: "center",
-        alignItems: "center",
+        backgroundColor: 'pink',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
-      <svg
-        width="800"
-        height="800"
-        viewBox="0 0 394 394"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg width="800" height="800" viewBox="0 0 394 394" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g
           id="vehicle"
           style={{
-            transformOrigin: "center center",
-            transformBox: "fill-box",
+            transformOrigin: 'center center',
+            transformBox: 'fill-box',
           }}
         >
           // vehicle's paths
@@ -85,7 +79,7 @@ Adding `{transformOrigin: "center center", transformBox: "fill-box"}` will ensur
 Let's create two spring animations, one for scale and one for transformation:
 
 ```tsx twoslash
-import { interpolate, spring } from "remotion";
+import {interpolate, spring} from 'remotion';
 const fps = 30;
 const frame = 0;
 // ---cut---
@@ -116,8 +110,8 @@ The `scale` will go from 0 to 1 and `launch` animates from `0` to `-3000px`. App
   id="vehicle"
   style={{
     transform: `scale(${scale}) ${launch}`,
-    transformOrigin: "center center",
-    transformBox: "fill-box",
+    transformOrigin: 'center center',
+    transformBox: 'fill-box',
   }}
 >
   {/* ... */}

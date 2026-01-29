@@ -46,7 +46,7 @@ my-video/
 ```tsx
 import { Img, staticFile } from "remotion";
 
-<Img src={staticFile("logo.png")} />
+<Img src={staticFile("logo.png")} />;
 ```
 
 ## Remote images
@@ -118,7 +118,11 @@ const { width, height } = await getImageDimensions(staticFile("photo.png"));
 This is useful for calculating aspect ratios or sizing compositions:
 
 ```tsx
-import { getImageDimensions, staticFile, CalculateMetadataFunction } from "remotion";
+import {
+  getImageDimensions,
+  staticFile,
+  CalculateMetadataFunction,
+} from "remotion";
 
 const calculateMetadata: CalculateMetadataFunction = async () => {
   const { width, height } = await getImageDimensions(staticFile("photo.png"));

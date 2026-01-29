@@ -1,6 +1,6 @@
+import {CliInternals} from '@remotion/cli';
 import {getRenderProgress} from '@remotion/lambda/client';
 import {RenderInternals} from '@remotion/renderer';
-import {CliInternals} from '@remotion/cli';
 
 const progress = await getRenderProgress({
 	renderId: 'hsrxu7hby4',

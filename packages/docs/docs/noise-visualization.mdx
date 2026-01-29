@@ -2,7 +2,7 @@
 image: /generated/articles-docs-noise-visualization.png
 title: Noise visualization
 id: noise-visualization
-crumb: "Techniques"
+crumb: 'Techniques'
 ---
 
 Using the [`@remotion/noise`](/docs/noise) package, you can add noise for your videos.
@@ -14,12 +14,12 @@ This example shows how to create a floating dot grid "surface" using [`noise3D()
 - 1st and 2nd dimensions used for space domain.
 - 3rd dimension used for time domain.
 
-<Demo type="noise"/>
+<Demo type="noise" />
 
 ```tsx twoslash
-import { noise3D } from "@remotion/noise";
-import React from "react";
-import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import {noise3D} from '@remotion/noise';
+import React from 'react';
+import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const OVERSCAN_MARGIN = 100;
 const ROWS = 10;
@@ -29,9 +29,9 @@ const NoiseComp: React.FC<{
   speed: number;
   circleRadius: number;
   maxOffset: number;
-}> = ({ speed, circleRadius, maxOffset }) => {
+}> = ({speed, circleRadius, maxOffset}) => {
   const frame = useCurrentFrame();
-  const { height, width } = useVideoConfig();
+  const {height, width} = useVideoConfig();
 
   return (
     <svg width={width} height={height}>
@@ -41,27 +41,14 @@ const NoiseComp: React.FC<{
           const y = j * ((height + OVERSCAN_MARGIN) / ROWS);
           const px = i / COLS;
           const py = j / ROWS;
-          const dx = noise3D("x", px, py, frame * speed) * maxOffset;
-          const dy = noise3D("y", px, py, frame * speed) * maxOffset;
-          const opacity = interpolate(
-            noise3D("opacity", i, j, frame * speed),
-            [-1, 1],
-            [0, 1]
-          );
+          const dx = noise3D('x', px, py, frame * speed) * maxOffset;
+          const dy = noise3D('y', px, py, frame * speed) * maxOffset;
+          const opacity = interpolate(noise3D('opacity', i, j, frame * speed), [-1, 1], [0, 1]);
 
           const key = `${i}-${j}`;
 
-          return (
-            <circle
-              key={key}
-              cx={x + dx}
-              cy={y + dy}
-              r={circleRadius}
-              fill="gray"
-              opacity={opacity}
-            />
-          );
-        })
+          return <circle key={key} cx={x + dx} cy={y + dy} r={circleRadius} fill="gray" opacity={opacity} />;
+        }),
       )}
     </svg>
   );

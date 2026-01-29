@@ -1,13 +1,13 @@
 {
-	"extends": "../tsconfig.settings.json",
-	"compilerOptions": {
-		"module": "Preserve",
-		"esModuleInterop": true,
-		"resolveJsonModule": false,
-		"skipLibCheck": true,
-		"jsx": "react-jsx",
-		"noEmit": true,
-	},
-	"include": ["./src", "./skills"],
-	"references": []
+  "extends": "../tsconfig.settings.json",
+  "compilerOptions": {
+    "module": "Preserve",
+    "esModuleInterop": true,
+    "resolveJsonModule": false,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "noEmit": true
+  },
+  "include": ["./src", "./skills"],
+  "references": []
 }

@@ -28,7 +28,6 @@ export async function readDirectory({
 			continue;
 		}
 
-		 
 		if (fs.lstatSync(filePath).isSymbolicLink()) {
 			const realPath = fs.realpathSync(filePath);
 

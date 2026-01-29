@@ -25,14 +25,16 @@ const SAFE_MARGIN_TOP = height * 0.12;
 const SAFE_MARGIN_BOTTOM = height * 0.15;
 const SAFE_MARGIN_SIDES = width * 0.05;
 
-<AbsoluteFill style={{
-  paddingTop: SAFE_MARGIN_TOP,
-  paddingBottom: SAFE_MARGIN_BOTTOM,
-  paddingLeft: SAFE_MARGIN_SIDES,
-  paddingRight: SAFE_MARGIN_SIDES
-}}>
+<AbsoluteFill
+  style={{
+    paddingTop: SAFE_MARGIN_TOP,
+    paddingBottom: SAFE_MARGIN_BOTTOM,
+    paddingLeft: SAFE_MARGIN_SIDES,
+    paddingRight: SAFE_MARGIN_SIDES,
+  }}
+>
   {content}
-</AbsoluteFill>
+</AbsoluteFill>;
 ```
 
 ## Mobile-First Text Sizing
@@ -66,12 +68,14 @@ const entrance = spring({ frame: frame - 30, fps }); // Starts after 1 second
 **Correct (immediate hook):**
 
 ```tsx
-const entrance = spring({ frame, fps, config: { damping: 12, stiffness: 200 } });
+const entrance = spring({
+  frame,
+  fps,
+  config: { damping: 12, stiffness: 200 },
+});
 const pulse = Math.sin(frame * 0.15) * 0.03 + 1; // Subtle constant motion
 
-<div style={{ transform: `scale(${entrance * pulse})` }}>
-  {content}
-</div>
+<div style={{ transform: `scale(${entrance * pulse})` }}>{content}</div>;
 ```
 
 ## High Contrast Colors
@@ -97,5 +101,9 @@ const TOTAL_DURATION = durationInFrames;
 const loopProgress = (frame % TOTAL_DURATION) / TOTAL_DURATION;
 
 // Or fade to start state at the end
-const fadeOut = interpolate(frame, [TOTAL_DURATION - 15, TOTAL_DURATION], [1, 0]);
+const fadeOut = interpolate(
+  frame,
+  [TOTAL_DURATION - 15, TOTAL_DURATION],
+  [1, 0],
+);
 ```

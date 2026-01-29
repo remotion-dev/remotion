@@ -134,16 +134,7 @@ export const App: React.FC = () => {
     };
   }, [text]);
 
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      inputProps={inputProps}
-    />
-  );
+  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} inputProps={inputProps} />;
 };
 ```
 

@@ -14,7 +14,9 @@ export const TimingComponentEditor: React.FC<{
 	readonly component: TimingComponent;
 	readonly draggedConfig: TimingConfig | null;
 	readonly calculatedDurationInFrames: number;
-	readonly onModeChange: (mode: 'spring' | 'interpolate' | 'sine' | 'constant') => void;
+	readonly onModeChange: (
+		mode: 'spring' | 'interpolate' | 'sine' | 'constant',
+	) => void;
 	readonly setDraggedConfig: (config: TimingConfig) => void;
 	readonly onChange: (config: TimingConfig) => void;
 	readonly onRelease: () => void;
@@ -75,7 +77,9 @@ export const TimingComponentEditor: React.FC<{
 					<Tabs
 						value={config.type}
 						onValueChange={(value) =>
-							onModeChange(value as 'spring' | 'interpolate' | 'sine' | 'constant')
+							onModeChange(
+								value as 'spring' | 'interpolate' | 'sine' | 'constant',
+							)
 						}
 						style={{width: '90%'}}
 					>

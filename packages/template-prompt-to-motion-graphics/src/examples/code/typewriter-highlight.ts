@@ -182,7 +182,8 @@ export const MyAnimation = () => {
 export const typewriterHighlightExample: RemotionExample = {
   id: "typewriter-highlight",
   name: "Typewriter with Highlight",
-  description: "Typewriter effect with blinking cursor and spring-animated word highlight",
+  description:
+    "Typewriter effect with blinking cursor and spring-animated word highlight",
   category: "Text",
   durationInFrames: 90,
   fps: 30,

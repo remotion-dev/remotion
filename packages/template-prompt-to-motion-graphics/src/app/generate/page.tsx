@@ -67,8 +67,14 @@ function GeneratePageContent() {
   // Sidebar collapse state
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const { code, Component, error: compilationError, isCompiling, setCode, compileCode } =
-    useAnimationState(examples[0]?.code || "");
+  const {
+    code,
+    Component,
+    error: compilationError,
+    isCompiling,
+    setCode,
+    compileCode,
+  } = useAnimationState(examples[0]?.code || "");
 
   // Runtime errors from the Player (e.g., "cannot access variable before initialization")
   const [runtimeError, setRuntimeError] = useState<string | null>(null);
@@ -92,14 +98,17 @@ function GeneratePageContent() {
     hasGeneratedOnce,
     code,
     errorCorrection,
-    onTriggerCorrection: useCallback((correctionPrompt: string, context: ErrorCorrectionContext) => {
-      setErrorCorrection(context);
-      setPrompt(correctionPrompt);
-      setTimeout(() => {
-        // Use silent mode to avoid showing retry as a user message
-        chatSidebarRef.current?.triggerGeneration({ silent: true });
-      }, 100);
-    }, []),
+    onTriggerCorrection: useCallback(
+      (correctionPrompt: string, context: ErrorCorrectionContext) => {
+        setErrorCorrection(context);
+        setPrompt(correctionPrompt);
+        setTimeout(() => {
+          // Use silent mode to avoid showing retry as a user message
+          chatSidebarRef.current?.triggerGeneration({ silent: true });
+        }, 100);
+      },
+      [],
+    ),
     onAddErrorMessage: addErrorMessage,
     onClearGenerationError: useCallback(() => setGenerationError(null), []),
     onClearErrorCorrection: useCallback(() => setErrorCorrection(null), []),
@@ -161,7 +170,8 @@ function GeneratePageContent() {
   // Handle generation complete for history
   const handleGenerationComplete = useCallback(
     (generatedCode: string, summary?: string, metadata?: AssistantMetadata) => {
-      const content = summary || "Generated your animation, any follow up edits?";
+      const content =
+        summary || "Generated your animation, any follow up edits?";
       addAssistantMessage(content, generatedCode, metadata);
       markAsAiGenerated();
     },
@@ -194,14 +204,11 @@ function GeneratePageContent() {
   );
 
   // Handle runtime errors from the Player (e.g., "cannot access variable before initialization")
-  const handleRuntimeError = useCallback(
-    (errorMessage: string) => {
-      // Set runtime error - this will be combined with compilation errors via codeError
-      // The useAutoCorrection hook will pick this up via the compilationError prop
-      setRuntimeError(errorMessage);
-    },
-    [],
-  );
+  const handleRuntimeError = useCallback((errorMessage: string) => {
+    // Set runtime error - this will be combined with compilation errors via codeError
+    // The useAutoCorrection hook will pick this up via the compilationError prop
+    setRuntimeError(errorMessage);
+  }, []);
 
   // Auto-trigger generation if prompt came from URL
   useEffect(() => {

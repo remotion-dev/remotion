@@ -253,7 +253,7 @@ export const Controls: React.FC<{
 		}, time);
 
 		return () => {
-			clearInterval(timeout);
+			clearTimeout(timeout);
 		};
 	}, [shouldShowInitially]);
 
@@ -312,7 +312,7 @@ export const Controls: React.FC<{
 		if (additionalControlsHelpers) {
 			return additionalControlsHelpers;
 		}
-		
+
 		return {
 			playerRef: {current: null},
 			isFullscreen,

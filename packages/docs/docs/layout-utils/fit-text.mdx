@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-layout-utils-fit-text.png
 title: fitText()
-crumb: "@remotion/layout-utils"
+crumb: '@remotion/layout-utils'
 ---
 
 _Part of the [`@remotion/layout-utils`](/docs/layout-utils) package. Available from v4.0.88_
@@ -9,19 +9,19 @@ _Part of the [`@remotion/layout-utils`](/docs/layout-utils) package. Available f
 Calculates the `font-size` needed to fit a text into a given width.
 
 ```tsx twoslash title="FitText.tsx"
-import { fitText } from "@remotion/layout-utils";
+import {fitText} from '@remotion/layout-utils';
 
-const text = "Hello World";
+const text = 'Hello World';
 const width = 100;
-const fontFamily = "Arial";
-const fontWeight = "bold";
+const fontFamily = 'Arial';
+const fontWeight = 'bold';
 
-const { fontSize } = fitText({
+const {fontSize} = fitText({
   text,
   withinWidth: width,
   fontFamily: fontFamily,
   fontWeight: fontWeight,
-  textTransform: "uppercase",
+  textTransform: 'uppercase',
 });
 
 // Example markup:
@@ -31,7 +31,7 @@ const { fontSize } = fitText({
     width,
     fontFamily,
     fontWeight,
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
   }}
 >
   {text}
@@ -113,16 +113,16 @@ An object with `fontSize` in pixels. Assign this to the `style` prop of your tex
 ## Example
 
 ```tsx twoslash
-import { fitText } from "@remotion/layout-utils";
-import React from "react";
-import { AbsoluteFill } from "remotion";
+import {fitText} from '@remotion/layout-utils';
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
 
 const boxWidth = 600;
 // Must be loaded before calling fitText()
-const fontFamily = "Helvetica";
-const fontWeight = "bold";
+const fontFamily = 'Helvetica';
+const fontWeight = 'bold';
 
-export const FitText: React.FC<{ text: string }> = ({ text }) => {
+export const FitText: React.FC<{text: string}> = ({text}) => {
   const fontSize = Math.min(
     80,
     fitText({
@@ -136,21 +136,21 @@ export const FitText: React.FC<{ text: string }> = ({ text }) => {
   return (
     <AbsoluteFill
       style={{
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "white",
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white',
       }}
     >
       <div
         style={{
           width: boxWidth,
-          outline: "1px dashed rgba(0, 0, 0, 0.5)",
+          outline: '1px dashed rgba(0, 0, 0, 0.5)',
           height: 100,
           fontSize,
           fontWeight,
           fontFamily,
-          display: "flex",
-          alignItems: "center",
+          display: 'flex',
+          alignItems: 'center',
         }}
       >
         {text}

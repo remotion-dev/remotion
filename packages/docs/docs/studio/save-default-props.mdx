@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-studio-save-default-props.png
 title: saveDefaultProps()
-crumb: "@remotion/studio"
+crumb: '@remotion/studio'
 ---
 
 # saveDefaultProps()<AvailableFrom v="4.0.147"/>
@@ -13,13 +13,13 @@ If you just want to update the default props in the Props Editor (right sidebar 
 
 ```tsx twoslash title="Saving {color: 'green'} to Root.tsx"
 // @target: esnext
-import { saveDefaultProps } from "@remotion/studio";
+import {saveDefaultProps} from '@remotion/studio';
 
 await saveDefaultProps({
-  compositionId: "my-composition",
+  compositionId: 'my-composition',
   defaultProps: () => {
     return {
-      color: "green",
+      color: 'green',
     };
   },
 });
@@ -29,14 +29,14 @@ You can access the saved default props to only override part of it (reducer-styl
 
 ```tsx twoslash title="Accessing the saved default props"
 // @target: esnext
-import { saveDefaultProps } from "@remotion/studio";
+import {saveDefaultProps} from '@remotion/studio';
 
 await saveDefaultProps({
-  compositionId: "my-composition",
-  defaultProps: ({ savedDefaultProps }) => {
+  compositionId: 'my-composition',
+  defaultProps: ({savedDefaultProps}) => {
     return {
       ...savedDefaultProps,
-      color: "green",
+      color: 'green',
     };
   },
 });
@@ -46,11 +46,11 @@ If you modified props in the Props Editor (right sidebar in the Studio), you can
 
 ```tsx twoslash title="Save props from the Props Editor"
 // @target: esnext
-import { saveDefaultProps } from "@remotion/studio";
+import {saveDefaultProps} from '@remotion/studio';
 
 await saveDefaultProps({
-  compositionId: "my-composition",
-  defaultProps: ({ unsavedDefaultProps }) => {
+  compositionId: 'my-composition',
+  defaultProps: ({unsavedDefaultProps}) => {
     return unsavedDefaultProps;
   },
 });
@@ -60,16 +60,16 @@ If you have a Zod schema, you can also access its runtime value:
 
 ```tsx twoslash title="Save props from the Props Editor"
 // @target: esnext
-import { saveDefaultProps } from "@remotion/studio";
+import {saveDefaultProps} from '@remotion/studio';
 
 await saveDefaultProps({
-  compositionId: "my-composition",
-  defaultProps: ({ schema, unsavedDefaultProps }) => {
+  compositionId: 'my-composition',
+  defaultProps: ({schema, unsavedDefaultProps}) => {
     // Do something with the Zod schema
 
     return {
       ...unsavedDefaultProps,
-      color: "red",
+      color: 'red',
     };
   },
 });

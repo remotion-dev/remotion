@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-estimateprice.png
 id: estimateprice
 title: estimatePrice()
 slug: /lambda/estimateprice
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Calculates the AWS costs incurred for AWS Lambda given the region, execution duration and memory size based on the AWS Lambda pricing matrix.
@@ -22,16 +22,16 @@ The calculated duration does not include costs for S3 and Remotion licensing fee
 ## Example
 
 ```ts twoslash
-import { estimatePrice } from "@remotion/lambda";
+import {estimatePrice} from '@remotion/lambda';
 
 console.log(
   estimatePrice({
-    region: "us-east-1",
+    region: 'us-east-1',
     durationInMilliseconds: 20000,
     memorySizeInMb: 2048,
     diskSizeInMb: 2048,
     lambdasInvoked: 1,
-  })
+  }),
 ); // 0.00067
 ```
 

@@ -10,7 +10,14 @@ export const CanvasWrapper: React.FC<{
 	readonly duration: number;
 	readonly fps: number;
 	readonly replayKey: number;
-}> = ({components, draggedState, draggedDuration, duration, fps, replayKey}) => {
+}> = ({
+	components,
+	draggedState,
+	draggedDuration,
+	duration,
+	fps,
+	replayKey,
+}) => {
 	const outer = useRef<HTMLDivElement>(null);
 
 	const elementSize = PlayerInternals.useElementSize(outer, {

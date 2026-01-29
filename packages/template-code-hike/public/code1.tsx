@@ -1,6 +1,6 @@
 const user = {
-	name: 'Lorem',
-	age: 26,
+  name: "Lorem",
+  age: 26,
 };
 
 console.log(user);

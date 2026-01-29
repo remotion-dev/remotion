@@ -4,15 +4,15 @@
  *
  * All configuration options: https://remotion.dev/docs/config
  */
-import {enableSkia} from '@remotion/skia/enable';
-import {Config} from '@remotion/cli/config';
+import { enableSkia } from "@remotion/skia/enable";
+import { Config } from "@remotion/cli/config";
 
-Config.setVideoImageFormat('jpeg');
+Config.setVideoImageFormat("jpeg");
 Config.setOverwriteOutput(true);
 
 Config.overrideWebpackConfig((config) => {
-	return enableSkia(config);
+  return enableSkia(config);
 });
 
 Config.setConcurrency(2);
-Config.setChromiumOpenGlRenderer('angle');
+Config.setChromiumOpenGlRenderer("angle");

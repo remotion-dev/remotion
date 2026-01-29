@@ -2,7 +2,7 @@
 image: /generated/articles-docs-wrong-composition-mount.png
 id: wrong-composition-mount
 title: Wrongly mounted <Composition>
-crumb: "Troubleshooting"
+crumb: 'Troubleshooting'
 ---
 
 ## Problem
@@ -26,7 +26,7 @@ or, inside a player:
 The cause for the error is that a [`<Composition>`](/docs/composition) was nested inside the `component` that was passed to another `<Composition>`.
 
 ```tsx twoslash title="❌"
-import { Composition } from "remotion";
+import {Composition} from 'remotion';
 const AnotherComp: React.FC = () => {
   return null;
 };
@@ -34,29 +34,11 @@ const AnotherComp: React.FC = () => {
 // ---cut---
 
 const MyComp: React.FC = () => {
-  return (
-    <Composition
-      id="another-comp"
-      width={1080}
-      height={1080}
-      durationInFrames={30}
-      fps={30}
-      component={AnotherComp}
-    />
-  );
+  return <Composition id="another-comp" width={1080} height={1080} durationInFrames={30} fps={30} component={AnotherComp} />;
 };
 
 const Index: React.FC = () => {
-  return (
-    <Composition
-      id="my-comp"
-      width={1080}
-      height={1080}
-      durationInFrames={30}
-      fps={30}
-      component={MyComp}
-    />
-  );
+  return <Composition id="my-comp" width={1080} height={1080} durationInFrames={30} fps={30} component={MyComp} />;
 };
 ```
 
@@ -75,8 +57,8 @@ To fix it, you must remove the nested compositions.
 The cause for the error is that in the component you passed in to the `component` prop of Remotion Player, you are returning a `<Composition>`.
 
 ```tsx twoslash title="❌"
-import { Player } from "@remotion/player";
-import { Composition } from "remotion";
+import {Player} from '@remotion/player';
+import {Composition} from 'remotion';
 
 const AnotherComp: React.FC = () => {
   return null;
@@ -85,28 +67,11 @@ const AnotherComp: React.FC = () => {
 // ---cut---
 
 const MyComp: React.FC = () => {
-  return (
-    <Composition
-      durationInFrames={300}
-      fps={30}
-      width={1080}
-      height={1080}
-      id="another-component"
-      component={AnotherComp}
-    />
-  );
+  return <Composition durationInFrames={300} fps={30} width={1080} height={1080} id="another-component" component={AnotherComp} />;
 };
 
 const Index: React.FC = () => {
-  return (
-    <Player
-      durationInFrames={300}
-      fps={30}
-      compositionWidth={1080}
-      compositionHeight={1080}
-      component={MyComp}
-    />
-  );
+  return <Player durationInFrames={300} fps={30} compositionWidth={1080} compositionHeight={1080} component={MyComp} />;
 };
 ```
 
@@ -117,7 +82,7 @@ There is no use for compositions in `<Player>`. Only use them during rendering a
 To fix it, pass the component directly to the player's [`component`](/docs/player/player#component-or-lazycomponent) prop and provide the [`durationInFrames`](/docs/player/player#durationinframes), [`fps`](/docs/player/player#fps), [`compositionHeight`](/docs/player/player#compositionheight) and [`compositionWidth`](/docs/player/player#compositionwidth) props to the player.
 
 ```tsx twoslash title="✅"
-import { Player } from "@remotion/player";
+import {Player} from '@remotion/player';
 
 const AnotherComp: React.FC = () => {
   return null;
@@ -126,15 +91,7 @@ const AnotherComp: React.FC = () => {
 // ---cut---
 
 const Index: React.FC = () => {
-  return (
-    <Player
-      durationInFrames={300}
-      fps={30}
-      compositionWidth={1080}
-      compositionHeight={1080}
-      component={AnotherComp}
-    />
-  );
+  return <Player durationInFrames={300} fps={30} compositionWidth={1080} compositionHeight={1080} component={AnotherComp} />;
 };
 ```
 

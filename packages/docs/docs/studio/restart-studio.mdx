@@ -1,20 +1,20 @@
 ---
 image: /generated/articles-docs-studio-restart-studio.png
 title: restartStudio()
-crumb: "@remotion/studio"
+crumb: '@remotion/studio'
 ---
 
 # restartStudio()<AvailableFrom v="4.0.162"/>
 
 ```tsx twoslash title="MyComp.tsx"
-import { restartStudio } from "@remotion/studio";
-import { useCallback } from "react";
+import {restartStudio} from '@remotion/studio';
+import {useCallback} from 'react';
 
 const MyComp: React.FC = () => {
   const onClick = useCallback(async () => {
     try {
       await restartStudio();
-      console.log("Studio will restart now");
+      console.log('Studio will restart now');
     } catch (err) {
       console.error(err);
     }

@@ -26,7 +26,8 @@ The following renderer backends are supported in Remotion:
 - On Lambda, use `swangle` (default on Lambda)
 - On a machine with no GPU, `swangle` is recommended. Rendering might be slow.
 
-<Step>2</Step> If you don't use WebGL/Three.js, the default renderer (<code>null</code> on local, <code>swangle</code> on Lambda) are the best choice.<br/>
+<Step>2</Step> If you don't use WebGL/Three.js, the default renderer (<code>null</code> on local, <code>swangle</code> on Lambda) are the best choice.
+<br />
 
 ## Using the GPU
 
@@ -47,11 +48,11 @@ In [`getCompositions()`](/docs/renderer/get-compositions#chromiumoptions), [`ren
 ### Via Config file
 
 ```tsx twoslash
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 // ---cut---
 
-Config.setChromiumOpenGlRenderer("angle");
+Config.setChromiumOpenGlRenderer('angle');
 ```
 
 :::note

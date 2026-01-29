@@ -2,7 +2,7 @@
 image: /generated/articles-docs-miscellaneous-changing-temp-dir.png
 sidebar_label: Temporary directory
 title: Changing the temporary directory
-crumb: "Advanced configuration"
+crumb: 'Advanced configuration'
 ---
 
 During rendering, Remotion will write items into the temporary directory of the system. This includes rendered frames, uncompressed audio and other artifacts.
@@ -18,7 +18,7 @@ TMPDIR=/var/tmp npx remotion render
 Remotion will make a new temporary directory in the path that you have specified.
 This is because Remotion uses the the Node.JS [`os.tmpdir()`][tmpdir] API, which checks for environment variables in the following order:
 
-* `TMPDIR`, `TMP`, `TEMP` on non-Windows platforms
-* `TEMP` and `TMP` on Windows platforms
+- `TMPDIR`, `TMP`, `TEMP` on non-Windows platforms
+- `TEMP` and `TMP` on Windows platforms
 
 [tmpdir]: https://github.com/nodejs/node/blob/58431c0e6bb1829b6ccafc5cf6340226c15da790/lib/os.js#L181

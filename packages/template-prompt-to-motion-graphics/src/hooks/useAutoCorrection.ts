@@ -18,8 +18,14 @@ interface AutoCorrectionConfig {
   /** Current error correction context */
   errorCorrection: ErrorCorrectionContext | null;
   /** Callbacks */
-  onTriggerCorrection: (prompt: string, errorContext: ErrorCorrectionContext) => void;
-  onAddErrorMessage: (message: string, type: "edit_failed" | "api" | "validation") => void;
+  onTriggerCorrection: (
+    prompt: string,
+    errorContext: ErrorCorrectionContext,
+  ) => void;
+  onAddErrorMessage: (
+    message: string,
+    type: "edit_failed" | "api" | "validation",
+  ) => void;
   onClearGenerationError: () => void;
   onClearErrorCorrection: () => void;
 }
@@ -77,7 +83,7 @@ export function useAutoCorrection({
       const nextAttempt = (errorCorrection?.attemptNumber ?? 0) + 1;
       console.log(
         `Auto-correction attempt ${nextAttempt}/${maxAttempts} for compilation error:`,
-        compilationError
+        compilationError,
       );
 
       onAddErrorMessage(`Compilation error: ${compilationError}`, "validation");
@@ -111,7 +117,7 @@ export function useAutoCorrection({
       const nextAttempt = (errorCorrection?.attemptNumber ?? 0) + 1;
       console.log(
         `Auto-retry attempt ${nextAttempt}/${maxAttempts} for generation error:`,
-        generationError.message
+        generationError.message,
       );
 
       onClearGenerationError();

@@ -2,7 +2,7 @@
 image: /generated/articles-docs-quality.png
 id: quality
 title: Quality Guide
-crumb: "Make it look good"
+crumb: 'Make it look good'
 ---
 
 Video encoding involves heavily compressing the video data to reduce the file size, which is a lossy process.  
@@ -24,23 +24,14 @@ A somewhat surprising way to lose quality is the fact that many computers have a
 Consider a 1920x1080 video, in which you render text:
 
 ```tsx twoslash
-import { Composition } from "remotion";
+import {Composition} from 'remotion';
 
 const MyComponent = () => {
   return <div>Hello World</div>;
 };
 
 const Root: React.FC = () => {
-  return (
-    <Composition
-      width={1920}
-      height={1080}
-      fps={30}
-      durationInFrames={100}
-      component={MyComponent}
-      id="MyComp"
-    />
-  );
+  return <Composition width={1920} height={1080} fps={30} durationInFrames={100} component={MyComponent} id="MyComp" />;
 };
 ```
 

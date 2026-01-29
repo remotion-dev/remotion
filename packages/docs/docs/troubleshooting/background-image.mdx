@@ -2,13 +2,13 @@
 image: /generated/articles-docs-troubleshooting-background-image.png
 sidebar_label: Flickering with background-image
 title: Flickering when using background-image or mask-image
-crumb: "Common mistakes"
+crumb: 'Common mistakes'
 ---
 
 The following code is discouraged in Remotion:
 
 ```tsx twoslash title="❌ Don't do this"
-const src = "abc";
+const src = 'abc';
 // ---cut---
 const myMarkup = (
   <div
@@ -30,16 +30,16 @@ Remotion has no way of knowing when the image is finished loading because it is 
 Use the [`<Img>`](/docs/img) tag instead and place it in an [`<AbsoluteFill>`](/docs/absolute-fill):
 
 ```tsx twoslash title="✅ Do this"
-const src = "abc";
+const src = 'abc';
 // ---cut---
-import { AbsoluteFill, Img } from "remotion";
+import {AbsoluteFill, Img} from 'remotion';
 
 const myMarkup = (
   <AbsoluteFill>
     <AbsoluteFill>
       <Img
         style={{
-          width: "100%",
+          width: '100%',
         }}
         src={src}
       />
@@ -58,9 +58,9 @@ The next will be placed on top of the image and will not flicker.
 If you cannot use an [`<Img>`](/docs/img) tag, for example because you need to use `mask-image()`, render an adjacent `<Img>` tag that renders the same src and place it outside the viewport:
 
 ```tsx twoslash title="✅ Do this"
-const src = "abc";
+const src = 'abc';
 // ---cut---
-import { Img } from "remotion";
+import {Img} from 'remotion';
 
 const myMarkup = (
   <>
@@ -68,8 +68,8 @@ const myMarkup = (
       src={src}
       style={{
         opacity: 0,
-        position: "absolute",
-        left: "-100%",
+        position: 'absolute',
+        left: '-100%',
       }}
     />
     <div

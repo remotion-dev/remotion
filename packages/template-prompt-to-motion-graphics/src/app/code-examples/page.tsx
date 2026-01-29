@@ -31,7 +31,9 @@ function DemoPageContent() {
   }, [searchParams]);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [durationInFrames, setDurationInFrames] = useState(selectedExample.durationInFrames);
+  const [durationInFrames, setDurationInFrames] = useState(
+    selectedExample.durationInFrames,
+  );
   const [fps, setFps] = useState(selectedExample.fps);
   const selectedButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -89,7 +91,9 @@ function DemoPageContent() {
           </Link>
         </div>
         <div className="h-10 w-px bg-border" />
-        <h1 className="text-sm font-medium text-muted-foreground">Example Gallery</h1>
+        <h1 className="text-sm font-medium text-muted-foreground">
+          Example Gallery
+        </h1>
       </header>
 
       {/* Main content with sidebar */}

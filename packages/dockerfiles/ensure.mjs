@@ -1,3 +1,3 @@
-import { ensureBrowser } from "./ensure-browser.mjs";
+import {ensureBrowser} from './ensure-browser.mjs';
 
 await ensureBrowser();

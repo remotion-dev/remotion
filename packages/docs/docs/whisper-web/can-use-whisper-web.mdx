@@ -91,7 +91,6 @@ If `supported` is `false`, this field may contain a more detailed, human-readabl
 ## Important considerations
 
 - **Cross-Origin Isolation:** For `SharedArrayBuffer` to work, which is required by `@remotion/whisper-web`, the page must be served with specific HTTP headers:
-
   - `Cross-Origin-Opener-Policy: same-origin`
   - `Cross-Origin-Embedder-Policy: require-corp`
     Ensure your server is configured to send these headers. See [MDN documentation on `crossOriginIsolated`](https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated) for more details.

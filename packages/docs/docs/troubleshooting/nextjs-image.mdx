@@ -2,13 +2,13 @@
 image: /generated/articles-docs-troubleshooting-nextjs-image.png
 sidebar_label: Flickering with Next.js Image
 title: Flickering when using Next.js <Image> tag
-crumb: "Common mistakes"
+crumb: 'Common mistakes'
 ---
 
 The following code is discouraged in Remotion:
 
 ```tsx title="❌ Don't do this"
-import Image from "next/image";
+import Image from 'next/image';
 
 const myMarkup = <Image src="https://picsum.photos/200/300"></Image>;
 ```
@@ -24,9 +24,9 @@ This will lead to Remotion not waiting for the image to be loaded during renderi
 Use the [`<Img>`](/docs/img) tag instead:
 
 ```tsx twoslash title="✅ Do this"
-const src = "abc";
+const src = 'abc';
 // ---cut---
-import { AbsoluteFill, Img } from "remotion";
+import {AbsoluteFill, Img} from 'remotion';
 
 const myMarkup = <Img src="https://picsum.photos/200/300" />;
 ```

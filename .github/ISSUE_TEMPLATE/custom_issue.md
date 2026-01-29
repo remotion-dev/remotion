@@ -1,9 +1,9 @@
 ---
 name: Other issue
 about: What is on your mind? Let us know!
-title: ""
-labels: ""
-assignees: ""
+title: ''
+labels: ''
+assignees: ''
 ---
 
 <!-- Chat with us: https://remotion.dev/discord -->

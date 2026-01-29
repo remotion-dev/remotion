@@ -2,10 +2,10 @@
 image: /generated/articles-docs-tailwind-2.png
 id: tailwind-legacy
 title: TailwindCSS v2 (Legacy)
-crumb: "Legacy docs"
+crumb: 'Legacy docs'
 ---
 
-import Tabs from "@theme/Tabs";
+import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 :::info
@@ -49,7 +49,7 @@ yarn add postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
 2. Add the following to your [`remotion.config.ts`](/docs/config) file:
 
 ```ts twoslash
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.overrideWebpackConfig((currentConfiguration) => {
   return {
@@ -57,17 +57,14 @@ Config.overrideWebpackConfig((currentConfiguration) => {
     module: {
       ...currentConfiguration.module,
       rules: [
-        ...(currentConfiguration.module?.rules
-          ? currentConfiguration.module.rules
-          : []
-        ).filter((rule) => {
+        ...(currentConfiguration.module?.rules ? currentConfiguration.module.rules : []).filter((rule) => {
           if (!rule) {
             return false;
           }
-          if (rule === "...") {
+          if (rule === '...') {
             return false;
           }
-          if (rule.test?.toString().includes(".css")) {
+          if (rule.test?.toString().includes('.css')) {
             return false;
           }
           return true;
@@ -75,17 +72,13 @@ Config.overrideWebpackConfig((currentConfiguration) => {
         {
           test: /\.css$/i,
           use: [
-            "style-loader",
-            "css-loader",
+            'style-loader',
+            'css-loader',
             {
-              loader: "postcss-loader",
+              loader: 'postcss-loader',
               options: {
                 postcssOptions: {
-                  plugins: [
-                    "postcss-preset-env",
-                    "tailwindcss",
-                    "autoprefixer",
-                  ],
+                  plugins: ['postcss-preset-env', 'tailwindcss', 'autoprefixer'],
                 },
               },
             },
@@ -108,7 +101,7 @@ Config.overrideWebpackConfig((currentConfiguration) => {
 4. Import the stylesheet in your `src/Root.tsx` file. Add to the top of the file:
 
 ```js
-import "./style.css";
+import './style.css';
 ```
 
 5.  Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.

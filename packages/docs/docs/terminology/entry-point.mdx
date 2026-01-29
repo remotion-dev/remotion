@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-terminology-entry-point.png
 title: Entry point
-crumb: "Terminology"
+crumb: 'Terminology'
 ---
 
 The entry point is the file where the [Remotion CLI](/docs/cli) and [`@remotion/renderer`](/docs/renderer) APIs will look for a Remotion project.
@@ -17,23 +17,52 @@ The entry point is the file where the [Remotion CLI](/docs/cli) and [`@remotion/
 
 If you call [`npx remotion render`](/docs/cli/render), the entry point and the reason why it was chosen will be printed. The algorithm is as follows:
 
-<Step>1</Step> If the entry point is directly passed, for example <code>npx remotion render src/index.ts</code>, use that.<br/>
-<Step>2</Step> Otherwise, if a path was specified in the <a href="/docs/config">Configuration file</a> using <a href="/docs/config#setentrypoint"><code>Config.setEntryPoint()</code></a>, use that. <br/>
+<Step>1</Step> If the entry point is directly passed, for example <code>npx remotion render src/index.ts</code>, use that.
+<br />
+<Step>2</Step> Otherwise, if a path was specified in the <a href="/docs/config">Configuration file</a> using
+<a href="/docs/config#setentrypoint">
+  <code>Config.setEntryPoint()</code>
+</a>
+, use that. <br />
 <Step>3</Step> Go through the following common paths and if one exists, use that:
 
 <ul>
-<li><code>src/index.ts</code></li>
-<li><code>src/index.tsx</code></li>
-<li><code>src/index.js</code></li>
-<li><code>src/index.mjs</code></li>
-<li><code>remotion/index.tsx</code></li>
-<li><code>remotion/index.ts</code></li>
-<li><code>remotion/index.js</code></li>
-<li><code>remotion/index.mjs</code></li>
-<li><code>src/remotion/index.tsx</code></li>
-<li><code>src/remotion/index.ts</code></li>
-<li><code>src/remotion/index.js</code></li>
-<li><code>src/remotion/index.mjs</code></li>
+  <li>
+    <code>src/index.ts</code>
+  </li>
+  <li>
+    <code>src/index.tsx</code>
+  </li>
+  <li>
+    <code>src/index.js</code>
+  </li>
+  <li>
+    <code>src/index.mjs</code>
+  </li>
+  <li>
+    <code>remotion/index.tsx</code>
+  </li>
+  <li>
+    <code>remotion/index.ts</code>
+  </li>
+  <li>
+    <code>remotion/index.js</code>
+  </li>
+  <li>
+    <code>remotion/index.mjs</code>
+  </li>
+  <li>
+    <code>src/remotion/index.tsx</code>
+  </li>
+  <li>
+    <code>src/remotion/index.ts</code>
+  </li>
+  <li>
+    <code>src/remotion/index.js</code>
+  </li>
+  <li>
+    <code>src/remotion/index.mjs</code>
+  </li>
 </ul>
 
 ## In the Player

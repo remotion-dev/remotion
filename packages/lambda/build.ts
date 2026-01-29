@@ -1,9 +1,9 @@
 import {BundlerInternals} from '@remotion/bundler';
 import {dir} from '@remotion/compositor-linux-arm64-gnu';
+import {$} from 'bun';
 import fs, {cpSync, readdirSync} from 'node:fs';
 import path from 'node:path';
 import {FUNCTION_ZIP_ARM64} from './src/shared/function-zip-path';
-import {$} from 'bun';
 
 const outdir = path.join(__dirname, `build-render`);
 fs.mkdirSync(outdir, {

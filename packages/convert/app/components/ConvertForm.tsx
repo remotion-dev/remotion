@@ -1,3 +1,11 @@
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@remotion/design';
 import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
 import React from 'react';
 import {
@@ -12,14 +20,6 @@ import type {SupportedConfigs} from './get-supported-configs';
 import {SelectionSkeleton} from './SelectionSkeleton';
 import {AudioTrackLabel, VideoTrackLabel} from './TrackSelectionLabels';
 import {Label} from './ui/label';
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@remotion/design';
 import {VideoCodecSelection} from './VideoCodecSelection';
 
 export const ConvertForm: React.FC<{

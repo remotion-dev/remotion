@@ -85,9 +85,7 @@ export const MyComp: React.FC = () => {
     if (asset.isImage) {
       fetch('https://picsum.photos/300/500').then(async (res) => {
         console.log('doing this');
-        const image = await decodeImage(
-          new Uint8Array(await res.arrayBuffer()),
-        );
+        const image = await decodeImage(new Uint8Array(await res.arrayBuffer()));
 
         (asset as ImageAsset).setRenderImage(image);
 
@@ -103,12 +101,7 @@ export const MyComp: React.FC = () => {
     return false;
   }, []);
 
-  return (
-    <RemotionRiveCanvas
-      src="https://example.com/myAnimation.riv"
-      assetLoader={assetLoader}
-    />
-  );
+  return <RemotionRiveCanvas src="https://example.com/myAnimation.riv" assetLoader={assetLoader} />;
 };
 ```
 
@@ -134,12 +127,7 @@ const MyComp: React.FC = () => {
     canvasRef.current.getCanvas(); // import("@rive-app/canvas-advanced").RiveCanvas
   }, [canvasRef]);
 
-  return (
-    <RemotionRiveCanvas
-      src="https://example.com/myAnimation.riv"
-      ref={canvasRef}
-    />
-  );
+  return <RemotionRiveCanvas src="https://example.com/myAnimation.riv" ref={canvasRef} />;
 };
 ```
 
@@ -179,12 +167,7 @@ const onLoadHandler = useCallback((file: File) => {
 }, []);
 
 function App() {
-  return (
-    <RemotionRiveCanvas
-      src="https://example.com/myAnimation.riv"
-      onLoad={onLoadHandler}
-    />
-  );
+  return <RemotionRiveCanvas src="https://example.com/myAnimation.riv" onLoad={onLoadHandler} />;
 }
 ```
 

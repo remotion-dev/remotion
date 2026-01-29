@@ -47,7 +47,6 @@ You can generate the captions or supply a .srt file or a .json file that follows
   ```
 
   This will:
-
   - Ask for your audio file path (supports any ffmpeg format)
   - Ask for the speech start time (to avoid false triggers from background music, intro jingles or noise)
   - Generate captions.json in the public folder

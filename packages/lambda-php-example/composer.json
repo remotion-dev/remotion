@@ -1,24 +1,24 @@
 {
-  "name": "remotion/lambda-php-example",
-  "type": "project",
-  "description": "Example project for using Remotion Lambda PHP",
-  "scripts": {
-    "render": "php src/render.php"
-  },
-  "autoload": {
-    "psr-4": {
-      "remotion\\LambdaPhpExample\\": "src/"
-    }
-  },
-  "authors": [],
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../lambda-php"
-    }
-  ],
-  "require": {
-    "vlucas/phpdotenv": "^5.5",
-    "remotion/lambda": "4.0.411"
-  }
+	"name": "remotion/lambda-php-example",
+	"type": "project",
+	"description": "Example project for using Remotion Lambda PHP",
+	"scripts": {
+		"render": "php src/render.php"
+	},
+	"autoload": {
+		"psr-4": {
+			"remotion\\LambdaPhpExample\\": "src/"
+		}
+	},
+	"authors": [],
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../lambda-php"
+		}
+	],
+	"require": {
+		"vlucas/phpdotenv": "^5.5",
+		"remotion/lambda": "4.0.411"
+	}
 }

@@ -1,9 +1,3 @@
-import type {InputAudioTrack} from 'mediabunny';
-import React from 'react';
-import type {AudioOperation} from '~/lib/audio-operation';
-import {getAudioOperationId} from '~/lib/operation-key';
-import {AudioCodecDropWarning} from './AudioCodecDropWarning';
-import {AudioOperationOption} from './AudioOperationOption';
 import {
 	Select,
 	SelectContent,
@@ -12,6 +6,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@remotion/design';
+import type {InputAudioTrack} from 'mediabunny';
+import React from 'react';
+import type {AudioOperation} from '~/lib/audio-operation';
+import {getAudioOperationId} from '~/lib/operation-key';
+import {AudioCodecDropWarning} from './AudioCodecDropWarning';
+import {AudioOperationOption} from './AudioOperationOption';
 
 export const AudioCodecSelection: React.FC<{
 	readonly audioTrackOptions: AudioOperation[];

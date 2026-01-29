@@ -255,9 +255,7 @@ type Size = {
 // the window having been resized. Those UI elements can call this API to
 // force an update
 
-export const useElementSize = (
-  ref: React.RefObject<HTMLElement | null>,
-): Size | null => {
+export const useElementSize = (ref: React.RefObject<HTMLElement | null>): Size | null => {
   const [size, setSize] = useState<Size | null>(() => {
     if (!ref.current) {
       return null;
@@ -315,12 +313,7 @@ export const useElementSize = (
     }
 
     setSize((prevState) => {
-      const isSame =
-        prevState &&
-        prevState.width === rect[0].width &&
-        prevState.height === rect[0].height &&
-        prevState.left === rect[0].x &&
-        prevState.top === rect[0].y;
+      const isSame = prevState && prevState.width === rect[0].width && prevState.height === rect[0].height && prevState.left === rect[0].x && prevState.top === rect[0].y;
       if (isSame) {
         return prevState;
       }
@@ -372,11 +365,7 @@ export const useElementSize = (
   }, [size, updateSize]);
 };
 
-const getFrameFromX = (
-  clientX: number,
-  durationInFrames: number,
-  width: number,
-) => {
+const getFrameFromX = (clientX: number, durationInFrames: number, width: number) => {
   const pos = clientX;
   const frame = Math.round(
     interpolate(pos, [0, width], [0, Math.max(durationInFrames - 1, 0)], {
@@ -530,14 +519,9 @@ export const SeekBar: React.FC<{
         return;
       }
 
-      const posLeft = containerRef.current?.getBoundingClientRect()
-        .left as number;
+      const posLeft = containerRef.current?.getBoundingClientRect().left as number;
 
-      const _frame = getFrameFromX(
-        e.clientX - posLeft,
-        durationInFrames,
-        width,
-      );
+      const _frame = getFrameFromX(e.clientX - posLeft, durationInFrames, width);
       playerRef.current.pause();
       playerRef.current.seekTo(_frame);
       setDragging({
@@ -562,14 +546,9 @@ export const SeekBar: React.FC<{
         return;
       }
 
-      const posLeft = containerRef.current?.getBoundingClientRect()
-        .left as number;
+      const posLeft = containerRef.current?.getBoundingClientRect().left as number;
 
-      const _frame = getFrameFromX(
-        e.clientX - posLeft,
-        durationInFrames,
-        size.width,
-      );
+      const _frame = getFrameFromX(e.clientX - posLeft, durationInFrames, size.width);
       playerRef.current.seekTo(_frame);
     },
     [dragging.dragging, durationInFrames, playerRef, size],
@@ -599,9 +578,7 @@ export const SeekBar: React.FC<{
       return;
     }
 
-    const body = findBodyInWhichDivIsLocated(
-      containerRef.current as HTMLElement,
-    );
+    const body = findBodyInWhichDivIsLocated(containerRef.current as HTMLElement);
 
     body.addEventListener('pointermove', onPointerMove);
     body.addEventListener('pointerup', onPointerUp);
@@ -619,10 +596,7 @@ export const SeekBar: React.FC<{
       position: 'absolute',
       top: VERTICAL_PADDING - KNOB_SIZE / 2 + 5 / 2,
       backgroundColor: '#000',
-      left: Math.max(
-        0,
-        (frame / Math.max(1, durationInFrames - 1)) * width - KNOB_SIZE / 2,
-      ),
+      left: Math.max(0, (frame / Math.max(1, durationInFrames - 1)) * width - KNOB_SIZE / 2),
       boxShadow: '0 0 2px black',
       opacity: Number(barHovered),
       transition: 'opacity 0.1s ease',
@@ -644,11 +618,7 @@ export const SeekBar: React.FC<{
       height: BAR_HEIGHT,
       backgroundColor: '#000',
       opacity: 0.6,
-      width:
-        (((outFrame ?? durationInFrames - 1) - (inFrame ?? 0)) /
-          (durationInFrames - 1)) *
-          100 +
-        '%',
+      width: (((outFrame ?? durationInFrames - 1) - (inFrame ?? 0)) / (durationInFrames - 1)) * 100 + '%',
       marginLeft: ((inFrame ?? 0) / (durationInFrames - 1)) * 100 + '%',
       borderRadius: BAR_HEIGHT / 2,
       position: 'absolute',
@@ -656,11 +626,7 @@ export const SeekBar: React.FC<{
   }, [durationInFrames, inFrame, outFrame]);
 
   return (
-    <div
-      ref={containerRef}
-      onPointerDown={onPointerDown}
-      style={containerStyle}
-    >
+    <div ref={containerRef} onPointerDown={onPointerDown} style={containerStyle}>
       <div style={barBackground}>
         <div style={active} />
         <div style={fillStyle} />
@@ -727,15 +693,7 @@ export const MyComponent: React.FC = () => {
 
   return (
     <>
-      <Player
-        component={MyComp}
-        loop={loop}
-        durationInFrames={100}
-        fps={30}
-        compositionWidth={1920}
-        compositionHeight={1080}
-        inputProps={{}}
-      />
+      <Player component={MyComp} loop={loop} durationInFrames={100} fps={30} compositionWidth={1920} compositionHeight={1080} inputProps={{}} />
       <LoopButton loop={loop} setLoop={setLoop} />
     </>
   );
@@ -785,33 +743,23 @@ export const VolumeSlider: React.FC<{
     };
   }, [playerRef]);
 
-  const onChange: React.ChangeEventHandler<HTMLInputElement> =
-    React.useCallback(
-      (evt) => {
-        if (!playerRef.current) {
-          return;
-        }
+  const onChange: React.ChangeEventHandler<HTMLInputElement> = React.useCallback(
+    (evt) => {
+      if (!playerRef.current) {
+        return;
+      }
 
-        const newVolume = Number(evt.target.value);
-        if (newVolume > 0 && playerRef.current.isMuted()) {
-          playerRef.current.unmute();
-        }
+      const newVolume = Number(evt.target.value);
+      if (newVolume > 0 && playerRef.current.isMuted()) {
+        playerRef.current.unmute();
+      }
 
-        playerRef.current.setVolume(newVolume);
-      },
-      [playerRef],
-    );
-
-  return (
-    <input
-      value={muted ? 0 : volume}
-      type="range"
-      min={0}
-      max={1}
-      step={0.01}
-      onChange={onChange}
-    />
+      playerRef.current.setVolume(newVolume);
+    },
+    [playerRef],
   );
+
+  return <input value={muted ? 0 : volume} type="range" min={0} max={1} step={0.01} onChange={onChange} />;
 };
 ```
 

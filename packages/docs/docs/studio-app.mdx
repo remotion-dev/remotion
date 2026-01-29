@@ -17,27 +17,21 @@ If you would like to now turn your project into an app, follow these steps.
 - [Next.js (Pages dir)](/templates/next-pages-dir)
 - [React Router](/templates/react-router)
 
-<Step>2</Step> In the <code>remotion/Root.tsx</code> file of the new project, replace
-the sample code with the code from <code>src/Root.tsx</code> from your existing project.
-Include all other components recursively, until <code>npx tsc -w</code> does give
-no errors anymore.
+<Step>2</Step> In the <code>remotion/Root.tsx</code> file of the new project, replace the sample code with the code from <code>src/Root.tsx</code> from your existing project. Include all other components recursively, until <code>npx tsc -w</code> does give no errors anymore.
 
 <Step>3</Step> Copy the contents of the <code>public</code> folder into the new project.
 
 <Step>4</Step> Find where the <code>{'<Player>'}</code> is rendered:
 <ul>
-	<li>
-		<strong>In the Next.js Pages Dir template:</strong> Under{' '}
-		<code>pages/index.tsx</code>.
-	</li>
-	<li>
-		<strong>In the Next.js App Dir template:</strong> Under{' '}
-		<code>app/page.tsx</code>.
-	</li>
-	<li>
-		<strong>In the React Router template:</strong> Under{' '}
-		<code>app/home.tsx</code>.
-	</li>
+  <li>
+    <strong>In the Next.js Pages Dir template:</strong> Under <code>pages/index.tsx</code>.
+  </li>
+  <li>
+    <strong>In the Next.js App Dir template:</strong> Under <code>app/page.tsx</code>.
+  </li>
+  <li>
+    <strong>In the React Router template:</strong> Under <code>app/home.tsx</code>.
+  </li>
 </ul>
 
 Choose the main [composition](/docs/terminology/composition) that you want to render in the Player and include it's <code>component</code> and other metadata in the <code>&lt;Player&gt;</code>. You may import the component from the <code>remotion</code> folder so it is imported in both the Studio and the app.
@@ -46,8 +40,7 @@ If you want to remove the duplication of metadata, you can define constants such
 
 If you use [`calculateMetadata()`](/docs/dynamic-metadata#with-the-player), see [here](/docs/dynamic-metadata#with-the-player) how you can use it with the Player.
 
-<Step>5</Step> If you have any Webpack override defined in <code>remotion.config.ts</code>
-, look up how to apply it to your framework as well.
+<Step>5</Step> If you have any Webpack override defined in <code>remotion.config.ts</code>, look up how to apply it to your framework as well.
 
 ## Next steps
 

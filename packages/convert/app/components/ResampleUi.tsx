@@ -1,4 +1,3 @@
-import {Label} from './ui/label';
 import {
 	Select,
 	SelectContent,
@@ -6,6 +5,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@remotion/design';
+import {Label} from './ui/label';
 
 const formatSampleRate = (rate: number): string => {
 	return `${(rate / 1000).toFixed(3)} Hz`;

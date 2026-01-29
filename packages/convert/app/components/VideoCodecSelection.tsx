@@ -1,7 +1,3 @@
-import type {InputVideoTrack} from 'mediabunny';
-import React from 'react';
-import type {VideoOperation} from '~/lib/audio-operation';
-import {getVideoOperationId} from '~/lib/operation-key';
 import {
 	Select,
 	SelectContent,
@@ -10,6 +6,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@remotion/design';
+import type {InputVideoTrack} from 'mediabunny';
+import React from 'react';
+import type {VideoOperation} from '~/lib/audio-operation';
+import {getVideoOperationId} from '~/lib/operation-key';
 import {VideoOperationOption} from './VideoOperationOption';
 
 export const VideoCodecSelection: React.FC<{

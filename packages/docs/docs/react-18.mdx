@@ -2,7 +2,7 @@
 image: /generated/articles-docs-react-18.png
 id: react-18
 title: Upgrade to React 18
-crumb: "The new and shiny"
+crumb: 'The new and shiny'
 ---
 
 ## Updating packages
@@ -43,7 +43,7 @@ Run `npm i`, or `yarn`, or `pnpm i` afterwards, matching your package manager.
 The types for `React.FC` have changed to no longer include `children`. If you get a type error, change
 
 ```tsx
-const MyComp: React.FC = ({ children }) => <div>{children}</div>;
+const MyComp: React.FC = ({children}) => <div>{children}</div>;
 ```
 
 to:
@@ -51,7 +51,7 @@ to:
 ```tsx
 const MyComp: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => <div>{children}</div>;
+}> = ({children}) => <div>{children}</div>;
 ```
 
 ## No action required for `createRoot()`

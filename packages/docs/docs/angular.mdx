@@ -108,20 +108,7 @@ To embed Remotion components in Angular, create a **wrapper component**:
 2. Ensure each `.tsx` file imports React explicitly at the top of the file:
 
 ```tsx title="PlayerViewWrapper.tsx"
-import {
-  AfterViewInit,
-  Component,
-  effect,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  Output,
-  signal,
-  Signal,
-  ViewChild,
-  WritableSignal,
-} from '@angular/core';
+import {AfterViewInit, Component, effect, ElementRef, EventEmitter, Input, OnDestroy, Output, signal, Signal, ViewChild, WritableSignal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterOutlet} from '@angular/router';
 import React from 'react';
@@ -179,13 +166,7 @@ export class PlayerViewWrapper implements AfterViewInit, OnDestroy {
       return;
     }
 
-    this.root?.render(
-      <PlayerView
-        playerRefInstance={this.playerRef}
-        data={this.data()}
-        onPaused={() => this.onPaused.emit()}
-      />,
-    );
+    this.root?.render(<PlayerView playerRefInstance={this.playerRef} data={this.data()} onPaused={() => this.onPaused.emit()} />);
   }
 }
 ```
@@ -227,18 +208,7 @@ export const PlayerView: React.FC<{
     }
   }, []);
 
-  return (
-    <Player
-      ref={playerRef}
-      component={HelloWorld}
-      durationInFrames={150}
-      fps={30}
-      compositionHeight={1080}
-      compositionWidth={1920}
-      inputProps={data}
-      controls
-    />
-  );
+  return <Player ref={playerRef} component={HelloWorld} durationInFrames={150} fps={30} compositionHeight={1080} compositionWidth={1920} inputProps={data} controls />;
 };
 ```
 

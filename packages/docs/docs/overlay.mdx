@@ -8,17 +8,18 @@ If you want to export a Remotion video to use it as an overlay or transition in 
 
 ## Exporting a video as ProRes file
 
-<InlineStep>1</InlineStep> Make sure your composition has no background color. If you toggle the transparency option on in the editor, you should see a checkerboard background. <br /> <br/>
+<InlineStep>1</InlineStep> Make sure your composition has no background color. If you toggle the transparency option on in the editor, you should see a checkerboard background. <br /> <br />
 
-<InlineStep>2</InlineStep> To export the video as ProRes file, setup the <code>remotion.config.ts</code> file as follows: <br/><br/>
+<InlineStep>2</InlineStep> To export the video as ProRes file, setup the <code>remotion.config.ts</code> file as follows: <br />
+<br />
 
 ```tsx twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
-Config.setVideoImageFormat("png");
-Config.setPixelFormat("yuva444p10le");
-Config.setCodec("prores");
-Config.setProResProfile("4444");
+Config.setVideoImageFormat('png');
+Config.setPixelFormat('yuva444p10le');
+Config.setCodec('prores');
+Config.setProResProfile('4444');
 ```
 
 and trigger the render with
@@ -35,7 +36,7 @@ npx remotion render --image-format=png --pixel-format=yuva444p10le --codec=prore
 
 ## Use a template
 
-import { OverlayDemo } from "../components/OverlayDemo";
+import {OverlayDemo} from '../components/OverlayDemo';
 
 ```twoslash include example
 const MyVideo: React.FC<{
@@ -50,15 +51,15 @@ const MyVideo: React.FC<{
 // - MyVideo
 ```
 
-<OverlayDemo/>
+<OverlayDemo />
 
 ## Use it in your Video Editor
 
 Now, you can simply import the video into your video editing software. You can find the video in the out folder of your Remotion project.
 
-import { OverlayInDavinci } from "../components/OverlayInDavinci";
+import {OverlayInDavinci} from '../components/OverlayInDavinci';
 
-<OverlayInDavinci/>
+<OverlayInDavinci />
 
 ## See also
 
