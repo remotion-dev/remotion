@@ -7,6 +7,7 @@ import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import {PlayerTimeLabel} from './PlayerTimeLabel.js';
 import {FullscreenIcon} from './icons.js';
+import type {PlayerRef} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {useHoverState} from './use-hover-state.js';
 import {
@@ -14,7 +15,6 @@ import {
 	useVideoControlsResize,
 } from './use-video-controls-resize.js';
 import type {Size} from './utils/use-element-size.js';
-import type { PlayerRef } from './player-methods.js';
 
 export type RenderPlayPauseButton = (props: {
 	playing: boolean;
@@ -37,7 +37,7 @@ export type PlayerControlHelpers = {
 export type AdditionalControlsRenders = {
 	start?: (helpers: PlayerControlHelpers) => React.ReactNode;
 	end?: (helpers: PlayerControlHelpers) => React.ReactNode;
-}
+};
 
 const gradientSteps = [
 	0, 0.013, 0.049, 0.104, 0.175, 0.259, 0.352, 0.45, 0.55, 0.648, 0.741, 0.825,
@@ -377,9 +377,7 @@ export const Controls: React.FC<{
 					{additionalControls?.start ? (
 						<>
 							<div style={xSpacer} />
-							<div aria-hidden={false}>
-								{additionalControls.start(helpers)}
-							</div>
+							<div aria-hidden={false}>{additionalControls.start(helpers)}</div>
 						</>
 					) : null}
 				</div>
@@ -399,7 +397,7 @@ export const Controls: React.FC<{
 						<div style={xSpacer} />
 						<div aria-hidden={false}>{additionalControls.end(helpers)}</div>
 					</>
-				): null}
+				) : null}
 
 				<div style={fullscreen}>
 					{supportsFullscreen && allowFullscreen ? (

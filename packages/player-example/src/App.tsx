@@ -656,7 +656,7 @@ const PlayerOnly: React.FC<
 		color: 'white',
 		padding: '6px 8px',
 		cursor: 'pointer',
-	}
+	};
 
 	return (
 		<Player
@@ -708,15 +708,15 @@ const PlayerOnly: React.FC<
 					return (
 						<div style={{position: 'relative', display: 'inline-block'}}>
 							<button
-								type='button'
-								aria-label='More options'
-								title='More options'
+								type="button"
+								aria-label="More options"
+								title="More options"
 								onClick={() => {
 									helperRef.current?.pause();
 									setShowMoreMenu((v) => !v);
 								}}
 								style={{
-									fontSize:18,
+									fontSize: 18,
 									padding: '0 8px',
 									cursor: 'pointer',
 									background: 'transparent',
@@ -728,8 +728,8 @@ const PlayerOnly: React.FC<
 							</button>
 							{showMoreMenu ? (
 								<div
-									role='menu'
-									aria-label='More player options'
+									role="menu"
+									aria-label="More player options"
 									style={{
 										position: 'absolute',
 										bottom: '120%',
@@ -744,7 +744,7 @@ const PlayerOnly: React.FC<
 									}}
 								>
 									<button
-										type='button'
+										type="button"
 										style={menuItemStyle}
 										onClick={() => {
 											helperRef.current?.seekTo(0);
@@ -754,9 +754,9 @@ const PlayerOnly: React.FC<
 									>
 										Restart video
 									</button>
-									
+
 									<button
-										type='button'
+										type="button"
 										style={menuItemStyle}
 										onClick={() => {
 											if (isFullscreen) {
@@ -767,11 +767,11 @@ const PlayerOnly: React.FC<
 											setShowMoreMenu(false);
 										}}
 									>
-										{isFullscreen ? 'Exit fullscreen' : 'enter fullscreen'}	
+										{isFullscreen ? 'Exit fullscreen' : 'enter fullscreen'}
 									</button>
 
 									<button
-										type='button'
+										type="button"
 										style={menuItemStyle}
 										onClick={() => {
 											alert('Download transcript (demo)');
@@ -781,10 +781,10 @@ const PlayerOnly: React.FC<
 										Download transcript
 									</button>
 								</div>
-							): null}
+							) : null}
 						</div>
-					)
-				}
+					);
+				},
 			}}
 		/>
 	);

@@ -20,9 +20,9 @@ import type {AnyZodObject} from 'zod';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {RenderMuteButton} from './MediaVolumeSlider.js';
 import type {
+	AdditionalControlsRenders,
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
-	AdditionalControlsRenders,
 } from './PlayerControls.js';
 import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';

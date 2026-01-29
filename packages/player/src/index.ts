@@ -24,10 +24,10 @@ export type {
 export {Player} from './Player.js';
 export type {PlayerProps, PlayerPropsWithoutZod} from './Player.js';
 export type {
-	RenderFullscreenButton,
-	RenderPlayPauseButton,
 	AdditionalControlsRenders,
 	PlayerControlHelpers,
+	RenderFullscreenButton,
+	RenderPlayPauseButton,
 } from './PlayerControls.js';
 export type {ErrorFallback, RenderLoading, RenderPoster} from './PlayerUI.js';
 export type {RenderVolumeSlider} from './render-volume-slider.js';
