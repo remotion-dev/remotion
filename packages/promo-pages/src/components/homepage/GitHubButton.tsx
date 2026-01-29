@@ -16,7 +16,7 @@ export const GithubButton: React.FC = () => {
 		<div className="flex flex-row items-center text-base">
 			<GithubIcon /> <span>GitHub</span>{' '}
 			<div className="text-xs inline-block ml-2 leading-none mt-[3px] self-center">
-				{'31k'}
+				{'33k'}
 			</div>
 		</div>
 	);
