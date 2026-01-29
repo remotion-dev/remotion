@@ -31,8 +31,8 @@ export const TableOfContents: React.FC = () => {
 					<div>Skill files for Claude Code, Codex, etc.</div>
 				</TOCItem>
 				<TOCItem link="/docs/ai/generate">
-					<strong>{'Code Generation'}</strong>
-					<div>Generate Remotion code from prompts</div>
+					<strong>{'Dynamic Code Generation'}</strong>
+					<div>Generate Remotion code using LLMs</div>
 				</TOCItem>
 				<TOCItem link="/templates/prompt-to-motion-graphics">
 					<strong>{'Prompt to Motion Graphics template'}</strong>
