@@ -1,4 +1,4 @@
-import type {MouseEventHandler, SyntheticEvent} from 'react';
+import type {MouseEventHandler, MutableRefObject, SyntheticEvent} from 'react';
 import React, {
 	Suspense,
 	forwardRef,
@@ -14,6 +14,8 @@ import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMuteButton} from './MediaVolumeSlider.js';
 import type {
+	AdditionalControlsRenders,
+	PlayerControlHelpers,
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
 } from './PlayerControls.js';
@@ -93,6 +95,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly browserMediaControlsBehavior: BrowserMediaControlsBehavior;
 		readonly overrideInternalClassName: string | undefined;
 		readonly noSuspense: boolean;
+		readonly additionalControls?: AdditionalControlsRenders;
 	}
 > = (
 	{
@@ -133,6 +136,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		browserMediaControlsBehavior,
 		overrideInternalClassName,
 		noSuspense,
+		additionalControls,
 	},
 	ref,
 ) => {
@@ -469,14 +473,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const VideoComponent = video ? video.component : null;
 
-	const outerStyle: React.CSSProperties = useMemo(() => {
+	type OuterStyleType = React.CSSProperties & {height: number; width: number};
+	const outerStyle = useMemo<OuterStyleType>(() => {
 		return calculateOuterStyle({
 			canvasSize,
 			config,
 			style,
 			overflowVisible,
 			layout,
-		});
+		}) as OuterStyleType;
 	}, [canvasSize, config, layout, overflowVisible, style]);
 
 	const outer = useMemo(() => {
@@ -620,6 +625,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const {left, top, width, height, ...outerWithoutScale} = outer;
 
+	const forwardedPlayerRef = ref as MutableRefObject<PlayerRef | null>;
+
+	const additionalHelpers: PlayerControlHelpers = {
+		playerRef: forwardedPlayerRef ?? {current: null},
+		isFullscreen,
+		isPlaying: player.isPlaying(),
+		toggle,
+		requestFullscreen,
+		exitFullscreen,
+	};
+
 	const content = (
 		<>
 			<div
@@ -707,6 +723,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					}
 					renderMuteButton={renderMuteButton}
 					renderVolumeSlider={renderVolumeSlider}
+					additionalControls={additionalControls}
+					additionalControlsHelpers={additionalHelpers}
 				/>
 			) : null}
 		</>

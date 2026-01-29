@@ -188,6 +188,121 @@ Pass your React component directly to the `component` prop. Don't pass the list 
 
 If everything worked, you can now run your webapp and preview your video.
 
+## Injecting custom controls
+
+Sometimes you want to add custom buttons or menus into the Player's controls bar (for example an ellipsis “More…” menu with actions such as Download, Transcript, or Settings). The Player supports this via the additionalControls prop which lets you inject arbitrary React output into named slots in the control bar.
+
+## Why use additionalControls?
+
+It's a safe, semantically-correct way to add UI to the control bar.
+Returned elements are rendered as-is (no extra wrappers), so you won't accidentally produce nested <button> elements.
+The API is generic and forward-compatible and provides useful helpers (for example a playerRef) so your custom control can call play, pause, requestFullscreen, seekTo, etc.
+
+:::note
+renderFullscreenButton — that prop is intended to replace the fullscreen button icon. If you return multiple <button> elements from renderFullscreenButton, the Player may wrap the return value with a native button element, producing invalid nested buttons. For adding more controls or multi-button menus, use additionalControls instead.
+:::
+
+Prop Shape
+
+```ts
+type PlayerControlHelpers = {
+  playerRef: React.RefObject<PlayerRef | null>;
+  isFullscreen: boolean;
+  isPlaying: boolean;
+  toggle: () => void;
+  requestFullscreen: () => void;
+  exitFullscreen: () => void;
+};
+
+type AdditionalControlsRenderers = {
+  start?: (helpers: PlayerControlHelpers) => React.ReactNode;
+  end?: (helpers: PlayerControlHelpers) => React.ReactNode;
+};
+```
+:::note
+start — renders controls on the left side of the control bar (near play/pause).
+end — renders controls on the right side of the control bar (near fullscreen and other action icons).
+The helpers let your control interact with the player safely.
+:::
+
+Basic Example
+
+```tsx
+import React, {useState} from 'react';
+import {Player} from '@remotion/player';
+
+export const Example: React.FC = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Player
+      component={MyComp}
+      durationInFrames={120}
+      compositionWidth={1280}
+      compositionHeight={720}
+      fps={30}
+      controls
+      additionalControls={{
+        end: ({ playerRef, isFullscreen }) => (
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            <button
+              aria-label="More options"
+              onClick={() => {
+                playerRef.current?.pause();
+                setOpen((s) => !s);
+              }}
+            >
+              ⋯
+            </button>
+
+            {open && (
+              <div
+                role="menu"
+                style={{ position: 'absolute', bottom: '120%', right: 0 }}
+              >
+                <button onClick={() => { playerRef.current?.seekTo(0); }}>
+                  Restart
+                </button>
+                <button onClick={() => {
+                  if (isFullscreen) playerRef.current?.exitFullscreen();
+                  else playerRef.current?.requestFullscreen();
+                }}>
+                  {isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                </button>
+                <button onClick={() => { /* download transcript */ }}>
+                  Download transcript
+                </button>
+              </div>
+            )}
+          </div>
+        ),
+      }}
+    />
+  );
+};
+```
+
+Accessibility & best practices
+
+:::note
+Always use semantic markup for interactive elements (<button> for actions).
+Provide aria-label, aria-expanded, and role="menu"/role="menuitem" where appropriate.
+If your menu can overlap the canvas or escape the player's container, consider rendering the menu in a Portal so it is not clipped.
+Trap focus when an overlay/menu is open and close on Esc for keyboard accessibility.
+Keep visual styling minimal in demos; for production use carefully test contrast and focus outlines.
+:::
+
+Notes for maintainers / contributors
+
+:::note
+The additionalControls API is intentionally generic — keep it unopinionated and free of extra dependencies (so it stays compatible with lightweight builds).
+Tests should cover:
+The custom node appears in the DOM when provided
+The custom node is rendered as-is (no extra wrapper that would create nested semantic issues)
+Helpers work (e.g., calling playerRef.current?.pause() actually pauses in a unit test environment or is callable)
+Document the API in examples (as shown above) and highlight the renderFullscreenButton caveat to avoid confusion.
+:::
+
 ## Creating a bundle for server-side rendering
 
 In any Node.JS context, you can call [`bundle()`](/docs/bundle) to bundle your video using Webpack and to server-side render the video. You need to add `@remotion/bundler` to your package.json for this.

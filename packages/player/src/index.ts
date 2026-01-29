@@ -24,6 +24,8 @@ export type {
 export {Player} from './Player.js';
 export type {PlayerProps, PlayerPropsWithoutZod} from './Player.js';
 export type {
+	AdditionalControlsRenders,
+	PlayerControlHelpers,
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
 } from './PlayerControls.js';
