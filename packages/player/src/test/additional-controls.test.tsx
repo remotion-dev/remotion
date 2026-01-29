@@ -31,7 +31,11 @@ test('additionalControls.end renders, is not nested inside another button, and h
 	expect(parent?.tagName).not.toBe('BUTTON');
 	expect(capturedHelpers).toBeTruthy();
 	expect(typeof capturedHelpers.playerRef).toBe('object');
-	expect(typeof capturedHelpers.isFullscreen === 'boolean' || typeof capturedHelpers.isFullscreen === 'function' || true).toBe(true);
+	expect(
+		typeof capturedHelpers.isFullscreen === 'boolean' ||
+			typeof capturedHelpers.isFullscreen === 'function' ||
+			true,
+	).toBe(true);
 	expect(typeof capturedHelpers.requestFullscreen).toBe('function');
 	expect(typeof capturedHelpers.exitFullscreen).toBe('function');
 	expect(typeof capturedHelpers.toggle).toBe('function');
