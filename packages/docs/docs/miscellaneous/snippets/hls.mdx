@@ -6,15 +6,11 @@ id: hls
 crumb: 'Video'
 ---
 
-## No native support
+## Native support in Chrome v142+
 
-Remotion does not currently support HLS / HTTP Live streaming / `.m3u8` files natively.  
-It is a technically difficult feature to add because:
+As of Chrome v142 (October 2025), Chrome supports native HLS playback. This means [`<OffthreadVideo />`](/docs/offthreadvideo) can play HLS / HTTP Live streaming / `.m3u8` files natively during preview without any additional setup in Chrome browsers.
 
-- There is no native support for it in the browser.
-- HLS is a special case, where video is split up into different files, and one file may contain many video or audio streams.
-
-We will support HLS through [`@remotion/media`](/docs/media/video) once [Mediabunny](/docs/mediabunny) has added support for it.  
+For full HLS support across all browsers and during rendering, we will support HLS through [`@remotion/media`](/docs/media/video) once [Mediabunny](/docs/mediabunny) has added support for it.
 While we don't control the timeline, we have mutually agreed that HLS should be put high on the roadmap.
 [Follow the status of this issue here](https://github.com/Vanilagy/mediabunny/issues/89).
 
