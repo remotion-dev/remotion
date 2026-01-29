@@ -21,12 +21,16 @@ export interface ConversationMessage {
   role: "user" | "assistant" | "error";
   content: string;
   timestamp: number;
+  /** For user messages, store attached images as base64 data URLs */
+  attachedImages?: string[];
   /** For assistant messages, store the code snapshot at time of generation */
   codeSnapshot?: string;
   /** For assistant messages, store metadata about the generation */
   metadata?: AssistantMetadata;
   /** For error messages, store the error type */
   errorType?: "edit_failed" | "api" | "validation";
+  /** For edit_failed errors, store the failed edit operation */
+  failedEdit?: EditOperation;
 }
 
 export interface ConversationState {
@@ -54,4 +58,6 @@ export interface ErrorCorrectionContext {
   attemptNumber: number;
   /** Maximum correction attempts allowed */
   maxAttempts: number;
+  /** The edit operation that failed (for edit_failed errors) */
+  failedEdit?: EditOperation;
 }

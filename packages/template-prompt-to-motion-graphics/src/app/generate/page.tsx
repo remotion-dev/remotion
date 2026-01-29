@@ -16,6 +16,7 @@ import { useAutoCorrection } from "../../hooks/useAutoCorrection";
 import type {
   AssistantMetadata,
   ErrorCorrectionContext,
+  EditOperation,
 } from "../../types/conversation";
 
 const MAX_CORRECTION_ATTEMPTS = 3;
@@ -32,6 +33,7 @@ function GeneratePageContent() {
     examples[0]?.durationInFrames || 150,
   );
   const [fps, setFps] = useState(examples[0]?.fps || 30);
+  const [currentFrame, setCurrentFrame] = useState(0);
   const [isStreaming, setIsStreaming] = useState(willAutoStart);
   const [streamPhase, setStreamPhase] = useState<StreamPhase>(
     willAutoStart ? "reasoning" : "idle",
@@ -42,6 +44,7 @@ function GeneratePageContent() {
   const [generationError, setGenerationError] = useState<{
     message: string;
     type: GenerationErrorType;
+    failedEdit?: EditOperation;
   } | null>(null);
 
   // Self-correction state
@@ -152,8 +155,8 @@ function GeneratePageContent() {
 
   // Handle message sent for history
   const handleMessageSent = useCallback(
-    (promptText: string) => {
-      addUserMessage(promptText);
+    (promptText: string, attachedImages?: string[]) => {
+      addUserMessage(promptText, attachedImages);
     },
     [addUserMessage],
   );
@@ -183,12 +186,14 @@ function GeneratePageContent() {
     if (streaming) {
       setGenerationError(null);
       setRuntimeError(null);
+      // Reset error correction state for fresh retry attempts
+      setErrorCorrection(null);
     }
   }, []);
 
   const handleError = useCallback(
-    (message: string, type: GenerationErrorType) => {
-      setGenerationError({ message, type });
+    (message: string, type: GenerationErrorType, failedEdit?: EditOperation) => {
+      setGenerationError({ message, type, failedEdit });
     },
     [],
   );
@@ -207,8 +212,19 @@ function GeneratePageContent() {
   useEffect(() => {
     if (initialPrompt && !hasAutoStarted && chatSidebarRef.current) {
       setHasAutoStarted(true);
+      // Check for initial attached images from sessionStorage
+      const storedImagesJson = sessionStorage.getItem("initialAttachedImages");
+      let storedImages: string[] | undefined;
+      if (storedImagesJson) {
+        try {
+          storedImages = JSON.parse(storedImagesJson);
+        } catch {
+          // Ignore parse errors
+        }
+        sessionStorage.removeItem("initialAttachedImages");
+      }
       setTimeout(() => {
-        chatSidebarRef.current?.triggerGeneration();
+        chatSidebarRef.current?.triggerGeneration({ attachedImages: storedImages });
       }, 100);
     }
   }, [initialPrompt, hasAutoStarted]);
@@ -241,6 +257,11 @@ function GeneratePageContent() {
           errorCorrection={errorCorrection ?? undefined}
           onPendingMessage={setPendingMessage}
           onClearPendingMessage={clearPendingMessage}
+          // Frame capture props
+          Component={Component}
+          fps={fps}
+          durationInFrames={durationInFrames}
+          currentFrame={currentFrame}
         />
 
         {/* Main content area */}
@@ -265,6 +286,7 @@ function GeneratePageContent() {
                 errorType={generationError?.type || "compilation"}
                 code={code}
                 onRuntimeError={handleRuntimeError}
+                onFrameChange={setCurrentFrame}
               />
             </div>
           </div>

@@ -198,6 +198,7 @@ function applyEdits(
   result: string;
   error?: string;
   enrichedEdits?: EditOperation[];
+  failedEdit?: EditOperation;
 } {
   let result = code;
   const enrichedEdits: EditOperation[] = [];
@@ -212,6 +213,7 @@ function applyEdits(
         success: false,
         result: code,
         error: `Edit ${i + 1} failed: Could not find the specified text`,
+        failedEdit: edit,
       };
     }
 
@@ -222,6 +224,7 @@ function applyEdits(
         success: false,
         result: code,
         error: `Edit ${i + 1} failed: Found ${matches} matches. The edit target is ambiguous.`,
+        failedEdit: edit,
       };
     }
 
@@ -252,6 +255,11 @@ interface ErrorCorrectionContext {
   error: string;
   attemptNumber: number;
   maxAttempts: number;
+  failedEdit?: {
+    description: string;
+    old_string: string;
+    new_string: string;
+  };
 }
 
 interface GenerateRequest {
@@ -265,6 +273,8 @@ interface GenerateRequest {
   errorCorrection?: ErrorCorrectionContext;
   /** Skills already used in this conversation (to avoid redundant skill content) */
   previouslyUsedSkills?: string[];
+  /** Base64 image data URLs for visual context */
+  frameImages?: string[];
 }
 
 interface GenerateResponse {
@@ -288,6 +298,7 @@ export async function POST(req: Request) {
     hasManualEdits = false,
     errorCorrection,
     previouslyUsedSkills = [],
+    frameImages,
   }: GenerateRequest = await req.json();
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -391,7 +402,32 @@ export async function POST(req: Request) {
       // Error correction context for self-healing
       let errorCorrectionNotice = "";
       if (errorCorrection) {
-        errorCorrectionNotice = `
+        const failedEditInfo = errorCorrection.failedEdit
+          ? `
+
+The previous edit attempt failed. Here's what was tried:
+- Description: ${errorCorrection.failedEdit.description}
+- Tried to find: \`${errorCorrection.failedEdit.old_string}\`
+- Wanted to replace with: \`${errorCorrection.failedEdit.new_string}\`
+
+The old_string was either not found or matched multiple locations. You MUST include more surrounding context to make the match unique.`
+          : "";
+
+        const isEditFailure = errorCorrection.error.includes("Edit") && errorCorrection.error.includes("failed");
+
+        if (isEditFailure) {
+          errorCorrectionNotice = `
+
+## EDIT FAILED (ATTEMPT ${errorCorrection.attemptNumber}/${errorCorrection.maxAttempts})
+${errorCorrection.error}
+${failedEditInfo}
+
+CRITICAL: Your previous edit target was ambiguous or not found. To fix this:
+1. Include MORE surrounding code context in old_string to make it unique
+2. Make sure old_string matches the code EXACTLY (including whitespace)
+3. If the code structure changed, look at the current code carefully`;
+        } else {
+          errorCorrectionNotice = `
 
 ## COMPILATION ERROR (ATTEMPT ${errorCorrection.attemptNumber}/${errorCorrection.maxAttempts})
 The previous code failed to compile with this error:
@@ -406,9 +442,10 @@ CRITICAL: Fix this compilation error. Common issues include:
 - TypeScript type errors
 
 Focus ONLY on fixing the error. Do not make other changes.`;
+        }
       }
 
-      const editPrompt = `## CURRENT CODE:
+      const editPromptText = `## CURRENT CODE:
 \`\`\`tsx
 ${currentCode}
 \`\`\`
@@ -418,6 +455,7 @@ ${errorCorrectionNotice}
 
 ## USER REQUEST:
 ${prompt}
+${frameImages && frameImages.length > 0 ? `\n(See the attached ${frameImages.length === 1 ? "image" : "images"} for visual reference)` : ""}
 
 Analyze the request and decide: use targeted edits (type: "edit") for small changes, or full replacement (type: "full") for major restructuring.`;
 
@@ -427,13 +465,33 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
         "model:",
         modelName,
         "skills:",
-        detectedSkills.length > 0 ? detectedSkills.join(", ") : "general"
+        detectedSkills.length > 0 ? detectedSkills.join(", ") : "general",
+        frameImages && frameImages.length > 0 ? `(with ${frameImages.length} image(s))` : ""
       );
+
+      // Build messages array - include images if provided
+      const editMessageContent: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [
+        { type: "text" as const, text: editPromptText },
+      ];
+      if (frameImages && frameImages.length > 0) {
+        for (const img of frameImages) {
+          editMessageContent.push({ type: "image" as const, image: img });
+        }
+      }
+      const editMessages: Array<{
+        role: "user";
+        content: Array<{ type: "text"; text: string } | { type: "image"; image: string }>;
+      }> = [
+        {
+          role: "user" as const,
+          content: editMessageContent,
+        },
+      ];
 
       const editResult = await generateObject({
         model: openai(modelName),
         system: FOLLOW_UP_SYSTEM_PROMPT,
-        prompt: editPrompt,
+        messages: editMessages,
         schema: FollowUpResponseSchema,
       });
 
@@ -446,11 +504,12 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
         // Apply the edits to the current code
         const result = applyEdits(currentCode, response.edits);
         if (!result.success) {
-          // If edits fail, return error
+          // If edits fail, return error with the failed edit details
           return new Response(
             JSON.stringify({
               error: result.error,
               type: "edit_failed",
+              failedEdit: result.failedEdit,
             }),
             { status: 400, headers: { "Content-Type": "application/json" } }
           );
@@ -505,10 +564,35 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
 
   // INITIAL GENERATION: Use streaming for new animations
   try {
+    // Build messages for initial generation (supports image references)
+    const hasImages = frameImages && frameImages.length > 0;
+    const initialPromptText = hasImages
+      ? `${prompt}\n\n(See the attached ${frameImages.length === 1 ? "image" : "images"} for visual reference)`
+      : prompt;
+
+    const initialMessageContent: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [
+      { type: "text" as const, text: initialPromptText },
+    ];
+    if (hasImages) {
+      for (const img of frameImages) {
+        initialMessageContent.push({ type: "image" as const, image: img });
+      }
+    }
+
+    const initialMessages: Array<{
+      role: "user";
+      content: Array<{ type: "text"; text: string } | { type: "image"; image: string }>;
+    }> = [
+      {
+        role: "user" as const,
+        content: initialMessageContent,
+      },
+    ];
+
     const result = streamText({
       model: openai(modelName),
       system: enhancedSystemPrompt,
-      prompt,
+      messages: initialMessages,
       ...(reasoningEffort && {
         providerOptions: {
           openai: {
@@ -525,7 +609,8 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
       modelName,
       "skills:",
       detectedSkills.length > 0 ? detectedSkills.join(", ") : "general",
-      reasoningEffort ? `reasoning_effort: ${reasoningEffort}` : ""
+      reasoningEffort ? `reasoning_effort: ${reasoningEffort}` : "",
+      hasImages ? `(with ${frameImages.length} image(s))` : ""
     );
 
     // Get the original stream response

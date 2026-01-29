@@ -1,6 +1,7 @@
 import { RemotionExample } from "./index";
 
-export const typewriterHighlightCode = `import {
+export const typewriterHighlightCode = `import React from "react";
+import {
   useCurrentFrame,
   useVideoConfig,
   AbsoluteFill,
@@ -10,8 +11,8 @@ export const typewriterHighlightCode = `import {
 
 export const MyAnimation = () => {
   /*
-   * Centered "Hello world" appears with a typewriter reveal and a smoothly blinking caret.
-   * After the full phrase is typed, the word "world" crossfades into a yellow-highlighted final state.
+   * A centered "Hello world" appears with a left-to-right typewriter reveal and a smoothly blinking caret.
+   * After the phrase finishes typing, the word "world" crossfades into a final state with a yellow highlight behind it.
    */
   const frame = useCurrentFrame();
   const { fps, width } = useVideoConfig();
@@ -24,29 +25,35 @@ export const MyAnimation = () => {
   const HIGHLIGHT_WORD = "world";
   const CARET_SYMBOL = "▌";
 
-  const FONT_SIZE = Math.max(54, Math.round(width * 0.07));
+  const FONT_SIZE = Math.max(56, Math.round(width * 0.075));
   const FONT_WEIGHT = 800;
   const LINE_HEIGHT = 1.05;
+  const LETTER_SPACING = -0.6;
+
+  const PADDING = Math.max(40, Math.round(width * 0.06));
 
   const CHAR_FRAMES = 3;
   const CURSOR_BLINK_FRAMES = 16;
 
+  const ENTRANCE_DURATION = 22;
+
   const HIGHLIGHT_DELAY = 10;
-  const HIGHLIGHT_WIPE_DURATION = 18;
+  const HIGHLIGHT_SPRING_DURATION = 22;
   const CROSSFADE_DURATION = 10;
 
   const entranceProgress = spring({
     fps,
     frame,
     config: { damping: 18, stiffness: 140, mass: 0.9 },
-    durationInFrames: 26,
+    durationInFrames: ENTRANCE_DURATION,
   });
 
-  const containerTranslateX = interpolate(entranceProgress, [0, 1], [18, 0], {
+  const containerOpacity = interpolate(entranceProgress, [0, 1], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const containerOpacity = interpolate(entranceProgress, [0, 1], [0, 1], {
+
+  const containerTranslateX = interpolate(entranceProgress, [0, 1], [18, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -58,25 +65,19 @@ export const MyAnimation = () => {
   const typedText = FULL_TEXT.slice(0, typedChars);
   const typingDone = typedChars >= FULL_TEXT.length;
 
-  const caretOpacity = !typingDone
-    ? interpolate(
-        frame % CURSOR_BLINK_FRAMES,
-        [0, CURSOR_BLINK_FRAMES / 2, CURSOR_BLINK_FRAMES],
-        [1, 0, 1],
-        { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-      )
-    : 0;
+  const caretOpacity = interpolate(
+    frame % CURSOR_BLINK_FRAMES,
+    [0, CURSOR_BLINK_FRAMES / 2, CURSOR_BLINK_FRAMES],
+    [1, 0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
 
   const typeEndFrame = FULL_TEXT.length * CHAR_FRAMES;
   const highlightStart = typeEndFrame + HIGHLIGHT_DELAY;
 
   const typedLayerOpacity = 1;
-  const finalLayerOpacity = interpolate(
-    frame,
-    [highlightStart, highlightStart + CROSSFADE_DURATION],
-    [0, 1],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-  );
+
+  const finalLayerOpacity = frame >= highlightStart ? 1 : 0;
 
   const highlightWordIndex = FULL_TEXT.indexOf(HIGHLIGHT_WORD);
   const hasHighlight = highlightWordIndex >= 0;
@@ -90,10 +91,15 @@ export const MyAnimation = () => {
     fps,
     frame: frame - highlightStart,
     config: { damping: 22, stiffness: 180, mass: 0.9 },
-    durationInFrames: HIGHLIGHT_WIPE_DURATION,
+    durationInFrames: HIGHLIGHT_SPRING_DURATION,
   });
 
   const highlightScaleX = interpolate(highlightProgress, [0, 1], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const highlightOpacity = interpolate(highlightProgress, [0, 1], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -103,7 +109,7 @@ export const MyAnimation = () => {
       style={{
         backgroundColor: COLOR_BG,
         fontFamily: "Inter, sans-serif",
-        padding: Math.max(44, Math.round(width * 0.06)),
+        padding: PADDING,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -123,13 +129,15 @@ export const MyAnimation = () => {
             fontSize: FONT_SIZE,
             fontWeight: FONT_WEIGHT,
             lineHeight: LINE_HEIGHT,
-            letterSpacing: -0.5,
+            letterSpacing: LETTER_SPACING,
             whiteSpace: "pre",
             opacity: typedLayerOpacity,
           }}
         >
           <span>{typedText}</span>
-          <span style={{ opacity: caretOpacity }}>{CARET_SYMBOL}</span>
+          {!typingDone && (
+            <span style={{ opacity: caretOpacity }}>{CARET_SYMBOL}</span>
+          )}
         </div>
 
         {/* Final highlighted layer */}
@@ -141,7 +149,7 @@ export const MyAnimation = () => {
             fontSize: FONT_SIZE,
             fontWeight: FONT_WEIGHT,
             lineHeight: LINE_HEIGHT,
-            letterSpacing: -0.5,
+            letterSpacing: LETTER_SPACING,
             whiteSpace: "pre",
             opacity: finalLayerOpacity,
           }}
@@ -161,6 +169,7 @@ export const MyAnimation = () => {
                     transformOrigin: "left center",
                     backgroundColor: COLOR_HIGHLIGHT,
                     borderRadius: "0.2em",
+                    opacity: highlightOpacity,
                     zIndex: 0,
                   }}
                 />
