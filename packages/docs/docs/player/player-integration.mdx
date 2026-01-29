@@ -219,7 +219,6 @@ type AdditionalControlsRenderers = {
   end?: (helpers: PlayerControlHelpers) => React.ReactNode;
 };
 ```
-
 :::note
 start — renders controls on the left side of the control bar (near play/pause).
 end — renders controls on the right side of the control bar (near fullscreen and other action icons).
@@ -244,8 +243,8 @@ export const Example: React.FC = () => {
       fps={30}
       controls
       additionalControls={{
-        end: ({playerRef, isFullscreen}) => (
-          <div style={{position: 'relative', display: 'inline-block'}}>
+        end: ({ playerRef, isFullscreen }) => (
+          <div style={{ position: 'relative', display: 'inline-block' }}>
             <button
               aria-label="More options"
               onClick={() => {

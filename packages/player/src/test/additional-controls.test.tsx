@@ -1,10 +1,10 @@
 import {expect, test} from 'bun:test';
 import {Player} from '../index.js';
-import type {PlayerControlHelpers} from '../PlayerControls.js';
 import {HelloWorld, render} from './test-utils.js';
+import type {PlayerControlHelpers} from '../PlayerControls.js';
 
 test('additionalControls.end renders, is not nested inside another button, and helpers are provided', () => {
-	let capturedHelpers: unknown = null;
+	let capturedHelpers: PlayerControlHelpers | null = null;
 
 	const {getByLabelText} = render(
 		<Player
@@ -19,10 +19,10 @@ test('additionalControls.end renders, is not nested inside another button, and h
 				end: (helpers) => {
 					capturedHelpers = helpers;
 					return (
-						<button type="button" aria-label="More options">
-							More
-						</button>
-					);
+                        <button type="button" aria-label="More options">
+                            More
+                        </button>
+                    );
 				},
 			}}
 		/>,
@@ -36,8 +36,7 @@ test('additionalControls.end renders, is not nested inside another button, and h
 	expect(parent?.tagName).not.toBe('BUTTON');
 	expect(capturedHelpers).toBeTruthy();
 
-	const helpers = capturedHelpers as PlayerControlHelpers;
-
+    const helpers = capturedHelpers!;
 	expect(typeof helpers.playerRef).toBe('object');
 	expect(
 		typeof helpers.isFullscreen === 'boolean' ||
