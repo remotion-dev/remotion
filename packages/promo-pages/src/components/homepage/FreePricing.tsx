@@ -151,7 +151,7 @@ export const FreePricing: React.FC = () => {
 				>
 					<a
 						target="_blank"
-						href="/docs"
+						href="https://www.remotion.dev/docs"
 						className="font-brand text-brand flex flex-row items-center gap-1 no-underline"
 					>
 						No sign up needed - get started{' '}
