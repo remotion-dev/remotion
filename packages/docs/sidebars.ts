@@ -1174,6 +1174,8 @@ const sidebars: SidebarsConfig = {
 				'ai/claude-code',
 				'ai/bolt',
 				'ai/chatbot',
+				'ai/generate',
+				'ai/dynamic-compilation',
 				'ai/mcp',
 				'ai/system-prompt',
 				'ai/skills',
