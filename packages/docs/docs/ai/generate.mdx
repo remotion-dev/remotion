@@ -19,14 +19,16 @@ This simple system prompt relies entirely on the model's existing knowledge of R
 import {generateText} from 'ai';
 import {openai} from '@ai-sdk/openai';
 
-const systemPrompt = `You are a Remotion component generator.
+const systemPrompt = `
+You are a Remotion component generator.
 Generate a single React component that uses Remotion.
 
 Rules:
 - Export the component as a named export called "MyComposition"
 - Use useCurrentFrame() and useVideoConfig() from "remotion"
 - Use spring() for animations
-- Only output the code, no markdown or explanations`;
+- Only output the code, no markdown or explanations
+`.trim();
 
 const {text: code, usage} = await generateText({
   model: openai('gpt-5.2'),
@@ -67,14 +69,16 @@ import {generateText, Output} from 'ai';
 import {openai} from '@ai-sdk/openai';
 import {z} from 'zod';
 
-const systemPrompt = `You are a Remotion component generator.
+const systemPrompt = `
+You are a Remotion component generator.
 Generate a React component that uses Remotion. For the code property, ALWAYS directly output the code as string without any markdown tags.
 
 Rules:
 - The component should be a named export called "MyComposition"
 - Use useCurrentFrame() and useVideoConfig() from "remotion"
 - Use spring() for smooth animations
-- Keep it self-contained with no external dependencies`;
+- Keep it self-contained with no external dependencies
+`.trim();
 
 const {output} = await generateText({
   model: openai('gpt-5.2'),
@@ -166,3 +170,4 @@ After you generated the code, you need to compile and render it.
 
 - [Prompt to Motion Graphics template](https://remotion.dev/templates/prompt-to-motion-graphics) - Example implementation
 - [System Prompt](/docs/ai/system-prompt) - A system prompt for teaching LLMs Remotion
+- [Dynamic Compilation](/docs/ai/dynamic-compilation) - How to compile and render the generated code in the browser

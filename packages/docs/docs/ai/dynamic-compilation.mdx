@@ -1,94 +1,13 @@
 ---
-image: /generated/articles-docs-ai-dynamic-compilation.png
 crumb: 'AI'
-title: Dynamic Compilation
-sidebar_label: Dynamic Compilation
+title: Just-in-time compilation of Remotion code
+sidebar_label: Just-in-time compilation
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-This guide shows how to take Remotion code (a string) and compile it in the browser to display a live preview. No server round-trip required.
-
-## The Goal
-
-When building a Lovable-style tool for animations and motion graphics, users submit a prompt, receive AI-generated code, and want to see their animation immediately. Building a sandboxing environment is an option, but it adds overhead for previewing a single React component.
-
-In this guide, you will learn how to leverage dynamic compilation of the code right within the browser to get a Remotion Preview of the component.
-
-If you followed the guide in [Code Generation](/docs/ai/generate), you will have Remotion code like the following:
-
-```ts
-const generatedCode = `
-import { useCurrentFrame, AbsoluteFill } from "remotion";
-
-export const MyComposition = () => {
-  const frame = useCurrentFrame();
-  return (
-    <AbsoluteFill style={{ backgroundColor: "white", justifyContent: "center", alignItems: "center" }}>
-      <div style={{ fontSize: 100 }}>{**/some animation/**}</div>
-    </AbsoluteFill>
-  );
-};
-`;
-```
-
-Thinking of the compilation as just a hook, the usage looks like this:
-
-```tsx
-import {Player} from '@remotion/player';
-import {useCompilation} from './useCompilation';
-
-export const Preview: React.FC<{code: string}> = ({code}) => {
-  const {Component} = useCompilation(code);
-
-  return <Player component={Component} durationInFrames={150} fps={30} compositionWidth={1920} compositionHeight={1080} />;
-};
-```
-
-The rest of this page explains what happens behind the scenes to make a hook like `useCompilation` work.
-
-## Installation
-
-```bash
-npm install @babel/standalone remotion @remotion/player
-```
-
-`@babel/standalone` runs Babel entirely in the browser:
-
-- Transpiles JSX syntax (`<div>`) into `React.createElement()` calls
-- Strips TypeScript type annotations so the code can run as plain JavaScript
-- No build server or bundler required - everything happens client-side
-
-## What Does Compilation Mean?
-
-During typical development, your code exists as files on disk. When you run `npm run dev`, Vite or Webpack runs a dev server that reads those files, transforms JSX/TypeScript, and serves the compiled JavaScript to your browser. Similarly, `npm run build` pre-compiles everything into static files that can be deployed. In both cases, the transformation happens before the browser ever sees the code.
-
-With AI-generated code, there are no files - the code is created dynamically in response to a user prompt. By the time it exists, you're already in the browser. So Babel needs to run client-side to do the same JSX/TypeScript transformation that would normally happen during dev or build.
-
-**Example: What is the Babel output?**
-
-Before (JSX + TypeScript):
-
-```tsx
-const MyComponent: React.FC = () => {
-  return <div style={{color: 'red'}}>Hello</div>;
-};
-```
-
-After (plain JavaScript):
-
-```js
-const MyComponent = () => {
-  return React.createElement('div', {style: {color: 'red'}}, 'Hello');
-};
-```
-
-The JSX syntax is converted to `React.createElement()` calls, and type annotations are stripped. This is valid JavaScript that browsers can understand - but the string still needs to be turned into actual executable code.
-
-## The Core Idea
-
-Starting with the simplest possible case - a component with no imports, just pure JSX:
+If you have generated a Remotion component as a string (for example [using LLMs](/docs/ai/generate)), you can compile it in the browser to display a live preview.
 
 ```tsx
 const code = `
@@ -98,9 +17,7 @@ const MyComponent = () => {
 `;
 ```
 
-To make this executable, two steps are required:
-
-**Step 1: Transpile JSX with Babel**
+To make this executable, first transpile it with [`@babel/standalone`](https://www.npmjs.com/package/@babel/standalone):
 
 ```tsx
 import * as Babel from '@babel/standalone';
@@ -108,11 +25,7 @@ import * as Babel from '@babel/standalone';
 const transpiled = Babel.transform(code, {
   presets: ['react', 'typescript'],
 });
-
-// Result: const MyComponent = () => { return React.createElement("div", ...); };
 ```
-
-**Step 2: Execute the code and extract the component**
 
 After transpilation, the result is this string:
 
@@ -120,7 +33,7 @@ After transpilation, the result is this string:
 'const MyComponent = () => { return React.createElement("div", {style: {fontSize: 100}}, "Hello"); };';
 ```
 
-But it's still just a string - not executable code. JavaScript's `Function` constructor turns it into a real function:
+Use JavaScript's [`Function`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function) constructor to turn the string into a real function:
 
 ```tsx
 const createComponent = new Function(
@@ -134,6 +47,7 @@ This creates a function equivalent to:
 ```tsx
 function createComponent(React) {
   const MyComponent = () => { return React.createElement("div", ...); };
+
   return MyComponent;
 }
 ```
@@ -142,44 +56,14 @@ Calling this function and passing the actual React library makes the component a
 
 ```tsx
 const Component = createComponent(React);
-// Component is now a real React component we can render!
 ```
-
-<details>
-<summary>How does the Function constructor work?</summary>
-
-The `Function` constructor in JavaScript creates a new function from strings. The syntax is:
-
-```tsx
-new Function(param1, param2, ..., functionBody)
-```
-
-A simple example:
-
-```tsx
-const add = new Function('a', 'b', 'return a + b;');
-add(2, 3); // Returns 5
-```
-
-The first arguments become parameter names, and the last argument is the function body as a string.
-
-For this use case:
-
-- `'React'` is passed as a parameter name, so `React` becomes available inside the function body
-- The function body contains the transpiled component code plus `return MyComponent;`
-- When `createComponent(React)` is called, the actual React library gets bound to the `React` variable
-
-The key insight: `React` inside the transpiled code refers to whatever value is passed when calling the function.
-
-</details>
 
 ## Adding Remotion APIs
 
-Just React won't be enough for animations. Remotion components need access to APIs like `useCurrentFrame` and `AbsoluteFill`. These are injected the same way.
+Just React won't be enough for animations.  
+Remotion components need access to APIs like [`useCurrentFrame()`](/docs/use-current-frame) and [`<AbsoluteFill>`](/docs/absolute-fill). These are injected the same way.
 
-:::info
-To make in-browser dynamic compilation work, all libraries used within the animation code must be passed in. Since not all of them are known upfront, you can provide a broad range of libraries to support most use cases.
-:::
+All APIs used within the code must be explicitly passed in.
 
 Here's an example with a few Remotion APIs:
 
@@ -195,7 +79,8 @@ Each parameter name becomes an available variable inside the executed code.
 
 ## Handling Import Statements
 
-AI-generated code typically includes import statements. Since APIs are injected manually via the Function constructor, these imports need to be stripped:
+AI-generated code typically includes import statements.  
+Since APIs are injected manually via the `Function` constructor, these imports need to be stripped:
 
 ```tsx
 // AI generates this:
@@ -223,13 +108,15 @@ const wrappedSource = `const DynamicComponent = () => {\n${componentBody}\n};`;
 
 ## Complete Implementation
 
-<Tabs>
+In this example, a React component is compiled and rendered by the [`<Player>`](/docs/player) component.
+
+<Tabs defaultValue="preview">
 <TabItem value="preview" label="Preview.tsx">
 
 ```tsx twoslash title="Preview.tsx"
 // @noErrors
 import {Player} from '@remotion/player';
-import {useCompilation} from './useCompilation';
+import {useCompilation} from './use-compilation';
 
 export const Preview: React.FC<{code: string}> = ({code}) => {
   const {Component, error} = useCompilation(code);
@@ -247,9 +134,9 @@ export const Preview: React.FC<{code: string}> = ({code}) => {
 ```
 
 </TabItem>
-<TabItem value="hook" label="useCompilation.ts" default>
+<TabItem value="hook" label="use-compilation.ts" default>
 
-```tsx twoslash title="useCompilation.ts"
+```tsx twoslash title="use-compilation.ts"
 import * as Babel from '@babel/standalone';
 import React, {useMemo} from 'react';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate, Sequence} from 'remotion';
@@ -299,7 +186,7 @@ export function useCompilation(code: string): CompilationResult {
 ```
 
 </TabItem>
-<TabItem value="generated" label="AI-Generated Code">
+<TabItem value="generated" label="Input code">
 
 ```ts title="Example AI Output"
 const generatedCode = `import {useCurrentFrame, AbsoluteFill, spring, useVideoConfig} from 'remotion';
@@ -341,23 +228,14 @@ export const MyComposition = () => {
 
 ## Security Considerations
 
-Dynamic code execution carries inherent risks. The AI-generated code runs with full access to the browser context.
+Note that this code runs in the global scope of the browser.  
+It can access all global variables and functions.
 
-For production applications, consider:
-
-- **iframe isolation** - Run the Player in a sandboxed iframe
-- **Web Worker compilation** - Move Babel transpilation to a worker
-- **Content Security Policy** - Restrict what the generated code can access
-- **Code validation** - Check for potentially harmful patterns before compilation
+For production applications, consider running the code in a sandboxed `<iframe>`, and setting a content security policy.  
+This is outside the scope of this guide.
 
 ## See Also
 
-For a ready-to-use implementation of dynamic compilation and more, see the [Prompt to Motion Graphics template](https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics):
-
-```bash
-npx create-video@latest --prompt-to-motion-graphics
-```
-
+- [Prompt to Motion Graphics template](https://remotion.dev/templates/prompt-to-motion-graphics) - Example implementation
 - [Code Generation](/docs/ai/generate) - How to generate Remotion code with AI
-- [Player](/docs/player) - Remotion Player documentation
 - [System Prompt](/docs/ai/system-prompt) - Teaching LLMs about Remotion
