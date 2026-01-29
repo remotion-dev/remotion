@@ -30,6 +30,14 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'Agent Skills'}</strong>
 					<div>Skill files for Claude Code, Codex, etc.</div>
 				</TOCItem>
+				<TOCItem link="/docs/ai/generate">
+					<strong>{'Just-in-time Code Generation'}</strong>
+					<div>Generate Remotion code using LLMs</div>
+				</TOCItem>
+				<TOCItem link="/docs/ai/dynamic-compilation">
+					<strong>{'Just-in-time compilation'}</strong>
+					<div>Compile a Remotion component in JavaScript</div>
+				</TOCItem>
 				<TOCItem link="/templates/prompt-to-motion-graphics">
 					<strong>{'Prompt to Motion Graphics template'}</strong>
 					<div>A SaaS template for "Prompt to Motion Graphics" products.</div>
