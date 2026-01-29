@@ -2,6 +2,7 @@ import {afterEach, beforeEach, expect, test} from 'bun:test';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
+import {ensureExampleBundle} from './test-utils';
 
 const outputPath = path.join(process.cwd(), 'packages/example/out.mp4');
 
@@ -19,6 +20,7 @@ afterEach(() => {
 test(
 	'Should fail to render if cancelRender() was being used',
 	async () => {
+		await ensureExampleBundle();
 		const task = await execa(
 			'bun',
 			[

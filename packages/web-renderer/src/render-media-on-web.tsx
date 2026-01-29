@@ -1,6 +1,7 @@
 import {BufferTarget, StreamTarget} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {AnyZodObject, z} from 'zod';
 import {addAudioSample, addVideoSampleAndCloseFrame} from './add-sample';
 import {handleArtifacts, type WebRendererOnArtifact} from './artifact';
@@ -28,6 +29,7 @@ import {
 	getDefaultVideoCodecForContainer,
 	getMimeType,
 	getQualityForWebRendererQuality,
+	getSupportedVideoCodecsForContainer,
 	type WebRendererVideoCodec,
 } from './mediabunny-mappings';
 import type {WebRendererOutputTarget} from './output-target';
@@ -183,15 +185,16 @@ const internalRenderMediaOnWeb = async <
 		await cleanupStaleOpfsFiles();
 	}
 
-	const format = containerToMediabunnyContainer(container);
-
-	if (
-		codec &&
-		!format.getSupportedCodecs().includes(codecToMediabunnyCodec(codec))
-	) {
-		return Promise.reject(
-			new Error(`Codec ${codec} is not supported for container ${container}`),
-		);
+	if (codec) {
+		const supported = getSupportedVideoCodecsForContainer(container);
+		const mismatch = NoReactInternals.getCodecContainerMismatch({
+			codec,
+			container,
+			supportedCodecs: supported,
+		});
+		if (mismatch) {
+			return Promise.reject(new Error(mismatch));
+		}
 	}
 
 	const resolvedAudioBitrate =
@@ -278,6 +281,8 @@ const internalRenderMediaOnWeb = async <
 	});
 
 	const artifactsHandler = handleArtifacts();
+
+	const format = containerToMediabunnyContainer(container);
 
 	const webFsTarget =
 		outputTarget === 'web-fs' ? await createWebFsTarget() : null;

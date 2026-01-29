@@ -30,6 +30,7 @@ import {proResProfileOptions} from './prores-profile';
 import {truthy} from './truthy';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
 import {validateFrame} from './validate-frame';
+import {getCodecContainerMismatch} from './validation/get-codec-container-mismatch';
 import {validateCodec} from './validation/validate-default-codec';
 import {validateDefaultAndInputProps} from './validation/validate-default-props';
 import {validateDimension} from './validation/validate-dimensions';
@@ -63,5 +64,6 @@ export const NoReactInternals = {
 	DATE_TOKEN,
 	FILE_TOKEN,
 	validateCodec,
+	getCodecContainerMismatch,
 	proResProfileOptions,
 };

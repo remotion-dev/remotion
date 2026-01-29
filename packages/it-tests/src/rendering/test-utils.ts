@@ -11,6 +11,17 @@ interface RgbColor {
 	blue: number;
 	green: number;
 }
+
+const exampleDir = path.join(process.cwd(), '..', 'example');
+const exampleBuildDir = path.join(exampleDir, 'build');
+
+export const ensureExampleBundle = async () => {
+	if (fs.existsSync(exampleBuildDir)) {
+		return;
+	}
+
+	await execa('bun', ['x', 'remotion', 'bundle'], {cwd: exampleDir});
+};
 export const getMissedFramesforCodec = async (
 	codec: 'mp4' | 'webm',
 	type: 'normal' | 'offthread' | 'codec',
@@ -136,6 +147,7 @@ function selectColor(color: string, frame: number) {
 }
 
 async function saveSequenceInTempDir(id: string) {
+	await ensureExampleBundle();
 	const outputPath = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'remotion-'),
 	);
@@ -154,7 +166,7 @@ async function saveSequenceInTempDir(id: string) {
 			'--sequence',
 		],
 		{
-			cwd: path.join(process.cwd(), '..', 'example'),
+			cwd: exampleDir,
 		},
 	);
 	return outputPath;
