@@ -13,6 +13,50 @@ Remotion provides several built-in options for transcribing audio to generate ca
 - [`@remotion/whisper-web`](/docs/whisper-web) - Transcribe audio in the browser using WebAssembly
 - [`@remotion/openai-whisper`](/docs/openai-whisper) - Use the OpenAI Whisper API for cloud-based transcription
 
+## Best practices
+
+### File placement
+
+Always place video files in your project's `public/` folder before transcribing:
+
+```
+your-remotion-project/
+├── public/
+│   └── video.mp4  👈 Video goes here
+├── src/
+└── package.json
+```
+
+Then reference it using [`staticFile()`](/docs/staticfile):
+
+```tsx
+import {staticFile} from 'remotion';
+
+const videoPath = staticFile('video.mp4');
+```
+
+### Preserving natural speech timing
+
+To maintain natural pauses and whitespace in your captions:
+
+```tsx
+import {convertToCaptions} from '@remotion/install-whisper-cpp';
+
+const {captions} = convertToCaptions({
+  transcription,
+  combineTokensWithinMilliseconds: 200,
+  preserveWhitespace: true,
+});
+```
+
+### Audio format requirements
+
+Whisper.cpp requires 16kHz WAV files. Convert your video first:
+
+```bash
+ffmpeg -i public/video.mp4 -ar 16000 -ac 1 temp-audio.wav -y
+```
+
 ## Comparison
 
 |                      | [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)           | [`@remotion/whisper-web`](/docs/whisper-web)    | [`@remotion/openai-whisper`](/docs/openai-whisper)                                    |

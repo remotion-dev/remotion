@@ -12,53 +12,74 @@ export type ConvertToCaptionCaption = {
 export function convertToCaptions({
 	transcription,
 	combineTokensWithinMilliseconds,
+	preserveWhitespace = false,
 }: {
 	transcription: TranscriptionJson<true>['transcription'];
 	combineTokensWithinMilliseconds: number;
+	/**
+	 * @description Whether to preserve natural whitespace and pauses in the transcription.
+	 * When true, leading/trailing spaces are preserved to maintain natural speech timing.
+	 * @default false
+	 */
+	preserveWhitespace?: boolean;
 }): {captions: ConvertToCaptionCaption[]} {
 	const merged: ConvertToCaptionCaption[] = [];
 	let currentText = '';
-	let currentFrom = 0;
-	let currentTo = 0;
-	let currentTokenLevelTimestamp = 0;
+	let currentStartTimestamp = 0;
+	let lastEndTimestamp = 0;
 
 	transcription.forEach((item, index) => {
 		const {text} = item;
-		// If text starts with a space, push the currentText (if it exists) and start a new one
-		if (
-			text.startsWith(' ') &&
-			currentTo - currentFrom > combineTokensWithinMilliseconds
-		) {
-			if (currentText !== '') {
-				merged.push({
-					text: currentText,
-					startInSeconds: currentTokenLevelTimestamp / 100,
-				});
-			}
 
-			// Start a new sentence
-			currentText = text.trimStart();
-			currentFrom = item.offsets.from;
-			currentTo = item.offsets.to;
-			currentTokenLevelTimestamp = item.tokens[0].t_dtw;
+		// Safe token access - check if tokens exist and have the expected structure
+		const hasValidTokens =
+			item.tokens && Array.isArray(item.tokens) && item.tokens.length > 0;
+
+		if (!hasValidTokens) {
+			// If no tokens, skip this item entirely - we cannot do time-based splitting
+			// without reliable timing information
+			return;
+		}
+
+		const firstTokenTimestamp = item.tokens[0].t_dtw;
+		const lastTokenTimestamp = item.tokens[item.tokens.length - 1].t_dtw;
+
+		// Pure time-based gap calculation (no mixing with offsets)
+		const timeGapInMs = firstTokenTimestamp - lastEndTimestamp;
+		const shouldStartNewCaption =
+			text.startsWith(' ') && timeGapInMs > combineTokensWithinMilliseconds;
+
+		if (shouldStartNewCaption && currentText !== '') {
+			// Push the current caption
+			merged.push({
+				text: currentText,
+				startInSeconds: currentStartTimestamp / 100,
+			});
+
+			// Start a new caption
+			currentText = preserveWhitespace ? text : text.trimStart();
+			currentStartTimestamp = firstTokenTimestamp;
 		} else {
-			// Continuation or start of a new sentence without leading space
+			// Continue building current caption
 			if (currentText === '') {
-				// It's the start of the document or after a sentence that started with a space
-				currentFrom = item.offsets.from;
-				currentTokenLevelTimestamp = item.tokens[0].t_dtw;
+				// Starting first caption or after a break
+				currentStartTimestamp = firstTokenTimestamp;
 			}
 
 			currentText += text;
-			currentText = currentText.trimStart();
-			currentTo = item.offsets.to;
+			if (!preserveWhitespace) {
+				currentText = currentText.trimStart();
+			}
 		}
 
-		// Ensure the last sentence is added
+		// Update last timestamp for next iteration (pure time-based)
+		lastEndTimestamp = lastTokenTimestamp;
+
+		// Ensure the last caption is added
 		if (index === transcription.length - 1 && currentText !== '') {
 			merged.push({
 				text: currentText,
-				startInSeconds: currentTokenLevelTimestamp / 100,
+				startInSeconds: currentStartTimestamp / 100,
 			});
 		}
 	});
