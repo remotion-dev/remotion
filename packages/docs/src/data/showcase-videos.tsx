@@ -424,6 +424,27 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			name: 'Philippe Tedajo',
 		},
 	},
+  	{
+		title: 'AdmoveAI - Ecommerce Ads. On Autopilot',
+		type: 'mux_video',
+		time: '0',
+		muxId: 'TLBo00iP4029XxgdvKAPxR651YB9KMXZhDQU7fM7k01CEM',
+		description:
+			'The easiest way to create, launch and grow high-performing eCommerce campaigns. Remotion is used to build and render our videos.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('29-01-2026'),
+		links: [
+			{
+				type: 'video',
+				url: 'https://www.youtube.com/watch?v=5fGW_rQtobY',
+			},
+			{
+				type: 'website',
+				url: 'https://admove.ai/',
+			},
+		],
+	},
 	/*
   {
     title: "Exemplary AI - Viral shorts",
