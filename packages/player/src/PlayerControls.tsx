@@ -312,6 +312,7 @@ export const Controls: React.FC<{
 		if (additionalControlsHelpers) {
 			return additionalControlsHelpers;
 		}
+		
 		return {
 			playerRef: {current: null},
 			isFullscreen,
