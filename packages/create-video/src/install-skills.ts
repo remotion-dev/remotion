@@ -7,7 +7,7 @@ export const installSkills = async (projectRoot: string) => {
 	try {
 		await execa(
 			command,
-			['-y', '--loglevel=error', 'skills', 'add', 'remotion-dev/skills'],
+			['-y', '--loglevel=error', 'skills@1.2.0', 'add', 'remotion-dev/skills'],
 			{
 				cwd: projectRoot,
 				stdio: 'inherit',
