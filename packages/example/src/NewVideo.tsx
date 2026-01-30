@@ -3,8 +3,7 @@ import {CalculateMetadataFunction, Composition} from 'remotion';
 // https://www.remotion.dev/docs/mediabunny/metadata
 import {getMediaMetadata} from './get-media-metadata';
 
-const src =
-	'https://embed-ssl.wistia.com/deliveries/d8e3c219b54f35857e13b562bc9961e3.bin';
+const src = 'https://remotion.media/video.mp4';
 
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
@@ -12,8 +11,8 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 	const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);
 
 	return {
-		durationInFrames: Math.round(durationInSeconds * 30),
-		fps: 30,
+		durationInFrames: Math.round(durationInSeconds * fps!),
+		fps: fps!,
 		width: dimensions!.width,
 		height: dimensions!.height,
 	};
