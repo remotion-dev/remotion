@@ -122,8 +122,8 @@ import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
-import {BrowserTest} from './BrowserTest';
 import Amplify from './AudioTesting/Amplify';
+import {BrowserTest} from './BrowserTest';
 import {CTAEndCard} from './CallToAction';
 import {
 	WhatIsRemotion,
