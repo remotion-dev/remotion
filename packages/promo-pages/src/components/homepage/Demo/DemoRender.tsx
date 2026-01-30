@@ -126,7 +126,9 @@ export const RenderButton: React.FC<{
 			a.click();
 			URL.revokeObjectURL(url);
 			setState({type: 'done'});
-		} catch {
+		} catch (error) {
+			// eslint-disable-next-line no-console
+			console.error(error);
 			setState({type: 'error'});
 			onError();
 		}
