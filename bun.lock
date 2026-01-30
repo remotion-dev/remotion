@@ -1706,6 +1706,7 @@
         "@remotion/tailwind-v4": "workspace:*",
         "@remotion/three": "workspace:*",
         "@remotion/transitions": "workspace:*",
+        "@remotion/web-renderer": "workspace:*",
         "ai": "5.0.104",
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
