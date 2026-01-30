@@ -35,6 +35,7 @@ import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {FreezePortion} from './FreezePortion/FreezePortion';
 import {Green} from './Green';
+import {HelloWorld} from './HelloWorld';
 import {HlsDemo} from './Hls/HlsDemo';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
@@ -663,6 +664,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={2}
+				/>
+				<Composition
+					id="hello-world"
+					component={HelloWorld}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
 				/>
 				<Composition
 					id="react-svg"
