@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import type {_InternalTypes, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
+import {FastRefreshContext} from '../../fast-refresh-context';
 import {NoReactInternals} from 'remotion/no-react';
 import {type z} from 'zod';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -214,7 +215,7 @@ export const DataEditor: React.FC<{
 
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
-	const {fastRefreshes} = useContext(Internals.NonceContext);
+	const {fastRefreshes} = useContext(FastRefreshContext);
 
 	const checkIfCanSaveDefaultProps = useCallback(async () => {
 		try {
