@@ -66,7 +66,7 @@ const makeLayerPublic = async () => {
 					LayerName: layerName,
 					LicenseInfo:
 						layer === 'chromium'
-							? 'Chromium 144.0.7559.97, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
+							? 'Chromium 144.0.7559.20, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
 							: layer === 'emoji-apple'
 								? 'Apple Emojis (https://github.com/samuelngs/apple-emoji-linux). For educational purposes only - Apple is a trademark of Apple Inc., registered in the U.S. and other countries.'
 								: layer === 'emoji-google'

@@ -125,18 +125,7 @@ const getExpectedVersion = (
 	return TESTED_VERSION;
 };
 
-export const browserVersionMatchesExpected = (
-	chromeMode: ChromeMode,
-): boolean => {
-	const installed = readVersionFile(chromeMode);
-	if (installed === null) {
-		return false;
-	}
-
-	return installed === TESTED_VERSION;
-};
-
-const readVersionFile = (chromeMode: ChromeMode): string | null => {
+export const readVersionFile = (chromeMode: ChromeMode): string | null => {
 	const versionFilePath = getVersionFilePath(chromeMode);
 	try {
 		return fs.readFileSync(versionFilePath, 'utf-8').trim();
