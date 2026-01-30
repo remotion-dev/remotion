@@ -1,12 +1,13 @@
+import {ContactShadows, MeshDistortMaterial} from '@react-three/drei';
 import {Video} from '@remotion/media';
 import {ThreeCanvas} from '@remotion/three';
-import {ContactShadows, MeshDistortMaterial} from '@react-three/drei';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {
 	AbsoluteFill,
 	Img,
 	Sequence,
 	useCurrentFrame,
+	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
 
@@ -182,35 +183,36 @@ const MediaVideos: React.FC = () => {
 };
 
 const WebGLCheck: React.FC = () => {
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const [results, setResults] = useState<{
-		webgl: boolean;
-		webgl2: boolean;
-		renderer: string;
-	} | null>(null);
+	const {cancelRender} = useDelayRender();
 
 	const check = useCallback(() => {
-		const canvas = canvasRef.current;
-		if (!canvas) return;
+		let webglCanvas, webgl2Canvas;
 
-		const gl1 = canvas.getContext('webgl');
-		const gl2 = canvas.getContext('webgl2');
-
-		let renderer = 'N/A';
-		const gl = gl2 || gl1;
-		if (gl) {
-			const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-			if (debugInfo) {
-				renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-			}
+		try {
+			webglCanvas = new OffscreenCanvas(1, 1);
+		} catch {
+			cancelRender(new Error('OffscreenCanvas not available'));
+			return;
 		}
 
-		setResults({
-			webgl: Boolean(gl1),
-			webgl2: Boolean(gl2),
-			renderer,
-		});
-	}, []);
+		try {
+			webgl2Canvas = new OffscreenCanvas(1, 1);
+		} catch {
+			cancelRender(new Error('OffscreenCanvas not available'));
+			return;
+		}
+
+		const gl1 = webglCanvas.getContext('webgl');
+		if (!gl1) {
+			cancelRender(new Error('WebGL not available'));
+			return;
+		}
+		const gl2 = webgl2Canvas.getContext('webgl2');
+		if (!gl2) {
+			cancelRender(new Error('WebGL2 not available'));
+			return;
+		}
+	}, [cancelRender]);
 
 	useEffect(() => {
 		check();
@@ -227,30 +229,8 @@ const WebGLCheck: React.FC = () => {
 				color: 'white',
 			}}
 		>
-			<canvas ref={canvasRef} width={1} height={1} style={{display: 'none'}} />
 			<div style={{textAlign: 'center', lineHeight: 2}}>
 				<h1 style={{fontSize: 60, marginBottom: 40}}>WebGL Check</h1>
-				{results ? (
-					<>
-						<p>
-							WebGL:{' '}
-							<span style={{color: results.webgl ? '#00ff88' : '#ff4444'}}>
-								{results.webgl ? 'Available' : 'Unavailable'}
-							</span>
-						</p>
-						<p>
-							WebGL2:{' '}
-							<span style={{color: results.webgl2 ? '#00ff88' : '#ff4444'}}>
-								{results.webgl2 ? 'Available' : 'Unavailable'}
-							</span>
-						</p>
-						<p style={{fontSize: 24, marginTop: 20}}>
-							Renderer: {results.renderer}
-						</p>
-					</>
-				) : (
-					<p>Checking...</p>
-				)}
 			</div>
 		</AbsoluteFill>
 	);
@@ -260,8 +240,7 @@ const FPS = 30;
 const DURATION_IN_FRAMES = 2 * 60 * FPS; // 2 minutes
 const GPU_SCENE_DURATION = Math.floor(DURATION_IN_FRAMES / 3);
 const MEDIA_DURATION = Math.floor(DURATION_IN_FRAMES / 3);
-const WEBGL_DURATION =
-	DURATION_IN_FRAMES - GPU_SCENE_DURATION - MEDIA_DURATION;
+const WEBGL_DURATION = DURATION_IN_FRAMES - GPU_SCENE_DURATION - MEDIA_DURATION;
 
 export const BrowserTest: React.FC = () => {
 	return (
