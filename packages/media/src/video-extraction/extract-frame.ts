@@ -103,6 +103,7 @@ const extractFrameInternal = async ({
 			src,
 			logLevel,
 			maxCacheSize,
+			fps,
 		});
 
 		if (!keyframeBank) {
@@ -114,7 +115,7 @@ const extractFrameInternal = async ({
 			};
 		}
 
-		const frame = await keyframeBank.getFrameFromTimestamp(timeInSeconds);
+		const frame = await keyframeBank.getFrameFromTimestamp(timeInSeconds, fps);
 		const rotation = frame?.rotation ?? 0;
 
 		return {
