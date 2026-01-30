@@ -122,6 +122,7 @@ import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
+import {BrowserTest} from './BrowserTest';
 import Amplify from './AudioTesting/Amplify';
 import {CTAEndCard} from './CallToAction';
 import {
@@ -1812,6 +1813,14 @@ export const Index: React.FC = () => {
 				durationInFrames={600}
 			/>
 			<ChangingTrimBeforeValue />
+			<Composition
+				id="browser-test"
+				component={BrowserTest}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={2 * 60 * 30}
+			/>
 		</>
 	);
 };

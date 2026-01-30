@@ -41,7 +41,7 @@ const getBucketName = (region: AwsRegion) => {
 };
 
 const makeLayerPublic = async () => {
-	const runtimes: Runtime[] = ['nodejs20.x'];
+	const runtimes: Runtime[] = ['nodejs24.x'];
 
 	const layers = [
 		'fonts',
@@ -61,12 +61,12 @@ const makeLayerPublic = async () => {
 				new PublishLayerVersionCommand({
 					Content: {
 						S3Bucket: getBucketName(region),
-						S3Key: `remotion-layer-${layer}-v14-arm64.zip`,
+						S3Key: `remotion-layer-${layer}-v15-arm64.zip`,
 					},
 					LayerName: layerName,
 					LicenseInfo:
 						layer === 'chromium'
-							? 'Chromium 133.0.6943.141, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
+							? 'Chromium 144.0.7559.97, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
 							: layer === 'emoji-apple'
 								? 'Apple Emojis (https://github.com/samuelngs/apple-emoji-linux). For educational purposes only - Apple is a trademark of Apple Inc., registered in the U.S. and other countries.'
 								: layer === 'emoji-google'
