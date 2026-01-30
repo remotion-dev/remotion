@@ -1,6 +1,10 @@
 import fs from 'fs';
 import type {BrowserExecutable} from './browser-executable';
-import {downloadBrowser, getRevisionInfo} from './browser/BrowserFetcher';
+import {
+	browserVersionMatchesExpected,
+	downloadBrowser,
+	getRevisionInfo,
+} from './browser/BrowserFetcher';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {BrowserSafeApis} from './client';
 import type {ChromeMode} from './options/chrome-mode';
@@ -78,7 +82,11 @@ const getBrowserStatus = ({
 	}
 
 	const revision = getRevisionInfo(chromeMode);
-	if (revision.local && fs.existsSync(revision.executablePath)) {
+	if (
+		revision.local &&
+		fs.existsSync(revision.executablePath) &&
+		browserVersionMatchesExpected(chromeMode)
+	) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
 

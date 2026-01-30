@@ -73,6 +73,19 @@ The file structure inside this folder varies by OS.
 
 `platform` can be one of `mac-arm64`, `mac-x64`, `linux64`, `linux-arm64` or `win64`.
 
+## Version tracking<AvailableFrom v="4.0.415" />
+
+Remotion writes a `VERSION` file to the download folder to track which Chrome version is installed:
+
+```
+node_modules/.remotion/chrome-headless-shell/VERSION
+node_modules/.remotion/chrome-for-testing/VERSION
+```
+
+The file contains the Chrome version string, e.g. `144.0.7559.20`.
+
+If the `VERSION` file is missing (e.g. when upgrading from an older version of Remotion) or does not match the expected version, Remotion will delete the existing browser and download the correct version.
+
 ## Bring your own binary
 
 If you don't want Chrome Headless Shell or Chrome for Testing to get installed or your platform is not supported, you need to specify your own Chromium-based browser:
