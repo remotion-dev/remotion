@@ -1,9 +1,4 @@
-import {
-	createContext,
-	createRef,
-	useContext,
-	useMemo,
-} from 'react';
+import {createContext, createRef, useContext, useMemo} from 'react';
 import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {EditorPropsContext} from './EditorProps.js';
