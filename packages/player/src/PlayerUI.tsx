@@ -28,7 +28,7 @@ import {
 import {ErrorBoundary} from './error-boundary.js';
 import {RenderWarningIfBlacklist} from './license-blacklist.js';
 import {playerCssClassname} from './player-css-classname.js';
-import type {PlayerMethods, PlayerRef} from './player-methods.js';
+import type {PlayerMethods, PlayerRef, RenderCustomControls} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {usePlayback} from './use-playback.js';
 import {usePlayer} from './use-player.js';
@@ -84,6 +84,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly renderFullscreen: RenderFullscreenButton | null;
 		readonly renderMuteButton: RenderMuteButton | null;
 		readonly renderVolumeSlider: RenderVolumeSlider | null;
+		readonly renderCustomControls: RenderCustomControls | null;
 		readonly alwaysShowControls: boolean;
 		readonly showPlaybackRateControl: boolean | number[];
 		readonly posterFillMode: PosterFillMode;
@@ -124,6 +125,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderPlayPauseButton,
 		renderMuteButton,
 		renderVolumeSlider,
+		renderCustomControls,
 		alwaysShowControls,
 		showPlaybackRateControl,
 		posterFillMode,
@@ -707,6 +709,29 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					}
 					renderMuteButton={renderMuteButton}
 					renderVolumeSlider={renderVolumeSlider}
+					frame={player.getCurrentFrame()}
+					seekTo={(f: number) => {
+						const lastFrame = durationInFrames - 1;
+						const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
+
+						if (player.isPlaying()) {
+							const pauseToResume = frameToSeekTo !== lastFrame || loop;
+							setHasPausedToResume(pauseToResume);
+							player.pause();
+						}
+
+						if (frameToSeekTo === lastFrame && !loop) {
+							player.emitter.dispatchEnded();
+						}
+
+						player.seek(frameToSeekTo);
+					}}
+					volume={mediaVolume}
+					setVolume={setMediaVolume}
+					isMuted={isMuted}
+					mute={() => setMediaMuted(true)}
+					unmute={() => setMediaMuted(false)}
+					renderCustomControls={renderCustomControls}
 				/>
 			) : null}
 		</>

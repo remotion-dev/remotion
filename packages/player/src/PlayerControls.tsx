@@ -7,6 +7,7 @@ import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import {PlayerTimeLabel} from './PlayerTimeLabel.js';
 import {FullscreenIcon} from './icons.js';
+import type { RenderCustomControls, RenderCustomControlsInfo } from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {useHoverState} from './use-hover-state.js';
 import {
@@ -120,6 +121,14 @@ export const Controls: React.FC<{
 	readonly renderVolumeSlider: RenderVolumeSlider | null;
 	readonly playing: boolean;
 	readonly toggle: (e?: SyntheticEvent | PointerEvent) => void;
+	readonly frame: number;
+	readonly seekTo: (frame: number) => void;
+	readonly volume: number;
+	readonly setVolume: (volume: number) => void;
+	readonly isMuted: boolean;
+	readonly mute: () => void;
+	readonly unmute: () => void;
+	readonly renderCustomControls: RenderCustomControls | null;
 }> = ({
 	durationInFrames,
 	isFullscreen,
@@ -148,6 +157,14 @@ export const Controls: React.FC<{
 	renderVolumeSlider,
 	playing,
 	toggle,
+	frame,
+	seekTo,
+	volume,
+	setVolume,
+	isMuted,
+	mute,
+	unmute,
+	renderCustomControls,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
@@ -264,6 +281,56 @@ export const Controls: React.FC<{
 		return null;
 	}, [showPlaybackRateControl]);
 
+	const customControlsInfo: RenderCustomControlsInfo = useMemo(() => {
+		return {
+			playing,
+			frame,
+			durationInFrames,
+			fps,
+			volume,
+			isFullscreen,
+			isMuted,
+			buffering,
+			play: () => {
+				toggle();
+			},
+			pause: () => {
+				toggle();
+			},
+			toggle,
+			seekTo,
+			setVolume,
+			mute,
+			unmute,
+		};
+	}, [
+		playing,
+		frame,
+		durationInFrames,
+		fps,
+		volume,
+		isFullscreen,
+		isMuted,
+		buffering,
+		toggle,
+		seekTo,
+		setVolume,
+		mute,
+		unmute,
+	]);
+
+	const customControlsElement = renderCustomControls ? (
+		<div 
+			style={{
+				display: 'flex',
+				alignItems: 'center',
+				gap: '4px',
+			}}
+		>
+			{renderCustomControls(customControlsInfo)}
+		</div>
+	) : null;
+
 	const ref = useRef<HTMLDivElement | null>(null);
 	const flexRef = useRef<HTMLDivElement | null>(null);
 
@@ -339,6 +406,10 @@ export const Controls: React.FC<{
 					<div style={xSpacer} />
 				</div>
 				<div style={flex1} />
+				{customControlsElement}
+				{customControlsElement && playbackRates && canvasSize ? (
+					<div style={xSpacer} />
+				) : null}
 				{playbackRates && canvasSize && (
 					<PlaybackrateControl
 						canvasSize={canvasSize}

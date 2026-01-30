@@ -20,6 +20,8 @@ export type {
 	PlayerRef,
 	ThumbnailMethods,
 	ThumbnailRef,
+	RenderCustomControls,
+	RenderCustomControlsInfo,
 } from './player-methods.js';
 export {Player} from './Player.js';
 export type {PlayerProps, PlayerPropsWithoutZod} from './Player.js';
