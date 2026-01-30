@@ -29,13 +29,14 @@ type VideoConfigState =
 
 export const ResolveCompositionConfigInStudio: React.FC<
 	PropsWithChildren<{
-		children: React.ReactNode;
+		readonly children: React.ReactNode;
 	}>
 > = ({children}) => {
 	const [currentRenderModalComposition, setCurrentRenderModalComposition] =
 		useState<string | null>(null);
-	const {compositions, canvasContent, currentCompositionMetadata} =
-		useContext(Internals.CompositionManager);
+	const {compositions, canvasContent, currentCompositionMetadata} = useContext(
+		Internals.CompositionManager,
+	);
 	const {fastRefreshes, manualRefreshes} = useContext(FastRefreshContext);
 
 	// don't do anything, this component should should re-render if the value changes
@@ -111,7 +112,9 @@ export const ResolveCompositionConfigInStudio: React.FC<
 
 			const result = Internals.resolveVideoConfigOrCatch({
 				compositionId,
-				calculateMetadata: calculateMetadata as Parameters<typeof Internals.resolveVideoConfigOrCatch>[0]['calculateMetadata'],
+				calculateMetadata: calculateMetadata as Parameters<
+					typeof Internals.resolveVideoConfigOrCatch
+				>[0]['calculateMetadata'],
 				inputProps: combinedProps,
 				signal,
 				defaultProps,
@@ -202,57 +205,61 @@ export const ResolveCompositionConfigInStudio: React.FC<
 	const currentComposition =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 
-	useImperativeHandle(Internals.resolveCompositionsRef, () => {
-		return {
-			setCurrentRenderModalComposition: (id: string | null) => {
-				setCurrentRenderModalComposition(id);
-			},
-			reloadCurrentlySelectedComposition: () => {
-				if (!currentComposition) {
-					return;
-				}
+	useImperativeHandle(
+		Internals.resolveCompositionsRef,
+		() => {
+			return {
+				setCurrentRenderModalComposition: (id: string | null) => {
+					setCurrentRenderModalComposition(id);
+				},
+				reloadCurrentlySelectedComposition: () => {
+					if (!currentComposition) {
+						return;
+					}
 
-				const composition = compositions.find(
-					(c) => c.id === currentComposition,
-				);
-
-				if (!composition) {
-					throw new Error(
-						`Could not find composition with id ${currentComposition}`,
+					const composition = compositions.find(
+						(c) => c.id === currentComposition,
 					);
-				}
 
-				const editorProps = allEditorProps[currentComposition] ?? {};
+					if (!composition) {
+						throw new Error(
+							`Could not find composition with id ${currentComposition}`,
+						);
+					}
 
-				const defaultProps = {
-					...(composition.defaultProps ?? {}),
-					...(editorProps ?? {}),
-				};
+					const editorProps = allEditorProps[currentComposition] ?? {};
 
-				const props = {
-					...defaultProps,
-					...(inputProps ?? {}),
-				};
+					const defaultProps = {
+						...(composition.defaultProps ?? {}),
+						...(editorProps ?? {}),
+					};
 
-				doResolution({
-					defaultProps,
-					calculateMetadata: composition.calculateMetadata,
-					combinedProps: props,
-					compositionDurationInFrames: composition.durationInFrames ?? null,
-					compositionFps: composition.fps ?? null,
-					compositionHeight: composition.height ?? null,
-					compositionWidth: composition.width ?? null,
-					compositionId: composition.id,
-				});
-			},
-		};
-	}, [
-		allEditorProps,
-		compositions,
-		currentComposition,
-		doResolution,
-		inputProps,
-	]);
+					const props = {
+						...defaultProps,
+						...(inputProps ?? {}),
+					};
+
+					doResolution({
+						defaultProps,
+						calculateMetadata: composition.calculateMetadata,
+						combinedProps: props,
+						compositionDurationInFrames: composition.durationInFrames ?? null,
+						compositionFps: composition.fps ?? null,
+						compositionHeight: composition.height ?? null,
+						compositionWidth: composition.width ?? null,
+						compositionId: composition.id,
+					});
+				},
+			};
+		},
+		[
+			allEditorProps,
+			compositions,
+			currentComposition,
+			doResolution,
+			inputProps,
+		],
+	);
 
 	const isTheSame = selectedComposition?.id === renderModalComposition?.id;
 
