@@ -21,7 +21,6 @@ export const RemotionRootContexts: React.FC<{
 	readonly videoEnabled: boolean;
 	readonly audioEnabled: boolean;
 	readonly frameState: Record<string, number> | null;
-	readonly nonceContextSeed?: number;
 }> = ({
 	children,
 	numberOfAudioTags,
@@ -30,14 +29,13 @@ export const RemotionRootContexts: React.FC<{
 	videoEnabled,
 	audioEnabled,
 	frameState,
-	nonceContextSeed = 0,
 }) => {
 	const nonceContext = useMemo((): TNonceContext => {
 		let counter = 0;
 		return {
 			getNonce: () => counter++,
 		};
-	}, [nonceContextSeed]);
+	}, []);
 
 	const logging: LoggingContextValue = useMemo(() => {
 		return {logLevel, mountTime: Date.now()};
