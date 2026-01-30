@@ -45,5 +45,5 @@ export type RenderCustomControlsInfo = {
 };
 
 export type RenderCustomControls = (
-	info: RenderCustomControlsInfo
+	info: RenderCustomControlsInfo,
 ) => ReactElement | null;

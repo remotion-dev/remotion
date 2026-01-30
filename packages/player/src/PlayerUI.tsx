@@ -28,7 +28,11 @@ import {
 import {ErrorBoundary} from './error-boundary.js';
 import {RenderWarningIfBlacklist} from './license-blacklist.js';
 import {playerCssClassname} from './player-css-classname.js';
-import type {PlayerMethods, PlayerRef, RenderCustomControls} from './player-methods.js';
+import type {
+	PlayerMethods,
+	PlayerRef,
+	RenderCustomControls,
+} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {usePlayback} from './use-playback.js';
 import {usePlayer} from './use-player.js';

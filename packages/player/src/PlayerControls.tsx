@@ -7,7 +7,10 @@ import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import {PlayerTimeLabel} from './PlayerTimeLabel.js';
 import {FullscreenIcon} from './icons.js';
-import type { RenderCustomControls, RenderCustomControlsInfo } from './player-methods.js';
+import type {
+	RenderCustomControls,
+	RenderCustomControlsInfo,
+} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {useHoverState} from './use-hover-state.js';
 import {
@@ -320,7 +323,7 @@ export const Controls: React.FC<{
 	]);
 
 	const customControlsElement = renderCustomControls ? (
-		<div 
+		<div
 			style={{
 				display: 'flex',
 				alignItems: 'center',
