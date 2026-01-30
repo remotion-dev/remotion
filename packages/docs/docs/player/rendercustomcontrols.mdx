@@ -8,7 +8,7 @@ Allows you to add custom controls to the player, must return a valid React eleme
 
 ## API
 
-```tsx twoslash title="MyApp.tsx"
+```tsx title="MyApp.tsx"
 import {Player, RenderCustomControls} from '@remotion/player';
 import {useCallback} from 'react';
 
@@ -101,7 +101,7 @@ setVolume(0.5); // Set volume to 50%
 
 ### Adding a download button
 
-```tsx twoslash title="DownloadButton.tsx"
+```tsx title="DownloadButton.tsx"
 import {Player, RenderCustomControls} from '@remotion/player';
 import {useCallback} from 'react';
 
@@ -140,7 +140,7 @@ export const App: React.FC = () => {
 
 Access the player's state to create interactive controls:
 
-```tsx twoslash title="StateAwareControls.tsx"
+```tsx title="StateAwareControls.tsx"
 import {Player, RenderCustomControls} from '@remotion/player';
 import {useCallback} from 'react';
 
@@ -182,7 +182,7 @@ export const App: React.FC = () => {
 
 Add several controls at once:
 
-```tsx twoslash title="MultipleControls.tsx"
+```tsx title="MultipleControls.tsx"
 import {Player, RenderCustomControls} from '@remotion/player';
 import {useCallback} from 'react';
 
@@ -218,7 +218,7 @@ export const App: React.FC = () => {
 
 Create a dropdown menu for additional options:
 
-```tsx twoslash title="DropdownMenu.tsx"
+```tsx title="DropdownMenu.tsx"
 import {Player, RenderCustomControls} from '@remotion/player';
 import {useCallback, useState} from 'react';
 
