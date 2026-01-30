@@ -29,7 +29,7 @@ const Orb: React.FC = () => {
 					metalness={0.1}
 					// @ts-expect-error wrong types
 					mass={4}
-					tenstion={1000}
+					tension={1000}
 					friction={10}
 				/>
 			</mesh>
