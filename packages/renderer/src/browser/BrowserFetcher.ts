@@ -112,16 +112,11 @@ const getVersionFilePath = (chromeMode: ChromeMode): string => {
 
 const getExpectedVersion = (
 	version: string | null,
-	chromeMode: ChromeMode,
+	_chromeMode: ChromeMode,
 ): string => {
 	if (version) {
 		return version;
 	}
-
-	if (chromeMode === 'headless-shell' || chromeMode === 'chrome-for-testing') {
-		return TESTED_VERSION;
-	}
-
 	return TESTED_VERSION;
 };
 
