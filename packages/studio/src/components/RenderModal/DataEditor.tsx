@@ -7,9 +7,9 @@ import React, {
 } from 'react';
 import type {_InternalTypes, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
-import {FastRefreshContext} from '../../fast-refresh-context';
 import {NoReactInternals} from 'remotion/no-react';
 import {type z} from 'zod';
+import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';

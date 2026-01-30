@@ -1,7 +1,7 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
-import {FastRefreshContext} from '../fast-refresh-context';
 import {saveDefaultProps} from '../api/save-default-props';
+import {FastRefreshContext} from '../fast-refresh-context';
 import {showNotification} from './Notifications/NotificationCenter';
 import {SchemaResetButton} from './RenderModal/SchemaEditor/SchemaResetButton';
 import {SchemaSaveButton} from './RenderModal/SchemaEditor/SchemaSaveButton';
