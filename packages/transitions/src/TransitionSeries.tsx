@@ -13,15 +13,19 @@ import {
 } from './context.js';
 import {flattenChildren} from './flatten-children.js';
 import {slide} from './presentations/slide.js';
-import type {TransitionSeriesTransitionProps} from './types.js';
+import type {
+	TransitionSeriesOverlayProps,
+	TransitionSeriesTransitionProps,
+} from './types.js';
 import {validateDurationInFrames} from './validate.js';
 
 const TransitionSeriesTransition = function <
 	PresentationProps extends Record<string, unknown>,
->(
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	_props: TransitionSeriesTransitionProps<PresentationProps>,
-) {
+>(_props: TransitionSeriesTransitionProps<PresentationProps>) {
+	return null;
+};
+
+const SeriesOverlay: FC<TransitionSeriesOverlayProps> = () => {
 	return null;
 };
 
@@ -53,12 +57,18 @@ type TransitionType<PresentationProps extends Record<string, unknown>> = {
 	type: typeof TransitionSeriesTransition;
 };
 
+type OverlayType = {
+	props: TransitionSeriesOverlayProps;
+	type: typeof SeriesOverlay;
+};
+
 type TypeChild<PresentationProps extends Record<string, unknown>> =
 	| {
 			props: SeriesSequenceProps;
 			type: typeof SeriesSequence;
 	  }
 	| TransitionType<PresentationProps>
+	| OverlayType
 	| string;
 
 const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
@@ -71,7 +81,14 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 		let startFrame = 0;
 		const flattedChildren = flattenChildren(children);
 
-		return Children.map(flattedChildren, (child, i) => {
+		// Collect overlay render info to emit after the main loop
+		const overlayRenders: React.ReactNode[] = [];
+
+		// Track sequence durations for overlay validation
+		const sequenceDurations: number[] = [];
+		let pendingOverlayValidation = false;
+
+		const mainChildren = Children.map(flattedChildren, (child, i) => {
 			const current = child as unknown as TypeChild<Record<string, unknown>>;
 			if (typeof current === 'string') {
 				// Don't throw if it's just some accidential whitespace
@@ -91,6 +108,138 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 				Record<string, unknown>
 			>;
 
+			const prevIsTransition =
+				typeof hasPrev === 'string' || typeof hasPrev === 'undefined'
+					? false
+					: hasPrev.type === TransitionSeriesTransition;
+
+			const prevIsOverlay =
+				typeof hasPrev === 'string' || typeof hasPrev === 'undefined'
+					? false
+					: hasPrev.type === SeriesOverlay;
+
+			// Handle overlay
+			if (current.type === SeriesOverlay) {
+				// Validate: two overlays in a row
+				if (prevIsOverlay) {
+					throw new TypeError(
+						`A <TransitionSeries.Overlay /> component must not be followed by another <TransitionSeries.Overlay /> component (nth children = ${
+							i - 1
+						} and ${i})`,
+					);
+				}
+
+				// Validate: overlay next to transition
+				if (prevIsTransition) {
+					throw new TypeError(
+						`A <TransitionSeries.Transition /> component must not be followed by a <TransitionSeries.Overlay /> component (nth children = ${
+							i - 1
+						} and ${i})`,
+					);
+				}
+
+				const nextIsTransition =
+					typeof nextPrev === 'string' || typeof nextPrev === 'undefined'
+						? false
+						: nextPrev.type === TransitionSeriesTransition;
+				if (nextIsTransition) {
+					throw new TypeError(
+						`A <TransitionSeries.Overlay /> component must not be followed by a <TransitionSeries.Transition /> component (nth children = ${i} and ${
+							i + 1
+						})`,
+					);
+				}
+
+				const overlayProps = (current as OverlayType).props;
+
+				validateDurationInFrames(overlayProps.durationInFrames, {
+					component: `of a <TransitionSeries.Overlay /> component`,
+					allowFloats: false,
+				});
+
+				const overlayOffset = overlayProps.offset ?? 0;
+				if (Number.isNaN(overlayOffset)) {
+					throw new TypeError(
+						`The "offset" property of a <TransitionSeries.Overlay /> must not be NaN, but got NaN.`,
+					);
+				}
+
+				if (!Number.isFinite(overlayOffset)) {
+					throw new TypeError(
+						`The "offset" property of a <TransitionSeries.Overlay /> must be finite, but got ${overlayOffset}.`,
+					);
+				}
+
+				if (overlayOffset % 1 !== 0) {
+					throw new TypeError(
+						`The "offset" property of a <TransitionSeries.Overlay /> must be an integer, but got ${overlayOffset}.`,
+					);
+				}
+
+				// Find the previous sequence (the cut point is at startFrame + transitionOffsets)
+				const cutPoint = startFrame + transitionOffsets;
+				const halfDuration = overlayProps.durationInFrames / 2;
+				const overlayFrom = cutPoint - halfDuration + overlayOffset;
+
+				if (overlayFrom < 0) {
+					throw new TypeError(
+						`A <TransitionSeries.Overlay /> extends before frame 0. The overlay starts at frame ${overlayFrom}. Reduce the duration or adjust the offset.`,
+					);
+				}
+
+				// Validate: overlay must not exceed the previous sequence duration
+				const prevSeqIdx = sequenceDurations.length - 1;
+				if (prevSeqIdx >= 0) {
+					const overlayStartInPrev = halfDuration - overlayOffset;
+					if (overlayStartInPrev > sequenceDurations[prevSeqIdx]) {
+						throw new TypeError(
+							`A <TransitionSeries.Overlay /> extends beyond the previous sequence. The overlay needs ${overlayStartInPrev} frames before the cut, but the previous sequence is only ${sequenceDurations[prevSeqIdx]} frames long.`,
+						);
+					}
+				}
+
+				// We'll validate the next sequence side after we process it
+				pendingOverlayValidation = true;
+				// Store overlay info for deferred rendering
+				overlayRenders.push({
+					cutPoint,
+					overlayFrom,
+					durationInFrames: overlayProps.durationInFrames,
+					overlayOffset,
+					halfDuration,
+					children: overlayProps.children,
+					index: i,
+				} as unknown as React.ReactNode);
+
+				return null;
+			}
+
+			if (current.type === TransitionSeriesTransition) {
+				if (prevIsTransition) {
+					throw new TypeError(
+						`A <TransitionSeries.Transition /> component must not be followed by another <TransitionSeries.Transition /> component (nth children = ${
+							i - 1
+						} and ${i})`,
+					);
+				}
+
+				if (prevIsOverlay) {
+					throw new TypeError(
+						`A <TransitionSeries.Overlay /> component must not be followed by a <TransitionSeries.Transition /> component (nth children = ${
+							i - 1
+						} and ${i})`,
+					);
+				}
+
+				return null;
+			}
+
+			if (current.type !== SeriesSequence) {
+				throw new TypeError(
+					`The <TransitionSeries /> component only accepts a list of <TransitionSeries.Sequence />, <TransitionSeries.Transition />, and <TransitionSeries.Overlay /> components as its children, but got ${current} instead`,
+				);
+			}
+
 			const prev: TransitionType<Record<string, unknown>> | null =
 				typeof hasPrev === 'string' || typeof hasPrev === 'undefined'
 					? null
@@ -104,29 +253,6 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					: nextPrev.type === TransitionSeriesTransition
 						? (nextPrev as TransitionType<Record<string, unknown>>)
 						: null;
-
-			const prevIsTransition =
-				typeof hasPrev === 'string' || typeof hasPrev === 'undefined'
-					? false
-					: hasPrev.type === TransitionSeriesTransition;
-
-			if (current.type === TransitionSeriesTransition) {
-				if (prevIsTransition) {
-					throw new TypeError(
-						`A <TransitionSeries.Transition /> component must not be followed by another <TransitionSeries.Transition /> component (nth children = ${
-							i - 1
-						} and ${i})`,
-					);
-				}
-
-				return null;
-			}
-
-			if (current.type !== SeriesSequence) {
-				throw new TypeError(
-					`The <TransitionSeries /> component only accepts a list of <TransitionSeries.Sequence /> and <TransitionSeries.Transition /> components as its children, but got ${current} instead`,
-				);
-			}
 
 			const castedChildAgain = current as {
 				props: SeriesSequenceProps;
@@ -189,6 +315,28 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			if (actualStartFrame < 0) {
 				startFrame -= actualStartFrame;
 				actualStartFrame = 0;
+			}
+
+			// Track sequence durations for overlay validation
+			sequenceDurations.push(durationInFramesProp);
+
+			// Validate: check if a preceding overlay extends beyond this sequence
+			if (pendingOverlayValidation) {
+				pendingOverlayValidation = false;
+				const lastOverlay = overlayRenders[
+					overlayRenders.length - 1
+				] as unknown as {
+					halfDuration: number;
+					overlayOffset: number;
+					durationInFrames: number;
+				};
+				const framesAfterCut =
+					lastOverlay.halfDuration + lastOverlay.overlayOffset;
+				if (framesAfterCut > durationInFramesProp) {
+					throw new TypeError(
+						`A <TransitionSeries.Overlay /> extends beyond the next sequence. The overlay needs ${framesAfterCut} frames after the cut, but the next sequence is only ${durationInFramesProp} frames long.`,
+					);
+				}
 			}
 
 			const nextProgress = next
@@ -351,6 +499,31 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 				</Sequence>
 			);
 		});
+
+		// Now render overlay sequences
+		const overlayElements = overlayRenders.map((overlayInfo) => {
+			const info = overlayInfo as unknown as {
+				cutPoint: number;
+				overlayFrom: number;
+				durationInFrames: number;
+				children: React.ReactNode;
+				index: number;
+			};
+
+			return (
+				<Sequence
+					key={`overlay-${info.index}`}
+					from={Math.round(info.overlayFrom)}
+					durationInFrames={info.durationInFrames}
+					name="<TS.Overlay>"
+					layout="absolute-fill"
+				>
+					{info.children}
+				</Sequence>
+			);
+		});
+
+		return [...(mainChildren || []), ...overlayElements];
 	}, [children, fps, frame]);
 
 	// eslint-disable-next-line react/jsx-no-useless-fragment
@@ -364,6 +537,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 export const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 	Sequence: typeof SeriesSequence;
 	Transition: typeof TransitionSeriesTransition;
+	Overlay: typeof SeriesOverlay;
 } = ({children, name, layout: passedLayout, ...otherProps}) => {
 	const displayName = name ?? '<TransitionSeries>';
 	const layout = passedLayout ?? 'absolute-fill';
@@ -385,6 +559,7 @@ export const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 
 TransitionSeries.Sequence = SeriesSequence;
 TransitionSeries.Transition = TransitionSeriesTransition;
+TransitionSeries.Overlay = SeriesOverlay;
 
 Internals.addSequenceStackTraces(TransitionSeries);
 Internals.addSequenceStackTraces(SeriesSequence);

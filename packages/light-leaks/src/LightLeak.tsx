@@ -12,7 +12,7 @@ export type LightLeakProps = Omit<
 	SequenceProps,
 	'children' | 'layout' | 'durationInFrames'
 > & {
-	readonly durationInFrames: number;
+	readonly durationInFrames?: number;
 	readonly seed?: number;
 	readonly hueShift?: number;
 };
@@ -232,8 +232,11 @@ const LightLeakCanvas: React.FC<{
 export const LightLeak: React.FC<LightLeakProps> = ({
 	seed = 0,
 	hueShift = 0,
+	durationInFrames,
 	...sequenceProps
 }) => {
+	const {durationInFrames: videoDuration} = useVideoConfig();
+	const resolvedDuration = durationInFrames ?? videoDuration;
 	if (typeof seed !== 'number' || !Number.isFinite(seed)) {
 		throw new TypeError(
 			`"seed" must be a finite number, but got ${JSON.stringify(seed)}`,
@@ -253,7 +256,7 @@ export const LightLeak: React.FC<LightLeakProps> = ({
 	}
 
 	return (
-		<Sequence {...sequenceProps}>
+		<Sequence durationInFrames={resolvedDuration} {...sequenceProps}>
 			<LightLeakCanvas seed={seed} hueShift={hueShift} />
 		</Sequence>
 	);

@@ -34,6 +34,9 @@ import {
 	springDampingDemo,
 	springDemo,
 	starDemo,
+	transitionSeriesEnterExitDemo,
+	transitionSeriesOverlayDemo,
+	transitionSeriesTransitionDemo,
 	translateDemo,
 	triangleDemo,
 	wipePresentationDemo,
@@ -79,6 +82,9 @@ const demos: DemoType[] = [
 	springDampingDemo,
 	shaderDemo,
 	lightLeakDemo,
+	transitionSeriesTransitionDemo,
+	transitionSeriesOverlayDemo,
+	transitionSeriesEnterExitDemo,
 ];
 
 export const Demo: React.FC<{

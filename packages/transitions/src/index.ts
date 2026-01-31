@@ -6,6 +6,7 @@ export {TransitionSeries} from './TransitionSeries.js';
 export {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
+	TransitionSeriesOverlayProps,
 	TransitionTiming,
 } from './types.js';
 // Hooks

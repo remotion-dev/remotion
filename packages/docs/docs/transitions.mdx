@@ -98,12 +98,22 @@ import { springTiming } from "@remotion/transitions";
 springTiming({ config: { damping: 200 } }).getDurationInFrames({ fps: 30 }); // 23
 ```
 
+## Overlays
+
+You can use `<TransitionSeries.Overlay>` to render content on top of the junction between two sequences without shortening the timeline. Unlike transitions, overlays do not cause the sequences to overlap — the total duration stays the same. The overlay is centered on the cut point by default.
+
+This is useful for rendering effects like light leaks, flashes, or other visual elements that should appear over a cut without affecting timing.
+
+See [`<TransitionSeries.Overlay>`](/docs/transitions/transitionseries#transitionseriesoverlay) for details.
+
 ## Rules
 
 <Step>1</Step> It is forbidden to have a transition that is longer than the duration
 of the previous or next sequence. <br />
 <Step>2</Step> There can be no two transitions next to each other. <br />
-<Step>3</Step> There must be at least one sequence before or after a transition.
+<Step>3</Step> There must be at least one sequence before or after a transition. <br />
+<Step>4</Step> An overlay and a transition cannot be adjacent. <br />
+<Step>5</Step> Two overlays cannot be adjacent.
 
 ## See also
 
