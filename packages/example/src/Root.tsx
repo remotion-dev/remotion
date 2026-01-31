@@ -133,6 +133,8 @@ import {
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
+import {LightLeakExample} from './LightLeak';
+import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp} from './NewVideo';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
@@ -155,8 +157,6 @@ import {VideoTestingTrim} from './VideoTesting/trim';
 import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
-import {LightLeakExample} from './LightLeak';
-import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {WhisperWeb} from './WhisperWeb';
 
 class Vector2 {
