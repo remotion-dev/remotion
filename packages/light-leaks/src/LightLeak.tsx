@@ -63,13 +63,14 @@ vec3 computePattern(vec2 uv, float s, float t) {
 
 void main()
 {
-    vec2 uv = 0.001 * gl_FragCoord.xy;
+    float refScale = 1.92;
+    vec2 uv = (gl_FragCoord.xy / resolution) * vec2(refScale, refScale * resolution.y / resolution.x);
 
     vec3 patA = computePattern(uv, seed, evolveProgress * Pi);
     float threshA = 1.0 - evolveProgress;
     float revealAlpha = smoothstep(threshA, threshA + 0.3, patA.z);
 
-    vec2 maxUv = 0.001 * resolution;
+    vec2 maxUv = vec2(refScale, refScale * resolution.y / resolution.x);
     vec2 retractUv = maxUv - uv;
     vec3 patB = computePattern(retractUv, retractSeed, retractProgress * Pi);
     float threshB = 1.0 - retractProgress;
@@ -200,7 +201,7 @@ const LightLeakCanvas: React.FC<{
 			hueShiftLoc,
 		} = ctx;
 
-		const normalized = frame / (durationInFrames - 1);
+		const normalized = durationInFrames <= 1 ? 0 : frame / (durationInFrames - 1);
 		const evolveProgress = Math.min(1, normalized * 2);
 		const retractProgress = Math.max(0, normalized * 2 - 1);
 
@@ -214,7 +215,7 @@ const LightLeakCanvas: React.FC<{
 		gl.uniform1f(hueShiftLoc, hueShift);
 		gl.uniform2f(resLoc, gl.canvas.width, gl.canvas.height);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-	}, [frame, durationInFrames, seed, hueShift]);
+	}, [frame, durationInFrames, seed, hueShift, width, height]);
 
 	return (
 		<AbsoluteFill>

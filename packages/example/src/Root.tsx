@@ -156,6 +156,7 @@ import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
 import {LightLeakExample} from './LightLeak';
+import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {WhisperWeb} from './WhisperWeb';
 
 class Vector2 {
@@ -1813,14 +1814,24 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={600}
 			/>
-			<Composition
-				id="light-leak"
-				component={LightLeakExample}
-				width={1080}
-				height={1080}
-				fps={30}
-				durationInFrames={90}
-			/>
+			<Folder name="light-leaks">
+				<Composition
+					id="light-leak"
+					component={LightLeakExample}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="light-leak-animated-size"
+					component={LightLeakAnimatedSize}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+			</Folder>
 			<ChangingTrimBeforeValue />
 			<Composition
 				id="browser-test"
