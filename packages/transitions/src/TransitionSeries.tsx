@@ -563,3 +563,4 @@ TransitionSeries.Overlay = SeriesOverlay;
 
 Internals.addSequenceStackTraces(TransitionSeries);
 Internals.addSequenceStackTraces(SeriesSequence);
+Internals.addSequenceStackTraces(SeriesOverlay);
