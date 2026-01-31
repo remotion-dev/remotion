@@ -1,6 +1,12 @@
-import React, {useCallback, useEffect, useRef} from 'react';
-import type {SequenceProps} from 'remotion';
-import {AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {
+	AbsoluteFill,
+	Sequence,
+	useCurrentFrame,
+	useDelayRender,
+	useVideoConfig,
+	type SequenceProps,
+} from 'remotion';
 
 export type LightLeakProps = Omit<
 	SequenceProps,
@@ -115,58 +121,65 @@ const LightLeakCanvas: React.FC<{
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const glRef = useRef<GlContext | null>(null);
 
-	const initGl = useCallback((canvas: HTMLCanvasElement): GlContext | null => {
-		const gl = canvas.getContext('webgl', {
-			premultipliedAlpha: false,
-			alpha: true,
-		});
-		if (!gl) return null;
-		gl.enable(gl.BLEND);
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const [handle] = useState(() => delayRender());
 
-		const compile = (type: number, src: string) => {
-			const s = gl.createShader(type)!;
-			gl.shaderSource(s, src);
-			gl.compileShader(s);
-			return s;
-		};
+	const initGl = useCallback(
+		(canvas: HTMLCanvasElement): GlContext | null => {
+			const gl = canvas.getContext('webgl', {
+				premultipliedAlpha: false,
+				alpha: true,
+			});
+			if (!gl) {
+				cancelRender(
+					new Error(
+						'Failed to get WebGL context. Try rendering with --gl=angle to enable WebGL.',
+					),
+				);
+				return null;
+			}
 
-		const program = gl.createProgram()!;
-		gl.attachShader(program, compile(gl.VERTEX_SHADER, VERTEX_SHADER));
-		gl.attachShader(
-			program,
-			compile(gl.FRAGMENT_SHADER, FRAGMENT_SHADER),
-		);
-		gl.linkProgram(program);
-		gl.useProgram(program);
+			gl.enable(gl.BLEND);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-		const buf = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-		gl.bufferData(
-			gl.ARRAY_BUFFER,
-			new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
-			gl.STATIC_DRAW,
-		);
-		const pos = gl.getAttribLocation(program, 'position');
-		gl.enableVertexAttribArray(pos);
-		gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+			const compile = (type: number, src: string) => {
+				const s = gl.createShader(type)!;
+				gl.shaderSource(s, src);
+				gl.compileShader(s);
+				return s;
+			};
 
-		return {
-			gl,
-			resLoc: gl.getUniformLocation(program, 'resolution')!,
-			evolveProgressLoc: gl.getUniformLocation(
-				program,
-				'evolveProgress',
-			)!,
-			retractProgressLoc: gl.getUniformLocation(
-				program,
-				'retractProgress',
-			)!,
-			seedLoc: gl.getUniformLocation(program, 'seed')!,
-			retractSeedLoc: gl.getUniformLocation(program, 'retractSeed')!,
-			hueShiftLoc: gl.getUniformLocation(program, 'hueShift')!,
-		};
-	}, []);
+			const program = gl.createProgram()!;
+			gl.attachShader(program, compile(gl.VERTEX_SHADER, VERTEX_SHADER));
+			gl.attachShader(program, compile(gl.FRAGMENT_SHADER, FRAGMENT_SHADER));
+			gl.linkProgram(program);
+			gl.useProgram(program);
+
+			const buf = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+			gl.bufferData(
+				gl.ARRAY_BUFFER,
+				new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+				gl.STATIC_DRAW,
+			);
+			const pos = gl.getAttribLocation(program, 'position');
+			gl.enableVertexAttribArray(pos);
+			gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+
+			continueRender(handle);
+
+			return {
+				gl,
+				resLoc: gl.getUniformLocation(program, 'resolution')!,
+				evolveProgressLoc: gl.getUniformLocation(program, 'evolveProgress')!,
+				retractProgressLoc: gl.getUniformLocation(program, 'retractProgress')!,
+				seedLoc: gl.getUniformLocation(program, 'seed')!,
+				retractSeedLoc: gl.getUniformLocation(program, 'retractSeed')!,
+				hueShiftLoc: gl.getUniformLocation(program, 'hueShift')!,
+			};
+		},
+		[continueRender, handle, cancelRender],
+	);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
