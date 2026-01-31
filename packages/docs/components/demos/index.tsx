@@ -26,6 +26,7 @@ import {
 	rotateDemo,
 	roundedTextBoxDemo,
 	scaleDemo,
+	shaderDemo,
 	skewDemo,
 	slidePresentationDemo,
 	slidePresentationDemoLongThreshold,
@@ -75,6 +76,7 @@ const demos: DemoType[] = [
 	roundedTextBoxDemo,
 	springDemo,
 	springDampingDemo,
+	shaderDemo,
 ];
 
 export const Demo: React.FC<{

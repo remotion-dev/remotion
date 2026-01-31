@@ -849,6 +849,7 @@ const sidebars: SidebarsConfig = {
 				'noise-visualization',
 				'maps',
 				'animation-math',
+				'shaders',
 			],
 		},
 		{
