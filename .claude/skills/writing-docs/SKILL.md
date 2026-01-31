@@ -14,6 +14,16 @@ Documentation lives in `packages/docs/docs` as `.mdx` files.
 3. Write the content following guidelines below
 4. Run `bun render-cards.ts` in `packages/docs` to generate social preview cards
 
+**Breadcrumb (`crumb`)**: If a documentation page belongs to a package, add `crumb: '@remotion/package-name'` to the frontmatter. This displays the package name as a breadcrumb above the title.
+
+```md
+---
+image: /generated/articles-docs-my-package-my-api.png
+title: '<MyComponent>'
+crumb: '@remotion/my-package'
+---
+```
+
 **One API per page**: Each function or API should have its own dedicated documentation page. Do not combine multiple APIs (e.g., `getEncodableVideoCodecs()` and `getEncodableAudioCodecs()`) on a single page.
 
 **Public API only**: Documentation is for public APIs only. Do not mention, reference, or compare against internal/private APIs or implementation details.
