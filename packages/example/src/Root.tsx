@@ -155,6 +155,7 @@ import {VideoTestingTrim} from './VideoTesting/trim';
 import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
+import {LightLeakExample} from './LightLeak';
 import {WhisperWeb} from './WhisperWeb';
 
 class Vector2 {
@@ -1811,6 +1812,14 @@ export const Index: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={600}
+			/>
+			<Composition
+				id="light-leak"
+				component={LightLeakExample}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
 			/>
 			<ChangingTrimBeforeValue />
 			<Composition

@@ -1,0 +1,29 @@
+---
+image: /generated/articles-docs-light-leaks-light-leak.png
+title: '<LightLeak>'
+---
+
+<AvailableFrom v="4.0.414" />
+
+A component that renders a light leak effect as a [`<Sequence>`](/docs/sequence).
+
+## API
+
+The `<LightLeak>` component accepts all props that [`<Sequence>`](/docs/sequence) accepts.
+
+```tsx twoslash
+import {LightLeak} from '@remotion/light-leaks';
+
+const MyVideo = () => {
+  return (
+    <LightLeak durationInFrames={60}>
+      <div>My content</div>
+    </LightLeak>
+  );
+};
+```
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/light-leaks/src/LightLeak.tsx)
+- [`<Sequence>`](/docs/sequence)
