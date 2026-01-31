@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 // @ts-expect-error
 import CodeBlock from '@theme/CodeBlock';
 // @ts-expect-error
@@ -6,6 +6,26 @@ import TabItem from '@theme/TabItem';
 // @ts-expect-error
 import Tabs from '@theme/Tabs';
 import {VERSION} from 'remotion';
+
+const VersionWarning: React.FC<{
+	readonly packages: string;
+}> = ({packages}) => {
+	if (!packages.includes('remotion')) {
+		return null;
+	}
+
+	return (
+		<>
+			This assumes you are currently using v{VERSION} of Remotion.
+			<br />
+			Also update <code>remotion</code> and all <code>`@remotion/*`</code>{' '}
+			packages to the same version.
+			<br />
+			Remove all <code>^</code> character in front of the version numbers of
+			it as it can lead to a version conflict.
+		</>
+	);
+};
 
 const LightAndDark: React.FC<{
 	readonly text: string;
@@ -55,14 +75,6 @@ export const Installation: React.FC<{
 
 	const remotionCliPackages = pkgList.join(' ');
 
-	const isRemotionPackage = packages.includes('remotion');
-
-	const [selectedTab, setSelectedTab] = useState(
-		showRemotionCli ? 'remotion-cli' : 'npm',
-	);
-
-	const showVersionWarning = isRemotionPackage && selectedTab !== 'remotion-cli';
-
 	const tabs = [
 		...(showRemotionCli
 			? [{label: 'Remotion CLI', value: 'remotion-cli'}]
@@ -78,7 +90,6 @@ export const Installation: React.FC<{
 			<Tabs
 				defaultValue={showRemotionCli ? 'remotion-cli' : 'npm'}
 				values={tabs}
-				onChange={(value: string) => setSelectedTab(value)}
 			>
 				{showRemotionCli ? (
 					<TabItem value="remotion-cli">
@@ -87,28 +98,21 @@ export const Installation: React.FC<{
 				) : null}
 				<TabItem value="npm">
 					<LightAndDark text={`npm i --save-exact ${packages}`} />
+					<VersionWarning packages={packages} />
 				</TabItem>
 				<TabItem value="pnpm">
 					<LightAndDark text={`pnpm i ${packages}`} />
+					<VersionWarning packages={packages} />
 				</TabItem>
 				<TabItem value="bun">
 					<LightAndDark text={`bun i ${packages}`} />
+					<VersionWarning packages={packages} />
 				</TabItem>
 				<TabItem value="yarn">
 					<LightAndDark text={`yarn --exact add ${packages}`} />
+					<VersionWarning packages={packages} />
 				</TabItem>
 			</Tabs>
-			{showVersionWarning ? (
-				<>
-					This assumes you are currently using v{VERSION} of Remotion.
-					<br />
-					Also update <code>remotion</code> and all <code>`@remotion/*`</code>{' '}
-					packages to the same version.
-					<br />
-					Remove all <code>^</code> character in front of the version numbers of
-					it as it can lead to a version conflict.
-				</>
-			) : null}
 		</div>
 	);
 };
