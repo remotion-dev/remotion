@@ -456,7 +456,7 @@ const sidebars: SidebarsConfig = {
 			label: '@remotion/light-leaks',
 			link: {
 				type: 'doc',
-				id: 'light-leaks/index',
+				id: 'light-leaks/light-leaks-api',
 			},
 			items: ['light-leaks/light-leak'],
 		},
@@ -866,6 +866,7 @@ const sidebars: SidebarsConfig = {
 				'maps',
 				'animation-math',
 				'shaders',
+				'light-leaks',
 			],
 		},
 		{
