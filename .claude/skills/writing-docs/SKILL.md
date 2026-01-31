@@ -94,7 +94,7 @@ console.log('Hello');
 <Demo type="rect"/>
 ```
 
-Demos must be implemented in `packages/docs/components/demos/index.tsx`.
+Demos must be implemented in `packages/docs/components/demos/index.tsx`. See the `docs-demo` skill for details on adding new demos.
 
 ### AvailableFrom
 

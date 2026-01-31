@@ -29,6 +29,7 @@ import {
 	SkewDemo,
 	TranslateDemo,
 } from './Translate';
+import {ShaderDemoComp} from './ShaderDemo';
 import {TriangleDemo} from './Triangle';
 
 export type Option = {
@@ -883,6 +884,17 @@ export const springDemo: DemoType = {
 			optional: 'no',
 		},
 	],
+};
+
+export const shaderDemo: DemoType = {
+	comp: ShaderDemoComp,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'shader',
+	autoPlay: true,
+	options: [],
 };
 
 export const springDampingDemo: DemoType = {
