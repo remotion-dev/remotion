@@ -11,6 +11,7 @@ import {TableOfContents as GoogleFontsTableOfContents} from '../../docs/google-f
 import {TableOfContents as InstallWhisperCppTableOfContents} from '../../docs/install-whisper-cpp/install-whisper-cpp';
 import {TableOfContents as LambdaTableOfContents} from '../../docs/lambda/table-of-contents';
 import {TableOfContents as LayoutUtilsTableOfContents} from '../../docs/layout-utils/table-of-contents';
+import {TableOfContents as LightLeaksTableOfContents} from '../../docs/light-leaks/table-of-contents';
 import {TableOfContents as LicensingTableOfContents} from '../../docs/licensing/TableOfContents';
 import {TableOfContents as LottieTableOfContents} from '../../docs/lottie/table-of-contents';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
@@ -150,6 +151,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/zod-types</h2>
 			<p>Zod types enabling Remotion Studio UI</p>
 			<ZodTypesTableOfContents />
+			<h2>@remotion/light-leaks</h2>
+			<p>Light leak effects</p>
+			<LightLeaksTableOfContents />
 			<h2>@remotion/motion-blur</h2>
 			<p>Apply motion blur effects to components</p>
 			<MotionBlurTableOfContents />

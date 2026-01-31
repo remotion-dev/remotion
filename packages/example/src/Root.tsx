@@ -133,6 +133,8 @@ import {
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
+import {LightLeakExample} from './LightLeak';
+import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp} from './NewVideo';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
@@ -1812,6 +1814,24 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={600}
 			/>
+			<Folder name="light-leaks">
+				<Composition
+					id="light-leak"
+					component={LightLeakExample}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="light-leak-animated-size"
+					component={LightLeakAnimatedSize}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+			</Folder>
 			<ChangingTrimBeforeValue />
 			<Composition
 				id="browser-test"

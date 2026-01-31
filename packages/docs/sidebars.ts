@@ -480,6 +480,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/light-leaks',
+			link: {
+				type: 'doc',
+				id: 'light-leaks/index',
+			},
+			items: ['light-leaks/light-leak'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/openai-whisper',
 			link: {
 				type: 'doc',

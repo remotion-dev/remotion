@@ -17,6 +17,7 @@ import {
 	flipPresentationDemo,
 	heartDemo,
 	irisPresentationDemo,
+	lightLeakDemo,
 	noiseDemo,
 	nonePresentationDemo,
 	opacityDemo,
@@ -77,6 +78,7 @@ const demos: DemoType[] = [
 	springDemo,
 	springDampingDemo,
 	shaderDemo,
+	lightLeakDemo,
 ];
 
 export const Demo: React.FC<{

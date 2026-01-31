@@ -14,6 +14,7 @@ import {
 import {CircleDemo} from './Circle';
 import {EllipseDemo} from './Ellipse';
 import {HeartDemo} from './Heart';
+import {LightLeakDemoComp} from './LightLeakDemo';
 import {NoiseComp} from './NoiseDemo';
 import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
@@ -912,6 +913,36 @@ export const springDampingDemo: DemoType = {
 			default: 100,
 			min: 1,
 			max: 200,
+			step: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const lightLeakDemo: DemoType = {
+	comp: LightLeakDemoComp,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'light-leak',
+	autoPlay: true,
+	options: [
+		{
+			name: 'seed',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 100,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'hueShift',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 360,
 			step: 1,
 			optional: 'no',
 		},

@@ -393,6 +393,7 @@
         "@remotion/lambda-client": "workspace:*",
         "@remotion/layout-utils": "workspace:*",
         "@remotion/licensing": "workspace:*",
+        "@remotion/light-leaks": "workspace:*",
         "@remotion/lottie": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/media-parser": "workspace:*",
@@ -589,6 +590,7 @@
         "@remotion/lambda": "workspace:*",
         "@remotion/lambda-client": "workspace:*",
         "@remotion/layout-utils": "workspace:*",
+        "@remotion/light-leaks": "workspace:*",
         "@remotion/lottie": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/media-parser": "workspace:*",
@@ -879,6 +881,24 @@
         "eslint": "catalog:",
         "msw": "^2.7.1",
         "remotion": "workspace:*",
+      },
+    },
+    "packages/light-leaks": {
+      "name": "@remotion/light-leaks",
+      "version": "4.0.414",
+      "dependencies": {
+        "remotion": "workspace:*",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "peerDependencies": {
+        "react": ">=16.8.0",
+        "react-dom": ">=16.8.0",
       },
     },
     "packages/lottie": {
@@ -3548,6 +3568,8 @@
     "@remotion/layout-utils": ["@remotion/layout-utils@workspace:packages/layout-utils"],
 
     "@remotion/licensing": ["@remotion/licensing@workspace:packages/licensing"],
+
+    "@remotion/light-leaks": ["@remotion/light-leaks@workspace:packages/light-leaks"],
 
     "@remotion/lottie": ["@remotion/lottie@workspace:packages/lottie"],
 
