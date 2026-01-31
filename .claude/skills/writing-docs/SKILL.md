@@ -124,9 +124,8 @@ Use to indicate which runtimes and environments a component or API supports. No 
 
 Available boolean props: `chrome`, `firefox`, `safari`, `player`, `studio`, `clientSideRendering`, `serverSideRendering`. Set to `true` (supported) or `{false}` (not supported).
 
-Set to empty string `""` for not applicable: `nodejs=""`, `bun=""`, `serverlessFunctions=""`.
-
-Use `hideServers` to hide the Node.js/Bun/serverless row.
+Set to empty string `""` for not applicable if this is a frontend API: `nodejs=""`, `bun=""`, `serverlessFunctions=""`.
+Use `hideServers` to hide the Node.js/Bun/serverless row if this is a frontend API.
 
 ```md
 ## Compatibility
