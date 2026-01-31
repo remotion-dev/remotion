@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 // @ts-expect-error
 import CodeBlock from '@theme/CodeBlock';
 // @ts-expect-error
@@ -33,8 +33,17 @@ export const Installation: React.FC<{
 		throw new Error('pkg is undefined');
 	}
 
-	const packages = pkg
-		.split(' ')
+	const pkgList = pkg.split(' ');
+
+	const allRemotionOnly = pkgList.every(
+		(p) => p.startsWith('@remotion/') || p === 'remotion',
+	);
+	const showRemotionCli =
+		allRemotionOnly &&
+		!pkgList.includes('remotion') &&
+		!pkgList.includes('@remotion/cli');
+
+	const packages = pkgList
 		.map((p) => {
 			if (p.startsWith('@remotion') || p === 'remotion') {
 				return `${p}@${VERSION}`;
@@ -44,19 +53,38 @@ export const Installation: React.FC<{
 		})
 		.join(' ');
 
+	const remotionCliPackages = pkgList.join(' ');
+
 	const isRemotionPackage = packages.includes('remotion');
+
+	const [selectedTab, setSelectedTab] = useState(
+		showRemotionCli ? 'remotion-cli' : 'npm',
+	);
+
+	const showVersionWarning = isRemotionPackage && selectedTab !== 'remotion-cli';
+
+	const tabs = [
+		...(showRemotionCli
+			? [{label: 'Remotion CLI', value: 'remotion-cli'}]
+			: []),
+		{label: 'npm', value: 'npm'},
+		{label: 'bun', value: 'bun'},
+		{label: 'pnpm', value: 'pnpm'},
+		{label: 'yarn', value: 'yarn'},
+	];
 
 	return (
 		<div>
 			<Tabs
-				defaultValue="npm"
-				values={[
-					{label: 'npm', value: 'npm'},
-					{label: 'bun', value: 'bun'},
-					{label: 'pnpm', value: 'pnpm'},
-					{label: 'yarn', value: 'yarn'},
-				]}
+				defaultValue={showRemotionCli ? 'remotion-cli' : 'npm'}
+				values={tabs}
+				onChange={(value: string) => setSelectedTab(value)}
 			>
+				{showRemotionCli ? (
+					<TabItem value="remotion-cli">
+						<LightAndDark text={`npx remotion add ${remotionCliPackages}`} />
+					</TabItem>
+				) : null}
 				<TabItem value="npm">
 					<LightAndDark text={`npm i --save-exact ${packages}`} />
 				</TabItem>
@@ -70,7 +98,7 @@ export const Installation: React.FC<{
 					<LightAndDark text={`yarn --exact add ${packages}`} />
 				</TabItem>
 			</Tabs>
-			{isRemotionPackage ? (
+			{showVersionWarning ? (
 				<>
 					This assumes you are currently using v{VERSION} of Remotion.
 					<br />
