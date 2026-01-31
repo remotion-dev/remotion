@@ -3,12 +3,12 @@
 ## Steps
 
 1. **Create `packages/<name>/`** with these files:
-   - `package.json` — copy from `@remotion/motion-blur` as template; update name, description, homepage, dependencies
-   - `tsconfig.json` — extends `../tsconfig.settings.json`, rootDir `src`, outDir `dist/cjs`, reference `../core`
+   - `package.json` — copy from `@remotion/light-leaks` as template; update name, description, homepage, dependencies
+   - `tsconfig.json` — extends `../tsconfig.settings.json`, uses tsgo with `emitDeclarationOnly: true`, `outDir: "dist"`, `module: "es2020"`, `moduleResolution: "bundler"`, `target: "ES2022"`
    - `src/index.ts` — exports
-   - `bundle.ts` — Bun build script, externalize `react`, `remotion`, `remotion/no-react`, `react/jsx-runtime`
+   - `bundle.ts` — Bun build script, externalize `react`, `remotion`, `remotion/no-react`, `react/jsx-runtime`, `react/jsx-dev-runtime`, `react-dom`
    - `eslint.config.mjs` — use `remotionFlatConfig({react: true})` if React, `{react: false}` otherwise
-   - `.npmignore` — copy from `@remotion/noise`
+   - `.npmignore` — copy from `@remotion/light-leaks`
    - `README.md` — package name, description, install command, link to docs
 
 2. **Register in monorepo:**
@@ -23,8 +23,9 @@
    - `table-of-contents.tsx` — TOCItem grid linking to component/function pages
    - Individual component/function `.mdx` pages
    - Edit `packages/docs/sidebars.ts` — add category
-   - Edit `packages/docs/src/data/articles.ts` — add entries alphabetically
    - Edit `packages/docs/components/TableOfContents/api.tsx` — import table of contents and add section
+
+See the `writing-docs` skill for details on writing documentation.
 
 4. **Example usage:**
    - Add `"@remotion/<name>": "workspace:*"` to `packages/example/package.json`
@@ -38,11 +39,15 @@
 
 ## Version
 
-Use the current version from `packages/core/src/version.ts`.
+Use the current version from `packages/core/src/version.ts`.  
+For the documentation version, increment the patch version by 1 as it will only be released with the next Remotion release.
 
 ## Patterns
 
 - Use `"workspace:*"` for internal dependencies
 - Use `"catalog:"` for shared external dependency versions
-- The `make` script is: `tsc -d && bun --env-file=../.env.bundle bundle.ts`
+- The `make` script is: `tsgo && bun --env-file=../.env.bundle bundle.ts`
+- Add `"type": "module"` to `package.json`
+- Add `"@typescript/native-preview": "catalog:"` to devDependencies
+- Types/main point to `dist/index.d.ts` and `dist/index.js` (not `dist/cjs/`)
 - Packages with React components need `peerDependencies` for `react` and `react-dom`

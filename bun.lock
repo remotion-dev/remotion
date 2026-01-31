@@ -891,10 +891,10 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
-        "remotion": "workspace:*",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
