@@ -2,7 +2,11 @@ import React, {useCallback, useEffect, useRef} from 'react';
 import type {SequenceProps} from 'remotion';
 import {AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 
-export type LightLeakProps = Omit<SequenceProps, 'children' | 'layout'> & {
+export type LightLeakProps = Omit<
+	SequenceProps,
+	'children' | 'layout' | 'durationInFrames'
+> & {
+	readonly durationInFrames: number;
 	readonly seed?: number;
 	readonly hueShift?: number;
 };

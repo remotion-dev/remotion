@@ -1,6 +1,6 @@
 import {LightLeak} from '@remotion/light-leaks';
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, useVideoConfig} from 'remotion';
 
 interface Props {
 	readonly seed: number;
@@ -8,9 +8,14 @@ interface Props {
 }
 
 export const LightLeakDemoComp: React.FC<Props> = ({seed, hueShift}) => {
+	const {durationInFrames} = useVideoConfig();
 	return (
 		<AbsoluteFill style={{backgroundColor: 'black'}}>
-			<LightLeak seed={seed} hueShift={hueShift} />
+			<LightLeak
+				seed={seed}
+				hueShift={hueShift}
+				durationInFrames={durationInFrames}
+			/>
 		</AbsoluteFill>
 	);
 };

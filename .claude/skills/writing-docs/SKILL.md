@@ -118,6 +118,22 @@ For section headings:
 ## Saving to another cloud<AvailableFrom v="3.2.23" />
 ```
 
+### CompatibilityTable
+
+Use to indicate which runtimes and environments a component or API supports. No import needed. Place it in a `## Compatibility` section before `## See also`.
+
+Available boolean props: `chrome`, `firefox`, `safari`, `player`, `studio`, `clientSideRendering`, `serverSideRendering`. Set to `true` (supported) or `{false}` (not supported).
+
+Set to empty string `""` for not applicable: `nodejs=""`, `bun=""`, `serverlessFunctions=""`.
+
+Use `hideServers` to hide the Node.js/Bun/serverless row.
+
+```md
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+```
+
 ### Optional parameters
 
 For optional parameters in API documentation:
