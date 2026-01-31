@@ -201,7 +201,8 @@ const LightLeakCanvas: React.FC<{
 			hueShiftLoc,
 		} = ctx;
 
-		const normalized = durationInFrames <= 1 ? 0 : frame / (durationInFrames - 1);
+		const normalized =
+			durationInFrames <= 1 ? 0 : frame / (durationInFrames - 1);
 		const evolveProgress = Math.min(1, normalized * 2);
 		const retractProgress = Math.max(0, normalized * 2 - 1);
 
