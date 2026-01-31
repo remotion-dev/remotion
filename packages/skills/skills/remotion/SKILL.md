@@ -32,6 +32,7 @@ Read individual rule files for detailed explanations and code examples:
 - [rules/get-video-duration.md](rules/get-video-duration.md) - Getting the duration of a video file in seconds with Mediabunny
 - [rules/gifs.md](rules/gifs.md) - Displaying GIFs synchronized with Remotion's timeline
 - [rules/images.md](rules/images.md) - Embedding images in Remotion using the Img component
+- [rules/light-leaks.md](rules/light-leaks.md) - Light leak overlay effects using @remotion/light-leaks
 - [rules/lottie.md](rules/lottie.md) - Embedding Lottie animations in Remotion
 - [rules/measuring-dom-nodes.md](rules/measuring-dom-nodes.md) - Measuring DOM element dimensions in Remotion
 - [rules/measuring-text.md](rules/measuring-text.md) - Measuring text dimensions, fitting text to containers, and checking overflow

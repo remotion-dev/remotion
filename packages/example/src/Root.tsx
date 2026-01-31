@@ -151,6 +151,12 @@ import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
+import {
+	OverlayAndTransitionMixed,
+	OverlayBasic,
+	OverlayMultipleScenes,
+	OverlayWithOffset,
+} from './TransitionSeriesOverlay';
 import {TriangleComp} from './Triangle';
 import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
@@ -1830,6 +1836,40 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={120}
+				/>
+			</Folder>
+			<Folder name="transition-series-overlay">
+				<Composition
+					id="overlay-basic"
+					component={OverlayBasic}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="overlay-with-offset"
+					component={OverlayWithOffset}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="overlay-multiple-scenes"
+					component={OverlayMultipleScenes}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={180}
+				/>
+				<Composition
+					id="overlay-and-transition-mixed"
+					component={OverlayAndTransitionMixed}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={165}
 				/>
 			</Folder>
 			<ChangingTrimBeforeValue />
