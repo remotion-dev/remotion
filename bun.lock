@@ -393,6 +393,7 @@
         "@remotion/lambda-client": "workspace:*",
         "@remotion/layout-utils": "workspace:*",
         "@remotion/licensing": "workspace:*",
+        "@remotion/light-leaks": "workspace:*",
         "@remotion/lottie": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/media-parser": "workspace:*",

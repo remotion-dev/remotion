@@ -2,10 +2,15 @@ import {LightLeak} from '@remotion/light-leaks';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
-export const LightLeakExample: React.FC = () => {
+interface Props {
+	readonly seed: number;
+	readonly hueShift: number;
+}
+
+export const LightLeakDemoComp: React.FC<Props> = ({seed, hueShift}) => {
 	return (
 		<AbsoluteFill style={{backgroundColor: 'black'}}>
-			<LightLeak durationInFrames={60} seed={3} hueShift={30} />
+			<LightLeak seed={seed} hueShift={hueShift} />
 		</AbsoluteFill>
 	);
 };

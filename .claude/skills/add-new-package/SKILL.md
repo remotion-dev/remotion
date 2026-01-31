@@ -18,16 +18,19 @@
    - `packages/studio-shared/src/package-info.ts` — add to `packages`, `descriptions`, `installableMap`, `apiDocs`
 
 3. **Documentation (`packages/docs/docs/<name>/`):**
+   - Add `"@remotion/<name>": "workspace:*"` to `packages/docs/package.json` dependencies (needed for twoslash snippets)
    - `index.mdx` — install tabs, table of contents, license
    - `table-of-contents.tsx` — TOCItem grid linking to component/function pages
    - Individual component/function `.mdx` pages
    - Edit `packages/docs/sidebars.ts` — add category
    - Edit `packages/docs/src/data/articles.ts` — add entries alphabetically
+   - Edit `packages/docs/components/TableOfContents/api.tsx` — import table of contents and add section
 
 4. **Example usage:**
    - Add `"@remotion/<name>": "workspace:*"` to `packages/example/package.json`
    - Create `packages/example/src/<Name>/index.tsx`
    - Register `<Composition>` in `packages/example/src/Root.tsx`
+   - Add `{"path": "../<name>"}` to `packages/example/tsconfig.json` references
 
 5. **Run `bun i`** to install dependencies
 

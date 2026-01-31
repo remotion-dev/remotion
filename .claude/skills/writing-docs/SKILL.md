@@ -65,6 +65,8 @@ const frame = useCurrentFrame();
 
 ### Adding titles
 
+Always add a `title` to code fences that show example usage:
+
 ````md
 ```ts twoslash title="MyComponent.tsx"
 console.log('Hello');
@@ -100,8 +102,14 @@ Demos must be implemented in `packages/docs/components/demos/index.tsx`. See the
 
 Use to indicate when a feature or parameter was added. No import needed - it's globally available.
 
+**For page-level version indicators**, use an `# h1` heading with `<AvailableFrom>` inline so it appears next to the title (not below it). Use `&lt;` and `&gt;` to escape angle brackets in component names:
+
 ```md
-## myFunction()<AvailableFrom v="4.0.123" />
+# &lt;MyComponent&gt;<AvailableFrom v="4.0.123" />
+```
+
+```md
+# @remotion/my-package<AvailableFrom v="4.0.123" />
 ```
 
 For section headings:
