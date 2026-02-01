@@ -1,5 +1,5 @@
 import {Button, Card} from '@remotion/design';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {CardLikeButton} from './CardLikeButton';
 import {REMOTION_PRO_ORIGIN} from './config';
 import {Page} from './Page';
@@ -10,10 +10,32 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 	submission,
 }) => {
 	const [hovered, setHovered] = useState(false);
+	const [inView, setInView] = useState(false);
+	const cardRef = useRef<HTMLAnchorElement>(null);
 	const avatarUrl = getAvatarUrl(submission);
+
+	useEffect(() => {
+		const el = cardRef.current;
+		if (!el) return;
+
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				setInView(entry.isIntersecting);
+			},
+			{rootMargin: '-30% 0px -30% 0px'},
+		);
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, []);
+
+	const isTouchDevice =
+		typeof window !== 'undefined' &&
+		window.matchMedia('(hover: none)').matches;
+	const showGif = hovered || (isTouchDevice && inView);
 
 	return (
 		<a
+			ref={cardRef}
 			href={`/prompts/show?prompt=${submission.slug}`}
 			className="block no-underline hover:no-underline"
 			onMouseEnter={() => setHovered(true)}
@@ -22,7 +44,7 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 			<Card className="overflow-hidden hover:shadow-md transition-shadow">
 				<img
 					src={
-						hovered
+						showGif
 							? `https://image.mux.com/${submission.muxPlaybackId}/animated.gif?width=400&height=225&fit_mode=smartcrop`
 							: `https://image.mux.com/${submission.muxPlaybackId}/thumbnail.png?width=400&height=225&fit_mode=smartcrop`
 					}
