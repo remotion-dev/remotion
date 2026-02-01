@@ -79,6 +79,7 @@ const PromptSubmit: React.FC = () => {
 								`Failed to fetch upload status: ${statusRes.status}`,
 							);
 						}
+
 						const data = await statusRes.json();
 
 						if (
@@ -94,6 +95,7 @@ const PromptSubmit: React.FC = () => {
 							});
 						}
 					} catch (error) {
+						// eslint-disable-next-line no-console
 						console.error('Error while polling upload status', error);
 						// keep polling
 					}
@@ -196,8 +198,9 @@ const PromptSubmit: React.FC = () => {
 							.
 						</div>
 						<div className="mt-4 text-muted-foreground font-brand">
-							Note that this showcase is curated - we may reject submissions
-							if they are repetitive or not up to our quality standards. In that
+							{' '}
+							if e that this showcase is curated - we may reject submissions if
+							they are repetitive or not up to our quality standards. In that
 							case, we will not give notification or reason.
 						</div>
 						<Button

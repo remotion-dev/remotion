@@ -77,6 +77,7 @@ const PromptsGallery: React.FC = () => {
 					`Failed to fetch prompts: ${res.status} ${res.statusText}`,
 				);
 			}
+
 			const data = await res.json();
 			setSubmissions((prev) =>
 				cursor ? [...prev, ...data.items] : data.items,
