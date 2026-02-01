@@ -42,15 +42,17 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 			onMouseLeave={() => setHovered(false)}
 		>
 			<Card className="overflow-hidden hover:shadow-md transition-shadow">
-				<img
-					src={
-						showGif
-							? `https://image.mux.com/${submission.muxPlaybackId}/animated.gif?width=400&height=225&fit_mode=smartcrop`
-							: `https://image.mux.com/${submission.muxPlaybackId}/thumbnail.png?width=400&height=225&fit_mode=smartcrop`
-					}
-					className="w-full aspect-video object-cover"
-					alt={submission.title}
-				/>
+				<div className="w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
+					<img
+						src={
+							showGif
+								? `https://image.mux.com/${submission.muxPlaybackId}/animated.gif?height=225&fit_mode=smartcrop`
+								: `https://image.mux.com/${submission.muxPlaybackId}/thumbnail.png?width=400&height=225&fit_mode=smartcrop`
+						}
+						className={showGif ? 'h-full' : 'w-full h-full object-cover'}
+						alt={submission.title}
+					/>
+				</div>
 				<div className="p-4">
 					<h3 className="font-brand font-bold text-lg truncate">
 						{submission.title}
