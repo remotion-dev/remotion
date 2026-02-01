@@ -55,7 +55,7 @@ export const Templates: React.FC = () => {
 							>
 								<Button
 									depth={0.5}
-									className="items-start justify-start text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full items-start"
+									className="justify-start text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full items-start"
 								>
 									<Item
 										label={template.homePageLabel}

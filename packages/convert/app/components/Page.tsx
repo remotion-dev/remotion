@@ -6,10 +6,14 @@ export const pageRef = React.createRef<HTMLDivElement>();
 export const Page: React.FC<{
 	readonly children: React.ReactNode;
 	readonly className?: string;
-}> = ({children, className}) => {
+	readonly onDrop?: React.DragEventHandler<HTMLDivElement>;
+	readonly onDragOver?: React.DragEventHandler<HTMLDivElement>;
+}> = ({children, className, onDrop, onDragOver}) => {
 	return (
 		<div
 			ref={pageRef}
+			onDrop={onDrop}
+			onDragOver={onDragOver}
 			className={clsx(
 				'overflow-y-auto w-full bg-slate-50 min-h-screen',
 				className,

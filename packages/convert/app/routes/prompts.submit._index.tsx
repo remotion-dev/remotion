@@ -1,12 +1,18 @@
+import {useNavigate} from '@remix-run/react';
+import {
+	Button,
+	Input,
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+	Textarea,
+} from '@remotion/design';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {REMOTION_PRO_ORIGIN} from '~/lib/config';
+import {MuxPlayer} from '~/components/MuxPlayer';
+import {NewBackButton} from '~/components/NewBackButton';
 import {Page} from '~/components/Page';
-import {Button} from '~/components/ui/button';
-import {Card} from '~/components/ui/card';
-import {Input} from '~/components/ui/input';
-import {Label} from '~/components/ui/label';
-import {RadioGroup, RadioGroupItem} from '~/components/ui/radio';
-import {Textarea} from '~/components/ui/textarea';
+import {REMOTION_PRO_ORIGIN} from '~/lib/config';
 
 type UsernameType = 'github' | 'x';
 
@@ -24,9 +30,10 @@ type SubmitStatus =
 	| {type: 'error'; err: Error};
 
 const PromptSubmit: React.FC = () => {
+	const navigate = useNavigate();
 	const [title, setTitle] = useState('');
 	const [prompt, setPrompt] = useState('');
-	const [usernameType, setUsernameType] = useState<UsernameType | null>(null);
+	const [usernameType, setUsernameType] = useState<UsernameType>('github');
 	const [username, setUsername] = useState('');
 	const [uploadState, setUploadState] = useState<UploadState>({type: 'idle'});
 	const [submitStatus, setSubmitStatus] = useState<SubmitStatus>({
@@ -40,73 +47,90 @@ const PromptSubmit: React.FC = () => {
 		};
 	}, []);
 
-	const onFileSelect = useCallback(
-		async (e: React.ChangeEvent<HTMLInputElement>) => {
-			const file = e.target.files?.[0];
-			if (!file) return;
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-			setUploadState({type: 'uploading', progress: 0});
+	const startUpload = useCallback(async (file: File) => {
+		setUploadState({type: 'uploading', progress: 0});
 
-			try {
-				const res = await fetch(
-					`${REMOTION_PRO_ORIGIN}/api/prompts/upload`,
-					{
-						method: 'POST',
-						headers: {'content-type': 'application/json'},
-					},
-				);
-				const {id, url} = await res.json();
+		try {
+			const res = await fetch(`${REMOTION_PRO_ORIGIN}/api/prompts/upload`, {
+				method: 'POST',
+				headers: {'content-type': 'application/json'},
+			});
+			const {id, url} = await res.json();
 
-				const {createUpload} = await import('@mux/upchunk');
-				const upload = createUpload({endpoint: url, file});
+			const {createUpload} = await import('@mux/upchunk');
+			const upload = createUpload({endpoint: url, file});
 
-				upload.on('progress', (p: {detail: number}) => {
-					setUploadState({type: 'uploading', progress: p.detail});
-				});
+			upload.on('progress', (p: {detail: number}) => {
+				setUploadState({type: 'uploading', progress: p.detail});
+			});
 
-				upload.on('success', () => {
-					setUploadState({type: 'processing'});
+			upload.on('success', () => {
+				setUploadState({type: 'processing'});
 
-					pollRef.current = setInterval(async () => {
-						try {
-							const statusRes = await fetch(
-								`${REMOTION_PRO_ORIGIN}/api/prompts/upload/${id}`,
-							);
-							const data = await statusRes.json();
+				pollRef.current = setInterval(async () => {
+					try {
+						const statusRes = await fetch(
+							`${REMOTION_PRO_ORIGIN}/api/prompts/upload/${id}`,
+						);
+						const data = await statusRes.json();
 
-							if (
-								data.status === 'asset_created' &&
-								data.playback_id &&
-								data.asset_status === 'ready'
-							) {
-								if (pollRef.current) clearInterval(pollRef.current);
-								setUploadState({
-									type: 'ready',
-									muxAssetId: data.asset_id,
-									muxPlaybackId: data.playback_id,
-								});
-							}
-						} catch {
-							// keep polling
+						if (
+							data.status === 'asset_created' &&
+							data.playback_id &&
+							data.asset_status === 'ready'
+						) {
+							if (pollRef.current) clearInterval(pollRef.current);
+							setUploadState({
+								type: 'ready',
+								muxAssetId: data.asset_id,
+								muxPlaybackId: data.playback_id,
+							});
 						}
-					}, 2000);
-				});
+					} catch {
+						// keep polling
+					}
+				}, 2000);
+			});
 
-				upload.on('error', (err: {detail: {message: string}}) => {
-					setUploadState({
-						type: 'error',
-						message: err.detail.message,
-					});
-				});
-			} catch (err) {
+			upload.on('error', (err: {detail: {message: string}}) => {
 				setUploadState({
 					type: 'error',
-					message: err instanceof Error ? err.message : 'Upload failed',
+					message: err.detail.message,
 				});
-			}
+			});
+		} catch (err) {
+			setUploadState({
+				type: 'error',
+				message: err instanceof Error ? err.message : 'Upload failed',
+			});
+		}
+	}, []);
+
+	const onFileSelect = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			const file = e.target.files?.[0];
+			if (!file) return;
+			startUpload(file);
 		},
-		[],
+		[startUpload],
 	);
+
+	const onPageDrop: React.DragEventHandler = useCallback(
+		(e) => {
+			e.preventDefault();
+			if (uploadState.type !== 'idle') return;
+			const file = e.dataTransfer?.files?.[0];
+			if (!file) return;
+			startUpload(file);
+		},
+		[startUpload, uploadState.type],
+	);
+
+	const onPageDragOver: React.DragEventHandler = useCallback((e) => {
+		e.preventDefault();
+	}, []);
 
 	const submitPossible =
 		title.length > 0 &&
@@ -123,22 +147,18 @@ const PromptSubmit: React.FC = () => {
 		setSubmitStatus({type: 'submitting'});
 
 		try {
-			const res = await fetch(
-				`${REMOTION_PRO_ORIGIN}/api/prompts/submit`,
-				{
-					method: 'POST',
-					headers: {'content-type': 'application/json'},
-					body: JSON.stringify({
-						muxAssetId: uploadState.muxAssetId,
-						muxPlaybackId: uploadState.muxPlaybackId,
-						title,
-						prompt,
-						githubUsername:
-							usernameType === 'github' ? username : undefined,
-						xUsername: usernameType === 'x' ? username : undefined,
-					}),
-				},
-			);
+			const res = await fetch(`${REMOTION_PRO_ORIGIN}/api/prompts/submit`, {
+				method: 'POST',
+				headers: {'content-type': 'application/json'},
+				body: JSON.stringify({
+					muxAssetId: uploadState.muxAssetId,
+					muxPlaybackId: uploadState.muxPlaybackId,
+					title,
+					prompt,
+					githubUsername: usernameType === 'github' ? username : undefined,
+					xUsername: usernameType === 'x' ? username : undefined,
+				}),
+			});
 
 			if (!res.ok) {
 				const data = await res.json();
@@ -156,40 +176,51 @@ const PromptSubmit: React.FC = () => {
 		return (
 			<Page className="flex-col">
 				<div className="m-auto max-w-[800px] w-full">
-					<Card className="mx-4 px-8 py-8 mt-12 pt-8">
+					<div className="mx-4 px-8 py-8 mt-12 pt-8">
 						<h1 className="text-3xl font-brand font-black">
 							Submission received!
 						</h1>
-						<p className="mt-4 text-muted-foreground">
-							Your prompt submission is pending review. Once approved, it will
-							appear on the{' '}
+						<div className="mt-4 text-muted-foreground font-brand">
+							Thanks for submitting your prompt! Your prompt submission is
+							pending review.
+							<br /> Once approved, it will appear on the{' '}
 							<a href="/prompts" className="underline">
 								prompts gallery
 							</a>
 							.
-						</p>
-					</Card>
+						</div>
+						<div className="mt-4 text-muted-foreground font-brand">
+							Note that this our showcase is curated - we may reject submissions
+							if they are repetitive or not up to our quality standards. In that
+							case, we will not give notification or reason.
+						</div>
+						<Button
+							onClick={() => navigate('/prompts')}
+							className="font-brand rounded-full mt-4"
+						>
+							Back to gallery
+						</Button>
+					</div>
 				</div>
 			</Page>
 		);
 	}
 
 	return (
-		<Page className="flex-col">
+		<Page className="flex-col" onDrop={onPageDrop} onDragOver={onPageDragOver}>
 			<div className="m-auto max-w-[800px] w-full">
-				<Card className="mx-4 px-8 py-8 mt-12 pt-8">
-					<h1 className="text-3xl font-brand font-black">
-						Submit a prompt
-					</h1>
-
+				<div className="mx-4 px-8 py-8 mt-12 pt-8">
+					<NewBackButton color="black" text="Back to gallery" link="/prompts" />
+					<div className="h-10" />
+					<h1 className="text-3xl font-brand font-black">Submit a prompt</h1>
 					<h2 className="font-brand mt-5 font-bold">Title *</h2>
 					<p className="text-muted-foreground text-sm">
 						A short title for your prompt (max 80 characters).
 					</p>
 					<Input
 						name="title"
-						className="mt-3"
-						placeholder="My cool Remotion prompt"
+						placeholder="Newspaper highlighting animation"
+						className="font-brand mt-3"
 						value={title}
 						maxLength={80}
 						onChange={(e) => setTitle(e.target.value)}
@@ -200,46 +231,45 @@ const PromptSubmit: React.FC = () => {
 
 					<h2 className="font-brand mt-5 font-bold">Video *</h2>
 					<p className="text-muted-foreground text-sm">
-						Upload a video showing the result of your prompt.
+						Upload a video showing the result of your prompt. You can also drop
+						a file anywhere on this page.
 					</p>
-					<div className="relative overflow-hidden flex h-40 border-black rounded-md mt-3 justify-center items-center border-solid border-2">
+					<input
+						ref={fileInputRef}
+						type="file"
+						accept="video/*"
+						onChange={onFileSelect}
+						className="hidden"
+					/>
+					<div className="flex flex-col items-center py-12">
 						{uploadState.type === 'idle' && (
-							<>
-								<input
-									type="file"
-									accept="video/*"
-									onChange={onFileSelect}
-									className="appearance-none w-full h-full cursor-pointer opacity-0"
-								/>
-								<div className="pointer-events-none inset-0 absolute flex items-center justify-center">
-									<div className="text-muted-foreground font-medium text-sm">
-										Drag a video or click here
-									</div>
-								</div>
-							</>
+							<Button
+								className="font-brand rounded-full"
+								onClick={() => fileInputRef.current?.click()}
+							>
+								Choose video file
+							</Button>
 						)}
 						{uploadState.type === 'uploading' && (
-							<div className="text-muted-foreground font-medium text-sm">
+							<div className="text-muted-foreground font-brand font-medium text-sm">
 								Uploading {Math.round(uploadState.progress)}%
 							</div>
 						)}
 						{uploadState.type === 'processing' && (
-							<div className="text-muted-foreground font-medium text-sm">
+							<div className="text-muted-foreground font-brand font-medium text-sm">
 								Processing video...
 							</div>
 						)}
 						{uploadState.type === 'ready' && (
-							<div className="text-muted-foreground font-medium text-sm flex flex-col items-center gap-2">
-								<img
-									src={`https://image.mux.com/${uploadState.muxPlaybackId}/thumbnail.png?width=240`}
-									className="rounded"
-									alt="Video thumbnail"
+							<div className="w-full">
+								<MuxPlayer
+									playbackId={uploadState.muxPlaybackId}
+									title={title || 'Preview'}
 								/>
-								Video ready
 							</div>
 						)}
 						{uploadState.type === 'error' && (
-							<div className="text-red-500 font-medium text-sm">
+							<div className="text-red-500 font-brand font-medium text-sm">
 								{uploadState.message}
 							</div>
 						)}
@@ -251,7 +281,7 @@ const PromptSubmit: React.FC = () => {
 					</p>
 					<Textarea
 						name="prompt"
-						className="mt-3"
+						className="font-brand mt-3"
 						placeholder="Enter your full prompt here"
 						value={prompt}
 						onChange={(e) => setPrompt(e.target.value)}
@@ -260,50 +290,44 @@ const PromptSubmit: React.FC = () => {
 					<h2 className="font-brand mt-5 font-bold">
 						How should we credit you? *
 					</h2>
-					<RadioGroup
-						name="usernameType"
+					<Tabs
+						defaultValue="github"
 						className="mt-3"
-						onValueChange={(e: string) =>
-							setUsernameType(e as UsernameType)
-						}
+						onValueChange={(value: string) => {
+							setUsernameType(value as UsernameType);
+							setUsername('');
+						}}
 					>
-						<div className="flex items-center space-x-2">
-							<RadioGroupItem
-								checked={usernameType === 'github'}
-								value="github"
-								id="github"
+						<TabsList>
+							<TabsTrigger value="github">GitHub</TabsTrigger>
+							<TabsTrigger value="x">X (Twitter)</TabsTrigger>
+						</TabsList>
+						<TabsContent value="github">
+							<Input
+								name="username"
+								className="font-brand"
+								placeholder="Your GitHub username"
+								value={usernameType === 'github' ? username : ''}
+								onChange={(e) => setUsername(e.target.value)}
 							/>
-							<Label htmlFor="github">GitHub username</Label>
-						</div>
-						<div className="flex items-center space-x-2">
-							<RadioGroupItem
-								checked={usernameType === 'x'}
-								value="x"
-								id="x"
+						</TabsContent>
+						<TabsContent value="x">
+							<Input
+								name="username"
+								className="font-brand"
+								placeholder="Your X username (without @)"
+								value={usernameType === 'x' ? username : ''}
+								onChange={(e) => setUsername(e.target.value)}
 							/>
-							<Label htmlFor="x">X (Twitter) username</Label>
-						</div>
-					</RadioGroup>
-
-					{usernameType && (
-						<Input
-							name="username"
-							className="mt-3"
-							placeholder={
-								usernameType === 'github'
-									? 'Your GitHub username'
-									: 'Your X username (without @)'
-							}
-							value={username}
-							onChange={(e) => setUsername(e.target.value)}
-						/>
-					)}
+						</TabsContent>
+					</Tabs>
 
 					<div className="h-8" />
 					<Button
 						onClick={submit}
 						disabled={!submitPossible}
 						type="submit"
+						className="font-brand rounded-full w-full bg-brand text-white"
 					>
 						Submit
 					</Button>
@@ -312,7 +336,7 @@ const PromptSubmit: React.FC = () => {
 							An error occurred: {submitStatus.err.message}
 						</p>
 					)}
-				</Card>
+				</div>
 			</div>
 		</Page>
 	);
