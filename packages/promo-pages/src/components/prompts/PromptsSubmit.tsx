@@ -296,9 +296,10 @@ export const PromptsSubmitPage: React.FC = () => {
 						)}
 					</div>
 
-					<h2 className="font-brand mt-5 font-bold">Prompt *</h2>
+					<h2 className="font-brand mt-5 font-bold">Prompt(s) *</h2>
 					<p className="text-muted-foreground text-sm mb-0 font-brand">
-						The prompt you used to generate this video.
+						The prompts you used to generate this video. Separate multiple
+						prompts with an empty line.
 					</p>
 					<Textarea
 						name="prompt"
