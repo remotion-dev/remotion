@@ -22,6 +22,7 @@ export const MuxPlayer: React.FC<{
 	const onProviderChange = useCallback(
 		(provider: MediaProviderAdapter | null, _e: MediaProviderChangeEvent) => {
 			if (isHLSProvider(provider)) {
+				// @ts-expect-error - hls.js is not typed
 				provider.library = () => import('hls.js');
 			}
 		},

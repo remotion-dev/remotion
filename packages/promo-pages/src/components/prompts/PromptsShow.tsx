@@ -9,11 +9,11 @@ import {getAuthorName, getAvatarUrl, getRelativeTime} from './prompt-helpers';
 import type {Submission} from './prompt-types';
 
 export const PromptsShowPage: React.FC = () => {
-	const slug = new URLSearchParams(window.location.search).get('prompt');
 	const [submission, setSubmission] = useState<Submission | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
+		const slug = new URLSearchParams(window.location.search).get('prompt');
 		if (!slug) {
 			setError('No prompt specified');
 			return;
@@ -33,7 +33,7 @@ export const PromptsShowPage: React.FC = () => {
 				setError('Failed to load submission');
 			}
 		})();
-	}, [slug]);
+	}, []);
 
 	if (error) {
 		return (
