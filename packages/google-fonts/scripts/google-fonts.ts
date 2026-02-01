@@ -17677,26 +17677,26 @@ export const googleFonts: Font[] = [
 	{
 		family: 'Kedebideri',
 		variants: ['regular', '500', '600', '700', '800', '900'],
-		subsets: ['latin'],
-		version: 'v2',
-		lastModified: '2025-11-20',
+		subsets: ['beria-erfe', 'latin'],
+		version: 'v6',
+		lastModified: '2026-01-29',
 		files: {
 			'500':
-				'https://fonts.gstatic.com/s/kedebideri/v2/t5tmIR0UPo6ZGAykNh_etFLr7TzFrpOHYh4.woff2',
+				'https://fonts.gstatic.com/s/kedebideri/v6/t5tmIR0UPo6ZGAykNh_etFLr7TzFrpOHYh4.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/kedebideri/v2/t5tmIR0UPo6ZGAykNh_etH7s7TzFrpOHYh4.woff2',
+				'https://fonts.gstatic.com/s/kedebideri/v6/t5tmIR0UPo6ZGAykNh_etH7s7TzFrpOHYh4.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/kedebideri/v2/t5tmIR0UPo6ZGAykNh_etBrt7TzFrpOHYh4.woff2',
+				'https://fonts.gstatic.com/s/kedebideri/v6/t5tmIR0UPo6ZGAykNh_etBrt7TzFrpOHYh4.woff2',
 			'800':
-				'https://fonts.gstatic.com/s/kedebideri/v2/t5tmIR0UPo6ZGAykNh_etAbu7TzFrpOHYh4.woff2',
+				'https://fonts.gstatic.com/s/kedebideri/v6/t5tmIR0UPo6ZGAykNh_etAbu7TzFrpOHYh4.woff2',
 			'900':
-				'https://fonts.gstatic.com/s/kedebideri/v2/t5tmIR0UPo6ZGAykNh_etCLv7TzFrpOHYh4.woff2',
+				'https://fonts.gstatic.com/s/kedebideri/v6/t5tmIR0UPo6ZGAykNh_etCLv7TzFrpOHYh4.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/kedebideri/v2/t5tlIR0UPo6ZGAykNh_ejKPCyTHuspo.woff2',
+				'https://fonts.gstatic.com/s/kedebideri/v6/t5tlIR0UPo6ZGAykNh_ejKPCyTHuspo.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/kedebideri/v2/t5tlIR0UPo6ZGAykNh_evKfIyA.woff2',
+		menu: 'https://fonts.gstatic.com/s/kedebideri/v6/t5tlIR0UPo6ZGAykNh_evKfIyA.woff2',
 	},
 	{
 		family: 'Kelly Slab',
