@@ -161,8 +161,8 @@ const PromptSubmit: React.FC = () => {
 			});
 
 			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.error || 'Submission failed');
+				const submissionData = await res.json();
+				throw new Error(submissionData.error || 'Submission failed');
 			}
 
 			const data = await res.json();
