@@ -42,7 +42,7 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 									width={20}
 									height={20}
 									className="rounded-full"
-									alt=""
+									alt={`${getAuthorName(submission)}'s avatar`}
 								/>
 							)}
 							<span className="text-sm font-brand text-black">
