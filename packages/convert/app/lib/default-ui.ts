@@ -61,14 +61,6 @@ export const defaultRotateOrMirorState = (
 		return null;
 	}
 
-	if (action.type === 'prompt-showcase') {
-		return null;
-	}
-
-	if (action.type === 'prompt-showcase-detail') {
-		return null;
-	}
-
 	throw new Error(
 		'Rotate is not enabled by default ' + (action satisfies never),
 	);
@@ -128,14 +120,6 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	}
 
 	if (action.type === 'timing-editor') {
-		return true;
-	}
-
-	if (action.type === 'prompt-showcase') {
-		return true;
-	}
-
-	if (action.type === 'prompt-showcase-detail') {
 		return true;
 	}
 
@@ -215,9 +199,7 @@ export const getOrderOfSections = (
 		action.type === 'resize-format' ||
 		action.type === 'report' ||
 		action.type === 'transcribe' ||
-		action.type === 'timing-editor' ||
-		action.type === 'prompt-showcase' ||
-		action.type === 'prompt-showcase-detail'
+		action.type === 'timing-editor'
 	) {
 		return {
 			resize: 0,
