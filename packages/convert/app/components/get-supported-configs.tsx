@@ -82,6 +82,14 @@ const shouldPrioritizeVideoCopyOverReencode = (routeAction: RouteAction) => {
 		return true;
 	}
 
+	if (routeAction.type === 'prompt-showcase') {
+		return false;
+	}
+
+	if (routeAction.type === 'prompt-showcase-detail') {
+		return false;
+	}
+
 	throw new Error('Unsupported route action' + (routeAction satisfies never));
 };
 
