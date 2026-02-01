@@ -59,7 +59,11 @@ export const CardLikeButton: React.FC<{
 	);
 
 	return (
-		<button onClick={onClick} className="flex items-center bg-transparent border-none cursor-pointer p-0" type="button">
+		<button
+			onClick={onClick}
+			className="flex items-center bg-transparent border-none cursor-pointer p-0"
+			type="button"
+		>
 			<Heart
 				height={16}
 				fill={liked ? 'var(--color-brand)' : 'none'}
@@ -68,7 +72,11 @@ export const CardLikeButton: React.FC<{
 				bottomRoundnessAdjustment={roundness}
 				style={{transform: `scale(${scale})`, marginTop: 2}}
 			/>
-			<span className="font-brand font-medium" style={{marginLeft: 8, flex: 1}}>
+			<span
+				className="font-brand font-medium data-[liked=true]:text-brand data-[liked=false]:text-black"
+				data-liked={liked}
+				style={{marginLeft: 8, flex: 1}}
+			>
 				{formatLikeCount(likeCount)}
 			</span>
 		</button>
