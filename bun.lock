@@ -1096,6 +1096,7 @@
       "name": "@remotion/promo-pages",
       "version": "4.0.414",
       "dependencies": {
+        "@mux/upchunk": "^3.5.0",
         "@remotion/animated-emoji": "workspace:*",
         "@remotion/design": "workspace:*",
         "@remotion/lottie": "workspace:*",
@@ -1105,6 +1106,7 @@
         "@remotion/shapes": "workspace:*",
         "@remotion/svg-3d-engine": "workspace:*",
         "@remotion/web-renderer": "workspace:*",
+        "@vidstack/react": "1.12.13",
         "bun-plugin-tailwind": "0.1.2",
         "create-video": "workspace:*",
         "hls.js": "1.5.19",

@@ -1,4 +1,3 @@
-import {useNavigate} from '@remix-run/react';
 import {
 	Button,
 	Input,
@@ -9,10 +8,10 @@ import {
 	Textarea,
 } from '@remotion/design';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {MuxPlayer} from '~/components/MuxPlayer';
-import {NewBackButton} from '~/components/NewBackButton';
-import {Page} from '~/components/Page';
-import {REMOTION_PRO_ORIGIN} from '~/lib/config';
+import {REMOTION_PRO_ORIGIN} from './config';
+import {MuxPlayer} from './MuxPlayer';
+import {NewBackButton} from './NewBackButton';
+import {Page} from './Page';
 
 type UsernameType = 'github' | 'x';
 
@@ -29,8 +28,7 @@ type SubmitStatus =
 	| {type: 'done'; slug: string}
 	| {type: 'error'; err: Error};
 
-const PromptSubmit: React.FC = () => {
-	const navigate = useNavigate();
+export const PromptsSubmitPage: React.FC = () => {
 	const [title, setTitle] = useState('');
 	const [prompt, setPrompt] = useState('');
 	const [usernameType, setUsernameType] = useState<UsernameType>('github');
@@ -204,7 +202,9 @@ const PromptSubmit: React.FC = () => {
 							case, we will not give notification or reason.
 						</div>
 						<Button
-							onClick={() => navigate('/prompts')}
+							onClick={() => {
+								window.location.href = '/prompts';
+							}}
 							className="font-brand rounded-full mt-4"
 						>
 							Back to gallery
@@ -350,5 +350,3 @@ const PromptSubmit: React.FC = () => {
 		</Page>
 	);
 };
-
-export default PromptSubmit;

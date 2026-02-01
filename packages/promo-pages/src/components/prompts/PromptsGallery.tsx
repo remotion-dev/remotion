@@ -1,11 +1,10 @@
-import {Button} from '@remotion/design';
+import {Button, Card} from '@remotion/design';
 import React, {useCallback, useEffect, useState} from 'react';
-import {CardLikeButton} from '~/components/CardLikeButton';
-import {Page} from '~/components/Page';
-import {Card} from '~/components/ui/card';
-import {REMOTION_PRO_ORIGIN} from '~/lib/config';
-import {getAuthorName, getAvatarUrl} from '~/lib/prompt-helpers';
-import type {Submission} from '~/lib/prompt-types';
+import {CardLikeButton} from './CardLikeButton';
+import {REMOTION_PRO_ORIGIN} from './config';
+import {Page} from './Page';
+import {getAuthorName, getAvatarUrl} from './prompt-helpers';
+import type {Submission} from './prompt-types';
 
 const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 	submission,
@@ -16,7 +15,7 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 	return (
 		<a
 			href={`/prompts/show?prompt=${submission.slug}`}
-			className="block"
+			className="block no-underline hover:no-underline"
 			onMouseEnter={() => setHovered(true)}
 			onMouseLeave={() => setHovered(false)}
 		>
@@ -60,7 +59,7 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 	);
 };
 
-const PromptsGallery: React.FC = () => {
+export const PromptsGalleryPage: React.FC = () => {
 	const [submissions, setSubmissions] = useState<Submission[]>([]);
 	const [nextCursor, setNextCursor] = useState<string | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -109,7 +108,10 @@ const PromptsGallery: React.FC = () => {
 						gallery for inspiration!
 					</p>
 				</div>
-				<a href="/prompts/submit" className="flex items-center gap-2">
+				<a
+					href="/prompts/submit"
+					className="flex items-center gap-2 no-underline hover:no-underline"
+				>
 					<Button className="font-brand rounded-full bg-[#D97757] flex items-center text-white">
 						<svg
 							width="20"
@@ -148,5 +150,3 @@ const PromptsGallery: React.FC = () => {
 		</Page>
 	);
 };
-
-export default PromptsGallery;
