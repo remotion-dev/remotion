@@ -107,6 +107,14 @@ extraPages.push({
 	type: 'timing-editor',
 });
 
+extraPages.push({
+	type: 'prompt-showcase',
+});
+
+extraPages.push({
+	type: 'prompt-showcase-detail',
+});
+
 for (const page of extraPages) {
 	const slug = seo.makeSlug(page);
 	const pageTitle = seo.getPageTitle(page);

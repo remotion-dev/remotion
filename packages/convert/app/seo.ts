@@ -78,6 +78,12 @@ export type RouteAction =
 	  }
 	| {
 			type: 'timing-editor';
+	  }
+	| {
+			type: 'prompt-showcase';
+	  }
+	| {
+			type: 'prompt-showcase-detail';
 	  };
 
 export const getHeaderTitle = (routeAction: RouteAction) => {
@@ -135,6 +141,14 @@ export const getHeaderTitle = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'crop-format') {
 		return `Fast ${renderHumanReadableContainer(routeAction.format)} cropping in the browser`;
+	}
+
+	if (routeAction.type === 'prompt-showcase') {
+		return 'Prompt Gallery';
+	}
+
+	if (routeAction.type === 'prompt-showcase-detail') {
+		return 'Prompt Gallery';
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
@@ -195,6 +209,14 @@ export const getPageTitle = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'crop-format') {
 		return `Online ${renderHumanReadableContainer(routeAction.format)} Cropper - Remotion Convert`;
+	}
+
+	if (routeAction.type === 'prompt-showcase') {
+		return 'Prompt Gallery - Remotion';
+	}
+
+	if (routeAction.type === 'prompt-showcase-detail') {
+		return 'Prompt Gallery - Remotion';
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
@@ -263,6 +285,14 @@ export const getDescription = (routeAction: RouteAction) => {
 		return `The fastest online ${renderHumanReadableContainer(routeAction.format)} cropper, powered by WebCodecs. No upload required, no watermarks, no limits.`;
 	}
 
+	if (routeAction.type === 'prompt-showcase') {
+		return 'Browse AI-generated video prompts created with Remotion Skills. Get inspired and create your own.';
+	}
+
+	if (routeAction.type === 'prompt-showcase-detail') {
+		return 'Browse AI-generated video prompts created with Remotion Skills. Get inspired and create your own.';
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -321,6 +351,14 @@ export const makeSlug = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'crop-format') {
 		return `/crop/${routeAction.format}`;
+	}
+
+	if (routeAction.type === 'prompt-showcase') {
+		return '/prompts';
+	}
+
+	if (routeAction.type === 'prompt-showcase-detail') {
+		return '/prompts/show';
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
