@@ -21,13 +21,21 @@ export const getLikedIds = (): Set<string> => {
 export const saveLikedId = (id: string) => {
 	const liked = getLikedIds();
 	liked.add(id);
-	localStorage.setItem(LIKED_KEY, JSON.stringify([...liked]));
+	try {
+		localStorage.setItem(LIKED_KEY, JSON.stringify([...liked]));
+	} catch {
+		// Ignore storage errors to avoid breaking like functionality
+	}
 };
 
 export const removeLikedId = (id: string) => {
 	const liked = getLikedIds();
 	liked.delete(id);
-	localStorage.setItem(LIKED_KEY, JSON.stringify([...liked]));
+	try {
+		localStorage.setItem(LIKED_KEY, JSON.stringify([...liked]));
+	} catch {
+		// Ignore storage errors to avoid breaking like functionality
+	}
 };
 
 export const getAvatarUrl = (s: Submission): string | null => {

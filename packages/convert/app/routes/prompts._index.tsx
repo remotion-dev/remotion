@@ -72,6 +72,11 @@ const PromptsGallery: React.FC = () => {
 				? `${REMOTION_PRO_ORIGIN}/api/prompts?cursor=${cursor}`
 				: `${REMOTION_PRO_ORIGIN}/api/prompts`;
 			const res = await fetch(url);
+			if (!res.ok) {
+				throw new Error(
+					`Failed to fetch prompts: ${res.status} ${res.statusText}`,
+				);
+			}
 			const data = await res.json();
 			setSubmissions((prev) =>
 				cursor ? [...prev, ...data.items] : data.items,

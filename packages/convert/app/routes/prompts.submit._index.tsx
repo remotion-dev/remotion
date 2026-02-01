@@ -74,6 +74,11 @@ const PromptSubmit: React.FC = () => {
 						const statusRes = await fetch(
 							`${REMOTION_PRO_ORIGIN}/api/prompts/upload/${id}`,
 						);
+						if (!statusRes.ok) {
+							throw new Error(
+								`Failed to fetch upload status: ${statusRes.status}`,
+							);
+						}
 						const data = await statusRes.json();
 
 						if (
@@ -88,7 +93,8 @@ const PromptSubmit: React.FC = () => {
 								muxPlaybackId: data.playback_id,
 							});
 						}
-					} catch {
+					} catch (error) {
+						console.error('Error while polling upload status', error);
 						// keep polling
 					}
 				}, 2000);
@@ -190,7 +196,7 @@ const PromptSubmit: React.FC = () => {
 							.
 						</div>
 						<div className="mt-4 text-muted-foreground font-brand">
-							Note that this our showcase is curated - we may reject submissions
+							Note that this showcase is curated - we may reject submissions
 							if they are repetitive or not up to our quality standards. In that
 							case, we will not give notification or reason.
 						</div>

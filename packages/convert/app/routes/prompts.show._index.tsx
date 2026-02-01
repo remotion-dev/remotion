@@ -96,7 +96,7 @@ const PromptPermalink: React.FC = () => {
 									width={32}
 									height={32}
 									className="rounded-full"
-									alt=""
+									alt={authorName ? `${authorName}'s avatar` : 'Author avatar'}
 								/>
 							)}
 							<div>
