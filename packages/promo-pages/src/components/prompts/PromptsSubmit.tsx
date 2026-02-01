@@ -218,12 +218,25 @@ export const PromptsSubmitPage: React.FC = () => {
 	return (
 		<Page className="flex-col" onDrop={onPageDrop} onDragOver={onPageDragOver}>
 			<div className="m-auto max-w-[800px] w-full">
-				<div className="mx-4 px-8 py-8 mt-12 pt-8">
+				<div className="mx-4 px-8 py-8 pt-8">
 					<NewBackButton color="black" text="Back to gallery" link="/prompts" />
-					<div className="h-10" />
 					<h1 className="text-3xl font-brand font-black">Submit a prompt</h1>
+					<p className="text-muted-foreground text-sm font-brand">
+						Submit a prompt to be featured in the{' '}
+						<a
+							href="/prompts"
+							className="underline hover:text-black underline-offset-4"
+						>
+							prompt gallery.
+						</a>
+					</p>
+					<p className="text-muted-foreground text-sm font-brand">
+						Note that this showcase is curated - we may reject submissions if
+						they are repetitive or not up to our quality standards. In that
+						case, we will not give notification or reason.
+					</p>
 					<h2 className="font-brand mt-5 font-bold">Title *</h2>
-					<p className="text-muted-foreground text-sm">
+					<p className="text-muted-foreground text-sm mb-0 font-brand">
 						A short title for your prompt (max 80 characters).
 					</p>
 					<Input
@@ -234,12 +247,11 @@ export const PromptsSubmitPage: React.FC = () => {
 						maxLength={80}
 						onChange={(e) => setTitle(e.target.value)}
 					/>
-					<p className="text-muted-foreground text-xs mt-1">
+					<p className="text-muted-foreground text-xs mt-1 mb-0 font-brand">
 						{title.length}/80
 					</p>
-
 					<h2 className="font-brand mt-5 font-bold">Video *</h2>
-					<p className="text-muted-foreground text-sm">
+					<p className="text-muted-foreground text-sm mb-0 font-brand">
 						Upload a video showing the result of your prompt. You can also drop
 						a file anywhere on this page.
 					</p>
@@ -285,7 +297,7 @@ export const PromptsSubmitPage: React.FC = () => {
 					</div>
 
 					<h2 className="font-brand mt-5 font-bold">Prompt *</h2>
-					<p className="text-muted-foreground text-sm">
+					<p className="text-muted-foreground text-sm mb-0 font-brand">
 						The prompt you used to generate this video.
 					</p>
 					<Textarea
@@ -341,7 +353,7 @@ export const PromptsSubmitPage: React.FC = () => {
 						Submit
 					</Button>
 					{submitStatus.type === 'error' && (
-						<p className="text-red-500 mt-4 text-sm">
+						<p className="text-red-500 mt-4 text-sm font-brand">
 							An error occurred: {submitStatus.err.message}
 						</p>
 					)}
