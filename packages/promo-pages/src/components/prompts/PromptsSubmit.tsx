@@ -1,4 +1,3 @@
-import {useNavigate} from '@remix-run/react';
 import {
 	Button,
 	Input,
@@ -9,10 +8,10 @@ import {
 	Textarea,
 } from '@remotion/design';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {MuxPlayer} from '~/components/MuxPlayer';
-import {NewBackButton} from '~/components/NewBackButton';
-import {Page} from '~/components/Page';
-import {REMOTION_PRO_ORIGIN} from '~/lib/config';
+import {REMOTION_PRO_ORIGIN} from './config';
+import {MuxPlayer} from './MuxPlayer';
+import {NewBackButton} from './NewBackButton';
+import {Page} from './Page';
 
 type UsernameType = 'github' | 'x';
 
@@ -29,8 +28,7 @@ type SubmitStatus =
 	| {type: 'done'; slug: string}
 	| {type: 'error'; err: Error};
 
-const PromptSubmit: React.FC = () => {
-	const navigate = useNavigate();
+export const PromptsSubmitPage: React.FC = () => {
 	const [title, setTitle] = useState('');
 	const [prompt, setPrompt] = useState('');
 	const [usernameType, setUsernameType] = useState<UsernameType>('github');
@@ -204,7 +202,9 @@ const PromptSubmit: React.FC = () => {
 							case, we will not give notification or reason.
 						</div>
 						<Button
-							onClick={() => navigate('/prompts')}
+							onClick={() => {
+								window.location.href = '/prompts';
+							}}
 							className="font-brand rounded-full mt-4"
 						>
 							Back to gallery
@@ -218,12 +218,25 @@ const PromptSubmit: React.FC = () => {
 	return (
 		<Page className="flex-col" onDrop={onPageDrop} onDragOver={onPageDragOver}>
 			<div className="m-auto max-w-[800px] w-full">
-				<div className="mx-4 px-8 py-8 mt-12 pt-8">
+				<div className="mx-4 px-8 py-8 pt-8">
 					<NewBackButton color="black" text="Back to gallery" link="/prompts" />
-					<div className="h-10" />
 					<h1 className="text-3xl font-brand font-black">Submit a prompt</h1>
+					<p className="text-muted-foreground text-sm font-brand">
+						Submit a prompt to be featured in the{' '}
+						<a
+							href="/prompts"
+							className="underline hover:text-black underline-offset-4"
+						>
+							prompt gallery.
+						</a>
+					</p>
+					<p className="text-muted-foreground text-sm font-brand">
+						Note that this showcase is curated - we may reject submissions if
+						they are repetitive or not up to our quality standards. In that
+						case, we will not give notification or reason.
+					</p>
 					<h2 className="font-brand mt-5 font-bold">Title *</h2>
-					<p className="text-muted-foreground text-sm">
+					<p className="text-muted-foreground text-sm mb-0 font-brand">
 						A short title for your prompt (max 80 characters).
 					</p>
 					<Input
@@ -234,12 +247,11 @@ const PromptSubmit: React.FC = () => {
 						maxLength={80}
 						onChange={(e) => setTitle(e.target.value)}
 					/>
-					<p className="text-muted-foreground text-xs mt-1">
+					<p className="text-muted-foreground text-xs mt-1 mb-0 font-brand">
 						{title.length}/80
 					</p>
-
 					<h2 className="font-brand mt-5 font-bold">Video *</h2>
-					<p className="text-muted-foreground text-sm">
+					<p className="text-muted-foreground text-sm mb-0 font-brand">
 						Upload a video showing the result of your prompt. You can also drop
 						a file anywhere on this page.
 					</p>
@@ -284,9 +296,10 @@ const PromptSubmit: React.FC = () => {
 						)}
 					</div>
 
-					<h2 className="font-brand mt-5 font-bold">Prompt *</h2>
-					<p className="text-muted-foreground text-sm">
-						The prompt you used to generate this video.
+					<h2 className="font-brand mt-5 font-bold">Prompt(s) *</h2>
+					<p className="text-muted-foreground text-sm mb-0 font-brand">
+						The prompts you used to generate this video. Separate multiple
+						prompts with an empty line.
 					</p>
 					<Textarea
 						name="prompt"
@@ -341,7 +354,7 @@ const PromptSubmit: React.FC = () => {
 						Submit
 					</Button>
 					{submitStatus.type === 'error' && (
-						<p className="text-red-500 mt-4 text-sm">
+						<p className="text-red-500 mt-4 text-sm font-brand">
 							An error occurred: {submitStatus.err.message}
 						</p>
 					)}
@@ -350,5 +363,3 @@ const PromptSubmit: React.FC = () => {
 		</Page>
 	);
 };
-
-export default PromptSubmit;
