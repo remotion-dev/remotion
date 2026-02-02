@@ -26,7 +26,7 @@ From Remotion Lambda v4.0.418, the default is to not set an ACL, but to set a bu
 
 This new default only applies for **newly created buckets** and only if you [added the `s3:PutBucketPolicy` permission to your IAM user](/docs/lambda/permissions).  
 Existing buckets and new buckets created without the `s3:PutBucketPolicy` permission will continue to have a `public-read` ACL.
-`s3:PutBucketPolicy` is only available part of [`getUserPolicy()`](/docs/lambda/getuserpolicy) since v4.0.418.
+`s3:PutBucketPolicy` is only available as part of [`getUserPolicy()`](/docs/lambda/getuserpolicy) since v4.0.418.
 
 ## Recommendation
 
