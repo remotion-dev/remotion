@@ -5,8 +5,6 @@ sidebar_label: Bucket Security
 crumb: 'Lambda'
 ---
 
-import {UserPolicy} from '../../components/lambda/user-permissions.tsx';
-
 Before Remotion Lambda, v4.0.418, buckets created with Remotion Lambda used a `public-read` ACL. This means that:
 
 - Items not explicitly made private (by setting the `privacy` option in [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#privacy)) are accessible to anyone.
