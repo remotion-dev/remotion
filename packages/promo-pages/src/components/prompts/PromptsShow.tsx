@@ -67,7 +67,7 @@ export const PromptsShowPage: React.FC = () => {
 	return (
 		<Page className="flex-col">
 			<div className="m-auto max-w-[800px] w-full px-4 py-12">
-				<NewBackButton color="black" text="Back to gallery" link="/prompts" />
+				<NewBackButton text="Back to gallery" link="/prompts" />
 				<div className="h-1" />
 				<h1 className="text-2xl font-brand font-black">{submission.title}</h1>
 				<div>

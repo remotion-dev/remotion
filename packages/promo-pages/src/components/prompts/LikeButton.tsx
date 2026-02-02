@@ -65,7 +65,7 @@ export const LikeButton: React.FC<{
 				<Heart
 					height={14}
 					fill={liked ? 'white' : 'none'}
-					stroke={liked ? 'white' : 'black'}
+					stroke={liked ? 'white' : 'var(--text-color)'}
 					strokeWidth={2}
 					bottomRoundnessAdjustment={roundness}
 					style={{transform: `scale(${scale})`}}

@@ -68,7 +68,7 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 									alt={`${getAuthorName(submission)}'s avatar`}
 								/>
 							)}
-							<span className="text-sm font-brand text-black">
+							<span className="text-sm font-brand text-text">
 								{getAuthorName(submission)}
 							</span>
 						</div>
@@ -128,7 +128,7 @@ export const PromptsGalleryPage: React.FC = () => {
 						With{' '}
 						<a
 							href="/docs/ai/skills"
-							className="underline hover:text-black underline-offset-4"
+							className="underline hover:text-text underline-offset-4"
 						>
 							Remotion Skills
 						</a>

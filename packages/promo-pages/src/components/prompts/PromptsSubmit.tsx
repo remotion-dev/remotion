@@ -219,13 +219,13 @@ export const PromptsSubmitPage: React.FC = () => {
 		<Page className="flex-col" onDrop={onPageDrop} onDragOver={onPageDragOver}>
 			<div className="m-auto max-w-[800px] w-full">
 				<div className="mx-4 px-8 py-8 pt-8">
-					<NewBackButton color="black" text="Back to gallery" link="/prompts" />
+					<NewBackButton text="Back to gallery" link="/prompts" />
 					<h1 className="text-3xl font-brand font-black">Submit a prompt</h1>
 					<p className="text-muted-foreground text-sm font-brand">
 						Submit a prompt to be featured in the{' '}
 						<a
 							href="/prompts"
-							className="underline hover:text-black underline-offset-4"
+							className="underline hover:text-text underline-offset-4"
 						>
 							prompt gallery.
 						</a>
