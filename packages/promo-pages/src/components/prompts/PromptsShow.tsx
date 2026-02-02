@@ -112,6 +112,18 @@ export const PromptsShowPage: React.FC = () => {
 							title={submission.title}
 							rounded={false}
 						/>
+						{submission.toolUsed && (
+							<>
+								<h2 className="font-brand font-bold mt-6 mb-2">Tool used</h2>
+								<p className="text-sm font-brand">{submission.toolUsed}</p>
+							</>
+						)}
+						{submission.modelUsed && (
+							<>
+								<h2 className="font-brand font-bold mt-6 mb-2">Model used</h2>
+								<p className="text-sm font-brand">{submission.modelUsed}</p>
+							</>
+						)}
 						<h2 className="font-brand font-bold mt-6 mb-2">Prompt</h2>
 						<pre
 							className="whitespace-pre-wrap text-sm rounded p-4 text-white"
