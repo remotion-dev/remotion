@@ -169,6 +169,7 @@ export const Demo: React.FC<{
 				}}
 				inputProps={{...state, darkMode: colorMode === 'dark'}}
 				autoPlay={demo.autoPlay}
+				controls={demo.controls}
 				loop
 			/>
 			<div className={styles.containerrow}>
