@@ -1084,6 +1084,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/upgrading',
 				'lambda/uninstall',
 				'lambda/s3-public-access',
+				'lambda/bucket-security',
 				'lambda/naming-convention',
 			],
 		},

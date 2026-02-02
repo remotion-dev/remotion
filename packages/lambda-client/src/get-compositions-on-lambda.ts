@@ -74,6 +74,7 @@ export const getCompositionsOnLambda = async ({
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: false,
 		requestHandler,
+		logLevel: logLevel ?? 'info',
 	});
 
 	try {

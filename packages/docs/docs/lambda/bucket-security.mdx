@@ -1,0 +1,42 @@
+---
+image: /generated/articles-docs-lambda-bucket-security.png
+title: Bucket Security
+sidebar_label: Bucket Security
+crumb: 'Lambda'
+---
+
+import {UserPolicy} from '../../components/lambda/user-permissions.tsx';
+
+Before Remotion Lambda, v4.0.418, buckets created with Remotion Lambda used a `public-read` ACL. This means that:
+
+- Items not explicitly made private (by setting the `privacy` option in [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#privacy)) are accessible to anyone.
+- People can "list" the buckets by visiting the bucket URL or using the AWS SDK
+
+## Risk
+
+If you also accepted user uploads to the bucket, anyone could list the bucket and see user items.  
+If you did not set the [`privacy`](/docs/lambda/rendermediaonlambda#privacy) option for renders, anyone could list the bucket and see renders.
+
+## The new default<AvailableFrom v="4.0.418" />
+
+From Remotion Lambda v4.0.418, the default is to not set an ACL, but to set a bucket policy:
+
+- Items not explicitly made private (by setting the `privacy` option in [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#privacy)) are only accessible if you know the URL.
+- People cannot "list" the buckets anymore.
+
+This new default only applies for **newly created buckets** and only if you [added the `s3:PutBucketPolicy` permission to your IAM user](/docs/lambda/permissions).  
+Existing buckets and new buckets created without the `s3:PutBucketPolicy` permission will continue to have a `public-read` ACL.
+`s3:PutBucketPolicy` is only available part of [`getUserPolicy()`](/docs/lambda/getuserpolicy) since v4.0.418.
+
+## Recommendation
+
+Since it is not required for the public to be able to list the bucket, we recommend disabling this to minimize exposure of your files.
+
+**For new buckets:** Ensure you add [`s3:PutBucketPolicy`](/docs/lambda/permissions) to your IAM user policy (default only from v4.0.418, if upgrading, you need to manually update your user policy). Then create a bucket.
+
+**For existing buckets:** Visit the bucket in the S3 console. Go to "permissions". Under `Access control list`, click `Edit` and remove `List` for `Everyone`.
+
+## See also
+
+- [Permissions](/docs/lambda/permissions)
+- [Cannot create public bucket](/docs/lambda/s3-public-access)

@@ -107,12 +107,13 @@ The following table is a breakdown of why Remotion Lambda requires the permissio
       <code>s3:DeleteBucket</code> <br />
       <code>s3.PutBucketOwnershipControls</code> <br />
       <code>s3.PutBucketPublicAccessBlock</code> <br />
+      <code>s3:PutBucketPolicy</code> <br />
     </td>
     <td>
       <code>{'arn:aws:s3:::remotionlambda-*'}</code>
     </td>
     <td>
-      Allows to create and delete buckets and objects in your account, make objects public and configure them as websites. Only buckets that start with <code>remotionlambda-</code> can be accessed. 
+      Allows to create and delete buckets and objects in your account, make objects public and configure them as websites. Only buckets that start with <code>remotionlambda-</code> can be accessed. <code>s3:PutBucketPolicy</code> is used to apply a bucket policy that restricts public access to <code>s3:GetObject</code> only (see <a href="/docs/lambda/bucket-security">Bucket Security</a>).
     </td>
   </tr>
   <tr>
