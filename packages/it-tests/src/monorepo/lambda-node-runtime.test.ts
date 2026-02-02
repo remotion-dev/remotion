@@ -30,16 +30,12 @@ test('Lambda create-function runtime should be matched by aws-provider regex', (
 		/Runtime:\s*'(nodejs\d+\.x)'/,
 	);
 	if (!runtimeMatch) {
-		throw new Error(
-			'Could not find Runtime string in create-function.ts',
-		);
+		throw new Error('Could not find Runtime string in create-function.ts');
 	}
 
 	const runtime = runtimeMatch[1];
 
-	const regexMatch = awsProviderSource.match(
-		/AWS_Lambda_nodejs\(\?:([^)]+)\)/,
-	);
+	const regexMatch = awsProviderSource.match(/AWS_Lambda_nodejs\(\?:([^)]+)\)/);
 	if (!regexMatch) {
 		throw new Error(
 			'Could not find AWS_EXECUTION_ENV regex in aws-provider.ts',
