@@ -31,6 +31,8 @@ type SubmitStatus =
 export const PromptsSubmitPage: React.FC = () => {
 	const [title, setTitle] = useState('');
 	const [prompt, setPrompt] = useState('');
+	const [toolUsed, setToolUsed] = useState('');
+	const [modelUsed, setModelUsed] = useState('');
 	const [usernameType, setUsernameType] = useState<UsernameType>('github');
 	const [username, setUsername] = useState('');
 	const [uploadState, setUploadState] = useState<UploadState>({type: 'idle'});
@@ -161,6 +163,8 @@ export const PromptsSubmitPage: React.FC = () => {
 					muxPlaybackId: uploadState.muxPlaybackId,
 					title,
 					prompt,
+					toolUsed: toolUsed || undefined,
+					modelUsed: modelUsed || undefined,
 					githubUsername: usernameType === 'github' ? username : undefined,
 					xUsername: usernameType === 'x' ? username : undefined,
 				}),
@@ -176,7 +180,16 @@ export const PromptsSubmitPage: React.FC = () => {
 		} catch (err) {
 			setSubmitStatus({type: 'error', err: err as Error});
 		}
-	}, [submitPossible, uploadState, title, prompt, usernameType, username]);
+	}, [
+		submitPossible,
+		uploadState,
+		title,
+		prompt,
+		usernameType,
+		username,
+		toolUsed,
+		modelUsed,
+	]);
 
 	if (submitStatus.type === 'done') {
 		return (
@@ -196,8 +209,7 @@ export const PromptsSubmitPage: React.FC = () => {
 							.
 						</div>
 						<div className="mt-4 text-muted-foreground font-brand">
-							{' '}
-							if e that this showcase is curated - we may reject submissions if
+							Note that this showcase is curated - we may reject submissions if
 							they are repetitive or not up to our quality standards. In that
 							case, we will not give notification or reason.
 						</div>
@@ -307,6 +319,31 @@ export const PromptsSubmitPage: React.FC = () => {
 						placeholder="Enter your full prompt here"
 						value={prompt}
 						onChange={(e) => setPrompt(e.target.value)}
+					/>
+
+					<h2 className="font-brand mt-5 font-bold">Tool used</h2>
+					<p className="text-muted-foreground text-sm mb-0 font-brand">
+						Which tool did you use to generate this video? (e.g. Claude Code,
+						Cursor, Codex)
+					</p>
+					<Input
+						name="toolUsed"
+						placeholder="Claude Code"
+						className="font-brand mt-3"
+						value={toolUsed}
+						onChange={(e) => setToolUsed(e.target.value)}
+					/>
+
+					<h2 className="font-brand mt-5 font-bold">Model used</h2>
+					<p className="text-muted-foreground text-sm mb-0 font-brand">
+						Which AI model did you use? (e.g. Opus 4.5, GPT-5.2)
+					</p>
+					<Input
+						name="modelUsed"
+						placeholder="Opus 4.5"
+						className="font-brand mt-3"
+						value={modelUsed}
+						onChange={(e) => setModelUsed(e.target.value)}
 					/>
 
 					<h2 className="font-brand mt-5 font-bold">
