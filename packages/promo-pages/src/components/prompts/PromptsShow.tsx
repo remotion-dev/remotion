@@ -112,29 +112,17 @@ export const PromptsShowPage: React.FC = () => {
 							title={submission.title}
 							rounded={false}
 						/>
-						{(submission.toolUsed || submission.modelUsed) && (
-							<div className="flex gap-4 mt-6">
-								{submission.toolUsed && (
-									<div>
-										<span className="text-xs text-muted-foreground font-brand">
-											Tool used
-										</span>
-										<p className="text-sm font-brand font-medium mt-0.5">
-											{submission.toolUsed}
-										</p>
-									</div>
-								)}
-								{submission.modelUsed && (
-									<div>
-										<span className="text-xs text-muted-foreground font-brand">
-											Model used
-										</span>
-										<p className="text-sm font-brand font-medium mt-0.5">
-											{submission.modelUsed}
-										</p>
-									</div>
-								)}
-							</div>
+						{submission.toolUsed && (
+							<>
+								<h2 className="font-brand font-bold mt-6 mb-2">Tool used</h2>
+								<p className="text-sm font-brand">{submission.toolUsed}</p>
+							</>
+						)}
+						{submission.modelUsed && (
+							<>
+								<h2 className="font-brand font-bold mt-6 mb-2">Model used</h2>
+								<p className="text-sm font-brand">{submission.modelUsed}</p>
+							</>
 						)}
 						<h2 className="font-brand font-bold mt-6 mb-2">Prompt</h2>
 						<pre
