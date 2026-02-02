@@ -8,7 +8,7 @@ type Bug = {
 
 export const bugs: Bug[] = [
 	{
-		title: 'Lambda renders could not render fonts',
+		title: 'Lambda could not render fonts',
 		description: 'Upgrade to 4.0.417.',
 		link: 'https://remotion.dev/changelog',
 		versions: ['4.0.416'],
