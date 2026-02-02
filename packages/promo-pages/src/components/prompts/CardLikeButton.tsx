@@ -67,13 +67,13 @@ export const CardLikeButton: React.FC<{
 			<Heart
 				height={16}
 				fill={liked ? 'var(--color-brand)' : 'none'}
-				stroke={liked ? 'var(--color-brand)' : 'black'}
+				stroke={liked ? 'var(--color-brand)' : 'var(--text-color)'}
 				strokeWidth={2}
 				bottomRoundnessAdjustment={roundness}
 				style={{transform: `scale(${scale})`, marginTop: 2}}
 			/>
 			<span
-				className="font-brand font-medium data-[liked=true]:text-brand data-[liked=false]:text-black"
+				className="font-brand font-medium data-[liked=true]:text-brand data-[liked=false]:text-text"
 				data-liked={liked}
 				style={{marginLeft: 8, flex: 1}}
 			>

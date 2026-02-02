@@ -2,25 +2,22 @@ import {Button} from '@remotion/design';
 import React from 'react';
 
 export const NewBackButton: React.FC<{
-	readonly color: string;
 	readonly text: string;
 	readonly link: string;
-}> = ({color, text, link}) => {
+}> = ({text, link}) => {
 	return (
 		<a
 			href={link}
-			className="justify-center items-center font-medium no-underline mb-4 block"
+			className="justify-center items-center font-medium no-underline mb-4 block text-text"
 			style={{
 				fontFamily: 'GTPlanar',
 				fontWeight: 500,
-				color,
 			}}
 		>
 			<Button className="px-8 rounded-full text-sm h-10">
 				<div className="flex row items-center justify-start font-normal">
 					<svg
-						className="h-4 mr-[8px] inline-block"
-						style={{color}}
+						className="h-4 mr-[8px] inline-block text-text"
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 448 512"
 					>

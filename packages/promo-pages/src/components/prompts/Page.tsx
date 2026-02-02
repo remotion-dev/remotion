@@ -15,7 +15,7 @@ export const Page: React.FC<{
 			onDrop={onDrop}
 			onDragOver={onDragOver}
 			className={clsx(
-				'overflow-y-auto w-full bg-slate-50 min-h-screen',
+				'overflow-y-auto w-full bg-[var(--background)] min-h-screen',
 				className,
 			)}
 		>
