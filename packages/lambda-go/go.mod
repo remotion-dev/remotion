@@ -1,6 +1,5 @@
 module github.com/remotion-dev/lambda_go_sdk
 
-go 1.24.3
 
 require (
 	github.com/aws/aws-sdk-go v1.44.257
