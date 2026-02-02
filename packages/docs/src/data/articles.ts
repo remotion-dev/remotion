@@ -2169,6 +2169,15 @@ export const articles = [
 		slug: 'lambda/bucket-naming',
 	},
 	{
+		id: 'lambda/bucket-security',
+		title: 'Bucket Security',
+		relativePath: 'docs/lambda/bucket-security.mdx',
+		compId: 'articles-docs-lambda-bucket-security',
+		crumb: 'Lambda',
+		noAi: false,
+		slug: 'lambda/bucket-security',
+	},
+	{
 		id: 'changelog',
 		title: 'Prerelease Changelog',
 		relativePath: 'docs/lambda/changelog.mdx',

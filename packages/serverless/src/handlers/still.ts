@@ -111,6 +111,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			forcePathStyle: params.forcePathStyle,
 			skipPutAcl: false,
 			requestHandler: null,
+			logLevel: params.logLevel,
 		}).then((b) => b.bucketName);
 
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
