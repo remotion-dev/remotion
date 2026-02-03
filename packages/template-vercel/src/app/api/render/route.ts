@@ -8,10 +8,9 @@ import {
 	VIDEO_WIDTH,
 } from "../../../../types/constants";
 
-const REPO_URL = "https://github.com/remotion-dev/template-vercel.git";
-
 type SSEMessage =
 	| { type: "log"; stream: "stdout" | "stderr"; data: string }
+	| { type: "progress"; progress: number }
 	| { type: "phase"; phase: string }
 	| { type: "done"; url: string; size: number }
 	| { type: "error"; message: string };
@@ -20,7 +19,65 @@ function formatSSE(message: SSEMessage): string {
 	return `data: ${JSON.stringify(message)}\n\n`;
 }
 
+function generateRenderScript(options: {
+	serveUrl: string;
+	compositionId: string;
+	inputProps: Record<string, unknown>;
+	width: number;
+	height: number;
+	fps: number;
+	durationInFrames: number;
+}): string {
+	return `
+const { renderMedia, selectComposition } = require("@remotion/renderer");
+
+async function main() {
+	try {
+		const composition = await selectComposition({
+			serveUrl: ${JSON.stringify(options.serveUrl)},
+			id: ${JSON.stringify(options.compositionId)},
+			inputProps: ${JSON.stringify(options.inputProps)},
+		});
+
+		await renderMedia({
+			composition: {
+				...composition,
+				width: ${options.width},
+				height: ${options.height},
+				fps: ${options.fps},
+				durationInFrames: ${options.durationInFrames},
+			},
+			serveUrl: ${JSON.stringify(options.serveUrl)},
+			codec: "h264",
+			outputLocation: "/tmp/video.mp4",
+			inputProps: ${JSON.stringify(options.inputProps)},
+			onProgress: ({ progress }) => {
+				console.log(JSON.stringify({ type: "progress", progress }));
+			},
+		});
+
+		console.log(JSON.stringify({ type: "done" }));
+	} catch (err) {
+		console.error(JSON.stringify({ type: "error", message: err.message }));
+		process.exit(1);
+	}
+}
+
+main();
+`;
+}
+
 export async function POST(req: Request) {
+	const serveUrl = process.env.REMOTION_SERVE_URL;
+	if (!serveUrl) {
+		return new Response(
+			JSON.stringify({
+				error: "REMOTION_SERVE_URL environment variable is not set",
+			}),
+			{ status: 500, headers: { "Content-Type": "application/json" } },
+		);
+	}
+
 	let sandbox: Sandbox | null = null;
 
 	const encoder = new TextEncoder();
@@ -41,10 +98,6 @@ export async function POST(req: Request) {
 			sandbox = await Sandbox.create({
 				runtime: "node24",
 				timeout: 5 * 60 * 1000,
-				source: {
-					type: "git",
-					url: REPO_URL,
-				},
 			});
 
 			await send({ type: "phase", phase: "Installing system dependencies..." });
@@ -82,11 +135,11 @@ export async function POST(req: Request) {
 				);
 			}
 
-			await send({ type: "phase", phase: "Installing npm dependencies..." });
+			await send({ type: "phase", phase: "Installing renderer..." });
 
 			const installCmd = await sandbox.runCommand({
 				cmd: "pnpm",
-				args: ["install"],
+				args: ["install", "@remotion/renderer@latest"],
 				detached: true,
 			});
 
@@ -101,30 +154,43 @@ export async function POST(req: Request) {
 
 			await send({ type: "phase", phase: "Rendering video..." });
 
+			const renderScript = generateRenderScript({
+				serveUrl,
+				compositionId: COMP_NAME,
+				inputProps: body.inputProps,
+				width: VIDEO_WIDTH,
+				height: VIDEO_HEIGHT,
+				fps: VIDEO_FPS,
+				durationInFrames: DURATION_IN_FRAMES,
+			});
+
+			await sandbox.writeFiles([
+				{
+					path: "render.cjs",
+					content: Buffer.from(renderScript),
+				},
+			]);
+
+			// Run the render script
 			const renderCmd = await sandbox.runCommand({
-				cmd: "pnpm",
-				args: [
-					"exec",
-					"remotion",
-					"render",
-					"src/remotion/index.ts",
-					COMP_NAME,
-					"out/video.mp4",
-					"--props",
-					JSON.stringify(body.inputProps),
-					"--width",
-					String(VIDEO_WIDTH),
-					"--height",
-					String(VIDEO_HEIGHT),
-					"--fps",
-					String(VIDEO_FPS),
-					"--frames",
-					`0-${DURATION_IN_FRAMES - 1}`,
-				],
+				cmd: "node",
+				args: ["render.cjs"],
 				detached: true,
 			});
 
 			for await (const log of renderCmd.logs()) {
+				// Parse progress messages from the script
+				if (log.stream === "stdout") {
+					try {
+						const message = JSON.parse(log.data);
+						if (message.type === "progress") {
+							await send({ type: "progress", progress: message.progress });
+							continue;
+						}
+					} catch {
+						// Not JSON, send as regular log
+					}
+				}
 				await send({ type: "log", stream: log.stream, data: log.data });
 			}
 
@@ -138,7 +204,7 @@ export async function POST(req: Request) {
 			await send({ type: "phase", phase: "Reading output..." });
 
 			const videoBuffer = await sandbox.readFileToBuffer({
-				path: "out/video.mp4",
+				path: "/tmp/video.mp4",
 			});
 			if (!videoBuffer) {
 				throw new Error("Failed to read rendered video");

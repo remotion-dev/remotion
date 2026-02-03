@@ -40,3 +40,5 @@ build
 
 # remotion bundle (generated at build time)
 /public/remotion-bundle
+
+bundle

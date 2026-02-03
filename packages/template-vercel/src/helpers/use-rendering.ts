@@ -10,6 +10,7 @@ export type State =
 	| {
 			status: "invoking";
 			phase: string;
+			progress: number;
 			logs: string[];
 	  }
 	| {
@@ -36,6 +37,7 @@ export const useRendering = (
 		setState({
 			status: "invoking",
 			phase: "Starting...",
+			progress: 0,
 			logs: [],
 		});
 
@@ -74,6 +76,14 @@ export const useRendering = (
 							return {
 								...prev,
 								logs: [...prev.logs, message.data],
+							};
+						});
+					} else if (message.type === "progress") {
+						setState((prev) => {
+							if (prev.status !== "invoking") return prev;
+							return {
+								...prev,
+								progress: message.progress,
 							};
 						});
 					} else if (message.type === "phase") {

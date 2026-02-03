@@ -44,7 +44,11 @@ export const RenderControls: React.FC<{
 							<Spacing></Spacing>
 							<div style={{ fontSize: 14, color: "#666", marginBottom: 8 }}>
 								{state.phase}
+								{state.progress > 0
+									? ` (${Math.round(state.progress * 100)}%)`
+									: null}
 							</div>
+							<ProgressBar progress={state.progress} />
 							<LogViewer logs={state.logs} />
 						</>
 					) : null}
