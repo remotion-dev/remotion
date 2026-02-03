@@ -54,7 +54,6 @@ function getChromeDownloadUrl({
 			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
 		}
 
-		console.log('Using Remotion headless shell');
 		return `https://remotion.media/chromium-headless-shell-linux-arm64-144.0.7559.20.zip?clearcache`;
 	}
 
