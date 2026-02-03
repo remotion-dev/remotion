@@ -26,24 +26,4 @@ export type PlayerMethods = ThumbnailMethods & {
 
 export type ThumbnailRef = ThumbnailEmitter & ThumbnailMethods;
 export type PlayerRef = PlayerEmitter & PlayerMethods;
-export type RenderCustomControlsInfo = {
-	playing: boolean;
-	play: (e?: SyntheticEvent) => void;
-	pause: () => void;
-	toggle: (e?: SyntheticEvent) => void;
-	frame: number;
-	durationInFrames: number;
-	seekTo: (frame: number) => void;
-	fps: number;
-	isFullscreen: boolean;
-	volume: number;
-	setVolume: (volume: number) => void;
-	isMuted: boolean;
-	mute: () => void;
-	unmute: () => void;
-	buffering: boolean;
-};
-
-export type RenderCustomControls = (
-	info: RenderCustomControlsInfo,
-) => ReactElement | null;
+export type RenderCustomControls = () => ReactElement | null;

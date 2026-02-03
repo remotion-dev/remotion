@@ -28,6 +28,81 @@ Use the following APIs to customize the individual controls:
 - [`renderMuteButton()`](/docs/player/player#rendermutebutton)
 - [`renderVolumeSlider()`](/docs/player/player#rendervolumeslider)
 
+## Controls slot
+
+<AvailableFrom v="4.0.418" />
+
+The Player provides a slot between the main playback controls and the fullscreen button where you can render custom controls using the [`renderCustomControls`](/docs/player/player#rendercustomcontrols) prop.
+
+Use this when you want to add custom buttons or indicators that blend in with the default controls bar.
+
+```tsx twoslash title="ControlsSlot.tsx"
+const MyVideo: React.FC = () => null;
+// ---cut---
+import {Player, PlayerRef, RenderCustomControls} from '@remotion/player';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+
+const DownloadButton: React.FC<{
+  playerRef: React.RefObject<PlayerRef | null>;
+}> = ({playerRef}) => {
+  const [frame, setFrame] = useState(0);
+
+  useEffect(() => {
+    const {current} = playerRef;
+    if (!current) return;
+
+    const onFrameUpdate = () => {
+      setFrame(current.getCurrentFrame());
+    };
+
+    current.addEventListener('frameupdate', onFrameUpdate);
+    return () => {
+      current.removeEventListener('frameupdate', onFrameUpdate);
+    };
+  }, [playerRef]);
+
+  return (
+    <button
+      type="button"
+      onClick={() => console.log('Download at frame', frame)}
+      style={{
+        background: 'transparent',
+        border: 'none',
+        color: 'white',
+        cursor: 'pointer',
+      }}
+    >
+      Download
+    </button>
+  );
+};
+
+export const App: React.FC = () => {
+  const playerRef = useRef<PlayerRef>(null);
+
+  const renderCustomControls: RenderCustomControls = useCallback(() => {
+    return <DownloadButton playerRef={playerRef} />;
+  }, []);
+
+  return (
+    <Player
+      ref={playerRef}
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      controls
+      renderCustomControls={renderCustomControls}
+    />
+  );
+};
+```
+
+:::note
+Use a [`PlayerRef`](/docs/player/player#playerref) to access player state and methods from within your custom controls. The patterns shown in the [Controls outside the Player](#controls-outside-the-player) section below work the same way inside the controls slot.
+:::
+
 ## Controls outside the Player
 
 Use this approach if you:

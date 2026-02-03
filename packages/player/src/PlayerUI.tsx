@@ -713,28 +713,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					}
 					renderMuteButton={renderMuteButton}
 					renderVolumeSlider={renderVolumeSlider}
-					frame={player.getCurrentFrame()}
-					seekTo={(f: number) => {
-						const lastFrame = durationInFrames - 1;
-						const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
-
-						if (player.isPlaying()) {
-							const pauseToResume = frameToSeekTo !== lastFrame || loop;
-							setHasPausedToResume(pauseToResume);
-							player.pause();
-						}
-
-						if (frameToSeekTo === lastFrame && !loop) {
-							player.emitter.dispatchEnded();
-						}
-
-						player.seek(frameToSeekTo);
-					}}
-					volume={mediaVolume}
-					setVolume={setMediaVolume}
-					isMuted={isMuted}
-					mute={() => setMediaMuted(true)}
-					unmute={() => setMediaMuted(false)}
 					renderCustomControls={renderCustomControls}
 				/>
 			) : null}

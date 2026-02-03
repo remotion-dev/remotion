@@ -19,7 +19,6 @@ export type {
 	PlayerMethods,
 	PlayerRef,
 	RenderCustomControls,
-	RenderCustomControlsInfo,
 	ThumbnailMethods,
 	ThumbnailRef,
 } from './player-methods.js';
