@@ -50,7 +50,11 @@ function getChromeDownloadUrl({
 			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
 		}
 
-		return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
+		if (version) {
+			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
+		}
+
+		return `https://remotion.media/chromium-headless-shell-linux-arm64-144.0.7559.20.zip?clearcache`;
 	}
 
 	if (chromeMode === 'headless-shell') {
