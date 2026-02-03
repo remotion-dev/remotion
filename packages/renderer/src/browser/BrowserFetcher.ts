@@ -55,7 +55,7 @@ function getChromeDownloadUrl({
 		}
 
 		console.log('Using Remotion headless shell');
-		return `https://remotion.media/chromium-headless-shell-linux-arm64-144.0.7559.20.zip`;
+		return `https://remotion.media/chromium-headless-shell-linux-arm64-144.0.7559.20.zip?clearcache`;
 	}
 
 	if (chromeMode === 'headless-shell') {
