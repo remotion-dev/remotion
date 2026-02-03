@@ -362,65 +362,9 @@ export const App: React.FC = () => {
 
 Allows you to render custom controls inside the player's control bar, between the main playback controls and the fullscreen button. Must return a valid React element or `null`.
 
-To access player state (playing, frame, volume, etc.) and control methods (play, pause, seekTo, etc.), use a [`PlayerRef`](#playerref).
+Use a [`PlayerRef`](#playerref) to access player state and control methods from within your custom controls.
 
-```tsx twoslash title="App.tsx"
-const MyVideo: React.FC = () => null;
-// ---cut---
-import {Player, PlayerRef, RenderCustomControls} from '@remotion/player';
-import {useCallback, useEffect, useRef, useState} from 'react';
-
-const CustomPlayIndicator: React.FC<{
-  playerRef: React.RefObject<PlayerRef | null>;
-}> = ({playerRef}) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  useEffect(() => {
-    const {current} = playerRef;
-    if (!current) return;
-
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-
-    current.addEventListener('play', onPlay);
-    current.addEventListener('pause', onPause);
-
-    return () => {
-      current.removeEventListener('play', onPlay);
-      current.removeEventListener('pause', onPause);
-    };
-  }, [playerRef]);
-
-  return (
-    <span style={{color: 'white', fontSize: '12px'}}>
-      {isPlaying ? 'Playing' : 'Paused'}
-    </span>
-  );
-};
-
-export const App: React.FC = () => {
-  const playerRef = useRef<PlayerRef>(null);
-
-  const renderCustomControls: RenderCustomControls = useCallback(() => {
-    return <CustomPlayIndicator playerRef={playerRef} />;
-  }, []);
-
-  return (
-    <Player
-      ref={playerRef}
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      controls
-      renderCustomControls={renderCustomControls}
-    />
-  );
-};
-```
-
-See [Custom controls](/docs/player/custom-controls#controls-slot) for more examples.
+See [Custom controls](/docs/player/custom-controls#controls-slot) for usage and examples.
 
 ### `alwaysShowControls?`<AvailableFrom v="3.3.55" />
 
