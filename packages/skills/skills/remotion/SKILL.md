@@ -23,6 +23,7 @@ Read individual rule files for detailed explanations and code examples:
 - [rules/compositions.md](rules/compositions.md) - Defining compositions, stills, folders, default props and dynamic metadata
 - [rules/display-captions.md](rules/display-captions.md) - Displaying captions in Remotion with TikTok-style pages and word highlighting
 - [rules/extract-frames.md](rules/extract-frames.md) - Extract frames from videos at specific timestamps using Mediabunny
+- [rules/ffmpeg.md](rules/ffmpeg.md) - Using FFmpeg and FFprobe in Remotion - installation, trimming, re-encoding
 - [rules/fonts.md](rules/fonts.md) - Loading Google Fonts and local fonts in Remotion
 - [rules/get-audio-duration.md](rules/get-audio-duration.md) - Getting the duration of an audio file in seconds with Mediabunny
 - [rules/get-video-dimensions.md](rules/get-video-dimensions.md) - Getting the width and height of a video file with Mediabunny
