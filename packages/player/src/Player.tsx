@@ -28,7 +28,7 @@ import PlayerUI from './PlayerUI.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {playerCssClassname} from './player-css-classname.js';
-import type {PlayerRef} from './player-methods.js';
+import type {PlayerRef, RenderCustomControls} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {acknowledgeRemotionLicenseMessage} from './use-remotion-license-acknowledge.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
@@ -81,6 +81,7 @@ export type PlayerProps<
 	readonly renderFullscreenButton?: RenderFullscreenButton;
 	readonly renderMuteButton?: RenderMuteButton;
 	readonly renderVolumeSlider?: RenderVolumeSlider;
+	readonly renderCustomControls?: RenderCustomControls;
 	readonly alwaysShowControls?: boolean;
 	readonly schema?: Schema;
 	readonly initiallyMuted?: boolean;
@@ -150,6 +151,7 @@ const PlayerFn = <
 		renderFullscreenButton,
 		renderPlayPauseButton,
 		renderVolumeSlider,
+		renderCustomControls,
 		alwaysShowControls = false,
 		initiallyMuted = false,
 		showPlaybackRateControl = false,
@@ -449,6 +451,7 @@ const PlayerFn = <
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
 							renderMuteButton={renderMuteButton ?? null}
 							renderVolumeSlider={renderVolumeSlider ?? null}
+							renderCustomControls={renderCustomControls ?? null}
 							alwaysShowControls={alwaysShowControls}
 							showPlaybackRateControl={showPlaybackRateControl}
 							bufferStateDelayInMilliseconds={
