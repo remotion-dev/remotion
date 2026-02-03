@@ -4,7 +4,7 @@
 
 This is a Next.js template for building programmatic video apps with [`@remotion/player`](https://remotion.dev/player) and rendering via [Vercel Sandbox](https://vercel.com/docs/functions/sandbox).
 
-This template uses the Next.js App directory with TailwindCSS. The rendering happens in a Vercel Sandbox environment, making it easy to deploy and scale on Vercel.
+This template uses the Next.js App directory with TailwindCSS. Videos are rendered in a Vercel Sandbox environment and stored in [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) storage.
 
 <img src="https://github.com/remotion-dev/template-next/assets/1629785/c9c2e5ca-2637-4ec8-8e40-a8feb5740d88" />
 
@@ -50,9 +50,71 @@ npx remotion upgrade
 
 ## Deploy to Vercel
 
-This template is designed to be deployed on Vercel. Simply connect your GitHub repository to Vercel and it will automatically deploy your app.
+### 1. Deploy your Remotion bundle
 
-The rendering happens via Vercel Sandbox, which provides an isolated environment for running Remotion renders.
+First, build and deploy your Remotion bundle:
+
+```bash
+npx remotion bundle
+cd build
+vercel deploy --prod
+```
+
+Copy the deployment URL (e.g., `https://my-bundle.vercel.app`).
+
+**Note:** The bundle must be publicly accessible (no Vercel Authentication) since the sandbox fetches it without credentials.
+
+### 2. Create a Vercel Blob store
+
+1. Go to your Vercel dashboard
+2. Navigate to Storage > Create > Blob
+3. Create a new Blob store and attach it to your project
+
+If you deploy your app to the same Vercel project where your Blob store is attached, the `BLOB_READ_WRITE_TOKEN` environment variable is automatically available.
+
+### 3. Set environment variables
+
+In your Vercel project settings, add:
+
+| Variable             | Description                          |
+| -------------------- | ------------------------------------ |
+| `REMOTION_SERVE_URL` | URL of your deployed Remotion bundle |
+
+When deployed to Vercel, the `BLOB_READ_WRITE_TOKEN` is automatically available if your Blob store is attached to the same project. For local development, see below.
+
+### 4. Deploy
+
+Connect your GitHub repository to Vercel and it will automatically deploy your app.
+
+## Local Development
+
+To run renders locally, pull environment variables from Vercel:
+
+```bash
+vercel link  # Link to your Vercel project (if not already linked)
+vercel env pull .env.local
+```
+
+This pulls `BLOB_READ_WRITE_TOKEN` from your attached Blob store. You'll also need to add `REMOTION_SERVE_URL` to `.env.local` manually:
+
+```
+REMOTION_SERVE_URL=https://your-bundle.vercel.app
+```
+
+Then start the dev server:
+
+```bash
+npm run dev
+```
+
+## How It Works
+
+1. User clicks "Render" in the browser
+2. API spawns a Vercel Sandbox (ephemeral Linux VM)
+3. Sandbox runs `renderMedia()` from `@remotion/renderer`
+4. Progress is streamed to the browser via Server-Sent Events
+5. Completed video is uploaded to Vercel Blob
+6. User receives the video URL
 
 ## Docs
 

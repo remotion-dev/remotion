@@ -1,3 +1,4 @@
+import { put } from "@vercel/blob";
 import { Sandbox } from "@vercel/sandbox";
 import { RenderRequest } from "../../../../types/schema";
 import {
@@ -201,7 +202,7 @@ export async function POST(req: Request) {
 				throw new Error(`Render failed: ${stderr || stdout}`);
 			}
 
-			await send({ type: "phase", phase: "Reading output..." });
+			await send({ type: "phase", phase: "Uploading video..." });
 
 			const videoBuffer = await sandbox.readFileToBuffer({
 				path: "/tmp/video.mp4",
@@ -210,9 +211,15 @@ export async function POST(req: Request) {
 				throw new Error("Failed to read rendered video");
 			}
 
+			const renderId = crypto.randomUUID();
+			const blob = await put(`renders/${renderId}.mp4`, videoBuffer, {
+				access: "public",
+				contentType: "video/mp4",
+			});
+
 			await send({
 				type: "done",
-				url: `data:video/mp4;base64,${videoBuffer.toString("base64")}`,
+				url: blob.url,
 				size: videoBuffer.length,
 			});
 		} catch (err) {
