@@ -4,7 +4,7 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.409",
+	"version": "4.0.417",
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",
 		"docusaurus": "docusaurus",
@@ -53,6 +53,7 @@
 		"@remotion/lambda-client": "workspace:*",
 		"@remotion/layout-utils": "workspace:*",
 		"@remotion/licensing": "workspace:*",
+		"@remotion/light-leaks": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-parser": "workspace:*",

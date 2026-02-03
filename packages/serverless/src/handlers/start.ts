@@ -51,6 +51,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 				forcePathStyle: params.forcePathStyle,
 				skipPutAcl: false,
 				requestHandler: null,
+				logLevel: params.logLevel,
 			})
 		).bucketName;
 	const realServeUrl = providerSpecifics.convertToServeUrl({

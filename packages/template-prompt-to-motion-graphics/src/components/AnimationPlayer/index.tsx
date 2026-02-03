@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { Player, type ErrorFallback } from "@remotion/player";
+import React, { useRef, useEffect } from "react";
+import { Player, type ErrorFallback, type PlayerRef } from "@remotion/player";
 import { ErrorDisplay, type ErrorType } from "../ErrorDisplay";
 import { RenderControls } from "./RenderControls";
 import { SettingsModal } from "./SettingsModal";
@@ -32,6 +32,8 @@ interface AnimationPlayerProps {
   error: string | null;
   errorType?: ErrorType;
   code: string;
+  onRuntimeError?: (error: string) => void;
+  onFrameChange?: (frame: number) => void;
 }
 
 export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
@@ -45,7 +47,45 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
   error,
   errorType = "compilation",
   code,
+  onRuntimeError,
+  onFrameChange,
 }) => {
+  const playerRef = useRef<PlayerRef>(null);
+
+  // Listen for runtime errors from the Player's error boundary
+  // Component is included in deps because the Player remounts when Component changes (via key={Component.toString()})
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player || !onRuntimeError) return;
+
+    const handleError = (e: { detail: { error: Error } }) => {
+      onRuntimeError(e.detail.error.message);
+    };
+
+    player.addEventListener("error", handleError);
+    return () => {
+      player.removeEventListener("error", handleError);
+    };
+  }, [onRuntimeError, Component]);
+
+  // Listen for frame changes and report to parent
+  // Component is included in deps because the Player remounts when Component changes (via key={Component.toString()})
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player || !onFrameChange) return;
+
+    const handleFrameUpdate = (e: {
+      detail: { frame: number };
+    }) => {
+      onFrameChange(e.detail.frame);
+    };
+
+    player.addEventListener("frameupdate", handleFrameUpdate);
+    return () => {
+      player.removeEventListener("frameupdate", handleFrameUpdate);
+    };
+  }, [onFrameChange, Component]);
+
   const renderContent = () => {
     if (isStreaming) {
       return (
@@ -82,6 +122,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
       <>
         <div className="w-full aspect-video max-h-[calc(100%-80px)] rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
           <Player
+            ref={playerRef}
             key={Component.toString()}
             component={Component}
             durationInFrames={durationInFrames}

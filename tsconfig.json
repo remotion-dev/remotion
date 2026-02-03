@@ -248,6 +248,9 @@
 		},
 		{
 			"path": "./packages/rounded-text-box"
+		},
+		{
+			"path": "./packages/light-leaks"
 		}
 	]
 }

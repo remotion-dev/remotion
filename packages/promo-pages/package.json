@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/promo-pages",
-	"version": "4.0.409",
+	"version": "4.0.417",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -13,17 +13,20 @@
 	"dependencies": {
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/design": "workspace:*",
-		"@remotion/lambda": "workspace:*",
+		"@remotion/web-renderer": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/shapes": "workspace:*",
+		"@remotion/media": "workspace:*",
 		"@remotion/svg-3d-engine": "workspace:*",
 		"create-video": "workspace:*",
 		"hls.js": "1.5.19",
 		"polished": "4.3.1",
 		"remotion": "workspace:*",
 		"zod": "catalog:",
+		"@mux/upchunk": "^3.5.0",
+		"@vidstack/react": "1.12.13",
 		"bun-plugin-tailwind": "0.1.2"
 	},
 	"devDependencies": {

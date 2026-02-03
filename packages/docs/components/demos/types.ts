@@ -14,6 +14,7 @@ import {
 import {CircleDemo} from './Circle';
 import {EllipseDemo} from './Ellipse';
 import {HeartDemo} from './Heart';
+import {LightLeakDemoComp} from './LightLeakDemo';
 import {NoiseComp} from './NoiseDemo';
 import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
@@ -29,6 +30,10 @@ import {
 	SkewDemo,
 	TranslateDemo,
 } from './Translate';
+import {ShaderDemoComp} from './ShaderDemo';
+import {TransitionSeriesEnterExitDemoComp} from './TransitionSeriesEnterExitDemo';
+import {TransitionSeriesOverlayDemoComp} from './TransitionSeriesOverlayDemo';
+import {TransitionSeriesTransitionDemoComp} from './TransitionSeriesTransitionDemo';
 import {TriangleDemo} from './Triangle';
 
 export type Option = {
@@ -67,6 +72,7 @@ export type DemoType = {
 	durationInFrames: number;
 	options: Option[];
 	autoPlay: boolean;
+	controls: boolean;
 };
 
 export const rectDemo: DemoType = {
@@ -77,6 +83,7 @@ export const rectDemo: DemoType = {
 	fps: 30,
 	id: 'rect',
 	autoPlay: false,
+	controls: false,
 	options: [
 		{
 			default: 200,
@@ -131,6 +138,7 @@ export const triangleDemo: DemoType = {
 	fps: 30,
 	id: 'triangle',
 	autoPlay: false,
+	controls: false,
 	options: [
 		{
 			default: 200,
@@ -183,6 +191,7 @@ export const circleDemo: DemoType = {
 	fps: 30,
 	id: 'circle',
 	autoPlay: false,
+	controls: false,
 	options: [
 		{
 			default: 200,
@@ -204,6 +213,7 @@ export const heartDemo: DemoType = {
 	fps: 30,
 	id: 'heart',
 	autoPlay: false,
+	controls: false,
 	options: [
 		{
 			default: 300,
@@ -259,6 +269,7 @@ export const heartDemo: DemoType = {
 export const translateDemo: DemoType = {
 	comp: TranslateDemo,
 	autoPlay: false,
+	controls: false,
 	compHeight: 400,
 	compWidth: 1280,
 	durationInFrames: 150,
@@ -289,6 +300,7 @@ export const translateDemo: DemoType = {
 export const skewDemo: DemoType = {
 	comp: SkewDemo,
 	autoPlay: false,
+	controls: false,
 	compHeight: 400,
 	compWidth: 1280,
 	durationInFrames: 150,
@@ -310,6 +322,7 @@ export const skewDemo: DemoType = {
 export const scaleDemo: DemoType = {
 	comp: ScaleDemo,
 	autoPlay: false,
+	controls: false,
 	compHeight: 400,
 	compWidth: 1280,
 	durationInFrames: 150,
@@ -331,6 +344,7 @@ export const scaleDemo: DemoType = {
 export const opacityDemo: DemoType = {
 	comp: OpacityDemo,
 	autoPlay: false,
+	controls: false,
 	compHeight: 400,
 	compWidth: 1280,
 	durationInFrames: 150,
@@ -352,6 +366,7 @@ export const opacityDemo: DemoType = {
 export const rotateDemo: DemoType = {
 	comp: RotateDemo,
 	autoPlay: false,
+	controls: false,
 	compHeight: 400,
 	compWidth: 1280,
 	durationInFrames: 150,
@@ -378,6 +393,7 @@ export const pieDemo: DemoType = {
 	fps: 30,
 	id: 'pie',
 	autoPlay: false,
+	controls: false,
 	options: [
 		{
 			default: 200,
@@ -435,6 +451,7 @@ export const ellipseDemo: DemoType = {
 	fps: 30,
 	id: 'ellipse',
 	autoPlay: false,
+	controls: false,
 	options: [
 		{
 			default: 150,
@@ -464,6 +481,7 @@ export const polygonDemo: DemoType = {
 	fps: 30,
 	id: 'polygon',
 	autoPlay: false,
+	controls: false,
 	options: [
 		{
 			default: 3,
@@ -512,6 +530,7 @@ export const starDemo: DemoType = {
 	fps: 30,
 	id: 'star',
 	autoPlay: false,
+	controls: false,
 	options: [
 		{
 			default: 100,
@@ -569,6 +588,7 @@ export const noiseDemo: DemoType = {
 	fps: 30,
 	id: 'noise',
 	autoPlay: true,
+	controls: false,
 	options: [
 		{
 			default: 0.01,
@@ -608,6 +628,7 @@ export const fadePresentationDemo: DemoType = {
 	fps: 30,
 	id: 'fade',
 	autoPlay: true,
+	controls: false,
 	options: [],
 };
 
@@ -619,6 +640,7 @@ export const slidePresentationDemo: DemoType = {
 	fps: 30,
 	id: 'slide',
 	autoPlay: true,
+	controls: false,
 	options: [
 		{
 			type: 'enum',
@@ -637,6 +659,7 @@ export const flipPresentationDemo: DemoType = {
 	fps: 30,
 	id: 'flip',
 	autoPlay: true,
+	controls: false,
 	options: [
 		{
 			type: 'enum',
@@ -656,6 +679,7 @@ export const nonePresentationDemo: DemoType = {
 	fps: 30,
 	id: 'none',
 	autoPlay: true,
+	controls: false,
 	options: [],
 };
 
@@ -667,6 +691,7 @@ export const slidePresentationDemoLongThreshold: DemoType = {
 	fps: 30,
 	id: 'slide-long-duration-rest',
 	autoPlay: true,
+	controls: false,
 	options: [],
 };
 
@@ -678,6 +703,7 @@ export const wipePresentationDemo: DemoType = {
 	fps: 30,
 	id: 'wipe',
 	autoPlay: true,
+	controls: false,
 	options: [
 		{
 			type: 'enum',
@@ -706,6 +732,7 @@ export const roundedTextBoxDemo: DemoType = {
 	fps: 30,
 	id: 'rounded-text-box',
 	autoPlay: true,
+	controls: false,
 	options: [
 		{
 			type: 'enum',
@@ -759,6 +786,7 @@ export const clockWipePresentationDemo: DemoType = {
 	fps: 30,
 	id: 'clock-wipe',
 	autoPlay: true,
+	controls: false,
 	options: [],
 };
 
@@ -770,6 +798,7 @@ export const irisPresentationDemo: DemoType = {
 	fps: 30,
 	id: 'iris',
 	autoPlay: true,
+	controls: false,
 	options: [],
 };
 
@@ -781,6 +810,7 @@ export const cubePresentationDemo: DemoType = {
 	fps: 30,
 	id: 'cube',
 	autoPlay: true,
+	controls: false,
 	options: [
 		{
 			type: 'enum',
@@ -800,6 +830,7 @@ export const customPresentationDemo: DemoType = {
 	fps: 30,
 	id: 'custom-presentation',
 	autoPlay: true,
+	controls: false,
 	options: [],
 };
 
@@ -811,6 +842,7 @@ export const customTimingDemo: DemoType = {
 	fps: 30,
 	id: 'custom-timing',
 	autoPlay: true,
+	controls: false,
 	options: [],
 };
 
@@ -822,6 +854,7 @@ export const animationMathDemo: DemoType = {
 	fps: 30,
 	id: 'animation-math',
 	autoPlay: true,
+	controls: false,
 	options: [],
 };
 
@@ -833,6 +866,7 @@ export const springDemo: DemoType = {
 	fps: 30,
 	id: 'spring',
 	autoPlay: true,
+	controls: false,
 	options: [
 		{
 			name: 'damping',
@@ -885,6 +919,18 @@ export const springDemo: DemoType = {
 	],
 };
 
+export const shaderDemo: DemoType = {
+	comp: ShaderDemoComp,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'shader',
+	autoPlay: true,
+	controls: false,
+	options: [],
+};
+
 export const springDampingDemo: DemoType = {
 	comp: SpringDemo,
 	compHeight: 400,
@@ -893,6 +939,7 @@ export const springDampingDemo: DemoType = {
 	fps: 30,
 	id: 'spring-damping',
 	autoPlay: true,
+	controls: false,
 	options: [
 		{
 			name: 'damping',
@@ -901,6 +948,117 @@ export const springDampingDemo: DemoType = {
 			min: 1,
 			max: 200,
 			step: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const lightLeakDemo: DemoType = {
+	comp: LightLeakDemoComp,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'light-leak',
+	autoPlay: true,
+	controls: true,
+	options: [
+		{
+			name: 'seed',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 100,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'hueShift',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 360,
+			step: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const transitionSeriesTransitionDemo: DemoType = {
+	comp: TransitionSeriesTransitionDemoComp,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 120,
+	fps: 30,
+	id: 'transition-series-transition',
+	autoPlay: true,
+	controls: false,
+	options: [
+		{
+			name: 'presentation',
+			type: 'enum',
+			default: 'fade',
+			values: ['fade', 'slide', 'wipe'],
+			optional: 'no',
+		},
+		{
+			name: 'transitionDuration',
+			type: 'numeric',
+			default: 15,
+			min: 5,
+			max: 40,
+			step: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const transitionSeriesOverlayDemo: DemoType = {
+	comp: TransitionSeriesOverlayDemoComp,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 120,
+	fps: 30,
+	id: 'transition-series-overlay',
+	autoPlay: true,
+	controls: true,
+	options: [
+		{
+			name: 'overlayDuration',
+			type: 'numeric',
+			default: 30,
+			min: 4,
+			max: 60,
+			step: 2,
+			optional: 'no',
+		},
+		{
+			name: 'offset',
+			type: 'numeric',
+			default: 0,
+			min: -20,
+			max: 20,
+			step: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const transitionSeriesEnterExitDemo: DemoType = {
+	comp: TransitionSeriesEnterExitDemoComp,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'transition-series-enter-exit',
+	autoPlay: true,
+	controls: false,
+	options: [
+		{
+			name: 'presentation',
+			type: 'enum',
+			default: 'slide',
+			values: ['slide', 'fade', 'wipe'],
 			optional: 'no',
 		},
 	],

@@ -203,6 +203,7 @@ export const startStudio = async ({
 	}
 
 	printServerReadyComment('Server ready', logLevel);
+	RenderInternals.Log.info({indent: false, logLevel}, 'Building...');
 
 	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser({
 		configValueShouldOpenBrowser,

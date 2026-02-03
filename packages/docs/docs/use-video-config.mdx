@@ -42,7 +42,8 @@ The frame rate of the composition, in frames per seconds.
 
 ### `durationInFrames`
 
-The duration of the composition in frames or the `durationInFrames` of a [`<Sequence>`](/docs/sequence) if the component that calls `useVideoConfig()` is a child of a [`<Sequence>`](/docs/sequence) that defines a `durationInFrames`.
+If inside a [`<Sequence>`](/docs/sequence), the duration of the sequence in frames.  
+If not inside a [`<Sequence>`](/docs/sequence), the duration of the composition in frames.
 
 ### `id`
 

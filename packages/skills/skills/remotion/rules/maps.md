@@ -112,8 +112,6 @@ export const MyComposition = () => {
         _map.setConfigProperty('basemap', feature, false);
       }
 
-      _map.setConfigProperty('basemap', 'colorMotorways', 'rgba(0, 0, 0, 0)');
-      _map.setConfigProperty('basemap', 'colorRoads', 'rgba(0, 0, 0, 0)');
       _map.setConfigProperty('basemap', 'colorTrunks', 'rgba(0, 0, 0, 0)');
 
       _map.addSource('trace', {

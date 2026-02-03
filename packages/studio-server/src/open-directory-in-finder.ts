@@ -1,4 +1,4 @@
-import {exec, spawn} from 'node:child_process';
+import {spawn} from 'node:child_process';
 import {platform} from 'node:os';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
@@ -15,18 +15,20 @@ export const openDirectoryInFinder = (
 	}
 
 	if (platform() === 'win32') {
+		const proc = spawn('explorer.exe', ['/select,', resolved]);
+
 		return new Promise<void>((resolve, reject) => {
-			exec(`explorer.exe /select,${resolved}`, (error) => {
-				if (error?.code === 1) {
+			proc.on('exit', (code) => {
+				// explorer.exe returns 1 even on success
+				if (code === 0 || code === 1) {
 					resolve();
-					return;
+				} else {
+					reject(new Error(`explorer.exe exited with code ${code}`));
 				}
-
-				if (error) {
-					reject(error);
-				}
-
-				resolve();
+			});
+			proc.on('error', (err) => {
+				proc.kill();
+				reject(err);
 			});
 		});
 	}

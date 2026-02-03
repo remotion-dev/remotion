@@ -82,9 +82,32 @@ export const packages = [
 	'media',
 	'web-renderer',
 	'design',
+	'light-leaks',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
+
+export type ExtraPackage = {
+	name: string;
+	version: string;
+	description: string;
+	docsUrl: string;
+};
+
+export const extraPackages: ExtraPackage[] = [
+	{
+		name: 'zod',
+		version: '3.22.3',
+		description: 'Schema validation library for defining component props',
+		docsUrl: 'https://www.remotion.dev/docs/schemas',
+	},
+	{
+		name: 'mediabunny',
+		version: '1.29.0',
+		description: 'Multimedia library used by Remotion',
+		docsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
+	},
+];
 
 export const descriptions: {[key in Pkgs]: string | null} = {
 	compositor: 'Rust binary for Remotion',
@@ -175,6 +198,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	media: 'Experimental WebCodecs-based media tags',
 	'web-renderer': 'Render videos in the browser (not yet released)',
 	design: 'Design system',
+	'light-leaks': 'Light leak effects for Remotion',
 };
 export const installableMap: {[key in Pkgs]: boolean} = {
 	'svg-3d-engine': false,
@@ -260,6 +284,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	media: true,
 	'web-renderer': false,
 	design: false,
+	'light-leaks': true,
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -349,4 +374,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	media: 'https://remotion.dev/docs/media',
 	'web-renderer': 'https://www.remotion.dev/docs/web-renderer/',
 	design: 'https://www.remotion.dev/design',
+	'light-leaks': 'https://www.remotion.dev/docs/light-leaks',
 };

@@ -58,7 +58,7 @@ export const GetStarted: React.FC = () => {
 			</a>{' '}
 			<div className="w-2 h-2" />
 			<div className="w-full lg:w-auto">
-				<a className={'no-underline w-full block'} href="/docs/ai/claude-code">
+				<a className={'no-underline w-full block'} href="/prompts">
 					<Button className="w-full">
 						<svg
 							width="20"
@@ -73,7 +73,7 @@ export const GetStarted: React.FC = () => {
 								fill="#D97757"
 							/>
 						</svg>
-						Use with Claude Code
+						Prompt a video
 					</Button>
 				</a>
 			</div>

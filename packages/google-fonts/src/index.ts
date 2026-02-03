@@ -3971,6 +3971,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Kurale') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'LINE Seed JP',
+		importName: 'LINESeedJP',
+		load: () => import('./LINESeedJP') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'LXGW Marker Gothic',
 		importName: 'LXGWMarkerGothic',
 		load: () => import('./LXGWMarkerGothic') as Promise<GoogleFont>,
@@ -7425,6 +7430,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Rye',
 		importName: 'Rye',
 		load: () => import('./Rye') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'SN Pro',
+		importName: 'SNPro',
+		load: () => import('./SNPro') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'STIX Two Text',

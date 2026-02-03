@@ -3,6 +3,7 @@ import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {chalk} from './chalk';
+import {EXTRA_PACKAGES, EXTRA_PACKAGES_DOCS} from './extra-packages';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
@@ -58,6 +59,44 @@ const getAllVersions = async (
 	).filter(([, version]) => version);
 };
 
+type ExtraPackageStatus = {
+	pkg: string;
+	requiredVersion: string;
+	installedVersion: string | null;
+	path: string | null;
+	isCorrect: boolean;
+};
+
+const getExtraPackagesStatus = async (
+	remotionRoot: string,
+): Promise<ExtraPackageStatus[]> => {
+	const results: ExtraPackageStatus[] = [];
+
+	for (const [pkg, requiredVersion] of Object.entries(EXTRA_PACKAGES)) {
+		const versionAndPath = await getVersion(remotionRoot, pkg);
+
+		if (versionAndPath) {
+			results.push({
+				pkg,
+				requiredVersion,
+				installedVersion: versionAndPath.version,
+				path: versionAndPath.path,
+				isCorrect: versionAndPath.version === requiredVersion,
+			});
+		} else {
+			results.push({
+				pkg,
+				requiredVersion,
+				installedVersion: null,
+				path: null,
+				isCorrect: true, // Not installed is fine - only validate if installed
+			});
+		}
+	}
+
+	return results;
+};
+
 export const VERSIONS_COMMAND = 'versions';
 
 export const validateVersionsBeforeCommand = async (
@@ -70,26 +109,54 @@ export const validateVersionsBeforeCommand = async (
 
 	const installedVersions = Object.keys(grouped);
 
-	if (installedVersions.length === 1) {
+	const hasRemotionMismatch =
+		installedVersions.length > 1 && installedVersions.length !== 0;
+
+	// Check extra packages
+	const extraPackagesStatus = await getExtraPackagesStatus(remotionRoot);
+	const incorrectExtraPackages = extraPackagesStatus.filter(
+		(status) => !status.isCorrect,
+	);
+
+	if (!hasRemotionMismatch && incorrectExtraPackages.length === 0) {
 		return;
 	}
 
 	// Could be a global install of @remotion/cli.
 	// If you render a bundle with a different version, it will give a warning accordingly.
-	if (installedVersions.length === 0) {
+	if (installedVersions.length === 0 && incorrectExtraPackages.length === 0) {
 		return;
 	}
 
 	const logOptions: LogOptions = {indent: false, logLevel};
 	Log.warn(logOptions, '-------------');
 	Log.warn(logOptions, 'Version mismatch:');
-	for (const version of installedVersions) {
-		Log.warn(logOptions, `- On version: ${version}`);
-		for (const pkg of grouped[version] ?? []) {
+
+	if (hasRemotionMismatch) {
+		for (const version of installedVersions) {
+			Log.warn(logOptions, `- On version: ${version}`);
+			for (const pkg of grouped[version] ?? []) {
+				Log.warn(
+					logOptions,
+					`  - ${pkg.pkg} ${chalk.gray(path.relative(remotionRoot, pkg.versionAndPath.path))}`,
+				);
+			}
+
+			Log.info({indent: false, logLevel});
+		}
+	}
+
+	if (incorrectExtraPackages.length > 0) {
+		Log.warn(logOptions, 'Extra packages with wrong versions:');
+		for (const status of incorrectExtraPackages) {
+			const docLink = EXTRA_PACKAGES_DOCS[status.pkg];
 			Log.warn(
 				logOptions,
-				`  - ${pkg.pkg} ${chalk.gray(path.relative(remotionRoot, pkg.versionAndPath.path))}`,
+				`  - ${status.pkg}: installed ${status.installedVersion}, required ${status.requiredVersion}`,
 			);
+			if (docLink) {
+				Log.warn(logOptions, `    See: ${docLink}`);
+			}
 		}
 
 		Log.info({indent: false, logLevel});
@@ -109,6 +176,13 @@ export const validateVersionsBeforeCommand = async (
 		logOptions,
 		'- Remove the `^` character in front of a version to pin a package.',
 	);
+	for (const incorrectPkg of incorrectExtraPackages) {
+		Log.warn(
+			logOptions,
+			`- For ${incorrectPkg.pkg}, install exact version ${incorrectPkg.requiredVersion} (run: npx remotion add ${incorrectPkg.pkg}).`,
+		);
+	}
+
 	if (!RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose')) {
 		Log.warn(
 			logOptions,
@@ -149,6 +223,29 @@ export const versionsCommand = async (
 		Log.info({indent: false, logLevel});
 	}
 
+	// Check extra packages
+	const extraPackagesStatus = await getExtraPackagesStatus(remotionRoot);
+	const installedExtraPackages = extraPackagesStatus.filter(
+		(status) => status.installedVersion !== null,
+	);
+
+	if (installedExtraPackages.length > 0) {
+		Log.info({indent: false, logLevel}, 'Extra packages:');
+		for (const status of installedExtraPackages) {
+			const versionStatus = status.isCorrect
+				? chalk.green(`${status.installedVersion}`)
+				: chalk.red(
+						`${status.installedVersion} (required: ${status.requiredVersion})`,
+					);
+			Log.info({indent: false, logLevel}, `- ${status.pkg}@${versionStatus}`);
+			if (status.path) {
+				Log.verbose({indent: false, logLevel}, `  ${status.path}`);
+			}
+		}
+
+		Log.info({indent: false, logLevel});
+	}
+
 	if (installedVersions.length === 0) {
 		Log.info({indent: false, logLevel}, 'No Remotion packages found.');
 		Log.info(
@@ -163,24 +260,53 @@ export const versionsCommand = async (
 		process.exit(1);
 	}
 
-	if (installedVersions.length === 1) {
+	const incorrectExtraPackages = extraPackagesStatus.filter(
+		(status) => !status.isCorrect,
+	);
+
+	if (installedVersions.length === 1 && incorrectExtraPackages.length === 0) {
 		Log.info(
 			{indent: false, logLevel},
-			`✅ Great! All packages have the same version.`,
+			`All packages have the correct version.`,
 		);
 	} else {
-		Log.error(
-			{indent: false, logLevel},
-			'Version mismatch: Not all Remotion packages have the same version.',
-		);
-		Log.info(
-			{indent: false, logLevel},
-			'- Make sure your package.json has all Remotion packages pointing to the same version.',
-		);
-		Log.info(
-			{indent: false, logLevel},
-			'- Remove the `^` character in front of a version to pin a package.',
-		);
+		if (installedVersions.length !== 1) {
+			Log.error(
+				{indent: false, logLevel},
+				'Version mismatch: Not all Remotion packages have the same version.',
+			);
+			Log.info(
+				{indent: false, logLevel},
+				'- Make sure your package.json has all Remotion packages pointing to the same version.',
+			);
+			Log.info(
+				{indent: false, logLevel},
+				'- Remove the `^` character in front of a version to pin a package.',
+			);
+		}
+
+		if (incorrectExtraPackages.length > 0) {
+			Log.error(
+				{indent: false, logLevel},
+				'Extra packages have incorrect versions:',
+			);
+			for (const status of incorrectExtraPackages) {
+				const docLink = EXTRA_PACKAGES_DOCS[status.pkg];
+				Log.info(
+					{indent: false, logLevel},
+					`- ${status.pkg}: installed ${status.installedVersion}, required ${status.requiredVersion}`,
+				);
+				if (docLink) {
+					Log.info({indent: false, logLevel}, `  See: ${docLink}`);
+				}
+			}
+
+			Log.info(
+				{indent: false, logLevel},
+				`To fix, run: npx remotion add ${incorrectExtraPackages.map((s) => s.pkg).join(' ')}`,
+			);
+		}
+
 		if (!RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose')) {
 			Log.info(
 				{indent: false, logLevel},
