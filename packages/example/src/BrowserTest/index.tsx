@@ -236,24 +236,93 @@ const WebGLCheck: React.FC = () => {
 	);
 };
 
+const SystemFontCheck: React.FC = () => {
+	const frame = useCurrentFrame();
+	const opacity = Math.min(1, frame / 30);
+
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundColor: 'white',
+				justifyContent: 'center',
+				alignItems: 'center',
+				padding: 40,
+			}}
+		>
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					gap: 30,
+					opacity,
+				}}
+			>
+				<h1
+					style={{
+						fontFamily: 'sans-serif',
+						fontSize: 120,
+						color: 'black',
+						fontWeight: 'bold',
+						margin: 0,
+					}}
+				>
+					System Font Test
+				</h1>
+				<p
+					style={{
+						fontFamily: 'serif',
+						fontSize: 60,
+						color: 'black',
+						margin: 0,
+					}}
+				>
+					Serif: The quick brown fox
+				</p>
+				<p
+					style={{
+						fontFamily: 'sans-serif',
+						fontSize: 60,
+						color: 'black',
+						margin: 0,
+					}}
+				>
+					Sans-serif: jumps over the lazy dog
+				</p>
+				<p
+					style={{
+						fontFamily: 'monospace',
+						fontSize: 48,
+						color: 'black',
+						margin: 0,
+					}}
+				>
+					Monospace: 0123456789 !@#$%
+				</p>
+			</div>
+		</AbsoluteFill>
+	);
+};
+
 const FPS = 30;
 const DURATION_IN_FRAMES = 2 * 60 * FPS; // 2 minutes
-const GPU_SCENE_DURATION = Math.floor(DURATION_IN_FRAMES / 3);
-const MEDIA_DURATION = Math.floor(DURATION_IN_FRAMES / 3);
-const WEBGL_DURATION = DURATION_IN_FRAMES - GPU_SCENE_DURATION - MEDIA_DURATION;
+const SCENE_DURATION = Math.floor(DURATION_IN_FRAMES / 4);
 
 export const BrowserTest: React.FC = () => {
 	return (
 		<AbsoluteFill>
-			<Sequence durationInFrames={GPU_SCENE_DURATION}>
+			<Sequence durationInFrames={SCENE_DURATION}>
+				<SystemFontCheck />
+			</Sequence>
+			<Sequence from={SCENE_DURATION} durationInFrames={SCENE_DURATION}>
 				<GpuScene />
 			</Sequence>
-			<Sequence from={GPU_SCENE_DURATION} durationInFrames={MEDIA_DURATION}>
+			<Sequence from={SCENE_DURATION * 2} durationInFrames={SCENE_DURATION}>
 				<MediaVideos />
 			</Sequence>
 			<Sequence
-				from={GPU_SCENE_DURATION + MEDIA_DURATION}
-				durationInFrames={WEBGL_DURATION}
+				from={SCENE_DURATION * 3}
+				durationInFrames={DURATION_IN_FRAMES - SCENE_DURATION * 3}
 			>
 				<WebGLCheck />
 			</Sequence>
