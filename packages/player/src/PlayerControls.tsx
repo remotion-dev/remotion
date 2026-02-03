@@ -267,17 +267,9 @@ export const Controls: React.FC<{
 		return null;
 	}, [showPlaybackRateControl]);
 
-	const customControlsElement = renderCustomControls ? (
-		<div
-			style={{
-				display: 'flex',
-				alignItems: 'center',
-				gap: '4px',
-			}}
-		>
-			{renderCustomControls()}
-		</div>
-	) : null;
+	const customControlsElement = renderCustomControls
+		? renderCustomControls()
+		: null;
 
 	const ref = useRef<HTMLDivElement | null>(null);
 	const flexRef = useRef<HTMLDivElement | null>(null);
