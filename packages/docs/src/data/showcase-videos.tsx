@@ -249,19 +249,28 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		},
 	},
 	{
-		title: 'Polygon - Campaign',
+		title: 'HeyGen - Video Agent',
 		type: 'mux_video',
-		time: '10',
-		muxId: 'tswSoVoFUjryYX8702phE801Fv00VwtB018cIy3a25fNo01c',
+		time: '75.5',
+		muxId: 'pKHRj00yo6eV1nHaXWSsjzvP1rBjQkey68qAp8gFy8Wk',
 		description:
-			'A year-in-review for stock performance provided by Polygon Stock API.',
-		height: 1194,
-		width: 2048,
-		submittedOn: new Date('01-02-2023'),
-		links: [],
+			"Fully made with HeyGen's Video Agent, powered by Remotion. Avatar, script, motion graphics, and final edits were all created just by prompting.",
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('01-29-2026'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://www.heygen.com/',
+			},
+			{
+				type: 'video',
+				url: 'https://x.com/joshua_xu_/status/2016714990242439600',
+			},
+		],
 		author: {
-			url: 'https://polygon.io',
-			name: 'Polygon',
+			url: 'https://x.com/joshua_xu_',
+			name: 'Joshua Xu',
 		},
 	},
 	{

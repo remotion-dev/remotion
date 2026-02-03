@@ -44,13 +44,20 @@ test(
 			});
 			expect(result.type).toBe('success');
 			assert(result.type === 'success');
-			outputTimestamps.push(result.sample?.timestamp ?? 0);
+			outputTimestamps.push(result.frame?.timestamp ?? 0);
 		}
 
 		expect(realTimestamps).toEqual([
 			6.466666666666666, 6.533333333333332, 6.6000000000000005,
 			3.3333333333333335, 3.4, 3.4666666666666663,
 		]);
-		expect(outputTimestamps).toEqual([6.44, 6.52, 6.6, 3.32, 3.4, 3.44]);
+		expect(outputTimestamps).toEqual([
+			6.44 * 1_000_000,
+			6.52 * 1_000_000,
+			6.6 * 1_000_000,
+			3.32 * 1_000_000,
+			3.4 * 1_000_000,
+			3.44 * 1_000_000,
+		]);
 	},
 );

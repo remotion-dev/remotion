@@ -33,7 +33,11 @@ const result = await build({
 		'./src/components/template-modal-content.tsx',
 		'./src/components/experts.tsx',
 		'./src/components/experts/experts-data.tsx',
+		'./src/components/prompts/PromptsGallery.tsx',
+		'./src/components/prompts/PromptsSubmit.tsx',
+		'./src/components/prompts/PromptsShow.tsx',
 	],
+	root: './src/components',
 	outdir: 'dist',
 	format: 'esm',
 	external: [
@@ -44,6 +48,7 @@ const result = await build({
 		'hls.js',
 		'plyr',
 		'zod',
+		'@mux/upchunk',
 	],
 });
 

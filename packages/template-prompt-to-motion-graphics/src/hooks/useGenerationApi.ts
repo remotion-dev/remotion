@@ -11,12 +11,18 @@ import {
   stripMarkdownFences,
 } from "@/helpers/sanitize-response";
 
+interface FailedEditInfo {
+  description: string;
+  old_string: string;
+  new_string: string;
+}
+
 interface GenerationCallbacks {
   onCodeGenerated?: (code: string) => void;
   onStreamingChange?: (isStreaming: boolean) => void;
   onStreamPhaseChange?: (phase: StreamPhase) => void;
-  onError?: (error: string, type: GenerationErrorType) => void;
-  onMessageSent?: (prompt: string) => void;
+  onError?: (error: string, type: GenerationErrorType, failedEdit?: FailedEditInfo) => void;
+  onMessageSent?: (prompt: string, attachedImages?: string[]) => void;
   onGenerationComplete?: (
     code: string,
     summary?: string,
@@ -25,6 +31,7 @@ interface GenerationCallbacks {
   onErrorMessage?: (
     message: string,
     errorType: "edit_failed" | "api" | "validation",
+    failedEdit?: FailedEditInfo,
   ) => void;
   onPendingMessage?: (skills?: string[]) => void;
   onClearPendingMessage?: () => void;
@@ -37,6 +44,7 @@ interface GenerationContext {
   isFollowUp: boolean;
   hasManualEdits: boolean;
   errorCorrection?: ErrorCorrectionContext;
+  frameImages?: string[];
 }
 
 interface UseGenerationApiReturn {
@@ -70,6 +78,7 @@ export function useGenerationApi(): UseGenerationApiReturn {
         isFollowUp,
         hasManualEdits,
         errorCorrection,
+        frameImages,
       } = context;
 
       const {
@@ -90,7 +99,7 @@ export function useGenerationApi(): UseGenerationApiReturn {
 
       // Only add user message if not a silent retry
       if (!options?.silent) {
-        onMessageSent?.(prompt);
+        onMessageSent?.(prompt, frameImages);
       }
 
       try {
@@ -106,6 +115,7 @@ export function useGenerationApi(): UseGenerationApiReturn {
             isFollowUp,
             hasManualEdits,
             errorCorrection,
+            frameImages,
           }),
         });
 
@@ -114,8 +124,8 @@ export function useGenerationApi(): UseGenerationApiReturn {
           const errorMessage =
             errorData.error || `API error: ${response.status}`;
           if (errorData.type === "edit_failed") {
-            onError?.(errorMessage, "validation");
-            onErrorMessage?.(errorMessage, "edit_failed");
+            onError?.(errorMessage, "validation", errorData.failedEdit);
+            onErrorMessage?.(errorMessage, "edit_failed", errorData.failedEdit);
             return;
           }
           if (errorData.type === "validation") {

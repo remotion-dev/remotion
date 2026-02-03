@@ -242,6 +242,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		forcePathStyle: params.forcePathStyle,
 		skipPutAcl: false,
 		requestHandler: null,
+		logLevel: params.logLevel,
 	});
 
 	registerCleanupTask(() => {

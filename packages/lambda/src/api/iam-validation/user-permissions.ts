@@ -44,6 +44,7 @@ export const requiredPermissions: {
 			's3:DeleteBucket',
 			's3:PutBucketOwnershipControls',
 			's3:PutBucketPublicAccessBlock',
+			's3:PutBucketPolicy',
 			's3:PutLifecycleConfiguration',
 		],
 		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],

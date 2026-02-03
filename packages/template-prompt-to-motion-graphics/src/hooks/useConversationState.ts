@@ -4,6 +4,7 @@ import type {
   ConversationState,
   ConversationContextMessage,
   AssistantMetadata,
+  EditOperation,
 } from "@/types/conversation";
 
 export function useConversationState() {
@@ -17,12 +18,13 @@ export function useConversationState() {
   // Track the last AI-generated code to detect manual edits
   const lastAiCodeRef = useRef<string>("");
 
-  const addUserMessage = useCallback((content: string) => {
+  const addUserMessage = useCallback((content: string, attachedImages?: string[]) => {
     const message: ConversationMessage = {
       id: `user-${Date.now()}`,
       role: "user",
       content,
       timestamp: Date.now(),
+      attachedImages,
     };
     setState((prev) => ({
       ...prev,
@@ -54,13 +56,18 @@ export function useConversationState() {
   );
 
   const addErrorMessage = useCallback(
-    (content: string, errorType: "edit_failed" | "api" | "validation") => {
+    (
+      content: string,
+      errorType: "edit_failed" | "api" | "validation",
+      failedEdit?: EditOperation,
+    ) => {
       const message: ConversationMessage = {
         id: `error-${Date.now()}`,
         role: "error",
         content,
         timestamp: Date.now(),
         errorType,
+        failedEdit,
       };
       setState((prev) => ({
         ...prev,

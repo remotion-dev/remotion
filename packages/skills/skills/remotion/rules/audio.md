@@ -13,10 +13,7 @@ First, the @remotion/media package needs to be installed.
 If it is not installed, use the following command:
 
 ```bash
-npx remotion add @remotion/media # If project uses npm
-bunx remotion add @remotion/media # If project uses bun
-yarn remotion add @remotion/media # If project uses yarn
-pnpm exec remotion add @remotion/media # If project uses pnpm
+npx remotion add @remotion/media
 ```
 
 ## Importing Audio

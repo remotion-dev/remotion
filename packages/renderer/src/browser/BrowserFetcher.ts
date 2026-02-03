@@ -29,10 +29,10 @@ import {ChromeMode} from '../options/chrome-mode';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
 import {getDownloadsCacheDir} from './get-download-destination';
 
-const TESTED_VERSION = '134.0.6998.35';
-// https://github.com/microsoft/playwright/tree/v1.51.0
+export const TESTED_VERSION = '144.0.7559.20';
+// https://github.com/microsoft/playwright/blame/e76ca6cba40c26bf22c19cf37398d2b9da9ed465/packages/playwright-core/browsers.json
 // packages/playwright-core/browsers.json
-const PLAYWRIGHT_VERSION = '1161'; // 134.0.6998.35
+const PLAYWRIGHT_VERSION = '1207'; // 144.0.7559.20
 
 type Platform = 'linux64' | 'linux-arm64' | 'mac-x64' | 'mac-arm64' | 'win64';
 
@@ -50,7 +50,11 @@ function getChromeDownloadUrl({
 			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
 		}
 
-		return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
+		if (version) {
+			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
+		}
+
+		return `https://remotion.media/chromium-headless-shell-linux-arm64-144.0.7559.20.zip?clearcache`;
 	}
 
 	if (chromeMode === 'headless-shell') {
@@ -105,6 +109,35 @@ const getDownloadsFolder = (chromeMode: ChromeMode) => {
 	return path.join(getDownloadsCacheDir(), destination);
 };
 
+const getVersionFilePath = (chromeMode: ChromeMode): string => {
+	const downloadsFolder = getDownloadsFolder(chromeMode);
+	return path.join(downloadsFolder, 'VERSION');
+};
+
+const getExpectedVersion = (
+	version: string | null,
+	_chromeMode: ChromeMode,
+): string => {
+	if (version) {
+		return version;
+	}
+	return TESTED_VERSION;
+};
+
+export const readVersionFile = (chromeMode: ChromeMode): string | null => {
+	const versionFilePath = getVersionFilePath(chromeMode);
+	try {
+		return fs.readFileSync(versionFilePath, 'utf-8').trim();
+	} catch {
+		return null;
+	}
+};
+
+const writeVersionFile = (chromeMode: ChromeMode, version: string): void => {
+	const versionFilePath = getVersionFilePath(chromeMode);
+	fs.writeFileSync(versionFilePath, version);
+};
+
 export const downloadBrowser = async ({
 	logLevel,
 	indent,
@@ -128,9 +161,16 @@ export const downloadBrowser = async ({
 	const downloadsFolder = getDownloadsFolder(chromeMode);
 	const archivePath = path.join(downloadsFolder, fileName);
 	const outputPath = getFolderPath(downloadsFolder, platform);
+	const expectedVersion = getExpectedVersion(version, chromeMode);
 
 	if (await existsAsync(outputPath)) {
-		return getRevisionInfo(chromeMode);
+		const installedVersion = readVersionFile(chromeMode);
+		if (installedVersion === expectedVersion) {
+			return getRevisionInfo(chromeMode);
+		}
+
+		// VERSION file missing or mismatched - delete and re-download
+		fs.rmSync(outputPath, {recursive: true, force: true});
 	}
 
 	if (!(await existsAsync(downloadsFolder))) {
@@ -196,6 +236,8 @@ export const downloadBrowser = async ({
 			await unlinkAsync(archivePath);
 		}
 	}
+
+	writeVersionFile(chromeMode, expectedVersion);
 
 	const revisionInfo = getRevisionInfo(chromeMode);
 	makeFileExecutableIfItIsNot(revisionInfo.executablePath);

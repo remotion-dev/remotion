@@ -23,7 +23,7 @@ await ensureBrowser({
     console.log('Downloading browser');
 
     return {
-      version: '134.0.6998.35',
+      version: '144.0.7559.20',
       onProgress: ({percent}) => {
         console.log(`${Math.round(percent * 100)}% downloaded`);
       },
@@ -67,7 +67,7 @@ const onBrowserDownload: OnBrowserDownload = () => {
 
   return {
     // Pass `null` to use Remotion's recommendation.
-    version: '134.0.6998.35',
+    version: '144.0.7559.20',
     onProgress,
   };
 };

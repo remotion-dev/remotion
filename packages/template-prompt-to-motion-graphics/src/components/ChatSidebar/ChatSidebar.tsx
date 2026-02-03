@@ -6,6 +6,7 @@ import {
   useImperativeHandle,
   useRef,
   useEffect,
+  type ComponentType,
 } from "react";
 import {
   PanelLeftClose,
@@ -28,6 +29,7 @@ import type {
   ConversationContextMessage,
   AssistantMetadata,
   ErrorCorrectionContext,
+  EditOperation,
 } from "@/types/conversation";
 import {
   type StreamPhase,
@@ -39,7 +41,7 @@ import { ChatInput } from "./ChatInput";
 import { useGenerationApi } from "@/hooks/useGenerationApi";
 
 export interface ChatSidebarRef {
-  triggerGeneration: (options?: { silent?: boolean }) => void;
+  triggerGeneration: (options?: { silent?: boolean; attachedImages?: string[] }) => void;
 }
 
 interface ChatSidebarProps {
@@ -55,14 +57,14 @@ interface ChatSidebarProps {
   onCodeGenerated?: (code: string) => void;
   onStreamingChange?: (isStreaming: boolean) => void;
   onStreamPhaseChange?: (phase: StreamPhase) => void;
-  onError?: (error: string, type: GenerationErrorType) => void;
+  onError?: (error: string, type: GenerationErrorType, failedEdit?: EditOperation) => void;
   prompt: string;
   onPromptChange: (prompt: string) => void;
   currentCode?: string;
   conversationHistory?: ConversationContextMessage[];
   previouslyUsedSkills?: string[];
   isFollowUp?: boolean;
-  onMessageSent?: (prompt: string) => void;
+  onMessageSent?: (prompt: string, attachedImages?: string[]) => void;
   onGenerationComplete?: (
     code: string,
     summary?: string,
@@ -75,6 +77,11 @@ interface ChatSidebarProps {
   errorCorrection?: ErrorCorrectionContext;
   onPendingMessage?: (skills?: string[]) => void;
   onClearPendingMessage?: () => void;
+  // Frame capture props
+  Component?: ComponentType | null;
+  fps?: number;
+  durationInFrames?: number;
+  currentFrame?: number;
 }
 
 export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
@@ -101,6 +108,10 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
       errorCorrection,
       onPendingMessage,
       onClearPendingMessage,
+      Component,
+      fps = 30,
+      durationInFrames = 150,
+      currentFrame = 0,
     },
     ref,
   ) {
@@ -120,7 +131,10 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    const handleGeneration = async (options?: { silent?: boolean }) => {
+    const handleGeneration = async (options?: {
+      silent?: boolean;
+      attachedImages?: string[];
+    }) => {
       const currentPrompt = promptRef.current;
       if (!currentPrompt.trim()) return;
 
@@ -136,6 +150,7 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
           isFollowUp,
           hasManualEdits,
           errorCorrection,
+          frameImages: options?.attachedImages,
         },
         {
           onCodeGenerated,
@@ -230,7 +245,13 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
               model={model}
               onModelChange={setModel}
               isLoading={isLoading}
-              onSubmit={handleGeneration}
+              onSubmit={(attachedImages) =>
+                handleGeneration({ attachedImages })
+              }
+              Component={Component}
+              fps={fps}
+              durationInFrames={durationInFrames}
+              currentFrame={currentFrame}
             />
           </>
         )}
@@ -258,6 +279,19 @@ function ChatMessage({ message }: { message: ConversationMessage }) {
         </div>
         <div className="text-sm text-foreground leading-relaxed bg-secondary/50 rounded-lg px-3 py-2">
           {message.content}
+          {message.attachedImages && message.attachedImages.length > 0 && (
+            <div className="flex gap-2 mt-2 overflow-x-auto">
+              {message.attachedImages.map((img, index) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={index}
+                  src={img}
+                  alt={`Attached ${index + 1}`}
+                  className="h-20 w-auto rounded border border-border object-cover flex-shrink-0"
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
