@@ -17677,26 +17677,26 @@ export const googleFonts: Font[] = [
 	{
 		family: 'Kedebideri',
 		variants: ['regular', '500', '600', '700', '800', '900'],
-		subsets: ['latin'],
-		version: 'v2',
-		lastModified: '2025-11-20',
+		subsets: ['beria-erfe', 'latin'],
+		version: 'v6',
+		lastModified: '2026-01-29',
 		files: {
 			'500':
-				'https://fonts.gstatic.com/s/kedebideri/v2/t5tmIR0UPo6ZGAykNh_etFLr7TzFrpOHYh4.woff2',
+				'https://fonts.gstatic.com/s/kedebideri/v6/t5tmIR0UPo6ZGAykNh_etFLr7TzFrpOHYh4.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/kedebideri/v2/t5tmIR0UPo6ZGAykNh_etH7s7TzFrpOHYh4.woff2',
+				'https://fonts.gstatic.com/s/kedebideri/v6/t5tmIR0UPo6ZGAykNh_etH7s7TzFrpOHYh4.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/kedebideri/v2/t5tmIR0UPo6ZGAykNh_etBrt7TzFrpOHYh4.woff2',
+				'https://fonts.gstatic.com/s/kedebideri/v6/t5tmIR0UPo6ZGAykNh_etBrt7TzFrpOHYh4.woff2',
 			'800':
-				'https://fonts.gstatic.com/s/kedebideri/v2/t5tmIR0UPo6ZGAykNh_etAbu7TzFrpOHYh4.woff2',
+				'https://fonts.gstatic.com/s/kedebideri/v6/t5tmIR0UPo6ZGAykNh_etAbu7TzFrpOHYh4.woff2',
 			'900':
-				'https://fonts.gstatic.com/s/kedebideri/v2/t5tmIR0UPo6ZGAykNh_etCLv7TzFrpOHYh4.woff2',
+				'https://fonts.gstatic.com/s/kedebideri/v6/t5tmIR0UPo6ZGAykNh_etCLv7TzFrpOHYh4.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/kedebideri/v2/t5tlIR0UPo6ZGAykNh_ejKPCyTHuspo.woff2',
+				'https://fonts.gstatic.com/s/kedebideri/v6/t5tlIR0UPo6ZGAykNh_ejKPCyTHuspo.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/kedebideri/v2/t5tlIR0UPo6ZGAykNh_evKfIyA.woff2',
+		menu: 'https://fonts.gstatic.com/s/kedebideri/v6/t5tlIR0UPo6ZGAykNh_evKfIyA.woff2',
 	},
 	{
 		family: 'Kelly Slab',
@@ -23913,21 +23913,21 @@ export const googleFonts: Font[] = [
 		family: 'Noto Naskh Arabic',
 		variants: ['regular', '500', '600', '700'],
 		subsets: ['arabic', 'latin', 'latin-ext', 'math', 'symbols'],
-		version: 'v43',
-		lastModified: '2025-11-20',
+		version: 'v44',
+		lastModified: '2026-01-28',
 		files: {
 			'500':
-				'https://fonts.gstatic.com/s/notonaskharabic/v43/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwj85kqa0z9_Mnuw.woff2',
+				'https://fonts.gstatic.com/s/notonaskharabic/v44/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwj85kqa0z9_Mnuw.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/notonaskharabic/v43/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwY8lkqa0z9_Mnuw.woff2',
+				'https://fonts.gstatic.com/s/notonaskharabic/v44/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwY8lkqa0z9_Mnuw.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/notonaskharabic/v43/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwWslkqa0z9_Mnuw.woff2',
+				'https://fonts.gstatic.com/s/notonaskharabic/v44/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwWslkqa0z9_Mnuw.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/notonaskharabic/v43/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwvc5kqa0z9_Mnuw.woff2',
+				'https://fonts.gstatic.com/s/notonaskharabic/v44/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwvc5kqa0z9_Mnuw.woff2',
 		},
 		category: 'serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/notonaskharabic/v43/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwvc5Uracy.woff2',
+		menu: 'https://fonts.gstatic.com/s/notonaskharabic/v44/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwvc5Uracy.woff2',
 	},
 	{
 		family: 'Noto Nastaliq Urdu',
@@ -24301,31 +24301,31 @@ export const googleFonts: Font[] = [
 			'900',
 		],
 		subsets: ['bengali', 'latin', 'latin-ext'],
-		version: 'v32',
-		lastModified: '2025-09-17',
+		version: 'v33',
+		lastModified: '2026-01-28',
 		files: {
 			'100':
-				'https://fonts.gstatic.com/s/notosansbengali/v32/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsolKudWk8izI0lc.woff2',
+				'https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsolKudWk8izI0lc.woff2',
 			'200':
-				'https://fonts.gstatic.com/s/notosansbengali/v32/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsglLudWk8izI0lc.woff2',
+				'https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsglLudWk8izI0lc.woff2',
 			'300':
-				'https://fonts.gstatic.com/s/notosansbengali/v32/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmstdLudWk8izI0lc.woff2',
+				'https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmstdLudWk8izI0lc.woff2',
 			'500':
-				'https://fonts.gstatic.com/s/notosansbengali/v32/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsrtLudWk8izI0lc.woff2',
+				'https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsrtLudWk8izI0lc.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/notosansbengali/v32/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsldMudWk8izI0lc.woff2',
+				'https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsldMudWk8izI0lc.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/notosansbengali/v32/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6Kmsm5MudWk8izI0lc.woff2',
+				'https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6Kmsm5MudWk8izI0lc.woff2',
 			'800':
-				'https://fonts.gstatic.com/s/notosansbengali/v32/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsglMudWk8izI0lc.woff2',
+				'https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsglMudWk8izI0lc.woff2',
 			'900':
-				'https://fonts.gstatic.com/s/notosansbengali/v32/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsiBMudWk8izI0lc.woff2',
+				'https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsiBMudWk8izI0lc.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/notosansbengali/v32/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsolLudWk8izI0lc.woff2',
+				'https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsolLudWk8izI0lc.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/notosansbengali/v32/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsolLidGu8w.woff2',
+		menu: 'https://fonts.gstatic.com/s/notosansbengali/v33/Cn-SJsCGWQxOjaGwMQ6fIiMywrNJIky6nvd8BjzVMvJx2mcSPVFpVEqE-6KmsolLidGu8w.woff2',
 	},
 	{
 		family: 'Noto Sans Bhaiksuki',
@@ -32447,35 +32447,69 @@ export const googleFonts: Font[] = [
 		family: 'Playwrite NZ',
 		variants: ['100', '200', '300', 'regular'],
 		subsets: ['latin'],
-		version: 'v11',
-		lastModified: '2025-09-08',
+		version: 'v12',
+		lastModified: '2026-01-28',
 		files: {
 			'100':
-				'https://fonts.gstatic.com/s/playwritenz/v11/d6lakaOxRsyr_zZDmUYvh2TW3NCQVvjKPjPjngAVeR55gGCzkrs.woff2',
+				'https://fonts.gstatic.com/s/playwritenz/v12/d6lakaOxRsyr_zZDmUYvh2TW3NCQVvjKPjPjngAVeR55gGCzkrs.woff2',
 			'200':
-				'https://fonts.gstatic.com/s/playwritenz/v11/d6lakaOxRsyr_zZDmUYvh2TW3NCQVvjKPjPjnoAUeR55gGCzkrs.woff2',
+				'https://fonts.gstatic.com/s/playwritenz/v12/d6lakaOxRsyr_zZDmUYvh2TW3NCQVvjKPjPjnoAUeR55gGCzkrs.woff2',
 			'300':
-				'https://fonts.gstatic.com/s/playwritenz/v11/d6lakaOxRsyr_zZDmUYvh2TW3NCQVvjKPjPjnl4UeR55gGCzkrs.woff2',
+				'https://fonts.gstatic.com/s/playwritenz/v12/d6lakaOxRsyr_zZDmUYvh2TW3NCQVvjKPjPjnl4UeR55gGCzkrs.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/playwritenz/v11/d6lakaOxRsyr_zZDmUYvh2TW3NCQVvjKPjPjngAUeR55gGCzkrs.woff2',
+				'https://fonts.gstatic.com/s/playwritenz/v12/d6lakaOxRsyr_zZDmUYvh2TW3NCQVvjKPjPjngAUeR55gGCzkrs.woff2',
 		},
 		category: 'handwriting',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/playwritenz/v11/d6lakaOxRsyr_zZDmUYvh2TW3NCQVvjKPjPjngAUSRpzgQ.woff2',
+		menu: 'https://fonts.gstatic.com/s/playwritenz/v12/d6lakaOxRsyr_zZDmUYvh2TW3NCQVvjKPjPjngAUSRpzgQ.woff2',
+	},
+	{
+		family: 'Playwrite NZ Basic',
+		variants: ['100', '200', '300', 'regular'],
+		subsets: ['latin'],
+		version: 'v1',
+		lastModified: '2026-01-28',
+		files: {
+			'100':
+				'https://fonts.gstatic.com/s/playwritenzbasic/v1/YcmesYdNS1SdgmHbGgtRtk4ljD2L-0t3tsFaQT-eokVSUi0LLohfcbg5URU.woff2',
+			'200':
+				'https://fonts.gstatic.com/s/playwritenzbasic/v1/YcmesYdNS1SdgmHbGgtRtk4ljD2L-0t3tsFaQT-eokVSUq0KLohfcbg5URU.woff2',
+			'300':
+				'https://fonts.gstatic.com/s/playwritenzbasic/v1/YcmesYdNS1SdgmHbGgtRtk4ljD2L-0t3tsFaQT-eokVSUnMKLohfcbg5URU.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/playwritenzbasic/v1/YcmesYdNS1SdgmHbGgtRtk4ljD2L-0t3tsFaQT-eokVSUi0KLohfcbg5URU.woff2',
+		},
+		category: 'handwriting',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/playwritenzbasic/v1/YcmesYdNS1SdgmHbGgtRtk4ljD2L-0t3tsFaQT-eokVSUi0KHoxVcA.woff2',
+	},
+	{
+		family: 'Playwrite NZ Basic Guides',
+		variants: ['regular'],
+		subsets: ['latin'],
+		version: 'v1',
+		lastModified: '2026-01-28',
+		files: {
+			regular:
+				'https://fonts.gstatic.com/s/playwritenzbasicguides/v1/R70Ijzkdl_2TLaCpQB6Y1nC0FVKKJvaZ2hDyljkrmGWAdZNU-YI.woff2',
+		},
+		category: 'handwriting',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/playwritenzbasicguides/v1/R70Ijzkdl_2TLaCpQB6Y1nC0FVKKJvaZ2hDyljkrqGGKdA.woff2',
 	},
 	{
 		family: 'Playwrite NZ Guides',
 		variants: ['regular'],
 		subsets: ['latin'],
-		version: 'v1',
-		lastModified: '2025-05-30',
+		version: 'v2',
+		lastModified: '2026-01-28',
 		files: {
 			regular:
-				'https://fonts.gstatic.com/s/playwritenzguides/v1/t5t8IQQPN4uFDRepJwiX4vzIikyGzv71Whoxq25PL5k.woff2',
+				'https://fonts.gstatic.com/s/playwritenzguides/v2/t5t8IQQPN4uFDRepJwiX4vzIikyGzv71Whoxq25PL5k.woff2',
 		},
 		category: 'handwriting',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/playwritenzguides/v1/t5t8IQQPN4uFDRepJwiX4vzIikyGzv71ah47qg.woff2',
+		menu: 'https://fonts.gstatic.com/s/playwritenzguides/v2/t5t8IQQPN4uFDRepJwiX4vzIikyGzv71ah47qg.woff2',
 	},
 	{
 		family: 'Playwrite PE',
@@ -36120,6 +36154,67 @@ export const googleFonts: Font[] = [
 		category: 'display',
 		kind: 'webfonts#webfont',
 		menu: 'https://fonts.gstatic.com/s/rye/v17/r05XGLJT86YzF57t.woff2',
+	},
+	{
+		family: 'SN Pro',
+		variants: [
+			'200',
+			'300',
+			'regular',
+			'500',
+			'600',
+			'700',
+			'800',
+			'900',
+			'200italic',
+			'300italic',
+			'italic',
+			'500italic',
+			'600italic',
+			'700italic',
+			'800italic',
+			'900italic',
+		],
+		subsets: ['cyrillic', 'cyrillic-ext', 'latin', 'latin-ext', 'vietnamese'],
+		version: 'v1',
+		lastModified: '2026-01-28',
+		files: {
+			'200':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSov5zWIAwPIq7LZry_YDa71rhEQSf_UmyJw0SLRA8.woff2',
+			'300':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSov5zWIAwPIq7LZry_YDa71rhEQfn_UmyJw0SLRA8.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSov5zWIAwPIq7LZry_YDa71rhEQZX_UmyJw0SLRA8.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSov5zWIAwPIq7LZry_YDa71rhEQXn4UmyJw0SLRA8.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSov5zWIAwPIq7LZry_YDa71rhEQUD4UmyJw0SLRA8.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSov5zWIAwPIq7LZry_YDa71rhEQSf4UmyJw0SLRA8.woff2',
+			'900':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSov5zWIAwPIq7LZry_YDa71rhEQQ74UmyJw0SLRA8.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/snpro/v1/NGSov5zWIAwPIq7LZry_YDa71rhEQaf_UmyJw0SLRA8.woff2',
+			'200italic':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSqv5zWIAwPIq7hb45AuF_QTBZDVG-8OiqDwmaOVA9PqQ.woff2',
+			'300italic':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSqv5zWIAwPIq7hb45AuF_QTBZDVG-85CqDwmaOVA9PqQ.woff2',
+			italic:
+				'https://fonts.gstatic.com/s/snpro/v1/NGSqv5zWIAwPIq7hb45AuF_QTBZDVG-8uiqDwmaOVA9PqQ.woff2',
+			'500italic':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSqv5zWIAwPIq7hb45AuF_QTBZDVG-8iCqDwmaOVA9PqQ.woff2',
+			'600italic':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSqv5zWIAwPIq7hb45AuF_QTBZDVG-8ZC2DwmaOVA9PqQ.woff2',
+			'700italic':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSqv5zWIAwPIq7hb45AuF_QTBZDVG-8XS2DwmaOVA9PqQ.woff2',
+			'800italic':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSqv5zWIAwPIq7hb45AuF_QTBZDVG-8Oi2DwmaOVA9PqQ.woff2',
+			'900italic':
+				'https://fonts.gstatic.com/s/snpro/v1/NGSqv5zWIAwPIq7hb45AuF_QTBZDVG-8Ey2DwmaOVA9PqQ.woff2',
+		},
+		category: 'sans-serif',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/snpro/v1/NGSov5zWIAwPIq7LZry_YDa71rhEQaf_YmiDwg.woff2',
 	},
 	{
 		family: 'STIX Two Text',

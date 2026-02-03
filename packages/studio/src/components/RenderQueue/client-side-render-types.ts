@@ -1,4 +1,10 @@
-import type {RenderStillOnWebImageFormat} from '@remotion/web-renderer';
+import type {
+	RenderStillOnWebImageFormat,
+	WebRendererAudioCodec,
+	WebRendererContainer,
+	WebRendererQuality,
+	WebRendererVideoCodec,
+} from '@remotion/web-renderer';
 import type {LogLevel} from 'remotion';
 
 export type ClientRenderJobProgress = {
@@ -46,13 +52,13 @@ export type ClientStillRenderJob = ClientRenderJobBase & {
 
 export type ClientVideoRenderJob = ClientRenderJobBase & {
 	type: 'client-video';
-	container: string;
-	videoCodec: string;
-	audioCodec: string;
+	container: WebRendererContainer;
+	videoCodec: WebRendererVideoCodec;
+	audioCodec: WebRendererAudioCodec;
 	startFrame: number;
 	endFrame: number;
-	audioBitrate: string;
-	videoBitrate: string;
+	audioBitrate: WebRendererQuality;
+	videoBitrate: WebRendererQuality;
 	hardwareAcceleration: string;
 	keyframeIntervalInSeconds: number;
 	transparent: boolean;

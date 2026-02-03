@@ -1,6 +1,6 @@
 import type {VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
-import {getTotalCacheStats, SAFE_WINDOW_OF_MONOTONICITY} from '../caches';
+import {getSafeWindowOfMonotonicity, getTotalCacheStats} from '../caches';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {type KeyframeBank, makeKeyframeBank} from './keyframe-bank';
 
@@ -153,12 +153,14 @@ export const makeKeyframeManager = () => {
 		timestampInSeconds,
 		src,
 		logLevel,
+		fps,
 	}: {
 		timestampInSeconds: number;
 		src: string;
 		logLevel: LogLevel;
+		fps: number;
 	}) => {
-		const threshold = timestampInSeconds - SAFE_WINDOW_OF_MONOTONICITY;
+		const threshold = timestampInSeconds - getSafeWindowOfMonotonicity(fps);
 
 		if (!sources[src]) {
 			return;
@@ -172,10 +174,11 @@ export const makeKeyframeManager = () => {
 				continue;
 			}
 
-			const {lastTimestamp} = range;
-
-			if (lastTimestamp < threshold) {
-				bank.prepareForDeletion(logLevel, 'cleared before threshold');
+			if (range.lastTimestamp < threshold) {
+				bank.prepareForDeletion(
+					logLevel,
+					'cleared before threshold ' + threshold,
+				);
 				Internals.Log.verbose(
 					{logLevel, tag: '@remotion/media'},
 					`[Video] Cleared frames for src ${src} from ${range.firstTimestamp}sec to ${range.lastTimestamp}sec`,
@@ -270,12 +273,14 @@ export const makeKeyframeManager = () => {
 		src,
 		logLevel,
 		maxCacheSize,
+		fps,
 	}: {
 		timestamp: number;
 		videoSampleSink: VideoSampleSink;
 		src: string;
 		logLevel: LogLevel;
 		maxCacheSize: number;
+		fps: number;
 	}) => {
 		ensureToStayUnderMaxCacheSize(logLevel, maxCacheSize);
 
@@ -283,6 +288,7 @@ export const makeKeyframeManager = () => {
 			timestampInSeconds: timestamp,
 			src,
 			logLevel,
+			fps,
 		});
 
 		const keyframeBank = await getKeyframeBankOrRefetch({
@@ -319,12 +325,14 @@ export const makeKeyframeManager = () => {
 			src,
 			logLevel,
 			maxCacheSize,
+			fps,
 		}: {
 			timestamp: number;
 			videoSampleSink: VideoSampleSink;
 			src: string;
 			logLevel: LogLevel;
 			maxCacheSize: number;
+			fps: number;
 		}) => {
 			queue = queue.then(() =>
 				requestKeyframeBank({
@@ -333,6 +341,7 @@ export const makeKeyframeManager = () => {
 					src,
 					logLevel,
 					maxCacheSize,
+					fps,
 				}),
 			);
 			return queue as Promise<KeyframeBank>;

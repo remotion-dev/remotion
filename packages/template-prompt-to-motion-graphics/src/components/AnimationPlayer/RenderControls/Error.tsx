@@ -1,25 +1,47 @@
 import React from "react";
 
+const isLambdaNotConfiguredError = (message: string): boolean => {
+  return (
+    message.includes("Set up Remotion Lambda") ||
+    message.includes("Function not found:")
+  );
+};
+
 export const ErrorComp: React.FC<{
   message: string;
 }> = ({ message }) => {
+  const isLambdaError = isLambdaNotConfiguredError(message);
+
+  if (isLambdaError) {
+    return (
+      <div className="py-2">
+        <div className="text-destructive text-sm font-semibold font-sans">
+          Lambda not configured
+        </div>
+        <div className="text-destructive-foreground text-sm font-sans mt-1">
+          To render videos, set up Remotion Lambda and add your AWS credentials
+          to the <code className="font-mono text-xs">.env</code> file.{" "}
+          <a
+            href="https://www.remotion.dev/docs/lambda/setup"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            Setup guide
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="text-geist-error font-geist py-geist-half">
-      <svg
-        fill="none"
-        shapeRendering="geometricPrecision"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-        className="h-5 align-text-bottom mr-1.5 inline"
-      >
-        <circle cx="12" cy="12" r="10" fill="var(--geist-fill)"></circle>
-        <path d="M12 8v4" stroke="currentColor"></path>
-        <path d="M12 16h.01" stroke="currentColor"></path>
-      </svg>
-      <strong>Error:</strong> {message}
+    <div className="py-2">
+      <div className="text-destructive text-sm font-semibold font-sans">
+        Error
+      </div>
+      <div className="text-destructive-foreground text-sm font-mono mt-1 whitespace-pre-wrap break-words">
+        {message}
+      </div>
     </div>
   );
 };

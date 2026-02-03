@@ -9,73 +9,91 @@
   </a>
 </p>
 
-AI-powered motion graphics - creating Remotion code from a natural language prompt.
+AI-powered motion graphics generator that transforms natural language prompts into Remotion code.
 
-## Process Overview
+## Architecture
 
 ```
-User Prompt → Validation → Code Generation → Sanitization → Compilation → Remotion Preview
+User Prompt → Validation → Skill Detection → Code Generation → Sanitization → Live Preview
 ```
 
-### Overview - How It Works
+## How It Works
 
-1. **Validation** (`/api/generate`) - Classifies if the prompt is valid motion graphics content before calling the expensive generation model
+### 1. Validation
 
-2. **Code Generation** - Uses OpenAI with a detailed system prompt containing animation patterns and examples. Code is streamed via Server-Sent Events for real-time feedback
+Before expensive model calls, a lightweight classifier determines if the prompt describes valid motion graphics content.
 
-3. **Sanitization** (`sanitize-response.ts`) - Extracts clean component code from AI output using brace-counting to handle trailing commentary
+**Accepted**: animated text, data visualizations, UI animations, social media content, abstract motion graphics
 
-4. **Compilation** (`compiler.ts`) - Transpiles the code string in the browser to an executable React component using Babel, then renders in the standard Remotion Preview
+**Rejected**: questions, conversational requests, non-visual tasks
 
-### Validation
+### 2. Skill Detection
 
-Before calling the expensive code generation model, we run a cheap validation step using `generateObject()` to classify whether a prompt is valid motion graphics content. This returns a simple boolean.
+The system analyzes the prompt to identify which **skills** are relevant. Skills are modular knowledge units that provide domain-specific guidance to the code generation model.
 
-**Valid prompts** include requests for:
+There are two types of skills:
 
-- Animated text, titles, kinetic typography
-- Data visualizations (charts, graphs, progress bars)
-- UI animations, logo animations, brand intros
-- Social media content, explainer animations
-- Abstract motion graphics, animated illustrations
+- **Guidance Skills** - Pattern libraries with best practices for specific domains (charts, typography, transitions, etc.)
+- **Example Skills** - Complete working code references that demonstrate specific animation patterns
 
-**Invalid prompts** are filtered out:
+This approach keeps the base prompt lightweight while dynamically injecting only the relevant expertise for each request.
 
-- Questions ("What is 2+2?", "How do I...")
-- Text content requests (conversational, tell me a joke, ...)
-- Non-visual tasks (calculations, translations)
+### 3. Code Generation
 
-On validation failure, the user gets a helpful error message before any expensive API calls are made.
+Uses a one-shot prompt with the base Remotion knowledge plus any detected skills. The generated code follows these principles:
 
-### Code Generation
+- **Constants-first design** - All text, colors, and timing values are declared as editable constants at the top
+- **Aesthetic defaults** - Guidance on visual polish, spacing, and animation feel
+- **Crossfade patterns** - Smooth state transitions without layout jumps
+- **Spring physics** - Natural, organic motion using Remotion's spring() function
 
-The current prompting approach is a simple one-shot prompt without LLM loops or example lookups. GPT 5.2 Low reasoning seems to be a good middle ground between generation speed and output quality.
+### 4. Sanitization & Compilation
 
-Contents of the system prompt
+The response is cleaned (removing markdown wrappers and trailing commentary), then compiled in-browser using Babel. The compiled component renders directly in the Remotion Preview with all necessary APIs injected.
 
-- **Constants-first**: All text, colors, and timing as editable constants. This helps user to easily change the variables in the editor
-- General **aesthetic guidance** on motion graphic for better output
-- **Crossfade layers**: Smooth state transitions without layout jumps
-- **Reserved names**: Warns against shadowing `spring`, `interpolate`, hooks
-- **Output Examples** to give the LLM an understanding of what we are expecting
+## Skills System
 
-### Sanitization
+Skills enable contextual expertise without bloating every prompt. Located in `src/skills/`:
 
-The AI response may contain markdown wrappers (```tsx blocks) or trailing commentary after the code. The sanitization step:
+### Guidance Skills
 
-- Strips markdown code block wrappers
-- Uses brace-counting to extract only the component code, cutting off any explanatory text the model adds after the closing brace
-- Validates that the output contains valid JSX using regex checks
+| Skill              | Purpose                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| **charts**         | Data visualization patterns - bar charts, pie charts, axis labels, staggered animations |
+| **typography**     | Kinetic text - typewriter effects, word carousels, text highlights                      |
+| **messaging**      | Chat UI - bubble layouts, WhatsApp/iMessage styling, staggered entrances                |
+| **transitions**    | Scene changes - TransitionSeries, fade/slide/wipe effects                               |
+| **sequencing**     | Timing control - Sequence, Series, staggered delays                                     |
+| **spring-physics** | Organic motion - spring configs, bounce effects, chained animations                     |
+| **social-media**   | Platform-specific formats - aspect ratios, safe zones                                   |
+| **3d**             | Three.js integration - 3D scenes, camera setup                                          |
 
-### Compilation
+### Example Skills (Code Snippets)
 
-For a good end to end user experience, it is a priority to directly show a preview of the generated remotion code in the same app.
+Example skills provide complete working references (histogram, chat messages, typewriter effects, etc.) that demonstrate these patterns in action. We think of them like implementation archetypes that can be used and adjusted for the user prompt.
 
-- Extracts the component body from the ES6 module format - we get rid of the imports and just extract the component itself `export const MyAnimation = () => { ... };`
-- Transpiles JSX/TypeScript to JavaScript using Babel (in-browser)
-- Creates a `Function` constructor with all Remotion APIs injected, we did a pre-selection of common available APIs that can be used for the animations(`useCurrentFrame`, `spring`, `interpolate`, `Sequence`, `AbsoluteFill`, etc.)
-- Also injects shape libraries (`@remotion/shapes`), Lottie support, and Three.js for 3D
-- The compiled component is then rendered in the standard Remotion Preview
+## Usage Tips
+
+**Prompting best practices:**
+
+- Be specific about colors, timing, and layout ("green sent bubbles on the right, gray received on the left")
+- Include data directly in the prompt for charts and visualizations
+- Describe the animation feel you want ("bouncy spring entrance", "smooth fade", "staggered timing")
+
+**Images:**
+
+- Direct image uploads are not supported
+- Reference images via URL - the generated code will use Remotion's `<Img>` component
+- Example: _"Create a DVD screensaver animation of this image https://example.com/logo.png"_
+
+**What works well:**
+
+- Kinetic typography and text animations
+- Data visualizations with animated entrances
+- Chat/messaging UI mockups
+- Social media content (Stories, Reels, TikTok)
+- Logo animations and brand intros
+- Abstract motion graphics
 
 ## Commands
 

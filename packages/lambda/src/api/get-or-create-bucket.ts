@@ -18,5 +18,6 @@ export const getOrCreateBucket = (
 		forcePathStyle: false,
 		skipPutAcl: false,
 		requestHandler: options.requestHandler ?? null,
+		logLevel: options.logLevel ?? 'info',
 	});
 };

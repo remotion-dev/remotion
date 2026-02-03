@@ -12,6 +12,14 @@ import type {
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {PackageManager, RenderDefaults} from '@remotion/studio-shared';
+import type {
+	RenderStillOnWebImageFormat,
+	WebRendererAudioCodec,
+	WebRendererContainer,
+	WebRendererHardwareAcceleration,
+	WebRendererQuality,
+	WebRendererVideoCodec,
+} from '@remotion/web-renderer';
 import type React from 'react';
 import {createContext} from 'react';
 import type {_InternalTypes} from 'remotion';
@@ -28,7 +36,21 @@ export type WebRenderModalState = {
 	inFrameMark: number | null;
 	outFrameMark: number | null;
 	initialLogLevel: LogLevel;
+	initialStillImageFormat: RenderStillOnWebImageFormat;
+	initialScale: number;
+	initialDelayRenderTimeout: number;
+	initialDefaultOutName: string | null;
+	initialContainer: WebRendererContainer | null;
+	initialVideoCodec: WebRendererVideoCodec | null;
+	initialAudioCodec: WebRendererAudioCodec | null;
+	initialAudioBitrate: WebRendererQuality | null;
+	initialVideoBitrate: WebRendererQuality | null;
+	initialHardwareAcceleration: WebRendererHardwareAcceleration | null;
+	initialKeyframeIntervalInSeconds: number | null;
+	initialTransparent: boolean | null;
+	initialMuted: boolean | null;
 	initialLicenseKey: string | null;
+	initialMediaCacheSizeInBytes: number | null;
 };
 
 export type RenderModalState = {
