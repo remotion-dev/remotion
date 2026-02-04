@@ -38,15 +38,21 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
 
   if (variant === "fullscreen") {
     return (
-      <div className="w-full aspect-video max-h-[calc(100%-80px)] flex justify-center items-center bg-background-error rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)] border border-destructive">
-        <Alert variant="destructive" className="max-w-[80%] bg-transparent border-none text-center">
-          <AlertCircle className={cn(styles.icon, "mx-auto")} />
-          {title && <AlertTitle className={styles.title}>{title}</AlertTitle>}
-          <AlertDescription className={cn(styles.description, "text-destructive-foreground font-mono whitespace-pre-wrap break-words")}>
-            {error}
-          </AlertDescription>
+      <div className="w-full aspect-video max-h-[calc(100%-80px)] flex flex-col justify-center items-center bg-background-elevated rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
+        <div className="flex flex-col items-center gap-4 max-w-[80%] p-8">
+          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-destructive/10">
+            <AlertCircle className="h-6 w-6 text-destructive" />
+          </div>
+          {title && (
+            <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+          )}
+          <div className="bg-background-error/50 border border-destructive/30 rounded-lg p-4 max-w-full overflow-auto">
+            <pre className="text-sm text-destructive font-mono whitespace-pre-wrap break-words text-center">
+              {error}
+            </pre>
+          </div>
           {children}
-        </Alert>
+        </div>
       </div>
     );
   }
