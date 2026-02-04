@@ -175,8 +175,10 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
     return (
       <div
         className={cn(
-          "flex flex-col bg-background transition-all duration-300 shrink-0",
-          isCollapsed ? "w-12" : "w-[420px]",
+          "flex flex-col bg-background transition-all duration-300",
+          isCollapsed
+            ? "w-12 shrink-0"
+            : "w-full h-[40vh] min-[1000px]:h-auto min-[1000px]:w-[40%] min-[1000px]:min-w-[320px] min-[1000px]:max-w-[520px] shrink",
         )}
       >
         {isCollapsed ? (
@@ -193,7 +195,7 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
         ) : (
           <>
             {/* Header */}
-            <div className="flex items-start justify-between px-4 mb-3">
+            <div className="flex items-start justify-between px-12 mb-3">
               <h2 className="text-sm font-medium text-muted-foreground">
                 Assistant Chat
               </h2>
@@ -228,7 +230,7 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-6">
+            <div className="flex-1 overflow-y-auto px-12 pb-4 space-y-6">
               {messages.map((message) => (
                 <ChatMessage key={message.id} message={message} />
               ))}
