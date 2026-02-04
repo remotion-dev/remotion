@@ -25,7 +25,7 @@ import {
   MODELS,
 } from "@/types/generation";
 import { ChatInput } from "./ChatInput";
-import { ConversationHistory } from "./ConversationHistory";
+import { ChatHistory } from "./ChatHistory";
 import { useGenerationApi } from "@/hooks/useGenerationApi";
 
 export interface ChatSidebarRef {
@@ -220,7 +220,7 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
             </div>
 
             {/* Messages */}
-            <ConversationHistory
+            <ChatHistory
               messages={messages}
               pendingMessage={pendingMessage}
             />

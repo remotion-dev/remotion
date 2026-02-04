@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/tooltip";
 import type { ConversationMessage } from "@/types/conversation";
 
-interface ConversationHistoryProps {
+interface ChatHistoryProps {
   messages: ConversationMessage[];
   pendingMessage?: {
     skills?: string[];
@@ -17,10 +17,10 @@ interface ConversationHistoryProps {
   };
 }
 
-export function ConversationHistory({
+export function ChatHistory({
   messages,
   pendingMessage,
-}: ConversationHistoryProps) {
+}: ChatHistoryProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
