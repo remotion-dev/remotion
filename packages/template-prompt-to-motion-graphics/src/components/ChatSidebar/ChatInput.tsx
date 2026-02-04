@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, type ComponentType } from "react";
+import { useState, useEffect, type ComponentType } from "react";
 import { ArrowUp, Camera, X, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -54,7 +55,17 @@ export function ChatInput({
     handleDragLeave,
     handleDrop,
     canAddMore,
+    error,
+    clearError,
   } = useImageAttachments();
+
+  // Auto-clear error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(clearError, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, clearError]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,6 +114,22 @@ export function ChatInput({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
+          {/* Error message */}
+          {error && (
+            <Alert variant="destructive" className="mb-2 py-2 flex items-center justify-between text-xs">
+              <AlertDescription className="text-xs">{error}</AlertDescription>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={clearError}
+                className="h-5 w-5 text-destructive hover:text-destructive hover:bg-destructive/20"
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            </Alert>
+          )}
+
           {/* Image previews */}
           {attachedImages.length > 0 && (
             <div className="mb-2 flex gap-2 overflow-x-auto pb-1 pt-2">

@@ -2,6 +2,8 @@ import { useState, useRef, useCallback, type ChangeEvent, type DragEvent, type C
 import { fileToBase64 } from "@/helpers/capture-frame";
 
 const MAX_ATTACHED_IMAGES = 4;
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB per image
+const MAX_FILE_SIZE_MB = MAX_FILE_SIZE_BYTES / (1024 * 1024);
 
 interface UseImageAttachmentsReturn {
   attachedImages: string[];
@@ -16,12 +18,41 @@ interface UseImageAttachmentsReturn {
   handleDragLeave: (e: DragEvent) => void;
   handleDrop: (e: DragEvent) => Promise<void>;
   canAddMore: boolean;
+  error: string | null;
+  clearError: () => void;
 }
 
 export function useImageAttachments(): UseImageAttachmentsReturn {
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  const filterValidFiles = useCallback((files: File[]): File[] => {
+    const validFiles: File[] = [];
+    const oversizedFiles: File[] = [];
+
+    for (const file of files) {
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        oversizedFiles.push(file);
+      } else {
+        validFiles.push(file);
+      }
+    }
+
+    if (oversizedFiles.length > 0) {
+      const fileNames = oversizedFiles.map((f) => f.name).join(", ");
+      setError(
+        `${oversizedFiles.length === 1 ? "File" : "Files"} too large (max ${MAX_FILE_SIZE_MB}MB): ${fileNames}`
+      );
+    }
+
+    return validFiles;
+  }, []);
 
   const addImages = useCallback((newImages: string[]) => {
     setAttachedImages((prev) => {
@@ -41,11 +72,14 @@ export function useImageAttachments(): UseImageAttachmentsReturn {
   const handleFileSelect = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const imageFiles = files.filter((f) => f.type.startsWith("image/"));
-    const base64Images = await Promise.all(imageFiles.map(fileToBase64));
-    addImages(base64Images);
+    const validFiles = filterValidFiles(imageFiles);
+    if (validFiles.length > 0) {
+      const base64Images = await Promise.all(validFiles.map(fileToBase64));
+      addImages(base64Images);
+    }
     // Reset input so same file can be selected again
     e.target.value = "";
-  }, [addImages]);
+  }, [addImages, filterValidFiles]);
 
   const handlePaste = useCallback(async (e: ClipboardEvent) => {
     const items = Array.from(e.clipboardData.items);
@@ -55,10 +89,13 @@ export function useImageAttachments(): UseImageAttachmentsReturn {
       const files = imageItems
         .map((item) => item.getAsFile())
         .filter((f): f is File => f !== null);
-      const base64Images = await Promise.all(files.map(fileToBase64));
-      addImages(base64Images);
+      const validFiles = filterValidFiles(files);
+      if (validFiles.length > 0) {
+        const base64Images = await Promise.all(validFiles.map(fileToBase64));
+        addImages(base64Images);
+      }
     }
-  }, [addImages]);
+  }, [addImages, filterValidFiles]);
 
   const handleDragOver = useCallback((e: DragEvent) => {
     e.preventDefault();
@@ -76,9 +113,12 @@ export function useImageAttachments(): UseImageAttachmentsReturn {
 
     const files = Array.from(e.dataTransfer.files);
     const imageFiles = files.filter((f) => f.type.startsWith("image/"));
-    const base64Images = await Promise.all(imageFiles.map(fileToBase64));
-    addImages(base64Images);
-  }, [addImages]);
+    const validFiles = filterValidFiles(imageFiles);
+    if (validFiles.length > 0) {
+      const base64Images = await Promise.all(validFiles.map(fileToBase64));
+      addImages(base64Images);
+    }
+  }, [addImages, filterValidFiles]);
 
   return {
     attachedImages,
@@ -93,5 +133,7 @@ export function useImageAttachments(): UseImageAttachmentsReturn {
     handleDragLeave,
     handleDrop,
     canAddMore: attachedImages.length < MAX_ATTACHED_IMAGES,
+    error,
+    clearError,
   };
 }

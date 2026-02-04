@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowUp,
@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { examplePrompts } from "@/examples/prompts";
 import { type ModelId, MODELS } from "@/types/generation";
 import { useImageAttachments } from "@/hooks/useImageAttachments";
@@ -58,7 +59,17 @@ export function LandingPageInput({
     handleDragLeave,
     handleDrop,
     canAddMore,
+    error,
+    clearError,
   } = useImageAttachments();
+
+  // Auto-clear error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(clearError, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, clearError]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,6 +100,22 @@ export function LandingPageInput({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
+          {/* Error message */}
+          {error && (
+            <Alert variant="destructive" className="mb-3 flex items-center justify-between">
+              <AlertDescription>{error}</AlertDescription>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={clearError}
+                className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/20"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </Alert>
+          )}
+
           {/* Image previews */}
           {attachedImages.length > 0 && (
             <div className="mb-3 flex gap-2 overflow-x-auto pb-1 pt-2">

@@ -1,4 +1,6 @@
 import React from "react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const isLambdaNotConfiguredError = (message: string): boolean => {
   return (
@@ -14,11 +16,10 @@ export const ErrorComp: React.FC<{
 
   if (isLambdaError) {
     return (
-      <div className="py-2">
-        <div className="text-destructive text-sm font-semibold font-sans">
-          Lambda not configured
-        </div>
-        <div className="text-destructive-foreground text-sm font-sans mt-1">
+      <Alert variant="destructive" className="my-2">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Lambda not configured</AlertTitle>
+        <AlertDescription>
           To render videos, set up Remotion Lambda and add your AWS credentials
           to the <code className="font-mono text-xs">.env</code> file.{" "}
           <a
@@ -29,19 +30,18 @@ export const ErrorComp: React.FC<{
           >
             Setup guide
           </a>
-        </div>
-      </div>
+        </AlertDescription>
+      </Alert>
     );
   }
 
   return (
-    <div className="py-2">
-      <div className="text-destructive text-sm font-semibold font-sans">
-        Error
-      </div>
-      <div className="text-destructive-foreground text-sm font-mono mt-1 whitespace-pre-wrap break-words">
+    <Alert variant="destructive" className="my-2">
+      <AlertCircle className="h-4 w-4" />
+      <AlertTitle>Error</AlertTitle>
+      <AlertDescription className="font-mono whitespace-pre-wrap break-words">
         {message}
-      </div>
-    </div>
+      </AlertDescription>
+    </Alert>
   );
 };
