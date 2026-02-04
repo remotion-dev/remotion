@@ -116,6 +116,27 @@ npm run dev
 5. Completed video is uploaded to Vercel Blob
 6. User receives the video URL
 
+## Speed Up Renders with Snapshots
+
+Each fresh sandbox creation installs system dependencies, `@remotion/renderer`, and downloads headless Chrome. You can skip this setup by creating a sandbox snapshot:
+
+```bash
+bun run create-snapshot
+```
+
+This creates a pre-configured sandbox with everything installed. Copy the snapshot ID and add it to your environment:
+
+```bash
+# .env.local (for local development)
+SANDBOX_SNAPSHOT_ID=snap_xxxxx
+
+# Or add to Vercel project settings for production
+```
+
+With a snapshot, renders skip the setup phase and start rendering immediately.
+
+**Note:** Snapshots expire after 7 days. Run `bun run create-snapshot` again to create a new one.
+
 ## Docs
 
 Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).

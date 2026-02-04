@@ -79,6 +79,8 @@ export async function POST(req: Request) {
 		);
 	}
 
+	const snapshotId = process.env.SANDBOX_SNAPSHOT_ID;
+
 	let sandbox: Sandbox | null = null;
 
 	const encoder = new TextEncoder();
@@ -94,63 +96,81 @@ export async function POST(req: Request) {
 			const payload = await req.json();
 			const body = RenderRequest.parse(payload);
 
-			await send({ type: "phase", phase: "Creating sandbox..." });
+			// If we have a snapshot, use it to skip setup
+			if (snapshotId) {
+				await send({
+					type: "phase",
+					phase: "Creating sandbox from snapshot...",
+				});
 
-			sandbox = await Sandbox.create({
-				runtime: "node24",
-				timeout: 5 * 60 * 1000,
-			});
+				sandbox = await Sandbox.create({
+					source: { type: "snapshot", snapshotId },
+					timeout: 5 * 60 * 1000,
+				});
+			} else {
+				await send({ type: "phase", phase: "Creating sandbox..." });
 
-			await send({ type: "phase", phase: "Installing system dependencies..." });
+				sandbox = await Sandbox.create({
+					runtime: "node24",
+					timeout: 5 * 60 * 1000,
+				});
 
-			const sysInstallCmd = await sandbox.runCommand({
-				cmd: "sudo",
-				args: [
-					"dnf",
-					"install",
-					"-y",
-					"nss",
-					"atk",
-					"at-spi2-atk",
-					"cups-libs",
-					"libdrm",
-					"libXcomposite",
-					"libXdamage",
-					"libXrandr",
-					"mesa-libgbm",
-					"alsa-lib",
-					"pango",
-					"gtk3",
-				],
-				detached: true,
-			});
+				await send({
+					type: "phase",
+					phase: "Installing system dependencies...",
+				});
 
-			for await (const log of sysInstallCmd.logs()) {
-				await send({ type: "log", stream: log.stream, data: log.data });
-			}
+				const sysInstallCmd = await sandbox.runCommand({
+					cmd: "sudo",
+					args: [
+						"dnf",
+						"install",
+						"-y",
+						"nss",
+						"atk",
+						"at-spi2-atk",
+						"cups-libs",
+						"libdrm",
+						"libXcomposite",
+						"libXdamage",
+						"libXrandr",
+						"mesa-libgbm",
+						"alsa-lib",
+						"pango",
+						"gtk3",
+					],
+					detached: true,
+				});
 
-			const sysInstallResult = await sysInstallCmd.wait();
-			if (sysInstallResult.exitCode !== 0) {
-				throw new Error(
-					`System dependencies install failed: ${await sysInstallResult.stderr()}`,
-				);
-			}
+				for await (const log of sysInstallCmd.logs()) {
+					await send({ type: "log", stream: log.stream, data: log.data });
+				}
 
-			await send({ type: "phase", phase: "Installing renderer..." });
+				const sysInstallResult = await sysInstallCmd.wait();
+				if (sysInstallResult.exitCode !== 0) {
+					throw new Error(
+						`System dependencies install failed: ${await sysInstallResult.stderr()}`,
+					);
+				}
 
-			const installCmd = await sandbox.runCommand({
-				cmd: "pnpm",
-				args: ["install", "@remotion/renderer@latest"],
-				detached: true,
-			});
+				await send({ type: "phase", phase: "Installing renderer..." });
 
-			for await (const log of installCmd.logs()) {
-				await send({ type: "log", stream: log.stream, data: log.data });
-			}
+				const installCmd = await sandbox.runCommand({
+					cmd: "pnpm",
+					args: ["install", "@remotion/renderer@latest"],
+					detached: true,
+				});
 
-			const installResult = await installCmd.wait();
-			if (installResult.exitCode !== 0) {
-				throw new Error(`pnpm install failed: ${await installResult.stderr()}`);
+				for await (const log of installCmd.logs()) {
+					await send({ type: "log", stream: log.stream, data: log.data });
+				}
+
+				const installResult = await installCmd.wait();
+				if (installResult.exitCode !== 0) {
+					throw new Error(
+						`pnpm install failed: ${await installResult.stderr()}`,
+					);
+				}
 			}
 
 			await send({ type: "phase", phase: "Rendering video..." });
