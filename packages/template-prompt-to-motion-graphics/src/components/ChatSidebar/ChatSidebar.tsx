@@ -175,7 +175,7 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
     return (
       <div
         className={cn(
-          "flex flex-col bg-background transition-all duration-300",
+          "flex flex-col bg-background/80 backdrop-blur-sm border-r border-border/50 transition-all duration-300",
           isCollapsed
             ? "w-12 shrink-0"
             : "w-full h-[40vh] min-[1000px]:h-auto min-[1000px]:w-[40%] min-[1000px]:min-w-[320px] min-[1000px]:max-w-[520px] shrink",
