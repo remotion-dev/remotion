@@ -25,7 +25,6 @@ import {promisify} from 'node:util';
 import {downloadFile} from '../assets/download-file';
 import {makeFileExecutableIfItIsNot} from '../compositor/make-file-executable';
 import type {LogLevel} from '../log-level';
-import {Log} from '../logger';
 import {ChromeMode} from '../options/chrome-mode';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
 import {getDownloadsCacheDir} from './get-download-destination';
@@ -63,10 +62,6 @@ function getChromeDownloadUrl({
 			return `https://remotion.media/chromium-headless-shell-linux-x64-144.0.7559.20.zip?clearcache`;
 		}
 
-		Log.info(
-			{indent: true, logLevel: 'info'},
-			`Using Remotion headless shell for ${platform} ${version}`,
-		);
 		return `https://storage.googleapis.com/chrome-for-testing-public/${
 			version ?? TESTED_VERSION
 		}/${platform}/chrome-headless-shell-${platform}.zip`;
