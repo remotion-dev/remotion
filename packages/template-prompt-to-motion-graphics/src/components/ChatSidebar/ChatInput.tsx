@@ -127,24 +127,30 @@ export function ChatInput({
 
           {/* Image previews */}
           {attachedImages.length > 0 && (
-            <div className="mb-2 flex gap-2 overflow-x-auto pb-1 pt-2">
-              {attachedImages.map((img, index) => (
-                <div key={index} className="relative flex-shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={img}
-                    alt={`Attached ${index + 1}`}
-                    className="h-16 w-auto rounded border border-border object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    className="absolute -top-1.5 -right-1.5 bg-background border border-border rounded-full p-0.5 hover:bg-destructive hover:text-destructive-foreground transition-colors"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ))}
+            <div className="mb-2">
+              <div className="flex gap-2 overflow-x-auto pb-1 pt-2">
+                {attachedImages.map((img, index) => (
+                  <div key={index} className="relative flex-shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={img}
+                      alt={`Attached ${index + 1}`}
+                      className="h-16 w-16 rounded border border-border object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute -top-1.5 -right-1.5 bg-background border border-border rounded-full p-0.5 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground-dim mt-1">
+                Images for reference only, they cannot be embedded in the
+                animation
+              </p>
             </div>
           )}
 
@@ -154,7 +160,9 @@ export function ChatInput({
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             placeholder={
-              isDragging ? "Drop images here..." : "Tune your animation... (paste or drop images)"
+              isDragging
+                ? "Drop images here..."
+                : "Tune your animation... (paste or drop images)"
             }
             className="w-full bg-transparent text-foreground placeholder:text-muted-foreground-dim focus:outline-none resize-none text-sm min-h-[36px] max-h-[120px]"
             style={{ fieldSizing: "content" } as React.CSSProperties}
