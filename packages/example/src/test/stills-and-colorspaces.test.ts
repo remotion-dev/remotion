@@ -87,6 +87,10 @@ test(
 test(
 	'Can render a still pdf using Node.JS APIs',
 	async () => {
+		if (process.platform === 'linux') {
+			// https://github.com/remotion-dev/remotion/issues/6452
+			return;
+		}
 		const imageFormat: StillImageFormat = 'pdf';
 		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
 
