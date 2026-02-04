@@ -2,6 +2,7 @@ import {Thumbnail} from '@remotion/player';
 import React from 'react';
 import App from '../src/App';
 import CarSlideshow from '../src/CarSlideshow';
+import {CustomControlsExample} from '../src/CustomControlsExample';
 import {FontPicker} from '../src/FontPicker';
 import {ThumbnailDemo} from '../src/ThumbnailDemo';
 
@@ -18,6 +19,16 @@ function Index() {
 				}}
 			>
 				<App component={CarSlideshow} durationInFrames={500} />
+			</div>
+			<h2>Custom Controls</h2>
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'center',
+				}}
+			>
+				<CustomControlsExample />
 			</div>
 			<h2>Thumbnail</h2>
 			<Thumbnail

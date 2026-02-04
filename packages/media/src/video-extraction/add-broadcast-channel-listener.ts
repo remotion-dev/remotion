@@ -63,16 +63,10 @@ const emitReadiness = (channel: BroadcastChannel) => {
 		type: 'main-tab-ready',
 	} as MessageFromMainTab);
 
-	let times = 0;
-
-	const interval = setInterval(() => {
+	setInterval(() => {
 		channel.postMessage({
 			type: 'main-tab-ready',
 		} as MessageFromMainTab);
-		times++;
-		if (times > 30) {
-			clearInterval(interval);
-		}
 	}, 300);
 };
 

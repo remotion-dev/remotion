@@ -149,10 +149,13 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		const timestamp = frame / fps;
 		const durationInSeconds = 1 / fps;
 
-		const newHandle = delayRender(`Extracting frame at time ${timestamp}`, {
-			retries: delayRenderRetries ?? undefined,
-			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
-		});
+		const newHandle = delayRender(
+			`Extracting frame at time ${timestamp} from ${src}`,
+			{
+				retries: delayRenderRetries ?? undefined,
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+			},
+		);
 
 		const shouldRenderAudio = (() => {
 			if (!audioEnabled) {
