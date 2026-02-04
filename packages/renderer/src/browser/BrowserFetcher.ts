@@ -54,10 +54,14 @@ function getChromeDownloadUrl({
 			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
 		}
 
-		return `https://remotion.media/chromium-headless-shell-linux-arm64-144.0.7559.20.zip?clearcache`;
+		return `https://remotion.media/chromium-headless-shell-linux-arm64-${TESTED_VERSION}.zip?clearcache`;
 	}
 
 	if (chromeMode === 'headless-shell') {
+		if (platform === 'linux64' && version === null) {
+			return `https://remotion.media/chromium-headless-shell-linux-x64-${TESTED_VERSION}.zip?clearcache`;
+		}
+
 		return `https://storage.googleapis.com/chrome-for-testing-public/${
 			version ?? TESTED_VERSION
 		}/${platform}/chrome-headless-shell-${platform}.zip`;
