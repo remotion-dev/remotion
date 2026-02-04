@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ErrorDisplay } from "@/components/ErrorDisplay";
 import { examplePrompts } from "@/examples/prompts";
 import { type ModelId, MODELS } from "@/types/generation";
 import { useImageAttachments } from "@/hooks/useImageAttachments";
@@ -102,18 +102,13 @@ export function LandingPageInput({
         >
           {/* Error message */}
           {error && (
-            <Alert variant="destructive" className="mb-3 flex items-center justify-between">
-              <AlertDescription>{error}</AlertDescription>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={clearError}
-                className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/20"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </Alert>
+            <ErrorDisplay
+              error={error}
+              variant="inline"
+              size="md"
+              onDismiss={clearError}
+              className="mb-3"
+            />
           )}
 
           {/* Image previews */}

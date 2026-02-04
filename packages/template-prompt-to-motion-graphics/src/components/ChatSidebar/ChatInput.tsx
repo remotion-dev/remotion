@@ -3,7 +3,7 @@
 import { useState, useEffect, type ComponentType } from "react";
 import { ArrowUp, Camera, X, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ErrorDisplay } from "@/components/ErrorDisplay";
 import {
   Select,
   SelectContent,
@@ -116,18 +116,13 @@ export function ChatInput({
         >
           {/* Error message */}
           {error && (
-            <Alert variant="destructive" className="mb-2 py-2 flex items-center justify-between text-xs">
-              <AlertDescription className="text-xs">{error}</AlertDescription>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={clearError}
-                className="h-5 w-5 text-destructive hover:text-destructive hover:bg-destructive/20"
-              >
-                <X className="w-3 h-3" />
-              </Button>
-            </Alert>
+            <ErrorDisplay
+              error={error}
+              variant="inline"
+              size="sm"
+              onDismiss={clearError}
+              className="mb-2 py-2"
+            />
           )}
 
           {/* Image previews */}

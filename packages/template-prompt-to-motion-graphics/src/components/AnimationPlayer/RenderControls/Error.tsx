@@ -1,6 +1,5 @@
 import React from "react";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { ErrorDisplay } from "@/components/ErrorDisplay";
 
 const isLambdaNotConfiguredError = (message: string): boolean => {
   return (
@@ -16,32 +15,30 @@ export const ErrorComp: React.FC<{
 
   if (isLambdaError) {
     return (
-      <Alert variant="destructive" className="my-2">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Lambda not configured</AlertTitle>
-        <AlertDescription>
-          To render videos, set up Remotion Lambda and add your AWS credentials
-          to the <code className="font-mono text-xs">.env</code> file.{" "}
-          <a
-            href="https://www.remotion.dev/docs/lambda/setup"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline"
-          >
-            Setup guide
-          </a>
-        </AlertDescription>
-      </Alert>
+      <ErrorDisplay
+        error={`To render videos, set up Remotion Lambda and add your AWS credentials to the .env file.`}
+        title="Lambda not configured"
+        variant="card"
+        size="md"
+      >
+        <a
+          href="https://www.remotion.dev/docs/lambda/setup"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline text-sm"
+        >
+          Setup guide
+        </a>
+      </ErrorDisplay>
     );
   }
 
   return (
-    <Alert variant="destructive" className="my-2">
-      <AlertCircle className="h-4 w-4" />
-      <AlertTitle>Error</AlertTitle>
-      <AlertDescription className="font-mono whitespace-pre-wrap break-words">
-        {message}
-      </AlertDescription>
-    </Alert>
+    <ErrorDisplay
+      error={message}
+      title="Error"
+      variant="card"
+      size="md"
+    />
   );
 };
