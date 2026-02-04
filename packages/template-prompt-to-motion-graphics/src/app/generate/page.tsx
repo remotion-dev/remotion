@@ -8,6 +8,7 @@ import { CodeEditor } from "../../components/CodeEditor";
 import { AnimationPlayer } from "../../components/AnimationPlayer";
 import { PageLayout } from "../../components/PageLayout";
 import { ChatSidebar, type ChatSidebarRef } from "../../components/ChatSidebar";
+import { TabPanel } from "../../components/TabPanel";
 import type { StreamPhase, GenerationErrorType } from "../../types/generation";
 import { examples } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
@@ -62,6 +63,7 @@ function GeneratePageContent() {
     markManualEdit,
     getFullContext,
     getPreviouslyUsedSkills,
+    getLastUserAttachedImages,
     setPendingMessage,
     clearPendingMessage,
     isFirstGeneration,
@@ -98,11 +100,14 @@ function GeneratePageContent() {
     onTriggerCorrection: useCallback((correctionPrompt: string, context: ErrorCorrectionContext) => {
       setErrorCorrection(context);
       setPrompt(correctionPrompt);
+      // Get attached images from the last user message to include in retry
+      const lastImages = getLastUserAttachedImages();
       setTimeout(() => {
         // Use silent mode to avoid showing retry as a user message
-        chatSidebarRef.current?.triggerGeneration({ silent: true });
+        // Include images from the last user message so image-based requests can be retried
+        chatSidebarRef.current?.triggerGeneration({ silent: true, attachedImages: lastImages });
       }, 100);
-    }, []),
+    }, [getLastUserAttachedImages]),
     onAddErrorMessage: addErrorMessage,
     onClearGenerationError: useCallback(() => setGenerationError(null), []),
     onClearErrorCorrection: useCallback(() => setErrorCorrection(null), []),
@@ -231,7 +236,7 @@ function GeneratePageContent() {
 
   return (
     <PageLayout showLogoAsLink>
-      <div className="flex-1 flex min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-[1000px]:flex-row min-w-0 overflow-hidden">
         {/* Chat History Sidebar */}
         <ChatSidebar
           ref={chatSidebarRef}
@@ -265,15 +270,17 @@ function GeneratePageContent() {
         />
 
         {/* Main content area */}
-        <div className="flex-1 flex flex-col min-w-0 px-12 pb-8 gap-8 overflow-hidden">
-          <div className="flex-1 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden gap-8">
-            <CodeEditor
-              code={hasGeneratedOnce && !generationError ? code : ""}
-              onChange={handleCodeChange}
-              isStreaming={isStreaming}
-              streamPhase={streamPhase}
-            />
-            <div className="shrink-0 lg:shrink lg:flex-[2.5] lg:min-w-0 lg:h-full">
+        <div className="flex-1 flex flex-col min-w-0 pr-12 pb-8 overflow-hidden">
+          <TabPanel
+            codeContent={
+              <CodeEditor
+                code={hasGeneratedOnce && !generationError ? code : ""}
+                onChange={handleCodeChange}
+                isStreaming={isStreaming}
+                streamPhase={streamPhase}
+              />
+            }
+            previewContent={
               <AnimationPlayer
                 Component={generationError ? null : Component}
                 durationInFrames={durationInFrames}
@@ -288,8 +295,8 @@ function GeneratePageContent() {
                 onRuntimeError={handleRuntimeError}
                 onFrameChange={setCurrentFrame}
               />
-            </div>
-          </div>
+            }
+          />
         </div>
       </div>
     </PageLayout>

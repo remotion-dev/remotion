@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, type DragEvent, type ChangeEvent } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowUp,
@@ -14,7 +14,6 @@ import {
   Paperclip,
   type LucideIcon,
 } from "lucide-react";
-import { fileToBase64 } from "@/helpers/capture-frame";
 import {
   Select,
   SelectContent,
@@ -23,8 +22,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { ErrorDisplay } from "@/components/ErrorDisplay";
 import { examplePrompts } from "@/examples/prompts";
 import { type ModelId, MODELS } from "@/types/generation";
+import { useImageAttachments } from "@/hooks/useImageAttachments";
 
 const iconMap: Record<string, LucideIcon> = {
   Type,
@@ -33,8 +34,6 @@ const iconMap: Record<string, LucideIcon> = {
   BarChart3,
   Disc,
 };
-
-const MAX_ATTACHED_IMAGES = 4;
 
 interface LandingPageInputProps {
   onNavigate: (prompt: string, model: ModelId, attachedImages?: string[]) => void;
@@ -49,34 +48,33 @@ export function LandingPageInput({
 }: LandingPageInputProps) {
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState<ModelId>("gpt-5.2:low");
-  const [attachedImages, setAttachedImages] = useState<string[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const {
+    attachedImages,
+    isDragging,
+    fileInputRef,
+    removeImage,
+    handleFileSelect,
+    handlePaste,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    canAddMore,
+    error,
+    clearError,
+  } = useImageAttachments();
+
+  // Auto-clear error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(clearError, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, clearError]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isNavigating) return;
     onNavigate(prompt, model, attachedImages.length > 0 ? attachedImages : undefined);
-  };
-
-  const addImages = (newImages: string[]) => {
-    setAttachedImages((prev) => {
-      const combined = [...prev, ...newImages];
-      return combined.slice(0, MAX_ATTACHED_IMAGES);
-    });
-  };
-
-  const removeImage = (index: number) => {
-    setAttachedImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
-    const base64Images = await Promise.all(imageFiles.map(fileToBase64));
-    addImages(base64Images);
-    // Reset input so same file can be selected again
-    e.target.value = "";
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -85,39 +83,6 @@ export function LandingPageInput({
       e.preventDefault();
       handleSubmit(e);
     }
-  };
-
-  const handlePaste = async (e: React.ClipboardEvent) => {
-    const items = Array.from(e.clipboardData.items);
-    const imageItems = items.filter((item) => item.type.startsWith("image/"));
-    if (imageItems.length > 0) {
-      e.preventDefault();
-      const files = imageItems
-        .map((item) => item.getAsFile())
-        .filter((f): f is File => f !== null);
-      const base64Images = await Promise.all(files.map(fileToBase64));
-      addImages(base64Images);
-    }
-  };
-
-  const handleDragOver = (e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = async (e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-
-    const files = Array.from(e.dataTransfer.files);
-    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
-    const base64Images = await Promise.all(imageFiles.map(fileToBase64));
-    addImages(base64Images);
   };
 
   return (
@@ -135,6 +100,17 @@ export function LandingPageInput({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
+          {/* Error message */}
+          {error && (
+            <ErrorDisplay
+              error={error}
+              variant="inline"
+              size="md"
+              onDismiss={clearError}
+              className="mb-3"
+            />
+          )}
+
           {/* Image previews */}
           {attachedImages.length > 0 && (
             <div className="mb-3 flex gap-2 overflow-x-auto pb-1 pt-2">
@@ -207,7 +183,7 @@ export function LandingPageInput({
                 variant="ghost"
                 size="icon-sm"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={isNavigating || attachedImages.length >= MAX_ATTACHED_IMAGES}
+                disabled={isNavigating || !canAddMore}
                 className="text-muted-foreground hover:text-foreground"
                 title="Attach images"
               >

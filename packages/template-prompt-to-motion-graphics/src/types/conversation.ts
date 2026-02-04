@@ -49,6 +49,8 @@ export interface ConversationState {
 export interface ConversationContextMessage {
   role: "user" | "assistant";
   content: string;
+  /** For user messages, attached images as base64 data URLs */
+  attachedImages?: string[];
 }
 
 export interface ErrorCorrectionContext {

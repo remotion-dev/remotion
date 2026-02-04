@@ -1,4 +1,5 @@
 import React from "react";
+import { ErrorDisplay } from "@/components/ErrorDisplay";
 
 const isLambdaNotConfiguredError = (message: string): boolean => {
   return (
@@ -14,34 +15,30 @@ export const ErrorComp: React.FC<{
 
   if (isLambdaError) {
     return (
-      <div className="py-2">
-        <div className="text-destructive text-sm font-semibold font-sans">
-          Lambda not configured
-        </div>
-        <div className="text-destructive-foreground text-sm font-sans mt-1">
-          To render videos, set up Remotion Lambda and add your AWS credentials
-          to the <code className="font-mono text-xs">.env</code> file.{" "}
-          <a
-            href="https://www.remotion.dev/docs/lambda/setup"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline"
-          >
-            Setup guide
-          </a>
-        </div>
-      </div>
+      <ErrorDisplay
+        error={`To render videos, set up Remotion Lambda and add your AWS credentials to the .env file.`}
+        title="Lambda not configured"
+        variant="card"
+        size="md"
+      >
+        <a
+          href="https://www.remotion.dev/docs/lambda/setup"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline text-sm"
+        >
+          Setup guide
+        </a>
+      </ErrorDisplay>
     );
   }
 
   return (
-    <div className="py-2">
-      <div className="text-destructive text-sm font-semibold font-sans">
-        Error
-      </div>
-      <div className="text-destructive-foreground text-sm font-mono mt-1 whitespace-pre-wrap break-words">
-        {message}
-      </div>
-    </div>
+    <ErrorDisplay
+      error={message}
+      title="Error"
+      variant="card"
+      size="md"
+    />
   );
 };
