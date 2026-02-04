@@ -123,6 +123,10 @@ export function useConversationState() {
       .map((m) => ({
         role: m.role as "user" | "assistant",
         content: m.role === "user" ? m.content : "[Generated Code]",
+        // Include attached images for user messages so the AI remembers what was shared
+        ...(m.role === "user" && m.attachedImages && m.attachedImages.length > 0
+          ? { attachedImages: m.attachedImages }
+          : {}),
       }));
   }, [state.messages]);
 
