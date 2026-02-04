@@ -8,7 +8,6 @@ import { ProgressBar } from "./ProgressBar";
 import { Spacing } from "./Spacing";
 import { COMP_NAME, CompositionProps } from "../../types/constants";
 import { RenderItem, useRendering } from "../helpers/use-rendering";
-import { LogViewer } from "./LogViewer";
 
 const RenderItemDisplay: React.FC<{
 	render: RenderItem;
@@ -19,7 +18,6 @@ const RenderItemDisplay: React.FC<{
 	if (state.status === "error") {
 		return (
 			<div className="mt-4">
-				<LogViewer logs={state.logs} />
 				<ErrorComp message={state.error.message} />
 				<Spacing />
 				<AlignEnd>
@@ -82,7 +80,6 @@ const RenderItemDisplay: React.FC<{
 					</span>
 				</Button>
 			</div>
-			{state.status === "invoking" && <LogViewer logs={state.logs} />}
 		</div>
 	);
 };
