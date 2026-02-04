@@ -151,7 +151,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
             clickToPlay={false}
           />
         </div>
-        <div className="flex items-center justify-between gap-6">
+        <div className="flex items-center justify-between gap-6 mt-4">
           <RenderControls code={code} durationInFrames={durationInFrames} fps={fps} />
           <SettingsModal
             durationInFrames={durationInFrames}
@@ -166,10 +166,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
 
   return (
     <div className="flex flex-col bg-background min-w-0 h-full">
-      <div className="w-full h-full flex flex-col gap-3">
-        <h2 className="text-sm font-medium text-muted-foreground shrink-0">
-          Video Preview
-        </h2>
+      <div className="w-full h-full flex flex-col">
         {renderContent()}
       </div>
     </div>
