@@ -104,7 +104,7 @@ export function ChatInput({
   const canCapture = Component && !isLoading && !isCapturing && canAddMore;
 
   return (
-    <div className="px-12 pt-4 pb-8">
+    <div className="px-4 pt-4 pb-4">
       <form onSubmit={handleSubmit}>
         <div
           className={`bg-background-elevated rounded-xl border p-3 transition-colors ${
