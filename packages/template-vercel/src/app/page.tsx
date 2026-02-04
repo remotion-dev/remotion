@@ -38,8 +38,6 @@ const Home: NextPage = () => {
 						compositionHeight={VIDEO_HEIGHT}
 						compositionWidth={VIDEO_WIDTH}
 						style={{
-							// Can't use tailwind class for width since player's default styles take presedence over tailwind's,
-							// but not over inline styles
 							width: "100%",
 						}}
 						controls

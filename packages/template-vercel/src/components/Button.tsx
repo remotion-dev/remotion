@@ -11,8 +11,14 @@ const ButtonForward: React.ForwardRefRenderFunction<
 		children: React.ReactNode;
 		loading?: boolean;
 		secondary?: boolean;
+		square?: boolean;
+		className?: string;
+		style?: React.CSSProperties;
 	}
-> = ({ onClick, disabled, children, loading, secondary }, ref) => {
+> = (
+	{ onClick, disabled, children, loading, secondary, square, className, style },
+	ref,
+) => {
 	return (
 		<button
 			ref={ref}
@@ -21,9 +27,12 @@ const ButtonForward: React.ForwardRefRenderFunction<
 				secondary
 					? "bg-background text-foreground border-unfocused-border-color"
 					: undefined,
+				square ? "w-10 justify-center px-0" : undefined,
+				className,
 			)}
 			onClick={onClick}
 			disabled={disabled}
+			style={style}
 		>
 			{loading && (
 				<>
