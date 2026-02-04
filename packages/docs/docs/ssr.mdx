@@ -102,6 +102,18 @@ See: [Dockerizing a Remotion project](/docs/docker)
 Check out the experimental [Cloud Run](/docs/cloudrun) package.  
 Note: It not actively being developed - our plan is to port the Lambda runtime to Cloud Run instead of maintaining a separate implementation.
 
+## Render using Vercel Sandbox
+
+You can render videos on-demand using [Vercel Sandbox](https://vercel.com/docs/sandbox). This spawns an ephemeral Linux VM that renders your video and stores it in Vercel Blob storage.
+
+Use the Vercel template to get started:
+
+```bash
+npx create-video@latest --template vercel
+```
+
+See the [Vercel documentation](/docs/miscellaneous/vercel#rendering-with-vercel-sandbox) for detailed setup instructions.
+
 ## API reference
 
 <TableOfContents />

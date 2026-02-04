@@ -45,7 +45,8 @@ export type Template = {
 		| 'code-hike'
 		| 'render-server'
 		| 'recorder'
-		| 'prompt-to-motion-graphics';
+		| 'prompt-to-motion-graphics'
+		| 'vercel';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -577,6 +578,29 @@ export const FEATURED_TEMPLATES: Template[] = [
 		allowEnableTailwind: true,
 		contributedBy: null,
 		showStackblitz: true,
+	},
+	{
+		homePageLabel: 'Vercel Sandbox',
+		shortName: 'Vercel Sandbox',
+		org: 'remotion-dev',
+		repoName: 'template-vercel',
+		description: 'Render videos on-demand using Vercel Sandbox',
+		longerDescription:
+			'A template for rendering videos on-demand using Vercel Sandbox. Spawns ephemeral Linux VMs to render videos and stores them in Vercel Blob storage.',
+		cliId: 'vercel' as const,
+		promoBanner: {
+			width: 655,
+			height: 720,
+			src: '/img/vercel-sandbox-template.png',
+		},
+		type: 'image' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-vercel',
+		allowEnableTailwind: false,
+		contributedBy: null,
+		showStackblitz: false,
 	},
 ].filter(truthy);
 
