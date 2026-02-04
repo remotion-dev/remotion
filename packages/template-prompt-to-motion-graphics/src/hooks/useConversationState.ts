@@ -141,6 +141,17 @@ export function useConversationState() {
     return Array.from(allSkills);
   }, [state.messages]);
 
+  // Get attached images from the last user message (for retry scenarios)
+  const getLastUserAttachedImages = useCallback((): string[] | undefined => {
+    for (let i = state.messages.length - 1; i >= 0; i--) {
+      const msg = state.messages[i];
+      if (msg.role === "user" && msg.attachedImages && msg.attachedImages.length > 0) {
+        return msg.attachedImages;
+      }
+    }
+    return undefined;
+  }, [state.messages]);
+
   return {
     ...state,
     addUserMessage,
@@ -150,6 +161,7 @@ export function useConversationState() {
     clearConversation,
     getFullContext,
     getPreviouslyUsedSkills,
+    getLastUserAttachedImages,
     setPendingMessage,
     clearPendingMessage,
     isFirstGeneration: state.messages.length === 0,

@@ -63,6 +63,7 @@ function GeneratePageContent() {
     markManualEdit,
     getFullContext,
     getPreviouslyUsedSkills,
+    getLastUserAttachedImages,
     setPendingMessage,
     clearPendingMessage,
     isFirstGeneration,
@@ -99,11 +100,14 @@ function GeneratePageContent() {
     onTriggerCorrection: useCallback((correctionPrompt: string, context: ErrorCorrectionContext) => {
       setErrorCorrection(context);
       setPrompt(correctionPrompt);
+      // Get attached images from the last user message to include in retry
+      const lastImages = getLastUserAttachedImages();
       setTimeout(() => {
         // Use silent mode to avoid showing retry as a user message
-        chatSidebarRef.current?.triggerGeneration({ silent: true });
+        // Include images from the last user message so image-based requests can be retried
+        chatSidebarRef.current?.triggerGeneration({ silent: true, attachedImages: lastImages });
       }, 100);
-    }, []),
+    }, [getLastUserAttachedImages]),
     onAddErrorMessage: addErrorMessage,
     onClearGenerationError: useCallback(() => setGenerationError(null), []),
     onClearErrorCorrection: useCallback(() => setErrorCorrection(null), []),
