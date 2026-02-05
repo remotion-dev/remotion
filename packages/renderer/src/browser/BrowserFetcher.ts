@@ -27,50 +27,15 @@ import {makeFileExecutableIfItIsNot} from '../compositor/make-file-executable';
 import type {LogLevel} from '../log-level';
 import {ChromeMode} from '../options/chrome-mode';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
+import {
+	getChromeDownloadUrl,
+	logDownloadUrl,
+	type Platform,
+	TESTED_VERSION,
+} from './get-chrome-download-url';
 import {getDownloadsCacheDir} from './get-download-destination';
 
-export const TESTED_VERSION = '144.0.7559.20';
-// https://github.com/microsoft/playwright/blame/e76ca6cba40c26bf22c19cf37398d2b9da9ed465/packages/playwright-core/browsers.json
-// packages/playwright-core/browsers.json
-const PLAYWRIGHT_VERSION = '1207'; // 144.0.7559.20
-
-type Platform = 'linux64' | 'linux-arm64' | 'mac-x64' | 'mac-arm64' | 'win64';
-
-function getChromeDownloadUrl({
-	platform,
-	version,
-	chromeMode,
-}: {
-	platform: Platform;
-	version: string | null;
-	chromeMode: ChromeMode;
-}): string {
-	if (platform === 'linux-arm64') {
-		if (chromeMode === 'chrome-for-testing') {
-			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
-		}
-
-		if (version) {
-			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
-		}
-
-		return `https://remotion.media/chromium-headless-shell-linux-arm64-${TESTED_VERSION}.zip?clearcache`;
-	}
-
-	if (chromeMode === 'headless-shell') {
-		if (platform === 'linux64' && version === null) {
-			return `https://remotion.media/chromium-headless-shell-linux-x64-${TESTED_VERSION}.zip?clearcache`;
-		}
-
-		return `https://storage.googleapis.com/chrome-for-testing-public/${
-			version ?? TESTED_VERSION
-		}/${platform}/chrome-headless-shell-${platform}.zip`;
-	}
-
-	return `https://storage.googleapis.com/chrome-for-testing-public/${
-		version ?? TESTED_VERSION
-	}/${platform}/chrome-${platform}.zip`;
-}
+export {TESTED_VERSION};
 
 const mkdirAsync = fs.promises.mkdir;
 const unlinkAsync = promisify(fs.unlink.bind(fs));
@@ -194,6 +159,8 @@ export const downloadBrowser = async ({
 			].join('\n'),
 		);
 	}
+
+	logDownloadUrl({url: downloadURL, logLevel, indent});
 
 	try {
 		await downloadFile({
