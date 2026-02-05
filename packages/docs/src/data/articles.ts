@@ -81,6 +81,15 @@ export const articles = [
 		slug: 'after-effects',
 	},
 	{
+		id: 'ai/ai-saas-template',
+		title: 'Prompt to Motion Graphics SaaS Starter Kit',
+		relativePath: 'docs/ai/ai-saas-template.mdx',
+		compId: 'articles-docs-ai-ai-saas-template',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/ai-saas-template',
+	},
+	{
 		id: 'ai/bolt',
 		title: 'Prompting a Remotion video with Bolt.new',
 		relativePath: 'docs/ai/bolt.mdx',
