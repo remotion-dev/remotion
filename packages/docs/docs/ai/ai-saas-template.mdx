@@ -1,67 +1,25 @@
 ---
-image: /generated/articles-docs-ai-saas-template.png
 crumb: 'AI'
-title: AI SaaS Template - Prompt to Motion Graphics
-sidebar_label: AI SaaS Template
+title: Prompt to Motion Graphics SaaS Starter Kit
+sidebar_label: Prompt to Motion Graphics SaaS
 ---
 
 import {Installation} from '../../components/Installation';
 
-A Next.js starter template for building AI-powered motion graphics products. Users describe an animation in natural language, and the app generates and previews it in real-time.
+We made [a Next.js starter template](https://www.remotion.dev/templates/prompt-to-motion-graphics) for building AI-powered motion graphics products.  
+Users describe an animation in natural language, and the app generates and previews it in real-time.
 
-## How is this different from using Claude Code with Remotion Skills?
-
-The purpose of this template is to help you get started building your own browser-based product in the space of prompting motion graphics using Remotion.
-
-Claude Code in combination with Remotion Skills is targeted at tech-savvy folks for iterating on videos with familiar tooling. For developers, this is super fast to set up - but not everybody is a developer.
-
-This template is a starter kit to build AI products focused on generating Remotion code with LLMs directly within the browser. As this only requires natural language as input and no further technical setup, such products vastly broaden the target group beyond developers.
-
-## What's Included
-
-- **Chat interface** with conversation history for iterative refinement
-- **Live preview** - instant rendering in the Remotion Player
-- **Smart editing** - the LLM decides between targeted edits or full replacement
-- **Input Validation** - prevents end-user misuse
-- **Sanitation** - cleans nondeterministic LLM outputs
-- **Self-correction** - automatically retries on compilation errors
-
-The template can easily be extended by adding more [skills](/docs/ai/skills). It streams [generated code](/docs/ai/generate) and compiles it in the browser using [just-in-time compilation](/docs/ai/dynamic-compilation).
-
-## Usage Tips
-
-### Prompting
-
-- Be specific about colors, timing, and layout
-- Include data directly for charts and visualizations
-- Describe the animation feel ("bouncy spring", "smooth fade", "staggered timing")
-- If you have something specific in mind, attach images to the prompt for reference
-
-### Images
-
-This starter kit does not come with a backend. Therefore, there is an important difference between attaching images to the prompt and mentioning image URLs in the prompt.
-
-- **Attaching images**: The assistant will try to replicate in code whatever you attach to the prompt, for example an abstract spiral.
-- **Providing image URLs**: The assistant will embed the provided image within the animation based on the file URL. For example: _"Create a DVD screensaver animation of this image https://example.com/logo.png"_
-
-### What works well
-
-- Kinetic typography and text animations
-- Data visualizations with animated entrances
-- Chat/messaging UI mockups
-- Social media content (Stories, Reels, TikTok)
+<img src="/img/prompt-to-motion-graphics.png" alt="Prompt to Motion Graphics SaaS Starter Kit" />
 
 ## Getting Started
 
-### Create the project
+Scaffold a new project:
 
 ```bash
 npx create-video@latest --template prompt-to-motion-graphics
 ```
 
-### Configure environment
-
-Create a `.env` file:
+Then create a `.env` file:
 
 ```bash title=".env"
 OPENAI_API_KEY=sk-...
@@ -71,7 +29,7 @@ REMOTION_AWS_ACCESS_KEY_ID=...
 REMOTION_AWS_SECRET_ACCESS_KEY=...
 ```
 
-### Start the development server
+Start the development server:
 
 ```bash
 npm run dev
@@ -79,14 +37,29 @@ npm run dev
 
 Visit `http://localhost:3000` to start generating animations.
 
-## Commands
+## How is this different from Remotion Agent Skills?
 
-| Command                | Description          |
-| ---------------------- | -------------------- |
-| `npm install`          | Install dependencies |
-| `npm run dev`          | Start preview        |
-| `npx remotion render`  | Render video         |
-| `npx remotion upgrade` | Upgrade Remotion     |
+Use this template if you want to build a SaaS with Remotion and AI.  
+Use [Agent Skills](/docs/ai/claude-code) if you want to prompt videos for yourself.
+
+## What's Included
+
+- Chat interface with conversation history for iterative refinement
+- Live preview - instant rendering in the Remotion Player
+- Smart editing - the LLM decides between targeted edits or full replacement
+- Input Validation - prevents end-user misuse
+- Sanitation - cleans nondeterministic LLM outputs
+- Self-correction - automatically retries on compilation errors
+
+It streams [generated code](/docs/ai/generate) and compiles it in the browser using [just-in-time compilation](/docs/ai/dynamic-compilation).
+
+## Images
+
+This starter kit does not come with a backend.  
+Therefore, there is an important difference between attaching images to the prompt and mentioning image URLs in the prompt.
+
+- **Attaching images**: The assistant will try to replicate in code whatever you attach to the prompt, for example an abstract spiral.
+- **Providing image URLs**: The assistant will embed the provided image within the animation based on the file URL. For example: _"Create a DVD screensaver animation of this image https://example.com/logo.png"_
 
 ## Lambda Rendering
 

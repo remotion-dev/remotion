@@ -203,13 +203,13 @@ export const FEATURED_TEMPLATES: Template[] = [
 		showStackblitz: true,
 	},
 	{
-		homePageLabel: 'Prompt to Motion Graphics',
-		shortName: 'Prompt to Motion Graphics (Next.js)',
+		homePageLabel: 'Prompt to Motion Graphics SaaS Starter Kit',
+		shortName: 'Prompt to Motion Graphics SaaS Starter Kit',
 		org: 'remotion-dev',
-		repoName: 'template-prompt-to-motion-graphics',
+		repoName: 'template-prompt-to-motion-graphics-saas',
 		description: 'SaaS template for AI-powered code generation with Remotion',
 		longerDescription:
-			'A SaaS template for "Prompt to Motion Graphics" products. Generates Remotion code, streams it to the frontend, and compiles and previews it in the browser.',
+			'A SaaS template for "Prompt to Motion Graphics" products. Generates Remotion code, streams it to the frontend, and compiles and previews it in the browser. See the <a href="/docs/ai/ai-saas-template">documentation page</a> for more details.',
 		promoBanner: {
 			width: 2880,
 			height: 1512,
