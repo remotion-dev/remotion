@@ -56,13 +56,13 @@ export async function POST(req: Request) {
 		}
 
 		for (const dir of Array.from(dirs).sort()) {
-			await sandbox.mkDir(`remotion/${dir}`);
+			await sandbox.mkDir(`.remotion/${dir}`);
 		}
 
 		// Write all files to the sandbox
 		await sandbox.writeFiles(
 			bundleFiles.map((file) => ({
-				path: `remotion/${file.path}`,
+				path: `.remotion/${file.path}`,
 				content: file.content,
 			})),
 		);
@@ -125,7 +125,7 @@ export async function POST(req: Request) {
 		await send({ type: "phase", phase: "Rendering video..." });
 
 		// Use the local bundle copied to the sandbox
-		const serveUrl = "/vercel/sandbox/remotion/index.html";
+		const serveUrl = "/vercel/sandbox/.remotion/index.html";
 
 		const renderScript = generateRenderScript({
 			serveUrl,
