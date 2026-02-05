@@ -1,5 +1,9 @@
 // This file is copied into the Vercel sandbox and executed with `node --strip-types`
-import { renderMedia, selectComposition } from "@remotion/renderer";
+import {
+	ensureBrowser,
+	renderMedia,
+	selectComposition,
+} from "@remotion/renderer";
 
 export type RenderConfig = {
 	serveUrl: string;
@@ -10,11 +14,20 @@ export type RenderConfig = {
 const config: RenderConfig = JSON.parse(process.argv[2]);
 
 try {
+	await ensureBrowser({
+		onBrowserDownload: () => {
+			return {
+				version: null,
+				onProgress: ({ percent }) => {
+					console.log(JSON.stringify({ type: "progress", percent }));
+				},
+			};
+		},
+	});
 	const composition = await selectComposition({
 		serveUrl: config.serveUrl,
 		id: config.compositionId,
 		inputProps: config.inputProps,
-		logLevel: "verbose",
 	});
 
 	await renderMedia({
@@ -26,7 +39,6 @@ try {
 		onProgress: ({ progress }) => {
 			console.log(JSON.stringify({ type: "progress", progress }));
 		},
-		logLevel: "verbose",
 	});
 
 	console.log(JSON.stringify({ type: "done" }));

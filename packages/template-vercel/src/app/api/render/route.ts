@@ -40,36 +40,17 @@ export async function POST(req: Request) {
 			timeout: 5 * 60 * 1000,
 		});
 
-		await send({ type: "phase", phase: "Copying Remotion bundle..." });
+		await send({ type: "phase", phase: "Preparing machine..." });
 
-		const bundleFiles = await getRemotionBundleFiles();
+		// Preparation has 3 stages with weights:
+		// - System dependencies: 60%
+		// - Copying bundle: 20%
+		// - Downloading browser: 20%
+		const WEIGHT_SYS_DEPS = 0.6;
+		const WEIGHT_BUNDLE = 0.2;
+		const WEIGHT_BROWSER = 0.2;
 
-		// Create the directories first
-		const dirs = new Set<string>();
-		for (const file of bundleFiles) {
-			const dir = path.dirname(file.path);
-			if (dir && dir !== ".") {
-				dirs.add(dir);
-			}
-		}
-
-		for (const dir of Array.from(dirs).sort()) {
-			await sandbox.mkDir(BUILD_DIR + "/" + dir);
-		}
-
-		// Write all files to the sandbox
-		await sandbox.writeFiles(
-			bundleFiles.map((file) => ({
-				path: BUILD_DIR + "/" + file.path,
-				content: file.content,
-			})),
-		);
-
-		await send({
-			type: "phase",
-			phase: "Installing system dependencies...",
-		});
-
+		// Stage 1: Install system dependencies (60%)
 		const sysInstallCmd = await sandbox.runCommand({
 			cmd: "sudo",
 			args: [
@@ -98,11 +79,14 @@ export async function POST(req: Request) {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		for await (const _log of sysInstallCmd.logs()) {
 			sysInstallLineCount++;
-			const progress = Math.min(
+			const stageProgress = Math.min(
 				sysInstallLineCount / EXPECTED_SYS_INSTALL_LINES,
 				1,
 			);
-			await send({ type: "progress", progress });
+			await send({
+				type: "progress",
+				progress: stageProgress * WEIGHT_SYS_DEPS,
+			});
 		}
 
 		const sysInstallResult = await sysInstallCmd.wait();
@@ -112,16 +96,45 @@ export async function POST(req: Request) {
 			);
 		}
 
-		await send({ type: "phase", phase: "Installing renderer..." });
+		// Stage 2: Copy Remotion bundle (20%)
+		const bundleFiles = await getRemotionBundleFiles();
 
+		// Create the directories first
+		const dirs = new Set<string>();
+		for (const file of bundleFiles) {
+			const dir = path.dirname(file.path);
+			if (dir && dir !== ".") {
+				dirs.add(dir);
+			}
+		}
+
+		for (const dir of Array.from(dirs).sort()) {
+			await sandbox.mkDir(BUILD_DIR + "/" + dir);
+		}
+
+		// Write all files to the sandbox
+		await sandbox.writeFiles(
+			bundleFiles.map((file) => ({
+				path: BUILD_DIR + "/" + file.path,
+				content: file.content,
+			})),
+		);
+
+		await send({
+			type: "progress",
+			progress: WEIGHT_SYS_DEPS + WEIGHT_BUNDLE,
+		});
+
+		// Install renderer (part of bundle stage, no separate progress)
 		const installCmd = await sandbox.runCommand({
 			cmd: "pnpm",
 			args: [`i`, `@remotion/renderer@${VERSION}`],
 			detached: true,
 		});
 
-		for await (const log of installCmd.logs()) {
-			await send({ type: "log", stream: log.stream, data: log.data });
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		for await (const _log of installCmd.logs()) {
+			// Consume logs without displaying
 		}
 
 		const installResult = await installCmd.wait();
@@ -129,8 +142,7 @@ export async function POST(req: Request) {
 			throw new Error(`pnpm install failed: ${await installResult.stderr()}`);
 		}
 
-		await send({ type: "phase", phase: "Downloading browser..." });
-
+		// Stage 3: Download browser (20%)
 		const [ensureBrowserScript, ensureBrowserModule] = await Promise.all([
 			getEnsureBrowserScript(),
 			getEnsureBrowserModule(),
@@ -153,7 +165,26 @@ export async function POST(req: Request) {
 		});
 
 		for await (const log of ensureBrowserCmd.logs()) {
-			await send({ type: "log", stream: log.stream, data: log.data });
+			// Parse browser download progress from JSON output
+			if (log.stream === "stdout") {
+				try {
+					const message = JSON.parse(log.data);
+					if (message.type === "browser-progress") {
+						const browserProgress = message.percent ?? 0;
+						await send({
+							type: "progress",
+							progress:
+								WEIGHT_SYS_DEPS +
+								WEIGHT_BUNDLE +
+								browserProgress * WEIGHT_BROWSER,
+						});
+						continue;
+					}
+				} catch {
+					// Not JSON, ignore
+				}
+			}
+			// Ignore other logs during preparation
 		}
 
 		const ensureBrowserResult = await ensureBrowserCmd.wait();

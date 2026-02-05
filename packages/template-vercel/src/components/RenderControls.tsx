@@ -49,7 +49,10 @@ export const RenderControls: React.FC<{
 									: null}
 							</div>
 							<ProgressBar progress={state.progress} />
-							<LogViewer logs={state.logs} />
+							{state.phase !== "Preparing machine..." &&
+								state.phase !== "Creating sandbox..." && (
+									<LogViewer logs={state.logs} />
+								)}
 						</>
 					) : null}
 					{state.status === "error" ? (
