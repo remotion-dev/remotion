@@ -1,7 +1,7 @@
 {
   "name": "template-prompt-to-motion-graphics",
   "version": "4.0.379",
-  "description": "AI-powered code generation template for Remotion",
+  "description": "SaaS template for AI-powered code generation with Remotion",
   "private": true,
   "repository": {
     "url": "https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics"
