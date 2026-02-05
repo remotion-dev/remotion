@@ -27,6 +27,12 @@ Config.setExperimentalClientSideRenderingEnabled(true);
 
 This will make it possible to render videos client-side on your Vercel deployment.
 
+## Rendering with Vercel Sandbox
+
+Vercel Sandbox allows you to render videos on-demand without managing Lambda or AWS infrastructure. Each render spawns an ephemeral Linux VM with full access to the Remotion renderer.
+
+See the dedicated [Vercel Sandbox](/docs/vercel-sandbox) page for full documentation.
+
 ## Triggering Lambda renders from Vercel Serverless functions
 
 You can trigger [Remotion Lambda renders](/docs/lambda) from Vercel Serverless functions.  
@@ -100,14 +106,13 @@ npx remotion render https://remotion-helloworld.vercel.app HelloWorld
 
 It is currently not possible to render videos or stills on Vercel Serverless functions due to the 50MB maximum function size. Since Chromium is a dependency of Remotion, it alone almost entirely fills the quota available.
 
-We recommend you to resort to client-side rendering or Remotion Lambda.
+We recommend using [Vercel Sandbox](#rendering-with-vercel-sandbox), client-side rendering, or Remotion Lambda instead.
 
-## Next.js Templates
-
-We currently offer 3 Next.js templates:
+## Templates
 
 - [Next.js (App dir)](/templates/next)
 - [Next.js (App dir + TailwindCSS)](/templates/next-tailwind)
 - [Next.js (Pages router)](/templates/next-pages-dir)
+- [Vercel Sandbox Rendering](/templates/vercel)
 
 These templates are recommended for building applications that can generate videos.

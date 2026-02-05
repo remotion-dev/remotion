@@ -1,0 +1,59 @@
+---
+image: /generated/articles-docs-vercel-sandbox.png
+sidebar_label: Vercel Sandbox
+title: Rendering with Vercel Sandbox
+crumb: 'Server-side rendering'
+---
+
+Vercel Sandbox allows you to render videos on-demand without managing Lambda or AWS infrastructure.  
+Each render spawns an ephemeral Linux VM with full access to the Remotion renderer.
+
+As a reference implementation, we have created a template: [Next.js Sandbox Template](https://remotion.dev/templates/vercel).
+
+## Getting Started
+
+Use the Vercel template:
+
+```bash
+npx create-video@latest --template vercel
+```
+
+Push it to Vercel.
+
+Then, in your Vercel dashboard, under "Storage", create a new Blob store and connect it to the project.  
+Redeploy for the changes to take effect.
+
+## Advantages
+
+This is the easiest way to setup Remotion server-side rendering. You only need one Vercel account and connect a blob storage - then you just push to deploy.
+
+Vercel has higher limits than Lambda by default, so you can render more videos at once than with a fresh AWS account.
+
+Allowing for 2000 concurrent sandboxes on the Pro Plan allows for massive scale.
+
+## Limitations
+
+Rendering happens on a single machine rather than a distributed system, so it is slower than Lambda.
+
+Spawning a new VM for each render has a setup phase which includes installing dependencies and downloading a browser.  
+We plan to soon improve this by using Vercel Sandbox snapshots.
+
+Currently, the browser downloaded does not have support for decoding H.264, meaning that using [`@remotion/media`](/docs/media) will often fallback to [`<OffthreadVideo>`](/docs/offthreadvideo).  
+We also plan to resolve this by using a custom build of Chrome soon.
+
+## Limits
+
+The timeout limit for Vercel Sandbox is 45 minutes on the Hobby plan, and 5 hours on the Pro and Enterprise plans.  
+For concurrency, the limit is 10 simultaneous renders on Hobby, and 2000 on Pro and Enterprise.
+
+For more details, see: [Vercel Sandbox pricing](https://vercel.com/docs/vercel-sandbox/pricing)
+
+## Source Code
+
+See the [template source code](https://github.com/remotion-dev/remotion/tree/main/packages/template-vercel) for implementation details.
+
+## See also
+
+- [Deploying Remotion on Vercel](/docs/miscellaneous/vercel)
+- [Server-side rendering](/docs/ssr)
+- [Lambda](/docs/lambda)
