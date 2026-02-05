@@ -116,7 +116,7 @@ export function getChromeDownloadUrl({
 		}
 
 		if (version) {
-			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
+			return `https://playwright.azureedge.net/builds/chromium/${version}/chromium-headless-shell-linux-arm64.zip`;
 		}
 
 		// Regular arm64 binary requires glibc 2.35+
