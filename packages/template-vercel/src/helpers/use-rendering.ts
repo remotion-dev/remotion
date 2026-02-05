@@ -3,7 +3,10 @@ import { useCallback, useMemo, useState } from "react";
 import { CompositionProps } from "../../types/constants";
 import { SSEMessage } from "../../types/schema";
 
-export type RenderState =
+export type State =
+	| {
+			status: "init";
+	  }
 	| {
 			status: "invoking";
 			phase: string;
@@ -22,51 +25,27 @@ export type RenderState =
 			logs: string[];
 	  };
 
-export type RenderItem = {
-	id: string;
-	state: RenderState;
-};
-
 export const useRendering = (
-	compositionId: string,
+	id: string,
 	inputProps: z.infer<typeof CompositionProps>,
 ) => {
-	const [renders, setRenders] = useState<RenderItem[]>([]);
+	const [state, setState] = useState<State>({
+		status: "init",
+	});
 
 	const renderMedia = useCallback(async () => {
-		const renderId = `render-${Date.now()}`;
-
-		setRenders((prev) => [
-			...prev,
-			{
-				id: renderId,
-				state: {
-					status: "invoking",
-					phase: "Starting...",
-					progress: 0,
-					logs: [],
-				},
-			},
-		]);
-
-		const updateRender = (
-			updater: (state: RenderState) => RenderState | null,
-		) => {
-			setRenders((prev) =>
-				prev.map((r) => {
-					if (r.id !== renderId) return r;
-					const newState = updater(r.state);
-					if (newState === null) return r;
-					return { ...r, state: newState };
-				}),
-			);
-		};
+		setState({
+			status: "invoking",
+			phase: "Starting...",
+			progress: 0,
+			logs: [],
+		});
 
 		try {
 			const response = await fetch("/api/render", {
 				method: "POST",
 				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ id: compositionId, inputProps }),
+				body: JSON.stringify({ id, inputProps }),
 			});
 
 			if (!response.ok || !response.body) {
@@ -92,60 +71,63 @@ export const useRendering = (
 					const message = JSON.parse(json) as SSEMessage;
 
 					if (message.type === "log") {
-						updateRender((state) => ({
-							...state,
-							logs: [...state.logs, message.data],
-						}));
-					} else if (message.type === "progress") {
-						updateRender((state) => {
-							if (state.status !== "invoking") return null;
+						setState((prev) => {
+							if (prev.status === "init") return prev;
 							return {
-								...state,
+								...prev,
+								logs: [...prev.logs, message.data],
+							};
+						});
+					} else if (message.type === "progress") {
+						setState((prev) => {
+							if (prev.status !== "invoking") return prev;
+							return {
+								...prev,
 								progress: message.progress,
 							};
 						});
 					} else if (message.type === "phase") {
-						updateRender((state) => {
-							if (state.status !== "invoking") return null;
+						setState((prev) => {
+							if (prev.status !== "invoking") return prev;
 							return {
-								...state,
+								...prev,
 								phase: message.phase,
 							};
 						});
 					} else if (message.type === "done") {
-						updateRender((state) => ({
+						setState((prev) => ({
 							status: "done",
 							url: message.url,
 							size: message.size,
-							logs: state.logs,
+							logs: prev.status !== "init" ? prev.logs : [],
 						}));
 					} else if (message.type === "error") {
-						updateRender((state) => ({
+						setState((prev) => ({
 							status: "error",
 							error: new Error(message.message),
-							logs: state.logs,
+							logs: prev.status !== "init" ? prev.logs : [],
 						}));
 					}
 				}
 			}
 		} catch (err) {
-			updateRender((state) => ({
+			setState((prev) => ({
 				status: "error",
 				error: err as Error,
-				logs: state.logs,
+				logs: prev.status !== "init" ? prev.logs : [],
 			}));
 		}
-	}, [compositionId, inputProps]);
+	}, [id, inputProps]);
 
-	const removeRender = useCallback((renderId: string) => {
-		setRenders((prev) => prev.filter((r) => r.id !== renderId));
+	const undo = useCallback(() => {
+		setState({ status: "init" });
 	}, []);
 
 	return useMemo(() => {
 		return {
 			renderMedia,
-			renders,
-			removeRender,
+			state,
+			undo,
 		};
-	}, [renderMedia, renders, removeRender]);
+	}, [renderMedia, state, undo]);
 };
