@@ -2146,6 +2146,7 @@
         "@eslint/js": "9.38.0",
         "@next/eslint-plugin-next": "15.1.6",
         "@remotion/eslint-plugin": "workspace:*",
+        "@remotion/renderer": "workspace:*",
         "@tailwindcss/postcss": "4.1.1",
         "@types/node": "20.12.14",
         "@types/react": "19.2.7",

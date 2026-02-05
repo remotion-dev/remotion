@@ -63,6 +63,6 @@ export function formatSSE(message: SSEMessage): string {
 }
 
 export async function getRenderScript(): Promise<Buffer> {
-	const renderScriptPath = path.join(process.cwd(), "render.mjs");
+	const renderScriptPath = path.join(process.cwd(), "render.ts");
 	return readFile(renderScriptPath);
 }

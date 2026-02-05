@@ -32,6 +32,7 @@
 	"devDependencies": {
 		"@tailwindcss/postcss": "4.1.1",
 		"@remotion/eslint-plugin": "workspace:*",
+		"@remotion/renderer": "workspace:*",
 		"@eslint/eslintrc": "3.1.0",
 		"@eslint/js": "9.38.0",
 		"@types/node": "20.12.14",

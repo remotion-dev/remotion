@@ -13,6 +13,7 @@ import {
 	SSEMessage,
 } from "./helpers";
 import { BUILD_DIR } from "../../../../build-dir.mjs";
+import type { RenderConfig } from "../../../../render";
 
 export async function POST(req: Request) {
 	const encoder = new TextEncoder();
@@ -120,26 +121,26 @@ export async function POST(req: Request) {
 		await send({ type: "phase", phase: "Rendering video..." });
 
 		// Use the local bundle copied to the sandbox
-		const serveUrl = "/vercel/sandbox/" + BUILD_DIR + "/index.html";
+		const serveUrl = `/vercel/sandbox/${BUILD_DIR}`;
 
 		const renderScript = await getRenderScript();
 		await sandbox.writeFiles([
 			{
-				path: "render.mjs",
+				path: "render.ts",
 				content: renderScript,
 			},
 		]);
 
-		const renderConfig = JSON.stringify({
+		const renderConfig: RenderConfig = {
 			serveUrl,
 			compositionId: COMP_NAME,
 			inputProps: body.inputProps,
-		});
+		};
 
 		// Run the render script
 		const renderCmd = await sandbox.runCommand({
 			cmd: "node",
-			args: ["render.mjs", renderConfig],
+			args: ["--strip-types", "render.ts", JSON.stringify(renderConfig)],
 			detached: true,
 		});
 
