@@ -1,5 +1,6 @@
 import { put } from "@vercel/blob";
-import { Sandbox } from "@vercel/sandbox";
+import { waitUntil } from "@vercel/functions";
+import path from "path";
 import { RenderRequest } from "../../../../types/schema";
 import {
 	COMP_NAME,
@@ -9,95 +10,16 @@ import {
 	VIDEO_WIDTH,
 } from "../../../../types/constants";
 import { VERSION } from "remotion/version";
-import { readdir, readFile } from "fs/promises";
-import path from "path";
-
-async function getRemotionBundleFiles(): Promise<
-	{ path: string; content: Buffer }[]
-> {
-	const remotionDir = path.join(process.cwd(), "remotion");
-	const files: { path: string; content: Buffer }[] = [];
-
-	async function readDirRecursive(dir: string, basePath: string = "") {
-		const entries = await readdir(dir, { withFileTypes: true });
-		for (const entry of entries) {
-			const fullPath = path.join(dir, entry.name);
-			const relativePath = path.join(basePath, entry.name);
-			if (entry.isDirectory()) {
-				await readDirRecursive(fullPath, relativePath);
-			} else {
-				const content = await readFile(fullPath);
-				files.push({ path: relativePath, content });
-			}
-		}
-	}
-
-	await readDirRecursive(remotionDir);
-	return files;
-}
-
-type SSEMessage =
-	| { type: "log"; stream: "stdout" | "stderr"; data: string }
-	| { type: "progress"; progress: number }
-	| { type: "phase"; phase: string }
-	| { type: "done"; url: string; size: number }
-	| { type: "error"; message: string };
-
-function formatSSE(message: SSEMessage): string {
-	return `data: ${JSON.stringify(message)}\n\n`;
-}
-
-function generateRenderScript(options: {
-	serveUrl: string;
-	compositionId: string;
-	inputProps: Record<string, unknown>;
-	width: number;
-	height: number;
-	fps: number;
-	durationInFrames: number;
-}): string {
-	return `
-const { renderMedia, selectComposition } = require("@remotion/renderer");
-
-async function main() {
-	try {
-		const composition = await selectComposition({
-			serveUrl: ${JSON.stringify(options.serveUrl)},
-			id: ${JSON.stringify(options.compositionId)},
-			inputProps: ${JSON.stringify(options.inputProps)},
-		});
-
-		await renderMedia({
-			composition: {
-				...composition,
-				width: ${options.width},
-				height: ${options.height},
-				fps: ${options.fps},
-				durationInFrames: ${options.durationInFrames},
-			},
-			serveUrl: ${JSON.stringify(options.serveUrl)},
-			codec: "h264",
-			outputLocation: "/tmp/video.mp4",
-			inputProps: ${JSON.stringify(options.inputProps)},
-			onProgress: ({ progress }) => {
-				console.log(JSON.stringify({ type: "progress", progress }));
-			},
-		});
-
-		console.log(JSON.stringify({ type: "done" }));
-	} catch (err) {
-		console.error(JSON.stringify({ type: "error", message: err.message }));
-		process.exit(1);
-	}
-}
-
-main();
-`;
-}
+import {
+	createDisposableSandbox,
+	createDisposableWriter,
+	formatSSE,
+	generateRenderScript,
+	getRemotionBundleFiles,
+	SSEMessage,
+} from "./helpers";
 
 export async function POST(req: Request) {
-	let sandbox: Sandbox | null = null;
-
 	const encoder = new TextEncoder();
 	const stream = new TransformStream();
 	const writer = stream.writable.getWriter();
@@ -107,17 +29,20 @@ export async function POST(req: Request) {
 	};
 
 	const runRender = async () => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		await using _writer = createDisposableWriter(writer);
+
+		const payload = await req.json();
+		const body = RenderRequest.parse(payload);
+
+		await send({ type: "phase", phase: "Creating sandbox..." });
+
+		await using sandbox = await createDisposableSandbox({
+			runtime: "node24",
+			timeout: 5 * 60 * 1000,
+		});
+
 		try {
-			const payload = await req.json();
-			const body = RenderRequest.parse(payload);
-
-			await send({ type: "phase", phase: "Creating sandbox..." });
-
-			sandbox = await Sandbox.create({
-				runtime: "node24",
-				timeout: 5 * 60 * 1000,
-			});
-
 			await send({ type: "phase", phase: "Copying Remotion bundle..." });
 
 			const bundleFiles = await getRemotionBundleFiles();
@@ -272,15 +197,10 @@ export async function POST(req: Request) {
 			});
 		} catch (err) {
 			await send({ type: "error", message: (err as Error).message });
-		} finally {
-			if (sandbox) {
-				await sandbox.stop().catch(() => {});
-			}
-			await writer.close();
 		}
 	};
 
-	runRender();
+	waitUntil(runRender());
 
 	return new Response(stream.readable, {
 		headers: {
