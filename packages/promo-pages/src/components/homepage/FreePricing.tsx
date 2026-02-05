@@ -116,7 +116,7 @@ const PricingSlider: React.FC<{
 				step={step}
 				value={value}
 				onChange={(e) => onChange(Number(e.target.value))}
-				className="pricing-slider flex-1"
+				className="pricing-slider w-full"
 				style={{
 					background: `linear-gradient(to right, var(--color-brand) 0%, var(--color-brand) ${percentage}%, var(--background) ${percentage}%, var(--background) 100%)`,
 				}}
@@ -249,7 +249,7 @@ const SectionCheckbox: React.FC<{
 			<div
 				className={cn(
 					'fontbrand text-muted transition-opacity duration-150',
-					checked ? 'opacity-0' : 'opacity-100',
+					checked ? 'hidden' : 'opacity-100',
 				)}
 			>
 				Not selected
@@ -337,20 +337,25 @@ export const CompanyPricing: React.FC = () => {
 				}}
 			>
 				<div className="overflow-hidden">
-					<div className="flex flex-row items-center gap-4 w-full py-3">
-						<PricingSlider
-							value={devSeatCount}
-							onChange={setDevSeatCount}
-							min={1}
-							max={50}
-						/>
-						<div className="fontbrand shrink-0 w-[135px] text-right">
+					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full py-3">
+						<div className="flex-1 min-w-0">
+							<PricingSlider
+								value={devSeatCount}
+								onChange={setDevSeatCount}
+								min={1}
+								max={50}
+							/>
+						</div>
+
+						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-center">
 							{devSeatCount} {devSeatCount === 1 ? 'Seat' : 'Seats'}
 						</div>
-						<div className="fontbrand font-bold min-w-[60px] text-right shrink-0">
-							{`$${new Intl.NumberFormat('en-US', {
+
+						<div className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap">
+							$
+							{new Intl.NumberFormat('en-US', {
 								maximumFractionDigits: 0,
-							}).format(SEAT_PRICE * devSeatCount)}`}
+							}).format(SEAT_PRICE * devSeatCount)}
 						</div>
 					</div>
 				</div>
@@ -386,21 +391,26 @@ export const CompanyPricing: React.FC = () => {
 				}}
 			>
 				<div className="overflow-hidden">
-					<div className="flex flex-row items-center gap-4 w-full py-3">
-						<PricingSlider
-							value={cloudRenders}
-							onChange={setCloudRenders}
-							min={1000}
-							max={100000}
-							step={1000}
-						/>
-						<div className="fontbrand shrink-0 w-[135px] text-right">
+					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full py-3">
+						<div className="flex-1 min-w-0">
+							<PricingSlider
+								value={cloudRenders}
+								onChange={setCloudRenders}
+								min={1000}
+								max={100000}
+								step={1000}
+							/>
+						</div>
+
+						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-right">
 							{new Intl.NumberFormat('en-US').format(cloudRenders)} Renders
 						</div>
-						<div className="fontbrand font-bold min-w-[60px] text-right shrink-0">
-							{`$${new Intl.NumberFormat('en-US', {
+
+						<div className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap">
+							$
+							{new Intl.NumberFormat('en-US', {
 								maximumFractionDigits: 0,
-							}).format(Math.ceil(cloudRenders / 1000) * RENDER_UNIT_PRICE)}`}
+							}).format(Math.ceil(cloudRenders / 1000) * RENDER_UNIT_PRICE)}
 						</div>
 					</div>
 				</div>
