@@ -13,6 +13,10 @@ Use this skills whenever you are dealing with Remotion code to obtain the domain
 
 When dealing with captions or subtitles, load the [./rules/subtitles.md](./rules/subtitles.md) file for more information.
 
+## Using FFmpeg
+
+For some video operations, such as trimming videos or detecting silence, FFmpeg should be used. Load the [./rules/ffmpeg.md](./rules/ffmpeg.md) file for more information.
+
 ## How to use
 
 Read individual rule files for detailed explanations and code examples:
