@@ -15,20 +15,7 @@ npx remotion add @remotion/media-utils
 
 ## Loading Audio Data
 
-For small files, use `useAudioData()`:
-
-```tsx
-import { useAudioData } from "@remotion/media-utils";
-import { staticFile } from "remotion";
-
-const audioData = useAudioData(staticFile("music.mp3"));
-
-if (!audioData) {
-  return null;
-}
-```
-
-For large files (podcasts, long tracks), use `useWindowedAudioData()` which only loads audio around the current frame:
+Use `useWindowedAudioData()` (https://www.remotion.dev/docs/use-windowed-audio-data) to load audio data:
 
 ```tsx
 import { useWindowedAudioData } from "@remotion/media-utils";
@@ -47,7 +34,7 @@ const { audioData, dataOffsetInSeconds } = useWindowedAudioData({
 
 ## Spectrum Bar Visualization
 
-Use `visualizeAudio()` to get frequency data for bar charts:
+Use `visualizeAudio()` (https://www.remotion.dev/docs/visualize-audio) to get frequency data for bar charts:
 
 ```tsx
 import { useWindowedAudioData, visualizeAudio } from "@remotion/media-utils";
@@ -101,7 +88,7 @@ return (
 
 ## Waveform Visualization
 
-Use `visualizeAudioWaveform()` with `createSmoothSvgPath()` for oscilloscope-style displays:
+Use `visualizeAudioWaveform()` (https://www.remotion.dev/docs/media-utils/visualize-audio-waveform) with `createSmoothSvgPath()` (https://www.remotion.dev/docs/media-utils/create-smooth-svg-path) for oscilloscope-style displays:
 
 ```tsx
 import {
@@ -173,7 +160,7 @@ const opacity = Math.min(0.6, bassIntensity * 0.8);
 
 ## Volume-Based Waveform
 
-Use `getWaveformPortion()` when you need simplified volume data instead of frequency spectrum:
+Use `getWaveformPortion()` (https://www.remotion.dev/docs/get-waveform-portion) when you need simplified volume data instead of frequency spectrum:
 
 ```tsx
 import { getWaveformPortion } from "@remotion/media-utils";
