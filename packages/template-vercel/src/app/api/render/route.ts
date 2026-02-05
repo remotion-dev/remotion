@@ -188,6 +188,7 @@ export async function POST(req: Request) {
 
 	waitUntil(
 		runRender().catch(async (err) => {
+			console.log(err);
 			await send({ type: "error", message: (err as Error).message });
 		}),
 	);
