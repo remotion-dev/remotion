@@ -26,7 +26,7 @@ export const createDisposableWriter = (
 export async function getRemotionBundleFiles(): Promise<
 	{ path: string; content: Buffer }[]
 > {
-	const remotionDir = path.join(process.cwd(), "remotion");
+	const remotionDir = path.join(process.cwd(), ".remotion");
 	const files: { path: string; content: Buffer }[] = [];
 
 	async function readDirRecursive(dir: string, basePath: string = "") {

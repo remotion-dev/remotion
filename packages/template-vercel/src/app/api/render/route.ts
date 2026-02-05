@@ -42,165 +42,165 @@ export async function POST(req: Request) {
 			timeout: 5 * 60 * 1000,
 		});
 
-		try {
-			await send({ type: "phase", phase: "Copying Remotion bundle..." });
+		await send({ type: "phase", phase: "Copying Remotion bundle..." });
 
-			const bundleFiles = await getRemotionBundleFiles();
+		const bundleFiles = await getRemotionBundleFiles();
 
-			// Create the directories first
-			const dirs = new Set<string>();
-			for (const file of bundleFiles) {
-				const dir = path.dirname(file.path);
-				if (dir && dir !== ".") {
-					dirs.add(dir);
-				}
+		// Create the directories first
+		const dirs = new Set<string>();
+		for (const file of bundleFiles) {
+			const dir = path.dirname(file.path);
+			if (dir && dir !== ".") {
+				dirs.add(dir);
 			}
-
-			for (const dir of Array.from(dirs).sort()) {
-				await sandbox.mkDir(`remotion/${dir}`);
-			}
-
-			// Write all files to the sandbox
-			await sandbox.writeFiles(
-				bundleFiles.map((file) => ({
-					path: `remotion/${file.path}`,
-					content: file.content,
-				})),
-			);
-
-			await send({
-				type: "phase",
-				phase: "Installing system dependencies...",
-			});
-
-			const sysInstallCmd = await sandbox.runCommand({
-				cmd: "sudo",
-				args: [
-					"dnf",
-					"install",
-					"-y",
-					"nss",
-					"atk",
-					"at-spi2-atk",
-					"cups-libs",
-					"libdrm",
-					"libXcomposite",
-					"libXdamage",
-					"libXrandr",
-					"mesa-libgbm",
-					"alsa-lib",
-					"pango",
-					"gtk3",
-				],
-				detached: true,
-			});
-
-			for await (const log of sysInstallCmd.logs()) {
-				await send({ type: "log", stream: log.stream, data: log.data });
-			}
-
-			const sysInstallResult = await sysInstallCmd.wait();
-			if (sysInstallResult.exitCode !== 0) {
-				throw new Error(
-					`System dependencies install failed: ${await sysInstallResult.stderr()}`,
-				);
-			}
-
-			await send({ type: "phase", phase: "Installing renderer..." });
-
-			const installCmd = await sandbox.runCommand({
-				cmd: "pnpm",
-				args: ["install", "@remotion/renderer@" + VERSION],
-				detached: true,
-			});
-
-			for await (const log of installCmd.logs()) {
-				await send({ type: "log", stream: log.stream, data: log.data });
-			}
-
-			const installResult = await installCmd.wait();
-			if (installResult.exitCode !== 0) {
-				throw new Error(`pnpm install failed: ${await installResult.stderr()}`);
-			}
-
-			await send({ type: "phase", phase: "Rendering video..." });
-
-			// Use the local bundle copied to the sandbox
-			const serveUrl = "/vercel/sandbox/remotion/index.html";
-
-			const renderScript = generateRenderScript({
-				serveUrl,
-				compositionId: COMP_NAME,
-				inputProps: body.inputProps,
-				width: VIDEO_WIDTH,
-				height: VIDEO_HEIGHT,
-				fps: VIDEO_FPS,
-				durationInFrames: DURATION_IN_FRAMES,
-			});
-
-			await sandbox.writeFiles([
-				{
-					path: "render.cjs",
-					content: Buffer.from(renderScript),
-				},
-			]);
-
-			// Run the render script
-			const renderCmd = await sandbox.runCommand({
-				cmd: "node",
-				args: ["render.cjs"],
-				detached: true,
-			});
-
-			for await (const log of renderCmd.logs()) {
-				// Parse progress messages from the script
-				if (log.stream === "stdout") {
-					try {
-						const message = JSON.parse(log.data);
-						if (message.type === "progress") {
-							await send({ type: "progress", progress: message.progress });
-							continue;
-						}
-					} catch {
-						// Not JSON, send as regular log
-					}
-				}
-				await send({ type: "log", stream: log.stream, data: log.data });
-			}
-
-			const renderResult = await renderCmd.wait();
-			if (renderResult.exitCode !== 0) {
-				const stderr = await renderResult.stderr();
-				const stdout = await renderResult.stdout();
-				throw new Error(`Render failed: ${stderr || stdout}`);
-			}
-
-			await send({ type: "phase", phase: "Uploading video..." });
-
-			const videoBuffer = await sandbox.readFileToBuffer({
-				path: "/tmp/video.mp4",
-			});
-			if (!videoBuffer) {
-				throw new Error("Failed to read rendered video");
-			}
-
-			const renderId = crypto.randomUUID();
-			const blob = await put(`renders/${renderId}.mp4`, videoBuffer, {
-				access: "public",
-				contentType: "video/mp4",
-			});
-
-			await send({
-				type: "done",
-				url: blob.url,
-				size: videoBuffer.length,
-			});
-		} catch (err) {
-			await send({ type: "error", message: (err as Error).message });
 		}
+
+		for (const dir of Array.from(dirs).sort()) {
+			await sandbox.mkDir(`remotion/${dir}`);
+		}
+
+		// Write all files to the sandbox
+		await sandbox.writeFiles(
+			bundleFiles.map((file) => ({
+				path: `remotion/${file.path}`,
+				content: file.content,
+			})),
+		);
+
+		await send({
+			type: "phase",
+			phase: "Installing system dependencies...",
+		});
+
+		const sysInstallCmd = await sandbox.runCommand({
+			cmd: "sudo",
+			args: [
+				"dnf",
+				"install",
+				"-y",
+				"nss",
+				"atk",
+				"at-spi2-atk",
+				"cups-libs",
+				"libdrm",
+				"libXcomposite",
+				"libXdamage",
+				"libXrandr",
+				"mesa-libgbm",
+				"alsa-lib",
+				"pango",
+				"gtk3",
+			],
+			detached: true,
+		});
+
+		for await (const log of sysInstallCmd.logs()) {
+			await send({ type: "log", stream: log.stream, data: log.data });
+		}
+
+		const sysInstallResult = await sysInstallCmd.wait();
+		if (sysInstallResult.exitCode !== 0) {
+			throw new Error(
+				`System dependencies install failed: ${await sysInstallResult.stderr()}`,
+			);
+		}
+
+		await send({ type: "phase", phase: "Installing renderer..." });
+
+		const installCmd = await sandbox.runCommand({
+			cmd: "pnpm",
+			args: [`i`, `@remotion/renderer@${VERSION}`],
+			detached: true,
+		});
+
+		for await (const log of installCmd.logs()) {
+			await send({ type: "log", stream: log.stream, data: log.data });
+		}
+
+		const installResult = await installCmd.wait();
+		if (installResult.exitCode !== 0) {
+			throw new Error(`pnpm install failed: ${await installResult.stderr()}`);
+		}
+
+		await send({ type: "phase", phase: "Rendering video..." });
+
+		// Use the local bundle copied to the sandbox
+		const serveUrl = "/vercel/sandbox/remotion/index.html";
+
+		const renderScript = generateRenderScript({
+			serveUrl,
+			compositionId: COMP_NAME,
+			inputProps: body.inputProps,
+			width: VIDEO_WIDTH,
+			height: VIDEO_HEIGHT,
+			fps: VIDEO_FPS,
+			durationInFrames: DURATION_IN_FRAMES,
+		});
+
+		await sandbox.writeFiles([
+			{
+				path: "render.cjs",
+				content: Buffer.from(renderScript),
+			},
+		]);
+
+		// Run the render script
+		const renderCmd = await sandbox.runCommand({
+			cmd: "node",
+			args: ["render.cjs"],
+			detached: true,
+		});
+
+		for await (const log of renderCmd.logs()) {
+			// Parse progress messages from the script
+			if (log.stream === "stdout") {
+				try {
+					const message = JSON.parse(log.data);
+					if (message.type === "progress") {
+						await send({ type: "progress", progress: message.progress });
+						continue;
+					}
+				} catch {
+					// Not JSON, send as regular log
+				}
+			}
+			await send({ type: "log", stream: log.stream, data: log.data });
+		}
+
+		const renderResult = await renderCmd.wait();
+		if (renderResult.exitCode !== 0) {
+			const stderr = await renderResult.stderr();
+			const stdout = await renderResult.stdout();
+			throw new Error(`Render failed: ${stderr || stdout}`);
+		}
+
+		await send({ type: "phase", phase: "Uploading video..." });
+
+		const videoBuffer = await sandbox.readFileToBuffer({
+			path: "/tmp/video.mp4",
+		});
+		if (!videoBuffer) {
+			throw new Error("Failed to read rendered video");
+		}
+
+		const renderId = crypto.randomUUID();
+		const blob = await put(`renders/${renderId}.mp4`, videoBuffer, {
+			access: "public",
+			contentType: "video/mp4",
+		});
+
+		await send({
+			type: "done",
+			url: blob.url,
+			size: videoBuffer.length,
+		});
 	};
 
-	waitUntil(runRender());
+	waitUntil(
+		runRender().catch(async (err) => {
+			await send({ type: "error", message: (err as Error).message });
+		}),
+	);
 
 	return new Response(stream.readable, {
 		headers: {
