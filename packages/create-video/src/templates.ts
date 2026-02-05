@@ -218,7 +218,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'prompt-to-motion-graphics' as const,
 		type: 'image' as const,
 		defaultBranch: 'main',
-		featuredOnHomePage: null,
+		featuredOnHomePage: 'https://prompt-to-motion-graphics-saas.vercel.app',
 		previewURL: null,
 		templateInMonorepo: 'template-prompt-to-motion-graphics',
 		allowEnableTailwind: false,
