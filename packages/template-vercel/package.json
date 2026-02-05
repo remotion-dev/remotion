@@ -4,7 +4,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
-		"build": "next build",
+		"build": "bun build.ts",
 		"start": "next start",
 		"lint": "eslint .",
 		"remotion": "remotion studio",
