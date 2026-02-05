@@ -36,6 +36,21 @@ const PLAYWRIGHT_VERSION = '1207'; // 144.0.7559.20
 
 type Platform = 'linux64' | 'linux-arm64' | 'mac-x64' | 'mac-arm64' | 'win64';
 
+const isAmazonLinux2023 = (): boolean => {
+	if (os.platform() !== 'linux') {
+		return false;
+	}
+
+	try {
+		const osRelease = fs.readFileSync('/etc/os-release', 'utf-8');
+		return (
+			osRelease.includes('Amazon Linux') && osRelease.includes('VERSION="2023"')
+		);
+	} catch {
+		return false;
+	}
+};
+
 function getChromeDownloadUrl({
 	platform,
 	version,
@@ -46,6 +61,11 @@ function getChromeDownloadUrl({
 	chromeMode: ChromeMode;
 }): string {
 	if (platform === 'linux-arm64') {
+		// Amazon Linux 2023 on arm64 needs a special build
+		if (isAmazonLinux2023() && chromeMode === 'headless-shell' && !version) {
+			return 'https://remotion.media/chromium-headless-shell-amazon-linux-arm64-144.0.7559.20.zip';
+		}
+
 		if (chromeMode === 'chrome-for-testing') {
 			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
 		}

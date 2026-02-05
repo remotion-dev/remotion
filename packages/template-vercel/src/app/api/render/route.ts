@@ -8,6 +8,7 @@ import {
 	createDisposableSandbox,
 	createDisposableWriter,
 	formatSSE,
+	getEnsureBrowserScript,
 	getRemotionBundleFiles,
 	getRenderScript,
 	SSEMessage,
@@ -125,6 +126,33 @@ export async function POST(req: Request) {
 		const installResult = await installCmd.wait();
 		if (installResult.exitCode !== 0) {
 			throw new Error(`pnpm install failed: ${await installResult.stderr()}`);
+		}
+
+		await send({ type: "phase", phase: "Downloading browser..." });
+
+		const ensureBrowserScript = await getEnsureBrowserScript();
+		await sandbox.writeFiles([
+			{
+				path: "ensure-browser.mjs",
+				content: ensureBrowserScript,
+			},
+		]);
+
+		const ensureBrowserCmd = await sandbox.runCommand({
+			cmd: "node",
+			args: ["ensure-browser.mjs"],
+			detached: true,
+		});
+
+		for await (const log of ensureBrowserCmd.logs()) {
+			await send({ type: "log", stream: log.stream, data: log.data });
+		}
+
+		const ensureBrowserResult = await ensureBrowserCmd.wait();
+		if (ensureBrowserResult.exitCode !== 0) {
+			throw new Error(
+				`ensure-browser failed: ${await ensureBrowserResult.stderr()}`,
+			);
 		}
 
 		await send({ type: "phase", phase: "Rendering video..." });
