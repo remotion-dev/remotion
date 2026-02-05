@@ -8,6 +8,7 @@ const nextConfig = {
 		"/api/render": [
 			"./" + BUILD_DIR + "/**/*",
 			"./render.ts",
+			"./ensure.mjs",
 			"./ensure-browser.mjs",
 		],
 	},

@@ -3116,25 +3116,38 @@ var getDownloadsCacheDir = () => {
 // src/browser/BrowserFetcher.ts
 var TESTED_VERSION = "144.0.7559.20";
 var PLAYWRIGHT_VERSION = "1207";
+var isAmazonLinux2023 = () => {
+  if (os.platform() !== "linux") {
+    return false;
+  }
+  try {
+    const osRelease = fs3.readFileSync("/etc/os-release", "utf-8");
+    return osRelease.includes("Amazon Linux") && osRelease.includes('VERSION="2023"');
+  } catch {
+    return false;
+  }
+};
 function getChromeDownloadUrl({
   platform: platform2,
   version,
   chromeMode
 }) {
   if (platform2 === "linux-arm64") {
+    if (isAmazonLinux2023() && chromeMode === "headless-shell" && !version) {
+      return "https://remotion.media/chromium-headless-shell-amazon-linux-arm64-144.0.7559.20.zip";
+    }
     if (chromeMode === "chrome-for-testing") {
       return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
     }
     if (version) {
       return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
     }
-    return `https://remotion.media/chromium-headless-shell-linux-arm64-144.0.7559.20.zip?clearcache`;
+    return `https://remotion.media/chromium-headless-shell-linux-arm64-${TESTED_VERSION}.zip?clearcache`;
   }
   if (chromeMode === "headless-shell") {
     if (platform2 === "linux64" && version === null) {
-      return `https://remotion.media/chromium-headless-shell-linux-x64-144.0.7559.20.zip?clearcache`;
+      return `https://remotion.media/chromium-headless-shell-linux-x64-${TESTED_VERSION}.zip?clearcache`;
     }
-    Log.info({ indent: true, logLevel: "info" }, `Using Remotion headless shell for ${platform2} ${version}`);
     return `https://storage.googleapis.com/chrome-for-testing-public/${version ?? TESTED_VERSION}/${platform2}/chrome-headless-shell-${platform2}.zip`;
   }
   return `https://storage.googleapis.com/chrome-for-testing-public/${version ?? TESTED_VERSION}/${platform2}/chrome-${platform2}.zip`;
