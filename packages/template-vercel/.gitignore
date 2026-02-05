@@ -38,7 +38,4 @@ out/
 .env
 build
 
-# remotion bundle (generated at build time)
-/public/remotion-bundle
-
-bundle
+public/.remotion

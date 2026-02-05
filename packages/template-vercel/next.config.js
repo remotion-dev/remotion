@@ -1,9 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+	reactStrictMode: true,
+	typescript: {
+		ignoreBuildErrors: true,
+	},
+	// Include the Remotion bundle in the API route
+	outputFileTracingIncludes: {
+		"/api/render": "./remotion",
+	},
 };
 
 module.exports = nextConfig;

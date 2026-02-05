@@ -8,6 +8,33 @@ import {
 	VIDEO_HEIGHT,
 	VIDEO_WIDTH,
 } from "../../../../types/constants";
+import { VERSION } from "remotion/version";
+import { readdir, readFile } from "fs/promises";
+import path from "path";
+
+async function getRemotionBundleFiles(): Promise<
+	{ path: string; content: Buffer }[]
+> {
+	const remotionDir = path.join(process.cwd(), "remotion");
+	const files: { path: string; content: Buffer }[] = [];
+
+	async function readDirRecursive(dir: string, basePath: string = "") {
+		const entries = await readdir(dir, { withFileTypes: true });
+		for (const entry of entries) {
+			const fullPath = path.join(dir, entry.name);
+			const relativePath = path.join(basePath, entry.name);
+			if (entry.isDirectory()) {
+				await readDirRecursive(fullPath, relativePath);
+			} else {
+				const content = await readFile(fullPath);
+				files.push({ path: relativePath, content });
+			}
+		}
+	}
+
+	await readDirRecursive(remotionDir);
+	return files;
+}
 
 type SSEMessage =
 	| { type: "log"; stream: "stdout" | "stderr"; data: string }
@@ -69,16 +96,6 @@ main();
 }
 
 export async function POST(req: Request) {
-	const serveUrl = process.env.REMOTION_SERVE_URL;
-	if (!serveUrl) {
-		return new Response(
-			JSON.stringify({
-				error: "REMOTION_SERVE_URL environment variable is not set",
-			}),
-			{ status: 500, headers: { "Content-Type": "application/json" } },
-		);
-	}
-
 	let sandbox: Sandbox | null = null;
 
 	const encoder = new TextEncoder();
@@ -100,6 +117,31 @@ export async function POST(req: Request) {
 				runtime: "node24",
 				timeout: 5 * 60 * 1000,
 			});
+
+			await send({ type: "phase", phase: "Copying Remotion bundle..." });
+
+			const bundleFiles = await getRemotionBundleFiles();
+
+			// Create the directories first
+			const dirs = new Set<string>();
+			for (const file of bundleFiles) {
+				const dir = path.dirname(file.path);
+				if (dir && dir !== ".") {
+					dirs.add(dir);
+				}
+			}
+
+			for (const dir of Array.from(dirs).sort()) {
+				await sandbox.mkDir(`remotion/${dir}`);
+			}
+
+			// Write all files to the sandbox
+			await sandbox.writeFiles(
+				bundleFiles.map((file) => ({
+					path: `remotion/${file.path}`,
+					content: file.content,
+				})),
+			);
 
 			await send({
 				type: "phase",
@@ -143,7 +185,7 @@ export async function POST(req: Request) {
 
 			const installCmd = await sandbox.runCommand({
 				cmd: "pnpm",
-				args: ["install", "@remotion/renderer@latest"],
+				args: ["install", "@remotion/renderer@" + VERSION],
 				detached: true,
 			});
 
@@ -157,6 +199,9 @@ export async function POST(req: Request) {
 			}
 
 			await send({ type: "phase", phase: "Rendering video..." });
+
+			// Use the local bundle copied to the sandbox
+			const serveUrl = "/vercel/sandbox/remotion/index.html";
 
 			const renderScript = generateRenderScript({
 				serveUrl,
