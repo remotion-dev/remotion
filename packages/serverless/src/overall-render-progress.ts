@@ -137,7 +137,7 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 				// By default, upload is way too fast (~20 requests per second)
 				// Space out the requests a bit
 				return new Promise<void>((resolve) => {
-					setTimeout(resolve, 250 - (Date.now() - start));
+					setTimeout(resolve, Math.max(0, 250 - (Date.now() - start)));
 				});
 			})
 			.catch((err) => {
