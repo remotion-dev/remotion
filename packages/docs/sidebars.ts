@@ -1210,6 +1210,7 @@ const sidebars: SidebarsConfig = {
 				'ai/chatbot',
 				'ai/generate',
 				'ai/dynamic-compilation',
+				'ai/ai-saas-template',
 				'ai/mcp',
 				'ai/system-prompt',
 				'ai/skills',
