@@ -31,45 +31,7 @@ This will make it possible to render videos client-side on your Vercel deploymen
 
 Vercel Sandbox allows you to render videos on-demand without managing Lambda or AWS infrastructure. Each render spawns an ephemeral Linux VM with full access to the Remotion renderer.
 
-### How it works
-
-1. User triggers a render from your application
-2. A Vercel Sandbox VM is spawned with Node.js
-3. The VM runs `renderMedia()` pointing to your deployed bundle
-4. Progress is streamed to the client via Server-Sent Events
-5. Completed video is uploaded to Vercel Blob storage
-6. Client receives the video URL
-
-### Getting Started
-
-Use the Vercel template:
-
-```bash
-npx create-video@latest --template vercel
-```
-
-### Required Setup
-
-1. **Deploy your Remotion bundle:**
-
-   ```bash
-   npx remotion bundle
-   cd build && vercel deploy
-   ```
-
-2. **Create a Vercel Blob store** in your Vercel dashboard under Storage
-
-3. **Set environment variables:**
-   - `BLOB_READ_WRITE_TOKEN`: Token from your Vercel Blob store (auto-injected when deployed to same project)
-
-### Limitations
-
-- **Longer cold starts**: Sandbox VMs take a few seconds to start (mitigated with snapshots)
-- **Single machine**: No distributed rendering (unlike Lambda)
-- **Timeout limits**: 45 min (Hobby), 5 hours (Pro & Enterprise)
-- **Concurrency limits**: 10 (Hobby), 2000 (Pro & Enterprise)
-
-See the [template source code](https://github.com/remotion-dev/remotion/tree/main/packages/template-vercel) for implementation details.
+See the dedicated [Vercel Sandbox](/docs/vercel-sandbox) page for full documentation.
 
 ## Triggering Lambda renders from Vercel Serverless functions
 
