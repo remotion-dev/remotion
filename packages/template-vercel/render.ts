@@ -14,6 +14,7 @@ try {
 		serveUrl: config.serveUrl,
 		id: config.compositionId,
 		inputProps: config.inputProps,
+		logLevel: "verbose",
 	});
 
 	await renderMedia({
