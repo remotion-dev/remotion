@@ -90,9 +90,12 @@ export async function POST(req: Request) {
 			detached: true,
 		});
 
+		let sysInstallLineCount = 0;
 		for await (const log of sysInstallCmd.logs()) {
+			sysInstallLineCount++;
 			await send({ type: "log", stream: log.stream, data: log.data });
 		}
+		console.log("sysInstallLineCount:", sysInstallLineCount);
 
 		const sysInstallResult = await sysInstallCmd.wait();
 		if (sysInstallResult.exitCode !== 0) {
