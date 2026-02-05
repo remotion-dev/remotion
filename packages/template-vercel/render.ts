@@ -29,8 +29,7 @@ try {
 
 	console.log(JSON.stringify({ type: "done" }));
 } catch (err) {
-	console.error(
-		JSON.stringify({ type: "error", message: (err as Error).message }),
-	);
+	// This prints to stderr, not stdout
+	console.error((err as Error).message);
 	process.exit(1);
 }
