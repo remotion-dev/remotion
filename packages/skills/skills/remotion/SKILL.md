@@ -17,6 +17,10 @@ When dealing with captions or subtitles, load the [./rules/subtitles.md](./rules
 
 For some video operations, such as trimming videos or detecting silence, FFmpeg should be used. Load the [./rules/ffmpeg.md](./rules/ffmpeg.md) file for more information.
 
+## Audio visualization
+
+When needing to visualize audio (spectrum bars, waveforms, bass-reactive effects), load the [./rules/audio-visualization.md](./rules/audio-visualization.md) file for more information.
+
 ## How to use
 
 Read individual rule files for detailed explanations and code examples:
