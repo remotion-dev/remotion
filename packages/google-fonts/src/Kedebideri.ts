@@ -6,7 +6,7 @@ export const getInfo = () => ({
 	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Kedebideri:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
-		'beria-erfe': 'U+16EA0-16EB8, U+16EBB-16ED3',
+		'beria-erfe': 'U+0301, U+16EA0-16EB8, U+16EBB-16ED3',
 		latin:
 			'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
 	},
