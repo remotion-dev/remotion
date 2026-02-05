@@ -28,7 +28,7 @@ export type Template = {
 		| 'javascript'
 		| 'blank'
 		| 'next'
-		| 'next-tailwind'
+		| 'next-no-tailwind'
 		| 'next-pages-dir'
 		| 'react-router'
 		| 'three'
@@ -142,12 +142,12 @@ export const FEATURED_TEMPLATES: Template[] = [
 		longerDescription:
 			'A template for rendering videos on-demand using Vercel Sandbox. Spawns ephemeral Linux VMs to render videos and stores them in Vercel Blob storage.',
 		cliId: 'vercel' as const,
-		promoBanner: {
-			width: 655,
+		promoVideo: {
+			width: 1280,
 			height: 720,
-			src: '/img/vercel-sandbox-template.png',
+			muxId: 'RufnZIJZh6L1MAaeG02jnXuM9pK96tNuHRxmXHbWqCBI',
 		},
-		type: 'image' as const,
+		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: null,

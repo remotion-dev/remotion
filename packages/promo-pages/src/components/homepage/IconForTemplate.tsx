@@ -150,7 +150,7 @@ export const IconForTemplate: React.FC<{
 
 	if (
 		template.cliId === 'next' ||
-		template.cliId === 'next-tailwind' ||
+		template.cliId === 'next-no-tailwind' ||
 		template.cliId === 'next-pages-dir'
 	) {
 		return <NextIcon style={{height: scale * 36}} />;
