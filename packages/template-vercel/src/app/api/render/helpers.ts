@@ -26,35 +26,36 @@ export const createDisposableWriter = (
 export async function getRemotionBundleFiles(): Promise<
 	{ path: string; content: Buffer }[]
 > {
-	const remotionDir = path.join(__dirname, "../../.remotion");
-
-	// Debug logging to verify paths
+	// Debug logging to find where .remotion actually is
 	console.log("__dirname:", __dirname);
-	console.log("remotionDir:", remotionDir);
+	console.log("process.cwd():", process.cwd());
 
-	const parentDir = path.dirname(remotionDir);
-	const grandparentDir = path.dirname(parentDir);
+	// Option 1: 2 levels up from __dirname (current)
+	const option1 = path.join(__dirname, "../../.remotion");
+	// Option 2: 4 levels up from __dirname
+	const option2 = path.join(__dirname, "../../../../.remotion");
+	// Option 3: from process.cwd()
+	const option3 = path.join(process.cwd(), ".remotion");
 
-	try {
-		const parentContents = await readdir(parentDir);
-		console.log(`Contents of ${parentDir}:`, parentContents);
-	} catch {
-		console.log(`Could not read ${parentDir}`);
+	for (const candidate of [option1, option2, option3]) {
+		try {
+			const contents = await readdir(candidate);
+			console.log(`✓ Found ${candidate}:`, contents.slice(0, 5), "...");
+		} catch {
+			console.log(`✗ Not found: ${candidate}`);
+		}
 	}
 
+	// Also list project root to see what's there
 	try {
-		const grandparentContents = await readdir(grandparentDir);
-		console.log(`Contents of ${grandparentDir}:`, grandparentContents);
+		const cwdContents = await readdir(process.cwd());
+		console.log(`Contents of cwd (${process.cwd()}):`, cwdContents);
 	} catch {
-		console.log(`Could not read ${grandparentDir}`);
+		console.log(`Could not read cwd`);
 	}
 
-	try {
-		const remotionContents = await readdir(remotionDir);
-		console.log(`Contents of ${remotionDir}:`, remotionContents);
-	} catch {
-		console.log(`Could not read ${remotionDir}`);
-	}
+	// Placeholder - will update once we know the right path
+	const remotionDir = option1;
 
 	const files: { path: string; content: Buffer }[] = [];
 
