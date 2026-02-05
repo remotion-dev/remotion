@@ -26,7 +26,36 @@ export const createDisposableWriter = (
 export async function getRemotionBundleFiles(): Promise<
 	{ path: string; content: Buffer }[]
 > {
-	const remotionDir = path.join(process.cwd(), ".remotion");
+	const remotionDir = path.join(__dirname, "../../.remotion");
+
+	// Debug logging to verify paths
+	console.log("__dirname:", __dirname);
+	console.log("remotionDir:", remotionDir);
+
+	const parentDir = path.dirname(remotionDir);
+	const grandparentDir = path.dirname(parentDir);
+
+	try {
+		const parentContents = await readdir(parentDir);
+		console.log(`Contents of ${parentDir}:`, parentContents);
+	} catch {
+		console.log(`Could not read ${parentDir}`);
+	}
+
+	try {
+		const grandparentContents = await readdir(grandparentDir);
+		console.log(`Contents of ${grandparentDir}:`, grandparentContents);
+	} catch {
+		console.log(`Could not read ${grandparentDir}`);
+	}
+
+	try {
+		const remotionContents = await readdir(remotionDir);
+		console.log(`Contents of ${remotionDir}:`, remotionContents);
+	} catch {
+		console.log(`Could not read ${remotionDir}`);
+	}
+
 	const files: { path: string; content: Buffer }[] = [];
 
 	async function readDirRecursive(dir: string, basePath: string = "") {
