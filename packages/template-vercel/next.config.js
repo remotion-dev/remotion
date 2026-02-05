@@ -1,9 +1,11 @@
+const { BUILD_DIR } = require("./build-dir.mjs");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	reactStrictMode: true,
 	// Include the Remotion bundle in the API route
 	outputFileTracingIncludes: {
-		"/api/render": ["./.remotion/**/*"],
+		"/api/render": ["./" + BUILD_DIR + "/**/*", "./render.mjs"],
 	},
 };
 

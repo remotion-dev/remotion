@@ -8,10 +8,11 @@ import {
 	createDisposableSandbox,
 	createDisposableWriter,
 	formatSSE,
-	generateRenderScript,
 	getRemotionBundleFiles,
+	getRenderScript,
 	SSEMessage,
 } from "./helpers";
+import { BUILD_DIR } from "../../../../build-dir.mjs";
 
 export async function POST(req: Request) {
 	const encoder = new TextEncoder();
@@ -50,13 +51,13 @@ export async function POST(req: Request) {
 		}
 
 		for (const dir of Array.from(dirs).sort()) {
-			await sandbox.mkDir(`.remotion/${dir}`);
+			await sandbox.mkDir(BUILD_DIR + "/" + dir);
 		}
 
 		// Write all files to the sandbox
 		await sandbox.writeFiles(
 			bundleFiles.map((file) => ({
-				path: `.remotion/${file.path}`,
+				path: BUILD_DIR + "/" + file.path,
 				content: file.content,
 			})),
 		);
@@ -119,25 +120,26 @@ export async function POST(req: Request) {
 		await send({ type: "phase", phase: "Rendering video..." });
 
 		// Use the local bundle copied to the sandbox
-		const serveUrl = "/vercel/sandbox/.remotion/index.html";
+		const serveUrl = "/vercel/sandbox/" + BUILD_DIR + "/index.html";
 
-		const renderScript = generateRenderScript({
+		const renderScript = await getRenderScript();
+		await sandbox.writeFiles([
+			{
+				path: "render.mjs",
+				content: renderScript,
+			},
+		]);
+
+		const renderConfig = JSON.stringify({
 			serveUrl,
 			compositionId: COMP_NAME,
 			inputProps: body.inputProps,
 		});
 
-		await sandbox.writeFiles([
-			{
-				path: "render.cjs",
-				content: Buffer.from(renderScript),
-			},
-		]);
-
 		// Run the render script
 		const renderCmd = await sandbox.runCommand({
 			cmd: "node",
-			args: ["render.cjs"],
+			args: ["render.mjs", renderConfig],
 			detached: true,
 		});
 
