@@ -13,6 +13,10 @@ Use this skills whenever you are dealing with Remotion code to obtain the domain
 
 When dealing with captions or subtitles, load the [./rules/subtitles.md](./rules/subtitles.md) file for more information.
 
+## Using FFmpeg
+
+For some video operations, such as trimming videos or detecting silence, FFmpeg should be used. Load the [./rules/ffmpeg.md](./rules/ffmpeg.md) file for more information.
+
 ## How to use
 
 Read individual rule files for detailed explanations and code examples:
@@ -26,7 +30,6 @@ Read individual rule files for detailed explanations and code examples:
 - [rules/charts.md](rules/charts.md) - Chart and data visualization patterns for Remotion (bar, pie, line, stock charts)
 - [rules/compositions.md](rules/compositions.md) - Defining compositions, stills, folders, default props and dynamic metadata
 - [rules/extract-frames.md](rules/extract-frames.md) - Extract frames from videos at specific timestamps using Mediabunny
-- [rules/ffmpeg.md](rules/ffmpeg.md) - Using FFmpeg and FFprobe in Remotion - installation, trimming, re-encoding
 - [rules/fonts.md](rules/fonts.md) - Loading Google Fonts and local fonts in Remotion
 - [rules/get-audio-duration.md](rules/get-audio-duration.md) - Getting the duration of an audio file in seconds with Mediabunny
 - [rules/get-video-dimensions.md](rules/get-video-dimensions.md) - Getting the width and height of a video file with Mediabunny
