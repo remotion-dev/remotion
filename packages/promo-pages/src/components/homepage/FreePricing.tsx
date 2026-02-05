@@ -249,7 +249,7 @@ const SectionCheckbox: React.FC<{
 			<div
 				className={cn(
 					'fontbrand text-muted transition-opacity duration-150',
-					checked ? 'opacity-0' : 'opacity-100',
+					checked ? 'hidden' : 'opacity-100',
 				)}
 			>
 				Not selected
