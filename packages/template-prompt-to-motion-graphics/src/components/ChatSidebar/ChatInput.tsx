@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef, type ComponentType, type DragEvent, type ChangeEvent } from "react";
+import { useState, useEffect, type ComponentType } from "react";
 import { ArrowUp, Camera, X, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ErrorDisplay } from "@/components/ErrorDisplay";
 import {
   Select,
   SelectContent,
@@ -11,9 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { type ModelId, MODELS } from "@/types/generation";
-import { captureFrame, fileToBase64 } from "@/helpers/capture-frame";
-
-const MAX_ATTACHED_IMAGES = 4;
+import { captureFrame } from "@/helpers/capture-frame";
+import { useImageAttachments } from "@/hooks/useImageAttachments";
 
 interface ChatInputProps {
   prompt: string;
@@ -41,35 +41,37 @@ export function ChatInput({
   durationInFrames = 150,
   currentFrame = 0,
 }: ChatInputProps) {
-  const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const {
+    attachedImages,
+    isDragging,
+    fileInputRef,
+    addImages,
+    removeImage,
+    clearImages,
+    handleFileSelect,
+    handlePaste,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    canAddMore,
+    error,
+    clearError,
+  } = useImageAttachments();
+
+  // Auto-clear error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(clearError, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, clearError]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
     onSubmit(attachedImages.length > 0 ? attachedImages : undefined);
-    setAttachedImages([]); // Clear after submit
-  };
-
-  const addImages = (newImages: string[]) => {
-    setAttachedImages((prev) => {
-      const combined = [...prev, ...newImages];
-      return combined.slice(0, MAX_ATTACHED_IMAGES);
-    });
-  };
-
-  const removeImage = (index: number) => {
-    setAttachedImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
-    const base64Images = await Promise.all(imageFiles.map(fileToBase64));
-    addImages(base64Images);
-    e.target.value = "";
+    clearImages();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -81,7 +83,7 @@ export function ChatInput({
   };
 
   const handleCapture = async () => {
-    if (!Component || isCapturing || attachedImages.length >= MAX_ATTACHED_IMAGES) return;
+    if (!Component || isCapturing || !canAddMore) return;
 
     setIsCapturing(true);
     try {
@@ -99,43 +101,10 @@ export function ChatInput({
     }
   };
 
-  const handlePaste = async (e: React.ClipboardEvent) => {
-    const items = Array.from(e.clipboardData.items);
-    const imageItems = items.filter((item) => item.type.startsWith("image/"));
-    if (imageItems.length > 0) {
-      e.preventDefault();
-      const files = imageItems
-        .map((item) => item.getAsFile())
-        .filter((f): f is File => f !== null);
-      const base64Images = await Promise.all(files.map(fileToBase64));
-      addImages(base64Images);
-    }
-  };
-
-  const handleDragOver = (e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = async (e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-
-    const files = Array.from(e.dataTransfer.files);
-    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
-    const base64Images = await Promise.all(imageFiles.map(fileToBase64));
-    addImages(base64Images);
-  };
-
-  const canCapture = Component && !isLoading && !isCapturing && attachedImages.length < MAX_ATTACHED_IMAGES;
+  const canCapture = Component && !isLoading && !isCapturing && canAddMore;
 
   return (
-    <div className="p-4">
+    <div className="px-4 pt-4 pb-4">
       <form onSubmit={handleSubmit}>
         <div
           className={`bg-background-elevated rounded-xl border p-3 transition-colors ${
@@ -145,26 +114,43 @@ export function ChatInput({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
+          {/* Error message */}
+          {error && (
+            <ErrorDisplay
+              error={error}
+              variant="inline"
+              size="sm"
+              onDismiss={clearError}
+              className="mb-2 py-2"
+            />
+          )}
+
           {/* Image previews */}
           {attachedImages.length > 0 && (
-            <div className="mb-2 flex gap-2 overflow-x-auto pb-1 pt-2">
-              {attachedImages.map((img, index) => (
-                <div key={index} className="relative flex-shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={img}
-                    alt={`Attached ${index + 1}`}
-                    className="h-16 w-auto rounded border border-border object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    className="absolute -top-1.5 -right-1.5 bg-background border border-border rounded-full p-0.5 hover:bg-destructive hover:text-destructive-foreground transition-colors"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ))}
+            <div className="mb-2">
+              <div className="flex gap-2 overflow-x-auto pb-1 pt-2">
+                {attachedImages.map((img, index) => (
+                  <div key={index} className="relative flex-shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={img}
+                      alt={`Attached ${index + 1}`}
+                      className="h-16 w-16 rounded border border-border object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute -top-1.5 -right-1.5 bg-background border border-border rounded-full p-0.5 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground-dim mt-1">
+                Images for reference only, they cannot be embedded in the
+                animation
+              </p>
             </div>
           )}
 
@@ -174,7 +160,9 @@ export function ChatInput({
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             placeholder={
-              isDragging ? "Drop images here..." : "Tune your animation... (paste or drop images)"
+              isDragging
+                ? "Drop images here..."
+                : "Tune your animation... (paste or drop images)"
             }
             className="w-full bg-transparent text-foreground placeholder:text-muted-foreground-dim focus:outline-none resize-none text-sm min-h-[36px] max-h-[120px]"
             style={{ fieldSizing: "content" } as React.CSSProperties}
@@ -218,7 +206,7 @@ export function ChatInput({
                 variant="ghost"
                 size="icon-sm"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={isLoading || attachedImages.length >= MAX_ATTACHED_IMAGES}
+                disabled={isLoading || !canAddMore}
                 className="text-muted-foreground hover:text-foreground h-7 w-7"
                 title="Attach images"
               >

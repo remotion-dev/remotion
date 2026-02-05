@@ -39,6 +39,7 @@ export const PromptsSubmitPage: React.FC = () => {
 	const [submitStatus, setSubmitStatus] = useState<SubmitStatus>({
 		type: 'idle',
 	});
+	const [isDragging, setIsDragging] = useState(false);
 	const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 	useEffect(() => {
@@ -97,7 +98,6 @@ export const PromptsSubmitPage: React.FC = () => {
 					} catch (error) {
 						// eslint-disable-next-line no-console
 						console.error('Error while polling upload status', error);
-						// keep polling
 					}
 				}, 2000);
 			});
@@ -125,19 +125,33 @@ export const PromptsSubmitPage: React.FC = () => {
 		[startUpload],
 	);
 
-	const onPageDrop: React.DragEventHandler = useCallback(
+	const onDrop: React.DragEventHandler = useCallback(
 		(e) => {
 			e.preventDefault();
+			setIsDragging(false);
 			if (uploadState.type !== 'idle') return;
 			const file = e.dataTransfer?.files?.[0];
 			if (!file) return;
+			if (!file.type.startsWith('video/')) return;
 			startUpload(file);
 		},
 		[startUpload, uploadState.type],
 	);
 
-	const onPageDragOver: React.DragEventHandler = useCallback((e) => {
+	const onDragOver: React.DragEventHandler = useCallback((e) => {
 		e.preventDefault();
+	}, []);
+
+	const onDragEnter: React.DragEventHandler = useCallback(() => {
+		if (uploadState.type === 'idle') {
+			setIsDragging(true);
+		}
+	}, [uploadState.type]);
+
+	const onDragLeave: React.DragEventHandler = useCallback((e) => {
+		if (e.currentTarget === e.target) {
+			setIsDragging(false);
+		}
 	}, []);
 
 	const submitPossible =
@@ -228,7 +242,7 @@ export const PromptsSubmitPage: React.FC = () => {
 	}
 
 	return (
-		<Page className="flex-col" onDrop={onPageDrop} onDragOver={onPageDragOver}>
+		<Page className="flex-col">
 			<div className="m-auto max-w-[800px] w-full">
 				<div className="mx-4 px-8 py-8 pt-8">
 					<NewBackButton text="Back to gallery" link="/prompts" />
@@ -264,8 +278,7 @@ export const PromptsSubmitPage: React.FC = () => {
 					</p>
 					<h2 className="font-brand mt-5 font-bold">Video *</h2>
 					<p className="text-muted-foreground text-sm mb-0 font-brand">
-						Upload a video showing the result of your prompt. You can also drop
-						a file anywhere on this page.
+						Upload a video showing the result of your prompt.
 					</p>
 					<input
 						ref={fileInputRef}
@@ -274,15 +287,35 @@ export const PromptsSubmitPage: React.FC = () => {
 						onChange={onFileSelect}
 						className="hidden"
 					/>
-					<div className="flex flex-col items-center py-12">
-						{uploadState.type === 'idle' && (
-							<Button
-								className="font-brand rounded-full"
-								onClick={() => fileInputRef.current?.click()}
-							>
-								Choose video file
-							</Button>
-						)}
+					<div
+						onDrop={onDrop}
+						onDragOver={onDragOver}
+						onDragEnter={onDragEnter}
+						onDragLeave={onDragLeave}
+						className={`flex flex-col items-center py-12 mt-3 rounded-lg border-2 border-dashed transition-colors ${
+							isDragging
+								? 'border-brand bg-brand/10'
+								: 'border-muted-foreground/25'
+						}`}
+					>
+						{uploadState.type === 'idle' &&
+							(isDragging ? (
+								<div className="font-brand text-sm text-brand font-medium">
+									Drop your video here
+								</div>
+							) : (
+								<>
+									<Button
+										className="font-brand rounded-full"
+										onClick={() => fileInputRef.current?.click()}
+									>
+										Choose video file
+									</Button>
+									<div className="font-brand text-sm mt-3 text-muted-foreground">
+										or drag and drop a video file here
+									</div>
+								</>
+							))}
 						{uploadState.type === 'uploading' && (
 							<div className="text-muted-foreground font-brand font-medium text-sm">
 								Uploading {Math.round(uploadState.progress)}%
@@ -294,11 +327,18 @@ export const PromptsSubmitPage: React.FC = () => {
 							</div>
 						)}
 						{uploadState.type === 'ready' && (
-							<div className="w-full">
+							<div className="w-full flex flex-col items-center px-4 gap-4">
 								<MuxPlayer
 									playbackId={uploadState.muxPlaybackId}
 									title={title || 'Preview'}
 								/>
+								<button
+									type="button"
+									className="font-brand text-sm text-muted-foreground hover:text-foreground transition-colors"
+									onClick={() => setUploadState({type: 'idle'})}
+								>
+									Remove video
+								</button>
 							</div>
 						)}
 						{uploadState.type === 'error' && (
