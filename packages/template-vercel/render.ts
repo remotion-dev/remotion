@@ -25,6 +25,7 @@ try {
 		onProgress: ({ progress }) => {
 			console.log(JSON.stringify({ type: "progress", progress }));
 		},
+		logLevel: "verbose",
 	});
 
 	console.log(JSON.stringify({ type: "done" }));
