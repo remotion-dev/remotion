@@ -2551,12 +2551,12 @@ var require_extract_zip = __commonJS((exports, module) => {
 });
 
 // src/ensure-browser.ts
-import fs4 from "fs";
+import fs5 from "fs";
 
 // src/browser/BrowserFetcher.ts
 var import_extract_zip = __toESM(require_extract_zip(), 1);
-import * as fs3 from "node:fs";
-import * as os from "node:os";
+import * as fs4 from "node:fs";
+import * as os2 from "node:os";
 import * as path3 from "node:path";
 import { promisify } from "node:util";
 
@@ -3082,15 +3082,114 @@ var makeFileExecutableIfItIsNot = (path2) => {
   }
 };
 
+// src/browser/get-chrome-download-url.ts
+import * as fs2 from "node:fs";
+import * as os from "node:os";
+var TESTED_VERSION = "144.0.7559.20";
+var PLAYWRIGHT_VERSION = "1207";
+var isAmazonLinux2023 = () => {
+  if (os.platform() !== "linux") {
+    return false;
+  }
+  try {
+    const osRelease = fs2.readFileSync("/etc/os-release", "utf-8");
+    return osRelease.includes("Amazon Linux") && osRelease.includes('VERSION="2023"');
+  } catch {
+    return false;
+  }
+};
+var MINIMUM_GLIBC_FOR_REMOTION_MEDIA = [2, 35];
+var getGlibcVersion = () => {
+  if (process.platform !== "linux") {
+    return null;
+  }
+  const { report } = process;
+  if (!report) {
+    return null;
+  }
+  const rep = report.getReport();
+  if (typeof rep === "string") {
+    return null;
+  }
+  const { glibcVersionRuntime } = rep.header;
+  if (!glibcVersionRuntime) {
+    return null;
+  }
+  const split = glibcVersionRuntime.split(".");
+  if (split.length !== 2) {
+    return null;
+  }
+  return [Number(split[0]), Number(split[1])];
+};
+var isGlibcVersionAtLeast = (required) => {
+  const version = getGlibcVersion();
+  if (version === null) {
+    return false;
+  }
+  const [major, minor] = version;
+  const [reqMajor, reqMinor] = required;
+  if (major > reqMajor) {
+    return true;
+  }
+  if (major === reqMajor && minor >= reqMinor) {
+    return true;
+  }
+  return false;
+};
+var canUseRemotionMediaBinaries = () => {
+  if (process.platform !== "linux") {
+    return false;
+  }
+  return isGlibcVersionAtLeast(MINIMUM_GLIBC_FOR_REMOTION_MEDIA);
+};
+function getChromeDownloadUrl({
+  platform: platform2,
+  version,
+  chromeMode
+}) {
+  if (platform2 === "linux-arm64") {
+    if (isAmazonLinux2023() && chromeMode === "headless-shell" && !version) {
+      return "https://remotion.media/chromium-headless-shell-amazon-linux-arm64-144.0.7559.20.zip";
+    }
+    if (chromeMode === "chrome-for-testing") {
+      return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
+    }
+    if (version) {
+      return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
+    }
+    if (canUseRemotionMediaBinaries()) {
+      return `https://remotion.media/chromium-headless-shell-linux-arm64-${TESTED_VERSION}.zip?clearcache`;
+    }
+    return `https://playwright.azureedge.net/builds/chromium/${PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
+  }
+  if (chromeMode === "headless-shell") {
+    if (platform2 === "linux64" && version === null) {
+      if (canUseRemotionMediaBinaries()) {
+        return `https://remotion.media/chromium-headless-shell-linux-x64-${TESTED_VERSION}.zip?clearcache`;
+      }
+      return `https://storage.googleapis.com/chrome-for-testing-public/${TESTED_VERSION}/${platform2}/chrome-headless-shell-${platform2}.zip`;
+    }
+    return `https://storage.googleapis.com/chrome-for-testing-public/${version ?? TESTED_VERSION}/${platform2}/chrome-headless-shell-${platform2}.zip`;
+  }
+  return `https://storage.googleapis.com/chrome-for-testing-public/${version ?? TESTED_VERSION}/${platform2}/chrome-${platform2}.zip`;
+}
+var logDownloadUrl = ({
+  url,
+  logLevel,
+  indent
+}) => {
+  Log.info({ indent, logLevel }, `Downloading from: ${url}`);
+};
+
 // src/browser/get-download-destination.ts
-import fs2 from "node:fs";
+import fs3 from "node:fs";
 import path2 from "node:path";
 var getDownloadsCacheDir = () => {
   const cwd = process.cwd();
   let dir = cwd;
   for (;; ) {
     try {
-      if (fs2.statSync(path2.join(dir, "package.json")).isFile()) {
+      if (fs3.statSync(path2.join(dir, "package.json")).isFile()) {
         break;
       }
     } catch (e) {}
@@ -3114,64 +3213,26 @@ var getDownloadsCacheDir = () => {
 };
 
 // src/browser/BrowserFetcher.ts
-var TESTED_VERSION = "144.0.7559.20";
-var PLAYWRIGHT_VERSION = "1207";
-var isAmazonLinux2023 = () => {
-  if (os.platform() !== "linux") {
-    return false;
-  }
-  try {
-    const osRelease = fs3.readFileSync("/etc/os-release", "utf-8");
-    return osRelease.includes("Amazon Linux") && osRelease.includes('VERSION="2023"');
-  } catch {
-    return false;
-  }
-};
-function getChromeDownloadUrl({
-  platform: platform2,
-  version,
-  chromeMode
-}) {
-  if (platform2 === "linux-arm64") {
-    if (isAmazonLinux2023() && chromeMode === "headless-shell" && !version) {
-      return "https://remotion.media/chromium-headless-shell-amazon-linux-arm64-144.0.7559.20.zip";
-    }
-    if (chromeMode === "chrome-for-testing") {
-      return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
-    }
-    if (version) {
-      return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
-    }
-    return `https://remotion.media/chromium-headless-shell-linux-arm64-${TESTED_VERSION}.zip?clearcache`;
-  }
-  if (chromeMode === "headless-shell") {
-    if (platform2 === "linux64" && version === null) {
-      return `https://remotion.media/chromium-headless-shell-linux-x64-${TESTED_VERSION}.zip?clearcache`;
-    }
-    return `https://storage.googleapis.com/chrome-for-testing-public/${version ?? TESTED_VERSION}/${platform2}/chrome-headless-shell-${platform2}.zip`;
-  }
-  return `https://storage.googleapis.com/chrome-for-testing-public/${version ?? TESTED_VERSION}/${platform2}/chrome-${platform2}.zip`;
-}
-var mkdirAsync = fs3.promises.mkdir;
-var unlinkAsync = promisify(fs3.unlink.bind(fs3));
+var mkdirAsync = fs4.promises.mkdir;
+var unlinkAsync = promisify(fs4.unlink.bind(fs4));
 function existsAsync(filePath) {
   return new Promise((resolve2) => {
-    fs3.access(filePath, (err) => {
+    fs4.access(filePath, (err) => {
       return resolve2(!err);
     });
   });
 }
 var getPlatform = () => {
-  const platform2 = os.platform();
-  switch (platform2) {
+  const platform3 = os2.platform();
+  switch (platform3) {
     case "darwin":
-      return os.arch() === "arm64" ? "mac-arm64" : "mac-x64";
+      return os2.arch() === "arm64" ? "mac-arm64" : "mac-x64";
     case "linux":
-      return os.arch() === "arm64" ? "linux-arm64" : "linux64";
+      return os2.arch() === "arm64" ? "linux-arm64" : "linux64";
     case "win32":
       return "win64";
     default:
-      throw new Error("Unsupported platform: " + platform2);
+      throw new Error("Unsupported platform: " + platform3);
   }
 };
 var getDownloadsFolder = (chromeMode) => {
@@ -3191,14 +3252,14 @@ var getExpectedVersion = (version, _chromeMode) => {
 var readVersionFile = (chromeMode) => {
   const versionFilePath = getVersionFilePath(chromeMode);
   try {
-    return fs3.readFileSync(versionFilePath, "utf-8").trim();
+    return fs4.readFileSync(versionFilePath, "utf-8").trim();
   } catch {
     return null;
   }
 };
 var writeVersionFile = (chromeMode, version) => {
   const versionFilePath = getVersionFilePath(chromeMode);
-  fs3.writeFileSync(versionFilePath, version);
+  fs4.writeFileSync(versionFilePath, version);
 };
 var downloadBrowser = async ({
   logLevel,
@@ -3207,34 +3268,35 @@ var downloadBrowser = async ({
   version,
   chromeMode
 }) => {
-  const platform2 = getPlatform();
-  const downloadURL = getChromeDownloadUrl({ platform: platform2, version, chromeMode });
+  const platform3 = getPlatform();
+  const downloadURL = getChromeDownloadUrl({ platform: platform3, version, chromeMode });
   const fileName = downloadURL.split("/").pop();
   if (!fileName) {
     throw new Error(`A malformed download URL was found: ${downloadURL}.`);
   }
   const downloadsFolder = getDownloadsFolder(chromeMode);
   const archivePath = path3.join(downloadsFolder, fileName);
-  const outputPath = getFolderPath(downloadsFolder, platform2);
+  const outputPath = getFolderPath(downloadsFolder, platform3);
   const expectedVersion = getExpectedVersion(version, chromeMode);
   if (await existsAsync(outputPath)) {
     const installedVersion = readVersionFile(chromeMode);
     if (installedVersion === expectedVersion) {
       return getRevisionInfo(chromeMode);
     }
-    fs3.rmSync(outputPath, { recursive: true, force: true });
+    fs4.rmSync(outputPath, { recursive: true, force: true });
   }
   if (!await existsAsync(downloadsFolder)) {
     await mkdirAsync(downloadsFolder, {
       recursive: true
     });
   }
-  if (os.platform() !== "darwin" && os.platform() !== "linux" && os.arch() === "arm64") {
+  if (os2.platform() !== "darwin" && os2.platform() !== "linux" && os2.arch() === "arm64") {
     throw new Error([
       "Chrome Headless Shell is not available for Windows for arm64 architecture."
     ].join(`
 `));
   }
+  logDownloadUrl({ url: downloadURL, logLevel, indent });
   try {
     await downloadFile({
       url: downloadURL,
@@ -3257,12 +3319,12 @@ var downloadBrowser = async ({
     await import_extract_zip.default(archivePath, { dir: outputPath });
     const chromePath = path3.join(outputPath, "chrome-linux", "chrome");
     const chromeHeadlessShellPath = path3.join(outputPath, "chrome-linux", "chrome-headless-shell");
-    if (fs3.existsSync(chromePath)) {
-      fs3.renameSync(chromePath, chromeHeadlessShellPath);
+    if (fs4.existsSync(chromePath)) {
+      fs4.renameSync(chromePath, chromeHeadlessShellPath);
     }
     const chromeLinuxFolder = path3.join(outputPath, "chrome-linux");
-    if (fs3.existsSync(chromeLinuxFolder)) {
-      fs3.renameSync(chromeLinuxFolder, path3.join(outputPath, "chrome-headless-shell-linux-arm64"));
+    if (fs4.existsSync(chromeLinuxFolder)) {
+      fs4.renameSync(chromeLinuxFolder, path3.join(outputPath, "chrome-headless-shell-linux-arm64"));
     }
   } catch (err) {
     return Promise.reject(err);
@@ -3276,37 +3338,37 @@ var downloadBrowser = async ({
   makeFileExecutableIfItIsNot(revisionInfo.executablePath);
   return revisionInfo;
 };
-var getFolderPath = (downloadsFolder, platform2) => {
-  return path3.resolve(downloadsFolder, platform2);
+var getFolderPath = (downloadsFolder, platform3) => {
+  return path3.resolve(downloadsFolder, platform3);
 };
 var getExecutablePath = (chromeMode) => {
   const downloadsFolder = getDownloadsFolder(chromeMode);
-  const platform2 = getPlatform();
-  const folderPath = getFolderPath(downloadsFolder, platform2);
+  const platform3 = getPlatform();
+  const folderPath = getFolderPath(downloadsFolder, platform3);
   if (chromeMode === "chrome-for-testing") {
-    if (platform2 === "mac-arm64" || platform2 === "mac-x64") {
-      return path3.join(folderPath, `chrome-${platform2}`, "Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing");
+    if (platform3 === "mac-arm64" || platform3 === "mac-x64") {
+      return path3.join(folderPath, `chrome-${platform3}`, "Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing");
     }
-    if (platform2 === "win64") {
+    if (platform3 === "win64") {
       return path3.join(folderPath, "chrome-win64", "chrome.exe");
     }
-    if (platform2 === "linux64" || platform2 === "linux-arm64") {
+    if (platform3 === "linux64" || platform3 === "linux-arm64") {
       return path3.join(folderPath, "chrome-linux64", "chrome");
     }
-    throw new Error("unsupported platform" + platform2);
+    throw new Error("unsupported platform" + platform3);
   }
   if (chromeMode === "headless-shell") {
-    return path3.join(folderPath, `chrome-headless-shell-${platform2}`, platform2 === "win64" ? "chrome-headless-shell.exe" : platform2 === "linux-arm64" ? "headless_shell" : "chrome-headless-shell");
+    return path3.join(folderPath, `chrome-headless-shell-${platform3}`, platform3 === "win64" ? "chrome-headless-shell.exe" : platform3 === "linux-arm64" ? "headless_shell" : "chrome-headless-shell");
   }
   throw new Error("unsupported chrome mode" + chromeMode);
 };
 var getRevisionInfo = (chromeMode) => {
   const executablePath = getExecutablePath(chromeMode);
   const downloadsFolder = getDownloadsFolder(chromeMode);
-  const platform2 = getPlatform();
-  const folderPath = getFolderPath(downloadsFolder, platform2);
-  const url = getChromeDownloadUrl({ platform: platform2, version: null, chromeMode });
-  const local = fs3.existsSync(folderPath);
+  const platform3 = getPlatform();
+  const folderPath = getFolderPath(downloadsFolder, platform3);
+  const url = getChromeDownloadUrl({ platform: platform3, version: null, chromeMode });
+  const local = fs4.existsSync(folderPath);
   return {
     executablePath,
     folderPath,
@@ -3379,13 +3441,13 @@ var getBrowserStatus = ({
   chromeMode
 }) => {
   if (browserExecutable) {
-    if (!fs4.existsSync(browserExecutable)) {
+    if (!fs5.existsSync(browserExecutable)) {
       throw new Error(`"browserExecutable" was specified as '${browserExecutable}' but the path doesn't exist. Pass "null" for "browserExecutable" to download a browser automatically.`);
     }
     return { path: browserExecutable, type: "user-defined-path" };
   }
   const revision = getRevisionInfo(chromeMode);
-  if (revision.local && fs4.existsSync(revision.executablePath)) {
+  if (revision.local && fs5.existsSync(revision.executablePath)) {
     const actualVersion = readVersionFile(chromeMode);
     if (actualVersion === TESTED_VERSION) {
       return { path: revision.executablePath, type: "local-puppeteer-browser" };
