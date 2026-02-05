@@ -60,14 +60,7 @@ npx create-video@latest --template vercel
 2. **Create a Vercel Blob store** in your Vercel dashboard under Storage
 
 3. **Set environment variables:**
-   - `REMOTION_SERVE_URL`: URL of your deployed bundle
    - `BLOB_READ_WRITE_TOKEN`: Token from your Vercel Blob store (auto-injected when deployed to same project)
-
-4. **(Optional) Create a sandbox snapshot** for faster renders:
-   ```bash
-   pnpm run create-snapshot
-   ```
-   Then set `SANDBOX_SNAPSHOT_ID` with the returned ID.
 
 ### Limitations
 
