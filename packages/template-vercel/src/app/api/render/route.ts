@@ -2,13 +2,7 @@ import { put } from "@vercel/blob";
 import { waitUntil } from "@vercel/functions";
 import path from "path";
 import { RenderRequest } from "../../../../types/schema";
-import {
-	COMP_NAME,
-	DURATION_IN_FRAMES,
-	VIDEO_FPS,
-	VIDEO_HEIGHT,
-	VIDEO_WIDTH,
-} from "../../../../types/constants";
+import { COMP_NAME } from "../../../../types/constants";
 import { VERSION } from "remotion/version";
 import {
 	createDisposableSandbox,
@@ -131,10 +125,6 @@ export async function POST(req: Request) {
 			serveUrl,
 			compositionId: COMP_NAME,
 			inputProps: body.inputProps,
-			width: VIDEO_WIDTH,
-			height: VIDEO_HEIGHT,
-			fps: VIDEO_FPS,
-			durationInFrames: DURATION_IN_FRAMES,
 		});
 
 		await sandbox.writeFiles([
