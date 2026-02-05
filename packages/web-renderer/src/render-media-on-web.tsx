@@ -90,6 +90,11 @@ export type RenderMediaOnWebProgressCallback = (
 	progress: RenderMediaOnWebProgress,
 ) => void;
 
+export type WebRendererHardwareAcceleration =
+	| 'no-preference'
+	| 'prefer-hardware'
+	| 'prefer-software';
+
 type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
@@ -101,7 +106,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	container: WebRendererContainer;
 	signal: AbortSignal | null;
 	onProgress: RenderMediaOnWebProgressCallback | null;
-	hardwareAcceleration: 'no-preference' | 'prefer-hardware' | 'prefer-software';
+	hardwareAcceleration: WebRendererHardwareAcceleration;
 	keyframeIntervalInSeconds: number;
 	videoBitrate: number | WebRendererQuality;
 	frameRange: FrameRange | null;

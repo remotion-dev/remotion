@@ -1,7 +1,7 @@
 {
   "name": "template-prompt-to-motion-graphics",
   "version": "4.0.379",
-  "description": "AI-powered code generation template for Remotion",
+  "description": "SaaS template for AI-powered code generation with Remotion",
   "private": true,
   "repository": {
     "url": "https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics"
@@ -24,6 +24,7 @@
     "@radix-ui/react-dialog": "1.1.15",
     "@radix-ui/react-select": "2.2.6",
     "@radix-ui/react-slot": "1.2.4",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@react-three/fiber": "9.1.0",
     "@remotion/animated-emoji": "workspace:*",
     "@remotion/bundler": "workspace:*",
@@ -37,13 +38,14 @@
     "@remotion/tailwind-v4": "workspace:*",
     "@remotion/three": "workspace:*",
     "@remotion/transitions": "workspace:*",
+    "@remotion/web-renderer": "workspace:*",
     "ai": "5.0.104",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "lucide-react": "0.555.0",
     "monaco-editor": "0.55.1",
     "monaco-jsx-syntax-highlight": "1.2.2",
-    "next": "16.0.10",
+    "next": "16.1.5",
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "remotion": "workspace:*",

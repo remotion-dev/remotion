@@ -60,6 +60,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 					forcePathStyle: params.forcePathStyle,
 					skipPutAcl: false,
 					requestHandler: null,
+					logLevel: params.logLevel,
 				}).then((b) => b.bucketName));
 
 		const serializedInputPropsWithCustomSchema = await decompressInputProps({

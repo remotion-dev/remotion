@@ -38,7 +38,7 @@ export const skillsCommand = (args: string[], logLevel: LogLevel) => {
 	const fullArgs = [
 		'-y',
 		'--loglevel=error',
-		'skills',
+		'skills@1.2.0',
 		subcommand,
 		'remotion-dev/skills',
 		...restArgs,

@@ -14,6 +14,16 @@ Documentation lives in `packages/docs/docs` as `.mdx` files.
 3. Write the content following guidelines below
 4. Run `bun render-cards.ts` in `packages/docs` to generate social preview cards
 
+**Breadcrumb (`crumb`)**: If a documentation page belongs to a package, add `crumb: '@remotion/package-name'` to the frontmatter. This displays the package name as a breadcrumb above the title.
+
+```md
+---
+image: /generated/articles-docs-my-package-my-api.png
+title: '<MyComponent>'
+crumb: '@remotion/my-package'
+---
+```
+
 **One API per page**: Each function or API should have its own dedicated documentation page. Do not combine multiple APIs (e.g., `getEncodableVideoCodecs()` and `getEncodableAudioCodecs()`) on a single page.
 
 **Public API only**: Documentation is for public APIs only. Do not mention, reference, or compare against internal/private APIs or implementation details.
@@ -65,6 +75,8 @@ const frame = useCurrentFrame();
 
 ### Adding titles
 
+Always add a `title` to code fences that show example usage:
+
 ````md
 ```ts twoslash title="MyComponent.tsx"
 console.log('Hello');
@@ -94,20 +106,41 @@ console.log('Hello');
 <Demo type="rect"/>
 ```
 
-Demos must be implemented in `packages/docs/components/demos/index.tsx`.
+Demos must be implemented in `packages/docs/components/demos/index.tsx`. See the `docs-demo` skill for details on adding new demos.
 
 ### AvailableFrom
 
 Use to indicate when a feature or parameter was added. No import needed - it's globally available.
 
+**For page-level version indicators**, use an `# h1` heading with `<AvailableFrom>` inline so it appears next to the title (not below it). Use `&lt;` and `&gt;` to escape angle brackets in component names:
+
 ```md
-## myFunction()<AvailableFrom v="4.0.123" />
+# &lt;MyComponent&gt;<AvailableFrom v="4.0.123" />
+```
+
+```md
+# @remotion/my-package<AvailableFrom v="4.0.123" />
 ```
 
 For section headings:
 
 ```md
 ## Saving to another cloud<AvailableFrom v="3.2.23" />
+```
+
+### CompatibilityTable
+
+Use to indicate which runtimes and environments a component or API supports. No import needed. Place it in a `## Compatibility` section before `## See also`.
+
+Available boolean props: `chrome`, `firefox`, `safari`, `player`, `studio`, `clientSideRendering`, `serverSideRendering`. Set to `true` (supported) or `{false}` (not supported).
+
+Set to empty string `""` for not applicable if this is a frontend API: `nodejs=""`, `bun=""`, `serverlessFunctions=""`.
+Use `hideServers` to hide the Node.js/Bun/serverless row if this is a frontend API.
+
+```md
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
 ```
 
 ### Optional parameters

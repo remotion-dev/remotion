@@ -358,6 +358,14 @@ export const App: React.FC = () => {
 };
 ```
 
+### `renderCustomControls?`<AvailableFrom v="4.0.418" />
+
+Allows you to render custom controls inside the player's control bar, between the main playback controls and the fullscreen button. Must return a valid React element or `null`.
+
+Use a [`PlayerRef`](#playerref) to access player state and control methods from within your custom controls.
+
+See [Custom controls](/docs/player/custom-controls#controls-slot) for usage and examples.
+
 ### `alwaysShowControls?`<AvailableFrom v="3.3.55" />
 
 If true, displays the player controls at all times even if the mouse is outside the player area. This settings override the default behavior, which automatically hides the controls after a period of mouse inactivity over the player area. Default `false`.

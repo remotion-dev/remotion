@@ -1,8 +1,6 @@
 import {expect, test} from 'bun:test';
-import {
-	parseBrowserLogMessage,
-	parseChromeLogLocation,
-} from '../browser/should-log-message';
+import {parseBrowserLogMessage} from '../browser/parse-browser-log-message';
+import {parseChromeLogLocation} from '../browser/should-log-message';
 
 test('parse console.log message', () => {
 	const parsed = parseBrowserLogMessage(
@@ -45,5 +43,30 @@ test('Parse warning from chrome', () => {
 		location: 'command_buffer_proxy_impl.cc',
 		message:
 			'ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.',
+	});
+});
+
+test('Parse CONSOLE message with Remotion tags', () => {
+	const parsed = parseBrowserLogMessage(
+		'[0130/114618.909798:INFO:CONSOLE:18851] "Symbol(__remotion_tag_delayRender()) Symbol(__remotion_level_verbose) "Loading root component - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout" handle was cleared after 59ms", source: http://localhost:3001/bundle.js (18851)',
+	);
+	expect(parsed).toEqual({
+		day: 1,
+		month: 30,
+		hour: 11,
+		minute: 46,
+		seconds: 18,
+		microseconds: 909798,
+		level: 'INFO',
+		location: 'CONSOLE',
+		lineNumber: 18851,
+		message:
+			'"Symbol(__remotion_tag_delayRender()) Symbol(__remotion_level_verbose) "Loading root component - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout" handle was cleared after 59ms", source: http://localhost:3001/bundle.js (18851)',
+	});
+
+	const location = parseChromeLogLocation(parsed?.message ?? '');
+	expect(location).toEqual({
+		lineNumber: 18851,
+		location: 'http://localhost:3001/bundle.js',
 	});
 });

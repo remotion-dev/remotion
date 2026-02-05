@@ -1,25 +1,44 @@
 import React from "react";
+import { ErrorDisplay } from "@/components/ErrorDisplay";
+
+const isLambdaNotConfiguredError = (message: string): boolean => {
+  return (
+    message.includes("Set up Remotion Lambda") ||
+    message.includes("Function not found:")
+  );
+};
 
 export const ErrorComp: React.FC<{
   message: string;
 }> = ({ message }) => {
-  return (
-    <div className="text-geist-error font-geist py-geist-half">
-      <svg
-        fill="none"
-        shapeRendering="geometricPrecision"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-        className="h-5 align-text-bottom mr-1.5 inline"
+  const isLambdaError = isLambdaNotConfiguredError(message);
+
+  if (isLambdaError) {
+    return (
+      <ErrorDisplay
+        error={`To render videos, set up Remotion Lambda and add your AWS credentials to the .env file.`}
+        title="Lambda not configured"
+        variant="card"
+        size="md"
       >
-        <circle cx="12" cy="12" r="10" fill="var(--geist-fill)"></circle>
-        <path d="M12 8v4" stroke="currentColor"></path>
-        <path d="M12 16h.01" stroke="currentColor"></path>
-      </svg>
-      <strong>Error:</strong> {message}
-    </div>
+        <a
+          href="https://www.remotion.dev/docs/lambda/setup"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline text-sm"
+        >
+          Setup guide
+        </a>
+      </ErrorDisplay>
+    );
+  }
+
+  return (
+    <ErrorDisplay
+      error={message}
+      title="Error"
+      variant="card"
+      size="md"
+    />
   );
 };

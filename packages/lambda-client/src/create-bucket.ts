@@ -3,6 +3,7 @@ import {
 	DeleteBucketOwnershipControlsCommand,
 	DeletePublicAccessBlockCommand,
 	PutBucketAclCommand,
+	PutBucketPolicyCommand,
 } from '@aws-sdk/client-s3';
 import type {ProviderSpecifics} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
@@ -63,6 +64,39 @@ export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
 			throw err;
 		}
 
+		let usedBucketPolicy = false;
+		try {
+			const policy = JSON.stringify({
+				Version: '2012-10-17',
+				Statement: [
+					{
+						Sid: 'PublicReadGetObject',
+						Effect: 'Allow',
+						Principal: '*',
+						Action: 's3:GetObject',
+						Resource: `arn:aws:s3:::${bucketName}/*`,
+					},
+				],
+			});
+			await getS3Client({
+				region,
+				customCredentials: null,
+				forcePathStyle,
+				requestHandler,
+			}).send(
+				new PutBucketPolicyCommand({
+					Bucket: bucketName,
+					Policy: policy,
+				}),
+			);
+			usedBucketPolicy = true;
+		} catch {
+			// eslint-disable-next-line no-console
+			console.warn(
+				'Could not apply a bucket policy to restrict public access to s3:GetObject only. Falling back to public-read ACL which also allows listing objects. To fix this, add the s3:PutBucketPolicy permission to your IAM user. See https://remotion.dev/docs/lambda/bucket-security',
+			);
+		}
+
 		try {
 			await getS3Client({
 				region,
@@ -72,7 +106,7 @@ export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
 			}).send(
 				new PutBucketAclCommand({
 					Bucket: bucketName,
-					ACL: 'public-read',
+					ACL: usedBucketPolicy ? 'private' : 'public-read',
 				}),
 			);
 		} catch (err) {

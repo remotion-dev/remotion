@@ -1,0 +1,84 @@
+---
+image: /generated/articles-docs-ai-ai-saas-template.png
+crumb: 'AI'
+title: Prompt to Motion Graphics SaaS Starter Kit
+sidebar_label: Prompt to Motion Graphics SaaS
+---
+
+We made [a Next.js starter template](https://www.remotion.dev/templates/prompt-to-motion-graphics) for building AI-powered motion graphics products.  
+Users describe an animation in natural language, and the app generates and previews it in real-time.
+
+<img src="/img/prompt-to-motion-graphics.png" alt="Prompt to Motion Graphics SaaS Starter Kit" />
+<br />
+<br />
+[**Live Demo**](https://prompt-to-motion-graphics-saas.vercel.app/) (note: AI credits are limited and rendering disabled)
+
+## Getting Started
+
+Scaffold a new project:
+
+```bash
+npx create-video@latest --template prompt-to-motion-graphics
+```
+
+Then create a `.env` file:
+
+```bash title=".env"
+OPENAI_API_KEY=sk-...
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Visit `http://localhost:3000` to start generating animations.
+
+## Difference to Remotion Agent Skills
+
+Use this template if you want to build a SaaS with Remotion and AI.  
+Use [Agent Skills](/docs/ai/claude-code) if you want to prompt videos for yourself.
+
+Unlike the Agent Skills workflow, this template does not have access to an operating system or the filesystem.
+
+## What's Included
+
+- Chat interface with conversation history for iterative refinement
+- Live preview - instant rendering in the Remotion Player
+- Smart editing - the LLM decides between targeted edits or full replacement
+- Input Validation - prevents end-user misuse
+- Sanitation - cleans nondeterministic LLM outputs
+- Self-correction - automatically retries on compilation errors
+
+It streams [generated code](/docs/ai/generate) and compiles it in the browser using [just-in-time compilation](/docs/ai/dynamic-compilation).
+
+## Images
+
+There is an important difference between attaching images to the prompt and mentioning image URLs in the prompt.
+
+- **Attaching images**: The assistant will try to replicate in code whatever you attach to the prompt, for example an abstract spiral.
+- **Providing image URLs**: The assistant will embed the provided image within the animation based on the file URL. For example: _"Create a DVD screensaver animation of this image https://example.com/logo.png"_
+
+## Lambda Rendering
+
+To enable video exporting with [Remotion Lambda](/docs/lambda):
+
+1. Set up Remotion Lambda following the [Lambda guide](/docs/lambda/setup)
+2. Add AWS credentials to `.env`
+
+```bash title=".env"
+OPENAI_API_KEY=sk-...
+
+# Add AWS credentials for Lambda rendering
+REMOTION_AWS_ACCESS_KEY_ID=...
+REMOTION_AWS_SECRET_ACCESS_KEY=...
+```
+
+3. Deploy with `npm run deploy`.
+
+## See Also
+
+- [Code Generation](/docs/ai/generate) - How to generate Remotion code with LLMs
+- [Just-in-time Compilation](/docs/ai/dynamic-compilation) - Compiling React code in the browser
+- [System Prompt](/docs/ai/system-prompt) - Reference system prompt for Remotion
