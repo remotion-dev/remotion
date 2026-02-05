@@ -6503,6 +6503,15 @@ export const articles = [
 		slug: 'validating-user-videos',
 	},
 	{
+		id: 'vercel-sandbox',
+		title: 'Rendering with Vercel Sandbox',
+		relativePath: 'docs/vercel-sandbox.mdx',
+		compId: 'articles-docs-vercel-sandbox',
+		crumb: 'Server-side rendering',
+		noAi: false,
+		slug: 'vercel-sandbox',
+	},
+	{
 		id: 'version-mismatch',
 		title: 'Version mismatch',
 		relativePath: 'docs/version-mismatch.mdx',
