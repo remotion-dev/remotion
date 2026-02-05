@@ -8,8 +8,7 @@
 		"start": "next start",
 		"lint": "eslint .",
 		"remotion": "remotion studio",
-		"render": "remotion render",
-		"create-snapshot": "bun scripts/create-snapshot.ts"
+		"render": "remotion render"
 	},
 	"dependencies": {
 		"@remotion/cli": "workspace:*",
