@@ -90,12 +90,18 @@ export async function POST(req: Request) {
 			detached: true,
 		});
 
+		// We empirically tested how many lines are printed to stdout when installing the system dependencies:
+		const EXPECTED_SYS_INSTALL_LINES = 272;
 		let sysInstallLineCount = 0;
-		for await (const log of sysInstallCmd.logs()) {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		for await (const _log of sysInstallCmd.logs()) {
 			sysInstallLineCount++;
-			await send({ type: "log", stream: log.stream, data: log.data });
+			const progress = Math.min(
+				sysInstallLineCount / EXPECTED_SYS_INSTALL_LINES,
+				1,
+			);
+			await send({ type: "progress", progress });
 		}
-		console.log("sysInstallLineCount:", sysInstallLineCount);
 
 		const sysInstallResult = await sysInstallCmd.wait();
 		if (sysInstallResult.exitCode !== 0) {
