@@ -38,4 +38,4 @@ out/
 .env
 build
 
-public/.remotion
+.remotion
