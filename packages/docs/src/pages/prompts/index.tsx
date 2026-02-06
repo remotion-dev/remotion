@@ -3,6 +3,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {PromptsGalleryPage} from '@remotion/promo-pages/dist/prompts/PromptsGallery.js';
 import Layout from '@theme/Layout';
 import React from 'react';
+import prompts from '../../../static/_raw/prompts.json';
 import {Seo} from '../../components/Seo';
 
 export default () => {
@@ -20,7 +21,7 @@ export default () => {
 					context.siteConfig.url,
 				)}
 			</Head>
-			<PromptsGalleryPage />
+			<PromptsGalleryPage prompts={prompts} />
 		</Layout>
 	);
 };
