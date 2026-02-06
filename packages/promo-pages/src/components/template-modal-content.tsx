@@ -427,11 +427,15 @@ export const TemplateModalContent: React.FC<{
 									<div className="w-6 h-9 mr-3 inline-flex items-center justify-center">
 										<PreviewIcon />
 									</div>
-									See Preview{' '}
-									<span className="whitespace-pre text-[var(--light-text-color)]">
-										{' '}
-										via Remotion Studio
-									</span>
+									{template.previewLabel ?? (
+										<>
+											See Preview{' '}
+											<span className="whitespace-pre text-[var(--light-text-color)]">
+												{' '}
+												via Remotion Studio
+											</span>
+										</>
+									)}
 								</div>
 							</a>
 						)}
