@@ -30,6 +30,13 @@ module.exports = function () {
 				})
 				.filter(Boolean);
 
+			let promptSlugs = [];
+			const promptsPath = path.join(__dirname, '../static/_raw/prompts.json');
+			if (fs.existsSync(promptsPath)) {
+				const prompts = JSON.parse(fs.readFileSync(promptsPath, 'utf-8'));
+				promptSlugs = prompts.map((p) => p.slug);
+			}
+
 			if (templateSlugs.length === 0) {
 				throw new Error('expected templates');
 			}
@@ -38,9 +45,12 @@ module.exports = function () {
 				throw new Error('expected experts');
 			}
 
-			return {expertSlugs, templateSlugs};
+			return {expertSlugs, templateSlugs, promptSlugs};
 		},
-		contentLoaded({content: {expertSlugs, templateSlugs}, actions}) {
+		contentLoaded({
+			content: {expertSlugs, templateSlugs, promptSlugs},
+			actions,
+		}) {
 			expertSlugs.forEach((c) => {
 				actions.addRoute({
 					path: '/experts/' + c,
@@ -53,6 +63,14 @@ module.exports = function () {
 				actions.addRoute({
 					path: '/templates/' + c,
 					component: '@site/src/components/TemplatePage.tsx',
+					modules: {},
+					exact: true,
+				});
+			});
+			promptSlugs.forEach((slug) => {
+				actions.addRoute({
+					path: '/prompts/' + slug,
+					component: '@site/src/components/PromptPage.tsx',
 					modules: {},
 					exact: true,
 				});

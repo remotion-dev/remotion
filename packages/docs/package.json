@@ -8,8 +8,8 @@
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",
 		"docusaurus": "docusaurus",
-		"start": "bun copy-raw-docs.ts && bun update-prompt.ts && cd .. && bun run build && cd docs && docusaurus start --host 0.0.0.0",
-		"build-docs": "bun copy-raw-docs.ts && DOCUSAURUS_IGNORE_SSG_WARNINGS=true docusaurus build && bun copy-convert.ts && bun count-pages.ts",
+		"start": "bun fetch-prompts.ts && bun copy-raw-docs.ts && bun update-prompt.ts && cd .. && bun run build && cd docs && docusaurus start --host 0.0.0.0",
+		"build-docs": "bun fetch-prompts.ts && bun copy-raw-docs.ts && DOCUSAURUS_IGNORE_SSG_WARNINGS=true docusaurus build && bun copy-convert.ts && bun count-pages.ts",
 		"swizzle": "docusaurus swizzle",
 		"deploy": "docusaurus deploy",
 		"serve": "docusaurus serve",

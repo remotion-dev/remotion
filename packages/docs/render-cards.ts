@@ -143,6 +143,27 @@ for (const page of pages) {
 	});
 }
 
+data.push(
+	{
+		id: 'prompts-gallery',
+		title: 'Prompt Gallery',
+		relativePath: 'src/pages/prompts/index.tsx',
+		compId: 'articles-prompts-gallery',
+		crumb: null,
+		noAi: false,
+		slug: 'prompts',
+	},
+	{
+		id: 'prompts-submit',
+		title: 'Submit a Prompt',
+		relativePath: 'src/pages/prompts/submit.tsx',
+		compId: 'articles-prompts-submit',
+		crumb: 'Prompts',
+		noAi: false,
+		slug: 'prompts/submit',
+	},
+);
+
 fs.writeFileSync(
 	path.join(process.cwd(), 'src', 'data', 'articles.ts'),
 	`export const articles = ` + JSON.stringify(data, null, 2),
@@ -184,13 +205,18 @@ for (const entry of data) {
 		continue;
 	}
 
-	const out = path.join(process.cwd(), entry.relativePath);
 	await renderStill({
 		composition,
 		output,
 		serveUrl,
 	});
+	console.log('Rendered', composition.id);
 
+	if (entry.relativePath.endsWith('.tsx')) {
+		continue;
+	}
+
+	const out = path.join(process.cwd(), entry.relativePath);
 	const fileContents = fs.readFileSync(out, 'utf-8');
 	const lines = fileContents
 		.split(os.EOL)
@@ -207,5 +233,4 @@ for (const entry of data) {
 	].join(os.EOL);
 
 	fs.writeFileSync(out, newLines);
-	console.log('Rendered', composition.id);
 }
