@@ -174,7 +174,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(playbackRate);
-	const initialMuted = useRef(muted);
+	const initialMuted = useRef(muted || mediaMuted);
 
 	useEffect(() => {
 		if (!sharedAudioContext) return;
