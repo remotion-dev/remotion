@@ -424,31 +424,30 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			},
 		],
 	},
-{                                                                       
-      title: "AI Resume Guru - Product Promo Video",                      
-      type: "mux_video",                                                  
-      muxId: "LCT01a7XOcp4WdAdqoi44S3aA45yQ01iroJEhCGvOQGnE",
-      description: "Full product walkthrough for a free AI resume builder.
-   Animated UI demos with audio, template showcases, and ATS score animations in     
-  React.",
-      height: 1080,
-      width: 1920,
-      submittedOn: new Date("02-07-2026"),
-      links: [
-          {
-              type: "video",
-              url: "https://www.youtube.com/watch?v=8IyP__R-CG0",
-          },
-          {
-              type: "website",
-              url: "https://airesume.guru",
-          },
-      ],
-      author: {
+	{
+		title: "AI Resume Guru - Product Promo Video",
+		type: 'mux_video',
+		muxId: "LCT01a7XOcp4WdAdqoi44S3aA45yQ01iroJEhCGvOQGnE",
+		description:
+			'Full product walkthrough for a free AI resume builder. Animated UI demos with audio, template showcases, and ATS score animations.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date("02-07-2026"),
+		links: [
+			{
+				type: 'video',
+				url: "https://www.youtube.com/watch?v=8IyP__R-CG0",
+			},
+			{
+				type: 'website',
+				url: "https://airesume.guru",
+			},
+		],
+		author: {
           url: "https://airesume.guru",
-          name: "ResumeGuru"
+          name: "ResumeGuru",
       },
-  },
+	},
 	/*
   {
 		title: 'Clippulse - Animated social media videos',
