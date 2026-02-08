@@ -168,13 +168,16 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 		);
 	}
 
+	const effectiveMuted =
+		isSequenceHidden || muted || mediaMuted || userPreferredVolume <= 0;
+
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(playbackRate);
-	const initialMuted = useRef(muted || mediaMuted);
+	const initialMuted = useRef(effectiveMuted);
 
 	useEffect(() => {
 		if (!sharedAudioContext) return;
@@ -364,9 +367,6 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 
 		mediaPlayer.setTrimAfter(trimAfter, currentTimeRef.current);
 	}, [trimAfter, mediaPlayerReady]);
-
-	const effectiveMuted =
-		isSequenceHidden || muted || mediaMuted || userPreferredVolume <= 0;
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
