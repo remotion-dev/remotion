@@ -325,7 +325,7 @@ export const CompanyPricing: React.FC = () => {
 					and building motion design systems in a local environment.
 					<br />
 					<br />
-					Get 1 Creator Seat per user.
+					Get 1 Seat per user.
 				</InfoTooltip>
 			</SectionCheckbox>
 			<div
@@ -383,7 +383,7 @@ export const CompanyPricing: React.FC = () => {
 					<br />A $100/mo Minimum Spend applies.
 					<br />
 					<br />
-					Developers working on automation projects do not require a Creator
+					Developers working on automation projects do not require a
 					Seat.
 				</InfoTooltip>
 			</SectionCheckbox>
