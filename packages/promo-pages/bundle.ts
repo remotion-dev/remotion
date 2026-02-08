@@ -36,6 +36,7 @@ const result = await build({
 		'./src/components/prompts/PromptsGallery.tsx',
 		'./src/components/prompts/PromptsSubmit.tsx',
 		'./src/components/prompts/PromptsShow.tsx',
+		'./src/components/prompts/prompt-types.ts',
 	],
 	root: './src/components',
 	outdir: 'dist',

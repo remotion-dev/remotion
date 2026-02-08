@@ -29,14 +29,13 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 	}, []);
 
 	const isTouchDevice =
-		typeof window !== 'undefined' &&
-		window.matchMedia('(hover: none)').matches;
+		typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches;
 	const showGif = hovered || (isTouchDevice && inView);
 
 	return (
 		<a
 			ref={cardRef}
-			href={`/prompts/show?prompt=${submission.slug}`}
+			href={`/prompts/${submission.slug}`}
 			className="block no-underline hover:no-underline"
 			onMouseEnter={() => setHovered(true)}
 			onMouseLeave={() => setHovered(false)}
@@ -83,39 +82,38 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 	);
 };
 
-export const PromptsGalleryPage: React.FC = () => {
-	const [submissions, setSubmissions] = useState<Submission[]>([]);
+export const PromptsGalleryPage: React.FC<{
+	readonly prompts?: Submission[];
+}> = ({prompts: promptsProp}) => {
+	const [submissions, setSubmissions] = useState<Submission[]>(
+		promptsProp ?? [],
+	);
 	const [nextCursor, setNextCursor] = useState<string | null>(null);
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 
-	const fetchPage = useCallback(async (cursor?: string) => {
+	const fetchPage = useCallback((cursor?: string) => {
 		setLoading(true);
-		try {
-			const url = cursor
-				? `${REMOTION_PRO_ORIGIN}/api/prompts?cursor=${cursor}`
-				: `${REMOTION_PRO_ORIGIN}/api/prompts`;
-			const res = await fetch(url);
-			if (!res.ok) {
-				throw new Error(
-					`Failed to fetch prompts: ${res.status} ${res.statusText}`,
-				);
-			}
+		const url = cursor
+			? `${REMOTION_PRO_ORIGIN}/api/prompts?cursor=${cursor}`
+			: `${REMOTION_PRO_ORIGIN}/api/prompts`;
 
-			const data = await res.json();
-			setSubmissions((prev) =>
-				cursor ? [...prev, ...data.items] : data.items,
-			);
-			setNextCursor(data.nextCursor);
-		} catch {
-			// ignore
-		} finally {
-			setLoading(false);
-		}
+		fetch(url)
+			.then((res) => res.json())
+			.then((data) => {
+				setSubmissions((prev) =>
+					cursor ? [...prev, ...data.items] : data.items,
+				);
+				setNextCursor(data.nextCursor);
+			})
+			.catch(() => {})
+			.finally(() => setLoading(false));
 	}, []);
 
 	useEffect(() => {
-		fetchPage();
-	}, [fetchPage]);
+		if (!promptsProp) {
+			fetchPage();
+		}
+	}, [fetchPage, promptsProp]);
 
 	return (
 		<Page className="flex-col">

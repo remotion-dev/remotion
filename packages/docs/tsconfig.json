@@ -8,6 +8,7 @@
 		"jsx": "react",
 		"target": "ES2019",
 		"moduleResolution": "node",
+		"resolveJsonModule": true,
 		"noImplicitAny": false,
 		"strictNullChecks": true,
 		"strict": false,
