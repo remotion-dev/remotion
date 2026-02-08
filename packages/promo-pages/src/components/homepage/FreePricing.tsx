@@ -295,7 +295,7 @@ export const CompanyPricing: React.FC = () => {
 	const showMinimumMessage =
 		automatorsSelected && creatorsPrice + automatorsPrice < 100;
 
-	const showEnterpriseMessage = automatorsSelected && cloudRenders >= 50000;
+	const showEnterpriseMessage = totalPrice >= 500;
 
 	return (
 		<Container>
@@ -440,7 +440,12 @@ export const CompanyPricing: React.FC = () => {
 						data-visible={showEnterpriseMessage}
 						className="opacity-0 data-[visible=true]:opacity-100 transition-opacity"
 					>
-						At this render volume, you are eligible for the Enterprise License
+						At this spend, you are eligible for the Enterprise License.
+						<br /> You can select it when setting up your license, or{' '}
+						<a className="bluelink" target="_blank" href="https://www.remotion.pro/contact">
+							contact us
+						</a>
+						.
 					</BottomInfo>
 				</div>
 			</div>
