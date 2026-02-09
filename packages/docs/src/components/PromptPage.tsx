@@ -5,7 +5,7 @@ import '@remotion/promo-pages/dist/prompts/PromptsShow.css';
 import {PromptsShowPage} from '@remotion/promo-pages/dist/prompts/PromptsShow.js';
 import Layout from '@theme/Layout';
 import React from 'react';
-import prompts from '../../static/_raw/prompts.json';
+import promptSubmissions from '../../static/_raw/prompt-submissions.json';
 import {Seo} from './Seo';
 
 export default () => {
@@ -13,22 +13,22 @@ export default () => {
 	const context = useDocusaurusContext();
 
 	const slug = location.pathname.match(/\/prompts\/([^/]+)/)?.[1];
-	const prompt = prompts.find((p) => p.slug === slug);
+	const promptSubmission = promptSubmissions.find((p) => p.slug === slug);
 
-	const title = prompt?.title ?? 'Prompt';
+	const title = promptSubmission?.title ?? 'Prompt';
 
 	const getDescription = () => {
-		if (!prompt) {
+		if (!promptSubmission) {
 			return 'View an AI-generated video prompt for Remotion.';
 		}
 
 		const parts: string[] = [];
-		if (prompt.toolUsed) {
-			parts.push(`Made with ${prompt.toolUsed}`);
+		if (promptSubmission.toolUsed) {
+			parts.push(`Made with ${promptSubmission.toolUsed}`);
 		}
 
-		if (prompt.modelUsed) {
-			parts.push(`using ${prompt.modelUsed}`);
+		if (promptSubmission.modelUsed) {
+			parts.push(`using ${promptSubmission.modelUsed}`);
 		}
 
 		if (parts.length > 0) {
@@ -39,8 +39,8 @@ export default () => {
 	};
 
 	const description = getDescription();
-	const ogImage = prompt
-		? `https://image.mux.com/${prompt.muxPlaybackId}/thumbnail.png?width=1200&height=630&fit_mode=smartcrop`
+	const ogImage = promptSubmission
+		? `https://image.mux.com/${promptSubmission.muxPlaybackId}/thumbnail.png?width=1200&height=630&fit_mode=smartcrop`
 		: '/generated/articles-prompts-gallery.png';
 
 	return (
@@ -50,7 +50,7 @@ export default () => {
 				{Seo.renderDescription(description)}
 				{Seo.renderImage(ogImage, context.siteConfig.url)}
 			</Head>
-			<PromptsShowPage prompt={prompt} />
+			<PromptsShowPage promptSubmission={promptSubmission} />
 		</Layout>
 	);
 };

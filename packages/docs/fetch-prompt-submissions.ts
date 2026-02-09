@@ -8,8 +8,8 @@ type PromptResponse = {
 	nextCursor: string | null;
 };
 
-const fetchAllPrompts = async () => {
-	const allPrompts: unknown[] = [];
+const fetchAllPromptSubmissions = async () => {
+	const allPromptSubmissions: unknown[] = [];
 	let cursor: string | null = null;
 
 	do {
@@ -20,18 +20,18 @@ const fetchAllPrompts = async () => {
 		const res = await fetch(url);
 		const data: PromptResponse = await res.json();
 
-		allPrompts.push(...data.items);
+		allPromptSubmissions.push(...data.items);
 		cursor = data.nextCursor;
 	} while (cursor);
 
-	return allPrompts;
+	return allPromptSubmissions;
 };
 
-fetchAllPrompts().then((prompts) => {
+fetchAllPromptSubmissions().then((promptSubmissions) => {
 	fs.writeFileSync(
-		path.join(process.cwd(), 'static', '_raw', 'prompts.json'),
-		JSON.stringify(prompts, null, '\t'),
+		path.join(process.cwd(), 'static', '_raw', 'prompt-submissions.json'),
+		JSON.stringify(promptSubmissions, null, '\t'),
 	);
 
-	console.log(`Fetched ${prompts.length} prompts`);
+	console.log(`Fetched ${promptSubmissions.length} prompt submissions`);
 });

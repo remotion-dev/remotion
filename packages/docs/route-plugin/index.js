@@ -30,12 +30,15 @@ module.exports = function () {
 				})
 				.filter(Boolean);
 
-			const promptsPath = path.join(__dirname, '../static/_raw/prompts.json');
-			const prompts = fs.existsSync(promptsPath)
-				? JSON.parse(fs.readFileSync(promptsPath, 'utf-8'))
+			const promptSubmissionsPath = path.join(
+				__dirname,
+				'../static/_raw/prompt-submissions.json',
+			);
+			const promptSubmissions = fs.existsSync(promptSubmissionsPath)
+				? JSON.parse(fs.readFileSync(promptSubmissionsPath, 'utf-8'))
 				: [];
-			const promptSlugs = prompts.map((p) => p.slug);
-			const promptPageCount = Math.ceil(prompts.length / 12);
+			const promptSlugs = promptSubmissions.map((p) => p.slug);
+			const promptPageCount = Math.ceil(promptSubmissions.length / 12);
 
 			if (templateSlugs.length === 0) {
 				throw new Error('expected templates');

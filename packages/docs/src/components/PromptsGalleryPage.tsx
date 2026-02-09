@@ -1,11 +1,11 @@
 import Head from '@docusaurus/Head';
 import {useLocation} from '@docusaurus/router';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import type {Submission} from '@remotion/promo-pages/dist/prompts/prompt-types';
+import type {PromptSubmission} from '@remotion/promo-pages/dist/prompts/prompt-types';
 import {PromptsGalleryPage} from '@remotion/promo-pages/dist/prompts/PromptsGallery.js';
 import Layout from '@theme/Layout';
 import React from 'react';
-import allPrompts from '../../static/_raw/prompts.json';
+import allPromptSubmissions from '../../static/_raw/prompt-submissions.json';
 import {Seo} from './Seo';
 
 const PROMPTS_PER_PAGE = 12;
@@ -16,10 +16,10 @@ export default () => {
 
 	const pageMatch = location.pathname.match(/\/prompts\/(\d+)$/);
 	const currentPage = pageMatch ? parseInt(pageMatch[1], 10) : 1;
-	const totalPages = Math.ceil(allPrompts.length / PROMPTS_PER_PAGE);
+	const totalPages = Math.ceil(allPromptSubmissions.length / PROMPTS_PER_PAGE);
 
 	const startIndex = (currentPage - 1) * PROMPTS_PER_PAGE;
-	const prompts = (allPrompts as Submission[]).slice(
+	const promptSubmissions = (allPromptSubmissions as PromptSubmission[]).slice(
 		startIndex,
 		startIndex + PROMPTS_PER_PAGE,
 	);
@@ -42,7 +42,7 @@ export default () => {
 				)}
 			</Head>
 			<PromptsGalleryPage
-				prompts={prompts}
+				promptSubmissions={promptSubmissions}
 				currentPage={currentPage}
 				totalPages={totalPages}
 			/>

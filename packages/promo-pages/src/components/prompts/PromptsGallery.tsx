@@ -3,15 +3,15 @@ import React, {useEffect, useRef, useState} from 'react';
 import {CardLikeButton} from './CardLikeButton';
 import {Page} from './Page';
 import {getAuthorName, getAvatarUrl} from './prompt-helpers';
-import type {Submission} from './prompt-types';
+import type {PromptSubmission} from './prompt-types';
 
-const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
-	submission,
-}) => {
+const PromptSubmissionCard: React.FC<{
+	readonly promptSubmission: PromptSubmission;
+}> = ({promptSubmission}) => {
 	const [hovered, setHovered] = useState(false);
 	const [inView, setInView] = useState(false);
 	const cardRef = useRef<HTMLAnchorElement>(null);
-	const avatarUrl = getAvatarUrl(submission);
+	const avatarUrl = getAvatarUrl(promptSubmission);
 
 	useEffect(() => {
 		const el = cardRef.current;
@@ -34,7 +34,7 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 	return (
 		<a
 			ref={cardRef}
-			href={`/prompts/${submission.slug}`}
+			href={`/prompts/${promptSubmission.slug}`}
 			className="block no-underline hover:no-underline"
 			onMouseEnter={() => setHovered(true)}
 			onMouseLeave={() => setHovered(false)}
@@ -44,16 +44,16 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 					<img
 						src={
 							showGif
-								? `https://image.mux.com/${submission.muxPlaybackId}/animated.gif?height=225&fit_mode=smartcrop`
-								: `https://image.mux.com/${submission.muxPlaybackId}/thumbnail.png?width=400&height=225&fit_mode=smartcrop`
+								? `https://image.mux.com/${promptSubmission.muxPlaybackId}/animated.gif?height=225&fit_mode=smartcrop`
+								: `https://image.mux.com/${promptSubmission.muxPlaybackId}/thumbnail.png?width=400&height=225&fit_mode=smartcrop`
 						}
 						className={showGif ? 'h-full' : 'w-full h-full object-cover'}
-						alt={submission.title}
+						alt={promptSubmission.title}
 					/>
 				</div>
 				<div className="p-4">
 					<h3 className="font-brand font-bold text-lg truncate">
-						{submission.title}
+						{promptSubmission.title}
 					</h3>
 					<div className="flex items-center justify-between mt-1">
 						<div className="flex items-center gap-2">
@@ -63,16 +63,16 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 									width={20}
 									height={20}
 									className="rounded-full"
-									alt={`${getAuthorName(submission)}'s avatar`}
+									alt={`${getAuthorName(promptSubmission)}'s avatar`}
 								/>
 							)}
 							<span className="text-sm font-brand text-text">
-								{getAuthorName(submission)}
+								{getAuthorName(promptSubmission)}
 							</span>
 						</div>
 						<CardLikeButton
-							submissionId={submission.id}
-							initialLikeCount={submission.likeCount}
+							submissionId={promptSubmission.id}
+							initialLikeCount={promptSubmission.likeCount}
 						/>
 					</div>
 				</div>
@@ -173,10 +173,10 @@ const Pagination: React.FC<{
 };
 
 export const PromptsGalleryPage: React.FC<{
-	readonly prompts: Submission[];
+	readonly promptSubmissions: PromptSubmission[];
 	readonly currentPage: number;
 	readonly totalPages: number;
-}> = ({prompts, currentPage, totalPages}) => {
+}> = ({promptSubmissions, currentPage, totalPages}) => {
 	return (
 		<Page className="flex-col">
 			<div className="m-auto max-w-[1200px] w-full px-4 py-12">
@@ -228,8 +228,8 @@ export const PromptsGalleryPage: React.FC<{
 
 				<div className="h-12" />
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-					{prompts.map((s) => (
-						<SubmissionCard key={s.id} submission={s} />
+					{promptSubmissions.map((p) => (
+						<PromptSubmissionCard key={p.id} promptSubmission={p} />
 					))}
 				</div>
 
