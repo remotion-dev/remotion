@@ -3352,6 +3352,7 @@ var downloadBrowser = async ({
       }
     }
   } catch (err) {
+    console.log(err);
     return Promise.reject(err);
   } finally {
     if (await existsAsync(archivePath)) {
@@ -3360,6 +3361,7 @@ var downloadBrowser = async ({
   }
   writeVersionFile(chromeMode, expectedVersion);
   const revisionInfo = getRevisionInfo(chromeMode);
+  console.log(revisionInfo);
   makeFileExecutableIfItIsNot(revisionInfo.executablePath);
   return revisionInfo;
 };
