@@ -233,7 +233,7 @@ export async function POST(req: Request) {
 			if (renderResult.exitCode !== 0) {
 				const stderr = await renderResult.stderr();
 				const stdout = await renderResult.stdout();
-				throw new Error(`Render failed: ${stderr || stdout}`);
+				throw new Error(`Render failed: ${stderr} ${stdout}`);
 			}
 
 			await send({ type: "phase", phase: "Uploading video..." });
