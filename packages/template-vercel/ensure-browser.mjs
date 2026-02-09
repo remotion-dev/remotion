@@ -3301,6 +3301,16 @@ var downloadBrowser = async ({
   }
   logDownloadUrl({ url: downloadURL, logLevel, indent });
   try {
+    let logFileTree = function(dir, prefix = "") {
+      const items = fs4.readdirSync(dir, { withFileTypes: true });
+      for (const item of items) {
+        const isDir = item.isDirectory();
+        console.log(`${prefix}${isDir ? "\uD83D\uDCC1" : "\uD83D\uDCC4"} ${item.name}`);
+        if (isDir) {
+          logFileTree(path3.join(dir, item.name), prefix + "  ");
+        }
+      }
+    };
     await downloadFile({
       url: downloadURL,
       to: () => archivePath,
@@ -3320,14 +3330,26 @@ var downloadBrowser = async ({
       abortSignal: new AbortController().signal
     });
     await import_extract_zip.default(archivePath, { dir: outputPath });
-    const chromePath = path3.join(outputPath, "chrome-linux", "chrome");
-    const chromeHeadlessShellPath = path3.join(outputPath, "chrome-linux", "chrome-headless-shell");
-    if (fs4.existsSync(chromePath)) {
-      fs4.renameSync(chromePath, chromeHeadlessShellPath);
-    }
-    const chromeLinuxFolder = path3.join(outputPath, "chrome-linux");
-    if (fs4.existsSync(chromeLinuxFolder)) {
-      fs4.renameSync(chromeLinuxFolder, path3.join(outputPath, "chrome-headless-shell-linux-arm64"));
+    console.log(archivePath);
+    console.log(downloadURL);
+    console.log(`Extracted zip file structure for ${outputPath}:`);
+    logFileTree(outputPath);
+    const possibleSubdirs = [
+      "chrome-linux",
+      "chrome-headless-shell-linux64",
+      "chromium-headless-shell-amazon-linux2023-arm64",
+      "chromium-headless-shell-amazon-linux2023-x64"
+    ];
+    for (const subdir of possibleSubdirs) {
+      const chromeLinuxFolder = path3.join(outputPath, subdir);
+      const chromePath = path3.join(chromeLinuxFolder, "chrome");
+      if (fs4.existsSync(chromePath)) {
+        const chromeHeadlessShellPath = path3.join(chromeLinuxFolder, "chrome-headless-shell");
+        fs4.renameSync(chromePath, chromeHeadlessShellPath);
+      }
+      if (fs4.existsSync(chromeLinuxFolder)) {
+        fs4.renameSync(chromeLinuxFolder, path3.join(outputPath, "chrome-headless-shell-" + platform3));
+      }
     }
   } catch (err) {
     return Promise.reject(err);
