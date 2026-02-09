@@ -27,7 +27,7 @@
 		"@babel/preset-typescript": "7.23.2",
 		"babel-loader": "8.2.2",
 		"react-refresh": "0.9.0",
-		"webpack": "5.96.1"
+		"webpack": "5.104.1"
 	},
 	"devDependencies": {
 		"@remotion/bundler": "workspace:*",
