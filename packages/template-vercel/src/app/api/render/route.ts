@@ -191,7 +191,7 @@ export async function POST(req: Request) {
 			const ensureBrowserResult = await ensureBrowserCmd.wait();
 			if (ensureBrowserResult.exitCode !== 0) {
 				throw new Error(
-					`ensure-browser failed: ${await ensureBrowserResult.stderr()}`,
+					`ensure-browser failed: ${await ensureBrowserResult.stderr()} ${await ensureBrowserResult.stdout()}`,
 				);
 			}
 
