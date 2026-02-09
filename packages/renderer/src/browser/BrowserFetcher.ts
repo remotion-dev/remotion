@@ -206,10 +206,14 @@ export const downloadBrowser = async ({
 			}
 
 			if (fs.existsSync(chromeLinuxFolder)) {
-				fs.renameSync(
-					chromeLinuxFolder,
-					path.join(outputPath, 'chrome-headless-shell-' + platform),
+				const targetFolder = path.join(
+					outputPath,
+					'chrome-headless-shell-' + platform,
 				);
+
+				if (chromeLinuxFolder !== targetFolder) {
+					fs.renameSync(chromeLinuxFolder, targetFolder);
+				}
 			}
 		}
 	} catch (err) {
