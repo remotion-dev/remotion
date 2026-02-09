@@ -159,6 +159,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		allowEnableTailwind: false,
 		contributedBy: null,
 		showStackblitz: false,
+		previewLabel: null,
 	},
 	{
 		homePageLabel: 'Next.js (No Tailwind)',
