@@ -42,6 +42,19 @@ export const lockFilePaths: LockfilePath[] = [
 	},
 ];
 
+export const detectMultipleLockfiles = (
+	remotionRoot: string,
+	dirUp: number,
+): string[] => {
+	return lockFilePaths
+		.filter((p) =>
+			fs.existsSync(
+				path.join(remotionRoot, ...new Array(dirUp).fill('..'), p.path),
+			),
+		)
+		.map((p) => p.path);
+};
+
 export const getPackageManager = (
 	remotionRoot: string,
 	packageManager: string | undefined,
@@ -73,19 +86,6 @@ export const getPackageManager = (
 
 	if (existingPkgManagers.length === 0) {
 		return getPackageManager(remotionRoot, packageManager, dirUp + 1);
-	}
-
-	if (existingPkgManagers.length > 1) {
-		const error = [
-			`Found multiple lockfiles:`,
-			...existingPkgManagers.map((m) => {
-				return `- ${m.path}`;
-			}),
-			'',
-			'This can lead to bugs, delete all but one of these files and run this command again.',
-		].join('\n');
-
-		throw new Error(error);
 	}
 
 	return existingPkgManagers[0];

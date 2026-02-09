@@ -35,6 +35,7 @@ import {
 	setMaxTimelineTracks,
 } from './max-timeline-tracks';
 import {
+	detectMultipleLockfiles,
 	getPackageManager,
 	lockFilePaths,
 } from './preview-server/get-package-manager';
@@ -48,6 +49,7 @@ export const StudioServerInternals = {
 	waitForLiveEventsListener,
 	lockFilePaths,
 	getPackageManager,
+	detectMultipleLockfiles,
 	getMaxTimelineTracks,
 	setMaxTimelineTracks,
 	getLatestRemotionVersion,
