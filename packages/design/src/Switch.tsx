@@ -7,7 +7,7 @@ export const Switch: React.FC<{
 	return (
 		<div
 			data-active={active}
-			className="h-[34px] transition-all rounded-full w-[56px] border-2 border-b-4 bg-gray-200 p-[2px] cursor-pointer data-[active=true]:bg-brand border-black relative"
+			className="h-[34px] transition-all rounded-full w-[56px] border-2 border-b-4 bg-gray-200 p-[2px] cursor-pointer data-[active=true]:bg-brand border-black relative shrink-0"
 			onClick={onToggle}
 		>
 			<div

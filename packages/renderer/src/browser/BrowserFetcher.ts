@@ -29,6 +29,7 @@ import {ChromeMode} from '../options/chrome-mode';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
 import {
 	getChromeDownloadUrl,
+	isAmazonLinux2023,
 	logDownloadUrl,
 	type Platform,
 	TESTED_VERSION,
@@ -183,22 +184,37 @@ export const downloadBrowser = async ({
 			abortSignal: new AbortController().signal,
 		});
 		await extractZip(archivePath, {dir: outputPath});
-		const chromePath = path.join(outputPath, 'chrome-linux', 'chrome');
-		const chromeHeadlessShellPath = path.join(
-			outputPath,
-			'chrome-linux',
-			'chrome-headless-shell',
-		);
-		if (fs.existsSync(chromePath)) {
-			fs.renameSync(chromePath, chromeHeadlessShellPath);
-		}
 
-		const chromeLinuxFolder = path.join(outputPath, 'chrome-linux');
-		if (fs.existsSync(chromeLinuxFolder)) {
-			fs.renameSync(
-				chromeLinuxFolder,
-				path.join(outputPath, 'chrome-headless-shell-linux-arm64'),
-			);
+		const possibleSubdirs = [
+			'chrome-linux',
+			'chrome-headless-shell-linux64',
+			'chromium-headless-shell-amazon-linux2023-arm64',
+			'chromium-headless-shell-amazon-linux2023-x64',
+		];
+
+		for (const subdir of possibleSubdirs) {
+			const chromeLinuxFolder = path.join(outputPath, subdir);
+			const chromePath = path.join(chromeLinuxFolder, 'chrome');
+
+			if (fs.existsSync(chromePath)) {
+				const chromeHeadlessShellPath = path.join(
+					chromeLinuxFolder,
+					'chrome-headless-shell',
+				);
+
+				fs.renameSync(chromePath, chromeHeadlessShellPath);
+			}
+
+			if (fs.existsSync(chromeLinuxFolder)) {
+				const targetFolder = path.join(
+					outputPath,
+					'chrome-headless-shell-' + platform,
+				);
+
+				if (chromeLinuxFolder !== targetFolder) {
+					fs.renameSync(chromeLinuxFolder, targetFolder);
+				}
+			}
 		}
 	} catch (err) {
 		return Promise.reject(err);
@@ -248,7 +264,7 @@ const getExecutablePath = (chromeMode: ChromeMode) => {
 			`chrome-headless-shell-${platform}`,
 			platform === 'win64'
 				? 'chrome-headless-shell.exe'
-				: platform === 'linux-arm64'
+				: platform === 'linux-arm64' || isAmazonLinux2023()
 					? 'headless_shell'
 					: 'chrome-headless-shell',
 		);

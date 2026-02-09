@@ -17,9 +17,9 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({children}) => {
 				ⓘ
 			</span>
 			{isVisible && (
-				<span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white p-2 rounded text-sm z-10 cursor-default font-normal w-[300px] inline-block text-wrap">
-					{children}
-					<span className="absolute top-full left-1/2 transform -translate-x-1/2 border-5 border-solid border-gray-800 border-t-transparent border-r-transparent border-b-transparent border-l-transparent cursor-default" />
+			<span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-500 text-white p-2 rounded text-sm z-10 cursor-default font-normal w-[300px] inline-block text-wrap">
+				{children}
+				<span className="absolute top-full left-1/2 transform -translate-x-1/2 border-5 border-solid border-gray-500 border-t-transparent border-r-transparent border-b-transparent border-l-transparent cursor-default" />
 				</span>
 			)}
 		</span>

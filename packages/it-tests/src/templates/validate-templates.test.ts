@@ -175,7 +175,12 @@ describe('Templates should be valid', () => {
 			}
 			expect(contents).toInclude('"forceConsistentCasingInFileNames": true');
 
-			if (!template.shortName.includes('Next')) {
+			if (
+				!template.shortName.includes('Next') &&
+				!template.shortName.includes(
+					'Prompt to Motion Graphics SaaS Starter Kit',
+				)
+			) {
 				expect(contents).not.toInclude('"incremental": true');
 			}
 		});
