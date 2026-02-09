@@ -95,7 +95,9 @@ export const studioCommand = async (
 				browserArgs: parsedCli['browser-args'],
 			});
 			// On Windows, the browser process might be killed if we exit too quickly
-			await new Promise((resolve) => setTimeout(resolve, 2000));
+			await new Promise((resolve) => {
+				setTimeout(resolve, 2000);
+			});
 			return;
 		}
 	}
