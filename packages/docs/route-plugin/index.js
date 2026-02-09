@@ -30,12 +30,12 @@ module.exports = function () {
 				})
 				.filter(Boolean);
 
-			let promptSlugs = [];
 			const promptsPath = path.join(__dirname, '../static/_raw/prompts.json');
-			if (fs.existsSync(promptsPath)) {
-				const prompts = JSON.parse(fs.readFileSync(promptsPath, 'utf-8'));
-				promptSlugs = prompts.map((p) => p.slug);
-			}
+			const prompts = fs.existsSync(promptsPath)
+				? JSON.parse(fs.readFileSync(promptsPath, 'utf-8'))
+				: [];
+			const promptSlugs = prompts.map((p) => p.slug);
+			const promptPageCount = Math.ceil(prompts.length / 12);
 
 			if (templateSlugs.length === 0) {
 				throw new Error('expected templates');
@@ -45,10 +45,10 @@ module.exports = function () {
 				throw new Error('expected experts');
 			}
 
-			return {expertSlugs, templateSlugs, promptSlugs};
+			return {expertSlugs, templateSlugs, promptSlugs, promptPageCount};
 		},
 		contentLoaded({
-			content: {expertSlugs, templateSlugs, promptSlugs},
+			content: {expertSlugs, templateSlugs, promptSlugs, promptPageCount},
 			actions,
 		}) {
 			expertSlugs.forEach((c) => {
@@ -75,6 +75,16 @@ module.exports = function () {
 					exact: true,
 				});
 			});
+			Array.from({length: promptPageCount - 1}, (_, i) => i + 2).forEach(
+				(pageNum) => {
+					actions.addRoute({
+						path: '/prompts/' + pageNum,
+						component: '@site/src/components/PromptsGalleryPage.tsx',
+						modules: {},
+						exact: true,
+					});
+				},
+			);
 		},
 	};
 };

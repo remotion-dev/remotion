@@ -1,7 +1,6 @@
 import {Button, Card} from '@remotion/design';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {CardLikeButton} from './CardLikeButton';
-import {REMOTION_PRO_ORIGIN} from './config';
 import {Page} from './Page';
 import {getAuthorName, getAvatarUrl} from './prompt-helpers';
 import type {Submission} from './prompt-types';
@@ -82,39 +81,102 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 	);
 };
 
-export const PromptsGalleryPage: React.FC<{
-	readonly prompts?: Submission[];
-}> = ({prompts: promptsProp}) => {
-	const [submissions, setSubmissions] = useState<Submission[]>(
-		promptsProp ?? [],
-	);
-	const [nextCursor, setNextCursor] = useState<string | null>(null);
-	const [loading, setLoading] = useState(false);
+const Pagination: React.FC<{
+	readonly currentPage: number;
+	readonly totalPages: number;
+}> = ({currentPage, totalPages}) => {
+	if (totalPages <= 1) {
+		return null;
+	}
 
-	const fetchPage = useCallback((cursor?: string) => {
-		setLoading(true);
-		const url = cursor
-			? `${REMOTION_PRO_ORIGIN}/api/prompts?cursor=${cursor}`
-			: `${REMOTION_PRO_ORIGIN}/api/prompts`;
+	const getPageUrl = (page: number) => {
+		return page === 1 ? '/prompts' : `/prompts/${page}`;
+	};
 
-		fetch(url)
-			.then((res) => res.json())
-			.then((data) => {
-				setSubmissions((prev) =>
-					cursor ? [...prev, ...data.items] : data.items,
-				);
-				setNextCursor(data.nextCursor);
-			})
-			.catch(() => {})
-			.finally(() => setLoading(false));
-	}, []);
+	const getVisiblePages = () => {
+		const pages: (number | 'ellipsis-start' | 'ellipsis-end')[] = [];
 
-	useEffect(() => {
-		if (!promptsProp) {
-			fetchPage();
+		pages.push(1);
+
+		if (currentPage > 3) {
+			pages.push('ellipsis-start');
 		}
-	}, [fetchPage, promptsProp]);
 
+		for (
+			let i = Math.max(2, currentPage - 1);
+			i <= Math.min(totalPages - 1, currentPage + 1);
+			i++
+		) {
+			if (!pages.includes(i)) {
+				pages.push(i);
+			}
+		}
+
+		if (currentPage < totalPages - 2) {
+			pages.push('ellipsis-end');
+		}
+
+		if (totalPages > 1 && !pages.includes(totalPages)) {
+			pages.push(totalPages);
+		}
+
+		return pages;
+	};
+
+	return (
+		<div className="flex items-center justify-center gap-4 mt-12 font-brand text-sm">
+			{currentPage > 1 ? (
+				<a
+					href={getPageUrl(currentPage - 1)}
+					className="text-muted-foreground hover:text-text no-underline hover:no-underline"
+				>
+					← Previous
+				</a>
+			) : (
+				<span className="text-gray-300 cursor-not-allowed">← Previous</span>
+			)}
+
+			<span className="flex items-center gap-1">
+				{getVisiblePages().map((page) =>
+					typeof page === 'string' ? (
+						<span key={page} className="px-1 text-muted-foreground">
+							...
+						</span>
+					) : (
+						<a
+							key={page}
+							href={getPageUrl(page)}
+							className={`px-2 py-1 no-underline hover:no-underline ${
+								page === currentPage
+									? 'text-text font-bold'
+									: 'text-muted-foreground hover:text-text'
+							}`}
+						>
+							{page}
+						</a>
+					),
+				)}
+			</span>
+
+			{currentPage < totalPages ? (
+				<a
+					href={getPageUrl(currentPage + 1)}
+					className="text-muted-foreground hover:text-text no-underline hover:no-underline"
+				>
+					Next →
+				</a>
+			) : (
+				<span className="text-gray-300 cursor-not-allowed">Next →</span>
+			)}
+		</div>
+	);
+};
+
+export const PromptsGalleryPage: React.FC<{
+	readonly prompts: Submission[];
+	readonly currentPage: number;
+	readonly totalPages: number;
+}> = ({prompts, currentPage, totalPages}) => {
 	return (
 		<Page className="flex-col">
 			<div className="m-auto max-w-[1200px] w-full px-4 py-12">
@@ -166,18 +228,12 @@ export const PromptsGalleryPage: React.FC<{
 
 				<div className="h-12" />
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-					{submissions.map((s) => (
+					{prompts.map((s) => (
 						<SubmissionCard key={s.id} submission={s} />
 					))}
 				</div>
 
-				{loading && <div className="text-center text-muted-foreground mt-8" />}
-
-				{nextCursor && !loading && (
-					<div className="text-center mt-8">
-						<Button onClick={() => fetchPage(nextCursor)}>Load more</Button>
-					</div>
-				)}
+				<Pagination currentPage={currentPage} totalPages={totalPages} />
 			</div>
 		</Page>
 	);

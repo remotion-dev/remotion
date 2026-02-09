@@ -6,7 +6,7 @@ import './index.css';
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<div data-theme="light">
-			<PromptsGalleryPage />
+			<PromptsGalleryPage prompts={[]} currentPage={1} totalPages={1} />
 		</div>
 	</StrictMode>,
 );
