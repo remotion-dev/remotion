@@ -85,28 +85,28 @@ const PricingSlider: React.FC<{
 						border: 2px solid black;
 						cursor: pointer;
 					}
-					.pricing-slider::-webkit-slider-thumb {
-						-webkit-appearance: none;
-						appearance: none;
-						width: 24px;
-						height: 24px;
-						border-radius: 50%;
-						background: var(--background);
-						border: 2px solid black;
-						border-bottom-width: 4px;
-						cursor: pointer;
-						scale: 1.2;
-					}
-					.pricing-slider::-moz-range-thumb {
-						width: 24px;
-						height: 24px;
-						border-radius: 50%;
-						background: var(--background);
-						border: 2px solid black;
-						border-bottom-width: 4px;
-						scale: 1.2;
-						cursor: pointer;
-					}
+				.pricing-slider::-webkit-slider-thumb {
+					-webkit-appearance: none;
+					appearance: none;
+					width: 24px;
+					height: 24px;
+					border-radius: 50%;
+					background: white;
+					border: 2px solid black;
+					border-bottom-width: 4px;
+					cursor: pointer;
+					scale: 1.2;
+				}
+				.pricing-slider::-moz-range-thumb {
+					width: 24px;
+					height: 24px;
+					border-radius: 50%;
+					background: white;
+					border: 2px solid black;
+					border-bottom-width: 4px;
+					scale: 1.2;
+					cursor: pointer;
+				}
 				`}
 			</style>
 			<input
@@ -259,8 +259,8 @@ const SectionCheckbox: React.FC<{
 };
 
 export const CompanyPricing: React.FC = () => {
-	const [creatorsSelected, setCreatorsSelected] = React.useState(true);
-	const [automatorsSelected, setAutomatorsSelected] = React.useState(false);
+	const [creatorsSelected, setCreatorsSelected] = React.useState(false);
+	const [automatorsSelected, setAutomatorsSelected] = React.useState(true);
 	const [devSeatCount, setDevSeatCount] = React.useState(3);
 	const [cloudRenders, setCloudRenders] = React.useState(10000);
 
@@ -295,6 +295,8 @@ export const CompanyPricing: React.FC = () => {
 	const showMinimumMessage =
 		automatorsSelected && creatorsPrice + automatorsPrice < 100;
 
+	const showEnterpriseMessage = totalPrice >= 500;
+
 	return (
 		<Container>
 			<Audience>For collaborations and companies of 4+ people</Audience>
@@ -320,7 +322,10 @@ export const CompanyPricing: React.FC = () => {
 			>
 				<InfoTooltip>
 					Intended for low volume video creations through coding and prompting,
-					and building motion design systems. Get 1 seat per user.
+					and building motion design systems in a local environment.
+					<br />
+					<br />
+					Get 1 Seat per user.
 				</InfoTooltip>
 			</SectionCheckbox>
 			<div
@@ -371,10 +376,15 @@ export const CompanyPricing: React.FC = () => {
 				subtitle="Build video creation tools - $0.01 per render, $100/mo minimum"
 			>
 				<InfoTooltip>
-					Intended for companies launching SaaS applications, such as video
-					editors and prompt-to-video apps, and automated high-volume video
-					creation.
-					<br />A $100/mo minimum spend applies.
+					Intended for companies launching <br />
+					SaaS applications; such as video editors and prompt-to-video apps, and
+					automated high-volume video creation.
+					<br />
+					<br />A $100/mo Minimum Spend applies.
+					<br />
+					<br />
+					Developers working on automation projects do not require a
+					Seat.
 				</InfoTooltip>
 			</SectionCheckbox>
 			<div
@@ -419,12 +429,23 @@ export const CompanyPricing: React.FC = () => {
 			<div style={{height: 14}} />
 			<div className={'flex flex-row justify-end'}>
 				<div style={{...textUnitWrapper, alignItems: 'flex-end'}}>
-					<PriceTag>{totalPriceString}/mo</PriceTag>
+					<PriceTag>{totalPriceString}/month</PriceTag>
 					<BottomInfo
 						data-visible={showMinimumMessage}
 						className="opacity-0 data-[visible=true]:opacity-100 transition-opacity"
 					>
 						The minimum is $100 per month for Remotion for Automators
+					</BottomInfo>
+					<BottomInfo
+						data-visible={showEnterpriseMessage}
+						className="opacity-0 data-[visible=true]:opacity-100 transition-opacity"
+					>
+						At this spend, you are eligible for the Enterprise License.
+						<br /> You can select it when setting up your license, or{' '}
+						<a className="bluelink" target="_blank" href="https://www.remotion.pro/contact">
+							contact us
+						</a>
+						.
 					</BottomInfo>
 				</div>
 			</div>

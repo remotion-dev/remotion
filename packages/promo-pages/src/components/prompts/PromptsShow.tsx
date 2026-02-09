@@ -95,16 +95,14 @@ export const PromptsShowPage: React.FC<{
 						)}
 						<div>
 							<div className="text-sm font-brand">
-								Submitted by{' '}
+								Prompted by{' '}
 								{authorLink ? (
 									<a
 										href={authorLink}
 										target="_blank"
 										rel="noopener noreferrer"
 										className="font-medium hover:underline"
-									>
-										{authorName}
-									</a>
+									>{authorName}</a>
 								) : (
 									<span className="font-medium">{authorName}</span>
 								)}
@@ -123,19 +121,19 @@ export const PromptsShowPage: React.FC<{
 							playbackId={submission.muxPlaybackId}
 							title={submission.title}
 							rounded={false}
-						/>
+							/> 
 						{submission.toolUsed && (
-							<>
+							<> 
 								<h2 className="font-brand font-bold mt-6 mb-2">Tool used</h2>
 								<p className="text-sm font-brand">{submission.toolUsed}</p>
-							</>
-						)}
+							</> 
+							)} 
 						{submission.modelUsed && (
-							<>
+							<> 
 								<h2 className="font-brand font-bold mt-6 mb-2">Model used</h2>
 								<p className="text-sm font-brand">{submission.modelUsed}</p>
-							</>
-						)}
+							</> 
+							)} 
 						<h2 className="font-brand font-bold mt-6 mb-2">Prompt</h2>
 						<pre
 							className="whitespace-pre-wrap text-sm rounded p-4 text-white"
@@ -147,12 +145,12 @@ export const PromptsShowPage: React.FC<{
 							<LikeButton
 								submissionId={submission.id}
 								initialLikeCount={submission.likeCount}
-							/>
+							/> 
 							<CopyPromptButton prompt={submission.prompt} />
 						</div>
 					</div>
+					</div>
 				</div>
-			</div>
-		</Page>
+			</Page>
 	);
 };
