@@ -1,5 +1,4 @@
-// This file is copied into the Vercel sandbox and executed with `node --strip-types`
-import { ensureBrowser } from "@remotion/renderer";
+import { ensureBrowser } from "./ensure-browser.mjs";
 
 await ensureBrowser({
 	onBrowserDownload: () => {

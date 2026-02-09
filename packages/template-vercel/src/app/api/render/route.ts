@@ -8,6 +8,7 @@ import {
 	createDisposableSandbox,
 	createDisposableWriter,
 	formatSSE,
+	getEnsureBrowserModule,
 	getEnsureBrowserScript,
 	getRemotionBundleFiles,
 	getRenderScript,
@@ -143,17 +144,24 @@ export async function POST(req: Request) {
 			}
 
 			// Stage 3: Download browser (20%)
-			const ensureBrowserScript = await getEnsureBrowserScript();
+			const [ensureBrowserScript, ensureBrowserModule] = await Promise.all([
+				getEnsureBrowserScript(),
+				getEnsureBrowserModule(),
+			]);
 			await sandbox.writeFiles([
 				{
-					path: "ensure-browser.ts",
+					path: "ensure.mjs",
 					content: ensureBrowserScript,
+				},
+				{
+					path: "ensure-browser.mjs",
+					content: ensureBrowserModule,
 				},
 			]);
 
 			const ensureBrowserCmd = await sandbox.runCommand({
 				cmd: "node",
-				args: ["--strip-types", "ensure-browser.ts"],
+				args: ["ensure.mjs"],
 				detached: true,
 			});
 

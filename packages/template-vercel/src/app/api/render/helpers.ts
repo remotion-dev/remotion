@@ -68,6 +68,11 @@ export async function getRenderScript(): Promise<Buffer> {
 }
 
 export async function getEnsureBrowserScript(): Promise<Buffer> {
-	const scriptPath = path.join(process.cwd(), "ensure-browser.ts");
+	const scriptPath = path.join(process.cwd(), "ensure.mjs");
+	return readFile(scriptPath);
+}
+
+export async function getEnsureBrowserModule(): Promise<Buffer> {
+	const scriptPath = path.join(process.cwd(), "ensure-browser.mjs");
 	return readFile(scriptPath);
 }
