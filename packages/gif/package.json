@@ -35,7 +35,7 @@
 		"esbuild": "0.25.0",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"webpack": "5.96.1",
+		"webpack": "5.104.1",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:"
 	},
