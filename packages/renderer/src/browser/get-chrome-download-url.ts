@@ -16,7 +16,7 @@ export type Platform =
 	| 'mac-arm64'
 	| 'win64';
 
-const isAmazonLinux2023 = (): boolean => {
+export const isAmazonLinux2023 = (): boolean => {
 	if (os.platform() !== 'linux') {
 		return false;
 	}
@@ -129,6 +129,12 @@ export function getChromeDownloadUrl({
 	}
 
 	if (chromeMode === 'headless-shell') {
+		// Amazon Linux 2023 needs a special build.
+		// This binary is compatible with older glibc (no 2.35 requirement).
+		if (isAmazonLinux2023() && platform === 'linux64' && !version) {
+			return `https://remotion.media/chromium-headless-shell-amazon-linux-x64-144.0.7559.20.zip`;
+		}
+
 		if (platform === 'linux64' && version === null) {
 			if (canUseRemotionMediaBinaries()) {
 				return `https://remotion.media/chromium-headless-shell-linux-x64-${TESTED_VERSION}.zip?clearcache`;
