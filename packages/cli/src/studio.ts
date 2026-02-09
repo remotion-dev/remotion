@@ -174,6 +174,7 @@ export const studioCommand = async (
 		for (const lockfile of lockfiles) {
 			Log.warn({indent: false, logLevel}, `  - ${lockfile}`);
 		}
+
 		Log.warn({indent: false, logLevel}, '');
 		Log.warn(
 			{indent: false, logLevel},
