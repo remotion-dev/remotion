@@ -118,6 +118,7 @@ export type CommandLineOptions = {
 	'image-sequence-pattern': string;
 	'license-key': string;
 	[publicLicenseKeyOption.cliFlag]: string;
+	['force-new']: boolean;
 };
 
 export const parseCommandLine = () => {

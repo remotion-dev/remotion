@@ -47,6 +47,23 @@ const output404 = (response: ServerResponse): Promise<void> => {
 	return Promise.resolve();
 };
 
+const handleRemotionConfig = (
+	response: ServerResponse,
+	remotionRoot: string,
+): Promise<void> => {
+	response.writeHead(200, {
+		'Content-Type': 'application/json',
+	});
+	response.end(
+		JSON.stringify({
+			isRemotion: true,
+			cwd: remotionRoot,
+			version: process.env.REMOTION_VERSION ?? null,
+		}),
+	);
+	return Promise.resolve();
+};
+
 const handleFallback = async ({
 	remotionRoot,
 	hash,
@@ -414,6 +431,10 @@ export const handleRoutes = ({
 
 	if (url.pathname === SOURCE_MAP_ENDPOINT) {
 		return handleWasm(request, response);
+	}
+
+	if (url.pathname === '/__remotion_config') {
+		return handleRemotionConfig(response, remotionRoot);
 	}
 
 	if (url.pathname === '/events') {
