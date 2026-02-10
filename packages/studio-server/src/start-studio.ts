@@ -9,7 +9,9 @@ import type {
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
+import {detectRemotionServer} from './detect-remotion-server';
 import {getNetworkAddress} from './get-network-address';
+import {isPortOpen} from './is-port-open';
 import {maybeOpenBrowser} from './maybe-open-browser';
 import type {QueueMethods} from './preview-server/api-types';
 import {noOpUntilRestart} from './preview-server/close-and-restart';
@@ -22,6 +24,10 @@ import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
 import {startServer} from './preview-server/start-server';
 import {printServerReadyComment, setServerReadyComment} from './server-ready';
 import {watchRootFile} from './watch-root-file';
+
+export type StartStudioResult =
+	| {type: 'restarted'}
+	| {type: 'already-running'};
 
 export const startStudio = async ({
 	browserArgs,
@@ -52,6 +58,7 @@ export const startStudio = async ({
 	audioLatencyHint,
 	enableCrossSiteIsolation,
 	askAIEnabled,
+	forceNew,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -81,7 +88,39 @@ export const startStudio = async ({
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
 	askAIEnabled: boolean;
-}) => {
+	forceNew: boolean;
+}): Promise<StartStudioResult> => {
+	const portToCheck = desiredPort ?? 3000;
+	const portConfig = RenderInternals.getPortConfig(forceIPv4);
+
+	if (!forceNew) {
+		const isFree = await isPortOpen(portToCheck);
+
+		if (!isFree) {
+			const detection = await detectRemotionServer({
+				port: portToCheck,
+				cwd: remotionRoot,
+				hostname: portConfig.hostsToTry[0],
+			});
+
+			if (detection.type === 'match') {
+				RenderInternals.Log.info(
+					{indent: false, logLevel},
+					`Remotion Studio already running on port ${portToCheck}. Opening browser...`,
+				);
+				await maybeOpenBrowser({
+					browserArgs,
+					browserFlag,
+					configValueShouldOpenBrowser,
+					parsedCliOpen,
+					url: `http://localhost:${portToCheck}`,
+					logLevel,
+				});
+				return {type: 'already-running'};
+			}
+		}
+	}
+
 	try {
 		if (typeof Bun === 'undefined') {
 			process.title = 'node (npx remotion studio)';
@@ -196,4 +235,6 @@ export const startStudio = async ({
 		{indent: false, logLevel},
 		RenderInternals.chalk.blue('Restarting server...'),
 	);
+
+	return {type: 'restarted'};
 };
