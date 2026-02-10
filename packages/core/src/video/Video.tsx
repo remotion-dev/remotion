@@ -130,7 +130,10 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				layout="none"
 				from={0 - (trimBeforeValue ?? 0)}
 				showInTimeline={false}
-				durationInFrames={trimAfterValue}
+				durationInFrames={
+					((trimAfterValue ?? 0) - (trimBeforeValue ?? 0)) /
+					(props.playbackRate ?? 1)
+				}
 				name={name}
 			>
 				<Html5Video
