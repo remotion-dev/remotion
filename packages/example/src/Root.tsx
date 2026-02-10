@@ -135,6 +135,7 @@ import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
+import {LoopDisplayTestComp} from './LoopDisplayTest';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp} from './NewVideo';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
@@ -793,6 +794,7 @@ export const Index: React.FC = () => {
 				/>
 				<OffthreadRemoteVideo />
 				<NewVideoComp />
+				<LoopDisplayTestComp />
 				<OffthreadRemoteSeries />
 				<LoopedNewVideo />
 				<LoopedOffthreadRemoteVideo />

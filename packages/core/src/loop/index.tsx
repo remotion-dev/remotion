@@ -69,11 +69,11 @@ export const Loop: React.FC<LoopProps> & {
 
 	const loopDisplay: LoopDisplay = useMemo(() => {
 		return {
-			numberOfTimes: actualTimes,
+			numberOfTimes: Math.min(compDuration / durationInFrames, times),
 			startOffset: -from,
 			durationInFrames,
 		};
-	}, [actualTimes, durationInFrames, from]);
+	}, [compDuration, durationInFrames, from, times]);
 
 	const loopContext: LoopContextType = useMemo(() => {
 		return {
