@@ -1,14 +1,11 @@
 import { Sandbox } from "@vercel/sandbox";
-import path from "path";
 import { VERSION } from "remotion/version";
 import {
 	createDisposableSandbox,
-	ensureLocalBundle,
 	getEnsureBrowserScript,
-	getRemotionBundleFiles,
 	OnProgressFn,
 } from "./helpers";
-import { BUILD_DIR } from "../../../../build-dir.mjs";
+import { addBundleToSandbox } from "./add-bundle-to-sandbox";
 
 export async function createSandbox({
 	onProgress,
@@ -88,32 +85,14 @@ export async function createSandbox({
 		);
 	}
 
-	await onProgress({ type: "phase", phase: "Bundling video...", progress: 0 });
-	await ensureLocalBundle();
+	await onProgress({
+		type: "phase",
+		phase: "Adding Remotion video to Sandbox...",
+		progress: 0,
+		subtitle: preparingSubtitle,
+	});
 
-	// Stage 2: Copy Remotion bundle (20%)
-	const bundleFiles = await getRemotionBundleFiles();
-
-	// Create the directories first
-	const dirs = new Set<string>();
-	for (const file of bundleFiles) {
-		const dir = path.dirname(file.path);
-		if (dir && dir !== ".") {
-			dirs.add(dir);
-		}
-	}
-
-	for (const dir of Array.from(dirs).sort()) {
-		await sandbox.mkDir(BUILD_DIR + "/" + dir);
-	}
-
-	// Write all files to the sandbox
-	await sandbox.writeFiles(
-		bundleFiles.map((file) => ({
-			path: BUILD_DIR + "/" + file.path,
-			content: file.content,
-		})),
-	);
+	await addBundleToSandbox(sandbox);
 
 	await onProgress({
 		type: "phase",
