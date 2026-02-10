@@ -1,3 +1,4 @@
+import type {RemotionConfigResponse} from '@remotion/studio-shared';
 import http from 'http';
 
 type RemotionDetectionResult =
@@ -26,9 +27,9 @@ export const detectRemotionServer = (
 
 				res.on('end', () => {
 					try {
-						const json = JSON.parse(data);
+						const json = JSON.parse(data) as RemotionConfigResponse;
 
-						if (json?.isRemotion !== true) {
+						if (json.isRemotion !== true) {
 							return resolve({type: 'not-remotion'});
 						}
 

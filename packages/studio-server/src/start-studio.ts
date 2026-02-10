@@ -9,8 +9,8 @@ import type {
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
-import {openBrowser} from './better-opn';
 import {getNetworkAddress} from './get-network-address';
+import {maybeOpenBrowser} from './maybe-open-browser';
 import type {QueueMethods} from './preview-server/api-types';
 import {noOpUntilRestart} from './preview-server/close-and-restart';
 import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
@@ -22,37 +22,6 @@ import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
 import {startServer} from './preview-server/start-server';
 import {printServerReadyComment, setServerReadyComment} from './server-ready';
 import {watchRootFile} from './watch-root-file';
-
-const getShouldOpenBrowser = ({
-	configValueShouldOpenBrowser,
-	parsedCliOpen,
-}: {
-	configValueShouldOpenBrowser: boolean;
-	parsedCliOpen: boolean;
-}): {
-	shouldOpenBrowser: boolean;
-	reasonForBrowserDecision: string;
-} => {
-	if (parsedCliOpen === false) {
-		return {
-			shouldOpenBrowser: false,
-			reasonForBrowserDecision: '--no-open specified',
-		};
-	}
-
-	if ((process.env.BROWSER ?? '').toLowerCase() === 'none') {
-		return {
-			shouldOpenBrowser: false,
-			reasonForBrowserDecision: 'env BROWSER=none was set',
-		};
-	}
-
-	if (configValueShouldOpenBrowser === false) {
-		return {shouldOpenBrowser: false, reasonForBrowserDecision: 'Config file'};
-	}
-
-	return {shouldOpenBrowser: true, reasonForBrowserDecision: 'default'};
-};
 
 export const startStudio = async ({
 	browserArgs,
@@ -204,23 +173,14 @@ export const startStudio = async ({
 
 	printServerReadyComment('Server ready', logLevel);
 
-	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser({
+	await maybeOpenBrowser({
+		browserArgs,
+		browserFlag,
 		configValueShouldOpenBrowser,
 		parsedCliOpen,
+		url: `http://localhost:${port}`,
+		logLevel,
 	});
-
-	if (shouldOpenBrowser) {
-		await openBrowser({
-			url: `http://localhost:${port}`,
-			browserArgs,
-			browserFlag,
-		});
-	} else {
-		RenderInternals.Log.verbose(
-			{indent: false, logLevel},
-			`Not opening browser, reason: ${reasonForBrowserDecision}`,
-		);
-	}
 
 	await noOpUntilRestart();
 	RenderInternals.Log.info(

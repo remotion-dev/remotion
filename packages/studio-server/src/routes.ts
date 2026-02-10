@@ -3,6 +3,7 @@ import type {LogLevel} from '@remotion/renderer';
 import type {
 	ApiRoutes,
 	GitSource,
+	RemotionConfigResponse,
 	RenderDefaults,
 	RenderJob,
 	SymbolicatedStackFrame,
@@ -54,13 +55,12 @@ const handleRemotionConfig = (
 	response.writeHead(200, {
 		'Content-Type': 'application/json',
 	});
-	response.end(
-		JSON.stringify({
-			isRemotion: true,
-			cwd: remotionRoot,
-			version: process.env.REMOTION_VERSION ?? null,
-		}),
-	);
+	const body: RemotionConfigResponse = {
+		isRemotion: true,
+		cwd: remotionRoot,
+		version: process.env.REMOTION_VERSION ?? null,
+	};
+	response.end(JSON.stringify(body));
 	return Promise.resolve();
 };
 

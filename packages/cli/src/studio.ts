@@ -89,14 +89,16 @@ export const studioCommand = async (
 				{indent: false, logLevel},
 				`Remotion Studio already running on port ${port}. Opening browser...`,
 			);
-			await StudioServerInternals.openBrowser({
+			await StudioServerInternals.maybeOpenBrowser({
 				url: `http://localhost:${port}`,
 				browserFlag: parsedCli.browser,
 				browserArgs: parsedCli['browser-args'],
-			});
-			// On Windows, the browser process might be killed if we exit too quickly
-			await new Promise((resolve) => {
-				setTimeout(resolve, 2000);
+				configValueShouldOpenBrowser:
+					ConfigInternals.getShouldOpenBrowser(),
+				// Minimist quirk: Adding `--no-open` flag will result in {['no-open']: false, open: true}
+				// @ts-expect-error
+				parsedCliOpen: parsedCli.open,
+				logLevel,
 			});
 			return;
 		}
