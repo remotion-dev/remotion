@@ -32,7 +32,7 @@
 		"happy-dom": "20.0.2",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"webpack": "5.96.1",
+		"webpack": "5.105.0",
 		"zod": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:"
