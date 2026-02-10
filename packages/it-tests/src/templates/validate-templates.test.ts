@@ -91,7 +91,7 @@ describe('Templates should be valid', () => {
 				/(remotion\sstudio)|(next dev)|(react-router dev)|(tsx watch)|(tsx src\/studio)|(bun studio\.ts)/,
 			);
 			expect(scripts.build).toMatch(
-				/(remotion\sbundle)|(react-router build)|(next\sbuild)|(tsx src\/render)|(tsc \&\& vite build)/,
+				/(remotion\sbundle)|(react-router build)|(next\sbuild)|(tsx src\/render)|(tsc \&\& vite build)|(bun build\.ts)/,
 			);
 		});
 
