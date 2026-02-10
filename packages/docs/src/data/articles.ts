@@ -7114,4 +7114,22 @@ export const articles = [
 		noAi: false,
 		slug: 'zod-types/z-textarea',
 	},
+	{
+		id: 'prompts-gallery',
+		title: 'Prompt Gallery',
+		relativePath: 'src/pages/prompts/index.tsx',
+		compId: 'articles-prompts-gallery',
+		crumb: null,
+		noAi: false,
+		slug: 'prompts',
+	},
+	{
+		id: 'prompts-submit',
+		title: 'Submit a Prompt',
+		relativePath: 'src/pages/prompts/submit.tsx',
+		compId: 'articles-prompts-submit',
+		crumb: 'Prompts',
+		noAi: false,
+		slug: 'prompts/submit',
+	},
 ];

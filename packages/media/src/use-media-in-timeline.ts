@@ -107,7 +107,7 @@ export const useMediaInTimeline = ({
 			volume: volumes,
 			showInTimeline: true,
 			nonce,
-			startMediaFrom: 0 - startsAt,
+			startMediaFrom: 0 - startsAt + (trimBefore ?? 0),
 			doesVolumeChange,
 			loopDisplay: undefined,
 			playbackRate,
@@ -146,6 +146,7 @@ export const useMediaInTimeline = ({
 		unregisterSequence,
 		volumes,
 		frame,
+		trimBefore,
 	]);
 
 	return {

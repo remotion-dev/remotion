@@ -1,4 +1,4 @@
-export type Submission = {
+export type PromptSubmission = {
 	id: string;
 	createdAt: string;
 	title: string;
