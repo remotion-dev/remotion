@@ -1,11 +1,11 @@
 import { Sandbox } from "@vercel/sandbox";
-import { createDisposableSandbox, OnProgressFn } from "./helpers";
+import { createDisposableSandbox, OnProgressFn } from "../helpers";
 import { createSandbox } from "./create-sandbox";
 import { getCachedSnapshot, saveSnapshotCache } from "./snapshots";
 
 const TIMEOUT = 5 * 60 * 1000;
 
-export async function getOrCreateSandbox(
+export async function reuseOrCreateSandbox(
 	onProgress: OnProgressFn,
 ): Promise<Sandbox & AsyncDisposable> {
 	// Check for a cached snapshot (production only)

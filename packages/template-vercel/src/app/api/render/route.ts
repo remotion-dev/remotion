@@ -5,8 +5,8 @@ import {
 	formatSSE,
 	type RenderProgress,
 } from "./helpers";
-import { getOrCreateSandbox } from "./get-or-create-sandbox";
-import { runRenderInSandbox } from "./run-render-in-sandbox";
+import { reuseOrCreateSandbox } from "./sandbox/reuse-or-create-sandbox";
+import { renderInSandbox } from "./render";
 
 export async function POST(req: Request) {
 	const encoder = new TextEncoder();
@@ -25,11 +25,21 @@ export async function POST(req: Request) {
 			const payload = await req.json();
 			const body = RenderRequest.parse(payload);
 
-			await using sandbox = await getOrCreateSandbox(send);
-			await runRenderInSandbox({
+			await using sandbox = await reuseOrCreateSandbox(send);
+			const renderingPhase = "Rendering video...";
+			await send({ type: "phase", phase: renderingPhase, progress: 0 });
+			await renderInSandbox({
 				sandbox,
 				inputProps: body.inputProps,
-				onProgress: send,
+				onProgress: async (update) => {
+					if (update.type === "render-progress") {
+						await send({ type: "phase", phase: renderingPhase, progress: update.progress });
+					} else if (update.type === "uploading") {
+						await send({ type: "phase", phase: "Uploading video...", progress: 1 });
+					} else if (update.type === "done") {
+						await send({ type: "done", url: update.url, size: update.size });
+					}
+				},
 			});
 		} catch (err) {
 			console.log(err);

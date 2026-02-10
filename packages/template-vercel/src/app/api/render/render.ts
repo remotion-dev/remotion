@@ -1,21 +1,23 @@
 import { Sandbox } from "@vercel/sandbox";
 import { COMP_NAME } from "../../../../types/constants";
-import { getRenderScript, OnProgressFn } from "./helpers";
+import { getRenderScript } from "./helpers";
 import { BUILD_DIR } from "../../../../build-dir.mjs";
 import type { RenderConfig } from "../../../../render";
 
-export async function runRenderInSandbox({
+export type RenderInSandboxProgress =
+	| { type: "render-progress"; progress: number }
+	| { type: "uploading" }
+	| { type: "done"; url: string; size: number };
+
+export async function renderInSandbox({
 	sandbox,
 	inputProps,
 	onProgress,
 }: {
 	sandbox: Sandbox & AsyncDisposable;
 	inputProps: Record<string, unknown>;
-	onProgress: OnProgressFn;
+	onProgress: (progress: RenderInSandboxProgress) => Promise<void>;
 }): Promise<void> {
-	const renderingPhase = "Rendering video...";
-	await onProgress({ type: "phase", phase: renderingPhase, progress: 0 });
-
 	// Use the local bundle copied to the sandbox
 	const serveUrl = `/vercel/sandbox/${BUILD_DIR}`;
 
@@ -57,16 +59,11 @@ export async function runRenderInSandbox({
 				const message = JSON.parse(log.data);
 				if (message.type === "progress") {
 					await onProgress({
-						type: "phase",
-						phase: renderingPhase,
+						type: "render-progress",
 						progress: message.progress,
 					});
 				} else if (message.type === "uploading") {
-					await onProgress({
-						type: "phase",
-						phase: "Uploading video...",
-						progress: 1,
-					});
+					await onProgress({ type: "uploading" });
 				} else if (message.type === "done") {
 					doneUrl = message.url;
 					doneSize = message.size;
@@ -88,9 +85,5 @@ export async function runRenderInSandbox({
 		throw new Error("Render script did not return upload result");
 	}
 
-	await onProgress({
-		type: "done",
-		url: doneUrl,
-		size: doneSize,
-	});
+	await onProgress({ type: "done", url: doneUrl, size: doneSize });
 }
