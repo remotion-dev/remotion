@@ -20,6 +20,7 @@ import {enforceAudioOption} from './enforce-audio';
 import {experimentalClientSideRenderingOption} from './experimental-client-side-rendering';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
+import {forceNewOption} from './force-new';
 import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
@@ -107,6 +108,7 @@ export const allOptions = {
 	askAIOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
+	forceNewOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

@@ -804,6 +804,20 @@ Config.setAskAIEnabled(false);
 
 The [command line flag](/docs/cli/studio#--disable-ask-ai) `--disable-ask-ai` will take precedence over this option.
 
+## `setForceNewEnabled()`<AvailableFrom v="4.0.421" />
+
+<Options id="force-new" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setForceNewEnabled(true);
+```
+
+The [command line flag](/docs/cli/studio#--force-new) `--force-new` will take precedence over this option.
+
 ## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.0.111" />
 
 Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state. Default `300`.
