@@ -87,13 +87,13 @@ const calculateTimestampSlots = ({
 
 const ensureSlots = ({
 	filledSlots,
-	visualizationWidth,
+	naturalWidth: visualizationWidth,
 	fromSeconds,
 	toSeconds,
 	aspectRatio,
 }: {
 	filledSlots: Map<number, number | undefined>;
-	visualizationWidth: number;
+	naturalWidth: number;
 	fromSeconds: number;
 	toSeconds: number;
 	aspectRatio: number;
@@ -155,14 +155,14 @@ const drawSlot = ({
 
 const fillWithCachedFrames = ({
 	ctx,
-	visualizationWidth,
+	naturalWidth,
 	filledSlots,
 	src,
 	segmentDuration,
 	fromSeconds,
 }: {
 	ctx: CanvasRenderingContext2D;
-	visualizationWidth: number;
+	naturalWidth: number;
 	filledSlots: Map<number, number | undefined>;
 	src: string;
 	segmentDuration: number;
@@ -213,7 +213,7 @@ const fillWithCachedFrames = ({
 			ctx,
 			frame: frame.frame,
 			filledSlots,
-			visualizationWidth,
+			visualizationWidth: naturalWidth,
 			timestamp,
 			segmentDuration,
 			fromSeconds,
@@ -268,12 +268,14 @@ const fillFrameWhereItFits = ({
 export const TimelineVideoInfo: React.FC<{
 	readonly src: string;
 	readonly visualizationWidth: number;
+	readonly naturalWidth: number;
 	readonly trimBefore: number;
 	readonly durationInFrames: number;
 	readonly playbackRate: number;
 }> = ({
 	src,
 	visualizationWidth,
+	naturalWidth,
 	trimBefore,
 	durationInFrames,
 	playbackRate,
@@ -323,7 +325,7 @@ export const TimelineVideoInfo: React.FC<{
 		if (aspectRatio.current !== null) {
 			ensureSlots({
 				filledSlots,
-				visualizationWidth,
+				naturalWidth,
 				fromSeconds,
 				toSeconds,
 				aspectRatio: aspectRatio.current,
@@ -331,7 +333,7 @@ export const TimelineVideoInfo: React.FC<{
 
 			fillWithCachedFrames({
 				ctx,
-				visualizationWidth,
+				naturalWidth,
 				filledSlots,
 				src,
 				segmentDuration: toSeconds - fromSeconds,
@@ -366,7 +368,7 @@ export const TimelineVideoInfo: React.FC<{
 					filledSlots,
 					fromSeconds,
 					toSeconds,
-					visualizationWidth,
+					naturalWidth,
 					aspectRatio: aspectRatio.current,
 				});
 
@@ -407,13 +409,13 @@ export const TimelineVideoInfo: React.FC<{
 					filledSlots,
 					fromSeconds,
 					toSeconds,
-					visualizationWidth,
+					naturalWidth,
 					aspectRatio: aspectRatio.current,
 				});
 				fillFrameWhereItFits({
 					ctx,
 					filledSlots,
-					visualizationWidth,
+					visualizationWidth: naturalWidth,
 					frame: transformed,
 					segmentDuration: toSeconds - fromSeconds,
 					fromSeconds,
@@ -426,7 +428,7 @@ export const TimelineVideoInfo: React.FC<{
 			.then(() => {
 				fillWithCachedFrames({
 					ctx,
-					visualizationWidth,
+					naturalWidth,
 					filledSlots,
 					src,
 					segmentDuration: toSeconds - fromSeconds,
@@ -448,6 +450,7 @@ export const TimelineVideoInfo: React.FC<{
 		durationInFrames,
 		error,
 		fps,
+		naturalWidth,
 		playbackRate,
 		src,
 		trimBefore,

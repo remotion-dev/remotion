@@ -32,6 +32,7 @@ test('Should test timeline sequence layout without max media duration', () => {
 		premountWidth: null,
 		postmountWidth: null,
 		width: 226.9893263573493,
+		naturalWidth: 226.9893263573493,
 	});
 });
 test('Should test timeline sequence layout with max media duration', () => {
@@ -65,5 +66,6 @@ test('Should test timeline sequence layout with max media duration', () => {
 		premountWidth: null,
 		postmountWidth: null,
 		width: 221.8531462892238,
+		naturalWidth: 221.8531462892238,
 	});
 });
