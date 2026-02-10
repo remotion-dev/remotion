@@ -11,18 +11,15 @@ export type State =
 			status: "invoking";
 			phase: string;
 			progress: number;
-			logs: string[];
 	  }
 	| {
 			status: "error";
 			error: Error;
-			logs: string[];
 	  }
 	| {
 			url: string;
 			size: number;
 			status: "done";
-			logs: string[];
 	  };
 
 export const useRendering = (
@@ -38,7 +35,6 @@ export const useRendering = (
 			status: "invoking",
 			phase: "Starting...",
 			progress: 0,
-			logs: [],
 		});
 
 		try {
@@ -70,15 +66,7 @@ export const useRendering = (
 					const json = line.slice(6);
 					const message = JSON.parse(json) as SSEMessage;
 
-					if (message.type === "log") {
-						setState((prev) => {
-							if (prev.status === "init") return prev;
-							return {
-								...prev,
-								logs: [...prev.logs, message.data],
-							};
-						});
-					} else if (message.type === "progress") {
+					if (message.type === "progress") {
 						setState((prev) => {
 							if (prev.status !== "invoking") return prev;
 							return {
@@ -95,27 +83,24 @@ export const useRendering = (
 							};
 						});
 					} else if (message.type === "done") {
-						setState((prev) => ({
+						setState({
 							status: "done",
 							url: message.url,
 							size: message.size,
-							logs: prev.status !== "init" ? prev.logs : [],
-						}));
+						});
 					} else if (message.type === "error") {
-						setState((prev) => ({
+						setState({
 							status: "error",
 							error: new Error(message.message),
-							logs: prev.status !== "init" ? prev.logs : [],
-						}));
+						});
 					}
 				}
 			}
 		} catch (err) {
-			setState((prev) => ({
+			setState({
 				status: "error",
 				error: err as Error,
-				logs: prev.status !== "init" ? prev.logs : [],
-			}));
+			});
 		}
 	}, [id, inputProps]);
 

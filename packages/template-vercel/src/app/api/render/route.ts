@@ -214,19 +214,16 @@ export async function POST(req: Request) {
 			});
 
 			for await (const log of renderCmd.logs()) {
-				// Parse progress messages from the script
 				if (log.stream === "stdout") {
 					try {
 						const message = JSON.parse(log.data);
 						if (message.type === "progress") {
 							await send({ type: "progress", progress: message.progress });
-							continue;
 						}
 					} catch {
-						// Not JSON, send as regular log
+						// Not JSON, ignore
 					}
 				}
-				await send({ type: "log", stream: log.stream, data: log.data });
 			}
 
 			const renderResult = await renderCmd.wait();

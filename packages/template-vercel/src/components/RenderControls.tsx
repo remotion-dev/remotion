@@ -9,7 +9,6 @@ import { ProgressBar } from "./ProgressBar";
 import { Spacing } from "./Spacing";
 import { COMP_NAME, CompositionProps } from "../../types/constants";
 import { useRendering } from "../helpers/use-rendering";
-import { LogViewer } from "./LogViewer";
 
 export const RenderControls: React.FC<{
 	text: string;
@@ -49,17 +48,10 @@ export const RenderControls: React.FC<{
 									: null}
 							</div>
 							<ProgressBar progress={state.progress} />
-							{state.phase !== "Preparing machine..." &&
-								state.phase !== "Creating sandbox..." && (
-									<LogViewer logs={state.logs} />
-								)}
 						</>
 					) : null}
 					{state.status === "error" ? (
-						<>
-							<LogViewer logs={state.logs} />
-							<ErrorComp message={state.error.message}></ErrorComp>
-						</>
+						<ErrorComp message={state.error.message}></ErrorComp>
 					) : null}
 				</>
 			) : null}
