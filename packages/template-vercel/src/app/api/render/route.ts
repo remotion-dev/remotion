@@ -1,27 +1,19 @@
 import { waitUntil } from "@vercel/functions";
-import path from "path";
 import { RenderRequest } from "../../../../types/schema";
-import { COMP_NAME } from "../../../../types/constants";
-import { VERSION } from "remotion/version";
 import {
-	createDisposableSandbox,
 	createDisposableWriter,
-	ensureLocalBundle,
 	formatSSE,
-	getEnsureBrowserScript,
-	getRemotionBundleFiles,
-	getRenderScript,
-	SSEMessage,
+	type RenderProgress,
 } from "./helpers";
-import { BUILD_DIR } from "../../../../build-dir.mjs";
-import type { RenderConfig } from "../../../../render";
+import { getOrCreateSandbox } from "./get-or-create-sandbox";
+import { runRenderInSandbox } from "./run-render-in-sandbox";
 
 export async function POST(req: Request) {
 	const encoder = new TextEncoder();
 	const stream = new TransformStream();
 	const writer = stream.writable.getWriter();
 
-	const send = async (message: SSEMessage) => {
+	const send = async (message: RenderProgress) => {
 		await writer.write(encoder.encode(formatSSE(message)));
 	};
 
@@ -33,253 +25,11 @@ export async function POST(req: Request) {
 			const payload = await req.json();
 			const body = RenderRequest.parse(payload);
 
-			await send({ type: "phase", phase: "Bundling video...", progress: 0 });
-			await ensureLocalBundle();
-
-			await send({ type: "phase", phase: "Creating sandbox...", progress: 0 });
-
-			await using sandbox = await createDisposableSandbox({
-				runtime: "node24",
-				timeout: 5 * 60 * 1000,
-			});
-
-			const preparingPhase = "Preparing machine...";
-			const preparingSubtitle = process.env.VERCEL
-				? "This only needs to be done once."
-				: "This is only needed during development.";
-
-			// Preparation has 3 stages with weights:
-			// - System dependencies: 60%
-			// - Copying bundle: 20%
-			// - Downloading browser: 20%
-			const WEIGHT_SYS_DEPS = 0.6;
-			const WEIGHT_BUNDLE = 0.2;
-			const WEIGHT_BROWSER = 0.2;
-
-			await send({ type: "phase", phase: preparingPhase, subtitle: preparingSubtitle, progress: 0 });
-
-			// Stage 1: Install system dependencies (60%)
-			const sysInstallCmd = await sandbox.runCommand({
-				cmd: "sudo",
-				args: [
-					"dnf",
-					"install",
-					"-y",
-					"nss",
-					"atk",
-					"at-spi2-atk",
-					"cups-libs",
-					"libdrm",
-					"libXcomposite",
-					"libXdamage",
-					"libXrandr",
-					"mesa-libgbm",
-					"alsa-lib",
-					"pango",
-					"gtk3",
-				],
-				detached: true,
-			});
-
-			// We empirically tested how many lines are printed to stdout when installing the system dependencies:
-			const EXPECTED_SYS_INSTALL_LINES = 272;
-			let sysInstallLineCount = 0;
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			for await (const _log of sysInstallCmd.logs()) {
-				sysInstallLineCount++;
-				const stageProgress = Math.min(
-					sysInstallLineCount / EXPECTED_SYS_INSTALL_LINES,
-					1,
-				);
-				await send({
-					type: "phase",
-					phase: preparingPhase,
-					subtitle: preparingSubtitle,
-					progress: stageProgress * WEIGHT_SYS_DEPS,
-				});
-			}
-
-			const sysInstallResult = await sysInstallCmd.wait();
-			if (sysInstallResult.exitCode !== 0) {
-				throw new Error(
-					`System dependencies install failed: ${await sysInstallResult.stderr()}`,
-				);
-			}
-
-			// Stage 2: Copy Remotion bundle (20%)
-			const bundleFiles = await getRemotionBundleFiles();
-
-			// Create the directories first
-			const dirs = new Set<string>();
-			for (const file of bundleFiles) {
-				const dir = path.dirname(file.path);
-				if (dir && dir !== ".") {
-					dirs.add(dir);
-				}
-			}
-
-			for (const dir of Array.from(dirs).sort()) {
-				await sandbox.mkDir(BUILD_DIR + "/" + dir);
-			}
-
-			// Write all files to the sandbox
-			await sandbox.writeFiles(
-				bundleFiles.map((file) => ({
-					path: BUILD_DIR + "/" + file.path,
-					content: file.content,
-				})),
-			);
-
-			await send({
-				type: "phase",
-				phase: preparingPhase,
-				subtitle: preparingSubtitle,
-				progress: WEIGHT_SYS_DEPS + WEIGHT_BUNDLE,
-			});
-
-			// Install renderer and blob SDK (part of bundle stage, no separate progress)
-			const installCmd = await sandbox.runCommand({
-				cmd: "pnpm",
-				args: [`i`, `@remotion/renderer@${VERSION}`, `@vercel/blob`],
-				detached: true,
-			});
-
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			for await (const _log of installCmd.logs()) {
-				// Consume logs without displaying
-			}
-
-			const installResult = await installCmd.wait();
-			if (installResult.exitCode !== 0) {
-				throw new Error(`pnpm install failed: ${await installResult.stderr()}`);
-			}
-
-			// Stage 3: Download browser (20%)
-			const ensureBrowserScript = await getEnsureBrowserScript();
-			await sandbox.writeFiles([
-				{
-					path: "ensure-browser.ts",
-					content: ensureBrowserScript,
-				},
-			]);
-
-			const ensureBrowserCmd = await sandbox.runCommand({
-				cmd: "node",
-				args: ["--strip-types", "ensure-browser.ts"],
-				detached: true,
-			});
-
-			for await (const log of ensureBrowserCmd.logs()) {
-				// Parse browser download progress from JSON output
-				if (log.stream === "stdout") {
-					try {
-						const message = JSON.parse(log.data);
-						if (message.type === "browser-progress") {
-							const browserProgress = message.percent ?? 0;
-							await send({
-								type: "phase",
-								phase: preparingPhase,
-								subtitle: preparingSubtitle,
-								progress:
-									WEIGHT_SYS_DEPS +
-									WEIGHT_BUNDLE +
-									browserProgress * WEIGHT_BROWSER,
-							});
-							continue;
-						}
-					} catch {
-						// Not JSON, ignore
-					}
-				}
-				// Ignore other logs during preparation
-			}
-
-			const ensureBrowserResult = await ensureBrowserCmd.wait();
-			if (ensureBrowserResult.exitCode !== 0) {
-				throw new Error(
-					`ensure-browser failed: ${await ensureBrowserResult.stderr()} ${await ensureBrowserResult.stdout()}`,
-				);
-			}
-
-			const renderingPhase = "Rendering video...";
-			await send({ type: "phase", phase: renderingPhase, progress: 0 });
-
-			// Use the local bundle copied to the sandbox
-			const serveUrl = `/vercel/sandbox/${BUILD_DIR}`;
-
-			const renderScript = await getRenderScript();
-			await sandbox.writeFiles([
-				{
-					path: "render.ts",
-					content: renderScript,
-				},
-			]);
-
-			const renderId = crypto.randomUUID();
-			const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
-			if (!blobToken) {
-				throw new Error("BLOB_READ_WRITE_TOKEN is not set");
-			}
-
-			const renderConfig: RenderConfig = {
-				serveUrl,
-				compositionId: COMP_NAME,
+			await using sandbox = await getOrCreateSandbox(send);
+			await runRenderInSandbox({
+				sandbox,
 				inputProps: body.inputProps,
-				blobToken,
-				blobPath: `renders/${renderId}.mp4`,
-			};
-
-			// Run the render script
-			const renderCmd = await sandbox.runCommand({
-				cmd: "node",
-				args: ["--strip-types", "render.ts", JSON.stringify(renderConfig)],
-				detached: true,
-			});
-
-			let doneUrl: string | null = null;
-			let doneSize: number | null = null;
-
-			for await (const log of renderCmd.logs()) {
-				if (log.stream === "stdout") {
-					try {
-						const message = JSON.parse(log.data);
-						if (message.type === "progress") {
-							await send({
-								type: "phase",
-								phase: renderingPhase,
-								progress: message.progress,
-							});
-						} else if (message.type === "uploading") {
-							await send({
-								type: "phase",
-								phase: "Uploading video...",
-								progress: 1,
-							});
-						} else if (message.type === "done") {
-							doneUrl = message.url;
-							doneSize = message.size;
-						}
-					} catch {
-						// Not JSON, ignore
-					}
-				}
-			}
-
-			const renderResult = await renderCmd.wait();
-			if (renderResult.exitCode !== 0) {
-				const stderr = await renderResult.stderr();
-				const stdout = await renderResult.stdout();
-				throw new Error(`Render failed: ${stderr} ${stdout}`);
-			}
-
-			if (!doneUrl || doneSize === null) {
-				throw new Error("Render script did not return upload result");
-			}
-
-			await send({
-				type: "done",
-				url: doneUrl,
-				size: doneSize,
+				onProgress: send,
 			});
 		} catch (err) {
 			console.log(err);
