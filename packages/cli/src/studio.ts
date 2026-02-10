@@ -39,6 +39,7 @@ const {
 	askAIOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
+	forceNewOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -176,7 +177,7 @@ export const studioCommand = async (
 		audioLatencyHint: parsedCli['audio-latency-hint'],
 		enableCrossSiteIsolation,
 		askAIEnabled,
-		forceNew: parsedCli['force-new'],
+		forceNew: forceNewOption.getValue({commandLine: parsedCli}).value,
 	});
 
 	if (result.type === 'already-running') {
