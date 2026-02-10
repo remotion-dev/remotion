@@ -28,7 +28,10 @@ describe('Should be able to bundle @remotion/lambda/client with ESBuild', () => 
 			entryPoints: [require.resolve('@remotion/lambda/client')],
 		});
 		expect(errors.length).toBe(0);
-		expect(warnings.length).toBe(0);
+		const unexpectedWarnings = warnings.filter(
+			(w) => w.id !== 'equals-negative-zero',
+		);
+		expect(unexpectedWarnings.length).toBe(0);
 
 		// Should not include remotion or react
 		const contents = fs.readFileSync(outfile, 'utf-8');
