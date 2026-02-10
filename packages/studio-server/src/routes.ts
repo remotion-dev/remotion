@@ -7,7 +7,6 @@ import type {
 	RenderJob,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import type {RemotionConfigResponse} from './remotion-config-response';
 import {SOURCE_MAP_ENDPOINT, getProjectName} from '@remotion/studio-shared';
 import fs, {createWriteStream} from 'fs';
 import {createReadStream, existsSync, statSync} from 'node:fs';
@@ -29,6 +28,7 @@ import type {LiveEventsServer} from './preview-server/live-events';
 import {parseRequestBody} from './preview-server/parse-body';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {serveStatic} from './preview-server/serve-static';
+import type {RemotionConfigResponse} from './remotion-config-response';
 
 const editorGuess = guessEditor();
 

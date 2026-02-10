@@ -23,9 +23,7 @@ import {startServer} from './preview-server/start-server';
 import {printServerReadyComment, setServerReadyComment} from './server-ready';
 import {watchRootFile} from './watch-root-file';
 
-export type StartStudioResult =
-	| {type: 'restarted'}
-	| {type: 'already-running'};
+export type StartStudioResult = {type: 'restarted'} | {type: 'already-running'};
 
 export const startStudio = async ({
 	browserArgs,
