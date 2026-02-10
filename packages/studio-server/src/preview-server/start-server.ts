@@ -9,12 +9,25 @@ import type {
 } from '@remotion/studio-shared';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
+import {detectRemotionServer} from '../detect-remotion-server';
 import {handleRoutes} from '../routes';
 import type {QueueMethods} from './api-types';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
 import type {LiveEventsServer} from './live-events';
 import {makeLiveEventsRouter} from './live-events';
+
+export type StartServerResult =
+	| {
+			type: 'started';
+			port: number;
+			liveEventsServer: LiveEventsServer;
+			close: () => Promise<void>;
+	  }
+	| {
+			type: 'already-running';
+			port: number;
+	  };
 
 export const startServer = async (options: {
 	entry: string;
@@ -45,11 +58,17 @@ export const startServer = async (options: {
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	enableCrossSiteIsolation: boolean;
 	askAIEnabled: boolean;
-}): Promise<{
-	port: number;
-	liveEventsServer: LiveEventsServer;
-	close: () => Promise<void>;
-}> => {
+	forceNew: boolean;
+}): Promise<StartServerResult> => {
+	const desiredPort =
+		options?.port ??
+		(process.env.PORT ? Number(process.env.PORT) : undefined) ??
+		undefined;
+
+	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
+	const from = desiredPort ?? 3000;
+	const to = desiredPort ?? 3100;
+
 	const [, config] = await BundlerInternals.webpackConfig({
 		entry: options.entry,
 		userDefinedComponent: options.userDefinedComponent,
@@ -137,60 +156,38 @@ export const startServer = async (options: {
 			});
 	});
 
-	const desiredPort =
-		options?.port ??
-		(process.env.PORT ? Number(process.env.PORT) : undefined) ??
-		undefined;
+	const cleanup = async () => {
+		await Promise.all([
+			new Promise<void>((resolve) => {
+				server.close(() => resolve());
+			}),
+			new Promise<void>((resolve) => {
+				compiler.close(() => resolve());
+			}),
+		]);
+	};
 
-	const maxTries = 5;
-
-	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
-
-	for (let i = 0; i < maxTries; i++) {
+	for (let portToTry = from; portToTry <= to; portToTry++) {
 		try {
 			const selectedPort = await new Promise<number>((resolve, reject) => {
-				RenderInternals.getDesiredPort({
-					desiredPort,
-					from: 3000,
-					to: 3100,
-					hostsToTry: portConfig.hostsToTry,
-				})
-					.then(({port, unlockPort}) => {
-						RenderInternals.Log.verbose(
-							{indent: false, logLevel: options.logLevel},
-							`Binding server to host ${portConfig.host}, port ${port}`,
-						);
-						server.listen({
-							port,
-							host: portConfig.host,
-						});
-						server.on('listening', () => {
-							resolve(port);
-							return unlockPort();
-						});
-						server.on('error', (err) => {
-							reject(err);
-						});
-					})
-					.catch((err) => reject(err));
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel: options.logLevel},
+					`Binding server to host ${portConfig.host}, port ${portToTry}`,
+				);
+				server.listen({
+					port: portToTry,
+					host: portConfig.host,
+				});
+				server.once('listening', () => resolve(portToTry));
+				server.once('error', (err) => reject(err));
 			});
 			return {
-				port: selectedPort as number,
+				type: 'started' as const,
+				port: selectedPort,
 				liveEventsServer,
 				close: async () => {
 					server.closeAllConnections();
-					await Promise.all([
-						new Promise<void>((resolve) => {
-							server.close(() => {
-								resolve();
-							});
-						}),
-						new Promise<void>((resolve) => {
-							compiler.close(() => {
-								resolve();
-							});
-						}),
-					]);
+					await cleanup();
 				},
 			};
 		} catch (err) {
@@ -198,18 +195,45 @@ export const startServer = async (options: {
 				throw err;
 			}
 
-			const codedError = err as Error & {code: string; port: number};
+			const codedError = err as Error & {code: string};
 
 			if (codedError.code === 'EADDRINUSE') {
-				RenderInternals.Log.error(
+				if (!options.forceNew) {
+					const detection = await detectRemotionServer({
+						port: portToTry,
+						cwd: options.remotionRoot,
+						hostname: portConfig.hostsToTry[0],
+					});
+
+					if (detection.type === 'match') {
+						await cleanup();
+						return {
+							type: 'already-running' as const,
+							port: portToTry,
+						};
+					}
+				}
+
+				if (desiredPort) {
+					await cleanup();
+					throw new Error(
+						`You specified port ${desiredPort} to be used for the HTTP server, but it is not available. Choose a different port or remove the setting to let Remotion automatically select a free port.`,
+					);
+				}
+
+				RenderInternals.Log.verbose(
 					{indent: false, logLevel: options.logLevel},
-					`Port ${codedError.port} is already in use. Trying another port...`,
+					`Port ${portToTry} is already in use. Trying another port...`,
 				);
-			} else {
-				throw err;
+				continue;
 			}
+
+			throw err;
 		}
 	}
 
-	throw new Error(`Tried ${maxTries} times to find a free port. Giving up.`);
+	await cleanup();
+	throw new Error(
+		`Could not find a free port in the range ${from}-${to}. Giving up.`,
+	);
 };

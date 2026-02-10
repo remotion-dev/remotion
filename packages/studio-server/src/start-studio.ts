@@ -9,9 +9,7 @@ import type {
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
-import {detectRemotionServer} from './detect-remotion-server';
 import {getNetworkAddress} from './get-network-address';
-import {isPortOpen} from './is-port-open';
 import {maybeOpenBrowser} from './maybe-open-browser';
 import type {QueueMethods} from './preview-server/api-types';
 import {noOpUntilRestart} from './preview-server/close-and-restart';
@@ -90,37 +88,6 @@ export const startStudio = async ({
 	askAIEnabled: boolean;
 	forceNew: boolean;
 }): Promise<StartStudioResult> => {
-	const portToCheck = desiredPort ?? 3000;
-	const portConfig = RenderInternals.getPortConfig(forceIPv4);
-
-	if (!forceNew) {
-		const isFree = await isPortOpen(portToCheck);
-
-		if (!isFree) {
-			const detection = await detectRemotionServer({
-				port: portToCheck,
-				cwd: remotionRoot,
-				hostname: portConfig.hostsToTry[0],
-			});
-
-			if (detection.type === 'match') {
-				RenderInternals.Log.info(
-					{indent: false, logLevel},
-					`Remotion Studio already running on port ${portToCheck}. Opening browser...`,
-				);
-				await maybeOpenBrowser({
-					browserArgs,
-					browserFlag,
-					configValueShouldOpenBrowser,
-					parsedCliOpen,
-					url: `http://localhost:${portToCheck}`,
-					logLevel,
-				});
-				return {type: 'already-running'};
-			}
-		}
-	}
-
 	try {
 		if (typeof Bun === 'undefined') {
 			process.title = 'node (npx remotion studio)';
@@ -165,7 +132,7 @@ export const startStudio = async ({
 		staticHash,
 	});
 
-	const {port, liveEventsServer, close} = await startServer({
+	const result = await startServer({
 		entry: path.resolve(previewEntry),
 		userDefinedComponent: fullEntryPath,
 		getCurrentInputProps,
@@ -194,7 +161,26 @@ export const startStudio = async ({
 		audioLatencyHint,
 		enableCrossSiteIsolation,
 		askAIEnabled,
+		forceNew,
 	});
+
+	if (result.type === 'already-running') {
+		RenderInternals.Log.info(
+			{indent: false, logLevel},
+			`Remotion Studio already running on port ${result.port}. Opening browser...`,
+		);
+		await maybeOpenBrowser({
+			browserArgs,
+			browserFlag,
+			configValueShouldOpenBrowser,
+			parsedCliOpen,
+			url: `http://localhost:${result.port}`,
+			logLevel,
+		});
+		return {type: 'already-running'};
+	}
+
+	const {port, liveEventsServer, close} = result;
 
 	const cleanupLiveEventsListener = setLiveEventsListener(liveEventsServer);
 	const networkAddress = getNetworkAddress();
