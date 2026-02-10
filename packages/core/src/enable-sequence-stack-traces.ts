@@ -15,10 +15,12 @@ const enableProxy = <
 		apply(target, thisArg, argArray) {
 			if (componentsToAddStacksTo.includes(argArray[0])) {
 				const [first, props, ...rest] = argArray;
-				const newProps = {
-					...(props ?? {}),
-					stack: new Error().stack,
-				};
+				const newProps = props.stack
+					? props
+					: {
+							...(props ?? {}),
+							stack: new Error().stack,
+						};
 
 				return Reflect.apply(target, thisArg, [first, newProps, ...rest]);
 			}
