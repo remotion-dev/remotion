@@ -28,6 +28,7 @@ describe('Should be able to bundle @remotion/lambda/client with ESBuild', () => 
 			entryPoints: [require.resolve('@remotion/lambda/client')],
 		});
 		expect(errors.length).toBe(0);
+		// AWS SDK code compares with -0 using ===, which is fine but triggers an esbuild warning
 		const unexpectedWarnings = warnings.filter(
 			(w) => w.id !== 'equals-negative-zero',
 		);
