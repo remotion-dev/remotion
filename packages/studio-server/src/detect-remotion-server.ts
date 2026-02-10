@@ -24,10 +24,19 @@ export const detectRemotionServer = ({
 				timeout: 1000,
 			},
 			(res) => {
+				if (res.statusCode !== 200) {
+					res.resume();
+					return resolve({type: 'not-remotion'});
+				}
+
 				let data = '';
 
 				res.on('data', (chunk) => {
 					data += chunk;
+				});
+
+				res.on('error', () => {
+					resolve({type: 'not-remotion'});
 				});
 
 				res.on('end', () => {
@@ -57,7 +66,6 @@ export const detectRemotionServer = ({
 		req.on('error', () => resolve({type: 'not-remotion'}));
 		req.on('timeout', () => {
 			req.destroy();
-			resolve({type: 'not-remotion'});
 		});
 	});
 };
