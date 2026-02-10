@@ -1,4 +1,6 @@
 import { Sandbox } from "@vercel/sandbox";
+import { execSync } from "child_process";
+import { existsSync } from "fs";
 import { readdir, readFile } from "fs/promises";
 import path from "path";
 import { BUILD_DIR } from "../../../../build-dir.mjs";
@@ -52,13 +54,31 @@ export async function getRemotionBundleFiles(): Promise<
 }
 
 export type SSEMessage =
-	| { type: "progress"; progress: number }
-	| { type: "phase"; phase: string }
+	| { type: "phase"; phase: string; progress: number; subtitle?: string }
 	| { type: "done"; url: string; size: number }
 	| { type: "error"; message: string };
 
 export function formatSSE(message: SSEMessage): string {
 	return `data: ${JSON.stringify(message)}\n\n`;
+}
+
+export async function ensureLocalBundle(): Promise<void> {
+	if (process.env.VERCEL) {
+		return;
+	}
+
+	const bundleDir = path.join(process.cwd(), BUILD_DIR);
+	if (!existsSync(bundleDir)) {
+		try {
+			execSync(`node_modules/.bin/remotion bundle --out-dir ./${BUILD_DIR}`, {
+				cwd: process.cwd(),
+				stdio: "pipe",
+			});
+		} catch (e) {
+			const stderr = (e as { stderr?: Buffer }).stderr?.toString() ?? "";
+			throw new Error(`Remotion bundle failed: ${stderr}`);
+		}
+	}
 }
 
 export async function getRenderScript(): Promise<Buffer> {

@@ -18,7 +18,6 @@ export type RenderResponse =
 	  };
 
 export type SSEMessage =
-	| { type: "progress"; progress: number }
-	| { type: "phase"; phase: string }
+	| { type: "phase"; phase: string; progress: number; subtitle?: string }
 	| { type: "done"; url: string; size: number }
 	| { type: "error"; message: string };

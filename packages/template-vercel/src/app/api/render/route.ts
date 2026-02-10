@@ -7,6 +7,7 @@ import { VERSION } from "remotion/version";
 import {
 	createDisposableSandbox,
 	createDisposableWriter,
+	ensureLocalBundle,
 	formatSSE,
 	getEnsureBrowserScript,
 	getRemotionBundleFiles,
@@ -33,14 +34,20 @@ export async function POST(req: Request) {
 			const payload = await req.json();
 			const body = RenderRequest.parse(payload);
 
-			await send({ type: "phase", phase: "Creating sandbox..." });
+			await send({ type: "phase", phase: "Bundling video...", progress: 0 });
+			await ensureLocalBundle();
+
+			await send({ type: "phase", phase: "Creating sandbox...", progress: 0 });
 
 			await using sandbox = await createDisposableSandbox({
 				runtime: "node24",
 				timeout: 5 * 60 * 1000,
 			});
 
-			await send({ type: "phase", phase: "Preparing machine..." });
+			const preparingPhase = "Preparing machine...";
+			const preparingSubtitle = process.env.VERCEL
+				? "This only needs to be done once."
+				: "This is only needed during development.";
 
 			// Preparation has 3 stages with weights:
 			// - System dependencies: 60%
@@ -49,6 +56,8 @@ export async function POST(req: Request) {
 			const WEIGHT_SYS_DEPS = 0.6;
 			const WEIGHT_BUNDLE = 0.2;
 			const WEIGHT_BROWSER = 0.2;
+
+			await send({ type: "phase", phase: preparingPhase, subtitle: preparingSubtitle, progress: 0 });
 
 			// Stage 1: Install system dependencies (60%)
 			const sysInstallCmd = await sandbox.runCommand({
@@ -84,7 +93,9 @@ export async function POST(req: Request) {
 					1,
 				);
 				await send({
-					type: "progress",
+					type: "phase",
+					phase: preparingPhase,
+					subtitle: preparingSubtitle,
 					progress: stageProgress * WEIGHT_SYS_DEPS,
 				});
 			}
@@ -121,7 +132,9 @@ export async function POST(req: Request) {
 			);
 
 			await send({
-				type: "progress",
+				type: "phase",
+				phase: preparingPhase,
+				subtitle: preparingSubtitle,
 				progress: WEIGHT_SYS_DEPS + WEIGHT_BUNDLE,
 			});
 
@@ -165,7 +178,8 @@ export async function POST(req: Request) {
 						if (message.type === "browser-progress") {
 							const browserProgress = message.percent ?? 0;
 							await send({
-								type: "progress",
+								type: "phase",
+								phase: preparingPhase,
 								progress:
 									WEIGHT_SYS_DEPS +
 									WEIGHT_BUNDLE +
@@ -187,7 +201,8 @@ export async function POST(req: Request) {
 				);
 			}
 
-			await send({ type: "phase", phase: "Rendering video..." });
+			const renderingPhase = "Rendering video...";
+			await send({ type: "phase", phase: renderingPhase, progress: 0 });
 
 			// Use the local bundle copied to the sandbox
 			const serveUrl = `/vercel/sandbox/${BUILD_DIR}`;
@@ -218,7 +233,11 @@ export async function POST(req: Request) {
 					try {
 						const message = JSON.parse(log.data);
 						if (message.type === "progress") {
-							await send({ type: "progress", progress: message.progress });
+							await send({
+								type: "phase",
+								phase: renderingPhase,
+								progress: message.progress,
+							});
 						}
 					} catch {
 						// Not JSON, ignore
@@ -233,7 +252,7 @@ export async function POST(req: Request) {
 				throw new Error(`Render failed: ${stderr} ${stdout}`);
 			}
 
-			await send({ type: "phase", phase: "Uploading video..." });
+			await send({ type: "phase", phase: "Uploading video...", progress: 1 });
 
 			const videoBuffer = await sandbox.readFileToBuffer({
 				path: "/tmp/video.mp4",
@@ -250,7 +269,7 @@ export async function POST(req: Request) {
 
 			await send({
 				type: "done",
-				url: blob.url,
+				url: blob.downloadUrl,
 				size: videoBuffer.length,
 			});
 		} catch (err) {

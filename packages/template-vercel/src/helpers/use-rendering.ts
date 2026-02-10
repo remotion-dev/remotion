@@ -11,6 +11,7 @@ export type State =
 			status: "invoking";
 			phase: string;
 			progress: number;
+			subtitle: string | null;
 	  }
 	| {
 			status: "error";
@@ -35,6 +36,7 @@ export const useRendering = (
 			status: "invoking",
 			phase: "Starting...",
 			progress: 0,
+			subtitle: null,
 		});
 
 		try {
@@ -66,20 +68,14 @@ export const useRendering = (
 					const json = line.slice(6);
 					const message = JSON.parse(json) as SSEMessage;
 
-					if (message.type === "progress") {
-						setState((prev) => {
-							if (prev.status !== "invoking") return prev;
-							return {
-								...prev,
-								progress: message.progress,
-							};
-						});
-					} else if (message.type === "phase") {
+					if (message.type === "phase") {
 						setState((prev) => {
 							if (prev.status !== "invoking") return prev;
 							return {
 								...prev,
 								phase: message.phase,
+								progress: message.progress,
+								subtitle: message.subtitle ?? null,
 							};
 						});
 					} else if (message.type === "done") {
