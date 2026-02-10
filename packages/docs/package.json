@@ -86,6 +86,7 @@
 		"@turf/turf": "7.3.2",
 		"@types/mapbox-gl": "3.4.1",
 		"@types/uuid": "^8.3.4",
+		"@vercel/config": "^0.0.28",
 		"@vercel/functions": "^3.1.4",
 		"chalk": "4.1.2",
 		"clipboard": "^2.0.8",
