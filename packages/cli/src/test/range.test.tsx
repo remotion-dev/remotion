@@ -140,4 +140,10 @@ describe('getRealFrameRange resolves open-ended ranges', () => {
 	test('resolves null to full range', () => {
 		expect(RenderInternals.getRealFrameRange(3600, null)).toEqual([0, 3599]);
 	});
+
+	test('throws if open-ended start is beyond composition duration', () => {
+		expect(() =>
+			RenderInternals.getRealFrameRange(3600, [5000, null]),
+		).toThrow(/not inbetween/);
+	});
 });
