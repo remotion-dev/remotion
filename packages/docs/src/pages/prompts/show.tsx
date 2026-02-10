@@ -1,20 +1,22 @@
-import Head from '@docusaurus/Head';
-import '@remotion/promo-pages/dist/prompts/PromptsShow.css';
-import {PromptsShowPage} from '@remotion/promo-pages/dist/prompts/PromptsShow.js';
+import {useHistory} from '@docusaurus/router';
 import Layout from '@theme/Layout';
-import React from 'react';
+import React, {useEffect} from 'react';
 
 export default () => {
+	const history = useHistory();
+
+	useEffect(() => {
+		const slug = new URLSearchParams(window.location.search).get('prompt');
+		if (slug) {
+			history.replace(`/prompts/${slug}`);
+		} else {
+			history.replace('/prompts');
+		}
+	}, [history]);
+
 	return (
 		<Layout>
-			<Head>
-				<title>Remotion | Prompt</title>
-				<meta
-					name="description"
-					content="View an AI-generated video prompt for Remotion."
-				/>
-			</Head>
-			<PromptsShowPage />
+			<div style={{padding: 40, textAlign: 'center'}}>Redirecting...</div>
 		</Layout>
 	);
 };
