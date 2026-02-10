@@ -66,6 +66,7 @@ const VideoAppsShowcase: React.FC = () => {
 	const [activeTab, setActiveTab] = useState(0);
 	const [isMuted, setIsMuted] = useState(true);
 	const [isPlaying, setIsPlaying] = useState(false);
+	const [videoLoaded, setVideoLoaded] = useState(false);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -74,13 +75,20 @@ const VideoAppsShowcase: React.FC = () => {
 		const video = videoRef.current;
 		if (video) {
 			video.pause();
-			setIsPlaying(false);
 			video.currentTime = 0;
 			video.load();
 		}
+
+		setIsPlaying(false);
+		setVideoLoaded(false);
 	}, [activeTab]);
 
 	const handlePlayPause = () => {
+		if (!videoLoaded) {
+			setVideoLoaded(true);
+			return;
+		}
+
 		if (videoRef.current) {
 			if (videoRef.current.paused) {
 				const playPromise = videoRef.current.play();
@@ -143,6 +151,7 @@ const VideoAppsShowcase: React.FC = () => {
 						}
 						onClick={handlePlayPause}
 					>
+						{videoLoaded ? (
 						<MuxVideo
 							ref={videoRef}
 							muxId={videoApps[activeTab].muxId}
@@ -152,7 +161,18 @@ const VideoAppsShowcase: React.FC = () => {
 							loop
 							playsInline
 							muted={isMuted}
+							autoPlay
+							onPlay={() => setIsPlaying(true)}
 						/>
+					) : (
+						<img
+							src={`https://image.mux.com/${videoApps[activeTab].muxId}/thumbnail.png?time=1`}
+							className={
+								'absolute left-0 top-0 w-full h-full object-contain rounded-sm rounded-tr-none rounded-br-none'
+							}
+							alt={videoApps[activeTab].title}
+						/>
+					)}
 
 						{/* Play/Pause Button - bottom left corner */}
 						<button
