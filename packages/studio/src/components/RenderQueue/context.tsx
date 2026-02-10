@@ -1,4 +1,4 @@
-import type {RenderJob} from '@remotion/studio-shared';
+import type {CompletedClientRender, RenderJob} from '@remotion/studio-shared';
 import React, {
 	createRef,
 	useCallback,
@@ -26,14 +26,22 @@ import type {
 	ClientRenderMetadata,
 	ClientStillRenderJob,
 	ClientVideoRenderJob,
-	GetBlobCallback,
+	RestoredClientRenderJob,
 } from './client-side-render-types';
 
 declare global {
 	interface Window {
 		remotion_initialRenderQueue: RenderJob[] | null;
+		remotion_initialClientRenders: CompletedClientRender[] | null;
 	}
 }
+
+const restorePersistedClientRenders = (): RestoredClientRenderJob[] => {
+	const persisted = window.remotion_initialClientRenders ?? [];
+	return persisted.map(
+		(r): RestoredClientRenderJob => ({...r, status: 'done'}),
+	);
+};
 
 export type AnyRenderJob = RenderJob | ClientRenderJob;
 
@@ -59,11 +67,8 @@ type RenderQueueContextType = {
 		jobId: string,
 		progress: ClientRenderJobProgress,
 	) => void;
-	markClientJobDone: (
-		jobId: string,
-		getBlob: GetBlobCallback,
-		metadata: ClientRenderMetadata,
-	) => void;
+	markClientJobSaving: (jobId: string) => void;
+	markClientJobDone: (jobId: string, metadata: ClientRenderMetadata) => void;
 	markClientJobFailed: (jobId: string, error: Error) => void;
 	markClientJobCancelled: (jobId: string) => void;
 	removeClientJob: (jobId: string) => void;
@@ -85,6 +90,7 @@ export const RenderQueueContext = React.createContext<RenderQueueContextType>({
 	addClientStillJob: noopString,
 	addClientVideoJob: noopString,
 	updateClientJobProgress: noop,
+	markClientJobSaving: noop,
 	markClientJobDone: noop,
 	markClientJobFailed: noop,
 	markClientJobCancelled: noop,
@@ -97,6 +103,7 @@ export const RenderQueueContext = React.createContext<RenderQueueContextType>({
 
 export const renderJobsRef = createRef<{
 	updateRenderJobs: (jobs: RenderJob[]) => void;
+	updateClientRenders: (renders: CompletedClientRender[]) => void;
 }>();
 
 export const RenderQueueContextProvider: React.FC<{
@@ -105,7 +112,9 @@ export const RenderQueueContextProvider: React.FC<{
 	const [serverJobs, setServerJobs] = useState<RenderJob[]>(
 		window.remotion_initialRenderQueue ?? [],
 	);
-	const [clientJobs, setClientJobs] = useState<ClientRenderJob[]>([]);
+	const [clientJobs, setClientJobs] = useState<ClientRenderJob[]>(
+		restorePersistedClientRenders,
+	);
 	const [currentlyProcessing, setCurrentlyProcessing] = useState<string | null>(
 		null,
 	);
@@ -194,19 +203,25 @@ export const RenderQueueContextProvider: React.FC<{
 		[],
 	);
 
+	const markClientJobSaving = useCallback((jobId: string): void => {
+		setClientJobs((prev) =>
+			prev.map((job) =>
+				job.id === jobId
+					? ({...job, status: 'saving'} as ClientRenderJob)
+					: job,
+			),
+		);
+	}, []);
+
 	const markClientJobDone = useCallback(
-		(
-			jobId: string,
-			getBlob: GetBlobCallback,
-			metadata: ClientRenderMetadata,
-		): void => {
+		(jobId: string, metadata: ClientRenderMetadata): void => {
 			deleteAbortController(jobId);
 			cleanupCompositionForJob(jobId);
 
 			setClientJobs((prev) =>
 				prev.map((job) =>
 					job.id === jobId
-						? ({...job, status: 'done', getBlob, metadata} as ClientRenderJob)
+						? ({...job, status: 'done', metadata} as ClientRenderJob)
 						: job,
 				),
 			);
@@ -243,10 +258,10 @@ export const RenderQueueContextProvider: React.FC<{
 		setClientJobs((prev) =>
 			prev.map((job) =>
 				job.id === jobId
-					? {
+					? ({
 							...job,
 							status: 'cancelled',
-						}
+						} as ClientRenderJob)
 					: job,
 			),
 		);
@@ -283,6 +298,29 @@ export const RenderQueueContextProvider: React.FC<{
 			updateRenderJobs: (newJobs) => {
 				setServerJobs(newJobs);
 			},
+			updateClientRenders: (renders: CompletedClientRender[]) => {
+				setClientJobs((prev) => {
+					const existingIds = new Set(prev.map((j) => j.id));
+					const updatedPrev = prev.map((job) => {
+						const updated = renders.find((r) => r.id === job.id);
+						if (updated && job.status === 'done') {
+							return {
+								...job,
+								deletedOutputLocation: updated.deletedOutputLocation,
+								metadata: updated.metadata,
+							} as ClientRenderJob;
+						}
+
+						return job;
+					});
+
+					const newJobs = renders
+						.filter((r) => !existingIds.has(r.id))
+						.map((r): RestoredClientRenderJob => ({...r, status: 'done'}));
+
+					return [...updatedPrev, ...newJobs];
+				});
+			},
 		}),
 		[],
 	);
@@ -295,6 +333,7 @@ export const RenderQueueContextProvider: React.FC<{
 			addClientStillJob,
 			addClientVideoJob,
 			updateClientJobProgress,
+			markClientJobSaving,
 			markClientJobDone,
 			markClientJobFailed,
 			markClientJobCancelled,
@@ -310,6 +349,7 @@ export const RenderQueueContextProvider: React.FC<{
 		addClientStillJob,
 		addClientVideoJob,
 		updateClientJobProgress,
+		markClientJobSaving,
 		markClientJobDone,
 		markClientJobFailed,
 		markClientJobCancelled,

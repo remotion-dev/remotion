@@ -11,7 +11,7 @@ import {Internals} from 'remotion';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
-import type {ClientRenderJob} from './client-side-render-types';
+import {isRestoredClientJob} from './client-side-render-types';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
 import {RenderQueueCancelledMessage} from './RenderQueueCancelledMessage';
@@ -27,6 +27,7 @@ import {RenderQueueOutputName} from './RenderQueueOutputName';
 import {RenderQueueProgressMessage} from './RenderQueueProgressMessage';
 import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
 import {RenderQueueRepeatItem} from './RenderQueueRepeat';
+import {RenderQueueSavingMessage} from './RenderQueueSavingMessage';
 
 const container: React.CSSProperties = {
 	padding: 12,
@@ -101,22 +102,8 @@ export const RenderQueueItem: React.FC<{
 			return;
 		}
 
-		if (isClientJob) {
-			const clientJob = job as ClientRenderJob & {status: 'done'};
-
-			setCanvasContent({
-				type: 'output-blob',
-				displayName: job.outName,
-				getBlob: clientJob.getBlob,
-				width: clientJob.metadata.width,
-				height: clientJob.metadata.height,
-				sizeInBytes: clientJob.metadata.sizeInBytes,
-			});
-			return;
-		}
-
 		// Cannot show folders
-		if (job.type === 'sequence') {
+		if (!isClientJob && job.type === 'sequence') {
 			return;
 		}
 
@@ -140,6 +127,17 @@ export const RenderQueueItem: React.FC<{
 		}
 	}, [scrollCurrentIntoView, selected]);
 
+	const canCopyToClipboard =
+		job.status === 'done' &&
+		!isClientJob &&
+		supportsCopyingToClipboard(job as RenderJob);
+
+	const canRepeat =
+		(job.status === 'done' ||
+			job.status === 'failed' ||
+			job.status === 'cancelled') &&
+		!(isClientRenderJob(job) && isRestoredClientJob(job));
+
 	return (
 		<Row
 			onPointerEnter={onPointerEnter}
@@ -160,26 +158,24 @@ export const RenderQueueItem: React.FC<{
 						<RenderQueueError job={job} />
 					) : job.status === 'running' ? (
 						<RenderQueueProgressMessage job={job} />
+					) : job.status === 'saving' ? (
+						<RenderQueueSavingMessage />
 					) : job.status === 'cancelled' ? (
 						<RenderQueueCancelledMessage />
 					) : null}
 				</div>
 			</div>
 			<Spacing x={1} />
-			{!isClientJob && supportsCopyingToClipboard(job as RenderJob) ? (
+			{canCopyToClipboard ? (
 				<RenderQueueCopyToClipboard job={job as RenderJob} />
 			) : null}
-			{job.status === 'done' ||
-			job.status === 'failed' ||
-			job.status === 'cancelled' ? (
-				<RenderQueueRepeatItem job={job} />
-			) : null}
+			{canRepeat ? <RenderQueueRepeatItem job={job} /> : null}
 			{job.status === 'running' ? (
 				<RenderQueueCancelButton job={job} />
 			) : (
 				<RenderQueueRemoveItem job={job} />
 			)}
-			{job.status === 'done' && !isClientJob ? (
+			{job.status === 'done' ? (
 				<RenderQueueOpenInFinderItem job={job as RenderJob} />
 			) : null}
 		</Row>

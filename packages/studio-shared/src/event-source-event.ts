@@ -1,4 +1,5 @@
 import type {StaticFile} from 'remotion';
+import type {CompletedClientRender} from './completed-client-render';
 import type {RenderJob} from './render-job';
 
 export type EventSourceEvent =
@@ -33,6 +34,10 @@ export type EventSourceEvent =
 	| {
 			type: 'watched-file-deleted';
 			file: string;
+	  }
+	| {
+			type: 'client-renders-updated';
+			renders: CompletedClientRender[];
 	  }
 	| {
 			type: 'new-public-folder';

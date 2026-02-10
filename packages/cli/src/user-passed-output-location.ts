@@ -46,7 +46,6 @@ export const getOutputLocation = ({
 			defaultExtension,
 			type,
 			compositionDefaultOutName,
-			clientSideRender: false,
 		})
 	);
 };

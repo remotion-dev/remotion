@@ -314,7 +314,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						: imageFormat,
 			type: 'asset',
 			compositionDefaultOutName: resolvedComposition.defaultOutName,
-			clientSideRender: true,
 		});
 	});
 

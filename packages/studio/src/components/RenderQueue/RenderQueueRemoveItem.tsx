@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
+import {unregisterClientRender} from '../../api/save-render-output';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -22,14 +23,15 @@ export const RenderQueueRemoveItem: React.FC<{
 			if (isClientJob) {
 				if (
 					canvasContent &&
-					canvasContent.type === 'output-blob' &&
+					canvasContent.type === 'output' &&
 					job.status === 'done' &&
-					canvasContent.getBlob === job.getBlob
+					canvasContent.path === `/${job.outName}`
 				) {
 					setCanvasContent(null);
 				}
 
 				removeClientJob(job.id);
+				unregisterClientRender(job.id).catch(() => {});
 				showNotification('Removed job', 2000);
 				return;
 			}

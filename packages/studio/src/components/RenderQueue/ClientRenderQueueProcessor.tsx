@@ -1,3 +1,4 @@
+import type {CompletedClientRender} from '@remotion/studio-shared';
 import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
@@ -6,10 +7,13 @@ import type {
 } from '@remotion/web-renderer';
 import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useEffect} from 'react';
+import {
+	registerClientRender,
+	saveOutputFile,
+} from '../../api/save-render-output';
 import type {
 	ClientRenderJob,
 	ClientRenderJobProgress,
-	ClientRenderMetadata,
 	ClientStillRenderJob,
 	ClientVideoRenderJob,
 	GetBlobCallback,
@@ -39,6 +43,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 		getAbortController,
 		getCompositionForJob,
 		updateClientJobProgress,
+		markClientJobSaving,
 		markClientJobDone,
 		markClientJobFailed,
 		markClientJobCancelled,
@@ -157,10 +162,13 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				let result: RenderResult;
 
 				if (job.type === 'client-still') {
-					result = await processStillJob(job, abortController.signal);
+					result = await processStillJob(
+						job as ClientStillRenderJob,
+						abortController.signal,
+					);
 				} else if (job.type === 'client-video') {
 					result = await processVideoJob(
-						job,
+						job as ClientVideoRenderJob,
 						abortController.signal,
 						updateClientJobProgress,
 					);
@@ -169,14 +177,39 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				}
 
 				const blob = await result.getBlob();
-				downloadBlob(blob, job.outName);
+				markClientJobSaving(job.id);
 
-				const metadata: ClientRenderMetadata = {
-					width: result.width,
-					height: result.height,
-					sizeInBytes: blob.size,
-				};
-				markClientJobDone(job.id, result.getBlob, metadata);
+				try {
+					await saveOutputFile({blob, filePath: job.outName});
+
+					const completedRender: CompletedClientRender = {
+						id: job.id,
+						type: job.type,
+						compositionId: job.compositionId,
+						outName: job.outName,
+						startedAt: job.startedAt,
+						deletedOutputLocation: false,
+						metadata: {
+							width: result.width,
+							height: result.height,
+							sizeInBytes: blob.size,
+						},
+					};
+					await registerClientRender(completedRender);
+
+					markClientJobDone(job.id, {
+						width: result.width,
+						height: result.height,
+						sizeInBytes: blob.size,
+					});
+				} catch {
+					downloadBlob(blob, job.outName);
+					markClientJobDone(job.id, {
+						width: result.width,
+						height: result.height,
+						sizeInBytes: blob.size,
+					});
+				}
 			} catch (err) {
 				if (abortController.signal.aborted) {
 					markClientJobCancelled(job.id);
@@ -190,6 +223,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 			processStillJob,
 			processVideoJob,
 			updateClientJobProgress,
+			markClientJobSaving,
 			markClientJobDone,
 			markClientJobFailed,
 			markClientJobCancelled,

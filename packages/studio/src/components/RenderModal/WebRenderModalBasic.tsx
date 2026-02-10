@@ -239,7 +239,7 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 				outName={outName}
 				onValueChange={onOutNameChange}
 				validationMessage={validationMessage}
-				label="Download name"
+				label="Output name"
 			/>
 			<div style={optionRow}>
 				<div style={label}>

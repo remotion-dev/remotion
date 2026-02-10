@@ -1,3 +1,4 @@
+import type {CompletedClientRender} from '@remotion/studio-shared';
 import type {
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
@@ -24,7 +25,12 @@ export type ClientRenderMetadata = {
 type ClientRenderJobDynamicStatus =
 	| {status: 'idle'}
 	| {status: 'running'; progress: ClientRenderJobProgress}
-	| {status: 'done'; getBlob: GetBlobCallback; metadata: ClientRenderMetadata}
+	| {status: 'saving'}
+	| {
+			status: 'done';
+			getBlob?: GetBlobCallback;
+			metadata: ClientRenderMetadata;
+	  }
 	| {status: 'cancelled'}
 	| {
 			status: 'failed';
@@ -65,4 +71,17 @@ export type ClientVideoRenderJob = ClientRenderJobBase & {
 	muted: boolean;
 } & ClientRenderJobDynamicStatus;
 
-export type ClientRenderJob = ClientStillRenderJob | ClientVideoRenderJob;
+export type RestoredClientRenderJob = CompletedClientRender & {
+	status: 'done';
+};
+
+export type ClientRenderJob =
+	| ClientStillRenderJob
+	| ClientVideoRenderJob
+	| RestoredClientRenderJob;
+
+export const isRestoredClientJob = (
+	job: ClientRenderJob,
+): job is RestoredClientRenderJob => {
+	return !('inputProps' in job);
+};

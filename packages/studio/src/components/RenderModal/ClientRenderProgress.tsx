@@ -102,6 +102,16 @@ export const ClientRenderProgress: React.FC<{
 		);
 	}
 
+	if (job.status === 'saving') {
+		return (
+			<div>
+				<Spacing y={0.5} />
+				<div style={label}>Saving to out/...</div>
+				<Spacing y={1} />
+			</div>
+		);
+	}
+
 	const {renderedFrames, encodedFrames, totalFrames} = job.progress;
 
 	return (

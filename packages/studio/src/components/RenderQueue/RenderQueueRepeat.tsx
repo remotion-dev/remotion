@@ -9,6 +9,10 @@ import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
+import type {
+	ClientStillRenderJob,
+	ClientVideoRenderJob,
+} from './client-side-render-types';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
 
@@ -26,7 +30,9 @@ export const RenderQueueRepeatItem: React.FC<{
 			e.stopPropagation();
 
 			if (isClientJob) {
-				const retryPayload = makeClientRetryPayload(job);
+				const retryPayload = makeClientRetryPayload(
+					job as ClientStillRenderJob | ClientVideoRenderJob,
+				);
 				setSelectedModal(retryPayload);
 			} else {
 				const retryPayload = makeRetryPayload(job as RenderJob);
