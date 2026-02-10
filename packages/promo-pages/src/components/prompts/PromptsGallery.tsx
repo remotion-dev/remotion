@@ -124,7 +124,7 @@ const Pagination: React.FC<{
 	};
 
 	return (
-		<div className="flex items-center justify-center gap-4 mt-12 fontbrand text-sm">
+		<div className="flex items-center justify-center gap-4 mt-12 font-brand text-sm">
 			{currentPage > 1 ? (
 				<a
 					href={getPageUrl(currentPage - 1)}
@@ -146,6 +146,7 @@ const Pagination: React.FC<{
 						<a
 							key={page}
 							href={getPageUrl(page)}
+							style={{fontFeatureSettings: "'ss03' on"}}
 							className={`px-2 py-1 no-underline hover:no-underline ${
 								page === currentPage
 									? 'text-text font-bold'
