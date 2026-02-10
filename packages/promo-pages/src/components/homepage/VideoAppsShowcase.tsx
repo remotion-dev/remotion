@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 
 import {IsMutedIcon, NotMutedIcon, PausedIcon, PlayingIcon} from './Demo/icons';
 import {MuxVideo} from './MuxVideo';
@@ -70,8 +70,7 @@ const VideoAppsShowcase: React.FC = () => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	// Remove the intersection observer autoplay logic
-	useEffect(() => {
+	const handleTabChange = (index: number) => {
 		const video = videoRef.current;
 		if (video) {
 			video.pause();
@@ -81,7 +80,9 @@ const VideoAppsShowcase: React.FC = () => {
 
 		setIsPlaying(false);
 		setVideoLoaded(false);
-	}, [activeTab]);
+		setIsMuted(true);
+		setActiveTab(index);
+	};
 
 	const handlePlayPause = () => {
 		if (!videoLoaded) {
@@ -133,7 +134,7 @@ const VideoAppsShowcase: React.FC = () => {
 						type="button"
 						data-active={index === activeTab}
 						className={`bg-transparent border-none m-0 p-0 lg:mx-3 my-4 cursor-pointer text-base fontbrand font-bold transition-colors text-muted data-[active=true]:text-brand`}
-						onClick={() => setActiveTab(index)}
+						onClick={() => handleTabChange(index)}
 					>
 						{tab}
 					</button>
