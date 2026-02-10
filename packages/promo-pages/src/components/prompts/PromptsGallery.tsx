@@ -124,7 +124,7 @@ const Pagination: React.FC<{
 	};
 
 	return (
-		<div className="flex items-center justify-center gap-4 mt-12 font-brand text-sm">
+		<div className="flex items-center justify-center gap-4 mt-12 fontbrand text-sm">
 			{currentPage > 1 ? (
 				<a
 					href={getPageUrl(currentPage - 1)}
