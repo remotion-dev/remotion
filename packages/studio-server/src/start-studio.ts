@@ -165,9 +165,9 @@ export const startStudio = async ({
 	if (result.type === 'already-running') {
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
-			`Remotion Studio already running on port ${result.port}. Opening browser...`,
+			`Already running on port ${result.port}.`,
 		);
-		await maybeOpenBrowser({
+		const res = await maybeOpenBrowser({
 			browserArgs,
 			browserFlag,
 			configValueShouldOpenBrowser,
@@ -175,6 +175,13 @@ export const startStudio = async ({
 			url: `http://localhost:${result.port}`,
 			logLevel,
 		});
+		if (res.didOpenBrowser) {
+			RenderInternals.Log.info(
+				{indent: false, logLevel},
+				'Opened browser. Pass --force-new to force a new instance.',
+			);
+		}
+
 		return {type: 'already-running'};
 	}
 

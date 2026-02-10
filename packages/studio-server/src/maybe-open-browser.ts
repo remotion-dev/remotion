@@ -65,4 +65,6 @@ export const maybeOpenBrowser = async ({
 			`Not opening browser, reason: ${reasonForBrowserDecision}`,
 		);
 	}
+
+	return {didOpenBrowser: shouldOpenBrowser};
 };
