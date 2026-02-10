@@ -1,4 +1,3 @@
-import { put } from "@vercel/blob";
 import { waitUntil } from "@vercel/functions";
 import path from "path";
 import { RenderRequest } from "../../../../types/schema";
@@ -138,10 +137,10 @@ export async function POST(req: Request) {
 				progress: WEIGHT_SYS_DEPS + WEIGHT_BUNDLE,
 			});
 
-			// Install renderer (part of bundle stage, no separate progress)
+			// Install renderer and blob SDK (part of bundle stage, no separate progress)
 			const installCmd = await sandbox.runCommand({
 				cmd: "pnpm",
-				args: [`i`, `@remotion/renderer@${VERSION}`],
+				args: [`i`, `@remotion/renderer@${VERSION}`, `@vercel/blob`],
 				detached: true,
 			});
 
@@ -180,6 +179,7 @@ export async function POST(req: Request) {
 							await send({
 								type: "phase",
 								phase: preparingPhase,
+								subtitle: preparingSubtitle,
 								progress:
 									WEIGHT_SYS_DEPS +
 									WEIGHT_BUNDLE +
@@ -215,10 +215,18 @@ export async function POST(req: Request) {
 				},
 			]);
 
+			const renderId = crypto.randomUUID();
+			const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+			if (!blobToken) {
+				throw new Error("BLOB_READ_WRITE_TOKEN is not set");
+			}
+
 			const renderConfig: RenderConfig = {
 				serveUrl,
 				compositionId: COMP_NAME,
 				inputProps: body.inputProps,
+				blobToken,
+				blobPath: `renders/${renderId}.mp4`,
 			};
 
 			// Run the render script
@@ -227,6 +235,9 @@ export async function POST(req: Request) {
 				args: ["--strip-types", "render.ts", JSON.stringify(renderConfig)],
 				detached: true,
 			});
+
+			let doneUrl: string | null = null;
+			let doneSize: number | null = null;
 
 			for await (const log of renderCmd.logs()) {
 				if (log.stream === "stdout") {
@@ -238,6 +249,15 @@ export async function POST(req: Request) {
 								phase: renderingPhase,
 								progress: message.progress,
 							});
+						} else if (message.type === "uploading") {
+							await send({
+								type: "phase",
+								phase: "Uploading video...",
+								progress: 1,
+							});
+						} else if (message.type === "done") {
+							doneUrl = message.url;
+							doneSize = message.size;
 						}
 					} catch {
 						// Not JSON, ignore
@@ -252,25 +272,14 @@ export async function POST(req: Request) {
 				throw new Error(`Render failed: ${stderr} ${stdout}`);
 			}
 
-			await send({ type: "phase", phase: "Uploading video...", progress: 1 });
-
-			const videoBuffer = await sandbox.readFileToBuffer({
-				path: "/tmp/video.mp4",
-			});
-			if (!videoBuffer) {
-				throw new Error("Failed to read rendered video");
+			if (!doneUrl || doneSize === null) {
+				throw new Error("Render script did not return upload result");
 			}
-
-			const renderId = crypto.randomUUID();
-			const blob = await put(`renders/${renderId}.mp4`, videoBuffer, {
-				access: "public",
-				contentType: "video/mp4",
-			});
 
 			await send({
 				type: "done",
-				url: blob.downloadUrl,
-				size: videoBuffer.length,
+				url: doneUrl,
+				size: doneSize,
 			});
 		} catch (err) {
 			console.log(err);
