@@ -1,6 +1,7 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {saveDefaultProps} from '../api/save-default-props';
+import {FastRefreshContext} from '../fast-refresh-context';
 import {showNotification} from './Notifications/NotificationCenter';
 import {SchemaResetButton} from './RenderModal/SchemaEditor/SchemaResetButton';
 import {SchemaSaveButton} from './RenderModal/SchemaEditor/SchemaSaveButton';
@@ -14,7 +15,7 @@ export const GlobalPropsEditorUpdateButton: React.FC<{
 	readonly compositionId: string;
 	readonly currentDefaultProps: Record<string, unknown>;
 }> = ({compositionId, currentDefaultProps}) => {
-	const {fastRefreshes} = useContext(Internals.NonceContext);
+	const {fastRefreshes} = useContext(FastRefreshContext);
 
 	const [disabled, setDisabled] = React.useState(false);
 

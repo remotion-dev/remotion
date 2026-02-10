@@ -27,42 +27,16 @@ import {makeFileExecutableIfItIsNot} from '../compositor/make-file-executable';
 import type {LogLevel} from '../log-level';
 import {ChromeMode} from '../options/chrome-mode';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
+import {
+	getChromeDownloadUrl,
+	isAmazonLinux2023,
+	logDownloadUrl,
+	type Platform,
+	TESTED_VERSION,
+} from './get-chrome-download-url';
 import {getDownloadsCacheDir} from './get-download-destination';
 
-const TESTED_VERSION = '134.0.6998.35';
-// https://github.com/microsoft/playwright/tree/v1.51.0
-// packages/playwright-core/browsers.json
-const PLAYWRIGHT_VERSION = '1161'; // 134.0.6998.35
-
-type Platform = 'linux64' | 'linux-arm64' | 'mac-x64' | 'mac-arm64' | 'win64';
-
-function getChromeDownloadUrl({
-	platform,
-	version,
-	chromeMode,
-}: {
-	platform: Platform;
-	version: string | null;
-	chromeMode: ChromeMode;
-}): string {
-	if (platform === 'linux-arm64') {
-		if (chromeMode === 'chrome-for-testing') {
-			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
-		}
-
-		return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
-	}
-
-	if (chromeMode === 'headless-shell') {
-		return `https://storage.googleapis.com/chrome-for-testing-public/${
-			version ?? TESTED_VERSION
-		}/${platform}/chrome-headless-shell-${platform}.zip`;
-	}
-
-	return `https://storage.googleapis.com/chrome-for-testing-public/${
-		version ?? TESTED_VERSION
-	}/${platform}/chrome-${platform}.zip`;
-}
+export {TESTED_VERSION};
 
 const mkdirAsync = fs.promises.mkdir;
 const unlinkAsync = promisify(fs.unlink.bind(fs));
@@ -105,6 +79,35 @@ const getDownloadsFolder = (chromeMode: ChromeMode) => {
 	return path.join(getDownloadsCacheDir(), destination);
 };
 
+const getVersionFilePath = (chromeMode: ChromeMode): string => {
+	const downloadsFolder = getDownloadsFolder(chromeMode);
+	return path.join(downloadsFolder, 'VERSION');
+};
+
+const getExpectedVersion = (
+	version: string | null,
+	_chromeMode: ChromeMode,
+): string => {
+	if (version) {
+		return version;
+	}
+	return TESTED_VERSION;
+};
+
+export const readVersionFile = (chromeMode: ChromeMode): string | null => {
+	const versionFilePath = getVersionFilePath(chromeMode);
+	try {
+		return fs.readFileSync(versionFilePath, 'utf-8').trim();
+	} catch {
+		return null;
+	}
+};
+
+const writeVersionFile = (chromeMode: ChromeMode, version: string): void => {
+	const versionFilePath = getVersionFilePath(chromeMode);
+	fs.writeFileSync(versionFilePath, version);
+};
+
 export const downloadBrowser = async ({
 	logLevel,
 	indent,
@@ -128,9 +131,16 @@ export const downloadBrowser = async ({
 	const downloadsFolder = getDownloadsFolder(chromeMode);
 	const archivePath = path.join(downloadsFolder, fileName);
 	const outputPath = getFolderPath(downloadsFolder, platform);
+	const expectedVersion = getExpectedVersion(version, chromeMode);
 
 	if (await existsAsync(outputPath)) {
-		return getRevisionInfo(chromeMode);
+		const installedVersion = readVersionFile(chromeMode);
+		if (installedVersion === expectedVersion) {
+			return getRevisionInfo(chromeMode);
+		}
+
+		// VERSION file missing or mismatched - delete and re-download
+		fs.rmSync(outputPath, {recursive: true, force: true});
 	}
 
 	if (!(await existsAsync(downloadsFolder))) {
@@ -150,6 +160,8 @@ export const downloadBrowser = async ({
 			].join('\n'),
 		);
 	}
+
+	logDownloadUrl({url: downloadURL, logLevel, indent});
 
 	try {
 		await downloadFile({
@@ -172,22 +184,37 @@ export const downloadBrowser = async ({
 			abortSignal: new AbortController().signal,
 		});
 		await extractZip(archivePath, {dir: outputPath});
-		const chromePath = path.join(outputPath, 'chrome-linux', 'chrome');
-		const chromeHeadlessShellPath = path.join(
-			outputPath,
-			'chrome-linux',
-			'chrome-headless-shell',
-		);
-		if (fs.existsSync(chromePath)) {
-			fs.renameSync(chromePath, chromeHeadlessShellPath);
-		}
 
-		const chromeLinuxFolder = path.join(outputPath, 'chrome-linux');
-		if (fs.existsSync(chromeLinuxFolder)) {
-			fs.renameSync(
-				chromeLinuxFolder,
-				path.join(outputPath, 'chrome-headless-shell-linux-arm64'),
-			);
+		const possibleSubdirs = [
+			'chrome-linux',
+			'chrome-headless-shell-linux64',
+			'chromium-headless-shell-amazon-linux2023-arm64',
+			'chromium-headless-shell-amazon-linux2023-x64',
+		];
+
+		for (const subdir of possibleSubdirs) {
+			const chromeLinuxFolder = path.join(outputPath, subdir);
+			const chromePath = path.join(chromeLinuxFolder, 'chrome');
+
+			if (fs.existsSync(chromePath)) {
+				const chromeHeadlessShellPath = path.join(
+					chromeLinuxFolder,
+					'chrome-headless-shell',
+				);
+
+				fs.renameSync(chromePath, chromeHeadlessShellPath);
+			}
+
+			if (fs.existsSync(chromeLinuxFolder)) {
+				const targetFolder = path.join(
+					outputPath,
+					'chrome-headless-shell-' + platform,
+				);
+
+				if (chromeLinuxFolder !== targetFolder) {
+					fs.renameSync(chromeLinuxFolder, targetFolder);
+				}
+			}
 		}
 	} catch (err) {
 		return Promise.reject(err);
@@ -196,6 +223,8 @@ export const downloadBrowser = async ({
 			await unlinkAsync(archivePath);
 		}
 	}
+
+	writeVersionFile(chromeMode, expectedVersion);
 
 	const revisionInfo = getRevisionInfo(chromeMode);
 	makeFileExecutableIfItIsNot(revisionInfo.executablePath);
@@ -235,7 +264,7 @@ const getExecutablePath = (chromeMode: ChromeMode) => {
 			`chrome-headless-shell-${platform}`,
 			platform === 'win64'
 				? 'chrome-headless-shell.exe'
-				: platform === 'linux-arm64'
+				: platform === 'linux-arm64' || isAmazonLinux2023()
 					? 'headless_shell'
 					: 'chrome-headless-shell',
 		);

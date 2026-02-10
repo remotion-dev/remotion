@@ -18,7 +18,7 @@ test('Should render last frame for timestamps after video end', async () => {
 	});
 
 	assert(result.type === 'success');
-	expect(result.sample?.timestamp).toBe(9.96);
+	expect(result.frame?.timestamp).toBe(9.96 * 1_000_000);
 
 	keyframeManager.clearAll('info');
 });

@@ -1,5 +1,10 @@
-1. Run `bun i`
-2. Run `bun run build`
-3. Check `https://www.npmjs.com/package/remotion` to get the current version number
-4. Run `bun set-version.ts <version>`, where <version> is the current version plus 1
-5. Run `NPM_CONFIG_TOKEN=<token> bun run release` where <token> is $1
+- Kill any `turbo` processes that might be running with SIGKILL
+- Run `npm login` (I will manually do 2FA in the browser)
+- Use `op item get "Npmjs" --fields password --reveal` to get the password for NPM.
+- Use `op item get "Npmjs" --otp` to get a one-time password for 2FA.
+- Run `npm token create --name="PublishRemotionXXXXXX" --packages "remotion" --packages "create-video" --packages-and-scopes-permission read-write --bypass-2fa --scopes "@remotion"`. Replace XXXXXX with a random string so we have a unique name. It will ask for a password, use the `op` command to get the password for NPM. The NPM token will be printed.
+- Run `bun i`
+- Run `bun run build`
+- Check `https://www.npmjs.com/package/remotion` to get the current version number
+- Run `bun set-version.ts <version>`, where <version> is the current version plus 1
+- Run `NPM_CONFIG_TOKEN=<token> bun run release` where <token> is the NPM token we just created

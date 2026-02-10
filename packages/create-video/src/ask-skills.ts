@@ -12,7 +12,7 @@ export const askSkills = async () => {
 		type: 'toggle',
 		name: 'answer',
 		message: `Add ${link}?`,
-		initial: false,
+		initial: true,
 		active: 'Yes',
 		inactive: 'No',
 	});

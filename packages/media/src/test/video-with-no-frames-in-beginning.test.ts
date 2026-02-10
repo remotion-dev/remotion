@@ -145,12 +145,13 @@ test('in rendering, should also be smart', async () => {
 		});
 		assert(frame.type === 'success');
 		if (lastFrame) {
-			expect(frame.sample === lastFrame).toBe(true);
+			// maybe this assertion is useless, since ht e
+			expect(frame.frame?.timestamp === lastFrame.timestamp).toBe(true);
 			continue;
 		}
 
-		expect(frame.sample?.timestamp).toBe(4.045);
-		lastFrame = frame.sample;
+		expect(frame.frame?.timestamp).toBe(4.045 * 1_000_000);
+		lastFrame = frame.frame;
 	}
 
 	const firstRealFrame = await extractFrame({
@@ -166,7 +167,7 @@ test('in rendering, should also be smart', async () => {
 	});
 
 	assert(firstRealFrame.type === 'success');
-	expect(firstRealFrame.sample?.timestamp).toBe(4.979);
+	expect(firstRealFrame.frame?.timestamp).toBe(4.979 * 1_000_000);
 
 	keyframeManager.clearAll('info');
 });

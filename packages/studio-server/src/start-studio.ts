@@ -172,6 +172,7 @@ export const startStudio = async ({
 	}
 
 	printServerReadyComment('Server ready', logLevel);
+	RenderInternals.Log.info({indent: false, logLevel}, 'Building...');
 
 	await maybeOpenBrowser({
 		browserArgs,

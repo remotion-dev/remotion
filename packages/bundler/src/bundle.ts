@@ -229,7 +229,9 @@ export const internalBundle = async (
 			actualArgs.experimentalClientSideRenderingEnabled,
 	});
 
-	const output = await promisified([config]);
+	const output = (await promisified([config])) as
+		| webpack.MultiStats
+		| undefined;
 	if (isMainThread) {
 		process.chdir(currentCwd);
 	}

@@ -1,6 +1,5 @@
 import type {AudioSample, AudioSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
-import {SAFE_WINDOW_OF_MONOTONICITY} from '../caches';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import {makeAudioCache} from './audio-cache';
 
@@ -11,6 +10,7 @@ import {makeAudioCache} from './audio-cache';
 // So let's set a threshold of 1.5 seconds.
 
 const extraThreshold = 1.5;
+const safetyOutOfOrderThreshold = 0.2;
 
 const warned: Record<string, boolean> = {};
 
@@ -93,7 +93,7 @@ export const makeAudioIterator = ({
 		if (fullDuration !== null && timestamp > fullDuration) {
 			// Clear all samples before the timestamp
 			// Do this in the while loop because samples might start from 0
-			cache.clearBeforeThreshold(fullDuration - SAFE_WINDOW_OF_MONOTONICITY);
+			cache.clearBeforeThreshold(fullDuration - safetyOutOfOrderThreshold);
 
 			return [];
 		}
@@ -121,7 +121,7 @@ export const makeAudioIterator = ({
 			const deleteBefore =
 				fullDuration === null ? timestamp : Math.min(timestamp, fullDuration);
 
-			cache.clearBeforeThreshold(deleteBefore - SAFE_WINDOW_OF_MONOTONICITY);
+			cache.clearBeforeThreshold(deleteBefore - safetyOutOfOrderThreshold);
 
 			if (sample === null) {
 				break;

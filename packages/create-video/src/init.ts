@@ -11,6 +11,7 @@ import {askSkills} from './ask-skills';
 import {askTailwind} from './ask-tailwind';
 import {createPublicFolder} from './create-public-folder';
 import {degit} from './degit';
+import {makeHyperlink} from './hyperlinks/make-link';
 import {installSkills} from './install-skills';
 import {getLatestRemotionVersion} from './latest-remotion-version';
 import {Log} from './log';
@@ -206,11 +207,40 @@ export const init = async () => {
 	Log.info('To render a video, run:');
 	Log.info(' ' + chalk.blue(getRenderCommand(pkgManager)));
 	Log.info('');
-	Log.info();
-	await openInEditorFlow(projectRoot);
+	Log.info('Links to get you started:');
 	Log.info(
-		'Docs to get you started:',
-		chalk.underline('https://www.remotion.dev/docs/the-fundamentals'),
+		' ' +
+			chalk.blue(
+				makeHyperlink({
+					text: 'remotion.dev/docs',
+					url: 'https://www.remotion.dev/docs',
+					fallback: 'https://www.remotion.dev/docs',
+				}),
+			),
 	);
-	Log.info('Enjoy Remotion!');
+	Log.info(
+		' ' +
+			chalk.blue(
+				makeHyperlink({
+					text: 'remotion.dev/prompts',
+					url: 'https://www.remotion.dev/prompts',
+					fallback: 'https://www.remotion.dev/prompts',
+				}),
+			),
+	);
+	Log.info();
+	Log.info('Remotion is free for teams of up to 3.');
+	Log.info(
+		'Adopting Remotion in your company? Visit ' +
+			chalk.blue(
+				makeHyperlink({
+					text: 'remotion.pro/license',
+					url: 'https://remotion.pro/license',
+					fallback: 'https://www.remotion.pro/license',
+				}),
+			),
+	);
+	Log.info();
+
+	await openInEditorFlow(projectRoot);
 };
