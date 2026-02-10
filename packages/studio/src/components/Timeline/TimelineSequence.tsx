@@ -155,6 +155,7 @@ const Inner: React.FC<{
 					visualizationWidth={width}
 					startFrom={s.startMediaFrom}
 					durationInFrames={s.duration}
+					playbackRate={s.playbackRate}
 				/>
 			) : null}
 			{s.loopDisplay === undefined ? null : (

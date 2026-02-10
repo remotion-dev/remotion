@@ -268,9 +268,16 @@ const fillFrameWhereItFits = ({
 export const TimelineVideoInfo: React.FC<{
 	readonly src: string;
 	readonly visualizationWidth: number;
-	readonly startFrom: number;
+	readonly trimBefore: number;
 	readonly durationInFrames: number;
-}> = ({src, visualizationWidth, startFrom, durationInFrames}) => {
+	readonly playbackRate: number;
+}> = ({
+	src,
+	visualizationWidth,
+	trimBefore,
+	durationInFrames,
+	playbackRate,
+}) => {
 	const {fps} = useVideoConfig();
 	const ref = useRef<HTMLDivElement>(null);
 	const [error, setError] = useState<Error | null>(null);
@@ -308,8 +315,10 @@ export const TimelineVideoInfo: React.FC<{
 		// desired-timestamp -> filled-timestamp
 		const filledSlots = new Map<number, number | undefined>();
 
-		const fromSeconds = startFrom / fps;
-		const toSeconds = (startFrom + durationInFrames) / fps;
+		const fromSeconds = trimBefore / fps;
+		// Trim is applied first, then playbackRate. Each composition frame
+		// advances the source video by `playbackRate` source frames.
+		const toSeconds = fromSeconds + (durationInFrames * playbackRate) / fps;
 
 		if (aspectRatio.current !== null) {
 			ensureSlots({
@@ -435,7 +444,15 @@ export const TimelineVideoInfo: React.FC<{
 			controller.abort();
 			current.removeChild(canvas);
 		};
-	}, [durationInFrames, error, fps, src, startFrom, visualizationWidth]);
+	}, [
+		durationInFrames,
+		error,
+		fps,
+		playbackRate,
+		src,
+		trimBefore,
+		visualizationWidth,
+	]);
 
 	return <div ref={ref} style={containerStyle} />;
 };
