@@ -132,7 +132,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				layout="none"
 				from={0 - (trimBeforeValue ?? 0)}
 				showInTimeline={false}
-				durationInFrames={(trimAfterValue ?? 0) / (props.playbackRate ?? 1)}
+				durationInFrames={
+					trimAfterValue === undefined
+						? undefined
+						: trimAfterValue / (props.playbackRate ?? 1)
+				}
 				name={name}
 			>
 				<Html5Video
@@ -189,6 +193,6 @@ addSequenceStackTraces(Html5Video);
 
 /**
  * @deprecated This component has been renamed to `Html5Video`.
- * @see [Documentation](https://remotion.dev/docs/mediabunny/new-video)
+ * @see [Documentation](https://www.remotion.dev/docs/html5-video)
  */
 export const Video = Html5Video;
