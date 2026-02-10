@@ -79,8 +79,7 @@ const VideoAppsShowcase: React.FC = () => {
 		}
 
 		setIsPlaying(false);
-		setVideoLoaded(false);
-		setIsMuted(true);
+		setVideoLoaded(true);
 		setActiveTab(index);
 	};
 
