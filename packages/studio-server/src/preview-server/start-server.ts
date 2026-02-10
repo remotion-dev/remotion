@@ -66,8 +66,17 @@ export const startServer = async (options: {
 		undefined;
 
 	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
-	const from = desiredPort ?? 3000;
-	const to = desiredPort ?? 3100;
+
+	const onPortUnavailable = options.forceNew
+		? undefined
+		: async (port: number): Promise<'continue' | 'stop'> => {
+				const detection = await detectRemotionServer({
+					port,
+					cwd: options.remotionRoot,
+					hostname: portConfig.hostsToTry[0],
+				});
+				return detection.type === 'match' ? 'stop' : 'continue';
+			};
 
 	const [, config] = await BundlerInternals.webpackConfig({
 		entry: options.entry,
@@ -156,38 +165,71 @@ export const startServer = async (options: {
 			});
 	});
 
-	const cleanup = async () => {
-		await Promise.all([
-			new Promise<void>((resolve) => {
-				server.close(() => resolve());
-			}),
-			new Promise<void>((resolve) => {
-				compiler.close(() => resolve());
-			}),
-		]);
-	};
+	const maxTries = 5;
 
-	for (let portToTry = from; portToTry <= to; portToTry++) {
+	for (let i = 0; i < maxTries; i++) {
 		try {
+			const {port, unlockPort, didUsePort} =
+				await RenderInternals.getDesiredPort({
+					desiredPort,
+					from: 3000,
+					to: 3100,
+					hostsToTry: portConfig.hostsToTry,
+					onPortUnavailable,
+				});
+
+			if (didUsePort) {
+				unlockPort();
+				await Promise.all([
+					new Promise<void>((resolve) => {
+						server.close(() => resolve());
+					}),
+					new Promise<void>((resolve) => {
+						compiler.close(() => resolve());
+					}),
+				]);
+				return {
+					type: 'already-running' as const,
+					port,
+				};
+			}
+
 			const selectedPort = await new Promise<number>((resolve, reject) => {
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel: options.logLevel},
-					`Binding server to host ${portConfig.host}, port ${portToTry}`,
+					`Binding server to host ${portConfig.host}, port ${port}`,
 				);
 				server.listen({
-					port: portToTry,
+					port,
 					host: portConfig.host,
 				});
-				server.once('listening', () => resolve(portToTry));
-				server.once('error', (err) => reject(err));
+				server.on('listening', () => {
+					resolve(port);
+					return unlockPort();
+				});
+				server.on('error', (err) => {
+					reject(err);
+				});
 			});
+
 			return {
 				type: 'started' as const,
-				port: selectedPort,
+				port: selectedPort as number,
 				liveEventsServer,
 				close: async () => {
 					server.closeAllConnections();
-					await cleanup();
+					await Promise.all([
+						new Promise<void>((resolve) => {
+							server.close(() => {
+								resolve();
+							});
+						}),
+						new Promise<void>((resolve) => {
+							compiler.close(() => {
+								resolve();
+							});
+						}),
+					]);
 				},
 			};
 		} catch (err) {
@@ -195,45 +237,18 @@ export const startServer = async (options: {
 				throw err;
 			}
 
-			const codedError = err as Error & {code: string};
+			const codedError = err as Error & {code: string; port: number};
 
 			if (codedError.code === 'EADDRINUSE') {
-				if (!options.forceNew) {
-					const detection = await detectRemotionServer({
-						port: portToTry,
-						cwd: options.remotionRoot,
-						hostname: portConfig.hostsToTry[0],
-					});
-
-					if (detection.type === 'match') {
-						await cleanup();
-						return {
-							type: 'already-running' as const,
-							port: portToTry,
-						};
-					}
-				}
-
-				if (desiredPort) {
-					await cleanup();
-					throw new Error(
-						`You specified port ${desiredPort} to be used for the HTTP server, but it is not available. Choose a different port or remove the setting to let Remotion automatically select a free port.`,
-					);
-				}
-
-				RenderInternals.Log.verbose(
+				RenderInternals.Log.error(
 					{indent: false, logLevel: options.logLevel},
-					`Port ${portToTry} is already in use. Trying another port...`,
+					`Port ${codedError.port} is already in use. Trying another port...`,
 				);
-				continue;
+			} else {
+				throw err;
 			}
-
-			throw err;
 		}
 	}
 
-	await cleanup();
-	throw new Error(
-		`Could not find a free port in the range ${from}-${to}. Giving up.`,
-	);
+	throw new Error(`Tried ${maxTries} times to find a free port. Giving up.`);
 };
