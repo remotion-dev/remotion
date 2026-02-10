@@ -87,7 +87,7 @@ const calculateTimestampSlots = ({
 
 const ensureSlots = ({
 	filledSlots,
-	naturalWidth: visualizationWidth,
+	naturalWidth,
 	fromSeconds,
 	toSeconds,
 	aspectRatio,
@@ -101,7 +101,7 @@ const ensureSlots = ({
 	const segmentDuration = toSeconds - fromSeconds;
 
 	const timestampTargets = calculateTimestampSlots({
-		visualizationWidth,
+		visualizationWidth: naturalWidth,
 		fromSeconds,
 		segmentDuration,
 		aspectRatio,
