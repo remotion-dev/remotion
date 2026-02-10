@@ -82,5 +82,13 @@ export async function createSandbox({
 		},
 	});
 
+	const renderScript = await getRenderScript();
+	await sandbox.writeFiles([
+		{
+			path: "render.ts",
+			content: renderScript,
+		},
+	]);
+
 	return sandbox;
 }

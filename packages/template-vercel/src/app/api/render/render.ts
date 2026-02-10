@@ -1,6 +1,5 @@
 import { Sandbox } from "@vercel/sandbox";
 import { COMP_NAME } from "../../../../types/constants";
-import { getRenderScript } from "./helpers";
 import { BUILD_DIR } from "../../../../build-dir.mjs";
 import type { RenderConfig } from "../../../../render";
 
@@ -20,14 +19,6 @@ export async function renderInSandbox({
 }): Promise<void> {
 	// Use the local bundle copied to the sandbox
 	const serveUrl = `/vercel/sandbox/${BUILD_DIR}`;
-
-	const renderScript = await getRenderScript();
-	await sandbox.writeFiles([
-		{
-			path: "render.ts",
-			content: renderScript,
-		},
-	]);
 
 	const renderId = crypto.randomUUID();
 	const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
