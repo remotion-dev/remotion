@@ -153,7 +153,7 @@ const Inner: React.FC<{
 				<TimelineVideoInfo
 					src={s.src}
 					visualizationWidth={width}
-					startFrom={s.startMediaFrom}
+					trimBefore={s.startMediaFrom}
 					durationInFrames={s.duration}
 					playbackRate={s.playbackRate}
 				/>
