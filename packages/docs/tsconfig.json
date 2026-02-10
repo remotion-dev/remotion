@@ -1,6 +1,5 @@
 {
 	"extends": "../tsconfig.settings.json",
-	"baseUrl": ".",
 	"compilerOptions": {
 		"skipLibCheck": true,
 		"noUnusedLocals": true,
