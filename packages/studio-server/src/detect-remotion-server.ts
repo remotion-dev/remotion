@@ -1,5 +1,5 @@
-import type {RemotionConfigResponse} from '@remotion/studio-shared';
 import http from 'http';
+import type {RemotionConfigResponse} from './remotion-config-response';
 
 type RemotionDetectionResult =
 	| {type: 'match'}

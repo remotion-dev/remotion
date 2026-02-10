@@ -3,11 +3,11 @@ import type {LogLevel} from '@remotion/renderer';
 import type {
 	ApiRoutes,
 	GitSource,
-	RemotionConfigResponse,
 	RenderDefaults,
 	RenderJob,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
+import type {RemotionConfigResponse} from './remotion-config-response';
 import {SOURCE_MAP_ENDPOINT, getProjectName} from '@remotion/studio-shared';
 import fs, {createWriteStream} from 'fs';
 import {createReadStream, existsSync, statSync} from 'node:fs';

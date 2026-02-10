@@ -59,7 +59,6 @@ export {
 } from './package-info';
 export {PackageManager} from './package-manager';
 export {ProjectInfo} from './project-info';
-export type {RemotionConfigResponse} from './remotion-config-response';
 export type {RenderDefaults} from './render-defaults';
 export {
 	AggregateRenderProgress,
