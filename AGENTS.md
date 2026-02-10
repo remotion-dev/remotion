@@ -25,8 +25,9 @@ Pull request titles should be in the format `\`[package-name]\``: [commit-messag
 
 If committing your work:
 
-1. Run `bun run stylecheck` to ensure CI passes
-2. Include `bun.lock` when dependencies change
+1. Run `bun run build` from the root of the repo to verify all packages build successfully
+2. Run `bun run stylecheck` to ensure CI passes
+3. Include `bun.lock` when dependencies change
 
 ## Contributing
 

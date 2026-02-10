@@ -12,5 +12,6 @@
 		"emitDeclarationOnly": true,
 		"resolveJsonModule": true
 	},
-	"include": ["src"]
+	"include": ["src"],
+	"references": [{"path": "../core"}]
 }

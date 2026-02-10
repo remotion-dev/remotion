@@ -60,7 +60,7 @@ import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
 import {Log} from './log.js';
 import {MaxMediaCacheSizeContext} from './max-video-cache-size.js';
-import {NonceContext, SetNonceContext} from './nonce.js';
+import {NonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -73,10 +73,13 @@ import {
 	RenderAssetManager,
 	RenderAssetManagerProvider,
 } from './RenderAssetManager.js';
-import {resolveVideoConfig} from './resolve-video-config.js';
+import {
+	resolveVideoConfig,
+	resolveVideoConfigOrCatch,
+} from './resolve-video-config.js';
 import {
 	PROPS_UPDATED_EXTERNALLY,
-	ResolveCompositionConfigInStudio,
+	ResolveCompositionContext,
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
@@ -207,11 +210,11 @@ export const Internals = {
 	EditorPropsContext,
 	usePreload,
 	NonceContext,
-	SetNonceContext,
 	resolveVideoConfig,
+	resolveVideoConfigOrCatch,
+	ResolveCompositionContext,
 	useResolvedVideoConfig,
 	resolveCompositionsRef,
-	ResolveCompositionConfigInStudio,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 	RenderAssetManager,
 	persistCurrentFrame,

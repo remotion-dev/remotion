@@ -18,6 +18,7 @@ export type {RenderMuteButton} from './MediaVolumeSlider.js';
 export type {
 	PlayerMethods,
 	PlayerRef,
+	RenderCustomControls,
 	ThumbnailMethods,
 	ThumbnailRef,
 } from './player-methods.js';

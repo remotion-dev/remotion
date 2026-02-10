@@ -1,34 +1,49 @@
 import http from 'http';
+import type {RemotionConfigResponse} from './remotion-config-response';
 
 type RemotionDetectionResult =
 	| {type: 'match'}
 	| {type: 'mismatch'}
 	| {type: 'not-remotion'};
 
-export const detectRemotionServer = (
-	port: number,
-	cwd: string,
-): Promise<RemotionDetectionResult> => {
+export const detectRemotionServer = ({
+	port,
+	cwd,
+	hostname,
+}: {
+	port: number;
+	cwd: string;
+	hostname: string;
+}): Promise<RemotionDetectionResult> => {
 	return new Promise((resolve) => {
 		const req = http.get(
 			{
-				hostname: 'localhost',
+				hostname,
 				port,
 				path: '/__remotion_config',
 				timeout: 1000,
 			},
 			(res) => {
+				if (res.statusCode !== 200) {
+					res.resume();
+					return resolve({type: 'not-remotion'});
+				}
+
 				let data = '';
 
 				res.on('data', (chunk) => {
 					data += chunk;
 				});
 
+				res.on('error', () => {
+					resolve({type: 'not-remotion'});
+				});
+
 				res.on('end', () => {
 					try {
-						const json = JSON.parse(data);
+						const json = JSON.parse(data) as RemotionConfigResponse;
 
-						if (json?.isRemotion !== true) {
+						if (json.isRemotion !== true) {
 							return resolve({type: 'not-remotion'});
 						}
 
@@ -51,7 +66,6 @@ export const detectRemotionServer = (
 		req.on('error', () => resolve({type: 'not-remotion'}));
 		req.on('timeout', () => {
 			req.destroy();
-			resolve({type: 'not-remotion'});
 		});
 	});
 };

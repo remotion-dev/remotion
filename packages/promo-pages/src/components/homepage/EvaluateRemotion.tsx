@@ -25,25 +25,37 @@ const EvaluateRemotionSection: React.FC = () => {
 		<div className="flex flex-col lg:flex-row gap-2">
 			<div className={'card flex-1 flex flex-col'}>
 				<div className={'fontbrand text-2xl font-bold'}>
-					Evaluate Remotion for your company
+					Questions about our license?
 				</div>
 				<p className={'text-muted fontbrand leading-snug'}>
-					Book a 20 minute call with us to get all your questions answered.
+					Book a 20 minute call or write us an email to get all your questions
+					answered.
 				</p>
 				<div className="flex-1" />
-				<a
-					target="_blank"
-					href="https://cal.com/remotion/evaluate"
-					style={{textDecoration: 'none'}}
-				>
-					<BlueButton size="sm" loading={false}>
-						Schedule a call
-					</BlueButton>
-				</a>
+				<div className="flex flex-row flex-wrap gap-2">
+					<a
+						target="_blank"
+						href="https://cal.com/remotion/evaluate"
+						style={{textDecoration: 'none'}}
+					>
+						<BlueButton size="sm" loading={false}>
+							Schedule a call
+						</BlueButton>
+					</a>
+					<a
+						target="_blank"
+						href="mailto:hi@remotion.dev"
+						style={{textDecoration: 'none'}}
+					>
+						<BlueButton size="sm" loading={false}>
+							Write an email
+						</BlueButton>
+					</a>
+				</div>
 			</div>
 			<div className={'card flex-1 flex flex-col'}>
 				<div className={'fontbrand text-2xl font-bold'}>
-					Get help for your projects
+					Get help with your Remotion project
 				</div>
 				<p className={'text-muted fontbrand leading-snug'}>
 					Contact our experts for help and work.

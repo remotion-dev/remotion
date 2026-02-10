@@ -4,7 +4,7 @@ title: '@remotion/install-whisper-cpp'
 crumb: 'Transcribe audio locally'
 ---
 
-<AvailableFrom v="4.0.115" />
+# @remotion/install-whisper-cpp<AvailableFrom v="4.0.115" />
 
 With [Whisper.cpp](https://github.com/ggerganov/whisper.cpp), you can transcribe audio locally on your machine.  
 This package provides easy to use cross-platform functions to install Whisper.cpp and a model.
@@ -19,7 +19,8 @@ Install Whisper `1.5.5` (the latest version at the time of writing that we find 
 
 ```tsx twoslash title="install-whisper.cpp"
 import path from 'path';
-import {downloadWhisperModel, installWhisperCpp, transcribe, convertToCaptions} from '@remotion/install-whisper-cpp';
+import {downloadWhisperModel, installWhisperCpp, transcribe, toCaptions} from '@remotion/install-whisper-cpp';
+import fs from 'fs';
 
 const to = path.join(process.cwd(), 'whisper.cpp');
 
@@ -37,7 +38,7 @@ await downloadWhisperModel({
 // import {execSync} from 'child_process';
 // execSync('ffmpeg -i /path/to/audio.mp4 -ar 16000 /path/to/audio.wav -y');
 
-const {transcription} = await transcribe({
+const whisperCppOutput = await transcribe({
   model: 'medium.en',
   whisperPath: to,
   whisperCppVersion: '1.5.5',
@@ -45,19 +46,12 @@ const {transcription} = await transcribe({
   tokenLevelTimestamps: true,
 });
 
-for (const token of transcription) {
-  console.log(token.timestamps.from, token.timestamps.to, token.text);
-}
-
 // Optional: Apply our recommended postprocessing
-const {captions} = convertToCaptions({
-  transcription,
-  combineTokensWithinMilliseconds: 200,
+const {captions} = toCaptions({
+  whisperCppOutput,
 });
 
-for (const line of captions) {
-  console.log(line.text, line.startInSeconds);
-}
+fs.writeFileSync('captions.json', JSON.stringify(captions, null, 2));
 ```
 
 ## Functions

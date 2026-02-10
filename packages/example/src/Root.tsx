@@ -123,6 +123,7 @@ import {ThreeDContext} from './3DContext';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
 import Amplify from './AudioTesting/Amplify';
+import {BrowserTest} from './BrowserTest';
 import {CTAEndCard} from './CallToAction';
 import {
 	WhatIsRemotion,
@@ -132,6 +133,9 @@ import {
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
+import {LightLeakExample} from './LightLeak';
+import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
+import {LoopDisplayTestComp} from './LoopDisplayTest';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp} from './NewVideo';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
@@ -148,6 +152,12 @@ import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
+import {
+	OverlayAndTransitionMixed,
+	OverlayBasic,
+	OverlayMultipleScenes,
+	OverlayWithOffset,
+} from './TransitionSeriesOverlay';
 import {TriangleComp} from './Triangle';
 import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
@@ -784,6 +794,7 @@ export const Index: React.FC = () => {
 				/>
 				<OffthreadRemoteVideo />
 				<NewVideoComp />
+				<LoopDisplayTestComp />
 				<OffthreadRemoteSeries />
 				<LoopedNewVideo />
 				<LoopedOffthreadRemoteVideo />
@@ -1811,7 +1822,67 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={600}
 			/>
+			<Folder name="light-leaks">
+				<Composition
+					id="light-leak"
+					component={LightLeakExample}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="light-leak-animated-size"
+					component={LightLeakAnimatedSize}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+			</Folder>
+			<Folder name="transition-series-overlay">
+				<Composition
+					id="overlay-basic"
+					component={OverlayBasic}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="overlay-with-offset"
+					component={OverlayWithOffset}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="overlay-multiple-scenes"
+					component={OverlayMultipleScenes}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={180}
+				/>
+				<Composition
+					id="overlay-and-transition-mixed"
+					component={OverlayAndTransitionMixed}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={165}
+				/>
+			</Folder>
 			<ChangingTrimBeforeValue />
+			<Composition
+				id="browser-test"
+				component={BrowserTest}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={2 * 60 * 30}
+			/>
 		</>
 	);
 };

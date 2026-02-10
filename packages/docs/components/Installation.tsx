@@ -7,6 +7,26 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import {VERSION} from 'remotion';
 
+const VersionWarning: React.FC<{
+	readonly packages: string;
+}> = ({packages}) => {
+	if (!packages.includes('remotion')) {
+		return null;
+	}
+
+	return (
+		<>
+			This assumes you are currently using v{VERSION} of Remotion.
+			<br />
+			Also update <code>remotion</code> and all <code>`@remotion/*`</code>{' '}
+			packages to the same version.
+			<br />
+			Remove all <code>^</code> character in front of the version numbers of
+			it as it can lead to a version conflict.
+		</>
+	);
+};
+
 const LightAndDark: React.FC<{
 	readonly text: string;
 }> = ({text}) => {
@@ -33,8 +53,17 @@ export const Installation: React.FC<{
 		throw new Error('pkg is undefined');
 	}
 
-	const packages = pkg
-		.split(' ')
+	const pkgList = pkg.split(' ');
+
+	const allRemotionOnly = pkgList.every(
+		(p) => p.startsWith('@remotion/') || p === 'remotion',
+	);
+	const showRemotionCli =
+		allRemotionOnly &&
+		!pkgList.includes('remotion') &&
+		!pkgList.includes('@remotion/cli');
+
+	const packages = pkgList
 		.map((p) => {
 			if (p.startsWith('@remotion') || p === 'remotion') {
 				return `${p}@${VERSION}`;
@@ -44,43 +73,46 @@ export const Installation: React.FC<{
 		})
 		.join(' ');
 
-	const isRemotionPackage = packages.includes('remotion');
+	const remotionCliPackages = pkgList.join(' ');
+
+	const tabs = [
+		...(showRemotionCli
+			? [{label: 'Remotion CLI', value: 'remotion-cli'}]
+			: []),
+		{label: 'npm', value: 'npm'},
+		{label: 'bun', value: 'bun'},
+		{label: 'pnpm', value: 'pnpm'},
+		{label: 'yarn', value: 'yarn'},
+	];
 
 	return (
 		<div>
 			<Tabs
-				defaultValue="npm"
-				values={[
-					{label: 'npm', value: 'npm'},
-					{label: 'bun', value: 'bun'},
-					{label: 'pnpm', value: 'pnpm'},
-					{label: 'yarn', value: 'yarn'},
-				]}
+				defaultValue={showRemotionCli ? 'remotion-cli' : 'npm'}
+				values={tabs}
 			>
+				{showRemotionCli ? (
+					<TabItem value="remotion-cli">
+						<LightAndDark text={`npx remotion add ${remotionCliPackages}`} />
+					</TabItem>
+				) : null}
 				<TabItem value="npm">
 					<LightAndDark text={`npm i --save-exact ${packages}`} />
+					<VersionWarning packages={packages} />
 				</TabItem>
 				<TabItem value="pnpm">
 					<LightAndDark text={`pnpm i ${packages}`} />
+					<VersionWarning packages={packages} />
 				</TabItem>
 				<TabItem value="bun">
 					<LightAndDark text={`bun i ${packages}`} />
+					<VersionWarning packages={packages} />
 				</TabItem>
 				<TabItem value="yarn">
 					<LightAndDark text={`yarn --exact add ${packages}`} />
+					<VersionWarning packages={packages} />
 				</TabItem>
 			</Tabs>
-			{isRemotionPackage ? (
-				<>
-					This assumes you are currently using v{VERSION} of Remotion.
-					<br />
-					Also update <code>remotion</code> and all <code>`@remotion/*`</code>{' '}
-					packages to the same version.
-					<br />
-					Remove all <code>^</code> character in front of the version numbers of
-					it as it can lead to a version conflict.
-				</>
-			) : null}
 		</div>
 	);
 };

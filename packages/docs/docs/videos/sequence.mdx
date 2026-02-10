@@ -211,7 +211,7 @@ invisibly mount the video tag before it is played, giving it some time to load.{
 <div style={{marginTop: -14}} />
 <Step>2</Step> Add the [`pauseWhenBuffering`](/docs/offthreadvideo#pausewhenbuffering) prop. This will transition the Player into a [buffering state](/docs/player/buffer-state), should the video still need to load.
 
-```tsx twoslash title="VideosInSequence.tsx" {14, 17}
+```tsx twoslash title="VideosInSequence.tsx" {12, 13}
 import React from 'react';
 import {OffthreadVideo, Series, useVideoConfig} from 'remotion';
 

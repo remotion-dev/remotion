@@ -69,10 +69,10 @@ const downloadFileWithoutRetries = ({
 
 				rejectAndFlag(
 					new Error(
-						`Tried to download file ${url}, but the server sent no data for 60 seconds`,
+						`Tried to download file ${url}, but the server sent no data for 20 seconds`,
 					),
 				);
-			}, 60000);
+			}, 20000);
 		};
 
 		refreshTimeout();

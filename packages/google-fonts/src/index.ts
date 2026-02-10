@@ -7432,6 +7432,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Rye') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'SN Pro',
+		importName: 'SNPro',
+		load: () => import('./SNPro') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'STIX Two Text',
 		importName: 'STIXTwoText',
 		load: () => import('./STIXTwoText') as Promise<GoogleFont>,

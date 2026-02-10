@@ -29,6 +29,7 @@ test('Should have a site after deploying', async () => {
 		forcePathStyle: false,
 		skipPutAcl: false,
 		requestHandler: null,
+		logLevel: 'info',
 	});
 	expect(
 		await internalDeploySite({

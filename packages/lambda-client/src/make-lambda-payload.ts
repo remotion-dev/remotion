@@ -174,6 +174,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: privacy === 'no-acl',
 		requestHandler: requestHandler ?? null,
+		logLevel,
 	});
 	return {
 		rendererFunctionName,
@@ -298,6 +299,7 @@ export const makeLambdaRenderStillPayload = async ({
 		forcePathStyle,
 		skipPutAcl: privacy === 'no-acl',
 		requestHandler,
+		logLevel,
 	});
 
 	return {

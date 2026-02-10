@@ -2,53 +2,37 @@
 name: ffmpeg
 description: Using FFmpeg and FFprobe in Remotion
 metadata:
-  tags: ffmpeg, ffprobe, video, audio, trimming, re-encoding
+  tags: ffmpeg, ffprobe, video, trimming
 ---
 
-## Installation
+## FFmpeg in Remotion
 
-You do **not** need to install FFmpeg manually. Since Remotion v4.0, FFmpeg is bundled with Remotion.
-
-❌ **Don't** instruct users to install FFmpeg or use the system `ffmpeg` command.
-✅ **Do** use the `bunx remotion ffmpeg` or `bunx remotion ffprobe` commands which use the bundled binaries (v7.1 release line).
-
-Supported codecs: H.264, H.265, VP8, VP9, and ProRes.
-
-## Usage
-
-Run FFmpeg and FFprobe commands using the Remotion CLI:
+`ffmpeg` and `ffprobe` do not need to be installed. They are available via the `bunx remotion ffmpeg` and `bunx remotion ffprobe`:
 
 ```bash
 bunx remotion ffmpeg -i input.mp4 output.mp3
 bunx remotion ffprobe input.mp4
 ```
 
-## Trimming Videos
+### Trimming videos
 
-### Avoid Stream Copy (`-c copy`) for Exact Cuts
+You have 2 options for trimming videos:
 
-❌ **Avoid** using `-c copy` when trimming videos unless you are sure the cut points are on keyframes.
-It causes **frozen frames** at the start of the video if the cut is not on a keyframe.
-
-```bash
-# This often causes frozen frames at the beginning!
-bunx remotion ffmpeg -ss 00:00:05 -i input.mp4 -to 00:00:10 -c copy output.mp4
-```
-
-### Preferred: Re-encode (Safe Default)
-
-✅ **Recommend** re-encoding for accurate trimming without frozen frames.
+1. Use the FFMpeg command line. You MUST re-encode the video to avoid frozen frames at the start of the video.
 
 ```bash
 # Re-encodes from the exact frame
-bunx remotion ffmpeg -ss 00:00:05 -i input.mp4 -to 00:00:10 -c:v libx264 -c:a aac output.mp4
+bunx remotion ffmpeg -ss 00:00:05 -i public/input.mp4 -to 00:00:10 -c:v libx264 -c:a aac public/output.mp4
 ```
 
-### Advanced: Keyframe-based Cutting
+2. Use the `trimBefore` and `trimAfter` props of the `<Video>` component. The benefit is that this is non-destructive and you can change the trim at any time.
 
-Only use `-c copy` if you are using `-f segment` or if the user explicitly understands the keyframe limitations.
+```tsx
+import { Video } from "@remotion/media";
 
-```bash
-# Split at keyframes (no frozen frames, but cut points depend on GOP structure)
-bunx remotion ffmpeg -i input.mp4 -f segment -reset_timestamps 1 -segment_time 10 -c copy out%03d.mp4
+<Video
+  src={staticFile("video.mp4")}
+  trimBefore={5 * fps}
+  trimAfter={10 * fps}
+/>;
 ```

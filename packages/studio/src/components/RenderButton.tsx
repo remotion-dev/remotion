@@ -7,6 +7,7 @@ import type {
 	OpenGlRenderer,
 	X264Preset,
 } from '@remotion/renderer';
+import type {RenderStillOnWebImageFormat} from '@remotion/web-renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
@@ -282,6 +283,21 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			outFrameMark: outFrame,
 			initialLogLevel: defaults.logLevel as LogLevel,
 			initialLicenseKey: defaults.publicLicenseKey,
+			initialStillImageFormat:
+				defaults.stillImageFormat as RenderStillOnWebImageFormat,
+			initialScale: defaults.scale,
+			initialDelayRenderTimeout: defaults.delayRenderTimeout,
+			initialDefaultOutName: null,
+			initialContainer: null,
+			initialVideoCodec: null,
+			initialAudioCodec: null,
+			initialAudioBitrate: null,
+			initialVideoBitrate: null,
+			initialHardwareAcceleration: null,
+			initialKeyframeIntervalInSeconds: null,
+			initialTransparent: null,
+			initialMuted: null,
+			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
 		});
 	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
 

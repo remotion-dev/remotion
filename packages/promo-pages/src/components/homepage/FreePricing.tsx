@@ -1,4 +1,4 @@
-import {Counter} from '@remotion/design';
+import {Switch} from '@remotion/design';
 import React, {useCallback, useMemo} from 'react';
 import {cn} from '../../cn';
 import {InfoTooltip} from './InfoTooltip';
@@ -59,25 +59,70 @@ const PriceTag: React.FC<{
 	);
 };
 
-const SmallPriceTag: React.FC<{
-	readonly children: string;
-}> = ({children}) => {
-	const shrink = children.length > 6;
-	return (
-		<div
-			className={cn(
-				'fontbrand text-2xl font-medium w-auto min-w-[100px] text-right shrink-0',
-				shrink ? 'text-lg' : 'text-2xl',
-			)}
-		>
-			{children}
-		</div>
-	);
-};
-
 const icon: React.CSSProperties = {
 	height: 16,
 	marginLeft: 4,
+};
+
+const PricingSlider: React.FC<{
+	readonly value: number;
+	readonly onChange: (value: number) => void;
+	readonly min: number;
+	readonly max: number;
+	readonly step?: number;
+}> = ({value, onChange, min, max, step = 1}) => {
+	const percentage = ((value - min) / (max - min)) * 100;
+
+	return (
+		<>
+			<style>
+				{`
+					.pricing-slider {
+						-webkit-appearance: none;
+						appearance: none;
+						height: 12px;
+						border-radius: 8px;
+						border: 2px solid black;
+						cursor: pointer;
+					}
+				.pricing-slider::-webkit-slider-thumb {
+					-webkit-appearance: none;
+					appearance: none;
+					width: 24px;
+					height: 24px;
+					border-radius: 50%;
+					background: white;
+					border: 2px solid black;
+					border-bottom-width: 4px;
+					cursor: pointer;
+					scale: 1.2;
+				}
+				.pricing-slider::-moz-range-thumb {
+					width: 24px;
+					height: 24px;
+					border-radius: 50%;
+					background: white;
+					border: 2px solid black;
+					border-bottom-width: 4px;
+					scale: 1.2;
+					cursor: pointer;
+				}
+				`}
+			</style>
+			<input
+				type="range"
+				min={min}
+				max={max}
+				step={step}
+				value={value}
+				onChange={(e) => onChange(Number(e.target.value))}
+				className="pricing-slider w-full"
+				style={{
+					background: `linear-gradient(to right, var(--color-brand) 0%, var(--color-brand) ${percentage}%, var(--background) ${percentage}%, var(--background) 100%)`,
+				}}
+			/>
+		</>
+	);
 };
 
 const textUnitWrapper: React.CSSProperties = {
@@ -90,9 +135,9 @@ export const FreePricing: React.FC = () => {
 		<Container>
 			<Audience>For individuals and companies of up to 3 people</Audience>
 			<Title>Free License</Title>
-			<PricingBulletPoint text="Unlimited videos" checked />
+			<PricingBulletPoint text="Create and automate" checked />
 			<PricingBulletPoint text="Commercial use allowed" checked />
-			<PricingBulletPoint text="Self-hosted cloud rendering allowed" checked />
+			<PricingBulletPoint text="Unlimited use" checked />
 			<PricingBulletPoint
 				text="Must upgrade when your team grows"
 				checked={false}
@@ -105,7 +150,8 @@ export const FreePricing: React.FC = () => {
 					}}
 				>
 					<a
-						href="/docs"
+						target="_blank"
+						href="https://www.remotion.dev/docs"
 						className="font-brand text-brand flex flex-row items-center gap-1 no-underline"
 					>
 						No sign up needed - get started{' '}
@@ -182,9 +228,41 @@ export const EnterpriseLicense: React.FC = () => {
 const SEAT_PRICE = 25;
 const RENDER_UNIT_PRICE = 10;
 
+const SectionCheckbox: React.FC<{
+	readonly checked: boolean;
+	readonly onChange: (checked: boolean) => void;
+	readonly title: string;
+	readonly subtitle: React.ReactNode;
+	readonly children?: React.ReactNode;
+}> = ({checked, onChange, title, subtitle, children}) => {
+	return (
+		<div className="flex flex-row gap-3 cursor-pointer select-none items-center">
+			<Switch active={checked} onToggle={() => onChange(!checked)} />
+			<div className="flex flex-col">
+				<div className="fontbrand font-bold text-lg flex flex-row items-center gap-1">
+					{title}
+					{children}
+				</div>
+				<div className="text-muted fontbrand text-sm">{subtitle}</div>
+			</div>
+			<div className="flex-1" />
+			<div
+				className={cn(
+					'fontbrand text-muted transition-opacity duration-150',
+					checked ? 'hidden' : 'opacity-100',
+				)}
+			>
+				Not selected
+			</div>
+		</div>
+	);
+};
+
 export const CompanyPricing: React.FC = () => {
-	const [devSeatCount, setDevSeatCount] = React.useState(1);
-	const [cloudRenders, setCloudRenders] = React.useState(1000);
+	const [creatorsSelected, setCreatorsSelected] = React.useState(false);
+	const [automatorsSelected, setAutomatorsSelected] = React.useState(true);
+	const [devSeatCount, setDevSeatCount] = React.useState(3);
+	const [cloudRenders, setCloudRenders] = React.useState(10000);
 
 	const formatPrice = useCallback((price: number) => {
 		const formatter = new Intl.NumberFormat('en-US', {
@@ -195,90 +273,179 @@ export const CompanyPricing: React.FC = () => {
 		return formatter.format(price);
 	}, []);
 
+	const creatorsPrice = creatorsSelected ? devSeatCount * SEAT_PRICE : 0;
+	const automatorsPrice = automatorsSelected
+		? Math.ceil(cloudRenders / 1000) * RENDER_UNIT_PRICE
+		: 0;
+
 	const totalPrice = useMemo(() => {
-		return Math.max(
-			100,
-			devSeatCount * SEAT_PRICE +
-				Math.ceil(cloudRenders / 1000) * RENDER_UNIT_PRICE,
-		);
-	}, [cloudRenders, devSeatCount]);
+		const basePrice = creatorsPrice + automatorsPrice;
+		// Minimum only applies if automation is selected
+		if (automatorsSelected) {
+			return Math.max(100, basePrice);
+		}
+
+		return basePrice;
+	}, [creatorsPrice, automatorsPrice, automatorsSelected]);
 
 	const totalPriceString = useMemo(() => {
 		return formatPrice(totalPrice);
 	}, [formatPrice, totalPrice]);
 
+	const showMinimumMessage =
+		automatorsSelected && creatorsPrice + automatorsPrice < 100;
+
+	const showEnterpriseMessage = totalPrice >= 500;
+
 	return (
 		<Container>
 			<Audience>For collaborations and companies of 4+ people</Audience>
 			<Title>Company License</Title>
+			<PricingBulletPoint text="Create and automate" checked />
 			<PricingBulletPoint text="Commercial use allowed" checked />
-			<PricingBulletPoint text="Self-hosted cloud rendering allowed" checked />
+			<PricingBulletPoint text="Pay according to usage" checked />
 			<PricingBulletPoint text="Prioritized Support" checked />
 			<PricingBulletPoint text="$250 Mux credits" checked>
-				<InfoTooltip text="Credits for Mux.com. Applies only to new Mux customers." />
+				<InfoTooltip>
+					Credits for Mux.com.
+					<br /> Applies only to new Mux customers.
+				</InfoTooltip>
 			</PricingBulletPoint>
 			<div style={{height: 30}} />
-			<div className={'flex flex-col md:flex-row md:items-center'}>
-				<div style={textUnitWrapper}>
-					<div className={'fontbrand font-bold text-lg'}>Developer Seats</div>
-					<div className={'text-muted fontbrand text-sm'}>
-						Number of developers working with Remotion
+
+			{/* Remotion for Creators Section */}
+			<SectionCheckbox
+				checked={creatorsSelected}
+				onChange={setCreatorsSelected}
+				title="Remotion for Creators"
+				subtitle="Create videos for yourself - $25/mo per seat"
+			>
+				<InfoTooltip>
+					Intended for low volume video creations through coding and prompting,
+					and building motion design systems in a local environment.
+					<br />
+					<br />
+					Get 1 Seat per user.
+				</InfoTooltip>
+			</SectionCheckbox>
+			<div
+				className={cn(
+					'grid ease-out',
+					creatorsSelected
+						? 'grid-rows-[1fr] opacity-100'
+						: 'grid-rows-[0fr] opacity-0',
+				)}
+				style={{
+					transition: creatorsSelected
+						? 'grid-template-rows 150ms ease-out, opacity 150ms ease-out 75ms'
+						: 'opacity 150ms ease-out, grid-template-rows 150ms ease-out 75ms',
+				}}
+			>
+				<div className="overflow-hidden">
+					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full py-3">
+						<div className="flex-1 min-w-0">
+							<PricingSlider
+								value={devSeatCount}
+								onChange={setDevSeatCount}
+								min={1}
+								max={50}
+							/>
+						</div>
+
+						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-center">
+							{devSeatCount} {devSeatCount === 1 ? 'Seat' : 'Seats'}
+						</div>
+
+						<div className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap">
+							$
+							{new Intl.NumberFormat('en-US', {
+								maximumFractionDigits: 0,
+							}).format(SEAT_PRICE * devSeatCount)}
+						</div>
 					</div>
 				</div>
-				<div style={{flex: 3}} className="hidden md:block" />
-				<div className="flex flex-row items-center justify-between mt-3 md:mt-0">
-					<Counter
-						count={devSeatCount}
-						setCount={setDevSeatCount}
-						minCount={1}
-						incrementStep={1}
-						step={1}
-					/>
-					<SmallPriceTag>
-						{`$${new Intl.NumberFormat('en-US', {
-							maximumFractionDigits: 0,
-						}).format(SEAT_PRICE * devSeatCount)}`}
-					</SmallPriceTag>
-				</div>
 			</div>
-			<div style={{height: 14}} />
-			<div className={'flex flex-col md:flex-row md:items-center'}>
-				<div style={textUnitWrapper}>
-					<div className={'fontbrand font-bold text-lg'}>Video renders</div>
-					<div className={'text-muted fontbrand text-sm'}>
-						<a
-							href="https://www.remotion.dev/docs/render"
-							className="underline underline-offset-4 text-inherit"
-						>
-							Renders per month (self-hosted)
-						</a>
+
+			<div className="h-6" />
+
+			{/* Remotion for Automators Section */}
+			<SectionCheckbox
+				checked={automatorsSelected}
+				onChange={setAutomatorsSelected}
+				title="Remotion for Automators"
+				subtitle="Build video creation tools - $0.01 per render, $100/mo minimum"
+			>
+				<InfoTooltip>
+					Intended for companies launching <br />
+					SaaS applications; such as video editors and prompt-to-video apps, and
+					automated high-volume video creation.
+					<br />
+					<br />A $100/mo Minimum Spend applies.
+					<br />
+					<br />
+					Developers working on automation projects do not require a
+					Seat.
+				</InfoTooltip>
+			</SectionCheckbox>
+			<div
+				className={cn(
+					'grid ease-out',
+					automatorsSelected
+						? 'grid-rows-[1fr] opacity-100'
+						: 'grid-rows-[0fr] opacity-0',
+				)}
+				style={{
+					transition: automatorsSelected
+						? 'grid-template-rows 150ms ease-out, opacity 150ms ease-out 75ms'
+						: 'opacity 150ms ease-out, grid-template-rows 150ms ease-out 75ms',
+				}}
+			>
+				<div className="overflow-hidden">
+					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full py-3">
+						<div className="flex-1 min-w-0">
+							<PricingSlider
+								value={cloudRenders}
+								onChange={setCloudRenders}
+								min={1000}
+								max={100000}
+								step={1000}
+							/>
+						</div>
+
+						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-right">
+							{new Intl.NumberFormat('en-US').format(cloudRenders)} Renders
+						</div>
+
+						<div className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap">
+							$
+							{new Intl.NumberFormat('en-US', {
+								maximumFractionDigits: 0,
+							}).format(Math.ceil(cloudRenders / 1000) * RENDER_UNIT_PRICE)}
+						</div>
 					</div>
 				</div>
-				<div style={{flex: 3}} className="hidden md:block" />
-				<div className="flex flex-row items-center justify-between mt-3 md:mt-0">
-					<Counter
-						count={cloudRenders}
-						setCount={setCloudRenders}
-						minCount={0}
-						step={1}
-						incrementStep={1000}
-					/>
-					<SmallPriceTag>
-						{`$${new Intl.NumberFormat('en-US', {
-							maximumFractionDigits: 0,
-						}).format(Math.ceil(cloudRenders / 1000) * RENDER_UNIT_PRICE)}`}
-					</SmallPriceTag>
-				</div>
 			</div>
+
 			<div style={{height: 14}} />
 			<div className={'flex flex-row justify-end'}>
 				<div style={{...textUnitWrapper, alignItems: 'flex-end'}}>
-					<PriceTag>{totalPriceString}/mo</PriceTag>
+					<PriceTag>{totalPriceString}/month</PriceTag>
 					<BottomInfo
-						data-visible={totalPrice <= 100}
+						data-visible={showMinimumMessage}
 						className="opacity-0 data-[visible=true]:opacity-100 transition-opacity"
 					>
-						The minimum is $100 per month
+						The minimum is $100 per month for Remotion for Automators
+					</BottomInfo>
+					<BottomInfo
+						data-visible={showEnterpriseMessage}
+						className="opacity-0 data-[visible=true]:opacity-100 transition-opacity"
+					>
+						At this spend, you are eligible for the Enterprise License.
+						<br /> You can select it when setting up your license, or{' '}
+						<a className="bluelink" target="_blank" href="https://www.remotion.pro/contact">
+							contact us
+						</a>
+						.
 					</BottomInfo>
 				</div>
 			</div>

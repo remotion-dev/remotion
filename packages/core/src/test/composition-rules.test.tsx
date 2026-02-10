@@ -65,6 +65,7 @@ describe('Render composition-rules should throw with invalid props', () => {
 							numberOfAudioTags={0}
 							logLevel="info"
 							audioLatencyHint="interactive"
+							nonceContextSeed={1}
 						>
 							<RenderAssetManagerProvider collectAssets={null}>
 								<Composition

@@ -54,14 +54,22 @@ export const getTimelineSequenceLayout = ({
 		lastFrame - startFrom,
 	);
 
+	// Unclipped spatial duration: without the lastFrame - startFrom constraint
+	let naturalSpatialDuration = Math.min(
+		maxMediaSequenceDuration,
+		durationInFrames - 1,
+	);
+
 	const shouldAddHalfAFrameAtEnd = startFrom + durationInFrames < lastFrame;
 	const shouldAddHalfAFrameAtStart = startFrom > 0;
 	if (shouldAddHalfAFrameAtEnd) {
 		spatialDuration += 0.5;
+		naturalSpatialDuration += 0.5;
 	}
 
 	if (shouldAddHalfAFrameAtStart) {
 		spatialDuration += 0.5;
+		naturalSpatialDuration += 0.5;
 	}
 
 	const startFromWithOffset = shouldAddHalfAFrameAtStart
@@ -81,6 +89,14 @@ export const getTimelineSequenceLayout = ({
 		lastFrame,
 		nonNegativeMarginLeft,
 		spatialDuration,
+		windowWidth,
+	});
+
+	const naturalWidth = getWidthOfTrack({
+		durationInFrames,
+		lastFrame,
+		nonNegativeMarginLeft,
+		spatialDuration: naturalSpatialDuration,
 		windowWidth,
 	});
 
@@ -107,6 +123,7 @@ export const getTimelineSequenceLayout = ({
 	return {
 		marginLeft: Math.max(marginLeft, 0) - (premountWidth ?? 0),
 		width: width + (premountWidth ?? 0) + (postmountWidth ?? 0),
+		naturalWidth: naturalWidth + (premountWidth ?? 0) + (postmountWidth ?? 0),
 		premountWidth,
 		postmountWidth,
 	};

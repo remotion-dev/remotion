@@ -190,6 +190,9 @@
 			"path": "./packages/template-recorder"
 		},
 		{
+			"path": "./packages/template-vercel"
+		},
+		{
 			"path": "./packages/studio"
 		},
 		{
@@ -248,6 +251,9 @@
 		},
 		{
 			"path": "./packages/rounded-text-box"
+		},
+		{
+			"path": "./packages/light-leaks"
 		}
 	]
 }

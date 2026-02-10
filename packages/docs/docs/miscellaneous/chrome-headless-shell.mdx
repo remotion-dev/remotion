@@ -73,6 +73,19 @@ The file structure inside this folder varies by OS.
 
 `platform` can be one of `mac-arm64`, `mac-x64`, `linux64`, `linux-arm64` or `win64`.
 
+## Version tracking<AvailableFrom v="4.0.415" />
+
+Remotion writes a `VERSION` file to the download folder to track which Chrome version is installed:
+
+```
+node_modules/.remotion/chrome-headless-shell/VERSION
+node_modules/.remotion/chrome-for-testing/VERSION
+```
+
+The file contains the Chrome version string, e.g. `144.0.7559.20`.
+
+If the `VERSION` file is missing (e.g. when upgrading from an older version of Remotion) or does not match the expected version, Remotion will delete the existing browser and download the correct version.
+
 ## Bring your own binary
 
 If you don't want Chrome Headless Shell or Chrome for Testing to get installed or your platform is not supported, you need to specify your own Chromium-based browser:
@@ -123,15 +136,12 @@ Hence we encourage you to use Chrome Headless Shell to future-proof your Remotio
 
 Remotion will download a well-tested Chrome version:
 
-| Remotion version | Chrome version |
-| ---------------- | -------------- |
-| From 4.0.315     | 134.0.6998.35  |
-| From 4.0.274     | 133.0.6943.141 |
-| From 4.0.245     | 123.0.6312.86  |
-
-:::note
-On Lambda, the upgrade to 134.0.6998.35 is not yet available.
-:::
+| Remotion version | Chrome version                    |
+| ---------------- | --------------------------------- |
+| From 4.0.414     | 144.0.7559.97                     |
+| From 4.0.315     | 134.0.6998.35 (skipped on Lambda) |
+| From 4.0.274     | 133.0.6943.141                    |
+| From 4.0.245     | 123.0.6312.86                     |
 
 Upgrades may happen in a patch release and will be listed here.
 

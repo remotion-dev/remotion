@@ -4,13 +4,11 @@ import {StudioServerInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {getNumberOfSharedAudioTags} from './config/number-of-shared-audio-tags';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
-import {detectRemotionServer} from './detect-remotion-server';
 import {findEntryPoint} from './entry-point';
 import {getEnvironmentVariables} from './get-env';
 import {getGitSource} from './get-github-repository';
 import {getInputProps} from './get-input-props';
 import {getRenderDefaults} from './get-render-defaults';
-import {isPortOpen} from './is-port-open';
 import {Log} from './log';
 import {parsedCli} from './parsed-cli';
 import {
@@ -41,6 +39,7 @@ const {
 	askAIOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
+	forceNewStudioOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -77,30 +76,6 @@ export const studioCommand = async (
 	}
 
 	const desiredPort = getPort();
-
-	const port = desiredPort ?? 3000;
-	const isFree = await isPortOpen(port);
-
-	if (!isFree && !parsedCli['force-new']) {
-		const detection = await detectRemotionServer(port, remotionRoot);
-
-		if (detection.type === 'match') {
-			Log.info(
-				{indent: false, logLevel},
-				`Remotion Studio already running on port ${port}. Opening browser...`,
-			);
-			await StudioServerInternals.openBrowser({
-				url: `http://localhost:${port}`,
-				browserFlag: parsedCli.browser,
-				browserArgs: parsedCli['browser-args'],
-			});
-			// On Windows, the browser process might be killed if we exit too quickly
-			await new Promise((resolve) => {
-				setTimeout(resolve, 2000);
-			});
-			return;
-		}
-	}
 
 	const fullEntryPath = convertEntryPointToServeUrl(file);
 
@@ -186,7 +161,7 @@ export const studioCommand = async (
 		);
 	}
 
-	await StudioServerInternals.startStudio({
+	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),
 		browserArgs: parsedCli['browser-args'],
 		browserFlag: parsedCli.browser,
@@ -223,7 +198,12 @@ export const studioCommand = async (
 		audioLatencyHint: parsedCli['audio-latency-hint'],
 		enableCrossSiteIsolation,
 		askAIEnabled,
+		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
 	});
+
+	if (result.type === 'already-running') {
+		return;
+	}
 
 	// If the server is restarted through the UI, let's do the whole thing again.
 	await studioCommand(remotionRoot, args, logLevel);

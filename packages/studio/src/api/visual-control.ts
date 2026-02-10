@@ -14,7 +14,7 @@ export const visualControl: VisualControlRef['globalVisualControl'] = (
 	}
 
 	if (!visualControlRef.current) {
-		throw new Error('visualControlRef is not set');
+		return value;
 	}
 
 	return visualControlRef.current.globalVisualControl(key, value, schema);
