@@ -804,7 +804,7 @@ Config.setAskAIEnabled(false);
 
 The [command line flag](/docs/cli/studio#--disable-ask-ai) `--disable-ask-ai` will take precedence over this option.
 
-## `setForceNewEnabled()`<AvailableFrom v="4.0.421" />
+## `setForceNewStudioEnabled()`<AvailableFrom v="4.0.421" />
 
 <Options id="force-new" />
 <br />
@@ -813,7 +813,7 @@ The [command line flag](/docs/cli/studio#--disable-ask-ai) `--disable-ask-ai` wi
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setForceNewEnabled(true);
+Config.setForceNewStudioEnabled(true);
 ```
 
 The [command line flag](/docs/cli/studio#--force-new) `--force-new` will take precedence over this option.

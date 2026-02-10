@@ -35,7 +35,7 @@ const {
 	audioLatencyHintOption,
 	darkModeOption,
 	publicLicenseKeyOption,
-	forceNewOption,
+	forceNewStudioOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -119,7 +119,7 @@ export type CommandLineOptions = {
 	'image-sequence-pattern': string;
 	'license-key': string;
 	[publicLicenseKeyOption.cliFlag]: string;
-	[forceNewOption.cliFlag]: TypeOfOption<typeof forceNewOption>;
+	[forceNewStudioOption.cliFlag]: TypeOfOption<typeof forceNewStudioOption>;
 };
 
 export const parseCommandLine = () => {

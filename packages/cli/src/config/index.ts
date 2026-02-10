@@ -128,7 +128,7 @@ const {
 	publicLicenseKeyOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
-	forceNewOption,
+	forceNewStudioOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -558,7 +558,7 @@ type FlatConfig = RemotionConfigObject &
 		 * Forces starting a new Studio instance even if one is already running on the same port for the same project.
 		 * Default: false
 		 */
-		setForceNewEnabled: (forceNew: boolean) => void;
+		setForceNewStudioEnabled: (forceNew: boolean) => void;
 
 		setDeleteAfter: (day: DeleteAfter | null) => void;
 		/**
@@ -731,7 +731,7 @@ export const Config: FlatConfig = {
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 	setAskAIEnabled: askAIOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
-	setForceNewEnabled: forceNewOption.setConfig,
+	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
 };
 
 export const ConfigInternals = {
