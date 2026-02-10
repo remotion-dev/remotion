@@ -120,7 +120,7 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/lottie/after-effects', '/docs/after-effects', {
 			permanent: false,
 		}),
-		routes.redirect('/docs/miscellaneous/render-all', 'docs/render-all', {
+		routes.redirect('/docs/miscellaneous/render-all', '/docs/render-all', {
 			permanent: false,
 		}),
 		routes.redirect('/docs/overlays', '/docs/overlay', {permanent: false}),
