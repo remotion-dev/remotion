@@ -48,21 +48,8 @@ npx remotion upgrade
 
 ## Deploy to Vercel
 
-### 1. Deploy your Remotion bundle
-
-First, build and deploy your Remotion bundle:
-
-```bash
-npx remotion bundle
-cd build
-vercel deploy --prod
-```
-
-Copy the deployment URL (e.g., `https://my-bundle.vercel.app`).
-
-**Note:** The bundle must be publicly accessible (no Vercel Authentication) since the sandbox fetches it without credentials.
-
-### 2. Create a Vercel Blob store
+The only requirement is to set up a Vercel Blob store and attach it to your project.  
+It is advisable to first deploy the template to Vercel so you have a project to attach the Blob store to.
 
 1. Go to your Vercel dashboard
 2. Navigate to Storage > Create > Blob
@@ -70,34 +57,22 @@ Copy the deployment URL (e.g., `https://my-bundle.vercel.app`).
 
 If you deploy your app to the same Vercel project where your Blob store is attached, the `BLOB_READ_WRITE_TOKEN` environment variable is automatically available.
 
-### 3. Set environment variables
-
-In your Vercel project settings, add:
-
-| Variable             | Description                          |
-| -------------------- | ------------------------------------ |
-| `REMOTION_SERVE_URL` | URL of your deployed Remotion bundle |
-
-When deployed to Vercel, the `BLOB_READ_WRITE_TOKEN` is automatically available if your Blob store is attached to the same project. For local development, see below.
-
-### 4. Deploy
-
-Connect your GitHub repository to Vercel and it will automatically deploy your app.
-
 ## Local Development
 
-To run renders locally, pull environment variables from Vercel:
+To get access to sandboxes, just make sure you are logged in with the [Vercel CLI](https://vercel.com/docs/cli):
+
+```bash
+vercel login
+```
+
+To run renders locally, pull the `BLOB_READ_WRITE_TOKEN` environment variable from your attached Blob store:
 
 ```bash
 vercel link  # Link to your Vercel project (if not already linked)
 vercel env pull .env.local
 ```
 
-This pulls `BLOB_READ_WRITE_TOKEN` from your attached Blob store. You'll also need to add `REMOTION_SERVE_URL` to `.env.local` manually:
-
-```
-REMOTION_SERVE_URL=https://your-bundle.vercel.app
-```
+This pulls `BLOB_READ_WRITE_TOKEN` from your attached Blob store.
 
 Then start the dev server:
 
@@ -105,18 +80,9 @@ Then start the dev server:
 npm run dev
 ```
 
-## How It Works
-
-1. User clicks "Render" in the browser
-2. API spawns a Vercel Sandbox (ephemeral Linux VM)
-3. Sandbox runs `renderMedia()` from `@remotion/renderer`
-4. Progress is streamed to the browser via Server-Sent Events
-5. Completed video is uploaded to Vercel Blob
-6. User receives the video URL
-
 ## Docs
 
-Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).
+Read more about this template [here](https://remotion.dev/docs/vercel-sandbox).
 
 ## Help
 
