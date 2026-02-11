@@ -142,8 +142,8 @@ describe('getRealFrameRange resolves open-ended ranges', () => {
 	});
 
 	test('throws if open-ended start is beyond composition duration', () => {
-		expect(() =>
-			RenderInternals.getRealFrameRange(3600, [5000, null]),
-		).toThrow(/not inbetween/);
+		expect(() => RenderInternals.getRealFrameRange(3600, [5000, null])).toThrow(
+			/not inbetween/,
+		);
 	});
 });

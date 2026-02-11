@@ -25,7 +25,11 @@ export const getRealFrameRange = (
 		frameRange[1] === null ? durationInFrames - 1 : frameRange[1],
 	];
 
-	if (resolved[0] < 0 || resolved[1] >= durationInFrames || resolved[0] > resolved[1]) {
+	if (
+		resolved[0] < 0 ||
+		resolved[1] >= durationInFrames ||
+		resolved[0] > resolved[1]
+	) {
 		throw new Error(
 			`The "durationInFrames" of the composition was evaluated to be ${durationInFrames}, but frame range ${resolved.join('-')} is not inbetween 0-${
 				durationInFrames - 1
