@@ -85,9 +85,9 @@ Default depends on the container:
 
 ### `frameRange?`
 
-_number | [number, number]_ <TsType type="FrameRange" source="@remotion/web-renderer" />
+_number | [number, number] | [number, null]_ <TsType type="FrameRange" source="@remotion/web-renderer" />
 
-Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
+Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
 
 ### `scale?`
 
