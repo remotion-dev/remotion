@@ -40,6 +40,7 @@ const {
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
+	audioLatencyHintOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -175,7 +176,9 @@ export const studioCommand = async (
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
 		forceIPv4: parsedCli.ipv4,
-		audioLatencyHint: parsedCli['audio-latency-hint'],
+		audioLatencyHint: audioLatencyHintOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		enableCrossSiteIsolation,
 		askAIEnabled,
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
