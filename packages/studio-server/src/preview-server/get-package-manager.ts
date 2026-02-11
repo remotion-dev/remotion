@@ -42,18 +42,7 @@ export const lockFilePaths: LockfilePath[] = [
 	},
 ];
 
-export const detectMultipleLockfiles = (
-	remotionRoot: string,
-	dirUp: number,
-): string[] => {
-	return lockFilePaths
-		.filter((p) =>
-			fs.existsSync(
-				path.join(remotionRoot, ...new Array(dirUp).fill('..'), p.path),
-			),
-		)
-		.map((p) => p.path);
-};
+let warnedAboutMultipleLockfiles = false;
 
 export const getPackageManager = (
 	remotionRoot: string,
@@ -86,6 +75,21 @@ export const getPackageManager = (
 
 	if (existingPkgManagers.length === 0) {
 		return getPackageManager(remotionRoot, packageManager, dirUp + 1);
+	}
+
+	if (existingPkgManagers.length > 1 && !warnedAboutMultipleLockfiles) {
+		warnedAboutMultipleLockfiles = true;
+		// eslint-disable-next-line no-console
+		console.warn('⚠️  Multiple lockfiles detected:');
+		for (const pkgManager of existingPkgManagers) {
+			// eslint-disable-next-line no-console
+			console.warn(`  - ${pkgManager.path}`);
+		}
+
+		// eslint-disable-next-line no-console
+		console.warn('');
+		// eslint-disable-next-line no-console
+		console.warn('This can cause dependency inconsistencies.');
 	}
 
 	return existingPkgManagers[0];
