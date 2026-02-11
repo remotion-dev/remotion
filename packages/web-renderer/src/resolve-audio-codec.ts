@@ -54,6 +54,20 @@ export const resolveAudioCodec = async (options: {
 		return {codec: null, issues};
 	}
 
+	// Firefox produces bad audio with AAC, even if it says it supports it.
+	const isFirefox =
+		typeof navigator !== 'undefined' &&
+		navigator.userAgent.toLowerCase().includes('firefox');
+	if (isFirefox && audioCodec === 'aac') {
+		issues.push({
+			type: 'audio-codec-unsupported',
+			message: `Audio codec "aac" is not supported on Firefox due to known quality issues. Automatically falling back to "opus".`,
+			severity: 'warning',
+		});
+
+		return {codec: 'opus', issues};
+	}
+
 	for (const fallbackCodec of supportedAudioCodecs) {
 		if (fallbackCodec !== audioCodec) {
 			const fallbackMediabunnyCodec =
