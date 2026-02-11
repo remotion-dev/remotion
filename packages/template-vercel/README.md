@@ -11,7 +11,7 @@ This template uses the Next.js App directory with TailwindCSS. Videos are render
 [Use this template](https://github.com/new?template_name=template-vercel&template_owner=remotion-dev) to clone it into your GitHub account. Run
 
 ```
-bun install
+npm install
 ```
 
 afterwards. Alternatively, use this command to scaffold a project:
@@ -25,7 +25,7 @@ npx create-video@latest --vercel
 Start the Next.js dev server:
 
 ```
-bun run dev
+npm run dev
 ```
 
 Open the Remotion Studio:
@@ -37,13 +37,13 @@ npx remotion studio
 Render a video locally:
 
 ```
-bunx remotion render
+npx remotion render
 ```
 
 Upgrade Remotion:
 
 ```
-bunx remotion upgrade
+npx remotion upgrade
 ```
 
 ## Deploy to Vercel
@@ -77,7 +77,7 @@ This pulls `BLOB_READ_WRITE_TOKEN` from your attached Blob store.
 Then start the dev server:
 
 ```bash
-bun run dev
+npm run dev
 ```
 
 ## Docs
