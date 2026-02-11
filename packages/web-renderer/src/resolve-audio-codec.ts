@@ -40,32 +40,32 @@ export const resolveAudioCodec = async (options: {
 	const mediabunnyAudioCodec = audioCodecToMediabunnyAudioCodec(audioCodec);
 	const canEncode = await canEncodeAudio(mediabunnyAudioCodec, {bitrate});
 
-	if (canEncode) {
-		return {codec: audioCodec, issues};
-	}
-
-	if (userSpecifiedAudioCodec) {
-		issues.push({
-			type: 'audio-codec-unsupported',
-			message: `Audio codec "${audioCodec}" cannot be encoded by this browser. This is common for AAC on Firefox. Try using "opus" instead.`,
-			severity: 'error',
-		});
-
-		return {codec: null, issues};
-	}
-
 	// Firefox produces bad audio with AAC, even if it says it supports it.
 	const isFirefox =
 		typeof navigator !== 'undefined' &&
 		navigator.userAgent.toLowerCase().includes('firefox');
 	if (isFirefox && audioCodec === 'aac') {
+		if (userSpecifiedAudioCodec) {
+			issues.push({
+				type: 'audio-codec-unsupported',
+				message: `Audio codec "${audioCodec}" cannot be encoded by this browser. This is common for AAC on Firefox. Try using "opus" instead.`,
+				severity: 'error',
+			});
+
+			return {codec: null, issues};
+		}
+
 		issues.push({
 			type: 'audio-codec-unsupported',
-			message: `Audio codec "aac" is not supported on Firefox due to known quality issues. Automatically falling back to "opus".`,
+			message: `Falling back from audio codec "aac" to "opus" on Firefox due to known quality issues.`,
 			severity: 'warning',
 		});
 
 		return {codec: 'opus', issues};
+	}
+
+	if (canEncode) {
+		return {codec: audioCodec, issues};
 	}
 
 	for (const fallbackCodec of supportedAudioCodecs) {
