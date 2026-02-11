@@ -1,12 +1,24 @@
-import {webdriverio} from '@vitest/browser-webdriverio';
+import {playwright} from '@vitest/browser-playwright';
 import path from 'node:path';
 import {defineConfig} from 'vitest/config';
 
 export default defineConfig({
 	test: {
 		browser: {
-			provider: webdriverio(),
-			instances: [{browser: 'chrome'}],
+			provider: playwright(),
+			instances: [
+				{
+					browser: 'chromium',
+					provider: playwright({
+						launchOptions: {
+							channel: 'chrome',
+						},
+					}),
+				},
+				{
+					browser: 'firefox',
+				},
+			],
 			headless: true,
 			screenshotFailures: false,
 		},

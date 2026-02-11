@@ -92,6 +92,8 @@ export const convertAudioData = ({
 		frameCount,
 	});
 
+	console.log('srcChannels', srcChannels);
+
 	const data = new Int16Array(newNumberOfFrames * TARGET_NUMBER_OF_CHANNELS);
 	const chunkSize = frameCount / newNumberOfFrames;
 

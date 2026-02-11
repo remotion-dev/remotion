@@ -1,0 +1,321 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-0-first10 1`] = `
+[
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-0-last10 1`] = `
+[
+  -372,
+  -549,
+  -165,
+  -271,
+  10,
+  -107,
+  116,
+  -12,
+  184,
+  151,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-0-sum 1`] = `-37638`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-1-first10 1`] = `
+[
+  219,
+  280,
+  175,
+  242,
+  129,
+  216,
+  178,
+  302,
+  233,
+  317,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-1-last10 1`] = `
+[
+  -515,
+  -1100,
+  -795,
+  -1530,
+  -735,
+  -1520,
+  -639,
+  -1386,
+  -793,
+  -1558,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-1-sum 1`] = `184794`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-2-first10 1`] = `
+[
+  -1449,
+  -2252,
+  -2129,
+  -2852,
+  -2186,
+  -2803,
+  -1939,
+  -2629,
+  -1934,
+  -2760,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-2-last10 1`] = `
+[
+  29,
+  452,
+  239,
+  640,
+  151,
+  587,
+  -95,
+  374,
+  -247,
+  214,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-2-sum 1`] = `-4022`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-3-first10 1`] = `
+[
+  -402,
+  68,
+  -419,
+  58,
+  -412,
+  35,
+  -911,
+  -460,
+  -1605,
+  -1107,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-3-last10 1`] = `
+[
+  144,
+  -354,
+  352,
+  -168,
+  810,
+  264,
+  1096,
+  505,
+  877,
+  242,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-3-sum 1`] = `-55271`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-4-first10 1`] = `
+[
+  -104,
+  -766,
+  -1564,
+  -2251,
+  -2308,
+  -3028,
+  -1853,
+  -2605,
+  -1386,
+  -2163,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-4-last10 1`] = `
+[
+  -808,
+  -660,
+  -1141,
+  -983,
+  -822,
+  -674,
+  -450,
+  -318,
+  -739,
+  -623,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-4-sum 1`] = `29618`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-5-first10 1`] = `
+[
+  -1351,
+  -1261,
+  -2024,
+  -1977,
+  -3314,
+  -3322,
+  -5005,
+  -5067,
+  -5783,
+  -5890,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-5-last10 1`] = `
+[
+  14921,
+  13311,
+  13080,
+  11552,
+  12247,
+  10809,
+  12936,
+  11575,
+  13706,
+  12422,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-5-sum 1`] = `-87014`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-6-first10 1`] = `
+[
+  13593,
+  12389,
+  12470,
+  11329,
+  10323,
+  9243,
+  7674,
+  6675,
+  5618,
+  4712,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-6-last10 1`] = `
+[
+  10202,
+  10087,
+  8771,
+  8704,
+  6993,
+  7010,
+  7535,
+  7649,
+  9049,
+  9227,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-6-sum 1`] = `140323`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-7-first10 1`] = `
+[
+  8301,
+  8528,
+  4900,
+  5210,
+  2057,
+  2449,
+  1704,
+  2090,
+  1229,
+  1520,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-7-last10 1`] = `
+[
+  3407,
+  3507,
+  2608,
+  2859,
+  1579,
+  2207,
+  949,
+  1995,
+  703,
+  1945,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-7-sum 1`] = `-104504`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-8-first10 1`] = `
+[
+  763,
+  1813,
+  1299,
+  1865,
+  1900,
+  1992,
+  1928,
+  1803,
+  1667,
+  1599,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-8-last10 1`] = `
+[
+  -5267,
+  -5582,
+  -4603,
+  -4819,
+  -3590,
+  -3835,
+  -2846,
+  -3244,
+  -2548,
+  -3094,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-8-sum 1`] = `32453`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-9-first10 1`] = `
+[
+  -2889,
+  -3455,
+  -3223,
+  -3719,
+  -2819,
+  -3262,
+  -2644,
+  -3079,
+  -3705,
+  -4128,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-9-last10 1`] = `
+[
+  -4728,
+  -6248,
+  -4051,
+  -5481,
+  -3687,
+  -4959,
+  -4434,
+  -5413,
+  -5342,
+  -5825,
+]
+`;
+
+exports[`Audio samples from MP3 should produce identical s16 output on Chrome and Firefox > sample-9-sum 1`] = `-378527`;

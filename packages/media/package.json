@@ -31,12 +31,12 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"@vitest/browser-webdriverio": "4.0.9",
+		"@vitest/browser-playwright": "catalog:",
 		"eslint": "catalog:",
+		"playwright": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"vitest": "catalog:",
-		"webdriverio": "9.19.2",
 		"@typescript/native-preview": "catalog:"
 	},
 	"keywords": [],
