@@ -11,6 +11,7 @@ import {Internals} from 'remotion';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
+import type {ClientRenderJob} from './client-side-render-types';
 import {isRestoredClientJob} from './client-side-render-types';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
@@ -19,6 +20,7 @@ import {
 	RenderQueueCopyToClipboard,
 	supportsCopyingToClipboard,
 } from './RenderQueueCopyToClipboard';
+import {RenderQueueDownloadItem} from './RenderQueueDownloadItem';
 import {RenderQueueError} from './RenderQueueError';
 import {RenderQueueCancelButton} from './RenderQueueItemCancelButton';
 import {RenderQueueItemStatus} from './RenderQueueItemStatus';
@@ -97,6 +99,9 @@ export const RenderQueueItem: React.FC<{
 			?.scrollIntoView({behavior: 'smooth'});
 	}, []);
 
+	const clientJobGetBlob =
+		isClientJob && job.status === 'done' ? job.getBlob : undefined;
+
 	const onClick: React.MouseEventHandler = useCallback(() => {
 		if (job.status !== 'done') {
 			return;
@@ -104,6 +109,28 @@ export const RenderQueueItem: React.FC<{
 
 		// Cannot show folders
 		if (!isClientJob && job.type === 'sequence') {
+			return;
+		}
+
+		if (clientJobGetBlob) {
+			setCanvasContent((c: CanvasContent | null): CanvasContent => {
+				const isAlreadySelected =
+					c && c.type === 'output-blob' && c.displayName === job.outName;
+
+				if (isAlreadySelected && !selected) {
+					scrollCurrentIntoView();
+					return c;
+				}
+
+				return {
+					type: 'output-blob',
+					displayName: job.outName,
+					getBlob: clientJobGetBlob,
+					width: job.metadata.width,
+					height: job.metadata.height,
+					sizeInBytes: job.metadata.sizeInBytes,
+				};
+			});
 			return;
 		}
 
@@ -119,7 +146,14 @@ export const RenderQueueItem: React.FC<{
 			return {type: 'output', path: `/${job.outName}`};
 		});
 		pushUrl(`/outputs/${job.outName}`);
-	}, [job, isClientJob, scrollCurrentIntoView, selected, setCanvasContent]);
+	}, [
+		job,
+		isClientJob,
+		clientJobGetBlob,
+		scrollCurrentIntoView,
+		selected,
+		setCanvasContent,
+	]);
 
 	useEffect(() => {
 		if (selected) {
@@ -175,7 +209,13 @@ export const RenderQueueItem: React.FC<{
 			) : (
 				<RenderQueueRemoveItem job={job} />
 			)}
-			{job.status === 'done' ? <RenderQueueOpenInFinderItem job={job} /> : null}
+			{job.status === 'done' ? (
+				clientJobGetBlob ? (
+					<RenderQueueDownloadItem job={job as ClientRenderJob} />
+				) : (
+					<RenderQueueOpenInFinderItem job={job} />
+				)
+			) : null}
 		</Row>
 	);
 };

@@ -25,6 +25,7 @@ import type {
 	ClientRenderJobProgress,
 	ClientStillRenderJob,
 	ClientVideoRenderJob,
+	GetBlobCallback,
 	RestoredClientRenderJob,
 } from './client-side-render-types';
 
@@ -70,6 +71,7 @@ type RenderQueueContextType = {
 	markClientJobDone: (
 		jobId: string,
 		metadata: CompletedClientRender['metadata'],
+		getBlob?: GetBlobCallback,
 	) => void;
 	markClientJobFailed: (jobId: string, error: Error) => void;
 	markClientJobCancelled: (jobId: string) => void;
@@ -216,15 +218,17 @@ export const RenderQueueContextProvider: React.FC<{
 	}, []);
 
 	const markClientJobDone = useCallback(
-		(jobId: string, metadata: CompletedClientRender['metadata']): void => {
+		(
+			jobId: string,
+			metadata: CompletedClientRender['metadata'],
+			getBlob?: GetBlobCallback,
+		): void => {
 			deleteAbortController(jobId);
 			cleanupCompositionForJob(jobId);
 
 			setClientJobs((prev) =>
 				prev.map((job) =>
-					job.id === jobId
-						? ({...job, status: 'done', metadata} as ClientRenderJob)
-						: job,
+					job.id === jobId ? {...job, status: 'done', metadata, getBlob} : job,
 				),
 			);
 			setCurrentlyProcessing(null);

@@ -304,7 +304,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			return initialDefaultOutName;
 		}
 
-		return getDefaultOutLocation({
+		const defaultOut = getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
 			defaultExtension:
 				renderMode === 'still'
@@ -315,6 +315,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			type: 'asset',
 			compositionDefaultOutName: resolvedComposition.defaultOutName,
 		});
+
+		if (window.remotion_isReadOnlyStudio) {
+			return defaultOut.replace(/^out\//, '');
+		}
+
+		return defaultOut;
 	});
 
 	const [outName, setOutName] = useState(() => initialOutNameState);

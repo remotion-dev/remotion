@@ -26,7 +26,7 @@ type RenderResult = {
 	height: number;
 };
 
-const downloadBlob = (blob: Blob, filename: string): void => {
+export const downloadBlob = (blob: Blob, filename: string): void => {
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement('a');
 	a.href = url;
@@ -185,26 +185,36 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 
 				markClientJobSaving(job.id);
 
-				try {
-					await saveOutputFile({blob, filePath: job.outName});
-					await registerClientRender({
-						id: job.id,
-						type: job.type,
-						compositionId: job.compositionId,
-						outName: job.outName,
-						startedAt: job.startedAt,
-						deletedOutputLocation: false,
-						metadata,
-					});
-					markClientJobDone(job.id, metadata);
-				} catch (err) {
-					// eslint-disable-next-line no-console
-					console.error(
-						'Failed to save render output, falling back to browser download.',
-						err,
-					);
+				const getBlob = () => Promise.resolve(blob);
+
+				const downloadAndFinish = () => {
 					downloadBlob(blob, job.outName);
-					markClientJobDone(job.id, metadata);
+					markClientJobDone(job.id, metadata, getBlob);
+				};
+
+				if (window.remotion_isReadOnlyStudio) {
+					downloadAndFinish();
+				} else {
+					try {
+						await saveOutputFile({blob, filePath: job.outName});
+						await registerClientRender({
+							id: job.id,
+							type: job.type,
+							compositionId: job.compositionId,
+							outName: job.outName,
+							startedAt: job.startedAt,
+							deletedOutputLocation: false,
+							metadata,
+						});
+						markClientJobDone(job.id, metadata);
+					} catch (err) {
+						// eslint-disable-next-line no-console
+						console.error(
+							'Failed to save render output, falling back to browser download.',
+							err,
+						);
+						downloadAndFinish();
+					}
 				}
 			} catch (err) {
 				if (abortController.signal.aborted) {

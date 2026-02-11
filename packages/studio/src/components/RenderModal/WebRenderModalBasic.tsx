@@ -239,7 +239,9 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 				outName={outName}
 				onValueChange={onOutNameChange}
 				validationMessage={validationMessage}
-				label="Output name"
+				label={
+					window.remotion_isReadOnlyStudio ? 'Download name' : 'Output name'
+				}
 			/>
 			<div style={optionRow}>
 				<div style={label}>
