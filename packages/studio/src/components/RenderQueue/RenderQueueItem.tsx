@@ -99,8 +99,18 @@ export const RenderQueueItem: React.FC<{
 			?.scrollIntoView({behavior: 'smooth'});
 	}, []);
 
-	const clientJobGetBlob =
-		isClientJob && job.status === 'done' ? job.getBlob : undefined;
+	const clientBlobInfo = useMemo(() => {
+		if (!isClientJob || job.status !== 'done' || !job.getBlob) {
+			return null;
+		}
+
+		return {
+			getBlob: job.getBlob,
+			width: job.metadata.width,
+			height: job.metadata.height,
+			sizeInBytes: job.metadata.sizeInBytes,
+		};
+	}, [isClientJob, job]);
 
 	const onClick: React.MouseEventHandler = useCallback(() => {
 		if (job.status !== 'done') {
@@ -112,7 +122,7 @@ export const RenderQueueItem: React.FC<{
 			return;
 		}
 
-		if (clientJobGetBlob) {
+		if (clientBlobInfo) {
 			setCanvasContent((c: CanvasContent | null): CanvasContent => {
 				const isAlreadySelected =
 					c && c.type === 'output-blob' && c.displayName === job.outName;
@@ -125,10 +135,10 @@ export const RenderQueueItem: React.FC<{
 				return {
 					type: 'output-blob',
 					displayName: job.outName,
-					getBlob: clientJobGetBlob,
-					width: job.metadata.width,
-					height: job.metadata.height,
-					sizeInBytes: job.metadata.sizeInBytes,
+					getBlob: clientBlobInfo.getBlob,
+					width: clientBlobInfo.width,
+					height: clientBlobInfo.height,
+					sizeInBytes: clientBlobInfo.sizeInBytes,
 				};
 			});
 			return;
@@ -149,7 +159,7 @@ export const RenderQueueItem: React.FC<{
 	}, [
 		job,
 		isClientJob,
-		clientJobGetBlob,
+		clientBlobInfo,
 		scrollCurrentIntoView,
 		selected,
 		setCanvasContent,
@@ -210,7 +220,7 @@ export const RenderQueueItem: React.FC<{
 				<RenderQueueRemoveItem job={job} />
 			)}
 			{job.status === 'done' ? (
-				clientJobGetBlob ? (
+				clientBlobInfo ? (
 					<RenderQueueDownloadItem job={job as ClientRenderJob} />
 				) : (
 					<RenderQueueOpenInFinderItem job={job} />

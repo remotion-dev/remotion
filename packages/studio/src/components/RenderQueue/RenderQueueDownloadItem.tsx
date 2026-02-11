@@ -15,15 +15,13 @@ export const RenderQueueDownloadItem: React.FC<{
 				return;
 			}
 
-			job.getBlob()
+			job
+				.getBlob()
 				.then((blob) => {
 					downloadBlob(blob, job.outName);
 				})
-				.catch((err) => {
-					showNotification(
-						`Could not download file: ${(err as Error).message}`,
-						2000,
-					);
+				.catch((err: Error) => {
+					showNotification(`Could not download file: ${err.message}`, 2000);
 				});
 		},
 		[job],
@@ -55,6 +53,10 @@ export const RenderQueueDownloadItem: React.FC<{
 	);
 
 	return (
-		<InlineAction renderAction={renderAction} onClick={onClick} title="Download" />
+		<InlineAction
+			renderAction={renderAction}
+			onClick={onClick}
+			title="Download"
+		/>
 	);
 };

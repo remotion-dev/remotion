@@ -67,6 +67,7 @@ export type ClientVideoRenderJob = ClientRenderJobBase & {
 
 export type RestoredClientRenderJob = CompletedClientRender & {
 	status: 'done';
+	getBlob?: GetBlobCallback;
 };
 
 export type ClientRenderJob =
