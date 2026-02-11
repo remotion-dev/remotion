@@ -5,17 +5,19 @@
 bun install
 
 # Build all packages
-turbo run make
+bunx turbo run make
 
 # Run tests and linting
-turbo run lint test
+bunx turbo run lint test
 
 # Clean build artifacts
 bun run clean
 
 # Build a specific package
-turbo run make --filter='<package-name>'
+bunx turbo run make --filter='<package-name>'
 ```
+
+Use `bunx` (not `npx`) to run package binaries.
 
 The current Remotion version can be found in `packages/core/src/version.ts`. The next version should increment the patch version by 1.
 

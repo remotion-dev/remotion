@@ -190,7 +190,7 @@ Specify a location for a dotenv file - Default `.env`. [Read about how environme
 
 ### `--frames`
 
-[Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames. To render a still, use the [`still`](/docs/lambda/cli/still) command.
+[Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames. You can omit the start or end: `--frames=100-` renders from frame 100 to the end<AvailableFrom v="4.0.421" inline />, `--frames=-100` renders from the start to frame 100<AvailableFrom v="4.0.421" inline />. To render a still, use the [`still`](/docs/lambda/cli/still) command.
 
 ### `--every-nth-frame`<AvailableFrom v="3.1.0" />
 

@@ -53,7 +53,10 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		x264Preset,
 		everyNthFrame: z.number(),
 		numberOfGifLoops: z.number().nullable(),
-		frameRange: z.tuple([z.number(), z.number()]).or(z.number()).nullable(),
+		frameRange: z
+			.tuple([z.number(), z.number().nullable()])
+			.or(z.number())
+			.nullable(),
 		envVariables: z.record(z.string()),
 		chromiumOptions: chromiumOptions.optional(),
 		muted: z.boolean(),

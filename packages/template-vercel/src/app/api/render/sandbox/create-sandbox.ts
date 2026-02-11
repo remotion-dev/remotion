@@ -1,5 +1,9 @@
 import { Sandbox } from "@vercel/sandbox";
-import { createDisposableSandbox, OnProgressFn } from "../helpers";
+import {
+  createDisposableSandbox,
+  getRenderScript,
+  OnProgressFn,
+} from "../helpers";
 import { addBundleToSandbox } from "./add-bundle";
 import { installSystemDependencies } from "./install-system-dependencies";
 import { installJsDependencies } from "./install-js-dependencies";

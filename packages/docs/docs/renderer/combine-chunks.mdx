@@ -100,9 +100,9 @@ Do not change the value, even if you use the `frameRange` or `everyNthFrame` opt
 
 ### `frameRange?`
 
-_number | [number, number] | null_
+_number | [number, number] | [number, null] | null_
 
-Like [`frameRange`](/docs/renderer/render-media#framerange) that you would pass to [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda). The range of frames of which the video exists once all chunks are combined.
+Like [`frameRange`](/docs/renderer/render-media#framerange) that you would pass to [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda). The range of frames of which the video exists once all chunks are combined. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
 
 ### `everyNthFrame?`
 

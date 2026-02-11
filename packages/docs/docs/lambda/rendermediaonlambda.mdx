@@ -80,7 +80,7 @@ Cannot be used together with `framesPerLambda`. Use only one of them.
 
 ### `frameRange?`
 
-Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to render a subset of a video. Example: `[0, 9]` to select the first 10 frames. By passing `null` (default) all frames of a composition get rendered. To render a still, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
+Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to render a subset of a video. Example: `[0, 9]` to select the first 10 frames. By passing `null` (default) all frames of a composition get rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline /> To render a still, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
 
 ### `serveUrl`
 
