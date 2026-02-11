@@ -33,7 +33,12 @@ export const handleInstallPackage: ApiHandler<
 		}
 	}
 
-	const manager = getPackageManager(remotionRoot, undefined, 0);
+	const manager = getPackageManager({
+		remotionRoot,
+		packageManager: undefined,
+		dirUp: 0,
+		logLevel,
+	});
 	if (manager === 'unknown') {
 		throw new Error(
 			`No lockfile was found in your project (one of ${lockFilePaths

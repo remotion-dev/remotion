@@ -1,3 +1,5 @@
+import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {PackageManager} from '@remotion/studio-shared';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -42,11 +44,19 @@ export const lockFilePaths: LockfilePath[] = [
 	},
 ];
 
-export const getPackageManager = (
-	remotionRoot: string,
-	packageManager: string | undefined,
-	dirUp: number,
-): LockfilePath | 'unknown' => {
+let warnedAboutMultipleLockfiles = false;
+
+export const getPackageManager = ({
+	remotionRoot,
+	packageManager,
+	dirUp,
+	logLevel,
+}: {
+	remotionRoot: string;
+	packageManager: string | undefined;
+	dirUp: number;
+	logLevel: LogLevel;
+}): LockfilePath | 'unknown' => {
 	if (packageManager) {
 		const manager = lockFilePaths.find((p) => p.manager === packageManager);
 
@@ -72,20 +82,32 @@ export const getPackageManager = (
 	}
 
 	if (existingPkgManagers.length === 0) {
-		return getPackageManager(remotionRoot, packageManager, dirUp + 1);
+		return getPackageManager({
+			remotionRoot,
+			packageManager,
+			dirUp: dirUp + 1,
+			logLevel,
+		});
 	}
 
-	if (existingPkgManagers.length > 1) {
-		const error = [
-			`Found multiple lockfiles:`,
-			...existingPkgManagers.map((m) => {
-				return `- ${m.path}`;
-			}),
-			'',
-			'This can lead to bugs, delete all but one of these files and run this command again.',
-		].join('\n');
+	if (existingPkgManagers.length > 1 && !warnedAboutMultipleLockfiles) {
+		warnedAboutMultipleLockfiles = true;
+		RenderInternals.Log.warn(
+			{indent: false, logLevel},
+			'⚠️  Multiple lockfiles detected:',
+		);
+		for (const pkgManager of existingPkgManagers) {
+			RenderInternals.Log.warn(
+				{indent: false, logLevel},
+				`  - ${pkgManager.path}`,
+			);
+		}
 
-		throw new Error(error);
+		RenderInternals.Log.warn({indent: false, logLevel}, '');
+		RenderInternals.Log.warn(
+			{indent: false, logLevel},
+			'This can lead to bugs, delete all but one of these files.',
+		);
 	}
 
 	return existingPkgManagers[0];
