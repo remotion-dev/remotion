@@ -106,7 +106,7 @@ export const getPackageManager = ({
 		RenderInternals.Log.warn({indent: false, logLevel}, '');
 		RenderInternals.Log.warn(
 			{indent: false, logLevel},
-			'This can cause dependency inconsistencies.',
+			'This can lead to bugs, delete all but one of these files.',
 		);
 	}
 
