@@ -154,7 +154,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
-		previewURL: null,
+		previewURL: 'https://template-vercel.remotion.dev',
 		templateInMonorepo: 'template-vercel',
 		allowEnableTailwind: false,
 		contributedBy: null,
