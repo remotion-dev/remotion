@@ -140,6 +140,27 @@ export const studioCommand = async (
 
 	const gitSource = getGitSource({remotionRoot, disableGitSource, logLevel});
 
+	const lockfiles = StudioServerInternals.detectMultipleLockfiles(
+		remotionRoot,
+		0,
+	);
+	if (lockfiles.length > 1) {
+		Log.warn({indent: false, logLevel}, '⚠️  Multiple lockfiles detected:');
+		for (const lockfile of lockfiles) {
+			Log.warn({indent: false, logLevel}, `  - ${lockfile}`);
+		}
+
+		Log.warn({indent: false, logLevel}, '');
+		Log.warn(
+			{indent: false, logLevel},
+			'This can cause dependency inconsistencies.',
+		);
+		Log.warn(
+			{indent: false, logLevel},
+			'Remotion Studio will continue to run.',
+		);
+	}
+
 	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),
 		browserArgs: parsedCli['browser-args'],
