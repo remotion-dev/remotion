@@ -175,9 +175,7 @@ export const RenderQueueItem: React.FC<{
 			) : (
 				<RenderQueueRemoveItem job={job} />
 			)}
-			{job.status === 'done' ? (
-				<RenderQueueOpenInFinderItem job={job as RenderJob} />
-			) : null}
+			{job.status === 'done' ? <RenderQueueOpenInFinderItem job={job} /> : null}
 		</Row>
 	);
 };

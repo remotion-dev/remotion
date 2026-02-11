@@ -2,8 +2,16 @@ import type {CompletedClientRender} from '@remotion/studio-shared';
 
 const throwIfNotOk = async (response: Response): Promise<void> => {
 	if (!response.ok) {
-		const jsonResponse = await response.json();
-		throw new Error(jsonResponse.error);
+		try {
+			const jsonResponse = await response.json();
+			throw new Error(jsonResponse.error);
+		} catch (parseError) {
+			if (parseError instanceof Error && parseError.message) {
+				throw parseError;
+			}
+
+			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+		}
 	}
 };
 

@@ -320,6 +320,17 @@ const handleUploadOutput = ({
 			res.end(JSON.stringify({success: true}));
 		});
 
+		writeStream.on('error', (err) => {
+			res.statusCode = 500;
+			res.end(JSON.stringify({error: err.message}));
+		});
+
+		req.on('error', (err) => {
+			writeStream.destroy();
+			res.statusCode = 500;
+			res.end(JSON.stringify({error: err.message}));
+		});
+
 		req.pipe(writeStream);
 	} catch (err) {
 		res.statusCode = 500;

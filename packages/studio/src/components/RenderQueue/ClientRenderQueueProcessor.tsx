@@ -197,7 +197,12 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 						metadata,
 					});
 					markClientJobDone(job.id, metadata);
-				} catch {
+				} catch (err) {
+					// eslint-disable-next-line no-console
+					console.error(
+						'Failed to save render output, falling back to browser download.',
+						err,
+					);
 					downloadBlob(blob, job.outName);
 					markClientJobDone(job.id, metadata);
 				}
