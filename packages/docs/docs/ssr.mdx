@@ -10,9 +10,15 @@ import {TableOfContents} from './renderer/TableOfContents';
 
 Remotion's rendering engine is built with Node.JS, which makes it easy to render a video in the cloud.
 
+See the [Comparison of SSR options](/docs/compare-ssr) to help you decide which option is best for you.
+
 ## Render a video on AWS Lambda
 
-The easiest and fastest way to render videos in the cloud is to use [`@remotion/lambda`](/docs/lambda).
+The fastest way to render videos in the cloud is to use [`@remotion/lambda`](/docs/lambda).
+
+## Render using Vercel Sandbox
+
+The easiest way, especially for Vercel customers is to use [Vercel Sandbox](/docs/vercel-sandbox).
 
 ## Render a video using Node.js APIs
 
@@ -78,14 +84,10 @@ jobs:
           path: out/video.mp4
 ```
 
-<Step>1</Step> Commit the template to a GitHub repository.
-<br />
-<Step>2</Step> On GitHub, click the <code>Actions</code> tab.
-<br />
-<Step>3</Step> Select the <code>Render video</code> workflow on the left.
-<br />
-<Step>4</Step> A <code>Run workflow</code> button should appear. Click it.
-<br />
+<Step>1</Step> Commit the template to a GitHub repository.  
+<Step>2</Step> On GitHub, click the <code>Actions</code> tab.  
+<Step>3</Step> Select the <code>Render video</code> workflow on the left.  
+<Step>4</Step> A <code>Run workflow</code> button should appear. Click it.  
 <Step>5</Step> Fill in the props of the root component and click <code>Run workflow</code>.<br />
 <Step>6</Step> After the rendering is finished, you can download the video under <code>Artifacts</code>.<br />
 

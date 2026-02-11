@@ -985,6 +985,7 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/cloud-gpu-docker',
 				'compare-ssr',
 				'distributed-rendering',
+				'vercel-sandbox',
 				'cloudflare-containers',
 				'azure-container-apps',
 			],

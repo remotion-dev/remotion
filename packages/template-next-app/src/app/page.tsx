@@ -21,6 +21,8 @@ const container: React.CSSProperties = {
   maxWidth: 768,
   margin: "auto",
   marginBottom: 20,
+  paddingLeft: 16,
+  paddingRight: 16,
 };
 
 const outer: React.CSSProperties = {

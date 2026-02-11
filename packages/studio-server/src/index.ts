@@ -24,7 +24,6 @@ export type {
 } from '@remotion/studio-shared';
 
 import {AnsiDiff} from './ansi-diff';
-import {openBrowser} from './better-opn';
 import {
 	addCompletedClientRender,
 	getCompletedClientRenders,
@@ -60,7 +59,6 @@ export const StudioServerInternals = {
 	AnsiDiff,
 	formatBytes,
 	parseAndApplyCodemod,
-	openBrowser,
 	getInstalledDependencies,
 	getInstallCommand,
 	addCompletedClientRender,
