@@ -36,6 +36,8 @@ const {
 	darkModeOption,
 	publicLicenseKeyOption,
 	forceNewStudioOption,
+	numberOfSharedAudioTagsOption,
+	ipv4Option,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -51,7 +53,9 @@ export type CommandLineOptions = {
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
 	[numberOfGifLoopsOption.cliFlag]: TypeOfOption<typeof numberOfGifLoopsOption>;
-	['number-of-shared-audio-tags']: number;
+	[numberOfSharedAudioTagsOption.cliFlag]: TypeOfOption<
+		typeof numberOfSharedAudioTagsOption
+	>;
 	[offthreadVideoCacheSizeInBytesOption.cliFlag]: TypeOfOption<
 		typeof offthreadVideoCacheSizeInBytesOption
 	>;
@@ -109,7 +113,7 @@ export type CommandLineOptions = {
 	['user-agent']: string;
 	['out-dir']: string;
 	[audioLatencyHintOption.cliFlag]: AudioContextLatencyCategory;
-	ipv4: boolean;
+	[ipv4Option.cliFlag]: TypeOfOption<typeof ipv4Option>;
 	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
 	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;
 	[enableMultiprocessOnLinuxOption.cliFlag]: TypeOfOption<
