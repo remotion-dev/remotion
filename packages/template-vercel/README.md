@@ -13,7 +13,7 @@ This template uses the Next.js App directory with TailwindCSS. Videos are render
 [Use this template](https://github.com/new?template_name=template-vercel&template_owner=remotion-dev) to clone it into your GitHub account. Run
 
 ```
-npm install
+npm i
 ```
 
 afterwards. Alternatively, use this command to scaffold a project:
