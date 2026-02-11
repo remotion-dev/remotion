@@ -16,12 +16,6 @@ export type ClientRenderJobProgress = {
 
 export type GetBlobCallback = () => Promise<Blob>;
 
-export type ClientRenderMetadata = {
-	width: number;
-	height: number;
-	sizeInBytes: number;
-};
-
 type ClientRenderJobDynamicStatus =
 	| {status: 'idle'}
 	| {status: 'running'; progress: ClientRenderJobProgress}
@@ -29,7 +23,7 @@ type ClientRenderJobDynamicStatus =
 	| {
 			status: 'done';
 			getBlob?: GetBlobCallback;
-			metadata: ClientRenderMetadata;
+			metadata: CompletedClientRender['metadata'];
 	  }
 	| {status: 'cancelled'}
 	| {

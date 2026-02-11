@@ -31,10 +31,6 @@ export {
 	UpdateDefaultPropsResponse,
 } from './api-requests';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
-export type {
-	CompletedClientRender,
-	CompletedClientRenderMetadata,
-} from './completed-client-render';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
@@ -80,6 +76,7 @@ export {
 	StitchingProgressInput,
 	UiOpenGlOptions,
 } from './render-job';
+export type {CompletedClientRender} from './render-job';
 export {SOURCE_MAP_ENDPOINT} from './source-map-endpoint';
 export {
 	ScriptLine,

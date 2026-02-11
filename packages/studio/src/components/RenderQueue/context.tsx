@@ -23,7 +23,6 @@ import {
 import type {
 	ClientRenderJob,
 	ClientRenderJobProgress,
-	ClientRenderMetadata,
 	ClientStillRenderJob,
 	ClientVideoRenderJob,
 	RestoredClientRenderJob,
@@ -68,7 +67,10 @@ type RenderQueueContextType = {
 		progress: ClientRenderJobProgress,
 	) => void;
 	markClientJobSaving: (jobId: string) => void;
-	markClientJobDone: (jobId: string, metadata: ClientRenderMetadata) => void;
+	markClientJobDone: (
+		jobId: string,
+		metadata: CompletedClientRender['metadata'],
+	) => void;
 	markClientJobFailed: (jobId: string, error: Error) => void;
 	markClientJobCancelled: (jobId: string) => void;
 	removeClientJob: (jobId: string) => void;
@@ -214,7 +216,7 @@ export const RenderQueueContextProvider: React.FC<{
 	}, []);
 
 	const markClientJobDone = useCallback(
-		(jobId: string, metadata: ClientRenderMetadata): void => {
+		(jobId: string, metadata: CompletedClientRender['metadata']): void => {
 			deleteAbortController(jobId);
 			cleanupCompositionForJob(jobId);
 

@@ -194,3 +194,17 @@ export type RenderJob = {
 export type RenderJobWithCleanup = RenderJob & {
 	cleanup: (() => void)[];
 };
+
+export type CompletedClientRender = {
+	id: string;
+	type: 'client-video' | 'client-still';
+	compositionId: string;
+	outName: string;
+	startedAt: number;
+	deletedOutputLocation: boolean;
+	metadata: {
+		width: number;
+		height: number;
+		sizeInBytes: number;
+	};
+};

@@ -1,6 +1,5 @@
 import type {StaticFile} from 'remotion';
-import type {CompletedClientRender} from './completed-client-render';
-import type {RenderJob} from './render-job';
+import type {CompletedClientRender, RenderJob} from './render-job';
 
 export type EventSourceEvent =
 	| {
