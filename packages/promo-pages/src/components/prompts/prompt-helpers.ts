@@ -1,4 +1,4 @@
-import type {Submission} from './prompt-types';
+import type {PromptSubmission} from './prompt-types';
 
 export const formatLikeCount = (n: number): string => {
 	if (n < 1000) return String(n);
@@ -38,14 +38,14 @@ export const removeLikedId = (id: string) => {
 	}
 };
 
-export const getAvatarUrl = (s: Submission): string | null => {
+export const getAvatarUrl = (s: PromptSubmission): string | null => {
 	if (s.customAvatarUrl) return s.customAvatarUrl;
 	if (s.githubUsername) return `https://github.com/${s.githubUsername}.png`;
 	if (s.xUsername) return `https://unavatar.io/x/${s.xUsername}`;
 	return null;
 };
 
-export const getAuthorName = (s: Submission): string => {
+export const getAuthorName = (s: PromptSubmission): string => {
 	if (s.githubUsername) return s.githubUsername;
 	if (s.xUsername) return `@${s.xUsername}`;
 	return 'Anonymous';
@@ -64,8 +64,7 @@ export const getRelativeTime = (dateStr: string): string => {
 	const days = Math.floor(hours / 24);
 	if (days < 30) return `${days} day${days === 1 ? '' : 's'} ago`;
 	const months = Math.floor(days / 30);
-	if (months < 12)
-		return `${months} month${months === 1 ? '' : 's'} ago`;
+	if (months < 12) return `${months} month${months === 1 ? '' : 's'} ago`;
 	const years = Math.floor(months / 12);
 	return `${years} year${years === 1 ? '' : 's'} ago`;
 };

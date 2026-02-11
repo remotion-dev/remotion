@@ -2,7 +2,7 @@
 - Run `npm login` (I will manually do 2FA in the browser)
 - Use `op item get "Npmjs" --fields password --reveal` to get the password for NPM.
 - Use `op item get "Npmjs" --otp` to get a one-time password for 2FA.
-- Run `npm token create --name="PublishRemotionXXXXXX" --packages "remotion" --packages "create-video" --packages-and-scopes-permission read-write --bypass-2fa --scopes "@remotion"`. Replace XXXXXX with a random string so we have a unique name. It will ask for a password, use the `op` command to get the password for NPM. The NPM token will be printed.
+- Run `npm token create --name="PublishRemotionXXXXXX" --packages "remotion" --packages "create-video" --packages-and-scopes-permission read-write --bypass-2fa --scopes "@remotion" --otp=<otp>`. Replace XXXXXX with a random string so we have a unique name. Use `op item get "Npmjs" --otp` to get the OTP and pass it via `--otp=`. It will ask for a password, pipe in the password using `<<<`. The NPM token will be printed.
 - Run `bun i`
 - Run `bun run build`
 - Check `https://www.npmjs.com/package/remotion` to get the current version number

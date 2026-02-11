@@ -39,6 +39,7 @@ const {
 	askAIOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
+	forceNewStudioOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -139,7 +140,7 @@ export const studioCommand = async (
 
 	const gitSource = getGitSource({remotionRoot, disableGitSource, logLevel});
 
-	await StudioServerInternals.startStudio({
+	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),
 		browserArgs: parsedCli['browser-args'],
 		browserFlag: parsedCli.browser,
@@ -176,7 +177,12 @@ export const studioCommand = async (
 		audioLatencyHint: parsedCli['audio-latency-hint'],
 		enableCrossSiteIsolation,
 		askAIEnabled,
+		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
 	});
+
+	if (result.type === 'already-running') {
+		return;
+	}
 
 	// If the server is restarted through the UI, let's do the whole thing again.
 	await studioCommand(remotionRoot, args, logLevel);

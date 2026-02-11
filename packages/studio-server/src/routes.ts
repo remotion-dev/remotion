@@ -28,6 +28,7 @@ import type {LiveEventsServer} from './preview-server/live-events';
 import {parseRequestBody} from './preview-server/parse-body';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {serveStatic} from './preview-server/serve-static';
+import type {RemotionConfigResponse} from './remotion-config-response';
 
 const editorGuess = guessEditor();
 
@@ -44,6 +45,22 @@ const output404 = (response: ServerResponse): Promise<void> => {
 	response.end(
 		'The outputs/ prefix has been changed, this URL is no longer valid.',
 	);
+	return Promise.resolve();
+};
+
+const handleRemotionConfig = (
+	response: ServerResponse,
+	remotionRoot: string,
+): Promise<void> => {
+	response.writeHead(200, {
+		'Content-Type': 'application/json',
+	});
+	const body: RemotionConfigResponse = {
+		isRemotion: true,
+		cwd: remotionRoot,
+		version: process.env.REMOTION_VERSION ?? null,
+	};
+	response.end(JSON.stringify(body));
 	return Promise.resolve();
 };
 
@@ -414,6 +431,10 @@ export const handleRoutes = ({
 
 	if (url.pathname === SOURCE_MAP_ENDPOINT) {
 		return handleWasm(request, response);
+	}
+
+	if (url.pathname === '/__remotion_config') {
+		return handleRemotionConfig(response, remotionRoot);
 	}
 
 	if (url.pathname === '/events') {

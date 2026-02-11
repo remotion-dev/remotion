@@ -1,18 +1,17 @@
 import {Button, Card} from '@remotion/design';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {CardLikeButton} from './CardLikeButton';
-import {REMOTION_PRO_ORIGIN} from './config';
 import {Page} from './Page';
 import {getAuthorName, getAvatarUrl} from './prompt-helpers';
-import type {Submission} from './prompt-types';
+import type {PromptSubmission} from './prompt-types';
 
-const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
-	submission,
-}) => {
+const PromptSubmissionCard: React.FC<{
+	readonly promptSubmission: PromptSubmission;
+}> = ({promptSubmission}) => {
 	const [hovered, setHovered] = useState(false);
 	const [inView, setInView] = useState(false);
 	const cardRef = useRef<HTMLAnchorElement>(null);
-	const avatarUrl = getAvatarUrl(submission);
+	const avatarUrl = getAvatarUrl(promptSubmission);
 
 	useEffect(() => {
 		const el = cardRef.current;
@@ -29,14 +28,13 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 	}, []);
 
 	const isTouchDevice =
-		typeof window !== 'undefined' &&
-		window.matchMedia('(hover: none)').matches;
+		typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches;
 	const showGif = hovered || (isTouchDevice && inView);
 
 	return (
 		<a
 			ref={cardRef}
-			href={`/prompts/show?prompt=${submission.slug}`}
+			href={`/prompts/${promptSubmission.slug}`}
 			className="block no-underline hover:no-underline"
 			onMouseEnter={() => setHovered(true)}
 			onMouseLeave={() => setHovered(false)}
@@ -46,16 +44,16 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 					<img
 						src={
 							showGif
-								? `https://image.mux.com/${submission.muxPlaybackId}/animated.gif?height=225&fit_mode=smartcrop`
-								: `https://image.mux.com/${submission.muxPlaybackId}/thumbnail.png?width=400&height=225&fit_mode=smartcrop`
+								? `https://image.mux.com/${promptSubmission.muxPlaybackId}/animated.gif?height=225&fit_mode=smartcrop`
+								: `https://image.mux.com/${promptSubmission.muxPlaybackId}/thumbnail.png?width=400&height=225&fit_mode=smartcrop`
 						}
 						className={showGif ? 'h-full' : 'w-full h-full object-cover'}
-						alt={submission.title}
+						alt={promptSubmission.title}
 					/>
 				</div>
 				<div className="p-4">
 					<h3 className="font-brand font-bold text-lg truncate">
-						{submission.title}
+						{promptSubmission.title}
 					</h3>
 					<div className="flex items-center justify-between mt-1">
 						<div className="flex items-center gap-2">
@@ -65,16 +63,16 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 									width={20}
 									height={20}
 									className="rounded-full"
-									alt={`${getAuthorName(submission)}'s avatar`}
+									alt={`${getAuthorName(promptSubmission)}'s avatar`}
 								/>
 							)}
 							<span className="text-sm font-brand text-text">
-								{getAuthorName(submission)}
+								{getAuthorName(promptSubmission)}
 							</span>
 						</div>
 						<CardLikeButton
-							submissionId={submission.id}
-							initialLikeCount={submission.likeCount}
+							submissionId={promptSubmission.id}
+							initialLikeCount={promptSubmission.likeCount}
 						/>
 					</div>
 				</div>
@@ -83,40 +81,103 @@ const SubmissionCard: React.FC<{readonly submission: Submission}> = ({
 	);
 };
 
-export const PromptsGalleryPage: React.FC = () => {
-	const [submissions, setSubmissions] = useState<Submission[]>([]);
-	const [nextCursor, setNextCursor] = useState<string | null>(null);
-	const [loading, setLoading] = useState(true);
+const Pagination: React.FC<{
+	readonly currentPage: number;
+	readonly totalPages: number;
+}> = ({currentPage, totalPages}) => {
+	if (totalPages <= 1) {
+		return null;
+	}
 
-	const fetchPage = useCallback(async (cursor?: string) => {
-		setLoading(true);
-		try {
-			const url = cursor
-				? `${REMOTION_PRO_ORIGIN}/api/prompts?cursor=${cursor}`
-				: `${REMOTION_PRO_ORIGIN}/api/prompts`;
-			const res = await fetch(url);
-			if (!res.ok) {
-				throw new Error(
-					`Failed to fetch prompts: ${res.status} ${res.statusText}`,
-				);
-			}
+	const getPageUrl = (page: number) => {
+		return page === 1 ? '/prompts' : `/prompts/${page}`;
+	};
 
-			const data = await res.json();
-			setSubmissions((prev) =>
-				cursor ? [...prev, ...data.items] : data.items,
-			);
-			setNextCursor(data.nextCursor);
-		} catch {
-			// ignore
-		} finally {
-			setLoading(false);
+	const getVisiblePages = () => {
+		const pages: (number | 'ellipsis-start' | 'ellipsis-end')[] = [];
+
+		pages.push(1);
+
+		if (currentPage > 3) {
+			pages.push('ellipsis-start');
 		}
-	}, []);
 
-	useEffect(() => {
-		fetchPage();
-	}, [fetchPage]);
+		for (
+			let i = Math.max(2, currentPage - 1);
+			i <= Math.min(totalPages - 1, currentPage + 1);
+			i++
+		) {
+			if (!pages.includes(i)) {
+				pages.push(i);
+			}
+		}
 
+		if (currentPage < totalPages - 2) {
+			pages.push('ellipsis-end');
+		}
+
+		if (totalPages > 1 && !pages.includes(totalPages)) {
+			pages.push(totalPages);
+		}
+
+		return pages;
+	};
+
+	return (
+		<div className="flex items-center justify-center gap-4 mt-12 font-brand text-sm">
+			{currentPage > 1 ? (
+				<a
+					href={getPageUrl(currentPage - 1)}
+					className="text-muted-foreground hover:text-text no-underline hover:no-underline"
+				>
+					← Previous
+				</a>
+			) : (
+				<span className="text-gray-300 cursor-not-allowed">← Previous</span>
+			)}
+
+			<span className="flex items-center gap-1">
+				{getVisiblePages().map((page) =>
+					typeof page === 'string' ? (
+						<span key={page} className="px-1 text-muted-foreground">
+							...
+						</span>
+					) : (
+						<a
+							key={page}
+							href={getPageUrl(page)}
+							style={{fontFeatureSettings: "'ss03' on"}}
+							className={`px-2 py-1 no-underline hover:no-underline ${
+								page === currentPage
+									? 'text-text font-bold'
+									: 'text-muted-foreground hover:text-text'
+							}`}
+						>
+							{page}
+						</a>
+					),
+				)}
+			</span>
+
+			{currentPage < totalPages ? (
+				<a
+					href={getPageUrl(currentPage + 1)}
+					className="text-muted-foreground hover:text-text no-underline hover:no-underline"
+				>
+					Next →
+				</a>
+			) : (
+				<span className="text-gray-300 cursor-not-allowed">Next →</span>
+			)}
+		</div>
+	);
+};
+
+export const PromptsGalleryPage: React.FC<{
+	readonly promptSubmissions: PromptSubmission[];
+	readonly currentPage: number;
+	readonly totalPages: number;
+}> = ({promptSubmissions, currentPage, totalPages}) => {
 	return (
 		<Page className="flex-col">
 			<div className="m-auto max-w-[1200px] w-full px-4 py-12">
@@ -168,18 +229,12 @@ export const PromptsGalleryPage: React.FC = () => {
 
 				<div className="h-12" />
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-					{submissions.map((s) => (
-						<SubmissionCard key={s.id} submission={s} />
+					{promptSubmissions.map((p) => (
+						<PromptSubmissionCard key={p.id} promptSubmission={p} />
 					))}
 				</div>
 
-				{loading && <div className="text-center text-muted-foreground mt-8" />}
-
-				{nextCursor && !loading && (
-					<div className="text-center mt-8">
-						<Button onClick={() => fetchPage(nextCursor)}>Load more</Button>
-					</div>
-				)}
+				<Pagination currentPage={currentPage} totalPages={totalPages} />
 			</div>
 		</Page>
 	);
