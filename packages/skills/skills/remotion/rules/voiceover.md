@@ -92,14 +92,7 @@ export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
 
 The computed `sceneDurations` are passed into the component via a `voiceover` prop so the component knows how long each scene should be.
 
-If the composition uses [`<TransitionSeries>`](./transitions.md), subtract the overlap from total duration:
-
-```tsx
-const numTransitions = sceneDurations.length - 1;
-const totalFrames =
-  sceneDurations.reduce((sum, d) => sum + d, 0) -
-  numTransitions * TRANSITION_FRAMES;
-```
+If the composition uses [`<TransitionSeries>`](./transitions.md), subtract the overlap from total duration: [./transitions.md#calculating-total-composition-duration](./transitions.md#calculating-total-composition-duration)
 
 ## Rendering audio in the component
 
