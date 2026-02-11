@@ -76,6 +76,7 @@
 			"!packages/template-tiktok/whisper.cpp/**",
 			"!packages/template-audiogram/whisper.cpp",
 			"!packages/template-audiogram/whisper.cpp/**",
+			"!packages/template-vercel/**",
 			"!packages/bugs"
 		],
 		"catalog": {

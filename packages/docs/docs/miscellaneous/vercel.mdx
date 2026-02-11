@@ -5,7 +5,12 @@ title: Remotion on Vercel
 crumb: 'Deployment'
 ---
 
-Remotion integrates well with Vercel.
+You have two options for rendering your videos on Vercel:
+
+- [Client-side rendering](#client-side-rendering): Render videos using your computer's browser and compute resources
+- [Cloud-based rendering](#rendering-using-vercel-sandbox): Use a cloud server to render your video
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?demo-description=Render%20your%20Remotion%20videos%20on%20Vercel.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4pq2kfE4t05fMkDCKGsfqz%2F1444f1b559d50391052fdf5102502ac9%2FFlagsmith_Dark.png&demo-title=Remotion%20on%20Vercel&demo-url=https%3A%2F%2Ftemplate-vercel.remotion.dev%2F&from=templates&products=%255B%257B%2522type%2522%253A%2522blob%2522%257D%255D&project-name=Remotion%20on%20Vercel&project-names=Comma%20separated%20list%20of%20project%20names%2Cto%20match%20the%20root-directories&repository-name=remotion-on-vercel&repository-url=https%3A%2F%2Fgithub.com%2Fremotion-dev%2Ftemplate-vercel&root-directories=List%20of%20directory%20paths%20for%20the%20directories%20to%20clone%20into%20projects)
 
 ## Deployment
 
@@ -27,7 +32,13 @@ Config.setExperimentalClientSideRenderingEnabled(true);
 
 This will make it possible to render videos client-side on your Vercel deployment.
 
-## Rendering with Vercel Sandbox
+Note that this will use your computer's browser and compute resources, making your computer slower while the render is running. If you are waiting on long renders, you may want to [render in the cloud](#rendering-using-vercel-sandbox) to free up your computer's resources.
+
+## Rendering using Vercel Sandbox
+
+You can quickly deploy your Remotion project to Vercel to offload rendering to a Vercel Sandbox:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?demo-description=Render%20your%20Remotion%20videos%20on%20Vercel.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4pq2kfE4t05fMkDCKGsfqz%2F1444f1b559d50391052fdf5102502ac9%2FFlagsmith_Dark.png&demo-title=Remotion%20on%20Vercel&demo-url=https%3A%2F%2Ftemplate-vercel.remotion.dev%2F&from=templates&products=%255B%257B%2522type%2522%253A%2522blob%2522%257D%255D&project-name=Remotion%20on%20Vercel&project-names=Comma%20separated%20list%20of%20project%20names%2Cto%20match%20the%20root-directories&repository-name=remotion-on-vercel&repository-url=https%3A%2F%2Fgithub.com%2Fremotion-dev%2Ftemplate-vercel&root-directories=List%20of%20directory%20paths%20for%20the%20directories%20to%20clone%20into%20projects)
 
 Vercel Sandbox allows you to render videos on-demand without managing Lambda or AWS infrastructure. Each render spawns an ephemeral Linux VM with full access to the Remotion renderer.
 
@@ -102,9 +113,13 @@ Example:
 npx remotion render https://remotion-helloworld.vercel.app HelloWorld
 ```
 
-## Rendering inside Vercel Functions
+## Rendering on Vercel
 
-It is currently not possible to render videos or stills on Vercel Serverless functions due to the 50MB maximum function size. However, you can trigger a render from a Vercel function to [Vercel Sandbox](#rendering-with-vercel-sandbox) or [Remotion Lambda](#triggering-lambda-renders-from-vercel-serverless-functions).
+Deploy the Vercel template:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?demo-description=Render%20your%20Remotion%20videos%20on%20Vercel.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4pq2kfE4t05fMkDCKGsfqz%2F1444f1b559d50391052fdf5102502ac9%2FFlagsmith_Dark.png&demo-title=Remotion%20on%20Vercel&demo-url=https%3A%2F%2Ftemplate-vercel.remotion.dev%2F&from=templates&products=%255B%257B%2522type%2522%253A%2522blob%2522%257D%255D&project-name=Remotion%20on%20Vercel&project-names=Comma%20separated%20list%20of%20project%20names%2Cto%20match%20the%20root-directories&repository-name=remotion-on-vercel&repository-url=https%3A%2F%2Fgithub.com%2Fremotion-dev%2Ftemplate-vercel&root-directories=List%20of%20directory%20paths%20for%20the%20directories%20to%20clone%20into%20projects)
+
+Rendering will be done inside a [Vercel Sandbox](https://vercel.com/docs/vercel-sandbox) and the render will be stored in [Vercel Blob](https://vercel.com/docs/vercel-blob).
 
 ## Templates
 
