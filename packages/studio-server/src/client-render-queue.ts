@@ -36,15 +36,9 @@ export const addCompletedClientRender = ({
 	const {unwatch} = installFileWatcher({
 		file: filePath,
 		onChange: (type) => {
-			if (type === 'created') {
+			if (type === 'created' || type === 'deleted') {
 				updateCompletedClientRender(render.id, {
-					deletedOutputLocation: false,
-				});
-			}
-
-			if (type === 'deleted') {
-				updateCompletedClientRender(render.id, {
-					deletedOutputLocation: true,
+					deletedOutputLocation: type === 'deleted',
 				});
 			}
 		},

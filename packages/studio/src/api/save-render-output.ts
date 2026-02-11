@@ -1,5 +1,12 @@
 import type {CompletedClientRender} from '@remotion/studio-shared';
 
+const throwIfNotOk = async (response: Response): Promise<void> => {
+	if (!response.ok) {
+		const jsonResponse = await response.json();
+		throw new Error(jsonResponse.error);
+	}
+};
+
 export const saveOutputFile = async ({
 	blob,
 	filePath,
@@ -15,10 +22,7 @@ export const saveOutputFile = async ({
 		body: blob,
 	});
 
-	if (!response.ok) {
-		const jsonResponse = await response.json();
-		throw new Error(jsonResponse.error);
-	}
+	await throwIfNotOk(response);
 };
 
 export const registerClientRender = async (
@@ -30,10 +34,7 @@ export const registerClientRender = async (
 		body: JSON.stringify(render),
 	});
 
-	if (!response.ok) {
-		const jsonResponse = await response.json();
-		throw new Error(jsonResponse.error);
-	}
+	await throwIfNotOk(response);
 };
 
 export const unregisterClientRender = async (id: string): Promise<void> => {
@@ -43,8 +44,5 @@ export const unregisterClientRender = async (id: string): Promise<void> => {
 		body: JSON.stringify({id}),
 	});
 
-	if (!response.ok) {
-		const jsonResponse = await response.json();
-		throw new Error(jsonResponse.error);
-	}
+	await throwIfNotOk(response);
 };

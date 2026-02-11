@@ -177,38 +177,29 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				}
 
 				const blob = await result.getBlob();
+				const metadata: CompletedClientRender['metadata'] = {
+					width: result.width,
+					height: result.height,
+					sizeInBytes: blob.size,
+				};
+
 				markClientJobSaving(job.id);
 
 				try {
 					await saveOutputFile({blob, filePath: job.outName});
-
-					const completedRender: CompletedClientRender = {
+					await registerClientRender({
 						id: job.id,
 						type: job.type,
 						compositionId: job.compositionId,
 						outName: job.outName,
 						startedAt: job.startedAt,
 						deletedOutputLocation: false,
-						metadata: {
-							width: result.width,
-							height: result.height,
-							sizeInBytes: blob.size,
-						},
-					};
-					await registerClientRender(completedRender);
-
-					markClientJobDone(job.id, {
-						width: result.width,
-						height: result.height,
-						sizeInBytes: blob.size,
+						metadata,
 					});
+					markClientJobDone(job.id, metadata);
 				} catch {
 					downloadBlob(blob, job.outName);
-					markClientJobDone(job.id, {
-						width: result.width,
-						height: result.height,
-						sizeInBytes: blob.size,
-					});
+					markClientJobDone(job.id, metadata);
 				}
 			} catch (err) {
 				if (abortController.signal.aborted) {

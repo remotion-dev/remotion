@@ -231,6 +231,16 @@ const handleOpenInEditor = async (
 	}
 };
 
+const validateSameOrigin = (req: IncomingMessage): void => {
+	const {origin, host} = req.headers;
+	if (origin) {
+		const originUrl = new URL(origin);
+		if (originUrl.host !== host) {
+			throw new Error('Request from different origin not allowed');
+		}
+	}
+};
+
 const handleAddAsset = ({
 	req,
 	res,
@@ -243,15 +253,7 @@ const handleAddAsset = ({
 	publicDir: string;
 }): Promise<void> => {
 	try {
-		const {origin} = req.headers;
-		const {host} = req.headers;
-
-		if (origin) {
-			const originUrl = new URL(origin);
-			if (originUrl.host !== host) {
-				throw new Error('Request from different origin not allowed');
-			}
-		}
+		validateSameOrigin(req);
 
 		const query = new URLSearchParams(search);
 
@@ -295,15 +297,7 @@ const handleUploadOutput = ({
 	remotionRoot: string;
 }): Promise<void> => {
 	try {
-		const {origin} = req.headers;
-		const {host} = req.headers;
-
-		if (origin) {
-			const originUrl = new URL(origin);
-			if (originUrl.host !== host) {
-				throw new Error('Request from different origin not allowed');
-			}
-		}
+		validateSameOrigin(req);
 
 		const query = new URLSearchParams(search);
 
@@ -345,16 +339,7 @@ const handleRegisterClientRender = async ({
 	remotionRoot: string;
 }): Promise<void> => {
 	try {
-		const {origin} = req.headers;
-		const {host} = req.headers;
-
-		if (origin) {
-			const originUrl = new URL(origin);
-			if (originUrl.host !== host) {
-				throw new Error('Request from different origin not allowed');
-			}
-		}
-
+		validateSameOrigin(req);
 		const body = (await parseRequestBody(req)) as CompletedClientRender;
 		addCompletedClientRender({render: body, remotionRoot});
 
@@ -375,16 +360,7 @@ const handleUnregisterClientRender = async ({
 	res: ServerResponse;
 }): Promise<void> => {
 	try {
-		const {origin} = req.headers;
-		const {host} = req.headers;
-
-		if (origin) {
-			const originUrl = new URL(origin);
-			if (originUrl.host !== host) {
-				throw new Error('Request from different origin not allowed');
-			}
-		}
-
+		validateSameOrigin(req);
 		const body = (await parseRequestBody(req)) as {id: string};
 		removeCompletedClientRender(body.id);
 
