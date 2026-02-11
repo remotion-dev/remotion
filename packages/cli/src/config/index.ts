@@ -129,6 +129,7 @@ const {
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
+	ipv4Option,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -585,6 +586,11 @@ type FlatConfig = RemotionConfigObject &
 			hardwareAccelerationOption: HardwareAccelerationOption,
 		) => void;
 		/**
+		 * Forces Remotion to bind to an IPv4 interface for the Studio server.
+		 * Default: false
+		 */
+		setIPv4: (ipv4: boolean) => void;
+		/**
 		 * Choose between using Chrome Headless Shell or Chrome for Testing
 		 */
 		setChromeMode: (chromeMode: ChromeMode) => void;
@@ -732,6 +738,7 @@ export const Config: FlatConfig = {
 	setAskAIEnabled: askAIOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
+	setIPv4: ipv4Option.setConfig,
 };
 
 export const ConfigInternals = {

@@ -41,6 +41,7 @@ const {
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
 	audioLatencyHintOption,
+	ipv4Option,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -175,7 +176,7 @@ export const studioCommand = async (
 		bufferStateDelayInMilliseconds:
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
-		forceIPv4: parsedCli.ipv4,
+		forceIPv4: ipv4Option.getValue({commandLine: parsedCli}).value,
 		audioLatencyHint: audioLatencyHintOption.getValue({
 			commandLine: parsedCli,
 		}).value,

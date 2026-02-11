@@ -25,6 +25,7 @@ import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
 import {imageSequencePatternOption} from './image-sequence-pattern';
+import {ipv4Option} from './ipv4';
 import {isProductionOption} from './is-production';
 import {jpegQualityOption} from './jpeg-quality';
 import {keyboardShortcutsOption} from './keyboard-shortcuts';
@@ -111,6 +112,7 @@ export const allOptions = {
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
+	ipv4Option,
 };
 
 export type AvailableOptions = keyof typeof allOptions;
