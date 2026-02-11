@@ -12,10 +12,7 @@ metadata:
 Install @remotion/layout-utils if it is not already installed:
 
 ```bash
-npx remotion add @remotion/layout-utils # If project uses npm
-bunx remotion add @remotion/layout-utils # If project uses bun
-yarn remotion add @remotion/layout-utils # If project uses yarn
-pnpm exec remotion add @remotion/layout-utils # If project uses pnpm
+npx remotion add @remotion/layout-utils
 ```
 
 ## Measuring text dimensions
@@ -104,7 +101,7 @@ waitUntilDone().then(() => {
     fontFamily,
     fontSize: 32,
   });
-})
+});
 ```
 
 **Use validateFontIsLoaded:** Catch font loading issues early:
