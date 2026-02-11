@@ -36,6 +36,7 @@ const {
 	darkModeOption,
 	publicLicenseKeyOption,
 	forceNewStudioOption,
+	numberOfSharedAudioTagsOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -51,7 +52,9 @@ export type CommandLineOptions = {
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
 	[numberOfGifLoopsOption.cliFlag]: TypeOfOption<typeof numberOfGifLoopsOption>;
-	['number-of-shared-audio-tags']: number;
+	[numberOfSharedAudioTagsOption.cliFlag]: TypeOfOption<
+		typeof numberOfSharedAudioTagsOption
+	>;
 	[offthreadVideoCacheSizeInBytesOption.cliFlag]: TypeOfOption<
 		typeof offthreadVideoCacheSizeInBytesOption
 	>;

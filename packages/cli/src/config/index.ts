@@ -67,7 +67,6 @@ import {setFrameRange} from './frame-range';
 import {getHeight, overrideHeight} from './height';
 import {setImageSequence} from './image-sequence';
 import {getMetadata, setMetadata} from './metadata';
-import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
@@ -129,6 +128,7 @@ const {
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
+	numberOfSharedAudioTagsOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -649,7 +649,7 @@ export const Config: FlatConfig = {
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setExperimentalClientSideRenderingEnabled:
 		experimentalClientSideRenderingOption.setConfig,
-	setNumberOfSharedAudioTags,
+	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
 	setWebpackPollingInMilliseconds,
 	setShouldOpenBrowser,
 	setBufferStateDelayInMilliseconds,

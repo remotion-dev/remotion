@@ -34,6 +34,7 @@ import {logLevelOption} from './log-level';
 import {metadataOption} from './metadata';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
+import {numberOfSharedAudioTagsOption} from './number-of-shared-audio-tags';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import {offthreadVideoThreadsOption} from './offthreadvideo-threads';
 import {onBrowserDownloadOption} from './on-browser-download';
@@ -109,6 +110,7 @@ export const allOptions = {
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
+	numberOfSharedAudioTagsOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;
