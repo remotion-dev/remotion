@@ -102,7 +102,12 @@ const handleFallback = async ({
 		response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
 	}
 
-	const packageManager = getPackageManager(remotionRoot, undefined, 0);
+	const packageManager = getPackageManager({
+		remotionRoot,
+		packageManager: undefined,
+		dirUp: 0,
+		logLevel,
+	});
 	fetchFolder({publicDir, staticHash: hash});
 
 	const installedDependencies = getInstalledInstallablePackages(remotionRoot);

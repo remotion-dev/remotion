@@ -1,3 +1,5 @@
+import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {PackageManager} from '@remotion/studio-shared';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -44,11 +46,17 @@ export const lockFilePaths: LockfilePath[] = [
 
 let warnedAboutMultipleLockfiles = false;
 
-export const getPackageManager = (
-	remotionRoot: string,
-	packageManager: string | undefined,
-	dirUp: number,
-): LockfilePath | 'unknown' => {
+export const getPackageManager = ({
+	remotionRoot,
+	packageManager,
+	dirUp,
+	logLevel,
+}: {
+	remotionRoot: string;
+	packageManager: string | undefined;
+	dirUp: number;
+	logLevel: LogLevel;
+}): LockfilePath | 'unknown' => {
 	if (packageManager) {
 		const manager = lockFilePaths.find((p) => p.manager === packageManager);
 
@@ -74,22 +82,32 @@ export const getPackageManager = (
 	}
 
 	if (existingPkgManagers.length === 0) {
-		return getPackageManager(remotionRoot, packageManager, dirUp + 1);
+		return getPackageManager({
+			remotionRoot,
+			packageManager,
+			dirUp: dirUp + 1,
+			logLevel,
+		});
 	}
 
 	if (existingPkgManagers.length > 1 && !warnedAboutMultipleLockfiles) {
 		warnedAboutMultipleLockfiles = true;
-		// eslint-disable-next-line no-console
-		console.warn('⚠️  Multiple lockfiles detected:');
+		RenderInternals.Log.warn(
+			{indent: false, logLevel},
+			'⚠️  Multiple lockfiles detected:',
+		);
 		for (const pkgManager of existingPkgManagers) {
-			// eslint-disable-next-line no-console
-			console.warn(`  - ${pkgManager.path}`);
+			RenderInternals.Log.warn(
+				{indent: false, logLevel},
+				`  - ${pkgManager.path}`,
+			);
 		}
 
-		// eslint-disable-next-line no-console
-		console.warn('');
-		// eslint-disable-next-line no-console
-		console.warn('This can cause dependency inconsistencies.');
+		RenderInternals.Log.warn({indent: false, logLevel}, '');
+		RenderInternals.Log.warn(
+			{indent: false, logLevel},
+			'This can cause dependency inconsistencies.',
+		);
 	}
 
 	return existingPkgManagers[0];

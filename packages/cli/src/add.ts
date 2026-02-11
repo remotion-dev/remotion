@@ -141,11 +141,12 @@ export const addCommand = async ({
 		}
 	}
 
-	const manager = StudioServerInternals.getPackageManager(
+	const manager = StudioServerInternals.getPackageManager({
 		remotionRoot,
 		packageManager,
-		0,
-	);
+		dirUp: 0,
+		logLevel,
+	});
 
 	if (manager === 'unknown') {
 		throw new Error(
