@@ -17,8 +17,7 @@ export const numberOfSharedAudioTagsOption = {
 		</>
 	),
 	ssrName: null,
-	docLink:
-		'https://www.remotion.dev/docs/config#setnumberofsharedaudiotags',
+	docLink: 'https://www.remotion.dev/docs/config#setnumberofsharedaudiotags',
 	type: 0 as number,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
