@@ -13,6 +13,8 @@ export type ConvertAudioDataOptions = {
 	isLast: boolean;
 };
 
+const FORMAT: AudioSampleFormat = 's16';
+
 export type PcmS16AudioData = {
 	data: Int16Array;
 	numberOfFrames: number;
@@ -107,7 +109,7 @@ export const convertAudioData = ({
 	const srcChannels = new Int16Array(srcNumberOfChannels * frameCount);
 	f32AudioData.copyTo(srcChannels, {
 		planeIndex: 0,
-		format: 's16',
+		format: FORMAT,
 		frameOffset: 0,
 		frameCount,
 	});
