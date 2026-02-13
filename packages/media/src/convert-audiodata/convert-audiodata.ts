@@ -83,14 +83,37 @@ export const convertAudioData = ({
 		);
 	}
 
-	const srcChannels = new Int16Array(srcNumberOfChannels * frameCount);
+	// Normalize to f32-planar first, then convert to s16. This ensures
+	// consistent output across browsers — Firefox decodes as f32 while
+	// Chrome decodes as s16-planar, and their native copyTo(s16) conversions
+	// can differ. By going through a f32-planar AudioData, the final s16
+	// conversion always starts from the same representation.
+	const bytesPerPlane = frameCount * 4;
+	const f32Buffer = new ArrayBuffer(srcNumberOfChannels * bytesPerPlane);
+	for (let ch = 0; ch < srcNumberOfChannels; ch++) {
+		audioData.copyTo(
+			new Float32Array(f32Buffer, ch * bytesPerPlane, frameCount),
+			{planeIndex: ch, frameOffset, frameCount, format: 'f32-planar'},
+		);
+	}
 
-	audioData.copyTo(srcChannels, {
+	const f32AudioData = new AudioData({
+		format: 'f32-planar',
+		sampleRate: currentSampleRate,
+		numberOfFrames: frameCount,
+		numberOfChannels: srcNumberOfChannels,
+		timestamp: audioData.timestamp,
+		data: f32Buffer,
+	});
+
+	const srcChannels = new Int16Array(srcNumberOfChannels * frameCount);
+	f32AudioData.copyTo(srcChannels, {
 		planeIndex: 0,
 		format: FORMAT,
-		frameOffset,
+		frameOffset: 0,
 		frameCount,
 	});
+	f32AudioData.close();
 
 	const data = new Int16Array(newNumberOfFrames * TARGET_NUMBER_OF_CHANNELS);
 	const chunkSize = frameCount / newNumberOfFrames;
