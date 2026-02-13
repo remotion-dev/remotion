@@ -254,6 +254,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		resolvedProps: SerializedInputProps;
 		scale: number;
 		everyNthFrame: number;
+		numberOfGifLoops: number | null;
 		muted: boolean;
 		audioBitrate: string | null;
 		videoBitrate: string | null;

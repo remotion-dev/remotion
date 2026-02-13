@@ -291,6 +291,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			chromiumOptions: params.chromiumOptions ?? {},
 			scale: params.scale,
 			everyNthFrame: params.everyNthFrame,
+			numberOfGifLoops: params.numberOfGifLoops,
 			concurrencyPerLambda: params.concurrencyPerFunction,
 			muted: params.muted,
 			audioBitrate: params.audioBitrate,
