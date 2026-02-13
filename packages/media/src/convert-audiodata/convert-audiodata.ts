@@ -13,8 +13,6 @@ export type ConvertAudioDataOptions = {
 	isLast: boolean;
 };
 
-const FORMAT: AudioSampleFormat = 's16';
-
 export type PcmS16AudioData = {
 	data: Int16Array;
 	numberOfFrames: number;
@@ -83,16 +81,29 @@ export const convertAudioData = ({
 		);
 	}
 
+	// Always normalize through f32 to ensure consistent conversion across
+	// browsers. Firefox decodes audio as f32 while Chrome decodes as s16-planar.
+	// Relying on the browser's AudioData.copyTo() for the f32→s16 conversion
+	// produces different results per browser. By always going through f32 and
+	// converting to s16 ourselves, we guarantee identical output.
 	const srcChannels = new Int16Array(srcNumberOfChannels * frameCount);
+	const f32Temp = new Float32Array(frameCount);
 
-	audioData.copyTo(srcChannels, {
-		planeIndex: 0,
-		format: FORMAT,
-		frameOffset,
-		frameCount,
-	});
-
-	console.log('srcChannels', srcChannels);
+	for (let ch = 0; ch < srcNumberOfChannels; ch++) {
+		audioData.copyTo(f32Temp, {
+			planeIndex: ch,
+			frameOffset,
+			frameCount,
+			format: 'f32-planar',
+		});
+		for (let i = 0; i < frameCount; i++) {
+			const clamped = Math.max(-1, Math.min(1, f32Temp[i]));
+			srcChannels[i * srcNumberOfChannels + ch] = Math.max(
+				-32768,
+				Math.min(32767, Math.round(clamped * 32768)),
+			);
+		}
+	}
 
 	const data = new Int16Array(newNumberOfFrames * TARGET_NUMBER_OF_CHANNELS);
 	const chunkSize = frameCount / newNumberOfFrames;
