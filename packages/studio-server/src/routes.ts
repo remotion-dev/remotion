@@ -20,6 +20,7 @@ import {
 	removeCompletedClientRender,
 } from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
+import {resolveOutputPath} from './helpers/resolve-output-path';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
 import {
 	getDisplayNameForEditor,
@@ -306,12 +307,7 @@ const handleUploadOutput = ({
 			throw new Error('No `filePath` provided');
 		}
 
-		const absolutePath = path.join(remotionRoot, filePath);
-
-		const relativeToRoot = path.relative(remotionRoot, absolutePath);
-		if (relativeToRoot.startsWith('..')) {
-			throw new Error(`Not allowed to write to ${relativeToRoot}`);
-		}
+		const absolutePath = resolveOutputPath(remotionRoot, filePath);
 
 		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
 

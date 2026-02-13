@@ -325,6 +325,7 @@ const RenderModal: React.FC<
 						: initialStillImageFormat,
 			type: 'asset',
 			compositionDefaultOutName: resolvedComposition.defaultOutName,
+			outputLocation: renderDefaults.outputLocation,
 		});
 	});
 

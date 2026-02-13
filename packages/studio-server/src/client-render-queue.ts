@@ -1,6 +1,6 @@
 import type {CompletedClientRender} from '@remotion/studio-shared';
-import path from 'node:path';
 import {installFileWatcher} from './file-watcher';
+import {resolveOutputPath} from './helpers/resolve-output-path';
 import {waitForLiveEventsListener} from './preview-server/live-events';
 
 let completedClientRenders: CompletedClientRender[] = [];
@@ -32,7 +32,7 @@ export const addCompletedClientRender = ({
 
 	completedClientRenders.push(render);
 
-	const filePath = path.resolve(remotionRoot, render.outName);
+	const filePath = resolveOutputPath(remotionRoot, render.outName);
 	const {unwatch} = installFileWatcher({
 		file: filePath,
 		onChange: (type) => {
