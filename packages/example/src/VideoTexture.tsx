@@ -2,7 +2,7 @@ import {useThree} from '@react-three/fiber';
 import {Video} from '@remotion/media';
 import {ThreeCanvas} from '@remotion/three';
 import React, {useCallback, useState} from 'react';
-import {useVideoConfig} from 'remotion';
+import {useRemotionEnvironment, useVideoConfig} from 'remotion';
 import {CanvasTexture} from 'three';
 
 const videoSrc = 'https://remotion.media/video.mp4';
@@ -22,19 +22,35 @@ const Inner: React.FC = () => {
 		return {canvas, context, texture};
 	});
 
-	const {invalidate} = useThree();
+	const {invalidate, advance} = useThree();
+	const {isRendering} = useRemotionEnvironment();
 
 	const onVideoFrame = useCallback(
 		(frame: CanvasImageSource) => {
 			canvasStuff.context.drawImage(frame, 0, 0, videoWidth, videoHeight);
-			// This is needed during preview - the frame loop synchronizes with the monitor refresh rate
-			// By setting this, we signal that the texture has been updated
 			canvasStuff.texture.needsUpdate = true;
-			// This is needed during rendering - the frame loop is only triggered on demand.
-			// We have to call "invalidate()" to trigger a new frame loop.
-			invalidate();
+			if (isRendering) {
+				// ThreeCanvas's ManualFrameRenderer already calls advance() in a
+				// useEffect on frame change, but video frame extraction is async
+				// (BroadcastChannel round-trip) and resolves after that useEffect.
+				// So by the time onVideoFrame fires, the scene was already rendered
+				// with the stale texture. We need a second advance() here to
+				// re-render the scene now that the texture is actually updated.
+				advance(performance.now());
+			} else {
+				// During preview with the default frameloop='always', the texture
+				// is picked up automatically. This is only needed if
+				// frameloop='demand' is passed to <ThreeCanvas>.
+				invalidate();
+			}
 		},
-		[canvasStuff.context, canvasStuff.texture, invalidate],
+		[
+			canvasStuff.context,
+			canvasStuff.texture,
+			invalidate,
+			advance,
+			isRendering,
+		],
 	);
 
 	return (
