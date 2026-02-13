@@ -79,7 +79,7 @@ jobs:
         run: |
           bun run testwebcodecs
   webrenderer-tests:
-    runs-on: macos-latest
+    runs-on: macos-26
     name: Web renderer tests
     steps:
       - uses: actions/checkout@v6
