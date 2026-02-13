@@ -1,8 +1,8 @@
-import {BufferTarget, StreamTarget, WavOutputFormat} from 'mediabunny';
+import {BufferTarget, StreamTarget} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
-import {addAudioSample} from './add-sample';
+import {addAudioSample, addVideoSampleAndCloseFrame} from './add-sample';
 import {handleArtifacts, type WebRendererOnArtifact} from './artifact';
 import {onlyInlineAudio} from './audio';
 import {createBackgroundKeepalive} from './background-keepalive';
@@ -12,14 +12,21 @@ import {checkForError, createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
-import {makeOutputWithCleanup} from './mediabunny-cleanups';
+import {
+	makeOutputWithCleanup,
+	makeVideoSampleSourceCleanup,
+} from './mediabunny-cleanups';
 import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererQuality,
 } from './mediabunny-mappings';
 import {
+	audioCodecToMediabunnyAudioCodec,
+	codecToMediabunnyCodec,
+	containerToMediabunnyContainer,
 	getDefaultVideoCodecForContainer,
+	getMimeType,
 	getQualityForWebRendererQuality,
 	type WebRendererVideoCodec,
 } from './mediabunny-mappings';
@@ -142,12 +149,17 @@ const internalRenderMediaOnWeb = async <
 	logLevel,
 	mediaCacheSizeInBytes,
 	schema,
+	videoCodec: codec,
 	audioCodec: unresolvedAudioCodec,
 	audioBitrate,
 	container,
 	signal,
 	onProgress,
+	hardwareAcceleration,
+	keyframeIntervalInSeconds,
+	videoBitrate,
 	frameRange,
+	transparent,
 	onArtifact,
 	onFrame,
 	outputTarget: userDesiredOutputTarget,
@@ -171,25 +183,23 @@ const internalRenderMediaOnWeb = async <
 		await cleanupStaleOpfsFiles();
 	}
 
-	// TEMPORARY: Always output .wav regardless of options
-	const format = new WavOutputFormat();
-	// const format = containerToMediabunnyContainer(container);
+	const format = containerToMediabunnyContainer(container);
 
-	// TEMPORARY: Skip video codec check for .wav output
-	// if (
-	// 	codec &&
-	// 	!format.getSupportedCodecs().includes(codecToMediabunnyCodec(codec))
-	// ) {
-	// 	return Promise.reject(
-	// 		new Error(`Codec ${codec} is not supported for container ${container}`),
-	// 	);
-	// }
+	if (
+		codec &&
+		!format.getSupportedCodecs().includes(codecToMediabunnyCodec(codec))
+	) {
+		return Promise.reject(
+			new Error(`Codec ${codec} is not supported for container ${container}`),
+		);
+	}
 
 	const resolvedAudioBitrate =
 		typeof audioBitrate === 'number'
 			? audioBitrate
 			: getQualityForWebRendererQuality(audioBitrate);
 
+	let finalAudioCodec: WebRendererAudioCodec | null = null;
 	if (!muted) {
 		const audioResult = await resolveAudioCodec({
 			container,
@@ -210,6 +220,8 @@ const internalRenderMediaOnWeb = async <
 				issue.message,
 			);
 		}
+
+		finalAudioCodec = audioResult.codec;
 	}
 
 	const resolved = await Internals.resolveVideoConfig({
@@ -301,43 +313,34 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('renderMediaOnWeb() was cancelled');
 		}
 
-		// TEMPORARY: Skip video track for .wav output
-		// using videoSampleSource = makeVideoSampleSourceCleanup({
-		// 	codec: codecToMediabunnyCodec(codec),
-		// 	bitrate:
-		// 		typeof videoBitrate === 'number'
-		// 			? videoBitrate
-		// 			: getQualityForWebRendererQuality(videoBitrate),
-		// 	sizeChangeBehavior: 'deny',
-		// 	hardwareAcceleration,
-		// 	latencyMode: 'quality',
-		// 	keyFrameInterval: keyframeIntervalInSeconds,
-		// 	alpha: transparent ? 'keep' : 'discard',
-		// });
-		// outputWithCleanup.output.addVideoTrack(videoSampleSource.videoSampleSource);
-		const videoSampleSource = {videoSampleSource: {close: () => {}}};
+		using videoSampleSource = makeVideoSampleSourceCleanup({
+			codec: codecToMediabunnyCodec(codec),
+			bitrate:
+				typeof videoBitrate === 'number'
+					? videoBitrate
+					: getQualityForWebRendererQuality(videoBitrate),
+			sizeChangeBehavior: 'deny',
+			hardwareAcceleration,
+			latencyMode: 'quality',
+			keyFrameInterval: keyframeIntervalInSeconds,
+			alpha: transparent ? 'keep' : 'discard',
+		});
 
-		// TEMPORARY: Use pcm-s16 for .wav output
+		outputWithCleanup.output.addVideoTrack(videoSampleSource.videoSampleSource);
+
 		using audioSampleSource = createAudioSampleSource({
 			muted,
-			codec: 'pcm-s16' as any,
+			codec: finalAudioCodec
+				? audioCodecToMediabunnyAudioCodec(finalAudioCodec)
+				: null,
 			bitrate: resolvedAudioBitrate,
 		});
-		// using audioSampleSource = createAudioSampleSource({
-		// 	muted,
-		// 	codec: finalAudioCodec
-		// 		? audioCodecToMediabunnyAudioCodec(finalAudioCodec)
-		// 		: null,
-		// 	bitrate: resolvedAudioBitrate,
-		// });
 
 		if (audioSampleSource) {
 			outputWithCleanup.output.addAudioTrack(
 				audioSampleSource.audioSampleSource,
 			);
 		}
-
-		console.log('frfrfrffr??');
 
 		await outputWithCleanup.output.start();
 
@@ -432,16 +435,12 @@ const internalRenderMediaOnWeb = async <
 				: onlyInlineAudio({assets, fps: resolved.fps, timestamp});
 			internalState.addAudioMixingTime(performance.now() - audioCombineStart);
 
-			console.log(audio?.numberOfFrames);
-
 			const addSampleStart = performance.now();
-			// TEMPORARY: Skip video sample for .wav output, close the frame
-			frameToEncode.close();
 			await Promise.all([
-				// addVideoSampleAndCloseFrame(
-				// 	frameToEncode,
-				// 	videoSampleSource.videoSampleSource,
-				// ),
+				addVideoSampleAndCloseFrame(
+					frameToEncode,
+					videoSampleSource.videoSampleSource,
+				),
 				audio && audioSampleSource
 					? addAudioSample(audio, audioSampleSource.audioSampleSource)
 					: Promise.resolve(),
@@ -504,8 +503,9 @@ const internalRenderMediaOnWeb = async <
 					throw new Error('The resulting buffer is empty');
 				}
 
-				// TEMPORARY: Force audio/wav mime type
-				return Promise.resolve(new Blob([target.buffer], {type: 'audio/wav'}));
+				return Promise.resolve(
+					new Blob([target.buffer], {type: getMimeType(container)}),
+				);
 			},
 			internalState,
 		};
