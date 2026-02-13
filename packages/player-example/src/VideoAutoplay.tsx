@@ -9,9 +9,7 @@ import {
 } from 'remotion';
 
 if (typeof window !== 'undefined') {
-	preloadVideo(
-		'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-	);
+	preloadVideo('https://remotion.media/ForBiggerJoyrides.mp4');
 
 	preloadAudio(staticFile('sample.mp3'));
 }
