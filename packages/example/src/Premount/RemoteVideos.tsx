@@ -12,7 +12,7 @@ export const PremountedRemoteVideos: React.FC = () => {
 					<Html5Video
 						pauseWhenBuffering
 						startFrom={1000}
-						src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+						src="https://remotion.media/BigBuckBunny.mp4"
 					/>
 				</Series.Sequence>
 			</Series>

@@ -32,7 +32,7 @@ Re-encodes a video using [WebCodecs](https://developer.mozilla.org/en-US/docs/We
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
 });
 
@@ -59,7 +59,7 @@ Call this function to get the converted video as a `Blob`. You can then use this
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
 });
 
@@ -324,7 +324,7 @@ This feature is inherited from [`parseMedia()`](/docs/media-parser/parse-media),
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
   videoCodec: 'vp8',
   audioCodec: 'opus',

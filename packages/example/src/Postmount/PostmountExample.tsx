@@ -18,7 +18,7 @@ export const PostmountExample: React.FC = () => {
 				<Series.Sequence durationInFrames={150} postmountFor={50}>
 					<Html5Video
 						pauseWhenBuffering
-						src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+						src="https://remotion.media/BigBuckBunny.mp4"
 					/>
 				</Series.Sequence>
 
