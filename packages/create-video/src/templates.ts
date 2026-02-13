@@ -251,7 +251,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'image' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Prompt to Motion',
-		previewURL: 'https://prompt-to-motion-graphics-saas.vercel.app',
+		previewURL: null,
 		previewLabel: 'Live Demo',
 		templateInMonorepo: 'template-prompt-to-motion-graphics',
 		allowEnableTailwind: false,
