@@ -20,13 +20,13 @@ import {
 	removeCompletedClientRender,
 } from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
-import {resolveOutputPath} from './helpers/resolve-output-path';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
 import {
 	getDisplayNameForEditor,
 	guessEditor,
 	launchEditor,
 } from './helpers/open-in-editor';
+import {resolveOutputPath} from './helpers/resolve-output-path';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
 import {getPackageManager} from './preview-server/get-package-manager';

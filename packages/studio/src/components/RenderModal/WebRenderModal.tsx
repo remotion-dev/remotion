@@ -314,8 +314,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						: imageFormat,
 			type: 'asset',
 			compositionDefaultOutName: resolvedComposition.defaultOutName,
-			outputLocation:
-				window.remotion_renderDefaults?.outputLocation ?? null,
+			outputLocation: window.remotion_renderDefaults?.outputLocation ?? null,
 		});
 
 		if (window.remotion_isReadOnlyStudio) {

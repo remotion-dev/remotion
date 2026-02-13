@@ -20,13 +20,8 @@ test('Should resolve path without directory prefix', () => {
 });
 
 test('Should resolve nested directory paths', () => {
-	const result = resolveOutputPath(
-		remotionRoot,
-		'out/nested/deep/video.mp4',
-	);
-	expect(result).toBe(
-		path.join(remotionRoot, 'out/nested/deep/video.mp4'),
-	);
+	const result = resolveOutputPath(remotionRoot, 'out/nested/deep/video.mp4');
+	expect(result).toBe(path.join(remotionRoot, 'out/nested/deep/video.mp4'));
 });
 
 test('Should reject paths that escape the project root', () => {
@@ -42,11 +37,6 @@ test('Should reject paths with complex traversal', () => {
 });
 
 test('Should allow compositionDefaultOutName-style paths inside out/', () => {
-	const result = resolveOutputPath(
-		remotionRoot,
-		'out/custom-comp-name.mp4',
-	);
-	expect(result).toBe(
-		path.join(remotionRoot, 'out/custom-comp-name.mp4'),
-	);
+	const result = resolveOutputPath(remotionRoot, 'out/custom-comp-name.mp4');
+	expect(result).toBe(path.join(remotionRoot, 'out/custom-comp-name.mp4'));
 });
