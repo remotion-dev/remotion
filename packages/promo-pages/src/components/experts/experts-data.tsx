@@ -577,7 +577,7 @@ export const experts: Expert[] = [
 		linkedin: 'in/pablito-jean-pool-silva-inca-735a03192/',
 		email: 'pablito.silvainca@gmail.com',
 		videocall: null,
-		since: new Date('2024-02-13').getTime(),
+		since: new Date('2026-02-13').getTime(),
 		description: (
 			<div>
 				Creator of{' '}
