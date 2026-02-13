@@ -61,7 +61,7 @@ import {Html5Video} from 'remotion';
 export default function SBSVideo() {
   return (
     <>
-      {['https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'].map((video, i) => {
+      {['https://remotion.media/BigBuckBunny.mp4', 'https://remotion.media/BigBuckBunny.mp4'].map((video, i) => {
         return <Html5Video key={uuidv4()} src={video} />;
       })}
     </>

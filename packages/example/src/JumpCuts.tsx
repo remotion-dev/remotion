@@ -73,7 +73,7 @@ export const JumpCuts: React.FC<Props> = ({sections}) => {
 			// Remotion will automatically add a time fragment to the end of the video URL
 			// based on `trimBefore` and `trimAfter`. Opt out of this by adding one yourself.
 			// https://www.remotion.dev/docs/media-fragments
-			src={`https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=0,`}
+			src={`https://remotion.media/BigBuckBunny.mp4#t=0,`}
 			// Force Remotion to seek when it jumps even just a tiny bit
 			acceptableTimeShiftInSeconds={
 				cut.firstFrameOfSection ? 0.000001 : undefined

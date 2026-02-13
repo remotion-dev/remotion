@@ -17,7 +17,7 @@ You may use this function if you want to customize part of the track transformat
 import {convertMedia, defaultOnAudioTrackHandler} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
   onAudioTrack: (params) => {
     // Custom logic for handling video tracks
