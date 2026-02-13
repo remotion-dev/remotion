@@ -175,6 +175,8 @@ export const addBroadcastChannelListener = () => {
 
 					window.remotion_broadcastChannel!.postMessage(response);
 				}
+			} else if (data.type === 'main-tab-ready') {
+				// can happen: https://discord.com/channels/809501355504959528/990308056627806238/1471899489978679387
 			} else {
 				throw new Error('Invalid message: ' + JSON.stringify(data));
 			}
