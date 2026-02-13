@@ -1,4 +1,0 @@
-/**
- * @description Downloads a rendered video, audio or still to the disk of the machine this API is called from.
- * @see [Documentation](https://remotion.dev/docs/lambda/downloadmedia)
- */

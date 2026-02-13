@@ -1,4 +1,0 @@
-/**
- * @description The Easing module implements common easing functions. You can use it with the interpolate() API.
- * @see [Documentation](https://remotion.dev/docs/easing)
- */
