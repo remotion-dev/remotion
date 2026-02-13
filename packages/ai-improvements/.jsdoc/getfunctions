@@ -1,4 +1,0 @@
-/**
- * @description Retrieves a list of functions that Remotion deployed to AWS Lambda in a certain region.
- * @see [Documentation](https://remotion.dev/docs/lambda/getfunctions)
- */

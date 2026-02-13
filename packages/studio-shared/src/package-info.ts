@@ -1,6 +1,5 @@
 export const packages = [
 	'svg-3d-engine',
-	'ai-improvements',
 	'animation-utils',
 	'animated-emoji',
 	'astro-example',
@@ -180,7 +179,6 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'lambda-python': null,
 	'lambda-ruby': null,
 	'player-example': null,
-	'ai-improvements': null,
 	skills: null,
 	'discord-poster': null,
 	'docusaurus-plugin': null,
@@ -202,7 +200,6 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 };
 export const installableMap: {[key in Pkgs]: boolean} = {
 	'svg-3d-engine': false,
-	'ai-improvements': false,
 	'animation-utils': true,
 	'animated-emoji': true,
 	'astro-example': false,
@@ -322,7 +319,6 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'compositor-linux-x64-gnu': null,
 	'compositor-linux-x64-musl': null,
 	'compositor-darwin-x64': null,
-	'ai-improvements': null,
 	'discord-poster': null,
 	'docusaurus-plugin': null,
 	'animation-utils': 'https://www.remotion.dev/docs/animation-utils/',
