@@ -23,6 +23,7 @@
 	},
 	"dependencies": {
 		"mediabunny": "catalog:",
+		"@mediabunny/ac3": "catalog:",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {

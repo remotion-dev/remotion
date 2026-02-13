@@ -21,7 +21,8 @@
 	"dependencies": {
 		"@remotion/licensing": "workspace:*",
 		"remotion": "workspace:*",
-		"mediabunny": "catalog:"
+		"mediabunny": "catalog:",
+		"@mediabunny/ac3": "catalog:"
 	},
 	"devDependencies": {
 		"@react-three/fiber": "catalog:",
