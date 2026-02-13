@@ -250,7 +250,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'prompt-to-motion-graphics' as const,
 		type: 'image' as const,
 		defaultBranch: 'main',
-		featuredOnHomePage: 'Prompt to Motion',
+		featuredOnHomePage: null,
 		previewURL: null,
 		previewLabel: 'Live Demo',
 		templateInMonorepo: 'template-prompt-to-motion-graphics',
