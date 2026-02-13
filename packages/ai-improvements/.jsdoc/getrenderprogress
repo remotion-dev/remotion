@@ -1,4 +1,0 @@
-/**
- * @description Gets the current status of a render originally triggered via renderMediaOnLambda().
- * @see [Documentation](https://remotion.dev/docs/lambda/getrenderprogress)
- */

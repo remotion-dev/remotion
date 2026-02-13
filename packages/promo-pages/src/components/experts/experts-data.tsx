@@ -567,4 +567,30 @@ export const experts: Expert[] = [
 			</div>
 		),
 	},
+	{
+		slug: 'pablito-silva',
+		name: 'Pablito Silva',
+		image: '/img/freelancers/pablito.png',
+		website: 'https://pablituuu.space/',
+		x: null,
+		github: 'pablituuu',
+		linkedin: 'in/pablito-jean-pool-silva-inca-735a03192/',
+		email: 'pablito.silvainca@gmail.com',
+		videocall: null,
+		since: new Date('2026-02-13').getTime(),
+		description: (
+			<div>
+				Creator of{' '}
+				<a target={'_blank'} href="https://react-video-editor-mu.vercel.app/">
+					Pablituuu Studio
+				</a>
+				, a premium AI-powered video editor.
+				<br />
+				I specialize in building complex Remotion applications integrated with AI
+				services like Gemini (for video analysis and highlights) and Deepgram
+				(for automated captions). I also focus on high-performance canvas
+				interactions using Fabric.js and cost-effective AI workflows.
+			</div>
+		),
+	},
 ];

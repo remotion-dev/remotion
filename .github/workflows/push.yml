@@ -92,7 +92,7 @@ jobs:
       - name: Install
         run: bun ci
       - name: Install deps
-        run: cd packages/web-renderer && bunx playwright install --with-deps
+        run: cd packages/web-renderer && bunx playwright install --with-deps && cd ../media && bunx playwright install --with-deps
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@v2.3.11
       - name: Test web renderer

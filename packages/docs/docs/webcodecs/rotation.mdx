@@ -31,7 +31,7 @@ import {UnstableDisclaimer} from './UnstableDisclaimer';
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
   rotate: 90,
 });
@@ -55,7 +55,7 @@ The rotations will negate each other, and [`convertMedia()`](/docs/webcodecs/con
 import {convertMedia, defaultOnVideoTrackHandler} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
   onVideoTrack: async (params) => {
     const action = await defaultOnVideoTrackHandler(params);

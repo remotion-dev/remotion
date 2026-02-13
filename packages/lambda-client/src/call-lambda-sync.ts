@@ -39,6 +39,12 @@ const callLambdaSyncWithoutRetry = async <
 		);
 	}
 
+	if (!res.Payload) {
+		throw new Error(
+			`Lambda function returned no payload (status ${res.StatusCode})`,
+		);
+	}
+
 	const decoded = new TextDecoder('utf-8').decode(res.Payload);
 
 	try {

@@ -9,9 +9,7 @@ import {
 } from 'remotion';
 
 if (typeof window !== 'undefined') {
-	preloadVideo(
-		'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-	);
+	preloadVideo('https://remotion.media/ForBiggerJoyrides.mp4');
 
 	preloadAudio(staticFile('sample.mp3'));
 }
@@ -34,7 +32,7 @@ export const VideoautoplayDemo = () => {
 			<AbsoluteFill>
 				<Html5Video
 					pauseWhenBuffering
-					src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+					src="https://remotion.media/BigBuckBunny.mp4"
 				/>
 			</AbsoluteFill>
 		</AbsoluteFill>

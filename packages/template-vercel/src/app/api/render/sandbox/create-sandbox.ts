@@ -16,10 +16,11 @@ export async function createSandbox({
 }): Promise<Sandbox & AsyncDisposable> {
   const sandbox = await createDisposableSandbox({
     runtime: "node24",
+    resources: { vcpus: 4 },
     timeout: 5 * 60 * 1000,
   });
 
-  const preparingPhase = "Preparing machine...";
+  const preparingPhase = "Preparing...";
   const preparingSubtitle = process.env.VERCEL
     ? "This only needs to be done once."
     : "This is only needed during development.";

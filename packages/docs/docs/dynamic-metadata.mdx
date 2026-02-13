@@ -70,7 +70,7 @@ export const Root: React.FC = () => {
       width={1920}
       height={1080}
       defaultProps={{
-        src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        src: 'https://remotion.media/BigBuckBunny.mp4',
       }}
       calculateMetadata={async ({props}) => {
         const {durationInSeconds} = await getMediaMetadata(props.src);

@@ -6,7 +6,7 @@
       "name": "remotion-monorepo",
       "dependencies": {
         "p-limit": "7.2.0",
-        "turbo": "2.8.0",
+        "turbo": "2.8.6",
         "typescript": "5.9.3",
       },
       "devDependencies": {
@@ -19,18 +19,9 @@
         "prettier-plugin-organize-imports": "3.2.4",
       },
     },
-    "packages/ai-improvements": {
-      "name": "ai-improvements",
-      "version": "4.0.421",
-      "dependencies": {
-        "@babel/types": "7.24.0",
-        "openai": "catalog:",
-        "recast": "0.23.11",
-      },
-    },
     "packages/animated-emoji": {
       "name": "@remotion/animated-emoji",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -41,7 +32,7 @@
     },
     "packages/animation-utils": {
       "name": "@remotion/animation-utils",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -56,7 +47,7 @@
     },
     "packages/astro-example": {
       "name": "@remotion/astro-example",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@astrojs/react": "4.0.0",
         "@remotion/gif": "workspace:*",
@@ -75,7 +66,7 @@
     },
     "packages/babel-loader": {
       "name": "@remotion/babel-loader",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@babel/core": "7.23.2",
         "@babel/plugin-proposal-class-properties": "7.14.5",
@@ -98,7 +89,7 @@
     },
     "packages/bundler": {
       "name": "@remotion/bundler",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/media-parser": "workspace:*",
         "@remotion/studio": "workspace:*",
@@ -124,7 +115,7 @@
     },
     "packages/captions": {
       "name": "@remotion/captions",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "eslint": "catalog:",
@@ -132,7 +123,7 @@
     },
     "packages/cli": {
       "name": "@remotion/cli",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "bin": {
         "remotion": "remotion-cli.js",
         "remotionb": "remotionb-cli.js",
@@ -173,7 +164,7 @@
     },
     "packages/cloudrun": {
       "name": "@remotion/cloudrun",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@google-cloud/artifact-registry": "3.5.1",
         "@google-cloud/functions-framework": "3.4.6",
@@ -198,39 +189,39 @@
     },
     "packages/compositor": {
       "name": "@remotion/compositor",
-      "version": "4.0.421",
+      "version": "4.0.422",
     },
     "packages/compositor-darwin-arm64": {
       "name": "@remotion/compositor-darwin-arm64",
-      "version": "4.0.421",
+      "version": "4.0.422",
     },
     "packages/compositor-darwin-x64": {
       "name": "@remotion/compositor-darwin-x64",
-      "version": "4.0.421",
+      "version": "4.0.422",
     },
     "packages/compositor-linux-arm64-gnu": {
       "name": "@remotion/compositor-linux-arm64-gnu",
-      "version": "4.0.421",
+      "version": "4.0.422",
     },
     "packages/compositor-linux-arm64-musl": {
       "name": "@remotion/compositor-linux-arm64-musl",
-      "version": "4.0.421",
+      "version": "4.0.422",
     },
     "packages/compositor-linux-x64-gnu": {
       "name": "@remotion/compositor-linux-x64-gnu",
-      "version": "4.0.421",
+      "version": "4.0.422",
     },
     "packages/compositor-linux-x64-musl": {
       "name": "@remotion/compositor-linux-x64-musl",
-      "version": "4.0.421",
+      "version": "4.0.422",
     },
     "packages/compositor-win32-x64-msvc": {
       "name": "@remotion/compositor-win32-x64-msvc",
-      "version": "4.0.421",
+      "version": "4.0.422",
     },
     "packages/convert": {
       "name": "@remotion/convert",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@mediabunny/mp3-encoder": "catalog:",
         "@mediafox/core": "^1.0.4",
@@ -286,7 +277,7 @@
     },
     "packages/core": {
       "name": "remotion",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@happy-dom/global-registrator": "14.5.1",
         "@remotion/eslint-config-internal": "workspace:*",
@@ -307,7 +298,7 @@
     },
     "packages/create-video": {
       "name": "create-video",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "bin": {
         "create-video": "bin.js",
       },
@@ -329,7 +320,7 @@
     },
     "packages/design": {
       "name": "@remotion/design",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@radix-ui/react-select": "2.1.1",
         "@radix-ui/react-tabs": "^1.1.0",
@@ -357,11 +348,11 @@
     },
     "packages/discord-poster": {
       "name": "@remotion/discord-poster",
-      "version": "4.0.421",
+      "version": "4.0.422",
     },
     "packages/docs": {
       "name": "docs",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@algora/sdk": "^0.1.2",
         "@aws-sdk/s3-request-presigner": "catalog:",
@@ -471,7 +462,7 @@
     },
     "packages/docusaurus-plugin": {
       "name": "@remotion/docusaurus-plugin",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@docusaurus/types": "3.6.0",
         "@types/dom-webcodecs": "catalog:",
@@ -489,7 +480,7 @@
     },
     "packages/enable-scss": {
       "name": "@remotion/enable-scss",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "css-loader": "5.2.7",
         "sass-loader": "14.2.1",
@@ -506,7 +497,7 @@
     },
     "packages/eslint-config": {
       "name": "@remotion/eslint-config",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/eslint-plugin": "workspace:*",
@@ -522,7 +513,7 @@
     },
     "packages/eslint-config-flat": {
       "name": "@remotion/eslint-config-flat",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "typescript-eslint": "8.21.0",
       },
@@ -540,7 +531,7 @@
     },
     "packages/eslint-config-internal": {
       "name": "@remotion/eslint-config-internal",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@eslint/compat": "1.2.2",
         "@eslint/eslintrc": "3.1.0",
@@ -558,7 +549,7 @@
     },
     "packages/eslint-plugin": {
       "name": "@remotion/eslint-plugin",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@typescript-eslint/utils": "5.19.0",
       },
@@ -572,7 +563,7 @@
     },
     "packages/example": {
       "name": "@remotion/example",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@mdx-js/loader": "^2.3.0",
         "@mdx-js/react": "^2.3.0",
@@ -656,7 +647,7 @@
     },
     "packages/example-videos": {
       "name": "@remotion/example-videos",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "dotenv": "9.0.2",
@@ -665,7 +656,7 @@
     },
     "packages/example-without-zod": {
       "name": "@remotion/example-without-zod",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/cli": "workspace:*",
         "react": "catalog:",
@@ -675,7 +666,7 @@
     },
     "packages/fonts": {
       "name": "@remotion/fonts",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -686,7 +677,7 @@
     },
     "packages/gif": {
       "name": "@remotion/gif",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -705,7 +696,7 @@
     },
     "packages/google-fonts": {
       "name": "@remotion/google-fonts",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -718,7 +709,7 @@
     },
     "packages/install-whisper-cpp": {
       "name": "@remotion/install-whisper-cpp",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/captions": "workspace:*",
       },
@@ -729,7 +720,7 @@
     },
     "packages/it-tests": {
       "name": "@remotion/it-tests",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/bundler": "workspace:*",
         "@remotion/captions": "workspace:*",
@@ -771,7 +762,7 @@
     },
     "packages/lambda": {
       "name": "@remotion/lambda",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@aws-sdk/client-cloudwatch-logs": "catalog:",
         "@aws-sdk/client-iam": "catalog:",
@@ -813,7 +804,7 @@
     },
     "packages/lambda-client": {
       "name": "@remotion/lambda-client",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@aws-sdk/client-cloudwatch-logs": "catalog:",
         "@aws-sdk/client-iam": "catalog:",
@@ -836,25 +827,25 @@
     },
     "packages/lambda-go": {
       "name": "@remotion/lambda-go",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "remotion": "workspace:*",
       },
     },
     "packages/lambda-go-example": {
       "name": "@remotion/lambda-go-example",
-      "version": "4.0.421",
+      "version": "4.0.422",
     },
     "packages/lambda-php": {
       "name": "@remotion/lambda-php",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "remotion": "workspace:*",
       },
     },
     "packages/lambda-python": {
       "name": "@remotion/lambda-python",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "dotenv": "9.0.2",
       },
@@ -864,14 +855,14 @@
     },
     "packages/lambda-ruby": {
       "name": "@remotion/lambda-ruby",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "remotion": "workspace:*",
       },
     },
     "packages/layout-utils": {
       "name": "@remotion/layout-utils",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "eslint": "catalog:",
@@ -879,7 +870,7 @@
     },
     "packages/licensing": {
       "name": "@remotion/licensing",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "eslint": "catalog:",
@@ -889,7 +880,7 @@
     },
     "packages/light-leaks": {
       "name": "@remotion/light-leaks",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -907,7 +898,7 @@
     },
     "packages/lottie": {
       "name": "@remotion/lottie",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -926,7 +917,7 @@
     },
     "packages/mcp": {
       "name": "@remotion/mcp",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "bin": {
         "remotion-mcp": "./dist/esm/index.mjs",
       },
@@ -942,7 +933,7 @@
     },
     "packages/media": {
       "name": "@remotion/media",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "mediabunny": "catalog:",
         "remotion": "workspace:*",
@@ -964,7 +955,7 @@
     },
     "packages/media-parser": {
       "name": "@remotion/media-parser",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/example-videos": "workspace:*",
@@ -976,7 +967,7 @@
     },
     "packages/media-utils": {
       "name": "@remotion/media-utils",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/media-parser": "workspace:*",
         "@remotion/webcodecs": "workspace:*",
@@ -994,7 +985,7 @@
     },
     "packages/motion-blur": {
       "name": "@remotion/motion-blur",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -1012,7 +1003,7 @@
     },
     "packages/noise": {
       "name": "@remotion/noise",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
         "simplex-noise": "4.0.1",
@@ -1024,7 +1015,7 @@
     },
     "packages/openai-whisper": {
       "name": "@remotion/openai-whisper",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/captions": "workspace:*",
       },
@@ -1036,7 +1027,7 @@
     },
     "packages/paths": {
       "name": "@remotion/paths",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "eslint": "catalog:",
@@ -1044,7 +1035,7 @@
     },
     "packages/player": {
       "name": "@remotion/player",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -1066,7 +1057,7 @@
     },
     "packages/player-example": {
       "name": "@remotion/player-example",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/bundler": "workspace:*",
         "@remotion/eslint-config-flat": "workspace:*",
@@ -1087,7 +1078,7 @@
     },
     "packages/preload": {
       "name": "@remotion/preload",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "eslint": "catalog:",
@@ -1095,7 +1086,7 @@
     },
     "packages/promo-pages": {
       "name": "@remotion/promo-pages",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@mux/upchunk": "^3.5.0",
         "@remotion/animated-emoji": "workspace:*",
@@ -1134,7 +1125,7 @@
     },
     "packages/react18-tests": {
       "name": "@remotion/react18-tests",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -1160,7 +1151,7 @@
     },
     "packages/renderer": {
       "name": "@remotion/renderer",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/licensing": "workspace:*",
         "@remotion/streaming": "workspace:*",
@@ -1199,7 +1190,7 @@
     },
     "packages/rive": {
       "name": "@remotion/rive",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@rive-app/canvas-advanced": "2.31.5",
         "remotion": "workspace:*",
@@ -1217,7 +1208,7 @@
     },
     "packages/rounded-text-box": {
       "name": "@remotion/rounded-text-box",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/layout-utils": "workspace:*",
         "@remotion/paths": "workspace:*",
@@ -1229,7 +1220,7 @@
     },
     "packages/serverless": {
       "name": "@remotion/serverless",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/bundler": "workspace:*",
         "@remotion/licensing": "workspace:*",
@@ -1243,7 +1234,7 @@
     },
     "packages/serverless-client": {
       "name": "@remotion/serverless-client",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/renderer": "workspace:*",
@@ -1254,7 +1245,7 @@
     },
     "packages/shapes": {
       "name": "@remotion/shapes",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/paths": "workspace:*",
       },
@@ -1273,7 +1264,7 @@
     },
     "packages/skia": {
       "name": "@remotion/skia",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -1296,7 +1287,7 @@
     },
     "packages/skills": {
       "name": "@remotion/skills",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/bundler": "workspace:*",
         "@remotion/cli": "workspace:*",
@@ -1314,7 +1305,7 @@
     },
     "packages/streaming": {
       "name": "@remotion/streaming",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "eslint": "catalog:",
@@ -1322,7 +1313,7 @@
     },
     "packages/studio": {
       "name": "@remotion/studio",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
@@ -1352,7 +1343,7 @@
     },
     "packages/studio-server": {
       "name": "@remotion/studio-server",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@babel/parser": "7.24.1",
         "@remotion/bundler": "workspace:*",
@@ -1377,7 +1368,7 @@
     },
     "packages/studio-shared": {
       "name": "@remotion/studio-shared",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -1389,7 +1380,7 @@
     },
     "packages/svg-3d-engine": {
       "name": "@remotion/svg-3d-engine",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/paths": "workspace:*",
       },
@@ -1400,7 +1391,7 @@
     },
     "packages/tailwind": {
       "name": "@remotion/tailwind",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "autoprefixer": "10.4.20",
         "css-loader": "5.2.7",
@@ -1422,7 +1413,7 @@
     },
     "packages/tailwind-v4": {
       "name": "@remotion/tailwind-v4",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@tailwindcss/postcss": "4.1.1",
         "css-loader": "5.2.7",
@@ -2162,13 +2153,14 @@
         "postcss": "8.4.47",
         "prettier": "3.6.0",
         "tailwindcss": "4.0.3",
+        "turbo": "2.8.6",
         "typescript": "5.9.3",
         "typescript-eslint": "8.46.0",
       },
     },
     "packages/test-utils": {
       "name": "@remotion/test-utils",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "eslint": "catalog:",
@@ -2179,7 +2171,7 @@
     },
     "packages/three": {
       "name": "@remotion/three",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -2205,7 +2197,7 @@
     },
     "packages/transitions": {
       "name": "@remotion/transitions",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/paths": "workspace:*",
         "@remotion/shapes": "workspace:*",
@@ -2228,7 +2220,7 @@
     },
     "packages/web-renderer": {
       "name": "@remotion/web-renderer",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/licensing": "workspace:*",
         "mediabunny": "catalog:",
@@ -2260,7 +2252,7 @@
     },
     "packages/webcodecs": {
       "name": "@remotion/webcodecs",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/media-parser": "workspace:*",
       },
@@ -2276,7 +2268,7 @@
     },
     "packages/whisper-web": {
       "name": "@remotion/whisper-web",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "@remotion/captions": "workspace:*",
       },
@@ -2287,7 +2279,7 @@
     },
     "packages/zod-types": {
       "name": "@remotion/zod-types",
-      "version": "4.0.421",
+      "version": "4.0.422",
       "dependencies": {
         "remotion": "workspace:*",
       },
@@ -4688,8 +4680,6 @@
     "aggregate-error": ["aggregate-error@3.1.0", "", { "dependencies": { "clean-stack": "2.2.0", "indent-string": "4.0.0" } }, "sha512-4I7Td01quW/RpocfNayFdFVk1qSuoh0E7JrbRJ16nH01HhKFQ88INq9Sd+nd72zqRySlr9BmDA8xlEJ6vJMrYA=="],
 
     "ai": ["ai@5.0.104", "", { "dependencies": { "@ai-sdk/gateway": "2.0.17", "@ai-sdk/provider": "2.0.0", "@ai-sdk/provider-utils": "3.0.18", "@opentelemetry/api": "1.9.0" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-MZOkL9++nY5PfkpWKBR3Rv+Oygxpb9S16ctv8h91GvrSif7UnNEdPMVZe3bUyMd2djxf0AtBk/csBixP0WwWZQ=="],
-
-    "ai-improvements": ["ai-improvements@workspace:packages/ai-improvements"],
 
     "ajv": ["ajv@6.12.6", "", { "dependencies": { "fast-deep-equal": "3.1.3", "fast-json-stable-stringify": "2.1.0", "json-schema-traverse": "0.4.1", "uri-js": "4.4.1" } }, "sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g=="],
 
@@ -7433,21 +7423,21 @@
 
     "tunnel-rat": ["tunnel-rat@0.1.2", "", { "dependencies": { "zustand": "4.5.5" } }, "sha512-lR5VHmkPhzdhrM092lI2nACsLO4QubF0/yoOhzX7c+wIpbN1GjHNzCc91QlpxBi+cnx8vVJ+Ur6vL5cEoQPFpQ=="],
 
-    "turbo": ["turbo@2.8.0", "", { "optionalDependencies": { "turbo-darwin-64": "2.8.0", "turbo-darwin-arm64": "2.8.0", "turbo-linux-64": "2.8.0", "turbo-linux-arm64": "2.8.0", "turbo-windows-64": "2.8.0", "turbo-windows-arm64": "2.8.0" }, "bin": { "turbo": "bin/turbo" } }, "sha512-hYbxnLEdvJF+DLALS+Ia+PbfNtn0sDP0hH2u9AFoskSUDmcVHSrtwHpzdX94MrRJKo9D9tYxY3MyP20gnlrWyA=="],
+    "turbo": ["turbo@2.8.6", "", { "optionalDependencies": { "turbo-darwin-64": "2.8.6", "turbo-darwin-arm64": "2.8.6", "turbo-linux-64": "2.8.6", "turbo-linux-arm64": "2.8.6", "turbo-windows-64": "2.8.6", "turbo-windows-arm64": "2.8.6" }, "bin": { "turbo": "bin/turbo" } }, "sha512-QMj1SQwUYehc+xJ9SxXn56UO43hfKN64/NFetVW1BwzysRqn+q0FSgrmk+IbJ+djfd8j8zXGKGeqsnUcXwQSUQ=="],
 
-    "turbo-darwin-64": ["turbo-darwin-64@2.8.0", "", { "os": "darwin", "cpu": "x64" }, "sha512-N7f4PYqz25yk8c5kituk09bJ89tE4wPPqKXgYccT6nbEQnGnrdvlyCHLyqViNObTgjjrddqjb1hmDkv7VcxE0g=="],
+    "turbo-darwin-64": ["turbo-darwin-64@2.8.6", "", { "os": "darwin", "cpu": "x64" }, "sha512-6QeZ/aLZizekiI6tKZN0IGP1a1WYZ9c/qDKPa0rSmj2X0O0Iw/ES4rKZV40S5n8SUJdiU01EFLygHJ2oWaYKXg=="],
 
-    "turbo-darwin-arm64": ["turbo-darwin-arm64@2.8.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-eVzejaP5fn51gmJAPW68U6mSjFaAZ26rPiE36mMdk+tMC4XBGmJHT/fIgrhcrXMvINCl27RF8VmguRe+MBlSuQ=="],
+    "turbo-darwin-arm64": ["turbo-darwin-arm64@2.8.6", "", { "os": "darwin", "cpu": "arm64" }, "sha512-RS4Z902vB93cQD3PJS/1IMmS0HefrB5ZXuw4ECOrxhOGz5jJVmYFJ6weDzedjoTDeYHHXGo1NoiCSHg69ngWKA=="],
 
-    "turbo-linux-64": ["turbo-linux-64@2.8.0", "", { "os": "linux", "cpu": "x64" }, "sha512-ILR45zviYae3icf4cmUISdj8X17ybNcMh3Ms4cRdJF5sS50qDDTv8qeWqO/lPeHsu6r43gVWDofbDZYVuXYL7Q=="],
+    "turbo-linux-64": ["turbo-linux-64@2.8.6", "", { "os": "linux", "cpu": "x64" }, "sha512-hCWDnDepYbrSJdByuryKFoHAGFkvgBYXr6qdaGsYhX1Wgq8isqXCQBKOo99Y/9tXDwKGEeQ7xnkdFvSL7AQ4iQ=="],
 
-    "turbo-linux-arm64": ["turbo-linux-arm64@2.8.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-z9pUa8ENFuHmadPfjEYMRWlXO82t1F/XBDx2XTg+cWWRZHf85FnEB6D4ForJn/GoKEEvwdPhFLzvvhOssom2ug=="],
+    "turbo-linux-arm64": ["turbo-linux-arm64@2.8.6", "", { "os": "linux", "cpu": "arm64" }, "sha512-oS15aCYEpynG/l69xs/ZnQ0dnz0pHhfHg70Zf5J+j5Cam0/RA0MpcryjneN/9G0PmP8a/6ZxnL5nZahX+wOBPA=="],
 
     "turbo-stream": ["turbo-stream@2.4.0", "", {}, "sha512-FHncC10WpBd2eOmGwpmQsWLDoK4cqsA/UT/GqNoaKOQnT8uzhtCbg3EoUDMvqpOSAI0S26mr0rkjzbOO6S3v1g=="],
 
-    "turbo-windows-64": ["turbo-windows-64@2.8.0", "", { "os": "win32", "cpu": "x64" }, "sha512-J6juRSRjmSErEqJCv7nVIq2DgZ2NHXqyeV8NQTFSyIvrThKiWe7FDOO6oYpuR06+C1NW82aoN4qQt4/gYvz25w=="],
+    "turbo-windows-64": ["turbo-windows-64@2.8.6", "", { "os": "win32", "cpu": "x64" }, "sha512-eqBxqJD7H/uk9V0QO10VgwY9J2BUXejsGuzChln72Yl+o8GZwsvhOekndRxccR90J8ZO+LKO24+3VzHFh4Cu/g=="],
 
-    "turbo-windows-arm64": ["turbo-windows-arm64@2.8.0", "", { "os": "win32", "cpu": "arm64" }, "sha512-qarBZvCu6uka35739TS+y/3CBU3zScrVAfohAkKHG+So+93Wn+5tKArs8HrO2fuTaGou8fMIeTV7V5NgzCVkSQ=="],
+    "turbo-windows-arm64": ["turbo-windows-arm64@2.8.6", "", { "os": "win32", "cpu": "arm64" }, "sha512-I3VEQyxIlNZ6XTg4fLKAkuhcwzIs/GD7Vs1yhelH2aUTjf08wprjBWknDqP7mjAHMpsosRrq4DtfSZEQm83Hxg=="],
 
     "tw-animate-css": ["tw-animate-css@1.4.0", "", {}, "sha512-7bziOlRqH0hJx80h/3mbicLW7o8qLsH5+RaLR2t+OHM3D0JlWGODQKQ4cxbK7WlvmUxpcj6Kgu6EKqjrGFe3QQ=="],
 

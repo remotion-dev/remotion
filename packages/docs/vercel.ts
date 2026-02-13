@@ -277,7 +277,7 @@ export const config: VercelConfig = {
 		),
 		routes.redirect(
 			'/bbb.mp4',
-			'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+			'https://remotion.media/BigBuckBunny.mp4',
 			{permanent: false},
 		),
 		routes.redirect(

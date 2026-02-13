@@ -34,7 +34,7 @@ const AcceleratedVideo: React.FC = () => {
 			<Html5Video
 				trimBefore={Math.round(remappedFrame)}
 				playbackRate={speedFunction(frame)}
-				src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#disable"
+				src="https://remotion.media/BigBuckBunny.mp4#disable"
 			/>
 		</Sequence>
 	);

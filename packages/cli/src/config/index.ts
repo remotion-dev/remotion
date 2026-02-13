@@ -67,7 +67,6 @@ import {setFrameRange} from './frame-range';
 import {getHeight, overrideHeight} from './height';
 import {setImageSequence} from './image-sequence';
 import {getMetadata, setMetadata} from './metadata';
-import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
@@ -129,6 +128,8 @@ const {
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
+	numberOfSharedAudioTagsOption,
+	ipv4Option,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -585,6 +586,11 @@ type FlatConfig = RemotionConfigObject &
 			hardwareAccelerationOption: HardwareAccelerationOption,
 		) => void;
 		/**
+		 * Forces Remotion to bind to an IPv4 interface for the Studio server.
+		 * Default: false
+		 */
+		setIPv4: (ipv4: boolean) => void;
+		/**
 		 * Choose between using Chrome Headless Shell or Chrome for Testing
 		 */
 		setChromeMode: (chromeMode: ChromeMode) => void;
@@ -649,7 +655,7 @@ export const Config: FlatConfig = {
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setExperimentalClientSideRenderingEnabled:
 		experimentalClientSideRenderingOption.setConfig,
-	setNumberOfSharedAudioTags,
+	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
 	setWebpackPollingInMilliseconds,
 	setShouldOpenBrowser,
 	setBufferStateDelayInMilliseconds,
@@ -732,6 +738,7 @@ export const Config: FlatConfig = {
 	setAskAIEnabled: askAIOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
+	setIPv4: ipv4Option.setConfig,
 };
 
 export const ConfigInternals = {

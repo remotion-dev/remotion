@@ -28,8 +28,7 @@ export const RenderControls: React.FC<{
             setText={setText}
             text={text}
           ></Input>
-          <Spacing></Spacing>
-          <AlignEnd>
+          <AlignEnd className="mt-4">
             <Button
               disabled={state.status === "invoking"}
               loading={state.status === "invoking"}
@@ -51,8 +50,8 @@ export const RenderControls: React.FC<{
               >
                 <div style={{ color: "#666" }}>
                   {state.phase}
-                  {state.progress > 0 && state.progress < 1
-                    ? ` ${Math.round(state.progress * 100)}%`
+                  {state.progress < 1
+                    ? ` ${Math.max(Math.round(state.progress * 100), 1)}%`
                     : null}
                 </div>
                 <div

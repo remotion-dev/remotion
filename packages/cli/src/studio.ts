@@ -2,7 +2,6 @@ import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
-import {getNumberOfSharedAudioTags} from './config/number-of-shared-audio-tags';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getEnvironmentVariables} from './get-env';
@@ -40,6 +39,9 @@ const {
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
+	numberOfSharedAudioTagsOption,
+	audioLatencyHintOption,
+	ipv4Option,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -159,8 +161,9 @@ export const studioCommand = async (
 		poll: ConfigInternals.getWebpackPolling(),
 		getRenderDefaults,
 		getRenderQueue,
-		numberOfAudioTags:
-			parsedCli['number-of-shared-audio-tags'] ?? getNumberOfSharedAudioTags(),
+		numberOfAudioTags: numberOfSharedAudioTagsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		queueMethods: {
 			addJob,
 			cancelJob,
@@ -173,8 +176,10 @@ export const studioCommand = async (
 		bufferStateDelayInMilliseconds:
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
-		forceIPv4: parsedCli.ipv4,
-		audioLatencyHint: parsedCli['audio-latency-hint'],
+		forceIPv4: ipv4Option.getValue({commandLine: parsedCli}).value,
+		audioLatencyHint: audioLatencyHintOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		enableCrossSiteIsolation,
 		askAIEnabled,
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,

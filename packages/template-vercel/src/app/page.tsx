@@ -13,7 +13,6 @@ import {
   VIDEO_WIDTH,
 } from "../../types/constants";
 import { RenderControls } from "../components/RenderControls";
-import { Spacing } from "../components/Spacing";
 import { Tips } from "../components/Tips";
 import { Main } from "../remotion/MyComp/Main";
 
@@ -28,8 +27,8 @@ const Home: NextPage = () => {
 
   return (
     <div>
-      <div className="max-w-screen-md m-auto mb-5 px-4">
-        <div className="overflow-hidden rounded-geist shadow-[0_0_200px_rgba(0,0,0,0.15)] mb-10 mt-16">
+      <div className="max-w-screen-md m-auto mb-5 px-4 mt-16 flex flex-col gap-10">
+        <div className="overflow-hidden rounded-geist shadow-[0_0_200px_rgba(0,0,0,0.15)]">
           <Player
             component={Main}
             inputProps={inputProps}
@@ -45,15 +44,14 @@ const Home: NextPage = () => {
             loop
           />
         </div>
-        <RenderControls
-          text={text}
-          setText={setText}
-          inputProps={inputProps}
-        ></RenderControls>
-        <Spacing></Spacing>
-        <Spacing></Spacing>
-        <Spacing></Spacing>
-        <Spacing></Spacing>
+        <section className="flex flex-col gap-4">
+          <h2 className="text-lg font-bold text-foreground">New Render</h2>
+          <RenderControls
+            text={text}
+            setText={setText}
+            inputProps={inputProps}
+          ></RenderControls>
+        </section>
         <Tips></Tips>
       </div>
     </div>
