@@ -1,26 +1,30 @@
-import {Audio} from '@remotion/media';
+import {Video} from '@remotion/media';
 import {CalculateMetadataFunction, Composition} from 'remotion';
 // https://www.remotion.dev/docs/mediabunny/metadata
-import {staticFile} from 'remotion';
+import {visualControl} from '@remotion/studio';
 import {getMediaMetadata} from './get-media-metadata';
 
-const src = staticFile('sample-audio.mp3');
+const src = visualControl('video', 'https://remotion.media/video-h265.mp4');
 
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
 > = async () => {
-	const {durationInSeconds} = await getMediaMetadata(src);
+	const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);
 
 	return {
-		durationInFrames: Math.round(durationInSeconds * 30),
-		fps: 30,
-		width: 1920,
-		height: 1080,
+		durationInFrames: Math.round(durationInSeconds * fps!),
+		fps: fps!,
+		width: dimensions!.width,
+		height: dimensions!.height,
 	};
 };
 
 export const Component = () => {
-	return <Audio src={src} />;
+	return (
+		<Video
+			src={visualControl('video', 'https://remotion.media/video-h265.mp4')}
+		/>
+	);
 };
 
 export const NewVideoComp = () => {

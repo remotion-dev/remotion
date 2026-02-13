@@ -4,7 +4,7 @@ import {getMaxVideoCacheSize} from '../caches';
 
 test('Audio samples from MP3 should produce identical s16 output on Chrome and Firefox', async () => {
 	const a = await extractAudio({
-		src: '/sample-audio.mp3',
+		src: '/mp3-f32-audio.mp3',
 		timeInSeconds: 0.03333333333333333,
 		logLevel: 'info',
 		loop: false,

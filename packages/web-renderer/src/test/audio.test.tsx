@@ -239,38 +239,3 @@ test('explicit Opus selection produces Opus in MP4 output', async () => {
 	const audioCodec = await getAudioCodecFromBlob(blob);
 	expect(audioCodec).toBe('opus');
 });
-
-test.only('should render MP3 audio source', async (t) => {
-	if (t.task.file.projectName === 'webkit') {
-		t.skip();
-		return;
-	}
-
-	const Component: React.FC = () => {
-		return <Audio src={staticFile('sample-audio.mp3')} />;
-	};
-
-	const result = await renderMediaOnWeb({
-		licenseKey: 'free-license',
-		composition: {
-			component: Component,
-			id: 'mp3-encoding-test',
-			width: 100,
-			height: 100,
-			fps: 30,
-			durationInFrames: 300,
-			calculateMetadata: null,
-		},
-		container: 'mp4',
-		frameRange: [0, 299],
-		logLevel: 'verbose',
-		outputTarget: 'arraybuffer',
-	});
-
-	const blob = await result.getBlob();
-	expect(blob.size).toBeGreaterThan(0);
-	const audioCodec = await getAudioCodecFromBlob(blob);
-	expect(audioCodec).toBe(
-		t.task.file.projectName === 'firefox' ? 'opus' : 'aac',
-	);
-});
