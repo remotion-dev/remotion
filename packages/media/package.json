@@ -18,7 +18,7 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"watch": "tsgo -w",
-		"test": "node src/test/execute.mjs",
+		"testwebrenderer": "vitest src/test --browser --run",
 		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {

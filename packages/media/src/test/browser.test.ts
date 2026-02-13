@@ -98,7 +98,7 @@ test('Should be able to extract the last frame', async () => {
 	expect(cacheStats.count).toBe(1);
 });
 
-test('Should manage the cache', async () => {
+test('Should manage the cache', async (t) => {
 	keyframeManager.clearAll('info');
 
 	for (let i = 0; i < 50; i++) {
@@ -121,7 +121,11 @@ test('Should manage the cache', async () => {
 
 	const cacheStats = keyframeManager.getCacheStats();
 	expect(cacheStats.count).toBe(50);
-	expect(cacheStats.totalSize).toBe(69120000);
+	if (t.task.file.projectName === 'firefox') {
+		expect(cacheStats.totalSize).toBe(184320000);
+	} else {
+		expect(cacheStats.totalSize).toBe(69120000);
+	}
 });
 
 test('Should be apply volume correctly', async () => {
