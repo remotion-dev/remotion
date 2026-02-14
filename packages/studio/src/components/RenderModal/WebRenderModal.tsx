@@ -304,7 +304,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			return initialDefaultOutName;
 		}
 
-		return getDefaultOutLocation({
+		const defaultOut = getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
 			defaultExtension:
 				renderMode === 'still'
@@ -314,8 +314,14 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						: imageFormat,
 			type: 'asset',
 			compositionDefaultOutName: resolvedComposition.defaultOutName,
-			clientSideRender: true,
+			outputLocation: window.remotion_renderDefaults?.outputLocation ?? null,
 		});
+
+		if (window.remotion_isReadOnlyStudio) {
+			return defaultOut.replace(/^out\//, '');
+		}
+
+		return defaultOut;
 	});
 
 	const [outName, setOutName] = useState(() => initialOutNameState);

@@ -76,6 +76,7 @@ export {
 	StitchingProgressInput,
 	UiOpenGlOptions,
 } from './render-job';
+export type {CompletedClientRender} from './render-job';
 export {SOURCE_MAP_ENDPOINT} from './source-map-endpoint';
 export {
 	ScriptLine,

@@ -8,7 +8,10 @@ import type {
 import type {RenderJob} from '@remotion/studio-shared';
 import type {WebRendererHardwareAcceleration} from '@remotion/web-renderer';
 import {NoReactInternals} from 'remotion/no-react';
-import type {ClientRenderJob} from '../components/RenderQueue/client-side-render-types';
+import type {
+	ClientStillRenderJob,
+	ClientVideoRenderJob,
+} from '../components/RenderQueue/client-side-render-types';
 import type {RenderModalState, WebRenderModalState} from '../state/modals';
 
 export const makeRetryPayload = (job: RenderJob): RenderModalState => {
@@ -189,7 +192,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 };
 
 export const makeClientRetryPayload = (
-	job: ClientRenderJob,
+	job: ClientStillRenderJob | ClientVideoRenderJob,
 ): WebRenderModalState => {
 	return {
 		type: 'web-render',

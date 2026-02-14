@@ -131,6 +131,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 	}).value;
 	const userAgent = ConfigInternals.getChromiumUserAgent();
 	const metadata = ConfigInternals.getMetadata();
+	const outputLocation = ConfigInternals.getOutputLocation();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
@@ -178,5 +179,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		chromeMode,
 		mediaCacheSizeInBytes,
 		publicLicenseKey,
+		outputLocation,
 	};
 };

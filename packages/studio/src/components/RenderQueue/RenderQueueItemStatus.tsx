@@ -107,6 +107,14 @@ export const RenderQueueItemStatus: React.FC<{
 		);
 	}
 
+	if (job.status === 'saving') {
+		return (
+			<button type="button" style={invisibleStyle} onClick={onClick}>
+				<CircularProgress progress={0.95} />
+			</button>
+		);
+	}
+
 	if (job.status === 'cancelled') {
 		return (
 			<svg style={iconStyle} viewBox="0 0 512 512">
