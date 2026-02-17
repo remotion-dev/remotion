@@ -71,8 +71,7 @@ type V5Options = FontLoadOptions & {
 export const loadFonts = (
 	meta: FontInfo,
 	style?: string,
-	// TODO: Before release of v5, change `extends false` to `extends true`
-	options?: typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends false
+	options?: typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
 		? V5Options
 		: V4Options,
 ): {

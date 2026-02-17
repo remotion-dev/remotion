@@ -44,6 +44,7 @@
 		"@remotion/design": "workspace:*",
 		"@remotion/docusaurus-plugin": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/fonts": "workspace:*",
 		"@remotion/gif": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
@@ -109,7 +110,6 @@
 		"remotion": "workspace:*",
 		"three": "catalog:",
 		"uuid": "^8.3.2",
-		"@remotion/eslint-config-internal": "workspace:*",
 		"zod": "catalog:"
 	},
 	"devDependencies": {

@@ -211,12 +211,14 @@ export const RenderModalAdvanced: React.FC<{
 		},
 		[setIgnoreCertificateErrors],
 	);
+
 	const onHeadless = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setHeadless(e.target.checked);
 		},
 		[setHeadless],
 	);
+
 	const onUserAgentChanged: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
@@ -417,6 +419,7 @@ export const RenderModalAdvanced: React.FC<{
 					</div>
 				</div>
 			) : null}
+
 			<NumberSetting
 				// Also appears in packages/renderer/src/validate-puppeteer-timeout.ts
 				min={7_000}
