@@ -40,6 +40,8 @@ const {
 	darkModeOption,
 	pixelFormatOption,
 	browserExecutableOption,
+	everyNthFrameOption,
+	proResProfileOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -83,8 +85,6 @@ export const renderCommand = async (
 		envVariables,
 		frameRange,
 		inputProps,
-		proResProfile,
-		everyNthFrame,
 		height,
 		width,
 		disableWebSecurity,
@@ -100,6 +100,12 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const everyNthFrame = everyNthFrameOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const proResProfile = proResProfileOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const offthreadVideoCacheSizeInBytes =

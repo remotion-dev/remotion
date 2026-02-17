@@ -7,9 +7,7 @@ import type {
 } from '@remotion/renderer';
 import type {TypeOfOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {_InternalTypes} from 'remotion';
 import {Config, ConfigInternals} from './config';
-import {Log} from './log';
 import {parsedCli} from './parsed-cli';
 
 const {
@@ -38,6 +36,8 @@ const {
 	ipv4Option,
 	pixelFormatOption,
 	browserExecutableOption,
+	everyNthFrameOption,
+	proResProfileOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -46,14 +46,14 @@ export type CommandLineOptions = {
 	>;
 	[pixelFormatOption.cliFlag]: TypeOfOption<typeof pixelFormatOption>;
 	['image-format']: VideoImageFormat | StillImageFormat;
-	['prores-profile']: _InternalTypes['ProResProfile'];
+	[proResProfileOption.cliFlag]: TypeOfOption<typeof proResProfileOption>;
 	[x264Option.cliFlag]: TypeOfOption<typeof x264Option>;
 	['bundle-cache']: string;
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
 	[darkModeOption.cliFlag]: TypeOfOption<typeof darkModeOption>;
 	['disable-web-security']: string;
-	['every-nth-frame']: number;
+	[everyNthFrameOption.cliFlag]: TypeOfOption<typeof everyNthFrameOption>;
 	[numberOfGifLoopsOption.cliFlag]: TypeOfOption<typeof numberOfGifLoopsOption>;
 	[numberOfSharedAudioTagsOption.cliFlag]: TypeOfOption<
 		typeof numberOfSharedAudioTagsOption
@@ -179,16 +179,6 @@ export const parseCommandLine = () => {
 		Config.setImageSequence(true);
 	}
 
-	if (parsedCli['every-nth-frame']) {
-		Config.setEveryNthFrame(parsedCli['every-nth-frame']);
-	}
-
-	if (parsedCli['prores-profile']) {
-		Config.setProResProfile(
-			String(parsedCli['prores-profile']) as _InternalTypes['ProResProfile'],
-		);
-	}
-
 	if (
 		parsedCli['license-key'] &&
 		parsedCli['license-key'].startsWith('rm_pub_')
@@ -198,27 +188,6 @@ export const parseCommandLine = () => {
 
 	if (parsedCli['public-license-key']) {
 		Config.setPublicLicenseKey(parsedCli['public-license-key']);
-	}
-
-	if (typeof parsedCli.quality !== 'undefined') {
-		Log.warn(
-			{indent: false, logLevel: 'info'},
-			'The --quality flag has been renamed to --jpeg-quality instead.',
-		);
-		Config.setJpegQuality(parsedCli.quality);
-	}
-
-	if (typeof parsedCli.scale !== 'undefined') {
-		Config.setScale(parsedCli.scale);
-	}
-
-	if (
-		typeof parsedCli['enable-experimental-client-side-rendering'] !==
-		'undefined'
-	) {
-		Config.setExperimentalClientSideRenderingEnabled(
-			parsedCli['enable-experimental-client-side-rendering'],
-		);
 	}
 
 	if (typeof parsedCli['webpack-poll'] !== 'undefined') {

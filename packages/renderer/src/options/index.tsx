@@ -18,6 +18,7 @@ import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
 import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
+import {everyNthFrameOption} from './every-nth-frame';
 import {experimentalClientSideRenderingOption} from './experimental-client-side-rendering';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
@@ -44,6 +45,7 @@ import type {AnyRemotionOption} from './option';
 import {overwriteOption} from './overwrite';
 import {pixelFormatOption} from './pixel-format';
 import {preferLosslessAudioOption} from './prefer-lossless';
+import {proResProfileOption} from './prores-profile';
 import {publicDirOption} from './public-dir';
 import {publicLicenseKeyOption} from './public-license-key';
 import {publicPathOption} from './public-path';
@@ -69,6 +71,7 @@ export const allOptions = {
 	videoBitrateOption,
 	audioBitrateOption,
 	enforceAudioOption,
+	everyNthFrameOption,
 	mutedOption,
 	videoCodecOption,
 	offthreadVideoCacheSizeInBytesOption,
@@ -88,6 +91,7 @@ export const allOptions = {
 	reproOption,
 	pixelFormatOption,
 	preferLosslessOption: preferLosslessAudioOption,
+	proResProfileOption,
 	x264Option,
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,

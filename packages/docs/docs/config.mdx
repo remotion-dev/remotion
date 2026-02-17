@@ -467,9 +467,7 @@ The [command line flag](/docs/cli/render#--env-file) `--env-file` will take prec
 
 ## `setEveryNthFrame()`
 
-This option may only be set when rendering GIFs. [It determines how many frames are rendered, while the other ones gets skipped in order to lower the FPS of the GIF.](/docs/render-as-gif)
-
-For example, if the `fps` is 30, and `everyNthFrame` is 2, the FPS of the GIF is `15`.
+<Options id="every-nth-frame" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -573,10 +571,7 @@ Refer to the [Encoding guide](/docs/encoding) to see defaults and supported comb
 
 ## `setProResProfile()`<AvailableFrom v="2.1.6" />
 
-Set the ProRes profile. This option is only valid if the codec has been set to `prores`.
-Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`.
-See [here](https://video.stackexchange.com/a/14715) for explanation of possible values.
-Default: `hq`
+<Options id="prores-profile" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';

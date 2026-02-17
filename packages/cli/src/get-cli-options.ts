@@ -47,12 +47,6 @@ export const getAndValidateAbsoluteOutputFile = (
 	return absoluteOutputFile;
 };
 
-const getProResProfile = () => {
-	const proResProfile = ConfigInternals.getProResProfile();
-
-	return proResProfile;
-};
-
 export const getCliOptions = (options: {
 	isStill: boolean;
 	logLevel: LogLevel;
@@ -64,13 +58,9 @@ export const getCliOptions = (options: {
 		? true
 		: ConfigInternals.getShouldOutputImageSequence(frameRange);
 
-	const proResProfile = getProResProfile();
-
 	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
 	const userAgent = ConfigInternals.getChromiumUserAgent();
-
-	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 
 	const concurrency = ConfigInternals.getConcurrency();
 
@@ -93,8 +83,6 @@ export const getCliOptions = (options: {
 			options.logLevel,
 			options.indent,
 		),
-		proResProfile,
-		everyNthFrame,
 		stillFrame: ConfigInternals.getStillFrame(),
 		userAgent,
 		disableWebSecurity,

@@ -17,7 +17,6 @@ import {
 	getRendererPortFromConfigFileAndCliFlag,
 	getStudioPort,
 } from './preview-server';
-import {getProResProfile} from './prores-profile';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getWebpackCaching} from './webpack-caching';
 
@@ -49,7 +48,6 @@ import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
-import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
 import {
 	getFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
@@ -63,7 +61,6 @@ import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
 import {setPort, setRendererPort, setStudioPort} from './preview-server';
-import {setProResProfile} from './prores-profile';
 import {getChromiumUserAgent, setChromiumUserAgent} from './user-agent';
 import {setWebpackCaching} from './webpack-caching';
 import {
@@ -122,6 +119,8 @@ const {
 	ipv4Option,
 	pixelFormatOption,
 	browserExecutableOption,
+	everyNthFrameOption,
+	proResProfileOption,
 	stillImageFormatOption,
 	videoImageFormatOption,
 } = BrowserSafeApis.options;
@@ -692,7 +691,7 @@ export const Config: FlatConfig = {
 	setEncodingBufferSize: encodingBufferSizeOption.setConfig,
 	setFrameRange,
 	setScale: scaleOption.setConfig,
-	setEveryNthFrame,
+	setEveryNthFrame: everyNthFrameOption.setConfig,
 	setNumberOfGifLoops: numberOfGifLoopsOption.setConfig,
 	setMuted: mutedOption.setConfig,
 	setEnforceAudioTrack: enforceAudioOption.setConfig,
@@ -703,7 +702,7 @@ export const Config: FlatConfig = {
 	setCodec: videoCodecOption.setConfig,
 	setCrf: crfOption.setConfig,
 	setImageSequence,
-	setProResProfile,
+	setProResProfile: proResProfileOption.setConfig,
 	setX264Preset: x264Option.setConfig,
 	setAudioBitrate: audioBitrateOption.setConfig,
 	setVideoBitrate: videoBitrateOption.setConfig,
@@ -738,13 +737,11 @@ export const Config: FlatConfig = {
 export const ConfigInternals = {
 	getRange,
 	getBrowser,
-	getProResProfile,
 	getStudioPort,
 	getRendererPortFromConfigFile,
 	getRendererPortFromConfigFileAndCliFlag,
 	getChromiumDisableWebSecurity,
 	getIgnoreCertificateErrors,
-	getEveryNthFrame,
 	getConcurrency,
 	getStillFrame,
 	getShouldOutputImageSequence,

@@ -50,6 +50,8 @@ const {
 	keyboardShortcutsOption,
 	pixelFormatOption,
 	browserExecutableOption,
+	everyNthFrameOption,
+	proResProfileOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -95,14 +97,12 @@ export const render = async (
 		shouldOutputImageSequence,
 		inputProps,
 		envVariables,
-		everyNthFrame,
 		userAgent,
 		disableWebSecurity,
 		ignoreCertificateErrors,
 		height,
 		width,
 		ffmpegOverride,
-		proResProfile,
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
@@ -113,6 +113,12 @@ export const render = async (
 		commandLine: parsedCli,
 	}).value;
 	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const everyNthFrame = everyNthFrameOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const proResProfile = proResProfileOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const x264Preset = x264Option.getValue({commandLine: parsedCli}).value;

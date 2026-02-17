@@ -62,6 +62,8 @@ const {
 	keyboardShortcutsOption,
 	pixelFormatOption,
 	browserExecutableOption,
+	everyNthFrameOption,
+	proResProfileOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -202,9 +204,7 @@ export const benchmarkCommand = async (
 	const {
 		inputProps,
 		envVariables,
-		proResProfile,
 		frameRange: defaultFrameRange,
-		everyNthFrame,
 		ffmpegOverride,
 		height,
 		width,
@@ -222,6 +222,12 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const everyNthFrame = everyNthFrameOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const proResProfile = proResProfileOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 

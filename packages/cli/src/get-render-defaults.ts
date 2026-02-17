@@ -32,6 +32,8 @@ const {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	pixelFormatOption,
+	everyNthFrameOption,
+	proResProfileOption,
 	publicLicenseKeyOption,
 	stillImageFormatOption,
 	videoImageFormatOption,
@@ -49,7 +51,8 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const pixelFormat = pixelFormatOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const proResProfile = ConfigInternals.getProResProfile() ?? null;
+	const proResProfile =
+		proResProfileOption.getValue({commandLine: parsedCli}).value ?? null;
 
 	const x264Preset = x264Option.getValue({
 		commandLine: parsedCli,
@@ -126,7 +129,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 		commandLine: parsedCli,
 	}).value;
 
-	const everyNthFrame = ConfigInternals.getEveryNthFrame();
+	const everyNthFrame = everyNthFrameOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const stillImageFormat = stillImageFormatOption.getValue({
 		commandLine: parsedCli,
 	}).value;

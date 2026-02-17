@@ -8,5 +8,3 @@ Config.overrideWebpackConfig(async (config) => {
 	});
 	return webpackOverride(config);
 });
-
-Config.setExperimentalClientSideRenderingEnabled(true);
