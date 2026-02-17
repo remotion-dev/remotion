@@ -32,7 +32,7 @@ Re-encodes a video using [WebCodecs](https://developer.mozilla.org/en-US/docs/We
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
 });
 
@@ -59,7 +59,7 @@ Call this function to get the converted video as a `Blob`. You can then use this
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
 });
 
@@ -153,14 +153,6 @@ The number of degrees to rotate the video. See [Rotate a video](/docs/webcodecs/
 _object_ <TsType type="ResizeOperation" source="@remotion/webcodecs"/>
 
 Resize the video. See [Resize a video](/docs/webcodecs/resize-a-video) for more information.
-
-### `apiKey?`
-
-If you are a customer of a [Remotion Company License](https://remotion.pro/license), you can provide an API key from your dashboard to track your conversions.
-
-:::note
-[Telemetry is enabled](/docs/webcodecs/telemetry) even if you don't provide an API key.
-:::
 
 ### `logLevel?`
 
@@ -332,7 +324,7 @@ This feature is inherited from [`parseMedia()`](/docs/media-parser/parse-media),
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
   videoCodec: 'vp8',
   audioCodec: 'opus',

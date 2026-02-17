@@ -4,9 +4,11 @@ import {
 	type LogLevel,
 } from 'remotion';
 import type {AnyZodObject} from 'zod';
-import type {OnArtifact} from './artifact';
+import type {WebRendererOnArtifact} from './artifact';
 import {handleArtifacts} from './artifact';
-import {createScaffold} from './create-scaffold';
+import {checkForError, createScaffold} from './create-scaffold';
+import type {InternalState} from './internal-state';
+import {makeInternalState} from './internal-state';
 import type {
 	CompositionCalculateMetadataOrExplicit,
 	InferProps,
@@ -14,7 +16,8 @@ import type {
 import type {InputPropsIfHasProps} from './render-media-on-web';
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {sendUsageEvent} from './send-telemetry-event';
-import {takeScreenshot} from './take-screenshot';
+import {createLayer} from './take-screenshot';
+import {validateScale} from './validate-scale';
 import {waitForReady} from './wait-for-ready';
 
 export type RenderStillOnWebImageFormat = 'png' | 'jpeg' | 'webp';
@@ -35,8 +38,10 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	schema: Schema | undefined;
 	mediaCacheSizeInBytes: number | null;
 	signal: AbortSignal | null;
-	onArtifact: OnArtifact | null;
-	licenseKey: string | undefined;
+	onArtifact: WebRendererOnArtifact | null;
+	licenseKey: string | null;
+	scale: number;
+	isProduction: boolean;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -68,7 +73,11 @@ async function internalRenderStillOnWeb<
 	signal,
 	onArtifact,
 	licenseKey,
+	scale,
+	isProduction,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
+	validateScale(scale);
+
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
 			(composition.calculateMetadata as CalculateMetadataFunction<
@@ -88,25 +97,28 @@ async function internalRenderStillOnWeb<
 		return Promise.reject(new Error('renderStillOnWeb() was cancelled'));
 	}
 
-	const {delayRenderScope, div, cleanupScaffold, collectAssets} =
-		await createScaffold({
-			width: resolved.width,
-			height: resolved.height,
-			delayRenderTimeoutInMilliseconds,
-			logLevel,
-			resolvedProps: resolved.props,
-			id: resolved.id,
-			mediaCacheSizeInBytes,
-			audioEnabled: false,
-			Component: composition.component,
-			videoEnabled: true,
-			durationInFrames: resolved.durationInFrames,
-			fps: resolved.fps,
-			schema: schema ?? null,
-			initialFrame: frame,
-			defaultCodec: resolved.defaultCodec,
-			defaultOutName: resolved.defaultOutName,
-		});
+	using internalState = makeInternalState();
+
+	using scaffold = createScaffold({
+		width: resolved.width,
+		height: resolved.height,
+		delayRenderTimeoutInMilliseconds,
+		logLevel,
+		resolvedProps: resolved.props,
+		id: resolved.id,
+		mediaCacheSizeInBytes,
+		audioEnabled: false,
+		Component: composition.component,
+		videoEnabled: true,
+		durationInFrames: resolved.durationInFrames,
+		fps: resolved.fps,
+		schema: schema ?? null,
+		initialFrame: frame,
+		defaultCodec: resolved.defaultCodec,
+		defaultOutName: resolved.defaultOutName,
+	});
+
+	const {delayRenderScope, div, collectAssets, errorHolder} = scaffold;
 
 	const artifactsHandler = handleArtifacts();
 
@@ -120,18 +132,26 @@ async function internalRenderStillOnWeb<
 			scope: delayRenderScope,
 			signal,
 			apiName: 'renderStillOnWeb',
+			internalState: null,
+			keepalive: null,
 		});
+		checkForError(errorHolder);
 
 		if (signal?.aborted) {
 			throw new Error('renderStillOnWeb() was cancelled');
 		}
 
-		const imageData = await takeScreenshot({
-			div,
-			width: resolved.width,
-			height: resolved.height,
-			imageFormat,
+		const capturedFrame = await createLayer({
+			element: div,
+			scale,
 			logLevel,
+			internalState,
+			onlyBackgroundClipText: false,
+			cutout: new DOMRect(0, 0, resolved.width, resolved.height),
+		});
+
+		const imageData = await capturedFrame.canvas.convertToBlob({
+			type: `image/${imageFormat}`,
 		});
 
 		const assets = collectAssets.current!.collectAssets();
@@ -143,24 +163,29 @@ async function internalRenderStillOnWeb<
 			licenseKey: licenseKey ?? null,
 			succeeded: true,
 			apiName: 'renderStillOnWeb',
+			isStill: true,
+			isProduction,
 		});
 
-		return imageData;
+		return {blob: imageData, internalState};
 	} catch (err) {
-		sendUsageEvent({
-			succeeded: false,
-			licenseKey: licenseKey ?? null,
-			apiName: 'renderStillOnWeb',
-		}).catch((err2) => {
-			Internals.Log.error(
-				{logLevel: 'error', tag: 'web-renderer'},
-				'Failed to send usage event',
-				err2,
-			);
-		});
+		if (!signal?.aborted) {
+			sendUsageEvent({
+				succeeded: false,
+				licenseKey: licenseKey ?? null,
+				apiName: 'renderStillOnWeb',
+				isStill: true,
+				isProduction,
+			}).catch((err2) => {
+				Internals.Log.error(
+					{logLevel: 'error', tag: 'web-renderer'},
+					'Failed to send usage event',
+					err2,
+				);
+			});
+		}
+
 		throw err;
-	} finally {
-		cleanupScaffold();
 	}
 }
 
@@ -169,7 +194,7 @@ export const renderStillOnWeb = <
 	Props extends Record<string, unknown>,
 >(
 	options: RenderStillOnWebOptions<Schema, Props>,
-): Promise<Blob> => {
+): Promise<{blob: Blob; internalState: InternalState}> => {
 	onlyOneRenderAtATimeQueue.ref = onlyOneRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
 		.then(() =>
@@ -182,9 +207,15 @@ export const renderStillOnWeb = <
 				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 				signal: options.signal ?? null,
 				onArtifact: options.onArtifact ?? null,
-				licenseKey: options.licenseKey ?? undefined,
+				// Must allow undefined to print warning
+				licenseKey: options.licenseKey ?? null,
+				scale: options.scale ?? 1,
+				isProduction: options.isProduction ?? true,
 			}),
 		);
 
-	return onlyOneRenderAtATimeQueue.ref as Promise<Blob>;
+	return onlyOneRenderAtATimeQueue.ref as Promise<{
+		blob: Blob;
+		internalState: InternalState;
+	}>;
 };

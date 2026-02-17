@@ -1,8 +1,14 @@
 import fs from 'fs';
 import type {BrowserExecutable} from './browser-executable';
-import {downloadBrowser, getRevisionInfo} from './browser/BrowserFetcher';
+import {
+	downloadBrowser,
+	getRevisionInfo,
+	readVersionFile,
+	TESTED_VERSION,
+} from './browser/BrowserFetcher';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {BrowserSafeApis} from './client';
+import {Log} from './logger';
 import type {ChromeMode} from './options/chrome-mode';
 import type {ToOptions} from './options/option';
 
@@ -17,6 +23,10 @@ export type BrowserStatus =
 	  }
 	| {
 			type: 'no-browser';
+	  }
+	| {
+			type: 'version-mismatch';
+			actualVersion: string | null;
 	  };
 
 type InternalEnsureBrowserOptions = {
@@ -41,7 +51,17 @@ const internalEnsureBrowserUncapped = async ({
 	chromeMode,
 }: InternalEnsureBrowserOptions): Promise<BrowserStatus> => {
 	const status = getBrowserStatus({browserExecutable, chromeMode});
-	if (status.type === 'no-browser') {
+	if (status.type === 'version-mismatch') {
+		const versionInfo = status.actualVersion
+			? ` (installed: ${status.actualVersion})`
+			: '';
+		Log.info(
+			{indent, logLevel},
+			`This version of Remotion uses Chrome version ${TESTED_VERSION}, but the installed one differs${versionInfo}. Re-downloading.`,
+		);
+	}
+
+	if (status.type === 'no-browser' || status.type === 'version-mismatch') {
 		const {onProgress, version} = onBrowserDownload({chromeMode});
 
 		await downloadBrowser({indent, logLevel, onProgress, version, chromeMode});
@@ -79,7 +99,12 @@ const getBrowserStatus = ({
 
 	const revision = getRevisionInfo(chromeMode);
 	if (revision.local && fs.existsSync(revision.executablePath)) {
-		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
+		const actualVersion = readVersionFile(chromeMode);
+		if (actualVersion === TESTED_VERSION) {
+			return {path: revision.executablePath, type: 'local-puppeteer-browser'};
+		}
+
+		return {type: 'version-mismatch', actualVersion};
 	}
 
 	return {type: 'no-browser'};

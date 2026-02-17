@@ -9,22 +9,10 @@ import {createContext, useContext, useEffect, useRef, useState} from 'react';
 
 export type TNonceContext = {
 	getNonce: () => number;
-	fastRefreshes: number;
-	manualRefreshes: number;
-};
-
-export type TSetNonceContext = {
-	increaseManualRefreshes: () => void;
 };
 
 export const NonceContext = createContext<TNonceContext>({
 	getNonce: () => 0,
-	fastRefreshes: 0,
-	manualRefreshes: 0,
-});
-
-export const SetNonceContext = createContext<TSetNonceContext>({
-	increaseManualRefreshes: () => {},
 });
 
 export const useNonce = (): number => {

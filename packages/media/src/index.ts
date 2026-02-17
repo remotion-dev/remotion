@@ -12,5 +12,6 @@ export const experimental_Video = Video;
 
 export {AudioForPreview} from './audio/audio-for-preview';
 export {AudioProps, FallbackHtml5AudioProps} from './audio/props';
-export {VideoProps} from './video/props';
+export {MediaErrorAction} from './on-error';
+export {FallbackOffthreadVideoProps, VideoProps} from './video/props';
 export {Audio, Video};

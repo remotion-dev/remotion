@@ -35,7 +35,7 @@ export const IfYouKnowReact: React.FC = () => {
 				autoPlay
 				playsInline
 				loop
-				className="w-[500px] cursor-default! relative lg:-translate-x-8 -mb-40 lg:mt-0 lg:mb-0"
+				className="w-[500px] h-[500px] cursor-default! relative lg:-translate-x-8 -mb-40 lg:mt-0 lg:mb-0"
 			/>
 			<div>
 				<h2 className="text-4xl fontbrand pt-20">

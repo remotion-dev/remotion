@@ -24,7 +24,11 @@ export type {
 } from '@remotion/studio-shared';
 
 import {AnsiDiff} from './ansi-diff';
-import {openBrowser} from './better-opn';
+import {
+	addCompletedClientRender,
+	getCompletedClientRenders,
+	removeCompletedClientRender,
+} from './client-render-queue';
 import {parseAndApplyCodemod} from './codemods/duplicate-composition';
 import {installFileWatcher} from './file-watcher';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
@@ -55,7 +59,9 @@ export const StudioServerInternals = {
 	AnsiDiff,
 	formatBytes,
 	parseAndApplyCodemod,
-	openBrowser,
 	getInstalledDependencies,
 	getInstallCommand,
+	addCompletedClientRender,
+	getCompletedClientRenders,
+	removeCompletedClientRender,
 };

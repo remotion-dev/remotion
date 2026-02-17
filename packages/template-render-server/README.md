@@ -13,7 +13,7 @@ This template provides an Express.js server that allows you to start new video r
 
 The server exposes the following main endpoints:
 
-- `POST /render` - Start a new render job
+- `POST /renders` - Start a new render job
 - `GET /renders/:id` - Get the status of a render
 - `DELETE /renders/:id` - Cancel a running render
 

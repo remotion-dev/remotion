@@ -19,6 +19,7 @@ import {Null} from './Null.js';
 import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import {Sequence} from './Sequence.js';
+import type {UseBufferState} from './use-buffer-state';
 import type {VideoConfig} from './video-config.js';
 
 export type VideoConfigWithSerializedProps = Omit<
@@ -259,7 +260,7 @@ export type _InternalTypes = {
 	AnyCompMetadata: AnyCompMetadata;
 	AudioOrVideoAsset: AudioOrVideoAsset;
 	TRenderAsset: TRenderAsset;
-	LoopDisplay: LoopDisplay;
 	ProResProfile: ProResProfile;
-	DelayRenderScope: DelayRenderScope;
 };
+
+export type {DelayRenderScope, LoopDisplay, UseBufferState};

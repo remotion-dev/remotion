@@ -22,6 +22,12 @@ There are three exceptions when it is possible to deploy multiple functions:
 - If you are upgrading to a newer version of Remotion Lambda, you need to deploy a new function. You can then run the new and the old function side-by-side. The `@remotion/lambda` CLI will always choose the function in your AWS account that has the same version as the client package. If you use the [`getFunctions()`](/docs/lambda/getfunctions) Node.JS API, set the [`compatibleOnly`](/docs/lambda/getfunctions#compatibleonly) flag to `true` to filter out functions that don't match the version of the `@remotion/lambda` package.
 - If you are deploying a function with a different memory size, disk size or timeout, a new function can be created. However, currently if multiple suitable functions are available, Remotion will choose one at random. So you should only use this strategy to change the parameters of the function without causing downtime.
 
+### How many videos can I render concurrently?
+
+It depends on the [concurrency limit](/docs/lambda/limits) of your AWS account.  
+Every render uses between 3 and 200 concurrent Lambda functions, depending on the [concurrency](/docs/lambda/concurrency) of the render.  
+If you exceed the concurrency limit, you will get an `TooManyRequestsException` error from AWS Lambda.
+
 ### Do I need to create multiple buckets?
 
 Only [one bucket per region is recommended](/docs/lambda/multiple-buckets).

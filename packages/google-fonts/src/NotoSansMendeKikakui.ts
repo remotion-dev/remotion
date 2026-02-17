@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Mende Kikakui',
 	importName: 'NotoSansMendeKikakui',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Mende+Kikakui:ital,wght@0,400',
 	unicodeRanges: {
 		'mende-kikakui': 'U+25CC, U+1E800-1E8DF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'mende-kikakui':
-					'https://fonts.gstatic.com/s/notosansmendekikakui/v29/11hRGoLHz17aKjQCWj-JHcLvu2Q5zZrnkbNCLXzqQxZGOW4.woff2',
+					'https://fonts.gstatic.com/s/notosansmendekikakui/v30/11hRGoLHz17aKjQCWj-JHcLvu2Q5zZrnkbNCLXzqQxZGOW4.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmendekikakui/v29/11hRGoLHz17aKjQCWj-JHcLvu2Q5zZrnkbNCLXx2YjN7AA.woff2',
+					'https://fonts.gstatic.com/s/notosansmendekikakui/v30/11hRGoLHz17aKjQCWj-JHcLvu2Q5zZrnkbNCLXx2YjN7AA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmendekikakui/v29/11hRGoLHz17aKjQCWj-JHcLvu2Q5zZrnkbNCLXx4YjM.woff2',
+					'https://fonts.gstatic.com/s/notosansmendekikakui/v30/11hRGoLHz17aKjQCWj-JHcLvu2Q5zZrnkbNCLXx4YjM.woff2',
 			},
 		},
 	},

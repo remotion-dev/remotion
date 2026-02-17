@@ -2,6 +2,7 @@ import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import type {
 	ApiRoutes,
+	CompletedClientRender,
 	GitSource,
 	RenderDefaults,
 	RenderJob,
@@ -13,6 +14,11 @@ import {createReadStream, existsSync, statSync} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
+import {
+	addCompletedClientRender,
+	getCompletedClientRenders,
+	removeCompletedClientRender,
+} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
 import {
@@ -20,6 +26,7 @@ import {
 	guessEditor,
 	launchEditor,
 } from './helpers/open-in-editor';
+import {resolveOutputPath} from './helpers/resolve-output-path';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
 import {getPackageManager} from './preview-server/get-package-manager';
@@ -28,6 +35,7 @@ import type {LiveEventsServer} from './preview-server/live-events';
 import {parseRequestBody} from './preview-server/parse-body';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {serveStatic} from './preview-server/serve-static';
+import type {RemotionConfigResponse} from './remotion-config-response';
 
 const editorGuess = guessEditor();
 
@@ -44,6 +52,22 @@ const output404 = (response: ServerResponse): Promise<void> => {
 	response.end(
 		'The outputs/ prefix has been changed, this URL is no longer valid.',
 	);
+	return Promise.resolve();
+};
+
+const handleRemotionConfig = (
+	response: ServerResponse,
+	remotionRoot: string,
+): Promise<void> => {
+	response.writeHead(200, {
+		'Content-Type': 'application/json',
+	});
+	const body: RemotionConfigResponse = {
+		isRemotion: true,
+		cwd: remotionRoot,
+		version: process.env.REMOTION_VERSION ?? null,
+	};
+	response.end(JSON.stringify(body));
 	return Promise.resolve();
 };
 
@@ -85,7 +109,12 @@ const handleFallback = async ({
 		response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
 	}
 
-	const packageManager = getPackageManager(remotionRoot, undefined, 0);
+	const packageManager = getPackageManager({
+		remotionRoot,
+		packageManager: undefined,
+		dirUp: 0,
+		logLevel,
+	});
 	fetchFolder({publicDir, staticHash: hash});
 
 	const installedDependencies = getInstalledInstallablePackages(remotionRoot);
@@ -101,6 +130,7 @@ const handleFallback = async ({
 			studioServerCommand:
 				packageManager === 'unknown' ? null : packageManager.startCommand,
 			renderQueue: getRenderQueue(),
+			completedClientRenders: getCompletedClientRenders(),
 			numberOfAudioTags,
 			publicFiles: getFiles(),
 			includeFavicon: true,
@@ -207,6 +237,16 @@ const handleOpenInEditor = async (
 	}
 };
 
+const validateSameOrigin = (req: IncomingMessage): void => {
+	const {origin, host} = req.headers;
+	if (origin) {
+		const originUrl = new URL(origin);
+		if (originUrl.host !== host) {
+			throw new Error('Request from different origin not allowed');
+		}
+	}
+};
+
 const handleAddAsset = ({
 	req,
 	res,
@@ -219,6 +259,8 @@ const handleAddAsset = ({
 	publicDir: string;
 }): Promise<void> => {
 	try {
+		validateSameOrigin(req);
+
 		const query = new URLSearchParams(search);
 
 		const filePath = query.get('filePath');
@@ -247,6 +289,100 @@ const handleAddAsset = ({
 	}
 
 	return Promise.resolve();
+};
+
+const handleUploadOutput = ({
+	req,
+	res,
+	search,
+	remotionRoot,
+}: {
+	req: IncomingMessage;
+	res: ServerResponse;
+	search: string;
+	remotionRoot: string;
+}): Promise<void> => {
+	try {
+		validateSameOrigin(req);
+
+		const query = new URLSearchParams(search);
+
+		const filePath = query.get('filePath');
+		if (typeof filePath !== 'string') {
+			throw new Error('No `filePath` provided');
+		}
+
+		const absolutePath = resolveOutputPath(remotionRoot, filePath);
+
+		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
+
+		const writeStream = createWriteStream(absolutePath);
+		writeStream.on('close', () => {
+			res.end(JSON.stringify({success: true}));
+		});
+
+		writeStream.on('error', (err) => {
+			res.statusCode = 500;
+			res.end(JSON.stringify({error: err.message}));
+		});
+
+		req.on('error', (err) => {
+			writeStream.destroy();
+			res.statusCode = 500;
+			res.end(JSON.stringify({error: err.message}));
+		});
+
+		req.pipe(writeStream);
+	} catch (err) {
+		res.statusCode = 500;
+		res.end(JSON.stringify({error: (err as Error).message}));
+	}
+
+	return Promise.resolve();
+};
+
+const handleRegisterClientRender = async ({
+	req,
+	res,
+	remotionRoot,
+}: {
+	req: IncomingMessage;
+	res: ServerResponse;
+	remotionRoot: string;
+}): Promise<void> => {
+	try {
+		validateSameOrigin(req);
+		const body = (await parseRequestBody(req)) as CompletedClientRender;
+		addCompletedClientRender({render: body, remotionRoot});
+
+		res.setHeader('content-type', 'application/json');
+		res.writeHead(200);
+		res.end(JSON.stringify({success: true}));
+	} catch (err) {
+		res.statusCode = 500;
+		res.end(JSON.stringify({error: (err as Error).message}));
+	}
+};
+
+const handleUnregisterClientRender = async ({
+	req,
+	res,
+}: {
+	req: IncomingMessage;
+	res: ServerResponse;
+}): Promise<void> => {
+	try {
+		validateSameOrigin(req);
+		const body = (await parseRequestBody(req)) as {id: string};
+		removeCompletedClientRender(body.id);
+
+		res.setHeader('content-type', 'application/json');
+		res.writeHead(200);
+		res.end(JSON.stringify({success: true}));
+	} catch (err) {
+		res.statusCode = 500;
+		res.end(JSON.stringify({error: (err as Error).message}));
+	}
 };
 
 const handleFavicon = (
@@ -366,12 +502,36 @@ export const handleRoutes = ({
 		return handleOpenInEditor(remotionRoot, request, response, logLevel);
 	}
 
-	if (url.pathname === '/api/add-asset') {
+	if (url.pathname === `${staticHash}/api/add-asset`) {
 		return handleAddAsset({
 			req: request,
 			res: response,
 			search: url.search,
 			publicDir,
+		});
+	}
+
+	if (url.pathname === '/api/upload-output') {
+		return handleUploadOutput({
+			req: request,
+			res: response,
+			search: url.search,
+			remotionRoot,
+		});
+	}
+
+	if (url.pathname === '/api/register-client-render') {
+		return handleRegisterClientRender({
+			req: request,
+			res: response,
+			remotionRoot,
+		});
+	}
+
+	if (url.pathname === '/api/unregister-client-render') {
+		return handleUnregisterClientRender({
+			req: request,
+			res: response,
 		});
 	}
 
@@ -404,6 +564,10 @@ export const handleRoutes = ({
 
 	if (url.pathname === SOURCE_MAP_ENDPOINT) {
 		return handleWasm(request, response);
+	}
+
+	if (url.pathname === '/__remotion_config') {
+		return handleRemotionConfig(response, remotionRoot);
 	}
 
 	if (url.pathname === '/events') {

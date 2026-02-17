@@ -1,4 +1,4 @@
-import type {GitSource} from '@remotion/studio-shared';
+import type {GitSource, RenderDefaults} from '@remotion/studio-shared';
 import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import fs, {promises} from 'node:fs';
 import os from 'node:os';
@@ -50,6 +50,8 @@ export type MandatoryLegacyBundleOptions = {
 	publicDir: string | null;
 	onPublicDirCopyProgress: (bytes: number) => void;
 	onSymlinkDetected: (path: string) => void;
+	keyboardShortcutsEnabled: boolean;
+	askAIEnabled: boolean;
 };
 
 export type LegacyBundleOptions = Partial<MandatoryLegacyBundleOptions>;
@@ -62,11 +64,13 @@ export const getConfig = ({
 	options,
 	bufferStateDelayInMilliseconds,
 	maxTimelineTracks,
+	experimentalClientSideRenderingEnabled,
 }: {
 	outDir: string;
 	entryPoint: string;
 	resolvedRemotionRoot: string;
 	bufferStateDelayInMilliseconds: number | null;
+	experimentalClientSideRenderingEnabled: boolean;
 	maxTimelineTracks: number | null;
 	onProgress?: (progress: number) => void;
 	options?: LegacyBundleOptions;
@@ -88,10 +92,11 @@ export const getConfig = ({
 		enableCaching: options?.enableCaching ?? true,
 		maxTimelineTracks,
 		remotionRoot: resolvedRemotionRoot,
-		keyboardShortcutsEnabled: true,
+		keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
 		bufferStateDelayInMilliseconds,
 		poll: null,
-		experimentalClientSideRenderingEnabled: false,
+		experimentalClientSideRenderingEnabled,
+		askAIEnabled: options?.askAIEnabled ?? true,
 	});
 };
 
@@ -104,6 +109,8 @@ type NewBundleOptions = {
 	maxTimelineTracks: number | null;
 	bufferStateDelayInMilliseconds: number | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	experimentalClientSideRenderingEnabled: boolean;
+	renderDefaults: RenderDefaults | null;
 };
 
 type MandatoryBundleOptions = {
@@ -217,10 +224,14 @@ export const internalBundle = async (
 		// Should be null to keep cache hash working
 		bufferStateDelayInMilliseconds:
 			actualArgs.bufferStateDelayInMilliseconds ?? null,
-		maxTimelineTracks: actualArgs.maxTimelineTracks ?? null,
+		maxTimelineTracks: actualArgs.maxTimelineTracks,
+		experimentalClientSideRenderingEnabled:
+			actualArgs.experimentalClientSideRenderingEnabled,
 	});
 
-	const output = await promisified([config]);
+	const output = (await promisified([config])) as
+		| webpack.MultiStats
+		| undefined;
 	if (isMainThread) {
 		process.chdir(currentCwd);
 	}
@@ -300,7 +311,7 @@ export const internalBundle = async (
 		}),
 		includeFavicon: true,
 		title: 'Remotion Bundle',
-		renderDefaults: undefined,
+		renderDefaults: actualArgs.renderDefaults ?? undefined,
 		publicFolderExists: `${publicPath + (publicPath.endsWith('/') ? '' : '/')}public`,
 		gitSource: actualArgs.gitSource ?? null,
 		projectName: getProjectName({
@@ -352,6 +363,11 @@ export async function bundle(...args: Arguments): Promise<string> {
 		rootDir: actualArgs.rootDir ?? null,
 		webpackOverride: actualArgs.webpackOverride ?? ((f) => f),
 		audioLatencyHint: actualArgs.audioLatencyHint ?? null,
+		experimentalClientSideRenderingEnabled:
+			actualArgs.experimentalClientSideRenderingEnabled ?? false,
+		renderDefaults: actualArgs.renderDefaults ?? null,
+		askAIEnabled: actualArgs.askAIEnabled ?? true,
+		keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled ?? true,
 	});
 	return result;
 }

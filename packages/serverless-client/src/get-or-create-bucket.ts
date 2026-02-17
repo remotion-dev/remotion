@@ -1,3 +1,5 @@
+import type {LogLevel} from 'remotion';
+import {checkBucketListing} from './check-bucket-listing';
 import type {CustomCredentials} from './constants';
 import {makeBucketName} from './make-bucket-name';
 import type {ProviderSpecifics} from './provider-implementation';
@@ -10,6 +12,7 @@ type GetOrCreateBucketInputInner<Provider extends CloudProvider> = {
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
 	skipPutAcl: boolean;
+	logLevel: LogLevel;
 	requestHandler: Provider['requestHandler'] | null;
 };
 
@@ -19,6 +22,7 @@ export type GetOrCreateBucketInput<Provider extends CloudProvider> = {
 	customCredentials?: CustomCredentials<Provider>;
 	forcePathStyle?: boolean;
 	requestHandler?: Provider['requestHandler'];
+	logLevel?: LogLevel;
 };
 
 export type GetOrCreateBucketOutput = {
@@ -58,6 +62,8 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 			requestHandler: params.requestHandler,
 		});
 
+		await checkBucketListing({bucketName: existingBucketName, region});
+
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
 	}
 
@@ -69,6 +75,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 		forcePathStyle: params.forcePathStyle,
 		skipPutAcl: params.skipPutAcl,
 		requestHandler: params.requestHandler,
+		logLevel: params.logLevel,
 	});
 
 	// apply to newly created bucket

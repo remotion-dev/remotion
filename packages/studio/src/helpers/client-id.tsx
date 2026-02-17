@@ -91,6 +91,10 @@ export const PreviewServerConnection: React.FC<{
 				}
 			}
 
+			if (newEvent.type === 'client-renders-updated') {
+				renderJobsRef.current?.updateClientRenders(newEvent.renders);
+			}
+
 			if (newEvent.type === 'render-job-failed') {
 				showNotification(`Rendering "${newEvent.compositionId}" failed`, 2000);
 			}

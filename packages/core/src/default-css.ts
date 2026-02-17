@@ -1,13 +1,13 @@
-const injected: {[key: string]: boolean} = {};
+const injected: {[key: string]: HTMLStyleElement} = {};
 
-export const injectCSS = (css: string) => {
+export const injectCSS = (css: string): (() => void) => {
 	// Skip in node
 	if (typeof document === 'undefined') {
-		return;
+		return () => {};
 	}
 
 	if (injected[css]) {
-		return;
+		return () => {};
 	}
 
 	const head = document.head || document.getElementsByTagName('head')[0];
@@ -16,7 +16,18 @@ export const injectCSS = (css: string) => {
 	style.appendChild(document.createTextNode(css));
 
 	head.prepend(style);
-	injected[css] = true;
+	injected[css] = style;
+
+	return () => {
+		const styleElement = injected[css];
+		if (styleElement) {
+			if (styleElement.parentNode) {
+				styleElement.parentNode.removeChild(styleElement);
+			}
+
+			delete injected[css];
+		}
+	};
 };
 
 // make object-fit: contain low priority, so it can be overridden by another class name

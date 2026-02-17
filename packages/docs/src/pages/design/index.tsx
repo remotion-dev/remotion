@@ -7,8 +7,11 @@ export default () => {
 	return (
 		<Layout>
 			<Head>
-				<title>Remotion | About</title>
-				<meta name="description" content="Remotion's story." />
+				<title>Remotion | Design</title>
+				<meta
+					name="description"
+					content="Example usage for @remotion/design components."
+				/>
 			</Head>
 			<DesignPage />
 		</Layout>

@@ -31,6 +31,9 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 				unblock: () => {
 					activeBlocks--;
 				},
+				[Symbol.dispose]: () => {
+					activeBlocks--;
+				},
 			};
 		},
 		context: null,
@@ -77,6 +80,9 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 			maxConcurrentBlocks = Math.max(maxConcurrentBlocks, activeBlocks);
 			return {
 				unblock: () => {
+					activeBlocks--;
+				},
+				[Symbol.dispose]: () => {
 					activeBlocks--;
 				},
 			};

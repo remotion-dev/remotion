@@ -1,4 +1,4 @@
-import {StudioInternals} from '@remotion/studio';
+import {StudioInternals, visualControl} from '@remotion/studio';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 
 const Comp: React.FC = () => {
@@ -36,7 +36,7 @@ const Comp: React.FC = () => {
 						willChange: 'transform',
 					}}
 				>
-					hi there
+					{visualControl('text', 'hi there')}
 				</div>
 			</div>
 		</AbsoluteFill>

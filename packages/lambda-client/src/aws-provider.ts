@@ -54,7 +54,7 @@ import type {RequestHandler} from './types';
 import {lambdaWriteFileImplementation} from './write-file';
 
 if (
-	/^AWS_Lambda_nodejs(?:18|20)[.]x$/.test(
+	/^AWS_Lambda_nodejs(?:18|20|24)[.]x$/.test(
 		process.env.AWS_EXECUTION_ENV ?? '',
 	) === true
 ) {

@@ -11,6 +11,7 @@ function truthy<T>(value: T): value is Truthy<T> {
 
 export default defineConfig({
 	test: {
+		maxWorkers: process.env.CI ? 1 : 5,
 		browser: {
 			enabled: true,
 			provider: playwright(),
@@ -37,6 +38,9 @@ export default defineConfig({
 			headless: true,
 			screenshotFailures: false,
 		},
+	},
+	esbuild: {
+		target: 'es2022',
 	},
 	plugins: [react()],
 	publicDir: path.join(__dirname, '..', 'example-videos', 'videos'),

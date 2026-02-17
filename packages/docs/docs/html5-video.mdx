@@ -13,6 +13,10 @@ Wraps the native [`<video>`](https://developer.mozilla.org/en-US/docs/Web/API/HT
 Prefer [one of the other video tags](/docs/video-tags) which perform better.
 :::
 
+:::warning Not supported in client-side rendering
+`<Html5Video>` is not supported in [`@remotion/web-renderer`](/docs/client-side-rendering). Use [`<Video>`](/docs/media/video) from `@remotion/media` instead.
+:::
+
 ## API
 
 [Put a video file into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.
@@ -39,7 +43,7 @@ import {AbsoluteFill, Html5Video} from 'remotion';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Html5Video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+      <Html5Video src="https://remotion.media/BigBuckBunny.mp4" />
     </AbsoluteFill>
   );
 };
@@ -186,7 +190,7 @@ import {AbsoluteFill, Html5Video} from 'remotion';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Html5Video muted src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+      <Html5Video muted src="https://remotion.media/BigBuckBunny.mp4" />
     </AbsoluteFill>
   );
 };
@@ -204,7 +208,7 @@ import {AbsoluteFill, Html5Video} from 'remotion';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Html5Video loop src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+      <Html5Video loop src="https://remotion.media/BigBuckBunny.mp4" />
     </AbsoluteFill>
   );
 };
@@ -312,6 +316,10 @@ See: [Which video formats does Remotion support?](/docs/miscellaneous/video-form
 [`@remotion/media`](/docs/media/video) is an experimental component that will replace `<Html5Video>` at some point.
 
 To decide which tag to use, see: [Comparison of video tags](/docs/video-tags)
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
 
 ## See also
 

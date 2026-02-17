@@ -31,6 +31,7 @@ export const sitesRmallSubcommand = async (
 				forcePathStyle: false,
 				skipPutAcl: false,
 				requestHandler: null,
+				logLevel,
 			})
 		).bucketName;
 

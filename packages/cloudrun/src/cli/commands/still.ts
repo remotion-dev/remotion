@@ -83,7 +83,6 @@ export const stillCommand = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
-
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -150,6 +149,7 @@ export const stillCommand = async (
 					indent,
 					logLevel,
 					quiet: CliInternals.quietFlagProvided(),
+					onProgress: () => undefined,
 				}),
 				chromeMode: 'headless-shell',
 				offthreadVideoThreads: 1,

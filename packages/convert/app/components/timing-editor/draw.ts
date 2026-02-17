@@ -1,0 +1,226 @@
+import {measureText} from '@remotion/layout-utils';
+import {
+	AXIS_LABEL_WIDTH,
+	PADDING_BOTTOM,
+	PADDING_LEFT,
+	PADDING_RIGHT,
+	PADDING_TOP,
+	drawTrajectory,
+} from './draw-trajectory';
+import {getTrajectory} from './get-trajectory';
+import type {MixingMode, TimingComponent, TimingConfig} from './types';
+
+export let stopDrawing = () => {};
+
+const combineTrajectories = (
+	trajectories: number[][],
+	mixingModes: MixingMode[],
+): number[] => {
+	if (trajectories.length === 0) return [];
+	const maxLength = Math.max(...trajectories.map((t) => t.length));
+	const result: number[] = [];
+
+	for (let i = 0; i < maxLength; i++) {
+		let sum = 0;
+		for (let j = 0; j < trajectories.length; j++) {
+			const trajectory = trajectories[j];
+			const mixingMode = mixingModes[j];
+			// If trajectory is shorter, use its last value (or 0 if empty)
+			const value =
+				i < trajectory.length
+					? trajectory[i]
+					: (trajectory[trajectory.length - 1] ?? 0);
+			if (mixingMode === 'subtractive') {
+				sum -= value;
+			} else {
+				sum += value;
+			}
+		}
+
+		result.push(sum);
+	}
+
+	return result;
+};
+
+export const draw = ({
+	ref,
+	duration,
+	fps,
+	components,
+	draggedState,
+	height,
+	width,
+	labelText,
+}: {
+	ref: HTMLCanvasElement;
+	duration: number;
+	fps: number;
+	components: TimingComponent[];
+	draggedState: {componentId: string; config: TimingConfig} | null;
+	width: number;
+	height: number;
+	labelText: string;
+}) => {
+	const context = ref.getContext('2d');
+
+	if (!context) {
+		return;
+	}
+
+	context.clearRect(0, 0, width, height);
+
+	// Get configs, applying dragged state if any
+	const currentConfigs = components.map((c) => {
+		if (draggedState && draggedState.componentId === c.id) {
+			return draggedState.config;
+		}
+
+		return c.config;
+	});
+
+	// Get committed configs (without dragged state)
+	const committedConfigs = components.map((c) => c.config);
+
+	// Get mixing modes (first is always additive)
+	const mixingModes = components.map((c, index) =>
+		index === 0 ? 'additive' : c.mixingMode,
+	);
+
+	// Calculate trajectories for current state (with dragged)
+	const currentTrajectories = currentConfigs.map((config) =>
+		getTrajectory(duration, fps, config),
+	);
+
+	// Calculate trajectories for committed state (without dragged)
+	const committedTrajectories = committedConfigs.map((config) =>
+		getTrajectory(duration, fps, config),
+	);
+
+	// Combine the trajectories with mixing modes
+	const combinedTrajectory = combineTrajectories(
+		currentTrajectories,
+		mixingModes,
+	);
+	const committedCombinedTrajectory = combineTrajectories(
+		committedTrajectories,
+		mixingModes,
+	);
+
+	// Use combined trajectory for min/max calculation
+	const max = Math.max(...combinedTrajectory);
+	const min = Math.min(...combinedTrajectory);
+	const range = max - min;
+
+	context.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+	context.lineCap = 'round';
+
+	const getYForValue = (value: number) => {
+		const normalizedValue = range === 0 ? 0.5 : (value - min) / range;
+		return (
+			(height - PADDING_TOP - PADDING_BOTTOM) * (1 - normalizedValue) +
+			PADDING_TOP
+		);
+	};
+
+	// Short line end for min value (needs space for time info)
+	const shortLineEndX =
+		width -
+		PADDING_RIGHT -
+		measureText({
+			fontFamily: 'GTPlanar',
+			fontSize: 15,
+			text: labelText,
+			fontWeight: 'medium',
+			letterSpacing: undefined,
+		}).width -
+		23 -
+		16;
+
+	// Full width line end for other values
+	const fullLineEndX = width - PADDING_RIGHT;
+
+	const formatAxisLabel = (value: number) => {
+		return value.toFixed(2);
+	};
+
+	const drawAxisLine = (value: number, isMin: boolean) => {
+		const y = getYForValue(value);
+		const lineEndX = isMin ? shortLineEndX : fullLineEndX;
+
+		// Draw the line
+		context.lineWidth = 1 * Number(window.devicePixelRatio);
+		context.beginPath();
+		context.moveTo(PADDING_LEFT, y);
+		context.lineTo(lineEndX, y);
+		context.stroke();
+		context.closePath();
+
+		// Draw the label
+		context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+		context.font = '12px GTPlanar';
+		context.textAlign = 'right';
+		context.textBaseline = 'middle';
+		context.fillText(
+			formatAxisLabel(value),
+			PADDING_LEFT - AXIS_LABEL_WIDTH + 30,
+			y,
+		);
+	};
+
+	// Draw max line with label
+	drawAxisLine(max, false);
+
+	// Draw min line with label (only if different from max)
+	if (min !== max) {
+		drawAxisLine(min, true);
+	}
+
+	// Draw 0 line if it's within range and not too close to min
+	if (min < 0 && max > 0 && (min < -0.1 || min > 0.1)) {
+		drawAxisLine(0, false);
+	}
+
+	// Draw 1 line if it's within range and not too close to max
+	if (min < 1 && max > 1 && (max < 0.9 || max > 1.1)) {
+		drawAxisLine(1, false);
+	}
+
+	const toStop: (() => void)[] = [];
+
+	// If dragging, show committed trajectory as faded background
+	if (draggedState) {
+		toStop.push(
+			drawTrajectory({
+				springTrajectory: committedCombinedTrajectory,
+				canvasHeight: height,
+				canvasWidth: width,
+				context,
+				min,
+				max,
+				primary: false,
+				animate: false,
+				fps,
+			}),
+		);
+	}
+
+	// Draw the combined trajectory (animated if not dragging)
+	toStop.push(
+		drawTrajectory({
+			springTrajectory: combinedTrajectory,
+			canvasHeight: height,
+			canvasWidth: width,
+			context,
+			min,
+			max,
+			primary: true,
+			animate: !draggedState,
+			fps,
+		}),
+	);
+
+	stopDrawing = () => {
+		toStop.forEach((stop) => stop());
+	};
+};

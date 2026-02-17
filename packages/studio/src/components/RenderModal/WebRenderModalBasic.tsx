@@ -1,14 +1,13 @@
 import type {LogLevel} from '@remotion/renderer';
 import type {
-	RenderStillImageFormat,
-	WebRendererCodec,
+	RenderStillOnWebImageFormat,
 	WebRendererContainer,
+	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
 import type React from 'react';
-import {useCallback, useMemo} from 'react';
+import {useMemo} from 'react';
 import type {VideoConfig} from 'remotion';
 import {Checkmark} from '../../icons/Checkmark';
-import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
@@ -17,6 +16,7 @@ import {RightAlignInput} from '../NewComposition/RemInput';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {FrameRangeSetting} from './FrameRangeSetting';
+import {humanReadableLogLevel} from './human-readable-loglevel';
 import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import {RenderModalOutputName} from './RenderModalOutputName';
@@ -25,15 +25,16 @@ import type {RenderType} from './WebRenderModal';
 type WebRenderModalBasicProps = {
 	readonly renderMode: RenderType;
 	readonly resolvedComposition: VideoConfig;
-	readonly imageFormat: RenderStillImageFormat;
-	readonly setStillFormat: (format: RenderStillImageFormat) => void;
+	readonly imageFormat: RenderStillOnWebImageFormat;
+	readonly setStillFormat: (format: RenderStillOnWebImageFormat) => void;
 	readonly frame: number;
 	readonly onFrameChanged: (e: string) => void;
 	readonly onFrameSetDirectly: (newFrame: number) => void;
 	readonly container: WebRendererContainer;
 	readonly setContainerFormat: (container: WebRendererContainer) => void;
-	readonly codec: WebRendererCodec;
-	readonly setCodec: (codec: WebRendererCodec) => void;
+	readonly setCodec: (codec: WebRendererVideoCodec) => void;
+	readonly encodableVideoCodecs: WebRendererVideoCodec[];
+	readonly effectiveVideoCodec: WebRendererVideoCodec;
 	readonly startFrame: number | null;
 	readonly setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	readonly endFrame: number | null;
@@ -59,8 +60,9 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 	onFrameSetDirectly,
 	container,
 	setContainerFormat,
-	codec,
 	setCodec,
+	encodableVideoCodecs,
+	effectiveVideoCodec,
 	startFrame,
 	setStartFrame,
 	endFrame,
@@ -94,6 +96,24 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 		];
 	}, [imageFormat, setStillFormat]);
 
+	const logLevelOptions = useMemo((): ComboboxValue[] => {
+		return (['trace', 'verbose', 'info', 'warn', 'error'] as const).map(
+			(level): ComboboxValue => {
+				return {
+					label: humanReadableLogLevel(level),
+					onClick: () => setLogLevel(level),
+					leftItem: logLevel === level ? <Checkmark /> : null,
+					id: level,
+					keyHint: null,
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: level,
+				};
+			},
+		);
+	}, [logLevel, setLogLevel]);
+
 	const containerOptions = useMemo((): ComboboxValue[] => {
 		return [
 			{
@@ -121,72 +141,30 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 		];
 	}, [container, setContainerFormat]);
 
-	const codecOptions = useMemo((): ComboboxValue[] => {
-		return [
-			{
-				label: 'H.264',
-				onClick: () => setCodec('h264'),
-				leftItem: codec === 'h264' ? <Checkmark /> : null,
-				id: 'h264',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'h264',
-			},
-			{
-				label: 'H.265',
-				onClick: () => setCodec('h265'),
-				leftItem: codec === 'h265' ? <Checkmark /> : null,
-				id: 'h265',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'h265',
-			},
-			{
-				label: 'VP8',
-				onClick: () => setCodec('vp8'),
-				leftItem: codec === 'vp8' ? <Checkmark /> : null,
-				id: 'vp8',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'vp8',
-			},
-			{
-				label: 'VP9',
-				onClick: () => setCodec('vp9'),
-				leftItem: codec === 'vp9' ? <Checkmark /> : null,
-				id: 'vp9',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'vp9',
-			},
-			{
-				label: 'AV1',
-				onClick: () => setCodec('av1'),
-				leftItem: codec === 'av1' ? <Checkmark /> : null,
-				id: 'av1',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'av1',
-			},
-		];
-	}, [codec, setCodec]);
-
-	const onVerboseLoggingChanged = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			setLogLevel(e.target.checked ? 'verbose' : 'info');
-		},
-		[setLogLevel],
+	const codecLabels: Record<WebRendererVideoCodec, string> = useMemo(
+		() => ({
+			h264: 'H.264',
+			h265: 'H.265',
+			vp8: 'VP8',
+			vp9: 'VP9',
+			av1: 'AV1',
+		}),
+		[],
 	);
+
+	const codecOptions = useMemo((): ComboboxValue[] => {
+		return encodableVideoCodecs.map((c) => ({
+			label: codecLabels[c],
+			onClick: () => setCodec(c),
+			leftItem: effectiveVideoCodec === c ? <Checkmark /> : null,
+			id: c,
+			keyHint: null,
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item' as const,
+			value: c,
+		}));
+	}, [encodableVideoCodecs, effectiveVideoCodec, setCodec, codecLabels]);
 
 	return (
 		<div style={tabContainer}>
@@ -241,7 +219,7 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 						<div style={rightRow}>
 							<Combobox
 								values={codecOptions}
-								selectedId={codec}
+								selectedId={effectiveVideoCodec}
 								title="Codec"
 							/>
 						</div>
@@ -261,18 +239,20 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 				outName={outName}
 				onValueChange={onOutNameChange}
 				validationMessage={validationMessage}
-				label="Download name"
+				label={
+					window.remotion_isReadOnlyStudio ? 'Download name' : 'Output name'
+				}
 			/>
 			<div style={optionRow}>
 				<div style={label}>
-					Verbose logging <Spacing x={0.5} />
+					Log Level <Spacing x={0.5} />
 					<OptionExplainerBubble id="logLevelOption" />
 				</div>
 				<div style={rightRow}>
-					<Checkbox
-						checked={logLevel === 'verbose'}
-						onChange={onVerboseLoggingChanged}
-						name="verbose-logging"
+					<Combobox
+						values={logLevelOptions}
+						selectedId={logLevel}
+						title="Log Level"
 					/>
 				</div>
 			</div>

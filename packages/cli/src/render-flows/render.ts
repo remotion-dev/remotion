@@ -30,7 +30,11 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
-import {formatBytes, type ArtifactProgress} from '@remotion/studio-shared';
+import {
+	formatBytes,
+	type ArtifactProgress,
+	type BrowserDownloadState,
+} from '@remotion/studio-shared';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -120,6 +124,9 @@ export const renderVideoFlow = async ({
 	audioLatencyHint,
 	imageSequencePattern,
 	mediaCacheSizeInBytes,
+	askAIEnabled,
+	experimentalClientSideRenderingEnabled,
+	keyboardShortcutsEnabled,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -180,7 +187,26 @@ export const renderVideoFlow = async ({
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	imageSequencePattern: string | null;
 	mediaCacheSizeInBytes: number | null;
+	askAIEnabled: boolean;
+	experimentalClientSideRenderingEnabled: boolean;
+	keyboardShortcutsEnabled: boolean;
 }) => {
+	let bundlingProgress: BundlingState | null = null;
+	let renderingProgress: RenderingProgressInput | null = null;
+	let stitchingProgress: StitchingProgressInput | null = null;
+	let browserState: BrowserDownloadState = {
+		progress: 0,
+		doneIn: 0,
+		alreadyAvailable: true,
+	};
+	let copyingState: CopyingState = {
+		bytes: 0,
+		doneIn: null,
+	};
+	const logsProgress: AggregateRenderProgress['logs'] = [];
+
+	let artifactState: ArtifactProgress = {received: []};
+
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
 	printFact('verbose')({
@@ -195,10 +221,10 @@ export const renderVideoFlow = async ({
 	const downloads: DownloadProgress[] = [];
 	const onBrowserDownload = defaultBrowserDownloadProgress({
 		indent,
+		onProgress: updateBrowserProgress,
 		logLevel,
 		quiet: quietFlagProvided(),
 	});
-
 	await RenderInternals.internalEnsureBrowser({
 		browserExecutable,
 		indent,
@@ -229,20 +255,25 @@ export const renderVideoFlow = async ({
 		indent,
 	});
 
-	let bundlingProgress: BundlingState = {
-		doneIn: null,
-		progress: 0,
-	};
+	function updateBrowserProgress(progress: BrowserDownloadState) {
+		browserState = progress;
+		const aggregateRenderProgress: AggregateRenderProgress = {
+			browser: browserState,
+			rendering: renderingProgress,
+			stitching: shouldOutputImageSequence ? null : stitchingProgress,
+			downloads,
+			bundling: bundlingProgress,
+			copyingState,
+			artifactState,
+			logs: logsProgress,
+		};
 
-	let renderingProgress: RenderingProgressInput | null = null;
-	let stitchingProgress: StitchingProgressInput | null = null;
-	let copyingState: CopyingState = {
-		bytes: 0,
-		doneIn: null,
-	};
-	const logsProgress: AggregateRenderProgress['logs'] = [];
-
-	let artifactState: ArtifactProgress = {received: []};
+		onProgress({
+			message: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
+			value: 0,
+			...aggregateRenderProgress,
+		});
+	}
 
 	const updateRenderProgress = ({
 		newline,
@@ -255,6 +286,7 @@ export const renderVideoFlow = async ({
 			rendering: renderingProgress,
 			stitching: shouldOutputImageSequence ? null : stitchingProgress,
 			downloads,
+			browser: browserState,
 			bundling: bundlingProgress,
 			copyingState,
 			artifactState,
@@ -298,6 +330,9 @@ export const renderVideoFlow = async ({
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint,
+			experimentalClientSideRenderingEnabled,
+			askAIEnabled,
+			keyboardShortcutsEnabled,
 		},
 	);
 
@@ -681,7 +716,8 @@ export const renderVideoFlow = async ({
 		chromeMode,
 		mediaCacheSizeInBytes,
 		onLog,
-		apiKey: null,
+		licenseKey: null,
+		isProduction: null,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});

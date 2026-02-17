@@ -39,6 +39,7 @@
 		{"path": "../media-parser"},
 		{"path": "../webcodecs"},
 		{"path": "../whisper-web"},
+		{"path": "../light-leaks"},
 		{"path": "../layout-utils"},
 		{"path": "../media"},
 		{"path": "../rounded-text-box"}

@@ -112,7 +112,7 @@ export const printUsefulErrorMessage = (
 				indent,
 				logLevel,
 			},
-			'💡 You might need to set the OpenGL renderer to "angle-egl", "angle" (or "swangle" if rendering on lambda). Learn why at https://www.remotion.dev/docs/three',
+			'💡 You might need to set the OpenGL renderer to "angle". Learn why at https://www.remotion.dev/docs/three',
 		);
 		Log.warn(
 			{

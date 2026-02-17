@@ -11,8 +11,8 @@ export const drawPreviewOverlay = ({
 	videoIteratorManager,
 }: {
 	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-	audioTime: number;
-	audioContextState: AudioContextState;
+	audioTime: number | null;
+	audioContextState: AudioContextState | null;
 	audioSyncAnchor: number;
 	playing: boolean;
 	audioIteratorManager: AudioIteratorManager | null;
@@ -25,8 +25,10 @@ export const drawPreviewOverlay = ({
 		`Audio iterators created: ${audioIteratorManager?.getAudioIteratorsCreated()}`,
 		`Frames rendered: ${videoIteratorManager?.getFramesRendered()}`,
 		`Audio context state: ${audioContextState}`,
-		`Audio time: ${(audioTime - audioSyncAnchor).toFixed(3)}s`,
-	];
+		audioTime
+			? `Audio time: ${(audioTime - audioSyncAnchor).toFixed(3)}s`
+			: null,
+	].filter(Boolean) as string[];
 
 	if (audioIteratorManager) {
 		const queuedPeriod = audioIteratorManager
@@ -36,7 +38,7 @@ export const drawPreviewOverlay = ({
 		const numberOfChunksAfterResuming = audioIteratorManager
 			?.getAudioBufferIterator()
 			?.getNumberOfChunksAfterResuming();
-		if (queuedPeriod) {
+		if (queuedPeriod && audioTime) {
 			lines.push(
 				`Audio queued until: ${(queuedPeriod.until - (audioTime - audioSyncAnchor)).toFixed(3)}s`,
 			);

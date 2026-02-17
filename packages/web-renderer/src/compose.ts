@@ -1,90 +1,91 @@
 import type {LogLevel} from 'remotion';
-import {drawDomElement} from './drawing/draw-dom-element';
-import type {DrawElementToCanvasReturnValue} from './drawing/draw-element-to-canvas';
-import {drawElementToCanvas} from './drawing/draw-element-to-canvas';
-import {handleTextNode} from './drawing/text/handle-text-node';
+import type {InternalState} from './internal-state';
+import {createTreeWalkerCleanupAfterChildren} from './tree-walker-cleanup-after-children';
+import {walkOverNode} from './walk-over-node';
 import {skipToNextNonDescendant} from './walk-tree';
 
-const walkOverNode = ({
-	node,
-	context,
-	offsetLeft,
-	offsetTop,
-	logLevel,
-}: {
-	node: Node;
-	context: OffscreenCanvasRenderingContext2D;
-	offsetLeft: number;
-	offsetTop: number;
-	logLevel: LogLevel;
-}): Promise<DrawElementToCanvasReturnValue> => {
-	if (node instanceof HTMLElement || node instanceof SVGElement) {
-		return drawElementToCanvas({
-			element: node,
-			context,
-			draw: drawDomElement(node),
-			offsetLeft,
-			offsetTop,
-			logLevel,
-		});
+const getFilterFunction = (node: Node) => {
+	if (!(node instanceof Element)) {
+		// Must be a text node!
+		return NodeFilter.FILTER_ACCEPT;
 	}
 
-	if (node instanceof Text) {
-		return handleTextNode({node, context, offsetLeft, offsetTop, logLevel});
+	// SVG does have children, but we process SVG elements in its
+	// entirety
+	if (node.parentElement instanceof SVGSVGElement) {
+		return NodeFilter.FILTER_REJECT;
 	}
 
-	throw new Error('Unknown node type');
+	const computedStyle = getComputedStyle(node);
+
+	if (computedStyle.display === 'none') {
+		return NodeFilter.FILTER_REJECT;
+	}
+
+	return NodeFilter.FILTER_ACCEPT;
 };
 
 export const compose = async ({
 	element,
 	context,
-	offsetLeft,
-	offsetTop,
 	logLevel,
+	parentRect,
+	internalState,
+	onlyBackgroundClipText,
+	scale,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
-	offsetLeft: number;
-	offsetTop: number;
 	logLevel: LogLevel;
+	parentRect: DOMRect;
+	internalState: InternalState;
+	onlyBackgroundClipText: boolean;
+	scale: number;
 }) => {
 	const treeWalker = document.createTreeWalker(
 		element,
-		NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
-		(node) => {
-			if (node instanceof Element) {
-				// SVG does have children, but we process SVG elements in its
-				// entirety
-				if (node.parentElement instanceof SVGSVGElement) {
-					return NodeFilter.FILTER_REJECT;
-				}
-
-				const computedStyle = getComputedStyle(node);
-
-				return computedStyle.display === 'none'
-					? NodeFilter.FILTER_REJECT
-					: NodeFilter.FILTER_ACCEPT;
-			}
-
-			return NodeFilter.FILTER_ACCEPT;
-		},
+		onlyBackgroundClipText
+			? NodeFilter.SHOW_TEXT
+			: NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+		getFilterFunction,
 	);
 
+	// Skip to the first text node
+	if (onlyBackgroundClipText) {
+		treeWalker.nextNode();
+		if (!treeWalker.currentNode) {
+			return;
+		}
+	}
+
+	using treeWalkerClean = createTreeWalkerCleanupAfterChildren(treeWalker);
+	const {checkCleanUpAtBeginningOfIteration, addCleanup} = treeWalkerClean;
+
 	while (true) {
+		checkCleanUpAtBeginningOfIteration();
+
 		const val = await walkOverNode({
 			node: treeWalker.currentNode,
 			context,
-			offsetLeft,
-			offsetTop,
 			logLevel,
+			parentRect,
+			internalState,
+			rootElement: element,
+			onlyBackgroundClipText,
+			scale,
 		});
-		if (val === 'skip-children') {
+		if (val.type === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {
 				break;
 			}
-		} else if (!treeWalker.nextNode()) {
-			break;
+		} else {
+			if (val.cleanupAfterChildren) {
+				addCleanup(treeWalker.currentNode, val.cleanupAfterChildren);
+			}
+
+			if (!treeWalker.nextNode()) {
+				break;
+			}
 		}
 	}
 };

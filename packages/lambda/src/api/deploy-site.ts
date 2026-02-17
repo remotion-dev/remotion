@@ -37,6 +37,9 @@ type OptionalParameters = {
 		publicDir?: string | null;
 		rootDir?: string;
 		bypassBucketNameValidation?: boolean;
+		keyboardShortcutsEnabled?: boolean;
+		askAIEnabled?: boolean;
+		experimentalClientSideRenderingEnabled?: boolean;
 	};
 	privacy: 'public' | 'no-acl';
 	gitSource: GitSource | null;
@@ -128,6 +131,12 @@ const mandatoryDeploySite = async ({
 			onPublicDirCopyProgress: () => undefined,
 			onSymlinkDetected: () => undefined,
 			outDir: null,
+			askAIEnabled: options?.askAIEnabled ?? true,
+			audioLatencyHint: null,
+			experimentalClientSideRenderingEnabled:
+				options?.experimentalClientSideRenderingEnabled ?? false,
+			keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
+			renderDefaults: null,
 		}),
 	]);
 

@@ -7,6 +7,8 @@ crumb: CLI Reference
 
 Upgrades all Remotion-related packages.
 
+If `mediabunny` is installed, it will also be upgraded to the version [compatible with the new Remotion version](/docs/mediabunny/version).
+
 ```
 npx remotion upgrade
 ```
@@ -14,8 +16,6 @@ npx remotion upgrade
 ## Flags
 
 ### `--package-manager`<AvailableFrom v="3.2.33"/>
-
-_optional_
 
 Forces a specific package manager to be used. This is useful if you are using Remotion in a monorepo and you want to upgrade all packages at once. By default, Remotion will auto-detect the package manager.
 

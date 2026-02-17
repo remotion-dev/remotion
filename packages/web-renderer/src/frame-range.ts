@@ -1,4 +1,4 @@
-export type FrameRange = number | [number, number];
+export type FrameRange = number | [number, number] | [number, null];
 
 export const getRealFrameRange = (
 	durationInFrames: number,
@@ -20,13 +20,22 @@ export const getRealFrameRange = (
 		return [frameRange, frameRange];
 	}
 
-	if (frameRange[1] >= durationInFrames || frameRange[0] < 0) {
+	const resolved: [number, number] = [
+		frameRange[0],
+		frameRange[1] === null ? durationInFrames - 1 : frameRange[1],
+	];
+
+	if (
+		resolved[0] < 0 ||
+		resolved[1] >= durationInFrames ||
+		resolved[0] > resolved[1]
+	) {
 		throw new Error(
-			`The "durationInFrames" of the composition was evaluated to be ${durationInFrames}, but frame range ${frameRange.join('-')} is not inbetween 0-${
+			`The "durationInFrames" of the composition was evaluated to be ${durationInFrames}, but frame range ${resolved.join('-')} is not inbetween 0-${
 				durationInFrames - 1
 			}`,
 		);
 	}
 
-	return frameRange;
+	return resolved;
 };

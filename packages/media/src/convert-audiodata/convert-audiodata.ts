@@ -85,12 +85,46 @@ export const convertAudioData = ({
 
 	const srcChannels = new Int16Array(srcNumberOfChannels * frameCount);
 
-	audioData.copyTo(srcChannels, {
-		planeIndex: 0,
-		format: FORMAT,
-		frameOffset,
-		frameCount,
-	});
+	// https://github.com/remotion-dev/remotion/issues/6493
+	const isF32 = audioData.format === 'f32' || audioData.format === 'f32-planar';
+
+	if (isF32) {
+		// Firefox decodes as f32 — normalize to f32-planar first so the
+		// final s16 conversion always starts from the same representation.
+		const bytesPerPlane = frameCount * 4;
+		const f32Buffer = new ArrayBuffer(srcNumberOfChannels * bytesPerPlane);
+		for (let ch = 0; ch < srcNumberOfChannels; ch++) {
+			audioData.copyTo(
+				new Float32Array(f32Buffer, ch * bytesPerPlane, frameCount),
+				{planeIndex: ch, frameOffset, frameCount, format: 'f32-planar'},
+			);
+		}
+
+		const f32AudioData = new AudioData({
+			format: 'f32-planar',
+			sampleRate: currentSampleRate,
+			numberOfFrames: frameCount,
+			numberOfChannels: srcNumberOfChannels,
+			timestamp: audioData.timestamp,
+			data: f32Buffer,
+		});
+
+		f32AudioData.copyTo(srcChannels, {
+			planeIndex: 0,
+			format: FORMAT,
+			frameOffset: 0,
+			frameCount,
+		});
+		f32AudioData.close();
+	} else {
+		// Chrome decodes as s16-planar — copy directly to interleaved s16.
+		audioData.copyTo(srcChannels, {
+			planeIndex: 0,
+			format: FORMAT,
+			frameOffset,
+			frameCount,
+		});
+	}
 
 	const data = new Int16Array(newNumberOfFrames * TARGET_NUMBER_OF_CHANNELS);
 	const chunkSize = frameCount / newNumberOfFrames;

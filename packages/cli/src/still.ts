@@ -27,6 +27,9 @@ const {
 	audioLatencyHintOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -128,6 +131,10 @@ export const still = async (
 		commandLine: parsedCli,
 	}).value;
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
@@ -180,5 +187,10 @@ export const still = async (
 		chromeMode,
 		audioLatencyHint,
 		mediaCacheSizeInBytes,
+		askAIEnabled,
+		experimentalClientSideRenderingEnabled:
+			experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
+				.value,
+		keyboardShortcutsEnabled,
 	});
 };

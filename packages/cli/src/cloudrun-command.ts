@@ -16,11 +16,12 @@ export const cloudrunCommand = async (
 		await CloudrunInternals.executeCommand(args, remotionRoot, logLevel);
 		process.exit(0);
 	} catch (err) {
-		const manager = StudioServerInternals.getPackageManager(
+		const manager = StudioServerInternals.getPackageManager({
 			remotionRoot,
-			undefined,
-			0,
-		);
+			packageManager: undefined,
+			dirUp: 0,
+			logLevel,
+		});
 		const installCommand =
 			manager === 'unknown' ? 'npm i' : manager.installCommand;
 		Log.error({indent: false, logLevel}, err);

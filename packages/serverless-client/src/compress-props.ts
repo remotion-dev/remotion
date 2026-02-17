@@ -1,3 +1,4 @@
+import type {LogLevel} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import type {SerializedInputProps} from './constants';
 import {internalGetOrCreateBucket} from './get-or-create-bucket';
@@ -77,6 +78,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 	forcePathStyle,
 	skipPutAcl,
 	requestHandler,
+	logLevel,
 }: {
 	stringifiedInputProps: string;
 	region: Provider['region'];
@@ -87,6 +89,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 	forcePathStyle: boolean;
 	skipPutAcl: boolean;
 	requestHandler: Provider['requestHandler'] | undefined;
+	logLevel: LogLevel;
 }): Promise<SerializedInputProps> => {
 	const hash = providerSpecifics.randomHash();
 
@@ -102,6 +105,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 					forcePathStyle,
 					skipPutAcl,
 					requestHandler,
+					logLevel,
 				})
 			).bucketName;
 

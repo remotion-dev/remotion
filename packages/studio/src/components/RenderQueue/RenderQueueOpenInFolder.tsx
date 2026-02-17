@@ -1,13 +1,13 @@
-import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useMemo} from 'react';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {openInFileExplorer} from './actions';
+import type {AnyRenderJob} from './context';
 
 export const RenderQueueOpenInFinderItem: React.FC<{
-	readonly job: RenderJob;
+	readonly job: AnyRenderJob;
 }> = ({job}) => {
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {

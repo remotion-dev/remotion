@@ -1,10 +1,10 @@
 ---
 image: /generated/articles-docs-lottie-lottie-comp.png
 id: lottie-comp
-sidebar_label: "<Lottie>"
-title: "<Lottie>"
+sidebar_label: '<Lottie>'
+title: '<Lottie>'
 slug: lottie
-crumb: "@remotion/lottie"
+crumb: '@remotion/lottie'
 ---
 
 _Part of the [`@remotion/lottie`](/docs/lottie) package._
@@ -16,8 +16,8 @@ _Part of the [`@remotion/lottie`](/docs/lottie) package._
 ```
 
 ```tsx title="Animation.tsx"
-import { Lottie } from "@remotion/lottie";
-import animationData from "./animation.json";
+import {Lottie} from '@remotion/lottie';
+import animationData from './animation.json';
 
 export const MyAnimation: React.FC = () => {
   return <Lottie animationData={animationData} />;
@@ -69,21 +69,17 @@ _"svg"_ | _"canvas"_ | _"html"_
 
 Set the renderer for the Lottie files. Default `svg`. See: [`renderer` option](https://github.com/airbnb/lottie-web/wiki/Usage#getting-started), [Supported Features](https://github.com/airbnb/lottie-web/wiki/Features)
 
-### `preserveAspectRatio`<AvailableFrom v="4.0.105" />
-
-_optional, string_
+### `preserveAspectRatio?`<AvailableFrom v="4.0.105" />
 
 Set how aspect ratios should be handled in the Lottie file.
 See [`preserveAspectRatio`](https://github.com/airbnb/lottie-web/wiki/Renderer-Settings#preserveaspectratio)
 
-### `onAnimationLoaded`<AvailableFrom v="3.2.29" />
-
-_optional_
+### `onAnimationLoaded?`<AvailableFrom v="3.2.29" />
 
 Callback that gets invoked when the Lottie animation has been initialized. The Lottie [`AnimationItem`](https://airbnb.io/lottie/#/web?id=usage-1) gets passed as a parameter.
 
 ```tsx twoslash
-import type { LottieAnimationData } from "@remotion/lottie";
+import type {LottieAnimationData} from '@remotion/lottie';
 
 const animationData: LottieAnimationData = {
   fr: 0,
@@ -94,27 +90,20 @@ const animationData: LottieAnimationData = {
 
 // ---cut---
 
-import { Lottie } from "@remotion/lottie";
-import { AnimationItem } from "lottie-web";
-import { useCallback } from "react";
+import {Lottie} from '@remotion/lottie';
+import {AnimationItem} from 'lottie-web';
+import {useCallback} from 'react';
 
 const Comp: React.FC = () => {
   const onAnimationLoaded = useCallback((item: AnimationItem) => {
     console.log(item.renderer);
   }, []);
 
-  return (
-    <Lottie
-      animationData={animationData}
-      onAnimationLoaded={onAnimationLoaded}
-    />
-  );
+  return <Lottie animationData={animationData} onAnimationLoaded={onAnimationLoaded} />;
 };
 ```
 
-### `assetsPath`<AvailableFrom v="4.0.138" />
-
-_optional_
+### `assetsPath?`<AvailableFrom v="4.0.138" />
 
 Set the Lottie [`assetsPath`](https://github.com/airbnb/lottie-web/wiki/loadAnimation-options#assetspath) option. Example: `staticFile('lottie')` will take assets from the `public/lottie` folder.
 

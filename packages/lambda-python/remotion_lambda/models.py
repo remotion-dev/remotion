@@ -319,7 +319,9 @@ class RenderMediaParams:
     media_cache_size_in_bytes: Optional[int] = None
     offthreadvideo_threads: Optional[int] = None
     force_width: Optional[int] = None
+    # **DEPRECATED** - Use `license_key` instead. Will be removed in a future version.
     api_key: Optional[str] = None
+    license_key: Optional[str] = None
     audio_codec: Optional[str] = None
     storage_class: Optional[str] = None
     renderer_function_name: Optional[str] = None
@@ -329,6 +331,7 @@ class RenderMediaParams:
     delete_after: Optional[str] = None
     encoding_buffer_size: Optional[str] = None
     encoding_max_rate: Optional[str] = None
+    is_production: Optional[bool] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -374,13 +377,14 @@ class RenderMediaParams:
             'mediaCacheSizeInBytes': self.media_cache_size_in_bytes,
             'offthreadVideoThreads': self.offthreadvideo_threads,
             'forceWidth': self.force_width,
-            'apiKey': self.api_key,
+            'licenseKey': self.license_key if self.license_key is not None else self.api_key,
             'bucketName': self.bucket_name,
             'audioCodec': self.audio_codec,
             'x264Preset': self.x264_preset,
             'deleteAfter': self.delete_after,
             'encodingBufferSize': self.encoding_buffer_size,
             'encodingMaxRate': self.encoding_max_rate,
+            'isProduction': self.is_production,
             'type': 'start',
         }
 
@@ -441,7 +445,9 @@ class RenderStillParams:
         default_factory=lambda: PlayInBrowser(type='play-in-browser')
     )
     force_width: Optional[int] = None
+    # **DEPRECATED** - Use `license_key` instead. Will be removed in a future version.
     api_key: Optional[int] = None
+    license_key: Optional[str] = None
     storage_class: Optional[str] = None
     force_height: Optional[int] = None
     force_bucket_name: Optional[str] = None
@@ -452,6 +458,7 @@ class RenderStillParams:
     media_cache_size_in_bytes: Optional[int] = None
     offthreadvideo_threads: Optional[int] = None
     streamed: bool = False
+    is_production: Optional[bool] = None
 
     def serialize_params(self) -> Dict:
         """
@@ -496,7 +503,7 @@ class RenderStillParams:
             'downloadBehavior': self.download_behavior
             or PlayInBrowser(type='play-in-browser'),
             'forceWidth': self.force_width,
-            'apiKey': self.api_key,
+            'licenseKey': self.license_key if self.license_key is not None else self.api_key,
             'forceHeight': self.force_height,
             'forceBucketName': self.force_bucket_name,
             'deleteAfter': self.delete_after,
@@ -505,6 +512,7 @@ class RenderStillParams:
             'mediaCacheSizeInBytes': self.media_cache_size_in_bytes,
             'offthreadVideoThreads': self.offthreadvideo_threads,
             'streamed': self.streamed,
+            'isProduction': self.is_production,
         }
 
         if self.force_path_style is not None:

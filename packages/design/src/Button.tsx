@@ -4,12 +4,32 @@ import {useHoverTransforms} from './helpers/hover-transforms';
 import {Outer} from './helpers/Outer';
 import {Spinner} from './Spinner';
 
-export const Button: React.FC<
-	React.ButtonHTMLAttributes<HTMLButtonElement> & {
-		readonly depth?: number;
-		readonly loading?: boolean;
-	}
-> = ({children, className, disabled, depth, loading, ...buttonProps}) => {
+type CommonProps = {
+	readonly depth?: number;
+	readonly loading?: boolean;
+	readonly disabled?: boolean;
+};
+
+type ButtonAsButton = CommonProps &
+	Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'href' | 'disabled'> & {
+		readonly href?: undefined;
+	};
+
+type ButtonAsAnchor = CommonProps &
+	Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & {
+		readonly href: string;
+	};
+
+export type ButtonProps = ButtonAsButton | ButtonAsAnchor;
+
+export const Button: React.FC<ButtonProps> = ({
+	children,
+	className,
+	disabled,
+	depth,
+	loading,
+	...rest
+}) => {
 	const [dimensions, setDimensions] = useState<{
 		width: number;
 		height: number;
@@ -74,37 +94,35 @@ export const Button: React.FC<
 		[],
 	);
 
-	const content = (
-		<button
-			type="button"
-			disabled={disabled || loading}
-			className={cn(
-				'text-text',
-				'flex',
-				'justify-center',
-				'bg-button-bg',
-				'items-center',
-				'font-brand',
-				'border-solid',
-				'text-[1em]',
-				'rounded-lg',
-				'border-black',
-				'border-2',
-				'border-b-4',
-				'cursor-pointer',
-				'px-4',
-				'h-12',
-				'flex',
-				'flex-row',
-				'items-center',
-				'disabled:cursor-default',
-				'disabled:opacity-50',
-				'relative',
-				'overflow-hidden',
-				className,
-			)}
-			{...buttonProps}
-		>
+	const isDisabled = disabled || loading;
+
+	const sharedClasses = cn(
+		'text-text',
+		'flex',
+		'justify-center',
+		'bg-button-bg',
+		'items-center',
+		'font-brand',
+		'border-solid',
+		'text-[1em]',
+		'rounded-lg',
+		'border-black',
+		'border-2',
+		'border-b-4',
+		'cursor-pointer',
+		'px-4',
+		'h-12',
+		'flex',
+		'flex-row',
+		'items-center',
+		'relative',
+		'overflow-hidden',
+		isDisabled && 'cursor-default opacity-50',
+		className,
+	);
+
+	const innerContent = (
+		<>
 			<div className={cn(loading && 'invisible', 'inline-flex')}>
 				{children}
 			</div>
@@ -117,6 +135,35 @@ export const Button: React.FC<
 					<Spinner size={20} duration={1} />
 				</div>
 			) : null}
+		</>
+	);
+
+	const isAnchor = 'href' in rest && rest.href !== undefined;
+
+	const content = isAnchor ? (
+		<a
+			{...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+			className={cn('no-underline text-inherit', sharedClasses)}
+			aria-disabled={isDisabled || undefined}
+			tabIndex={isDisabled ? -1 : undefined}
+			onClick={
+				isDisabled
+					? (e: React.MouseEvent<HTMLAnchorElement>) => {
+							e.preventDefault();
+						}
+					: (rest as React.AnchorHTMLAttributes<HTMLAnchorElement>).onClick
+			}
+		>
+			{innerContent}
+		</a>
+	) : (
+		<button
+			type="button"
+			disabled={isDisabled}
+			className={sharedClasses}
+			{...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+		>
+			{innerContent}
 		</button>
 	);
 

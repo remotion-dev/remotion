@@ -161,7 +161,7 @@ export const createFunction = async ({
 				FunctionName: functionName,
 				Handler: 'index.handler',
 				Role: customRoleArn ?? defaultRoleName,
-				Runtime: 'nodejs20.x',
+				Runtime: 'nodejs24.x',
 				Description: 'Renders a Remotion video.',
 				MemorySize: memorySizeInMb,
 				Timeout: timeoutInSeconds,
@@ -261,7 +261,7 @@ export const createFunction = async ({
 		'Locking the runtime version of the function...',
 	);
 
-	const RuntimeVersionArn = `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`;
+	const RuntimeVersionArn = `arn:aws:lambda:${region}::runtime:58a37e8413ed69058c4ac3b1df642118591f17d40def93d6101f867c72cd03c2`;
 
 	try {
 		await LambdaClientInternals.getLambdaClient(

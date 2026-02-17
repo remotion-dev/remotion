@@ -79,7 +79,7 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 					style={{
 						height: 200,
 					}}
-					src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+					src="https://remotion.media/BigBuckBunny.mp4"
 				/>
 			</Sequence>
 		</div>

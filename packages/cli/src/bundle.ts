@@ -18,6 +18,9 @@ const {
 	publicDirOption,
 	disableGitSourceOption,
 	audioLatencyHintOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const bundleCommand = async (
@@ -60,6 +63,22 @@ export const bundleCommand = async (
 			'See: https://www.remotion.dev/docs/terminology/entry-point',
 		);
 		process.exit(1);
+	}
+
+	const experimentalClientSideRenderingEnabled =
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	if (experimentalClientSideRenderingEnabled) {
+		Log.warn(
+			{indent: false, logLevel},
+			'Enabling WIP client-side rendering. Please see caveats on https://www.remotion.dev/docs/client-side-rendering/.',
+		);
 	}
 
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
@@ -138,6 +157,9 @@ export const bundleCommand = async (
 		maxTimelineTracks: null,
 		publicPath,
 		audioLatencyHint,
+		experimentalClientSideRenderingEnabled,
+		askAIEnabled,
+		keyboardShortcutsEnabled,
 	});
 
 	Log.info(

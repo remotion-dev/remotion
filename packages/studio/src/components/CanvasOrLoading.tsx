@@ -71,7 +71,11 @@ export const CanvasOrLoading: React.FC<{
 			) : null}
 		</>
 	);
-	if (canvasContent.type === 'asset' || canvasContent.type === 'output') {
+	if (
+		canvasContent.type === 'asset' ||
+		canvasContent.type === 'output' ||
+		canvasContent.type === 'output-blob'
+	) {
 		return content;
 	}
 

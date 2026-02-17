@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Tai Le',
 	importName: 'NotoSansTaiLe',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Tai+Le:ital,wght@0,400',
 	unicodeRanges: {
 		'tai-le':
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'tai-le':
-					'https://fonts.gstatic.com/s/notosanstaile/v18/vEFK2-VODB8RrNDvZSUmVxEATwR5wpm_Wo7H.woff2',
+					'https://fonts.gstatic.com/s/notosanstaile/v19/vEFK2-VODB8RrNDvZSUmVxEATwR5wpm_Wo7H.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstaile/v18/vEFK2-VODB8RrNDvZSUmVxEATwR5wtu_Wo7H.woff2',
+					'https://fonts.gstatic.com/s/notosanstaile/v19/vEFK2-VODB8RrNDvZSUmVxEATwR5wtu_Wo7H.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstaile/v18/vEFK2-VODB8RrNDvZSUmVxEATwR5wtW_Wg.woff2',
+					'https://fonts.gstatic.com/s/notosanstaile/v19/vEFK2-VODB8RrNDvZSUmVxEATwR5wtW_Wg.woff2',
 			},
 		},
 	},

@@ -13,6 +13,19 @@ import path from 'node:path';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
 
+type InternalDownloadMediaInput = {
+	region: AwsRegion;
+	bucketName: string;
+	renderId: string;
+	outPath: string;
+	onProgress: LambdaReadFileProgress;
+	customCredentials: CustomCredentials<AwsProvider> | null;
+	logLevel: LogLevel;
+	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
+	signal: AbortSignal;
+};
+
 export type DownloadMediaInput = {
 	region: AwsRegion;
 	bucketName: string;
@@ -23,6 +36,7 @@ export type DownloadMediaInput = {
 	logLevel?: LogLevel;
 	forcePathStyle?: boolean;
 	requestHandler?: RequestHandler;
+	signal?: AbortSignal;
 };
 
 export type DownloadMediaOutput = {
@@ -31,7 +45,7 @@ export type DownloadMediaOutput = {
 };
 
 export const internalDownloadMedia = async (
-	input: DownloadMediaInput & {
+	input: InternalDownloadMediaInput & {
 		providerSpecifics: ProviderSpecifics<AwsProvider>;
 		forcePathStyle: boolean;
 	},
@@ -73,7 +87,8 @@ export const internalDownloadMedia = async (
 		customCredentials,
 		logLevel: input.logLevel ?? 'info',
 		forcePathStyle: input.forcePathStyle ?? false,
-		requestHandler: input.requestHandler,
+		requestHandler: input.requestHandler ?? undefined,
+		abortSignal: input.signal,
 	});
 
 	return {
@@ -94,5 +109,10 @@ export const downloadMedia = (
 		...input,
 		providerSpecifics: LambdaClientInternals.awsImplementation,
 		forcePathStyle: false,
+		onProgress: input.onProgress ?? (() => undefined),
+		logLevel: input.logLevel ?? 'info',
+		customCredentials: input.customCredentials ?? null,
+		signal: input.signal ?? new AbortController().signal,
+		requestHandler: input.requestHandler ?? undefined,
 	});
 };

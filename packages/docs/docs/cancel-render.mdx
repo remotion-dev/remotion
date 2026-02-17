@@ -65,9 +65,9 @@ const MyComp: React.FC = () => {
 
 ## `cancelRender()` throws an error
 
-`cancelRender()` also throws an error, so any code after it will not be executed.  
-In [browser rendering](/docs/miscellaneous/render-in-browser), this might lead to an unhandled error that will create noise in your console or error overlay.
+`cancelRender()` also throws an error, so any code after it will not be executed.
 
+In [client-side rendering](/docs/miscellaneous/render-in-browser), this is not caught by [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) or [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) and is an unhandled error.  
 Wrap `cancelRender()` in a `try`/`catch` block to avoid this:
 
 ```tsx twoslash title="✅ Best practice - wrap cancelRender() in a try/catch block" {4-7}
@@ -81,6 +81,10 @@ try {
   // Ignore the resulting error
 }
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs={false} bun={false} serverlessFunctions={false} clientSideRendering serverSideRendering player="Throws error" studio="Throws error" hideBrowsers />
 
 ## See also
 

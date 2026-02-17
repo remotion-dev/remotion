@@ -68,6 +68,7 @@ import {
 } from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+export type {Bitrate} from './bitrate';
 export {Browser} from './browser';
 export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';

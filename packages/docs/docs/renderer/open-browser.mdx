@@ -28,32 +28,24 @@ Currently the only valid option is `"chrome"`. This field is reserved for future
 
 ### `options?`
 
-_optional_
-
 An object containing one or more of the following options:
 
 #### ~`shouldDumpIo?`~
 
-_optional, deprecated since v4.0.189, scheduled for removal in v5.0_
+Deprecated since v4.0.189, scheduled for removal in v5.0.
 
 If set to `true`, logs and other browser diagnostics are being printed to standard output. This setting is useful for debugging.  
 **Will be removed in 5.0:** Use `logLevel` instead.
 
 #### `logLevel?`<AvailableFrom v="4.0.189"/>
 
-_optional_
-
 <Options id="log" />
 
 #### `browserExecutable?`
 
-_optional_
-
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
 #### `chromiumOptions?`
-
-_optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 

@@ -42,6 +42,7 @@ type RemotionOptions struct {
 	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
 	ForceWidth                     interface{}            `json:"forceWidth"`
 	ApiKey                         interface{}            `json:"apiKey"`
+	LicenseKey                     interface{}            `json:"licenseKey"`
 	BucketName                     interface{}            `json:"bucketName"`
 	AudioCodec                     interface{}            `json:"audioCodec"`
 	StorageClass                   interface{}            `json:"storageClass"`
@@ -49,6 +50,7 @@ type RemotionOptions struct {
 	Gl                             string                 `json:"gl"`
 	X264Preset                     interface{}            `json:"x264Preset"`
 	DeleteAfter                    *string                `json:"deleteAfter"`
+	IsProduction                   *bool                  `json:"isProduction"`
 }
 
 type renderInternalOptions struct {
@@ -95,7 +97,8 @@ type renderInternalOptions struct {
 	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
 	ForceHeight                    interface{}            `json:"forceHeight"`
 	ForceWidth                     interface{}            `json:"forceWidth"`
-	ApiKey                         interface{}            `json:"apiKey"`
+	ApiKey                         interface{}            `json:"apiKey,omitempty"`
+	LicenseKey                     interface{}            `json:"licenseKey"`
 	BucketName                     interface{}            `json:"bucketName"`
 	AudioCodec                     interface{}            `json:"audioCodec"`
 	StorageClass                   interface{}            `json:"storageClass"`
@@ -103,6 +106,7 @@ type renderInternalOptions struct {
 	Gl                             *string                `json:"gl,omitempty"`
 	X264Preset                     interface{}            `json:"x264Preset"`
 	DeleteAfter                    *string                `json:"deleteAfter"`
+	IsProduction                   *bool                  `json:"isProduction"`
 }
 
 type RawInvokeResponse struct {

@@ -44,6 +44,7 @@ export const UpdateTime: React.FC<{
 			frameState={{
 				[compId]: frame,
 			}}
+			nonceContextSeed={0}
 		>
 			{children}
 		</Internals.RemotionRootContexts>

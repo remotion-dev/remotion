@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Sharada',
 	importName: 'NotoSansSharada',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Sharada:ital,wght@0,400',
 	unicodeRanges: {
 		sharada:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				sharada:
-					'https://fonts.gstatic.com/s/notosanssharada/v17/gok0H7rwAEdtF9N8-mdTGALG6p0kwrW9Nu0b4A.woff2',
+					'https://fonts.gstatic.com/s/notosanssharada/v18/gok0H7rwAEdtF9N8-mdTGALG6p0kwrW9Nu0b4A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssharada/v17/gok0H7rwAEdtF9N8-mdTGALG6p0kwrXCNu0b4A.woff2',
+					'https://fonts.gstatic.com/s/notosanssharada/v18/gok0H7rwAEdtF9N8-mdTGALG6p0kwrXCNu0b4A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssharada/v17/gok0H7rwAEdtF9N8-mdTGALG6p0kwrXMNu0.woff2',
+					'https://fonts.gstatic.com/s/notosanssharada/v18/gok0H7rwAEdtF9N8-mdTGALG6p0kwrXMNu0.woff2',
 			},
 		},
 	},

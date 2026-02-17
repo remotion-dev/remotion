@@ -29,11 +29,11 @@ function mixAudio(waves: Int16Array[], length: number) {
 export const onlyInlineAudio = ({
 	assets,
 	fps,
-	frame,
+	timestamp,
 }: {
 	assets: TRenderAsset[];
 	fps: number;
-	frame: number;
+	timestamp: number;
 }): AudioData | null => {
 	const inlineAudio = assets.filter((asset) => asset.type === 'inline-audio');
 	if (inlineAudio.length === 0) {
@@ -63,6 +63,6 @@ export const onlyInlineAudio = ({
 		numberOfChannels: TARGET_NUMBER_OF_CHANNELS,
 		numberOfFrames: expectedLength / TARGET_NUMBER_OF_CHANNELS,
 		sampleRate: TARGET_SAMPLE_RATE,
-		timestamp: (frame / fps) * 1_000_000,
+		timestamp,
 	});
 };

@@ -6,7 +6,7 @@ slug: /lambda/getcompositionsonlambda
 crumb: 'Lambda API'
 ---
 
-_available from v3.3.2_
+<AvailableFrom v="3.3.2" />
 
 Gets the compositions inside a Lambda function.
 
@@ -59,9 +59,7 @@ You may transform input props using [`calculateMetadata()`](/docs/calculate-meta
 
 ### `envVariables?`
 
-_optional - default `{}`_
-
-See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
+See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables). Default: `{}`.
 
 ### `timeoutInMilliseconds?`
 
@@ -91,9 +89,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
-### `forceBucketName?`
-
-_available from v3.3.42_
+### `forceBucketName?`<AvailableFrom v="3.3.42" />
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
@@ -117,9 +113,7 @@ Logs can be read through the CloudWatch URL that this function returns.
 
 ### ~~`dumpBrowserLogs?`~~
 
-_optional - default `false`, deprecated in v4.0_
-
-Deprecated in favor of [`logLevel`](#loglevel).
+Deprecated in v4.0 in favor of [`logLevel`](#loglevel).
 
 ## Return value
 

@@ -118,6 +118,81 @@ await renderMedia({
 });
 ```
 
+### Using `renderMediaOnWeb()` or `renderStillOnWeb()`
+
+Use the [`onArtifact`](/docs/web-renderer/render-media-on-web#onartifact) callback to receive artifacts when rendering using [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
+
+```tsx twoslash title="Receiving artifacts with renderMediaOnWeb()"
+import React from 'react';
+import {Artifact, useCurrentFrame} from 'remotion';
+import {renderMediaOnWeb, EmittedArtifact} from '@remotion/web-renderer';
+
+const composition = {
+  id: 'my-comp',
+  width: 1920,
+  height: 1080,
+  fps: 30,
+  durationInFrames: 90,
+};
+
+// ---cut---
+const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  return <>{frame === 0 && <Artifact filename="metadata.json" content={JSON.stringify({title: 'My Video'})} />}</>;
+};
+
+const artifacts: EmittedArtifact[] = [];
+
+await renderMediaOnWeb({
+  composition: {
+    ...composition,
+    component: MyComp,
+  },
+  onArtifact: (artifact) => {
+    console.log(artifact.filename); // string
+    console.log(artifact.content); // string | Uint8Array
+    console.log(artifact.frame); // number
+    artifacts.push(artifact);
+  },
+});
+```
+
+The same callback is available for [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#onartifact):
+
+```tsx twoslash title="Receiving artifacts with renderStillOnWeb()"
+import React from 'react';
+import {Artifact} from 'remotion';
+import {renderStillOnWeb, EmittedArtifact} from '@remotion/web-renderer';
+
+const composition = {
+  id: 'my-comp',
+  width: 1920,
+  height: 1080,
+  fps: 30,
+  durationInFrames: 1,
+};
+
+// ---cut---
+
+const MyComp: React.FC = () => {
+  return <Artifact filename="thumbnail.png" content={Artifact.Thumbnail} />;
+};
+
+const artifacts: EmittedArtifact[] = [];
+
+await renderStillOnWeb({
+  composition: {
+    ...composition,
+    component: MyComp,
+  },
+  frame: 0,
+  imageFormat: 'png',
+  onArtifact: (artifact) => {
+    artifacts.push(artifact);
+  },
+});
+```
+
 ### Using the Remotion Lambda CLI
 
 When using [`npx remotion lambda render`](/docs/lambda/cli/render) or [`npx remotion lambda still`](/docs/lambda/cli/still), artifacts get saved to the S3 bucket under the key `renders/[render-id]/artifacts/[filename]`.

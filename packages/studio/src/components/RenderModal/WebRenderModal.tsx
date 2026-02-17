@@ -1,23 +1,34 @@
 import type {LogLevel} from '@remotion/renderer';
 import {getDefaultOutLocation} from '@remotion/studio-shared';
 import type {
-	RenderMediaOnWebProgress,
-	RenderStillImageFormat,
-	WebRendererCodec,
+	RenderStillOnWebImageFormat,
+	WebRendererAudioCodec,
 	WebRendererContainer,
+	WebRendererHardwareAcceleration,
 	WebRendererQuality,
+	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
-import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
+import {getDefaultAudioCodecForContainer} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
+import {AudioIcon} from '../../icons/audio';
+import {CertificateIcon} from '../../icons/certificate';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
+import {GearIcon} from '../../icons/gear';
 import type {WebRenderModalState} from '../../state/modals';
+import {ModalsContext} from '../../state/modals';
+import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
 import {DismissableModal} from '../NewComposition/DismissableModal';
+import {
+	optionsSidebarTabs,
+	persistSelectedOptionsSidebarPanel,
+} from '../OptionsPanel';
+import {RenderQueueContext} from '../RenderQueue/context';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {VerticalTab} from '../Tabs/vertical';
@@ -39,27 +50,54 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
+import {useEncodableAudioCodecs} from './use-encodable-audio-codecs';
+import {useEncodableVideoCodecs} from './use-encodable-video-codecs';
+import {WebRendererExperimentalBadge} from './WebRendererExperimentalBadge';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
+import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
+import {WebRenderModalLicense} from './WebRenderModalLicense';
 import {WebRenderModalPicture} from './WebRenderModalPicture';
 
 type WebRenderModalProps = {
 	readonly compositionId: string;
 	readonly initialFrame: number;
+	readonly initialLogLevel: LogLevel;
+	readonly initialLicenseKey: string | null;
 	readonly defaultProps: Record<string, unknown>;
 	readonly inFrameMark: number | null;
 	readonly outFrameMark: number | null;
+	readonly initialStillImageFormat: RenderStillOnWebImageFormat;
+	readonly initialScale: number;
+	readonly initialDelayRenderTimeout: number;
+	readonly initialDefaultOutName: string | null;
+	readonly initialContainer: WebRendererContainer | null;
+	readonly initialVideoCodec: WebRendererVideoCodec | null;
+	readonly initialAudioCodec: WebRendererAudioCodec | null;
+	readonly initialAudioBitrate: WebRendererQuality | null;
+	readonly initialVideoBitrate: WebRendererQuality | null;
+	readonly initialHardwareAcceleration: WebRendererHardwareAcceleration | null;
+	readonly initialKeyframeIntervalInSeconds: number | null;
+	readonly initialTransparent: boolean | null;
+	readonly initialMuted: boolean | null;
+	readonly initialMediaCacheSizeInBytes: number | null;
 };
 
 export type RenderType = 'still' | 'video';
 
-type TabType = 'general' | 'data' | 'picture' | 'advanced';
+type TabType =
+	| 'general'
+	| 'data'
+	| 'picture'
+	| 'audio'
+	| 'advanced'
+	| 'license';
 
 const invalidCharacters = ['?', '*', '+', ':', '%'];
 
 const isValidStillExtension = (
 	extension: string,
-	stillImageFormat: RenderStillImageFormat,
+	stillImageFormat: RenderStillOnWebImageFormat,
 ): boolean => {
 	if (stillImageFormat === 'jpeg' && extension === 'jpg') {
 		return true;
@@ -73,7 +111,7 @@ const validateOutnameForStill = ({
 	stillImageFormat,
 }: {
 	outName: string;
-	stillImageFormat: RenderStillImageFormat;
+	stillImageFormat: RenderStillOnWebImageFormat;
 }): {valid: true} | {valid: false; error: Error} => {
 	try {
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
@@ -120,7 +158,6 @@ const validateOutnameForStill = ({
 	}
 };
 
-// TODO: Add to queue
 // TODO: Switch to server-side rendering
 // TODO: Filter out codecs that are not supported for the container
 // TODO: Add more containers
@@ -132,8 +169,27 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	defaultProps,
 	inFrameMark,
 	outFrameMark,
+	initialLogLevel,
+	initialLicenseKey,
+	initialStillImageFormat,
+	initialDefaultOutName,
+	initialScale,
+	initialDelayRenderTimeout,
+	initialMediaCacheSizeInBytes,
+	initialContainer,
+	initialVideoCodec,
+	initialAudioCodec,
+	initialAudioBitrate,
+	initialVideoBitrate,
+	initialHardwareAcceleration,
+	initialKeyframeIntervalInSeconds,
+	initialTransparent,
+	initialMuted,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
+	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSidebarCollapsedState} = useContext(SidebarContext);
+	const {addClientStillJob, addClientVideoJob} = useContext(RenderQueueContext);
 	if (!context) {
 		throw new Error(
 			'Should not be able to render without resolving comp first',
@@ -145,35 +201,84 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		unresolved: unresolvedComposition,
 	} = context;
 
-	const [renderMode, setRenderMode] = useState<RenderType>('video');
+	const [isVideo] = useState(() => {
+		return typeof resolvedComposition.durationInFrames === 'undefined'
+			? true
+			: resolvedComposition.durationInFrames > 1;
+	});
+
+	const [renderMode, setRenderMode] = useState<RenderType>(
+		isVideo ? 'video' : 'still',
+	);
 	const [tab, setTab] = useState<TabType>('general');
-	const [imageFormat, setImageFormat] = useState<RenderStillImageFormat>('png');
+	const [imageFormat, setImageFormat] = useState<RenderStillOnWebImageFormat>(
+		() => initialStillImageFormat ?? 'png',
+	);
 	const [frame, setFrame] = useState(() => initialFrame);
-	const [logLevel, setLogLevel] = useState<LogLevel>('info');
+	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
 	const [inputProps, setInputProps] = useState(() => defaultProps);
-	const [delayRenderTimeout, setDelayRenderTimeout] = useState(30000);
+	const [delayRenderTimeout, setDelayRenderTimeout] = useState(
+		initialDelayRenderTimeout ?? 30000,
+	);
 	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
 		number | null
-	>(null);
+	>(initialMediaCacheSizeInBytes);
 	const [saving, setSaving] = useState(false);
 
 	// Video-specific state
-	const [codec, setCodec] = useState<WebRendererCodec>('h264');
-	const [container, setContainer] = useState<WebRendererContainer>('mp4');
-	const [videoBitrate, setVideoBitrate] = useState<WebRendererQuality>('high');
-	const [hardwareAcceleration, setHardwareAcceleration] = useState<
-		'no-preference' | 'prefer-hardware' | 'prefer-software'
-	>('no-preference');
-	const [keyframeIntervalInSeconds, setKeyframeIntervalInSeconds] = useState(5);
+	const [codec, setCodec] = useState<WebRendererVideoCodec>(
+		initialVideoCodec ?? 'h264',
+	);
+	const [container, setContainer] = useState<WebRendererContainer>(
+		initialContainer ?? 'mp4',
+	);
+	const [audioCodec, setAudioCodec] = useState<WebRendererAudioCodec>(
+		initialAudioCodec ?? 'aac',
+	);
+	const [audioBitrate, setAudioBitrate] = useState<WebRendererQuality>(
+		initialAudioBitrate ?? 'medium',
+	);
+	const [videoBitrate, setVideoBitrate] = useState<WebRendererQuality>(
+		initialVideoBitrate ?? 'high',
+	);
+	const [hardwareAcceleration, setHardwareAcceleration] =
+		useState<WebRendererHardwareAcceleration>(
+			(initialHardwareAcceleration as
+				| 'no-preference'
+				| 'prefer-hardware'
+				| 'prefer-software') ?? 'no-preference',
+		);
+	const [keyframeIntervalInSeconds, setKeyframeIntervalInSeconds] = useState(
+		initialKeyframeIntervalInSeconds ?? 5,
+	);
 	const [startFrame, setStartFrame] = useState<number | null>(
-		() => inFrameMark ?? null,
+		() => inFrameMark,
 	);
-	const [endFrame, setEndFrame] = useState<number | null>(
-		() => outFrameMark ?? null,
-	);
-	const [renderProgress, setRenderProgress] =
-		useState<RenderMediaOnWebProgress | null>(null);
-	const [transparent, setTransparent] = useState(false);
+	const [endFrame, setEndFrame] = useState<number | null>(() => outFrameMark);
+	const [transparent, setTransparent] = useState(initialTransparent ?? false);
+	const [muted, setMuted] = useState(initialMuted ?? false);
+	const [scale, setScale] = useState(initialScale ?? 1);
+
+	const [licenseKey, setLicenseKey] = useState(initialLicenseKey);
+
+	const encodableAudioCodecs = useEncodableAudioCodecs(container);
+	const encodableVideoCodecs = useEncodableVideoCodecs(container);
+
+	const effectiveAudioCodec = useMemo((): WebRendererAudioCodec => {
+		if (encodableAudioCodecs.includes(audioCodec)) {
+			return audioCodec;
+		}
+
+		return encodableAudioCodecs[0] ?? audioCodec;
+	}, [audioCodec, encodableAudioCodecs]);
+
+	const effectiveVideoCodec = useMemo((): WebRendererVideoCodec => {
+		if (encodableVideoCodecs.includes(codec)) {
+			return codec;
+		}
+
+		return encodableVideoCodecs[0] ?? codec;
+	}, [codec, encodableVideoCodecs]);
 
 	const finalEndFrame = useMemo(() => {
 		if (endFrame === null) {
@@ -194,27 +299,34 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		return Math.max(0, Math.min(finalEndFrame, startFrame));
 	}, [finalEndFrame, startFrame]);
 
-	const frameRange = useMemo(() => {
-		if (startFrame === null && endFrame === null) {
-			return null;
+	const [initialOutNameState] = useState(() => {
+		if (initialDefaultOutName) {
+			return initialDefaultOutName;
 		}
 
-		return [finalStartFrame, finalEndFrame] as [number, number];
-	}, [endFrame, finalEndFrame, finalStartFrame, startFrame]);
-
-	const [initialOutName] = useState(() => {
-		return getDefaultOutLocation({
+		const defaultOut = getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
-			defaultExtension: container,
+			defaultExtension:
+				renderMode === 'still'
+					? imageFormat
+					: isVideo
+						? container
+						: imageFormat,
 			type: 'asset',
 			compositionDefaultOutName: resolvedComposition.defaultOutName,
-			clientSideRender: true,
+			outputLocation: window.remotion_renderDefaults?.outputLocation ?? null,
 		});
+
+		if (window.remotion_isReadOnlyStudio) {
+			return defaultOut.replace(/^out\//, '');
+		}
+
+		return defaultOut;
 	});
 
-	const [outName, setOutName] = useState(() => initialOutName);
+	const [outName, setOutName] = useState(() => initialOutNameState);
 
-	const setStillFormat = useCallback((format: RenderStillImageFormat) => {
+	const setStillFormat = useCallback((format: RenderStillOnWebImageFormat) => {
 		setImageFormat(format);
 		setOutName((prev) => {
 			const newFileName = getStringBeforeSuffix(prev) + '.' + format;
@@ -225,6 +337,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const setContainerFormat = useCallback(
 		(newContainer: WebRendererContainer) => {
 			setContainer(newContainer);
+			setAudioCodec(getDefaultAudioCodecForContainer(newContainer));
 			setOutName((prev) => {
 				const newFileName = getStringBeforeSuffix(prev) + '.' + newContainer;
 				return newFileName;
@@ -241,7 +354,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					const newFileName = getStringBeforeSuffix(prev) + '.' + container;
 					return newFileName;
 				});
-			} else {
+			} else if (newMode === 'still') {
 				setOutName((prev) => {
 					const newFileName = getStringBeforeSuffix(prev) + '.' + imageFormat;
 					return newFileName;
@@ -360,128 +473,101 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		}
 	}, [outName, imageFormat, renderMode, container]);
 
-	const onRenderStill = useCallback(async () => {
-		const blob = await renderStillOnWeb({
-			composition: {
-				component: unresolvedComposition.component,
-				width: resolvedComposition.width,
-				height: resolvedComposition.height,
-				fps: resolvedComposition.fps,
-				durationInFrames: resolvedComposition.durationInFrames,
-				defaultProps: resolvedComposition.defaultProps,
-				calculateMetadata: unresolvedComposition.calculateMetadata,
-				id: resolvedComposition.id,
-			},
-			frame,
-			imageFormat,
-			inputProps,
-			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
-			mediaCacheSizeInBytes,
-			logLevel,
-		});
+	const onAddToQueue = useCallback(() => {
+		const compositionRef = {
+			component: unresolvedComposition.component,
+			calculateMetadata: unresolvedComposition.calculateMetadata ?? null,
+			width: resolvedComposition.width,
+			height: resolvedComposition.height,
+			fps: resolvedComposition.fps,
+			durationInFrames: resolvedComposition.durationInFrames,
+			defaultProps: resolvedComposition.defaultProps,
+		};
 
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		// Extract just the filename from the path
-		const filename = outName.includes('/')
-			? outName.substring(outName.lastIndexOf('/') + 1)
-			: outName;
-		a.download = filename;
-		a.click();
-		URL.revokeObjectURL(url);
+		if (renderMode === 'still') {
+			addClientStillJob(
+				{
+					type: 'client-still',
+					compositionId: resolvedComposition.id,
+					outName,
+					imageFormat,
+					frame,
+					inputProps,
+					delayRenderTimeout,
+					mediaCacheSizeInBytes,
+					logLevel,
+					licenseKey,
+					scale,
+				},
+				compositionRef,
+			);
+		} else {
+			addClientVideoJob(
+				{
+					type: 'client-video',
+					compositionId: resolvedComposition.id,
+					outName,
+					container,
+					videoCodec: effectiveVideoCodec,
+					audioCodec: effectiveAudioCodec,
+					startFrame: finalStartFrame,
+					endFrame: finalEndFrame,
+					audioBitrate,
+					videoBitrate,
+					hardwareAcceleration,
+					keyframeIntervalInSeconds,
+					transparent,
+					muted,
+					inputProps,
+					delayRenderTimeout,
+					mediaCacheSizeInBytes,
+					logLevel,
+					licenseKey,
+					scale,
+				},
+				compositionRef,
+			);
+		}
+
+		setSidebarCollapsedState({left: null, right: 'expanded'});
+		persistSelectedOptionsSidebarPanel('renders');
+		optionsSidebarTabs.current?.selectRendersPanel();
+		setSelectedModal(null);
 	}, [
+		renderMode,
 		unresolvedComposition.component,
-		frame,
-		imageFormat,
-		logLevel,
-		inputProps,
-		delayRenderTimeout,
-		mediaCacheSizeInBytes,
-		resolvedComposition.durationInFrames,
+		unresolvedComposition.calculateMetadata,
 		resolvedComposition.width,
 		resolvedComposition.height,
 		resolvedComposition.fps,
-		outName,
+		resolvedComposition.durationInFrames,
 		resolvedComposition.defaultProps,
-		unresolvedComposition.calculateMetadata,
 		resolvedComposition.id,
-	]);
-
-	const onRenderVideo = useCallback(async () => {
-		setRenderProgress({renderedFrames: 0, encodedFrames: 0});
-
-		const {getBlob} = await renderMediaOnWeb({
-			composition: {
-				component: unresolvedComposition.component,
-				width: resolvedComposition.width,
-				height: resolvedComposition.height,
-				fps: resolvedComposition.fps,
-				durationInFrames: resolvedComposition.durationInFrames,
-				defaultProps: resolvedComposition.defaultProps,
-				id: resolvedComposition.id,
-				calculateMetadata: unresolvedComposition.calculateMetadata,
-			},
-			inputProps,
-			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
-			mediaCacheSizeInBytes,
-			logLevel,
-			codec,
-			container,
-			videoBitrate,
-			hardwareAcceleration,
-			keyframeIntervalInSeconds,
-			frameRange,
-			onProgress: (progress) => {
-				setRenderProgress(progress);
-			},
-			transparent,
-			outputTarget: 'web-fs',
-		});
-
-		setRenderProgress(null);
-
-		const blob = await getBlob();
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		// Extract just the filename from the path
-		const filename = outName.includes('/')
-			? outName.substring(outName.lastIndexOf('/') + 1)
-			: outName;
-		a.download = filename;
-		a.click();
-		URL.revokeObjectURL(url);
-	}, [
-		unresolvedComposition.component,
+		setSidebarCollapsedState,
+		outName,
+		imageFormat,
+		frame,
 		inputProps,
 		delayRenderTimeout,
 		mediaCacheSizeInBytes,
 		logLevel,
-		codec,
+		licenseKey,
 		container,
+		effectiveVideoCodec,
+		effectiveAudioCodec,
+		finalStartFrame,
+		finalEndFrame,
+		audioBitrate,
 		videoBitrate,
 		hardwareAcceleration,
 		keyframeIntervalInSeconds,
-		frameRange,
-		resolvedComposition.durationInFrames,
-		resolvedComposition.width,
-		resolvedComposition.height,
-		resolvedComposition.fps,
-		outName,
 		transparent,
-		resolvedComposition.defaultProps,
-		resolvedComposition.id,
-		unresolvedComposition.calculateMetadata,
+		muted,
+		setSelectedModal,
+		addClientStillJob,
+		addClientVideoJob,
+		scale,
 	]);
-
-	const onRender = useCallback(async () => {
-		if (renderMode === 'still') {
-			await onRenderStill();
-		} else {
-			await onRenderVideo();
-		}
-	}, [renderMode, onRenderStill, onRenderVideo]);
 
 	return (
 		<div style={outerModalStyle}>
@@ -491,16 +577,16 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				<div style={flexer} />
 				<Button
 					autoFocus
-					onClick={onRender}
+					onClick={onAddToQueue}
 					style={buttonStyle}
 					disabled={!outnameValidation.valid}
 				>
-					{renderProgress
-						? `Rendering... ${renderProgress.renderedFrames}/${finalEndFrame}`
-						: `Render ${renderMode}`}
-
+					Render {renderMode}
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
+			</div>
+			<div style={containerStyle}>
+				<WebRendererExperimentalBadge />
 			</div>
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
@@ -524,16 +610,26 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						</div>
 						Input Props
 					</VerticalTab>
+					<VerticalTab
+						style={horizontalTab}
+						selected={tab === 'picture'}
+						onClick={() => setTab('picture')}
+					>
+						<div style={iconContainer}>
+							<PicIcon style={icon} />
+						</div>
+						Picture
+					</VerticalTab>
 					{renderMode === 'video' ? (
 						<VerticalTab
 							style={horizontalTab}
-							selected={tab === 'picture'}
-							onClick={() => setTab('picture')}
+							selected={tab === 'audio'}
+							onClick={() => setTab('audio')}
 						>
 							<div style={iconContainer}>
-								<PicIcon style={icon} />
+								<AudioIcon style={icon} />
 							</div>
-							Picture
+							Audio
 						</VerticalTab>
 					) : null}
 					<VerticalTab
@@ -542,9 +638,19 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						onClick={() => setTab('advanced')}
 					>
 						<div style={iconContainer}>
-							<FileIcon style={icon} />
+							<GearIcon style={icon} />
 						</div>
-						Advanced
+						Other
+					</VerticalTab>
+					<VerticalTab
+						style={horizontalTab}
+						selected={tab === 'license'}
+						onClick={() => setTab('license')}
+					>
+						<div style={iconContainer}>
+							<CertificateIcon style={icon} />
+						</div>
+						License
 					</VerticalTab>
 				</div>
 				<div style={optionsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
@@ -559,8 +665,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							onFrameSetDirectly={onFrameSetDirectly}
 							container={container}
 							setContainerFormat={setContainerFormat}
-							codec={codec}
 							setCodec={setCodec}
+							encodableVideoCodecs={encodableVideoCodecs}
+							effectiveVideoCodec={effectiveVideoCodec}
 							startFrame={finalStartFrame}
 							setStartFrame={setStartFrame}
 							endFrame={finalEndFrame}
@@ -593,8 +700,24 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setKeyframeIntervalInSeconds={setKeyframeIntervalInSeconds}
 							transparent={transparent}
 							setTransparent={setTransparent}
+							scale={scale}
+							setScale={setScale}
+							compositionWidth={resolvedComposition.width}
+							compositionHeight={resolvedComposition.height}
 						/>
-					) : (
+					) : tab === 'audio' ? (
+						<WebRenderModalAudio
+							muted={muted}
+							setMuted={setMuted}
+							audioCodec={audioCodec}
+							setAudioCodec={setAudioCodec}
+							audioBitrate={audioBitrate}
+							setAudioBitrate={setAudioBitrate}
+							container={container}
+							encodableCodecs={encodableAudioCodecs}
+							effectiveAudioCodec={effectiveAudioCodec}
+						/>
+					) : tab === 'advanced' ? (
 						<WebRenderModalAdvanced
 							renderMode={renderMode}
 							delayRenderTimeout={delayRenderTimeout}
@@ -603,6 +726,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setMediaCacheSizeInBytes={setMediaCacheSizeInBytes}
 							hardwareAcceleration={hardwareAcceleration}
 							setHardwareAcceleration={setHardwareAcceleration}
+						/>
+					) : (
+						<WebRenderModalLicense
+							licenseKey={licenseKey}
+							setLicenseKey={setLicenseKey}
+							initialPublicLicenseKey={initialLicenseKey}
 						/>
 					)}
 				</div>

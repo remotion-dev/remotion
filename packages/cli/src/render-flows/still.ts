@@ -15,6 +15,7 @@ import type {
 	AggregateRenderProgress,
 	JobProgressCallback,
 } from '@remotion/studio-server';
+import type {BrowserDownloadState} from '@remotion/studio-shared';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
@@ -81,6 +82,9 @@ export const renderStillFlow = async ({
 	offthreadVideoThreads,
 	audioLatencyHint,
 	mediaCacheSizeInBytes,
+	askAIEnabled,
+	experimentalClientSideRenderingEnabled,
+	keyboardShortcutsEnabled,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -115,6 +119,9 @@ export const renderStillFlow = async ({
 	chromeMode: ChromeMode;
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	mediaCacheSizeInBytes: number | null;
+	askAIEnabled: boolean;
+	experimentalClientSideRenderingEnabled: boolean;
+	keyboardShortcutsEnabled: boolean;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -150,10 +157,20 @@ export const renderStillFlow = async ({
 		onProgress({message, value: progress, ...aggregate});
 	};
 
+	function updateBrowserProgress(progress: BrowserDownloadState) {
+		aggregate.browser = progress;
+		onProgress({
+			message: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
+			value: 0,
+			...aggregate,
+		});
+	}
+
 	const onBrowserDownload = defaultBrowserDownloadProgress({
 		quiet: quietFlagProvided(),
 		indent,
 		logLevel,
+		onProgress: updateBrowserProgress,
 	});
 
 	await RenderInternals.internalEnsureBrowser({
@@ -205,6 +222,9 @@ export const renderStillFlow = async ({
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint,
+			experimentalClientSideRenderingEnabled,
+			askAIEnabled,
+			keyboardShortcutsEnabled,
 		},
 	);
 
@@ -400,7 +420,8 @@ export const renderStillFlow = async ({
 				printToConsole: true,
 			});
 		},
-		apiKey: null,
+		licenseKey: null,
+		isProduction: null,
 	});
 
 	aggregate.rendering = {

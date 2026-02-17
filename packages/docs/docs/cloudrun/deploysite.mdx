@@ -54,21 +54,17 @@ The bucket to where the website will be deployed. The bucket must have been crea
 
 ### `siteName?`
 
-_optional_
-
 Specify the subfolder in your Cloud Storage bucket that you want the site to deploy to. If you omit this property, a new subfolder with a random name will be created. If a site already exists with the name you passed, it will be overwritten. Can only contain the following characters: `0-9`, `a-z`, `A-Z`, `-`, `!`, `_`, `.`, `*`, `'`, `(`, `)`
 
 ### `options?`
 
-_optional_
-
 An object with the following properties:
 
-#### `onBundleProgress`
+#### `onBundleProgress?`
 
 Callback from Webpack when the bundling has progressed. Passes a number between 0 and 100 to the callback, see example at the top of the page.
 
-#### `onUploadProgress`
+#### `onUploadProgress?`
 
 Callback function that gets called when uploading of the assets has progressed. Passes an object with the following properties to the callback:
 
@@ -77,19 +73,19 @@ Callback function that gets called when uploading of the assets has progressed. 
 - `totalSize` (_number_): Total size in bytes of all the files in the bundle.
 - `sizeUploaded` (_number_): Amount of bytes uploaded so far.
 
-#### `webpackOverride`
+#### `webpackOverride?`
 
 Allows to pass a custom webpack override. See [`bundle()` -> webpackOverride](/docs/bundle#webpackoverride) for more information.
 
-#### `enableCaching`
+#### `enableCaching?`
 
 Whether webpack caching should be enabled. See [`bundle()` -> enableCaching](/docs/bundle#enablecaching) for more information.
 
-#### `publicDir`
+#### `publicDir?`
 
 Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology/remotion-root) folder. If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology/remotion-root).
 
-#### `rootDir`
+#### `rootDir?`
 
 The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
 
@@ -97,9 +93,27 @@ The directory in which the Remotion project is rooted in. This should be set to 
 The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
 :::
 
-#### `ignoreRegisterRootWarning`
+#### `ignoreRegisterRootWarning?`
 
 Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
+
+#### `keyboardShortcutsEnabled?`<AvailableFrom v="4.0.407"/>
+
+_default: `true`_
+
+Whether keyboard shortcuts should be enabled in the Studio. See [Config.setKeyboardShortcutsEnabled()](/docs/config#setkeyboardshortcutsenabled) for more information.
+
+#### `askAIEnabled?`<AvailableFrom v="4.0.407"/>
+
+_default: `true`_
+
+Whether the Ask AI option should be enabled in the Studio. See [Config.setAskAIEnabled()](/docs/config#setaskaienabled) for more information.
+
+#### `experimentalClientSideRenderingEnabled?`<AvailableFrom v="4.0.407"/>
+
+_default: `false`_
+
+Whether experimental client-side rendering should be enabled in the Studio. See [Config.setExperimentalClientSideRenderingEnabled()](/docs/config#setexperimentalclientsiderenderingenabled) for more information.
 
 ## Return value
 
@@ -107,7 +121,7 @@ An object with the following values:
 
 ### `serveUrl`
 
-string\_
+_string_
 
 An URL such as `https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh/index.html`.
 

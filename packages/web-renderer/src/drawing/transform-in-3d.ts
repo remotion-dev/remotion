@@ -1,3 +1,40 @@
+import type {HelperCanvasState, InternalState} from '../internal-state';
+
+const vsSource = `
+    attribute vec2 aPosition;
+    attribute vec2 aTexCoord;
+    uniform mat4 uTransform;
+    uniform vec2 uResolution;
+    uniform vec2 uOffset;
+    varying vec2 vTexCoord;
+
+    void main() {
+        vec4 pos = uTransform * vec4(aPosition, 0.0, 1.0);
+        pos.xy = pos.xy + uOffset * pos.w;
+
+        // Convert homogeneous coords to clip space
+        gl_Position = vec4(
+            (pos.x / uResolution.x) * 2.0 - pos.w,   // x
+            pos.w - (pos.y / uResolution.y) * 2.0,   // y (flipped)
+            0.0,
+            pos.w
+        );
+
+        vTexCoord = aTexCoord;
+    }
+`;
+
+// Fragment shader - samples from texture and unpremultiplies alpha
+const fsSource = `
+		precision mediump float;
+		uniform sampler2D uTexture;
+		varying vec2 vTexCoord;
+
+		void main() {
+				gl_FragColor = texture2D(uTexture, vTexCoord);
+		}
+`;
+
 function compileShader(
 	shaderGl: WebGLRenderingContext,
 	source: string,
@@ -20,79 +57,55 @@ function compileShader(
 	return shader;
 }
 
-type HelperCanvas = {
-	canvas: OffscreenCanvas;
-	gl: WebGLRenderingContext;
-	program: WebGLProgram;
-	vertexShader: WebGLShader;
-	fragmentShader: WebGLShader;
-};
-
-let helperCanvas: HelperCanvas | null = null;
-
 const createHelperCanvas = ({
 	canvasWidth,
 	canvasHeight,
+	helperCanvasState,
 }: {
 	canvasWidth: number;
 	canvasHeight: number;
+	helperCanvasState: HelperCanvasState;
 }) => {
-	if (
-		helperCanvas &&
-		helperCanvas.canvas.width >= canvasWidth &&
-		helperCanvas.canvas.height >= canvasHeight
-	) {
-		// Clear and draw
-		helperCanvas.gl.clearColor(0, 0, 0, 0); // Transparent background
-		helperCanvas.gl.clear(helperCanvas.gl.COLOR_BUFFER_BIT);
+	if (helperCanvasState.current) {
+		// Resize canvas if dimensions changed
+		if (
+			helperCanvasState.current.canvas.width !== canvasWidth ||
+			helperCanvasState.current.canvas.height !== canvasHeight
+		) {
+			helperCanvasState.current.canvas.width = canvasWidth;
+			helperCanvasState.current.canvas.height = canvasHeight;
+		}
 
-		return helperCanvas;
-	}
+		// Always reset viewport and clear when reusing
+		helperCanvasState.current.gl.viewport(0, 0, canvasWidth, canvasHeight);
+		helperCanvasState.current.gl.clearColor(0, 0, 0, 0);
+		helperCanvasState.current.gl.clear(
+			helperCanvasState.current.gl.COLOR_BUFFER_BIT,
+		);
 
-	if (helperCanvas) {
-		helperCanvas.gl.deleteProgram(helperCanvas.program);
-		helperCanvas.gl.deleteShader(helperCanvas.vertexShader);
-		helperCanvas.gl.deleteShader(helperCanvas.fragmentShader);
-		helperCanvas = null;
+		return helperCanvasState.current;
 	}
 
 	const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
-	const gl = canvas.getContext('webgl');
+
+	const gl =
+		canvas.getContext('webgl', {
+			premultipliedAlpha: true,
+		}) ?? undefined;
 
 	if (!gl) {
 		throw new Error('WebGL not supported');
 	}
 
-	// Vertex shader - now includes texture coordinates
-	const vsSource = `
-        attribute vec2 aPosition;
-        attribute vec2 aTexCoord;
-        uniform mat4 uTransform;
-        uniform mat4 uProjection;
-        varying vec2 vTexCoord;
-
-        void main() {
-            gl_Position = uProjection * uTransform * vec4(aPosition, 0.0, 1.0);
-            vTexCoord = aTexCoord;
-        }
-    `;
-
-	// Fragment shader - now samples from texture
-	const fsSource = `
-        precision mediump float;
-        uniform sampler2D uTexture;
-        varying vec2 vTexCoord;
-
-        void main() {
-            gl_FragColor = texture2D(uTexture, vTexCoord);
-        }
-    `;
-
-	// Create program
+	// Compile shaders and create program once
 	const vertexShader = compileShader(gl, vsSource, gl.VERTEX_SHADER);
 	const fragmentShader = compileShader(gl, fsSource, gl.FRAGMENT_SHADER);
 
 	const program = gl.createProgram();
+	if (!program) {
+		throw new Error('Could not create program');
+	}
+
 	gl.attachShader(program, vertexShader);
 	gl.attachShader(program, fragmentShader);
 	gl.linkProgram(program);
@@ -101,81 +114,111 @@ const createHelperCanvas = ({
 		throw new Error('Program link error: ' + gl.getProgramInfoLog(program));
 	}
 
-	gl.useProgram(program);
+	// Get attribute and uniform locations once
+	const locations = {
+		aPosition: gl.getAttribLocation(program, 'aPosition'),
+		aTexCoord: gl.getAttribLocation(program, 'aTexCoord'),
+		uTransform: gl.getUniformLocation(program, 'uTransform'),
+		uResolution: gl.getUniformLocation(program, 'uResolution'),
+		uOffset: gl.getUniformLocation(program, 'uOffset'),
+		uTexture: gl.getUniformLocation(program, 'uTexture'),
+	};
 
-	// Clear and draw
-	gl.clearColor(0, 0, 0, 0); // Transparent background
-	gl.clear(gl.COLOR_BUFFER_BIT);
+	// Shaders can be deleted after linking
+	gl.deleteShader(vertexShader);
+	gl.deleteShader(fragmentShader);
 
-	// Enable blending for transparency
-	gl.enable(gl.BLEND);
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	const cleanup = () => {
+		gl.deleteProgram(program);
+		const loseContext = gl.getExtension('WEBGL_lose_context');
+		if (loseContext) {
+			loseContext.loseContext();
+		}
+	};
 
-	helperCanvas = {canvas, gl, program, vertexShader, fragmentShader};
+	helperCanvasState.current = {canvas, gl, program, locations, cleanup};
 
-	return helperCanvas;
+	return helperCanvasState.current;
 };
 
-export const transformIn3d = (
-	{
-		canvasWidth,
-		canvasHeight,
-		matrix,
-		sourceCanvas,
-		offsetLeft,
-		offsetTop,
-	}: {
-		canvasWidth: number;
-		canvasHeight: number;
-		offsetLeft: number;
-		offsetTop: number;
-		matrix: DOMMatrix;
-		sourceCanvas: HTMLCanvasElement | OffscreenCanvas;
-	}, // Add source canvas parameter
-) => {
-	const {canvas, gl, program} = createHelperCanvas({canvasWidth, canvasHeight});
+export const transformIn3d = ({
+	matrix,
+	sourceCanvas,
+	sourceRect,
+	destRect,
+	internalState,
+	scale,
+}: {
+	sourceRect: DOMRect;
+	matrix: DOMMatrix;
+	sourceCanvas: OffscreenCanvas;
+	destRect: DOMRect;
+	internalState: InternalState;
+	scale: number;
+}) => {
+	const {canvas, gl, program, locations} = createHelperCanvas({
+		canvasWidth: destRect.width,
+		canvasHeight: destRect.height,
+		helperCanvasState: internalState.helperCanvasState,
+	});
 
-	const vertexBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+	// Use the cached program
+	gl.useProgram(program);
 
-	// Create a quad (two triangles) with texture coordinates
+	// Setup viewport and clear (already done in createHelperCanvas, but ensure it's set)
+	gl.viewport(0, 0, destRect.width, destRect.height);
+	gl.clearColor(0, 0, 0, 0);
+	gl.clear(gl.COLOR_BUFFER_BIT);
+
+	// Enable blending
+	gl.enable(gl.BLEND);
+	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+
+	// Create position buffer
+	const positionBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
 	// prettier-ignore
-	const vertices = new Float32Array([
-		// Position (x, y) + TexCoord (u, v)
-		// First:
-		offsetLeft, offsetTop, 0, 0, // bottom-left
-		canvasWidth + offsetLeft, offsetTop, 1, 0, // bottom-right
-		offsetLeft, canvasHeight + offsetTop, 0, 1, // top-left
-		// Second:
-		offsetLeft, canvasHeight + offsetTop, 0, 1, // top-left
-		canvasWidth + offsetLeft, offsetTop, 1, 0, // bottom-right
-		canvasWidth + offsetLeft, canvasHeight + offsetTop, 1, 1, // top-right
+	const positions = new Float32Array([
+		sourceRect.x, sourceRect.y, // top left
+		sourceRect.x + sourceRect.width, sourceRect.y, // top right
+		sourceRect.x, sourceRect.y + sourceRect.height, // bottom left
+		sourceRect.x, sourceRect.y + sourceRect.height, // bottom left
+		sourceRect.x + sourceRect.width, sourceRect.y, // top right
+		sourceRect.x + sourceRect.width, sourceRect.y + sourceRect.height, // bottom right
 	]);
 
-	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+	gl.enableVertexAttribArray(locations.aPosition);
+	gl.vertexAttribPointer(locations.aPosition, 2, gl.FLOAT, false, 0, 0);
 
-	const aPosition = gl.getAttribLocation(program, 'aPosition');
-	const aTexCoord = gl.getAttribLocation(program, 'aTexCoord');
+	// Create texture coordinate buffer
+	const texCoordBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
 
-	// Position attribute (2 floats, stride 4 floats, offset 0)
-	gl.enableVertexAttribArray(aPosition);
-	gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 4 * 4, 0);
+	// prettier-ignore
+	const texCoords = new Float32Array([
+		0, 0, // top left
+		1, 0, // top right
+		0, 1, // bottom left
+		0, 1, // bottom left
+		1, 0, // top right
+		1, 1, // bottom right
+	]);
 
-	// Texture coordinate attribute (2 floats, stride 4 floats, offset 2)
-	gl.enableVertexAttribArray(aTexCoord);
-	gl.vertexAttribPointer(aTexCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
+	gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
+	gl.enableVertexAttribArray(locations.aTexCoord);
+	gl.vertexAttribPointer(locations.aTexCoord, 2, gl.FLOAT, false, 0, 0);
 
 	// Create and configure texture
 	const texture = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, texture);
-
-	// Set texture parameters
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-	// Upload the source canvas as a texture
 	gl.texImage2D(
 		gl.TEXTURE_2D,
 		0,
@@ -185,44 +228,30 @@ export const transformIn3d = (
 		sourceCanvas,
 	);
 
-	// The transform matrix
-	const transformMatrix = matrix.toFloat32Array();
+	const actualMatrix =
+		scale !== 1 ? new DOMMatrix().scale(scale, scale).multiply(matrix) : matrix;
+	const transformMatrix = actualMatrix.toFloat32Array();
 
-	const zScale = 1_000_000_000; // By default infinite in chrome
+	gl.uniformMatrix4fv(locations.uTransform, false, transformMatrix);
+	gl.uniform2f(locations.uResolution, destRect.width, destRect.height);
+	gl.uniform2f(locations.uOffset, -destRect.x, -destRect.y);
+	gl.uniform1i(locations.uTexture, 0);
 
-	// Create orthographic projection matrix for pixel coordinates
-	const projectionMatrix = new Float32Array([
-		2 / canvas.width,
-		0,
-		0,
-		0,
-		0,
-		-2 / canvas.height,
-		0,
-		0,
-		0,
-		0,
-		-2 / zScale,
-		0,
-		-1,
-		1,
-		0,
-		1,
-	]);
-
-	const uTransform = gl.getUniformLocation(program, 'uTransform');
-	const uProjection = gl.getUniformLocation(program, 'uProjection');
-	const uTexture = gl.getUniformLocation(program, 'uTexture');
-
-	gl.uniformMatrix4fv(uTransform, false, transformMatrix);
-	gl.uniformMatrix4fv(uProjection, false, projectionMatrix);
-	gl.uniform1i(uTexture, 0); // Use texture unit 0
-
+	// Draw
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-	// Clean up resources to prevent leaks and ensure clean state for reuse
+	// Clean up per-frame resources only
+	gl.disableVertexAttribArray(locations.aPosition);
+	gl.disableVertexAttribArray(locations.aTexCoord);
 	gl.deleteTexture(texture);
-	gl.deleteBuffer(vertexBuffer);
+	gl.deleteBuffer(positionBuffer);
+	gl.deleteBuffer(texCoordBuffer);
+	gl.bindTexture(gl.TEXTURE_2D, null);
+	gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+	// Reset state
+	gl.disable(gl.BLEND);
+	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 
 	return canvas;
 };

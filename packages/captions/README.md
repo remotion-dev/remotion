@@ -15,4 +15,4 @@ Remove the `^` character from the version number to use the exact version.
  
 ## Usage
  
-See the [documentation](https://remotion.dev/docs/captions) for more information.
+See the [documentation](https://remotion.dev/docs/captions/api) for more information.

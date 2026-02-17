@@ -71,7 +71,7 @@ Install the `@remotion/webcodecs` and `@remotion/media-parser` packages:
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
 });
 
@@ -102,7 +102,7 @@ You can specify the output codec by passing the [`videoCodec`](/docs/webcodecs/c
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
   videoCodec: 'vp9',
   audioCodec: 'opus',
@@ -121,7 +121,7 @@ The `convertMedia()` function returns a result object with a `save()` method tha
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
 });
 
@@ -144,7 +144,7 @@ URL.revokeObjectURL(url);
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
 });
 
@@ -166,7 +166,7 @@ await fetch('/api/upload', {
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://remotion.media/BigBuckBunny.mp4',
   container: 'webm',
 });
 

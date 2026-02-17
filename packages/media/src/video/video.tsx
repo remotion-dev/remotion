@@ -31,6 +31,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 	showInTimeline,
 	debugOverlay,
 	headless,
+	onError,
 }) => {
 	const environment = useRemotionEnvironment();
 
@@ -86,6 +87,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 				trimAfterValue={trimAfterValue}
 				trimBeforeValue={trimBeforeValue}
 				headless={headless}
+				onError={onError}
 			/>
 		);
 	}
@@ -112,6 +114,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
 			debugOverlay={debugOverlay ?? false}
 			headless={headless ?? false}
+			onError={onError}
 		/>
 	);
 };
@@ -140,7 +143,9 @@ export const Video: React.FC<VideoProps> = ({
 	toneFrequency,
 	debugOverlay,
 	headless,
+	onError,
 }) => {
+	const fallbackLogLevel = Internals.useLogLevel();
 	return (
 		<InnerVideo
 			audioStreamIndex={audioStreamIndex ?? 0}
@@ -153,12 +158,7 @@ export const Video: React.FC<VideoProps> = ({
 				disallowFallbackToOffthreadVideo ?? false
 			}
 			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps ?? {}}
-			logLevel={
-				logLevel ??
-				(typeof window !== 'undefined'
-					? (window.remotion_logLevel ?? 'info')
-					: 'info')
-			}
+			logLevel={logLevel ?? fallbackLogLevel}
 			loop={loop ?? false}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
 			muted={muted ?? false}
@@ -175,6 +175,7 @@ export const Video: React.FC<VideoProps> = ({
 			stack={stack}
 			debugOverlay={debugOverlay ?? false}
 			headless={headless ?? false}
+			onError={onError}
 		/>
 	);
 };

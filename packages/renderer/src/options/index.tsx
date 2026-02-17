@@ -1,4 +1,5 @@
 import {apiKeyOption} from './api-key';
+import {askAIOption} from './ask-ai';
 import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
 import {beepOnFinishOption} from './beep-on-finish';
@@ -16,18 +17,25 @@ import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
 import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
+import {experimentalClientSideRenderingOption} from './experimental-client-side-rendering';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
+import {forceNewStudioOption} from './force-new-studio';
 import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
 import {imageSequencePatternOption} from './image-sequence-pattern';
+import {ipv4Option} from './ipv4';
+import {isProductionOption} from './is-production';
 import {jpegQualityOption} from './jpeg-quality';
+import {keyboardShortcutsOption} from './keyboard-shortcuts';
 import {audioLatencyHintOption} from './latency-hint';
+import {licenseKeyOption} from './license-key';
 import {logLevelOption} from './log-level';
 import {metadataOption} from './metadata';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
+import {numberOfSharedAudioTagsOption} from './number-of-shared-audio-tags';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 import {offthreadVideoThreadsOption} from './offthreadvideo-threads';
 import {onBrowserDownloadOption} from './on-browser-download';
@@ -35,6 +43,7 @@ import type {AnyRemotionOption} from './option';
 import {overwriteOption} from './overwrite';
 import {preferLosslessAudioOption} from './prefer-lossless';
 import {publicDirOption} from './public-dir';
+import {publicLicenseKeyOption} from './public-license-key';
 import {publicPathOption} from './public-path';
 import {reproOption} from './repro';
 import {scaleOption} from './scale';
@@ -90,11 +99,20 @@ export const allOptions = {
 	hardwareAccelerationOption,
 	chromeModeOption,
 	apiKeyOption,
+	licenseKeyOption,
 	audioLatencyHintOption,
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	publicLicenseKeyOption,
+	isProductionOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
+	forceNewStudioOption,
+	numberOfSharedAudioTagsOption,
+	ipv4Option,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

@@ -14,6 +14,7 @@ import {
   isCaptionMonospace,
   removeMonospaceTicks,
 } from "../../processing/split-caption-into-monospace-segments";
+import { isFirefox } from "../../../helpers/browsers";
 
 type CaptionColor = {
   appeared: string;
@@ -152,6 +153,8 @@ export const BoxedSingleCaption: React.FC<{
       borderRadius: WORD_HIGHLIGHT_BORDER_RADIUS,
       scale: String(progress),
       cursor: "pointer",
+      // Chrome and Firefox do not interpret line-height the same, this makes it approximately equal
+      verticalAlign: isFirefox() ? "middle" : undefined,
     };
   }, [
     active,

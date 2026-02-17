@@ -1,10 +1,10 @@
 import React, {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
-import {getStaticFiles} from '../../../api/get-static-files';
 import {Checkmark} from '../../../icons/Checkmark';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
 import {useZodIfPossible} from '../../get-zod-if-possible';
+import {useStaticFiles} from '../../use-static-files';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
 import {ZodFieldValidation} from './ZodFieldValidation';
@@ -65,9 +65,10 @@ export const ZodStaticFileEditor: React.FC<{
 	}
 
 	const isRoot = jsonPath.length === 0;
+	const staticFiles = useStaticFiles();
 
 	const comboBoxValues = useMemo(() => {
-		return getStaticFiles().map((option): ComboboxValue => {
+		return staticFiles.map((option): ComboboxValue => {
 			return {
 				value: option.src,
 				label: option.name,
@@ -82,7 +83,7 @@ export const ZodStaticFileEditor: React.FC<{
 				type: 'item',
 			};
 		});
-	}, [setLocalValue, value]);
+	}, [setLocalValue, staticFiles, value]);
 
 	const save = useCallback(() => {
 		onSave(() => value);

@@ -2,7 +2,7 @@
 image: /generated/articles-docs-register-root.png
 id: register-root
 title: registerRoot()
-crumb: "API"
+crumb: 'API'
 ---
 
 `registerRoot` is a function that registers the root component of the Remotion project. In the root component, one or multiple compositions should be returned (in the case of multiple compositions, they should be wrapped in a React Fragment).
@@ -19,8 +19,8 @@ export const RemotionRoot = () => <></>;
 
 // @filename: index.ts
 // ---cut---
-import { registerRoot } from "remotion";
-import { RemotionRoot } from "./Root";
+import {registerRoot} from 'remotion';
+import {RemotionRoot} from './Root';
 
 registerRoot(RemotionRoot);
 ```
@@ -34,30 +34,16 @@ export default () => <></>;
 export default () => <></>;
 
 // @filename: index.tsx
-import { Composition } from "remotion";
+import {Composition} from 'remotion';
 // ---cut---
-import MyComponent from "./MyComponent";
-import MyOtherComponent from "./MyOtherComponent";
+import MyComponent from './MyComponent';
+import MyOtherComponent from './MyOtherComponent';
 
 export const RemotionRoot = () => {
   return (
     <>
-      <Composition
-        id="comp"
-        fps={30}
-        height={1080}
-        width={1920}
-        durationInFrames={90}
-        component={MyComponent}
-      />
-      <Composition
-        id="anothercomp"
-        fps={30}
-        height={1080}
-        width={1920}
-        durationInFrames={90}
-        component={MyOtherComponent}
-      />
+      <Composition id="comp" fps={30} height={1080} width={1920} durationInFrames={90} component={MyComponent} />
+      <Composition id="anothercomp" fps={30} height={1080} width={1920} durationInFrames={90} component={MyOtherComponent} />
     </>
   );
 };
@@ -75,13 +61,17 @@ export const RemotionRoot = () => <></>;
 const loadWebAssembly = () => Promise.resolve();
 // ---cut---
 
-import { continueRender, delayRender, registerRoot } from "remotion";
-import { RemotionRoot } from "./Root";
+import {continueRender, delayRender, registerRoot} from 'remotion';
+import {RemotionRoot} from './Root';
 
 loadWebAssembly().then(() => {
   registerRoot(RemotionRoot);
 });
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs={false} bun={false} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player={false} studio />
 
 ## See also
 

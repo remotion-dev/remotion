@@ -12,7 +12,7 @@ const RainbowSquare: React.FC = () => <div></div>
 // - RainbowSquare
 ```
 
-_available from v3.2.39_
+<AvailableFrom v="3.2.39" />
 
 The `<CameraMotionBlur>` produces natural looking motion blur similar to what would be produced by
 a film camera.
@@ -29,11 +29,9 @@ possible and carefully inspect that the output is of acceptable quality.
 
 Wrap your content in `<CameraMotionBlur>` and optionally add the following props in addition.
 
-### `shutterAngle`
+### `shutterAngle?`
 
-_optional - default: `180`_
-
-Controls the amount of blur.
+Controls the amount of blur. Default: `180`.
 
 A lower value will result in less blur and a higher value will result in more.
 
@@ -61,11 +59,9 @@ Read more here: [Rotary disc shutter on Wikipedia](https://en.wikipedia.org/wiki
 
 </details>
 
-### `samples`
+### `samples?`
 
-_optional - default: `10`_
-
-The final image is an average of the samples. For a value of `10` the component will render ten
+The final image is an average of the samples. Default: `10`. For a value of `10` the component will render ten
 frames with different time offsets and combine them into a final image.
 
 :::caution

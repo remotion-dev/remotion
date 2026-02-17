@@ -5,7 +5,7 @@ Depending on the type of your legal entity, you are granted permission to use th
 - [Free License](#free-license)
 - [Company License](#company-license)
 
-Copyright © 2025 [Remotion](https://www.remotion.dev)
+Copyright © 2026 [Remotion](https://www.remotion.dev)
 
 ## Free License
 

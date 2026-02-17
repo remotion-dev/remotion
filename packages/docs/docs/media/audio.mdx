@@ -9,7 +9,7 @@ This is documentation for the new `<Audio>` tag.
 Not to be confused with the older [`<Html5Audio>` / `<Audio>`](/docs/html5-audio) tag from `remotion`.
 :::
 
-This component imports and displays a video, similar to [`<Html5Audio />`](/docs/html5-audio) from `remotion` but during rendering, extracts the exact audio using [Mediabunny](/docs/mediabunny) instead of FFmpeg.
+This component imports and plays audio, similar to [`<Html5Audio />`](/docs/html5-audio) from `remotion` but during rendering, extracts the exact audio using [Mediabunny](/docs/mediabunny) instead of FFmpeg.
 
 ## Example
 
@@ -113,9 +113,36 @@ export const MyVideo = () => {
 
 A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
 
-### `onError?`
+### `onError?`<AvailableFrom v="4.0.404" />
 
-**Currently not supported!**
+Handle errors that occur during audio processing. The callback receives an `Error` and should return either `'fallback'` or `'fail'`.
+
+- Return `'fallback'` to fall back to [`<Html5Audio>`](/docs/html5-audio) (default behavior)
+- Return `'fail'` to fail the render immediately
+
+```tsx twoslash
+import {Audio} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <Audio
+      src={'https://remotion.media/audio.mp3'}
+      onError={(error) => {
+        console.log('Audio error:', error.message);
+
+        // Return 'fail' to fail the render, or 'fallback' to use <Html5Audio>
+        return 'fallback';
+      }}
+    />
+  );
+};
+```
+
+:::note
+
+- In client-side rendering, the render will always fail regardless of the return value.
+- If you return `'fallback'`, the component will fall back to [`<Html5Audio>`](/docs/html5-audio) which may have its own error handling via [`fallbackHtml5AudioProps.onError`](#onerror-1).
+  :::
 
 ### `playbackRate?`<AvailableFrom v="4.0.354" />
 
@@ -218,6 +245,10 @@ Does not currently work in preview or in [client-side rendering](/docs/client-si
 When a [fallback to `<Html5Audio>` from `remotion`](/docs/media/fallback) happens, this prop allows you to pass props to the fallback `<Html5Audio>` component.  
 Only props that are not supported by `<Audio>` from `@remotion/media` need to be specified here - props that apply for both tags will automatically be forwarded and do not need to be specified here.
 
+:::note
+This prop has no effect when using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, as fallback is not possible. See [Fallback is not possible in client-side rendering](/docs/media/fallback#fallback-is-not-possible-in-client-side-rendering).
+:::
+
 #### `onError?`
 
 Maps to [`<Html5Audio />` -> `onError`](/docs/html5-audio#onerror)
@@ -240,9 +271,13 @@ Maps to [`<Html5Audio />` -> `crossOrigin`](/docs/html5-audio#crossorigin)
 
 ### `disallowFallbackToHtml5Audio?`<AvailableFrom v="3.0.356" />
 
-By default, if the video cannot be embedded using this tag, [a fallback to `<Html5Audio>` from `remotion`](/docs/media/fallback) will be attempted.
+By default, if the audio cannot be embedded using this tag, [a fallback to `<Html5Audio>` from `remotion`](/docs/media/fallback) will be attempted.
 
 Pass this prop to disable the fallback and fail the render instead.
+
+:::note
+When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, fallback is not possible and the render will always fail if the audio cannot be embedded. See [Fallback is not possible in client-side rendering](/docs/media/fallback#fallback-is-not-possible-in-client-side-rendering).
+:::
 
 ## See also
 

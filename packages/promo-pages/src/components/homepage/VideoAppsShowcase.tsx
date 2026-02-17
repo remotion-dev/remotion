@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 
 import {IsMutedIcon, NotMutedIcon, PausedIcon, PlayingIcon} from './Demo/icons';
 import {MuxVideo} from './MuxVideo';
@@ -66,21 +66,29 @@ const VideoAppsShowcase: React.FC = () => {
 	const [activeTab, setActiveTab] = useState(0);
 	const [isMuted, setIsMuted] = useState(true);
 	const [isPlaying, setIsPlaying] = useState(false);
+	const [videoLoaded, setVideoLoaded] = useState(false);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	// Remove the intersection observer autoplay logic
-	useEffect(() => {
+	const handleTabChange = (index: number) => {
 		const video = videoRef.current;
 		if (video) {
 			video.pause();
-			setIsPlaying(false);
 			video.currentTime = 0;
 			video.load();
 		}
-	}, [activeTab]);
+
+		setIsPlaying(false);
+		setVideoLoaded(true);
+		setActiveTab(index);
+	};
 
 	const handlePlayPause = () => {
+		if (!videoLoaded) {
+			setVideoLoaded(true);
+			return;
+		}
+
 		if (videoRef.current) {
 			if (videoRef.current.paused) {
 				const playPromise = videoRef.current.play();
@@ -125,7 +133,7 @@ const VideoAppsShowcase: React.FC = () => {
 						type="button"
 						data-active={index === activeTab}
 						className={`bg-transparent border-none m-0 p-0 lg:mx-3 my-4 cursor-pointer text-base fontbrand font-bold transition-colors text-muted data-[active=true]:text-brand`}
-						onClick={() => setActiveTab(index)}
+						onClick={() => handleTabChange(index)}
 					>
 						{tab}
 					</button>
@@ -143,6 +151,7 @@ const VideoAppsShowcase: React.FC = () => {
 						}
 						onClick={handlePlayPause}
 					>
+						{videoLoaded ? (
 						<MuxVideo
 							ref={videoRef}
 							muxId={videoApps[activeTab].muxId}
@@ -152,7 +161,18 @@ const VideoAppsShowcase: React.FC = () => {
 							loop
 							playsInline
 							muted={isMuted}
+							autoPlay
+							onPlay={() => setIsPlaying(true)}
 						/>
+					) : (
+						<img
+							src={`https://image.mux.com/${videoApps[activeTab].muxId}/thumbnail.png?time=1`}
+							className={
+								'absolute left-0 top-0 w-full h-full object-contain rounded-sm rounded-tr-none rounded-br-none'
+							}
+							alt={videoApps[activeTab].title}
+						/>
+					)}
 
 						{/* Play/Pause Button - bottom left corner */}
 						<button

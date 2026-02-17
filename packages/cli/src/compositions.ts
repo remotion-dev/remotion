@@ -18,7 +18,6 @@ const {
 	offthreadVideoThreadsOption,
 	glOption,
 	headlessOption,
-
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	publicPathOption,
@@ -27,6 +26,9 @@ const {
 	audioLatencyHintOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -105,6 +107,7 @@ export const listCompositionsCommand = async (
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
@@ -117,6 +120,21 @@ export const listCompositionsCommand = async (
 		userAgent,
 		darkMode,
 	};
+
+	const experimentalClientSideRenderingEnabled =
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	if (experimentalClientSideRenderingEnabled) {
+		Log.warn(
+			{indent: false, logLevel},
+			'Enabling WIP client-side rendering. Please see caveats on https://www.remotion.dev/docs/client-side-rendering/.',
+		);
+	}
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
@@ -140,6 +158,9 @@ export const listCompositionsCommand = async (
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint,
+			experimentalClientSideRenderingEnabled,
+			askAIEnabled,
+			keyboardShortcutsEnabled,
 		});
 
 	registerCleanupJob(`Cleanup bundle`, () => cleanupBundle());
@@ -169,6 +190,7 @@ export const listCompositionsCommand = async (
 			indent: false,
 			logLevel,
 			quiet: quietFlagProvided(),
+			onProgress: () => undefined,
 		}),
 		chromeMode,
 		mediaCacheSizeInBytes,

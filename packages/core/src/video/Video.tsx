@@ -45,6 +45,12 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	const {fps} = useVideoConfig();
 	const environment = useRemotionEnvironment();
 
+	if (environment.isClientSideRendering) {
+		throw new Error(
+			'<Html5Video> is not supported in @remotion/web-renderer. Use <Video> from @remotion/media instead. See https://remotion.dev/docs/client-side-rendering/limitations',
+		);
+	}
+
 	const {durations, setDurations} = useContext(DurationsContext);
 
 	if (typeof ref === 'string') {
@@ -88,6 +94,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				<Html5Video
 					{...propsOtherThanLoop}
 					ref={ref}
+					stack={stack}
 					_remotionInternalNativeLoopPassed
 				/>
 			);
@@ -109,6 +116,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				<Html5Video
 					{...propsOtherThanLoop}
 					ref={ref}
+					stack={stack}
 					_remotionInternalNativeLoopPassed
 				/>
 			</Loop>
@@ -124,13 +132,18 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				layout="none"
 				from={0 - (trimBeforeValue ?? 0)}
 				showInTimeline={false}
-				durationInFrames={trimAfterValue}
+				durationInFrames={
+					trimAfterValue === undefined
+						? undefined
+						: trimAfterValue / (props.playbackRate ?? 1)
+				}
 				name={name}
 			>
 				<Html5Video
 					pauseWhenBuffering={pauseWhenBuffering ?? false}
 					{...otherProps}
 					ref={ref}
+					stack={stack}
 				/>
 			</Sequence>
 		);
@@ -180,6 +193,6 @@ addSequenceStackTraces(Html5Video);
 
 /**
  * @deprecated This component has been renamed to `Html5Video`.
- * @see [Documentation](https://remotion.dev/docs/mediabunny/new-video)
+ * @see [Documentation](https://www.remotion.dev/docs/html5-video)
  */
 export const Video = Html5Video;

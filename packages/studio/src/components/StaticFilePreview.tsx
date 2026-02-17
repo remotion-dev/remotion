@@ -1,11 +1,11 @@
 import {useContext} from 'react';
 import {staticFile} from 'remotion';
-import {getStaticFiles} from '../api/get-static-files';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {FilePreview} from './FilePreview';
 import {getPreviewFileType} from './Preview';
+import {useStaticFiles} from './use-static-files';
 
 const msgStyle: React.CSSProperties = {
 	fontSize: 13,
@@ -26,7 +26,7 @@ export const StaticFilePreview: React.FC<{
 }> = ({currentAsset, assetMetadata}) => {
 	const fileType = getPreviewFileType(currentAsset);
 	const staticFileSrc = staticFile(currentAsset);
-	const staticFiles = getStaticFiles();
+	const staticFiles = useStaticFiles();
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 

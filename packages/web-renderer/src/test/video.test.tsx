@@ -2,6 +2,7 @@ import {Video} from '@remotion/media';
 import {AbsoluteFill, staticFile} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {testImage} from './utils';
 
 test('can extract a video frame', async (t) => {
@@ -19,7 +20,7 @@ test('can extract a video frame', async (t) => {
 		);
 	};
 
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: {
 			component: Component,

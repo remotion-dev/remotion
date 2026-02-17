@@ -7,12 +7,12 @@ export const AlternativePickFileOptions: React.FC<{
 }> = ({onSampleFile}) => {
 	return (
 		<div className="flex flex-row items-center justify-center gap-3">
-			<a
-				className="font-brand text-brand cursor cursor-pointer"
+			<Button
+				className="font-brand text-brand rounded-full text-sm h-10"
 				onClick={onSampleFile}
 			>
-				<Button className="rounded-full text-sm h-10">Use a sample file</Button>
-			</a>
+				Use a sample file
+			</Button>
 			<LoadFromUrl />
 		</div>
 	);

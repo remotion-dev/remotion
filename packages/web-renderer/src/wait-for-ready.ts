@@ -1,4 +1,7 @@
-import type {_InternalTypes} from 'remotion';
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import type {DelayRenderScope} from 'remotion';
+import type {BackgroundKeepalive} from './background-keepalive';
+import type {InternalState} from './internal-state';
 import {withResolvers} from './with-resolvers';
 
 export const waitForReady = ({
@@ -6,13 +9,17 @@ export const waitForReady = ({
 	scope,
 	signal,
 	apiName,
+	internalState,
+	keepalive,
 }: {
 	timeoutInMilliseconds: number;
-	scope: _InternalTypes['DelayRenderScope'];
+	scope: DelayRenderScope;
 	signal: AbortSignal | null;
 	apiName: 'renderMediaOnWeb' | 'renderStillOnWeb';
+	internalState: InternalState | null;
+	keepalive: BackgroundKeepalive | null;
 }) => {
-	const start = Date.now();
+	const start = performance.now();
 	const {promise, resolve, reject} = withResolvers<void>();
 
 	let cancelled = false;
@@ -24,23 +31,31 @@ export const waitForReady = ({
 
 		if (signal?.aborted) {
 			cancelled = true;
+			internalState?.addWaitForReadyTime(performance.now() - start);
 			reject(new Error(`${apiName}() was cancelled`));
 			return;
 		}
 
 		if (scope.remotion_renderReady === true) {
+			internalState?.addWaitForReadyTime(performance.now() - start);
 			resolve();
 			return;
 		}
 
 		if (scope.remotion_cancelledError !== undefined) {
 			cancelled = true;
-			reject(scope.remotion_cancelledError);
+			internalState?.addWaitForReadyTime(performance.now() - start);
+			const stack = scope.remotion_cancelledError;
+			const message = stack.split('\n')[0].replace(/^Error: /, '');
+			const error = new Error(message);
+			error.stack = stack;
+			reject(error);
 			return;
 		}
 
-		if (Date.now() - start > timeoutInMilliseconds + 3000) {
+		if (performance.now() - start > timeoutInMilliseconds + 3000) {
 			cancelled = true;
+			internalState?.addWaitForReadyTime(performance.now() - start);
 			reject(
 				new Error(
 					Object.values(scope.remotion_delayRenderTimeouts)
@@ -51,10 +66,26 @@ export const waitForReady = ({
 			return;
 		}
 
-		requestAnimationFrame(check);
+		scheduleNextCheck();
 	};
 
-	requestAnimationFrame(check);
+	// schedule both raf and worker timer - whichever fires first wins.
+	// when tab is visible, raf fires first. when backgrounded, worker wins.
+	const scheduleNextCheck = () => {
+		const rafTick = new Promise<void>((res) => {
+			requestAnimationFrame(() => res());
+		});
+
+		// browsers throttle RAF when tab is backgrounded, so race against worker
+		const backgroundSafeTick = keepalive
+			? Promise.race([rafTick, keepalive.waitForTick()])
+			: rafTick;
+
+		backgroundSafeTick.then(check);
+	};
+
+	// check immediately first - if already ready, don't wait for RAF
+	check();
 
 	return promise;
 };

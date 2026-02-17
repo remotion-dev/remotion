@@ -1,7 +1,8 @@
 set -e
 cd ..
-cd lambda
-bun run make
+cd ..
+bunx turbo run make --filter=@remotion/lambda
+cd packages/lambda
 bun run makeruntime
 cd ..
 cd example

@@ -1,4 +1,0 @@
-/**
- * @description Deletes a rendered video, audio or still and its associated metadata.
- * @see [Documentation](https://remotion.dev/docs/lambda/deleterender)
- */

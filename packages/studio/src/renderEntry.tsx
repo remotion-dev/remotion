@@ -249,6 +249,7 @@ const renderContent = (Root: React.FC) => {
 					videoEnabled={window.remotion_videoEnabled}
 					logLevel={window.remotion_logLevel}
 					numberOfAudioTags={0}
+					nonceContextSeed={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
@@ -277,6 +278,7 @@ const renderContent = (Root: React.FC) => {
 					logLevel={window.remotion_logLevel}
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+					nonceContextSeed={0}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
 						<Root />

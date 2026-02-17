@@ -23,6 +23,7 @@ export const ensureCommand = async (logLevel: LogLevel) => {
 			indent,
 			logLevel,
 			quiet: quietFlagProvided(),
+			onProgress: () => undefined,
 		}),
 	});
 

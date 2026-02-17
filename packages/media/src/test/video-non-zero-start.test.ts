@@ -3,7 +3,7 @@ import {getMaxVideoCacheSize, keyframeManager} from '../caches';
 import {extractFrame} from '../video-extraction/extract-frame';
 
 test('Should render first frame for videos starting after timestamp 0', async () => {
-	await keyframeManager.clearAll('info');
+	keyframeManager.clearAll('info');
 
 	// This video's first video frame is at 0.15 seconds (150ms)
 	// Requesting frame at 0sec should clamp to first available frame (0.15s)
@@ -32,7 +32,7 @@ test('Should render first frame for videos starting after timestamp 0', async ()
 
 	// Frame timestamp should be at video start (0.15s), NOT at requested time (0s)
 	// This proves we're returning the first actual frame
-	expect(result.frame.timestamp).toBeCloseTo(0.15, 2);
+	expect(result.frame.timestamp).toBeCloseTo(0.15 * 1_000_000, 2);
 
 	// Verify frame has pixel data (not completely black)
 	// testsrc generates a test pattern with colors and gradients
@@ -42,5 +42,5 @@ test('Should render first frame for videos starting after timestamp 0', async ()
 	const hasNonZeroPixels = buffer.some((byte) => byte > 0);
 	expect(hasNonZeroPixels).toBe(true);
 
-	await keyframeManager.clearAll('info');
+	keyframeManager.clearAll('info');
 });

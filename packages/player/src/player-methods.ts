@@ -1,4 +1,4 @@
-import type {SyntheticEvent} from 'react';
+import type {ReactElement, SyntheticEvent} from 'react';
 import type {PlayerEmitter, ThumbnailEmitter} from './event-emitter.js';
 
 export type ThumbnailMethods = {
@@ -26,3 +26,4 @@ export type PlayerMethods = ThumbnailMethods & {
 
 export type ThumbnailRef = ThumbnailEmitter & ThumbnailMethods;
 export type PlayerRef = PlayerEmitter & PlayerMethods;
+export type RenderCustomControls = () => ReactElement | null;

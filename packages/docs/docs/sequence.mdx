@@ -40,28 +40,9 @@ const MyTrailer = () => {
 };
 ```
 
-<sub>
-  <em>
-    <code>&lt;Intro&gt;</code>
-  </em>{' '}
-  will show from frame 0-29.
-</sub>
-<br />
-<sub>
-  <em>
-    <code>&lt;Clip&gt;</code>
-  </em>{' '}
-  will show from frame 30 on until frame 59.
-</sub>
-<br />
-<sub>
-  <em>
-    <code>&lt;Outro&gt;</code>
-  </em>{' '}
-  will show from frame 60 on until the end of the composition.
-</sub>
-<br />
-<br />
+- `<Intro>` will show from frame 0–29.
+- `<Clip>` will show from frame 30 until frame 59.
+- `<Outro>` will show from frame 60 until the end of the composition.
 
 All children of a `<Sequence>` that call [`useCurrentFrame()`](/docs/use-current-frame) will receive a value that is shifted by [`from`](#from).
 
@@ -82,15 +63,8 @@ const MyTrailer = () => {
 };
 ```
 
-<sub>
-  At frame <code>0</code>, this would render <code>&lt;div&gt;0&lt;/div&gt;</code>.
-</sub>
-<br />
-<sub>
-  At frame <code>30</code>, this would render <code>&lt;div&gt;30&lt;/div&gt;&lt;div&gt;0&lt;/div&gt;</code>.
-</sub>
-<br />
-<br />
+- At frame `0`, this would render `<div>0</div>`.
+- At frame `30`, this would render `<div>30</div><div>0</div>`.
 
 Using the [`durationInFrames`](#durationinframes) prop, you can define for how long the children of a `<Sequence>` should be mounted.
 
@@ -207,78 +181,56 @@ See the [`<Series />`](/docs/series) helper component, which helps you calculate
 
 The Sequence component is a high order component and accepts, besides children, the following props:
 
-### `from`
+### `from?`
 
-_optional_ (From v3.2.36, _required_ in previous versions)
+(optional from v3.2.36, _required_ in previous versions)
 
 At which frame it's children should assume the video starts. When the sequence is at `frame`, it's children are at frame `0`.
 From v3.2.36 onwards, this prop will be optional; by default, it will be 0.
 
-### `durationInFrames`
-
-_optional_
+### `durationInFrames?`
 
 For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. By default it will be `Infinity` to avoid limit the duration of the sequence.
 
-### `height`<AvailableFrom v="4.0.80"/>
-
-_optional_
+### `height?`<AvailableFrom v="4.0.80"/>
 
 Gives the sequence a specific `style={{height: height}}` style and overrides `height` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific height.
 
-### `width`<AvailableFrom v="4.0.80"/>
-
-_optional_
+### `width?`<AvailableFrom v="4.0.80"/>
 
 Gives the sequence a specific `style={{width: width}}` style and overrides `width` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific width.
 
-### `name`
-
-_optional_
+### `name?`
 
 You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of sequences in the timeline.
 
-### `layout`
-
-_optional_
+### `layout?`
 
 Either `"absolute-fill"` _(default)_ or `"none"`. By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
 
-### `style`<AvailableFrom v="3.0.27"/>
-
-_optional_
+### `style?`<AvailableFrom v="3.0.27"/>
 
 CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
-### `className`<AvailableFrom v="3.3.45"/>
-
-_optional_
+### `className?`<AvailableFrom v="3.3.45"/>
 
 A class name to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
-### `premountFor`<AvailableFrom v="4.0.140" />
-
-_optional_
+### `premountFor?`<AvailableFrom v="4.0.140" />
 
 [Premount](/docs/player/premounting) the sequence for a set number of frames.
 
-### `postmountFor`<AvailableFrom v="4.0.340" />
-
-_optional_
+### `postmountFor?`<AvailableFrom v="4.0.340" />
 
 Same as `premountFor`, but for after the sequence has ended.  
 Use this only if you expect the user to frequently seek backwards in the timeline and you want to avoid flickers for this behavior.
 
-### `styleWhilePremounted`<AvailableFrom v="4.0.252" />
-
-_optional_
+### `styleWhilePremounted?`<AvailableFrom v="4.0.252" />
 
 CSS styles to be applied to the container while the sequence is premounted.  
 The `style` is still applied, but `styleWhilePremounted` can override properties.
 
-### `showInTimeline`<AvailableFrom v="4.0.110" />
-
-_optional_
+### `showInTimeline?`<AvailableFrom v="4.0.110" />
 
 If set to `false`, the track will not be shown in the Studio's timeline.  
 Child `<Sequence>`'s will show by default, unless `showInTimeline` is also set to false.  
@@ -306,7 +258,12 @@ const MyComp = () => {
 
 ## Note for `@remotion/three`
 
-A `<Sequence>` by default will return a `<div>` component which is not allowed inside a [`<ThreeCanvas>`](/docs/three-canvas). Avoid an error by passing `layout="none"` to `<Sequence>`. Example: `<Sequence layout="none">`.
+A `<Sequence>` by default will return a `<div>` component which is not allowed inside a [`<ThreeCanvas>`](/docs/three-canvas).  
+Avoid an error by passing `layout="none"` to `<Sequence>`. Example: `<Sequence layout="none">`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

@@ -52,7 +52,7 @@ export const CaptionOverlay: React.FC<{
     return () => {
       cancel();
     };
-  }, [file.name, subEditorOpen]);
+  }, [env.isStudio, file.name, subEditorOpen]);
 
   useEffect(() => {
     if (changeStatus === "initial" || changeStatus === "changed") {

@@ -1,14 +1,23 @@
 import {createRef, type ComponentType} from 'react';
 import {flushSync} from 'react-dom';
 import ReactDOM from 'react-dom/client';
-import type {Codec, LogLevel, TRenderAsset} from 'remotion';
-import {Internals, type _InternalTypes} from 'remotion';
+import type {Codec, DelayRenderScope, LogLevel, TRenderAsset} from 'remotion';
+import {Internals} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import type {TimeUpdaterRef} from './update-time';
 import {UpdateTime} from './update-time';
-import {withResolvers} from './with-resolvers';
 
-export async function createScaffold<Props extends Record<string, unknown>>({
+export type ErrorHolder = {
+	error: Error | null;
+};
+
+export function checkForError(errorHolder: ErrorHolder): void {
+	if (errorHolder.error) {
+		throw errorHolder.error;
+	}
+}
+
+export function createScaffold<Props extends Record<string, unknown>>({
 	width,
 	height,
 	delayRenderTimeoutInMilliseconds,
@@ -42,45 +51,55 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	videoEnabled: boolean;
 	defaultCodec: Codec | null;
 	defaultOutName: string | null;
-}): Promise<{
-	delayRenderScope: _InternalTypes['DelayRenderScope'];
+}): {
+	delayRenderScope: DelayRenderScope;
 	div: HTMLDivElement;
-	cleanupScaffold: () => void;
 	timeUpdater: React.RefObject<TimeUpdaterRef | null>;
 	collectAssets: React.RefObject<{
 		collectAssets: () => TRenderAsset[];
 	} | null>;
-}> {
+	errorHolder: ErrorHolder;
+	[Symbol.dispose]: () => void;
+} {
 	if (!ReactDOM.createRoot) {
 		throw new Error('@remotion/web-renderer requires React 18 or higher');
 	}
 
 	const div = document.createElement('div');
 
-	// Match same behavior as renderEntry.tsx
-	div.style.display = 'flex';
-	div.style.backgroundColor = 'transparent';
+	// Match same behavior as in portal-node.ts
 	div.style.position = 'fixed';
+	div.style.display = 'flex';
+	div.style.flexDirection = 'column';
+	div.style.backgroundColor = 'transparent';
 	div.style.width = `${width}px`;
 	div.style.height = `${height}px`;
 	div.style.zIndex = '-9999';
 	div.style.top = '0';
-	div.style.visibility = 'hidden';
 	div.style.left = '0';
+	div.style.right = '0';
+	div.style.bottom = '0';
+	div.style.visibility = 'hidden';
 	div.style.pointerEvents = 'none';
+
+	const scaffoldClassName = `remotion-scaffold-${Math.random().toString(36).substring(2, 15)}`;
+	div.className = scaffoldClassName;
+
+	const cleanupCSS = Internals.CSSUtils.injectCSS(
+		Internals.CSSUtils.makeDefaultPreviewCSS(`.${scaffoldClassName}`, 'white'),
+	);
 
 	document.body.appendChild(div);
 
-	const {promise, resolve, reject} = withResolvers<void>();
+	const errorHolder: ErrorHolder = {error: null};
 
-	// TODO: This might not work in React 18
 	const root = ReactDOM.createRoot(div, {
 		onUncaughtError: (err) => {
-			reject(err);
+			errorHolder.error = err instanceof Error ? err : new Error(String(err));
 		},
 	});
 
-	const delayRenderScope: _InternalTypes['DelayRenderScope'] = {
+	const delayRenderScope: DelayRenderScope = {
 		remotion_renderReady: true,
 		remotion_delayRenderTimeouts: {},
 		remotion_puppeteerTimeout: delayRenderTimeoutInMilliseconds,
@@ -172,15 +191,14 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 		);
 	});
 
-	resolve();
-	await promise;
-
 	return {
 		delayRenderScope,
 		div,
-		cleanupScaffold: () => {
+		errorHolder,
+		[Symbol.dispose]: () => {
 			root.unmount();
 			div.remove();
+			cleanupCSS();
 		},
 		timeUpdater,
 		collectAssets,

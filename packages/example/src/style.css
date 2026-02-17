@@ -2,5 +2,6 @@
 
 @theme inline {
 	--color-brand: #0b84f3;
+	--color-warn: #ff3232;
 	--font-brand: 'GT Planar', sans-serif;
 }

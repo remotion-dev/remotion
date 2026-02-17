@@ -52,6 +52,33 @@ const BundlingProgress: React.FC<{
 	);
 };
 
+const BrowserSetupProgress: React.FC<{
+	readonly progress: number;
+	readonly doneIn: number | null;
+	readonly alreadyAvailable: boolean;
+	readonly startedBundling: boolean;
+	//	to ensure it only shows already available if we have moved to the next step
+}> = ({progress, doneIn, startedBundling, alreadyAvailable}) => {
+	return (
+		<div style={progressItem}>
+			{progress === 1 || alreadyAvailable ? (
+				<SuccessIcon />
+			) : (
+				<CircularProgress progress={progress} />
+			)}
+			<Spacing x={1} />
+			<div style={label}>
+				{alreadyAvailable && startedBundling
+					? 'Headless browser already available'
+					: progress === 1
+						? 'Downloaded Headless Shell'
+						: `Downloading Headless Shell ${Math.round(progress * 100)}%`}
+			</div>
+			{doneIn ? <div style={right}>{doneIn}ms</div> : null}
+		</div>
+	);
+};
+
 const RenderingProgress: React.FC<{
 	readonly progress: RenderingProgressInput;
 }> = ({progress}) => {
@@ -169,10 +196,16 @@ export const GuiRenderStatus: React.FC<{
 	return (
 		<div>
 			<Spacing y={0.5} />
-			<BundlingProgress
-				progress={job.progress.bundling.progress}
-				doneIn={job.progress.bundling.doneIn}
+			<BrowserSetupProgress
+				{...job.progress.browser}
+				startedBundling={Boolean(job.progress.bundling)}
 			/>
+			{job.progress.bundling && (
+				<BundlingProgress
+					progress={job.progress.bundling.progress}
+					doneIn={job.progress.bundling.doneIn}
+				/>
+			)}
 			{job.progress.rendering ? (
 				<RenderingProgress progress={job.progress.rendering} />
 			) : null}

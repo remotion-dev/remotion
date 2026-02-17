@@ -48,7 +48,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		},
 	},
 	{
-		title: 'MUX - Vizualise video stats',
+		title: 'MUX - Visualize video stats',
 		type: 'mux_video',
 		time: '3',
 		muxId: 'DDgXb2KfPk7xdvxEoyPkrl7GcybohNon',
@@ -127,12 +127,12 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		},
 	},
 	{
-		title: 'Revid - Animated social media videos',
+		title: 'Revid - Storytelling social media videos',
 		type: 'mux_video',
 		time: '13',
 		muxId: 'AQJeyQ00njF88JNevZ2Xf00KGOX01zBLBa4Xisvu9M00ynM',
 		description:
-			'Create stunning social media videos with Revid, an AI-powered tool that transforms text into editable videos in minutes. ',
+			'Revid allows creators to turn ideas into social media videos in minutes. It is an AI-powered platform to generate short-form storytelling. Remotion is build to preview andrender the videos on the platform.',
 		height: 1152,
 		width: 2048,
 		submittedOn: new Date('04-24-2024'),
@@ -153,7 +153,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		time: '8',
 		muxId: 'DudsRLermQWA5JMpF6Z49AwuAjrvO00vxmsgSyS00neo00',
 		description:
-			'With AnimStats, you can transform your statistics into captivating animated GIFs and Videos within minutes. The user-friendly interface and powerful editing feature make the process quick and effortless.',
+			'With AnimStats, you can transform your statistics into captivating animated GIFs and Videos within minutes.',
 		height: 1152,
 		width: 2048,
 		submittedOn: new Date('04-24-2024'),
@@ -186,33 +186,12 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		],
 	},
 	{
-		title: 'MotionShot - Video guides',
-		type: 'mux_video',
-		time: '0',
-		muxId: 'q8DK3k322cMIfMwPTSu5GYEnovEvoYA4aprLH8cp5pY',
-		description:
-			'Make guides & tutorials for your products, internal tools, SOPs, step-by-step processing and export them into MP4, GIF, PDF, or embed into your own webpage.',
-		height: 1080,
-		width: 1920,
-		submittedOn: new Date('04-24-2024'),
-		links: [
-			{
-				type: 'website',
-				url: 'https://www.motionshot.app/',
-			},
-		],
-		author: {
-			url: 'https://twitter.com/pramodk73',
-			name: 'Pramod Kumar',
-		},
-	},
-	{
-		title: 'Watercolor Map - Animated Map',
+		title: 'Watercolor Map - Animated map',
 		type: 'mux_video',
 		time: '1',
 		muxId: 'Wd02W8GdZsjQ3JSKUsOjKtpEGxXBNbXRg8hiwmYx7cTM',
 		description:
-			'A travel animation showing the journey on a map, with watercolor effects. Perfect for adding b-roll footage to travel vlogs or video projects.',
+			'A travel animation showing the journey on a map, with watercolor effects. Perfect for adding b-roll footage to travel video projects.',
 		height: 1080,
 		width: 1080,
 		submittedOn: new Date('04-23-2024'),
@@ -225,27 +204,6 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		author: {
 			url: 'https://www.remotion.dev/',
 			name: 'Remotion',
-		},
-	},
-	{
-		title: 'Clippulse - Animated social media videos',
-		type: 'mux_video',
-		time: '4.5',
-		muxId: 'vQSX6I8lo5SPIEj02jcw6OVKb01V8WcYwB01GUC02PqMHxI',
-		description:
-			'Clippulse is a dynamic tool to easily produce fully customizable videos for brands, without any prior video editing experience required.',
-		height: 1080,
-		width: 1920,
-		submittedOn: new Date('04-24-2024'),
-		links: [
-			{
-				type: 'website',
-				url: 'https://www.clippulse.com/',
-			},
-		],
-		author: {
-			url: 'https://twitter.com/andrei_terteci',
-			name: 'Andrei Terteci',
 		},
 	},
 	{
@@ -270,19 +228,28 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		},
 	},
 	{
-		title: 'Polygon - Campaign',
+		title: 'HeyGen - Video Agent',
 		type: 'mux_video',
-		time: '10',
-		muxId: 'tswSoVoFUjryYX8702phE801Fv00VwtB018cIy3a25fNo01c',
+		time: '75.5',
+		muxId: 'pKHRj00yo6eV1nHaXWSsjzvP1rBjQkey68qAp8gFy8Wk',
 		description:
-			'A year-in-review for stock performance provided by Polygon Stock API.',
-		height: 1194,
-		width: 2048,
-		submittedOn: new Date('01-02-2023'),
-		links: [],
+			"Fully made with HeyGen's Video Agent, powered by Remotion. Avatar, script, motion graphics, and final edits were all created just by prompting.",
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('01-29-2026'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://www.heygen.com/',
+			},
+			{
+				type: 'video',
+				url: 'https://x.com/joshua_xu_/status/2016714990242439600',
+			},
+		],
 		author: {
-			url: 'https://polygon.io',
-			name: 'Polygon',
+			url: 'https://x.com/joshua_xu_',
+			name: 'Joshua Xu',
 		},
 	},
 	{
@@ -370,12 +337,12 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		],
 	},
 	{
-		title: 'MyKaraoke Video - Karaoke Video Maker',
+		title: 'MyKaraoke - Karaoke video maker',
 		type: 'mux_video',
 		time: '5',
 		muxId: 'Fr8PlMVQRTEaoVRC0025r00WY0100JiDgbf1BoNsLYtu88o',
 		description:
-			'MyKaraoke Video is a browser-based tool that effortlessly creates karaoke and lyric videos with AI-powered vocal removal and automatic lyric syncing, all without downloads or installations.',
+			'MyKaraoke is a tool that effortlessly creates karaoke and lyric videos with AI-powered vocal removal and automatic lyric syncing, all without downloads or installations.',
 		height: 1080,
 		width: 1920,
 		submittedOn: new Date('09-27-2024'),
@@ -412,7 +379,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		],
 	},
 	{
-		title: 'Vibrantsnap - Record Smater, Engage Faster',
+		title: 'Vibrantsnap - Fast screenrecording',
 		type: 'mux_video',
 		time: '0',
 		muxId: 'QGqk00IyzHuEBm6hRPMLkl00hgf9zeFWEAeHqStVQ02wiI',
@@ -436,7 +403,70 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			name: 'Philippe Tedajo',
 		},
 	},
+	{
+		title: 'AdmoveAI - Ecommerce ads',
+		type: 'mux_video',
+		time: '1',
+		muxId: 'GXqObO58UMM4P7ny9QH4kbVHpZ9A83tJCys94rjgsGM',
+		description:
+			'Admove is an automated advertising platform to create, launch and grow high-performing eCommerce campaigns. Remotion is used to build and render videos on the platfrom.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('29-01-2026'),
+		links: [
+			{
+				type: 'video',
+				url: 'https://www.youtube.com/watch?v=5fGW_rQtobY',
+			},
+			{
+				type: 'website',
+				url: 'https://admove.ai/',
+			},
+		],
+	},
+	{
+		title: 'SuperMotion - Product Videos',
+		type: 'mux_video',
+		time: '3',
+		muxId: 'g1G2V4b7QEqzSJSUywGaq6cDZfvAtEo500Bt9ltkOrTg',
+		description:
+			'Create engaging product promo videos from screen recordings or screenshots. Add device mockups, zooms animations, annotations, and transitions. SuperMotion uses Remotion to render videos in the cloud.',
+		height: 1124,
+		width: 2000,
+		submittedOn: new Date('02-15-2026'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://www.supermotion.co',
+			},
+		],
+		author: {
+			url: 'https://x.com/d__raptis',
+			name: 'Jim Raptis',
+		},
+	},
 	/*
+  {
+		title: 'Clippulse - Animated social media videos',
+		type: 'mux_video',
+		time: '4.5',
+		muxId: 'vQSX6I8lo5SPIEj02jcw6OVKb01V8WcYwB01GUC02PqMHxI',
+		description:
+			'Clippulse is a dynamic tool to easily produce fully customizable videos for brands, without any prior video editing experience required.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('04-24-2024'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://www.clippulse.com/',
+			},
+		],
+		author: {
+			url: 'https://twitter.com/andrei_terteci',
+			name: 'Andrei Terteci',
+		},
+	},
   {
     title: "Exemplary AI - Viral shorts",
     type: "mux_video",

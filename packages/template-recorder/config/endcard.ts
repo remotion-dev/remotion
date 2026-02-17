@@ -49,7 +49,7 @@ export const channels: {
 
 // TODO: 3. Add your own avatars
 export const avatars: { [key in Brand]: string } = {
-  jonny: "https://jonny.io/avatar.png",
+  jonny: "https://www.jonny.io/avatar.png",
   remotion: staticFile("remotion.png"),
 };
 

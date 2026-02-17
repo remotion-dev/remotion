@@ -45,6 +45,9 @@ const {
 	imageSequencePatternOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -179,6 +182,10 @@ export const render = async (
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
@@ -272,5 +279,10 @@ export const render = async (
 		offthreadVideoThreads,
 		audioLatencyHint,
 		imageSequencePattern,
+		askAIEnabled,
+		experimentalClientSideRenderingEnabled:
+			experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
+				.value,
+		keyboardShortcutsEnabled,
 	});
 };

@@ -57,11 +57,13 @@ const getPort = async ({
 	from,
 	to,
 	hostsToTest,
+	onPortUnavailable,
 }: {
 	from: number;
 	to: number;
 	hostsToTest: string[];
-}) => {
+	onPortUnavailable?: (port: number) => Promise<'continue' | 'stop'>;
+}): Promise<{port: number; didUsePort: boolean}> => {
 	const ports = makeRange(from, to);
 
 	for (const port of ports) {
@@ -71,7 +73,14 @@ const getPort = async ({
 				hosts: hostsToTest,
 			})) === 'available'
 		) {
-			return port;
+			return {port, didUsePort: false};
+		}
+
+		if (onPortUnavailable) {
+			const action = await onPortUnavailable(port);
+			if (action === 'stop') {
+				return {port, didUsePort: true};
+			}
 		}
 	}
 
@@ -85,11 +94,13 @@ export const getDesiredPort = async ({
 	from,
 	hostsToTry,
 	to,
+	onPortUnavailable,
 }: {
 	desiredPort: number | undefined;
 	from: number;
 	to: number;
 	hostsToTry: string[];
+	onPortUnavailable?: (port: number) => Promise<'continue' | 'stop'>;
 }) => {
 	await portLocks.waitForAllToBeDone();
 	const lockPortSelection = portLocks.lock();
@@ -102,20 +113,36 @@ export const getDesiredPort = async ({
 			hosts: hostsToTry,
 		})) === 'available'
 	) {
-		return {port: desiredPort, unlockPort};
+		return {port: desiredPort, unlockPort, didUsePort: false as const};
 	}
 
-	const actualPort = await getPort({from, to, hostsToTest: hostsToTry});
+	if (typeof desiredPort !== 'undefined' && onPortUnavailable) {
+		const action = await onPortUnavailable(desiredPort);
+		if (action === 'stop') {
+			return {port: desiredPort, unlockPort, didUsePort: true as const};
+		}
+	}
+
+	const result = await getPort({
+		from,
+		to,
+		hostsToTest: hostsToTry,
+		onPortUnavailable,
+	});
+
+	if (result.didUsePort) {
+		return {port: result.port, unlockPort, didUsePort: true as const};
+	}
 
 	// If did specify a port but did not get that one, fail hard.
-	if (desiredPort && desiredPort !== actualPort) {
+	if (desiredPort && desiredPort !== result.port) {
 		unlockPort();
 		throw new Error(
 			`You specified port ${desiredPort} to be used for the HTTP server, but it is not available. Choose a different port or remove the setting to let Remotion automatically select a free port.`,
 		);
 	}
 
-	return {port: actualPort, unlockPort};
+	return {port: result.port, unlockPort, didUsePort: false as const};
 };
 
 const makeRange = (from: number, to: number): number[] => {

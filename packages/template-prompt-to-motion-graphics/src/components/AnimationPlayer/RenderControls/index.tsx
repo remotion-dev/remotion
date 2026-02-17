@@ -13,7 +13,11 @@ export const RenderControls: React.FC<{
   durationInFrames: number;
   fps: number;
 }> = ({ code, durationInFrames, fps }) => {
-  const { renderMedia, state, undo } = useRendering({ code, durationInFrames, fps });
+  const { renderMedia, state, undo } = useRendering({
+    code,
+    durationInFrames,
+    fps,
+  });
   const previousPropsRef = useRef({ code, durationInFrames, fps });
 
   // Reset rendering state when code, duration, or fps changes
@@ -36,12 +40,11 @@ export const RenderControls: React.FC<{
     state.status === "error"
   ) {
     return (
-      <div className="flex flex-col gap-2">
+      <div>
         <Button
           disabled={state.status === "invoking" || !code}
           loading={state.status === "invoking"}
           onClick={renderMedia}
-          className="w-full"
         >
           <Download className="w-4 h-4 mr-2" />
           {state.status === "invoking"

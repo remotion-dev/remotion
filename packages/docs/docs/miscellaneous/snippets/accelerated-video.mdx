@@ -19,7 +19,7 @@ It is not as easy as interpolating the [`playbackRate`](/docs/offthreadvideo#pla
 import {interpolate, OffthreadVideo} from 'remotion';
 let frame = 0;
 // ---cut---
-<OffthreadVideo playbackRate={interpolate(frame, [0, 100], [1, 5])} src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#disable" />;
+<OffthreadVideo playbackRate={interpolate(frame, [0, 100], [1, 5])} src="https://remotion.media/BigBuckBunny.mp4#disable" />;
 ```
 
 This is because Remotion will evaluate each frame independently from the other frames. If `frame` is 100, the `playbackRate` evaluates as 5 and Remotion will render the 500th frame of the video, which is undesired because it does not take into account that the speed has been building up to 5 until now.
@@ -48,7 +48,7 @@ export const AcceleratedVideo: React.FC = () => {
 
   return (
     <Sequence from={frame}>
-      <OffthreadVideo trimBefore={Math.round(remappedFrame)} playbackRate={speedFunction(frame)} src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#disable" />
+      <OffthreadVideo trimBefore={Math.round(remappedFrame)} playbackRate={speedFunction(frame)} src="https://remotion.media/BigBuckBunny.mp4#disable" />
     </Sequence>
   );
 };

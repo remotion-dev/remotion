@@ -2,7 +2,7 @@
 image: /generated/articles-docs-img.png
 title: <Img>
 id: img
-crumb: "API"
+crumb: 'API'
 ---
 
 The `<Img>` tag can be used like a regular `<img>` HTML tag.
@@ -16,12 +16,12 @@ If you use `<Img>`, Remotion will ensure that the image is loaded before renderi
 [Put an image into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.
 
 ```tsx twoslash
-import { AbsoluteFill, Img, staticFile } from "remotion";
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Img src={staticFile("hi.png")} />
+      <Img src={staticFile('hi.png')} />
     </AbsoluteFill>
   );
 };
@@ -30,12 +30,12 @@ export const MyComp: React.FC = () => {
 You can also load a remote image:
 
 ```tsx twoslash
-import { AbsoluteFill, Img } from "remotion";
+import {AbsoluteFill, Img} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Img src={"https://picsum.photos/200/300"} />
+      <Img src={'https://picsum.photos/200/300'} />
     </AbsoluteFill>
   );
 };
@@ -46,13 +46,13 @@ export const MyComp: React.FC = () => {
 To use the `<Img>` tag in a resilient way, handle the error that occurs when an image can not be loaded:
 
 ```tsx twoslash
-import { AbsoluteFill, Img, staticFile } from "remotion";
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
       <Img
-        src={staticFile("hi.png")}
+        src={staticFile('hi.png')}
         onError={(event) => {
           // Handle image loading error here
         }}
@@ -71,17 +71,15 @@ From `v3.3.82`, the image load will first be retried before `onError` is thrown.
 If an image fails to load, it will be retried from `v3.3.82`. The default value is `2`.  
 An exponential backoff is being used, with 1000ms delay between the first and second attempt, then 2000ms, then 4000ms and so on.
 
-### `pauseWhenLoading`<AvailableFrom v="4.0.111"/>
-
-_optional_
+### `pauseWhenLoading?`<AvailableFrom v="4.0.111"/>
 
 If set to `true`, pause the Player when the image is loading. See: [Buffer state](/docs/player/buffer-state).
 
-### `delayRenderTimeoutInMilliseconds`<AvailableFrom v="4.0.140" />
+### `delayRenderTimeoutInMilliseconds?`<AvailableFrom v="4.0.140" />
 
 Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this component makes.
 
-### `delayRenderRetries`<AvailableFrom v="4.0.140" />
+### `delayRenderRetries?`<AvailableFrom v="4.0.140" />
 
 Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.  
 Prefer the [`maxRetries`](#maxretries) prop over this.
@@ -105,6 +103,10 @@ In earlier versions, failing to load an image would lead to an error message in 
 ## Restrictions
 
 - The maximum resolution that Chrome can display is `2^29` pixels (539 megapixels) <sup><a href="https://stackoverflow.com/questions/57223559/what-is-the-maximum-image-dimensions-supported-in-desktop-chrome#:~:text=than%202%5E29-,(539MP)">[source]</a></sup>. Remotion inherits this restriction.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

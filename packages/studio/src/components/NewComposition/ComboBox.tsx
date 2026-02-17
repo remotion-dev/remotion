@@ -62,6 +62,7 @@ export type SelectionItem = {
 	leftItem: React.ReactNode;
 	subMenu: SubMenu | null;
 	quickSwitcherLabel: string | null;
+	disabled?: boolean;
 };
 
 export type ComboboxValue = DividerItem | SelectionItem;

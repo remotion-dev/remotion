@@ -1,7 +1,7 @@
-import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext} from 'react';
 import {ModalsContext} from '../../state/modals';
 import {useZIndex} from '../../state/z-index';
+import type {AnyRenderJob} from './context';
 import {renderQueueItemSubtitleStyle} from './item-style';
 
 const outputLocation: React.CSSProperties = {
@@ -9,7 +9,7 @@ const outputLocation: React.CSSProperties = {
 };
 
 export const RenderQueueError: React.FC<{
-	readonly job: RenderJob;
+	readonly job: AnyRenderJob;
 }> = ({job}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {tabIndex} = useZIndex();

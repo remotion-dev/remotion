@@ -1,14 +1,18 @@
-import {registerUsageEvent} from '@remotion/licensing';
+import {LicensingInternals} from '@remotion/licensing';
 import {Internals} from 'remotion';
 
 export const sendUsageEvent = async ({
 	licenseKey,
 	succeeded,
 	apiName,
+	isStill,
+	isProduction,
 }: {
 	licenseKey: string | null;
 	succeeded: boolean;
 	apiName: string;
+	isStill: boolean;
+	isProduction: boolean;
 }) => {
 	const host =
 		typeof window === 'undefined'
@@ -23,14 +27,16 @@ export const sendUsageEvent = async ({
 	if (licenseKey === null) {
 		Internals.Log.warn(
 			{logLevel: 'warn', tag: 'web-renderer'},
-			`Pass "licenseKey" to ${apiName}(). If you qualify for the free license (https://remotion.dev/license), pass "free-license" instead.`,
+			`Pass "licenseKey" to ${apiName}(). If you qualify for the Free License (https://remotion.dev/license), pass "free-license" instead.`,
 		);
 	}
 
-	await registerUsageEvent({
-		apiKey: licenseKey === 'free-license' ? null : licenseKey,
+	await LicensingInternals.internalRegisterUsageEvent({
+		licenseKey: licenseKey === 'free-license' ? null : licenseKey,
 		event: 'webcodec-conversion',
 		host,
 		succeeded,
+		isStill,
+		isProduction,
 	});
 };

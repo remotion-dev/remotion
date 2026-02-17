@@ -1,0 +1,87 @@
+---
+image: /generated/articles-docs-client-side-rendering-cancellation.png
+id: cancellation
+title: Cancelling renders
+crumb: '@remotion/web-renderer'
+---
+
+:::warning
+Very experimental feature - expect bugs and breaking changes at any time.  
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+Both [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) and [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) support cancellation via the [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) API.
+
+## Using AbortController
+
+Create an [`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) and pass its `signal` to the render function:
+
+```tsx twoslash title="Cancel after timeout"
+const Component: React.FC = () => null;
+
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+const abortController = new AbortController();
+
+// Cancel after 10 seconds
+setTimeout(() => abortController.abort(), 10000);
+
+const {getBlob} = await renderMediaOnWeb({
+  signal: abortController.signal,
+  composition,
+});
+```
+
+## Detecting if a render was cancelled
+
+When a render is cancelled, an error is thrown. To distinguish between a user-initiated cancellation and an actual error, check if the signal was aborted:
+
+```tsx twoslash title="Handle cancellation in catch block"
+const Component: React.FC = () => null;
+
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+const abortController = new AbortController();
+
+try {
+  const {getBlob} = await renderMediaOnWeb({
+    signal: abortController.signal,
+    composition,
+  });
+} catch (error) {
+  if (abortController.signal.aborted) {
+    // Render was cancelled by the user, handle gracefully
+    console.log('Render was cancelled');
+  } else {
+    // Handle actual errors
+    throw error;
+  }
+}
+```
+
+## See also
+
+- [MDN: AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
+- [MDN: AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web)
+- [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web)

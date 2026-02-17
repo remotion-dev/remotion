@@ -30,6 +30,7 @@ export const Article: React.FC<{
 				alignItems: 'center',
 				padding: 60,
 				fontFamily: 'GTPlanar',
+				fontFeatureSettings: "'ss03' on",
 			}}
 		>
 			<div>
@@ -76,6 +77,7 @@ export const Article: React.FC<{
 							style={{
 								color: 'white',
 								fontFamily: 'GTPlanar',
+								fontFeatureSettings: "'ss03' on",
 								fontSize,
 							}}
 						>

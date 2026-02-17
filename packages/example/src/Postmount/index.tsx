@@ -25,7 +25,7 @@ export const PostmountDemoComposition: React.FC = () => {
 				<AbsoluteFill style={{background: 'rgba(255, 0, 0, 0.5)'}}>
 					<Html5Video
 						pauseWhenBuffering
-						src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+						src="https://remotion.media/BigBuckBunny.mp4"
 					/>
 				</AbsoluteFill>
 			</Sequence>

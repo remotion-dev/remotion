@@ -1,69 +1,83 @@
 ---
 image: /generated/articles-docs-transitions-transitionseries.png
-crumb: "@remotion/transitions"
-sidebar_label: "<TransitionSeries>"
-title: "<TransitionSeries>"
+crumb: '@remotion/transitions'
+sidebar_label: '<TransitionSeries>'
+title: '<TransitionSeries>'
 ---
 
-_available from v4.0.59_
+import {TransitionsDuration} from '../../components/TransitionsDuration';
 
-import { TransitionsDuration } from "../../components/TransitionsDuration";
+# &lt;TransitionSeries&gt;<AvailableFrom v="4.0.59" />
 
-The `<TransitionSeries>` component behaves the same as the [`<Series>`](/docs/series) component, but allows for `<TransitionSeries.Transition>` components to be rendered between `<TransitionSeries.Sequence>` components.
+The `<TransitionSeries>` component behaves the same as the [`<Series>`](/docs/series) component, but allows for [`<TransitionSeries.Transition>`](#transitionseriestransition) and [`<TransitionSeries.Overlay>`](#transitionseriesoverlay) components to be rendered between [`<TransitionSeries.Sequence>`](#transitionseriessequence) components.
 
-Each transition consists of two parts:
+Between any two sequences, you can place either a transition or an overlay:
 
-<Step>1</Step> <code>presentation</code>: The effect that is being used, for
-example <a href="/docs/transitions/presentations/fade"><code>fade()</code></a> or <a href="/docs/transitions/presentations/wipe"><code>wipe()</code></a>.<br />
+- A [`<TransitionSeries.Transition>`](#transitionseriestransition) crossfades, slides, or otherwise animates between two scenes.  
+  It [shortens](#duration-of-a-transitionseries) the total duration because both scenes overlap during the transition.
+- A [`<TransitionSeries.Overlay>`](#transitionseriesoverlay) renders children on top of the cut point without affecting timing.  
+  The sequences remain at full length — useful for effects like [light leaks](/docs/light-leaks/light-leak) or flashes.
 
-<Step>2</Step> <code>timing</code>: The duration and the progress curve, for
-example <a href="/docs/transitions/timings/springtiming"><code>springTiming()</code></a> or <a href="/docs/transitions/timings/lineartiming"><code>linearTiming()</code></a>
+### Transition example
 
-<br />
-<br />
-
-This package has some presentations and timings built-in, but custom ones can be created as well.
-
-```tsx twoslash title="MyComp.tsx"
-import { AbsoluteFill } from "remotion";
-const Fill = ({ color }: { color: string }) => (
-  <AbsoluteFill style={{ backgroundColor: color }} />
-);
+```tsx twoslash title="TransitionExample.tsx"
+import {AbsoluteFill} from 'remotion';
+const Fill = ({color}: {color: string}) => <AbsoluteFill style={{backgroundColor: color}} />;
 
 // ---cut---
-import {
-  linearTiming,
-  springTiming,
-  TransitionSeries,
-} from "@remotion/transitions";
+import {linearTiming, springTiming, TransitionSeries} from '@remotion/transitions';
+import {fade} from '@remotion/transitions/fade';
+import {wipe} from '@remotion/transitions/wipe';
 
-import { fade } from "@remotion/transitions/fade";
-import { wipe } from "@remotion/transitions/wipe";
-
-export const MyComp: React.FC = () => {
+export const TransitionExample: React.FC = () => {
   return (
     <TransitionSeries>
       <TransitionSeries.Sequence durationInFrames={60}>
-        <Fill color="blue" />
+        <Fill color="#0b84f3" />
       </TransitionSeries.Sequence>
-      <TransitionSeries.Transition
-        timing={springTiming({ config: { damping: 200 } })}
-        presentation={fade()}
-      />
+      <TransitionSeries.Transition timing={springTiming({config: {damping: 200}})} presentation={fade()} />
       <TransitionSeries.Sequence durationInFrames={60}>
-        <Fill color="black" />
+        <Fill color="pink" />
       </TransitionSeries.Sequence>
-      <TransitionSeries.Transition
-        timing={linearTiming({ durationInFrames: 30 })}
-        presentation={wipe()}
-      />
+      <TransitionSeries.Transition timing={linearTiming({durationInFrames: 30})} presentation={wipe()} />
       <TransitionSeries.Sequence durationInFrames={60}>
-        <Fill color="white" />
+        <Fill color="#2ecc71" />
       </TransitionSeries.Sequence>
     </TransitionSeries>
   );
 };
 ```
+
+<Demo type="transition-series-transition" />
+
+### Overlay example<AvailableFrom v="4.0.415" />
+
+```tsx twoslash title="OverlayExample.tsx"
+import {AbsoluteFill} from 'remotion';
+const Fill = ({color}: {color: string}) => <AbsoluteFill style={{backgroundColor: color}} />;
+
+// ---cut---
+import {LightLeak} from '@remotion/light-leaks';
+import {TransitionSeries} from '@remotion/transitions';
+
+export const OverlayExample: React.FC = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Fill color="blue" />
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Overlay durationInFrames={20}>
+        <LightLeak />
+      </TransitionSeries.Overlay>
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Fill color="black" />
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+<Demo type="transition-series-overlay" />
 
 ## API
 
@@ -71,7 +85,7 @@ export const MyComp: React.FC = () => {
 
 Inherits the [`from`](/docs/sequence#from), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), and [`style`](/docs/sequence#style) props from [`<Sequence>`](/docs/sequence).
 
-The `<TransitionSeries>` component can only contain `<TransitionSeries.Sequence>` and `<TransitionSeries.Transition>` components.
+The `<TransitionSeries>` component can only contain `<TransitionSeries.Sequence>`, `<TransitionSeries.Transition>`, and `<TransitionSeries.Overlay>` components.
 
 ### `<TransitionSeries.Sequence>`
 
@@ -81,35 +95,52 @@ As children, put the contents of your scene.
 
 ### `<TransitionSeries.Transition>`
 
+Placed between two sequences to animate from one scene to the next.  
+During the transition, both scenes are rendered simultaneously and the total duration is [shortened](#duration-of-a-transitionseries) by the transition length.
+
 Takes two props:
 
 - `timing`: A timing of type `TransitionTiming`. See [Timings](/docs/transitions/timings) for more information.
-- `presentation?`: A presentation of type `TransitionPresentation`. If not specified, the default value is `slide()`. See [Presentations](/docs/transitions/presentations) for more information.
+- `presentation?`: A presentation of type `TransitionPresentation`. If not specified, the default value is [`slide()`](/docs/transitions/presentations/slide). See [Presentations](/docs/transitions/presentations) for more information.
 
-Must be a direct child of `<TransitionSeries>`.  
-At least one `<TransitionSeries.Sequence>` component must come before or after the `<TransitionSeries.Transition>` component.  
-It is not allowed for two `<TransitionSeries.Transition>` components to be next to each other.
+Must be a direct child of `<TransitionSeries>`.
+At least one `<TransitionSeries.Sequence>` component must come before or after the `<TransitionSeries.Transition>` component.
+
+### `<TransitionSeries.Overlay>`<AvailableFrom v="4.0.415" />
+
+Placed between two sequences to render children on top of the cut point.  
+The overlay does [not shorten](#duration-of-a-transitionseries) the timeline — adjacent sequences remain at full length.
+
+The overlay is centered on the cut point by default: half the duration before the cut, half after.  
+Children animate independently — no progress context is provided.
+
+Takes two props:
+
+- `durationInFrames`: How long the overlay is visible. Must be a positive integer.
+- `offset?`: Shifts the overlay relative to the center of the cut point. Positive values shift right (later), negative values shift left (earlier). Default: `0`. Must be a finite integer.
+
+The overlay must not extend before frame 0 or beyond the duration of the adjacent sequences.
 
 ## Enter and exit animations
 
 You don't necessarily have to use `<TransitionSeries>` for transitions between scenes. You can also use it to animate the entrace or exit of a scene by putting a transition first or last in the `<TransitionSeries>`.
 
 ```tsx twoslash title="SlideTransition.tsx"
-import { AbsoluteFill } from "remotion";
+import {AbsoluteFill} from 'remotion';
 
 const Letter: React.FC<{
   children: React.ReactNode;
   color: string;
-}> = ({ children, color }) => {
+}> = ({children, color}) => {
   return (
     <AbsoluteFill
       style={{
         backgroundColor: color,
         opacity: 0.9,
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         fontSize: 200,
-        color: "white",
+        color: 'white',
       }}
     >
       {children}
@@ -117,8 +148,8 @@ const Letter: React.FC<{
   );
 };
 // ---cut---
-import { linearTiming, TransitionSeries } from "@remotion/transitions";
-import { slide } from "@remotion/transitions/slide";
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {slide} from '@remotion/transitions/slide';
 
 const BasicTransition = () => {
   return (
@@ -126,35 +157,37 @@ const BasicTransition = () => {
       <TransitionSeries.Sequence durationInFrames={40}>
         <Letter color="#0b84f3">A</Letter>
       </TransitionSeries.Sequence>
-      <TransitionSeries.Transition
-        presentation={slide()}
-        timing={linearTiming({ durationInFrames: 30 })}
-      />
+      <TransitionSeries.Transition presentation={slide()} timing={linearTiming({durationInFrames: 30})} />
     </TransitionSeries>
   );
 };
 ```
 
+<Demo type="transition-series-enter-exit" />
+
 ## Duration of a `<TransitionSeries>`
+
+[Transitions](#transitionseriestransition) shorten the total duration because both scenes overlap.  
+[Overlays](#transitionseriesoverlay) do not — the total duration stays the same as if no overlay was present.
 
 Consider this example:
 
 ```tsx twoslash title="SlideTransition.tsx"
-import { AbsoluteFill } from "remotion";
+import {AbsoluteFill} from 'remotion';
 
 const Letter: React.FC<{
   children: React.ReactNode;
   color: string;
-}> = ({ children, color }) => {
+}> = ({children, color}) => {
   return (
     <AbsoluteFill
       style={{
         backgroundColor: color,
         opacity: 0.9,
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         fontSize: 200,
-        color: "white",
+        color: 'white',
       }}
     >
       {children}
@@ -162,8 +195,8 @@ const Letter: React.FC<{
   );
 };
 // ---cut---
-import { linearTiming, TransitionSeries } from "@remotion/transitions";
-import { slide } from "@remotion/transitions/slide";
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {slide} from '@remotion/transitions/slide';
 
 const BasicTransition = () => {
   return (
@@ -171,10 +204,7 @@ const BasicTransition = () => {
       <TransitionSeries.Sequence durationInFrames={40}>
         <Letter color="#0b84f3">A</Letter>
       </TransitionSeries.Sequence>
-      <TransitionSeries.Transition
-        presentation={slide()}
-        timing={linearTiming({ durationInFrames: 30 })}
-      />
+      <TransitionSeries.Transition presentation={slide()} timing={linearTiming({durationInFrames: 30})} />
       <TransitionSeries.Sequence durationInFrames={60}>
         <Letter color="pink">B</Letter>
       </TransitionSeries.Sequence>
@@ -183,7 +213,7 @@ const BasicTransition = () => {
 };
 ```
 
-`A` is visible for 40 frames, `B` for 60 frames and the duration of the transition is 30 frames.  
+`A` is visible for 40 frames, `B` for 60 frames and the duration of the transition is 30 frames.
 During this time, both slides are rendered. This means the total duration of the animation is `60 + 40 - 30 = 70`.
 
 <TransitionsDuration />
@@ -192,21 +222,21 @@ During this time, both slides are rendered. This means the total duration of the
 <summary>Example with 3 slides</summary>
 
 ```tsx twoslash title="SlideTransition.tsx"
-import { AbsoluteFill } from "remotion";
+import {AbsoluteFill} from 'remotion';
 
 const Letter: React.FC<{
   children: React.ReactNode;
   color: string;
-}> = ({ children, color }) => {
+}> = ({children, color}) => {
   return (
     <AbsoluteFill
       style={{
         backgroundColor: color,
         opacity: 0.9,
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         fontSize: 200,
-        color: "white",
+        color: 'white',
       }}
     >
       {children}
@@ -214,8 +244,8 @@ const Letter: React.FC<{
   );
 };
 // ---cut---
-import { linearTiming, TransitionSeries } from "@remotion/transitions";
-import { slide } from "@remotion/transitions/slide";
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {slide} from '@remotion/transitions/slide';
 
 const BasicTransition = () => {
   return (
@@ -223,17 +253,11 @@ const BasicTransition = () => {
       <TransitionSeries.Sequence durationInFrames={40}>
         <Letter color="#0b84f3">A</Letter>
       </TransitionSeries.Sequence>
-      <TransitionSeries.Transition
-        presentation={slide()}
-        timing={linearTiming({ durationInFrames: 30 })}
-      />
+      <TransitionSeries.Transition presentation={slide()} timing={linearTiming({durationInFrames: 30})} />
       <TransitionSeries.Sequence durationInFrames={60}>
         <Letter color="pink">B</Letter>
       </TransitionSeries.Sequence>
-      <TransitionSeries.Transition
-        presentation={slide()}
-        timing={linearTiming({ durationInFrames: 45 })}
-      />
+      <TransitionSeries.Transition presentation={slide()} timing={linearTiming({durationInFrames: 45})} />
       <TransitionSeries.Sequence durationInFrames={90}>
         <Letter color="green">C</Letter>
       </TransitionSeries.Sequence>
@@ -257,17 +281,22 @@ const BasicTransition = () => {
 You can get the duration of a transition by calling `getDurationInFrames()` on the timing:
 
 ```tsx twoslash title="Assuming a framerate of 30fps"
-import { springTiming } from "@remotion/transitions";
+import {springTiming} from '@remotion/transitions';
 
-springTiming({ config: { damping: 200 } }).getDurationInFrames({ fps: 30 }); // 23
+springTiming({config: {damping: 200}}).getDurationInFrames({fps: 30}); // 23
 ```
 
 ## Rules
 
-<Step>1</Step> It is forbidden to have a transition that is longer than the duration
-of the previous or next sequence. <br />
-<Step>2</Step> There can be no two transitions next to each other. <br />
-<Step>3</Step> There must be at least one sequence before or after a transition.
+<Step>1</Step> A transition must not be longer than the duration of the previous or next sequence.
+
+<Step>2</Step> Two transitions cannot be adjacent.
+
+<Step>3</Step> Two overlays cannot be adjacent.
+
+<Step>4</Step> A transition and an overlay cannot be adjacent — they occupy the same slot between sequences.
+
+<Step>5</Step> There must be at least one sequence before or after a transition or overlay.
 
 ## See also
 

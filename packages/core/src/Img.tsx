@@ -32,7 +32,7 @@ export type ImgProps = NativeImgProps & {
 	readonly pauseWhenLoading?: boolean;
 	readonly delayRenderRetries?: number;
 	readonly delayRenderTimeoutInMilliseconds?: number;
-	readonly onImageFrame?: (imgelement: HTMLImageElement) => void;
+	readonly onImageFrame?: (imageElement: HTMLImageElement) => void;
 	readonly src: string;
 };
 

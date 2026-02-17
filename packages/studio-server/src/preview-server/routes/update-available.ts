@@ -8,8 +8,8 @@ import {isUpdateAvailableWithTimeout} from '../update-available';
 export const handleUpdate: ApiHandler<
 	UpdateAvailableRequest,
 	UpdateAvailableResponse
-> = async ({remotionRoot}) => {
-	const data = await isUpdateAvailableWithTimeout(remotionRoot);
+> = async ({remotionRoot, logLevel}) => {
+	const data = await isUpdateAvailableWithTimeout(remotionRoot, logLevel);
 
 	return data;
 };

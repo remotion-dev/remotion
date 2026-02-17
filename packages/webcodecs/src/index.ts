@@ -2,7 +2,6 @@ import {
 	normalizeVideoRotation,
 	rotateAndResizeVideoFrame,
 } from './rotate-and-resize-video-frame';
-import {setRemotionImported} from './set-remotion-imported';
 
 export {createAudioEncoder} from './audio-encoder';
 export type {WebCodecsAudioEncoder} from './audio-encoder';
@@ -66,5 +65,3 @@ export const WebCodecsInternals = {
 	rotateAndResizeVideoFrame,
 	normalizeVideoRotation,
 };
-
-setRemotionImported();

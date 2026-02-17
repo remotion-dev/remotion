@@ -57,6 +57,9 @@ const {
 	offthreadVideoThreadsOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -233,6 +236,21 @@ export const benchmarkCommand = async (
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
 	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
+	const experimentalClientSideRenderingEnabled =
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	if (experimentalClientSideRenderingEnabled) {
+		Log.warn(
+			{indent: false, logLevel},
+			'Enabling WIP client-side rendering. Please see caveats on https://www.remotion.dev/docs/client-side-rendering/.',
+		);
+	}
 
 	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
@@ -248,6 +266,7 @@ export const benchmarkCommand = async (
 		indent: false,
 		logLevel,
 		quiet: quietFlagProvided(),
+		onProgress: () => undefined,
 	});
 
 	const indent = false;
@@ -294,6 +313,9 @@ export const benchmarkCommand = async (
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint: null,
+			experimentalClientSideRenderingEnabled,
+			askAIEnabled,
+			keyboardShortcutsEnabled,
 		});
 
 	registerCleanupJob(`Deleting bundle`, () => cleanupBundle());
@@ -529,7 +551,8 @@ export const benchmarkCommand = async (
 						commandLine: parsedCli,
 					}).value,
 					onLog: RenderInternals.defaultOnLog,
-					apiKey: null,
+					licenseKey: null,
+					isProduction: null,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

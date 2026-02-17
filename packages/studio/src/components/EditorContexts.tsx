@@ -12,6 +12,7 @@ import {CheckerboardProvider} from './CheckerboardProvider';
 import {ZodProvider} from './get-zod-if-possible';
 import {MediaVolumeProvider} from './MediaVolumeProvider';
 import {ModalsProvider} from './ModalsProvider';
+import {ClientRenderQueueProcessor} from './RenderQueue/ClientRenderQueueProcessor';
 import {RenderQueueContextProvider} from './RenderQueue/context';
 import {SetTimelineInOutProvider} from './SetTimelineInOutProvider';
 import {ShowGuidesProvider} from './ShowGuidesProvider';
@@ -27,6 +28,7 @@ export const EditorContexts: React.FC<{
 			<VisualControlsProvider>
 				<PreviewServerConnection readOnlyStudio={readOnlyStudio}>
 					<RenderQueueContextProvider>
+						<ClientRenderQueueProcessor />
 						<KeybindingContextProvider>
 							<CheckerboardProvider>
 								<ZoomGesturesProvider>

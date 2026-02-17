@@ -90,7 +90,6 @@ const makeDefaultGlobalCSS = () => {
       inset -1px -1px #555,
       inset 1px -1px #555,
       inset -1px 1px #555;
-    border-radius: 0 !important;
   }
   
   input[type='color'].__remotion_color_picker::-webkit-color-swatch-wrapper {

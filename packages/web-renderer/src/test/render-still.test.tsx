@@ -2,6 +2,7 @@ import {test} from 'vitest';
 
 import {useCurrentFrame} from 'remotion';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {testImage} from './utils';
 
 test('should render still on web', async () => {
@@ -13,7 +14,7 @@ test('should render still on web', async () => {
 		);
 	};
 
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: {
 			component: Component,
@@ -44,7 +45,7 @@ test('should be able to read frame number', async () => {
 		);
 	};
 
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: {
 			component: Component,

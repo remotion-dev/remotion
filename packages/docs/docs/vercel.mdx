@@ -1,0 +1,132 @@
+---
+image: /generated/articles-docs-vercel.png
+sidebar_label: Vercel
+title: Remotion on Vercel
+crumb: 'Deployment'
+---
+
+You have two options for rendering your videos on Vercel:
+
+- [Client-side rendering](#client-side-rendering): Render videos using your computer's browser and compute resources
+- [Cloud-based rendering](#rendering-using-vercel-sandbox): Use a cloud server to render your video
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?demo-description=Render%20your%20Remotion%20videos%20on%20Vercel.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4pq2kfE4t05fMkDCKGsfqz%2F1444f1b559d50391052fdf5102502ac9%2FFlagsmith_Dark.png&demo-title=Remotion%20on%20Vercel&demo-url=https%3A%2F%2Ftemplate-vercel.remotion.dev%2F&from=templates&products=%255B%257B%2522type%2522%253A%2522blob%2522%257D%255D&project-name=Remotion%20on%20Vercel&project-names=Comma%20separated%20list%20of%20project%20names%2Cto%20match%20the%20root-directories&repository-name=remotion-on-vercel&repository-url=https%3A%2F%2Fgithub.com%2Fremotion-dev%2Ftemplate-vercel&root-directories=List%20of%20directory%20paths%20for%20the%20directories%20to%20clone%20into%20projects)
+
+## Deployment
+
+You can deploy any Remotion project on Vercel by connecting the repository and setting the following settings:
+
+- **Build Command**: `bunx remotion bundle`
+- **Output Directory**: `build`
+- **Installation Command**: _Leave default_
+
+## Client-side rendering
+
+Enable [experimental client-side rendering](/docs/client-side-rendering) in your `remotion.config.ts` file:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalClientSideRenderingEnabled(true);
+```
+
+This will make it possible to render videos client-side on your Vercel deployment.
+
+Note that this will use your computer's browser and compute resources, making your computer slower while the render is running. If you are waiting on long renders, you may want to [render in the cloud](#rendering-using-vercel-sandbox) to free up your computer's resources.
+
+## Rendering using Vercel Sandbox
+
+You can quickly deploy your Remotion project to Vercel to offload rendering to a Vercel Sandbox:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?demo-description=Render%20your%20Remotion%20videos%20on%20Vercel.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4pq2kfE4t05fMkDCKGsfqz%2F1444f1b559d50391052fdf5102502ac9%2FFlagsmith_Dark.png&demo-title=Remotion%20on%20Vercel&demo-url=https%3A%2F%2Ftemplate-vercel.remotion.dev%2F&from=templates&products=%255B%257B%2522type%2522%253A%2522blob%2522%257D%255D&project-name=Remotion%20on%20Vercel&project-names=Comma%20separated%20list%20of%20project%20names%2Cto%20match%20the%20root-directories&repository-name=remotion-on-vercel&repository-url=https%3A%2F%2Fgithub.com%2Fremotion-dev%2Ftemplate-vercel&root-directories=List%20of%20directory%20paths%20for%20the%20directories%20to%20clone%20into%20projects)
+
+Vercel Sandbox allows you to render videos on-demand without managing Lambda or AWS infrastructure. Each render spawns an ephemeral Linux VM with full access to the Remotion renderer.
+
+See the dedicated [Vercel Sandbox](/docs/vercel-sandbox) page for full documentation.
+
+## Triggering Lambda renders from Vercel Serverless functions
+
+You can trigger [Remotion Lambda renders](/docs/lambda) from Vercel Serverless functions.  
+See an example endpoint for rendering a video:
+
+<details>
+<summary>App router example</summary>
+
+```ts twoslash title="src/app/api/lambda/render/route.ts"
+import {AwsRegion, RenderMediaOnLambdaOutput} from '@remotion/lambda/client';
+import {renderMediaOnLambda, speculateFunctionName} from '@remotion/lambda/client';
+import {NextResponse} from 'next/server';
+
+const DISK = 10240;
+const RAM = 2048;
+const REGION = 'eu-central-1';
+const SITE_NAME = 'https://remotion-helloworld.vercel.app';
+const TIMEOUT = 120;
+
+export const POST = async (req: Request, res: NextResponse) => {
+  if (!process.env.AWS_ACCESS_KEY_ID && !process.env.REMOTION_AWS_ACCESS_KEY_ID) {
+    throw new TypeError('Set up Remotion Lambda to render videos. See the README.md for how to do so.');
+  }
+  if (!process.env.AWS_SECRET_ACCESS_KEY && !process.env.REMOTION_AWS_SECRET_ACCESS_KEY) {
+    throw new TypeError('The environment variable REMOTION_AWS_SECRET_ACCESS_KEY is missing. Add it to your .env file.');
+  }
+
+  const body = await req.json();
+
+  const result = await renderMediaOnLambda({
+    codec: 'h264',
+    functionName: speculateFunctionName({
+      diskSizeInMb: DISK,
+      memorySizeInMb: RAM,
+      timeoutInSeconds: TIMEOUT,
+    }),
+    region: REGION as AwsRegion,
+    serveUrl: SITE_NAME,
+    composition: body.id,
+    inputProps: body.inputProps,
+    downloadBehavior: {
+      type: 'download',
+      fileName: 'video.mp4',
+    },
+  });
+
+  return result;
+};
+```
+
+</details>
+
+See also:
+
+- [App router - Example Render endpoint](https://github.com/remotion-dev/remotion/blob/main/packages/template-next-app-tailwind/src/app/api/lambda/render/route.ts)
+- [App router - Example Progress endpoint](https://github.com/remotion-dev/remotion/blob/main/packages/template-next-app-tailwind/src/app/api/lambda/progress/route.ts)
+- [Pages router - Example Render endpoint](https://github.com/remotion-dev/remotion/blob/main/packages/template-next-pages/src/pages/api/lambda/render.ts)
+- [Pages router - Example Progress endpoint](https://github.com/remotion-dev/remotion/blob/main/packages/template-next-pages/src/pages/api/lambda/progress.ts)
+
+## Rendering from a Vercel deployment
+
+Deployments can be used as [Serve URLs](/docs/terminology/serve-url) to render videos using any [server-side rendering](/docs/ssr) primitive.
+
+Example:
+
+```bash
+npx remotion render https://remotion-helloworld.vercel.app HelloWorld
+```
+
+## Rendering on Vercel
+
+Deploy the Vercel template:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?demo-description=Render%20your%20Remotion%20videos%20on%20Vercel.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4pq2kfE4t05fMkDCKGsfqz%2F1444f1b559d50391052fdf5102502ac9%2FFlagsmith_Dark.png&demo-title=Remotion%20on%20Vercel&demo-url=https%3A%2F%2Ftemplate-vercel.remotion.dev%2F&from=templates&products=%255B%257B%2522type%2522%253A%2522blob%2522%257D%255D&project-name=Remotion%20on%20Vercel&project-names=Comma%20separated%20list%20of%20project%20names%2Cto%20match%20the%20root-directories&repository-name=remotion-on-vercel&repository-url=https%3A%2F%2Fgithub.com%2Fremotion-dev%2Ftemplate-vercel&root-directories=List%20of%20directory%20paths%20for%20the%20directories%20to%20clone%20into%20projects)
+
+Rendering will be done inside a [Vercel Sandbox](https://vercel.com/docs/vercel-sandbox) and the render will be stored in [Vercel Blob](https://vercel.com/docs/vercel-blob).
+
+## Templates
+
+- [Next.js (App dir)](/templates/next)
+- [Next.js (App dir, no TailwindCSS)](/templates/next-no-tailwind)
+- [Next.js (Pages dir)](/templates/next-pages-dir)
+- [Next.js (App dir, Rendering in Vercel Sandbox)](/templates/vercel)
+- [React Router 7 (Remix)](/templates/react-router)
+
+These templates are recommended for building applications that can generate videos.

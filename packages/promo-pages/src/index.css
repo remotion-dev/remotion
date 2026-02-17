@@ -76,6 +76,11 @@ html {
 		ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
 		'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+* {
+	box-sizing: border-box;
+}
+
 body {
 	margin: 0;
 }
@@ -122,6 +127,7 @@ body {
 	--font-brand: 'GTPlanar', sans-serif;
 	--font-brand--font-feature-settings: 'ss03' 1;
 	--color-brand: #0b84f3;
+	--color-warn: #ff3232;
 	--color-text: var(--text-color);
 	--color-button-bg: var(--plain-button);
 	--color-card-bg: var(--card-bg);
@@ -144,4 +150,29 @@ body {
 @utility fontbrand {
 	@apply font-brand;
 	font-feature-settings: 'ss03' on;
+}
+
+.experts-pagetitle {
+	font-size: 3em;
+}
+
+.experts-card:hover {
+	transform: scale(1.02);
+	box-shadow: 0 4px 8px 0 rgb(84, 84, 84);
+}
+
+.experts-docs-button {
+	text-decoration: none;
+	transition: all 0.3s ease;
+}
+
+.experts-docs-button:hover {
+	transform: scale(0.987);
+}
+
+@media screen and (max-width: 900px) {
+	.experts-pagetitle,
+	.experts-tagline {
+		text-align: left;
+	}
 }

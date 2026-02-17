@@ -21,6 +21,21 @@ const numberTo16BitLittleEndian = (num: number) => {
 	return new Uint8Array([num & 0xff, (num >> 8) & 0xff]);
 };
 
+/**
+ * When multiplying seconds by sample rate, floating point errors can cause
+ * results like 244799.99999999997 instead of 244800 (5.1 * 48000).
+ * This snaps to the nearest integer when within tolerance,
+ * preventing Math.floor/Math.ceil from rounding incorrectly.
+ */
+const correctFloatingPointError = (value: number): number => {
+	const rounded = Math.round(value);
+	if (Math.abs(value - rounded) < 0.00001) {
+		return rounded;
+	}
+
+	return value;
+};
+
 const BIT_DEPTH = 16;
 const BYTES_PER_SAMPLE = BIT_DEPTH / 8;
 const NUMBER_OF_CHANNELS = 2;
@@ -212,13 +227,18 @@ export const makeInlineAudioMixing = (dir: string) => {
 		// could hit this case
 
 		if (isFirst) {
-			arr = arr.slice(Math.floor(samplesToShaveFromStart) * NUMBER_OF_CHANNELS);
+			arr = arr.slice(
+				Math.floor(correctFloatingPointError(samplesToShaveFromStart)) *
+					NUMBER_OF_CHANNELS,
+			);
 		}
 
 		if (isLast) {
 			arr = arr.slice(
 				0,
-				arr.length + Math.ceil(samplesToShaveFromEnd) * NUMBER_OF_CHANNELS,
+				arr.length +
+					Math.ceil(correctFloatingPointError(samplesToShaveFromEnd)) *
+						NUMBER_OF_CHANNELS,
 			);
 		}
 
@@ -230,7 +250,9 @@ export const makeInlineAudioMixing = (dir: string) => {
 		// This might lead to overlapping, hopefully aligning perfectly!
 		// Test case: https://github.com/remotion-dev/remotion/issues/5758
 		const position =
-			Math.floor(positionInSeconds * DEFAULT_SAMPLE_RATE) *
+			Math.floor(
+				correctFloatingPointError(positionInSeconds * DEFAULT_SAMPLE_RATE),
+			) *
 			NUMBER_OF_CHANNELS *
 			BYTES_PER_SAMPLE;
 

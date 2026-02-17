@@ -39,5 +39,6 @@
 	"files.associations": {
 		"*.mdx": "markdown"
 	},
-	"typescript.tsserver.maxTsServerMemory": 4096
+	"typescript.tsserver.maxTsServerMemory": 4096,
+	"typescript.experimental.useTsgo": true
 }

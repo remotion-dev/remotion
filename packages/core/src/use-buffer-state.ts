@@ -5,7 +5,7 @@ export type DelayPlaybackHandle = {
 	unblock: () => void;
 };
 
-type UseBufferState = {
+export type UseBufferState = {
 	delayPlayback: () => DelayPlaybackHandle;
 };
 

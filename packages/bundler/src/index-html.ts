@@ -15,6 +15,7 @@ export const indexHtml = ({
 	remotionRoot,
 	studioServerCommand,
 	renderQueue,
+	completedClientRenders,
 	numberOfAudioTags,
 	publicFiles,
 	includeFavicon,
@@ -37,6 +38,7 @@ export const indexHtml = ({
 	remotionRoot: string;
 	studioServerCommand: string | null;
 	renderQueue: unknown | null;
+	completedClientRenders?: unknown | null;
 	numberOfAudioTags: number;
 	audioLatencyHint: AudioContextLatencyCategory;
 	publicFiles: StaticFile[];
@@ -77,6 +79,8 @@ export const indexHtml = ({
 		}
 		<script>window.remotion_projectName = ${JSON.stringify(projectName)};</script>
 		<script>window.remotion_publicPath = ${JSON.stringify(publicPath)};</script>
+		<script>window.remotion_audioEnabled = true;</script>
+		<script>window.remotion_videoEnabled = true;</script>
 		<script>window.remotion_renderDefaults = ${JSON.stringify(
 			renderDefaults,
 		)};</script>
@@ -95,6 +99,13 @@ export const indexHtml = ({
 			renderQueue
 				? `<script>window.remotion_initialRenderQueue = ${JSON.stringify(
 						renderQueue,
+					)};</script>`
+				: ''
+		}
+		${
+			completedClientRenders
+				? `<script>window.remotion_initialClientRenders = ${JSON.stringify(
+						completedClientRenders,
 					)};</script>`
 				: ''
 		}

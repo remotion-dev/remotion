@@ -3,6 +3,7 @@ import {expect, test} from 'vitest';
 import type {EmittedArtifact} from '../artifact';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 
 test('should be able to render an artifact for still', async () => {
 	const Component: React.FC = () => {

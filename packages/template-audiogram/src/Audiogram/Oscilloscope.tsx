@@ -1,10 +1,10 @@
 import {
   createSmoothSvgPath,
+  useWindowedAudioData,
   visualizeAudioWaveform,
 } from "@remotion/media-utils";
 import React from "react";
 import { useCurrentFrame, useVideoConfig } from "remotion";
-import { useWindowedAudioDataIfPossible } from "../helpers/use-windowed-audio-data-if-possible";
 
 const height = 120;
 const container: React.CSSProperties = {
@@ -54,7 +54,7 @@ export const Oscilloscope: React.FC<{
 
   const posterized = Math.round(frame / posterization) * posterization;
 
-  const { audioData, dataOffsetInSeconds } = useWindowedAudioDataIfPossible({
+  const { audioData, dataOffsetInSeconds } = useWindowedAudioData({
     fps,
     frame,
     src: audioSrc,

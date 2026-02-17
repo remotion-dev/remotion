@@ -62,20 +62,21 @@ const Inner: React.FC<{
 		relativeFrameWithPostmount < (s.postmountDisplay ?? 0) &&
 		!isInRange;
 
-	const {marginLeft, width, premountWidth, postmountWidth} = useMemo(() => {
-		return getTimelineSequenceLayout({
-			durationInFrames: s.loopDisplay
-				? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
-				: s.duration,
-			startFrom: s.loopDisplay ? s.from + s.loopDisplay.startOffset : s.from,
-			startFromMedia: s.type === 'sequence' ? 0 : s.startMediaFrom,
-			maxMediaDuration,
-			video,
-			windowWidth,
-			premountDisplay: s.premountDisplay,
-			postmountDisplay: s.postmountDisplay,
-		});
-	}, [maxMediaDuration, s, video, windowWidth]);
+	const {marginLeft, width, naturalWidth, premountWidth, postmountWidth} =
+		useMemo(() => {
+			return getTimelineSequenceLayout({
+				durationInFrames: s.loopDisplay
+					? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
+					: s.duration,
+				startFrom: s.loopDisplay ? s.from + s.loopDisplay.startOffset : s.from,
+				startFromMedia: s.type === 'sequence' ? 0 : s.startMediaFrom,
+				maxMediaDuration,
+				video,
+				windowWidth,
+				premountDisplay: s.premountDisplay,
+				postmountDisplay: s.postmountDisplay,
+			});
+		}, [maxMediaDuration, s, video, windowWidth]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -153,8 +154,10 @@ const Inner: React.FC<{
 				<TimelineVideoInfo
 					src={s.src}
 					visualizationWidth={width}
-					startFrom={s.startMediaFrom}
+					naturalWidth={naturalWidth}
+					trimBefore={s.startMediaFrom}
 					durationInFrames={s.duration}
+					playbackRate={s.playbackRate}
 				/>
 			) : null}
 			{s.loopDisplay === undefined ? null : (

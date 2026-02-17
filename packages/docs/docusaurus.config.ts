@@ -67,6 +67,7 @@ const config: Config = {
 					label: 'Resources',
 					position: 'left',
 					items: [
+						{to: 'https://remotion.dev/prompts', label: 'Prompts'},
 						{to: 'learn', label: 'Learn'},
 						{
 							to: '/docs/resources',
@@ -75,6 +76,7 @@ const config: Config = {
 						{to: 'blog', label: 'Blog'},
 						{to: 'showcase', label: 'Showcase'},
 						{to: 'https://remotion.dev/convert', label: 'Convert a video'},
+						{to: 'https://remotion.dev/timing-editor', label: 'Timing Editor'},
 						{to: '/docs/support', label: 'Support'},
 					],
 				},
@@ -161,6 +163,10 @@ const config: Config = {
 					title: 'Community',
 					items: [
 						{
+							label: 'Prompt Gallery',
+							to: 'https://remotion.dev/prompts',
+						},
+						{
 							label: 'Showcase',
 							to: 'showcase',
 						},
@@ -168,7 +174,6 @@ const config: Config = {
 							label: 'Experts',
 							to: 'experts',
 						},
-
 						{
 							label: 'Discord',
 							href: 'https://remotion.dev/discord',

@@ -1,6 +1,6 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
-import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {FastRefreshContext} from '../../fast-refresh-context';
 import {
 	SetVisualControlsContext,
 	VisualControlsContext,
@@ -31,8 +31,8 @@ export const VisualControlHandle: React.FC<{
 
 	const state = useContext(VisualControlsContext);
 	const {updateValue} = useContext(SetVisualControlsContext);
-	const {fastRefreshes} = useContext(Internals.NonceContext);
-	const {increaseManualRefreshes} = useContext(Internals.SetNonceContext);
+	const {fastRefreshes, increaseManualRefreshes} =
+		useContext(FastRefreshContext);
 
 	const [saving, setSaving] = useState(false);
 

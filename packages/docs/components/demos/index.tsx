@@ -17,6 +17,7 @@ import {
 	flipPresentationDemo,
 	heartDemo,
 	irisPresentationDemo,
+	lightLeakDemo,
 	noiseDemo,
 	nonePresentationDemo,
 	opacityDemo,
@@ -26,10 +27,16 @@ import {
 	rotateDemo,
 	roundedTextBoxDemo,
 	scaleDemo,
+	shaderDemo,
 	skewDemo,
 	slidePresentationDemo,
 	slidePresentationDemoLongThreshold,
+	springDampingDemo,
+	springDemo,
 	starDemo,
+	transitionSeriesEnterExitDemo,
+	transitionSeriesOverlayDemo,
+	transitionSeriesTransitionDemo,
 	translateDemo,
 	triangleDemo,
 	wipePresentationDemo,
@@ -71,6 +78,13 @@ const demos: DemoType[] = [
 	cubePresentationDemo,
 	animationMathDemo,
 	roundedTextBoxDemo,
+	springDemo,
+	springDampingDemo,
+	shaderDemo,
+	lightLeakDemo,
+	transitionSeriesTransitionDemo,
+	transitionSeriesOverlayDemo,
+	transitionSeriesEnterExitDemo,
 ];
 
 export const Demo: React.FC<{
@@ -155,6 +169,7 @@ export const Demo: React.FC<{
 				}}
 				inputProps={{...state, darkMode: colorMode === 'dark'}}
 				autoPlay={demo.autoPlay}
+				controls={demo.controls}
 				loop
 			/>
 			<div className={styles.containerrow}>

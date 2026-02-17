@@ -60,22 +60,13 @@ import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
 import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
 import {
-	getExperimentalClientSideRenderingEnabled,
-	setExperimentalClientSideRenderingEnabled,
-} from './experimental-client-side-rendering';
-import {
 	getFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
 import {setFrameRange} from './frame-range';
 import {getHeight, overrideHeight} from './height';
 import {setImageSequence} from './image-sequence';
-import {
-	getKeyboardShortcutsEnabled,
-	setKeyboardShortcutsEnabled,
-} from './keyboard-shortcuts';
 import {getMetadata, setMetadata} from './metadata';
-import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
@@ -132,6 +123,13 @@ const {
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
 	darkModeOption,
+	askAIOption,
+	publicLicenseKeyOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
+	forceNewStudioOption,
+	numberOfSharedAudioTagsOption,
+	ipv4Option,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -492,6 +490,11 @@ declare global {
 		) => void;
 
 		/**
+		 * Enables or disables the Ask AI Modal in Studio
+		 */
+		readonly setAskAIEnabled: (askAIEnabled: boolean) => void;
+
+		/**
 		 * Removes the --single-process flag that gets passed to
 			Chromium on Linux by default. This will make the render faster because
 			multiple processes can be used, but may cause issues with some Linux
@@ -535,6 +538,12 @@ declare global {
 		 * @param pattern The pattern string, e.g. 'frame_[frame].[ext]'.
 		 */
 		readonly setImageSequencePattern: (pattern: string | null) => void;
+		/**
+		 * Set the public license key for your company license.
+		 * Obtain it from the "Usage" tab on https://remotion.pro
+		 * Pass "free-license" if you are eligible for the free license.
+		 */
+		readonly setPublicLicenseKey: (key: string | null) => void;
 	}
 }
 
@@ -546,6 +555,11 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
 		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
+		/**
+		 * Forces starting a new Studio instance even if one is already running on the same port for the same project.
+		 * Default: false
+		 */
+		setForceNewStudioEnabled: (forceNew: boolean) => void;
 
 		setDeleteAfter: (day: DeleteAfter | null) => void;
 		/**
@@ -571,6 +585,11 @@ type FlatConfig = RemotionConfigObject &
 		setHardwareAcceleration: (
 			hardwareAccelerationOption: HardwareAccelerationOption,
 		) => void;
+		/**
+		 * Forces Remotion to bind to an IPv4 interface for the Studio server.
+		 * Default: false
+		 */
+		setIPv4: (ipv4: boolean) => void;
 		/**
 		 * Choose between using Chrome Headless Shell or Chrome for Testing
 		 */
@@ -633,9 +652,10 @@ export const Config: FlatConfig = {
 		);
 	},
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
-	setKeyboardShortcutsEnabled,
-	setExperimentalClientSideRenderingEnabled,
-	setNumberOfSharedAudioTags,
+	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
+	setExperimentalClientSideRenderingEnabled:
+		experimentalClientSideRenderingOption.setConfig,
+	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
 	setWebpackPollingInMilliseconds,
 	setShouldOpenBrowser,
 	setBufferStateDelayInMilliseconds,
@@ -715,6 +735,10 @@ export const Config: FlatConfig = {
 	setImageSequencePattern: imageSequencePatternOption.setConfig,
 	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
+	setAskAIEnabled: askAIOption.setConfig,
+	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
+	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
+	setIPv4: ipv4Option.setConfig,
 };
 
 export const ConfigInternals = {
@@ -742,8 +766,6 @@ export const ConfigInternals = {
 	setStillFrame,
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
-	getKeyboardShortcutsEnabled,
-	getExperimentalClientSideRenderingEnabled,
 	getFfmpegOverrideFunction,
 	getHeight,
 	getWidth,

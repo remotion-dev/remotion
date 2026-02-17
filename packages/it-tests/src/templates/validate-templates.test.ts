@@ -52,6 +52,25 @@ describe('Templates should be valid', () => {
 			expect(body.private).toBe(true);
 			expect(body.name).toStartWith('template-');
 
+			// Check that no dependencies use "catalog:" as version
+			if (body.dependencies) {
+				for (const [, version] of Object.entries(body.dependencies)) {
+					expect(version).not.toBe('catalog:');
+				}
+			}
+
+			if (body.devDependencies) {
+				for (const [, version] of Object.entries(body.devDependencies)) {
+					expect(version).not.toBe('catalog:');
+				}
+			}
+
+			if (body.peerDependencies) {
+				for (const [, version] of Object.entries(body.peerDependencies)) {
+					expect(version).not.toBe('catalog:');
+				}
+			}
+
 			if (!template.shortName.includes('JavaScript')) {
 				expect(body.devDependencies['typescript']).toInclude('5.9.3');
 
@@ -72,7 +91,7 @@ describe('Templates should be valid', () => {
 				/(remotion\sstudio)|(next dev)|(react-router dev)|(tsx watch)|(tsx src\/studio)|(bun studio\.ts)/,
 			);
 			expect(scripts.build).toMatch(
-				/(remotion\sbundle)|(react-router build)|(next\sbuild)|(tsx src\/render)|(tsc \&\& vite build)/,
+				/(remotion\sbundle)|(react-router build)|(next\sbuild)|(tsx src\/render)|(tsc \&\& vite build)|(bun build\.ts)/,
 			);
 		});
 
@@ -156,7 +175,12 @@ describe('Templates should be valid', () => {
 			}
 			expect(contents).toInclude('"forceConsistentCasingInFileNames": true');
 
-			if (!template.shortName.includes('Next')) {
+			if (
+				!template.shortName.includes('Next') &&
+				!template.shortName.includes(
+					'Prompt to Motion Graphics SaaS Starter Kit',
+				)
+			) {
 				expect(contents).not.toInclude('"incremental": true');
 			}
 		});

@@ -1,6 +1,8 @@
 import {getInputProps, useVideoConfig} from 'remotion';
 import {expect, test} from 'vitest';
+import {makeInternalState} from '../internal-state';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 
 const MustAcceptInputProps: React.FC<{
 	abc: string;
@@ -75,7 +77,8 @@ test('cannot call getInputProps() while rendering client-side', async () => {
 });
 
 type MockSignature = typeof renderStillOnWeb;
-const mockFn: MockSignature = () => Promise.resolve(new Blob());
+const mockFn: MockSignature = () =>
+	Promise.resolve({blob: new Blob(), internalState: makeInternalState()});
 
 test('Should be able to omit input props when component accepts no props', () => {
 	mockFn({

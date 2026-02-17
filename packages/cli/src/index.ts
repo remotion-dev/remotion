@@ -39,6 +39,7 @@ import {
 } from './progress-bar';
 import {render} from './render';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
+import {skillsCommand} from './skills';
 import {still} from './still';
 import {studioCommand} from './studio';
 import {upgradeCommand} from './upgrade';
@@ -50,13 +51,9 @@ import {
 
 export const cli = async () => {
 	const [command, ...args] = parsedCli._;
-	if (parsedCli.help) {
-		printHelp('info');
-		process.exit(0);
-	}
 
 	const remotionRoot = RenderInternals.findRemotionRoot();
-	if (command !== VERSIONS_COMMAND) {
+	if (command !== VERSIONS_COMMAND && !parsedCli.help) {
 		await validateVersionsBeforeCommand(remotionRoot, 'info');
 	}
 
@@ -138,6 +135,8 @@ export const cli = async () => {
 				logLevel,
 				args: additionalArgs,
 			});
+		} else if (command === 'skills') {
+			await skillsCommand(args, logLevel);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {
@@ -147,6 +146,8 @@ export const cli = async () => {
 		} else if (command === 'help') {
 			printHelp(logLevel);
 			process.exit(0);
+		} else if (parsedCli.help) {
+			printHelp(logLevel);
 		} else {
 			if (command) {
 				Log.error({indent: false, logLevel}, `Command ${command} not found.`);

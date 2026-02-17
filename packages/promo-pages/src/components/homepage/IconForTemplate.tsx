@@ -18,6 +18,7 @@ import {StillIcon} from '../icons/still';
 import {TikTok} from '../icons/tiktok';
 import {TypeScriptIcon} from '../icons/ts';
 import {TTSIcon} from '../icons/tts';
+import {VercelIcon} from '../icons/vercel';
 import {Waveform} from '../icons/waveform';
 
 export const IconForTemplate: React.FC<{
@@ -149,7 +150,7 @@ export const IconForTemplate: React.FC<{
 
 	if (
 		template.cliId === 'next' ||
-		template.cliId === 'next-tailwind' ||
+		template.cliId === 'next-no-tailwind' ||
 		template.cliId === 'next-pages-dir'
 	) {
 		return <NextIcon style={{height: scale * 36}} />;
@@ -173,6 +174,10 @@ export const IconForTemplate: React.FC<{
 
 	if (template.cliId === 'prompt-to-motion-graphics') {
 		return <BrainIcon style={{height: scale * 36}} />;
+	}
+
+	if (template.cliId === 'vercel') {
+		return <VercelIcon style={{height: scale * 28}} />;
 	}
 
 	throw new Error(`Unknown template: ${template.cliId satisfies never}`);

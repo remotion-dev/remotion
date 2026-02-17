@@ -47,6 +47,12 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {fps} = useVideoConfig();
 	const environment = useRemotionEnvironment();
 
+	if (environment.isClientSideRendering) {
+		throw new Error(
+			'<Html5Audio> is not supported in @remotion/web-renderer. Use <Audio> from @remotion/media instead. See https://remotion.dev/docs/client-side-rendering/limitations',
+		);
+	}
+
 	const {durations, setDurations} = useContext(DurationsContext);
 	if (typeof props.src !== 'string') {
 		throw new TypeError(

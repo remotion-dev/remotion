@@ -9,12 +9,25 @@ import type {
 } from '@remotion/studio-shared';
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
+import {detectRemotionServer} from '../detect-remotion-server';
 import {handleRoutes} from '../routes';
 import type {QueueMethods} from './api-types';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
 import type {LiveEventsServer} from './live-events';
 import {makeLiveEventsRouter} from './live-events';
+
+export type StartServerResult =
+	| {
+			type: 'started';
+			port: number;
+			liveEventsServer: LiveEventsServer;
+			close: () => Promise<void>;
+	  }
+	| {
+			type: 'already-running';
+			port: number;
+	  };
 
 export const startServer = async (options: {
 	entry: string;
@@ -44,11 +57,27 @@ export const startServer = async (options: {
 	forceIPv4: boolean;
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	enableCrossSiteIsolation: boolean;
-}): Promise<{
-	port: number;
-	liveEventsServer: LiveEventsServer;
-	close: () => Promise<void>;
-}> => {
+	askAIEnabled: boolean;
+	forceNew: boolean;
+}): Promise<StartServerResult> => {
+	const desiredPort =
+		options?.port ??
+		(process.env.PORT ? Number(process.env.PORT) : undefined) ??
+		undefined;
+
+	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
+
+	const onPortUnavailable = options.forceNew
+		? undefined
+		: async (port: number): Promise<'continue' | 'stop'> => {
+				const detection = await detectRemotionServer({
+					port,
+					cwd: options.remotionRoot,
+					hostname: portConfig.hostsToTry[0],
+				});
+				return detection.type === 'match' ? 'stop' : 'continue';
+			};
+
 	const [, config] = await BundlerInternals.webpackConfig({
 		entry: options.entry,
 		userDefinedComponent: options.userDefinedComponent,
@@ -62,6 +91,7 @@ export const startServer = async (options: {
 			options.experimentalClientSideRenderingEnabled,
 		poll: options.poll,
 		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
+		askAIEnabled: options.askAIEnabled,
 	});
 
 	const compiler = webpack(config);
@@ -135,44 +165,55 @@ export const startServer = async (options: {
 			});
 	});
 
-	const desiredPort =
-		options?.port ??
-		(process.env.PORT ? Number(process.env.PORT) : undefined) ??
-		undefined;
-
 	const maxTries = 5;
-
-	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
 
 	for (let i = 0; i < maxTries; i++) {
 		try {
-			const selectedPort = await new Promise<number>((resolve, reject) => {
-				RenderInternals.getDesiredPort({
+			const {port, unlockPort, didUsePort} =
+				await RenderInternals.getDesiredPort({
 					desiredPort,
 					from: 3000,
 					to: 3100,
 					hostsToTry: portConfig.hostsToTry,
-				})
-					.then(({port, unlockPort}) => {
-						RenderInternals.Log.verbose(
-							{indent: false, logLevel: options.logLevel},
-							`Binding server to host ${portConfig.host}, port ${port}`,
-						);
-						server.listen({
-							port,
-							host: portConfig.host,
-						});
-						server.on('listening', () => {
-							resolve(port);
-							return unlockPort();
-						});
-						server.on('error', (err) => {
-							reject(err);
-						});
-					})
-					.catch((err) => reject(err));
+					onPortUnavailable,
+				});
+
+			if (didUsePort) {
+				unlockPort();
+				await Promise.all([
+					new Promise<void>((resolve) => {
+						server.close(() => resolve());
+					}),
+					new Promise<void>((resolve) => {
+						compiler.close(() => resolve());
+					}),
+				]);
+				return {
+					type: 'already-running' as const,
+					port,
+				};
+			}
+
+			const selectedPort = await new Promise<number>((resolve, reject) => {
+				RenderInternals.Log.verbose(
+					{indent: false, logLevel: options.logLevel},
+					`Binding server to host ${portConfig.host}, port ${port}`,
+				);
+				server.listen({
+					port,
+					host: portConfig.host,
+				});
+				server.on('listening', () => {
+					resolve(port);
+					return unlockPort();
+				});
+				server.on('error', (err) => {
+					reject(err);
+				});
 			});
+
 			return {
+				type: 'started' as const,
 				port: selectedPort as number,
 				liveEventsServer,
 				close: async () => {

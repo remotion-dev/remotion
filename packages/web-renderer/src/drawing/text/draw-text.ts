@@ -1,27 +1,37 @@
+import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import type {DrawFn} from '../drawn-fn';
 import {applyTextTransform} from './apply-text-transform';
-import {findLineBreaks} from './find-line-breaks.text';
-import {getCollapsedText} from './get-collapsed-text';
+import {findWords} from './find-line-breaks.text';
 
-export const drawText = (span: HTMLSpanElement) => {
-	const drawFn: DrawFn = ({dimensions: rect, computedStyle, contextToDraw}) => {
+export const drawText = ({
+	span,
+	logLevel,
+	onlyBackgroundClipText,
+	parentRect,
+}: {
+	span: HTMLSpanElement;
+	logLevel: LogLevel;
+	parentRect: DOMRect;
+	onlyBackgroundClipText: boolean;
+}) => {
+	const drawFn: DrawFn = ({computedStyle, contextToDraw}) => {
 		const {
 			fontFamily,
 			fontSize,
 			fontWeight,
-			color,
 			direction,
 			writingMode,
 			letterSpacing,
 			textTransform,
+			webkitTextFillColor,
 		} = computedStyle;
 		const isVertical = writingMode !== 'horizontal-tb';
 		if (isVertical) {
 			// TODO: Only warn once per render.
 			Internals.Log.warn(
 				{
-					logLevel: 'warn',
+					logLevel,
 					tag: '@remotion/web-renderer',
 				},
 				'Detected "writing-mode" CSS property. Vertical text is not yet supported in @remotion/web-renderer',
@@ -34,7 +44,13 @@ export const drawText = (span: HTMLSpanElement) => {
 		const fontSizePx = parseFloat(fontSize);
 
 		contextToDraw.font = `${fontWeight} ${fontSizePx}px ${fontFamily}`;
-		contextToDraw.fillStyle = color;
+		contextToDraw.fillStyle =
+			// If text is being applied with backgroundClipText, we need to use a solid color otherwise it won't get
+			// applied in canvas
+			onlyBackgroundClipText
+				? 'black'
+				: // -webkit-text-fill-color overrides color, and defaults to the value of `color`
+					webkitTextFillColor;
 		contextToDraw.letterSpacing = letterSpacing;
 
 		const isRTL = direction === 'rtl';
@@ -42,25 +58,25 @@ export const drawText = (span: HTMLSpanElement) => {
 		contextToDraw.textBaseline = 'alphabetic';
 
 		const originalText = span.textContent;
-		const collapsedText = getCollapsedText(span);
-		const transformedText = applyTextTransform(collapsedText, textTransform);
+		const transformedText = applyTextTransform(originalText, textTransform);
 		span.textContent = transformedText;
 
-		// For RTL text, fill from the right edge instead of left
-		const xPosition = isRTL ? rect.right : rect.left;
-		const lines = findLineBreaks(span, isRTL);
+		const tokens = findWords(span);
 
-		let offsetTop = 0;
+		for (const token of tokens) {
+			const measurements = contextToDraw.measureText(originalText);
+			const {fontBoundingBoxDescent, fontBoundingBoxAscent} = measurements;
 
-		const {fontBoundingBoxAscent} = contextToDraw.measureText(lines[0].text);
+			const fontHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
+			// Calculate leading
+			const leading = token.rect.height - fontHeight;
+			const halfLeading = leading / 2;
 
-		for (const line of lines) {
 			contextToDraw.fillText(
-				line.text,
-				xPosition + line.offsetHorizontal,
-				rect.top + offsetTop + fontBoundingBoxAscent,
+				token.text,
+				(isRTL ? token.rect.right : token.rect.left) - parentRect.x,
+				token.rect.top + fontBoundingBoxAscent + halfLeading - parentRect.y,
 			);
-			offsetTop += line.offsetTop;
 		}
 
 		span.textContent = originalText;

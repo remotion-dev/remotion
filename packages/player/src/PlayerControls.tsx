@@ -7,6 +7,7 @@ import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import {PlayerTimeLabel} from './PlayerTimeLabel.js';
 import {FullscreenIcon} from './icons.js';
+import type {RenderCustomControls} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {useHoverState} from './use-hover-state.js';
 import {
@@ -120,6 +121,7 @@ export const Controls: React.FC<{
 	readonly renderVolumeSlider: RenderVolumeSlider | null;
 	readonly playing: boolean;
 	readonly toggle: (e?: SyntheticEvent | PointerEvent) => void;
+	readonly renderCustomControls: RenderCustomControls | null;
 }> = ({
 	durationInFrames,
 	isFullscreen,
@@ -148,6 +150,7 @@ export const Controls: React.FC<{
 	renderVolumeSlider,
 	playing,
 	toggle,
+	renderCustomControls,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
@@ -264,6 +267,10 @@ export const Controls: React.FC<{
 		return null;
 	}, [showPlaybackRateControl]);
 
+	const customControlsElement = renderCustomControls
+		? renderCustomControls()
+		: null;
+
 	const ref = useRef<HTMLDivElement | null>(null);
 	const flexRef = useRef<HTMLDivElement | null>(null);
 
@@ -339,6 +346,10 @@ export const Controls: React.FC<{
 					<div style={xSpacer} />
 				</div>
 				<div style={flex1} />
+				{customControlsElement}
+				{customControlsElement && playbackRates && canvasSize ? (
+					<div style={xSpacer} />
+				) : null}
 				{playbackRates && canvasSize && (
 					<PlaybackrateControl
 						canvasSize={canvasSize}

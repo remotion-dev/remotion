@@ -11,10 +11,16 @@ import {Internals} from 'remotion';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
+import type {ClientRenderJob} from './client-side-render-types';
+import {isRestoredClientJob} from './client-side-render-types';
+import type {AnyRenderJob} from './context';
+import {isClientRenderJob} from './context';
+import {RenderQueueCancelledMessage} from './RenderQueueCancelledMessage';
 import {
 	RenderQueueCopyToClipboard,
 	supportsCopyingToClipboard,
 } from './RenderQueueCopyToClipboard';
+import {RenderQueueDownloadItem} from './RenderQueueDownloadItem';
 import {RenderQueueError} from './RenderQueueError';
 import {RenderQueueCancelButton} from './RenderQueueItemCancelButton';
 import {RenderQueueItemStatus} from './RenderQueueItemStatus';
@@ -23,6 +29,7 @@ import {RenderQueueOutputName} from './RenderQueueOutputName';
 import {RenderQueueProgressMessage} from './RenderQueueProgressMessage';
 import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
 import {RenderQueueRepeatItem} from './RenderQueueRepeat';
+import {RenderQueueSavingMessage} from './RenderQueueSavingMessage';
 
 const container: React.CSSProperties = {
 	padding: 12,
@@ -54,12 +61,14 @@ const subtitle: React.CSSProperties = {
 const SELECTED_CLASSNAME = '__remotion_selected_classname';
 
 export const RenderQueueItem: React.FC<{
-	readonly job: RenderJob;
+	readonly job: AnyRenderJob;
 	readonly selected: boolean;
 }> = ({job, selected}) => {
 	const [hovered, setHovered] = useState(false);
 
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
+
+	const isClientJob = isClientRenderJob(job);
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -69,19 +78,20 @@ export const RenderQueueItem: React.FC<{
 		setHovered(false);
 	}, []);
 
-	const isHoverable = job.status === 'done';
+	const isHoverable =
+		job.status === 'done' && (isClientJob || job.type !== 'sequence');
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...container,
 			backgroundColor: getBackgroundFromHoverState({
-				hovered: isHoverable && hovered && job.type !== 'sequence',
+				hovered: isHoverable && hovered,
 				selected,
 			}),
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 		};
-	}, [hovered, isHoverable, job.type, selected]);
+	}, [hovered, isHoverable, selected]);
 
 	const scrollCurrentIntoView = useCallback(() => {
 		document
@@ -89,13 +99,48 @@ export const RenderQueueItem: React.FC<{
 			?.scrollIntoView({behavior: 'smooth'});
 	}, []);
 
+	const clientBlobInfo = useMemo(() => {
+		if (!isClientJob || job.status !== 'done' || !job.getBlob) {
+			return null;
+		}
+
+		return {
+			getBlob: job.getBlob,
+			width: job.metadata.width,
+			height: job.metadata.height,
+			sizeInBytes: job.metadata.sizeInBytes,
+		};
+	}, [isClientJob, job]);
+
 	const onClick: React.MouseEventHandler = useCallback(() => {
 		if (job.status !== 'done') {
 			return;
 		}
 
 		// Cannot show folders
-		if (job.type === 'sequence') {
+		if (!isClientJob && job.type === 'sequence') {
+			return;
+		}
+
+		if (clientBlobInfo) {
+			setCanvasContent((c: CanvasContent | null): CanvasContent => {
+				const isAlreadySelected =
+					c && c.type === 'output-blob' && c.displayName === job.outName;
+
+				if (isAlreadySelected && !selected) {
+					scrollCurrentIntoView();
+					return c;
+				}
+
+				return {
+					type: 'output-blob',
+					displayName: job.outName,
+					getBlob: clientBlobInfo.getBlob,
+					width: clientBlobInfo.width,
+					height: clientBlobInfo.height,
+					sizeInBytes: clientBlobInfo.sizeInBytes,
+				};
+			});
 			return;
 		}
 
@@ -111,13 +156,31 @@ export const RenderQueueItem: React.FC<{
 			return {type: 'output', path: `/${job.outName}`};
 		});
 		pushUrl(`/outputs/${job.outName}`);
-	}, [job, scrollCurrentIntoView, selected, setCanvasContent]);
+	}, [
+		job,
+		isClientJob,
+		clientBlobInfo,
+		scrollCurrentIntoView,
+		selected,
+		setCanvasContent,
+	]);
 
 	useEffect(() => {
 		if (selected) {
 			scrollCurrentIntoView();
 		}
 	}, [scrollCurrentIntoView, selected]);
+
+	const canCopyToClipboard =
+		job.status === 'done' &&
+		!isClientJob &&
+		supportsCopyingToClipboard(job as RenderJob);
+
+	const canRepeat =
+		(job.status === 'done' ||
+			job.status === 'failed' ||
+			job.status === 'cancelled') &&
+		!(isClientRenderJob(job) && isRestoredClientJob(job));
 
 	return (
 		<Row
@@ -139,22 +202,30 @@ export const RenderQueueItem: React.FC<{
 						<RenderQueueError job={job} />
 					) : job.status === 'running' ? (
 						<RenderQueueProgressMessage job={job} />
+					) : job.status === 'saving' ? (
+						<RenderQueueSavingMessage />
+					) : job.status === 'cancelled' ? (
+						<RenderQueueCancelledMessage />
 					) : null}
 				</div>
 			</div>
 			<Spacing x={1} />
-			{supportsCopyingToClipboard(job) ? (
-				<RenderQueueCopyToClipboard job={job} />
+			{canCopyToClipboard ? (
+				<RenderQueueCopyToClipboard job={job as RenderJob} />
 			) : null}
-			{job.status === 'done' || job.status === 'failed' ? (
-				<RenderQueueRepeatItem job={job} />
-			) : null}
+			{canRepeat ? <RenderQueueRepeatItem job={job} /> : null}
 			{job.status === 'running' ? (
 				<RenderQueueCancelButton job={job} />
 			) : (
 				<RenderQueueRemoveItem job={job} />
 			)}
-			{job.status === 'done' ? <RenderQueueOpenInFinderItem job={job} /> : null}
+			{job.status === 'done' ? (
+				clientBlobInfo ? (
+					<RenderQueueDownloadItem job={job as ClientRenderJob} />
+				) : (
+					<RenderQueueOpenInFinderItem job={job} />
+				)
+			) : null}
 		</Row>
 	);
 };

@@ -46,15 +46,10 @@ export const DownloadNudge: React.FC = () => {
 						width: 280,
 						position: 'absolute',
 						right: 70,
-						top: 60,
+						top: 70,
 					}}
 				>
-					Export the video using
-					<br />{' '}
-					<a href="/lambda" className="bluelink">
-						Remotion Lambda
-					</a>
-					.
+					Export the video!
 				</div>
 			</div>
 		</div>

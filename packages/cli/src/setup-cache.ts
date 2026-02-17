@@ -7,6 +7,7 @@ import type {GitSource} from '@remotion/studio-shared';
 import {existsSync} from 'fs';
 import path from 'path';
 import {ConfigInternals} from './config';
+import {getRenderDefaults} from './get-render-defaults';
 import {Log} from './log';
 import type {SymbolicLinksState} from './progress-bar';
 import {
@@ -31,6 +32,9 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	maxTimelineTracks,
 	publicPath,
 	audioLatencyHint,
+	experimentalClientSideRenderingEnabled,
+	askAIEnabled,
+	keyboardShortcutsEnabled,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -50,6 +54,9 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	maxTimelineTracks: number | null;
 	publicPath: string | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	experimentalClientSideRenderingEnabled: boolean;
+	askAIEnabled: boolean;
+	keyboardShortcutsEnabled: boolean;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -90,6 +97,9 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		maxTimelineTracks,
 		publicPath,
 		audioLatencyHint,
+		experimentalClientSideRenderingEnabled,
+		askAIEnabled,
+		keyboardShortcutsEnabled,
 	});
 
 	return {
@@ -114,6 +124,9 @@ export const bundleOnCli = async ({
 	bufferStateDelayInMilliseconds,
 	publicPath,
 	audioLatencyHint,
+	experimentalClientSideRenderingEnabled,
+	askAIEnabled,
+	keyboardShortcutsEnabled,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -133,6 +146,9 @@ export const bundleOnCli = async ({
 	bufferStateDelayInMilliseconds: number | null;
 	publicPath: string | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	experimentalClientSideRenderingEnabled: boolean;
+	keyboardShortcutsEnabled: boolean;
+	askAIEnabled: boolean;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -196,6 +212,8 @@ export const bundleOnCli = async ({
 		onSymlinkDetected,
 		outDir: outDir ?? null,
 		publicPath,
+		askAIEnabled,
+		keyboardShortcutsEnabled,
 	};
 
 	const [hash] = await BundlerInternals.getConfig({
@@ -206,6 +224,7 @@ export const bundleOnCli = async ({
 		resolvedRemotionRoot: remotionRoot,
 		bufferStateDelayInMilliseconds,
 		maxTimelineTracks,
+		experimentalClientSideRenderingEnabled,
 	});
 	const cacheExistedBefore = BundlerInternals.cacheExists(
 		remotionRoot,
@@ -254,6 +273,8 @@ export const bundleOnCli = async ({
 		maxTimelineTracks,
 		bufferStateDelayInMilliseconds,
 		audioLatencyHint,
+		experimentalClientSideRenderingEnabled,
+		renderDefaults: getRenderDefaults(),
 	});
 
 	bundlingState = {

@@ -19,6 +19,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			loopBehavior = 'loop',
 			playbackRate = 1,
 			fit = 'fill',
+			delayRenderTimeoutInMilliseconds,
 			...props
 		},
 		ref,
@@ -42,7 +43,9 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 		const [error, setError] = useState<Error | null>(null);
 
 		const [renderHandle] = useState(() =>
-			delayRender(`Rendering <Gif/> with src="${resolvedSrc}"`),
+			delayRender(`Rendering <Gif/> with src="${resolvedSrc}"`, {
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+			}),
 		);
 
 		const logLevel = Internals.useLogLevel();
@@ -67,7 +70,9 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			const controller = new AbortController();
 			let done = false;
 			let aborted = false;
-			const newHandle = delayRender('Loading <Gif /> with src=' + resolvedSrc);
+			const newHandle = delayRender('Loading <Gif /> with src=' + resolvedSrc, {
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+			});
 
 			Internals.Log.verbose(
 				{logLevel, tag: null},
@@ -114,7 +119,14 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 				continueRender(newHandle);
 				continueRender(renderHandle);
 			};
-		}, [renderHandle, logLevel, resolvedSrc, delayRender, continueRender]);
+		}, [
+			renderHandle,
+			logLevel,
+			resolvedSrc,
+			delayRender,
+			continueRender,
+			delayRenderTimeoutInMilliseconds,
+		]);
 
 		if (error) {
 			Internals.Log.error({logLevel, tag: null}, error.stack);

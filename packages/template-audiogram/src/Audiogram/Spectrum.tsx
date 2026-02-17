@@ -1,6 +1,5 @@
-import { visualizeAudio } from "@remotion/media-utils";
+import { useWindowedAudioData, visualizeAudio } from "@remotion/media-utils";
 import { useCurrentFrame, useVideoConfig } from "remotion";
-import { useWindowedAudioDataIfPossible } from "../helpers/use-windowed-audio-data-if-possible";
 import { AudioVizContainer } from "./AudioVizContainer";
 import { BASE_SIZE } from "./constants";
 
@@ -36,7 +35,7 @@ export const Spectrum: React.FC<{
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const { audioData, dataOffsetInSeconds } = useWindowedAudioDataIfPossible({
+  const { audioData, dataOffsetInSeconds } = useWindowedAudioData({
     src: audioSrc,
     fps,
     frame,

@@ -13,6 +13,7 @@ import {useMaxMediaCacheSize} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
+import {callOnErrorAndResolve} from '../on-error';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {AudioProps} from './props';
 
@@ -24,7 +25,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
-	logLevel = window.remotion_logLevel ?? 'info',
+	logLevel: overriddenLogLevel,
 	loop,
 	fallbackHtml5AudioProps,
 	audioStreamIndex,
@@ -35,7 +36,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	toneFrequency,
 	trimAfter,
 	trimBefore,
+	onError,
 }) => {
+	const defaultLogLevel = Internals.useLogLevel();
+	const logLevel = overriddenLogLevel ?? defaultLogLevel;
 	const frame = useCurrentFrame();
 	const absoluteFrame = Internals.useTimelinePosition();
 
@@ -77,24 +81,13 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		],
 	);
 
-	const maxCacheSize = useMaxMediaCacheSize(
-		logLevel ?? window.remotion_logLevel,
-	);
+	const maxCacheSize = useMaxMediaCacheSize(logLevel);
 
 	const audioEnabled = Internals.useAudioEnabled();
 
 	useLayoutEffect(() => {
 		const timestamp = frame / fps;
 		const durationInSeconds = 1 / fps;
-
-		if (replaceWithHtml5Audio) {
-			return;
-		}
-
-		const newHandle = delayRender(`Extracting audio for frame ${frame}`, {
-			retries: delayRenderRetries ?? undefined,
-			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
-		});
 
 		const shouldRenderAudio = (() => {
 			if (!audioEnabled) {
@@ -108,12 +101,25 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			return true;
 		})();
 
+		if (!shouldRenderAudio) {
+			return;
+		}
+
+		if (replaceWithHtml5Audio) {
+			return;
+		}
+
+		const newHandle = delayRender(`Extracting audio for frame ${frame}`, {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
+
 		extractFrameViaBroadcastChannel({
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
 			playbackRate: playbackRate ?? 1,
-			logLevel: logLevel ?? window.remotion_logLevel,
+			logLevel,
 			includeAudio: shouldRenderAudio,
 			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,
@@ -125,43 +131,49 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			maxCacheSize,
 		})
 			.then((result) => {
-				if (result.type === 'unknown-container-format') {
-					if (disallowFallbackToHtml5Audio) {
-						cancelRender(
-							new Error(
-								`Unknown container format ${src}, and 'disallowFallbackToHtml5Audio' was set. Failing the render.`,
-							),
-						);
+				const handleError = (
+					error: Error,
+					clientSideError: Error,
+					fallbackMessage: string,
+				) => {
+					const [action, errorToUse] = callOnErrorAndResolve({
+						onError,
+						error,
+						disallowFallback: disallowFallbackToHtml5Audio ?? false,
+						isClientSideRendering: environment.isClientSideRendering,
+						clientSideError,
+					});
+					if (action === 'fail') {
+						cancelRender(errorToUse);
 					}
 
 					Internals.Log.warn(
-						{
-							logLevel: logLevel ?? window.remotion_logLevel,
-							tag: '@remotion/media',
-						},
+						{logLevel, tag: '@remotion/media'},
+						fallbackMessage,
+					);
+
+					setReplaceWithHtml5Audio(true);
+				};
+
+				if (result.type === 'unknown-container-format') {
+					handleError(
+						new Error(`Unknown container format ${src}.`),
+						new Error(
+							`Cannot render audio "${src}": Unknown container format. See supported formats: https://www.remotion.dev/docs/mediabunny/formats`,
+						),
 						`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
 					);
-					setReplaceWithHtml5Audio(true);
 					return;
 				}
 
 				if (result.type === 'cannot-decode') {
-					if (disallowFallbackToHtml5Audio) {
-						cancelRender(
-							new Error(
-								`Cannot decode ${src}, and 'disallowFallbackToHtml5Audio' was set. Failing the render.`,
-							),
-						);
-					}
-
-					Internals.Log.warn(
-						{
-							logLevel: logLevel ?? window.remotion_logLevel,
-							tag: '@remotion/media',
-						},
+					handleError(
+						new Error(`Cannot decode ${src}.`),
+						new Error(
+							`Cannot render audio "${src}": The audio could not be decoded by the browser.`,
+						),
 						`Cannot decode ${src}, falling back to <Html5Audio>`,
 					);
-					setReplaceWithHtml5Audio(true);
 					return;
 				}
 
@@ -172,22 +184,13 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				}
 
 				if (result.type === 'network-error') {
-					if (disallowFallbackToHtml5Audio) {
-						cancelRender(
-							new Error(
-								`Cannot decode ${src}, and 'disallowFallbackToHtml5Audio' was set. Failing the render.`,
-							),
-						);
-					}
-
-					Internals.Log.warn(
-						{
-							logLevel: logLevel ?? window.remotion_logLevel,
-							tag: '@remotion/media',
-						},
+					handleError(
+						new Error(`Network error fetching ${src}.`),
+						new Error(
+							`Cannot render audio "${src}": Network error while fetching the audio (possibly CORS).`,
+						),
 						`Network error fetching ${src}, falling back to <Html5Audio>`,
 					);
-					setReplaceWithHtml5Audio(true);
 					return;
 				}
 
@@ -262,6 +265,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		replaceWithHtml5Audio,
 		maxCacheSize,
 		audioEnabled,
+		onError,
 	]);
 
 	if (replaceWithHtml5Audio) {

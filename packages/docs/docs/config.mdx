@@ -166,7 +166,7 @@ The [command line flag](/docs/cli/studio#--webpack-poll) `--webpack-poll` will t
 
 ## `setNumberOfSharedAudioTags()`<AvailableFrom v="3.3.2" />
 
-How many shared audio tags should be mounted in the Studio. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. See [this article](/docs/player/autoplay#using-the-numberofsharedaudiotags-prop which covers the same option but for the Player. Default `0`, meaning no autoplay policies are circumvented.
+<Options id="number-of-shared-audio-tags" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -174,6 +174,8 @@ import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setNumberOfSharedAudioTags(5);
 ```
+
+The [command line flag](/docs/cli/studio#--number-of-shared-audio-tags) `--number-of-shared-audio-tags` will take precedence over this option.
 
 ## `setShouldOpenBrowser()`<AvailableFrom v="3.3.19" />
 
@@ -426,6 +428,16 @@ import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setFrameRange([0, 20]); // Render a video only containing the first 21 frames
 ```
+
+or
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setFrameRange([100, null]); // Render from frame 100 to the end of the composition
+```
+
+Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
 
 The [command line flag](/docs/cli/render#--frames) `--frames` will take precedence over this option.
 
@@ -790,6 +802,48 @@ Config.setEnableCrossSiteIsolation(true);
 
 The [command line flag](/docs/cli/studio#--cross-site-isolation) `--cross-site-isolation` will take precedence over this option.
 
+## `setAskAIEnabled()`<AvailableFrom v="4.0.407" />
+
+<Options id="disable-ask-ai" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setAskAIEnabled(false);
+```
+
+The [command line flag](/docs/cli/studio#--disable-ask-ai) `--disable-ask-ai` will take precedence over this option.
+
+## `setForceNewStudioEnabled()`<AvailableFrom v="4.0.421" />
+
+<Options id="force-new" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setForceNewStudioEnabled(true);
+```
+
+The [command line flag](/docs/cli/studio#--force-new) `--force-new` will take precedence over this option.
+
+## `setIPv4()`<AvailableFrom v="4.0.125" />
+
+<Options id="ipv4" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setIPv4(true);
+```
+
+The [command line flag](/docs/cli/studio#--ipv4) `--ipv4` will take precedence over this option.
+
 ## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.0.111" />
 
 Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state. Default `300`.
@@ -870,6 +924,20 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
+
+## `setPublicLicenseKey()`<AvailableFrom v="4.0.398" />
+
+<Options id="public-license-key" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPublicLicenseKey('your-license-key');
+```
+
+The [command line flag](/docs/cli/studio#--public-license-key) `--public-license-key` will take precedence over this option.
 
 ## ~~`setQuality()`~~
 

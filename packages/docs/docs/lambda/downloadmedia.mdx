@@ -47,9 +47,7 @@ The ID of the render. You can retrieve this ID by calling [`renderMediaOnLambda(
 
 Where the video should be saved. Pass an absolute path, or it will be resolved relative to your current working directory.
 
-### `onProgress`
-
-_optional_
+### `onProgress?`
 
 Callback function that gets called with the following properties:
 
@@ -57,11 +55,13 @@ Callback function that gets called with the following properties:
 - `downloaded` number of bytes downloaded
 - `percent` relative progress between 0 and 1
 
-### `customCredentials`
-
-_optional, available from v3.2.23_
+### `customCredentials?`<AvailableFrom v="3.2.23" />
 
 If the render was saved to a [different cloud](/docs/lambda/custom-destination#saving-to-another-cloud), pass an object with the same `endpoint`, `accessKeyId` and `secretAccessKey` as you passed to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#outname) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#outname).
+
+### `signal?`<AvailableFrom v="4.0.406" />
+
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) that allows the download to be cancelled.
 
 ## Return value
 
@@ -74,6 +74,10 @@ The absolute path of where the file got saved.
 ### `sizeInBytes`
 
 The size of the file in bytes.
+
+## Compatibility
+
+<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering={false} player={false} studio={false} />
 
 ## See also
 

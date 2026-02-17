@@ -137,7 +137,7 @@ import {CalculateMetadataFunction, Composition} from 'remotion';
 // https://www.remotion.dev/docs/mediabunny/metadata
 import {getMediaMetadata} from './get-media-metadata';
 
-const src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+const src = 'https://remotion.media/BigBuckBunny.mp4';
 
 export const calculateMetadataFn: CalculateMetadataFunction<Record<string, unknown>> = async () => {
   const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);

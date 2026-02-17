@@ -18,17 +18,27 @@ type Options = {
 		| undefined;
 	logLevel: LogLevel;
 	indent: boolean;
+	abortSignal: AbortSignal;
 };
+
+const CANCELLED_ERROR = 'cancelled';
 
 const incorrectContentLengthToken = 'Download finished with';
 
-const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
+const downloadFileWithoutRetries = ({
+	onProgress,
+	url,
+	to: toFn,
+	abortSignal,
+}: Options) => {
 	return new Promise<Response>((resolve, reject) => {
 		let rejected = false;
 		let resolved = false;
 		let timeout: Timer | undefined;
 
 		const resolveAndFlag = (val: Response) => {
+			abortSignal.removeEventListener('abort', onAbort);
+
 			resolved = true;
 			resolve(val);
 			if (timeout) {
@@ -37,6 +47,8 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 		};
 
 		const rejectAndFlag = (err: Error) => {
+			abortSignal.removeEventListener('abort', onAbort);
+
 			if (timeout) {
 				clearTimeout(timeout);
 			}
@@ -69,12 +81,24 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 
 		let closeConnection = () => undefined;
 
+		const onAbort = () => {
+			rejectAndFlag(new Error(CANCELLED_ERROR));
+			closeConnection();
+		};
+
+		abortSignal.addEventListener('abort', onAbort);
+
 		readFile(url)
 			.then(({response, request}) => {
 				closeConnection = () => {
 					request.destroy();
 					response.destroy();
 				};
+
+				if (abortSignal.aborted) {
+					onAbort();
+					return;
+				}
 
 				const contentDisposition =
 					response.headers['content-disposition'] ?? null;
@@ -111,7 +135,6 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 				writeStream.on('error', (err) => rejectAndFlag(err));
 				response.on('error', (err) => {
 					closeConnection();
-
 					rejectAndFlag(err);
 				});
 				response.pipe(writeStream).on('error', (err) => rejectAndFlag(err));
@@ -158,6 +181,10 @@ export const downloadFile = async (
 		return res;
 	} catch (err) {
 		const {message} = err as Error;
+		if (message === CANCELLED_ERROR) {
+			throw err;
+		}
+
 		if (
 			message === 'aborted' ||
 			message.includes('ECONNRESET') ||

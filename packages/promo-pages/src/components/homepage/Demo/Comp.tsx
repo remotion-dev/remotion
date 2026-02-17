@@ -1,8 +1,8 @@
 import type {EmojiName} from '@remotion/animated-emoji';
+import {Audio} from '@remotion/media';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
 	AbsoluteFill,
-	Html5Audio,
 	prefetch,
 	staticFile,
 	type CalculateMetadataFunction,
@@ -28,7 +28,7 @@ export type LocationAndTrending = {
 
 export const getDataAndProps = async () => {
 	const location = (await fetch(
-		'https://bugs-git-homepage-player-remotion.vercel.app/api/location',
+		'https://bugs-five.vercel.app/api/location',
 	).then((res) => res.json())) as Location;
 
 	const trending = await fetch(
@@ -151,7 +151,7 @@ export const HomepageVideoComp: React.FC<DemoPlayerProps> = ({
 				onRight={onClickRight}
 				emojiName={emoji}
 			/>
-			{audioSrc ? <Html5Audio src={audioSrc} /> : null}
+			{audioSrc ? <Audio src={audioSrc} /> : null}
 		</AbsoluteFill>
 	);
 };

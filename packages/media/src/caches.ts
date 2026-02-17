@@ -3,14 +3,14 @@ import {cancelRender, Internals, type LogLevel} from 'remotion';
 import {makeAudioManager} from './audio-extraction/audio-manager';
 import {makeKeyframeManager} from './video-extraction/keyframe-manager';
 
-// TODO: make it dependent on the fps and concurrency
-export const SAFE_BACK_WINDOW_IN_SECONDS = 1;
+// Frames can be out of order, but we don't expect them to be more than 0.2 seconds out of order
+export const getSafeWindowOfMonotonicity = (fps: number) => (0.2 * 30) / fps;
 
 export const keyframeManager = makeKeyframeManager();
 export const audioManager = makeAudioManager();
 
-export const getTotalCacheStats = async () => {
-	const keyframeManagerCacheStats = await keyframeManager.getCacheStats();
+export const getTotalCacheStats = () => {
+	const keyframeManagerCacheStats = keyframeManager.getCacheStats();
 	const audioManagerCacheStats = audioManager.getCacheStats();
 
 	return {

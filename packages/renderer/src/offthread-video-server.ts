@@ -80,17 +80,8 @@ export const startOffthreadVideoServer = ({
 	});
 
 	return {
-		close: async () => {
-			// Note: This is being used as a promise:
-			//     .close().then()
-			// but if finishCommands() fails, it acts like a sync function,
-			// therefore we have to catch an error and put a promise rejection
-			try {
-				await compositor.finishCommands();
-				return compositor.waitForDone();
-			} catch (err) {
-				return Promise.reject(err);
-			}
+		close: () => {
+			return compositor.shutDownOrKill();
 		},
 		listener: (req, response) => {
 			if (!req.url) {
@@ -225,7 +216,12 @@ export const startOffthreadVideoServer = ({
 						'Could not extract frame from compositor',
 						err,
 					);
-					if (!response.headersSent) {
+					if (response.headersSent) {
+						Log.error(
+							{indent, logLevel},
+							'Cannot propagate error message to client because headers have already been sent',
+						);
+					} else {
 						response.writeHead(500);
 						response.write(JSON.stringify({error: err.stack}));
 					}

@@ -6,7 +6,10 @@ module.exports = function () {
 		name: 'slug-plugin',
 		loadContent() {
 			const experts = fs.readFileSync(
-				path.join(__dirname, '../src/data/experts.tsx'),
+				path.join(
+					__dirname,
+					'../../../packages/promo-pages/src/components/experts/experts-data.tsx',
+				),
 				'utf-8',
 			);
 			const templates = fs.readFileSync(
@@ -27,6 +30,16 @@ module.exports = function () {
 				})
 				.filter(Boolean);
 
+			const promptSubmissionsPath = path.join(
+				__dirname,
+				'../static/_raw/prompt-submissions.json',
+			);
+			const promptSubmissions = fs.existsSync(promptSubmissionsPath)
+				? JSON.parse(fs.readFileSync(promptSubmissionsPath, 'utf-8'))
+				: [];
+			const promptSlugs = promptSubmissions.map((p) => p.slug);
+			const promptPageCount = Math.ceil(promptSubmissions.length / 12);
+
 			if (templateSlugs.length === 0) {
 				throw new Error('expected templates');
 			}
@@ -35,9 +48,12 @@ module.exports = function () {
 				throw new Error('expected experts');
 			}
 
-			return {expertSlugs, templateSlugs};
+			return {expertSlugs, templateSlugs, promptSlugs, promptPageCount};
 		},
-		contentLoaded({content: {expertSlugs, templateSlugs}, actions}) {
+		contentLoaded({
+			content: {expertSlugs, templateSlugs, promptSlugs, promptPageCount},
+			actions,
+		}) {
 			expertSlugs.forEach((c) => {
 				actions.addRoute({
 					path: '/experts/' + c,
@@ -54,6 +70,24 @@ module.exports = function () {
 					exact: true,
 				});
 			});
+			promptSlugs.forEach((slug) => {
+				actions.addRoute({
+					path: '/prompts/' + slug,
+					component: '@site/src/components/PromptPage.tsx',
+					modules: {},
+					exact: true,
+				});
+			});
+			Array.from({length: promptPageCount - 1}, (_, i) => i + 2).forEach(
+				(pageNum) => {
+					actions.addRoute({
+						path: '/prompts/' + pageNum,
+						component: '@site/src/components/PromptsGalleryPage.tsx',
+						modules: {},
+						exact: true,
+					});
+				},
+			);
 		},
 	};
 };

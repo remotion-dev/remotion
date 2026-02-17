@@ -56,14 +56,12 @@ export const LoadFromUrl: React.FC = () => {
 
 	return (
 		<>
-			<a
-				className="font-brand text-brand cursor cursor-pointer"
+			<RemotionButton
+				className="font-brand text-brand rounded-full text-sm h-10"
 				onClick={onOpenUrl}
 			>
-				<RemotionButton className="rounded-full text-sm h-10">
-					Load from URL
-				</RemotionButton>
-			</a>
+				Load from URL
+			</RemotionButton>
 			<Dialog open={open} onOpenChange={onOpenChange}>
 				<DialogContent>
 					<DialogHeader>

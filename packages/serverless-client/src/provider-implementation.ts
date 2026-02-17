@@ -59,6 +59,7 @@ type CreateBucket<Provider extends CloudProvider> = (params: {
 	forcePathStyle: boolean;
 	skipPutAcl: boolean;
 	requestHandler: Provider['requestHandler'] | null;
+	logLevel: LogLevel;
 }) => Promise<void>;
 
 type ApplyLifeCycle<Provider extends CloudProvider> = (params: {

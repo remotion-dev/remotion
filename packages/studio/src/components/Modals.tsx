@@ -40,14 +40,7 @@ export const Modals: React.FC<{
 			)}
 
 			{modalContextType && modalContextType.type === 'web-render' && (
-				<WebRenderModalWithLoader
-					type="web-render"
-					initialFrame={modalContextType.initialFrame}
-					compositionId={modalContextType.compositionId}
-					defaultProps={modalContextType.defaultProps}
-					inFrameMark={modalContextType.inFrameMark}
-					outFrameMark={modalContextType.outFrameMark}
-				/>
+				<WebRenderModalWithLoader {...modalContextType} />
 			)}
 			{modalContextType &&
 				canRender &&
@@ -127,11 +120,9 @@ export const Modals: React.FC<{
 					/>
 				)}
 
-			{modalContextType &&
-				canRender &&
-				modalContextType.type === 'render-progress' && (
-					<RenderStatusModal jobId={modalContextType.jobId} />
-				)}
+			{modalContextType && modalContextType.type === 'render-progress' && (
+				<RenderStatusModal jobId={modalContextType.jobId} />
+			)}
 
 			{modalContextType && modalContextType.type === 'update' && (
 				<UpdateModal
@@ -150,7 +141,7 @@ export const Modals: React.FC<{
 					initialMode={modalContextType.mode}
 				/>
 			)}
-			<AskAiModal />
+			{process.env.ASK_AI_ENABLED && <AskAiModal />}
 		</>
 	);
 };

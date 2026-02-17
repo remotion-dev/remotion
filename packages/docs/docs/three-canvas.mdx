@@ -48,6 +48,12 @@ const ThreeBasic: React.FC = () => {
 export default ThreeBasic;
 ```
 
+## `frameloop` behavior during rendering
+
+During rendering, `<ThreeCanvas>` overrides the `frameloop` prop to `'never'` regardless of what you pass. This means the Three.js scene will not re-render on its own — it is only re-rendered on demand via `advance()`.
+
+If you update textures asynchronously (e.g. from a [`<Video>`](/docs/media/video) `onVideoFrame` callback), you must call `advance(performance.now())` instead of `invalidate()` to synchronously re-render the scene before the frame is captured. See [Using a video as a texture](/docs/videos/as-threejs-texture) for a full example.
+
 ## Note on `<Sequence>`
 
 A [`<Sequence>`](/docs/sequence) by default will return a `<div>` component which is not allowed inside a `<ThreeCanvas>`. To avoid an error, pass `layout="none"` to `<Sequence>`.

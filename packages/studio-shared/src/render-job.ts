@@ -50,6 +50,12 @@ export type BundlingState = {
 	doneIn: number | null;
 };
 
+export type BrowserDownloadState = {
+	progress: number;
+	doneIn: number | null;
+	alreadyAvailable: boolean;
+};
+
 export type BrowserProgressLog = {
 	logLevel: LogLevel;
 	previewString: string;
@@ -60,7 +66,8 @@ export type AggregateRenderProgress = {
 	rendering: RenderingProgressInput | null;
 	stitching: StitchingProgressInput | null;
 	downloads: DownloadProgress[];
-	bundling: BundlingState;
+	bundling: BundlingState | null;
+	browser: BrowserDownloadState;
 	copyingState: CopyingState;
 	artifactState: ArtifactProgress;
 	logs: BrowserProgressLog[];
@@ -186,4 +193,18 @@ export type RenderJob = {
 
 export type RenderJobWithCleanup = RenderJob & {
 	cleanup: (() => void)[];
+};
+
+export type CompletedClientRender = {
+	id: string;
+	type: 'client-video' | 'client-still';
+	compositionId: string;
+	outName: string;
+	startedAt: number;
+	deletedOutputLocation: boolean;
+	metadata: {
+		width: number;
+		height: number;
+		sizeInBytes: number;
+	};
 };

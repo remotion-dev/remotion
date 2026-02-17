@@ -78,6 +78,10 @@ const shouldPrioritizeVideoCopyOverReencode = (routeAction: RouteAction) => {
 		return false;
 	}
 
+	if (routeAction.type === 'timing-editor') {
+		return true;
+	}
+
 	throw new Error('Unsupported route action' + (routeAction satisfies never));
 };
 

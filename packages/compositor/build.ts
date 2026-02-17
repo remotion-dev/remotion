@@ -249,9 +249,13 @@ for (const arch of archs) {
 		? `-C link-args=-Wl,-rpath,'$ORIGIN'`
 		: '';
 
-	const optimizations = all
-		? `-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes ${rPathOrigin}`
+	const macOSHeaderPad = arch.includes('darwin')
+		? `-C link-args=-Wl,-headerpad_max_install_names`
 		: '';
+
+	const optimizations = all
+		? `-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes ${rPathOrigin} ${macOSHeaderPad}`
+		: macOSHeaderPad;
 
 	execSync(command, {
 		stdio: 'inherit',

@@ -7,6 +7,8 @@ crumb: CLI Reference
 
 Adds one or more Remotion packages to your project with the same version as your other Remotion packages.
 
+Also supports adding `zod` and `mediabunny` with the correct version for your Remotion installation.
+
 ```
 npx remotion add <package-name...>
 ```
@@ -27,7 +29,7 @@ npx remotion add @remotion/transitions @remotion/three @remotion/lottie
 
 This command will:
 
-1. Verify that all package names are valid Remotion packages
+1. Verify that all package names are valid Remotion packages (or supported extra packages: `zod`, `mediabunny`)
 2. Check which packages are already installed (and skip them)
 3. Detect the version of your currently installed Remotion packages
 4. Install the specified packages with the matching version
@@ -35,8 +37,6 @@ This command will:
 ## Flags
 
 ### `--package-manager`<AvailableFrom v="4.0.367"/>
-
-_optional_
 
 Forces a specific package manager to be used. By default, Remotion will auto-detect the package manager based on your lockfile.
 

@@ -79,21 +79,21 @@ The font needs to be loaded before this API is being called.
 If you use [`@remotion/google-fonts`](/docs/google-fonts), wait until [`waitUntilDone()`](/docs/google-fonts/load-font#waituntildone) resolves first.
 :::
 
-### `fontWeight`
+### `fontWeight?`
 
-_string | number, optional_
+_string | number_
 
 Pass this option if you are going to assign a `font-weight` CSS property to the text.
 
-### `letterSpacing`
+### `letterSpacing?`
 
-_string, optional_
+_string_
 
 Pass this option if you are going to assign a `letter-spacing` CSS property to the text.
 
-### `fontVariantNumeric`
+### `fontVariantNumeric?`
 
-_string, optional_
+_string_
 
 Pass this option if you are going to assign a `font-variant-numeric` CSS property to the text.
 
@@ -109,15 +109,15 @@ _boolean_
 
 If set to `true`, will take a second measurement with the fallback font and if it produces the same measurements, it assumes the fallback font was used and will throw an error.
 
-### `additionalStyles`
+### `additionalStyles?`
 
-_object, optional_
+_object_
 
 Additional CSS properties that affect the layout of the text.
 
-### `maxFontSize`
+### `maxFontSize?`
 
-_number, optional_
+_number_
 
 The maximum font size (in pixels) that the text is allowed to reach. If not specified, defaults to 2000.
 

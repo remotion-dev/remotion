@@ -2,7 +2,7 @@
 image: /generated/articles-docs-iframe.png
 title: <IFrame>
 id: iframe
-crumb: "API"
+crumb: 'API'
 ---
 
 The `<IFrame />` can be used like the regular `<iframe>` HTML tag.
@@ -15,7 +15,7 @@ Ideally, the website should not have any animations, since only animations using
 ## Example
 
 ```tsx twoslash
-import { IFrame } from "remotion";
+import {IFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return <IFrame src="https://remotion.dev" />;
@@ -36,6 +36,10 @@ Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delay
 
 Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.  
 Prefer the [`maxRetries`](/docs/img#maxretries) prop over this.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
 
 ## See also
 

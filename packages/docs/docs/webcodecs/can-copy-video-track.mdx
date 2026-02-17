@@ -30,7 +30,7 @@ import {parseMedia} from '@remotion/media-parser';
 import {canCopyVideoTrack} from '@remotion/webcodecs';
 
 const {tracks, container} = await parseMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.webm',
+  src: 'https://remotion.media/BigBuckBunny.webm',
   fields: {
     tracks: true,
     container: true,
@@ -55,7 +55,7 @@ for (const track of videoTracks) {
 import {convertMedia, canCopyVideoTrack} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.webm',
+  src: 'https://remotion.media/BigBuckBunny.webm',
   container: 'webm',
   videoCodec: 'vp8',
   audioCodec: 'opus',

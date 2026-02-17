@@ -117,6 +117,7 @@ const sidebars: SidebarsConfig = {
 				'cli/versions',
 				'cli/upgrade',
 				'cli/add',
+				'cli/skills',
 				'cli/ffmpeg',
 				'cli/ffprobe',
 				'cli/gpu',
@@ -218,7 +219,7 @@ const sidebars: SidebarsConfig = {
 			label: '@remotion/captions',
 			link: {
 				type: 'doc',
-				id: 'captions/index',
+				id: 'captions/api',
 			},
 			items: [
 				'captions/caption',
@@ -375,7 +376,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'licensing/index',
 			},
-			items: ['licensing/register-usage-point', 'licensing/get-usage'],
+			items: ['licensing/register-usage-event', 'licensing/get-usage'],
 		},
 		{
 			type: 'category',
@@ -405,33 +406,6 @@ const sidebars: SidebarsConfig = {
 				'media/support',
 				'media/fallback',
 				'media/cache',
-			],
-		},
-		{
-			type: 'category',
-			label: '@remotion/media-parser',
-			link: {
-				type: 'doc',
-				id: 'media-parser/index',
-			},
-			items: [
-				{
-					type: 'link',
-					href: '/docs/media-parser',
-					label: 'Guide',
-				},
-				'media-parser/types',
-				'media-parser/parse-media',
-				'media-parser/download-and-parse-media',
-				'media-parser/media-parser-controller',
-				'media-parser/parse-media-on-web-worker',
-				'media-parser/parse-media-on-server-worker',
-				'media-parser/has-been-aborted',
-				'media-parser/node-reader',
-				'media-parser/web-reader',
-				'media-parser/universal-reader',
-				'media-parser/node-writer',
-				'media-parser/webcodecs-timescale',
 			],
 		},
 		{
@@ -476,6 +450,15 @@ const sidebars: SidebarsConfig = {
 				id: 'noise/index',
 			},
 			items: ['noise/noise-2d', 'noise/noise-3d', 'noise/noise-4d'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/light-leaks',
+			link: {
+				type: 'doc',
+				id: 'light-leaks/light-leaks-api',
+			},
+			items: ['light-leaks/light-leak'],
 		},
 		{
 			type: 'category',
@@ -733,9 +716,94 @@ const sidebars: SidebarsConfig = {
 				},
 			],
 		},
+
 		{
 			type: 'category',
-			label: '@remotion/webcodecs',
+			label: '@remotion/web-renderer',
+			link: {
+				type: 'doc',
+				id: 'web-renderer/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/client-side-rendering',
+					label: 'Guide',
+				},
+				'web-renderer/render-media-on-web',
+				'web-renderer/render-still-on-web',
+				'web-renderer/can-render-media-on-web',
+				'web-renderer/get-encodable-video-codecs',
+				'web-renderer/get-encodable-audio-codecs',
+				'web-renderer/types',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/whisper-web',
+			link: {
+				type: 'doc',
+				id: 'whisper-web/index',
+			},
+			items: [
+				'whisper-web/download-whisper-model',
+				'whisper-web/transcribe',
+				'whisper-web/resample-to-16khz',
+				'whisper-web/can-use-whisper-web',
+				'whisper-web/get-available-models',
+				'whisper-web/get-loaded-models',
+				'whisper-web/to-captions',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/zod-types',
+			link: {
+				type: 'doc',
+				id: 'zod-types/index',
+			},
+			items: [
+				'zod-types/z-color',
+				'zod-types/z-textarea',
+				'zod-types/z-matrix',
+			],
+		},
+		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
+			defaultStyle: true,
+		},
+		{
+			type: 'category',
+			label: '@remotion/media-parser (deprecated)',
+			link: {
+				type: 'doc',
+				id: 'media-parser/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/media-parser',
+					label: 'Guide',
+				},
+				'media-parser/types',
+				'media-parser/parse-media',
+				'media-parser/download-and-parse-media',
+				'media-parser/media-parser-controller',
+				'media-parser/parse-media-on-web-worker',
+				'media-parser/parse-media-on-server-worker',
+				'media-parser/has-been-aborted',
+				'media-parser/node-reader',
+				'media-parser/web-reader',
+				'media-parser/universal-reader',
+				'media-parser/node-writer',
+				'media-parser/webcodecs-timescale',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/webcodecs (deprecated)',
 			link: {
 				type: 'doc',
 				id: 'webcodecs/index',
@@ -770,36 +838,6 @@ const sidebars: SidebarsConfig = {
 				'webcodecs/buffer-writer',
 			],
 		},
-		{
-			type: 'category',
-			label: '@remotion/whisper-web',
-			link: {
-				type: 'doc',
-				id: 'whisper-web/index',
-			},
-			items: [
-				'whisper-web/download-whisper-model',
-				'whisper-web/transcribe',
-				'whisper-web/resample-to-16khz',
-				'whisper-web/can-use-whisper-web',
-				'whisper-web/get-available-models',
-				'whisper-web/get-loaded-models',
-				'whisper-web/to-captions',
-			],
-		},
-		{
-			type: 'category',
-			label: '@remotion/zod-types',
-			link: {
-				type: 'doc',
-				id: 'zod-types/index',
-			},
-			items: [
-				'zod-types/z-color',
-				'zod-types/z-textarea',
-				'zod-types/z-matrix',
-			],
-		},
 	],
 	mainSidebar: [
 		{
@@ -825,12 +863,15 @@ const sidebars: SidebarsConfig = {
 				'measuring',
 				'using-randomness',
 				'noise-visualization',
+				'maps',
 				'animation-math',
+				'shaders',
+				'light-leaks',
 			],
 		},
 		{
 			type: 'category',
-			label: 'Embedding videos',
+			label: 'Adding video',
 			items: [
 				'videos/index',
 				'miscellaneous/snippets/align-duration',
@@ -847,7 +888,7 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: 'Audio',
+			label: 'Adding audio',
 			link: {
 				type: 'doc',
 				id: 'using-audio',
@@ -885,6 +926,26 @@ const sidebars: SidebarsConfig = {
 
 		{
 			type: 'category',
+			label: 'Captions',
+			link: {
+				type: 'doc',
+				id: 'captions/index',
+			},
+			items: [
+				'captions/importing',
+				'captions/transcribing',
+				'captions/displaying',
+				'captions/exporting',
+			],
+		},
+		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
+			defaultStyle: true, // Use the default menu item styling
+		},
+		{
+			type: 'category',
 			label: 'Rendering',
 			link: {
 				type: 'doc',
@@ -909,17 +970,6 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: 'Studio',
-			items: [
-				'studio/studio',
-				'studio/shortcuts',
-				'studio/quick-switcher',
-				'studio/deploy-static',
-				'studio/deploy-server',
-			],
-		},
-		{
-			type: 'category',
 			label: 'Server-side rendering',
 			link: {
 				type: 'doc',
@@ -935,6 +985,7 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/cloud-gpu-docker',
 				'compare-ssr',
 				'distributed-rendering',
+				'vercel-sandbox',
 				'cloudflare-containers',
 				'azure-container-apps',
 			],
@@ -947,43 +998,18 @@ const sidebars: SidebarsConfig = {
 				id: 'client-side-rendering/index',
 			},
 			items: [
-				'client-side-rendering/index',
+				{
+					type: 'link',
+					href: '/docs/web-renderer',
+					label: 'API Reference',
+				},
 				'client-side-rendering/how-it-works',
 				'client-side-rendering/limitations',
 				'client-side-rendering/migration',
+				'client-side-rendering/cancellation',
 				'client-side-rendering/telemetry',
 			],
 		},
-		{
-			type: 'category',
-			link: {
-				type: 'doc',
-				id: 'player/index',
-			},
-			label: 'Player',
-			items: [
-				{
-					type: 'link',
-					href: '/docs/player/player',
-					label: 'API Reference',
-				},
-				'player/examples',
-				'player/scaling',
-				'player/integration',
-				'player/autoplay',
-				'player/current-time',
-				'troubleshooting/player-flicker',
-				'player/buffer-state',
-				'player/preloading',
-				'player/premounting',
-				'player/best-practices',
-				'player/drag-and-drop/index',
-				'player/custom-controls',
-				'player/media-keys',
-				'player/playback-issues',
-			],
-		},
-
 		{
 			type: 'category',
 			label: 'Lambda',
@@ -1059,6 +1085,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/upgrading',
 				'lambda/uninstall',
 				'lambda/s3-public-access',
+				'lambda/bucket-security',
 				'lambda/naming-convention',
 			],
 		},
@@ -1085,34 +1112,51 @@ const sidebars: SidebarsConfig = {
 				'cloudrun/uninstall',
 			],
 		},
+
+		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
+			defaultStyle: true, // Use the default menu item styling
+		},
 		{
 			type: 'category',
-			label: 'Media Parser',
+			label: 'Studio',
+			items: [
+				'studio/studio',
+				'studio/shortcuts',
+				'studio/quick-switcher',
+				'studio/deploy-static',
+				'studio/deploy-server',
+			],
+		},
+		{
+			type: 'category',
 			link: {
 				type: 'doc',
-				id: 'media-parser/index',
+				id: 'player/index',
 			},
+			label: 'Player',
 			items: [
 				{
 					type: 'link',
-					href: '/docs/media-parser/parse-media',
+					href: '/docs/player/player',
 					label: 'API Reference',
 				},
-				'media-parser/metadata',
-				'media-parser/fields',
-				'media-parser/samples',
-				'media-parser/fast-and-slow',
-				'media-parser/readers',
-				'media-parser/tags',
-				'media-parser/download-and-parse',
-				'media-parser/workers',
-				'media-parser/format-support',
-				'media-parser/runtime-support',
-				'media-parser/pause-resume-abort',
-				'media-parser/seeking',
-				'media-parser/webcodecs',
-				'media-parser/foreign-file-types',
-				'media-parser/stream-selection',
+				'player/examples',
+				'player/scaling',
+				'player/integration',
+				'player/autoplay',
+				'player/current-time',
+				'troubleshooting/player-flicker',
+				'player/buffer-state',
+				'player/preloading',
+				'player/premounting',
+				'player/best-practices',
+				'player/drag-and-drop/index',
+				'player/custom-controls',
+				'player/media-keys',
+				'player/playback-issues',
 			],
 		},
 
@@ -1137,13 +1181,43 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: 'Mediabunny',
+			link: {
+				type: 'doc',
+				id: 'mediabunny/index',
+			},
+			items: [
+				'mediabunny/index',
+				'mediabunny/new-video',
+				'mediabunny/metadata',
+				'mediabunny/extract-thumbnail',
+				'mediabunny/extract-frames',
+				'mediabunny/can-decode',
+				'mediabunny/formats',
+				'mediabunny/version',
+			],
+		},
+
+		{
+			type: 'category',
 			label: 'AI',
 			link: {
 				type: 'doc',
 				id: 'ai/index',
 			},
-			items: ['ai/bolt', 'ai/chatbot', 'ai/mcp', 'ai/system-prompt'],
+			items: [
+				'ai/claude-code',
+				'ai/bolt',
+				'ai/chatbot',
+				'ai/generate',
+				'ai/dynamic-compilation',
+				'ai/ai-saas-template',
+				'ai/mcp',
+				'ai/system-prompt',
+				'ai/skills',
+			],
 		},
+
 		{
 			type: 'category',
 			label: 'Tooling',
@@ -1161,6 +1235,92 @@ const sidebars: SidebarsConfig = {
 				'after-effects',
 			],
 		},
+		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
+			defaultStyle: true, // Use the default menu item styling
+		},
+
+		{
+			type: 'link',
+			href: '/docs/api',
+			label: 'API Reference',
+		},
+		{
+			type: 'category',
+			label: 'Terminology',
+			link: {
+				type: 'doc',
+				id: 'terminology',
+			},
+			items: [
+				'terminology/player',
+				'terminology/studio',
+				'terminology/concurrency',
+				'terminology/input-props',
+				'terminology/cloud-run-url',
+				'terminology/service-name',
+				'terminology/entry-point',
+				'terminology/root-file',
+				'terminology/remotion-root',
+				'terminology/public-dir',
+				'terminology/serve-url',
+				'terminology/bundle',
+				'terminology/sequence',
+				'terminology/composition',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Snippets',
+			items: [
+				'miscellaneous/snippets/different-segments-at-different-speeds',
+				'miscellaneous/snippets/player-in-iframe',
+				'miscellaneous/snippets/combine-compositions',
+			],
+		},
+		{
+			type: 'category',
+			label: 'FAQ',
+			items: [
+				'miscellaneous/render-in-browser',
+				'miscellaneous/automatic-duration',
+				'miscellaneous/nextjs',
+				'vercel',
+				'miscellaneous/render-on-edge',
+				'miscellaneous/embed-studio',
+				'miscellaneous/absolute-paths',
+				'miscellaneous/live-streaming',
+				'miscellaneous/parse-media-vs-get-video-metadata',
+				'miscellaneous/pexels',
+				'compare/motion-canvas',
+				'lovable-for-motion-graphics',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Miscellaneous',
+			items: [
+				'security',
+				'accessibility',
+				'chromium-flags',
+				'miscellaneous/changing-temp-dir',
+				'miscellaneous/chrome-headless-shell',
+				'miscellaneous/linux-dependencies',
+				'gl-options',
+				'bun',
+				'deno',
+				'standalone',
+				'miscellaneous/emojis',
+				'miscellaneous/cross-origin-isolation',
+				'cors-issues',
+				'media-fragments',
+				'react-native',
+				'detect-remotion',
+			],
+		},
+		'resources',
 		{
 			type: 'category',
 			label: 'Troubleshooting',
@@ -1200,75 +1360,6 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: 'Snippets',
-			items: [
-				'miscellaneous/snippets/different-segments-at-different-speeds',
-				'miscellaneous/snippets/player-in-iframe',
-				'miscellaneous/snippets/combine-compositions',
-			],
-		},
-		{
-			type: 'link',
-			href: '/docs/api',
-			label: 'API Reference',
-		},
-		{
-			type: 'category',
-			label: 'Mediabunny',
-			link: {
-				type: 'doc',
-				id: 'mediabunny/index',
-			},
-			items: [
-				'mediabunny/index',
-				'mediabunny/new-video',
-				'mediabunny/metadata',
-				'mediabunny/extract-thumbnail',
-				'mediabunny/extract-frames',
-				'mediabunny/can-decode',
-				'mediabunny/formats',
-				'mediabunny/version',
-			],
-		},
-		'upgrading',
-		{
-			type: 'category',
-			label: 'Terminology',
-			link: {
-				type: 'doc',
-				id: 'terminology',
-			},
-			items: [
-				'terminology/player',
-				'terminology/studio',
-				'terminology/concurrency',
-				'terminology/input-props',
-				'terminology/cloud-run-url',
-				'terminology/service-name',
-				'terminology/entry-point',
-				'terminology/root-file',
-				'terminology/remotion-root',
-				'terminology/public-dir',
-				'terminology/serve-url',
-				'terminology/bundle',
-				'terminology/sequence',
-				'terminology/composition',
-			],
-		},
-		'resources',
-		{
-			type: 'category',
-			label: 'Migration guides',
-			items: [
-				'react-19',
-				'5-0-migration',
-				'4-0-migration',
-				'3-0-migration',
-				'2-0-migration',
-			],
-		},
-		{
-			type: 'category',
 			label: 'Get help',
 			link: {
 				type: 'doc',
@@ -1293,44 +1384,16 @@ const sidebars: SidebarsConfig = {
 				'support',
 			],
 		},
-
+		'upgrading',
 		{
 			type: 'category',
-			label: 'Miscellaneous',
+			label: 'Migration guides',
 			items: [
-				'security',
-				'accessibility',
-				'chromium-flags',
-				'miscellaneous/changing-temp-dir',
-				'miscellaneous/chrome-headless-shell',
-				'miscellaneous/linux-dependencies',
-				'gl-options',
-				'bun',
-				'deno',
-				'standalone',
-				'miscellaneous/emojis',
-				'miscellaneous/cross-origin-isolation',
-				'cors-issues',
-				'media-fragments',
-				'react-native',
-				'detect-remotion',
-			],
-		},
-		{
-			type: 'category',
-			label: 'FAQ',
-			items: [
-				'miscellaneous/render-in-browser',
-				'miscellaneous/automatic-duration',
-				'miscellaneous/vercel-functions',
-				'miscellaneous/nextjs',
-				'miscellaneous/render-on-edge',
-				'miscellaneous/embed-studio',
-				'miscellaneous/absolute-paths',
-				'miscellaneous/live-streaming',
-				'miscellaneous/parse-media-vs-get-video-metadata',
-				'miscellaneous/pexels',
-				'compare/motion-canvas',
+				'react-19',
+				'5-0-migration',
+				'4-0-migration',
+				'3-0-migration',
+				'2-0-migration',
 			],
 		},
 		{
@@ -1352,6 +1415,74 @@ const sidebars: SidebarsConfig = {
 		},
 		'license',
 		'acknowledgements',
+
+		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
+			defaultStyle: true, // Use the default menu item styling
+		},
+		{
+			type: 'link',
+			href: '/docs/editor-starter',
+			label: 'Editor Starter',
+			className: 'pro-item',
+		},
+		{
+			type: 'link',
+			href: '/docs/timeline',
+			label: 'Timeline',
+			className: 'pro-item',
+		},
+		{
+			type: 'link',
+			href: '/docs/animated-captions',
+			label: 'Animated Captions',
+			className: 'pro-item',
+		},
+		{
+			type: 'link',
+			href: '/docs/recorder',
+			label: 'Recorder',
+		},
+		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
+			defaultStyle: true, // Use the default menu item styling
+		},
+		{
+			type: 'category',
+			label: 'Media Parser',
+			link: {
+				type: 'doc',
+				id: 'media-parser/index',
+			},
+			className: 'deprecated-item',
+			items: [
+				{
+					type: 'link',
+					href: '/docs/media-parser/parse-media',
+					label: 'API Reference',
+				},
+				'media-parser/metadata',
+				'media-parser/fields',
+				'media-parser/samples',
+				'media-parser/fast-and-slow',
+				'media-parser/readers',
+				'media-parser/tags',
+				'media-parser/download-and-parse',
+				'media-parser/workers',
+				'media-parser/format-support',
+				'media-parser/runtime-support',
+				'media-parser/pause-resume-abort',
+				'media-parser/seeking',
+				'media-parser/webcodecs',
+				'media-parser/foreign-file-types',
+				'media-parser/stream-selection',
+			],
+		},
+
 		{
 			type: 'category',
 			label: 'WebCodecs',
@@ -1373,32 +1504,8 @@ const sidebars: SidebarsConfig = {
 				'webcodecs/resample-audio-16khz',
 				'webcodecs/track-transformation',
 				'webcodecs/pause-resume-abort',
-				'webcodecs/telemetry',
 				'webcodecs/misconceptions',
 			],
-		},
-		{
-			type: 'html',
-			value:
-				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
-			defaultStyle: true, // Use the default menu item styling
-		},
-		{
-			type: 'link',
-			href: '/docs/editor-starter',
-			label: 'Editor Starter',
-			className: 'pro-item',
-		},
-		{
-			type: 'link',
-			href: '/docs/timeline',
-			label: 'Timeline',
-			className: 'pro-item',
-		},
-		{
-			type: 'link',
-			href: '/docs/recorder',
-			label: 'Recorder',
 		},
 	],
 	editorStarterSidebar: [
@@ -1460,6 +1567,22 @@ const sidebars: SidebarsConfig = {
 				'timeline/faq',
 				'timeline/render',
 			],
+		},
+	],
+	animatedCaptionsSidebar: [
+		{
+			type: 'link',
+			href: '/docs',
+			label: '← Back to the main docs',
+		},
+		{
+			type: 'category',
+			label: 'Animated Captions',
+			link: {
+				type: 'doc',
+				id: 'animated-captions/index',
+			},
+			items: ['animated-captions/faq'],
 		},
 	],
 	recorderSidebar: [

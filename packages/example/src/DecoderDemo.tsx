@@ -31,8 +31,8 @@ export const DecoderDemo: React.FC = () => {
 					src={staticFile('matroska-pcm16.mkv')}
 				/>
 				<SrcEncoder
-					label="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-					src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+					label="https://remotion.media/BigBuckBunny.mp4"
+					src="https://remotion.media/BigBuckBunny.mp4"
 				/>
 				<SrcEncoder
 					label="h265-with-aac.mkv"

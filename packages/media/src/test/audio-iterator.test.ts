@@ -17,6 +17,7 @@ const prepare = async () => {
 		audioTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
 			unblock: () => {},
+			[Symbol.dispose]: () => {},
 		}),
 		sharedAudioContext: new AudioContext(),
 		getIsLooping: () => false,
@@ -27,6 +28,7 @@ const prepare = async () => {
 			throw new Error('not implemented');
 		},
 		updatePlaybackTime: () => {},
+		initialMuted: false,
 	});
 
 	const fps = 30;
@@ -244,6 +246,7 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 		audioTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
 			unblock: () => {},
+			[Symbol.dispose]: () => {},
 		}),
 		sharedAudioContext: new AudioContext(),
 		getIsLooping: () => false,
@@ -254,6 +257,7 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 			throw new Error('not implemented');
 		},
 		updatePlaybackTime: () => {},
+		initialMuted: false,
 	});
 
 	const scheduledChunks: number[] = [];

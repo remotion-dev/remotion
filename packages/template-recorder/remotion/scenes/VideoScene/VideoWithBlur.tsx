@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
-import { AbsoluteFill, RemotionOffthreadVideoProps } from "remotion";
+import { AbsoluteFill } from "remotion";
 import type { Dimensions } from "../../../config/layout";
 import { getBlurLayout } from "../../layout/blur";
 import type { Layout } from "../../layout/layout-types";
-import { Video } from "@remotion/media";
+import { Video, VideoProps } from "@remotion/media";
 
 // An image that if it cannot fill out the canvas, will have a background-blurred replica
 export const VideoWithBlur: React.FC<
@@ -11,7 +11,7 @@ export const VideoWithBlur: React.FC<
     containerLayout: Layout;
     videoSize: Dimensions;
     enableBlur: boolean;
-  } & Omit<RemotionOffthreadVideoProps, "style">
+  } & Omit<VideoProps, "style">
 > = ({ containerLayout, videoSize, enableBlur, ...props }) => {
   const { innerStyle, needsBlur, outerStyle, blurStyle } = useMemo(() => {
     return getBlurLayout({

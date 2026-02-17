@@ -1,4 +1,4 @@
-export type FrameRange = number | [number, number];
+export type FrameRange = number | [number, number] | [number, null];
 export const validateFrameRange = (frameRange: FrameRange | null) => {
 	if (frameRange === null) {
 		return;
@@ -32,35 +32,64 @@ export const validateFrameRange = (frameRange: FrameRange | null) => {
 			);
 		}
 
-		for (const value of frameRange) {
-			if (typeof value !== 'number') {
-				throw new Error(
-					`Each value of frame range must be a number, but got ${typeof value} (${JSON.stringify(
-						value,
-					)})`,
-				);
-			}
+		const [first, second] = frameRange;
 
-			if (!Number.isFinite(value)) {
-				throw new TypeError(
-					'Each value of frame range must be finite, but got ' + value,
-				);
-			}
-
-			if (!Number.isInteger(value)) {
-				throw new Error(
-					`Each value of frame range must be an integer, but got a float (${value})`,
-				);
-			}
-
-			if (value < 0) {
-				throw new Error(
-					`Each value of frame range must be non-negative, but got ${value}`,
-				);
-			}
+		if (typeof first !== 'number') {
+			throw new Error(
+				`The first value of frame range must be a number, but got ${typeof first} (${JSON.stringify(
+					first,
+				)})`,
+			);
 		}
 
-		const [first, second] = frameRange;
+		if (!Number.isFinite(first)) {
+			throw new TypeError(
+				'The first value of frame range must be finite, but got ' + first,
+			);
+		}
+
+		if (!Number.isInteger(first)) {
+			throw new Error(
+				`The first value of frame range must be an integer, but got a float (${first})`,
+			);
+		}
+
+		if (first < 0) {
+			throw new Error(
+				`The first value of frame range must be non-negative, but got ${first}`,
+			);
+		}
+
+		if (second === null) {
+			return;
+		}
+
+		if (typeof second !== 'number') {
+			throw new Error(
+				`The second value of frame range must be a number or null, but got ${typeof second} (${JSON.stringify(
+					second,
+				)})`,
+			);
+		}
+
+		if (!Number.isFinite(second)) {
+			throw new TypeError(
+				'The second value of frame range must be finite, but got ' + second,
+			);
+		}
+
+		if (!Number.isInteger(second)) {
+			throw new Error(
+				`The second value of frame range must be an integer, but got a float (${second})`,
+			);
+		}
+
+		if (second < 0) {
+			throw new Error(
+				`The second value of frame range must be non-negative, but got ${second}`,
+			);
+		}
+
 		if (second < first) {
 			throw new Error(
 				'The second value of frame range must be not smaller than the first one, but got ' +

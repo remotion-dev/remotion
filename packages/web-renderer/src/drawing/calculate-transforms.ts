@@ -1,8 +1,11 @@
+import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
+import {getMaskImageValue, parseMaskImage} from './mask-image';
+import type {LinearGradientInfo} from './parse-linear-gradient';
 import {parseTransformOrigin} from './parse-transform-origin';
 
 type Transform = {
 	matrices: DOMMatrix[];
-	rect: HTMLElement | SVGElement;
+	element: Element;
 	transformOrigin: string;
 	boundingClientRect: DOMRect | null;
 };
@@ -19,7 +22,7 @@ const getInternalTransformOrigin = (transform: Transform) => {
 	return origin;
 };
 
-const getGlobalTransformOrigin = (transform: Transform) => {
+const getGlobalTransformOrigin = ({transform}: {transform: Transform}) => {
 	const {x: originX, y: originY} = getInternalTransformOrigin(transform);
 
 	return {
@@ -28,7 +31,13 @@ const getGlobalTransformOrigin = (transform: Transform) => {
 	};
 };
 
-export const calculateTransforms = (element: HTMLElement | SVGElement) => {
+export const calculateTransforms = ({
+	element,
+	rootElement,
+}: {
+	element: HTMLElement | SVGElement;
+	rootElement: HTMLElement | SVGElement;
+}) => {
 	// Compute the cumulative transform by traversing parent nodes
 	let parent: HTMLElement | SVGElement | null = element;
 	const transforms: Transform[] = [];
@@ -36,27 +45,33 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 
 	let opacity = 1;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
+	let maskImageInfo: LinearGradientInfo | null = null;
 	while (parent) {
 		const computedStyle = getComputedStyle(parent);
 
-		// Multiply opacity values from element and all parents
-		const parentOpacity = computedStyle.opacity;
-		if (parentOpacity && parentOpacity !== '') {
-			opacity *= parseFloat(parentOpacity);
-		}
-
 		if (parent === element) {
 			elementComputedStyle = computedStyle;
+			opacity = parseFloat(computedStyle.opacity);
+			const maskImageValue = getMaskImageValue(computedStyle);
+			maskImageInfo = maskImageValue ? parseMaskImage(maskImageValue) : null;
+
+			const originalMaskImage = parent.style.maskImage;
+			const originalWebkitMaskImage = parent.style.webkitMaskImage;
+			parent.style.maskImage = 'none';
+			parent.style.webkitMaskImage = 'none';
+
+			const parentRef = parent;
+
+			toReset.push(() => {
+				parentRef!.style.maskImage = originalMaskImage;
+				parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
+			});
 		}
 
-		if (
-			(computedStyle.transform && computedStyle.transform !== 'none') ||
-			parent === element
-		) {
-			const toParse =
-				computedStyle.transform === 'none' || computedStyle.transform === ''
-					? undefined
-					: computedStyle.transform;
+		if (hasAnyTransformCssValue(computedStyle) || parent === element) {
+			const toParse = hasTransformCssValue(computedStyle)
+				? computedStyle.transform
+				: undefined;
 			const matrix = new DOMMatrix(toParse);
 
 			const {transform, scale, rotate} = parent.style;
@@ -82,7 +97,7 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 			parent.style.rotate = 'none';
 
 			transforms.push({
-				rect: parent,
+				element: parent,
 				transformOrigin: computedStyle.transformOrigin,
 				boundingClientRect: null,
 				matrices: additionalMatrices,
@@ -95,11 +110,15 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 			});
 		}
 
+		if (parent === rootElement) {
+			break;
+		}
+
 		parent = parent.parentElement;
 	}
 
 	for (const transform of transforms) {
-		transform.boundingClientRect = transform.rect.getBoundingClientRect();
+		transform.boundingClientRect = transform.element.getBoundingClientRect();
 	}
 
 	const dimensions = transforms[0].boundingClientRect!;
@@ -107,12 +126,10 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 
 	const totalMatrix = new DOMMatrix();
 	for (const transform of transforms.slice().reverse()) {
-		if (!transform.boundingClientRect) {
-			throw new Error('Bounding client rect not found');
-		}
-
 		for (const matrix of transform.matrices) {
-			const globalTransformOrigin = getGlobalTransformOrigin(transform);
+			const globalTransformOrigin = getGlobalTransformOrigin({
+				transform,
+			});
 
 			const transformMatrix = new DOMMatrix()
 				.translate(globalTransformOrigin.x, globalTransformOrigin.y)
@@ -127,16 +144,25 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 		throw new Error('Element computed style not found');
 	}
 
+	const needs3DTransformViaWebGL = !totalMatrix.is2D;
+	const needsMaskImage = maskImageInfo !== null;
+
 	return {
 		dimensions,
 		totalMatrix,
-		reset: () => {
+		[Symbol.dispose]: () => {
 			for (const reset of toReset) {
 				reset();
 			}
 		},
 		nativeTransformOrigin,
-		opacity,
 		computedStyle: elementComputedStyle,
+		opacity,
+		maskImageInfo,
+		precompositing: {
+			needs3DTransformViaWebGL,
+			needsMaskImage: maskImageInfo,
+			needsPrecompositing: Boolean(needs3DTransformViaWebGL || needsMaskImage),
+		},
 	};
 };

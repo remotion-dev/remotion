@@ -34,6 +34,10 @@ const {
 	publicPathOption,
 	audioLatencyHintOption,
 	darkModeOption,
+	publicLicenseKeyOption,
+	forceNewStudioOption,
+	numberOfSharedAudioTagsOption,
+	ipv4Option,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -49,7 +53,9 @@ export type CommandLineOptions = {
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
 	[numberOfGifLoopsOption.cliFlag]: TypeOfOption<typeof numberOfGifLoopsOption>;
-	['number-of-shared-audio-tags']: number;
+	[numberOfSharedAudioTagsOption.cliFlag]: TypeOfOption<
+		typeof numberOfSharedAudioTagsOption
+	>;
 	[offthreadVideoCacheSizeInBytesOption.cliFlag]: TypeOfOption<
 		typeof offthreadVideoCacheSizeInBytesOption
 	>;
@@ -107,7 +113,7 @@ export type CommandLineOptions = {
 	['user-agent']: string;
 	['out-dir']: string;
 	[audioLatencyHintOption.cliFlag]: AudioContextLatencyCategory;
-	ipv4: boolean;
+	[ipv4Option.cliFlag]: TypeOfOption<typeof ipv4Option>;
 	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
 	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;
 	[enableMultiprocessOnLinuxOption.cliFlag]: TypeOfOption<
@@ -115,6 +121,9 @@ export type CommandLineOptions = {
 	>;
 	repro: boolean;
 	'image-sequence-pattern': string;
+	'license-key': string;
+	[publicLicenseKeyOption.cliFlag]: string;
+	[forceNewStudioOption.cliFlag]: TypeOfOption<typeof forceNewStudioOption>;
 };
 
 export const parseCommandLine = () => {
@@ -186,6 +195,17 @@ export const parseCommandLine = () => {
 		);
 	}
 
+	if (
+		parsedCli['license-key'] &&
+		parsedCli['license-key'].startsWith('rm_pub_')
+	) {
+		Config.setPublicLicenseKey(parsedCli['license-key']);
+	}
+
+	if (parsedCli['public-license-key']) {
+		Config.setPublicLicenseKey(parsedCli['public-license-key']);
+	}
+
 	if (typeof parsedCli.quality !== 'undefined') {
 		Log.warn(
 			{indent: false, logLevel: 'info'},
@@ -196,12 +216,6 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli.scale !== 'undefined') {
 		Config.setScale(parsedCli.scale);
-	}
-
-	if (typeof parsedCli['disable-keyboard-shortcuts'] !== 'undefined') {
-		Config.setKeyboardShortcutsEnabled(
-			!parsedCli['disable-keyboard-shortcuts'],
-		);
 	}
 
 	if (

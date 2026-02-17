@@ -9,6 +9,10 @@ crumb: 'API - remotion'
 
 Using this component, you can add audio to your video. All audio formats which are supported by Chrome are supported by the component.
 
+:::warning Not supported in client-side rendering
+`<Html5Audio>` is not supported in [`@remotion/web-renderer`](/docs/client-side-rendering). Use [`<Audio>`](/docs/media/audio) from `@remotion/media` instead.
+:::
+
 ## API
 
 ### `src`
@@ -137,8 +141,6 @@ export const MyVideo = () => {
 
 ### `name?`<AvailableFrom v="4.0.71"/>
 
-_optional_
-
 A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
 
 ### `loop?`<AvailableFrom v="3.2.29"/>
@@ -227,6 +229,10 @@ Deprecated since v4.0.279: This prop intended to opt into setting the volume to 
 
 The option does not make sense anymore, because it is now possible to set the volume higher than `1`.  
 To prevent synthetic amplification, set a volume not higher than 1.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
 
 ## See also
 

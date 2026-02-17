@@ -112,7 +112,6 @@ export const renderCommand = async (
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -188,6 +187,7 @@ export const renderCommand = async (
 					indent,
 					logLevel,
 					quiet: CliInternals.quietFlagProvided(),
+					onProgress: () => undefined,
 				}),
 				chromeMode: 'headless-shell',
 				mediaCacheSizeInBytes,

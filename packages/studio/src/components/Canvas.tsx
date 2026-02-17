@@ -65,7 +65,9 @@ export const Canvas: React.FC<{
 
 	const contentDimensions = useMemo(() => {
 		if (
-			(canvasContent.type === 'asset' || canvasContent.type === 'output') &&
+			(canvasContent.type === 'asset' ||
+				canvasContent.type === 'output' ||
+				canvasContent.type === 'output-blob') &&
 			assetResolution &&
 			assetResolution.type === 'found'
 		) {

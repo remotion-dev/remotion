@@ -83,7 +83,7 @@ export const VideoOnCanvas: React.FC = () => {
 					onVideoFrame={onVideoFrame}
 					style={{opacity: 0}}
 					trimBefore={300}
-					src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+					src="https://remotion.media/BigBuckBunny.mp4"
 				/>
 			</AbsoluteFill>
 			<AbsoluteFill>

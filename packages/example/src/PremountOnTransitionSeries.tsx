@@ -11,7 +11,7 @@ export const PremountOnTransitionSeries = () => {
 			<TransitionSeries.Sequence durationInFrames={100} premountFor={150}>
 				<Sequence>
 					<Sequence>
-						<Html5Video src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+						<Html5Video src="https://remotion.media/BigBuckBunny.mp4" />
 					</Sequence>
 				</Sequence>
 			</TransitionSeries.Sequence>

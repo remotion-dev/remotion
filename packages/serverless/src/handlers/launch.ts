@@ -242,6 +242,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		forcePathStyle: params.forcePathStyle,
 		skipPutAcl: false,
 		requestHandler: null,
+		logLevel: params.logLevel,
 	});
 
 	registerCleanupTask(() => {
@@ -724,7 +725,12 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		});
 		clearTimeout(webhookDueToTimeout);
 
-		sendTelemetryEvent(params.apiKey ?? null, params.logLevel);
+		sendTelemetryEvent({
+			licenseKey: params.licenseKey ?? null,
+			logLevel: params.logLevel,
+			isStill: false,
+			isProduction: params.isProduction ?? true,
+		});
 
 		if (!params.webhook || webhookInvoked) {
 			return;

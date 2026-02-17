@@ -1,4 +1,5 @@
-import {ALL_FORMATS, AudioBufferSink, Input, UrlSource} from 'mediabunny';
+import type {InputAudioTrack} from 'mediabunny';
+import {AudioBufferSink} from 'mediabunny';
 
 // Audio frames might have dependencies on previous and next frames so we need to decode a bit more and then discard it.
 // The worst case seems to be FLAC files with a 65'535 sample window, which would be 1486.0ms at 44.1Khz.
@@ -6,21 +7,21 @@ import {ALL_FORMATS, AudioBufferSink, Input, UrlSource} from 'mediabunny';
 const EXTRA_THRESHOLD_IN_SECONDS = 1.5;
 
 export type GetPartialAudioDataProps = {
+	track: InputAudioTrack;
 	fromSeconds: number;
 	toSeconds: number;
 	channelIndex: number;
 	signal: AbortSignal;
-	src: string;
 	isMatroska: boolean;
 };
 
 export const getPartialAudioData = async ({
+	track,
 	fromSeconds,
 	toSeconds,
 	channelIndex,
 	signal,
-	src,
-	isMatroska,
+	isMatroska = false,
 }: GetPartialAudioDataProps): Promise<Float32Array> => {
 	if (signal.aborted) {
 		throw new Error('Operation was aborted');
@@ -34,19 +35,6 @@ export const getPartialAudioData = async ({
 	const actualFromSeconds = isMatroska
 		? 0
 		: Math.max(0, fromSeconds - EXTRA_THRESHOLD_IN_SECONDS);
-
-	const source = new UrlSource(src);
-
-	using input = new Input({
-		formats: ALL_FORMATS,
-		source,
-	});
-
-	const track = await input.getPrimaryAudioTrack();
-
-	if (!track) {
-		throw new Error('No audio track found');
-	}
 
 	// mediabunny docs: constructing the sink is virtually free and does not perform any media data reads.
 	const sink = new AudioBufferSink(track);

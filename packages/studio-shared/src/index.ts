@@ -52,8 +52,10 @@ export {
 	Pkgs,
 	apiDocs,
 	descriptions,
+	extraPackages,
 	installableMap,
 	packages,
+	type ExtraPackage,
 } from './package-info';
 export {PackageManager} from './package-manager';
 export {ProjectInfo} from './project-info';
@@ -61,6 +63,7 @@ export type {RenderDefaults} from './render-defaults';
 export {
 	AggregateRenderProgress,
 	ArtifactProgress,
+	BrowserDownloadState,
 	BrowserProgressLog,
 	BundlingState,
 	CopyingState,
@@ -73,6 +76,7 @@ export {
 	StitchingProgressInput,
 	UiOpenGlOptions,
 } from './render-job';
+export type {CompletedClientRender} from './render-job';
 export {SOURCE_MAP_ENDPOINT} from './source-map-endpoint';
 export {
 	ScriptLine,

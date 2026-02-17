@@ -28,7 +28,11 @@ import {
 import {ErrorBoundary} from './error-boundary.js';
 import {RenderWarningIfBlacklist} from './license-blacklist.js';
 import {playerCssClassname} from './player-css-classname.js';
-import type {PlayerMethods, PlayerRef} from './player-methods.js';
+import type {
+	PlayerMethods,
+	PlayerRef,
+	RenderCustomControls,
+} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {usePlayback} from './use-playback.js';
 import {usePlayer} from './use-player.js';
@@ -84,6 +88,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly renderFullscreen: RenderFullscreenButton | null;
 		readonly renderMuteButton: RenderMuteButton | null;
 		readonly renderVolumeSlider: RenderVolumeSlider | null;
+		readonly renderCustomControls: RenderCustomControls | null;
 		readonly alwaysShowControls: boolean;
 		readonly showPlaybackRateControl: boolean | number[];
 		readonly posterFillMode: PosterFillMode;
@@ -124,6 +129,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderPlayPauseButton,
 		renderMuteButton,
 		renderVolumeSlider,
+		renderCustomControls,
 		alwaysShowControls,
 		showPlaybackRateControl,
 		posterFillMode,
@@ -707,6 +713,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					}
 					renderMuteButton={renderMuteButton}
 					renderVolumeSlider={renderVolumeSlider}
+					renderCustomControls={renderCustomControls}
 				/>
 			) : null}
 		</>

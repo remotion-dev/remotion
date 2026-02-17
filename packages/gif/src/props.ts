@@ -19,6 +19,7 @@ export type RemotionGifProps = {
 	style?: React.CSSProperties;
 	loopBehavior?: GifLoopBehavior;
 	id?: string;
+	delayRenderTimeoutInMilliseconds?: number;
 };
 
 export type GifState = {

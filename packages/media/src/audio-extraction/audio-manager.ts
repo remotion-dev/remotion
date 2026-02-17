@@ -95,8 +95,24 @@ export const makeAudioManager = () => {
 		logLevel: LogLevel;
 		maxCacheSize: number;
 	}) => {
-		while ((await getTotalCacheStats()).totalSize > maxCacheSize) {
+		let attempts = 0;
+		const maxAttempts = 3;
+		while (
+			(await getTotalCacheStats()).totalSize > maxCacheSize &&
+			attempts < maxAttempts
+		) {
 			deleteOldestIterator();
+			attempts++;
+		}
+
+		if (
+			(await getTotalCacheStats()).totalSize > maxCacheSize &&
+			attempts >= maxAttempts
+		) {
+			Internals.Log.warn(
+				{logLevel, tag: '@remotion/media'},
+				`Audio cache: Exceeded max cache size after ${maxAttempts} attempts. Still ${(await getTotalCacheStats()).totalSize} bytes used, target was ${maxCacheSize} bytes.`,
+			);
 		}
 
 		for (const iterator of iterators) {

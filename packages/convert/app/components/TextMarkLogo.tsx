@@ -1,6 +1,8 @@
 import React from 'react';
 
-export const TextMarkLogo: React.FC = () => {
+export const TextMarkLogo: React.FC<{
+	readonly text: string;
+}> = ({text}) => {
 	return (
 		<div className="flex flex-row justify-center items-center">
 			<svg
@@ -29,7 +31,7 @@ export const TextMarkLogo: React.FC = () => {
 				/>
 			</svg>
 			<div className="w-2" />
-			<div className="font-bold font-brand text-lg">Remotion Convert</div>
+			<div className="font-bold font-brand text-lg">{text}</div>
 		</div>
 	);
 };

@@ -69,6 +69,7 @@ export const MenuSubItem: React.FC<{
 	readonly setSubMenuActivated: React.Dispatch<
 		React.SetStateAction<SubMenuActivated>
 	>;
+	readonly disabled?: boolean;
 }> = ({
 	label,
 	leaveLeftSpace,
@@ -82,6 +83,7 @@ export const MenuSubItem: React.FC<{
 	onQuitMenu,
 	subMenuActivated,
 	setSubMenuActivated,
+	disabled,
 }) => {
 	const [hovered, setHovered] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
@@ -95,12 +97,18 @@ export const MenuSubItem: React.FC<{
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...container,
-			backgroundColor: selected ? CLEAR_HOVER : 'transparent',
+			backgroundColor: selected && !disabled ? CLEAR_HOVER : 'transparent',
+			opacity: disabled ? 0.5 : 1,
+			cursor: disabled ? 'not-allowed' : 'default',
 		};
-	}, [selected]);
+	}, [selected, disabled]);
 
 	const onPointerUp = useCallback(
 		(e: PointerEvent<HTMLDivElement>) => {
+			if (disabled) {
+				return;
+			}
+
 			if (subMenu) {
 				setSubMenuActivated('with-mouse');
 				setHovered(true);
@@ -109,13 +117,17 @@ export const MenuSubItem: React.FC<{
 
 			onActionChosen(id, e);
 		},
-		[id, onActionChosen, setSubMenuActivated, subMenu],
+		[disabled, id, onActionChosen, setSubMenuActivated, subMenu],
 	);
 
 	const onPointerEnter = useCallback(() => {
+		if (disabled) {
+			return;
+		}
+
 		onItemSelected(id);
 		setHovered(true);
-	}, [id, onItemSelected]);
+	}, [disabled, id, onItemSelected]);
 
 	const onPointerLeave = useCallback(() => {
 		setHovered(false);

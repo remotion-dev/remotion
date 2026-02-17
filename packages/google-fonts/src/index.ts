@@ -1661,21 +1661,6 @@ export const getAvailableFonts = () => [
 		load: () => import('./Chilanka') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'Chiron GoRound TC',
-		importName: 'ChironGoRoundTC',
-		load: () => import('./ChironGoRoundTC') as Promise<GoogleFont>,
-	},
-	{
-		fontFamily: 'Chiron Hei HK',
-		importName: 'ChironHeiHK',
-		load: () => import('./ChironHeiHK') as Promise<GoogleFont>,
-	},
-	{
-		fontFamily: 'Chiron Sung HK',
-		importName: 'ChironSungHK',
-		load: () => import('./ChironSungHK') as Promise<GoogleFont>,
-	},
-	{
 		fontFamily: 'Chivo',
 		importName: 'Chivo',
 		load: () => import('./Chivo') as Promise<GoogleFont>,
@@ -3984,6 +3969,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Kurale',
 		importName: 'Kurale',
 		load: () => import('./Kurale') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'LINE Seed JP',
+		importName: 'LINESeedJP',
+		load: () => import('./LINESeedJP') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'LXGW Marker Gothic',
@@ -7440,6 +7430,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Rye',
 		importName: 'Rye',
 		load: () => import('./Rye') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'SN Pro',
+		importName: 'SNPro',
+		load: () => import('./SNPro') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'STIX Two Text',

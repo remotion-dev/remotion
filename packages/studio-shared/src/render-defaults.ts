@@ -55,6 +55,8 @@ export type RenderDefaults = {
 	metadata: Record<string, string> | null;
 	hardwareAcceleration: HardwareAccelerationOption;
 	chromeMode: ChromeMode;
+	publicLicenseKey: string | null;
+	outputLocation: string | null;
 };
 
 declare global {

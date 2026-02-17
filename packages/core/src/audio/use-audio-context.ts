@@ -21,14 +21,23 @@ const warnOnce = (logLevel: LogLevel) => {
 	}
 };
 
-export const useSingletonAudioContext = (
-	logLevel: LogLevel,
-	latencyHint: AudioContextLatencyCategory,
-) => {
+export const useSingletonAudioContext = ({
+	logLevel,
+	latencyHint,
+	audioEnabled,
+}: {
+	logLevel: LogLevel;
+	latencyHint: AudioContextLatencyCategory;
+	audioEnabled: boolean;
+}) => {
 	const env = useRemotionEnvironment();
 
 	const audioContext = useMemo(() => {
 		if (env.isRendering) {
+			return null;
+		}
+
+		if (!audioEnabled) {
 			return null;
 		}
 
@@ -44,7 +53,7 @@ export const useSingletonAudioContext = (
 			// we observe some issues that seem to go away when we set the sample rate to 48000 with Sony LinkBuds Bluetooth headphones.
 			sampleRate: 48000,
 		});
-	}, [logLevel, latencyHint, env.isRendering]);
+	}, [logLevel, latencyHint, env.isRendering, audioEnabled]);
 
 	return audioContext;
 };

@@ -2,7 +2,7 @@
 image: /generated/articles-docs-still.png
 id: still
 title: <Still>
-crumb: "API"
+crumb: 'API'
 ---
 
 A `<Still />` is a single-frame [`<Composition />`](/docs/composition). It is a convenient way to define a composition that renders an image rather than a video.
@@ -18,25 +18,22 @@ export const MyComp = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Composition, Still } from "remotion";
-import { MyComp } from "./MyComp";
+import {Composition, Still} from 'remotion';
+import {MyComp} from './MyComp';
 
 export const MyVideo = () => {
   return (
     <>
-      <Composition
-        id="my-video"
-        component={MyComp}
-        width={1080}
-        height={1080}
-        fps={30}
-        durationInFrames={3 * 30}
-      />
+      <Composition id="my-video" component={MyComp} width={1080} height={1080} fps={30} durationInFrames={3 * 30} />
       <Still id="my-image" component={MyComp} width={1080} height={1080} />
     </>
   );
 };
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs={false} bun={false} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player={false} studio />
 
 ## See also
 

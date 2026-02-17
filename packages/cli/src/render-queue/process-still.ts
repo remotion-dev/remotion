@@ -6,7 +6,12 @@ import {getCliOptions} from '../get-cli-options';
 import {parsedCli} from '../parsed-cli';
 import {renderStillFlow} from '../render-flows/still';
 
-const {publicDirOption} = BrowserSafeApis.options;
+const {
+	publicDirOption,
+	askAIOption,
+	experimentalClientSideRenderingOption,
+	keyboardShortcutsOption,
+} = BrowserSafeApis.options;
 
 export const processStill = async ({
 	job,
@@ -32,6 +37,14 @@ export const processStill = async ({
 	});
 
 	const publicDir = publicDirOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
+	const experimentalClientSideRenderingEnabled =
+		experimentalClientSideRenderingOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -72,5 +85,8 @@ export const processStill = async ({
 		chromeMode: job.chromeMode,
 		audioLatencyHint: null,
 		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+		askAIEnabled,
+		experimentalClientSideRenderingEnabled,
+		keyboardShortcutsEnabled,
 	});
 };

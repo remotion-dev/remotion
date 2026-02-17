@@ -84,27 +84,19 @@ The font style we want to load. While each font has a different set of styles, c
 
 ### options
 
-#### weights
-
-_optional_
+#### weights?
 
 Array of weights that should be loaded. By default, all.
 
-#### subsets
-
-_optional_
+#### subsets?
 
 Array of font subsets that should be loaded. By default, all.
 
-#### document
-
-_optional_
+#### document?
 
 Allows you to specify a [`Document`](https://developer.mozilla.org/en-US/docs/Web/API/Document?retiredLocale=de). If you want to inject the fonts into an iframe, you want to give it a ref and pass `iframeRef.contentDocument` to this parameter. By default, the global `window.document` is used.
 
-#### ignoreTooManyRequestsWarning<AvailableFrom v="4.0.283" />
-
-_optional_
+#### ignoreTooManyRequestsWarning?<AvailableFrom v="4.0.283" />
 
 If more than 20 network requests are made to load the font, then a warning will be printed to the console.  
 You can disable that warning by setting this option.

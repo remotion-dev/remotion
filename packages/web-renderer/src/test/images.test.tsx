@@ -1,6 +1,7 @@
 import {AbsoluteFill, Img, staticFile} from 'remotion';
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 import {testImage} from './utils';
 
 test('can display an image', async () => {
@@ -12,7 +13,7 @@ test('can display an image', async () => {
 		);
 	};
 
-	const blob = await renderStillOnWeb({
+	const {blob} = await renderStillOnWeb({
 		licenseKey: 'free-license',
 		composition: {
 			component: Component,

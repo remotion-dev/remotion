@@ -20,6 +20,7 @@ const GifTest: React.FC = () => {
 					width={width}
 					height={height}
 					fit="fill"
+					delayRenderTimeoutInMilliseconds={60000}
 				/>
 			</Sequence>
 

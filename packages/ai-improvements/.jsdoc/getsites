@@ -1,4 +1,0 @@
-/**
- * @description Gets an array of Remotion projects in Cloud Storage, in your GCP project.
- * @see [Documentation](https://remotion.dev/docs/cloudrun/getsites)
- */

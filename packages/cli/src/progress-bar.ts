@@ -326,23 +326,26 @@ export const makeRenderingAndStitchingProgress = ({
 		: 0;
 
 	const progress =
-		bundling.progress * 0.3 + renderProgress * 0.6 + stitchingProgress * 0.1;
+		(bundling?.progress ?? 0) * 0.3 +
+		renderProgress * 0.6 +
+		stitchingProgress * 0.1;
 
 	return {output, progress, message: getGuiProgressSubtitle(prog)};
 };
 
 const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 	// Handle floating point inaccuracies
-	if (progress.bundling.progress < 0.99999) {
-		return `Bundling ${Math.round(progress.bundling.progress * 100)}%`;
+	const bundlingProgress = progress.bundling?.progress || 0;
+	if (bundlingProgress < 0.99999) {
+		return `Bundling ${Math.round(bundlingProgress * 100)}%`;
 	}
 
 	if (
-		progress.bundling.progress === 1 &&
-		progress.bundling.doneIn === null &&
+		bundlingProgress === 1 &&
+		progress.bundling?.doneIn === null &&
 		progress.copyingState.bytes === 0
 	) {
-		return `Bundling ${Math.round(progress.bundling.progress * 100)}%`;
+		return `Bundling ${Math.round(bundlingProgress * 100)}%`;
 	}
 
 	if (progress.copyingState.doneIn === null) {
@@ -352,7 +355,7 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 	}
 
 	if (!progress.rendering) {
-		return `Getting compositions`;
+		return `Getting composition`;
 	}
 
 	// Get render estimated time value and extract hours, minutes, and seconds

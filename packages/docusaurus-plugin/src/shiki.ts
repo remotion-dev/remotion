@@ -13,7 +13,7 @@ import {setupNodeForTwoslashException} from './exceptionMessageDOM';
 import {addIncludes, replaceIncludesInCode} from './includes';
 import type {Node} from './unist-types';
 
-type OBJECT = Record<string, any>;
+type OBJECT = Record<string, unknown>;
 
 type Fence = {
 	lang: string;
@@ -21,7 +21,7 @@ type Fence = {
 };
 
 // A set of includes which can be pulled via a set ID
-const includes = new Map();
+const includes = new Map<string, string>();
 
 function getHTML({
 	code,
@@ -63,13 +63,17 @@ function getHTML({
 				.split('/')
 				.pop()
 				.replace('.json', '');
-			return renderCodeToHTML(
+			const html = renderCodeToHTML(
 				code,
 				fence.lang,
-				fence.meta,
+				fence.meta as any,
 				{themeName, ...twoslashSettings},
 				highlighter,
 				twoslash,
+			);
+			return html.replace(
+				'</pre>',
+				'<button class="copy-button" aria-label="Copy code to clipboard">Copy</button></pre>',
 			);
 		});
 		results = output.join('\n');
@@ -87,7 +91,7 @@ function getHTML({
  */
 export const runTwoSlashOnNode = (
 	code: string,
-	{lang, meta}: {lang: string; meta: Record<string, string>},
+	{lang, meta}: {lang: string; meta: Record<string, unknown>},
 	settings = {},
 ) => {
 	// Only run twoslash when the meta has the attribute twoslash
@@ -222,6 +226,7 @@ const remarkVisitor =
 			twoslash,
 			twoslashSettings,
 		});
+
 		// @ts-expect-error
 		node.type = 'mdxJsxFlowElement';
 		node.name = 'div';

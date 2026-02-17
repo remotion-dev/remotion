@@ -25,11 +25,11 @@ export const getDirectoryArgument = (): string | null => {
 	return positionalArgs.length > 0 ? positionalArgs[0] || null : null;
 };
 
-export const selectTemplate = async () => {
-	const isFlagSelected = ALL_TEMPLATES.find((f) => {
-		return parsed[f.cliId];
-	});
+export const isFlagSelected = ALL_TEMPLATES.find((f) => {
+	return parsed[f.cliId];
+});
 
+export const selectTemplate = async () => {
 	if (isFlagSelected) {
 		return isFlagSelected;
 	}
@@ -37,7 +37,6 @@ export const selectTemplate = async () => {
 	return (await selectAsync({
 		message: 'Choose a template:',
 		optionsPerPage: 20,
-
 		choices: ALL_TEMPLATES.map((template) => {
 			return {
 				value: template,

@@ -1,5 +1,5 @@
 import {useMemo} from 'react';
-import type {_InternalTypes} from 'remotion';
+import type {LoopDisplay} from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
 
 export const useLoopDisplay = ({
@@ -14,10 +14,10 @@ export const useLoopDisplay = ({
 	trimAfter: number | undefined;
 	trimBefore: number | undefined;
 	playbackRate: number;
-}): _InternalTypes['LoopDisplay'] | undefined => {
+}): LoopDisplay | undefined => {
 	const {durationInFrames: compDuration, fps} = useVideoConfig();
 
-	const loopDisplay: _InternalTypes['LoopDisplay'] | undefined = useMemo(() => {
+	const loopDisplay: LoopDisplay | undefined = useMemo(() => {
 		if (!loop || !mediaDurationInSeconds) {
 			return undefined;
 		}

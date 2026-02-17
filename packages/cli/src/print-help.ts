@@ -150,6 +150,16 @@ export const printHelp = (logLevel: LogLevel) => {
 	Log.info({indent: false, logLevel});
 	Log.info(
 		{indent: false, logLevel},
+		chalk.blue('remotion skills ') + chalk.gray('<add | update>'),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		'Install or update skills from remotion-dev/skills.',
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info(
+		{indent: false, logLevel},
 		chalk.blue(`remotion ${BROWSER_COMMAND}`),
 	);
 	Log.info(

@@ -1,22 +1,25 @@
 "use client";
 
-import React from "react";
-import { Player, type ErrorFallback } from "@remotion/player";
+import React, { useRef, useEffect } from "react";
+import { Player, type ErrorFallback, type PlayerRef } from "@remotion/player";
+import { ErrorDisplay, type ErrorType } from "../ErrorDisplay";
 import { RenderControls } from "./RenderControls";
 import { SettingsModal } from "./SettingsModal";
 
+const errorTitles: Record<ErrorType, string> = {
+  validation: "Invalid Prompt",
+  api: "API Error",
+  compilation: "Compilation Error",
+};
+
 const renderErrorFallback: ErrorFallback = ({ error }) => {
   return (
-    <div className="w-full h-full flex justify-center items-center bg-background-error p-10">
-      <div className="text-center max-w-[80%]">
-        <div className="text-destructive text-3xl font-bold mb-4 font-sans">
-          Runtime Error
-        </div>
-        <div className="text-destructive-foreground text-xl font-mono whitespace-pre-wrap break-words">
-          {error.message || "An error occurred while rendering"}
-        </div>
-      </div>
-    </div>
+    <ErrorDisplay
+      error={error.message || "An error occurred while rendering"}
+      title="Runtime Error"
+      variant="fullscreen"
+      size="lg"
+    />
   );
 };
 
@@ -29,8 +32,10 @@ interface AnimationPlayerProps {
   isCompiling: boolean;
   isStreaming: boolean;
   error: string | null;
-  errorType?: "compilation" | "api";
+  errorType?: ErrorType;
   code: string;
+  onRuntimeError?: (error: string) => void;
+  onFrameChange?: (frame: number) => void;
 }
 
 export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
@@ -44,7 +49,45 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
   error,
   errorType = "compilation",
   code,
+  onRuntimeError,
+  onFrameChange,
 }) => {
+  const playerRef = useRef<PlayerRef>(null);
+
+  // Listen for runtime errors from the Player's error boundary
+  // Component is included in deps because the Player remounts when Component changes (via key={Component.toString()})
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player || !onRuntimeError) return;
+
+    const handleError = (e: { detail: { error: Error } }) => {
+      onRuntimeError(e.detail.error.message);
+    };
+
+    player.addEventListener("error", handleError);
+    return () => {
+      player.removeEventListener("error", handleError);
+    };
+  }, [onRuntimeError, Component]);
+
+  // Listen for frame changes and report to parent
+  // Component is included in deps because the Player remounts when Component changes (via key={Component.toString()})
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player || !onFrameChange) return;
+
+    const handleFrameUpdate = (e: {
+      detail: { frame: number };
+    }) => {
+      onFrameChange(e.detail.frame);
+    };
+
+    player.addEventListener("frameupdate", handleFrameUpdate);
+    return () => {
+      player.removeEventListener("frameupdate", handleFrameUpdate);
+    };
+  }, [onFrameChange, Component]);
+
   const renderContent = () => {
     if (isStreaming) {
       return (
@@ -66,18 +109,13 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
     }
 
     if (error) {
-      const errorTitle = errorType === "api" ? "API Error" : "Compilation Error";
       return (
-        <div className="w-full aspect-video max-h-[calc(100%-80px)] flex justify-center items-center bg-background-error rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)] border border-destructive">
-          <div className="text-center max-w-[80%]">
-            <div className="text-destructive text-base font-semibold mb-2 font-sans">
-              {errorTitle}
-            </div>
-            <div className="text-destructive-foreground text-sm font-mono whitespace-pre-wrap break-words">
-              {error}
-            </div>
-          </div>
-        </div>
+        <ErrorDisplay
+          error={error}
+          title={errorTitles[errorType]}
+          variant="fullscreen"
+          size="lg"
+        />
       );
     }
 
@@ -93,6 +131,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
       <>
         <div className="w-full aspect-video max-h-[calc(100%-80px)] rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
           <Player
+            ref={playerRef}
             key={Component.toString()}
             component={Component}
             durationInFrames={durationInFrames}
@@ -112,7 +151,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
             clickToPlay={false}
           />
         </div>
-        <div className="flex items-center justify-between gap-6">
+        <div className="flex items-center justify-between gap-6 mt-4">
           <RenderControls code={code} durationInFrames={durationInFrames} fps={fps} />
           <SettingsModal
             durationInFrames={durationInFrames}
@@ -127,10 +166,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
 
   return (
     <div className="flex flex-col bg-background min-w-0 h-full">
-      <div className="w-full h-full flex flex-col gap-3">
-        <h2 className="text-sm font-medium text-muted-foreground shrink-0">
-          Video Preview
-        </h2>
+      <div className="w-full h-full flex flex-col">
         {renderContent()}
       </div>
     </div>

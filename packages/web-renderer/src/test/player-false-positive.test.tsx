@@ -4,6 +4,7 @@ import {createRoot} from 'react-dom/client';
 import {useRemotionEnvironment} from 'remotion';
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
 
 const MustBePlayer: React.FC = () => {
 	const {isPlayer} = useRemotionEnvironment();

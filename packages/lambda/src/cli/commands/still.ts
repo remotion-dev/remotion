@@ -187,6 +187,7 @@ export const stillCommand = async ({
 				indent,
 				logLevel,
 				quiet: CliInternals.quietFlagProvided(),
+				onProgress: () => undefined,
 			}),
 			chromeMode: 'headless-shell',
 			mediaCacheSizeInBytes: mediaCacheSizeInBytes,
@@ -277,8 +278,8 @@ export const stillCommand = async ({
 		},
 		deleteAfter: deleteAfter ?? null,
 		storageClass: parsedLambdaCli['storage-class'] ?? null,
-		apiKey:
-			parsedLambdaCli[BrowserSafeApis.options.apiKeyOption.cliFlag] ?? null,
+		licenseKey:
+			parsedLambdaCli[BrowserSafeApis.options.licenseKeyOption.cliFlag] ?? null,
 		downloadBehavior: {type: 'play-in-browser'},
 		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
 		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
@@ -287,6 +288,9 @@ export const stillCommand = async ({
 		offthreadVideoThreads: null,
 		requestHandler: null,
 		mediaCacheSizeInBytes,
+		isProduction:
+			parsedLambdaCli[BrowserSafeApis.options.isProductionOption.cliFlag] ??
+			true,
 	});
 	Log.info(
 		{indent: false, logLevel},
@@ -334,6 +338,10 @@ export const stillCommand = async ({
 			logLevel,
 			providerSpecifics: providerSpecifics,
 			forcePathStyle: parsedLambdaCli['force-path-style'],
+			signal: new AbortController().signal,
+			customCredentials: null,
+			onProgress: () => undefined,
+			requestHandler: null,
 		});
 		const relativePath = path.relative(process.cwd(), outputPath);
 		Log.info(
