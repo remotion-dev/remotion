@@ -1,12 +1,12 @@
-import type {WebpackConfiguration, WebpackOverrideFn} from '@remotion/bundler';
+import type {WebpackConfiguration} from '@remotion/bundler';
 
 /**
  * @description A function that modifies the default Webpack configuration to make the necessary changes to support Tailwind.
  * @see [Documentation](https://www.remotion.dev/docs/tailwind-v4/enable-tailwind)
  */
-export const enableTailwind = ((
+export const enableTailwind: (
 	currentConfiguration: WebpackConfiguration,
-): WebpackConfiguration => {
+) => WebpackConfiguration = ((currentConfiguration) => {
 	return {
 		...currentConfiguration,
 		module: {
@@ -30,4 +30,4 @@ export const enableTailwind = ((
 			],
 		},
 	};
-}) satisfies WebpackOverrideFn;
+});

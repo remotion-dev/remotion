@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import {execSync} from 'node:child_process';
 
-dotenv.config();
+dotenv.config({quiet: true});
 const isTest = false;
 const pypiRepo = isTest ? 'testpypi' : 'pypi';
 

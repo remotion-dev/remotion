@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const dotenv = require('dotenv');
-dotenv.config();
+dotenv.config({quiet: true});
 const {cli} = require('./dist/index');
 
 cli()

@@ -11,7 +11,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -35,7 +35,8 @@
 		"@remotion/bundler": "workspace:*",
 		"autoprefixer": "10.4.20",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "catalog:"
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
 	},
 	"keywords": [
 		"remotion",

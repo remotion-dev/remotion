@@ -32,7 +32,7 @@
     "@types/web": "0.0.166",
     "@types/yargs": "^17.0.33",
     "chalk": "^5.6.2",
-    "dotenv": "^17.2.3",
+    "dotenv": "17.3.1",
     "eslint": "9.19.0",
     "ora": "^9.0.0",
     "prettier": "3.6.0",

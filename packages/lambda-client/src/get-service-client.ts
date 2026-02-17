@@ -88,7 +88,7 @@ const _clients: Partial<
 	>
 > = {};
 
-export const getServiceClient = <T extends keyof ServiceMapping>({
+export function getServiceClient<T extends keyof ServiceMapping>({
 	region,
 	service,
 	customCredentials,
@@ -100,7 +100,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
-}): ServiceMapping[T] => {
+}): ServiceMapping[T] {
 	const Client = (() => {
 		if (service === 'cloudwatch') {
 			return CloudWatchLogsClient;
@@ -192,4 +192,4 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 	}
 
 	return _clients[key] as ServiceMapping[T];
-};
+}

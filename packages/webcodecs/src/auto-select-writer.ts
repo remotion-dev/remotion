@@ -1,17 +1,17 @@
 import {canUseWebFsWriter, webFsWriter} from './writers/web-fs';
 
 import type {
-	MediaParserInternalTypes,
 	MediaParserLogLevel,
+	WriterInterface,
 } from '@remotion/media-parser';
 import {withResolvers} from './create/with-resolvers';
 import {Log} from './log';
 import {bufferWriter} from './writers/buffer';
 
 export const autoSelectWriter = async (
-	writer: MediaParserInternalTypes['WriterInterface'] | undefined,
+	writer: WriterInterface | undefined,
 	logLevel: MediaParserLogLevel,
-): Promise<MediaParserInternalTypes['WriterInterface']> => {
+): Promise<WriterInterface> => {
 	if (writer) {
 		Log.verbose(logLevel, 'Using writer provided by user');
 		return writer;

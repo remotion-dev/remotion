@@ -8,7 +8,7 @@
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"make": "tsc -d && cp src/shared/sa-permissions.json dist/shared/sa-permissions.json",
+		"make": "tsgo -d && cp src/shared/sa-permissions.json dist/shared/sa-permissions.json",
 		"makeruntime": "bun build.ts",
 		"lint": "eslint src",
 		"test": "bun test src",
@@ -33,7 +33,8 @@
 		"@types/minimist": "1.2.2",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@types/node": "catalog:"
+		"@types/node": "catalog:",
+		"@typescript/native-preview": "catalog:"
 	},
 	"exports": {
 		"./package.json": "./package.json",

@@ -115,11 +115,16 @@ export * from './webhook-types';
 export {EnhancedErrorInfo, FunctionErrorInfo} from './write-error-to-storage';
 export {interpolate, random};
 
-export const {
-	ENABLE_V5_BREAKING_CHANGES,
-	serializeJSONWithSpecialTypes,
-	validateFps,
-	validateDimension,
-	validateDurationInFrames,
-	validateCodec,
-} = NoReactInternals;
+/* eslint-disable prefer-destructuring */
+export const ENABLE_V5_BREAKING_CHANGES =
+	NoReactInternals.ENABLE_V5_BREAKING_CHANGES;
+export const serializeJSONWithSpecialTypes =
+	NoReactInternals.serializeJSONWithSpecialTypes;
+export const validateFps: typeof NoReactInternals.validateFps =
+	NoReactInternals.validateFps;
+export const validateDimension: typeof NoReactInternals.validateDimension =
+	NoReactInternals.validateDimension;
+export const validateDurationInFrames: typeof NoReactInternals.validateDurationInFrames =
+	NoReactInternals.validateDurationInFrames;
+export const validateCodec: typeof NoReactInternals.validateCodec =
+	NoReactInternals.validateCodec;

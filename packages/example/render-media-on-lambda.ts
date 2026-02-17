@@ -6,7 +6,7 @@ import {
 	speculateFunctionName,
 } from '@remotion/lambda-client';
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({quiet: true});
 
 await deployFunction({
 	memorySizeInMb: 2048,

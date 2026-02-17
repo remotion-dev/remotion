@@ -1,11 +1,9 @@
 import type {
 	MediaParserAudioSample,
 	MediaParserVideoSample,
+	SamplePosition,
 } from '@remotion/media-parser';
-import {
-	MediaParserInternals,
-	type MediaParserInternalTypes,
-} from '@remotion/media-parser';
+import {MediaParserInternals} from '@remotion/media-parser';
 import type {MakeTrackAudio, MakeTrackVideo} from '../make-track-info';
 import {combineUint8Arrays} from '../matroska/matroska-utils';
 import type {MediaFn, MediaFnGeneratorInput} from '../media-fn';
@@ -43,7 +41,7 @@ export const createIsoBaseMedia = async ({
 	const trackDurations: Record<number, number> = {};
 
 	const currentTracks: (MakeTrackAudio | MakeTrackVideo)[] = [];
-	const samplePositions: MediaParserInternalTypes['SamplePosition'][][] = [];
+	const samplePositions: SamplePosition[][] = [];
 	const sampleChunkIndices: number[] = [];
 
 	const moovOffset = w.getWrittenByteCount();
@@ -197,7 +195,7 @@ export const createIsoBaseMedia = async ({
 		// media parser and EncodedVideoChunk returns timestamps in microseconds
 		// need to normalize the timestamps to milliseconds
 
-		const samplePositionToAdd: MediaParserInternalTypes['SamplePosition'] = {
+		const samplePositionToAdd: SamplePosition = {
 			isKeyframe: chunk.type === 'key',
 			offset: position,
 			chunk: sampleChunkIndices[trackNumber],

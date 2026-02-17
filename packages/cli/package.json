@@ -16,7 +16,7 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsc -d"
+		"make": "tsgo -d"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -43,7 +43,7 @@
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/studio-server": "workspace:*",
 		"@remotion/studio": "workspace:*",
-		"dotenv": "9.0.2",
+		"dotenv": "17.3.1",
 		"minimist": "1.2.6",
 		"prompts": "2.4.2",
 		"remotion": "workspace:*"
@@ -65,7 +65,8 @@
 		"react-dom": "catalog:",
 		"zod": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "catalog:"
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
 	},
 	"keywords": [
 		"remotion",

@@ -13,6 +13,6 @@
 		"remotion": "workspace:*"
 	},
 	"dependencies": {
-		"dotenv": "9.0.2"
+		"dotenv": "17.3.1"
 	}
 }

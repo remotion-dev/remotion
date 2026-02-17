@@ -108,7 +108,48 @@ export {
 export type {RequestHandler} from './types';
 export {validateWebhookSignature} from './validate-webhook-signature';
 
-export const LambdaClientInternals = {
+export const LambdaClientInternals: {
+	generateRandomHashWithLifeCycleRule: typeof generateRandomHashWithLifeCycleRule;
+	getLambdaClient: typeof getLambdaClient;
+	getS3Client: typeof getS3Client;
+	getS3RenderUrl: typeof getS3RenderUrl;
+	getIamClient: typeof getIamClient;
+	getStsClient: typeof getStsClient;
+	getCloudWatchLogsClient: typeof getCloudWatchLogsClient;
+	getServiceQuotasClient: typeof getServiceQuotasClient;
+	parseJsonOrThrowSource: typeof parseJsonOrThrowSource;
+	getCloudwatchMethodUrl: typeof getCloudwatchMethodUrl;
+	getCloudwatchRendererUrl: typeof getCloudwatchRendererUrl;
+	MAX_EPHEMERAL_STORAGE_IN_MB: typeof MAX_EPHEMERAL_STORAGE_IN_MB;
+	parseFunctionName: typeof parseFunctionName;
+	isFlakyError: typeof isFlakyError;
+	convertToServeUrlImplementation: typeof convertToServeUrlImplementation;
+	randomHashImplementation: typeof randomHashImplementation;
+	parseBucketName: typeof parseBucketName;
+	makeLambdaRenderMediaPayload: typeof makeLambdaRenderMediaPayload;
+	renderMediaOnLambdaOptionalToRequired: typeof renderMediaOnLambdaOptionalToRequired;
+	internalDeleteRender: typeof internalDeleteRender;
+	internalGetSites: typeof internalGetSites;
+	getLifeCycleRules: typeof getLifeCycleRules;
+	awsImplementation: typeof awsImplementation;
+	runtimePreferenceOptions: typeof runtimePreferenceOptions;
+	validateAwsRegion: typeof validateAwsRegion;
+	validateDiskSizeInMb: typeof validateDiskSizeInMb;
+	validateMemorySize: typeof validateMemorySize;
+	DEFAULT_CLOUDWATCH_RETENTION_PERIOD: typeof DEFAULT_CLOUDWATCH_RETENTION_PERIOD;
+	DEFAULT_EPHEMERAL_STORAGE_IN_MB: typeof DEFAULT_EPHEMERAL_STORAGE_IN_MB;
+	LAMBDA_VERSION_STRING: typeof LAMBDA_VERSION_STRING;
+	pLimit: typeof pLimit;
+	makeS3ServeUrl: typeof makeS3ServeUrl;
+	validateServeUrl: typeof validateServeUrl;
+	getEnvVariable: typeof getEnvVariable;
+	internalRenderMediaOnLambdaRaw: typeof internalRenderMediaOnLambdaRaw;
+	internalRenderStillOnLambda: typeof internalRenderStillOnLambda;
+	cleanItems: typeof cleanItems;
+	makeLambdaRenderStillPayload: typeof makeLambdaRenderStillPayload;
+	getRenderProgressPayload: typeof getRenderProgressPayload;
+	innerSpeculateFunctionName: typeof innerSpeculateFunctionName;
+} = {
 	generateRandomHashWithLifeCycleRule,
 	getLambdaClient,
 	getS3Client,

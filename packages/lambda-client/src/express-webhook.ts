@@ -3,10 +3,12 @@ import type {NextWebhookArgs} from './app-router-webhook';
 import {addHeaders} from './pages-router-webhook';
 import {validateWebhookSignature} from './validate-webhook-signature';
 
-export const expressWebhook = (options: NextWebhookArgs) => {
+export function expressWebhook(
+	options: NextWebhookArgs,
+): (req: Request, res: Response) => Promise<void> {
 	const {testing, extraHeaders, secret, onSuccess, onTimeout, onError} =
 		options;
-	return async (req: Request, res: Response) => {
+	return async (req: Request, res: Response): Promise<void> => {
 		//  add headers to enable  testing
 		if (testing) {
 			const testingheaders = {
@@ -54,4 +56,4 @@ export const expressWebhook = (options: NextWebhookArgs) => {
 			});
 		}
 	};
-};
+}

@@ -12,7 +12,7 @@
 	"scripts": {
 		"lint": "eslint src",
 		"formatting": "prettier --experimental-cli src --check",
-		"make": "tsc -d"
+		"make": "tsgo -d"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -30,7 +30,8 @@
 		"eslint-plugin-react": "7.37.4",
 		"eslint-plugin-react-hooks": "4.6.0",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "catalog:"
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
 	},
 	"keywords": [
 		"remotion",

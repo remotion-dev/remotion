@@ -13,7 +13,7 @@
 	"scripts": {
 		"lint": "eslint src",
 		"formatting": "prettier --experimental-cli src --check",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -32,7 +32,8 @@
 		"eslint-plugin-react": "7.37.4",
 		"eslint-plugin-react-hooks": "5.2.0",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "catalog:"
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
 	},
 	"keywords": [
 		"remotion",

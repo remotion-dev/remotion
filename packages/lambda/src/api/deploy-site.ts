@@ -214,7 +214,15 @@ const mandatoryDeploySite = async ({
 	};
 };
 
-export const internalDeploySite = wrapWithErrorHandling(mandatoryDeploySite);
+export type InternalDeploySiteInput = MandatoryParameters &
+	OptionalParameters & {
+		providerSpecifics: ProviderSpecifics<AwsProvider>;
+		fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+	};
+
+export const internalDeploySite: (
+	input: InternalDeploySiteInput,
+) => DeploySiteOutput = wrapWithErrorHandling(mandatoryDeploySite);
 
 /*
  * @description Deploys a Remotion project to a GCP storage bucket to prepare it for rendering on Cloud Run.

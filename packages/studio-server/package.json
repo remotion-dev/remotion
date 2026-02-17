@@ -11,7 +11,7 @@
 		"lint": "eslint src",
 		"test": "bun test src",
 		"formatting": "prettier --experimental-cli src --check",
-		"make": "tsc -d"
+		"make": "tsgo -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -41,7 +41,8 @@
 		"@types/semver": "^7.3.4",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@types/node": "catalog:"
+		"@types/node": "catalog:",
+		"@typescript/native-preview": "catalog:"
 	},
 	"exports": {
 		".": "./dist/index.js",

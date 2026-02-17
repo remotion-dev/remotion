@@ -30,7 +30,7 @@
     "@types/cors": "2.8.13",
     "@types/express": "4.17.13",
     "cors": "2.8.5",
-    "dotenv": "16.0.3",
+    "dotenv": "17.3.1",
     "express": "4.21.0",
     "firebase": "9.19.1",
     "md5": "2.3.0",

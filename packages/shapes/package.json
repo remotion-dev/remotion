@@ -11,7 +11,7 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -35,7 +35,8 @@
 		"react-dom": "catalog:",
 		"@happy-dom/global-registrator": "14.5.1",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "catalog:"
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
 	},
 	"keywords": [
 		"svg",

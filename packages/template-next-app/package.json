@@ -33,7 +33,7 @@
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "@types/web": "0.0.166",
-    "dotenv": "16.0.3",
+    "dotenv": "17.3.1",
     "eslint": "9.19.0",
     "@next/eslint-plugin-next": "15.1.6",
     "@typescript-eslint/eslint-plugin": "8.46.0",

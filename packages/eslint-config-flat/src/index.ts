@@ -1,5 +1,6 @@
 import eslint from '@eslint/js';
 import remotionPlugin from '@remotion/eslint-plugin';
+import type {Linter} from 'eslint';
 import reactPlugin from 'eslint-plugin-react';
 import hooksPlugin from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
@@ -8,7 +9,7 @@ export const makeConfig = ({
 	remotionDir,
 }: {
 	remotionDir: string | undefined;
-}): tseslint.ConfigArray =>
+}): Linter.Config[] =>
 	tseslint.config(
 		{
 			ignores: [
@@ -63,8 +64,8 @@ export const makeConfig = ({
 			rules: remotionPlugin.configs.recommended.rules,
 			...(remotionDir ? {files: [remotionDir]} : {}),
 		},
-	);
+	) as Linter.Config[];
 
-export const config: tseslint.ConfigArray = makeConfig({
+export const config: Linter.Config[] = makeConfig({
 	remotionDir: undefined,
 });

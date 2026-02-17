@@ -62,11 +62,16 @@ export type {MediaParserEmbeddedImage} from './state/images';
 export {downloadAndParseMedia} from './download-and-parse-media';
 export type {Options, ParseMediaFields} from './fields';
 export type {
+	M3uPlaylistContext,
 	MediaParserContainer,
+	ParseMediaCallbacksMandatory,
+	ParseMediaMandatoryOptions,
 	ParseMediaOnProgress,
+	ParseMediaOnWorkerOptions,
 	ParseMediaOptions,
 	ParseMediaProgress,
 	ParseMediaResult,
+	SerializeableOptionalParseMediaParams,
 } from './options';
 export type {
 	MediaParserAudioSample,
@@ -88,6 +93,20 @@ export type {MediaParserLocation} from './get-location';
 export type {MediaParserReaderInterface} from './readers/reader';
 
 import type {CreateContent, Writer, WriterInterface} from './writers/writer';
+
+export type {AllOptions} from './fields';
+export type {SeekingHints} from './seeking-hints';
+export type {
+	CreateContent,
+	Ebml,
+	FloatWithSize,
+	MatroskaElement,
+	PossibleEbml,
+	SamplePosition,
+	UintWithSize,
+	Writer,
+	WriterInterface,
+};
 
 /**
  * @deprecated Dont use these yet.

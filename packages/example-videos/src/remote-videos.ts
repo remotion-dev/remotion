@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 dotenv.config({
+	quiet: true,
 	path: path.join(__dirname, '..', '.env'),
 });
 
@@ -93,7 +94,6 @@ export const getPrivateExampleVideo = async (
 	);
 	let content = new Uint8Array([]);
 	let progress = 0;
-	// @ts-expect-error
 	for await (const chunk of stream) {
 		content = new Uint8Array([...content, ...chunk]);
 		progress += chunk.length;

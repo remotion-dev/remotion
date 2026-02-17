@@ -5,7 +5,7 @@ import {getServiceClient} from './get-service-client';
 import type {AwsRegion} from './regions';
 import type {RequestHandler} from './types';
 
-export const getS3Client = ({
+export function getS3Client({
 	region,
 	customCredentials,
 	forcePathStyle,
@@ -15,7 +15,7 @@ export const getS3Client = ({
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
-}): S3Client => {
+}): S3Client {
 	return getServiceClient({
 		region: customCredentials?.region ?? region,
 		service: 's3',
@@ -23,4 +23,4 @@ export const getS3Client = ({
 		forcePathStyle,
 		requestHandler,
 	});
-};
+}

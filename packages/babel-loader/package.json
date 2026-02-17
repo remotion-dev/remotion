@@ -9,7 +9,7 @@
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
-		"make": "tsc -d"
+		"make": "tsgo -d"
 	},
 	"files": [
 		"dist"
@@ -33,7 +33,8 @@
 		"@remotion/bundler": "workspace:*",
 		"remotion": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "catalog:"
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

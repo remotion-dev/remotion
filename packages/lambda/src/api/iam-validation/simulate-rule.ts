@@ -9,14 +9,18 @@ export type SimulationResult = {
 	name: string;
 };
 
-export const simulateRule = async (options: {
+type SimulateRuleOptions = {
 	region: AwsRegion;
 	actionNames: string[];
 	arn: string;
 	resource: string[];
 	retries: number;
 	requestHandler: RequestHandler | null;
-}): Promise<SimulationResult[]> => {
+};
+
+export const simulateRule = async (
+	options: SimulateRuleOptions,
+): Promise<SimulationResult[]> => {
 	try {
 		const res = await LambdaClientInternals.getIamClient(
 			options.region,

@@ -1,9 +1,9 @@
 import type {
 	MediaParserAdvancedColor,
-	MediaParserInternalTypes,
 	MediaParserMatrixCoefficients,
 	MediaParserPrimaries,
 	MediaParserTransferCharacteristics,
+	PossibleEbml,
 } from '@remotion/media-parser';
 import {truthy} from '../../truthy';
 import {makeMatroskaBytes} from './matroska-utils';
@@ -195,7 +195,7 @@ export const makeMatroskaColorBytes = ({
 					},
 					minVintWidth: null,
 				},
-			] as MediaParserInternalTypes['PossibleEbml'][]
+			] as PossibleEbml[]
 		).filter(truthy),
 	});
 };

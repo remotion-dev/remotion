@@ -78,7 +78,7 @@
 		"@types/three": "catalog:",
 		"@types/web": "catalog:",
 		"babel-loader": "^8.2.2",
-		"dotenv": "9.0.2",
+		"dotenv": "17.3.1",
 		"hls.js": "^0.14.17",
 		"mediabunny": "catalog:",
 		"lottie-web": "5.13.0",

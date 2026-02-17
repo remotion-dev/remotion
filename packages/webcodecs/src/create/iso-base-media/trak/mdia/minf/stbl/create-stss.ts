@@ -1,4 +1,4 @@
-import type {MediaParserInternalTypes} from '@remotion/media-parser';
+import type {SamplePosition} from '@remotion/media-parser';
 import {combineUint8Arrays} from '../../../../../matroska/matroska-utils';
 import {
 	addSize,
@@ -6,9 +6,7 @@ import {
 	stringsToUint8Array,
 } from '../../../../primitives';
 
-export const createStss = (
-	samplePositions: MediaParserInternalTypes['SamplePosition'][],
-) => {
+export const createStss = (samplePositions: SamplePosition[]) => {
 	const samples = samplePositions
 		.map((sample, i) => [sample.isKeyframe, i] as const)
 		.filter((s) => s[0])

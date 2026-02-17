@@ -1,6 +1,10 @@
-import type {ZodType} from '../components/get-zod-if-possible';
+import type {ZodType} from 'zod';
+import type {ZodType as ZodNamespace} from '../components/get-zod-if-possible';
 
-export const getZodSchemaFromPrimitive = (value: unknown, z: ZodType) => {
+export function getZodSchemaFromPrimitive(
+	value: unknown,
+	z: ZodNamespace,
+): ZodType {
 	if (typeof value === 'string') {
 		return z.string();
 	}
@@ -17,4 +21,4 @@ export const getZodSchemaFromPrimitive = (value: unknown, z: ZodType) => {
 	throw new Error(
 		`visualControl(): Specify a schema for this value: ${stringified ?? '[non-serializable value]'}. See https://remotion.dev/docs/studio/visual-control`,
 	);
-};
+}

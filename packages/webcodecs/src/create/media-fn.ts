@@ -1,8 +1,8 @@
 import type {
 	MediaParserAudioSample,
-	MediaParserInternalTypes,
 	MediaParserLogLevel,
 	MediaParserVideoSample,
+	WriterInterface,
 } from '@remotion/media-parser';
 import type {ConvertMediaContainer} from '../get-available-containers';
 import type {MakeTrackAudio, MakeTrackVideo} from './make-track-info';
@@ -31,7 +31,7 @@ export type MediaFn = {
 };
 
 export type MediaFnGeneratorInput = {
-	writer: MediaParserInternalTypes['WriterInterface'];
+	writer: WriterInterface;
 	onBytesProgress: (totalBytes: number) => void;
 	onMillisecondsProgress: (totalMilliseconds: number) => void;
 	logLevel: MediaParserLogLevel;

@@ -25,7 +25,7 @@
     "@types/node": "20.12.14",
     "@types/react": "19.2.7",
     "@types/web": "0.0.166",
-    "dotenv": "16.0.3",
+    "dotenv": "17.3.1",
     "express": "4.21.0",
     "express-rate-limit": "5.3.0",
     "p-limit": "3.1.0",

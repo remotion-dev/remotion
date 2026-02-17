@@ -17,7 +17,7 @@ import { getImageType, getMimeType } from "./image-types";
 import { getImageHash } from "./make-hash";
 import { sendFile } from "./send-file";
 
-dotenv.config();
+dotenv.config({quiet: true});
 
 const app = express();
 const port = process.env.PORT || 8000;

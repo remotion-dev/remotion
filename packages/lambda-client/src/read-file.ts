@@ -4,7 +4,7 @@ import {getS3Client} from './get-s3-client';
 import type {AwsRegion} from './regions';
 import type {RequestHandler} from './types';
 
-export const lambdaReadFileImplementation = async ({
+export async function lambdaReadFileImplementation({
 	bucketName,
 	key,
 	region,
@@ -18,7 +18,7 @@ export const lambdaReadFileImplementation = async ({
 	expectedBucketOwner: string | null;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
-}): Promise<Readable> => {
+}): Promise<Readable> {
 	const {Body} = await getS3Client({
 		region,
 		customCredentials: null,
@@ -32,4 +32,4 @@ export const lambdaReadFileImplementation = async ({
 		}),
 	);
 	return Body as Readable;
-};
+}

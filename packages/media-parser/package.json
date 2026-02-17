@@ -10,7 +10,7 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"testwebcodecs": "bun test src/test --timeout=30000",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
 		"prepublishOnly": "bun ensure-correct-version.ts"
 	},
 	"devDependencies": {
@@ -19,7 +19,8 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"mediabunny": "catalog:",
-		"@types/bun": "catalog:"
+		"@types/bun": "catalog:",
+		"@typescript/native-preview": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

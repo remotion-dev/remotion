@@ -1,7 +1,7 @@
 import {execSync} from 'child_process';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({quiet: true});
 
 const functionName = execSync(
 	`bunx remotion lambda functions ls -q --compatible-only`,

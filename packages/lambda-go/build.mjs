@@ -16,5 +16,5 @@ if (!hasGo()) {
   console.log("Environment has no Go. Skipping...");
   process.exit(0);
 }
-execSync("go mod tidy", { stdio: "inherit" });
+execSync("go build ./...", { stdio: "inherit" });
 console.log("Linted lambda-go!");

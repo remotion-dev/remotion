@@ -6,7 +6,7 @@ import {
 	useRemotionEnvironment,
 } from 'remotion';
 // eslint-disable-next-line no-restricted-imports
-import type {VideoTexture} from 'three/src/textures/VideoTexture';
+import type {VideoTexture} from 'three';
 
 export type UseVideoTextureOptions = React.ComponentProps<typeof Video>;
 

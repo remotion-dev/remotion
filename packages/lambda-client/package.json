@@ -10,7 +10,7 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"test": "bun test src",
 		"lint": "eslint src",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "UNLICENSED",
@@ -32,7 +32,8 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"next": "catalog:",
-		"@types/mime-types": "2.1.1"
+		"@types/mime-types": "2.1.1",
+		"@typescript/native-preview": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

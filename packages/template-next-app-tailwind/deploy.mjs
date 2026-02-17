@@ -9,7 +9,7 @@ import { DISK, RAM, REGION, SITE_NAME, TIMEOUT } from "./config.mjs";
 import { webpackOverride } from "./src/remotion/webpack-override.mjs";
 
 console.log("Selected region:", REGION);
-dotenv.config();
+dotenv.config({quiet: true});
 
 if (!process.env.AWS_ACCESS_KEY_ID && !process.env.REMOTION_AWS_ACCESS_KEY_ID) {
   console.log(

@@ -16,6 +16,20 @@ export type LambdaReadFileProgress = (progress: {
 	percent: number;
 }) => unknown;
 
+type LambdaDownloadFileWithProgressInput = {
+	bucketName: string;
+	key: string;
+	region: AwsRegion;
+	expectedBucketOwner: string;
+	outputPath: string;
+	onProgress: LambdaReadFileProgress;
+	customCredentials: CustomCredentials<AwsProvider> | null;
+	logLevel: LogLevel;
+	forcePathStyle: boolean;
+	requestHandler: RequestHandler;
+	abortSignal: AbortSignal;
+};
+
 export const lambdaDownloadFileWithProgress = async ({
 	bucketName,
 	key,
@@ -28,19 +42,10 @@ export const lambdaDownloadFileWithProgress = async ({
 	forcePathStyle,
 	requestHandler,
 	abortSignal,
-}: {
-	bucketName: string;
-	key: string;
-	region: AwsRegion;
-	expectedBucketOwner: string;
-	outputPath: string;
-	onProgress: LambdaReadFileProgress;
-	customCredentials: CustomCredentials<AwsProvider> | null;
-	logLevel: LogLevel;
-	forcePathStyle: boolean;
-	requestHandler: RequestHandler;
-	abortSignal: AbortSignal;
-}): Promise<{sizeInBytes: number; to: string}> => {
+}: LambdaDownloadFileWithProgressInput): Promise<{
+	sizeInBytes: number;
+	to: string;
+}> => {
 	const client = LambdaClientInternals.getS3Client({
 		region,
 		customCredentials,

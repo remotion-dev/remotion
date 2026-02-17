@@ -4,7 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { RequestMetadata, ServerResponse } from "../lib/interfaces";
 
-dotenv.config();
+dotenv.config({quiet: true});
 
 export const startServer = () => {
   const app = express();

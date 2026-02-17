@@ -1,4 +1,4 @@
-import type {MediaParserInternalTypes} from '@remotion/media-parser';
+import type {SamplePosition} from '@remotion/media-parser';
 import {combineUint8Arrays} from '../../../../../matroska/matroska-utils';
 import {
 	addSize,
@@ -7,9 +7,7 @@ import {
 	stringsToUint8Array,
 } from '../../../../primitives';
 
-export const createStcoAtom = (
-	samplePositions: MediaParserInternalTypes['SamplePosition'][],
-) => {
+export const createStcoAtom = (samplePositions: SamplePosition[]) => {
 	const chunkOffsets = [];
 	let lastChunk;
 	let needs64Bit = false;

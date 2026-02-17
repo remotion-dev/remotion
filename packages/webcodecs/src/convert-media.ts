@@ -5,13 +5,14 @@
 
 import type {
 	MediaParserAudioTrack,
-	MediaParserInternalTypes,
 	MediaParserLogLevel,
 	MediaParserOnAudioTrack,
 	MediaParserVideoTrack,
 	Options,
+	ParseMediaCallbacks,
 	ParseMediaFields,
 	ParseMediaOptions,
+	WriterInterface,
 } from '@remotion/media-parser';
 import {
 	defaultSelectM3uAssociatedPlaylists,
@@ -146,13 +147,13 @@ export const convertMedia = async function <
 	expectedFrameRate?: number | null;
 	reader?: ParseMediaOptions<F>['reader'];
 	logLevel?: MediaParserLogLevel;
-	writer?: MediaParserInternalTypes['WriterInterface'];
+	writer?: WriterInterface;
 	progressIntervalInMs?: number;
 	rotate?: number;
 	resize?: ResizeOperation;
 	fields?: F;
 	seekingHints?: ParseMediaOptions<F>['seekingHints'];
-} & MediaParserInternalTypes['ParseMediaCallbacks']): Promise<ConvertMediaResult> {
+} & ParseMediaCallbacks): Promise<ConvertMediaResult> {
 	if (controller._internals._mediaParserController._internals.signal.aborted) {
 		return Promise.reject(new MediaParserAbortError('Aborted'));
 	}

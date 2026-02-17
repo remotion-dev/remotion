@@ -25,6 +25,26 @@ import {getLayers} from '../shared/get-layers';
 import {lambdaInsightsExtensions} from '../shared/lambda-insights-extensions';
 import {ROLE_NAME} from './iam-validation/suggested-policy';
 
+type CreateFunctionInput = {
+	createCloudWatchLogGroup: boolean;
+	region: AwsRegion;
+	zipFile: string;
+	functionName: string;
+	accountId: string;
+	memorySizeInMb: number;
+	timeoutInSeconds: number;
+	alreadyCreated: boolean;
+	retentionInDays: number;
+	ephemerealStorageInMb: number;
+	customRoleArn: string;
+	enableLambdaInsights: boolean;
+	logLevel: LogLevel;
+	vpcSubnetIds: string;
+	vpcSecurityGroupIds: string;
+	runtimePreference: RuntimePreference;
+	requestHandler: RequestHandler | null;
+};
+
 export const createFunction = async ({
 	createCloudWatchLogGroup,
 	region,
@@ -43,25 +63,7 @@ export const createFunction = async ({
 	vpcSecurityGroupIds,
 	runtimePreference,
 	requestHandler,
-}: {
-	createCloudWatchLogGroup: boolean;
-	region: AwsRegion;
-	zipFile: string;
-	functionName: string;
-	accountId: string;
-	memorySizeInMb: number;
-	timeoutInSeconds: number;
-	alreadyCreated: boolean;
-	retentionInDays: number;
-	ephemerealStorageInMb: number;
-	customRoleArn: string;
-	enableLambdaInsights: boolean;
-	logLevel: LogLevel;
-	vpcSubnetIds: string;
-	vpcSecurityGroupIds: string;
-	runtimePreference: RuntimePreference;
-	requestHandler: RequestHandler | null;
-}): Promise<{FunctionName: string}> => {
+}: CreateFunctionInput): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
 		RenderInternals.Log.verbose(
 			{indent: false, logLevel},

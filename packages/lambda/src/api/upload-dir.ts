@@ -59,6 +59,18 @@ async function getFiles(
 
 const limit = LambdaClientInternals.pLimit(5);
 
+type UploadDirInput = {
+	bucket: string;
+	region: AwsRegion;
+	localDir: string;
+	keyPrefix: string;
+	onProgress: (progress: UploadDirProgress) => void;
+	privacy: Privacy;
+	toUpload: string[];
+	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
+};
+
 export const uploadDir = async ({
 	bucket,
 	region,
@@ -69,17 +81,7 @@ export const uploadDir = async ({
 	toUpload,
 	forcePathStyle,
 	requestHandler,
-}: {
-	bucket: string;
-	region: AwsRegion;
-	localDir: string;
-	keyPrefix: string;
-	onProgress: (progress: UploadDirProgress) => void;
-	privacy: Privacy;
-	toUpload: string[];
-	forcePathStyle: boolean;
-	requestHandler: RequestHandler | null;
-}) => {
+}: UploadDirInput): Promise<void> => {
 	const files = await getFiles(localDir, localDir, toUpload);
 	const progresses: {[key: string]: number} = {};
 	for (const file of files) {

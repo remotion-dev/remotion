@@ -9,10 +9,10 @@ type CredentialPair = {
 };
 type AwsCredentialIdentityProvider = ReturnType<typeof fromIni>;
 
-export const getCredentials = ():
+export function getCredentials():
 	| CredentialPair
 	| AwsCredentialIdentityProvider
-	| undefined => {
+	| undefined {
 	if (isInsideLambda()) {
 		return undefined;
 	}
@@ -78,4 +78,4 @@ export const getCredentials = ():
 	}
 
 	return undefined;
-};
+}

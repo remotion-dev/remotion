@@ -1,7 +1,4 @@
-import type {
-	MediaParserInternalTypes,
-	MediaParserLogLevel,
-} from '@remotion/media-parser';
+import type {MediaParserLogLevel, Writer} from '@remotion/media-parser';
 import {
 	MediaParserInternals,
 	type MediaParserAudioSample,
@@ -52,7 +49,7 @@ export const makeCluster = async ({
 	timescale,
 	logLevel,
 }: {
-	writer: MediaParserInternalTypes['Writer'];
+	writer: Writer;
 	clusterStartTimestamp: number;
 	timescale: number;
 	logLevel: MediaParserLogLevel;

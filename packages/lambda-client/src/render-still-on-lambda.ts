@@ -162,7 +162,7 @@ export const internalRenderStillOnLambda = wrapWithErrorHandling(
  * @description Renders a still image inside a lambda function and writes it to the specified output location.
  * @see [Documentation](https://remotion.dev/docs/lambda/renderstillonlambda)
  */
-export const renderStillOnLambda = (
+export function renderStillOnLambda(
 	input: RenderStillOnLambdaInput & {
 		/**
 		 * @deprecated Renamed to `jpegQuality`
@@ -177,7 +177,7 @@ export const renderStillOnLambda = (
 		 */
 		apiKey?: string | null;
 	},
-) => {
+): Promise<RenderStillOnLambdaOutput> {
 	return internalRenderStillOnLambda({
 		chromiumOptions: input.chromiumOptions ?? {},
 		composition: input.composition,
@@ -212,4 +212,4 @@ export const renderStillOnLambda = (
 		mediaCacheSizeInBytes: input.mediaCacheSizeInBytes ?? null,
 		isProduction: input.isProduction ?? null,
 	});
-};
+}

@@ -6,7 +6,7 @@ import {
 import assert from 'assert';
 import {config} from 'dotenv';
 
-config();
+config({quiet: true});
 
 const [{functionName}] = await getFunctions({
 	compatibleOnly: true,

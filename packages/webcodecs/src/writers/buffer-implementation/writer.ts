@@ -1,9 +1,6 @@
-import type {MediaParserInternalTypes} from '@remotion/media-parser';
+import type {CreateContent, Writer} from '@remotion/media-parser';
 
-export const createContent: MediaParserInternalTypes['CreateContent'] = ({
-	filename,
-	mimeType,
-}) => {
+export const createContent: CreateContent = ({filename, mimeType}) => {
 	const buf = new ArrayBuffer(0, {
 		// TODO: Educate that the buffer is limited to 2GB
 		maxByteLength: 2_000_000_000,
@@ -29,7 +26,7 @@ export const createContent: MediaParserInternalTypes['CreateContent'] = ({
 
 	let removed = false;
 
-	const writer: MediaParserInternalTypes['Writer'] = {
+	const writer: Writer = {
 		write: (arr: Uint8Array) => {
 			writPromise = writPromise.then(() => write(arr));
 			return writPromise;

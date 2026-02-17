@@ -12,7 +12,7 @@
 		"lint": "eslint src",
 		"testlambda": "exit 0",
 		"test": "bun test src/test/unit",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
 		"makeruntime": "bun build.ts",
 		"prepublishOnly": "bun build.ts && bun ensure-version-match.js"
 	},
@@ -51,7 +51,8 @@
 		"eslint": "catalog:",
 		"next": "catalog:",
 		"pureimage": "0.4.13",
-		"@types/node": "catalog:"
+		"@types/node": "catalog:",
+		"@typescript/native-preview": "catalog:"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

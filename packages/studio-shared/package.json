@@ -10,7 +10,7 @@
 	"scripts": {
 		"lint": "eslint src",
 		"formatting": "prettier --experimental-cli src --check",
-		"make": "tsc -d"
+		"make": "tsgo -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -24,7 +24,8 @@
 	"devDependencies": {
 		"@remotion/renderer": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "catalog:"
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

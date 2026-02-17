@@ -18,6 +18,7 @@ const external = [
 	'zod',
 	'remotion/no-react',
 	'react/jsx-runtime',
+	'mediabunny',
 ];
 
 await buildPackage({

@@ -80,7 +80,7 @@ const deleteLCRules = async ({
 	}
 };
 
-export const applyLifeCyleOperation = async ({
+export async function applyLifeCyleOperation({
 	enableFolderExpiry,
 	bucketName,
 	region,
@@ -94,7 +94,7 @@ export const applyLifeCyleOperation = async ({
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
-}) => {
+}): Promise<void> {
 	if (enableFolderExpiry === null) {
 		return;
 	}
@@ -116,4 +116,4 @@ export const applyLifeCyleOperation = async ({
 			requestHandler,
 		});
 	}
-};
+}
