@@ -7,7 +7,11 @@ import {Internals} from '../internals.js';
 import {Series} from '../series/index.js';
 import {TimelineContext} from '../TimelineContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
+import {ENABLE_V5_BREAKING_CHANGES} from '../v5-flag.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
+
+const ABS_FILL =
+	'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex">';
 
 const First = () => {
 	const frame = useCurrentFrame();
@@ -73,7 +77,9 @@ test('Basic series test', () => {
 		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>third 0</div></div></div>',
+		ENABLE_V5_BREAKING_CHANGES
+			? `${ABS_FILL}${ABS_FILL}<div>third 0</div></div></div>`
+			: `${ABS_FILL}<div>third 0</div></div>`,
 	);
 });
 
@@ -103,7 +109,9 @@ test('Should support fragments', () => {
 	);
 
 	expect(outerHtml).not.toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>second 1</div></div></div>',
+		ENABLE_V5_BREAKING_CHANGES
+			? `${ABS_FILL}${ABS_FILL}<div>second 1</div></div></div>`
+			: `${ABS_FILL}<div>second 1</div></div>`,
 	);
 });
 test('Should not allow foreign elements', () => {
@@ -130,7 +138,9 @@ test('Should allow layout prop', () => {
 		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>first 0</div></div></div>',
+		ENABLE_V5_BREAKING_CHANGES
+			? `${ABS_FILL}${ABS_FILL}<div>first 0</div></div></div>`
+			: `${ABS_FILL}<div>first 0</div></div>`,
 	);
 
 	const outerHTML2 = renderForFrame(
@@ -144,7 +154,9 @@ test('Should allow layout prop', () => {
 		</WrapSequenceContext>,
 	);
 	expect(outerHTML2).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>first 0</div></div>',
+		ENABLE_V5_BREAKING_CHANGES
+			? `${ABS_FILL}<div>first 0</div></div>`
+			: '<div>first 0</div>',
 	);
 });
 test('Should render nothing after the end', () => {
@@ -159,7 +171,7 @@ test('Should render nothing after the end', () => {
 		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"></div>',
+		ENABLE_V5_BREAKING_CHANGES ? `${ABS_FILL}</div>` : '',
 	);
 });
 test('Should throw if invalid or no duration provided', () => {
@@ -206,7 +218,9 @@ test('Should allow whitespace', () => {
 	);
 
 	expect(outerHtml).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>second 1</div></div></div>',
+		ENABLE_V5_BREAKING_CHANGES
+			? `${ABS_FILL}${ABS_FILL}<div>second 1</div></div></div>`
+			: `${ABS_FILL}<div>second 1</div></div>`,
 	);
 });
 test('Handle empty Series.Sequence', () => {
@@ -240,7 +254,9 @@ test('Should allow negative overlap prop', () => {
 		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>first 4</div><div>second 0</div></div>',
+		ENABLE_V5_BREAKING_CHANGES
+			? `${ABS_FILL}<div>first 4</div><div>second 0</div></div>`
+			: '<div>first 4</div><div>second 0</div>',
 	);
 });
 
@@ -259,7 +275,7 @@ test('Should allow positive overlap prop', () => {
 		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"></div>',
+		ENABLE_V5_BREAKING_CHANGES ? `${ABS_FILL}</div>` : '',
 	);
 });
 
@@ -326,7 +342,9 @@ test('Should cascade negative offset props', () => {
 		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>third 0</div></div>',
+		ENABLE_V5_BREAKING_CHANGES
+			? `${ABS_FILL}<div>third 0</div></div>`
+			: '<div>third 0</div>',
 	);
 });
 
@@ -348,7 +366,9 @@ test('Should cascade positive offset props', () => {
 		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>third 0</div></div>',
+		ENABLE_V5_BREAKING_CHANGES
+			? `${ABS_FILL}<div>third 0</div></div>`
+			: '<div>third 0</div>',
 	);
 });
 
@@ -370,7 +390,9 @@ test('Allow durationInFrames as Infinity for last Series.Sequence', () => {
 		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>third 0</div></div></div>',
+		ENABLE_V5_BREAKING_CHANGES
+			? `${ABS_FILL}${ABS_FILL}<div>third 0</div></div></div>`
+			: `${ABS_FILL}<div>third 0</div></div>`,
 	);
 });
 
