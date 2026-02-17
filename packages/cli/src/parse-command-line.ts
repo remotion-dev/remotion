@@ -4,8 +4,6 @@ import type {
 	Codec,
 	OpenGlRenderer,
 	PixelFormat,
-	StillImageFormat,
-	VideoImageFormat,
 } from '@remotion/renderer';
 import type {TypeOfOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
@@ -38,12 +36,13 @@ const {
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
+	imageFormatOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
-	['image-format']: VideoImageFormat | StillImageFormat;
+	[imageFormatOption.cliFlag]: TypeOfOption<typeof imageFormatOption>;
 	['prores-profile']: _InternalTypes['ProResProfile'];
 	[x264Option.cliFlag]: TypeOfOption<typeof x264Option>;
 	['bundle-cache']: string;

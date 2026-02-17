@@ -1,8 +1,11 @@
 import type {VideoImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import {ConfigInternals} from './config';
 import {parsedCli} from './parsed-cli';
+
+const {imageFormatOption} = BrowserSafeApis.options;
 
 export const getVideoImageFormat = ({
 	codec,
@@ -15,16 +18,20 @@ export const getVideoImageFormat = ({
 		return uiImageFormat;
 	}
 
-	if (typeof parsedCli['image-format'] !== 'undefined') {
+	const cliImageFormat = imageFormatOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	if (cliImageFormat !== null) {
 		if (
 			!(RenderInternals.validVideoImageFormats as readonly string[]).includes(
-				parsedCli['image-format'] as string,
+				cliImageFormat,
 			)
 		) {
-			throw new Error(`Invalid image format: ${parsedCli['image-format']}`);
+			throw new Error(`Invalid image format: ${cliImageFormat}`);
 		}
 
-		return parsedCli['image-format'] as VideoImageFormat;
+		return cliImageFormat as VideoImageFormat;
 	}
 
 	const configFileOption = ConfigInternals.getUserPreferredVideoImageFormat();

@@ -1,6 +1,11 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import type {
+	ChromiumOptions,
+	LogLevel,
+	StillImageFormat,
+	VideoImageFormat,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
@@ -24,6 +29,7 @@ const {
 	binariesDirectoryOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	imageFormatOption,
 } = BrowserSafeApis.options;
 
 export const stillCommand = async (
@@ -158,11 +164,17 @@ export const stillCommand = async (
 		composition = compositionId;
 	}
 
+	const cliImageFormat = imageFormatOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
 	const {format: imageFormat, source: imageFormatReason} =
 		CliInternals.determineFinalStillImageFormat({
 			downloadName,
 			outName: outName ?? null,
-			cliFlag: CliInternals.parsedCli['image-format'] ?? null,
+			cliFlag:
+				(cliImageFormat as StillImageFormat | VideoImageFormat | undefined) ??
+				null,
 			isLambda: true,
 			fromUi: null,
 			configImageFormat:

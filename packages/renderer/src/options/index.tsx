@@ -24,6 +24,7 @@ import {forceNewStudioOption} from './force-new-studio';
 import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
+import {imageFormatOption} from './image-format-option';
 import {imageSequencePatternOption} from './image-sequence-pattern';
 import {ipv4Option} from './ipv4';
 import {isProductionOption} from './is-production';
@@ -86,6 +87,7 @@ export const allOptions = {
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
+	imageFormatOption,
 	overwriteOption,
 	binariesDirectoryOption,
 	forSeamlessAacConcatenationOption,

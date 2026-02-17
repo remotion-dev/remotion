@@ -8,9 +8,12 @@ crumb: 'Cloud Run CLI Reference'
 ---
 
 <ExperimentalBadge>
-  <p>
-    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
-  </p>
+	<p>
+		Cloud Run is in{' '}
+		<a href="/docs/cloudrun/status">
+			Alpha status and not actively being developed.
+		</a>
+	</p>
 </ExperimentalBadge>
 
 Using the `npx remotion cloudrun still` command, you can render an image on GCP.
@@ -79,7 +82,7 @@ Specify a specific bucket name to be used for the output. The resulting Google C
 
 ### `--image-format`
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setstillimageformat) The default image format is `jpeg`.
+<Options id="image-format" cli />
 
 ### `--scale`
 

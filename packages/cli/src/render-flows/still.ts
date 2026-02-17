@@ -9,8 +9,10 @@ import type {
 	LogLevel,
 	RenderMediaOnDownload,
 	StillImageFormat,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	AggregateRenderProgress,
 	JobProgressCallback,
@@ -276,8 +278,15 @@ export const renderStillFlow = async ({
 			mediaCacheSizeInBytes,
 		});
 
+	const {imageFormatOption} = BrowserSafeApis.options;
+	const cliImageFormat = imageFormatOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
-		cliFlag: parsedCli['image-format'] ?? null,
+		cliFlag:
+			(cliImageFormat as StillImageFormat | VideoImageFormat | undefined) ??
+			null,
 		configImageFormat:
 			ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		downloadName: null,

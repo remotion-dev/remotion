@@ -6,7 +6,12 @@ import {
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '@remotion/lambda-client/constants';
-import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import type {
+	ChromiumOptions,
+	LogLevel,
+	StillImageFormat,
+	VideoImageFormat,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ProviderSpecifics} from '@remotion/serverless';
@@ -35,6 +40,7 @@ const {
 	binariesDirectoryOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	imageFormatOption,
 } = BrowserSafeApis.options;
 
 const {
@@ -206,11 +212,17 @@ export const stillCommand = async ({
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy, true);
 
+	const cliImageFormat = imageFormatOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
 	const {format: imageFormat, source: imageFormatReason} =
 		determineFinalStillImageFormat({
 			downloadName,
 			outName: outName ?? null,
-			cliFlag: parsedCli['image-format'] ?? null,
+			cliFlag:
+				(cliImageFormat as StillImageFormat | VideoImageFormat | undefined) ??
+				null,
 			isLambda: true,
 			fromUi: null,
 			configImageFormat:

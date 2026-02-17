@@ -31,11 +31,11 @@ Allows you to insert your custom Webpack config. [See the page about custom Webp
 import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.overrideWebpackConfig((currentConfiguration) => {
-  // Return a new Webpack configuration
-  return {
-    ...currentConfiguration,
-    // new configuration
-  };
+	// Return a new Webpack configuration
+	return {
+		...currentConfiguration,
+		// new configuration
+	};
 });
 ```
 
@@ -324,11 +324,7 @@ Try to set your concurrency to `os.cpus().length` to all the threads available o
 
 ## `setVideoImageFormat()`<AvailableFrom v="4.0.0" />
 
-Determines which in which image format to render the frames. Either:
-
-- `jpeg` - the fastest option (default)
-- `png` - slower, but supports transparency
-- `none` - don't render images, just calculate audio information
+<Options id="image-format" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -336,20 +332,19 @@ import {Config} from '@remotion/cli/config';
 Config.setVideoImageFormat('png');
 ```
 
+The CLI flag `--image-format` takes precedence over this config option.
+
 ## `setStillImageFormat()`<AvailableFrom v="4.0.0" />
 
-Determines which in which image format to render the frames. Either:
-
-- `png` (default)
-- `jpeg`
-- `pdf`
-- `webp`
+<Options id="image-format" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setStillImageFormat('pdf');
 ```
+
+The CLI flag `--image-format` takes precedence over this config option.
 
 ## `setScale()`<AvailableFrom v="2.6.7" />
 
@@ -898,12 +893,23 @@ Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-
 import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.overrideFfmpegCommand(({args}) => {
-  // Define the custom FFmpeg options as an array of strings
-  const customFfmpegOptions = ['-profile:v', 'main', '-video_track_timescale', '90000', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-strict', 'experimental'];
-  // The customFfmpegOptions are inserted before the last element to ensure
-  // they appear before the ffmpeg's output path
-  args.splice(args.length - 1, 0, ...customFfmpegOptions);
-  return args;
+	// Define the custom FFmpeg options as an array of strings
+	const customFfmpegOptions = [
+		'-profile:v',
+		'main',
+		'-video_track_timescale',
+		'90000',
+		'-color_primaries',
+		'bt709',
+		'-color_trc',
+		'bt709',
+		'-strict',
+		'experimental',
+	];
+	// The customFfmpegOptions are inserted before the last element to ensure
+	// they appear before the ffmpeg's output path
+	args.splice(args.length - 1, 0, ...customFfmpegOptions);
+	return args;
 });
 ```
 
@@ -1048,8 +1054,8 @@ export const enableSass: WebpackOverrideFn = (c) => c;
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig(async (currentConfiguration) => {
-  const {enableSass} = await import('./src/enable-sass');
-  return enableSass(currentConfiguration);
+	const {enableSass} = await import('./src/enable-sass');
+	return enableSass(currentConfiguration);
 });
 ```
 
