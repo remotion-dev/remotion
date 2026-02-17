@@ -170,9 +170,7 @@ test('Should render nothing after the end', () => {
 			</Series>
 		</WrapSequenceContext>,
 	);
-	expect(outerHTML).toBe(
-		ENABLE_V5_BREAKING_CHANGES ? `${ABS_FILL}</div>` : '',
-	);
+	expect(outerHTML).toBe(ENABLE_V5_BREAKING_CHANGES ? `${ABS_FILL}</div>` : '');
 });
 test('Should throw if invalid or no duration provided', () => {
 	expect(() => {
@@ -274,9 +272,7 @@ test('Should allow positive overlap prop', () => {
 			</Series>
 		</WrapSequenceContext>,
 	);
-	expect(outerHTML).toBe(
-		ENABLE_V5_BREAKING_CHANGES ? `${ABS_FILL}</div>` : '',
-	);
+	expect(outerHTML).toBe(ENABLE_V5_BREAKING_CHANGES ? `${ABS_FILL}</div>` : '');
 });
 
 test('Should disallow NaN as offset prop', () => {
