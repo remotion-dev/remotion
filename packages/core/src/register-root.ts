@@ -18,6 +18,16 @@ export const registerRoot = (comp: React.FC) => {
 	}
 
 	if (Root) {
+		if (process.env.NODE_ENV !== 'production') {
+			// eslint-disable-next-line no-console
+			console.warn('registerRoot() was called more than once. Overwriting.');
+			Root = comp;
+			listeners.forEach((l) => {
+				l(comp);
+			});
+			return;
+		}
+
 		throw new Error('registerRoot() was called more than once.');
 	}
 
