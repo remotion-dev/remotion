@@ -769,6 +769,15 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
+			type: 'category',
+			label: '@remotion/zod-types-v3',
+			link: {
+				type: 'doc',
+				id: 'zod-types-v3/index',
+			},
+			items: [],
+		},
+		{
 			type: 'html',
 			value:
 				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',

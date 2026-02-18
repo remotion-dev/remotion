@@ -9,9 +9,13 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import {ZodTypesTableOfContents} from './TableOfContents';
 
-Includes utility types and Remotion-specific types for [Zod](https://github.com/colinhacks/zod).  
-Currently, only Zod version 3.22.3 is supported.  
-In the next major version of Remotion, the Zod version will be updated.
+Since Remotion v4.0.425, `@remotion/zod-types` is based on Zod v4.
+If you want to compose these types with your own Zod schemas, use Zod v4.
+
+If you are using Zod 3.22.3, use [`@remotion/zod-types-v3`](/docs/zod-types-v3) instead.
+Other versions of Zod v3 might not compose well – we recommend staying on Zod 3.22.3 or upgrading to Zod v4.
+
+Includes utility types and Remotion-specific types for [Zod](https://github.com/colinhacks/zod).
 
 ## Installation
 
