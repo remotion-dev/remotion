@@ -18,6 +18,15 @@ export const registerRoot = (comp: React.FC) => {
 	}
 
 	if (Root) {
+		if (process.env.NODE_ENV !== 'production') {
+			// eslint-disable-next-line no-console
+			console.warn('registerRoot() was called more than once. Overwriting.');
+			Root = comp;
+			listeners.forEach((l) => {
+				l(comp);
+			});
+			return;
+		}
 		throw new Error('registerRoot() was called more than once.');
 	}
 
@@ -34,10 +43,11 @@ export const getRoot = () => {
 export const waitForRoot = (fn: (comp: React.FC) => void): (() => void) => {
 	if (Root) {
 		fn(Root);
-		return () => undefined;
 	}
 
-	listeners.push(fn);
+	if (!listeners.includes(fn)) {
+		listeners.push(fn);
+	}
 
 	return () => {
 		listeners = listeners.filter((l) => l !== fn);
