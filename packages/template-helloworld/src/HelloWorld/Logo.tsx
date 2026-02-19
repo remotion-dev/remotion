@@ -1,3 +1,4 @@
+import { zColor } from "@remotion/zod-types";
 import {
   AbsoluteFill,
   interpolate,
@@ -5,10 +6,9 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { z } from "zod";
 import { Arc } from "./Arc";
 import { Atom } from "./Atom";
-import { z } from "zod";
-import { zColor } from "@remotion/zod-types";
 
 export const myCompSchema2 = z.object({
   logoColor1: zColor(),

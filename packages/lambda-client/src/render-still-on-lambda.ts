@@ -42,6 +42,8 @@ type OptionalParameters = {
 	downloadBehavior: DownloadBehavior;
 	forceWidth: number | null;
 	forceHeight: number | null;
+	forceFps: number | null;
+	forceDurationInFrames: number | null;
 	forceBucketName: string | null;
 	onInit: (data: {
 		renderId: string;
@@ -187,6 +189,8 @@ export function renderStillOnLambda(
 		forceBucketName: input.forceBucketName ?? null,
 		forceHeight: input.forceHeight ?? null,
 		forceWidth: input.forceWidth ?? null,
+		forceFps: input.forceFps ?? null,
+		forceDurationInFrames: input.forceDurationInFrames ?? null,
 		frame: input.frame ?? 0,
 		functionName: input.functionName,
 		imageFormat: input.imageFormat,

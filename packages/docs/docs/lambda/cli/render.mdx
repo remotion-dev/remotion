@@ -162,7 +162,7 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--prores-profile`
 
-[Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
+<Options id="prores-profile" />
 
 ### `--x264-preset`
 
@@ -174,11 +174,11 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--pixel-format`
 
-[Set a custom pixel format. See here for available values.](/docs/config#setpixelformat)
+<Options id="pixel-format" />
 
 ### `--image-format`
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setvideoimageformat) The default image format is `jpeg`.
+<Options id="video-image-format" />
 
 ### `--scale`
 
@@ -194,7 +194,7 @@ Specify a location for a dotenv file - Default `.env`. [Read about how environme
 
 ### `--every-nth-frame`<AvailableFrom v="3.1.0" />
 
-[Render only every nth frame.](/docs/config#seteverynthframe) This option may only be set when rendering GIFs. This allows you to lower the FPS of the GIF.
+<Options id="every-nth-frame" />
 
 For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
 
@@ -226,11 +226,19 @@ Sets a webhook secret for the webhook (see above). [`renderMediaOnLambda() -> we
 
 ### `--height`<AvailableFrom v="3.2.40" />
 
-[Overrides composition height.](/docs/config#overrideheight)
+<Options id="height" cli />
 
 ### `--width`<AvailableFrom v="3.2.40" />
 
-[Overrides composition width.](/docs/config#overridewidth)
+<Options id="width" cli />
+
+### `--fps`<AvailableFrom v="4.0.424" />
+
+<Options id="fps" cli />
+
+### `--duration`<AvailableFrom v="4.0.424" />
+
+<Options id="duration" cli />
 
 ### `--function-name`<AvailableFrom v="3.3.38" />
 

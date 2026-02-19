@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { useCallback, useMemo, useState } from "react";
+import { z } from "zod";
 import { CompositionProps } from "../../types/constants";
 import { SSEMessage } from "../../types/schema";
 
@@ -68,27 +68,34 @@ export const useRendering = (
           const json = line.slice(6);
           const message = JSON.parse(json) as SSEMessage;
 
-          if (message.type === "phase") {
-            setState((prev) => {
-              if (prev.status !== "invoking") return prev;
-              return {
-                ...prev,
-                phase: message.phase,
-                progress: message.progress,
-                subtitle: message.subtitle ?? null,
-              };
-            });
-          } else if (message.type === "done") {
-            setState({
-              status: "done",
-              url: message.url,
-              size: message.size,
-            });
-          } else if (message.type === "error") {
-            setState({
-              status: "error",
-              error: new Error(message.message),
-            });
+          switch (message.type) {
+            case "phase":
+              setState((prev) => {
+                if (prev.status !== "invoking") return prev;
+                return {
+                  ...prev,
+                  phase: message.phase,
+                  progress: message.progress,
+                  subtitle: message.subtitle ?? null,
+                };
+              });
+              break;
+            case "done":
+              setState({
+                status: "done",
+                url: message.url,
+                size: message.size,
+              });
+              break;
+            case "error":
+              setState({
+                status: "error",
+                error: new Error(message.message),
+              });
+              break;
+            default:
+              message satisfies never;
+              break;
           }
         }
       }

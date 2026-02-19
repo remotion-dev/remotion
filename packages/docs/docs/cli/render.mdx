@@ -33,23 +33,31 @@ Inline JSON string isn't supported on Windows shells because it removes the `"` 
 
 ### `--height`<AvailableFrom v="3.2.40" />
 
-[Overrides composition height.](/docs/config#overrideheight)
+<Options id="height" cli />
 
 ### `--width`<AvailableFrom v="3.2.40" />
 
-[Overrides composition width.](/docs/config#overridewidth)
+<Options id="width" cli />
+
+### `--fps`<AvailableFrom v="4.0.424" />
+
+<Options id="fps" cli />
+
+### `--duration`<AvailableFrom v="4.0.424" />
+
+<Options id="duration" cli />
 
 ### `--concurrency`
 
-[How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have (In Node.JS `os.cpus().length`). You can also provide a percentage value (e.g. `50%`).
+<Options id="concurrency" />
 
 ### `--pixel-format`
 
-[Set a custom pixel format. See here for available values.](/docs/config#setpixelformat)
+<Options id="pixel-format" />
 
 ### `--image-format`<AvailableFrom v="1.4.0" />
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setvideoimageformat) The default image format is `jpeg` since v1.1.
+<Options id="video-image-format" />
 
 ### `--image-sequence-pattern` <AvailableFrom v="4.0.313" />
 
@@ -116,7 +124,7 @@ Sets the output file path, as an alternative to the `output-location` positional
 
 ### `--prores-profile`<AvailableFrom v="2.1.6" />
 
-[Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
+<Options id="prores-profile" />
 
 ### `--x264-preset`<AvailableFrom v="4.2.2" />
 
@@ -132,7 +140,7 @@ If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot s
 
 ### `--browser-executable`<AvailableFrom v="1.5.0" />
 
-[Path to a Chrome executable](/docs/config#setbrowserexecutable). If not specified and Remotion cannot find one, it will download one during rendering.
+<Options id="browser-executable" />
 
 ### `--chrome-mode`<AvailableFrom v="4.0.248" />
 
@@ -148,7 +156,7 @@ If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot s
 
 ### `--every-nth-frame`<AvailableFrom v="3.1.0" />
 
-[Render only every nth frame.](/docs/config#seteverynthframe) This option may only be set when rendering GIFs. This allows you to lower the FPS of the GIF.
+<Options id="every-nth-frame" />
 
 For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif#reducing-frame-rate)
 
@@ -202,11 +210,11 @@ Not to be confused with the [`--timeout` flag when deploying a Lambda function](
 
 ### `--ignore-certificate-errors`<AvailableFrom v="2.6.5" />
 
-Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored.
+<Options id="ignore-certificate-errors" />
 
 ### `--disable-web-security`<AvailableFrom v="2.6.5" />
 
-This will most notably disable CORS in Chrome among other security features.
+<Options id="disable-web-security" />
 
 ### ~`--disable-headless`~<AvailableFrom v="2.6.5" />
 
@@ -222,7 +230,7 @@ This will most notably disable CORS in Chrome among other security features.
 
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
-Lets you set a custom user agent that the headless Chrome browser assumes.
+<Options id="user-agent" />
 
 ### `--media-cache-size-in-bytes`<AvailableFrom v="4.0.352"/>
 

@@ -1,6 +1,6 @@
-import { z } from "zod";
 import { getThemeColors } from "@code-hike/lighter";
 import React from "react";
+import { z } from "zod";
 
 export type ThemeColors = Awaited<ReturnType<typeof getThemeColors>>;
 

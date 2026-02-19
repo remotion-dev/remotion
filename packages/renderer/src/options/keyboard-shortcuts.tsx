@@ -30,4 +30,5 @@ export const keyboardShortcutsOption = {
 	setConfig(value) {
 		keyboardShortcutsEnabled = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

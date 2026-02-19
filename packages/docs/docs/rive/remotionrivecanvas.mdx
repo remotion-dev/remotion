@@ -12,6 +12,7 @@ This component can render a [Rive](https://rive.app/) animation so it synchroniz
 ## Example
 
 ```tsx twoslash
+import React from 'react';
 import {RemotionRiveCanvas} from '@remotion/rive';
 
 function App() {
@@ -117,6 +118,7 @@ export const MyComp: React.FC = () => {
 You can attach a ref to the component to access the Rive Canvas instance.
 
 ```tsx twoslash title="MyComp.tsx"
+import React from 'react';
 import {RemotionRiveCanvas, RiveCanvasRef} from '@remotion/rive';
 import {useEffect} from 'react';
 

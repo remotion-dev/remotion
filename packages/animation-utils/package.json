@@ -7,13 +7,13 @@
 		"name": "Chetan Karwa",
 		"email": "cbkarwa@gmail.com"
 	},
-	"version": "4.0.423",
+	"version": "4.0.425",
 	"description": "Helpers for animating CSS properties",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
 	"scripts": {
-		"formatting": "prettier --experimental-cli src --check",
+		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src"

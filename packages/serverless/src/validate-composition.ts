@@ -29,6 +29,8 @@ type ValidateCompositionOptions<Provider extends CloudProvider> = {
 	port: number | null;
 	forceHeight: number | null;
 	forceWidth: number | null;
+	forceFps: number | null;
+	forceDurationInFrames: number | null;
 	logLevel: LogLevel;
 	server: RemotionServer | undefined;
 	offthreadVideoCacheSizeInBytes: number | null;
@@ -50,6 +52,8 @@ export const validateComposition = async <Provider extends CloudProvider>({
 	port,
 	forceHeight,
 	forceWidth,
+	forceFps,
+	forceDurationInFrames,
 	logLevel,
 	server,
 	offthreadVideoCacheSizeInBytes,
@@ -86,6 +90,8 @@ export const validateComposition = async <Provider extends CloudProvider>({
 		...comp,
 		height: forceHeight ?? comp.height,
 		width: forceWidth ?? comp.width,
+		fps: forceFps ?? comp.fps,
+		durationInFrames: forceDurationInFrames ?? comp.durationInFrames,
 	};
 
 	const reason = `of the "<Composition />" component with the id "${composition}"`;

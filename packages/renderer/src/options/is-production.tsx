@@ -40,4 +40,5 @@ export const isProductionOption = {
 		currentIsProductionKey = value;
 	},
 	type: false as boolean | null,
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean | null>;

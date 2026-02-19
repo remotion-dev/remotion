@@ -1,18 +1,17 @@
-import { Easing, interpolate, useDelayRender } from "remotion";
-import { useCurrentFrame } from "remotion";
-import { Pre, HighlightedCode, AnnotationHandler } from "codehike/code";
+import { AnnotationHandler, HighlightedCode, Pre } from "codehike/code";
 import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { Easing, interpolate, useCurrentFrame, useDelayRender } from "remotion";
 
 import {
   calculateTransitions,
   getStartingSnapshot,
   TokenTransitionsSnapshot,
 } from "codehike/utils/token-transitions";
-import { applyStyle } from "./utils";
 import { callout } from "./annotations/Callout";
+import { applyStyle } from "./utils";
 
-import { tokenTransitions } from "./annotations/InlineToken";
 import { errorInline, errorMessage } from "./annotations/Error";
+import { tokenTransitions } from "./annotations/InlineToken";
 import { fontFamily, fontSize, tabSize } from "./font";
 
 export function CodeTransition({

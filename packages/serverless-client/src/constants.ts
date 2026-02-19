@@ -149,6 +149,8 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	webhook: WebhookOption;
 	forceHeight: number | null;
 	forceWidth: number | null;
+	forceFps: number | null;
+	forceDurationInFrames: number | null;
 	bucketName: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
@@ -210,6 +212,8 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		webhook: WebhookOption;
 		forceHeight: number | null;
 		forceWidth: number | null;
+		forceFps: number | null;
+		forceDurationInFrames: number | null;
 		offthreadVideoCacheSizeInBytes: number | null;
 		offthreadVideoThreads: number | null;
 		mediaCacheSizeInBytes: number | null;
@@ -295,6 +299,8 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		version: string;
 		forceHeight: number | null;
 		forceWidth: number | null;
+		forceFps: number | null;
+		forceDurationInFrames: number | null;
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
 		offthreadVideoThreads: number | null;

@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect, type ComponentType } from "react";
-import { ArrowUp, Camera, X, Paperclip } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ErrorDisplay } from "@/components/ErrorDisplay";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -11,9 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type ModelId, MODELS } from "@/types/generation";
 import { captureFrame } from "@/helpers/capture-frame";
 import { useImageAttachments } from "@/hooks/useImageAttachments";
+import { MODELS, type ModelId } from "@/types/generation";
+import { ArrowUp, Camera, Paperclip, X } from "lucide-react";
+import { useEffect, useState, type ComponentType } from "react";
 
 interface ChatInputProps {
   prompt: string;

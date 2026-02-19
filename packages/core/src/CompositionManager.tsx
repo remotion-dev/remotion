@@ -1,6 +1,6 @@
 import type {ComponentType, LazyExoticComponent} from 'react';
 import React from 'react';
-import type {AnyZodObject} from 'zod';
+import type {AnyZodObject} from './any-zod-type.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {DownloadBehavior} from './download-behavior.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';

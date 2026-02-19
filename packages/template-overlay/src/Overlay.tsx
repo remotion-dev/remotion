@@ -1,3 +1,5 @@
+import { loadFont } from "@remotion/google-fonts/Roboto";
+import React, { useMemo } from "react";
 import {
   AbsoluteFill,
   interpolate,
@@ -5,8 +7,6 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import React, { useMemo } from "react";
-import { loadFont } from "@remotion/google-fonts/Roboto";
 
 const { fontFamily } = loadFont("normal", {
   subsets: ["latin"],

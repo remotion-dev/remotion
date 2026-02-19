@@ -1,19 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import {
-  ArrowUp,
-  SquareArrowOutUpRight,
-  Type,
-  MessageCircle,
-  Hash,
-  BarChart3,
-  Disc,
-  X,
-  Paperclip,
-  type LucideIcon,
-} from "lucide-react";
+import { ErrorDisplay } from "@/components/ErrorDisplay";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -21,11 +9,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { ErrorDisplay } from "@/components/ErrorDisplay";
 import { examplePrompts } from "@/examples/prompts";
-import { type ModelId, MODELS } from "@/types/generation";
 import { useImageAttachments } from "@/hooks/useImageAttachments";
+import { MODELS, type ModelId } from "@/types/generation";
+import {
+  ArrowUp,
+  BarChart3,
+  Disc,
+  Hash,
+  MessageCircle,
+  Paperclip,
+  SquareArrowOutUpRight,
+  Type,
+  X,
+  type LucideIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const iconMap: Record<string, LucideIcon> = {
   Type,
@@ -36,7 +36,11 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 interface LandingPageInputProps {
-  onNavigate: (prompt: string, model: ModelId, attachedImages?: string[]) => void;
+  onNavigate: (
+    prompt: string,
+    model: ModelId,
+    attachedImages?: string[],
+  ) => void;
   isNavigating?: boolean;
   showCodeExamplesLink?: boolean;
 }
@@ -74,7 +78,11 @@ export function LandingPageInput({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isNavigating) return;
-    onNavigate(prompt, model, attachedImages.length > 0 ? attachedImages : undefined);
+    onNavigate(
+      prompt,
+      model,
+      attachedImages.length > 0 ? attachedImages : undefined,
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -139,7 +147,11 @@ export function LandingPageInput({
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
-            placeholder={isDragging ? "Drop images here..." : "Describe your animation... (paste or drop images)"}
+            placeholder={
+              isDragging
+                ? "Drop images here..."
+                : "Describe your animation... (paste or drop images)"
+            }
             className="w-full bg-transparent text-foreground placeholder:text-muted-foreground-dim focus:outline-none resize-none overflow-y-auto text-base min-h-[60px] max-h-[200px]"
             style={{ fieldSizing: "content" }}
             disabled={isNavigating}

@@ -8,7 +8,6 @@ import React, {
 import type {_InternalTypes, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {type z} from 'zod';
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
@@ -30,6 +29,11 @@ import {
 	ZodNotInstalled,
 } from './SchemaEditor/SchemaErrorMessages';
 import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
+import type {
+	AnyZodSchema,
+	ZodSafeParseResult,
+} from './SchemaEditor/zod-schema-type';
+import {getZodSchemaType, zodSafeParse} from './SchemaEditor/zod-schema-type';
 import {WarningIndicatorButton} from './WarningIndicatorButton';
 import type {TypeCanSaveState} from './get-render-modal-warnings';
 import {
@@ -48,7 +52,7 @@ export type State =
 			str: string;
 			value: Record<string, unknown>;
 			validJSON: true;
-			zodValidation: Zod.SafeParseReturnType<unknown, unknown>;
+			zodValidation: ZodSafeParseResult;
 	  }
 	| {
 			str: string;
@@ -173,13 +177,18 @@ export const DataEditor: React.FC<{
 			return 'no-schema' as const;
 		}
 
-		if (!(typeof unresolvedComposition.schema.safeParse === 'function')) {
+		if (
+			!(
+				typeof (unresolvedComposition.schema as {safeParse?: unknown})
+					.safeParse === 'function'
+			)
+		) {
 			throw new Error(
 				'A value which is not a Zod schema was passed to `schema`',
 			);
 		}
 
-		return unresolvedComposition.schema;
+		return unresolvedComposition.schema as AnyZodSchema;
 	}, [unresolvedComposition.schema, z]);
 
 	const zodValidationResult = useMemo(() => {
@@ -191,7 +200,7 @@ export const DataEditor: React.FC<{
 			return 'no-schema' as const;
 		}
 
-		return schema.safeParse(defaultProps);
+		return zodSafeParse(schema, defaultProps);
 	}, [defaultProps, schema]);
 
 	const setShowWarning: React.Dispatch<React.SetStateAction<boolean>> =
@@ -422,11 +431,9 @@ export const DataEditor: React.FC<{
 		throw new Error('expected schema');
 	}
 
-	const def: z.ZodTypeDef = schema._def;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
+	const typeName = getZodSchemaType(schema);
 
-	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
+	if (typeName === 'any') {
 		return <NoSchemaDefined />;
 	}
 

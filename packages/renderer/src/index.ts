@@ -103,6 +103,7 @@ export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
 export {ChromeMode} from './options/chrome-mode';
 export {ColorSpace} from './options/color-space';
+export type {Concurrency} from './options/concurrency';
 export type {DeleteAfter} from './options/delete-after';
 export {OpenGlRenderer} from './options/gl';
 export {NumberOfGifLoops} from './options/number-of-gif-loops';

@@ -174,6 +174,7 @@ export const AudioWaveFormExample: React.FC<{
 	return (
 		<div>
 			<Player
+				acknowledgeRemotionLicense
 				component={component}
 				compositionWidth={1080}
 				compositionHeight={300}

@@ -61,6 +61,13 @@ This means that during rendering of Remotion videos server-side, HEVC videos can
 - `'pcm-f64be'` - 64-bit big-endian float PCM
 - `'ulaw'` - μ-law PCM
 - `'alaw'` - A-law PCM
+- `'ac3'` - Dolby Digital (AC-3)
+- `'eac3'` - Dolby Digital Plus (E-AC-3)
+
+:::note
+AC-3 and E-AC-3 are not natively supported by WebCodecs.
+Remotion registers a software decoder from [`@mediabunny/ac3`](https://www.npmjs.com/package/@mediabunny/ac3) to enable decoding of these codecs.
+:::
 
 ## Compatibility table
 
@@ -92,6 +99,8 @@ Not all codecs can be used with all containers. The following table specifies th
 | `'pcm-f64be'` |  ✓   |  ✓   |      |       |      |      |      |      |       |     |
 |   `'ulaw'`    |      |  ✓   |      |       |      |      |  ✓   |      |       |     |
 |   `'alaw'`    |      |  ✓   |      |       |      |      |  ✓   |      |       |     |
+|    `'ac3'`    |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |  ✓  |
+|   `'eac3'`    |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |  ✓  |
 
 ## CORS
 

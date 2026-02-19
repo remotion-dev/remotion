@@ -50,4 +50,5 @@ export const scaleOption = {
 	setConfig: (scale) => {
 		currentScale = scale;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<number>;

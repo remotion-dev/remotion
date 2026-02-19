@@ -1,3 +1,4 @@
+import { zColor } from "@remotion/zod-types";
 import {
   AbsoluteFill,
   interpolate,
@@ -5,11 +6,10 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { Text } from "./HelloWorld/Title";
-import { voices } from "./server/TextToSpeech/constants";
-import { RequestMetadata, VoiceType } from "./lib/interfaces";
 import { z } from "zod";
-import { zColor } from "@remotion/zod-types";
+import { Text } from "./HelloWorld/Title";
+import { RequestMetadata, VoiceType } from "./lib/interfaces";
+import { voices } from "./server/TextToSpeech/constants";
 
 export const mySchema = z.object({
   titleText: z.string(),

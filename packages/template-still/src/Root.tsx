@@ -1,6 +1,5 @@
 import { Still } from "remotion";
-import { PreviewCard } from "./PreviewCard";
-import { myCompSchema } from "./PreviewCard";
+import { myCompSchema, PreviewCard } from "./PreviewCard";
 
 export const RemotionRoot: React.FC = () => {
   return (

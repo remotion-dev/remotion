@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.423",
+	"version": "4.0.425",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
 	"main": "dist/index.js",
@@ -12,7 +12,7 @@
 		"dist"
 	],
 	"scripts": {
-		"formatting": "prettier --experimental-cli src --check",
+		"formatting": "prettier src --check",
 		"dev": "remotion studio --props src/my-props.json",
 		"start-bun": "PATCH_BUN_DEVELOPMENT=true bun --bun remotion studio",
 		"start-js": "remotion preview src/entry.jsx",
@@ -70,6 +70,7 @@
 		"@remotion/media-parser": "workspace:*",
 		"@remotion/whisper-web": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
+		"@remotion/zod-types-v3": "workspace:*",
 		"@shopify/react-native-skia": "2.0.0",
 		"@types/express": "^4.17.11",
 		"@types/hls.js": "^0.13.3",

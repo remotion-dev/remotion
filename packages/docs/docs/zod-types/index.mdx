@@ -7,11 +7,15 @@ crumb: Schema
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import {TableOfContents} from '../../components/TableOfContents/zod-types';
+import {ZodTypesTableOfContents} from './TableOfContents';
 
-Includes utility types and Remotion-specific types for [Zod](https://github.com/colinhacks/zod).  
-Currently, only Zod version 3.23.8 is supported.  
-In the next major version of Remotion, the Zod version will be updated.
+Includes utility types and Remotion-specific types for [Zod](https://github.com/colinhacks/zod).
+
+:::note
+Since Remotion v4.0.426, `@remotion/zod-types` is based on Zod v4.
+If you want, you can now upgrade to Zod v4.  
+If you want to stay on Zod 3.22.3 as previously required by Remotion, use [`@remotion/zod-types-v3`](/docs/zod-types/v3) instead of [`@remotion/zod-types`](/docs/zod-types).
+:::
 
 ## Installation
 

@@ -28,4 +28,5 @@ export const throwIfSiteExistsOption = {
 	},
 	ssrName: 'throwIfSiteExists',
 	type: false as boolean,
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

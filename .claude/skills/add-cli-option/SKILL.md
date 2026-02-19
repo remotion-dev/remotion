@@ -75,17 +75,19 @@ For Studio options, this is typically in `packages/cli/src/studio.ts`. For rende
 - Add the setter signature to the `FlatConfig` type (either in the `RemotionConfigObject` global interface or the `FlatConfig` intersection)
 - Add the implementation to the `Config` object: `setMyFlagEnabled: myFlagOption.setConfig`
 
-## 6. Update docs
+## 6. Update docs — IMPORTANT, do not skip this step
 
-In the relevant CLI command page:
+**This step is mandatory.** Every new option must have its docs updated to use `<Options id="..." />` so the description is pulled from the option definition automatically (single source of truth). If converting an existing hardcoded flag, replace any hand-written description with the `<Options>` component.
 
-- Add a `### \`--my-flag\`` section
-- Use `<Options id="my-flag" />` to pull the description from the option definition automatically
-- The `id` matches the option's `cliFlag` value
+**CLI command pages** (check all that apply — `cli/render.mdx`, `lambda/cli/render.mdx`, `cloudrun/cli/render.mdx`, `cli/benchmark.mdx`):
+
+- Add or update the `### \`--my-flag\`` section
+- Use `<Options id="my-flag" />` as the description body (no import needed — it's globally available)
+- The `id` must match the option's `cliFlag` / `id` value
 
 **`packages/docs/docs/config.mdx`**:
 
-- Add a `## \`setMyFlagEnabled()\`` section with:
+- Add or update the `## \`setMyFlagEnabled()\`` section with:
   - `<Options id="my-flag" />` for the description
   - A twoslash config example
   - A note that the CLI flag takes precedence

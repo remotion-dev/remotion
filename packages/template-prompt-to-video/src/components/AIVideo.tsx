@@ -1,12 +1,12 @@
+import { loadFont } from "@remotion/google-fonts/BreeSerif";
+import { Audio } from "@remotion/media";
 import { AbsoluteFill, Sequence, staticFile, useVideoConfig } from "remotion";
 import { z } from "zod";
-import { Audio } from "@remotion/media";
-import { TimelineSchema } from "../lib/types";
 import { FPS, INTRO_DURATION } from "../lib/constants";
-import { loadFont } from "@remotion/google-fonts/BreeSerif";
+import { TimelineSchema } from "../lib/types";
+import { calculateFrameTiming, getAudioPath } from "../lib/utils";
 import { Background } from "./Background";
 import Subtitle from "./Subtitle";
-import { calculateFrameTiming, getAudioPath } from "../lib/utils";
 
 export const aiVideoSchema = z.object({
   timeline: TimelineSchema.nullable(),

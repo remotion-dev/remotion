@@ -1,9 +1,9 @@
+import { Sandbox } from "@vercel/sandbox";
+import { execSync } from "child_process";
+import { existsSync } from "fs";
+import { readdir, readFile } from "fs/promises";
 import path from "path";
 import { BUILD_DIR } from "../../../../../build-dir.mjs";
-import { Sandbox } from "@vercel/sandbox";
-import { readdir, readFile } from "fs/promises";
-import { existsSync } from "fs";
-import { execSync } from "child_process";
 
 export const addBundleToSandbox = async (
   sandbox: Sandbox & AsyncDisposable,

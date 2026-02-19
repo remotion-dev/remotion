@@ -48,4 +48,5 @@ export const enableMultiprocessOnLinuxOption = {
 	setConfig: (value: boolean) => {
 		multiProcessOnLinux = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

@@ -1,5 +1,5 @@
-import React from "react";
 import { ErrorDisplay } from "@/components/ErrorDisplay";
+import React from "react";
 
 const isLambdaNotConfiguredError = (message: string): boolean => {
   return (
@@ -34,11 +34,6 @@ export const ErrorComp: React.FC<{
   }
 
   return (
-    <ErrorDisplay
-      error={message}
-      title="Error"
-      variant="card"
-      size="md"
-    />
+    <ErrorDisplay error={message} title="Error" variant="card" size="md" />
   );
 };

@@ -585,11 +585,10 @@ export const experts: Expert[] = [
 					Pablituuu Studio
 				</a>
 				, a premium AI-powered video editor.
-				<br />
-				I specialize in building complex Remotion applications integrated with AI
-				services like Gemini (for video analysis and highlights) and Deepgram
-				(for automated captions). I also focus on high-performance canvas
-				interactions using Fabric.js and cost-effective AI workflows.
+				<br />I specialize in building complex Remotion applications integrated
+				with AI services like Gemini (for video analysis and highlights) and
+				Deepgram (for automated captions). I also focus on high-performance
+				canvas interactions using Fabric.js and cost-effective AI workflows.
 			</div>
 		),
 	},

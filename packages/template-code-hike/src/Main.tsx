@@ -1,10 +1,10 @@
-import { AbsoluteFill, Series, useVideoConfig } from "remotion";
-import { ProgressBar } from "./ProgressBar";
-import { CodeTransition } from "./CodeTransition";
 import { HighlightedCode } from "codehike/code";
-import { ThemeColors, ThemeProvider } from "./calculate-metadata/theme";
 import { useMemo } from "react";
+import { AbsoluteFill, Series, useVideoConfig } from "remotion";
+import { CodeTransition } from "./CodeTransition";
+import { ProgressBar } from "./ProgressBar";
 import { RefreshOnCodeChange } from "./ReloadOnCodeChange";
+import { ThemeColors, ThemeProvider } from "./calculate-metadata/theme";
 import { verticalPadding } from "./font";
 
 export type Props = {

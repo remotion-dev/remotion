@@ -3,16 +3,13 @@ import {
 	type CalculateMetadataFunction,
 	type LogLevel,
 } from 'remotion';
-import type {AnyZodObject} from 'zod';
+import type {$ZodObject} from 'zod/v4/core';
 import type {WebRendererOnArtifact} from './artifact';
 import {handleArtifacts} from './artifact';
 import {checkForError, createScaffold} from './create-scaffold';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
-import type {
-	CompositionCalculateMetadataOrExplicit,
-	InferProps,
-} from './props-if-has-props';
+import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props';
 import type {InputPropsIfHasProps} from './render-media-on-web';
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {sendUsageEvent} from './send-telemetry-event';
@@ -23,7 +20,7 @@ import {waitForReady} from './wait-for-ready';
 export type RenderStillOnWebImageFormat = 'png' | 'jpeg' | 'webp';
 
 type MandatoryRenderStillOnWebOptions<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 > = {
 	frame: number;
@@ -32,7 +29,7 @@ type MandatoryRenderStillOnWebOptions<
 	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
 };
 
-type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
+type OptionalRenderStillOnWebOptions<Schema extends $ZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
 	schema: Schema | undefined;
@@ -45,21 +42,21 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 };
 
 type InternalRenderStillOnWebOptions<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 > = MandatoryRenderStillOnWebOptions<Schema, Props> &
 	OptionalRenderStillOnWebOptions<Schema> &
 	InputPropsIfHasProps<Schema, Props>;
 
 export type RenderStillOnWebOptions<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 > = MandatoryRenderStillOnWebOptions<Schema, Props> &
 	Partial<OptionalRenderStillOnWebOptions<Schema>> &
 	InputPropsIfHasProps<Schema, Props>;
 
 async function internalRenderStillOnWeb<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 >({
 	frame,
@@ -80,8 +77,8 @@ async function internalRenderStillOnWeb<
 
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
-			(composition.calculateMetadata as CalculateMetadataFunction<
-				InferProps<AnyZodObject, Record<string, unknown>>
+			(composition.calculateMetadata as unknown as CalculateMetadataFunction<
+				Record<string, unknown>
 			>) ?? null,
 		signal: signal ?? new AbortController().signal,
 		defaultProps: composition.defaultProps ?? {},
@@ -190,7 +187,7 @@ async function internalRenderStillOnWeb<
 }
 
 export const renderStillOnWeb = <
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 >(
 	options: RenderStillOnWebOptions<Schema, Props>,

@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import {
   Blur,
   Fill,
@@ -13,7 +12,7 @@ import {
   topLeft,
   topRight,
 } from "@shopify/react-native-skia";
-import React from "react";
+import React, { useMemo } from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 const CLAMP = {

@@ -24,6 +24,10 @@ const {
 	binariesDirectoryOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	browserExecutableOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
 } = BrowserSafeApis.options;
 
 export const stillCommand = async (
@@ -47,15 +51,26 @@ export const stillCommand = async (
 		stillFrame,
 		height,
 		width,
-		browserExecutable,
-		userAgent,
-		disableWebSecurity,
-		ignoreCertificateErrors,
+		fps,
+		durationInFrames,
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
 		indent: false,
 	});
+
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const userAgent = userAgentOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	let composition = args[1];
 
@@ -142,6 +157,8 @@ export const stillCommand = async (
 				timeoutInMilliseconds: puppeteerTimeout,
 				height,
 				width,
+				fps,
+				durationInFrames,
 				server: await server,
 				offthreadVideoCacheSizeInBytes,
 				binariesDirectory,
@@ -158,15 +175,17 @@ export const stillCommand = async (
 		composition = compositionId;
 	}
 
+	const {stillImageFormatOption} = BrowserSafeApis.options;
+
 	const {format: imageFormat, source: imageFormatReason} =
 		CliInternals.determineFinalStillImageFormat({
 			downloadName,
 			outName: outName ?? null,
-			cliFlag: CliInternals.parsedCli['image-format'] ?? null,
+			configuredImageFormat: stillImageFormatOption.getValue({
+				commandLine: CliInternals.parsedCli,
+			}).value,
 			isLambda: true,
 			fromUi: null,
-			configImageFormat:
-				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		});
 	Log.verbose(
 		{indent: false, logLevel},
@@ -234,6 +253,8 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		scale,
 		forceHeight: height,
 		forceWidth: width,
+		forceFps: fps,
+		forceDurationInFrames: durationInFrames,
 		forceBucketName,
 		outName,
 		logLevel,

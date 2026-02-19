@@ -5,3 +5,4 @@ src
 server.ts
 vite.config.ts
 tsconfig.json
+tsconfig.tsbuildinfo

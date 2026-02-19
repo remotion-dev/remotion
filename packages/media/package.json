@@ -1,13 +1,12 @@
 {
 	"name": "@remotion/media",
-	"version": "4.0.423",
+	"version": "4.0.425",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media"
 	},
-	"sideEffects": false,
 	"author": "Jonny Burger <jonny@remotion.dev>, Hunain Ahmed <junaidhunain6@gmail.com>",
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -15,7 +14,7 @@
 	"type": "module",
 	"scripts": {
 		"if-node-18+": "node -e \"const [maj]=process.versions.node.split('.').map(Number); process.exit(maj>=18?0:1)\"",
-		"formatting": "prettier --experimental-cli src --check",
+		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"watch": "tsgo -w",
 		"test": "node src/test/execute.mjs",

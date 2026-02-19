@@ -38,6 +38,13 @@ const {
 	metadataOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	pixelFormatOption,
+	browserExecutableOption,
+	everyNthFrameOption,
+	proResProfileOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -69,29 +76,49 @@ export const renderCommand = async (
 			},
 		);
 
-	const imageFormat = parsedCloudrunCli['image-format'];
+	const imageFormat = BrowserSafeApis.options.videoImageFormatOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
-	const audioCodec = parsedCloudrunCli['audio-codec'];
+	const audioCodec = BrowserSafeApis.options.audioCodecOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const {
 		envVariables,
 		frameRange,
 		inputProps,
-		pixelFormat,
-		proResProfile,
-		everyNthFrame,
 		height,
 		width,
-		browserExecutable,
-		disableWebSecurity,
-		ignoreCertificateErrors,
-		userAgent,
+		fps,
+		durationInFrames,
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
 		indent: false,
 	});
 
+	const pixelFormat = pixelFormatOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const everyNthFrame = everyNthFrameOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const proResProfile = proResProfileOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const userAgent = userAgentOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const offthreadVideoCacheSizeInBytes =
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: CliInternals.parsedCli,
@@ -166,13 +193,15 @@ export const renderCommand = async (
 				chromiumOptions,
 				envVariables,
 				height,
+				width,
+				fps,
+				durationInFrames,
 				indent,
 				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
 				timeoutInMilliseconds: puppeteerTimeout,
 				logLevel,
-				width,
 				server: await server,
 				serializedInputPropsWithCustomSchema:
 					NoReactInternals.serializeJSONWithSpecialTypes({
@@ -311,7 +340,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		outName,
 		updateRenderProgress,
 		jpegQuality,
-		audioCodec,
+		audioCodec: audioCodec ?? undefined,
 		audioBitrate,
 		videoBitrate,
 		encodingMaxRate,
@@ -320,7 +349,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		x264Preset,
 		crf,
 		pixelFormat,
-		imageFormat,
+		imageFormat: imageFormat ?? undefined,
 		scale,
 		everyNthFrame,
 		numberOfGifLoops,
@@ -330,6 +359,8 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		muted,
 		forceWidth: width,
 		forceHeight: height,
+		forceFps: fps,
+		forceDurationInFrames: durationInFrames,
 		logLevel,
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 		// Special case: Should not use default local concurrency, or from

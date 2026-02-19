@@ -42,4 +42,5 @@ export const audioBitrateOption = {
 	setConfig: (value: string | null) => {
 		audioBitrate = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<string | null>;

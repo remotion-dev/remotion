@@ -1,8 +1,8 @@
 import { highlight } from "codehike/code";
 import { createTwoslashFromCDN } from "twoslash-cdn";
+import { CompilerOptions, JsxEmit, ModuleKind, ScriptTarget } from "typescript";
 import { PublicFolderFile } from "./get-files";
 import { Theme } from "./theme";
-import { CompilerOptions, JsxEmit, ModuleKind, ScriptTarget } from "typescript";
 
 const compilerOptions: CompilerOptions = {
   lib: ["dom", "es2023"],

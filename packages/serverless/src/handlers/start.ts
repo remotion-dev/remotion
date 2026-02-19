@@ -118,6 +118,8 @@ export const startHandler = async <Provider extends CloudProvider>({
 		encodingMaxRate: params.encodingMaxRate,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
+		forceFps: params.forceFps ?? null,
+		forceDurationInFrames: params.forceDurationInFrames ?? null,
 		rendererFunctionName: params.rendererFunctionName,
 		audioCodec: params.audioCodec,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,

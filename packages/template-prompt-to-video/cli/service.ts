@@ -3,7 +3,6 @@ import * as fs from "fs";
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api";
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "../src/lib/constants";
-import { zodToJsonSchema } from "zod-to-json-schema";
 
 let apiKey: string | null = null;
 
@@ -15,8 +14,7 @@ export const openaiStructuredCompletion = async <T>(
   prompt: string,
   schema: z.ZodType<T>,
 ): Promise<T> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const jsonSchema = zodToJsonSchema(schema) as any;
+  const jsonSchema = z.toJSONSchema(schema);
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",

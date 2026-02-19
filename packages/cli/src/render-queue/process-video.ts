@@ -12,6 +12,7 @@ const {
 	askAIOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
+	browserExecutableOption,
 } = BrowserSafeApis.options;
 
 export const processVideoJob = async ({
@@ -41,11 +42,14 @@ export const processVideoJob = async ({
 		commandLine: parsedCli,
 	}).value;
 
-	const {browserExecutable, ffmpegOverride} = getCliOptions({
+	const {ffmpegOverride} = getCliOptions({
 		isStill: true,
 		logLevel,
 		indent: true,
 	});
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 	await renderVideoFlow({
 		remotionRoot,
@@ -55,6 +59,9 @@ export const processVideoJob = async ({
 		entryPointReason: 'same as Studio',
 		envVariables: job.envVariables,
 		height: null,
+		width: null,
+		fps: null,
+		durationInFrames: null,
 		fullEntryPoint,
 		serializedInputPropsWithCustomSchema:
 			job.serializedInputPropsWithCustomSchema,
@@ -65,7 +72,6 @@ export const processVideoJob = async ({
 		jpegQuality: job.jpegQuality ?? undefined,
 		remainingArgs: [],
 		scale: job.scale,
-		width: null,
 		compositionIdFromUi: job.compositionId,
 		logLevel: job.logLevel,
 		onProgress,

@@ -3,7 +3,7 @@ import {flushSync} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import type {Codec, DelayRenderScope, LogLevel, TRenderAsset} from 'remotion';
 import {Internals} from 'remotion';
-import type {AnyZodObject} from 'zod';
+import type {$ZodObject} from 'zod/v4/core';
 import type {TimeUpdaterRef} from './update-time';
 import {UpdateTime} from './update-time';
 
@@ -45,7 +45,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	initialFrame: number;
 	durationInFrames: number;
 	fps: number;
-	schema: AnyZodObject | null;
+	schema: $ZodObject | null;
 	Component: ComponentType<Props>;
 	audioEnabled: boolean;
 	videoEnabled: boolean;

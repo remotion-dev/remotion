@@ -57,6 +57,7 @@ export const DragAndDropDemo: React.FC = () => {
 
 	return (
 		<Player
+			acknowledgeRemotionLicense
 			style={{
 				width: '100%',
 			}}

@@ -34,8 +34,10 @@ It's time defined by{' '}<a href="/docs/use-current-frame"><code>useCurrentFrame
 
 ## Preloading a `<Sequence>`
 
-Use premounting sparingly since having more elements mounted will slow down the page.  
-Add the [`premountFor`](/docs/sequence#premountfor) prop to the [`<Sequence>`](/docs/sequence) component to enable premounting.
+From [v5.0](/docs/5-0-migration), all [`<Sequence>`](/docs/sequence) components are premounted for 1 second (`fps` frames) by default.
+You can opt out by passing `premountFor={0}`.
+
+In v4, add the [`premountFor`](/docs/sequence#premountfor) prop to the [`<Sequence>`](/docs/sequence) component to enable premounting.
 
 The number you pass is the number in frames you premount the component for.
 

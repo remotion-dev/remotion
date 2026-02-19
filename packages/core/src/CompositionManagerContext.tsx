@@ -1,6 +1,6 @@
 import type React from 'react';
 import {createContext} from 'react';
-import type {AnyZodObject} from 'zod';
+import type {AnyZodObject} from './any-zod-type.js';
 import type {AnyComposition, TComposition} from './CompositionManager.js';
 import type {TFolder} from './Folder.js';
 import type {VideoConfig} from './video-config.js';

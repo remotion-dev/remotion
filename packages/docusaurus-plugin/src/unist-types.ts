@@ -1,7 +1,5 @@
 // ## Interfaces
 
-import type {TwoSlashReturn} from '@typescript/twoslash';
-
 /**
  * Info associated with nodes by the ecosystem.
  *
@@ -108,7 +106,7 @@ export interface Node {
 	lang: string;
 	meta?: string;
 	children?: Node[];
-	twoslash?: TwoSlashReturn;
+	twoslash?: unknown;
 }
 
 /**

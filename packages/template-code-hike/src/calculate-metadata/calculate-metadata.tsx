@@ -1,11 +1,8 @@
-import { z } from "zod";
-import { CalculateMetadataFunction } from "remotion";
 import { getThemeColors } from "@code-hike/lighter";
-import { Props } from "../Main";
-import { schema } from "./schema";
-import { processSnippet } from "./process-snippet";
-import { getFiles } from "./get-files";
 import { measureText } from "@remotion/layout-utils";
+import { HighlightedCode } from "codehike/code";
+import { CalculateMetadataFunction } from "remotion";
+import { z } from "zod";
 import {
   fontFamily,
   fontSize,
@@ -13,7 +10,10 @@ import {
   tabSize,
   waitUntilDone,
 } from "../font";
-import { HighlightedCode } from "codehike/code";
+import { Props } from "../Main";
+import { getFiles } from "./get-files";
+import { processSnippet } from "./process-snippet";
+import { schema } from "./schema";
 
 export const calculateMetadata: CalculateMetadataFunction<
   Props & z.infer<typeof schema>

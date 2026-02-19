@@ -1,20 +1,20 @@
 import type {LogLevel} from '@remotion/renderer';
 import {ensureBrowser} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {defaultBrowserDownloadProgress} from '../browser-download-bar';
-import {getCliOptions} from '../get-cli-options';
 import {Log} from '../log';
-import {quietFlagProvided} from '../parsed-cli';
+import {parsedCli, quietFlagProvided} from '../parsed-cli';
+
+const {browserExecutableOption} = BrowserSafeApis.options;
 
 export const ENSURE_COMMAND = 'ensure';
 
 export const ensureCommand = async (logLevel: LogLevel) => {
 	const indent = false;
 
-	const {browserExecutable} = getCliOptions({
-		isStill: false,
-		logLevel,
-		indent,
-	});
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const status = await ensureBrowser({
 		browserExecutable,

@@ -1,9 +1,9 @@
-import { Composition } from "remotion";
-import { compSchema } from "./types";
-import { HelloWorld } from "./HelloWorld";
 import { getAudioDurationInSeconds } from "@remotion/media-utils";
-import { audioAlreadyExists, createS3Url, synthesizeSpeech } from "./tts";
+import { Composition } from "remotion";
 import { waitForNoInput } from "./debounce";
+import { HelloWorld } from "./HelloWorld";
+import { audioAlreadyExists, createS3Url, synthesizeSpeech } from "./tts";
+import { compSchema } from "./types";
 
 export const RemotionRoot: React.FC = () => {
   return (

@@ -22,6 +22,9 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
 	darkModeOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
 } = BrowserSafeApis.options;
 
 export const compositionsCommand = async ({
@@ -49,18 +52,21 @@ export const compositionsCommand = async ({
 		quit(1);
 	}
 
-	const {
-		envVariables,
-		inputProps,
-		ignoreCertificateErrors,
-		userAgent,
-		disableWebSecurity,
-	} = CliInternals.getCliOptions({
+	const {envVariables, inputProps} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
 		indent: false,
 	});
 
+	const userAgent = userAgentOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;

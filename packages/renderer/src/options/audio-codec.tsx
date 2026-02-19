@@ -266,4 +266,5 @@ export const audioCodecOption = {
 	name: 'Audio Codec',
 	ssrName,
 	type: 'aac' as AudioCodec,
+	id: cliFlag,
 } satisfies AnyRemotionOption<AudioCodec | null>;

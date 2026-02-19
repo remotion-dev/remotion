@@ -1,7 +1,7 @@
 import {NoReactInternals} from 'remotion/no-react';
 import type {AnyRemotionOption} from './option';
 
-const validV4ColorSpaces = ['default', 'bt709', 'bt2020-ncl'] as const;
+const validV4ColorSpaces = ['default', 'bt601', 'bt709', 'bt2020-ncl'] as const;
 const validV5ColorSpaces = ['bt601', 'bt709', 'bt2020-ncl'] as const;
 
 export const validColorSpaces = (
@@ -43,6 +43,14 @@ export const colorSpaceOption = {
 				</code>
 			) : (
 				<>
+					<code>
+						{'"'}bt601{'"'}
+					</code>{' '}
+					(same as{' '}
+					<code>
+						{'"'}default{'"'}
+					</code>
+					, since v4.0.424),{' '}
 					<code>
 						{'"'}bt709{'"'}
 					</code>{' '}
@@ -93,6 +101,7 @@ export const colorSpaceOption = {
 	setConfig: (value) => {
 		colorSpace = value ?? DEFAULT_COLOR_SPACE;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<ColorSpace | null>;
 
 export const validateColorSpace = (option: unknown) => {

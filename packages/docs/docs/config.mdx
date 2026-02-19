@@ -190,7 +190,7 @@ Config.setShouldOpenBrowser(false);
 
 ## `setBrowserExecutable()`<AvailableFrom v="1.5.0" />
 
-Set a custom Chrome or Chromium executable path. By default Remotion will try to find an existing version of Chrome on your system and if not found, it will download one. This flag is useful if you don't have Chrome installed in a standard location and you want to prevent downloading an additional browser or need [support for the H264 codec](/docs/html5-video#codec-support).
+<Options id="browser-executable" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -216,7 +216,7 @@ The [command line flag](/docs/cli/render#--timeout) `--timeout` will take preced
 
 ## `setChromiumDisableWebSecurity()`<AvailableFrom v="2.6.5" />
 
-This will most notably disable CORS among other security features during rendering.
+<Options id="disable-web-security" />
 
 ```tsx twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -241,7 +241,7 @@ Config.setChromiumDarkMode(true);
 
 ## `setChromiumIgnoreCertificateErrors()`<AvailableFrom v="2.6.5" />
 
-Results in invalid SSL certificates, such as self-signed ones, being ignored during rendering.
+<Options id="ignore-certificate-errors" />
 
 ```tsx twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -307,8 +307,7 @@ The [command line flag](/docs/cli/render#--gl) `--gl` will take precedence over 
 
 ## `setConcurrency()`
 
-Sets how many Puppeteer instances will work on rendering your video in parallel.
-Default: `null`, meaning **half of the threads** available on your CPU.
+<Options id="concurrency" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -467,9 +466,7 @@ The [command line flag](/docs/cli/render#--env-file) `--env-file` will take prec
 
 ## `setEveryNthFrame()`
 
-This option may only be set when rendering GIFs. [It determines how many frames are rendered, while the other ones gets skipped in order to lower the FPS of the GIF.](/docs/render-as-gif)
-
-For example, if the `fps` is 30, and `everyNthFrame` is 2, the FPS of the GIF is `15`.
+<Options id="every-nth-frame" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -519,8 +516,7 @@ In version 1.x, the default behavior was inverse - Remotion would not override b
 
 ## `setPixelFormat()`
 
-Controls the pixel format in FFmpeg. [Read more about it here.](https://trac.ffmpeg.org/wiki/Chroma%20Subsampling) Acceptable values: `yuv420p`, `yuv422p`, `yuv444p`, `yuv420p10le`, `yuv422p10le`, `yuv444p10le`. Since v1.4, `yuva420p` is also supported for transparent WebM videos. Since v2.1.7, `yuva444p10le` is also supported for transparent ProRes videos
-Default value: `yuv420p`
+<Options id="pixel-format" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -574,10 +570,7 @@ Refer to the [Encoding guide](/docs/encoding) to see defaults and supported comb
 
 ## `setProResProfile()`<AvailableFrom v="2.1.6" />
 
-Set the ProRes profile. This option is only valid if the codec has been set to `prores`.
-Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`.
-See [here](https://video.stackexchange.com/a/14715) for explanation of possible values.
-Default: `hq`
+<Options id="prores-profile" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -617,7 +610,7 @@ The [command line flag](/docs/cli/render#--sequence) `--sequence` will take prec
 
 ## `overrideHeight()`<AvailableFrom v="3.2.40" />
 
-Overrides the height of the rendered video.
+<Options id="height" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -626,11 +619,10 @@ Config.overrideHeight(600);
 ```
 
 The [command line flag](/docs/cli/render#--height) `--height` will take precedence over this option.
-(see h264 validation?)
 
 ## `overrideWidth()`<AvailableFrom v="3.2.40" />
 
-Overrides the width of the rendered video.
+<Options id="width" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -638,7 +630,31 @@ import {Config} from '@remotion/cli/config';
 Config.overrideWidth(900);
 ```
 
-The [command line flag](/docs/cli/render#--width) `--width` will take precedence over this option
+The [command line flag](/docs/cli/render#--width) `--width` will take precedence over this option.
+
+## `overrideFps()`<AvailableFrom v="4.0.424" />
+
+<Options id="fps" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.overrideFps(25);
+```
+
+The [command line flag](/docs/cli/render#--fps) `--fps` will take precedence over this option.
+
+## `overrideDuration()`<AvailableFrom v="4.0.424" />
+
+<Options id="duration" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.overrideDuration(300);
+```
+
+The [command line flag](/docs/cli/render#--duration) `--duration` will take precedence over this option.
 
 ## `setCrf()`<AvailableFrom v="1.4.0" />
 

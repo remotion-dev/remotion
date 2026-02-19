@@ -84,4 +84,5 @@ export const x264Option = {
 	setConfig: (profile: X264Preset | null) => {
 		preset = profile;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<X264Preset | null>;

@@ -1,4 +1,3 @@
-import React from "react";
 import { interpolate, useCurrentFrame } from "remotion";
 import { COLOR_1, FONT_FAMILY } from "./constants";
 

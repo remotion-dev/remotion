@@ -110,6 +110,7 @@ export const glOption = {
 		validateOpenGlRenderer(value);
 		openGlRenderer = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<OpenGlRenderer | null>;
 
 export const validateOpenGlRenderer = (

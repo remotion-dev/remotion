@@ -175,6 +175,9 @@ const Inner: React.FC = () => {
 				return;
 			}
 
+			document.body.style.userSelect = 'none';
+			document.body.style.webkitUserSelect = 'none';
+
 			if ((e.target as Node) === inPointerHandle.current) {
 				if (inFrame === null) {
 					throw new Error('expected outframe');
@@ -399,6 +402,8 @@ const Inner: React.FC = () => {
 	const onPointerUpScrubbing = useCallback(
 		(e: PointerEvent) => {
 			stopInterval();
+			document.body.style.userSelect = '';
+			document.body.style.webkitUserSelect = '';
 
 			if (!videoConfig) {
 				return;
@@ -434,6 +439,9 @@ const Inner: React.FC = () => {
 
 	const onPointerUpInOut = useCallback(
 		(e: PointerEvent) => {
+			document.body.style.userSelect = '';
+			document.body.style.webkitUserSelect = '';
+
 			if (!videoConfig) {
 				return;
 			}

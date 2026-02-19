@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
 import { Player, type ErrorFallback, type PlayerRef } from "@remotion/player";
+import React, { useEffect, useRef } from "react";
 import { ErrorDisplay, type ErrorType } from "../ErrorDisplay";
 import { RenderControls } from "./RenderControls";
 import { SettingsModal } from "./SettingsModal";
@@ -76,9 +76,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
     const player = playerRef.current;
     if (!player || !onFrameChange) return;
 
-    const handleFrameUpdate = (e: {
-      detail: { frame: number };
-    }) => {
+    const handleFrameUpdate = (e: { detail: { frame: number } }) => {
       onFrameChange(e.detail.frame);
     };
 
@@ -152,7 +150,11 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
           />
         </div>
         <div className="flex items-center justify-between gap-6 mt-4">
-          <RenderControls code={code} durationInFrames={durationInFrames} fps={fps} />
+          <RenderControls
+            code={code}
+            durationInFrames={durationInFrames}
+            fps={fps}
+          />
           <SettingsModal
             durationInFrames={durationInFrames}
             onDurationChange={onDurationChange}
@@ -166,9 +168,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
 
   return (
     <div className="flex flex-col bg-background min-w-0 h-full">
-      <div className="w-full h-full flex flex-col">
-        {renderContent()}
-      </div>
+      <div className="w-full h-full flex flex-col">{renderContent()}</div>
     </div>
   );
 };

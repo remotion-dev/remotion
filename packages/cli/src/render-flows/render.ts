@@ -80,6 +80,8 @@ export const renderVideoFlow = async ({
 	port,
 	height,
 	width,
+	fps,
+	durationInFrames,
 	remainingArgs,
 	compositionIdFromUi,
 	entryPointReason,
@@ -145,6 +147,8 @@ export const renderVideoFlow = async ({
 	port: number | null;
 	height: number | null;
 	width: number | null;
+	fps: number | null;
+	durationInFrames: number | null;
 	remainingArgs: (string | number)[];
 	compositionIdFromUi: string | null;
 	outputLocationFromUI: string | null;
@@ -373,6 +377,8 @@ export const renderVideoFlow = async ({
 		await getCompositionWithDimensionOverride({
 			height,
 			width,
+			fps,
+			durationInFrames,
 			args: remainingArgs,
 			compositionIdFromUi,
 			browserExecutable,
@@ -640,6 +646,8 @@ export const renderVideoFlow = async ({
 			...config,
 			width: width ?? config.width,
 			height: height ?? config.height,
+			fps: fps ?? config.fps,
+			durationInFrames: durationInFrames ?? config.durationInFrames,
 		},
 		crf: crf ?? null,
 		envVariables,

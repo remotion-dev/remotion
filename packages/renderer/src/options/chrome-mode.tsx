@@ -68,4 +68,5 @@ export const chromeModeOption = {
 		configSelection = newChromeMode;
 	},
 	type: 'headless-shell' as ChromeMode,
+	id: cliFlag,
 } satisfies AnyRemotionOption<ChromeMode>;

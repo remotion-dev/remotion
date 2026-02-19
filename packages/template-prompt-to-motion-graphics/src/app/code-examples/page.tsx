@@ -1,21 +1,21 @@
 "use client";
 
-import {
-  useState,
-  useCallback,
-  useMemo,
-  Suspense,
-  useEffect,
-  useRef,
-} from "react";
+import { ArrowLeft, PanelLeft, PanelLeftClose } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
-import { ArrowLeft, PanelLeftClose, PanelLeft } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { AnimationPlayer } from "../../components/AnimationPlayer";
+import { CodeEditor } from "../../components/CodeEditor";
+import { Header } from "../../components/Header";
 import { examples, getExampleById } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
-import { CodeEditor } from "../../components/CodeEditor";
-import { AnimationPlayer } from "../../components/AnimationPlayer";
-import { Header } from "../../components/Header";
 
 function DemoPageContent() {
   const searchParams = useSearchParams();
@@ -31,7 +31,9 @@ function DemoPageContent() {
   }, [searchParams]);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [durationInFrames, setDurationInFrames] = useState(selectedExample.durationInFrames);
+  const [durationInFrames, setDurationInFrames] = useState(
+    selectedExample.durationInFrames,
+  );
   const [fps, setFps] = useState(selectedExample.fps);
   const selectedButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -89,7 +91,9 @@ function DemoPageContent() {
           </Link>
         </div>
         <div className="h-10 w-px bg-border" />
-        <h1 className="text-sm font-medium text-muted-foreground">Example Gallery</h1>
+        <h1 className="text-sm font-medium text-muted-foreground">
+          Example Gallery
+        </h1>
       </header>
 
       {/* Main content with sidebar */}

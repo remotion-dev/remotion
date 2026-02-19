@@ -48,6 +48,13 @@ const {
 	askAIOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
+	pixelFormatOption,
+	browserExecutableOption,
+	everyNthFrameOption,
+	proResProfileOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -93,22 +100,36 @@ export const render = async (
 		shouldOutputImageSequence,
 		inputProps,
 		envVariables,
-		browserExecutable,
-		everyNthFrame,
-		userAgent,
-		disableWebSecurity,
-		ignoreCertificateErrors,
 		height,
 		width,
+		fps,
+		durationInFrames,
 		ffmpegOverride,
-		proResProfile,
-		pixelFormat,
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
 		indent: false,
 	});
 
+	const pixelFormat = pixelFormatOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const everyNthFrame = everyNthFrameOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const proResProfile = proResProfileOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const x264Preset = x264Option.getValue({commandLine: parsedCli}).value;
 	const audioBitrate = audioBitrateOption.getValue({
 		commandLine: parsedCli,
@@ -234,6 +255,8 @@ export const render = async (
 		port: getRendererPortFromConfigFileAndCliFlag(),
 		height,
 		width,
+		fps,
+		durationInFrames,
 		remainingArgs,
 		compositionIdFromUi: null,
 		entryPointReason,

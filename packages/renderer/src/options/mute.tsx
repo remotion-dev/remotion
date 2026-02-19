@@ -37,4 +37,5 @@ export const mutedOption = {
 	setConfig: () => {
 		mutedState = true;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

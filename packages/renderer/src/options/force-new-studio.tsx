@@ -32,4 +32,5 @@ export const forceNewStudioOption = {
 	setConfig(value) {
 		forceNewEnabled = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

@@ -152,6 +152,8 @@ async function saveSequenceInTempDir(id: string) {
 			'--image-format',
 			'png',
 			'--sequence',
+			'--concurrency',
+			'2',
 		],
 		{
 			cwd: path.join(process.cwd(), '..', 'example'),

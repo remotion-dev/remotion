@@ -1,6 +1,6 @@
+import { Caption } from "@remotion/captions";
 import { zColor } from "@remotion/zod-types";
 import { z } from "zod";
-import { Caption } from "@remotion/captions";
 
 const baseVisualizerSchema = z.object({
   color: zColor(),

@@ -123,7 +123,7 @@ export const Button: React.FC<ButtonProps> = ({
 
 	const innerContent = (
 		<>
-			<div className={cn(loading && 'invisible', 'inline-flex')}>
+			<div className={cn(loading && 'invisible', 'inline-flex items-center')}>
 				{children}
 			</div>
 			{loading ? (

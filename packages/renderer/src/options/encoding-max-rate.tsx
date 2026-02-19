@@ -40,4 +40,5 @@ export const encodingMaxRateOption = {
 	setConfig: (newMaxRate: string | null) => {
 		encodingMaxRate = newMaxRate;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<string | null>;

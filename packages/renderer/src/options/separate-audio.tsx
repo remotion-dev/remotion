@@ -28,4 +28,5 @@ export const separateAudioOption = {
 	},
 	ssrName: 'separateAudioTo',
 	type: 'string' as string | null,
+	id: cliFlag,
 } satisfies AnyRemotionOption<string | null>;

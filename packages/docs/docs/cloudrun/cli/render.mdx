@@ -75,7 +75,7 @@ Specify a specific bucket name to be used for the output. The resulting Google C
 
 ### `--concurrency`
 
-A number or a string describing how many browser tabs should be opened. Default "50%".
+<Options id="concurrency" />
 
 :::note
 Before v4.0.76, this was "100%" by default. It is now aligned to the other server-side rendering APIs.
@@ -87,7 +87,7 @@ Before v4.0.76, this was "100%" by default. It is now aligned to the other serve
 
 ### `--image-format`
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setvideoimageformat) The default image format is `jpeg`.
+<Options id="video-image-format" />
 
 ### `--scale`
 
@@ -163,7 +163,7 @@ You will be responsible for ensuring that the render ID is unique, otherwise it 
 
 ### `--prores-profile`
 
-[Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
+<Options id="prores-profile" />
 
 ### `--x264-preset`
 
@@ -175,11 +175,11 @@ You will be responsible for ensuring that the render ID is unique, otherwise it 
 
 ### `--pixel-format`
 
-[Set a custom pixel format. See here for available values.](/docs/config#setpixelformat)
+<Options id="pixel-format" />
 
 ### `--every-nth-frame`
 
-[Render only every nth frame.](/docs/config#seteverynthframe) This option may only be set when rendering GIFs. This allows you to lower the FPS of the GIF.
+<Options id="every-nth-frame" />
 
 For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
 

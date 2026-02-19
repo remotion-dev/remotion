@@ -23,6 +23,16 @@ Unlike server-side rendering with [`@remotion/renderer`](/docs/renderer), client
 - Limited to a subset of HTML elements - see [limitations](/docs/client-side-rendering/limitations)
 - No bundling step - takes components and video config directly
 
+## Browser support
+
+Client-side rendering requires the [WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API), which limits browser support to:
+
+| Browser | Minimum version |
+| ------- | --------------- |
+| Chrome  | 94+             |
+| Firefox | 130+            |
+| Safari  | 26+             |
+
 ## APIs
 
 The package provides APIs called [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) and [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).

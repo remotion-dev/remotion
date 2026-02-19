@@ -1,5 +1,4 @@
 import {useCallback, useMemo} from 'react';
-import type {ZodDiscriminatedUnionOption, z} from 'zod';
 import {Checkmark} from '../../../icons/Checkmark';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
@@ -14,10 +13,16 @@ import {ZodObjectEditor} from './ZodObjectEditor';
 import type {UpdaterFunction} from './ZodSwitch';
 import {createZodValues} from './create-zod-values';
 import {useLocalState} from './local-state';
+import type {AnyZodSchema} from './zod-schema-type';
+import {
+	getDiscriminatedOption,
+	getDiscriminatedOptionKeys,
+	getDiscriminator,
+} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 
 export const ZodDiscriminatedUnionEditor: React.FC<{
-	schema: z.ZodTypeAny;
+	schema: AnyZodSchema;
 	setValue: UpdaterFunction<Record<string, unknown>>;
 	value: Record<string, unknown>;
 	defaultValue: Record<string, unknown>;
@@ -48,10 +53,10 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 
 	const zodTypes = useZodTypesIfPossible();
 
-	const typedSchema = schema._def as z.ZodDiscriminatedUnionDef<string>;
+	const discriminator = getDiscriminator(schema);
 	const options = useMemo(
-		() => [...typedSchema.optionsMap.keys()],
-		[typedSchema.optionsMap],
+		() => getDiscriminatedOptionKeys(schema),
+		[schema],
 	) as string[];
 
 	const {
@@ -72,16 +77,19 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 				label: option,
 				id: option,
 				keyHint: null,
-				leftItem:
-					option === value[typedSchema.discriminator] ? <Checkmark /> : null,
+				leftItem: option === value[discriminator] ? <Checkmark /> : null,
 				onClick: () => {
-					const val = createZodValues(
-						typedSchema.optionsMap.get(
-							option,
-						) as ZodDiscriminatedUnionOption<never>,
-						z,
-						zodTypes,
-					) as Record<string, unknown>;
+					const optionSchema = getDiscriminatedOption(schema, option);
+					if (!optionSchema) {
+						throw new Error(
+							`No schema found for discriminator value: ${option}`,
+						);
+					}
+
+					const val = createZodValues(optionSchema, z, zodTypes) as Record<
+						string,
+						unknown
+					>;
 					setLocalValue(() => val, false, false);
 				},
 				quickSwitcherLabel: null,
@@ -89,15 +97,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 				type: 'item',
 			};
 		});
-	}, [
-		options,
-		setLocalValue,
-		typedSchema.discriminator,
-		typedSchema.optionsMap,
-		value,
-		z,
-		zodTypes,
-	]);
+	}, [options, setLocalValue, discriminator, schema, value, z, zodTypes]);
 
 	const save = useCallback(() => {
 		onSave(() => value, false, false);
@@ -106,16 +106,15 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 	const discriminatedUnionReplacement: ObjectDiscrimatedUnionReplacement =
 		useMemo(() => {
 			return {
-				discriminator: typedSchema.discriminator,
+				discriminator,
 				markup: (
 					<Fieldset key={'replacement'} shouldPad={mayPad} success>
 						<SchemaLabel
 							handleClick={null}
 							isDefaultValue={
-								localValue.value[typedSchema.discriminator] ===
-								defaultValue[typedSchema.discriminator]
+								localValue.value[discriminator] === defaultValue[discriminator]
 							}
-							jsonPath={[...jsonPath, typedSchema.discriminator]}
+							jsonPath={[...jsonPath, discriminator]}
 							onRemove={onRemove}
 							onReset={reset}
 							onSave={save}
@@ -128,7 +127,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 						<Combobox
 							title="Select type"
 							values={comboBoxValues}
-							selectedId={value[typedSchema.discriminator] as string}
+							selectedId={value[discriminator] as string}
 						/>
 					</Fieldset>
 				),
@@ -146,14 +145,23 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			saveDisabledByParent,
 			saving,
 			showSaveButton,
-			typedSchema.discriminator,
+			discriminator,
 			value,
 		]);
+
+	const currentOptionSchema = getDiscriminatedOption(
+		schema,
+		value[discriminator] as string,
+	);
+
+	if (!currentOptionSchema) {
+		throw new Error('No matching option found for discriminated union');
+	}
 
 	return (
 		<ZodObjectEditor
 			// Re-render the object editor when the discriminator changes
-			key={value[typedSchema.discriminator] as string}
+			key={value[discriminator] as string}
 			jsonPath={jsonPath}
 			mayPad={mayPad}
 			savedValue={defaultValue}
@@ -161,11 +169,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			onSave={onSave as UpdaterFunction<Record<string, unknown>>}
 			saveDisabledByParent={saveDisabledByParent}
 			saving={saving}
-			schema={
-				typedSchema.optionsMap.get(
-					value[typedSchema.discriminator] as string,
-				) as ZodDiscriminatedUnionOption<never>
-			}
+			schema={currentOptionSchema}
 			setValue={setLocalValue}
 			showSaveButton={showSaveButton}
 			unsavedValue={value}

@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import {TwoslashError} from '@typescript/twoslash';
 import type {Node} from './unist-types';
 
 export function escapeHtml(html: string) {
@@ -89,7 +88,23 @@ export const setupNodeForTwoslashException = (
 }
 </style>`;
 
-	const bodyFromTwoslashError = (err: TwoslashError) => {
+	const isTwoslashError = (
+		err: unknown,
+	): err is {title: string; description: string; recommendation: string} => {
+		return (
+			typeof err === 'object' &&
+			err !== null &&
+			'title' in err &&
+			'description' in err &&
+			'recommendation' in err
+		);
+	};
+
+	const bodyFromTwoslashError = (err: {
+		title: string;
+		description: string;
+		recommendation: string;
+	}) => {
 		return `
 <h3>${escapeHtml(err.title)}</h3>
 <p>${escapeHtml(err.description).replace(/(?:\r\n|\r|\n)/g, '<br>')}</p>
@@ -124,7 +139,7 @@ export const setupNodeForTwoslashException = (
 		body = String(error);
 		eLog(`### Unexpected error:`);
 		eLog(error);
-	} else if (error instanceof TwoslashError) {
+	} else if (isTwoslashError(error)) {
 		body = bodyFromTwoslashError(error);
 		eLog(`### Twoslash error: ${error.title}`);
 		eLog(error.description);

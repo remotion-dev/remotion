@@ -107,6 +107,7 @@ export const VideoCanvasExamples: React.FC<{
 	return (
 		<div>
 			<Player
+				acknowledgeRemotionLicense
 				component={component}
 				compositionWidth={1280}
 				compositionHeight={720}

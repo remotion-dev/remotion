@@ -1,3 +1,5 @@
+import { Caption, createTikTokStyleCaptions } from "@remotion/captions";
+import { getVideoMetadata } from "@remotion/media-utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AbsoluteFill,
@@ -11,11 +13,9 @@ import {
   watchStaticFile,
 } from "remotion";
 import { z } from "zod";
-import SubtitlePage from "./SubtitlePage";
-import { getVideoMetadata } from "@remotion/media-utils";
 import { loadFont } from "../load-font";
 import { NoCaptionFile } from "./NoCaptionFile";
-import { Caption, createTikTokStyleCaptions } from "@remotion/captions";
+import SubtitlePage from "./SubtitlePage";
 
 export type SubtitleProp = {
   startInSeconds: number;

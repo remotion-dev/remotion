@@ -1,4 +1,3 @@
-import { getMediabunnyOutput } from "./find-good-supported-codec";
 import {
   ALL_FORMATS,
   BlobSource,
@@ -7,6 +6,7 @@ import {
   Input,
   Output,
 } from "mediabunny";
+import { getMediabunnyOutput } from "./find-good-supported-codec";
 
 export const convertInBrowser = async ({
   src,

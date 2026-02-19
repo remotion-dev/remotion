@@ -46,4 +46,5 @@ export const binariesDirectoryOption = {
 	setConfig: (value: string | null) => {
 		currentDirectory = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<string | null>;

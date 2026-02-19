@@ -19,7 +19,7 @@ const shouldUseBun = (): boolean => {
 const shouldUseYarn = (): boolean => {
 	return Boolean(
 		process.env.npm_execpath?.includes('yarn.js') ||
-			process.env.npm_config_user_agent?.includes('yarn'),
+		process.env.npm_config_user_agent?.includes('yarn'),
 	);
 };
 

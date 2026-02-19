@@ -17,14 +17,14 @@
     "remotion": "workspace:*",
     "twoslash-cdn": "0.3.1",
     "polished": "4.3.1",
-    "zod": "3.23.8"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
     "@types/react": "19.2.7",
     "@types/web": "0.0.166",
     "eslint": "9.19.0",
-    "prettier": "3.6.0",
+    "prettier": "3.8.1",
     "typescript": "5.9.3"
   },
   "scripts": {

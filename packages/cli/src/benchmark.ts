@@ -60,6 +60,13 @@ const {
 	askAIOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
+	pixelFormatOption,
+	browserExecutableOption,
+	everyNthFrameOption,
+	proResProfileOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -200,23 +207,38 @@ export const benchmarkCommand = async (
 	const {
 		inputProps,
 		envVariables,
-		browserExecutable,
-		proResProfile,
 		frameRange: defaultFrameRange,
-		pixelFormat,
-		everyNthFrame,
 		ffmpegOverride,
 		height,
 		width,
+		fps,
+		durationInFrames,
 		concurrency: unparsedConcurrency,
-		disableWebSecurity,
-		userAgent,
-		ignoreCertificateErrors,
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
 		indent: false,
 	});
+
+	const pixelFormat = pixelFormatOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const everyNthFrame = everyNthFrameOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const proResProfile = proResProfileOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	Log.verbose(
 		{indent: false, logLevel},
@@ -471,6 +493,8 @@ export const benchmarkCommand = async (
 						...composition,
 						width: width ?? composition.width,
 						height: height ?? composition.height,
+						fps: fps ?? composition.fps,
+						durationInFrames: durationInFrames ?? composition.durationInFrames,
 					},
 					crf: configFileCrf ?? null,
 					envVariables,

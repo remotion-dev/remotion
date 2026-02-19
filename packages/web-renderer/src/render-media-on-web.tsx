@@ -2,7 +2,8 @@ import {BufferTarget, StreamTarget} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import {VERSION} from 'remotion/version';
-import type {AnyZodObject, z} from 'zod';
+import type {z} from 'zod';
+import type {$ZodObject} from 'zod/v4/core';
 import {addAudioSample, addVideoSampleAndCloseFrame} from './add-sample';
 import {handleArtifacts, type WebRendererOnArtifact} from './artifact';
 import {onlyInlineAudio} from './audio';
@@ -32,10 +33,7 @@ import {
 	type WebRendererVideoCodec,
 } from './mediabunny-mappings';
 import type {WebRendererOutputTarget} from './output-target';
-import type {
-	CompositionCalculateMetadataOrExplicit,
-	InferProps,
-} from './props-if-has-props';
+import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props';
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
@@ -47,9 +45,9 @@ import {waitForReady} from './wait-for-ready';
 import {cleanupStaleOpfsFiles, createWebFsTarget} from './web-fs-target';
 
 export type InputPropsIfHasProps<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props,
-> = AnyZodObject extends Schema
+> = $ZodObject extends Schema
 	? {} extends Props
 		? {
 				// Neither props nor schema specified
@@ -70,7 +68,7 @@ export type InputPropsIfHasProps<
 			};
 
 type MandatoryRenderMediaOnWebOptions<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 > = {
 	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
@@ -96,7 +94,7 @@ export type WebRendererHardwareAcceleration =
 	| 'prefer-hardware'
 	| 'prefer-software';
 
-type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
+type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
 	schema: Schema | undefined;
@@ -122,14 +120,14 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 };
 
 export type RenderMediaOnWebOptions<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 > = MandatoryRenderMediaOnWebOptions<Schema, Props> &
 	Partial<OptionalRenderMediaOnWebOptions<Schema>> &
 	InputPropsIfHasProps<Schema, Props>;
 
 type InternalRenderMediaOnWebOptions<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 > = MandatoryRenderMediaOnWebOptions<Schema, Props> &
 	OptionalRenderMediaOnWebOptions<Schema> &
@@ -140,7 +138,7 @@ type InternalRenderMediaOnWebOptions<
 // TODO: Apply defaultCodec
 
 const internalRenderMediaOnWeb = async <
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 >({
 	composition,
@@ -226,8 +224,8 @@ const internalRenderMediaOnWeb = async <
 
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
-			(composition.calculateMetadata as CalculateMetadataFunction<
-				InferProps<AnyZodObject, Record<string, unknown>>
+			(composition.calculateMetadata as unknown as CalculateMetadataFunction<
+				Record<string, unknown>
 			>) ?? null,
 		signal: signal ?? new AbortController().signal,
 		defaultProps: composition.defaultProps ?? {},
@@ -535,7 +533,7 @@ const internalRenderMediaOnWeb = async <
 };
 
 export const renderMediaOnWeb = <
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 >(
 	options: RenderMediaOnWebOptions<Schema, Props>,

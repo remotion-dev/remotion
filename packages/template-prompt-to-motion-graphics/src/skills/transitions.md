@@ -37,7 +37,7 @@ import { fade } from "@remotion/transitions/fade";
   <TransitionSeries.Sequence durationInFrames={60}>
     <SceneB />
   </TransitionSeries.Sequence>
-</TransitionSeries>
+</TransitionSeries>;
 ```
 
 ## Available Transition Types
@@ -62,7 +62,7 @@ import { slide } from "@remotion/transitions/slide";
 <TransitionSeries.Transition
   presentation={slide({ direction: "from-left" })}
   timing={linearTiming({ durationInFrames: 20 })}
-/>
+/>;
 ```
 
 Directions: `"from-left"`, `"from-right"`, `"from-top"`, `"from-bottom"`
@@ -99,8 +99,8 @@ const scene2Opacity = interpolate(
 import { linearTiming, springTiming } from "@remotion/transitions";
 
 // Linear timing - constant speed
-linearTiming({ durationInFrames: 20 })
+linearTiming({ durationInFrames: 20 });
 
 // Spring timing - organic motion
-springTiming({ config: { damping: 200 }, durationInFrames: 25 })
+springTiming({ config: { damping: 200 }, durationInFrames: 25 });
 ```

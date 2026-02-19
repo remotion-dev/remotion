@@ -2,13 +2,13 @@ import {useCallback, useMemo} from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
+import type {AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 
 export const ZodTupleItemEditor: React.FC<{
 	jsonPath: JSONPath;
 	onChange: UpdaterFunction<unknown[]>;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	def: any;
+	tupleItems: AnyZodSchema[];
 	index: number;
 	value: unknown;
 	defaultValue: unknown;
@@ -18,7 +18,7 @@ export const ZodTupleItemEditor: React.FC<{
 	saveDisabledByParent: boolean;
 	mayPad: boolean;
 }> = ({
-	def,
+	tupleItems,
 	onChange,
 	jsonPath,
 	index,
@@ -71,7 +71,7 @@ export const ZodTupleItemEditor: React.FC<{
 		<div>
 			<ZodSwitch
 				jsonPath={newJsonPath}
-				schema={def.items[index]}
+				schema={tupleItems[index]}
 				value={value}
 				setValue={setValue}
 				defaultValue={defaultValue}

@@ -260,8 +260,8 @@ const InnerRecordingView: React.FC<{
       style={viewContainer}
       data-recording={Boolean(
         recordingStatus.type === "recording" &&
-          hasSelectedVideoOrAudio &&
-          mediaStream.streamState.type === "loaded",
+        hasSelectedVideoOrAudio &&
+        mediaStream.streamState.type === "loaded",
       )}
       className="outline-red-600 outline-0 data-[recording=true]:outline-2 outline"
     >

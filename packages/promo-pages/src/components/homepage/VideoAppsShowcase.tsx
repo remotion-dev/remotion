@@ -152,27 +152,27 @@ const VideoAppsShowcase: React.FC = () => {
 						onClick={handlePlayPause}
 					>
 						{videoLoaded ? (
-						<MuxVideo
-							ref={videoRef}
-							muxId={videoApps[activeTab].muxId}
-							className={
-								'absolute left-0 top-0 w-full h-full object-contain rounded-sm rounded-tr-none rounded-br-none'
-							}
-							loop
-							playsInline
-							muted={isMuted}
-							autoPlay
-							onPlay={() => setIsPlaying(true)}
-						/>
-					) : (
-						<img
-							src={`https://image.mux.com/${videoApps[activeTab].muxId}/thumbnail.png?time=1`}
-							className={
-								'absolute left-0 top-0 w-full h-full object-contain rounded-sm rounded-tr-none rounded-br-none'
-							}
-							alt={videoApps[activeTab].title}
-						/>
-					)}
+							<MuxVideo
+								ref={videoRef}
+								muxId={videoApps[activeTab].muxId}
+								className={
+									'absolute left-0 top-0 w-full h-full object-contain rounded-sm rounded-tr-none rounded-br-none'
+								}
+								loop
+								playsInline
+								muted={isMuted}
+								autoPlay
+								onPlay={() => setIsPlaying(true)}
+							/>
+						) : (
+							<img
+								src={`https://image.mux.com/${videoApps[activeTab].muxId}/thumbnail.png?time=1`}
+								className={
+									'absolute left-0 top-0 w-full h-full object-contain rounded-sm rounded-tr-none rounded-br-none'
+								}
+								alt={videoApps[activeTab].title}
+							/>
+						)}
 
 						{/* Play/Pause Button - bottom left corner */}
 						<button

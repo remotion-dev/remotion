@@ -1,14 +1,14 @@
-import { Html5Audio } from "remotion";
 import {
   AbsoluteFill,
+  Html5Audio,
   interpolate,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
 import { z } from "zod";
-import { compSchema } from "./types";
 import { Title } from "./HelloWorld/Title";
 import { createS3Url } from "./tts";
+import { compSchema } from "./types";
 
 export const HelloWorld: React.FC<z.infer<typeof compSchema>> = ({
   text,

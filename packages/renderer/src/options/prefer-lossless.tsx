@@ -31,4 +31,5 @@ export const preferLosslessAudioOption = {
 	setConfig: (val: boolean) => {
 		input = val;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

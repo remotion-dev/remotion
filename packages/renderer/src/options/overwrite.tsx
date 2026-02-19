@@ -49,4 +49,5 @@ export const overwriteOption = {
 		validate(value);
 		shouldOverwrite = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

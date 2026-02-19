@@ -72,8 +72,8 @@ test('Should be able to create a union', async () => {
 	expect(createZodValues(z.union([z.number(), z.string()]), z, zodTypes)).toBe(
 		0,
 	);
-	// @ts-expect-error union
-	expect(createZodValues(z.union([]), z, zodTypes)).toBe(undefined);
+	// In v4, z.union([]) throws during schema creation
+	expect(() => createZodValues(z.union([]) as never, z, zodTypes)).toThrow();
 });
 
 test('Zod literal', async () => {
@@ -109,10 +109,11 @@ test('Should be able to create a discriminated union', async () => {
 		),
 	).toEqual({status: 'failed', error: 0});
 
+	// In v4, z.discriminatedUnion('status', []) throws during schema creation
 	expect(() =>
 		// @ts-expect-error invalid zod type
 		createZodValues(z.discriminatedUnion('status', []), z, zodTypes),
-	).toThrow(/Invalid zod schema/);
+	).toThrow();
 });
 
 test('Zod instanceof', async () => {
@@ -155,7 +156,7 @@ test('Zod record', async () => {
 	const z = await getZ();
 	const zodTypes = await getZodTypes();
 
-	const Record = z.record(z.string());
+	const Record = z.record(z.string(), z.string());
 	expect(createZodValues(Record, z, zodTypes)).toEqual({key: ''});
 });
 
@@ -267,7 +268,7 @@ test('Zod promise', async () => {
 	const z = await getZ();
 	const zodTypes = await getZodTypes();
 
-	const undef = z.string().promise();
+	const undef = z.promise(z.string());
 	(createZodValues(undef, z, zodTypes) as Promise<unknown>).then((v) => {
 		expect(v).toBe('');
 	});

@@ -43,4 +43,5 @@ export const folderExpiryOption = {
 	setConfig: (value: boolean | null) => {
 		enableFolderExpiry = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean | null>;

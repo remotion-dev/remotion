@@ -1,4 +1,7 @@
-import type {StillImageFormat, VideoImageFormat} from '@remotion/renderer';
+import type {StillImageFormat} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+
+const {cliFlag} = BrowserSafeApis.options.stillImageFormatOption;
 
 const deriveExtensionFromFilename = (
 	filename: string | null,
@@ -29,15 +32,13 @@ const deriveExtensionFromFilename = (
 export const determineFinalStillImageFormat = ({
 	downloadName,
 	outName,
-	configImageFormat,
-	cliFlag,
+	configuredImageFormat,
 	isLambda,
 	fromUi,
 }: {
 	downloadName: string | null;
 	outName: string | null;
-	configImageFormat: StillImageFormat | null;
-	cliFlag: StillImageFormat | VideoImageFormat | null;
+	configuredImageFormat: StillImageFormat | null;
 	isLambda: boolean;
 	fromUi: StillImageFormat | null;
 }): {format: StillImageFormat; source: string} => {
@@ -61,9 +62,12 @@ export const determineFinalStillImageFormat = ({
 	}
 
 	if (downloadNameExtension) {
-		if (cliFlag && downloadNameExtension !== cliFlag) {
+		if (
+			configuredImageFormat &&
+			downloadNameExtension !== configuredImageFormat
+		) {
 			throw new TypeError(
-				`Image format mismatch: ${downloadName} was given as the download name, but --image-format=${cliFlag} was passed. The image formats must match.`,
+				`Image format mismatch: ${downloadName} was given as the download name, but the image format "${configuredImageFormat}" was configured via --${cliFlag} or Config.setStillImageFormat(). The image formats must match.`,
 			);
 		}
 
@@ -71,34 +75,17 @@ export const determineFinalStillImageFormat = ({
 	}
 
 	if (outNameExtension) {
-		if (cliFlag && outNameExtension !== cliFlag) {
+		if (configuredImageFormat && outNameExtension !== configuredImageFormat) {
 			throw new TypeError(
-				`Image format mismatch: ${outName} was given as the ${outNameDescription}, but --image-format=${cliFlag} was passed. The image formats must match.`,
+				`Image format mismatch: ${outName} was given as the ${outNameDescription}, but the image format "${configuredImageFormat}" was configured via --${cliFlag} or Config.setStillImageFormat(). The image formats must match.`,
 			);
 		}
 
 		return {format: outNameExtension, source: 'Out name extension'};
 	}
 
-	if (cliFlag === 'none') {
-		throw new TypeError(
-			'The --image-format flag must not be "none" for stills.',
-		);
-	}
-
-	if (cliFlag !== null) {
-		return {format: cliFlag, source: '--image-format flag'};
-	}
-
-	if (configImageFormat !== null) {
-		// @ts-expect-error
-		if (configImageFormat === 'none') {
-			throw new Error(
-				'The still simage format in the config file must not be "none"',
-			);
-		}
-
-		return {format: configImageFormat, source: 'Config file'};
+	if (configuredImageFormat !== null) {
+		return {format: configuredImageFormat, source: `--${cliFlag} or config`};
 	}
 
 	return {format: 'png', source: 'Default'};

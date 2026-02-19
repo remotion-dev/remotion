@@ -44,6 +44,7 @@ export const PlayerExample: React.FC<{
 		<div ref={containerRef}>
 			<Player
 				ref={playerRef}
+				acknowledgeRemotionLicense
 				component={ColorDemo}
 				compositionWidth={1280}
 				compositionHeight={720}

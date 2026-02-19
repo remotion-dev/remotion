@@ -46,4 +46,5 @@ export const headlessOption = {
 	setConfig: (value) => {
 		headlessMode = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

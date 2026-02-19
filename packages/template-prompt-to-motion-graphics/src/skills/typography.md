@@ -116,4 +116,3 @@ const finalOpacity = interpolate(
   <span>{postText}</span>
 </div>;
 ```
-

@@ -1,15 +1,19 @@
-import { useState, useCallback } from "react";
-import type {
-  ConversationContextMessage,
-  AssistantMetadata,
-  ErrorCorrectionContext,
-} from "@/types/conversation";
-import type { StreamPhase, GenerationErrorType, ModelId } from "@/types/generation";
 import {
-  validateGptResponse,
   extractComponentCode,
   stripMarkdownFences,
+  validateGptResponse,
 } from "@/helpers/sanitize-response";
+import type {
+  AssistantMetadata,
+  ConversationContextMessage,
+  ErrorCorrectionContext,
+} from "@/types/conversation";
+import type {
+  GenerationErrorType,
+  ModelId,
+  StreamPhase,
+} from "@/types/generation";
+import { useCallback, useState } from "react";
 
 interface FailedEditInfo {
   description: string;
@@ -21,7 +25,11 @@ interface GenerationCallbacks {
   onCodeGenerated?: (code: string) => void;
   onStreamingChange?: (isStreaming: boolean) => void;
   onStreamPhaseChange?: (phase: StreamPhase) => void;
-  onError?: (error: string, type: GenerationErrorType, failedEdit?: FailedEditInfo) => void;
+  onError?: (
+    error: string,
+    type: GenerationErrorType,
+    failedEdit?: FailedEditInfo,
+  ) => void;
   onMessageSent?: (prompt: string, attachedImages?: string[]) => void;
   onGenerationComplete?: (
     code: string,

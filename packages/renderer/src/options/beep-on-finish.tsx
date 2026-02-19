@@ -38,4 +38,5 @@ export const beepOnFinishOption = {
 	setConfig(value) {
 		beepOnFinish = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

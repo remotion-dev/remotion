@@ -1,8 +1,9 @@
 import { useThree } from "@react-three/fiber";
+import { Video } from "@remotion/media";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { Video } from "@remotion/media";
 import { CanvasTexture, Texture } from "three";
+import { MediabunnyMetadata } from "./helpers/get-media-metadata";
 import {
   CAMERA_DISTANCE,
   PHONE_CURVE_SEGMENTS,
@@ -11,7 +12,6 @@ import {
 } from "./helpers/layout";
 import { roundedRect } from "./helpers/rounded-rectangle";
 import { RoundedBox } from "./RoundedBox";
-import { MediabunnyMetadata } from "./helpers/get-media-metadata";
 
 export const Phone: React.FC<{
   readonly phoneColor: string;

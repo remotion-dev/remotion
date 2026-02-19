@@ -83,6 +83,27 @@ const publish = async (template: MinimalTemplate) => {
 	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
 };
 
-for (const template of templates) {
-	await publish(template);
+const CONCURRENCY = 4;
+
+const results: PromiseSettledResult<void>[] = [];
+
+for (let i = 0; i < templates.length; i += CONCURRENCY) {
+	const batch = templates.slice(i, i + CONCURRENCY);
+	const batchResults = await Promise.allSettled(
+		batch.map((template) => publish(template)),
+	);
+	results.push(...batchResults);
+}
+
+const failures = results.filter(
+	(r): r is PromiseRejectedResult => r.status === 'rejected',
+);
+
+if (failures.length > 0) {
+	console.error(`${failures.length} template(s) failed to publish:`);
+	for (const failure of failures) {
+		console.error(failure.reason);
+	}
+
+	process.exit(1);
 }

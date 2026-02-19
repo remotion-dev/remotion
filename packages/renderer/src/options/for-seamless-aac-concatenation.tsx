@@ -49,4 +49,5 @@ export const forSeamlessAacConcatenationOption = {
 	},
 	ssrName: 'forSeamlessAacConcatenation',
 	type: false as boolean,
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

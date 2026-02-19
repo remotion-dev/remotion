@@ -1,10 +1,10 @@
 import { SkiaCanvas } from "@remotion/skia";
+import { zColor } from "@remotion/zod-types";
 import { useFont } from "@shopify/react-native-skia";
 import { staticFile, useVideoConfig } from "remotion";
+import { z } from "zod";
 import { AssetManager } from "./AssetManager";
 import { Drawing } from "./Drawing";
-import { z } from "zod";
-import { zColor } from "@remotion/zod-types";
 
 const roboto = staticFile("Roboto-Bold.ttf");
 

@@ -5,8 +5,8 @@ import type { NextPage } from "next";
 import { useMemo, useState } from "react";
 import { z } from "zod";
 import {
-  defaultMyCompProps,
   CompositionProps,
+  defaultMyCompProps,
   DURATION_IN_FRAMES,
   VIDEO_FPS,
   VIDEO_HEIGHT,

@@ -1,11 +1,12 @@
 import type {ComponentType} from 'react';
 import type {CalculateMetadataFunction} from 'remotion';
-import type {AnyZodObject, z} from 'zod';
+import type {z} from 'zod';
+import type {$ZodObject} from 'zod/v4/core';
 
 export type InferProps<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
-> = AnyZodObject extends Schema
+> = $ZodObject extends Schema
 	? {} extends Props
 		? // Neither props nor schema specified
 			Record<string, unknown>
@@ -18,9 +19,9 @@ export type InferProps<
 			z.input<Schema> & Props;
 
 export type DefaultPropsIfHasProps<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props,
-> = AnyZodObject extends Schema
+> = $ZodObject extends Schema
 	? {} extends Props
 		? {
 				// Neither props nor schema specified
@@ -43,7 +44,7 @@ export type DefaultPropsIfHasProps<
 type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
 
 type OptionalDimensions<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 > = {
 	component: LooseComponentType<Props>;
@@ -54,7 +55,7 @@ type OptionalDimensions<
 };
 
 type MandatoryDimensions<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 > = {
 	component: LooseComponentType<Props>;
@@ -67,7 +68,7 @@ type MandatoryDimensions<
 };
 
 export type CompositionCalculateMetadataOrExplicit<
-	Schema extends AnyZodObject,
+	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
 > = (
 	| (OptionalDimensions<Schema, Props> & {

@@ -51,3 +51,23 @@ const OffthreadWhileRenderingRefForwardingFunction: React.FC<{
   return <Video {...videoProps} />;
 };
 ```
+
+The same pattern works for audio:
+
+```tsx twoslash title="Html5Audio during preview, @remotion/media during rendering"
+import {useRemotionEnvironment, Html5Audio, RemotionAudioProps} from 'remotion';
+import {Audio, AudioProps} from '@remotion/media';
+
+const Html5AudioWhilePreviewingComponent: React.FC<{
+  html5AudioProps: RemotionAudioProps;
+  audioProps: AudioProps;
+}> = ({html5AudioProps, audioProps}) => {
+  const env = useRemotionEnvironment();
+
+  if (!env.isRendering) {
+    return <Html5Audio {...html5AudioProps} />;
+  }
+
+  return <Audio {...audioProps} />;
+};
+```

@@ -1,5 +1,5 @@
-import { startServer } from "./server/server";
 import { spawn } from "child_process";
+import { startServer } from "./server/server";
 
 startServer();
 spawn("npx", ["remotion", "studio"], {

@@ -53,4 +53,5 @@ export const jpegQualityOption = {
 			value: defaultValue,
 		};
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<number>;

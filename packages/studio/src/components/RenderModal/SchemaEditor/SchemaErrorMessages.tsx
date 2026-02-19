@@ -1,9 +1,10 @@
-import type {z} from 'zod';
+// Schema error messages for studio editor
 import {BACKGROUND, BLUE, LIGHT_TEXT} from '../../../helpers/colors';
 import {Button} from '../../Button';
 import {inlineCodeSnippet} from '../../Menu/styles';
 import {Spacing} from '../../layout';
 import {ZodErrorMessages} from './ZodErrorMessages';
+import type {ZodSafeParseResult} from './zod-schema-type';
 
 const explainer: React.CSSProperties = {
 	display: 'flex',
@@ -86,7 +87,7 @@ export const NoDefaultProps = () => {
 };
 
 export const InvalidDefaultProps: React.FC<{
-	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
+	zodValidationResult: ZodSafeParseResult;
 }> = ({zodValidationResult}) => {
 	return (
 		<div style={errorContainer}>
@@ -111,7 +112,7 @@ export const InvalidDefaultProps: React.FC<{
 };
 
 export const InvalidSchema: React.FC<{
-	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
+	zodValidationResult: ZodSafeParseResult;
 	reset: () => void;
 }> = ({zodValidationResult, reset}) => {
 	return (

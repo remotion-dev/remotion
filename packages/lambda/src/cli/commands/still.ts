@@ -35,6 +35,10 @@ const {
 	binariesDirectoryOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	browserExecutableOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
 } = BrowserSafeApis.options;
 
 const {
@@ -81,15 +85,24 @@ export const stillCommand = async ({
 		stillFrame,
 		height,
 		width,
-		browserExecutable,
-		userAgent,
-		disableWebSecurity,
-		ignoreCertificateErrors,
+		fps,
+		durationInFrames,
 	} = getCliOptions({
 		isStill: true,
 		logLevel,
 		indent: false,
 	});
+
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const region = getAwsRegion();
 	let composition = args[1];
@@ -179,6 +192,8 @@ export const stillCommand = async ({
 			timeoutInMilliseconds,
 			height,
 			width,
+			fps,
+			durationInFrames,
 			server,
 			offthreadVideoCacheSizeInBytes,
 			offthreadVideoThreads,
@@ -206,15 +221,17 @@ export const stillCommand = async ({
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy, true);
 
+	const {stillImageFormatOption} = BrowserSafeApis.options;
+
 	const {format: imageFormat, source: imageFormatReason} =
 		determineFinalStillImageFormat({
 			downloadName,
 			outName: outName ?? null,
-			cliFlag: parsedCli['image-format'] ?? null,
+			configuredImageFormat: stillImageFormatOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 			isLambda: true,
 			fromUi: null,
-			configImageFormat:
-				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		});
 
 	Log.info(
@@ -258,6 +275,8 @@ export const stillCommand = async ({
 		scale,
 		forceHeight: height,
 		forceWidth: width,
+		forceFps: fps,
+		forceDurationInFrames: durationInFrames,
 		onInit: ({cloudWatchLogs, lambdaInsightsUrl}) => {
 			Log.verbose(
 				{indent: false, logLevel},

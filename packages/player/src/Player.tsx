@@ -9,6 +9,7 @@ import React, {
 	useState,
 } from 'react';
 import type {
+	AnyZodObject,
 	CompProps,
 	LogLevel,
 	PlayableMediaTag,
@@ -16,7 +17,6 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
-import type {AnyZodObject} from 'zod';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {RenderMuteButton} from './MediaVolumeSlider.js';
 import type {

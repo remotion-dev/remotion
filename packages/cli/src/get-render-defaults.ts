@@ -8,6 +8,7 @@ const {
 	x264Option,
 	audioBitrateOption,
 	offthreadVideoCacheSizeInBytesOption,
+	concurrencyOption,
 	offthreadVideoThreadsOption,
 	scaleOption,
 	jpegQualityOption,
@@ -31,7 +32,15 @@ const {
 	chromeModeOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	pixelFormatOption,
+	everyNthFrameOption,
+	proResProfileOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
 	publicLicenseKeyOption,
+	stillImageFormatOption,
+	videoImageFormatOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -41,10 +50,13 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const logLevel = logLevelOption.getValue({commandLine: parsedCli}).value;
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
 	const concurrency = RenderInternals.resolveConcurrency(
-		ConfigInternals.getConcurrency(),
+		concurrencyOption.getValue({commandLine: parsedCli}).value,
 	);
-	const pixelFormat = ConfigInternals.getPixelFormat();
-	const proResProfile = ConfigInternals.getProResProfile() ?? null;
+	const pixelFormat = pixelFormatOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const proResProfile =
+		proResProfileOption.getValue({commandLine: parsedCli}).value ?? null;
 
 	const x264Preset = x264Option.getValue({
 		commandLine: parsedCli,
@@ -121,15 +133,25 @@ export const getRenderDefaults = (): RenderDefaults => {
 		commandLine: parsedCli,
 	}).value;
 
-	const everyNthFrame = ConfigInternals.getEveryNthFrame();
-	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
-	const videoImageFormat = ConfigInternals.getUserPreferredVideoImageFormat();
-	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
-	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
+	const everyNthFrame = everyNthFrameOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const stillImageFormat = stillImageFormatOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const videoImageFormat = videoImageFormatOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const darkMode = darkModeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const userAgent = ConfigInternals.getChromiumUserAgent();
+	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
 	const metadata = ConfigInternals.getMetadata();
 	const outputLocation = ConfigInternals.getOutputLocation();
 

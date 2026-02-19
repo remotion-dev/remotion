@@ -5,8 +5,8 @@ import type { NextPage } from "next";
 import { useMemo, useState } from "react";
 import { z } from "zod";
 import {
-  defaultMyCompProps,
   CompositionProps,
+  defaultMyCompProps,
   DURATION_IN_FRAMES,
   VIDEO_FPS,
   VIDEO_HEIGHT,
@@ -45,7 +45,6 @@ const Home: NextPage = () => {
           />
         </div>
         <section className="flex flex-col gap-4">
-          <h2 className="text-lg font-bold text-foreground">New Render</h2>
           <RenderControls
             text={text}
             setText={setText}

@@ -72,6 +72,7 @@ export const listOfRemotionPackages = [
 	'@remotion/transitions',
 	'@remotion/media-parser',
 	'@remotion/zod-types',
+	'@remotion/zod-types-v3',
 	'@remotion/webcodecs',
 	'@remotion/convert',
 	'@remotion/captions',

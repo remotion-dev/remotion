@@ -37,4 +37,5 @@ export const onBrowserDownloadOption = {
 	setConfig: () => {
 		throw new Error('does not support config file');
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<OnBrowserDownload>;

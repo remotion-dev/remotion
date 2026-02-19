@@ -21,7 +21,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "workspace:*",
-    "zod": "3.22.3"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
@@ -30,7 +30,7 @@
     "@types/react": "19.2.7",
     "@types/web": "0.0.166",
     "eslint": "9.19.0",
-    "prettier": "3.6.0",
+    "prettier": "3.8.1",
     "tsx": "4.19.3",
     "typescript": "5.9.3"
   },

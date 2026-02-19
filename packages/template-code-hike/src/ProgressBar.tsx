@@ -1,7 +1,6 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useCurrentFrame, useVideoConfig } from "remotion";
 import { useThemeColors } from "./calculate-metadata/theme";
-import React from "react";
 
 const Step: React.FC<{
   readonly index: number;

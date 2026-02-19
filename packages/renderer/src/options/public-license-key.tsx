@@ -46,4 +46,5 @@ export const publicLicenseKeyOption = {
 		currentPublicLicenseKey = value;
 	},
 	type: null as string | null,
+	id: cliFlag,
 } satisfies AnyRemotionOption<string | null>;

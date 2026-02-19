@@ -2,13 +2,13 @@ import {useCallback, useMemo} from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
+import type {AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 
 export const ZodArrayItemEditor: React.FC<{
 	jsonPath: JSONPath;
 	onChange: UpdaterFunction<unknown[]>;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	def: any;
+	elementSchema: AnyZodSchema;
 	index: number;
 	value: unknown;
 	defaultValue: unknown;
@@ -19,7 +19,7 @@ export const ZodArrayItemEditor: React.FC<{
 	mayPad: boolean;
 	mayRemove: boolean;
 }> = ({
-	def,
+	elementSchema,
 	onChange,
 	jsonPath,
 	index,
@@ -81,7 +81,7 @@ export const ZodArrayItemEditor: React.FC<{
 		<div>
 			<ZodSwitch
 				jsonPath={newJsonPath}
-				schema={def.type}
+				schema={elementSchema}
 				value={value}
 				setValue={setValue}
 				defaultValue={defaultValue}

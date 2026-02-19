@@ -26,8 +26,14 @@ describe('Composition-validation render should throw with invalid props', () => 
 		});
 		test('It should throw if Sequence has negative duration', () => {
 			expectToThrow(
-				// @ts-expect-error
-				() => render(<Sequence from={0} durationInFrames={-1} />),
+				() =>
+					render(
+						<WrapSequenceContext>
+							<Sequence from={0} durationInFrames={-1}>
+								hi
+							</Sequence>
+						</WrapSequenceContext>,
+					),
 				/durationInFrames must be positive, but got -1/,
 			);
 		});
@@ -36,8 +42,13 @@ describe('Composition-validation render should throw with invalid props', () => 
 	describe('Throw with invalid from props', () => {
 		test('It should throw if "from" props is not a number', () => {
 			expectToThrow(
-				// @ts-expect-error
-				() => render(<Sequence from={'0'} durationInFrames={30} />),
+				() =>
+					render(
+						<WrapSequenceContext>
+							{/* @ts-expect-error */}
+							<Sequence from={'0'} durationInFrames={30} />
+						</WrapSequenceContext>,
+					),
 				/You passed to the "from" props of your <Sequence> an argument of type string, but it must be a number./,
 			);
 		});
@@ -46,8 +57,14 @@ describe('Composition-validation render should throw with invalid props', () => 
 		expectToThrow(
 			() =>
 				render(
-					// @ts-expect-error
-					<Sequence from={0} durationInFrames={100} layout={'invalid-value'} />,
+					<WrapSequenceContext>
+						<Sequence
+							from={0}
+							durationInFrames={100}
+							// @ts-expect-error
+							layout={'invalid-value'}
+						/>
+					</WrapSequenceContext>,
 				),
 			/The layout prop of <Sequence \/> expects either "absolute-fill" or "none", but you passed: invalid-value/,
 		);

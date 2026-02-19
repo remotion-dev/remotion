@@ -162,8 +162,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 		return Boolean(
 			document.fullscreenEnabled ||
-				// @ts-expect-error Types not defined
-				document.webkitFullscreenEnabled,
+			// @ts-expect-error Types not defined
+			document.webkitFullscreenEnabled,
 		);
 	}, []);
 

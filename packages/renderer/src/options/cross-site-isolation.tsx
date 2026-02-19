@@ -33,4 +33,5 @@ export const enableCrossSiteIsolationOption = {
 	setConfig(value) {
 		enableCrossSiteIsolation = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

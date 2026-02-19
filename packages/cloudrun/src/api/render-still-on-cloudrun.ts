@@ -43,6 +43,8 @@ type OptionalParameters = {
 	chromiumOptions: ChromiumOptions;
 	forceWidth: number | null;
 	forceHeight: number | null;
+	forceFps: number | null;
+	forceDurationInFrames: number | null;
 	indent: boolean;
 	downloadBehavior: DownloadBehavior;
 	renderIdOverride: z.infer<typeof CloudRunPayload>['renderIdOverride'];
@@ -96,6 +98,8 @@ const internalRenderStillOnCloudRun = async ({
 	scale,
 	forceWidth,
 	forceHeight,
+	forceFps,
+	forceDurationInFrames,
 	logLevel,
 	delayRenderTimeoutInMilliseconds,
 	offthreadVideoCacheSizeInBytes,
@@ -138,6 +142,8 @@ const internalRenderStillOnCloudRun = async ({
 		scale,
 		forceWidth,
 		forceHeight,
+		forceFps,
+		forceDurationInFrames,
 		frame,
 		type: 'still',
 		logLevel,
@@ -239,6 +245,8 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		forceBucketName: options.forceBucketName ?? null,
 		forceHeight: options.forceHeight ?? null,
 		forceWidth: options.forceWidth ?? null,
+		forceFps: options.forceFps ?? null,
+		forceDurationInFrames: options.forceDurationInFrames ?? null,
 		frame: options.frame ?? 0,
 		imageFormat: options.imageFormat,
 		indent: options.indent ?? false,

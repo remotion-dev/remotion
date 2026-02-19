@@ -45,4 +45,5 @@ export const mediaCacheSizeInBytesOption = {
 	setConfig: (size: number | null) => {
 		mediaCacheSizeInBytes = size ?? null;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<number | null>;

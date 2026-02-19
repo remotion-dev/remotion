@@ -38,4 +38,5 @@ export const audioLatencyHintOption = {
 	setConfig: (profile: AudioContextLatencyCategory | null) => {
 		value = profile;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<AudioContextLatencyCategory | null>;

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/light-leaks",
-	"version": "4.0.423",
+	"version": "4.0.425",
 	"description": "Light leak effects for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -11,7 +11,7 @@
 	"sideEffects": false,
 	"type": "module",
 	"scripts": {
-		"formatting": "prettier --experimental-cli src --check",
+		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"watch": "tsgo -w",
 		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"

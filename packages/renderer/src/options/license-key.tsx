@@ -32,4 +32,5 @@ export const licenseKeyOption = {
 	setConfig: (value: string | null) => {
 		currentLicenseKey = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<string | null>;

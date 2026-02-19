@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
-import type {AnyZodObject, z} from 'zod';
 import {setUnsavedProps} from '../../../helpers/document-title';
 import {useKeybinding} from '../../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
@@ -15,6 +14,8 @@ import {deepEqual} from './deep-equal';
 import type {RevisionContextType} from './local-state';
 import {RevisionContext} from './local-state';
 import {defaultPropsEditorScrollableAreaRef} from './scroll-to-default-props-path';
+import type {AnyZodSchema, ZodSafeParseResult} from './zod-schema-type';
+import {getZodSchemaType, zodSafeParse} from './zod-schema-type';
 
 const scrollable: React.CSSProperties = {
 	display: 'flex',
@@ -23,12 +24,12 @@ const scrollable: React.CSSProperties = {
 };
 
 export const SchemaEditor: React.FC<{
-	readonly schema: AnyZodObject;
+	readonly schema: AnyZodSchema;
 	readonly unsavedDefaultProps: Record<string, unknown>;
 	readonly setValue: React.Dispatch<
 		React.SetStateAction<Record<string, unknown>>
 	>;
-	readonly zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
+	readonly zodValidationResult: ZodSafeParseResult;
 	readonly savedDefaultProps: Record<string, unknown>;
 	readonly onSave: (
 		updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
@@ -108,16 +109,14 @@ export const SchemaEditor: React.FC<{
 		};
 	}, [keybindings, onQuickSave, onSave]);
 
-	const def: z.ZodTypeDef = schema._def;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
+	const typeName = getZodSchemaType(schema);
 
 	const reset = useCallback(() => {
 		setValue(savedDefaultProps);
 	}, [savedDefaultProps, setValue]);
 
 	if (!zodValidationResult.success) {
-		const defaultPropsValid = schema.safeParse(savedDefaultProps);
+		const defaultPropsValid = zodSafeParse(schema, savedDefaultProps);
 
 		if (!defaultPropsValid.success) {
 			return <InvalidDefaultProps zodValidationResult={zodValidationResult} />;
@@ -128,7 +127,7 @@ export const SchemaEditor: React.FC<{
 		);
 	}
 
-	if (typeName !== z.ZodFirstPartyTypeKind.ZodObject) {
+	if (typeName !== 'object') {
 		return <TopLevelZodValue typeReceived={typeName} />;
 	}
 

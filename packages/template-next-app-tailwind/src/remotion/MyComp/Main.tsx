@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { fontFamily, loadFont } from "@remotion/google-fonts/Inter";
 import {
   AbsoluteFill,
   Sequence,
@@ -6,9 +6,9 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { z } from "zod";
 import { CompositionProps } from "../../../types/constants";
 import { NextLogo } from "./NextLogo";
-import { loadFont, fontFamily } from "@remotion/google-fonts/Inter";
 import { Rings } from "./Rings";
 import { TextFade } from "./TextFade";
 

@@ -1,29 +1,28 @@
-import { useState, useEffect, useMemo, useRef } from "react";
 import * as Babel from "@babel/standalone";
-import React from "react";
-import {
-  AbsoluteFill,
-  interpolate,
-  useCurrentFrame,
-  useVideoConfig,
-  spring,
-  Sequence,
-  Img,
-} from "remotion";
-import * as RemotionShapes from "@remotion/shapes";
 import { Lottie } from "@remotion/lottie";
+import * as RemotionShapes from "@remotion/shapes";
 import { ThreeCanvas } from "@remotion/three";
-import * as THREE from "three";
 import {
   TransitionSeries,
   linearTiming,
   springTiming,
 } from "@remotion/transitions";
+import { clockWipe } from "@remotion/transitions/clock-wipe";
 import { fade } from "@remotion/transitions/fade";
+import { flip } from "@remotion/transitions/flip";
 import { slide } from "@remotion/transitions/slide";
 import { wipe } from "@remotion/transitions/wipe";
-import { flip } from "@remotion/transitions/flip";
-import { clockWipe } from "@remotion/transitions/clock-wipe";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  AbsoluteFill,
+  Img,
+  Sequence,
+  interpolate,
+  spring,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
+import * as THREE from "three";
 
 export interface CompilationResult {
   Component: React.ComponentType | null;

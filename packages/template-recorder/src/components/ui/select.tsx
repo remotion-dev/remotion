@@ -107,9 +107,9 @@ SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
 
 export {
   Select,
-  SelectValue,
-  SelectTrigger,
   SelectContent,
   SelectItem,
   SelectSeparator,
+  SelectTrigger,
+  SelectValue,
 };

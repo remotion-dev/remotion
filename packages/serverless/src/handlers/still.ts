@@ -171,6 +171,8 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		port: null,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
+		forceFps: params.forceFps ?? null,
+		forceDurationInFrames: params.forceDurationInFrames ?? null,
 		logLevel: params.logLevel,
 		server,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,

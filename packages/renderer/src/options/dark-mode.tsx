@@ -42,4 +42,5 @@ export const darkModeOption = {
 	setConfig: (value: boolean) => {
 		darkMode = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

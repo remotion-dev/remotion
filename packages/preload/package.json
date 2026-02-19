@@ -3,13 +3,13 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/preload"
 	},
 	"name": "@remotion/preload",
-	"version": "4.0.423",
+	"version": "4.0.425",
 	"description": "Preloads assets for use in Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"formatting": "prettier --experimental-cli src --check",
+		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"make": "tsgo -d"
 	},

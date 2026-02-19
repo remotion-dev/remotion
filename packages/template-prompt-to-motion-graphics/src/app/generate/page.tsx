@@ -1,24 +1,24 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef, Suspense } from "react";
+import { Loader2 } from "lucide-react";
 import type { NextPage } from "next";
 import { useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import { CodeEditor } from "../../components/CodeEditor";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { AnimationPlayer } from "../../components/AnimationPlayer";
-import { PageLayout } from "../../components/PageLayout";
 import { ChatSidebar, type ChatSidebarRef } from "../../components/ChatSidebar";
+import { CodeEditor } from "../../components/CodeEditor";
+import { PageLayout } from "../../components/PageLayout";
 import { TabPanel } from "../../components/TabPanel";
-import type { StreamPhase, GenerationErrorType } from "../../types/generation";
 import { examples } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
-import { useConversationState } from "../../hooks/useConversationState";
 import { useAutoCorrection } from "../../hooks/useAutoCorrection";
+import { useConversationState } from "../../hooks/useConversationState";
 import type {
   AssistantMetadata,
-  ErrorCorrectionContext,
   EditOperation,
+  ErrorCorrectionContext,
 } from "../../types/conversation";
+import type { GenerationErrorType, StreamPhase } from "../../types/generation";
 
 const MAX_CORRECTION_ATTEMPTS = 3;
 
@@ -72,8 +72,14 @@ function GeneratePageContent() {
   // Sidebar collapse state
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const { code, Component, error: compilationError, isCompiling, setCode, compileCode } =
-    useAnimationState(examples[0]?.code || "");
+  const {
+    code,
+    Component,
+    error: compilationError,
+    isCompiling,
+    setCode,
+    compileCode,
+  } = useAnimationState(examples[0]?.code || "");
 
   // Runtime errors from the Player (e.g., "cannot access variable before initialization")
   const [runtimeError, setRuntimeError] = useState<string | null>(null);
@@ -97,17 +103,23 @@ function GeneratePageContent() {
     hasGeneratedOnce,
     code,
     errorCorrection,
-    onTriggerCorrection: useCallback((correctionPrompt: string, context: ErrorCorrectionContext) => {
-      setErrorCorrection(context);
-      setPrompt(correctionPrompt);
-      // Get attached images from the last user message to include in retry
-      const lastImages = getLastUserAttachedImages();
-      setTimeout(() => {
-        // Use silent mode to avoid showing retry as a user message
-        // Include images from the last user message so image-based requests can be retried
-        chatSidebarRef.current?.triggerGeneration({ silent: true, attachedImages: lastImages });
-      }, 100);
-    }, [getLastUserAttachedImages]),
+    onTriggerCorrection: useCallback(
+      (correctionPrompt: string, context: ErrorCorrectionContext) => {
+        setErrorCorrection(context);
+        setPrompt(correctionPrompt);
+        // Get attached images from the last user message to include in retry
+        const lastImages = getLastUserAttachedImages();
+        setTimeout(() => {
+          // Use silent mode to avoid showing retry as a user message
+          // Include images from the last user message so image-based requests can be retried
+          chatSidebarRef.current?.triggerGeneration({
+            silent: true,
+            attachedImages: lastImages,
+          });
+        }, 100);
+      },
+      [getLastUserAttachedImages],
+    ),
     onAddErrorMessage: addErrorMessage,
     onClearGenerationError: useCallback(() => setGenerationError(null), []),
     onClearErrorCorrection: useCallback(() => setErrorCorrection(null), []),
@@ -169,7 +181,8 @@ function GeneratePageContent() {
   // Handle generation complete for history
   const handleGenerationComplete = useCallback(
     (generatedCode: string, summary?: string, metadata?: AssistantMetadata) => {
-      const content = summary || "Generated your animation, any follow up edits?";
+      const content =
+        summary || "Generated your animation, any follow up edits?";
       addAssistantMessage(content, generatedCode, metadata);
       markAsAiGenerated();
     },
@@ -197,21 +210,22 @@ function GeneratePageContent() {
   }, []);
 
   const handleError = useCallback(
-    (message: string, type: GenerationErrorType, failedEdit?: EditOperation) => {
+    (
+      message: string,
+      type: GenerationErrorType,
+      failedEdit?: EditOperation,
+    ) => {
       setGenerationError({ message, type, failedEdit });
     },
     [],
   );
 
   // Handle runtime errors from the Player (e.g., "cannot access variable before initialization")
-  const handleRuntimeError = useCallback(
-    (errorMessage: string) => {
-      // Set runtime error - this will be combined with compilation errors via codeError
-      // The useAutoCorrection hook will pick this up via the compilationError prop
-      setRuntimeError(errorMessage);
-    },
-    [],
-  );
+  const handleRuntimeError = useCallback((errorMessage: string) => {
+    // Set runtime error - this will be combined with compilation errors via codeError
+    // The useAutoCorrection hook will pick this up via the compilationError prop
+    setRuntimeError(errorMessage);
+  }, []);
 
   // Auto-trigger generation if prompt came from URL
   useEffect(() => {
@@ -229,7 +243,9 @@ function GeneratePageContent() {
         sessionStorage.removeItem("initialAttachedImages");
       }
       setTimeout(() => {
-        chatSidebarRef.current?.triggerGeneration({ attachedImages: storedImages });
+        chatSidebarRef.current?.triggerGeneration({
+          attachedImages: storedImages,
+        });
       }, 100);
     }
   }, [initialPrompt, hasAutoStarted]);

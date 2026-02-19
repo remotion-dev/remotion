@@ -29,9 +29,9 @@
     "@types/md5": "2.3.0",
     "@types/react": "19.2.7",
     "eslint": "9.19.0",
-    "prettier": "3.6.0",
+    "prettier": "3.8.1",
     "tsx": "4.19.3",
     "typescript": "5.9.3",
-    "zod": "3.23.8"
+    "zod": "4.3.6"
   }
 }

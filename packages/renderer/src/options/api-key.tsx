@@ -31,4 +31,5 @@ export const apiKeyOption = {
 	setConfig: (value: string | null) => {
 		currentApiKey = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<string | null>;

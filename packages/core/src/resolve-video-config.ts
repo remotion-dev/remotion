@@ -1,4 +1,4 @@
-import type {AnyZodObject} from 'zod';
+import type {AnyZodObject} from './any-zod-type.js';
 import type {
 	CalcMetadataReturnType,
 	CalculateMetadataFunction,

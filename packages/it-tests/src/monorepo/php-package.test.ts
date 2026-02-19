@@ -97,6 +97,8 @@ class Semantic
 				forceBucketName: null,
 				forceHeight: null,
 				forceWidth: null,
+				forceDurationInFrames: null,
+				forceFps: null,
 				frameRange: null,
 				framesPerLambda: null,
 				imageFormat: 'jpeg',

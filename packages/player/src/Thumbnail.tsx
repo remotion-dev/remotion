@@ -12,9 +12,13 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import type {CompProps, LogLevel, TimelineContextValue} from 'remotion';
+import type {
+	AnyZodObject,
+	CompProps,
+	LogLevel,
+	TimelineContextValue,
+} from 'remotion';
 import {Internals, random} from 'remotion';
-import type {AnyZodObject} from 'zod';
 import {ThumbnailEmitterContext} from './emitter-context.js';
 import {ThumbnailEmitter} from './event-emitter.js';
 import type {ThumbnailMethods} from './player-methods.js';

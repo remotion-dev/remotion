@@ -58,4 +58,5 @@ export const delayRenderTimeoutInMillisecondsOption = {
 		validate(value);
 		currentTimeout = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<number>;

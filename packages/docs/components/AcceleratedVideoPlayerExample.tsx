@@ -43,6 +43,7 @@ const AcceleratedVideo: React.FC = () => {
 export const AcceleratedVideoExample: React.FC = () => {
 	return (
 		<Player
+			acknowledgeRemotionLicense
 			component={AcceleratedVideo}
 			compositionHeight={720}
 			compositionWidth={1280}

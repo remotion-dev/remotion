@@ -33,4 +33,5 @@ export const experimentalClientSideRenderingOption = {
 	setConfig(value) {
 		experimentalClientSideRenderingEnabled = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

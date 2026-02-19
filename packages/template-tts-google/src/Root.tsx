@@ -1,8 +1,8 @@
 import { getAudioDurationInSeconds } from "@remotion/media-utils";
 import { Composition } from "remotion";
+import { waitForNoInput } from "./debounce";
 import { HelloWorld, mySchema } from "./HelloWorld";
 import { getTTSFromServer } from "./lib/client-utils";
-import { waitForNoInput } from "./debounce";
 
 export const RemotionRoot: React.FC = () => {
   const FPS = 30;

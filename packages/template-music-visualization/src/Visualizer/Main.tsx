@@ -1,13 +1,13 @@
 import React from "react";
 import { AbsoluteFill, Sequence, useVideoConfig } from "remotion";
 
-import { Spectrum } from "./Spectrum";
+import { Audio } from "@remotion/media";
+import { FONT_FAMILY } from "../helpers/font";
 import { AudiogramCompositionSchemaType } from "../helpers/schema";
-import { Waveform } from "./Waveform";
 import { BassOverlay } from "./BassOverlay";
 import { SongInfo } from "./SongInfo";
-import { FONT_FAMILY } from "../helpers/font";
-import { Audio } from "@remotion/media";
+import { Spectrum } from "./Spectrum";
+import { Waveform } from "./Waveform";
 
 const containerStyle: React.CSSProperties = {
   flexDirection: "column",

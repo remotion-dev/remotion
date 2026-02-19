@@ -1,5 +1,5 @@
 import React from 'react';
-import type {AnyZodObject} from 'zod';
+import type {AnyZodObject} from './any-zod-type.js';
 import type {CompositionProps, StillProps} from './Composition.js';
 import {Composition} from './Composition.js';
 

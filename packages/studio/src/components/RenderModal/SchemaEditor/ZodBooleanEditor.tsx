@@ -1,10 +1,10 @@
 import React, {useCallback} from 'react';
-import type {z} from 'zod';
 import {Checkbox} from '../../Checkbox';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
 import type {UpdaterFunction} from './ZodSwitch';
 import {useLocalState} from './local-state';
+import type {AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 
 const fullWidth: React.CSSProperties = {
@@ -12,7 +12,7 @@ const fullWidth: React.CSSProperties = {
 };
 
 export const ZodBooleanEditor: React.FC<{
-	readonly schema: z.ZodTypeAny;
+	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: boolean;
 	readonly setValue: UpdaterFunction<boolean>;

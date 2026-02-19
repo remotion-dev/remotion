@@ -23,4 +23,5 @@ export const webhookCustomDataOption = {
 	setConfig: () => {
 		throw new Error('Not implemented');
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<Record<string, unknown> | null>;

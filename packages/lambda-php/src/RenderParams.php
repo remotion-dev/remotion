@@ -46,6 +46,8 @@ class RenderParams
     protected $webhook = null;
     protected $forceHeight = null;
     protected $forceWidth = null;
+    protected $forceFps = null;
+    protected $forceDurationInFrames = null;
     protected $licenseKey = null;
     protected $offthreadVideoCacheSizeInBytes = null;
     protected $mediaCacheSizeInBytes = null;
@@ -90,6 +92,8 @@ class RenderParams
         ?string $webhook = null,
         ?int    $forceHeight = null,
         ?int    $forceWidth = null,
+        ?int    $forceFps = null,
+        ?int    $forceDurationInFrames = null,
         ?string $licenseKey = null,
         ?int    $offthreadVideoCacheSizeInBytes = null,
         ?int    $mediaCacheSizeInBytes = null,
@@ -146,6 +150,8 @@ class RenderParams
         $this->webhook = $webhook;
         $this->forceHeight = $forceHeight;
         $this->forceWidth = $forceWidth;
+        $this->forceFps = $forceFps;
+        $this->forceDurationInFrames = $forceDurationInFrames;
         $this->licenseKey = $licenseKey;
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
         $this->mediaCacheSizeInBytes = $mediaCacheSizeInBytes;
@@ -201,6 +207,8 @@ class RenderParams
             'webhook' => $this->getWebhook(),
             'forceHeight' => $this->getForceHeight(),
             'forceWidth' => $this->getForceWidth(),
+            'forceFps' => $this->getForceFps(),
+            'forceDurationInFrames' => $this->getForceDurationInFrames(),
             'licenseKey' => $this->getLicenseKey(),
             'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
             'mediaCacheSizeInBytes' => $this->getMediaCacheSizeInBytes(),
@@ -755,6 +763,15 @@ class RenderParams
         $this->forceWidth = $forceWidth;
     }
 
+    public function setForceFps($forceFps)
+    {
+        $this->forceFps = $forceFps;
+    }
+
+    public function setForceDurationInFrames($forceDurationInFrames)
+    {
+        $this->forceDurationInFrames = $forceDurationInFrames;
+    }
 
     public function setLicenseKey($licenseKey)
     {
@@ -831,6 +848,15 @@ class RenderParams
         return $this->forceWidth;
     }
 
+    public function getForceFps()
+    {
+        return $this->forceFps;
+    }
+
+    public function getForceDurationInFrames()
+    {
+        return $this->forceDurationInFrames;
+    }
 
     public function getLicenseKey()
     {

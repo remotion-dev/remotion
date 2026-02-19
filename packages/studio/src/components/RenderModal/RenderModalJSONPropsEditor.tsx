@@ -1,7 +1,6 @@
 import React, {useCallback, useEffect, useMemo} from 'react';
 import type {SerializedJSONWithCustomFields} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import type {z} from 'zod';
 import {FAIL_COLOR} from '../../helpers/colors';
 import {setUnsavedProps} from '../../helpers/document-title';
 import {useKeybinding} from '../../helpers/use-keybinding';
@@ -12,6 +11,8 @@ import {Flex, Row, Spacing} from '../layout';
 import type {State} from './DataEditor';
 import {ZodErrorMessages} from './SchemaEditor/ZodErrorMessages';
 import {deepEqual} from './SchemaEditor/deep-equal';
+import type {AnyZodSchema} from './SchemaEditor/zod-schema-type';
+import {zodSafeParse} from './SchemaEditor/zod-schema-type';
 
 const style: React.CSSProperties = {
 	fontFamily: 'monospace',
@@ -25,10 +26,10 @@ const scrollable: React.CSSProperties = {
 	flex: 1,
 };
 
-const parseJSON = (str: string, schema: z.ZodTypeAny): State => {
+const parseJSON = (str: string, schema: AnyZodSchema): State => {
 	try {
 		const value = NoReactInternals.deserializeJSONWithSpecialTypes(str);
-		const zodValidation = schema.safeParse(value);
+		const zodValidation = zodSafeParse(schema, value);
 		return {str, value, validJSON: true, zodValidation};
 	} catch (e) {
 		return {str, validJSON: false, error: (e as Error).message};
@@ -44,7 +45,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	readonly showSaveButton: boolean;
 	readonly serializedJSON: SerializedJSONWithCustomFields | null;
 	readonly defaultProps: Record<string, unknown>;
-	readonly schema: z.ZodTypeAny;
+	readonly schema: AnyZodSchema;
 }> = ({
 	setValue,
 	value,
@@ -77,7 +78,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 			const parsed = parseJSON(e.target.value, schema);
 
 			if (parsed.validJSON) {
-				const validationResult = schema.safeParse(parsed.value);
+				const validationResult = zodSafeParse(schema, parsed.value);
 				setLocalValue({
 					str: e.target.value,
 					value: parsed.value,

@@ -52,4 +52,5 @@ export const crfOption = {
 		validateCrf(crf);
 		currentCrf = crf;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<Crf>;

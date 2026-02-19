@@ -1,73 +1,88 @@
 import React, {useCallback} from 'react';
-import type {z} from 'zod';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
 import {useLocalState} from './local-state';
+import type {AnyZodSchema} from './zod-schema-type';
+import {getZodDef, isZodV3Schema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
 };
 
-const getMinValue = (schema: z.ZodTypeAny) => {
-	const minCheck = (schema as z.ZodNumber)._def.checks.find(
-		(c) => c.kind === 'min',
-	);
-	if (!minCheck) {
-		return -Infinity;
+const getMinValue = (schema: AnyZodSchema) => {
+	const {checks} = getZodDef(schema);
+	if (!checks) return -Infinity;
+
+	if (isZodV3Schema(schema)) {
+		// v3: {kind: "min", value: 0, inclusive: true}
+		const minCheck = checks.find((c: {kind: string}) => c.kind === 'min');
+		if (!minCheck || !minCheck.inclusive) return -Infinity;
+		return minCheck.value;
 	}
 
-	if (minCheck.kind !== 'min') {
-		throw new Error('Expected min check');
+	// v4: check objects with _zod.def = {check: "greater_than", value: 0, inclusive: true}
+	for (const c of checks) {
+		const def = c._zod?.def;
+		if (def?.check === 'greater_than' && def.inclusive) {
+			return def.value;
+		}
 	}
 
-	if (!minCheck.inclusive) {
-		return -Infinity;
-	}
-
-	return minCheck.value;
+	return -Infinity;
 };
 
-const getMaxValue = (schema: z.ZodTypeAny) => {
-	const maxCheck = (schema as z.ZodNumber)._def.checks.find(
-		(c) => c.kind === 'max',
-	);
-	if (!maxCheck) {
-		return Infinity;
+const getMaxValue = (schema: AnyZodSchema) => {
+	const {checks} = getZodDef(schema);
+	if (!checks) return Infinity;
+
+	if (isZodV3Schema(schema)) {
+		// v3: {kind: "max", value: 100, inclusive: true}
+		const maxCheck = checks.find((c: {kind: string}) => c.kind === 'max');
+		if (!maxCheck || !maxCheck.inclusive) return Infinity;
+		return maxCheck.value;
 	}
 
-	if (maxCheck.kind !== 'max') {
-		throw new Error('Expected max check');
+	// v4: check objects with _zod.def = {check: "less_than", value: 100, inclusive: true}
+	for (const c of checks) {
+		const def = c._zod?.def;
+		if (def?.check === 'less_than' && def.inclusive) {
+			return def.value;
+		}
 	}
 
-	if (!maxCheck.inclusive) {
-		return Infinity;
-	}
-
-	return maxCheck.value;
+	return Infinity;
 };
 
-const getStep = (schema: z.ZodTypeAny): number | undefined => {
-	const multipleStep = (schema as z.ZodNumber)._def.checks.find(
-		(c) => c.kind === 'multipleOf',
-	);
+const getStep = (schema: AnyZodSchema): number | undefined => {
+	const {checks} = getZodDef(schema);
+	if (!checks) return undefined;
 
-	if (!multipleStep) {
-		return undefined;
+	if (isZodV3Schema(schema)) {
+		// v3: {kind: "multipleOf", value: 5}
+		const multipleStep = checks.find(
+			(c: {kind: string}) => c.kind === 'multipleOf',
+		);
+		if (!multipleStep) return undefined;
+		return multipleStep.value;
 	}
 
-	if (multipleStep.kind !== 'multipleOf') {
-		throw new Error('Expected multipleOf check');
+	// v4: check objects with _zod.def = {check: "multiple_of", value: 5}
+	for (const c of checks) {
+		const def = c._zod?.def;
+		if (def?.check === 'multiple_of') {
+			return def.value;
+		}
 	}
 
-	return multipleStep.value;
+	return undefined;
 };
 
 export const ZodNumberEditor: React.FC<{
-	readonly schema: z.ZodTypeAny;
+	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: number;
 	readonly setValue: UpdaterFunction<number>;

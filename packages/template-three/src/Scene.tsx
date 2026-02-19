@@ -1,11 +1,11 @@
 import { ThreeCanvas } from "@remotion/three";
+import { zColor } from "@remotion/zod-types";
 import React, { useMemo } from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
-import { Phone } from "./Phone";
 import { z } from "zod";
-import { zColor } from "@remotion/zod-types";
 import { MediabunnyMetadata } from "./helpers/get-media-metadata";
 import { getPhoneLayout } from "./helpers/layout";
+import { Phone } from "./Phone";
 
 const container: React.CSSProperties = {
   backgroundColor: "white",

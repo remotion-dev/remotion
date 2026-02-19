@@ -5,12 +5,12 @@ import {
 } from "@aws-sdk/client-s3";
 import md5 from "md5";
 import {
+  AudioConfig,
+  AudioOutputStream,
+  ResultReason,
   SpeechConfig,
   SpeechSynthesisResult,
   SpeechSynthesizer,
-  ResultReason,
-  AudioConfig,
-  AudioOutputStream,
 } from "microsoft-cognitiveservices-speech-sdk";
 import { env, Voice } from "./types";
 

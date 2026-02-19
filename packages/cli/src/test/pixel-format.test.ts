@@ -1,7 +1,9 @@
 import type {PixelFormat} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {describe, expect, test} from 'bun:test';
-import {getPixelFormat, setPixelFormat} from '../config/pixel-format';
 import {expectToThrow} from './expect-to-throw';
+
+const {pixelFormatOption} = BrowserSafeApis.options;
 
 describe('pixel-format tests setPixelFormat', () => {
 	// input format
@@ -16,8 +18,10 @@ describe('pixel-format tests setPixelFormat', () => {
 	];
 	validPixelFormats.forEach((entry) =>
 		test(`test for ${entry}`, () => {
-			setPixelFormat(entry);
-			expect(getPixelFormat()).toEqual(entry);
+			pixelFormatOption.setConfig(entry);
+			expect(pixelFormatOption.getValue({commandLine: {}}).value).toEqual(
+				entry,
+			);
 		}),
 	);
 
@@ -27,7 +31,7 @@ describe('pixel-format tests setPixelFormat', () => {
 		test(`test for invalid input ${entry}`, () =>
 			expectToThrow(
 				// @ts-expect-error
-				() => setPixelFormat(entry),
+				() => pixelFormatOption.setConfig(entry),
 				new RegExp(`Value ${entry} is not valid as a pixel format.`),
 			)),
 	);

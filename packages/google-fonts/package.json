@@ -3,14 +3,14 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.423",
+	"version": "4.0.425",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun --env-file=.env scripts/update-font-db.ts",
-		"formatting": "prettier --experimental-cli src --check"
+		"formatting": "prettier src --check"
 	},
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
@@ -619,6 +619,18 @@
 			],
 			"Besley": [
 				"dist/cjs/Besley.d.ts"
+			],
+			"BetaniaPatmos": [
+				"dist/cjs/BetaniaPatmos.d.ts"
+			],
+			"BetaniaPatmosGDL": [
+				"dist/cjs/BetaniaPatmosGDL.d.ts"
+			],
+			"BetaniaPatmosIn": [
+				"dist/cjs/BetaniaPatmosIn.d.ts"
+			],
+			"BetaniaPatmosInGDL": [
+				"dist/cjs/BetaniaPatmosInGDL.d.ts"
 			],
 			"BethEllen": [
 				"dist/cjs/BethEllen.d.ts"
@@ -1826,6 +1838,9 @@
 			"Gurajada": [
 				"dist/cjs/Gurajada.d.ts"
 			],
+			"GveretLevin": [
+				"dist/cjs/GveretLevin.d.ts"
+			],
 			"Gwendolyn": [
 				"dist/cjs/Gwendolyn.d.ts"
 			],
@@ -2014,6 +2029,9 @@
 			],
 			"Iceland": [
 				"dist/cjs/Iceland.d.ts"
+			],
+			"Idiqlat": [
+				"dist/cjs/Idiqlat.d.ts"
 			],
 			"Imbue": [
 				"dist/cjs/Imbue.d.ts"
@@ -4198,6 +4216,9 @@
 			],
 			"RampartOne": [
 				"dist/cjs/RampartOne.d.ts"
+			],
+			"Ramsina": [
+				"dist/cjs/Ramsina.d.ts"
 			],
 			"Ranchers": [
 				"dist/cjs/Ranchers.d.ts"

@@ -40,4 +40,5 @@ export const disallowParallelEncodingOption = {
 	setConfig(value) {
 		disallowParallelEncoding = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

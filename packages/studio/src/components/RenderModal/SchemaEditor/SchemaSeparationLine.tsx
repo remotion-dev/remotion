@@ -1,5 +1,4 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import type {z} from 'zod';
 import {BACKGROUND, LIGHT_TEXT, LINE_COLOR} from '../../../helpers/colors';
 import {Plus} from '../../../icons/plus';
 import {
@@ -9,6 +8,8 @@ import {
 import {Spacing} from '../../layout';
 import {fieldSetText} from '../layout';
 import {createZodValues} from './create-zod-values';
+import type {AnyZodSchema} from './zod-schema-type';
+import {getArrayElement} from './zod-schema-type';
 
 export const VERTICAL_GUIDE_HEIGHT = 24;
 
@@ -35,7 +36,7 @@ export const SchemaArrayItemSeparationLine: React.FC<{
 		increment: boolean,
 	) => void;
 	readonly index: number;
-	readonly schema: z.ZodTypeAny;
+	readonly schema: AnyZodSchema;
 	readonly showAddButton: boolean;
 	readonly isLast: boolean;
 }> = ({onChange, index, schema, isLast, showAddButton}) => {
@@ -48,21 +49,21 @@ export const SchemaArrayItemSeparationLine: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const def = schema._def as z.ZodArrayDef;
+	const arrayElement = getArrayElement(schema);
 
 	const onAdd = useCallback(() => {
 		onChange(
 			(oldV) => {
 				return [
 					...oldV.slice(0, index + 1),
-					createZodValues(def.type, z, zodTypes),
+					createZodValues(arrayElement, z, zodTypes),
 					...oldV.slice(index + 1),
 				];
 			},
 			false,
 			true,
 		);
-	}, [def.type, index, onChange, z, zodTypes]);
+	}, [arrayElement, index, onChange, z, zodTypes]);
 
 	const dynamicAddButtonStyle: React.CSSProperties = useMemo(() => {
 		return {

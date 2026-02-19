@@ -65,4 +65,5 @@ export const hardwareAccelerationOption = {
 
 		currentValue = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<HardwareAccelerationOption>;

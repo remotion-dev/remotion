@@ -1,10 +1,10 @@
 import {
-  speculateFunctionName,
   AwsRegion,
   getRenderProgress,
+  speculateFunctionName,
 } from "@remotion/lambda/client";
 import { DISK, RAM, REGION, TIMEOUT } from "../../../../../config.mjs";
-import { ProgressResponse, ProgressRequest } from "../../../../../types/schema";
+import { ProgressRequest, ProgressResponse } from "../../../../../types/schema";
 import { executeApi } from "../../../../helpers/api-response";
 
 export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(

@@ -55,12 +55,6 @@ It never made sense to have this prop as transitioned elements need to be positi
 
 **Required action**: Remove the `layout` prop.
 
-## Zod should be upgraded to 3.23.8
-
-Remotion previously used the types of Zod 3.22.3. With Remotion 5.0, the types of 3.23.8 are used.
-
-**Required action**: If you use Zod, Upgrade Zod to 3.23.8.
-
 ## `measureSpring()` does not accept `from` and `to` options anymore
 
 The values passed in there did not influence the calculation at all. Therefore we removed those options.
@@ -103,10 +97,17 @@ When using `loadFonts()` from `@remotion/google-fonts`, you must now specify whi
 import {loadFont} from '@remotion/google-fonts/Roboto';
 
 loadFont('normal', {
-  weights: ['400', '700'],
-  subsets: ['latin'],
+	weights: ['400', '700'],
+	subsets: ['latin'],
 });
 ```
+
+## Sequences are automatically premounted
+
+[`<Sequence>`](/docs/sequence), [`<Series.Sequence>`](/docs/series) and [`<TransitionSeries.Sequence>`](/docs/transitions/transitionseries) components now automatically [premount](/docs/player/premounting) for 1 second (`fps` frames) before they appear.
+This prevents black frames that were commonly seen when a `<Sequence>` containing heavy content (e.g. videos, images) appeared.
+
+**Required action**: If you don't want this behavior for a specific Sequence, opt out by passing [`premountFor={0}`](/docs/sequence#premountfor).
 
 ## License changes
 

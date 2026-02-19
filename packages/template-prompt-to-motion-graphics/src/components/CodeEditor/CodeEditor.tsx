@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
-import dynamic from "next/dynamic";
 import type { Monaco } from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
 import {
   MonacoJsxSyntaxHighlight,
   getWorker,
 } from "monaco-jsx-syntax-highlight";
+import dynamic from "next/dynamic";
+import React, { useEffect, useRef } from "react";
 
 import { EditorHeader } from "./EditorHeader";
 import { StreamingOverlay } from "./StreamingOverlay";

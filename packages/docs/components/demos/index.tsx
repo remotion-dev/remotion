@@ -129,6 +129,7 @@ export const Demo: React.FC<{
 		<div style={container}>
 			<Player
 				key={key}
+				acknowledgeRemotionLicense
 				component={demo.comp}
 				compositionWidth={demo.compWidth}
 				compositionHeight={demo.compHeight}

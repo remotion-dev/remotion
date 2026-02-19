@@ -13,6 +13,8 @@ import {getCompositionId} from './get-composition-id';
 export const getCompositionWithDimensionOverride = async ({
 	height,
 	width,
+	fps,
+	durationInFrames,
 	args,
 	compositionIdFromUi,
 	chromiumOptions,
@@ -35,6 +37,8 @@ export const getCompositionWithDimensionOverride = async ({
 }: {
 	height: number | null;
 	width: number | null;
+	fps: number | null;
+	durationInFrames: number | null;
 	args: (string | number)[];
 	compositionIdFromUi: string | null;
 	timeoutInMilliseconds: number;
@@ -88,6 +92,8 @@ export const getCompositionWithDimensionOverride = async ({
 			...returnValue.config,
 			height: height ?? returnValue.config.height,
 			width: width ?? returnValue.config.width,
+			fps: fps ?? returnValue.config.fps,
+			durationInFrames: durationInFrames ?? returnValue.config.durationInFrames,
 		},
 	};
 };

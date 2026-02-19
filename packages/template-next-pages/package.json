@@ -23,7 +23,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "workspace:*",
-    "zod": "3.23.8"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.1.0",
@@ -39,7 +39,7 @@
     "dotenv": "17.3.1",
     "eslint": "9.19.0",
     "eslint-config-next": "15.1.6",
-    "prettier": "3.6.0",
+    "prettier": "3.8.1",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.0"
   }

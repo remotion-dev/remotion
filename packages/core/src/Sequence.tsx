@@ -22,6 +22,7 @@ import {useVideoConfig} from './use-video-config.js';
 import {Freeze} from './freeze.js';
 import {useCurrentFrame} from './use-current-frame';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
+import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
 
 export type AbsoluteFillLayout = {
 	layout?: 'absolute-fill';
@@ -380,9 +381,19 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	SequenceProps
 > = (props, ref) => {
 	const env = useRemotionEnvironment();
+	const {fps} = useVideoConfig();
 	if (props.layout !== 'none' && !env.isRendering) {
-		if (props.premountFor || props.postmountFor) {
-			return <PremountedPostmountedSequence {...props} ref={ref} />;
+		const effectivePremountFor = ENABLE_V5_BREAKING_CHANGES
+			? (props.premountFor ?? fps)
+			: props.premountFor;
+		if (effectivePremountFor || props.postmountFor) {
+			return (
+				<PremountedPostmountedSequence
+					ref={ref}
+					{...props}
+					premountFor={effectivePremountFor}
+				/>
+			);
 		}
 	}
 

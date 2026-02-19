@@ -1,15 +1,15 @@
+import { Caption } from "@remotion/captions";
 import React, { useMemo, useRef } from "react";
 import { useCurrentFrame } from "remotion";
-import { Word } from "./Word";
-import { Caption } from "@remotion/captions";
 import { msToFrame } from "../helpers/ms-to-frame";
-import { getSentenceToDisplay } from "./sentence-to-display";
+import { CAPTIONS_FONT_SIZE } from "./constants";
+import { FONT_FAMILY } from "./font";
 import {
   filterCurrentlyDisplayedLines,
   layoutText,
 } from "./get-number-of-lines-for-text";
-import { CAPTIONS_FONT_SIZE } from "./constants";
-import { FONT_FAMILY } from "./font";
+import { getSentenceToDisplay } from "./sentence-to-display";
+import { Word } from "./Word";
 
 const useWindowedFrameCaptions = ({
   captions,

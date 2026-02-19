@@ -35,20 +35,6 @@ export const schemaTestSchema = z.object({
 	tuple: z.tuple([z.string(), z.number(), z.object({a: z.string()})]),
 });
 
-export const schemaArrayTestSchema = z.array(z.number());
-
-export const ArrayTest: React.FC = () => {
-	return (
-		<AbsoluteFill
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				fontSize: 80,
-			}}
-		/>
-	);
-};
-
 export const SchemaTest: React.FC<z.infer<typeof schemaTestSchema>> = ({
 	delay,
 	title,

@@ -71,6 +71,7 @@ export const packages = [
 	'transitions',
 	'media-parser',
 	'zod-types',
+	'zod-types-v3',
 	'webcodecs',
 	'convert',
 	'captions',
@@ -95,16 +96,16 @@ export type ExtraPackage = {
 
 export const extraPackages: ExtraPackage[] = [
 	{
-		name: 'zod',
-		version: '3.22.3',
-		description: 'Schema validation library for defining component props',
-		docsUrl: 'https://www.remotion.dev/docs/schemas',
-	},
-	{
 		name: 'mediabunny',
-		version: '1.34.3',
+		version: '1.34.4',
 		description: 'Multimedia library used by Remotion',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
+	},
+	{
+		name: 'zod',
+		version: '4.3.6',
+		description: 'TypeScript-first schema validation',
+		docsUrl: 'https://zod.dev',
 	},
 ];
 
@@ -133,6 +134,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	preload: 'Preloads assets for use in Remotion',
 	shapes: 'Generate SVG shapes',
 	'zod-types': 'Zod types for Remotion',
+	'zod-types-v3': 'Zod 3.22.3 types for Remotion',
 	gif: 'Embed GIFs in a Remotion video',
 	'eslint-plugin': 'Rules for writing Remotion code',
 	'eslint-config': 'Default configuration for Remotion templates (ESLint <= 8)',
@@ -272,6 +274,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	transitions: true,
 	'media-parser': true,
 	'zod-types': true,
+	'zod-types-v3': true,
 	webcodecs: true,
 	convert: false,
 	captions: true,
@@ -309,6 +312,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	preload: 'https://www.remotion.dev/docs/preload',
 	shapes: 'https://www.remotion.dev/docs/shapes',
 	'zod-types': 'https://www.remotion.dev/docs/zod-types',
+	'zod-types-v3': 'https://www.remotion.dev/docs/zod-types/v3',
 	gif: 'https://www.remotion.dev/docs/gif',
 	'eslint-plugin':
 		'https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin',

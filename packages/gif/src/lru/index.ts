@@ -29,9 +29,9 @@ type MapValue<ValueType> = {
 	expiry?: number;
 };
 
-export class QuickLRU<KeyType, ValueType>
-	implements Iterable<[KeyType, ValueType]>
-{
+export class QuickLRU<KeyType, ValueType> implements Iterable<
+	[KeyType, ValueType]
+> {
 	/**
 	The maximum number of milliseconds an item should remain in the cache.
 

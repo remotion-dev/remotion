@@ -1,6 +1,7 @@
-import { AwsRegion, RenderMediaOnLambdaOutput } from "@remotion/lambda/client";
 import {
+  AwsRegion,
   renderMediaOnLambda,
+  RenderMediaOnLambdaOutput,
   speculateFunctionName,
 } from "@remotion/lambda/client";
 import {

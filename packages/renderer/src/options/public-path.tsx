@@ -44,4 +44,5 @@ export const publicPathOption = {
 		currentPublicPath = value;
 	},
 	type: '' as string | null,
+	id: cliFlag,
 } satisfies AnyRemotionOption<string | null>;

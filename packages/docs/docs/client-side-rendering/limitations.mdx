@@ -10,6 +10,8 @@ Very experimental feature - expect bugs and breaking changes at any time.
 [Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
 :::
 
+The browser must support the [WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API). See [Browser support](/docs/client-side-rendering#browser-support) for minimum browser versions.
+
 Unlike server-side rendering, where a full screenshot it taken, in client-side rendering the layout and styles of your video are being emulated and drawn to a canvas.
 
 It is not feasible to support all CSS properties and factors affecting the visual style of a page, so only the most important styling primitives are supported.
@@ -145,6 +147,10 @@ const MyComp = () => {
 ## Video and media constraints
 
 The limitations from [`@remotion/media`](/docs/media/support) apply.
+
+## Firefox does not support AAC encoding
+
+Firefox does not support encoding AAC audio via WebCodecs. When rendering in Firefox, use Opus audio (WebM container) instead of AAC (MP4 container).
 
 ## Single concurrency
 

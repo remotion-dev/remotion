@@ -12,6 +12,23 @@ Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultPreviewCSS(null, '#1f2428'),
 );
 
+declare global {
+	interface Window {
+		__remotionOverlayStarted: boolean;
+	}
+}
+
+if (!window.__remotionOverlayStarted) {
+	window.__remotionOverlayStarted = true;
+	try {
+		startErrorOverlay();
+		enableHotMiddleware();
+	} catch (err) {
+		// eslint-disable-next-line no-console
+		console.error('Failed to initialize error overlay', err);
+	}
+}
+
 let root: ReturnType<typeof ReactDOM.createRoot> | null = null;
 
 const getRootForElement = () => {
@@ -49,6 +66,3 @@ Internals.waitForRoot((NewRoot) => {
 
 	renderToDOM(<Studio readOnly={false} rootComponent={NewRoot} />);
 });
-
-startErrorOverlay();
-enableHotMiddleware();

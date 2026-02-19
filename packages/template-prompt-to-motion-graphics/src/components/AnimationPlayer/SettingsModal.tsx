@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Settings } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 interface SettingsModalProps {
   durationInFrames: number;
@@ -78,7 +78,10 @@ export function SettingsModal({
             <h3 className="text-sm font-medium text-foreground">Animation</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <label htmlFor="duration" className="text-muted-foreground text-sm">
+                <label
+                  htmlFor="duration"
+                  className="text-muted-foreground text-sm"
+                >
                   Duration (frames)
                 </label>
                 <input

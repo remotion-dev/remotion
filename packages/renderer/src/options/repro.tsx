@@ -40,4 +40,5 @@ export const reproOption = {
 		};
 	},
 	setConfig: setRepro,
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

@@ -67,4 +67,5 @@ export const numberOfGifLoopsOption = {
 		validate(newLoop);
 		currentLoop = newLoop;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<number | null>;

@@ -1,9 +1,9 @@
+import { zColor } from "@remotion/zod-types";
 import React from "react";
 import { AbsoluteFill } from "remotion";
+import { z } from "zod";
 import "./fonts.css";
 import { Swirl } from "./Swirl";
-import { z } from "zod";
-import { zColor } from "@remotion/zod-types";
 
 const fontFamily = "Inter";
 

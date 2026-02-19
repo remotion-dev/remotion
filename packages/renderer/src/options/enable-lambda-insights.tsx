@@ -42,4 +42,5 @@ export const enableLambdaInsights = {
 			source: 'default',
 		};
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

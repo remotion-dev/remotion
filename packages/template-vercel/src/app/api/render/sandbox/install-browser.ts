@@ -1,6 +1,6 @@
 import { Sandbox } from "@vercel/sandbox";
-import path from "path";
 import { readFile } from "fs/promises";
+import path from "path";
 
 async function getEnsureBrowserScript(): Promise<Buffer> {
   const scriptPath = path.join(process.cwd(), "ensure-browser.ts");

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
-  getInputProps,
-  delayRender,
-  continueRender,
   AbsoluteFill,
+  continueRender,
+  delayRender,
+  getInputProps,
 } from "remotion";
 import { compileCode } from "./compiler";
 

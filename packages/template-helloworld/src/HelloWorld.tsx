@@ -1,16 +1,16 @@
-import { spring } from "remotion";
+import { zColor } from "@remotion/zod-types";
 import {
   AbsoluteFill,
   interpolate,
   Sequence,
+  spring,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { z } from "zod";
 import { Logo } from "./HelloWorld/Logo";
 import { Subtitle } from "./HelloWorld/Subtitle";
 import { Title } from "./HelloWorld/Title";
-import { z } from "zod";
-import { zColor } from "@remotion/zod-types";
 
 export const myCompSchema = z.object({
   titleText: z.string(),

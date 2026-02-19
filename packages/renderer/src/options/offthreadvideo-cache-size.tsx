@@ -53,6 +53,7 @@ export const offthreadVideoCacheSizeInBytesOption = {
 	setConfig: (size: number | null) => {
 		offthreadVideoCacheSizeInBytes = size ?? null;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<number | null>;
 
 export const validateOffthreadVideoCacheSizeInBytes = (option: unknown) => {

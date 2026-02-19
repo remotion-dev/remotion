@@ -1,10 +1,10 @@
-import { textRotationExample } from "./text-rotation";
-import { histogramExample } from "./histogram";
-import { progressBarExample } from "./progress-bar";
 import { animatedShapesExample } from "./animated-shapes";
-import { lottieAnimationExample } from "./lottie-animation";
 import { fallingSpheresExample } from "./falling-spheres";
 import { goldPriceChartExample } from "./gold-price-chart";
+import { histogramExample } from "./histogram";
+import { lottieAnimationExample } from "./lottie-animation";
+import { progressBarExample } from "./progress-bar";
+import { textRotationExample } from "./text-rotation";
 import { typewriterHighlightExample } from "./typewriter-highlight";
 import { wordCarouselExample } from "./word-carousel";
 

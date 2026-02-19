@@ -1,12 +1,8 @@
-import {TwoslashError} from '@typescript/twoslash';
-
 import {lex, parse} from 'fenceparser';
-import type {Highlighter} from 'shiki';
-import {getHighlighter} from 'shiki';
-import type {UserConfigSettings} from 'shiki-twoslash';
-import {renderCodeToHTML} from 'shiki-twoslash';
-import {visit} from 'unist-util-visit';
+import type {BundledLanguage, BundledTheme, HighlighterGeneric} from 'shiki';
+import {createHighlighter} from 'shiki';
 import type {BuildVisitor} from 'unist-util-visit';
+import {visit} from 'unist-util-visit';
 import {cachedTwoslashCall} from './caching';
 
 import {setupNodeForTwoslashException} from './exceptionMessageDOM';
@@ -20,116 +16,18 @@ type Fence = {
 	meta: OBJECT;
 };
 
-// A set of includes which can be pulled via a set ID
-const includes = new Map<string, string>();
-
-function getHTML({
-	code,
-	fence,
-	highlighters,
-	twoslash,
-	twoslashSettings,
-}: {
-	code: string;
-	fence: Fence;
-	highlighters: Highlighter[];
-	twoslash: any;
-	twoslashSettings: UserConfigSettings;
-}) {
-	// Shiki doesn't respect json5 as an input, so switch it
-	// to json, which can handle comments in the syntax highlight
-	if (fence.lang === 'json5') {
-		fence.lang = 'json';
-	}
-
-	let results;
-	// Support 'twoslash' includes
-	if (fence.lang === 'twoslash') {
-		if (!fence.meta.include || typeof fence.meta.include !== 'string') {
-			throw new Error(
-				"A twoslash code block needs a pragma like 'twoslash include [name]'",
-			);
-		}
-
-		addIncludes(includes, fence.meta.include, code);
-		results = twoslashSettings.wrapFragments
-			? `<div class="shiki-twoslash-fragment"></div>`
-			: '';
-	} else {
-		// All good, get each highlighter and render the shiki output for it
-		const output = highlighters.map((highlighter) => {
-			// @ts-expect-error
-			const themeName = highlighter.customName
-				.split('/')
-				.pop()
-				.replace('.json', '');
-			const html = renderCodeToHTML(
-				code,
-				fence.lang,
-				fence.meta as any,
-				{themeName, ...twoslashSettings},
-				highlighter,
-				twoslash,
-			);
-			return html.replace(
-				'</pre>',
-				'<button class="copy-button" aria-label="Copy code to clipboard">Copy</button></pre>',
-			);
-		});
-		results = output.join('\n');
-		if (highlighters.length > 1 && twoslashSettings.wrapFragments) {
-			results = `<div class="shiki-twoslash-fragment">${results}</div>`;
-		}
-	}
-
-	return results;
+interface TwoslashSettings {
+	themes?: string[];
+	theme?: string;
+	wrapFragments?: boolean;
+	ignoreCodeblocksWithCodefenceMeta?: string[];
+	alwayRaiseForTwoslashExceptions?: boolean;
+	defaultCompilerOptions?: Record<string, unknown>;
+	[key: string]: unknown;
 }
 
-/**
- * Runs twoslash across an AST node, switching out the text content, and lang
- * and adding a `twoslash` property to the node.
- */
-export const runTwoSlashOnNode = (
-	code: string,
-	{lang, meta}: {lang: string; meta: Record<string, unknown>},
-	settings = {},
-) => {
-	// Only run twoslash when the meta has the attribute twoslash
-	if (meta.twoslash) {
-		const importedCode = replaceIncludesInCode(includes, code);
-		return cachedTwoslashCall(importedCode, lang, settings);
-	}
-
-	return undefined;
-};
-
-// To make sure we only have one highlighter per theme in a process
-const highlighterCache = new Map();
-
-/** Sets up the highlighters, and cache's for recalls */
-export const highlightersFromSettings = (
-	settings: UserConfigSettings,
-): Promise<Highlighter[]> => {
-	// console.log("i should only log once per theme")
-	// ^ uncomment this to debug if required
-	const themes =
-		settings.themes || (settings.theme ? [settings.theme] : ['dark-plus']);
-
-	return Promise.all(
-		themes.map(async (theme) => {
-			// You can put a string, a path, or the JSON theme obj
-			const themeName = typeof theme === 'string' ? theme : theme.name;
-			const highlighter = await getHighlighter({
-				...settings,
-				theme,
-				themes: undefined,
-			});
-			// @ts-expect-error
-			highlighter.customName = themeName;
-			return highlighter;
-		}),
-	);
-};
+// A set of includes which can be pulled via a set ID
+const includes = new Map<string, string>();
 
 const parsingNewFile = () => includes.clear();
 
@@ -155,6 +53,51 @@ const parseFence = (fence: string): Fence => {
 	};
 };
 
+// To make sure we only have one highlighter per settings in a process
+const highlighterCache = new Map<
+	TwoslashSettings,
+	Promise<HighlighterGeneric<BundledLanguage, BundledTheme>>
+>();
+
+const ALL_LANGS: BundledLanguage[] = [
+	'tsx',
+	'typescript',
+	'jsx',
+	'javascript',
+	'json',
+	'bash',
+	'shellscript',
+	'css',
+	'html',
+	'diff',
+	'yaml',
+	'toml',
+	'docker',
+	'python',
+	'ruby',
+	'go',
+	'php',
+	'markdown',
+	'ini',
+];
+
+/** Creates a highlighter and caches for reuse */
+const getHighlighterInstance = (
+	settings: TwoslashSettings,
+): Promise<HighlighterGeneric<BundledLanguage, BundledTheme>> => {
+	if (!highlighterCache.has(settings)) {
+		highlighterCache.set(
+			settings,
+			createHighlighter({
+				themes: ['github-dark'],
+				langs: ALL_LANGS,
+			}),
+		);
+	}
+
+	return highlighterCache.get(settings)!;
+};
+
 // --- The Remark API ---
 
 /**
@@ -162,23 +105,21 @@ const parseFence = (fence: string): Fence => {
  */
 const remarkVisitor =
 	(
-		highlighters: Highlighter[],
-		twoslashSettings: UserConfigSettings = {},
+		highlighter: HighlighterGeneric<BundledLanguage, BundledTheme>,
+		twoslashSettings: TwoslashSettings = {},
 	): BuildVisitor<Node, 'code' | 'html'> =>
 	(node: Node) => {
 		const code = node;
-		let fence;
+		let fence: Fence;
 
 		try {
 			fence = parseFence([node.lang, node.meta].filter(Boolean).join(' '));
 		} catch {
-			const twoslashError = new TwoslashError(
-				'Codefence error',
-				'Could not parse the codefence for this code sample',
-				"It's usually an unclosed string",
+			return setupNodeForTwoslashException(
 				code.value,
+				node,
+				new Error('Could not parse the codefence for this code sample'),
 			);
-			return setupNodeForTwoslashException(code.value, node, twoslashError);
 		}
 
 		// Do nothing if the node has an attribute to ignore
@@ -192,40 +133,93 @@ const remarkVisitor =
 			return;
 		}
 
-		let twoslash;
-		try {
-			// By allowing node.twoslash to already exist you can set it up yourself in a browser
-			twoslash =
-				node.twoslash || runTwoSlashOnNode(code.value, fence, twoslashSettings);
-		} catch (error) {
-			const shouldAlwaysRaise =
-				process && process.env && Boolean(process.env.CI);
-			// @ts-expect-error
-			const yeahButNotInTests = typeof jest === 'undefined';
+		let shikiHTML: string;
 
-			if (
-				(shouldAlwaysRaise && yeahButNotInTests) ||
-				twoslashSettings.alwayRaiseForTwoslashExceptions
-			) {
-				throw error;
-			} else {
-				return setupNodeForTwoslashException(code.value, node, error as Error);
+		if (fence.lang === 'twoslash') {
+			// Support 'twoslash' includes
+			if (!fence.meta.include || typeof fence.meta.include !== 'string') {
+				throw new Error(
+					"A twoslash code block needs a pragma like 'twoslash include [name]'",
+				);
 			}
+
+			addIncludes(includes, fence.meta.include, node.value);
+			shikiHTML = twoslashSettings.wrapFragments
+				? `<div class="shiki-twoslash-fragment"></div>`
+				: '';
+		} else if (fence.meta.twoslash) {
+			// Twoslash code block — use cached call
+			const importedCode = replaceIncludesInCode(includes, node.value);
+			try {
+				shikiHTML = cachedTwoslashCall(importedCode, fence.lang, highlighter);
+			} catch (error) {
+				const shouldAlwaysRaise =
+					process && process.env && Boolean(process.env.CI);
+
+				if (
+					shouldAlwaysRaise ||
+					twoslashSettings.alwayRaiseForTwoslashExceptions
+				) {
+					throw error;
+				} else {
+					return setupNodeForTwoslashException(
+						code.value,
+						node,
+						error as Error,
+					);
+				}
+			}
+
+			// Add copy button
+			shikiHTML = shikiHTML.replace(
+				'</pre>',
+				'<button class="copy-button" aria-label="Copy code to clipboard">Copy</button></pre>',
+			);
+		} else {
+			// Regular (non-twoslash) code block
+			const langAliases: Record<string, string> = {
+				json5: 'json',
+				js: 'javascript',
+				ts: 'typescript',
+				sh: 'bash',
+				rb: 'ruby',
+				md: 'markdown',
+				txt: 'plaintext',
+			};
+			const resolvedLang = langAliases[fence.lang] || fence.lang || 'plaintext';
+
+			try {
+				shikiHTML = highlighter.codeToHtml(node.value, {
+					lang: resolvedLang,
+					theme: 'github-dark',
+				});
+			} catch {
+				// Fallback: if language is not supported, render as plaintext
+				shikiHTML = highlighter.codeToHtml(node.value, {
+					lang: 'plaintext',
+					theme: 'github-dark',
+				});
+			}
+
+			// Add copy button
+			shikiHTML = shikiHTML.replace(
+				'</pre>',
+				'<button class="copy-button" aria-label="Copy code to clipboard">Copy</button></pre>',
+			);
 		}
 
-		if (twoslash) {
-			node.value = twoslash.code;
-			node.lang = twoslash.extension;
-			node.twoslash = twoslash;
+		// Inject title bar if fence has a title attribute
+		if (fence.meta.title && typeof fence.meta.title === 'string') {
+			const {title} = fence.meta;
+			shikiHTML = shikiHTML.replace(
+				'<pre class="shiki',
+				'<pre class="shiki with-title',
+			);
+			shikiHTML = shikiHTML.replace(
+				/(<pre[^>]*>)/,
+				`$1<div class="code-title">${title}</div>`,
+			);
 		}
-
-		const shikiHTML = getHTML({
-			code: node.value,
-			fence,
-			highlighters,
-			twoslash,
-			twoslashSettings,
-		});
 
 		// @ts-expect-error
 		node.type = 'mdxJsxFlowElement';
@@ -323,39 +317,12 @@ const remarkVisitor =
  * Synchronous outer function, async inner function, which is how the remark
  * async API works.
  */
-export function remarkTwoslash(settings: UserConfigSettings = {}) {
-	if (!highlighterCache.has(settings)) {
-		highlighterCache.set(settings, highlightersFromSettings(settings));
-	}
-
+export function remarkTwoslash(settings: TwoslashSettings = {}) {
 	const transform = async (markdownAST: Node) => {
-		const highlighters = await highlighterCache.get(settings);
+		const highlighter = await getHighlighterInstance(settings);
 		parsingNewFile();
-		visit(markdownAST, 'code', remarkVisitor(highlighters, settings));
+		visit(markdownAST, 'code', remarkVisitor(highlighter, settings));
 	};
 
 	return transform;
 }
-
-// --- The Markdown-it API ---
-
-/** Only the inner function exposed as a synchronous API for markdown-it */
-
-export const transformAttributesToHTML = (
-	code: string,
-	fenceString: string,
-	highlighters: Highlighter[],
-	settings: UserConfigSettings,
-) => {
-	const fence = parseFence(fenceString);
-
-	const twoslash = runTwoSlashOnNode(code, fence, settings);
-	const newCode = (twoslash && twoslash.code) || code;
-	return getHTML({
-		code: newCode,
-		fence,
-		highlighters,
-		twoslash,
-		twoslashSettings: settings,
-	});
-};

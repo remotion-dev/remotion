@@ -30,8 +30,8 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "workspace:*",
-    "zod": "3.23.8",
-    "tailwind-merge": "3.0.1"
+    "tailwind-merge": "3.0.1",
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.1.1",
@@ -50,7 +50,7 @@
     "@typescript-eslint/eslint-plugin": "8.46.0",
     "@typescript-eslint/parser": "8.46.0",
     "postcss": "8.4.47",
-    "prettier": "3.6.0",
+    "prettier": "3.8.1",
     "tailwindcss": "4.0.3",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.0"

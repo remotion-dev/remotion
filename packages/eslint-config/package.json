@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config"
 	},
 	"name": "@remotion/eslint-config",
-	"version": "4.0.423",
+	"version": "4.0.425",
 	"description": "Default configuration for Remotion templates (ESLint <= 8)",
 	"main": "dist/index.js",
 	"files": [
@@ -11,7 +11,7 @@
 	],
 	"scripts": {
 		"lint": "eslint src",
-		"formatting": "prettier --experimental-cli src --check",
+		"formatting": "prettier src --check",
 		"make": "tsgo -d"
 	},
 	"bugs": {

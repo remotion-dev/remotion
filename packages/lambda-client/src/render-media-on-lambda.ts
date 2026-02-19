@@ -63,6 +63,8 @@ export type RenderMediaOnLambdaInput = {
 	webhook?: WebhookOption | null;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
+	forceFps?: number | null;
+	forceDurationInFrames?: number | null;
 	rendererFunctionName?: string | null;
 	forceBucketName?: string;
 	audioCodec?: AudioCodec | null;
@@ -174,6 +176,8 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		forceBucketName: options.forceBucketName ?? null,
 		forceHeight: options.forceHeight ?? null,
 		forceWidth: options.forceWidth ?? null,
+		forceFps: options.forceFps ?? null,
+		forceDurationInFrames: options.forceDurationInFrames ?? null,
 		frameRange: options.frameRange ?? null,
 		framesPerLambda: options.framesPerLambda ?? null,
 		functionName: options.functionName,

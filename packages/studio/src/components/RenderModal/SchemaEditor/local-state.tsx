@@ -8,13 +8,14 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import type {z} from 'zod';
 import type {UpdaterFunction} from './ZodSwitch';
 import {deepEqual} from './deep-equal';
+import type {AnyZodSchema, ZodSafeParseResult} from './zod-schema-type';
+import {zodSafeParse} from './zod-schema-type';
 
 export type LocalState<T> = {
 	value: T;
-	zodValidation: z.SafeParseReturnType<unknown, unknown>;
+	zodValidation: ZodSafeParseResult;
 	keyStabilityRevision: number;
 };
 
@@ -34,7 +35,7 @@ export const useLocalState = <T,>({
 	savedValue,
 }: {
 	unsavedValue: T;
-	schema: z.ZodTypeAny;
+	schema: AnyZodSchema;
 	setValue: UpdaterFunction<T>;
 	savedValue: T;
 }) => {
@@ -48,7 +49,7 @@ export const useLocalState = <T,>({
 			[parentRevision]: {
 				value: unsavedValue,
 				keyStabilityRevision: 0,
-				zodValidation: schema.safeParse(unsavedValue),
+				zodValidation: zodSafeParse(schema, unsavedValue),
 			},
 		};
 	});
@@ -58,7 +59,7 @@ export const useLocalState = <T,>({
 			return {
 				value: unsavedValue,
 				keyStabilityRevision: 0,
-				zodValidation: schema.safeParse(unsavedValue),
+				zodValidation: zodSafeParse(schema, unsavedValue),
 			};
 		}
 
@@ -83,7 +84,7 @@ export const useLocalState = <T,>({
 			localUnsavedValue ?? {
 				value: savedValue,
 				keyStabilityRevision: 0,
-				zodValidation: schema.safeParse(savedValue),
+				zodValidation: zodSafeParse(schema, savedValue),
 			}
 		);
 	}, [localUnsavedValue, savedValue, schema]);
@@ -101,7 +102,7 @@ export const useLocalState = <T,>({
 				return;
 			}
 
-			const safeParse = schema.safeParse(newValue);
+			const safeParse = zodSafeParse(schema, newValue);
 
 			if (safeParse.success || forceApply) {
 				setValue(updater, forceApply, increment);

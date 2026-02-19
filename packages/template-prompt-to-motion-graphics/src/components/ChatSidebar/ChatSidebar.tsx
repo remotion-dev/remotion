@@ -1,32 +1,32 @@
 "use client";
 
-import {
-  useState,
-  forwardRef,
-  useImperativeHandle,
-  useRef,
-  useEffect,
-  type ComponentType,
-} from "react";
-import { PanelLeftClose, PanelLeftOpen, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useGenerationApi } from "@/hooks/useGenerationApi";
 import { cn } from "@/lib/utils";
 import type {
-  ConversationMessage,
-  ConversationContextMessage,
   AssistantMetadata,
-  ErrorCorrectionContext,
+  ConversationContextMessage,
+  ConversationMessage,
   EditOperation,
+  ErrorCorrectionContext,
 } from "@/types/conversation";
 import {
-  type StreamPhase,
+  MODELS,
   type GenerationErrorType,
   type ModelId,
-  MODELS,
+  type StreamPhase,
 } from "@/types/generation";
-import { ChatInput } from "./ChatInput";
+import { PanelLeftClose, PanelLeftOpen, RotateCcw } from "lucide-react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  type ComponentType,
+} from "react";
 import { ChatHistory } from "./ChatHistory";
-import { useGenerationApi } from "@/hooks/useGenerationApi";
+import { ChatInput } from "./ChatInput";
 
 export interface ChatSidebarRef {
   triggerGeneration: (options?: {
@@ -220,10 +220,7 @@ export const ChatSidebar = forwardRef<ChatSidebarRef, ChatSidebarProps>(
             </div>
 
             {/* Messages */}
-            <ChatHistory
-              messages={messages}
-              pendingMessage={pendingMessage}
-            />
+            <ChatHistory messages={messages} pendingMessage={pendingMessage} />
 
             {/* Input */}
             <ChatInput

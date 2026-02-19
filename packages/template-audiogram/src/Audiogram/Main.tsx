@@ -1,8 +1,10 @@
+import { Audio } from "@remotion/media";
 import React from "react";
 import { AbsoluteFill, Img, Sequence, useVideoConfig } from "remotion";
-import { Audio } from "@remotion/media";
 import { PaginatedCaptions } from "./Captions";
+import { Oscilloscope } from "./Oscilloscope";
 import { Spectrum } from "./Spectrum";
+import { WaitForFonts } from "./WaitForFonts";
 import {
   BASE_SIZE,
   CAPTIONS_FONT_SIZE,
@@ -10,9 +12,7 @@ import {
   LINE_HEIGHT,
   LINES_PER_PAGE,
 } from "./constants";
-import { Oscilloscope } from "./Oscilloscope";
 import { FONT_FAMILY } from "./font";
-import { WaitForFonts } from "./WaitForFonts";
 import { AudiogramCompositionSchemaType } from "./schema";
 
 export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({

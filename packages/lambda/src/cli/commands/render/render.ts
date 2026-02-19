@@ -56,6 +56,13 @@ const {
 	metadataOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	pixelFormatOption,
+	browserExecutableOption,
+	everyNthFrameOption,
+	proResProfileOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async ({
@@ -90,21 +97,37 @@ export const renderCommand = async ({
 		envVariables,
 		frameRange,
 		inputProps,
-		pixelFormat,
-		proResProfile,
-		everyNthFrame,
 		height,
 		width,
-		browserExecutable,
-		ignoreCertificateErrors,
-		userAgent,
-		disableWebSecurity,
+		fps,
+		durationInFrames,
 	} = CliInternals.getCliOptions({
 		isStill: false,
 		logLevel,
 		indent: false,
 	});
 
+	const pixelFormat = pixelFormatOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const everyNthFrame = everyNthFrameOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const proResProfile = proResProfileOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const userAgent = userAgentOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const x264Preset = x264Option.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -232,6 +255,9 @@ export const renderCommand = async ({
 				chromiumOptions,
 				envVariables,
 				height,
+				width,
+				fps,
+				durationInFrames,
 				indent,
 				serializedInputPropsWithCustomSchema:
 					NoReactInternals.serializeJSONWithSpecialTypes({
@@ -244,7 +270,6 @@ export const renderCommand = async ({
 				serveUrlOrWebpackUrl: serveUrl,
 				timeoutInMilliseconds,
 				logLevel,
-				width,
 				server,
 				offthreadVideoCacheSizeInBytes,
 				offthreadVideoThreads,
@@ -330,6 +355,8 @@ export const renderCommand = async ({
 		encodingMaxRate,
 		forceHeight: height,
 		forceWidth: width,
+		forceFps: fps,
+		forceDurationInFrames: durationInFrames,
 		webhook: parsedLambdaCli.webhook
 			? {
 					url: parsedLambdaCli.webhook,

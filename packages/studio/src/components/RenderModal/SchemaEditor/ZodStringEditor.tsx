@@ -1,5 +1,4 @@
 import React, {useCallback} from 'react';
-import type {z} from 'zod';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Fieldset} from './Fieldset';
@@ -7,6 +6,7 @@ import {SchemaLabel} from './SchemaLabel';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
 import {useLocalState} from './local-state';
+import type {AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 
 const fullWidth: React.CSSProperties = {
@@ -14,7 +14,7 @@ const fullWidth: React.CSSProperties = {
 };
 
 export const ZodStringEditor: React.FC<{
-	readonly schema: z.ZodTypeAny;
+	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: string;
 	readonly defaultValue: string;

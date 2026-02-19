@@ -5,10 +5,12 @@ import {
   OnProgressFn,
 } from "../helpers";
 import { addBundleToSandbox } from "./add-bundle";
-import { installSystemDependencies } from "./install-system-dependencies";
-import { installJsDependencies } from "./install-js-dependencies";
 import { installBrowser } from "./install-browser";
+import { installJsDependencies } from "./install-js-dependencies";
+import { installSystemDependencies } from "./install-system-dependencies";
 import { patchCompositor } from "./patch-compositor";
+
+export const SANDBOX_CREATING_TIMEOUT = 5 * 60 * 1000;
 
 export async function createSandbox({
   onProgress,
@@ -18,13 +20,11 @@ export async function createSandbox({
   const sandbox = await createDisposableSandbox({
     runtime: "node24",
     resources: { vcpus: 4 },
-    timeout: 5 * 60 * 1000,
+    timeout: SANDBOX_CREATING_TIMEOUT,
   });
 
   const preparingPhase = "Preparing...";
-  const preparingSubtitle = process.env.VERCEL
-    ? "This only needs to be done once."
-    : "This is only needed during development.";
+  const preparingSubtitle = "This is only needed during development.";
 
   // Preparation has 3 stages with weights:
   // - System dependencies: 60%

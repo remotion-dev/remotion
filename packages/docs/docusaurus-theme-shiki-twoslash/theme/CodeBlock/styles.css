@@ -28,7 +28,7 @@ pre.shiki.with-title {
 	padding-top: 2.5rem;
 }
 
-/** 
+/**
   * Copy-to-Clipboard Button
   * Taken from https://github.com/facebook/docusaurus/blob/ed9d2a26f5a7b8096804ae1b3a4fffc504f8f90d/packages/docusaurus-theme-classic/src/theme/CodeBlock/styles.module.css
   * which is under MIT License as per the banner
@@ -67,15 +67,21 @@ pre.shiki {
 	padding: 0;
 }
 
-/* Sets a horizontal padding for all the lines */
-pre.shiki div.line,
-pre.shiki div.meta-line {
+/* Sets a horizontal padding for all the lines (shiki v3 uses span.line) */
+pre.shiki .line,
+pre.shiki .meta-line {
 	padding-left: var(--ifm-pre-padding);
 	padding-right: var(--ifm-pre-padding);
 	font-family: monospace;
 }
 
-/* Sets vertical padding for the container */
+/* Sets vertical padding for the container — shiki v3 wraps in <code> directly */
+pre.shiki > code {
+	padding: var(--ifm-pre-padding) 0;
+	display: block;
+}
+
+/* Also support old .code-container wrapper if rendererClassic produces it */
 pre.shiki > .code-container {
 	padding: var(--ifm-pre-padding) 0;
 }
@@ -89,7 +95,7 @@ pre.shiki {
 	border-color: var(--ifm-color-emphasis-300);
 }
 
-/* Hide language identifiers */
+/* Hide language identifiers (kept for backwards compat, no longer generated in v3) */
 pre.shiki .language-id {
 	display: none;
 }
@@ -100,31 +106,31 @@ pre.shiki:hover .dim {
 	filter: none;
 }
 
-pre.shiki div.dim {
+pre.shiki .dim {
 	opacity: 0.5;
 	filter: grayscale(1);
 	transition: opacity 200ms ease-in-out;
 }
 
-pre.shiki div.dim,
-pre.shiki div.highlight {
+pre.shiki .dim,
+pre.shiki .highlight {
 	margin: 0;
 	/* To avoid flickering on the highlighted lines focus */
 	border-left: 2px solid transparent;
 }
 
-pre.shiki div.highlight {
+pre.shiki .highlight {
 	opacity: 1;
 	transition: background-color 200ms ease-in-out;
 }
 
-pre.shiki:hover div.highlight {
+pre.shiki:hover .highlight {
 	background-color: var(--ifm-hover-overlay);
 	border-left: 2px solid var(--ifm-color-primary);
 	width: 100%;
 }
 
-pre.shiki div.line {
+pre.shiki .line {
 	min-height: 1rem;
 }
 
@@ -176,11 +182,11 @@ pre .query {
 	display: inline-block;
 }
 
-/** 
+/**
   * In order to have the 'popped out' style design and to not break the layout
   * we need to place a fake and un-selectable copy of the error which _isn't_ broken out
   * behind the actual error message.
-  * This sections keeps both of those two in in sync  
+  * This sections keeps both of those two in in sync
   */
 
 pre .error,
@@ -292,8 +298,8 @@ data-lsp {
 @media (prefers-reduced-motion: reduce) {
 	data-lsp,
 	pre .code-container > a,
-	pre.shiki div.dim,
-	pre.shiki div.highlight {
+	pre.shiki .dim,
+	pre.shiki .highlight {
 		transition: none;
 	}
 }

@@ -1,3 +1,4 @@
+import { TikTokPage } from "@remotion/captions";
 import React from "react";
 import {
   AbsoluteFill,
@@ -6,7 +7,6 @@ import {
   useVideoConfig,
 } from "remotion";
 import { Page } from "./Page";
-import { TikTokPage } from "@remotion/captions";
 
 const SubtitlePage: React.FC<{ readonly page: TikTokPage }> = ({ page }) => {
   const frame = useCurrentFrame();

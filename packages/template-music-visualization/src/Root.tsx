@@ -1,7 +1,7 @@
+import { ALL_FORMATS, Input, UrlSource } from "mediabunny";
 import { Composition, staticFile } from "remotion";
 import { Visualizer } from "./Visualizer/Main";
 import { visualizerCompositionSchema } from "./helpers/schema";
-import { ALL_FORMATS, Input, UrlSource } from "mediabunny";
 
 const FPS = 30;
 

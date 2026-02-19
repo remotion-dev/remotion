@@ -43,4 +43,5 @@ export const logLevelOption = {
 		logLevel = newLogLevel;
 	},
 	type: 'error' as LogLevel,
+	id: cliFlag,
 } satisfies AnyRemotionOption<LogLevel>;

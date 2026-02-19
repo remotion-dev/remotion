@@ -34,7 +34,7 @@ export const validateNumberOfGifLoops = (
 
 	if (codec !== 'gif') {
 		throw new Error(
-			`"everyNthFrame" can only be set if "codec" is set to "gif". The codec is "${codec}"`,
+			`"numberOfGifLoops" can only be set if "codec" is set to "gif". The codec is "${codec}"`,
 		);
 	}
 };

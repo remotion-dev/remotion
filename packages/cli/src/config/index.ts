@@ -1,31 +1,18 @@
 import {getBrowser} from './browser';
-import {getBrowserExecutable} from './browser-executable';
-import {
-	getChromiumDisableWebSecurity,
-	getIgnoreCertificateErrors,
-} from './chromium-flags';
 import {getConcurrency} from './concurrency';
 import {getDotEnvLocation} from './env-file';
 import {getRange, setFrameRangeFromCli} from './frame-range';
-import {
-	getUserPreferredStillImageFormat,
-	getUserPreferredVideoImageFormat,
-	setStillImageFormat,
-	setVideoImageFormat,
-} from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
 import {getOutputLocation} from './output-location';
 import {
 	defaultOverrideFunction,
 	getWebpackOverrideFn,
 } from './override-webpack';
-import {getPixelFormat} from './pixel-format';
 import {
 	getRendererPortFromConfigFile,
 	getRendererPortFromConfigFileAndCliFlag,
 	getStudioPort,
 } from './preview-server';
-import {getProResProfile} from './prores-profile';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getWebpackCaching} from './webpack-caching';
 
@@ -45,46 +32,35 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
-import {setBrowserExecutable} from './browser-executable';
 import {
 	getBufferStateDelayInMilliseconds,
 	setBufferStateDelayInMilliseconds,
 } from './buffer-state-delay-in-milliseconds';
-import {
-	setChromiumDisableWebSecurity,
-	setChromiumIgnoreCertificateErrors,
-} from './chromium-flags';
 import type {Concurrency} from './concurrency';
-import {setConcurrency} from './concurrency';
 import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
-import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
 import {
 	getFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
 import {setFrameRange} from './frame-range';
-import {getHeight, overrideHeight} from './height';
 import {setImageSequence} from './image-sequence';
 import {getMetadata, setMetadata} from './metadata';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
-import {setPixelFormat} from './pixel-format';
 import {setPort, setRendererPort, setStudioPort} from './preview-server';
-import {setProResProfile} from './prores-profile';
-import {getChromiumUserAgent, setChromiumUserAgent} from './user-agent';
 import {setWebpackCaching} from './webpack-caching';
 import {
 	getWebpackPolling,
 	setWebpackPollingInMilliseconds,
 } from './webpack-poll';
-import {getWidth, overrideWidth} from './width';
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 const {
+	concurrencyOption,
 	offthreadVideoCacheSizeInBytesOption,
 	x264Option,
 	audioBitrateOption,
@@ -130,6 +106,19 @@ const {
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
+	pixelFormatOption,
+	browserExecutableOption,
+	everyNthFrameOption,
+	proResProfileOption,
+	stillImageFormatOption,
+	videoImageFormatOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
+	overrideHeightOption,
+	overrideWidthOption,
+	overrideFpsOption,
+	overrideDurationOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -404,6 +393,14 @@ declare global {
 		 */
 		readonly overrideWidth: (newWidth: number) => void;
 		/**
+		 * Overrides the FPS of a composition
+		 */
+		readonly overrideFps: (newFps: number) => void;
+		/**
+		 * Overrides the duration in frames of a composition
+		 */
+		readonly overrideDuration: (newDuration: number) => void;
+		/**
 		 * Set the ProRes profile.
 		 * This method is only valid if the codec has been set to 'prores'.
 		 * Possible values: 4444-xq, 4444, hq, standard, light, proxy. Default: 'hq'
@@ -667,17 +664,17 @@ export const Config: FlatConfig = {
 	setPublicDir: publicDirOption.setConfig,
 	setEntryPoint,
 	setLevel: logLevelOption.setConfig,
-	setBrowserExecutable,
+	setBrowserExecutable: browserExecutableOption.setConfig,
 	setTimeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.setConfig,
 	setDelayRenderTimeoutInMilliseconds:
 		delayRenderTimeoutInMillisecondsOption.setConfig,
-	setChromiumDisableWebSecurity,
-	setChromiumIgnoreCertificateErrors,
+	setChromiumDisableWebSecurity: disableWebSecurityOption.setConfig,
+	setChromiumIgnoreCertificateErrors: ignoreCertificateErrorsOption.setConfig,
 	setChromiumHeadlessMode: headlessOption.setConfig,
 	setChromiumOpenGlRenderer: glOption.setConfig,
-	setChromiumUserAgent,
+	setChromiumUserAgent: userAgentOption.setConfig,
 	setDotEnvLocation,
-	setConcurrency,
+	setConcurrency: concurrencyOption.setConfig,
 	setChromiumMultiProcessOnLinux: enableMultiprocessOnLinuxOption.setConfig,
 	setChromiumDarkMode: darkModeOption.setConfig,
 	setQuality: () => {
@@ -691,32 +688,34 @@ export const Config: FlatConfig = {
 		);
 	},
 	setJpegQuality: jpegQualityOption.setConfig,
-	setStillImageFormat,
-	setVideoImageFormat,
+	setStillImageFormat: stillImageFormatOption.setConfig,
+	setVideoImageFormat: videoImageFormatOption.setConfig,
 	setMetadata,
 	setEncodingMaxRate: encodingMaxRateOption.setConfig,
 	setEncodingBufferSize: encodingBufferSizeOption.setConfig,
 	setFrameRange,
 	setScale: scaleOption.setConfig,
-	setEveryNthFrame,
+	setEveryNthFrame: everyNthFrameOption.setConfig,
 	setNumberOfGifLoops: numberOfGifLoopsOption.setConfig,
 	setMuted: mutedOption.setConfig,
 	setEnforceAudioTrack: enforceAudioOption.setConfig,
 	setOutputLocation,
 	setOverwriteOutput: overwriteOption.setConfig,
 	setChromeMode: chromeModeOption.setConfig,
-	setPixelFormat,
+	setPixelFormat: pixelFormatOption.setConfig,
 	setCodec: videoCodecOption.setConfig,
 	setCrf: crfOption.setConfig,
 	setImageSequence,
-	setProResProfile,
+	setProResProfile: proResProfileOption.setConfig,
 	setX264Preset: x264Option.setConfig,
 	setAudioBitrate: audioBitrateOption.setConfig,
 	setVideoBitrate: videoBitrateOption.setConfig,
 	setAudioLatencyHint: audioLatencyHintOption.setConfig,
 	setForSeamlessAacConcatenation: forSeamlessAacConcatenationOption.setConfig,
-	overrideHeight,
-	overrideWidth,
+	overrideHeight: overrideHeightOption.setConfig,
+	overrideWidth: overrideWidthOption.setConfig,
+	overrideFps: overrideFpsOption.setConfig,
+	overrideDuration: overrideDurationOption.setConfig,
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
 	setAudioCodec: audioCodecOption.setConfig,
 	setOffthreadVideoCacheSizeInBytes: (size) => {
@@ -744,21 +743,13 @@ export const Config: FlatConfig = {
 export const ConfigInternals = {
 	getRange,
 	getBrowser,
-	getPixelFormat,
-	getProResProfile,
-	getBrowserExecutable,
 	getStudioPort,
 	getRendererPortFromConfigFile,
 	getRendererPortFromConfigFileAndCliFlag,
-	getChromiumDisableWebSecurity,
-	getIgnoreCertificateErrors,
-	getEveryNthFrame,
 	getConcurrency,
 	getStillFrame,
 	getShouldOutputImageSequence,
 	getDotEnvLocation,
-	getUserPreferredStillImageFormat,
-	getUserPreferredVideoImageFormat,
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,
@@ -767,13 +758,10 @@ export const ConfigInternals = {
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
 	getFfmpegOverrideFunction,
-	getHeight,
-	getWidth,
 	getMetadata,
 	getEntryPoint,
 	getWebpackPolling,
 	getShouldOpenBrowser,
-	getChromiumUserAgent,
 	getBufferStateDelayInMilliseconds,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
 };

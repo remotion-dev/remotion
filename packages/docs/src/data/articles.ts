@@ -7088,6 +7088,15 @@ export const articles = [
 		slug: 'zod-types/index',
 	},
 	{
+		id: 'zod-types/v3',
+		title: '@remotion/zod-types-v3',
+		relativePath: 'docs/zod-types/v3.mdx',
+		compId: 'articles-docs-zod-types-v3',
+		crumb: '@remotion/zod-types',
+		noAi: false,
+		slug: 'zod-types/v3',
+	},
+	{
 		id: 'zod-types/z-color',
 		title: 'zColor()',
 		relativePath: 'docs/zod-types/z-color.mdx',

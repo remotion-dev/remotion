@@ -383,8 +383,7 @@ export const CompanyPricing: React.FC = () => {
 					<br />A $100/mo Minimum Spend applies.
 					<br />
 					<br />
-					Developers working on automation projects do not require a
-					Seat.
+					Developers working on automation projects do not require a Seat.
 				</InfoTooltip>
 			</SectionCheckbox>
 			<div
@@ -442,7 +441,11 @@ export const CompanyPricing: React.FC = () => {
 					>
 						At this spend, you are eligible for the Enterprise License.
 						<br /> You can select it when setting up your license, or{' '}
-						<a className="bluelink" target="_blank" href="https://www.remotion.pro/contact">
+						<a
+							className="bluelink"
+							target="_blank"
+							href="https://www.remotion.pro/contact"
+						>
 							contact us
 						</a>
 						.

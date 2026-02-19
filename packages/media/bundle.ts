@@ -17,6 +17,7 @@ const output = await build({
 		'react/jsx-dev-runtime',
 		'react-dom',
 		'mediabunny',
+		'@mediabunny/ac3',
 	],
 });
 

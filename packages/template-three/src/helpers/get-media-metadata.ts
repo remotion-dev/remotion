@@ -1,4 +1,4 @@
-import { Input, ALL_FORMATS, UrlSource } from "mediabunny";
+import { ALL_FORMATS, Input, UrlSource } from "mediabunny";
 
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({

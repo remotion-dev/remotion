@@ -35,4 +35,5 @@ export const numberOfSharedAudioTagsOption = {
 	setConfig(value: number) {
 		numberOfSharedAudioTags = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<number>;

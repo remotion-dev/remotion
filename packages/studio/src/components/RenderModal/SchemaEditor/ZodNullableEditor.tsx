@@ -1,6 +1,7 @@
-import type {z} from 'zod';
 import {ZodOrNullishEditor} from './ZodOrNullishEditor';
 import type {UpdaterFunction} from './ZodSwitch';
+import type {AnyZodSchema} from './zod-schema-type';
+import {getInnerType} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 
 export const ZodNullableEditor: React.FC<{
@@ -8,7 +9,7 @@ export const ZodNullableEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: unknown;
 	defaultValue: unknown;
-	schema: z.ZodTypeAny;
+	schema: AnyZodSchema;
 	setValue: UpdaterFunction<unknown>;
 	onSave: UpdaterFunction<unknown>;
 	onRemove: null | (() => void);
@@ -28,7 +29,7 @@ export const ZodNullableEditor: React.FC<{
 	saveDisabledByParent,
 	mayPad,
 }) => {
-	const {innerType} = schema._def as z.ZodOptionalDef;
+	const innerType = getInnerType(schema);
 
 	return (
 		<ZodOrNullishEditor

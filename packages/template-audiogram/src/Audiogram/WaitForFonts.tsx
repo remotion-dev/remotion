@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { cancelRender, useDelayRender } from "remotion";
 import { waitForFonts } from "./font";
 

@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
-import { makeRect } from "@remotion/shapes";
 import { translatePath } from "@remotion/paths";
+import { makeRect } from "@remotion/shapes";
+import React, { useMemo } from "react";
 
 const viewBox = 100;
 const lines = 12;

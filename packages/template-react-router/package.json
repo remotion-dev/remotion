@@ -37,7 +37,7 @@
     "@tailwindcss/vite": "4.1.1",
     "vite": "5.4.21",
     "vite-tsconfig-paths": "^4.2.1",
-    "zod": "3.22.3"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@react-router/dev": "7.12.0",
@@ -48,7 +48,7 @@
     "@types/react-dom": "19.2.3",
     "dotenv": "17.3.1",
     "eslint": "9.19.0",
-    "prettier": "3.6.0",
+    "prettier": "3.8.1",
     "tsx": "4.19.3",
     "typescript": "5.9.3"
   }

@@ -40,6 +40,8 @@ const selectorButton: React.CSSProperties = {
 	color: 'inherit',
 	alignItems: 'center',
 	cursor: 'default',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 export const Tab: React.FC<{

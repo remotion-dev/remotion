@@ -51,6 +51,22 @@ export const MyComp: React.FC = () => {
 
 If a fallback is prevented, the render will be cancelled instead.
 
+## Behavior of the `loop` prop during fallback
+
+The [`loop`](/docs/media/video#loop) prop of [`<Video>`](/docs/media/video) is handled differently depending on the environment:
+
+**During preview**, the fallback uses [`<Html5Video>`](/docs/html5-video), which natively supports the `loop` prop. Looping works as expected.
+
+**During rendering**, [`<OffthreadVideo>`](/docs/offthreadvideo) does not natively support looping. To work around this, `@remotion/media` attempts to determine the duration of the video and automatically wraps [`<OffthreadVideo>`](/docs/offthreadvideo) in a [`<Loop>`](/docs/loop) component.
+
+- In most cases, the duration can be extracted from the media container even if the codec is not supported.
+- If the duration **cannot** be determined (e.g. due to [CORS issues](/docs/cors-issues) or a broken container), the render will fail with an error.
+
+To ensure looping works reliably during rendering, make sure:
+
+- The video file is valid and not corrupted
+- There are no [CORS issues](/docs/cors-issues) preventing the file from being read
+
 ## Fallback is not possible in client-side rendering
 
 When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, fallback to [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Html5Audio>`](/docs/html5-audio) is **not possible**.

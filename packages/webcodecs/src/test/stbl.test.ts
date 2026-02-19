@@ -1,31 +1,22 @@
 if (process.platform !== 'win32') {
 	// @ts-expect-error
 	const {expect, test} = await import('bun:test');
+	// prettier-ignore
 	// @ts-expect-error
+	const {createAvc1Data} = await import('../create/iso-base-media/codec-specific/avc1');
 
-	const {createAvc1Data} = await import(
-		'../create/iso-base-media/codec-specific/avc1'
-	);
-
+	// prettier-ignore
 	// @ts-expect-error
-	const {exampleVideoSamplePositions} = await import(
-		'../create/iso-base-media/example-stts'
-	);
+	const {exampleVideoSamplePositions} = await import('../create/iso-base-media/example-stts');
+	// prettier-ignore
 	// @ts-expect-error
-
-	const {createStbl} = await import(
-		'../create/iso-base-media/trak/mdia/minf/create-stbl'
-	);
+	const {createStbl} = await import('../create/iso-base-media/trak/mdia/minf/create-stbl');
+	// prettier-ignore
 	// @ts-expect-error
-
-	const {createAvccBox} = await import(
-		'../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avcc'
-	);
+	const {createAvccBox} = await import('../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avcc');
+	// prettier-ignore
 	// @ts-expect-error
-
-	const {createPasp} = await import(
-		'../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-pasp'
-	);
+	const {createPasp} = await import('../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-pasp');
 	const sample = new Uint8Array([
 		0, 0, 8, 125, 115, 116, 98, 108, 0, 0, 0, 177, 115, 116, 115, 100, 0, 0, 0,
 		0, 0, 0, 0, 1, 0, 0, 0, 161, 97, 118, 99, 49, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,

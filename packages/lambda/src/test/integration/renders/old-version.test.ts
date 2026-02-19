@@ -49,6 +49,8 @@ test(
 					encodingMaxRate: null,
 					forceHeight: null,
 					forceWidth: null,
+					forceFps: null,
+					forceDurationInFrames: null,
 					rendererFunctionName: null,
 					bucketName: 'remotion-dev-render',
 					audioCodec: null,

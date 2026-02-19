@@ -6,7 +6,7 @@ import type {WebpackConfiguration} from '@remotion/bundler';
  */
 export const enableTailwind: (
 	currentConfiguration: WebpackConfiguration,
-) => WebpackConfiguration = ((currentConfiguration) => {
+) => WebpackConfiguration = (currentConfiguration) => {
 	return {
 		...currentConfiguration,
 		module: {
@@ -30,4 +30,4 @@ export const enableTailwind: (
 			],
 		},
 	};
-});
+};

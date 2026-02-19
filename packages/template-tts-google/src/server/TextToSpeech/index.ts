@@ -1,12 +1,12 @@
+import textToSpeech from "@google-cloud/text-to-speech";
 import md5 from "md5";
 import {
-  checkIfAudioHasAlreadyBeenSynthesized as isAudioAlreadySynthesized,
   createFirebaseUrl,
+  checkIfAudioHasAlreadyBeenSynthesized as isAudioAlreadySynthesized,
   uploadFileToFirebase,
 } from "../../lib/firebase/utils";
-import { audioDirectoryInBucket, voices } from "./constants";
-import textToSpeech from "@google-cloud/text-to-speech";
 import { RequestMetadata } from "../../lib/interfaces";
+import { audioDirectoryInBucket, voices } from "./constants";
 
 const client = new textToSpeech.TextToSpeechClient();
 

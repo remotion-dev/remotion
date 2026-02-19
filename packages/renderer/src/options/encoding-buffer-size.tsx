@@ -45,4 +45,5 @@ export const encodingBufferSizeOption = {
 		};
 	},
 	setConfig: setEncodingBufferSize,
+	id: cliFlag,
 } satisfies AnyRemotionOption<string | null>;

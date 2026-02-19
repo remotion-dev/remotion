@@ -30,6 +30,10 @@ const {
 	askAIOption,
 	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
+	browserExecutableOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -70,21 +74,29 @@ export const still = async (
 	}
 
 	const {
-		browserExecutable,
 		envVariables,
 		height,
 		inputProps,
 		stillFrame,
 		width,
-		disableWebSecurity,
-		ignoreCertificateErrors,
-		userAgent,
+		fps,
+		durationInFrames,
 	} = getCliOptions({
 		isStill: true,
 		logLevel,
 		indent: false,
 	});
 
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -156,6 +168,9 @@ export const still = async (
 		chromiumOptions,
 		envVariables,
 		height,
+		width,
+		fps,
+		durationInFrames,
 		serializedInputPropsWithCustomSchema:
 			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
@@ -169,7 +184,6 @@ export const still = async (
 		jpegQuality,
 		scale,
 		stillFrame,
-		width,
 		compositionIdFromUi: null,
 		imageFormatFromUi: null,
 		logLevel,

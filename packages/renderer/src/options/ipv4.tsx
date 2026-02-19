@@ -29,4 +29,5 @@ export const ipv4Option = {
 	setConfig(value: boolean) {
 		forceIPv4 = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

@@ -16,6 +16,8 @@ const selectorButton: React.CSSProperties = {
 	fontSize: 14,
 	color: 'inherit',
 	alignItems: 'center',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 export const VerticalTab: React.FC<{

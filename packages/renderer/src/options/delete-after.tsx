@@ -45,4 +45,5 @@ export const deleteAfterOption = {
 	setConfig: (value) => {
 		deleteAfter = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<DeleteAfter | null>;

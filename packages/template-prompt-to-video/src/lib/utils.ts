@@ -1,6 +1,6 @@
 import { staticFile } from "remotion";
-import { BackgroundElement, Timeline } from "./types";
 import { FPS, INTRO_DURATION } from "./constants";
+import { BackgroundElement, Timeline } from "./types";
 
 export const loadTimelineFromFile = async (filename: string) => {
   const res = await fetch(staticFile(filename));

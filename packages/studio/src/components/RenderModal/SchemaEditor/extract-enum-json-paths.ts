@@ -1,5 +1,20 @@
-import type {z} from 'zod';
-import type {ZodType, ZodTypesType} from '../../get-zod-if-possible';
+import type {ZodTypesType} from '../../get-zod-if-possible';
+import {
+	type AnyZodSchema,
+	getArrayElement,
+	getBrandedInner,
+	getEffectsInner,
+	getInnerType,
+	getIntersectionSchemas,
+	getObjectShape,
+	getPipelineOutput,
+	getRecordKeyType,
+	getRecordValueType,
+	getTupleItems,
+	getUnionOptions,
+	getZodSchemaDescription,
+	getZodSchemaType,
+} from './zod-schema-type';
 
 export const extractEnumJsonPaths = ({
 	schema,
@@ -7,17 +22,27 @@ export const extractEnumJsonPaths = ({
 	currentPath,
 	zodTypes,
 }: {
-	schema: Zod.ZodTypeAny;
-	zodRuntime: ZodType;
+	schema: AnyZodSchema;
+	zodRuntime: unknown;
 	zodTypes: ZodTypesType | null;
 	currentPath: (string | number)[];
 }): (string | number)[][] => {
-	const def = schema._def;
-	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
+	// In v4, .refine()/.describe() don't wrap in effects — the description
+	// lives directly on the schema. Check for branded descriptions early
+	// so they are detected regardless of the underlying type.
+	const description = getZodSchemaDescription(schema);
+	if (
+		zodTypes &&
+		description === zodTypes.ZodZypesInternals.REMOTION_MATRIX_BRAND
+	) {
+		return [currentPath];
+	}
+
+	const typeName = getZodSchemaType(schema);
 
 	switch (typeName) {
-		case zodRuntime.ZodFirstPartyTypeKind.ZodObject: {
-			const shape = (def as z.ZodObjectDef).shape();
+		case 'object': {
+			const shape = getObjectShape(schema);
 			const keys = Object.keys(shape);
 			return keys
 				.map((key) => {
@@ -31,17 +56,17 @@ export const extractEnumJsonPaths = ({
 				.flat(1);
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodArray: {
+		case 'array': {
 			return extractEnumJsonPaths({
-				schema: (def as z.ZodArrayDef).type,
+				schema: getArrayElement(schema),
 				zodRuntime,
 				currentPath: [...currentPath, '[]'],
 				zodTypes,
 			});
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodUnion: {
-			return (def as z.ZodUnionDef).options
+		case 'union': {
+			return getUnionOptions(schema)
 				.map((option) => {
 					return extractEnumJsonPaths({
 						schema: option,
@@ -53,8 +78,8 @@ export const extractEnumJsonPaths = ({
 				.flat(1);
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodDiscriminatedUnion: {
-			return (def as z.ZodDiscriminatedUnionDef<string>).options
+		case 'discriminatedUnion': {
+			return getUnionOptions(schema)
 				.map((op) => {
 					return extractEnumJsonPaths({
 						schema: op,
@@ -66,29 +91,21 @@ export const extractEnumJsonPaths = ({
 				.flat(1);
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodLiteral: {
+		case 'literal': {
 			return [currentPath];
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodEffects: {
-			if (
-				zodTypes &&
-				schema._def.description ===
-					zodTypes.ZodZypesInternals.REMOTION_MATRIX_BRAND
-			) {
-				return [currentPath];
-			}
-
+		case 'effects': {
 			return extractEnumJsonPaths({
-				schema: (def as z.ZodEffectsDef).schema,
+				schema: getEffectsInner(schema),
 				zodRuntime,
 				currentPath,
 				zodTypes,
 			});
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodIntersection: {
-			const {left, right} = def as z.ZodIntersectionDef;
+		case 'intersection': {
+			const {left, right} = getIntersectionSchemas(schema);
 			const leftValue = extractEnumJsonPaths({
 				schema: left,
 				zodRuntime,
@@ -106,8 +123,8 @@ export const extractEnumJsonPaths = ({
 			return [...leftValue, ...rightValue];
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodTuple: {
-			return (def as z.ZodTupleDef).items
+		case 'tuple': {
+			return getTupleItems(schema)
 				.map((item, i) =>
 					extractEnumJsonPaths({
 						schema: item,
@@ -119,116 +136,95 @@ export const extractEnumJsonPaths = ({
 				.flat(1);
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodRecord: {
-			const values = extractEnumJsonPaths({
-				schema: (def as z.ZodRecordDef).valueType,
+		case 'record': {
+			const recordPath = [...currentPath, '{}'];
+			const keyResults = extractEnumJsonPaths({
+				schema: getRecordKeyType(schema),
 				zodRuntime,
-				currentPath: [...currentPath, '{}'],
+				currentPath: recordPath,
 				zodTypes,
 			});
-			return values;
+			const valueResults = extractEnumJsonPaths({
+				schema: getRecordValueType(schema),
+				zodRuntime,
+				currentPath: recordPath,
+				zodTypes,
+			});
+			return [...keyResults, ...valueResults];
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodFunction: {
+		case 'function': {
 			throw new Error('Cannot create a value for type function');
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodEnum: {
+		case 'enum': {
 			return [currentPath];
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodNativeEnum: {
+		case 'nativeEnum': {
 			return [];
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodOptional: {
-			const defType = def as z.ZodOptionalDef;
-			const value = extractEnumJsonPaths({
-				schema: defType.innerType,
-				zodRuntime,
-				currentPath,
-				zodTypes,
-			});
-			return value;
-		}
-
-		case zodRuntime.ZodFirstPartyTypeKind.ZodNullable: {
-			const defType = def as z.ZodNullableDef;
-			const value = extractEnumJsonPaths({
-				schema: defType.innerType,
-				zodRuntime,
-				currentPath,
-				zodTypes,
-			});
-			return value;
-		}
-
-		case zodRuntime.ZodFirstPartyTypeKind.ZodDefault: {
-			const defType = def as z.ZodDefaultDef;
+		case 'optional':
+		case 'nullable':
+		case 'catch': {
 			return extractEnumJsonPaths({
-				schema: defType.innerType,
+				schema: getInnerType(schema),
 				zodRuntime,
 				currentPath,
 				zodTypes,
 			});
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodCatch: {
-			const defType = def as z.ZodCatchDef;
+		case 'default': {
 			return extractEnumJsonPaths({
-				schema: defType.innerType,
+				schema: getInnerType(schema),
 				zodRuntime,
 				currentPath,
 				zodTypes,
 			});
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodPromise: {
+		case 'promise': {
 			return [];
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodBranded: {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const defType = def as z.ZodBrandedDef<any>;
-			const value = extractEnumJsonPaths({
-				schema: defType.type,
+		case 'branded': {
+			return extractEnumJsonPaths({
+				schema: getBrandedInner(schema),
 				zodRuntime,
 				currentPath,
 				zodTypes,
 			});
-			return value;
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodPipeline: {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const defType = def as z.ZodPipelineDef<any, any>;
-			const value = extractEnumJsonPaths({
-				schema: defType.out,
+		case 'pipeline':
+		case 'pipe': {
+			return extractEnumJsonPaths({
+				schema: getPipelineOutput(schema),
 				zodRuntime,
 				currentPath,
 				zodTypes,
 			});
-			return value;
 		}
 
-		case zodRuntime.ZodFirstPartyTypeKind.ZodString:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodNumber:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodBigInt:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodBoolean:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodNaN:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodDate:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodSymbol:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodUndefined:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodNull:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodAny:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodUnknown:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodNever:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodVoid:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodMap: // Maps are not serializable
-		case zodRuntime.ZodFirstPartyTypeKind.ZodLazy:
-		case zodRuntime.ZodFirstPartyTypeKind.ZodSet: {
-			// Sets are not serializable
-
+		case 'string':
+		case 'number':
+		case 'bigint':
+		case 'boolean':
+		case 'nan':
+		case 'date':
+		case 'symbol':
+		case 'undefined':
+		case 'null':
+		case 'any':
+		case 'unknown':
+		case 'never':
+		case 'void':
+		case 'map':
+		case 'lazy':
+		case 'set':
+		case 'custom': {
 			return [];
 		}
 

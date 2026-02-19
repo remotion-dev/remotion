@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/docusaurus-plugin",
-	"version": "4.0.423",
+	"version": "4.0.425",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
@@ -14,12 +14,12 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"shiki-twoslash": "3.1.2",
+		"shiki": "3.22.0",
+		"@shikijs/twoslash": "3.22.0",
+		"twoslash": "0.3.6",
 		"unified": "^11.0.5",
 		"unist-util-visit": "^5.0.0",
 		"fenceparser": "^2.2.0",
-		"shiki": "0.10.1",
-		"@typescript/twoslash": "3.2.1",
 		"@docusaurus/types": "3.6.0",
 		"@types/dom-webcodecs": "catalog:"
 	},

@@ -43,9 +43,9 @@ test('Extract Zod enums #2', () => {
 				),
 				tuples: z.tuple([z.enum(['a']), z.enum(['b'])]).optional(),
 				abc: z
-					.record(z.enum(['a', 'b', 'c']))
+					.record(z.enum(['a', 'b', 'c']), z.unknown())
 					.nullable()
-					.default({}),
+					.default(() => null),
 				branded: z.object({a: z.enum(['a'])}).brand('branded'),
 			}),
 			zodRuntime: z,

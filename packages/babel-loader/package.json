@@ -3,11 +3,11 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/babel-loader"
 	},
 	"name": "@remotion/babel-loader",
-	"version": "4.0.423",
+	"version": "4.0.425",
 	"description": "Babel loader for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
-		"formatting": "prettier --experimental-cli src --check",
+		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"make": "tsgo -d"
 	},

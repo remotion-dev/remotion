@@ -182,7 +182,6 @@ const lineCoordinates = [
   [1, 1],
 ];
 const progress = 0.5;
-// @ts-expect-error (Only in docs, should work in your project)
 // ---cut---
 const routeLine = turf.lineString(lineCoordinates);
 const routeDistance = turf.length(routeLine);
@@ -217,7 +216,6 @@ useEffect(() => {
 
   const handle = delayRender('Moving camera...');
 
-  // @ts-expect-error (Only in docs, should work in your project)
   const routeDistance = turf.length(turf.lineString(lineCoordinates));
 
   const progress = Math.max(
@@ -227,7 +225,6 @@ useEffect(() => {
     }),
   );
 
-  // @ts-expect-error (Only in docs, should work in your project)
   const alongRoute = turf.along(turf.lineString(lineCoordinates), routeDistance * progress).geometry.coordinates;
 
   const camera = map.getFreeCameraOptions();

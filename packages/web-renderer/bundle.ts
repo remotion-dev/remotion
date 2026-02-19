@@ -5,6 +5,6 @@ await buildPackage({
 		cjs: 'do-nothing',
 		esm: 'build',
 	},
-	external: ['remotion', 'react', 'react-dom', 'mediabunny', '@mediabunny/ac3'],
+	external: ['remotion', 'react', 'react-dom', 'mediabunny'],
 	entrypoints: [{path: 'src/index.ts', target: 'browser'}],
 });

@@ -60,12 +60,7 @@ import RemoteVideo from './RemoteVideo';
 import {RetryDelayRender} from './RetryDelayRender';
 import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
-import {
-	ArrayTest,
-	SchemaTest,
-	schemaArrayTestSchema,
-	schemaTestSchema,
-} from './SchemaTest';
+import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {Scripts} from './Scripts';
 import {WidthHeightSequences} from './Sequence/WidthHeightSequences';
 import CircleTest from './Shapes/CircleTest';
@@ -109,6 +104,7 @@ import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {WatchStaticDemo} from './watch-static';
+import {ZodV4SchemaTest, zodV4Schema} from './ZodV4SchemaTest';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -1497,16 +1493,23 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 					schema={schemaTestSchema}
 				/>
+
 				<Composition
-					id="array-schema"
-					component={ArrayTest}
-					width={1200}
-					height={630}
+					id="zod-v4-schema-test"
+					component={ZodV4SchemaTest}
+					width={1920}
+					height={1080}
 					fps={30}
 					durationInFrames={150}
-					// @ts-expect-error Needs an object
-					schema={schemaArrayTestSchema}
-					defaultProps={{}}
+					schema={zodV4Schema}
+					defaultProps={{
+						greeting: 'Hello from Zod v4!',
+						count: 42,
+						enabled: false,
+						items: [{label: 'alpha!', value: 1}],
+						mode: 'light' as const,
+						nested: {a: 'asdfadsf', b: 99},
+					}}
 				/>
 			</Folder>
 			<Folder name="TailwindCSS">

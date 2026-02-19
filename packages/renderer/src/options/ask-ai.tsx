@@ -33,4 +33,5 @@ export const askAIOption = {
 	setConfig(value) {
 		askAIEnabled = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

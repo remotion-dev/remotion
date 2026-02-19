@@ -1,7 +1,7 @@
 import type { SkData, SkImage, SkTypeface } from "@shopify/react-native-skia";
 import { Skia } from "@shopify/react-native-skia";
 import type { ReactNode } from "react";
-import { useContext, createContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type ImagesToLoad = Record<string, ReturnType<typeof require>>;
 type TypefacesToLoad = Record<string, ReturnType<typeof require>>;

@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import { AlertTriangle, FileCode, PenLine, BookOpen } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { ConversationMessage } from "@/types/conversation";
+import { AlertTriangle, BookOpen, FileCode, PenLine } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 interface ChatHistoryProps {
   messages: ConversationMessage[];
@@ -17,10 +17,7 @@ interface ChatHistoryProps {
   };
 }
 
-export function ChatHistory({
-  messages,
-  pendingMessage,
-}: ChatHistoryProps) {
+export function ChatHistory({ messages, pendingMessage }: ChatHistoryProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change

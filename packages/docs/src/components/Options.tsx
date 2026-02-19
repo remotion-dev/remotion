@@ -6,12 +6,12 @@ import type {JSX} from 'react';
 const options = Object.values(BrowserSafeApis.options);
 
 const getOption = (id: string): AnyRemotionOption<unknown> => {
-	const option = options.find((o) => o.cliFlag === id);
+	const option = options.find((o) => o.id === id);
 
 	if (!option) {
 		throw new Error(
 			`Unknown option "${id}". Available: ${options
-				.map((o) => o.cliFlag)
+				.map((o) => o.id)
 				.join(', ')}`,
 		);
 	}

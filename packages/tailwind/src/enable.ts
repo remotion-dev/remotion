@@ -9,7 +9,7 @@ export const enableTailwind: (
 	options?: {
 		configLocation?: string;
 	},
-) => WebpackConfiguration = ((currentConfiguration, options) => {
+) => WebpackConfiguration = (currentConfiguration, options) => {
 	return {
 		...currentConfiguration,
 		module: {
@@ -49,4 +49,4 @@ export const enableTailwind: (
 			],
 		},
 	};
-});
+};

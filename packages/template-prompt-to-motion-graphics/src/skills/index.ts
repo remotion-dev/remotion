@@ -1,14 +1,14 @@
 import { examples } from "@/examples/code";
 
 // Import markdown files at build time
-import chartsSkill from "./charts.md";
-import typographySkill from "./typography.md";
-import socialMediaSkill from "./social-media.md";
-import messagingSkill from "./messaging.md";
 import threeDSkill from "./3d.md";
-import transitionsSkill from "./transitions.md";
+import chartsSkill from "./charts.md";
+import messagingSkill from "./messaging.md";
 import sequencingSkill from "./sequencing.md";
+import socialMediaSkill from "./social-media.md";
 import springPhysicsSkill from "./spring-physics.md";
+import transitionsSkill from "./transitions.md";
+import typographySkill from "./typography.md";
 
 // Guidance skills (markdown files with patterns/rules)
 const GUIDANCE_SKILLS = [

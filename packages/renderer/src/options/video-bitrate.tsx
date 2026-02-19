@@ -42,4 +42,5 @@ export const videoBitrateOption = {
 	setConfig: (bitrate: string | null) => {
 		videoBitrate = bitrate;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<string | null>;

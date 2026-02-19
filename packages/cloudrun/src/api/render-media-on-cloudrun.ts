@@ -56,6 +56,8 @@ type InternalRenderMediaOnCloudrun = {
 	chromiumOptions: ChromiumOptions | undefined;
 	forceWidth: number | null;
 	forceHeight?: number | null;
+	forceFps?: number | null;
+	forceDurationInFrames?: number | null;
 	concurrency: number | string | null;
 	preferLossless: boolean | undefined;
 	indent: boolean;
@@ -93,6 +95,8 @@ export type RenderMediaOnCloudrunInput = {
 	chromiumOptions?: ChromiumOptions;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
+	forceFps?: number | null;
+	forceDurationInFrames?: number | null;
 	concurrency?: number | string | null;
 	preferLossless?: boolean;
 	downloadBehavior?: DownloadBehavior;
@@ -135,6 +139,8 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	muted,
 	forceWidth,
 	forceHeight,
+	forceFps,
+	forceDurationInFrames,
 	logLevel,
 	delayRenderTimeoutInMilliseconds,
 	concurrency,
@@ -195,6 +201,8 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		outName,
 		forceWidth,
 		forceHeight,
+		forceFps,
+		forceDurationInFrames,
 		type: 'media',
 		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? null,
@@ -334,6 +342,8 @@ export const renderMediaOnCloudrun = ({
 	muted,
 	forceWidth,
 	forceHeight,
+	forceFps,
+	forceDurationInFrames,
 	logLevel,
 	delayRenderTimeoutInMilliseconds,
 	concurrency,
@@ -382,6 +392,8 @@ export const renderMediaOnCloudrun = ({
 		muted: muted ?? false,
 		forceWidth: forceWidth ?? null,
 		forceHeight: forceHeight ?? null,
+		forceFps: forceFps ?? null,
+		forceDurationInFrames: forceDurationInFrames ?? null,
 		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds:
 			delayRenderTimeoutInMilliseconds ?? BrowserSafeApis.DEFAULT_TIMEOUT,

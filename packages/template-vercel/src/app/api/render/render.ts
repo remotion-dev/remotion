@@ -1,9 +1,11 @@
 import { Sandbox } from "@vercel/sandbox";
-import { COMP_NAME } from "../../../../types/constants";
 import { BUILD_DIR } from "../../../../build-dir.mjs";
 import type { RenderConfig } from "../../../../render";
+import { COMP_NAME } from "../../../../types/constants";
 
 export type RenderInSandboxProgress =
+  | { type: "opening-browser" }
+  | { type: "selecting-composition" }
   | { type: "render-progress"; progress: number }
   | { type: "uploading" }
   | { type: "done"; url: string; size: number };
@@ -48,7 +50,11 @@ export async function renderInSandbox({
     if (log.stream === "stdout") {
       try {
         const message = JSON.parse(log.data);
-        if (message.type === "progress") {
+        if (message.type === "opening-browser") {
+          await onProgress({ type: "opening-browser" });
+        } else if (message.type === "selecting-composition") {
+          await onProgress({ type: "selecting-composition" });
+        } else if (message.type === "progress") {
           await onProgress({
             type: "render-progress",
             progress: message.progress,

@@ -3,7 +3,6 @@ import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {chalk} from './chalk';
-import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parsed-cli';
 
@@ -16,20 +15,23 @@ const {
 	headlessOption,
 	chromeModeOption,
 	darkModeOption,
+	browserExecutableOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
 } = BrowserSafeApis.options;
 
 export const gpuCommand = async (logLevel: LogLevel) => {
-	const {
-		browserExecutable,
-		disableWebSecurity,
-		ignoreCertificateErrors,
-		userAgent,
-	} = getCliOptions({
-		isStill: false,
-		logLevel,
-		indent: false,
-	});
-
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
 		commandLine: parsedCli,
 	}).value;

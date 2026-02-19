@@ -1,10 +1,10 @@
-import express from "express";
-import { createTextToSpeechAudio } from "./TextToSpeech";
 import cors from "cors";
 import dotenv from "dotenv";
+import express from "express";
 import { RequestMetadata, ServerResponse } from "../lib/interfaces";
+import { createTextToSpeechAudio } from "./TextToSpeech";
 
-dotenv.config({quiet: true});
+dotenv.config({ quiet: true });
 
 export const startServer = () => {
   const app = express();

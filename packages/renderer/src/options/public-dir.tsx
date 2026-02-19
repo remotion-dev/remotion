@@ -45,4 +45,5 @@ export const publicDirOption = {
 		currentPublicDir = value;
 	},
 	type: '' as string | null,
+	id: cliFlag,
 } satisfies AnyRemotionOption<string | null>;

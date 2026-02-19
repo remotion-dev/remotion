@@ -1,12 +1,12 @@
-import { streamText, generateObject } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
-import { z } from "zod";
 import {
   getCombinedSkillContent,
   SKILL_DETECTION_PROMPT,
   SKILL_NAMES,
   type SkillName,
 } from "@/skills";
+import { createOpenAI } from "@ai-sdk/openai";
+import { generateObject, streamText } from "ai";
+import { z } from "zod";
 
 const VALIDATION_PROMPT = `You are a prompt classifier for a motion graphics generation tool.
 
@@ -145,11 +145,13 @@ If the user has made manual edits, preserve them unless explicitly asked to chan
 const FollowUpResponseSchema = z.object({
   type: z
     .enum(["edit", "full"])
-    .describe('Use "edit" for small targeted changes, "full" for major restructuring'),
+    .describe(
+      'Use "edit" for small targeted changes, "full" for major restructuring',
+    ),
   summary: z
     .string()
     .describe(
-      "A brief 1-sentence summary of what changes were made, e.g. 'Changed background color to blue and increased font size'"
+      "A brief 1-sentence summary of what changes were made, e.g. 'Changed background color to blue and increased font size'",
     ),
   edits: z
     .array(
@@ -157,21 +159,23 @@ const FollowUpResponseSchema = z.object({
         description: z
           .string()
           .describe(
-            "Brief description of this edit, e.g. 'Update background color', 'Increase animation duration'"
+            "Brief description of this edit, e.g. 'Update background color', 'Increase animation duration'",
           ),
         old_string: z
           .string()
           .describe("The exact string to find (must match exactly)"),
         new_string: z.string().describe("The replacement string"),
-      })
+      }),
     )
     .optional()
-    .describe("Required when type is 'edit': array of search-replace operations"),
+    .describe(
+      "Required when type is 'edit': array of search-replace operations",
+    ),
   code: z
     .string()
     .optional()
     .describe(
-      "Required when type is 'full': the complete replacement code starting with imports"
+      "Required when type is 'full': the complete replacement code starting with imports",
     ),
 });
 
@@ -192,7 +196,7 @@ function getLineNumber(code: string, searchString: string): number {
 // Apply edit operations to code and enrich with line numbers
 function applyEdits(
   code: string,
-  edits: EditOperation[]
+  edits: EditOperation[],
 ): {
   success: boolean;
   result: string;
@@ -370,7 +374,10 @@ export async function POST(req: Request) {
   const newSkills = detectedSkills.filter(
     (skill) => !previouslyUsedSkills.includes(skill),
   );
-  if (previouslyUsedSkills.length > 0 && newSkills.length < detectedSkills.length) {
+  if (
+    previouslyUsedSkills.length > 0 &&
+    newSkills.length < detectedSkills.length
+  ) {
     console.log(
       `Skipping ${detectedSkills.length - newSkills.length} previously used skills:`,
       detectedSkills.filter((s) => previouslyUsedSkills.includes(s)),
@@ -421,7 +428,9 @@ The previous edit attempt failed. Here's what was tried:
 The old_string was either not found or matched multiple locations. You MUST include more surrounding context to make the match unique.`
           : "";
 
-        const isEditFailure = errorCorrection.error.includes("Edit") && errorCorrection.error.includes("failed");
+        const isEditFailure =
+          errorCorrection.error.includes("Edit") &&
+          errorCorrection.error.includes("failed");
 
         if (isEditFailure) {
           errorCorrectionNotice = `
@@ -474,13 +483,15 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
         modelName,
         "skills:",
         detectedSkills.length > 0 ? detectedSkills.join(", ") : "general",
-        frameImages && frameImages.length > 0 ? `(with ${frameImages.length} image(s))` : ""
+        frameImages && frameImages.length > 0
+          ? `(with ${frameImages.length} image(s))`
+          : "",
       );
 
       // Build messages array - include images if provided
-      const editMessageContent: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [
-        { type: "text" as const, text: editPromptText },
-      ];
+      const editMessageContent: Array<
+        { type: "text"; text: string } | { type: "image"; image: string }
+      > = [{ type: "text" as const, text: editPromptText }];
       if (frameImages && frameImages.length > 0) {
         for (const img of frameImages) {
           editMessageContent.push({ type: "image" as const, image: img });
@@ -488,7 +499,9 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
       }
       const editMessages: Array<{
         role: "user";
-        content: Array<{ type: "text"; text: string } | { type: "image"; image: string }>;
+        content: Array<
+          { type: "text"; text: string } | { type: "image"; image: string }
+        >;
       }> = [
         {
           role: "user" as const,
@@ -519,7 +532,7 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
               type: "edit_failed",
               failedEdit: result.failedEdit,
             }),
-            { status: 400, headers: { "Content-Type": "application/json" } }
+            { status: 400, headers: { "Content-Type": "application/json" } },
           );
         }
         finalCode = result.result;
@@ -539,7 +552,7 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
             error: "Invalid AI response: missing required fields",
             type: "edit_failed",
           }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
+          { status: 400, headers: { "Content-Type": "application/json" } },
         );
       }
 
@@ -565,7 +578,7 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
         JSON.stringify({
           error: "Something went wrong while processing the edit request.",
         }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
   }
@@ -578,9 +591,9 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
       ? `${prompt}\n\n(See the attached ${frameImages.length === 1 ? "image" : "images"} for visual reference)`
       : prompt;
 
-    const initialMessageContent: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [
-      { type: "text" as const, text: initialPromptText },
-    ];
+    const initialMessageContent: Array<
+      { type: "text"; text: string } | { type: "image"; image: string }
+    > = [{ type: "text" as const, text: initialPromptText }];
     if (hasImages) {
       for (const img of frameImages) {
         initialMessageContent.push({ type: "image" as const, image: img });
@@ -589,7 +602,9 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
 
     const initialMessages: Array<{
       role: "user";
-      content: Array<{ type: "text"; text: string } | { type: "image"; image: string }>;
+      content: Array<
+        { type: "text"; text: string } | { type: "image"; image: string }
+      >;
     }> = [
       {
         role: "user" as const,
@@ -618,7 +633,7 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
       "skills:",
       detectedSkills.length > 0 ? detectedSkills.join(", ") : "general",
       reasoningEffort ? `reasoning_effort: ${reasoningEffort}` : "",
-      hasImages ? `(with ${frameImages.length} image(s))` : ""
+      hasImages ? `(with ${frameImages.length} image(s))` : "",
     );
 
     // Get the original stream response
@@ -665,7 +680,7 @@ Analyze the request and decide: use targeted edits (type: "edit") for small chan
       JSON.stringify({
         error: "Something went wrong while trying to reach OpenAI APIs.",
       }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 }

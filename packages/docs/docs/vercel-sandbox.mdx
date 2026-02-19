@@ -43,11 +43,7 @@ Allowing for 2000 concurrent sandboxes on the Pro Plan allows for massive scale.
 
 Rendering happens on a single machine rather than a distributed system, so it is slower than Lambda.
 
-Spawning a new VM for each render has a setup phase which includes installing dependencies and downloading a browser.  
-We plan to soon improve this by using Vercel Sandbox snapshots.
-
-Currently, the browser downloaded does not have support for decoding H.264, meaning that using [`@remotion/media`](/docs/media) will often fallback to [`<OffthreadVideo>`](/docs/offthreadvideo).  
-We also plan to resolve this by using a custom build of Chrome soon.
+The Sandbox is heavy, containing Chrome and FFmpeg and takes a few seconds to start up.
 
 ## Limits
 

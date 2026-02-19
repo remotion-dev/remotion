@@ -28,4 +28,5 @@ export const disableGitSourceOption = {
 	},
 	ssrName: 'disableGitSource',
 	type: false as boolean,
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

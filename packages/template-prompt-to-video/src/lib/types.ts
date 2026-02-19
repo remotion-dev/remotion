@@ -58,12 +58,12 @@ export type AudioElement = z.infer<typeof AudioElementSchema>;
 export type Timeline = z.infer<typeof TimelineSchema>;
 
 export {
-  BackgroundTransitionTypeSchema,
-  TimelineElementSchema,
-  ElementAnimationSchema,
-  BackgroundElementSchema,
-  TextElementSchema,
   AudioElementSchema,
+  BackgroundElementSchema,
+  BackgroundTransitionTypeSchema,
+  ElementAnimationSchema,
+  TextElementSchema,
+  TimelineElementSchema,
   TimelineSchema,
 };
 

@@ -43,7 +43,7 @@ const Balloons = () => {
 				setError(err);
 				console.log('Animation failed to load', err);
 			});
-	}, [handle]);
+	}, [handle, continueRender]);
 
 	if (!animationData) {
 		return null;

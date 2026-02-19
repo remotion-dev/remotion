@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Code, Play } from "lucide-react";
+import { useState } from "react";
 
 export type TabId = "code" | "preview";
 
@@ -36,7 +36,7 @@ export function TabPanel({
               index > 0 && "border-l border-border",
               activeTab === tab.id
                 ? "bg-accent text-foreground"
-                : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent/30"
+                : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent/30",
             )}
           >
             <tab.icon className="w-4 h-4" />

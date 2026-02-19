@@ -3,12 +3,11 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/web-renderer"
 	},
 	"name": "@remotion/web-renderer",
-	"version": "4.0.423",
+	"version": "4.0.425",
 	"main": "dist/index.js",
 	"type": "module",
-	"sideEffects": false,
 	"scripts": {
-		"formatting": "prettier --experimental-cli src --check",
+		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts",
 		"watch": "tsgo -w",
@@ -21,8 +20,7 @@
 	"dependencies": {
 		"@remotion/licensing": "workspace:*",
 		"remotion": "workspace:*",
-		"mediabunny": "catalog:",
-		"@mediabunny/ac3": "catalog:"
+		"mediabunny": "catalog:"
 	},
 	"devDependencies": {
 		"@react-three/fiber": "catalog:",

@@ -38,4 +38,5 @@ export const enforceAudioOption = {
 	setConfig: (value) => {
 		enforceAudioTrackState = value;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

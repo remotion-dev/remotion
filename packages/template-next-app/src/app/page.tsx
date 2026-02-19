@@ -3,6 +3,10 @@
 import { Player } from "@remotion/player";
 import type { NextPage } from "next";
 import React, { useMemo, useState } from "react";
+import { z } from "zod";
+import { RenderControls } from "../components/RenderControls";
+import { Spacing } from "../components/Spacing";
+import { Tips } from "../components/Tips/Tips";
 import { Main } from "../remotion/MyComp/Main";
 import {
   CompositionProps,
@@ -12,10 +16,6 @@ import {
   VIDEO_HEIGHT,
   VIDEO_WIDTH,
 } from "../types/constants";
-import { z } from "zod";
-import { RenderControls } from "../components/RenderControls";
-import { Tips } from "../components/Tips/Tips";
-import { Spacing } from "../components/Spacing";
 
 const container: React.CSSProperties = {
   maxWidth: 768,

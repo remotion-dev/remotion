@@ -1,3 +1,4 @@
+import {registerAc3Decoder} from '@mediabunny/ac3';
 import {Audio} from './audio/audio';
 import {Video} from './video/video';
 /**
@@ -15,3 +16,5 @@ export {AudioProps, FallbackHtml5AudioProps} from './audio/props';
 export {MediaErrorAction} from './on-error';
 export {FallbackOffthreadVideoProps, VideoProps} from './video/props';
 export {Audio, Video};
+
+registerAc3Decoder();

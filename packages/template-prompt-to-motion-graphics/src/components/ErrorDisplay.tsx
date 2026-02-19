@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AlertCircle, X } from "lucide-react";
+import React from "react";
 
 export type ErrorVariant = "inline" | "card" | "fullscreen";
 export type ErrorSize = "sm" | "md" | "lg";
@@ -19,10 +19,21 @@ interface ErrorDisplayProps {
   className?: string;
 }
 
-const sizeStyles: Record<ErrorSize, { icon: string; title: string; description: string }> = {
+const sizeStyles: Record<
+  ErrorSize,
+  { icon: string; title: string; description: string }
+> = {
   sm: { icon: "h-3 w-3", title: "text-xs", description: "text-xs" },
-  md: { icon: "h-4 w-4", title: "text-sm font-semibold", description: "text-sm" },
-  lg: { icon: "h-5 w-5", title: "text-base font-semibold", description: "text-base" },
+  md: {
+    icon: "h-4 w-4",
+    title: "text-sm font-semibold",
+    description: "text-sm",
+  },
+  lg: {
+    icon: "h-5 w-5",
+    title: "text-base font-semibold",
+    description: "text-base",
+  },
 };
 
 export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
@@ -59,8 +70,13 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
 
   if (variant === "inline") {
     return (
-      <Alert variant="destructive" className={cn("flex items-center justify-between", className)}>
-        <AlertDescription className={styles.description}>{error}</AlertDescription>
+      <Alert
+        variant="destructive"
+        className={cn("flex items-center justify-between", className)}
+      >
+        <AlertDescription className={styles.description}>
+          {error}
+        </AlertDescription>
         {onDismiss && (
           <Button
             type="button"
@@ -69,7 +85,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
             onClick={onDismiss}
             className={cn(
               "text-destructive hover:text-destructive hover:bg-destructive/20",
-              size === "sm" ? "h-5 w-5" : "h-6 w-6"
+              size === "sm" ? "h-5 w-5" : "h-6 w-6",
             )}
           >
             <X className={styles.icon} />
@@ -84,7 +100,12 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
     <Alert variant="destructive" className={cn("my-2", className)}>
       <AlertCircle className={styles.icon} />
       {title && <AlertTitle className={styles.title}>{title}</AlertTitle>}
-      <AlertDescription className={cn(styles.description, "font-mono whitespace-pre-wrap break-words")}>
+      <AlertDescription
+        className={cn(
+          styles.description,
+          "font-mono whitespace-pre-wrap break-words",
+        )}
+      >
         {error}
       </AlertDescription>
       {children}

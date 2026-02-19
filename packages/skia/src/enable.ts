@@ -30,9 +30,8 @@ export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 									compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
 							},
 							async () => {
-								const src = require.resolve(
-									'canvaskit-wasm/bin/full/canvaskit.wasm',
-								);
+								const src =
+									require.resolve('canvaskit-wasm/bin/full/canvaskit.wasm');
 								if (compilation.getAsset(src)) {
 									// Skip emitting the asset again because it's immutable
 									return;

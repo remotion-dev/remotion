@@ -48,6 +48,7 @@ export const offthreadVideoThreadsOption = {
 	setConfig: (size: number | null) => {
 		value = size ?? null;
 	},
+	id: cliFlag,
 } satisfies AnyRemotionOption<number | null>;
 
 export const DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS = 2;

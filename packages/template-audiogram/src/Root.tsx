@@ -1,9 +1,9 @@
+import { parseMedia } from "@remotion/media-parser";
 import { Composition, staticFile } from "remotion";
 import { Audiogram } from "./Audiogram/Main";
 import { audiogramSchema } from "./Audiogram/schema";
 import { getSubtitles } from "./helpers/fetch-captions";
 import { FPS } from "./helpers/ms-to-frame";
-import { parseMedia } from "@remotion/media-parser";
 
 export const RemotionRoot: React.FC = () => {
   return (

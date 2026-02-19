@@ -1,6 +1,7 @@
 // bun run studio
 import React from 'react';
 import {Composition} from 'remotion';
+import {ZodV3SchemaTest, zodV3Schema} from './ZodV3SchemaTest';
 
 const TestComponent: React.FC = () => {
 	return (
@@ -21,13 +22,31 @@ const TestComponent: React.FC = () => {
 
 export const Root: React.FC = () => {
 	return (
-		<Composition
-			id="React18Test"
-			component={TestComponent}
-			durationInFrames={150}
-			fps={30}
-			width={1920}
-			height={1080}
-		/>
+		<>
+			<Composition
+				id="React18Test"
+				component={TestComponent}
+				durationInFrames={150}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			<Composition
+				id="ZodV3SchemaTest"
+				component={ZodV3SchemaTest}
+				durationInFrames={150}
+				fps={30}
+				width={1920}
+				height={1080}
+				schema={zodV3Schema}
+				defaultProps={{
+					title: 'Hello from Zod v3!',
+					count: 10,
+					enabled: [1, 0, 0, 1],
+					tags: ['react18', 'zod-v3'],
+					level: 'beginner' as const,
+				}}
+			/>
+		</>
 	);
 };

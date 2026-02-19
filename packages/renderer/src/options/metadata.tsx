@@ -70,4 +70,5 @@ export const metadataOption = {
 		metadata = newMetadata;
 	},
 	ssrName: 'metadata',
+	id: cliFlag,
 } satisfies AnyRemotionOption<Metadata>;

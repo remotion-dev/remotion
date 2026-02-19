@@ -1,22 +1,19 @@
 import type {
 	AudioCodec,
-	BrowserExecutable,
 	Codec,
 	OpenGlRenderer,
-	PixelFormat,
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
 import type {TypeOfOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {_InternalTypes} from 'remotion';
 import {Config, ConfigInternals} from './config';
-import {Log} from './log';
 import {parsedCli} from './parsed-cli';
 
 const {
 	beepOnFinishOption,
 	colorSpaceOption,
+	concurrencyOption,
 	disallowParallelEncodingOption,
 	offthreadVideoCacheSizeInBytesOption,
 	encodingBufferSizeOption,
@@ -38,20 +35,37 @@ const {
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
+	pixelFormatOption,
+	browserExecutableOption,
+	everyNthFrameOption,
+	proResProfileOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
+	overrideHeightOption,
+	overrideWidthOption,
+	overrideFpsOption,
+	overrideDurationOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
-	['browser-executable']: BrowserExecutable;
-	['pixel-format']: PixelFormat;
+	[browserExecutableOption.cliFlag]: TypeOfOption<
+		typeof browserExecutableOption
+	>;
+	[pixelFormatOption.cliFlag]: TypeOfOption<typeof pixelFormatOption>;
 	['image-format']: VideoImageFormat | StillImageFormat;
-	['prores-profile']: _InternalTypes['ProResProfile'];
+	[proResProfileOption.cliFlag]: TypeOfOption<typeof proResProfileOption>;
 	[x264Option.cliFlag]: TypeOfOption<typeof x264Option>;
 	['bundle-cache']: string;
 	['env-file']: string;
-	['ignore-certificate-errors']: string;
+	[ignoreCertificateErrorsOption.cliFlag]: TypeOfOption<
+		typeof ignoreCertificateErrorsOption
+	>;
 	[darkModeOption.cliFlag]: TypeOfOption<typeof darkModeOption>;
-	['disable-web-security']: string;
-	['every-nth-frame']: number;
+	[disableWebSecurityOption.cliFlag]: TypeOfOption<
+		typeof disableWebSecurityOption
+	>;
+	[everyNthFrameOption.cliFlag]: TypeOfOption<typeof everyNthFrameOption>;
 	[numberOfGifLoopsOption.cliFlag]: TypeOfOption<typeof numberOfGifLoopsOption>;
 	[numberOfSharedAudioTagsOption.cliFlag]: TypeOfOption<
 		typeof numberOfSharedAudioTagsOption
@@ -66,7 +80,7 @@ export type CommandLineOptions = {
 	[beepOnFinishOption.cliFlag]: TypeOfOption<typeof beepOnFinishOption>;
 	version: string;
 	codec: Codec;
-	concurrency: number;
+	[concurrencyOption.cliFlag]: TypeOfOption<typeof concurrencyOption>;
 	timeout: number;
 	config: string;
 	['public-dir']: string;
@@ -99,8 +113,10 @@ export type CommandLineOptions = {
 	['disable-keyboard-shortcuts']: boolean;
 	['enable-experimental-client-side-rendering']: boolean;
 	muted: boolean;
-	height: number;
-	width: number;
+	[overrideHeightOption.cliFlag]: TypeOfOption<typeof overrideHeightOption>;
+	[overrideWidthOption.cliFlag]: TypeOfOption<typeof overrideWidthOption>;
+	[overrideFpsOption.cliFlag]: TypeOfOption<typeof overrideFpsOption>;
+	[overrideDurationOption.cliFlag]: TypeOfOption<typeof overrideDurationOption>;
 	runs: number;
 	concurrencies: string;
 	[enforceAudioOption.cliFlag]: TypeOfOption<typeof enforceAudioOption>;
@@ -110,7 +126,7 @@ export type CommandLineOptions = {
 	['no-open']: boolean;
 	['browser']: string;
 	['browser-args']: string;
-	['user-agent']: string;
+	[userAgentOption.cliFlag]: TypeOfOption<typeof userAgentOption>;
 	['out-dir']: string;
 	[audioLatencyHintOption.cliFlag]: AudioContextLatencyCategory;
 	[ipv4Option.cliFlag]: TypeOfOption<typeof ipv4Option>;
@@ -127,44 +143,8 @@ export type CommandLineOptions = {
 };
 
 export const parseCommandLine = () => {
-	if (parsedCli['pixel-format']) {
-		Config.setPixelFormat(parsedCli['pixel-format']);
-	}
-
-	if (parsedCli['browser-executable']) {
-		Config.setBrowserExecutable(parsedCli['browser-executable']);
-	}
-
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
 		Config.setCachingEnabled(parsedCli['bundle-cache'] !== 'false');
-	}
-
-	if (parsedCli['disable-web-security']) {
-		Config.setChromiumDisableWebSecurity(true);
-	}
-
-	if (parsedCli['ignore-certificate-errors']) {
-		Config.setChromiumIgnoreCertificateErrors(true);
-	}
-
-	if (parsedCli[darkModeOption.cliFlag]) {
-		Config.setChromiumDarkMode(parsedCli[darkModeOption.cliFlag]);
-	}
-
-	if (parsedCli['user-agent']) {
-		Config.setChromiumUserAgent(parsedCli['user-agent']);
-	}
-
-	if (parsedCli.concurrency) {
-		Config.setConcurrency(parsedCli.concurrency);
-	}
-
-	if (parsedCli.height) {
-		Config.overrideHeight(parsedCli.height);
-	}
-
-	if (parsedCli.width) {
-		Config.overrideWidth(parsedCli.width);
 	}
 
 	if (parsedCli.frames) {
@@ -185,46 +165,11 @@ export const parseCommandLine = () => {
 		Config.setImageSequence(true);
 	}
 
-	if (parsedCli['every-nth-frame']) {
-		Config.setEveryNthFrame(parsedCli['every-nth-frame']);
-	}
-
-	if (parsedCli['prores-profile']) {
-		Config.setProResProfile(
-			String(parsedCli['prores-profile']) as _InternalTypes['ProResProfile'],
-		);
-	}
-
 	if (
 		parsedCli['license-key'] &&
 		parsedCli['license-key'].startsWith('rm_pub_')
 	) {
 		Config.setPublicLicenseKey(parsedCli['license-key']);
-	}
-
-	if (parsedCli['public-license-key']) {
-		Config.setPublicLicenseKey(parsedCli['public-license-key']);
-	}
-
-	if (typeof parsedCli.quality !== 'undefined') {
-		Log.warn(
-			{indent: false, logLevel: 'info'},
-			'The --quality flag has been renamed to --jpeg-quality instead.',
-		);
-		Config.setJpegQuality(parsedCli.quality);
-	}
-
-	if (typeof parsedCli.scale !== 'undefined') {
-		Config.setScale(parsedCli.scale);
-	}
-
-	if (
-		typeof parsedCli['enable-experimental-client-side-rendering'] !==
-		'undefined'
-	) {
-		Config.setExperimentalClientSideRenderingEnabled(
-			parsedCli['enable-experimental-client-side-rendering'],
-		);
 	}
 
 	if (typeof parsedCli['webpack-poll'] !== 'undefined') {

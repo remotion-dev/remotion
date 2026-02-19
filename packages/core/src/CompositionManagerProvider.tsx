@@ -5,7 +5,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import type {AnyZodObject} from 'zod';
+import type {AnyZodObject} from './any-zod-type.js';
 import type {TComposition} from './CompositionManager';
 import {compositionsRef, type AnyComposition} from './CompositionManager';
 import type {

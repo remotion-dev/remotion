@@ -244,6 +244,9 @@
 			"path": "./packages/zod-types"
 		},
 		{
+			"path": "./packages/zod-types-v3"
+		},
+		{
 			"path": "./packages/media"
 		},
 		{

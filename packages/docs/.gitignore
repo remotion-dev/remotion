@@ -9,6 +9,9 @@
 .cache-loader
 static/_raw
 
+# Twoslash prewarm temp files
+.twoslash-work-*.json
+
 # Misc
 .DS_Store
 .env.local
