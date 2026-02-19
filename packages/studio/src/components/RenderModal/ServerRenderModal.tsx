@@ -219,7 +219,6 @@ const RenderModal: React.FC<
 	initialDisableWebSecurity,
 	initialGl,
 	initialHeadless,
-
 	initialIgnoreCertificateErrors,
 	initialEncodingBufferSize,
 	initialEncodingMaxRate,
@@ -355,7 +354,6 @@ const RenderModal: React.FC<
 		() => initialDisableWebSecurity,
 	);
 	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
-
 	const [beepOnFinish, setBeepOnFinish] = useState<boolean>(() => initialBeep);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
@@ -376,6 +374,7 @@ const RenderModal: React.FC<
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
 		return {
+			headless,
 			disableWebSecurity,
 			ignoreCertificateErrors,
 			gl: openGlOption === 'default' ? null : openGlOption,
@@ -385,6 +384,7 @@ const RenderModal: React.FC<
 			darkMode,
 		};
 	}, [
+		headless,
 		disableWebSecurity,
 		ignoreCertificateErrors,
 		openGlOption,
