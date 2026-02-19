@@ -153,12 +153,11 @@ export const registerUsageEvent = (
 	options: RegisterUsageEventOptions,
 ): Promise<RegisterUsageEventResponse> => {
 	const licenseKey = 'licenseKey' in options ? options.licenseKey : null;
-	const apiKey = 'apiKey' in options ? options.apiKey : null;
 
 	return internalRegisterUsageEvent({
 		...options,
 		isStill: options.isStill ?? false,
 		isProduction: options.isProduction ?? true,
-		licenseKey: licenseKey ?? apiKey ?? null,
+		licenseKey: licenseKey ?? null,
 	});
 };
