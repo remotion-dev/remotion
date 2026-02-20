@@ -119,7 +119,7 @@ export type RenderStillOptions = {
 	};
 
 type CleanupFn = () => Promise<unknown>;
-type RenderStillReturnValue = {buffer: Buffer | null; mimeType: string};
+type RenderStillReturnValue = {buffer: Buffer | null; contentType: string};
 
 const innerRenderStill = async ({
 	composition,
@@ -387,7 +387,8 @@ const innerRenderStill = async ({
 
 	return {
 		buffer: output ? null : buffer,
-		mimeType: mimeLookup('file.' + imageFormat) || 'application/octet-stream',
+		contentType:
+			mimeLookup('file.' + imageFormat) || 'application/octet-stream',
 	};
 };
 

@@ -221,7 +221,7 @@ type Await<T> = T extends PromiseLike<infer U> ? U : T;
 type RenderMediaResult = {
 	buffer: Buffer | null;
 	slowestFrames: SlowFrame[];
-	mimeType: string;
+	contentType: string;
 };
 
 const internalRenderMediaRaw = ({
@@ -828,7 +828,7 @@ const internalRenderMediaRaw = ({
 				const result: RenderMediaResult = {
 					buffer,
 					slowestFrames,
-					mimeType:
+					contentType:
 						mimeLookup(
 							'file.' + getFileExtensionFromCodec(codec, audioCodec),
 						) || 'application/octet-stream',
