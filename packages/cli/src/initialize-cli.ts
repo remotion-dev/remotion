@@ -5,13 +5,17 @@ import {loadConfig} from './get-config-file-name';
 import {makeHyperlink} from './hyperlinks/make-link';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
-import {parsedCli} from './parsed-cli';
+import {parsedCli, warnAboutUnknownFlags} from './parsed-cli';
 
 export const initializeCli = async (
 	remotionRoot: string,
 ): Promise<LogLevel> => {
 	const appliedName = await loadConfig(remotionRoot);
+	const hasFlags = Object.keys(parsedCli).some((key) => key !== '_');
 
+	if (hasFlags) {
+		warnAboutUnknownFlags();
+	}
 	parseCommandLine();
 	const logLevel = BrowserSafeApis.options.logLevelOption.getValue({
 		commandLine: parsedCli,

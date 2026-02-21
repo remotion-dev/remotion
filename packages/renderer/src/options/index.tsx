@@ -85,6 +85,16 @@ import {videoImageFormatOption} from './video-image-format';
 import {webhookCustomDataOption} from './webhook-custom-data';
 import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
+import { browserArgsOption } from './browser-args';
+import { concurrenciesOption } from './concurrencies';
+import { helpOption } from './help';
+import { pngOption } from './png';
+import { qualityOption } from './quality';
+import { quietOption } from './quiet';
+import { outputOption } from './output';
+import { imageFormatOption } from './image-format';
+import { forceOption } from './force';
+
 
 export const allOptions = {
 	audioCodecOption,
@@ -173,6 +183,15 @@ export const allOptions = {
 	propsOption,
 	configOption,
 	browserOption,
+	browserArgsOption,
+	concurrenciesOption,
+	helpOption,
+	quietOption,
+	qualityOption,
+	pngOption,
+	outputOption,
+	imageFormatOption,
+	forceOption
 };
 
 export type AvailableOptions = keyof typeof allOptions;
