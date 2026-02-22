@@ -1,10 +1,18 @@
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {execSync, spawn} from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 import {chalk} from './chalk';
 import {EXTRA_PACKAGES} from './extra-packages';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
+import {
+	findPnpmWorkspaceYaml,
+	getCatalogPackagesFromWorkspaceYaml,
+	getPackagesCatalogRefs,
+	updateCatalogVersionInYaml,
+} from './pnpm-catalog';
 
 const getExtraPackageVersionsForRemotionVersion = (
 	remotionVersion: string,
@@ -101,13 +109,18 @@ export const upgradeCommand = async ({
 	const extraPackageVersions =
 		getExtraPackageVersionsForRemotionVersion(targetVersion);
 
-	// Build the list of packages to upgrade
-	const packagesWithVersions = [
-		...remotionToUpgrade.map((pkg) => `${pkg}@${targetVersion}`),
-		...installedExtraPackages.map(
-			(pkg) => `${pkg}@${extraPackageVersions[pkg]}`,
-		),
-	];
+	// Build the full map of packages and their target versions
+	const allPackageVersions: Record<string, string> = {};
+	for (const pkg of remotionToUpgrade) {
+		allPackageVersions[pkg] = targetVersion;
+	}
+
+	for (const pkg of installedExtraPackages) {
+		const ver = extraPackageVersions[pkg];
+		if (ver) {
+			allPackageVersions[pkg] = ver;
+		}
+	}
 
 	if (installedExtraPackages.length > 0) {
 		Log.info(
@@ -116,9 +129,94 @@ export const upgradeCommand = async ({
 		);
 	}
 
+	// Handle pnpm catalog: check if any packages use catalog: entries
+	let packagesForInstall = Object.entries(allPackageVersions).map(
+		([pkg, ver]) => `${pkg}@${ver}`,
+	);
+
+	if (manager.manager === 'pnpm') {
+		const workspaceYamlPath = findPnpmWorkspaceYaml(remotionRoot);
+		if (workspaceYamlPath) {
+			const catalogPackagesInWorkspace =
+				getCatalogPackagesFromWorkspaceYaml(workspaceYamlPath);
+
+			// Read the package.json to find which packages use catalog: entries
+			const packageJsonPath = path.join(remotionRoot, 'package.json');
+			const packageJson = JSON.parse(
+				fs.readFileSync(packageJsonPath, 'utf-8'),
+			) as Record<string, Record<string, string>>;
+
+			// Find packages that reference catalog: in this package.json
+			const catalogRefs = getPackagesCatalogRefs(
+				packageJson,
+				Object.keys(allPackageVersions),
+			);
+
+			// Also check workspace-level catalog for packages that are in the catalog
+			// but might be referenced from workspace packages
+			const catalogPackagesToUpdate: Array<{
+				pkg: string;
+				newVersion: string;
+				catalogName: string;
+			}> = [];
+
+			for (const [pkg, ver] of Object.entries(allPackageVersions)) {
+				const catalogRef = catalogRefs[pkg];
+				if (catalogRef !== undefined) {
+					// This package uses catalog: in the current package.json
+					catalogPackagesToUpdate.push({
+						pkg,
+						newVersion: ver,
+						catalogName: catalogRef,
+					});
+				} else if (catalogPackagesInWorkspace[pkg] !== undefined) {
+					// This package is defined in the workspace catalog
+					// (another workspace package may reference it via catalog:)
+					catalogPackagesToUpdate.push({
+						pkg,
+						newVersion: ver,
+						catalogName: catalogPackagesInWorkspace[pkg] as string,
+					});
+				}
+			}
+
+			if (catalogPackagesToUpdate.length > 0) {
+				// Update pnpm-workspace.yaml for catalog packages
+				let yamlContent = fs.readFileSync(workspaceYamlPath, 'utf-8');
+				for (const {
+					pkg,
+					newVersion: catalogPkgVersion,
+					catalogName,
+				} of catalogPackagesToUpdate) {
+					yamlContent = updateCatalogVersionInYaml(
+						yamlContent,
+						pkg,
+						catalogPkgVersion,
+						catalogName,
+					);
+				}
+
+				fs.writeFileSync(workspaceYamlPath, yamlContent, 'utf-8');
+				Log.info(
+					{indent: false, logLevel},
+					`Updated catalog versions in ${workspaceYamlPath}`,
+				);
+
+				// Remove catalog packages from the install command list
+				const catalogPkgNames = new Set(
+					catalogPackagesToUpdate.map(({pkg}) => pkg),
+				);
+				packagesForInstall = packagesForInstall.filter((p) => {
+					const pkgName = p.substring(0, p.lastIndexOf('@'));
+					return !catalogPkgNames.has(pkgName);
+				});
+			}
+		}
+	}
+
 	const command = StudioServerInternals.getInstallCommand({
 		manager: manager.manager,
-		packages: packagesWithVersions,
+		packages: packagesForInstall,
 		version: '',
 		additionalArgs: args,
 	});
