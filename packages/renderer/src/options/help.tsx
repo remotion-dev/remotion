@@ -17,6 +17,7 @@ export const helpOption = {
 		if (commandLine[cliFlag] !== undefined) {
 			return {value: Boolean(commandLine[cliFlag]), source: 'cli'};
 		}
+
 		if (currentHelp !== null) return {value: currentHelp, source: 'config'};
 		return {value: false, source: 'default'};
 	},

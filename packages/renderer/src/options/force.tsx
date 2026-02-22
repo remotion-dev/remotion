@@ -13,6 +13,7 @@ export const forceOption = {
 		if (commandLine[cliFlag] !== undefined) {
 			return {value: Boolean(commandLine[cliFlag]), source: 'cli'};
 		}
+
 		return {
 			source: 'default',
 			value: false,

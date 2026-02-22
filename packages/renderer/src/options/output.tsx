@@ -2,7 +2,7 @@ import type {AnyRemotionOption} from './option';
 
 const cliFlag = 'output' as const;
 
-let currentOutput: string | undefined = undefined;
+let currentOutput: string | undefined;
 
 // Option for --output
 export const outputOption = {

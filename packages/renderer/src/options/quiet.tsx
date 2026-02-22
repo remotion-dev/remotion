@@ -17,6 +17,7 @@ export const quietOption = {
 		if (commandLine[cliFlag] !== undefined) {
 			return {value: true, source: 'cli'};
 		}
+
 		if (currentQuiet !== false) return {value: currentQuiet, source: 'config'};
 		return {value: false, source: 'default'};
 	},
