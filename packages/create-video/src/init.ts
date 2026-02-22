@@ -25,7 +25,6 @@ import {
 	getRenderCommand,
 	selectPackageManager,
 } from './pkg-managers';
-import prompts from './prompts';
 import {resolveProjectRoot} from './resolve-project-root';
 import {getDirectoryArgument, selectTemplate} from './select-template';
 
@@ -119,22 +118,6 @@ export const init = async () => {
 		process.exit(1);
 	}
 
-	if (result.type === 'is-git-repo') {
-		const {shouldContinue} = await prompts({
-			type: 'toggle',
-			name: 'shouldContinue',
-			message: `You are already inside a Git repo (${path.resolve(
-				result.location,
-			)}).\nThis might lead to a Git Submodule being created. Do you want to continue?`,
-			initial: false,
-			active: 'Yes',
-			inactive: 'No',
-		});
-		if (!shouldContinue) {
-			process.exit(1);
-		}
-	}
-
 	const latestRemotionVersionPromise = getLatestRemotionVersion();
 
 	const shouldOverrideTailwind = selectedTemplate.allowEnableTailwind
@@ -181,7 +164,9 @@ export const init = async () => {
 		projectRoot,
 	});
 
-	await getGitStatus(projectRoot);
+	if (result.type === 'no-git-repo') {
+		await getGitStatus(projectRoot);
+	}
 
 	if (shouldInstallSkills) {
 		await installSkills(projectRoot);
