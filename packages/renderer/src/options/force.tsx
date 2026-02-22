@@ -9,13 +9,15 @@ export const forceOption = {
 	description: () => <></>,
 	docLink: null,
 	type: false as boolean,
-	getValue: () => {
+	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag] !== undefined) {
+			return {value: Boolean(commandLine[cliFlag]), source: 'cli'};
+		}
 		return {
 			source: 'default',
 			value: false,
 		};
 	},
-	setConfig: () => {
-	},
+	setConfig: () => {},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

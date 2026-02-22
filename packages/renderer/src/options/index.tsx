@@ -5,10 +5,12 @@ import {audioCodecOption} from './audio-codec';
 import {beepOnFinishOption} from './beep-on-finish';
 import {binariesDirectoryOption} from './binaries-directory';
 import {browserOption} from './browser';
+import {browserArgsOption} from './browser-args';
 import {browserExecutableOption} from './browser-executable';
 import {bundleCacheOption} from './bundle-cache';
 import {chromeModeOption} from './chrome-mode';
 import {colorSpaceOption} from './color-space';
+import {concurrenciesOption} from './concurrencies';
 import {concurrencyOption} from './concurrency';
 import {configOption} from './config';
 import {crfOption} from './crf';
@@ -28,12 +30,15 @@ import {everyNthFrameOption} from './every-nth-frame';
 import {experimentalClientSideRenderingOption} from './experimental-client-side-rendering';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
+import {forceOption} from './force';
 import {forceNewStudioOption} from './force-new-studio';
 import {framesOption} from './frames';
 import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
+import {helpOption} from './help';
 import {ignoreCertificateErrorsOption} from './ignore-certificate-errors';
+import {imageFormatOption} from './image-format';
 import {imageSequenceOption} from './image-sequence';
 import {imageSequencePatternOption} from './image-sequence-pattern';
 import {ipv4Option} from './ipv4';
@@ -53,6 +58,7 @@ import {offthreadVideoThreadsOption} from './offthreadvideo-threads';
 import {onBrowserDownloadOption} from './on-browser-download';
 import type {AnyRemotionOption} from './option';
 import {outDirOption} from './out-dir';
+import {outputOption} from './output';
 import {overrideDurationOption} from './override-duration';
 import {overrideFpsOption} from './override-fps';
 import {overrideHeightOption} from './override-height';
@@ -60,6 +66,7 @@ import {overrideWidthOption} from './override-width';
 import {overwriteOption} from './overwrite';
 import {packageManagerOption} from './package-manager';
 import {pixelFormatOption} from './pixel-format';
+import {pngOption} from './png';
 import {portOption} from './port';
 import {preferLosslessAudioOption} from './prefer-lossless';
 import {propsOption} from './props';
@@ -67,6 +74,9 @@ import {proResProfileOption} from './prores-profile';
 import {publicDirOption} from './public-dir';
 import {publicLicenseKeyOption} from './public-license-key';
 import {publicPathOption} from './public-path';
+import {qOption} from './q';
+import {qualityOption} from './quality';
+import {quietOption} from './quiet';
 import {reproOption} from './repro';
 import {rspackOption} from './rspack';
 import {runsOption} from './runs';
@@ -85,16 +95,6 @@ import {videoImageFormatOption} from './video-image-format';
 import {webhookCustomDataOption} from './webhook-custom-data';
 import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
-import { browserArgsOption } from './browser-args';
-import { concurrenciesOption } from './concurrencies';
-import { helpOption } from './help';
-import { pngOption } from './png';
-import { qualityOption } from './quality';
-import { quietOption } from './quiet';
-import { outputOption } from './output';
-import { imageFormatOption } from './image-format';
-import { forceOption } from './force';
-
 
 export const allOptions = {
 	audioCodecOption,
@@ -187,11 +187,12 @@ export const allOptions = {
 	concurrenciesOption,
 	helpOption,
 	quietOption,
+	qOption,
 	qualityOption,
 	pngOption,
 	outputOption,
 	imageFormatOption,
-	forceOption
+	forceOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

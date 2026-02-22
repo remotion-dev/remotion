@@ -15,7 +15,7 @@ export const browserArgsOption = {
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined)
 			return {value: String(commandLine[cliFlag]), source: 'cli'};
-		if (currentBrowserArgs !== null)
+		if (currentBrowserArgs !== '')
 			return {value: currentBrowserArgs, source: 'config'};
 		return {value: '', source: 'default'};
 	},

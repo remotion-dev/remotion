@@ -1,13 +1,13 @@
 import type {AnyRemotionOption} from './option';
 
-const cliFlag = 'quiet' as const;
+const cliFlag = 'q' as const;
 
 let currentQuiet: boolean = false;
 
-export const quietOption = {
-	name: 'Quiet',
+export const qOption = {
+	name: 'Quiet Alias',
 	cliFlag,
-	ssrName: 'quiet' as const,
+	ssrName: 'q' as const,
 	description: () => (
 		<>Only prints the composition IDs, separated by a space.</>
 	),

@@ -10,9 +10,7 @@ export const pngOption = {
 	docLink: null,
 	type: null as never,
 	getValue: () => {
-			throw new Error(
-			'The "--png" flag is deprecated.'
-		);
+		throw new Error('The "--png" flag is deprecated.');
 	},
 	setConfig: () => {},
 	id: cliFlag,

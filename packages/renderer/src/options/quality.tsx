@@ -15,8 +15,8 @@ export const qualityOption = {
 	type: null as never,
 	getValue: () => {
 		throw new Error(
-		'The "--quality" flag was deprecated in v4.0.0. Please use "--jpeg-quality" instead.'
-	);
+			'The "--quality" flag was deprecated in v4.0.0. Please use "--jpeg-quality" instead.',
+		);
 	},
 	setConfig: () => {},
 	id: cliFlag,
