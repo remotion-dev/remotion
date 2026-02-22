@@ -205,7 +205,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const env = useRemotionEnvironment();
 
-	const inheritedStack = (other as any)?.stack ?? null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const inheritedStack = (other as any).stack ?? null;
 
 	useEffect(() => {
 		if (!env.isStudio) {
