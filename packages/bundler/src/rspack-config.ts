@@ -27,6 +27,7 @@ export const rspackConfig = async ({
 	bufferStateDelayInMilliseconds,
 	poll,
 	experimentalClientSideRenderingEnabled,
+	experimentalVisualModeEnabled,
 	askAIEnabled,
 }: {
 	entry: string;
@@ -43,6 +44,7 @@ export const rspackConfig = async ({
 	poll: number | null;
 	askAIEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
+	experimentalVisualModeEnabled: boolean;
 }): Promise<[string, RspackConfiguration]> => {
 	let lastProgress = 0;
 
@@ -53,6 +55,7 @@ export const rspackConfig = async ({
 			keyboardShortcutsEnabled,
 			bufferStateDelayInMilliseconds,
 			experimentalClientSideRenderingEnabled,
+			experimentalVisualModeEnabled,
 		}) as unknown as Record<string, string>,
 	);
 
@@ -94,11 +97,11 @@ export const rspackConfig = async ({
 	// but the TypeScript types differ. Cast through `any` for the override.
 	const conf = (await webpackOverride({
 		...getBaseConfig(environment, poll),
-		ignoreWarnings: [
-			/Circular dependency between chunks with runtime/,
-			/Critical dependency: the request of a dependency is an expression/,
-			/"__dirname" is used and has been mocked/,
-		],
+		ignoreWarnings: [/"__dirname" is used and has been mocked/],
+		node: {
+			// Suppress the warning in `source-map`
+			__dirname: 'mock',
+		},
 		entry: [
 			require.resolve('./setup-environment'),
 			userDefinedComponent,

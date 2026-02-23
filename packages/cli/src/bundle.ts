@@ -20,6 +20,7 @@ const {
 	audioLatencyHintOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
+	experimentalVisualModeOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	outDirOption,
@@ -72,6 +73,9 @@ export const bundleCommand = async (
 		experimentalClientSideRenderingOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const experimentalVisualModeEnabled = experimentalVisualModeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
@@ -166,6 +170,7 @@ export const bundleCommand = async (
 		publicPath,
 		audioLatencyHint,
 		experimentalClientSideRenderingEnabled,
+		experimentalVisualModeEnabled,
 		askAIEnabled,
 		keyboardShortcutsEnabled,
 		rspack,

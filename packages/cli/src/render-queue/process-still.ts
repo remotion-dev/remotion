@@ -9,6 +9,7 @@ const {
 	publicDirOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
+	experimentalVisualModeOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	browserExecutableOption,
@@ -44,6 +45,9 @@ export const processStill = async ({
 		experimentalClientSideRenderingOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const experimentalVisualModeEnabled = experimentalVisualModeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -93,6 +97,7 @@ export const processStill = async ({
 		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 		askAIEnabled,
 		experimentalClientSideRenderingEnabled,
+		experimentalVisualModeEnabled,
 		keyboardShortcutsEnabled,
 		rspack,
 		shouldCache,

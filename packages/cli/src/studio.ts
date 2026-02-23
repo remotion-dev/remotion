@@ -167,6 +167,7 @@ export const studioCommand = async (
 		desiredPort,
 		keyboardShortcutsEnabled,
 		experimentalClientSideRenderingEnabled,
+		experimentalVisualModeEnabled: useVisualMode,
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
 		relativePublicDir,

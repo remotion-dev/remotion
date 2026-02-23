@@ -11,6 +11,7 @@ const {
 	publicDirOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
+	experimentalVisualModeOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	browserExecutableOption,
@@ -129,6 +130,9 @@ export const processVideoJob = async ({
 		experimentalClientSideRenderingEnabled:
 			experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
 				.value,
+		experimentalVisualModeEnabled: experimentalVisualModeOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		keyboardShortcutsEnabled,
 		rspack,
 		shouldCache,

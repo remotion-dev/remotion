@@ -41,6 +41,7 @@ export const webpackConfig = async ({
 	bufferStateDelayInMilliseconds,
 	poll,
 	experimentalClientSideRenderingEnabled,
+	experimentalVisualModeEnabled,
 	askAIEnabled,
 }: {
 	entry: string;
@@ -57,6 +58,7 @@ export const webpackConfig = async ({
 	poll: number | null;
 	askAIEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
+	experimentalVisualModeEnabled: boolean;
 }): Promise<[string, WebpackConfiguration]> => {
 	const esbuildLoaderOptions: LoaderOptions = {
 		target: 'chrome85',
@@ -74,6 +76,7 @@ export const webpackConfig = async ({
 			keyboardShortcutsEnabled,
 			bufferStateDelayInMilliseconds,
 			experimentalClientSideRenderingEnabled,
+			experimentalVisualModeEnabled,
 		}),
 	);
 

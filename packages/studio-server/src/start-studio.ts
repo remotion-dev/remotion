@@ -38,6 +38,7 @@ export const startStudio = async ({
 	remotionRoot,
 	keyboardShortcutsEnabled,
 	experimentalClientSideRenderingEnabled,
+	experimentalVisualModeEnabled,
 	relativePublicDir,
 	webpackOverride,
 	poll,
@@ -69,6 +70,7 @@ export const startStudio = async ({
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
+	experimentalVisualModeEnabled: boolean;
 	relativePublicDir: string | null;
 	webpackOverride: WebpackOverrideFn;
 	poll: number | null;
@@ -140,6 +142,7 @@ export const startStudio = async ({
 		remotionRoot,
 		keyboardShortcutsEnabled,
 		experimentalClientSideRenderingEnabled,
+		experimentalVisualModeEnabled,
 		publicDir,
 		webpackOverride,
 		poll,

@@ -40,6 +40,7 @@ type OptionalParameters = {
 		keyboardShortcutsEnabled?: boolean;
 		askAIEnabled?: boolean;
 		experimentalClientSideRenderingEnabled?: boolean;
+		experimentalVisualModeEnabled?: boolean;
 		rspack?: boolean;
 	};
 	privacy: 'public' | 'no-acl';
@@ -136,6 +137,8 @@ const mandatoryDeploySite = async ({
 			audioLatencyHint: null,
 			experimentalClientSideRenderingEnabled:
 				options?.experimentalClientSideRenderingEnabled ?? false,
+			experimentalVisualModeEnabled:
+				options?.experimentalVisualModeEnabled ?? false,
 			keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
 			renderDefaults: null,
 			rspack: options?.rspack ?? false,

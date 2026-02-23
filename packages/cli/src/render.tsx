@@ -47,6 +47,7 @@ const {
 	darkModeOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
+	experimentalVisualModeOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	pixelFormatOption,
@@ -256,6 +257,9 @@ export const render = async (
 		experimentalClientSideRenderingOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const experimentalVisualModeEnabled = experimentalVisualModeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	await renderVideoFlow({
 		fullEntryPoint,
@@ -328,6 +332,7 @@ export const render = async (
 		imageSequencePattern,
 		askAIEnabled,
 		experimentalClientSideRenderingEnabled,
+		experimentalVisualModeEnabled,
 		keyboardShortcutsEnabled,
 		rspack,
 		shouldCache,
