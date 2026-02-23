@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/vercel",
-	"version": "4.0.427",
+	"version": "4.0.428",
 	"description": "Render Remotion videos on Vercel Sandbox",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

@@ -4,7 +4,7 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.427",
+	"version": "4.0.428",
 	"scripts": {
 		"formatting": "prettier src --check",
 		"docusaurus": "docusaurus",
