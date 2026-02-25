@@ -429,9 +429,14 @@ test(
 			],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
+				reject: false,
 			},
 		);
-		expect(task.exitCode).toBe(0);
+		if (task.exitCode !== 0) {
+			throw new Error(
+				`Render failed with exit code ${task.exitCode}: ${task.stderr}`,
+			);
+		}
 		expect(fs.existsSync(out)).toBe(true);
 
 		const info = await RenderInternals.callFf({
