@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
 	AbsoluteFill,
 	Internals,
@@ -118,12 +118,7 @@ type GlContext = {
 const LightLeakCanvas: React.FC<{
 	readonly seed: number;
 	readonly hueShift: number;
-}> = ({seed: seedProp, hueShift: hueShiftProp}) => {
-	const overrideSeed = Internals.useSequenceControlOverride('seed');
-	const overrideHueShift = Internals.useSequenceControlOverride('hueShift');
-	const seed = (overrideSeed as number | undefined) ?? seedProp;
-	const hueShift = (overrideHueShift as number | undefined) ?? hueShiftProp;
-
+}> = ({seed, hueShift}) => {
 	const frame = useCurrentFrame();
 	const {width, height, durationInFrames} = useVideoConfig();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -243,14 +238,25 @@ const lightLeakSchema = z.object({
 		.min(0)
 		.max(360)
 		.describe('Hue rotation in degrees (0–360)'),
+	from: z.number().describe('Starting frame of the light leak'),
 });
 
 export const LightLeak: React.FC<LightLeakProps> = ({
-	seed = 0,
-	hueShift = 0,
+	seed: seedProp = 0,
+	hueShift: hueShiftProp = 0,
 	durationInFrames,
+	from: fromProp,
 	...sequenceProps
 }) => {
+	const {
+		controls,
+		values: {seed, hueShift, from},
+	} = Internals.useSchema(lightLeakSchema, {
+		seed: seedProp,
+		hueShift: hueShiftProp,
+		from: fromProp,
+	});
+
 	const {durationInFrames: videoDuration} = useVideoConfig();
 	const resolvedDuration = durationInFrames ?? videoDuration;
 	if (typeof seed !== 'number' || !Number.isFinite(seed)) {
@@ -271,19 +277,12 @@ export const LightLeak: React.FC<LightLeakProps> = ({
 		);
 	}
 
-	const controls = useMemo(
-		() => ({
-			schema: lightLeakSchema,
-			currentValue: {seed, hueShift},
-		}),
-		[seed, hueShift],
-	);
-
 	return (
 		<Sequence
 			durationInFrames={resolvedDuration}
 			name="<LightLeak>"
-			controls={controls}
+			controls={controls ?? undefined}
+			from={from}
 			{...sequenceProps}
 		>
 			<LightLeakCanvas seed={seed} hueShift={hueShift} />
