@@ -65,7 +65,13 @@ type VideoForPreviewProps = {
 	readonly onError: MediaOnError | undefined;
 };
 
-const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
+type VideoForPreviewAssertedShowingProps = VideoForPreviewProps & {
+	readonly controls: SequenceControls | null;
+};
+
+const VideoForPreviewAssertedShowing: React.FC<
+	VideoForPreviewAssertedShowingProps
+> = ({
 	src: unpreloadedSrc,
 	style,
 	playbackRate,
@@ -87,6 +93,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	debugOverlay,
 	headless,
 	onError,
+	controls,
 }) => {
 	const src = usePreload(unpreloadedSrc);
 
@@ -137,22 +144,6 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 		trimAfter,
 		trimBefore,
 	});
-
-	const controls: SequenceControls | null = useMemo(() => {
-		if (typeof volume !== 'number') {
-			return null;
-		}
-
-		return {
-			schema: z.object({
-				volume: z.number().min(0).multipleOf(0.01),
-				playbackRate: z.number().min(0).multipleOf(0.01),
-				trimBefore: z.number(),
-				trimAfter: z.number(),
-			}),
-			currentValue: {volume, playbackRate, trimBefore, trimAfter},
-		};
-	}, [volume, playbackRate, trimBefore, trimAfter]);
 
 	const {id: timelineId} = useMediaInTimeline({
 		volume,
@@ -537,7 +528,45 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	);
 };
 
+const videoSchema = z.object({
+	volume: z.number().min(0).multipleOf(0.01),
+	playbackRate: z.number().min(0).multipleOf(0.01),
+	trimBefore: z.number(),
+	trimAfter: z.number(),
+});
+
 export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
+	const schemaInput = useMemo(() => {
+		if (typeof props.volume !== 'number') {
+			return null;
+		}
+
+		return {
+			volume: props.volume,
+			playbackRate: props.playbackRate,
+			trimBefore: props.trimBefore,
+			trimAfter: props.trimAfter,
+		};
+	}, [props.volume, props.playbackRate, props.trimBefore, props.trimAfter]);
+
+	const {controls, values} = Internals.useSchema(
+		schemaInput ? videoSchema : null,
+		schemaInput,
+	);
+
+	const volume =
+		schemaInput !== null ? (values.volume as number) : props.volume;
+	const playbackRate =
+		schemaInput !== null ? (values.playbackRate as number) : props.playbackRate;
+	const trimBefore =
+		schemaInput !== null
+			? (values.trimBefore as number | undefined)
+			: props.trimBefore;
+	const trimAfter =
+		schemaInput !== null
+			? (values.trimAfter as number | undefined)
+			: props.trimAfter;
+
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const currentTime = frame / videoConfig.fps;
@@ -546,10 +575,10 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
 		return (
 			getTimeInSeconds({
 				unloopedTimeInSeconds: currentTime,
-				playbackRate: props.playbackRate,
+				playbackRate,
 				loop: props.loop,
-				trimBefore: props.trimBefore,
-				trimAfter: props.trimAfter,
+				trimBefore,
+				trimAfter,
 				mediaDurationInSeconds: Infinity,
 				fps: videoConfig.fps,
 				ifNoMediaDuration: 'infinity',
@@ -559,10 +588,10 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
 	}, [
 		currentTime,
 		props.loop,
-		props.playbackRate,
+		playbackRate,
 		props.src,
-		props.trimAfter,
-		props.trimBefore,
+		trimAfter,
+		trimBefore,
 		videoConfig.fps,
 	]);
 
@@ -570,5 +599,14 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
 		return null;
 	}
 
-	return <VideoForPreviewAssertedShowing {...props} />;
+	return (
+		<VideoForPreviewAssertedShowing
+			{...props}
+			volume={volume}
+			playbackRate={playbackRate}
+			trimBefore={trimBefore}
+			trimAfter={trimAfter}
+			controls={controls}
+		/>
+	);
 };

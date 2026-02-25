@@ -256,16 +256,18 @@ export const TimelineExpandedSection: React.FC<{
 		[propStatuses, validatedLocation],
 	);
 
+	const overrideId = sequence.controls?.overrideId ?? sequence.id;
+
 	const onDragValueChange = useCallback(
 		(key: string, value: unknown) => {
-			setOverride(sequence.id, key, value);
+			setOverride(overrideId, key, value);
 		},
-		[setOverride, sequence.id],
+		[setOverride, overrideId],
 	);
 
 	const onDragEnd = useCallback(() => {
-		clearOverrides(sequence.id);
-	}, [clearOverrides, sequence.id]);
+		clearOverrides(overrideId);
+	}, [clearOverrides, overrideId]);
 
 	return (
 		<div style={{...expandedSectionBase, height: expandedHeight}}>

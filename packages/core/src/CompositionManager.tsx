@@ -90,6 +90,7 @@ export type LoopDisplay = {
 export type SequenceControls = {
 	schema: AnyZodObject;
 	currentValue: Record<string, unknown>;
+	overrideId: string;
 };
 
 export type TSequence = {

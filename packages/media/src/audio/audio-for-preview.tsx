@@ -60,7 +60,13 @@ type NewAudioForPreviewProps = {
 	readonly onError: MediaOnError | undefined;
 };
 
-const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
+type AudioForPreviewAssertedShowingProps = NewAudioForPreviewProps & {
+	readonly controls: SequenceControls | null;
+};
+
+const AudioForPreviewAssertedShowing: React.FC<
+	AudioForPreviewAssertedShowingProps
+> = ({
 	src,
 	playbackRate,
 	logLevel,
@@ -78,6 +84,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
 	onError,
+	controls,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
@@ -139,22 +146,6 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		trimAfter,
 		trimBefore,
 	});
-
-	const controls: SequenceControls | null = useMemo(() => {
-		if (typeof volume !== 'number') {
-			return null;
-		}
-
-		return {
-			schema: z.object({
-				volume: z.number().min(0).multipleOf(0.01),
-				playbackRate: z.number().min(0).multipleOf(0.01),
-				trimBefore: z.number(),
-				trimAfter: z.number(),
-			}),
-			currentValue: {volume, playbackRate, trimBefore, trimAfter},
-		};
-	}, [volume, playbackRate, trimBefore, trimAfter]);
 
 	useMediaInTimeline({
 		volume,
@@ -500,7 +491,6 @@ type InnerAudioProps = {
 	readonly playbackRate?: number;
 	// Props we ignore but are passed from old usage
 	readonly _remotionInternalNativeLoopPassed?: boolean;
-	readonly _remotionInternalStack?: string | null;
 	readonly shouldPreMountAudioTags?: boolean;
 	readonly onNativeError?: React.ReactEventHandler<HTMLAudioElement>;
 	readonly onDuration?: (src: string, durationInSeconds: number) => void;
@@ -517,17 +507,24 @@ type InnerAudioProps = {
 	readonly onError?: MediaOnError;
 };
 
+const audioSchema = z.object({
+	volume: z.number().min(0).multipleOf(0.01),
+	playbackRate: z.number().min(0).multipleOf(0.01),
+	trimBefore: z.number(),
+	trimAfter: z.number(),
+});
+
 export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	loop,
 	src,
 	logLevel,
 	muted,
 	name,
-	volume,
+	volume: volumeProp,
 	loopVolumeCurveBehavior,
-	playbackRate,
-	trimAfter,
-	trimBefore,
+	playbackRate: playbackRateProp,
+	trimAfter: trimAfterProp,
+	trimBefore: trimBeforeProp,
 	showInTimeline,
 	stack,
 	disallowFallbackToHtml5Audio,
@@ -536,6 +533,36 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	fallbackHtml5AudioProps,
 	onError,
 }) => {
+	const schemaInput = useMemo(() => {
+		if (typeof volumeProp !== 'number') {
+			return null;
+		}
+
+		return {
+			volume: volumeProp,
+			playbackRate: playbackRateProp,
+			trimBefore: trimBeforeProp,
+			trimAfter: trimAfterProp,
+		};
+	}, [volumeProp, playbackRateProp, trimBeforeProp, trimAfterProp]);
+
+	const {controls, values} = Internals.useSchema(
+		schemaInput ? audioSchema : null,
+		schemaInput,
+	);
+
+	const volume = schemaInput !== null ? (values.volume as number) : volumeProp;
+	const playbackRate =
+		schemaInput !== null ? (values.playbackRate as number) : playbackRateProp;
+	const trimBefore =
+		schemaInput !== null
+			? (values.trimBefore as number | undefined)
+			: trimBeforeProp;
+	const trimAfter =
+		schemaInput !== null
+			? (values.trimAfter as number | undefined)
+			: trimAfterProp;
+
 	const preloadedSrc = usePreload(src);
 
 	const defaultLogLevel = Internals.useLogLevel();
@@ -590,6 +617,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			toneFrequency={toneFrequency}
 			onError={onError}
 			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
+			controls={controls}
 		/>
 	);
 };
