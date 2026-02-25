@@ -181,6 +181,40 @@ const findJsxElementAtLine = (
 	return found;
 };
 
+export const computeSequencePropsStatusFromAst = ({
+	ast,
+	line,
+	keys,
+}: {
+	ast: File;
+	line: number;
+	keys: string[];
+}): CanUpdateSequencePropsResponse => {
+	const jsxElement = findJsxElementAtLine(ast, line);
+
+	if (!jsxElement) {
+		return {
+			canUpdate: false as const,
+			reason: 'Could not find a JSX element at the specified location',
+		};
+	}
+
+	const allProps = getPropsStatus(jsxElement);
+	const filteredProps: Record<string, CanUpdatePropStatus> = {};
+	for (const key of keys) {
+		if (key in allProps) {
+			filteredProps[key] = allProps[key];
+		} else {
+			filteredProps[key] = {canUpdate: false, reason: 'not-set'};
+		}
+	}
+
+	return {
+		canUpdate: true as const,
+		props: filteredProps,
+	};
+};
+
 export const computeSequencePropsStatus = ({
 	fileName,
 	line,
@@ -202,26 +236,7 @@ export const computeSequencePropsStatus = ({
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 		const ast = parseAst(fileContents);
 
-		const jsxElement = findJsxElementAtLine(ast, line);
-
-		if (!jsxElement) {
-			throw new Error('Could not find a JSX element at the specified location');
-		}
-
-		const allProps = getPropsStatus(jsxElement);
-		const filteredProps: Record<string, CanUpdatePropStatus> = {};
-		for (const key of keys) {
-			if (key in allProps) {
-				filteredProps[key] = allProps[key];
-			} else {
-				filteredProps[key] = {canUpdate: false, reason: 'not-set'};
-			}
-		}
-
-		return {
-			canUpdate: true as const,
-			props: filteredProps,
-		};
+		return computeSequencePropsStatusFromAst({ast, line, keys});
 	} catch (err) {
 		return {
 			canUpdate: false as const,
