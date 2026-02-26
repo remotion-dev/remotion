@@ -66,6 +66,7 @@ const {
 	mutedOption,
 	headlessOption,
 	disableGitSourceOption,
+	delayRenderTimeoutInMillisecondsOption,
 	framesOption,
 	forSeamlessAacConcatenationOption,
 	isProductionOption,
@@ -109,7 +110,9 @@ export type CommandLineOptions = {
 	[versionFlagOption.cliFlag]: TypeOfOption<typeof versionFlagOption>;
 	[videoCodecOption.cliFlag]: TypeOfOption<typeof videoCodecOption>;
 	[concurrencyOption.cliFlag]: TypeOfOption<typeof concurrencyOption>;
-	timeout: number;
+	[delayRenderTimeoutInMillisecondsOption.cliFlag]: TypeOfOption<
+		typeof delayRenderTimeoutInMillisecondsOption
+	>;
 	[configOption.cliFlag]: TypeOfOption<typeof configOption>;
 	['public-dir']: string;
 	[audioBitrateOption.cliFlag]: TypeOfOption<typeof audioBitrateOption>;
@@ -121,7 +124,6 @@ export type CommandLineOptions = {
 	[audioCodecOption.cliFlag]: AudioCodec;
 	[publicPathOption.cliFlag]: string;
 	[crfOption.cliFlag]: TypeOfOption<typeof crfOption>;
-	force: boolean;
 	output: string | undefined;
 	[overwriteOption.cliFlag]: TypeOfOption<typeof overwriteOption>;
 	png: boolean;
