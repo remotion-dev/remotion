@@ -712,7 +712,6 @@ export class MediaPlayer {
 			return;
 		}
 
-		console.log('setting new anchor', newAnchor, globalTime, shift);
 		this.sharedAudioSyncAnchor.value = newAnchor;
 	}
 
