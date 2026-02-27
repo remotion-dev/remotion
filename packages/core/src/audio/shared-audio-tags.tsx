@@ -187,7 +187,8 @@ export const SharedAudioContextProvider: React.FC<{
 
 			node.start(scheduledTime, offset, duration);
 
-			const scheduledEndTime = scheduledTime + duration;
+			const scheduledEndTime =
+				scheduledTime + duration / node.playbackRate.value;
 
 			const mediaTime = mediaTimestamp + offset;
 

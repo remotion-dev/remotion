@@ -634,7 +634,9 @@ export class MediaPlayer {
 			throw new Error('hmm, should not render!');
 		}
 
-		const targetTime = (mediaTimestamp - localTime) / this.playbackRate;
+		const targetTime =
+			(mediaTimestamp - localTime) /
+			(this.playbackRate * this.globalPlaybackRate);
 
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,

@@ -47,6 +47,14 @@ export type PrewarmedVideoIteratorCache = ReturnType<
 	typeof makePrewarmedVideoIteratorCache
 >;
 
+const makeBufferWithPriming = (
+	audioSink: AudioBufferSink,
+	timeToSeek: number,
+) => {
+	// TODO: Priming
+	return audioSink.buffers(timeToSeek);
+};
+
 export const makePrewarmedAudioIteratorCache = (audioSink: AudioBufferSink) => {
 	const prewarmedAudioIterators: Map<
 		number,
@@ -55,7 +63,10 @@ export const makePrewarmedAudioIteratorCache = (audioSink: AudioBufferSink) => {
 
 	const prewarmIteratorForLooping = ({timeToSeek}: {timeToSeek: number}) => {
 		if (!prewarmedAudioIterators.has(timeToSeek)) {
-			prewarmedAudioIterators.set(timeToSeek, audioSink.buffers(timeToSeek));
+			prewarmedAudioIterators.set(
+				timeToSeek,
+				makeBufferWithPriming(audioSink, timeToSeek),
+			);
 		}
 	};
 
@@ -66,7 +77,7 @@ export const makePrewarmedAudioIteratorCache = (audioSink: AudioBufferSink) => {
 			return prewarmedIterator;
 		}
 
-		const iterator = audioSink.buffers(timeToSeek);
+		const iterator = makeBufferWithPriming(audioSink, timeToSeek);
 		return iterator;
 	};
 
