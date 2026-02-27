@@ -394,10 +394,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		if (!mediaPlayer) return;
 
 		if (isNextFrameGoingToPlay) {
-			const currentTimeUntilZero =
-				// Premounting does not consider the local playback rate, just the global one.
-				premountFramesRemaining / videoConfig.fps / globalPlaybackRate;
-			mediaPlayer.playAudio(currentTimeRef.current - currentTimeUntilZero);
+			mediaPlayer.playAudio();
 		}
 	}, [
 		isNextFrameGoingToPlay,
@@ -412,7 +409,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 		if (playing && !isPlayerBuffering && !isNextFrameGoingToPlay) {
 			// Play does nothing if already playing, so it can be called multiple times.
-			mediaPlayer.play(currentTimeRef.current);
+			mediaPlayer.play();
 		} else {
 			// Pause will do the work all over again and check if there are scheduled nodes.
 			// This is why isNextFrameGoingToPlay is the in the dependency array.

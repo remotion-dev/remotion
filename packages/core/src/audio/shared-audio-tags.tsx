@@ -44,10 +44,8 @@ const EMPTY_AUDIO =
 
 export type ScheduleAudioNodeOptions = {
 	node: AudioBufferSourceNode;
+	targetTime: number;
 	mediaTimestamp: number;
-	delay: number;
-	nodeTrimBefore: number;
-	nodeDuration: number | null;
 };
 
 type SharedContext = {
@@ -156,53 +154,9 @@ export const SharedAudioContextProvider: React.FC<{
 			return null;
 		}
 
-		let lastScheduledEnd: number | null = null;
-		let lastMediaEnd: number | null = null;
-
-		return ({
-			node,
-			mediaTimestamp,
-			delay,
-			nodeTrimBefore: trimBefore,
-			nodeDuration: duration,
-		}: ScheduleAudioNodeOptions): boolean => {
-			if (duration !== null && duration <= 0) {
-				return false;
-			}
-
-			const startAt =
-				delay >= 0
-					? audioContext.currentTime + delay
-					: audioContext.currentTime;
-			const effectiveDuration =
-				duration ?? (node.buffer?.duration ?? 0) - trimBefore;
-			node.start(startAt, trimBefore, duration ?? undefined);
-
-			const end = startAt + effectiveDuration;
-			const mediaEnd = mediaTimestamp + effectiveDuration;
-
-			const startGap =
-				lastScheduledEnd !== null &&
-				Math.abs(startAt - lastScheduledEnd) > 0.001;
-			const mediaGap =
-				lastMediaEnd !== null &&
-				Math.abs(mediaTimestamp - lastMediaEnd) > 0.001;
-
-			const red = 'color: red; font-weight: bold';
-			const normal = '';
-
-			// eslint-disable-next-line no-console
-			console.log(
-				`[audio-schedule] start=%c${startAt.toFixed(4)}%c dur=${effectiveDuration.toFixed(4)} end=${end.toFixed(4)} mediaStart=%c${mediaTimestamp.toFixed(4)}%c mediaEnd=${mediaEnd.toFixed(4)}`,
-				startGap ? red : normal,
-				normal,
-				mediaGap ? red : normal,
-				normal,
-			);
-
-			lastScheduledEnd = end;
-			lastMediaEnd = mediaEnd;
-
+		return ({node, mediaTimestamp, targetTime}: ScheduleAudioNodeOptions) => {
+			console.log('scheduleAudioNode', mediaTimestamp, targetTime);
+			node.start(targetTime);
 			return true;
 		};
 	}, [audioContext]);

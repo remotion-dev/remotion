@@ -374,7 +374,10 @@ export class MediaPlayer {
 		}
 
 		const shouldSeekAudio =
-			this.audioIteratorManager && this.getAudioPlaybackTime() !== newTime;
+			this.audioIteratorManager &&
+			this.getAudioPlaybackTime(
+				this.sharedAudioContext?.audioContext.currentTime ?? 0,
+			) !== newTime;
 
 		try {
 			await Promise.all([
@@ -401,12 +404,7 @@ export class MediaPlayer {
 		}
 	}
 
-	public async playAudio(time: number): Promise<void> {
-		const newTime = this.getTrimmedTime(time);
-		if (newTime === null) {
-			throw new Error(`should have asserted that the time is not null`);
-		}
-
+	public async playAudio(): Promise<void> {
 		if (this.audioIteratorManager) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
 				playbackRate: this.playbackRate * this.globalPlaybackRate,
@@ -418,18 +416,19 @@ export class MediaPlayer {
 			this.sharedAudioContext &&
 			this.sharedAudioContext.audioContext.state === 'suspended'
 		) {
+			console.log('resume');
 			await this.sharedAudioContext.audioContext.resume();
 		}
 	}
 
-	public async play(time: number): Promise<void> {
+	public async play(): Promise<void> {
 		if (this.playing) {
 			return;
 		}
 
 		this.playing = true;
 
-		await this.playAudio(time);
+		await this.playAudio();
 		this.drawDebugOverlay();
 	}
 
@@ -619,38 +618,38 @@ export class MediaPlayer {
 	private scheduleAudioNode = (
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
-		maxDuration: number | null,
-		bufferOffset: number,
 	): boolean => {
 		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
 		}
 
-		const currentTime = this.getAudioPlaybackTime();
-		const combinedPlaybackRate = this.playbackRate * this.globalPlaybackRate;
-		const delayWithoutPlaybackRate = mediaTimestamp - currentTime;
-		const delay = delayWithoutPlaybackRate / combinedPlaybackRate;
-		const mediaOffset = Math.max(0, -delayWithoutPlaybackRate);
-		const trimBefore = bufferOffset + mediaOffset;
-		const nodeDuration =
-			maxDuration !== null ? maxDuration - mediaOffset : null;
+		const {audioContext} = this.sharedAudioContext;
+		const {currentTime} = audioContext;
+
+		const globalTime =
+			(currentTime - this.sharedAudioContext.audioSyncAnchor.value) *
+			this.globalPlaybackRate;
+		const localTime = this.getTrimmedTime(globalTime - this.sequenceOffset);
+		if (localTime === null) {
+			throw new Error('hmm, should not render!');
+		}
+
+		const targetTime = (mediaTimestamp - localTime) / this.playbackRate;
+
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,
 			mediaTimestamp,
-			delay,
-			nodeTrimBefore: trimBefore,
-			nodeDuration,
+			targetTime: targetTime + currentTime,
 		});
 	};
 
-	private getAudioPlaybackTime(): number {
+	private getAudioPlaybackTime(currentTime: number): number {
 		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
 		}
 
 		const globalTime =
-			(this.sharedAudioContext.audioContext.currentTime -
-				this.sharedAudioContext.audioSyncAnchor.value) *
+			(currentTime - this.sharedAudioContext.audioSyncAnchor.value) *
 			this.globalPlaybackRate;
 		const localTime = globalTime - this.sequenceOffset;
 

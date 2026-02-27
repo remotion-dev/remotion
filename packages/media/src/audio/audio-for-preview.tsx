@@ -373,7 +373,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 		if (!audioPlayer) return;
 
 		if (playing && !isPlayerBuffering) {
-			audioPlayer.play(currentTimeRef.current);
+			audioPlayer.play();
 		} else {
 			audioPlayer.pause();
 		}
