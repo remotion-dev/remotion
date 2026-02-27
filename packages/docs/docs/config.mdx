@@ -111,6 +111,18 @@ Config.setBenchmarkRuns(5);
 
 The [command line flag](/docs/cli/benchmark#--runs) `--runs` will take precedence over this option.
 
+## `setBenchmarkConcurrencies()`<AvailableFrom v="4.0.430" />
+
+<Options id="concurrencies" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setBenchmarkConcurrencies('1,4,8');
+```
+
+The [command line flag](/docs/cli/benchmark#--concurrencies) `--concurrencies` will take precedence over this option.
+
 ## `setEntryPoint()`<AvailableFrom v="3.2.40" />
 
 Sets the Remotion [entry point](/docs/terminology/entry-point), you don't have to specify it for CLI commands.

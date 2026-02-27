@@ -136,6 +136,15 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
+	const {premountFramesRemaining, playing: playingWhilePremounting} =
+		useContext(Internals.PremountContext);
+
+	// Allows for pre-scheduling audio nodes before the premounting ends,
+	// since there is some latency.
+	const isNextFrameGoingToPlay =
+		playingWhilePremounting &&
+		premountFramesRemaining > 0 &&
+		premountFramesRemaining <= 1.000000001;
 
 	const loopDisplay = useLoopDisplay({
 		loop,
@@ -213,6 +222,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				isPremounting: initialIsPremounting.current,
 				isPostmounting: initialIsPostmounting.current,
 				globalPlaybackRate: initialGlobalPlaybackRate.current,
+				durationInFrames: videoConfig.durationInFrames,
 				onVideoFrameCallback: initialOnVideoFrameRef.current ?? null,
 				playing: initialPlaying.current,
 			});
@@ -345,6 +355,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		sharedAudioContext,
 		videoConfig.fps,
 		onError,
+		videoConfig.durationInFrames,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -357,12 +368,41 @@ const VideoForPreviewAssertedShowing: React.FC<
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer) return;
 
-		if (playing && !isPlayerBuffering) {
+		if (isNextFrameGoingToPlay) {
+			const currentTimeUntilZero =
+				// Premounting does not consider the local playback rate, just the global one.
+				premountFramesRemaining / videoConfig.fps / globalPlaybackRate;
+			mediaPlayer.playAudio(currentTimeRef.current - currentTimeUntilZero);
+		}
+	}, [
+		isNextFrameGoingToPlay,
+		premountFramesRemaining,
+		videoConfig.fps,
+		globalPlaybackRate,
+	]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer) return;
+
+		if (playing && !isPlayerBuffering && !isNextFrameGoingToPlay) {
+			// Play does nothing if already playing, so it can be called multiple times.
 			mediaPlayer.play(currentTimeRef.current);
 		} else {
+			// Pause will do the work all over again and check if there are scheduled nodes.
+			// This is why isNextFrameGoingToPlay is the in the dependency array.
+			// We want to trigger another pause if due to being 1 frame before premounting ends,
+			// audio is resumed and at the same time a pause is happening, we need to ensure
+			// that the pause is triggered again even though officially "playing" never changed.
 			mediaPlayer.pause();
 		}
-	}, [isPlayerBuffering, playing, logLevel, mediaPlayerReady]);
+	}, [
+		isPlayerBuffering,
+		playing,
+		logLevel,
+		mediaPlayerReady,
+		isNextFrameGoingToPlay,
+	]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -413,7 +453,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 			return;
 		}
 
-		mediaPlayer.setPlaybackRate(playbackRate);
+		mediaPlayer.setPlaybackRate(playbackRate, currentTimeRef.current);
 	}, [playbackRate, mediaPlayerReady]);
 
 	useLayoutEffect(() => {
@@ -433,6 +473,15 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 		mediaPlayer.setLoop(loop);
 	}, [loop, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setDurationInFrames(videoConfig.durationInFrames);
+	}, [videoConfig.durationInFrames, mediaPlayerReady]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

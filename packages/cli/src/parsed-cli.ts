@@ -8,6 +8,7 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
 
 const {
+	benchmarkConcurrenciesOption,
 	beepOnFinishOption,
 	colorSpaceOption,
 	concurrencyOption,
@@ -66,6 +67,7 @@ const {
 	mutedOption,
 	headlessOption,
 	disableGitSourceOption,
+	delayRenderTimeoutInMillisecondsOption,
 	framesOption,
 	forSeamlessAacConcatenationOption,
 	isProductionOption,
@@ -109,7 +111,9 @@ export type CommandLineOptions = {
 	[versionFlagOption.cliFlag]: TypeOfOption<typeof versionFlagOption>;
 	[videoCodecOption.cliFlag]: TypeOfOption<typeof videoCodecOption>;
 	[concurrencyOption.cliFlag]: TypeOfOption<typeof concurrencyOption>;
-	timeout: number;
+	[delayRenderTimeoutInMillisecondsOption.cliFlag]: TypeOfOption<
+		typeof delayRenderTimeoutInMillisecondsOption
+	>;
 	[configOption.cliFlag]: TypeOfOption<typeof configOption>;
 	['public-dir']: string;
 	[audioBitrateOption.cliFlag]: TypeOfOption<typeof audioBitrateOption>;
@@ -121,7 +125,6 @@ export type CommandLineOptions = {
 	[audioCodecOption.cliFlag]: AudioCodec;
 	[publicPathOption.cliFlag]: string;
 	[crfOption.cliFlag]: TypeOfOption<typeof crfOption>;
-	force: boolean;
 	output: string | undefined;
 	[overwriteOption.cliFlag]: TypeOfOption<typeof overwriteOption>;
 	png: boolean;
@@ -153,7 +156,9 @@ export type CommandLineOptions = {
 	[overrideFpsOption.cliFlag]: TypeOfOption<typeof overrideFpsOption>;
 	[overrideDurationOption.cliFlag]: TypeOfOption<typeof overrideDurationOption>;
 	[runsOption.cliFlag]: TypeOfOption<typeof runsOption>;
-	concurrencies: string;
+	[benchmarkConcurrenciesOption.cliFlag]: TypeOfOption<
+		typeof benchmarkConcurrenciesOption
+	>;
 	[enforceAudioOption.cliFlag]: TypeOfOption<typeof enforceAudioOption>;
 	[glOption.cliFlag]: TypeOfOption<typeof glOption>;
 	[packageManagerOption.cliFlag]: TypeOfOption<typeof packageManagerOption>;

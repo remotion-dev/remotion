@@ -11,18 +11,14 @@ Use ElevenLabs TTS to generate speech audio per scene, then use [`calculateMetad
 
 ## Prerequisites
 
-An **ElevenLabs API key** is required. Store it in a `.env` file at the project root:
+An **ElevenLabs API key** is required (`ELEVENLABS_API_KEY` environment variable).
 
-```
-ELEVENLABS_API_KEY=your_key_here
-```
+**MUST** ask the user for their ElevenLabs API key if `ELEVENLABS_API_KEY` is not set. **MUST NOT** fall back to other TTS tools.
 
-**MUST** ask the user for their ElevenLabs API key if no `.env` file exists or `ELEVENLABS_API_KEY` is not set. **MUST NOT** fall back to other TTS tools.
-
-When running the generation script, use the `--env-file` flag to load the `.env` file:
+Ensure the environment variable is available when running the generation script:
 
 ```bash
-node --env-file=.env --strip-types generate-voiceover.ts
+node --strip-types generate-voiceover.ts
 ```
 
 ## Generating audio with ElevenLabs

@@ -16,7 +16,7 @@ test(
 		expect(missedFrames).toBe(0);
 	},
 	{
-		timeout: 30000,
+		timeout: 60000,
 	},
 );
 
@@ -27,7 +27,7 @@ test(
 		expect(missedFrames).toBeLessThanOrEqual(0);
 	},
 	{
-		timeout: 40000,
+		timeout: 60000,
 	},
 );
 

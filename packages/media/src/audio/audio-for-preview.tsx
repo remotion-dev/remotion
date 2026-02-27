@@ -203,6 +203,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 				isPostmounting: initialIsPostmounting.current,
 				isPremounting: initialIsPremounting.current,
 				globalPlaybackRate: initialGlobalPlaybackRate.current,
+				durationInFrames: videoConfig.durationInFrames,
 				onVideoFrameCallback: null,
 				playing: initialPlaying.current,
 			});
@@ -340,6 +341,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 		disallowFallbackToHtml5Audio,
 		buffer,
 		onError,
+		videoConfig.durationInFrames,
 	]);
 
 	useLayoutEffect(() => {
@@ -393,7 +395,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 			return;
 		}
 
-		audioPlayer.setPlaybackRate(playbackRate);
+		audioPlayer.setPlaybackRate(playbackRate, currentTimeRef.current);
 	}, [playbackRate, mediaPlayerReady]);
 
 	useLayoutEffect(() => {
@@ -422,6 +424,15 @@ const AudioForPreviewAssertedShowing: React.FC<
 
 		mediaPlayer.setLoop(loop);
 	}, [loop, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setDurationInFrames(videoConfig.durationInFrames);
+	}, [videoConfig.durationInFrames, mediaPlayerReady]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

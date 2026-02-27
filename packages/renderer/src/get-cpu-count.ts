@@ -3,7 +3,7 @@
 // However, Node.js returns the core count of the host system (up to 96!)
 
 import {execSync} from 'node:child_process';
-import {cpus} from 'node:os';
+import os from 'node:os';
 
 let nprocCount: number | null | undefined;
 
@@ -25,8 +25,18 @@ export const getConcurrencyFromNProc = (): number | null => {
 	}
 };
 
+const getNodeCpuCount = (): number => {
+	// os.availableParallelism() is faster and respects cgroup CPU limits in containers.
+	// Available since Node 18.14 / 19.4.
+	if (typeof os.availableParallelism === 'function') {
+		return os.availableParallelism();
+	}
+
+	return os.cpus().length;
+};
+
 export const getCpuCount = () => {
-	const node = cpus().length;
+	const node = getNodeCpuCount();
 	const nproc = getConcurrencyFromNProc();
 	if (nproc === null) {
 		return node;

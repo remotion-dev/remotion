@@ -5,6 +5,7 @@ const relativeFrameStyle: React.CSSProperties = {
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	color: 'white',
 	opacity: 0.5,
+	whiteSpace: 'nowrap',
 };
 
 export const TimelineSequenceFrame: React.FC<{

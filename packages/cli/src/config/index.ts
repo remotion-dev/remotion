@@ -50,6 +50,7 @@ import {getWebpackPolling} from './webpack-poll';
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 const {
+	benchmarkConcurrenciesOption,
 	concurrencyOption,
 	offthreadVideoCacheSizeInBytesOption,
 	x264Option,
@@ -614,6 +615,12 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setBenchmarkRuns: (runs: number) => void;
 		/**
+		 * Set which concurrency values should be used during a benchmark.
+		 * Pass a comma-separated string of numbers, e.g. "1,4,8".
+		 * Default: null (uses the --concurrency value)
+		 */
+		setBenchmarkConcurrencies: (concurrencies: string | null) => void;
+		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
 		Bundling: void;
@@ -763,6 +770,7 @@ export const Config: FlatConfig = {
 	setIPv4: ipv4Option.setConfig,
 	setBundleOutDir: outDirOption.setConfig,
 	setBenchmarkRuns: runsOption.setConfig,
+	setBenchmarkConcurrencies: benchmarkConcurrenciesOption.setConfig,
 };
 
 export const ConfigInternals = {

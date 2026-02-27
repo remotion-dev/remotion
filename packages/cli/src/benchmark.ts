@@ -76,8 +76,12 @@ const {
 	runsOption,
 } = BrowserSafeApis.options;
 
+const {benchmarkConcurrenciesOption} = BrowserSafeApis.options;
+
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
-	const {concurrencies} = parsedCli;
+	const concurrencies = benchmarkConcurrenciesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	if (!concurrencies) {
 		return [RenderInternals.resolveConcurrency(cliConcurrency)];

@@ -10,6 +10,7 @@ import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
 import {Freeze} from './freeze.js';
 import {useNonce} from './nonce.js';
+import {PremountContext} from './PremountContext.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
@@ -361,20 +362,35 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 		styleWhilePostmounted,
 	]);
 
+	const parentPremountContext = useContext(PremountContext);
+	const {playing} = useContext(TimelineContext);
+	const premountFramesRemaining =
+		parentPremountContext.premountFramesRemaining +
+		(premountingActive ? from - frame : 0);
+
+	const premountContextValue = useMemo(() => {
+		return {
+			premountFramesRemaining,
+			playing: parentPremountContext.playing || playing,
+		};
+	}, [premountFramesRemaining, parentPremountContext.playing, playing]);
+
 	return (
-		<Freeze frame={freezeFrame} active={isFreezingActive}>
-			<Sequence
-				ref={ref}
-				from={from}
-				durationInFrames={durationInFrames}
-				style={style}
-				_remotionInternalPremountDisplay={premountFor}
-				_remotionInternalPostmountDisplay={postmountFor}
-				_remotionInternalIsPremounting={premountingActive}
-				_remotionInternalIsPostmounting={postmountingActive}
-				{...otherProps}
-			/>
-		</Freeze>
+		<PremountContext.Provider value={premountContextValue}>
+			<Freeze frame={freezeFrame} active={isFreezingActive}>
+				<Sequence
+					ref={ref}
+					from={from}
+					durationInFrames={durationInFrames}
+					style={style}
+					_remotionInternalPremountDisplay={premountFor}
+					_remotionInternalPostmountDisplay={postmountFor}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
+					{...otherProps}
+				/>
+			</Freeze>
+		</PremountContext.Provider>
 	);
 };
 

@@ -18,6 +18,7 @@ test('setTrimBefore and setTrimAfter should update frame when paused', async () 
 		bufferState: {delayPlayback: () => ({unblock: () => {}})},
 		isPremounting: false,
 		isPostmounting: false,
+		durationInFrames: 300,
 		onVideoFrameCallback: null,
 		playing: false,
 	});

@@ -8,6 +8,7 @@ export type QueuedNode = {
 	node: AudioBufferSourceNode;
 	timestamp: number;
 	buffer: AudioBuffer;
+	maxDuration: number | null;
 };
 
 export const makeAudioIterator = (
@@ -20,6 +21,7 @@ export const makeAudioIterator = (
 	const audioChunksForAfterResuming: {
 		buffer: AudioBuffer;
 		timestamp: number;
+		maxDuration: number | null;
 	}[] = [];
 	let mostRecentTimestamp = -Infinity;
 	let pendingNext: Promise<IteratorResult<WrappedAudioBuffer, void>> | null =
@@ -190,14 +192,22 @@ export const makeAudioIterator = (
 		return nodes;
 	};
 
-	const addChunkForAfterResuming = (buffer: AudioBuffer, timestamp: number) => {
-		audioChunksForAfterResuming.push({buffer, timestamp});
+	const addChunkForAfterResuming = (
+		buffer: AudioBuffer,
+		timestamp: number,
+		maxDuration: number | null,
+	) => {
+		audioChunksForAfterResuming.push({buffer, timestamp, maxDuration});
 	};
 
 	const moveQueuedChunksToPauseQueue = () => {
 		const toQueue = removeAndReturnAllQueuedAudioNodes();
 		for (const chunk of toQueue) {
-			addChunkForAfterResuming(chunk.buffer, chunk.timestamp);
+			addChunkForAfterResuming(
+				chunk.buffer,
+				chunk.timestamp,
+				chunk.maxDuration,
+			);
 		}
 	};
 
@@ -230,8 +240,9 @@ export const makeAudioIterator = (
 			node: AudioBufferSourceNode,
 			timestamp: number,
 			buffer: AudioBuffer,
+			maxDuration: number | null,
 		) => {
-			queuedAudioNodes.push({node, timestamp, buffer});
+			queuedAudioNodes.push({node, timestamp, buffer, maxDuration});
 		},
 		removeQueuedAudioNode: (node: AudioBufferSourceNode) => {
 			const index = queuedAudioNodes.findIndex((n) => n.node === node);
