@@ -171,7 +171,9 @@ export const SharedAudioContextProvider: React.FC<{
 			}
 
 			const startAt =
-				delay >= 0 ? audioContext.currentTime + delay : audioContext.currentTime;
+				delay >= 0
+					? audioContext.currentTime + delay
+					: audioContext.currentTime;
 			const effectiveDuration =
 				duration ?? (node.buffer?.duration ?? 0) - trimBefore;
 			node.start(startAt, trimBefore, duration ?? undefined);
