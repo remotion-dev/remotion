@@ -206,11 +206,14 @@ const AudioForPreviewAssertedShowing: React.FC<
 		if (!sharedAudioContext.audioSyncAnchor) return;
 		if (!sharedAudioContext.scheduleAudioNode) return;
 
+		const {audioContext, audioSyncAnchor, scheduleAudioNode} =
+			sharedAudioContext;
+
 		try {
 			const player = new MediaPlayer({
 				src: preloadedSrc,
 				logLevel,
-				sharedAudioContext,
+				sharedAudioContext: {audioContext, audioSyncAnchor, scheduleAudioNode},
 				loop,
 				trimAfter: initialTrimAfterRef.current,
 				trimBefore: initialTrimBeforeRef.current,

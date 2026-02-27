@@ -208,13 +208,19 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	useEffect(() => {
 		if (!sharedAudioContext) return;
+		if (!sharedAudioContext.audioContext) return;
+		if (!sharedAudioContext.audioSyncAnchor) return;
+		if (!sharedAudioContext.scheduleAudioNode) return;
+
+		const {audioContext, audioSyncAnchor, scheduleAudioNode} =
+			sharedAudioContext;
 
 		try {
 			const player = new MediaPlayer({
 				canvas: canvasRef.current,
 				src: preloadedSrc,
 				logLevel,
-				sharedAudioContext: sharedAudioContext ?? null,
+				sharedAudioContext: {audioContext, audioSyncAnchor, scheduleAudioNode},
 				loop,
 				trimAfter: initialTrimAfterRef.current,
 				trimBefore: initialTrimBeforeRef.current,

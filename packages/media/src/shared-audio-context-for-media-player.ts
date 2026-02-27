@@ -7,7 +7,7 @@ export type ScheduleAudioNodeOptions = {
 };
 
 export type SharedAudioContextForMediaPlayer = {
-	audioContext: AudioContext | null;
-	audioSyncAnchor: {value: number} | null;
-	scheduleAudioNode: ((options: ScheduleAudioNodeOptions) => boolean) | null;
+	audioContext: AudioContext;
+	audioSyncAnchor: {value: number};
+	scheduleAudioNode: (options: ScheduleAudioNodeOptions) => boolean;
 };
