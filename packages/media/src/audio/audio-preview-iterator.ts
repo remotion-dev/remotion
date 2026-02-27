@@ -252,7 +252,13 @@ export const makeAudioIterator = (
 			maxDuration: number | null,
 			bufferOffset: number,
 		) => {
-			queuedAudioNodes.push({node, timestamp, buffer, maxDuration, bufferOffset});
+			queuedAudioNodes.push({
+				node,
+				timestamp,
+				buffer,
+				maxDuration,
+				bufferOffset,
+			});
 		},
 		removeQueuedAudioNode: (node: AudioBufferSourceNode) => {
 			const index = queuedAudioNodes.findIndex((n) => n.node === node);

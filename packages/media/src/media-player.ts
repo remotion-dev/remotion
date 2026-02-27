@@ -306,7 +306,12 @@ export class MediaPlayer {
 								playbackRate: this.playbackRate * this.globalPlaybackRate,
 								startFromSecond: startTime,
 								getIsPlaying: () => this.playing,
-								scheduleAudioNode: (node, mediaTimestamp, maxDuration, bufferOffset) => {
+								scheduleAudioNode: (
+									node,
+									mediaTimestamp,
+									maxDuration,
+									bufferOffset,
+								) => {
 									if (!this.sharedAudioContext) {
 										throw new Error('Shared audio context not found');
 									}
@@ -403,7 +408,12 @@ export class MediaPlayer {
 							nonce,
 							playbackRate: this.playbackRate * this.globalPlaybackRate,
 							getIsPlaying: () => this.playing,
-							scheduleAudioNode: (node, mediaTimestamp, maxDuration, bufferOffset) => {
+							scheduleAudioNode: (
+								node,
+								mediaTimestamp,
+								maxDuration,
+								bufferOffset,
+							) => {
 								if (!this.sharedAudioContext) {
 									throw new Error('Shared audio context not found');
 								}
@@ -440,7 +450,12 @@ export class MediaPlayer {
 		if (this.audioIteratorManager) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
 				playbackRate: this.playbackRate * this.globalPlaybackRate,
-				scheduleAudioNode: (node, mediaTimestamp, maxDuration, bufferOffset) => {
+				scheduleAudioNode: (
+					node,
+					mediaTimestamp,
+					maxDuration,
+					bufferOffset,
+				) => {
 					if (!this.sharedAudioContext) {
 						throw new Error('Shared audio context not found');
 					}
@@ -594,7 +609,12 @@ export class MediaPlayer {
 		if (this.playing) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
 				playbackRate: this.playbackRate * this.globalPlaybackRate,
-				scheduleAudioNode: (node, mediaTimestamp, maxDuration, bufferOffset) => {
+				scheduleAudioNode: (
+					node,
+					mediaTimestamp,
+					maxDuration,
+					bufferOffset,
+				) => {
 					if (!this.sharedAudioContext) {
 						throw new Error('Shared audio context not found');
 					}
