@@ -1,10 +1,9 @@
 export type ScheduleAudioNodeOptions = {
 	node: AudioBufferSourceNode;
 	mediaTimestamp: number;
-	currentMediaTime: number;
-	combinedPlaybackRate: number;
-	maxDuration: number | null;
-	bufferOffset: number;
+	delay: number;
+	trimBefore: number;
+	duration: number | null;
 };
 
 export type SharedAudioContextForMediaPlayer = {

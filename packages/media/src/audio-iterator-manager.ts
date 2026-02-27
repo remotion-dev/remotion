@@ -82,6 +82,7 @@ export const audioIteratorManager = ({
 			maxDuration,
 			bufferOffset,
 		);
+
 		if (!started) {
 			node.disconnect();
 			return;

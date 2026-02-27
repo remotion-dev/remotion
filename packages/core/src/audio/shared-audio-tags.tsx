@@ -45,10 +45,9 @@ const EMPTY_AUDIO =
 export type ScheduleAudioNodeOptions = {
 	node: AudioBufferSourceNode;
 	mediaTimestamp: number;
-	currentMediaTime: number;
-	combinedPlaybackRate: number;
-	maxDuration: number | null;
-	bufferOffset: number;
+	delay: number;
+	trimBefore: number;
+	duration: number | null;
 };
 
 type SharedContext = {
@@ -163,45 +162,22 @@ export const SharedAudioContextProvider: React.FC<{
 		return ({
 			node,
 			mediaTimestamp,
-			currentMediaTime,
-			combinedPlaybackRate,
-			maxDuration,
-			bufferOffset,
+			delay,
+			trimBefore,
+			duration,
 		}: ScheduleAudioNodeOptions): boolean => {
-			const delayWithoutPlaybackRate = mediaTimestamp - currentMediaTime;
-			const delay = delayWithoutPlaybackRate / combinedPlaybackRate;
-
-			let startAt: number;
-			let duration: number;
-
-			if (delay >= 0) {
-				startAt = audioContext.currentTime + delay;
-				duration = maxDuration ?? (node.buffer?.duration ?? 0) - bufferOffset;
-				node.start(startAt, bufferOffset, maxDuration ?? undefined);
-			} else {
-				const mediaOffset = -delayWithoutPlaybackRate;
-				if (maxDuration !== null && maxDuration - mediaOffset <= 0) {
-					return false;
-				}
-
-				const totalOffset = bufferOffset + mediaOffset;
-
-				startAt = audioContext.currentTime;
-				duration =
-					maxDuration !== null
-						? maxDuration - mediaOffset
-						: (node.buffer?.duration ?? 0) - totalOffset;
-				node.start(
-					startAt,
-					totalOffset,
-					maxDuration !== null ? maxDuration - mediaOffset : undefined,
-				);
+			if (duration !== null && duration <= 0) {
+				return false;
 			}
 
-			const end = startAt + duration;
-			const mediaDuration =
-				maxDuration ?? (node.buffer?.duration ?? 0) - bufferOffset;
-			const mediaEnd = mediaTimestamp + mediaDuration;
+			const startAt =
+				delay >= 0 ? audioContext.currentTime + delay : audioContext.currentTime;
+			const effectiveDuration =
+				duration ?? (node.buffer?.duration ?? 0) - trimBefore;
+			node.start(startAt, trimBefore, duration ?? undefined);
+
+			const end = startAt + effectiveDuration;
+			const mediaEnd = mediaTimestamp + effectiveDuration;
 
 			const startGap =
 				lastScheduledEnd !== null &&
@@ -215,7 +191,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 			// eslint-disable-next-line no-console
 			console.log(
-				`[audio-schedule] start=%c${startAt.toFixed(4)}%c dur=${duration.toFixed(4)} end=${end.toFixed(4)} mediaStart=%c${mediaTimestamp.toFixed(4)}%c mediaEnd=${mediaEnd.toFixed(4)}`,
+				`[audio-schedule] start=%c${startAt.toFixed(4)}%c dur=${effectiveDuration.toFixed(4)} end=${end.toFixed(4)} mediaStart=%c${mediaTimestamp.toFixed(4)}%c mediaEnd=${mediaEnd.toFixed(4)}`,
 				startGap ? red : normal,
 				normal,
 				mediaGap ? red : normal,
