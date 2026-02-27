@@ -208,7 +208,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 			const player = new MediaPlayer({
 				src: preloadedSrc,
 				logLevel,
-				sharedAudioContext: sharedAudioContext.audioContext,
+				sharedAudioContext,
 				loop,
 				trimAfter: initialTrimAfterRef.current,
 				trimBefore: initialTrimBeforeRef.current,
@@ -224,7 +224,6 @@ const AudioForPreviewAssertedShowing: React.FC<
 				durationInFrames: videoConfig.durationInFrames,
 				onVideoFrameCallback: null,
 				playing: initialPlaying.current,
-				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
 				sequenceOffset: initialSequenceOffset.current,
 			});
 

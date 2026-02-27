@@ -214,7 +214,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				canvas: canvasRef.current,
 				src: preloadedSrc,
 				logLevel,
-				sharedAudioContext: sharedAudioContext.audioContext,
+				sharedAudioContext,
 				loop,
 				trimAfter: initialTrimAfterRef.current,
 				trimBefore: initialTrimBeforeRef.current,
@@ -229,7 +229,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 				durationInFrames: videoConfig.durationInFrames,
 				onVideoFrameCallback: initialOnVideoFrameRef.current ?? null,
 				playing: initialPlaying.current,
-				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
 				sequenceOffset: initialSequenceOffset.current,
 			});
 

@@ -21,7 +21,6 @@ test('setTrimBefore and setTrimAfter should update frame when paused', async () 
 		durationInFrames: 300,
 		onVideoFrameCallback: null,
 		playing: false,
-		audioSyncAnchor: null,
 		sequenceOffset: 0,
 	});
 
