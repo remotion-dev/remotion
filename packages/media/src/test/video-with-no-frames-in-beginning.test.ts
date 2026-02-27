@@ -104,8 +104,8 @@ test('same goes for audio', async () => {
 		playbackRate: 1,
 		startFromSecond: 0.06671494248275864,
 		getIsPlaying: () => true,
-		scheduleAudioNode: (node, mediaTimestamp, maxDuration) => {
-			node.start(mediaTimestamp, 0, maxDuration ?? undefined);
+		scheduleAudioNode: (node, mediaTimestamp, maxDuration, bufferOffset) => {
+			node.start(mediaTimestamp, bufferOffset, maxDuration ?? undefined);
 			return true;
 		},
 	});
@@ -115,8 +115,8 @@ test('same goes for audio', async () => {
 		nonce: nonceManager.createAsyncOperation(),
 		playbackRate: 1,
 		getIsPlaying: () => true,
-		scheduleAudioNode: (node, _mediaTimestamp, maxDuration) => {
-			node.start(1, 0, maxDuration ?? undefined);
+		scheduleAudioNode: (node, _mediaTimestamp, maxDuration, bufferOffset) => {
+			node.start(1, bufferOffset, maxDuration ?? undefined);
 			return true;
 		},
 	});

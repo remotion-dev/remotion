@@ -48,6 +48,7 @@ export type ScheduleAudioNodeOptions = {
 	currentMediaTime: number;
 	combinedPlaybackRate: number;
 	maxDuration: number | null;
+	bufferOffset: number;
 };
 
 type SharedContext = {
@@ -165,6 +166,7 @@ export const SharedAudioContextProvider: React.FC<{
 			currentMediaTime,
 			combinedPlaybackRate,
 			maxDuration,
+			bufferOffset,
 		}: ScheduleAudioNodeOptions): boolean => {
 			const delayWithoutPlaybackRate = mediaTimestamp - currentMediaTime;
 			const delay = delayWithoutPlaybackRate / combinedPlaybackRate;
@@ -174,28 +176,31 @@ export const SharedAudioContextProvider: React.FC<{
 
 			if (delay >= 0) {
 				startAt = audioContext.currentTime + delay;
-				duration = maxDuration ?? node.buffer?.duration ?? 0;
-				node.start(startAt, 0, maxDuration ?? undefined);
+				duration = maxDuration ?? (node.buffer?.duration ?? 0) - bufferOffset;
+				node.start(startAt, bufferOffset, maxDuration ?? undefined);
 			} else {
-				const offset = -delayWithoutPlaybackRate;
-				if (maxDuration !== null && maxDuration - offset <= 0) {
+				const mediaOffset = -delayWithoutPlaybackRate;
+				if (maxDuration !== null && maxDuration - mediaOffset <= 0) {
 					return false;
 				}
+
+				const totalOffset = bufferOffset + mediaOffset;
 
 				startAt = audioContext.currentTime;
 				duration =
 					maxDuration !== null
-						? maxDuration - offset
-						: (node.buffer?.duration ?? 0) - offset;
+						? maxDuration - mediaOffset
+						: (node.buffer?.duration ?? 0) - totalOffset;
 				node.start(
 					startAt,
-					offset,
-					maxDuration !== null ? maxDuration - offset : undefined,
+					totalOffset,
+					maxDuration !== null ? maxDuration - mediaOffset : undefined,
 				);
 			}
 
 			const end = startAt + duration;
-			const mediaDuration = maxDuration ?? node.buffer?.duration ?? 0;
+			const mediaDuration =
+				maxDuration ?? (node.buffer?.duration ?? 0) - bufferOffset;
 			const mediaEnd = mediaTimestamp + mediaDuration;
 
 			const startGap =

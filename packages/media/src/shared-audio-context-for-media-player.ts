@@ -4,6 +4,7 @@ export type ScheduleAudioNodeOptions = {
 	currentMediaTime: number;
 	combinedPlaybackRate: number;
 	maxDuration: number | null;
+	bufferOffset: number;
 };
 
 export type SharedAudioContextForMediaPlayer = {

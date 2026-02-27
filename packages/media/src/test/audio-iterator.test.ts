@@ -46,8 +46,9 @@ test('media player should work', async () => {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		maxDuration: number | null,
+		bufferOffset: number,
 	) => {
-		node.start(mediaTimestamp, 0, maxDuration ?? undefined);
+		node.start(mediaTimestamp, bufferOffset, maxDuration ?? undefined);
 		setTimeout(
 			() => {
 				node.stop();
@@ -101,8 +102,9 @@ test('should not create too many iterators when the audio ends', async () => {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		maxDuration: number | null,
+		bufferOffset: number,
 	) => {
-		node.start(mediaTimestamp, 0, maxDuration ?? undefined);
+		node.start(mediaTimestamp, bufferOffset, maxDuration ?? undefined);
 		setTimeout(
 			() => {
 				node.stop();
@@ -149,8 +151,9 @@ test('should create more iterators when seeking ', async () => {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		maxDuration: number | null,
+		bufferOffset: number,
 	) => {
-		node.start(mediaTimestamp, 0, maxDuration ?? undefined);
+		node.start(mediaTimestamp, bufferOffset, maxDuration ?? undefined);
 		setTimeout(
 			() => {
 				node.stop();
@@ -217,8 +220,9 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		maxDuration: number | null,
+		bufferOffset: number,
 	) => {
-		node.start(mediaTimestamp, 0, maxDuration ?? undefined);
+		node.start(mediaTimestamp, bufferOffset, maxDuration ?? undefined);
 		setTimeout(
 			() => {
 				node.stop();
@@ -290,8 +294,9 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		maxDuration: number | null,
+		bufferOffset: number,
 	) => {
-		node.start(mediaTimestamp, 0, maxDuration ?? undefined);
+		node.start(mediaTimestamp, bufferOffset, maxDuration ?? undefined);
 		setTimeout(
 			() => {
 				node.stop();
