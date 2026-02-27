@@ -311,7 +311,9 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	HTMLDivElement,
 	SequenceProps
 > = (props, ref) => {
-	const frame = useCurrentFrame();
+	const parentPremountContext = useContext(PremountContext);
+	const frame =
+		useCurrentFrame() - parentPremountContext.premountFramesRemaining;
 
 	if (props.layout === 'none') {
 		throw new Error(
@@ -362,7 +364,6 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 		styleWhilePostmounted,
 	]);
 
-	const parentPremountContext = useContext(PremountContext);
 	const {playing} = useContext(TimelineContext);
 	const premountFramesRemaining =
 		parentPremountContext.premountFramesRemaining +
