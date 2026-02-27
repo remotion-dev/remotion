@@ -46,8 +46,8 @@ export type ScheduleAudioNodeOptions = {
 	node: AudioBufferSourceNode;
 	mediaTimestamp: number;
 	delay: number;
-	trimBefore: number;
-	duration: number | null;
+	nodeTrimBefore: number;
+	nodeDuration: number | null;
 };
 
 type SharedContext = {
@@ -163,8 +163,8 @@ export const SharedAudioContextProvider: React.FC<{
 			node,
 			mediaTimestamp,
 			delay,
-			trimBefore,
-			duration,
+			nodeTrimBefore: trimBefore,
+			nodeDuration: duration,
 		}: ScheduleAudioNodeOptions): boolean => {
 			if (duration !== null && duration <= 0) {
 				return false;

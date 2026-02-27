@@ -2,8 +2,8 @@ export type ScheduleAudioNodeOptions = {
 	node: AudioBufferSourceNode;
 	mediaTimestamp: number;
 	delay: number;
-	trimBefore: number;
-	duration: number | null;
+	nodeTrimBefore: number;
+	nodeDuration: number | null;
 };
 
 export type SharedAudioContextForMediaPlayer = {

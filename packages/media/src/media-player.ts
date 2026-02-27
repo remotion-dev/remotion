@@ -632,13 +632,14 @@ export class MediaPlayer {
 		const delay = delayWithoutPlaybackRate / combinedPlaybackRate;
 		const mediaOffset = Math.max(0, -delayWithoutPlaybackRate);
 		const trimBefore = bufferOffset + mediaOffset;
-		const duration = maxDuration !== null ? maxDuration - mediaOffset : null;
+		const nodeDuration =
+			maxDuration !== null ? maxDuration - mediaOffset : null;
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,
 			mediaTimestamp,
 			delay,
-			trimBefore,
-			duration,
+			nodeTrimBefore: trimBefore,
+			nodeDuration,
 		});
 	};
 
