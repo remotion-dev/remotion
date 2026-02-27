@@ -22,8 +22,8 @@ import {
 } from 'remotion';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
-import {setGlobalTimeAnchor} from '../set-global-time-anchor';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import {setGlobalTimeAnchor} from '../set-global-time-anchor';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import type {FallbackOffthreadVideoProps} from './props';
@@ -371,7 +371,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}, [className]);
 
 	useLayoutEffect(() => {
-		if (sharedAudioContext?.audioContext && sharedAudioContext.audioSyncAnchor) {
+		if (
+			sharedAudioContext?.audioContext &&
+			sharedAudioContext.audioSyncAnchor
+		) {
 			setGlobalTimeAnchor({
 				audioContext: sharedAudioContext.audioContext,
 				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
