@@ -157,6 +157,7 @@ export const SharedAudioContextProvider: React.FC<{
 		}
 
 		let lastScheduledEnd: number | null = null;
+		let lastMediaEnd: number | null = null;
 
 		return ({
 			node,
@@ -193,23 +194,31 @@ export const SharedAudioContextProvider: React.FC<{
 				);
 			}
 
+			const end = startAt + duration;
 			const mediaDuration = maxDuration ?? node.buffer?.duration ?? 0;
+			const mediaEnd = mediaTimestamp + mediaDuration;
+
+			const startGap =
+				lastScheduledEnd !== null &&
+				Math.abs(startAt - lastScheduledEnd) > 0.001;
+			const mediaGap =
+				lastMediaEnd !== null &&
+				Math.abs(mediaTimestamp - lastMediaEnd) > 0.001;
+
+			const red = 'color: red; font-weight: bold';
+			const normal = '';
+
 			// eslint-disable-next-line no-console
 			console.log(
-				`[audio-schedule] start=${startAt.toFixed(4)} dur=${duration.toFixed(4)} end=${(startAt + duration).toFixed(4)} mediaStart=${mediaTimestamp.toFixed(4)} mediaEnd=${(mediaTimestamp + mediaDuration).toFixed(4)}`,
+				`[audio-schedule] start=%c${startAt.toFixed(4)}%c dur=${duration.toFixed(4)} end=${end.toFixed(4)} mediaStart=%c${mediaTimestamp.toFixed(4)}%c mediaEnd=${mediaEnd.toFixed(4)}`,
+				startGap ? red : normal,
+				normal,
+				mediaGap ? red : normal,
+				normal,
 			);
 
-			if (
-				lastScheduledEnd !== null &&
-				Math.abs(startAt - lastScheduledEnd) > 0.001
-			) {
-				// eslint-disable-next-line no-console
-				console.warn(
-					`[audio-schedule] gap/overlap: prev end=${lastScheduledEnd.toFixed(4)} next start=${startAt.toFixed(4)} diff=${(startAt - lastScheduledEnd).toFixed(4)}`,
-				);
-			}
-
-			lastScheduledEnd = startAt + duration;
+			lastScheduledEnd = end;
+			lastMediaEnd = mediaEnd;
 
 			return true;
 		};
