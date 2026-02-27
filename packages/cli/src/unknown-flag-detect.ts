@@ -14,9 +14,11 @@ export const warnAboutUnknownFlag = function (
 	});
 
 	for (const flag of unknownFlags) {
+	for (const flag of unknownFlags) {
 		Log.warn(
 			{indent: false, logLevel},
-			`Unknown flag "--${flag}" for ${command}. Run "remotion render --help" to see valid options.`,
+			`Unknown flag "--${flag}" for ${command}. Run "remotion ${command} --help" to see valid options.`,
+		);
 		);
 	}
 };
