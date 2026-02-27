@@ -9,7 +9,7 @@ import {makeAudioCache} from './audio-cache';
 // The worst case seems to be FLAC files with a 65'535 sample window, which would be 1486.0ms at 44.1Khz.
 // So let's set a threshold of 1.5 seconds.
 
-const extraThreshold = 1.5;
+const EXTRA_THRESHOLD_IN_SECONDS = 1.5;
 const safetyOutOfOrderThreshold = 0.2;
 
 const warned: Record<string, boolean> = {};
@@ -48,7 +48,7 @@ export const makeAudioIterator = ({
 	// https://github.com/Vanilagy/mediabunny/issues/105
 
 	const sampleIterator = audioSampleSink.samples(
-		isMatroska ? 0 : Math.max(0, startTimestamp - extraThreshold),
+		isMatroska ? 0 : Math.max(0, startTimestamp - EXTRA_THRESHOLD_IN_SECONDS),
 	);
 	if (isMatroska) {
 		warnAboutMatroskaOnce(src, logLevel);
