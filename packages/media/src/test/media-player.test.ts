@@ -25,7 +25,10 @@ test('dispose should immediately unblock playback delays', async () => {
 		canvas: null,
 		src: 'https://remotion.media/video.mp4',
 		logLevel: 'error',
-		sharedAudioContext: {audioContext: new AudioContext(), audioSyncAnchor: {value: 0}},
+		sharedAudioContext: {
+			audioContext: new AudioContext(),
+			audioSyncAnchor: {value: 0},
+		},
 		loop: false,
 		trimBefore: undefined,
 		trimAfter: undefined,

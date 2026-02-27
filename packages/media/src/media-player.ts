@@ -683,12 +683,16 @@ export class MediaPlayer {
 	};
 
 	private getAudioPlaybackTime(): number {
-		if (!this.sharedAudioContext?.audioContext || !this.sharedAudioContext.audioSyncAnchor) {
+		if (
+			!this.sharedAudioContext?.audioContext ||
+			!this.sharedAudioContext.audioSyncAnchor
+		) {
 			throw new Error('Shared audio context not found');
 		}
 
 		const globalTime =
-			(this.sharedAudioContext.audioContext.currentTime - this.sharedAudioContext.audioSyncAnchor.value) *
+			(this.sharedAudioContext.audioContext.currentTime -
+				this.sharedAudioContext.audioSyncAnchor.value) *
 			this.globalPlaybackRate;
 		const localTime = globalTime - this.sequenceOffset;
 
