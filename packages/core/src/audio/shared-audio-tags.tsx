@@ -60,6 +60,7 @@ type SharedContext = {
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
 	audioContext: AudioContext | null;
+	audioSyncAnchor: {value: number} | null;
 };
 
 const compareProps = (
@@ -136,6 +137,11 @@ export const SharedAudioContextProvider: React.FC<{
 		latencyHint: audioLatencyHint,
 		audioEnabled,
 	});
+	const audioSyncAnchor = useMemo(
+		() => (audioContext ? {value: 0} : null),
+		[audioContext],
+	);
+
 	const refs = useMemo(() => {
 		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
 			const ref = createRef<HTMLAudioElement>();
@@ -361,6 +367,7 @@ export const SharedAudioContextProvider: React.FC<{
 			playAllAudios,
 			numberOfAudioTags,
 			audioContext,
+			audioSyncAnchor,
 		};
 	}, [
 		numberOfAudioTags,
@@ -369,6 +376,7 @@ export const SharedAudioContextProvider: React.FC<{
 		unregisterAudio,
 		updateAudio,
 		audioContext,
+		audioSyncAnchor,
 	]);
 
 	return (

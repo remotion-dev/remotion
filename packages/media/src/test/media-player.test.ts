@@ -40,6 +40,8 @@ test('dispose should immediately unblock playback delays', async () => {
 		durationInFrames: 300,
 		onVideoFrameCallback: null,
 		playing: false,
+		audioSyncAnchor: {value: 0},
+		sequenceOffset: 0,
 	});
 
 	await player.initialize(0, false);

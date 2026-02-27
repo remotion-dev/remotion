@@ -138,6 +138,10 @@ const AudioForPreviewAssertedShowing: React.FC<
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
+	const sequenceOffset = parentSequence
+		? (parentSequence.cumulatedFrom + parentSequence.relativeFrom) /
+			videoConfig.fps
+		: 0;
 
 	const loopDisplay = useLoopDisplay({
 		loop,
@@ -206,6 +210,8 @@ const AudioForPreviewAssertedShowing: React.FC<
 				durationInFrames: videoConfig.durationInFrames,
 				onVideoFrameCallback: null,
 				playing: initialPlaying.current,
+				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+				sequenceOffset,
 			});
 
 			mediaPlayerRef.current = player;
@@ -415,6 +421,15 @@ const AudioForPreviewAssertedShowing: React.FC<
 
 		audioPlayer.setFps(videoConfig.fps);
 	}, [videoConfig.fps, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setSequenceOffset(sequenceOffset);
+	}, [sequenceOffset, mediaPlayerReady]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

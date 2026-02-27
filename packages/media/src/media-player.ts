@@ -5,7 +5,6 @@ import {
 	audioIteratorManager,
 	type AudioIteratorManager,
 } from './audio-iterator-manager';
-import {calculatePlaybackTime} from './calculate-playbacktime';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
@@ -41,9 +40,8 @@ export class MediaPlayer {
 	audioIteratorManager: AudioIteratorManager | null = null;
 	videoIteratorManager: VideoIteratorManager | null = null;
 
-	// this is the time difference between Web Audio timeline
-	// and media file timeline
-	private audioSyncAnchor: number = 0;
+	private sharedAudioSyncAnchor: {value: number} | null;
+	private sequenceOffset: number;
 
 	private playing = false;
 	private loop = false;
@@ -89,6 +87,8 @@ export class MediaPlayer {
 		durationInFrames,
 		onVideoFrameCallback,
 		playing,
+		audioSyncAnchor,
+		sequenceOffset,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -108,6 +108,8 @@ export class MediaPlayer {
 		durationInFrames: number;
 		onVideoFrameCallback: null | ((frame: CanvasImageSource) => void);
 		playing: boolean;
+		audioSyncAnchor: {value: number} | null;
+		sequenceOffset: number;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -128,6 +130,8 @@ export class MediaPlayer {
 		this.nonceManager = makeNonceManager();
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
+		this.sharedAudioSyncAnchor = audioSyncAnchor;
+		this.sequenceOffset = sequenceOffset;
 
 		this.input = new Input({
 			source: new UrlSource(this.src),
@@ -273,7 +277,7 @@ export class MediaPlayer {
 				throw new Error(`should have asserted that the time is not null`);
 			}
 
-			this.setAudioPlaybackTime(startTime);
+			this.setGlobalTimeAnchor(startTimeUnresolved + this.sequenceOffset);
 
 			if (audioTrack && this.sharedAudioContext) {
 				const canDecode = await audioTrack.canDecode();
@@ -364,6 +368,7 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
+		this.setGlobalTimeAnchor(time + this.sequenceOffset);
 		await this.seekToWithQueue(newTime);
 	}
 
@@ -379,10 +384,6 @@ export class MediaPlayer {
 			this.audioIteratorManager &&
 			this.sharedAudioContext &&
 			this.getAudioPlaybackTime() !== newTime;
-
-		if (shouldSeekAudio) {
-			this.setAudioPlaybackTime(newTime);
-		}
 
 		await Promise.all([
 			this.videoIteratorManager?.seek({
@@ -407,7 +408,7 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		this.setAudioPlaybackTime(newTime);
+		this.setGlobalTimeAnchor(time + this.sequenceOffset);
 
 		if (this.audioIteratorManager) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
@@ -504,7 +505,7 @@ export class MediaPlayer {
 		this.audioIteratorManager?.destroyIterator();
 
 		if (newMediaTime !== null) {
-			this.setAudioPlaybackTime(newMediaTime);
+			this.setGlobalTimeAnchor(unloopedTimeInSeconds + this.sequenceOffset);
 
 			if (!this.playing && this.videoIteratorManager) {
 				await this.seekToWithQueue(newMediaTime);
@@ -536,9 +537,7 @@ export class MediaPlayer {
 		this.debugOverlay = debugOverlay;
 	}
 
-	private updateAudioTimeAfterPlaybackRateChange(
-		mediaTimeBeforeChange: number,
-	): void {
+	private rescheduleAudioChunks(): void {
 		if (!this.audioIteratorManager) {
 			return;
 		}
@@ -546,8 +545,6 @@ export class MediaPlayer {
 		if (!this.sharedAudioContext) {
 			return;
 		}
-
-		this.setAudioPlaybackTime(mediaTimeBeforeChange);
 
 		const iterator = this.audioIteratorManager.getAudioBufferIterator();
 		if (!iterator) {
@@ -568,9 +565,8 @@ export class MediaPlayer {
 		unloopedTimeInSeconds: number,
 	): Promise<void> {
 		const previousRate = this.playbackRate;
-		const mediaTime = this.sharedAudioContext ? this.getAudioPlaybackTime() : 0;
 		this.playbackRate = rate;
-		this.updateAudioTimeAfterPlaybackRateChange(mediaTime);
+		this.rescheduleAudioChunks();
 
 		if (previousRate !== rate) {
 			await this.seekTo(unloopedTimeInSeconds);
@@ -578,9 +574,18 @@ export class MediaPlayer {
 	}
 
 	public setGlobalPlaybackRate(rate: number): void {
-		const mediaTime = this.sharedAudioContext ? this.getAudioPlaybackTime() : 0;
-		this.globalPlaybackRate = rate;
-		this.updateAudioTimeAfterPlaybackRateChange(mediaTime);
+		if (this.sharedAudioContext && this.sharedAudioSyncAnchor) {
+			const globalTime =
+				(this.sharedAudioContext.currentTime -
+					this.sharedAudioSyncAnchor.value) *
+				this.globalPlaybackRate;
+			this.globalPlaybackRate = rate;
+			this.setGlobalTimeAnchor(globalTime);
+		} else {
+			this.globalPlaybackRate = rate;
+		}
+
+		this.rescheduleAudioChunks();
 	}
 
 	public setFps(fps: number): void {
@@ -597,6 +602,10 @@ export class MediaPlayer {
 
 	public setLoop(loop: boolean): void {
 		this.loop = loop;
+	}
+
+	public setSequenceOffset(offset: number): void {
+		this.sequenceOffset = offset;
 	}
 
 	public setDurationInFrames(durationInFrames: number): void {
@@ -653,32 +662,35 @@ export class MediaPlayer {
 	};
 
 	private getAudioPlaybackTime(): number {
-		if (!this.sharedAudioContext) {
+		if (!this.sharedAudioContext || !this.sharedAudioSyncAnchor) {
 			throw new Error('Shared audio context not found');
 		}
 
-		return calculatePlaybackTime({
-			audioSyncAnchor: this.audioSyncAnchor,
-			currentTime: this.sharedAudioContext.currentTime,
-			playbackRate: this.playbackRate * this.globalPlaybackRate,
-		});
+		const globalTime =
+			(this.sharedAudioContext.currentTime - this.sharedAudioSyncAnchor.value) *
+			this.globalPlaybackRate;
+		const localTime = globalTime - this.sequenceOffset;
+		return localTime * this.playbackRate + (this.trimBefore ?? 0) / this.fps;
 	}
 
-	private setAudioPlaybackTime(time: number): void {
-		if (!this.sharedAudioContext) {
+	private setGlobalTimeAnchor(globalTime: number): void {
+		if (!this.sharedAudioContext || !this.sharedAudioSyncAnchor) {
 			return;
 		}
 
-		const playbackRate = this.playbackRate * this.globalPlaybackRate;
-		const newAnchor = this.sharedAudioContext.currentTime - time / playbackRate;
-		const shift = Math.abs(newAnchor - this.audioSyncAnchor) * playbackRate;
+		const newAnchor =
+			this.sharedAudioContext.currentTime -
+			globalTime / this.globalPlaybackRate;
+		const shift =
+			Math.abs(newAnchor - this.sharedAudioSyncAnchor.value) *
+			this.globalPlaybackRate;
 
 		// Skip small shifts to avoid audio glitches from frame-quantized re-anchoring
 		if (shift < 0.05) {
 			return;
 		}
 
-		this.audioSyncAnchor = newAnchor;
+		this.sharedAudioSyncAnchor.value = newAnchor;
 	}
 
 	public setVideoFrameCallback(
@@ -694,7 +706,7 @@ export class MediaPlayer {
 				context: this.context,
 				audioTime: this.sharedAudioContext?.currentTime ?? null,
 				audioContextState: this.sharedAudioContext?.state ?? null,
-				audioSyncAnchor: this.audioSyncAnchor,
+				audioSyncAnchor: this.sharedAudioSyncAnchor,
 				audioIteratorManager: this.audioIteratorManager,
 				playing: this.playing,
 				videoIteratorManager: this.videoIteratorManager,

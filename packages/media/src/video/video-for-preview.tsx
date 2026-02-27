@@ -136,6 +136,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
+	const sequenceOffset = parentSequence
+		? (parentSequence.cumulatedFrom + parentSequence.relativeFrom) /
+			videoConfig!.fps
+		: 0;
 	const {premountFramesRemaining, playing: playingWhilePremounting} =
 		useContext(Internals.PremountContext);
 
@@ -225,6 +229,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 				durationInFrames: videoConfig.durationInFrames,
 				onVideoFrameCallback: initialOnVideoFrameRef.current ?? null,
 				playing: initialPlaying.current,
+				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+				sequenceOffset,
 			});
 
 			mediaPlayerRef.current = player;
@@ -509,6 +515,15 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 		mediaPlayer.setFps(videoConfig.fps);
 	}, [videoConfig.fps, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setSequenceOffset(sequenceOffset);
+	}, [sequenceOffset, mediaPlayerReady]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
