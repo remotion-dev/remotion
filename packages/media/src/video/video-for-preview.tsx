@@ -22,6 +22,7 @@ import {
 } from 'remotion';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
+import {setGlobalTimeAnchor} from '../set-global-time-anchor';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
@@ -131,17 +132,19 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaVolume,
 	});
 
+	if (!videoConfig) {
+		throw new Error('No video config found');
+	}
+
 	warnAboutTooHighVolume(userPreferredVolume);
 
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
-	const sequenceOffset = parentSequence
-		? (parentSequence.cumulatedFrom + parentSequence.relativeFrom) /
-			videoConfig!.fps
-		: 0;
 	const {premountFramesRemaining, playing: playingWhilePremounting} =
 		useContext(Internals.PremountContext);
+	const absoluteTime = Internals.useAbsoluteTimelinePosition();
+	const sequenceOffset = (absoluteTime - frame) / videoConfig!.fps;
 
 	// Allows for pre-scheduling audio nodes before the premounting ends,
 	// since there is some latency.
@@ -176,10 +179,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 	});
 
 	const isSequenceHidden = hidden[timelineId] ?? false;
-
-	if (!videoConfig) {
-		throw new Error('No video config found');
-	}
 
 	const currentTime = frame / videoConfig.fps;
 
@@ -370,6 +369,17 @@ const VideoForPreviewAssertedShowing: React.FC<
 			.filter(Internals.truthy)
 			.join(' ');
 	}, [className]);
+
+	useLayoutEffect(() => {
+		if (sharedAudioContext?.audioContext && sharedAudioContext.audioSyncAnchor) {
+			setGlobalTimeAnchor({
+				audioContext: sharedAudioContext.audioContext,
+				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+				absoluteTimeInSeconds: absoluteTime / videoConfig.fps,
+				globalPlaybackRate,
+			});
+		}
+	}, [absoluteTime, globalPlaybackRate, sharedAudioContext, videoConfig.fps]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

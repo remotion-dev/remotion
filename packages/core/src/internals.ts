@@ -101,6 +101,7 @@ import {
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
 import {
+	AbsoluteTimeContext,
 	SetTimelineContext,
 	TimelineContext,
 	type SetTimelineContextValue,
@@ -170,6 +171,7 @@ export const Internals = {
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
+	useAbsoluteTimelinePosition: TimelinePosition.useAbsoluteTimelinePosition,
 	evaluateVolume,
 	getAbsoluteSrc,
 	Timeline: TimelinePosition,
@@ -264,6 +266,7 @@ export const Internals = {
 	TimelinePosition,
 	DelayRenderContextType,
 	TimelineContext,
+	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
 } as const;
 

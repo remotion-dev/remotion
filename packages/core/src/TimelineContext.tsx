@@ -51,6 +51,20 @@ export const TimelineContext = createContext<TimelineContextValue>({
 	audioAndVideoTags: {current: []},
 });
 
+export const AbsoluteTimeContext = createContext<TimelineContextValue>({
+	frame: {},
+	playing: false,
+	playbackRate: 1,
+	rootId: '',
+	imperativePlaying: {
+		current: false,
+	},
+	setPlaybackRate: () => {
+		throw new Error('default');
+	},
+	audioAndVideoTags: {current: []},
+});
+
 export const TimelineContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly frameState: Record<string, number> | null;
@@ -124,10 +138,12 @@ export const TimelineContextProvider: React.FC<{
 	}, []);
 
 	return (
-		<TimelineContext.Provider value={timelineContextValue}>
-			<SetTimelineContext.Provider value={setTimelineContextValue}>
-				{children}
-			</SetTimelineContext.Provider>
-		</TimelineContext.Provider>
+		<AbsoluteTimeContext.Provider value={timelineContextValue}>
+			<TimelineContext.Provider value={timelineContextValue}>
+				<SetTimelineContext.Provider value={setTimelineContextValue}>
+					{children}
+				</SetTimelineContext.Provider>
+			</TimelineContext.Provider>
+		</AbsoluteTimeContext.Provider>
 	);
 };

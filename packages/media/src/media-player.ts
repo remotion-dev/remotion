@@ -277,8 +277,6 @@ export class MediaPlayer {
 				throw new Error(`should have asserted that the time is not null`);
 			}
 
-			this.setGlobalTimeAnchor(startTimeUnresolved + this.sequenceOffset);
-
 			if (audioTrack && this.sharedAudioContext) {
 				const canDecode = await audioTrack.canDecode();
 				if (!canDecode) {
@@ -368,7 +366,6 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		this.setGlobalTimeAnchor(time + this.sequenceOffset);
 		await this.seekToWithQueue(newTime);
 	}
 
@@ -415,8 +412,6 @@ export class MediaPlayer {
 		if (newTime === null) {
 			throw new Error(`should have asserted that the time is not null`);
 		}
-
-		this.setGlobalTimeAnchor(time + this.sequenceOffset);
 
 		if (this.audioIteratorManager) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
@@ -513,8 +508,6 @@ export class MediaPlayer {
 		this.audioIteratorManager?.destroyIterator();
 
 		if (newMediaTime !== null) {
-			this.setGlobalTimeAnchor(unloopedTimeInSeconds + this.sequenceOffset);
-
 			if (!this.playing && this.videoIteratorManager) {
 				await this.seekToWithQueue(newMediaTime);
 			}
@@ -582,17 +575,7 @@ export class MediaPlayer {
 	}
 
 	public setGlobalPlaybackRate(rate: number): void {
-		if (this.sharedAudioContext && this.sharedAudioSyncAnchor) {
-			const globalTime =
-				(this.sharedAudioContext.currentTime -
-					this.sharedAudioSyncAnchor.value) *
-				this.globalPlaybackRate;
-			this.globalPlaybackRate = rate;
-			this.setGlobalTimeAnchor(globalTime);
-		} else {
-			this.globalPlaybackRate = rate;
-		}
-
+		this.globalPlaybackRate = rate;
 		this.rescheduleAudioChunks();
 	}
 
@@ -693,27 +676,6 @@ export class MediaPlayer {
 
 		// Fallback for when time is outside valid range
 		return localTime * this.playbackRate + (this.trimBefore ?? 0) / this.fps;
-	}
-
-	private setGlobalTimeAnchor(globalTime: number): void {
-		if (!this.sharedAudioContext || !this.sharedAudioSyncAnchor) {
-			return;
-		}
-
-		const newAnchor =
-			this.sharedAudioContext.currentTime -
-			globalTime / this.globalPlaybackRate;
-		const shift =
-			Math.abs(newAnchor - this.sharedAudioSyncAnchor.value) *
-			this.globalPlaybackRate;
-
-		// Skip small shifts to avoid audio glitches from frame-quantized re-anchoring
-		if (shift < 0.1) {
-			return;
-		}
-
-		console.log('setting new anchor', newAnchor, globalTime, shift);
-		this.sharedAudioSyncAnchor.value = newAnchor;
 	}
 
 	public setVideoFrameCallback(

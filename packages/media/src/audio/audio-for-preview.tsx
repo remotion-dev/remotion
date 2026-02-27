@@ -22,6 +22,7 @@ import {
 } from 'remotion';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
+import {setGlobalTimeAnchor} from '../set-global-time-anchor';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
@@ -138,10 +139,8 @@ const AudioForPreviewAssertedShowing: React.FC<
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
-	const sequenceOffset = parentSequence
-		? (parentSequence.cumulatedFrom + parentSequence.relativeFrom) /
-			videoConfig.fps
-		: 0;
+	const absoluteTime = Internals.useAbsoluteTimelinePosition();
+	const sequenceOffset = (absoluteTime - frame) / videoConfig!.fps;
 
 	const loopDisplay = useLoopDisplay({
 		loop,
@@ -186,6 +185,17 @@ const AudioForPreviewAssertedShowing: React.FC<
 	const initialPlaybackRate = useRef(playbackRate);
 	const initialMuted = useRef(effectiveMuted);
 	const initialSequenceOffset = useRef(sequenceOffset);
+
+	useLayoutEffect(() => {
+		if (sharedAudioContext?.audioContext && sharedAudioContext.audioSyncAnchor) {
+			setGlobalTimeAnchor({
+				audioContext: sharedAudioContext.audioContext,
+				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+				absoluteTimeInSeconds: absoluteTime / videoConfig.fps,
+				globalPlaybackRate,
+			});
+		}
+	}, [absoluteTime, globalPlaybackRate, sharedAudioContext, videoConfig.fps]);
 
 	useEffect(() => {
 		if (!sharedAudioContext) return;
