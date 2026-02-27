@@ -378,54 +378,70 @@ export const TimelineVideoInfo: React.FC<{
 			},
 			src,
 			onVideoSample: (sample) => {
-				const frame = sample.toVideoFrame();
-				const scale = (HEIGHT / frame.displayHeight) * window.devicePixelRatio;
+				let frame: VideoFrame | undefined;
+				try {
+					frame = sample.toVideoFrame();
+					const scale =
+						(HEIGHT / frame.displayHeight) * window.devicePixelRatio;
 
-				const transformed = resizeVideoFrame({
-					frame,
-					scale,
-				});
+					const transformed = resizeVideoFrame({
+						frame,
+						scale,
+					});
 
-				if (transformed !== frame) {
-					frame.close();
+					if (transformed !== frame) {
+						frame.close();
+					}
+
+					frame = undefined;
+
+					const databaseKey = makeFrameDatabaseKey(src, transformed.timestamp);
+
+					const existingFrame = frameDatabase.get(databaseKey);
+					if (existingFrame) {
+						existingFrame.frame.close();
+					}
+
+					frameDatabase.set(databaseKey, {
+						frame: transformed,
+						lastUsed: Date.now(),
+					});
+					if (aspectRatio.current === null) {
+						throw new Error('Aspect ratio is not set');
+					}
+
+					ensureSlots({
+						filledSlots,
+						fromSeconds,
+						toSeconds,
+						naturalWidth,
+						aspectRatio: aspectRatio.current,
+					});
+					fillFrameWhereItFits({
+						ctx,
+						filledSlots,
+						visualizationWidth: naturalWidth,
+						frame: transformed,
+						segmentDuration: toSeconds - fromSeconds,
+						fromSeconds,
+					});
+				} catch (e) {
+					if (frame) {
+						frame.close();
+					}
+
+					throw e;
+				} finally {
+					sample.close();
 				}
-
-				const databaseKey = makeFrameDatabaseKey(src, transformed.timestamp);
-
-				const existingFrame = frameDatabase.get(databaseKey);
-				if (existingFrame) {
-					existingFrame.frame.close();
-				}
-
-				frameDatabase.set(databaseKey, {
-					frame: transformed,
-					lastUsed: Date.now(),
-				});
-				if (aspectRatio.current === null) {
-					throw new Error('Aspect ratio is not set');
-				}
-
-				ensureSlots({
-					filledSlots,
-					fromSeconds,
-					toSeconds,
-					naturalWidth,
-					aspectRatio: aspectRatio.current,
-				});
-				fillFrameWhereItFits({
-					ctx,
-					filledSlots,
-					visualizationWidth: naturalWidth,
-					frame: transformed,
-					segmentDuration: toSeconds - fromSeconds,
-					fromSeconds,
-				});
-
-				sample.close();
 			},
 			signal: controller.signal,
 		})
 			.then(() => {
+				if (controller.signal.aborted) {
+					return;
+				}
+
 				fillWithCachedFrames({
 					ctx,
 					naturalWidth,

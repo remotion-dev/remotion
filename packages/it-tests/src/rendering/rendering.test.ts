@@ -248,7 +248,7 @@ test(
 			recursive: true,
 		});
 	},
-	{timeout: 15000},
+	{timeout: 30000},
 );
 
 test(

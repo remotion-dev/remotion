@@ -70,18 +70,31 @@ export async function extractFrames({
 		}
 
 		const sink = new VideoSampleSink(videoTrack);
+		const sampleIterator = sink.samplesAtTimestamps(timestamps);
 
-		for await (const videoSample of sink.samplesAtTimestamps(timestamps)) {
-			if (signal?.aborted) {
-				videoSample?.close();
-				break;
+		try {
+			for await (const videoSample of sampleIterator) {
+				if (signal?.aborted) {
+					videoSample?.close();
+					break;
+				}
+
+				if (!videoSample) {
+					continue;
+				}
+
+				onVideoSample(videoSample);
 			}
-
-			if (!videoSample) {
-				continue;
+		} finally {
+			// When input.dispose() causes the iterator to throw
+			// InputDisposedError, for-await does not call .return() on the
+			// iterator (it only does so on `break`). Explicitly call it so
+			// the iterator can close any internally buffered VideoSamples.
+			try {
+				await sampleIterator.return?.();
+			} catch {
+				// Iterator already done or input disposed
 			}
-
-			onVideoSample(videoSample);
 		}
 	} catch (error) {
 		if (error instanceof InputDisposedError) {
