@@ -46,6 +46,9 @@ export type ScheduleAudioNodeOptions = {
 	node: AudioBufferSourceNode;
 	targetTime: number;
 	mediaTimestamp: number;
+	currentTime: number;
+	endTime: number;
+	startTime: number;
 };
 
 type SharedContext = {
@@ -148,15 +151,81 @@ export const SharedAudioContextProvider: React.FC<{
 		() => (audioContext ? {value: 0} : null),
 		[audioContext],
 	);
+	/*
+	const prevEndTimes = useRef<{
+		scheduledEndTime: number | null;
+		mediaEndTime: number | null;
+	}>({scheduledEndTime: null, mediaEndTime: null});
+	*/
 
 	const scheduleAudioNode = useMemo(() => {
 		if (!audioContext) {
 			return null;
 		}
 
-		return ({node, mediaTimestamp, targetTime}: ScheduleAudioNodeOptions) => {
-			console.log('scheduleAudioNode', mediaTimestamp, targetTime);
-			node.start(targetTime);
+		return ({
+			node,
+			mediaTimestamp,
+			targetTime,
+			currentTime,
+			endTime,
+			startTime,
+		}: ScheduleAudioNodeOptions) => {
+			const bufferDuration = node.buffer?.duration ?? 0;
+
+			const unclampedMediaEndTime = mediaTimestamp + bufferDuration;
+
+			const needsTrimEnd = unclampedMediaEndTime > endTime;
+			const needsTrimStart = mediaTimestamp < startTime;
+
+			const offset = needsTrimStart ? startTime - mediaTimestamp : 0;
+
+			const duration = needsTrimEnd
+				? bufferDuration - (unclampedMediaEndTime - endTime) - offset
+				: bufferDuration - offset;
+
+			const scheduledTime = targetTime + currentTime + offset;
+
+			node.start(scheduledTime, offset, duration);
+			/*
+
+			const scheduledEndTime = scheduledTime + duration;
+
+			const mediaTime = mediaTimestamp + offset;
+
+
+			const mediaEndTime = mediaTime + duration;
+
+			const hasDelay = scheduledTime < currentTime;
+
+			const prev = prevEndTimes.current;
+			const scheduledMismatch =
+				prev.scheduledEndTime !== null &&
+				Math.abs(scheduledTime - prev.scheduledEndTime) > 0.001;
+			const mediaMismatch =
+				prev.mediaEndTime !== null &&
+				Math.abs(mediaTime - prev.mediaEndTime) > 0.001;
+
+				console.log(
+				'scheduled %c%s%c %s %c%s%c %s',
+				scheduledMismatch ? 'color: red; font-weight: bold' : '',
+				scheduledTime.toFixed(4),
+				'',
+				scheduledEndTime.toFixed(4),
+				mediaMismatch ? 'color: red; font-weight: bold' : '',
+				mediaTime.toFixed(4),
+				'',
+				mediaEndTime.toFixed(4),
+				hasDelay ? 'color: blue; font-weight: bold' : '',
+				hasDelay ? 'delayed' : '',
+				't=' + (targetTime + currentTime).toFixed(4),
+				'c=' + currentTime.toFixed(4),
+				'o=' + offset.toFixed(4),
+			); 
+
+			prev.scheduledEndTime = scheduledEndTime;
+			prev.mediaEndTime = mediaEndTime;
+*/
 			return true;
 		};
 	}, [audioContext]);

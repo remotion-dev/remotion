@@ -636,10 +636,14 @@ export class MediaPlayer {
 
 		const targetTime = (mediaTimestamp - localTime) / this.playbackRate;
 
+		console.log(mediaTimestamp, targetTime + currentTime);
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,
 			mediaTimestamp,
-			targetTime: targetTime + currentTime,
+			targetTime,
+			currentTime,
+			endTime: this.getEndTime(),
+			startTime: this.getStartTime(),
 		});
 	};
 
