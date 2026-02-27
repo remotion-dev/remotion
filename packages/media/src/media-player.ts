@@ -661,6 +661,10 @@ export class MediaPlayer {
 			);
 		} else {
 			const offset = -delayWithoutPlaybackRate;
+			if (maxDuration !== null && maxDuration - offset <= 0) {
+				return;
+			}
+
 			node.start(
 				this.sharedAudioContext.currentTime,
 				offset,
@@ -702,10 +706,11 @@ export class MediaPlayer {
 			this.globalPlaybackRate;
 
 		// Skip small shifts to avoid audio glitches from frame-quantized re-anchoring
-		if (shift < 0.05) {
+		if (shift < 0.1) {
 			return;
 		}
 
+		console.log('setting new anchor', newAnchor, globalTime, shift);
 		this.sharedAudioSyncAnchor.value = newAnchor;
 	}
 
