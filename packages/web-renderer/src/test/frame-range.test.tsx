@@ -1,3 +1,4 @@
+import {ALL_FORMATS, BlobSource, Input} from 'mediabunny';
 import {expect, test} from 'vitest';
 import type {RenderMediaOnWebProgress} from '../render-media-on-web';
 import {renderMediaOnWeb} from '../render-media-on-web';
@@ -60,4 +61,45 @@ test('should render with valid frame range', async (t) => {
 		renderedFrames: 6,
 		encodedFrames: 6,
 	});
+});
+
+test('frameRange starting from non-zero should produce correct duration', async (t) => {
+	if (t.task.file.projectName === 'webkit') {
+		t.skip();
+		return;
+	}
+
+	const Component: React.FC = () => {
+		return null;
+	};
+
+	const fps = 30;
+	// Render only the back half: frames 10-19 = 10 frames
+	const frameRange: [number, number] = [10, 19];
+	const expectedFrames = frameRange[1] - frameRange[0] + 1;
+	const expectedDuration = expectedFrames / fps;
+
+	const result = await renderMediaOnWeb({
+		composition: {
+			component: Component,
+			id: 'frame-range-duration-test',
+			width: 100,
+			height: 100,
+			fps,
+			durationInFrames: 20,
+		},
+		inputProps: {},
+		frameRange,
+		outputTarget: 'arraybuffer',
+		licenseKey: 'free-license',
+	});
+
+	const blob = await result.getBlob();
+	using input = new Input({
+		formats: ALL_FORMATS,
+		source: new BlobSource(blob),
+	});
+
+	const duration = await input.computeDuration();
+	expect(duration).toBeCloseTo(expectedDuration, 1);
 });
