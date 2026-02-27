@@ -385,21 +385,29 @@ export class MediaPlayer {
 			this.sharedAudioContext &&
 			this.getAudioPlaybackTime() !== newTime;
 
-		await Promise.all([
-			this.videoIteratorManager?.seek({
-				newTime,
-				nonce,
-			}),
-			shouldSeekAudio
-				? this.audioIteratorManager?.seek({
-						newTime,
-						nonce,
-						playbackRate: this.playbackRate * this.globalPlaybackRate,
-						getIsPlaying: () => this.playing,
-						scheduleAudioNode: this.scheduleAudioNode,
-					})
-				: null,
-		]);
+		try {
+			await Promise.all([
+				this.videoIteratorManager?.seek({
+					newTime,
+					nonce,
+				}),
+				shouldSeekAudio
+					? this.audioIteratorManager?.seek({
+							newTime,
+							nonce,
+							playbackRate: this.playbackRate * this.globalPlaybackRate,
+							getIsPlaying: () => this.playing,
+							scheduleAudioNode: this.scheduleAudioNode,
+						})
+					: null,
+			]);
+		} catch (error) {
+			if (this.isDisposalError()) {
+				return;
+			}
+
+			throw error;
+		}
 	}
 
 	public async playAudio(time: number): Promise<void> {
