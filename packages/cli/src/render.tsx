@@ -9,6 +9,8 @@ import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parsed-cli';
 import {renderVideoFlow} from './render-flows/render';
+import {warnAboutUnknownFlag} from './unknown-flag-detect';
+import {validRenderFlags} from './valid-flags/render';
 
 const {
 	x264Option,
@@ -93,6 +95,8 @@ export const render = async (
 	}
 
 	const fullEntryPoint = convertEntryPointToServeUrl(file);
+
+	warnAboutUnknownFlag(validRenderFlags, logLevel, 'render');
 
 	if (parsedCli.frame) {
 		Log.error(
