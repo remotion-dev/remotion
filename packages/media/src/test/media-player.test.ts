@@ -1,5 +1,6 @@
 import {expect, test} from 'vitest';
 import {MediaPlayer} from '../media-player';
+import {createSharedAudioContextForMediaPlayer} from '../shared-audio-context-for-media-player';
 
 test('dispose should immediately unblock playback delays', async () => {
 	let activeBlocks = 0;
@@ -25,10 +26,10 @@ test('dispose should immediately unblock playback delays', async () => {
 		canvas: null,
 		src: 'https://remotion.media/video.mp4',
 		logLevel: 'error',
-		sharedAudioContext: {
-			audioContext: new AudioContext(),
-			audioSyncAnchor: {value: 0},
-		},
+		sharedAudioContext: createSharedAudioContextForMediaPlayer(
+			new AudioContext(),
+			{value: 0},
+		),
 		loop: false,
 		trimBefore: undefined,
 		trimAfter: undefined,

@@ -11,6 +11,7 @@ import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
 import {isNetworkError} from './is-type-of-error';
 import type {Nonce, NonceManager} from './nonce-manager';
 import {makeNonceManager} from './nonce-manager';
+import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
 
@@ -35,10 +36,7 @@ export class MediaPlayer {
 	private globalPlaybackRate: number;
 	private audioStreamIndex: number;
 
-	private sharedAudioContext: {
-		audioContext: AudioContext | null;
-		audioSyncAnchor: {value: number} | null;
-	} | null;
+	private sharedAudioContext: SharedAudioContextForMediaPlayer | null;
 
 	audioIteratorManager: AudioIteratorManager | null = null;
 	videoIteratorManager: VideoIteratorManager | null = null;
@@ -93,10 +91,7 @@ export class MediaPlayer {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
 		logLevel: LogLevel;
-		sharedAudioContext: {
-			audioContext: AudioContext | null;
-			audioSyncAnchor: {value: number} | null;
-		} | null;
+		sharedAudioContext: SharedAudioContextForMediaPlayer | null;
 		loop: boolean;
 		trimBefore: number | undefined;
 		trimAfter: number | undefined;
@@ -278,7 +273,7 @@ export class MediaPlayer {
 				throw new Error(`should have asserted that the time is not null`);
 			}
 
-			if (audioTrack && this.sharedAudioContext?.audioContext) {
+			if (audioTrack && this.sharedAudioContext) {
 				const canDecode = await audioTrack.canDecode();
 				if (!canDecode) {
 					return {type: 'cannot-decode'};
@@ -380,7 +375,7 @@ export class MediaPlayer {
 
 		const shouldSeekAudio =
 			this.audioIteratorManager &&
-			this.sharedAudioContext?.audioContext &&
+			this.sharedAudioContext &&
 			this.getAudioPlaybackTime() !== newTime;
 
 		try {
@@ -422,7 +417,7 @@ export class MediaPlayer {
 		}
 
 		if (
-			this.sharedAudioContext?.audioContext &&
+			this.sharedAudioContext &&
 			this.sharedAudioContext.audioContext.state === 'suspended'
 		) {
 			await this.sharedAudioContext.audioContext.resume();
@@ -544,7 +539,7 @@ export class MediaPlayer {
 			return;
 		}
 
-		if (!this.sharedAudioContext?.audioContext) {
+		if (!this.sharedAudioContext) {
 			return;
 		}
 
@@ -623,70 +618,27 @@ export class MediaPlayer {
 		this.input.dispose();
 	}
 
-	private lastScheduledEnd: number | null = null;
-
 	private scheduleAudioNode = (
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		maxDuration: number | null,
 	): boolean => {
-		const currentTime = this.getAudioPlaybackTime();
-		const delayWithoutPlaybackRate = mediaTimestamp - currentTime;
-		const delay =
-			delayWithoutPlaybackRate / (this.playbackRate * this.globalPlaybackRate);
-
-		if (!this.sharedAudioContext?.audioContext) {
+		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
 		}
 
-		let startAt: number;
-		let duration: number;
-
-		if (delay >= 0) {
-			startAt = this.sharedAudioContext.audioContext.currentTime + delay;
-			duration = maxDuration ?? node.buffer?.duration ?? 0;
-			node.start(startAt, 0, maxDuration ?? undefined);
-		} else {
-			const offset = -delayWithoutPlaybackRate;
-			if (maxDuration !== null && maxDuration - offset <= 0) {
-				return false;
-			}
-
-			startAt = this.sharedAudioContext.audioContext.currentTime;
-			duration =
-				maxDuration !== null
-					? maxDuration - offset
-					: (node.buffer?.duration ?? 0) - offset;
-			node.start(
-				startAt,
-				offset,
-				maxDuration !== null ? maxDuration - offset : undefined,
-			);
-		}
-
-		console.log(
-			`[audio-schedule] start=${startAt.toFixed(4)} dur=${duration.toFixed(4)} end=${(startAt + duration).toFixed(4)}`,
-		);
-
-		if (
-			this.lastScheduledEnd !== null &&
-			Math.abs(startAt - this.lastScheduledEnd) > 0.001
-		) {
-			console.warn(
-				`[audio-schedule] gap/overlap: prev end=${this.lastScheduledEnd.toFixed(4)} next start=${startAt.toFixed(4)} diff=${(startAt - this.lastScheduledEnd).toFixed(4)}`,
-			);
-		}
-
-		this.lastScheduledEnd = startAt + duration;
-
-		return true;
+		const currentTime = this.getAudioPlaybackTime();
+		return this.sharedAudioContext.scheduleAudioNode({
+			node,
+			mediaTimestamp,
+			currentMediaTime: currentTime,
+			combinedPlaybackRate: this.playbackRate * this.globalPlaybackRate,
+			maxDuration,
+		});
 	};
 
 	private getAudioPlaybackTime(): number {
-		if (
-			!this.sharedAudioContext?.audioContext ||
-			!this.sharedAudioContext.audioSyncAnchor
-		) {
+		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
 		}
 
@@ -717,8 +669,8 @@ export class MediaPlayer {
 		if (this.context && this.canvas) {
 			drawPreviewOverlay({
 				context: this.context,
-				audioTime: this.sharedAudioContext?.audioContext?.currentTime ?? null,
-				audioContextState: this.sharedAudioContext?.audioContext?.state ?? null,
+				audioTime: this.sharedAudioContext?.audioContext.currentTime ?? null,
+				audioContextState: this.sharedAudioContext?.audioContext.state ?? null,
 				audioSyncAnchor: this.sharedAudioContext?.audioSyncAnchor ?? null,
 				audioIteratorManager: this.audioIteratorManager,
 				playing: this.playing,
