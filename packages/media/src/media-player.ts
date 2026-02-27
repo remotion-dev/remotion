@@ -678,6 +678,14 @@ export class MediaPlayer {
 			(this.sharedAudioContext.currentTime - this.sharedAudioSyncAnchor.value) *
 			this.globalPlaybackRate;
 		const localTime = globalTime - this.sequenceOffset;
+
+		// Pass through getTrimmedTime to apply loop wrapping and trim
+		const trimmedTime = this.getTrimmedTime(localTime);
+		if (trimmedTime !== null) {
+			return trimmedTime;
+		}
+
+		// Fallback for when time is outside valid range
 		return localTime * this.playbackRate + (this.trimBefore ?? 0) / this.fps;
 	}
 
