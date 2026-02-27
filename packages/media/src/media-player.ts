@@ -450,8 +450,7 @@ export class MediaPlayer {
 						node,
 						mediaTimestamp,
 						currentMediaTime: currentTime,
-						combinedPlaybackRate:
-							this.playbackRate * this.globalPlaybackRate,
+						combinedPlaybackRate: this.playbackRate * this.globalPlaybackRate,
 						maxDuration,
 					});
 				},
@@ -604,8 +603,7 @@ export class MediaPlayer {
 						node,
 						mediaTimestamp,
 						currentMediaTime: currentTime,
-						combinedPlaybackRate:
-							this.playbackRate * this.globalPlaybackRate,
+						combinedPlaybackRate: this.playbackRate * this.globalPlaybackRate,
 						maxDuration,
 					});
 				},
@@ -675,7 +673,10 @@ export class MediaPlayer {
 	}
 
 	private getAudioPlaybackTime(): number {
-		if (!this.sharedAudioContext?.audioContext || !this.sharedAudioContext.audioSyncAnchor) {
+		if (
+			!this.sharedAudioContext?.audioContext ||
+			!this.sharedAudioContext.audioSyncAnchor
+		) {
 			throw new Error('Shared audio context not found');
 		}
 
