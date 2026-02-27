@@ -205,6 +205,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(playbackRate);
 	const initialMuted = useRef(effectiveMuted);
+	const initialSequenceOffset = useRef(sequenceOffset);
 
 	useEffect(() => {
 		if (!sharedAudioContext) return;
@@ -230,7 +231,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				onVideoFrameCallback: initialOnVideoFrameRef.current ?? null,
 				playing: initialPlaying.current,
 				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
-				sequenceOffset,
+				sequenceOffset: initialSequenceOffset.current,
 			});
 
 			mediaPlayerRef.current = player;
