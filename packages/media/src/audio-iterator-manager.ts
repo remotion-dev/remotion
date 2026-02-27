@@ -57,7 +57,7 @@ export const audioIteratorManager = ({
 			node: AudioBufferSourceNode,
 			mediaTimestamp: number,
 			maxDuration: number | null,
-		) => void;
+		) => boolean;
 		maxDuration: number | null;
 	}) => {
 		if (!audioBufferIterator) {
@@ -73,7 +73,11 @@ export const audioIteratorManager = ({
 		node.playbackRate.value = playbackRate;
 		node.connect(gainNode);
 
-		scheduleAudioNode(node, mediaTimestamp, maxDuration);
+		const started = scheduleAudioNode(node, mediaTimestamp, maxDuration);
+		if (!started) {
+			node.disconnect();
+			return;
+		}
 
 		const iterator = audioBufferIterator;
 
@@ -99,7 +103,7 @@ export const audioIteratorManager = ({
 			node: AudioBufferSourceNode,
 			mediaTimestamp: number,
 			maxDuration: number | null,
-		) => void;
+		) => boolean;
 	}) => {
 		if (muted) {
 			return;
@@ -153,7 +157,7 @@ export const audioIteratorManager = ({
 			node: AudioBufferSourceNode,
 			mediaTimestamp: number,
 			maxDuration: number | null,
-		) => void;
+		) => boolean;
 	}) => {
 		if (muted) {
 			return;
@@ -243,7 +247,7 @@ export const audioIteratorManager = ({
 			node: AudioBufferSourceNode,
 			mediaTimestamp: number,
 			maxDuration: number | null,
-		) => void;
+		) => boolean;
 	}) => {
 		if (muted) {
 			return;
@@ -335,7 +339,7 @@ export const audioIteratorManager = ({
 			node: AudioBufferSourceNode,
 			mediaTimestamp: number,
 			maxDuration: number | null,
-		) => void;
+		) => boolean;
 	}) => {
 		if (muted) {
 			return;

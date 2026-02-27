@@ -643,7 +643,7 @@ export class MediaPlayer {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		maxDuration: number | null,
-	) => {
+	): boolean => {
 		const currentTime = this.getAudioPlaybackTime();
 		const delayWithoutPlaybackRate = mediaTimestamp - currentTime;
 		const delay =
@@ -662,7 +662,7 @@ export class MediaPlayer {
 		} else {
 			const offset = -delayWithoutPlaybackRate;
 			if (maxDuration !== null && maxDuration - offset <= 0) {
-				return;
+				return false;
 			}
 
 			node.start(
@@ -671,6 +671,8 @@ export class MediaPlayer {
 				maxDuration !== null ? maxDuration - offset : undefined,
 			);
 		}
+
+		return true;
 	};
 
 	private getAudioPlaybackTime(): number {

@@ -106,6 +106,7 @@ test('same goes for audio', async () => {
 		getIsPlaying: () => true,
 		scheduleAudioNode: (node, mediaTimestamp, maxDuration) => {
 			node.start(mediaTimestamp, 0, maxDuration ?? undefined);
+			return true;
 		},
 	});
 
@@ -116,6 +117,7 @@ test('same goes for audio', async () => {
 		getIsPlaying: () => true,
 		scheduleAudioNode: (node, _mediaTimestamp, maxDuration) => {
 			node.start(1, 0, maxDuration ?? undefined);
+			return true;
 		},
 	});
 

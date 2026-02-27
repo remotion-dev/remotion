@@ -55,6 +55,7 @@ test('media player should work', async () => {
 			(maxDuration ?? node.buffer?.duration ?? 0) * 1000,
 		);
 		scheduledChunks.push(mediaTimestamp);
+		return true;
 	};
 
 	const {manager, playbackRate, getIsPlaying} = await prepare();
@@ -109,6 +110,7 @@ test('should not create too many iterators when the audio ends', async () => {
 			(maxDuration ?? node.buffer?.duration ?? 0) * 1000,
 		);
 		scheduledChunks.push(mediaTimestamp);
+		return true;
 	};
 
 	await manager.seek({
@@ -156,6 +158,7 @@ test('should create more iterators when seeking ', async () => {
 			(maxDuration ?? node.buffer?.duration ?? 0) * 1000,
 		);
 		scheduledChunks.push(mediaTimestamp);
+		return true;
 	};
 
 	await manager.seek({
@@ -223,6 +226,7 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 			(maxDuration ?? node.buffer?.duration ?? 0) * 1000,
 		);
 		scheduledChunks.push(mediaTimestamp);
+		return true;
 	};
 
 	const fps = 25;
@@ -299,6 +303,7 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 			maxDuration,
 			bufferDuration: node.buffer?.duration ?? 0,
 		});
+		return true;
 	};
 
 	// Simulate playback frame by frame, seeking past the end time
