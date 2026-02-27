@@ -41,11 +41,11 @@ test('Should test timeline sequence layout without max media duration', () => {
 			windowWidth: 1414.203125,
 		}),
 	).toEqual({
-		marginLeft: 1154.0226668902187,
+		marginLeft: 1154.4991419797689,
 		premountWidth: null,
 		postmountWidth: null,
-		width: 227.18045810978126,
-		naturalWidth: 227.18045810978126,
+		width: 226.70398302023122,
+		naturalWidth: 226.70398302023122,
 	});
 });
 test('Should test timeline sequence layout with max media duration', () => {
@@ -75,11 +75,11 @@ test('Should test timeline sequence layout with max media duration', () => {
 			windowWidth: 1414.203125,
 		}),
 	).toEqual({
-		marginLeft: 1154.0226668902187,
+		marginLeft: 1154.4991419797689,
 		premountWidth: null,
 		postmountWidth: null,
-		width: 221.47594665703676,
-		naturalWidth: 221.47594665703676,
+		width: 221.5678029521057,
+		naturalWidth: 221.5678029521057,
 	});
 });
 
