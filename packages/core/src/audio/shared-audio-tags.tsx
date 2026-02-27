@@ -151,12 +151,11 @@ export const SharedAudioContextProvider: React.FC<{
 		() => (audioContext ? {value: 0} : null),
 		[audioContext],
 	);
-	/*
+
 	const prevEndTimes = useRef<{
 		scheduledEndTime: number | null;
 		mediaEndTime: number | null;
 	}>({scheduledEndTime: null, mediaEndTime: null});
-	*/
 
 	const scheduleAudioNode = useMemo(() => {
 		if (!audioContext) {
@@ -187,12 +186,10 @@ export const SharedAudioContextProvider: React.FC<{
 			const scheduledTime = targetTime + currentTime + offset;
 
 			node.start(scheduledTime, offset, duration);
-			/*
 
 			const scheduledEndTime = scheduledTime + duration;
 
 			const mediaTime = mediaTimestamp + offset;
-
 
 			const mediaEndTime = mediaTime + duration;
 
@@ -206,7 +203,7 @@ export const SharedAudioContextProvider: React.FC<{
 				prev.mediaEndTime !== null &&
 				Math.abs(mediaTime - prev.mediaEndTime) > 0.001;
 
-				console.log(
+			console.log(
 				'scheduled %c%s%c %s %c%s%c %s',
 				scheduledMismatch ? 'color: red; font-weight: bold' : '',
 				scheduledTime.toFixed(4),
@@ -221,11 +218,11 @@ export const SharedAudioContextProvider: React.FC<{
 				't=' + (targetTime + currentTime).toFixed(4),
 				'c=' + currentTime.toFixed(4),
 				'o=' + offset.toFixed(4),
-			); 
+			);
 
 			prev.scheduledEndTime = scheduledEndTime;
 			prev.mediaEndTime = mediaEndTime;
-*/
+
 			return true;
 		};
 	}, [audioContext]);

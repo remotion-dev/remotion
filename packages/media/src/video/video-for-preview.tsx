@@ -144,7 +144,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const {premountFramesRemaining, playing: playingWhilePremounting} =
 		useContext(Internals.PremountContext);
 	const absoluteTime = Internals.useAbsoluteTimelinePosition();
-	const sequenceOffset = (absoluteTime - frame) / videoConfig!.fps;
+	const sequenceOffset =
+		((parentSequence?.cumulatedFrom ?? 0) +
+			(parentSequence?.relativeFrom ?? 0)) /
+		videoConfig.fps;
 
 	// Allows for pre-scheduling audio nodes before the premounting ends,
 	// since there is some latency.

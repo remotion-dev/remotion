@@ -416,7 +416,6 @@ export class MediaPlayer {
 			this.sharedAudioContext &&
 			this.sharedAudioContext.audioContext.state === 'suspended'
 		) {
-			console.log('resume');
 			await this.sharedAudioContext.audioContext.resume();
 		}
 	}
@@ -629,14 +628,14 @@ export class MediaPlayer {
 		const globalTime =
 			(currentTime - this.sharedAudioContext.audioSyncAnchor.value) *
 			this.globalPlaybackRate;
-		const localTime = this.getTrimmedTime(globalTime - this.sequenceOffset);
+		const timeInSeconds = globalTime - this.sequenceOffset;
+		const localTime = this.getTrimmedTime(timeInSeconds);
 		if (localTime === null) {
 			throw new Error('hmm, should not render!');
 		}
 
 		const targetTime = (mediaTimestamp - localTime) / this.playbackRate;
 
-		console.log(mediaTimestamp, targetTime + currentTime);
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,
 			mediaTimestamp,
