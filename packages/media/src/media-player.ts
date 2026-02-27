@@ -306,7 +306,21 @@ export class MediaPlayer {
 								playbackRate: this.playbackRate * this.globalPlaybackRate,
 								startFromSecond: startTime,
 								getIsPlaying: () => this.playing,
-								scheduleAudioNode: this.scheduleAudioNode,
+								scheduleAudioNode: (node, mediaTimestamp, maxDuration) => {
+									if (!this.sharedAudioContext) {
+										throw new Error('Shared audio context not found');
+									}
+
+									const currentTime = this.getAudioPlaybackTime();
+									return this.sharedAudioContext.scheduleAudioNode({
+										node,
+										mediaTimestamp,
+										currentMediaTime: currentTime,
+										combinedPlaybackRate:
+											this.playbackRate * this.globalPlaybackRate,
+										maxDuration,
+									});
+								},
 							})
 						: Promise.resolve(),
 					this.videoIteratorManager
@@ -390,7 +404,21 @@ export class MediaPlayer {
 							nonce,
 							playbackRate: this.playbackRate * this.globalPlaybackRate,
 							getIsPlaying: () => this.playing,
-							scheduleAudioNode: this.scheduleAudioNode,
+							scheduleAudioNode: (node, mediaTimestamp, maxDuration) => {
+								if (!this.sharedAudioContext) {
+									throw new Error('Shared audio context not found');
+								}
+
+								const currentTime = this.getAudioPlaybackTime();
+								return this.sharedAudioContext.scheduleAudioNode({
+									node,
+									mediaTimestamp,
+									currentMediaTime: currentTime,
+									combinedPlaybackRate:
+										this.playbackRate * this.globalPlaybackRate,
+									maxDuration,
+								});
+							},
 						})
 					: null,
 			]);
@@ -412,7 +440,21 @@ export class MediaPlayer {
 		if (this.audioIteratorManager) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
 				playbackRate: this.playbackRate * this.globalPlaybackRate,
-				scheduleAudioNode: this.scheduleAudioNode,
+				scheduleAudioNode: (node, mediaTimestamp, maxDuration) => {
+					if (!this.sharedAudioContext) {
+						throw new Error('Shared audio context not found');
+					}
+
+					const currentTime = this.getAudioPlaybackTime();
+					return this.sharedAudioContext.scheduleAudioNode({
+						node,
+						mediaTimestamp,
+						currentMediaTime: currentTime,
+						combinedPlaybackRate:
+							this.playbackRate * this.globalPlaybackRate,
+						maxDuration,
+					});
+				},
 			});
 		}
 
@@ -552,7 +594,21 @@ export class MediaPlayer {
 		if (this.playing) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
 				playbackRate: this.playbackRate * this.globalPlaybackRate,
-				scheduleAudioNode: this.scheduleAudioNode,
+				scheduleAudioNode: (node, mediaTimestamp, maxDuration) => {
+					if (!this.sharedAudioContext) {
+						throw new Error('Shared audio context not found');
+					}
+
+					const currentTime = this.getAudioPlaybackTime();
+					return this.sharedAudioContext.scheduleAudioNode({
+						node,
+						mediaTimestamp,
+						currentMediaTime: currentTime,
+						combinedPlaybackRate:
+							this.playbackRate * this.globalPlaybackRate,
+						maxDuration,
+					});
+				},
 			});
 		}
 	}
@@ -617,25 +673,6 @@ export class MediaPlayer {
 		this.audioIteratorManager?.destroyIterator();
 		this.input.dispose();
 	}
-
-	private scheduleAudioNode = (
-		node: AudioBufferSourceNode,
-		mediaTimestamp: number,
-		maxDuration: number | null,
-	): boolean => {
-		if (!this.sharedAudioContext) {
-			throw new Error('Shared audio context not found');
-		}
-
-		const currentTime = this.getAudioPlaybackTime();
-		return this.sharedAudioContext.scheduleAudioNode({
-			node,
-			mediaTimestamp,
-			currentMediaTime: currentTime,
-			combinedPlaybackRate: this.playbackRate * this.globalPlaybackRate,
-			maxDuration,
-		});
-	};
 
 	private getAudioPlaybackTime(): number {
 		if (!this.sharedAudioContext) {
