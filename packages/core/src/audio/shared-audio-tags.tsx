@@ -42,6 +42,14 @@ type AudioElem = {
 const EMPTY_AUDIO =
 	'data:audio/mp3;base64,/+MYxAAJcAV8AAgAABn//////+/gQ5BAMA+D4Pg+BAQBAEAwD4Pg+D4EBAEAQDAPg++hYBH///hUFQVBUFREDQNHmf///////+MYxBUGkAGIMAAAAP/29Xt6lUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDUAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
 
+export type ScheduleAudioNodeOptions = {
+	node: AudioBufferSourceNode;
+	mediaTimestamp: number;
+	currentMediaTime: number;
+	combinedPlaybackRate: number;
+	maxDuration: number | null;
+};
+
 type SharedContext = {
 	registerAudio: (options: {
 		aud: AudioHTMLAttributes<HTMLAudioElement>;
@@ -61,6 +69,7 @@ type SharedContext = {
 	numberOfAudioTags: number;
 	audioContext: AudioContext | null;
 	audioSyncAnchor: {value: number} | null;
+	scheduleAudioNode: ((options: ScheduleAudioNodeOptions) => boolean) | null;
 };
 
 const compareProps = (
@@ -141,6 +150,70 @@ export const SharedAudioContextProvider: React.FC<{
 		() => (audioContext ? {value: 0} : null),
 		[audioContext],
 	);
+
+	const scheduleAudioNode = useMemo(() => {
+		if (!audioContext) {
+			return null;
+		}
+
+		let lastScheduledEnd: number | null = null;
+
+		return ({
+			node,
+			mediaTimestamp,
+			currentMediaTime,
+			combinedPlaybackRate,
+			maxDuration,
+		}: ScheduleAudioNodeOptions): boolean => {
+			const delayWithoutPlaybackRate = mediaTimestamp - currentMediaTime;
+			const delay = delayWithoutPlaybackRate / combinedPlaybackRate;
+
+			let startAt: number;
+			let duration: number;
+
+			if (delay >= 0) {
+				startAt = audioContext.currentTime + delay;
+				duration = maxDuration ?? node.buffer?.duration ?? 0;
+				node.start(startAt, 0, maxDuration ?? undefined);
+			} else {
+				const offset = -delayWithoutPlaybackRate;
+				if (maxDuration !== null && maxDuration - offset <= 0) {
+					return false;
+				}
+
+				startAt = audioContext.currentTime;
+				duration =
+					maxDuration !== null
+						? maxDuration - offset
+						: (node.buffer?.duration ?? 0) - offset;
+				node.start(
+					startAt,
+					offset,
+					maxDuration !== null ? maxDuration - offset : undefined,
+				);
+			}
+
+			const mediaDuration = maxDuration ?? node.buffer?.duration ?? 0;
+			// eslint-disable-next-line no-console
+			console.log(
+				`[audio-schedule] start=${startAt.toFixed(4)} dur=${duration.toFixed(4)} end=${(startAt + duration).toFixed(4)} mediaStart=${mediaTimestamp.toFixed(4)} mediaEnd=${(mediaTimestamp + mediaDuration).toFixed(4)}`,
+			);
+
+			if (
+				lastScheduledEnd !== null &&
+				Math.abs(startAt - lastScheduledEnd) > 0.001
+			) {
+				// eslint-disable-next-line no-console
+				console.warn(
+					`[audio-schedule] gap/overlap: prev end=${lastScheduledEnd.toFixed(4)} next start=${startAt.toFixed(4)} diff=${(startAt - lastScheduledEnd).toFixed(4)}`,
+				);
+			}
+
+			lastScheduledEnd = startAt + duration;
+
+			return true;
+		};
+	}, [audioContext]);
 
 	const refs = useMemo(() => {
 		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
@@ -368,6 +441,7 @@ export const SharedAudioContextProvider: React.FC<{
 			numberOfAudioTags,
 			audioContext,
 			audioSyncAnchor,
+			scheduleAudioNode,
 		};
 	}, [
 		numberOfAudioTags,
@@ -377,6 +451,7 @@ export const SharedAudioContextProvider: React.FC<{
 		updateAudio,
 		audioContext,
 		audioSyncAnchor,
+		scheduleAudioNode,
 	]);
 
 	return (

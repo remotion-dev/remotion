@@ -24,7 +24,6 @@ import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {setGlobalTimeAnchor} from '../set-global-time-anchor';
-import {createSharedAudioContextForMediaPlayer} from '../shared-audio-context-for-media-player';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import type {FallbackOffthreadVideoProps} from './props';
@@ -211,18 +210,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 		if (!sharedAudioContext) return;
 
 		try {
-			const audioScheduler =
-				sharedAudioContext.audioContext && sharedAudioContext.audioSyncAnchor
-					? createSharedAudioContextForMediaPlayer(
-							sharedAudioContext.audioContext,
-							sharedAudioContext.audioSyncAnchor,
-						)
-					: null;
 			const player = new MediaPlayer({
 				canvas: canvasRef.current,
 				src: preloadedSrc,
 				logLevel,
-				sharedAudioContext: audioScheduler,
+				sharedAudioContext: sharedAudioContext ?? null,
 				loop,
 				trimAfter: initialTrimAfterRef.current,
 				trimBefore: initialTrimBeforeRef.current,

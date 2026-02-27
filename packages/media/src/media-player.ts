@@ -273,7 +273,7 @@ export class MediaPlayer {
 				throw new Error(`should have asserted that the time is not null`);
 			}
 
-			if (audioTrack && this.sharedAudioContext) {
+			if (audioTrack && this.sharedAudioContext?.audioContext) {
 				const canDecode = await audioTrack.canDecode();
 				if (!canDecode) {
 					return {type: 'cannot-decode'};
@@ -307,7 +307,7 @@ export class MediaPlayer {
 								startFromSecond: startTime,
 								getIsPlaying: () => this.playing,
 								scheduleAudioNode: (node, mediaTimestamp, maxDuration) => {
-									if (!this.sharedAudioContext) {
+									if (!this.sharedAudioContext?.scheduleAudioNode) {
 										throw new Error('Shared audio context not found');
 									}
 
@@ -405,7 +405,7 @@ export class MediaPlayer {
 							playbackRate: this.playbackRate * this.globalPlaybackRate,
 							getIsPlaying: () => this.playing,
 							scheduleAudioNode: (node, mediaTimestamp, maxDuration) => {
-								if (!this.sharedAudioContext) {
+								if (!this.sharedAudioContext?.scheduleAudioNode) {
 									throw new Error('Shared audio context not found');
 								}
 
@@ -441,7 +441,7 @@ export class MediaPlayer {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
 				playbackRate: this.playbackRate * this.globalPlaybackRate,
 				scheduleAudioNode: (node, mediaTimestamp, maxDuration) => {
-					if (!this.sharedAudioContext) {
+					if (!this.sharedAudioContext?.scheduleAudioNode) {
 						throw new Error('Shared audio context not found');
 					}
 
@@ -459,7 +459,7 @@ export class MediaPlayer {
 		}
 
 		if (
-			this.sharedAudioContext &&
+			this.sharedAudioContext?.audioContext &&
 			this.sharedAudioContext.audioContext.state === 'suspended'
 		) {
 			await this.sharedAudioContext.audioContext.resume();
@@ -595,7 +595,7 @@ export class MediaPlayer {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
 				playbackRate: this.playbackRate * this.globalPlaybackRate,
 				scheduleAudioNode: (node, mediaTimestamp, maxDuration) => {
-					if (!this.sharedAudioContext) {
+					if (!this.sharedAudioContext?.scheduleAudioNode) {
 						throw new Error('Shared audio context not found');
 					}
 
@@ -675,7 +675,7 @@ export class MediaPlayer {
 	}
 
 	private getAudioPlaybackTime(): number {
-		if (!this.sharedAudioContext) {
+		if (!this.sharedAudioContext?.audioContext || !this.sharedAudioContext.audioSyncAnchor) {
 			throw new Error('Shared audio context not found');
 		}
 
@@ -706,8 +706,8 @@ export class MediaPlayer {
 		if (this.context && this.canvas) {
 			drawPreviewOverlay({
 				context: this.context,
-				audioTime: this.sharedAudioContext?.audioContext.currentTime ?? null,
-				audioContextState: this.sharedAudioContext?.audioContext.state ?? null,
+				audioTime: this.sharedAudioContext?.audioContext?.currentTime ?? null,
+				audioContextState: this.sharedAudioContext?.audioContext?.state ?? null,
 				audioSyncAnchor: this.sharedAudioContext?.audioSyncAnchor ?? null,
 				audioIteratorManager: this.audioIteratorManager,
 				playing: this.playing,
