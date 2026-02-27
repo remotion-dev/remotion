@@ -56,8 +56,9 @@ export const createSharedAudioContextForMediaPlayer = (
 				);
 			}
 
+			const mediaDuration = maxDuration ?? node.buffer?.duration ?? 0;
 			console.log(
-				`[audio-schedule] start=${startAt.toFixed(4)} dur=${duration.toFixed(4)} end=${(startAt + duration).toFixed(4)}`,
+				`[audio-schedule] start=${startAt.toFixed(4)} dur=${duration.toFixed(4)} end=${(startAt + duration).toFixed(4)} mediaStart=${mediaTimestamp.toFixed(4)} mediaEnd=${(mediaTimestamp + mediaDuration).toFixed(4)}`,
 			);
 
 			if (
