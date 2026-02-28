@@ -27,7 +27,11 @@ export const makeAudioIterator = (
 
 	const cleanupAudioQueue = () => {
 		for (const node of queuedAudioNodes) {
-			node.node.stop();
+			try {
+				node.node.stop();
+			} catch {
+				// Node may not have been started
+			}
 		}
 
 		queuedAudioNodes.length = 0;
@@ -183,7 +187,11 @@ export const makeAudioIterator = (
 	const removeAndReturnAllQueuedAudioNodes = () => {
 		const nodes = queuedAudioNodes.slice();
 		for (const node of nodes) {
-			node.node.stop();
+			try {
+				node.node.stop();
+			} catch {
+				// Node may not have been started
+			}
 		}
 
 		queuedAudioNodes.length = 0;

@@ -42,7 +42,11 @@ const prepare = async () => {
 
 test('media player should work', async () => {
 	const scheduledChunks: number[] = [];
-	const scheduleAudioNode = () => true;
+	const scheduleAudioNode = (node: AudioBufferSourceNode, mediaTimestamp: number) => {
+		node.start();
+		scheduledChunks.push(mediaTimestamp);
+		return true;
+	};
 
 	const {manager, playbackRate, getIsPlaying} = await prepare();
 
@@ -83,7 +87,11 @@ test('should not create too many iterators when the audio ends', async () => {
 	const {manager, playbackRate, getIsPlaying} = await prepare();
 
 	const scheduledChunks: number[] = [];
-	const scheduleAudioNode = () => true;
+	const scheduleAudioNode = (node: AudioBufferSourceNode, mediaTimestamp: number) => {
+		node.start();
+		scheduledChunks.push(mediaTimestamp);
+		return true;
+	};
 
 	await manager.seek({
 		newTime: 9.97,
@@ -117,7 +125,11 @@ test('should create more iterators when seeking ', async () => {
 	const {manager, playbackRate, getIsPlaying} = await prepare();
 
 	const scheduledChunks: number[] = [];
-	const scheduleAudioNode = () => true;
+	const scheduleAudioNode = (node: AudioBufferSourceNode, mediaTimestamp: number) => {
+		node.start();
+		scheduledChunks.push(mediaTimestamp);
+		return true;
+	};
 
 	await manager.seek({
 		newTime: 0,
@@ -171,7 +183,11 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 	});
 
 	const scheduledChunks: number[] = [];
-	const scheduleAudioNode = () => true;
+	const scheduleAudioNode = (node: AudioBufferSourceNode, mediaTimestamp: number) => {
+		node.start();
+		scheduledChunks.push(mediaTimestamp);
+		return true;
+	};
 
 	const fps = 25;
 	const playbackRate = 0.5;
@@ -230,7 +246,15 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 		maxDuration: number | null;
 		bufferDuration: number;
 	}[] = [];
-	const scheduleAudioNode = () => true;
+	const scheduleAudioNode = (node: AudioBufferSourceNode, mediaTimestamp: number) => {
+		node.start();
+		scheduledChunks.push({
+			timestamp: mediaTimestamp,
+			maxDuration: null,
+			bufferDuration: node.buffer?.duration ?? 0,
+		});
+		return true;
+	};
 
 	// Simulate playback frame by frame, seeking past the end time
 	for (let frame = 0; frame < 30; frame++) {
