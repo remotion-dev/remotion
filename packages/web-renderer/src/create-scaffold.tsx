@@ -65,22 +65,25 @@ export function createScaffold<Props extends Record<string, unknown>>({
 		throw new Error('@remotion/web-renderer requires React 18 or higher');
 	}
 
+	const wrapper = document.createElement('div');
+	wrapper.style.position = 'fixed';
+	wrapper.style.inset = '0';
+	wrapper.style.overflow = 'hidden';
+	wrapper.style.visibility = 'hidden';
+	wrapper.style.pointerEvents = 'none';
+	wrapper.style.zIndex = '-9999';
+
 	const div = document.createElement('div');
 
 	// Match same behavior as in portal-node.ts
-	div.style.position = 'fixed';
+	div.style.position = 'absolute';
+	div.style.top = '0';
+	div.style.left = '0';
 	div.style.display = 'flex';
 	div.style.flexDirection = 'column';
 	div.style.backgroundColor = 'transparent';
 	div.style.width = `${width}px`;
 	div.style.height = `${height}px`;
-	div.style.zIndex = '-9999';
-	div.style.top = '0';
-	div.style.left = '0';
-	div.style.right = '0';
-	div.style.bottom = '0';
-	div.style.visibility = 'hidden';
-	div.style.pointerEvents = 'none';
 
 	const scaffoldClassName = `remotion-scaffold-${Math.random().toString(36).substring(2, 15)}`;
 	div.className = scaffoldClassName;
@@ -89,7 +92,8 @@ export function createScaffold<Props extends Record<string, unknown>>({
 		Internals.CSSUtils.makeDefaultPreviewCSS(`.${scaffoldClassName}`, 'white'),
 	);
 
-	document.body.appendChild(div);
+	wrapper.appendChild(div);
+	document.body.appendChild(wrapper);
 
 	const errorHolder: ErrorHolder = {error: null};
 
@@ -198,6 +202,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 		[Symbol.dispose]: () => {
 			root.unmount();
 			div.remove();
+			wrapper.remove();
 			cleanupCSS();
 		},
 		timeUpdater,
