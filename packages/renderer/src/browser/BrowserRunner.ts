@@ -76,6 +76,7 @@ export const makeBrowserRunner = async ({
 		timeout,
 		indent,
 		logLevel,
+		executablePath,
 	});
 	const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
 	const connection = new Connection(transport);
@@ -257,11 +258,13 @@ function waitForWSEndpoint({
 	timeout,
 	logLevel,
 	indent,
+	executablePath,
 }: {
 	browserProcess: childProcess.ChildProcess;
 	timeout: number;
 	logLevel: LogLevel;
 	indent: boolean;
+	executablePath: string;
 }): Promise<string> {
 	const browserStderr = browserProcess.stderr;
 	const browserStdout = browserProcess.stdout;
@@ -296,12 +299,31 @@ function waitForWSEndpoint({
 
 		function onClose(error?: Error) {
 			cleanup();
+
+			const errorDetails: string[] = [];
+			if (error) {
+				errorDetails.push(error.message);
+				if (isErrnoException(error)) {
+					if (error.code) {
+						errorDetails.push(`Error code: ${error.code}`);
+					}
+
+					if (error.syscall) {
+						errorDetails.push(
+							`Syscall: ${error.syscall}${error.path ? ` ${error.path}` : ''}`,
+						);
+					}
+				}
+			}
+
 			reject(
 				new Error(
 					[
 						'Failed to launch the browser process!',
-						error ? error.stack : null,
-						stdioString,
+						`Executable: ${executablePath}`,
+						`PID: ${browserProcess.pid ?? 'not assigned'}`,
+						...errorDetails,
+						stdioString ? `Browser output: ${stdioString}` : null,
 						'Troubleshooting: https://remotion.dev/docs/troubleshooting/browser-launch',
 					]
 						.filter(truthy)
