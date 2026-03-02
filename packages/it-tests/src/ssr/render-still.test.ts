@@ -9,19 +9,18 @@ import {
 	renderStill,
 } from '@remotion/renderer';
 
+const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
+
 beforeAll(async () => {
 	await ensureBrowser();
 });
 
 test('Render video with browser instance open', async () => {
 	const puppeteerInstance = await openBrowser('chrome');
-	const compositions = await getCompositions(
-		'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
-		{
-			puppeteerInstance,
-			inputProps: {},
-		},
-	);
+	const compositions = await getCompositions(exampleBuild, {
+		puppeteerInstance,
+		inputProps: {},
+	});
 
 	const reactSvg = compositions.find((c) => c.id === 'react-svg');
 
@@ -35,8 +34,7 @@ test('Render video with browser instance open', async () => {
 
 	const {buffer} = await renderStill({
 		output: outPath,
-		serveUrl:
-			'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+		serveUrl: exampleBuild,
 		composition: reactSvg,
 		puppeteerInstance,
 	});
@@ -45,9 +43,7 @@ test('Render video with browser instance open', async () => {
 });
 
 test('Render still with browser instance not open and legacy webpack config', async () => {
-	const compositions = await getCompositions(
-		'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
-	);
+	const compositions = await getCompositions(exampleBuild);
 
 	const reactSvg = compositions.find((c) => c.id === 'react-svg');
 
@@ -61,8 +57,7 @@ test('Render still with browser instance not open and legacy webpack config', as
 
 	await renderStill({
 		output: outPath,
-		serveUrl:
-			'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+		serveUrl: exampleBuild,
 		composition: reactSvg,
 	});
 	expect(existsSync(outPath)).toBe(true);

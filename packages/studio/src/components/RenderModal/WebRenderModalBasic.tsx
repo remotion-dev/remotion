@@ -50,6 +50,28 @@ const tabContainer: React.CSSProperties = {
 	flex: 1,
 };
 
+const containerLabels: Record<WebRendererContainer, string> = {
+	mp4: 'MP4',
+	webm: 'WebM',
+	mkv: 'MKV',
+	mov: 'MOV',
+	wav: 'WAV',
+	mp3: 'MP3',
+	aac: 'AAC',
+	ogg: 'OGG',
+};
+
+const videoContainers: WebRendererContainer[] = ['mp4', 'webm', 'mkv', 'mov'];
+const audioContainers: WebRendererContainer[] = ['wav', 'mp3', 'aac', 'ogg'];
+
+const codecLabels: Record<WebRendererVideoCodec, string> = {
+	h264: 'H.264',
+	h265: 'H.265',
+	vp8: 'VP8',
+	vp9: 'VP9',
+	av1: 'AV1',
+};
+
 export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 	renderMode,
 	resolvedComposition,
@@ -115,42 +137,23 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 	}, [logLevel, setLogLevel]);
 
 	const containerOptions = useMemo((): ComboboxValue[] => {
-		return [
-			{
-				label: 'MP4',
-				onClick: () => setContainerFormat('mp4'),
-				leftItem: container === 'mp4' ? <Checkmark /> : null,
-				id: 'mp4',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'mp4',
-			},
-			{
-				label: 'WebM',
-				onClick: () => setContainerFormat('webm'),
-				leftItem: container === 'webm' ? <Checkmark /> : null,
-				id: 'webm',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'webm',
-			},
-		];
-	}, [container, setContainerFormat]);
+		const containers =
+			renderMode === 'audio' ? audioContainers : videoContainers;
 
-	const codecLabels: Record<WebRendererVideoCodec, string> = useMemo(
-		() => ({
-			h264: 'H.264',
-			h265: 'H.265',
-			vp8: 'VP8',
-			vp9: 'VP9',
-			av1: 'AV1',
-		}),
-		[],
-	);
+		return containers.map(
+			(c): ComboboxValue => ({
+				label: containerLabels[c],
+				onClick: () => setContainerFormat(c),
+				leftItem: container === c ? <Checkmark /> : null,
+				id: c,
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: c,
+			}),
+		);
+	}, [container, setContainerFormat, renderMode]);
 
 	const codecOptions = useMemo((): ComboboxValue[] => {
 		return encodableVideoCodecs.map((c) => ({
@@ -164,7 +167,7 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 			type: 'item' as const,
 			value: c,
 		}));
-	}, [encodableVideoCodecs, effectiveVideoCodec, setCodec, codecLabels]);
+	}, [encodableVideoCodecs, effectiveVideoCodec, setCodec]);
 
 	return (
 		<div style={tabContainer}>
@@ -210,20 +213,22 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 							/>
 						</div>
 					</div>
-					<div style={optionRow}>
-						<div style={label}>
-							Codec
-							<Spacing x={0.5} />
-							<OptionExplainerBubble id="videoCodecOption" />
+					{renderMode === 'video' ? (
+						<div style={optionRow}>
+							<div style={label}>
+								Codec
+								<Spacing x={0.5} />
+								<OptionExplainerBubble id="videoCodecOption" />
+							</div>
+							<div style={rightRow}>
+								<Combobox
+									values={codecOptions}
+									selectedId={effectiveVideoCodec}
+									title="Codec"
+								/>
+							</div>
 						</div>
-						<div style={rightRow}>
-							<Combobox
-								values={codecOptions}
-								selectedId={effectiveVideoCodec}
-								title="Codec"
-							/>
-						</div>
-					</div>
+					) : null}
 					<FrameRangeSetting
 						durationInFrames={resolvedComposition.durationInFrames}
 						startFrame={startFrame ?? 0}

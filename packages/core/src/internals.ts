@@ -46,6 +46,7 @@ import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
 } from './enable-sequence-stack-traces.js';
+import {getEffectiveVisualModeValue} from './get-effective-visual-mode-value.js';
 import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
@@ -89,9 +90,11 @@ import type {
 	SequenceFieldSchema,
 	SequenceSchema,
 } from './sequence-field-schema.js';
+import type {ResolvedStackLocation} from './sequence-stack-traces.js';
+import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
-	SequenceControlOverrideContext,
+	VisualModeOverridesContext,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
@@ -121,6 +124,7 @@ import {
 	useBasicMediaInTimeline,
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
+import type {CanUpdateSequencePropStatus} from './use-schema.js';
 import {useSchema} from './use-schema.js';
 import {useSequenceControlOverride} from './use-sequence-control-override.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
@@ -182,8 +186,9 @@ export const Internals = {
 	VideoForPreview,
 	CompositionManager,
 	CompositionSetters,
-	SequenceControlOverrideContext,
+	VisualModeOverridesContext,
 	SequenceManager,
+	SequenceStackTracesUpdateContext,
 	SequenceVisibilityToggleContext,
 	useSchema,
 	useSequenceControlOverride,
@@ -269,10 +274,12 @@ export const Internals = {
 	TimelineContext,
 	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
+	getEffectiveVisualModeValue,
 } as const;
 
 export type {
 	CompositionManagerContext,
+	ResolvedStackLocation,
 	CompProps,
 	LoggingContextValue,
 	MediaVolumeContextValue,
@@ -289,4 +296,5 @@ export type {
 	TSequence,
 	WatchRemotionStaticFilesPayload,
 	ScheduleAudioNodeOptions,
+	CanUpdateSequencePropStatus,
 };

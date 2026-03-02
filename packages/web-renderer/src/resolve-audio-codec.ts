@@ -7,6 +7,7 @@ import {
 	type WebRendererAudioCodec,
 	type WebRendererContainer,
 } from './mediabunny-mappings';
+import {ensureMp3EncoderRegistered} from './register-mp3-encoder';
 
 export type ResolveAudioCodecResult = {
 	codec: WebRendererAudioCodec | null;
@@ -38,6 +39,11 @@ export const resolveAudioCodec = async (options: {
 	}
 
 	const mediabunnyAudioCodec = audioCodecToMediabunnyAudioCodec(audioCodec);
+
+	if (audioCodec === 'mp3') {
+		await ensureMp3EncoderRegistered();
+	}
+
 	const canEncode = await canEncodeAudio(mediabunnyAudioCodec, {bitrate});
 
 	if (canEncode) {
@@ -56,6 +62,10 @@ export const resolveAudioCodec = async (options: {
 
 	for (const fallbackCodec of supportedAudioCodecs) {
 		if (fallbackCodec !== audioCodec) {
+			if (fallbackCodec === 'mp3') {
+				await ensureMp3EncoderRegistered();
+			}
+
 			const fallbackMediabunnyCodec =
 				audioCodecToMediabunnyAudioCodec(fallbackCodec);
 

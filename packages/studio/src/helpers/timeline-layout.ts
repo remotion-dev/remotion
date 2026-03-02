@@ -6,8 +6,8 @@ export const TIMELINE_ITEM_BORDER_BOTTOM = 1;
 
 export const TIMELINE_TRACK_EXPANDED_HEIGHT = 100;
 
-export const SCHEMA_FIELD_ROW_HEIGHT = 26;
-export const UNSUPPORTED_FIELD_ROW_HEIGHT = 26;
+export const SCHEMA_FIELD_ROW_HEIGHT = 22;
+export const UNSUPPORTED_FIELD_ROW_HEIGHT = 22;
 
 const SUPPORTED_SCHEMA_TYPES = new Set(['number', 'boolean']);
 

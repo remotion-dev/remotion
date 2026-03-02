@@ -3,13 +3,14 @@ import fs from 'fs';
 import path from 'path';
 import {makeCancelSignal, renderMedia} from '@remotion/renderer';
 
+const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
+
 test('Cancelling after success should not throw error', async () => {
 	const {cancel, cancelSignal} = makeCancelSignal();
 	const outputLocation = 'out/render.mp4';
 	await renderMedia({
 		codec: 'h264',
-		serveUrl:
-			'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+		serveUrl: exampleBuild,
 		composition: {
 			durationInFrames: 4,
 			fps: 30,

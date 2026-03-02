@@ -1,12 +1,12 @@
 import {useContext} from 'react';
 import {SequenceContext} from './SequenceContext.js';
-import {SequenceControlOverrideContext} from './SequenceManager.js';
+import {VisualModeOverridesContext} from './SequenceManager.js';
 
 export const useSequenceControlOverride = (
 	key: string,
 ): unknown | undefined => {
 	const seqContext = useContext(SequenceContext);
-	const {overrides} = useContext(SequenceControlOverrideContext);
+	const {dragOverrides: overrides} = useContext(VisualModeOverridesContext);
 	if (!seqContext) {
 		return undefined;
 	}

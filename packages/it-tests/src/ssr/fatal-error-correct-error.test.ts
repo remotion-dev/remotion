@@ -1,12 +1,14 @@
 import {expect, test} from 'bun:test';
+import path from 'path';
 import {renderMedia} from '@remotion/renderer';
+
+const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
 
 test('Fatal error on frame 10 should yield correct error', async () => {
 	await expect(() => {
 		return renderMedia({
 			codec: 'h264',
-			serveUrl:
-				'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+			serveUrl: exampleBuild,
 			composition: {
 				durationInFrames: 1000000,
 				fps: 30,

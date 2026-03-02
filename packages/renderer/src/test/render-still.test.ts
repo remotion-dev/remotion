@@ -1,6 +1,9 @@
 import {expect, test} from 'bun:test';
+import path from 'path';
 import {ensureBrowser} from '../ensure-browser';
 import {renderStill} from '../render-still';
+
+const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
 
 test(
 	'Need to pass valid metadata',
@@ -25,8 +28,7 @@ test(
 				},
 				frame: 0,
 				output: '/file/output.png',
-				serveUrl:
-					'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+				serveUrl: exampleBuild,
 				verbose: false,
 			}),
 		).toThrow(/not be NaN, but is NaN/);
@@ -57,8 +59,7 @@ test(
 				defaultProResProfile: null,
 			},
 			frame: 0,
-			serveUrl:
-				'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+			serveUrl: exampleBuild,
 			verbose: false,
 		});
 		expect(buffer?.length).toBeGreaterThan(1000);
@@ -92,8 +93,7 @@ test(
 				},
 				frame: 200,
 				output: '/file/output.png',
-				serveUrl:
-					'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+				serveUrl: exampleBuild,
 				verbose: false,
 			}),
 		).toThrow(
@@ -128,8 +128,7 @@ test(
 				imageFormat: 'jjj',
 				frame: 200,
 				output: '/file/output.png',
-				serveUrl:
-					'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+				serveUrl: exampleBuild,
 			}),
 		).toThrow(/Image format should be one of: "png", "jpeg", "pdf", "webp"/);
 	},

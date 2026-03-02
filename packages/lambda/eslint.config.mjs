@@ -4,6 +4,9 @@ const config = remotionFlatConfig({react: false});
 
 export default [
 	{
+		ignores: ['src/test/integration/renders/old-version-bundle/**'],
+	},
+	{
 		...config,
 		ignores: ['src/cli/**'],
 		rules: {

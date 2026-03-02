@@ -1,27 +1,15 @@
-import type {
-	CanUpdateSequencePropStatus,
-	EventSourceEvent,
-} from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
-import {Internals} from 'remotion';
+import React, {useMemo} from 'react';
 import type {TSequence} from 'remotion';
-import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import type {
+	CodePosition,
+	OriginalPosition,
+} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {
 	getExpandedTrackHeight,
 	getSchemaFields,
 } from '../../helpers/timeline-layout';
-import {callApi} from '../call-api';
-import {TimelineFieldValue} from './TimelineSchemaField';
+import {TimelineFieldRow} from './TimelineFieldRow';
 
 const expandedSectionBase: React.CSSProperties = {
 	color: 'white',
@@ -34,68 +22,17 @@ const expandedSectionBase: React.CSSProperties = {
 	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 };
 
-const fieldRow: React.CSSProperties = {
-	display: 'flex',
-	alignItems: 'center',
-	gap: 8,
-};
-
-const fieldName: React.CSSProperties = {
-	fontSize: 12,
-};
-
-const fieldLabelRow: React.CSSProperties = {
-	flex: 1,
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	gap: 6,
-};
-
-const TimelineFieldRow: React.FC<{
-	readonly field: SchemaFieldInfo;
-	readonly onSave: (key: string, value: unknown) => Promise<void>;
-	readonly onDragValueChange: (key: string, value: unknown) => void;
-	readonly onDragEnd: () => void;
-	readonly propStatus: CanUpdateSequencePropStatus | null;
-}> = ({field, onSave, onDragValueChange, onDragEnd, propStatus}) => {
-	return (
-		<div style={{...fieldRow, height: field.rowHeight}}>
-			<div style={fieldLabelRow}>
-				<span style={fieldName}>{field.description ?? field.key}</span>
-			</div>
-			<TimelineFieldValue
-				field={field}
-				propStatus={propStatus}
-				onSave={onSave}
-				onDragValueChange={onDragValueChange}
-				onDragEnd={onDragEnd}
-				canUpdate={propStatus?.canUpdate ?? false}
-			/>
-		</div>
-	);
-};
-
 export const TimelineExpandedSection: React.FC<{
 	readonly sequence: TSequence;
 	readonly originalLocation: OriginalPosition | null;
 }> = ({sequence, originalLocation}) => {
-	const [propStatuses, setPropStatuses] = useState<Record<
-		string,
-		CanUpdateSequencePropStatus
-	> | null>(null);
-
-	const {previewServerState: state, subscribeToEvent} = useContext(
-		StudioServerConnectionCtx,
-	);
-	const clientId = state.type === 'connected' ? state.clientId : undefined;
-
+	const overrideId = sequence.controls?.overrideId ?? sequence.id;
 	const schemaFields = useMemo(
 		() => getSchemaFields(sequence.controls),
 		[sequence.controls],
 	);
 
-	const validatedLocation = useMemo(() => {
+	const validatedLocation: CodePosition | null = useMemo(() => {
 		if (
 			!originalLocation ||
 			!originalLocation.source ||
@@ -111,175 +48,31 @@ export const TimelineExpandedSection: React.FC<{
 		};
 	}, [originalLocation]);
 
-	const locationSource = validatedLocation?.source ?? null;
-	const locationLine = validatedLocation?.line ?? null;
-	const locationColumn = validatedLocation?.column ?? null;
-	const schemaKeysString = useMemo(
-		() => (schemaFields ? schemaFields.map((f) => f.key).join(',') : null),
-		[schemaFields],
-	);
-
-	const currentLocationSource = useRef(locationSource);
-	currentLocationSource.current = locationSource;
-	const currentLocationLine = useRef(locationLine);
-	currentLocationLine.current = locationLine;
-	const currentLocationColumn = useRef(locationColumn);
-	currentLocationColumn.current = locationColumn;
-
-	useEffect(() => {
-		if (
-			!clientId ||
-			!locationSource ||
-			!locationLine ||
-			locationColumn === null ||
-			!schemaKeysString
-		) {
-			setPropStatuses(null);
-			return;
-		}
-
-		const keys = schemaKeysString.split(',');
-
-		callApi('/api/subscribe-to-sequence-props', {
-			fileName: locationSource,
-			line: locationLine,
-			column: locationColumn,
-			keys,
-			clientId,
-		})
-			.then((result) => {
-				if (
-					currentLocationSource.current !== locationSource ||
-					currentLocationLine.current !== locationLine ||
-					currentLocationColumn.current !== locationColumn
-				) {
-					return;
-				}
-
-				if (result.canUpdate) {
-					setPropStatuses(result.props);
-				} else {
-					setPropStatuses(null);
-				}
-			})
-			.catch(() => {
-				setPropStatuses(null);
-			});
-
-		return () => {
-			callApi('/api/unsubscribe-from-sequence-props', {
-				fileName: locationSource,
-				line: locationLine,
-				column: locationColumn,
-				clientId,
-			}).catch(() => {
-				// Ignore unsubscribe errors
-			});
-		};
-	}, [
-		clientId,
-		locationSource,
-		locationLine,
-		locationColumn,
-		schemaKeysString,
-	]);
-
-	useEffect(() => {
-		if (!locationSource || !locationLine || locationColumn === null) {
-			return;
-		}
-
-		const listener = (event: EventSourceEvent) => {
-			if (event.type !== 'sequence-props-updated') {
-				return;
-			}
-
-			if (
-				event.fileName !== currentLocationSource.current ||
-				event.line !== currentLocationLine.current ||
-				event.column !== currentLocationColumn.current
-			) {
-				return;
-			}
-
-			if (event.result.canUpdate) {
-				setPropStatuses(event.result.props);
-			} else {
-				setPropStatuses(null);
-			}
-		};
-
-		const unsub = subscribeToEvent('sequence-props-updated', listener);
-		return () => {
-			unsub();
-		};
-	}, [locationSource, locationLine, locationColumn, subscribeToEvent]);
-
 	const expandedHeight = useMemo(
 		() => getExpandedTrackHeight(sequence.controls),
 		[sequence.controls],
 	);
 
-	const {setOverride, clearOverrides} = useContext(
-		Internals.SequenceControlOverrideContext,
-	);
-
-	const onSave = useCallback(
-		(key: string, value: unknown): Promise<void> => {
-			if (!propStatuses || !validatedLocation) {
-				return Promise.reject(new Error('Cannot save'));
-			}
-
-			const status = propStatuses[key];
-			if (!status || !status.canUpdate) {
-				return Promise.reject(new Error('Cannot save'));
-			}
-
-			const field = schemaFields?.find((f) => f.key === key);
-			const defaultValue =
-				field && field.fieldSchema.default !== undefined
-					? JSON.stringify(field.fieldSchema.default)
-					: null;
-
-			return callApi('/api/save-sequence-props', {
-				fileName: validatedLocation.source,
-				line: validatedLocation.line,
-				column: validatedLocation.column,
-				key,
-				value: JSON.stringify(value),
-				enumPaths: [],
-				defaultValue,
-			}).then(() => undefined);
-		},
-		[propStatuses, validatedLocation, schemaFields],
-	);
-
-	const overrideId = sequence.controls?.overrideId ?? sequence.id;
-
-	const onDragValueChange = useCallback(
-		(key: string, value: unknown) => {
-			setOverride(overrideId, key, value);
-		},
-		[setOverride, overrideId],
-	);
-
-	const onDragEnd = useCallback(() => {
-		clearOverrides(overrideId);
-	}, [clearOverrides, overrideId]);
+	const style = useMemo(() => {
+		return {
+			...expandedSectionBase,
+			height: expandedHeight,
+		};
+	}, [expandedHeight]);
 
 	return (
-		<div style={{...expandedSectionBase, height: expandedHeight}}>
+		<div style={style}>
 			{schemaFields
-				? schemaFields.map((field) => (
-						<TimelineFieldRow
-							key={field.key}
-							field={field}
-							propStatus={propStatuses?.[field.key] ?? null}
-							onSave={onSave}
-							onDragValueChange={onDragValueChange}
-							onDragEnd={onDragEnd}
-						/>
-					))
+				? schemaFields.map((field) => {
+						return (
+							<TimelineFieldRow
+								key={field.key}
+								field={field}
+								overrideId={overrideId}
+								validatedLocation={validatedLocation}
+							/>
+						);
+					})
 				: 'No schema'}
 		</div>
 	);

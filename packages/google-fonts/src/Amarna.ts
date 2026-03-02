@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Amarna',
 	importName: 'Amarna',
-	version: 'v1',
+	version: 'v2',
 	url: 'https://fonts.googleapis.com/css2?family=Amarna:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,89 +15,89 @@ export const getInfo = () => ({
 		italic: {
 			'100': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7A_-p4.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7A_-p4.woff2',
 			},
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7A_-p4.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7A_-p4.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7A_-p4.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7A_-p4.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7A_-p4.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7A_-p4.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7A_-p4.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7A_-p4.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7A_-p4.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7A_-p4.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7Ax-p7ABg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoQzAj-18jIHCA0R7A_-p4.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoQzAj-18jIHCA0R7A_-p4.woff2',
 			},
 		},
 		normal: {
 			'100': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0TIA94po.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0TIA94po.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0QoA9.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0QoA9.woff2',
 			},
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0TIA94po.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0TIA94po.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0QoA9.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0QoA9.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0TIA94po.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0TIA94po.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0QoA9.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0QoA9.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0TIA94po.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0TIA94po.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0QoA9.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0QoA9.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0TIA94po.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0TIA94po.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0QoA9.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0QoA9.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0TIA94po.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0TIA94po.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0QoA9.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0QoA9.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0TIA94po.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0TIA94po.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarna/v1/MCoSzAj-18jIHCA0QoA9.woff2',
+					'https://fonts.gstatic.com/s/amarna/v2/MCoSzAj-18jIHCA0QoA9.woff2',
 			},
 		},
 	},

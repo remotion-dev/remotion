@@ -256,24 +256,23 @@ const AssetSelectorItem: React.FC<{
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
+	const relativePath = useMemo(() => {
+		return parentFolder ? parentFolder + '/' + item.name : item.name;
+	}, [parentFolder, item.name]);
+
 	const selected = useMemo(() => {
 		if (canvasContent && canvasContent.type === 'asset') {
-			const nameWOParent = canvasContent.asset.split('/').pop();
-
-			return nameWOParent === item.name;
+			return canvasContent.asset === relativePath;
 		}
 
 		return false;
-	}, [canvasContent, item.name]);
+	}, [canvasContent, relativePath]);
 
 	const onPointerLeave = useCallback(() => {
 		setHovered(false);
 	}, []);
 
 	const onClick = useCallback(() => {
-		const relativePath = parentFolder
-			? parentFolder + '/' + item.name
-			: item.name;
 		setCanvasContent({type: 'asset', asset: relativePath});
 		pushUrl(`/assets/${relativePath}`);
 		if (isMobileLayout) {
@@ -281,8 +280,7 @@ const AssetSelectorItem: React.FC<{
 		}
 	}, [
 		isMobileLayout,
-		item.name,
-		parentFolder,
+		relativePath,
 		setCanvasContent,
 		setSidebarCollapsedState,
 	]);

@@ -22,6 +22,7 @@ export const RemotionRootContexts: React.FC<{
 	readonly audioEnabled: boolean;
 	readonly frameState: Record<string, number> | null;
 	readonly nonceContextSeed: number;
+	readonly visualModeEnabled: boolean;
 }> = ({
 	children,
 	numberOfAudioTags,
@@ -31,6 +32,7 @@ export const RemotionRootContexts: React.FC<{
 	audioEnabled,
 	frameState,
 	nonceContextSeed,
+	visualModeEnabled,
 }) => {
 	const nonceContext = useMemo((): TNonceContext => {
 		let counter = 0;
@@ -54,7 +56,7 @@ export const RemotionRootContexts: React.FC<{
 					>
 						<EditorPropsProvider>
 							<PrefetchProvider>
-								<SequenceManagerProvider>
+								<SequenceManagerProvider visualModeEnabled={visualModeEnabled}>
 									<SharedAudioContextProvider
 										numberOfAudioTags={numberOfAudioTags}
 										audioLatencyHint={audioLatencyHint}

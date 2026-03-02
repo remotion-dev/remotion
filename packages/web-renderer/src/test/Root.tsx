@@ -58,6 +58,7 @@ import {textFixture} from './fixtures/text/text';
 import {textShadow} from './fixtures/text/text-shadow';
 import {textTransform} from './fixtures/text/text-transform';
 import {webkitTextFillColor} from './fixtures/text/webkit-text-fill-color';
+import {webkitTextStroke} from './fixtures/text/webkit-text-stroke';
 import {threeDoverflow} from './fixtures/three-d-overflow';
 import {threeDTransformOpacity} from './fixtures/three-d-transform-opacity';
 import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bounds';
@@ -136,6 +137,7 @@ export const Root: React.FC = () => {
 				<Composition {...fontStyle} />
 				<Composition {...lineHeight} />
 				<Composition {...webkitTextFillColor} />
+				<Composition {...webkitTextStroke} />
 				<Composition {...backgroundClipText} />
 				<Composition {...backgroundClipText3dTransform} />
 				<Composition {...textShadow} />

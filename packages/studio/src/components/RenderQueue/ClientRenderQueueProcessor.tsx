@@ -3,7 +3,6 @@ import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererQuality,
-	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
 import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useEffect} from 'react';
@@ -119,7 +118,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				delayRenderTimeoutInMilliseconds: job.delayRenderTimeout,
 				mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 				logLevel: job.logLevel,
-				videoCodec: job.videoCodec as WebRendererVideoCodec,
+				videoCodec: job.videoCodec ?? undefined,
 				audioCodec: job.audioCodec as WebRendererAudioCodec,
 				audioBitrate: job.audioBitrate as WebRendererQuality,
 				container: job.container as WebRendererContainer,

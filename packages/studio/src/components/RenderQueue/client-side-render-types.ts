@@ -52,7 +52,7 @@ export type ClientStillRenderJob = ClientRenderJobBase & {
 export type ClientVideoRenderJob = ClientRenderJobBase & {
 	type: 'client-video';
 	container: WebRendererContainer;
-	videoCodec: WebRendererVideoCodec;
+	videoCodec: WebRendererVideoCodec | null;
 	audioCodec: WebRendererAudioCodec;
 	startFrame: number;
 	endFrame: number;

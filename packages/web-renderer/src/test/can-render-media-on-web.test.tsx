@@ -158,6 +158,77 @@ test('should use default WebM codecs', async () => {
 	expect(result.resolvedVideoCodec).toBe('vp8');
 });
 
+test('should resolve videoCodec to null for WAV container', async () => {
+	const result = await canRenderMediaOnWeb({
+		container: 'wav',
+		width: 1920,
+		height: 1080,
+	});
+
+	expect(result.resolvedVideoCodec).toBeNull();
+	expect(result.resolvedAudioCodec).toBe('pcm-s16');
+});
+
+test('should resolve videoCodec to null for MP3 container', async () => {
+	const result = await canRenderMediaOnWeb({
+		container: 'mp3',
+		width: 1920,
+		height: 1080,
+	});
+
+	expect(result.resolvedVideoCodec).toBeNull();
+});
+
+test('should resolve videoCodec to null for OGG container', async () => {
+	const result = await canRenderMediaOnWeb({
+		container: 'ogg',
+		width: 1920,
+		height: 1080,
+	});
+
+	expect(result.resolvedVideoCodec).toBeNull();
+});
+
+test('should not report video issues for audio-only containers', async () => {
+	const result = await canRenderMediaOnWeb({
+		container: 'wav',
+		width: 1920,
+		height: 1080,
+	});
+
+	const videoIssues = result.issues.filter(
+		(i) =>
+			i.type === 'video-codec-unsupported' ||
+			i.type === 'container-codec-mismatch' ||
+			i.type === 'transparent-video-unsupported' ||
+			i.type === 'invalid-dimensions' ||
+			i.type === 'webcodecs-unavailable',
+	);
+	expect(videoIssues).toHaveLength(0);
+});
+
+test('should accept videoCodec: null for audio-only containers', async () => {
+	const result = await canRenderMediaOnWeb({
+		container: 'wav',
+		videoCodec: null,
+		width: 1920,
+		height: 1080,
+	});
+
+	expect(result.resolvedVideoCodec).toBeNull();
+	expect(result.canRender).toBe(true);
+});
+
+test('should render MKV with default video codec', async () => {
+	const result = await canRenderMediaOnWeb({
+		container: 'mkv',
+		width: 1920,
+		height: 1080,
+	});
+
+	expect(result.resolvedVideoCodec).toBe('h264');
+});
+
 test('should auto-detect outputTarget when null is passed', async () => {
 	const result = await canRenderMediaOnWeb({
 		container: 'mp4',

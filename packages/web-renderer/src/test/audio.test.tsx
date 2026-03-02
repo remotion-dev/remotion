@@ -239,3 +239,40 @@ test('explicit Opus selection produces Opus in MP4 output', async () => {
 	const audioCodec = await getAudioCodecFromBlob(blob);
 	expect(audioCodec).toBe('opus');
 });
+
+test('should render AAC container with web-fs (audio-only)', async (t) => {
+	if (t.task.file.projectName === 'firefox') {
+		// Firefox cannot encode AAC
+		t.skip();
+		return;
+	}
+
+	if (t.task.file.projectName === 'webkit') {
+		// WebKit OPFS support is unreliable in test environments
+		t.skip();
+		return;
+	}
+
+	const Component: React.FC = () => {
+		return <Audio src={staticFile('dialogue.wav')} />;
+	};
+
+	const result = await renderMediaOnWeb({
+		licenseKey: 'free-license',
+		composition: {
+			component: Component,
+			id: 'aac-container-test',
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 10,
+			calculateMetadata: null,
+		},
+		container: 'aac',
+		frameRange: [0, 1],
+		outputTarget: 'web-fs',
+	});
+
+	const blob = await result.getBlob();
+	expect(blob.size).toBeGreaterThan(0);
+});

@@ -17,7 +17,8 @@ const getServerDisconnectedDomElement = () => {
 const StudioInner: React.FC<{
 	readonly rootComponent: React.FC;
 	readonly readOnly: boolean;
-}> = ({rootComponent, readOnly}) => {
+	readonly visualModeEnabled: boolean;
+}> = ({rootComponent, readOnly, visualModeEnabled}) => {
 	const {fastRefreshes, manualRefreshes} = useContext(FastRefreshContext);
 
 	return (
@@ -28,6 +29,7 @@ const StudioInner: React.FC<{
 			initialCanvasContent={null}
 		>
 			<Internals.RemotionRootContexts
+				visualModeEnabled={visualModeEnabled}
 				frameState={null}
 				audioEnabled={window.remotion_audioEnabled}
 				videoEnabled={window.remotion_videoEnabled}
@@ -57,14 +59,19 @@ const StudioInner: React.FC<{
 export const Studio: React.FC<{
 	readonly rootComponent: React.FC;
 	readonly readOnly: boolean;
-}> = ({rootComponent, readOnly}) => {
+	readonly visualModeEnabled: boolean;
+}> = ({rootComponent, readOnly, visualModeEnabled}) => {
 	useLayoutEffect(() => {
 		injectCSS();
 	}, []);
 
 	return (
 		<FastRefreshProvider>
-			<StudioInner rootComponent={rootComponent} readOnly={readOnly} />
+			<StudioInner
+				rootComponent={rootComponent}
+				readOnly={readOnly}
+				visualModeEnabled={visualModeEnabled}
+			/>
 		</FastRefreshProvider>
 	);
 };

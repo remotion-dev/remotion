@@ -1,9 +1,12 @@
 import {beforeAll, expect, test} from 'bun:test';
+import path from 'path';
 import {
 	ensureBrowser,
 	makeCancelSignal,
 	renderFrames,
 } from '@remotion/renderer';
+
+const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
 
 beforeAll(async () => {
 	await ensureBrowser();
@@ -13,8 +16,7 @@ test('Should be able to cancel render', async () => {
 	try {
 		const {cancel, cancelSignal} = makeCancelSignal();
 		const val = renderFrames({
-			serveUrl:
-				'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+			serveUrl: exampleBuild,
 			composition: {
 				durationInFrames: 1000000,
 				fps: 30,

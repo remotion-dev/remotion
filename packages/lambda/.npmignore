@@ -10,3 +10,4 @@ tsconfig.json
 .prettierrc.js
 *.ts
 !*.d.ts
+.prettierignore

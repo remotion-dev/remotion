@@ -16,9 +16,11 @@ export {
 } from './get-encodable-codecs';
 export {
 	getDefaultAudioCodecForContainer,
+	getDefaultContainerForCodec,
 	getDefaultVideoCodecForContainer,
 	getSupportedAudioCodecsForContainer,
 	getSupportedVideoCodecsForContainer,
+	isAudioOnlyContainer,
 } from './mediabunny-mappings';
 export type {
 	WebRendererAudioCodec,

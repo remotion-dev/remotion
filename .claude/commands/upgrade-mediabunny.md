@@ -1,7 +1,7 @@
 - Find the latest version of Mediabunny: `npm view mediabunny version`
-- Look in the root package.json and update the version of Mediabunny to that version.
-- Also upgrade @mediabunny/mp3-encoder to the same version.
-- Look in packages/template-\*/package.json and update the version of Mediabunny to the desired version.
+- Look in the root package.json and update the version of Mediabunny to that version in the `catalog` section.
+- Also upgrade @mediabunny/mp3-encoder and @mediabunny/ac3 to the same version in the `catalog` section.
+- Look in packages/template-\*/package.json and update the version of Mediabunny (and @mediabunny/\* packages if present) to the same version. Templates use explicit versions (not `catalog:`), so they must be updated manually.
 - Update `packages/cli/src/extra-packages.ts` with the new Mediabunny version.
 - Update `packages/studio-shared/src/package-info.ts` with the new Mediabunny version in `extraPackages`.
 - Update `packages/docs/docs/mediabunny/version.mdx` compatiblity table. To find the next version this upgrade is going to be applied, look in the root package.json for the version and increment the patch version by one

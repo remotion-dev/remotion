@@ -42,6 +42,30 @@ describe('Templates should be valid', () => {
 				expect(body.dependencies['@types/web']).toInclude('0.0.166');
 			}
 
+			const rootPackageJson = JSON.parse(
+				readFileSync(
+					path.join(process.cwd(), '..', '..', 'package.json'),
+					'utf8',
+				),
+			);
+			const catalog = rootPackageJson.workspaces.catalog;
+
+			if (body.dependencies.mediabunny) {
+				expect(body.dependencies.mediabunny).toBe(catalog.mediabunny);
+			}
+
+			if (body.dependencies['@mediabunny/mp3-encoder']) {
+				expect(body.dependencies['@mediabunny/mp3-encoder']).toBe(
+					catalog['@mediabunny/mp3-encoder'],
+				);
+			}
+
+			if (body.dependencies['@mediabunny/ac3']) {
+				expect(body.dependencies['@mediabunny/ac3']).toBe(
+					catalog['@mediabunny/ac3'],
+				);
+			}
+
 			expect(body.devDependencies.prettier).toMatch('3.8.1');
 			expect(body.private).toBe(true);
 			expect(body.name).toStartWith('template-');

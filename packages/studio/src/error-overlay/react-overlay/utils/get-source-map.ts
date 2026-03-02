@@ -20,6 +20,12 @@ export type OriginalPosition = {
 	source: string | null;
 };
 
+export type CodePosition = {
+	line: number;
+	column: number;
+	source: string;
+};
+
 export const getOriginalPosition = (
 	source_map: SourceMapConsumer,
 	line: number,

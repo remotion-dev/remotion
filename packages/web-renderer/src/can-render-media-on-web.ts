@@ -11,6 +11,7 @@ import {
 	containerToMediabunnyContainer,
 	getDefaultVideoCodecForContainer,
 	getQualityForWebRendererQuality,
+	isAudioOnlyContainer,
 } from './mediabunny-mappings';
 import {resolveAudioCodec} from './resolve-audio-codec';
 import {validateDimensions} from './validate-dimensions';
@@ -26,18 +27,10 @@ export const canRenderMediaOnWeb = async (
 ): Promise<CanRenderMediaOnWebResult> => {
 	const issues: CanRenderIssue[] = [];
 
-	if (typeof VideoEncoder === 'undefined') {
-		issues.push({
-			type: 'webcodecs-unavailable',
-			message:
-				'WebCodecs API is not available in this browser. A modern browser with WebCodecs support is required.',
-			severity: 'error',
-		});
-	}
-
 	const container = options.container ?? 'mp4';
 	const videoCodec =
-		options.videoCodec ?? getDefaultVideoCodecForContainer(container);
+		options.videoCodec ?? getDefaultVideoCodecForContainer(container) ?? null;
+	const videoEnabled = !isAudioOnlyContainer(container);
 	const transparent = options.transparent ?? false;
 	const muted = options.muted ?? false;
 	const {width, height} = options;
@@ -51,40 +44,65 @@ export const canRenderMediaOnWeb = async (
 			? options.audioBitrate
 			: getQualityForWebRendererQuality(options.audioBitrate ?? 'medium');
 
-	const format = containerToMediabunnyContainer(container);
-	if (
-		!format.getSupportedCodecs().includes(codecToMediabunnyCodec(videoCodec))
-	) {
-		issues.push({
-			type: 'container-codec-mismatch',
-			message: `Codec ${videoCodec} is not supported for container ${container}`,
-			severity: 'error',
-		});
-	}
+	if (videoEnabled) {
+		if (typeof VideoEncoder === 'undefined') {
+			issues.push({
+				type: 'webcodecs-unavailable',
+				message:
+					'WebCodecs API is not available in this browser. A modern browser with WebCodecs support is required.',
+				severity: 'error',
+			});
+		}
 
-	const dimensionIssue = validateDimensions({width, height, codec: videoCodec});
-	if (dimensionIssue) {
-		issues.push(dimensionIssue);
-	}
+		if (!videoCodec) {
+			issues.push({
+				type: 'container-codec-mismatch',
+				message: `A video codec is required for container ${container}`,
+				severity: 'error',
+			});
+		} else {
+			const format = containerToMediabunnyContainer(container);
+			if (
+				!format
+					.getSupportedCodecs()
+					.includes(codecToMediabunnyCodec(videoCodec))
+			) {
+				issues.push({
+					type: 'container-codec-mismatch',
+					message: `Codec ${videoCodec} is not supported for container ${container}`,
+					severity: 'error',
+				});
+			}
 
-	const canEncodeVideoResult = await canEncodeVideo(
-		codecToMediabunnyCodec(videoCodec),
-		{bitrate: resolvedVideoBitrate},
-	);
-	if (!canEncodeVideoResult) {
-		issues.push({
-			type: 'video-codec-unsupported',
-			message: `Video codec "${videoCodec}" cannot be encoded by this browser`,
-			severity: 'error',
-		});
-	}
+			const dimensionIssue = validateDimensions({
+				width,
+				height,
+				codec: videoCodec,
+			});
+			if (dimensionIssue) {
+				issues.push(dimensionIssue);
+			}
 
-	if (transparent && !['vp8', 'vp9'].includes(videoCodec)) {
-		issues.push({
-			type: 'transparent-video-unsupported',
-			message: `Transparent video requires VP8 or VP9 codec with WebM container. ${videoCodec} does not support alpha channel.`,
-			severity: 'error',
-		});
+			const canEncodeVideoResult = await canEncodeVideo(
+				codecToMediabunnyCodec(videoCodec),
+				{bitrate: resolvedVideoBitrate},
+			);
+			if (!canEncodeVideoResult) {
+				issues.push({
+					type: 'video-codec-unsupported',
+					message: `Video codec "${videoCodec}" cannot be encoded by this browser`,
+					severity: 'error',
+				});
+			}
+
+			if (transparent && !['vp8', 'vp9'].includes(videoCodec)) {
+				issues.push({
+					type: 'transparent-video-unsupported',
+					message: `Transparent video requires VP8 or VP9 codec with WebM container. ${videoCodec} does not support alpha channel.`,
+					severity: 'error',
+				});
+			}
+		}
 	}
 
 	let resolvedAudioCodec: CanRenderMediaOnWebResult['resolvedAudioCodec'] =
@@ -130,7 +148,7 @@ export const canRenderMediaOnWeb = async (
 	return {
 		canRender: issues.filter((i) => i.severity === 'error').length === 0,
 		issues,
-		resolvedVideoCodec: videoCodec,
+		resolvedVideoCodec: videoEnabled ? videoCodec : null,
 		resolvedAudioCodec,
 		resolvedOutputTarget,
 	};

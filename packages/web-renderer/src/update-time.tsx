@@ -36,6 +36,7 @@ export const UpdateTime: React.FC<{
 
 	return (
 		<Internals.RemotionRootContexts
+			visualModeEnabled={false}
 			audioEnabled={audioEnabled}
 			videoEnabled={videoEnabled}
 			logLevel={logLevel}

@@ -1519,41 +1519,41 @@ export const googleFonts: Font[] = [
 			'700italic',
 		],
 		subsets: ['latin', 'latin-ext'],
-		version: 'v1',
-		lastModified: '2025-12-10',
+		version: 'v2',
+		lastModified: '2026-02-26',
 		files: {
 			'100':
-				'https://fonts.gstatic.com/s/amarna/v1/MCoPzAj-18jIHCAeTqjMCgZDAOUBwaakgRt9AuNICqo.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoPzAj-18jIHCAeTqjMCgZDAOUBwaakgRt9AuNICqo.woff2',
 			'200':
-				'https://fonts.gstatic.com/s/amarna/v1/MCoPzAj-18jIHCAeTqjMCgZDAOUBwSalgRt9AuNICqo.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoPzAj-18jIHCAeTqjMCgZDAOUBwSalgRt9AuNICqo.woff2',
 			'300':
-				'https://fonts.gstatic.com/s/amarna/v1/MCoPzAj-18jIHCAeTqjMCgZDAOUBwfilgRt9AuNICqo.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoPzAj-18jIHCAeTqjMCgZDAOUBwfilgRt9AuNICqo.woff2',
 			'500':
-				'https://fonts.gstatic.com/s/amarna/v1/MCoPzAj-18jIHCAeTqjMCgZDAOUBwZSlgRt9AuNICqo.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoPzAj-18jIHCAeTqjMCgZDAOUBwZSlgRt9AuNICqo.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/amarna/v1/MCoPzAj-18jIHCAeTqjMCgZDAOUBwXiigRt9AuNICqo.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoPzAj-18jIHCAeTqjMCgZDAOUBwXiigRt9AuNICqo.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/amarna/v1/MCoPzAj-18jIHCAeTqjMCgZDAOUBwUGigRt9AuNICqo.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoPzAj-18jIHCAeTqjMCgZDAOUBwUGigRt9AuNICqo.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/amarna/v1/MCoPzAj-18jIHCAeTqjMCgZDAOUBwaalgRt9AuNICqo.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoPzAj-18jIHCAeTqjMCgZDAOUBwaalgRt9AuNICqo.woff2',
 			'100italic':
-				'https://fonts.gstatic.com/s/amarna/v1/MCoNzAj-18jIHCA0R5oz0m8omksG1G7maVx3A8FNGqo2iw.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoNzAj-18jIHCA0R5oz0m8omksG1G7maVx3A8FNGqo2iw.woff2',
 			'200italic':
-				'https://fonts.gstatic.com/s/amarna/v1/MCoNzAj-18jIHCA0R5oz0m8omksG1G7m6V13A8FNGqo2iw.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoNzAj-18jIHCA0R5oz0m8omksG1G7m6V13A8FNGqo2iw.woff2',
 			'300italic':
-				'https://fonts.gstatic.com/s/amarna/v1/MCoNzAj-18jIHCA0R5oz0m8omksG1G7mN113A8FNGqo2iw.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoNzAj-18jIHCA0R5oz0m8omksG1G7mN113A8FNGqo2iw.woff2',
 			italic:
-				'https://fonts.gstatic.com/s/amarna/v1/MCoNzAj-18jIHCA0R5oz0m8omksG1G7maV13A8FNGqo2iw.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoNzAj-18jIHCA0R5oz0m8omksG1G7maV13A8FNGqo2iw.woff2',
 			'500italic':
-				'https://fonts.gstatic.com/s/amarna/v1/MCoNzAj-18jIHCA0R5oz0m8omksG1G7mW113A8FNGqo2iw.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoNzAj-18jIHCA0R5oz0m8omksG1G7mW113A8FNGqo2iw.woff2',
 			'600italic':
-				'https://fonts.gstatic.com/s/amarna/v1/MCoNzAj-18jIHCA0R5oz0m8omksG1G7mt1p3A8FNGqo2iw.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoNzAj-18jIHCA0R5oz0m8omksG1G7mt1p3A8FNGqo2iw.woff2',
 			'700italic':
-				'https://fonts.gstatic.com/s/amarna/v1/MCoNzAj-18jIHCA0R5oz0m8omksG1G7mjlp3A8FNGqo2iw.woff2',
+				'https://fonts.gstatic.com/s/amarna/v2/MCoNzAj-18jIHCA0R5oz0m8omksG1G7mjlp3A8FNGqo2iw.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/amarna/v1/MCoPzAj-18jIHCAeTqjMCgZDAOUBwaalsR93Aw.woff2',
+		menu: 'https://fonts.gstatic.com/s/amarna/v2/MCoPzAj-18jIHCAeTqjMCgZDAOUBwaalsR93Aw.woff2',
 	},
 	{
 		family: 'Amatic SC',
@@ -6098,43 +6098,43 @@ export const googleFonts: Font[] = [
 		family: 'Bpmf Huninn',
 		variants: ['regular'],
 		subsets: ['chinese-traditional', 'latin', 'latin-ext'],
-		version: 'v2',
-		lastModified: '2026-02-19',
+		version: 'v4',
+		lastModified: '2026-02-25',
 		files: {
 			regular:
-				'https://fonts.gstatic.com/s/bpmfhuninn/v2/taiOGmRuFJa3qsALi5gn1K6t05E5abe_.woff2',
+				'https://fonts.gstatic.com/s/bpmfhuninn/v4/taiOGmRuFJa3qsALi5gn1K6t05E5abe_.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/bpmfhuninn/v2/taiOGmRuFJa3qsALi5gn1J6p2ZA.woff2',
+		menu: 'https://fonts.gstatic.com/s/bpmfhuninn/v4/taiOGmRuFJa3qsALi5gn1J6p2ZA.woff2',
 	},
 	{
 		family: 'Bpmf Iansui',
 		variants: ['regular'],
 		subsets: ['chinese-traditional', 'latin', 'latin-ext'],
-		version: 'v2',
-		lastModified: '2026-02-19',
+		version: 'v4',
+		lastModified: '2026-02-25',
 		files: {
 			regular:
-				'https://fonts.gstatic.com/s/bpmfiansui/v2/yMJWMIp-dJTO0T8F_WnJPgh0oNFxW0Hz.woff2',
+				'https://fonts.gstatic.com/s/bpmfiansui/v4/yMJWMIp-dJTO0T8F_WnJPgh0oNFxW0Hz.woff2',
 		},
 		category: 'handwriting',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/bpmfiansui/v2/yMJWMIp-dJTO0T8F_WnJPjhwqtA.woff2',
+		menu: 'https://fonts.gstatic.com/s/bpmfiansui/v4/yMJWMIp-dJTO0T8F_WnJPjhwqtA.woff2',
 	},
 	{
 		family: 'Bpmf Zihi Kai Std',
 		variants: ['regular'],
 		subsets: ['chinese-traditional', 'latin', 'latin-ext'],
-		version: 'v2',
-		lastModified: '2026-02-19',
+		version: 'v4',
+		lastModified: '2026-02-25',
 		files: {
 			regular:
-				'https://fonts.gstatic.com/s/bpmfzihikaistd/v2/9XU_lIdmjlbGWCXAeHssPRoh5OLaAgzD5SMtfj3e.woff2',
+				'https://fonts.gstatic.com/s/bpmfzihikaistd/v4/9XU_lIdmjlbGWCXAeHssPRoh5OLaAgzD5SMtfj3e.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/bpmfzihikaistd/v2/9XU_lIdmjlbGWCXAeHssPRoh5OLaAjzH7yI.woff2',
+		menu: 'https://fonts.gstatic.com/s/bpmfzihikaistd/v4/9XU_lIdmjlbGWCXAeHssPRoh5OLaAjzH7yI.woff2',
 	},
 	{
 		family: 'Braah One',
