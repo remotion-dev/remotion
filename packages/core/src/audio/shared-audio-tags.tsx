@@ -228,7 +228,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 			return true;
 		};
-	}, [audioContext]);
+	}, [audioContext, logLevel]);
 
 	const refs = useMemo(() => {
 		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
