@@ -4,6 +4,8 @@ import {AbsoluteFill, Img} from 'remotion';
 import {articles} from '../data/articles';
 import './font.css';
 
+const arrowPreviewArticleIds = new Set(['shapes/arrow', 'shapes/make-arrow']);
+
 export const Article: React.FC<{
 	readonly articleRelativePath: string;
 }> = ({articleRelativePath}) => {
@@ -17,8 +19,7 @@ export const Article: React.FC<{
 	);
 
 	const fontSize = longestTitle > 20 ? 70 : 80;
-	const showArrowPreview =
-		article.id === 'shapes/arrow' || article.id === 'shapes/make-arrow';
+	const showArrowPreview = arrowPreviewArticleIds.has(article.id);
 
 	return (
 		<AbsoluteFill
@@ -74,7 +75,7 @@ export const Article: React.FC<{
 							padding: 50,
 							minWidth: 500,
 							width: '100%',
-							justifyContent: 'space-between',
+							justifyContent: showArrowPreview ? 'space-between' : 'flex-start',
 						}}
 					>
 						<div
