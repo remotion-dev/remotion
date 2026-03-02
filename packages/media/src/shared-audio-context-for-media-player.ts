@@ -1,11 +1,4 @@
-export type ScheduleAudioNodeOptions = {
-	node: AudioBufferSourceNode;
-	mediaTimestamp: number;
-	targetTime: number;
-	currentTime: number;
-	endTime: number;
-	startTime: number;
-};
+import type {ScheduleAudioNodeOptions} from 'remotion';
 
 export type SharedAudioContextForMediaPlayer = {
 	audioContext: AudioContext;

@@ -4,6 +4,7 @@ import {AudioForPreview} from './audio/AudioForPreview.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
+	type ScheduleAudioNodeOptions,
 } from './audio/shared-audio-tags.js';
 import {
 	useFrameForVolumeProp,
@@ -287,4 +288,5 @@ export type {
 	TRenderAsset,
 	TSequence,
 	WatchRemotionStaticFilesPayload,
+	ScheduleAudioNodeOptions,
 };
