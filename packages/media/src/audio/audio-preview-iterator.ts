@@ -1,4 +1,5 @@
 import type {WrappedAudioBuffer} from 'mediabunny';
+import {Internals} from 'remotion';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import type {PrewarmedAudioIteratorCache} from '../prewarm-iterator-for-looping';
 
@@ -12,10 +13,15 @@ export type QueuedNode = {
 
 export const makeAudioIterator = (
 	startFromSecond: number,
+	maximumTimestamp: number,
 	cache: PrewarmedAudioIteratorCache,
+	debugAudioScheduling: boolean,
 ) => {
 	let destroyed = false;
-	const iterator = cache.makeIteratorOrUsePrewarmed(startFromSecond);
+	const iterator = cache.makeIteratorOrUsePrewarmed(
+		startFromSecond,
+		maximumTimestamp,
+	);
 	const queuedAudioNodes: QueuedNode[] = [];
 	const audioChunksForAfterResuming: {
 		buffer: AudioBuffer;
@@ -28,7 +34,15 @@ export const makeAudioIterator = (
 	const cleanupAudioQueue = () => {
 		for (const node of queuedAudioNodes) {
 			try {
-				node.node.stop();
+				if (debugAudioScheduling) {
+					Internals.Log.info(
+						{logLevel: 'trace', tag: 'audio-scheduling'},
+						`Stopping node ${node.timestamp.toFixed(3)}`,
+					);
+				}
+
+				// TODO: Be more smart about stopping
+				//	node.node.stop();
 			} catch {
 				// Node may not have been started
 			}
@@ -167,7 +181,6 @@ export const makeAudioIterator = (
 			}
 
 			const buffer = await getNextOrNullIfNotAvailable();
-			console.log('buffer', buffer.type);
 			if (buffer.type === 'need-to-wait-for-it') {
 				return {type: 'waiting'};
 			}
@@ -209,8 +222,14 @@ export const makeAudioIterator = (
 	const moveQueuedChunksToPauseQueue = () => {
 		const toQueue = removeAndReturnAllQueuedAudioNodes();
 		for (const chunk of toQueue) {
-			console.log('moving chunk to pause queue', chunk.timestamp);
 			addChunkForAfterResuming(chunk.buffer, chunk.timestamp);
+		}
+
+		if (debugAudioScheduling && toQueue.length > 0) {
+			Internals.Log.trace(
+				{logLevel: 'trace', tag: 'audio-scheduling'},
+				`Moved ${toQueue.length} ${toQueue.length === 1 ? 'chunk' : 'chunks'} to pause queue (${toQueue[0].timestamp.toFixed(3)}-${toQueue[toQueue.length - 1].timestamp + toQueue[toQueue.length - 1].buffer.duration.toFixed(3)})`,
+			);
 		}
 	};
 

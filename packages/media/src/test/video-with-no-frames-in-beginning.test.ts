@@ -105,6 +105,7 @@ test('same goes for audio', async () => {
 		startFromSecond: 0.06671494248275864,
 		getIsPlaying: () => true,
 		scheduleAudioNode: () => true,
+		debugAudioScheduling: false,
 	});
 
 	await manager.seek({
@@ -113,6 +114,7 @@ test('same goes for audio', async () => {
 		playbackRate: 1,
 		getIsPlaying: () => true,
 		scheduleAudioNode: () => true,
+		debugAudioScheduling: false,
 	});
 
 	const iterators = manager.getAudioIteratorsCreated();

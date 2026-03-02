@@ -311,6 +311,7 @@ export class MediaPlayer {
 								startFromSecond: startTime,
 								getIsPlaying: () => this.playing,
 								scheduleAudioNode: this.scheduleAudioNode,
+								debugAudioScheduling: this.debugAudioScheduling,
 							})
 						: Promise.resolve(),
 					this.videoIteratorManager
@@ -396,6 +397,7 @@ export class MediaPlayer {
 							playbackRate: this.playbackRate * this.globalPlaybackRate,
 							getIsPlaying: () => this.playing,
 							scheduleAudioNode: this.scheduleAudioNode,
+							debugAudioScheduling: this.debugAudioScheduling,
 						})
 					: null,
 			]);
@@ -408,30 +410,28 @@ export class MediaPlayer {
 		}
 	}
 
-	public async playAudio(): Promise<void> {
-		if (this.audioIteratorManager) {
+	public playAudio(): void {
+		if (
+			this.audioIteratorManager &&
+			this.sharedAudioContext?.audioContext.state === 'running' &&
+			(this.sharedAudioContext?.audioContext?.getOutputTimestamp()
+				.contextTime ?? 0) > 0
+		) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
 				playbackRate: this.playbackRate * this.globalPlaybackRate,
 				scheduleAudioNode: this.scheduleAudioNode,
 			});
 		}
-
-		if (
-			this.sharedAudioContext &&
-			this.sharedAudioContext.audioContext.state === 'suspended'
-		) {
-			await this.sharedAudioContext.audioContext.resume();
-		}
 	}
 
-	public async play(): Promise<void> {
+	public play(): void {
 		if (this.playing) {
 			return;
 		}
 
 		this.playing = true;
 
-		await this.playAudio();
+		this.playAudio();
 		this.drawDebugOverlay();
 	}
 
@@ -553,7 +553,12 @@ export class MediaPlayer {
 		}
 
 		iterator.moveQueuedChunksToPauseQueue();
-		if (this.playing) {
+		if (
+			this.playing &&
+			this.sharedAudioContext.audioContext.state === 'running' &&
+			(this.sharedAudioContext.audioContext?.getOutputTimestamp().contextTime ??
+				0) > 0
+		) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
 				playbackRate: this.playbackRate * this.globalPlaybackRate,
 				scheduleAudioNode: this.scheduleAudioNode,

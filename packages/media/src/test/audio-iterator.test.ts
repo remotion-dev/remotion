@@ -59,6 +59,7 @@ test('media player should work', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		debugAudioScheduling: false,
 	});
 
 	await manager.seek({
@@ -67,6 +68,7 @@ test('media player should work', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		debugAudioScheduling: false,
 	});
 
 	await manager.seek({
@@ -75,6 +77,7 @@ test('media player should work', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		debugAudioScheduling: false,
 	});
 
 	const created = manager.getAudioIteratorsCreated();
@@ -105,6 +108,7 @@ test('should not create too many iterators when the audio ends', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		debugAudioScheduling: false,
 	});
 	await manager.seek({
 		newTime: 9.98,
@@ -112,6 +116,7 @@ test('should not create too many iterators when the audio ends', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		debugAudioScheduling: false,
 	});
 	await manager.seek({
 		newTime: 9.99,
@@ -119,6 +124,7 @@ test('should not create too many iterators when the audio ends', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		debugAudioScheduling: false,
 	});
 
 	const created = manager.getAudioIteratorsCreated();
@@ -146,6 +152,7 @@ test('should create more iterators when seeking ', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		debugAudioScheduling: false,
 	});
 	await manager.seek({
 		newTime: 1,
@@ -153,6 +160,7 @@ test('should create more iterators when seeking ', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		debugAudioScheduling: false,
 	});
 
 	const created = manager.getAudioIteratorsCreated();
@@ -219,6 +227,7 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 			getIsPlaying: () => true,
 			nonce: makeNonceManager().createAsyncOperation(),
 			playbackRate,
+			debugAudioScheduling: false,
 		});
 	}
 
@@ -277,6 +286,7 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 			getIsPlaying: () => true,
 			nonce: makeNonceManager().createAsyncOperation(),
 			playbackRate: 1,
+			debugAudioScheduling: false,
 		});
 	}
 

@@ -4,6 +4,7 @@ import type {
 	WrappedAudioBuffer,
 	WrappedCanvas,
 } from 'mediabunny';
+import {makeIteratorWithPriming} from './make-iterator-with-priming';
 
 export const makePrewarmedVideoIteratorCache = (videoSink: CanvasSink) => {
 	const prewarmedVideoIterators: Map<
@@ -47,47 +48,48 @@ export type PrewarmedVideoIteratorCache = ReturnType<
 	typeof makePrewarmedVideoIteratorCache
 >;
 
-const AUDIO_PRIMING_SECONDS = 0.2;
-
-async function* makeBufferWithPriming(
-	audioSink: AudioBufferSink,
-	timeToSeek: number,
-): AsyncGenerator<WrappedAudioBuffer, void, unknown> {
-	const primingStart = Math.max(0, timeToSeek - AUDIO_PRIMING_SECONDS);
-	const iterator = audioSink.buffers(primingStart);
-
-	for await (const buffer of iterator) {
-		if (buffer.timestamp + buffer.duration <= timeToSeek) {
-			continue;
-		}
-
-		yield buffer;
-	}
-}
+const makeKey = (timeToSeek: number, maximumTimestamp: number) => {
+	return `${timeToSeek}-${maximumTimestamp}`;
+};
 
 export const makePrewarmedAudioIteratorCache = (audioSink: AudioBufferSink) => {
 	const prewarmedAudioIterators: Map<
-		number,
+		string,
 		AsyncGenerator<WrappedAudioBuffer, void, unknown>
 	> = new Map();
 
-	const prewarmIteratorForLooping = ({timeToSeek}: {timeToSeek: number}) => {
-		if (!prewarmedAudioIterators.has(timeToSeek)) {
+	const prewarmIteratorForLooping = ({
+		timeToSeek,
+		maximumTimestamp,
+	}: {
+		timeToSeek: number;
+		maximumTimestamp: number;
+	}) => {
+		if (!prewarmedAudioIterators.has(makeKey(timeToSeek, maximumTimestamp))) {
 			prewarmedAudioIterators.set(
-				timeToSeek,
-				makeBufferWithPriming(audioSink, timeToSeek),
+				makeKey(timeToSeek, maximumTimestamp),
+				makeIteratorWithPriming(audioSink, timeToSeek, maximumTimestamp),
 			);
 		}
 	};
 
-	const makeIteratorOrUsePrewarmed = (timeToSeek: number) => {
-		const prewarmedIterator = prewarmedAudioIterators.get(timeToSeek);
+	const makeIteratorOrUsePrewarmed = (
+		timeToSeek: number,
+		maximumTimestamp: number,
+	) => {
+		const prewarmedIterator = prewarmedAudioIterators.get(
+			makeKey(timeToSeek, maximumTimestamp),
+		);
 		if (prewarmedIterator) {
-			prewarmedAudioIterators.delete(timeToSeek);
+			prewarmedAudioIterators.delete(makeKey(timeToSeek, maximumTimestamp));
 			return prewarmedIterator;
 		}
 
-		const iterator = makeBufferWithPriming(audioSink, timeToSeek);
+		const iterator = makeIteratorWithPriming(
+			audioSink,
+			timeToSeek,
+			maximumTimestamp,
+		);
 		return iterator;
 	};
 

@@ -153,7 +153,7 @@ export const SharedAudioContextProvider: React.FC<{
 	useLayoutEffect(() => {
 		if (!audioContext) return;
 		const stateChangeHandler = () => {
-			Log.trace(
+			Log.info(
 				{logLevel, tag: 'audio-context'},
 				'statechange',
 				audioContext.state,
@@ -220,18 +220,9 @@ export const SharedAudioContextProvider: React.FC<{
 				);
 			}
 
-			if (duration < 0) {
-				if (debugAudioScheduling) {
-					Log.info(
-						{logLevel, tag: 'audio-scheduling'},
-						'Missed audio node by ',
-						offset,
-					);
-					return false;
-				}
+			if (duration > 0) {
+				node.start(scheduledTime, offset, duration);
 			}
-
-			node.start(scheduledTime, offset, duration);
 
 			const scheduledEndTime =
 				scheduledTime + duration / node.playbackRate.value;
@@ -262,21 +253,30 @@ export const SharedAudioContextProvider: React.FC<{
 					mediaTime.toFixed(4),
 					'',
 					mediaEndTime.toFixed(4),
-					timeDiff < 0
+					duration < 0
 						? 'color: red; font-weight: bold'
-						: 'color: blue; font-weight: bold',
-					Math.abs(timeDiff).toFixed(2) + (timeDiff < 0 ? ' delay' : ' ahead'),
+						: timeDiff < 0
+							? 'color: red; font-weight: bold'
+							: 'color: blue; font-weight: bold',
+					duration < 0
+						? 'missed ' + Math.abs(offset).toFixed(2) + 's'
+						: Math.abs(timeDiff).toFixed(2) +
+								(timeDiff < 0 ? ' delay' : ' ahead'),
 					'',
-					't=' + (targetTime + currentTime).toFixed(4),
-					'c=' + currentTime.toFixed(4),
-					'o=' + offset.toFixed(4),
+					'current=' + currentTime.toFixed(4),
+					'offset=' + offset.toFixed(4),
+					'latency=' + latency.toFixed(4),
+					'state=' + audioContext.state,
+					'outputtimestamp' + audioContext.getOutputTimestamp().contextTime,
+					'outputtimestamp.time' +
+						audioContext.getOutputTimestamp().performanceTime,
 				);
 			}
 
 			prev.scheduledEndTime = scheduledEndTime;
 			prev.mediaEndTime = mediaEndTime;
 
-			return true;
+			return duration > 0;
 		};
 	}, [audioContext, logLevel]);
 

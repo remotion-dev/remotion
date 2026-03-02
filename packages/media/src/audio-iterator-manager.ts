@@ -63,6 +63,12 @@ export const audioIteratorManager = ({
 			throw new Error('Audio buffer iterator not found');
 		}
 
+		if (sharedAudioContext.state !== 'running') {
+			throw new Error(
+				'Tried to schedule node while audio context is not running',
+			);
+		}
+
 		if (muted) {
 			return;
 		}
@@ -117,7 +123,11 @@ export const audioIteratorManager = ({
 			return;
 		}
 
-		if (getIsPlaying()) {
+		if (
+			getIsPlaying() &&
+			sharedAudioContext.state === 'running' &&
+			(sharedAudioContext.getOutputTimestamp().contextTime ?? 0) > 0
+		) {
 			scheduleAudioChunk({
 				buffer: buffer.buffer,
 				mediaTimestamp: buffer.timestamp,
@@ -144,12 +154,14 @@ export const audioIteratorManager = ({
 		startFromSecond,
 		getIsPlaying,
 		scheduleAudioNode,
+		debugAudioScheduling,
 	}: {
 		startFromSecond: number;
 		nonce: Nonce;
 		playbackRate: number;
 		getIsPlaying: () => boolean;
 		scheduleAudioNode: ScheduleAudioNode;
+		debugAudioScheduling: boolean;
 	}) => {
 		if (muted) {
 			return;
@@ -161,7 +173,9 @@ export const audioIteratorManager = ({
 
 		const iterator = makeAudioIterator(
 			startFromSecond,
+			getEndTime(),
 			prewarmedAudioIteratorCache,
+			debugAudioScheduling,
 		);
 		audioIteratorsCreated++;
 		audioBufferIterator = iterator;
@@ -192,7 +206,6 @@ export const audioIteratorManager = ({
 				});
 			}
 
-			console.log('buffering as far as possible');
 			await iterator.bufferAsFarAsPossible(
 				(buffer) => {
 					if (!nonce.isStale()) {
@@ -231,12 +244,14 @@ export const audioIteratorManager = ({
 		playbackRate,
 		getIsPlaying,
 		scheduleAudioNode,
+		debugAudioScheduling,
 	}: {
 		newTime: number;
 		nonce: Nonce;
 		playbackRate: number;
 		getIsPlaying: () => boolean;
 		scheduleAudioNode: ScheduleAudioNode;
+		debugAudioScheduling: boolean;
 	}) => {
 		if (muted) {
 			return;
@@ -247,6 +262,7 @@ export const audioIteratorManager = ({
 			if (getEndTime() - newTime < 1) {
 				prewarmedAudioIteratorCache.prewarmIteratorForLooping({
 					timeToSeek: getStartTime(),
+					maximumTimestamp: getEndTime(),
 				});
 			}
 		}
@@ -258,6 +274,7 @@ export const audioIteratorManager = ({
 				startFromSecond: newTime,
 				getIsPlaying,
 				scheduleAudioNode,
+				debugAudioScheduling,
 			});
 			return;
 		}
@@ -295,6 +312,7 @@ export const audioIteratorManager = ({
 					startFromSecond: newTime,
 					getIsPlaying,
 					scheduleAudioNode,
+					debugAudioScheduling,
 				});
 				return;
 			}
@@ -304,14 +322,8 @@ export const audioIteratorManager = ({
 			}
 		}
 
-		console.log('buffering as far as possible 2');
 		await audioBufferIterator.bufferAsFarAsPossible(
 			(buffer) => {
-				console.log(
-					'buffering ahead',
-					buffer.timestamp,
-					newTime + MAX_BUFFER_AHEAD_SECONDS,
-				);
 				if (!nonce.isStale()) {
 					onAudioChunk({
 						getIsPlaying,
