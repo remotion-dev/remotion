@@ -1,3 +1,4 @@
+import {Arrow} from '@remotion/shapes';
 import React from 'react';
 import {AbsoluteFill, Img} from 'remotion';
 import {articles} from '../data/articles';
@@ -16,6 +17,8 @@ export const Article: React.FC<{
 	);
 
 	const fontSize = longestTitle > 20 ? 70 : 80;
+	const showArrowPreview =
+		article.id === 'shapes/arrow' || article.id === 'shapes/make-arrow';
 
 	return (
 		<AbsoluteFill
@@ -71,6 +74,7 @@ export const Article: React.FC<{
 							padding: 50,
 							minWidth: 500,
 							width: '100%',
+							justifyContent: 'space-between',
 						}}
 					>
 						<div
@@ -83,6 +87,16 @@ export const Article: React.FC<{
 						>
 							{article.title}
 						</div>
+						{showArrowPreview ? (
+							<Arrow
+								length={220}
+								headLength={90}
+								headWidth={140}
+								shaftWidth={60}
+								fill="white"
+								direction="right"
+							/>
+						) : null}
 					</div>
 				</div>
 
