@@ -3,7 +3,7 @@ import {CalculateMetadataFunction, Composition} from 'remotion';
 // https://www.remotion.dev/docs/mediabunny/metadata
 import {getMediaMetadata} from './get-media-metadata';
 
-const src = 'https://remotion.media/video.mp4';
+const src = 'https://remotion.media/BigBuckBunny.mp4';
 
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
@@ -19,7 +19,15 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 };
 
 export const Component = () => {
-	return <Video src={src} />;
+	return (
+		<Video
+			src={src}
+			trimBefore={640}
+			trimAfter={1800}
+			loop
+			debugAudioScheduling
+		/>
+	);
 };
 
 export const NewVideoComp = () => {

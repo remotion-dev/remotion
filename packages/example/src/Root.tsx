@@ -66,6 +66,7 @@ import RectTest from './Shapes/RectTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
 import {SkipZeroFrame} from './SkipZeroFrame';
+import {SlicedVideo} from './SlicedVideo';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
@@ -1411,6 +1412,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					durationInFrames={300}
 					width={1080}
+				/>
+				<Composition
+					id="sliced-video"
+					component={SlicedVideo}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1920}
 				/>
 			</Folder>
 			<Folder name="Postmount">
