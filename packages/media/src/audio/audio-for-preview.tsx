@@ -140,7 +140,10 @@ const AudioForPreviewAssertedShowing: React.FC<
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
 	const absoluteTime = Internals.useAbsoluteTimelinePosition();
-	const sequenceOffset = (absoluteTime - frame) / videoConfig!.fps;
+	const sequenceOffset =
+		((parentSequence?.cumulatedFrom ?? 0) +
+			(parentSequence?.relativeFrom ?? 0)) /
+		videoConfig.fps;
 
 	const loopDisplay = useLoopDisplay({
 		loop,
