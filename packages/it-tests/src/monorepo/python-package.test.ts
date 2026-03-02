@@ -84,7 +84,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			logLevel: 'info',
 			maxRetries: 1,
 			muted: false,
-			numberOfGifLoops: 0,
+			numberOfGifLoops: null,
 			offthreadVideoCacheSizeInBytes: null,
 			offthreadVideoThreads: null,
 			outName: null,
