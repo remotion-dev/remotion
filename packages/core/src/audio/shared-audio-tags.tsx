@@ -43,12 +43,12 @@ const EMPTY_AUDIO =
 	'data:audio/mp3;base64,/+MYxAAJcAV8AAgAABn//////+/gQ5BAMA+D4Pg+BAQBAEAwD4Pg+D4EBAEAQDAPg++hYBH///hUFQVBUFREDQNHmf///////+MYxBUGkAGIMAAAAP/29Xt6lUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDUAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
 
 export type ScheduleAudioNodeOptions = {
-	node: AudioBufferSourceNode;
-	targetTime: number;
-	mediaTimestamp: number;
-	currentTime: number;
-	endTime: number;
-	startTime: number;
+	readonly node: AudioBufferSourceNode;
+	readonly targetTime: number;
+	readonly mediaTimestamp: number;
+	readonly currentTime: number;
+	readonly endTime: number;
+	readonly startTime: number;
 };
 
 type SharedContext = {
@@ -69,8 +69,8 @@ type SharedContext = {
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
 	audioContext: AudioContext | null;
-	audioSyncAnchor: {value: number} | null;
-	scheduleAudioNode: ((options: ScheduleAudioNodeOptions) => boolean) | null;
+	audioSyncAnchor: {value: number};
+	scheduleAudioNode: (options: ScheduleAudioNodeOptions) => boolean;
 };
 
 const compareProps = (
@@ -147,10 +147,7 @@ export const SharedAudioContextProvider: React.FC<{
 		latencyHint: audioLatencyHint,
 		audioEnabled,
 	});
-	const audioSyncAnchor = useMemo(
-		() => (audioContext ? {value: 0} : null),
-		[audioContext],
-	);
+	const audioSyncAnchor = useMemo(() => ({value: 0}), []);
 
 	const prevEndTimes = useRef<{
 		scheduledEndTime: number | null;
@@ -158,10 +155,6 @@ export const SharedAudioContextProvider: React.FC<{
 	}>({scheduledEndTime: null, mediaEndTime: null});
 
 	const scheduleAudioNode = useMemo(() => {
-		if (!audioContext) {
-			return null;
-		}
-
 		return ({
 			node,
 			mediaTimestamp,
@@ -170,6 +163,10 @@ export const SharedAudioContextProvider: React.FC<{
 			endTime,
 			startTime,
 		}: ScheduleAudioNodeOptions) => {
+			if (!audioContext) {
+				return false;
+			}
+
 			const bufferDuration = node.buffer?.duration ?? 0;
 
 			const unclampedMediaEndTime = mediaTimestamp + bufferDuration;

@@ -212,8 +212,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 	useEffect(() => {
 		if (!sharedAudioContext) return;
 		if (!sharedAudioContext.audioContext) return;
-		if (!sharedAudioContext.audioSyncAnchor) return;
-		if (!sharedAudioContext.scheduleAudioNode) return;
 
 		const {audioContext, audioSyncAnchor, scheduleAudioNode} =
 			sharedAudioContext;
