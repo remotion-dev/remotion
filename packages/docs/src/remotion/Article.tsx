@@ -1,6 +1,6 @@
 import {Arrow} from '@remotion/shapes';
 import React from 'react';
-import {AbsoluteFill, Img} from 'remotion';
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 import {articles} from '../data/articles';
 import './font.css';
 
@@ -144,7 +144,7 @@ export const Article: React.FC<{
 							style={{
 								height: 60,
 							}}
-							src="https://www.remotion.dev/img/remotion-white.png"
+							src={staticFile('img/remotion-white.png')}
 						/>
 					</div>
 				</div>
