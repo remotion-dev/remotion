@@ -569,8 +569,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 	return (
 		<canvas
 			ref={canvasRef}
-			width={videoConfig.width}
-			height={videoConfig.height}
+			// Don't set width and height here.
+			// Width is set in the video iterator manager, if props are being upated, they are being applied again by React.
+			// This will lead to inefficient resizes.
 			style={actualStyle}
 			className={classNameValue}
 		/>
