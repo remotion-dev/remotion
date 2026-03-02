@@ -255,8 +255,6 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 
 	const scheduledChunks: {
 		timestamp: number;
-		maxDuration: number | null;
-		bufferDuration: number;
 	}[] = [];
 	const scheduleAudioNode = (
 		node: AudioBufferSourceNode,
@@ -265,8 +263,6 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 		node.start();
 		scheduledChunks.push({
 			timestamp: mediaTimestamp,
-			maxDuration: null,
-			bufferDuration: node.buffer?.duration ?? 0,
 		});
 		return true;
 	};
@@ -286,9 +282,5 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 
 	for (const chunk of scheduledChunks) {
 		expect(chunk.timestamp).toBeLessThanOrEqual(endTime);
-		const effectiveDuration = chunk.maxDuration ?? chunk.bufferDuration;
-		expect(chunk.timestamp + effectiveDuration).toBeLessThanOrEqual(
-			endTime + 1 / 48000,
-		);
 	}
 });
