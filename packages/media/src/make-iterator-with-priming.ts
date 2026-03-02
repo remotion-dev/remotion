@@ -116,9 +116,6 @@ function makePredecodingIterator(
 		[Symbol.asyncIterator]() {
 			return iterator;
 		},
-		async [Symbol.asyncDispose]() {
-			await iterator.return();
-		},
 	};
 
 	return iterator;
