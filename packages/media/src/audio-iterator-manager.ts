@@ -1,5 +1,6 @@
 import type {InputAudioTrack, WrappedAudioBuffer} from 'mediabunny';
 import {AudioBufferSink, InputDisposedError} from 'mediabunny';
+import type {ScheduleAudioNodeResult} from 'remotion';
 import type {AudioIterator} from './audio/audio-preview-iterator';
 import {
 	isAlreadyQueued,
@@ -14,7 +15,7 @@ const MAX_BUFFER_AHEAD_SECONDS = 8;
 type ScheduleAudioNode = (
 	node: AudioBufferSourceNode,
 	mediaTimestamp: number,
-) => boolean;
+) => ScheduleAudioNodeResult;
 
 export const audioIteratorManager = ({
 	audioTrack,
@@ -80,14 +81,20 @@ export const audioIteratorManager = ({
 
 		const started = scheduleAudioNode(node, mediaTimestamp);
 
-		if (!started) {
+		if (started.type === 'not-started') {
 			node.disconnect();
 			return;
 		}
 
 		const iterator = audioBufferIterator;
 
-		iterator.addQueuedAudioNode(node, mediaTimestamp, buffer);
+		iterator.addQueuedAudioNode({
+			node,
+			timestamp: mediaTimestamp,
+			buffer,
+			scheduledTime: started.scheduledTime,
+			playbackRate,
+		});
 		node.onended = () => {
 			// Some leniancy is needed as we find that sometimes onended is fired a bit too early
 			setTimeout(() => {
@@ -167,7 +174,7 @@ export const audioIteratorManager = ({
 			return;
 		}
 
-		audioBufferIterator?.destroy();
+		audioBufferIterator?.destroy(sharedAudioContext);
 		using delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 
@@ -369,7 +376,7 @@ export const audioIteratorManager = ({
 		getAudioBufferIterator: () => audioBufferIterator,
 		destroyIterator: () => {
 			prewarmedAudioIteratorCache.destroy();
-			audioBufferIterator?.destroy();
+			audioBufferIterator?.destroy(sharedAudioContext);
 			audioBufferIterator = null;
 
 			if (currentDelayHandle) {

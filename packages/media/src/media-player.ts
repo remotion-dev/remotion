@@ -1,6 +1,7 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import type {LogLevel, useBufferState} from 'remotion';
 import {Internals} from 'remotion';
+import type {ScheduleAudioNodeResult} from 'remotion';
 import {
 	audioIteratorManager,
 	type AudioIteratorManager,
@@ -626,6 +627,7 @@ export class MediaPlayer {
 		// Mark all async operations as stale
 		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
+		console.log('destroying audio iterator', new Error().stack);
 		this.audioIteratorManager?.destroyIterator();
 		this.input.dispose();
 	}
@@ -633,7 +635,7 @@ export class MediaPlayer {
 	private scheduleAudioNode = (
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
-	): boolean => {
+	): ScheduleAudioNodeResult => {
 		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
 		}

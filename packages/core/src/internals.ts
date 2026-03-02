@@ -1,6 +1,7 @@
 import {createRef} from 'react';
 import {getAbsoluteSrc} from './absolute-src.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
+import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -297,4 +298,5 @@ export type {
 	WatchRemotionStaticFilesPayload,
 	ScheduleAudioNodeOptions,
 	CanUpdateSequencePropStatus,
+	ScheduleAudioNodeResult,
 };

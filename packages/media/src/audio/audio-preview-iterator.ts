@@ -9,6 +9,8 @@ export type QueuedNode = {
 	node: AudioBufferSourceNode;
 	timestamp: number;
 	buffer: AudioBuffer;
+	scheduledTime: number;
+	playbackRate: number;
 };
 
 export const makeAudioIterator = (
@@ -31,18 +33,32 @@ export const makeAudioIterator = (
 	let pendingNext: Promise<IteratorResult<WrappedAudioBuffer, void>> | null =
 		null;
 
-	const cleanupAudioQueue = () => {
+	const cleanupAudioQueue = (audioContext: AudioContext) => {
 		for (const node of queuedAudioNodes) {
 			try {
 				if (debugAudioScheduling) {
+					const currentlyHearing =
+						audioContext.getOutputTimestamp().contextTime!;
+					const nodeEndTime =
+						node.scheduledTime + node.buffer.duration / node.playbackRate;
+
+					const isAlreadyPlaying =
+						node.scheduledTime < audioContext.currentTime;
+					const isNotYetFinished = nodeEndTime < currentlyHearing;
+
+					const shouldKeep = isAlreadyPlaying && isNotYetFinished;
+
+					// TODO: Continue here tomorrow, this is sus
+					if (shouldKeep) {
+						continue;
+					}
+
 					Internals.Log.info(
 						{logLevel: 'trace', tag: 'audio-scheduling'},
-						`Stopping node ${node.timestamp.toFixed(3)}`,
+						`Stopping node ${node.timestamp.toFixed(3)}, ${currentlyHearing} ${audioContext.currentTime} ${nodeEndTime} ${isAlreadyPlaying} ${isNotYetFinished}`,
 					);
+					node.node.stop();
 				}
-
-				// TODO: Be more smart about stopping
-				//	node.node.stop();
 			} catch {
 				// Node may not have been started
 			}
@@ -238,8 +254,8 @@ export const makeAudioIterator = (
 	};
 
 	return {
-		destroy: () => {
-			cleanupAudioQueue();
+		destroy: (audioContext: AudioContext) => {
+			cleanupAudioQueue(audioContext);
 			destroyed = true;
 			iterator.return().catch(() => undefined);
 			audioChunksForAfterResuming.length = 0;
@@ -258,15 +274,25 @@ export const makeAudioIterator = (
 		isDestroyed: () => {
 			return destroyed;
 		},
-		addQueuedAudioNode: (
-			node: AudioBufferSourceNode,
-			timestamp: number,
-			buffer: AudioBuffer,
-		) => {
+		addQueuedAudioNode: ({
+			node,
+			timestamp,
+			buffer,
+			scheduledTime,
+			playbackRate,
+		}: {
+			node: AudioBufferSourceNode;
+			timestamp: number;
+			buffer: AudioBuffer;
+			scheduledTime: number;
+			playbackRate: number;
+		}) => {
 			queuedAudioNodes.push({
 				node,
 				timestamp,
 				buffer,
+				scheduledTime,
+				playbackRate,
 			});
 		},
 		removeQueuedAudioNode: (node: AudioBufferSourceNode) => {

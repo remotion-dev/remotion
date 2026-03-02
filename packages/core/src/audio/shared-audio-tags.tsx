@@ -43,6 +43,15 @@ type AudioElem = {
 const EMPTY_AUDIO =
 	'data:audio/mp3;base64,/+MYxAAJcAV8AAgAABn//////+/gQ5BAMA+D4Pg+BAQBAEAwD4Pg+D4EBAEAQDAPg++hYBH///hUFQVBUFREDQNHmf///////+MYxBUGkAGIMAAAAP/29Xt6lUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDUAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
 
+export type ScheduleAudioNodeResult =
+	| {
+			type: 'started';
+			scheduledTime: number;
+	  }
+	| {
+			type: 'not-started';
+	  };
+
 export type ScheduleAudioNodeOptions = {
 	readonly node: AudioBufferSourceNode;
 	readonly targetTime: number;
@@ -72,7 +81,9 @@ type SharedContext = {
 	numberOfAudioTags: number;
 	audioContext: AudioContext | null;
 	audioSyncAnchor: {value: number};
-	scheduleAudioNode: (options: ScheduleAudioNodeOptions) => boolean;
+	scheduleAudioNode: (
+		options: ScheduleAudioNodeOptions,
+	) => ScheduleAudioNodeResult;
 };
 
 const compareProps = (
@@ -182,9 +193,11 @@ export const SharedAudioContextProvider: React.FC<{
 			sequenceEndTime,
 			sequenceStartTime,
 			debugAudioScheduling,
-		}: ScheduleAudioNodeOptions) => {
+		}: ScheduleAudioNodeOptions): ScheduleAudioNodeResult => {
 			if (!audioContext) {
-				return false;
+				return {
+					type: 'not-started',
+				};
 			}
 
 			const bufferDuration = node.buffer?.duration ?? 0;
@@ -276,7 +289,14 @@ export const SharedAudioContextProvider: React.FC<{
 			prev.scheduledEndTime = scheduledEndTime;
 			prev.mediaEndTime = mediaEndTime;
 
-			return duration > 0;
+			return duration > 0
+				? {
+						type: 'started',
+						scheduledTime,
+					}
+				: {
+						type: 'not-started',
+					};
 		};
 	}, [audioContext, logLevel]);
 

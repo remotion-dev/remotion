@@ -1,4 +1,5 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+import type {ScheduleAudioNodeResult} from 'remotion';
 import {expect, test} from 'vitest';
 import {audioIteratorManager} from '../audio-iterator-manager';
 import {makeNonceManager} from '../nonce-manager';
@@ -45,10 +46,13 @@ test('media player should work', async () => {
 	const scheduleAudioNode = (
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
-	) => {
+	): ScheduleAudioNodeResult => {
 		node.start();
 		scheduledChunks.push(mediaTimestamp);
-		return true;
+		return {
+			type: 'started',
+			scheduledTime: mediaTimestamp,
+		};
 	};
 
 	const {manager, playbackRate, getIsPlaying} = await prepare();
@@ -96,10 +100,13 @@ test('should not create too many iterators when the audio ends', async () => {
 	const scheduleAudioNode = (
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
-	) => {
+	): ScheduleAudioNodeResult => {
 		node.start();
 		scheduledChunks.push(mediaTimestamp);
-		return true;
+		return {
+			type: 'started',
+			scheduledTime: mediaTimestamp,
+		};
 	};
 
 	await manager.seek({
@@ -140,10 +147,13 @@ test('should create more iterators when seeking ', async () => {
 	const scheduleAudioNode = (
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
-	) => {
+	): ScheduleAudioNodeResult => {
 		node.start();
 		scheduledChunks.push(mediaTimestamp);
-		return true;
+		return {
+			type: 'started',
+			scheduledTime: mediaTimestamp,
+		};
 	};
 
 	await manager.seek({
@@ -203,10 +213,13 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 	const scheduleAudioNode = (
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
-	) => {
+	): ScheduleAudioNodeResult => {
 		node.start();
 		scheduledChunks.push(mediaTimestamp);
-		return true;
+		return {
+			type: 'started',
+			scheduledTime: mediaTimestamp,
+		};
 	};
 
 	const fps = 25;
@@ -268,12 +281,15 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 	const scheduleAudioNode = (
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
-	) => {
+	): ScheduleAudioNodeResult => {
 		node.start();
 		scheduledChunks.push({
 			timestamp: mediaTimestamp,
 		});
-		return true;
+		return {
+			type: 'started',
+			scheduledTime: mediaTimestamp,
+		};
 	};
 
 	// Simulate playback frame by frame, seeking past the end time

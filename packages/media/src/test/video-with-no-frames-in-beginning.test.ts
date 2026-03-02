@@ -104,7 +104,10 @@ test('same goes for audio', async () => {
 		playbackRate: 1,
 		startFromSecond: 0.06671494248275864,
 		getIsPlaying: () => true,
-		scheduleAudioNode: () => true,
+		scheduleAudioNode: () => ({
+			type: 'started',
+			scheduledTime: 0,
+		}),
 		debugAudioScheduling: false,
 	});
 
@@ -113,7 +116,10 @@ test('same goes for audio', async () => {
 		nonce: nonceManager.createAsyncOperation(),
 		playbackRate: 1,
 		getIsPlaying: () => true,
-		scheduleAudioNode: () => true,
+		scheduleAudioNode: () => ({
+			type: 'started',
+			scheduledTime: 0,
+		}),
 		debugAudioScheduling: false,
 	});
 
