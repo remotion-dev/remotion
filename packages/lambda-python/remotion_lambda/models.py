@@ -302,7 +302,7 @@ class RenderMediaParams:
     chromium_options: Optional[ChromiumOptions] = None
     scale: Optional[int] = 1
     every_nth_frame: Optional[int] = 1
-    number_of_gif_loops: Optional[int] = 0
+    number_of_gif_loops: Optional[int] = None
     concurrency_per_lambda: Optional[int] = 1
     concurrency: Optional[int] = None
     download_behavior: Optional[Union[PlayInBrowser, ShouldDownload]] = field(
