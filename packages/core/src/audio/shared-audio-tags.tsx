@@ -8,7 +8,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals} from '../internals.js';
+import {Log} from '../log.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
@@ -204,7 +204,7 @@ export const SharedAudioContextProvider: React.FC<{
 				Math.abs(mediaTime - prev.mediaEndTime) > 0.001;
 
 			if (debugAudioScheduling) {
-				Internals.Log.info(
+				Log.info(
 					{logLevel, tag: 'audio-scheduling'},
 					'scheduled %c%s%c %s %c%s%c %s',
 					scheduledMismatch ? 'color: red; font-weight: bold' : '',
@@ -228,7 +228,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 			return true;
 		};
-	}, [audioContext]);
+	}, [audioContext, logLevel]);
 
 	const refs = useMemo(() => {
 		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
