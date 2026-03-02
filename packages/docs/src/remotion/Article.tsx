@@ -5,6 +5,7 @@ import {articles} from '../data/articles';
 import './font.css';
 
 const arrowPreviewArticleIds = new Set(['shapes/arrow', 'shapes/make-arrow']);
+const arrowPreviewPaddingRight = 80;
 
 export const Article: React.FC<{
 	readonly articleRelativePath: string;
@@ -73,7 +74,7 @@ export const Article: React.FC<{
 							backgroundColor: '#0B84F3',
 							display: 'flex',
 							padding: 50,
-							paddingRight: showArrowPreview ? 80 : 50,
+							paddingRight: showArrowPreview ? arrowPreviewPaddingRight : 50,
 							minWidth: 500,
 							width: '100%',
 							justifyContent: showArrowPreview ? 'space-between' : 'flex-start',
