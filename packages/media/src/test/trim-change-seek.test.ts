@@ -15,6 +15,7 @@ test('setTrimBefore and setTrimAfter should update frame when paused', async () 
 		audioStreamIndex: 0,
 		fps: 30,
 		debugOverlay: false,
+		debugAudioScheduling: false,
 		bufferState: {delayPlayback: () => ({unblock: () => {}})},
 		isPremounting: false,
 		isPostmounting: false,

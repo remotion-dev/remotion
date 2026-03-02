@@ -42,6 +42,7 @@ test('dispose should immediately unblock playback delays', async () => {
 		audioStreamIndex: 0,
 		fps: 30,
 		debugOverlay: false,
+		debugAudioScheduling: false,
 		bufferState,
 		isPremounting: false,
 		isPostmounting: false,

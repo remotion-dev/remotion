@@ -58,6 +58,7 @@ type NewAudioForPreviewProps = {
 	readonly toneFrequency: number | undefined;
 	readonly audioStreamIndex: number | undefined;
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
+	readonly debugAudioScheduling: boolean;
 	readonly onError: MediaOnError | undefined;
 };
 
@@ -84,6 +85,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 	toneFrequency,
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
+	debugAudioScheduling,
 	onError,
 	controls,
 }) => {
@@ -223,6 +225,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 				playbackRate: initialPlaybackRate.current,
 				audioStreamIndex: audioStreamIndex ?? 0,
 				debugOverlay: false,
+				debugAudioScheduling,
 				bufferState: buffer,
 				isPostmounting: initialIsPostmounting.current,
 				isPremounting: initialIsPremounting.current,
@@ -364,6 +367,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 		videoConfig.fps,
 		audioStreamIndex,
 		disallowFallbackToHtml5Audio,
+		debugAudioScheduling,
 		buffer,
 		onError,
 		videoConfig.durationInFrames,
@@ -465,6 +469,15 @@ const AudioForPreviewAssertedShowing: React.FC<
 			return;
 		}
 
+		mediaPlayer.setDebugAudioScheduling(debugAudioScheduling);
+	}, [debugAudioScheduling, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
 		mediaPlayer.setDurationInFrames(videoConfig.durationInFrames);
 	}, [videoConfig.durationInFrames, mediaPlayerReady]);
 
@@ -549,6 +562,7 @@ type InnerAudioProps = {
 	readonly toneFrequency?: number;
 	readonly audioStreamIndex?: number;
 	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
+	readonly debugAudioScheduling?: boolean;
 	readonly onError?: MediaOnError;
 };
 
@@ -588,6 +602,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	toneFrequency,
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
+	debugAudioScheduling,
 	onError,
 }) => {
 	const schemaInput = useMemo(() => {
@@ -655,6 +670,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			stack={stack}
 			disallowFallbackToHtml5Audio={disallowFallbackToHtml5Audio ?? false}
 			toneFrequency={toneFrequency}
+			debugAudioScheduling={debugAudioScheduling ?? false}
 			onError={onError}
 			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
 			controls={controls}

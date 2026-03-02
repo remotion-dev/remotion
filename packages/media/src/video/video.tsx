@@ -30,6 +30,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 	toneFrequency,
 	showInTimeline,
 	debugOverlay,
+	debugAudioScheduling,
 	headless,
 	onError,
 }) => {
@@ -113,6 +114,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 			disallowFallbackToOffthreadVideo={disallowFallbackToOffthreadVideo}
 			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
 			debugOverlay={debugOverlay ?? false}
+			debugAudioScheduling={debugAudioScheduling ?? false}
 			headless={headless ?? false}
 			onError={onError}
 		/>
@@ -142,6 +144,7 @@ export const Video: React.FC<VideoProps> = ({
 	stack,
 	toneFrequency,
 	debugOverlay,
+	debugAudioScheduling,
 	headless,
 	onError,
 }) => {
@@ -174,6 +177,7 @@ export const Video: React.FC<VideoProps> = ({
 			toneFrequency={toneFrequency ?? 1}
 			stack={stack}
 			debugOverlay={debugOverlay ?? false}
+			debugAudioScheduling={debugAudioScheduling ?? false}
 			headless={headless ?? false}
 			onError={onError}
 		/>

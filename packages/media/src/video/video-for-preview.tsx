@@ -62,6 +62,7 @@ type VideoForPreviewProps = {
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 	readonly audioStreamIndex: number;
 	readonly debugOverlay: boolean;
+	readonly debugAudioScheduling: boolean;
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
 };
@@ -92,6 +93,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	fallbackOffthreadVideoProps,
 	audioStreamIndex,
 	debugOverlay,
+	debugAudioScheduling,
 	headless,
 	onError,
 	controls,
@@ -229,6 +231,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				playbackRate: initialPlaybackRate.current,
 				audioStreamIndex,
 				debugOverlay,
+				debugAudioScheduling,
 				bufferState: buffer,
 				isPremounting: initialIsPremounting.current,
 				isPostmounting: initialIsPostmounting.current,
@@ -360,6 +363,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		audioStreamIndex,
 		buffer,
 		debugOverlay,
+		debugAudioScheduling,
 		disallowFallbackToOffthreadVideo,
 		logLevel,
 		loop,
@@ -469,6 +473,15 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 		mediaPlayer.setDebugOverlay(debugOverlay);
 	}, [debugOverlay, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setDebugAudioScheduling(debugAudioScheduling);
+	}, [debugAudioScheduling, mediaPlayerReady]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

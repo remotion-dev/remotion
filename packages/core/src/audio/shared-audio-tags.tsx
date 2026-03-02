@@ -8,6 +8,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {Internals} from '../internals.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
@@ -49,6 +50,7 @@ export type ScheduleAudioNodeOptions = {
 	readonly currentTime: number;
 	readonly endTime: number;
 	readonly startTime: number;
+	readonly debugAudioScheduling: boolean;
 };
 
 type SharedContext = {
@@ -162,6 +164,7 @@ export const SharedAudioContextProvider: React.FC<{
 			currentTime,
 			endTime,
 			startTime,
+			debugAudioScheduling,
 		}: ScheduleAudioNodeOptions) => {
 			if (!audioContext) {
 				return false;
@@ -191,7 +194,34 @@ export const SharedAudioContextProvider: React.FC<{
 
 			const mediaEndTime = mediaTime + duration;
 
+			const hasDelay = scheduledTime < currentTime;
 			const prev = prevEndTimes.current;
+			const scheduledMismatch =
+				prev.scheduledEndTime !== null &&
+				Math.abs(scheduledTime - prev.scheduledEndTime) > 0.001;
+			const mediaMismatch =
+				prev.mediaEndTime !== null &&
+				Math.abs(mediaTime - prev.mediaEndTime) > 0.001;
+
+			if (debugAudioScheduling) {
+				Internals.Log.info(
+					{logLevel, tag: 'audio-scheduling'},
+					'scheduled %c%s%c %s %c%s%c %s',
+					scheduledMismatch ? 'color: red; font-weight: bold' : '',
+					scheduledTime.toFixed(4),
+					'',
+					scheduledEndTime.toFixed(4),
+					mediaMismatch ? 'color: red; font-weight: bold' : '',
+					mediaTime.toFixed(4),
+					'',
+					mediaEndTime.toFixed(4),
+					hasDelay ? 'color: blue; font-weight: bold' : '',
+					hasDelay ? 'delayed' : '',
+					't=' + (targetTime + currentTime).toFixed(4),
+					'c=' + currentTime.toFixed(4),
+					'o=' + offset.toFixed(4),
+				);
+			}
 
 			prev.scheduledEndTime = scheduledEndTime;
 			prev.mediaEndTime = mediaEndTime;

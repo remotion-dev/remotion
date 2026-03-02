@@ -53,6 +53,7 @@ export class MediaPlayer {
 	private totalDuration: number | undefined;
 
 	private debugOverlay = false;
+	private debugAudioScheduling = false;
 
 	private nonceManager: NonceManager;
 
@@ -80,6 +81,7 @@ export class MediaPlayer {
 		audioStreamIndex,
 		fps,
 		debugOverlay,
+		debugAudioScheduling,
 		bufferState,
 		isPremounting,
 		isPostmounting,
@@ -100,6 +102,7 @@ export class MediaPlayer {
 		audioStreamIndex: number;
 		fps: number;
 		debugOverlay: boolean;
+		debugAudioScheduling: boolean;
 		bufferState: ReturnType<typeof useBufferState>;
 		isPremounting: boolean;
 		isPostmounting: boolean;
@@ -120,6 +123,7 @@ export class MediaPlayer {
 		this.audioStreamIndex = audioStreamIndex ?? 0;
 		this.fps = fps;
 		this.debugOverlay = debugOverlay;
+		this.debugAudioScheduling = debugAudioScheduling;
 		this.bufferState = bufferState;
 		this.isPremounting = isPremounting;
 		this.isPostmounting = isPostmounting;
@@ -530,6 +534,10 @@ export class MediaPlayer {
 		this.debugOverlay = debugOverlay;
 	}
 
+	public setDebugAudioScheduling(debugAudioScheduling: boolean): void {
+		this.debugAudioScheduling = debugAudioScheduling;
+	}
+
 	private rescheduleAudioChunks(): void {
 		if (!this.audioIteratorManager) {
 			return;
@@ -645,6 +653,7 @@ export class MediaPlayer {
 			currentTime,
 			endTime: this.getEndTime(),
 			startTime: this.getStartTime(),
+			debugAudioScheduling: this.debugAudioScheduling,
 		});
 	};
 
