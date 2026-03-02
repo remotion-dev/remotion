@@ -73,9 +73,11 @@ export const Article: React.FC<{
 							backgroundColor: '#0B84F3',
 							display: 'flex',
 							padding: 50,
+							paddingRight: showArrowPreview ? 80 : 50,
 							minWidth: 500,
 							width: '100%',
 							justifyContent: showArrowPreview ? 'space-between' : 'flex-start',
+							alignItems: 'center',
 						}}
 					>
 						<div
@@ -90,7 +92,7 @@ export const Article: React.FC<{
 						</div>
 						{showArrowPreview ? (
 							<Arrow
-								length={220}
+								length={200}
 								headLength={90}
 								headWidth={140}
 								shaftWidth={60}
