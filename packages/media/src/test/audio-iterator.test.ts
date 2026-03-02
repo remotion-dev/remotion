@@ -42,7 +42,10 @@ const prepare = async () => {
 
 test('media player should work', async () => {
 	const scheduledChunks: number[] = [];
-	const scheduleAudioNode = (node: AudioBufferSourceNode, mediaTimestamp: number) => {
+	const scheduleAudioNode = (
+		node: AudioBufferSourceNode,
+		mediaTimestamp: number,
+	) => {
 		node.start();
 		scheduledChunks.push(mediaTimestamp);
 		return true;
@@ -87,7 +90,10 @@ test('should not create too many iterators when the audio ends', async () => {
 	const {manager, playbackRate, getIsPlaying} = await prepare();
 
 	const scheduledChunks: number[] = [];
-	const scheduleAudioNode = (node: AudioBufferSourceNode, mediaTimestamp: number) => {
+	const scheduleAudioNode = (
+		node: AudioBufferSourceNode,
+		mediaTimestamp: number,
+	) => {
 		node.start();
 		scheduledChunks.push(mediaTimestamp);
 		return true;
@@ -125,7 +131,10 @@ test('should create more iterators when seeking ', async () => {
 	const {manager, playbackRate, getIsPlaying} = await prepare();
 
 	const scheduledChunks: number[] = [];
-	const scheduleAudioNode = (node: AudioBufferSourceNode, mediaTimestamp: number) => {
+	const scheduleAudioNode = (
+		node: AudioBufferSourceNode,
+		mediaTimestamp: number,
+	) => {
 		node.start();
 		scheduledChunks.push(mediaTimestamp);
 		return true;
@@ -183,7 +192,10 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 	});
 
 	const scheduledChunks: number[] = [];
-	const scheduleAudioNode = (node: AudioBufferSourceNode, mediaTimestamp: number) => {
+	const scheduleAudioNode = (
+		node: AudioBufferSourceNode,
+		mediaTimestamp: number,
+	) => {
 		node.start();
 		scheduledChunks.push(mediaTimestamp);
 		return true;
@@ -246,7 +258,10 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 		maxDuration: number | null;
 		bufferDuration: number;
 	}[] = [];
-	const scheduleAudioNode = (node: AudioBufferSourceNode, mediaTimestamp: number) => {
+	const scheduleAudioNode = (
+		node: AudioBufferSourceNode,
+		mediaTimestamp: number,
+	) => {
 		node.start();
 		scheduledChunks.push({
 			timestamp: mediaTimestamp,
