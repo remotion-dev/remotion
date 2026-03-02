@@ -155,8 +155,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 	// since there is some latency.
 	const isNextFrameGoingToPlay =
 		playingWhilePremounting &&
-		premountFramesRemaining > 0 &&
-		premountFramesRemaining <= 1.000000001;
+		premountFramesRemaining > 5 &&
+		premountFramesRemaining <= 6.000000001;
 
 	const loopDisplay = useLoopDisplay({
 		loop,

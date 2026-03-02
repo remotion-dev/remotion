@@ -365,9 +365,7 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	]);
 
 	const {playing} = useContext(TimelineContext);
-	const premountFramesRemaining =
-		parentPremountContext.premountFramesRemaining +
-		(premountingActive ? from - frame : 0);
+	const premountFramesRemaining = premountingActive ? from - frame : 0;
 
 	const premountContextValue = useMemo(() => {
 		return {

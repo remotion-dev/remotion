@@ -8,8 +8,8 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Log} from '../log.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
+import {Log} from '../log.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
@@ -194,7 +194,9 @@ export const SharedAudioContextProvider: React.FC<{
 
 			const mediaEndTime = mediaTime + duration;
 
-			const hasDelay = scheduledTime < currentTime;
+			const latency =
+				(audioContext.baseLatency ?? 0) + (audioContext.outputLatency ?? 0);
+			const timeDiff = scheduledTime - currentTime - latency;
 			const prev = prevEndTimes.current;
 			const scheduledMismatch =
 				prev.scheduledEndTime !== null &&
@@ -206,7 +208,7 @@ export const SharedAudioContextProvider: React.FC<{
 			if (debugAudioScheduling) {
 				Log.info(
 					{logLevel, tag: 'audio-scheduling'},
-					'scheduled %c%s%c %s %c%s%c %s',
+					'scheduled %c%s%c %s %c%s%c %s %c%s%c %s %s %s',
 					scheduledMismatch ? 'color: red; font-weight: bold' : '',
 					scheduledTime.toFixed(4),
 					'',
@@ -215,8 +217,11 @@ export const SharedAudioContextProvider: React.FC<{
 					mediaTime.toFixed(4),
 					'',
 					mediaEndTime.toFixed(4),
-					hasDelay ? 'color: blue; font-weight: bold' : '',
-					hasDelay ? 'delayed' : '',
+					timeDiff < 0
+						? 'color: red; font-weight: bold'
+						: 'color: blue; font-weight: bold',
+					Math.abs(timeDiff).toFixed(2) + (timeDiff < 0 ? ' delay' : ' ahead'),
+					'',
 					't=' + (targetTime + currentTime).toFixed(4),
 					'c=' + currentTime.toFixed(4),
 					'o=' + offset.toFixed(4),
