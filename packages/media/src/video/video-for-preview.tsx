@@ -570,7 +570,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		<canvas
 			ref={canvasRef}
 			// Don't set width and height here.
-			// Width is set in the video iterator manager, if props are being upated, they are being applied again by React.
+			// Width is set in the video iterator manager, if props are being updated, they are being applied again by React.
 			// This will lead to inefficient resizes.
 			style={actualStyle}
 			className={classNameValue}
