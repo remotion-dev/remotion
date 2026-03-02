@@ -566,17 +566,20 @@ export class MediaPlayer {
 		unloopedTimeInSeconds: number,
 	): Promise<void> {
 		const previousRate = this.playbackRate;
-		this.playbackRate = rate;
-		this.rescheduleAudioChunks();
 
 		if (previousRate !== rate) {
+			this.playbackRate = rate;
+			this.rescheduleAudioChunks();
 			await this.seekTo(unloopedTimeInSeconds);
 		}
 	}
 
 	public setGlobalPlaybackRate(rate: number): void {
-		this.globalPlaybackRate = rate;
-		this.rescheduleAudioChunks();
+		const previousRate = this.globalPlaybackRate;
+		if (previousRate !== rate) {
+			this.globalPlaybackRate = rate;
+			this.rescheduleAudioChunks();
+		}
 	}
 
 	public setFps(fps: number): void {
@@ -651,8 +654,8 @@ export class MediaPlayer {
 			mediaTimestamp,
 			targetTime,
 			currentTime,
-			endTime: this.getEndTime(),
-			startTime: this.getStartTime(),
+			sequenceEndTime: this.getEndTime(),
+			sequenceStartTime: this.getStartTime(),
 			debugAudioScheduling: this.debugAudioScheduling,
 		});
 	};

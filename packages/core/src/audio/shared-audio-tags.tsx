@@ -1,4 +1,4 @@
-import type {AudioHTMLAttributes} from 'react';
+import {useLayoutEffect, type AudioHTMLAttributes} from 'react';
 import React, {
 	createContext,
 	createRef,
@@ -48,8 +48,8 @@ export type ScheduleAudioNodeOptions = {
 	readonly targetTime: number;
 	readonly mediaTimestamp: number;
 	readonly currentTime: number;
-	readonly endTime: number;
-	readonly startTime: number;
+	readonly sequenceEndTime: number;
+	readonly sequenceStartTime: number;
 	readonly debugAudioScheduling: boolean;
 };
 
@@ -149,6 +149,23 @@ export const SharedAudioContextProvider: React.FC<{
 		latencyHint: audioLatencyHint,
 		audioEnabled,
 	});
+
+	useLayoutEffect(() => {
+		if (!audioContext) return;
+		const stateChangeHandler = () => {
+			Log.trace(
+				{logLevel, tag: 'audio-context'},
+				'statechange',
+				audioContext.state,
+			);
+		};
+
+		audioContext.addEventListener('statechange', stateChangeHandler);
+		return () => {
+			audioContext.removeEventListener('statechange', stateChangeHandler);
+		};
+	}, [audioContext, logLevel]);
+
 	const audioSyncAnchor = useMemo(() => ({value: 0}), []);
 
 	const prevEndTimes = useRef<{
@@ -162,8 +179,8 @@ export const SharedAudioContextProvider: React.FC<{
 			mediaTimestamp,
 			targetTime,
 			currentTime,
-			endTime,
-			startTime,
+			sequenceEndTime,
+			sequenceStartTime,
 			debugAudioScheduling,
 		}: ScheduleAudioNodeOptions) => {
 			if (!audioContext) {
@@ -174,16 +191,45 @@ export const SharedAudioContextProvider: React.FC<{
 
 			const unclampedMediaEndTime = mediaTimestamp + bufferDuration;
 
-			const needsTrimEnd = unclampedMediaEndTime > endTime;
-			const needsTrimStart = mediaTimestamp < startTime;
+			const needsTrimEnd = unclampedMediaEndTime > sequenceEndTime;
+			const needsTrimStart = mediaTimestamp < sequenceStartTime;
 
-			const offset = needsTrimStart ? startTime - mediaTimestamp : 0;
+			const offsetBecauseOfTrim = needsTrimStart
+				? sequenceStartTime - mediaTimestamp
+				: 0;
+			const offsetBecauseOfTooLate = targetTime < 0 ? -targetTime : 0;
+			const offset = offsetBecauseOfTrim + offsetBecauseOfTooLate;
 
 			const duration = needsTrimEnd
-				? bufferDuration - (unclampedMediaEndTime - endTime) - offset
+				? bufferDuration -
+					Math.max(0, unclampedMediaEndTime - sequenceEndTime) -
+					offset
 				: bufferDuration - offset;
 
 			const scheduledTime = targetTime + currentTime + offset;
+			if (offset < 0) {
+				throw new Error(
+					'offset < 0: ' +
+						JSON.stringify({
+							offset,
+							targetTime,
+							currentTime,
+							offsetBecauseOfTrim,
+							offsetBecauseOfTooLate,
+						}),
+				);
+			}
+
+			if (duration < 0) {
+				if (debugAudioScheduling) {
+					Log.info(
+						{logLevel, tag: 'audio-scheduling'},
+						'Missed audio node by ',
+						offset,
+					);
+					return false;
+				}
+			}
 
 			node.start(scheduledTime, offset, duration);
 
@@ -194,8 +240,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 			const mediaEndTime = mediaTime + duration;
 
-			const latency =
-				(audioContext.baseLatency ?? 0) + (audioContext.outputLatency ?? 0);
+			const latency = audioContext.baseLatency + audioContext.outputLatency;
 			const timeDiff = scheduledTime - currentTime - latency;
 			const prev = prevEndTimes.current;
 			const scheduledMismatch =

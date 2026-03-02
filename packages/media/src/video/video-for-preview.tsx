@@ -143,8 +143,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
-	const {premountFramesRemaining, playing: playingWhilePremounting} =
-		useContext(Internals.PremountContext);
+	const {playing: playingWhilePremounting} = useContext(
+		Internals.PremountContext,
+	);
 	const absoluteTime = Internals.useAbsoluteTimelinePosition();
 	const sequenceOffset =
 		((parentSequence?.cumulatedFrom ?? 0) +
@@ -153,10 +154,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	// Allows for pre-scheduling audio nodes before the premounting ends,
 	// since there is some latency.
-	const isNextFrameGoingToPlay =
-		playingWhilePremounting &&
-		premountFramesRemaining > 5 &&
-		premountFramesRemaining <= 6.000000001;
+	const isNextFrameGoingToPlay = playingWhilePremounting;
 
 	const loopDisplay = useLoopDisplay({
 		loop,
@@ -394,19 +392,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 		}
 	}, [absoluteTime, globalPlaybackRate, sharedAudioContext, videoConfig.fps]);
 
-	useEffect(() => {
+	if (isNextFrameGoingToPlay) {
 		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer) return;
-
-		if (isNextFrameGoingToPlay) {
-			mediaPlayer.playAudio();
-		}
-	}, [
-		isNextFrameGoingToPlay,
-		premountFramesRemaining,
-		videoConfig.fps,
-		globalPlaybackRate,
-	]);
+		mediaPlayer?.playAudio();
+	}
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

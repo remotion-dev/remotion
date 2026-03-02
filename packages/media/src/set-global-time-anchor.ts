@@ -18,5 +18,6 @@ export const setGlobalTimeAnchor = ({
 		return;
 	}
 
+	console.log('anchor changed');
 	audioSyncAnchor.value = newAnchor;
 };

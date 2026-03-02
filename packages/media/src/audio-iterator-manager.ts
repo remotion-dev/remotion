@@ -192,6 +192,7 @@ export const audioIteratorManager = ({
 				});
 			}
 
+			console.log('buffering as far as possible');
 			await iterator.bufferAsFarAsPossible(
 				(buffer) => {
 					if (!nonce.isStale()) {
@@ -303,8 +304,14 @@ export const audioIteratorManager = ({
 			}
 		}
 
+		console.log('buffering as far as possible 2');
 		await audioBufferIterator.bufferAsFarAsPossible(
 			(buffer) => {
+				console.log(
+					'buffering ahead',
+					buffer.timestamp,
+					newTime + MAX_BUFFER_AHEAD_SECONDS,
+				);
 				if (!nonce.isStale()) {
 					onAudioChunk({
 						getIsPlaying,

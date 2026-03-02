@@ -47,13 +47,23 @@ export type PrewarmedVideoIteratorCache = ReturnType<
 	typeof makePrewarmedVideoIteratorCache
 >;
 
-const makeBufferWithPriming = (
+const AUDIO_PRIMING_SECONDS = 0.2;
+
+async function* makeBufferWithPriming(
 	audioSink: AudioBufferSink,
 	timeToSeek: number,
-) => {
-	// TODO: Priming
-	return audioSink.buffers(timeToSeek);
-};
+): AsyncGenerator<WrappedAudioBuffer, void, unknown> {
+	const primingStart = Math.max(0, timeToSeek - AUDIO_PRIMING_SECONDS);
+	const iterator = audioSink.buffers(primingStart);
+
+	for await (const buffer of iterator) {
+		if (buffer.timestamp + buffer.duration <= timeToSeek) {
+			continue;
+		}
+
+		yield buffer;
+	}
+}
 
 export const makePrewarmedAudioIteratorCache = (audioSink: AudioBufferSink) => {
 	const prewarmedAudioIterators: Map<

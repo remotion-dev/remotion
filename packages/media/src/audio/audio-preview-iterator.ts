@@ -167,6 +167,7 @@ export const makeAudioIterator = (
 			}
 
 			const buffer = await getNextOrNullIfNotAvailable();
+			console.log('buffer', buffer.type);
 			if (buffer.type === 'need-to-wait-for-it') {
 				return {type: 'waiting'};
 			}
@@ -208,6 +209,7 @@ export const makeAudioIterator = (
 	const moveQueuedChunksToPauseQueue = () => {
 		const toQueue = removeAndReturnAllQueuedAudioNodes();
 		for (const chunk of toQueue) {
+			console.log('moving chunk to pause queue', chunk.timestamp);
 			addChunkForAfterResuming(chunk.buffer, chunk.timestamp);
 		}
 	};
