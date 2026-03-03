@@ -5,6 +5,7 @@
     "": {
       "name": "remotion-monorepo",
       "dependencies": {
+        "@typescript/native-preview": "catalog:",
         "p-limit": "7.2.0",
         "turbo": "2.8.12",
         "typescript": "5.9.3",
