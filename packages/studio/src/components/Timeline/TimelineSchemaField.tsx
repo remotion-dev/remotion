@@ -1,9 +1,16 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {CanUpdateSequencePropStatus} from 'remotion';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {Checkbox} from '../Checkbox';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {Spinner} from '../Spinner';
+
+const getFixedDigits = (step: number): number => {
+	const str = String(step);
+	const decimalIndex = str.indexOf('.');
+	const decimals = decimalIndex === -1 ? 0 : str.length - decimalIndex - 1;
+	return Math.max(2, decimals);
+};
 
 const unsupportedLabel: React.CSSProperties = {
 	color: 'rgba(255, 255, 255, 0.4)',
@@ -80,6 +87,16 @@ const TimelineNumberField: React.FC<{
 		[canUpdate, onSave, field.key, codeValue],
 	);
 
+	const step =
+		field.fieldSchema.type === 'number' ? (field.fieldSchema.step ?? 1) : 1;
+
+	const fixedDigits = useMemo(() => getFixedDigits(step), [step]);
+
+	const formatter = useCallback(
+		(v: number | string) => Number(v).toFixed(fixedDigits),
+		[fixedDigits],
+	);
+
 	return (
 		<InputDragger
 			type="number"
@@ -100,9 +117,8 @@ const TimelineNumberField: React.FC<{
 					? (field.fieldSchema.max ?? Infinity)
 					: Infinity
 			}
-			step={
-				field.fieldSchema.type === 'number' ? (field.fieldSchema.step ?? 1) : 1
-			}
+			step={step}
+			formatter={formatter}
 			rightAlign
 		/>
 	);
