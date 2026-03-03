@@ -1,5 +1,7 @@
 import {Internals, type LogLevel} from 'remotion';
 
+export const ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT = 0.1;
+
 export const setGlobalTimeAnchor = ({
 	audioContext,
 	audioSyncAnchor,
@@ -20,7 +22,7 @@ export const setGlobalTimeAnchor = ({
 	const shift = (newAnchor - audioSyncAnchor.value) * globalPlaybackRate;
 
 	// Skip small shifts to avoid audio glitches from frame-quantized re-anchoring
-	if (Math.abs(shift) < 0.1) {
+	if (Math.abs(shift) < ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT) {
 		return;
 	}
 

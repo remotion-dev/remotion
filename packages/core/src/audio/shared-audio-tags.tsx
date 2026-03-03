@@ -280,9 +280,6 @@ export const SharedAudioContextProvider: React.FC<{
 					'offset=' + offset.toFixed(4),
 					'latency=' + latency.toFixed(4),
 					'state=' + audioContext.state,
-					'outputtimestamp' + audioContext.getOutputTimestamp().contextTime,
-					'outputtimestamp.time' +
-						audioContext.getOutputTimestamp().performanceTime,
 				);
 			}
 

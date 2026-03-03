@@ -2,6 +2,7 @@ import type {WrappedAudioBuffer} from 'mediabunny';
 import {Internals} from 'remotion';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import type {PrewarmedAudioIteratorCache} from '../prewarm-iterator-for-looping';
+import {ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT} from '../set-global-time-anchor';
 
 export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
 
@@ -43,19 +44,18 @@ export const makeAudioIterator = (
 						node.scheduledTime + node.buffer.duration / node.playbackRate;
 
 					const isAlreadyPlaying =
-						node.scheduledTime < audioContext.currentTime;
-					const isNotYetFinished = nodeEndTime < currentlyHearing;
+						node.scheduledTime - ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT <
+						audioContext.currentTime;
 
-					const shouldKeep = isAlreadyPlaying && isNotYetFinished;
+					const shouldKeep = isAlreadyPlaying;
 
-					// TODO: Continue here tomorrow, this is sus
 					if (shouldKeep) {
 						continue;
 					}
 
 					Internals.Log.info(
 						{logLevel: 'trace', tag: 'audio-scheduling'},
-						`Stopping node ${node.timestamp.toFixed(3)}, ${currentlyHearing} ${audioContext.currentTime} ${nodeEndTime} ${isAlreadyPlaying} ${isNotYetFinished}`,
+						`Stopping node ${node.timestamp.toFixed(3)}, currently hearing = ${currentlyHearing.toFixed(3)} currentTime = ${audioContext.currentTime.toFixed(3)} nodeEndTime = ${nodeEndTime.toFixed(3)} scheduledTime = ${node.scheduledTime.toFixed(3)}`,
 					);
 					node.node.stop();
 				}
