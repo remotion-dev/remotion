@@ -1,6 +1,11 @@
 import type {MutableRefObject} from 'react';
 import {useContext, useMemo} from 'react';
-import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
+import {
+	AbsoluteTimeContext,
+	SetTimelineContext,
+	TimelineContext,
+	type TimelineContextValue,
+} from './TimelineContext.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideo} from './use-video.js';
 
@@ -40,9 +45,10 @@ export const getFrameForComposition = (composition: string) => {
 	return window.remotion_initialFrame ?? 0;
 };
 
-export const useTimelinePosition = (): number => {
+const useTimelinePositionFromContext = (
+	state: TimelineContextValue,
+): number => {
 	const videoConfig = useVideo();
-	const state = useContext(TimelineContext);
 	const env = useRemotionEnvironment();
 
 	if (!videoConfig) {
@@ -56,6 +62,16 @@ export const useTimelinePosition = (): number => {
 		(env.isPlayer ? 0 : getFrameForComposition(videoConfig.id));
 
 	return Math.min(videoConfig.durationInFrames - 1, unclamped);
+};
+
+export const useTimelinePosition = (): number => {
+	const state = useContext(TimelineContext);
+	return useTimelinePositionFromContext(state);
+};
+
+export const useAbsoluteTimelinePosition = (): number => {
+	const state = useContext(AbsoluteTimeContext);
+	return useTimelinePositionFromContext(state);
 };
 
 export const useTimelineSetFrame = (): ((

@@ -104,9 +104,11 @@ test('same goes for audio', async () => {
 		playbackRate: 1,
 		startFromSecond: 0.06671494248275864,
 		getIsPlaying: () => true,
-		scheduleAudioNode: (node, mediaTimestamp, maxDuration) => {
-			node.start(mediaTimestamp, 0, maxDuration ?? undefined);
-		},
+		scheduleAudioNode: () => ({
+			type: 'started',
+			scheduledTime: 0,
+		}),
+		debugAudioScheduling: false,
 	});
 
 	await manager.seek({
@@ -114,9 +116,11 @@ test('same goes for audio', async () => {
 		nonce: nonceManager.createAsyncOperation(),
 		playbackRate: 1,
 		getIsPlaying: () => true,
-		scheduleAudioNode: (node, _mediaTimestamp, maxDuration) => {
-			node.start(1, 0, maxDuration ?? undefined);
-		},
+		scheduleAudioNode: () => ({
+			type: 'started',
+			scheduledTime: 0,
+		}),
+		debugAudioScheduling: false,
 	});
 
 	const iterators = manager.getAudioIteratorsCreated();

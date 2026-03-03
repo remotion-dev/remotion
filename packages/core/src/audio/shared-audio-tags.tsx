@@ -1,4 +1,4 @@
-import type {AudioHTMLAttributes} from 'react';
+import {type AudioHTMLAttributes} from 'react';
 import React, {
 	createContext,
 	createRef,
@@ -9,6 +9,7 @@ import React, {
 	useState,
 } from 'react';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
+import {Log} from '../log.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
@@ -42,6 +43,25 @@ type AudioElem = {
 const EMPTY_AUDIO =
 	'data:audio/mp3;base64,/+MYxAAJcAV8AAgAABn//////+/gQ5BAMA+D4Pg+BAQBAEAwD4Pg+D4EBAEAQDAPg++hYBH///hUFQVBUFREDQNHmf///////+MYxBUGkAGIMAAAAP/29Xt6lUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDUAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
 
+export type ScheduleAudioNodeResult =
+	| {
+			type: 'started';
+			scheduledTime: number;
+	  }
+	| {
+			type: 'not-started';
+	  };
+
+export type ScheduleAudioNodeOptions = {
+	readonly node: AudioBufferSourceNode;
+	readonly targetTime: number;
+	readonly mediaTimestamp: number;
+	readonly currentTime: number;
+	readonly sequenceEndTime: number;
+	readonly sequenceStartTime: number;
+	readonly debugAudioScheduling: boolean;
+};
+
 type SharedContext = {
 	registerAudio: (options: {
 		aud: AudioHTMLAttributes<HTMLAudioElement>;
@@ -60,6 +80,10 @@ type SharedContext = {
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
 	audioContext: AudioContext | null;
+	audioSyncAnchor: {value: number};
+	scheduleAudioNode: (
+		options: ScheduleAudioNodeOptions,
+	) => ScheduleAudioNodeResult;
 };
 
 const compareProps = (
@@ -136,6 +160,125 @@ export const SharedAudioContextProvider: React.FC<{
 		latencyHint: audioLatencyHint,
 		audioEnabled,
 	});
+
+	const audioSyncAnchor = useMemo(() => ({value: 0}), []);
+
+	const prevEndTimes = useRef<{
+		scheduledEndTime: number | null;
+		mediaEndTime: number | null;
+	}>({scheduledEndTime: null, mediaEndTime: null});
+
+	const scheduleAudioNode = useMemo(() => {
+		return ({
+			node,
+			mediaTimestamp,
+			targetTime,
+			currentTime,
+			sequenceEndTime,
+			sequenceStartTime,
+			debugAudioScheduling,
+		}: ScheduleAudioNodeOptions): ScheduleAudioNodeResult => {
+			if (!audioContext) {
+				throw new Error('Audio context not found');
+			}
+
+			const bufferDuration = node.buffer?.duration ?? 0;
+
+			const unclampedMediaEndTime = mediaTimestamp + bufferDuration;
+
+			const needsTrimEnd = unclampedMediaEndTime > sequenceEndTime;
+			const needsTrimStart = mediaTimestamp < sequenceStartTime;
+
+			const offsetBecauseOfTrim = needsTrimStart
+				? sequenceStartTime - mediaTimestamp
+				: 0;
+			const offsetBecauseOfTooLate = targetTime < 0 ? -targetTime : 0;
+			const offset = offsetBecauseOfTrim + offsetBecauseOfTooLate;
+
+			const duration = needsTrimEnd
+				? bufferDuration -
+					Math.max(0, unclampedMediaEndTime - sequenceEndTime) -
+					offset
+				: bufferDuration - offset;
+
+			const scheduledTime = targetTime + currentTime + offset;
+			if (offset < 0) {
+				throw new Error(
+					'offset < 0: ' +
+						JSON.stringify({
+							offset,
+							targetTime,
+							currentTime,
+							offsetBecauseOfTrim,
+							offsetBecauseOfTooLate,
+						}),
+				);
+			}
+
+			if (duration > 0) {
+				node.start(scheduledTime, offset, duration);
+			}
+
+			const scheduledEndTime =
+				scheduledTime + duration / node.playbackRate.value;
+
+			const mediaTime = mediaTimestamp + offset;
+
+			const mediaEndTime = mediaTime + duration;
+
+			const latency = audioContext.baseLatency + audioContext.outputLatency;
+			const timeDiff = scheduledTime - currentTime - latency;
+			const prev = prevEndTimes.current;
+			const scheduledMismatch =
+				prev.scheduledEndTime !== null &&
+				Math.abs(scheduledTime - prev.scheduledEndTime) > 0.001;
+			const mediaMismatch =
+				prev.mediaEndTime !== null &&
+				Math.abs(mediaTime - prev.mediaEndTime) > 0.001;
+
+			if (debugAudioScheduling) {
+				Log.info(
+					{logLevel, tag: 'audio-scheduling'},
+					'scheduled %c%s%c %s %c%s%c %s %c%s%c %s %s %s',
+					scheduledMismatch ? 'color: red; font-weight: bold' : '',
+					scheduledTime.toFixed(4),
+					'',
+					scheduledEndTime.toFixed(4),
+					mediaMismatch ? 'color: red; font-weight: bold' : '',
+					mediaTime.toFixed(4),
+					'',
+					mediaEndTime.toFixed(4),
+					duration < 0
+						? 'color: red; font-weight: bold'
+						: timeDiff < 0
+							? 'color: red; font-weight: bold'
+							: 'color: blue; font-weight: bold',
+					duration < 0
+						? 'missed ' + Math.abs(offset).toFixed(2) + 's'
+						: Math.abs(timeDiff).toFixed(2) +
+								(timeDiff < 0 ? ' delay' : ' ahead'),
+					'',
+					'current=' + currentTime.toFixed(4),
+					'offset=' + offset.toFixed(4),
+					'latency=' + latency.toFixed(4),
+					'state=' + audioContext.state,
+				);
+			}
+
+			prev.scheduledEndTime = scheduledEndTime;
+			prev.mediaEndTime = mediaEndTime;
+
+			return duration > 0
+				? {
+						type: 'started',
+						scheduledTime,
+					}
+				: {
+						type: 'not-started',
+					};
+		};
+	}, [audioContext, logLevel]);
+
 	const refs = useMemo(() => {
 		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
 			const ref = createRef<HTMLAudioElement>();
@@ -361,6 +504,8 @@ export const SharedAudioContextProvider: React.FC<{
 			playAllAudios,
 			numberOfAudioTags,
 			audioContext,
+			audioSyncAnchor,
+			scheduleAudioNode,
 		};
 	}, [
 		numberOfAudioTags,
@@ -369,6 +514,8 @@ export const SharedAudioContextProvider: React.FC<{
 		unregisterAudio,
 		updateAudio,
 		audioContext,
+		audioSyncAnchor,
+		scheduleAudioNode,
 	]);
 
 	return (

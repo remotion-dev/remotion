@@ -1,9 +1,11 @@
 import {createRef} from 'react';
 import {getAbsoluteSrc} from './absolute-src.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
+import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
+	type ScheduleAudioNodeOptions,
 } from './audio/shared-audio-tags.js';
 import {
 	useFrameForVolumeProp,
@@ -104,6 +106,7 @@ import {
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
 import {
+	AbsoluteTimeContext,
 	SetTimelineContext,
 	TimelineContext,
 	type SetTimelineContextValue,
@@ -174,6 +177,7 @@ export const Internals = {
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
+	useAbsoluteTimelinePosition: TimelinePosition.useAbsoluteTimelinePosition,
 	evaluateVolume,
 	getAbsoluteSrc,
 	Timeline: TimelinePosition,
@@ -269,6 +273,7 @@ export const Internals = {
 	TimelinePosition,
 	DelayRenderContextType,
 	TimelineContext,
+	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
 	getEffectiveVisualModeValue,
 } as const;
@@ -291,5 +296,7 @@ export type {
 	TRenderAsset,
 	TSequence,
 	WatchRemotionStaticFilesPayload,
+	ScheduleAudioNodeOptions,
 	CanUpdateSequencePropStatus,
+	ScheduleAudioNodeResult,
 };
