@@ -12,9 +12,7 @@ const waitForContextTime = async (audioContext: AudioContext) => {
 			if ((audioContext.getOutputTimestamp().contextTime ?? 0) > 0) {
 				resolve();
 			} else if (Date.now() - start > 5000) {
-				reject(
-					new Error('AudioContext contextTime did not advance above 0'),
-				);
+				reject(new Error('AudioContext contextTime did not advance above 0'));
 			} else {
 				setTimeout(check, 10);
 			}
