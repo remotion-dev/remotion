@@ -86,6 +86,7 @@ const TimelineNumberField: React.FC<{
 			value={dragValue ?? (codeValue as number)}
 			style={draggerStyle}
 			status="ok"
+			small
 			onValueChange={onValueChange}
 			onValueChangeEnd={onValueChangeEnd}
 			onTextChange={onTextChange}
