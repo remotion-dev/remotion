@@ -2,6 +2,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {RenderDefaults} from '@remotion/studio-shared';
 import {ConfigInternals} from './config';
+import type {ParsedCommandLine} from './parsed-cli';
 import {parsedCli} from './parsed-cli';
 
 const {
@@ -43,115 +44,117 @@ const {
 	videoImageFormatOption,
 } = BrowserSafeApis.options;
 
-export const getRenderDefaults = (): RenderDefaults => {
+export const getRenderDefaults = (
+	commandLine: ParsedCommandLine = parsedCli,
+): RenderDefaults => {
 	const defaultJpegQuality = jpegQualityOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
-	const logLevel = logLevelOption.getValue({commandLine: parsedCli}).value;
+	const logLevel = logLevelOption.getValue({commandLine}).value;
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
 	const concurrency = RenderInternals.resolveConcurrency(
-		concurrencyOption.getValue({commandLine: parsedCli}).value,
+		concurrencyOption.getValue({commandLine}).value,
 	);
 	const pixelFormat = pixelFormatOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const proResProfile =
-		proResProfileOption.getValue({commandLine: parsedCli}).value ?? null;
+		proResProfileOption.getValue({commandLine}).value ?? null;
 
 	const x264Preset = x264Option.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const audioBitrate = audioBitrateOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const offthreadVideoCacheSizeInBytes =
 		offthreadVideoCacheSizeInBytesOption.getValue({
-			commandLine: parsedCli,
+			commandLine,
 		}).value;
 	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const defaultScale = scaleOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const videoBitrate = videoBitrateOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const enforceAudioTrack = enforceAudioOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const muted = mutedOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const colorSpace = colorSpaceOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const multiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const gl = glOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const beepOnFinish = beepOnFinishOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const encodingMaxRate = encodingMaxRateOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const encodingBufferSize = encodingBufferSizeOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const repro = reproOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const delayRenderTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const headless = headlessOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const forSeamlessAacConcatenation =
 		forSeamlessAacConcatenationOption.getValue({
-			commandLine: parsedCli,
+			commandLine,
 		}).value;
 	const audioCodec = audioCodecOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const hardwareAcceleration = hardwareAccelerationOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const chromeMode = chromeModeOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const publicLicenseKey = publicLicenseKeyOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 
 	const everyNthFrame = everyNthFrameOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const stillImageFormat = stillImageFormatOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const videoImageFormat = videoImageFormatOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const disableWebSecurity = disableWebSecurityOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const darkMode = darkModeOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
-	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
+	const userAgent = userAgentOption.getValue({commandLine}).value;
 	const metadata = ConfigInternals.getMetadata();
 	const outputLocation = ConfigInternals.getOutputLocation();
 

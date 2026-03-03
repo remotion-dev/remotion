@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 import {chalk} from './chalk';
 import {makeHyperlink} from './hyperlinks/make-link';
 import {Log} from './log';
+import type {ParsedCommandLine} from './parsed-cli';
 import {parsedCli} from './parsed-cli';
 
 const {envFileOption} = BrowserSafeApis.options;
@@ -140,11 +141,12 @@ export const getEnvironmentVariables = (
 	onUpdate: null | ((newProps: Record<string, string>) => void),
 	logLevel: LogLevel,
 	indent: boolean,
+	commandLine: ParsedCommandLine = parsedCli,
 ): Record<string, string> => {
 	const processEnv = getProcessEnv();
 
 	const {value: envFileValue, source: envFileSource} = envFileOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	});
 
 	const remotionRoot = RenderInternals.findRemotionRoot();

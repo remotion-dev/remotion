@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
@@ -29,7 +30,12 @@ import {lambdaCommand} from './lambda-command';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
-import {BooleanFlags, parsedCli, quietFlagProvided} from './parsed-cli';
+import {
+	BooleanFlags,
+	parseCommandLineArguments,
+	parsedCli,
+	quietFlagProvided,
+} from './parsed-cli';
 import {printCompositions} from './print-compositions';
 import {printError} from './print-error';
 import {printHelp} from './print-help';
@@ -51,6 +57,41 @@ import {
 } from './versions';
 
 const {packageManagerOption, versionFlagOption} = BrowserSafeApis.options;
+
+export type StudioOptions = {
+	args?: string[];
+	remotionRoot?: string;
+	logLevel?: LogLevel;
+	checkVersionMismatch?: boolean;
+};
+
+export const studio = async ({
+	args = [],
+	remotionRoot = RenderInternals.findRemotionRoot(),
+	logLevel: desiredLogLevel,
+	checkVersionMismatch = true,
+}: StudioOptions = {}) => {
+	const commandLine = parseCommandLineArguments(args);
+
+	if (checkVersionMismatch) {
+		await validateVersionsBeforeCommand(
+			remotionRoot,
+			desiredLogLevel ?? 'info',
+		);
+	}
+
+	const initializedLogLevel = await initializeCli(remotionRoot, commandLine);
+	const logLevel = desiredLogLevel ?? initializedLogLevel;
+
+	handleCtrlC({indent: false, logLevel});
+	checkForNpmRunFlagPass({indent: false, logLevel});
+
+	try {
+		await studioCommand(remotionRoot, commandLine._, logLevel, commandLine);
+	} finally {
+		cleanupBeforeQuit({indent: false, logLevel});
+	}
+};
 
 export const cli = async () => {
 	const [command, ...args] = parsedCli._;

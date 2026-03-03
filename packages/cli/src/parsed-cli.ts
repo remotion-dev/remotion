@@ -210,17 +210,31 @@ export const BooleanFlags = [
 	bundleCacheOption.cliFlag,
 ];
 
-export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
-	boolean: BooleanFlags,
-	default: {
-		[overwriteOption.cliFlag]: true,
-		[bundleCacheOption.cliFlag]: null,
-		[experimentalClientSideRenderingOption.cliFlag]: null,
-		[experimentalVisualModeOption.cliFlag]: null,
-		[mutedOption.cliFlag]: null,
-	},
-}) as CommandLineOptions & {
+type ParsedCommandLineDefaults = {
+	[key: string]: boolean | null;
+};
+
+const defaultCommandLineValues: ParsedCommandLineDefaults = {
+	[overwriteOption.cliFlag]: true,
+	[bundleCacheOption.cliFlag]: null,
+	[experimentalClientSideRenderingOption.cliFlag]: null,
+	[experimentalVisualModeOption.cliFlag]: null,
+	[mutedOption.cliFlag]: null,
+};
+
+export type ParsedCommandLine = CommandLineOptions & {
 	_: string[];
 };
+
+export const parseCommandLineArguments = (
+	args: string[],
+): ParsedCommandLine => {
+	return minimist<CommandLineOptions>(args, {
+		boolean: BooleanFlags,
+		default: defaultCommandLineValues,
+	}) as ParsedCommandLine;
+};
+
+export const parsedCli = parseCommandLineArguments(process.argv.slice(2));
 
 export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;

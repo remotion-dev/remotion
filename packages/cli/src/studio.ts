@@ -9,6 +9,7 @@ import {getGitSource} from './get-github-repository';
 import {getInputProps} from './get-input-props';
 import {getRenderDefaults} from './get-render-defaults';
 import {Log} from './log';
+import type {ParsedCommandLine} from './parsed-cli';
 import {parsedCli} from './parsed-cli';
 import {
 	addJob,
@@ -41,6 +42,7 @@ export const studioCommand = async (
 	remotionRoot: string,
 	args: string[],
 	logLevel: LogLevel,
+	commandLine: ParsedCommandLine = parsedCli,
 ) => {
 	const {file, reason} = findEntryPoint({
 		args,
@@ -71,21 +73,25 @@ export const studioCommand = async (
 	}
 
 	const desiredPort =
-		portOption.getValue({commandLine: parsedCli}).value ??
+		portOption.getValue({commandLine}).value ??
 		ConfigInternals.getStudioPort() ??
 		null;
 
 	const fullEntryPath = convertEntryPointToServeUrl(file);
 
-	let inputProps = getInputProps((newProps) => {
-		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
-			inputProps = newProps;
-			listener.sendEventToClient({
-				type: 'new-input-props',
-				newProps,
+	let inputProps = getInputProps(
+		(newProps) => {
+			StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+				inputProps = newProps;
+				listener.sendEventToClient({
+					type: 'new-input-props',
+					newProps,
+				});
 			});
-		});
-	}, logLevel);
+		},
+		logLevel,
+		commandLine,
+	);
 	let envVariables = getEnvironmentVariables(
 		(newEnvVariables) => {
 			StudioServerInternals.waitForLiveEventsListener().then((listener) => {
@@ -98,15 +104,16 @@ export const studioCommand = async (
 		},
 		logLevel,
 		false,
+		commandLine,
 	);
 
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 
 	const experimentalClientSideRenderingEnabled =
 		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
+			commandLine,
 		}).value;
 
 	if (experimentalClientSideRenderingEnabled) {
@@ -117,28 +124,28 @@ export const studioCommand = async (
 	}
 
 	const binariesDirectory = binariesDirectoryOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 
 	const disableGitSource = disableGitSourceOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 
 	const relativePublicDir = publicDirOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 
 	const enableCrossSiteIsolation = enableCrossSiteIsolationOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 
 	const askAIEnabled = askAIOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 
 	const gitSource = getGitSource({remotionRoot, disableGitSource, logLevel});
 
-	const useRspack = rspackOption.getValue({commandLine: parsedCli}).value;
+	const useRspack = rspackOption.getValue({commandLine}).value;
 
 	if (useRspack) {
 		Log.warn(
@@ -148,7 +155,7 @@ export const studioCommand = async (
 	}
 
 	const useVisualMode = experimentalVisualModeOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 
 	if (useVisualMode) {
@@ -157,10 +164,10 @@ export const studioCommand = async (
 
 	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),
-		browserArgs: parsedCli['browser-args'],
-		browserFlag: browserOption.getValue({commandLine: parsedCli}).value ?? '',
+		browserArgs: commandLine['browser-args'],
+		browserFlag: browserOption.getValue({commandLine}).value ?? '',
 		logLevel,
-		shouldOpenBrowser: !noOpenOption.getValue({commandLine: parsedCli}).value,
+		shouldOpenBrowser: !noOpenOption.getValue({commandLine}).value,
 		fullEntryPath,
 		getCurrentInputProps: () => inputProps,
 		getEnvVariables: () => envVariables,
@@ -172,11 +179,11 @@ export const studioCommand = async (
 		remotionRoot,
 		relativePublicDir,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
-		poll: webpackPollOption.getValue({commandLine: parsedCli}).value,
-		getRenderDefaults,
+		poll: webpackPollOption.getValue({commandLine}).value,
+		getRenderDefaults: () => getRenderDefaults(commandLine),
 		getRenderQueue,
 		numberOfAudioTags: numberOfSharedAudioTagsOption.getValue({
-			commandLine: parsedCli,
+			commandLine,
 		}).value,
 		queueMethods: {
 			addJob,
@@ -187,13 +194,13 @@ export const studioCommand = async (
 		bufferStateDelayInMilliseconds:
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
-		forceIPv4: ipv4Option.getValue({commandLine: parsedCli}).value,
+		forceIPv4: ipv4Option.getValue({commandLine}).value,
 		audioLatencyHint: audioLatencyHintOption.getValue({
-			commandLine: parsedCli,
+			commandLine,
 		}).value,
 		enableCrossSiteIsolation,
 		askAIEnabled,
-		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
+		forceNew: forceNewStudioOption.getValue({commandLine}).value,
 		rspack: useRspack,
 	});
 
@@ -202,5 +209,5 @@ export const studioCommand = async (
 	}
 
 	// If the server is restarted through the UI, let's do the whole thing again.
-	await studioCommand(remotionRoot, args, logLevel);
+	await studioCommand(remotionRoot, args, logLevel, commandLine);
 };

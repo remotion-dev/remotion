@@ -5,16 +5,18 @@ import {loadConfig} from './get-config-file-name';
 import {makeHyperlink} from './hyperlinks/make-link';
 import {Log} from './log';
 import {parseCommandLine} from './parse-command-line';
+import type {ParsedCommandLine} from './parsed-cli';
 import {parsedCli} from './parsed-cli';
 
 export const initializeCli = async (
 	remotionRoot: string,
+	commandLine: ParsedCommandLine = parsedCli,
 ): Promise<LogLevel> => {
-	const appliedName = await loadConfig(remotionRoot);
+	const appliedName = await loadConfig(remotionRoot, commandLine);
 
-	parseCommandLine();
+	parseCommandLine(commandLine);
 	const logLevel = BrowserSafeApis.options.logLevelOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	// Only now Log.verbose is available
 	Log.verbose(

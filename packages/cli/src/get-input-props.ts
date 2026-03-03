@@ -4,6 +4,7 @@ import path from 'node:path';
 import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {Log} from './log';
+import type {ParsedCommandLine} from './parsed-cli';
 import {parsedCli} from './parsed-cli';
 
 const {propsOption} = BrowserSafeApis.options;
@@ -11,8 +12,9 @@ const {propsOption} = BrowserSafeApis.options;
 export const getInputProps = (
 	onUpdate: ((newProps: Record<string, unknown>) => void) | null,
 	logLevel: LogLevel,
+	commandLine: ParsedCommandLine = parsedCli,
 ): Record<string, unknown> => {
-	const props = propsOption.getValue({commandLine: parsedCli}).value;
+	const props = propsOption.getValue({commandLine}).value;
 	if (!props) {
 		return {};
 	}
