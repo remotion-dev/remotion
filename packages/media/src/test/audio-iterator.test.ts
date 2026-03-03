@@ -4,6 +4,26 @@ import {expect, test} from 'vitest';
 import {audioIteratorManager} from '../audio-iterator-manager';
 import {makeNonceManager} from '../nonce-manager';
 
+const waitForContextTime = async (audioContext: AudioContext) => {
+	await audioContext.resume();
+	const start = Date.now();
+	await new Promise<void>((resolve, reject) => {
+		const check = () => {
+			if ((audioContext.getOutputTimestamp().contextTime ?? 0) > 0) {
+				resolve();
+			} else if (Date.now() - start > 5000) {
+				reject(
+					new Error('AudioContext contextTime did not advance above 0'),
+				);
+			} else {
+				setTimeout(check, 10);
+			}
+		};
+
+		check();
+	});
+};
+
 const prepare = async () => {
 	const input = new Input({
 		source: new UrlSource('https://remotion.media/video.mp4'),
@@ -15,11 +35,7 @@ const prepare = async () => {
 	}
 
 	const audioContext = new AudioContext();
-	await audioContext.resume();
-	// Wait for contextTime to advance above 0
-	await new Promise((r) => {
-		setTimeout(r, 50);
-	});
+	await waitForContextTime(audioContext);
 
 	const manager = audioIteratorManager({
 		audioTrack,
@@ -202,11 +218,7 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 	}
 
 	const audioContext = new AudioContext();
-	await audioContext.resume();
-	// Wait for contextTime to advance above 0
-	await new Promise((r) => {
-		setTimeout(r, 50);
-	});
+	await waitForContextTime(audioContext);
 
 	const manager = audioIteratorManager({
 		audioTrack,
@@ -276,11 +288,7 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 	}
 
 	const audioContext = new AudioContext();
-	await audioContext.resume();
-	// Wait for contextTime to advance above 0
-	await new Promise((r) => {
-		setTimeout(r, 50);
-	});
+	await waitForContextTime(audioContext);
 
 	const manager = audioIteratorManager({
 		audioTrack,
