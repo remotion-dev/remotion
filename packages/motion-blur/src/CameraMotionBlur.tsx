@@ -12,7 +12,7 @@ export type CameraMotionBlurProps = {
  * and the trailing elements have frame numbers -1, -2, -3, -4, etc.
  * To fix this, we instead reduce the number of samples to not go into negative territory.
  */
-const getNumberOfSamples = ({
+export const getNumberOfSamples = ({
 	shutterFraction,
 	samples,
 	currentFrame,
@@ -22,9 +22,28 @@ const getNumberOfSamples = ({
 	currentFrame: number;
 }) => {
 	const maxOffset = shutterFraction * samples;
+	if (maxOffset <= 0) {
+		return 1;
+	}
+
 	const maxTimeReverse = currentFrame - maxOffset;
 	const factor = Math.min(1, Math.max(0, maxTimeReverse / maxOffset + 1));
 	return Math.max(1, Math.round(Math.min(factor * samples, samples)));
+};
+
+export const getFrameToFreeze = ({
+	currentFrame,
+	shutterFraction,
+	sample,
+	actualSamples,
+}: {
+	currentFrame: number;
+	shutterFraction: number;
+	sample: number;
+	actualSamples: number;
+}) => {
+	const sampleFrameOffset = shutterFraction * (sample / actualSamples);
+	return currentFrame - shutterFraction + sampleFrameOffset;
 };
 
 /*
@@ -92,7 +111,12 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 		<AbsoluteFill style={{isolation: 'isolate'}}>
 			{new Array(actualSamples).fill(true).map((_, i) => {
 				const sample = i + 1;
-				const sampleFrameOffset = shutterFraction * (sample / actualSamples);
+				const frameToFreeze = getFrameToFreeze({
+					currentFrame,
+					shutterFraction,
+					sample,
+					actualSamples,
+				});
 
 				return (
 					<AbsoluteFill
@@ -102,9 +126,7 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 							filter: `opacity(${1 / actualSamples})`,
 						}}
 					>
-						<Freeze frame={currentFrame - sampleFrameOffset + 1}>
-							{children}
-						</Freeze>
+						<Freeze frame={frameToFreeze}>{children}</Freeze>
 					</AbsoluteFill>
 				);
 			})}
