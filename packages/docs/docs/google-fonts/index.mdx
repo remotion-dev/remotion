@@ -77,24 +77,17 @@ Montserrat.loadFont('normal', {
 
 Call [`loadFont()`](/docs/google-fonts/load-font) to start the loading process. Calling it without arguments loads every style, weight and subset, which can cause unnecessary requests.
 
-You can pass a style (such as `normal`, `italic`) to only load that style. If you want multiple styles, call `loadFont()` multiple times.
+Use TypeScript autocomplete to see the available styles. To further narrow down what's being loaded, specify `weights` and `subsets`. If you need multiple styles, call `loadFont()` multiple times.
 
-```tsx twoslash title="Load just one style"
-import {loadFont} from '@remotion/google-fonts/TitanOne';
-
-loadFont('normal', {
-  weights: ['400'],
-  subsets: ['latin'],
-});
-```
-
-Use the TypeScript autocomplete to see the available styles. To further narrow down what's being loaded, you can specify `weights` and `subsets`. These options are also typesafe.
-
-```tsx twoslash title="Load a specific style with limited weights and subsets"
+```tsx twoslash title="Load multiple styles explicitly"
 import * as Montserrat from '@remotion/google-fonts/Montserrat';
 
 Montserrat.loadFont('normal', {
   weights: ['400', '700'],
+  subsets: ['latin'],
+});
+Montserrat.loadFont('italic', {
+  weights: ['400'],
   subsets: ['latin'],
 });
 ```
@@ -143,10 +136,7 @@ export const waitForFonts = async () => {
 };
 ```
 
-If you use text measurement APIs, wrap your content in a component that waits for your fonts before rendering:
-
-- [Higher-order component example](/docs/layout-utils/best-practices#example-with-high-order-component)
-- [Troubleshooting font loading errors](/docs/troubleshooting/font-loading-errors)
+If you use text measurement APIs, wrap your content in a component that waits for your fonts before rendering. See the [higher-order component example](/docs/layout-utils/best-practices#example-with-high-order-component) and [font loading troubleshooting](/docs/troubleshooting/font-loading-errors).
 
 To get information about a font, you can import the `getInfo()` function:
 
