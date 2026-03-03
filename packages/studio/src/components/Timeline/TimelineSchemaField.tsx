@@ -21,7 +21,9 @@ const draggerStyle: React.CSSProperties = {
 	width: 80,
 };
 
-const checkboxContainer: React.CSSProperties = {};
+const checkboxContainer: React.CSSProperties = {
+	marginLeft: 8,
+};
 
 const notEditableBackground: React.CSSProperties = {
 	backgroundColor: 'rgba(255, 0, 0, 0.2)',
