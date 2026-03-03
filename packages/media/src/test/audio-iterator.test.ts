@@ -4,24 +4,6 @@ import {expect, test} from 'vitest';
 import {audioIteratorManager} from '../audio-iterator-manager';
 import {makeNonceManager} from '../nonce-manager';
 
-const waitForContextTime = async (audioContext: AudioContext) => {
-	await audioContext.resume();
-	const start = Date.now();
-	await new Promise<void>((resolve, reject) => {
-		const check = () => {
-			if ((audioContext.getOutputTimestamp().contextTime ?? 0) > 0) {
-				resolve();
-			} else if (Date.now() - start > 5000) {
-				reject(new Error('AudioContext contextTime did not advance above 0'));
-			} else {
-				setTimeout(check, 10);
-			}
-		};
-
-		check();
-	});
-};
-
 const prepare = async () => {
 	const input = new Input({
 		source: new UrlSource('https://remotion.media/video.mp4'),
@@ -33,7 +15,6 @@ const prepare = async () => {
 	}
 
 	const audioContext = new AudioContext();
-	await waitForContextTime(audioContext);
 
 	const manager = audioIteratorManager({
 		audioTrack,
@@ -87,6 +68,13 @@ test('media player should work', async () => {
 		debugAudioScheduling: false,
 	});
 
+	const chunksAt996 = manager
+		.getAudioBufferIterator()
+		?.getAndClearAudioChunksForAfterResuming();
+	expect(chunksAt996?.map((c) => c.timestamp)).toEqual([
+		9.941333333333333, 9.962666666666667, 9.984,
+	]);
+
 	await manager.seek({
 		newTime: 0,
 		scheduleAudioNode,
@@ -105,12 +93,16 @@ test('media player should work', async () => {
 		debugAudioScheduling: false,
 	});
 
+	const chunksAtEnd = manager
+		.getAudioBufferIterator()
+		?.getAndClearAudioChunksForAfterResuming();
+
 	const created = manager.getAudioIteratorsCreated();
 	expect(created).toBe(2);
 
-	expect(scheduledChunks).toEqual([
-		9.941333333333333, 9.962666666666667, 9.984, 0, 0.021333333333333333,
-		0.042666666666666665, 0.064, 0.08533333333333333, 0.10666666666666667,
+	expect(chunksAtEnd?.map((c) => c.timestamp)).toEqual([
+		0, 0.021333333333333333, 0.042666666666666665, 0.064, 0.08533333333333333,
+		0.10666666666666667,
 	]);
 });
 
@@ -158,7 +150,12 @@ test('should not create too many iterators when the audio ends', async () => {
 	const created = manager.getAudioIteratorsCreated();
 	expect(created).toBe(1);
 
-	expect(scheduledChunks).toEqual([9.962666666666667, 9.984]);
+	const chunksAt999 = manager
+		.getAudioBufferIterator()
+		?.getAndClearAudioChunksForAfterResuming();
+	expect(chunksAt999?.map((c) => c.timestamp)).toEqual([
+		9.962666666666667, 9.984,
+	]);
 });
 
 test('should create more iterators when seeking ', async () => {
@@ -185,6 +182,13 @@ test('should create more iterators when seeking ', async () => {
 		playbackRate,
 		debugAudioScheduling: false,
 	});
+	const chunksAt0 = manager
+		.getAudioBufferIterator()
+		?.getAndClearAudioChunksForAfterResuming();
+	expect(chunksAt0?.map((c) => c.timestamp)).toEqual([
+		0, 0.021333333333333333, 0.042666666666666665, 0.064, 0.08533333333333333,
+		0.10666666666666667,
+	]);
 	await manager.seek({
 		newTime: 1,
 		scheduleAudioNode,
@@ -197,10 +201,12 @@ test('should create more iterators when seeking ', async () => {
 	const created = manager.getAudioIteratorsCreated();
 	expect(created).toBe(2);
 
-	expect(scheduledChunks).toEqual([
-		0, 0.021333333333333333, 0.042666666666666665, 0.064, 0.08533333333333333,
-		0.10666666666666667, 0.9813333333333333, 1.0026666666666666, 1.024,
-		1.0453333333333332, 1.0666666666666667, 1.088,
+	const chunksAt1 = manager
+		.getAudioBufferIterator()
+		?.getAndClearAudioChunksForAfterResuming();
+	expect(chunksAt1?.map((c) => c.timestamp)).toEqual([
+		0.9813333333333333, 1.0026666666666666, 1.024, 1.0453333333333332,
+		1.0666666666666667, 1.088,
 	]);
 });
 
@@ -216,7 +222,6 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 	}
 
 	const audioContext = new AudioContext();
-	await waitForContextTime(audioContext);
 
 	const manager = audioIteratorManager({
 		audioTrack,
@@ -286,7 +291,6 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 	}
 
 	const audioContext = new AudioContext();
-	await waitForContextTime(audioContext);
 
 	const manager = audioIteratorManager({
 		audioTrack,
