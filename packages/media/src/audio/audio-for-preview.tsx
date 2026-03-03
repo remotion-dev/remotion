@@ -3,7 +3,6 @@ import type {
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	SequenceControls,
-	SequenceSchema,
 	VolumeProp,
 } from 'remotion';
 import {
@@ -430,34 +429,19 @@ type InnerAudioProps = {
 	readonly onError?: MediaOnError;
 };
 
-const audioSchema = {
-	volume: {
-		type: 'number',
-		min: 0,
-		max: 20,
-		step: 0.01,
-		default: 1,
-		description: 'Volume',
-	},
-	playbackRate: {
-		type: 'number',
-		min: 0.1,
-		step: 0.01,
-		default: 1,
-		description: 'Playback Rate',
-	},
-	loop: {type: 'boolean', default: false, description: 'Loop'},
-} as const satisfies SequenceSchema;
-
-export const AudioForPreview: React.FC<InnerAudioProps> = ({
-	loop: loopProp = false,
+export const AudioForPreview: React.FC<
+	InnerAudioProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = ({
+	loop = false,
 	src,
 	logLevel,
 	muted,
 	name,
-	volume: volumeProp,
+	volume,
 	loopVolumeCurveBehavior,
-	playbackRate: playbackRateProp = 1,
+	playbackRate = 1,
 	trimAfter,
 	trimBefore,
 	showInTimeline,
@@ -468,20 +452,8 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	fallbackHtml5AudioProps,
 	debugAudioScheduling,
 	onError,
+	controls,
 }) => {
-	const schemaInput = useMemo(() => {
-		return {
-			volume: volumeProp,
-			playbackRate: playbackRateProp,
-			loop: loopProp,
-		};
-	}, [volumeProp, playbackRateProp, loopProp]);
-
-	const {
-		controls,
-		values: {volume, playbackRate, loop},
-	} = Internals.useSchema(audioSchema, schemaInput);
-
 	const preloadedSrc = usePreload(src);
 
 	const defaultLogLevel = Internals.useLogLevel();

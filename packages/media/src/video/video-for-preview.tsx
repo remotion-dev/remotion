@@ -10,7 +10,6 @@ import type {
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	SequenceControls,
-	SequenceSchema,
 	VolumeProp,
 } from 'remotion';
 import {
@@ -460,38 +459,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 	);
 };
 
-const videoSchema = {
-	volume: {
-		type: 'number',
-		min: 0,
-		max: 20,
-		step: 0.01,
-		default: 1,
-		description: 'Volume',
-	},
-	playbackRate: {
-		type: 'number',
-		min: 0.1,
-		step: 0.01,
-		default: 1,
-		description: 'Playback Rate',
-	},
-	loop: {type: 'boolean', default: false, description: 'Loop'},
-} as const satisfies SequenceSchema;
-
-export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
-	const schemaInput = useMemo(() => {
-		return {
-			volume: props.volume,
-			playbackRate: props.playbackRate,
-			loop: props.loop,
-		};
-	}, [props.volume, props.playbackRate, props.loop]);
-	const {
-		controls,
-		values: {loop, playbackRate, volume},
-	} = Internals.useSchema(videoSchema, schemaInput);
-
+export const VideoForPreview: React.FC<
+	VideoForPreviewProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = (props) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const currentTime = frame / videoConfig.fps;
@@ -500,8 +472,8 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
 		return (
 			getTimeInSeconds({
 				unloopedTimeInSeconds: currentTime,
-				playbackRate,
-				loop,
+				playbackRate: props.playbackRate,
+				loop: props.loop,
 				trimBefore: props.trimBefore,
 				trimAfter: props.trimAfter,
 				mediaDurationInSeconds: Infinity,
@@ -512,8 +484,8 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
 		);
 	}, [
 		currentTime,
-		loop,
-		playbackRate,
+		props.loop,
+		props.playbackRate,
 		props.src,
 		videoConfig.fps,
 		props.trimBefore,
@@ -525,12 +497,6 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
 	}
 
 	return (
-		<VideoForPreviewAssertedShowing
-			{...props}
-			volume={volume ?? 1}
-			playbackRate={playbackRate}
-			loop={loop}
-			controls={controls}
-		/>
+		<VideoForPreviewAssertedShowing {...props} controls={props.controls} />
 	);
 };
