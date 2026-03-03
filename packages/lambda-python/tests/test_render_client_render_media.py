@@ -13,7 +13,7 @@ class TestRemotionClient(TestCase):
             composition="react-svg",
             input_props={'hi': 'there'},
             metadata={"Author": "Lunar"},
-            number_of_gif_loops=0,
+            number_of_gif_loops=None,
             download_behavior=ShouldDownload(type="download", fileName="hi"),
             webhook=Webhook(
                 url="https://example.com", secret="abc", customData=dict(hi="there")
