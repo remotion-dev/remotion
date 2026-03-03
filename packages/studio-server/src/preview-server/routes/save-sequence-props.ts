@@ -10,6 +10,8 @@ import {makeHyperlink} from '../../hyperlinks/make-link';
 import type {ApiHandler} from '../api-types';
 import {suppressHmrForFile} from '../hmr-suppression';
 
+let warnedAboutPrettier = false;
+
 export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse
@@ -27,7 +29,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 
-		const {output, oldValueString} = await updateSequenceProps({
+		const {output, oldValueString, formatted} = await updateSequenceProps({
 			input: fileContents,
 			targetLine: line,
 			key,
@@ -52,6 +54,15 @@ export const saveSequencePropsHandler: ApiHandler<
 				`${fileLink} updated: ${key} ${oldValueString} \u2192 ${newValueString}`,
 			),
 		);
+		if (!formatted && !warnedAboutPrettier) {
+			warnedAboutPrettier = true;
+			RenderInternals.Log.warn(
+				{indent: false, logLevel},
+				RenderInternals.chalk.yellow(
+					'Could not format with Prettier. File will need to be formatted manually.',
+				),
+			);
+		}
 
 		return {
 			success: true,
