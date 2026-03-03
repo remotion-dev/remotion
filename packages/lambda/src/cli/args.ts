@@ -52,9 +52,6 @@ type LambdaCommandLineOptions = {
 	['force-path-style']: boolean;
 	['runtime-preference']: RuntimePreference;
 	['storage-class']: StorageClass | undefined;
-	['enable-v5-runtime']?: boolean;
-	[BrowserSafeApis.options.licenseKeyOption.cliFlag]: string | undefined;
-	[BrowserSafeApis.options.isProductionOption.cliFlag]: boolean | undefined;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(
@@ -63,7 +60,7 @@ export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(
 		boolean: LambdaBooleanFlags,
 		string: ['_'],
 	},
-) as LambdaCommandLineOptions & {_: string[]};
+);
 
 export const forceFlagProvided =
 	parsedLambdaCli.f ||

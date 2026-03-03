@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Img, staticFile} from 'remotion';
+import {AbsoluteFill, Img} from 'remotion';
 import {articles} from '../data/articles';
 import './font.css';
 
@@ -70,8 +70,6 @@ export const Article: React.FC<{
 							padding: 50,
 							minWidth: 500,
 							width: '100%',
-							justifyContent: 'flex-start',
-							alignItems: 'center',
 						}}
 					>
 						<div
@@ -127,7 +125,7 @@ export const Article: React.FC<{
 							style={{
 								height: 60,
 							}}
-							src={staticFile('img/remotion-white.png')}
+							src="https://www.remotion.dev/img/remotion-white.png"
 						/>
 					</div>
 				</div>
