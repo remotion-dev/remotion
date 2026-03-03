@@ -11,6 +11,9 @@ export type ErrorHolder = {
 	error: Error | null;
 };
 
+// React 19 currently reports this wrapper message through onUncaughtError()
+// for some uncaught render failures. This string is not part of a public API,
+// so keep this list in sync when upgrading React.
 const GENERIC_REACT_RENDER_ERROR_MESSAGES = new Set([
 	'Error thrown during rendering',
 ]);
@@ -90,6 +93,8 @@ const normalizeUncaughtReactError = (
 			cause instanceof Error &&
 			GENERIC_REACT_RENDER_ERROR_MESSAGES.has(err.message);
 
+		// Only unwrap known generic wrappers so intentional custom wrappers can
+		// still bubble up unchanged.
 		const errorToThrow = shouldUnwrapCause ? cause : err;
 		return appendComponentStack(errorToThrow, componentStack);
 	}

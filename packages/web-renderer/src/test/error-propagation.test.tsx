@@ -82,6 +82,9 @@ test('should propagate useful errors for non-Error throw values', async () => {
 });
 
 test('should unwrap generic React wrapper errors and keep useful stack', async () => {
+	// Unit-style normalization test: We synthesize the wrapper shape that
+	// normalizeUncaughtReactError() handles, instead of asserting React itself
+	// always emits this wrapper in onUncaughtError().
 	const ThrowsWrappedReactStyleError: React.FC = () => {
 		useEffect(() => {
 			throw new Error('Error thrown during rendering', {
