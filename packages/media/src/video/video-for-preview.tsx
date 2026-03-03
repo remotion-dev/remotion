@@ -23,8 +23,8 @@ import {
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
-import {setGlobalTimeAnchor} from '../set-global-time-anchor';
 import {useLoopDisplay} from '../show-in-timeline';
+import {useCommonEffects} from '../use-common-effects';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import type {FallbackOffthreadVideoProps} from './props';
 
@@ -143,18 +143,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
-	const {playing: playingWhilePremounting} = useContext(
-		Internals.PremountContext,
-	);
-	const absoluteTime = Internals.useAbsoluteTimelinePosition();
 	const sequenceOffset =
 		((parentSequence?.cumulatedFrom ?? 0) +
 			(parentSequence?.relativeFrom ?? 0)) /
 		videoConfig.fps;
-
-	// Allows for pre-scheduling audio nodes before the premounting ends,
-	// since there is some latency.
-	const isNextFrameGoingToPlay = playingWhilePremounting;
 
 	const loopDisplay = useLoopDisplay({
 		loop,
@@ -378,84 +370,31 @@ const VideoForPreviewAssertedShowing: React.FC<
 			.join(' ');
 	}, [className]);
 
-	useLayoutEffect(() => {
-		if (
-			sharedAudioContext?.audioContext &&
-			sharedAudioContext.audioSyncAnchor
-		) {
-			setGlobalTimeAnchor({
-				audioContext: sharedAudioContext.audioContext,
-				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
-				absoluteTimeInSeconds: absoluteTime / videoConfig.fps,
-				globalPlaybackRate,
-				debugAudioScheduling,
-				logLevel,
-			});
-		}
-	}, [
-		absoluteTime,
+	useCommonEffects({
+		mediaPlayerRef,
+		mediaPlayerReady,
+		currentTimeRef,
+		playing,
+		isPlayerBuffering,
+		frame,
+		trimBefore,
+		trimAfter,
+		effectiveMuted,
+		userPreferredVolume,
+		playbackRate,
 		globalPlaybackRate,
-		sharedAudioContext,
-		videoConfig.fps,
+		fps: videoConfig.fps,
+		sequenceOffset,
+		loop,
 		debugAudioScheduling,
+		durationInFrames: videoConfig.durationInFrames,
+		isPremounting,
+		isPostmounting,
+		currentTime,
 		logLevel,
-	]);
-
-	if (isNextFrameGoingToPlay) {
-		const mediaPlayer = mediaPlayerRef.current;
-		mediaPlayer?.playAudio();
-	}
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer) return;
-
-		if (playing && !isPlayerBuffering) {
-			// Play does nothing if already playing, so it can be called multiple times.
-			mediaPlayer.play();
-		} else {
-			// Pause will do the work all over again and check if there are scheduled nodes.
-			// This is why isNextFrameGoingToPlay is the in the dependency array.
-			// We want to trigger another pause if due to being 1 frame before premounting ends,
-			// audio is resumed and at the same time a pause is happening, we need to ensure
-			// that the pause is triggered again even though officially "playing" never changed.
-			mediaPlayer.pause();
-		}
-	}, [isPlayerBuffering, playing, logLevel, mediaPlayerReady, frame]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimBefore(trimBefore, currentTimeRef.current);
-	}, [trimBefore, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimAfter(trimAfter, currentTimeRef.current);
-	}, [trimAfter, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) return;
-
-		mediaPlayer.setMuted(effectiveMuted);
-	}, [effectiveMuted, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setVolume(userPreferredVolume);
-	}, [userPreferredVolume, mediaPlayerReady]);
+		sharedAudioContext,
+		label: 'VideoForPreview',
+	});
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -472,102 +411,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 			return;
 		}
 
-		mediaPlayer.setDebugAudioScheduling(debugAudioScheduling);
-	}, [debugAudioScheduling, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setPlaybackRate(playbackRate, currentTimeRef.current);
-	}, [playbackRate, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setGlobalPlaybackRate(globalPlaybackRate);
-	}, [globalPlaybackRate, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setLoop(loop);
-	}, [loop, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setDurationInFrames(videoConfig.durationInFrames);
-	}, [videoConfig.durationInFrames, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setIsPremounting(isPremounting);
-	}, [isPremounting, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setIsPostmounting(isPostmounting);
-	}, [isPostmounting, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setFps(videoConfig.fps);
-	}, [videoConfig.fps, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setSequenceOffset(sequenceOffset);
-	}, [sequenceOffset, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
 		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
 	}, [onVideoFrame, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) return;
-
-		mediaPlayer.seekTo(currentTime).catch(() => {
-			// Might be disposed
-		});
-		Internals.Log.trace(
-			{logLevel, tag: '@remotion/media'},
-			`[VideoForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
-		);
-	}, [currentTime, logLevel, mediaPlayerReady]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {

@@ -1,11 +1,4 @@
-import React, {
-	useContext,
-	useEffect,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {
 	LogLevel,
 	LoopVolumeCurveBehavior,
@@ -23,8 +16,8 @@ import {
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
-import {setGlobalTimeAnchor} from '../set-global-time-anchor';
 import {useLoopDisplay} from '../show-in-timeline';
+import {useCommonEffects} from '../use-common-effects';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import type {FallbackHtml5AudioProps} from './props';
 
@@ -141,18 +134,10 @@ const AudioForPreviewAssertedShowing: React.FC<
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
-	const {playing: playingWhilePremounting} = useContext(
-		Internals.PremountContext,
-	);
-	const absoluteTime = Internals.useAbsoluteTimelinePosition();
 	const sequenceOffset =
 		((parentSequence?.cumulatedFrom ?? 0) +
 			(parentSequence?.relativeFrom ?? 0)) /
 		videoConfig.fps;
-
-	// Allows for pre-scheduling audio nodes before the premounting ends,
-	// since there is some latency.
-	const isNextFrameGoingToPlay = playingWhilePremounting;
 
 	const loopDisplay = useLoopDisplay({
 		loop,
@@ -198,28 +183,31 @@ const AudioForPreviewAssertedShowing: React.FC<
 	const initialMuted = useRef(effectiveMuted);
 	const initialSequenceOffset = useRef(sequenceOffset);
 
-	useLayoutEffect(() => {
-		if (
-			sharedAudioContext?.audioContext &&
-			sharedAudioContext.audioSyncAnchor
-		) {
-			setGlobalTimeAnchor({
-				audioContext: sharedAudioContext.audioContext,
-				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
-				absoluteTimeInSeconds: absoluteTime / videoConfig.fps,
-				globalPlaybackRate,
-				debugAudioScheduling,
-				logLevel,
-			});
-		}
-	}, [
-		absoluteTime,
+	useCommonEffects({
+		mediaPlayerRef,
+		mediaPlayerReady,
+		currentTimeRef,
+		playing,
+		isPlayerBuffering,
+		frame,
+		trimBefore,
+		trimAfter,
+		effectiveMuted,
+		userPreferredVolume,
+		playbackRate,
 		globalPlaybackRate,
-		sharedAudioContext,
-		videoConfig.fps,
+		fps: videoConfig.fps,
+		sequenceOffset,
+		loop,
 		debugAudioScheduling,
+		durationInFrames: videoConfig.durationInFrames,
+		isPremounting,
+		isPostmounting,
+		currentTime,
 		logLevel,
-	]);
+		sharedAudioContext,
+		label: 'AudioForPreview',
+	});
 
 	useEffect(() => {
 		if (!sharedAudioContext) return;
@@ -387,150 +375,6 @@ const AudioForPreviewAssertedShowing: React.FC<
 		onError,
 		videoConfig.durationInFrames,
 	]);
-
-	if (isNextFrameGoingToPlay) {
-		const mediaPlayer = mediaPlayerRef.current;
-		mediaPlayer?.playAudio();
-	}
-
-	useLayoutEffect(() => {
-		const audioPlayer = mediaPlayerRef.current;
-		if (!audioPlayer) return;
-
-		if (playing && !isPlayerBuffering) {
-			audioPlayer.play();
-		} else {
-			audioPlayer.pause();
-		}
-	}, [isPlayerBuffering, logLevel, playing, mediaPlayerReady, frame]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimBefore(trimBefore, currentTimeRef.current);
-	}, [trimBefore, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimAfter(trimAfter, currentTimeRef.current);
-	}, [trimAfter, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const audioPlayer = mediaPlayerRef.current;
-		if (!audioPlayer || !mediaPlayerReady) return;
-
-		audioPlayer.setMuted(effectiveMuted);
-	}, [effectiveMuted, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const audioPlayer = mediaPlayerRef.current;
-		if (!audioPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		audioPlayer.setVolume(userPreferredVolume);
-	}, [userPreferredVolume, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const audioPlayer = mediaPlayerRef.current;
-		if (!audioPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		audioPlayer.setPlaybackRate(playbackRate, currentTimeRef.current);
-	}, [playbackRate, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const audioPlayer = mediaPlayerRef.current;
-		if (!audioPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		audioPlayer.setGlobalPlaybackRate(globalPlaybackRate);
-	}, [globalPlaybackRate, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const audioPlayer = mediaPlayerRef.current;
-		if (!audioPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		audioPlayer.setFps(videoConfig.fps);
-	}, [videoConfig.fps, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setSequenceOffset(sequenceOffset);
-	}, [sequenceOffset, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setLoop(loop);
-	}, [loop, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setDebugAudioScheduling(debugAudioScheduling);
-	}, [debugAudioScheduling, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setDurationInFrames(videoConfig.durationInFrames);
-	}, [videoConfig.durationInFrames, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setIsPremounting(isPremounting);
-	}, [isPremounting, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setIsPostmounting(isPostmounting);
-	}, [isPostmounting, mediaPlayerReady]);
-
-	useLayoutEffect(() => {
-		const audioPlayer = mediaPlayerRef.current;
-		if (!audioPlayer || !mediaPlayerReady) return;
-
-		audioPlayer.seekTo(currentTime).catch(() => {
-			// Might be disposed
-		});
-		Internals.Log.trace(
-			{logLevel, tag: '@remotion/media'},
-			`[AudioForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
-		);
-	}, [currentTime, logLevel, mediaPlayerReady]);
 
 	if (shouldFallbackToNativeAudio && !disallowFallbackToHtml5Audio) {
 		return (
