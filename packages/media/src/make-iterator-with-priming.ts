@@ -138,11 +138,15 @@ async function* makeIteratorWithPrimingInner(
 	}
 }
 
-export const makeIteratorWithPriming = (
-	audioSink: AudioBufferSink,
-	timeToSeek: number,
-	maximumTimestamp: number,
-): AsyncGenerator<WrappedAudioBuffer, void, unknown> => {
+export const makeIteratorWithPriming = ({
+	audioSink,
+	timeToSeek,
+	maximumTimestamp,
+}: {
+	audioSink: AudioBufferSink;
+	timeToSeek: number;
+	maximumTimestamp: number;
+}): AsyncGenerator<WrappedAudioBuffer, void, unknown> => {
 	return makePredecodingIterator(
 		makeIteratorWithPrimingInner(audioSink, timeToSeek, maximumTimestamp),
 	);

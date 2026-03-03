@@ -68,7 +68,7 @@ export const makePrewarmedAudioIteratorCache = (audioSink: AudioBufferSink) => {
 		if (!prewarmedAudioIterators.has(makeKey(timeToSeek, maximumTimestamp))) {
 			prewarmedAudioIterators.set(
 				makeKey(timeToSeek, maximumTimestamp),
-				makeIteratorWithPriming(audioSink, timeToSeek, maximumTimestamp),
+				makeIteratorWithPriming({audioSink, timeToSeek, maximumTimestamp}),
 			);
 		}
 	};
@@ -85,11 +85,11 @@ export const makePrewarmedAudioIteratorCache = (audioSink: AudioBufferSink) => {
 			return prewarmedIterator;
 		}
 
-		const iterator = makeIteratorWithPriming(
+		const iterator = makeIteratorWithPriming({
 			audioSink,
 			timeToSeek,
 			maximumTimestamp,
-		);
+		});
 		return iterator;
 	};
 
