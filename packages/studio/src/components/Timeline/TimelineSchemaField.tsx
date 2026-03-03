@@ -14,18 +14,14 @@ const getDecimalPlaces = (num: number): number => {
 const unsupportedLabel: React.CSSProperties = {
 	color: 'rgba(255, 255, 255, 0.4)',
 	fontSize: 12,
-	marginLeft: 'auto',
 	fontStyle: 'italic',
 };
 
 const draggerStyle: React.CSSProperties = {
 	width: 80,
-	marginLeft: 'auto',
 };
 
-const checkboxContainer: React.CSSProperties = {
-	marginLeft: 'auto',
-};
+const checkboxContainer: React.CSSProperties = {};
 
 const notEditableBackground: React.CSSProperties = {
 	backgroundColor: 'rgba(255, 0, 0, 0.2)',
@@ -122,7 +118,7 @@ const TimelineNumberField: React.FC<{
 			}
 			step={step}
 			formatter={formatter}
-			rightAlign
+			rightAlign={false}
 		/>
 	);
 };

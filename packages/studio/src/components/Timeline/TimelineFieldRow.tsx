@@ -26,7 +26,7 @@ const fieldName: React.CSSProperties = {
 };
 
 const fieldLabelRow: React.CSSProperties = {
-	flex: 1,
+	flex: '0 0 50%',
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
