@@ -388,9 +388,18 @@ const VideoForPreviewAssertedShowing: React.FC<
 				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
 				absoluteTimeInSeconds: absoluteTime / videoConfig.fps,
 				globalPlaybackRate,
+				debugAudioScheduling,
+				logLevel,
 			});
 		}
-	}, [absoluteTime, globalPlaybackRate, sharedAudioContext, videoConfig.fps]);
+	}, [
+		absoluteTime,
+		globalPlaybackRate,
+		sharedAudioContext,
+		videoConfig.fps,
+		debugAudioScheduling,
+		logLevel,
+	]);
 
 	if (isNextFrameGoingToPlay) {
 		const mediaPlayer = mediaPlayerRef.current;
