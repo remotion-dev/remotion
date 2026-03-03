@@ -1,4 +1,4 @@
-import {useLayoutEffect, type AudioHTMLAttributes} from 'react';
+import {type AudioHTMLAttributes} from 'react';
 import React, {
 	createContext,
 	createRef,
@@ -160,22 +160,6 @@ export const SharedAudioContextProvider: React.FC<{
 		latencyHint: audioLatencyHint,
 		audioEnabled,
 	});
-
-	useLayoutEffect(() => {
-		if (!audioContext) return;
-		const stateChangeHandler = () => {
-			Log.info(
-				{logLevel, tag: 'audio-context'},
-				'statechange',
-				audioContext.state,
-			);
-		};
-
-		audioContext.addEventListener('statechange', stateChangeHandler);
-		return () => {
-			audioContext.removeEventListener('statechange', stateChangeHandler);
-		};
-	}, [audioContext, logLevel]);
 
 	const audioSyncAnchor = useMemo(() => ({value: 0}), []);
 
