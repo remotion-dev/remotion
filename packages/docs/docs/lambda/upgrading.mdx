@@ -27,11 +27,6 @@ This deploys a new function with the latest version. You can keep old functions 
 
 ## 3. Update the site
 
-:::warning
-This step is required. The function, the site and the `@remotion/lambda` package calling the render should all be on the same version.
-If the site is on a different version than the function, you may get a version mismatch warning – or if there was a protocol change, **renders will fail**.
-:::
-
 ```sh
 npx remotion lambda sites create src/index.ts --site-name=my-name
 ```
@@ -39,6 +34,9 @@ npx remotion lambda sites create src/index.ts --site-name=my-name
 Pass `--site-name` with the name of an existing site to update it. The URL will stay the same but older functions may not be able to render the updated site.
 
 If you don't pass `--site-name`, a new site URL will be generated. You'll need to update the [`serveUrl`](/docs/lambda/rendermediaonlambda#serveurl) parameter in your [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) calls.
+
+The function, the site and the `@remotion/lambda` package calling the render should all be on the same version.
+If the site is on a different version than the function, you may get a version mismatch warning – or if there was a protocol change, renders will fail.
 
 ## 4. (Optional) Remove old functions
 
