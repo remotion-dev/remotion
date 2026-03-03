@@ -7,7 +7,9 @@ slug: /lambda/upgrading
 
 import {Prerelease} from '../../components/PrereleaseVersion';
 
-1. Upgrade all packages to the newest version (`@remotion/lambda`, but also `remotion`, `@remotion/cli` etc.)
+## 1. Upgrade all Remotion packages
+
+Upgrade all packages to the newest version (`@remotion/lambda`, but also `remotion`, `@remotion/cli` etc.)
 
 ```sh
 npx remotion upgrade
@@ -15,23 +17,20 @@ npx remotion upgrade
 
 <Prerelease packageName="@remotion/lambda" />
 
-2. (Optional): Remove the old versions of the function:
-
-:::info
-You only should do this if the function is not being used anymore. If you are still using it in production, you can just skip this step.
-:::
-
-```sh
-npx remotion lambda functions rmall -y
-```
-
-3. Deploy the newest version of the Remotion Lambda function:
+## 2. Deploy a new Lambda function
 
 ```sh
 npx remotion lambda functions deploy
 ```
 
-4. Update the site:
+This deploys a new function with the latest version. You can keep old functions deployed if they are still in use in production.
+
+## 3. Update the site
+
+:::warning
+This step is required. The function, the site and the `@remotion/lambda` package calling the render should all be on the same version.
+If the site is on a different version than the function, you may get a version mismatch warning – or if there was a protocol change, **renders will fail**.
+:::
 
 ```sh
 npx remotion lambda sites create src/index.ts --site-name=my-name
@@ -39,17 +38,31 @@ npx remotion lambda sites create src/index.ts --site-name=my-name
 
 Pass `--site-name` with the name of an existing site to update it. The URL will stay the same but older functions may not be able to render the updated site.
 
-If you don't pass `--site-name` a new site URL will be generated. You'll need to update the [`serveUrl`](/docs/lambda/rendermediaonlambda#serveurl) parameter in your [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) calls. Old deployed functions can still render by specifying the old serve URL.
+If you don't pass `--site-name`, a new site URL will be generated. You'll need to update the [`serveUrl`](/docs/lambda/rendermediaonlambda#serveurl) parameter in your [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) calls.
 
-## Separating production and testing environments
+## 4. (Optional) Remove old functions
+
+:::info
+Only do this once the old function is no longer being used in production.
+:::
+
+```sh
+npx remotion lambda functions rmall -y
+```
+
+## Zero-downtime upgrades
 
 If you already shipped Remotion Lambda to production, you can upgrade without incurring any downtime:
 
-- Each deployed function has a version (see them using `npx remotion lambda functions ls`).  
-  Use the same version of the `@remotion/lambda` package to invoke the function.
+1. Deploy the new function and create a new site – old functions and sites remain unaffected.
+2. Update the `@remotion/lambda` package version, function name and `serveUrl` in your application.
+3. Ship your application update. From this point, all new renders use the new function + site.
+4. Once no in-flight renders remain on the old version, remove the old function and site.
 
-- You can have multiple functions with different versions deployed. Use the [`compatibleOnly`](/docs/lambda/getfunctions#compatibleonly) parameter to find functions that match the version of the `@remotion/lambda` package.
+### Useful commands
 
-- Sites/`serveUrl`'s also are version-dependant. Create them with the same version of Remotion that you render them with. Remotion will tolerate mismatches if there are no incompatibilities, but will issue a warning that you might not have all the newest features and bugfixes in the bundled site.
+- List deployed functions and their versions: `npx remotion lambda functions ls`
+- Find functions matching your installed version: use the [`compatibleOnly`](/docs/lambda/getfunctions#compatibleonly) parameter.
+- List deployed sites: `npx remotion lambda sites ls`
 
 See also: [Separating production and testing environments](/docs/lambda/separate-environments)
