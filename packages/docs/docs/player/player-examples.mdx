@@ -329,6 +329,52 @@ export const App: React.FC = () => {
 };
 ```
 
+## Loading a component from a URL (experimental)
+
+<ExperimentalBadge>
+<p>This API is experimental and may change.</p>
+</ExperimentalBadge>
+
+You can load a component module from a URL and pass it to `lazyComponent`.
+
+```tsx twoslash
+// @allowUmdGlobalAccess
+import { Player, experimental_loadComponentFromUrl } from "@remotion/player";
+import { useMemo } from "react";
+
+const remoteModuleCode = `
+export default function RemoteComp(props) {
+  return "Loaded from URL: " + props.label;
+}
+`;
+
+const remoteModuleUrl = `data:text/javascript;charset=utf-8,${encodeURIComponent(remoteModuleCode)}`;
+
+export const App: React.FC = () => {
+  const lazyComponent = useMemo(() => {
+    return experimental_loadComponentFromUrl({
+      url: remoteModuleUrl,
+    });
+  }, []);
+
+  return (
+    <Player
+      lazyComponent={lazyComponent}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      durationInFrames={120}
+      fps={30}
+      controls
+      inputProps={{
+        label: "Hello from remote module",
+      }}
+    />
+  );
+};
+```
+
+In production, use an `https://` URL that serves an ESM module and make sure CORS is configured.
+
 ## See also
 
 - [Snippet: Embedding a `<Player>` in an iframe](/docs/miscellaneous/snippets/player-in-iframe)

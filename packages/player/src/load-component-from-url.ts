@@ -10,12 +10,32 @@ type RemoteModule<Props> = {
 	readonly [key: string]: unknown;
 };
 
+type DynamicImporter = (url: string) => Promise<unknown>;
+
+let dynamicImporter: DynamicImporter | null = null;
+
 const isComponentLike = (
 	value: unknown,
 ): value is ComponentType<Record<string, unknown>> => {
 	return (
 		typeof value === 'function' || (typeof value === 'object' && value !== null)
 	);
+};
+
+const getDynamicImporter = (): DynamicImporter => {
+	if (dynamicImporter) {
+		return dynamicImporter;
+	}
+
+	// Turbopack statically analyzes `import(url)` and fails to build if `url`
+	// is not known at compile time. Keep dynamic import inside Function() so
+	// loading from remote URLs remains runtime-only.
+	// eslint-disable-next-line no-new-func
+	dynamicImporter = new Function(
+		'url',
+		'return import(url);',
+	) as DynamicImporter;
+	return dynamicImporter;
 };
 
 /**
@@ -43,11 +63,7 @@ export const loadComponentFromUrl = <
 	}
 
 	return async () => {
-		const mod = (await import(
-			/* webpackIgnore: true */
-			/* @vite-ignore */
-			url
-		)) as RemoteModule<Props>;
+		const mod = (await getDynamicImporter()(url)) as RemoteModule<Props>;
 
 		const exp = exportName === 'default' ? mod.default : mod[exportName];
 		if (!exp) {

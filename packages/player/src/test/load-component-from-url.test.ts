@@ -1,5 +1,13 @@
 import {expect, test} from 'bun:test';
-import {PlayerInternals} from '../index.js';
+import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+import React from 'react';
+import {
+	experimental_loadComponentFromUrl,
+	Player,
+	PlayerInternals,
+} from '../index.js';
+import {render} from './test-utils.js';
 
 const makeModuleUrl = (code: string) => {
 	return `data:text/javascript;charset=utf-8,${encodeURIComponent(code)}`;
@@ -74,4 +82,30 @@ test('loadComponentFromUrl() should throw if export is not a component', async (
 	});
 
 	await expect(load()).rejects.toThrow(/is not a React component/);
+});
+
+test('loadComponentFromUrl() should render content inside <Player />', async () => {
+	const remoteModuleUrl = pathToFileURL(
+		path.join(process.cwd(), 'src/test/fixtures/remote-player-module.mjs'),
+	).href;
+
+	const lazyComponent = experimental_loadComponentFromUrl({
+		url: remoteModuleUrl,
+	});
+
+	const {findByText} = render(
+		React.createElement(Player, {
+			lazyComponent,
+			compositionWidth: 1280,
+			compositionHeight: 720,
+			fps: 30,
+			durationInFrames: 30,
+			acknowledgeRemotionLicense: true,
+			inputProps: {
+				label: 'it works',
+			},
+		}),
+	);
+
+	await findByText('Remote says: it works');
 });
