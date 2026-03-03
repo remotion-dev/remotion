@@ -11,6 +11,9 @@ import {
 } from '../../helpers/timeline-layout';
 import {TimelineFieldRow} from './TimelineFieldRow';
 
+export const EXPANDED_SECTION_PADDING_LEFT = 28;
+export const EXPANDED_SECTION_PADDING_RIGHT = 10;
+
 const expandedSectionBase: React.CSSProperties = {
 	color: 'white',
 	fontFamily: 'Arial, Helvetica, sans-serif',

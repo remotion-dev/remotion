@@ -4,14 +4,20 @@ import type {CanUpdateSequencePropStatus} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
+import {
+	EXPANDED_SECTION_PADDING_LEFT,
+	EXPANDED_SECTION_PADDING_RIGHT,
+} from './TimelineExpandedSection';
 import {TimelineFieldValue} from './TimelineSchemaField';
+
+const FIELD_ROW_PADDING_LEFT = 24;
 
 const fieldRow: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
 	gap: 8,
-	paddingLeft: 52,
-	paddingRight: 10,
+	paddingLeft: EXPANDED_SECTION_PADDING_LEFT + FIELD_ROW_PADDING_LEFT,
+	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
 const fieldName: React.CSSProperties = {
