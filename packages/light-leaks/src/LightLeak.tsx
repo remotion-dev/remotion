@@ -259,6 +259,12 @@ const lightLeakSchema = {
 		default: 1,
 		description: 'Opacity',
 	},
+	'style.rotate': {
+		type: 'rotation',
+		step: 1,
+		default: '0deg',
+		description: 'Rotation',
+	},
 } as const satisfies SequenceSchema;
 
 const LightLeakInner: React.FC<

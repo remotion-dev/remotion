@@ -13,7 +13,17 @@ export type BooleanFieldSchema = {
 	description?: string;
 };
 
-export type SequenceFieldSchema = NumberFieldSchema | BooleanFieldSchema;
+export type RotationFieldSchema = {
+	type: 'rotation';
+	step?: number;
+	default: string | undefined;
+	description?: string;
+};
+
+export type SequenceFieldSchema =
+	| NumberFieldSchema
+	| BooleanFieldSchema
+	| RotationFieldSchema;
 
 export type SequenceSchema = Record<string, SequenceFieldSchema>;
 
