@@ -41,28 +41,26 @@ const row: React.CSSProperties = {
 export const CurrentComposition = () => {
 	const video = Internals.useVideo();
 
-	if (!video) {
-		return <div style={container} />;
-	}
-
 	return (
 		<div style={container}>
-			<div style={row}>
-				<div>
-					<div style={title}>{video.id}</div>
-					<div style={subtitle}>
-						{video.width}x{video.height}
-						{isCompositionStill(video) ? null : `, ${video.fps} FPS`}
-					</div>
-					{isCompositionStill(video) ? (
-						<div style={subtitle}>Still</div>
-					) : (
+			{video ? (
+				<div style={row}>
+					<div>
+						<div style={title}>{video.id}</div>
 						<div style={subtitle}>
-							Duration {renderFrame(video.durationInFrames, video.fps)}
+							{video.width}x{video.height}
+							{isCompositionStill(video) ? null : `, ${video.fps} FPS`}
 						</div>
-					)}
+						{isCompositionStill(video) ? (
+							<div style={subtitle}>Still</div>
+						) : (
+							<div style={subtitle}>
+								Duration {renderFrame(video.durationInFrames, video.fps)}
+							</div>
+						)}
+					</div>
 				</div>
-			</div>
+			) : null}
 		</div>
 	);
 };
