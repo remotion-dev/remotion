@@ -75,7 +75,6 @@ export function createScaffold<Props extends Record<string, unknown>>({
 
 	const div = document.createElement('div');
 
-	// Match same behavior as in portal-node.ts
 	div.style.position = 'absolute';
 	div.style.top = '0';
 	div.style.left = '0';
