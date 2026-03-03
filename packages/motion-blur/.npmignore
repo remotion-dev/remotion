@@ -1,5 +1,6 @@
 dist/test/**
 src
+test
 eslint.config.mjs
 tsconfig.tsbuildinfo
 *.tgz
