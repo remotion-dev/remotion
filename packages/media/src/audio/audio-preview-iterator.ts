@@ -37,28 +37,28 @@ export const makeAudioIterator = (
 	const cleanupAudioQueue = (audioContext: AudioContext) => {
 		for (const node of queuedAudioNodes) {
 			try {
+				const currentlyHearing = audioContext.getOutputTimestamp().contextTime!;
+				const nodeEndTime =
+					node.scheduledTime + node.buffer.duration / node.playbackRate;
+
+				const isAlreadyPlaying =
+					node.scheduledTime - ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT <
+					audioContext.currentTime;
+
+				const shouldKeep = isAlreadyPlaying;
+
+				if (shouldKeep) {
+					continue;
+				}
+
 				if (debugAudioScheduling) {
-					const currentlyHearing =
-						audioContext.getOutputTimestamp().contextTime!;
-					const nodeEndTime =
-						node.scheduledTime + node.buffer.duration / node.playbackRate;
-
-					const isAlreadyPlaying =
-						node.scheduledTime - ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT <
-						audioContext.currentTime;
-
-					const shouldKeep = isAlreadyPlaying;
-
-					if (shouldKeep) {
-						continue;
-					}
-
 					Internals.Log.info(
 						{logLevel: 'trace', tag: 'audio-scheduling'},
 						`Stopping node ${node.timestamp.toFixed(3)}, currently hearing = ${currentlyHearing.toFixed(3)} currentTime = ${audioContext.currentTime.toFixed(3)} nodeEndTime = ${nodeEndTime.toFixed(3)} scheduledTime = ${node.scheduledTime.toFixed(3)}`,
 					);
-					node.node.stop();
 				}
+
+				node.node.stop();
 			} catch {
 				// Node may not have been started
 			}

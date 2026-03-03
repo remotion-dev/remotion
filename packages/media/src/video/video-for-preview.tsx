@@ -410,7 +410,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer) return;
 
-		if (playing && !isPlayerBuffering && !isNextFrameGoingToPlay) {
+		if (playing && !isPlayerBuffering) {
 			// Play does nothing if already playing, so it can be called multiple times.
 			mediaPlayer.play();
 		} else {
@@ -421,13 +421,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 			// that the pause is triggered again even though officially "playing" never changed.
 			mediaPlayer.pause();
 		}
-	}, [
-		isPlayerBuffering,
-		playing,
-		logLevel,
-		mediaPlayerReady,
-		isNextFrameGoingToPlay,
-	]);
+	}, [isPlayerBuffering, playing, logLevel, mediaPlayerReady, frame]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

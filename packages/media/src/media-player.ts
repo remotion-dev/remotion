@@ -426,13 +426,15 @@ export class MediaPlayer {
 	}
 
 	public play(): void {
+		// This part is idempotent, will schedule audio chunks if needed
+		this.playAudio();
+
 		if (this.playing) {
 			return;
 		}
 
 		this.playing = true;
 
-		this.playAudio();
 		this.drawDebugOverlay();
 	}
 
