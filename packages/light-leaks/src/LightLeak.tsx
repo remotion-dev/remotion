@@ -243,6 +243,12 @@ const lightLeakSchema = {
 		default: 0,
 		description: 'Hue Shift',
 	},
+	'style.translate': {
+		type: 'translate',
+		step: 1,
+		default: '0px 0px',
+		description: 'Position',
+	},
 	'style.scale': {
 		type: 'number',
 		min: 0.05,
@@ -251,6 +257,12 @@ const lightLeakSchema = {
 		default: 1,
 		description: 'Scale',
 	},
+	'style.rotate': {
+		type: 'rotation',
+		step: 1,
+		default: '0deg',
+		description: 'Rotation',
+	},
 	'style.opacity': {
 		type: 'number',
 		min: 0,
@@ -258,12 +270,6 @@ const lightLeakSchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Opacity',
-	},
-	'style.rotate': {
-		type: 'rotation',
-		step: 1,
-		default: '0deg',
-		description: 'Rotation',
 	},
 } as const satisfies SequenceSchema;
 

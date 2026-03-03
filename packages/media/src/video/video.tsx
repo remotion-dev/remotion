@@ -25,6 +25,12 @@ const videoSchema = {
 		description: 'Playback Rate',
 	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
+	'style.translate': {
+		type: 'translate',
+		step: 1,
+		default: '0px 0px',
+		description: 'Position',
+	},
 	'style.scale': {
 		type: 'number',
 		min: 0.05,
@@ -32,6 +38,12 @@ const videoSchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Scale',
+	},
+	'style.rotate': {
+		type: 'rotation',
+		step: 1,
+		default: '0deg',
+		description: 'Rotation',
 	},
 	'style.opacity': {
 		type: 'number',

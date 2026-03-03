@@ -20,10 +20,18 @@ export type RotationFieldSchema = {
 	description?: string;
 };
 
+export type TranslateFieldSchema = {
+	type: 'translate';
+	step?: number;
+	default: string | undefined;
+	description?: string;
+};
+
 export type SequenceFieldSchema =
 	| NumberFieldSchema
 	| BooleanFieldSchema
-	| RotationFieldSchema;
+	| RotationFieldSchema
+	| TranslateFieldSchema;
 
 export type SequenceSchema = Record<string, SequenceFieldSchema>;
 
