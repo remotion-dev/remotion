@@ -14,8 +14,6 @@ test('should not return negative time for looping video with trim', () => {
 		src: 'https://remotion.media/BigBuckBunny.mp4',
 	});
 
-	console.log('result', result);
-
 	expect(result).not.toBeNull();
 	expect(result).toBeGreaterThanOrEqual(0);
 });
