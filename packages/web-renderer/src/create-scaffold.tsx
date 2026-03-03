@@ -79,7 +79,13 @@ const appendComponentStack = (
 		return error;
 	}
 
-	error.stack = `${stack}\nReact component stack:\n${normalizedComponentStack}`;
+	const errorTitle = `${error.name}: ${error.message}`;
+	const stackWithoutTitle = stack.startsWith(errorTitle)
+		? stack.slice(errorTitle.length).trimStart()
+		: stack;
+	const stackBody =
+		stackWithoutTitle.length > 0 ? `\n${stackWithoutTitle}` : '';
+	error.stack = `${errorTitle}\nFor the likely root cause, see "React component stack:" after the JavaScript stack trace below.${stackBody}\nReact component stack:\n${normalizedComponentStack}`;
 	return error;
 };
 

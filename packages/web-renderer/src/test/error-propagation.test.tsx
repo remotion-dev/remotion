@@ -40,6 +40,11 @@ test('should propagate errors thrown in useEffect', async () => {
 		stack: expect.stringContaining('React component stack:'),
 	});
 	await expect(promise).rejects.toMatchObject({
+		stack: expect.stringContaining(
+			'For the likely root cause, see "React component stack:" after the JavaScript stack trace below.',
+		),
+	});
+	await expect(promise).rejects.toMatchObject({
 		stack: expect.stringContaining('ThrowsInUseEffect'),
 	});
 });
