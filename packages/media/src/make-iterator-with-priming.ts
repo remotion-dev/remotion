@@ -75,6 +75,19 @@ function makePredecodingIterator(
 
 	prefetch();
 
+	const _return = () => {
+		returned = true;
+		buffer.length = 0;
+		if (waiter) {
+			const w = waiter;
+			waiter = null;
+			w({value: undefined, done: true});
+		}
+
+		inner.return(undefined);
+		return Promise.resolve({value: undefined, done: true as const});
+	};
+
 	const iterator: AsyncGenerator<WrappedAudioBuffer, void, unknown> = {
 		next() {
 			if (buffer.length > 0) {
@@ -96,18 +109,7 @@ function makePredecodingIterator(
 				prefetch();
 			});
 		},
-		return() {
-			returned = true;
-			buffer.length = 0;
-			if (waiter) {
-				const w = waiter;
-				waiter = null;
-				w({value: undefined, done: true});
-			}
-
-			inner.return(undefined);
-			return Promise.resolve({value: undefined, done: true as const});
-		},
+		return: _return,
 		throw(e) {
 			returned = true;
 			buffer.length = 0;
@@ -115,6 +117,10 @@ function makePredecodingIterator(
 		},
 		[Symbol.asyncIterator]() {
 			return iterator;
+		},
+		async [Symbol.asyncDispose]() {
+			await _return();
+			return undefined;
 		},
 	};
 
