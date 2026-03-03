@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {draggerStyle, getDecimalPlaces} from './timeline-field-utils';
@@ -12,11 +12,9 @@ export const TimelineNumberField: React.FC<{
 	readonly onDragEnd: () => void;
 }> = ({field, codeValue, canUpdate, onSave, onDragValueChange, onDragEnd}) => {
 	const [dragValue, setDragValue] = useState<number | null>(null);
-	const dragging = useRef(false);
 
 	const onValueChange = useCallback(
 		(newVal: number) => {
-			dragging.current = true;
 			setDragValue(newVal);
 			onDragValueChange(field.key, newVal);
 		},

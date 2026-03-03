@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {getDecimalPlaces} from './timeline-field-utils';
@@ -37,7 +37,6 @@ export const TimelineTranslateField: React.FC<{
 }> = ({field, codeValue, canUpdate, onSave, onDragValueChange, onDragEnd}) => {
 	const [dragX, setDragX] = useState<number | null>(null);
 	const [dragY, setDragY] = useState<number | null>(null);
-	const dragging = useRef(false);
 
 	const [codeX, codeY] = useMemo(
 		() => parseTranslate(String(codeValue ?? '0px 0px')),
@@ -70,7 +69,6 @@ export const TimelineTranslateField: React.FC<{
 	// --- X callbacks ---
 	const onXChange = useCallback(
 		(newVal: number) => {
-			dragging.current = true;
 			setDragX(newVal);
 			const currentY = dragY ?? codeY;
 			onDragValueChange(field.key, makeString(newVal, currentY));
@@ -115,7 +113,6 @@ export const TimelineTranslateField: React.FC<{
 	// --- Y callbacks ---
 	const onYChange = useCallback(
 		(newVal: number) => {
-			dragging.current = true;
 			setDragY(newVal);
 			const currentX = dragX ?? codeX;
 			onDragValueChange(field.key, makeString(currentX, newVal));
