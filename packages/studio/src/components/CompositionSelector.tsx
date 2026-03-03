@@ -116,17 +116,12 @@ export const CompositionSelector: React.FC = () => {
 		return createFolderTree(compositions, folders, foldersExpanded);
 	}, [compositions, folders, foldersExpanded]);
 
-	const showCurrentComposition =
-		canvasContent && canvasContent.type === 'composition';
-
 	const list: React.CSSProperties = useMemo(() => {
 		return {
-			height: showCurrentComposition
-				? `calc(100% - ${CURRENT_COMPOSITION_HEIGHT}px)`
-				: '100%',
+			height: `calc(100% - ${CURRENT_COMPOSITION_HEIGHT}px)`,
 			overflowY: 'auto',
 		};
-	}, [showCurrentComposition]);
+	}, []);
 
 	const toggleFolder = useCallback(
 		(folderName: string, parentName: string | null) => {
@@ -140,7 +135,7 @@ export const CompositionSelector: React.FC = () => {
 
 	return (
 		<div style={container}>
-			{showCurrentComposition ? <CurrentComposition /> : null}
+			<CurrentComposition />
 			<div className="__remotion-vertical-scrollbar" style={list}>
 				{items.map((c) => {
 					return (
@@ -148,7 +143,9 @@ export const CompositionSelector: React.FC = () => {
 							key={c.key + c.type}
 							level={0}
 							currentComposition={
-								showCurrentComposition ? canvasContent.compositionId : null
+								canvasContent && canvasContent.type === 'composition'
+									? canvasContent.compositionId
+									: null
 							}
 							selectComposition={selectComposition}
 							toggleFolder={toggleFolder}
