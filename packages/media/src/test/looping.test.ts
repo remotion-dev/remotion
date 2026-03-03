@@ -62,7 +62,7 @@ test(
 	},
 );
 
-test.only('gettime in seconds', () => {
+test('gettime in seconds', () => {
 	const looped = getTimeInSeconds({
 		unloopedTimeInSeconds: 71.46366666666667,
 		playbackRate: 1,
@@ -75,5 +75,5 @@ test.only('gettime in seconds', () => {
 		src: '/video.mp4',
 	});
 
-	console.log(looped);
+	expect(looped).toBeDefined();
 });

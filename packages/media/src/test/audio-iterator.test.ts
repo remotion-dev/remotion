@@ -14,13 +14,20 @@ const prepare = async () => {
 		throw new Error('No audio track found');
 	}
 
+	const audioContext = new AudioContext();
+	await audioContext.resume();
+	// Wait for contextTime to advance above 0
+	await new Promise((r) => {
+		setTimeout(r, 50);
+	});
+
 	const manager = audioIteratorManager({
 		audioTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
 			unblock: () => {},
 			[Symbol.dispose]: () => {},
 		}),
-		sharedAudioContext: new AudioContext(),
+		sharedAudioContext: audioContext,
 		getIsLooping: () => false,
 		getEndTime: () => Infinity,
 		getStartTime: () => 0,
@@ -194,13 +201,20 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 		throw new Error('No audio track found');
 	}
 
+	const audioContext = new AudioContext();
+	await audioContext.resume();
+	// Wait for contextTime to advance above 0
+	await new Promise((r) => {
+		setTimeout(r, 50);
+	});
+
 	const manager = audioIteratorManager({
 		audioTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
 			unblock: () => {},
 			[Symbol.dispose]: () => {},
 		}),
-		sharedAudioContext: new AudioContext(),
+		sharedAudioContext: audioContext,
 		getIsLooping: () => false,
 		getEndTime: () => Infinity,
 		getStartTime: () => 0,
@@ -261,13 +275,20 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 		throw new Error('No audio track found');
 	}
 
+	const audioContext = new AudioContext();
+	await audioContext.resume();
+	// Wait for contextTime to advance above 0
+	await new Promise((r) => {
+		setTimeout(r, 50);
+	});
+
 	const manager = audioIteratorManager({
 		audioTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
 			unblock: () => {},
 			[Symbol.dispose]: () => {},
 		}),
-		sharedAudioContext: new AudioContext(),
+		sharedAudioContext: audioContext,
 		getIsLooping: () => false,
 		getEndTime: () => endTime,
 		getStartTime: () => 0,
