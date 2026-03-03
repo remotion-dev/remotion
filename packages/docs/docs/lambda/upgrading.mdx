@@ -35,8 +35,8 @@ Pass `--site-name` with the name of an existing site to update it. The URL will 
 
 If you don't pass `--site-name`, a new site URL will be generated. You'll need to update the [`serveUrl`](/docs/lambda/rendermediaonlambda#serveurl) parameter in your [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) calls.
 
-The function, the site and the `@remotion/lambda` package calling the render should all be on the same version.
-If the site is on a different version than the function, you may get a version mismatch warning – or if there was a protocol change, renders will fail.
+It is advised that the function, the site and the `@remotion/lambda` package calling the render are all on the same version.
+If the site is on a different version than the function, you may get a version mismatch warning – or if there was a protocol change, renders may fail.
 
 ## 4. (Optional) Remove old functions
 
