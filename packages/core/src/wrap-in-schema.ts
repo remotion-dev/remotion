@@ -4,6 +4,7 @@ import type {
 	SchemaKeysRecord,
 	SequenceSchema,
 } from './sequence-field-schema.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useSchema} from './use-schema.js';
 
 const getNestedValue = (obj: Record<string, unknown>, key: string): unknown => {
@@ -67,6 +68,21 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 	const schemaKeys = Object.keys(schema);
 
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
+		const env = useRemotionEnvironment();
+		if (
+			!env.isStudio ||
+			env.isReadOnlyStudio ||
+			env.isRendering ||
+			!process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED
+		) {
+			return React.createElement(Component, {
+				...props,
+				controls: null,
+				ref,
+			} as Props & {controls: SequenceControls | undefined; ref: typeof ref});
+		}
+
+		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const schemaInput = useMemo(
 			() => {
 				const input = {} as Record<string, unknown>;
@@ -82,6 +98,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 			),
 		);
 
+		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const {controls, values} = useSchema(
 			schema,
 			schemaInput as SchemaKeysRecord<S> &
