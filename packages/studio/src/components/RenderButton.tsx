@@ -324,7 +324,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 
 	const openReadOnlyRenderCommandModal = useCallback(() => {
 		if (!video) {
-			return null;
+			return;
 		}
 
 		const defaults = window.remotion_renderDefaults;

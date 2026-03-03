@@ -287,7 +287,7 @@ export const makeRenderCommand = ({
 		commandType === 'render'
 			? getRenderFlags({renderDefaults, inFrameMark, outFrameMark})
 			: getStillFlags({renderDefaults, frame});
-	const inputPropsString = JSON.stringify(inputProps) ?? '{}';
+	const inputPropsString = JSON.stringify(inputProps);
 	const propsFlag = `--${BrowserSafeApis.options.propsOption.cliFlag}=${shellQuote(
 		inputPropsString,
 	)}`;
