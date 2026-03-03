@@ -1211,6 +1211,7 @@ const sidebars: SidebarsConfig = {
 				'font-picker',
 				'building-a-timeline',
 				'multiple-fps',
+				'electron',
 				'angular',
 				'svelte',
 				'vue',

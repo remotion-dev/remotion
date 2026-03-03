@@ -1683,6 +1683,15 @@ export const articles = [
 		slug: 'editor-starter/undo-redo',
 	},
 	{
+		id: 'electron',
+		title: 'Using Remotion in Electron',
+		relativePath: 'docs/electron.mdx',
+		compId: 'articles-docs-electron',
+		crumb: 'Integrations',
+		noAi: false,
+		slug: 'electron',
+	},
+	{
 		id: 'enable-scss/enable-scss',
 		title: 'enableScss()',
 		relativePath: 'docs/enable-scss/enable-scss.mdx',

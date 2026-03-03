@@ -1,0 +1,134 @@
+---
+image: /generated/articles-docs-electron.png
+id: electron
+sidebar_label: 'Integration into Electron'
+title: 'Using Remotion in Electron'
+crumb: 'Integrations'
+---
+
+# Using Remotion in Electron
+
+This setup is currently not officially supported.
+
+This page documents what is currently known from community implementations and issue reports:
+
+- Issue: [Publish guidelines for making an Electron app](https://github.com/remotion-dev/remotion/issues/2426)
+- Reference repository: [Yiork/electron-vite-remotion](https://github.com/Yiork/electron-vite-remotion)
+
+## Current approach
+
+The known working pattern is to create two separate bundles:
+
+1. Your Electron app bundle.
+2. A Remotion bundle created with [`bundle()`](/docs/bundle), which you pass to SSR APIs like [`selectComposition()`](/docs/renderer/select-composition) and [`renderMedia()`](/docs/renderer/render-media).
+
+## Bundle Remotion as a separate build step
+
+```ts title="electron/remotion/bundleRemotion.js"
+import {bundle} from '@remotion/bundler';
+import path from 'path';
+
+const bundleLocation = await bundle({
+  entryPoint: path.resolve('src/remotion/index.ts'),
+  outDir: path.resolve('out/remotion-bundle'),
+  webpackOverride: (config) => {
+    if (config.output) {
+      config.output.chunkFormat = 'commonjs';
+    }
+
+    return config;
+  },
+});
+
+console.log('Bundle location:', bundleLocation);
+```
+
+## Pass `binariesDirectory` in packaged apps
+
+For packaged apps, pass [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory) so Remotion loads binaries from outside `app.asar`.
+
+```ts title="electron/remotion/render.ts"
+import {renderMedia, selectComposition} from '@remotion/renderer';
+import {app} from 'electron';
+import path from 'path';
+
+const bundleLocation = path.join(app.getAppPath(), 'out/remotion-bundle');
+
+const binariesDirectory = app.isPackaged
+  ? path.join(
+      app.getAppPath().replace('app.asar', 'app.asar.unpacked'),
+      'node_modules/@remotion/compositor-darwin-arm64',
+    )
+  : null;
+
+const composition = await selectComposition({
+  serveUrl: bundleLocation,
+  id: 'HelloWorld',
+  inputProps,
+  binariesDirectory,
+});
+
+await renderMedia({
+  composition,
+  serveUrl: bundleLocation,
+  codec: 'h264',
+  outputLocation: '/tmp/out.mp4',
+  inputProps,
+  binariesDirectory,
+});
+```
+
+Choose the package name in `binariesDirectory` based on your platform:
+
+| Platform | Package |
+| --- | --- |
+| macOS arm64 | `@remotion/compositor-darwin-arm64` |
+| macOS x64 | `@remotion/compositor-darwin-x64` |
+| Linux x64 (glibc) | `@remotion/compositor-linux-x64-gnu` |
+| Linux x64 (musl) | `@remotion/compositor-linux-x64-musl` |
+| Linux arm64 (glibc) | `@remotion/compositor-linux-arm64-gnu` |
+| Linux arm64 (musl) | `@remotion/compositor-linux-arm64-musl` |
+| Windows x64 | `@remotion/compositor-win32-x64-msvc` |
+
+## Include compositor packages explicitly
+
+Some packagers miss transitive optional dependencies. In those setups, explicitly declaring compositor packages in your app can help.
+
+For macOS universal targets, include both Intel and Apple Silicon compositor packages.
+
+```json title="package.json"
+{
+  "optionalDependencies": {
+    "@remotion/compositor-darwin-arm64": "<same-version-as-remotion>",
+    "@remotion/compositor-darwin-x64": "<same-version-as-remotion>"
+  }
+}
+```
+
+## About `asar` and signing
+
+Known reports from the issue thread:
+
+- Accessing binaries inside `app.asar` causes runtime problems.
+- Loading binaries from `app.asar.unpacked` is required when `asar` is enabled.
+- Some users reported that disabling `asar` avoids library loading issues in signed / hardened macOS apps.
+
+Treat this as a current workaround area, not a guaranteed flow.
+
+## Browser and asset downloads during rendering
+
+`renderMedia()` can download browser or media assets while rendering. This behavior is expected and is not considered a blocker for this setup.
+
+You can monitor media downloads using [`onDownload`](/docs/renderer/render-media#ondownload) and browser downloads using [`onBrowserDownload`](/docs/renderer/render-media#onbrowserdownload).
+
+## Known limitations
+
+- Electron rendering is still in an unsupported state.
+- Packaging behavior differs across Electron tooling and targets.
+- Signed / hardened macOS builds may need additional investigation.
+
+## See also
+
+- [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory)
+- [Server-side rendering example](/docs/ssr-node)
+- [Issue #2426](https://github.com/remotion-dev/remotion/issues/2426)
