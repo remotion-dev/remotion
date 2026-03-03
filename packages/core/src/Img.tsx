@@ -7,7 +7,6 @@ import React, {
 	useRef,
 } from 'react';
 import type {IsExact} from './audio/props.js';
-import {cancelRender} from './cancel-render.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
 import {SequenceContext} from './SequenceContext.js';
@@ -100,6 +99,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		}, timeout);
 	}, []);
 
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
+
 	const didGetError = useCallback(
 		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
 			if (!errors.current) {
@@ -133,14 +134,17 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			cancelRender(
-				'Error loading image with src: ' + (imageRef.current?.src as string),
-			);
+			try {
+				cancelRender(
+					'Error loading image with src: ' + (imageRef.current?.src as string),
+				);
+			} catch {
+				// cancelRender() intentionally throws after storing the error in scope.
+				// In async image callbacks, we rely on the stored error for renderer propagation.
+			}
 		},
-		[maxRetries, onError, retryIn],
+		[cancelRender, maxRetries, onError, retryIn],
 	);
-
-	const {delayRender, continueRender} = useDelayRender();
 
 	if (typeof window !== 'undefined') {
 		const isPremounting = Boolean(sequenceContext?.premounting);
@@ -210,7 +214,13 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 					// eslint-disable-next-line no-console
 					console.warn(err);
 
-					if (current.complete) {
+					// HTMLImageElement.complete is also true for broken images (e.g. 404),
+					// so only treat it as loaded if intrinsic dimensions are available.
+					if (
+						current.complete &&
+						current.naturalWidth > 0 &&
+						current.naturalHeight > 0
+					) {
 						onComplete();
 					} else {
 						current.addEventListener('load', onComplete);
