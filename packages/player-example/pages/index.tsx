@@ -4,7 +4,6 @@ import App from '../src/App';
 import CarSlideshow from '../src/CarSlideshow';
 import {CustomControlsExample} from '../src/CustomControlsExample';
 import {FontPicker} from '../src/FontPicker';
-import {RemoteUrlPlayerExample} from '../src/RemoteUrlPlayerExample';
 import {ThumbnailDemo} from '../src/ThumbnailDemo';
 
 function Index() {
@@ -22,15 +21,10 @@ function Index() {
 				<App component={CarSlideshow} durationInFrames={500} />
 			</div>
 			<h2>Player loaded from URL (experimental)</h2>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'row',
-					justifyContent: 'center',
-				}}
-			>
-				<RemoteUrlPlayerExample />
-			</div>
+			<p>
+				See <a href="/remote-url">/remote-url</a> for a dedicated example that
+				loads a composition from a URL and renders it in the Player.
+			</p>
 			<h2>Custom Controls</h2>
 			<div
 				style={{
