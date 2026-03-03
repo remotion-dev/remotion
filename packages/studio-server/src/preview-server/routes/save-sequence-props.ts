@@ -59,7 +59,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			RenderInternals.Log.warn(
 				{indent: false, logLevel},
 				RenderInternals.chalk.yellow(
-					'Could not format the file using Prettier. Install "prettier" and add a config file to enable automatic formatting.',
+					'Could not format with prettier. File will need to be formatted manually.',
 				),
 			);
 		}
