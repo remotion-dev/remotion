@@ -1,5 +1,5 @@
 import {AbsoluteFill, Img, staticFile} from 'remotion';
-import {test} from 'vitest';
+import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {testImage} from './utils';
@@ -30,4 +30,33 @@ test('can display an image', async () => {
 	});
 
 	await testImage({blob, testId: 'img-tag'});
+});
+
+test('should cancel render for a broken image', async () => {
+	const Component: React.FC = () => {
+		return (
+			<AbsoluteFill>
+				<Img src={staticFile('missing-image.png')} maxRetries={0} />
+			</AbsoluteFill>
+		);
+	};
+
+	await expect(
+		renderStillOnWeb({
+			licenseKey: 'free-license',
+			composition: {
+				component: Component,
+				id: 'missing-image-test',
+				width: 100,
+				height: 100,
+				fps: 25,
+				durationInFrames: 1,
+				calculateMetadata: () => Promise.resolve({}),
+			},
+			frame: 0,
+			inputProps: {},
+			imageFormat: 'png',
+			delayRenderTimeoutInMilliseconds: 5000,
+		}),
+	).rejects.toThrow(/Error loading image with src:/);
 });
