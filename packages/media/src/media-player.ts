@@ -627,7 +627,6 @@ export class MediaPlayer {
 		// Mark all async operations as stale
 		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
-		console.log('destroying audio iterator', new Error().stack);
 		this.audioIteratorManager?.destroyIterator();
 		this.input.dispose();
 	}
