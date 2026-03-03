@@ -179,9 +179,7 @@ export const SharedAudioContextProvider: React.FC<{
 			debugAudioScheduling,
 		}: ScheduleAudioNodeOptions): ScheduleAudioNodeResult => {
 			if (!audioContext) {
-				return {
-					type: 'not-started',
-				};
+				throw new Error('Audio context not found');
 			}
 
 			const bufferDuration = node.buffer?.duration ?? 0;

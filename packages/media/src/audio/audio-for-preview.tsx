@@ -378,7 +378,6 @@ const AudioForPreviewAssertedShowing: React.FC<
 		preloadedSrc,
 		logLevel,
 		sharedAudioContext,
-		currentTimeRef,
 		loop,
 		videoConfig.fps,
 		audioStreamIndex,
@@ -403,7 +402,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 		} else {
 			audioPlayer.pause();
 		}
-	}, [isPlayerBuffering, logLevel, playing]);
+	}, [isPlayerBuffering, logLevel, playing, mediaPlayerReady, frame]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -430,7 +429,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 		audioPlayer.setMuted(effectiveMuted);
 	}, [effectiveMuted, mediaPlayerReady]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
 		if (!audioPlayer || !mediaPlayerReady) {
 			return;
@@ -439,7 +438,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 		audioPlayer.setVolume(userPreferredVolume);
 	}, [userPreferredVolume, mediaPlayerReady]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
 		if (!audioPlayer || !mediaPlayerReady) {
 			return;

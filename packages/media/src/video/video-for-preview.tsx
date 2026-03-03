@@ -406,7 +406,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer?.playAudio();
 	}
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer) return;
 
@@ -423,7 +423,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		}
 	}, [isPlayerBuffering, playing, logLevel, mediaPlayerReady, frame]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) {
 			return;
@@ -432,7 +432,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.setTrimBefore(trimBefore, currentTimeRef.current);
 	}, [trimBefore, mediaPlayerReady]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) {
 			return;

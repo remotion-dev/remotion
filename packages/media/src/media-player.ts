@@ -421,6 +421,7 @@ export class MediaPlayer {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
 				playbackRate: this.playbackRate * this.globalPlaybackRate,
 				scheduleAudioNode: this.scheduleAudioNode,
+				debugAudioScheduling: this.debugAudioScheduling,
 			});
 		}
 	}
@@ -565,6 +566,7 @@ export class MediaPlayer {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
 				playbackRate: this.playbackRate * this.globalPlaybackRate,
 				scheduleAudioNode: this.scheduleAudioNode,
+				debugAudioScheduling: this.debugAudioScheduling,
 			});
 		}
 	}
