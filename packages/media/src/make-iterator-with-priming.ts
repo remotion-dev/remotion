@@ -88,7 +88,7 @@ function makePredecodingIterator(
 		return Promise.resolve({value: undefined, done: true as const});
 	};
 
-	const iterator: AsyncGenerator<WrappedAudioBuffer, void, unknown> = {
+	const iterator = {
 		next() {
 			if (buffer.length > 0) {
 				const buf = buffer.shift()!;
@@ -118,11 +118,7 @@ function makePredecodingIterator(
 		[Symbol.asyncIterator]() {
 			return iterator;
 		},
-		async [Symbol.asyncDispose]() {
-			await _return();
-			return undefined;
-		},
-	};
+	} as AsyncGenerator<WrappedAudioBuffer, void, unknown>;
 
 	return iterator;
 }
