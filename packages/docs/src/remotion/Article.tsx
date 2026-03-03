@@ -1,11 +1,7 @@
-import {Arrow} from '@remotion/shapes';
 import React from 'react';
 import {AbsoluteFill, Img, staticFile} from 'remotion';
 import {articles} from '../data/articles';
 import './font.css';
-
-const arrowPreviewArticleIds = new Set(['shapes/arrow', 'shapes/make-arrow']);
-const arrowPreviewPaddingRight = 80;
 
 export const Article: React.FC<{
 	readonly articleRelativePath: string;
@@ -20,8 +16,6 @@ export const Article: React.FC<{
 	);
 
 	const fontSize = longestTitle > 20 ? 70 : 80;
-	const showArrowPreview = arrowPreviewArticleIds.has(article.id);
-
 	return (
 		<AbsoluteFill
 			style={{
@@ -74,10 +68,9 @@ export const Article: React.FC<{
 							backgroundColor: '#0B84F3',
 							display: 'flex',
 							padding: 50,
-							paddingRight: showArrowPreview ? arrowPreviewPaddingRight : 50,
 							minWidth: 500,
 							width: '100%',
-							justifyContent: showArrowPreview ? 'space-between' : 'flex-start',
+							justifyContent: 'flex-start',
 							alignItems: 'center',
 						}}
 					>
@@ -91,16 +84,6 @@ export const Article: React.FC<{
 						>
 							{article.title}
 						</div>
-						{showArrowPreview ? (
-							<Arrow
-								length={200}
-								headLength={90}
-								headWidth={140}
-								shaftWidth={60}
-								fill="white"
-								direction="right"
-							/>
-						) : null}
 					</div>
 				</div>
 
