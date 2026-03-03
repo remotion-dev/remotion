@@ -18,6 +18,8 @@ import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
 } from '../helpers/colors';
+import {useIsStill} from '../helpers/is-current-selected-still';
+import {makeRenderCommand} from '../helpers/make-render-command';
 import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {CaretDown} from '../icons/caret';
@@ -178,8 +180,9 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
+	const canServerRender = connectionStatus === 'connected';
 
-	const canRender = connectionStatus === 'connected' || SHOW_BROWSER_RENDERING;
+	const canRender = canServerRender || SHOW_BROWSER_RENDERING || readOnlyStudio;
 
 	const renderType: RenderType = useMemo(() => {
 		if (connectionStatus === 'disconnected' && SHOW_BROWSER_RENDERING) {
@@ -194,9 +197,12 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 	}, [connectionStatus, preferredRenderType]);
 
 	const shortcut = areKeyboardShortcutsDisabled() ? '' : '(R)';
-	const tooltip = canRender
-		? 'Export the current composition ' + shortcut
-		: 'Connect to the Studio server to render';
+	const tooltip =
+		readOnlyStudio && !SHOW_BROWSER_RENDERING
+			? 'Copy a CLI command to render this composition ' + shortcut
+			: canRender
+				? 'Export the current composition ' + shortcut
+				: 'Connect to the Studio server to render';
 
 	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {
@@ -209,6 +215,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 
 	const video = Internals.useVideo();
 	const getCurrentFrame = PlayerInternals.useFrameImperative();
+	const isStill = useIsStill();
 
 	const {props} = useContext(Internals.EditorPropsContext);
 
@@ -315,13 +322,63 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 		});
 	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
 
+	const openReadOnlyRenderCommandModal = useCallback(() => {
+		if (!video) {
+			return null;
+		}
+
+		const defaults = window.remotion_renderDefaults;
+		if (!defaults) {
+			throw new TypeError('Expected defaults');
+		}
+
+		const inputProps = (props[video.id] ?? video.defaultProps ?? {}) as Record<
+			string,
+			unknown
+		>;
+
+		setSelectedModal({
+			type: 'render-command',
+			command: makeRenderCommand({
+				commandType: isStill ? 'still' : 'render',
+				packageManager: window.remotion_packageManager,
+				serveUrl: window.location.href,
+				compositionId: video.id,
+				inputProps,
+				renderDefaults: defaults,
+				inFrameMark: inFrame,
+				outFrameMark: outFrame,
+				frame: getCurrentFrame(),
+			}),
+		});
+	}, [
+		getCurrentFrame,
+		inFrame,
+		isStill,
+		outFrame,
+		props,
+		setSelectedModal,
+		video,
+	]);
+
 	const onClick = useCallback(() => {
+		if (readOnlyStudio && !SHOW_BROWSER_RENDERING) {
+			openReadOnlyRenderCommandModal();
+			return;
+		}
+
 		if (!SHOW_BROWSER_RENDERING || renderType === 'server-render') {
 			openServerRenderModal();
 		} else {
 			openClientRenderModal();
 		}
-	}, [renderType, openServerRenderModal, openClientRenderModal]);
+	}, [
+		readOnlyStudio,
+		renderType,
+		openReadOnlyRenderCommandModal,
+		openServerRenderModal,
+		openClientRenderModal,
+	]);
 
 	const onHideDropdown = useCallback(() => {
 		setDropdownOpened(false);
@@ -425,7 +482,11 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 	}, [canRender]);
 
 	const renderLabel =
-		renderType === 'server-render' ? 'Render' : 'Render on web';
+		readOnlyStudio && !SHOW_BROWSER_RENDERING
+			? 'Render via CLI'
+			: renderType === 'server-render'
+				? 'Render'
+				: 'Render on web';
 
 	const shouldShowDropdown = useMemo(() => {
 		// Server render is not available
@@ -450,7 +511,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			<button
 				style={{display: 'none'}}
 				id="render-modal-button-server"
-				disabled={!canRender}
+				disabled={!canServerRender}
 				onClick={openServerRenderModal}
 				type="button"
 			/>{' '}

@@ -140,6 +140,10 @@ export type ModalState =
 			type: 'quick-switcher';
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
+	  }
+	| {
+			type: 'render-command';
+			command: string;
 	  };
 
 export type ModalContextType = {

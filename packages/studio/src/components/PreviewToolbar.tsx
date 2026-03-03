@@ -213,7 +213,7 @@ export const PreviewToolbar: React.FC<{
 				<Flex />
 				{!isMobileLayout && <FpsCounter playbackSpeed={playbackRate} />}
 				<Spacing x={2} />
-				{shouldShowRenderButton(readOnlyStudio) ? (
+				{shouldShowRenderButton() ? (
 					<RenderButton readOnlyStudio={readOnlyStudio} />
 				) : null}
 				<Spacing x={1.5} />

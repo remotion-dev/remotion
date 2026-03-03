@@ -8,6 +8,7 @@ import {DuplicateComposition} from './NewComposition/DuplicateComposition';
 import {RenameComposition} from './NewComposition/RenameComposition';
 import {OverrideInputPropsModal} from './OverrideInputProps';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
+import {ReadOnlyRenderCommandModal} from './RenderModal/ReadOnlyRenderCommandModal';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
@@ -41,6 +42,9 @@ export const Modals: React.FC<{
 
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader {...modalContextType} />
+			)}
+			{modalContextType && modalContextType.type === 'render-command' && (
+				<ReadOnlyRenderCommandModal command={modalContextType.command} />
 			)}
 			{modalContextType &&
 				canRender &&
