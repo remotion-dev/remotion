@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import type {SequenceSchema} from 'remotion';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import type {SequenceControls, SequenceSchema} from 'remotion';
 import {
 	AbsoluteFill,
 	Internals,
@@ -261,37 +261,18 @@ const lightLeakSchema = {
 	},
 } as const satisfies SequenceSchema;
 
-export const LightLeak: React.FC<LightLeakProps> = ({
-	seed: seedProp = 0,
-	hueShift: hueShiftProp = 0,
+const LightLeakInner: React.FC<
+	LightLeakProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = ({
+	seed = 0,
+	hueShift = 0,
 	durationInFrames,
-	from: fromProp,
 	style,
+	controls,
 	...sequenceProps
 }) => {
-	const opacityProp = style?.opacity;
-	const scaleProp = style?.scale;
-	const schemaInput = useMemo(() => {
-		return {
-			seed: seedProp,
-			hueShift: hueShiftProp,
-			'style.opacity': opacityProp,
-			'style.scale': scaleProp,
-		};
-	}, [seedProp, hueShiftProp, opacityProp, scaleProp]);
-
-	const {
-		controls,
-		values: {
-			seed,
-			hueShift,
-			'style.opacity': opacity,
-			'style.scale': scale,
-			..._rest
-		},
-	} = Internals.useSchema(lightLeakSchema, schemaInput);
-	_rest satisfies Record<string, never>;
-
 	const {durationInFrames: videoDuration} = useVideoConfig();
 	const resolvedDuration = durationInFrames ?? videoDuration;
 	if (typeof seed !== 'number' || !Number.isFinite(seed)) {
@@ -312,26 +293,23 @@ export const LightLeak: React.FC<LightLeakProps> = ({
 		);
 	}
 
-	const mergedStyle = useMemo(() => {
-		return {
-			...style,
-			opacity,
-			scale,
-		};
-	}, [style, opacity, scale]);
-
 	return (
 		<Sequence
 			durationInFrames={resolvedDuration}
 			name="<LightLeak>"
 			controls={controls}
 			{...sequenceProps}
-			style={mergedStyle}
+			style={style}
 		>
 			<LightLeakCanvas seed={seed} hueShift={hueShift} />
 		</Sequence>
 	);
 };
+
+export const LightLeak = Internals.wrapInSchema(
+	LightLeakInner,
+	lightLeakSchema,
+);
 
 LightLeak.displayName = 'LightLeak';
 

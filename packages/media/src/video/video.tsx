@@ -1,4 +1,5 @@
 import React from 'react';
+import type {SequenceControls, SequenceSchema} from 'remotion';
 import {Internals, useRemotionEnvironment} from 'remotion';
 import type {InnerVideoProps, VideoProps} from './props';
 import {VideoForPreview} from './video-for-preview';
@@ -7,7 +8,30 @@ import {VideoForRendering} from './video-for-rendering';
 const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
 	Internals;
 
-const InnerVideo: React.FC<InnerVideoProps> = ({
+const videoSchema = {
+	volume: {
+		type: 'number',
+		min: 0,
+		max: 20,
+		step: 0.01,
+		default: 1,
+		description: 'Volume',
+	},
+	playbackRate: {
+		type: 'number',
+		min: 0.1,
+		step: 0.01,
+		default: 1,
+		description: 'Playback Rate',
+	},
+	loop: {type: 'boolean', default: false, description: 'Loop'},
+} as const satisfies SequenceSchema;
+
+const InnerVideo: React.FC<
+	InnerVideoProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = ({
 	src,
 	audioStreamIndex,
 	className,
@@ -33,6 +57,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 	debugAudioScheduling,
 	headless,
 	onError,
+	controls,
 }) => {
 	const environment = useRemotionEnvironment();
 
@@ -117,11 +142,16 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 			debugAudioScheduling={debugAudioScheduling ?? false}
 			headless={headless ?? false}
 			onError={onError}
+			controls={controls}
 		/>
 	);
 };
 
-export const Video: React.FC<VideoProps> = ({
+const VideoInner: React.FC<
+	VideoProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = ({
 	src,
 	audioStreamIndex,
 	className,
@@ -147,6 +177,7 @@ export const Video: React.FC<VideoProps> = ({
 	debugAudioScheduling,
 	headless,
 	onError,
+	controls,
 }) => {
 	const fallbackLogLevel = Internals.useLogLevel();
 	return (
@@ -180,8 +211,11 @@ export const Video: React.FC<VideoProps> = ({
 			debugAudioScheduling={debugAudioScheduling ?? false}
 			headless={headless ?? false}
 			onError={onError}
+			controls={controls}
 		/>
 	);
 };
+
+export const Video = Internals.wrapInSchema(VideoInner, videoSchema);
 
 Internals.addSequenceStackTraces(Video);
