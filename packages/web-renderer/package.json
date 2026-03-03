@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/web-renderer"
 	},
 	"name": "@remotion/web-renderer",
-	"version": "4.0.430",
+	"version": "4.0.431",
 	"main": "dist/index.js",
 	"type": "module",
 	"scripts": {
@@ -19,6 +19,7 @@
 	"author": "Remotion <jonny@remotion.dev>",
 	"license": "UNLICENSED",
 	"dependencies": {
+		"@mediabunny/mp3-encoder": "catalog:",
 		"@remotion/licensing": "workspace:*",
 		"remotion": "workspace:*",
 		"mediabunny": "catalog:"

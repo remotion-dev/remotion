@@ -14,6 +14,7 @@ import {label, optionRow, rightRow} from './layout';
 import {MutedSetting} from './MutedSetting';
 import {getQualityOptions} from './quality-options';
 import {RenderModalHr} from './RenderModalHr';
+import type {RenderType} from './WebRenderModal';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -41,12 +42,19 @@ const humanReadableWebAudioCodec = (
 			return 'AAC';
 		case 'opus':
 			return 'Opus';
+		case 'mp3':
+			return 'MP3';
+		case 'vorbis':
+			return 'Vorbis';
+		case 'pcm-s16':
+			return 'Lossless (PCM)';
 		default:
-			return audioCodec;
+			throw new Error(`Unsupported audio codec: ${audioCodec satisfies never}`);
 	}
 };
 
 export const WebRenderModalAudio: React.FC<{
+	readonly renderMode: RenderType;
 	readonly muted: boolean;
 	readonly setMuted: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly audioCodec: WebRendererAudioCodec;
@@ -61,6 +69,7 @@ export const WebRenderModalAudio: React.FC<{
 	readonly encodableCodecs: WebRendererAudioCodec[];
 	readonly effectiveAudioCodec: WebRendererAudioCodec;
 }> = ({
+	renderMode,
 	muted,
 	setMuted,
 	audioCodec,
@@ -99,16 +108,21 @@ export const WebRenderModalAudio: React.FC<{
 		[audioBitrate, setAudioBitrate],
 	);
 
+	const isAudioOnly = renderMode === 'audio';
+	const showAudioSettings = isAudioOnly || !muted;
+
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<MutedSetting
-				enforceAudioTrack={false}
-				muted={muted}
-				setMuted={setMuted}
-			/>
-			{!muted ? (
+			{isAudioOnly ? null : (
+				<MutedSetting
+					enforceAudioTrack={false}
+					muted={muted}
+					setMuted={setMuted}
+				/>
+			)}
+			{showAudioSettings ? (
 				<>
-					<RenderModalHr />
+					{isAudioOnly ? null : <RenderModalHr />}
 					<div style={optionRow}>
 						<div style={label}>
 							Audio Quality

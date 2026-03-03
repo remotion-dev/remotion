@@ -25,14 +25,14 @@ export type CanRenderIssue = {
 export type CanRenderMediaOnWebResult = {
 	canRender: boolean;
 	issues: CanRenderIssue[];
-	resolvedVideoCodec: WebRendererVideoCodec;
+	resolvedVideoCodec: WebRendererVideoCodec | null;
 	resolvedAudioCodec: WebRendererAudioCodec | null;
 	resolvedOutputTarget: WebRendererOutputTarget;
 };
 
 export type CanRenderMediaOnWebOptions = {
 	container?: WebRendererContainer;
-	videoCodec?: WebRendererVideoCodec;
+	videoCodec?: WebRendererVideoCodec | null;
 	audioCodec?: WebRendererAudioCodec | null;
 	width: number;
 	height: number;

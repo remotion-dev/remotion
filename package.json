@@ -61,7 +61,7 @@
 	"dependencies": {
 		"p-limit": "7.2.0",
 		"typescript": "5.9.3",
-		"turbo": "2.8.11"
+		"turbo": "2.8.12"
 	},
 	"packageManager": "bun@1.3.3",
 	"overrides": {
@@ -119,7 +119,7 @@
 			"@vitest/browser-playwright": "4.0.9",
 			"playwright": "1.55.1",
 			"vitest": "4.0.9",
-			"@typescript/native-preview": "7.0.0-dev.20260217.1"
+			"@typescript/native-preview": "7.0.0-dev.20260301.1"
 		}
 	}
 }

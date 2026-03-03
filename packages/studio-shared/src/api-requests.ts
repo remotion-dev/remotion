@@ -11,6 +11,7 @@ import type {
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {_InternalTypes} from 'remotion';
+import type {CanUpdateSequencePropStatus} from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
@@ -214,10 +215,6 @@ export type UnsubscribeFromSequencePropsRequest = {
 	column: number;
 	clientId: string;
 };
-
-export type CanUpdateSequencePropStatus =
-	| {canUpdate: true; codeValue: unknown}
-	| {canUpdate: false; reason: 'computed'};
 
 export type CanUpdateSequencePropsResponse =
 	| {

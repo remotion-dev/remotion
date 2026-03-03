@@ -529,26 +529,25 @@ const audioSchema = {
 	},
 	playbackRate: {
 		type: 'number',
-		min: 0,
+		min: 0.1,
 		step: 0.01,
 		default: 1,
 		description: 'Playback Rate',
 	},
-	trimBefore: {type: 'number', min: 0, default: 0},
-	trimAfter: {type: 'number', min: 0, default: 0},
+	loop: {type: 'boolean', default: false, description: 'Loop'},
 } as const satisfies SequenceSchema;
 
 export const AudioForPreview: React.FC<InnerAudioProps> = ({
-	loop,
+	loop: loopProp = false,
 	src,
 	logLevel,
 	muted,
 	name,
 	volume: volumeProp,
 	loopVolumeCurveBehavior,
-	playbackRate: playbackRateProp,
-	trimAfter: trimAfterProp,
-	trimBefore: trimBeforeProp,
+	playbackRate: playbackRateProp = 1,
+	trimAfter,
+	trimBefore,
 	showInTimeline,
 	stack,
 	disallowFallbackToHtml5Audio,
@@ -558,37 +557,17 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	onError,
 }) => {
 	const schemaInput = useMemo(() => {
-		if (typeof volumeProp !== 'number') {
-			return null;
-		}
-
 		return {
 			volume: volumeProp,
 			playbackRate: playbackRateProp,
-			trimBefore: trimBeforeProp,
-			trimAfter: trimAfterProp,
-			loop: loop ?? false,
+			loop: loopProp,
 		};
-	}, [volumeProp, playbackRateProp, trimBeforeProp, trimAfterProp, loop]);
+	}, [volumeProp, playbackRateProp, loopProp]);
 
-	const {controls, values} = Internals.useSchema(
-		schemaInput ? audioSchema : null,
-		schemaInput,
-	);
-
-	const volume = schemaInput !== null ? (values.volume as number) : volumeProp;
-	const playbackRate =
-		schemaInput !== null ? (values.playbackRate as number) : playbackRateProp;
-	const trimBefore =
-		schemaInput !== null
-			? (values.trimBefore as number | undefined)
-			: trimBeforeProp;
-	const trimAfter =
-		schemaInput !== null
-			? (values.trimAfter as number | undefined)
-			: trimAfterProp;
-	const effectiveLoop =
-		schemaInput !== null ? (values.loop as boolean) : (loop ?? false);
+	const {
+		controls,
+		values: {volume, playbackRate, loop},
+	} = Internals.useSchema(audioSchema, schemaInput);
 
 	const preloadedSrc = usePreload(src);
 
@@ -601,8 +580,8 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 		return (
 			getTimeInSeconds({
 				unloopedTimeInSeconds: currentTime,
-				playbackRate: playbackRate ?? 1,
-				loop: effectiveLoop,
+				playbackRate,
+				loop,
 				trimBefore,
 				trimAfter,
 				mediaDurationInSeconds: Infinity,
@@ -613,12 +592,12 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 		);
 	}, [
 		currentTime,
-		effectiveLoop,
 		playbackRate,
 		src,
 		trimAfter,
 		trimBefore,
 		videoConfig.fps,
+		loop,
 	]);
 
 	if (!showShow) {
@@ -629,12 +608,12 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 		<AudioForPreviewAssertedShowing
 			audioStreamIndex={audioStreamIndex ?? 0}
 			src={preloadedSrc}
-			playbackRate={playbackRate ?? 1}
+			playbackRate={playbackRate}
 			logLevel={logLevel ?? defaultLogLevel}
 			muted={muted ?? false}
 			volume={volume ?? 1}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
-			loop={effectiveLoop}
+			loop={loop}
 			trimAfter={trimAfter}
 			trimBefore={trimBefore}
 			name={name}

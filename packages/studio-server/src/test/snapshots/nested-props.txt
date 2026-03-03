@@ -1,0 +1,13 @@
+import React from "react";
+import {AbsoluteFill} from "remotion";
+
+export const Example: React.FC = () => {
+	return (
+		<AbsoluteFill>
+			<div style={{opacity: 0.5, scale: 2}} />
+			<div style={{opacity: getOpacity(), scale: 2}} />
+			<div style={dynamicStyles} />
+			<div />
+		</AbsoluteFill>
+	);
+};

@@ -1,5 +1,5 @@
-import type {CanUpdateSequencePropStatus} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
+import type {CanUpdateSequencePropStatus} from 'remotion';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {Checkbox} from '../Checkbox';
 import {InputDragger} from '../NewComposition/InputDragger';
@@ -140,7 +140,16 @@ export const TimelineFieldValue: React.FC<{
 	readonly onDragEnd: () => void;
 	readonly canUpdate: boolean;
 	readonly propStatus: CanUpdateSequencePropStatus | null;
-}> = ({field, onSave, onDragValueChange, onDragEnd, propStatus, canUpdate}) => {
+	readonly effectiveValue: unknown;
+}> = ({
+	field,
+	onSave,
+	onDragValueChange,
+	onDragEnd,
+	propStatus,
+	canUpdate,
+	effectiveValue,
+}) => {
 	const wrapperStyle: React.CSSProperties | undefined =
 		canUpdate === null || canUpdate === false
 			? notEditableBackground
@@ -162,15 +171,12 @@ export const TimelineFieldValue: React.FC<{
 		);
 	}
 
-	const effectiveCodeValue =
-		propStatus.codeValue ?? field.currentValue ?? field.fieldSchema.default;
-
 	if (field.typeName === 'number') {
 		return (
 			<span style={wrapperStyle}>
 				<TimelineNumberField
 					field={field}
-					codeValue={effectiveCodeValue}
+					codeValue={effectiveValue}
 					canUpdate={canUpdate}
 					onSave={onSave}
 					onDragValueChange={onDragValueChange}
@@ -185,7 +191,7 @@ export const TimelineFieldValue: React.FC<{
 			<span style={wrapperStyle}>
 				<TimelineBooleanField
 					field={field}
-					codeValue={effectiveCodeValue}
+					codeValue={effectiveValue}
 					canUpdate={canUpdate}
 					onSave={onSave}
 				/>
@@ -195,7 +201,7 @@ export const TimelineFieldValue: React.FC<{
 
 	return (
 		<span style={{...unsupportedLabel, fontStyle: 'normal'}}>
-			{String(effectiveCodeValue)}
+			{String(effectiveValue)}
 		</span>
 	);
 };

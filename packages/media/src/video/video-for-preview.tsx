@@ -569,8 +569,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 	return (
 		<canvas
 			ref={canvasRef}
-			width={videoConfig.width}
-			height={videoConfig.height}
+			// Don't set width and height here.
+			// Width is set in the video iterator manager, if props are being updated, they are being applied again by React.
+			// This will lead to inefficient resizes.
 			style={actualStyle}
 			className={classNameValue}
 		/>
@@ -588,55 +589,26 @@ const videoSchema = {
 	},
 	playbackRate: {
 		type: 'number',
-		min: 0,
+		min: 0.1,
 		step: 0.01,
 		default: 1,
 		description: 'Playback Rate',
 	},
-	trimBefore: {type: 'number', min: 0, default: 0},
-	trimAfter: {type: 'number', min: 0, default: 0},
+	loop: {type: 'boolean', default: false, description: 'Loop'},
 } as const satisfies SequenceSchema;
 
 export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
 	const schemaInput = useMemo(() => {
-		if (typeof props.volume !== 'number') {
-			return null;
-		}
-
 		return {
 			volume: props.volume,
 			playbackRate: props.playbackRate,
-			trimBefore: props.trimBefore,
-			trimAfter: props.trimAfter,
 			loop: props.loop,
 		};
-	}, [
-		props.volume,
-		props.playbackRate,
-		props.trimBefore,
-		props.trimAfter,
-		props.loop,
-	]);
-
-	const {controls, values} = Internals.useSchema(
-		schemaInput ? videoSchema : null,
-		schemaInput,
-	);
-
-	const volume =
-		schemaInput !== null ? (values.volume as number) : props.volume;
-	const playbackRate =
-		schemaInput !== null ? (values.playbackRate as number) : props.playbackRate;
-	const trimBefore =
-		schemaInput !== null
-			? (values.trimBefore as number | undefined)
-			: props.trimBefore;
-	const trimAfter =
-		schemaInput !== null
-			? (values.trimAfter as number | undefined)
-			: props.trimAfter;
-	const effectiveLoop =
-		schemaInput !== null ? (values.loop as boolean) : props.loop;
+	}, [props.volume, props.playbackRate, props.loop]);
+	const {
+		controls,
+		values: {loop, playbackRate, volume},
+	} = Internals.useSchema(videoSchema, schemaInput);
 
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
@@ -647,9 +619,9 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
 			getTimeInSeconds({
 				unloopedTimeInSeconds: currentTime,
 				playbackRate,
-				loop: effectiveLoop,
-				trimBefore,
-				trimAfter,
+				loop,
+				trimBefore: props.trimBefore,
+				trimAfter: props.trimAfter,
 				mediaDurationInSeconds: Infinity,
 				fps: videoConfig.fps,
 				ifNoMediaDuration: 'infinity',
@@ -658,12 +630,12 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
 		);
 	}, [
 		currentTime,
-		effectiveLoop,
+		loop,
 		playbackRate,
 		props.src,
-		trimAfter,
-		trimBefore,
 		videoConfig.fps,
+		props.trimBefore,
+		props.trimAfter,
 	]);
 
 	if (!showShow) {
@@ -673,11 +645,9 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
 	return (
 		<VideoForPreviewAssertedShowing
 			{...props}
-			volume={volume}
+			volume={volume ?? 1}
 			playbackRate={playbackRate}
-			loop={effectiveLoop}
-			trimBefore={trimBefore}
-			trimAfter={trimAfter}
+			loop={loop}
 			controls={controls}
 		/>
 	);

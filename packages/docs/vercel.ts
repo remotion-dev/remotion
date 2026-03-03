@@ -190,9 +190,6 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/bun', '/docs/bun', {permanent: false}),
-		routes.redirect('/bounties', '/docs/contributing/bounty', {
-			permanent: false,
-		}),
 		routes.redirect('/transitions', '/docs/transitioning', {
 			permanent: false,
 		}),

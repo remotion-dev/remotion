@@ -1,0 +1,43 @@
+---
+title: <Arrow />
+crumb: '@remotion/shapes'
+---
+
+import {ShapeSeeAlso, ShapeOptions} from '../../components/shapes/shapes-info';
+
+_Part of the [`@remotion/shapes`](/docs/shapes) package._
+
+Renders an SVG element containing an arrow shape.
+
+## Explorer
+
+<Demo type="arrow" />
+
+## Example
+
+```tsx twoslash title="src/Arrow.tsx"
+import {Arrow} from '@remotion/shapes';
+import {AbsoluteFill} from 'remotion';
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Arrow length={300} headWidth={185} headLength={120} shaftWidth={80} fill="red" direction="right" />
+    </AbsoluteFill>
+  );
+};
+```
+
+## Props
+
+<ShapeOptions shape="arrow" all />
+
+## See also
+
+<ShapeSeeAlso shape="arrow" />

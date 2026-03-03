@@ -4,6 +4,6 @@
 	},
 	"name": "@remotion/lambda-go-example",
 	"private": true,
-	"version": "4.0.430",
+	"version": "4.0.431",
 	"scripts": {}
 }

@@ -1,4 +1,5 @@
 import {
+	makeArrow,
 	makeCircle,
 	makeEllipse,
 	makeHeart,
@@ -28,6 +29,45 @@ export type ShapeComponent = {
 };
 
 export const shapeComponents: ShapeComponent[] = [
+	{
+		shape: 'Arrow',
+		fn: makeArrow,
+		params: [
+			{
+				name: 'length',
+				type: 'number',
+				description:
+					'The total length of the arrow along its direction axis. Default 300.',
+			},
+			{
+				name: 'headWidth',
+				type: 'number',
+				description:
+					'The width of the arrowhead at its widest point. Default 185.',
+			},
+			{
+				name: 'headLength',
+				type: 'number',
+				description: 'The length of the arrowhead portion. Default 120.',
+			},
+			{
+				name: 'shaftWidth',
+				type: 'number',
+				description: 'The width of the arrow shaft. Default 80.',
+			},
+			{
+				name: 'direction',
+				type: '"left" | "right" | "up" | "down"',
+				description: 'The direction the arrow points. Default right.',
+			},
+			{
+				name: 'cornerRadius',
+				type: 'number',
+				description:
+					"Rounds the corner using an arc. Similar to CSS's border-radius.",
+			},
+		],
+	},
 	{
 		shape: 'Rect',
 		fn: makeRect,

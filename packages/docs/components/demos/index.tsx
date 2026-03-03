@@ -6,6 +6,7 @@ import {Control} from './control';
 import type {DemoType} from './types';
 import {
 	animationMathDemo,
+	arrowDemo,
 	circleDemo,
 	clockWipePresentationDemo,
 	cubePresentationDemo,
@@ -52,6 +53,7 @@ const container: React.CSSProperties = {
 
 const demos: DemoType[] = [
 	noiseDemo,
+	arrowDemo,
 	triangleDemo,
 	rectDemo,
 	circleDemo,

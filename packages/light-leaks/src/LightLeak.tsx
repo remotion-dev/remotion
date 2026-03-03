@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {SequenceSchema} from 'remotion';
 import {
 	AbsoluteFill,
@@ -7,17 +7,20 @@ import {
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
+	type AbsoluteFillLayout,
+	type LayoutAndStyle,
 	type SequenceProps,
 } from 'remotion';
 
 export type LightLeakProps = Omit<
 	SequenceProps,
-	'children' | 'layout' | 'durationInFrames'
-> & {
-	readonly durationInFrames?: number;
-	readonly seed?: number;
-	readonly hueShift?: number;
-};
+	'children' | 'durationInFrames' | keyof LayoutAndStyle
+> &
+	Omit<AbsoluteFillLayout, 'layout'> & {
+		readonly durationInFrames?: number;
+		readonly seed?: number;
+		readonly hueShift?: number;
+	};
 
 const VERTEX_SHADER = `
 attribute vec2 position;
@@ -232,14 +235,30 @@ const LightLeakCanvas: React.FC<{
  * @see [Documentation](https://www.remotion.dev/docs/light-leaks/light-leak)
  */
 const lightLeakSchema = {
-	seed: {type: 'number', description: 'Seed'},
+	seed: {type: 'number', default: 0, description: 'Seed'},
 	hueShift: {
 		type: 'number',
 		min: 0,
 		max: 360,
+		default: 0,
 		description: 'Hue Shift',
 	},
-	from: {type: 'number', description: 'From'},
+	'style.scale': {
+		type: 'number',
+		min: 0.05,
+		max: 100,
+		step: 0.01,
+		default: 1,
+		description: 'Scale',
+	},
+	'style.opacity': {
+		type: 'number',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: 1,
+		description: 'Opacity',
+	},
 } as const satisfies SequenceSchema;
 
 export const LightLeak: React.FC<LightLeakProps> = ({
@@ -247,16 +266,31 @@ export const LightLeak: React.FC<LightLeakProps> = ({
 	hueShift: hueShiftProp = 0,
 	durationInFrames,
 	from: fromProp,
+	style,
 	...sequenceProps
 }) => {
+	const opacityProp = style?.opacity;
+	const scaleProp = style?.scale;
+	const schemaInput = useMemo(() => {
+		return {
+			seed: seedProp,
+			hueShift: hueShiftProp,
+			'style.opacity': opacityProp,
+			'style.scale': scaleProp,
+		};
+	}, [seedProp, hueShiftProp, opacityProp, scaleProp]);
+
 	const {
 		controls,
-		values: {seed, hueShift, from},
-	} = Internals.useSchema(lightLeakSchema, {
-		seed: seedProp,
-		hueShift: hueShiftProp,
-		from: fromProp,
-	});
+		values: {
+			seed,
+			hueShift,
+			'style.opacity': opacity,
+			'style.scale': scale,
+			..._rest
+		},
+	} = Internals.useSchema(lightLeakSchema, schemaInput);
+	_rest satisfies Record<string, never>;
 
 	const {durationInFrames: videoDuration} = useVideoConfig();
 	const resolvedDuration = durationInFrames ?? videoDuration;
@@ -278,13 +312,21 @@ export const LightLeak: React.FC<LightLeakProps> = ({
 		);
 	}
 
+	const mergedStyle = useMemo(() => {
+		return {
+			...style,
+			opacity,
+			scale,
+		};
+	}, [style, opacity, scale]);
+
 	return (
 		<Sequence
 			durationInFrames={resolvedDuration}
 			name="<LightLeak>"
 			controls={controls}
-			from={from}
 			{...sequenceProps}
+			style={mergedStyle}
 		>
 			<LightLeakCanvas seed={seed} hueShift={hueShift} />
 		</Sequence>

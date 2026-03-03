@@ -11,11 +11,10 @@ import type {
 } from '@babel/types';
 import type {CanUpdateSequencePropsResponse} from '@remotion/studio-shared';
 import * as recast from 'recast';
+import type {CanUpdateSequencePropStatus} from 'remotion';
 import {parseAst} from '../../codemods/parse-ast';
 
-type CanUpdatePropStatus =
-	| {canUpdate: true; codeValue: unknown}
-	| {canUpdate: false; reason: 'computed'};
+type CanUpdatePropStatus = CanUpdateSequencePropStatus;
 
 export const isStaticValue = (node: Expression): boolean => {
 	switch (node.type) {
@@ -180,6 +179,57 @@ const findJsxElementAtLine = (
 	return found;
 };
 
+const getNestedPropStatus = (
+	jsxElement: JSXOpeningElement,
+	parentKey: string,
+	childKey: string,
+): CanUpdatePropStatus => {
+	const attr = jsxElement.attributes.find(
+		(a) =>
+			a.type !== 'JSXSpreadAttribute' &&
+			a.name.type !== 'JSXNamespacedName' &&
+			a.name.name === parentKey,
+	) as JSXAttribute | undefined;
+
+	if (!attr || !attr.value) {
+		// Parent attribute doesn't exist, nested prop can be added
+		return {canUpdate: true, codeValue: undefined};
+	}
+
+	if (attr.value.type !== 'JSXExpressionContainer') {
+		return {canUpdate: false, reason: 'computed'};
+	}
+
+	const {expression} = attr.value;
+	if (
+		expression.type === 'JSXEmptyExpression' ||
+		expression.type !== 'ObjectExpression'
+	) {
+		// Parent is not an object literal (e.g. style={myStyles})
+		return {canUpdate: false, reason: 'computed'};
+	}
+
+	const objExpr = expression as ObjectExpression;
+	const prop = objExpr.properties.find(
+		(p) =>
+			p.type === 'ObjectProperty' &&
+			((p.key.type === 'Identifier' && p.key.name === childKey) ||
+				(p.key.type === 'StringLiteral' && p.key.value === childKey)),
+	) as ObjectProperty | undefined;
+
+	if (!prop) {
+		// Property not set in the object, can be added
+		return {canUpdate: true, codeValue: undefined};
+	}
+
+	const propValue = prop.value as Expression;
+	if (!isStaticValue(propValue)) {
+		return {canUpdate: false, reason: 'computed'};
+	}
+
+	return {canUpdate: true, codeValue: extractStaticValue(propValue)};
+};
+
 export const computeSequencePropsStatus = ({
 	fileName,
 	line,
@@ -210,7 +260,14 @@ export const computeSequencePropsStatus = ({
 		const allProps = getPropsStatus(jsxElement);
 		const filteredProps: Record<string, CanUpdatePropStatus> = {};
 		for (const key of keys) {
-			if (key in allProps) {
+			const dotIndex = key.indexOf('.');
+			if (dotIndex !== -1) {
+				filteredProps[key] = getNestedPropStatus(
+					jsxElement,
+					key.slice(0, dotIndex),
+					key.slice(dotIndex + 1),
+				);
+			} else if (key in allProps) {
 				filteredProps[key] = allProps[key];
 			} else {
 				filteredProps[key] = {canUpdate: true, codeValue: undefined};

@@ -11,6 +11,7 @@ import {
 	SlideDemoLongDurationRest,
 	WipeDemo,
 } from '../transitions/previews';
+import {ArrowDemo} from './Arrow';
 import {CircleDemo} from './Circle';
 import {EllipseDemo} from './Ellipse';
 import {HeartDemo} from './Heart';
@@ -73,6 +74,71 @@ export type DemoType = {
 	options: Option[];
 	autoPlay: boolean;
 	controls: boolean;
+};
+
+export const arrowDemo: DemoType = {
+	comp: ArrowDemo,
+	compWidth: 1280,
+	compHeight: 400,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'arrow',
+	autoPlay: false,
+	controls: false,
+	options: [
+		{
+			default: 300,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'length',
+			optional: 'no',
+		},
+		{
+			default: 185,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'headWidth',
+			optional: 'no',
+		},
+		{
+			default: 120,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'headLength',
+			optional: 'no',
+		},
+		{
+			default: 80,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'shaftWidth',
+			optional: 'no',
+		},
+		{
+			name: 'direction',
+			type: 'enum',
+			default: 'right',
+			values: ['up', 'down', 'left', 'right'],
+			optional: 'no',
+		},
+		{
+			name: 'cornerRadius',
+			default: 0,
+			max: 100,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+	],
 };
 
 export const rectDemo: DemoType = {
