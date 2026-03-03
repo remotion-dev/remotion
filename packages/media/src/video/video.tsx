@@ -25,6 +25,22 @@ const videoSchema = {
 		description: 'Playback Rate',
 	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
+	'style.scale': {
+		type: 'number',
+		min: 0.05,
+		max: 100,
+		step: 0.01,
+		default: 1,
+		description: 'Scale',
+	},
+	'style.opacity': {
+		type: 'number',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: 1,
+		description: 'Opacity',
+	},
 } as const satisfies SequenceSchema;
 
 const InnerVideo: React.FC<
