@@ -82,11 +82,7 @@ export const usePlayer = (): UsePlayerMethods => {
 				seek(0);
 			}
 
-			const start = Date.now();
-			console.log('starting');
-			audioContext?.audioContext?.resume().then(() => {
-				console.log('resumed audio context', Date.now() - start);
-			});
+			audioContext?.audioContext?.resume();
 
 			/**
 			 * Play silent audio tags to warm them up for autoplay
