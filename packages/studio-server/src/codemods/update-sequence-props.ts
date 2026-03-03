@@ -19,7 +19,7 @@ export const updateSequenceProps = async ({
 	value: unknown;
 	enumPaths: EnumPath[];
 	defaultValue: unknown | null;
-}): Promise<{output: string; oldValueString: string}> => {
+}): Promise<{output: string; oldValueString: string; formatted: boolean}> => {
 	const ast = parseAst(input);
 	let found = false;
 	let oldValueString = '';
@@ -123,6 +123,8 @@ export const updateSequenceProps = async ({
 		);
 	}
 
+	const finalFile = serializeAst(ast);
+
 	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 	type PrettierType = typeof import('prettier');
 	let prettier: PrettierType | null = null;
@@ -130,24 +132,20 @@ export const updateSequenceProps = async ({
 	try {
 		prettier = await import('prettier');
 	} catch {
-		throw new Error('Prettier cannot be found in the current project.');
+		return {output: finalFile, oldValueString, formatted: false};
 	}
 
 	const {format, resolveConfig, resolveConfigFile} = prettier as PrettierType;
 
 	const configFilePath = await resolveConfigFile();
 	if (!configFilePath) {
-		throw new Error('The Prettier config file was not found');
+		return {output: finalFile, oldValueString, formatted: false};
 	}
 
 	const prettierConfig = await resolveConfig(configFilePath);
 	if (!prettierConfig) {
-		throw new Error(
-			'The Prettier config file was not found. For this feature, the "prettier" package must be installed and a .prettierrc file must exist.',
-		);
+		return {output: finalFile, oldValueString, formatted: false};
 	}
-
-	const finalFile = serializeAst(ast);
 
 	const prettified = await format(finalFile, {
 		...prettierConfig,
@@ -155,5 +153,5 @@ export const updateSequenceProps = async ({
 		plugins: [],
 		endOfLine: 'auto',
 	});
-	return {output: prettified, oldValueString};
+	return {output: prettified, oldValueString, formatted: true};
 };

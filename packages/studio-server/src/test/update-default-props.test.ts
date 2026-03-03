@@ -20,7 +20,7 @@ test('Should be able to update default props', async () => {
 		enumPaths: [],
 	});
 
-	expect(update).toBe(expected);
+	expect(update.output).toBe(expected);
 });
 
 test('Should be able to update default props', async () => {
@@ -40,5 +40,5 @@ test('Should be able to update default props', async () => {
 		enumPaths: [],
 	});
 
-	expect(update).toBe(expected);
+	expect(update.output).toBe(expected);
 });
