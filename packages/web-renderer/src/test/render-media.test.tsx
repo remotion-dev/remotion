@@ -5,6 +5,19 @@ import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import '../symbol-dispose';
 
+const getMaxScrollDimensions = () => {
+	return {
+		width: Math.max(
+			document.documentElement.scrollWidth,
+			document.body.scrollWidth,
+		),
+		height: Math.max(
+			document.documentElement.scrollHeight,
+			document.body.scrollHeight,
+		),
+	};
+};
+
 test('should render media on web', async (t) => {
 	if (t.task.file.projectName === 'webkit') {
 		t.skip();
@@ -36,6 +49,63 @@ test('should render media on web', async (t) => {
 		},
 		inputProps: {},
 	});
+});
+
+test('should not increase page scroll dimensions while rendering', async (t) => {
+	if (t.task.file.projectName === 'webkit') {
+		t.skip();
+		return;
+	}
+
+	const baselineDimensions = getMaxScrollDimensions();
+	const makeEven = (value: number) => (value % 2 === 0 ? value : value + 1);
+	const compositionWidth = makeEven(baselineDimensions.width + 400);
+	const compositionHeight = makeEven(baselineDimensions.height + 400);
+
+	let onProgressCalls = 0;
+	const maxObservedDimensions = {...baselineDimensions};
+
+	const Component: React.FC = () => null;
+
+	await renderMediaOnWeb({
+		composition: {
+			component: Component,
+			id: 'scroll-dimensions-test',
+			width: compositionWidth,
+			height: compositionHeight,
+			fps: 30,
+			durationInFrames: 3,
+		},
+		inputProps: {},
+		onProgress: () => {
+			onProgressCalls++;
+			const currentDimensions = getMaxScrollDimensions();
+			maxObservedDimensions.width = Math.max(
+				maxObservedDimensions.width,
+				currentDimensions.width,
+			);
+			maxObservedDimensions.height = Math.max(
+				maxObservedDimensions.height,
+				currentDimensions.height,
+			);
+		},
+	});
+
+	expect(onProgressCalls).toBeGreaterThan(0);
+	expect(maxObservedDimensions.width).toBeLessThanOrEqual(
+		baselineDimensions.width,
+	);
+	expect(maxObservedDimensions.height).toBeLessThanOrEqual(
+		baselineDimensions.height,
+	);
+
+	const afterRenderDimensions = getMaxScrollDimensions();
+	expect(afterRenderDimensions.width).toBeLessThanOrEqual(
+		baselineDimensions.width,
+	);
+	expect(afterRenderDimensions.height).toBeLessThanOrEqual(
+		baselineDimensions.height,
+	);
 });
 
 test('should throttle onProgress callback to 250ms', {retry: 2}, async (t) => {
