@@ -30,6 +30,7 @@ export const validateEvenDimensionsWithCodec = ({
 		codec !== 'h264-mkv' &&
 		codec !== 'h264' &&
 		codec !== 'h265' &&
+		codec !== 'av1' &&
 		codec !== 'h264-ts'
 	) {
 		return {

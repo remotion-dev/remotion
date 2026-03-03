@@ -31,6 +31,10 @@ const support: {[key in Codec]: MediaSupport} = {
 		video: true,
 		audio: true,
 	},
+	av1: {
+		video: true,
+		audio: true,
+	},
 	mp3: {
 		audio: true,
 		video: false,
@@ -64,6 +68,7 @@ const codecSupportsVideoBitrateMap: {[key in Codec]: boolean} = {
 	gif: false,
 	h264: true,
 	h265: true,
+	av1: true,
 	mp3: false,
 	prores: false,
 	vp8: true,

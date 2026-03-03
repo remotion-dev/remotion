@@ -10,6 +10,7 @@ describe('Codec tests valid codec input', () => {
 		'h265',
 		'vp8',
 		'vp9',
+		'av1',
 		'mp3',
 		'aac',
 		'wav',

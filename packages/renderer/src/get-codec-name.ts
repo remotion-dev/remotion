@@ -125,6 +125,10 @@ export const getCodecName = ({
 		return {encoderName: 'libvpx-vp9', hardwareAccelerated: false};
 	}
 
+	if (codec === 'av1') {
+		return {encoderName: 'libaom-av1', hardwareAccelerated: false};
+	}
+
 	if (codec === 'gif') {
 		return {encoderName: 'gif', hardwareAccelerated: false};
 	}

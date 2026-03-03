@@ -70,6 +70,7 @@ const codecSupportsFastStart: {[key in Codec]: boolean} = {
 	'h264-ts': false,
 	h264: true,
 	h265: true,
+	av1: true,
 	aac: false,
 	gif: false,
 	mp3: false,
