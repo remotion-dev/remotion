@@ -53,7 +53,8 @@ export const getExpandedTrackHeight = (
 		return TIMELINE_TRACK_EXPANDED_HEIGHT;
 	}
 
-	return fields.reduce((sum, f) => sum + f.rowHeight, 0);
+	const separators = Math.max(0, fields.length - 1);
+	return fields.reduce((sum, f) => sum + f.rowHeight, 0) + separators;
 };
 
 export const getTimelineLayerHeight = (type: 'video' | 'other') => {

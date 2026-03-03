@@ -10,7 +10,8 @@ const fieldRow: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
 	gap: 8,
-	paddingLeft: 24,
+	paddingLeft: 52,
+	paddingRight: 10,
 };
 
 const fieldName: React.CSSProperties = {
