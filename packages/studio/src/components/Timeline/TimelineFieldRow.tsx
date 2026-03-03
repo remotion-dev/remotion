@@ -8,15 +8,15 @@ import {
 	EXPANDED_SECTION_PADDING_LEFT,
 	EXPANDED_SECTION_PADDING_RIGHT,
 } from './TimelineExpandedSection';
+import {SPACING} from './TimelineListItem';
 import {TimelineFieldValue} from './TimelineSchemaField';
 
 const FIELD_ROW_PADDING_LEFT = 24;
 
-const fieldRow: React.CSSProperties = {
+const fieldRowBase: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
 	gap: 8,
-	paddingLeft: EXPANDED_SECTION_PADDING_LEFT + FIELD_ROW_PADDING_LEFT,
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
@@ -37,7 +37,8 @@ export const TimelineFieldRow: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly overrideId: string;
 	readonly validatedLocation: CodePosition | null;
-}> = ({field, overrideId, validatedLocation}) => {
+	readonly nestedDepth: number;
+}> = ({field, overrideId, validatedLocation, nestedDepth}) => {
 	const {
 		setDragOverrides,
 		clearDragOverrides,
@@ -106,10 +107,14 @@ export const TimelineFieldRow: React.FC<{
 
 	const style = useMemo(() => {
 		return {
-			...fieldRow,
+			...fieldRowBase,
 			height: field.rowHeight,
+			paddingLeft:
+				EXPANDED_SECTION_PADDING_LEFT +
+				FIELD_ROW_PADDING_LEFT +
+				SPACING * 3 * nestedDepth,
 		};
-	}, [field.rowHeight]);
+	}, [field.rowHeight, nestedDepth]);
 
 	return (
 		<div style={style}>

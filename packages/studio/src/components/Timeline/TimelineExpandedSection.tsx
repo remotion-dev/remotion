@@ -31,7 +31,8 @@ const separator: React.CSSProperties = {
 export const TimelineExpandedSection: React.FC<{
 	readonly sequence: TSequence;
 	readonly originalLocation: OriginalPosition | null;
-}> = ({sequence, originalLocation}) => {
+	readonly nestedDepth: number;
+}> = ({sequence, originalLocation, nestedDepth}) => {
 	const overrideId = sequence.controls?.overrideId ?? sequence.id;
 	const schemaFields = useMemo(
 		() => getSchemaFields(sequence.controls),
@@ -77,6 +78,7 @@ export const TimelineExpandedSection: React.FC<{
 									field={field}
 									overrideId={overrideId}
 									validatedLocation={validatedLocation}
+									nestedDepth={nestedDepth}
 								/>
 							</React.Fragment>
 						);
