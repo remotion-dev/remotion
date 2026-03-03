@@ -13,8 +13,6 @@ import type {ApiHandler} from '../api-types';
 import {getProjectInfo} from '../project-info';
 import {checkIfTypeScriptFile} from './can-update-default-props';
 
-let warnedAboutPrettier = false;
-
 export const applyCodemodHandler: ApiHandler<
 	ApplyCodemodRequest,
 	ApplyCodemodResponse
@@ -34,29 +32,20 @@ export const applyCodemodHandler: ApiHandler<
 			codeMod: codemod,
 			input,
 		});
-		const {output, formatted} = await formatOutput(newContents);
+		const formatted = await formatOutput(newContents);
 
 		const diff = simpleDiff({
 			oldLines: input.split('\n'),
-			newLines: output.split('\n'),
+			newLines: formatted.split('\n'),
 		});
 
 		if (!dryRun) {
-			writeFileSync(projectInfo.rootFile, output);
+			writeFileSync(projectInfo.rootFile, formatted);
 			const end = Date.now() - time;
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
 				RenderInternals.chalk.blue(`Edited root file in ${end}ms`),
 			);
-			if (!formatted && !warnedAboutPrettier) {
-				warnedAboutPrettier = true;
-				RenderInternals.Log.warn(
-					{indent: false, logLevel},
-					RenderInternals.chalk.yellow(
-						'Could not format the file using Prettier. Install "prettier" and add a config file to enable automatic formatting.',
-					),
-				);
-			}
 		}
 
 		return {

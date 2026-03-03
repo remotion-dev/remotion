@@ -3,29 +3,31 @@ import {parseAst, serializeAst} from './parse-ast';
 import type {Change} from './recast-mods';
 import {applyCodemod} from './recast-mods';
 
-export const formatOutput = async (
-	tsContent: string,
-): Promise<{output: string; formatted: boolean}> => {
-	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-	type PrettierType = typeof import('prettier');
-	let prettier: PrettierType | null = null;
-
+const getPrettier = async () => {
 	try {
-		prettier = await import('prettier');
+		return await import('prettier');
 	} catch {
-		return {output: tsContent, formatted: false};
+		throw new Error('Prettier cannot be found in the current project.');
 	}
+};
 
-	const {format, resolveConfig, resolveConfigFile} = prettier as PrettierType;
+export const formatOutput = async (tsContent: string) => {
+	const prettier = await getPrettier();
+
+	const {format, resolveConfig, resolveConfigFile} = prettier;
 
 	const configFilePath = await resolveConfigFile();
 	if (!configFilePath) {
-		return {output: tsContent, formatted: false};
+		throw new Error(
+			'The Prettier config file was not found. For this feature, the "prettier" package must be installed and a .prettierrc file must exist.',
+		);
 	}
 
 	const prettierConfig = await resolveConfig(configFilePath);
 	if (!prettierConfig) {
-		return {output: tsContent, formatted: false};
+		throw new Error(
+			`The Prettier config at ${configFilePath} could not be read`,
+		);
 	}
 
 	const newContents = await format(tsContent, {
@@ -33,7 +35,7 @@ export const formatOutput = async (
 		filepath: 'test.tsx',
 	});
 
-	return {output: newContents, formatted: true};
+	return newContents;
 };
 
 export const parseAndApplyCodemod = ({
