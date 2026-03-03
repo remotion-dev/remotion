@@ -16,7 +16,7 @@ test('Derive codec from file extension', () => {
 		mp3: ['mp3'],
 		mov: ['h264', 'prores'],
 		mxf: ['prores'],
-		webm: ['vp8', 'vp9'],
+		webm: ['av1', 'vp8', 'vp9'],
 		wav: ['aac', 'mp3', 'wav'],
 		ts: ['h264-ts'],
 	});

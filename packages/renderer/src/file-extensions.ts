@@ -80,6 +80,7 @@ export const defaultFileExtensionMap: {
 		default: 'mp4',
 		forAudioCodec: {
 			aac: {possible: ['mp4', 'mkv'], default: 'mp4'},
+			opus: {possible: ['webm', 'mkv'], default: 'webm'},
 			'pcm-16': {possible: ['mkv'], default: 'mkv'},
 		},
 	},
