@@ -5,11 +5,10 @@ import {Checkbox} from '../Checkbox';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {Spinner} from '../Spinner';
 
-const getFixedDigits = (step: number): number => {
-	const str = String(step);
+const getDecimalPlaces = (num: number): number => {
+	const str = String(num);
 	const decimalIndex = str.indexOf('.');
-	const decimals = decimalIndex === -1 ? 0 : str.length - decimalIndex - 1;
-	return Math.max(2, decimals);
+	return decimalIndex === -1 ? 0 : str.length - decimalIndex - 1;
 };
 
 const unsupportedLabel: React.CSSProperties = {
@@ -90,11 +89,15 @@ const TimelineNumberField: React.FC<{
 	const step =
 		field.fieldSchema.type === 'number' ? (field.fieldSchema.step ?? 1) : 1;
 
-	const fixedDigits = useMemo(() => getFixedDigits(step), [step]);
+	const stepDecimals = useMemo(() => getDecimalPlaces(step), [step]);
 
 	const formatter = useCallback(
-		(v: number | string) => Number(v).toFixed(fixedDigits),
-		[fixedDigits],
+		(v: number | string) => {
+			const num = Number(v);
+			const digits = Math.max(stepDecimals, getDecimalPlaces(num));
+			return digits === 0 ? String(num) : num.toFixed(digits);
+		},
+		[stepDecimals],
 	);
 
 	return (
