@@ -39,7 +39,7 @@ Read the full [contribution guide](/packages/docs/docs/contributing/index.mdx).
 - [Implementing a new feature](/packages/docs/docs/contributing/feature.mdx)
 - [Implementing a new option](/packages/docs/docs/contributing/option.mdx)
 
-## Cursor Cloud specific instructions
+## Cloud Agents specific instructions
 
 ### Runtime
 
