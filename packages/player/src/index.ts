@@ -5,6 +5,7 @@ import {PlayerEventEmitterContext} from './emitter-context.js';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {CallbackListener, PlayerEventTypes} from './event-emitter.js';
 import {PlayerEmitter} from './event-emitter.js';
+import {loadComponentFromUrl} from './load-component-from-url.js';
 import {useFrameImperative} from './use-frame-imperative.js';
 import {useHoverState} from './use-hover-state.js';
 import {usePlayback} from './use-playback.js';
@@ -32,6 +33,8 @@ export type {ErrorFallback, RenderLoading, RenderPoster} from './PlayerUI.js';
 export type {RenderVolumeSlider} from './render-volume-slider.js';
 export {Thumbnail} from './Thumbnail.js';
 export type {ThumbnailProps, ThumbnailPropsWithoutZod} from './Thumbnail.js';
+export {loadComponentFromUrl as experimental_loadComponentFromUrl};
+export type {LoadComponentFromUrlOptions} from './load-component-from-url.js';
 export type {Size} from './utils/use-element-size.js';
 export type {CallbackListener, PlayerEventTypes as EventTypes};
 
@@ -47,4 +50,5 @@ export const PlayerInternals = {
 	PlayerEmitterProvider,
 	BufferingIndicator,
 	useFrameImperative,
+	loadComponentFromUrl,
 };
