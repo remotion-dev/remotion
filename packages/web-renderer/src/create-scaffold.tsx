@@ -85,7 +85,7 @@ const normalizeUncaughtReactError = (
 	componentStack: string | undefined,
 ): Error => {
 	if (err instanceof Error) {
-		const cause = err.cause;
+		const {cause} = err;
 		const shouldUnwrapCause =
 			cause instanceof Error &&
 			GENERIC_REACT_RENDER_ERROR_MESSAGES.has(err.message);
@@ -188,7 +188,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 		onUncaughtError: (err, errorInfo) => {
 			errorHolder.error = normalizeUncaughtReactError(
 				err,
-				errorInfo.componentStack,
+				errorInfo?.componentStack,
 			);
 		},
 	});

@@ -47,7 +47,11 @@ test('should propagate errors thrown in useEffect', async () => {
 test('should propagate useful errors for non-Error throw values', async () => {
 	const ThrowsObjectInUseEffect: React.FC = () => {
 		useEffect(() => {
-			throw {foo: 'bar', reason: 'object-error'};
+			const objectThrownAsUnknown: unknown = {
+				foo: 'bar',
+				reason: 'object-error',
+			};
+			throw objectThrownAsUnknown;
 		}, []);
 
 		return <div>Hello</div>;
