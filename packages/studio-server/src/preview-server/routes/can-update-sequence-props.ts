@@ -221,6 +221,25 @@ export const lineColumnToNodePath = (
 	return foundPath;
 };
 
+const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
+
+const isSupportedTranslateValue = (value: string): boolean => {
+	const parts = value.split(/\s+/);
+	if (parts.length === 1 || parts.length === 2) {
+		return parts.every((part) => PIXEL_VALUE_REGEX.test(part));
+	}
+
+	return false;
+};
+
+const validateStyleValue = (childKey: string, value: unknown): boolean => {
+	if (childKey === 'translate' && typeof value === 'string') {
+		return isSupportedTranslateValue(value);
+	}
+
+	return true;
+};
+
 const getNestedPropStatus = (
 	jsxElement: JSXOpeningElement,
 	parentKey: string,
@@ -269,7 +288,49 @@ const getNestedPropStatus = (
 		return {canUpdate: false, reason: 'computed'};
 	}
 
-	return {canUpdate: true, codeValue: extractStaticValue(propValue)};
+	const codeValue = extractStaticValue(propValue);
+	if (!validateStyleValue(childKey, codeValue)) {
+		return {canUpdate: false, reason: 'computed'};
+	}
+
+	return {canUpdate: true, codeValue};
+};
+
+export const computeSequencePropsStatusFromContent = (
+	fileContents: string,
+	nodePath: SequenceNodePath,
+	keys: string[],
+): CanUpdateSequencePropsResponse => {
+	const ast = parseAst(fileContents);
+
+	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
+
+	if (!jsxElement) {
+		throw new Error('Could not find a JSX element at the specified location');
+	}
+
+	const allProps = getPropsStatus(jsxElement);
+	const filteredProps: Record<string, CanUpdatePropStatus> = {};
+	for (const key of keys) {
+		const dotIndex = key.indexOf('.');
+		if (dotIndex !== -1) {
+			filteredProps[key] = getNestedPropStatus(
+				jsxElement,
+				key.slice(0, dotIndex),
+				key.slice(dotIndex + 1),
+			);
+		} else if (key in allProps) {
+			filteredProps[key] = allProps[key];
+		} else {
+			filteredProps[key] = {canUpdate: true, codeValue: undefined};
+		}
+	}
+
+	return {
+		canUpdate: true as const,
+		props: filteredProps,
+		nodePath,
+	};
 };
 
 export const computeSequencePropsStatus = ({
@@ -291,36 +352,7 @@ export const computeSequencePropsStatus = ({
 		}
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
-		const ast = parseAst(fileContents);
-
-		const jsxElement = findJsxElementAtNodePath(ast, nodePath);
-
-		if (!jsxElement) {
-			throw new Error('Could not find a JSX element at the specified location');
-		}
-
-		const allProps = getPropsStatus(jsxElement);
-		const filteredProps: Record<string, CanUpdatePropStatus> = {};
-		for (const key of keys) {
-			const dotIndex = key.indexOf('.');
-			if (dotIndex !== -1) {
-				filteredProps[key] = getNestedPropStatus(
-					jsxElement,
-					key.slice(0, dotIndex),
-					key.slice(dotIndex + 1),
-				);
-			} else if (key in allProps) {
-				filteredProps[key] = allProps[key];
-			} else {
-				filteredProps[key] = {canUpdate: true, codeValue: undefined};
-			}
-		}
-
-		return {
-			canUpdate: true as const,
-			props: filteredProps,
-			nodePath,
-		};
+		return computeSequencePropsStatusFromContent(fileContents, nodePath, keys);
 	} catch (err) {
 		return {
 			canUpdate: false as const,
