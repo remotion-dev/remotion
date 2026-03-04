@@ -31,14 +31,18 @@ declare const __webpack_module__: {
 	};
 };
 
-if (typeof __webpack_module__ !== 'undefined') {
-	if (__webpack_module__.hot) {
-		__webpack_module__.hot.addStatusHandler((status) => {
-			if (status === 'idle') {
-				fastRefreshNonce++;
-			}
-		});
+try {
+	if (typeof __webpack_module__ !== 'undefined') {
+		if (__webpack_module__.hot) {
+			__webpack_module__.hot.addStatusHandler((status) => {
+				if (status === 'idle') {
+					fastRefreshNonce++;
+				}
+			});
+		}
 	}
+} catch {
+	// __webpack_module__ may throw ReferenceError in some environments
 }
 
 export const useNonce = (): NonceHistoryContext => {
