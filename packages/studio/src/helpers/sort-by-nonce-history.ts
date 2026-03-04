@@ -1,4 +1,6 @@
-import type {NonceHistory} from './nonce.js';
+import type {TSequence} from 'remotion';
+
+type NonceHistory = TSequence['nonce'];
 
 const getSharedEpochOrder = (
 	a: NonceHistory,

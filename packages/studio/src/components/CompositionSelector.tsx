@@ -9,6 +9,7 @@ import {
 	ExpandedFoldersContext,
 	openFolderKey,
 } from '../helpers/persist-open-folders';
+import {sortItemsByNonceHistory} from '../helpers/sort-by-nonce-history';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {
@@ -113,7 +114,7 @@ export const CompositionSelector: React.FC = () => {
 	const selectComposition = useSelectComposition();
 
 	const sortedCompositions = useMemo(() => {
-		return Internals.sortItemsByNonceHistory(compositions);
+		return sortItemsByNonceHistory(compositions);
 	}, [compositions]);
 
 	const items = useMemo(() => {

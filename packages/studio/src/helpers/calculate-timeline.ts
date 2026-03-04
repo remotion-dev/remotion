@@ -1,5 +1,4 @@
 import type {TSequence} from 'remotion';
-import {Internals} from 'remotion';
 import {
 	getCascadedStart,
 	getTimelineVisibleDuration,
@@ -12,6 +11,7 @@ import type {
 	TrackWithHashAndOriginalTimings,
 } from './get-timeline-sequence-sort-key';
 import {getTimelineSequenceSequenceSortKey} from './get-timeline-sequence-sort-key';
+import {sortItemsByNonceHistory} from './sort-by-nonce-history';
 
 export const calculateTimeline = ({
 	sequences,
@@ -20,7 +20,7 @@ export const calculateTimeline = ({
 	sequences: TSequence[];
 	sequenceDuration: number;
 }): TrackWithHash[] => {
-	const sortedSequences = Internals.sortItemsByNonceHistory(sequences);
+	const sortedSequences = sortItemsByNonceHistory(sequences);
 	const tracks: TrackWithHashAndOriginalTimings[] = [];
 
 	if (sortedSequences.length === 0) {

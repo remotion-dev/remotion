@@ -100,7 +100,6 @@ import {
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
-import {sortItemsByNonceHistory} from './sort-by-nonce-history.js';
 import * as TimelinePosition from './timeline-position-state.js';
 import {
 	persistCurrentFrame,
@@ -234,7 +233,6 @@ export const Internals = {
 	EditorPropsContext,
 	usePreload,
 	NonceContext,
-	sortItemsByNonceHistory,
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
 	ResolveCompositionContext,

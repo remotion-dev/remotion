@@ -1,9 +1,11 @@
 import {expect, test} from 'bun:test';
-import type {NonceHistory} from '../nonce';
+import type {TSequence} from 'remotion';
 import {
 	compareNonceHistories,
 	sortItemsByNonceHistory,
-} from '../sort-by-nonce-history';
+} from '../helpers/sort-by-nonce-history';
+
+type NonceHistory = TSequence['nonce'];
 
 test('sorts by latest nonce ascending', () => {
 	const a: NonceHistory = [[0, 10]];
