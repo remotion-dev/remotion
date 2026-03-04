@@ -174,6 +174,21 @@ export const printHelp = (logLevel: LogLevel) => {
 	Log.info({indent: false, logLevel});
 	Log.info(
 		{indent: false, logLevel},
+		chalk.blue('remotion transcribe') +
+			chalk.gray(' <input-file> [output-file]'),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		'Transcribe audio or video to captions using Whisper.cpp.',
+	);
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray('https://www.remotion.dev/docs/cli/transcribe'),
+	);
+
+	Log.info({indent: false, logLevel});
+	Log.info(
+		{indent: false, logLevel},
 		'Visit https://www.remotion.dev/docs/cli for browsable CLI documentation.',
 	);
 };

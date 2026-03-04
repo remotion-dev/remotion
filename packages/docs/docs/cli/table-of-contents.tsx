@@ -74,6 +74,10 @@ export const TableOfContents: React.FC = () => {
 						Execute an <code>ffprobe</code> command
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/cli/transcribe">
+					<strong>transcribe</strong>
+					<div>Transcribe audio or video to captions</div>
+				</TOCItem>
 				<TOCItem link="/docs/cli/help">
 					<strong>help</strong>
 					<div>Show CLI commands</div>

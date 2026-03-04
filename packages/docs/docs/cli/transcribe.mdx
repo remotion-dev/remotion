@@ -1,0 +1,91 @@
+---
+image: /generated/articles-docs-cli-transcribe.png
+title: npx remotion transcribe
+sidebar_label: transcribe
+crumb: CLI Reference
+---
+
+Transcribe an audio or video file to captions using [Whisper.cpp](/docs/install-whisper-cpp). The command handles installation, model downloading, audio conversion, and transcription automatically.
+
+```bash
+npx remotion transcribe <input-file> [output-file]
+```
+
+The output file defaults to `<input-basename>.json` if not specified.
+
+The output is a JSON file containing a [`Caption[]`](/docs/captions/caption) array from `@remotion/captions`.
+
+## Phases
+
+The command runs through 4 phases, each showing progress:
+
+1. **Install whisper.cpp** - Clones and builds whisper.cpp if not already present
+2. **Download model** - Downloads the specified Whisper model if not already present
+3. **Convert audio** - Converts the input file to a 16kHz WAV file using FFmpeg
+4. **Transcribe** - Runs Whisper.cpp on the audio and outputs captions
+
+## Example
+
+```bash
+npx remotion transcribe video.mp4
+```
+
+This will create `video.json` with the transcription.
+
+```bash
+npx remotion transcribe video.mp4 captions.json --model=large-v3
+```
+
+This will transcribe using the `large-v3` model and save to `captions.json`.
+
+## Flags
+
+### `--model`
+
+The Whisper model to use. Default: `medium`.
+
+Available models: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`, `large-v3-turbo`.
+
+### `--whisper-version`
+
+The version of whisper.cpp to install. Default: `1.5.5`.
+
+### `--whisper-path`
+
+The path where whisper.cpp should be installed. Default: `./whisper.cpp`.
+
+### `--model-folder`
+
+Custom folder for storing Whisper models. Defaults to the `models` folder inside the whisper.cpp directory.
+
+### `--language`
+
+Specify the language of the audio. If not set, Whisper will auto-detect the language.
+
+### `--translate-to-english`
+
+Translate the transcription to English. Default: `false`.
+
+### `--token-level-timestamps`
+
+Enable token-level timestamps using DTW. Default: `true`.
+
+### `--flash-attention`
+
+Enable flash attention for faster transcription. Default: `false`.
+
+### `--log`
+
+Set the log level. Use `--log=verbose` to see all compilation and transcription output line-by-line instead of progress bars.
+
+### `--quiet` / `-q`
+
+Suppress all output.
+
+## See also
+
+- [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)
+- [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp)
+- [`downloadWhisperModel()`](/docs/install-whisper-cpp/download-whisper-model)
+- [`transcribe()`](/docs/install-whisper-cpp/transcribe)
+- [`@remotion/captions`](/docs/captions)

@@ -17,6 +17,7 @@ const execute = ({
 	shell,
 	args,
 	bin,
+	onOutput,
 }: {
 	printOutput: boolean;
 	signal: AbortSignal | null;
@@ -24,8 +25,13 @@ const execute = ({
 	shell: string | null;
 	bin: string;
 	args: string[];
+	onOutput: ((line: string) => void) | null;
 }) => {
-	const stdio: StdioOptions = printOutput ? 'inherit' : 'ignore';
+	const stdio: StdioOptions = onOutput
+		? 'pipe'
+		: printOutput
+			? 'inherit'
+			: 'ignore';
 
 	return new Promise<void>((resolve, reject) => {
 		const child = spawn(bin, args, {
@@ -34,6 +40,21 @@ const execute = ({
 			cwd: cwd ?? undefined,
 			shell: shell ?? undefined,
 		});
+
+		if (onOutput) {
+			const handleData = (data: Buffer) => {
+				const str = data.toString('utf-8');
+				const lines = str.split('\n');
+				for (const line of lines) {
+					if (line.trim()) {
+						onOutput(line);
+					}
+				}
+			};
+
+			child.stdout?.on('data', handleData);
+			child.stderr?.on('data', handleData);
+		}
 
 		child.on('exit', (code, exitSignal) => {
 			if (code !== 0) {
@@ -89,6 +110,7 @@ const installForWindows = async ({
 		cwd: null,
 		bin: 'Expand-Archive',
 		args: ['-Force', filePath, to],
+		onOutput: null,
 	});
 
 	rmSync(filePath);
@@ -99,11 +121,13 @@ const installWhisperForUnix = async ({
 	to,
 	printOutput,
 	signal,
+	onOutput,
 }: {
 	version: string;
 	to: string;
 	printOutput: boolean;
 	signal: AbortSignal | null;
+	onOutput: ((line: string) => void) | null;
 }): Promise<void> => {
 	await execute({
 		bin: 'git',
@@ -112,6 +136,7 @@ const installWhisperForUnix = async ({
 		signal,
 		cwd: null,
 		shell: null,
+		onOutput,
 	});
 
 	const ref = getIsSemVer(version) ? `v${version}` : version;
@@ -123,6 +148,7 @@ const installWhisperForUnix = async ({
 		cwd: to,
 		signal,
 		shell: null,
+		onOutput,
 	});
 
 	await execute({
@@ -132,6 +158,7 @@ const installWhisperForUnix = async ({
 		signal,
 		printOutput,
 		shell: null,
+		onOutput,
 	});
 };
 
@@ -165,11 +192,13 @@ export const installWhisperCpp = async ({
 	to,
 	printOutput = true,
 	signal,
+	onOutput,
 }: {
 	version: string;
 	to: string;
 	signal?: AbortSignal | null;
 	printOutput?: boolean;
+	onOutput?: (line: string) => void;
 }): Promise<{
 	alreadyExisted: boolean;
 }> => {
@@ -200,6 +229,7 @@ export const installWhisperCpp = async ({
 			to,
 			printOutput,
 			signal: signal ?? null,
+			onOutput: onOutput ?? null,
 		});
 		return Promise.resolve({alreadyExisted: false});
 	}
