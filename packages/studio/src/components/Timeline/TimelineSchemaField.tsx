@@ -47,12 +47,18 @@ export const TimelineFieldValue: React.FC<{
 	}
 
 	if (propStatus !== null && !propStatus.canUpdate) {
-		return <span style={unsupportedLabel}>{propStatus.reason}</span>;
+		if (propStatus.reason === 'computed') {
+			return <span style={unsupportedLabel}>computed</span>;
+		}
+
+		throw new Error(
+			`Unsupported prop status: ${propStatus.reason satisfies never}`,
+		);
 	}
 
 	if (propStatus === null) {
 		return (
-			<span style={{...notEditableBackground}}>
+			<span style={notEditableBackground}>
 				<span style={unsupportedLabel}>error</span>
 			</span>
 		);
