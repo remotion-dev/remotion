@@ -92,13 +92,13 @@ const label: React.CSSProperties = {
 	fontSize: 14,
 };
 
-export type RenderType = 'server-render' | 'client-render';
+export type RenderType = 'server-render' | 'client-render' | 'render-command';
 
 const RENDER_TYPE_STORAGE_KEY = 'remotion.renderType';
 
 const getInitialRenderType = (readOnlyStudio: boolean): RenderType => {
 	if (!SHOW_BROWSER_RENDERING) {
-		return 'server-render';
+		return readOnlyStudio ? 'render-command' : 'server-render';
 	}
 
 	if (readOnlyStudio) {
@@ -185,6 +185,16 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 	const canRender = canServerRender || SHOW_BROWSER_RENDERING || readOnlyStudio;
 
 	const renderType: RenderType = useMemo(() => {
+		if (readOnlyStudio) {
+			if (!SHOW_BROWSER_RENDERING) {
+				return 'render-command';
+			}
+
+			return preferredRenderType === 'render-command'
+				? 'render-command'
+				: 'client-render';
+		}
+
 		if (connectionStatus === 'disconnected' && SHOW_BROWSER_RENDERING) {
 			return 'client-render';
 		}
@@ -194,11 +204,11 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 		}
 
 		return preferredRenderType;
-	}, [connectionStatus, preferredRenderType]);
+	}, [connectionStatus, preferredRenderType, readOnlyStudio]);
 
 	const shortcut = areKeyboardShortcutsDisabled() ? '' : '(R)';
 	const tooltip =
-		readOnlyStudio && !SHOW_BROWSER_RENDERING
+		renderType === 'render-command'
 			? 'Copy a CLI command to render this composition ' + shortcut
 			: canRender
 				? 'Export the current composition ' + shortcut
@@ -362,7 +372,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 	]);
 
 	const onClick = useCallback(() => {
-		if (readOnlyStudio && !SHOW_BROWSER_RENDERING) {
+		if (renderType === 'render-command') {
 			openReadOnlyRenderCommandModal();
 			return;
 		}
@@ -373,7 +383,6 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			openClientRenderModal();
 		}
 	}, [
-		readOnlyStudio,
 		renderType,
 		openReadOnlyRenderCommandModal,
 		openServerRenderModal,
@@ -397,13 +406,46 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 
 			if (newType === 'server-render') {
 				openServerRenderModal();
+			} else if (newType === 'render-command') {
+				openReadOnlyRenderCommandModal();
 			} else {
 				openClientRenderModal();
 			}
 		},
-		[openServerRenderModal, openClientRenderModal],
+		[
+			openClientRenderModal,
+			openReadOnlyRenderCommandModal,
+			openServerRenderModal,
+		],
 	);
 	const dropdownValues: ComboboxValue[] = useMemo(() => {
+		if (readOnlyStudio) {
+			return [
+				{
+					type: 'item' as const,
+					id: 'client-render',
+					label: 'Render on web',
+					value: 'client-render',
+					onClick: () => handleRenderTypeChange('client-render'),
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: null,
+				},
+				{
+					type: 'item' as const,
+					id: 'render-command',
+					label: 'Render via CLI',
+					value: 'render-command',
+					onClick: () => handleRenderTypeChange('render-command'),
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: null,
+				},
+			];
+		}
+
 		return [
 			{
 				type: 'item' as const,
@@ -428,7 +470,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 				quickSwitcherLabel: null,
 			},
 		];
-	}, [handleRenderTypeChange]);
+	}, [handleRenderTypeChange, readOnlyStudio]);
 
 	const spaceToBottom = useMemo(() => {
 		const margin = 10;
@@ -482,19 +524,17 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 	}, [canRender]);
 
 	const renderLabel =
-		readOnlyStudio && !SHOW_BROWSER_RENDERING
-			? 'Render via CLI'
-			: renderType === 'server-render'
-				? 'Render'
+		renderType === 'server-render'
+			? 'Render'
+			: renderType === 'render-command'
+				? 'Render via CLI'
 				: 'Render on web';
 
 	const shouldShowDropdown = useMemo(() => {
-		// Server render is not available
 		if (readOnlyStudio) {
-			return false;
+			return SHOW_BROWSER_RENDERING;
 		}
 
-		// client render is not available
 		if (!SHOW_BROWSER_RENDERING) {
 			return false;
 		}
@@ -542,7 +582,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 							ref={dropdownRef}
 							type="button"
 							style={dropdownTriggerStyle}
-							disabled={connectionStatus !== 'connected'}
+							disabled={!readOnlyStudio && connectionStatus !== 'connected'}
 							className={MENU_INITIATOR_CLASSNAME}
 							onPointerDown={onPointerDown}
 							onClick={onClickDropdown}
