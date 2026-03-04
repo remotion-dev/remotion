@@ -98,8 +98,9 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 	const onInputChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
+		(e) => {
 			const parsed = Number(e.target.value);
-			if (!Number.isNaN(parsed)) {
+			if (e.target.value !== '' && !Number.isNaN(parsed)) {
 				onValueChange(parsed);
 			}
 		},
