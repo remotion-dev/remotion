@@ -1,6 +1,7 @@
 import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import {failOrThrow, type ExitBehavior} from './exit-behavior';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
 import type {ParsedCommandLine} from './parsed-cli';
@@ -14,6 +15,7 @@ const defaultConfigFileTypescript = 'remotion.config.ts';
 export const loadConfig = (
 	remotionRoot: string,
 	commandLine: ParsedCommandLine = parsedCli,
+	exitBehavior: ExitBehavior = 'process-exit',
 ): Promise<string | null> => {
 	const configFile = configOption.getValue({commandLine}).value;
 	if (configFile) {
@@ -23,10 +25,21 @@ export const loadConfig = (
 				{indent: false, logLevel: 'error'},
 				`You specified a config file location of "${configFile}" but no file under ${fullPath} was found.`,
 			);
-			process.exit(1);
+			return failOrThrow({
+				behavior: exitBehavior,
+				code: 1,
+				error: new Error(
+					`You specified a config file location of "${configFile}" but no file under ${fullPath} was found.`,
+				),
+			});
 		}
 
-		return loadConfigFile(remotionRoot, configFile, fullPath.endsWith('.js'));
+		return loadConfigFile(
+			remotionRoot,
+			configFile,
+			fullPath.endsWith('.js'),
+			exitBehavior,
+		);
 	}
 
 	if (remotionRoot === null) {
@@ -34,11 +47,21 @@ export const loadConfig = (
 	}
 
 	if (existsSync(path.resolve(remotionRoot, defaultConfigFileTypescript))) {
-		return loadConfigFile(remotionRoot, defaultConfigFileTypescript, false);
+		return loadConfigFile(
+			remotionRoot,
+			defaultConfigFileTypescript,
+			false,
+			exitBehavior,
+		);
 	}
 
 	if (existsSync(path.resolve(remotionRoot, defaultConfigFileJavascript))) {
-		return loadConfigFile(remotionRoot, defaultConfigFileJavascript, true);
+		return loadConfigFile(
+			remotionRoot,
+			defaultConfigFileJavascript,
+			true,
+			exitBehavior,
+		);
 	}
 
 	return Promise.resolve(null);

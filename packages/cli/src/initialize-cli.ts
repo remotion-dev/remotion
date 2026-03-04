@@ -1,6 +1,7 @@
 import path from 'path';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {ExitBehavior} from './exit-behavior';
 import {loadConfig} from './get-config-file-name';
 import {makeHyperlink} from './hyperlinks/make-link';
 import {Log} from './log';
@@ -11,8 +12,9 @@ import {parsedCli} from './parsed-cli';
 export const initializeCli = async (
 	remotionRoot: string,
 	commandLine: ParsedCommandLine = parsedCli,
+	exitBehavior: ExitBehavior = 'process-exit',
 ): Promise<LogLevel> => {
-	const appliedName = await loadConfig(remotionRoot, commandLine);
+	const appliedName = await loadConfig(remotionRoot, commandLine, exitBehavior);
 
 	parseCommandLine(commandLine);
 	const logLevel = BrowserSafeApis.options.logLevelOption.getValue({

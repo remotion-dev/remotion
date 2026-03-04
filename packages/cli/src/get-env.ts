@@ -6,6 +6,7 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import dotenv from 'dotenv';
 import {chalk} from './chalk';
+import {failOrThrow, type ExitBehavior} from './exit-behavior';
 import {makeHyperlink} from './hyperlinks/make-link';
 import {Log} from './log';
 import type {ParsedCommandLine} from './parsed-cli';
@@ -82,13 +83,15 @@ const getEnvForEnvFile = ({
 	onUpdate,
 	logLevel,
 	indent,
+	exitBehavior,
 }: {
 	processEnv: ReturnType<typeof getProcessEnv>;
 	envFile: string;
 	onUpdate: null | ((newProps: Record<string, string>) => void);
 	logLevel: LogLevel;
 	indent: boolean;
-}) => {
+	exitBehavior: ExitBehavior;
+}): Record<string, string> => {
 	try {
 		const envFileData = readFileSync(envFile);
 		if (onUpdate) {
@@ -118,7 +121,11 @@ const getEnvForEnvFile = ({
 			`Your .env file at ${envFile} could not not be parsed.`,
 		);
 		Log.error({indent: false, logLevel}, err);
-		process.exit(1);
+		return failOrThrow({
+			behavior: exitBehavior,
+			code: 1,
+			error: new Error(`Your .env file at ${envFile} could not not be parsed.`),
+		});
 	}
 };
 
@@ -141,7 +148,10 @@ export const getEnvironmentVariables = (
 	onUpdate: null | ((newProps: Record<string, string>) => void),
 	logLevel: LogLevel,
 	indent: boolean,
-	commandLine: ParsedCommandLine = parsedCli,
+	{
+		commandLine = parsedCli,
+		exitBehavior = 'process-exit',
+	}: {commandLine?: ParsedCommandLine; exitBehavior?: ExitBehavior} = {},
 ): Record<string, string> => {
 	const processEnv = getProcessEnv();
 
@@ -170,10 +180,23 @@ export const getEnvironmentVariables = (
 				{indent: false, logLevel},
 				'Check that your path is correct and try again.',
 			);
-			process.exit(1);
+			return failOrThrow({
+				behavior: exitBehavior,
+				code: 1,
+				error: new Error(
+					`The env file could not be found at ${envFile}. Check that your path is correct and try again.`,
+				),
+			});
 		}
 
-		return getEnvForEnvFile({processEnv, envFile, onUpdate, logLevel, indent});
+		return getEnvForEnvFile({
+			processEnv,
+			envFile,
+			onUpdate,
+			logLevel,
+			indent,
+			exitBehavior,
+		});
 	}
 
 	const {defaultEnvFile, found} = findDotEnvFile(remotionRoot);
@@ -204,5 +227,6 @@ export const getEnvironmentVariables = (
 		onUpdate,
 		logLevel,
 		indent,
+		exitBehavior,
 	});
 };

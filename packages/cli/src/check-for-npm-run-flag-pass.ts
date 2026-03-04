@@ -2,14 +2,17 @@
 // We don't receive it.
 
 import type {LogLevel} from '@remotion/renderer';
+import {failOrThrow, type ExitBehavior} from './exit-behavior';
 import {Log} from './log';
 
 export const checkForNpmRunFlagPass = ({
 	indent,
 	logLevel,
+	exitBehavior = 'process-exit',
 }: {
 	indent: boolean;
 	logLevel: LogLevel;
+	exitBehavior?: ExitBehavior;
 }) => {
 	if (!process.env.npm_config_log) {
 		return;
@@ -64,5 +67,11 @@ export const checkForNpmRunFlagPass = ({
 		logLevel,
 	});
 
-	process.exit(1);
+	failOrThrow({
+		behavior: exitBehavior,
+		code: 1,
+		error: new Error(
+			`The environment variable "npm_config_log" is set to "${process.env.npm_config_log}".`,
+		),
+	});
 };

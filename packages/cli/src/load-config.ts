@@ -2,12 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import {BundlerInternals} from '@remotion/bundler';
+import {failOrThrow, type ExitBehavior} from './exit-behavior';
 import {Log} from './log';
 
 export const loadConfigFile = async (
 	remotionRoot: string,
 	configFileName: string,
 	isJavascript: boolean,
+	exitBehavior: ExitBehavior = 'process-exit',
 ): Promise<string | null> => {
 	const resolved = path.resolve(remotionRoot, configFileName);
 
@@ -22,7 +24,13 @@ export const loadConfigFile = async (
 			'The root directory is:',
 			remotionRoot,
 		);
-		process.exit(1);
+		return failOrThrow({
+			behavior: exitBehavior,
+			code: 1,
+			error: new Error(
+				'Could not find a tsconfig.json file in your project. Create a tsconfig.json in the project root.',
+			),
+		});
 	}
 
 	const virtualOutfile = 'bundle.js';
@@ -46,7 +54,11 @@ export const loadConfigFile = async (
 			Log.error({indent: false, logLevel: 'error'}, err);
 		}
 
-		process.exit(1);
+		return failOrThrow({
+			behavior: exitBehavior,
+			code: 1,
+			error: new Error('Error in remotion.config.ts file.'),
+		});
 	}
 
 	const firstOutfile = result.outputFiles[0];
@@ -56,7 +68,11 @@ export const loadConfigFile = async (
 			{indent: false, logLevel: 'error'},
 			'No output files found in the config file.',
 		);
-		process.exit(1);
+		return failOrThrow({
+			behavior: exitBehavior,
+			code: 1,
+			error: new Error('No output files found in the config file.'),
+		});
 	}
 
 	let str = new TextDecoder().decode(firstOutfile.contents);

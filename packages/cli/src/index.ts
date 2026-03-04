@@ -59,12 +59,23 @@ import {
 const {packageManagerOption, versionFlagOption} = BrowserSafeApis.options;
 
 export type StudioOptions = {
+	/**
+	 * Positional and flag arguments, same format as `npx remotion studio`.
+	 * Example: `['src/index.ts', '--port=4321', '--no-open']`.
+	 */
 	args?: string[];
 	remotionRoot?: string;
 	logLevel?: LogLevel;
 	checkVersionMismatch?: boolean;
 };
 
+/**
+ * Start Remotion Studio from Node.js.
+ *
+ * The promise resolves when connecting to an already-running Studio.
+ * If a new Studio instance is started, this call is long-running and does not
+ * currently return a programmatic `close()` handle.
+ */
 export const studio = async ({
 	args = [],
 	remotionRoot = RenderInternals.findRemotionRoot(),
@@ -80,14 +91,18 @@ export const studio = async ({
 		);
 	}
 
-	const initializedLogLevel = await initializeCli(remotionRoot, commandLine);
+	const initializedLogLevel = await initializeCli(
+		remotionRoot,
+		commandLine,
+		'throw',
+	);
 	const logLevel = desiredLogLevel ?? initializedLogLevel;
 
-	handleCtrlC({indent: false, logLevel});
-	checkForNpmRunFlagPass({indent: false, logLevel});
-
 	try {
-		await studioCommand(remotionRoot, commandLine._, logLevel, commandLine);
+		await studioCommand(remotionRoot, commandLine._, logLevel, {
+			commandLine,
+			exitBehavior: 'throw',
+		});
 	} finally {
 		cleanupBeforeQuit({indent: false, logLevel});
 	}

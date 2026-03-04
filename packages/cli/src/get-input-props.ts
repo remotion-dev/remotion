@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import {failOrThrow, type ExitBehavior} from './exit-behavior';
 import {Log} from './log';
 import type {ParsedCommandLine} from './parsed-cli';
 import {parsedCli} from './parsed-cli';
@@ -13,6 +14,7 @@ export const getInputProps = (
 	onUpdate: ((newProps: Record<string, unknown>) => void) | null,
 	logLevel: LogLevel,
 	commandLine: ParsedCommandLine = parsedCli,
+	exitBehavior: ExitBehavior = 'process-exit',
 ): Record<string, unknown> => {
 	const props = propsOption.getValue({commandLine}).value;
 	if (!props) {
@@ -74,6 +76,12 @@ export const getInputProps = (
 			Log.warn(logOptions, '  --props=path/to/props.json');
 		}
 
-		process.exit(1);
+		return failOrThrow({
+			behavior: exitBehavior,
+			code: 1,
+			error: new Error(
+				'You passed --props but it was neither valid JSON nor a valid path to a JSON file.',
+			),
+		});
 	}
 };

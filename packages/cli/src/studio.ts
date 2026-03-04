@@ -4,6 +4,7 @@ import {StudioServerInternals} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
+import {failOrThrow, type ExitBehavior} from './exit-behavior';
 import {getEnvironmentVariables} from './get-env';
 import {getGitSource} from './get-github-repository';
 import {getInputProps} from './get-input-props';
@@ -42,7 +43,10 @@ export const studioCommand = async (
 	remotionRoot: string,
 	args: string[],
 	logLevel: LogLevel,
-	commandLine: ParsedCommandLine = parsedCli,
+	{
+		commandLine = parsedCli,
+		exitBehavior = 'process-exit',
+	}: {commandLine?: ParsedCommandLine; exitBehavior?: ExitBehavior} = {},
 ) => {
 	const {file, reason} = findEntryPoint({
 		args,
@@ -69,7 +73,13 @@ export const studioCommand = async (
 			{indent: false, logLevel},
 			'See https://www.remotion.dev/docs/register-root for more information.',
 		);
-		process.exit(1);
+		return failOrThrow({
+			behavior: exitBehavior,
+			code: 1,
+			error: new Error(
+				'No Remotion entrypoint was found. Specify one manually, for example: npx remotion studio src/index.ts',
+			),
+		});
 	}
 
 	const desiredPort =
@@ -91,6 +101,7 @@ export const studioCommand = async (
 		},
 		logLevel,
 		commandLine,
+		exitBehavior,
 	);
 	let envVariables = getEnvironmentVariables(
 		(newEnvVariables) => {
@@ -104,7 +115,7 @@ export const studioCommand = async (
 		},
 		logLevel,
 		false,
-		commandLine,
+		{commandLine, exitBehavior},
 	);
 
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
@@ -209,5 +220,8 @@ export const studioCommand = async (
 	}
 
 	// If the server is restarted through the UI, let's do the whole thing again.
-	await studioCommand(remotionRoot, args, logLevel, commandLine);
+	await studioCommand(remotionRoot, args, logLevel, {
+		commandLine,
+		exitBehavior,
+	});
 };
