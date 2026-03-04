@@ -18,6 +18,8 @@ import type {ProjectInfo} from './project-info';
 import type {RequiredChromiumOptions} from './render-job';
 import type {EnumPath} from './stringify-default-props';
 
+export type SequenceNodePath = Array<string | number>;
+
 export type OpenInFileExplorerRequest = {
 	directory: string;
 };
@@ -194,8 +196,7 @@ export type CanUpdateDefaultPropsResponse =
 
 export type CanUpdateSequencePropsRequest = {
 	fileName: string;
-	line: number;
-	column: number;
+	nodePath: SequenceNodePath;
 	keys: string[];
 };
 
@@ -211,8 +212,7 @@ export type SubscribeToSequencePropsResponse = CanUpdateSequencePropsResponse;
 
 export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
-	line: number;
-	column: number;
+	nodePath: SequenceNodePath;
 	clientId: string;
 };
 
@@ -220,6 +220,7 @@ export type CanUpdateSequencePropsResponse =
 	| {
 			canUpdate: true;
 			props: Record<string, CanUpdateSequencePropStatus>;
+			nodePath: SequenceNodePath;
 	  }
 	| {
 			canUpdate: false;
@@ -228,8 +229,7 @@ export type CanUpdateSequencePropsResponse =
 
 export type SaveSequencePropsRequest = {
 	fileName: string;
-	line: number;
-	column: number;
+	nodePath: SequenceNodePath;
 	key: string;
 	value: string;
 	enumPaths: EnumPath[];

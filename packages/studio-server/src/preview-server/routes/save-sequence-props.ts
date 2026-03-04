@@ -16,7 +16,7 @@ export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse
 > = async ({
-	input: {fileName, line, column, key, value, enumPaths, defaultValue},
+	input: {fileName, nodePath, key, value, enumPaths, defaultValue},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -31,7 +31,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const {output, oldValueString, formatted} = await updateSequenceProps({
 			input: fileContents,
-			targetLine: line,
+			nodePath,
 			key,
 			value: JSON.parse(value),
 			enumPaths,
@@ -42,7 +42,7 @@ export const saveSequencePropsHandler: ApiHandler<
 		writeFileSync(absolutePath, output);
 
 		const newValueString = JSON.stringify(JSON.parse(value));
-		const locationLabel = `${fileRelativeToRoot}:${line}:${column}`;
+		const locationLabel = fileRelativeToRoot;
 		const fileLink = makeHyperlink({
 			url: `file://${absolutePath}`,
 			text: locationLabel,
