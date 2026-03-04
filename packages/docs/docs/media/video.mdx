@@ -328,7 +328,7 @@ Maps to [`<OffthreadVideo />` -> `pauseWhenBuffering`](/docs/offthreadvideo#paus
 
 Maps to [`<OffthreadVideo />` -> `onAutoPlayError`](/docs/offthreadvideo#onautoplayerror)
 
-### `disallowFallbackToOffthreadVideo?`<AvailableFrom v="3.0.356" />
+### `disallowFallbackToOffthreadVideo?`
 
 By default, if the video cannot be embedded using this tag, [a fallback to `<OffthreadVideo>`](/docs/media/fallback) will be attempted.
 
@@ -341,6 +341,10 @@ When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side render
 ### `debugOverlay?`
 
 Shows a debug overlay on the video. This is useful for debugging the video playback.
+
+### `debugAudioScheduling?`
+
+Logs audio scheduling information to the console. This is useful for debugging audio playback timing issues.
 
 ## See also
 

@@ -11,21 +11,28 @@ import {
 } from '../../helpers/timeline-layout';
 import {TimelineFieldRow} from './TimelineFieldRow';
 
+export const EXPANDED_SECTION_PADDING_LEFT = 28;
+export const EXPANDED_SECTION_PADDING_RIGHT = 10;
+
 const expandedSectionBase: React.CSSProperties = {
 	color: 'white',
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	fontSize: 12,
 	display: 'flex',
 	flexDirection: 'column',
-	paddingLeft: 28,
-	paddingRight: 10,
 	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
+};
+
+const separator: React.CSSProperties = {
+	height: 1,
+	backgroundColor: TIMELINE_TRACK_SEPARATOR,
 };
 
 export const TimelineExpandedSection: React.FC<{
 	readonly sequence: TSequence;
 	readonly originalLocation: OriginalPosition | null;
-}> = ({sequence, originalLocation}) => {
+	readonly nestedDepth: number;
+}> = ({sequence, originalLocation, nestedDepth}) => {
 	const overrideId = sequence.controls?.overrideId ?? sequence.id;
 	const schemaFields = useMemo(
 		() => getSchemaFields(sequence.controls),
@@ -63,14 +70,17 @@ export const TimelineExpandedSection: React.FC<{
 	return (
 		<div style={style}>
 			{schemaFields
-				? schemaFields.map((field) => {
+				? schemaFields.map((field, i) => {
 						return (
-							<TimelineFieldRow
-								key={field.key}
-								field={field}
-								overrideId={overrideId}
-								validatedLocation={validatedLocation}
-							/>
+							<React.Fragment key={field.key}>
+								{i > 0 ? <div style={separator} /> : null}
+								<TimelineFieldRow
+									field={field}
+									overrideId={overrideId}
+									validatedLocation={validatedLocation}
+									nestedDepth={nestedDepth}
+								/>
+							</React.Fragment>
 						);
 					})
 				: 'No schema'}

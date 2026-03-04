@@ -34,3 +34,7 @@ loadFont('normal', {
   weights: ['400', '700'], // Only load regular (400) and bold (700)
 });
 ```
+
+If your project uses multiple fonts, centralize font loading in one module and wait until all fonts are loaded before rendering:
+
+- [Higher-order component example](/docs/layout-utils/best-practices#example-with-high-order-component)

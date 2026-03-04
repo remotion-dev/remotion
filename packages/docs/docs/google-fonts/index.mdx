@@ -50,36 +50,45 @@ pnpm i @remotion/google-fonts
 
 To load a font, import the package `@remotion/google-fonts/<FontName>` and call [`loadFont()`](/docs/google-fonts/load-font).
 
-```tsx twoslash title="Load all font styles"
+For production, start with these defaults:
+
+- Pass a style and usually `weights` + `subsets` to avoid loading unnecessary variants.
+- Load your fonts in one module and reuse the exports.
+- If you use text measurement APIs, gate rendering until fonts are ready using a higher-order component.
+
+```tsx twoslash title="Load one style, weight and subset"
 import {loadFont} from '@remotion/google-fonts/TitanOne';
-const {fontFamily} = loadFont(); // "Titan One"
+
+const {fontFamily} = loadFont('normal', {
+  weights: ['400'],
+  subsets: ['latin'],
+}); // "Titan One"
 ```
 
 If you want to import multiple fonts and want to avoid a variable name collision, you can import the fonts using an `import * as` statement.
 
 ```tsx twoslash title="Scope loadFont() variable"
 import * as Montserrat from '@remotion/google-fonts/Montserrat';
-Montserrat.loadFont();
+Montserrat.loadFont('normal', {
+  weights: ['400'],
+  subsets: ['latin'],
+});
 ```
 
-Call [`loadFont()`](/docs/google-fonts/load-font) to start the loading process. By default, every style, weight and subset is loaded.
+Call [`loadFont()`](/docs/google-fonts/load-font) to start the loading process. Calling it without arguments loads every style, weight and subset, which can cause unnecessary requests.
 
-You can pass a style (such as `normal`, `italic`) to only load that specific style. If you want multiple styles, call `loadFont()` multiple times.
+Use TypeScript autocomplete to see the available styles. To further narrow down what's being loaded, specify `weights` and `subsets`. If you need multiple styles, call `loadFont()` multiple times.
 
-```tsx twoslash title="Load just one style"
-import {loadFont} from '@remotion/google-fonts/TitanOne';
-
-loadFont('normal');
-```
-
-Use the TypeScript autocomplete to see the available styles. To further narrow down what's being loaded, you can specify `weights` and `subsets`. These options are also typesafe.
-
-```tsx twoslash title="Load a specific style with limit weights and subsets"
+```tsx twoslash title="Load multiple styles explicitly"
 import * as Montserrat from '@remotion/google-fonts/Montserrat';
 
 Montserrat.loadFont('normal', {
-  weights: ['400', '600', '800'],
-  subsets: ['latin', 'latin-ext'],
+  weights: ['400', '700'],
+  subsets: ['latin'],
+});
+Montserrat.loadFont('italic', {
+  weights: ['400'],
+  subsets: ['latin'],
 });
 ```
 
@@ -89,7 +98,10 @@ Montserrat.loadFont('normal', {
 import {loadFont} from '@remotion/google-fonts/TitanOne';
 import {AbsoluteFill} from 'remotion';
 
-const {fontFamily} = loadFont();
+const {fontFamily} = loadFont('normal', {
+  weights: ['400'],
+  subsets: ['latin'],
+});
 
 export const GoogleFontsDemoComposition = () => {
   return (
@@ -103,6 +115,28 @@ export const GoogleFontsDemoComposition = () => {
   );
 };
 ```
+
+If your project uses multiple fonts, define them in one file and export a `waitForFonts()` helper:
+
+```tsx twoslash title="fonts.ts"
+import {loadFont as loadInter} from '@remotion/google-fonts/Inter';
+import {loadFont as loadRobotoMono} from '@remotion/google-fonts/RobotoMono';
+
+const inter = loadInter('normal', {
+  weights: ['400', '700'],
+  subsets: ['latin'],
+});
+const mono = loadRobotoMono('normal', {
+  weights: ['400'],
+  subsets: ['latin'],
+});
+
+export const waitForFonts = async () => {
+  await Promise.all([inter.waitUntilDone(), mono.waitUntilDone()]);
+};
+```
+
+If you use text measurement APIs, wrap your content in a component that waits for your fonts before rendering. See the [higher-order component example](/docs/layout-utils/best-practices#example-with-high-order-component) and [font loading troubleshooting](/docs/troubleshooting/font-loading-errors).
 
 To get information about a font, you can import the `getInfo()` function:
 

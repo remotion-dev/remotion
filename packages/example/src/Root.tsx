@@ -66,6 +66,7 @@ import RectTest from './Shapes/RectTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
 import {SkipZeroFrame} from './SkipZeroFrame';
+import {SlicedVideo} from './SlicedVideo';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
@@ -159,6 +160,7 @@ import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
 import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
+import {FastUpdates} from './VisualModeTests/FastUpdates';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
 
@@ -1412,6 +1414,14 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 					width={1080}
 				/>
+				<Composition
+					id="sliced-video"
+					component={SlicedVideo}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1920}
+				/>
 			</Folder>
 			<Folder name="Postmount">
 				<Composition
@@ -1883,6 +1893,16 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={165}
+				/>
+			</Folder>
+			<Folder name="VisualModeTests">
+				<Composition
+					id="fast-updates"
+					component={FastUpdates}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
 				/>
 			</Folder>
 			<ChangingTrimBeforeValue />

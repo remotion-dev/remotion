@@ -14,7 +14,7 @@ import {TimelineStack} from './TimelineStack';
 import {useResolvedStack} from './use-resolved-stack';
 import {useSequencePropsSubscription} from './use-sequence-props-subscription';
 
-const SPACING = 5;
+export const SPACING = 5;
 
 const space: React.CSSProperties = {
 	width: SPACING,
@@ -66,7 +66,7 @@ export const TimelineListItem: React.FC<{
 
 	const padder = useMemo((): React.CSSProperties => {
 		return {
-			width: Number(SPACING * 1.5) * nestedDepth,
+			width: Number(SPACING * 3) * nestedDepth,
 			flexShrink: 0,
 		};
 	}, [nestedDepth]);
@@ -153,6 +153,7 @@ export const TimelineListItem: React.FC<{
 				<TimelineExpandedSection
 					sequence={sequence}
 					originalLocation={originalLocation}
+					nestedDepth={nestedDepth}
 				/>
 			) : null}
 		</>

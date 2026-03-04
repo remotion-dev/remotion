@@ -83,7 +83,7 @@ const makeDefaultGlobalCSS = () => {
   
   input:focus,
   textarea:focus,
-  button:focus,
+  button:focus:not(.__remotion_input_dragger),
   a:focus {
     outline: none;
     box-shadow:

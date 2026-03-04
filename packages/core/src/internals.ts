@@ -1,9 +1,11 @@
 import {createRef} from 'react';
 import {getAbsoluteSrc} from './absolute-src.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
+import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
+	type ScheduleAudioNodeOptions,
 } from './audio/shared-audio-tags.js';
 import {
 	useFrameForVolumeProp,
@@ -104,6 +106,7 @@ import {
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
 import {
+	AbsoluteTimeContext,
 	SetTimelineContext,
 	TimelineContext,
 	type SetTimelineContextValue,
@@ -155,6 +158,7 @@ import {evaluateVolume} from './volume-prop.js';
 import {warnAboutTooHighVolume} from './volume-safeguard.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
+import {wrapInSchema} from './wrap-in-schema.js';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
@@ -174,6 +178,7 @@ export const Internals = {
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
+	useAbsoluteTimelinePosition: TimelinePosition.useAbsoluteTimelinePosition,
 	evaluateVolume,
 	getAbsoluteSrc,
 	Timeline: TimelinePosition,
@@ -188,6 +193,7 @@ export const Internals = {
 	SequenceStackTracesUpdateContext,
 	SequenceVisibilityToggleContext,
 	useSchema,
+	wrapInSchema,
 	useSequenceControlOverride,
 	RemotionRootContexts,
 	CompositionManagerProvider,
@@ -269,6 +275,7 @@ export const Internals = {
 	TimelinePosition,
 	DelayRenderContextType,
 	TimelineContext,
+	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
 	getEffectiveVisualModeValue,
 } as const;
@@ -291,5 +298,7 @@ export type {
 	TRenderAsset,
 	TSequence,
 	WatchRemotionStaticFilesPayload,
+	ScheduleAudioNodeOptions,
 	CanUpdateSequencePropStatus,
+	ScheduleAudioNodeResult,
 };

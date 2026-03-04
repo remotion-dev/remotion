@@ -11,6 +11,105 @@ export type ErrorHolder = {
 	error: Error | null;
 };
 
+// React 19 currently reports this wrapper message through onUncaughtError()
+// for some uncaught render failures. This string is not part of a public API,
+// so keep this list in sync when upgrading React.
+const GENERIC_REACT_RENDER_ERROR_MESSAGES = new Set([
+	'Error thrown during rendering',
+]);
+
+const isMessageLikeObject = (
+	err: unknown,
+): err is {
+	message: string;
+} => {
+	return (
+		typeof err === 'object' &&
+		err !== null &&
+		'message' in err &&
+		typeof err.message === 'string'
+	);
+};
+
+const unknownErrorToMessage = (err: unknown): string => {
+	if (typeof err === 'string') {
+		return err;
+	}
+
+	if (isMessageLikeObject(err)) {
+		return err.message;
+	}
+
+	try {
+		const serialized = JSON.stringify(err);
+		if (serialized) {
+			return serialized;
+		}
+	} catch {
+		// ignore
+	}
+
+	return String(err);
+};
+
+const setErrorCause = (error: Error, cause: unknown) => {
+	try {
+		Object.defineProperty(error, 'cause', {
+			value: cause,
+			enumerable: false,
+			configurable: true,
+			writable: true,
+		});
+	} catch {
+		// ignore
+	}
+};
+
+const appendComponentStack = (
+	error: Error,
+	componentStack: string | undefined,
+): Error => {
+	if (!componentStack?.trim()) {
+		return error;
+	}
+
+	const normalizedComponentStack = componentStack.trim();
+	const stack = error.stack ?? `${error.name}: ${error.message}`;
+	if (stack.includes(normalizedComponentStack)) {
+		return error;
+	}
+
+	const errorTitle = `${error.name}: ${error.message}`;
+	const stackWithoutTitle = stack.startsWith(errorTitle)
+		? stack.slice(errorTitle.length).trimStart()
+		: stack;
+	const stackBody =
+		stackWithoutTitle.length > 0 ? `\n${stackWithoutTitle}` : '';
+	error.stack = `${errorTitle}\nFor the likely root cause, see "React component stack:" after the JavaScript stack trace below.${stackBody}\nReact component stack:\n${normalizedComponentStack}`;
+	return error;
+};
+
+const normalizeUncaughtReactError = (
+	err: unknown,
+	componentStack: string | undefined,
+): Error => {
+	if (err instanceof Error) {
+		const {cause} = err;
+		const shouldUnwrapCause =
+			cause instanceof Error &&
+			GENERIC_REACT_RENDER_ERROR_MESSAGES.has(err.message);
+
+		// Only unwrap known generic wrappers so intentional custom wrappers can
+		// still bubble up unchanged.
+		const errorToThrow = shouldUnwrapCause ? cause : err;
+		return appendComponentStack(errorToThrow, componentStack);
+	}
+
+	const normalized = new Error(unknownErrorToMessage(err));
+	setErrorCause(normalized, err);
+	return appendComponentStack(normalized, componentStack);
+};
+
 export function checkForError(errorHolder: ErrorHolder): void {
 	if (errorHolder.error) {
 		throw errorHolder.error;
@@ -97,8 +196,11 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	const errorHolder: ErrorHolder = {error: null};
 
 	const root = ReactDOM.createRoot(div, {
-		onUncaughtError: (err) => {
-			errorHolder.error = err instanceof Error ? err : new Error(String(err));
+		onUncaughtError: (err, errorInfo) => {
+			errorHolder.error = normalizeUncaughtReactError(
+				err,
+				errorInfo?.componentStack,
+			);
 		},
 	});
 
