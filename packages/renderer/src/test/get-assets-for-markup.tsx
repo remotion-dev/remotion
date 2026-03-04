@@ -122,7 +122,6 @@ export const getAssetsForMarkup = async (
 						numberOfAudioTags={0}
 						logLevel="info"
 						audioLatencyHint="interactive"
-						nonceContextSeed={0}
 					>
 						<Internals.RenderAssetManagerProvider collectAssets={null}>
 							<Internals.CompositionManager.Provider value={value}>

@@ -48,7 +48,10 @@ const update = () => {
 		writeFileSync(filePath, makeContent(seed, false));
 	} else if (step === 3) {
 		console.log('Step 4/5: Duplicating <LightLeak>');
-		writeFileSync(filePath, makeContent(Math.floor(Math.random() * 1000), true));
+		writeFileSync(
+			filePath,
+			makeContent(Math.floor(Math.random() * 1000), true),
+		);
 	} else {
 		console.log('Step 5/5: Removing <LightLeak>');
 		writeFileSync(filePath, makeContentWithoutLightLeak());
@@ -58,4 +61,4 @@ const update = () => {
 };
 
 update();
-setInterval(update, 1000);
+setInterval(update, 2000);

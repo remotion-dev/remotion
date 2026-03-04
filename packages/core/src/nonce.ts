@@ -15,6 +15,24 @@ export const NonceContext = createContext<TNonceContext>({
 	getNonce: () => 0,
 });
 
+let fastRefreshNonce = 0;
+
+declare const __webpack_module__: {
+	hot: {
+		addStatusHandler(callback: (status: string) => void): void;
+	};
+};
+
+if (typeof __webpack_module__ !== 'undefined') {
+	if (__webpack_module__.hot) {
+		__webpack_module__.hot.addStatusHandler((status) => {
+			if (status === 'idle') {
+				fastRefreshNonce++;
+			}
+		});
+	}
+}
+
 export const useNonce = (): number => {
 	const context = useContext(NonceContext);
 	const [nonce, setNonce] = useState(() => context.getNonce());
@@ -31,5 +49,6 @@ export const useNonce = (): number => {
 		setNonce(context.getNonce);
 	}, [context]);
 
+	console.log('fastRefreshNonce', fastRefreshNonce);
 	return nonce;
 };

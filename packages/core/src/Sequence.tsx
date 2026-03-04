@@ -214,6 +214,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
+		console.log('registersequence', nonce, timelineClipName);
 		registerSequence({
 			from,
 			duration: actualDurationInFrames,
