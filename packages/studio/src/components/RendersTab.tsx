@@ -1,6 +1,5 @@
 import type {MouseEventHandler} from 'react';
 import React, {useContext, useMemo} from 'react';
-import {Internals} from 'remotion';
 import {FAIL_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {Flex} from './layout';
 import {RenderQueueContext} from './RenderQueue/context';
