@@ -105,6 +105,16 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		setInputFallback(false);
 	}, []);
 
+	const onInputChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
+		(e) => {
+			const parsed = Number(e.target.value);
+			if (!Number.isNaN(parsed)) {
+				onValueChange(parsed);
+			}
+		},
+		[onValueChange],
+	);
+
 	const onBlur = useCallback(() => {
 		if (!fallbackRef.current) {
 			return;
@@ -224,6 +234,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					autoFocus
 					onKeyPress={onKeyPress}
 					onBlur={onBlur}
+					onChange={onInputChange}
 					min={_min}
 					max={_max}
 					step={deriveStep}
