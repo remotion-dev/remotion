@@ -13,6 +13,7 @@ export const updateSequenceProps = async ({
 	value,
 	enumPaths,
 	defaultValue,
+	prettierConfigOverride,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
@@ -20,6 +21,7 @@ export const updateSequenceProps = async ({
 	value: unknown;
 	enumPaths: EnumPath[];
 	defaultValue: unknown | null;
+	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
 	oldValueString: string;
@@ -37,8 +39,7 @@ export const updateSequenceProps = async ({
 	const parentKey = isNested ? key.slice(0, dotIndex) : key;
 	const childKey = isNested ? key.slice(dotIndex + 1) : '';
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const node = findJsxElementAtNodePath(ast, nodePath) as any;
+	const node = findJsxElementAtNodePath(ast, nodePath);
 	if (!node) {
 		throw new Error(
 			'Could not find a JSX element at the specified line to update',
@@ -129,16 +130,23 @@ export const updateSequenceProps = async ({
 
 	const {format, resolveConfig, resolveConfigFile} = prettier as PrettierType;
 
-	const configFilePath = await resolveConfigFile();
-	if (!configFilePath) {
-		return {
-			output: finalFile,
-			oldValueString,
-			formatted: false,
-		};
+	let prettierConfig: Record<string, unknown> | null;
+
+	if (prettierConfigOverride !== undefined) {
+		prettierConfig = prettierConfigOverride;
+	} else {
+		const configFilePath = await resolveConfigFile();
+		if (!configFilePath) {
+			return {
+				output: finalFile,
+				oldValueString,
+				formatted: false,
+			};
+		}
+
+		prettierConfig = await resolveConfig(configFilePath);
 	}
 
-	const prettierConfig = await resolveConfig(configFilePath);
 	if (!prettierConfig) {
 		return {
 			output: finalFile,
@@ -151,7 +159,7 @@ export const updateSequenceProps = async ({
 		...prettierConfig,
 		filepath: 'test.tsx',
 		plugins: [],
-		endOfLine: 'auto',
+		endOfLine: 'lf',
 	});
 
 	return {

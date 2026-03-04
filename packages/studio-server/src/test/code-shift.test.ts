@@ -19,6 +19,11 @@ test('Should add style.scale to a Video component and format with prettier', asy
 		value: 2,
 		enumPaths: [],
 		defaultValue: null,
+		prettierConfigOverride: {
+			singleQuote: true,
+			bracketSpacing: false,
+			useTabs: true,
+		},
 	});
 
 	expect(oldValueString).toBe('');
