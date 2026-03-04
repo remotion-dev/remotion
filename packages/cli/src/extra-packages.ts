@@ -1,6 +1,8 @@
 export const EXTRA_PACKAGES: Record<string, string> = {
-	mediabunny: '1.35.1',
-	'@mediabunny/ac3': '1.35.1',
+	mediabunny: '1.36.0',
+	'@mediabunny/ac3': '1.36.0',
+	'@mediabunny/mp3-encoder': '1.36.0',
+	'@mediabunny/aac-encoder': '1.36.0',
 	zod: '4.3.6',
 };
 
@@ -8,5 +10,7 @@ export const EXTRA_PACKAGES_DOCS: Record<string, string> = {
 	mediabunny: 'https://www.remotion.dev/docs/mediabunny/version',
 	'@mediabunny/ac3':
 		'https://www.remotion.dev/docs/mediabunny/formats#ac-3-and-e-ac-3',
+	'@mediabunny/mp3-encoder': 'https://www.remotion.dev/docs/mediabunny/version',
+	'@mediabunny/aac-encoder': 'https://www.remotion.dev/docs/mediabunny/version',
 	zod: 'https://zod.dev',
 };

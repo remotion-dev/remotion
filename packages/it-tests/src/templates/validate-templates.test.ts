@@ -66,6 +66,12 @@ describe('Templates should be valid', () => {
 				);
 			}
 
+			if (body.dependencies['@mediabunny/aac-encoder']) {
+				expect(body.dependencies['@mediabunny/aac-encoder']).toBe(
+					catalog['@mediabunny/aac-encoder'],
+				);
+			}
+
 			expect(body.devDependencies.prettier).toMatch('3.8.1');
 			expect(body.private).toBe(true);
 			expect(body.name).toStartWith('template-');
