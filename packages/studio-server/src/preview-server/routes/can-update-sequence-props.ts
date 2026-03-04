@@ -221,6 +221,25 @@ export const lineColumnToNodePath = (
 	return foundPath;
 };
 
+const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
+
+const isSupportedTranslateValue = (value: string): boolean => {
+	const parts = value.split(/\s+/);
+	if (parts.length === 1 || parts.length === 2) {
+		return parts.every((part) => PIXEL_VALUE_REGEX.test(part));
+	}
+
+	return false;
+};
+
+const validateStyleValue = (childKey: string, value: unknown): boolean => {
+	if (childKey === 'translate' && typeof value === 'string') {
+		return isSupportedTranslateValue(value);
+	}
+
+	return true;
+};
+
 const getNestedPropStatus = (
 	jsxElement: JSXOpeningElement,
 	parentKey: string,
@@ -269,7 +288,12 @@ const getNestedPropStatus = (
 		return {canUpdate: false, reason: 'computed'};
 	}
 
-	return {canUpdate: true, codeValue: extractStaticValue(propValue)};
+	const codeValue = extractStaticValue(propValue);
+	if (!validateStyleValue(childKey, codeValue)) {
+		return {canUpdate: false, reason: 'computed'};
+	}
+
+	return {canUpdate: true, codeValue};
 };
 
 export const computeSequencePropsStatusFromContent = (
