@@ -39,6 +39,5 @@ for (const pkg of packages) {
 				}
 			}
 		},
-		120_000,
 	);
 }
