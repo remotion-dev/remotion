@@ -129,6 +129,7 @@ export const TimelineFieldRow: React.FC<{
 				onDragEnd={onDragEnd}
 				canUpdate={propStatus?.canUpdate ?? false}
 				effectiveValue={effectiveValue}
+				codeValue={propStatus}
 			/>
 		</div>
 	);

@@ -5,12 +5,21 @@ import {draggerStyle, getDecimalPlaces} from './timeline-field-utils';
 
 export const TimelineNumberField: React.FC<{
 	readonly field: SchemaFieldInfo;
+	readonly effectiveValue: unknown;
 	readonly codeValue: unknown;
 	readonly canUpdate: boolean;
 	readonly onSave: (key: string, value: unknown) => Promise<void>;
 	readonly onDragValueChange: (key: string, value: unknown) => void;
 	readonly onDragEnd: () => void;
-}> = ({field, codeValue, canUpdate, onSave, onDragValueChange, onDragEnd}) => {
+}> = ({
+	field,
+	effectiveValue,
+	canUpdate,
+	onSave,
+	onDragValueChange,
+	onDragEnd,
+	codeValue,
+}) => {
 	const [dragValue, setDragValue] = useState<number | null>(null);
 
 	const onValueChange = useCallback(
@@ -71,7 +80,7 @@ export const TimelineNumberField: React.FC<{
 	return (
 		<InputDragger
 			type="number"
-			value={dragValue ?? (codeValue as number)}
+			value={dragValue ?? (effectiveValue as number)}
 			style={draggerStyle}
 			status="ok"
 			small
