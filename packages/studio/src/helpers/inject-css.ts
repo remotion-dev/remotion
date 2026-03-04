@@ -11,6 +11,7 @@ const makeDefaultGlobalCSS = () => {
 	return `
   html {
     --remotion-cli-internals-blue: #0b84f3;
+    --remotion-cli-internals-blue-hovered: #4da3f7;
     overscroll-behavior-y: none;
     overscroll-behavior-x: none;
   }
@@ -142,6 +143,10 @@ const makeDefaultGlobalCSS = () => {
     background-color: white;
     position: relative;
   }  
+
+  .__remotion_input_dragger:hover span {
+    color: var(--remotion-cli-internals-blue-hovered) !important;
+  }
 
   .${DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} span {
     color: var(--remotion-cli-internals-blue) !important;
