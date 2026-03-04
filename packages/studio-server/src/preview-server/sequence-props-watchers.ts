@@ -113,6 +113,7 @@ export const unsubscribeFromSequencePropsWatchers = ({
 		!sequencePropsWatchers[clientId] ||
 		!sequencePropsWatchers[clientId][watcherKey]
 	) {
+		// eslint-disable-next-line no-console
 		console.warn(
 			`Unexpected: unsubscribe for sequence props watcher that does not exist (clientId=${clientId}, key=${watcherKey})`,
 		);
