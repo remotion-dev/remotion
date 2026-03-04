@@ -111,7 +111,7 @@ export const TimelineFieldValue: React.FC<{
 			<span style={wrapperStyle}>
 				<TimelineBooleanField
 					field={field}
-					codeValue={effectiveValue}
+					codeValue={codeValue}
 					canUpdate={canUpdate}
 					onSave={onSave}
 					effectiveValue={effectiveValue}
