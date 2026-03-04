@@ -72,16 +72,18 @@ export const sortItemsByNonceHistory: <T extends {nonce: NonceHistory}>(
 					order[k][j]! < 0
 				) {
 					order[i][j] = -1;
+					order[j][i] = 1;
 				}
 			}
 		}
 	}
 
 	// Sort using transitive order, falling back to lower latest epoch first.
+	const indexMap = new Map(items.map((item, i) => [item, i]));
 	const result = items.slice();
 	result.sort((a, b) => {
-		const ai = items.indexOf(a);
-		const bi = items.indexOf(b);
+		const ai = indexMap.get(a)!;
+		const bi = indexMap.get(b)!;
 		const transitiveOrder = order[ai][bi];
 		if (transitiveOrder !== null) {
 			return transitiveOrder;
