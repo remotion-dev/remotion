@@ -90,8 +90,6 @@ const formatPropChange = ({
 export const logUpdate = ({
 	absolutePath,
 	fileRelativeToRoot,
-	line,
-	column,
 	key,
 	oldValueString,
 	newValueString,
@@ -101,8 +99,6 @@ export const logUpdate = ({
 }: {
 	absolutePath: string;
 	fileRelativeToRoot: string;
-	line: number;
-	column: number;
 	key: string;
 	oldValueString: string;
 	newValueString: string;
@@ -110,7 +106,7 @@ export const logUpdate = ({
 	formatted: boolean;
 	logLevel: LogLevel;
 }) => {
-	const locationLabel = `${fileRelativeToRoot}:${line}:${column}`;
+	const locationLabel = `${fileRelativeToRoot}`;
 	const fileLink = makeHyperlink({
 		url: `file://${absolutePath}`,
 		text: locationLabel,

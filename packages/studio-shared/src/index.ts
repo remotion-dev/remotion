@@ -28,6 +28,7 @@ export {
 	RestartStudioResponse,
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
+	SequenceNodePath,
 	SimpleDiff,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,

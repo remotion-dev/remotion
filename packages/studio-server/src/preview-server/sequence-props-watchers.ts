@@ -1,8 +1,14 @@
 import path from 'node:path';
-import type {CanUpdateSequencePropsResponse} from '@remotion/studio-shared';
+import type {
+	CanUpdateSequencePropsResponse,
+	SequenceNodePath,
+} from '@remotion/studio-shared';
 import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
-import {computeSequencePropsStatus} from './routes/can-update-sequence-props';
+import {
+	computeSequencePropsStatus,
+	computeSequencePropsStatusByLine,
+} from './routes/can-update-sequence-props';
 
 type WatcherInfo = {
 	unwatch: () => void;
@@ -12,45 +18,48 @@ const sequencePropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
 
 const makeWatcherKey = ({
 	absolutePath,
-	line,
-	column,
+	nodePath,
 }: {
 	absolutePath: string;
-	line: number;
-	column: number;
+	nodePath: SequenceNodePath;
 }): string => {
-	return `${absolutePath}:${line}:${column}`;
+	return `${absolutePath}:${JSON.stringify(nodePath)}`;
 };
 
 export const subscribeToSequencePropsWatchers = ({
 	fileName,
 	line,
-	column,
 	keys,
 	remotionRoot,
 	clientId,
 }: {
 	fileName: string;
 	line: number;
-	column: number;
 	keys: string[];
 	remotionRoot: string;
 	clientId: string;
 }): CanUpdateSequencePropsResponse => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
-	const watcherKey = makeWatcherKey({absolutePath, line, column});
 
-	// Unwatch any existing watcher for the same key
-	if (sequencePropsWatchers[clientId]?.[watcherKey]) {
-		sequencePropsWatchers[clientId][watcherKey].unwatch();
-	}
-
-	const initialResult = computeSequencePropsStatus({
+	// Initial lookup by line+column to resolve the nodePath
+	const initialResult = computeSequencePropsStatusByLine({
 		fileName,
 		line,
 		keys,
 		remotionRoot,
 	});
+
+	if (!initialResult.canUpdate) {
+		return initialResult;
+	}
+
+	const {nodePath} = initialResult;
+	const watcherKey = makeWatcherKey({absolutePath, nodePath});
+
+	// Unwatch any existing watcher for the same key
+	if (sequencePropsWatchers[clientId]?.[watcherKey]) {
+		sequencePropsWatchers[clientId][watcherKey].unwatch();
+	}
 
 	const {unwatch} = installFileWatcher({
 		file: absolutePath,
@@ -61,7 +70,7 @@ export const subscribeToSequencePropsWatchers = ({
 
 			const result = computeSequencePropsStatus({
 				fileName,
-				line,
+				nodePath,
 				keys,
 				remotionRoot,
 			});
@@ -70,8 +79,7 @@ export const subscribeToSequencePropsWatchers = ({
 				listener.sendEventToClient({
 					type: 'sequence-props-updated',
 					fileName,
-					line,
-					column,
+					nodePath,
 					result,
 				});
 			});
@@ -89,25 +97,30 @@ export const subscribeToSequencePropsWatchers = ({
 
 export const unsubscribeFromSequencePropsWatchers = ({
 	fileName,
-	line,
-	column,
+	nodePath,
 	remotionRoot,
 	clientId,
 }: {
 	fileName: string;
-	line: number;
-	column: number;
+	nodePath: SequenceNodePath;
 	remotionRoot: string;
 	clientId: string;
 }) => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
-	const watcherKey = makeWatcherKey({absolutePath, line, column});
+	const watcherKey = makeWatcherKey({absolutePath, nodePath});
 
-	if (!sequencePropsWatchers[clientId]) {
+	if (
+		!sequencePropsWatchers[clientId] ||
+		!sequencePropsWatchers[clientId][watcherKey]
+	) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			`Unexpected: unsubscribe for sequence props watcher that does not exist (clientId=${clientId}, key=${watcherKey})`,
+		);
 		return;
 	}
 
-	sequencePropsWatchers[clientId][watcherKey]?.unwatch();
+	sequencePropsWatchers[clientId][watcherKey].unwatch();
 	delete sequencePropsWatchers[clientId][watcherKey];
 };
 
