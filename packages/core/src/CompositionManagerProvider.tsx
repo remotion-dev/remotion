@@ -19,6 +19,7 @@ import {
 } from './CompositionManagerContext';
 import type {BaseMetadata} from './CompositionManagerContext.js';
 import type {TFolder} from './Folder';
+import type {NonceHistory} from './nonce.js';
 
 export const CompositionManagerProvider = ({
 	children,
@@ -77,17 +78,21 @@ export const CompositionManagerProvider = ({
 		});
 	}, []);
 
-	const registerFolder = useCallback((name: string, parent: string | null) => {
-		setFolders((prevFolders) => {
-			return [
-				...prevFolders,
-				{
-					name,
-					parent,
-				},
-			];
-		});
-	}, []);
+	const registerFolder = useCallback(
+		(name: string, parent: string | null, nonce: NonceHistory) => {
+			setFolders((prevFolders) => {
+				return [
+					...prevFolders,
+					{
+						name,
+						parent,
+						nonce,
+					},
+				];
+			});
+		},
+		[],
+	);
 
 	const unregisterFolder = useCallback(
 		(name: string, parent: string | null) => {

@@ -63,6 +63,7 @@ import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
 import {Log} from './log.js';
 import {MaxMediaCacheSizeContext} from './max-video-cache-size.js';
+import type {NonceHistory} from './nonce.js';
 import {NonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
 import {portalNode} from './portal-node.js';
@@ -301,4 +302,5 @@ export type {
 	ScheduleAudioNodeOptions,
 	CanUpdateSequencePropStatus,
 	ScheduleAudioNodeResult,
+	NonceHistory,
 };

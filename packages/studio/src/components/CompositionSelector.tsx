@@ -117,9 +117,13 @@ export const CompositionSelector: React.FC = () => {
 		return sortItemsByNonceHistory(compositions);
 	}, [compositions]);
 
+	const sortedFolders = useMemo(() => {
+		return sortItemsByNonceHistory(folders);
+	}, [folders]);
+
 	const items = useMemo(() => {
-		return createFolderTree(sortedCompositions, folders, foldersExpanded);
-	}, [sortedCompositions, folders, foldersExpanded]);
+		return createFolderTree(sortedCompositions, sortedFolders, foldersExpanded);
+	}, [sortedCompositions, sortedFolders, foldersExpanded]);
 
 	const list: React.CSSProperties = useMemo(() => {
 		return {

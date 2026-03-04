@@ -57,6 +57,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 			{
 				name: 'my-folder',
 				parent: null,
+				nonce: [[0, 0]],
 			},
 		],
 		{},
@@ -136,14 +137,17 @@ test('Should handle nested folders well', async () => {
 			{
 				name: 'my-second-folder',
 				parent: 'my-third-folder',
+				nonce: [[0, 0]],
 			},
 			{
 				name: 'my-third-folder',
 				parent: null,
+				nonce: [[0, 0]],
 			},
 			{
 				name: 'my-folder',
 				parent: 'my-third-folder/my-second-folder',
+				nonce: [[0, 0]],
 			},
 		],
 		{},
@@ -206,10 +210,12 @@ test('Should throw if two folders with the same name', () => {
 				{
 					name: 'my-folder',
 					parent: null,
+					nonce: [[0, 0]],
 				},
 				{
 					name: 'my-folder',
 					parent: null,
+					nonce: [[0, 0]],
 				},
 			],
 			{},

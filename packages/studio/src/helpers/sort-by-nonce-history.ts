@@ -1,6 +1,4 @@
-import type {TSequence} from 'remotion';
-
-type NonceHistory = TSequence['nonce'];
+import type {NonceHistory} from 'remotion';
 
 const getSharedEpochOrder = (
 	a: NonceHistory,
@@ -40,9 +38,9 @@ export const compareNonceHistories = (
 	return aLatestEpoch - bLatestEpoch;
 };
 
-export const sortItemsByNonceHistory = <T extends {nonce: NonceHistory}>(
+export const sortItemsByNonceHistory: <T extends {nonce: NonceHistory}>(
 	items: T[],
-): T[] => {
+) => T[] = (items) => {
 	const n = items.length;
 	if (n <= 1) {
 		return items.slice();
