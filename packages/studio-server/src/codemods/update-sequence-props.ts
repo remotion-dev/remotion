@@ -1,3 +1,11 @@
+import type {
+	JSXAttribute,
+	JSXElement,
+	JSXExpressionContainer,
+	JSXFragment,
+	JSXSpreadAttribute,
+	StringLiteral,
+} from '@babel/types';
 import type {EnumPath, SequenceNodePath} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import {findJsxElementAtNodePath} from '../preview-server/routes/can-update-sequence-props';
@@ -105,9 +113,15 @@ export const updateSequenceProps = async ({
 					node.attributes = [];
 				}
 
-				node.attributes.push(newAttr);
+				node.attributes.push(newAttr as JSXAttribute | JSXSpreadAttribute);
 			} else {
-				attr.value = newValue;
+				attr.value = newValue as
+					| JSXElement
+					| JSXExpressionContainer
+					| JSXFragment
+					| StringLiteral
+					| null
+					| undefined;
 			}
 		}
 	}
