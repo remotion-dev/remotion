@@ -223,7 +223,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			type: 'sequence',
 			rootId,
 			showInTimeline,
-			nonce,
+			nonce: nonce.get(),
 			loopDisplay,
 			stack: stack ?? inheritedStack,
 			premountDisplay: premountDisplay ?? null,

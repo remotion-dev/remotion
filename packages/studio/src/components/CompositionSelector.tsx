@@ -9,6 +9,7 @@ import {
 	ExpandedFoldersContext,
 	openFolderKey,
 } from '../helpers/persist-open-folders';
+import {sortItemsByNonceHistory} from '../helpers/sort-by-nonce-history';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {
@@ -112,9 +113,17 @@ export const CompositionSelector: React.FC = () => {
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
 
+	const sortedCompositions = useMemo(() => {
+		return sortItemsByNonceHistory(compositions);
+	}, [compositions]);
+
+	const sortedFolders = useMemo(() => {
+		return sortItemsByNonceHistory(folders);
+	}, [folders]);
+
 	const items = useMemo(() => {
-		return createFolderTree(compositions, folders, foldersExpanded);
-	}, [compositions, folders, foldersExpanded]);
+		return createFolderTree(sortedCompositions, sortedFolders, foldersExpanded);
+	}, [sortedCompositions, sortedFolders, foldersExpanded]);
 
 	const list: React.CSSProperties = useMemo(() => {
 		return {

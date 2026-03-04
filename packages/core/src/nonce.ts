@@ -1,4 +1,4 @@
-import {createContext, useContext, useEffect, useRef, useState} from 'react';
+import {createContext, useCallback, useContext, useMemo, useRef} from 'react';
 
 // Nonces keep track of the order of compositions.
 // It's a counter that goes up and sequences and compositions get a nonce
@@ -11,25 +11,55 @@ export type TNonceContext = {
 	getNonce: () => number;
 };
 
+type NonceHistoryItem = [number, number];
+
+export type NonceHistory = NonceHistoryItem[];
+
+export type NonceHistoryContext = {
+	get: () => NonceHistory;
+};
+
 export const NonceContext = createContext<TNonceContext>({
 	getNonce: () => 0,
 });
 
-export const useNonce = (): number => {
-	const context = useContext(NonceContext);
-	const [nonce, setNonce] = useState(() => context.getNonce());
-	const lastContext = useRef<TNonceContext | null>(context);
+let fastRefreshNonce = 0;
 
-	// Only if context changes, but not initially
-	useEffect(() => {
-		if (lastContext.current === context) {
-			return;
+declare const __webpack_module__: {
+	hot: {
+		addStatusHandler(callback: (status: string) => void): void;
+	};
+};
+
+if (typeof __webpack_module__ !== 'undefined') {
+	if (__webpack_module__.hot) {
+		__webpack_module__.hot.addStatusHandler((status) => {
+			if (status === 'idle') {
+				fastRefreshNonce++;
+			}
+		});
+	}
+}
+
+export const useNonce = (): NonceHistoryContext => {
+	const context = useContext(NonceContext);
+	const nonce = context.getNonce();
+	const nonceRef = useRef(nonce);
+	nonceRef.current = nonce;
+	const history = useRef<NonceHistoryItem[]>([[fastRefreshNonce, nonce]]);
+
+	const get = useCallback(() => {
+		if (fastRefreshNonce !== history.current[history.current.length - 1][0]) {
+			history.current = [
+				...history.current,
+				[fastRefreshNonce, nonceRef.current],
+			];
 		}
 
-		lastContext.current = context;
+		return history.current;
+	}, [history]);
 
-		setNonce(context.getNonce);
-	}, [context]);
-
-	return nonce;
+	return useMemo(() => {
+		return {get};
+	}, [get]);
 };

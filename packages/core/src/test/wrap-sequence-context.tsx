@@ -20,7 +20,7 @@ const mockCompositionContext: CompositionManagerContext = {
 			height: 1080,
 			width: 1080,
 			parentFolderName: null,
-			nonce: 0,
+			nonce: [[0, 0]],
 			calculateMetadata: null,
 			schema: null,
 		},
