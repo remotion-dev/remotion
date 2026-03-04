@@ -55,7 +55,7 @@ export const TimelineListItem: React.FC<{
 	const {expandedTracks, toggleTrack} = useContext(ExpandedTracksContext);
 
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
-	useSequencePropsSubscription(sequence, originalLocation);
+	const nodePath = useSequencePropsSubscription(sequence, originalLocation);
 
 	const isExpanded =
 		visualModeEnabled && (expandedTracks[sequence.id] ?? false);
@@ -154,6 +154,7 @@ export const TimelineListItem: React.FC<{
 					sequence={sequence}
 					originalLocation={originalLocation}
 					nestedDepth={nestedDepth}
+					nodePath={nodePath}
 				/>
 			) : null}
 		</>

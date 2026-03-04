@@ -13,7 +13,7 @@ export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse
 > = async ({
-	input: {fileName, line, column, key, value, enumPaths, defaultValue},
+	input: {fileName, nodePath, key, value, defaultValue},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -28,10 +28,9 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const {output, oldValueString, formatted} = await updateSequenceProps({
 			input: fileContents,
-			targetLine: line,
+			nodePath,
 			key,
 			value: JSON.parse(value),
-			enumPaths,
 			defaultValue: defaultValue !== null ? JSON.parse(defaultValue) : null,
 		});
 
@@ -44,8 +43,6 @@ export const saveSequencePropsHandler: ApiHandler<
 		logUpdate({
 			absolutePath,
 			fileRelativeToRoot,
-			line,
-			column,
 			key,
 			oldValueString,
 			newValueString,
