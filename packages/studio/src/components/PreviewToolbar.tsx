@@ -25,6 +25,8 @@ import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 
+const TOOLBAR_HEIGHT = 56;
+
 const container: React.CSSProperties = {
 	display: 'flex',
 	justifyContent: 'center',
@@ -34,6 +36,7 @@ const container: React.CSSProperties = {
 	alignItems: 'center',
 	flexDirection: 'row',
 	background: BACKGROUND,
+	height: TOOLBAR_HEIGHT,
 };
 
 const mobileContainer: React.CSSProperties = {
