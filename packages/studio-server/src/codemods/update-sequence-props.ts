@@ -65,8 +65,7 @@ export const updateSequenceProps = async ({
 			isDefault,
 		});
 	} else {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const attrIndex = node.attributes?.findIndex((a: any) => {
+		const attrIndex = node.attributes?.findIndex((a) => {
 			if (a.type === 'JSXSpreadAttribute') {
 				return false;
 			}
