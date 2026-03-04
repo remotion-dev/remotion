@@ -161,6 +161,7 @@ import {VideoTestingTrim} from './VideoTesting/trim';
 import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
 import {FastUpdates} from './VisualModeTests/FastUpdates';
+import {FastUpdatesNested} from './VisualModeTests/FastUpdatesNested';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
 
@@ -1899,6 +1900,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="fast-updates"
 					component={FastUpdates}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
+				/>
+				<Composition
+					id="fast-updates-nested"
+					component={FastUpdatesNested}
 					width={1080}
 					height={1080}
 					fps={30}

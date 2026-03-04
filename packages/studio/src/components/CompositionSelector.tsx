@@ -112,9 +112,13 @@ export const CompositionSelector: React.FC = () => {
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
 
+	const sortedCompositions = useMemo(() => {
+		return Internals.sortItemsByNonceHistory(compositions);
+	}, [compositions]);
+
 	const items = useMemo(() => {
-		return createFolderTree(compositions, folders, foldersExpanded);
-	}, [compositions, folders, foldersExpanded]);
+		return createFolderTree(sortedCompositions, folders, foldersExpanded);
+	}, [sortedCompositions, folders, foldersExpanded]);
 
 	const list: React.CSSProperties = useMemo(() => {
 		return {

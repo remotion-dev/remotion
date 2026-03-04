@@ -214,7 +214,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		console.log('registersequence', nonce, timelineClipName);
 		registerSequence({
 			from,
 			duration: actualDurationInFrames,
@@ -224,7 +223,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			type: 'sequence',
 			rootId,
 			showInTimeline,
-			nonce,
+			nonce: nonce.get(),
 			loopDisplay,
 			stack: stack ?? inheritedStack,
 			premountDisplay: premountDisplay ?? null,

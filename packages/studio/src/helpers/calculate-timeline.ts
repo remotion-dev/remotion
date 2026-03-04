@@ -1,4 +1,5 @@
 import type {TSequence} from 'remotion';
+import {Internals} from 'remotion';
 import {
 	getCascadedStart,
 	getTimelineVisibleDuration,
@@ -19,9 +20,10 @@ export const calculateTimeline = ({
 	sequences: TSequence[];
 	sequenceDuration: number;
 }): TrackWithHash[] => {
+	const sortedSequences = Internals.sortItemsByNonceHistory(sequences);
 	const tracks: TrackWithHashAndOriginalTimings[] = [];
 
-	if (sequences.length === 0) {
+	if (sortedSequences.length === 0) {
 		return [
 			{
 				sequence: {
@@ -33,7 +35,7 @@ export const calculateTimeline = ({
 					type: 'sequence',
 					rootId: '-',
 					showInTimeline: true,
-					nonce: 0,
+					nonce: [[0, 0]],
 					loopDisplay: undefined,
 					stack: null,
 					premountDisplay: null,
@@ -51,15 +53,15 @@ export const calculateTimeline = ({
 	const hashesUsedInRoot: {[rootId: string]: string[]} = {};
 	const cache: {[sequenceId: string]: string} = {};
 
-	for (let i = 0; i < sequences.length; i++) {
-		const sequence = sequences[i];
+	for (let i = 0; i < sortedSequences.length; i++) {
+		const sequence = sortedSequences[i];
 		if (!hashesUsedInRoot[sequence.rootId]) {
 			hashesUsedInRoot[sequence.rootId] = [];
 		}
 
 		const actualHash = getTimelineSequenceHash(
 			sequence,
-			sequences,
+			sortedSequences,
 			hashesUsedInRoot,
 			cache,
 		);
@@ -70,10 +72,13 @@ export const calculateTimeline = ({
 
 		sameHashes[actualHash].push(sequence.id);
 
-		const cascadedStart = getCascadedStart(sequence, sequences);
+		const cascadedStart = getCascadedStart(sequence, sortedSequences);
 
-		const visibleStart = getTimelineVisibleStart(sequence, sequences);
-		const visibleDuration = getTimelineVisibleDuration(sequence, sequences);
+		const visibleStart = getTimelineVisibleStart(sequence, sortedSequences);
+		const visibleDuration = getTimelineVisibleDuration(
+			sequence,
+			sortedSequences,
+		);
 
 		tracks.push({
 			sequence: {
@@ -81,7 +86,7 @@ export const calculateTimeline = ({
 				from: visibleStart,
 				duration: visibleDuration,
 			},
-			depth: getTimelineNestedLevel(sequence, sequences, 0),
+			depth: getTimelineNestedLevel(sequence, sortedSequences, 0),
 			hash: actualHash,
 			cascadedStart,
 			cascadedDuration: sequence.duration,
@@ -96,9 +101,24 @@ export const calculateTimeline = ({
 		}
 	}
 
+	const nonceRanks = new Map<string, number>();
+	for (let i = 0; i < tracks.length; i++) {
+		nonceRanks.set(tracks[i].sequence.id, i);
+	}
+
 	return uniqueTracks.sort((a, b) => {
-		const sortKeyA = getTimelineSequenceSequenceSortKey(a, tracks, sameHashes);
-		const sortKeyB = getTimelineSequenceSequenceSortKey(b, tracks, sameHashes);
+		const sortKeyA = getTimelineSequenceSequenceSortKey(
+			a,
+			tracks,
+			sameHashes,
+			nonceRanks,
+		);
+		const sortKeyB = getTimelineSequenceSequenceSortKey(
+			b,
+			tracks,
+			sameHashes,
+			nonceRanks,
+		);
 		return sortKeyA.localeCompare(sortKeyB);
 	});
 };

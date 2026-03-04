@@ -19,13 +19,14 @@ export const getTimelineSequenceSequenceSortKey = (
 	track: TrackWithHash,
 	tracks: TrackWithHash[],
 	sameHashes: {[hash: string]: string[]} = {},
+	nonceRanks: Map<string, number> = new Map(),
 ): string => {
 	const firstSequenceWithSameHash = tracks.find((t) =>
 		sameHashes[track.hash].includes(t.sequence.id),
 	);
-	const id = String(
-		(firstSequenceWithSameHash as TrackWithHash).sequence.nonce,
-	).padStart(6, '0');
+	const sequenceId = (firstSequenceWithSameHash as TrackWithHash).sequence.id;
+	const rank = nonceRanks.get(sequenceId) ?? 0;
+	const id = String(rank).padStart(6, '0');
 	if (!track.sequence.parent) {
 		return id;
 	}
@@ -48,5 +49,6 @@ export const getTimelineSequenceSequenceSortKey = (
 		firstParentWithSameHash,
 		tracks,
 		sameHashes,
+		nonceRanks,
 	)}-${id}`;
 };

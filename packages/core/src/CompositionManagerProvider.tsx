@@ -65,11 +65,7 @@ export const CompositionManagerProvider = ({
 					);
 				}
 
-				const value = [...comps, comp]
-					.slice()
-
-					.sort((a, b) => a.nonce - b.nonce) as AnyComposition[];
-				return value;
+				return [...comps, comp] as AnyComposition[];
 			});
 		},
 		[updateCompositions],

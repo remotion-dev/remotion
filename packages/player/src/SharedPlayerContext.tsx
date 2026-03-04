@@ -59,7 +59,7 @@ export const SharedPlayerContexts: React.FC<{
 					width: compositionWidth,
 					fps,
 					id: PLAYER_COMP_ID,
-					nonce: 777,
+					nonce: [[0, 777]],
 					folderName: null,
 					parentFolderName: null,
 					schema: null,
