@@ -195,10 +195,9 @@ export const PreviewToolbar: React.FC<{
 					<Spacing x={2} />
 				</>
 			) : null}
-
 			{canvasContent?.type === 'composition' ? <CheckboardToggle /> : null}
 			<Spacing x={1} />
-			{isFullscreenSupported && <FullScreenToggle />}
+			{canvasContent && isFullscreenSupported ? <FullScreenToggle /> : null}
 			<Flex />
 			{isMobileLayout && (
 				<>

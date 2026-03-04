@@ -30,17 +30,8 @@ export const RendersTab: React.FC<{
 	readonly onClick: MouseEventHandler<HTMLDivElement>;
 }> = ({selected, onClick}) => {
 	const {jobs} = useContext(RenderQueueContext);
-	const {canvasContent} = useContext(Internals.CompositionManager);
 	const failedJobs = jobs.filter((j) => j.status === 'failed').length;
 	const jobCount = jobs.length;
-
-	const isActuallySelected = useMemo(() => {
-		if (!canvasContent || canvasContent.type !== 'composition') {
-			return true;
-		}
-
-		return selected;
-	}, [canvasContent, selected]);
 
 	const badgeStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -54,7 +45,7 @@ export const RendersTab: React.FC<{
 	}, [failedJobs]);
 
 	return (
-		<Tab selected={isActuallySelected} onClick={onClick}>
+		<Tab selected={selected} onClick={onClick}>
 			<div style={row}>
 				Renders
 				{jobCount > 0 ? (
