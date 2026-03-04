@@ -6,7 +6,7 @@ import type {
 	JSXSpreadAttribute,
 	StringLiteral,
 } from '@babel/types';
-import type {EnumPath, SequenceNodePath} from '@remotion/studio-shared';
+import type {SequenceNodePath} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import {findJsxElementAtNodePath} from '../preview-server/routes/can-update-sequence-props';
 import {parseAst, serializeAst} from './parse-ast';
@@ -19,7 +19,6 @@ export const updateSequenceProps = async ({
 	nodePath,
 	key,
 	value,
-	enumPaths,
 	defaultValue,
 	prettierConfigOverride,
 }: {
@@ -27,7 +26,6 @@ export const updateSequenceProps = async ({
 	nodePath: SequenceNodePath;
 	key: string;
 	value: unknown;
-	enumPaths: EnumPath[];
 	defaultValue: unknown | null;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
@@ -60,7 +58,6 @@ export const updateSequenceProps = async ({
 			parentKey,
 			childKey,
 			value,
-			enumPaths,
 			defaultValue,
 			isDefault,
 		});
@@ -101,7 +98,7 @@ export const updateSequenceProps = async ({
 				node.attributes.splice(attrIndex!, 1);
 			}
 		} else {
-			const parsed = parseValueExpression(value, enumPaths);
+			const parsed = parseValueExpression(value);
 
 			const newValue = value === true ? null : b.jsxExpressionContainer(parsed);
 

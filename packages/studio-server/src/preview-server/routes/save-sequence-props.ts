@@ -16,7 +16,7 @@ export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse
 > = async ({
-	input: {fileName, nodePath, key, value, enumPaths, defaultValue},
+	input: {fileName, nodePath, key, value, defaultValue},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -34,7 +34,6 @@ export const saveSequencePropsHandler: ApiHandler<
 			nodePath,
 			key,
 			value: JSON.parse(value),
-			enumPaths,
 			defaultValue: defaultValue !== null ? JSON.parse(defaultValue) : null,
 		});
 

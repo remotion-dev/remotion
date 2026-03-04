@@ -11,20 +11,17 @@ import type {
 	ObjectProperty,
 	StringLiteral,
 } from '@babel/types';
-import {stringifyDefaultProps, type EnumPath} from '@remotion/studio-shared';
+import {stringifyDefaultProps} from '@remotion/studio-shared';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import {parseAst} from './parse-ast';
 
 const b = recast.types.builders;
 
-export const parseValueExpression = (
-	value: unknown,
-	enumPaths: EnumPath[],
-): ExpressionKind => {
+export const parseValueExpression = (value: unknown): ExpressionKind => {
 	return (
 		(
-			parseAst(`a = ${stringifyDefaultProps({props: value, enumPaths})}`)
+			parseAst(`a = ${stringifyDefaultProps({props: value, enumPaths: []})}`)
 				.program.body[0] as unknown as ExpressionStatement
 		).expression as AssignmentExpression
 	).right as ExpressionKind;
@@ -155,16 +152,14 @@ const setNestedProp = ({
 	parentKey,
 	childKey,
 	value,
-	enumPaths,
 }: {
 	attr: JSXAttribute | undefined;
 	attributes: (JSXAttribute | JSXSpreadAttribute)[];
 	parentKey: string;
 	childKey: string;
 	value: unknown;
-	enumPaths: EnumPath[];
 }) => {
-	const parsedValue = parseValueExpression(value, enumPaths);
+	const parsedValue = parseValueExpression(value);
 
 	if (attr) {
 		const objExpr = getObjectExpression(attr);
@@ -199,7 +194,6 @@ export const updateNestedProp = ({
 	parentKey,
 	childKey,
 	value,
-	enumPaths,
 	defaultValue,
 	isDefault,
 }: {
@@ -207,7 +201,6 @@ export const updateNestedProp = ({
 	parentKey: string;
 	childKey: string;
 	value: unknown;
-	enumPaths: EnumPath[];
 	defaultValue: unknown | null;
 	isDefault: boolean;
 }): string => {
@@ -223,7 +216,7 @@ export const updateNestedProp = ({
 	if (isDefault) {
 		removeNestedProp({attr, attrIndex, attributes, childKey});
 	} else {
-		setNestedProp({attr, attributes, parentKey, childKey, value, enumPaths});
+		setNestedProp({attr, attributes, parentKey, childKey, value});
 	}
 
 	return oldValueString;

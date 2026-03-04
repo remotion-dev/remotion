@@ -22,7 +22,6 @@ test('updateSequenceProps should update a number value', async () => {
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		key: 'hueShift',
 		value: 90,
-		enumPaths: [],
 		defaultValue: null,
 	});
 
@@ -38,7 +37,6 @@ test('updateSequenceProps should update durationInFrames', async () => {
 		nodePath: lineColumnToNodePath(lightLeakInput, 9),
 		key: 'durationInFrames',
 		value: 120,
-		enumPaths: [],
 		defaultValue: null,
 	});
 
@@ -54,7 +52,6 @@ test('updateSequenceProps should add a new attribute', async () => {
 		nodePath: lineColumnToNodePath(lightLeakInput, 9),
 		key: 'speed',
 		value: 2,
-		enumPaths: [],
 		defaultValue: null,
 	});
 
@@ -68,7 +65,6 @@ test('updateSequenceProps should remove attribute when value equals default', as
 		nodePath: lineColumnToNodePath(lightLeakInput, 9),
 		key: 'hueShift',
 		value: 0,
-		enumPaths: [],
 		defaultValue: 0,
 	});
 
@@ -84,7 +80,6 @@ test('updateSequenceProps should set boolean true as shorthand', async () => {
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		key: 'loop',
 		value: true,
-		enumPaths: [],
 		defaultValue: false,
 	});
 
@@ -99,7 +94,6 @@ test('updateSequenceProps should report oldValueString for computed expressions'
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		key: 'seed',
 		value: 5,
-		enumPaths: [],
 		defaultValue: null,
 	});
 
@@ -112,7 +106,6 @@ test('updateSequenceProps should report default as oldValueString for missing at
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		key: 'speed',
 		value: 2,
-		enumPaths: [],
 		defaultValue: 1,
 	});
 
@@ -126,7 +119,6 @@ test('updateSequenceProps should throw for non-existent nodePath', async () => {
 			nodePath: ['program', 'body', 999],
 			key: 'hueShift',
 			value: 90,
-			enumPaths: [],
 			defaultValue: null,
 		}),
 	).rejects.toThrow(

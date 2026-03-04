@@ -21,7 +21,6 @@ test('updateSequenceProps should update a nested style property', async () => {
 		nodePath: lineColumnToNodePath(nestedInput, 7),
 		key: 'style.opacity',
 		value: 0.8,
-		enumPaths: [],
 		defaultValue: null,
 	});
 
@@ -36,7 +35,6 @@ test('updateSequenceProps should add a nested property to existing object', asyn
 		nodePath: lineColumnToNodePath(nestedInput, 7),
 		key: 'style.rotate',
 		value: 45,
-		enumPaths: [],
 		defaultValue: null,
 	});
 
@@ -53,7 +51,6 @@ test('updateSequenceProps should create style attribute when it does not exist',
 		nodePath: lineColumnToNodePath(nestedInput, 8),
 		key: 'style.opacity',
 		value: 0.3,
-		enumPaths: [],
 		defaultValue: null,
 	});
 
@@ -68,7 +65,6 @@ test('updateSequenceProps should remove nested property when value equals defaul
 		nodePath: lineColumnToNodePath(nestedInput, 7),
 		key: 'style.opacity',
 		value: 1,
-		enumPaths: [],
 		defaultValue: 1,
 	});
 
@@ -92,7 +88,6 @@ export const Example: React.FC = () => {
 		nodePath: lineColumnToNodePath(singlePropInput, 4),
 		key: 'style.opacity',
 		value: 1,
-		enumPaths: [],
 		defaultValue: 1,
 	});
 
@@ -106,7 +101,6 @@ test('updateSequenceProps should report default as oldValueString for missing ne
 		nodePath: lineColumnToNodePath(nestedInput, 8),
 		key: 'style.opacity',
 		value: 0.5,
-		enumPaths: [],
 		defaultValue: 1,
 	});
 

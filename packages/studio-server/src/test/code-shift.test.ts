@@ -17,7 +17,6 @@ test('Should add style.scale to a Video component and format with prettier', asy
 		nodePath: lineColumnToNodePath(componentInput, 6),
 		key: 'style.scale',
 		value: 2,
-		enumPaths: [],
 		defaultValue: null,
 		prettierConfigOverride: {
 			singleQuote: true,

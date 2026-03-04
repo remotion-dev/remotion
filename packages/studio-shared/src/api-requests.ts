@@ -232,7 +232,6 @@ export type SaveSequencePropsRequest = {
 	nodePath: SequenceNodePath;
 	key: string;
 	value: string;
-	enumPaths: EnumPath[];
 	defaultValue: string | null;
 };
 

@@ -88,7 +88,6 @@ export const TimelineFieldRow: React.FC<{
 				nodePath,
 				key,
 				value: JSON.stringify(value),
-				enumPaths: [],
 				defaultValue,
 			}).then(() => undefined);
 		},
