@@ -179,7 +179,7 @@ export const useMediaInTimeline = ({
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
-			nonce,
+			nonce: nonce.get(),
 			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
 			loopDisplay,

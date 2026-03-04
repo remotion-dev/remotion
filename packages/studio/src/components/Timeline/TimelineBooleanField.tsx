@@ -9,16 +9,18 @@ const checkboxContainer: React.CSSProperties = {
 export const TimelineBooleanField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly codeValue: unknown;
+	readonly effectiveValue: unknown;
 	readonly canUpdate: boolean;
 	readonly onSave: (key: string, value: unknown) => Promise<void>;
-}> = ({field, codeValue, canUpdate, onSave}) => {
-	const checked = Boolean(codeValue);
+}> = ({field, codeValue, effectiveValue, canUpdate, onSave}) => {
+	const checked = Boolean(effectiveValue);
 
 	const onChange = useCallback(() => {
-		if (canUpdate) {
-			onSave(field.key, !checked);
+		const newValue = !checked;
+		if (canUpdate && newValue !== codeValue) {
+			onSave(field.key, newValue);
 		}
-	}, [canUpdate, onSave, field.key, checked]);
+	}, [canUpdate, onSave, field.key, checked, codeValue]);
 
 	return (
 		<div style={checkboxContainer}>

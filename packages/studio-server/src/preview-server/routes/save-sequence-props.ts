@@ -1,16 +1,13 @@
 import {readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
-import {RenderInternals} from '@remotion/renderer';
 import type {
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
 } from '@remotion/studio-shared';
 import {updateSequenceProps} from '../../codemods/update-sequence-props';
-import {makeHyperlink} from '../../hyperlinks/make-link';
 import type {ApiHandler} from '../api-types';
 import {suppressHmrForFile} from '../hmr-suppression';
-
-let warnedAboutPrettier = false;
+import {logUpdate} from './log-update';
 
 export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
@@ -41,27 +38,19 @@ export const saveSequencePropsHandler: ApiHandler<
 		writeFileSync(absolutePath, output);
 
 		const newValueString = JSON.stringify(JSON.parse(value));
-		const locationLabel = fileRelativeToRoot;
-		const fileLink = makeHyperlink({
-			url: `file://${absolutePath}`,
-			text: locationLabel,
-			fallback: locationLabel,
+		const parsedDefault =
+			defaultValue !== null ? JSON.parse(defaultValue) : null;
+		logUpdate({
+			absolutePath,
+			fileRelativeToRoot,
+			key,
+			oldValueString,
+			newValueString,
+			defaultValueString:
+				parsedDefault !== null ? JSON.stringify(parsedDefault) : null,
+			formatted,
+			logLevel,
 		});
-		RenderInternals.Log.info(
-			{indent: false, logLevel},
-			RenderInternals.chalk.blueBright(
-				`${fileLink} updated: ${key} ${oldValueString} \u2192 ${newValueString}`,
-			),
-		);
-		if (!formatted && !warnedAboutPrettier) {
-			warnedAboutPrettier = true;
-			RenderInternals.Log.warn(
-				{indent: false, logLevel},
-				RenderInternals.chalk.yellow(
-					'Could not format with Prettier. File will need to be formatted manually.',
-				),
-			);
-		}
 
 		return {
 			success: true,

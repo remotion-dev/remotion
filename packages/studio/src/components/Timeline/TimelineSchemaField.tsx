@@ -25,6 +25,7 @@ export const TimelineFieldValue: React.FC<{
 	readonly onDragEnd: () => void;
 	readonly canUpdate: boolean;
 	readonly propStatus: CanUpdateSequencePropStatus | null;
+	readonly codeValue: unknown;
 	readonly effectiveValue: unknown;
 }> = ({
 	field,
@@ -34,6 +35,7 @@ export const TimelineFieldValue: React.FC<{
 	propStatus,
 	canUpdate,
 	effectiveValue,
+	codeValue,
 }) => {
 	const wrapperStyle: React.CSSProperties | undefined =
 		canUpdate === null || canUpdate === false
@@ -61,9 +63,10 @@ export const TimelineFieldValue: React.FC<{
 			<span style={wrapperStyle}>
 				<TimelineNumberField
 					field={field}
-					codeValue={effectiveValue}
+					effectiveValue={effectiveValue}
 					canUpdate={canUpdate}
 					onSave={onSave}
+					codeValue={codeValue}
 					onDragValueChange={onDragValueChange}
 					onDragEnd={onDragEnd}
 				/>
@@ -76,7 +79,8 @@ export const TimelineFieldValue: React.FC<{
 			<span style={wrapperStyle}>
 				<TimelineRotationField
 					field={field}
-					codeValue={effectiveValue}
+					effectiveValue={effectiveValue}
+					codeValue={codeValue}
 					canUpdate={canUpdate}
 					onSave={onSave}
 					onDragValueChange={onDragValueChange}
@@ -91,7 +95,8 @@ export const TimelineFieldValue: React.FC<{
 			<span style={wrapperStyle}>
 				<TimelineTranslateField
 					field={field}
-					codeValue={effectiveValue}
+					effectiveValue={effectiveValue}
+					codeValue={codeValue}
 					canUpdate={canUpdate}
 					onSave={onSave}
 					onDragValueChange={onDragValueChange}
@@ -106,9 +111,10 @@ export const TimelineFieldValue: React.FC<{
 			<span style={wrapperStyle}>
 				<TimelineBooleanField
 					field={field}
-					codeValue={effectiveValue}
+					codeValue={codeValue}
 					canUpdate={canUpdate}
 					onSave={onSave}
+					effectiveValue={effectiveValue}
 				/>
 			</span>
 		);

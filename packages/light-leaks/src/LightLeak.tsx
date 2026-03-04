@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import type {SequenceControls, SequenceSchema} from 'remotion';
+import {type SequenceControls, type SequenceSchema} from 'remotion';
 import {
 	AbsoluteFill,
 	Internals,

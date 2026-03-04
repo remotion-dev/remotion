@@ -30,17 +30,26 @@ const containerStyle: React.CSSProperties = {
 export const TimelineTranslateField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly codeValue: unknown;
+	readonly effectiveValue: unknown;
 	readonly canUpdate: boolean;
 	readonly onSave: (key: string, value: unknown) => Promise<void>;
 	readonly onDragValueChange: (key: string, value: unknown) => void;
 	readonly onDragEnd: () => void;
-}> = ({field, codeValue, canUpdate, onSave, onDragValueChange, onDragEnd}) => {
+}> = ({
+	field,
+	codeValue,
+	effectiveValue,
+	canUpdate,
+	onSave,
+	onDragValueChange,
+	onDragEnd,
+}) => {
 	const [dragX, setDragX] = useState<number | null>(null);
 	const [dragY, setDragY] = useState<number | null>(null);
 
 	const [codeX, codeY] = useMemo(
-		() => parseTranslate(String(codeValue ?? '0px 0px')),
-		[codeValue],
+		() => parseTranslate(String(effectiveValue ?? '0px 0px')),
+		[effectiveValue],
 	);
 
 	const makeString = useCallback((x: number, y: number) => `${x}px ${y}px`, []);

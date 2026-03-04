@@ -11,7 +11,7 @@ const makeVideoConfig = (durationInFrames: number): VideoConfig => ({
 	// @ts-expect-error
 	component: {_payload: {_status: 1}},
 	props: {},
-	nonce: 16,
+	nonce: [[0, 16]],
 });
 
 test('Should test timeline sequence layout without max media duration', () => {
@@ -36,7 +36,7 @@ test('Should test timeline sequence layout without max media duration', () => {
 					},
 				},
 				props: {},
-				nonce: 16,
+				nonce: [[0, 16]],
 			},
 			windowWidth: 1414.203125,
 		}),
@@ -70,7 +70,7 @@ test('Should test timeline sequence layout with max media duration', () => {
 					},
 				},
 				props: {},
-				nonce: 16,
+				nonce: [[0, 16]],
 			},
 			windowWidth: 1414.203125,
 		}),

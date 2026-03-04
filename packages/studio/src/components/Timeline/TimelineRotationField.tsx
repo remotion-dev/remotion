@@ -14,17 +14,26 @@ const parseCssRotationToDegrees = (value: string): number => {
 
 export const TimelineRotationField: React.FC<{
 	readonly field: SchemaFieldInfo;
+	readonly effectiveValue: unknown;
 	readonly codeValue: unknown;
 	readonly canUpdate: boolean;
 	readonly onSave: (key: string, value: unknown) => Promise<void>;
 	readonly onDragValueChange: (key: string, value: unknown) => void;
 	readonly onDragEnd: () => void;
-}> = ({field, codeValue, canUpdate, onSave, onDragValueChange, onDragEnd}) => {
+}> = ({
+	field,
+	effectiveValue,
+	codeValue,
+	canUpdate,
+	onSave,
+	onDragValueChange,
+	onDragEnd,
+}) => {
 	const [dragValue, setDragValue] = useState<number | null>(null);
 
 	const degrees = useMemo(
-		() => parseCssRotationToDegrees(String(codeValue ?? '0deg')),
-		[codeValue],
+		() => parseCssRotationToDegrees(String(effectiveValue ?? '0deg')),
+		[effectiveValue],
 	);
 
 	const onValueChange = useCallback(
