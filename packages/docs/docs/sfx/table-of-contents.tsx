@@ -33,6 +33,10 @@ export const TableOfContents: React.FC = () => {
 				<SfxItem link="/docs/sfx/mouse-click" src="https://remotion.media/mouse-click.wav" name="mouseClick" description="Mouse click sound effect" />
 				<SfxItem link="/docs/sfx/shutter-modern" src="https://remotion.media/shutter-modern.wav" name="shutterModern" description="Modern camera shutter sound effect" />
 				<SfxItem link="/docs/sfx/shutter-old" src="https://remotion.media/shutter-old.wav" name="shutterOld" description="Vintage camera shutter sound effect" />
+				<SfxItem link="/docs/sfx/ding" src="https://remotion.media/ding.wav" name="ding" description="Ding notification sound effect" />
+				<SfxItem link="/docs/sfx/bruh" src="https://remotion.media/bruh.wav" name="bruh" description="Bruh sound effect" />
+				<SfxItem link="/docs/sfx/vine-boom" src="https://remotion.media/vine-boom.wav" name="vineBoom" description="Vine boom sound effect" />
+				<SfxItem link="/docs/sfx/windows-xp-error" src="https://remotion.media/windows-xp-error.wav" name="windowsXpError" description="Windows XP error sound effect" />
 			</Grid>
 		</div>
 	);

@@ -475,6 +475,10 @@ const sidebars: SidebarsConfig = {
 				'sfx/mouse-click',
 				'sfx/shutter-modern',
 				'sfx/shutter-old',
+				'sfx/ding',
+				'sfx/bruh',
+				'sfx/vine-boom',
+				'sfx/windows-xp-error',
 			],
 		},
 		{
