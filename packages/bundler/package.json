@@ -24,7 +24,7 @@
 		"@rspack/plugin-react-refresh": "1.6.1",
 		"css-loader": "5.2.7",
 		"esbuild": "0.25.0",
-		"react-refresh": "0.9.0",
+		"react-refresh": "0.18.0",
 		"remotion": "workspace:*",
 		"@remotion/studio": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
