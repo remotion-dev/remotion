@@ -1342,10 +1342,9 @@ const RenderModal: React.FC<
 			</div>
 			{readOnlyStudio ? (
 				<div style={readOnlyHint}>
-					Copies a command pinned to your Studio version using{' '}
-					<code>{`npx remotion@${window.remotion_version}`}</code>. If{' '}
-					<code>@remotion/cli</code> is not installed locally, <code>npx</code>{' '}
-					will download the matching version.
+					Copies an npm command that works without a local Remotion install. It
+					uses <code>{`@remotion/cli@${window.remotion_version}`}</code> to
+					match this Studio version.
 				</div>
 			) : null}
 			<div style={horizontalLayout}>

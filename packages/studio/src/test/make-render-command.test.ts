@@ -1,8 +1,8 @@
 import {expect, test} from 'bun:test';
 import type {RenderDefaults} from '@remotion/studio-shared';
 import {
+	getNpmRemotionCommandPrefix,
 	makeReadOnlyStudioRenderCommand,
-	makeVersionedRemotionCommandPrefix,
 	normalizeServeUrlForRenderCommand,
 } from '../helpers/make-render-command';
 
@@ -52,11 +52,11 @@ const getDefaults = (): RenderDefaults => {
 	};
 };
 
-test('Should pin remotion version in command prefix', () => {
-	expect(makeVersionedRemotionCommandPrefix('4.0.431')).toBe(
-		'npx remotion@4.0.431',
+test('Should map to npm-based command prefix', () => {
+	expect(getNpmRemotionCommandPrefix('4.0.431')).toBe(
+		'npx -p @remotion/cli@4.0.431 remotion',
 	);
-	expect(makeVersionedRemotionCommandPrefix('')).toBe('npx remotion');
+	expect(getNpmRemotionCommandPrefix('')).toBe('npx -p @remotion/cli remotion');
 });
 
 test('Should normalize serve URL by stripping selected composition', () => {
@@ -106,7 +106,7 @@ test('Should generate concise read-only render command and omit concurrency', ()
 	});
 
 	expect(command).toContain(
-		"npx remotion@4.0.431 render 'https://example.com' 'dynamic-length'",
+		"npx -p @remotion/cli@4.0.431 remotion render 'https://example.com' 'dynamic-length'",
 	);
 	expect(command).toContain("--frames='10-80'");
 	expect(command).toContain('--muted');
@@ -146,7 +146,7 @@ test('Should generate still command and omit default flags', () => {
 	});
 
 	expect(command).toContain(
-		"npx remotion@4.0.431 still 'https://example.com/still' 'StillComp'",
+		"npx -p @remotion/cli@4.0.431 remotion still 'https://example.com/still' 'StillComp'",
 	);
 	expect(command).toContain("--frame='12'");
 	expect(command).not.toContain("--image-format='png'");

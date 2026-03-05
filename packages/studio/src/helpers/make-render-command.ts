@@ -26,8 +26,10 @@ const addBooleanFlag = (flags: string[], flag: string, value: boolean) => {
 	}
 };
 
-export const makeVersionedRemotionCommandPrefix = (version: string) => {
-	return version.trim() === '' ? 'npx remotion' : `npx remotion@${version}`;
+export const getNpmRemotionCommandPrefix = (version: string) => {
+	return version.trim() === ''
+		? 'npx -p @remotion/cli remotion'
+		: `npx -p @remotion/cli@${version} remotion`;
 };
 
 export const normalizeServeUrlForRenderCommand = ({
@@ -114,7 +116,7 @@ export const makeReadOnlyStudioRenderCommand = ({
 		compositionId,
 	});
 	const commandType = renderMode === 'still' ? 'still' : 'render';
-	const command = makeVersionedRemotionCommandPrefix(remotionVersion);
+	const command = getNpmRemotionCommandPrefix(remotionVersion);
 	const {options} = BrowserSafeApis;
 	const flags: string[] = [];
 
