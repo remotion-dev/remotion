@@ -110,24 +110,6 @@ export const extraPackages: ExtraPackage[] = [
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats#ac-3-and-e-ac-3',
 	},
 	{
-		name: '@mediabunny/mp3-encoder',
-		version: '1.37.0',
-		description: 'MP3 encoder for Mediabunny',
-		docsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
-	},
-	{
-		name: '@mediabunny/aac-encoder',
-		version: '1.37.0',
-		description: 'AAC encoder for Mediabunny',
-		docsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
-	},
-	{
-		name: '@mediabunny/flac-encoder',
-		version: '1.37.0',
-		description: 'FLAC encoder for Mediabunny',
-		docsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
-	},
-	{
 		name: 'zod',
 		version: '4.3.6',
 		description: 'TypeScript-first schema validation',
