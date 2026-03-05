@@ -381,6 +381,7 @@
         "@docusaurus/theme-common": "3.9.2",
         "@docusaurus/types": "3.9.2",
         "@mdx-js/react": "3.0.1",
+        "@mediabunny/ac3": "catalog:",
         "@radix-ui/react-dropdown-menu": "^2.1.16",
         "@react-three/fiber": "catalog:",
         "@remotion-dev/cube-presentation": "https://www.remotion.pro/pkg/cube-transition/1.0.2/docs",
@@ -1139,6 +1140,10 @@
       "name": "@remotion/promo-pages",
       "version": "4.0.432",
       "dependencies": {
+        "@mediabunny/aac-encoder": "catalog:",
+        "@mediabunny/ac3": "catalog:",
+        "@mediabunny/flac-encoder": "catalog:",
+        "@mediabunny/mp3-encoder": "catalog:",
         "@mux/upchunk": "^3.5.0",
         "@remotion/animated-emoji": "workspace:*",
         "@remotion/design": "workspace:*",
