@@ -112,7 +112,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		useState(false);
 
 	const [playing] = Timeline.usePlayingState();
-	const timelineContext = useContext(Internals.TimelineContext);
+	const timelineContext = Internals.useTimelineContext();
 	const globalPlaybackRate = timelineContext.playbackRate;
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();

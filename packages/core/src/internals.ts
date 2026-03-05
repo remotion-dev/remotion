@@ -104,6 +104,7 @@ import {setupEnvVariables} from './setup-env-variables.js';
 import * as TimelinePosition from './timeline-position-state.js';
 import {
 	persistCurrentFrame,
+	useTimelineContext,
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
 import {
@@ -242,6 +243,7 @@ export const Internals = {
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 	RenderAssetManager,
 	persistCurrentFrame,
+	useTimelineContext,
 	useTimelineSetFrame,
 	isIosSafari,
 	WATCH_REMOTION_STATIC_FILES,
