@@ -14,6 +14,11 @@ export type QueuedNode = {
 	playbackRate: number;
 };
 
+export type QueuedPeriod = {
+	from: number;
+	until: number;
+};
+
 export const makeAudioIterator = (
 	startFromSecond: number,
 	maximumTimestamp: number,
@@ -274,6 +279,7 @@ export const makeAudioIterator = (
 		isDestroyed: () => {
 			return destroyed;
 		},
+
 		addQueuedAudioNode: ({
 			node,
 			timestamp,
