@@ -65,6 +65,7 @@ const MaybeTimelineProvider: React.FC<{
 }> = ({children}) => {
 	const existing = useContext(TimelineContext);
 	if (existing !== null) {
+		// eslint-disable-next-line react/jsx-no-useless-fragment
 		return <>{children}</>;
 	}
 
