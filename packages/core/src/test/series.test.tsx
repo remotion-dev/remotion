@@ -5,7 +5,8 @@ import {AbsoluteFill} from '../AbsoluteFill.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Internals} from '../internals.js';
 import {Series} from '../series/index.js';
-import {TimelineContext} from '../TimelineContext.js';
+import type {TimelineContextValue} from '../TimelineContext.js';
+import {AbsoluteTimeContext, TimelineContext} from '../TimelineContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {ENABLE_V5_BREAKING_CHANGES} from '../v5-flag.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
@@ -34,27 +35,29 @@ const Fourth = () => {
 };
 
 const renderForFrame = (frame: number, markup: React.ReactNode) => {
+	const timelineContextValue: TimelineContextValue = {
+		rootId: '',
+		frame: {
+			'my-comp': frame,
+		},
+		playing: false,
+		imperativePlaying: {
+			current: false,
+		},
+		playbackRate: 1,
+		setPlaybackRate: () => {
+			throw new Error('playback rate');
+		},
+		audioAndVideoTags: {current: []},
+	};
+
 	return renderToString(
 		<CanUseRemotionHooksProvider>
-			<TimelineContext.Provider
-				value={{
-					rootId: '',
-					frame: {
-						'my-comp': frame,
-					},
-					playing: false,
-					imperativePlaying: {
-						current: false,
-					},
-					playbackRate: 1,
-					setPlaybackRate: () => {
-						throw new Error('playback rate');
-					},
-					audioAndVideoTags: {current: []},
-				}}
-			>
-				{markup}
-			</TimelineContext.Provider>
+			<AbsoluteTimeContext.Provider value={timelineContextValue}>
+				<TimelineContext.Provider value={timelineContextValue}>
+					{markup}
+				</TimelineContext.Provider>
+			</AbsoluteTimeContext.Provider>
 		</CanUseRemotionHooksProvider>,
 	);
 };
