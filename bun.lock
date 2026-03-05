@@ -234,7 +234,9 @@
       "name": "@remotion/convert",
       "version": "4.0.432",
       "dependencies": {
+        "@mediabunny/aac-encoder": "catalog:",
         "@mediabunny/ac3": "catalog:",
+        "@mediabunny/flac-encoder": "catalog:",
         "@mediabunny/mp3-encoder": "catalog:",
         "@mediafox/core": "^1.0.4",
         "@mediafox/react": "^1.0.4",
@@ -1622,7 +1624,7 @@
         "@remotion/media": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/zod-types": "workspace:*",
-        "mediabunny": "1.35.1",
+        "mediabunny": "1.37.0",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
@@ -1945,7 +1947,7 @@
         "connect": "3.7.0",
         "eslint": "9.19.0",
         "lucide-react": "0.516.0",
-        "mediabunny": "1.35.1",
+        "mediabunny": "1.37.0",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
@@ -2081,7 +2083,7 @@
         "@remotion/media": "workspace:*",
         "@remotion/three": "workspace:*",
         "@remotion/zod-types": "workspace:*",
-        "mediabunny": "1.35.1",
+        "mediabunny": "1.37.0",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "remotion": "workspace:*",
@@ -2256,6 +2258,8 @@
       "name": "@remotion/web-renderer",
       "version": "4.0.432",
       "dependencies": {
+        "@mediabunny/aac-encoder": "catalog:",
+        "@mediabunny/flac-encoder": "catalog:",
         "@mediabunny/mp3-encoder": "catalog:",
         "@remotion/licensing": "workspace:*",
         "mediabunny": "catalog:",
@@ -2363,8 +2367,10 @@
     "@aws-sdk/lib-storage": "3.986.0",
     "@aws-sdk/middleware-flexible-checksums": "3.972.5",
     "@aws-sdk/s3-request-presigner": "3.986.0",
-    "@mediabunny/ac3": "1.35.1",
-    "@mediabunny/mp3-encoder": "1.35.1",
+    "@mediabunny/aac-encoder": "1.37.0",
+    "@mediabunny/ac3": "1.37.0",
+    "@mediabunny/flac-encoder": "1.37.0",
+    "@mediabunny/mp3-encoder": "1.37.0",
     "@react-three/fiber": "9.2.0",
     "@types/bun": "1.3.3",
     "@types/dom-webcodecs": "0.1.11",
@@ -2377,7 +2383,7 @@
     "@vitejs/plugin-react": "4.3.4",
     "@vitest/browser-playwright": "4.0.9",
     "eslint": "9.19.0",
-    "mediabunny": "1.35.1",
+    "mediabunny": "1.37.0",
     "next": "16.1.5",
     "openai": "4.67.1",
     "playwright": "1.55.1",
@@ -3208,9 +3214,13 @@
 
     "@mdx-js/react": ["@mdx-js/react@2.3.0", "", { "dependencies": { "@types/mdx": "2.0.5", "@types/react": "19.0.0" }, "peerDependencies": { "react": "19.0.0" } }, "sha512-zQH//gdOmuu7nt2oJR29vFhDv88oGPmVw6BggmrHeMI+xgEkp1B2dX9/bMBSYtK0dyLX/aOmesKS09g222K1/g=="],
 
-    "@mediabunny/ac3": ["@mediabunny/ac3@1.35.1", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-gLx3mFfs58/cdz2/f5Fp+6ZOrX5Jli3AZMXw/5EJcgm2VpnC/2oxtJyP1x/00PIS4UCE770slwIdz7U+2CQ31g=="],
+    "@mediabunny/aac-encoder": ["@mediabunny/aac-encoder@1.37.0", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-mYnF1sObnPE+7+QWn9H7c0rbl5Dwu50JejUD/GJefRl8ozYp0sz3tt+zBLCeif5GXBkPhABIX3JVg1eGfqx6tg=="],
 
-    "@mediabunny/mp3-encoder": ["@mediabunny/mp3-encoder@1.35.1", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-iY6FcPs7GbHMs/ASPmdzwojKcBN4AfMa+zFh4KNZNaLToyR7aEZILj9FsPVJA11bshaoo80dTaBcn69i33JHVA=="],
+    "@mediabunny/ac3": ["@mediabunny/ac3@1.37.0", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-kjMsuneTPoK3w+JKGPXl+vevFcjh76m8aYqo8pAbF69uoL4HpL+c7gIY1Hm3wmS0DvclDA7kxioFQtZwM+K7cA=="],
+
+    "@mediabunny/flac-encoder": ["@mediabunny/flac-encoder@1.37.0", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-VwKIL5p1WZE4dSwZ1SVv/bd2ksul8a4run4S1eEbPRysnG87nmCXddO5ajD3b2k2478XWitKnVDXl/kxdIIWBw=="],
+
+    "@mediabunny/mp3-encoder": ["@mediabunny/mp3-encoder@1.37.0", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-6tXBO3iHDA55WiMhOoaOmeCCOQ51U38mdXRxYNS9/hUCpR0ScRo+NtWu2YUa/jp2q99JNPrA4yYjahE5xHDxpg=="],
 
     "@mediafox/core": ["@mediafox/core@1.0.4", "", { "peerDependencies": { "mediabunny": "^1.23.0", "typescript": ">=5.0.0" } }, "sha512-1j8PKp835RUVzZt1vcymrgZqhaMobfP7SswbTisusvTgIZL8y5n2QFhSCnn7dze+a53VgnWyzkHOYdtVR1Gdew=="],
 
@@ -6100,7 +6110,7 @@
 
     "media-typer": ["media-typer@0.3.0", "", {}, "sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ=="],
 
-    "mediabunny": ["mediabunny@1.35.1", "", { "dependencies": { "@types/dom-mediacapture-transform": "^0.1.11", "@types/dom-webcodecs": "0.1.13" } }, "sha512-VrprpjkLTZyIyhzBAc9D3HqgXarAE+le7+6x0Sdu9WN2SD86L8bUy0hz06Xwf14dVPqS7OwpY2KOhlUyqmI2eQ=="],
+    "mediabunny": ["mediabunny@1.37.0", "", { "dependencies": { "@types/dom-mediacapture-transform": "^0.1.11", "@types/dom-webcodecs": "0.1.13" } }, "sha512-eV7M9IJ29pr/8RNL1sYtIxNbdMfDMN1hMwMaOFfNLhwuKKGSC+eKwiJFpdVjEJ3zrMA4LGerF4Hps0SENFSAlg=="],
 
     "memfs": ["memfs@3.4.3", "", { "dependencies": { "fs-monkey": "1.0.3" } }, "sha512-eivjfi7Ahr6eQTn44nvTnR60e4a1Fs1Via2kCR5lHo/kyNoiMWaXCNJ/GpSd0ilXas2JSOl9B5FTIhflXu0hlg=="],
 
