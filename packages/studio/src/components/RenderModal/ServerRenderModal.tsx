@@ -1173,58 +1173,128 @@ const RenderModal: React.FC<
 			remotionVersion: window.remotion_version,
 			locationHref: window.location.href,
 			compositionId: resolvedComposition.id,
+			outName,
 			renderMode,
 			renderDefaults,
 			durationInFrames: resolvedComposition.durationInFrames,
+			concurrency,
 			frame,
 			startFrame,
 			endFrame,
 			stillImageFormat,
 			sequenceImageFormat,
 			videoImageFormat,
+			jpegQuality:
+				renderMode === 'video'
+					? stillImageFormat === 'jpeg'
+						? jpegQuality
+						: null
+					: renderMode === 'audio'
+						? null
+						: jpegQuality,
 			codec,
 			muted,
 			enforceAudioTrack,
 			proResProfile,
 			x264Preset,
 			pixelFormat,
+			crf:
+				qualityControlType === 'crf' &&
+				hardwareAcceleration !== 'if-possible' &&
+				hardwareAcceleration !== 'required'
+					? crf
+					: null,
+			videoBitrate,
+			audioBitrate,
+			audioCodec,
+			everyNthFrame,
+			numberOfGifLoops,
+			disallowParallelEncoding,
+			encodingBufferSize,
+			encodingMaxRate,
+			forSeamlessAacConcatenation,
+			separateAudioTo,
 			colorSpace,
 			scale,
 			logLevel,
 			delayRenderTimeout,
 			hardwareAcceleration,
 			chromeMode,
+			headless,
+			disableWebSecurity,
+			ignoreCertificateErrors,
+			gl: openGlOption === 'default' ? null : openGlOption,
+			userAgent,
+			multiProcessOnLinux,
+			darkMode,
+			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
+			mediaCacheSizeInBytes,
+			beepOnFinish,
+			repro,
+			metadata,
+			envVariables: envVariablesArrayToObject(envVariables),
 			inputProps,
 		});
 	}, [
+		audioBitrate,
+		audioCodec,
+		beepOnFinish,
 		chromeMode,
 		codec,
 		colorSpace,
+		concurrency,
+		crf,
+		darkMode,
 		delayRenderTimeout,
+		disableWebSecurity,
+		disallowParallelEncoding,
 		endFrame,
+		encodingBufferSize,
+		encodingMaxRate,
 		enforceAudioTrack,
+		envVariables,
+		everyNthFrame,
 		frame,
+		forSeamlessAacConcatenation,
 		hardwareAcceleration,
+		headless,
+		ignoreCertificateErrors,
 		inputProps,
+		jpegQuality,
 		logLevel,
+		mediaCacheSizeInBytes,
+		metadata,
+		multiProcessOnLinux,
 		muted,
+		numberOfGifLoops,
+		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
+		openGlOption,
+		outName,
 		pixelFormat,
 		proResProfile,
+		qualityControlType,
 		readOnlyStudio,
 		renderDefaults,
 		renderMode,
+		repro,
 		resolvedComposition.durationInFrames,
 		resolvedComposition.id,
 		scale,
+		separateAudioTo,
 		sequenceImageFormat,
 		startFrame,
 		stillImageFormat,
+		userAgent,
 		videoImageFormat,
+		videoBitrate,
 		x264Preset,
 	]);
 	const [commandCopiedAt, setCommandCopiedAt] = useState<number | null>(null);
-	const renderDisabled =
-		!outnameValidation.valid || (!readOnlyStudio && state.type === 'load');
+	const renderDisabled = readOnlyStudio
+		? false
+		: !outnameValidation.valid || state.type === 'load';
 
 	const trigger = useCallback(() => {
 		if (readOnlyStudio) {
@@ -1426,6 +1496,7 @@ const RenderModal: React.FC<
 							setStartFrame={setStartFrame}
 							setVerboseLogging={setLogLevel}
 							logLevel={logLevel}
+							showOutputName={!readOnlyStudio}
 							startFrame={startFrame}
 							validationMessage={
 								outnameValidation.valid ? null : outnameValidation.error.message
