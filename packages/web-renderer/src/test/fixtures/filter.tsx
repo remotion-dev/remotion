@@ -1,8 +1,8 @@
 import {AbsoluteFill} from 'remotion';
 
-const FilterBox: React.FC<{label: string; filter: string}> = ({
+const FilterBox: React.FC<{label: string; filterValue: string}> = ({
 	label,
-	filter,
+	filterValue,
 }) => (
 	<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
 		<span style={{fontSize: 14, marginBottom: 6, color: '#333'}}>{label}</span>
@@ -11,7 +11,7 @@ const FilterBox: React.FC<{label: string; filter: string}> = ({
 				backgroundColor: 'red',
 				width: 80,
 				height: 80,
-				filter,
+				filter: filterValue,
 			}}
 		/>
 	</div>
@@ -30,24 +30,24 @@ const Component: React.FC = () => {
 				alignContent: 'flex-start',
 			}}
 		>
-			<FilterBox label="blur(5px)" filter="blur(5px)" />
-			<FilterBox label="brightness(1.5)" filter="brightness(1.5)" />
-			<FilterBox label="contrast(200%)" filter="contrast(200%)" />
+			<FilterBox label="blur(5px)" filterValue="blur(5px)" />
+			<FilterBox label="brightness(1.5)" filterValue="brightness(1.5)" />
+			<FilterBox label="contrast(200%)" filterValue="contrast(200%)" />
 			<FilterBox
 				label="drop-shadow"
-				filter="drop-shadow(5px 5px 3px rgba(0,0,0,0.5))"
+				filterValue="drop-shadow(5px 5px 3px rgba(0,0,0,0.5))"
 			/>
-			<FilterBox label="grayscale(100%)" filter="grayscale(100%)" />
-			<FilterBox label="hue-rotate(90deg)" filter="hue-rotate(90deg)" />
-			<FilterBox label="invert(100%)" filter="invert(100%)" />
-			<FilterBox label="opacity(50%)" filter="opacity(50%)" />
-			<FilterBox label="saturate(200%)" filter="saturate(200%)" />
-			<FilterBox label="sepia(100%)" filter="sepia(100%)" />
+			<FilterBox label="grayscale(100%)" filterValue="grayscale(100%)" />
+			<FilterBox label="hue-rotate(90deg)" filterValue="hue-rotate(90deg)" />
+			<FilterBox label="invert(100%)" filterValue="invert(100%)" />
+			<FilterBox label="opacity(50%)" filterValue="opacity(50%)" />
+			<FilterBox label="saturate(200%)" filterValue="saturate(200%)" />
+			<FilterBox label="sepia(100%)" filterValue="sepia(100%)" />
 			<FilterBox
 				label="combined"
-				filter="blur(2px) brightness(1.2) contrast(150%)"
+				filterValue="blur(2px) brightness(1.2) contrast(150%)"
 			/>
-			<FilterBox label="none" filter="none" />
+			<FilterBox label="none" filterValue="none" />
 		</AbsoluteFill>
 	);
 };
