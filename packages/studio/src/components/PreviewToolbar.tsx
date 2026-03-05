@@ -215,9 +215,7 @@ export const PreviewToolbar: React.FC<{
 				<Flex />
 				{!isMobileLayout && <FpsCounter playbackSpeed={playbackRate} />}
 				<Spacing x={2} />
-				{shouldShowRenderButton() ? (
-					<RenderButton readOnlyStudio={readOnlyStudio} />
-				) : null}
+				<RenderButton readOnlyStudio={readOnlyStudio} />
 				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
