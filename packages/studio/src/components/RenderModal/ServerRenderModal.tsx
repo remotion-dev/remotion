@@ -110,14 +110,6 @@ type State =
 
 const initialState: State = {type: 'idle'};
 
-const readOnlyHint: React.CSSProperties = {
-	fontSize: 12,
-	color: 'rgba(255, 255, 255, 0.7)',
-	paddingLeft: 16,
-	paddingRight: 16,
-	paddingTop: 10,
-};
-
 type Action =
 	| {
 			type: 'start';
@@ -1340,13 +1332,6 @@ const RenderModal: React.FC<
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
 			</div>
-			{readOnlyStudio ? (
-				<div style={readOnlyHint}>
-					Copies an npm command that works without a local Remotion install. It
-					uses <code>{`@remotion/cli@${window.remotion_version}`}</code> to
-					match this Studio version.
-				</div>
-			) : null}
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
 					{shownTabs.includes('general') ? (
