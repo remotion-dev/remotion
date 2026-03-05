@@ -1,7 +1,7 @@
 import type {InputAudioTrack, WrappedAudioBuffer} from 'mediabunny';
 import {AudioBufferSink, InputDisposedError} from 'mediabunny';
 import {Internals, type ScheduleAudioNodeResult} from 'remotion';
-import type {AudioIterator} from './audio/audio-preview-iterator';
+import type {AudioIterator, QueuedPeriod} from './audio/audio-preview-iterator';
 import {
 	isAlreadyQueued,
 	makeAudioIterator,
@@ -9,6 +9,7 @@ import {
 import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedAudioIteratorCache} from './prewarm-iterator-for-looping';
+import {ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT} from './set-global-time-anchor';
 
 const MAX_BUFFER_AHEAD_SECONDS = 8;
 
@@ -346,7 +347,22 @@ export const audioIteratorManager = ({
 		}
 
 		const queuedPeriod = audioBufferIterator.getQueuedPeriod();
-		const currentTimeIsAlreadyQueued = isAlreadyQueued(newTime, queuedPeriod);
+		// If there is a missing period, but we'd have no chance to schedule nodes,
+		// then let's not bother. Let's just leave the gap.
+		const queuedPeriodMinusLatenxy: QueuedPeriod | null = queuedPeriod
+			? {
+					from:
+						queuedPeriod.from -
+						ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT -
+						sharedAudioContext.baseLatency -
+						sharedAudioContext.outputLatency,
+					until: queuedPeriod.until,
+				}
+			: null;
+		const currentTimeIsAlreadyQueued = isAlreadyQueued(
+			newTime,
+			queuedPeriodMinusLatenxy,
+		);
 
 		if (!currentTimeIsAlreadyQueued) {
 			const audioSatisfyResult = await audioBufferIterator.tryToSatisfySeek(
