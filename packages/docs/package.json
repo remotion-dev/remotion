@@ -105,6 +105,7 @@
 		"lottie-web": "5.13.0",
 		"mapbox-gl": "3.18.1",
 		"mediabunny": "catalog:",
+		"@mediabunny/ac3": "catalog:",
 		"mux-embed": "^4.16.0",
 		"next": "catalog:",
 		"plyr": "3.7.3",

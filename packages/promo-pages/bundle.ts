@@ -49,6 +49,10 @@ const result = await build({
 		'plyr',
 		'zod',
 		'@mux/upchunk',
+		'@mediabunny/ac3',
+		'@mediabunny/aac-encoder',
+		'@mediabunny/flac-encoder',
+		'@mediabunny/mp3-encoder',
 	],
 });
 

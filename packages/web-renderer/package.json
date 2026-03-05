@@ -20,6 +20,8 @@
 	"license": "UNLICENSED",
 	"dependencies": {
 		"@mediabunny/mp3-encoder": "catalog:",
+		"@mediabunny/aac-encoder": "catalog:",
+		"@mediabunny/flac-encoder": "catalog:",
 		"@remotion/licensing": "workspace:*",
 		"remotion": "workspace:*",
 		"mediabunny": "catalog:"
