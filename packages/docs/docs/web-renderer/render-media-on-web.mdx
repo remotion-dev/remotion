@@ -69,13 +69,13 @@ You cannot use [`getInputProps()`](/docs/get-input-props) to read input props in
 
 ### `container?`
 
-_string_ <TsType type="WebRendererContainer" source="@remotion/web-renderer" />
+_string_ <TsType type="WebRendererContainer" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrenderercontainer" />
 
 The container format to use for the output video. Default is `mp4`.
 
 ### `videoCodec?`
 
-_string_ <TsType type="WebRendererVideoCodec" source="@remotion/web-renderer" />
+_string_ <TsType type="WebRendererVideoCodec" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrenderervideocodec" />
 
 Which codec should be used to encode the video.  
 Default depends on the container:
@@ -85,7 +85,7 @@ Default depends on the container:
 
 ### `frameRange?`
 
-_number | [number, number] | [number, null]_ <TsType type="FrameRange" source="@remotion/web-renderer" />
+_number | [number, number] | [number, null]_ <TsType type="FrameRange" source="@remotion/web-renderer" href="/docs/web-renderer/types#framerange" />
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
 
@@ -97,7 +97,7 @@ _number_
 
 ### `onProgress?`
 
-_function_ <TsType type="RenderMediaOnWebProgressCallback" source="@remotion/web-renderer" />
+_function_ <TsType type="RenderMediaOnWebProgressCallback" source="@remotion/web-renderer" href="/docs/web-renderer/types#rendermediaonwebprogresscallback" />
 
 React to render progress. The callback receives an object with the following properties:
 
@@ -112,7 +112,7 @@ const onProgress: RenderMediaOnWebProgressCallback = ({renderedFrames, encodedFr
 
 ### `videoBitrate?`
 
-_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendererquality" />
 
 Controls the quality and file size of the output video. Can be either a number representing the bitrate in bits per second, or one of the preset quality levels:
 
@@ -157,7 +157,7 @@ If set to `true`, no audio will be included in the output video.
 
 ### `audioCodec?`
 
-_string_ <TsType type="WebRendererAudioCodec" source="@remotion/web-renderer" />
+_string_ <TsType type="WebRendererAudioCodec" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendereraudiocodec" />
 
 Which codec should be used to encode the audio.  
 Default depends on the container:
@@ -173,7 +173,7 @@ If you explicitly specify `aac` and render in Firefox, the render will fail with
 
 ### `audioBitrate?`
 
-_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendererquality" />
 
 Controls the quality and file size of the audio. Can be either a number representing the bitrate in bits per second, or one of the preset quality levels:
 
@@ -239,13 +239,13 @@ _number | null_
 
 ### `onArtifact?`
 
-_function_ <TsType type="WebRendererOnArtifact" source="@remotion/web-renderer" />
+_function_ <TsType type="WebRendererOnArtifact" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendereronartifact" />
 
 [Handle an artifact](/docs/artifacts#using-rendermedia-renderstill-or-renderframes) that was emitted by the [`<Artifact>`](/docs/artifact) component.
 
 ### `onFrame?`
 
-_function_ <TsType type="OnFrameCallback" source="@remotion/web-renderer" />
+_function_ <TsType type="OnFrameCallback" source="@remotion/web-renderer" href="/docs/web-renderer/types#onframecallback" />
 
 A callback that receives each `VideoFrame` before it is encoded. This allows you to process or modify frames. The callback must return the same `VideoFrame` or a new `VideoFrame` with the same dimensions and timestamp.
 
@@ -260,7 +260,7 @@ const onFrame: OnFrameCallback = (frame) => {
 
 ### `outputTarget?`
 
-_string_ <TsType type="WebRendererOutputTarget" source="@remotion/web-renderer" />
+_string_ <TsType type="WebRendererOutputTarget" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendereroutputtarget" />
 
 Controls how the output is stored:
 
