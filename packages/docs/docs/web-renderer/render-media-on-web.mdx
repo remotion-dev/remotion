@@ -165,12 +165,6 @@ Default depends on the container:
 - For `mp4` container: `aac`
 - For `webm` container: `opus`
 
-:::note
-AAC encoding is not supported in Firefox. If you don't specify an audio codec and the default cannot be encoded by the browser, Remotion will automatically fall back to a supported codec.
-
-If you explicitly specify `aac` and render in Firefox, the render will fail with an error.
-:::
-
 ### `audioBitrate?`
 
 _number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendererquality" />
