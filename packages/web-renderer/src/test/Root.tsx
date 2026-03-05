@@ -21,6 +21,7 @@ import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
 import {displayNone} from './fixtures/display-none';
 import {filter} from './fixtures/filter';
+import {filterImage} from './fixtures/filter-image';
 import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
@@ -120,6 +121,7 @@ export const Root: React.FC = () => {
 			<Composition {...boxShadow} />
 			<Folder name="Filter">
 				<Composition {...filter} />
+				<Composition {...filterImage} />
 			</Folder>
 			<Folder name="border">
 				<Composition {...border} />
