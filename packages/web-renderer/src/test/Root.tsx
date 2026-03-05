@@ -20,6 +20,7 @@ import {threeDFlattening} from './fixtures/clipped';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
 import {displayNone} from './fixtures/display-none';
+import {filter} from './fixtures/filter';
 import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
@@ -51,6 +52,7 @@ import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
+import {filterText} from './fixtures/text/filter-text';
 import {fontStyle} from './fixtures/text/font-style';
 import {letterSpacing} from './fixtures/text/letter-spacing';
 import {paragraphs} from './fixtures/text/paragraphs';
@@ -116,6 +118,9 @@ export const Root: React.FC = () => {
 			</Folder>
 			<Composition {...outline} />
 			<Composition {...boxShadow} />
+			<Folder name="Filter">
+				<Composition {...filter} />
+			</Folder>
 			<Folder name="border">
 				<Composition {...border} />
 				<Composition {...borderRadius} />
@@ -143,6 +148,7 @@ export const Root: React.FC = () => {
 				<Composition {...textShadow} />
 				<Composition {...whiteSpaceCollapsing} />
 				<Composition {...whiteSpaceCollapsing2} />
+				<Composition {...filterText} />
 			</Folder>
 			<Folder name="Projects">
 				<Composition {...unwrapped} />
