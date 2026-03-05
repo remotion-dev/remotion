@@ -349,7 +349,7 @@ export const audioIteratorManager = ({
 		const queuedPeriod = audioBufferIterator.getQueuedPeriod();
 		// If there is a missing period, but we'd have no chance to schedule nodes,
 		// then let's not bother. Let's just leave the gap.
-		const queuedPeriodMinusLatenxy: QueuedPeriod | null = queuedPeriod
+		const queuedPeriodMinusLatency: QueuedPeriod | null = queuedPeriod
 			? {
 					from:
 						queuedPeriod.from -
@@ -361,7 +361,7 @@ export const audioIteratorManager = ({
 			: null;
 		const currentTimeIsAlreadyQueued = isAlreadyQueued(
 			newTime,
-			queuedPeriodMinusLatenxy,
+			queuedPeriodMinusLatency,
 		);
 
 		if (!currentTimeIsAlreadyQueued) {
