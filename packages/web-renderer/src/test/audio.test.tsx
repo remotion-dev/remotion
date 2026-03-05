@@ -118,44 +118,7 @@ test('default audio codec is AAC on Chrome/WebKit for MP4', async (t) => {
 	expect(audioCodec).toBe('aac');
 });
 
-test('should encode AAC on Firefox via polyfill', async (t) => {
-	if (t.task.file.projectName !== 'firefox') {
-		t.skip();
-		return;
-	}
-
-	const Component: React.FC = () => {
-		return <Audio src={staticFile('dialogue.wav')} />;
-	};
-
-	const result = await renderMediaOnWeb({
-		licenseKey: 'free-license',
-		composition: {
-			component: Component,
-			id: 'fallback-test',
-			width: 100,
-			height: 100,
-			fps: 30,
-			durationInFrames: 10,
-			calculateMetadata: null,
-		},
-		container: 'mp4',
-		frameRange: [0, 1],
-		logLevel: 'warn',
-		outputTarget: 'arraybuffer',
-	});
-
-	const blob = await result.getBlob();
-	const audioCodec = await getAudioCodecFromBlob(blob);
-	expect(audioCodec).toBe('aac');
-});
-
-test('should encode AAC when explicitly selected on Firefox', async (t) => {
-	if (t.task.file.projectName !== 'firefox') {
-		t.skip();
-		return;
-	}
-
+test('should encode AAC when explicitly selected, even in Firefox', async (t) => {
 	const Component: React.FC = () => {
 		return <Audio src={staticFile('dialogue.wav')} />;
 	};
@@ -236,12 +199,6 @@ test('explicit Opus selection produces Opus in MP4 output', async () => {
 });
 
 test('should render AAC container with web-fs (audio-only)', async (t) => {
-	if (t.task.file.projectName === 'firefox') {
-		// Firefox OPFS support is unreliable in test environments
-		t.skip();
-		return;
-	}
-
 	if (t.task.file.projectName === 'webkit') {
 		// WebKit OPFS support is unreliable in test environments
 		t.skip();
