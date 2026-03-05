@@ -48,6 +48,8 @@ const humanReadableWebAudioCodec = (
 			return 'Vorbis';
 		case 'pcm-s16':
 			return 'Lossless (PCM)';
+		case 'flac':
+			return 'FLAC';
 		default:
 			throw new Error(`Unsupported audio codec: ${audioCodec satisfies never}`);
 	}
