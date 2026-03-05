@@ -18,8 +18,6 @@ import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
 } from '../helpers/colors';
-import {useIsStill} from '../helpers/is-current-selected-still';
-import {makeRenderCommand} from '../helpers/make-render-command';
 import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {CaretDown} from '../icons/caret';
@@ -225,74 +223,79 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 
 	const video = Internals.useVideo();
 	const getCurrentFrame = PlayerInternals.useFrameImperative();
-	const isStill = useIsStill();
 
 	const {props} = useContext(Internals.EditorPropsContext);
 
-	const openServerRenderModal = useCallback(() => {
-		if (!video) {
-			return null;
-		}
+	const openServerRenderModal = useCallback(
+		(copyCommandOnly: boolean) => {
+			if (!video) {
+				return null;
+			}
 
-		const defaults = window.remotion_renderDefaults;
+			const defaults = window.remotion_renderDefaults;
 
-		if (!defaults) {
-			throw new TypeError('Expected defaults');
-		}
+			if (!defaults) {
+				throw new TypeError('Expected defaults');
+			}
 
-		setSelectedModal({
-			type: 'server-render',
-			compositionId: video.id,
-			initialFrame: getCurrentFrame(),
-			initialStillImageFormat: defaults.stillImageFormat,
-			initialVideoImageFormat: null,
-			initialJpegQuality: defaults.jpegQuality,
-			initialScale: window.remotion_renderDefaults?.scale ?? 1,
-			initialLogLevel: defaults.logLevel as LogLevel,
-			initialConcurrency: defaults.concurrency,
-			maxConcurrency: defaults.maxConcurrency,
-			minConcurrency: defaults.minConcurrency,
-			initialMuted: defaults.muted,
-			initialEnforceAudioTrack: defaults.enforceAudioTrack,
-			initialProResProfile:
-				defaults.proResProfile as _InternalTypes['ProResProfile'],
-			initialx264Preset: defaults.x264Preset as X264Preset,
-			initialPixelFormat: null,
-			initialAudioBitrate: defaults.audioBitrate,
-			initialVideoBitrate: defaults.videoBitrate,
-			initialEveryNthFrame: defaults.everyNthFrame,
-			initialNumberOfGifLoops: defaults.numberOfGifLoops,
-			initialDelayRenderTimeout: defaults.delayRenderTimeout,
-			defaultConfigurationAudioCodec: defaults.audioCodec as AudioCodec | null,
-			initialEnvVariables: window.process.env as Record<string, string>,
-			initialDisableWebSecurity: defaults.disableWebSecurity,
-			initialDarkMode: defaults.darkMode,
-			initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
-			initialHeadless: defaults.headless,
-			initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
-			initialOffthreadVideoCacheSizeInBytes:
-				defaults.offthreadVideoCacheSizeInBytes,
-			initialOffthreadVideoThreads: defaults.offthreadVideoThreads,
-			defaultProps: props[video.id] ?? video.defaultProps,
-			inFrameMark: inFrame,
-			outFrameMark: outFrame,
-			initialColorSpace: defaults.colorSpace as ColorSpace,
-			initialMultiProcessOnLinux: defaults.multiProcessOnLinux,
-			defaultConfigurationVideoCodec: defaults.codec as Codec,
-			initialEncodingBufferSize: defaults.encodingBufferSize,
-			initialEncodingMaxRate: defaults.encodingMaxRate,
-			initialUserAgent: defaults.userAgent,
-			initialBeep: defaults.beepOnFinish,
-			initialRepro: defaults.repro,
-			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
-			renderTypeOfLastRender: null,
-			defaulMetadata: defaults.metadata,
-			initialHardwareAcceleration: defaults.hardwareAcceleration,
-			initialChromeMode: defaults.chromeMode,
-			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
-			renderDefaults: defaults,
-		});
-	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
+			setSelectedModal({
+				type: 'server-render',
+				readOnlyStudio: copyCommandOnly,
+				compositionId: video.id,
+				initialFrame: getCurrentFrame(),
+				initialStillImageFormat: defaults.stillImageFormat,
+				initialVideoImageFormat: null,
+				initialJpegQuality: defaults.jpegQuality,
+				initialScale: window.remotion_renderDefaults?.scale ?? 1,
+				initialLogLevel: defaults.logLevel as LogLevel,
+				initialConcurrency: defaults.concurrency,
+				maxConcurrency: defaults.maxConcurrency,
+				minConcurrency: defaults.minConcurrency,
+				initialMuted: defaults.muted,
+				initialEnforceAudioTrack: defaults.enforceAudioTrack,
+				initialProResProfile:
+					defaults.proResProfile as _InternalTypes['ProResProfile'],
+				initialx264Preset: defaults.x264Preset as X264Preset,
+				initialPixelFormat: null,
+				initialAudioBitrate: defaults.audioBitrate,
+				initialVideoBitrate: defaults.videoBitrate,
+				initialEveryNthFrame: defaults.everyNthFrame,
+				initialNumberOfGifLoops: defaults.numberOfGifLoops,
+				initialDelayRenderTimeout: defaults.delayRenderTimeout,
+				defaultConfigurationAudioCodec:
+					defaults.audioCodec as AudioCodec | null,
+				initialEnvVariables: window.process.env as Record<string, string>,
+				initialDisableWebSecurity: defaults.disableWebSecurity,
+				initialDarkMode: defaults.darkMode,
+				initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
+				initialHeadless: defaults.headless,
+				initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
+				initialOffthreadVideoCacheSizeInBytes:
+					defaults.offthreadVideoCacheSizeInBytes,
+				initialOffthreadVideoThreads: defaults.offthreadVideoThreads,
+				defaultProps: props[video.id] ?? video.defaultProps,
+				inFrameMark: inFrame,
+				outFrameMark: outFrame,
+				initialColorSpace: defaults.colorSpace as ColorSpace,
+				initialMultiProcessOnLinux: defaults.multiProcessOnLinux,
+				defaultConfigurationVideoCodec: defaults.codec as Codec,
+				initialEncodingBufferSize: defaults.encodingBufferSize,
+				initialEncodingMaxRate: defaults.encodingMaxRate,
+				initialUserAgent: defaults.userAgent,
+				initialBeep: defaults.beepOnFinish,
+				initialRepro: defaults.repro,
+				initialForSeamlessAacConcatenation:
+					defaults.forSeamlessAacConcatenation,
+				renderTypeOfLastRender: null,
+				defaulMetadata: defaults.metadata,
+				initialHardwareAcceleration: defaults.hardwareAcceleration,
+				initialChromeMode: defaults.chromeMode,
+				initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+				renderDefaults: defaults,
+			});
+		},
+		[video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame],
+	);
 
 	const openClientRenderModal = useCallback(() => {
 		if (!video) {
@@ -332,62 +335,18 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 		});
 	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
 
-	const openReadOnlyRenderCommandModal = useCallback(() => {
-		if (!video) {
-			return;
-		}
-
-		const defaults = window.remotion_renderDefaults;
-		if (!defaults) {
-			throw new TypeError('Expected defaults');
-		}
-
-		const inputProps = (props[video.id] ?? video.defaultProps ?? {}) as Record<
-			string,
-			unknown
-		>;
-
-		setSelectedModal({
-			type: 'render-command',
-			command: makeRenderCommand({
-				commandType: isStill ? 'still' : 'render',
-				packageManager: window.remotion_packageManager,
-				serveUrl: window.location.href,
-				compositionId: video.id,
-				inputProps,
-				renderDefaults: defaults,
-				inFrameMark: inFrame,
-				outFrameMark: outFrame,
-				frame: getCurrentFrame(),
-			}),
-		});
-	}, [
-		getCurrentFrame,
-		inFrame,
-		isStill,
-		outFrame,
-		props,
-		setSelectedModal,
-		video,
-	]);
-
 	const onClick = useCallback(() => {
 		if (renderType === 'render-command') {
-			openReadOnlyRenderCommandModal();
+			openServerRenderModal(true);
 			return;
 		}
 
 		if (!SHOW_BROWSER_RENDERING || renderType === 'server-render') {
-			openServerRenderModal();
+			openServerRenderModal(false);
 		} else {
 			openClientRenderModal();
 		}
-	}, [
-		renderType,
-		openReadOnlyRenderCommandModal,
-		openServerRenderModal,
-		openClientRenderModal,
-	]);
+	}, [renderType, openServerRenderModal, openClientRenderModal]);
 
 	const onHideDropdown = useCallback(() => {
 		setDropdownOpened(false);
@@ -405,18 +364,14 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			setDropdownOpened(false);
 
 			if (newType === 'server-render') {
-				openServerRenderModal();
+				openServerRenderModal(false);
 			} else if (newType === 'render-command') {
-				openReadOnlyRenderCommandModal();
+				openServerRenderModal(true);
 			} else {
 				openClientRenderModal();
 			}
 		},
-		[
-			openClientRenderModal,
-			openReadOnlyRenderCommandModal,
-			openServerRenderModal,
-		],
+		[openClientRenderModal, openServerRenderModal],
 	);
 	const dropdownValues: ComboboxValue[] = useMemo(() => {
 		if (readOnlyStudio) {
@@ -552,7 +507,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 				style={{display: 'none'}}
 				id="render-modal-button-server"
 				disabled={!canServerRender}
-				onClick={openServerRenderModal}
+				onClick={() => openServerRenderModal(false)}
 				type="button"
 			/>{' '}
 			<button

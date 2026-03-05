@@ -1,8 +1,9 @@
 import {expect, test} from 'bun:test';
 import type {RenderDefaults} from '@remotion/studio-shared';
 import {
-	getRemotionCommandPrefix,
-	makeRenderCommand,
+	makeReadOnlyStudioRenderCommand,
+	makeVersionedRemotionCommandPrefix,
+	normalizeServeUrlForRenderCommand,
 } from '../helpers/make-render-command';
 
 const getDefaults = (): RenderDefaults => {
@@ -51,68 +52,104 @@ const getDefaults = (): RenderDefaults => {
 	};
 };
 
-test('Should map package manager to command prefix', () => {
-	expect(getRemotionCommandPrefix('bun')).toBe('bunx remotion');
-	expect(getRemotionCommandPrefix('pnpm')).toBe('pnpm exec remotion');
-	expect(getRemotionCommandPrefix('yarn')).toBe('yarn remotion');
-	expect(getRemotionCommandPrefix('npm')).toBe('npx remotion');
-	expect(getRemotionCommandPrefix('unknown')).toBe('npx remotion');
+test('Should pin remotion version in command prefix', () => {
+	expect(makeVersionedRemotionCommandPrefix('4.0.431')).toBe(
+		'npx remotion@4.0.431',
+	);
+	expect(makeVersionedRemotionCommandPrefix('')).toBe('npx remotion');
 });
 
-test('Should generate a render command with escaped props and flags', () => {
-	const command = makeRenderCommand({
-		commandType: 'render',
-		packageManager: 'npm',
-		serveUrl: 'https://example.com/hello',
-		compositionId: 'MyComp',
+test('Should normalize serve URL by stripping selected composition', () => {
+	expect(
+		normalizeServeUrlForRenderCommand({
+			locationHref: 'http://localhost:63389/?/still-helloworld',
+			compositionId: 'still-helloworld',
+		}),
+	).toBe('http://localhost:63389');
+	expect(
+		normalizeServeUrlForRenderCommand({
+			locationHref: 'https://example.com/base-path/still-helloworld',
+			compositionId: 'still-helloworld',
+		}),
+	).toBe('https://example.com/base-path');
+});
+
+test('Should generate concise read-only render command and omit concurrency', () => {
+	const command = makeReadOnlyStudioRenderCommand({
+		remotionVersion: '4.0.431',
+		locationHref: 'https://example.com/dynamic-length',
+		compositionId: 'dynamic-length',
+		renderMode: 'video',
+		renderDefaults: getDefaults(),
+		durationInFrames: 200,
+		frame: 0,
+		startFrame: 10,
+		endFrame: 80,
+		stillImageFormat: 'png',
+		sequenceImageFormat: 'png',
+		videoImageFormat: 'jpeg',
+		codec: 'h264',
+		muted: true,
+		enforceAudioTrack: false,
+		proResProfile: null,
+		x264Preset: 'medium',
+		pixelFormat: 'yuv420p',
+		colorSpace: 'default',
+		scale: 1,
+		logLevel: 'info',
+		delayRenderTimeout: 30000,
+		hardwareAcceleration: 'if-possible',
+		chromeMode: 'headless-shell',
 		inputProps: {
 			title: "It's me",
 		},
-		renderDefaults: {
-			...getDefaults(),
-			scale: 2,
-			muted: true,
-			openGlRenderer: 'angle',
-			headless: false,
-			disableWebSecurity: true,
-		},
-		inFrameMark: 5,
-		outFrameMark: 25,
-		frame: 0,
 	});
 
 	expect(command).toContain(
-		"npx remotion render 'https://example.com/hello' 'MyComp'",
+		"npx remotion@4.0.431 render 'https://example.com' 'dynamic-length'",
 	);
-	expect(command).toContain("--frames='5-25'");
+	expect(command).toContain("--frames='10-80'");
 	expect(command).toContain('--muted');
-	expect(command).toContain('--disable-web-security');
-	expect(command).toContain('--disable-headless');
-	expect(command).toContain("--scale='2'");
-	expect(command).toContain("--gl='angle'");
 	expect(command).toContain("It'\\''s me");
+	expect(command).not.toContain('--concurrency=');
 });
 
-test('Should generate a still command without render-only flags', () => {
-	const command = makeRenderCommand({
-		commandType: 'still',
-		packageManager: 'bun',
-		serveUrl: 'https://example.com/still',
+test('Should generate still command and omit default flags', () => {
+	const command = makeReadOnlyStudioRenderCommand({
+		remotionVersion: '4.0.431',
+		locationHref: 'https://example.com/still',
 		compositionId: 'StillComp',
+		renderMode: 'still',
+		renderDefaults: getDefaults(),
+		durationInFrames: 120,
+		frame: 12,
+		startFrame: 0,
+		endFrame: 119,
+		stillImageFormat: 'png',
+		sequenceImageFormat: 'png',
+		videoImageFormat: 'jpeg',
+		codec: 'h264',
+		muted: false,
+		enforceAudioTrack: false,
+		proResProfile: null,
+		x264Preset: 'medium',
+		pixelFormat: 'yuv420p',
+		colorSpace: 'default',
+		scale: 1,
+		logLevel: 'info',
+		delayRenderTimeout: 30000,
+		hardwareAcceleration: 'if-possible',
+		chromeMode: 'headless-shell',
 		inputProps: {
 			message: 'Hello',
 		},
-		renderDefaults: getDefaults(),
-		inFrameMark: 10,
-		outFrameMark: 20,
-		frame: 12,
 	});
 
 	expect(command).toContain(
-		"bunx remotion still 'https://example.com/still' 'StillComp'",
+		"npx remotion@4.0.431 still 'https://example.com/still' 'StillComp'",
 	);
 	expect(command).toContain("--frame='12'");
-	expect(command).toContain("--image-format='png'");
+	expect(command).not.toContain("--image-format='png'");
 	expect(command).not.toContain('--codec=');
 	expect(command).not.toContain('--frames=');
 });

@@ -55,6 +55,7 @@ export type WebRenderModalState = {
 
 export type RenderModalState = {
 	type: 'server-render';
+	readOnlyStudio?: boolean;
 	compositionId: string;
 	initialFrame: number;
 	initialStillImageFormat: StillImageFormat;
@@ -140,10 +141,6 @@ export type ModalState =
 			type: 'quick-switcher';
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
-	  }
-	| {
-			type: 'render-command';
-			command: string;
 	  };
 
 export type ModalContextType = {

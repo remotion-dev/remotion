@@ -34,6 +34,8 @@ import {
 	envVariablesArrayToObject,
 	envVariablesObjectToArray,
 } from '../../helpers/convert-env-variables';
+import {copyText} from '../../helpers/copy-text';
+import {makeReadOnlyStudioRenderCommand} from '../../helpers/make-render-command';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {AudioIcon} from '../../icons/audio';
@@ -50,6 +52,7 @@ import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {DismissableModal} from '../NewComposition/DismissableModal';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {
 	optionsSidebarTabs,
 	persistSelectedOptionsSidebarPanel,
@@ -107,6 +110,14 @@ type State =
 
 const initialState: State = {type: 'idle'};
 
+const readOnlyHint: React.CSSProperties = {
+	fontSize: 12,
+	color: 'rgba(255, 255, 255, 0.7)',
+	paddingLeft: 16,
+	paddingRight: 16,
+	paddingTop: 10,
+};
+
 type Action =
 	| {
 			type: 'start';
@@ -141,6 +152,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 type RenderModalProps = {
+	readonly readOnlyStudio: boolean;
 	readonly compositionId: string;
 	readonly initialFrame: number;
 	readonly initialVideoImageFormat: VideoImageFormat | null;
@@ -195,6 +207,7 @@ const RenderModal: React.FC<
 		readonly defaultConfigurationVideoCodec: Codec | null;
 	}
 > = ({
+	readOnlyStudio,
 	initialFrame,
 	initialVideoImageFormat,
 	initialStillImageFormat,
@@ -1159,9 +1172,84 @@ const RenderModal: React.FC<
 
 	const {registerKeybinding} = useKeybinding();
 
-	const renderDisabled = state.type === 'load' || !outnameValidation.valid;
+	const readOnlyRenderCommand = useMemo(() => {
+		if (!readOnlyStudio) {
+			return null;
+		}
+
+		return makeReadOnlyStudioRenderCommand({
+			remotionVersion: window.remotion_version,
+			locationHref: window.location.href,
+			compositionId: resolvedComposition.id,
+			renderMode,
+			renderDefaults,
+			durationInFrames: resolvedComposition.durationInFrames,
+			frame,
+			startFrame,
+			endFrame,
+			stillImageFormat,
+			sequenceImageFormat,
+			videoImageFormat,
+			codec,
+			muted,
+			enforceAudioTrack,
+			proResProfile,
+			x264Preset,
+			pixelFormat,
+			colorSpace,
+			scale,
+			logLevel,
+			delayRenderTimeout,
+			hardwareAcceleration,
+			chromeMode,
+			inputProps,
+		});
+	}, [
+		chromeMode,
+		codec,
+		colorSpace,
+		delayRenderTimeout,
+		endFrame,
+		enforceAudioTrack,
+		frame,
+		hardwareAcceleration,
+		inputProps,
+		logLevel,
+		muted,
+		pixelFormat,
+		proResProfile,
+		readOnlyStudio,
+		renderDefaults,
+		renderMode,
+		resolvedComposition.durationInFrames,
+		resolvedComposition.id,
+		scale,
+		sequenceImageFormat,
+		startFrame,
+		stillImageFormat,
+		videoImageFormat,
+		x264Preset,
+	]);
+	const [commandCopiedAt, setCommandCopiedAt] = useState<number | null>(null);
+	const renderDisabled =
+		!outnameValidation.valid || (!readOnlyStudio && state.type === 'load');
 
 	const trigger = useCallback(() => {
+		if (readOnlyStudio) {
+			if (!readOnlyRenderCommand) {
+				return;
+			}
+
+			copyText(readOnlyRenderCommand)
+				.then(() => {
+					setCommandCopiedAt(Date.now());
+				})
+				.catch((err) => {
+					showNotification(`Could not copy: ${err.message}`, 2000);
+				});
+			return;
+		}
+
 		if (renderMode === 'still') {
 			onClickStill();
 		} else if (renderMode === 'sequence') {
@@ -1169,7 +1257,25 @@ const RenderModal: React.FC<
 		} else {
 			onClickVideo();
 		}
-	}, [renderMode, onClickStill, onClickSequence, onClickVideo]);
+	}, [
+		onClickSequence,
+		onClickStill,
+		onClickVideo,
+		readOnlyRenderCommand,
+		readOnlyStudio,
+		renderMode,
+	]);
+
+	useEffect(() => {
+		if (commandCopiedAt === null) {
+			return;
+		}
+
+		const timeout = setTimeout(() => {
+			setCommandCopiedAt(null);
+		}, 2000);
+		return () => clearTimeout(timeout);
+	}, [commandCopiedAt]);
 
 	useEffect(() => {
 		if (renderDisabled) {
@@ -1224,10 +1330,24 @@ const RenderModal: React.FC<
 						backgroundColor: outnameValidation.valid ? BLUE : BLUE_DISABLED,
 					}}
 				>
-					{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
+					{readOnlyStudio
+						? commandCopiedAt
+							? 'Copied command!'
+							: 'Copy command'
+						: state.type === 'idle'
+							? `Render ${renderMode}`
+							: 'Rendering...'}
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
 			</div>
+			{readOnlyStudio ? (
+				<div style={readOnlyHint}>
+					Copies a command pinned to your Studio version using{' '}
+					<code>{`npx remotion@${window.remotion_version}`}</code>. If{' '}
+					<code>@remotion/cli</code> is not installed locally, <code>npx</code>{' '}
+					will download the matching version.
+				</div>
+			) : null}
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
 					{shownTabs.includes('general') ? (
@@ -1403,7 +1523,7 @@ const RenderModal: React.FC<
 							propsEditType="input-props"
 							saving={saving}
 							setSaving={setSaving}
-							readOnlyStudio={false}
+							readOnlyStudio={readOnlyStudio}
 						/>
 					) : (
 						<RenderModalAdvanced
