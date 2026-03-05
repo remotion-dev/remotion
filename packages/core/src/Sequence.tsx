@@ -17,8 +17,10 @@ import {
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
-import {useTimelinePosition} from './timeline-position-state.js';
-import {TimelineContext} from './TimelineContext.js';
+import {
+	useTimelineContext,
+	useTimelinePosition,
+} from './timeline-position-state.js';
 import {useCurrentFrame} from './use-current-frame';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
@@ -103,7 +105,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
-	const {rootId} = useContext(TimelineContext);
+	const {rootId} = useTimelineContext();
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
@@ -364,7 +366,7 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 		styleWhilePostmounted,
 	]);
 
-	const {playing} = useContext(TimelineContext);
+	const {playing} = useTimelineContext();
 	const premountFramesRemaining = premountingActive ? from - frame : 0;
 
 	const premountContextValue = useMemo(() => {

@@ -64,13 +64,30 @@ const useTimelinePositionFromContext = (
 	return Math.min(videoConfig.durationInFrames - 1, unclamped);
 };
 
-export const useTimelinePosition = (): number => {
+export const useTimelineContext = (): TimelineContextValue => {
 	const state = useContext(TimelineContext);
+	if (state === null) {
+		throw new Error(
+			'TimelineContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',
+		);
+	}
+
+	return state;
+};
+
+export const useTimelinePosition = (): number => {
+	const state = useTimelineContext();
 	return useTimelinePositionFromContext(state);
 };
 
 export const useAbsoluteTimelinePosition = (): number => {
 	const state = useContext(AbsoluteTimeContext);
+	if (state === null) {
+		throw new Error(
+			'AbsoluteTimeContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',
+		);
+	}
+
 	return useTimelinePositionFromContext(state);
 };
 
@@ -88,7 +105,7 @@ type PlayingReturnType = readonly [
 ];
 
 export const usePlayingState = (): PlayingReturnType => {
-	const {playing, imperativePlaying} = useContext(TimelineContext);
+	const {playing, imperativePlaying} = useTimelineContext();
 	const {setPlaying} = useContext(SetTimelineContext);
 
 	return useMemo(

@@ -6,7 +6,7 @@ import {getAssetDisplayName} from './get-asset-file-name.js';
 import {useNonce} from './nonce.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
-import {TimelineContext} from './TimelineContext.js';
+import {useTimelineContext} from './timeline-position-state.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import type {VolumeProp} from './volume-prop.js';
@@ -91,7 +91,7 @@ export const useBasicMediaInTimeline = ({
 	const doesVolumeChange = typeof volume === 'function';
 
 	const nonce = useNonce();
-	const {rootId} = useContext(TimelineContext);
+	const {rootId} = useTimelineContext();
 	const env = useRemotionEnvironment();
 
 	return {

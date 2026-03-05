@@ -37,33 +37,11 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 	},
 });
 
-export const TimelineContext = createContext<TimelineContextValue>({
-	frame: {},
-	playing: false,
-	playbackRate: 1,
-	rootId: '',
-	imperativePlaying: {
-		current: false,
-	},
-	setPlaybackRate: () => {
-		throw new Error('default');
-	},
-	audioAndVideoTags: {current: []},
-});
+export const TimelineContext = createContext<TimelineContextValue | null>(null);
 
-export const AbsoluteTimeContext = createContext<TimelineContextValue>({
-	frame: {},
-	playing: false,
-	playbackRate: 1,
-	rootId: '',
-	imperativePlaying: {
-		current: false,
-	},
-	setPlaybackRate: () => {
-		throw new Error('default');
-	},
-	audioAndVideoTags: {current: []},
-});
+export const AbsoluteTimeContext = createContext<TimelineContextValue | null>(
+	null,
+);
 
 export const TimelineContextProvider: React.FC<{
 	readonly children: React.ReactNode;

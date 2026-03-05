@@ -17,9 +17,9 @@ import {playbackLogging} from './playback-logging.js';
 import {seek} from './seek.js';
 import {
 	usePlayingState,
+	useTimelineContext,
 	useTimelinePosition,
 } from './timeline-position-state.js';
-import {TimelineContext} from './TimelineContext.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useMediaBuffering} from './use-media-buffering.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -51,7 +51,7 @@ export const useMediaPlayback = ({
 	isPostmounting: boolean;
 	onAutoPlayError: null | (() => void);
 }) => {
-	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
+	const {playbackRate: globalPlaybackRate} = useTimelineContext();
 	const frame = useCurrentFrame();
 	const absoluteFrame = useTimelinePosition();
 	const [playing] = usePlayingState();
