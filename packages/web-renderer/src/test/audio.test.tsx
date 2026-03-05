@@ -118,7 +118,7 @@ test('default audio codec is AAC on Chrome/WebKit for MP4', async (t) => {
 	expect(audioCodec).toBe('aac');
 });
 
-test('should encode AAC when explicitly selected, even in Firefox', async (t) => {
+test('should encode AAC when explicitly selected, even in Firefox', async () => {
 	const Component: React.FC = () => {
 		return <Audio src={staticFile('dialogue.wav')} />;
 	};
