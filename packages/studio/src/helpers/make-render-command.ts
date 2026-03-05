@@ -540,11 +540,13 @@ export const makeReadOnlyStudioRenderCommand = ({
 		}
 	}
 
-	addFlagWithValue(
-		flags,
-		options.propsOption.cliFlag,
-		JSON.stringify(inputProps),
-	);
+	if (Object.keys(inputProps).length > 0) {
+		addFlagWithValue(
+			flags,
+			options.propsOption.cliFlag,
+			JSON.stringify(inputProps),
+		);
+	}
 
 	const envArgs = Object.entries(envVariables)
 		.sort(([a], [b]) => a.localeCompare(b))
