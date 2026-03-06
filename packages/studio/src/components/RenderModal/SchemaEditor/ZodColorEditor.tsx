@@ -26,25 +26,9 @@ export const ZodColorEditor: React.FC<{
 	readonly value: string;
 	readonly defaultValue: string;
 	readonly setValue: UpdaterFunction<string>;
-	readonly onSave: UpdaterFunction<string>;
 	readonly onRemove: null | (() => void);
-	readonly showSaveButton: boolean;
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	jsonPath,
-	value,
-	setValue,
-	showSaveButton,
-	defaultValue,
-	schema,
-	onSave,
-	onRemove,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
+}> = ({jsonPath, value, setValue, defaultValue, schema, onRemove, mayPad}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -55,11 +39,7 @@ export const ZodColorEditor: React.FC<{
 		throw new Error('expected zod color');
 	}
 
-	const {
-		localValue,
-		onChange: onValueChange,
-		reset,
-	} = useLocalState({
+	const {localValue, onChange: onValueChange} = useLocalState({
 		schema,
 		setValue,
 		unsavedValue: value,
@@ -89,10 +69,6 @@ export const ZodColorEditor: React.FC<{
 		},
 		[onValueChange],
 	);
-
-	const save = useCallback(() => {
-		onSave(() => value, false, false);
-	}, [onSave, value]);
 
 	const rgb = `#${r.toString(16).padStart(2, '0')}${g
 		.toString(16)
@@ -136,15 +112,9 @@ export const ZodColorEditor: React.FC<{
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
 				handleClick={null}
-				isDefaultValue={localValue.value === defaultValue}
 				jsonPath={jsonPath}
-				onReset={reset}
-				onSave={save}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
 				valid={localValue.zodValidation.success}
-				saveDisabledByParent={saveDisabledByParent}
 				suffix={null}
 			/>
 			<div style={fullWidth}>

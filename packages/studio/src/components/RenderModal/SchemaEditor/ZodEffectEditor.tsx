@@ -18,10 +18,7 @@ export const ZodEffectEditor: React.FC<{
 	readonly value: unknown;
 	readonly setValue: UpdaterFunction<unknown>;
 	readonly defaultValue: unknown;
-	readonly onSave: UpdaterFunction<unknown>;
-	readonly showSaveButton: boolean;
 	readonly onRemove: null | (() => void);
-	readonly saving: boolean;
 	readonly mayPad: boolean;
 }> = ({
 	schema,
@@ -29,10 +26,7 @@ export const ZodEffectEditor: React.FC<{
 	value,
 	setValue: updateValue,
 	defaultValue,
-	onSave,
 	onRemove,
-	showSaveButton,
-	saving,
 	mayPad,
 }) => {
 	const typeName = getZodSchemaType(schema);
@@ -58,11 +52,7 @@ export const ZodEffectEditor: React.FC<{
 					jsonPath={jsonPath}
 					schema={innerSchema}
 					defaultValue={defaultValue}
-					onSave={onSave}
-					showSaveButton={showSaveButton}
 					onRemove={onRemove}
-					saving={saving}
-					saveDisabledByParent={!localValue.zodValidation.success}
 					mayPad={false}
 				/>
 			</div>

@@ -4,7 +4,6 @@ import {
 	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
 import {createZodValues} from './create-zod-values';
-import {deepEqual} from './deep-equal';
 import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
@@ -23,26 +22,10 @@ export const ZodTupleEditor: React.FC<{
 	readonly value: unknown[];
 	readonly defaultValue: unknown[];
 	readonly setValue: UpdaterFunction<unknown[]>;
-	readonly onSave: UpdaterFunction<unknown[]>;
-	readonly showSaveButton: boolean;
 	readonly onRemove: null | (() => void);
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	schema,
-	jsonPath,
-	setValue,
-	defaultValue,
-	value,
-	onSave,
-	showSaveButton,
-	onRemove,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
-	const {localValue, onChange, RevisionContextProvider, reset} = useLocalState({
+}> = ({schema, jsonPath, setValue, defaultValue, value, onRemove, mayPad}) => {
+	const {localValue, onChange, RevisionContextProvider} = useLocalState({
 		unsavedValue: value,
 		schema,
 		setValue,
@@ -62,10 +45,6 @@ export const ZodTupleEditor: React.FC<{
 
 	const zodTypes = useZodTypesIfPossible();
 
-	const isDefaultValue = useMemo(() => {
-		return deepEqual(localValue.value, defaultValue);
-	}, [defaultValue, localValue]);
-
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<div
@@ -75,17 +54,9 @@ export const ZodTupleEditor: React.FC<{
 				}}
 			>
 				<SchemaLabel
-					onReset={reset}
-					isDefaultValue={isDefaultValue}
 					jsonPath={jsonPath}
 					onRemove={onRemove}
 					suffix={suffix}
-					onSave={() => {
-						onSave(() => localValue.value, false, false);
-					}}
-					saveDisabledByParent={saveDisabledByParent}
-					saving={saving}
-					showSaveButton={showSaveButton}
 					valid={localValue.zodValidation.success}
 					handleClick={() => setExpanded(!expanded)}
 				/>
@@ -108,10 +79,6 @@ export const ZodTupleEditor: React.FC<{
 											defaultValue?.[i] ??
 											createZodValues(tupleItems[i], z, zodTypes)
 										}
-										onSave={onSave}
-										showSaveButton={showSaveButton}
-										saving={saving}
-										saveDisabledByParent={saveDisabledByParent}
 										mayPad={mayPad}
 									/>
 									<SchemaArrayItemSeparationLine

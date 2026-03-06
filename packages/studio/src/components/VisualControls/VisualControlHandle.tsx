@@ -34,7 +34,7 @@ export const VisualControlHandle: React.FC<{
 	const {fastRefreshes, increaseManualRefreshes} =
 		useContext(FastRefreshContext);
 
-	const [saving, setSaving] = useState(false);
+	const [_saving, setSaving] = useState(false);
 
 	const currentValue = getVisualControlEditedValue({
 		handles: state.handles,
@@ -116,6 +116,16 @@ export const VisualControlHandle: React.FC<{
 		setSaving(false);
 	}, [fastRefreshes]);
 
+	const setValue: UpdaterFunction<unknown> = useCallback(
+		(updater) => {
+			// TODO: Not sure - what is increment?
+			// TODO: What is forceApply?
+			onChange(updater, true, true);
+			onSave(updater, true, true);
+		},
+		[onChange, onSave],
+	);
+
 	return (
 		<>
 			<VisualControlHandleHeader originalFileName={originalFileName} />
@@ -124,14 +134,10 @@ export const VisualControlHandle: React.FC<{
 				<ZodSwitch
 					mayPad
 					schema={value.schema}
-					showSaveButton={!disableSave}
-					saving={saving}
-					saveDisabledByParent={false}
-					onSave={onSave}
 					jsonPath={[keyName]}
 					value={localValue.value}
 					defaultValue={value.valueInCode}
-					setValue={onChange}
+					setValue={setValue}
 					onRemove={null}
 				/>
 			</RevisionContextProvider>

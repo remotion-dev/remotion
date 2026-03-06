@@ -19,35 +19,15 @@ export const ZodStringEditor: React.FC<{
 	readonly value: string;
 	readonly defaultValue: string;
 	readonly setValue: UpdaterFunction<string>;
-	readonly onSave: UpdaterFunction<string>;
 	readonly onRemove: null | (() => void);
-	readonly showSaveButton: boolean;
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	jsonPath,
-	value,
-	setValue,
-	showSaveButton,
-	defaultValue,
-	schema,
-	onSave,
-	onRemove,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
+}> = ({jsonPath, value, setValue, defaultValue, schema, onRemove, mayPad}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
 	}
 
-	const {
-		localValue,
-		onChange: setLocalValue,
-		reset,
-	} = useLocalState({
+	const {localValue, onChange: setLocalValue} = useLocalState({
 		schema,
 		setValue,
 		unsavedValue: value,
@@ -61,23 +41,13 @@ export const ZodStringEditor: React.FC<{
 		[setLocalValue],
 	);
 
-	const save = useCallback(() => {
-		onSave(() => value, false, false);
-	}, [onSave, value]);
-
 	return (
 		<Fieldset shouldPad={mayPad} success={false}>
 			<SchemaLabel
 				handleClick={null}
-				isDefaultValue={localValue.value === defaultValue}
 				jsonPath={jsonPath}
-				onReset={reset}
-				onSave={save}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
 				valid={localValue.zodValidation.success}
-				saveDisabledByParent={saveDisabledByParent}
 				suffix={null}
 			/>
 			<div style={fullWidth}>

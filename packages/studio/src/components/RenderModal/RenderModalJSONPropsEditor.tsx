@@ -42,19 +42,10 @@ export const RenderModalJSONPropsEditor: React.FC<{
 		React.SetStateAction<Record<string, unknown>>
 	>;
 	readonly onSave: () => void;
-	readonly showSaveButton: boolean;
 	readonly serializedJSON: SerializedJSONWithCustomFields | null;
 	readonly defaultProps: Record<string, unknown>;
 	readonly schema: AnyZodSchema;
-}> = ({
-	setValue,
-	value,
-	defaultProps,
-	onSave,
-	showSaveButton,
-	serializedJSON,
-	schema,
-}) => {
+}> = ({setValue, value, defaultProps, onSave, serializedJSON, schema}) => {
 	if (serializedJSON === null) {
 		throw new Error('expecting serializedJSON to be defined');
 	}
@@ -185,18 +176,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 					Format
 				</Button>
 				<Spacing x={1} />
-				{showSaveButton ? (
-					<Button
-						onClick={onSave}
-						disabled={
-							!(localValue.validJSON && localValue.zodValidation.success) ||
-							!localValue.validJSON ||
-							!hasChanged
-						}
-					>
-						Save
-					</Button>
-				) : null}
 			</Row>
 		</div>
 	);

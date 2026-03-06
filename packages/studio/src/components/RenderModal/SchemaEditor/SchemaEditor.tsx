@@ -1,7 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {setUnsavedProps} from '../../../helpers/document-title';
-import {useKeybinding} from '../../../helpers/use-keybinding';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
 import {deepEqual} from './deep-equal';
@@ -31,24 +30,13 @@ export const SchemaEditor: React.FC<{
 	>;
 	readonly zodValidationResult: ZodSafeParseResult;
 	readonly savedDefaultProps: Record<string, unknown>;
-	readonly onSave: (
-		updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
-	) => void;
-	readonly showSaveButton: boolean;
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 }> = ({
 	schema,
 	unsavedDefaultProps,
 	setValue,
 	zodValidationResult,
 	savedDefaultProps,
-	onSave,
-	showSaveButton,
-	saving,
-	saveDisabledByParent,
 }) => {
-	const keybindings = useKeybinding();
 	const [revision, setRevision] = useState(0);
 
 	const revisionState: RevisionContextType = useMemo(() => {
@@ -84,30 +72,6 @@ export const SchemaEditor: React.FC<{
 	useEffect(() => {
 		setUnsavedProps(hasChanged);
 	}, [hasChanged]);
-
-	const onQuickSave = useCallback(() => {
-		if (hasChanged && showSaveButton) {
-			onSave(() => {
-				return unsavedDefaultProps;
-			});
-		}
-	}, [hasChanged, onSave, showSaveButton, unsavedDefaultProps]);
-
-	useEffect(() => {
-		const save = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 's',
-			commandCtrlKey: true,
-			callback: onQuickSave,
-			preventDefault: true,
-			triggerIfInputFieldFocused: true,
-			keepRegisteredWhenNotHighestContext: true,
-		});
-
-		return () => {
-			save.unregister();
-		};
-	}, [keybindings, onQuickSave, onSave]);
 
 	const typeName = getZodSchemaType(schema);
 
@@ -145,17 +109,7 @@ export const SchemaEditor: React.FC<{
 					jsonPath={[]}
 					schema={schema}
 					savedValue={savedDefaultProps as Record<string, unknown>}
-					onSave={
-						onSave as (
-							newValue: (
-								oldVal: Record<string, unknown>,
-							) => Record<string, unknown>,
-						) => void
-					}
-					showSaveButton={showSaveButton}
 					onRemove={null}
-					saving={saving}
-					saveDisabledByParent={saveDisabledByParent}
 					mayPad
 				/>
 			</RevisionContext.Provider>

@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import {Checkmark} from '../../../icons/Checkmark';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
@@ -21,30 +21,10 @@ export const ZodStaticFileEditor: React.FC<{
 	readonly value: string;
 	readonly defaultValue: string;
 	readonly setValue: UpdaterFunction<string>;
-	readonly onSave: (updater: (oldState: string) => string) => void;
-	readonly showSaveButton: boolean;
 	readonly onRemove: null | (() => void);
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	schema,
-	jsonPath,
-	setValue,
-	defaultValue,
-	value,
-	onSave,
-	showSaveButton,
-	onRemove,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
-	const {
-		localValue,
-		onChange: setLocalValue,
-		reset,
-	} = useLocalState({
+}> = ({schema, jsonPath, setValue, defaultValue, value, onRemove, mayPad}) => {
+	const {localValue, onChange: setLocalValue} = useLocalState({
 		schema,
 		setValue,
 		unsavedValue: value,
@@ -72,23 +52,13 @@ export const ZodStaticFileEditor: React.FC<{
 		});
 	}, [setLocalValue, staticFiles, value]);
 
-	const save = useCallback(() => {
-		onSave(() => value);
-	}, [onSave, value]);
-
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
 				handleClick={null}
-				onSave={save}
-				showSaveButton={showSaveButton}
-				isDefaultValue={localValue.value === defaultValue}
-				onReset={reset}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
-				saving={saving}
 				valid={localValue.zodValidation.success}
-				saveDisabledByParent={saveDisabledByParent}
 				suffix={null}
 			/>
 

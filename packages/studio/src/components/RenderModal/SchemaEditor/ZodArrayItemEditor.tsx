@@ -12,10 +12,6 @@ export const ZodArrayItemEditor: React.FC<{
 	index: number;
 	value: unknown;
 	defaultValue: unknown;
-	onSave: UpdaterFunction<unknown[]>;
-	showSaveButton: boolean;
-	saving: boolean;
-	saveDisabledByParent: boolean;
 	mayPad: boolean;
 	mayRemove: boolean;
 }> = ({
@@ -25,10 +21,6 @@ export const ZodArrayItemEditor: React.FC<{
 	index,
 	value,
 	defaultValue,
-	onSave: onSaveObject,
-	showSaveButton,
-	saving,
-	saveDisabledByParent,
 	mayPad,
 	mayRemove,
 }) => {
@@ -62,21 +54,6 @@ export const ZodArrayItemEditor: React.FC<{
 
 	const newJsonPath = useMemo(() => [...jsonPath, index], [index, jsonPath]);
 
-	const onSave = useCallback(
-		(updater: (oldState: unknown) => unknown) => {
-			onSaveObject(
-				(oldV) => [
-					...oldV.slice(0, index),
-					updater(oldV[index]),
-					...oldV.slice(index + 1),
-				],
-				false,
-				false,
-			);
-		},
-		[index, onSaveObject],
-	);
-
 	return (
 		<div>
 			<ZodSwitch
@@ -85,11 +62,7 @@ export const ZodArrayItemEditor: React.FC<{
 				value={value}
 				setValue={setValue}
 				defaultValue={defaultValue}
-				onSave={onSave}
-				showSaveButton={showSaveButton}
 				onRemove={mayRemove ? onRemove : null}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
 		</div>

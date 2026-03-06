@@ -29,31 +29,23 @@ const checkBoxWrapper: React.CSSProperties = {
 };
 
 export const ZodOrNullishEditor: React.FC<{
-	showSaveButton: boolean;
 	jsonPath: JSONPath;
 	value: unknown;
 	defaultValue: unknown;
 	schema: AnyZodSchema;
 	innerSchema: AnyZodSchema;
 	setValue: UpdaterFunction<unknown>;
-	onSave: UpdaterFunction<unknown>;
 	onRemove: null | (() => void);
 	nullishValue: null | undefined;
-	saving: boolean;
-	saveDisabledByParent: boolean;
 	mayPad: boolean;
 }> = ({
 	jsonPath,
 	schema,
 	setValue,
-	onSave,
 	defaultValue,
 	value,
-	showSaveButton,
 	onRemove,
 	nullishValue,
-	saving,
-	saveDisabledByParent,
 	mayPad,
 	innerSchema,
 }) => {
@@ -66,11 +58,7 @@ export const ZodOrNullishEditor: React.FC<{
 
 	const isChecked = value === nullishValue;
 
-	const {
-		localValue,
-		onChange: setLocalValue,
-		reset,
-	} = useLocalState({
+	const {localValue, onChange: setLocalValue} = useLocalState({
 		schema,
 		setValue,
 		unsavedValue: value,
@@ -88,24 +76,14 @@ export const ZodOrNullishEditor: React.FC<{
 			[innerSchema, nullishValue, setLocalValue, z, zodTypes],
 		);
 
-	const save = useCallback(() => {
-		onSave(() => value, false, false);
-	}, [onSave, value]);
-
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			{localValue.value === nullishValue ? (
 				<SchemaLabel
 					handleClick={null}
-					isDefaultValue={localValue.value === defaultValue}
 					jsonPath={jsonPath}
-					onReset={reset}
-					onSave={save}
-					showSaveButton={showSaveButton}
 					onRemove={onRemove}
-					saving={saving}
 					valid={localValue.zodValidation.success}
-					saveDisabledByParent={saveDisabledByParent}
 					suffix={null}
 				/>
 			) : (
@@ -115,11 +93,7 @@ export const ZodOrNullishEditor: React.FC<{
 					jsonPath={jsonPath}
 					schema={innerSchema}
 					defaultValue={defaultValue}
-					onSave={onSave}
-					showSaveButton={showSaveButton}
 					onRemove={onRemove}
-					saving={saving}
-					saveDisabledByParent={saveDisabledByParent}
 					mayPad={false}
 				/>
 			)}

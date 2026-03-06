@@ -32,30 +32,14 @@ const findNull = (value: readonly AnyZodSchema[]) => {
 };
 
 export const ZodUnionEditor: React.FC<{
-	showSaveButton: boolean;
 	jsonPath: JSONPath;
 	value: unknown;
 	defaultValue: unknown;
 	schema: AnyZodSchema;
 	setValue: UpdaterFunction<unknown>;
-	onSave: UpdaterFunction<unknown>;
 	onRemove: null | (() => void);
-	saving: boolean;
-	saveDisabledByParent: boolean;
 	mayPad: boolean;
-}> = ({
-	jsonPath,
-	schema,
-	setValue,
-	onSave,
-	defaultValue,
-	value,
-	showSaveButton,
-	onRemove,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
+}> = ({jsonPath, schema, setValue, defaultValue, value, onRemove, mayPad}) => {
 	const options = getUnionOptions(schema);
 
 	if (options.length > 2) {
@@ -63,8 +47,6 @@ export const ZodUnionEditor: React.FC<{
 			<ZonNonEditableValue
 				jsonPath={jsonPath}
 				label={'Union with more than 2 options not editable'}
-				showSaveButton={showSaveButton}
-				saving={saving}
 				mayPad={mayPad}
 			/>
 		);
@@ -75,8 +57,6 @@ export const ZodUnionEditor: React.FC<{
 			<ZonNonEditableValue
 				jsonPath={jsonPath}
 				label={'Union with less than 2 options not editable'}
-				showSaveButton={showSaveButton}
-				saving={saving}
 				mayPad={mayPad}
 			/>
 		);
@@ -89,8 +69,6 @@ export const ZodUnionEditor: React.FC<{
 			<ZonNonEditableValue
 				jsonPath={jsonPath}
 				label={'Union only editable with 1 value being null'}
-				showSaveButton={showSaveButton}
-				saving={saving}
 				mayPad={mayPad}
 			/>
 		);
@@ -103,8 +81,6 @@ export const ZodUnionEditor: React.FC<{
 			<ZonNonEditableValue
 				jsonPath={jsonPath}
 				label={'Not editable - both union values are nullish'}
-				showSaveButton={showSaveButton}
-				saving={saving}
 				mayPad={mayPad}
 			/>
 		);
@@ -115,15 +91,11 @@ export const ZodUnionEditor: React.FC<{
 			defaultValue={defaultValue}
 			jsonPath={jsonPath}
 			onRemove={onRemove}
-			onSave={onSave}
 			schema={schema}
 			innerSchema={otherSchema}
 			setValue={setValue}
-			showSaveButton={showSaveButton}
 			value={value}
 			nullishValue={nullishValue}
-			saving={saving}
-			saveDisabledByParent={saveDisabledByParent}
 			mayPad={mayPad}
 		/>
 	);

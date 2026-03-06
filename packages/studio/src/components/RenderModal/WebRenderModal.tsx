@@ -231,7 +231,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
 		number | null
 	>(initialMediaCacheSizeInBytes);
-	const [saving, setSaving] = useState(false);
 
 	// Video-specific state
 	const [codec, setCodec] = useState<WebRendererVideoCodec>(
@@ -729,10 +728,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							defaultProps={inputProps}
 							setDefaultProps={setInputProps}
 							unresolvedComposition={unresolvedComposition}
-							showSaveButton={false}
 							propsEditType="input-props"
-							saving={saving}
-							setSaving={setSaving}
+							saving={false}
 							canSaveDefaultProps={{
 								canUpdate: false,
 								reason: 'render dialogue',

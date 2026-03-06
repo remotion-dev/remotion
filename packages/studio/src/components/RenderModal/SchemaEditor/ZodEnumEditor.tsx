@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import {Checkmark} from '../../../icons/Checkmark';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
@@ -21,26 +21,9 @@ export const ZodEnumEditor: React.FC<{
 	readonly value: string;
 	readonly defaultValue: string;
 	readonly setValue: UpdaterFunction<string>;
-	readonly onSave: UpdaterFunction<string>;
-	readonly showSaveButton: boolean;
 	readonly onRemove: null | (() => void);
-	readonly saving: boolean;
-}> = ({
-	schema,
-	jsonPath,
-	setValue,
-	defaultValue,
-	value,
-	onSave,
-	showSaveButton,
-	onRemove,
-	saving,
-}) => {
-	const {
-		localValue,
-		onChange: setLocalValue,
-		reset,
-	} = useLocalState({
+}> = ({schema, jsonPath, setValue, defaultValue, value, onRemove}) => {
+	const {localValue, onChange: setLocalValue} = useLocalState({
 		schema,
 		setValue,
 		unsavedValue: value,
@@ -69,23 +52,13 @@ export const ZodEnumEditor: React.FC<{
 		});
 	}, [enumValues, setLocalValue, value]);
 
-	const save = useCallback(() => {
-		onSave(() => value, false, false);
-	}, [onSave, value]);
-
 	return (
 		<Fieldset shouldPad success={localValue.zodValidation.success}>
 			<SchemaLabel
 				handleClick={null}
-				onSave={save}
-				showSaveButton={showSaveButton}
-				isDefaultValue={localValue.value === defaultValue}
-				onReset={reset}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
-				saving={saving}
 				valid={localValue.zodValidation.success}
-				saveDisabledByParent={!localValue.zodValidation.success}
 				suffix={null}
 			/>
 

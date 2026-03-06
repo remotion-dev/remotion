@@ -17,26 +17,10 @@ export const ZodBooleanEditor: React.FC<{
 	readonly value: boolean;
 	readonly setValue: UpdaterFunction<boolean>;
 	readonly defaultValue: boolean;
-	readonly onSave: UpdaterFunction<boolean>;
 	readonly onRemove: null | (() => void);
-	readonly showSaveButton: boolean;
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	schema,
-	jsonPath,
-	value,
-	setValue,
-	onSave,
-	defaultValue,
-	onRemove,
-	showSaveButton,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
-	const {localValue, onChange, reset} = useLocalState({
+}> = ({schema, jsonPath, value, setValue, defaultValue, onRemove, mayPad}) => {
+	const {localValue, onChange} = useLocalState({
 		schema,
 		setValue,
 		unsavedValue: value,
@@ -50,23 +34,13 @@ export const ZodBooleanEditor: React.FC<{
 		[onChange],
 	);
 
-	const save = useCallback(() => {
-		onSave(() => value, false, false);
-	}, [onSave, value]);
-
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
 				handleClick={null}
-				isDefaultValue={localValue.value === defaultValue}
 				jsonPath={jsonPath}
-				onReset={reset}
-				onSave={save}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
 				valid
-				saveDisabledByParent={saveDisabledByParent}
 				suffix={null}
 			/>
 			<div style={fullWidth}>

@@ -55,30 +55,10 @@ export const ZodDateEditor: React.FC<{
 	readonly value: Date;
 	readonly defaultValue: Date;
 	readonly setValue: UpdaterFunction<Date>;
-	readonly onSave: UpdaterFunction<Date>;
 	readonly onRemove: null | (() => void);
-	readonly showSaveButton: boolean;
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	jsonPath,
-	value,
-	setValue,
-	showSaveButton,
-	defaultValue,
-	schema,
-	onSave,
-	onRemove,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
-	const {
-		localValue,
-		onChange: setLocalValue,
-		reset,
-	} = useLocalState({
+}> = ({jsonPath, value, setValue, defaultValue, schema, onRemove, mayPad}) => {
+	const {localValue, onChange: setLocalValue} = useLocalState({
 		schema,
 		setValue,
 		unsavedValue: value,
@@ -93,23 +73,13 @@ export const ZodDateEditor: React.FC<{
 		[setLocalValue],
 	);
 
-	const save = useCallback(() => {
-		onSave(() => value, false, false);
-	}, [onSave, value]);
-
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
 				handleClick={null}
-				isDefaultValue={localValue.value.getTime() === defaultValue.getTime()}
 				jsonPath={jsonPath}
-				onReset={reset}
-				onSave={save}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
 				valid={localValue.zodValidation.success}
-				saveDisabledByParent={saveDisabledByParent}
 				suffix={null}
 			/>
 			<div style={fullWidth}>

@@ -1,6 +1,5 @@
 import React, {useMemo, useState} from 'react';
 import {fieldsetLabel} from '../layout';
-import {deepEqual} from './deep-equal';
 import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
@@ -23,11 +22,7 @@ export const ZodObjectEditor: React.FC<{
 	readonly unsavedValue: Record<string, unknown>;
 	readonly savedValue: Record<string, unknown>;
 	readonly setValue: UpdaterFunction<Record<string, unknown>>;
-	readonly onSave: UpdaterFunction<Record<string, unknown>>;
-	readonly showSaveButton: boolean;
 	readonly onRemove: null | (() => void);
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
 	readonly discriminatedUnionReplacement: ObjectDiscrimatedUnionReplacement | null;
 }> = ({
@@ -36,16 +31,12 @@ export const ZodObjectEditor: React.FC<{
 	setValue,
 	unsavedValue,
 	savedValue,
-	onSave,
-	showSaveButton,
 	onRemove,
-	saving,
-	saveDisabledByParent,
 	mayPad,
 	discriminatedUnionReplacement,
 }) => {
 	const [expanded, setExpanded] = useState(true);
-	const {localValue, onChange, RevisionContextProvider, reset} = useLocalState({
+	const {localValue, onChange, RevisionContextProvider} = useLocalState({
 		schema,
 		setValue,
 		unsavedValue,
@@ -62,10 +53,6 @@ export const ZodObjectEditor: React.FC<{
 
 	const isRoot = jsonPath.length === 0;
 
-	const isDefaultValue = useMemo(() => {
-		return deepEqual(localValue.value, savedValue);
-	}, [savedValue, localValue]);
-
 	const suffix = useMemo(() => {
 		return expanded ? ' {' : ' {...}';
 	}, [expanded]);
@@ -77,23 +64,9 @@ export const ZodObjectEditor: React.FC<{
 		>
 			{isRoot ? null : (
 				<SchemaLabel
-					isDefaultValue={isDefaultValue}
-					onReset={reset}
 					jsonPath={jsonPath}
 					onRemove={onRemove}
 					suffix={suffix}
-					onSave={() => {
-						onSave(
-							() => {
-								return localValue.value;
-							},
-							false,
-							false,
-						);
-					}}
-					saveDisabledByParent={saveDisabledByParent}
-					saving={saving}
-					showSaveButton={showSaveButton}
 					valid={localValue.zodValidation.success}
 					handleClick={() => setExpanded(!expanded)}
 				/>
@@ -134,25 +107,7 @@ export const ZodObjectEditor: React.FC<{
 												false,
 											);
 										}}
-										onSave={(val, forceApply) => {
-											onSave(
-												(oldVal) => {
-													return {
-														...oldVal,
-														[key]:
-															typeof val === 'function'
-																? val(oldVal[key])
-																: val,
-													};
-												},
-												forceApply,
-												false,
-											);
-										}}
 										onRemove={null}
-										showSaveButton={showSaveButton}
-										saving={saving}
-										saveDisabledByParent={saveDisabledByParent}
 									/>
 									{i === keys.length - 1 ? null : <SchemaSeparationLine />}
 								</React.Fragment>

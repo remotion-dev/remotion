@@ -1,4 +1,4 @@
-import {useCallback, useMemo} from 'react';
+import {useMemo} from 'react';
 import {Checkmark} from '../../../icons/Checkmark';
 import {
 	useZodIfPossible,
@@ -29,23 +29,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 	mayPad: boolean;
 	jsonPath: JSONPath;
 	onRemove: null | (() => void);
-	onSave: UpdaterFunction<unknown>;
-	showSaveButton: boolean;
-	saving: boolean;
-	saveDisabledByParent: boolean;
-}> = ({
-	schema,
-	setValue,
-	showSaveButton,
-	saving,
-	value,
-	defaultValue,
-	saveDisabledByParent,
-	onSave,
-	mayPad,
-	jsonPath,
-	onRemove,
-}) => {
+}> = ({schema, setValue, value, defaultValue, mayPad, jsonPath, onRemove}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -59,11 +43,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 		[schema],
 	) as string[];
 
-	const {
-		localValue,
-		onChange: setLocalValue,
-		reset,
-	} = useLocalState({
+	const {localValue, onChange: setLocalValue} = useLocalState({
 		schema,
 		setValue,
 		unsavedValue: value,
@@ -99,10 +79,6 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 		});
 	}, [options, setLocalValue, discriminator, schema, value, z, zodTypes]);
 
-	const save = useCallback(() => {
-		onSave(() => value, false, false);
-	}, [onSave, value]);
-
 	const discriminatedUnionReplacement: ObjectDiscrimatedUnionReplacement =
 		useMemo(() => {
 			return {
@@ -111,16 +87,8 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 					<Fieldset key={'replacement'} shouldPad={mayPad} success>
 						<SchemaLabel
 							handleClick={null}
-							isDefaultValue={
-								localValue.value[discriminator] === defaultValue[discriminator]
-							}
 							jsonPath={[...jsonPath, discriminator]}
 							onRemove={onRemove}
-							onReset={reset}
-							onSave={save}
-							saveDisabledByParent={saveDisabledByParent}
-							saving={saving}
-							showSaveButton={showSaveButton}
 							suffix={null}
 							valid={localValue.zodValidation.success}
 						/>
@@ -134,17 +102,10 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			};
 		}, [
 			comboBoxValues,
-			defaultValue,
 			jsonPath,
-			localValue.value,
 			localValue.zodValidation.success,
 			mayPad,
 			onRemove,
-			reset,
-			save,
-			saveDisabledByParent,
-			saving,
-			showSaveButton,
 			discriminator,
 			value,
 		]);
@@ -166,12 +127,8 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			mayPad={mayPad}
 			savedValue={defaultValue}
 			onRemove={onRemove}
-			onSave={onSave as UpdaterFunction<Record<string, unknown>>}
-			saveDisabledByParent={saveDisabledByParent}
-			saving={saving}
 			schema={currentOptionSchema}
 			setValue={setLocalValue}
-			showSaveButton={showSaveButton}
 			unsavedValue={value}
 			discriminatedUnionReplacement={discriminatedUnionReplacement}
 		/>

@@ -23,31 +23,10 @@ export const ZodNumberEditor: React.FC<{
 	readonly value: number;
 	readonly setValue: UpdaterFunction<number>;
 	readonly defaultValue: number;
-	readonly onSave: UpdaterFunction<number>;
 	readonly onRemove: null | (() => void);
-	readonly showSaveButton: boolean;
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	jsonPath,
-	value,
-	schema,
-	setValue,
-	onSave,
-	defaultValue,
-	onRemove,
-	showSaveButton,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
-	const {
-		localValue,
-		onChange: setLocalValue,
-
-		reset,
-	} = useLocalState({
+}> = ({jsonPath, value, schema, setValue, defaultValue, onRemove, mayPad}) => {
+	const {localValue, onChange: setLocalValue} = useLocalState({
 		unsavedValue: value,
 		schema,
 		setValue,
@@ -61,8 +40,6 @@ export const ZodNumberEditor: React.FC<{
 		[setLocalValue],
 	);
 
-	const isDefault = localValue.value === defaultValue;
-
 	const onTextChange = useCallback(
 		(newValue: string) => {
 			setLocalValue(() => Number(newValue), false, false);
@@ -70,23 +47,13 @@ export const ZodNumberEditor: React.FC<{
 		[setLocalValue],
 	);
 
-	const save = useCallback(() => {
-		onSave(() => value, false, false);
-	}, [onSave, value]);
-
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
 				handleClick={null}
-				isDefaultValue={isDefault}
 				jsonPath={jsonPath}
-				onReset={reset}
-				onSave={save}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
 				valid={localValue.zodValidation.success}
-				saveDisabledByParent={saveDisabledByParent}
 				suffix={null}
 			/>
 			<div style={fullWidth}>

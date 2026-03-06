@@ -14,8 +14,6 @@ import {useMobileLayout} from '../helpers/mobile-layout';
 import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {VisualControlsTabActivatedContext} from '../visual-controls/VisualControls';
 import {DefaultPropsEditor} from './DefaultPropsEditor';
-import {GlobalPropsEditorUpdateButton} from './GlobalPropsEditorUpdateButton';
-import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
@@ -156,14 +154,6 @@ export const OptionsPanel: React.FC<{
 		return props[composition.id] ?? composition.defaultProps ?? {};
 	}, [composition, props]);
 
-	const unsavedChangesExist = useMemo(() => {
-		if (composition === null || composition.defaultProps === undefined) {
-			return false;
-		}
-
-		return !deepEqual(composition.defaultProps, currentDefaultProps);
-	}, [currentDefaultProps, composition]);
-
 	const reset = useCallback(
 		(e: Event) => {
 			if ((e as CustomEvent).detail.resetUnsaved) {
@@ -199,12 +189,6 @@ export const OptionsPanel: React.FC<{
 						style={{justifyContent: 'space-between'}}
 					>
 						Props
-						{unsavedChangesExist && composition ? (
-							<GlobalPropsEditorUpdateButton
-								compositionId={composition.id}
-								currentDefaultProps={currentDefaultProps}
-							/>
-						) : null}
 					</Tab>
 					{renderingAvailable ? (
 						<RendersTab
@@ -221,7 +205,6 @@ export const OptionsPanel: React.FC<{
 						unresolvedComposition={composition}
 						defaultProps={currentDefaultProps}
 						setDefaultProps={setDefaultProps}
-						mayShowSaveButton
 						propsEditType="default-props"
 						saving={saving}
 						setSaving={setSaving}

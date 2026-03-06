@@ -3,8 +3,6 @@ import {FAIL_COLOR, LIGHT_TEXT} from '../../../helpers/colors';
 import {Flex} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
 import {getSchemaLabel} from './get-schema-label';
-import {SchemaResetButton} from './SchemaResetButton';
-import {SchemaSaveButton} from './SchemaSaveButton';
 import {DEFAULT_PROPS_PATH_CLASSNAME} from './scroll-to-default-props-path';
 import type {JSONPath} from './zod-types';
 
@@ -20,32 +18,13 @@ const compactStyles: React.CSSProperties = {
 
 export const SchemaLabel: React.FC<{
 	readonly jsonPath: JSONPath;
-	readonly isDefaultValue: boolean;
-	readonly onReset: () => void;
-	readonly onSave: () => void;
 	readonly onRemove: null | (() => void);
-	readonly showSaveButton: boolean;
-	readonly saving: boolean;
 	readonly valid: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly suffix: string | null;
 	readonly handleClick: null | (() => void);
-}> = ({
-	jsonPath,
-	isDefaultValue,
-	onReset,
-	onSave,
-	showSaveButton,
-	onRemove,
-	saving,
-	valid,
-	saveDisabledByParent,
-	suffix,
-	handleClick,
-}) => {
+}> = ({jsonPath, onRemove, valid, suffix, handleClick}) => {
 	const [clickableButtonHovered, setClickableButtonHovered] = useState(false);
 
-	const disableSave = saving || !valid || saveDisabledByParent;
 	const labelStyle: React.CSSProperties = useMemo(() => {
 		return {
 			fontFamily: 'monospace',
@@ -94,10 +73,6 @@ export const SchemaLabel: React.FC<{
 				labelContent
 			)}
 			<Flex />
-			{isDefaultValue ? null : <SchemaResetButton onClick={onReset} />}
-			{isDefaultValue ? null : showSaveButton ? (
-				<SchemaSaveButton onClick={onSave} disabled={disableSave} />
-			) : null}
 			{onRemove ? <InlineRemoveButton onClick={onRemove} /> : null}
 		</div>
 	);

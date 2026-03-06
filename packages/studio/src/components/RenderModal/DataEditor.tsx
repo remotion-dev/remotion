@@ -107,18 +107,13 @@ export const DataEditor: React.FC<{
 	>;
 	readonly propsEditType: PropsEditType;
 	readonly saving: boolean;
-	readonly setSaving: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly canSaveDefaultProps: TypeCanSaveState;
-	readonly showSaveButton: boolean;
 }> = ({
 	unresolvedComposition,
 	defaultProps,
 	setDefaultProps,
 	propsEditType,
-	saving,
-	setSaving,
 	canSaveDefaultProps,
-	showSaveButton,
 }) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
@@ -235,55 +230,6 @@ export const DataEditor: React.FC<{
 		});
 	}, [schema, z, unresolvedComposition.id, defaultProps, zodTypes]);
 
-	const onSave = useCallback(
-		(
-			updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
-		) => {
-			if (schema === 'no-zod' || schema === 'no-schema' || z === null) {
-				showNotification('Cannot update default props: No Zod schema', 2000);
-				return;
-			}
-
-			setSaving(true);
-			const oldDefaultProps = unresolvedComposition.defaultProps ?? {};
-			const newDefaultProps = updater(oldDefaultProps);
-			callUpdateDefaultPropsApi(
-				unresolvedComposition.id,
-				newDefaultProps,
-				extractEnumJsonPaths({
-					schema,
-					zodRuntime: z,
-					currentPath: [],
-					zodTypes,
-				}),
-			)
-				.then((response) => {
-					if (!response.success) {
-						// eslint-disable-next-line no-console
-						console.log(response.stack);
-						showNotification(
-							`Cannot update default props: ${response.reason}. See console for more information.`,
-							2000,
-						);
-					}
-				})
-				.catch((err) => {
-					showNotification(`Cannot update default props: ${err.message}`, 2000);
-				})
-				.finally(() => {
-					setSaving(false);
-				});
-		},
-		[
-			schema,
-			z,
-			zodTypes,
-			setSaving,
-			unresolvedComposition.defaultProps,
-			unresolvedComposition.id,
-		],
-	);
-
 	const connectionStatus = previewServerState.type;
 
 	const warnings = useMemo(() => {
@@ -382,17 +328,12 @@ export const DataEditor: React.FC<{
 					schema={schema}
 					zodValidationResult={zodValidationResult}
 					savedDefaultProps={unresolvedComposition.defaultProps}
-					onSave={onSave}
-					showSaveButton={showSaveButton}
-					saving={saving}
-					saveDisabledByParent={!zodValidationResult.success}
 				/>
 			) : (
 				<RenderModalJSONPropsEditor
 					value={defaultProps ?? {}}
 					setValue={setDefaultProps}
 					onSave={onUpdate}
-					showSaveButton={showSaveButton}
 					serializedJSON={serializedJSON}
 					defaultProps={unresolvedComposition.defaultProps}
 					schema={schema}
