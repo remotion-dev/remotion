@@ -38,6 +38,15 @@ import {MoneyBurn} from './video-elements/money-burn';
 import {NumberedChapter} from './video-elements/numbered-chapter';
 import {UpperReference} from './video-elements/upper-reference';
 import {UpperThird} from './video-elements/UpperThird';
+import {FlyingCardBottom} from './vibe-skills/FlyingCardBottom';
+import {FlyingCards as VibeSkillsFlyingCards} from './vibe-skills/FlyingCards';
+import {VibeSkillsFlyingCardsLeft} from './vibe-skills/FlyingCardsLeft';
+import {Prompt, PromptSchema} from './vibe-skills/Prompt';
+import {
+	WhatIsRemotion,
+	whatIsRemotionCalculateMetadata,
+	whatIsRemotionSchema,
+} from './Compose/WhatIsRemotion';
 
 const muxId = 'EV00V02hvNnfTYYYsTKtIzb7MfMAsZkSXQfDP001V1yC7I';
 
@@ -138,6 +147,56 @@ export const RemotionRoot: React.FC = () => {
 					height={1080}
 				/>
 			</Folder>
+			<Folder name="vibe-skills">
+				<Composition
+					id="Prompt"
+					component={Prompt}
+					durationInFrames={210}
+					fps={30}
+					width={1920}
+					height={1080}
+					schema={PromptSchema}
+					defaultProps={{
+						prompt:
+							'the homepage "/" should show the username field,   and once you submit, you get redirected to the "/[username]" route, where you can download   the video.   Use the components from the existing page.    on the user page fetch from the following API:   https://github-contributions-api.jogruber.de/v4/[username] and only once fetched show the   player.',
+						thinkingIndex: 40,
+					}}
+				/>
+				<Composition
+					id="VibeSkillsFlyingCards"
+					component={VibeSkillsFlyingCards}
+					durationInFrames={150}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="VibeSkillsFlyingCardsLeft"
+					component={VibeSkillsFlyingCardsLeft}
+					durationInFrames={150}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="FlyingCardBottom"
+					component={FlyingCardBottom}
+					durationInFrames={150}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+			</Folder>
+			<Composition
+				id="WhatIsRemotion"
+				component={WhatIsRemotion}
+				width={1080}
+				fps={30}
+				durationInFrames={273}
+				schema={whatIsRemotionSchema}
+				defaultProps={{fade: false, whiteBackground: false, reel: false}}
+				calculateMetadata={whatIsRemotionCalculateMetadata}
+			/>
 			<Composition
 				component={ProductHuntLogo}
 				width={240}

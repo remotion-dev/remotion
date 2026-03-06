@@ -23,21 +23,20 @@
 		"@remotion/noise": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/shapes": "workspace:*",
+		"@remotion/svg-3d-engine": "workspace:*",
+		"@remotion/captions": "workspace:*",
 		"@remotion/tailwind-v4": "workspace:*",
 		"@types/styled-components": "5.1.34",
 		"@typescript/native-preview": "catalog:",
 		"eslint": "catalog:",
-		"hack-font": "3.3.0",
 		"polished": "4.3.1",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"remotion": "workspace:*",
-		"simplex-noise": "2.4.0",
 		"styled-components": "5.3.11",
 		"svg-path-properties": "1.3.0",
 		"svg-path-reverse": "1.3.0",
 		"tailwindcss": "4.0.0",
-		"xns": "2.0.7",
 		"zod": "catalog:"
 	}
 }

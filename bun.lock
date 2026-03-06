@@ -96,6 +96,7 @@
       "name": "@remotion/brand",
       "version": "4.0.434",
       "devDependencies": {
+        "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/fonts": "workspace:*",
@@ -105,21 +106,19 @@
         "@remotion/noise": "workspace:*",
         "@remotion/paths": "workspace:*",
         "@remotion/shapes": "workspace:*",
+        "@remotion/svg-3d-engine": "workspace:*",
         "@remotion/tailwind-v4": "workspace:*",
         "@types/styled-components": "5.1.34",
         "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
-        "hack-font": "3.3.0",
         "polished": "4.3.1",
         "react": "catalog:",
         "react-dom": "catalog:",
         "remotion": "workspace:*",
-        "simplex-noise": "2.4.0",
         "styled-components": "5.3.11",
         "svg-path-properties": "1.3.0",
         "svg-path-reverse": "1.3.0",
         "tailwindcss": "4.0.0",
-        "xns": "2.0.7",
         "zod": "catalog:",
       },
     },
@@ -5652,8 +5651,6 @@
 
     "h3": ["h3@1.15.4", "", { "dependencies": { "cookie-es": "1.2.2", "crossws": "0.3.5", "defu": "6.1.4", "destr": "2.0.5", "iron-webcrypto": "1.2.1", "node-mock-http": "1.0.2", "radix3": "1.1.2", "ufo": "1.6.1", "uncrypto": "0.1.3" } }, "sha512-z5cFQWDffyOe4vQ9xIqNfCZdV4p//vy6fBnr8Q1AWnVZ0teurKMG66rLj++TKwKPUP3u7iMUvrvKaEUiQw2QWQ=="],
 
-    "hack-font": ["hack-font@3.3.0", "", {}, "sha512-RohrcAr3UaKiIoxDlOytCjObcUAucfFc6V5fKu6gBrvmvTfIXeBqZwR0Q5kb9qpbluThJWt326LClLKIGiFyug=="],
-
     "handle-thing": ["handle-thing@2.0.1", "", {}, "sha512-9Qn4yBxelxoh2Ow62nP+Ka/kMnOXRi8BXnRaUwezLNhqelnN49xKz4F/dPP8OYLxLxq6JDtZb2i9XznUQbNPTg=="],
 
     "happy-dom": ["happy-dom@20.0.2", "", { "dependencies": { "@types/node": "^20.0.0", "@types/whatwg-mimetype": "^3.0.2", "whatwg-mimetype": "^3.0.0" } }, "sha512-pYOyu624+6HDbY+qkjILpQGnpvZOusItCk+rvF5/V+6NkcgTKnbOldpIy22tBnxoaLtlM9nXgoqAcW29/B7CIw=="],
@@ -7066,7 +7063,7 @@
 
     "simple-swizzle": ["simple-swizzle@0.2.2", "", { "dependencies": { "is-arrayish": "0.3.2" } }, "sha512-JA//kQgZtbuY83m+xT+tXJkmJncGMTFT+C+g2h2R9uxkYIrE2yy9sgmcLhCnw57/WSD+Eh3J97FPEDFnbXnDUg=="],
 
-    "simplex-noise": ["simplex-noise@2.4.0", "", {}, "sha512-OjyDWm/QZjVbMrPxDVi9b2as+SeNn9EBXlrWVRlFW+TSyWMSXouDryXkQN0vf5YP+QZKobrmkvx1eQYPLtuqfw=="],
+    "simplex-noise": ["simplex-noise@4.0.1", "", {}, "sha512-zl/+bdSqW7HJOQ0oDbxrNYaF4F5ik0i7M6YOYmEoIJNtg16NpvWaTTM1Y7oV/7T0jFljawLgYPS81Uu2rsfo1A=="],
 
     "sirv": ["sirv@3.0.2", "", { "dependencies": { "@polka/url": "^1.0.0-next.24", "mrmime": "^2.0.0", "totalist": "^3.0.0" } }, "sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g=="],
 
@@ -7669,8 +7666,6 @@
     "xhr": ["xhr@2.6.0", "", { "dependencies": { "global": "~4.4.0", "is-function": "^1.0.1", "parse-headers": "^2.0.0", "xtend": "^4.0.0" } }, "sha512-/eCGLb5rxjx5e3mF1A7s+pLlR6CGyqWN91fv1JgER5mVWg1MZmlhBvy9kjcsOdRk8RrIujotWyJamfyrp+WIcA=="],
 
     "xml-js": ["xml-js@1.6.11", "", { "dependencies": { "sax": "1.2.4" }, "bin": { "xml-js": "./bin/cli.js" } }, "sha512-7rVi2KMfwfWFl+GpPg6m80IVMWXLRjO+PxTq7V2CDhoGak0wzYzFgUY2m4XJ47OGdXd8eLE8EmwfAmdjw7lC1g=="],
-
-    "xns": ["xns@2.0.7", "", { "bin": { "xns-js": "index.js", "xns": "start.sh" } }, "sha512-5/U+wBrbDAiY9o7aFrKSMh7r6KM45uCvEi9ZODk+YKgzpmnhqr2FLlIAfupWQHoC/5gRp+sXtmWtNrFYiBDOGA=="],
 
     "xtend": ["xtend@4.0.2", "", {}, "sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ=="],
 
@@ -8729,8 +8724,6 @@
     "@remotion/lambda-client/@types/express": ["@types/express@5.0.1", "", { "dependencies": { "@types/body-parser": "1.19.1", "@types/express-serve-static-core": "5.0.4", "@types/serve-static": "1.13.10" } }, "sha512-UZUw8vjpWFXuDnjFTh7/5c2TWDlQqeXHi6hcN7F2XSVT5P+WmUnnbFS3KA6Jnc6IsEqI2qCVu2bK0R0J4A8ZQQ=="],
 
     "@remotion/mcp/zod": ["zod@4.1.13", "", {}, "sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig=="],
-
-    "@remotion/noise/simplex-noise": ["simplex-noise@4.0.1", "", {}, "sha512-zl/+bdSqW7HJOQ0oDbxrNYaF4F5ik0i7M6YOYmEoIJNtg16NpvWaTTM1Y7oV/7T0jFljawLgYPS81Uu2rsfo1A=="],
 
     "@remotion/promo-pages/hls.js": ["hls.js@1.5.19", "", {}, "sha512-C020dKWEJcyvLnrqsFKW4q6D/6IEzKWdhktIS5bgoyEFE8lHgrFBq4RIngdy113abJOlIruhv8qjg7UX8hwxOw=="],
 
