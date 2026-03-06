@@ -2,6 +2,7 @@ import {ALL_FORMATS, BlobSource, Input} from 'mediabunny';
 import {interpolateColors, useCurrentFrame} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {expect, test} from 'vitest';
+import type {RenderMediaOnWebProgress} from '../render-media-on-web';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import '../symbol-dispose';
 
@@ -130,7 +131,7 @@ test('should throttle onProgress callback to 250ms', {retry: 2}, async (t) => {
 
 	const progressCalls: Array<{
 		time: number;
-		progress: {renderedFrames: number; encodedFrames: number};
+		progress: RenderMediaOnWebProgress;
 	}> = [];
 	const startTime = Date.now();
 
@@ -159,6 +160,10 @@ test('should throttle onProgress callback to 250ms', {retry: 2}, async (t) => {
 	const finalCall = progressCalls[progressCalls.length - 1];
 	expect(finalCall.progress.renderedFrames).toBe(30);
 	expect(finalCall.progress.encodedFrames).toBe(30);
+	expect(finalCall.progress.renderEstimatedTime).toBe(0);
+	expect(finalCall.progress.progress).toBe(1);
+	expect(finalCall.progress.renderedDoneIn).toBeTypeOf('number');
+	expect(finalCall.progress.encodedDoneIn).toBeTypeOf('number');
 
 	// Check that calls are throttled (if we have multiple calls)
 	if (progressCalls.length > 1) {
@@ -170,6 +175,66 @@ test('should throttle onProgress callback to 250ms', {retry: 2}, async (t) => {
 		}
 	}
 });
+
+test(
+	'should provide progress estimates while rendering',
+	{retry: 2},
+	async (t) => {
+		if (t.task.file.projectName === 'webkit') {
+			t.skip();
+			return;
+		}
+
+		const progressCalls: RenderMediaOnWebProgress[] = [];
+		const Component: React.FC = () => null;
+
+		await renderMediaOnWeb({
+			composition: {
+				component: Component,
+				id: 'progress-estimation-test',
+				width: 100,
+				height: 100,
+				fps: 30,
+				durationInFrames: 20,
+			},
+			inputProps: {},
+			onFrame: async (frame) => {
+				await new Promise((resolve) => {
+					setTimeout(resolve, 40);
+				});
+				return frame;
+			},
+			onProgress: (progress) => {
+				progressCalls.push({...progress});
+			},
+		});
+
+		expect(progressCalls.length).toBeGreaterThan(1);
+
+		const intermediateCall = progressCalls.find((progress) => {
+			return progress.renderedFrames < 20;
+		});
+		expect(intermediateCall).toBeDefined();
+		expect(intermediateCall?.renderEstimatedTime).toBeGreaterThan(0);
+		expect(intermediateCall?.renderedDoneIn).toBeNull();
+		expect(intermediateCall?.encodedDoneIn).toBeNull();
+		expect(intermediateCall?.progress).toBeGreaterThan(0);
+		expect(intermediateCall?.progress).toBeLessThan(1);
+
+		const finalCall = progressCalls[progressCalls.length - 1];
+		expect(finalCall).toMatchObject({
+			renderedFrames: 20,
+			encodedFrames: 20,
+			renderEstimatedTime: 0,
+			progress: 1,
+		});
+		expect(finalCall.renderedDoneIn).toBeTypeOf('number');
+		expect(finalCall.encodedDoneIn).toBeTypeOf('number');
+		expect(finalCall.encodedDoneIn).toBeGreaterThanOrEqual(
+			finalCall.renderedDoneIn ?? 0,
+		);
+	},
+);
 
 test('should include "Made with Remotion" metadata', async (t) => {
 	if (t.task.file.projectName === 'webkit') {

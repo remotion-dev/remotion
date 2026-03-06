@@ -75,10 +75,15 @@ type MandatoryRenderMediaOnWebOptions<
 	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
 };
 
+const MAX_RECENT_FRAME_TIMINGS = 150;
+
 export type RenderMediaOnWebProgress = {
 	renderedFrames: number;
 	encodedFrames: number;
-	// TODO: encodedDoneIn, renderEstimatedTime, progress
+	renderedDoneIn: number | null;
+	encodedDoneIn: number | null;
+	renderEstimatedTime: number;
+	progress: number;
 };
 
 export type RenderMediaOnWebResult = {
@@ -335,6 +340,12 @@ const internalRenderMediaOnWeb = async <
 
 		const totalFrames = realFrameRange[1] - realFrameRange[0] + 1;
 		const durationInSeconds = totalFrames / resolved.fps;
+		const renderStart = Date.now();
+		let renderedDoneIn: number | null = null;
+		let encodedDoneIn: number | null = null;
+		let renderEstimatedTime = 0;
+		const recentFrameTimings: number[] = [];
+		let timeOfLastFrame = renderStart;
 
 		if (videoSampleSource) {
 			outputWithCleanup.output.addVideoTrack(
@@ -375,6 +386,26 @@ const internalRenderMediaOnWeb = async <
 		const progress: RenderMediaOnWebProgress = {
 			renderedFrames: 0,
 			encodedFrames: 0,
+			renderedDoneIn: null,
+			encodedDoneIn: null,
+			renderEstimatedTime: 0,
+			progress: 0,
+		};
+		const getProgressPayload = (): RenderMediaOnWebProgress => {
+			const overallProgress =
+				Math.round(
+					(70 * progress.renderedFrames + 30 * progress.encodedFrames) /
+						totalFrames,
+				) / 100;
+
+			return {
+				renderedFrames: progress.renderedFrames,
+				encodedFrames: progress.encodedFrames,
+				renderedDoneIn,
+				encodedDoneIn,
+				renderEstimatedTime,
+				progress: overallProgress,
+			};
 		};
 
 		for (let frame = realFrameRange[0]; frame <= realFrameRange[1]; frame++) {
@@ -443,8 +474,29 @@ const internalRenderMediaOnWeb = async <
 				}
 			}
 
+			const now = Date.now();
+			const timeToRenderInMilliseconds = now - timeOfLastFrame;
+			timeOfLastFrame = now;
+
 			progress.renderedFrames++;
-			throttledOnProgress?.({...progress});
+			recentFrameTimings.push(timeToRenderInMilliseconds);
+			if (recentFrameTimings.length > MAX_RECENT_FRAME_TIMINGS) {
+				recentFrameTimings.shift();
+			}
+
+			const recentTimingsSum = recentFrameTimings.reduce(
+				(sum, time) => sum + time,
+				0,
+			);
+			const newAverage = recentTimingsSum / recentFrameTimings.length;
+			const remainingFrames = totalFrames - progress.renderedFrames;
+			renderEstimatedTime = Math.round(remainingFrames * newAverage);
+
+			if (progress.renderedFrames === totalFrames) {
+				renderedDoneIn = now - renderStart;
+			}
+
+			throttledOnProgress?.(getProgressPayload());
 
 			const audioCombineStart = performance.now();
 			const assets = collectAssets.current!.collectAssets();
@@ -487,7 +539,11 @@ const internalRenderMediaOnWeb = async <
 			internalState.addAddSampleTime(performance.now() - addSampleStart);
 
 			progress.encodedFrames++;
-			throttledOnProgress?.({...progress});
+			if (progress.encodedFrames === totalFrames) {
+				encodedDoneIn = Date.now() - renderStart;
+			}
+
+			throttledOnProgress?.(getProgressPayload());
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
@@ -495,7 +551,7 @@ const internalRenderMediaOnWeb = async <
 		}
 
 		// Call progress one final time to ensure final state is reported
-		onProgress?.({...progress});
+		onProgress?.(getProgressPayload());
 
 		videoSampleSource?.videoSampleSource.close();
 		audioSampleSource?.audioSampleSource.close();

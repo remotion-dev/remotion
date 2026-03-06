@@ -104,9 +104,26 @@ React to render progress. The callback receives an object with the following pro
 ```tsx twoslash
 import type {RenderMediaOnWebProgressCallback} from '@remotion/web-renderer';
 
-const onProgress: RenderMediaOnWebProgressCallback = ({renderedFrames, encodedFrames}) => {
+const onProgress: RenderMediaOnWebProgressCallback = ({
+  renderedFrames,
+  encodedFrames,
+  renderEstimatedTime,
+  progress,
+  renderedDoneIn,
+  encodedDoneIn,
+}) => {
   console.log(`Rendered ${renderedFrames} frames`);
   console.log(`Encoded ${encodedFrames} frames`);
+  console.log(`Overall progress: ${Math.round(progress * 100)}%`);
+  console.log(`Estimated render time remaining: ${renderEstimatedTime}ms`);
+
+  if (renderedDoneIn !== null) {
+    console.log(`Finished rendering frames in ${renderedDoneIn}ms`);
+  }
+
+  if (encodedDoneIn !== null) {
+    console.log(`Finished encoding in ${encodedDoneIn}ms`);
+  }
 };
 ```
 

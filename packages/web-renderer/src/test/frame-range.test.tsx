@@ -57,10 +57,20 @@ test('should render with valid frame range', async (t) => {
 		frameRange: [10, 15],
 		licenseKey: 'free-license',
 	});
-	expect(finalProgress).toEqual({
+	if (finalProgress === null) {
+		throw new Error('Expected final progress to be reported');
+	}
+
+	const resolvedProgress = finalProgress as RenderMediaOnWebProgress;
+
+	expect(resolvedProgress).toMatchObject({
 		renderedFrames: 6,
 		encodedFrames: 6,
+		renderEstimatedTime: 0,
+		progress: 1,
 	});
+	expect(resolvedProgress.renderedDoneIn).toBeTypeOf('number');
+	expect(resolvedProgress.encodedDoneIn).toBeTypeOf('number');
 });
 
 test('frameRange starting from non-zero should produce correct duration', async (t) => {
