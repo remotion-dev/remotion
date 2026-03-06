@@ -1,6 +1,6 @@
 # @remotion/starburst
 
-Starburst ray effects for Remotion
+Starburst ray effect for Remotion
 
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/starburst.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/starburst?minimal=true)
 

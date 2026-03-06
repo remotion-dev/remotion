@@ -208,7 +208,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'web-renderer': 'Render videos in the browser (not yet released)',
 	design: 'Design system',
 	'light-leaks': 'Light leak effects for Remotion',
-	starburst: 'Starburst ray effects for Remotion',
+	starburst: 'Starburst ray effect for Remotion',
 	vercel: 'Render Remotion videos on Vercel Sandbox',
 	sfx: 'Sound effect library',
 };
