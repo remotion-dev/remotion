@@ -7,7 +7,7 @@ crumb: 'Techniques'
 
 # Starburst<AvailableFrom v="4.0.435"/>
 
-The [`<Starburst>`](/docs/starburst/starburst) component from [`@remotion/starburst`](/docs/starburst/api) renders a WebGL-based retro starburst ray effect. The effect reveals during the first half of its duration and retracts during the second half.
+The [`<Starburst>`](/docs/starburst/starburst) component from [`@remotion/starburst`](/docs/starburst/api) renders a static WebGL-based retro starburst ray pattern. It can be used as a background or combined with animations for transitions.
 
 ```tsx twoslash title="MyComp.tsx"
 import {Starburst} from '@remotion/starburst';
@@ -105,7 +105,7 @@ const StarburstTransition = () => {
 };
 ```
 
-At the midpoint, the starburst covers most of the canvas, hiding the cut between scenes.
+The starburst covers the full canvas, hiding the cut between scenes.
 
 ## See also
 

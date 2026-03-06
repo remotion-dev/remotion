@@ -6,8 +6,7 @@ crumb: '@remotion/starburst'
 
 # &lt;Starburst><AvailableFrom v="4.0.435" />
 
-Renders a WebGL-based retro starburst ray effect.
-The effect reveals during the first half of the duration and retracts during the second half.
+Renders a static WebGL-based retro starburst ray pattern.
 Is a [`<Sequence>`](/docs/sequence) component under the hood and accepts its props.
 
 ## Example
@@ -37,7 +36,7 @@ Apart from the props listed below, all props from [`<Sequence>`](/docs/sequence)
 
 ### `durationInFrames?`
 
-The duration of the starburst effect in frames. The effect reveals during the first half and retracts during the second half.
+The duration of the starburst in frames.
 
 If not specified, defaults to the duration of the composition or sequence, reading from [`useVideoConfig()`](/docs/use-video-config).
 
