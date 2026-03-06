@@ -93,8 +93,8 @@ void main() {
     col = mix(col, prevCol, blendStart);
 
     float dist = length(center);
-    float rawVignette = smoothstep(0.9, 0.3, dist);
-    float alpha = mix(rawVignette, 1.0, vignetteAmount);
+    float radius = vignetteAmount * 3.0;
+    float alpha = smoothstep(radius, radius * 0.5, dist);
 
     gl_FragColor = vec4(col, alpha);
 }
