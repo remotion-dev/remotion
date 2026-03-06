@@ -21,6 +21,7 @@ export type StarburstProps = Omit<
 		readonly colors?: readonly string[];
 		readonly rotation?: number;
 		readonly smoothness?: number;
+		readonly vignette?: number;
 	};
 
 const DEFAULT_COLORS = ['#ffdd00', '#ff8800'] as const;
@@ -56,6 +57,7 @@ uniform float smoothEdge;
 uniform vec2 resolution;
 uniform sampler2D colorPalette;
 uniform float numColors;
+uniform float vignetteAmount;
 
 const float Pi = 3.14159265359;
 
@@ -88,7 +90,8 @@ void main() {
     col = mix(col, prevCol, blendStart);
 
     float dist = length(center);
-    float alpha = smoothstep(0.9, 0.3, dist);
+    float rawVignette = smoothstep(0.9, 0.3, dist);
+    float alpha = mix(rawVignette, 1.0, vignetteAmount);
 
     gl_FragColor = vec4(col, alpha);
 }
@@ -101,6 +104,7 @@ type GlContext = {
 	rotationOffsetLoc: WebGLUniformLocation;
 	smoothEdgeLoc: WebGLUniformLocation;
 	numColorsLoc: WebGLUniformLocation;
+	vignetteAmountLoc: WebGLUniformLocation;
 	colorTexture: WebGLTexture;
 };
 
@@ -109,7 +113,8 @@ const StarburstCanvas: React.FC<{
 	readonly colors: readonly string[];
 	readonly rotation: number;
 	readonly smoothness: number;
-}> = ({rays, colors, rotation, smoothness}) => {
+	readonly vignette: number;
+}> = ({rays, colors, rotation, smoothness, vignette}) => {
 	const {width, height} = useVideoConfig();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const glRef = useRef<GlContext | null>(null);
@@ -179,6 +184,7 @@ const StarburstCanvas: React.FC<{
 				rotationOffsetLoc: gl.getUniformLocation(program, 'rotationOffset')!,
 				smoothEdgeLoc: gl.getUniformLocation(program, 'smoothEdge')!,
 				numColorsLoc: gl.getUniformLocation(program, 'numColors')!,
+				vignetteAmountLoc: gl.getUniformLocation(program, 'vignetteAmount')!,
 				colorTexture,
 			};
 		},
@@ -201,6 +207,7 @@ const StarburstCanvas: React.FC<{
 			rotationOffsetLoc,
 			smoothEdgeLoc,
 			numColorsLoc,
+			vignetteAmountLoc,
 			colorTexture,
 		} = ctx;
 
@@ -236,9 +243,10 @@ const StarburstCanvas: React.FC<{
 		gl.uniform1f(numColorsLoc, colors.length);
 		gl.uniform1f(rotationOffsetLoc, rotationRad);
 		gl.uniform1f(smoothEdgeLoc, smoothness);
+		gl.uniform1f(vignetteAmountLoc, vignette);
 		gl.uniform2f(resLoc, gl.canvas.width, gl.canvas.height);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-	}, [rays, colors, rotation, smoothness, width, height]);
+	}, [rays, colors, rotation, smoothness, vignette, width, height]);
 
 	return (
 		<AbsoluteFill>
@@ -275,6 +283,14 @@ const starburstSchema = {
 		step: 0.01,
 		default: 0,
 		description: 'Edge Smoothness',
+	},
+	vignette: {
+		type: 'number',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: 1,
+		description: 'Vignette',
 	},
 	'style.translate': {
 		type: 'translate',
@@ -315,6 +331,7 @@ const StarburstInner: React.FC<
 	colors = DEFAULT_COLORS,
 	rotation = 0,
 	smoothness = 0,
+	vignette = 1,
 	durationInFrames,
 	style,
 	controls,
@@ -357,6 +374,18 @@ const StarburstInner: React.FC<
 		);
 	}
 
+	if (typeof vignette !== 'number' || !Number.isFinite(vignette)) {
+		throw new TypeError(
+			`"vignette" must be a finite number, but got ${JSON.stringify(vignette)}`,
+		);
+	}
+
+	if (vignette < 0 || vignette > 1) {
+		throw new RangeError(
+			`"vignette" must be between 0 and 1, but got ${vignette}`,
+		);
+	}
+
 	return (
 		<Sequence
 			durationInFrames={resolvedDuration}
@@ -370,6 +399,7 @@ const StarburstInner: React.FC<
 				colors={colors}
 				rotation={rotation}
 				smoothness={smoothness}
+				vignette={vignette}
 			/>
 		</Sequence>
 	);
