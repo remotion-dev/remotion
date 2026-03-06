@@ -239,6 +239,14 @@ export const RemotionRoot: React.FC = () => {
 						prompt: 'Use Remotion Best Practices.',
 						thinkingIndex: 40,
 					}}
+					calculateMetadata={() => {
+						return {
+							defaultCodec: 'prores',
+							defaultProResProfile: '4444',
+							defaultPixelFormat: 'yuva444p10le',
+							defaultVideoImageFormat: 'png',
+						};
+					}}
 				/>
 				<Composition
 					id="FlyingCardsRight"
