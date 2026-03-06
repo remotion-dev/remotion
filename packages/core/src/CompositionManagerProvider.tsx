@@ -111,26 +111,6 @@ export const CompositionManagerProvider = ({
 		};
 	}, []);
 
-	const updateCompositionDefaultProps = useCallback(
-		(id: string, newDefaultProps: Record<string, unknown>) => {
-			setCompositions((comps) => {
-				const updated = comps.map((c) => {
-					if (c.id === id) {
-						return {
-							...c,
-							defaultProps: newDefaultProps,
-						};
-					}
-
-					return c;
-				});
-
-				return updated;
-			});
-		},
-		[],
-	);
-
 	const compositionManagerSetters = useMemo((): CompositionManagerSetters => {
 		return {
 			registerComposition,
@@ -138,7 +118,6 @@ export const CompositionManagerProvider = ({
 			registerFolder,
 			unregisterFolder,
 			setCanvasContent,
-			updateCompositionDefaultProps,
 			onlyRenderComposition,
 		};
 	}, [
@@ -146,7 +125,6 @@ export const CompositionManagerProvider = ({
 		registerFolder,
 		unregisterComposition,
 		unregisterFolder,
-		updateCompositionDefaultProps,
 		onlyRenderComposition,
 	]);
 

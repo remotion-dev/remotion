@@ -57,10 +57,6 @@ export type CompositionManagerSetters = {
 	) => void;
 	unregisterFolder: (name: string, parent: string | null) => void;
 	setCanvasContent: React.Dispatch<React.SetStateAction<CanvasContent | null>>;
-	updateCompositionDefaultProps: (
-		id: string,
-		newDefaultProps: Record<string, unknown>,
-	) => void;
 	// This is not a setter but also a value that does not change
 	onlyRenderComposition: string | null;
 };
@@ -85,6 +81,5 @@ export const CompositionSetters = createContext<CompositionManagerSetters>({
 	registerFolder: () => undefined,
 	unregisterFolder: () => undefined,
 	setCanvasContent: () => undefined,
-	updateCompositionDefaultProps: () => undefined,
 	onlyRenderComposition: null,
 });

@@ -138,9 +138,6 @@ export const DataEditor: React.FC<{
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState(),
 	);
-	const {updateCompositionDefaultProps} = useContext(
-		Internals.CompositionSetters,
-	);
 
 	const inJSONEditor = mode === 'json';
 	const serializedJSON: SerializedJSONWithCustomFields | null = useMemo(() => {
@@ -253,7 +250,6 @@ export const DataEditor: React.FC<{
 						...prevState,
 						[compositionId]: {canUpdate: true},
 					}));
-					updateCompositionDefaultProps(compositionId, can.currentDefaultProps);
 				} else {
 					setCanSaveDefaultProps((prevState) => ({
 						...prevState,
@@ -284,12 +280,7 @@ export const DataEditor: React.FC<{
 				// Ignore errors during cleanup
 			});
 		};
-	}, [
-		readOnlyStudio,
-		clientId,
-		unresolvedComposition.id,
-		updateCompositionDefaultProps,
-	]);
+	}, [readOnlyStudio, clientId, unresolvedComposition.id]);
 
 	useEffect(() => {
 		const unsub = subscribeToEvent('default-props-updatable-changed', (e) => {
@@ -307,10 +298,6 @@ export const DataEditor: React.FC<{
 					...prevState,
 					[e.compositionId]: {canUpdate: true},
 				}));
-				updateCompositionDefaultProps(
-					e.compositionId,
-					result.currentDefaultProps,
-				);
 			} else {
 				setCanSaveDefaultProps((prevState) => ({
 					...prevState,
@@ -326,11 +313,7 @@ export const DataEditor: React.FC<{
 		return () => {
 			unsub();
 		};
-	}, [
-		subscribeToEvent,
-		unresolvedComposition.id,
-		updateCompositionDefaultProps,
-	]);
+	}, [subscribeToEvent, unresolvedComposition.id]);
 
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
@@ -385,7 +368,6 @@ export const DataEditor: React.FC<{
 			setSaving(true);
 			const oldDefaultProps = unresolvedComposition.defaultProps ?? {};
 			const newDefaultProps = updater(oldDefaultProps);
-			updateCompositionDefaultProps(unresolvedComposition.id, newDefaultProps);
 			callUpdateDefaultPropsApi(
 				unresolvedComposition.id,
 				newDefaultProps,
@@ -404,18 +386,10 @@ export const DataEditor: React.FC<{
 							`Cannot update default props: ${response.reason}. See console for more information.`,
 							2000,
 						);
-						updateCompositionDefaultProps(
-							unresolvedComposition.id,
-							oldDefaultProps,
-						);
 					}
 				})
 				.catch((err) => {
 					showNotification(`Cannot update default props: ${err.message}`, 2000);
-					updateCompositionDefaultProps(
-						unresolvedComposition.id,
-						oldDefaultProps,
-					);
 				})
 				.finally(() => {
 					setSaving(false);
@@ -428,7 +402,6 @@ export const DataEditor: React.FC<{
 			setSaving,
 			unresolvedComposition.defaultProps,
 			unresolvedComposition.id,
-			updateCompositionDefaultProps,
 		],
 	);
 
