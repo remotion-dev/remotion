@@ -86,19 +86,19 @@ const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
-const QUICK_SWITCHER_TRIGGER_HEIGHT = 44;
+const QUICK_SWITCHER_TRIGGER_HEIGHT = 38;
 
 const quickSwitcherArea: React.CSSProperties = {
-	padding: '6px 12px',
+	padding: '4px 12px',
 	borderBottom: `1px solid ${BORDER_COLOR}`,
 };
 
 const quickSwitcherTrigger: React.CSSProperties = {
 	backgroundColor: 'rgba(255, 255, 255, 0.06)',
 	borderRadius: 5,
-	padding: '6px 10px',
+	padding: '4px 10px',
 	color: LIGHT_TEXT,
-	fontSize: 13,
+	fontSize: 12,
 	cursor: 'pointer',
 	display: 'flex',
 	alignItems: 'center',
