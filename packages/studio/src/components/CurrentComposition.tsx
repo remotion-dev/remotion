@@ -1,16 +1,15 @@
 import React from 'react';
 import {Internals} from 'remotion';
-import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
+import {BACKGROUND} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
 
-export const CURRENT_COMPOSITION_HEIGHT = 80;
+export const CURRENT_COMPOSITION_HEIGHT = 64;
 
 const container: React.CSSProperties = {
 	height: CURRENT_COMPOSITION_HEIGHT,
 	display: 'block',
-	borderBottom: `1px solid ${BORDER_COLOR}`,
-	padding: 12,
+	padding: '6px 12px',
 	color: 'white',
 	backgroundColor: BACKGROUND,
 };
