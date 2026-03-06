@@ -274,7 +274,7 @@ const starburstSchema = {
 		min: 0,
 		max: 1,
 		step: 0.01,
-		default: 0.1,
+		default: 0,
 		description: 'Edge Smoothness',
 	},
 	'style.translate': {
@@ -315,7 +315,7 @@ const StarburstInner: React.FC<
 	rays = 12,
 	colors = DEFAULT_COLORS,
 	rotation = 0,
-	smoothness = 0.1,
+	smoothness = 0,
 	durationInFrames,
 	style,
 	controls,
