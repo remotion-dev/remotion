@@ -39,16 +39,16 @@ The duration of the starburst in frames.
 
 If not specified, defaults to the duration of the composition or sequence, reading from [`useVideoConfig()`](/docs/use-video-config).
 
-### `rays?`
+### `rays`
 
-The number of rays in the starburst pattern. Must be between `2` and `100`. Default: `12`.
+The number of rays in the starburst pattern. Must be between `2` and `100`.
 
-### `colors?`
+### `colors`
 
-An array of hex color strings for the rays. Colors are assigned to rays cyclically. Must contain at least 2 colors. Default: `['#ffdd00', '#ff8800']`.
+An array of hex color strings for the rays. Colors are assigned to rays cyclically. Must contain at least 2 colors.
 
 ```tsx
-<Starburst colors={['#ff0066', '#6600ff', '#00ccff']} />
+<Starburst rays={12} colors={['#ff0066', '#6600ff', '#00ccff']} />
 ```
 
 ### `rotation?`

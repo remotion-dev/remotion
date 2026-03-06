@@ -17,16 +17,14 @@ export type StarburstProps = Omit<
 > &
 	Omit<AbsoluteFillLayout, 'layout'> & {
 		readonly durationInFrames?: number;
-		readonly rays?: number;
-		readonly colors?: readonly string[];
+		readonly rays: number;
+		readonly colors: readonly string[];
 		readonly rotation?: number;
 		readonly smoothness?: number;
 		readonly vignette?: number;
 		readonly originOffsetX?: number;
 		readonly originOffsetY?: number;
 	};
-
-const DEFAULT_COLORS = ['#ffdd00', '#ff8800'] as const;
 
 const hexToRgb = (hex: string): [number, number, number] => {
 	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -371,8 +369,8 @@ const StarburstInner: React.FC<
 		readonly controls: SequenceControls | undefined;
 	}
 > = ({
-	rays = 12,
-	colors = DEFAULT_COLORS,
+	rays,
+	colors,
 	rotation = 0,
 	smoothness = 0,
 	vignette = 1,
