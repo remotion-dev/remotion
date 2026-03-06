@@ -11,19 +11,9 @@ export const ZodArrayItemEditor: React.FC<{
 	elementSchema: AnyZodSchema;
 	index: number;
 	value: unknown;
-	defaultValue: unknown;
 	mayPad: boolean;
 	mayRemove: boolean;
-}> = ({
-	elementSchema,
-	onChange,
-	jsonPath,
-	index,
-	value,
-	defaultValue,
-	mayPad,
-	mayRemove,
-}) => {
+}> = ({elementSchema, onChange, jsonPath, index, value, mayPad, mayRemove}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -61,7 +51,6 @@ export const ZodArrayItemEditor: React.FC<{
 				schema={elementSchema}
 				value={value}
 				setValue={setValue}
-				defaultValue={defaultValue}
 				onRemove={mayRemove ? onRemove : null}
 				mayPad={mayPad}
 			/>

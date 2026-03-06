@@ -43,14 +43,13 @@ export const VisualControlHandle: React.FC<{
 
 	const originalFileName = useOriginalFileName(value.stack);
 
-	const {localValue, RevisionContextProvider, onChange} = useLocalState({
+	const {localValue, onChange} = useLocalState({
 		schema: value.schema,
 		setValue: (updater) => {
 			updateValue(keyName, updater(currentValue));
 			increaseManualRefreshes();
 		},
-		unsavedValue: currentValue,
-		savedValue: value.valueInCode,
+		value: currentValue,
 	});
 
 	const disableSave =
@@ -130,17 +129,14 @@ export const VisualControlHandle: React.FC<{
 		<>
 			<VisualControlHandleHeader originalFileName={originalFileName} />
 			<Spacing block y={0.5} />
-			<RevisionContextProvider>
-				<ZodSwitch
-					mayPad
-					schema={value.schema}
-					jsonPath={[keyName]}
-					value={localValue.value}
-					defaultValue={value.valueInCode}
-					setValue={setValue}
-					onRemove={null}
-				/>
-			</RevisionContextProvider>
+			<ZodSwitch
+				mayPad
+				schema={value.schema}
+				jsonPath={[keyName]}
+				value={localValue.value}
+				setValue={setValue}
+				onRemove={null}
+			/>
 		</>
 	);
 };

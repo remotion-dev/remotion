@@ -8,17 +8,15 @@ import {ZodSwitch} from './ZodSwitch';
 export const ZodDefaultEditor: React.FC<{
 	readonly jsonPath: JSONPath;
 	readonly value: unknown;
-	readonly defaultValue: unknown;
 	readonly schema: AnyZodSchema;
 	readonly setValue: UpdaterFunction<unknown>;
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
-}> = ({jsonPath, schema, setValue, defaultValue, value, onRemove, mayPad}) => {
+}> = ({jsonPath, schema, setValue, value, onRemove, mayPad}) => {
 	const innerType = getInnerType(schema);
 
 	return (
 		<ZodSwitch
-			defaultValue={defaultValue}
 			jsonPath={jsonPath}
 			onRemove={onRemove}
 			schema={innerType}

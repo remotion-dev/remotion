@@ -25,11 +25,10 @@ export const ZodTextareaEditor: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: string;
-	readonly defaultValue: string;
 	readonly setValue: UpdaterFunction<string>;
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
-}> = ({jsonPath, value, setValue, defaultValue, schema, onRemove, mayPad}) => {
+}> = ({jsonPath, value, setValue, schema, onRemove, mayPad}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -43,8 +42,7 @@ export const ZodTextareaEditor: React.FC<{
 	const {localValue, onChange: setLocalValue} = useLocalState({
 		schema,
 		setValue,
-		unsavedValue: value,
-		savedValue: defaultValue,
+		value,
 	});
 
 	const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(

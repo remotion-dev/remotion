@@ -34,12 +34,11 @@ const findNull = (value: readonly AnyZodSchema[]) => {
 export const ZodUnionEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: unknown;
-	defaultValue: unknown;
 	schema: AnyZodSchema;
 	setValue: UpdaterFunction<unknown>;
 	onRemove: null | (() => void);
 	mayPad: boolean;
-}> = ({jsonPath, schema, setValue, defaultValue, value, onRemove, mayPad}) => {
+}> = ({jsonPath, schema, setValue, value, onRemove, mayPad}) => {
 	const options = getUnionOptions(schema);
 
 	if (options.length > 2) {
@@ -88,7 +87,6 @@ export const ZodUnionEditor: React.FC<{
 
 	return (
 		<ZodOrNullishEditor
-			defaultValue={defaultValue}
 			jsonPath={jsonPath}
 			onRemove={onRemove}
 			schema={schema}

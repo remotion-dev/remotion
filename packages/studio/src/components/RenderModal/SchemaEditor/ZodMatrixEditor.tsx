@@ -1,9 +1,5 @@
 import React, {useMemo, useState} from 'react';
-import {
-	useZodIfPossible,
-	useZodTypesIfPossible,
-} from '../../get-zod-if-possible';
-import {createZodValues} from './create-zod-values';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
@@ -26,16 +22,14 @@ export const ZodMatrixEditor: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: unknown[];
-	readonly defaultValue: unknown[];
 	readonly setValue: UpdaterFunction<unknown[]>;
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
-}> = ({schema, jsonPath, setValue, defaultValue, value, onRemove, mayPad}) => {
-	const {localValue, onChange, RevisionContextProvider} = useLocalState({
-		unsavedValue: value,
+}> = ({schema, jsonPath, setValue, value, onRemove, mayPad}) => {
+	const {localValue, onChange} = useLocalState({
+		value,
 		schema,
 		setValue,
-		savedValue: defaultValue,
 	});
 
 	const [expanded, setExpanded] = useState(true);
@@ -50,8 +44,6 @@ export const ZodMatrixEditor: React.FC<{
 	if (!z) {
 		throw new Error('expected zod');
 	}
-
-	const zodTypes = useZodTypesIfPossible();
 
 	const dimensions = Math.sqrt(localValue.value.length);
 
@@ -79,55 +71,49 @@ export const ZodMatrixEditor: React.FC<{
 			/>
 
 			{expanded ? (
-				<RevisionContextProvider>
-					<SchemaVerticalGuide isRoot={false}>
-						{chunkedItems.map((row, rowIndex) => {
-							return (
-								<React.Fragment
-									// eslint-disable-next-line react/no-array-index-key
-									key={`${rowIndex}${localValue.keyStabilityRevision}`}
-								>
-									<div style={rowStyle}>
-										{row.map((item, _index) => {
-											const actualIndex = rowIndex * dimensions + _index;
+				<SchemaVerticalGuide isRoot={false}>
+					{chunkedItems.map((row, rowIndex) => {
+						return (
+							<React.Fragment
+								// eslint-disable-next-line react/no-array-index-key
+								key={rowIndex}
+							>
+								<div style={rowStyle}>
+									{row.map((item, _index) => {
+										const actualIndex = rowIndex * dimensions + _index;
 
-											return (
-												<div
-													// eslint-disable-next-line react/no-array-index-key
-													key={`${_index}${localValue.keyStabilityRevision}`}
-													style={{flex: 1}}
-												>
-													<ZodArrayItemEditor
-														onChange={onChange}
-														value={item}
-														elementSchema={arrayElement}
-														index={actualIndex}
-														jsonPath={jsonPath}
-														defaultValue={
-															defaultValue?.[actualIndex] ??
-															createZodValues(arrayElement, z, zodTypes)
-														}
-														mayPad={mayPad}
-														mayRemove={false}
-													/>
-												</div>
-											);
-										})}
-									</div>
-								</React.Fragment>
-							);
-						})}
-						{value.length === 0 ? (
-							<SchemaArrayItemSeparationLine
-								schema={schema}
-								index={0}
-								onChange={onChange}
-								isLast
-								showAddButton
-							/>
-						) : null}
-					</SchemaVerticalGuide>
-				</RevisionContextProvider>
+										return (
+											<div
+												// eslint-disable-next-line react/no-array-index-key
+												key={_index}
+												style={{flex: 1}}
+											>
+												<ZodArrayItemEditor
+													onChange={onChange}
+													value={item}
+													elementSchema={arrayElement}
+													index={actualIndex}
+													jsonPath={jsonPath}
+													mayPad={mayPad}
+													mayRemove={false}
+												/>
+											</div>
+										);
+									})}
+								</div>
+							</React.Fragment>
+						);
+					})}
+					{value.length === 0 ? (
+						<SchemaArrayItemSeparationLine
+							schema={schema}
+							index={0}
+							onChange={onChange}
+							isLast
+							showAddButton
+						/>
+					) : null}
+				</SchemaVerticalGuide>
 			) : null}
 			<ZodFieldValidation path={jsonPath} localValue={localValue} />
 		</Fieldset>

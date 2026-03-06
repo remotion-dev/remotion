@@ -11,9 +11,8 @@ export const ZodTupleItemEditor: React.FC<{
 	tupleItems: AnyZodSchema[];
 	index: number;
 	value: unknown;
-	defaultValue: unknown;
 	mayPad: boolean;
-}> = ({tupleItems, onChange, jsonPath, index, value, defaultValue, mayPad}) => {
+}> = ({tupleItems, onChange, jsonPath, index, value, mayPad}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -43,7 +42,6 @@ export const ZodTupleItemEditor: React.FC<{
 				schema={tupleItems[index]}
 				value={value}
 				setValue={setValue}
-				defaultValue={defaultValue}
 				onRemove={null}
 				mayPad={mayPad}
 			/>

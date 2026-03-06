@@ -22,15 +22,13 @@ export const ZodNumberEditor: React.FC<{
 	readonly jsonPath: JSONPath;
 	readonly value: number;
 	readonly setValue: UpdaterFunction<number>;
-	readonly defaultValue: number;
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
-}> = ({jsonPath, value, schema, setValue, defaultValue, onRemove, mayPad}) => {
+}> = ({jsonPath, value, schema, setValue, onRemove, mayPad}) => {
 	const {localValue, onChange: setLocalValue} = useLocalState({
-		unsavedValue: value,
+		value,
 		schema,
 		setValue,
-		savedValue: defaultValue,
 	});
 
 	const onNumberChange = useCallback(

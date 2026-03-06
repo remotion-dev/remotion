@@ -19,15 +19,13 @@ export const ZodEnumEditor: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: string;
-	readonly defaultValue: string;
 	readonly setValue: UpdaterFunction<string>;
 	readonly onRemove: null | (() => void);
-}> = ({schema, jsonPath, setValue, defaultValue, value, onRemove}) => {
+}> = ({schema, jsonPath, setValue, value, onRemove}) => {
 	const {localValue, onChange: setLocalValue} = useLocalState({
 		schema,
 		setValue,
-		unsavedValue: value,
-		savedValue: defaultValue,
+		value,
 	});
 
 	const enumValues = getEnumValues(schema);

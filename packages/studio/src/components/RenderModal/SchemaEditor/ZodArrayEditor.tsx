@@ -1,9 +1,5 @@
 import React, {useMemo, useState} from 'react';
-import {
-	useZodIfPossible,
-	useZodTypesIfPossible,
-} from '../../get-zod-if-possible';
-import {createZodValues} from './create-zod-values';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
@@ -20,16 +16,14 @@ export const ZodArrayEditor: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: unknown[];
-	readonly defaultValue: unknown[];
 	readonly setValue: UpdaterFunction<unknown[]>;
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
-}> = ({schema, jsonPath, setValue, defaultValue, value, onRemove, mayPad}) => {
-	const {localValue, onChange, RevisionContextProvider} = useLocalState({
-		unsavedValue: value,
+}> = ({schema, jsonPath, setValue, value, onRemove, mayPad}) => {
+	const {localValue, onChange} = useLocalState({
+		value,
 		schema,
 		setValue,
-		savedValue: defaultValue,
 	});
 
 	const [expanded, setExpanded] = useState(true);
@@ -43,8 +37,6 @@ export const ZodArrayEditor: React.FC<{
 	if (!z) {
 		throw new Error('expected zod');
 	}
-
-	const zodTypes = useZodTypesIfPossible();
 
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
@@ -64,46 +56,40 @@ export const ZodArrayEditor: React.FC<{
 			</div>
 
 			{expanded ? (
-				<RevisionContextProvider>
-					<SchemaVerticalGuide isRoot={false}>
-						{localValue.value.map((child, i) => {
-							return (
-								// eslint-disable-next-line react/no-array-index-key
-								<React.Fragment key={`${i}${localValue.keyStabilityRevision}`}>
-									<ZodArrayItemEditor
-										onChange={onChange}
-										value={child}
-										elementSchema={arrayElement}
-										index={i}
-										jsonPath={jsonPath}
-										defaultValue={
-											defaultValue?.[i] ??
-											createZodValues(arrayElement, z, zodTypes)
-										}
-										mayPad={mayPad}
-										mayRemove
-									/>
-									<SchemaArrayItemSeparationLine
-										schema={schema}
-										index={i}
-										onChange={onChange}
-										isLast={i === localValue.value.length - 1}
-										showAddButton
-									/>
-								</React.Fragment>
-							);
-						})}
-						{value.length === 0 ? (
-							<SchemaArrayItemSeparationLine
-								schema={schema}
-								index={0}
-								onChange={onChange}
-								isLast
-								showAddButton
-							/>
-						) : null}
-					</SchemaVerticalGuide>
-				</RevisionContextProvider>
+				<SchemaVerticalGuide isRoot={false}>
+					{localValue.value.map((child, i) => {
+						return (
+							// eslint-disable-next-line react/no-array-index-key
+							<React.Fragment key={i}>
+								<ZodArrayItemEditor
+									onChange={onChange}
+									value={child}
+									elementSchema={arrayElement}
+									index={i}
+									jsonPath={jsonPath}
+									mayPad={mayPad}
+									mayRemove
+								/>
+								<SchemaArrayItemSeparationLine
+									schema={schema}
+									index={i}
+									onChange={onChange}
+									isLast={i === localValue.value.length - 1}
+									showAddButton
+								/>
+							</React.Fragment>
+						);
+					})}
+					{value.length === 0 ? (
+						<SchemaArrayItemSeparationLine
+							schema={schema}
+							index={0}
+							onChange={onChange}
+							isLast
+							showAddButton
+						/>
+					) : null}
+				</SchemaVerticalGuide>
 			) : null}
 			<ZodFieldValidation path={jsonPath} localValue={localValue} />
 		</Fieldset>

@@ -19,8 +19,7 @@ export type ObjectDiscrimatedUnionReplacement = {
 export const ZodObjectEditor: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
-	readonly unsavedValue: Record<string, unknown>;
-	readonly savedValue: Record<string, unknown>;
+	readonly value: Record<string, unknown>;
 	readonly setValue: UpdaterFunction<Record<string, unknown>>;
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
@@ -29,18 +28,16 @@ export const ZodObjectEditor: React.FC<{
 	schema,
 	jsonPath,
 	setValue,
-	unsavedValue,
-	savedValue,
+	value,
 	onRemove,
 	mayPad,
 	discriminatedUnionReplacement,
 }) => {
 	const [expanded, setExpanded] = useState(true);
-	const {localValue, onChange, RevisionContextProvider} = useLocalState({
+	const {localValue, onChange} = useLocalState({
 		schema,
 		setValue,
-		unsavedValue,
-		savedValue,
+		value,
 	});
 
 	const typeName = getZodSchemaType(schema);
@@ -73,48 +70,42 @@ export const ZodObjectEditor: React.FC<{
 			)}
 
 			{expanded ? (
-				<RevisionContextProvider>
-					<SchemaVerticalGuide isRoot={isRoot}>
-						{keys.map((key, i) => {
-							if (
-								discriminatedUnionReplacement &&
-								key === discriminatedUnionReplacement.discriminator
-							) {
-								return discriminatedUnionReplacement.markup;
-							}
+				<SchemaVerticalGuide isRoot={isRoot}>
+					{keys.map((key, i) => {
+						if (
+							discriminatedUnionReplacement &&
+							key === discriminatedUnionReplacement.discriminator
+						) {
+							return discriminatedUnionReplacement.markup;
+						}
 
-							return (
-								<React.Fragment key={key}>
-									<ZodSwitch
-										mayPad
-										jsonPath={[...jsonPath, key]}
-										schema={shape[key]}
-										value={localValue.value[key]}
-										// In case of null | {a: string, b: string} type, we need to fallback to the default value
-										defaultValue={(savedValue ?? unsavedValue)[key]}
-										setValue={(val, forceApply) => {
-											onChange(
-												(oldVal) => {
-													return {
-														...oldVal,
-														[key]:
-															typeof val === 'function'
-																? val(oldVal[key])
-																: val,
-													};
-												},
-												forceApply,
-												false,
-											);
-										}}
-										onRemove={null}
-									/>
-									{i === keys.length - 1 ? null : <SchemaSeparationLine />}
-								</React.Fragment>
-							);
-						})}
-					</SchemaVerticalGuide>
-				</RevisionContextProvider>
+						return (
+							<React.Fragment key={key}>
+								<ZodSwitch
+									mayPad
+									jsonPath={[...jsonPath, key]}
+									schema={shape[key]}
+									value={localValue.value[key]}
+									setValue={(val, forceApply) => {
+										onChange(
+											(oldVal) => {
+												return {
+													...oldVal,
+													[key]:
+														typeof val === 'function' ? val(oldVal[key]) : val,
+												};
+											},
+											forceApply,
+											false,
+										);
+									}}
+									onRemove={null}
+								/>
+								{i === keys.length - 1 ? null : <SchemaSeparationLine />}
+							</React.Fragment>
+						);
+					})}
+				</SchemaVerticalGuide>
 			) : null}
 			{isRoot || !expanded ? null : <div style={fieldsetLabel}>{'}'}</div>}
 		</Fieldset>

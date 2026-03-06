@@ -83,7 +83,6 @@ import {
 	resolveVideoConfigOrCatch,
 } from './resolve-video-config.js';
 import {
-	PROPS_UPDATED_EXTERNALLY,
 	ResolveCompositionContext,
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
@@ -256,7 +255,6 @@ export const Internals = {
 	PreviewSizeContext,
 	calculateScale,
 	editorPropsProviderRef,
-	PROPS_UPDATED_EXTERNALLY,
 	validateRenderAsset,
 	Log,
 	LogLevelContext,

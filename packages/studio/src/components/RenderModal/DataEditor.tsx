@@ -322,7 +322,7 @@ export const DataEditor: React.FC<{
 
 			{mode === 'schema' ? (
 				<SchemaEditor
-					unsavedDefaultProps={defaultProps}
+					value={defaultProps}
 					setValue={setDefaultProps}
 					schema={schema}
 					zodValidationResult={zodValidationResult}

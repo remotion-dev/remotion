@@ -16,15 +16,13 @@ export const ZodBooleanEditor: React.FC<{
 	readonly jsonPath: JSONPath;
 	readonly value: boolean;
 	readonly setValue: UpdaterFunction<boolean>;
-	readonly defaultValue: boolean;
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
-}> = ({schema, jsonPath, value, setValue, defaultValue, onRemove, mayPad}) => {
+}> = ({schema, jsonPath, value, setValue, onRemove, mayPad}) => {
 	const {localValue, onChange} = useLocalState({
 		schema,
 		setValue,
-		unsavedValue: value,
-		savedValue: defaultValue,
+		value,
 	});
 
 	const onToggle: React.ChangeEventHandler<HTMLInputElement> = useCallback(

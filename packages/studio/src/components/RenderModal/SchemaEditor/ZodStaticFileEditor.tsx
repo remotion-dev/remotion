@@ -19,16 +19,14 @@ export const ZodStaticFileEditor: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: string;
-	readonly defaultValue: string;
 	readonly setValue: UpdaterFunction<string>;
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
-}> = ({schema, jsonPath, setValue, defaultValue, value, onRemove, mayPad}) => {
+}> = ({schema, jsonPath, setValue, value, onRemove, mayPad}) => {
 	const {localValue, onChange: setLocalValue} = useLocalState({
 		schema,
 		setValue,
-		unsavedValue: value,
-		savedValue: defaultValue,
+		value,
 	});
 
 	const isRoot = jsonPath.length === 0;

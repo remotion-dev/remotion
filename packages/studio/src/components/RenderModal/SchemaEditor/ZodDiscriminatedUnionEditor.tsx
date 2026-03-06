@@ -25,11 +25,10 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 	schema: AnyZodSchema;
 	setValue: UpdaterFunction<Record<string, unknown>>;
 	value: Record<string, unknown>;
-	defaultValue: Record<string, unknown>;
 	mayPad: boolean;
 	jsonPath: JSONPath;
 	onRemove: null | (() => void);
-}> = ({schema, setValue, value, defaultValue, mayPad, jsonPath, onRemove}) => {
+}> = ({schema, setValue, value, mayPad, jsonPath, onRemove}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -46,8 +45,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 	const {localValue, onChange: setLocalValue} = useLocalState({
 		schema,
 		setValue,
-		unsavedValue: value,
-		savedValue: defaultValue,
+		value,
 	});
 
 	const comboBoxValues = useMemo(() => {
@@ -125,11 +123,10 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			key={value[discriminator] as string}
 			jsonPath={jsonPath}
 			mayPad={mayPad}
-			savedValue={defaultValue}
 			onRemove={onRemove}
 			schema={currentOptionSchema}
 			setValue={setLocalValue}
-			unsavedValue={value}
+			value={value}
 			discriminatedUnionReplacement={discriminatedUnionReplacement}
 		/>
 	);

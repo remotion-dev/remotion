@@ -17,28 +17,18 @@ export const ZodEffectEditor: React.FC<{
 	readonly jsonPath: JSONPath;
 	readonly value: unknown;
 	readonly setValue: UpdaterFunction<unknown>;
-	readonly defaultValue: unknown;
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
-}> = ({
-	schema,
-	jsonPath,
-	value,
-	setValue: updateValue,
-	defaultValue,
-	onRemove,
-	mayPad,
-}) => {
+}> = ({schema, jsonPath, value, setValue: updateValue, onRemove, mayPad}) => {
 	const typeName = getZodSchemaType(schema);
 	if (typeName !== 'effects') {
 		throw new Error('expected effect');
 	}
 
 	const {localValue, onChange} = useLocalState({
-		unsavedValue: value,
+		value,
 		schema,
 		setValue: updateValue,
-		savedValue: defaultValue,
 	});
 
 	const innerSchema = getEffectsInner(schema);
@@ -51,7 +41,6 @@ export const ZodEffectEditor: React.FC<{
 					setValue={onChange}
 					jsonPath={jsonPath}
 					schema={innerSchema}
-					defaultValue={defaultValue}
 					onRemove={onRemove}
 					mayPad={false}
 				/>

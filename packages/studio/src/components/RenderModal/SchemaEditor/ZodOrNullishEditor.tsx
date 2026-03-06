@@ -31,7 +31,6 @@ const checkBoxWrapper: React.CSSProperties = {
 export const ZodOrNullishEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: unknown;
-	defaultValue: unknown;
 	schema: AnyZodSchema;
 	innerSchema: AnyZodSchema;
 	setValue: UpdaterFunction<unknown>;
@@ -42,7 +41,6 @@ export const ZodOrNullishEditor: React.FC<{
 	jsonPath,
 	schema,
 	setValue,
-	defaultValue,
 	value,
 	onRemove,
 	nullishValue,
@@ -61,8 +59,7 @@ export const ZodOrNullishEditor: React.FC<{
 	const {localValue, onChange: setLocalValue} = useLocalState({
 		schema,
 		setValue,
-		unsavedValue: value,
-		savedValue: defaultValue,
+		value,
 	});
 
 	const onCheckBoxChange: React.ChangeEventHandler<HTMLInputElement> =
@@ -92,7 +89,6 @@ export const ZodOrNullishEditor: React.FC<{
 					setValue={setLocalValue}
 					jsonPath={jsonPath}
 					schema={innerSchema}
-					defaultValue={defaultValue}
 					onRemove={onRemove}
 					mayPad={false}
 				/>

@@ -37,11 +37,10 @@ export const ZodSwitch: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: unknown;
-	readonly defaultValue: unknown;
 	readonly setValue: UpdaterFunction<unknown>;
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
-}> = ({schema, jsonPath, value, setValue, defaultValue, onRemove, mayPad}) => {
+}> = ({schema, jsonPath, value, setValue, onRemove, mayPad}) => {
 	const typeName = getZodSchemaType(schema);
 	const description = getZodSchemaDescription(schema);
 	const zodTypes = useZodTypesIfPossible();
@@ -50,8 +49,7 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodObjectEditor
 				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
-				unsavedValue={value as Record<string, unknown>}
-				savedValue={defaultValue as Record<string, unknown>}
+				value={value as Record<string, unknown>}
 				jsonPath={jsonPath}
 				schema={schema}
 				onRemove={onRemove}
@@ -73,7 +71,6 @@ export const ZodSwitch: React.FC<{
 					setValue={setValue as UpdaterFunction<string>}
 					jsonPath={jsonPath}
 					schema={schema}
-					defaultValue={defaultValue as string}
 					onRemove={onRemove}
 					mayPad={mayPad}
 				/>
@@ -87,7 +84,6 @@ export const ZodSwitch: React.FC<{
 					value={value as string}
 					jsonPath={jsonPath}
 					schema={schema}
-					defaultValue={defaultValue as string}
 					onRemove={onRemove}
 					mayPad={mayPad}
 				/>
@@ -104,7 +100,6 @@ export const ZodSwitch: React.FC<{
 					setValue={setValue as UpdaterFunction<string>}
 					jsonPath={jsonPath}
 					schema={schema}
-					defaultValue={defaultValue as string}
 					onRemove={onRemove}
 					mayPad={mayPad}
 				/>
@@ -117,7 +112,6 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue as UpdaterFunction<string>}
 				jsonPath={jsonPath}
 				schema={schema}
-				defaultValue={defaultValue as string}
 				onRemove={onRemove}
 				mayPad={mayPad}
 			/>
@@ -131,7 +125,6 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue as UpdaterFunction<Date>}
 				jsonPath={jsonPath}
 				schema={schema}
-				defaultValue={defaultValue as Date}
 				onRemove={onRemove}
 				mayPad={mayPad}
 			/>
@@ -145,7 +138,6 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue as UpdaterFunction<number>}
 				jsonPath={jsonPath}
 				schema={schema}
-				defaultValue={defaultValue as number}
 				onRemove={onRemove}
 				mayPad={mayPad}
 			/>
@@ -158,7 +150,6 @@ export const ZodSwitch: React.FC<{
 				value={value as boolean}
 				setValue={setValue as UpdaterFunction<boolean>}
 				jsonPath={jsonPath}
-				defaultValue={defaultValue as boolean}
 				onRemove={onRemove}
 				mayPad={mayPad}
 				schema={schema}
@@ -224,7 +215,6 @@ export const ZodSwitch: React.FC<{
 					value={value as unknown[]}
 					jsonPath={jsonPath}
 					schema={schema}
-					defaultValue={defaultValue as unknown[]}
 					onRemove={onRemove}
 					mayPad={mayPad}
 				/>
@@ -237,7 +227,6 @@ export const ZodSwitch: React.FC<{
 				value={value as unknown[]}
 				jsonPath={jsonPath}
 				schema={schema}
-				defaultValue={defaultValue as unknown[]}
 				onRemove={onRemove}
 				mayPad={mayPad}
 			/>
@@ -251,7 +240,6 @@ export const ZodSwitch: React.FC<{
 				value={value as string}
 				jsonPath={jsonPath}
 				schema={schema}
-				defaultValue={defaultValue as string}
 				onRemove={onRemove}
 			/>
 		);
@@ -270,7 +258,6 @@ export const ZodSwitch: React.FC<{
 					setValue={setValue as UpdaterFunction<string>}
 					jsonPath={jsonPath}
 					schema={schema}
-					defaultValue={defaultValue as string}
 					onRemove={onRemove}
 					mayPad={mayPad}
 				/>
@@ -287,7 +274,6 @@ export const ZodSwitch: React.FC<{
 					value={value as unknown[]}
 					jsonPath={jsonPath}
 					schema={getEffectsInner(schema)}
-					defaultValue={defaultValue as unknown[]}
 					onRemove={onRemove}
 					mayPad={mayPad}
 				/>
@@ -300,7 +286,6 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue}
 				jsonPath={jsonPath}
 				schema={schema}
-				defaultValue={defaultValue}
 				onRemove={onRemove}
 				mayPad={mayPad}
 			/>
@@ -313,7 +298,6 @@ export const ZodSwitch: React.FC<{
 				schema={schema}
 				jsonPath={jsonPath}
 				value={value}
-				defaultValue={defaultValue}
 				setValue={setValue}
 				onRemove={onRemove}
 				mayPad={mayPad}
@@ -325,7 +309,6 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodOptionalEditor
 				jsonPath={jsonPath}
-				defaultValue={defaultValue}
 				value={value}
 				setValue={setValue}
 				onRemove={onRemove}
@@ -339,7 +322,6 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodNullableEditor
 				jsonPath={jsonPath}
-				defaultValue={defaultValue}
 				value={value}
 				setValue={setValue}
 				onRemove={onRemove}
@@ -353,7 +335,6 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodDefaultEditor
 				jsonPath={jsonPath}
-				defaultValue={defaultValue}
 				value={value}
 				setValue={setValue}
 				onRemove={onRemove}
@@ -366,7 +347,6 @@ export const ZodSwitch: React.FC<{
 	if (typeName === 'discriminatedUnion') {
 		return (
 			<ZodDiscriminatedUnionEditor
-				defaultValue={defaultValue as Record<string, unknown>}
 				mayPad={mayPad}
 				schema={schema}
 				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
@@ -384,7 +364,6 @@ export const ZodSwitch: React.FC<{
 				value={value as unknown[]}
 				jsonPath={jsonPath}
 				schema={schema}
-				defaultValue={defaultValue as unknown[]}
 				onRemove={onRemove}
 				mayPad={mayPad}
 			/>

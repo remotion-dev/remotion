@@ -7,17 +7,15 @@ import type {UpdaterFunction} from './ZodSwitch';
 export const ZodOptionalEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: unknown;
-	defaultValue: unknown;
 	schema: AnyZodSchema;
 	setValue: UpdaterFunction<unknown>;
 	onRemove: null | (() => void);
 	mayPad: boolean;
-}> = ({jsonPath, schema, setValue, defaultValue, value, onRemove, mayPad}) => {
+}> = ({jsonPath, schema, setValue, value, onRemove, mayPad}) => {
 	const innerType = getInnerType(schema);
 
 	return (
 		<ZodOrNullishEditor
-			defaultValue={defaultValue}
 			jsonPath={jsonPath}
 			onRemove={onRemove}
 			schema={schema}
