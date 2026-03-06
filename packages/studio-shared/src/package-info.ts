@@ -84,6 +84,7 @@ export const packages = [
 	'web-renderer',
 	'design',
 	'light-leaks',
+	'starburst',
 	'vercel',
 	'sfx',
 ] as const;
@@ -209,6 +210,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'web-renderer': 'Render videos in the browser (not yet released)',
 	design: 'Design system',
 	'light-leaks': 'Light leak effects for Remotion',
+	starburst: 'Starburst ray effect for Remotion',
 	vercel: 'Render Remotion videos on Vercel Sandbox',
 	sfx: 'Sound effect library',
 };
@@ -298,6 +300,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'web-renderer': false,
 	design: false,
 	'light-leaks': true,
+	starburst: true,
 	vercel: true,
 	sfx: true,
 };
@@ -391,6 +394,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'web-renderer': 'https://www.remotion.dev/docs/web-renderer/',
 	design: 'https://www.remotion.dev/design',
 	'light-leaks': 'https://www.remotion.dev/docs/light-leaks',
+	starburst: 'https://www.remotion.dev/docs/starburst',
 	vercel: 'https://www.remotion.dev/docs/vercel/api',
 	sfx: 'https://www.remotion.dev/docs/sfx',
 };

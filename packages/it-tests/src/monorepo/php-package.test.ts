@@ -16,7 +16,7 @@ beforeAll(async () => {
 	await $`php composer.phar update --quiet --lock`.cwd(
 		path.join(process.cwd(), '..', 'lambda-php'),
 	);
-});
+}, 120_000);
 
 describe('These should run serially', () => {
 	test('Set the right version for phpunit', () => {
