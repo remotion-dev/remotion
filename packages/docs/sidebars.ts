@@ -1595,6 +1595,7 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/production-checklist',
 				'editor-starter/features-not-included',
 				'editor-starter/faq',
+				'editor-starter/vs-studio',
 			],
 		},
 	],
