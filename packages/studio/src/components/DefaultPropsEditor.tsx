@@ -218,8 +218,6 @@ export const DefaultPropsEditor = ({
 		],
 	);
 
-	console.log('onSave', onSave, saving);
-
 	return (
 		<DataEditor
 			unresolvedComposition={unresolvedComposition}
