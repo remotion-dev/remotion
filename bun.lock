@@ -422,6 +422,7 @@
         "@remotion/sfx": "workspace:*",
         "@remotion/shapes": "workspace:*",
         "@remotion/skia": "workspace:*",
+        "@remotion/starburst": "workspace:*",
         "@remotion/studio": "workspace:*",
         "@remotion/svg-3d-engine": "workspace:*",
         "@remotion/tailwind": "workspace:*",
@@ -632,6 +633,7 @@
         "@remotion/sfx": "workspace:*",
         "@remotion/shapes": "workspace:*",
         "@remotion/skia": "workspace:*",
+        "@remotion/starburst": "workspace:*",
         "@remotion/studio": "workspace:*",
         "@remotion/svg-3d-engine": "workspace:*",
         "@remotion/tailwind-v4": "workspace:*",
@@ -1376,6 +1378,25 @@
         "react": "catalog:",
         "react-dom": "catalog:",
         "remotion": "workspace:*",
+      },
+    },
+    "packages/starburst": {
+      "name": "@remotion/starburst",
+      "version": "4.0.434",
+      "dependencies": {
+        "remotion": "workspace:*",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "peerDependencies": {
+        "react": ">=16.8.0",
+        "react-dom": ">=16.8.0",
       },
     },
     "packages/streaming": {
@@ -3682,6 +3703,8 @@
     "@remotion/skia": ["@remotion/skia@workspace:packages/skia"],
 
     "@remotion/skills": ["@remotion/skills@workspace:packages/skills"],
+
+    "@remotion/starburst": ["@remotion/starburst@workspace:packages/starburst"],
 
     "@remotion/streaming": ["@remotion/streaming@workspace:packages/streaming"],
 

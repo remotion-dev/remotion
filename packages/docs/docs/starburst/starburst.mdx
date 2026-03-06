@@ -1,0 +1,71 @@
+---
+image: /generated/articles-docs-starburst-starburst.png
+title: '<Starburst>'
+crumb: '@remotion/starburst'
+---
+
+# &lt;Starburst><AvailableFrom v="4.0.435" />
+
+Renders a WebGL-based retro starburst ray effect.
+The effect reveals during the first half of the duration and retracts during the second half.
+Is a [`<Sequence>`](/docs/sequence) component under the hood and accepts its props.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {Starburst} from '@remotion/starburst';
+import {AbsoluteFill} from 'remotion';
+
+const MyVideo = () => {
+  return (
+    <AbsoluteFill style={{backgroundColor: 'black'}}>
+      <Starburst
+        durationInFrames={60}
+        rays={16}
+        color1="#ffdd00"
+        color2="#ff8800"
+        rotation={15}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Apart from the props listed below, all props from [`<Sequence>`](/docs/sequence) except `children` and `layout` are accepted.
+
+### `durationInFrames?`
+
+The duration of the starburst effect in frames. The effect reveals during the first half and retracts during the second half.
+
+If not specified, defaults to the duration of the composition or sequence, reading from [`useVideoConfig()`](/docs/use-video-config).
+
+### `rays?`
+
+The number of rays in the starburst pattern. Must be between `2` and `100`. Default: `12`.
+
+### `color1?`
+
+The primary color of the starburst rays as a hex string. Default: `"#ffdd00"` (yellow).
+
+### `color2?`
+
+The secondary (alternating) color of the starburst rays as a hex string. Default: `"#ff8800"` (orange).
+
+### `rotation?`
+
+Rotates the starburst pattern in degrees (`0`-`360`). Default: `0`.
+
+### `smoothness?`
+
+Controls the softness of the ray edges. `0` gives hard edges, `1` gives very soft edges. Default: `0.1`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/starburst/src/Starburst.tsx)
+- [`<Sequence>`](/docs/sequence)

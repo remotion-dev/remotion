@@ -462,6 +462,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/starburst',
+			link: {
+				type: 'doc',
+				id: 'starburst/starburst-api',
+			},
+			items: ['starburst/starburst'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/sfx',
 			link: {
 				type: 'doc',
@@ -908,6 +917,7 @@ const sidebars: SidebarsConfig = {
 				'animation-math',
 				'shaders',
 				'light-leaks',
+				'starburst',
 			],
 		},
 		{

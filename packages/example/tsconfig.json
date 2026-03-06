@@ -41,6 +41,7 @@
 		{"path": "../webcodecs"},
 		{"path": "../whisper-web"},
 		{"path": "../light-leaks"},
+		{"path": "../starburst"},
 		{"path": "../sfx"},
 		{"path": "../layout-utils"},
 		{"path": "../media"},

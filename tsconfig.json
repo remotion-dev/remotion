@@ -253,6 +253,9 @@
 			"path": "./packages/light-leaks"
 		},
 		{
+			"path": "./packages/starburst"
+		},
+		{
 			"path": "./packages/vercel"
 		},
 		{

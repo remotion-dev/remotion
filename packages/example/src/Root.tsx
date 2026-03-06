@@ -145,6 +145,7 @@ import {PrintProps} from './PrintProps';
 import {SfxExample} from './Sfx';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {SpringSeason} from './SpringSeason';
+import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
@@ -1852,6 +1853,16 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={120}
+				/>
+			</Folder>
+			<Folder name="starburst">
+				<Composition
+					id="starburst"
+					component={StarburstExample}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
 				/>
 			</Folder>
 			<Composition
