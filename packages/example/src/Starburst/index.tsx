@@ -15,6 +15,9 @@ export const StarburstExample: React.FC = () => {
 				rays={12}
 				colors={['#ff0066', '#6600ff', '#00ccff']}
 				rotation={15}
+				originOffsetX={0.2}
+				originOffsetY={-0.1}
+				smoothness={1}
 			/>
 		</AbsoluteFill>
 	);

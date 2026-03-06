@@ -63,6 +63,14 @@ Controls the softness of the ray edges. `0` gives hard edges, `1` gives very sof
 
 Controls the radial transparency falloff from the center. `1` (default) means no vignette — the starburst is fully opaque. `0` makes the entire canvas transparent. Values in between create a circular fade from opaque at the center to transparent at the edges.
 
+### `originOffsetX?`
+
+Shifts the origin of the starburst pattern horizontally. `-1` moves the origin to the left edge, `1` to the right edge. Default: `0` (centered).
+
+### `originOffsetY?`
+
+Shifts the origin of the starburst pattern vertically. `-1` moves the origin to the top edge, `1` to the bottom edge. Default: `0` (centered).
+
 ## Compatibility
 
 <CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />

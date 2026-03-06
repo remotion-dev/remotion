@@ -22,6 +22,8 @@ export type StarburstProps = Omit<
 		readonly rotation?: number;
 		readonly smoothness?: number;
 		readonly vignette?: number;
+		readonly originOffsetX?: number;
+		readonly originOffsetY?: number;
 	};
 
 const DEFAULT_COLORS = ['#ffdd00', '#ff8800'] as const;
@@ -58,12 +60,13 @@ uniform vec2 resolution;
 uniform sampler2D colorPalette;
 uniform float numColors;
 uniform float vignetteAmount;
+uniform vec2 originOffset;
 
 const float Pi = 3.14159265359;
 
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution;
-    vec2 center = uv - 0.5;
+    vec2 center = uv - 0.5 - originOffset;
     center.x *= resolution.x / resolution.y;
 
     float angle = atan(center.y, center.x) + rotationOffset;
@@ -105,6 +108,7 @@ type GlContext = {
 	smoothEdgeLoc: WebGLUniformLocation;
 	numColorsLoc: WebGLUniformLocation;
 	vignetteAmountLoc: WebGLUniformLocation;
+	originOffsetLoc: WebGLUniformLocation;
 	colorTexture: WebGLTexture;
 };
 
@@ -114,7 +118,17 @@ const StarburstCanvas: React.FC<{
 	readonly rotation: number;
 	readonly smoothness: number;
 	readonly vignette: number;
-}> = ({rays, colors, rotation, smoothness, vignette}) => {
+	readonly originOffsetX: number;
+	readonly originOffsetY: number;
+}> = ({
+	rays,
+	colors,
+	rotation,
+	smoothness,
+	vignette,
+	originOffsetX,
+	originOffsetY,
+}) => {
 	const {width, height} = useVideoConfig();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const glRef = useRef<GlContext | null>(null);
@@ -185,6 +199,7 @@ const StarburstCanvas: React.FC<{
 				smoothEdgeLoc: gl.getUniformLocation(program, 'smoothEdge')!,
 				numColorsLoc: gl.getUniformLocation(program, 'numColors')!,
 				vignetteAmountLoc: gl.getUniformLocation(program, 'vignetteAmount')!,
+				originOffsetLoc: gl.getUniformLocation(program, 'originOffset')!,
 				colorTexture,
 			};
 		},
@@ -208,6 +223,7 @@ const StarburstCanvas: React.FC<{
 			smoothEdgeLoc,
 			numColorsLoc,
 			vignetteAmountLoc,
+			originOffsetLoc,
 			colorTexture,
 		} = ctx;
 
@@ -244,9 +260,20 @@ const StarburstCanvas: React.FC<{
 		gl.uniform1f(rotationOffsetLoc, rotationRad);
 		gl.uniform1f(smoothEdgeLoc, smoothness);
 		gl.uniform1f(vignetteAmountLoc, vignette);
+		gl.uniform2f(originOffsetLoc, originOffsetX, originOffsetY);
 		gl.uniform2f(resLoc, gl.canvas.width, gl.canvas.height);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-	}, [rays, colors, rotation, smoothness, vignette, width, height]);
+	}, [
+		rays,
+		colors,
+		rotation,
+		smoothness,
+		vignette,
+		originOffsetX,
+		originOffsetY,
+		width,
+		height,
+	]);
 
 	return (
 		<AbsoluteFill>
@@ -292,6 +319,22 @@ const starburstSchema = {
 		default: 1,
 		description: 'Vignette',
 	},
+	originOffsetX: {
+		type: 'number',
+		min: -1,
+		max: 1,
+		step: 0.01,
+		default: 0,
+		description: 'Origin Offset X',
+	},
+	originOffsetY: {
+		type: 'number',
+		min: -1,
+		max: 1,
+		step: 0.01,
+		default: 0,
+		description: 'Origin Offset Y',
+	},
 	'style.translate': {
 		type: 'translate',
 		step: 1,
@@ -332,6 +375,8 @@ const StarburstInner: React.FC<
 	rotation = 0,
 	smoothness = 0,
 	vignette = 1,
+	originOffsetX = 0,
+	originOffsetY = 0,
 	durationInFrames,
 	style,
 	controls,
@@ -400,6 +445,8 @@ const StarburstInner: React.FC<
 				rotation={rotation}
 				smoothness={smoothness}
 				vignette={vignette}
+				originOffsetX={originOffsetX}
+				originOffsetY={originOffsetY}
 			/>
 		</Sequence>
 	);
