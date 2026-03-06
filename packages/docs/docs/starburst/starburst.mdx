@@ -1,13 +1,17 @@
 ---
 image: /generated/articles-docs-starburst-starburst.png
+id: starburst-component
+slug: /starburst/starburst
 title: '<Starburst>'
 crumb: '@remotion/starburst'
 ---
 
 # &lt;Starburst><AvailableFrom v="4.0.435" />
 
-Renders a static WebGL-based retro starburst ray pattern.
+Renders a static WebGL-based retro starburst ray pattern.  
 Is a [`<Sequence>`](/docs/sequence) component under the hood and accepts its props.
+
+<Demo type="starburst" />
 
 ## Example
 
@@ -23,6 +27,8 @@ const MyVideo = () => {
         rays={16}
         colors={['#ffdd00', '#ff8800', '#ff4400']}
         rotation={15}
+        width={1080}
+        height={1080}
       />
     </AbsoluteFill>
   );
@@ -32,12 +38,6 @@ const MyVideo = () => {
 ## API
 
 Apart from the props listed below, all props from [`<Sequence>`](/docs/sequence) except `children` and `layout` are accepted.
-
-### `durationInFrames?`
-
-The duration of the starburst in frames.
-
-If not specified, defaults to the duration of the composition or sequence, reading from [`useVideoConfig()`](/docs/use-video-config).
 
 ### `rays`
 

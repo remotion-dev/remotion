@@ -467,7 +467,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'starburst/starburst-api',
 			},
-			items: ['starburst/starburst'],
+			items: ['starburst/starburst-component'],
 		},
 		{
 			type: 'category',

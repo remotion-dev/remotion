@@ -5,20 +5,7 @@ import {AbsoluteFill} from 'remotion';
 export const StarburstExample: React.FC = () => {
 	return (
 		<AbsoluteFill style={{backgroundColor: 'black'}}>
-			<Starburst
-				durationInFrames={60}
-				rays={16}
-				colors={['#ffdd00', '#ff8800']}
-			/>
-			<Starburst
-				durationInFrames={60}
-				rays={12}
-				colors={['#ff0066', '#6600ff', '#00ccff']}
-				rotation={15}
-				originOffsetX={0.2}
-				originOffsetY={-0.1}
-				smoothness={1}
-			/>
+			<Starburst rays={16} colors={['#ffdd00', '#ff8800']} />
 		</AbsoluteFill>
 	);
 };

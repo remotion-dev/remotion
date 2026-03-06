@@ -7,7 +7,7 @@ crumb: 'Techniques'
 
 # Starburst<AvailableFrom v="4.0.435"/>
 
-The [`<Starburst>`](/docs/starburst/starburst) component from [`@remotion/starburst`](/docs/starburst/api) renders a static WebGL-based retro starburst ray pattern. It can be used as a background or combined with animations for transitions.
+The [`<Starburst>`](/docs/starburst/starburst) component from [`@remotion/starburst`](/docs/starburst/api) renders a static WebGL-based retro starburst ray pattern.
 
 <Demo type="starburst" />
 
@@ -19,42 +19,6 @@ const MyComp = () => {
   return (
     <AbsoluteFill style={{backgroundColor: 'black'}}>
       <Starburst durationInFrames={60} rays={16} colors={['#ffdd00', '#ff8800']} />
-    </AbsoluteFill>
-  );
-};
-```
-
-## Changing the number of rays
-
-The [`rays`](/docs/starburst/starburst#rays) prop controls how many rays appear in the pattern. Values from `2` to `100` are supported.
-
-```tsx twoslash title="ManyRays.tsx"
-import {Starburst} from '@remotion/starburst';
-import {AbsoluteFill} from 'remotion';
-
-// ---cut---
-const MyComp = () => {
-  return (
-    <AbsoluteFill style={{backgroundColor: 'black'}}>
-      <Starburst rays={24} durationInFrames={30} />
-    </AbsoluteFill>
-  );
-};
-```
-
-## Changing the colors
-
-Use the [`colors`](/docs/starburst/starburst#colors) prop to set the ray colors. You can pass any number of colors (minimum 2) and they will be assigned to rays cyclically:
-
-```tsx twoslash title="CustomColors.tsx"
-import {Starburst} from '@remotion/starburst';
-import {AbsoluteFill} from 'remotion';
-
-// ---cut---
-const MyComp = () => {
-  return (
-    <AbsoluteFill style={{backgroundColor: 'black'}}>
-      <Starburst colors={['#ff0066', '#6600ff', '#00ccff']} durationInFrames={30} />
     </AbsoluteFill>
   );
 };
@@ -78,40 +42,7 @@ const MyComp = () => {
 };
 ```
 
-## Using as a transition
-
-Combined with [`<TransitionSeries.Overlay>`](/docs/transitions/transitionseries#transitionseriesoverlay), you can place a starburst at the cut point between two sequences without shortening the timeline.
-
-```tsx twoslash title="StarburstTransition.tsx"
-import {AbsoluteFill} from 'remotion';
-const Fill = ({color}: {color: string}) => <AbsoluteFill style={{backgroundColor: color}} />;
-
-// ---cut---
-import {Starburst} from '@remotion/starburst';
-import {TransitionSeries} from '@remotion/transitions';
-
-const StarburstTransition = () => {
-  return (
-    <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={60}>
-        <Fill color="#0b84f3" />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Overlay durationInFrames={20}>
-        <Starburst rays={12} colors={['#ffdd00', '#ff8800']} />
-      </TransitionSeries.Overlay>
-      <TransitionSeries.Sequence durationInFrames={60}>
-        <Fill color="pink" />
-      </TransitionSeries.Sequence>
-    </TransitionSeries>
-  );
-};
-```
-
-The starburst covers the full canvas, hiding the cut between scenes.
-
 ## See also
 
 - [`<Starburst>` API reference](/docs/starburst/starburst)
 - [`@remotion/starburst`](/docs/starburst/api)
-- [`<TransitionSeries.Overlay>`](/docs/transitions/transitionseries#transitionseriesoverlay)
-- [Transitions](/docs/transitioning)
