@@ -113,6 +113,7 @@
 		},
 		"@remotion/brand#bundle": {
 			"dependsOn": ["^make"],
+			"inputs": ["src/**", "public/**", "remotion.config.*", "package.json", "tsconfig.json"],
 			"outputs": ["build"],
 			"outputLogs": "new-only"
 		}
