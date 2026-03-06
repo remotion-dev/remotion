@@ -26,7 +26,7 @@ export const ZonNonEditableValue: React.FC<{
 	readonly mayPad: boolean;
 }> = ({jsonPath, label, mayPad}) => {
 	return (
-		<Fieldset shouldPad={mayPad} success>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
 				handleClick={null}
 				jsonPath={jsonPath}

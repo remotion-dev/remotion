@@ -1,9 +1,7 @@
 import React, {useCallback} from 'react';
 import {Checkbox} from '../../Checkbox';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 
@@ -12,28 +10,21 @@ const fullWidth: React.CSSProperties = {
 };
 
 export const ZodBooleanEditor: React.FC<{
-	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: boolean;
 	readonly setValue: UpdaterFunction<boolean>;
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
-}> = ({schema, jsonPath, value, setValue, onRemove, mayPad}) => {
-	const {localValue, onChange} = useLocalState({
-		schema,
-		setValue,
-		value,
-	});
-
+}> = ({jsonPath, value, setValue, onRemove, mayPad}) => {
 	const onToggle: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			onChange(() => e.target.checked, false, false);
+			setValue(() => e.target.checked);
 		},
-		[onChange],
+		[setValue],
 	);
 
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
 				handleClick={null}
 				jsonPath={jsonPath}
@@ -44,7 +35,7 @@ export const ZodBooleanEditor: React.FC<{
 			<div style={fullWidth}>
 				<Checkbox
 					name={jsonPath.join('.')}
-					checked={localValue.value}
+					checked={value}
 					onChange={onToggle}
 					disabled={false}
 				/>

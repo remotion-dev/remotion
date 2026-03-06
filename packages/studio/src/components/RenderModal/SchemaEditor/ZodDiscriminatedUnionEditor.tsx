@@ -8,9 +8,8 @@ import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
 import {createZodValues} from './create-zod-values';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import {
 	getDiscriminatedOption,
 	getDiscriminatedOptionKeys,
@@ -42,12 +41,6 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 		[schema],
 	) as string[];
 
-	const {localValue, onChange: setLocalValue} = useLocalState({
-		schema,
-		setValue,
-		value,
-	});
-
 	const comboBoxValues = useMemo(() => {
 		return options.map((option): ComboboxValue => {
 			return {
@@ -68,27 +61,32 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 						string,
 						unknown
 					>;
-					setLocalValue(() => val, false, false);
+					setValue(() => val);
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,
 				type: 'item',
 			};
 		});
-	}, [options, setLocalValue, discriminator, schema, value, z, zodTypes]);
+	}, [options, setValue, discriminator, schema, value, z, zodTypes]);
+
+	const zodValidation = useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
+	);
 
 	const discriminatedUnionReplacement: ObjectDiscrimatedUnionReplacement =
 		useMemo(() => {
 			return {
 				discriminator,
 				markup: (
-					<Fieldset key={'replacement'} shouldPad={mayPad} success>
+					<Fieldset key={'replacement'} shouldPad={mayPad}>
 						<SchemaLabel
 							handleClick={null}
 							jsonPath={[...jsonPath, discriminator]}
 							onRemove={onRemove}
 							suffix={null}
-							valid={localValue.zodValidation.success}
+							valid={zodValidation.success}
 						/>
 						<Combobox
 							title="Select type"
@@ -101,11 +99,11 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 		}, [
 			comboBoxValues,
 			jsonPath,
-			localValue.zodValidation.success,
 			mayPad,
 			onRemove,
 			discriminator,
 			value,
+			zodValidation.success,
 		]);
 
 	const currentOptionSchema = getDiscriminatedOption(
@@ -125,7 +123,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			mayPad={mayPad}
 			onRemove={onRemove}
 			schema={currentOptionSchema}
-			setValue={setLocalValue}
+			setValue={setValue}
 			value={value}
 			discriminatedUnionReplacement={discriminatedUnionReplacement}
 		/>

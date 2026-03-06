@@ -1,11 +1,11 @@
+import {useMemo} from 'react';
 import React, {useCallback} from 'react';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -57,34 +57,33 @@ export const ZodDateEditor: React.FC<{
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
 }> = ({jsonPath, value, setValue, schema, onRemove, mayPad}) => {
-	const {localValue, onChange: setLocalValue} = useLocalState({
-		schema,
-		setValue,
-		value,
-	});
-
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			// React does not support e.target.valueAsDate :(
-			setLocalValue(() => new Date(e.target.value), false, false);
+			setValue(() => new Date(e.target.value));
 		},
-		[setLocalValue],
+		[setValue],
+	);
+
+	const zodValidation = useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
 	);
 
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
 				handleClick={null}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
-				valid={localValue.zodValidation.success}
+				valid={zodValidation.success}
 				suffix={null}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput
-					value={formatDate(localValue.value)}
+					value={formatDate(value)}
 					type="datetime-local"
-					status={localValue.zodValidation.success ? 'ok' : 'error'}
+					status={zodValidation.success ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
 					style={inputStyle}
@@ -92,7 +91,7 @@ export const ZodDateEditor: React.FC<{
 				/>
 				<Spacing y={1} block />
 				<div style={explainer}>Date is in local format</div>
-				<ZodFieldValidation path={jsonPath} localValue={localValue} />
+				<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 			</div>
 		</Fieldset>
 	);

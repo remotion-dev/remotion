@@ -1,7 +1,6 @@
-import React from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
-import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import {getEffectsInner, getZodSchemaType} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
@@ -25,16 +24,22 @@ export const ZodEffectEditor: React.FC<{
 		throw new Error('expected effect');
 	}
 
-	const {localValue, onChange} = useLocalState({
-		value,
-		schema,
-		setValue: updateValue,
-	});
+	const onChange: UpdaterFunction<unknown> = useCallback(
+		(updater: (oldV: unknown) => unknown) => {
+			updateValue(updater);
+		},
+		[updateValue],
+	);
+
+	const zodValidation = useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
+	);
 
 	const innerSchema = getEffectsInner(schema);
 
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad}>
 			<div style={fullWidth}>
 				<ZodSwitch
 					value={value}
@@ -45,7 +50,7 @@ export const ZodEffectEditor: React.FC<{
 					mayPad={false}
 				/>
 			</div>
-			<ZodFieldValidation path={jsonPath} localValue={localValue} />
+			<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 		</Fieldset>
 	);
 };

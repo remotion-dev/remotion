@@ -1,7 +1,7 @@
 import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {InfoBubble} from '../InfoBubble';
-import type {LocalState} from './local-state';
+import type {ZodSafeParseResult} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 
 const legend: React.CSSProperties = {
@@ -19,10 +19,9 @@ const stackTraceLabel: React.CSSProperties = {
 };
 
 export const ZodFieldValidation: React.FC<{
-	localValue: LocalState<unknown>;
+	zodValidation: ZodSafeParseResult;
 	path: JSONPath;
-}> = ({localValue, path}) => {
-	const {zodValidation} = localValue;
+}> = ({zodValidation, path}) => {
 	if (zodValidation.success) {
 		return null;
 	}

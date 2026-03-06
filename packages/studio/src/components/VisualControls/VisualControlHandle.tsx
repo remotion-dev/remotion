@@ -11,7 +11,6 @@ import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
 import {Spacing} from '../layout';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {extractEnumJsonPaths} from '../RenderModal/SchemaEditor/extract-enum-json-paths';
-import {useLocalState} from '../RenderModal/SchemaEditor/local-state';
 import type {UpdaterFunction} from '../RenderModal/SchemaEditor/ZodSwitch';
 import {ZodSwitch} from '../RenderModal/SchemaEditor/ZodSwitch';
 import {applyVisualControlChange} from '../RenderQueue/actions';
@@ -42,15 +41,6 @@ export const VisualControlHandle: React.FC<{
 	});
 
 	const originalFileName = useOriginalFileName(value.stack);
-
-	const {localValue, onChange} = useLocalState({
-		schema: value.schema,
-		setValue: (updater) => {
-			updateValue(keyName, updater(currentValue));
-			increaseManualRefreshes();
-		},
-		value: currentValue,
-	});
 
 	const disableSave =
 		window.remotion_isReadOnlyStudio || originalFileName.type !== 'loaded';
@@ -119,10 +109,11 @@ export const VisualControlHandle: React.FC<{
 		(updater) => {
 			// TODO: Not sure - what is increment?
 			// TODO: What is forceApply?
-			onChange(updater, true, true);
-			onSave(updater, true, true);
+			updateValue(keyName, updater(currentValue));
+			increaseManualRefreshes();
+			onSave(updater);
 		},
-		[onChange, onSave],
+		[currentValue, increaseManualRefreshes, keyName, onSave, updateValue],
 	);
 
 	return (
@@ -133,7 +124,7 @@ export const VisualControlHandle: React.FC<{
 				mayPad
 				schema={value.schema}
 				jsonPath={[keyName]}
-				value={localValue.value}
+				value={currentValue}
 				setValue={setValue}
 				onRemove={null}
 			/>

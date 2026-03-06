@@ -5,9 +5,9 @@ import {
 } from '../../get-zod-if-possible';
 import {RemTextarea} from '../../NewComposition/RemTextarea';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -39,38 +39,37 @@ export const ZodTextareaEditor: React.FC<{
 		throw new Error('expected zod textarea');
 	}
 
-	const {localValue, onChange: setLocalValue} = useLocalState({
-		schema,
-		setValue,
-		value,
-	});
-
 	const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
 		(e) => {
-			setLocalValue(() => e.target.value, false, false);
+			setValue(() => e.target.value);
 		},
-		[setLocalValue],
+		[setValue],
+	);
+
+	const zodValidation = React.useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
 	);
 
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
 				handleClick={null}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
-				valid={localValue.zodValidation.success}
+				valid={zodValidation.success}
 				suffix={null}
 			/>
 			<div style={fullWidth}>
 				<RemTextarea
 					onChange={onChange}
-					value={localValue.value}
-					status={localValue.zodValidation ? 'ok' : 'error'}
+					value={value}
+					status={zodValidation ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					name={jsonPath.join('.')}
 					style={textareaStyle}
 				/>
-				<ZodFieldValidation path={jsonPath} localValue={localValue} />
+				<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 			</div>
 		</Fieldset>
 	);

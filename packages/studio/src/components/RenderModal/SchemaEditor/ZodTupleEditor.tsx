@@ -1,11 +1,10 @@
-import React, {useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import {SchemaArrayItemSeparationLine} from './SchemaSeparationLine';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
-import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import {getTupleItems} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
@@ -20,11 +19,18 @@ export const ZodTupleEditor: React.FC<{
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
 }> = ({schema, jsonPath, setValue, value, onRemove, mayPad}) => {
-	const {localValue, onChange} = useLocalState({
-		value,
-		schema,
-		setValue,
-	});
+	const onChange: UpdaterFunction<unknown[]> = useCallback(
+		(updater: (oldV: unknown[]) => unknown[]) => {
+			setValue(updater);
+		},
+		[setValue],
+	);
+
+	const zodValidation = useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
+	);
+
 	const [expanded, setExpanded] = useState(true);
 
 	const tupleItems = getTupleItems(schema);
@@ -38,7 +44,7 @@ export const ZodTupleEditor: React.FC<{
 	}
 
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad}>
 			<div
 				style={{
 					display: 'flex',
@@ -49,14 +55,14 @@ export const ZodTupleEditor: React.FC<{
 					jsonPath={jsonPath}
 					onRemove={onRemove}
 					suffix={suffix}
-					valid={localValue.zodValidation.success}
+					valid={zodValidation.success}
 					handleClick={() => setExpanded(!expanded)}
 				/>
 			</div>
 
 			{expanded ? (
 				<SchemaVerticalGuide isRoot={false}>
-					{localValue.value.map((child, i) => {
+					{value.map((child, i) => {
 						return (
 							// eslint-disable-next-line react/no-array-index-key
 							<React.Fragment key={i}>
@@ -72,7 +78,7 @@ export const ZodTupleEditor: React.FC<{
 									schema={schema}
 									index={i}
 									onChange={onChange}
-									isLast={i === localValue.value.length - 1}
+									isLast={i === value.length - 1}
 									showAddButton={false}
 								/>
 							</React.Fragment>
@@ -89,7 +95,7 @@ export const ZodTupleEditor: React.FC<{
 					) : null}
 				</SchemaVerticalGuide>
 			) : null}
-			<ZodFieldValidation path={jsonPath} localValue={localValue} />
+			<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 		</Fieldset>
 	);
 };

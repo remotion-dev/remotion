@@ -1,10 +1,10 @@
+import {useMemo} from 'react';
 import React, {useCallback} from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -26,38 +26,37 @@ export const ZodStringEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const {localValue, onChange: setLocalValue} = useLocalState({
-		schema,
-		setValue,
-		value,
-	});
+	const zodValidation = useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
+	);
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			setLocalValue(() => e.target.value, false, false);
+			setValue(() => e.target.value);
 		},
-		[setLocalValue],
+		[setValue],
 	);
 
 	return (
-		<Fieldset shouldPad={mayPad} success={false}>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
 				handleClick={null}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
-				valid={localValue.zodValidation.success}
+				valid={zodValidation.success}
 				suffix={null}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput
-					value={localValue.value}
-					status={localValue.zodValidation ? 'ok' : 'error'}
+					value={value}
+					status={zodValidation.success ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
 					rightAlign={false}
 					name={jsonPath.join('.')}
 				/>
-				<ZodFieldValidation path={jsonPath} localValue={localValue} />
+				<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 			</div>
 		</Fieldset>
 	);

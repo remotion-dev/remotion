@@ -1,11 +1,11 @@
+import {useCallback} from 'react';
 import React, {useMemo, useState} from 'react';
 import {fieldsetLabel} from '../layout';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import {SchemaSeparationLine} from './SchemaSeparationLine';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
-import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import {getObjectShape, getZodSchemaType} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -34,11 +34,12 @@ export const ZodObjectEditor: React.FC<{
 	discriminatedUnionReplacement,
 }) => {
 	const [expanded, setExpanded] = useState(true);
-	const {localValue, onChange} = useLocalState({
-		schema,
-		setValue,
-		value,
-	});
+	const onChange: UpdaterFunction<Record<string, unknown>> = useCallback(
+		(updater: (oldV: Record<string, unknown>) => Record<string, unknown>) => {
+			setValue(updater);
+		},
+		[setValue],
+	);
 
 	const typeName = getZodSchemaType(schema);
 	if (typeName !== 'object') {
@@ -54,17 +55,19 @@ export const ZodObjectEditor: React.FC<{
 		return expanded ? ' {' : ' {...}';
 	}, [expanded]);
 
+	const zodValidation = useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
+	);
+
 	return (
-		<Fieldset
-			shouldPad={!isRoot && mayPad}
-			success={localValue.zodValidation.success}
-		>
+		<Fieldset shouldPad={!isRoot && mayPad}>
 			{isRoot ? null : (
 				<SchemaLabel
 					jsonPath={jsonPath}
 					onRemove={onRemove}
 					suffix={suffix}
-					valid={localValue.zodValidation.success}
+					valid={zodValidation.success}
 					handleClick={() => setExpanded(!expanded)}
 				/>
 			)}
@@ -85,19 +88,15 @@ export const ZodObjectEditor: React.FC<{
 									mayPad
 									jsonPath={[...jsonPath, key]}
 									schema={shape[key]}
-									value={localValue.value[key]}
-									setValue={(val, forceApply) => {
-										onChange(
-											(oldVal) => {
-												return {
-													...oldVal,
-													[key]:
-														typeof val === 'function' ? val(oldVal[key]) : val,
-												};
-											},
-											forceApply,
-											false,
-										);
+									value={value[key]}
+									setValue={(val) => {
+										onChange((oldVal) => {
+											return {
+												...oldVal,
+												[key]:
+													typeof val === 'function' ? val(oldVal[key]) : val,
+											};
+										});
 									}}
 									onRemove={null}
 								/>

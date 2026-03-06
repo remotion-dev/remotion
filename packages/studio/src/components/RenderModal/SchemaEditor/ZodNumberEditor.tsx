@@ -1,14 +1,14 @@
+import {useMemo} from 'react';
 import React, {useCallback} from 'react';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import {
 	getZodNumberMaximum,
 	getZodNumberMinimum,
 	getZodNumberStep,
 } from './zod-number-constraints';
-import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -25,41 +25,40 @@ export const ZodNumberEditor: React.FC<{
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
 }> = ({jsonPath, value, schema, setValue, onRemove, mayPad}) => {
-	const {localValue, onChange: setLocalValue} = useLocalState({
-		value,
-		schema,
-		setValue,
-	});
-
 	const onNumberChange = useCallback(
 		(newValue: number) => {
-			setLocalValue(() => newValue, false, false);
+			setValue(() => newValue);
 		},
-		[setLocalValue],
+		[setValue],
 	);
 
 	const onTextChange = useCallback(
 		(newValue: string) => {
-			setLocalValue(() => Number(newValue), false, false);
+			setValue(() => Number(newValue));
 		},
-		[setLocalValue],
+		[setValue],
+	);
+
+	const zodValidation = useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
 	);
 
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
 				handleClick={null}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
-				valid={localValue.zodValidation.success}
+				valid={zodValidation.success}
 				suffix={null}
 			/>
 			<div style={fullWidth}>
 				<InputDragger
 					type={'number'}
-					value={localValue.value}
+					value={value}
 					style={fullWidth}
-					status={localValue.zodValidation.success ? 'ok' : 'error'}
+					status={zodValidation.success ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					onTextChange={onTextChange}
 					onValueChange={onNumberChange}
@@ -68,7 +67,7 @@ export const ZodNumberEditor: React.FC<{
 					step={getZodNumberStep(schema)}
 					rightAlign={false}
 				/>
-				<ZodFieldValidation path={jsonPath} localValue={localValue} />
+				<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 			</div>
 		</Fieldset>
 	);

@@ -27,11 +27,7 @@ import {ZodTextareaEditor} from './ZodTextareaEditor';
 import {ZodTupleEditor} from './ZodTupleEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
 
-export type UpdaterFunction<T> = (
-	updater: (oldValue: T) => T,
-	forceApply: boolean,
-	increment: boolean,
-) => void;
+export type UpdaterFunction<T> = (updater: (oldValue: T) => T) => void;
 
 export const ZodSwitch: React.FC<{
 	readonly schema: AnyZodSchema;
@@ -152,7 +148,6 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				onRemove={onRemove}
 				mayPad={mayPad}
-				schema={schema}
 			/>
 		);
 	}

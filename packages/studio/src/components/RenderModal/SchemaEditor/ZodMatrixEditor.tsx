@@ -1,11 +1,11 @@
 import React, {useMemo, useState} from 'react';
+import {useCallback} from 'react';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import {SchemaArrayItemSeparationLine} from './SchemaSeparationLine';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
-import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import {getArrayElement} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
@@ -26,12 +26,17 @@ export const ZodMatrixEditor: React.FC<{
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
 }> = ({schema, jsonPath, setValue, value, onRemove, mayPad}) => {
-	const {localValue, onChange} = useLocalState({
-		value,
-		schema,
-		setValue,
-	});
+	const onChange: UpdaterFunction<unknown[]> = useCallback(
+		(updater: (oldV: unknown[]) => unknown[]) => {
+			setValue(updater);
+		},
+		[setValue],
+	);
 
+	const zodValidation = useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
+	);
 	const [expanded, setExpanded] = useState(true);
 
 	const arrayElement = getArrayElement(schema);
@@ -45,28 +50,28 @@ export const ZodMatrixEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const dimensions = Math.sqrt(localValue.value.length);
+	const dimensions = Math.sqrt(value.length);
 
 	if (!Number.isInteger(dimensions)) {
 		throw new Error('Invalid matrix');
 	}
 
 	const chunkedItems = useMemo(() => {
-		return localValue.value.reduce<number[][]>((acc, item, index) => {
+		return value.reduce<number[][]>((acc, item, index) => {
 			const chunkIndex = Math.floor(index / dimensions);
 			acc[chunkIndex] = acc[chunkIndex] || [];
 			acc[chunkIndex].push(item as number);
 			return acc;
 		}, [] as number[][]);
-	}, [localValue.value, dimensions]);
+	}, [value, dimensions]);
 
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
 				jsonPath={jsonPath}
 				onRemove={onRemove}
 				suffix={suffix}
-				valid={localValue.zodValidation.success}
+				valid={zodValidation.success}
 				handleClick={() => setExpanded(!expanded)}
 			/>
 
@@ -115,7 +120,7 @@ export const ZodMatrixEditor: React.FC<{
 					) : null}
 				</SchemaVerticalGuide>
 			) : null}
-			<ZodFieldValidation path={jsonPath} localValue={localValue} />
+			<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 		</Fieldset>
 	);
 };
