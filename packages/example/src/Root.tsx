@@ -121,11 +121,6 @@ import {AnimatedImages} from './AnimatedImage/Avif';
 import Amplify from './AudioTesting/Amplify';
 import {BrowserTest} from './BrowserTest';
 import {CTAEndCard} from './CallToAction';
-import {
-	WhatIsRemotion,
-	whatIsRemotionCalculateMetadata,
-	whatIsRemotionSchema,
-} from './Compose/WhatIsRemotion';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -1711,16 +1706,6 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={1000}
-				/>
-				<Composition
-					id="WhatIsRemotion"
-					component={WhatIsRemotion}
-					width={1080}
-					fps={30}
-					durationInFrames={273}
-					schema={whatIsRemotionSchema}
-					defaultProps={{fade: false, whiteBackground: false, reel: false}}
-					calculateMetadata={whatIsRemotionCalculateMetadata}
 				/>
 				<Composition
 					id="3DContext"

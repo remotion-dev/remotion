@@ -6,12 +6,23 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {z} from 'zod';
 import {BLUE} from '../../colors';
 import {loadFont} from '../../load-font';
 
 loadFont();
 
-export const NumberedChapter: React.FC = () => {
+export const numberedChapterSchema = z.object({
+	chapterNumber: z.number(),
+	chapterTitle: z.string(),
+});
+
+type NumberedChapterProps = z.infer<typeof numberedChapterSchema>;
+
+export const NumberedChapter: React.FC<NumberedChapterProps> = ({
+	chapterNumber,
+	chapterTitle,
+}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	const jump1 = spring({
@@ -52,27 +63,30 @@ export const NumberedChapter: React.FC = () => {
 						color: 'white',
 						backgroundColor: BLUE,
 						fontSize: 80,
-						fontWeight: 'bold',
+						fontWeight: 900,
 						borderRadius: '50%',
 						fontFamily: 'GT Planar',
+						fontFeatureSettings: "'ss03' 1",
 						scale: String(jump1),
 						translate: `0 ${-jump2 * 50}px`,
 					}}
 				>
-					5
+					{chapterNumber}
 				</div>
 			</AbsoluteFill>
 			<AbsoluteFill
 				style={{
 					justifyContent: 'center',
 					alignItems: 'center',
-					fontFamily: 'Variable',
+					fontFamily: 'GT Planar',
+					fontWeight: 700,
 					fontSize: 40,
+					fontFeatureSettings: "'ss03' 1",
 					translate: `0 ${-jump2 * 100 + 220}px`,
 					opacity: jump2,
 				}}
 			>
-				<h2>Transformations</h2>
+				<h2>{chapterTitle}</h2>
 			</AbsoluteFill>
 		</AbsoluteFill>
 	);

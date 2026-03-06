@@ -1,192 +1,81 @@
 import './index.css';
-import type { VideoMetadata} from '@remotion/media-utils';
-import {getVideoMetadata} from '@remotion/media-utils';
-import {useEffect, useState} from 'react';
-import {
-	Composition,
-	continueRender,
-	delayRender,
-	Folder,
-	staticFile,
-} from 'remotion';
+import {Composition, Folder, staticFile} from 'remotion';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
 import {AnimatedLogo} from './animated-logo/AnimatedLogo';
 import {AnimatedLogoStringer} from './animated-logo/AnimatedLogoStinger';
 import {AnimatedMaster} from './animated-logo/AnimatedMaster';
-import {Arcs} from './animated-logo/Arcs';
 import {ExplodingLogo} from './animated-logo/ExplodingLogo';
-import {FilmRoll} from './animated-logo/film-roll';
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
-import {EmailSignature} from './EmailSignature';
-import {
-	FlyingCardsLeft,
-	flyingCardsLeftSchema,
-} from './FlyingCardsLeft/FlyingCardsLeft';
-import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
-import {Logo} from './Logo';
-import {LogoWithTitle} from './LogoWithTitle';
-import {
-	RulesEnumeration,
-	rulesEnumerationSchema,
-} from './RulesEnumeration/RulesEnumeration';
-import {ProductHuntLogo} from './ScalingLogo';
-import {ShowcaseVideo} from './showcase-video';
-import {StepGuide, stepGuideSchema} from './StepGuide/StepGuide';
-import {LowerReference} from './video-elements/lower-reference';
-import {MoneyBurn} from './video-elements/money-burn';
-import {NumberedChapter} from './video-elements/numbered-chapter';
-import {UpperReference} from './video-elements/upper-reference';
-import {UpperThird} from './video-elements/UpperThird';
-import {FlyingCardBottom} from './vibe-skills/FlyingCardBottom';
-import {FlyingCards as VibeSkillsFlyingCards} from './vibe-skills/FlyingCards';
-import {VibeSkillsFlyingCardsLeft} from './vibe-skills/FlyingCardsLeft';
-import {Prompt, PromptSchema} from './vibe-skills/Prompt';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
-
-const muxId = 'EV00V02hvNnfTYYYsTKtIzb7MfMAsZkSXQfDP001V1yC7I';
+import {EmailSignature} from './EmailSignature';
+import {Logo} from './Logo';
+import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
+import {
+	RulesEnumeration,
+	rulesEnumerationSchema,
+} from './RulesEnumeration/RulesEnumeration';
+import {ProductHuntLogo} from './ScalingLogo';
+import {FlyingCardBottom} from './video-elements/FlyingCardBottom';
+import {FlyingCards as VibeSkillsFlyingCards} from './video-elements/FlyingCards';
+import {VibeSkillsFlyingCardsLeft} from './video-elements/FlyingCardsLeft';
+import {Prompt, PromptSchema} from './video-elements/Prompt';
+import {
+	FlyingCardsLeft,
+	flyingCardsLeftSchema,
+} from './video-elements/flying-cards-left';
+import {LowerReference} from './video-elements/lower-reference';
+import {MoneyBurn} from './video-elements/money-burn';
+import {
+	NumberedChapter,
+	numberedChapterSchema,
+} from './video-elements/numbered-chapter';
+import {StepGuide, stepGuideSchema} from './video-elements/step-guide';
+import {UpperReference} from './video-elements/upper-reference';
+import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 
 export const RemotionRoot: React.FC = () => {
-	const [handle] = useState(() => delayRender());
-	const [videoMetadata, setVideoMetadata] = useState<VideoMetadata | null>(
-		null,
-	);
-
-	useEffect(() => {
-		getVideoMetadata(`https://stream.mux.com/${muxId}/high.mp4`)
-			.then((data) => {
-				setVideoMetadata(data);
-				continueRender(handle);
-			})
-			.catch((err) => {
-				// eslint-disable-next-line no-console
-			console.log('could not get video metadata', err);
-			});
-	}, [handle]);
-
 	return (
 		<>
-			<Folder name="brand-assets">
+			<Folder name="static-logo">
 				<Composition
-					id="StepGuide"
-					component={StepGuide}
-					schema={stepGuideSchema}
-					defaultProps={{
-						stepNumber: 1,
-						titleLine1: 'Setting up the project',
-						titleLine2: '',
-						assetSrc:
-							'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&h=800&fit=crop',
-						assetPosition: 'left' as const,
-					}}
-					durationInFrames={90}
+					component={Logo}
+					width={820}
+					height={820}
 					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="LogoCollab"
-					component={LogoCollab}
-					schema={logoCollabSchema}
+					durationInFrames={1}
+					id="Logo"
 					defaultProps={{
-						partnerLogoUrl: staticFile('logo/external/opencode.svg'),
-						theme: 'light' as const,
-						partnerLogoScale: 1,
-						remotionLogoScale: 2.6,
-						partnerLogoX: -36,
-						remotionLogoX: -8,
-					}}
-					durationInFrames={90}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="RulesEnumeration"
-					component={RulesEnumeration}
-					schema={rulesEnumerationSchema}
-					defaultProps={{
-						heading: 'AI Best Practices',
-						rules: [
-							{
-								title: 'Tell the agent to use Remotion Best Practices skill',
-								description:
-									'Be explicit, so that the agent picks it up correctly.',
-							},
-							{
-								title: 'Do one thing at a time',
-								description:
-									'Do not ask for 5 or 10 changes in one message. Otherwise, the AI gets confused.',
-							},
-							{
-								title: 'Use Remotion documentation',
-								description:
-									'You can copy the page or add .md to the end of the URL to get a Markdown version and feed it to your AI agent.',
-							},
-						],
-						theme: 'light' as const,
-					}}
-					durationInFrames={120}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="FlyingCardsLeft"
-					component={FlyingCardsLeft}
-					schema={flyingCardsLeftSchema}
-					defaultProps={{
-						cards: ['Jonny Burger', '@JNYBGR'],
-					}}
-					durationInFrames={90}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-			</Folder>
-			<Folder name="vibe-skills">
-				<Composition
-					id="Prompt"
-					component={Prompt}
-					durationInFrames={210}
-					fps={30}
-					width={1920}
-					height={1080}
-					schema={PromptSchema}
-					defaultProps={{
-						prompt:
-							'the homepage "/" should show the username field,   and once you submit, you get redirected to the "/[username]" route, where you can download   the video.   Use the components from the existing page.    on the user page fetch from the following API:   https://github-contributions-api.jogruber.de/v4/[username] and only once fetched show the   player.',
-						thinkingIndex: 40,
+						size: 1100,
 					}}
 				/>
 				<Composition
-					id="VibeSkillsFlyingCards"
-					component={VibeSkillsFlyingCards}
-					durationInFrames={150}
+					component={Logo}
+					width={820}
+					height={820}
 					fps={30}
-					width={1920}
-					height={1080}
+					durationInFrames={1}
+					id="LogoWhite"
+					defaultProps={{
+						color: 'white',
+						size: 1100,
+					}}
 				/>
 				<Composition
-					id="VibeSkillsFlyingCardsLeft"
-					component={VibeSkillsFlyingCardsLeft}
-					durationInFrames={150}
-					fps={30}
+					component={ExplodingLogo}
 					width={1920}
 					height={1080}
-				/>
-				<Composition
-					id="FlyingCardBottom"
-					component={FlyingCardBottom}
-					durationInFrames={150}
 					fps={30}
-					width={1920}
-					height={1080}
+					durationInFrames={200}
+					id="ExplodingLogo"
+					defaultProps={{
+						theme: 'light',
+					}}
 				/>
 			</Folder>
 			<Composition
@@ -207,29 +96,7 @@ export const RemotionRoot: React.FC = () => {
 				durationInFrames={90}
 				id="scaling-logo"
 			/>
-			<Composition
-				component={ShowcaseVideo}
-				width={1080}
-				height={1080}
-				fps={30}
-				durationInFrames={Math.floor(
-					(videoMetadata?.durationInSeconds ?? 1) * 30,
-				)}
-				id="showcase-video"
-				defaultProps={{
-					muxId,
-					videoMetadata,
-				}}
-			/>
 			<Folder name="animated-logo">
-				<Composition
-					component={FilmRoll}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={450}
-					id="film-roll"
-				/>
 				<Composition
 					component={AnimatedLogo}
 					width={1080}
@@ -280,14 +147,6 @@ export const RemotionRoot: React.FC = () => {
 					id="animated-logo-stinger"
 				/>
 				<Composition
-					component={Arcs}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={450}
-					id="arcs"
-				/>
-				<Composition
 					component={AnimatedMaster}
 					width={1080}
 					height={1080}
@@ -296,54 +155,25 @@ export const RemotionRoot: React.FC = () => {
 					id="animated-master"
 				/>
 			</Folder>
-			<Folder name="static-logo">
+			<Folder name="video-elements">
 				<Composition
-					component={Logo}
-					width={820}
-					height={820}
-					fps={30}
-					durationInFrames={1}
-					id="Logo"
+					id="StepGuide"
+					component={StepGuide}
+					schema={stepGuideSchema}
 					defaultProps={{
-						size: 1100,
+						stepNumber: 1,
+						titleLine1: 'Setting up the project',
+						titleLine2: '',
+						assetSrc:
+							'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&h=800&fit=crop',
+						assetPosition: 'left' as const,
 					}}
-				/>
-				<Composition
-					component={Logo}
-					width={820}
-					height={820}
+					durationInFrames={90}
 					fps={30}
-					durationInFrames={1}
-					id="LogoWhite"
-					defaultProps={{
-						color: 'white',
-						size: 1100,
-					}}
-				/>
-				<Composition
-					component={LogoWithTitle}
-					width={2100}
-					height={1080}
-					fps={30}
-					durationInFrames={1}
-					id="LogoWithTitle"
-					defaultProps={{
-						yOffset: 0,
-					}}
-				/>
-				<Composition
-					component={ExplodingLogo}
 					width={1920}
 					height={1080}
-					fps={30}
-					durationInFrames={200}
-					id="ExplodingLogo"
-					defaultProps={{
-						theme: 'light',
-					}}
 				/>
-			</Folder>
-			<Folder name="video-elements">
+
 				<Composition
 					id="lower-third-reference"
 					component={LowerReference}
@@ -363,6 +193,11 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="upper-third"
 					component={UpperThird}
+					schema={upperThirdSchema}
+					defaultProps={{
+						title: 'Title',
+						subtitle: 'remotion.dev',
+					}}
 					durationInFrames={5 * 30}
 					fps={30}
 					width={1920}
@@ -371,6 +206,11 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="numbered-chapter"
 					component={NumberedChapter}
+					schema={numberedChapterSchema}
+					defaultProps={{
+						chapterNumber: 1,
+						chapterTitle: 'Chapter Title',
+					}}
 					durationInFrames={36}
 					fps={30}
 					width={1920}
@@ -380,6 +220,47 @@ export const RemotionRoot: React.FC = () => {
 					id="money-burn"
 					component={MoneyBurn}
 					durationInFrames={36}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="Prompt"
+					component={Prompt}
+					durationInFrames={210}
+					fps={30}
+					width={1920}
+					height={1080}
+					schema={PromptSchema}
+					defaultProps={{
+						prompt: 'Use Remotion Best Practices.',
+						thinkingIndex: 40,
+					}}
+				/>
+				<Composition
+					id="FlyingCardsRight"
+					component={VibeSkillsFlyingCards}
+					durationInFrames={150}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="FlyingCardsLeft"
+					component={FlyingCardsLeft}
+					schema={flyingCardsLeftSchema}
+					defaultProps={{
+						cards: ['Jonny Burger', '@JNYBGR'],
+					}}
+					durationInFrames={90}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="FlyingCardBottom"
+					component={FlyingCardBottom}
+					durationInFrames={150}
 					fps={30}
 					width={1920}
 					height={1080}
@@ -438,6 +319,55 @@ export const RemotionRoot: React.FC = () => {
 					width={1080}
 					height={1080}
 					defaultProps={{theme: 'light'}}
+				/>
+			</Folder>
+			<Folder name="brand-assets">
+				<Composition
+					id="LogoCollab"
+					component={LogoCollab}
+					schema={logoCollabSchema}
+					defaultProps={{
+						partnerLogoUrl: staticFile('logo/external/opencode.svg'),
+						theme: 'light' as const,
+						partnerLogoScale: 1,
+						remotionLogoScale: 2.6,
+						partnerLogoX: -36,
+						remotionLogoX: -8,
+					}}
+					durationInFrames={90}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="RulesEnumeration"
+					component={RulesEnumeration}
+					schema={rulesEnumerationSchema}
+					defaultProps={{
+						heading: 'AI Best Practices',
+						rules: [
+							{
+								title: 'Tell the agent to use Remotion Best Practices skill',
+								description:
+									'Be explicit, so that the agent picks it up correctly.',
+							},
+							{
+								title: 'Do one thing at a time',
+								description:
+									'Do not ask for 5 or 10 changes in one message. Otherwise, the AI gets confused.',
+							},
+							{
+								title: 'Use Remotion documentation',
+								description:
+									'You can copy the page or add .md to the end of the URL to get a Markdown version and feed it to your AI agent.',
+							},
+						],
+						theme: 'light' as const,
+					}}
+					durationInFrames={120}
+					fps={30}
+					width={1920}
+					height={1080}
 				/>
 			</Folder>
 		</>

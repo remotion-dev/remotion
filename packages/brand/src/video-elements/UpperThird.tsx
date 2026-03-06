@@ -7,9 +7,17 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {z} from 'zod';
 import {BLUE} from '../colors';
 
-export const UpperThird: React.FC = () => {
+export const upperThirdSchema = z.object({
+	title: z.string(),
+	subtitle: z.string(),
+});
+
+type UpperThirdProps = z.infer<typeof upperThirdSchema>;
+
+export const UpperThird: React.FC<UpperThirdProps> = ({title, subtitle}) => {
 	const frame = useCurrentFrame();
 	const {fps, durationInFrames} = useVideoConfig();
 	const xOffset = noise2D('noisex', 0, frame / 160) * 50;
@@ -54,25 +62,26 @@ export const UpperThird: React.FC = () => {
 			>
 				<h1
 					style={{
-						fontFamily: 'SF Pro Display',
+						fontFamily: 'GT Planar',
+						fontWeight: 700,
 						fontSize: '5em',
 						marginTop: 0,
 						marginBottom: 0,
 						color: '#000',
 					}}
 				>
-					React Summit
+					{title}
 				</h1>
 				<h1
 					style={{
-						fontFamily: 'SF Pro Display',
+						fontFamily: 'GT Planar',
 						fontSize: '1.8em',
 						marginTop: 0,
 						marginBottom: 0,
 						color: BLUE,
 					}}
 				>
-					reactsummit.com
+					{subtitle}
 				</h1>
 			</AbsoluteFill>
 		</AbsoluteFill>
