@@ -10,7 +10,7 @@
 	],
 	"scripts": {
 		"dev": "remotion studio",
-		"bundle": "remotion bundle --public-path /brand/",
+		"bundle": "remotion bundle --rspack --public-path /brand/",
 		"lint": "eslint src"
 	},
 	"devDependencies": {
