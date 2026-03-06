@@ -13,8 +13,8 @@ import {BACKGROUND} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {VisualControlsTabActivatedContext} from '../visual-controls/VisualControls';
+import {DefaultPropsEditor} from './DefaultPropsEditor';
 import {GlobalPropsEditorUpdateButton} from './GlobalPropsEditorUpdateButton';
-import {DataEditor} from './RenderModal/DataEditor';
 import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
@@ -216,7 +216,7 @@ export const OptionsPanel: React.FC<{
 			</div>
 			{panel === 'input-props' ? (
 				composition ? (
-					<DataEditor
+					<DefaultPropsEditor
 						key={composition.id}
 						unresolvedComposition={composition}
 						defaultProps={currentDefaultProps}

@@ -729,11 +729,15 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							defaultProps={inputProps}
 							setDefaultProps={setInputProps}
 							unresolvedComposition={unresolvedComposition}
-							mayShowSaveButton={false}
+							showSaveButton={false}
 							propsEditType="input-props"
 							saving={saving}
 							setSaving={setSaving}
-							readOnlyStudio={false}
+							canSaveDefaultProps={{
+								canUpdate: false,
+								reason: 'render dialogue',
+								determined: false,
+							}}
 						/>
 					) : tab === 'picture' ? (
 						<WebRenderModalPicture

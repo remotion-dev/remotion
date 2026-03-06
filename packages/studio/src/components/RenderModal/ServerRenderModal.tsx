@@ -1574,11 +1574,15 @@ const RenderModal: React.FC<
 							defaultProps={inputProps}
 							setDefaultProps={setInputProps}
 							unresolvedComposition={unresolvedComposition}
-							mayShowSaveButton={false}
 							propsEditType="input-props"
 							saving={saving}
 							setSaving={setSaving}
-							readOnlyStudio={readOnlyStudio}
+							canSaveDefaultProps={{
+								canUpdate: false,
+								reason: 'render dialogue',
+								determined: false,
+							}}
+							showSaveButton={false}
 						/>
 					) : (
 						<RenderModalAdvanced
