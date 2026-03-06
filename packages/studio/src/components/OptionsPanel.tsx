@@ -17,6 +17,7 @@ import {useZodIfPossible, useZodTypesIfPossible} from './get-zod-if-possible';
 import {showNotification} from './Notifications/NotificationCenter';
 import {extractEnumJsonPaths} from './RenderModal/SchemaEditor/extract-enum-json-paths';
 import type {AnyZodSchema} from './RenderModal/SchemaEditor/zod-schema-type';
+import type {UpdaterFunction} from './RenderModal/SchemaEditor/ZodSwitch';
 import {RenderQueue} from './RenderQueue';
 import {callUpdateDefaultPropsApi} from './RenderQueue/actions';
 import {RendersTab} from './RendersTab';
@@ -159,12 +160,9 @@ export const OptionsPanel: React.FC<{
 
 		return composition.schema as AnyZodSchema;
 	}, [composition?.schema, noComposition, z]);
-	const [saving, setSaving] = useState(false);
 
-	const onSave = useCallback(
-		(
-			updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
-		) => {
+	const onSave: UpdaterFunction<Record<string, unknown>> = useCallback(
+		(updater) => {
 			if (
 				schema === 'no-zod' ||
 				schema === 'no-schema' ||
@@ -179,9 +177,10 @@ export const OptionsPanel: React.FC<{
 				throw new Error('Composition is not found');
 			}
 
-			setSaving(true);
 			const oldDefaultProps = composition.defaultProps ?? {};
-			const newDefaultProps = updater(oldDefaultProps);
+			const newDefaultProps = updater(
+				oldDefaultProps as Record<string, unknown>,
+			);
 			callUpdateDefaultPropsApi(
 				composition.id,
 				newDefaultProps,
@@ -204,12 +203,9 @@ export const OptionsPanel: React.FC<{
 				})
 				.catch((err) => {
 					showNotification(`Cannot update default props: ${err.message}`, 2000);
-				})
-				.finally(() => {
-					setSaving(false);
 				});
 		},
-		[schema, setSaving, z, zodTypes, composition],
+		[schema, z, zodTypes, composition],
 	);
 
 	const currentDefaultProps = useMemo(() => {
@@ -220,28 +216,30 @@ export const OptionsPanel: React.FC<{
 		return props[composition.id] ?? composition.defaultProps ?? {};
 	}, [composition, props]);
 
+	const compositionId = useMemo(() => {
+		return composition?.id ?? '';
+	}, [composition?.id]);
+
+	const compositionDefaultProps = useMemo(() => {
+		return composition?.defaultProps ?? {};
+	}, [composition?.defaultProps]);
+
 	const setDefaultProps = useCallback(
 		(
 			newProps:
 				| Record<string, unknown>
 				| ((oldProps: Record<string, unknown>) => Record<string, unknown>),
 		) => {
-			if (composition === null) {
-				return;
-			}
-
 			onSave(typeof newProps === 'function' ? newProps : () => newProps);
 
 			updateProps({
-				id: composition.id,
-				defaultProps: composition.defaultProps as Record<string, unknown>,
+				id: compositionId,
+				defaultProps: compositionDefaultProps as Record<string, unknown>,
 				newProps,
 			});
 		},
-		[composition, onSave, updateProps],
+		[compositionId, compositionDefaultProps, onSave, updateProps],
 	);
-
-	console.log('saving', saving);
 
 	return (
 		<div style={container} className="css-reset">
