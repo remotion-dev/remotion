@@ -21,8 +21,7 @@ const MyVideo = () => {
       <Starburst
         durationInFrames={60}
         rays={16}
-        color1="#ffdd00"
-        color2="#ff8800"
+        colors={['#ffdd00', '#ff8800', '#ff4400']}
         rotation={15}
       />
     </AbsoluteFill>
@@ -44,13 +43,13 @@ If not specified, defaults to the duration of the composition or sequence, readi
 
 The number of rays in the starburst pattern. Must be between `2` and `100`. Default: `12`.
 
-### `color1?`
+### `colors?`
 
-The primary color of the starburst rays as a hex string. Default: `"#ffdd00"` (yellow).
+An array of hex color strings for the rays. Colors are assigned to rays cyclically. Must contain at least 2 colors. Default: `['#ffdd00', '#ff8800']`.
 
-### `color2?`
-
-The secondary (alternating) color of the starburst rays as a hex string. Default: `"#ff8800"` (orange).
+```tsx
+<Starburst colors={['#ff0066', '#6600ff', '#00ccff']} />
+```
 
 ### `rotation?`
 

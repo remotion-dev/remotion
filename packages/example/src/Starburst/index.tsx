@@ -8,15 +8,13 @@ export const StarburstExample: React.FC = () => {
 			<Starburst
 				durationInFrames={60}
 				rays={16}
-				color1="#ffdd00"
-				color2="#ff8800"
+				colors={['#ffdd00', '#ff8800']}
 			/>
 			<Starburst
 				durationInFrames={60}
-				rays={8}
-				color1="#ff0066"
-				color2="#6600ff"
-				rotation={22.5}
+				rays={12}
+				colors={['#ff0066', '#6600ff', '#00ccff']}
+				rotation={15}
 			/>
 		</AbsoluteFill>
 	);

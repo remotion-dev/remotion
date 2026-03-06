@@ -16,7 +16,7 @@ import {AbsoluteFill} from 'remotion';
 const MyComp = () => {
   return (
     <AbsoluteFill style={{backgroundColor: 'black'}}>
-      <Starburst durationInFrames={60} rays={16} color1="#ffdd00" color2="#ff8800" />
+      <Starburst durationInFrames={60} rays={16} colors={['#ffdd00', '#ff8800']} />
     </AbsoluteFill>
   );
 };
@@ -42,7 +42,7 @@ const MyComp = () => {
 
 ## Changing the colors
 
-Use [`color1`](/docs/starburst/starburst#color1) and [`color2`](/docs/starburst/starburst#color2) to set the alternating ray colors:
+Use the [`colors`](/docs/starburst/starburst#colors) prop to set the ray colors. You can pass any number of colors (minimum 2) and they will be assigned to rays cyclically:
 
 ```tsx twoslash title="CustomColors.tsx"
 import {Starburst} from '@remotion/starburst';
@@ -52,7 +52,7 @@ import {AbsoluteFill} from 'remotion';
 const MyComp = () => {
   return (
     <AbsoluteFill style={{backgroundColor: 'black'}}>
-      <Starburst color1="#ff0066" color2="#6600ff" durationInFrames={30} />
+      <Starburst colors={['#ff0066', '#6600ff', '#00ccff']} durationInFrames={30} />
     </AbsoluteFill>
   );
 };
@@ -95,7 +95,7 @@ const StarburstTransition = () => {
         <Fill color="#0b84f3" />
       </TransitionSeries.Sequence>
       <TransitionSeries.Overlay durationInFrames={20}>
-        <Starburst rays={12} color1="#ffdd00" color2="#ff8800" />
+        <Starburst rays={12} colors={['#ffdd00', '#ff8800']} />
       </TransitionSeries.Overlay>
       <TransitionSeries.Sequence durationInFrames={60}>
         <Fill color="pink" />

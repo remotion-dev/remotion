@@ -18,11 +18,12 @@ export type StarburstProps = Omit<
 	Omit<AbsoluteFillLayout, 'layout'> & {
 		readonly durationInFrames?: number;
 		readonly rays?: number;
-		readonly color1?: string;
-		readonly color2?: string;
+		readonly colors?: readonly string[];
 		readonly rotation?: number;
 		readonly smoothness?: number;
 	};
+
+const DEFAULT_COLORS = ['#ffdd00', '#ff8800'] as const;
 
 const hexToRgb = (hex: string): [number, number, number] => {
 	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -50,11 +51,13 @@ precision mediump float;
 #endif
 
 uniform float numRays;
-uniform vec3 color1;
-uniform vec3 color2;
 uniform float rotationOffset;
 uniform float smoothEdge;
 uniform vec2 resolution;
+uniform sampler2D colorPalette;
+uniform float numColors;
+
+const float Pi = 3.14159265359;
 
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution;
@@ -62,12 +65,27 @@ void main() {
     center.x *= resolution.x / resolution.y;
 
     float angle = atan(center.y, center.x) + rotationOffset;
-    float rayPattern = cos(angle * numRays) * 0.5 + 0.5;
+    float normalizedAngle = (angle + Pi) / (2.0 * Pi);
+    float sector = normalizedAngle * numRays;
+    float rayIndex = mod(floor(sector), numRays);
 
+    float colorIndex = mod(rayIndex, numColors);
+    float texCoord = (colorIndex + 0.5) / numColors;
+    vec3 col = texture2D(colorPalette, vec2(texCoord, 0.5)).rgb;
+
+    float fractSector = fract(sector);
     float edgeSmooth = smoothEdge * 0.5;
-    float ray = smoothstep(0.5 - edgeSmooth, 0.5 + edgeSmooth, rayPattern);
+    float nextColorIndex = mod(rayIndex + 1.0, numColors);
+    float nextTexCoord = (nextColorIndex + 0.5) / numColors;
+    vec3 nextCol = texture2D(colorPalette, vec2(nextTexCoord, 0.5)).rgb;
 
-    vec3 col = mix(color2, color1, ray);
+    float blend = smoothstep(1.0 - edgeSmooth, 1.0, fractSector);
+    col = mix(col, nextCol, blend);
+    float blendStart = smoothstep(edgeSmooth, 0.0, fractSector);
+    float prevColorIndex = mod(rayIndex - 1.0 + numColors, numColors);
+    float prevTexCoord = (prevColorIndex + 0.5) / numColors;
+    vec3 prevCol = texture2D(colorPalette, vec2(prevTexCoord, 0.5)).rgb;
+    col = mix(col, prevCol, blendStart);
 
     gl_FragColor = vec4(col, 1.0);
 }
@@ -77,19 +95,18 @@ type GlContext = {
 	gl: WebGLRenderingContext;
 	resLoc: WebGLUniformLocation;
 	numRaysLoc: WebGLUniformLocation;
-	color1Loc: WebGLUniformLocation;
-	color2Loc: WebGLUniformLocation;
 	rotationOffsetLoc: WebGLUniformLocation;
 	smoothEdgeLoc: WebGLUniformLocation;
+	numColorsLoc: WebGLUniformLocation;
+	colorTexture: WebGLTexture;
 };
 
 const StarburstCanvas: React.FC<{
 	readonly rays: number;
-	readonly color1: string;
-	readonly color2: string;
+	readonly colors: readonly string[];
 	readonly rotation: number;
 	readonly smoothness: number;
-}> = ({rays, color1, color2, rotation, smoothness}) => {
+}> = ({rays, colors, rotation, smoothness}) => {
 	const {width, height} = useVideoConfig();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const glRef = useRef<GlContext | null>(null);
@@ -139,16 +156,27 @@ const StarburstCanvas: React.FC<{
 			gl.enableVertexAttribArray(pos);
 			gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
 
+			const colorTexture = gl.createTexture()!;
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, colorTexture);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+			const paletteLoc = gl.getUniformLocation(program, 'colorPalette')!;
+			gl.uniform1i(paletteLoc, 0);
+
 			continueRender(handle);
 
 			return {
 				gl,
 				resLoc: gl.getUniformLocation(program, 'resolution')!,
 				numRaysLoc: gl.getUniformLocation(program, 'numRays')!,
-				color1Loc: gl.getUniformLocation(program, 'color1')!,
-				color2Loc: gl.getUniformLocation(program, 'color2')!,
 				rotationOffsetLoc: gl.getUniformLocation(program, 'rotationOffset')!,
 				smoothEdgeLoc: gl.getUniformLocation(program, 'smoothEdge')!,
+				numColorsLoc: gl.getUniformLocation(program, 'numColors')!,
+				colorTexture,
 			};
 		},
 		[continueRender, handle, cancelRender],
@@ -167,27 +195,47 @@ const StarburstCanvas: React.FC<{
 			gl,
 			resLoc,
 			numRaysLoc,
-			color1Loc,
-			color2Loc,
 			rotationOffsetLoc,
 			smoothEdgeLoc,
+			numColorsLoc,
+			colorTexture,
 		} = ctx;
 
-		const rgb1 = hexToRgb(color1);
-		const rgb2 = hexToRgb(color2);
 		const rotationRad = (rotation * Math.PI) / 180;
+
+		const pixelData = new Uint8Array(colors.length * 4);
+		for (let i = 0; i < colors.length; i++) {
+			const rgb = hexToRgb(colors[i]);
+			pixelData[i * 4] = Math.round(rgb[0] * 255);
+			pixelData[i * 4 + 1] = Math.round(rgb[1] * 255);
+			pixelData[i * 4 + 2] = Math.round(rgb[2] * 255);
+			pixelData[i * 4 + 3] = 255;
+		}
+
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, colorTexture);
+		gl.texImage2D(
+			gl.TEXTURE_2D,
+			0,
+			gl.RGBA,
+			colors.length,
+			1,
+			0,
+			gl.RGBA,
+			gl.UNSIGNED_BYTE,
+			pixelData,
+		);
 
 		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 		gl.clearColor(0, 0, 0, 0);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 		gl.uniform1f(numRaysLoc, rays);
-		gl.uniform3f(color1Loc, rgb1[0], rgb1[1], rgb1[2]);
-		gl.uniform3f(color2Loc, rgb2[0], rgb2[1], rgb2[2]);
+		gl.uniform1f(numColorsLoc, colors.length);
 		gl.uniform1f(rotationOffsetLoc, rotationRad);
 		gl.uniform1f(smoothEdgeLoc, smoothness);
 		gl.uniform2f(resLoc, gl.canvas.width, gl.canvas.height);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-	}, [rays, color1, color2, rotation, smoothness, width, height]);
+	}, [rays, colors, rotation, smoothness, width, height]);
 
 	return (
 		<AbsoluteFill>
@@ -261,8 +309,7 @@ const StarburstInner: React.FC<
 	}
 > = ({
 	rays = 12,
-	color1 = '#ffdd00',
-	color2 = '#ff8800',
+	colors = DEFAULT_COLORS,
 	rotation = 0,
 	smoothness = 0.1,
 	durationInFrames,
@@ -281,6 +328,12 @@ const StarburstInner: React.FC<
 
 	if (rays < 2 || rays > 100) {
 		throw new RangeError(`"rays" must be between 2 and 100, but got ${rays}`);
+	}
+
+	if (!Array.isArray(colors) || colors.length < 2) {
+		throw new TypeError(
+			`"colors" must be an array with at least 2 colors, but got ${JSON.stringify(colors)}`,
+		);
 	}
 
 	if (typeof rotation !== 'number' || !Number.isFinite(rotation)) {
@@ -311,8 +364,7 @@ const StarburstInner: React.FC<
 		>
 			<StarburstCanvas
 				rays={rays}
-				color1={color1}
-				color2={color2}
+				colors={colors}
 				rotation={rotation}
 				smoothness={smoothness}
 			/>
