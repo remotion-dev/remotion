@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
-import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../helpers/colors';
+import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {
 	createFolderTree,
 	splitParentIntoNameAndParent,
@@ -90,7 +90,6 @@ const QUICK_SWITCHER_TRIGGER_HEIGHT = 38;
 
 const quickSwitcherArea: React.CSSProperties = {
 	padding: '4px 12px',
-	borderBottom: `1px solid ${BORDER_COLOR}`,
 };
 
 const quickSwitcherTrigger: React.CSSProperties = {
