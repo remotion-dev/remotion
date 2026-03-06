@@ -21,20 +21,20 @@ import {
 	rulesEnumerationSchema,
 } from './RulesEnumeration/RulesEnumeration';
 import {ProductHuntLogo} from './ScalingLogo';
-import {FlyingCardBottom} from './video-elements/FlyingCardBottom';
-import {FlyingCards as VibeSkillsFlyingCards} from './video-elements/FlyingCards';
-import {VibeSkillsFlyingCardsLeft} from './video-elements/FlyingCardsLeft';
-import {Prompt, PromptSchema} from './video-elements/Prompt';
 import {
 	FlyingCardsLeft,
 	flyingCardsLeftSchema,
 } from './video-elements/flying-cards-left';
+import {FlyingCardBottom} from './video-elements/FlyingCardBottom';
+import {FlyingCards as VibeSkillsFlyingCards} from './video-elements/FlyingCards';
+import {VibeSkillsFlyingCardsLeft} from './video-elements/FlyingCardsLeft';
 import {LowerReference} from './video-elements/lower-reference';
 import {MoneyBurn} from './video-elements/money-burn';
 import {
 	NumberedChapter,
 	numberedChapterSchema,
 } from './video-elements/numbered-chapter';
+import {Prompt, PromptSchema} from './video-elements/Prompt';
 import {StepGuide, stepGuideSchema} from './video-elements/step-guide';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
 import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
