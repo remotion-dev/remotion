@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {BACKGROUND} from '../helpers/colors';
+import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
+import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {
 	createFolderTree,
 	splitParentIntoNameAndParent,
@@ -10,6 +11,7 @@ import {
 	openFolderKey,
 } from '../helpers/persist-open-folders';
 import {sortItemsByNonceHistory} from '../helpers/sort-by-nonce-history';
+import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {
@@ -84,6 +86,33 @@ const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
+const QUICK_SWITCHER_TRIGGER_HEIGHT = 44;
+
+const quickSwitcherArea: React.CSSProperties = {
+	padding: '6px 12px',
+	borderBottom: `1px solid ${BORDER_COLOR}`,
+};
+
+const quickSwitcherTrigger: React.CSSProperties = {
+	backgroundColor: 'rgba(255, 255, 255, 0.06)',
+	borderRadius: 5,
+	padding: '6px 10px',
+	color: LIGHT_TEXT,
+	fontSize: 13,
+	cursor: 'pointer',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'space-between',
+	border: 'none',
+	width: '100%',
+	appearance: 'none',
+};
+
+const shortcutLabel: React.CSSProperties = {
+	fontSize: 11,
+	opacity: 0.6,
+};
+
 export const getKeysToExpand = (
 	initialFolderName: string,
 	parentFolderName: string | null,
@@ -109,6 +138,7 @@ export const CompositionSelector: React.FC = () => {
 		Internals.CompositionManager,
 	);
 	const {foldersExpanded} = useContext(ExpandedFoldersContext);
+	const {setSelectedModal} = useContext(ModalsContext);
 
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
@@ -127,7 +157,7 @@ export const CompositionSelector: React.FC = () => {
 
 	const list: React.CSSProperties = useMemo(() => {
 		return {
-			height: `calc(100% - ${CURRENT_COMPOSITION_HEIGHT}px)`,
+			height: `calc(100% - ${CURRENT_COMPOSITION_HEIGHT}px - ${QUICK_SWITCHER_TRIGGER_HEIGHT}px)`,
 			overflowY: 'auto',
 		};
 	}, []);
@@ -142,9 +172,28 @@ export const CompositionSelector: React.FC = () => {
 		[],
 	);
 
+	const openQuickSwitcher = useCallback(() => {
+		setSelectedModal({
+			type: 'quick-switcher',
+			mode: 'compositions',
+			invocationTimestamp: Date.now(),
+		});
+	}, [setSelectedModal]);
+
 	return (
 		<div style={container}>
 			<CurrentComposition />
+			<div style={quickSwitcherArea}>
+				<button
+					type="button"
+					style={quickSwitcherTrigger}
+					onClick={openQuickSwitcher}
+					tabIndex={tabIndex}
+				>
+					Search...
+					<span style={shortcutLabel}>{cmdOrCtrlCharacter}+K</span>
+				</button>
+			</div>
 			<div className="__remotion-vertical-scrollbar" style={list}>
 				{items.map((c) => {
 					return (
