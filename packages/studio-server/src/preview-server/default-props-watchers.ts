@@ -3,11 +3,77 @@ import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
 import {computeCanUpdateDefaultProps} from './routes/can-update-default-props';
 
-type WatcherInfo = {
+// Global file watcher — at most one for the root file
+let globalWatcher: {
 	unwatch: () => void;
+	rootFile: string;
+	refCount: number;
+} | null = null;
+
+// Per-compositionId set of subscribed clientIds
+const subscriptions: Record<string, Set<string>> = {};
+
+// Cached config for recomputation on file change
+let watcherConfig: {
+	remotionRoot: string;
+	entryPoint: string;
+} | null = null;
+
+const ensureGlobalWatcher = (rootFile: string) => {
+	if (globalWatcher) {
+		globalWatcher.refCount++;
+		return;
+	}
+
+	const {unwatch} = installFileWatcher({
+		file: rootFile,
+		onChange: (type) => {
+			if (type === 'deleted') {
+				return;
+			}
+
+			if (!watcherConfig) {
+				return;
+			}
+
+			const compositionIds = Object.keys(subscriptions);
+			for (const compositionId of compositionIds) {
+				if (subscriptions[compositionId].size === 0) {
+					continue;
+				}
+
+				computeCanUpdateDefaultProps({
+					compositionId,
+					remotionRoot: watcherConfig.remotionRoot,
+					entryPoint: watcherConfig.entryPoint,
+				}).then(({result: newResult}) => {
+					waitForLiveEventsListener().then((listener) => {
+						listener.sendEventToClient({
+							type: 'default-props-updatable-changed',
+							compositionId,
+							result: newResult,
+						});
+					});
+				});
+			}
+		},
+	});
+
+	globalWatcher = {unwatch, rootFile, refCount: 1};
 };
 
-const defaultPropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
+const releaseGlobalWatcher = () => {
+	if (!globalWatcher) {
+		return;
+	}
+
+	globalWatcher.refCount--;
+	if (globalWatcher.refCount <= 0) {
+		globalWatcher.unwatch();
+		globalWatcher = null;
+		watcherConfig = null;
+	}
+};
 
 export const subscribeToDefaultPropsWatchers = async ({
 	compositionId,
@@ -26,40 +92,21 @@ export const subscribeToDefaultPropsWatchers = async ({
 		entryPoint,
 	});
 
-	// Unwatch any existing watcher for the same key
-	if (defaultPropsWatchers[clientId]?.[compositionId]) {
-		defaultPropsWatchers[clientId][compositionId].unwatch();
+	// Remove from any previous subscription for this client+composition
+	if (subscriptions[compositionId]?.has(clientId)) {
+		subscriptions[compositionId].delete(clientId);
+		releaseGlobalWatcher();
 	}
 
 	if (rootFile) {
-		const {unwatch} = installFileWatcher({
-			file: rootFile,
-			onChange: (type) => {
-				if (type === 'deleted') {
-					return;
-				}
+		watcherConfig = {remotionRoot, entryPoint};
 
-				computeCanUpdateDefaultProps({
-					compositionId,
-					remotionRoot,
-					entryPoint,
-				}).then(({result: newResult}) => {
-					waitForLiveEventsListener().then((listener) => {
-						listener.sendEventToClient({
-							type: 'default-props-updatable-changed',
-							compositionId,
-							result: newResult,
-						});
-					});
-				});
-			},
-		});
-
-		if (!defaultPropsWatchers[clientId]) {
-			defaultPropsWatchers[clientId] = {};
+		if (!subscriptions[compositionId]) {
+			subscriptions[compositionId] = new Set();
 		}
 
-		defaultPropsWatchers[clientId][compositionId] = {unwatch};
+		subscriptions[compositionId].add(clientId);
+		ensureGlobalWatcher(rootFile);
 	}
 
 	return result;
@@ -72,25 +119,27 @@ export const unsubscribeFromDefaultPropsWatchers = ({
 	compositionId: string;
 	clientId: string;
 }) => {
-	if (
-		!defaultPropsWatchers[clientId] ||
-		!defaultPropsWatchers[clientId][compositionId]
-	) {
+	if (!subscriptions[compositionId]?.has(clientId)) {
 		return;
 	}
 
-	defaultPropsWatchers[clientId][compositionId].unwatch();
-	delete defaultPropsWatchers[clientId][compositionId];
+	subscriptions[compositionId].delete(clientId);
+	if (subscriptions[compositionId].size === 0) {
+		delete subscriptions[compositionId];
+	}
+
+	releaseGlobalWatcher();
 };
 
 export const unsubscribeClientDefaultPropsWatchers = (clientId: string) => {
-	if (!defaultPropsWatchers[clientId]) {
-		return;
+	for (const compositionId of Object.keys(subscriptions)) {
+		if (subscriptions[compositionId].has(clientId)) {
+			subscriptions[compositionId].delete(clientId);
+			if (subscriptions[compositionId].size === 0) {
+				delete subscriptions[compositionId];
+			}
+
+			releaseGlobalWatcher();
+		}
 	}
-
-	Object.values(defaultPropsWatchers[clientId]).forEach((watcher) => {
-		watcher.unwatch();
-	});
-
-	delete defaultPropsWatchers[clientId];
 };
