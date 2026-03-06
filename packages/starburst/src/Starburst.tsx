@@ -87,6 +87,10 @@ void main() {
     vec3 prevCol = texture2D(colorPalette, vec2(prevTexCoord, 0.5)).rgb;
     col = mix(col, prevCol, blendStart);
 
+    float dist = length(center);
+    float vignette = smoothstep(0.9, 0.3, dist);
+    col *= vignette;
+
     gl_FragColor = vec4(col, 1.0);
 }
 `;
