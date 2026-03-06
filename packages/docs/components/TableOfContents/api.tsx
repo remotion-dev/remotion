@@ -158,10 +158,10 @@ export const TableOfContents: React.FC = () => {
 			<p>Sound effects library</p>
 			<SfxTableOfContents />
 			<h2>@remotion/light-leaks</h2>
-			<p>Light leak effects</p>
+			<p>Light Leak effects</p>
 			<LightLeaksTableOfContents />
 			<h2>@remotion/starburst</h2>
-			<p>Starburst ray effects</p>
+			<p>Starburst Effect</p>
 			<StarburstTableOfContents />
 			<h2>@remotion/vercel</h2>
 			<p>Render videos on Vercel Sandbox</p>
