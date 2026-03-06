@@ -60,7 +60,6 @@ export const OptionsPanel: React.FC<{
 	const {props, updateProps, resetUnsaved} = useContext(
 		Internals.EditorPropsContext,
 	);
-	const [saving, setSaving] = useState(false);
 
 	const renderingAvailable = !readOnlyStudio || SHOW_BROWSER_RENDERING;
 
@@ -206,8 +205,6 @@ export const OptionsPanel: React.FC<{
 						defaultProps={currentDefaultProps}
 						setDefaultProps={setDefaultProps}
 						propsEditType="default-props"
-						saving={saving}
-						setSaving={setSaving}
 						readOnlyStudio={readOnlyStudio}
 					/>
 				) : null

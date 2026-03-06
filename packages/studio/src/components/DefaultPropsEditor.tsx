@@ -23,8 +23,6 @@ export const DefaultPropsEditor = ({
 	defaultProps,
 	setDefaultProps,
 	propsEditType,
-	saving,
-	setSaving,
 	readOnlyStudio,
 }: {
 	readonly unresolvedComposition: _InternalTypes['AnyComposition'];
@@ -33,8 +31,6 @@ export const DefaultPropsEditor = ({
 		React.SetStateAction<Record<string, unknown>>
 	>;
 	readonly propsEditType: PropsEditType;
-	readonly saving: boolean;
-	readonly setSaving: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly readOnlyStudio: boolean;
 }) => {
 	const [canSaveDefaultPropsObjectState, setCanSaveDefaultProps] =
@@ -171,6 +167,8 @@ export const DefaultPropsEditor = ({
 		};
 	}, [subscribeToEvent, unresolvedComposition.id]);
 
+	const [saving, setSaving] = useState(false);
+
 	const onSave = useCallback(
 		(
 			updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
@@ -220,7 +218,7 @@ export const DefaultPropsEditor = ({
 		],
 	);
 
-	console.log('onSave', onSave);
+	console.log('onSave', onSave, saving);
 
 	return (
 		<DataEditor
@@ -228,7 +226,6 @@ export const DefaultPropsEditor = ({
 			defaultProps={defaultProps}
 			setDefaultProps={setDefaultProps}
 			propsEditType={propsEditType}
-			saving={saving}
 			canSaveDefaultProps={canSaveDefaultProps}
 		/>
 	);

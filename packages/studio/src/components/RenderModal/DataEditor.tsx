@@ -106,7 +106,6 @@ export const DataEditor: React.FC<{
 		React.SetStateAction<Record<string, unknown>>
 	>;
 	readonly propsEditType: PropsEditType;
-	readonly saving: boolean;
 	readonly canSaveDefaultProps: TypeCanSaveState;
 }> = ({
 	unresolvedComposition,

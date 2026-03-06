@@ -729,7 +729,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setDefaultProps={setInputProps}
 							unresolvedComposition={unresolvedComposition}
 							propsEditType="input-props"
-							saving={false}
 							canSaveDefaultProps={{
 								canUpdate: false,
 								reason: 'render dialogue',
