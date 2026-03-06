@@ -3,6 +3,7 @@ import React from 'react';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {CircularProgress} from '../RenderQueue/CircularProgress';
+import {formatEtaString} from '../RenderQueue/client-render-progress';
 import type {ClientRenderJob} from '../RenderQueue/client-side-render-types';
 import {SuccessIcon} from '../RenderQueue/SuccessIcon';
 
@@ -26,11 +27,41 @@ const right: React.CSSProperties = {
 	flex: 1,
 };
 
+const RenderingProgress: React.FC<{
+	readonly renderedFrames: number;
+	readonly totalFrames: number;
+	readonly renderedDoneIn: number | null;
+	readonly renderEstimatedTime: number;
+}> = ({renderedFrames, totalFrames, renderedDoneIn, renderEstimatedTime}) => {
+	const done = renderedDoneIn !== null;
+	const progress = totalFrames > 0 ? renderedFrames / totalFrames : 0;
+	const etaString =
+		!done && renderEstimatedTime > 0
+			? `, time remaining: ${formatEtaString(renderEstimatedTime)}`
+			: '';
+
+	return (
+		<div style={progressItem}>
+			{done ? <SuccessIcon /> : <CircularProgress progress={progress} />}
+			<Spacing x={1} />
+			<div style={label}>
+				{done
+					? `Rendered ${totalFrames} frames`
+					: `Rendered ${renderedFrames} / ${totalFrames} frames${etaString}`}
+			</div>
+			{renderedDoneIn !== null ? (
+				<div style={right}>{renderedDoneIn}ms</div>
+			) : null}
+		</div>
+	);
+};
+
 const EncodingProgress: React.FC<{
 	readonly encodedFrames: number;
 	readonly totalFrames: number;
-}> = ({encodedFrames, totalFrames}) => {
-	const done = encodedFrames === totalFrames;
+	readonly encodedDoneIn: number | null;
+}> = ({encodedFrames, totalFrames, encodedDoneIn}) => {
+	const done = encodedDoneIn !== null;
 	const progress = totalFrames > 0 ? encodedFrames / totalFrames : 0;
 
 	return (
@@ -42,6 +73,9 @@ const EncodingProgress: React.FC<{
 					? `Encoded ${totalFrames} frames`
 					: `Encoding ${encodedFrames} / ${totalFrames} frames`}
 			</div>
+			{encodedDoneIn !== null ? (
+				<div style={right}>{encodedDoneIn}ms</div>
+			) : null}
 		</div>
 	);
 };
@@ -92,16 +126,32 @@ export const ClientRenderProgress: React.FC<{
 		);
 	}
 
-	const {encodedFrames, totalFrames} = job.progress;
+	const {
+		renderedFrames,
+		encodedFrames,
+		totalFrames,
+		renderedDoneIn,
+		encodedDoneIn,
+		renderEstimatedTime,
+	} = job.progress;
 
 	return (
 		<div>
 			<Spacing y={0.5} />
 			{job.type === 'client-video' && (
-				<EncodingProgress
-					encodedFrames={encodedFrames}
-					totalFrames={totalFrames}
-				/>
+				<>
+					<RenderingProgress
+						renderedFrames={renderedFrames}
+						totalFrames={totalFrames}
+						renderedDoneIn={renderedDoneIn}
+						renderEstimatedTime={renderEstimatedTime}
+					/>
+					<EncodingProgress
+						encodedFrames={encodedFrames}
+						totalFrames={totalFrames}
+						encodedDoneIn={encodedDoneIn}
+					/>
+				</>
 			)}
 			<Spacing y={1} />
 		</div>

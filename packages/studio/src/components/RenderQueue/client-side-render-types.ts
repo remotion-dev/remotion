@@ -9,8 +9,13 @@ import type {
 import type {LogLevel} from 'remotion';
 
 export type ClientRenderJobProgress = {
+	renderedFrames: number;
 	encodedFrames: number;
 	totalFrames: number;
+	renderedDoneIn: number | null;
+	encodedDoneIn: number | null;
+	renderEstimatedTime: number;
+	progress: number;
 };
 
 export type GetBlobCallback = () => Promise<Blob>;
