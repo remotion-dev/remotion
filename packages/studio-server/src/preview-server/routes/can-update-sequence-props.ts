@@ -7,6 +7,7 @@ import type {
 	JSXOpeningElement,
 	ObjectExpression,
 	ObjectProperty,
+	TSAsExpression,
 	UnaryExpression,
 } from '@babel/types';
 import type {
@@ -32,6 +33,8 @@ export const isStaticValue = (node: Expression): boolean => {
 					(node as UnaryExpression).operator === '+') &&
 				(node as UnaryExpression).argument.type === 'NumericLiteral'
 			);
+		case 'TSAsExpression':
+			return isStaticValue((node as TSAsExpression).expression as Expression);
 		case 'ArrayExpression':
 			return (
 				node as Extract<Expression, {type: 'ArrayExpression'}>
@@ -67,6 +70,10 @@ export const extractStaticValue = (node: Expression): unknown => {
 			return undefined;
 		}
 
+		case 'TSAsExpression':
+			return extractStaticValue(
+				(node as TSAsExpression).expression as Expression,
+			);
 		case 'ArrayExpression':
 			return (
 				node as Extract<Expression, {type: 'ArrayExpression'}>

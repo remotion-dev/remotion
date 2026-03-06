@@ -8,17 +8,14 @@ import React, {
 import type {_InternalTypes, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {callApi} from '../call-api';
 import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {
-	callUpdateDefaultPropsApi,
-	canUpdateDefaultProps,
-} from '../RenderQueue/actions';
+import {callUpdateDefaultPropsApi} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import type {TypeCanSaveState} from './get-render-modal-warnings';
@@ -224,62 +221,116 @@ export const DataEditor: React.FC<{
 
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
-	const {fastRefreshes} = useContext(FastRefreshContext);
-
-	const checkIfCanSaveDefaultProps = useCallback(async () => {
-		try {
-			const can = await canUpdateDefaultProps(
-				unresolvedComposition.id,
-				readOnlyStudio,
-			);
-
-			if (can.canUpdate) {
-				setCanSaveDefaultProps((prevState) => ({
-					...prevState,
-					[unresolvedComposition.id]: {
-						canUpdate: true,
-					},
-				}));
-			} else {
-				setCanSaveDefaultProps((prevState) => ({
-					...prevState,
-					[unresolvedComposition.id]: {
-						canUpdate: false,
-						reason: can.reason,
-						determined: true,
-					},
-				}));
-			}
-		} catch (err) {
-			setCanSaveDefaultProps((prevState) => ({
-				...prevState,
-				[unresolvedComposition.id]: {
-					canUpdate: false,
-					reason: (err as Error).message,
-					determined: true,
-				},
-			}));
-		}
-	}, [readOnlyStudio, unresolvedComposition.id]);
-
-	useEffect(() => {
-		checkIfCanSaveDefaultProps();
-	}, [checkIfCanSaveDefaultProps]);
-
 	const {previewServerState, subscribeToEvent} = useContext(
 		StudioServerConnectionCtx,
 	);
 
+	const clientId =
+		previewServerState.type === 'connected'
+			? previewServerState.clientId
+			: null;
+
 	useEffect(() => {
-		const unsub = subscribeToEvent(
-			'root-file-changed',
-			checkIfCanSaveDefaultProps,
-		);
+		if (readOnlyStudio || !clientId) {
+			setCanSaveDefaultProps((prevState) => ({
+				...prevState,
+				[unresolvedComposition.id]: {
+					canUpdate: false,
+					reason: readOnlyStudio
+						? 'Read-only studio'
+						: 'Not connected to server',
+					determined: true,
+				},
+			}));
+			return;
+		}
+
+		const compositionId = unresolvedComposition.id;
+		callApi('/api/subscribe-to-default-props', {compositionId, clientId})
+			.then((can) => {
+				if (can.canUpdate) {
+					setCanSaveDefaultProps((prevState) => ({
+						...prevState,
+						[compositionId]: {canUpdate: true},
+					}));
+					updateCompositionDefaultProps(compositionId, can.currentDefaultProps);
+				} else {
+					setCanSaveDefaultProps((prevState) => ({
+						...prevState,
+						[compositionId]: {
+							canUpdate: false,
+							reason: can.reason,
+							determined: true,
+						},
+					}));
+				}
+			})
+			.catch((err) => {
+				setCanSaveDefaultProps((prevState) => ({
+					...prevState,
+					[compositionId]: {
+						canUpdate: false,
+						reason: (err as Error).message,
+						determined: true,
+					},
+				}));
+			});
+
+		return () => {
+			callApi('/api/unsubscribe-from-default-props', {
+				compositionId,
+				clientId,
+			}).catch(() => {
+				// Ignore errors during cleanup
+			});
+		};
+	}, [
+		readOnlyStudio,
+		clientId,
+		unresolvedComposition.id,
+		updateCompositionDefaultProps,
+	]);
+
+	useEffect(() => {
+		const unsub = subscribeToEvent('default-props-updatable-changed', (e) => {
+			if (e.type !== 'default-props-updatable-changed') {
+				return;
+			}
+
+			if (e.compositionId !== unresolvedComposition.id) {
+				return;
+			}
+
+			const {result} = e;
+			if (result.canUpdate) {
+				setCanSaveDefaultProps((prevState) => ({
+					...prevState,
+					[e.compositionId]: {canUpdate: true},
+				}));
+				updateCompositionDefaultProps(
+					e.compositionId,
+					result.currentDefaultProps,
+				);
+			} else {
+				setCanSaveDefaultProps((prevState) => ({
+					...prevState,
+					[e.compositionId]: {
+						canUpdate: false,
+						reason: result.reason,
+						determined: true,
+					},
+				}));
+			}
+		});
 
 		return () => {
 			unsub();
 		};
-	}, [checkIfCanSaveDefaultProps, subscribeToEvent]);
+	}, [
+		subscribeToEvent,
+		unresolvedComposition.id,
+		updateCompositionDefaultProps,
+	]);
 
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
@@ -331,9 +382,10 @@ export const DataEditor: React.FC<{
 				return;
 			}
 
-			window.remotion_ignoreFastRefreshUpdate = fastRefreshes + 1;
 			setSaving(true);
-			const newDefaultProps = updater(unresolvedComposition.defaultProps ?? {});
+			const oldDefaultProps = unresolvedComposition.defaultProps ?? {};
+			const newDefaultProps = updater(oldDefaultProps);
+			updateCompositionDefaultProps(unresolvedComposition.id, newDefaultProps);
 			callUpdateDefaultPropsApi(
 				unresolvedComposition.id,
 				newDefaultProps,
@@ -352,15 +404,18 @@ export const DataEditor: React.FC<{
 							`Cannot update default props: ${response.reason}. See console for more information.`,
 							2000,
 						);
+						updateCompositionDefaultProps(
+							unresolvedComposition.id,
+							oldDefaultProps,
+						);
 					}
-
-					updateCompositionDefaultProps(
-						unresolvedComposition.id,
-						newDefaultProps,
-					);
 				})
 				.catch((err) => {
 					showNotification(`Cannot update default props: ${err.message}`, 2000);
+					updateCompositionDefaultProps(
+						unresolvedComposition.id,
+						oldDefaultProps,
+					);
 				})
 				.finally(() => {
 					setSaving(false);
@@ -370,7 +425,6 @@ export const DataEditor: React.FC<{
 			schema,
 			z,
 			zodTypes,
-			fastRefreshes,
 			setSaving,
 			unresolvedComposition.defaultProps,
 			unresolvedComposition.id,

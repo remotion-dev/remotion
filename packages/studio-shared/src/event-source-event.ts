@@ -1,5 +1,6 @@
 import type {StaticFile} from 'remotion';
 import type {
+	CanUpdateDefaultPropsResponse,
 	CanUpdateSequencePropsResponse,
 	SequenceNodePath,
 } from './api-requests';
@@ -52,4 +53,9 @@ export type EventSourceEvent =
 			fileName: string;
 			nodePath: SequenceNodePath;
 			result: CanUpdateSequencePropsResponse;
+	  }
+	| {
+			type: 'default-props-updatable-changed';
+			compositionId: string;
+			result: CanUpdateDefaultPropsResponse;
 	  };

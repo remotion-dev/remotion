@@ -5,6 +5,7 @@ import type {
 } from '@remotion/studio-shared';
 import {updateDefaultProps} from '../../codemods/update-default-props';
 import type {ApiHandler} from '../api-types';
+import {suppressHmrForFile} from '../hmr-suppression';
 import {getProjectInfo} from '../project-info';
 import {checkIfTypeScriptFile} from './can-update-default-props';
 
@@ -31,6 +32,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 			enumPaths,
 		});
 
+		suppressHmrForFile(projectInfo.rootFile);
 		writeFileSync(projectInfo.rootFile, updated);
 		return {
 			success: true,

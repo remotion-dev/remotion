@@ -181,18 +181,27 @@ export type DeleteStaticFileResponse = {
 	existed: boolean;
 };
 
-export type CanUpdateDefaultPropsRequest = {
-	compositionId: string;
-};
-
 export type CanUpdateDefaultPropsResponse =
 	| {
 			canUpdate: true;
+			currentDefaultProps: Record<string, unknown>;
 	  }
 	| {
 			canUpdate: false;
 			reason: string;
 	  };
+
+export type SubscribeToDefaultPropsRequest = {
+	compositionId: string;
+	clientId: string;
+};
+
+export type SubscribeToDefaultPropsResponse = CanUpdateDefaultPropsResponse;
+
+export type UnsubscribeFromDefaultPropsRequest = {
+	compositionId: string;
+	clientId: string;
+};
 
 export type CanUpdateSequencePropsRequest = {
 	fileName: string;
@@ -287,9 +296,13 @@ export type ApiRoutes = {
 		ApplyVisualControlRequest,
 		ApplyVisualControlResponse
 	>;
-	'/api/can-update-default-props': ReqAndRes<
-		CanUpdateDefaultPropsRequest,
-		CanUpdateDefaultPropsResponse
+	'/api/subscribe-to-default-props': ReqAndRes<
+		SubscribeToDefaultPropsRequest,
+		SubscribeToDefaultPropsResponse
+	>;
+	'/api/unsubscribe-from-default-props': ReqAndRes<
+		UnsubscribeFromDefaultPropsRequest,
+		undefined
 	>;
 	'/api/subscribe-to-sequence-props': ReqAndRes<
 		SubscribeToSequencePropsRequest,

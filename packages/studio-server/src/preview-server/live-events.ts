@@ -6,6 +6,7 @@ import type {
 import type {LogLevel} from '@remotion/renderer';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {printServerReadyComment} from '../server-ready';
+import {unsubscribeClientDefaultPropsWatchers} from './default-props-watchers';
 import {unsubscribeClientFileExistenceWatchers} from './file-existence-watchers';
 import {unsubscribeClientSequencePropsWatchers} from './sequence-props-watchers';
 
@@ -59,6 +60,7 @@ export const makeLiveEventsRouter = (logLevel: LogLevel): LiveEventsServer => {
 		}
 
 		request.on('close', () => {
+			unsubscribeClientDefaultPropsWatchers(clientId);
 			unsubscribeClientFileExistenceWatchers(clientId);
 			unsubscribeClientSequencePropsWatchers(clientId);
 			clients = clients.filter((client) => client.id !== clientId);
