@@ -42,17 +42,21 @@ const ensureGlobalWatcher = (rootFile: string) => {
 					continue;
 				}
 
+				const clientIds = [...subscriptions[compositionId]];
 				computeCanUpdateDefaultProps({
 					compositionId,
 					remotionRoot: watcherConfig.remotionRoot,
 					entryPoint: watcherConfig.entryPoint,
 				}).then(({result: newResult}) => {
 					waitForLiveEventsListener().then((listener) => {
-						listener.sendEventToClient({
-							type: 'default-props-updatable-changed',
+						const event = {
+							type: 'default-props-updatable-changed' as const,
 							compositionId,
 							result: newResult,
-						});
+						};
+						for (const cId of clientIds) {
+							listener.sendEventToClientId(cId, event);
+						}
 					});
 				});
 			}
