@@ -1,4 +1,4 @@
-import {VideoMetadata} from '@remotion/media-utils';
+import type {VideoMetadata} from '@remotion/media-utils';
 import {useVideoConfig, Video} from 'remotion';
 
 export type Size = {

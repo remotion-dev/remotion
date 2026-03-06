@@ -1,5 +1,5 @@
+import type {MatrixTransform4D, Vector4D} from '@remotion/svg-3d-engine';
 import {
-	MatrixTransform4D,
 	reduceMatrices,
 	rotateX,
 	rotateY,
@@ -8,7 +8,6 @@ import {
 	translateX,
 	translateY,
 	translateZ,
-	Vector4D,
 } from '@remotion/svg-3d-engine';
 import React, {useContext, useMemo} from 'react';
 
@@ -37,6 +36,7 @@ export function transformPoint({
 			matrix[4 * i + 2] * z +
 			matrix[4 * i + 3] * w;
 	}
+
 	return [result[0], result[1], result[2], result[3]];
 }
 
@@ -97,6 +97,7 @@ export const RotateX: React.FC<{
 		</NewTransform>
 	);
 };
+
 export const RotateZ: React.FC<{
 	readonly children: React.ReactNode;
 	readonly radians: number;

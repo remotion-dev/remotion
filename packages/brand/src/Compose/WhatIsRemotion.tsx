@@ -1,7 +1,8 @@
 import React from 'react';
+import type {
+	CalculateMetadataFunction} from 'remotion';
 import {
 	AbsoluteFill,
-	CalculateMetadataFunction,
 	Easing,
 	interpolate,
 	measureSpring,
@@ -61,14 +62,14 @@ const getActualLayerWidth = (progress: number) => {
 };
 
 const VideoLayers: React.FC<{
-	label: string;
-	delay: number;
-	footage?: boolean;
-	bRoll?: boolean;
-	boxWidth: number;
-	boxHeight: number;
-	codeFrame?: boolean;
-	endCard?: boolean;
+	readonly label: string;
+	readonly delay: number;
+	readonly footage?: boolean;
+	readonly bRoll?: boolean;
+	readonly boxWidth: number;
+	readonly boxHeight: number;
+	readonly codeFrame?: boolean;
+	readonly endCard?: boolean;
 }> = ({
 	label,
 	delay,
@@ -123,7 +124,7 @@ const VideoLayers: React.FC<{
 									muted
 									style={{width: '100%', height: '100%', objectFit: 'cover'}}
 									src={staticFile('video.mp4')}
-								></OffthreadVideo>
+								 />
 							</Sequence>
 						) : null}
 						{bRoll ? (
@@ -132,14 +133,14 @@ const VideoLayers: React.FC<{
 									muted
 									style={{width: '100%', height: '100%', objectFit: 'cover'}}
 									src={staticFile('spiral_.mp4')}
-								></OffthreadVideo>
+								 />
 							</Sequence>
 						) : null}
 						{endCard ? (
 							<AbsoluteFill
 								className="bg-white"
 								style={{borderRadius: cornerRadius, border: '3px solid black'}}
-							></AbsoluteFill>
+							 />
 						) : null}
 					</div>
 				</div>
@@ -149,8 +150,8 @@ const VideoLayers: React.FC<{
 };
 
 const CaptionLayers: React.FC<{
-	delay: number;
-}> = ({delay: delay}) => {
+	readonly delay: number;
+}> = ({delay}) => {
 	return (
 		<Rotations zIndexHack delay={1 + delay}>
 			<ExtrudeDiv
@@ -163,7 +164,7 @@ const CaptionLayers: React.FC<{
 					<AbsoluteFill
 						className="bg-black"
 						style={{borderRadius: cornerRadius, overflow: 'hidden'}}
-					></AbsoluteFill>
+					 />
 				}
 			>
 				<div
@@ -177,7 +178,7 @@ const CaptionLayers: React.FC<{
 					className="text-black flex justify-center items-center font-sans text-2xl font-bold flex-1"
 				>
 					<Sequence from={animationStart}>
-						<Captions></Captions>
+						<Captions />
 					</Sequence>
 				</div>
 			</ExtrudeDiv>
@@ -350,7 +351,7 @@ export const WhatIsRemotion = ({
 										delay={animationStart}
 										label="<EndCard />"
 										endCard
-									></VideoLayers>
+									 />
 								</LabelOpacityContext.Provider>
 							</RotateY>
 						</TranslateX>
@@ -372,13 +373,13 @@ export const WhatIsRemotion = ({
 								<Sequence layout="none" from={100}>
 									<div
 										style={{
-											width: width,
-											height: height,
+											width,
+											height,
 											position: 'relative',
 										}}
 									>
 										{endCard ? (
-											<EndCard cornerRadius={cornerRadius}></EndCard>
+											<EndCard cornerRadius={cornerRadius} />
 										) : null}
 									</div>
 								</Sequence>

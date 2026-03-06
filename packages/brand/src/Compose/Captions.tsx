@@ -1,8 +1,5 @@
-import {
-	Caption,
-	createTikTokStyleCaptions,
-	TikTokToken,
-} from '@remotion/captions';
+import type {Caption, TikTokToken} from '@remotion/captions';
+import {createTikTokStyleCaptions} from '@remotion/captions';
 import React, {useMemo} from 'react';
 import {
 	Sequence,
@@ -13,8 +10,8 @@ import {
 } from 'remotion';
 
 const Token: React.FC<{
-	token: TikTokToken;
-	pageStart: number;
+	readonly token: TikTokToken;
+	readonly pageStart: number;
 }> = ({token, pageStart}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -90,15 +87,15 @@ export const Captions: React.FC = () => {
 			{tikTokCaptions.pages.map((page) => {
 				return (
 					<Sequence
+						key={page.startMs}
 						from={(page.startMs / 1000) * fps}
 						durationInFrames={(page.durationMs / 1000) * fps}
 						layout="none"
-						key={page.startMs}
 					>
 						<div key={page.startMs}>
 							{page.tokens.map((t) => {
 								return (
-									<Token pageStart={page.startMs} key={t.fromMs} token={t} />
+									<Token key={t.fromMs} pageStart={page.startMs} token={t} />
 								);
 							})}
 						</div>

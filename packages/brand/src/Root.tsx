@@ -1,5 +1,6 @@
 import './index.css';
-import {getVideoMetadata, VideoMetadata} from '@remotion/media-utils';
+import type { VideoMetadata} from '@remotion/media-utils';
+import {getVideoMetadata} from '@remotion/media-utils';
 import {useEffect, useState} from 'react';
 import {
 	Composition,
@@ -63,7 +64,8 @@ export const RemotionRoot: React.FC = () => {
 				continueRender(handle);
 			})
 			.catch((err) => {
-				console.log('could not get video metadata', err);
+				// eslint-disable-next-line no-console
+			console.log('could not get video metadata', err);
 			});
 	}, [handle]);
 

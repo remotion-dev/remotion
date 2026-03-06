@@ -4,7 +4,7 @@ import {motionFixedPath} from './motion-fix';
 import {springB} from './springs';
 
 export const SecondO: React.FC<{
-	style?: React.CSSProperties;
+	readonly style?: React.CSSProperties;
 }> = ({style}) => {
 	const innerSpr = 1;
 

@@ -19,6 +19,7 @@ export const ProductHuntLogo: React.FC = () => {
 			},
 		});
 	};
+
 	return (
 		<AbsoluteFill
 			style={{...centered, backgroundColor: 'white', transform: `scale(1.3)`}}

@@ -6,7 +6,8 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import {getColor, Theme} from './colors';
+import type {Theme} from './colors';
+import {getColor} from './colors';
 
 const O: React.FC = () => {
 	return (
@@ -45,6 +46,7 @@ const R2: React.FC = () => {
 		</svg>
 	);
 };
+
 const R3: React.FC = () => {
 	return (
 		<svg width="1080" height="1080" viewBox="0 0 1080 1080" fill="none">
@@ -230,8 +232,8 @@ const E2: React.FC = () => {
 };
 
 const FromRight: React.FC<{
-	children: React.ReactNode;
-	delay: number;
+	readonly children: React.ReactNode;
+	readonly delay: number;
 }> = ({children, delay}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
@@ -260,7 +262,7 @@ const FromRight: React.FC<{
 };
 
 export const Recorder: React.FC<{
-	theme: Theme;
+	readonly theme: Theme;
 }> = ({theme}) => {
 	return (
 		<AbsoluteFill

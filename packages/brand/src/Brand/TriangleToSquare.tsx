@@ -2,14 +2,15 @@ import {AbsoluteFill, interpolateColors, useCurrentFrame} from 'remotion';
 import {interpolate} from 'remotion';
 import {Rect, Triangle} from '@remotion/shapes';
 import React from 'react';
-import {getBackground, getBrand, Theme} from './colors';
+import type { Theme} from './colors';
+import {getBackground, getBrand} from './colors';
 
 export const TriangleToSquare: React.FC<{
-	progress: number;
-	length: number;
-	style: React.CSSProperties;
-	opacity: number;
-	theme: Theme;
+	readonly progress: number;
+	readonly length: number;
+	readonly style: React.CSSProperties;
+	readonly opacity: number;
+	readonly theme: Theme;
 }> = ({progress, length, style, opacity, theme}) => {
 	const triangleEdgeRoundness = interpolate(
 		progress,
@@ -61,7 +62,7 @@ export const TriangleToSquare: React.FC<{
 };
 
 export const TriangleDemo: React.FC<{
-	theme: Theme;
+	readonly theme: Theme;
 }> = ({theme}) => {
 	const frame = useCurrentFrame();
 	const progress = interpolate(frame, [0, 100], [0, 1], {

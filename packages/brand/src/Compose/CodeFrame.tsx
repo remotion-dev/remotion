@@ -2,12 +2,12 @@ import React from 'react';
 import {useCurrentFrame} from 'remotion';
 
 const Tab: React.FC = () => {
-	return <span style={{width: 18, display: 'inline-block'}}></span>;
+	return <span style={{width: 18, display: 'inline-block'}} />;
 };
 
 const Token: React.FC<{
-	children: React.ReactNode;
-	delay: number;
+	readonly children: React.ReactNode;
+	readonly delay: number;
 }> = ({children, delay}) => {
 	const frame = useCurrentFrame();
 	return <span style={{opacity: frame < delay ? 0 : 1}}>{children}</span>;

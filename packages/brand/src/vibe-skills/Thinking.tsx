@@ -35,7 +35,8 @@ export const Thinking: React.FC<ThinkingProps> = ({index}) => {
 			{spinnerChar}{' '}
 			{text.split('').map((char, i) => (
 				<span
-					key={i}
+					// eslint-disable-next-line react/no-array-index-key
+					key={`${char}-${i}`}
 					style={{
 						color: i === highlightIndex ? HIGHLIGHT_COLOR : BASE_COLOR,
 					}}

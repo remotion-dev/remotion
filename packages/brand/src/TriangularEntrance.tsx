@@ -2,9 +2,9 @@ import React, {useRef, useState} from 'react';
 import {AbsoluteFill, random} from 'remotion';
 
 export const TriangleEntrance: React.FC<{
-	progress: number;
-	children: React.ReactNode;
-	type: 'in' | 'out';
+	readonly progress: number;
+	readonly children: React.ReactNode;
+	readonly type: 'in' | 'out';
 }> = ({children, progress, type}) => {
 	const ref = useRef<SVGSVGElement>(null);
 	const width = 1;

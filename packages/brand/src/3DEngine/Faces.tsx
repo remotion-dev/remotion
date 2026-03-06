@@ -7,10 +7,10 @@ export const Faces: React.FC<{
 }> = ({elements, ...svgProps}) => {
 	return (
 		<>
-			{elements.map(({points, color, crispEdges}, idx) => {
+			{elements.map(({points, color, crispEdges}) => {
 				return (
 					<path
-						key={idx}
+						key={`${threeDIntoSvgPath(points)}-${color}`}
 						d={threeDIntoSvgPath(points)}
 						fill={color}
 						shapeRendering={crispEdges ? 'crispEdges' : undefined}

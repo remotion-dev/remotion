@@ -66,7 +66,7 @@ export const NumberedChapter: React.FC = () => {
 				style={{
 					justifyContent: 'center',
 					alignItems: 'center',
-					fontFamily: 'GT Planar',
+					fontFamily: 'Variable',
 					fontSize: 40,
 					translate: `0 ${-jump2 * 100 + 220}px`,
 					opacity: jump2,

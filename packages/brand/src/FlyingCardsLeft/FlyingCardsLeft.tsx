@@ -90,7 +90,7 @@ export const FlyingCardsLeft: React.FC<FlyingCardsLeftProps> = ({cards}) => {
 			>
 				{cards.map((text, index) => (
 					<Card
-						key={index}
+						key={text}
 						text={text}
 						index={index}
 						frame={frame}

@@ -4,7 +4,7 @@ import {All} from './All';
 import {getBackground} from './colors';
 
 export const Comp: React.FC<{
-	theme: 'light' | 'dark';
+	readonly theme: 'light' | 'dark';
 }> = ({theme}) => {
 	return (
 		<AbsoluteFill

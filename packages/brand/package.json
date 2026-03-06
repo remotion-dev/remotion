@@ -33,7 +33,7 @@
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"remotion": "workspace:*",
-		"styled-components": "5.3.11",
+		"styled-components": "6.1.13",
 		"svg-path-properties": "1.3.0",
 		"svg-path-reverse": "1.3.0",
 		"tailwindcss": "4.0.0",

@@ -16,8 +16,8 @@ import {SecondO} from './second-o';
 import {T} from './t';
 
 export const AnimatedLogo: React.FC<{
-	theme: 'light' | 'dark';
-	scaleLogo?: boolean;
+	readonly theme: 'light' | 'dark';
+	readonly scaleLogo?: boolean;
 }> = ({theme, scaleLogo}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();

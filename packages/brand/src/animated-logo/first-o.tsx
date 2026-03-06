@@ -4,9 +4,9 @@ import {motionFixedPath} from './motion-fix';
 import {springA} from './springs';
 
 export const FirstO: React.FC<{
-	style?: React.CSSProperties;
-	fill?: boolean;
-	innerScale?: number;
+	readonly style?: React.CSSProperties;
+	readonly fill?: boolean;
+	readonly innerScale?: number;
 }> = ({style, fill, innerScale: _innerScale = 1}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();

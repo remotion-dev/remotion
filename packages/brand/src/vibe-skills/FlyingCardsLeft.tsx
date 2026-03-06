@@ -85,7 +85,7 @@ export const VibeSkillsFlyingCardsLeft: React.FC = () => {
 			>
 				{CARDS.map((text, index) => (
 					<Card
-						key={index}
+						key={text}
 						text={text}
 						index={index}
 						frame={frame}

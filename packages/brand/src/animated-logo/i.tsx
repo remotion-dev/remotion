@@ -5,14 +5,14 @@ import {motionFixedPath} from './motion-fix';
 import {springC} from './springs';
 import svg = require('svg-path-properties');
 // @ts-expect-error no types
-import reverse = require('svg-path-reverse');
+import _reverse = require('svg-path-reverse');
 
 const p1 = reversePath(
 	translatePath('M1511 335 L1511 508', motionFixedPath, 0)
 );
 
 export const I: React.FC<{
-	style?: React.CSSProperties;
+	readonly style?: React.CSSProperties;
 }> = ({style}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();

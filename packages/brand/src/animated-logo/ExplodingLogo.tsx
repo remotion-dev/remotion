@@ -17,7 +17,7 @@ import {SecondO} from './second-o';
 import {T} from './t';
 
 export const ExplodingLogo: React.FC<{
-	theme: 'light' | 'dark';
+	readonly theme: 'light' | 'dark';
 }> = ({theme}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();

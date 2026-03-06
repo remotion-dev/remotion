@@ -6,10 +6,11 @@ import {spring} from 'remotion';
 import {Sequence} from 'remotion';
 import React from 'react';
 import {TriangleToSquare} from './TriangleToSquare';
-import {getOpacity, Theme} from './colors';
+import type { Theme} from './colors';
+import {getOpacity} from './colors';
 
 export const Logo: React.FC<{
-	theme: Theme;
+	readonly theme: Theme;
 }> = ({theme}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();

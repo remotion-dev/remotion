@@ -1,11 +1,11 @@
 import React from 'react';
 import {Sequence} from 'remotion';
-import {Theme} from './colors';
+import type {Theme} from './colors';
 import {Logo} from './Logo';
 import {Recorder} from './Recorder';
 
 export const All: React.FC<{
-	theme: Theme;
+	readonly theme: Theme;
 }> = ({theme}) => {
 	return (
 		<Sequence>

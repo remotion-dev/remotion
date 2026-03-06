@@ -9,7 +9,7 @@ const d1 = translatePath('M1410 292L1410 509', motionFixedPath, 0);
 const d2 = translatePath('M1410 358L1451 358', motionFixedPath, 0);
 
 export const T: React.FC<{
-	style?: React.CSSProperties;
+	readonly style?: React.CSSProperties;
 }> = ({style}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();

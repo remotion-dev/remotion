@@ -5,10 +5,10 @@ import {motionFixedPath} from './motion-fix';
 import {springA} from './springs';
 import svg = require('svg-path-properties');
 // @ts-expect-error no types
-import reverse = require('svg-path-reverse');
+import _reverse = require('svg-path-reverse');
 
 export const M: React.FC<{
-	style?: React.CSSProperties;
+	readonly style?: React.CSSProperties;
 }> = ({style}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();

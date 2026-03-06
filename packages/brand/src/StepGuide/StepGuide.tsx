@@ -50,8 +50,8 @@ const StepBadge = ({
 	stepNumber,
 	progress,
 }: {
-	stepNumber: number;
-	progress: number;
+	readonly stepNumber: number;
+	readonly progress: number;
 }) => {
 	const scale = progress;
 	const opacity = progress;
@@ -91,10 +91,10 @@ const StepTitle = ({
 	progressLine1,
 	progressLine2,
 }: {
-	line1: string;
-	line2: string;
-	progressLine1: number;
-	progressLine2: number;
+	readonly line1: string;
+	readonly line2: string;
+	readonly progressLine1: number;
+	readonly progressLine2: number;
 }) => {
 	const slideDistance = 30;
 
@@ -135,9 +135,9 @@ const AssetFrame = ({
 	type,
 	progress,
 }: {
-	src: string;
-	type: 'image' | 'video';
-	progress: number;
+	readonly src: string;
+	readonly type: 'image' | 'video';
+	readonly progress: number;
 }) => {
 	const scale = 0.9 + progress * 0.1;
 	const opacity = progress;

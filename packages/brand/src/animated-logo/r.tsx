@@ -9,7 +9,7 @@ C630 383.52 655.52 358 687 358
 h 16`;
 
 export const R: React.FC<{
-	style?: React.CSSProperties;
+	readonly style?: React.CSSProperties;
 }> = ({style}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();

@@ -57,8 +57,8 @@ const NumberBadge = ({
 	number,
 	progress,
 }: {
-	number: number;
-	progress: number;
+	readonly number: number;
+	readonly progress: number;
 }) => {
 	const scale = progress;
 	const opacity = progress;
@@ -100,11 +100,11 @@ const RuleCard = ({
 	progress,
 	theme,
 }: {
-	number: number;
-	title: string;
-	description: string;
-	progress: number;
-	theme: 'light' | 'dark';
+	readonly number: number;
+	readonly title: string;
+	readonly description: string;
+	readonly progress: number;
+	readonly theme: 'light' | 'dark';
 }) => {
 	const colors = getThemeColors(theme);
 	const slideDistance = 40;
@@ -166,9 +166,9 @@ const Heading = ({
 	progress,
 	theme,
 }: {
-	text: string;
-	progress: number;
-	theme: 'light' | 'dark';
+	readonly text: string;
+	readonly progress: number;
+	readonly theme: 'light' | 'dark';
 }) => {
 	const colors = getThemeColors(theme);
 	const slideDistance = 30;
@@ -255,7 +255,7 @@ export const RulesEnumeration: React.FC<RulesEnumerationProps> = ({
 
 					return (
 						<RuleCard
-							key={index}
+							key={rule.title}
 							number={index + 1}
 							title={rule.title}
 							description={rule.description}

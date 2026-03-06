@@ -1,10 +1,10 @@
 import React from 'react';
 import {AbsoluteFill, Sequence, useVideoConfig} from 'remotion';
-import {Theme} from './colors';
+import type {Theme} from './colors';
 import {Comp} from './Composition';
 
 export const Banner: React.FC<{
-	theme: Theme;
+	readonly theme: Theme;
 }> = ({theme}) => {
 	const {height} = useVideoConfig();
 

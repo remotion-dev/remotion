@@ -7,8 +7,8 @@ import {DepthContext, JumpThenDisappear} from './JumpThenDisappear';
 import {Rotations} from './Rotations';
 
 const Item: React.FC<{
-	cornerRadius: number;
-	children: React.ReactNode;
+	readonly cornerRadius: number;
+	readonly children: React.ReactNode;
 }> = ({cornerRadius, children}) => {
 	const context = useContext(DepthContext);
 
@@ -30,8 +30,8 @@ const Item: React.FC<{
 };
 
 const CallToAction: React.FC<{
-	cornerRadius: number;
-	children: React.ReactNode;
+	readonly cornerRadius: number;
+	readonly children: React.ReactNode;
 }> = ({cornerRadius, children}) => {
 	const depth = useContext(DepthContext);
 
@@ -59,7 +59,7 @@ const CallToAction: React.FC<{
 };
 
 export const EndCard: React.FC<{
-	cornerRadius: number;
+	readonly cornerRadius: number;
 }> = ({cornerRadius}) => {
 	return (
 		<AbsoluteFill

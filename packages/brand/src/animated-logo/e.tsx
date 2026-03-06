@@ -5,10 +5,10 @@ import {springA} from './springs';
 
 import svg = require('svg-path-properties');
 // @ts-expect-error no types
-import reverse = require('svg-path-reverse');
+import _reverse = require('svg-path-reverse');
 
 const d = reversePath(
-	'M874 421.5C874 456.696 845.668 485 811 485C776.332 485 748 456.696 748 421.5C748 386.304 776.332 358 811 358C845.668 358 874 386.304 874 421.5Z'
+	'M874 421.5C874 456.696 845.668 485 811 485C776.332 485 748 456.696 748 421.5C748 386.304 776.332 358 811 358C845.668 358 874 386.304 874 421.5Z',
 );
 
 const roundMask =
@@ -26,7 +26,7 @@ const horizontalMask = `M897 ${middleLine} L 860 ${
 } L 897 ${middleLine + middleStrokeWidth / 2}`;
 
 export const E: React.FC<{
-	style?: React.CSSProperties;
+	readonly style?: React.CSSProperties;
 }> = ({style = {}}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
@@ -47,6 +47,7 @@ export const E: React.FC<{
 		extrapolateLeft: 'clamp',
 	});
 
+	// eslint-disable-next-line new-cap
 	const dash1PathProperties = new svg.svgPathProperties(d1);
 	const d1Length = dash1PathProperties.getTotalLength();
 

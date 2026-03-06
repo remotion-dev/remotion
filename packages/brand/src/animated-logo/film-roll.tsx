@@ -109,7 +109,8 @@ export const FilmRoll: React.FC = () => {
 						/>
 						{new Array(filmRollDots).fill(true).map((_f, i) => {
 							return (
-								<circle
+								// eslint-disable-next-line react/no-array-index-key
+								<circle key={`dot-${i}`}
 									cx="540"
 									cy="540"
 									r={24}

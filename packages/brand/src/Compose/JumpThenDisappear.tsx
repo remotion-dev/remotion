@@ -46,6 +46,7 @@ export const JumpThenDisappear: React.FC<{
 		<TranslateX px={-40}>
 			<TranslateY px={70}>
 				<TranslateZ px={translateZ}>
+					{/* eslint-disable-next-line @typescript-eslint/no-use-before-define */}
 					<DepthContext value={depth}>{children}</DepthContext>
 				</TranslateZ>
 			</TranslateY>

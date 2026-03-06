@@ -11,7 +11,7 @@ const d = translatePath(
 );
 
 export const N: React.FC<{
-	style?: React.CSSProperties;
+	readonly style?: React.CSSProperties;
 }> = ({style}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();

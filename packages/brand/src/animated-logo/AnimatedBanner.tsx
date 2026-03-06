@@ -3,7 +3,7 @@ import {AbsoluteFill} from 'remotion';
 import {AnimatedLogo} from './AnimatedLogo';
 
 export const AnimatedBanner: React.FC<{
-	theme: 'light' | 'dark';
+	readonly theme: 'light' | 'dark';
 }> = ({theme}) => {
 	return (
 		<AbsoluteFill
