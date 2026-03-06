@@ -4,12 +4,12 @@ import {BACKGROUND} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
 
-export const CURRENT_COMPOSITION_HEIGHT = 70;
+export const CURRENT_COMPOSITION_HEIGHT = 64;
 
 const container: React.CSSProperties = {
 	height: CURRENT_COMPOSITION_HEIGHT,
 	display: 'block',
-	padding: '8px 12px',
+	padding: '6px 12px',
 	color: 'white',
 	backgroundColor: BACKGROUND,
 };
