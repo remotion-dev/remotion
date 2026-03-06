@@ -36,7 +36,7 @@ import {
 	numberedChapterSchema,
 } from './video-elements/numbered-chapter';
 import {StepGuide, stepGuideSchema} from './video-elements/step-guide';
-import {UpperReference} from './video-elements/upper-reference';
+import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
 import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 
 export const RemotionRoot: React.FC = () => {
@@ -183,8 +183,12 @@ export const RemotionRoot: React.FC = () => {
 					height={1080}
 				/>
 				<Composition
-					id="upper-third-reference"
-					component={UpperReference}
+					id="github-repo"
+					component={GithubRepo}
+					schema={githubRepoSchema}
+					defaultProps={{
+						repoName: 'remotion-dev/remotion',
+					}}
 					durationInFrames={5 * 30}
 					fps={30}
 					width={1920}
