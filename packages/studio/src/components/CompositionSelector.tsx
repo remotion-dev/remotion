@@ -11,6 +11,7 @@ import {
 	openFolderKey,
 } from '../helpers/persist-open-folders';
 import {sortItemsByNonceHistory} from '../helpers/sort-by-nonce-history';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
@@ -191,7 +192,9 @@ export const CompositionSelector: React.FC = () => {
 					tabIndex={tabIndex}
 				>
 					Search...
-					<span style={shortcutLabel}>{cmdOrCtrlCharacter}+K</span>
+					{areKeyboardShortcutsDisabled() ? null : (
+						<span style={shortcutLabel}>{cmdOrCtrlCharacter}+K</span>
+					)}
 				</button>
 			</div>
 			<div className="__remotion-vertical-scrollbar" style={list}>
