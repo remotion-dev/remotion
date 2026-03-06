@@ -61,7 +61,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 						string,
 						unknown
 					>;
-					setValue(() => val);
+					setValue(() => val, {shouldSave: true});
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,

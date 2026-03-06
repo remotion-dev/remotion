@@ -41,10 +41,15 @@ export const ZodTextareaEditor: React.FC<{
 
 	const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
 		(e) => {
-			setValue(() => e.target.value);
+			setValue(() => e.target.value, {shouldSave: false});
 		},
 		[setValue],
 	);
+
+	const onBlur: React.FocusEventHandler<HTMLTextAreaElement> =
+		useCallback(() => {
+			setValue((v) => v, {shouldSave: true});
+		}, [setValue]);
 
 	const zodValidation = React.useMemo(
 		() => zodSafeParse(schema, value),
@@ -63,6 +68,7 @@ export const ZodTextareaEditor: React.FC<{
 			<div style={fullWidth}>
 				<RemTextarea
 					onChange={onChange}
+					onBlur={onBlur}
 					value={value}
 					status={zodValidation ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}

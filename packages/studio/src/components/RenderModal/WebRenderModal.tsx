@@ -55,6 +55,7 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
+import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
 import {useEncodableAudioCodecs} from './use-encodable-audio-codecs';
 import {useEncodableVideoCodecs} from './use-encodable-video-codecs';
 import {WebRendererExperimentalBadge} from './WebRendererExperimentalBadge';
@@ -224,7 +225,13 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	);
 	const [frame, setFrame] = useState(() => initialFrame);
 	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
-	const [inputProps, setInputProps] = useState(() => defaultProps);
+	const [inputProps, _setInputProps] = useState(() => defaultProps);
+	const setInputProps: UpdaterFunction<Record<string, unknown>> = useCallback(
+		(updater) => {
+			_setInputProps(updater);
+		},
+		[],
+	);
 	const [delayRenderTimeout, setDelayRenderTimeout] = useState(
 		initialDelayRenderTimeout ?? 30000,
 	);

@@ -33,10 +33,14 @@ export const ZodStringEditor: React.FC<{
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			setValue(() => e.target.value);
+			setValue(() => e.target.value, {shouldSave: false});
 		},
 		[setValue],
 	);
+
+	const onBlur: React.FocusEventHandler<HTMLInputElement> = useCallback(() => {
+		setValue((v) => v, {shouldSave: true});
+	}, [setValue]);
 
 	return (
 		<Fieldset shouldPad={mayPad}>
@@ -53,6 +57,7 @@ export const ZodStringEditor: React.FC<{
 					status={zodValidation.success ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
+					onBlur={onBlur}
 					rightAlign={false}
 					name={jsonPath.join('.')}
 				/>

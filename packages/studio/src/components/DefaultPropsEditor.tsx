@@ -8,6 +8,7 @@ import {
 	defaultTypeCanSaveState,
 	type TypeCanSaveState,
 } from './RenderModal/get-render-modal-warnings';
+import type {UpdaterFunction} from './RenderModal/SchemaEditor/ZodSwitch';
 
 type AllCompStates = {
 	[key: string]: TypeCanSaveState;
@@ -22,9 +23,7 @@ export const DefaultPropsEditor = ({
 }: {
 	readonly unresolvedComposition: _InternalTypes['AnyComposition'];
 	readonly defaultProps: Record<string, unknown>;
-	readonly setDefaultProps: React.Dispatch<
-		React.SetStateAction<Record<string, unknown>>
-	>;
+	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
 	readonly propsEditType: PropsEditType;
 	readonly readOnlyStudio: boolean;
 }) => {

@@ -60,10 +60,14 @@ export const ZodDateEditor: React.FC<{
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			// React does not support e.target.valueAsDate :(
-			setValue(() => new Date(e.target.value));
+			setValue(() => new Date(e.target.value), {shouldSave: false});
 		},
 		[setValue],
 	);
+
+	const onBlur: React.FocusEventHandler<HTMLInputElement> = useCallback(() => {
+		setValue((v) => v, {shouldSave: true});
+	}, [setValue]);
 
 	const zodValidation = useMemo(
 		() => zodSafeParse(schema, value),
@@ -86,6 +90,7 @@ export const ZodDateEditor: React.FC<{
 					status={zodValidation.success ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
+					onBlur={onBlur}
 					style={inputStyle}
 					rightAlign={false}
 				/>

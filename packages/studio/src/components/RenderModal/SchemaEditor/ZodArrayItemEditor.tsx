@@ -20,16 +20,24 @@ export const ZodArrayItemEditor: React.FC<{
 	}
 
 	const onRemove = useCallback(() => {
-		onChange((oldV) => [...oldV.slice(0, index), ...oldV.slice(index + 1)]);
+		onChange((oldV) => [...oldV.slice(0, index), ...oldV.slice(index + 1)], {
+			shouldSave: true,
+		});
 	}, [index, onChange]);
 
 	const setValue = useCallback(
-		(val: ((newV: unknown) => unknown) | unknown) => {
-			onChange((oldV) => [
-				...oldV.slice(0, index),
-				typeof val === 'function' ? val(oldV[index]) : val,
-				...oldV.slice(index + 1),
-			]);
+		(
+			val: ((newV: unknown) => unknown) | unknown,
+			{shouldSave}: {shouldSave: boolean},
+		) => {
+			onChange(
+				(oldV) => [
+					...oldV.slice(0, index),
+					typeof val === 'function' ? val(oldV[index]) : val,
+					...oldV.slice(index + 1),
+				],
+				{shouldSave},
+			);
 		},
 		[index, onChange],
 	);

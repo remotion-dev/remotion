@@ -27,7 +27,10 @@ import {ZodTextareaEditor} from './ZodTextareaEditor';
 import {ZodTupleEditor} from './ZodTupleEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
 
-export type UpdaterFunction<T> = (updater: (oldValue: T) => T) => void;
+export type UpdaterFunction<T> = (
+	updater: (oldValue: T) => T,
+	{shouldSave}: {shouldSave: boolean},
+) => void;
 
 export const ZodSwitch: React.FC<{
 	readonly schema: AnyZodSchema;

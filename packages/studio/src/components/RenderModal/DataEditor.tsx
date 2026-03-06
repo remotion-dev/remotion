@@ -26,6 +26,7 @@ import type {
 	ZodSafeParseResult,
 } from './SchemaEditor/zod-schema-type';
 import {getZodSchemaType, zodSafeParse} from './SchemaEditor/zod-schema-type';
+import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
 import {WarningIndicatorButton} from './WarningIndicatorButton';
 
 type Mode = 'json' | 'schema';
@@ -102,9 +103,7 @@ const setPersistedShowWarningState = (val: boolean) => {
 export const DataEditor: React.FC<{
 	readonly unresolvedComposition: _InternalTypes['AnyComposition'];
 	readonly defaultProps: Record<string, unknown>;
-	readonly setDefaultProps: React.Dispatch<
-		React.SetStateAction<Record<string, unknown>>
-	>;
+	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
 	readonly propsEditType: PropsEditType;
 	readonly canSaveDefaultProps: TypeCanSaveState;
 }> = ({
@@ -117,6 +116,18 @@ export const DataEditor: React.FC<{
 	const [mode, setMode] = useState<Mode>('schema');
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState(),
+	);
+
+	const jsonEditorSetValue: React.Dispatch<
+		React.SetStateAction<Record<string, unknown>>
+	> = useCallback(
+		(newProps) => {
+			setDefaultProps(
+				typeof newProps === 'function' ? newProps : () => newProps,
+				{shouldSave: false},
+			);
+		},
+		[setDefaultProps],
 	);
 
 	const inJSONEditor = mode === 'json';
@@ -331,7 +342,7 @@ export const DataEditor: React.FC<{
 			) : (
 				<RenderModalJSONPropsEditor
 					value={defaultProps ?? {}}
-					setValue={setDefaultProps}
+					setValue={jsonEditorSetValue}
 					onSave={onUpdate}
 					serializedJSON={serializedJSON}
 					defaultProps={unresolvedComposition.defaultProps}

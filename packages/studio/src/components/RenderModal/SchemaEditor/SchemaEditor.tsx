@@ -10,6 +10,7 @@ import {defaultPropsEditorScrollableAreaRef} from './scroll-to-default-props-pat
 import type {AnyZodSchema, ZodSafeParseResult} from './zod-schema-type';
 import {getZodSchemaType, zodSafeParse} from './zod-schema-type';
 import {ZodObjectEditor} from './ZodObjectEditor';
+import type {UpdaterFunction} from './ZodSwitch';
 
 const scrollable: React.CSSProperties = {
 	display: 'flex',
@@ -20,9 +21,7 @@ const scrollable: React.CSSProperties = {
 export const SchemaEditor: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly value: Record<string, unknown>;
-	readonly setValue: React.Dispatch<
-		React.SetStateAction<Record<string, unknown>>
-	>;
+	readonly setValue: UpdaterFunction<Record<string, unknown>>;
 	readonly zodValidationResult: ZodSafeParseResult;
 	readonly savedDefaultProps: Record<string, unknown>;
 }> = ({schema, value, setValue, zodValidationResult, savedDefaultProps}) => {

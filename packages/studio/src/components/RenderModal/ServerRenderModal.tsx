@@ -93,6 +93,7 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
+import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
 
 type State =
 	| {
@@ -585,7 +586,13 @@ const RenderModal: React.FC<
 		return null;
 	}, [codec, x264PresetSetting, renderMode]);
 
-	const [inputProps, setInputProps] = useState(() => defaultProps);
+	const [inputProps, _setInputProps] = useState(() => defaultProps);
+	const setInputProps: UpdaterFunction<Record<string, unknown>> = useCallback(
+		(updater) => {
+			_setInputProps(updater);
+		},
+		[],
+	);
 
 	const [metadata] = useState(() => defaultMetadata);
 

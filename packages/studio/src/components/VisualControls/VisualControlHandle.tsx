@@ -45,8 +45,8 @@ export const VisualControlHandle: React.FC<{
 	const disableSave =
 		window.remotion_isReadOnlyStudio || originalFileName.type !== 'loaded';
 
-	const onSave: UpdaterFunction<unknown> = useCallback(
-		(updater) => {
+	const saveToFile = useCallback(
+		(updater: (old: unknown) => unknown) => {
 			if (disableSave) {
 				return;
 			}
@@ -106,14 +106,14 @@ export const VisualControlHandle: React.FC<{
 	}, [fastRefreshes]);
 
 	const setValue: UpdaterFunction<unknown> = useCallback(
-		(updater) => {
-			// TODO: Not sure - what is increment?
-			// TODO: What is forceApply?
+		(updater, {shouldSave}) => {
 			updateValue(keyName, updater(currentValue));
 			increaseManualRefreshes();
-			onSave(updater);
+			if (shouldSave) {
+				saveToFile(updater);
+			}
 		},
-		[currentValue, increaseManualRefreshes, keyName, onSave, updateValue],
+		[currentValue, increaseManualRefreshes, keyName, saveToFile, updateValue],
 	);
 
 	return (

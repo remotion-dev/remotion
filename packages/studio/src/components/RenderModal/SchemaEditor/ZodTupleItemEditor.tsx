@@ -19,12 +19,18 @@ export const ZodTupleItemEditor: React.FC<{
 	}
 
 	const setValue = useCallback(
-		(val: ((newV: unknown) => unknown) | unknown) => {
-			onChange((oldV) => [
-				...oldV.slice(0, index),
-				typeof val === 'function' ? val(oldV[index]) : val,
-				...oldV.slice(index + 1),
-			]);
+		(
+			val: ((newV: unknown) => unknown) | unknown,
+			{shouldSave}: {shouldSave: boolean},
+		) => {
+			onChange(
+				(oldV) => [
+					...oldV.slice(0, index),
+					typeof val === 'function' ? val(oldV[index]) : val,
+					...oldV.slice(index + 1),
+				],
+				{shouldSave},
+			);
 		},
 		[index, onChange],
 	);

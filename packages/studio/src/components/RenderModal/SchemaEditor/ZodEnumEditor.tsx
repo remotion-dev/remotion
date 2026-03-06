@@ -23,8 +23,11 @@ export const ZodEnumEditor: React.FC<{
 	readonly onRemove: null | (() => void);
 }> = ({schema, jsonPath, setValue, value, onRemove}) => {
 	const onChange: UpdaterFunction<string> = useCallback(
-		(updater: (oldV: string) => string) => {
-			setValue(updater);
+		(
+			updater: (oldV: string) => string,
+			{shouldSave}: {shouldSave: boolean},
+		) => {
+			setValue(updater, {shouldSave});
 		},
 		[setValue],
 	);
@@ -42,7 +45,7 @@ export const ZodEnumEditor: React.FC<{
 				keyHint: null,
 				leftItem: option === value ? <Checkmark /> : null,
 				onClick: (id: string) => {
-					onChange(() => id);
+					onChange(() => id, {shouldSave: true});
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,

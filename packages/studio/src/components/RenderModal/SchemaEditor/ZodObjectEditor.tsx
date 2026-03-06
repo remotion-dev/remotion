@@ -35,8 +35,11 @@ export const ZodObjectEditor: React.FC<{
 }) => {
 	const [expanded, setExpanded] = useState(true);
 	const onChange: UpdaterFunction<Record<string, unknown>> = useCallback(
-		(updater: (oldV: Record<string, unknown>) => Record<string, unknown>) => {
-			setValue(updater);
+		(
+			updater: (oldV: Record<string, unknown>) => Record<string, unknown>,
+			{shouldSave}: {shouldSave: boolean},
+		) => {
+			setValue(updater, {shouldSave});
 		},
 		[setValue],
 	);
@@ -89,14 +92,17 @@ export const ZodObjectEditor: React.FC<{
 									jsonPath={[...jsonPath, key]}
 									schema={shape[key]}
 									value={value[key]}
-									setValue={(val) => {
-										onChange((oldVal) => {
-											return {
-												...oldVal,
-												[key]:
-													typeof val === 'function' ? val(oldVal[key]) : val,
-											};
-										});
+									setValue={(val, {shouldSave}) => {
+										onChange(
+											(oldVal) => {
+												return {
+													...oldVal,
+													[key]:
+														typeof val === 'function' ? val(oldVal[key]) : val,
+												};
+											},
+											{shouldSave},
+										);
 									}}
 									onRemove={null}
 								/>

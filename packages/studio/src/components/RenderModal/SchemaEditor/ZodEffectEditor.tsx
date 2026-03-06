@@ -25,8 +25,11 @@ export const ZodEffectEditor: React.FC<{
 	}
 
 	const onChange: UpdaterFunction<unknown> = useCallback(
-		(updater: (oldV: unknown) => unknown) => {
-			updateValue(updater);
+		(
+			updater: (oldV: unknown) => unknown,
+			{shouldSave}: {shouldSave: boolean},
+		) => {
+			updateValue(updater, {shouldSave});
 		},
 		[updateValue],
 	);

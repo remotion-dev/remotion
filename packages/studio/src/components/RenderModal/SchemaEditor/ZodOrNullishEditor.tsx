@@ -67,7 +67,7 @@ export const ZodOrNullishEditor: React.FC<{
 				const val = e.target.checked
 					? nullishValue
 					: createZodValues(innerSchema, z, zodTypes);
-				setValue(() => val);
+				setValue(() => val, {shouldSave: true});
 			},
 			[innerSchema, nullishValue, setValue, z, zodTypes],
 		);

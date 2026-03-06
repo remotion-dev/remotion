@@ -18,7 +18,7 @@ export const ZodBooleanEditor: React.FC<{
 }> = ({jsonPath, value, setValue, onRemove, mayPad}) => {
 	const onToggle: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			setValue(() => e.target.checked);
+			setValue(() => e.target.checked, {shouldSave: true});
 		},
 		[setValue],
 	);

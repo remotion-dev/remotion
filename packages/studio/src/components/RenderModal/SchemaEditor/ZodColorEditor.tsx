@@ -53,18 +53,34 @@ export const ZodColorEditor: React.FC<{
 				Math.round(a),
 				zodTypes,
 			);
-			setValue(() => newColor);
+			setValue(() => newColor, {shouldSave: false});
 		},
 		[a, setValue, zodTypes],
 	);
 
+	const onColorBlur: React.FocusEventHandler<HTMLInputElement> =
+		useCallback(() => {
+			setValue(
+				(v) => {
+					// TODO: Does not yet work
+					return v;
+				},
+				{shouldSave: true},
+			);
+		}, [setValue]);
+
 	const onTextChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			const newValue = e.target.value;
-			setValue(() => newValue);
+			setValue(() => newValue, {shouldSave: false});
 		},
 		[setValue],
 	);
+
+	const onTextBlur: React.FocusEventHandler<HTMLInputElement> =
+		useCallback(() => {
+			setValue((v) => v, {shouldSave: true});
+		}, [setValue]);
 
 	const rgb = `#${r.toString(16).padStart(2, '0')}${g
 		.toString(16)
@@ -87,7 +103,7 @@ export const ZodColorEditor: React.FC<{
 				Math.round((Number(newValue) / 100) * 255),
 				zodTypes,
 			);
-			setValue(() => newColor);
+			setValue(() => newColor, {shouldSave: true});
 		},
 		[setValue, value, zodTypes],
 	);
@@ -99,7 +115,19 @@ export const ZodColorEditor: React.FC<{
 				Math.round((Number(newValue) / 100) * 255),
 				zodTypes,
 			);
-			setValue(() => newColor);
+			setValue(() => newColor, {shouldSave: false});
+		},
+		[setValue, value, zodTypes],
+	);
+
+	const onOpacityValueChangeEnd = useCallback(
+		(newValue: number) => {
+			const newColor = colorWithNewOpacity(
+				value,
+				Math.round((Number(newValue) / 100) * 255),
+				zodTypes,
+			);
+			setValue(() => newColor, {shouldSave: true});
 		},
 		[setValue, value, zodTypes],
 	);
@@ -123,6 +151,7 @@ export const ZodColorEditor: React.FC<{
 							}}
 							value={rgb}
 							onChange={onChange}
+							onBlur={onColorBlur}
 							className="__remotion_color_picker"
 							status={status}
 							name={jsonPath.join('.')}
@@ -134,12 +163,14 @@ export const ZodColorEditor: React.FC<{
 						status={status}
 						placeholder={jsonPath.join('.')}
 						onChange={onTextChange}
+						onBlur={onTextBlur}
 						rightAlign={false}
 					/>
 					<Spacing x={1} />
 					<InputDragger
 						onTextChange={onOpacityChange}
 						onValueChange={onOpacityValueChange}
+						onValueChangeEnd={onOpacityValueChangeEnd}
 						status={status}
 						value={(a / 255) * 100}
 						min={0}

@@ -161,8 +161,8 @@ export const OptionsPanel: React.FC<{
 		return composition.schema as AnyZodSchema;
 	}, [composition?.schema, noComposition, z]);
 
-	const onSave: UpdaterFunction<Record<string, unknown>> = useCallback(
-		(updater) => {
+	const saveToFile = useCallback(
+		(updater: (old: Record<string, unknown>) => Record<string, unknown>) => {
 			if (
 				schema === 'no-zod' ||
 				schema === 'no-schema' ||
@@ -224,21 +224,19 @@ export const OptionsPanel: React.FC<{
 		return composition?.defaultProps ?? {};
 	}, [composition?.defaultProps]);
 
-	const setDefaultProps = useCallback(
-		(
-			newProps:
-				| Record<string, unknown>
-				| ((oldProps: Record<string, unknown>) => Record<string, unknown>),
-		) => {
-			onSave(typeof newProps === 'function' ? newProps : () => newProps);
-
+	const setDefaultProps: UpdaterFunction<Record<string, unknown>> = useCallback(
+		(updater, {shouldSave}) => {
 			updateProps({
 				id: compositionId,
 				defaultProps: compositionDefaultProps as Record<string, unknown>,
-				newProps,
+				newProps: updater,
 			});
+
+			if (shouldSave) {
+				saveToFile(updater);
+			}
 		},
-		[compositionId, compositionDefaultProps, onSave, updateProps],
+		[compositionId, compositionDefaultProps, saveToFile, updateProps],
 	);
 
 	return (

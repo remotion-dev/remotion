@@ -27,14 +27,21 @@ export const ZodNumberEditor: React.FC<{
 }> = ({jsonPath, value, schema, setValue, onRemove, mayPad}) => {
 	const onNumberChange = useCallback(
 		(newValue: number) => {
-			setValue(() => newValue);
+			setValue(() => newValue, {shouldSave: false});
+		},
+		[setValue],
+	);
+
+	const onNumberChangeEnd = useCallback(
+		(newValue: number) => {
+			setValue(() => newValue, {shouldSave: true});
 		},
 		[setValue],
 	);
 
 	const onTextChange = useCallback(
 		(newValue: string) => {
-			setValue(() => Number(newValue));
+			setValue(() => Number(newValue), {shouldSave: true});
 		},
 		[setValue],
 	);
@@ -62,6 +69,7 @@ export const ZodNumberEditor: React.FC<{
 					placeholder={jsonPath.join('.')}
 					onTextChange={onTextChange}
 					onValueChange={onNumberChange}
+					onValueChangeEnd={onNumberChangeEnd}
 					min={getZodNumberMinimum(schema)}
 					max={getZodNumberMaximum(schema)}
 					step={getZodNumberStep(schema)}

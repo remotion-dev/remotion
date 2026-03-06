@@ -23,8 +23,11 @@ export const ZodStaticFileEditor: React.FC<{
 	readonly mayPad: boolean;
 }> = ({schema, jsonPath, setValue, value, onRemove, mayPad}) => {
 	const onChange: UpdaterFunction<string> = useCallback(
-		(updater: (oldV: string) => string) => {
-			setValue(updater);
+		(
+			updater: (oldV: string) => string,
+			{shouldSave}: {shouldSave: boolean},
+		) => {
+			setValue(updater, {shouldSave});
 		},
 		[setValue],
 	);
@@ -46,7 +49,7 @@ export const ZodStaticFileEditor: React.FC<{
 				keyHint: null,
 				leftItem: option.src === value ? <Checkmark /> : null,
 				onClick: (id: string) => {
-					onChange(() => id);
+					onChange(() => id, {shouldSave: true});
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,

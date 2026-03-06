@@ -27,8 +27,11 @@ export const ZodMatrixEditor: React.FC<{
 	readonly mayPad: boolean;
 }> = ({schema, jsonPath, setValue, value, onRemove, mayPad}) => {
 	const onChange: UpdaterFunction<unknown[]> = useCallback(
-		(updater: (oldV: unknown[]) => unknown[]) => {
-			setValue(updater);
+		(
+			updater: (oldV: unknown[]) => unknown[],
+			{shouldSave}: {shouldSave: boolean},
+		) => {
+			setValue(updater, {shouldSave});
 		},
 		[setValue],
 	);
