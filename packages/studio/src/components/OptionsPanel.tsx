@@ -13,7 +13,12 @@ import {useMobileLayout} from '../helpers/mobile-layout';
 import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {VisualControlsTabActivatedContext} from '../visual-controls/VisualControls';
 import {DefaultPropsEditor} from './DefaultPropsEditor';
+import {useZodIfPossible, useZodTypesIfPossible} from './get-zod-if-possible';
+import {showNotification} from './Notifications/NotificationCenter';
+import {extractEnumJsonPaths} from './RenderModal/SchemaEditor/extract-enum-json-paths';
+import type {AnyZodSchema} from './RenderModal/SchemaEditor/zod-schema-type';
 import {RenderQueue} from './RenderQueue';
+import {callUpdateDefaultPropsApi} from './RenderQueue/actions';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
 import {VisualControlsContent} from './VisualControls/VisualControlsContent';
@@ -123,6 +128,98 @@ export const OptionsPanel: React.FC<{
 		return null;
 	}, [canvasContent, compositions]);
 
+	const z = useZodIfPossible();
+	const zodTypes = useZodTypesIfPossible();
+
+	const noComposition = !composition;
+
+	const schema = useMemo(() => {
+		if (!z) {
+			return 'no-zod' as const;
+		}
+
+		if (noComposition) {
+			return 'no-composition' as const;
+		}
+
+		if (!composition.schema) {
+			return 'no-schema' as const;
+		}
+
+		if (
+			!(
+				typeof (composition.schema as {safeParse?: unknown}).safeParse ===
+				'function'
+			)
+		) {
+			throw new Error(
+				'A value which is not a Zod schema was passed to `schema`',
+			);
+		}
+
+		return composition.schema as AnyZodSchema;
+	}, [composition?.schema, noComposition, z]);
+	const [saving, setSaving] = useState(false);
+
+	const onSave = useCallback(
+		(
+			updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
+		) => {
+			if (
+				schema === 'no-zod' ||
+				schema === 'no-schema' ||
+				schema === 'no-composition' ||
+				z === null
+			) {
+				showNotification('Cannot update default props: No Zod schema', 2000);
+				return;
+			}
+
+			if (!composition) {
+				throw new Error('Composition is not found');
+			}
+
+			setSaving(true);
+			const oldDefaultProps = composition.defaultProps ?? {};
+			const newDefaultProps = updater(oldDefaultProps);
+			callUpdateDefaultPropsApi(
+				composition.id,
+				newDefaultProps,
+				extractEnumJsonPaths({
+					schema,
+					zodRuntime: z,
+					currentPath: [],
+					zodTypes,
+				}),
+			)
+				.then((response) => {
+					if (!response.success) {
+						// eslint-disable-next-line no-console
+						console.log(response.stack);
+						showNotification(
+							`Cannot update default props: ${response.reason}. See console for more information.`,
+							2000,
+						);
+					}
+				})
+				.catch((err) => {
+					showNotification(`Cannot update default props: ${err.message}`, 2000);
+				})
+				.finally(() => {
+					setSaving(false);
+				});
+		},
+		[schema, setSaving, z, zodTypes, composition],
+	);
+
+	const currentDefaultProps = useMemo(() => {
+		if (composition === null) {
+			return {};
+		}
+
+		return props[composition.id] ?? composition.defaultProps ?? {};
+	}, [composition, props]);
+
 	const setDefaultProps = useCallback(
 		(
 			newProps:
@@ -133,22 +230,18 @@ export const OptionsPanel: React.FC<{
 				return;
 			}
 
+			onSave(typeof newProps === 'function' ? newProps : () => newProps);
+
 			updateProps({
 				id: composition.id,
 				defaultProps: composition.defaultProps as Record<string, unknown>,
 				newProps,
 			});
 		},
-		[composition, updateProps],
+		[composition, onSave, updateProps],
 	);
 
-	const currentDefaultProps = useMemo(() => {
-		if (composition === null) {
-			return {};
-		}
-
-		return props[composition.id] ?? composition.defaultProps ?? {};
-	}, [composition, props]);
+	console.log('saving', saving);
 
 	return (
 		<div style={container} className="css-reset">
