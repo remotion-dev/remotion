@@ -24,6 +24,7 @@ import {RoundedTextBox} from './RoundedTextBox';
 import {ShaderDemoComp} from './ShaderDemo';
 import {SpringDemo} from './Spring';
 import {StarDemo} from './Star';
+import {StarburstDemoComp} from './StarburstDemo';
 import {AnimationMath} from './SubtractAnimations';
 import {TransitionSeriesEnterExitDemoComp} from './TransitionSeriesEnterExitDemo';
 import {TransitionSeriesOverlayDemoComp} from './TransitionSeriesOverlayDemo';
@@ -1045,6 +1046,73 @@ export const lightLeakDemo: DemoType = {
 			min: 0,
 			max: 360,
 			step: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const starburstDemo: DemoType = {
+	comp: StarburstDemoComp,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'starburst',
+	autoPlay: false,
+	controls: false,
+	options: [
+		{
+			name: 'rays',
+			type: 'numeric',
+			default: 12,
+			min: 2,
+			max: 100,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'rotation',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 360,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'smoothness',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 1,
+			step: 0.01,
+			optional: 'no',
+		},
+		{
+			name: 'vignette',
+			type: 'numeric',
+			default: 1,
+			min: 0,
+			max: 1,
+			step: 0.01,
+			optional: 'no',
+		},
+		{
+			name: 'originOffsetX',
+			type: 'numeric',
+			default: 0,
+			min: -1,
+			max: 1,
+			step: 0.01,
+			optional: 'no',
+		},
+		{
+			name: 'originOffsetY',
+			type: 'numeric',
+			default: 0,
+			min: -1,
+			max: 1,
+			step: 0.01,
 			optional: 'no',
 		},
 	],
