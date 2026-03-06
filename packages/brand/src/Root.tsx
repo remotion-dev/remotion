@@ -27,7 +27,6 @@ import {
 } from './video-elements/flying-cards-left';
 import {FlyingCardBottom} from './video-elements/FlyingCardBottom';
 import {FlyingCards as VibeSkillsFlyingCards} from './video-elements/FlyingCards';
-import {VibeSkillsFlyingCardsLeft} from './video-elements/FlyingCardsLeft';
 import {LowerReference} from './video-elements/lower-reference';
 import {MoneyBurn} from './video-elements/money-burn';
 import {
