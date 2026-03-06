@@ -92,7 +92,8 @@ void main() {
     vec3 prevCol = texture2D(colorPalette, vec2(prevTexCoord, 0.5)).rgb;
     col = mix(col, prevCol, blendStart);
 
-    float dist = length(center);
+    vec2 vignetteCenter = (uv - 0.5) * vec2(resolution.x / resolution.y, 1.0);
+    float dist = length(vignetteCenter);
     float radius = vignetteAmount * 3.0;
     float alpha = smoothstep(radius, radius * 0.5, dist);
 
