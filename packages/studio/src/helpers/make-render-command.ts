@@ -83,8 +83,8 @@ const addTrueBooleanFlagsIfChanged = (
 
 export const getNpmRemotionCommandPrefix = (version: string) => {
 	return version.trim() === ''
-		? 'npx --yes --location=global -p @remotion/cli remotion'
-		: `npx --yes --location=global -p @remotion/cli@${version} remotion`;
+		? 'bunx --yes --location=global -p @remotion/cli remotion'
+		: `bunx --yes --location=global -p @remotion/cli@${version} remotion`;
 };
 
 export const normalizeServeUrlForRenderCommand = ({

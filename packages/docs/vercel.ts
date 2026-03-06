@@ -114,9 +114,6 @@ export const config: VercelConfig = {
 		routes.redirect('/github', 'https://github.com/remotion-dev/remotion', {
 			permanent: false,
 		}),
-		routes.redirect('/brand', 'https://github.com/remotion-dev/logo', {
-			permanent: false,
-		}),
 		routes.redirect('/docs/lottie/after-effects', '/docs/after-effects', {
 			permanent: false,
 		}),

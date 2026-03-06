@@ -120,12 +120,6 @@ import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
 import Amplify from './AudioTesting/Amplify';
 import {BrowserTest} from './BrowserTest';
-import {CTAEndCard} from './CallToAction';
-import {
-	WhatIsRemotion,
-	whatIsRemotionCalculateMetadata,
-	whatIsRemotionSchema,
-} from './Compose/WhatIsRemotion';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -1713,16 +1707,6 @@ export const Index: React.FC = () => {
 					durationInFrames={1000}
 				/>
 				<Composition
-					id="WhatIsRemotion"
-					component={WhatIsRemotion}
-					width={1080}
-					fps={30}
-					durationInFrames={273}
-					schema={whatIsRemotionSchema}
-					defaultProps={{fade: false, whiteBackground: false, reel: false}}
-					calculateMetadata={whatIsRemotionCalculateMetadata}
-				/>
-				<Composition
 					id="3DContext"
 					component={ThreeDContext}
 					width={1080}
@@ -1800,25 +1784,6 @@ export const Index: React.FC = () => {
 				height={2160}
 				fps={30}
 				durationInFrames={500}
-			/>
-			<Composition
-				id="CallToAction"
-				component={CTAEndCard}
-				width={1920}
-				height={1080}
-				fps={30}
-				durationInFrames={180}
-				defaultProps={{
-					cornerRadius: 10,
-				}}
-				calculateMetadata={() => {
-					return {
-						defaultPixelFormat: 'yuva444p10le',
-						defaultCodec: 'prores',
-						defaultProResProfile: '4444',
-						defaultVideoImageFormat: 'png',
-					};
-				}}
 			/>
 			<Composition
 				id="Triangle"

@@ -114,10 +114,10 @@ const getBaseInput = (): Parameters<
 
 test('Should map to npm-based command prefix', () => {
 	expect(getNpmRemotionCommandPrefix('4.0.431')).toBe(
-		'npx --yes --location=global -p @remotion/cli@4.0.431 remotion',
+		'bunx --yes --location=global -p @remotion/cli@4.0.431 remotion',
 	);
 	expect(getNpmRemotionCommandPrefix('')).toBe(
-		'npx --yes --location=global -p @remotion/cli remotion',
+		'bunx --yes --location=global -p @remotion/cli remotion',
 	);
 });
 
@@ -153,7 +153,7 @@ test('Should generate concise read-only render command and omit concurrency', ()
 	});
 
 	expect(command).toContain(
-		"npx --yes --location=global -p @remotion/cli@4.0.431 remotion render 'https://example.com' 'dynamic-length' 'video.mp4'",
+		"bunx --yes --location=global -p @remotion/cli@4.0.431 remotion render 'https://example.com' 'dynamic-length' 'video.mp4'",
 	);
 	expect(command).toContain("--frames='10-80'");
 	expect(command).toContain('--muted');
@@ -176,7 +176,7 @@ test('Should generate still command and omit default flags', () => {
 	});
 
 	expect(command).toContain(
-		"npx --yes --location=global -p @remotion/cli@4.0.431 remotion still 'https://example.com/still' 'StillComp' 'still.png'",
+		"bunx --yes --location=global -p @remotion/cli@4.0.431 remotion still 'https://example.com/still' 'StillComp' 'still.png'",
 	);
 	expect(command).toContain("--frame='12'");
 	expect(command).not.toContain("--image-format='png'");
