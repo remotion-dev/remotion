@@ -1,62 +1,25 @@
----
-image: /generated/articles-docs-ai-claude-code.png
-crumb: 'AI'
-title: Prompting videos with Claude Code
-sidebar_label: Claude Code
----
+from moviepy.editor import *
+import numpy as np
 
-<YouTube minutes={5} href="https://www.youtube.com/watch?v=5NRAOnKc3c8" thumb="https://i.ytimg.com/vi/5NRAOnKc3c8/hqdefault.jpg" title="Create motion graphics with AI – Simple tutorial for beginners" />
+# Dirk pink background    
+bg = ColorClip(size=(720,1280), color=(30,0,50)).set_duration(10)
 
-You can create videos just from prompting.  
-This is an easy way to get started with Remotion!
+# Sneha Glow Text
+name = TextClip("✨ SNEHA ✨", fontsize=170, color="pink", font="Arial-Bold")
+name = name.set_position("center").set_duration(10).fadein(2).fadeout(2)
 
-## Prerequisites
+# Love Message
+msg = TextClip("Forever In My Heart ❤️", fontsize=70, color="white", font="Arial-Bold")
+msg = msg.set_position(("center", 1000)).set_duration(10)
 
-You first need to install [Claude Code](https://claude.com/product/claude-code) and [Node.js](https://nodejs.org/en).  
-Claude Code requires a paid subscription.
+# Floating Heart Effect
+hearts = []
+for i in range(30):
+    heart = TextClip("💗", fontsize=50)
+    heart = heart.set_position((np.random.randint(0,720),
+                                 np.random.randint(200,1200)))
+    heart = heart.set_duration(0.3).set_start(i*0.3)
+    hearts.append(heart)
 
-## Start a new project
-
-Create a new project using the following command:
-
-```bash
-npx create-video@latest
-```
-
-This will create a new project - we recommend the following settings:
-
-- Select the [Blank](https://remotion.dev/templates/blank) template
-- Say yes to use [TailwindCSS](/docs/tailwind)
-- Say yes to install [Skills](/docs/ai/skills)
-
-## Start the preview
-
-First, go into the directory that was created.  
-If you named your project `my-video`, you would run the following command:
-
-```bash
-cd my-video
-```
-
-Install dependencies
-
-```bash
-npm install
-```
-
-Start the project using the following command:
-
-```bash
-npm run dev
-```
-
-## Start Claude
-
-Open a separate terminal window and start Claude:
-
-```bash
-cd my-video
-claude
-```
-
-You can now prompt a video! See our video above for a few ideas on how to start.
+video = CompositeVideoClip([bg, name, msg, *hearts])
+video.write_videofile("sneha_pro_intro.mp4", fps
