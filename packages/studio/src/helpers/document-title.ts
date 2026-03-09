@@ -3,7 +3,7 @@ import type {AnyRenderJob} from '../components/RenderQueue/context';
 import {isClientRenderJob} from '../components/RenderQueue/context';
 
 let currentItemName: string | null = null;
-let unsavedProps = false;
+const unsavedProps = false;
 let tabInactive = false;
 let renderJobs: AnyRenderJob[] = [];
 
@@ -17,12 +17,6 @@ export const setCurrentCanvasContentId = (id: string | null) => {
 	const idWithoutFolder = id.split('/').pop() as string;
 	currentItemName = idWithoutFolder;
 	updateTitle();
-};
-
-export const setUnsavedProps = (unsaved: boolean) => {
-	window.remotion_unsavedProps = unsaved;
-
-	unsavedProps = unsaved;
 };
 
 export const setRenderJobs = (jobs: AnyRenderJob[]) => {

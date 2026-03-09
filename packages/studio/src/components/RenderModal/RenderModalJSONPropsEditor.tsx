@@ -2,7 +2,6 @@ import React, {useCallback, useEffect, useMemo} from 'react';
 import type {SerializedJSONWithCustomFields} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {FAIL_COLOR} from '../../helpers/colors';
-import {setUnsavedProps} from '../../helpers/document-title';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {Button} from '../Button';
 import {Flex, Row, Spacing} from '../layout';
@@ -93,10 +92,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	const hasChanged = useMemo(() => {
 		return !deepEqual(value, defaultProps);
 	}, [defaultProps, value]);
-
-	useEffect(() => {
-		setUnsavedProps(hasChanged);
-	}, [hasChanged]);
 
 	const onQuickSave = useCallback(() => {
 		if (hasChanged) {

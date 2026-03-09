@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
@@ -38,23 +38,6 @@ export const Editor: React.FC<{
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,
 	});
-	useEffect(() => {
-		if (readOnlyStudio) {
-			return;
-		}
-
-		const listenToChanges = (e: BeforeUnloadEvent) => {
-			if (window.remotion_unsavedProps) {
-				e.returnValue = 'Are you sure you want to leave?';
-			}
-		};
-
-		window.addEventListener('beforeunload', listenToChanges);
-
-		return () => {
-			window.removeEventListener('beforeunload', listenToChanges);
-		};
-	}, [readOnlyStudio]);
 
 	const [canvasMounted, setCanvasMounted] = React.useState(false);
 

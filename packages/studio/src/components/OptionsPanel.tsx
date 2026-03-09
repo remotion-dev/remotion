@@ -161,6 +161,14 @@ export const OptionsPanel: React.FC<{
 		return composition.schema as AnyZodSchema;
 	}, [composition?.schema, noComposition, z]);
 
+	const currentDefaultProps = useMemo(() => {
+		if (composition === null) {
+			return {};
+		}
+
+		return props[composition.id] ?? composition.defaultProps ?? {};
+	}, [composition, props]);
+
 	const saveToFile = useCallback(
 		(updater: (old: Record<string, unknown>) => Record<string, unknown>) => {
 			if (
@@ -177,7 +185,7 @@ export const OptionsPanel: React.FC<{
 				throw new Error('Composition is not found');
 			}
 
-			const oldDefaultProps = composition.defaultProps ?? {};
+			const oldDefaultProps = currentDefaultProps;
 			const newDefaultProps = updater(
 				oldDefaultProps as Record<string, unknown>,
 			);
@@ -205,16 +213,8 @@ export const OptionsPanel: React.FC<{
 					showNotification(`Cannot update default props: ${err.message}`, 2000);
 				});
 		},
-		[schema, z, zodTypes, composition],
+		[composition, currentDefaultProps, schema, z, zodTypes],
 	);
-
-	const currentDefaultProps = useMemo(() => {
-		if (composition === null) {
-			return {};
-		}
-
-		return props[composition.id] ?? composition.defaultProps ?? {};
-	}, [composition, props]);
 
 	const compositionId = useMemo(() => {
 		return composition?.id ?? '';

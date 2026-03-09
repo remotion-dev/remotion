@@ -1,4 +1,5 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
+import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {callApi} from './call-api';
 import type {TypeCanSaveState} from './RenderModal/get-render-modal-warnings';
@@ -98,6 +99,10 @@ export const ObserveDefaultProps: React.FC<{
 				setCanSaveDefaultProps((prevState) => ({
 					...prevState,
 					[e.compositionId]: {canUpdate: true},
+				}));
+				Internals.editorPropsProviderRef.current?.setProps((prev) => ({
+					...prev,
+					[e.compositionId]: result.currentDefaultProps,
 				}));
 			} else {
 				setCanSaveDefaultProps((prevState) => ({
