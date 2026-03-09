@@ -35,7 +35,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			defaultValue: defaultValue !== null ? JSON.parse(defaultValue) : null,
 		});
 
-		pushToUndoStack(absolutePath, fileContents);
+		pushToUndoStack(absolutePath, fileContents, logLevel);
 		suppressUndoStackInvalidation(absolutePath);
 		suppressHmrForFile(absolutePath);
 		writeFileSync(absolutePath, output);

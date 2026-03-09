@@ -1,3 +1,5 @@
+import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {installFileWatcher} from '../file-watcher';
 
 interface UndoEntry {
@@ -9,12 +11,25 @@ const MAX_ENTRIES = 100;
 const stack: UndoEntry[] = [];
 const suppressedWrites = new Set<string>();
 const watchers = new Map<string, {unwatch: () => void}>();
+let storedLogLevel: LogLevel = 'info';
 
-export function pushToUndoStack(filePath: string, oldContents: string) {
+export function pushToUndoStack(
+	filePath: string,
+	oldContents: string,
+	logLevel: LogLevel,
+) {
+	storedLogLevel = logLevel;
 	stack.push({filePath, oldContents});
 	if (stack.length > MAX_ENTRIES) {
 		stack.shift();
 	}
+
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel},
+		RenderInternals.chalk.gray(
+			`Undo stack: added entry for ${filePath} (${stack.length} items)`,
+		),
+	);
 
 	ensureWatching(filePath);
 }
@@ -53,7 +68,14 @@ function invalidateForFile(filePath: string) {
 	}
 
 	if (lastIndex !== -1) {
-		stack.splice(0, lastIndex + 1);
+		const removed = lastIndex + 1;
+		stack.splice(0, removed);
+		RenderInternals.Log.verbose(
+			{indent: false, logLevel: storedLogLevel},
+			RenderInternals.chalk.gray(
+				`Undo stack: ${filePath} was externally modified, removed ${removed} entries (${stack.length} items)`,
+			),
+		);
 	}
 
 	cleanupWatchers();

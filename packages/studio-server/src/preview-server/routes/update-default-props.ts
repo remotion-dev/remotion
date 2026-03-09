@@ -39,7 +39,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 			enumPaths,
 		});
 
-		pushToUndoStack(projectInfo.rootFile, fileContents);
+		pushToUndoStack(projectInfo.rootFile, fileContents, logLevel);
 		suppressUndoStackInvalidation(projectInfo.rootFile);
 		suppressHmrForFile(projectInfo.rootFile);
 		writeFileSync(projectInfo.rootFile, output);

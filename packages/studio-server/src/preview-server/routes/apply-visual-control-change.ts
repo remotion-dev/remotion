@@ -65,7 +65,7 @@ export const applyVisualControlHandler: ApiHandler<
 		// Prettier not available, use unformatted output
 	}
 
-	pushToUndoStack(absolutePath, fileContents);
+	pushToUndoStack(absolutePath, fileContents, logLevel);
 	suppressUndoStackInvalidation(absolutePath);
 	suppressHmrForFile(absolutePath);
 	writeFileSync(absolutePath, output);
