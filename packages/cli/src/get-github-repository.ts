@@ -1,9 +1,9 @@
-import {BundlerInternals} from '@remotion/bundler';
-import type {LogLevel} from '@remotion/renderer';
-import type {GitSource} from '@remotion/studio-shared';
 import {execSync} from 'child_process';
 import {existsSync, readFileSync} from 'fs';
 import path from 'path';
+import {BundlerInternals} from '@remotion/bundler';
+import type {LogLevel} from '@remotion/renderer';
+import type {GitSource} from '@remotion/studio-shared';
 import {Log} from './log';
 
 export type ParsedGitRemote = {
