@@ -9,7 +9,12 @@ export const TIMELINE_TRACK_EXPANDED_HEIGHT = 100;
 export const SCHEMA_FIELD_ROW_HEIGHT = 22;
 export const UNSUPPORTED_FIELD_ROW_HEIGHT = 22;
 
-const SUPPORTED_SCHEMA_TYPES = new Set(['number', 'boolean']);
+const SUPPORTED_SCHEMA_TYPES = new Set([
+	'number',
+	'boolean',
+	'rotation',
+	'translate',
+]);
 
 export type SchemaFieldInfo = {
 	key: string;
@@ -53,7 +58,8 @@ export const getExpandedTrackHeight = (
 		return TIMELINE_TRACK_EXPANDED_HEIGHT;
 	}
 
-	return fields.reduce((sum, f) => sum + f.rowHeight, 0);
+	const separators = Math.max(0, fields.length - 1);
+	return fields.reduce((sum, f) => sum + f.rowHeight, 0) + separators;
 };
 
 export const getTimelineLayerHeight = (type: 'video' | 'other') => {

@@ -463,6 +463,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/starburst',
+			link: {
+				type: 'doc',
+				id: 'starburst/starburst-api',
+			},
+			items: ['starburst/starburst-component'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/sfx',
 			link: {
 				type: 'doc',
@@ -476,6 +485,10 @@ const sidebars: SidebarsConfig = {
 				'sfx/mouse-click',
 				'sfx/shutter-modern',
 				'sfx/shutter-old',
+				'sfx/ding',
+				'sfx/bruh',
+				'sfx/vine-boom',
+				'sfx/windows-xp-error',
 			],
 		},
 		{
@@ -905,6 +918,7 @@ const sidebars: SidebarsConfig = {
 				'animation-math',
 				'shaders',
 				'light-leaks',
+				'starburst',
 			],
 		},
 		{
@@ -1582,6 +1596,7 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/production-checklist',
 				'editor-starter/features-not-included',
 				'editor-starter/faq',
+				'editor-starter/vs-studio',
 			],
 		},
 	],

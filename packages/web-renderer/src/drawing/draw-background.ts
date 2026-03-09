@@ -37,7 +37,6 @@ export const drawBackground = async ({
 	let offsetLeft = 0;
 	let offsetTop = 0;
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	using _ = {
 		[Symbol.dispose]: () => {
 			context.globalCompositeOperation = originalCompositeOperation;

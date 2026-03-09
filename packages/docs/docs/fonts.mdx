@@ -17,12 +17,17 @@ _available from v3.2.40_
 ```tsx title="MyComp.tsx"
 import { loadFont } from "@remotion/google-fonts/TitanOne";
 
-const { fontFamily } = loadFont();
+const { fontFamily } = loadFont("normal", {
+  weights: ["400"],
+  subsets: ["latin"],
+});
 
 const GoogleFontsComp: React.FC = () => {
   return <div style={{ fontFamily }}>Hello, Google Fonts</div>;
 };
 ```
+
+For projects with multiple fonts, load fonts in one shared module and wait until they are ready before rendering. If you use text measurement APIs, see the [higher-order component example](/docs/layout-utils/best-practices#example-with-high-order-component).
 
 ## Google Fonts using CSS
 

@@ -1,10 +1,4 @@
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import useComponentVisible from './utils/use-component-visible.js';
 import type {Size} from './utils/use-element-size.js';
@@ -107,7 +101,7 @@ const PlaybackPopup: React.FC<{
 	readonly playbackRates: number[];
 	readonly canvasSize: Size;
 }> = ({setIsComponentVisible, playbackRates, canvasSize}) => {
-	const {setPlaybackRate, playbackRate} = useContext(Internals.TimelineContext);
+	const {setPlaybackRate, playbackRate} = Internals.useTimelineContext();
 
 	const [keyboardSelectedRate, setKeyboardSelectedRate] =
 		useState<number>(playbackRate);
@@ -238,7 +232,7 @@ export const PlaybackrateControl: React.FC<{
 }> = ({playbackRates, canvasSize}) => {
 	const {ref, isComponentVisible, setIsComponentVisible} =
 		useComponentVisible(false);
-	const {playbackRate} = useContext(Internals.TimelineContext);
+	const {playbackRate} = Internals.useTimelineContext();
 
 	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {

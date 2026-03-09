@@ -1,28 +1,36 @@
-import type {AssignmentExpression, ExpressionStatement} from '@babel/types';
-import {stringifyDefaultProps, type EnumPath} from '@remotion/studio-shared';
-import type {namedTypes} from 'ast-types';
+import type {
+	ArrayExpression,
+	AssignmentExpression,
+	ExpressionStatement,
+	Identifier,
+	JSXAttribute,
+	JSXExpressionContainer,
+	JSXOpeningElement,
+	JSXSpreadAttribute,
+	ObjectExpression,
+	ObjectProperty,
+	StringLiteral,
+} from '@babel/types';
+import {stringifyDefaultProps} from '@remotion/studio-shared';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import {parseAst} from './parse-ast';
 
 const b = recast.types.builders;
 
-export const parseValueExpression = (
-	value: unknown,
-	enumPaths: EnumPath[],
-): ExpressionKind => {
+export const parseValueExpression = (value: unknown): ExpressionKind => {
 	return (
 		(
-			parseAst(`a = ${stringifyDefaultProps({props: value, enumPaths})}`)
+			parseAst(`a = ${stringifyDefaultProps({props: value, enumPaths: []})}`)
 				.program.body[0] as unknown as ExpressionStatement
 		).expression as AssignmentExpression
 	).right as ExpressionKind;
 };
 
 const findJsxAttribute = (
-	attributes: (namedTypes.JSXAttribute | namedTypes.JSXSpreadAttribute)[],
+	attributes: (JSXAttribute | JSXSpreadAttribute)[],
 	name: string,
-): {attrIndex: number; attr: namedTypes.JSXAttribute | undefined} => {
+): {attrIndex: number; attr: JSXAttribute | undefined} => {
 	const attrIndex = attributes.findIndex((a) => {
 		if (a.type === 'JSXSpreadAttribute') {
 			return false;
@@ -41,49 +49,45 @@ const findJsxAttribute = (
 		attrIndex,
 		attr:
 			found && found.type === 'JSXAttribute'
-				? (found as namedTypes.JSXAttribute)
+				? (found as JSXAttribute)
 				: undefined,
 	};
 };
 
 const findObjectProperty = (
-	objExpr: namedTypes.ObjectExpression,
+	objExpr: ObjectExpression,
 	propertyName: string,
-): {propIndex: number; prop: namedTypes.ObjectProperty | undefined} => {
+): {propIndex: number; prop: ObjectProperty | undefined} => {
 	const propIndex = objExpr.properties.findIndex(
 		(p) =>
 			p.type === 'ObjectProperty' &&
-			(((p as namedTypes.ObjectProperty).key.type === 'Identifier' &&
-				((p as namedTypes.ObjectProperty).key as namedTypes.Identifier).name ===
-					propertyName) ||
-				((p as namedTypes.ObjectProperty).key.type === 'StringLiteral' &&
-					((p as namedTypes.ObjectProperty).key as namedTypes.StringLiteral)
-						.value === propertyName)),
+			(((p as ObjectProperty).key.type === 'Identifier' &&
+				((p as ObjectProperty).key as Identifier).name === propertyName) ||
+				((p as ObjectProperty).key.type === 'StringLiteral' &&
+					((p as ObjectProperty).key as StringLiteral).value === propertyName)),
 	);
 
 	return {
 		propIndex,
 		prop:
 			propIndex !== -1
-				? (objExpr.properties[propIndex] as namedTypes.ObjectProperty)
+				? (objExpr.properties[propIndex] as ObjectProperty)
 				: undefined,
 	};
 };
 
-const getObjectExpression = (
-	attr: namedTypes.JSXAttribute,
-): namedTypes.ObjectExpression | null => {
+const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {
 	const {value} = attr;
 	if (!value || value.type !== 'JSXExpressionContainer') {
 		return null;
 	}
 
-	const container = value as namedTypes.JSXExpressionContainer;
+	const container = value as JSXExpressionContainer;
 	if (container.expression.type !== 'ObjectExpression') {
 		return null;
 	}
 
-	return container.expression as namedTypes.ObjectExpression;
+	return container.expression as ObjectExpression;
 };
 
 const getOldValueString = ({
@@ -91,7 +95,7 @@ const getOldValueString = ({
 	childKey,
 	defaultValue,
 }: {
-	attr: namedTypes.JSXAttribute | undefined;
+	attr: JSXAttribute | undefined;
 	childKey: string;
 	defaultValue: unknown | null;
 }): string => {
@@ -118,9 +122,9 @@ const removeNestedProp = ({
 	attributes,
 	childKey,
 }: {
-	attr: namedTypes.JSXAttribute | undefined;
+	attr: JSXAttribute | undefined;
 	attrIndex: number;
-	attributes: (namedTypes.JSXAttribute | namedTypes.JSXSpreadAttribute)[];
+	attributes: (JSXAttribute | JSXSpreadAttribute)[];
 	childKey: string;
 }) => {
 	if (!attr) {
@@ -148,26 +152,27 @@ const setNestedProp = ({
 	parentKey,
 	childKey,
 	value,
-	enumPaths,
 }: {
-	attr: namedTypes.JSXAttribute | undefined;
-	attributes: (namedTypes.JSXAttribute | namedTypes.JSXSpreadAttribute)[];
+	attr: JSXAttribute | undefined;
+	attributes: (JSXAttribute | JSXSpreadAttribute)[];
 	parentKey: string;
 	childKey: string;
 	value: unknown;
-	enumPaths: EnumPath[];
 }) => {
-	const parsedValue = parseValueExpression(value, enumPaths);
+	const parsedValue = parseValueExpression(value);
 
 	if (attr) {
 		const objExpr = getObjectExpression(attr);
 		if (objExpr) {
 			const {prop} = findObjectProperty(objExpr, childKey);
 			if (prop) {
-				prop.value = parsedValue;
+				prop.value = parsedValue as ObjectExpression | ArrayExpression;
 			} else {
 				objExpr.properties.push(
-					b.objectProperty(b.identifier(childKey), parsedValue),
+					b.objectProperty(
+						b.identifier(childKey),
+						parsedValue,
+					) as ObjectProperty,
 				);
 			}
 		}
@@ -180,7 +185,7 @@ const setNestedProp = ({
 			b.jsxExpressionContainer(objExpr),
 		);
 
-		attributes.push(newAttr);
+		attributes.push(newAttr as JSXAttribute | JSXSpreadAttribute);
 	}
 };
 
@@ -189,15 +194,13 @@ export const updateNestedProp = ({
 	parentKey,
 	childKey,
 	value,
-	enumPaths,
 	defaultValue,
 	isDefault,
 }: {
-	node: namedTypes.JSXOpeningElement;
+	node: JSXOpeningElement;
 	parentKey: string;
 	childKey: string;
 	value: unknown;
-	enumPaths: EnumPath[];
 	defaultValue: unknown | null;
 	isDefault: boolean;
 }): string => {
@@ -213,7 +216,7 @@ export const updateNestedProp = ({
 	if (isDefault) {
 		removeNestedProp({attr, attrIndex, attributes, childKey});
 	} else {
-		setNestedProp({attr, attributes, parentKey, childKey, value, enumPaths});
+		setNestedProp({attr, attributes, parentKey, childKey, value});
 	}
 
 	return oldValueString;

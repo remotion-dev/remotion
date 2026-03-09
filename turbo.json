@@ -45,7 +45,7 @@
 			"outputLogs": "new-only"
 		},
 		"build-docs": {
-			"dependsOn": ["^make", "make", "@remotion/convert#build-spa"],
+			"dependsOn": ["^make", "make", "@remotion/convert#build-spa", "@remotion/brand#bundle"],
 			"outputs": [".docusaurus", "build", "node_modules/.cache/twoslash"],
 			"outputLogs": "new-only"
 		},
@@ -109,6 +109,12 @@
 		"@remotion/convert#build-spa": {
 			"dependsOn": ["make", "^make"],
 			"outputs": ["spa-dist"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/brand#bundle": {
+			"dependsOn": ["^make"],
+			"inputs": ["src/**", "public/**", "remotion.config.*", "package.json", "tsconfig.json"],
+			"outputs": ["build"],
 			"outputLogs": "new-only"
 		}
 	}

@@ -1,16 +1,24 @@
+import type {SequenceNodePath} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import type {CanUpdateSequencePropStatus} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
+import {
+	EXPANDED_SECTION_PADDING_LEFT,
+	EXPANDED_SECTION_PADDING_RIGHT,
+} from './TimelineExpandedSection';
+import {SPACING} from './TimelineListItem';
 import {TimelineFieldValue} from './TimelineSchemaField';
 
-const fieldRow: React.CSSProperties = {
+const FIELD_ROW_PADDING_LEFT = 24;
+
+const fieldRowBase: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
 	gap: 8,
-	paddingLeft: 24,
+	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
 const fieldName: React.CSSProperties = {
@@ -19,7 +27,7 @@ const fieldName: React.CSSProperties = {
 };
 
 const fieldLabelRow: React.CSSProperties = {
-	flex: 1,
+	flex: '0 0 50%',
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
@@ -30,7 +38,9 @@ export const TimelineFieldRow: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly overrideId: string;
 	readonly validatedLocation: CodePosition | null;
-}> = ({field, overrideId, validatedLocation}) => {
+	readonly nestedDepth: number;
+	readonly nodePath: SequenceNodePath | null;
+}> = ({field, overrideId, validatedLocation, nestedDepth, nodePath}) => {
 	const {
 		setDragOverrides,
 		clearDragOverrides,
@@ -54,11 +64,12 @@ export const TimelineFieldRow: React.FC<{
 		runtimeValue: field.currentValue,
 		dragOverrideValue,
 		defaultValue: field.fieldSchema.default,
+		shouldResortToDefaultValueIfUndefined: true,
 	});
 
 	const onSave = useCallback(
 		(key: string, value: unknown): Promise<void> => {
-			if (!propStatuses || !validatedLocation) {
+			if (!propStatuses || !validatedLocation || !nodePath) {
 				return Promise.reject(new Error('Cannot save'));
 			}
 
@@ -74,15 +85,13 @@ export const TimelineFieldRow: React.FC<{
 
 			return callApi('/api/save-sequence-props', {
 				fileName: validatedLocation.source,
-				line: validatedLocation.line,
-				column: validatedLocation.column,
+				nodePath,
 				key,
 				value: JSON.stringify(value),
-				enumPaths: [],
 				defaultValue,
 			}).then(() => undefined);
 		},
-		[propStatuses, validatedLocation, field.fieldSchema.default],
+		[propStatuses, validatedLocation, nodePath, field.fieldSchema.default],
 	);
 
 	const onDragValueChange = useCallback(
@@ -98,10 +107,14 @@ export const TimelineFieldRow: React.FC<{
 
 	const style = useMemo(() => {
 		return {
-			...fieldRow,
+			...fieldRowBase,
 			height: field.rowHeight,
+			paddingLeft:
+				EXPANDED_SECTION_PADDING_LEFT +
+				FIELD_ROW_PADDING_LEFT +
+				SPACING * 3 * nestedDepth,
 		};
-	}, [field.rowHeight]);
+	}, [field.rowHeight, nestedDepth]);
 
 	return (
 		<div style={style}>
@@ -116,6 +129,7 @@ export const TimelineFieldRow: React.FC<{
 				onDragEnd={onDragEnd}
 				canUpdate={propStatus?.canUpdate ?? false}
 				effectiveValue={effectiveValue}
+				codeValue={propStatus}
 			/>
 		</div>
 	);

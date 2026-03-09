@@ -17,8 +17,10 @@ import {
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
-import {useTimelinePosition} from './timeline-position-state.js';
-import {TimelineContext} from './TimelineContext.js';
+import {
+	useTimelineContext,
+	useTimelinePosition,
+} from './timeline-position-state.js';
 import {useCurrentFrame} from './use-current-frame';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
@@ -103,7 +105,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
-	const {rootId} = useContext(TimelineContext);
+	const {rootId} = useTimelineContext();
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
@@ -223,7 +225,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			type: 'sequence',
 			rootId,
 			showInTimeline,
-			nonce,
+			nonce: nonce.get(),
 			loopDisplay,
 			stack: stack ?? inheritedStack,
 			premountDisplay: premountDisplay ?? null,
@@ -311,7 +313,9 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	HTMLDivElement,
 	SequenceProps
 > = (props, ref) => {
-	const frame = useCurrentFrame();
+	const parentPremountContext = useContext(PremountContext);
+	const frame =
+		useCurrentFrame() - parentPremountContext.premountFramesRemaining;
 
 	if (props.layout === 'none') {
 		throw new Error(
@@ -362,11 +366,8 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 		styleWhilePostmounted,
 	]);
 
-	const parentPremountContext = useContext(PremountContext);
-	const {playing} = useContext(TimelineContext);
-	const premountFramesRemaining =
-		parentPremountContext.premountFramesRemaining +
-		(premountingActive ? from - frame : 0);
+	const {playing} = useTimelineContext();
+	const premountFramesRemaining = premountingActive ? from - frame : 0;
 
 	const premountContextValue = useMemo(() => {
 		return {

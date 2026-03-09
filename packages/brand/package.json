@@ -1,0 +1,42 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/brand"
+	},
+	"name": "@remotion/brand",
+	"version": "4.0.434",
+	"private": true,
+	"sideEffects": [
+		"*.css"
+	],
+	"scripts": {
+		"dev": "remotion studio",
+		"bundle": "remotion bundle --rspack --public-path /brand/",
+		"lint": "eslint src"
+	},
+	"devDependencies": {
+		"@remotion/cli": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@remotion/fonts": "workspace:*",
+		"@remotion/google-fonts": "workspace:*",
+		"@remotion/media": "workspace:*",
+		"@remotion/media-utils": "workspace:*",
+		"@remotion/noise": "workspace:*",
+		"@remotion/paths": "workspace:*",
+		"@remotion/shapes": "workspace:*",
+		"@remotion/svg-3d-engine": "workspace:*",
+		"@remotion/captions": "workspace:*",
+		"@remotion/tailwind-v4": "workspace:*",
+		"@types/styled-components": "5.1.34",
+		"@typescript/native-preview": "catalog:",
+		"eslint": "catalog:",
+		"polished": "4.3.1",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"remotion": "workspace:*",
+		"styled-components": "6.1.13",
+		"svg-path-properties": "1.3.0",
+		"svg-path-reverse": "1.3.0",
+		"tailwindcss": "4.0.0",
+		"zod": "catalog:"
+	}
+}

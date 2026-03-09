@@ -27,6 +27,7 @@ for (const site of sites) {
   console.log(site.lastModified); // A unix timestamp, but may also be null
   console.log(site.sizeInBytes); // Size of all contents in the folder
   console.log(site.serveUrl); // URL of the deployed site that you can pass to `renderMediaOnLambda()`
+  console.log(site.version); // The Remotion version of the site, or null
 }
 
 for (const bucket of buckets) {
@@ -51,6 +52,10 @@ The [AWS region](/docs/lambda/region-selection) which you want to query.
 ### `forceBucketName?`<AvailableFrom v="3.3.102"/>
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
+
+### `compatibleOnly?`<AvailableFrom v="4.0.435"/>
+
+If `true`, only sites whose Remotion version matches the installed version of `@remotion/lambda` are returned. If `false` or not provided, all sites are returned.
 
 ## Return value
 
@@ -81,6 +86,10 @@ The combined size of all files in that project.
 #### `serveUrl`
 
 URL of the deployed site. You can pass it into [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) to render a video or audio.
+
+#### `version`<AvailableFrom v="4.0.435"/>
+
+The Remotion version of the site, or `null` if the version could not be determined.
 
 ### `buckets`
 

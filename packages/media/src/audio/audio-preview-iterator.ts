@@ -1,6 +1,8 @@
 import type {WrappedAudioBuffer} from 'mediabunny';
+import {Internals} from 'remotion';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import type {PrewarmedAudioIteratorCache} from '../prewarm-iterator-for-looping';
+import {ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT} from '../set-global-time-anchor';
 
 export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
 
@@ -8,28 +10,63 @@ export type QueuedNode = {
 	node: AudioBufferSourceNode;
 	timestamp: number;
 	buffer: AudioBuffer;
-	maxDuration: number | null;
+	scheduledTime: number;
+	playbackRate: number;
+};
+
+export type QueuedPeriod = {
+	from: number;
+	until: number;
 };
 
 export const makeAudioIterator = (
 	startFromSecond: number,
+	maximumTimestamp: number,
 	cache: PrewarmedAudioIteratorCache,
+	debugAudioScheduling: boolean,
 ) => {
 	let destroyed = false;
-	const iterator = cache.makeIteratorOrUsePrewarmed(startFromSecond);
+	const iterator = cache.makeIteratorOrUsePrewarmed(
+		startFromSecond,
+		maximumTimestamp,
+	);
 	const queuedAudioNodes: QueuedNode[] = [];
 	const audioChunksForAfterResuming: {
 		buffer: AudioBuffer;
 		timestamp: number;
-		maxDuration: number | null;
 	}[] = [];
 	let mostRecentTimestamp = -Infinity;
 	let pendingNext: Promise<IteratorResult<WrappedAudioBuffer, void>> | null =
 		null;
 
-	const cleanupAudioQueue = () => {
+	const cleanupAudioQueue = (audioContext: AudioContext) => {
 		for (const node of queuedAudioNodes) {
-			node.node.stop();
+			try {
+				const currentlyHearing = audioContext.getOutputTimestamp().contextTime!;
+				const nodeEndTime =
+					node.scheduledTime + node.buffer.duration / node.playbackRate;
+
+				const isAlreadyPlaying =
+					node.scheduledTime - ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT <
+					audioContext.currentTime;
+
+				const shouldKeep = isAlreadyPlaying;
+
+				if (shouldKeep) {
+					continue;
+				}
+
+				if (debugAudioScheduling) {
+					Internals.Log.info(
+						{logLevel: 'trace', tag: 'audio-scheduling'},
+						`Stopping node ${node.timestamp.toFixed(3)}, currently hearing = ${currentlyHearing.toFixed(3)} currentTime = ${audioContext.currentTime.toFixed(3)} nodeEndTime = ${nodeEndTime.toFixed(3)} scheduledTime = ${node.scheduledTime.toFixed(3)}`,
+					);
+				}
+
+				node.node.stop();
+			} catch {
+				// Node may not have been started
+			}
 		}
 
 		queuedAudioNodes.length = 0;
@@ -185,28 +222,34 @@ export const makeAudioIterator = (
 	const removeAndReturnAllQueuedAudioNodes = () => {
 		const nodes = queuedAudioNodes.slice();
 		for (const node of nodes) {
-			node.node.stop();
+			try {
+				node.node.stop();
+			} catch {
+				// Node may not have been started
+			}
 		}
 
 		queuedAudioNodes.length = 0;
 		return nodes;
 	};
 
-	const addChunkForAfterResuming = (
-		buffer: AudioBuffer,
-		timestamp: number,
-		maxDuration: number | null,
-	) => {
-		audioChunksForAfterResuming.push({buffer, timestamp, maxDuration});
+	const addChunkForAfterResuming = (buffer: AudioBuffer, timestamp: number) => {
+		audioChunksForAfterResuming.push({
+			buffer,
+			timestamp,
+		});
 	};
 
 	const moveQueuedChunksToPauseQueue = () => {
 		const toQueue = removeAndReturnAllQueuedAudioNodes();
 		for (const chunk of toQueue) {
-			addChunkForAfterResuming(
-				chunk.buffer,
-				chunk.timestamp,
-				chunk.maxDuration,
+			addChunkForAfterResuming(chunk.buffer, chunk.timestamp);
+		}
+
+		if (debugAudioScheduling && toQueue.length > 0) {
+			Internals.Log.trace(
+				{logLevel: 'trace', tag: 'audio-scheduling'},
+				`Moved ${toQueue.length} ${toQueue.length === 1 ? 'chunk' : 'chunks'} to pause queue (${toQueue[0].timestamp.toFixed(3)}-${toQueue[toQueue.length - 1].timestamp + toQueue[toQueue.length - 1].buffer.duration.toFixed(3)})`,
 			);
 		}
 	};
@@ -216,8 +259,8 @@ export const makeAudioIterator = (
 	};
 
 	return {
-		destroy: () => {
-			cleanupAudioQueue();
+		destroy: (audioContext: AudioContext) => {
+			cleanupAudioQueue(audioContext);
 			destroyed = true;
 			iterator.return().catch(() => undefined);
 			audioChunksForAfterResuming.length = 0;
@@ -236,13 +279,27 @@ export const makeAudioIterator = (
 		isDestroyed: () => {
 			return destroyed;
 		},
-		addQueuedAudioNode: (
-			node: AudioBufferSourceNode,
-			timestamp: number,
-			buffer: AudioBuffer,
-			maxDuration: number | null,
-		) => {
-			queuedAudioNodes.push({node, timestamp, buffer, maxDuration});
+
+		addQueuedAudioNode: ({
+			node,
+			timestamp,
+			buffer,
+			scheduledTime,
+			playbackRate,
+		}: {
+			node: AudioBufferSourceNode;
+			timestamp: number;
+			buffer: AudioBuffer;
+			scheduledTime: number;
+			playbackRate: number;
+		}) => {
+			queuedAudioNodes.push({
+				node,
+				timestamp,
+				buffer,
+				scheduledTime,
+				playbackRate,
+			});
 		},
 		removeQueuedAudioNode: (node: AudioBufferSourceNode) => {
 			const index = queuedAudioNodes.findIndex((n) => n.node === node);

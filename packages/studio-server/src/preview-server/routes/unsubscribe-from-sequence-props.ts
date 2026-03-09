@@ -5,11 +5,10 @@ import {unsubscribeFromSequencePropsWatchers} from '../sequence-props-watchers';
 export const unsubscribeFromSequenceProps: ApiHandler<
 	UnsubscribeFromSequencePropsRequest,
 	undefined
-> = ({input: {fileName, line, column, clientId}, remotionRoot}) => {
+> = ({input: {fileName, nodePath, clientId}, remotionRoot}) => {
 	unsubscribeFromSequencePropsWatchers({
 		fileName,
-		line,
-		column,
+		nodePath,
 		remotionRoot,
 		clientId,
 	});

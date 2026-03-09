@@ -61,7 +61,8 @@
 	"dependencies": {
 		"p-limit": "7.2.0",
 		"typescript": "5.9.3",
-		"turbo": "2.8.12"
+		"turbo": "2.8.12",
+		"@typescript/native-preview": "catalog:"
 	},
 	"packageManager": "bun@1.3.3",
 	"overrides": {
@@ -105,9 +106,11 @@
 			"@types/node": "20.12.14",
 			"@types/web": "0.0.166",
 			"@types/bun": "1.3.3",
-			"mediabunny": "1.35.1",
-			"@mediabunny/mp3-encoder": "1.35.1",
-			"@mediabunny/ac3": "1.35.1",
+			"mediabunny": "1.37.0",
+			"@mediabunny/mp3-encoder": "1.37.0",
+			"@mediabunny/aac-encoder": "1.37.0",
+			"@mediabunny/flac-encoder": "1.37.0",
+			"@mediabunny/ac3": "1.37.0",
 			"next": "16.1.5",
 			"three": "0.178.0",
 			"sharp": "0.34.5",
@@ -119,7 +122,7 @@
 			"@vitest/browser-playwright": "4.0.9",
 			"playwright": "1.55.1",
 			"vitest": "4.0.9",
-			"@typescript/native-preview": "7.0.0-dev.20260301.1"
+			"@typescript/native-preview": "7.0.0-dev.20260217.1"
 		}
 	}
 }
