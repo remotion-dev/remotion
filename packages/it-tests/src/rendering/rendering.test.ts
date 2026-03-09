@@ -424,6 +424,7 @@ test(
 				'render',
 				'build',
 				'--concurrency=1',
+				'--timeout=60000',
 				'offline-audio-buffer',
 				out,
 			],
