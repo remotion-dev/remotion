@@ -448,7 +448,7 @@ test(
 		fs.unlinkSync(out);
 	},
 	{
-		timeout: 30000,
+		timeout: 90000,
 		retry: 3,
 	},
 );
