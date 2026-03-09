@@ -14,6 +14,7 @@ const sidebars: SidebarsConfig = {
 			collapsed: true,
 			items: [
 				'cli/studio',
+				'cli/studio-api',
 				'cli/render',
 				'cli/still',
 				'cli/compositions',

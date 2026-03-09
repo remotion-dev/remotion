@@ -765,6 +765,15 @@ export const articles = [
 		slug: 'cli/still',
 	},
 	{
+		id: 'cli/studio-api',
+		title: 'studio()',
+		relativePath: 'docs/cli/studio-api.mdx',
+		compId: 'articles-docs-cli-studio-api',
+		crumb: '@remotion/cli',
+		noAi: false,
+		slug: 'cli/studio-api',
+	},
+	{
 		id: 'cli/studio',
 		title: 'npx remotion studio',
 		relativePath: 'docs/cli/studio.mdx',

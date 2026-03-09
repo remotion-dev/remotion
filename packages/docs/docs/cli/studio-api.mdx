@@ -1,0 +1,91 @@
+---
+image: /generated/articles-docs-cli-studio-api.png
+title: studio()
+crumb: '@remotion/cli'
+sidebar_label: studio()
+---
+
+# studio()<AvailableFrom v="4.0.432" />
+
+Start Remotion Studio from Node.js.
+
+```ts twoslash title="start-studio.ts"
+import {studio} from '@remotion/cli';
+
+await studio({
+  args: ['src/index.ts', '--port=4321', '--no-open'],
+});
+```
+
+## Signature
+
+```ts
+const studio: (
+  options?: {
+    args?: string[];
+    remotionRoot?: string;
+    logLevel?: LogLevel;
+    checkVersionMismatch?: boolean;
+  },
+) => Promise<void>;
+```
+
+## Arguments
+
+### `options?`
+
+An object containing one or more of the following options:
+
+#### `args?`
+
+Command arguments in the same format as [`npx remotion studio`](/docs/cli/studio), including positional arguments and flags.
+
+```ts
+await studio({
+  args: ['src/index.ts', '--port=4321', '--no-open'],
+});
+```
+
+#### `remotionRoot?`
+
+Path to your [Remotion root](/docs/terminology/remotion-root).  
+Default: auto-detected using the nearest `package.json`.
+
+#### `logLevel?`
+
+Override the log level used by the command.
+
+Possible values: `"error"`, `"warn"`, `"info"`, `"verbose"`.
+
+#### `checkVersionMismatch?`
+
+Whether to run the version mismatch check before starting Studio.
+
+Default: `true`.
+
+## Behavior
+
+If Studio is already running for the project and port, the promise resolves after attempting to connect.
+
+If a new Studio instance is started, the promise is long-running and does not currently expose a `close()` handle.
+
+## Error handling
+
+`studio()` throws errors that you can catch in your application.
+
+```ts
+try {
+  await studio({args: ['src/index.ts']});
+} catch (err) {
+  console.error(err);
+}
+```
+
+## Compatibility
+
+<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs={true} bun={false} serverlessFunctions={false} clientSideRendering={false} serverSideRendering={true} player={false} studio={false} />
+
+## See also
+
+- [`npx remotion studio`](/docs/cli/studio)
+- [Configuration file](/docs/config)
