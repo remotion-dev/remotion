@@ -7,6 +7,7 @@ import type {
 import {updateSequenceProps} from '../../codemods/update-sequence-props';
 import type {ApiHandler} from '../api-types';
 import {suppressHmrForFile} from '../hmr-suppression';
+import {pushToUndoStack, suppressUndoStackInvalidation} from '../undo-stack';
 import {logUpdate} from './log-update';
 
 export const saveSequencePropsHandler: ApiHandler<
@@ -34,6 +35,8 @@ export const saveSequencePropsHandler: ApiHandler<
 			defaultValue: defaultValue !== null ? JSON.parse(defaultValue) : null,
 		});
 
+		pushToUndoStack(absolutePath, fileContents);
+		suppressUndoStackInvalidation(absolutePath);
 		suppressHmrForFile(absolutePath);
 		writeFileSync(absolutePath, output);
 
@@ -59,6 +62,7 @@ export const saveSequencePropsHandler: ApiHandler<
 		return {
 			success: false,
 			reason: (err as Error).message,
+			stack: (err as Error).stack as string,
 		};
 	}
 };

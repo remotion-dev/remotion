@@ -13,14 +13,14 @@ test('Should be able to update default props', async () => {
 		'utf-8',
 	);
 
-	const update = await updateDefaultProps({
+	const {output} = await updateDefaultProps({
 		input: file,
 		compositionId: 'Comp3',
 		newDefaultProps: {abc: 'def', newDate: 'remotion-date:2022-01-02'},
 		enumPaths: [],
 	});
 
-	expect(update).toBe(expected);
+	expect(output).toBe(expected);
 });
 
 test('Should be able to update default props', async () => {
@@ -33,12 +33,12 @@ test('Should be able to update default props', async () => {
 		'utf-8',
 	);
 
-	const update = await updateDefaultProps({
+	const {output} = await updateDefaultProps({
 		input: file,
 		compositionId: 'schema-test',
 		newDefaultProps: {abc: 'def', newDate: 'remotion-date:2022-01-02'},
 		enumPaths: [],
 	});
 
-	expect(update).toBe(expected);
+	expect(output).toBe(expected);
 });

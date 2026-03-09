@@ -251,6 +251,7 @@ export type SaveSequencePropsResponse =
 	| {
 			success: false;
 			reason: string;
+			stack: string;
 	  };
 
 export type UpdateAvailableRequest = {};
