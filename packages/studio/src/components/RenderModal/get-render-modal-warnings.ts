@@ -11,12 +11,6 @@ export type TypeCanSaveState =
 			determined: boolean;
 	  };
 
-export const defaultTypeCanSaveState: TypeCanSaveState = {
-	canUpdate: false,
-	reason: 'Loading...',
-	determined: false,
-};
-
 const getInputPropsWarning = ({
 	cliProps,
 	propsEditType,
@@ -34,7 +28,13 @@ const getInputPropsWarning = ({
 	return null;
 };
 
-const getCannotSaveDefaultProps = (canSaveDefaultProps: TypeCanSaveState) => {
+const getCannotSaveDefaultProps = (
+	canSaveDefaultProps: TypeCanSaveState | null,
+) => {
+	if (canSaveDefaultProps === null) {
+		return null;
+	}
+
 	if (canSaveDefaultProps.canUpdate) {
 		return null;
 	}
@@ -89,7 +89,7 @@ export const getRenderModalWarnings = ({
 	propsEditType,
 }: {
 	cliProps: unknown;
-	canSaveDefaultProps: TypeCanSaveState;
+	canSaveDefaultProps: TypeCanSaveState | null;
 	isCustomDateUsed: boolean;
 	customFileUsed: boolean;
 	jsMapUsed: boolean;

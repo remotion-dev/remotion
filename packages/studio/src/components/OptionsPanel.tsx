@@ -274,7 +274,6 @@ export const OptionsPanel: React.FC<{
 						defaultProps={currentDefaultProps}
 						setDefaultProps={setDefaultProps}
 						propsEditType="default-props"
-						readOnlyStudio={readOnlyStudio}
 					/>
 				) : null
 			) : panel === 'visual-controls' && visualControlsTabActivated ? (

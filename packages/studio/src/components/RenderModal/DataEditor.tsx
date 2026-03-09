@@ -105,7 +105,7 @@ export const DataEditor: React.FC<{
 	readonly defaultProps: Record<string, unknown>;
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
 	readonly propsEditType: PropsEditType;
-	readonly canSaveDefaultProps: TypeCanSaveState;
+	readonly canSaveDefaultProps: TypeCanSaveState | null;
 }> = ({
 	unresolvedComposition,
 	defaultProps,
