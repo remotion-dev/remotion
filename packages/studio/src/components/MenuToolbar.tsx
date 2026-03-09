@@ -8,6 +8,7 @@ import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
 import {SidebarCollapserControls} from './SidebarCollapserControls';
+import {UndoRedoButtons} from './UndoRedoButtons';
 import {UpdateCheck} from './UpdateCheck';
 
 const row: React.CSSProperties = {
@@ -134,6 +135,7 @@ export const MenuToolbar: React.FC<{
 					);
 				})}
 				{readOnlyStudio ? null : <UpdateCheck />}
+				{readOnlyStudio ? null : <UndoRedoButtons />}
 			</div>
 			<div style={flex} />
 			<MenuBuildIndicator />

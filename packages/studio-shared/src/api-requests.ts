@@ -276,6 +276,26 @@ export type InstallPackageRequest = {
 };
 export type InstallPackageResponse = {};
 
+export type UndoRequest = {};
+export type UndoResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
+export type RedoRequest = {};
+export type RedoResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
 export type ApiRoutes = {
 	'/api/cancel': ReqAndRes<CancelRenderRequest, CancelRenderResponse>;
 	'/api/render': ReqAndRes<AddRenderRequest, undefined>;
@@ -332,4 +352,6 @@ export type ApiRoutes = {
 		InstallPackageRequest,
 		InstallPackageResponse
 	>;
+	'/api/undo': ReqAndRes<UndoRequest, UndoResponse>;
+	'/api/redo': ReqAndRes<RedoRequest, RedoResponse>;
 };

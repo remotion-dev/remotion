@@ -8,12 +8,14 @@ import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {handleInstallPackage} from './routes/install-dependency';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {projectInfoHandler} from './routes/project-info';
+import {redoHandler} from './routes/redo';
 import {handleRemoveRender} from './routes/remove-render';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
 import {subscribeToDefaultProps} from './routes/subscribe-to-default-props';
 import {subscribeToFileExistence} from './routes/subscribe-to-file-existence';
 import {subscribeToSequenceProps} from './routes/subscribe-to-sequence-props';
+import {undoHandler} from './routes/undo';
 import {unsubscribeFromDefaultProps} from './routes/unsubscribe-from-default-props';
 import {unsubscribeFromFileExistence} from './routes/unsubscribe-from-file-existence';
 import {unsubscribeFromSequenceProps} from './routes/unsubscribe-from-sequence-props';
@@ -45,4 +47,6 @@ export const allApiRoutes: {
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/restart-studio': handleRestartStudio,
 	'/api/install-package': handleInstallPackage,
+	'/api/undo': undoHandler,
+	'/api/redo': redoHandler,
 };

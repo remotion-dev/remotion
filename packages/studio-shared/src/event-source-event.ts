@@ -58,4 +58,9 @@ export type EventSourceEvent =
 			type: 'default-props-updatable-changed';
 			compositionId: string;
 			result: CanUpdateDefaultPropsResponse;
+	  }
+	| {
+			type: 'undo-redo-stack-changed';
+			undoFile: string | null;
+			redoFile: string | null;
 	  };
