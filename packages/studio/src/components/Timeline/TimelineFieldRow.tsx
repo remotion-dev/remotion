@@ -40,7 +40,15 @@ export const TimelineFieldRow: React.FC<{
 	readonly validatedLocation: CodePosition | null;
 	readonly nestedDepth: number;
 	readonly nodePath: SequenceNodePath | null;
-}> = ({field, overrideId, validatedLocation, nestedDepth, nodePath}) => {
+	readonly keysToObserve: string[];
+}> = ({
+	field,
+	overrideId,
+	validatedLocation,
+	nestedDepth,
+	nodePath,
+	keysToObserve,
+}) => {
 	const {
 		setDragOverrides,
 		clearDragOverrides,
@@ -67,6 +75,8 @@ export const TimelineFieldRow: React.FC<{
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
+	const {setCodeValues} = useContext(Internals.VisualModeOverridesContext);
+
 	const onSave = useCallback(
 		(key: string, value: unknown): Promise<void> => {
 			if (!propStatuses || !validatedLocation || !nodePath) {
@@ -89,9 +99,30 @@ export const TimelineFieldRow: React.FC<{
 				key,
 				value: JSON.stringify(value),
 				defaultValue,
-			}).then(() => undefined);
+				observedKeys: keysToObserve,
+			}).then((data) => {
+				if (data.success) {
+					if (data.newStatus.canUpdate) {
+						setCodeValues(overrideId, data.newStatus.props);
+					} else {
+						setCodeValues(overrideId, null);
+					}
+
+					return;
+				}
+
+				return Promise.reject(new Error(data.reason));
+			});
 		},
-		[propStatuses, validatedLocation, nodePath, field.fieldSchema.default],
+		[
+			field.fieldSchema.default,
+			keysToObserve,
+			nodePath,
+			overrideId,
+			propStatuses,
+			setCodeValues,
+			validatedLocation,
+		],
 	);
 
 	const onDragValueChange = useCallback(

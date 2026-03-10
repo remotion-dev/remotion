@@ -69,6 +69,14 @@ export const TimelineExpandedSection: React.FC<{
 		};
 	}, [expandedHeight]);
 
+	const keysToObserve = useMemo(() => {
+		if (!schemaFields) {
+			return [];
+		}
+
+		return schemaFields.map((f) => f.key);
+	}, [schemaFields]);
+
 	return (
 		<div style={style}>
 			{schemaFields
@@ -82,6 +90,7 @@ export const TimelineExpandedSection: React.FC<{
 									validatedLocation={validatedLocation}
 									nestedDepth={nestedDepth}
 									nodePath={nodePath}
+									keysToObserve={keysToObserve}
 								/>
 							</React.Fragment>
 						);

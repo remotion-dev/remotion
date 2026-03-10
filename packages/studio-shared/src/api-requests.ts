@@ -242,11 +242,13 @@ export type SaveSequencePropsRequest = {
 	key: string;
 	value: string;
 	defaultValue: string | null;
+	observedKeys: string[];
 };
 
 export type SaveSequencePropsResponse =
 	| {
 			success: true;
+			newStatus: CanUpdateSequencePropsResponse;
 	  }
 	| {
 			success: false;
