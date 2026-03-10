@@ -63,14 +63,12 @@ test('should render with valid frame range', async (t) => {
 
 	const resolvedProgress = finalProgress as RenderMediaOnWebProgress;
 
-	expect(resolvedProgress).toMatchObject({
-		renderedFrames: 6,
+	expect(resolvedProgress).toEqual({
 		encodedFrames: 6,
+		encodedDoneIn: expect.any(Number),
 		renderEstimatedTime: 0,
 		progress: 1,
 	});
-	expect(resolvedProgress.renderedDoneIn).toBeTypeOf('number');
-	expect(resolvedProgress.encodedDoneIn).toBeTypeOf('number');
 });
 
 test('frameRange starting from non-zero should produce correct duration', async (t) => {

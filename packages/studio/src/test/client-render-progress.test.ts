@@ -13,24 +13,20 @@ test('formats ETA strings like server-side renders', () => {
 test('formats client render progress message while rendering', () => {
 	expect(
 		getClientRenderProgressMessage({
-			renderedFrames: 12,
 			encodedFrames: 10,
 			totalFrames: 30,
-			renderedDoneIn: null,
 			encodedDoneIn: null,
 			renderEstimatedTime: 65_000,
 			progress: 0.55,
 		}),
-	).toBe('Rendered 12/30, time remaining: 1m 5s');
+	).toBe('Rendering 55%, time remaining: 1m 5s');
 });
 
 test('formats client render progress message while encoding', () => {
 	expect(
 		getClientRenderProgressMessage({
-			renderedFrames: 30,
 			encodedFrames: 24,
 			totalFrames: 30,
-			renderedDoneIn: 4_000,
 			encodedDoneIn: null,
 			renderEstimatedTime: 0,
 			progress: 0.94,
@@ -41,10 +37,8 @@ test('formats client render progress message while encoding', () => {
 test('returns getting composition before frame totals are known', () => {
 	expect(
 		getClientRenderProgressMessage({
-			renderedFrames: 0,
 			encodedFrames: 0,
 			totalFrames: 0,
-			renderedDoneIn: null,
 			encodedDoneIn: null,
 			renderEstimatedTime: 0,
 			progress: 0,

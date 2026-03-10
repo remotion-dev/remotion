@@ -110,10 +110,10 @@ export const RenderButton: React.FC<{
 				muted: typeof AudioEncoder === 'undefined',
 				scale: 1,
 				inputProps,
-				onProgress: ({renderedFrames}) => {
+				onProgress: ({progress}) => {
 					setState({
 						type: 'progress',
-						progress: renderedFrames / durationInFrames,
+						progress,
 					});
 				},
 			});

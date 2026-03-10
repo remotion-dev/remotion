@@ -78,9 +78,7 @@ type MandatoryRenderMediaOnWebOptions<
 const MAX_RECENT_FRAME_TIMINGS = 150;
 
 export type RenderMediaOnWebProgress = {
-	renderedFrames: number;
 	encodedFrames: number;
-	renderedDoneIn: number | null;
 	encodedDoneIn: number | null;
 	renderEstimatedTime: number;
 	progress: number;
@@ -341,7 +339,6 @@ const internalRenderMediaOnWeb = async <
 		const totalFrames = realFrameRange[1] - realFrameRange[0] + 1;
 		const durationInSeconds = totalFrames / resolved.fps;
 		const renderStart = Date.now();
-		let renderedDoneIn: number | null = null;
 		let encodedDoneIn: number | null = null;
 		let renderEstimatedTime = 0;
 		const recentFrameTimings: number[] = [];
@@ -383,13 +380,9 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('renderMediaOnWeb() was cancelled');
 		}
 
-		const progress: RenderMediaOnWebProgress = {
+		const progress = {
 			renderedFrames: 0,
 			encodedFrames: 0,
-			renderedDoneIn: null,
-			encodedDoneIn: null,
-			renderEstimatedTime: 0,
-			progress: 0,
 		};
 		const getProgressPayload = (): RenderMediaOnWebProgress => {
 			const overallProgress =
@@ -399,9 +392,7 @@ const internalRenderMediaOnWeb = async <
 				) / 100;
 
 			return {
-				renderedFrames: progress.renderedFrames,
 				encodedFrames: progress.encodedFrames,
-				renderedDoneIn,
 				encodedDoneIn,
 				renderEstimatedTime,
 				progress: overallProgress,
@@ -491,10 +482,6 @@ const internalRenderMediaOnWeb = async <
 			const newAverage = recentTimingsSum / recentFrameTimings.length;
 			const remainingFrames = totalFrames - progress.renderedFrames;
 			renderEstimatedTime = Math.round(remainingFrames * newAverage);
-
-			if (progress.renderedFrames === totalFrames) {
-				renderedDoneIn = now - renderStart;
-			}
 
 			throttledOnProgress?.(getProgressPayload());
 

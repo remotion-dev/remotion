@@ -158,12 +158,12 @@ test('should throttle onProgress callback to 250ms', {retry: 2}, async (t) => {
 
 	// Final call should have all frames rendered and encoded
 	const finalCall = progressCalls[progressCalls.length - 1];
-	expect(finalCall.progress.renderedFrames).toBe(30);
-	expect(finalCall.progress.encodedFrames).toBe(30);
-	expect(finalCall.progress.renderEstimatedTime).toBe(0);
-	expect(finalCall.progress.progress).toBe(1);
-	expect(finalCall.progress.renderedDoneIn).toBeTypeOf('number');
-	expect(finalCall.progress.encodedDoneIn).toBeTypeOf('number');
+	expect(finalCall.progress).toEqual({
+		encodedFrames: 30,
+		encodedDoneIn: expect.any(Number),
+		renderEstimatedTime: 0,
+		progress: 1,
+	});
 
 	// Check that calls are throttled (if we have multiple calls)
 	if (progressCalls.length > 1) {
@@ -212,27 +212,21 @@ test(
 		expect(progressCalls.length).toBeGreaterThan(1);
 
 		const intermediateCall = progressCalls.find((progress) => {
-			return progress.renderedFrames < 20;
+			return progress.encodedFrames < 20;
 		});
 		expect(intermediateCall).toBeDefined();
 		expect(intermediateCall?.renderEstimatedTime).toBeGreaterThan(0);
-		expect(intermediateCall?.renderedDoneIn).toBeNull();
 		expect(intermediateCall?.encodedDoneIn).toBeNull();
 		expect(intermediateCall?.progress).toBeGreaterThan(0);
 		expect(intermediateCall?.progress).toBeLessThan(1);
 
 		const finalCall = progressCalls[progressCalls.length - 1];
-		expect(finalCall).toMatchObject({
-			renderedFrames: 20,
+		expect(finalCall).toEqual({
 			encodedFrames: 20,
+			encodedDoneIn: expect.any(Number),
 			renderEstimatedTime: 0,
 			progress: 1,
 		});
-		expect(finalCall.renderedDoneIn).toBeTypeOf('number');
-		expect(finalCall.encodedDoneIn).toBeTypeOf('number');
-		expect(finalCall.encodedDoneIn).toBeGreaterThanOrEqual(
-			finalCall.renderedDoneIn ?? 0,
-		);
 	},
 );
 
