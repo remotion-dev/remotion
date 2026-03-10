@@ -135,12 +135,12 @@ export const MenuToolbar: React.FC<{
 					);
 				})}
 				{readOnlyStudio ? null : <UpdateCheck />}
-				{readOnlyStudio ? null : <UndoRedoButtons />}
 			</div>
 			<div style={flex} />
 			<MenuBuildIndicator />
 			<div style={flex} />
 			<div style={fixedWidthRight}>
+				{readOnlyStudio ? null : <UndoRedoButtons />}
 				<SidebarCollapserControls />
 			</div>
 			<Spacing x={1} />
