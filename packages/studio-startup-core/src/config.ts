@@ -139,11 +139,6 @@ const validatePort = (port: number | undefined) => {
 	}
 };
 
-const setPort = (port: number | undefined) => {
-	setStudioPort(port);
-	setRendererPort(port);
-};
-
 const setStudioPort = (port: number | undefined) => {
 	validatePort(port);
 	studioPort = port;
@@ -152,6 +147,11 @@ const setStudioPort = (port: number | undefined) => {
 const setRendererPort = (port: number | undefined) => {
 	validatePort(port);
 	rendererPort = port;
+};
+
+const setPort = (port: number | undefined) => {
+	setStudioPort(port);
+	setRendererPort(port);
 };
 
 const setEntryPoint = (src: string) => {
