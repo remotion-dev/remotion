@@ -5,6 +5,14 @@ export {getEnvironmentVariables} from './get-environment-variables';
 export {loadConfig} from './load-config';
 export {makeRenderQueue} from './render-queue';
 export {
+	addLogToAggregateProgress,
+	cloneAggregateProgress,
+	initialAggregateRenderProgress,
+	makeArtifactProgressHandler,
+	makeBrowserDownloadProgressTracker,
+	makeDownloadProgressTracker,
+} from './render-progress';
+export {
 	launchStudioSession,
 	type LaunchStudioSessionResult,
 	type StudioAssetPaths,

@@ -19,6 +19,10 @@ import type {
 	JobProgressCallback,
 } from '@remotion/studio-server';
 import type {BrowserDownloadState} from '@remotion/studio-shared';
+import {
+	addLogToAggregateProgress,
+	initialAggregateRenderProgress,
+} from '@remotion/studio-startup-core';
 import {NoReactInternals} from 'remotion/no-react';
 import {defaultBrowserDownloadProgress} from '../browser-download-bar';
 import {chalk} from '../chalk';
@@ -39,7 +43,6 @@ import {
 	makeRenderingAndStitchingProgress,
 	printFact,
 } from '../progress-bar';
-import {initialAggregateRenderProgress} from '../progress-types';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
 import {truthy} from '../truthy';
@@ -47,7 +50,6 @@ import {
 	getOutputLocation,
 	getUserPassedOutputLocation,
 } from '../user-passed-output-location';
-import {addLogToAggregateProgress} from './add-log-to-aggregate-progress';
 
 export const renderStillFlow = async ({
 	remotionRoot,

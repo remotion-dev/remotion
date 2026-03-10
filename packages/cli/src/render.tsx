@@ -9,7 +9,6 @@ import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parsed-cli';
 import {renderVideoFlow} from './render-flows/render';
-
 const {
 	x264Option,
 	audioBitrateOption,

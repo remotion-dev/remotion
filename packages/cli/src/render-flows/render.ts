@@ -38,6 +38,7 @@ import {
 	type ArtifactProgress,
 	type BrowserDownloadState,
 } from '@remotion/studio-shared';
+import {addLogToAggregateProgress} from '@remotion/studio-startup-core';
 import type {_InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {defaultBrowserDownloadProgress} from '../browser-download-bar';
@@ -63,7 +64,6 @@ import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
-import {addLogToAggregateProgress} from './add-log-to-aggregate-progress';
 
 export const renderVideoFlow = async ({
 	remotionRoot,

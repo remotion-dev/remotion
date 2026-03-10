@@ -7,6 +7,12 @@
 	"description": "Internal startup orchestration for Remotion Studio",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
+	"files": [
+		"dist",
+		"!dist/*.test.d.ts",
+		"!dist/*.test.js",
+		"package.json"
+	],
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",

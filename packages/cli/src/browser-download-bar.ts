@@ -1,6 +1,7 @@
 import type {ChromeMode, LogLevel, OnBrowserDownload} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {BrowserDownloadState} from '@remotion/studio-shared';
+import {makeBrowserDownloadProgressTracker} from '@remotion/studio-startup-core';
 import {chalk} from './chalk';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
@@ -47,33 +48,32 @@ export const defaultBrowserDownloadProgress = ({
 	quiet: boolean;
 	onProgress: (progress: BrowserDownloadState) => void;
 }): OnBrowserDownload => {
-	return ({chromeMode}) => {
-		if (chromeMode === 'chrome-for-testing') {
-			Log.info(
-				{indent, logLevel},
-				'Downloading Chrome for Testing https://www.remotion.dev/chrome-for-testing',
-			);
-		} else {
-			Log.info(
-				{indent, logLevel},
-				chalk.gray(
-					'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
-				),
-			);
-		}
+	return makeBrowserDownloadProgressTracker({
+		onDownloadStart: ({chromeMode}) => {
+			if (chromeMode === 'chrome-for-testing') {
+				Log.info(
+					{indent, logLevel},
+					'Downloading Chrome for Testing https://www.remotion.dev/chrome-for-testing',
+				);
+			} else {
+				Log.info(
+					{indent, logLevel},
+					chalk.gray(
+						'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
+					),
+				);
+			}
 
-		const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
+			const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 
-		const productName =
-			chromeMode === 'chrome-for-testing'
-				? 'Chrome for Testing'
-				: 'Headless Shell';
+			const productName =
+				chromeMode === 'chrome-for-testing'
+					? 'Chrome for Testing'
+					: 'Headless Shell';
 
-		if (updatesDontOverwrite) {
-			let lastProgress = 0;
-			return {
-				version: null,
-				onProgress: (progress) => {
+			if (updatesDontOverwrite) {
+				let lastProgress = 0;
+				return ({progress}) => {
 					if (progress.downloadedBytes > lastProgress + 10_000_000) {
 						lastProgress = progress.downloadedBytes;
 
@@ -90,43 +90,29 @@ export const defaultBrowserDownloadProgress = ({
 					if (progress.percent === 1) {
 						Log.info({indent, logLevel}, `Got ${productName}`);
 					}
-				},
-			};
-		}
+				};
+			}
 
-		const cliOutput = createOverwriteableCliOutput({
-			quiet,
-			indent,
-			cancelSignal: null,
-			updatesDontOverwrite,
-		});
+			const cliOutput = createOverwriteableCliOutput({
+				quiet,
+				indent,
+				cancelSignal: null,
+				updatesDontOverwrite,
+			});
 
-		const startedAt = Date.now();
-		let doneIn: number | null = null;
-
-		return {
-			version: null,
-			onProgress: (progress) => {
-				if (progress.percent === 1) {
-					doneIn = Date.now() - startedAt;
-				}
-
-				onProgress({
-					alreadyAvailable: progress.alreadyAvailable,
-					progress: progress.percent,
-					doneIn,
-				});
+			return ({browserState, progress}) => {
+				onProgress(browserState);
 
 				cliOutput.update(
 					makeDownloadProgress({
-						doneIn,
+						doneIn: browserState.doneIn,
 						bytesDownloaded: progress.downloadedBytes,
 						totalBytes: progress.totalSizeInBytes,
 						chromeMode,
 					}),
 					progress.percent === 1,
 				);
-			},
-		};
-	};
+			};
+		},
+	});
 };

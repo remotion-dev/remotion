@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import type {
 	StudioBundlerAssetPaths,
@@ -8,11 +7,8 @@ import {BundlerInternals} from '@remotion/bundler';
 import type {
 	BrowserExecutable,
 	BrowserLog,
-	EmittedArtifact,
 	FfmpegOverrideFn,
 	LogLevel,
-	OnBrowserDownload,
-	RenderMediaOnDownload,
 } from '@remotion/renderer';
 import {
 	RenderInternals,
@@ -24,7 +20,6 @@ import {
 import {StudioServerInternals} from '@remotion/studio-server';
 import type {
 	AggregateRenderProgress,
-	ArtifactProgress,
 	BrowserDownloadState,
 	GitSource,
 	JobProgressCallback,
@@ -33,113 +28,14 @@ import type {
 	RenderJobWithCleanup,
 } from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
-
-const initialAggregateRenderProgress = (): AggregateRenderProgress => ({
-	rendering: null,
-	browser: {
-		progress: 0,
-		alreadyAvailable: true,
-		doneIn: null,
-	},
-	downloads: [],
-	stitching: null,
-	bundling: null,
-	copyingState: {
-		bytes: 0,
-		doneIn: null,
-	},
-	artifactState: {
-		received: [],
-	},
-	logs: [],
-});
-
-const addLogToAggregateProgress = ({
-	logs,
-	logLogLevel,
-	logLevel,
-	previewString,
-	tag,
-}: {
-	logs: AggregateRenderProgress['logs'];
-	logLogLevel: LogLevel;
-	logLevel: LogLevel;
-	previewString: string;
-	tag: string | null;
-}) => {
-	if (RenderInternals.isEqualOrBelowLogLevel(logLevel, logLogLevel)) {
-		logs.push({logLevel: logLogLevel, previewString, tag});
-		if (logs.length > 3) {
-			logs.shift();
-		}
-	}
-};
-
-const cloneAggregateProgress = (
-	progress: AggregateRenderProgress,
-): AggregateRenderProgress => {
-	return {
-		...progress,
-		browser: {...progress.browser},
-		bundling: progress.bundling ? {...progress.bundling} : null,
-		copyingState: {...progress.copyingState},
-		rendering: progress.rendering ? {...progress.rendering} : null,
-		stitching: progress.stitching ? {...progress.stitching} : null,
-		downloads: progress.downloads.map((download) => ({...download})),
-		artifactState: {
-			received: progress.artifactState.received.map((artifact) => ({
-				...artifact,
-			})),
-		},
-		logs: progress.logs.map((log) => ({...log})),
-	};
-};
-
-const handleOnArtifact = ({
-	artifactState,
-	onProgress,
-	compositionId,
-}: {
-	artifactState: ArtifactProgress;
-	onProgress: (artifact: ArtifactProgress) => void;
-	compositionId: string;
-}) => {
-	const initialProgress = {...artifactState};
-
-	const onArtifact = (artifact: EmittedArtifact) => {
-		const relativeOutputDestination = path.join(
-			'out',
-			compositionId,
-			artifact.filename.replace('/', path.sep),
-		);
-		const defaultOutName = path.join(process.cwd(), relativeOutputDestination);
-		const parentDir = path.dirname(defaultOutName);
-
-		if (!RenderInternals.isPathInside(process.cwd(), defaultOutName)) {
-			throw new Error(
-				'Artifact output must stay inside the current working directory.',
-			);
-		}
-
-		if (!fs.existsSync(parentDir)) {
-			fs.mkdirSync(parentDir, {recursive: true});
-		}
-
-		const alreadyExisted = fs.existsSync(defaultOutName);
-		fs.writeFileSync(defaultOutName, artifact.content as string | Uint8Array);
-
-		initialProgress.received.push({
-			absoluteOutputDestination: defaultOutName,
-			filename: artifact.filename,
-			sizeInBytes: artifact.content.length,
-			alreadyExisted,
-			relativeOutputDestination,
-		});
-		onProgress({...initialProgress});
-	};
-
-	return {onArtifact};
-};
+import {
+	addLogToAggregateProgress,
+	cloneAggregateProgress,
+	initialAggregateRenderProgress,
+	makeArtifactProgressHandler,
+	makeBrowserDownloadProgressTracker,
+	makeDownloadProgressTracker,
+} from './render-progress';
 
 type QueueContext = {
 	entryPoint: string;
@@ -212,68 +108,6 @@ const applyCompositionOverrides = <
 		height: context.overrideHeight ?? composition.height,
 		fps: context.overrideFps ?? composition.fps,
 		durationInFrames: context.overrideDuration ?? composition.durationInFrames,
-	};
-};
-
-const makeOnBrowserDownload = ({
-	onUpdate,
-}: {
-	onUpdate: (browser: BrowserDownloadState) => void;
-}): OnBrowserDownload => {
-	return () => {
-		const startedAt = Date.now();
-		let doneIn: number | null = null;
-
-		return {
-			version: null,
-			onProgress: (progress) => {
-				if (progress.percent === 1 && doneIn === null) {
-					doneIn = Date.now() - startedAt;
-				}
-
-				onUpdate({
-					alreadyAvailable: progress.alreadyAvailable,
-					progress: progress.percent,
-					doneIn,
-				});
-			},
-		};
-	};
-};
-
-const makeOnDownload = ({
-	progress,
-	emitProgress,
-}: {
-	progress: AggregateRenderProgress;
-	emitProgress: () => void;
-}): RenderMediaOnDownload => {
-	return (src) => {
-		const id = Math.random();
-		progress.downloads.push({
-			id,
-			name: src,
-			progress: 0,
-			downloaded: 0,
-			totalBytes: null,
-		});
-		emitProgress();
-
-		return ({percent, downloaded, totalSize}) => {
-			progress.downloads = progress.downloads.map((download) => {
-				if (download.id !== id) {
-					return download;
-				}
-
-				return {
-					...download,
-					progress: percent,
-					downloaded,
-					totalBytes: totalSize,
-				};
-			});
-			emitProgress();
-		};
 	};
 };
 
@@ -429,8 +263,12 @@ const processRenderJob = async ({
 				offthreadVideoCacheSizeInBytes:
 					job.offthreadVideoCacheSizeInBytes ?? null,
 				binariesDirectory: job.binariesDirectory ?? null,
-				onBrowserDownload: makeOnBrowserDownload({
-					onUpdate: updateBrowser,
+				onBrowserDownload: makeBrowserDownloadProgressTracker({
+					onDownloadStart: () => {
+						return ({browserState}) => {
+							updateBrowser(browserState);
+						};
+					},
 				}),
 				chromeMode: job.chromeMode,
 				mediaCacheSizeInBytes: job.mediaCacheSizeInBytes ?? null,
@@ -449,13 +287,34 @@ const processRenderJob = async ({
 			context,
 		);
 
-		const artifactHandler = handleOnArtifact({
+		const artifactHandler = makeArtifactProgressHandler({
 			artifactState: aggregateProgress.artifactState,
 			onProgress: (artifactState) => {
 				aggregateProgress.artifactState = artifactState;
 				emitProgress();
 			},
 			compositionId: job.compositionId,
+			enforceOutputInsideRoot: true,
+			notifyOnArtifact: true,
+			notifyOnInit: false,
+		});
+
+		const onDownload = makeDownloadProgressTracker({
+			downloads: aggregateProgress.downloads,
+			onDownloadStart: () => {
+				emitProgress();
+				return () => {
+					emitProgress();
+				};
+			},
+		});
+
+		const onBrowserDownload = makeBrowserDownloadProgressTracker({
+			onDownloadStart: () => {
+				return ({browserState}) => {
+					updateBrowser(browserState);
+				};
+			},
 		});
 
 		if (job.type === 'still') {
@@ -485,13 +344,8 @@ const processRenderJob = async ({
 				jpegQuality: job.jpegQuality,
 				timeoutInMilliseconds: job.delayRenderTimeout,
 				logLevel: job.logLevel,
-				onDownload: makeOnDownload({
-					progress: aggregateProgress,
-					emitProgress,
-				}),
-				onBrowserDownload: makeOnBrowserDownload({
-					onUpdate: updateBrowser,
-				}),
+				onDownload,
+				onBrowserDownload,
 				onArtifact: artifactHandler.onArtifact,
 				chromeMode: job.chromeMode,
 				offthreadVideoCacheSizeInBytes:
@@ -552,13 +406,8 @@ const processRenderJob = async ({
 				logLevel: job.logLevel,
 				muted: true,
 				concurrency: job.concurrency,
-				onDownload: makeOnDownload({
-					progress: aggregateProgress,
-					emitProgress,
-				}),
-				onBrowserDownload: makeOnBrowserDownload({
-					onUpdate: updateBrowser,
-				}),
+				onDownload,
+				onBrowserDownload,
 				onArtifact: artifactHandler.onArtifact,
 				chromeMode: job.chromeMode,
 				offthreadVideoCacheSizeInBytes:
@@ -636,10 +485,7 @@ const processRenderJob = async ({
 				value = progress.progress;
 				emitProgress();
 			},
-			onDownload: makeOnDownload({
-				progress: aggregateProgress,
-				emitProgress,
-			}),
+			onDownload,
 			proResProfile: job.proResProfile ?? undefined,
 			chromiumOptions: job.chromiumOptions,
 			scale: job.scale,
@@ -679,9 +525,7 @@ const processRenderJob = async ({
 				| `${number}K`
 				| `${number}M`
 				| null,
-			onBrowserDownload: makeOnBrowserDownload({
-				onUpdate: updateBrowser,
-			}),
+			onBrowserDownload,
 			chromeMode: job.chromeMode,
 			offthreadVideoCacheSizeInBytes:
 				job.offthreadVideoCacheSizeInBytes ?? null,
