@@ -137,7 +137,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 					onProgress(job.id, {
 						encodedFrames: progress.encodedFrames,
 						totalFrames,
-						encodedDoneIn: progress.encodedDoneIn,
+						doneIn: progress.doneIn,
 						renderEstimatedTime: progress.renderEstimatedTime,
 						progress: progress.progress,
 					});

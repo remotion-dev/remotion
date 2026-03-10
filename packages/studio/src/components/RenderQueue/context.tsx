@@ -147,7 +147,7 @@ export const RenderQueueContextProvider: React.FC<{
 							progress: {
 								encodedFrames: 0,
 								totalFrames: 0,
-								encodedDoneIn: null,
+								doneIn: null,
 								renderEstimatedTime: 0,
 								progress: 0,
 							},

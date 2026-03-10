@@ -159,8 +159,9 @@ test('should throttle onProgress callback to 250ms', {retry: 2}, async (t) => {
 	// Final call should have all frames rendered and encoded
 	const finalCall = progressCalls[progressCalls.length - 1];
 	expect(finalCall.progress).toEqual({
+		renderedFrames: 30,
 		encodedFrames: 30,
-		encodedDoneIn: expect.any(Number),
+		doneIn: expect.any(Number),
 		renderEstimatedTime: 0,
 		progress: 1,
 	});
@@ -215,15 +216,17 @@ test(
 			return progress.encodedFrames < 20;
 		});
 		expect(intermediateCall).toBeDefined();
+		expect(intermediateCall?.renderedFrames).toBeGreaterThan(0);
 		expect(intermediateCall?.renderEstimatedTime).toBeGreaterThan(0);
-		expect(intermediateCall?.encodedDoneIn).toBeNull();
+		expect(intermediateCall?.doneIn).toBeNull();
 		expect(intermediateCall?.progress).toBeGreaterThan(0);
 		expect(intermediateCall?.progress).toBeLessThan(1);
 
 		const finalCall = progressCalls[progressCalls.length - 1];
 		expect(finalCall).toEqual({
+			renderedFrames: 20,
 			encodedFrames: 20,
-			encodedDoneIn: expect.any(Number),
+			doneIn: expect.any(Number),
 			renderEstimatedTime: 0,
 			progress: 1,
 		});

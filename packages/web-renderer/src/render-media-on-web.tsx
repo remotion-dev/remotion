@@ -78,8 +78,17 @@ type MandatoryRenderMediaOnWebOptions<
 const MAX_RECENT_FRAME_TIMINGS = 150;
 
 export type RenderMediaOnWebProgress = {
+	/**
+	 * @deprecated Kept for backward compatibility. Use `progress` for overall
+	 * status updates.
+	 */
+	renderedFrames: number;
 	encodedFrames: number;
-	encodedDoneIn: number | null;
+	/**
+	 * The total time in milliseconds from render start until all frames were
+	 * encoded, or `null` while encoding is still in progress.
+	 */
+	doneIn: number | null;
 	renderEstimatedTime: number;
 	progress: number;
 };
@@ -339,10 +348,9 @@ const internalRenderMediaOnWeb = async <
 		const totalFrames = realFrameRange[1] - realFrameRange[0] + 1;
 		const durationInSeconds = totalFrames / resolved.fps;
 		const renderStart = Date.now();
-		let encodedDoneIn: number | null = null;
+		let doneIn: number | null = null;
 		let renderEstimatedTime = 0;
 		const recentFrameTimings: number[] = [];
-		let timeOfLastFrame = renderStart;
 
 		if (videoSampleSource) {
 			outputWithCleanup.output.addVideoTrack(
@@ -380,6 +388,7 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('renderMediaOnWeb() was cancelled');
 		}
 
+		let timeOfLastFrame = Date.now();
 		const progress = {
 			renderedFrames: 0,
 			encodedFrames: 0,
@@ -392,8 +401,9 @@ const internalRenderMediaOnWeb = async <
 				) / 100;
 
 			return {
+				renderedFrames: progress.renderedFrames,
 				encodedFrames: progress.encodedFrames,
-				encodedDoneIn,
+				doneIn,
 				renderEstimatedTime,
 				progress: overallProgress,
 			};
@@ -527,7 +537,7 @@ const internalRenderMediaOnWeb = async <
 
 			progress.encodedFrames++;
 			if (progress.encodedFrames === totalFrames) {
-				encodedDoneIn = Date.now() - renderStart;
+				doneIn = Date.now() - renderStart;
 			}
 
 			throttledOnProgress?.(getProgressPayload());

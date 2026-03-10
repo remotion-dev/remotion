@@ -30,21 +30,15 @@ const right: React.CSSProperties = {
 const ProgressStatus: React.FC<{
 	readonly encodedFrames: number;
 	readonly totalFrames: number;
-	readonly encodedDoneIn: number | null;
+	readonly doneIn: number | null;
 	readonly renderEstimatedTime: number;
 	readonly progress: number;
-}> = ({
-	encodedFrames,
-	totalFrames,
-	encodedDoneIn,
-	renderEstimatedTime,
-	progress,
-}) => {
-	const done = encodedDoneIn !== null;
+}> = ({encodedFrames, totalFrames, doneIn, renderEstimatedTime, progress}) => {
+	const done = doneIn !== null;
 	const message = getClientRenderProgressMessage({
 		encodedFrames,
 		totalFrames,
-		encodedDoneIn,
+		doneIn,
 		renderEstimatedTime,
 		progress,
 	});
@@ -54,9 +48,7 @@ const ProgressStatus: React.FC<{
 			{done ? <SuccessIcon /> : <CircularProgress progress={progress} />}
 			<Spacing x={1} />
 			<div style={label}>{message}</div>
-			{encodedDoneIn !== null ? (
-				<div style={right}>{encodedDoneIn}ms</div>
-			) : null}
+			{doneIn !== null ? <div style={right}>{doneIn}ms</div> : null}
 		</div>
 	);
 };
@@ -107,13 +99,8 @@ export const ClientRenderProgress: React.FC<{
 		);
 	}
 
-	const {
-		encodedFrames,
-		totalFrames,
-		encodedDoneIn,
-		renderEstimatedTime,
-		progress,
-	} = job.progress;
+	const {encodedFrames, totalFrames, doneIn, renderEstimatedTime, progress} =
+		job.progress;
 
 	return (
 		<div>
@@ -122,7 +109,7 @@ export const ClientRenderProgress: React.FC<{
 				<ProgressStatus
 					encodedFrames={encodedFrames}
 					totalFrames={totalFrames}
-					encodedDoneIn={encodedDoneIn}
+					doneIn={doneIn}
 					renderEstimatedTime={renderEstimatedTime}
 					progress={progress}
 				/>

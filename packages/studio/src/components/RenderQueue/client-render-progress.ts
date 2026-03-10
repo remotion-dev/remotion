@@ -22,15 +22,12 @@ export const getClientRenderProgressMessage = (
 		return 'Getting composition';
 	}
 
-	if (progress.encodedDoneIn !== null) {
+	if (progress.doneIn !== null) {
 		return `Encoded ${progress.totalFrames}/${progress.totalFrames}`;
 	}
 
 	if (progress.renderEstimatedTime > 0) {
-		const etaString =
-			progress.renderEstimatedTime > 0
-				? `, time remaining: ${formatEtaString(progress.renderEstimatedTime)}`
-				: '';
+		const etaString = `, time remaining: ${formatEtaString(progress.renderEstimatedTime)}`;
 
 		return `Rendering ${Math.round(progress.progress * 100)}%${etaString}`;
 	}

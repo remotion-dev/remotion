@@ -15,7 +15,7 @@ test('formats client render progress message while rendering', () => {
 		getClientRenderProgressMessage({
 			encodedFrames: 10,
 			totalFrames: 30,
-			encodedDoneIn: null,
+			doneIn: null,
 			renderEstimatedTime: 65_000,
 			progress: 0.55,
 		}),
@@ -27,7 +27,7 @@ test('formats client render progress message while encoding', () => {
 		getClientRenderProgressMessage({
 			encodedFrames: 24,
 			totalFrames: 30,
-			encodedDoneIn: null,
+			doneIn: null,
 			renderEstimatedTime: 0,
 			progress: 0.94,
 		}),
@@ -39,7 +39,7 @@ test('returns getting composition before frame totals are known', () => {
 		getClientRenderProgressMessage({
 			encodedFrames: 0,
 			totalFrames: 0,
-			encodedDoneIn: null,
+			doneIn: null,
 			renderEstimatedTime: 0,
 			progress: 0,
 		}),
