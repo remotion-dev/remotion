@@ -13,7 +13,7 @@ interface UndoEntry {
 const MAX_ENTRIES = 100;
 const undoStack: UndoEntry[] = [];
 const redoStack: UndoEntry[] = [];
-const suppressedWrites = new Set<string>();
+const suppressedWrites = new Map<string, number>();
 const watchers = new Map<string, {unwatch: () => void}>();
 let storedLogLevel: LogLevel = 'info';
 
@@ -74,7 +74,7 @@ export function pushToRedoStack(filePath: string, oldContents: string) {
 }
 
 export function suppressUndoStackInvalidation(filePath: string) {
-	suppressedWrites.add(filePath);
+	suppressedWrites.set(filePath, (suppressedWrites.get(filePath) ?? 0) + 1);
 }
 
 function ensureWatching(filePath: string) {
@@ -85,8 +85,14 @@ function ensureWatching(filePath: string) {
 	const watcher = installFileWatcher({
 		file: filePath,
 		onChange: () => {
-			if (suppressedWrites.has(filePath)) {
-				suppressedWrites.delete(filePath);
+			const count = suppressedWrites.get(filePath) ?? 0;
+			if (count > 0) {
+				if (count === 1) {
+					suppressedWrites.delete(filePath);
+				} else {
+					suppressedWrites.set(filePath, count - 1);
+				}
+
 				return;
 			}
 
