@@ -6,11 +6,16 @@ import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
 import {Log} from './log';
+import type {ParsedCommandLine} from './parsed-cli';
 import {parsedCli} from './parsed-cli';
 
-const getAndValidateFrameRange = (logLevel: LogLevel, indent: boolean) => {
+const getAndValidateFrameRange = (
+	logLevel: LogLevel,
+	indent: boolean,
+	commandLine: ParsedCommandLine,
+) => {
 	const frameRange = BrowserSafeApis.options.framesOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	if (typeof frameRange === 'number') {
 		Log.warn(
@@ -54,11 +59,18 @@ export const getCliOptions = (options: {
 	isStill: boolean;
 	logLevel: LogLevel;
 	indent: boolean;
+	commandLine?: ParsedCommandLine;
+	remotionRoot?: string;
 }) => {
-	const frameRange = getAndValidateFrameRange(options.logLevel, false);
+	const commandLine = options.commandLine ?? parsedCli;
+	const frameRange = getAndValidateFrameRange(
+		options.logLevel,
+		false,
+		commandLine,
+	);
 
 	const imageSequence = BrowserSafeApis.options.imageSequenceOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const shouldOutputImageSequence = options.isStill
 		? true
@@ -67,15 +79,16 @@ export const getCliOptions = (options: {
 	return {
 		frameRange,
 		shouldOutputImageSequence,
-		inputProps: getInputProps(null, options.logLevel),
+		inputProps: getInputProps(null, options.logLevel, commandLine),
 		envVariables: getEnvironmentVariables(
 			null,
 			options.logLevel,
 			options.indent,
+			{commandLine, remotionRoot: options.remotionRoot},
 		),
 		stillFrame:
 			BrowserSafeApis.options.stillFrameOption.getValue({
-				commandLine: parsedCli,
+				commandLine,
 			}).value ?? 0,
 		ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
 	};

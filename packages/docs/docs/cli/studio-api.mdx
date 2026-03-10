@@ -1,33 +1,58 @@
 ---
 image: /generated/articles-docs-cli-studio-api.png
-title: studio()
-crumb: '@remotion/cli'
-sidebar_label: studio()
+title: startStudio()
+crumb: '@remotion/studio'
+sidebar_label: startStudio()
 ---
 
-# studio()<AvailableFrom v="4.0.432" />
+# startStudio()<AvailableFrom v="4.0.432" />
 
-Start Remotion Studio from Node.js.
+Start or reuse Remotion Studio from Node.js.
 
 ```ts twoslash title="start-studio.ts"
-import {studio} from '@remotion/cli';
+import {startStudio} from '@remotion/studio';
 
-await studio({
-  args: ['src/index.ts', '--port=4321', '--no-open'],
+const studioServer = await startStudio({
+  entryPoint: 'src/index.ts',
+  port: 4321,
+  openBrowser: false,
 });
+
+console.log(studioServer.url);
+
+if (!studioServer.reusedExistingStudio) {
+  await studioServer.close();
+}
 ```
 
 ## Signature
 
 ```ts
-const studio: (
+const startStudio: (
   options?: {
-    args?: string[];
+    entryPoint?: string;
     remotionRoot?: string;
     logLevel?: LogLevel;
-    checkVersionMismatch?: boolean;
+    port?: number;
+    openBrowser?: boolean;
+    inputProps?: Record<string, unknown>;
+    envVariables?: Record<string, string>;
+    publicDir?: string;
+    reuseExistingStudio?: boolean;
   },
-) => Promise<void>;
+) => Promise<
+  | {
+      url: string;
+      port: number;
+      reusedExistingStudio: false;
+      close: () => Promise<void>;
+    }
+  | {
+      url: string;
+      port: number;
+      reusedExistingStudio: true;
+    }
+>;
 ```
 
 ## Arguments
@@ -36,14 +61,20 @@ const studio: (
 
 An object containing one or more of the following options:
 
-#### `args?`
+#### `entryPoint?`
 
-Command arguments in the same format as [`npx remotion studio`](/docs/cli/studio), including positional arguments and flags.
+Entry file for your Remotion project.
+
+Default: auto-detected using common entry point paths such as `src/index.ts` and `src/index.tsx`.
 
 ```ts
-await studio({
-  args: ['src/index.ts', '--port=4321', '--no-open'],
+const studioServer = await startStudio({
+  entryPoint: 'src/index.ts',
 });
+
+if (!studioServer.reusedExistingStudio) {
+  await studioServer.close();
+}
 ```
 
 #### `remotionRoot?`
@@ -57,25 +88,91 @@ Override the log level used by the command.
 
 Possible values: `"error"`, `"warn"`, `"info"`, `"verbose"`.
 
-#### `checkVersionMismatch?`
+#### `port?`
 
-Whether to run the version mismatch check before starting Studio.
+Preferred Studio port.
+
+Default: Remotion will pick a free port, or reuse an existing matching Studio if `reuseExistingStudio` is enabled.
+
+#### `openBrowser?`
+
+Whether to open a browser tab after starting Studio.
 
 Default: `true`.
 
+#### `inputProps?`
+
+Input props that should be available in Studio.
+
+Default: `{}`.
+
+#### `envVariables?`
+
+Environment variables that should be available in Studio.
+
+Default: `{}`.
+
+#### `publicDir?`
+
+Path to the `public/` directory, relative to the [Remotion root](/docs/terminology/remotion-root).
+
+Default: `public`.
+
+#### `reuseExistingStudio?`
+
+Whether to reuse an existing Studio instance for the same project and port.
+
+Default: `true`.
 ## Behavior
 
-If Studio is already running for the project and port, the promise resolves after attempting to connect.
+If Studio is already running for the project and port, `startStudio()` reuses it by default and returns its URL.
 
-If a new Studio instance is started, the promise is long-running and does not currently expose a `close()` handle.
+If a new Studio instance is started, the promise resolves with a `close()` handle that you can use to shut it down gracefully.
+
+The Studio that gets started is fully functional, including the render queue.
+
+```ts
+const studioServer = await startStudio({
+  remotionRoot: '/path/to/project',
+  entryPoint: 'src/index.ts',
+  openBrowser: false,
+});
+
+console.log(studioServer.url);
+
+if (!studioServer.reusedExistingStudio) {
+  await studioServer.close();
+}
+```
+
+If you always want this call to own the lifecycle of the Studio instance, set `reuseExistingStudio: false`.
+
+## Relation to CLI
+
+`startStudio()` is not a 1:1 wrapper around `npx remotion studio`.
+
+The CLI is a shell interface, so it exposes flags such as `--force-new`, `--browser`, `--browser-args`, and `--ipv4`.
+
+The public `startStudio()` API is intentionally more focused on the practical programmatic use case:
+
+- Select the project to open
+- Optionally choose a port
+- Optionally open a browser
+- Provide initial `inputProps` and `envVariables`
+- Decide whether to reuse an existing Studio instance
+- Get back a `url` and, if applicable, a `close()` handle
+
+It still starts the same Studio backend as `npx remotion studio`, including config-file loading and render support.
+
+If you need custom browser launching behavior, call `startStudio({openBrowser: false})` and open `studioServer.url` however you like.
 
 ## Error handling
 
-`studio()` throws errors that you can catch in your application.
+`startStudio()` throws errors that you can catch in your application.
 
 ```ts
 try {
-  await studio({args: ['src/index.ts']});
+  await startStudio({entryPoint: 'src/index.ts'});
 } catch (err) {
   console.error(err);
 }
@@ -83,9 +180,10 @@ try {
 
 ## Compatibility
 
-<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs={true} bun={false} serverlessFunctions={false} clientSideRendering={false} serverSideRendering={true} player={false} studio={false} />
+<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering={true} player={false} studio={false} />
 
 ## See also
 
 - [`npx remotion studio`](/docs/cli/studio)
+- [`@remotion/studio`](/docs/studio/api)
 - [Configuration file](/docs/config)

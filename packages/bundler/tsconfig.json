@@ -7,5 +7,9 @@
 		"skipLibCheck": true
 	},
 	"include": ["src"],
-	"references": [{"path": "../core"}, {"path": "../studio"}]
+	"references": [
+		{"path": "../core"},
+		{"path": "../media-parser"},
+		{"path": "../studio-shared"}
+	]
 }

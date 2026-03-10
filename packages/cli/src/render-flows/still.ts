@@ -30,6 +30,7 @@ import {makeHyperlink} from '../hyperlinks/make-link';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
 import {handleOnArtifact} from '../on-artifact';
+import type {ParsedCommandLine} from '../parsed-cli';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import type {OverwriteableCliOutput} from '../progress-bar';
 import {
@@ -90,6 +91,7 @@ export const renderStillFlow = async ({
 	experimentalVisualModeEnabled,
 	keyboardShortcutsEnabled,
 	shouldCache,
+	commandLine = parsedCli,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -132,6 +134,7 @@ export const renderStillFlow = async ({
 	experimentalVisualModeEnabled: boolean;
 	keyboardShortcutsEnabled: boolean;
 	shouldCache: boolean;
+	commandLine?: ParsedCommandLine;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -143,7 +146,7 @@ export const renderStillFlow = async ({
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 
 	const renderProgress: OverwriteableCliOutput = createOverwriteableCliOutput({
-		quiet: quietFlagProvided(),
+		quiet: quietFlagProvided(commandLine),
 		cancelSignal,
 		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 		indent,
@@ -177,7 +180,7 @@ export const renderStillFlow = async ({
 	}
 
 	const onBrowserDownload = defaultBrowserDownloadProgress({
-		quiet: quietFlagProvided(),
+		quiet: quietFlagProvided(commandLine),
 		indent,
 		logLevel,
 		onProgress: updateBrowserProgress,
@@ -224,7 +227,7 @@ export const renderStillFlow = async ({
 				});
 			},
 			quietProgress: updatesDontOverwrite,
-			quietFlag: quietFlagProvided(),
+			quietFlag: quietFlagProvided(commandLine),
 			outDir: null,
 			// Not needed for still
 			gitSource: null,
@@ -294,7 +297,7 @@ export const renderStillFlow = async ({
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
 		configuredImageFormat:
 			BrowserSafeApis.options.stillImageFormatOption.getValue({
-				commandLine: parsedCli,
+				commandLine,
 			}).value,
 		downloadName: null,
 		outName: getUserPassedOutputLocation(

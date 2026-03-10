@@ -6,6 +6,10 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
+				<TOCItem link="/docs/cli/studio-api">
+					<strong>{'startStudio()'}</strong>
+					<div>Start or reuse Remotion Studio from Node.js</div>
+				</TOCItem>
 				<TOCItem link="/docs/studio/get-static-files">
 					<strong>{'getStaticFiles()'}</strong>
 					<div>

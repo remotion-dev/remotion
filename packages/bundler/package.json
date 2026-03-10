@@ -26,7 +26,6 @@
 		"esbuild": "0.25.0",
 		"react-refresh": "0.18.0",
 		"remotion": "workspace:*",
-		"@remotion/studio": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/media-parser": "workspace:*",
 		"style-loader": "4.0.0",

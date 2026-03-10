@@ -29,6 +29,7 @@ export const rspackConfig = async ({
 	experimentalClientSideRenderingEnabled,
 	experimentalVisualModeEnabled,
 	askAIEnabled,
+	studioPackageAliasPath,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -45,6 +46,7 @@ export const rspackConfig = async ({
 	askAIEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
 	experimentalVisualModeEnabled: boolean;
+	studioPackageAliasPath: string | null;
 }): Promise<[string, RspackConfiguration]> => {
 	let lastProgress = 0;
 
@@ -131,7 +133,7 @@ export const rspackConfig = async ({
 						define,
 					],
 		output: getOutputConfig(environment),
-		resolve: getResolveConfig(),
+		resolve: getResolveConfig({studioPackageAliasPath}),
 		module: {
 			rules: [
 				...getSharedModuleRules(),

@@ -1,9 +1,67 @@
 import fs from 'node:fs';
+import {createRequire} from 'node:module';
 import path from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import {BundlerInternals} from '@remotion/bundler';
 import {failOrThrow, type ExitBehavior} from './exit-behavior';
 import {Log} from './log';
+
+const replaceConfigImport = (code: string, replacement: string): string => {
+	return code
+		.split("'@remotion/cli/config'")
+		.join(JSON.stringify(replacement))
+		.split('"@remotion/cli/config"')
+		.join(JSON.stringify(replacement));
+};
+
+const executeConfigBundle = ({
+	code,
+	fullPath,
+	remotionRoot,
+}: {
+	code: string;
+	fullPath: string;
+	remotionRoot: string;
+}) => {
+	const currentCwd = process.cwd();
+
+	// The config file is always executed from the Remotion root, if
+	// `process.cwd()` is being used. We cannot enforce this in worker threads
+	// used for testing.
+	if (isMainThread) {
+		process.chdir(remotionRoot);
+	}
+
+	const requireFromConfig = createRequire(fullPath);
+	const configModule = {
+		exports: {},
+	};
+
+	try {
+		// Execute the bundle as if it was the config file itself so external
+		// imports resolve from the user's project instead of the CLI package.
+		// eslint-disable-next-line no-new-func
+		const evaluator = new Function(
+			'require',
+			'module',
+			'exports',
+			'__filename',
+			'__dirname',
+			code,
+		);
+		evaluator(
+			requireFromConfig,
+			configModule,
+			configModule.exports,
+			fullPath,
+			path.dirname(fullPath),
+		);
+	} finally {
+		if (isMainThread) {
+			process.chdir(currentCwd);
+		}
+	}
+};
 
 export const loadConfigFile = async (
 	remotionRoot: string,
@@ -76,25 +134,14 @@ export const loadConfigFile = async (
 	}
 
 	let str = new TextDecoder().decode(firstOutfile.contents);
+	const configModulePath = require.resolve('./config');
+	str = replaceConfigImport(str, configModulePath);
 
-	const currentCwd = process.cwd();
-
-	// The config file is always executed from the Remotion root, if `process.cwd()` is being used. We cannot enforce this in worker threads used for testing
-	if (isMainThread) {
-		process.chdir(remotionRoot);
-	}
-
-	if (process.env.PATCH_BUN_DEVELOPMENT) {
-		str = str.replace('@remotion/cli/config', './config');
-	}
-
-	// Exectute the contents of the config file
-	// eslint-disable-next-line no-eval
-	eval(str);
-
-	if (isMainThread) {
-		process.chdir(currentCwd);
-	}
+	executeConfigBundle({
+		code: str,
+		fullPath: resolved,
+		remotionRoot,
+	});
 
 	return resolved;
 };

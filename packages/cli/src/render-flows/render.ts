@@ -51,6 +51,7 @@ import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
 import {makeOnDownload} from '../make-on-download';
 import {handleOnArtifact} from '../on-artifact';
+import type {ParsedCommandLine} from '../parsed-cli';
 import {parsedCli, quietFlagProvided} from '../parsed-cli';
 import {
 	LABEL_WIDTH,
@@ -132,6 +133,7 @@ export const renderVideoFlow = async ({
 	experimentalVisualModeEnabled,
 	keyboardShortcutsEnabled,
 	shouldCache,
+	commandLine = parsedCli,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -200,6 +202,7 @@ export const renderVideoFlow = async ({
 	experimentalVisualModeEnabled: boolean;
 	keyboardShortcutsEnabled: boolean;
 	shouldCache: boolean;
+	commandLine?: ParsedCommandLine;
 }) => {
 	RenderInternals.validateConcurrency({
 		value: concurrency,
@@ -239,7 +242,7 @@ export const renderVideoFlow = async ({
 		indent,
 		onProgress: updateBrowserProgress,
 		logLevel,
-		quiet: quietFlagProvided(),
+		quiet: quietFlagProvided(commandLine),
 	});
 	await RenderInternals.internalEnsureBrowser({
 		browserExecutable,
@@ -338,7 +341,7 @@ export const renderVideoFlow = async ({
 				);
 			},
 			quietProgress: updatesDontOverwrite,
-			quietFlag: quietFlagProvided(),
+			quietFlag: quietFlagProvided(commandLine),
 			outDir: null,
 			// Not needed for render
 			gitSource: null,
@@ -430,7 +433,7 @@ export const renderVideoFlow = async ({
 	const {value: codec, source: codecReason} =
 		BrowserSafeApis.options.videoCodecOption.getValue(
 			{
-				commandLine: parsedCli,
+				commandLine,
 			},
 			{
 				configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,

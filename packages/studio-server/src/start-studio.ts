@@ -23,7 +23,19 @@ import {startServer} from './preview-server/start-server';
 import {printServerReadyComment, setServerReadyComment} from './server-ready';
 import {watchRootFile} from './watch-root-file';
 
-export type StartStudioResult = {type: 'restarted'} | {type: 'already-running'};
+type WaitForExitReason = 'close' | 'restart';
+
+export type StartStudioResult =
+	| {
+			type: 'new-instance';
+			port: number;
+			close: () => Promise<void>;
+			waitForExit: () => Promise<WaitForExitReason>;
+	  }
+	| {
+			type: 'already-running';
+			port: number;
+	  };
 
 export const startStudio = async ({
 	browserArgs,
@@ -56,6 +68,7 @@ export const startStudio = async ({
 	askAIEnabled,
 	forceNew,
 	rspack,
+	studioPackageAliasPath,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -87,6 +100,7 @@ export const startStudio = async ({
 	askAIEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
+	studioPackageAliasPath: string | null;
 }): Promise<StartStudioResult> => {
 	try {
 		if (typeof Bun === 'undefined') {
@@ -164,6 +178,7 @@ export const startStudio = async ({
 		askAIEnabled,
 		forceNew,
 		rspack,
+		studioPackageAliasPath,
 	});
 
 	if (result.type === 'already-running') {
@@ -185,7 +200,7 @@ export const startStudio = async ({
 			);
 		}
 
-		return {type: 'already-running'};
+		return {type: 'already-running', port: result.port};
 	}
 
 	const {port, liveEventsServer, close} = result;
@@ -215,19 +230,49 @@ export const startStudio = async ({
 		logLevel,
 	});
 
-	await noOpUntilRestart();
-	RenderInternals.Log.info(
-		{indent: false, logLevel},
-		'Closing server to restart...',
-	);
+	let closePromise: Promise<void> | null = null;
+	let closeReason: WaitForExitReason | null = null;
+	let resolveWaitForExit: ((reason: WaitForExitReason) => void) | null = null;
+	const waitForExitPromise = new Promise<WaitForExitReason>((resolve) => {
+		resolveWaitForExit = resolve;
+	});
+	const closeStudio = (reason: WaitForExitReason) => {
+		if (closePromise) {
+			return closePromise;
+		}
 
-	await liveEventsServer.closeConnections();
-	cleanupLiveEventsListener();
-	await close();
-	RenderInternals.Log.info(
-		{indent: false, logLevel},
-		RenderInternals.chalk.blue('Restarting server...'),
-	);
+		closeReason = reason;
+		closePromise = (async () => {
+			await liveEventsServer.closeConnections();
+			cleanupLiveEventsListener();
+			await close();
+			resolveWaitForExit?.(reason);
+		})();
+		return closePromise;
+	};
 
-	return {type: 'restarted'};
+	noOpUntilRestart().then(() => {
+		if (closeReason) {
+			return;
+		}
+
+		RenderInternals.Log.info(
+			{indent: false, logLevel},
+			'Closing server to restart...',
+		);
+
+		closeStudio('restart').then(() => {
+			RenderInternals.Log.info(
+				{indent: false, logLevel},
+				RenderInternals.chalk.blue('Restarting server...'),
+			);
+		});
+	});
+
+	return {
+		type: 'new-instance',
+		port,
+		close: () => closeStudio('close'),
+		waitForExit: () => waitForExitPromise,
+	};
 };

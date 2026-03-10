@@ -1,0 +1,54 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-startup-core"
+	},
+	"name": "@remotion/studio-startup-core",
+	"version": "4.0.434",
+	"description": "Internal startup orchestration for Remotion Studio",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"sideEffects": false,
+	"scripts": {
+		"lint": "eslint src",
+		"test": "bun test src",
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"make": "tsgo -d"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {
+		"@remotion/bundler": "workspace:*",
+		"@remotion/renderer": "workspace:*",
+		"@remotion/studio-server": "workspace:*",
+		"@remotion/studio-shared": "workspace:*",
+		"dotenv": "17.3.1",
+		"remotion": "workspace:*"
+	},
+	"devDependencies": {
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@types/node": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"exports": {
+		".": "./dist/index.js",
+		"./config": "./dist/config.js",
+		"./package.json": "./package.json"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"config": [
+				"./dist/config.d.ts"
+			]
+		}
+	}
+}

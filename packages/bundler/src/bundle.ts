@@ -10,6 +10,10 @@ import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';
 import {rspackConfig} from './rspack-config';
+import {
+	resolveStudioBundlerAssetPaths,
+	type StudioBundlerAssetPaths,
+} from './studio-asset-paths';
 import type {WebpackOverrideFn} from './webpack-config';
 import {webpackConfig} from './webpack-config';
 
@@ -68,6 +72,7 @@ export const getConfig = ({
 	maxTimelineTracks,
 	experimentalClientSideRenderingEnabled,
 	experimentalVisualModeEnabled,
+	studioAssetPaths,
 }: {
 	outDir: string;
 	entryPoint: string;
@@ -78,14 +83,13 @@ export const getConfig = ({
 	maxTimelineTracks: number | null;
 	onProgress: (progress: number) => void;
 	options: MandatoryLegacyBundleOptions;
+	studioAssetPaths?: StudioBundlerAssetPaths;
 }) => {
+	const resolvedStudioAssetPaths =
+		studioAssetPaths ?? resolveStudioBundlerAssetPaths(resolvedRemotionRoot);
+
 	const configArgs = {
-		entry: path.join(
-			require.resolve('@remotion/studio/renderEntry'),
-			'..',
-			'esm',
-			'renderEntry.mjs',
-		),
+		entry: resolvedStudioAssetPaths.renderEntryPath,
 		userDefinedComponent: entryPoint,
 		outDir,
 		environment: 'production' as const,
@@ -102,6 +106,7 @@ export const getConfig = ({
 		experimentalClientSideRenderingEnabled,
 		experimentalVisualModeEnabled,
 		askAIEnabled: options?.askAIEnabled ?? true,
+		studioPackageAliasPath: resolvedStudioAssetPaths.studioPackageAliasPath,
 	};
 
 	if (options.rspack) {
@@ -127,6 +132,7 @@ type NewBundleOptions = {
 
 type MandatoryBundleOptions = {
 	entryPoint: string;
+	studioAssetPaths?: StudioBundlerAssetPaths;
 } & NewBundleOptions &
 	MandatoryLegacyBundleOptions;
 
@@ -210,6 +216,9 @@ export const internalBundle = async (
 		actualArgs?.rootDir ??
 		findClosestPackageJsonFolder(entryPoint) ??
 		process.cwd();
+	const studioAssetPaths =
+		actualArgs.studioAssetPaths ??
+		resolveStudioBundlerAssetPaths(resolvedRemotionRoot);
 
 	if (!actualArgs.ignoreRegisterRootWarning) {
 		await validateEntryPoint(entryPoint);
@@ -233,6 +242,7 @@ export const internalBundle = async (
 		resolvedRemotionRoot,
 		onProgress,
 		options,
+		studioAssetPaths,
 		// Should be null to keep cache hash working
 		bufferStateDelayInMilliseconds:
 			actualArgs.bufferStateDelayInMilliseconds ?? null,

@@ -1,6 +1,11 @@
+import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
+import {
+	launchStudioSession,
+	type StudioAssetPaths,
+} from '@remotion/studio-startup-core';
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
@@ -12,15 +17,11 @@ import {getRenderDefaults} from './get-render-defaults';
 import {Log} from './log';
 import type {ParsedCommandLine} from './parsed-cli';
 import {parsedCli} from './parsed-cli';
-import {
-	addJob,
-	cancelJob,
-	getRenderQueue,
-	removeJob,
-} from './render-queue/queue';
 
 const {
+	browserExecutableOption,
 	binariesDirectoryOption,
+	bundleCacheOption,
 	publicDirOption,
 	disableGitSourceOption,
 	enableCrossSiteIsolationOption,
@@ -32,12 +33,44 @@ const {
 	numberOfSharedAudioTagsOption,
 	audioLatencyHintOption,
 	ipv4Option,
+	imageSequencePatternOption,
+	overrideDurationOption,
+	overrideFpsOption,
+	overrideHeightOption,
+	overrideWidthOption,
 	rspackOption,
 	webpackPollOption,
 	noOpenOption,
 	portOption,
 	browserOption,
 } = BrowserSafeApis.options;
+
+function getStudioAssetPaths(): StudioAssetPaths {
+	return {
+		previewEntryPath: require.resolve('@remotion/studio/previewEntry'),
+		bundler: {
+			renderEntryPath: path.join(
+				require.resolve('@remotion/studio/renderEntry'),
+				'..',
+				'esm',
+				'renderEntry.mjs',
+			),
+			studioPackageAliasPath: require.resolve('@remotion/studio'),
+		},
+	};
+}
+
+type StartStudioCommandResult =
+	| {
+			type: 'new-instance';
+			port: number;
+			close: () => Promise<void>;
+			waitForExit: () => Promise<'close' | 'restart'>;
+	  }
+	| {
+			type: 'already-running';
+			port: number;
+	  };
 
 export const studioCommand = async (
 	remotionRoot: string,
@@ -47,7 +80,34 @@ export const studioCommand = async (
 		commandLine = parsedCli,
 		exitBehavior = 'process-exit',
 	}: {commandLine?: ParsedCommandLine; exitBehavior?: ExitBehavior} = {},
-) => {
+): Promise<void> => {
+	const result = await startStudioCommand(remotionRoot, args, logLevel, {
+		commandLine,
+		exitBehavior,
+	});
+
+	if (result.type === 'already-running') {
+		return;
+	}
+
+	const exitReason = await result.waitForExit();
+	if (exitReason === 'restart') {
+		await studioCommand(remotionRoot, args, logLevel, {
+			commandLine,
+			exitBehavior,
+		});
+	}
+};
+
+export const startStudioCommand = async (
+	remotionRoot: string,
+	args: string[],
+	logLevel: LogLevel,
+	{
+		commandLine = parsedCli,
+		exitBehavior = 'process-exit',
+	}: {commandLine?: ParsedCommandLine; exitBehavior?: ExitBehavior} = {},
+): Promise<StartStudioCommandResult> => {
 	const {file, reason} = findEntryPoint({
 		args,
 		remotionRoot,
@@ -173,55 +233,55 @@ export const studioCommand = async (
 		Log.warn({indent: false, logLevel}, 'Enabling experimental visual mode.');
 	}
 
-	const result = await StudioServerInternals.startStudio({
-		previewEntry: require.resolve('@remotion/studio/previewEntry'),
-		browserArgs: commandLine['browser-args'],
-		browserFlag: browserOption.getValue({commandLine}).value ?? '',
-		logLevel,
-		shouldOpenBrowser: !noOpenOption.getValue({commandLine}).value,
-		fullEntryPath,
-		getCurrentInputProps: () => inputProps,
-		getEnvVariables: () => envVariables,
-		desiredPort,
-		keyboardShortcutsEnabled,
-		experimentalClientSideRenderingEnabled,
-		experimentalVisualModeEnabled: useVisualMode,
-		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
-		remotionRoot,
-		relativePublicDir,
-		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
-		poll: webpackPollOption.getValue({commandLine}).value,
-		getRenderDefaults: () => getRenderDefaults(commandLine),
-		getRenderQueue,
-		numberOfAudioTags: numberOfSharedAudioTagsOption.getValue({
-			commandLine,
-		}).value,
-		queueMethods: {
-			addJob,
-			cancelJob,
-			removeJob,
+	const result = await launchStudioSession({
+		spec: {
+			entryPoint: fullEntryPath,
+			remotionRoot,
+			logLevel,
+			desiredPort,
+			shouldOpenBrowser: !noOpenOption.getValue({commandLine}).value,
+			relativePublicDir,
+			webpackOverride: ConfigInternals.getWebpackOverrideFn(),
+			poll: webpackPollOption.getValue({commandLine}).value,
+			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+			bufferStateDelayInMilliseconds:
+				ConfigInternals.getBufferStateDelayInMilliseconds(),
+			keyboardShortcutsEnabled,
+			experimentalClientSideRenderingEnabled,
+			experimentalVisualModeEnabled: useVisualMode,
+			numberOfAudioTags: numberOfSharedAudioTagsOption.getValue({
+				commandLine,
+			}).value,
+			gitSource,
+			binariesDirectory,
+			forceIPv4: ipv4Option.getValue({commandLine}).value,
+			audioLatencyHint: audioLatencyHintOption.getValue({
+				commandLine,
+			}).value,
+			enableCrossSiteIsolation,
+			askAIEnabled,
+			forceNew: forceNewStudioOption.getValue({commandLine}).value,
+			rspack: useRspack,
+			rendererPort: ConfigInternals.getRendererPortFromConfigFile(),
+			browserExecutable: browserExecutableOption.getValue({commandLine}).value,
+			ffmpegOverride: ConfigInternals.getFfmpegOverrideFunction(),
+			enableCaching: bundleCacheOption.getValue({commandLine}).value ?? true,
+			overrideWidth: overrideWidthOption.getValue({commandLine}).value,
+			overrideHeight: overrideHeightOption.getValue({commandLine}).value,
+			overrideFps: overrideFpsOption.getValue({commandLine}).value,
+			overrideDuration: overrideDurationOption.getValue({commandLine}).value,
+			imageSequencePattern: imageSequencePatternOption.getValue({commandLine})
+				.value,
+			browserArgs: commandLine['browser-args'],
+			browserFlag: browserOption.getValue({commandLine}).value ?? '',
+			studioAssets: getStudioAssetPaths(),
 		},
-		gitSource,
-		bufferStateDelayInMilliseconds:
-			ConfigInternals.getBufferStateDelayInMilliseconds(),
-		binariesDirectory,
-		forceIPv4: ipv4Option.getValue({commandLine}).value,
-		audioLatencyHint: audioLatencyHintOption.getValue({
-			commandLine,
-		}).value,
-		enableCrossSiteIsolation,
-		askAIEnabled,
-		forceNew: forceNewStudioOption.getValue({commandLine}).value,
-		rspack: useRspack,
+		runtimeSources: {
+			getCurrentInputProps: () => inputProps,
+			getEnvVariables: () => envVariables,
+			getRenderDefaults: () => getRenderDefaults(commandLine),
+		},
 	});
 
-	if (result.type === 'already-running') {
-		return;
-	}
-
-	// If the server is restarted through the UI, let's do the whole thing again.
-	await studioCommand(remotionRoot, args, logLevel, {
-		commandLine,
-		exitBehavior,
-	});
+	return result;
 };

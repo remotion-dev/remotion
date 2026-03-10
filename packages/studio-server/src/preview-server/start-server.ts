@@ -61,6 +61,7 @@ export const startServer = async (options: {
 	askAIEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
+	studioPackageAliasPath: string | null;
 }): Promise<StartServerResult> => {
 	const desiredPort =
 		options?.port ??
@@ -95,6 +96,7 @@ export const startServer = async (options: {
 		poll: options.poll,
 		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
 		askAIEnabled: options.askAIEnabled,
+		studioPackageAliasPath: options.studioPackageAliasPath,
 	};
 
 	let compiler: webpack.Compiler;

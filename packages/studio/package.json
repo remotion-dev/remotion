@@ -32,6 +32,7 @@
 		"@remotion/renderer": "workspace:*",
 		"@remotion/web-renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
+		"@remotion/studio-startup-core": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"mediabunny": "catalog:",
 		"memfs": "3.4.3",
@@ -58,6 +59,12 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
+		"./node": {
+			"types": "./dist/node.d.ts",
+			"require": "./dist/node.js",
+			"module": "./dist/esm/node.mjs",
+			"import": "./dist/esm/node.mjs"
+		},
 		"./renderEntry": {
 			"types": "./dist/renderEntry.d.ts",
 			"require": "./dist/renderEntry.js",
@@ -80,6 +87,9 @@
 	"homepage": "https://www.remotion.dev/docs/studio/api",
 	"typesVersions": {
 		">=1.0": {
+			"node": [
+				"./dist/node.d.ts"
+			],
 			"renderEntry": [
 				"./dist/renderEntry.d.ts"
 			],

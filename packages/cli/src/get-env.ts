@@ -151,15 +151,18 @@ export const getEnvironmentVariables = (
 	{
 		commandLine = parsedCli,
 		exitBehavior = 'process-exit',
-	}: {commandLine?: ParsedCommandLine; exitBehavior?: ExitBehavior} = {},
+		remotionRoot = RenderInternals.findRemotionRoot(),
+	}: {
+		commandLine?: ParsedCommandLine;
+		exitBehavior?: ExitBehavior;
+		remotionRoot?: string;
+	} = {},
 ): Record<string, string> => {
 	const processEnv = getProcessEnv();
 
 	const {value: envFileValue, source: envFileSource} = envFileOption.getValue({
 		commandLine,
 	});
-
-	const remotionRoot = RenderInternals.findRemotionRoot();
 
 	if (envFileValue && envFileSource !== 'default') {
 		const baseDir = envFileSource === 'cli' ? process.cwd() : remotionRoot;

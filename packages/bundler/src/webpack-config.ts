@@ -43,6 +43,7 @@ export const webpackConfig = async ({
 	experimentalClientSideRenderingEnabled,
 	experimentalVisualModeEnabled,
 	askAIEnabled,
+	studioPackageAliasPath,
 }: {
 	entry: string;
 	userDefinedComponent: string;
@@ -59,6 +60,7 @@ export const webpackConfig = async ({
 	askAIEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
 	experimentalVisualModeEnabled: boolean;
+	studioPackageAliasPath: string | null;
 }): Promise<[string, WebpackConfiguration]> => {
 	const esbuildLoaderOptions: LoaderOptions = {
 		target: 'chrome85',
@@ -124,7 +126,7 @@ export const webpackConfig = async ({
 						new IgnorePackFileCacheWarningsPlugin(),
 					],
 		output: getOutputConfig(environment),
-		resolve: getResolveConfig(),
+		resolve: getResolveConfig({studioPackageAliasPath}),
 		module: {
 			rules: [
 				...getSharedModuleRules(),

@@ -127,7 +127,6 @@
       "version": "4.0.434",
       "dependencies": {
         "@remotion/media-parser": "workspace:*",
-        "@remotion/studio": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@rspack/core": "1.7.6",
         "@rspack/plugin-react-refresh": "1.6.1",
@@ -176,6 +175,7 @@
         "@remotion/studio": "workspace:*",
         "@remotion/studio-server": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
+        "@remotion/studio-startup-core": "workspace:*",
         "dotenv": "17.3.1",
         "minimist": "1.2.6",
         "prompts": "2.4.2",
@@ -1445,6 +1445,7 @@
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
+        "@remotion/studio-startup-core": "workspace:*",
         "@remotion/web-renderer": "workspace:*",
         "@remotion/zod-types": "workspace:*",
         "mediabunny": "catalog:",
@@ -1506,6 +1507,26 @@
         "@remotion/renderer": "workspace:*",
         "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+      },
+    },
+    "packages/studio-startup-core": {
+      "name": "@remotion/studio-startup-core",
+      "version": "4.0.434",
+      "dependencies": {
+        "@remotion/bundler": "workspace:*",
+        "@remotion/renderer": "workspace:*",
+        "@remotion/studio-server": "workspace:*",
+        "@remotion/studio-shared": "workspace:*",
+        "dotenv": "17.3.1",
+        "remotion": "workspace:*",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@types/node": "catalog:",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
       },
     },
     "packages/svg-3d-engine": {
@@ -3744,6 +3765,8 @@
     "@remotion/studio-server": ["@remotion/studio-server@workspace:packages/studio-server"],
 
     "@remotion/studio-shared": ["@remotion/studio-shared@workspace:packages/studio-shared"],
+
+    "@remotion/studio-startup-core": ["@remotion/studio-startup-core@workspace:packages/studio-startup-core"],
 
     "@remotion/svg-3d-engine": ["@remotion/svg-3d-engine@workspace:packages/svg-3d-engine"],
 

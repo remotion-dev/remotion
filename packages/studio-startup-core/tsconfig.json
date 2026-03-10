@@ -9,31 +9,19 @@
 	"include": ["src"],
 	"references": [
 		{
+			"path": "../bundler"
+		},
+		{
 			"path": "../core"
-		},
-		{
-			"path": "../media-utils"
-		},
-		{
-			"path": "../studio-shared"
-		},
-		{
-			"path": "../studio-startup-core"
-		},
-		{
-			"path": "../zod-types"
 		},
 		{
 			"path": "../renderer"
 		},
 		{
-			"path": "../webcodecs"
+			"path": "../studio-server"
 		},
 		{
-			"path": "../player"
-		},
-		{
-			"path": "../web-renderer"
+			"path": "../studio-shared"
 		}
 	]
 }

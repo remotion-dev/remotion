@@ -13,6 +13,7 @@ const external = [
 	'@remotion/renderer/client',
 	'@remotion/renderer/pure',
 	'@remotion/web-renderer',
+	'@remotion/studio-startup-core',
 	'@remotion/renderer/error-handling',
 	'source-map',
 	'zod',
@@ -31,6 +32,10 @@ await buildPackage({
 		{
 			path: 'src/index.ts',
 			target: 'browser',
+		},
+		{
+			path: 'src/node.ts',
+			target: 'node',
 		},
 		{
 			path: 'src/renderEntry.tsx',

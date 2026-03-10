@@ -237,4 +237,5 @@ export const parseCommandLineArguments = (
 
 export const parsedCli = parseCommandLineArguments(process.argv.slice(2));
 
-export const quietFlagProvided = () => parsedCli.quiet || parsedCli.q;
+export const quietFlagProvided = (commandLine: ParsedCommandLine = parsedCli) =>
+	commandLine.quiet || commandLine.q;

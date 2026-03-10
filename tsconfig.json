@@ -193,6 +193,9 @@
 			"path": "./packages/studio-server"
 		},
 		{
+			"path": "./packages/studio-startup-core"
+		},
+		{
 			"path": "./packages/studio-shared"
 		},
 		{

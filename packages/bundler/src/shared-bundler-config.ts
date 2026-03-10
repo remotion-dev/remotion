@@ -21,7 +21,11 @@ export const shouldUseReactDomClient =
 		? true
 		: parseInt(reactDomVersion, 10) >= 18;
 
-export const getResolveConfig = () => ({
+export const getResolveConfig = ({
+	studioPackageAliasPath,
+}: {
+	studioPackageAliasPath: string | null;
+}) => ({
 	extensions: ['.ts', '.tsx', '.web.js', '.js', '.jsx', '.mjs', '.cjs'],
 	alias: {
 		// Only one version of react
@@ -50,15 +54,18 @@ export const getResolveConfig = () => ({
 			'esm',
 			'index.mjs',
 		),
-
 		'@remotion/media-parser/worker': path.resolve(
 			require.resolve('@remotion/media-parser'),
 			'..',
 			'esm',
 			'worker.mjs',
 		),
-		// test visual controls before removing this
-		'@remotion/studio': require.resolve('@remotion/studio'),
+		...(studioPackageAliasPath === null
+			? {}
+			: {
+					// test visual controls before removing this
+					'@remotion/studio': studioPackageAliasPath,
+				}),
 		'react-dom/client': shouldUseReactDomClient
 			? require.resolve('react-dom/client')
 			: require.resolve('react-dom'),
