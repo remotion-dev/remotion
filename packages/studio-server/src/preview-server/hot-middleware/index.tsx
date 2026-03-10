@@ -160,15 +160,9 @@ export const webpackHotMiddleware = (
 	function onDone(statsResult: webpack.Stats) {
 		// Keep hold of latest stats so they can be propagated to new clients
 		latestStats = statsResult;
+		publishStats('built', latestStats, eventStream, currentBuildSuppressed);
 
-		if (currentBuildSuppressed) {
-			// Still send the "built" event so the client hash stays in sync,
-			// but skip the "building" spinner. This avoids accumulating
-			// a large HMR delta for the next real build.
-			currentBuildSuppressed = false;
-		}
-
-		publishStats('built', latestStats, eventStream);
+		currentBuildSuppressed = false;
 	}
 
 	const middleware = function (
@@ -179,7 +173,7 @@ export const webpackHotMiddleware = (
 		if (!pathMatch(req.url as string, hotMiddlewareOptions.path)) return next();
 		eventStream?.handler(req, res);
 		if (latestStats) {
-			publishStats('sync', latestStats, eventStream);
+			publishStats('sync', latestStats, eventStream, false);
 		}
 	};
 
@@ -247,6 +241,7 @@ function publishStats(
 	action: HotMiddlewareMessage['action'],
 	statsResult: webpack.Stats,
 	eventStream: EventStream | null,
+	suppressed: boolean,
 ) {
 	const stats = statsResult.toJson({
 		all: false,
@@ -274,6 +269,7 @@ function publishStats(
 			warnings: _stats.warnings || [],
 			errors: _stats.errors || [],
 			modules: buildModuleMap(_stats.modules),
+			suppressed,
 		});
 	});
 }
