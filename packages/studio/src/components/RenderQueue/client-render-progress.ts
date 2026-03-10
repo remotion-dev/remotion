@@ -29,7 +29,7 @@ export const getClientRenderProgressMessage = (
 	if (progress.renderEstimatedTime > 0) {
 		const etaString = `, time remaining: ${formatEtaString(progress.renderEstimatedTime)}`;
 
-		return `Rendering ${Math.round(progress.progress * 100)}%${etaString}`;
+		return `Rendering ${progress.encodedFrames}/${progress.totalFrames}${etaString}`;
 	}
 
 	return `Encoded ${progress.encodedFrames}/${progress.totalFrames}`;

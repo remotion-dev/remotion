@@ -19,7 +19,7 @@ test('formats client render progress message while rendering', () => {
 			renderEstimatedTime: 65_000,
 			progress: 0.55,
 		}),
-	).toBe('Rendering 55%, time remaining: 1m 5s');
+	).toBe('Rendering 10/30, time remaining: 1m 5s');
 });
 
 test('formats client render progress message while encoding', () => {
