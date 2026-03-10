@@ -81,7 +81,7 @@ export const useSchema = <
 
 		const currentValueKeys = Object.keys(currentValue);
 
-		const keysToUpdate = new Set(currentValueKeys).values();
+		const keysToUpdate = [...new Set(currentValueKeys)];
 
 		const merged = {} as Record<string, unknown>;
 
