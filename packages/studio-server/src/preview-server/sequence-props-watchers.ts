@@ -76,7 +76,7 @@ export const subscribeToSequencePropsWatchers = ({
 			});
 
 			waitForLiveEventsListener().then((listener) => {
-				listener.sendEventToClient({
+				listener.sendEventToClientId(clientId, {
 					type: 'sequence-props-updated',
 					fileName,
 					nodePath,
