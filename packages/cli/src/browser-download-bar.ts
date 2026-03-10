@@ -1,7 +1,7 @@
 import type {ChromeMode, LogLevel, OnBrowserDownload} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {makeBrowserDownloadProgressTracker} from '@remotion/studio-server';
 import type {BrowserDownloadState} from '@remotion/studio-shared';
-import {makeBrowserDownloadProgressTracker} from '@remotion/studio-startup-core';
 import {chalk} from './chalk';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';

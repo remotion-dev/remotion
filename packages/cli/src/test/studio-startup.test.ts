@@ -2,10 +2,49 @@ import {beforeAll, expect, mock, test} from 'bun:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import type * as ParsedCliModule from '../parsed-cli';
+import type * as StudioModule from '../studio';
 
 const launchStudioSessionMock = mock();
 
 mock.module('@remotion/studio-server', () => ({
+	Config: {
+		setPort: () => undefined,
+		setStudioPort: () => undefined,
+		setRendererPort: () => undefined,
+	},
+	ConfigInternals: {
+		getEntryPoint: () => null,
+		getStudioPort: () => null,
+		getConfiguredPublicDir: () => null,
+		getWebpackOverrideFn: () => (config: unknown) => config,
+		getWebpackPolling: () => null,
+		getMaxTimelineTracks: () => null,
+		getBufferStateDelayInMilliseconds: () => null,
+		getConfiguredKeyboardShortcutsEnabled: () => true,
+		getConfiguredExperimentalClientSideRenderingEnabled: () => false,
+		getConfiguredExperimentalVisualModeEnabled: () => false,
+		getConfiguredNumberOfSharedAudioTags: () => 0,
+		getConfiguredBinariesDirectory: () => null,
+		getConfiguredIPv4: () => false,
+		getConfiguredAudioLatencyHint: () => null,
+		getConfiguredEnableCrossSiteIsolation: () => false,
+		getConfiguredAskAIEnabled: () => true,
+		getConfiguredForceNewStudio: () => false,
+		getConfiguredRspackEnabled: () => false,
+		getRendererPortFromConfigFile: () => null,
+		getConfiguredBrowserExecutable: () => null,
+		getFfmpegOverrideFunction: () => undefined,
+		getWebpackCaching: () => true,
+		getConfiguredOverrideWidth: () => null,
+		getConfiguredOverrideHeight: () => null,
+		getConfiguredOverrideFps: () => null,
+		getConfiguredOverrideDuration: () => null,
+		getConfiguredImageSequencePattern: () => null,
+		getMetadata: () => ({}),
+		getOutputLocation: () => null,
+		getOutputCodecOrUndefined: () => null,
+	},
 	StudioServerInternals: {
 		getMaxTimelineTracks: () => null,
 		setMaxTimelineTracks: () => undefined,
@@ -15,14 +54,11 @@ mock.module('@remotion/studio-server', () => ({
 				sendEventToClient: () => undefined,
 			}),
 	},
-}));
-
-mock.module('@remotion/studio-startup-core', () => ({
 	launchStudioSession: launchStudioSessionMock,
 }));
 
-let startStudioCommand: typeof import('../studio').startStudioCommand;
-let parseCommandLineArguments: typeof import('../parsed-cli').parseCommandLineArguments;
+let startStudioCommand: typeof StudioModule.startStudioCommand;
+let parseCommandLineArguments: typeof ParsedCliModule.parseCommandLineArguments;
 
 beforeAll(async () => {
 	({startStudioCommand} = await import('../studio'));

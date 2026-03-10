@@ -22,6 +22,34 @@ export type {
 	StitchingProgressInput,
 	UiOpenGlOptions,
 } from '@remotion/studio-shared';
+export {
+	Config,
+	ConfigInternals,
+	type Concurrency,
+	type WebpackConfiguration,
+	type WebpackOverrideFn,
+} from './config';
+export {findEntryPoint, type EntryPointReason} from './find-entry-point';
+export {getConfiguredRenderDefaults} from './get-configured-render-defaults';
+export {getEnvironmentVariables} from './get-environment-variables';
+export {loadConfig} from './load-config';
+export {makeRenderQueue} from './render-queue';
+export {
+	addLogToAggregateProgress,
+	cloneAggregateProgress,
+	initialAggregateRenderProgress,
+	makeArtifactProgressHandler,
+	makeBrowserDownloadProgressTracker,
+	makeDownloadProgressTracker,
+} from './render-progress';
+export {
+	launchStudioSession,
+	startStudio,
+	type LaunchStudioSessionResult,
+	type StudioAssetPaths,
+	type StudioLaunchSpec,
+	type StudioRuntimeSources,
+} from './start-studio-session';
 
 import {AnsiDiff} from './ansi-diff';
 import {
@@ -47,10 +75,10 @@ import {
 } from './preview-server/get-package-manager';
 import {waitForLiveEventsListener} from './preview-server/live-events';
 import {getRemotionVersion} from './preview-server/update-available';
-import {startStudio} from './start-studio';
+import {startStudio as startStudioServer} from './start-studio';
 
 export const StudioServerInternals = {
-	startStudio,
+	startStudio: startStudioServer,
 	getRemotionVersion,
 	waitForLiveEventsListener,
 	lockFilePaths,

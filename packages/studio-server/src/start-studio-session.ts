@@ -7,9 +7,9 @@ import type {
 	FfmpegOverrideFn,
 	LogLevel,
 } from '@remotion/renderer';
-import {StudioServerInternals} from '@remotion/studio-server';
 import type {GitSource, RenderDefaults} from '@remotion/studio-shared';
 import {makeRenderQueue} from './render-queue';
+import {startStudio as startStudioServer} from './start-studio';
 
 export type StudioAssetPaths = {
 	previewEntryPath: string;
@@ -71,7 +71,7 @@ export type LaunchStudioSessionResult =
 			port: number;
 	  };
 
-export const launchStudioSession = async ({
+export const launchStudioSession = ({
 	spec,
 	runtimeSources,
 }: {
@@ -107,7 +107,7 @@ export const launchStudioSession = async ({
 		getRenderDefaults: runtimeSources.getRenderDefaults,
 	});
 
-	return StudioServerInternals.startStudio({
+	return startStudioServer({
 		previewEntry: spec.studioAssets.previewEntryPath,
 		studioPackageAliasPath: spec.studioAssets.bundler.studioPackageAliasPath,
 		browserArgs: spec.browserArgs,
@@ -146,3 +146,5 @@ export const launchStudioSession = async ({
 		rspack: spec.rspack,
 	});
 };
+
+export const startStudio = launchStudioSession;

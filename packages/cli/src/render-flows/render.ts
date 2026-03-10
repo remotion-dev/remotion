@@ -33,12 +33,12 @@ import type {
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '@remotion/studio-server';
+import {addLogToAggregateProgress} from '@remotion/studio-server';
 import {
 	formatBytes,
 	type ArtifactProgress,
 	type BrowserDownloadState,
 } from '@remotion/studio-shared';
-import {addLogToAggregateProgress} from '@remotion/studio-startup-core';
 import type {_InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {defaultBrowserDownloadProgress} from '../browser-download-bar';

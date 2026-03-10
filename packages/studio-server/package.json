@@ -32,6 +32,7 @@
 		"@remotion/bundler": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
+		"dotenv": "17.3.1",
 		"memfs": "3.4.3",
 		"source-map": "0.7.3",
 		"open": "^8.4.2"
@@ -48,6 +49,14 @@
 	},
 	"exports": {
 		".": "./dist/index.js",
+		"./config": "./dist/config.js",
 		"./package.json": "./package.json"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"config": [
+				"./dist/config.d.ts"
+			]
+		}
 	}
 }

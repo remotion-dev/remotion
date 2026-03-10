@@ -1,29 +1,19 @@
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import {
+	Config as SharedConfig,
+	ConfigInternals as SharedConfigInternals,
+} from '@remotion/studio-server';
 import {parsedCli} from '../parsed-cli';
 
 const {portOption} = BrowserSafeApis.options;
+const {setPort: setSharedPort, setStudioPort, setRendererPort} = SharedConfig;
+const {getStudioPort, getRendererPortFromConfigFile} = SharedConfigInternals;
 
-let studioPort: number | undefined;
-let rendererPort: number | undefined;
-
-const validatePort = (port: number | undefined) => {
-	if (!['number', 'undefined'].includes(typeof port)) {
-		throw new Error(
-			`Studio server port should be a number. Got ${typeof port} (${JSON.stringify(
-				port,
-			)})`,
-		);
-	}
-
-	if (port === undefined) {
-		return;
-	}
-
-	if (port < 1 || port > 65535) {
-		throw new Error(
-			`Studio server port should be a number between 1 and 65535. Got ${port}`,
-		);
-	}
+export {
+	getRendererPortFromConfigFile,
+	getStudioPort,
+	setRendererPort,
+	setStudioPort,
 };
 
 /**
@@ -33,30 +23,12 @@ const validatePort = (port: number | undefined) => {
  * @returns
  */
 export const setPort = (port: number | undefined) => {
-	setStudioPort(port);
-	setRendererPort(port);
-};
-
-export const setStudioPort = (port: number | undefined) => {
-	validatePort(port);
-
-	studioPort = port;
-};
-
-export const setRendererPort = (port: number | undefined) => {
-	validatePort(port);
-
-	rendererPort = port;
-};
-
-export const getStudioPort = () => studioPort;
-
-export const getRendererPortFromConfigFile = () => {
-	return rendererPort ?? null;
+	setSharedPort(port);
 };
 
 export const getRendererPortFromConfigFileAndCliFlag = (): number | null => {
 	return (
-		portOption.getValue({commandLine: parsedCli}).value ?? rendererPort ?? null
+		portOption.getValue({commandLine: parsedCli}).value ??
+		SharedConfigInternals.getRendererPortFromConfigFile()
 	);
 };

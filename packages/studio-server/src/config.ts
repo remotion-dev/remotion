@@ -14,8 +14,11 @@ import type {
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import {StudioServerInternals} from '@remotion/studio-server';
 import {NoReactInternals} from 'remotion/no-react';
+import {
+	getMaxTimelineTracks,
+	setMaxTimelineTracks,
+} from './max-timeline-tracks';
 
 export type {WebpackConfiguration};
 
@@ -239,7 +242,7 @@ export const Config = {
 			'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.',
 		);
 	},
-	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
+	setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setExperimentalClientSideRenderingEnabled: setExperimentalClientSideRendering,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
@@ -359,7 +362,7 @@ export const ConfigInternals = {
 	},
 	getOutputLocation: () => currentOutputLocation,
 	setStillFrame,
-	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
+	getMaxTimelineTracks,
 	defaultOverrideFunction,
 	getFfmpegOverrideFunction: () => ffmpegOverrideFn,
 	getMetadata: (): Record<string, string> => {

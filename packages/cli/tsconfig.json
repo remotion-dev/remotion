@@ -16,7 +16,6 @@
 		{"path": "../player"},
 		{"path": "../media-utils"},
 		{"path": "../studio-server"},
-		{"path": "../studio-startup-core"},
 		{"path": "../zod-types"}
 	],
 	"exclude": ["dist"]

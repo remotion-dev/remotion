@@ -1,5 +1,5 @@
+import {makeArtifactProgressHandler} from '@remotion/studio-server';
 import type {ArtifactProgress} from '@remotion/studio-shared';
-import {makeArtifactProgressHandler} from '@remotion/studio-startup-core';
 
 export const handleOnArtifact = ({
 	artifactState,

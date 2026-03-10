@@ -13,7 +13,7 @@ const findEntryPointMock = mock(() => ({
 const getEnvironmentVariablesMock = mock(() => ({FROM_CONFIG: 'true'}));
 const getConfiguredRenderDefaultsMock = mock(() => ({codec: 'h264'}));
 
-mock.module('@remotion/studio-startup-core', () => ({
+mock.module('@remotion/studio-server', () => ({
 	ConfigInternals: {
 		getEntryPoint: () => null,
 		getStudioPort: () => null,

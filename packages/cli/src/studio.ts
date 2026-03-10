@@ -5,7 +5,7 @@ import {StudioServerInternals} from '@remotion/studio-server';
 import {
 	launchStudioSession,
 	type StudioAssetPaths,
-} from '@remotion/studio-startup-core';
+} from '@remotion/studio-server';
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';

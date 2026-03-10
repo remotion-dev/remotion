@@ -18,7 +18,7 @@
 			"path": "../studio-shared"
 		},
 		{
-			"path": "../studio-startup-core"
+			"path": "../studio-server"
 		},
 		{
 			"path": "../zod-types"

@@ -2,9 +2,9 @@ import fs, {readFileSync} from 'node:fs';
 import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {StudioServerInternals} from '@remotion/studio-server';
 import dotenv from 'dotenv';
 import {ConfigInternals} from './config';
+import {installFileWatcher} from './file-watcher';
 
 function getProcessEnv(): Record<string, string> {
 	const env: Record<string, string> = {};
@@ -37,7 +37,7 @@ const watchEnvFile = ({
 		});
 	};
 
-	const {unwatch} = StudioServerInternals.installFileWatcher({
+	const {unwatch} = installFileWatcher({
 		file: envFile,
 		onChange: async (type) => {
 			try {

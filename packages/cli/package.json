@@ -43,7 +43,6 @@
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/studio-server": "workspace:*",
-		"@remotion/studio-startup-core": "workspace:*",
 		"@remotion/studio": "workspace:*",
 		"dotenv": "17.3.1",
 		"minimist": "1.2.6",

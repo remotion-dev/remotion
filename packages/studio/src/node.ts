@@ -9,7 +9,7 @@ import {
 	launchStudioSession,
 	loadConfig,
 	type StudioAssetPaths,
-} from '@remotion/studio-startup-core';
+} from '@remotion/studio-server';
 
 type StudioSessionResult =
 	| {

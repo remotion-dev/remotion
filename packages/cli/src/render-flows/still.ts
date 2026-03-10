@@ -18,11 +18,11 @@ import type {
 	AggregateRenderProgress,
 	JobProgressCallback,
 } from '@remotion/studio-server';
-import type {BrowserDownloadState} from '@remotion/studio-shared';
 import {
 	addLogToAggregateProgress,
 	initialAggregateRenderProgress,
-} from '@remotion/studio-startup-core';
+} from '@remotion/studio-server';
+import type {BrowserDownloadState} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 import {defaultBrowserDownloadProgress} from '../browser-download-bar';
 import {chalk} from '../chalk';

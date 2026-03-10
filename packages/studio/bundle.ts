@@ -13,7 +13,7 @@ const external = [
 	'@remotion/renderer/client',
 	'@remotion/renderer/pure',
 	'@remotion/web-renderer',
-	'@remotion/studio-startup-core',
+	'@remotion/studio-server',
 	'@remotion/renderer/error-handling',
 	'source-map',
 	'zod',

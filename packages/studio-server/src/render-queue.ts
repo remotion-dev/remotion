@@ -17,7 +17,6 @@ import {
 	renderStill,
 	selectComposition,
 } from '@remotion/renderer';
-import {StudioServerInternals} from '@remotion/studio-server';
 import type {
 	AggregateRenderProgress,
 	BrowserDownloadState,
@@ -28,6 +27,8 @@ import type {
 	RenderJobWithCleanup,
 } from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
+import {installFileWatcher} from './file-watcher';
+import {waitForLiveEventsListener} from './preview-server/live-events';
 import {
 	addLogToAggregateProgress,
 	cloneAggregateProgress,
@@ -371,7 +372,7 @@ const processRenderJob = async ({
 		}
 
 		if (job.type === 'sequence') {
-			const totalFrames = getTotalFrames({
+			const sequenceTotalFrames = getTotalFrames({
 				startFrame: job.startFrame,
 				endFrame: job.endFrame,
 				everyNthFrame: 1,
@@ -381,7 +382,7 @@ const processRenderJob = async ({
 			value = 0.35;
 			aggregateProgress.rendering = {
 				frames: 0,
-				totalFrames,
+				totalFrames: sequenceTotalFrames,
 				doneIn: null,
 				timeRemainingInMilliseconds: null,
 			};
@@ -420,11 +421,11 @@ const processRenderJob = async ({
 				onFrameUpdate: (framesRendered) => {
 					aggregateProgress.rendering = {
 						frames: framesRendered,
-						totalFrames,
+						totalFrames: sequenceTotalFrames,
 						doneIn: null,
 						timeRemainingInMilliseconds: null,
 					};
-					value = 0.35 + (framesRendered / totalFrames) * 0.6;
+					value = 0.35 + (framesRendered / sequenceTotalFrames) * 0.6;
 					emitProgress();
 				},
 			});
@@ -574,7 +575,7 @@ export const makeRenderQueue = (
 	};
 
 	const notifyClientsOfJobUpdate = () => {
-		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+		waitForLiveEventsListener().then((listener) => {
 			listener.sendEventToClient({
 				type: 'render-queue-updated',
 				queue: getRenderQueue(),
@@ -594,6 +595,14 @@ export const makeRenderQueue = (
 			return updater(job);
 		});
 		notifyClientsOfJobUpdate();
+	};
+
+	const logUnexpectedQueueError = (error: unknown) => {
+		RenderInternals.Log.error(
+			{indent: false, logLevel: context.logLevel},
+			'Unexpected render queue error',
+			error,
+		);
 	};
 
 	const processNextJob = async () => {
@@ -636,25 +645,24 @@ export const makeRenderQueue = (
 				},
 			});
 
-			const {unwatch: outputWatcherCleanup} =
-				StudioServerInternals.installFileWatcher({
-					file: path.resolve(context.remotionRoot, nextJob.outName),
-					onChange: (type) => {
-						if (type === 'created') {
-							updateJob(nextJob.id, (job) => ({
-								...job,
-								deletedOutputLocation: false,
-							}));
-						}
+			const {unwatch: outputWatcherCleanup} = installFileWatcher({
+				file: path.resolve(context.remotionRoot, nextJob.outName),
+				onChange: (type) => {
+					if (type === 'created') {
+						updateJob(nextJob.id, (job) => ({
+							...job,
+							deletedOutputLocation: false,
+						}));
+					}
 
-						if (type === 'deleted') {
-							updateJob(nextJob.id, (job) => ({
-								...job,
-								deletedOutputLocation: true,
-							}));
-						}
-					},
-				});
+					if (type === 'deleted') {
+						updateJob(nextJob.id, (job) => ({
+							...job,
+							deletedOutputLocation: true,
+						}));
+					}
+				},
+			});
 
 			updateJob(nextJob.id, (job) => ({
 				...job,
@@ -680,7 +688,7 @@ export const makeRenderQueue = (
 				err,
 			);
 
-			StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+			waitForLiveEventsListener().then((listener) => {
 				listener.sendEventToClient({
 					type: 'render-job-failed',
 					compositionId: nextJob.compositionId,
@@ -689,7 +697,7 @@ export const makeRenderQueue = (
 			});
 		}
 
-		void processNextJob();
+		processNextJob().catch(logUnexpectedQueueError);
 	};
 
 	return {
@@ -697,7 +705,7 @@ export const makeRenderQueue = (
 		addJob: ({job}) => {
 			jobQueue.push(job);
 			notifyClientsOfJobUpdate();
-			void processNextJob();
+			processNextJob().catch(logUnexpectedQueueError);
 		},
 		removeJob: (jobId) => {
 			jobQueue = jobQueue.filter((job) => {
