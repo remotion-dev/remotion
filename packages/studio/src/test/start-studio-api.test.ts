@@ -111,7 +111,7 @@ test('startStudio() forwards options and returns a closable handle', async () =>
 			Parameters<typeof launchStudioSessionMock>[0],
 		];
 		expect(params.spec.remotionRoot).toBe(tmp);
-		expect(params.spec.entryPoint).toMatch(/src\/index\.ts$/);
+		expect(params.spec.entryPoint).toMatch(/src[\\/]index\.ts$/);
 		expect(params.spec.desiredPort).toBe(4321);
 		expect(params.spec.shouldOpenBrowser).toBe(false);
 		expect(params.runtimeSources.getCurrentInputProps()).toEqual({});

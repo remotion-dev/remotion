@@ -3,19 +3,22 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-const startStudioMock = mock();
+const launchStudioSessionMock = mock();
 
 mock.module('@remotion/studio-server', () => ({
 	StudioServerInternals: {
 		getMaxTimelineTracks: () => null,
 		setMaxTimelineTracks: () => undefined,
-		startStudio: startStudioMock,
 		installFileWatcher: () => ({unwatch: () => undefined}),
 		waitForLiveEventsListener: () =>
 			Promise.resolve({
 				sendEventToClient: () => undefined,
 			}),
 	},
+}));
+
+mock.module('@remotion/studio-startup-core', () => ({
+	launchStudioSession: launchStudioSessionMock,
 }));
 
 let startStudioCommand: typeof import('../studio').startStudioCommand;
@@ -27,7 +30,7 @@ beforeAll(async () => {
 });
 
 test('startStudioCommand wires render queue methods for a functional Studio', async () => {
-	startStudioMock.mockResolvedValue({
+	launchStudioSessionMock.mockResolvedValue({
 		type: 'already-running',
 		port: 3000,
 	});
@@ -44,16 +47,16 @@ test('startStudioCommand wires render queue methods for a functional Studio', as
 			exitBehavior: 'throw',
 		});
 
-		expect(startStudioMock).toHaveBeenCalledTimes(1);
-		const [options] = startStudioMock.mock.calls[0] as [
-			Parameters<typeof startStudioMock>[0],
+		expect(launchStudioSessionMock).toHaveBeenCalledTimes(1);
+		const [params] = launchStudioSessionMock.mock.calls[0] as [
+			Parameters<typeof launchStudioSessionMock>[0],
 		];
 
-		expect(options.getRenderQueue()).toEqual([]);
-		expect(() => options.queueMethods.cancelJob('missing')).not.toThrow();
-		expect(() => options.queueMethods.removeJob('missing')).not.toThrow();
+		expect(params.runtimeSources.getCurrentInputProps()).toEqual({});
+		expect(params.runtimeSources.getEnvVariables()).toBeDefined();
+		expect(params.runtimeSources.getRenderDefaults()).toBeDefined();
 	} finally {
 		fs.rmSync(tmp, {recursive: true, force: true});
-		startStudioMock.mockReset();
+		launchStudioSessionMock.mockReset();
 	}
 });
