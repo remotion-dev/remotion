@@ -1,6 +1,7 @@
 import type {InputAudioTrack, WrappedAudioBuffer} from 'mediabunny';
 import {AudioBufferSink, InputDisposedError} from 'mediabunny';
-import type {AudioIterator} from './audio/audio-preview-iterator';
+import {Internals, type ScheduleAudioNodeResult} from 'remotion';
+import type {AudioIterator, QueuedPeriod} from './audio/audio-preview-iterator';
 import {
 	isAlreadyQueued,
 	makeAudioIterator,
@@ -8,8 +9,14 @@ import {
 import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedAudioIteratorCache} from './prewarm-iterator-for-looping';
+import {ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT} from './set-global-time-anchor';
 
 const MAX_BUFFER_AHEAD_SECONDS = 8;
+
+type ScheduleAudioNode = (
+	node: AudioBufferSourceNode,
+	mediaTimestamp: number,
+) => ScheduleAudioNodeResult;
 
 export const audioIteratorManager = ({
 	audioTrack,
@@ -48,20 +55,22 @@ export const audioIteratorManager = ({
 		mediaTimestamp,
 		playbackRate,
 		scheduleAudioNode,
-		maxDuration,
+		debugAudioScheduling,
 	}: {
 		buffer: AudioBuffer;
 		mediaTimestamp: number;
 		playbackRate: number;
-		scheduleAudioNode: (
-			node: AudioBufferSourceNode,
-			mediaTimestamp: number,
-			maxDuration: number | null,
-		) => void;
-		maxDuration: number | null;
+		scheduleAudioNode: ScheduleAudioNode;
+		debugAudioScheduling: boolean;
 	}) => {
 		if (!audioBufferIterator) {
 			throw new Error('Audio buffer iterator not found');
+		}
+
+		if (sharedAudioContext.state !== 'running') {
+			throw new Error(
+				'Tried to schedule node while audio context is not running',
+			);
 		}
 
 		if (muted) {
@@ -73,11 +82,31 @@ export const audioIteratorManager = ({
 		node.playbackRate.value = playbackRate;
 		node.connect(gainNode);
 
-		scheduleAudioNode(node, mediaTimestamp, maxDuration);
+		const started = scheduleAudioNode(node, mediaTimestamp);
+
+		if (started.type === 'not-started') {
+			if (debugAudioScheduling) {
+				Internals.Log.info(
+					{logLevel: 'trace', tag: 'audio-scheduling'},
+					'not started, disconnected: %s %s',
+					mediaTimestamp.toFixed(3),
+					buffer.duration.toFixed(3),
+				);
+			}
+
+			node.disconnect();
+			return;
+		}
 
 		const iterator = audioBufferIterator;
 
-		iterator.addQueuedAudioNode(node, mediaTimestamp, buffer, maxDuration);
+		iterator.addQueuedAudioNode({
+			node,
+			timestamp: mediaTimestamp,
+			buffer,
+			scheduledTime: started.scheduledTime,
+			playbackRate,
+		});
 		node.onended = () => {
 			// Some leniancy is needed as we find that sometimes onended is fired a bit too early
 			setTimeout(() => {
@@ -86,52 +115,98 @@ export const audioIteratorManager = ({
 		};
 	};
 
-	const onAudioChunk = ({
-		getIsPlaying,
-		buffer,
+	const resumeScheduledAudioChunks = ({
 		playbackRate,
 		scheduleAudioNode,
+		debugAudioScheduling,
 	}: {
-		getIsPlaying: () => boolean;
-		buffer: WrappedAudioBuffer;
 		playbackRate: number;
-		scheduleAudioNode: (
-			node: AudioBufferSourceNode,
-			mediaTimestamp: number,
-			maxDuration: number | null,
-		) => void;
+		scheduleAudioNode: ScheduleAudioNode;
+		debugAudioScheduling: boolean;
 	}) => {
 		if (muted) {
 			return;
 		}
 
+		if (!audioBufferIterator) {
+			return;
+		}
+
+		for (const chunk of audioBufferIterator.getAndClearAudioChunksForAfterResuming()) {
+			scheduleAudioChunk({
+				buffer: chunk.buffer,
+				mediaTimestamp: chunk.timestamp,
+				playbackRate,
+				scheduleAudioNode,
+				debugAudioScheduling,
+			});
+		}
+	};
+
+	const onAudioChunk = ({
+		getIsPlaying,
+		buffer,
+		playbackRate,
+		scheduleAudioNode,
+		debugAudioScheduling,
+	}: {
+		getIsPlaying: () => boolean;
+		buffer: WrappedAudioBuffer;
+		playbackRate: number;
+		scheduleAudioNode: ScheduleAudioNode;
+		debugAudioScheduling: boolean;
+	}) => {
+		if (muted) {
+			return;
+		}
+
+		const startTime = getStartTime();
 		const endTime = getEndTime();
+
+		// Skip chunks entirely outside the range
+		if (buffer.timestamp + buffer.duration <= startTime) {
+			return;
+		}
+
 		if (buffer.timestamp >= endTime) {
 			return;
 		}
 
-		const maxDuration =
-			buffer.timestamp + buffer.duration > endTime
-				? endTime - buffer.timestamp
-				: null;
+		if (
+			getIsPlaying() &&
+			sharedAudioContext.state === 'running' &&
+			(sharedAudioContext.getOutputTimestamp().contextTime ?? 0) > 0
+		) {
+			resumeScheduledAudioChunks({
+				playbackRate,
+				scheduleAudioNode,
+				debugAudioScheduling,
+			});
 
-		if (getIsPlaying()) {
 			scheduleAudioChunk({
 				buffer: buffer.buffer,
 				mediaTimestamp: buffer.timestamp,
 				playbackRate,
 				scheduleAudioNode,
-				maxDuration,
+				debugAudioScheduling,
 			});
 		} else {
 			if (!audioBufferIterator) {
 				throw new Error('Audio buffer iterator not found');
 			}
 
+			if (debugAudioScheduling) {
+				Internals.Log.info(
+					{logLevel: 'trace', tag: 'audio-scheduling'},
+					'not ready, added to queue: %s %s',
+					buffer.timestamp.toFixed(3),
+					buffer.duration.toFixed(3),
+				);
+			}
+
 			audioBufferIterator.addChunkForAfterResuming(
 				buffer.buffer,
 				buffer.timestamp,
-				maxDuration,
 			);
 		}
 
@@ -144,28 +219,28 @@ export const audioIteratorManager = ({
 		startFromSecond,
 		getIsPlaying,
 		scheduleAudioNode,
+		debugAudioScheduling,
 	}: {
 		startFromSecond: number;
 		nonce: Nonce;
 		playbackRate: number;
 		getIsPlaying: () => boolean;
-		scheduleAudioNode: (
-			node: AudioBufferSourceNode,
-			mediaTimestamp: number,
-			maxDuration: number | null,
-		) => void;
+		scheduleAudioNode: ScheduleAudioNode;
+		debugAudioScheduling: boolean;
 	}) => {
 		if (muted) {
 			return;
 		}
 
-		audioBufferIterator?.destroy();
+		audioBufferIterator?.destroy(sharedAudioContext);
 		using delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 
 		const iterator = makeAudioIterator(
 			startFromSecond,
+			getEndTime(),
 			prewarmedAudioIteratorCache,
+			debugAudioScheduling,
 		);
 		audioIteratorsCreated++;
 		audioBufferIterator = iterator;
@@ -193,6 +268,7 @@ export const audioIteratorManager = ({
 					buffer: result.value,
 					playbackRate,
 					scheduleAudioNode,
+					debugAudioScheduling,
 				});
 			}
 
@@ -204,6 +280,7 @@ export const audioIteratorManager = ({
 							buffer,
 							playbackRate,
 							scheduleAudioNode,
+							debugAudioScheduling,
 						});
 					}
 				},
@@ -234,16 +311,14 @@ export const audioIteratorManager = ({
 		playbackRate,
 		getIsPlaying,
 		scheduleAudioNode,
+		debugAudioScheduling,
 	}: {
 		newTime: number;
 		nonce: Nonce;
 		playbackRate: number;
 		getIsPlaying: () => boolean;
-		scheduleAudioNode: (
-			node: AudioBufferSourceNode,
-			mediaTimestamp: number,
-			maxDuration: number | null,
-		) => void;
+		scheduleAudioNode: ScheduleAudioNode;
+		debugAudioScheduling: boolean;
 	}) => {
 		if (muted) {
 			return;
@@ -254,6 +329,7 @@ export const audioIteratorManager = ({
 			if (getEndTime() - newTime < 1) {
 				prewarmedAudioIteratorCache.prewarmIteratorForLooping({
 					timeToSeek: getStartTime(),
+					maximumTimestamp: getEndTime(),
 				});
 			}
 		}
@@ -265,12 +341,28 @@ export const audioIteratorManager = ({
 				startFromSecond: newTime,
 				getIsPlaying,
 				scheduleAudioNode,
+				debugAudioScheduling,
 			});
 			return;
 		}
 
 		const queuedPeriod = audioBufferIterator.getQueuedPeriod();
-		const currentTimeIsAlreadyQueued = isAlreadyQueued(newTime, queuedPeriod);
+		// If there is a missing period, but we'd have no chance to schedule nodes,
+		// then let's not bother. Let's just leave the gap.
+		const queuedPeriodMinusLatency: QueuedPeriod | null = queuedPeriod
+			? {
+					from:
+						queuedPeriod.from -
+						ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT -
+						sharedAudioContext.baseLatency -
+						sharedAudioContext.outputLatency,
+					until: queuedPeriod.until,
+				}
+			: null;
+		const currentTimeIsAlreadyQueued = isAlreadyQueued(
+			newTime,
+			queuedPeriodMinusLatency,
+		);
 
 		if (!currentTimeIsAlreadyQueued) {
 			const audioSatisfyResult = await audioBufferIterator.tryToSatisfySeek(
@@ -282,6 +374,7 @@ export const audioIteratorManager = ({
 							buffer,
 							playbackRate,
 							scheduleAudioNode,
+							debugAudioScheduling,
 						});
 					}
 				},
@@ -302,6 +395,7 @@ export const audioIteratorManager = ({
 					startFromSecond: newTime,
 					getIsPlaying,
 					scheduleAudioNode,
+					debugAudioScheduling,
 				});
 				return;
 			}
@@ -319,41 +413,12 @@ export const audioIteratorManager = ({
 						buffer,
 						playbackRate,
 						scheduleAudioNode,
+						debugAudioScheduling,
 					});
 				}
 			},
 			Math.min(newTime + MAX_BUFFER_AHEAD_SECONDS, getEndTime()),
 		);
-	};
-
-	const resumeScheduledAudioChunks = ({
-		playbackRate,
-		scheduleAudioNode,
-	}: {
-		playbackRate: number;
-		scheduleAudioNode: (
-			node: AudioBufferSourceNode,
-			mediaTimestamp: number,
-			maxDuration: number | null,
-		) => void;
-	}) => {
-		if (muted) {
-			return;
-		}
-
-		if (!audioBufferIterator) {
-			return;
-		}
-
-		for (const chunk of audioBufferIterator.getAndClearAudioChunksForAfterResuming()) {
-			scheduleAudioChunk({
-				buffer: chunk.buffer,
-				mediaTimestamp: chunk.timestamp,
-				playbackRate,
-				scheduleAudioNode,
-				maxDuration: chunk.maxDuration,
-			});
-		}
 	};
 
 	return {
@@ -363,7 +428,7 @@ export const audioIteratorManager = ({
 		getAudioBufferIterator: () => audioBufferIterator,
 		destroyIterator: () => {
 			prewarmedAudioIteratorCache.destroy();
-			audioBufferIterator?.destroy();
+			audioBufferIterator?.destroy(sharedAudioContext);
 			audioBufferIterator = null;
 
 			if (currentDelayHandle) {

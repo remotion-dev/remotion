@@ -4,11 +4,14 @@ import {$} from 'bun';
 // @ts-ignore outside project
 import * as seo from '../convert/app/seo';
 
-await $`bunx turbo "@remotion/convert#build-spa"`;
+await $`bunx turbo "@remotion/convert#build-spa" "@remotion/brand#bundle"`;
 
 const dir = path.join(__dirname, '../convert/spa-dist/client');
 
 fs.cpSync(dir, path.join(__dirname, './build/convert'), {recursive: true});
+
+const brandDir = path.join(__dirname, '../brand/build');
+fs.cpSync(brandDir, path.join(__dirname, './build/brand'), {recursive: true});
 fs.cpSync(
 	path.join(__dirname, './build/convert/convert-service-worker.js'),
 	path.join(__dirname, './build/convert-service-worker.js'),

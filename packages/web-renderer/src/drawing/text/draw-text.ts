@@ -1,6 +1,7 @@
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import type {DrawFn} from '../drawn-fn';
+import {setFilter} from '../filter';
 import {applyTextTransform} from './apply-text-transform';
 import {findWords} from './find-line-breaks.text';
 import {parsePaintOrder} from './parse-paint-order';
@@ -32,6 +33,7 @@ export const drawText = ({
 			webkitTextStrokeColor,
 			textShadow: textShadowValue,
 			paintOrder,
+			filter,
 		} = computedStyle;
 		const isVertical = writingMode !== 'horizontal-tb';
 		if (isVertical) {
@@ -47,6 +49,11 @@ export const drawText = ({
 		}
 
 		contextToDraw.save();
+
+		const finishFilter = setFilter({
+			ctx: contextToDraw,
+			filter,
+		});
 
 		const fontSizePx = parseFloat(fontSize);
 
@@ -128,6 +135,7 @@ export const drawText = ({
 
 		span.textContent = originalText;
 
+		finishFilter();
 		contextToDraw.restore();
 	};
 

@@ -6,7 +6,7 @@ title: Limitations of client-side rendering
 ---
 
 :::warning
-Very experimental feature - expect bugs and breaking changes at any time.  
+Experimental feature - expect bugs and breaking changes at any time.  
 [Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
 :::
 
@@ -79,6 +79,27 @@ Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.
 `mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.  
 Other `mask-image` values are <a style={{color: 'red'}}>not supported</a>.
 
+## Filters
+
+The `filter` property is <a style={{color: 'green'}}>supported</a> with the following filter functions:
+
+- `blur()` is <a style={{color: 'green'}}>supported</a>.
+- `brightness()` is <a style={{color: 'green'}}>supported</a>.
+- `contrast()` is <a style={{color: 'green'}}>supported</a>.
+- `drop-shadow()` is <a style={{color: 'green'}}>supported</a>.
+- `grayscale()` is <a style={{color: 'green'}}>supported</a>.
+- `hue-rotate()` is <a style={{color: 'green'}}>supported</a>.
+- `invert()` is <a style={{color: 'green'}}>supported</a>.
+- `opacity()` is <a style={{color: 'green'}}>supported</a>.
+- `saturate()` is <a style={{color: 'green'}}>supported</a>.
+- `sepia()` is <a style={{color: 'green'}}>supported</a>.
+- Multiple combined filters are <a style={{color: 'green'}}>supported</a>.
+- `url()` referencing inline SVG filters is <a style={{color: 'red'}}>not supported</a>.
+
+:::warning
+Filters are not supported in Safari/WebKit. Use Chrome or Firefox for filter support.
+:::
+
 ## Supported elements
 
 The following Remotion components are supported:
@@ -107,7 +128,6 @@ All styles not explicitly mentioned are <a style={{color: 'red'}}>not supported<
 Here is a selection of unsupported styles:
 
 - `clip-path`
-- `filter` (blur, brightness, contrast, etc.)
 - `backdrop-filter`
 - `mix-blend-mode`
 - `background-blend-mode`

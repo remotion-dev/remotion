@@ -144,7 +144,7 @@ export const MyVideo = () => {
 - If you return `'fallback'`, the component will fall back to [`<Html5Audio>`](/docs/html5-audio) which may have its own error handling via [`fallbackHtml5AudioProps.onError`](#onerror-1).
   :::
 
-### `playbackRate?`<AvailableFrom v="4.0.354" />
+### `playbackRate?`
 
 Controls the speed of the audio. `1` is the default and means regular speed, `0.5` slows down the audio so it's twice as long and `2` speeds up the audio so it's twice as fast.
 
@@ -179,7 +179,7 @@ export const MyComposition = () => {
 };
 ```
 
-### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.354" />
+### `loopVolumeCurveBehavior?`
 
 Controls the `frame` which is returned when using the [`volume`](#volume) callback function and adding the [`loop`](#loop) attribute.
 
@@ -269,7 +269,7 @@ Maps to [`<Html5Audio />` -> `pauseWhenBuffering`](/docs/html5-audio#pausewhenbu
 
 Maps to [`<Html5Audio />` -> `crossOrigin`](/docs/html5-audio#crossorigin)
 
-### `disallowFallbackToHtml5Audio?`<AvailableFrom v="3.0.356" />
+### `disallowFallbackToHtml5Audio?`
 
 By default, if the audio cannot be embedded using this tag, [a fallback to `<Html5Audio>` from `remotion`](/docs/media/fallback) will be attempted.
 
@@ -278,6 +278,10 @@ Pass this prop to disable the fallback and fail the render instead.
 :::note
 When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, fallback is not possible and the render will always fail if the audio cannot be embedded. See [Fallback is not possible in client-side rendering](/docs/media/fallback#fallback-is-not-possible-in-client-side-rendering).
 :::
+
+### `debugAudioScheduling?`
+
+Logs audio scheduling information to the console. This is useful for debugging audio playback timing issues.
 
 ## See also
 

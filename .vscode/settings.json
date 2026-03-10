@@ -31,6 +31,7 @@
 		"editor.defaultFormatter": "golang.go"
 	},
 	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.enablePromptUseWorkspaceTsdk": true,
 	"python.terminal.activateEnvironment": false,
 	"rust-analyzer.linkedProjects": ["packages/compositor/Cargo.toml"],
 	"search.exclude": {
@@ -40,5 +41,6 @@
 		"*.mdx": "markdown"
 	},
 	"typescript.tsserver.maxTsServerMemory": 4096,
-	"typescript.experimental.useTsgo": true
+	"typescript.experimental.useTsgo": true,
+	"typescript.native-preview.tsdk": "node_modules/@typescript/native-preview"
 }

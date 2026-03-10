@@ -33,5 +33,6 @@ export type AudioProps = {
 	toneFrequency?: number;
 	delayRenderRetries?: number;
 	delayRenderTimeoutInMilliseconds?: number;
+	debugAudioScheduling?: boolean;
 	onError?: MediaOnError;
 };

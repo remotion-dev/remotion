@@ -59,7 +59,7 @@ export const SharedPlayerContexts: React.FC<{
 					width: compositionWidth,
 					fps,
 					id: PLAYER_COMP_ID,
-					nonce: 777,
+					nonce: [[0, 777]],
 					folderName: null,
 					parentFolderName: null,
 					schema: null,
@@ -139,33 +139,35 @@ export const SharedPlayerContexts: React.FC<{
 		<Internals.RemotionEnvironmentContext.Provider value={env}>
 			<Internals.LogLevelContext.Provider value={logLevelContext}>
 				<Internals.CanUseRemotionHooksProvider>
-					<Internals.TimelineContext.Provider value={timelineContext}>
-						<Internals.CompositionManager.Provider
-							value={compositionManagerContext}
-						>
-							<Internals.PrefetchProvider>
-								<Internals.DurationsContextProvider>
-									<Internals.MediaVolumeContext.Provider
-										value={mediaVolumeContextValue}
-									>
-										<Internals.SetMediaVolumeContext.Provider
-											value={setMediaVolumeContextValue}
+					<Internals.AbsoluteTimeContext.Provider value={timelineContext}>
+						<Internals.TimelineContext.Provider value={timelineContext}>
+							<Internals.CompositionManager.Provider
+								value={compositionManagerContext}
+							>
+								<Internals.PrefetchProvider>
+									<Internals.DurationsContextProvider>
+										<Internals.MediaVolumeContext.Provider
+											value={mediaVolumeContextValue}
 										>
-											<Internals.SharedAudioContextProvider
-												numberOfAudioTags={numberOfSharedAudioTags}
-												audioLatencyHint={audioLatencyHint}
-												audioEnabled={audioEnabled}
+											<Internals.SetMediaVolumeContext.Provider
+												value={setMediaVolumeContextValue}
 											>
-												<Internals.BufferingProvider>
-													{children}
-												</Internals.BufferingProvider>
-											</Internals.SharedAudioContextProvider>
-										</Internals.SetMediaVolumeContext.Provider>
-									</Internals.MediaVolumeContext.Provider>
-								</Internals.DurationsContextProvider>
-							</Internals.PrefetchProvider>
-						</Internals.CompositionManager.Provider>
-					</Internals.TimelineContext.Provider>
+												<Internals.SharedAudioContextProvider
+													numberOfAudioTags={numberOfSharedAudioTags}
+													audioLatencyHint={audioLatencyHint}
+													audioEnabled={audioEnabled}
+												>
+													<Internals.BufferingProvider>
+														{children}
+													</Internals.BufferingProvider>
+												</Internals.SharedAudioContextProvider>
+											</Internals.SetMediaVolumeContext.Provider>
+										</Internals.MediaVolumeContext.Provider>
+									</Internals.DurationsContextProvider>
+								</Internals.PrefetchProvider>
+							</Internals.CompositionManager.Provider>
+						</Internals.TimelineContext.Provider>
+					</Internals.AbsoluteTimeContext.Provider>
 				</Internals.CanUseRemotionHooksProvider>
 			</Internals.LogLevelContext.Provider>
 		</Internals.RemotionEnvironmentContext.Provider>

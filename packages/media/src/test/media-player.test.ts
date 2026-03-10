@@ -1,5 +1,6 @@
 import {expect, test} from 'vitest';
 import {MediaPlayer} from '../media-player';
+import type {SharedAudioContextForMediaPlayer} from '../shared-audio-context-for-media-player';
 
 test('dispose should immediately unblock playback delays', async () => {
 	let activeBlocks = 0;
@@ -21,11 +22,21 @@ test('dispose should immediately unblock playback delays', async () => {
 		},
 	};
 
+	const audioContext = new AudioContext();
+	const sharedAudioContext: SharedAudioContextForMediaPlayer = {
+		audioContext,
+		audioSyncAnchor: {value: 0},
+		scheduleAudioNode: () => ({
+			type: 'started',
+			scheduledTime: 0,
+		}),
+	};
+
 	const player = new MediaPlayer({
 		canvas: null,
 		src: 'https://remotion.media/video.mp4',
 		logLevel: 'error',
-		sharedAudioContext: new AudioContext(),
+		sharedAudioContext,
 		loop: false,
 		trimBefore: undefined,
 		trimAfter: undefined,
@@ -34,12 +45,14 @@ test('dispose should immediately unblock playback delays', async () => {
 		audioStreamIndex: 0,
 		fps: 30,
 		debugOverlay: false,
+		debugAudioScheduling: false,
 		bufferState,
 		isPremounting: false,
 		isPostmounting: false,
 		durationInFrames: 300,
 		onVideoFrameCallback: null,
 		playing: false,
+		sequenceOffset: 0,
 	});
 
 	await player.initialize(0, false);

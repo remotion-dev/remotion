@@ -1,20 +1,19 @@
 import {readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
-import {RenderInternals} from '@remotion/renderer';
 import type {
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
 } from '@remotion/studio-shared';
 import {updateSequenceProps} from '../../codemods/update-sequence-props';
-import {makeHyperlink} from '../../hyperlinks/make-link';
 import type {ApiHandler} from '../api-types';
 import {suppressHmrForFile} from '../hmr-suppression';
+import {logUpdate} from './log-update';
 
 export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse
 > = async ({
-	input: {fileName, line, column, key, value, enumPaths, defaultValue},
+	input: {fileName, nodePath, key, value, defaultValue},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -27,12 +26,11 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 
-		const {output, oldValueString} = await updateSequenceProps({
+		const {output, oldValueString, formatted} = await updateSequenceProps({
 			input: fileContents,
-			targetLine: line,
+			nodePath,
 			key,
 			value: JSON.parse(value),
-			enumPaths,
 			defaultValue: defaultValue !== null ? JSON.parse(defaultValue) : null,
 		});
 
@@ -40,18 +38,19 @@ export const saveSequencePropsHandler: ApiHandler<
 		writeFileSync(absolutePath, output);
 
 		const newValueString = JSON.stringify(JSON.parse(value));
-		const locationLabel = `${fileRelativeToRoot}:${line}:${column}`;
-		const fileLink = makeHyperlink({
-			url: `file://${absolutePath}`,
-			text: locationLabel,
-			fallback: locationLabel,
+		const parsedDefault =
+			defaultValue !== null ? JSON.parse(defaultValue) : null;
+		logUpdate({
+			absolutePath,
+			fileRelativeToRoot,
+			key,
+			oldValueString,
+			newValueString,
+			defaultValueString:
+				parsedDefault !== null ? JSON.stringify(parsedDefault) : null,
+			formatted,
+			logLevel,
 		});
-		RenderInternals.Log.info(
-			{indent: false, logLevel},
-			RenderInternals.chalk.blueBright(
-				`${fileLink} updated: ${key} ${oldValueString} \u2192 ${newValueString}`,
-			),
-		);
 
 		return {
 			success: true,

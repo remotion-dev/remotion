@@ -6,6 +6,7 @@ import {drawBorder} from './draw-border';
 import {drawBorderRadius} from './draw-box-shadow';
 import {drawOutline} from './draw-outline';
 import type {DrawFn} from './drawn-fn';
+import {setFilter} from './filter';
 import {setOpacity} from './opacity';
 import {setOverflowHidden} from './overflow';
 import {setTransform} from './transform';
@@ -52,6 +53,11 @@ export const drawElement = async ({
 	const finishOpacity = setOpacity({
 		ctx: context,
 		opacity,
+	});
+
+	const finishFilter = setFilter({
+		ctx: context,
+		filter: computedStyle.filter,
 	});
 
 	// Draw box shadow before border radius clip and background
@@ -118,6 +124,7 @@ export const drawElement = async ({
 
 	return {
 		cleanupAfterChildren: () => {
+			finishFilter();
 			finishOpacity();
 			finishOverflowHidden();
 		},

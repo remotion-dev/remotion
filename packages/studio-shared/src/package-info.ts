@@ -5,6 +5,7 @@ export const packages = [
 	'astro-example',
 	'babel-loader',
 	'bugs',
+	'brand',
 	'bundler',
 	'cli',
 	'cloudrun',
@@ -83,6 +84,7 @@ export const packages = [
 	'web-renderer',
 	'design',
 	'light-leaks',
+	'starburst',
 	'vercel',
 	'sfx',
 ] as const;
@@ -99,13 +101,13 @@ export type ExtraPackage = {
 export const extraPackages: ExtraPackage[] = [
 	{
 		name: 'mediabunny',
-		version: '1.35.1',
+		version: '1.37.0',
 		description: 'Multimedia library used by Remotion',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
 	},
 	{
 		name: '@mediabunny/ac3',
-		version: '1.35.1',
+		version: '1.37.0',
 		description: 'AC-3 and E-AC-3 audio codec support for Mediabunny',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats#ac-3-and-e-ac-3',
 	},
@@ -183,6 +185,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'lambda-php': null,
 	'lambda-client': null,
 	bugs: null,
+	brand: null,
 	docs: null,
 	'it-tests': null,
 	'react18-tests': null,
@@ -207,6 +210,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'web-renderer': 'Render videos in the browser (not yet released)',
 	design: 'Design system',
 	'light-leaks': 'Light leak effects for Remotion',
+	starburst: 'Starburst ray effect for Remotion',
 	vercel: 'Render Remotion videos on Vercel Sandbox',
 	sfx: 'Sound effect library',
 };
@@ -217,6 +221,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'astro-example': false,
 	'babel-loader': false,
 	bugs: false,
+	brand: false,
 	bundler: false,
 	cli: false,
 	cloudrun: true,
@@ -295,6 +300,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'web-renderer': false,
 	design: false,
 	'light-leaks': true,
+	starburst: true,
 	vercel: true,
 	sfx: true,
 };
@@ -343,6 +349,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	example: null,
 	'lambda-php': null,
 	bugs: null,
+	brand: null,
 	docs: null,
 	'it-tests': null,
 	'react18-tests': null,
@@ -387,6 +394,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'web-renderer': 'https://www.remotion.dev/docs/web-renderer/',
 	design: 'https://www.remotion.dev/design',
 	'light-leaks': 'https://www.remotion.dev/docs/light-leaks',
+	starburst: 'https://www.remotion.dev/docs/starburst',
 	vercel: 'https://www.remotion.dev/docs/vercel/api',
 	sfx: 'https://www.remotion.dev/docs/sfx',
 };

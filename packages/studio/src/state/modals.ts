@@ -55,6 +55,7 @@ export type WebRenderModalState = {
 
 export type RenderModalState = {
 	type: 'server-render';
+	readOnlyStudio: boolean;
 	compositionId: string;
 	initialFrame: number;
 	initialStillImageFormat: StillImageFormat;

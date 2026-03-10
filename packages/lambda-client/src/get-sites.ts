@@ -1,4 +1,9 @@
 import type {ProviderSpecifics} from '@remotion/serverless-client';
+import {
+	getRemotionVersionFromIndexHtml,
+	streamToString,
+	VERSION,
+} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 import {getSitesKey} from './constants';
@@ -13,6 +18,7 @@ type Site = {
 	bucketName: string;
 	id: string;
 	serveUrl: string;
+	version: string | null;
 };
 
 type MandatoryParameters = {
@@ -22,6 +28,7 @@ type MandatoryParameters = {
 type OptionalParameters = {
 	forceBucketName: string | null;
 	forcePathStyle: boolean;
+	compatibleOnly: boolean;
 	requestHandler: RequestHandler | null;
 };
 
@@ -38,6 +45,7 @@ export const internalGetSites = async ({
 	forceBucketName,
 	providerSpecifics,
 	forcePathStyle,
+	compatibleOnly,
 	requestHandler,
 }: GetSitesInternalInput & {
 	providerSpecifics: ProviderSpecifics<AwsProvider>;
@@ -91,6 +99,7 @@ export const internalGetSites = async ({
 						region,
 						subFolder: getSitesKey(siteId),
 					}),
+					version: null,
 				};
 			}
 
@@ -113,23 +122,49 @@ export const internalGetSites = async ({
 	const sitesArray: Site[] = Object.keys(sites).map((siteId) => {
 		return sites[siteId];
 	});
-	return {sites: sitesArray, buckets: remotionBuckets};
+
+	await Promise.all(
+		sitesArray.map(async (site) => {
+			try {
+				const body = await providerSpecifics.readFile({
+					bucketName: site.bucketName,
+					key: `${getSitesKey(site.id)}/index.html`,
+					region,
+					expectedBucketOwner: accountId,
+					forcePathStyle,
+					requestHandler,
+				});
+				const indexHtml = await streamToString(body);
+				site.version = getRemotionVersionFromIndexHtml(indexHtml);
+			} catch {
+				site.version = null;
+			}
+		}),
+	);
+
+	const filtered = compatibleOnly
+		? sitesArray.filter((s) => s.version === VERSION)
+		: sitesArray;
+
+	return {sites: filtered, buckets: remotionBuckets};
 };
 
 /*
- * @description Gets an array of Remotion projects in Cloud Storage, in your GCP project.
- * @see [Documentation](https://remotion.dev/docs/cloudrun/getsites)
+ * @description Gets an array of Remotion sites in your S3 bucket.
+ * @see [Documentation](https://remotion.dev/docs/lambda/getsites)
  */
 export const getSites = ({
 	region,
 	forceBucketName,
 	forcePathStyle,
+	compatibleOnly,
 	requestHandler,
 }: GetSitesInput): Promise<GetSitesOutput> => {
 	return internalGetSites({
 		region,
 		forceBucketName: forceBucketName ?? null,
 		forcePathStyle: forcePathStyle ?? false,
+		compatibleOnly: compatibleOnly ?? false,
 		providerSpecifics: awsImplementation,
 		requestHandler: requestHandler ?? null,
 	});

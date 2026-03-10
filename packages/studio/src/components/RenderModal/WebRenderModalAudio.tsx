@@ -48,6 +48,8 @@ const humanReadableWebAudioCodec = (
 			return 'Vorbis';
 		case 'pcm-s16':
 			return 'Lossless (PCM)';
+		case 'flac':
+			return 'FLAC';
 		default:
 			throw new Error(`Unsupported audio codec: ${audioCodec satisfies never}`);
 	}
@@ -110,6 +112,7 @@ export const WebRenderModalAudio: React.FC<{
 
 	const isAudioOnly = renderMode === 'audio';
 	const showAudioSettings = isAudioOnly || !muted;
+	const showAudioCodecSetting = !isAudioOnly || containerSupported.length > 1;
 
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
@@ -136,20 +139,22 @@ export const WebRenderModalAudio: React.FC<{
 							/>
 						</div>
 					</div>
-					<div style={optionRow}>
-						<div style={label}>
-							Audio Codec
-							<Spacing x={0.5} />
+					{showAudioCodecSetting ? (
+						<div style={optionRow}>
+							<div style={label}>
+								Audio Codec
+								<Spacing x={0.5} />
+							</div>
+							<div style={rightRow}>
+								<Combobox
+									values={audioCodecOptions}
+									selectedId={audioCodec}
+									title="Audio Codec"
+								/>
+							</div>
 						</div>
-						<div style={rightRow}>
-							<Combobox
-								values={audioCodecOptions}
-								selectedId={audioCodec}
-								title="Audio Codec"
-							/>
-						</div>
-					</div>
-					{effectiveAudioCodec !== audioCodec ? (
+					) : null}
+					{showAudioCodecSetting && effectiveAudioCodec !== audioCodec ? (
 						<div style={fallbackNoticeStyle}>
 							{humanReadableWebAudioCodec(audioCodec)} is not available in this
 							browser. Using {humanReadableWebAudioCodec(effectiveAudioCodec)}{' '}

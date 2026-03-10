@@ -14,13 +14,16 @@ Load a [Google Font](https://fonts.google.com) for use in Remotion.
 
 ## Usage
 
-Without arguments, all styles, weights and character subsets of a font are being loaded.
+For production, load only the variants you need.
 
-```tsx twoslash title="Load all variants of the Lobster font"
+```tsx twoslash title="Load one style, weight and subset"
 import {loadFont} from '@remotion/google-fonts/Lobster';
 import {AbsoluteFill} from 'remotion';
 
-const {fontFamily} = loadFont();
+const {fontFamily} = loadFont('normal', {
+  weights: ['400'],
+  subsets: ['latin'],
+});
 
 export const GoogleFontsExample: React.FC = () => {
   return (
@@ -37,11 +40,15 @@ export const GoogleFontsExample: React.FC = () => {
 
 Pass a specific style (e.g. `normal`, `italic`) and optionally weights and subsets to narrow down what gets loaded.
 
-:::info
-A large font file paired with a limited bandwith can potentially lead to a render timeout. By specifing the exact style, weights and subsets you need, the filesize can be reduced and possibly prevent the render from timing out. If the if the problem persists, [increasing the timeout](/docs/timeout#increase-timeout) will help further.
+:::warning
+Calling `loadFont()` without arguments loads all styles, weights and character subsets of a font. This can trigger a lot of network requests and may lead to warnings or timeouts.
 :::
 
-If you want to load multiple styles, use multiple `loadFont()` statements.
+:::info
+A large font file paired with limited bandwidth can lead to a render timeout. By specifying the exact style, weights and subsets you need, the file size can be reduced and may prevent the render from timing out. If the problem persists, [increasing the timeout](/docs/timeout#increase-timeout) can help further.
+:::
+
+If you want to load multiple styles, use multiple `loadFont()` statements and narrow each call.
 
 ```tsx twoslash title="Load a specific style, weight and subset"
 import {AbsoluteFill} from 'remotion';
@@ -74,9 +81,11 @@ export const GoogleFontsExample: React.FC = () => {
 };
 ```
 
+If your project uses multiple fonts, load them in one module and export a `waitForFonts()` helper. If you measure text, see the [higher-order component example](/docs/layout-utils/best-practices#example-with-high-order-component) and [font loading troubleshooting](/docs/troubleshooting/font-loading-errors).
+
 ## Arguments
 
-All arguments and options are optional. Use TypeScript autocompletion or [`getInfo`](/docs/google-fonts/get-info) to discover available options. With any of them, all styles, weights and subsets are loaded.
+All arguments and options are optional. Use TypeScript autocompletion or [`getInfo`](/docs/google-fonts/get-info) to discover available options. If no arguments are passed, all styles, weights and subsets are loaded.
 
 ### style
 
@@ -107,7 +116,7 @@ An object with the following properties:
 
 ### fontFamily
 
-The font family name, be used as the `fontFamily` CSS property.
+The font family name, used as the `fontFamily` CSS property.
 
 ### fonts
 

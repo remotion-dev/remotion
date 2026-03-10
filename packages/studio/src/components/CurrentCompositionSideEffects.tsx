@@ -6,6 +6,7 @@ import {
 	setCurrentCanvasContentId,
 	setRenderJobs,
 } from '../helpers/document-title';
+import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {showNotification} from './Notifications/NotificationCenter';
 import {RenderQueueContext} from './RenderQueue/context';
@@ -58,11 +59,7 @@ export const CurrentCompositionKeybindings: React.FC<{
 			return;
 		}
 
-		if (readOnlyStudio) {
-			return showNotification('Studio is read-only', 2000);
-		}
-
-		if (type !== 'connected') {
+		if (type !== 'connected' && !SHOW_BROWSER_RENDERING && !readOnlyStudio) {
 			showNotification('Studio server is offline', 2000);
 			return;
 		}
