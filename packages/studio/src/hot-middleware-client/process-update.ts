@@ -104,7 +104,6 @@ export const processUpdate = function (
 
 			const applyResult = __webpack_module__.hot?.apply(applyOptions);
 			if ((applyResult as unknown as Promise<unknown>)?.then) {
-				console.log('applying', new Error().stack);
 				// HotModuleReplacement.runtime.js refers to the result as `outdatedModules`
 				(applyResult as unknown as Promise<ModuleId[]>)
 					.then((outdatedModules) => {
