@@ -65,10 +65,10 @@ export const processUpdate = function (
 	hash: string | undefined,
 	moduleMap: ModuleMap,
 	options: HotMiddlewareOptions,
+	suppressed: boolean,
 ) {
-	const {reload} = options;
-	if (!upToDate(hash) && __webpack_module__.hot?.status() === 'idle') {
-		check();
+	if (suppressed) {
+		return;
 	}
 
 	async function check() {
@@ -104,6 +104,7 @@ export const processUpdate = function (
 
 			const applyResult = __webpack_module__.hot?.apply(applyOptions);
 			if ((applyResult as unknown as Promise<unknown>)?.then) {
+				console.log('applying', new Error().stack);
 				// HotModuleReplacement.runtime.js refers to the result as `outdatedModules`
 				(applyResult as unknown as Promise<ModuleId[]>)
 					.then((outdatedModules) => {
@@ -189,5 +190,10 @@ export const processUpdate = function (
 
 		if (options.warn) console.warn('[Fast refresh] Reloading page');
 		reloadUrl();
+	}
+
+	const {reload} = options;
+	if (!upToDate(hash) && __webpack_module__.hot?.status() === 'idle') {
+		check();
 	}
 };
