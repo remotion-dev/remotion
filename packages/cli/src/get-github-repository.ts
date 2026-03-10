@@ -112,7 +112,7 @@ export const getGifRef = (logLevel: LogLevel): string | null => {
 	}
 };
 
-const getFromEnvVariables = (): GitSource | null => {
+const getFromEnvVariables = (remotionRoot: string): GitSource | null => {
 	const {
 		VERCEL_GIT_PROVIDER,
 		VERCEL_GIT_COMMIT_SHA,
@@ -125,12 +125,19 @@ const getFromEnvVariables = (): GitSource | null => {
 		VERCEL_GIT_REPO_SLUG &&
 		VERCEL_GIT_PROVIDER === 'github'
 	) {
+		let relativeFromGitRoot = '';
+		const gitConfig = getGitConfig(remotionRoot);
+		if (gitConfig) {
+			const gitRoot = path.dirname(path.dirname(gitConfig));
+			relativeFromGitRoot = path.relative(gitRoot, remotionRoot);
+		}
+
 		return {
 			name: VERCEL_GIT_REPO_SLUG,
 			org: VERCEL_GIT_REPO_OWNER,
 			ref: VERCEL_GIT_COMMIT_SHA,
 			type: 'github',
-			relativeFromGitRoot: '',
+			relativeFromGitRoot,
 		};
 	}
 
@@ -150,9 +157,9 @@ export const getGitSource = ({
 		return null;
 	}
 
-	const fromEnv = getFromEnvVariables();
+	const fromEnv = getFromEnvVariables(remotionRoot);
 	if (fromEnv) {
-		return getFromEnvVariables();
+		return fromEnv;
 	}
 
 	const ref = getGifRef(logLevel);
