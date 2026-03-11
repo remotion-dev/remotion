@@ -38,6 +38,7 @@ export type GoogleFont = {
           weights?: Variants[T]["weights"][] | undefined;
           subsets?: Variants[T]["subsets"][] | undefined;
           document?: Document | undefined;
+          ignoreTooManyRequestsWarning?: boolean;
         }
       | undefined
   ) => {
