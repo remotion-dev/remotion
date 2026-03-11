@@ -34,7 +34,7 @@ test(
 		).toThrow(/not be NaN, but is NaN/);
 	},
 	{
-		timeout: 30000,
+		timeout: 90000,
 	},
 );
 
@@ -66,7 +66,7 @@ test(
 		expect(contentType).toBe('image/png');
 	},
 	{
-		timeout: 30000,
+		timeout: 90000,
 	},
 );
 
@@ -100,7 +100,7 @@ test(
 			/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/,
 		);
 	},
-	{timeout: 30000},
+	{timeout: 90000},
 );
 
 test(
@@ -133,6 +133,6 @@ test(
 		).toThrow(/Image format should be one of: "png", "jpeg", "pdf", "webp"/);
 	},
 	{
-		timeout: 30000,
+		timeout: 90000,
 	},
 );

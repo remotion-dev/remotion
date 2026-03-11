@@ -57,9 +57,18 @@ test('should render with valid frame range', async (t) => {
 		frameRange: [10, 15],
 		licenseKey: 'free-license',
 	});
-	expect(finalProgress).toEqual({
+	if (finalProgress === null) {
+		throw new Error('Expected final progress to be reported');
+	}
+
+	const resolvedProgress = finalProgress as RenderMediaOnWebProgress;
+
+	expect(resolvedProgress).toEqual({
 		renderedFrames: 6,
 		encodedFrames: 6,
+		doneIn: expect.any(Number),
+		renderEstimatedTime: 0,
+		progress: 1,
 	});
 });
 
