@@ -1,0 +1,72 @@
+# Remotion + Electron
+
+<p align="center">
+  <a href="https://github.com/remotion-dev/logo">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-dark.apng">
+      <img alt="Animated Remotion Logo" src="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-light.gif">
+    </picture>
+  </a>
+</p>
+
+This template uses Electron Forge, Vite, and TypeScript to launch a minimal Electron app that renders a Remotion composition from the Electron main process.
+
+## Commands
+
+**Install Dependencies**
+
+```console
+npm install
+```
+
+**Start the Electron app**
+
+```console
+npm run dev
+```
+
+Type a title, then click the render button in the app window. The video will be written to your `Downloads` folder.
+
+In development, the Remotion project is bundled on each render so composition changes are always picked up.
+
+**Run Remotion Studio**
+
+```console
+npm run studio
+```
+
+**Render the example video from the command line**
+
+```console
+npx remotion render HelloWorld
+```
+
+**Package the app**
+
+```console
+npm run build
+```
+
+During `npm run build`, Electron Forge creates a prebuilt Remotion bundle as part of the package step. The packaged app reuses that bundle at runtime instead of calling `bundle()` again.
+
+**Upgrade all Remotion packages**
+
+```console
+npx remotion upgrade
+```
+
+## Docs
+
+Get started with Remotion by reading the [Electron integration page](https://www.remotion.dev/docs/electron).
+
+## Help
+
+We provide help on our [Discord server](https://discord.gg/6VzzNDwUwV).
+
+## Issues
+
+Found an issue with Remotion? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
+
+## License
+
+Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).

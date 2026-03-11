@@ -1683,15 +1683,6 @@ export const articles = [
 		slug: 'editor-starter/undo-redo',
 	},
 	{
-		id: 'electron',
-		title: 'Using Remotion in Electron',
-		relativePath: 'docs/electron.mdx',
-		compId: 'articles-docs-electron',
-		crumb: 'Integrations',
-		noAi: false,
-		slug: 'electron',
-	},
-	{
 		id: 'vs-studio',
 		title: 'Editor Starter vs. Remotion Studio',
 		relativePath: 'docs/editor-starter/vs-studio.mdx',
@@ -1699,6 +1690,15 @@ export const articles = [
 		crumb: 'Editor Starter',
 		noAi: false,
 		slug: 'editor-starter/vs-studio',
+	},
+	{
+		id: 'electron',
+		title: 'Using Remotion in Electron',
+		relativePath: 'docs/electron.mdx',
+		compId: 'articles-docs-electron',
+		crumb: 'Integrations',
+		noAi: false,
+		slug: 'electron',
 	},
 	{
 		id: 'enable-scss/enable-scss',

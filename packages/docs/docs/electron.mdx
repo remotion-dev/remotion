@@ -8,127 +8,212 @@ crumb: 'Integrations'
 
 # Using Remotion in Electron
 
-This setup is currently not officially supported.
+<ExperimentalBadge>
+<p>This page documents a verified local setup. Packaged app rendering still needs more testing.</p>
+</ExperimentalBadge>
 
-This page documents what is currently known from community implementations and issue reports:
+Use Electron Forge with the official `vite-typescript` template.
 
-- Issue: [Publish guidelines for making an Electron app](https://github.com/remotion-dev/remotion/issues/2426)
-- Reference repository: [Yiork/electron-vite-remotion](https://github.com/Yiork/electron-vite-remotion)
+This is the recommended baseline because Electron Forge is the official Electron toolchain, and the Vite template already separates the main process, preload script, and renderer code.
 
-## Current approach
+Keep the Remotion project in a separate `remotion/` folder and render in the Electron main process. The renderer should only trigger renders through IPC.
 
-The known working pattern is to create two separate bundles:
+The minimal template can use React as the UI layer for the renderer process while still keeping all rendering logic in the Electron main process.
 
-1. Your Electron app bundle.
-2. A Remotion bundle created with [`bundle()`](/docs/bundle), which you pass to SSR APIs like [`selectComposition()`](/docs/renderer/select-composition) and [`renderMedia()`](/docs/renderer/render-media).
+Electron Forge currently marks the Vite plugin as experimental. Follow the [Electron Forge documentation](https://www.electronforge.io/) and the [Vite plugin docs](https://www.electronforge.io/config/plugins/vite) for the current template structure.
 
-## Bundle Remotion as a separate build step
+## Recommended structure
 
-```ts title="electron/remotion/bundleRemotion.js"
+```text
+.
+├── forge.config.ts
+├── index.html
+├── remotion/
+│   ├── HelloWorld.tsx
+│   ├── Root.tsx
+│   └── index.ts
+└── src/
+    ├── App.tsx
+    ├── main.ts
+    ├── preload.ts
+    ├── remotion-bundle.ts
+    ├── renderer.ts
+    └── render-video.ts
+```
+
+## Start with Electron Forge
+
+If starting from scratch, use the official Electron Forge template:
+
+```bash
+npx create-electron-app@latest my-app --template=vite-typescript
+```
+
+Then install the Remotion packages you need:
+
+```bash
+npm install remotion @remotion/cli @remotion/bundler @remotion/renderer react react-dom
+```
+
+Keep all `remotion` and `@remotion/*` packages on the same version.
+
+If you want a React-based renderer UI, also add the Vite React plugin:
+
+```bash
+npm install --save-dev @vitejs/plugin-react
+```
+
+## Configure Electron Forge
+
+Use the official Forge Vite layout with TypeScript entry files.
+
+For packaged apps, use Electron Forge's official `packageAfterCopy()` hook to generate the Remotion bundle during the package step:
+
+```ts title="forge.config.ts"
+import {VitePlugin} from '@electron-forge/plugin-vite';
 import {bundle} from '@remotion/bundler';
-import path from 'path';
+import path from 'node:path';
 
-const bundleLocation = await bundle({
-  entryPoint: path.resolve('src/remotion/index.ts'),
-  outDir: path.resolve('out/remotion-bundle'),
-  webpackOverride: (config) => {
-    if (config.output) {
-      config.output.chunkFormat = 'commonjs';
-    }
-
-    return config;
+export default {
+  hooks: {
+    packageAfterCopy: async (_config, buildPath) => {
+      await bundle({
+        entryPoint: path.join(process.cwd(), 'remotion/index.ts'),
+        outDir: path.join(buildPath, 'remotion-bundle'),
+      });
+    },
   },
-});
-
-console.log('Bundle location:', bundleLocation);
+  plugins: [
+    new VitePlugin({
+      build: [
+        {
+          entry: 'src/main.ts',
+          config: 'vite.main.config.ts',
+          target: 'main',
+        },
+        {
+          entry: 'src/preload.ts',
+          config: 'vite.preload.config.ts',
+          target: 'preload',
+        },
+      ],
+      renderer: [
+        {
+          name: 'main_window',
+          config: 'vite.renderer.config.ts',
+        },
+      ],
+    }),
+  ],
+};
 ```
 
-## Pass `binariesDirectory` in packaged apps
+```ts title="vite.renderer.config.ts"
+import react from '@vitejs/plugin-react';
+import {defineConfig} from 'vite';
 
-For packaged apps, pass [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory) so Remotion loads binaries from outside `app.asar`.
-
-```ts title="electron/remotion/render.ts"
-import {renderMedia, selectComposition} from '@remotion/renderer';
-import {app} from 'electron';
-import path from 'path';
-
-const bundleLocation = path.join(app.getAppPath(), 'out/remotion-bundle');
-
-const binariesDirectory = app.isPackaged
-  ? path.join(
-      app.getAppPath().replace('app.asar', 'app.asar.unpacked'),
-      'node_modules/@remotion/compositor-darwin-arm64',
-    )
-  : null;
-
-const composition = await selectComposition({
-  serveUrl: bundleLocation,
-  id: 'HelloWorld',
-  inputProps,
-  binariesDirectory,
-});
-
-await renderMedia({
-  composition,
-  serveUrl: bundleLocation,
-  codec: 'h264',
-  outputLocation: '/tmp/out.mp4',
-  inputProps,
-  binariesDirectory,
+export default defineConfig({
+  plugins: [react()],
 });
 ```
 
-Choose the package name in `binariesDirectory` based on your platform:
+## Add a Remotion project
 
-| Platform | Package |
-| --- | --- |
-| macOS arm64 | `@remotion/compositor-darwin-arm64` |
-| macOS x64 | `@remotion/compositor-darwin-x64` |
-| Linux x64 (glibc) | `@remotion/compositor-linux-x64-gnu` |
-| Linux x64 (musl) | `@remotion/compositor-linux-x64-musl` |
-| Linux arm64 (glibc) | `@remotion/compositor-linux-arm64-gnu` |
-| Linux arm64 (musl) | `@remotion/compositor-linux-arm64-musl` |
-| Windows x64 | `@remotion/compositor-win32-x64-msvc` |
+Put the Remotion entry files in `remotion/`:
 
-## Include compositor packages explicitly
+```ts title="remotion/index.ts"
+import {registerRoot} from 'remotion';
+import {RemotionRoot} from './Root';
 
-Some packagers miss transitive optional dependencies. In those setups, explicitly declaring compositor packages in your app can help.
-
-For macOS universal targets, include both Intel and Apple Silicon compositor packages.
-
-```json title="package.json"
-{
-  "optionalDependencies": {
-    "@remotion/compositor-darwin-arm64": "<same-version-as-remotion>",
-    "@remotion/compositor-darwin-x64": "<same-version-as-remotion>"
-  }
-}
+registerRoot(RemotionRoot);
 ```
 
-## About `asar` and signing
+This keeps the Remotion code separate from the Electron app code and matches the layout used by the minimal template.
 
-Known reports from the issue thread:
+## Render in the main process
 
-- Accessing binaries inside `app.asar` causes runtime problems.
-- Loading binaries from `app.asar.unpacked` is required when `asar` is enabled.
-- Some users reported that disabling `asar` avoids library loading issues in signed / hardened macOS apps.
+The renderer should not call [`renderMedia()`](/docs/renderer/render-media) directly.
 
-Treat this as a current workaround area, not a guaranteed flow.
+Expose a small API from `preload.ts`, then let the Electron main process choose between:
 
-## Browser and asset downloads during rendering
+- development: call `bundle()` on demand so composition changes are picked up immediately
+- packaged app: load the prebuilt `remotion-bundle/` directory generated during Electron Forge packaging
 
-`renderMedia()` can download browser or media assets while rendering. This behavior is expected and is not considered a blocker for this setup.
+Then call [`selectComposition()`](/docs/renderer/select-composition) and [`renderMedia()`](/docs/renderer/render-media):
 
-You can monitor media downloads using [`onDownload`](/docs/renderer/render-media#ondownload) and browser downloads using [`onBrowserDownload`](/docs/renderer/render-media#onbrowserdownload).
+```ts title="src/render-video.ts"
+import {bundle} from '@remotion/bundler';
+import {ensureBrowser, renderMedia, selectComposition} from '@remotion/renderer';
+import path from 'node:path';
 
-## Known limitations
+export const renderVideo = async ({
+  isPackaged,
+  outputPath,
+  projectRoot,
+  titleText,
+}: {
+  isPackaged: boolean;
+  outputPath: string;
+  projectRoot: string;
+  titleText: string;
+}) => {
+  await ensureBrowser();
 
-- Electron rendering is still in an unsupported state.
-- Packaging behavior differs across Electron tooling and targets.
-- Signed / hardened macOS builds may need additional investigation.
+  const serveUrl = isPackaged
+    ? path.join(projectRoot, 'remotion-bundle')
+    : await bundle({
+        entryPoint: path.join(projectRoot, 'remotion/index.ts'),
+      });
+
+  const inputProps = {
+    titleText: titleText.trim() || 'Hello from Electron',
+  };
+
+  const composition = await selectComposition({
+    serveUrl,
+    id: 'HelloWorld',
+    inputProps,
+  });
+
+  await renderMedia({
+    composition,
+    serveUrl,
+    codec: 'h264',
+    outputLocation: outputPath,
+    inputProps,
+  });
+};
+```
+
+## Run the app
+
+Run the Electron app:
+
+```bash
+npm run dev
+```
+
+Run Remotion Studio in a separate terminal:
+
+```bash
+npm run studio
+```
+
+The first render may download Chrome Headless Shell. This is expected.
+
+## Packaged apps
+
+Do not call `bundle()` inside the packaged app runtime.
+
+Instead, build the Remotion bundle once during Electron Forge's package step and load that prebuilt folder from the app at runtime.
+
+This still leaves one caveat: [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory) may be needed for packaged rendering, because Remotion binaries must not be loaded from inside `app.asar`.
 
 ## See also
 
+- [`bundle()`](/docs/bundle)
+- [`renderMedia()`](/docs/renderer/render-media)
+- [`selectComposition()`](/docs/renderer/select-composition)
 - [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory)
 - [Server-side rendering example](/docs/ssr-node)
-- [Issue #2426](https://github.com/remotion-dev/remotion/issues/2426)
+- [Electron Forge](https://www.electronforge.io/)

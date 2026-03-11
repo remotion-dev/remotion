@@ -139,6 +139,9 @@
 			"path": "./packages/template-render-server"
 		},
 		{
+			"path": "./packages/template-electron"
+		},
+		{
 			"path": "./packages/template-next-pages"
 		},
 		{
