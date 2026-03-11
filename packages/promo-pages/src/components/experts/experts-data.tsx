@@ -480,31 +480,46 @@ export const experts: Expert[] = [
 		since: new Date('2025-06-03').getTime(),
 		description: (
 			<div>
-  <p>
-    Experienced engineer with 10+ years building advanced software products.
-    Creator of <a target="_blank" href="https://reactvideoeditor.com">React Video Editor</a>
-    and <a target="_blank" href="https://clippkit.com">Clippkit</a>.
-  </p>
+				<p>
+					Experienced engineer with 10+ years building advanced software
+					products. Creator of{' '}
+					<a target="_blank" href="https://reactvideoeditor.com">
+						React Video Editor
+					</a>
+					and{' '}
+					<a target="_blank" href="https://clippkit.com">
+						Clippkit
+					</a>
+					.
+				</p>
 
-  <p>
-    I work with companies building products with <strong>Remotion at their core</strong>.
-    Custom video editors, automated video generation tools, and
-    scalable rendering pipelines.
-  </p>
+				<p>
+					I work with companies building products with{' '}
+					<strong>Remotion at their core</strong>. Custom video editors,
+					automated video generation tools, and scalable rendering pipelines.
+				</p>
 
-  <ul>
-    <li><strong>Custom video editors</strong> built with Remotion</li>
-    <li><strong>Automated video generation</strong> systems</li>
-    <li><strong>Rendering infrastructure</strong> and media pipelines</li>
-    <li><strong>UI/UX and full-stack product development</strong></li>
-  </ul>
+				<ul>
+					<li>
+						<strong>Custom video editors</strong> built with Remotion
+					</li>
+					<li>
+						<strong>Automated video generation</strong> systems
+					</li>
+					<li>
+						<strong>Rendering infrastructure</strong> and media pipelines
+					</li>
+					<li>
+						<strong>UI/UX and full-stack product development</strong>
+					</li>
+				</ul>
 
-  <p>
-     If you're building software around video, or just need
-    a reliable engineering partner who moves fast and builds things right,
-    feel free to reach out.
-  </p>
-</div>
+				<p>
+					If you{"'"}re building software around video, or just need a reliable
+					engineering partner who moves fast and builds things right, feel free
+					to reach out.
+				</p>
+			</div>
 		),
 	},
 	{
