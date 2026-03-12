@@ -118,10 +118,10 @@ describe('Templates should be valid', () => {
 
 			const scripts = body.scripts;
 			expect(scripts.dev).toMatch(
-				/(remotion\sstudio)|(next dev)|(react-router dev)|(tsx watch)|(tsx src\/studio)|(bun studio\.ts)/,
+				/(remotion\sstudio)|(next dev)|(react-router dev)|(tsx watch)|(tsx src\/studio)|(bun studio\.ts)|(electron-forge start)/,
 			);
 			expect(scripts.build).toMatch(
-				/(remotion\sbundle)|(react-router build)|(next\sbuild)|(tsx src\/render)|(tsc \&\& vite build)|(bun build\.ts)/,
+				/(remotion\sbundle)|(react-router build)|(next\sbuild)|(tsx src\/render)|(tsc \&\& vite build)|(bun build\.ts)|(electron-forge package)/,
 			);
 		});
 
@@ -174,6 +174,63 @@ describe('Templates should be valid', () => {
 			expect(contents).not.toContain('Config.Puppeteer');
 			expect(contents).not.toContain('Config.Output');
 			expect(contents).not.toContain('Config.Preview');
+		});
+
+		it(`${template.shortName} should keep template-specific packaging files in sync`, async () => {
+			if (template.templateInMonorepo !== 'template-electron') {
+				return;
+			}
+
+			const packageJson = JSON.parse(
+				readFileSync(getFileForTemplate(template, 'package.json'), 'utf8'),
+			);
+			expect(
+				packageJson.optionalDependencies['@remotion/compositor-linux-x64-musl'],
+			).toBe('workspace:*');
+			expect(
+				packageJson.optionalDependencies[
+					'@remotion/compositor-linux-arm64-musl'
+				],
+			).toBe('workspace:*');
+
+			expect(existsSync(getFileForTemplate(template, 'forge.config.ts'))).toBe(
+				true,
+			);
+			expect(existsSync(getFileForTemplate(template, 'forge.env.d.ts'))).toBe(
+				true,
+			);
+			expect(
+				existsSync(getFileForTemplate(template, 'vite.main.config.ts')),
+			).toBe(true);
+			expect(
+				existsSync(getFileForTemplate(template, 'vite.preload.config.ts')),
+			).toBe(true);
+			expect(
+				existsSync(getFileForTemplate(template, 'vite.renderer.config.ts')),
+			).toBe(true);
+			expect(existsSync(getFileForTemplate(template, 'src/main.ts'))).toBe(
+				true,
+			);
+			expect(existsSync(getFileForTemplate(template, 'src/preload.ts'))).toBe(
+				true,
+			);
+			expect(
+				existsSync(getFileForTemplate(template, 'src/remotion-bundle.ts')),
+			).toBe(true);
+			expect(existsSync(getFileForTemplate(template, 'src/renderer.ts'))).toBe(
+				true,
+			);
+			expect(existsSync(getFileForTemplate(template, 'index.html'))).toBe(true);
+
+			const forgeConfig = readFileSync(
+				getFileForTemplate(template, 'forge.config.ts'),
+				'utf8',
+			);
+			expect(forgeConfig).toContain('packageAfterCopy');
+			expect(forgeConfig).toContain('getPrebuiltRemotionBundlePath');
+			expect(forgeConfig).toContain(
+				'stage the selected compositor package explicitly',
+			);
 		});
 
 		it(`${template.shortName} should not use setExperimentalClientSideRenderingEnabled`, async () => {

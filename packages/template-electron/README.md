@@ -25,9 +25,9 @@ npm install
 npm run dev
 ```
 
-Type a title, then click the render button in the app window. The video will be written to your `Downloads` folder.
+Type a title, then click the render button in the app window. The app will ask where to save the video before rendering.
 
-In development, the Remotion project is bundled on each render so composition changes are always picked up.
+In development, the Remotion project is bundled on each render so composition changes are always picked up. The first render may also download Chrome Headless Shell if no compatible local browser is installed yet.
 
 **Run Remotion Studio**
 
@@ -47,7 +47,9 @@ npx remotion render HelloWorld
 npm run build
 ```
 
-During `npm run build`, Electron Forge creates a prebuilt Remotion bundle as part of the package step. The packaged app reuses that bundle at runtime instead of calling `bundle()` again.
+During `npm run build`, Electron Forge creates a prebuilt Remotion bundle and stages the matching Remotion compositor package as part of the package step. The packaged app reuses that bundle at runtime instead of calling `bundle()` again.
+
+The packaged binary also accepts `--integration-render-test <absolute-output-path>` for Remotion's automated integration test. It starts a hidden render immediately and is not needed for normal app usage, so feel free to remove `src/integration-render-test-mode.ts` and its import from `src/main.ts` in your own app.
 
 **Upgrade all Remotion packages**
 

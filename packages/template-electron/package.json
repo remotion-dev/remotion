@@ -29,7 +29,9 @@
     "@remotion/compositor-darwin-arm64": "workspace:*",
     "@remotion/compositor-darwin-x64": "workspace:*",
     "@remotion/compositor-linux-arm64-gnu": "workspace:*",
+    "@remotion/compositor-linux-arm64-musl": "workspace:*",
     "@remotion/compositor-linux-x64-gnu": "workspace:*",
+    "@remotion/compositor-linux-x64-musl": "workspace:*",
     "@remotion/compositor-win32-x64-msvc": "workspace:*"
   },
   "devDependencies": {

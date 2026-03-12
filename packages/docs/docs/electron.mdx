@@ -9,7 +9,7 @@ crumb: 'Integrations'
 # Using Remotion in Electron
 
 <ExperimentalBadge>
-<p>This page documents a verified local setup. Packaged app rendering still needs more testing.</p>
+<p>This page documents the packaged-render flow used by the Electron template. Code signing and installers are still app-specific.</p>
 </ExperimentalBadge>
 
 Use Electron Forge with the official `vite-typescript` template.
@@ -67,20 +67,41 @@ npm install --save-dev @vitejs/plugin-react
 
 Use the official Forge Vite layout with TypeScript entry files.
 
-For packaged apps, use Electron Forge's official `packageAfterCopy()` hook to generate the Remotion bundle during the package step:
+For packaged apps, use Electron Forge's official `packageAfterCopy()` hook to generate the Remotion bundle during the package step and stage the matching Remotion compositor package:
 
 ```ts title="forge.config.ts"
+import {cp, mkdir} from 'node:fs/promises';
 import {VitePlugin} from '@electron-forge/plugin-vite';
 import {bundle} from '@remotion/bundler';
 import path from 'node:path';
 
 export default {
+  packagerConfig: {
+    asar: {
+      unpackDir: 'node_modules/@remotion/compositor-*',
+    },
+  },
   hooks: {
-    packageAfterCopy: async (_config, buildPath) => {
+    packageAfterCopy: async (_config, buildPath, _electronVersion, platform, arch) => {
       await bundle({
         entryPoint: path.join(process.cwd(), 'remotion/index.ts'),
         outDir: path.join(buildPath, 'remotion-bundle'),
       });
+
+      const compositorPackage = getCompositorPackage({platform, arch});
+      const compositorSource = path.dirname(
+        require.resolve(`${compositorPackage}/package.json`, {
+          paths: [process.cwd()],
+        }),
+      );
+      const compositorDestination = path.join(
+        buildPath,
+        'node_modules',
+        compositorPackage,
+      );
+
+      await mkdir(path.dirname(compositorDestination), {recursive: true});
+      await cp(compositorSource, compositorDestination, {recursive: true});
     },
   },
   plugins: [
@@ -146,6 +167,28 @@ import {bundle} from '@remotion/bundler';
 import {ensureBrowser, renderMedia, selectComposition} from '@remotion/renderer';
 import path from 'node:path';
 
+const getBinariesDirectory = ({
+  isPackaged,
+  projectRoot,
+}: {
+  isPackaged: boolean;
+  projectRoot: string;
+}) => {
+  if (!isPackaged) {
+    return null;
+  }
+
+  return path.join(
+    path.dirname(projectRoot),
+    'app.asar.unpacked',
+    'node_modules',
+    getCompositorPackage({
+      platform: process.platform,
+      arch: process.arch,
+    }),
+  );
+};
+
 export const renderVideo = async ({
   isPackaged,
   outputPath,
@@ -157,7 +200,14 @@ export const renderVideo = async ({
   projectRoot: string;
   titleText: string;
 }) => {
-  await ensureBrowser();
+  await ensureBrowser({
+    onBrowserDownload: () => ({
+      version: null,
+      onProgress: ({percent}) => {
+        console.log(`Downloading browser: ${Math.round(percent)}%`);
+      },
+    }),
+  });
 
   const serveUrl = isPackaged
     ? path.join(projectRoot, 'remotion-bundle')
@@ -165,6 +215,7 @@ export const renderVideo = async ({
         entryPoint: path.join(projectRoot, 'remotion/index.ts'),
       });
 
+  const binariesDirectory = getBinariesDirectory({isPackaged, projectRoot});
   const inputProps = {
     titleText: titleText.trim() || 'Hello from Electron',
   };
@@ -173,6 +224,7 @@ export const renderVideo = async ({
     serveUrl,
     id: 'HelloWorld',
     inputProps,
+    binariesDirectory,
   });
 
   await renderMedia({
@@ -181,6 +233,7 @@ export const renderVideo = async ({
     codec: 'h264',
     outputLocation: outputPath,
     inputProps,
+    binariesDirectory,
   });
 };
 ```
@@ -199,15 +252,15 @@ Run Remotion Studio in a separate terminal:
 npm run studio
 ```
 
-The first render may download Chrome Headless Shell. This is expected.
+The first render may download Chrome Headless Shell. Surface that progress in your UI using `onBrowserDownload`.
 
 ## Packaged apps
 
 Do not call `bundle()` inside the packaged app runtime.
 
-Instead, build the Remotion bundle once during Electron Forge's package step and load that prebuilt folder from the app at runtime.
+Instead, build the Remotion bundle once during Electron Forge's package step, copy the selected compositor package into the packaged app, and load that prebuilt folder from the app at runtime.
 
-This still leaves one caveat: [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory) may be needed for packaged rendering, because Remotion binaries must not be loaded from inside `app.asar`.
+Use [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory) for packaged renders and point it at the compositor package inside `app.asar.unpacked`, because Remotion binaries must not be loaded from inside `app.asar`.
 
 ## See also
 

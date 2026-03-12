@@ -3,7 +3,6 @@ import {readFileSync} from 'node:fs';
 import path from 'path';
 import {Pkgs, packages} from '@remotion/studio-shared';
 import {CreateVideoInternals} from 'create-video';
-import {INTERNAL_TEMPLATES} from '../templates/internal-templates';
 
 export const getAllPackages = () => {
 	const pkgDir = path.join(__dirname, '..', '..', '..');
@@ -11,7 +10,6 @@ export const getAllPackages = () => {
 	const localTemplates = CreateVideoInternals.FEATURED_TEMPLATES.map(
 		(t) => t.templateInMonorepo,
 	).filter(Boolean) as string[];
-	const internalTemplates = INTERNAL_TEMPLATES.map((t) => t.templateInMonorepo);
 
 	const folders = readdirSync(pkgDir)
 		.filter((pkg) => lstatSync(path.join(pkgDir, pkg)).isDirectory())
@@ -29,7 +27,6 @@ export const getAllPackages = () => {
 			.map((pkg) => pkg) as string[]
 	)
 		.concat(localTemplates)
-		.concat(internalTemplates)
 		.sort();
 
 	const packagesAndTemplates = folders.map((pkg) => pkg.pkg).sort() as string[];

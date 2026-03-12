@@ -82,7 +82,32 @@ export const renderVideo = async ({
   titleText: string;
   onUpdate?: (update: RenderUpdate) => void;
 }): Promise<RenderResult> => {
-  await ensureBrowser();
+  onUpdate?.({
+    type: "status",
+    message: "Checking browser installation...",
+  });
+  await ensureBrowser({
+    onBrowserDownload: ({chromeMode}) => {
+      const browserName =
+        chromeMode === "chrome-for-testing" ? "Chrome" : "Chrome Headless Shell";
+
+      onUpdate?.({
+        type: "status",
+        message: `Downloading ${browserName}...`,
+      });
+
+      return {
+        version: null,
+        onProgress: (progress) => {
+          onUpdate?.({
+            type: "progress",
+            stage: "browser-download",
+            progress: progress.percent,
+          });
+        },
+      };
+    },
+  });
 
   const serveUrl = await getServeUrl({
     isPackaged,

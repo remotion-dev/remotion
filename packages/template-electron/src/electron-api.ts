@@ -23,7 +23,7 @@ export type RenderUpdate =
     }
   | {
       type: "progress";
-      stage: "bundling" | "rendering";
+      stage: "browser-download" | "bundling" | "rendering";
       progress: number;
     };
 

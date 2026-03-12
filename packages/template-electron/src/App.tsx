@@ -1,5 +1,18 @@
 import {useEffect, useState} from "react";
 
+function getProgressLabel(stage: "browser-download" | "bundling" | "rendering") {
+  switch (stage) {
+    case "browser-download":
+      return "Downloading Chrome Headless Shell";
+    case "bundling":
+      return "Bundling the Remotion project";
+    case "rendering":
+      return "Rendering video";
+    default:
+      throw new Error(`Unknown render stage: ${stage satisfies never}`);
+  }
+}
+
 export const App: React.FC = () => {
   const [titleText, setTitleText] = useState("Hello from Electron");
   const [status, setStatus] = useState("Ready to render.");
@@ -14,11 +27,7 @@ export const App: React.FC = () => {
       }
 
       const rounded = Math.round(update.progress);
-      const label =
-        update.stage === "bundling"
-          ? "Bundling the Remotion project"
-          : "Rendering video";
-      setStatus(`${label}: ${rounded}%`);
+      setStatus(`${getProgressLabel(update.stage)}: ${rounded}%`);
     });
   }, []);
 
@@ -42,7 +51,7 @@ export const App: React.FC = () => {
       });
 
       setStatus("Render complete.");
-      setResult(`Saved to ${outputPath} and revealed in Finder.`);
+      setResult(`Saved to ${outputPath} and revealed in your file manager.`);
     } catch (error) {
       const message =
         error instanceof Error

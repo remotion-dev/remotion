@@ -24,9 +24,8 @@ const config = {
         outDir: getPrebuiltRemotionBundlePath(buildPath),
       });
 
-      // TODO: Remove these manual runtime package copies before making this a public template.
-      // End users should get the packaged Remotion runtime through normal dependency installation,
-      // not through monorepo-specific Electron Forge copy workarounds.
+      // Electron Forge's Vite packaging does not materialize this optional runtime binary
+      // into the packaged app automatically, so stage the selected compositor package explicitly.
       const compositorPackage = getCompositorPackage({
         arch,
         platform,

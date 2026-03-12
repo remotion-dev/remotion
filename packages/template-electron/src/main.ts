@@ -1,4 +1,11 @@
-import {app, BrowserWindow, dialog, ipcMain, shell} from "electron";
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  shell,
+  type IpcMainInvokeEvent,
+} from "electron";
 import path from "node:path";
 import {
   RENDER_PROGRESS_CHANNEL,
@@ -8,10 +15,15 @@ import {
   type RenderResult,
   type RenderUpdate,
 } from "./electron-api";
+import {
+  getIntegrationRenderOutputPath,
+  runIntegrationRenderTest,
+} from "./integration-render-test-mode";
 import {renderVideo} from "./render-video";
 
 let mainWindow: BrowserWindow | null = null;
 let activeRender: Promise<RenderResult> | null = null;
+const integrationRenderOutputPath = getIntegrationRenderOutputPath();
 
 if (app.isPackaged) {
   process.chdir(app.getPath("userData"));
@@ -21,14 +33,24 @@ const sendRenderUpdate = (update: RenderUpdate) => {
   mainWindow?.webContents.send(RENDER_PROGRESS_CHANNEL, update);
 };
 
+const assertTrustedSender = (event: IpcMainInvokeEvent) => {
+  if (!mainWindow || event.sender.id !== mainWindow.webContents.id) {
+    throw new Error("Blocked IPC call from an unknown renderer.");
+  }
+};
+
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 960,
     height: 760,
     webPreferences: {
       contextIsolation: true,
+      nodeIntegration: false,
       preload: path.join(__dirname, "preload.js"),
     },
+  });
+  mainWindow.webContents.setWindowOpenHandler(() => {
+    return {action: "deny"};
   });
 
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -40,7 +62,9 @@ const createWindow = () => {
   }
 };
 
-ipcMain.handle(SELECT_RENDER_OUTPUT_CHANNEL, async () => {
+ipcMain.handle(SELECT_RENDER_OUTPUT_CHANNEL, async (event) => {
+  assertTrustedSender(event);
+
   const defaultPath = path.join(
     app.getPath("downloads"),
     `remotion-electron-${Date.now()}.mp4`,
@@ -71,9 +95,15 @@ ipcMain.handle(SELECT_RENDER_OUTPUT_CHANNEL, async () => {
   };
 });
 
-ipcMain.handle(RENDER_VIDEO_CHANNEL, async (_event, input: RenderRequest) => {
+ipcMain.handle(RENDER_VIDEO_CHANNEL, async (event, input: RenderRequest) => {
+  assertTrustedSender(event);
+
   if (activeRender) {
     throw new Error("A render is already in progress.");
+  }
+
+  if (!path.isAbsolute(input.outputPath)) {
+    throw new Error("Output path must be absolute.");
   }
 
   activeRender = renderVideo({
@@ -104,7 +134,14 @@ ipcMain.handle(RENDER_VIDEO_CHANNEL, async (_event, input: RenderRequest) => {
   }
 });
 
-app.on("ready", createWindow);
+app.on("ready", () => {
+  if (integrationRenderOutputPath) {
+    void runIntegrationRenderTest(integrationRenderOutputPath);
+    return;
+  }
+
+  createWindow();
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
@@ -113,6 +150,10 @@ app.on("window-all-closed", () => {
 });
 
 app.on("activate", () => {
+  if (integrationRenderOutputPath) {
+    return;
+  }
+
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
