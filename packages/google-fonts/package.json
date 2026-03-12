@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.434",
+	"version": "4.0.435",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -1220,6 +1220,9 @@
 			"DarumadropOne": [
 				"dist/cjs/DarumadropOne.d.ts"
 			],
+			"Datatype": [
+				"dist/cjs/Datatype.d.ts"
+			],
 			"DavidLibre": [
 				"dist/cjs/DavidLibre.d.ts"
 			],
@@ -2098,6 +2101,12 @@
 			],
 			"InterTight": [
 				"dist/cjs/InterTight.d.ts"
+			],
+			"IosevkaCharon": [
+				"dist/cjs/IosevkaCharon.d.ts"
+			],
+			"IosevkaCharonMono": [
+				"dist/cjs/IosevkaCharonMono.d.ts"
 			],
 			"IrishGrover": [
 				"dist/cjs/IrishGrover.d.ts"

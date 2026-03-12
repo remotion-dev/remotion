@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/brand"
 	},
 	"name": "@remotion/brand",
-	"version": "4.0.434",
+	"version": "4.0.435",
 	"private": true,
 	"sideEffects": [
 		"*.css"

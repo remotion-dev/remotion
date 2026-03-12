@@ -29,6 +29,7 @@ export type GoogleFont = {
 					weights?: Variants[T]['weights'][] | undefined;
 					subsets?: Variants[T]['subsets'][] | undefined;
 					document?: Document | undefined;
+					ignoreTooManyRequestsWarning?: boolean;
 			  }
 			| undefined,
 	) => {
@@ -2031,6 +2032,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./DarumadropOne') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Datatype',
+		importName: 'Datatype',
+		load: () => import('./Datatype') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'David Libre',
 		importName: 'DavidLibre',
 		load: () => import('./DavidLibre') as Promise<GoogleFont>,
@@ -3494,6 +3500,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Inter Tight',
 		importName: 'InterTight',
 		load: () => import('./InterTight') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Iosevka Charon',
+		importName: 'IosevkaCharon',
+		load: () => import('./IosevkaCharon') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Iosevka Charon Mono',
+		importName: 'IosevkaCharonMono',
+		load: () => import('./IosevkaCharonMono') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Irish Grover',

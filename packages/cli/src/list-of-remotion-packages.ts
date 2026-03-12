@@ -6,6 +6,7 @@ export const listOfRemotionPackages = [
 	'@remotion/astro-example',
 	'@remotion/babel-loader',
 	'@remotion/bugs',
+	'@remotion/brand',
 	'@remotion/bundler',
 	'@remotion/cli',
 	'@remotion/cloudrun',
