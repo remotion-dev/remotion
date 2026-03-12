@@ -92,7 +92,7 @@ async function packagePublishedTemplate(workingDir: string): Promise<void> {
 		cwd: workingDir,
 		stdio: 'inherit',
 	});
-	await execa('npm', ['run', 'package'], {
+	await execa('bun', ['run', 'package'], {
 		cwd: workingDir,
 		stdio: 'inherit',
 	});
