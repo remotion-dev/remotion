@@ -21,6 +21,7 @@
 		"clean": "rm -rf build && rm -rf out",
 		"lint": "eslint src",
 		"test": "tsc && bun test src --timeout 60000",
+		"test:e2e": "playwright test",
 		"render": "remotion render react-svg",
 		"bundle": "remotion bundle",
 		"render-js": "remotion render src/entry.jsx framer",
@@ -105,6 +106,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
+		"@playwright/test": "1.55.1",
 		"sharp": "catalog:",
 		"@types/dom-webcodecs": "catalog:",
 		"eslint": "catalog:"
