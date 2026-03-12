@@ -166,6 +166,7 @@ test.describe('Remotion Studio', () => {
 		// Verify exactly 1 "Updated default props" log was emitted
 		// Strip ANSI escape codes for matching
 		const stripAnsi = (s: string) =>
+			// eslint-disable-next-line no-control-regex
 			s.replace(/\x1b\[[0-9;]*m/g, '').replace(/\]8;;[^\x1b]*\x1b\\/g, '');
 		const updateLogs = studioStdoutLogs.filter((log) => {
 			const clean = stripAnsi(log);
