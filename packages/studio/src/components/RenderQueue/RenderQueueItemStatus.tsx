@@ -94,8 +94,7 @@ export const RenderQueueItemStatus: React.FC<{
 	if (job.status === 'running') {
 		let progressValue: number;
 		if (isClientJob) {
-			const {encodedFrames, totalFrames} = job.progress;
-			progressValue = totalFrames > 0 ? encodedFrames / totalFrames : 0;
+			progressValue = job.progress.progress;
 		} else {
 			progressValue = job.progress.value;
 		}

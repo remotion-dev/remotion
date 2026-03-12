@@ -11,6 +11,9 @@ import type {LogLevel} from 'remotion';
 export type ClientRenderJobProgress = {
 	encodedFrames: number;
 	totalFrames: number;
+	doneIn: number | null;
+	renderEstimatedTime: number;
+	progress: number;
 };
 
 export type GetBlobCallback = () => Promise<Blob>;

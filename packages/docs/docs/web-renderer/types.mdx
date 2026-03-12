@@ -83,8 +83,26 @@ import type {RenderMediaOnWebProgress} from '@remotion/web-renderer';
 //                ^?
 ```
 
-- `renderedFrames`: The number of frames that have been rendered
-- `encodedFrames`: The number of frames that have been encoded
+### `renderedFrames`
+
+Deprecated and kept for backward compatibility. The number of frames that have been rendered.
+Prefer `progress` for overall status updates.
+
+### `encodedFrames`
+
+The number of frames that have been encoded.
+
+### `doneIn`
+
+The total time in milliseconds from render start until all frames were encoded, or `null` while encoding is still in progress.
+
+### `renderEstimatedTime`
+
+Estimated time remaining in milliseconds until rendering is done.
+
+### `progress`
+
+Overall progress as a number between `0` and `1`.
 
 ## `RenderMediaOnWebProgressCallback`
 
