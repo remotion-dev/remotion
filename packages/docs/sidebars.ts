@@ -121,6 +121,7 @@ const sidebars: SidebarsConfig = {
 				'cli/ffmpeg',
 				'cli/ffprobe',
 				'cli/gpu',
+				'cli/transcribe',
 				'cli/help',
 			],
 		},

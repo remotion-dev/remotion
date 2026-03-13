@@ -182,6 +182,14 @@ export type CommandLineOptions = {
 	'license-key': string;
 	[publicLicenseKeyOption.cliFlag]: string;
 	[forceNewStudioOption.cliFlag]: TypeOfOption<typeof forceNewStudioOption>;
+	model: string;
+	'whisper-version': string;
+	'whisper-path': string;
+	'model-folder': string;
+	language: string;
+	'translate-to-english': boolean;
+	'token-level-timestamps': boolean;
+	'flash-attention': boolean;
 };
 
 export const BooleanFlags = [
@@ -208,6 +216,9 @@ export const BooleanFlags = [
 	isProductionOption.cliFlag,
 	forceNewStudioOption.cliFlag,
 	bundleCacheOption.cliFlag,
+	'translate-to-english',
+	'token-level-timestamps',
+	'flash-attention',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
