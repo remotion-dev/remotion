@@ -117,18 +117,20 @@ export const RenderModalJSONPropsEditor: React.FC<{
 				style={textAreaStyle}
 			/>
 			<Spacing y={1} />
-			{localValue.validJSON === false ? (
-				<ValidationMessage
-					align="flex-start"
-					message={localValue.error}
-					type="error"
-				/>
-			) : localValue.zodValidation.success === false ? (
-				<ZodErrorMessages
-					zodValidationResult={localValue.zodValidation}
-					viewTab="json"
-				/>
-			) : null}
+			<div data-testid="json-props-error">
+				{localValue.validJSON === false ? (
+					<ValidationMessage
+						align="flex-start"
+						message={localValue.error}
+						type="error"
+					/>
+				) : localValue.zodValidation.success === false ? (
+					<ZodErrorMessages
+						zodValidationResult={localValue.zodValidation}
+						viewTab="json"
+					/>
+				) : null}
+			</div>
 			<Spacing y={1} />
 			<Row>
 				<Button
