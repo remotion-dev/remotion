@@ -1,0 +1,104 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+  color: #e2e8f0;
+}
+
+code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.app-shell {
+  max-width: 560px;
+  margin: 48px auto;
+  padding: 32px;
+  border-radius: 24px;
+  background: rgba(15, 23, 42, 0.86);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.5);
+}
+
+.eyebrow {
+  margin: 0 0 12px 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #38bdf8;
+}
+
+h1 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.15;
+}
+
+.description {
+  margin: 16px 0 24px 0;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.field {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.text-input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  background: #0f172a;
+  color: inherit;
+  font: inherit;
+}
+
+.render-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 220px;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 14px;
+  background: #38bdf8;
+  color: #082f49;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.render-button:disabled,
+.text-input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.status,
+.result {
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
+.status {
+  margin-top: 16px;
+}
+
+.result {
+  margin-top: 8px;
+  color: #86efac;
+  word-break: break-word;
+}

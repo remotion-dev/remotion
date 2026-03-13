@@ -1,0 +1,272 @@
+---
+image: /generated/articles-docs-electron.png
+id: electron
+sidebar_label: 'Integration into Electron'
+title: 'Using Remotion in Electron'
+crumb: 'Integrations'
+---
+
+# Using Remotion in Electron
+
+<ExperimentalBadge>
+<p>This page documents the packaged-render flow used by the Electron template. Code signing and installers are still app-specific.</p>
+</ExperimentalBadge>
+
+Use Electron Forge with the official `vite-typescript` template.
+
+This is the recommended baseline because Electron Forge is the official Electron toolchain, and the Vite template already separates the main process, preload script, and renderer code.
+
+Keep the Remotion project in a separate `remotion/` folder and render in the Electron main process. The renderer should only trigger renders through IPC.
+
+The minimal template can use React as the UI layer for the renderer process while still keeping all rendering logic in the Electron main process.
+
+Electron Forge currently marks the Vite plugin as experimental. Follow the [Electron Forge documentation](https://www.electronforge.io/) and the [Vite plugin docs](https://www.electronforge.io/config/plugins/vite) for the current template structure.
+
+## Recommended structure
+
+```text
+.
+├── forge.config.ts
+├── index.html
+├── remotion/
+│   ├── HelloWorld.tsx
+│   ├── Root.tsx
+│   └── index.ts
+└── src/
+    ├── App.tsx
+    ├── main.ts
+    ├── preload.ts
+    ├── remotion-bundle.ts
+    ├── renderer.ts
+    └── render-video.ts
+```
+
+## Start with Electron Forge
+
+If starting from scratch, use the official Electron Forge template:
+
+```bash
+npx create-electron-app@latest my-app --template=vite-typescript
+```
+
+Then install the Remotion packages you need:
+
+```bash
+npm install remotion @remotion/cli @remotion/bundler @remotion/renderer react react-dom
+```
+
+Keep all `remotion` and `@remotion/*` packages on the same version.
+
+If you want a React-based renderer UI, also add the Vite React plugin:
+
+```bash
+npm install --save-dev @vitejs/plugin-react
+```
+
+## Configure Electron Forge
+
+Use the official Forge Vite layout with TypeScript entry files.
+
+For packaged apps, use Electron Forge's official `packageAfterCopy()` hook to generate the Remotion bundle during the package step and stage the matching Remotion compositor package:
+
+```ts title="forge.config.ts"
+import {cp, mkdir} from 'node:fs/promises';
+import {VitePlugin} from '@electron-forge/plugin-vite';
+import {bundle} from '@remotion/bundler';
+import path from 'node:path';
+
+export default {
+  packagerConfig: {
+    asar: {
+      unpackDir: 'node_modules/@remotion/compositor-*',
+    },
+  },
+  hooks: {
+    packageAfterCopy: async (_config, buildPath, _electronVersion, platform, arch) => {
+      await bundle({
+        entryPoint: path.join(process.cwd(), 'remotion/index.ts'),
+        outDir: path.join(buildPath, 'remotion-bundle'),
+      });
+
+      const compositorPackage = getCompositorPackage({platform, arch});
+      const compositorSource = path.dirname(
+        require.resolve(`${compositorPackage}/package.json`, {
+          paths: [process.cwd()],
+        }),
+      );
+      const compositorDestination = path.join(
+        buildPath,
+        'node_modules',
+        compositorPackage,
+      );
+
+      await mkdir(path.dirname(compositorDestination), {recursive: true});
+      await cp(compositorSource, compositorDestination, {recursive: true});
+    },
+  },
+  plugins: [
+    new VitePlugin({
+      build: [
+        {
+          entry: 'src/main.ts',
+          config: 'vite.main.config.ts',
+          target: 'main',
+        },
+        {
+          entry: 'src/preload.ts',
+          config: 'vite.preload.config.ts',
+          target: 'preload',
+        },
+      ],
+      renderer: [
+        {
+          name: 'main_window',
+          config: 'vite.renderer.config.ts',
+        },
+      ],
+    }),
+  ],
+};
+```
+
+```ts title="vite.renderer.config.ts"
+import react from '@vitejs/plugin-react';
+import {defineConfig} from 'vite';
+
+export default defineConfig({
+  plugins: [react()],
+});
+```
+
+## Add a Remotion project
+
+Put the Remotion entry files in `remotion/`:
+
+```ts title="remotion/index.ts"
+import {registerRoot} from 'remotion';
+import {RemotionRoot} from './Root';
+
+registerRoot(RemotionRoot);
+```
+
+This keeps the Remotion code separate from the Electron app code and matches the layout used by the minimal template.
+
+## Render in the main process
+
+The renderer should not call [`renderMedia()`](/docs/renderer/render-media) directly.
+
+Expose a small API from `preload.ts`, then let the Electron main process choose between:
+
+- development: call `bundle()` on demand so composition changes are picked up immediately
+- packaged app: load the prebuilt `remotion-bundle/` directory generated during Electron Forge packaging
+
+Then call [`selectComposition()`](/docs/renderer/select-composition) and [`renderMedia()`](/docs/renderer/render-media):
+
+```ts title="src/render-video.ts"
+import {bundle} from '@remotion/bundler';
+import {ensureBrowser, renderMedia, selectComposition} from '@remotion/renderer';
+import path from 'node:path';
+
+const getBinariesDirectory = ({
+  isPackaged,
+  projectRoot,
+}: {
+  isPackaged: boolean;
+  projectRoot: string;
+}) => {
+  if (!isPackaged) {
+    return null;
+  }
+
+  return path.join(
+    path.dirname(projectRoot),
+    'app.asar.unpacked',
+    'node_modules',
+    getCompositorPackage({
+      platform: process.platform,
+      arch: process.arch,
+    }),
+  );
+};
+
+export const renderVideo = async ({
+  isPackaged,
+  outputPath,
+  projectRoot,
+  titleText,
+}: {
+  isPackaged: boolean;
+  outputPath: string;
+  projectRoot: string;
+  titleText: string;
+}) => {
+  await ensureBrowser({
+    onBrowserDownload: () => ({
+      version: null,
+      onProgress: ({percent}) => {
+        console.log(`Downloading browser: ${Math.round(percent)}%`);
+      },
+    }),
+  });
+
+  const serveUrl = isPackaged
+    ? path.join(projectRoot, 'remotion-bundle')
+    : await bundle({
+        entryPoint: path.join(projectRoot, 'remotion/index.ts'),
+      });
+
+  const binariesDirectory = getBinariesDirectory({isPackaged, projectRoot});
+  const inputProps = {
+    titleText: titleText.trim() || 'Hello from Electron',
+  };
+
+  const composition = await selectComposition({
+    serveUrl,
+    id: 'HelloWorld',
+    inputProps,
+    binariesDirectory,
+  });
+
+  await renderMedia({
+    composition,
+    serveUrl,
+    codec: 'h264',
+    outputLocation: outputPath,
+    inputProps,
+    binariesDirectory,
+  });
+};
+```
+
+## Run the app
+
+Run the Electron app:
+
+```bash
+npm run dev
+```
+
+Run Remotion Studio in a separate terminal:
+
+```bash
+npm run studio
+```
+
+The first render may download Chrome Headless Shell. Surface that progress in your UI using `onBrowserDownload`.
+
+## Packaged apps
+
+Do not call `bundle()` inside the packaged app runtime.
+
+Instead, build the Remotion bundle once during Electron Forge's package step, copy the selected compositor package into the packaged app, and load that prebuilt folder from the app at runtime.
+
+Use [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory) for packaged renders and point it at the compositor package inside `app.asar.unpacked`, because Remotion binaries must not be loaded from inside `app.asar`.
+
+## See also
+
+- [`bundle()`](/docs/bundle)
+- [`renderMedia()`](/docs/renderer/render-media)
+- [`selectComposition()`](/docs/renderer/select-composition)
+- [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory)
+- [Server-side rendering example](/docs/ssr-node)
+- [Electron Forge](https://www.electronforge.io/)

@@ -7,7 +7,8 @@
 	"license": "SEE LICENSE IN LICENSE.md",
 	"scripts": {
 		"test": " node --test src/node-version/media-parser.mjs && bun test src/rendering --run --timeout 60000",
-		"testssr": "bun test src/ssr src/bundle src/webcodecs src/templates src/monorepo --timeout 40000",
+		"testssr": "bun test src/ssr src/bundle src/webcodecs src/monorepo --timeout 40000",
+		"testtemplates": "bun test src/templates --timeout 400000",
 		"testlambda": "exit 0",
 		"lint": "tsc -d",
 		"formatting": "oxfmt src --check",

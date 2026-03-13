@@ -44,6 +44,7 @@ export type Template = {
 		| 'render-server'
 		| 'recorder'
 		| 'prompt-to-motion-graphics'
+		| 'electron'
 		| 'vercel';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
@@ -304,6 +305,30 @@ export const FEATURED_TEMPLATES: Template[] = [
 		allowEnableTailwind: false,
 		contributedBy: null,
 		showStackblitz: true,
+	},
+	{
+		homePageLabel: 'Electron',
+		shortName: 'Electron',
+		org: 'remotion-dev',
+		repoName: 'template-electron',
+		description: 'Render Remotion videos from a desktop app',
+		longerDescription:
+			'An Electron Forge + Vite starter template that renders Remotion videos from the Electron main process.',
+		promoBanner: {
+			width: 1200,
+			height: 630,
+			src: '/generated/articles-docs-electron.png',
+		},
+		cliId: 'electron' as const,
+		type: 'image' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		previewLabel: null,
+		templateInMonorepo: 'template-electron',
+		allowEnableTailwind: false,
+		contributedBy: null,
+		showStackblitz: false,
 	},
 	{
 		homePageLabel: 'React Router 7',
