@@ -128,6 +128,7 @@ import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp} from './NewVideo';
+import {NewVideoBufferStateComp} from './NewVideoBufferState';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
 import {LoopedNewVideo} from './OffthreadRemoteVideo/LoopedNewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
@@ -788,6 +789,7 @@ export const Index: React.FC = () => {
 				/>
 				<OffthreadRemoteVideo />
 				<NewVideoComp />
+				<NewVideoBufferStateComp />
 				<LoopDisplayTestComp />
 				<OffthreadRemoteSeries />
 				<LoopedNewVideo />
@@ -1475,16 +1477,16 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						title: 'sdasds',
 						delay: 5.2,
-						color: '#df822a',
+						color: 'rgba(223, 42, 42, 0.46)',
 						list: [{name: 'first', age: 12}],
-						matrix: [0, 1, 1, 0],
+						matrix: [0, 1, 1, 0] as const,
 						description: 'Sample description \nOn multiple lines',
 						dropdown: 'a' as const,
 						superSchema: [
 							{type: 'a' as const, a: {a: 'hi'}},
 							{type: 'b' as const, b: {b: 'hi'}},
 						],
-						discriminatedUnion: {type: 'auto'},
+						discriminatedUnion: {type: 'auto' as const},
 						tuple: ['foo', 42, {a: 'hi'}],
 					}}
 				/>
