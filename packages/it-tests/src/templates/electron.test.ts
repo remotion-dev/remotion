@@ -103,20 +103,47 @@ async function runPackagedRender(
 	outputPath: string,
 ): Promise<void> {
 	const launchPath = getLaunchPath(workingDir);
-	const launchArgs =
+	const commonOptions = {
+		cwd: path.dirname(launchPath),
+		stdio: 'inherit' as const,
+		timeout: 240000,
+	};
+	const linuxLaunchArgs =
 		process.platform === 'linux'
-			? ['--no-sandbox', '--disable-setuid-sandbox']
+			? [
+					'--no-sandbox',
+					'--disable-setuid-sandbox',
+					'--headless',
+					'--disable-gpu',
+					'--ozone-platform=headless',
+					'--ozone-platform-hint=headless',
+				]
 			: [];
+	const launchArgs = [
+		...linuxLaunchArgs,
+		'--integration-render-test',
+		outputPath,
+	];
 
-	await execa(
-		launchPath,
-		[...launchArgs, '--integration-render-test', outputPath],
-		{
-			cwd: path.dirname(launchPath),
-			stdio: 'inherit',
-			timeout: 240000,
-		},
-	);
+	if (
+		process.platform === 'linux' &&
+		!process.env.DISPLAY &&
+		!process.env.WAYLAND_DISPLAY
+	) {
+		try {
+			await execa('xvfb-run', ['-a', launchPath, ...launchArgs], commonOptions);
+			return;
+		} catch (error) {
+			const execaError = error as {code?: string};
+			if (execaError.code !== 'ENOENT') {
+				throw error;
+			}
+			// `xvfb-run` may not be present in all environments.
+			// Fall back to direct headless launch flags.
+		}
+	}
+
+	await execa(launchPath, launchArgs, commonOptions);
 }
 
 test('Electron template should package and render after publish-style dependency rewriting', async () => {
