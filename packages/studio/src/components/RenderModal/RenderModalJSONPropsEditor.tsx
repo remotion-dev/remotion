@@ -141,6 +141,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 		<div style={scrollable}>
 			<RemTextarea
 				onChange={onChange}
+				onBlur={onQuickSave}
 				value={localValue.str}
 				status={localValue.validJSON ? 'ok' : 'error'}
 				style={textAreaStyle}

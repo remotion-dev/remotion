@@ -174,4 +174,60 @@ test.describe('Remotion Studio', () => {
 		});
 		expect(updateLogs).toHaveLength(1);
 	});
+
+	test('should edit props via JSON editor and save on blur', async ({
+		page,
+	}) => {
+		// Expand the right sidebar
+		await page.goto(STUDIO_URL);
+		await page.evaluate(() => {
+			window.localStorage.setItem(
+				'remotion.sidebarRightCollapsing',
+				'expanded',
+			);
+		});
+		await page.reload();
+
+		await navigateToSchemaTest(page);
+
+		// Switch to JSON tab
+		const jsonTab = page.getByRole('button', {name: 'JSON', exact: true});
+		await expect(jsonTab).toBeVisible({timeout: 10_000});
+		await jsonTab.click();
+
+		// Wait for the JSON textarea to appear
+		const textarea = page.locator('textarea');
+		await expect(textarea).toBeVisible({timeout: 10_000});
+
+		// Read the current JSON, parse it, change the title, and set it back
+		const currentJson = await textarea.inputValue();
+		const parsed = JSON.parse(currentJson);
+		const newTitle = 'json-editor-e2e-test';
+
+		// Verify the new value is not already in the source file
+		const beforeContent = fs.readFileSync(rootFile, 'utf-8');
+		expect(beforeContent).not.toContain(newTitle);
+
+		parsed.title = newTitle;
+		const newJson = JSON.stringify(parsed, null, 2);
+
+		await textarea.fill(newJson);
+
+		// Blur to trigger save
+		await textarea.blur();
+
+		// Wait for the file to be updated
+		await expect
+			.poll(
+				() => {
+					const content = fs.readFileSync(rootFile, 'utf-8');
+					return content.includes(newTitle);
+				},
+				{
+					message: `Expected Root.tsx to contain "${newTitle}" after JSON editor edit`,
+					timeout: 10_000,
+				},
+			)
+			.toBe(true);
+	});
 });
