@@ -103,12 +103,20 @@ async function runPackagedRender(
 	outputPath: string,
 ): Promise<void> {
 	const launchPath = getLaunchPath(workingDir);
+	const launchArgs =
+		process.platform === 'linux'
+			? ['--no-sandbox', '--disable-setuid-sandbox']
+			: [];
 
-	await execa(launchPath, ['--integration-render-test', outputPath], {
-		cwd: path.dirname(launchPath),
-		stdio: 'inherit',
-		timeout: 240000,
-	});
+	await execa(
+		launchPath,
+		[...launchArgs, '--integration-render-test', outputPath],
+		{
+			cwd: path.dirname(launchPath),
+			stdio: 'inherit',
+			timeout: 240000,
+		},
+	);
 }
 
 test('Electron template should package and render after publish-style dependency rewriting', async () => {
