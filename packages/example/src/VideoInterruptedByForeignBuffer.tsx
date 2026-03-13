@@ -64,7 +64,7 @@ export const NewVideoBufferStateComp: React.FC = () => {
 	return (
 		<Composition
 			component={NewVideoBufferStateComponent}
-			id="NewVideoBufferState"
+			id="VideoInterruptedByForeignBuffer"
 			calculateMetadata={calculateMetadataFn}
 		/>
 	);

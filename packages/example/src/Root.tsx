@@ -128,7 +128,6 @@ import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp} from './NewVideo';
-import {NewVideoBufferStateComp} from './NewVideoBufferState';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
 import {LoopedNewVideo} from './OffthreadRemoteVideo/LoopedNewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
@@ -152,6 +151,7 @@ import {
 	OverlayWithOffset,
 } from './TransitionSeriesOverlay';
 import {TriangleComp} from './Triangle';
+import {NewVideoBufferStateComp} from './VideoInterruptedByForeignBuffer';
 import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
 import {RemotionMediaVideoTexture} from './VideoTexture';
