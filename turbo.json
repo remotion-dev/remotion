@@ -15,6 +15,9 @@
 		"testssr": {
 			"dependsOn": ["^make", "@remotion/example#bundle"]
 		},
+		"testtemplates": {
+			"dependsOn": ["^make", "@remotion/example#bundle"]
+		},
 		"testlambda": {
 			"dependsOn": ["^make", "@remotion/example#bundle"]
 		},
