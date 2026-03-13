@@ -58,6 +58,7 @@ type OptionalVideoProps = {
 	debugAudioScheduling: boolean;
 	headless: boolean;
 	onError: MediaOnError | undefined;
+	credentials: RequestCredentials | undefined;
 };
 
 export type InnerVideoProps = MandatoryVideoProps &

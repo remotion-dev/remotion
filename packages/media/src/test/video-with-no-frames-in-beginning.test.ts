@@ -145,6 +145,7 @@ test('in rendering, should also be smart', async (t) => {
 			playbackRate: 1,
 			fps: 30,
 			maxCacheSize: getMaxVideoCacheSize('info'),
+			credentials: undefined,
 		});
 		assert(frame.type === 'success');
 		if (lastFrame) {
@@ -167,6 +168,7 @@ test('in rendering, should also be smart', async (t) => {
 		playbackRate: 1,
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
+		credentials: undefined,
 	});
 
 	assert(firstRealFrame.type === 'success');

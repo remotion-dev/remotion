@@ -90,6 +90,7 @@ export class MediaPlayer {
 		onVideoFrameCallback,
 		playing,
 		sequenceOffset,
+		credentials,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -111,6 +112,7 @@ export class MediaPlayer {
 		onVideoFrameCallback: null | ((frame: CanvasImageSource) => void);
 		playing: boolean;
 		sequenceOffset: number;
+		credentials: RequestCredentials | undefined;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -133,9 +135,15 @@ export class MediaPlayer {
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
 		this.sequenceOffset = sequenceOffset;
-
 		this.input = new Input({
-			source: new UrlSource(this.src),
+			source: new UrlSource(
+				this.src,
+				credentials
+					? {
+							requestInit: {credentials},
+						}
+					: undefined,
+			),
 			formats: ALL_FORMATS,
 		});
 

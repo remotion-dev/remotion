@@ -37,6 +37,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	trimAfter,
 	trimBefore,
 	onError,
+	credentials,
 }) => {
 	const defaultLogLevel = Internals.useLogLevel();
 	const logLevel = overriddenLogLevel ?? defaultLogLevel;
@@ -129,6 +130,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			trimBefore,
 			fps,
 			maxCacheSize,
+			credentials,
 		})
 			.then((result) => {
 				const handleError = (
@@ -266,6 +268,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		maxCacheSize,
 		audioEnabled,
 		onError,
+		credentials,
 	]);
 
 	if (replaceWithHtml5Audio) {

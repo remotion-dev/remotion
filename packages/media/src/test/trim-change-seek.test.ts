@@ -23,6 +23,7 @@ test('setTrimBefore and setTrimAfter should update frame when paused', async () 
 		onVideoFrameCallback: null,
 		playing: false,
 		sequenceOffset: 0,
+		credentials: undefined,
 	});
 
 	await player.initialize(0, false);

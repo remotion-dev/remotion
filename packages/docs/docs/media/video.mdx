@@ -269,6 +269,27 @@ export const MyComposition = () => {
 };
 ```
 
+### `credentials?`<AvailableFrom v="4.0.436" />
+
+Controls the [`credentials`](https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials) option of the `fetch()` requests made to retrieve the video data.
+
+Accepts `"omit"`, `"same-origin"` (default behavior of `fetch()`) or `"include"`.
+Set to `"include"` if you need to send cookies or authentication headers to a cross-origin video URL.
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video credentials="include" src="https://example.com/protected-video.mp4" />
+    </AbsoluteFill>
+  );
+};
+```
+
 ### `toneFrequency?`
 
 Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.

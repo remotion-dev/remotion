@@ -41,6 +41,7 @@ test(
 				playbackRate,
 				fps,
 				maxCacheSize: getMaxVideoCacheSize('info'),
+				credentials: undefined,
 			});
 			expect(result.type).toBe('success');
 			assert(result.type === 'success');

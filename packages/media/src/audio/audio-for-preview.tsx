@@ -52,6 +52,7 @@ type NewAudioForPreviewProps = {
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
 	readonly debugAudioScheduling: boolean;
 	readonly onError: MediaOnError | undefined;
+	readonly credentials: RequestCredentials | undefined;
 };
 
 type AudioForPreviewAssertedShowingProps = NewAudioForPreviewProps & {
@@ -79,6 +80,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 	fallbackHtml5AudioProps,
 	debugAudioScheduling,
 	onError,
+	credentials,
 	controls,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
@@ -237,6 +239,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 				onVideoFrameCallback: null,
 				playing: initialPlaying.current,
 				sequenceOffset: initialSequenceOffset.current,
+				credentials,
 			});
 
 			mediaPlayerRef.current = player;
@@ -373,6 +376,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 		buffer,
 		onError,
 		videoConfig.durationInFrames,
+		credentials,
 	]);
 
 	if (shouldFallbackToNativeAudio && !disallowFallbackToHtml5Audio) {
@@ -427,6 +431,7 @@ type InnerAudioProps = {
 	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
 	readonly debugAudioScheduling?: boolean;
 	readonly onError?: MediaOnError;
+	readonly credentials?: RequestCredentials;
 };
 
 export const AudioForPreview: React.FC<
@@ -452,6 +457,7 @@ export const AudioForPreview: React.FC<
 	fallbackHtml5AudioProps,
 	debugAudioScheduling,
 	onError,
+	credentials,
 	controls,
 }) => {
 	const preloadedSrc = usePreload(src);
@@ -508,6 +514,7 @@ export const AudioForPreview: React.FC<
 			toneFrequency={toneFrequency}
 			debugAudioScheduling={debugAudioScheduling ?? false}
 			onError={onError}
+			credentials={credentials}
 			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
 			controls={controls}
 		/>
