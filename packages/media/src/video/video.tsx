@@ -85,6 +85,7 @@ const InnerVideo: React.FC<
 	debugAudioScheduling,
 	headless,
 	onError,
+	crossOrigin,
 	controls,
 }) => {
 	const environment = useRemotionEnvironment();
@@ -170,6 +171,7 @@ const InnerVideo: React.FC<
 			debugAudioScheduling={debugAudioScheduling ?? false}
 			headless={headless ?? false}
 			onError={onError}
+			crossOrigin={crossOrigin}
 			controls={controls}
 		/>
 	);
@@ -205,6 +207,7 @@ const VideoInner: React.FC<
 	debugAudioScheduling,
 	headless,
 	onError,
+	crossOrigin,
 	controls,
 }) => {
 	const fallbackLogLevel = Internals.useLogLevel();
@@ -239,6 +242,7 @@ const VideoInner: React.FC<
 			debugAudioScheduling={debugAudioScheduling ?? false}
 			headless={headless ?? false}
 			onError={onError}
+			crossOrigin={crossOrigin}
 			controls={controls}
 		/>
 	);

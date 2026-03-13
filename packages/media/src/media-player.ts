@@ -24,6 +24,20 @@ export type MediaPlayerInitResult =
 	| {type: 'no-tracks'}
 	| {type: 'disposed'};
 
+const crossOriginToRequestCredentials = (
+	crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined,
+): RequestCredentials | undefined => {
+	if (crossOrigin === 'use-credentials') {
+		return 'include';
+	}
+
+	if (crossOrigin === 'anonymous' || crossOrigin === '') {
+		return 'same-origin';
+	}
+
+	return undefined;
+};
+
 export class MediaPlayer {
 	private canvas: HTMLCanvasElement | OffscreenCanvas | null;
 	private context:
@@ -90,6 +104,7 @@ export class MediaPlayer {
 		onVideoFrameCallback,
 		playing,
 		sequenceOffset,
+		crossOrigin,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -111,6 +126,7 @@ export class MediaPlayer {
 		onVideoFrameCallback: null | ((frame: CanvasImageSource) => void);
 		playing: boolean;
 		sequenceOffset: number;
+		crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -133,9 +149,17 @@ export class MediaPlayer {
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
 		this.sequenceOffset = sequenceOffset;
+		const requestCredentials = crossOriginToRequestCredentials(crossOrigin);
 
 		this.input = new Input({
-			source: new UrlSource(this.src),
+			source: new UrlSource(
+				this.src,
+				requestCredentials
+					? {
+							requestInit: {credentials: requestCredentials},
+						}
+					: undefined,
+			),
 			formats: ALL_FORMATS,
 		});
 
