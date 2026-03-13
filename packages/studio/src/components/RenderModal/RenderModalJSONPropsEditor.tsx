@@ -2,7 +2,6 @@ import React, {useCallback, useEffect, useMemo} from 'react';
 import type {SerializedJSONWithCustomFields} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {FAIL_COLOR} from '../../helpers/colors';
-import {useKeybinding} from '../../helpers/use-keybinding';
 import {Button} from '../Button';
 import {Flex, Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
@@ -49,7 +48,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 		throw new Error('expecting serializedJSON to be defined');
 	}
 
-	const keybindings = useKeybinding();
 	const [localValue, setLocalValue] = React.useState<State>(() => {
 		return parseJSON(serializedJSON.serializedString, schema);
 	});
@@ -66,59 +64,32 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
 		(e) => {
 			const parsed = parseJSON(e.target.value, schema);
-
-			if (parsed.validJSON) {
-				const validationResult = zodSafeParse(schema, parsed.value);
-				setLocalValue({
-					str: e.target.value,
-					value: parsed.value,
-					validJSON: parsed.validJSON,
-					zodValidation: validationResult,
-				});
-				if (validationResult.success) {
-					setValue(parsed.value);
-				}
-			} else {
-				setLocalValue({
-					str: e.target.value,
-					validJSON: parsed.validJSON,
-					error: parsed.error,
-				});
+			setLocalValue(parsed);
+			if (parsed.validJSON && parsed.zodValidation.success) {
+				setValue(parsed.value);
 			}
 		},
 		[schema, setValue],
 	);
+
+	const hasError = useMemo(() => {
+		return !localValue.validJSON || !localValue.zodValidation.success;
+	}, [localValue]);
 
 	const hasChanged = useMemo(() => {
 		return !deepEqual(value, defaultProps);
 	}, [defaultProps, value]);
 
 	const onQuickSave = useCallback(() => {
-		if (hasChanged) {
+		if (hasChanged && !hasError) {
 			onSave();
 		}
-	}, [hasChanged, onSave]);
+	}, [hasChanged, hasError, onSave]);
 
 	// If schema is changed in code
 	useEffect(() => {
 		setLocalValue(parseJSON(localValue.str, schema));
 	}, [localValue.str, schema]);
-
-	useEffect(() => {
-		const save = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 's',
-			commandCtrlKey: true,
-			callback: onQuickSave,
-			preventDefault: true,
-			triggerIfInputFieldFocused: true,
-			keepRegisteredWhenNotHighestContext: false,
-		});
-
-		return () => {
-			save.unregister();
-		};
-	}, [keybindings, onQuickSave, onSave]);
 
 	const reset = useCallback(() => {
 		setValue(defaultProps);
@@ -126,8 +97,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	}, [defaultProps, schema, setValue]);
 
 	const textAreaStyle: React.CSSProperties = useMemo(() => {
-		const fail = !localValue.validJSON || !localValue.zodValidation.success;
-		if (!fail) {
+		if (!hasError) {
 			return style;
 		}
 
@@ -135,7 +105,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 			...style,
 			borderColor: FAIL_COLOR,
 		};
-	}, [localValue]);
+	}, [hasError]);
 
 	return (
 		<div style={scrollable}>
