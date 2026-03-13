@@ -143,6 +143,7 @@ const InnerVideo: React.FC<
 				trimBeforeValue={trimBeforeValue}
 				headless={headless}
 				onError={onError}
+				credentials={credentials}
 			/>
 		);
 	}

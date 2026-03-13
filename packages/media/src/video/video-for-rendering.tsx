@@ -51,6 +51,7 @@ type InnerVideoProps = {
 	readonly trimAfterValue: number | undefined;
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
+	readonly credentials: RequestCredentials | undefined;
 };
 
 type FallbackToOffthreadVideo = {
@@ -80,6 +81,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	trimBeforeValue,
 	headless,
 	onError,
+	credentials,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -184,6 +186,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			trimBefore: trimBeforeValue,
 			fps,
 			maxCacheSize,
+			credentials,
 		})
 			.then((result) => {
 				const handleError = (
@@ -383,6 +386,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		cancelRender,
 		headless,
 		onError,
+		credentials,
 	]);
 
 	const classNameValue = useMemo(() => {

@@ -35,4 +35,5 @@ export type AudioProps = {
 	delayRenderTimeoutInMilliseconds?: number;
 	debugAudioScheduling?: boolean;
 	onError?: MediaOnError;
+	credentials?: RequestCredentials;
 };

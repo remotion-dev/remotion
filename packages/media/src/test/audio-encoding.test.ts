@@ -35,6 +35,7 @@ test('Audio samples from MP3 should produce identical s16 output on Chrome and F
 		maxCacheSize: getMaxVideoCacheSize('info'),
 		durationInSeconds: 1 / 30,
 		audioStreamIndex: 0,
+		credentials: undefined,
 	});
 
 	if (a === 'cannot-decode') {
