@@ -58,7 +58,7 @@ type OptionalVideoProps = {
 	debugAudioScheduling: boolean;
 	headless: boolean;
 	onError: MediaOnError | undefined;
-	crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
+	credentials: RequestCredentials | undefined;
 };
 
 export type InnerVideoProps = MandatoryVideoProps &

@@ -55,7 +55,7 @@ const extractAudioInternal = async ({
 	| 'network-error'
 > => {
 	const {getAudio, actualMatroskaTimestamps, isMatroska, getDuration} =
-		await getSink(src, logLevel);
+		await getSink(src, logLevel, undefined);
 
 	let mediaDurationInSeconds: number | null = null;
 	if (loop) {

@@ -237,6 +237,7 @@ const AudioForPreviewAssertedShowing: React.FC<
 				onVideoFrameCallback: null,
 				playing: initialPlaying.current,
 				sequenceOffset: initialSequenceOffset.current,
+				credentials: undefined,
 			});
 
 			mediaPlayerRef.current = player;

@@ -53,6 +53,7 @@ test('dispose should immediately unblock playback delays', async () => {
 		onVideoFrameCallback: null,
 		playing: false,
 		sequenceOffset: 0,
+		credentials: undefined,
 	});
 
 	await player.initialize(0, false);

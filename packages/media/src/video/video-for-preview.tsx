@@ -64,7 +64,7 @@ type VideoForPreviewProps = {
 	readonly debugAudioScheduling: boolean;
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
-	readonly crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
+	readonly credentials: RequestCredentials | undefined;
 };
 
 type VideoForPreviewAssertedShowingProps = VideoForPreviewProps & {
@@ -96,7 +96,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	debugAudioScheduling,
 	headless,
 	onError,
-	crossOrigin,
+	credentials,
 	controls,
 }) => {
 	const src = usePreload(unpreloadedSrc);
@@ -231,7 +231,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				onVideoFrameCallback: initialOnVideoFrameRef.current ?? null,
 				playing: initialPlaying.current,
 				sequenceOffset: initialSequenceOffset.current,
-				crossOrigin,
+				credentials,
 			});
 
 			mediaPlayerRef.current = player;
@@ -364,7 +364,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		videoConfig.fps,
 		onError,
 		videoConfig.durationInFrames,
-		crossOrigin,
+		credentials,
 	]);
 
 	const classNameValue = useMemo(() => {
