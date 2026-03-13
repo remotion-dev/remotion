@@ -1,4 +1,5 @@
 import {$, build} from 'bun';
+import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 
 if (process.env.NODE_ENV !== 'production') {
@@ -62,8 +63,22 @@ if (!result.success) {
 	process.exit(1);
 }
 
+const outdir = path.resolve('dist');
+
 for (const output of result.outputs) {
-	await Bun.write('dist/' + output.path, await output.text());
+	const relativeOutputPath = path.isAbsolute(output.path)
+		? path.relative(outdir, output.path)
+		: output.path;
+	const normalizedOutputPath = relativeOutputPath.replaceAll('\\', '/');
+	const outputPathWithoutDistPrefix = normalizedOutputPath.startsWith('dist/')
+		? normalizedOutputPath.slice('dist/'.length)
+		: normalizedOutputPath;
+
+	if (outputPathWithoutDistPrefix.startsWith('../')) {
+		throw new Error(`Unexpected build output path: ${output.path}`);
+	}
+
+	await Bun.write(path.join('dist', outputPathWithoutDistPrefix), await output.text());
 }
 
 export {};
