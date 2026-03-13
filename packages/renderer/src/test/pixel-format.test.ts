@@ -13,7 +13,7 @@ describe('pixel-format tests validateSelectedPixelFormatAndCodecCombination', ()
 		'yuv444p10le',
 	];
 
-	const codecs: Codec[] = ['h264', 'h265', 'vp8', 'vp9'];
+	const codecs: Codec[] = ['h264', 'h265', 'av1', 'vp8', 'vp9'];
 
 	for (const format of formats) {
 		for (const codec of codecs) {
@@ -30,6 +30,12 @@ describe('pixel-format tests validateSelectedPixelFormatAndCodecCombination', ()
 			validateSelectedPixelFormatAndCodecCombination('yuva420p', 'h264'),
 		).toThrow(
 			/Pixel format was set to 'yuva420p' but codec h264 does not support it. Valid pixel formats for codec h264 are: yuv420p, yuv422p, yuv444p, yuv420p10le, yuv422p10le, yuv444p10le, yuva444p10le./g,
+		));
+	test(`test for invalid combination yuva420p and av1`, () =>
+		expect(() =>
+			validateSelectedPixelFormatAndCodecCombination('yuva420p', 'av1'),
+		).toThrow(
+			/Pixel format was set to 'yuva420p' but codec av1 does not support it. Valid pixel formats for codec av1 are: yuv420p, yuv422p, yuv444p, yuv420p10le, yuv422p10le, yuv444p10le, yuva444p10le./g,
 		));
 	const validCodecs: Codec[] = ['vp8', 'vp9'];
 	validCodecs.forEach((c) =>

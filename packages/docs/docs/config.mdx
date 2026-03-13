@@ -589,12 +589,13 @@ The [command line flag](/docs/cli/render#--pixel-format) `--pixel-format` will t
 
 ## `setCodec()`<AvailableFrom v="1.4.0" />
 
-Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
+Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`, `av1`.
 
 - `h264` is the classic MP4 file as you know it.
 - `h265` is the successor of H264, with smaller file sizes. Also known as HEVC. Poor browser compatibility.
 - `vp8` is the codec for WebM.
 - `vp9` is the next-generation codec for WebM. Lower file size, longer compression time.
+- `av1` is the successor of VP9 and achieves lower file size, with longer compression time.
 - `prores` is a common codec if you want to import the output into another video editing program _(available from v2.1.6)_
 - `mp3` will export audio only as an MP3 file _(available from v2.0)_
 - `wav` will export audio only as an WAV file _(available from v2.0)_
@@ -727,6 +728,7 @@ Ranges for CRF scale, by codec:
 - `h265` crf range is 0-51 where crf 23 is _default_.
 - `vp8` crf range is 4-63 where crf 9 is _default_.
 - `vp9` crf range is 0-63 where crf 28 is _default_.
+- `av1` crf range is 0-63 where crf 30 is _default_.
 
 The lowest value is lossless, and the highest value is the worst quality possible. Higher values decrease the filesize at the cost of quality.
 

@@ -29,6 +29,10 @@ export const humanReadableCodec = (codec: Codec) => {
 		return 'H.265';
 	}
 
+	if (codec === 'av1') {
+		return 'AV1';
+	}
+
 	if (codec === 'prores') {
 		return 'ProRes';
 	}

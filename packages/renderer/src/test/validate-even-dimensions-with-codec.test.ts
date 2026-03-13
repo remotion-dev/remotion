@@ -8,7 +8,7 @@ describe('validateEvenDimensionsWithCodec', () => {
 		wantsImageSequence: false,
 	};
 
-	describe('H264/H265 codec behavior with odd dimensions', () => {
+	describe('H264/H265/AV1 codec behavior with odd dimensions', () => {
 		test('should round down odd width to even when using H264', () => {
 			const result = validateEvenDimensionsWithCodec({
 				width: 4000,
@@ -46,6 +46,19 @@ describe('validateEvenDimensionsWithCodec', () => {
 
 			expect(result.actualWidth).toBe(200); // 200 (already even)
 			expect(result.actualHeight).toBe(300); // 301 (odd) -> 300 (even)
+		});
+
+		test('should round down odd dimensions when using AV1', () => {
+			const result = validateEvenDimensionsWithCodec({
+				width: 301,
+				height: 201,
+				scale: 1,
+				codec: 'av1',
+				...defaultConfig,
+			});
+
+			expect(result.actualWidth).toBe(300); // 301 (odd) -> 300 (even)
+			expect(result.actualHeight).toBe(200); // 201 (odd) -> 200 (even)
 		});
 
 		test('should round down both dimensions when both are odd', () => {
@@ -108,6 +121,19 @@ describe('validateEvenDimensionsWithCodec', () => {
 				height: 600,
 				scale: 0.5,
 				codec: 'h265',
+				...defaultConfig,
+			});
+
+			expect(result.actualWidth).toBe(1000);
+			expect(result.actualHeight).toBe(600);
+		});
+
+		test('should keep even dimensions as-is for AV1', () => {
+			const result = validateEvenDimensionsWithCodec({
+				width: 1000,
+				height: 600,
+				scale: 0.5,
+				codec: 'av1',
 				...defaultConfig,
 			});
 

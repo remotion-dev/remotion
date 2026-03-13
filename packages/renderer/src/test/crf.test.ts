@@ -13,6 +13,7 @@ describe('crf tests getValidCrfRanges valid input', () => {
 		['h265', [0, 51]],
 		['vp8', [4, 63]],
 		['vp9', [0, 63]],
+		['av1', [0, 63]],
 		['mp3', [0, 0]],
 		['aac', [0, 0]],
 		['wav', [0, 0]],
@@ -38,6 +39,9 @@ describe('validateSelectedCrfAndCodecCombination valid input', () => {
 		[20, 'vp9'],
 		[0, 'vp9'],
 		[63, 'vp9'],
+		[20, 'av1'],
+		[0, 'av1'],
+		[63, 'av1'],
 	] as [number, Codec][];
 	validInputs.forEach((entry) =>
 		test(`validate with crf ${entry[0]} and codec ${entry[1]}`, () =>
@@ -69,6 +73,9 @@ describe('validateSelectedCrfAndCodecCombination invalid input', () => {
 		[80, 'vp9', [0, 63]],
 		[-1, 'vp9', [0, 63]],
 		[64, 'vp9', [0, 63]],
+		[80, 'av1', [0, 63]],
+		[-1, 'av1', [0, 63]],
+		[64, 'av1', [0, 63]],
 	] as [number, Codec, [number, number]][];
 	invalidInputs.forEach((entry) =>
 		test(`validate with crf ${entry[0]} and codec ${entry[1]}`, () =>

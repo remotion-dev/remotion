@@ -9,7 +9,7 @@ Backed by [FFmpeg](https://ffmpeg.org/), Remotion allows you to configure a vari
 
 ## Choosing a codec
 
-Remotion supports 5 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9` and `prores`. While H264 will work well in most cases, sometimes it's worth going for a different codec. Refer to the table below to see the advantages and drawbacks of each codec.
+Remotion supports 6 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `av1` and `prores`. While H264 will work well in most cases, sometimes it's worth going for a different codec. Refer to the table below to see the advantages and drawbacks of each codec.
 
 <table>
   <tr>
@@ -79,6 +79,18 @@ Remotion supports 5 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9` and `
     <td>No</td>
   </tr>
   <tr>
+    <td>AV1</td>
+    <td>.mp4, .webm or .mkv</td>
+    <td style={{color: 'green', fontWeight: 'bold'}}>Very small</td>
+    <td style={{color: 'red', fontWeight: 'bold'}}>Very slow</td>
+    <td>
+      <a href="https://caniuse.com/av1" style={{color: 'darkorange'}}>
+        Okay
+      </a>
+    </td>
+    <td>No</td>
+  </tr>
+  <tr>
     <td>ProRes</td>
     <td>.mov</td>
     <td style={{color: 'red'}}>Large</td>
@@ -98,7 +110,7 @@ You can set a config using [`Config.setCodec()` in the config file](/docs/config
 
 ## Controlling quality using the CRF setting
 
-_Applies only to `h264`, `h265`, `vp8` and `vp9`._
+_Applies only to `h264`, `h265`, `vp8`, `vp9` and `av1`._
 
 No matter which codec you end up using, there's always a tradeoff between file size and video quality. You can control it by setting the so called CRF (Constant Rate Factor). The **lower the number, the better the quality**, the higher the number, the smaller the file is – of course at the cost of quality.
 
@@ -134,6 +146,12 @@ Be cautious: Every codec has it's own range of acceptable values and a different
     <td>0</td>
     <td>63</td>
     <td>28</td>
+  </tr>
+  <tr>
+    <td>AV1</td>
+    <td>0</td>
+    <td>63</td>
+    <td>30</td>
   </tr>
 </table>
 

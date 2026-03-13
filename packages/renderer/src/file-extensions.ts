@@ -76,6 +76,14 @@ export const defaultFileExtensionMap: {
 			'pcm-16': {possible: ['mkv'], default: 'mkv'},
 		},
 	},
+	av1: {
+		default: 'mp4',
+		forAudioCodec: {
+			aac: {possible: ['mp4', 'mkv'], default: 'mp4'},
+			opus: {possible: ['webm', 'mkv'], default: 'webm'},
+			'pcm-16': {possible: ['mkv'], default: 'mkv'},
+		},
+	},
 	mp3: {
 		default: 'mp3',
 		forAudioCodec: {

@@ -11,6 +11,7 @@ describe('Codec tests setCodec', () => {
 		'h265',
 		'vp8',
 		'vp9',
+		'av1',
 		undefined,
 	];
 	validCodecInputs.forEach((entry) =>

@@ -14,6 +14,7 @@ export const supportedAudioCodecs = {
 	avi: [] as const,
 	gif: [] as const,
 	h265: ['aac', 'pcm-16'] as const,
+	av1: ['aac', 'opus', 'pcm-16'] as const,
 	mp3: ['mp3', 'pcm-16'] as const,
 	prores: ['aac', 'pcm-16'] as const,
 	vp8: ['opus', 'pcm-16'] as const,
@@ -90,6 +91,10 @@ export const defaultAudioCodecs: {
 		compressed: 'aac',
 	},
 	h265: {
+		lossless: 'pcm-16',
+		compressed: 'aac',
+	},
+	av1: {
 		lossless: 'pcm-16',
 		compressed: 'aac',
 	},
