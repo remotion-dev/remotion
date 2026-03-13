@@ -118,12 +118,13 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		}
 
 		if (fallbackRef.current.checkValidity()) {
-			onTextChange?.(newValue);
+			onValueChangeEnd?.(Number(newValue));
+
 			setInputFallback(false);
 		} else {
 			fallbackRef.current.reportValidity();
 		}
-	}, [onEscape, onTextChange]);
+	}, [onEscape, onValueChangeEnd]);
 
 	const onKeyPress: React.KeyboardEventHandler<HTMLInputElement> = useCallback(
 		(e) => {

@@ -11,61 +11,31 @@ export const ZodTupleItemEditor: React.FC<{
 	tupleItems: AnyZodSchema[];
 	index: number;
 	value: unknown;
-	defaultValue: unknown;
-	onSave: UpdaterFunction<unknown[]>;
-	showSaveButton: boolean;
-	saving: boolean;
-	saveDisabledByParent: boolean;
 	mayPad: boolean;
-}> = ({
-	tupleItems,
-	onChange,
-	jsonPath,
-	index,
-	value,
-	defaultValue,
-	onSave: onSaveObject,
-	showSaveButton,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
+}> = ({tupleItems, onChange, jsonPath, index, value, mayPad}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
 	}
 
 	const setValue = useCallback(
-		(val: ((newV: unknown) => unknown) | unknown) => {
+		(
+			val: ((newV: unknown) => unknown) | unknown,
+			{shouldSave}: {shouldSave: boolean},
+		) => {
 			onChange(
 				(oldV) => [
 					...oldV.slice(0, index),
 					typeof val === 'function' ? val(oldV[index]) : val,
 					...oldV.slice(index + 1),
 				],
-				false,
-				false,
+				{shouldSave},
 			);
 		},
 		[index, onChange],
 	);
 
 	const newJsonPath = useMemo(() => [...jsonPath, index], [index, jsonPath]);
-
-	const onSave = useCallback(
-		(updater: (oldState: unknown) => unknown) => {
-			onSaveObject(
-				(oldV) => [
-					...oldV.slice(0, index),
-					updater(oldV[index]),
-					...oldV.slice(index + 1),
-				],
-				false,
-				false,
-			);
-		},
-		[index, onSaveObject],
-	);
 
 	return (
 		<div>
@@ -74,12 +44,7 @@ export const ZodTupleItemEditor: React.FC<{
 				schema={tupleItems[index]}
 				value={value}
 				setValue={setValue}
-				defaultValue={defaultValue}
-				onSave={onSave}
-				showSaveButton={showSaveButton}
 				onRemove={null}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
 		</div>

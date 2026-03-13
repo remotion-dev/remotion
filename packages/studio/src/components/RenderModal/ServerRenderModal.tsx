@@ -93,6 +93,7 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
+import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
 
 type State =
 	| {
@@ -288,7 +289,6 @@ const RenderModal: React.FC<
 
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const [unclampedFrame, setFrame] = useState(() => initialFrame);
-	const [saving, setSaving] = useState<boolean>(false);
 	const [stillImageFormat, setStillImageFormat] = useState<StillImageFormat>(
 		() => initialStillImageFormat,
 	);
@@ -586,7 +586,13 @@ const RenderModal: React.FC<
 		return null;
 	}, [codec, x264PresetSetting, renderMode]);
 
-	const [inputProps, setInputProps] = useState(() => defaultProps);
+	const [inputProps, _setInputProps] = useState(() => defaultProps);
+	const setInputProps: UpdaterFunction<Record<string, unknown>> = useCallback(
+		(updater) => {
+			_setInputProps(updater);
+		},
+		[],
+	);
 
 	const [metadata] = useState(() => defaultMetadata);
 
@@ -1574,11 +1580,12 @@ const RenderModal: React.FC<
 							defaultProps={inputProps}
 							setDefaultProps={setInputProps}
 							unresolvedComposition={unresolvedComposition}
-							mayShowSaveButton={false}
 							propsEditType="input-props"
-							saving={saving}
-							setSaving={setSaving}
-							readOnlyStudio={readOnlyStudio}
+							canSaveDefaultProps={{
+								canUpdate: false,
+								reason: 'render dialogue',
+								determined: false,
+							}}
 						/>
 					) : (
 						<RenderModalAdvanced

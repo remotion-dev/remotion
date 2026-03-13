@@ -5,9 +5,9 @@ import {
 } from '../../get-zod-if-possible';
 import {RemTextarea} from '../../NewComposition/RemTextarea';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -25,27 +25,10 @@ export const ZodTextareaEditor: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: string;
-	readonly defaultValue: string;
 	readonly setValue: UpdaterFunction<string>;
-	readonly onSave: UpdaterFunction<string>;
 	readonly onRemove: null | (() => void);
-	readonly showSaveButton: boolean;
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	jsonPath,
-	value,
-	setValue,
-	showSaveButton,
-	defaultValue,
-	schema,
-	onSave,
-	onRemove,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
+}> = ({jsonPath, value, setValue, schema, onRemove, mayPad}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -56,53 +39,43 @@ export const ZodTextareaEditor: React.FC<{
 		throw new Error('expected zod textarea');
 	}
 
-	const {
-		localValue,
-		onChange: setLocalValue,
-		reset,
-	} = useLocalState({
-		schema,
-		setValue,
-		unsavedValue: value,
-		savedValue: defaultValue,
-	});
-
 	const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
 		(e) => {
-			setLocalValue(() => e.target.value, false, false);
+			setValue(() => e.target.value, {shouldSave: false});
 		},
-		[setLocalValue],
+		[setValue],
 	);
 
-	const save = useCallback(() => {
-		onSave(() => value, false, false);
-	}, [onSave, value]);
+	const onBlur: React.FocusEventHandler<HTMLTextAreaElement> =
+		useCallback(() => {
+			setValue((v) => v, {shouldSave: true});
+		}, [setValue]);
+
+	const zodValidation = React.useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
+	);
 
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
 				handleClick={null}
-				isDefaultValue={localValue.value === defaultValue}
 				jsonPath={jsonPath}
-				onReset={reset}
-				onSave={save}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
-				valid={localValue.zodValidation.success}
-				saveDisabledByParent={saveDisabledByParent}
+				valid={zodValidation.success}
 				suffix={null}
 			/>
 			<div style={fullWidth}>
 				<RemTextarea
 					onChange={onChange}
-					value={localValue.value}
-					status={localValue.zodValidation ? 'ok' : 'error'}
+					onBlur={onBlur}
+					value={value}
+					status={zodValidation ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					name={jsonPath.join('.')}
 					style={textareaStyle}
 				/>
-				<ZodFieldValidation path={jsonPath} localValue={localValue} />
+				<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 			</div>
 		</Fieldset>
 	);

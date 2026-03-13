@@ -8,7 +8,6 @@ const AlreadyPaddedRightContext = createContext<AlreadyPaddedContext>(false);
 
 export const Fieldset: React.FC<{
 	readonly children: React.ReactNode;
-	readonly success: boolean;
 	readonly shouldPad: boolean;
 }> = ({children, shouldPad}) => {
 	const alreadyPadded = useContext(AlreadyPaddedRightContext);

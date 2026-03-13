@@ -4,6 +4,20 @@ import {makeHyperlink} from '../../hyperlinks/make-link';
 
 let warnedAboutPrettier = false;
 
+export const warnAboutPrettierOnce = (logLevel: LogLevel) => {
+	if (warnedAboutPrettier) {
+		return;
+	}
+
+	warnedAboutPrettier = true;
+	RenderInternals.Log.warn(
+		{indent: false, logLevel},
+		RenderInternals.chalk.yellow(
+			'Could not format with Prettier. File will need to be formatted manually.',
+		),
+	);
+};
+
 const normalizeQuotes = (str: string): string => {
 	if (
 		str.length >= 2 &&
@@ -123,13 +137,7 @@ export const logUpdate = ({
 		{indent: false, logLevel},
 		`${RenderInternals.chalk.blueBright(`${fileLink}:`)} ${propChange}`,
 	);
-	if (!formatted && !warnedAboutPrettier) {
-		warnedAboutPrettier = true;
-		RenderInternals.Log.warn(
-			{indent: false, logLevel},
-			RenderInternals.chalk.yellow(
-				'Could not format with Prettier. File will need to be formatted manually.',
-			),
-		);
+	if (!formatted) {
+		warnAboutPrettierOnce(logLevel);
 	}
 };

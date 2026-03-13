@@ -2,7 +2,6 @@ import React, {
 	createRef,
 	useCallback,
 	useContext,
-	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useState,
@@ -13,10 +12,14 @@ import {BACKGROUND} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {VisualControlsTabActivatedContext} from '../visual-controls/VisualControls';
-import {GlobalPropsEditorUpdateButton} from './GlobalPropsEditorUpdateButton';
-import {DataEditor} from './RenderModal/DataEditor';
-import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
+import {DefaultPropsEditor} from './DefaultPropsEditor';
+import {useZodIfPossible, useZodTypesIfPossible} from './get-zod-if-possible';
+import {showNotification} from './Notifications/NotificationCenter';
+import {extractEnumJsonPaths} from './RenderModal/SchemaEditor/extract-enum-json-paths';
+import type {AnyZodSchema} from './RenderModal/SchemaEditor/zod-schema-type';
+import type {UpdaterFunction} from './RenderModal/SchemaEditor/ZodSwitch';
 import {RenderQueue} from './RenderQueue';
+import {callUpdateDefaultPropsApi} from './RenderQueue/actions';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
 import {VisualControlsContent} from './VisualControls/VisualControlsContent';
@@ -59,10 +62,7 @@ export const optionsSidebarTabs = createRef<{
 export const OptionsPanel: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
-	const {props, updateProps, resetUnsaved} = useContext(
-		Internals.EditorPropsContext,
-	);
-	const [saving, setSaving] = useState(false);
+	const {props, updateProps} = useContext(Internals.EditorPropsContext);
 
 	const renderingAvailable = !readOnlyStudio || SHOW_BROWSER_RENDERING;
 
@@ -129,26 +129,37 @@ export const OptionsPanel: React.FC<{
 		return null;
 	}, [canvasContent, compositions]);
 
-	const setDefaultProps = useCallback(
-		(
-			newProps:
-				| Record<string, unknown>
-				| ((oldProps: Record<string, unknown>) => Record<string, unknown>),
-		) => {
-			if (composition === null) {
-				return;
-			}
+	const z = useZodIfPossible();
+	const zodTypes = useZodTypesIfPossible();
 
-			window.remotion_ignoreFastRefreshUpdate = null;
+	const noComposition = !composition;
 
-			updateProps({
-				id: composition.id,
-				defaultProps: composition.defaultProps as Record<string, unknown>,
-				newProps,
-			});
-		},
-		[composition, updateProps],
-	);
+	const schema = useMemo(() => {
+		if (!z) {
+			return 'no-zod' as const;
+		}
+
+		if (noComposition) {
+			return 'no-composition' as const;
+		}
+
+		if (!composition.schema) {
+			return 'no-schema' as const;
+		}
+
+		if (
+			!(
+				typeof (composition.schema as {safeParse?: unknown}).safeParse ===
+				'function'
+			)
+		) {
+			throw new Error(
+				'A value which is not a Zod schema was passed to `schema`',
+			);
+		}
+
+		return composition.schema as AnyZodSchema;
+	}, [composition?.schema, noComposition, z]);
 
 	const currentDefaultProps = useMemo(() => {
 		if (composition === null) {
@@ -158,30 +169,75 @@ export const OptionsPanel: React.FC<{
 		return props[composition.id] ?? composition.defaultProps ?? {};
 	}, [composition, props]);
 
-	const unsavedChangesExist = useMemo(() => {
-		if (composition === null || composition.defaultProps === undefined) {
-			return false;
-		}
-
-		return !deepEqual(composition.defaultProps, currentDefaultProps);
-	}, [currentDefaultProps, composition]);
-
-	const reset = useCallback(
-		(e: Event) => {
-			if ((e as CustomEvent).detail.resetUnsaved) {
-				resetUnsaved((e as CustomEvent).detail.resetUnsaved);
+	const saveToFile = useCallback(
+		(updater: (old: Record<string, unknown>) => Record<string, unknown>) => {
+			if (
+				schema === 'no-zod' ||
+				schema === 'no-schema' ||
+				schema === 'no-composition' ||
+				z === null
+			) {
+				showNotification('Cannot update default props: No Zod schema', 2000);
+				return;
 			}
+
+			if (!composition) {
+				throw new Error('Composition is not found');
+			}
+
+			const oldDefaultProps = currentDefaultProps;
+			const newDefaultProps = updater(
+				oldDefaultProps as Record<string, unknown>,
+			);
+			callUpdateDefaultPropsApi(
+				composition.id,
+				newDefaultProps,
+				extractEnumJsonPaths({
+					schema,
+					zodRuntime: z,
+					currentPath: [],
+					zodTypes,
+				}),
+			)
+				.then((response) => {
+					if (!response.success) {
+						// eslint-disable-next-line no-console
+						console.log(response.stack);
+						showNotification(
+							`Cannot update default props: ${response.reason}. See console for more information.`,
+							2000,
+						);
+					}
+				})
+				.catch((err) => {
+					showNotification(`Cannot update default props: ${err.message}`, 2000);
+				});
 		},
-		[resetUnsaved],
+		[composition, currentDefaultProps, schema, z, zodTypes],
 	);
 
-	useEffect(() => {
-		window.addEventListener(Internals.PROPS_UPDATED_EXTERNALLY, reset);
+	const compositionId = useMemo(() => {
+		return composition?.id ?? '';
+	}, [composition?.id]);
 
-		return () => {
-			window.removeEventListener(Internals.PROPS_UPDATED_EXTERNALLY, reset);
-		};
-	}, [reset]);
+	const compositionDefaultProps = useMemo(() => {
+		return composition?.defaultProps ?? {};
+	}, [composition?.defaultProps]);
+
+	const setDefaultProps: UpdaterFunction<Record<string, unknown>> = useCallback(
+		(updater, {shouldSave}) => {
+			updateProps({
+				id: compositionId,
+				defaultProps: compositionDefaultProps as Record<string, unknown>,
+				newProps: updater,
+			});
+
+			if (shouldSave) {
+				saveToFile(updater);
+			}
+		},
+		[compositionId, compositionDefaultProps, saveToFile, updateProps],
+	);
 
 	return (
 		<div style={container} className="css-reset">
@@ -201,12 +257,6 @@ export const OptionsPanel: React.FC<{
 						style={{justifyContent: 'space-between'}}
 					>
 						Props
-						{unsavedChangesExist && composition ? (
-							<GlobalPropsEditorUpdateButton
-								compositionId={composition.id}
-								currentDefaultProps={currentDefaultProps}
-							/>
-						) : null}
 					</Tab>
 					{renderingAvailable ? (
 						<RendersTab
@@ -218,16 +268,12 @@ export const OptionsPanel: React.FC<{
 			</div>
 			{panel === 'input-props' ? (
 				composition ? (
-					<DataEditor
+					<DefaultPropsEditor
 						key={composition.id}
 						unresolvedComposition={composition}
 						defaultProps={currentDefaultProps}
 						setDefaultProps={setDefaultProps}
-						mayShowSaveButton
 						propsEditType="default-props"
-						saving={saving}
-						setSaving={setSaving}
-						readOnlyStudio={readOnlyStudio}
 					/>
 				) : null
 			) : panel === 'visual-controls' && visualControlsTabActivated ? (

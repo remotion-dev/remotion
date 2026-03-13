@@ -2,6 +2,7 @@ import {Internals} from 'remotion';
 import type {UpdateDefaultPropsFunction} from './helpers/calc-new-props';
 import {calcNewProps} from './helpers/calc-new-props';
 
+// TODO: Saving is now instant
 export const updateDefaultProps = ({
 	compositionId,
 	defaultProps,
@@ -27,15 +28,4 @@ export const updateDefaultProps = ({
 			[composition.id]: generatedDefaultProps,
 		};
 	});
-
-	window.dispatchEvent(
-		new CustomEvent<{resetUnsaved: string | null}>(
-			Internals.PROPS_UPDATED_EXTERNALLY,
-			{
-				detail: {
-					resetUnsaved: null,
-				},
-			},
-		),
-	);
 };

@@ -32,8 +32,7 @@ const arraySeparationLine: React.CSSProperties = {
 export const SchemaArrayItemSeparationLine: React.FC<{
 	readonly onChange: (
 		updater: (oldV: unknown[]) => unknown[],
-		forceApply: boolean,
-		increment: boolean,
+		options: {shouldSave: boolean},
 	) => void;
 	readonly index: number;
 	readonly schema: AnyZodSchema;
@@ -60,8 +59,7 @@ export const SchemaArrayItemSeparationLine: React.FC<{
 					...oldV.slice(index + 1),
 				];
 			},
-			false,
-			true,
+			{shouldSave: true},
 		);
 	}, [arrayElement, index, onChange, z, zodTypes]);
 

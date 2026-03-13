@@ -181,18 +181,27 @@ export type DeleteStaticFileResponse = {
 	existed: boolean;
 };
 
-export type CanUpdateDefaultPropsRequest = {
-	compositionId: string;
-};
-
 export type CanUpdateDefaultPropsResponse =
 	| {
 			canUpdate: true;
+			currentDefaultProps: Record<string, unknown>;
 	  }
 	| {
 			canUpdate: false;
 			reason: string;
 	  };
+
+export type SubscribeToDefaultPropsRequest = {
+	compositionId: string;
+	clientId: string;
+};
+
+export type SubscribeToDefaultPropsResponse = CanUpdateDefaultPropsResponse;
+
+export type UnsubscribeFromDefaultPropsRequest = {
+	compositionId: string;
+	clientId: string;
+};
 
 export type CanUpdateSequencePropsRequest = {
 	fileName: string;
@@ -233,15 +242,18 @@ export type SaveSequencePropsRequest = {
 	key: string;
 	value: string;
 	defaultValue: string | null;
+	observedKeys: string[];
 };
 
 export type SaveSequencePropsResponse =
 	| {
 			success: true;
+			newStatus: CanUpdateSequencePropsResponse;
 	  }
 	| {
 			success: false;
 			reason: string;
+			stack: string;
 	  };
 
 export type UpdateAvailableRequest = {};
@@ -266,6 +278,26 @@ export type InstallPackageRequest = {
 };
 export type InstallPackageResponse = {};
 
+export type UndoRequest = {};
+export type UndoResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
+export type RedoRequest = {};
+export type RedoResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
 export type ApiRoutes = {
 	'/api/cancel': ReqAndRes<CancelRenderRequest, CancelRenderResponse>;
 	'/api/render': ReqAndRes<AddRenderRequest, undefined>;
@@ -287,9 +319,13 @@ export type ApiRoutes = {
 		ApplyVisualControlRequest,
 		ApplyVisualControlResponse
 	>;
-	'/api/can-update-default-props': ReqAndRes<
-		CanUpdateDefaultPropsRequest,
-		CanUpdateDefaultPropsResponse
+	'/api/subscribe-to-default-props': ReqAndRes<
+		SubscribeToDefaultPropsRequest,
+		SubscribeToDefaultPropsResponse
+	>;
+	'/api/unsubscribe-from-default-props': ReqAndRes<
+		UnsubscribeFromDefaultPropsRequest,
+		undefined
 	>;
 	'/api/subscribe-to-sequence-props': ReqAndRes<
 		SubscribeToSequencePropsRequest,
@@ -318,4 +354,6 @@ export type ApiRoutes = {
 		InstallPackageRequest,
 		InstallPackageResponse
 	>;
+	'/api/undo': ReqAndRes<UndoRequest, UndoResponse>;
+	'/api/redo': ReqAndRes<RedoRequest, RedoResponse>;
 };

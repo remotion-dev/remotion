@@ -9,9 +9,8 @@ import {InputDragger} from '../../NewComposition/InputDragger';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {RemInputTypeColor} from '../../NewComposition/RemInputTypeColor';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -24,27 +23,10 @@ export const ZodColorEditor: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: string;
-	readonly defaultValue: string;
 	readonly setValue: UpdaterFunction<string>;
-	readonly onSave: UpdaterFunction<string>;
 	readonly onRemove: null | (() => void);
-	readonly showSaveButton: boolean;
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	jsonPath,
-	value,
-	setValue,
-	showSaveButton,
-	defaultValue,
-	schema,
-	onSave,
-	onRemove,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
+}> = ({jsonPath, value, setValue, schema, onRemove, mayPad}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -55,19 +37,13 @@ export const ZodColorEditor: React.FC<{
 		throw new Error('expected zod color');
 	}
 
-	const {
-		localValue,
-		onChange: onValueChange,
-		reset,
-	} = useLocalState({
-		schema,
-		setValue,
-		unsavedValue: value,
-		savedValue: defaultValue,
-	});
+	const localValue = useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
+	);
 
-	const {a, b, g, r} = localValue.zodValidation.success
-		? zodTypes.ZodZypesInternals.parseColor(localValue.value)
+	const {a, b, g, r} = localValue.success
+		? zodTypes.ZodZypesInternals.parseColor(value)
 		: {a: 1, b: 0, g: 0, r: 0};
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -77,28 +53,40 @@ export const ZodColorEditor: React.FC<{
 				Math.round(a),
 				zodTypes,
 			);
-			onValueChange(() => newColor, false, false);
+			setValue(() => newColor, {shouldSave: false});
 		},
-		[a, onValueChange, zodTypes],
+		[a, setValue, zodTypes],
 	);
+
+	const onColorBlur: React.FocusEventHandler<HTMLInputElement> =
+		useCallback(() => {
+			setValue(
+				(v) => {
+					// TODO: Does not yet work
+					return v;
+				},
+				{shouldSave: true},
+			);
+		}, [setValue]);
 
 	const onTextChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			const newValue = e.target.value;
-			onValueChange(() => newValue, false, false);
+			setValue(() => newValue, {shouldSave: false});
 		},
-		[onValueChange],
+		[setValue],
 	);
 
-	const save = useCallback(() => {
-		onSave(() => value, false, false);
-	}, [onSave, value]);
+	const onTextBlur: React.FocusEventHandler<HTMLInputElement> =
+		useCallback(() => {
+			setValue((v) => v, {shouldSave: true});
+		}, [setValue]);
 
 	const rgb = `#${r.toString(16).padStart(2, '0')}${g
 		.toString(16)
 		.padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 
-	const status = localValue.zodValidation.success ? 'ok' : 'error';
+	const status = localValue.success ? 'ok' : 'error';
 
 	const colorPicker: React.CSSProperties = useMemo(() => {
 		return {
@@ -111,40 +99,46 @@ export const ZodColorEditor: React.FC<{
 	const onOpacityChange = useCallback(
 		(newValue: string) => {
 			const newColor = colorWithNewOpacity(
-				localValue.value,
+				value,
 				Math.round((Number(newValue) / 100) * 255),
 				zodTypes,
 			);
-			onValueChange(() => newColor, false, false);
+			setValue(() => newColor, {shouldSave: true});
 		},
-		[localValue.value, onValueChange, zodTypes],
+		[setValue, value, zodTypes],
 	);
 
 	const onOpacityValueChange = useCallback(
 		(newValue: number) => {
 			const newColor = colorWithNewOpacity(
-				localValue.value,
+				value,
 				Math.round((Number(newValue) / 100) * 255),
 				zodTypes,
 			);
-			onValueChange(() => newColor, false, false);
+			setValue(() => newColor, {shouldSave: false});
 		},
-		[localValue.value, onValueChange, zodTypes],
+		[setValue, value, zodTypes],
+	);
+
+	const onOpacityValueChangeEnd = useCallback(
+		(newValue: number) => {
+			const newColor = colorWithNewOpacity(
+				value,
+				Math.round((Number(newValue) / 100) * 255),
+				zodTypes,
+			);
+			setValue(() => newColor, {shouldSave: true});
+		},
+		[setValue, value, zodTypes],
 	);
 
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
 				handleClick={null}
-				isDefaultValue={localValue.value === defaultValue}
 				jsonPath={jsonPath}
-				onReset={reset}
-				onSave={save}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
-				valid={localValue.zodValidation.success}
-				saveDisabledByParent={saveDisabledByParent}
+				valid={localValue.success}
 				suffix={null}
 			/>
 			<div style={fullWidth}>
@@ -157,6 +151,7 @@ export const ZodColorEditor: React.FC<{
 							}}
 							value={rgb}
 							onChange={onChange}
+							onBlur={onColorBlur}
 							className="__remotion_color_picker"
 							status={status}
 							name={jsonPath.join('.')}
@@ -164,16 +159,18 @@ export const ZodColorEditor: React.FC<{
 					</div>
 					<Spacing x={1} block />
 					<RemotionInput
-						value={localValue.value}
+						value={value}
 						status={status}
 						placeholder={jsonPath.join('.')}
 						onChange={onTextChange}
+						onBlur={onTextBlur}
 						rightAlign={false}
 					/>
 					<Spacing x={1} />
 					<InputDragger
 						onTextChange={onOpacityChange}
 						onValueChange={onOpacityValueChange}
+						onValueChangeEnd={onOpacityValueChangeEnd}
 						status={status}
 						value={(a / 255) * 100}
 						min={0}
@@ -183,7 +180,7 @@ export const ZodColorEditor: React.FC<{
 						rightAlign={false}
 					/>
 				</Row>
-				<ZodFieldValidation path={jsonPath} localValue={localValue} />
+				<ZodFieldValidation path={jsonPath} zodValidation={localValue} />
 			</div>
 		</Fieldset>
 	);

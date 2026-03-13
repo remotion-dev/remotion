@@ -7,13 +7,15 @@ import type {
 import {updateSequenceProps} from '../../codemods/update-sequence-props';
 import type {ApiHandler} from '../api-types';
 import {suppressHmrForFile} from '../hmr-suppression';
+import {pushToUndoStack, suppressUndoStackInvalidation} from '../undo-stack';
+import {computeSequencePropsStatus} from './can-update-sequence-props';
 import {logUpdate} from './log-update';
 
 export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse
 > = async ({
-	input: {fileName, nodePath, key, value, defaultValue},
+	input: {fileName, nodePath, key, value, defaultValue, observedKeys},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -34,6 +36,8 @@ export const saveSequencePropsHandler: ApiHandler<
 			defaultValue: defaultValue !== null ? JSON.parse(defaultValue) : null,
 		});
 
+		pushToUndoStack(absolutePath, fileContents, logLevel);
+		suppressUndoStackInvalidation(absolutePath);
 		suppressHmrForFile(absolutePath);
 		writeFileSync(absolutePath, output);
 
@@ -52,13 +56,22 @@ export const saveSequencePropsHandler: ApiHandler<
 			logLevel,
 		});
 
+		const newStatus = computeSequencePropsStatus({
+			fileName,
+			keys: observedKeys,
+			nodePath,
+			remotionRoot,
+		});
+
 		return {
 			success: true,
+			newStatus,
 		};
 	} catch (err) {
 		return {
 			success: false,
 			reason: (err as Error).message,
+			stack: (err as Error).stack as string,
 		};
 	}
 };

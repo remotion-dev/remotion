@@ -12,7 +12,6 @@
  */
 
 import type {HotMiddlewareOptions, ModuleMap} from '@remotion/studio-shared';
-import {showNotification} from '../components/Notifications/NotificationCenter';
 import {reloadUrl} from '../helpers/url-state';
 
 if (!__webpack_module__.hot) {
@@ -66,10 +65,10 @@ export const processUpdate = function (
 	hash: string | undefined,
 	moduleMap: ModuleMap,
 	options: HotMiddlewareOptions,
+	suppressed: boolean,
 ) {
-	const {reload} = options;
-	if (!upToDate(hash) && __webpack_module__.hot?.status() === 'idle') {
-		check();
+	if (suppressed) {
+		return;
 	}
 
 	async function check() {
@@ -178,9 +177,8 @@ export const processUpdate = function (
 			console.warn(
 				'[Fast refresh] Update check failed: ' + (err.stack || err.message),
 			);
-			if (!window.remotion_unsavedProps) {
-				reloadUrl();
-			}
+
+			reloadUrl();
 		}
 	}
 
@@ -190,13 +188,11 @@ export const processUpdate = function (
 		}
 
 		if (options.warn) console.warn('[Fast refresh] Reloading page');
-		if (window.remotion_unsavedProps) {
-			showNotification(
-				'Fast refresh needs to reload the page, but you have unsaved props. Save then reload the page to apply changes.',
-				1000,
-			);
-		} else {
-			reloadUrl();
-		}
+		reloadUrl();
+	}
+
+	const {reload} = options;
+	if (!upToDate(hash) && __webpack_module__.hot?.status() === 'idle') {
+		check();
 	}
 };

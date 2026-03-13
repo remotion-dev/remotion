@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React from 'react';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
@@ -23,25 +23,15 @@ const wideEmptyLabel: React.CSSProperties = {
 export const ZonNonEditableValue: React.FC<{
 	readonly jsonPath: JSONPath;
 	readonly label: string;
-	readonly showSaveButton: boolean;
-	readonly saving: boolean;
 	readonly mayPad: boolean;
-}> = ({jsonPath, label, showSaveButton, saving, mayPad}) => {
-	const save = useCallback(() => undefined, []);
-	const reset = useCallback(() => undefined, []);
+}> = ({jsonPath, label, mayPad}) => {
 	return (
-		<Fieldset shouldPad={mayPad} success>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
 				handleClick={null}
-				isDefaultValue
 				jsonPath={jsonPath}
-				onReset={reset}
-				onSave={save}
-				showSaveButton={showSaveButton}
 				onRemove={null}
-				saving={saving}
 				valid
-				saveDisabledByParent
 				suffix={null}
 			/>
 			<div style={fullWidth}>

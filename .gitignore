@@ -28,6 +28,7 @@ packages/cloudrun/container/cloudbuild.json
 packages/example/public/offthreadvideoregression
 .git
 
+packages/example/test-results
 packages/example/build
 packages/example-without-zod/build
 packages/docs/out

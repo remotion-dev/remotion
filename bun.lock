@@ -702,6 +702,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@playwright/test": "1.55.1",
         "@types/dom-webcodecs": "catalog:",
         "eslint": "catalog:",
         "sharp": "catalog:",

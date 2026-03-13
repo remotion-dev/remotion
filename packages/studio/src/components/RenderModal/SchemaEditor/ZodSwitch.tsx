@@ -29,35 +29,17 @@ import {ZodUnionEditor} from './ZodUnionEditor';
 
 export type UpdaterFunction<T> = (
 	updater: (oldValue: T) => T,
-	forceApply: boolean,
-	increment: boolean,
+	{shouldSave}: {shouldSave: boolean},
 ) => void;
 
 export const ZodSwitch: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: unknown;
-	readonly defaultValue: unknown;
 	readonly setValue: UpdaterFunction<unknown>;
-	readonly onSave: UpdaterFunction<unknown>;
-	readonly showSaveButton: boolean;
 	readonly onRemove: null | (() => void);
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	schema,
-	jsonPath,
-	value,
-	setValue,
-	defaultValue,
-	onSave,
-	showSaveButton,
-	onRemove,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
+}> = ({schema, jsonPath, value, setValue, onRemove, mayPad}) => {
 	const typeName = getZodSchemaType(schema);
 	const description = getZodSchemaDescription(schema);
 	const zodTypes = useZodTypesIfPossible();
@@ -66,15 +48,10 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodObjectEditor
 				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
-				unsavedValue={value as Record<string, unknown>}
-				savedValue={defaultValue as Record<string, unknown>}
+				value={value as Record<string, unknown>}
 				jsonPath={jsonPath}
 				schema={schema}
-				onSave={onSave as UpdaterFunction<Record<string, unknown>>}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 				discriminatedUnionReplacement={null}
 			/>
@@ -93,12 +70,7 @@ export const ZodSwitch: React.FC<{
 					setValue={setValue as UpdaterFunction<string>}
 					jsonPath={jsonPath}
 					schema={schema}
-					onSave={onSave as UpdaterFunction<string>}
-					defaultValue={defaultValue as string}
-					showSaveButton={showSaveButton}
 					onRemove={onRemove}
-					saving={saving}
-					saveDisabledByParent={saveDisabledByParent}
 					mayPad={mayPad}
 				/>
 			);
@@ -111,12 +83,7 @@ export const ZodSwitch: React.FC<{
 					value={value as string}
 					jsonPath={jsonPath}
 					schema={schema}
-					defaultValue={defaultValue as string}
-					onSave={onSave as (newValue: (oldVal: string) => string) => void}
-					showSaveButton={showSaveButton}
 					onRemove={onRemove}
-					saving={saving}
-					saveDisabledByParent={saveDisabledByParent}
 					mayPad={mayPad}
 				/>
 			);
@@ -132,12 +99,7 @@ export const ZodSwitch: React.FC<{
 					setValue={setValue as UpdaterFunction<string>}
 					jsonPath={jsonPath}
 					schema={schema}
-					onSave={onSave as UpdaterFunction<string>}
-					defaultValue={defaultValue as string}
-					showSaveButton={showSaveButton}
 					onRemove={onRemove}
-					saving={saving}
-					saveDisabledByParent={saveDisabledByParent}
 					mayPad={mayPad}
 				/>
 			);
@@ -149,12 +111,7 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue as UpdaterFunction<string>}
 				jsonPath={jsonPath}
 				schema={schema}
-				onSave={onSave as UpdaterFunction<string>}
-				defaultValue={defaultValue as string}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
 		);
@@ -167,12 +124,7 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue as UpdaterFunction<Date>}
 				jsonPath={jsonPath}
 				schema={schema}
-				onSave={onSave as UpdaterFunction<Date>}
-				defaultValue={defaultValue as Date}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
 		);
@@ -185,12 +137,7 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue as UpdaterFunction<number>}
 				jsonPath={jsonPath}
 				schema={schema}
-				defaultValue={defaultValue as number}
-				onSave={onSave as UpdaterFunction<number>}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
 		);
@@ -202,14 +149,8 @@ export const ZodSwitch: React.FC<{
 				value={value as boolean}
 				setValue={setValue as UpdaterFunction<boolean>}
 				jsonPath={jsonPath}
-				defaultValue={defaultValue as boolean}
-				onSave={onSave as UpdaterFunction<boolean>}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
-				schema={schema}
 			/>
 		);
 	}
@@ -218,9 +159,7 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZonNonEditableValue
 				jsonPath={jsonPath}
-				showSaveButton={showSaveButton}
 				label={'undefined'}
-				saving={saving}
 				mayPad={mayPad}
 			/>
 		);
@@ -228,13 +167,7 @@ export const ZodSwitch: React.FC<{
 
 	if (typeName === 'null') {
 		return (
-			<ZonNonEditableValue
-				jsonPath={jsonPath}
-				showSaveButton={showSaveButton}
-				label={'null'}
-				saving={saving}
-				mayPad={mayPad}
-			/>
+			<ZonNonEditableValue jsonPath={jsonPath} label={'null'} mayPad={mayPad} />
 		);
 	}
 
@@ -242,9 +175,7 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZonNonEditableValue
 				jsonPath={jsonPath}
-				showSaveButton={showSaveButton}
 				label={'any (not editable)'}
-				saving={saving}
 				mayPad={mayPad}
 			/>
 		);
@@ -254,9 +185,7 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZonNonEditableValue
 				jsonPath={jsonPath}
-				showSaveButton={showSaveButton}
 				label={'BigInt (not editable)'}
-				saving={saving}
 				mayPad={mayPad}
 			/>
 		);
@@ -266,9 +195,7 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZonNonEditableValue
 				jsonPath={jsonPath}
-				showSaveButton={showSaveButton}
 				label={'unknown (not editable)'}
-				saving={saving}
 				mayPad={mayPad}
 			/>
 		);
@@ -286,12 +213,7 @@ export const ZodSwitch: React.FC<{
 					value={value as unknown[]}
 					jsonPath={jsonPath}
 					schema={schema}
-					defaultValue={defaultValue as unknown[]}
-					onSave={onSave as UpdaterFunction<unknown[]>}
-					showSaveButton={showSaveButton}
 					onRemove={onRemove}
-					saving={saving}
-					saveDisabledByParent={saveDisabledByParent}
 					mayPad={mayPad}
 				/>
 			);
@@ -303,12 +225,7 @@ export const ZodSwitch: React.FC<{
 				value={value as unknown[]}
 				jsonPath={jsonPath}
 				schema={schema}
-				defaultValue={defaultValue as unknown[]}
-				onSave={onSave as UpdaterFunction<unknown[]>}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
 		);
@@ -321,11 +238,7 @@ export const ZodSwitch: React.FC<{
 				value={value as string}
 				jsonPath={jsonPath}
 				schema={schema}
-				defaultValue={defaultValue as string}
-				onSave={onSave as UpdaterFunction<string>}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
 			/>
 		);
 	}
@@ -343,12 +256,7 @@ export const ZodSwitch: React.FC<{
 					setValue={setValue as UpdaterFunction<string>}
 					jsonPath={jsonPath}
 					schema={schema}
-					onSave={onSave as UpdaterFunction<string>}
-					defaultValue={defaultValue as string}
-					showSaveButton={showSaveButton}
 					onRemove={onRemove}
-					saving={saving}
-					saveDisabledByParent={saveDisabledByParent}
 					mayPad={mayPad}
 				/>
 			);
@@ -364,12 +272,7 @@ export const ZodSwitch: React.FC<{
 					value={value as unknown[]}
 					jsonPath={jsonPath}
 					schema={getEffectsInner(schema)}
-					defaultValue={defaultValue as unknown[]}
-					onSave={onSave as UpdaterFunction<unknown[]>}
-					showSaveButton={showSaveButton}
 					onRemove={onRemove}
-					saving={saving}
-					saveDisabledByParent={saveDisabledByParent}
 					mayPad={mayPad}
 				/>
 			);
@@ -381,11 +284,7 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue}
 				jsonPath={jsonPath}
 				schema={schema}
-				defaultValue={defaultValue}
-				onSave={onSave}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
 				mayPad={mayPad}
 			/>
 		);
@@ -395,15 +294,10 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodUnionEditor
 				schema={schema}
-				showSaveButton={showSaveButton}
 				jsonPath={jsonPath}
 				value={value}
-				defaultValue={defaultValue}
 				setValue={setValue}
-				onSave={onSave}
 				onRemove={onRemove}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
 		);
@@ -413,15 +307,10 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodOptionalEditor
 				jsonPath={jsonPath}
-				showSaveButton={showSaveButton}
-				defaultValue={defaultValue}
 				value={value}
 				setValue={setValue}
-				onSave={onSave}
 				onRemove={onRemove}
 				schema={schema}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
 		);
@@ -431,15 +320,10 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodNullableEditor
 				jsonPath={jsonPath}
-				showSaveButton={showSaveButton}
-				defaultValue={defaultValue}
 				value={value}
 				setValue={setValue}
-				onSave={onSave}
 				onRemove={onRemove}
 				schema={schema}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
 		);
@@ -449,15 +333,10 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodDefaultEditor
 				jsonPath={jsonPath}
-				showSaveButton={showSaveButton}
-				defaultValue={defaultValue}
 				value={value}
 				setValue={setValue}
-				onSave={onSave}
 				onRemove={onRemove}
 				schema={schema}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
 		);
@@ -466,17 +345,12 @@ export const ZodSwitch: React.FC<{
 	if (typeName === 'discriminatedUnion') {
 		return (
 			<ZodDiscriminatedUnionEditor
-				defaultValue={defaultValue as Record<string, unknown>}
 				mayPad={mayPad}
 				schema={schema}
 				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
 				value={value as Record<string, unknown>}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
-				onSave={onSave as UpdaterFunction<unknown>}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
-				showSaveButton={showSaveButton}
 			/>
 		);
 	}
@@ -488,12 +362,7 @@ export const ZodSwitch: React.FC<{
 				value={value as unknown[]}
 				jsonPath={jsonPath}
 				schema={schema}
-				defaultValue={defaultValue as unknown[]}
-				onSave={onSave as UpdaterFunction<unknown[]>}
-				showSaveButton={showSaveButton}
 				onRemove={onRemove}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
 		);
@@ -502,9 +371,7 @@ export const ZodSwitch: React.FC<{
 	return (
 		<ZonNonEditableValue
 			jsonPath={jsonPath}
-			showSaveButton={showSaveButton}
 			label={`${typeName} (not editable)`}
-			saving={saving}
 			mayPad={mayPad}
 		/>
 	);

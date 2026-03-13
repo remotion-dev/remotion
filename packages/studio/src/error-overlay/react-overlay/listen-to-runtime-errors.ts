@@ -74,7 +74,6 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 		// eslint-disable-next-line no-console
 		console.log('Hook order changed. Reloading app...');
 
-		window.remotion_unsavedProps = false;
 		reloadUrl();
 	} else {
 		setErrorsRef.current?.addError(error);

@@ -1,16 +1,11 @@
 import React, {useMemo, useState} from 'react';
-import {
-	useZodIfPossible,
-	useZodTypesIfPossible,
-} from '../../get-zod-if-possible';
-import {createZodValues} from './create-zod-values';
-import {deepEqual} from './deep-equal';
+import {useCallback} from 'react';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import {SchemaArrayItemSeparationLine} from './SchemaSeparationLine';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
-import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import {getArrayElement} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
@@ -27,34 +22,24 @@ export const ZodMatrixEditor: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: unknown[];
-	readonly defaultValue: unknown[];
 	readonly setValue: UpdaterFunction<unknown[]>;
-	readonly onSave: UpdaterFunction<unknown[]>;
-	readonly showSaveButton: boolean;
 	readonly onRemove: null | (() => void);
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	schema,
-	jsonPath,
-	setValue,
-	defaultValue,
-	value,
-	onSave,
-	showSaveButton,
-	onRemove,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
-	const {localValue, onChange, RevisionContextProvider, reset} = useLocalState({
-		unsavedValue: value,
-		schema,
-		setValue,
-		savedValue: defaultValue,
-	});
+}> = ({schema, jsonPath, setValue, value, onRemove, mayPad}) => {
+	const onChange: UpdaterFunction<unknown[]> = useCallback(
+		(
+			updater: (oldV: unknown[]) => unknown[],
+			{shouldSave}: {shouldSave: boolean},
+		) => {
+			setValue(updater, {shouldSave});
+		},
+		[setValue],
+	);
 
+	const zodValidation = useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
+	);
 	const [expanded, setExpanded] = useState(true);
 
 	const arrayElement = getArrayElement(schema);
@@ -68,101 +53,77 @@ export const ZodMatrixEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const zodTypes = useZodTypesIfPossible();
-
-	const isDefaultValue = useMemo(() => {
-		return deepEqual(localValue.value, defaultValue);
-	}, [defaultValue, localValue]);
-
-	const dimensions = Math.sqrt(localValue.value.length);
+	const dimensions = Math.sqrt(value.length);
 
 	if (!Number.isInteger(dimensions)) {
 		throw new Error('Invalid matrix');
 	}
 
 	const chunkedItems = useMemo(() => {
-		return localValue.value.reduce<number[][]>((acc, item, index) => {
+		return value.reduce<number[][]>((acc, item, index) => {
 			const chunkIndex = Math.floor(index / dimensions);
 			acc[chunkIndex] = acc[chunkIndex] || [];
 			acc[chunkIndex].push(item as number);
 			return acc;
 		}, [] as number[][]);
-	}, [localValue.value, dimensions]);
+	}, [value, dimensions]);
 
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
-				onReset={reset}
-				isDefaultValue={isDefaultValue}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
 				suffix={suffix}
-				onSave={() => {
-					onSave(() => localValue.value, false, false);
-				}}
-				saveDisabledByParent={saveDisabledByParent}
-				saving={saving}
-				showSaveButton={showSaveButton}
-				valid={localValue.zodValidation.success}
+				valid={zodValidation.success}
 				handleClick={() => setExpanded(!expanded)}
 			/>
 
 			{expanded ? (
-				<RevisionContextProvider>
-					<SchemaVerticalGuide isRoot={false}>
-						{chunkedItems.map((row, rowIndex) => {
-							return (
-								<React.Fragment
-									// eslint-disable-next-line react/no-array-index-key
-									key={`${rowIndex}${localValue.keyStabilityRevision}`}
-								>
-									<div style={rowStyle}>
-										{row.map((item, _index) => {
-											const actualIndex = rowIndex * dimensions + _index;
+				<SchemaVerticalGuide isRoot={false}>
+					{chunkedItems.map((row, rowIndex) => {
+						return (
+							<React.Fragment
+								// eslint-disable-next-line react/no-array-index-key
+								key={rowIndex}
+							>
+								<div style={rowStyle}>
+									{row.map((item, _index) => {
+										const actualIndex = rowIndex * dimensions + _index;
 
-											return (
-												<div
-													// eslint-disable-next-line react/no-array-index-key
-													key={`${_index}${localValue.keyStabilityRevision}`}
-													style={{flex: 1}}
-												>
-													<ZodArrayItemEditor
-														onChange={onChange}
-														value={item}
-														elementSchema={arrayElement}
-														index={actualIndex}
-														jsonPath={jsonPath}
-														defaultValue={
-															defaultValue?.[actualIndex] ??
-															createZodValues(arrayElement, z, zodTypes)
-														}
-														onSave={onSave}
-														showSaveButton={showSaveButton}
-														saving={saving}
-														saveDisabledByParent={saveDisabledByParent}
-														mayPad={mayPad}
-														mayRemove={false}
-													/>
-												</div>
-											);
-										})}
-									</div>
-								</React.Fragment>
-							);
-						})}
-						{value.length === 0 ? (
-							<SchemaArrayItemSeparationLine
-								schema={schema}
-								index={0}
-								onChange={onChange}
-								isLast
-								showAddButton
-							/>
-						) : null}
-					</SchemaVerticalGuide>
-				</RevisionContextProvider>
+										return (
+											<div
+												// eslint-disable-next-line react/no-array-index-key
+												key={_index}
+												style={{flex: 1}}
+											>
+												<ZodArrayItemEditor
+													onChange={onChange}
+													value={item}
+													elementSchema={arrayElement}
+													index={actualIndex}
+													jsonPath={jsonPath}
+													mayPad={mayPad}
+													mayRemove={false}
+												/>
+											</div>
+										);
+									})}
+								</div>
+							</React.Fragment>
+						);
+					})}
+					{value.length === 0 ? (
+						<SchemaArrayItemSeparationLine
+							schema={schema}
+							index={0}
+							onChange={onChange}
+							isLast
+							showAddButton
+						/>
+					) : null}
+				</SchemaVerticalGuide>
 			) : null}
-			<ZodFieldValidation path={jsonPath} localValue={localValue} />
+			<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 		</Fieldset>
 	);
 };

@@ -1,7 +1,6 @@
-import React from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
-import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import {getEffectsInner, getZodSchemaType} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
@@ -17,56 +16,44 @@ export const ZodEffectEditor: React.FC<{
 	readonly jsonPath: JSONPath;
 	readonly value: unknown;
 	readonly setValue: UpdaterFunction<unknown>;
-	readonly defaultValue: unknown;
-	readonly onSave: UpdaterFunction<unknown>;
-	readonly showSaveButton: boolean;
 	readonly onRemove: null | (() => void);
-	readonly saving: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	schema,
-	jsonPath,
-	value,
-	setValue: updateValue,
-	defaultValue,
-	onSave,
-	onRemove,
-	showSaveButton,
-	saving,
-	mayPad,
-}) => {
+}> = ({schema, jsonPath, value, setValue: updateValue, onRemove, mayPad}) => {
 	const typeName = getZodSchemaType(schema);
 	if (typeName !== 'effects') {
 		throw new Error('expected effect');
 	}
 
-	const {localValue, onChange} = useLocalState({
-		unsavedValue: value,
-		schema,
-		setValue: updateValue,
-		savedValue: defaultValue,
-	});
+	const onChange: UpdaterFunction<unknown> = useCallback(
+		(
+			updater: (oldV: unknown) => unknown,
+			{shouldSave}: {shouldSave: boolean},
+		) => {
+			updateValue(updater, {shouldSave});
+		},
+		[updateValue],
+	);
+
+	const zodValidation = useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
+	);
 
 	const innerSchema = getEffectsInner(schema);
 
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad}>
 			<div style={fullWidth}>
 				<ZodSwitch
 					value={value}
 					setValue={onChange}
 					jsonPath={jsonPath}
 					schema={innerSchema}
-					defaultValue={defaultValue}
-					onSave={onSave}
-					showSaveButton={showSaveButton}
 					onRemove={onRemove}
-					saving={saving}
-					saveDisabledByParent={!localValue.zodValidation.success}
 					mayPad={false}
 				/>
 			</div>
-			<ZodFieldValidation path={jsonPath} localValue={localValue} />
+			<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 		</Fieldset>
 	);
 };

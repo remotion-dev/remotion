@@ -4,9 +4,8 @@ import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
 import {useStaticFiles} from '../../use-static-files';
 import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
-import type {AnyZodSchema} from './zod-schema-type';
+import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -19,37 +18,24 @@ export const ZodStaticFileEditor: React.FC<{
 	readonly schema: AnyZodSchema;
 	readonly jsonPath: JSONPath;
 	readonly value: string;
-	readonly defaultValue: string;
 	readonly setValue: UpdaterFunction<string>;
-	readonly onSave: (updater: (oldState: string) => string) => void;
-	readonly showSaveButton: boolean;
 	readonly onRemove: null | (() => void);
-	readonly saving: boolean;
-	readonly saveDisabledByParent: boolean;
 	readonly mayPad: boolean;
-}> = ({
-	schema,
-	jsonPath,
-	setValue,
-	defaultValue,
-	value,
-	onSave,
-	showSaveButton,
-	onRemove,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-}) => {
-	const {
-		localValue,
-		onChange: setLocalValue,
-		reset,
-	} = useLocalState({
-		schema,
-		setValue,
-		unsavedValue: value,
-		savedValue: defaultValue,
-	});
+}> = ({schema, jsonPath, setValue, value, onRemove, mayPad}) => {
+	const onChange: UpdaterFunction<string> = useCallback(
+		(
+			updater: (oldV: string) => string,
+			{shouldSave}: {shouldSave: boolean},
+		) => {
+			setValue(updater, {shouldSave});
+		},
+		[setValue],
+	);
+
+	const zodValidation = useMemo(
+		() => zodSafeParse(schema, value),
+		[schema, value],
+	);
 
 	const isRoot = jsonPath.length === 0;
 	const staticFiles = useStaticFiles();
@@ -63,43 +49,29 @@ export const ZodStaticFileEditor: React.FC<{
 				keyHint: null,
 				leftItem: option.src === value ? <Checkmark /> : null,
 				onClick: (id: string) => {
-					setLocalValue(() => id, false, false);
+					onChange(() => id, {shouldSave: true});
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,
 				type: 'item',
 			};
 		});
-	}, [setLocalValue, staticFiles, value]);
-
-	const save = useCallback(() => {
-		onSave(() => value);
-	}, [onSave, value]);
+	}, [onChange, staticFiles, value]);
 
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
 				handleClick={null}
-				onSave={save}
-				showSaveButton={showSaveButton}
-				isDefaultValue={localValue.value === defaultValue}
-				onReset={reset}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
-				saving={saving}
-				valid={localValue.zodValidation.success}
-				saveDisabledByParent={saveDisabledByParent}
+				valid={zodValidation.success}
 				suffix={null}
 			/>
 
 			<div style={isRoot ? undefined : container}>
-				<Combobox
-					values={comboBoxValues}
-					selectedId={localValue.value}
-					title={value}
-				/>
+				<Combobox values={comboBoxValues} selectedId={value} title={value} />
 			</div>
-			<ZodFieldValidation path={jsonPath} localValue={localValue} />
+			<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />
 		</Fieldset>
 	);
 };

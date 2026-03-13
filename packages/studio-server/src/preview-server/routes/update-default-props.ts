@@ -1,12 +1,18 @@
 import {readFileSync, writeFileSync} from 'node:fs';
+import path from 'node:path';
+import {RenderInternals} from '@remotion/renderer';
 import type {
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
 } from '@remotion/studio-shared';
 import {updateDefaultProps} from '../../codemods/update-default-props';
+import {makeHyperlink} from '../../hyperlinks/make-link';
 import type {ApiHandler} from '../api-types';
+import {suppressHmrForFile} from '../hmr-suppression';
 import {getProjectInfo} from '../project-info';
+import {pushToUndoStack, suppressUndoStackInvalidation} from '../undo-stack';
 import {checkIfTypeScriptFile} from './can-update-default-props';
+import {warnAboutPrettierOnce} from './log-update';
 
 export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,
@@ -15,6 +21,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 	input: {compositionId, defaultProps, enumPaths},
 	remotionRoot,
 	entryPoint,
+	logLevel,
 }) => {
 	try {
 		const projectInfo = await getProjectInfo(remotionRoot, entryPoint);
@@ -24,14 +31,37 @@ export const updateDefaultPropsHandler: ApiHandler<
 
 		checkIfTypeScriptFile(projectInfo.rootFile);
 
-		const updated = await updateDefaultProps({
+		const fileContents = readFileSync(projectInfo.rootFile, 'utf-8');
+		const {output, formatted} = await updateDefaultProps({
 			compositionId,
-			input: readFileSync(projectInfo.rootFile, 'utf-8'),
+			input: fileContents,
 			newDefaultProps: JSON.parse(defaultProps),
 			enumPaths,
 		});
 
-		writeFileSync(projectInfo.rootFile, updated);
+		pushToUndoStack(projectInfo.rootFile, fileContents, logLevel);
+		suppressUndoStackInvalidation(projectInfo.rootFile);
+		suppressHmrForFile(projectInfo.rootFile);
+		writeFileSync(projectInfo.rootFile, output);
+
+		const fileRelativeToRoot = path.relative(
+			remotionRoot,
+			projectInfo.rootFile,
+		);
+		const locationLabel = `${fileRelativeToRoot}`;
+		const fileLink = makeHyperlink({
+			url: `file://${projectInfo.rootFile}`,
+			text: locationLabel,
+			fallback: locationLabel,
+		});
+		RenderInternals.Log.info(
+			{indent: false, logLevel},
+			`${RenderInternals.chalk.blueBright(`${fileLink}:`)} Updated default props for "${compositionId}"`,
+		);
+		if (!formatted) {
+			warnAboutPrettierOnce(logLevel);
+		}
+
 		return {
 			success: true,
 		};

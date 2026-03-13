@@ -1,4 +1,5 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import {Internals} from 'remotion';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {RULER_WIDTH} from '../state/editor-rulers';
@@ -11,6 +12,7 @@ import {
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
 import MobilePanel from './MobilePanel';
+import {ObserveDefaultProps} from './ObserveDefaultPropsContext';
 import {OptionsPanel} from './OptionsPanel';
 import {PreviewToolbar} from './PreviewToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
@@ -61,6 +63,8 @@ export const TopPanel: React.FC<{
 		useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
 
+	const {canvasContent} = useContext(Internals.CompositionManager);
+
 	const actualStateLeft = useResponsiveSidebarStatus();
 
 	const actualStateRight = useMemo((): 'expanded' | 'collapsed' => {
@@ -96,72 +100,81 @@ export const TopPanel: React.FC<{
 	const isMobileLayout = useMobileLayout();
 
 	return (
-		<div style={container}>
-			<div style={row}>
-				<SplitterContainer
-					minFlex={0.15}
-					maxFlex={0.4}
-					defaultFlex={0.2}
-					id="sidebar-to-preview"
-					orientation="vertical"
-				>
-					{actualStateLeft === 'expanded' ? (
-						isMobileLayout ? (
-							<MobilePanel onClose={onCollapseLeft}>
-								<ExplorerPanel readOnlyStudio={readOnlyStudio} />
-							</MobilePanel>
-						) : (
-							<SplitterElement sticky={null} type="flexer">
-								<ExplorerPanel readOnlyStudio={readOnlyStudio} />
-							</SplitterElement>
-						)
-					) : null}
-					{actualStateLeft === 'expanded' ? (
-						<SplitterHandle
-							allowToCollapse="left"
-							onCollapse={onCollapseLeft}
-						/>
-					) : null}
-					<SplitterElement sticky={null} type="anti-flexer">
-						<SplitterContainer
-							minFlex={0.5}
-							maxFlex={0.8}
-							defaultFlex={0.7}
-							id="canvas-to-right-sidebar"
-							orientation="vertical"
-						>
-							<SplitterElement sticky={null} type="flexer">
-								<div ref={drawRef} style={canvasContainerStyle}>
-									<CanvasIfSizeIsAvailable />
-								</div>
-							</SplitterElement>
-							{actualStateRight === 'expanded' ? (
-								<SplitterHandle
-									allowToCollapse="right"
-									onCollapse={onCollapseRight}
-								/>
-							) : null}
-							{actualStateRight === 'expanded' ? (
-								isMobileLayout ? (
-									<MobilePanel onClose={onCollapseRight}>
-										<OptionsPanel readOnlyStudio={readOnlyStudio} />
-									</MobilePanel>
-								) : (
-									<SplitterElement sticky={null} type="anti-flexer">
-										<OptionsPanel readOnlyStudio={readOnlyStudio} />
-									</SplitterElement>
-								)
-							) : null}
-						</SplitterContainer>
-					</SplitterElement>
-				</SplitterContainer>
+		<ObserveDefaultProps
+			compositionId={
+				canvasContent?.type === 'composition'
+					? canvasContent.compositionId
+					: null
+			}
+			readOnlyStudio={readOnlyStudio}
+		>
+			<div style={container}>
+				<div style={row}>
+					<SplitterContainer
+						minFlex={0.15}
+						maxFlex={0.4}
+						defaultFlex={0.2}
+						id="sidebar-to-preview"
+						orientation="vertical"
+					>
+						{actualStateLeft === 'expanded' ? (
+							isMobileLayout ? (
+								<MobilePanel onClose={onCollapseLeft}>
+									<ExplorerPanel readOnlyStudio={readOnlyStudio} />
+								</MobilePanel>
+							) : (
+								<SplitterElement sticky={null} type="flexer">
+									<ExplorerPanel readOnlyStudio={readOnlyStudio} />
+								</SplitterElement>
+							)
+						) : null}
+						{actualStateLeft === 'expanded' ? (
+							<SplitterHandle
+								allowToCollapse="left"
+								onCollapse={onCollapseLeft}
+							/>
+						) : null}
+						<SplitterElement sticky={null} type="anti-flexer">
+							<SplitterContainer
+								minFlex={0.5}
+								maxFlex={0.8}
+								defaultFlex={0.7}
+								id="canvas-to-right-sidebar"
+								orientation="vertical"
+							>
+								<SplitterElement sticky={null} type="flexer">
+									<div ref={drawRef} style={canvasContainerStyle}>
+										<CanvasIfSizeIsAvailable />
+									</div>
+								</SplitterElement>
+								{actualStateRight === 'expanded' ? (
+									<SplitterHandle
+										allowToCollapse="right"
+										onCollapse={onCollapseRight}
+									/>
+								) : null}
+								{actualStateRight === 'expanded' ? (
+									isMobileLayout ? (
+										<MobilePanel onClose={onCollapseRight}>
+											<OptionsPanel readOnlyStudio={readOnlyStudio} />
+										</MobilePanel>
+									) : (
+										<SplitterElement sticky={null} type="anti-flexer">
+											<OptionsPanel readOnlyStudio={readOnlyStudio} />
+										</SplitterElement>
+									)
+								) : null}
+							</SplitterContainer>
+						</SplitterElement>
+					</SplitterContainer>
+				</div>
+				<PreviewToolbar
+					bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
+					readOnlyStudio={readOnlyStudio}
+				/>
+				<CurrentCompositionKeybindings readOnlyStudio={readOnlyStudio} />
+				<TitleUpdater />
 			</div>
-			<PreviewToolbar
-				bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
-				readOnlyStudio={readOnlyStudio}
-			/>
-			<CurrentCompositionKeybindings readOnlyStudio={readOnlyStudio} />
-			<TitleUpdater />
-		</div>
+		</ObserveDefaultProps>
 	);
 };

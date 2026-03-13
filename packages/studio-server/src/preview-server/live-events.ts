@@ -6,6 +6,7 @@ import type {
 import type {LogLevel} from '@remotion/renderer';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {printServerReadyComment} from '../server-ready';
+import {unsubscribeClientDefaultPropsWatchers} from './default-props-watchers';
 import {unsubscribeClientFileExistenceWatchers} from './file-existence-watchers';
 import {unsubscribeClientSequencePropsWatchers} from './sequence-props-watchers';
 
@@ -16,6 +17,7 @@ type Client = {
 
 export type LiveEventsServer = {
 	sendEventToClient: (event: EventSourceEvent) => void;
+	sendEventToClientId: (clientId: string, event: EventSourceEvent) => void;
 	router: (request: IncomingMessage, response: ServerResponse) => Promise<void>;
 	closeConnections: () => Promise<void>;
 };
@@ -59,6 +61,7 @@ export const makeLiveEventsRouter = (logLevel: LogLevel): LiveEventsServer => {
 		}
 
 		request.on('close', () => {
+			unsubscribeClientDefaultPropsWatchers(clientId);
 			unsubscribeClientFileExistenceWatchers(clientId);
 			unsubscribeClientSequencePropsWatchers(clientId);
 			clients = clients.filter((client) => client.id !== clientId);
@@ -84,8 +87,16 @@ export const makeLiveEventsRouter = (logLevel: LogLevel): LiveEventsServer => {
 		});
 	};
 
+	const sendEventToClientId = (clientId: string, event: EventSourceEvent) => {
+		const client = clients.find((c) => c.id === clientId);
+		if (client) {
+			client.response.write(serializeMessage(event));
+		}
+	};
+
 	return {
 		sendEventToClient,
+		sendEventToClientId,
 		router,
 		closeConnections: () => {
 			return Promise.all(

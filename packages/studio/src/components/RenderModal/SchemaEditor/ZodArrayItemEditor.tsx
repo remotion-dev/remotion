@@ -11,71 +11,38 @@ export const ZodArrayItemEditor: React.FC<{
 	elementSchema: AnyZodSchema;
 	index: number;
 	value: unknown;
-	defaultValue: unknown;
-	onSave: UpdaterFunction<unknown[]>;
-	showSaveButton: boolean;
-	saving: boolean;
-	saveDisabledByParent: boolean;
 	mayPad: boolean;
 	mayRemove: boolean;
-}> = ({
-	elementSchema,
-	onChange,
-	jsonPath,
-	index,
-	value,
-	defaultValue,
-	onSave: onSaveObject,
-	showSaveButton,
-	saving,
-	saveDisabledByParent,
-	mayPad,
-	mayRemove,
-}) => {
+}> = ({elementSchema, onChange, jsonPath, index, value, mayPad, mayRemove}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
 	}
 
 	const onRemove = useCallback(() => {
-		onChange(
-			(oldV) => [...oldV.slice(0, index), ...oldV.slice(index + 1)],
-			false,
-			true,
-		);
+		onChange((oldV) => [...oldV.slice(0, index), ...oldV.slice(index + 1)], {
+			shouldSave: true,
+		});
 	}, [index, onChange]);
 
 	const setValue = useCallback(
-		(val: ((newV: unknown) => unknown) | unknown) => {
+		(
+			val: ((newV: unknown) => unknown) | unknown,
+			{shouldSave}: {shouldSave: boolean},
+		) => {
 			onChange(
 				(oldV) => [
 					...oldV.slice(0, index),
 					typeof val === 'function' ? val(oldV[index]) : val,
 					...oldV.slice(index + 1),
 				],
-				false,
-				false,
+				{shouldSave},
 			);
 		},
 		[index, onChange],
 	);
 
 	const newJsonPath = useMemo(() => [...jsonPath, index], [index, jsonPath]);
-
-	const onSave = useCallback(
-		(updater: (oldState: unknown) => unknown) => {
-			onSaveObject(
-				(oldV) => [
-					...oldV.slice(0, index),
-					updater(oldV[index]),
-					...oldV.slice(index + 1),
-				],
-				false,
-				false,
-			);
-		},
-		[index, onSaveObject],
-	);
 
 	return (
 		<div>
@@ -84,12 +51,7 @@ export const ZodArrayItemEditor: React.FC<{
 				schema={elementSchema}
 				value={value}
 				setValue={setValue}
-				defaultValue={defaultValue}
-				onSave={onSave}
-				showSaveButton={showSaveButton}
 				onRemove={mayRemove ? onRemove : null}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
 			/>
 		</div>

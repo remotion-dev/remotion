@@ -55,6 +55,7 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
+import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
 import {useEncodableAudioCodecs} from './use-encodable-audio-codecs';
 import {useEncodableVideoCodecs} from './use-encodable-video-codecs';
 import {WebRendererExperimentalBadge} from './WebRendererExperimentalBadge';
@@ -224,14 +225,19 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	);
 	const [frame, setFrame] = useState(() => initialFrame);
 	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
-	const [inputProps, setInputProps] = useState(() => defaultProps);
+	const [inputProps, _setInputProps] = useState(() => defaultProps);
+	const setInputProps: UpdaterFunction<Record<string, unknown>> = useCallback(
+		(updater) => {
+			_setInputProps(updater);
+		},
+		[],
+	);
 	const [delayRenderTimeout, setDelayRenderTimeout] = useState(
 		initialDelayRenderTimeout ?? 30000,
 	);
 	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
 		number | null
 	>(initialMediaCacheSizeInBytes);
-	const [saving, setSaving] = useState(false);
 
 	// Video-specific state
 	const [codec, setCodec] = useState<WebRendererVideoCodec>(
@@ -729,11 +735,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							defaultProps={inputProps}
 							setDefaultProps={setInputProps}
 							unresolvedComposition={unresolvedComposition}
-							mayShowSaveButton={false}
 							propsEditType="input-props"
-							saving={saving}
-							setSaving={setSaving}
-							readOnlyStudio={false}
+							canSaveDefaultProps={{
+								canUpdate: false,
+								reason: 'render dialogue',
+								determined: false,
+							}}
 						/>
 					) : tab === 'picture' ? (
 						<WebRenderModalPicture

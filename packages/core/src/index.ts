@@ -93,7 +93,6 @@ declare global {
 		siteVersion: '11';
 		remotion_version: string;
 		remotion_imported: string | boolean;
-		remotion_unsavedProps: boolean | undefined;
 	}
 }
 

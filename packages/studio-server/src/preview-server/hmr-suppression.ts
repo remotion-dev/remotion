@@ -1,7 +1,10 @@
-const suppressedFiles = new Set<string>();
+const suppressedFiles = new Map<string, number>();
 
 export function suppressHmrForFile(absolutePath: string) {
-	suppressedFiles.add(absolutePath);
+	suppressedFiles.set(
+		absolutePath,
+		(suppressedFiles.get(absolutePath) ?? 0) + 1,
+	);
 }
 
 export function shouldSuppressHmr(filename: string | null): boolean {
@@ -9,8 +12,14 @@ export function shouldSuppressHmr(filename: string | null): boolean {
 		return false;
 	}
 
-	if (suppressedFiles.has(filename)) {
-		suppressedFiles.delete(filename);
+	const count = suppressedFiles.get(filename) ?? 0;
+	if (count > 0) {
+		if (count === 1) {
+			suppressedFiles.delete(filename);
+		} else {
+			suppressedFiles.set(filename, count - 1);
+		}
+
 		return true;
 	}
 

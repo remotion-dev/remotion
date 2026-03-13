@@ -43,8 +43,6 @@ export const needsResolution = (composition: AnyComposition) => {
 	return Boolean(composition.calculateMetadata);
 };
 
-export const PROPS_UPDATED_EXTERNALLY = 'remotion.propsUpdatedExternally';
-
 export const useResolvedVideoConfig = (
 	preferredCompositionId: string | null,
 ): VideoConfigState | null => {
