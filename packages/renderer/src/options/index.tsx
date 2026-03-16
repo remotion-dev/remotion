@@ -30,8 +30,11 @@ import {experimentalClientSideRenderingOption} from './experimental-client-side-
 import {experimentalVisualModeOption} from './experimental-visual-mode';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
+import {browserArgsOption} from './browser-args';
+import {forceOption} from './force';
 import {forceNewStudioOption} from './force-new-studio';
 import {framesOption} from './frames';
+import {helpOption} from './help';
 import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
@@ -55,6 +58,7 @@ import {offthreadVideoThreadsOption} from './offthreadvideo-threads';
 import {onBrowserDownloadOption} from './on-browser-download';
 import type {AnyRemotionOption} from './option';
 import {outDirOption} from './out-dir';
+import {outputOption} from './output';
 import {overrideDurationOption} from './override-duration';
 import {overrideFpsOption} from './override-fps';
 import {overrideHeightOption} from './override-height';
@@ -62,10 +66,13 @@ import {overrideWidthOption} from './override-width';
 import {overwriteOption} from './overwrite';
 import {packageManagerOption} from './package-manager';
 import {pixelFormatOption} from './pixel-format';
+import {pngOption} from './png';
 import {portOption} from './port';
 import {preferLosslessAudioOption} from './prefer-lossless';
 import {propsOption} from './props';
 import {proResProfileOption} from './prores-profile';
+import {qualityOption} from './quality';
+import {quietOption} from './quiet';
 import {publicDirOption} from './public-dir';
 import {publicLicenseKeyOption} from './public-license-key';
 import {publicPathOption} from './public-path';
@@ -177,7 +184,15 @@ export const allOptions = {
 	propsOption,
 	configOption,
 	browserOption,
+	outputOption,
+	quietOption,
+	helpOption,
+	forceOption,
+	browserArgsOption,
+	pngOption,
+	qualityOption,
 };
+
 
 export type AvailableOptions = keyof typeof allOptions;
 export type TypeOfOption<Type> =

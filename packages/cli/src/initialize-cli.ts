@@ -4,7 +4,7 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import {loadConfig} from './get-config-file-name';
 import {makeHyperlink} from './hyperlinks/make-link';
 import {Log} from './log';
-import {parseCommandLine} from './parse-command-line';
+import {parseCommandLine, warnAboutUnknownFlags} from './parse-command-line';
 import {parsedCli} from './parsed-cli';
 
 export const initializeCli = async (
@@ -16,6 +16,7 @@ export const initializeCli = async (
 	const logLevel = BrowserSafeApis.options.logLevelOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	warnAboutUnknownFlags(logLevel);
 	// Only now Log.verbose is available
 	Log.verbose(
 		{indent: false, logLevel},

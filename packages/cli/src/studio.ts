@@ -157,7 +157,7 @@ export const studioCommand = async (
 
 	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),
-		browserArgs: parsedCli['browser-args'],
+		browserArgs: parsedCli['browser-args'] ?? '',
 		browserFlag: browserOption.getValue({commandLine: parsedCli}).value ?? '',
 		logLevel,
 		shouldOpenBrowser: !noOpenOption.getValue({commandLine: parsedCli}).value,

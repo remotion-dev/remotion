@@ -76,6 +76,14 @@ const {
 	propsOption,
 	configOption,
 	browserOption,
+	outputOption,
+	quietOption,
+	helpOption,
+	forceOption,
+	browserArgsOption,
+	pngOption,
+	qualityOption,
+	licenseKeyOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -125,19 +133,19 @@ export type CommandLineOptions = {
 	[audioCodecOption.cliFlag]: AudioCodec;
 	[publicPathOption.cliFlag]: string;
 	[crfOption.cliFlag]: TypeOfOption<typeof crfOption>;
-	output: string | undefined;
+	[outputOption.cliFlag]: TypeOfOption<typeof outputOption>;
 	[overwriteOption.cliFlag]: TypeOfOption<typeof overwriteOption>;
-	png: boolean;
+	[pngOption.cliFlag]: TypeOfOption<typeof pngOption>;
 	[propsOption.cliFlag]: TypeOfOption<typeof propsOption>;
-	quality: number;
+	[qualityOption.cliFlag]: TypeOfOption<typeof qualityOption>;
 	[jpegQualityOption.cliFlag]: TypeOfOption<typeof jpegQualityOption>;
 	[framesOption.cliFlag]: string | number;
 	[scaleOption.cliFlag]: TypeOfOption<typeof scaleOption>;
 	[imageSequenceOption.cliFlag]: TypeOfOption<typeof imageSequenceOption>;
-	quiet: boolean;
+	[quietOption.cliFlag]: TypeOfOption<typeof quietOption>;
 	q: boolean;
 	[logLevelOption.cliFlag]: TypeOfOption<typeof logLevelOption>;
-	help: boolean;
+	[helpOption.cliFlag]: TypeOfOption<typeof helpOption>;
 	[portOption.cliFlag]: TypeOfOption<typeof portOption>;
 	[stillFrameOption.cliFlag]: TypeOfOption<typeof stillFrameOption>;
 	[headlessOption.cliFlag]: TypeOfOption<typeof headlessOption>;
@@ -165,7 +173,7 @@ export type CommandLineOptions = {
 	[webpackPollOption.cliFlag]: TypeOfOption<typeof webpackPollOption>;
 	[noOpenOption.cliFlag]: TypeOfOption<typeof noOpenOption>;
 	[browserOption.cliFlag]: TypeOfOption<typeof browserOption>;
-	['browser-args']: string;
+	[browserArgsOption.cliFlag]: TypeOfOption<typeof browserArgsOption>;
 	[userAgentOption.cliFlag]: TypeOfOption<typeof userAgentOption>;
 	[outDirOption.cliFlag]: TypeOfOption<typeof outDirOption>;
 	[audioLatencyHintOption.cliFlag]: AudioContextLatencyCategory;
@@ -179,7 +187,7 @@ export type CommandLineOptions = {
 	[imageSequencePatternOption.cliFlag]: TypeOfOption<
 		typeof imageSequencePatternOption
 	>;
-	'license-key': string;
+	[licenseKeyOption.cliFlag]: TypeOfOption<typeof licenseKeyOption>;
 	[publicLicenseKeyOption.cliFlag]: string;
 	[forceNewStudioOption.cliFlag]: TypeOfOption<typeof forceNewStudioOption>;
 };
@@ -187,9 +195,11 @@ export type CommandLineOptions = {
 export const BooleanFlags = [
 	overwriteOption.cliFlag,
 	imageSequenceOption.cliFlag,
-	'help',
-	'quiet',
+	helpOption.cliFlag,
+	quietOption.cliFlag,
 	'q',
+	forceOption.cliFlag,
+	pngOption.cliFlag,
 	mutedOption.cliFlag,
 	enforceAudioOption.cliFlag,
 	disableWebSecurityOption.cliFlag,
