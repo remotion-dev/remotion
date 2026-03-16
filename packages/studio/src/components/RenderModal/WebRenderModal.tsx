@@ -1,5 +1,6 @@
 import type {LogLevel} from '@remotion/renderer';
 import {getDefaultOutLocation} from '@remotion/studio-shared';
+import {WARNING_COLOR} from '../../helpers/colors';
 import type {
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
@@ -161,6 +162,53 @@ const validateOutnameForStill = ({
 	} catch (err) {
 		return {valid: false, error: err as Error};
 	}
+};
+
+const isLocalhostRender = (): boolean => {
+	if (typeof window === 'undefined') {
+		return false;
+	}
+
+	return (
+		window.location.hostname === 'localhost' ||
+		window.location.hostname === '127.0.0.1'
+	);
+};
+
+const devBadgeStyle: React.CSSProperties = {
+	display: 'inline-flex',
+	alignItems: 'center',
+	fontSize: 12,
+	fontFamily: 'sans-serif',
+	padding: '2px 8px',
+	borderRadius: 4,
+	backgroundColor: 'rgba(46, 204, 113, 0.15)',
+	color: '#2ecc71',
+	fontWeight: 'bold',
+	flexShrink: 0,
+};
+
+const prodBadgeStyle: React.CSSProperties = {
+	display: 'inline-flex',
+	alignItems: 'center',
+	fontSize: 12,
+	fontFamily: 'sans-serif',
+	padding: '2px 8px',
+	borderRadius: 4,
+	backgroundColor: 'rgba(241, 196, 15, 0.15)',
+	color: WARNING_COLOR,
+	fontWeight: 'bold',
+	flexShrink: 0,
+};
+
+const RenderEnvironmentBadge: React.FC = () => {
+	if (isLocalhostRender()) {
+		return <div style={devBadgeStyle}>Development render · Not charged</div>;
+	}
+
+	return (
+		<div style={prodBadgeStyle}>Production render · Usage will be billed</div>
+	);
 };
 
 // TODO: Switch to server-side rendering
@@ -629,6 +677,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			</div>
 			<div style={containerStyle}>
 				<WebRendererExperimentalBadge />
+				<div style={flexer} />
+				<RenderEnvironmentBadge />
 			</div>
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
