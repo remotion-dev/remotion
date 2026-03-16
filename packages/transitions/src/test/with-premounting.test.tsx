@@ -143,3 +143,34 @@ test('should correctly render against report #6027', () => {
 	const outerHTML = renderForFrame(138, <BugReport6027 />);
 	expect(outerHTML).toContain('<div>0</div>');
 });
+
+// Regression test for https://github.com/remotion-dev/remotion/issues/6727
+// premountFor should not cascade from parent to child Sequences
+const BugReport6727: React.FC = () => {
+	return (
+		<Sequence from={15} premountFor={15}>
+			{Array.from({length: 10}, (_, i) => (
+				<Sequence key={i} from={i * 3} durationInFrames={3} premountFor={15}>
+					<div data-child-id={i} />
+				</Sequence>
+			))}
+		</Sequence>
+	);
+};
+
+test('Should not cascade premountFor in nested Sequences - issue #6727', () => {
+	// Parent starts at abs frame 15 with premountFor=15 (premounts from frame 0).
+	// Each child has premountFor=15, so child i premounts when the absolute frame
+	// is in [abs_start - 15, abs_start - 1] = [i*3, 15 + i*3 - 1].
+	//
+	// At frame 0: only child 0 (abs start=15, window [0,14]) should be premounted.
+	// Before the fix, 6 children were premounted due to cascading.
+	const frame0HTML = renderForFrame(0, <BugReport6727 />);
+	const premountedAt0 = (frame0HTML.match(/data-child-id/g) ?? []).length;
+	expect(premountedAt0).toBe(1);
+
+	// At frame 3: children 0 (window [0,14]) and 1 (window [3,17]) should be premounted.
+	const frame3HTML = renderForFrame(3, <BugReport6727 />);
+	const premountedAt3 = (frame3HTML.match(/data-child-id/g) ?? []).length;
+	expect(premountedAt3).toBe(2);
+});
