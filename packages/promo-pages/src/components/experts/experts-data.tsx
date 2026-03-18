@@ -617,4 +617,34 @@ export const experts: Expert[] = [
 			</div>
 		),
 	},
+	{
+		slug: 'kevin-sofyan',
+		name: 'Kevin Sofyan',
+		image: '/img/freelancers/kevin.png',
+		website: null,
+		x: null,
+		github: 'ethhandy',
+		linkedin: null,
+		email: 'kevin.cakefactory@gmail.com',
+		videocall: null,
+		since: new Date('2026-03-18').getTime(),
+		description: (
+			<div>
+				Engineer with 9 years of experience, passionate about Remotion.
+				Contributed to{' '}
+				<a target={'_blank'} href="https://adlove.ai">
+					AdLove AI
+				</a>
+				,{' '}
+				<a target={'_blank'} href="https://feedblast.ai">
+					FeedBlast AI
+				</a>
+				, and{' '}
+				<a target={'_blank'} href="https://viewmax.io">
+					ViewMax.io
+				</a>
+				. Available for Remotion projects and video generation work.
+			</div>
+		),
+	},
 ];
