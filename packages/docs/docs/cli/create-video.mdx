@@ -51,7 +51,7 @@ When combined with `--yes`, skip installing TailwindCSS. Without `--yes`, this f
 npx create-video --yes --blank --no-tailwind my-video
 ```
 
-### `--tmp`
+### `--tmp`<AvailableFrom v="4.0.214" />
 
 Create the project in a temporary directory instead of specifying a directory name.
 
@@ -81,8 +81,8 @@ npx create-video --yes --blank my-video
 
 When using `--yes`:
 
-- TailwindCSS is installed if the template supports it. Pass `--no-tailwind` to skip it.
-- [Agent skills](/docs/ai/skills) are not installed. You can add them manually afterwards by running `npx skills add remotion-dev/skills` in the project directory.
+- TailwindCSS is installed if the template supports it. Pass [`--no-tailwind`](#--no-tailwind) to skip it.
+- [Agent skills](/docs/ai/skills) are not installed. You can add them manually afterwards by running [`npx skills add remotion-dev/skills`](/docs/cli/skills) in the project directory.
 - The editor is not opened after scaffolding.
 - The command fails if you are already inside a Git repository.
 
