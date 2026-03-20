@@ -320,6 +320,7 @@ export const internalBundle = async (
 			await runWebpack();
 		} catch (err) {
 			if (looksLikeCacheCorruption(err) && actualArgs.enableCaching !== false) {
+				// eslint-disable-next-line no-console
 				console.warn(
 					'Webpack cache appears to be corrupted. Clearing cache and retrying...',
 				);
