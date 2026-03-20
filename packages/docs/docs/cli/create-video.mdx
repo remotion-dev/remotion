@@ -5,6 +5,8 @@ sidebar_label: create-video
 crumb: CLI Reference
 ---
 
+import {CreateVideoTemplateFlags} from '../../components/CreateVideoTemplateFlags';
+
 Scaffold a new Remotion project.
 
 ```bash
@@ -65,7 +67,7 @@ Pass a template name as a flag to skip the template selection prompt.
 npx create-video --blank my-video
 ```
 
-Available templates: `--blank`, `--hello-world`, `--next`, `--next-no-tailwind`, `--next-pages-dir`, `--vercel`, `--recorder`, `--prompt-to-motion-graphics`, `--javascript`, `--render-server`, `--electron`, `--react-router`, `--three`, `--still`, `--audiogram`, `--music-visualization`, `--prompt-to-video`, `--skia`, `--overlay`, `--code-hike`, `--stargazer`, `--tiktok`.
+Available templates: <CreateVideoTemplateFlags />.
 
 ## Non-interactive mode
 
