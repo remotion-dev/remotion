@@ -21,7 +21,7 @@ The directory in which the project should be created.
 
 ## Flags
 
-### `--yes`
+### `--yes`<AvailableFrom v="4.0.439" />
 
 Enable non-interactive mode. All prompts are skipped with sensible defaults.
 
@@ -37,11 +37,11 @@ When used:
 npx create-video --yes --blank my-video
 ```
 
-### `-y`
+### `-y`<AvailableFrom v="4.0.439" />
 
 Alias for `--yes`.
 
-### `--no-tailwind`
+### `--no-tailwind`<AvailableFrom v="4.0.439" />
 
 When combined with `--yes`, skip installing TailwindCSS. Without `--yes`, this flag has no effect because TailwindCSS is offered interactively.
 
@@ -67,27 +67,32 @@ npx create-video --blank my-video
 
 Available templates: `--blank`, `--hello-world`, `--next`, `--next-no-tailwind`, `--next-pages-dir`, `--vercel`, `--recorder`, `--prompt-to-motion-graphics`, `--javascript`, `--render-server`, `--electron`, `--react-router`, `--three`, `--still`, `--audiogram`, `--music-visualization`, `--prompt-to-video`, `--skia`, `--overlay`, `--code-hike`, `--stargazer`, `--tiktok`.
 
-## Examples
+## Non-interactive mode
 
-Interactive mode (default):
+By passing `--yes` (or `-y`), all prompts are skipped and the project is created with sensible defaults. This is useful for scripting and AI agents like Claude Code.
 
-```bash
-npx create-video
-```
-
-Non-interactive with TailwindCSS:
+A template flag and a directory argument are required.
 
 ```bash
 npx create-video --yes --blank my-video
 ```
 
-Non-interactive without TailwindCSS:
+When using `--yes`:
+
+- TailwindCSS is installed if the template supports it. Pass `--no-tailwind` to skip it.
+- [Agent skills](/docs/ai/skills) are not installed. You can add them manually afterwards by running `npx skills add remotion-dev/skills` in the project directory.
+- The editor is not opened after scaffolding.
+- The command fails if you are already inside a Git repository.
+
+### Examples
+
+Without TailwindCSS:
 
 ```bash
 npx create-video --yes --blank --no-tailwind my-video
 ```
 
-Non-interactive in a temporary directory:
+In a temporary directory:
 
 ```bash
 npx create-video --yes --blank --tmp
