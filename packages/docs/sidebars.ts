@@ -13,6 +13,7 @@ const sidebars: SidebarsConfig = {
 			},
 			collapsed: true,
 			items: [
+				'cli/create-video',
 				'cli/studio',
 				'cli/render',
 				'cli/still',

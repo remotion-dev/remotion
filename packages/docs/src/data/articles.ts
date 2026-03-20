@@ -693,6 +693,15 @@ export const articles = [
 		slug: 'cli/compositions',
 	},
 	{
+		id: 'cli/create-video',
+		title: 'npx create-video',
+		relativePath: 'docs/cli/create-video.mdx',
+		compId: 'articles-docs-cli-create-video',
+		crumb: 'CLI Reference',
+		noAi: false,
+		slug: 'cli/create-video',
+	},
+	{
 		id: 'ffmpeg',
 		title: 'npx remotion ffmpeg',
 		relativePath: 'docs/cli/ffmpeg.mdx',

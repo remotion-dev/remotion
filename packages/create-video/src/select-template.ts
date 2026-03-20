@@ -9,14 +9,21 @@ const ALL_TEMPLATES = [...FEATURED_TEMPLATES, ...PAID_TEMPLATES];
 
 type Options = {
 	tmp: boolean;
+	yes: boolean;
+	'no-tailwind': boolean;
 };
 
 const parsed = minimist<Options>(process.argv.slice(2), {
-	boolean: [...ALL_TEMPLATES.map((f) => f.cliId), 'tmp'],
+	boolean: [...ALL_TEMPLATES.map((f) => f.cliId), 'tmp', 'yes', 'no-tailwind'],
 	string: ['_'],
+	alias: {y: 'yes'},
 });
 
 export const isTmpFlagSelected = () => parsed.tmp;
+
+export const isYesFlagSelected = () => parsed.yes;
+
+export const isNoTailwindFlagSelected = () => parsed['no-tailwind'];
 
 export const getPositionalArguments = () => parsed._;
 
@@ -32,6 +39,12 @@ export const isFlagSelected = ALL_TEMPLATES.find((f) => {
 export const selectTemplate = async () => {
 	if (isFlagSelected) {
 		return isFlagSelected;
+	}
+
+	if (isYesFlagSelected()) {
+		throw new Error(
+			'A template must be specified when using --yes. Example: --yes --blank',
+		);
 	}
 
 	return (await selectAsync({
