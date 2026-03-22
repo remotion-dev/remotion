@@ -10,6 +10,7 @@
 [![Discord Shield](https://img.shields.io/discord/809501355504959528?color=000000&label=Discord&logo=fdgssdf)](https://remotion.dev/discord)
 [![NPM Version](https://img.shields.io/npm/v/remotion.svg?style=flat&color=black)](https://www.npmjs.org/package/remotion)
 [![NPM Downloads](https://img.shields.io/npm/dm/remotion.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/remotion?minimal=true)
+[![gitcgr](https://gitcgr.com/badge/remotion-dev/remotion.svg)](https://gitcgr.com/remotion-dev/remotion)
 <a href="https://twitter.com/remotion"><img src="https://img.shields.io/twitter/follow/remotion?label=Twitter&color=black" alt="Twitter"></a>
 
 Remotion is a framework for **creating videos programmatically using React.**
