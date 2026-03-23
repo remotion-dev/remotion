@@ -1,25 +1,28 @@
 import {CliInternals} from '@remotion/cli';
 import {getSites} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
+import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {dateString} from '../../helpers/date-string';
 
 export const SITES_LS_SUBCOMMAND = 'ls';
 
-const COLS: [number, number, number, number] = [20, 30, 10, 15];
+const COLS: [number, number, number, number, number] = [20, 30, 10, 15, 15];
 
-const logRow = (data: [string, string, string, string]) => {
+const logRow = (data: [string, string, string, string, string]) => {
 	return [
 		data[0].padEnd(COLS[0], ' '),
 		data[1].padEnd(COLS[1], ' '),
 		data[2].padEnd(COLS[2], ' '),
 		String(data[3]).padEnd(COLS[3], ' '),
+		String(data[4]).padEnd(COLS[4], ' '),
 	].join('');
 };
 
 export const sitesLsSubcommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
-	const {sites, buckets} = await getSites({region});
+	const compatibleOnly = parsedLambdaCli['compatible-only'] || false;
+	const {sites, buckets} = await getSites({region, compatibleOnly});
 
 	if (buckets.length > 1 && !CliInternals.quietFlagProvided()) {
 		CliInternals.Log.warn(
@@ -52,7 +55,7 @@ export const sitesLsSubcommand = async (logLevel: LogLevel) => {
 	CliInternals.Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			logRow(['Site Name', 'Bucket', 'Size', 'Last updated']),
+			logRow(['Site Name', 'Bucket', 'Size', 'Last updated', 'Version']),
 		),
 	);
 
@@ -64,6 +67,7 @@ export const sitesLsSubcommand = async (logLevel: LogLevel) => {
 				site.bucketName,
 				CliInternals.formatBytes(site.sizeInBytes),
 				site.lastModified ? dateString(new Date(site.lastModified)) : 'n/a',
+				site.version ?? 'n/a',
 			]),
 		);
 		CliInternals.Log.info({indent: false, logLevel}, site.serveUrl);

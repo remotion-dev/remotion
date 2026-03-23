@@ -475,25 +475,50 @@ export const experts: Expert[] = [
 		x: null,
 		github: 'sambowenhughes',
 		linkedin: 'in/sambowenhughes/',
-		email: 'sambowenhughes@icloud.com',
-		videocall: 'https://calendly.com/hello-reactvideoeditor/30min',
+		email: 'sam@reactvideoeditor.com',
+		videocall: 'https://calendly.com/reactvideoeditor/30min',
 		since: new Date('2025-06-03').getTime(),
 		description: (
 			<div>
-				Full-stack engineer with 10+ years experience. I built{' '}
-				<a
-					target={'_blank'}
-					href="https://reactvideoeditor.com?utm_source=remotion"
-				>
-					React Video Editor
-				</a>{' '}
-				and{' '}
-				<a target={'_blank'} href="https://clippkit.com?utm_source=remotion">
-					Clippkit
-				</a>
-				.<br />I can help with anything Remotion-related, or just be a reliable
-				engineering partner if you need someone who moves fast and builds things
-				right – SaaS, design, backend, whatever&apos;s needed.
+				<p>
+					Experienced engineer with 10+ years building advanced software
+					products. Creator of{' '}
+					<a target="_blank" href="https://reactvideoeditor.com">
+						React Video Editor
+					</a>
+					and{' '}
+					<a target="_blank" href="https://clippkit.com">
+						Clippkit
+					</a>
+					.
+				</p>
+
+				<p>
+					I work with companies building products with{' '}
+					<strong>Remotion at their core</strong>. Custom video editors,
+					automated video generation tools, and scalable rendering pipelines.
+				</p>
+
+				<ul>
+					<li>
+						<strong>Custom video editors</strong> built with Remotion
+					</li>
+					<li>
+						<strong>Automated video generation</strong> systems
+					</li>
+					<li>
+						<strong>Rendering infrastructure</strong> and media pipelines
+					</li>
+					<li>
+						<strong>UI/UX and full-stack product development</strong>
+					</li>
+				</ul>
+
+				<p>
+					If you{"'"}re building software around video, or just need a reliable
+					engineering partner who moves fast and builds things right, feel free
+					to reach out.
+				</p>
 			</div>
 		),
 	},

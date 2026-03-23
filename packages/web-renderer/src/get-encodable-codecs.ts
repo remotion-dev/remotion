@@ -12,6 +12,8 @@ import {
 	type WebRendererQuality,
 	type WebRendererVideoCodec,
 } from './mediabunny-mappings';
+import {ensureAacEncoderRegistered} from './register-aac-encoder';
+import {ensureFlacEncoderRegistered} from './register-flac-encoder';
 import {ensureMp3EncoderRegistered} from './register-mp3-encoder';
 
 export type GetEncodableVideoCodecsOptions = {
@@ -50,6 +52,14 @@ export const getEncodableAudioCodecs = async (
 
 	if (supported.includes('mp3')) {
 		await ensureMp3EncoderRegistered();
+	}
+
+	if (supported.includes('aac')) {
+		await ensureAacEncoderRegistered();
+	}
+
+	if (supported.includes('flac')) {
+		await ensureFlacEncoderRegistered();
 	}
 
 	const resolvedBitrate = options?.audioBitrate

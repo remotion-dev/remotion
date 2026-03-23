@@ -93,3 +93,155 @@ describe('RGB', () => {
 		).toBe('rgba(128, 128, 128, 1)');
 	});
 });
+
+describe('oklch', () => {
+	test('oklch black', () => {
+		expect(interpolateColors(1, [0, 1], ['oklch(0 0 0)', 'black'])).toBe(
+			'rgba(0, 0, 0, 1)',
+		);
+	});
+
+	test('oklch white', () => {
+		expect(interpolateColors(1, [0, 1], ['black', 'oklch(1 0 0)'])).toBe(
+			'rgba(255, 255, 255, 1)',
+		);
+	});
+
+	test('oklch with alpha', () => {
+		const result = interpolateColors(
+			1,
+			[0, 1],
+			['black', 'oklch(1 0 0 / 0.5)'],
+		);
+		expect(result).toBe('rgba(255, 255, 255, 0.502)');
+	});
+
+	test('oklch with percentage lightness', () => {
+		expect(interpolateColors(1, [0, 1], ['black', 'oklch(100% 0 0)'])).toBe(
+			'rgba(255, 255, 255, 1)',
+		);
+	});
+
+	test('oklch interpolation', () => {
+		const result = interpolateColors(
+			0.5,
+			[0, 1],
+			['oklch(0 0 0)', 'oklch(1 0 0)'],
+		);
+		expect(result).toBe('rgba(128, 128, 128, 1)');
+	});
+});
+
+describe('oklab', () => {
+	test('oklab black', () => {
+		expect(interpolateColors(1, [0, 1], ['oklab(0 0 0)', 'black'])).toBe(
+			'rgba(0, 0, 0, 1)',
+		);
+	});
+
+	test('oklab white', () => {
+		expect(interpolateColors(1, [0, 1], ['black', 'oklab(1 0 0)'])).toBe(
+			'rgba(255, 255, 255, 1)',
+		);
+	});
+
+	test('oklab with alpha', () => {
+		const result = interpolateColors(
+			1,
+			[0, 1],
+			['black', 'oklab(1 0 0 / 0.5)'],
+		);
+		expect(result).toBe('rgba(255, 255, 255, 0.502)');
+	});
+});
+
+describe('lab', () => {
+	test('lab black', () => {
+		expect(interpolateColors(1, [0, 1], ['lab(0 0 0)', 'black'])).toBe(
+			'rgba(0, 0, 0, 1)',
+		);
+	});
+
+	test('lab white', () => {
+		expect(interpolateColors(1, [0, 1], ['black', 'lab(100 0 0)'])).toBe(
+			'rgba(255, 255, 255, 1)',
+		);
+	});
+
+	test('lab with alpha', () => {
+		const result = interpolateColors(
+			1,
+			[0, 1],
+			['black', 'lab(100 0 0 / 0.5)'],
+		);
+		expect(result).toBe('rgba(255, 255, 255, 0.502)');
+	});
+});
+
+describe('lch', () => {
+	test('lch black', () => {
+		expect(interpolateColors(1, [0, 1], ['lch(0 0 0)', 'black'])).toBe(
+			'rgba(0, 0, 0, 1)',
+		);
+	});
+
+	test('lch white', () => {
+		expect(interpolateColors(1, [0, 1], ['black', 'lch(100 0 0)'])).toBe(
+			'rgba(255, 255, 255, 1)',
+		);
+	});
+
+	test('lch with alpha', () => {
+		const result = interpolateColors(
+			1,
+			[0, 1],
+			['black', 'lch(100 0 0 / 0.5)'],
+		);
+		expect(result).toBe('rgba(255, 255, 255, 0.502)');
+	});
+});
+
+describe('hwb', () => {
+	test('hwb pure red', () => {
+		expect(interpolateColors(1, [0, 1], ['black', 'hwb(0 0% 0%)'])).toBe(
+			'rgba(255, 0, 0, 1)',
+		);
+	});
+
+	test('hwb white', () => {
+		expect(interpolateColors(1, [0, 1], ['black', 'hwb(0 100% 0%)'])).toBe(
+			'rgba(255, 255, 255, 1)',
+		);
+	});
+
+	test('hwb black', () => {
+		expect(interpolateColors(1, [0, 1], ['white', 'hwb(0 0% 100%)'])).toBe(
+			'rgba(0, 0, 0, 1)',
+		);
+	});
+
+	test('hwb gray', () => {
+		expect(interpolateColors(1, [0, 1], ['black', 'hwb(0 50% 50%)'])).toBe(
+			'rgba(128, 128, 128, 1)',
+		);
+	});
+
+	test('hwb with alpha', () => {
+		const result = interpolateColors(
+			1,
+			[0, 1],
+			['black', 'hwb(0 0% 0% / 0.5)'],
+		);
+		expect(result).toBe('rgba(255, 0, 0, 0.502)');
+	});
+
+	test('hwb interpolation', () => {
+		const result = interpolateColors(
+			0.5,
+			[0, 1],
+			['hwb(0 0% 0%)', 'hwb(0 100% 0%)'],
+		);
+		// Red to white at midpoint
+		expect(result).toBe('rgba(255, 128, 128, 1)');
+	});
+});

@@ -15,7 +15,7 @@ lazy_static = "1.4"
 rayon-core = "1.12.1"
 sysinfo = "0.30.7"
 mp4 = { git = "https://github.com/jonnyburger/mp4-rust", rev = "92ba375738cc2f05a4d754e1f968cf2e97d06641" }
-ffmpeg-next = { git = "https://github.com/remotion-dev/rust-ffmpeg", rev = "cd80e32bc6e0d00a59f4373a67966d9173b38d98" }
+ffmpeg-next = { git = "https://github.com/remotion-dev/rust-ffmpeg", rev = "64ff1506e2fd4b9b7fa501102d4cf3ee7c47bd81" }
 
 [[bin]]
 name = "remotion"

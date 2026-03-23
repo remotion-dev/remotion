@@ -1,10 +1,10 @@
 import type React from 'react';
-import {useContext, useEffect} from 'react';
+import {useEffect} from 'react';
 import {Internals} from 'remotion';
 import {loadPlaybackRate, persistPlaybackRate} from '../state/playbackrate';
 
 export const PlaybackRatePersistor: React.FC = () => {
-	const {setPlaybackRate, playbackRate} = useContext(Internals.TimelineContext);
+	const {setPlaybackRate, playbackRate} = Internals.useTimelineContext();
 
 	useEffect(() => {
 		setPlaybackRate(loadPlaybackRate());

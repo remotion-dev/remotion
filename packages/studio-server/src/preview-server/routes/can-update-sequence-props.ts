@@ -9,7 +9,10 @@ import type {
 	ObjectProperty,
 	UnaryExpression,
 } from '@babel/types';
-import type {CanUpdateSequencePropsResponse} from '@remotion/studio-shared';
+import type {
+	CanUpdateSequencePropsResponse,
+	SequenceNodePath,
+} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {CanUpdateSequencePropStatus} from 'remotion';
 import {parseAst} from '../../codemods/parse-ast';
@@ -158,25 +161,83 @@ const getPropsStatus = (
 	return props;
 };
 
-const findJsxElementAtLine = (
+const getNodePathForRecastPath = (
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	recastPath: any,
+): SequenceNodePath => {
+	const segments: Array<string | number> = [];
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	let current: any = recastPath;
+	while (current && current.parentPath) {
+		segments.unshift(current.name);
+		current = current.parentPath;
+	}
+
+	// Recast paths start with "root" which doesn't correspond to a real AST property
+	if (segments.length > 0 && segments[0] === 'root') {
+		return segments.slice(1);
+	}
+
+	return segments;
+};
+
+export const findJsxElementAtNodePath = (
+	ast: File,
+	nodePath: SequenceNodePath,
+): JSXOpeningElement | null => {
+	let current = new recast.types.NodePath(ast);
+	for (const segment of nodePath) {
+		current = current.get(segment);
+		if (current.value === null || current.value === undefined) {
+			return null;
+		}
+	}
+
+	if (recast.types.namedTypes.JSXOpeningElement.check(current.value)) {
+		return current.value as unknown as JSXOpeningElement;
+	}
+
+	return null;
+};
+
+export const lineColumnToNodePath = (
 	ast: File,
 	targetLine: number,
-): JSXOpeningElement | null => {
-	let found: JSXOpeningElement | null = null;
+): SequenceNodePath | null => {
+	let foundPath: SequenceNodePath | null = null;
 
 	recast.types.visit(ast, {
-		visitJSXOpeningElement(nodePath) {
-			const {node} = nodePath;
+		visitJSXOpeningElement(p) {
+			const {node} = p;
 			if (node.loc && node.loc.start.line === targetLine) {
-				found = node as unknown as JSXOpeningElement;
+				foundPath = getNodePathForRecastPath(p);
 				return false;
 			}
 
-			return this.traverse(nodePath);
+			return this.traverse(p);
 		},
 	});
 
-	return found;
+	return foundPath;
+};
+
+const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
+
+const isSupportedTranslateValue = (value: string): boolean => {
+	const parts = value.split(/\s+/);
+	if (parts.length === 1 || parts.length === 2) {
+		return parts.every((part) => PIXEL_VALUE_REGEX.test(part));
+	}
+
+	return false;
+};
+
+const validateStyleValue = (childKey: string, value: unknown): boolean => {
+	if (childKey === 'translate' && typeof value === 'string') {
+		return isSupportedTranslateValue(value);
+	}
+
+	return true;
 };
 
 const getNestedPropStatus = (
@@ -227,10 +288,80 @@ const getNestedPropStatus = (
 		return {canUpdate: false, reason: 'computed'};
 	}
 
-	return {canUpdate: true, codeValue: extractStaticValue(propValue)};
+	const codeValue = extractStaticValue(propValue);
+	if (!validateStyleValue(childKey, codeValue)) {
+		return {canUpdate: false, reason: 'computed'};
+	}
+
+	return {canUpdate: true, codeValue};
+};
+
+export const computeSequencePropsStatusFromContent = (
+	fileContents: string,
+	nodePath: SequenceNodePath,
+	keys: string[],
+): CanUpdateSequencePropsResponse => {
+	const ast = parseAst(fileContents);
+
+	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
+
+	if (!jsxElement) {
+		throw new Error('Could not find a JSX element at the specified location');
+	}
+
+	const allProps = getPropsStatus(jsxElement);
+	const filteredProps: Record<string, CanUpdatePropStatus> = {};
+	for (const key of keys) {
+		const dotIndex = key.indexOf('.');
+		if (dotIndex !== -1) {
+			filteredProps[key] = getNestedPropStatus(
+				jsxElement,
+				key.slice(0, dotIndex),
+				key.slice(dotIndex + 1),
+			);
+		} else if (key in allProps) {
+			filteredProps[key] = allProps[key];
+		} else {
+			filteredProps[key] = {canUpdate: true, codeValue: undefined};
+		}
+	}
+
+	return {
+		canUpdate: true as const,
+		props: filteredProps,
+		nodePath,
+	};
 };
 
 export const computeSequencePropsStatus = ({
+	fileName,
+	nodePath,
+	keys,
+	remotionRoot,
+}: {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	keys: string[];
+	remotionRoot: string;
+}): CanUpdateSequencePropsResponse => {
+	try {
+		const absolutePath = path.resolve(remotionRoot, fileName);
+		const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
+		if (fileRelativeToRoot.startsWith('..')) {
+			throw new Error('Cannot read a file outside the project');
+		}
+
+		const fileContents = readFileSync(absolutePath, 'utf-8');
+		return computeSequencePropsStatusFromContent(fileContents, nodePath, keys);
+	} catch (err) {
+		return {
+			canUpdate: false as const,
+			reason: (err as Error).message,
+		};
+	}
+};
+
+export const computeSequencePropsStatusByLine = ({
 	fileName,
 	line,
 	keys,
@@ -251,33 +382,17 @@ export const computeSequencePropsStatus = ({
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 		const ast = parseAst(fileContents);
 
-		const jsxElement = findJsxElementAtLine(ast, line);
-
-		if (!jsxElement) {
+		const resolvedNodePath = lineColumnToNodePath(ast, line);
+		if (!resolvedNodePath) {
 			throw new Error('Could not find a JSX element at the specified location');
 		}
 
-		const allProps = getPropsStatus(jsxElement);
-		const filteredProps: Record<string, CanUpdatePropStatus> = {};
-		for (const key of keys) {
-			const dotIndex = key.indexOf('.');
-			if (dotIndex !== -1) {
-				filteredProps[key] = getNestedPropStatus(
-					jsxElement,
-					key.slice(0, dotIndex),
-					key.slice(dotIndex + 1),
-				);
-			} else if (key in allProps) {
-				filteredProps[key] = allProps[key];
-			} else {
-				filteredProps[key] = {canUpdate: true, codeValue: undefined};
-			}
-		}
-
-		return {
-			canUpdate: true as const,
-			props: filteredProps,
-		};
+		return computeSequencePropsStatus({
+			fileName,
+			nodePath: resolvedNodePath,
+			keys,
+			remotionRoot,
+		});
 	} catch (err) {
 		return {
 			canUpdate: false as const,

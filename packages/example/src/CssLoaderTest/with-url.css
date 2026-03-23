@@ -1,0 +1,8 @@
+/* Test: url() handling — css-loader should resolve these asset references */
+.bg-image {
+	background-image: url('../../public/nested/mp4.png');
+	background-size: 64px 64px;
+	background-repeat: no-repeat;
+	background-position: center;
+	min-height: 80px;
+}

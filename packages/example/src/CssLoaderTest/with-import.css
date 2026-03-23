@@ -1,0 +1,7 @@
+/* Test: @import at-rule — css-loader should resolve this */
+@import './imported.css';
+
+.has-import {
+	text-decoration: underline;
+	text-underline-offset: 4px;
+}

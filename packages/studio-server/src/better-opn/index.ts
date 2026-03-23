@@ -33,9 +33,7 @@ const startBrowserProcess = async ({
 	const shouldTryOpenChromiumWithAppleScript =
 		process.platform === 'darwin' &&
 		!tryNewInstance &&
-		(typeof browser !== 'string' ||
-			browser === 'google chrome' ||
-			browser === 'chrome');
+		(!browser || browser === 'google chrome' || browser === 'chrome');
 
 	if (shouldTryOpenChromiumWithAppleScript) {
 		let appleScriptDenied = false;
@@ -86,11 +84,7 @@ const startBrowserProcess = async ({
   
   on run argv
     set theURL to "${encodeURI(url)}"
-    set matchURL to "${
-			process.env.OPEN_MATCH_HOST_ONLY === 'true'
-				? encodeURI(normalizeURLToMatch(url))
-				: encodeURI(url)
-		}"
+    set matchURL to "${encodeURI(normalizeURLToMatch(url))}"
     
     using terms from application "Google Chrome"
       tell application theProgram

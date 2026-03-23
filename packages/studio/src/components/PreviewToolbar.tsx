@@ -7,7 +7,6 @@ import {
 	useIsVideoComposition,
 } from '../helpers/is-current-selected-still';
 import {useMobileLayout} from '../helpers/mobile-layout';
-import {shouldShowRenderButton} from '../helpers/should-show-render-button';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
@@ -25,6 +24,8 @@ import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 
+const TOOLBAR_HEIGHT = 56;
+
 const container: React.CSSProperties = {
 	display: 'flex',
 	justifyContent: 'center',
@@ -34,6 +35,7 @@ const container: React.CSSProperties = {
 	alignItems: 'center',
 	flexDirection: 'row',
 	background: BACKGROUND,
+	height: TOOLBAR_HEIGHT,
 };
 
 const mobileContainer: React.CSSProperties = {
@@ -80,7 +82,7 @@ export const PreviewToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, bufferStateDelayInMilliseconds}) => {
-	const {playbackRate, setPlaybackRate} = useContext(Internals.TimelineContext);
+	const {playbackRate, setPlaybackRate} = Internals.useTimelineContext();
 
 	const {mediaMuted} = useContext(Internals.MediaVolumeContext);
 	const {setMediaMuted} = useContext(Internals.SetMediaVolumeContext);
@@ -192,10 +194,9 @@ export const PreviewToolbar: React.FC<{
 					<Spacing x={2} />
 				</>
 			) : null}
-
 			{canvasContent?.type === 'composition' ? <CheckboardToggle /> : null}
 			<Spacing x={1} />
-			{isFullscreenSupported && <FullScreenToggle />}
+			{canvasContent && isFullscreenSupported ? <FullScreenToggle /> : null}
 			<Flex />
 			{isMobileLayout && (
 				<>
@@ -213,9 +214,7 @@ export const PreviewToolbar: React.FC<{
 				<Flex />
 				{!isMobileLayout && <FpsCounter playbackSpeed={playbackRate} />}
 				<Spacing x={2} />
-				{shouldShowRenderButton(readOnlyStudio) ? (
-					<RenderButton readOnlyStudio={readOnlyStudio} />
-				) : null}
+				<RenderButton readOnlyStudio={readOnlyStudio} />
 				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />

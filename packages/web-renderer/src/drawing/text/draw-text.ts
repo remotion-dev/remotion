@@ -1,6 +1,7 @@
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import type {DrawFn} from '../drawn-fn';
+import {setFilter} from '../filter';
 import {applyTextTransform} from './apply-text-transform';
 import {findWords} from './find-line-breaks.text';
 import {parsePaintOrder} from './parse-paint-order';
@@ -23,15 +24,21 @@ export const drawText = ({
 			fontSize,
 			fontWeight,
 			fontStyle,
+			fontVariantCaps,
+			fontKerning,
+			fontStretch,
 			direction,
 			writingMode,
 			letterSpacing,
+			wordSpacing,
 			textTransform,
+			textRendering,
 			webkitTextFillColor,
 			webkitTextStrokeWidth,
 			webkitTextStrokeColor,
 			textShadow: textShadowValue,
 			paintOrder,
+			filter,
 		} = computedStyle;
 		const isVertical = writingMode !== 'horizontal-tb';
 		if (isVertical) {
@@ -48,9 +55,18 @@ export const drawText = ({
 
 		contextToDraw.save();
 
+		const finishFilter = setFilter({
+			ctx: contextToDraw,
+			filter,
+		});
+
 		const fontSizePx = parseFloat(fontSize);
 
 		contextToDraw.font = `${fontStyle} ${fontWeight} ${fontSizePx}px ${fontFamily}`;
+		contextToDraw.fontVariantCaps = fontVariantCaps as CanvasFontVariantCaps;
+		contextToDraw.fontKerning = fontKerning as CanvasFontKerning;
+		contextToDraw.fontStretch = fontStretch as CanvasFontStretch;
+		contextToDraw.textRendering = textRendering as CanvasTextRendering;
 		contextToDraw.fillStyle =
 			// If text is being applied with backgroundClipText, we need to use a solid color otherwise it won't get
 			// applied in canvas
@@ -59,6 +75,7 @@ export const drawText = ({
 				: // -webkit-text-fill-color overrides color, and defaults to the value of `color`
 					webkitTextFillColor;
 		contextToDraw.letterSpacing = letterSpacing;
+		contextToDraw.wordSpacing = wordSpacing;
 
 		const strokeWidth = parseFloat(webkitTextStrokeWidth);
 		const hasStroke = strokeWidth > 0;
@@ -128,6 +145,7 @@ export const drawText = ({
 
 		span.textContent = originalText;
 
+		finishFilter();
 		contextToDraw.restore();
 	};
 

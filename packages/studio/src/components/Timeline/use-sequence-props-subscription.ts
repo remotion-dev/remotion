@@ -1,4 +1,4 @@
-import type {EventSourceEvent} from '@remotion/studio-shared';
+import type {EventSourceEvent, SequenceNodePath} from '@remotion/studio-shared';
 import {useCallback, useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
 import type {TSequence} from 'remotion';
@@ -10,7 +10,7 @@ import {callApi} from '../call-api';
 export const useSequencePropsSubscription = (
 	sequence: TSequence,
 	originalLocation: OriginalPosition | null,
-): void => {
+): SequenceNodePath | null => {
 	const {setCodeValues} = useContext(Internals.VisualModeOverridesContext);
 	const overrideId = sequence.controls?.overrideId ?? null;
 
@@ -67,6 +67,16 @@ export const useSequencePropsSubscription = (
 	const currentLocationColumn = useRef(locationColumn);
 	currentLocationColumn.current = locationColumn;
 
+	const nodePathRef = useRef<SequenceNodePath | null>(null);
+	const isMountedRef = useRef(true);
+
+	useEffect(() => {
+		isMountedRef.current = true;
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, []);
+
 	useEffect(() => {
 		if (
 			!clientId ||
@@ -98,25 +108,37 @@ export const useSequencePropsSubscription = (
 				}
 
 				if (result.canUpdate) {
+					nodePathRef.current = result.nodePath;
 					setPropStatusesForSequence(result.props);
 				} else {
+					nodePathRef.current = null;
 					setPropStatusesForSequence(null);
 				}
 			})
-			.catch(() => {
+			.catch((err) => {
+				nodePathRef.current = null;
+				Internals.Log.error(err);
 				setPropStatusesForSequence(null);
 			});
 
 		return () => {
-			setPropStatusesForSequence(null);
-			callApi('/api/unsubscribe-from-sequence-props', {
-				fileName: locationSource,
-				line: locationLine,
-				column: locationColumn,
-				clientId,
-			}).catch(() => {
-				// Ignore unsubscribe errors
-			});
+			const currentNodePath = nodePathRef.current;
+			// Only clear props on true unmount, not on re-subscribe due to
+			// line number changes — avoids flicker while re-subscribing.
+			if (!isMountedRef.current) {
+				setPropStatusesForSequence(null);
+			}
+
+			nodePathRef.current = null;
+			if (currentNodePath) {
+				callApi('/api/unsubscribe-from-sequence-props', {
+					fileName: locationSource,
+					nodePath: currentNodePath,
+					clientId,
+				}).catch(() => {
+					// Ignore unsubscribe errors
+				});
+			}
 		};
 	}, [
 		clientId,
@@ -139,8 +161,8 @@ export const useSequencePropsSubscription = (
 
 			if (
 				event.fileName !== currentLocationSource.current ||
-				event.line !== currentLocationLine.current ||
-				event.column !== currentLocationColumn.current
+				!nodePathRef.current ||
+				JSON.stringify(event.nodePath) !== JSON.stringify(nodePathRef.current)
 			) {
 				return;
 			}
@@ -163,4 +185,6 @@ export const useSequencePropsSubscription = (
 		subscribeToEvent,
 		setPropStatusesForSequence,
 	]);
+
+	return nodePathRef.current;
 };

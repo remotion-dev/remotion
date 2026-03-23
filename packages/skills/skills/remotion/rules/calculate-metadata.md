@@ -93,7 +93,7 @@ const calculateMetadata: CalculateMetadataFunction<Props> = async ({
   props,
 }) => {
   return {
-    defaultOutName: `video-${props.id}.mp4`,
+    defaultOutName: `video-${props.id}`, // .mp4 is added automatically
   };
 };
 ```

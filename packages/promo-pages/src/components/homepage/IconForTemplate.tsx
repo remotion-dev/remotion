@@ -4,6 +4,7 @@ import {Blank} from '../icons/blank';
 import {BrainIcon} from '../icons/brain';
 import {CodeHike} from '../icons/code-hike';
 import {Cubes} from '../icons/cubes';
+import {ElectronIcon} from '../icons/electron';
 import {JSIcon} from '../icons/js';
 import {MusicIcon} from '../icons/music';
 import {NextIcon} from '../icons/next';
@@ -121,6 +122,10 @@ export const IconForTemplate: React.FC<{
 
 	if (template.cliId === 'render-server') {
 		return <RenderServerIcon style={{height: scale * 36}} />;
+	}
+
+	if (template.cliId === 'electron') {
+		return <ElectronIcon style={{height: scale * 36}} />;
 	}
 
 	if (template.cliId === 'recorder') {

@@ -35,33 +35,35 @@ export const PlayButton: React.FC<{
 	);
 
 	return (
-		<Button
-			className={`rounded-full p-0`}
-			style={{width: size, height: size}}
-			onClick={toggle}
-			title={playing ? 'Stop' : 'Play'}
-			depth={depth}
-		>
-			{playing ? (
-				<svg
-					width={iconSize}
-					height={iconSize}
-					viewBox="0 0 24 24"
-					fill="currentColor"
-				>
-					<rect x="6" y="4" width="4" height="16" />
-					<rect x="14" y="4" width="4" height="16" />
-				</svg>
-			) : (
-				<svg
-					width={iconSize}
-					height={iconSize}
-					viewBox="0 0 24 24"
-					fill="currentColor"
-				>
-					<polygon points="6,4 20,12 6,20" />
-				</svg>
-			)}
-		</Button>
+		<div style={{width: size, height: size}}>
+			<Button
+				className={`rounded-full p-0`}
+				style={{width: size, height: size}}
+				onClick={toggle}
+				title={playing ? 'Stop' : 'Play'}
+				depth={depth}
+			>
+				{playing ? (
+					<svg
+						width={iconSize}
+						height={iconSize}
+						viewBox="0 0 24 24"
+						fill="currentColor"
+					>
+						<rect x="6" y="4" width="4" height="16" />
+						<rect x="14" y="4" width="4" height="16" />
+					</svg>
+				) : (
+					<svg
+						width={iconSize}
+						height={iconSize}
+						viewBox="0 0 24 24"
+						fill="currentColor"
+					>
+						<polygon points="6,4 20,12 6,20" />
+					</svg>
+				)}
+			</Button>
+		</div>
 	);
 };

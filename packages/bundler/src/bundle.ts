@@ -10,10 +10,28 @@ import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';
 import {rspackConfig} from './rspack-config';
+import {clearCache} from './webpack-cache';
 import type {WebpackOverrideFn} from './webpack-config';
 import {webpackConfig} from './webpack-config';
 
 const promisified = promisify(webpack);
+
+const looksLikeCacheCorruption = (err: unknown): boolean => {
+	if (!(err instanceof Error)) {
+		return false;
+	}
+
+	const message = err.message + (err.stack ?? '');
+	return (
+		// Webpack wasm-hash crash when reading corrupted cache
+		message.includes('wasm-hash') ||
+		// General cache deserialization failures
+		message.includes('DeserializeError') ||
+		message.includes('Unexpected end of data') ||
+		// Cache pack file read failures
+		message.includes('PackFileCacheStrategy')
+	);
+};
 
 const prepareOutDir = async (specified: string | null) => {
 	if (specified) {
@@ -280,20 +298,37 @@ export const internalBundle = async (
 			throw new Error(errors[0].message + '\n' + errors[0].details);
 		}
 	} else {
-		const output = (await promisified([config as webpack.Configuration])) as
-			| webpack.MultiStats
-			| undefined;
-		if (isMainThread) {
-			process.chdir(currentCwd);
-		}
+		const runWebpack = async () => {
+			const output = (await promisified([config as webpack.Configuration])) as
+				| webpack.MultiStats
+				| undefined;
+			if (isMainThread) {
+				process.chdir(currentCwd);
+			}
 
-		if (!output) {
-			throw new Error('Expected webpack output');
-		}
+			if (!output) {
+				throw new Error('Expected webpack output');
+			}
 
-		const {errors} = output.toJson();
-		if (errors !== undefined && errors.length > 0) {
-			throw new Error(errors[0].message + '\n' + errors[0].details);
+			const {errors} = output.toJson();
+			if (errors !== undefined && errors.length > 0) {
+				throw new Error(errors[0].message + '\n' + errors[0].details);
+			}
+		};
+
+		try {
+			await runWebpack();
+		} catch (err) {
+			if (looksLikeCacheCorruption(err) && actualArgs.enableCaching !== false) {
+				// eslint-disable-next-line no-console
+				console.warn(
+					'Webpack cache appears to be corrupted. Clearing cache and retrying...',
+				);
+				await clearCache(resolvedRemotionRoot, 'production');
+				await runWebpack();
+			} else {
+				throw err;
+			}
 		}
 	}
 

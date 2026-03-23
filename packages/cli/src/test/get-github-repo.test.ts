@@ -69,7 +69,7 @@ test('Should recognize VERCEL', () => {
 	process.env.VERCEL_GIT_REPO_OWNER = 'remotion-dev';
 
 	const source = getGitSource({
-		remotionRoot: 'dontmatter',
+		remotionRoot: process.cwd(),
 		disableGitSource: false,
 		logLevel: 'info',
 	});
@@ -78,4 +78,10 @@ test('Should recognize VERCEL', () => {
 	expect(source?.org).toBe('remotion-dev');
 	expect(source?.ref).toBe('123');
 	expect(source?.type).toBe('github');
+	expect(source?.relativeFromGitRoot).toBe(`packages${path.sep}cli`);
+
+	delete process.env.VERCEL_GIT_COMMIT_SHA;
+	delete process.env.VERCEL_GIT_PROVIDER;
+	delete process.env.VERCEL_GIT_REPO_SLUG;
+	delete process.env.VERCEL_GIT_REPO_OWNER;
 });

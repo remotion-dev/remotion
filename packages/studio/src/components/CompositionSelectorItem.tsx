@@ -36,6 +36,7 @@ const itemStyle: React.CSSProperties = {
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
 	height: COMPOSITION_ITEM_HEIGHT,
+	userSelect: 'none',
 };
 
 const labelStyle: React.CSSProperties = {

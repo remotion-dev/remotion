@@ -108,7 +108,10 @@ export const getBaseConfig = (
 export const getSharedModuleRules = () => [
 	{
 		test: /\.css$/i,
-		use: [require.resolve('style-loader'), require.resolve('css-loader')],
+		use: [
+			require.resolve('style-loader'),
+			require.resolve('../css-loader/index.js'),
+		],
 		type: 'javascript/auto' as const,
 	},
 	{

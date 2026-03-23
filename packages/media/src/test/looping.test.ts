@@ -41,6 +41,7 @@ test(
 				playbackRate,
 				fps,
 				maxCacheSize: getMaxVideoCacheSize('info'),
+				credentials: undefined,
 			});
 			expect(result.type).toBe('success');
 			assert(result.type === 'success');
@@ -61,3 +62,19 @@ test(
 		]);
 	},
 );
+
+test('gettime in seconds', () => {
+	const looped = getTimeInSeconds({
+		unloopedTimeInSeconds: 71.46366666666667,
+		playbackRate: 1,
+		loop: true,
+		trimBefore: 640,
+		trimAfter: 1800,
+		mediaDurationInSeconds: 596.4741950113379,
+		fps: 30,
+		ifNoMediaDuration: 'infinity',
+		src: '/video.mp4',
+	});
+
+	expect(looped).toBeDefined();
+});

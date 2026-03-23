@@ -1,5 +1,8 @@
 import type {StaticFile} from 'remotion';
-import type {CanUpdateSequencePropsResponse} from './api-requests';
+import type {
+	CanUpdateSequencePropsResponse,
+	SequenceNodePath,
+} from './api-requests';
 import type {CompletedClientRender, RenderJob} from './render-job';
 
 export type EventSourceEvent =
@@ -47,7 +50,6 @@ export type EventSourceEvent =
 	| {
 			type: 'sequence-props-updated';
 			fileName: string;
-			line: number;
-			column: number;
+			nodePath: SequenceNodePath;
 			result: CanUpdateSequencePropsResponse;
 	  };

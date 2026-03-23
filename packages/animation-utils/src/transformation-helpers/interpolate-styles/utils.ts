@@ -6,6 +6,23 @@ function call(...args: unknown[]): string {
 	return '\\(\\s*(' + args.join(')\\s*,\\s*(') + ')\\s*\\)';
 }
 
+const MODERN_VALUE = '(?:none|[-+]?\\d*\\.?\\d+(?:%|deg|rad|grad|turn)?)';
+
+function modernColorCall(name: string): RegExp {
+	return new RegExp(
+		name +
+			'\\(\\s*(' +
+			MODERN_VALUE +
+			')\\s+(' +
+			MODERN_VALUE +
+			')\\s+(' +
+			MODERN_VALUE +
+			')(?:\\s*\\/\\s*(' +
+			MODERN_VALUE +
+			'))?\\s*\\)',
+	);
+}
+
 function getColorMatchers(): ColorMatchers {
 	const cachedMatchers: ColorMatchers = {
 		rgb: undefined,
@@ -17,6 +34,11 @@ function getColorMatchers(): ColorMatchers {
 		hex5: undefined,
 		hex6: undefined,
 		hex8: undefined,
+		oklch: undefined,
+		oklab: undefined,
+		lab: undefined,
+		lch: undefined,
+		hwb: undefined,
 	};
 	if (cachedMatchers.rgb === undefined) {
 		cachedMatchers.rgb = new RegExp('rgb' + call(NUMBER, NUMBER, NUMBER));
@@ -34,6 +56,11 @@ function getColorMatchers(): ColorMatchers {
 			/^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/;
 		cachedMatchers.hex6 = /^#([0-9a-fA-F]{6})$/;
 		cachedMatchers.hex8 = /^#([0-9a-fA-F]{8})$/;
+		cachedMatchers.oklch = modernColorCall('oklch');
+		cachedMatchers.oklab = modernColorCall('oklab');
+		cachedMatchers.lab = modernColorCall('lab');
+		cachedMatchers.lch = modernColorCall('lch');
+		cachedMatchers.hwb = modernColorCall('hwb');
 	}
 
 	return cachedMatchers;
@@ -124,7 +151,12 @@ const isColorValue = (value: string) => {
 		matchers.hex4?.test(value) ||
 		matchers.hex5?.test(value) ||
 		matchers.hex6?.test(value) ||
-		matchers.hex8?.test(value)
+		matchers.hex8?.test(value) ||
+		matchers.oklch?.test(value) ||
+		matchers.oklab?.test(value) ||
+		matchers.lab?.test(value) ||
+		matchers.lch?.test(value) ||
+		matchers.hwb?.test(value)
 	);
 };
 

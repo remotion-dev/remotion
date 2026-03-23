@@ -21,6 +21,7 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
+import {CssLoaderTest} from './CssLoaderTest';
 import {DarkModeTest} from './DarkModeTest';
 import {DecoderDemo} from './DecoderDemo';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
@@ -66,6 +67,7 @@ import RectTest from './Shapes/RectTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
 import {SkipZeroFrame} from './SkipZeroFrame';
+import {SlicedVideo} from './SlicedVideo';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
@@ -119,12 +121,6 @@ import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
 import Amplify from './AudioTesting/Amplify';
 import {BrowserTest} from './BrowserTest';
-import {CTAEndCard} from './CallToAction';
-import {
-	WhatIsRemotion,
-	whatIsRemotionCalculateMetadata,
-	whatIsRemotionSchema,
-} from './Compose/WhatIsRemotion';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -144,6 +140,7 @@ import {PrintProps} from './PrintProps';
 import {SfxExample} from './Sfx';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {SpringSeason} from './SpringSeason';
+import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
@@ -155,10 +152,13 @@ import {
 	OverlayWithOffset,
 } from './TransitionSeriesOverlay';
 import {TriangleComp} from './Triangle';
+import {NewVideoBufferStateComp} from './VideoInterruptedByForeignBuffer';
 import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
 import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
+import {FastUpdates} from './VisualModeTests/FastUpdates';
+import {FastUpdatesNested} from './VisualModeTests/FastUpdatesNested';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
 
@@ -671,6 +671,14 @@ export const Index: React.FC = () => {
 					durationInFrames={2}
 				/>
 				<Composition
+					id="css-loader-test"
+					component={CssLoaderTest}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
 					id="react-svg"
 					component={ReactSvg}
 					width={1920}
@@ -790,6 +798,7 @@ export const Index: React.FC = () => {
 				/>
 				<OffthreadRemoteVideo />
 				<NewVideoComp />
+				<NewVideoBufferStateComp />
 				<LoopDisplayTestComp />
 				<OffthreadRemoteSeries />
 				<LoopedNewVideo />
@@ -1412,6 +1421,14 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 					width={1080}
 				/>
+				<Composition
+					id="sliced-video"
+					component={SlicedVideo}
+					fps={30}
+					height={1080}
+					durationInFrames={300}
+					width={1920}
+				/>
 			</Folder>
 			<Folder name="Postmount">
 				<Composition
@@ -1469,16 +1486,16 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						title: 'sdasds',
 						delay: 5.2,
-						color: '#df822a',
+						color: 'rgba(223, 42, 42, 0.46)',
 						list: [{name: 'first', age: 12}],
-						matrix: [0, 1, 1, 0],
+						matrix: [0, 1, 1, 0] as const,
 						description: 'Sample description \nOn multiple lines',
 						dropdown: 'a' as const,
 						superSchema: [
 							{type: 'a' as const, a: {a: 'hi'}},
 							{type: 'b' as const, b: {b: 'hi'}},
 						],
-						discriminatedUnion: {type: 'auto'},
+						discriminatedUnion: {type: 'auto' as const},
 						tuple: ['foo', 42, {a: 'hi'}],
 					}}
 				/>
@@ -1702,16 +1719,6 @@ export const Index: React.FC = () => {
 					durationInFrames={1000}
 				/>
 				<Composition
-					id="WhatIsRemotion"
-					component={WhatIsRemotion}
-					width={1080}
-					fps={30}
-					durationInFrames={273}
-					schema={whatIsRemotionSchema}
-					defaultProps={{fade: false, whiteBackground: false, reel: false}}
-					calculateMetadata={whatIsRemotionCalculateMetadata}
-				/>
-				<Composition
 					id="3DContext"
 					component={ThreeDContext}
 					width={1080}
@@ -1791,25 +1798,6 @@ export const Index: React.FC = () => {
 				durationInFrames={500}
 			/>
 			<Composition
-				id="CallToAction"
-				component={CTAEndCard}
-				width={1920}
-				height={1080}
-				fps={30}
-				durationInFrames={180}
-				defaultProps={{
-					cornerRadius: 10,
-				}}
-				calculateMetadata={() => {
-					return {
-						defaultPixelFormat: 'yuva444p10le',
-						defaultCodec: 'prores',
-						defaultProResProfile: '4444',
-						defaultVideoImageFormat: 'png',
-					};
-				}}
-			/>
-			<Composition
 				id="Triangle"
 				component={TriangleComp}
 				width={100}
@@ -1841,6 +1829,16 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={120}
+				/>
+			</Folder>
+			<Folder name="starburst">
+				<Composition
+					id="starburst"
+					component={StarburstExample}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
 				/>
 			</Folder>
 			<Composition
@@ -1883,6 +1881,24 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={165}
+				/>
+			</Folder>
+			<Folder name="VisualModeTests">
+				<Composition
+					id="fast-updates"
+					component={FastUpdates}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
+				/>
+				<Composition
+					id="fast-updates-nested"
+					component={FastUpdatesNested}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
 				/>
 			</Folder>
 			<ChangingTrimBeforeValue />

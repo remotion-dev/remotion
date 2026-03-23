@@ -56,9 +56,12 @@ export const resolveProjectRoot = async (options?: {
 	let projectName = '';
 	let directlyCreateInCurrentDir = false;
 
+	// eslint-disable-next-line no-control-regex
+	const stripControlChars = (s: string) => s.replace(/[\x00-\x1f\x7f]/g, '');
+
 	// If a directory argument was provided, use it directly
 	if (options?.directoryArgument) {
-		projectName = options.directoryArgument;
+		projectName = stripControlChars(options.directoryArgument).trim();
 	} else {
 		// Print selected template info before prompting for directory
 		if (options?.selectedTemplate && isFlagSelected) {
@@ -98,7 +101,7 @@ export const resolveProjectRoot = async (options?: {
 				});
 
 				if (typeof answer === 'string') {
-					projectName = answer.trim();
+					projectName = stripControlChars(answer).trim();
 				}
 			}
 		} catch (error) {

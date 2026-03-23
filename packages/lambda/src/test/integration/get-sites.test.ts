@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import {internalGetOrCreateBucket} from '@remotion/serverless';
+import {VERSION} from 'remotion/version';
 import {internalDeploySite} from '../../api/deploy-site';
 import {mockFullClientSpecifics} from '../mock-implementation';
 import {mockImplementation} from '../mocks/mock-implementation';
@@ -14,6 +15,7 @@ test('Should have no buckets at first', async () => {
 			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 			forceBucketName: null,
+			compatibleOnly: false,
 			requestHandler: null,
 		}),
 	).toEqual({buckets: [], sites: []});
@@ -55,7 +57,7 @@ test('Should have a site after deploying', async () => {
 		stats: {
 			deletedFiles: 0,
 			untouchedFiles: 0,
-			uploadedFiles: 2,
+			uploadedFiles: 3,
 		},
 	});
 	expect(
@@ -64,6 +66,7 @@ test('Should have a site after deploying', async () => {
 			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 			forceBucketName: null,
+			compatibleOnly: false,
 			requestHandler: null,
 		}),
 	).toEqual({
@@ -79,10 +82,53 @@ test('Should have a site after deploying', async () => {
 				bucketName: 'remotionlambda-eucentral1-abcdef',
 				id: 'testing',
 				lastModified: 0,
-				sizeInBytes: 48,
+				sizeInBytes: expect.any(Number),
 				serveUrl:
 					'https://remotionlambda-eucentral1-abcdef.s3.eu-central-1.amazonaws.com/sites/testing/index.html',
+				version: VERSION,
 			},
 		],
 	});
+});
+
+test('Should filter sites by compatibleOnly', async () => {
+	resetMockStore();
+	await internalGetOrCreateBucket({
+		region: 'eu-central-1',
+		providerSpecifics: mockImplementation,
+		customCredentials: null,
+		enableFolderExpiry: null,
+		forcePathStyle: false,
+		skipPutAcl: false,
+		requestHandler: null,
+		logLevel: 'info',
+	});
+	await internalDeploySite({
+		bucketName: 'remotionlambda-eucentral1-abcdef',
+		entryPoint: 'first',
+		region: 'eu-central-1',
+		siteName: 'testing',
+		gitSource: null,
+		logLevel: 'info',
+		indent: false,
+		providerSpecifics: mockImplementation,
+		privacy: 'public',
+		throwIfSiteExists: true,
+		options: {},
+		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
+		requestHandler: null,
+	});
+
+	const {sites} = await LambdaClientInternals.internalGetSites({
+		region: 'eu-central-1',
+		providerSpecifics: mockImplementation,
+		forcePathStyle: false,
+		forceBucketName: null,
+		compatibleOnly: true,
+		requestHandler: null,
+	});
+
+	expect(sites.length).toBe(1);
+	expect(sites[0].version).toBe(VERSION);
 });

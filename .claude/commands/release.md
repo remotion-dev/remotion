@@ -6,7 +6,8 @@
 - Run `bun i`
 - Run `bun run build`
 - Run `npm view remotion version` to get the current version number
-- Run `bun set-version.ts <version>`, where <version> is the current version plus 1
+- Run `bun set-version.ts <version>`, where <version> is the current version plus 1. If the exit code is not 0, abort the entire release process immediately.
+- Run `cd packages/example && sh runlambda.sh && cd ../..`. If this fails, abort the release.
 - Run `NPM_CONFIG_TOKEN=<token> bun run release` where <token> is the NPM token we just created
 - Generate a changelog in markdown and save it to `/tmp/release-<version>.md`:
   - Run `git log v<previous_version>..v<new_version> --oneline` to get all commits

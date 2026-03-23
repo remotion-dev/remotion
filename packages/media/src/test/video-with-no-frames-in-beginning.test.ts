@@ -89,7 +89,14 @@ test('same goes for audio', async () => {
 			unblock: () => {},
 			[Symbol.dispose]: () => {},
 		}),
-		sharedAudioContext: new AudioContext(),
+		sharedAudioContext: {
+			audioContext: new AudioContext(),
+			audioSyncAnchor: {value: 0},
+			scheduleAudioNode: () => ({
+				type: 'started',
+				scheduledTime: 0,
+			}),
+		},
 		getIsLooping: () => false,
 		getEndTime: () => Infinity,
 		getStartTime: () => 0,
@@ -104,9 +111,11 @@ test('same goes for audio', async () => {
 		playbackRate: 1,
 		startFromSecond: 0.06671494248275864,
 		getIsPlaying: () => true,
-		scheduleAudioNode: (node, mediaTimestamp, maxDuration) => {
-			node.start(mediaTimestamp, 0, maxDuration ?? undefined);
-		},
+		scheduleAudioNode: () => ({
+			type: 'started',
+			scheduledTime: 0,
+		}),
+		debugAudioScheduling: false,
 	});
 
 	await manager.seek({
@@ -114,9 +123,11 @@ test('same goes for audio', async () => {
 		nonce: nonceManager.createAsyncOperation(),
 		playbackRate: 1,
 		getIsPlaying: () => true,
-		scheduleAudioNode: (node, _mediaTimestamp, maxDuration) => {
-			node.start(1, 0, maxDuration ?? undefined);
-		},
+		scheduleAudioNode: () => ({
+			type: 'started',
+			scheduledTime: 0,
+		}),
+		debugAudioScheduling: false,
 	});
 
 	const iterators = manager.getAudioIteratorsCreated();
@@ -141,6 +152,7 @@ test('in rendering, should also be smart', async (t) => {
 			playbackRate: 1,
 			fps: 30,
 			maxCacheSize: getMaxVideoCacheSize('info'),
+			credentials: undefined,
 		});
 		assert(frame.type === 'success');
 		if (lastFrame) {
@@ -163,6 +175,7 @@ test('in rendering, should also be smart', async (t) => {
 		playbackRate: 1,
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
+		credentials: undefined,
 	});
 
 	assert(firstRealFrame.type === 'success');

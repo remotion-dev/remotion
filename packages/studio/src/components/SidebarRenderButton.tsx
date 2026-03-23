@@ -98,6 +98,7 @@ export const SidebarRenderButton: React.FC<{
 				initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
 				renderDefaults: defaults,
 				initialDarkMode: defaults.darkMode,
+				readOnlyStudio: false,
 			});
 
 			if (isMobileLayout) {

@@ -199,7 +199,7 @@ const InnerComposition = <
 			defaultProps: serializeThenDeserializeInStudio(
 				(defaultProps ?? {}) as z.output<Schema> & Props,
 			) as InferProps<Schema, Props>,
-			nonce,
+			nonce: nonce.get(),
 			parentFolderName: parentName,
 			schema: schema ?? null,
 			calculateMetadata: compProps.calculateMetadata ?? null,

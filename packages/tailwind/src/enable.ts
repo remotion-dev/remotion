@@ -26,7 +26,7 @@ export const enableTailwind: (
 					test: /\.css$/i,
 					use: [
 						require.resolve('style-loader'),
-						require.resolve('css-loader'),
+						require.resolve('@remotion/bundler/css-loader'),
 						{
 							loader: require.resolve('postcss-loader'),
 							options: {

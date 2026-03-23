@@ -20,6 +20,7 @@ test('Should be able to extract a frame', async () => {
 		trimBefore: undefined,
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
+		credentials: undefined,
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -71,6 +72,7 @@ test('Should be able to extract the last frame', async () => {
 		trimBefore: undefined,
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
+		credentials: undefined,
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -121,6 +123,7 @@ test('Should manage the cache', async (t) => {
 			trimBefore: undefined,
 			fps: 30,
 			maxCacheSize: getMaxVideoCacheSize('info'),
+			credentials: undefined,
 		});
 	}
 
@@ -150,6 +153,7 @@ test('Should be apply volume correctly', async () => {
 		trimBefore: undefined,
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
+		credentials: undefined,
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -204,6 +208,7 @@ test('Should be able to loop', async () => {
 		trimBefore: undefined,
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
+		credentials: undefined,
 	});
 
 	if (result.type === 'cannot-decode') {

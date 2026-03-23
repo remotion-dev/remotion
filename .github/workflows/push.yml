@@ -114,14 +114,14 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: "3.11"
       - uses: ruby/setup-ruby@master
         with:
-          ruby-version: '3.1'
+          ruby-version: "3.1"
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: "8.4"
       - run: pip install pylint boto3 pytest
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@v2.3.11
@@ -129,6 +129,77 @@ jobs:
         timeout-minutes: 8
         run: |
           bun run testssr
+  template-tests-check:
+    runs-on: ubuntu-latest
+    name: Template tests precheck
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 25
+      - uses: oven-sh/setup-bun@v2.1.2
+        with:
+          bun-version: 1.3.3
+      - name: Check if template tests are affected
+        id: check
+        run: |
+          set +e
+          bunx turbo-ignore @remotion/it-tests --task=testtemplates
+          status=$?
+          set -e
+
+          if [ "$status" -eq 0 ]; then
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "No relevant changes for testtemplates; skipping template-tests."
+          elif [ "$status" -eq 1 ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "Relevant changes detected for testtemplates; running template-tests."
+          else
+            echo "turbo-ignore failed with exit code $status"
+            exit "$status"
+          fi
+  template-tests:
+    name: Template integration on ${{ matrix.os }}
+    needs: template-tests-check
+    if: needs.template-tests-check.outputs.should_run == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    env:
+      BUN_INSTALL_CACHE_DIR: ${{ matrix.os == 'windows-latest' && 'D:\.bun\install\cache' || '' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 25
+      - uses: oven-sh/setup-bun@v2.1.2
+        with:
+          bun-version: 1.3.3
+      - name: Cache Bun dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/cache@v5
+        with:
+          path: D:\.bun\install\cache
+          key: ${{ matrix.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: |
+            ${{ matrix.os }}-bun-
+      - name: Install
+        run: bun ci
+      - name: Cache Turbo
+        uses: rharkor/caching-for-turbo@v2.3.11
+      - name: Test templates
+        timeout-minutes: 20
+        run: |
+          bun run testtemplates
   lint:
     runs-on: ubuntu-latest
     name: Linting + Formatting

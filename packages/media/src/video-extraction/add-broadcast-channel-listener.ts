@@ -53,6 +53,7 @@ export type ExtractFrameRequest = {
 	trimBefore: number | undefined;
 	fps: number;
 	maxCacheSize: number;
+	credentials: RequestCredentials | undefined;
 };
 
 // Send to other channels a message to let them know that the
@@ -102,6 +103,7 @@ export const addBroadcastChannelListener = () => {
 						trimBefore: data.trimBefore,
 						fps: data.fps,
 						maxCacheSize: data.maxCacheSize,
+						credentials: data.credentials,
 					});
 
 					if (result.type === 'cannot-decode') {

@@ -53,11 +53,15 @@ const getFormatOrNullOrNetworkError = async (
 	}
 };
 
-export const getSinks = async (src: string) => {
+export const getSinks = async (
+	src: string,
+	credentials: RequestCredentials | undefined,
+) => {
 	const input = new Input({
 		formats: ALL_FORMATS,
 		source: new UrlSource(src, {
 			getRetryDelay,
+			...(credentials ? {requestInit: {credentials}} : undefined),
 		}),
 	});
 

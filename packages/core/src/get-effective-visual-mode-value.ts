@@ -5,11 +5,13 @@ export const getEffectiveVisualModeValue = ({
 	runtimeValue,
 	dragOverrideValue,
 	defaultValue,
+	shouldResortToDefaultValueIfUndefined = false,
 }: {
 	codeValue: CanUpdateSequencePropStatus | null;
 	runtimeValue: unknown;
 	dragOverrideValue: unknown;
 	defaultValue: unknown;
+	shouldResortToDefaultValueIfUndefined: boolean;
 }) => {
 	if (dragOverrideValue !== undefined) {
 		return dragOverrideValue;
@@ -23,7 +25,10 @@ export const getEffectiveVisualModeValue = ({
 		return runtimeValue;
 	}
 
-	if (codeValue.codeValue === undefined) {
+	if (
+		codeValue.codeValue === undefined &&
+		shouldResortToDefaultValueIfUndefined
+	) {
 		return defaultValue;
 	}
 

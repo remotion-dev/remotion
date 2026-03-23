@@ -46,6 +46,7 @@ export const RenderModalBasic: React.FC<{
 	readonly validationMessage: string | null;
 	readonly setVerboseLogging: React.Dispatch<React.SetStateAction<LogLevel>>;
 	readonly logLevel: LogLevel;
+	readonly showOutputName: boolean;
 }> = ({
 	renderMode,
 	imageFormatOptions,
@@ -65,6 +66,7 @@ export const RenderModalBasic: React.FC<{
 	validationMessage,
 	setVerboseLogging,
 	logLevel,
+	showOutputName,
 }) => {
 	const existence = useFileExistence(outName);
 	const videoCodecOptions = useMemo((): ComboboxValue[] => {
@@ -220,14 +222,16 @@ export const RenderModalBasic: React.FC<{
 					startFrame={startFrame}
 				/>
 			)}
-			<RenderModalOutputName
-				existence={existence}
-				inputStyle={input}
-				outName={outName}
-				onValueChange={onValueChange}
-				validationMessage={validationMessage}
-				label={renderMode === 'sequence' ? 'Folder name' : 'Output name'}
-			/>
+			{showOutputName ? (
+				<RenderModalOutputName
+					existence={existence}
+					inputStyle={input}
+					outName={outName}
+					onValueChange={onValueChange}
+					validationMessage={validationMessage}
+					label={renderMode === 'sequence' ? 'Folder name' : 'Output name'}
+				/>
+			) : null}
 			<div style={optionRow}>
 				<div style={label}>
 					Log Level <Spacing x={0.5} />

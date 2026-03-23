@@ -144,7 +144,13 @@ export const RenderQueueContextProvider: React.FC<{
 					? ({
 							...job,
 							status: 'running',
-							progress: {encodedFrames: 0, totalFrames: 0},
+							progress: {
+								encodedFrames: 0,
+								totalFrames: 0,
+								doneIn: null,
+								renderEstimatedTime: 0,
+								progress: 0,
+							},
 						} as ClientRenderJob)
 					: job,
 			),

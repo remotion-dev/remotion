@@ -66,7 +66,7 @@ export const InstallsPerMonth: React.FC = () => {
 				}}
 			>
 				<StatItemContent
-					content="900K"
+					content="1.4M"
 					width="100px"
 					fontSize="2.5rem"
 					fontWeight="bold"
@@ -121,7 +121,7 @@ export const PagesOfDocs: React.FC = () => {
 					width="40px"
 				/>
 				<StatItemContent
-					content="700"
+					content="800"
 					width="85px"
 					maxWidth="100px"
 					fontSize="2.5rem"
@@ -177,7 +177,7 @@ export const GitHubStars: React.FC = () => {
 					width="45px"
 				/>
 				<StatItemContent
-					content="38k"
+					content="40k"
 					width="80px"
 					fontSize="2.5rem"
 					fontWeight="bold"
@@ -213,7 +213,7 @@ export const DiscordMembers: React.FC = () => {
 					}}
 				>
 					<StatItemContent
-						content="6000+"
+						content="8000+"
 						width="142px"
 						fontSize="2.5rem"
 						fontWeight="bold"

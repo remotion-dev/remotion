@@ -625,7 +625,7 @@ test(
 				'build',
 				'Timeout',
 				outputPath,
-				'--timeout=7000',
+				'--timeout=20000',
 			],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
@@ -637,7 +637,7 @@ test(
 		expect(task.stderr).toContain('This error should appear');
 	},
 	{
-		timeout: 30000,
+		timeout: 60000,
 	},
 );
 

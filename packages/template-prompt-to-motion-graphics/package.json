@@ -1,7 +1,7 @@
 {
   "name": "template-prompt-to-motion-graphics",
   "version": "4.0.379",
-  "description": "SaaS template for AI-powered code generation with Remotion",
+  "description": "SaaS template for AI-powered animation generation",
   "private": true,
   "repository": {
     "url": "https://github.com/remotion-dev/remotion/tree/main/packages/template-prompt-to-motion-graphics"
@@ -45,7 +45,7 @@
     "lucide-react": "0.555.0",
     "monaco-editor": "0.55.1",
     "monaco-jsx-syntax-highlight": "1.2.2",
-    "next": "16.1.5",
+    "next": "16.1.7",
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "remotion": "workspace:*",

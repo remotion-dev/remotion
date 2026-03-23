@@ -84,6 +84,49 @@ const frame = useCurrentFrame(); // 10
 const color = interpolateColors(frame, [0, 20], ['red', 'yellow']); // rgba(255, 128, 0, 1)
 ```
 
+## Interpolating `oklch` colors
+
+<AvailableFrom v="4.0.439" />
+
+Support for [`oklch()`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch) colors using space-separated syntax with optional alpha via `/`:
+
+```ts twoslash
+import {useCurrentFrame, interpolateColors} from 'remotion';
+
+const frame = useCurrentFrame(); // 10
+
+const color = interpolateColors(frame, [0, 20], ['oklch(0.5 0.2 240)', 'oklch(0.9 0.1 120)']);
+
+// With alpha
+const color2 = interpolateColors(frame, [0, 20], ['oklch(0.5 0.2 240 / 1)', 'oklch(0.9 0.1 120 / 0.5)']);
+```
+
+## Interpolating `oklab`, `lab`, `lch`, and `hwb` colors
+
+<AvailableFrom v="4.0.439" />
+
+The following CSS Color Level 4 formats are also supported:
+
+```ts twoslash
+import {useCurrentFrame, interpolateColors} from 'remotion';
+
+const frame = useCurrentFrame(); // 10
+
+// oklab
+const a = interpolateColors(frame, [0, 20], ['oklab(0.5 -0.1 0.1)', 'oklab(0.9 0 0)']);
+
+// lab
+const b = interpolateColors(frame, [0, 20], ['lab(50 -20 40)', 'lab(90 0 0)']);
+
+// lch
+const c = interpolateColors(frame, [0, 20], ['lch(50 60 240)', 'lch(90 30 120)']);
+
+// hwb
+const d = interpolateColors(frame, [0, 20], ['hwb(0 0% 0%)', 'hwb(120 10% 10%)']);
+```
+
+All modern color functions support the optional `/ alpha` syntax (e.g., `oklch(0.7 0.15 180 / 0.5)`).
+
 ## Compatibility
 
 <CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />

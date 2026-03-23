@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-utils"
 	},
 	"name": "@remotion/media-utils",
-	"version": "4.0.431",
+	"version": "4.0.438",
 	"description": "Utilities for working with media files",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -19,8 +19,6 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@remotion/media-parser": "workspace:*",
-		"@remotion/webcodecs": "workspace:*",
 		"remotion": "workspace:*",
 		"mediabunny": "catalog:"
 	},

@@ -439,7 +439,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 				if (vol < 0 || vol > 1) {
 					throw new TypeError(
-						`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`,
+						`setVolume() got a number that is out of range. Must be between 0 and 1, got ${vol}`,
 					);
 				}
 

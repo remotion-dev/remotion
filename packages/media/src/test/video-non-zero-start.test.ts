@@ -19,6 +19,7 @@ test('Should render first frame for videos starting after timestamp 0', async ()
 		playbackRate: 1,
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
+		credentials: undefined,
 	});
 
 	// Should successfully extract (no error thrown)

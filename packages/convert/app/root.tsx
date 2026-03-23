@@ -18,7 +18,7 @@ export const Layout = ({children}: {readonly children: React.ReactNode}) => {
 				/>
 				<Links />
 			</head>
-			<body>
+			<body className="bg-slate-50">
 				{children}
 				<ForceSpecificCursor />
 				<ScrollRestoration />

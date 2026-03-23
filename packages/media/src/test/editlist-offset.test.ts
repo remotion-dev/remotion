@@ -16,6 +16,7 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 		trimBefore: undefined,
 		trimAfter: undefined,
 		maxCacheSize: getMaxVideoCacheSize('info'),
+		credentials: undefined,
 	});
 	assert(audio1 !== 'cannot-decode');
 	assert(audio1 !== 'unknown-container-format');
@@ -36,6 +37,7 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 		trimBefore: undefined,
 		trimAfter: undefined,
 		maxCacheSize: getMaxVideoCacheSize('info'),
+		credentials: undefined,
 	});
 	assert(audio2 !== 'cannot-decode');
 	assert(audio2 !== 'unknown-container-format');
@@ -59,6 +61,7 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 		trimBefore: undefined,
 		trimAfter: undefined,
 		maxCacheSize: getMaxVideoCacheSize('info'),
+		credentials: undefined,
 	});
 	assert(audio3 !== 'cannot-decode');
 	assert(audio3 !== 'unknown-container-format');

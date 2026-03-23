@@ -9,6 +9,12 @@ metadata:
 
 Use Mediabunny to check if a video can be decoded by the browser before attempting to play it.
 
+First, install the right version of Mediabunny:
+
+```bash
+npx remotion add mediabunny
+```
+
 ## The `canDecode()` function
 
 This function can be copy-pasted into any project.

@@ -67,13 +67,19 @@ export const startMediaRecorder = async ({
     },
   );
 
-  const stopAndWaitUntilDone = () => {
+  let stoppedPromise: Promise<FinishedRecording> | null = null;
+
+  const stopRecorder = (): Promise<FinishedRecording> => {
+    if (stoppedPromise) {
+      return stoppedPromise;
+    }
+
     periodicSaveController.abort();
     const { resolve, reject, promise } =
       Promise.withResolvers<FinishedRecording>();
+    stoppedPromise = promise;
     const controller = new AbortController();
 
-    recorder.stop();
     recorder.addEventListener(
       "error",
       (event) => {
@@ -112,13 +118,27 @@ export const startMediaRecorder = async ({
       },
     );
 
+    recorder.stop();
+
     promise.finally(() => controller.abort());
 
     return promise;
   };
 
+  // Stop the recorder immediately when any track ends to prevent
+  // corrupt timestamps in the output file
+  for (const track of source.stream.getTracks()) {
+    track.addEventListener(
+      "ended",
+      () => {
+        stopRecorder();
+      },
+      { once: true },
+    );
+  }
+
   // Trigger a save every 10 seconds
   recorder.start(10_000);
 
-  return { recorder, stopAndWaitUntilDone, mimeType };
+  return { recorder, stopAndWaitUntilDone: stopRecorder, mimeType };
 };

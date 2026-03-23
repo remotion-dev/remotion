@@ -13,7 +13,6 @@ import {TableOfContents as LambdaTableOfContents} from '../../docs/lambda/table-
 import {TableOfContents as LayoutUtilsTableOfContents} from '../../docs/layout-utils/table-of-contents';
 import {TableOfContents as LicensingTableOfContents} from '../../docs/licensing/TableOfContents';
 import {TableOfContents as LightLeaksTableOfContents} from '../../docs/light-leaks/table-of-contents';
-import {TableOfContents as SfxTableOfContents} from '../../docs/sfx/table-of-contents';
 import {TableOfContents as LottieTableOfContents} from '../../docs/lottie/table-of-contents';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
 import {TableOfContents as MediaUtilsTableOfContents} from '../../docs/media-utils/table-of-contents';
@@ -27,8 +26,10 @@ import {TableOfContents as PreloadTableOfContents} from '../../docs/preload/tabl
 import {TableOfContents as RemotionTableOfContents} from '../../docs/remotion/table-of-contents';
 import {TableOfContents as RendererTableOfContents} from '../../docs/renderer/TableOfContents';
 import {TableOfContents as RiveTableOfContents} from '../../docs/rive/table-of-contents';
+import {TableOfContents as SfxTableOfContents} from '../../docs/sfx/table-of-contents';
 import {TableOfContents as ShapesTableOfContents} from '../../docs/shapes/table-of-contents';
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
+import {TableOfContents as StarburstTableOfContents} from '../../docs/starburst/table-of-contents';
 import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
 import {TableOfContents as TailwindV4TableOfContents} from '../../docs/tailwind-v4/TableOfContents';
 import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/TableOfContents';
@@ -157,8 +158,11 @@ export const TableOfContents: React.FC = () => {
 			<p>Sound effects library</p>
 			<SfxTableOfContents />
 			<h2>@remotion/light-leaks</h2>
-			<p>Light leak effects</p>
+			<p>Light Leak effects</p>
 			<LightLeaksTableOfContents />
+			<h2>@remotion/starburst</h2>
+			<p>Starburst Effect</p>
+			<StarburstTableOfContents />
 			<h2>@remotion/vercel</h2>
 			<p>Render videos on Vercel Sandbox</p>
 			<VercelTableOfContents />

@@ -1,9 +1,9 @@
 import type {RefObject} from 'react';
-import {useContext, useEffect} from 'react';
+import {useEffect} from 'react';
 import {useLogLevel, useMountTime} from './log-level-context.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import type {PlayableMediaTag} from './timeline-position-state.js';
-import {TimelineContext} from './TimelineContext.js';
+import {useTimelineContext} from './timeline-position-state.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 export const useMediaTag = ({
@@ -21,7 +21,7 @@ export const useMediaTag = ({
 	isPremounting: boolean;
 	isPostmounting: boolean;
 }) => {
-	const {audioAndVideoTags, imperativePlaying} = useContext(TimelineContext);
+	const {audioAndVideoTags, imperativePlaying} = useTimelineContext();
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
 	const env = useRemotionEnvironment();

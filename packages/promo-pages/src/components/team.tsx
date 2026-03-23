@@ -1,5 +1,6 @@
 import React from 'react';
 import {TitleTeamCards} from './team/TitleTeamCards';
+import {TrustSection} from './team/TrustSection';
 
 export const AboutUsHeader: React.FC = () => {
 	return (
@@ -44,6 +45,8 @@ export const TeamPage = () => {
 				<AboutUsHeader />
 				<br />
 				<TitleTeamCards />
+				<br />
+				<TrustSection />
 				<br />
 			</div>
 		</div>

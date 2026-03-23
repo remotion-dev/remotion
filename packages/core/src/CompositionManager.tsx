@@ -3,6 +3,7 @@ import React from 'react';
 import type {AnyZodObject} from './any-zod-type.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {DownloadBehavior} from './download-behavior.js';
+import type {NonceHistory} from './nonce.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import type {SequenceSchema} from './sequence-field-schema.js';
 
@@ -18,7 +19,7 @@ export type TComposition<
 	folderName: string | null;
 	parentFolderName: string | null;
 	component: LazyExoticComponent<ComponentType<Props>> | ComponentType<Props>;
-	nonce: number;
+	nonce: NonceHistory;
 	schema: Schema | null;
 	calculateMetadata: CalculateMetadataFunction<
 		InferProps<Schema, Props>
@@ -102,7 +103,7 @@ export type TSequence = {
 	parent: string | null;
 	rootId: string;
 	showInTimeline: boolean;
-	nonce: number;
+	nonce: NonceHistory;
 	loopDisplay: LoopDisplay | undefined;
 	stack: string | null;
 	premountDisplay: number | null;

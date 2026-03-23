@@ -7,6 +7,7 @@ import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
 import {Timeline} from './Timeline/Timeline';
+import {TimelineEmptyState} from './Timeline/TimelineEmptyState';
 
 const noop = () => undefined;
 
@@ -24,9 +25,8 @@ export const EditorContent: React.FC<{
 	const isStill = useIsStill();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
-	// Preventing multiple renders so the update check doesn't get rendered twice and needs to be aborted
-	const onlyTopPanel =
-		canvasContent === null || isStill || canvasContent.type !== 'composition';
+	const showTimeline =
+		canvasContent !== null && !isStill && canvasContent.type === 'composition';
 
 	return (
 		<div style={container}>
@@ -42,14 +42,10 @@ export const EditorContent: React.FC<{
 				<SplitterElement sticky={null} type="flexer">
 					{children}
 				</SplitterElement>
-				{onlyTopPanel ? null : (
-					<>
-						<SplitterHandle allowToCollapse="none" onCollapse={noop} />
-						<SplitterElement sticky={null} type="anti-flexer">
-							<Timeline />
-						</SplitterElement>
-					</>
-				)}
+				<SplitterHandle allowToCollapse="none" onCollapse={noop} />
+				<SplitterElement sticky={null} type="anti-flexer">
+					{showTimeline ? <Timeline /> : <TimelineEmptyState />}
+				</SplitterElement>
 			</SplitterContainer>
 		</div>
 	);

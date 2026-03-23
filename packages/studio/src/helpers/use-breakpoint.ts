@@ -1,13 +1,19 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 
 export function useBreakpoint(breakpoint: number): boolean {
 	const [compactUI, setCompactUI] = useState<boolean>(
 		window.innerWidth < breakpoint,
 	);
+	const compactUIRef = useRef(compactUI);
 
 	useEffect(() => {
 		function handleResize() {
-			setCompactUI(window.innerWidth < breakpoint);
+			const newValue = window.innerWidth < breakpoint;
+			if (newValue !== compactUIRef.current) {
+				setCompactUI(newValue);
+			}
+
+			compactUIRef.current = newValue;
 		}
 
 		window.addEventListener('resize', handleResize);

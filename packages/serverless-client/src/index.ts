@@ -82,6 +82,7 @@ export {
 	internalGetOrCreateBucket,
 } from './get-or-create-bucket';
 export {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
+export {getRemotionVersionFromIndexHtml} from './get-remotion-version-from-index-html';
 export {inputPropsKey, resolvedPropsKey} from './input-props-keys';
 export {inspectErrors} from './inspect-error';
 export {makeBucketName} from './make-bucket-name';

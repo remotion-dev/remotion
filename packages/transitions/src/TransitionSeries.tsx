@@ -209,6 +209,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					halfDuration,
 					children: overlayProps.children,
 					index: i,
+					stack: overlayProps.stack,
 				} as unknown as React.ReactNode);
 
 				return null;
@@ -508,6 +509,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 				durationInFrames: number;
 				children: React.ReactNode;
 				index: number;
+				stack: string | undefined;
 			};
 
 			return (
@@ -517,6 +519,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					durationInFrames={info.durationInFrames}
 					name="<TS.Overlay>"
 					layout="absolute-fill"
+					{...(info.stack ? {stack: info.stack} : {})}
 				>
 					{info.children}
 				</Sequence>

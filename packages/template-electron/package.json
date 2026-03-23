@@ -1,0 +1,54 @@
+{
+  "name": "template-electron",
+  "version": "1.0.0",
+  "description": "Minimal Electron + Remotion template",
+  "main": ".vite/build/main.js",
+  "private": true,
+  "scripts": {
+    "dev": "electron-forge start",
+    "studio": "remotion studio",
+    "build": "electron-forge package",
+    "package": "electron-forge package",
+    "render": "remotion render HelloWorld",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint . --ignore-pattern .vite --ignore-pattern out && tsc --noEmit"
+  },
+  "repository": {},
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/bundler": "workspace:*",
+    "@remotion/cli": "workspace:*",
+    "@remotion/renderer": "workspace:*",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "workspace:*",
+    "scheduler": "0.27.0",
+    "ws": "8.17.1"
+  },
+  "optionalDependencies": {
+    "@remotion/compositor-darwin-arm64": "workspace:*",
+    "@remotion/compositor-darwin-x64": "workspace:*",
+    "@remotion/compositor-linux-arm64-gnu": "workspace:*",
+    "@remotion/compositor-linux-arm64-musl": "workspace:*",
+    "@remotion/compositor-linux-x64-gnu": "workspace:*",
+    "@remotion/compositor-linux-x64-musl": "workspace:*",
+    "@remotion/compositor-win32-x64-msvc": "workspace:*"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.11.1",
+    "@electron-forge/plugin-vite": "^7.11.1",
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@types/node": "20.12.14",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "@types/web": "0.0.166",
+    "@vitejs/plugin-react": "4.3.4",
+    "electron": "40.8.0",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "tailwindcss": "^4.2.1",
+    "typescript": "5.9.3",
+    "vite": "^5.4.21"
+  }
+}

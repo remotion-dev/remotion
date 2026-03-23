@@ -1,9 +1,11 @@
 import {createRef} from 'react';
 import {getAbsoluteSrc} from './absolute-src.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
+import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
+	type ScheduleAudioNodeOptions,
 } from './audio/shared-audio-tags.js';
 import {
 	useFrameForVolumeProp,
@@ -61,6 +63,7 @@ import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
 import {Log} from './log.js';
 import {MaxMediaCacheSizeContext} from './max-video-cache-size.js';
+import type {NonceHistory} from './nonce.js';
 import {NonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
 import {portalNode} from './portal-node.js';
@@ -101,9 +104,11 @@ import {setupEnvVariables} from './setup-env-variables.js';
 import * as TimelinePosition from './timeline-position-state.js';
 import {
 	persistCurrentFrame,
+	useTimelineContext,
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
 import {
+	AbsoluteTimeContext,
 	SetTimelineContext,
 	TimelineContext,
 	type SetTimelineContextValue,
@@ -155,6 +160,7 @@ import {evaluateVolume} from './volume-prop.js';
 import {warnAboutTooHighVolume} from './volume-safeguard.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
+import {wrapInSchema} from './wrap-in-schema.js';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
@@ -174,6 +180,7 @@ export const Internals = {
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
+	useAbsoluteTimelinePosition: TimelinePosition.useAbsoluteTimelinePosition,
 	evaluateVolume,
 	getAbsoluteSrc,
 	Timeline: TimelinePosition,
@@ -188,6 +195,7 @@ export const Internals = {
 	SequenceStackTracesUpdateContext,
 	SequenceVisibilityToggleContext,
 	useSchema,
+	wrapInSchema,
 	useSequenceControlOverride,
 	RemotionRootContexts,
 	CompositionManagerProvider,
@@ -235,6 +243,7 @@ export const Internals = {
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 	RenderAssetManager,
 	persistCurrentFrame,
+	useTimelineContext,
 	useTimelineSetFrame,
 	isIosSafari,
 	WATCH_REMOTION_STATIC_FILES,
@@ -269,6 +278,7 @@ export const Internals = {
 	TimelinePosition,
 	DelayRenderContextType,
 	TimelineContext,
+	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
 	getEffectiveVisualModeValue,
 } as const;
@@ -291,5 +301,8 @@ export type {
 	TRenderAsset,
 	TSequence,
 	WatchRemotionStaticFilesPayload,
+	ScheduleAudioNodeOptions,
 	CanUpdateSequencePropStatus,
+	ScheduleAudioNodeResult,
+	NonceHistory,
 };

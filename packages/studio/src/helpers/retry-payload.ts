@@ -73,6 +73,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialChromeMode: job.chromeMode,
 			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 			renderDefaults: defaults,
+			readOnlyStudio: false,
 		};
 	}
 
@@ -129,6 +130,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialChromeMode: job.chromeMode,
 			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 			renderDefaults: defaults,
+			readOnlyStudio: false,
 		};
 	}
 
@@ -185,6 +187,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialChromeMode: job.chromeMode,
 			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 			renderDefaults: defaults,
+			readOnlyStudio: false,
 		};
 	}
 

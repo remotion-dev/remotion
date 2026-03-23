@@ -1,6 +1,7 @@
 import React, {useCallback, useContext} from 'react';
 import {ModalsContext} from '../../state/modals';
 import {useZIndex} from '../../state/z-index';
+import {getClientRenderProgressMessage} from './client-render-progress';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
 import {renderQueueItemSubtitleStyle} from './item-style';
@@ -29,9 +30,7 @@ export const RenderQueueProgressMessage: React.FC<{
 	}, [job.id, setSelectedModal]);
 
 	const message = isClientJob
-		? job.progress.totalFrames === 0
-			? 'Getting composition'
-			: `Encoding frame ${job.progress.encodedFrames}/${job.progress.totalFrames}`
+		? getClientRenderProgressMessage(job.progress)
 		: job.progress.message;
 
 	return (

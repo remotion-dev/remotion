@@ -1,6 +1,7 @@
 import type {AudioCodec, Quality} from 'mediabunny';
 import {
 	AdtsOutputFormat,
+	FlacOutputFormat,
 	MkvOutputFormat,
 	MovOutputFormat,
 	Mp3OutputFormat,
@@ -26,13 +27,15 @@ export type WebRendererContainer =
 	| 'wav'
 	| 'mp3'
 	| 'aac'
-	| 'ogg';
+	| 'ogg'
+	| 'flac';
 export type WebRendererAudioCodec =
 	| 'aac'
 	| 'opus'
 	| 'mp3'
 	| 'vorbis'
-	| 'pcm-s16';
+	| 'pcm-s16'
+	| 'flac';
 export type WebRendererQuality =
 	| 'very-low'
 	| 'low'
@@ -47,7 +50,8 @@ export const isAudioOnlyContainer = (
 		container === 'wav' ||
 		container === 'mp3' ||
 		container === 'aac' ||
-		container === 'ogg'
+		container === 'ogg' ||
+		container === 'flac'
 	);
 };
 
@@ -88,6 +92,8 @@ export const containerToMediabunnyContainer = (
 			return new AdtsOutputFormat();
 		case 'ogg':
 			return new OggOutputFormat();
+		case 'flac':
+			return new FlacOutputFormat();
 		case 'mov':
 			return new MovOutputFormat({fastStart: 'reserve'});
 		default:
@@ -110,6 +116,7 @@ export const getDefaultVideoCodecForContainer = (
 		case 'mp3':
 		case 'aac':
 		case 'ogg':
+		case 'flac':
 			return null;
 		default:
 			throw new Error(`Unsupported container: ${container satisfies never}`);
@@ -167,6 +174,8 @@ export const getMimeType = (container: WebRendererContainer): string => {
 			return 'audio/aac';
 		case 'ogg':
 			return 'audio/ogg';
+		case 'flac':
+			return 'audio/flac';
 		case 'mov':
 			return 'video/quicktime';
 		default:
@@ -192,6 +201,8 @@ export const getDefaultAudioCodecForContainer = (
 			return 'aac';
 		case 'ogg':
 			return 'opus';
+		case 'flac':
+			return 'flac';
 		case 'mov':
 			return 'aac';
 		default:
@@ -228,6 +239,7 @@ const WEB_RENDERER_AUDIO_CODECS: WebRendererAudioCodec[] = [
 	'mp3',
 	'vorbis',
 	'pcm-s16',
+	'flac',
 ];
 
 export const audioCodecToMediabunnyAudioCodec = (
@@ -244,6 +256,8 @@ export const audioCodecToMediabunnyAudioCodec = (
 			return 'vorbis';
 		case 'pcm-s16':
 			return 'pcm-s16';
+		case 'flac':
+			return 'flac';
 		default:
 			throw new Error(`Unsupported audio codec: ${audioCodec satisfies never}`);
 	}

@@ -75,6 +75,65 @@ const parseDirection = (directionStr: string): number => {
 	return 180;
 };
 
+const cssColorToRgba = (
+	color: string,
+): {r: number; g: number; b: number; a: number} | null => {
+	try {
+		const packed = NoReactInternals.processColor(color);
+		// processColor returns ((normalizedColor << 24) | (normalizedColor >>> 8)) >>> 0
+		// which is ARGB packed as a 32-bit unsigned integer
+		const a = ((packed >>> 24) & 255) / 255;
+		const r = (packed >>> 16) & 255;
+		const g = (packed >>> 8) & 255;
+		const b = packed & 255;
+		return {r, g, b, a};
+	} catch {
+		return null;
+	}
+};
+
+const isFullyTransparent = (color: string): boolean => {
+	const rgba = cssColorToRgba(color);
+	return rgba !== null && rgba.a === 0;
+};
+
+const findNearestNonTransparent = (
+	stops: ColorStop[],
+	fromIndex: number,
+	direction: -1 | 1,
+): string | null => {
+	let i = fromIndex + direction;
+	while (i >= 0 && i < stops.length) {
+		if (!isFullyTransparent(stops[i].color)) {
+			return stops[i].color;
+		}
+
+		i += direction;
+	}
+
+	return null;
+};
+
+const resolveTransparentStops = (stops: ColorStop[]): void => {
+	for (let i = 0; i < stops.length; i++) {
+		if (!isFullyTransparent(stops[i].color)) {
+			continue;
+		}
+
+		// Find nearest non-transparent neighbor
+		const prev = findNearestNonTransparent(stops, i, -1);
+		const next = findNearestNonTransparent(stops, i, 1);
+		const neighbor = prev ?? next;
+
+		if (neighbor) {
+			const rgba = cssColorToRgba(neighbor);
+			if (rgba) {
+				stops[i].color = `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, 0)`;
+			}
+		}
+	}
+};
+
 const parseColorStops = (colorStopsStr: string): ColorStop[] | null => {
 	// Split by comma, but respect parentheses in rgba(), rgb(), hsl(), hsla()
 	const parts = colorStopsStr.split(/,(?![^(]*\))/);
@@ -194,6 +253,11 @@ const parseColorStops = (colorStopsStr: string): ColorStop[] | null => {
 	for (const stop of stops) {
 		stop.position = Math.max(0, Math.min(1, stop.position));
 	}
+
+	// CSS Color Level 4: `transparent` should interpolate as the same hue
+	// with zero alpha, not as rgba(0,0,0,0). Replace `transparent` stops
+	// with the RGB of the nearest non-transparent neighbor at alpha 0.
+	resolveTransparentStops(stops);
 
 	return stops;
 };

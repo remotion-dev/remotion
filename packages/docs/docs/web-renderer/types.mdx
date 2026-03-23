@@ -8,7 +8,7 @@ crumb: '@remotion/web-renderer'
 ---
 
 :::warning
-Very experimental feature - expect bugs and breaking changes at any time.
+Experimental feature - expect bugs and breaking changes at any time.
 [Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
 :::
 
@@ -18,7 +18,7 @@ The following types are part of the API of `@remotion/web-renderer`:
 
 ```tsx twoslash
 import type {WebRendererContainer} from '@remotion/web-renderer';
-//                ^?
+//               ^?
 ```
 
 More values may be added in the future, this would not be considered a breaking change.
@@ -83,8 +83,26 @@ import type {RenderMediaOnWebProgress} from '@remotion/web-renderer';
 //                ^?
 ```
 
-- `renderedFrames`: The number of frames that have been rendered
-- `encodedFrames`: The number of frames that have been encoded
+### `renderedFrames`
+
+Deprecated and kept for backward compatibility. The number of frames that have been rendered.
+Prefer `progress` for overall status updates.
+
+### `encodedFrames`
+
+The number of frames that have been encoded.
+
+### `doneIn`
+
+The total time in milliseconds from render start until all frames were encoded, or `null` while encoding is still in progress.
+
+### `renderEstimatedTime`
+
+Estimated time remaining in milliseconds until rendering is done.
+
+### `progress`
+
+Overall progress as a number between `0` and `1`.
 
 ## `RenderMediaOnWebProgressCallback`
 

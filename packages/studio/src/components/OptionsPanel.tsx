@@ -195,21 +195,19 @@ export const OptionsPanel: React.FC<{
 							Controls
 						</Tab>
 					) : null}
-					{composition ? (
-						<Tab
-							selected={panel === 'input-props'}
-							onClick={onPropsSelected}
-							style={{justifyContent: 'space-between'}}
-						>
-							Props
-							{unsavedChangesExist ? (
-								<GlobalPropsEditorUpdateButton
-									compositionId={composition.id}
-									currentDefaultProps={currentDefaultProps}
-								/>
-							) : null}
-						</Tab>
-					) : null}
+					<Tab
+						selected={panel === 'input-props'}
+						onClick={onPropsSelected}
+						style={{justifyContent: 'space-between'}}
+					>
+						Props
+						{unsavedChangesExist && composition ? (
+							<GlobalPropsEditorUpdateButton
+								compositionId={composition.id}
+								currentDefaultProps={currentDefaultProps}
+							/>
+						) : null}
+					</Tab>
 					{renderingAvailable ? (
 						<RendersTab
 							onClick={onRendersSelected}
@@ -218,18 +216,20 @@ export const OptionsPanel: React.FC<{
 					) : null}
 				</Tabs>
 			</div>
-			{panel === `input-props` && composition ? (
-				<DataEditor
-					key={composition.id}
-					unresolvedComposition={composition}
-					defaultProps={currentDefaultProps}
-					setDefaultProps={setDefaultProps}
-					mayShowSaveButton
-					propsEditType="default-props"
-					saving={saving}
-					setSaving={setSaving}
-					readOnlyStudio={readOnlyStudio}
-				/>
+			{panel === 'input-props' ? (
+				composition ? (
+					<DataEditor
+						key={composition.id}
+						unresolvedComposition={composition}
+						defaultProps={currentDefaultProps}
+						setDefaultProps={setDefaultProps}
+						mayShowSaveButton
+						propsEditType="default-props"
+						saving={saving}
+						setSaving={setSaving}
+						readOnlyStudio={readOnlyStudio}
+					/>
+				) : null
 			) : panel === 'visual-controls' && visualControlsTabActivated ? (
 				<VisualControlsContent />
 			) : !renderingAvailable ? null : (

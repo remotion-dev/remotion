@@ -3,9 +3,12 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Climate Crisis',
 	importName: 'ClimateCrisis',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Climate+Crisis:ital,wght@0,400',
 	unicodeRanges: {
+		'cyrillic-ext':
+			'U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F',
+		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
 		'latin-ext':
 			'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
 		latin:
@@ -14,14 +17,18 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
+				'cyrillic-ext':
+					'https://fonts.gstatic.com/s/climatecrisis/v15/wEOpEB3AntNeKCPBVW9XOKlmp3AUgWFN1DvIvcM0gFpKh68qKb4.woff2',
+				cyrillic:
+					'https://fonts.gstatic.com/s/climatecrisis/v15/wEOpEB3AntNeKCPBVW9XOKlmp3AUgWFN1DvIvcM0gFpKjq8qKb4.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/climatecrisis/v14/wEOpEB3AntNeKCPBVW9XOKlmp3AUgWFN1DvIvcM0gFpKhK8qKb4.woff2',
+					'https://fonts.gstatic.com/s/climatecrisis/v15/wEOpEB3AntNeKCPBVW9XOKlmp3AUgWFN1DvIvcM0gFpKhK8qKb4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/climatecrisis/v14/wEOpEB3AntNeKCPBVW9XOKlmp3AUgWFN1DvIvcM0gFpKiq8q.woff2',
+					'https://fonts.gstatic.com/s/climatecrisis/v15/wEOpEB3AntNeKCPBVW9XOKlmp3AUgWFN1DvIvcM0gFpKiq8q.woff2',
 			},
 		},
 	},
-	subsets: ['latin', 'latin-ext'],
+	subsets: ['cyrillic', 'cyrillic-ext', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Climate Crisis' as const;
@@ -29,7 +36,7 @@ export const fontFamily = 'Climate Crisis' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin' | 'latin-ext';
+		subsets: 'cyrillic' | 'cyrillic-ext' | 'latin' | 'latin-ext';
 	};
 };
 

@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react';
+import {useContext, useState, useEffect} from 'react';
 import type {LoopDisplay, SequenceControls} from 'remotion';
 import {Internals, useCurrentFrame, type VolumeProp} from 'remotion';
 
@@ -88,7 +88,7 @@ export const useMediaInTimeline = ({
 				displayName: finalDisplayName,
 				rootId,
 				showInTimeline: true,
-				nonce,
+				nonce: nonce.get(),
 				loopDisplay,
 				stack,
 				from: 0,
@@ -109,7 +109,7 @@ export const useMediaInTimeline = ({
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
-			nonce,
+			nonce: nonce.get(),
 			startMediaFrom: 0 - startsAt + (trimBefore ?? 0),
 			doesVolumeChange,
 			loopDisplay: undefined,

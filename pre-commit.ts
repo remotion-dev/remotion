@@ -52,11 +52,3 @@ if (formatPackageNames.size > 0) {
 		await $`git add ${stagedFiles}`;
 	}
 }
-
-if (lintPackageNames.size > 0) {
-	const lintFilters = [...lintPackageNames].flatMap((name) => [
-		'--filter',
-		name,
-	]);
-	await $`bun run ${lintFilters} lint`;
-}

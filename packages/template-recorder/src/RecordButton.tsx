@@ -128,10 +128,34 @@ export const RecordButton: React.FC<{
   }, [recordingStatus, setRecordingStatus]);
 
   useEffect(() => {
+    if (recordingStatus.type !== "recording") {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    for (const rec of recordingStatus.ongoing.recorders) {
+      for (const track of rec.recorder.stream.getTracks()) {
+        track.addEventListener(
+          "ended",
+          () => {
+            onStop();
+          },
+          { once: true, signal: controller.signal },
+        );
+      }
+    }
+
+    return () => {
+      controller.abort();
+    };
+  }, [recordingStatus, onStop]);
+
+  useEffect(() => {
     return () => {
       if (recordingStatus.type === "recording") {
         recordingStatus.ongoing.recorders.forEach((r) => {
-          r.recorder.stop();
+          r.stopAndWaitUntilDone();
         });
       }
     };

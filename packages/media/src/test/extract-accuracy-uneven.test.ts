@@ -21,6 +21,7 @@ test('Extract accuracy over 100 frames with playback rate 1.75', async () => {
 			trimBefore: undefined,
 			trimAfter: undefined,
 			maxCacheSize: getMaxVideoCacheSize('info'),
+			credentials: undefined,
 		});
 		if (audio === 'cannot-decode') {
 			throw new Error(`Cannot decode at frame ${i}`);

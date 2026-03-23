@@ -100,6 +100,11 @@ type ColorMatchers = {
 	hex5: MatcherType;
 	hex6: MatcherType;
 	hex8: MatcherType;
+	oklch: MatcherType;
+	oklab: MatcherType;
+	lab: MatcherType;
+	lch: MatcherType;
+	hwb: MatcherType;
 };
 
 type Style = React.CSSProperties;

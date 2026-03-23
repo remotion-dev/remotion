@@ -56,9 +56,9 @@ const MyComp: React.FC = () => {
   const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
 
   React.useEffect(() => {
-    setTimeout(() => {
+    return () => {
       delayHandle.unblock();
-    }, 5000);
+    };
   }, []);
 
   return <></>;

@@ -138,13 +138,13 @@ Easing can be added to the `interpolate` function:
 import { interpolate, Easing } from "remotion";
 
 const value1 = interpolate(frame, [0, 100], [0, 1], {
-  easing: Easing.inOut(Easing.quad),
+  easing: Easing.inOut(Easing.cubic),
   extrapolateLeft: "clamp",
   extrapolateRight: "clamp",
 });
 ```
 
-The default easing is `Easing.linear`.  
+The default easing is `Easing.linear`.
 There are various other convexities:
 
 - `Easing.in` for starting slow and accelerating
@@ -154,6 +154,7 @@ There are various other convexities:
 and curves (sorted from most linear to most curved):
 
 - `Easing.quad`
+- `Easing.cubic` (recommended default)
 - `Easing.sin`
 - `Easing.exp`
 - `Easing.circle`
@@ -162,7 +163,7 @@ Convexities and curves need be combined for an easing function:
 
 ```ts
 const value1 = interpolate(frame, [0, 100], [0, 1], {
-  easing: Easing.inOut(Easing.quad),
+  easing: Easing.inOut(Easing.cubic),
   extrapolateLeft: "clamp",
   extrapolateRight: "clamp",
 });
@@ -177,3 +178,34 @@ const value1 = interpolate(frame, [0, 100], [0, 1], {
   extrapolateRight: "clamp",
 });
 ```
+
+### Easing direction for enter/exit animations
+
+Use `Easing.out` for enter animations (starts fast, decelerates into place) and `Easing.in` for exit animations (starts slow, accelerates away). This feels natural because elements arrive with momentum and leave with gravity.
+
+## Composing interpolations
+
+When multiple properties share the same timing (e.g. a slide-in panel and a video shift), avoid duplicating the full interpolation for each property. Instead, create a single normalized progress value (0 to 1) and derive each property from it:
+
+```tsx
+const slideIn = interpolate(
+  frame,
+  [slideInStart, slideInStart + slideInDuration],
+  [0, 1],
+  { easing: Easing.out(Easing.cubic), extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+);
+const slideOut = interpolate(
+  frame,
+  [slideOutStart, slideOutStart + slideOutDuration],
+  [0, 1],
+  { easing: Easing.in(Easing.cubic), extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+);
+const progress = slideIn - slideOut;
+
+// Derive multiple properties from the same progress
+const overlayX = interpolate(progress, [0, 1], [100, 0]);
+const videoX = interpolate(progress, [0, 1], [0, -20]);
+const opacity = interpolate(progress, [0, 1], [0, 1]);
+```
+
+This pattern works with both `interpolate` and `spring`. The key idea: separate **timing** (when and how fast) from **mapping** (what values to animate between).
