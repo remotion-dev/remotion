@@ -2,6 +2,20 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {BrowserReplacer} from './replace-browser';
 
+const TARGET_FULL_CYCLE_MS = 600;
+const MIN_CYCLE_INTERVAL_MS = 20;
+
+export const getTabCycleIntervalMs = (concurrency: number) => {
+	if (concurrency <= 1) {
+		return 0;
+	}
+
+	return Math.max(
+		MIN_CYCLE_INTERVAL_MS,
+		Math.floor(TARGET_FULL_CYCLE_MS / concurrency),
+	);
+};
+
 export const cycleBrowserTabs = ({
 	puppeteerInstance,
 	concurrency,
@@ -24,6 +38,7 @@ export const cycleBrowserTabs = ({
 	let interval: Timer | null = null;
 	let i = 0;
 	let stopped = false;
+	const cycleInterval = getTabCycleIntervalMs(concurrency);
 	const set = () => {
 		interval = setTimeout(() => {
 			puppeteerInstance
@@ -51,7 +66,7 @@ export const cycleBrowserTabs = ({
 						set();
 					}
 				});
-		}, 200);
+		}, cycleInterval);
 	};
 
 	set();
