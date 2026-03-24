@@ -107,11 +107,11 @@ You may transform input props using [`calculateMetadata()`](/docs/calculate-meta
 
 Which codec should be used to encode the video.
 
-Video codecs `h264`, and `vp8` are supported, `prores` is supported since `v3.2.0`. `h265` support has been added in `v4.0.32`.
+Video codecs `h264`, `h265`, `vp8`, `vp9`, `gif` and `prores` are supported.
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
-AV1 is not available on Remotion Lambda because the Lambda binary must stay within AWS package size limits. AV1 remains available for non-Lambda renders.
+Remotion Lambda ships with the essential codecs to keep the runtime lean, so `av1` is not available there. `AV1` remains available for non-Lambda renders.
 
 The option `h264-mkv` has been renamed to just `h264` since `v3.3.34`. Use `h264` to get the same behavior.
 

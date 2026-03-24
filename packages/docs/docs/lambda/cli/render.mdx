@@ -143,9 +143,9 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--codec`
 
-[`h264` or `h265` (supported since v4.0.32) or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
+[`h264` or `h265` or `vp8` or `vp9` or `gif` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
 
-AV1 is not available on Remotion Lambda because the Lambda binary must stay within AWS package size limits. AV1 remains available for non-Lambda renders.
+Remotion Lambda ships with the essential codecs to keep the runtime lean, so `av1` is not available there. `AV1` remains available for non-Lambda renders.
 
 ### `--audio-codec`<AvailableFrom v="3.3.42" />
 
