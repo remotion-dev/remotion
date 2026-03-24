@@ -247,7 +247,7 @@ const renderContent = (Root: React.FC) => {
 					frameState={null}
 					audioEnabled={window.remotion_audioEnabled}
 					videoEnabled={window.remotion_videoEnabled}
-					logLevel={window.remotion_logLevel}
+					logLevel={window.remotion_logLevel ?? 'info'}
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 					visualModeEnabled={false}
@@ -275,7 +275,7 @@ const renderContent = (Root: React.FC) => {
 					frameState={null}
 					audioEnabled={window.remotion_audioEnabled}
 					videoEnabled={window.remotion_videoEnabled}
-					logLevel={window.remotion_logLevel}
+					logLevel={window.remotion_logLevel ?? 'info'}
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 					visualModeEnabled={false}
@@ -355,11 +355,11 @@ if (typeof window !== 'undefined') {
 		const canSerializeDefaultProps = getCanSerializeDefaultProps(compositions);
 		if (!canSerializeDefaultProps) {
 			Internals.Log.warn(
-				{logLevel: window.remotion_logLevel, tag: null},
+				{logLevel: window.remotion_logLevel ?? 'info', tag: null},
 				'defaultProps are too big to serialize - trying to find the problematic composition...',
 			);
 			Internals.Log.warn(
-				{logLevel: window.remotion_logLevel, tag: null},
+				{logLevel: window.remotion_logLevel ?? 'info', tag: null},
 				'Serialization:',
 				compositions,
 			);
@@ -372,7 +372,7 @@ if (typeof window !== 'undefined') {
 			}
 
 			Internals.Log.warn(
-				{logLevel: window.remotion_logLevel, tag: null},
+				{logLevel: window.remotion_logLevel ?? 'info', tag: null},
 				'Could not single out a problematic composition -  The composition list as a whole is too big to serialize.',
 			);
 

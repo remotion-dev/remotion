@@ -30,7 +30,7 @@ const StudioInner: React.FC<{
 				frameState={null}
 				audioEnabled={window.remotion_audioEnabled}
 				videoEnabled={window.remotion_videoEnabled}
-				logLevel={window.remotion_logLevel}
+				logLevel={window.remotion_logLevel ?? 'info'}
 				numberOfAudioTags={window.remotion_numberOfAudioTags}
 				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 			>
