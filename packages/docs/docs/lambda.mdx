@@ -60,6 +60,7 @@ The following regions are available for Remotion Lambda:
 
 - You only have up to 10GB of storage available in a Lambda function. This must be sufficient for both the separated chunks and the concatenated output, therefore the output file can only be about 5GB maximum, limiting the maximum video length to around 2 hours of Full HD video.
 - [Lambda has a global limit of 1000 concurrent lambdas per region by default, although it can be increased](/docs/lambda/troubleshooting/rate-limit).
+- Remotion Lambda ships with the essential codecs to keep the runtime lean, so `AV1` output is not available.
 
 ## Cost
 

@@ -111,6 +111,8 @@ Video codecs `h264`, and `vp8` are supported, `prores` is supported since `v3.2.
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
+AV1 is not available on Remotion Lambda because the Lambda binary must stay within AWS package size limits. AV1 remains available for non-Lambda renders.
+
 The option `h264-mkv` has been renamed to just `h264` since `v3.3.34`. Use `h264` to get the same behavior.
 
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
