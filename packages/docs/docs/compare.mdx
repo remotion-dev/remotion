@@ -80,7 +80,7 @@ Remotion Lambda currently has the following features that Cloud Run does not hav
 
 Rendering with Vercel Sandbox or the Node.JS APIs does not come with these features either, but you may build them based on top of the low-level APIs that are provided.
 
-Codec support also differs between environments. For example, `AV1` output is available for regular renders, but Remotion Lambda ships with the essential codecs to keep the runtime lean, so `AV1` is not available there.
+Codec support also differs between environments. For example, `AV1` output is not available on Remotion Lambda or Linux ARM64 GNU because those runtimes ship only the essential codecs to stay lean.
 
 ## GPU
 

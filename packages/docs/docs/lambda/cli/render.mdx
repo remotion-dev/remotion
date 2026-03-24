@@ -145,7 +145,7 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 [`h264` or `h265` or `vp8` or `vp9` or `gif` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
 
-Remotion Lambda ships with the essential codecs to keep the runtime lean, so `av1` is not available there. `AV1` remains available for non-Lambda renders.
+Remotion Lambda ships with the essential codecs to keep the runtime lean. The same lean binary set is also used on Linux ARM64 GNU, so `av1` is not available there either. `AV1` remains available on the other shipped targets.
 
 ### `--audio-codec`<AvailableFrom v="3.3.42" />
 

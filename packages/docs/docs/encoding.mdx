@@ -104,9 +104,9 @@ Remotion supports 6 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `av1
 Click on a browser compatibility link to see exactly which browsers are supported on caniuse.com.
 :::
 
-* AV1 is not available on [Remotion Lambda](/docs/lambda).
+* AV1 is not available on [Remotion Lambda](/docs/lambda) or Linux ARM64 GNU.
 
-AV1 can achieve very small file sizes, but encoding is significantly slower than H.264 and H.265. Remotion Lambda ships with the essential codecs to keep the runtime lean, so `AV1` output is not available there.
+AV1 can achieve very small file sizes, but encoding is significantly slower than H.264 and H.265. Some runtimes ship only the essential codecs to stay lean, so `AV1` output is not available on Remotion Lambda or Linux ARM64 GNU.
 
 You can set a config using [`Config.setCodec()` in the config file](/docs/config#setcodec) or the [`--codec`](/docs/cli) CLI flag.
 

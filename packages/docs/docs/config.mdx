@@ -601,7 +601,7 @@ Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`, `a
 - `wav` will export audio only as an WAV file _(available from v2.0)_
 - `aac` will export audio only as an AAC file _(available from v2.0)_
 
-Remotion Lambda ships with the essential codecs to keep the runtime lean, so `AV1` is not available there. See the [Encoding guide](/docs/encoding) for details.
+Some runtimes ship only the essential codecs to stay lean, so `AV1` is not available on Remotion Lambda or Linux ARM64 GNU. See the [Encoding guide](/docs/encoding) for details.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';

@@ -75,7 +75,7 @@ The browser was compiled including the proprietary codecs, so you can include MP
 
 The FFmpeg which is built into `@remotion/renderer` is being used on Lambda.
 
-The Lambda runtime ships with the essential codecs to keep it lean, so it does not include the AV1 encoder. AV1 decode support remains available, and AV1 encoding is still available for non-Lambda renders.
+The Lambda runtime ships with the essential codecs to keep it lean, so it does not include the AV1 encoder. The same lean binary set is also used on Linux ARM64 GNU. AV1 decode support remains available, and AV1 encoding remains available on the other shipped targets.
 
 ## Fonts
 
