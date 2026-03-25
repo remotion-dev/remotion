@@ -111,7 +111,7 @@ Video codecs `h264`, `h265`, `vp8`, `vp9`, `gif` and `prores` are supported.
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
-Remotion Lambda ships with the essential codecs to keep the runtime lean. The same lean binary set is also used on Linux ARM64 GNU, so `av1` is not available there either. `AV1` remains available on the other shipped targets.
+`av1` is not available on Lambda due to function size constraints.
 
 The option `h264-mkv` has been renamed to just `h264` since `v3.3.34`. Use `h264` to get the same behavior.
 
