@@ -126,6 +126,10 @@ export const getCodecName = ({
 	}
 
 	if (codec === 'av1') {
+		Log.warn(
+			{indent, logLevel},
+			'AV1 encoding is significantly slower than other codecs. Consider using h264 or h265 if encoding speed is important.',
+		);
 		return {encoderName: 'libaom-av1', hardwareAccelerated: false};
 	}
 
