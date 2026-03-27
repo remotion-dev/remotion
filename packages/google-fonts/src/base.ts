@@ -198,7 +198,7 @@ export const loadFonts = (
 			}
 		}
 
-		if (fontsLoaded > 20) {
+		if (fontsLoaded > 20 && !options?.ignoreTooManyRequestsWarning) {
 			console.warn(
 				`Made ${fontsLoaded} network requests to load fonts for ${meta.fontFamily}. Consider loading fewer weights and subsets by passing options to loadFont(). Disable this warning by passing "ignoreTooManyRequestsWarning: true" to "options".`,
 			);
