@@ -30,7 +30,7 @@
 		"@testing-library/dom": "10.4.0",
 		"@happy-dom/global-registrator": "14.5.1",
 		"@types/dom-webcodecs": "catalog:",
-		"happy-dom": "20.0.2",
+		"happy-dom": "20.8.9",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"webpack": "5.105.0",
