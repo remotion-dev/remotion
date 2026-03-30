@@ -86,6 +86,8 @@ export const RenderModalJSONPropsEditor: React.FC<{
 		return parseJSON(serializedJSON.serializedString, schema);
 	});
 
+	const lastValue = React.useRef(value);
+
 	useEffect(() => {
 		const unsub = subscribeToEvent('default-props-updatable-changed', (e) => {
 			if (e.type !== 'default-props-updatable-changed') {
@@ -98,7 +100,9 @@ export const RenderModalJSONPropsEditor: React.FC<{
 
 			const {result} = e;
 			if (result.canUpdate) {
-				setLocalValue(parseJS(result.currentDefaultProps, schema));
+				const nextState = parseJS(result.currentDefaultProps, schema);
+				lastValue.current = result.currentDefaultProps;
+				setLocalValue(nextState);
 			}
 		});
 
@@ -106,6 +110,11 @@ export const RenderModalJSONPropsEditor: React.FC<{
 			unsub();
 		};
 	}, [subscribeToEvent, compositionId, schema]);
+
+	useEffect(() => {
+		lastValue.current = value;
+		setLocalValue(parseJS(value as Record<string, unknown>, schema));
+	}, [value, schema]);
 
 	const onPretty = useCallback(() => {
 		if (!localValue.validJSON) {
@@ -121,6 +130,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 			const parsed = parseJSON(e.target.value, schema);
 			setLocalValue(parsed);
 			if (parsed.validJSON && parsed.zodValidation.success) {
+				lastValue.current = parsed.value;
 				setValue(parsed.value);
 			}
 		},
