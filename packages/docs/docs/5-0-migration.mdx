@@ -87,6 +87,13 @@ This will add a miniscule cost to your renders technically, but will lead to mor
 `renderMediaOnLambda()`, `getRenderProgress()`, `renderStillOnLambda()`, `presignUrl()`, `getSites()` have been removed from `@remotion/lambda`.  
 They are now available in `@remotion/lambda/client`.
 
+## `bt709` is now the default color space
+
+The default [`colorSpace`](/docs/renderer/render-media#colorspace) is now `"bt709"` instead of `"default"` (which was equivalent to `"bt601"`).
+The `"default"` option has been removed.
+
+**Required action**: If you want to keep the old behavior, set `colorSpace: "bt601"` explicitly.
+
 ## `@remotion/google-fonts` requires specifying weights and subsets
 
 When using `loadFonts()` from `@remotion/google-fonts`, you must now specify which font weights and subsets you want to load. Loading all weights and subsets by default is no longer supported as it can lead to timeouts.
