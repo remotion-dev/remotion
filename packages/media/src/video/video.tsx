@@ -87,6 +87,7 @@ const InnerVideo: React.FC<
 	onError,
 	credentials,
 	controls,
+	objectFit,
 }) => {
 	const environment = useRemotionEnvironment();
 
@@ -144,6 +145,7 @@ const InnerVideo: React.FC<
 				headless={headless}
 				onError={onError}
 				credentials={credentials}
+				objectFit={objectFit}
 			/>
 		);
 	}
@@ -174,6 +176,7 @@ const InnerVideo: React.FC<
 			onError={onError}
 			credentials={credentials}
 			controls={controls}
+			objectFit={objectFit}
 		/>
 	);
 };
@@ -210,6 +213,7 @@ const VideoInner: React.FC<
 	onError,
 	credentials,
 	controls,
+	objectFit,
 }) => {
 	const fallbackLogLevel = Internals.useLogLevel();
 	return (
@@ -245,6 +249,7 @@ const VideoInner: React.FC<
 			onError={onError}
 			credentials={credentials}
 			controls={controls}
+			objectFit={objectFit ?? 'contain'}
 		/>
 	);
 };

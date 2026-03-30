@@ -204,6 +204,41 @@ export const MyComposition = () => {
 };
 ```
 
+### `objectFit?`<AvailableFrom v="4.0.442" />
+
+Controls how the video content is resized to fit the canvas element, similar to the CSS `object-fit` property on `<img>` elements.
+
+Accepts `'contain'` (default), `'cover'`, `'fill'`, `'none'`, or `'scale-down'`.
+
+- `'contain'`: The video is scaled to maintain its aspect ratio while fitting within the element's content box. Letterboxing is applied if the aspect ratios don't match.
+- `'cover'`: The video is sized to maintain its aspect ratio while filling the element's entire content box. The video will be clipped to fit.
+- `'fill'`: The video is stretched to fill the element's content box. The video's aspect ratio is not preserved.
+- `'none'`: The video is not resized. It is centered within the element.
+- `'scale-down'`: The video is sized as if `none` or `contain` were specified, whichever would result in a smaller size.
+
+```tsx twoslash
+import {AbsoluteFill, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src={staticFile('video.webm')}
+        style={{width: '100%', height: '100%'}}
+        objectFit="cover"
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+:::warning
+Since `<Video>` renders a `<canvas>` element, passing `objectFit` via the `style` prop or a CSS class name (e.g. Tailwind's `object-cover`) is not supported.
+Use the `objectFit` prop instead. A warning will be printed if CSS-based `object-fit` is detected.
+:::
+
 ### `loop?`
 
 Makes the video loop indefinitely.

@@ -10,6 +10,13 @@ export type MediaErrorEvent = {
 	error: Error;
 };
 
+export type VideoObjectFit =
+	| 'fill'
+	| 'contain'
+	| 'cover'
+	| 'none'
+	| 'scale-down';
+
 export type FallbackOffthreadVideoProps = {
 	acceptableTimeShiftInSeconds?: number;
 	transparent?: boolean;
@@ -59,6 +66,7 @@ type OptionalVideoProps = {
 	headless: boolean;
 	onError: MediaOnError | undefined;
 	credentials: RequestCredentials | undefined;
+	objectFit: VideoObjectFit;
 };
 
 export type InnerVideoProps = MandatoryVideoProps &

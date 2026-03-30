@@ -25,7 +25,8 @@ import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useCommonEffects} from '../use-common-effects';
 import {useMediaInTimeline} from '../use-media-in-timeline';
-import type {FallbackOffthreadVideoProps} from './props';
+import type {FallbackOffthreadVideoProps, VideoObjectFit} from './props';
+import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
 
 const {
 	useUnsafeVideoConfig,
@@ -65,6 +66,7 @@ type VideoForPreviewProps = {
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
+	readonly objectFit: VideoObjectFit;
 };
 
 type VideoForPreviewAssertedShowingProps = VideoForPreviewProps & {
@@ -98,6 +100,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	onError,
 	credentials,
 	controls,
+	objectFit: objectFitProp,
 }) => {
 	const src = usePreload(unpreloadedSrc);
 
@@ -367,11 +370,18 @@ const VideoForPreviewAssertedShowing: React.FC<
 		credentials,
 	]);
 
+	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});
+
 	const classNameValue = useMemo(() => {
-		return [Internals.OBJECTFIT_CONTAIN_CLASS_NAME, className]
+		return [
+			objectFitProp === 'contain'
+				? Internals.OBJECTFIT_CONTAIN_CLASS_NAME
+				: null,
+			className,
+		]
 			.filter(Internals.truthy)
 			.join(' ');
-	}, [className]);
+	}, [className, objectFitProp]);
 
 	useCommonEffects({
 		mediaPlayerRef,
@@ -421,8 +431,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 		return {
 			...style,
 			opacity: isSequenceHidden ? 0 : (style?.opacity ?? 1),
+			objectFit: objectFitProp,
 		};
-	}, [isSequenceHidden, style]);
+	}, [isSequenceHidden, objectFitProp, style]);
 
 	if (shouldFallbackToNativeVideo && !disallowFallbackToOffthreadVideo) {
 		// <Video> will fallback to <VideoForPreview> anyway

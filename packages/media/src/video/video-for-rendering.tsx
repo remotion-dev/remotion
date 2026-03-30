@@ -26,7 +26,8 @@ import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
-import type {FallbackOffthreadVideoProps} from './props';
+import type {FallbackOffthreadVideoProps, VideoObjectFit} from './props';
+import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
 
 type InnerVideoProps = {
 	readonly className: string | undefined;
@@ -52,6 +53,7 @@ type InnerVideoProps = {
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
+	readonly objectFit: VideoObjectFit;
 };
 
 type FallbackToOffthreadVideo = {
@@ -82,6 +84,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	headless,
 	onError,
 	credentials,
+	objectFit: objectFitProp,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -389,11 +392,25 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		credentials,
 	]);
 
+	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});
+
 	const classNameValue = useMemo(() => {
-		return [Internals.OBJECTFIT_CONTAIN_CLASS_NAME, className]
+		return [
+			objectFitProp === 'contain'
+				? Internals.OBJECTFIT_CONTAIN_CLASS_NAME
+				: null,
+			className,
+		]
 			.filter(Internals.truthy)
 			.join(' ');
-	}, [className]);
+	}, [className, objectFitProp]);
+
+	const styleWithObjectFit: React.CSSProperties = useMemo(() => {
+		return {
+			...style,
+			objectFit: objectFitProp,
+		};
+	}, [objectFitProp, style]);
 
 	if (replaceWithOffthreadVideo) {
 		const fallback = (
@@ -472,5 +489,11 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		return null;
 	}
 
-	return <canvas ref={canvasRef} style={style} className={classNameValue} />;
+	return (
+		<canvas
+			ref={canvasRef}
+			style={styleWithObjectFit}
+			className={classNameValue}
+		/>
+	);
 };
