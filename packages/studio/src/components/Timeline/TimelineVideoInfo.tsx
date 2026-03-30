@@ -317,13 +317,17 @@ export const TimelineVideoInfo: React.FC<{
 		current.appendChild(canvas);
 
 		const loops = Math.max(1, numberOfLoops);
-		const loopWidth = visualizationWidth / loops;
+		const loopWidth = Math.round(visualizationWidth / loops);
 		const loopNaturalWidth = naturalWidth / loops;
 
-		const loopCanvas = document.createElement('canvas');
-		loopCanvas.width = loopWidth;
-		loopCanvas.height = HEIGHT;
-		const loopCtx = loopCanvas.getContext('2d');
+		const loopCanvas =
+			numberOfLoops > 1 ? document.createElement('canvas') : null;
+		if (loopCanvas) {
+			loopCanvas.width = loopWidth;
+			loopCanvas.height = HEIGHT;
+		}
+
+		const loopCtx = loopCanvas?.getContext('2d');
 
 		ctx.imageSmoothingEnabled = false;
 		if (loopCtx) {
@@ -332,7 +336,7 @@ export const TimelineVideoInfo: React.FC<{
 
 		let rafId: number | null = null;
 		const refreshMainCanvas = () => {
-			if (!loopCtx || rafId !== null) return;
+			if (!loopCanvas || !loopCtx || rafId !== null) return;
 			rafId = requestAnimationFrame(() => {
 				const pattern = ctx.createPattern(loopCanvas, 'repeat');
 				if (pattern) {
@@ -379,6 +383,10 @@ export const TimelineVideoInfo: React.FC<{
 			if (unfilled.length === 0) {
 				return () => {
 					current.removeChild(canvas);
+					if (rafId !== null) {
+						cancelAnimationFrame(rafId);
+					}
+
 					clearOldFrames();
 				};
 			}
