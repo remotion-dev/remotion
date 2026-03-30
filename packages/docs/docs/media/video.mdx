@@ -234,9 +234,8 @@ export const MyComposition = () => {
 };
 ```
 
-:::warning
-Since `<Video>` renders a `<canvas>` element, passing `objectFit` via the `style` prop or a CSS class name (e.g. Tailwind's `object-cover`) is not supported.
-Use the `objectFit` prop instead. A warning will be printed if CSS-based `object-fit` is detected.
+:::note
+The CSS property `object-fit` is not supported.
 :::
 
 ### `loop?`
