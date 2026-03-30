@@ -272,6 +272,7 @@ export const TimelineVideoInfo: React.FC<{
 	readonly trimBefore: number;
 	readonly durationInFrames: number;
 	readonly playbackRate: number;
+	readonly numberOfLoops: number;
 }> = ({
 	src,
 	visualizationWidth,
@@ -279,6 +280,7 @@ export const TimelineVideoInfo: React.FC<{
 	trimBefore,
 	durationInFrames,
 	playbackRate,
+	numberOfLoops,
 }) => {
 	const {fps} = useVideoConfig();
 	const ref = useRef<HTMLDivElement>(null);
@@ -314,6 +316,34 @@ export const TimelineVideoInfo: React.FC<{
 
 		current.appendChild(canvas);
 
+		const loops = Math.max(1, numberOfLoops);
+		const loopWidth = visualizationWidth / loops;
+		const loopNaturalWidth = naturalWidth / loops;
+
+		const loopCanvas = document.createElement('canvas');
+		loopCanvas.width = loopWidth;
+		loopCanvas.height = HEIGHT;
+		const loopCtx = loopCanvas.getContext('2d');
+
+		ctx.imageSmoothingEnabled = false;
+		if (loopCtx) {
+			loopCtx.imageSmoothingEnabled = false;
+		}
+
+		let rafId: number | null = null;
+		const refreshMainCanvas = () => {
+			if (!loopCtx || rafId !== null) return;
+			rafId = requestAnimationFrame(() => {
+				const pattern = ctx.createPattern(loopCanvas, 'repeat');
+				if (pattern) {
+					ctx.fillStyle = pattern;
+					ctx.fillRect(0, 0, visualizationWidth, HEIGHT);
+				}
+
+				rafId = null;
+			});
+		};
+
 		// desired-timestamp -> filled-timestamp
 		const filledSlots = new Map<number, number | undefined>();
 
@@ -325,20 +355,21 @@ export const TimelineVideoInfo: React.FC<{
 		if (aspectRatio.current !== null) {
 			ensureSlots({
 				filledSlots,
-				naturalWidth,
+				naturalWidth: loopNaturalWidth,
 				fromSeconds,
 				toSeconds,
 				aspectRatio: aspectRatio.current,
 			});
 
 			fillWithCachedFrames({
-				ctx,
-				naturalWidth,
+				ctx: loopCtx ?? ctx,
+				naturalWidth: loopNaturalWidth,
 				filledSlots,
 				src,
 				segmentDuration: toSeconds - fromSeconds,
 				fromSeconds,
 			});
+			if (loopCtx) refreshMainCanvas();
 
 			const unfilled = Array.from(filledSlots.keys()).filter(
 				(timestamp) => !filledSlots.get(timestamp),
@@ -368,7 +399,7 @@ export const TimelineVideoInfo: React.FC<{
 					filledSlots,
 					fromSeconds,
 					toSeconds,
-					naturalWidth,
+					naturalWidth: loopNaturalWidth,
 					aspectRatio: aspectRatio.current,
 				});
 
@@ -414,17 +445,18 @@ export const TimelineVideoInfo: React.FC<{
 						filledSlots,
 						fromSeconds,
 						toSeconds,
-						naturalWidth,
+						naturalWidth: loopNaturalWidth,
 						aspectRatio: aspectRatio.current,
 					});
 					fillFrameWhereItFits({
-						ctx,
+						ctx: loopCtx ?? ctx,
 						filledSlots,
-						visualizationWidth: naturalWidth,
+						visualizationWidth: loopNaturalWidth,
 						frame: transformed,
 						segmentDuration: toSeconds - fromSeconds,
 						fromSeconds,
 					});
+					if (loopCtx) refreshMainCanvas();
 				} catch (e) {
 					if (frame) {
 						frame.close();
@@ -443,13 +475,14 @@ export const TimelineVideoInfo: React.FC<{
 				}
 
 				fillWithCachedFrames({
-					ctx,
-					naturalWidth,
+					ctx: loopCtx ?? ctx,
+					naturalWidth: loopNaturalWidth,
 					filledSlots,
 					src,
 					segmentDuration: toSeconds - fromSeconds,
 					fromSeconds,
 				});
+				if (loopCtx) refreshMainCanvas();
 			})
 			.catch((e: unknown) => {
 				setError(e as Error);
@@ -460,6 +493,10 @@ export const TimelineVideoInfo: React.FC<{
 
 		return () => {
 			controller.abort();
+			if (rafId !== null) {
+				cancelAnimationFrame(rafId);
+			}
+
 			current.removeChild(canvas);
 		};
 	}, [
@@ -467,6 +504,7 @@ export const TimelineVideoInfo: React.FC<{
 		error,
 		fps,
 		naturalWidth,
+		numberOfLoops,
 		playbackRate,
 		src,
 		trimBefore,

@@ -163,6 +163,7 @@ const Inner: React.FC<{
 					trimBefore={s.startMediaFrom}
 					durationInFrames={s.duration}
 					playbackRate={s.playbackRate}
+					numberOfLoops={s.loopDisplay ? s.loopDisplay.numberOfTimes : 1}
 				/>
 			) : null}
 			{s.type === 'image' ? (
