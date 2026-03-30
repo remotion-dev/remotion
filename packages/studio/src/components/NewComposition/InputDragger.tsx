@@ -9,6 +9,10 @@ import {BLUE} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 import type {RemInputStatus} from './RemInput';
 import {RemotionInput, inputBaseStyle} from './RemInput';
 
@@ -163,6 +167,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				if (distanceFromStart > 4) {
 					setClickLock(true);
 					setDragging(true);
+					forceSpecificCursor('ew-resize');
 					target.blur();
 				}
 
@@ -184,6 +189,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					window.removeEventListener('mousemove', moveListener);
 					pointerDownRef.current = false;
 					setDragging(false);
+					stopForcingSpecificCursor();
 					if (lastDragValue !== null && onValueChangeEnd) {
 						onValueChangeEnd(lastDragValue);
 					}

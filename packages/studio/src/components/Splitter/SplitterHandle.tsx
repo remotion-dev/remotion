@@ -1,5 +1,9 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useRef, useState} from 'react';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 import {SplitterContext} from './SplitterContext';
 
 export const SPLITTER_HANDLE_SIZE = 3;
@@ -75,6 +79,9 @@ export const SplitterHandle: React.FC<{
 				x: e.clientX,
 				y: e.clientY,
 			};
+			forceSpecificCursor(
+				context.orientation === 'horizontal' ? 'row-resize' : 'col-resize',
+			);
 			ref.current?.classList.add('remotion-splitter-active');
 			window.addEventListener(
 				'pointerup',
@@ -118,6 +125,7 @@ export const SplitterHandle: React.FC<{
 
 		const cleanup = () => {
 			context.isDragging.current = false;
+			stopForcingSpecificCursor();
 			ref.current?.classList.remove('remotion-splitter-active');
 
 			current.removeEventListener('pointerdown', onPointerDown);

@@ -8,6 +8,7 @@ import {drawRef} from '../state/canvas-ref';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
+import {ForceSpecificCursor} from './ForceSpecificCursor';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {Modals} from './Modals';
 import {NotificationCenter} from './Notifications/NotificationCenter';
@@ -64,6 +65,7 @@ export const Editor: React.FC<{
 		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 			<TimelineZoomContext>
 				<Internals.CurrentScaleContext.Provider value={value}>
+					<ForceSpecificCursor />
 					<div style={background}>
 						{canvasMounted ? <MemoRoot /> : null}
 						<Internals.CanUseRemotionHooksProvider>
