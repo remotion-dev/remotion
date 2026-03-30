@@ -421,7 +421,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				delayRenderTimeoutInMilliseconds={
 					delayRenderTimeoutInMilliseconds ?? undefined
 				}
-				style={style}
+				style={styleWithObjectFit}
 				allowAmplificationDuringRender
 				transparent={fallbackOffthreadVideoProps?.transparent ?? true}
 				toneMapped={fallbackOffthreadVideoProps?.toneMapped ?? true}

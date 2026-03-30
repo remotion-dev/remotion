@@ -32,7 +32,7 @@ export const warnAboutObjectFitInStyleOrClassName = ({
 		warnedClassName = true;
 		Internals.Log.warn(
 			{logLevel, tag: '@remotion/media'},
-			'Use the `objectFit` prop instead of `className="object-fit"`.',
+			'Use the `objectFit` prop instead of `object-*` CSS class names.',
 		);
 	}
 };
