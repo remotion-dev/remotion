@@ -168,7 +168,7 @@ const config: Config = {
 					title: 'Community',
 					items: [
 						{
-							label: 'Prompt Gallery',
+							label: 'Prompt Showcase',
 							to: 'https://remotion.dev/prompts',
 						},
 						{

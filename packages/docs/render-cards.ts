@@ -146,7 +146,7 @@ for (const page of pages) {
 data.push(
 	{
 		id: 'prompts-gallery',
-		title: 'Prompt Gallery',
+		title: 'Prompt Showcase',
 		relativePath: 'src/pages/prompts/index.tsx',
 		compId: 'articles-prompts-gallery',
 		crumb: null,
@@ -155,7 +155,7 @@ data.push(
 	},
 	{
 		id: 'prompts-submit',
-		title: 'Submit a Prompt',
+		title: 'Share your video',
 		relativePath: 'src/pages/prompts/submit.tsx',
 		compId: 'articles-prompts-submit',
 		crumb: 'Prompts',

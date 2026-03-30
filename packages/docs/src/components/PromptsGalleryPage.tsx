@@ -26,15 +26,15 @@ export default () => {
 
 	const title =
 		currentPage === 1
-			? 'Prompt Gallery | Remotion'
-			: `Prompt Gallery - Page ${currentPage} | Remotion`;
+			? 'Prompt Showcase | Remotion'
+			: `Prompt Showcase - Page ${currentPage} | Remotion`;
 
 	return (
 		<Layout>
 			<Head>
 				{Seo.renderTitle(title)}
 				{Seo.renderDescription(
-					'Browse AI-generated video prompts for Remotion Skills.',
+					'See what the community has built with Remotion Skills and AI coding agents.',
 				)}
 				{Seo.renderImage(
 					'/generated/articles-prompts-gallery.png',

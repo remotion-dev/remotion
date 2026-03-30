@@ -11,9 +11,9 @@ export default () => {
 	return (
 		<Layout>
 			<Head>
-				{Seo.renderTitle('Submit a Prompt | Remotion')}
+				{Seo.renderTitle('Share your video | Remotion')}
 				{Seo.renderDescription(
-					'Submit your AI-generated video prompt to the Remotion gallery.',
+					'Share a video you made with Remotion to be featured in the Prompt Showcase.',
 				)}
 				{Seo.renderImage(
 					'/generated/articles-prompts-submit.png',

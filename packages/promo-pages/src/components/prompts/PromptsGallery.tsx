@@ -182,20 +182,17 @@ export const PromptsGalleryPage: React.FC<{
 		<Page className="flex-col">
 			<div className="m-auto max-w-[1200px] w-full px-4 py-12">
 				<div className="mb-8">
-					<h1 className="text-3xl font-brand font-black">
-						Create a video with just a prompt
-					</h1>
+					<h1 className="text-3xl font-brand font-black">Prompt Showcase</h1>
 					<p className="font-brand text-muted-foreground mt-4 max-w-[700px]">
-						With{' '}
+						See what the community has built using{' '}
 						<a
 							href="/docs/ai/skills"
 							className="underline hover:text-text underline-offset-4"
 						>
 							Remotion Skills
-						</a>
-						, you can create videos simply by giving a prompt to your coding
-						agent, whether it&apos;s Claude Code, Codex, or OpenCode. Browse the
-						gallery for inspiration!
+						</a>{' '}
+						and a coding agent like Claude Code, Codex, or OpenCode. Want to
+						make your own?
 					</p>
 				</div>
 				<div className="flex items-center gap-2">
@@ -222,7 +219,7 @@ export const PromptsGalleryPage: React.FC<{
 						href="/prompts/submit"
 						className="font-brand rounded-full text-sm"
 					>
-						Submit a prompt
+						Share your video
 					</Button>
 				</div>
 

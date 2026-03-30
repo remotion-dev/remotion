@@ -20,9 +20,9 @@ export default () => {
 	return (
 		<Layout>
 			<Head>
-				{Seo.renderTitle('Prompt Gallery | Remotion')}
+				{Seo.renderTitle('Prompt Showcase | Remotion')}
 				{Seo.renderDescription(
-					'Browse AI-generated video prompts for Remotion Skills.',
+					'See what the community has built with Remotion Skills and AI coding agents.',
 				)}
 				{Seo.renderImage(
 					'/generated/articles-prompts-gallery.png',

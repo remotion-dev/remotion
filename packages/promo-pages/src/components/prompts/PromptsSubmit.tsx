@@ -246,14 +246,14 @@ export const PromptsSubmitPage: React.FC = () => {
 			<div className="m-auto max-w-[800px] w-full">
 				<div className="mx-4 px-8 py-8 pt-8">
 					<NewBackButton text="Back to gallery" link="/prompts" />
-					<h1 className="text-3xl font-brand font-black">Submit a prompt</h1>
+					<h1 className="text-3xl font-brand font-black">Share your video</h1>
 					<p className="text-muted-foreground text-sm font-brand">
-						Submit a prompt to be featured in the{' '}
+						Share a video you made with Remotion to be featured in the{' '}
 						<a
 							href="/prompts"
 							className="underline hover:text-text underline-offset-4"
 						>
-							prompt gallery.
+							Prompt Showcase.
 						</a>
 					</p>
 					<p className="text-muted-foreground text-sm font-brand">
