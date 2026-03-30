@@ -3,6 +3,7 @@ import evenDimensions from './rules/even-dimensions';
 import noBackgroundImage from './rules/no-background-image';
 import durationInFrames from './rules/no-duration-frames-infinity';
 import noFrom0 from './rules/no-from-0';
+import noObjectFitOnMediaVideo from './rules/no-object-fit-on-media-video';
 import noStringAssets from './rules/no-string-assets';
 import nonPureAnimation from './rules/non-pure-animation';
 import slowCssProperty from './rules/slow-css-property';
@@ -28,6 +29,7 @@ const rules = {
 	'non-pure-animation': nonPureAnimation,
 	'slow-css-property': slowCssProperty,
 	'v4-config-import': v4Import,
+	'no-object-fit-on-media-video': noObjectFitOnMediaVideo,
 };
 
 const recommendedRuleConfig = {
@@ -44,6 +46,7 @@ const recommendedRuleConfig = {
 	'@remotion/no-background-image': 'error',
 	'@remotion/non-pure-animation': 'warn',
 	'@remotion/v4-config-import': 'error',
+	'@remotion/no-object-fit-on-media-video': 'warn',
 } as const;
 
 const configs = {
