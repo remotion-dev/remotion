@@ -218,7 +218,7 @@ export const PromptsSubmitPage: React.FC = () => {
 							pending review.
 							<br /> Once approved, it will appear on the{' '}
 							<a href="/prompts" className="underline">
-								prompts gallery
+								prompts showcase
 							</a>
 							.
 						</div>

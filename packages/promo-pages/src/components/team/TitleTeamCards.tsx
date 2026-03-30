@@ -8,6 +8,6 @@ export const TitleTeamCards: React.FC = () => {
 			<h1 className="font-brand">Team</h1>
 			<TeamPicture />
 			<TeamCardsLayout />
-			</div>
+		</div>
 	);
 };
