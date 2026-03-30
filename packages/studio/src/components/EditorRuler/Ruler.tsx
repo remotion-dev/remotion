@@ -12,6 +12,7 @@ import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
 import {drawMarkingOnRulerCanvas} from '../../helpers/editor-ruler';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
+import {forceSpecificCursor} from '../ForceSpecificCursor';
 
 interface Point {
 	value: number;
@@ -122,7 +123,7 @@ const Ruler: React.FC<RulerProps> = ({
 
 			e.preventDefault();
 			shouldCreateGuideRef.current = true;
-			document.body.style.cursor = 'no-drop';
+			forceSpecificCursor('no-drop');
 			const guideId = makeGuideId();
 			setEditorShowGuides(() => true);
 			setSelectedGuideId(() => guideId);

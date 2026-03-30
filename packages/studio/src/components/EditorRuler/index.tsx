@@ -21,6 +21,10 @@ import {
 	PREDEFINED_RULER_SCALE_GAPS,
 	RULER_WIDTH,
 } from '../../state/editor-rulers';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 import Ruler from './Ruler';
 
 const originBlockStyles: React.CSSProperties = {
@@ -133,9 +137,7 @@ export const EditorRulers: React.FC<{
 						shouldDeleteGuideRef.current = true;
 					}
 
-					if (document.body.style.cursor !== 'no-drop') {
-						document.body.style.cursor = 'no-drop';
-					}
+					forceSpecificCursor('no-drop');
 
 					setGuidesList((prevState) => {
 						const newGuides = prevState.map((guide) => {
@@ -172,9 +174,7 @@ export const EditorRulers: React.FC<{
 
 							const desiredCursor =
 								guide.orientation === 'vertical' ? 'ew-resize' : 'ns-resize';
-							if (document.body.style.cursor !== desiredCursor) {
-								document.body.style.cursor = desiredCursor;
-							}
+							forceSpecificCursor(desiredCursor);
 
 							return {
 								...guide,
@@ -211,7 +211,7 @@ export const EditorRulers: React.FC<{
 		});
 
 		shouldDeleteGuideRef.current = false;
-		document.body.style.cursor = 'auto';
+		stopForcingSpecificCursor();
 		shouldCreateGuideRef.current = false;
 		setSelectedGuideId(() => null);
 		document.removeEventListener('pointerup', onMouseUp);

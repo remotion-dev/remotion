@@ -8,6 +8,7 @@ import {
 } from '../../state/editor-guides';
 import {RULER_WIDTH} from '../../state/editor-rulers';
 import {ContextMenu} from '../ContextMenu';
+import {forceSpecificCursor} from '../ForceSpecificCursor';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 
 const PADDING_FOR_EASY_DRAG = 4;
@@ -82,7 +83,7 @@ const GuideComp: React.FC<{
 			}
 
 			shouldCreateGuideRef.current = true;
-			document.body.style.cursor = 'no-drop';
+			forceSpecificCursor('no-drop');
 			setSelectedGuideId(() => guide.id);
 		},
 		[shouldCreateGuideRef, setSelectedGuideId, guide.id],

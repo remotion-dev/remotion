@@ -17,6 +17,10 @@ import {
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {ContextMenu} from '../ContextMenu';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {defaultInOutValue} from '../TimelineInOutToggle';
@@ -185,6 +189,7 @@ const Inner: React.FC = () => {
 
 				const inMarker = get(inFrame);
 				const outMarker = outFrame === null ? Infinity : get(outFrame - 1);
+				forceSpecificCursor('ew-resize');
 				setInOutDragging({
 					dragging: 'in',
 					initialOffset: getClientXWithScroll(e.clientX),
@@ -200,6 +205,7 @@ const Inner: React.FC = () => {
 
 				const outMarker = get(outFrame);
 				const inMarker = inFrame === null ? -Infinity : get(inFrame + 1);
+				forceSpecificCursor('ew-resize');
 				setInOutDragging({
 					dragging: 'out',
 					initialOffset: getClientXWithScroll(e.clientX),
@@ -441,6 +447,7 @@ const Inner: React.FC = () => {
 		(e: PointerEvent) => {
 			document.body.style.userSelect = '';
 			document.body.style.webkitUserSelect = '';
+			stopForcingSpecificCursor();
 
 			if (!videoConfig) {
 				return;
