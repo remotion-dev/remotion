@@ -32,5 +32,5 @@ export const ForceSpecificCursor = () => {
 		};
 	}, []);
 
-	return <div style={style} ref={ref} />;
+	return <div ref={ref} style={style} />;
 };
