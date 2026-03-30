@@ -373,15 +373,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});
 
 	const classNameValue = useMemo(() => {
-		return [
-			objectFitProp === 'contain'
-				? Internals.OBJECTFIT_CONTAIN_CLASS_NAME
-				: null,
-			className,
-		]
+		return [Internals.OBJECTFIT_CONTAIN_CLASS_NAME, className]
 			.filter(Internals.truthy)
 			.join(' ');
-	}, [className, objectFitProp]);
+	}, [className]);
 
 	useCommonEffects({
 		mediaPlayerRef,
