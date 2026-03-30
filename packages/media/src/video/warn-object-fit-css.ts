@@ -20,7 +20,7 @@ export const warnAboutObjectFitInStyleOrClassName = ({
 		warnedStyle = true;
 		Internals.Log.warn(
 			{logLevel, tag: '@remotion/media'},
-			'Passing `objectFit` via the `style` prop is not supported for the `<Video>` component from `@remotion/media`. Use the `objectFit` prop directly instead.',
+			'Use the `objectFit` prop instead of the `style` prop.',
 		);
 	}
 
@@ -32,7 +32,7 @@ export const warnAboutObjectFitInStyleOrClassName = ({
 		warnedClassName = true;
 		Internals.Log.warn(
 			{logLevel, tag: '@remotion/media'},
-			'Passing an `object-fit` CSS class via `className` is not supported for the `<Video>` component from `@remotion/media`. Use the `objectFit` prop directly instead.',
+			'Use the `objectFit` prop instead of `className="object-fit"`.',
 		);
 	}
 };
