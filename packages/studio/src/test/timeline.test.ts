@@ -4,30 +4,8 @@ import {calculateTimeline} from '../helpers/calculate-timeline';
 test('Should calculate timeline with no sequences', () => {
 	const calculated = calculateTimeline({
 		sequences: [],
-		sequenceDuration: 100,
 	});
-	expect(calculated).toEqual([
-		{
-			sequence: {
-				displayName: '',
-				duration: 100,
-				from: 0,
-				id: 'seq',
-				parent: null,
-				type: 'sequence',
-				rootId: '-',
-				showInTimeline: true,
-				nonce: [[0, 0]],
-				premountDisplay: null,
-				postmountDisplay: null,
-				controls: null,
-				loopDisplay: undefined,
-				stack: null,
-			},
-			depth: 0,
-			hash: '-',
-		},
-	]);
+	expect(calculated).toEqual([]);
 });
 
 test('Should calculate a basic timeline', () => {
@@ -50,7 +28,6 @@ test('Should calculate a basic timeline', () => {
 				loopDisplay: undefined,
 			},
 		],
-		sequenceDuration: 100,
 	});
 	expect(calculated).toEqual([
 		{
@@ -112,7 +89,6 @@ test('Should follow order of nesting', () => {
 				stack: null,
 			},
 		],
-		sequenceDuration: 100,
 	});
 	expect(calculated).toEqual([
 		{

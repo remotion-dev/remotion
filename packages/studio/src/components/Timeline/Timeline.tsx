@@ -53,17 +53,17 @@ const TimelineInner: React.FC = () => {
 		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&
 		previewServerState.type === 'connected';
 	const videoConfig = Internals.useUnsafeVideoConfig();
+	const videoConfigIsNull = videoConfig === null;
 
 	const timeline = useMemo((): TrackWithHash[] => {
-		if (!videoConfig) {
+		if (videoConfigIsNull) {
 			return [];
 		}
 
 		return calculateTimeline({
 			sequences,
-			sequenceDuration: videoConfig.durationInFrames,
 		});
-	}, [sequences, videoConfig]);
+	}, [sequences, videoConfigIsNull]);
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 

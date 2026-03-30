@@ -5,7 +5,6 @@ import {calculateTimeline} from '../helpers/calculate-timeline';
 test('Should calculate sequences correctly', () => {
 	const timeline = calculateTimeline({
 		sequences,
-		sequenceDuration: 1000,
 	});
 
 	expect(timeline).toEqual([

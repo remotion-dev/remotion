@@ -15,37 +15,14 @@ import {sortItemsByNonceHistory} from './sort-by-nonce-history';
 
 export const calculateTimeline = ({
 	sequences,
-	sequenceDuration,
 }: {
 	sequences: TSequence[];
-	sequenceDuration: number;
 }): TrackWithHash[] => {
 	const sortedSequences = sortItemsByNonceHistory(sequences);
 	const tracks: TrackWithHashAndOriginalTimings[] = [];
 
 	if (sortedSequences.length === 0) {
-		return [
-			{
-				sequence: {
-					displayName: '',
-					duration: sequenceDuration,
-					from: 0,
-					id: 'seq',
-					parent: null,
-					type: 'sequence',
-					rootId: '-',
-					showInTimeline: true,
-					nonce: [[0, 0]],
-					loopDisplay: undefined,
-					stack: null,
-					premountDisplay: null,
-					postmountDisplay: null,
-					controls: null,
-				},
-				depth: 0,
-				hash: '-',
-			},
-		];
+		return [];
 	}
 
 	const sameHashes: {[hash: string]: string[]} = {};
