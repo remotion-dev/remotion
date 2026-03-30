@@ -2,7 +2,7 @@ import {parseColor} from './parse-color';
 
 const CLIPPING_COLOR = '#FF7F50';
 
-export const drawPeaks = (
+export const drawBars = (
 	canvas: HTMLCanvasElement,
 	peaks: Float32Array,
 	color: string,
@@ -15,7 +15,7 @@ export const drawPeaks = (
 		throw new Error('Failed to get canvas context');
 	}
 
-	const height = canvas.height;
+	const {height} = canvas;
 	const w = canvas.width;
 
 	ctx.clearRect(0, 0, w, height);
@@ -26,7 +26,7 @@ export const drawPeaks = (
 	const [cr, cg, cb, ca] = parseColor(CLIPPING_COLOR);
 
 	const imageData = ctx.createImageData(w, height);
-	const data = imageData.data;
+	const {data} = imageData;
 	const numBars = width;
 
 	for (let barIndex = 0; barIndex < numBars; barIndex++) {

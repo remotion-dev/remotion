@@ -1,19 +1,16 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {LIGHT_TRANSPARENT} from '../helpers/colors';
-import {
-	getTimelineLayerHeight,
-	TIMELINE_BORDER,
-} from '../helpers/timeline-layout';
-import {drawPeaks} from './draw-peaks';
+import {TIMELINE_BORDER} from '../helpers/timeline-layout';
+import {drawBars} from './draw-peaks';
 import {loadWaveformPeaks, TARGET_SAMPLE_RATE} from './load-waveform-peaks';
 
 const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
-	alignItems: 'flex-end',
+	alignItems: 'center',
 	position: 'absolute',
-	height: getTimelineLayerHeight('other'),
+	inset: 0,
 };
 
 const errorMessage: React.CSSProperties = {
@@ -59,10 +56,9 @@ export const AudioWaveform: React.FC<{
 		throw new Error('Expected video config');
 	}
 
+	const containerRef = useRef<HTMLDivElement>(null);
 	const waveformCanvas = useRef<HTMLCanvasElement>(null);
 	const volumeCanvas = useRef<HTMLCanvasElement>(null);
-
-	const height = getTimelineLayerHeight('other');
 
 	useEffect(() => {
 		const controller = new AbortController();
@@ -104,39 +100,52 @@ export const AudioWaveform: React.FC<{
 
 	useEffect(() => {
 		const {current: canvasElement} = waveformCanvas;
-		if (!canvasElement || !portionPeaks || portionPeaks.length === 0) {
+		const {current: containerElement} = containerRef;
+		if (
+			!canvasElement ||
+			!containerElement ||
+			!portionPeaks ||
+			portionPeaks.length === 0
+		) {
 			return;
 		}
 
+		const h = containerElement.clientHeight;
 		const w = Math.ceil(visualizationWidth);
 		canvasElement.width = w;
-		canvasElement.height = height;
+		canvasElement.height = h;
 
 		const vol = typeof volume === 'number' ? volume : 1;
-		drawPeaks(canvasElement, portionPeaks, 'rgba(255, 255, 255, 0.6)', vol, w);
-	}, [portionPeaks, visualizationWidth, volume, height]);
+		drawBars(canvasElement, portionPeaks, 'rgba(255, 255, 255, 0.6)', vol, w);
+	}, [portionPeaks, visualizationWidth, volume]);
 
 	useEffect(() => {
-		if (!volumeCanvas.current) {
+		const {current: volumeCanvasElement} = volumeCanvas;
+		const {current: containerElement} = containerRef;
+		if (!volumeCanvasElement || !containerElement) {
 			return;
 		}
 
-		const context = volumeCanvas.current.getContext('2d');
+		const h = containerElement.clientHeight;
+		const context = volumeCanvasElement.getContext('2d');
 		if (!context) {
 			return;
 		}
 
-		context.clearRect(0, 0, visualizationWidth, height);
+		volumeCanvasElement.width = Math.ceil(visualizationWidth);
+		volumeCanvasElement.height = h;
+
+		context.clearRect(0, 0, visualizationWidth, h);
 		if (!doesVolumeChange || typeof volume === 'number') {
 			return;
 		}
 
 		const volumes = volume.split(',').map((v) => Number(v));
 		context.beginPath();
-		context.moveTo(0, height);
+		context.moveTo(0, h);
 		volumes.forEach((v, index) => {
 			const x = (index / (volumes.length - 1)) * visualizationWidth;
-			const y = (1 - v) * (height - TIMELINE_BORDER * 2) + 1;
+			const y = (1 - v) * (h - TIMELINE_BORDER * 2) + 1;
 			if (index === 0) {
 				context.moveTo(x, y);
 			} else {
@@ -145,7 +154,7 @@ export const AudioWaveform: React.FC<{
 		});
 		context.strokeStyle = LIGHT_TRANSPARENT;
 		context.stroke();
-	}, [visualizationWidth, volume, doesVolumeChange, height]);
+	}, [visualizationWidth, volume, doesVolumeChange]);
 
 	if (error) {
 		return (
@@ -162,14 +171,9 @@ export const AudioWaveform: React.FC<{
 	}
 
 	return (
-		<div style={container}>
+		<div ref={containerRef} style={container}>
 			<canvas ref={waveformCanvas} style={waveformCanvasStyle} />
-			<canvas
-				ref={volumeCanvas}
-				style={volumeCanvasStyle}
-				width={visualizationWidth}
-				height={height}
-			/>
+			<canvas ref={volumeCanvas} style={volumeCanvasStyle} />
 		</div>
 	);
 };
