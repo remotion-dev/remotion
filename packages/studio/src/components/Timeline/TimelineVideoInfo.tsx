@@ -139,15 +139,15 @@ const drawSlot = ({
 
 	const relativeTimestamp = timestamp - fromSeconds * WEBCODECS_TIMESCALE;
 	const frameIndex = relativeTimestamp / durationOfOneFrame;
-	const left = Math.floor(
-		(frameIndex * frame.displayWidth) / window.devicePixelRatio,
-	); // round to avoid antialiasing
+	const thumbnailWidth = frame.displayWidth / window.devicePixelRatio;
+	const left = Math.floor(frameIndex * thumbnailWidth);
+	const right = Math.ceil((frameIndex + 1) * thumbnailWidth);
 
 	ctx.drawImage(
 		frame,
 		left,
 		0,
-		frame.displayWidth / window.devicePixelRatio,
+		right - left,
 		frame.displayHeight / window.devicePixelRatio,
 	);
 	filledSlots.set(timestamp, frame.timestamp);
