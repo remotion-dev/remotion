@@ -12,7 +12,7 @@ export const Switch: React.FC<{
 		>
 			<div
 				data-active={active}
-				className="h-[20px] w-[20px] box-content left-[4px] top-[4px] transition-all rounded-full bg-white border-2 border-black absolute data-[active=true]:left-[calc(100%-24px)]"
+				className="h-[20px] w-[20px] left-[4px] top-[4px] transition-all rounded-full bg-white border-2 border-black absolute data-[active=true]:left-[calc(100%-24px)]"
 			/>
 		</div>
 	);
