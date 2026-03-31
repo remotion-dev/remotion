@@ -53,7 +53,7 @@ class PreviewErrorBoundary extends React.Component<
 
 	override render() {
 		if (this.state.hasError) {
-			return null; // Let overlay take over, but Studio shell stays mounted
+			return null; // Let overlay take over
 		}
 
 		return this.props.children;
