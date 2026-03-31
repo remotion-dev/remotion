@@ -1,11 +1,4 @@
-import React, {
-	useContext,
-	useEffect,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {
 	BACKGROUND,
@@ -18,10 +11,9 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
-import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {SPLITTER_HANDLE_SIZE} from '../Splitter/SplitterHandle';
 import {TimeValue} from '../TimeValue';
-import {sliderAreaRef, timelineVerticalScroll} from './timeline-refs';
+import {timelineVerticalScroll} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
@@ -93,21 +85,8 @@ type TimelineTick = {
 export const TimelineTimeIndicators: React.FC = () => {
 	const sliderTrack = useContext(TimelineWidthContext);
 	const video = Internals.useVideo();
-	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
-	const [widthOverride, setWidthOverride] = useState<number | null>(null);
 
-	useLayoutEffect(() => {
-		const actual = sliderAreaRef.current?.clientWidth ?? null;
-		if (actual !== null && actual !== sliderTrack) {
-			setWidthOverride(actual);
-		} else {
-			setWidthOverride(null);
-		}
-	}, [sliderTrack, zoomMap]);
-
-	const windowWidth = widthOverride ?? sliderTrack;
-
-	if (windowWidth === null) {
+	if (sliderTrack === null) {
 		return null;
 	}
 
@@ -119,7 +98,7 @@ export const TimelineTimeIndicators: React.FC = () => {
 		<Inner
 			durationInFrames={video.durationInFrames}
 			fps={video.fps}
-			windowWidth={windowWidth}
+			windowWidth={sliderTrack}
 		/>
 	);
 };

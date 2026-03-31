@@ -3,12 +3,11 @@ import React, {
 	useContext,
 	useEffect,
 	useImperativeHandle,
-	useLayoutEffect,
+	useMemo,
 	useRef,
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
-import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {getCurrentDuration} from './imperative-state';
 import {sliderAreaRef, timelineVerticalScroll} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
@@ -47,27 +46,22 @@ const Inner: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const ref = useRef<HTMLDivElement>(null);
 	const timelineWidth = useContext(TimelineWidthContext);
-	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 
 	if (timelineWidth === null) {
 		throw new Error('Unexpectedly did not have timeline width');
 	}
 
-	useLayoutEffect(() => {
-		const {current} = ref;
-		if (!current) {
-			return;
-		}
-
-		const width =
-			(sliderAreaRef.current?.clientWidth as number) ?? timelineWidth;
+	const style: React.CSSProperties = useMemo(() => {
 		const left = getXPositionOfItemInTimelineImperatively(
 			timelinePosition,
 			videoConfig.durationInFrames,
-			width,
+			timelineWidth,
 		);
-		current.style.transform = `translateX(${left}px)`;
-	}, [timelinePosition, videoConfig.durationInFrames, timelineWidth, zoomMap]);
+		return {
+			...container,
+			transform: `translateX(${left}px)`,
+		};
+	}, [timelinePosition, videoConfig.durationInFrames, timelineWidth]);
 
 	useImperativeHandle(redrawTimelineSliderFast, () => {
 		return {
@@ -108,7 +102,7 @@ const Inner: React.FC = () => {
 	}, []);
 
 	return (
-		<div ref={ref} style={container}>
+		<div ref={ref} style={style}>
 			<div style={line} />
 			<TimelineSliderHandle />
 		</div>
