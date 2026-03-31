@@ -11,29 +11,16 @@ const isPortAvailableOnHost = ({
 	host: string;
 }): Promise<PortStatus> => {
 	return new Promise<PortStatus>((resolve) => {
-		let status: PortStatus = 'unavailable';
-
-		const socket = new net.Socket();
-
-		socket.on('connect', () => {
-			status = 'unavailable';
-			socket.destroy();
+		const server = net.createServer();
+		server.unref();
+		server.on('error', () => {
+			resolve('unavailable');
 		});
-
-		socket.setTimeout(3000);
-		socket.on('timeout', () => {
-			status = 'unavailable';
-			socket.destroy();
-			resolve(status);
+		server.listen({port: portToTry, host}, () => {
+			server.close(() => {
+				resolve('available');
+			});
 		});
-
-		socket.on('error', () => {
-			status = 'available';
-		});
-
-		socket.on('close', () => resolve(status));
-
-		socket.connect(portToTry, host);
 	});
 };
 
