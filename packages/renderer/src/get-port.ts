@@ -31,13 +31,14 @@ export const testPortAvailableOnMultipleHosts = async ({
 	port: number;
 	hosts: string[];
 }): Promise<PortStatus> => {
-	const results = await Promise.all(
-		hosts.map((host) => {
-			return isPortAvailableOnHost({portToTry: port, host});
-		}),
-	);
+	for (const host of hosts) {
+		const result = await isPortAvailableOnHost({portToTry: port, host});
+		if (result === 'unavailable') {
+			return 'unavailable';
+		}
+	}
 
-	return results.every((r) => r === 'available') ? 'available' : 'unavailable';
+	return 'available';
 };
 
 const getPort = async ({
