@@ -6476,6 +6476,15 @@ export const articles = [
 		slug: 'troubleshooting/could-not-find-executable-to-run',
 	},
 	{
+		id: 'troubleshooting/css-animations',
+		title: "Don't use CSS animations in Remotion",
+		relativePath: 'docs/troubleshooting/css-animations.mdx',
+		compId: 'articles-docs-troubleshooting-css-animations',
+		crumb: 'Common mistakes',
+		noAi: false,
+		slug: 'troubleshooting/css-animations',
+	},
+	{
 		id: 'troubleshooting/debug-failed-render',
 		title: 'Debugging render failures',
 		relativePath: 'docs/troubleshooting/debug-failed-render.mdx',

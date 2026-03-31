@@ -1394,6 +1394,7 @@ const sidebars: SidebarsConfig = {
 				'staticfile-relative-paths',
 				'staticfile-remote-urls',
 				'troubleshooting/background-image',
+				'troubleshooting/css-animations',
 				'troubleshooting/nextjs-image',
 				'troubleshooting/rosetta',
 				'troubleshooting/loading-root-component',
