@@ -1448,16 +1448,16 @@ const sidebars: SidebarsConfig = {
 				'support',
 			],
 		},
-		'upgrading',
 		{
 			type: 'category',
-			label: 'Migration guides',
+			label: 'Upgrading',
 			items: [
-				'react-19',
+				'upgrading',
 				'5-0-migration',
 				'4-0-migration',
 				'3-0-migration',
 				'2-0-migration',
+				'react-19',
 			],
 		},
 		{
