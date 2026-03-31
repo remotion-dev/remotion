@@ -3,27 +3,19 @@ import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {draggerStyle, getDecimalPlaces} from './timeline-field-utils';
 
+const unitPattern = /^([+-]?(?:\d+\.?\d*|\.\d+))(deg|rad|turn|grad)$/;
+
+const unitToDegrees: Record<string, number> = {
+	deg: 1,
+	rad: 180 / Math.PI,
+	turn: 360,
+	grad: 360 / 400,
+};
+
 const parseCssRotationToDegrees = (value: string): number => {
-	const trimmed = value.trim();
-
-	const degMatch = trimmed.match(/^(-?\d+(?:\.\d+)?)deg$/);
-	if (degMatch) {
-		return Number(degMatch[1]);
-	}
-
-	const radMatch = trimmed.match(/^(-?\d+(?:\.\d+)?)rad$/);
-	if (radMatch) {
-		return Number(radMatch[1]) * (180 / Math.PI);
-	}
-
-	const turnMatch = trimmed.match(/^(-?\d+(?:\.\d+)?)turn$/);
-	if (turnMatch) {
-		return Number(turnMatch[1]) * 360;
-	}
-
-	const gradMatch = trimmed.match(/^(-?\d+(?:\.\d+)?)grad$/);
-	if (gradMatch) {
-		return Number(gradMatch[1]) * (360 / 400);
+	const match = value.trim().match(unitPattern);
+	if (match) {
+		return Number(match[1]) * unitToDegrees[match[2]];
 	}
 
 	try {
