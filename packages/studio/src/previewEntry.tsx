@@ -34,7 +34,7 @@ const normalizeError = (error: unknown): Error => {
 		return error;
 	}
 
-	return new Error(typeof error === 'string' ? error : JSON.stringify(error));
+	return new Error(typeof error === 'string' ? error : String(error));
 };
 
 class PreviewErrorBoundary extends React.Component<
