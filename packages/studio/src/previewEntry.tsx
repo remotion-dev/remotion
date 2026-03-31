@@ -4,6 +4,7 @@ import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {NoRegisterRoot} from './components/NoRegisterRoot';
 import {startErrorOverlay} from './error-overlay/entry-basic';
+import {setErrorsRef} from './error-overlay/remotion-overlay/Overlay';
 import {enableHotMiddleware} from './hot-middleware-client/client';
 import {Studio} from './Studio';
 
@@ -28,6 +29,37 @@ if (!window.__remotionOverlayStarted) {
 	}
 }
 
+const normalizeError = (error: unknown): Error => {
+	if (error instanceof Error) {
+		return error;
+	}
+
+	return new Error(typeof error === 'string' ? error : JSON.stringify(error));
+};
+
+class PreviewErrorBoundary extends React.Component<
+	{readonly children: React.ReactNode},
+	{readonly hasError: boolean}
+> {
+	override state = {hasError: false};
+
+	static getDerivedStateFromError() {
+		return {hasError: true};
+	}
+
+	override componentDidCatch(error: unknown) {
+		setErrorsRef.current?.addError(normalizeError(error));
+	}
+
+	override render() {
+		if (this.state.hasError) {
+			return null; // Let overlay take over, but Studio shell stays mounted
+		}
+
+		return this.props.children;
+	}
+}
+
 let root: ReturnType<typeof ReactDOM.createRoot> | null = null;
 
 const getRootForElement = () => {
@@ -35,7 +67,17 @@ const getRootForElement = () => {
 		return root;
 	}
 
-	root = ReactDOM.createRoot(Internals.getPreviewDomElement() as HTMLElement);
+	root = ReactDOM.createRoot(Internals.getPreviewDomElement() as HTMLElement, {
+		onUncaughtError: (error) => {
+			setErrorsRef.current?.addError(normalizeError(error));
+		},
+		onCaughtError: (error) => {
+			setErrorsRef.current?.addError(normalizeError(error));
+		},
+		onRecoverableError: (error) => {
+			setErrorsRef.current?.addError(normalizeError(error));
+		},
+	});
 	return root;
 };
 
@@ -60,12 +102,18 @@ const renderToDOM = (content: React.ReactElement) => {
 
 renderToDOM(<NoRegisterRoot />);
 
+let renderCount = 0;
 Internals.waitForRoot((NewRoot) => {
+	renderCount++;
 	renderToDOM(
-		<Studio
-			readOnly={false}
-			rootComponent={NewRoot}
-			visualModeEnabled={Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED)}
-		/>,
+		<PreviewErrorBoundary key={renderCount}>
+			<Studio
+				readOnly={false}
+				rootComponent={NewRoot}
+				visualModeEnabled={Boolean(
+					process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
+				)}
+			/>
+		</PreviewErrorBoundary>,
 	);
 });
