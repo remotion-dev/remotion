@@ -46,9 +46,9 @@ const evictLRU = () => {
 		let oldestKey: FrameDatabaseKey | undefined;
 		let oldestTime = Infinity;
 
-		for (const [key, entry] of frameDatabase) {
-			if (entry.lastUsed < oldestTime) {
-				oldestTime = entry.lastUsed;
+		for (const [key, candidate] of frameDatabase) {
+			if (candidate.lastUsed < oldestTime) {
+				oldestTime = candidate.lastUsed;
 				oldestKey = key;
 			}
 		}
