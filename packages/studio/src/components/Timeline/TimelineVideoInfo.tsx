@@ -3,9 +3,8 @@ import {useVideoConfig} from 'remotion';
 import {extractFrames} from '../../helpers/extract-frames';
 import type {FrameDatabaseKey} from '../../helpers/frame-database';
 import {
+	addFrameToCache,
 	aspectRatioCache,
-	clearFramesForSrc,
-	clearOldFrames,
 	frameDatabase,
 	getAspectRatioFromCache,
 	getFrameDatabaseKeyPrefix,
@@ -305,12 +304,6 @@ export const TimelineVideoInfo: React.FC<{
 	const [error, setError] = useState<Error | null>(null);
 	const aspectRatio = useRef<number | null>(getAspectRatioFromCache(src));
 
-	useEffect(() => {
-		return () => {
-			clearFramesForSrc(src);
-		};
-	}, [src]);
-
 	// for rendering frames
 	useEffect(() => {
 		if (error) {
@@ -368,12 +361,9 @@ export const TimelineVideoInfo: React.FC<{
 			if (unfilled.length === 0) {
 				return () => {
 					current.removeChild(canvas);
-					clearOldFrames();
 				};
 			}
 		}
-
-		clearOldFrames();
 
 		extractFrames({
 			timestampsInSeconds: ({
@@ -417,15 +407,7 @@ export const TimelineVideoInfo: React.FC<{
 
 					const databaseKey = makeFrameDatabaseKey(src, transformed.timestamp);
 
-					const existingFrame = frameDatabase.get(databaseKey);
-					if (existingFrame) {
-						existingFrame.frame.close();
-					}
-
-					frameDatabase.set(databaseKey, {
-						frame: transformed,
-						lastUsed: Date.now(),
-					});
+					addFrameToCache(databaseKey, transformed);
 					if (aspectRatio.current === null) {
 						throw new Error('Aspect ratio is not set');
 					}
@@ -473,9 +455,6 @@ export const TimelineVideoInfo: React.FC<{
 			})
 			.catch((e: unknown) => {
 				setError(e as Error);
-			})
-			.finally(() => {
-				clearOldFrames();
 			});
 
 		return () => {

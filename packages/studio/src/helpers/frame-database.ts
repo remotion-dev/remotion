@@ -16,7 +16,12 @@ export const getFrameDatabaseKeyPrefix = (src: string): string => {
 type VideoFrameAndLastUsed = {
 	frame: VideoFrame;
 	lastUsed: number;
+	size: number;
 };
+
+const MAX_CACHE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+
+let totalCacheSize = 0;
 
 export const frameDatabase: Map<FrameDatabaseKey, VideoFrameAndLastUsed> =
 	new Map();
@@ -36,41 +41,46 @@ export const getAspectRatioFromCache = (src: string) => {
 	return null;
 };
 
-// a 16:9 thumbnail is 43x23px wide - 43 * 23 * 4 = 4052 bytes
-// Our allowance is a 50MB frame cache, so we can store 12340 thumbnails
+const evictLRU = () => {
+	while (totalCacheSize > MAX_CACHE_SIZE_BYTES && frameDatabase.size > 0) {
+		let oldestKey: FrameDatabaseKey | undefined;
+		let oldestTime = Infinity;
 
-const MAX_FRAMES_IN_CACHE = 12340;
+		for (const [key, entry] of frameDatabase) {
+			if (entry.lastUsed < oldestTime) {
+				oldestTime = entry.lastUsed;
+				oldestKey = key;
+			}
+		}
 
-export const clearOldFrames = () => {
-	if (frameDatabase.size <= MAX_FRAMES_IN_CACHE) {
-		return;
-	}
+		if (!oldestKey) {
+			break;
+		}
 
-	const framesToRemove = Array.from(frameDatabase.entries()).sort(
-		(a, b) => a[1].lastUsed - b[1].lastUsed,
-	);
-
-	for (const [key, frame] of framesToRemove.slice(
-		0,
-		framesToRemove.length - MAX_FRAMES_IN_CACHE,
-	)) {
-		frame.frame.close();
-		frameDatabase.delete(key);
+		const entry = frameDatabase.get(oldestKey);
+		if (entry) {
+			totalCacheSize -= entry.size;
+			entry.frame.close();
+			frameDatabase.delete(oldestKey);
+		}
 	}
 };
 
-export const clearFramesForSrc = (src: string) => {
-	const keysToRemove: FrameDatabaseKey[] = [];
-	const prefix = getFrameDatabaseKeyPrefix(src);
-
-	for (const [key, frame] of frameDatabase.entries()) {
-		if (key.startsWith(prefix)) {
-			frame.frame.close();
-			keysToRemove.push(key);
-		}
+export const addFrameToCache = (key: FrameDatabaseKey, frame: VideoFrame) => {
+	const existing = frameDatabase.get(key);
+	if (existing) {
+		totalCacheSize -= existing.size;
+		existing.frame.close();
 	}
 
-	for (const key of keysToRemove) {
-		frameDatabase.delete(key);
-	}
+	const size = frame.allocationSize();
+	totalCacheSize += size;
+
+	frameDatabase.set(key, {
+		frame,
+		lastUsed: Date.now(),
+		size,
+	});
+
+	evictLRU();
 };
