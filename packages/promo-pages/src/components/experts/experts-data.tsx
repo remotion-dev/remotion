@@ -627,7 +627,7 @@ export const experts: Expert[] = [
 		linkedin: 'in/haingt-dev/',
 		email: 'hai@haingt.dev',
 		videocall: null,
-		since: new Date('2025-06-01').getTime(),
+		since: new Date('2026-04-02').getTime(),
 		description: (
 			<div>
 				Built a full{' '}
