@@ -617,4 +617,37 @@ export const experts: Expert[] = [
 			</div>
 		),
 	},
+	{
+		slug: 'hai-nguyen',
+		name: 'Hai Nguyen',
+		image: '/img/freelancers/hai.jpg',
+		website: 'https://haingt.dev',
+		x: 'haingt_dev',
+		github: 'haingt-dev',
+		linkedin: 'in/haingt-dev/',
+		email: 'hai@haingt.dev',
+		videocall: null,
+		since: new Date('2025-06-01').getTime(),
+		description: (
+			<div>
+				Built a full{' '}
+				<a
+					target={'_blank'}
+					href="https://github.com/haingt-dev/Bookie/tree/master/projects/ai-book-video"
+				>
+					AI video production pipeline
+				</a>{' '}
+				using Remotion 4.0 — orchestrating self-hosted TTS (viXTTS), Gemini
+				API image generation, SRT-driven subtitle timing, and Ken Burns motion
+				presets. The pipeline produces complete book-to-video content in about
+				an hour (1-person operation) with editorial design overlays,
+				cross-dissolve transitions, and audio spectrum visualization.
+				GPU-accelerated rendering on Linux.
+				<br />
+				Available for AI-powered video pipelines, multi-API media
+				orchestration, and Remotion integrations with existing backend
+				infrastructure.
+			</div>
+		),
+	},
 ];
