@@ -445,6 +445,26 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			name: 'Jim Raptis',
 		},
 	},
+	{
+		title: 'Eden Stack - AI SaaS Promo Video',
+		type: 'mux_video',
+		muxId: 'Syuw7sWBowmVxU5RMFusEqnDPChlPDRneEbiaZuuWeM',
+		description:
+			'Programmatic promotional video for a full-stack SaaS starter kit. Scenes composed from React components with branded animations and AI-generated voiceover via ElevenLabs.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('04-02-2026'),
+		links: [
+			{
+				type: 'website',
+				url: 'https://eden-stack.com?utm_source=remotion&utm_medium=showcase&utm_campaign=backlinks',
+			},
+		],
+		author: {
+			url: 'https://github.com/magnusrodseth',
+			name: 'Magnus Rodseth',
+		},
+	},
 	/*
   {
 		title: 'Clippulse - Animated social media videos',
