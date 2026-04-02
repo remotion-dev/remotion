@@ -456,6 +456,10 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		submittedOn: new Date('04-02-2026'),
 		links: [
 			{
+				type: 'video',
+				url: 'https://pub-fbb2ee1142d54fc6a5757beca0e2568a.r2.dev/promo-16x9.mp4',
+			},
+			{
 				type: 'website',
 				url: 'https://eden-stack.com?utm_source=remotion&utm_medium=showcase&utm_campaign=backlinks',
 			},
