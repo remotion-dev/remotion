@@ -1671,7 +1671,7 @@
         "@types/react-dom": "19.2.3",
         "@types/web": "0.0.166",
         "@vitejs/plugin-react": "4.3.4",
-        "electron": "40.8.0",
+        "electron": "40.8.4",
         "eslint": "9.19.0",
         "prettier": "3.8.1",
         "tailwindcss": "^4.2.1",
@@ -5489,7 +5489,7 @@
 
     "ee-first": ["ee-first@1.1.1", "", {}, "sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow=="],
 
-    "electron": ["electron@40.8.0", "", { "dependencies": { "@electron/get": "^2.0.0", "@types/node": "^24.9.0", "extract-zip": "^2.0.1" }, "bin": { "electron": "cli.js" } }, "sha512-WoPq0Nr9Yx3g7T6VnJXdwa/rr2+VRyH3a+K+ezfMKBlf6WjxE/LmhMQabKbb6yjm9RbZhJBRcYyoLph421O2mQ=="],
+    "electron": ["electron@40.8.4", "", { "dependencies": { "@electron/get": "^2.0.0", "@types/node": "^24.9.0", "extract-zip": "^2.0.1" }, "bin": { "electron": "cli.js" } }, "sha512-7AoSakFr+g2CTukHDS79cqNiaWPoD8bQ4kIahwUUVv0O5fy4BfZawVCxOFLc61POq8xDvqMSDKPfeFXK/Coc5g=="],
 
     "electron-to-chromium": ["electron-to-chromium@1.5.286", "", {}, "sha512-9tfDXhJ4RKFNerfjdCcZfufu49vg620741MNs26a9+bhLThdB+plgMeou98CAaHu/WATj2iHOOHTp1hWtABj2A=="],
 
