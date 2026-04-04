@@ -2,6 +2,7 @@ import {Button} from '../../components/Button';
 
 export const RetryButton: React.FC<{
 	onClick: () => void;
-}> = ({onClick}) => {
-	return <Button onClick={onClick}>Retry calculateMetadata()</Button>;
+	readonly label?: string;
+}> = ({onClick, label = 'Retry'}) => {
+	return <Button onClick={onClick}>{label}</Button>;
 };

@@ -123,7 +123,10 @@ export const ErrorDisplay: React.FC<{
 			{onRetry ? (
 				<>
 					<div style={spacer} />
-					<RetryButton onClick={onRetry} />
+					<RetryButton
+						onClick={onRetry}
+						label={calculateMetadata ? 'Retry calculateMetadata()' : 'Retry'}
+					/>
 				</>
 			) : null}
 			{calculateMetadata ? (

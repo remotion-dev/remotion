@@ -55,7 +55,9 @@ export const CanvasOrLoading: React.FC<{
 	}, [resolved, setZoom]);
 
 	if (renderError) {
-		return <ErrorLoading error={renderError} />;
+		return (
+			<ErrorLoading error={renderError} calculateMetadataContext={false} />
+		);
 	}
 
 	if (!canvasContent) {
@@ -98,7 +100,7 @@ export const CanvasOrLoading: React.FC<{
 	}
 
 	if (resolved.type === 'error') {
-		return <ErrorLoading error={resolved.error} />;
+		return <ErrorLoading error={resolved.error} calculateMetadataContext />;
 	}
 
 	return (
@@ -119,7 +121,8 @@ const loaderContainer: React.CSSProperties = {
 
 const ErrorLoading: React.FC<{
 	readonly error: Error;
-}> = ({error}) => {
+	readonly calculateMetadataContext: boolean;
+}> = ({error, calculateMetadataContext}) => {
 	return (
 		<div style={loaderContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<ErrorLoader
@@ -130,7 +133,7 @@ const ErrorLoading: React.FC<{
 				onRetry={() =>
 					Internals.resolveCompositionsRef.current?.reloadCurrentlySelectedComposition()
 				}
-				calculateMetadata
+				calculateMetadata={calculateMetadataContext}
 			/>
 		</div>
 	);
