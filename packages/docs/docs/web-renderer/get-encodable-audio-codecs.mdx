@@ -49,10 +49,6 @@ Returns a `Promise<WebRendererAudioCodec[]>` - an array of audio codec identifie
 
 Possible values: `"aac"`, `"opus"`
 
-:::note
-Some browsers (for example Firefox) do not expose a **native** WebCodecs AAC encoder. Before querying codecs, this function ensures [`@mediabunny/aac-encoder`](https://mediabunny.dev/guide/extensions/aac-encoder) is registered when native AAC encoding is unavailable—it is bundled with `@remotion/web-renderer`—so `"aac"` can still be returned for MP4 alongside other supported codecs.
-:::
-
 ## See also
 
 - [`getEncodableVideoCodecs()`](/docs/web-renderer/get-encodable-video-codecs)
