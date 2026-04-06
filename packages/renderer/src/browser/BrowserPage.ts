@@ -105,12 +105,15 @@ const format = (
 
 	for (const a of args) {
 		if (a.type === 'symbol' && a.description?.includes(`__remotion_level_`)) {
-			logLevelFromRemotionLog = a.description
-				?.split('__remotion_level_')?.[1]
-				?.replace(')', '') as LogLevel;
+			const levelParts = a.description?.split('__remotion_level_');
+			const levelValue = levelParts?.[1]?.replace(')', '');
+			if (levelValue) {
+				logLevelFromRemotionLog = levelValue as LogLevel;
+			}
 		}
 		if (a.type === 'symbol' && a.description?.includes(`__remotion_tag_`)) {
-			tag = a.description?.split('__remotion_tag_')?.[1]?.replace(')', '');
+			const tagParts = a.description?.split('__remotion_tag_');
+			tag = tagParts?.[1]?.replace(')', '') ?? null;
 		}
 	}
 

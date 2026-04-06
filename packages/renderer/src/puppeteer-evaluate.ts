@@ -142,16 +142,15 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 		} = await callFunctionOnPromise;
 
 		if (exceptionDetails) {
+			const description = exceptionDetails.exception?.description ?? '';
+			const className = exceptionDetails.exception?.className ?? 'Error';
+			const descriptionLines = description.split('\n');
 			const err = new SymbolicateableError({
-				stack: exceptionDetails.exception?.description as string,
-				name: exceptionDetails.exception?.className as string,
-				message: exceptionDetails.exception?.description?.split(
-					'\n',
-				)[0] as string,
+				stack: description,
+				name: className,
+				message: descriptionLines[0] ?? '',
 				frame,
-				stackFrame: parseStack(
-					(exceptionDetails.exception?.description as string).split('\n'),
-				),
+				stackFrame: parseStack(descriptionLines),
 				chunk: null,
 			});
 			page.close();
