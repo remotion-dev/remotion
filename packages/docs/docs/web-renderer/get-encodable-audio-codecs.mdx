@@ -20,7 +20,7 @@ Use this function to dynamically show users which audio codecs are available in 
 import {getEncodableAudioCodecs} from '@remotion/web-renderer';
 
 const codecs = await getEncodableAudioCodecs('mp4');
-console.log(codecs); // e.g. ['aac', 'opus'] or ['opus'] on Firefox
+console.log(codecs); // e.g. ['aac', 'opus']
 ```
 
 ## Arguments
@@ -50,7 +50,7 @@ Returns a `Promise<WebRendererAudioCodec[]>` - an array of audio codec identifie
 Possible values: `"aac"`, `"opus"`
 
 :::note
-AAC encoding is not supported in Firefox. On Firefox, only `["opus"]` will be returned for both containers.
+Some browsers (for example Firefox) do not expose a **native** WebCodecs AAC encoder. Before querying codecs, this function ensures [`@mediabunny/aac-encoder`](https://mediabunny.dev/guide/extensions/aac-encoder) is registered when native AAC encoding is unavailable—it is bundled with `@remotion/web-renderer`—so `"aac"` can still be returned for MP4 alongside other supported codecs.
 :::
 
 ## See also
