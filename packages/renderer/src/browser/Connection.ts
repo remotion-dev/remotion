@@ -90,17 +90,7 @@ export class Connection extends EventEmitter {
 	}
 
 	#onMessage(message: string): void {
-		let object;
-		try {
-			object = JSON.parse(message);
-		} catch (err) {
-			Log.error(
-				{indent: false, logLevel: 'error'},
-				'Failed to parse CDP message:',
-				err,
-			);
-			return;
-		}
+		const object = JSON.parse(message);
 		if (object.method === 'Target.attachedToTarget') {
 			const {sessionId} = object.params;
 			const session = new CDPSession(
