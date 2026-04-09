@@ -233,12 +233,17 @@ export const makeKeyframeBank = async ({
 				// this does not satisfy the previous condition, since one rounds up and one rounds down
 				Math.abs(sample.timestamp - adjustedTimestamp) <= 0.001
 			) {
-				return sample;
+				// Clone the sample so the caller gets an independent copy.
+				// Cache eviction (deleteFramesBeforeTimestamp) can close the
+				// original sample after the extractFrame queue releases,
+				// but before extractFrameAndAudio calls .toVideoFrame().
+				return sample.clone();
 			}
 		}
 
 		// Return first frame we have
-		return frames[frameTimestamps[0]] ?? null;
+		const fallback = frames[frameTimestamps[0]] ?? null;
+		return fallback ? fallback.clone() : null;
 	};
 
 	const hasTimestampInSecond = async (timestamp: number, fps: number) => {
