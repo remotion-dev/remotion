@@ -113,7 +113,7 @@
 			"@mediabunny/aac-encoder": "1.39.2",
 			"@mediabunny/flac-encoder": "1.39.2",
 			"@mediabunny/ac3": "1.39.2",
-			"next": "16.1.7",
+			"next": "16.2.3",
 			"three": "0.178.0",
 			"sharp": "0.34.5",
 			"@react-three/fiber": "9.2.0",
