@@ -1,0 +1,951 @@
+{
+  "shortTitle": "The Last Lighthouse Keeper",
+  "content": [
+    {
+      "text": "At the edge of a forgotten coastline, old Elias tended the lighthouse alone.",
+      "imageDescription": "A wide view of a solitary, weathered lighthouse perched on a rocky coastline, with overgrown grasses and battered cliffs. Elderly Elias, with a white beard and raincoat, is seen in silhouette tending to the lamps atop the lighthouse, while the vast, empty sea stretches out under a cloudy sky.",
+      "uid": "63bed0dc-6223-49f5-a43b-31c300250013",
+      "wordTimestamps": [
+        {
+          "word": "At",
+          "start": 0,
+          "end": 0.30000001192092896
+        },
+        {
+          "word": "the",
+          "start": 0.30000001192092896,
+          "end": 0.5799999833106995
+        },
+        {
+          "word": "edge",
+          "start": 0.5799999833106995,
+          "end": 0.6200000047683716
+        },
+        {
+          "word": "of",
+          "start": 0.6200000047683716,
+          "end": 0.8199999928474426
+        },
+        {
+          "word": "a",
+          "start": 0.8199999928474426,
+          "end": 0.9399999976158142
+        },
+        {
+          "word": "forgotten",
+          "start": 0.9399999976158142,
+          "end": 1.340000033378601
+        },
+        {
+          "word": "coastline",
+          "start": 1.340000033378601,
+          "end": 2.0999999046325684
+        },
+        {
+          "word": "old",
+          "start": 2.5799999237060547,
+          "end": 2.799999952316284
+        },
+        {
+          "word": "Elias",
+          "start": 2.799999952316284,
+          "end": 3.2799999713897705
+        },
+        {
+          "word": "tended",
+          "start": 3.2799999713897705,
+          "end": 3.5999999046325684
+        },
+        {
+          "word": "the",
+          "start": 3.5999999046325684,
+          "end": 3.9000000953674316
+        },
+        {
+          "word": "lighthouse",
+          "start": 3.9000000953674316,
+          "end": 4.28000020980835
+        },
+        {
+          "word": "alone",
+          "start": 4.28000020980835,
+          "end": 4.820000171661377
+        }
+      ]
+    },
+    {
+      "text": "His days passed in rhythm with the waves, his only companion the crash and hiss of the restless sea.",
+      "imageDescription": "A serene scene showing Elias through a window, sipping tea as he looks out at the endless rolling waves. The seascape is dynamic, with waves crashing against the rocks, filling the air with spray and salt; a sense of solitude and routine is depicted, with seagulls wheeling in the distance.",
+      "uid": "f9fc1f55-5ebb-406d-876e-e272437345e4",
+      "wordTimestamps": [
+        {
+          "word": "His",
+          "start": 0,
+          "end": 0.3199999928474426
+        },
+        {
+          "word": "days",
+          "start": 0.3199999928474426,
+          "end": 0.6600000262260437
+        },
+        {
+          "word": "passed",
+          "start": 0.6600000262260437,
+          "end": 1.159999966621399
+        },
+        {
+          "word": "in",
+          "start": 1.159999966621399,
+          "end": 1.4800000190734863
+        },
+        {
+          "word": "rhythm",
+          "start": 1.4800000190734863,
+          "end": 1.6200000047683716
+        },
+        {
+          "word": "with",
+          "start": 1.6200000047683716,
+          "end": 1.899999976158142
+        },
+        {
+          "word": "the",
+          "start": 1.899999976158142,
+          "end": 2.0799999237060547
+        },
+        {
+          "word": "waves",
+          "start": 2.0799999237060547,
+          "end": 2.5
+        },
+        {
+          "word": "his",
+          "start": 3,
+          "end": 3.1600000858306885
+        },
+        {
+          "word": "only",
+          "start": 3.1600000858306885,
+          "end": 3.5199999809265137
+        },
+        {
+          "word": "companion",
+          "start": 3.5199999809265137,
+          "end": 4.159999847412109
+        },
+        {
+          "word": "the",
+          "start": 4.159999847412109,
+          "end": 4.800000190734863
+        },
+        {
+          "word": "crash",
+          "start": 4.800000190734863,
+          "end": 5.260000228881836
+        },
+        {
+          "word": "and",
+          "start": 5.260000228881836,
+          "end": 5.71999979019165
+        },
+        {
+          "word": "hiss",
+          "start": 5.71999979019165,
+          "end": 5.980000019073486
+        },
+        {
+          "word": "of",
+          "start": 5.980000019073486,
+          "end": 6.21999979019165
+        },
+        {
+          "word": "the",
+          "start": 6.21999979019165,
+          "end": 6.360000133514404
+        },
+        {
+          "word": "restless",
+          "start": 6.360000133514404,
+          "end": 6.739999771118164
+        },
+        {
+          "word": "sea",
+          "start": 6.739999771118164,
+          "end": 7.260000228881836
+        }
+      ]
+    },
+    {
+      "text": "One night, a storm brought wreckage he hadn't seen before: a wooden toy boat, battered but oddly familiar.",
+      "imageDescription": "A dramatic nighttime scene of the raging storm. Lightning illuminates the churning surf as Elias, holding a lantern, discovers a small, broken wooden toy boat washed up in the foam. Rain whips around him as he kneels, his expression one of surprise and recognition.",
+      "uid": "6794a6a9-152c-4f07-8a28-54db7d8a0fa9",
+      "wordTimestamps": [
+        {
+          "word": "One",
+          "start": 0,
+          "end": 0.4000000059604645
+        },
+        {
+          "word": "night",
+          "start": 0.4000000059604645,
+          "end": 0.9200000166893005
+        },
+        {
+          "word": "a",
+          "start": 1.0199999809265137,
+          "end": 1.2599999904632568
+        },
+        {
+          "word": "storm",
+          "start": 1.2599999904632568,
+          "end": 1.4600000381469727
+        },
+        {
+          "word": "brought",
+          "start": 1.4600000381469727,
+          "end": 1.7999999523162842
+        },
+        {
+          "word": "wreckage",
+          "start": 1.7999999523162842,
+          "end": 2.240000009536743
+        },
+        {
+          "word": "he",
+          "start": 2.240000009536743,
+          "end": 2.359999895095825
+        },
+        {
+          "word": "hadn't",
+          "start": 2.359999895095825,
+          "end": 2.6600000858306885
+        },
+        {
+          "word": "seen",
+          "start": 2.6600000858306885,
+          "end": 3
+        },
+        {
+          "word": "before",
+          "start": 3,
+          "end": 3.5
+        },
+        {
+          "word": "A",
+          "start": 3.819999933242798,
+          "end": 4.019999980926514
+        },
+        {
+          "word": "wooden",
+          "start": 4.019999980926514,
+          "end": 4.21999979019165
+        },
+        {
+          "word": "toy",
+          "start": 4.21999979019165,
+          "end": 4.71999979019165
+        },
+        {
+          "word": "boat",
+          "start": 4.71999979019165,
+          "end": 5.059999942779541
+        },
+        {
+          "word": "battered",
+          "start": 5.599999904632568,
+          "end": 5.820000171661377
+        },
+        {
+          "word": "but",
+          "start": 5.820000171661377,
+          "end": 6.079999923706055
+        },
+        {
+          "word": "oddly",
+          "start": 6.079999923706055,
+          "end": 6.5
+        },
+        {
+          "word": "familiar",
+          "start": 6.5,
+          "end": 6.980000019073486
+        }
+      ]
+    },
+    {
+      "text": "As he brushed off the sand, memories surged—childhood summers spent with his brother, building boats and laughing in the surf.",
+      "imageDescription": "A glowing, nostalgic aura forms around Elias as he holds the toy boat. Within the misty memory, two young boys (Elias and his brother) are building wooden boats and splashing in bright summer sunlight by the shoreline, laughter evident on their faces.",
+      "uid": "d81566ce-d3a5-4928-8175-d8cf2571aaa2",
+      "wordTimestamps": [
+        {
+          "word": "As",
+          "start": 0,
+          "end": 0.3400000035762787
+        },
+        {
+          "word": "he",
+          "start": 0.3400000035762787,
+          "end": 0.5799999833106995
+        },
+        {
+          "word": "brushed",
+          "start": 0.5799999833106995,
+          "end": 0.800000011920929
+        },
+        {
+          "word": "off",
+          "start": 0.800000011920929,
+          "end": 1.1200000047683716
+        },
+        {
+          "word": "the",
+          "start": 1.1200000047683716,
+          "end": 1.559999942779541
+        },
+        {
+          "word": "sand",
+          "start": 1.559999942779541,
+          "end": 1.7000000476837158
+        },
+        {
+          "word": "memories",
+          "start": 2.319999933242798,
+          "end": 2.5799999237060547
+        },
+        {
+          "word": "surged",
+          "start": 2.5799999237060547,
+          "end": 3.240000009536743
+        },
+        {
+          "word": "Childhood",
+          "start": 4.079999923706055,
+          "end": 4.340000152587891
+        },
+        {
+          "word": "summers",
+          "start": 4.340000152587891,
+          "end": 4.699999809265137
+        },
+        {
+          "word": "spent",
+          "start": 4.699999809265137,
+          "end": 5.059999942779541
+        },
+        {
+          "word": "with",
+          "start": 5.059999942779541,
+          "end": 5.260000228881836
+        },
+        {
+          "word": "his",
+          "start": 5.260000228881836,
+          "end": 5.5
+        },
+        {
+          "word": "brother",
+          "start": 5.5,
+          "end": 5.800000190734863
+        },
+        {
+          "word": "building",
+          "start": 6.420000076293945,
+          "end": 6.519999980926514
+        },
+        {
+          "word": "boats",
+          "start": 6.519999980926514,
+          "end": 6.900000095367432
+        },
+        {
+          "word": "and",
+          "start": 6.900000095367432,
+          "end": 7.21999979019165
+        },
+        {
+          "word": "laughing",
+          "start": 7.21999979019165,
+          "end": 7.539999961853027
+        },
+        {
+          "word": "in",
+          "start": 7.539999961853027,
+          "end": 7.760000228881836
+        },
+        {
+          "word": "the",
+          "start": 7.760000228881836,
+          "end": 8
+        },
+        {
+          "word": "surf",
+          "start": 8,
+          "end": 8.239999771118164
+        }
+      ]
+    },
+    {
+      "text": "Each night after, the waves delivered more echoes of the past: a yellow scarf, a silver locket, fragments from lives and stories the ocean had claimed.",
+      "imageDescription": "Over several nights, Elias stands by the tide line, lantern raised, as gentle waves deliver various objects to shore: a fluttering yellow scarf catches on driftwood, a silver locket glints in the sand, and an assortment of weathered mementos lie strewn near his feet, evoking a sense of mystery and memory.",
+      "uid": "00024924-0607-4ba3-97d3-5326dc2aa88d",
+      "wordTimestamps": [
+        {
+          "word": "Each",
+          "start": 0,
+          "end": 0.4399999976158142
+        },
+        {
+          "word": "night",
+          "start": 0.4399999976158142,
+          "end": 0.7200000286102295
+        },
+        {
+          "word": "after",
+          "start": 0.7200000286102295,
+          "end": 1.1200000047683716
+        },
+        {
+          "word": "the",
+          "start": 1.4600000381469727,
+          "end": 1.6200000047683716
+        },
+        {
+          "word": "waves",
+          "start": 1.6200000047683716,
+          "end": 1.8799999952316284
+        },
+        {
+          "word": "delivered",
+          "start": 1.8799999952316284,
+          "end": 2.319999933242798
+        },
+        {
+          "word": "more",
+          "start": 2.319999933242798,
+          "end": 2.740000009536743
+        },
+        {
+          "word": "echoes",
+          "start": 2.740000009536743,
+          "end": 3.0799999237060547
+        },
+        {
+          "word": "of",
+          "start": 3.0799999237060547,
+          "end": 3.3399999141693115
+        },
+        {
+          "word": "the",
+          "start": 3.3399999141693115,
+          "end": 3.4600000381469727
+        },
+        {
+          "word": "past",
+          "start": 3.4600000381469727,
+          "end": 3.9800000190734863
+        },
+        {
+          "word": "A",
+          "start": 4.420000076293945,
+          "end": 4.480000019073486
+        },
+        {
+          "word": "yellow",
+          "start": 4.480000019073486,
+          "end": 4.800000190734863
+        },
+        {
+          "word": "scarf",
+          "start": 4.800000190734863,
+          "end": 5.440000057220459
+        },
+        {
+          "word": "A",
+          "start": 5.920000076293945,
+          "end": 6.059999942779541
+        },
+        {
+          "word": "silver",
+          "start": 6.059999942779541,
+          "end": 6.340000152587891
+        },
+        {
+          "word": "locket",
+          "start": 6.340000152587891,
+          "end": 6.920000076293945
+        },
+        {
+          "word": "Fragments",
+          "start": 7.760000228881836,
+          "end": 7.840000152587891
+        },
+        {
+          "word": "from",
+          "start": 7.840000152587891,
+          "end": 8.199999809265137
+        },
+        {
+          "word": "lives",
+          "start": 8.199999809265137,
+          "end": 8.65999984741211
+        },
+        {
+          "word": "and",
+          "start": 8.65999984741211,
+          "end": 9.119999885559082
+        },
+        {
+          "word": "stories",
+          "start": 9.119999885559082,
+          "end": 9.34000015258789
+        },
+        {
+          "word": "the",
+          "start": 9.34000015258789,
+          "end": 9.640000343322754
+        },
+        {
+          "word": "ocean",
+          "start": 9.640000343322754,
+          "end": 9.899999618530273
+        },
+        {
+          "word": "had",
+          "start": 9.899999618530273,
+          "end": 10.260000228881836
+        },
+        {
+          "word": "claimed",
+          "start": 10.260000228881836,
+          "end": 10.640000343322754
+        }
+      ]
+    },
+    {
+      "text": "Elias realized the sea was not just water but a keeper of memories, returning what was lost when it sensed he was ready.",
+      "imageDescription": "A surreal view where the water seems almost alive; ghostly images of people and their belongings swirl faintly beneath the waves, watched thoughtfully by Elias. The ocean is depicted as deep and mysterious, shimmering under the moonlight, holding onto memories.",
+      "uid": "7338cd8a-0cff-4c6a-a721-231251987af8",
+      "wordTimestamps": [
+        {
+          "word": "Elias",
+          "start": 0,
+          "end": 0.6200000047683716
+        },
+        {
+          "word": "realized",
+          "start": 0.6200000047683716,
+          "end": 1.159999966621399
+        },
+        {
+          "word": "the",
+          "start": 1.159999966621399,
+          "end": 1.3799999952316284
+        },
+        {
+          "word": "sea",
+          "start": 1.3799999952316284,
+          "end": 1.559999942779541
+        },
+        {
+          "word": "was",
+          "start": 1.559999942779541,
+          "end": 1.7999999523162842
+        },
+        {
+          "word": "not",
+          "start": 1.7999999523162842,
+          "end": 2.059999942779541
+        },
+        {
+          "word": "just",
+          "start": 2.059999942779541,
+          "end": 2.4200000762939453
+        },
+        {
+          "word": "water",
+          "start": 2.4200000762939453,
+          "end": 2.680000066757202
+        },
+        {
+          "word": "but",
+          "start": 2.680000066757202,
+          "end": 2.9800000190734863
+        },
+        {
+          "word": "a",
+          "start": 2.9800000190734863,
+          "end": 3.180000066757202
+        },
+        {
+          "word": "keeper",
+          "start": 3.180000066757202,
+          "end": 3.380000114440918
+        },
+        {
+          "word": "of",
+          "start": 3.380000114440918,
+          "end": 4.21999979019165
+        },
+        {
+          "word": "memories",
+          "start": 4.21999979019165,
+          "end": 4.21999979019165
+        },
+        {
+          "word": "returning",
+          "start": 4.699999809265137,
+          "end": 4.920000076293945
+        },
+        {
+          "word": "what",
+          "start": 4.920000076293945,
+          "end": 5.199999809265137
+        },
+        {
+          "word": "was",
+          "start": 5.199999809265137,
+          "end": 5.460000038146973
+        },
+        {
+          "word": "lost",
+          "start": 5.460000038146973,
+          "end": 5.800000190734863
+        },
+        {
+          "word": "when",
+          "start": 5.800000190734863,
+          "end": 6.039999961853027
+        },
+        {
+          "word": "it",
+          "start": 6.039999961853027,
+          "end": 6.300000190734863
+        },
+        {
+          "word": "sensed",
+          "start": 6.300000190734863,
+          "end": 6.599999904632568
+        },
+        {
+          "word": "he",
+          "start": 6.599999904632568,
+          "end": 6.78000020980835
+        },
+        {
+          "word": "was",
+          "start": 6.78000020980835,
+          "end": 7.019999980926514
+        },
+        {
+          "word": "ready",
+          "start": 7.019999980926514,
+          "end": 7.300000190734863
+        }
+      ]
+    },
+    {
+      "text": "Moved by gratitude and aching nostalgia, he cast a message in a bottle, thanking the ocean for its gifts.",
+      "imageDescription": "At dawn, Elias stands on the shore, gently placing a handwritten note inside a glass bottle. He releases it into the calm sea, his face lit with gratitude and nostalgia, as the orange and pink hues of sunrise reflect on the gentle waves.",
+      "uid": "e805ff8f-7dde-4f3f-b455-26babac1591d",
+      "wordTimestamps": [
+        {
+          "word": "Moved",
+          "start": 0,
+          "end": 0.6000000238418579
+        },
+        {
+          "word": "by",
+          "start": 0.6000000238418579,
+          "end": 0.9200000166893005
+        },
+        {
+          "word": "gratitude",
+          "start": 0.9200000166893005,
+          "end": 1.5
+        },
+        {
+          "word": "and",
+          "start": 1.5,
+          "end": 2.119999885559082
+        },
+        {
+          "word": "aching",
+          "start": 2.119999885559082,
+          "end": 2.2799999713897705
+        },
+        {
+          "word": "nostalgia",
+          "start": 2.2799999713897705,
+          "end": 2.9000000953674316
+        },
+        {
+          "word": "he",
+          "start": 3.440000057220459,
+          "end": 3.5799999237060547
+        },
+        {
+          "word": "cast",
+          "start": 3.5799999237060547,
+          "end": 3.9000000953674316
+        },
+        {
+          "word": "a",
+          "start": 3.9000000953674316,
+          "end": 4.539999961853027
+        },
+        {
+          "word": "message",
+          "start": 4.539999961853027,
+          "end": 4.539999961853027
+        },
+        {
+          "word": "in",
+          "start": 4.539999961853027,
+          "end": 4.840000152587891
+        },
+        {
+          "word": "a",
+          "start": 4.840000152587891,
+          "end": 5.400000095367432
+        },
+        {
+          "word": "bottle",
+          "start": 5.400000095367432,
+          "end": 5.400000095367432
+        },
+        {
+          "word": "thanking",
+          "start": 6.119999885559082,
+          "end": 6.119999885559082
+        },
+        {
+          "word": "the",
+          "start": 6.119999885559082,
+          "end": 6.579999923706055
+        },
+        {
+          "word": "ocean",
+          "start": 6.579999923706055,
+          "end": 6.679999828338623
+        },
+        {
+          "word": "for",
+          "start": 6.679999828338623,
+          "end": 7.099999904632568
+        },
+        {
+          "word": "its",
+          "start": 7.099999904632568,
+          "end": 7.360000133514404
+        },
+        {
+          "word": "gifts",
+          "start": 7.360000133514404,
+          "end": 7.619999885559082
+        }
+      ]
+    },
+    {
+      "text": "In the morning light, he discovered footprints in the sand, as if a loved one had visited. From then on, Elias greeted each tide with hope, knowing the past is never truly gone, as long as the sea remembers.",
+      "imageDescription": "Early morning sunlight glows over the beach as Elias discovers a single trail of human footprints leading from the water's edge to the lighthouse. He stands, hopeful, watching the horizon, as new waves roll in, giving the scene a peaceful, timeless quality.",
+      "uid": "9290273c-2f91-4ee9-b1b6-2bdb57a156f6",
+      "wordTimestamps": [
+        {
+          "word": "In",
+          "start": 0,
+          "end": 0.3400000035762787
+        },
+        {
+          "word": "the",
+          "start": 0.3400000035762787,
+          "end": 0.5
+        },
+        {
+          "word": "morning",
+          "start": 0.5,
+          "end": 0.800000011920929
+        },
+        {
+          "word": "light",
+          "start": 0.800000011920929,
+          "end": 1.1799999475479126
+        },
+        {
+          "word": "he",
+          "start": 1.5800000429153442,
+          "end": 1.6399999856948853
+        },
+        {
+          "word": "discovered",
+          "start": 1.6399999856948853,
+          "end": 2.0999999046325684
+        },
+        {
+          "word": "footprints",
+          "start": 2.0999999046325684,
+          "end": 2.759999990463257
+        },
+        {
+          "word": "in",
+          "start": 2.759999990463257,
+          "end": 3
+        },
+        {
+          "word": "the",
+          "start": 3,
+          "end": 3.5799999237060547
+        },
+        {
+          "word": "sand",
+          "start": 3.5799999237060547,
+          "end": 3.5799999237060547
+        },
+        {
+          "word": "as",
+          "start": 4.119999885559082,
+          "end": 4.199999809265137
+        },
+        {
+          "word": "if",
+          "start": 4.199999809265137,
+          "end": 4.360000133514404
+        },
+        {
+          "word": "a",
+          "start": 4.360000133514404,
+          "end": 4.579999923706055
+        },
+        {
+          "word": "loved",
+          "start": 4.579999923706055,
+          "end": 4.78000020980835
+        },
+        {
+          "word": "one",
+          "start": 4.78000020980835,
+          "end": 5.119999885559082
+        },
+        {
+          "word": "had",
+          "start": 5.119999885559082,
+          "end": 5.440000057220459
+        },
+        {
+          "word": "visited",
+          "start": 5.440000057220459,
+          "end": 5.71999979019165
+        },
+        {
+          "word": "From",
+          "start": 6.440000057220459,
+          "end": 6.579999923706055
+        },
+        {
+          "word": "then",
+          "start": 6.579999923706055,
+          "end": 6.900000095367432
+        },
+        {
+          "word": "on",
+          "start": 6.900000095367432,
+          "end": 7.380000114440918
+        },
+        {
+          "word": "Elias",
+          "start": 7.78000020980835,
+          "end": 8.15999984741211
+        },
+        {
+          "word": "greeted",
+          "start": 8.15999984741211,
+          "end": 8.520000457763672
+        },
+        {
+          "word": "each",
+          "start": 8.520000457763672,
+          "end": 9
+        },
+        {
+          "word": "tide",
+          "start": 9,
+          "end": 9.34000015258789
+        },
+        {
+          "word": "with",
+          "start": 9.34000015258789,
+          "end": 9.760000228881836
+        },
+        {
+          "word": "hope",
+          "start": 9.760000228881836,
+          "end": 10.100000381469727
+        },
+        {
+          "word": "knowing",
+          "start": 10.699999809265137,
+          "end": 10.720000267028809
+        },
+        {
+          "word": "the",
+          "start": 10.720000267028809,
+          "end": 10.979999542236328
+        },
+        {
+          "word": "past",
+          "start": 10.979999542236328,
+          "end": 11.359999656677246
+        },
+        {
+          "word": "is",
+          "start": 11.359999656677246,
+          "end": 11.640000343322754
+        },
+        {
+          "word": "never",
+          "start": 11.640000343322754,
+          "end": 11.920000076293945
+        },
+        {
+          "word": "truly",
+          "start": 11.920000076293945,
+          "end": 12.399999618530273
+        },
+        {
+          "word": "gone",
+          "start": 12.399999618530273,
+          "end": 12.800000190734863
+        },
+        {
+          "word": "as",
+          "start": 13.220000267028809,
+          "end": 13.420000076293945
+        },
+        {
+          "word": "long",
+          "start": 13.420000076293945,
+          "end": 13.579999923706055
+        },
+        {
+          "word": "as",
+          "start": 13.579999923706055,
+          "end": 13.819999694824219
+        },
+        {
+          "word": "the",
+          "start": 13.819999694824219,
+          "end": 14.199999809265137
+        },
+        {
+          "word": "sea",
+          "start": 14.199999809265137,
+          "end": 14.34000015258789
+        },
+        {
+          "word": "remembers",
+          "start": 14.34000015258789,
+          "end": 14.800000190734863
+        }
+      ]
+    }
+  ]
+}

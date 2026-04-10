@@ -1,0 +1,1728 @@
+{
+  "elements": [
+    {
+      "startMs": 0,
+      "endMs": 4821,
+      "imageUrl": "63bed0dc-6223-49f5-a43b-31c300250013",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1.5,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 4821
+        }
+      ]
+    },
+    {
+      "startMs": 4821,
+      "endMs": 12082,
+      "imageUrl": "f9fc1f55-5ebb-406d-876e-e272437345e4",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.5,
+          "startMs": 0,
+          "endMs": 7261
+        }
+      ]
+    },
+    {
+      "startMs": 12082,
+      "endMs": 19063,
+      "imageUrl": "6794a6a9-152c-4f07-8a28-54db7d8a0fa9",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1.5,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 6981
+        }
+      ]
+    },
+    {
+      "startMs": 19063,
+      "endMs": 27303,
+      "imageUrl": "d81566ce-d3a5-4928-8175-d8cf2571aaa2",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.5,
+          "startMs": 0,
+          "endMs": 8240
+        }
+      ]
+    },
+    {
+      "startMs": 27303,
+      "endMs": 37944,
+      "imageUrl": "00024924-0607-4ba3-97d3-5326dc2aa88d",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1.5,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 10641
+        }
+      ]
+    },
+    {
+      "startMs": 37944,
+      "endMs": 45245,
+      "imageUrl": "7338cd8a-0cff-4c6a-a721-231251987af8",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.5,
+          "startMs": 0,
+          "endMs": 7301
+        }
+      ]
+    },
+    {
+      "startMs": 45245,
+      "endMs": 52865,
+      "imageUrl": "e805ff8f-7dde-4f3f-b455-26babac1591d",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1.5,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 7620
+        }
+      ]
+    },
+    {
+      "startMs": 52865,
+      "endMs": 67666,
+      "imageUrl": "9290273c-2f91-4ee9-b1b6-2bdb57a156f6",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.5,
+          "startMs": 0,
+          "endMs": 14801
+        }
+      ]
+    }
+  ],
+  "text": [
+    {
+      "startMs": 0,
+      "endMs": 819.9999928474426,
+      "text": "At the edge of",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 819.9999928474426,
+      "endMs": 1340.000033378601,
+      "text": "a forgotten",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 1340.000033378601,
+      "endMs": 2799.999952316284,
+      "text": "coastline old",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 2799.999952316284,
+      "endMs": 3599.9999046325684,
+      "text": "Elias tended",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 3599.9999046325684,
+      "endMs": 4280.00020980835,
+      "text": "the lighthouse",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.500205501592522,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 4280.00020980835,
+      "endMs": 4820.000171661377,
+      "text": "alone",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 4821,
+      "endMs": 5481.000026226044,
+      "text": "His days",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 5481.000026226044,
+      "endMs": 6301.000019073486,
+      "text": "passed in",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6584291322162685,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 6301.000019073486,
+      "endMs": 6720.999976158142,
+      "text": "rhythm with",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6096834331424491,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 6720.999976158142,
+      "endMs": 7981.0000858306885,
+      "text": "the waves his",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 7981.0000858306885,
+      "endMs": 8980.99984741211,
+      "text": "only companion",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5192588887311778,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 8980.99984741211,
+      "endMs": 10540.99979019165,
+      "text": "the crash and",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 10540.99979019165,
+      "endMs": 11181.000133514404,
+      "text": "hiss of the",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 11181.000133514404,
+      "endMs": 12081.000228881836,
+      "text": "restless sea",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.520005536381307,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 12082,
+      "endMs": 13341.999990463257,
+      "text": "One night a",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 13341.999990463257,
+      "endMs": 13881.999952316284,
+      "text": "storm brought",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 13881.999952316284,
+      "endMs": 14441.999895095825,
+      "text": "wreckage he",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 14441.999895095825,
+      "endMs": 15082,
+      "text": "hadn't seen",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6988468738903626,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 15082,
+      "endMs": 16101.999980926514,
+      "text": "before A",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5463368008656705,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 16101.999980926514,
+      "endMs": 16801.99979019165,
+      "text": "wooden toy",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5366455093076509,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 16801.99979019165,
+      "endMs": 17902.000171661377,
+      "text": "boat battered",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5451725941282507,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 17902.000171661377,
+      "endMs": 18582,
+      "text": "but oddly",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 18582,
+      "endMs": 19062.000019073486,
+      "text": "familiar",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6419847747758066,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 19063,
+      "endMs": 19863.00001192093,
+      "text": "As he brushed",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6266170843393706,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 19863.00001192093,
+      "endMs": 20763.000047683716,
+      "text": "off the sand",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 20763.000047683716,
+      "endMs": 21642.999923706055,
+      "text": "memories",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6188972844930628,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 21642.999923706055,
+      "endMs": 22303.000009536743,
+      "text": "surged",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6179701244691553,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 22303.000009536743,
+      "endMs": 23403.00015258789,
+      "text": "Childhood",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6967498593210114,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 23403.00015258789,
+      "endMs": 24122.99994277954,
+      "text": "summers spent",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.617798541457132,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 24122.99994277954,
+      "endMs": 24563,
+      "text": "with his",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 24563,
+      "endMs": 24863.000190734863,
+      "text": "brother",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5906794483117495,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 24863.000190734863,
+      "endMs": 25963.00009536743,
+      "text": "building boats",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5763860421813065,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 25963.00009536743,
+      "endMs": 26602.999961853027,
+      "text": "and laughing",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6392244984177271,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 26602.999961853027,
+      "endMs": 27302.999771118164,
+      "text": "in the surf",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5204200403507898,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 27303,
+      "endMs": 28023.00002861023,
+      "text": "Each night",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 28023.00002861023,
+      "endMs": 28923.00000476837,
+      "text": "after the",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5951583294010676,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 28923.00000476837,
+      "endMs": 29182.99999523163,
+      "text": "waves",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6991546869821273,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 29182.99999523163,
+      "endMs": 30043.000009536743,
+      "text": "delivered more",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5822838435357959,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 30043.000009536743,
+      "endMs": 30763.000038146973,
+      "text": "echoes of the",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6263143016091078,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 30763.000038146973,
+      "endMs": 32103.000190734863,
+      "text": "past A yellow",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6811276734307677,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 32103.000190734863,
+      "endMs": 33643.00015258789,
+      "text": "scarf A silver",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.637367114059483,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 33643.00015258789,
+      "endMs": 34223.000076293945,
+      "text": "locket",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5494276910699559,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 34223.000076293945,
+      "endMs": 35502.99980926514,
+      "text": "Fragments from",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6766112617249943,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 35502.99980926514,
+      "endMs": 36422.99988555908,
+      "text": "lives and",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5217757543524194,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 36422.99988555908,
+      "endMs": 36943.000343322754,
+      "text": "stories the",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6600754322032661,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 36943.000343322754,
+      "endMs": 37563.000228881836,
+      "text": "ocean had",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6374156055854806,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 37563.000228881836,
+      "endMs": 37943.000343322754,
+      "text": "claimed",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 37944,
+      "endMs": 39103.9999666214,
+      "text": "Elias realized",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 39103.9999666214,
+      "endMs": 39743.999952316284,
+      "text": "the sea was",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 39743.999952316284,
+      "endMs": 40624.0000667572,
+      "text": "not just water",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6390755161713484,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 40624.0000667572,
+      "endMs": 41324.00011444092,
+      "text": "but a keeper",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5156813108171474,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 41324.00011444092,
+      "endMs": 42163.99979019165,
+      "text": "of memories",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6931968769156831,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 42163.99979019165,
+      "endMs": 43143.99980926514,
+      "text": "returning what",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6249055754543271,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 43143.99980926514,
+      "endMs": 43983.99996185303,
+      "text": "was lost when",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 43983.99996185303,
+      "endMs": 44724.00020980835,
+      "text": "it sensed he",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 44724.00020980835,
+      "endMs": 45244.00019073486,
+      "text": "was ready",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 45245,
+      "endMs": 46165.0000166893,
+      "text": "Moved by",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6023271315127519,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 46165.0000166893,
+      "endMs": 47364.99988555908,
+      "text": "gratitude and",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 47364.99988555908,
+      "endMs": 47524.99997138977,
+      "text": "aching",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6700339140569672,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 47524.99997138977,
+      "endMs": 48824.999923706055,
+      "text": "nostalgia he",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5458952635151143,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 48824.999923706055,
+      "endMs": 49784.99996185303,
+      "text": "cast a message",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6394191640362292,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 49784.99996185303,
+      "endMs": 50645.00009536743,
+      "text": "in a bottle",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 50645.00009536743,
+      "endMs": 51824.999923706055,
+      "text": "thanking the",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 51824.999923706055,
+      "endMs": 52605.000133514404,
+      "text": "ocean for its",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6238113053759854,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 52605.000133514404,
+      "endMs": 52864.99988555908,
+      "text": "gifts",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5255072586748563,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 52865,
+      "endMs": 53665.00001192093,
+      "text": "In the morning",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5447744145478441,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 53665.00001192093,
+      "endMs": 54504.999985694885,
+      "text": "light he",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 54504.999985694885,
+      "endMs": 54964.99990463257,
+      "text": "discovered",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 54964.99990463257,
+      "endMs": 55865,
+      "text": "footprints in",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.581762312362537,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 55865,
+      "endMs": 57225.000133514404,
+      "text": "the sand as if",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6280338031326382,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 57225.000133514404,
+      "endMs": 57984.99988555908,
+      "text": "a loved one",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5363280172473891,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 57984.99988555908,
+      "endMs": 58584.99979019165,
+      "text": "had visited",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 58584.99979019165,
+      "endMs": 60245.00011444092,
+      "text": "From then on",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6011687245648799,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 60245.00011444092,
+      "endMs": 61385.00045776367,
+      "text": "Elias greeted",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5317929633373532,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 61385.00045776367,
+      "endMs": 62625.000228881836,
+      "text": "each tide with",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 62625.000228881836,
+      "endMs": 63585.00026702881,
+      "text": "hope knowing",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 63585.00026702881,
+      "endMs": 64505.000343322754,
+      "text": "the past is",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5720894820180007,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 64505.000343322754,
+      "endMs": 65264.99961853027,
+      "text": "never truly",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 65264.99961853027,
+      "endMs": 66444.99992370605,
+      "text": "gone as long",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 66444.99992370605,
+      "endMs": 67205.00015258789,
+      "text": "as the sea",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 67205.00015258789,
+      "endMs": 67665.00019073486,
+      "text": "remembers",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5407032732337488,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    }
+  ],
+  "audio": [
+    {
+      "startMs": 0,
+      "endMs": 4821,
+      "audioUrl": "63bed0dc-6223-49f5-a43b-31c300250013"
+    },
+    {
+      "startMs": 4821,
+      "endMs": 12082,
+      "audioUrl": "f9fc1f55-5ebb-406d-876e-e272437345e4"
+    },
+    {
+      "startMs": 12082,
+      "endMs": 19063,
+      "audioUrl": "6794a6a9-152c-4f07-8a28-54db7d8a0fa9"
+    },
+    {
+      "startMs": 19063,
+      "endMs": 27303,
+      "audioUrl": "d81566ce-d3a5-4928-8175-d8cf2571aaa2"
+    },
+    {
+      "startMs": 27303,
+      "endMs": 37944,
+      "audioUrl": "00024924-0607-4ba3-97d3-5326dc2aa88d"
+    },
+    {
+      "startMs": 37944,
+      "endMs": 45245,
+      "audioUrl": "7338cd8a-0cff-4c6a-a721-231251987af8"
+    },
+    {
+      "startMs": 45245,
+      "endMs": 52865,
+      "audioUrl": "e805ff8f-7dde-4f3f-b455-26babac1591d"
+    },
+    {
+      "startMs": 52865,
+      "endMs": 67666,
+      "audioUrl": "9290273c-2f91-4ee9-b1b6-2bdb57a156f6"
+    }
+  ],
+  "shortTitle": "The Last Lighthouse Keeper"
+}

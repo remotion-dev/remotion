@@ -1,0 +1,47 @@
+{
+  "name": "template-ai-video-typecast",
+  "version": "1.0.0",
+  "description": "Create AI videos using remotion with Typecast TTS",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc",
+    "gen": "bun cli/cli.ts"
+  },
+  "repository": {},
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/animation-utils": "workspace:*",
+    "@remotion/cli": "workspace:*",
+    "@remotion/google-fonts": "workspace:*",
+    "@remotion/layout-utils": "workspace:*",
+    "@remotion/media": "workspace:*",
+    "@remotion/zod-types": "workspace:*",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "workspace:*",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/prompts": "^2.4.9",
+    "@types/react": "19.2.7",
+    "@types/uuid": "^11.0.0",
+    "@types/web": "0.0.166",
+    "@types/yargs": "^17.0.33",
+    "chalk": "^5.6.2",
+    "dotenv": "17.3.1",
+    "eslint": "9.19.0",
+    "@neosapience/typecast-js": "^0.1.8",
+    "openai": "^4.0.0",
+    "ora": "^9.0.0",
+    "prettier": "3.8.1",
+    "prompts": "^2.4.2",
+    "tsx": "^4.20.6",
+    "typescript": "5.9.3",
+    "uuid": "^13.0.0",
+    "yargs": "^18.0.0"
+  },
+  "private": true
+}
