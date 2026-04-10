@@ -150,7 +150,6 @@ export const generateVoice = async (
   voiceId: string,
   path: string,
 ): Promise<WordTimestamp[]> => {
-  // Generate audio using Typecast SDK
   const typecast = new TypecastClient({
     apiKey: typecastApiKey,
   });
@@ -166,7 +165,6 @@ export const generateVoice = async (
 
   await fs.promises.writeFile(path, new Uint8Array(audio.audioData));
 
-  // Use OpenAI Whisper to get word-level timestamps
   const openai = new OpenAI({ apiKey: apiKey! });
   const transcription = await openai.audio.transcriptions.create({
     file: fs.createReadStream(path),
