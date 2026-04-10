@@ -7,6 +7,21 @@ import {createFileWatcherRegistry} from '../file-watcher';
 
 const tmpDir = os.tmpdir();
 
+const waitFor = async (
+	predicate: () => boolean,
+	timeoutMs = 5_000,
+	intervalMs = 50,
+): Promise<void> => {
+	const deadline = Date.now() + timeoutMs;
+	while (!predicate()) {
+		if (Date.now() >= deadline) {
+			throw new Error(`waitFor timed out after ${timeoutMs}ms`);
+		}
+
+		await new Promise((resolve) => setTimeout(resolve, intervalMs));
+	}
+};
+
 let registry: ReturnType<typeof createFileWatcherRegistry>;
 let tmpFile: string;
 
@@ -170,8 +185,8 @@ test('duplicate content from fs.watchFile is suppressed', async () => {
 	registry.writeFileAndNotifyFileWatchers(tmpFile, 'new content');
 	expect(cb).toHaveBeenCalledTimes(1);
 
-	// Wait for fs.watchFile to poll (100ms interval + some buffer)
-	await new Promise((resolve) => setTimeout(resolve, 300));
+	// Wait for fs.watchFile to poll (100ms interval + generous buffer)
+	await new Promise((resolve) => setTimeout(resolve, 500));
 
 	// The polled change should be suppressed since content is identical
 	expect(cb).toHaveBeenCalledTimes(1);
@@ -230,11 +245,11 @@ test('existenceOnly does not read the file when content changes', async () => {
 		onChange: cb,
 	});
 
-	await new Promise((resolve) => setTimeout(resolve, 350));
+	await new Promise((resolve) => setTimeout(resolve, 500));
 
 	writeFileSync(tmpFile, 'updated without reading');
 
-	await new Promise((resolve) => setTimeout(resolve, 350));
+	await new Promise((resolve) => setTimeout(resolve, 500));
 
 	expect(readSpy).not.toHaveBeenCalled();
 
@@ -257,7 +272,7 @@ test('existenceOnly emits created with empty content when file appears', async (
 
 	writeFileSync(newFile, 'hello');
 
-	await new Promise((resolve) => setTimeout(resolve, 350));
+	await waitFor(() => cb.mock.calls.length > 0);
 
 	expect(cb).toHaveBeenCalledWith({type: 'created', content: ''});
 
@@ -278,7 +293,7 @@ test('existenceOnly emits deleted when file is removed', async () => {
 
 	unlinkSync(tmpFile);
 
-	await new Promise((resolve) => setTimeout(resolve, 350));
+	await waitFor(() => cb.mock.calls.length > 0);
 
 	expect(cb).toHaveBeenCalledWith({type: 'deleted'});
 
