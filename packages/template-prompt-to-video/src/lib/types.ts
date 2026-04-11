@@ -1,4 +1,4 @@
-import { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api";
+import type { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api";
 import { z } from "zod";
 
 const BackgroundTransitionTypeSchema = z.union([
@@ -92,9 +92,16 @@ export interface StoryMetadataWithDetails {
   content: ContentItemWithDetails[];
 }
 
+export interface WordTimestamp {
+  word: string;
+  start: number;
+  end: number;
+}
+
 export interface ContentItemWithDetails {
   text: string;
   imageDescription: string;
   uid: string;
-  audioTimestamps: CharacterAlignmentResponseModel;
+  audioTimestamps?: CharacterAlignmentResponseModel;
+  wordTimestamps?: WordTimestamp[];
 }

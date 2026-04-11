@@ -1,8 +1,9 @@
 import z from "zod";
 import * as fs from "fs";
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
-import { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api";
+import type { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api";
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "../src/lib/constants";
+import type { WordTimestamp } from "../src/lib/types";
 
 let apiKey: string | null = null;
 
@@ -150,17 +151,18 @@ const saveBase64ToMp3 = (data: string, path: string) => {
   fs.writeFileSync(path, buffer as Uint8Array);
 };
 
+const DEFAULT_ELEVENLABS_VOICE_ID = "21m00Tcm4TlvDq8ikWAM";
+
 export const generateVoice = async (
   text: string,
   apiKey: string,
+  voiceId = DEFAULT_ELEVENLABS_VOICE_ID,
   path: string,
 ): Promise<CharacterAlignmentResponseModel> => {
   const client = new ElevenLabsClient({
     environment: "https://api.elevenlabs.io",
     apiKey,
   });
-
-  const voiceId = "21m00Tcm4TlvDq8ikWAM";
 
   const data = await client.textToSpeech.convertWithTimestamps(voiceId, {
     text,
@@ -172,4 +174,41 @@ export const generateVoice = async (
 
   saveBase64ToMp3(data.audioBase64, path);
   return data.alignment;
+};
+
+const DEFAULT_TYPECAST_VOICE_ID = "tc_67512e5af2b6dbabce63f92a";
+
+export const generateVoiceTypecast = async (
+  text: string,
+  typecastApiKey: string,
+  voiceId = DEFAULT_TYPECAST_VOICE_ID,
+  path: string,
+): Promise<WordTimestamp[]> => {
+  const { TypecastClient } = await import("@neosapience/typecast-js");
+  const typecast = new TypecastClient({ apiKey: typecastApiKey });
+
+  const audio = await typecast.textToSpeech({
+    text,
+    voice_id: voiceId,
+    model: "ssfm-v30",
+    output: { audio_format: "mp3" },
+  });
+
+  await fs.promises.writeFile(path, new Uint8Array(audio.audioData));
+
+  const OpenAI = (await import("openai")).default;
+  const openai = new OpenAI({ apiKey: apiKey! });
+  const transcription = await openai.audio.transcriptions.create({
+    file: fs.createReadStream(path),
+    model: "whisper-1",
+    response_format: "verbose_json",
+    timestamp_granularities: ["word"],
+  });
+
+  const words = (transcription as unknown as { words?: WordTimestamp[] }).words;
+  if (!words || words.length === 0) {
+    throw new Error("Whisper did not return word-level timestamps");
+  }
+
+  return words;
 };

@@ -22,86 +22,149 @@ export const createTimeLineFromStoryWithDetails = (
   for (let i = 0; i < storyWithDetails.content.length; i++) {
     const content = storyWithDetails.content[i];
 
-    const lenMs = Math.ceil(
-      content.audioTimestamps.characterEndTimesSeconds[
-        content.audioTimestamps.characterEndTimesSeconds.length - 1
-      ] * 1000,
-    );
+    if (content.audioTimestamps) {
+      // ElevenLabs character-level timestamps
+      const {
+        characterStartTimesSeconds: charStarts,
+        characterEndTimesSeconds: charEnds,
+      } = content.audioTimestamps;
 
-    const bgElem: BackgroundElement = {
-      startMs: durationMs,
-      endMs: durationMs + lenMs,
-      imageUrl: content.uid,
-      enterTransition: "blur",
-      exitTransition: "blur",
-      animations: getBgAnimations(lenMs, zoomIn),
-    };
+      const lenMs = Math.ceil(charEnds[charEnds.length - 1] * 1000);
 
-    timeline.elements.push(bgElem);
-    timeline.audio.push({
-      startMs: durationMs,
-      endMs: durationMs + lenMs,
-      audioUrl: content.uid,
-    });
+      const bgElem: BackgroundElement = {
+        startMs: durationMs,
+        endMs: durationMs + lenMs,
+        imageUrl: content.uid,
+        enterTransition: "blur",
+        exitTransition: "blur",
+        animations: getBgAnimations(lenMs, zoomIn),
+      };
 
-    // hadnle text word by word
-    const words = content.text.split(" ");
-    const {
-      characterStartTimesSeconds: character_start_times_seconds,
-      characterEndTimesSeconds: character_end_times_seconds,
-    } = content.audioTimestamps;
+      timeline.elements.push(bgElem);
+      timeline.audio.push({
+        startMs: durationMs,
+        endMs: durationMs + lenMs,
+        audioUrl: content.uid,
+      });
 
-    const MaxSentenseSizeChars = 14;
+      const words = content.text.split(" ");
+      const MaxSentenseSizeChars = 14;
 
-    let currentText = "";
-    let currentStartMs = character_start_times_seconds[0] * 1000 + durationMs;
-    let currentEndMs = durationMs;
-    let currentCharIndex = 0;
+      let currentText = "";
+      let currentStartMs = charStarts[0] * 1000 + durationMs;
+      let currentEndMs = durationMs;
+      let currentCharIndex = 0;
 
-    for (const word of words) {
-      if ((currentText + word).length > MaxSentenseSizeChars) {
+      for (const word of words) {
+        if ((currentText + word).length > MaxSentenseSizeChars) {
+          const textElem: TextElement = {
+            startMs: currentStartMs,
+            endMs: currentEndMs,
+            text: currentText.trim(),
+            position: "center",
+            animations: getTextAnimations(),
+          };
+
+          timeline.text.push(textElem);
+
+          currentText = "";
+          currentStartMs = currentEndMs;
+        }
+
+        currentText += `${word} `;
+        for (let j = 0; j < word.length; j++) {
+          currentEndMs = charEnds[currentCharIndex] * 1000 + durationMs;
+          currentCharIndex++;
+        }
+
+        currentEndMs = charEnds[currentCharIndex] * 1000 + durationMs;
+        currentCharIndex++;
+      }
+
+      if (currentText.trim().length > 0) {
         const textElem: TextElement = {
           startMs: currentStartMs,
-          endMs: currentEndMs,
+          endMs: charEnds[charEnds.length - 1] * 1000 + durationMs,
           text: currentText.trim(),
           position: "center",
           animations: getTextAnimations(),
         };
 
         timeline.text.push(textElem);
-
-        currentText = "";
-        currentStartMs = currentEndMs;
       }
 
-      currentText += `${word} `;
-      for (let i = 0; i < word.length; i++) {
-        currentEndMs =
-          character_end_times_seconds[currentCharIndex] * 1000 + durationMs;
-        currentCharIndex++;
-      }
+      durationMs += lenMs;
+    } else if (content.wordTimestamps) {
+      // Typecast word-level timestamps (via Whisper)
+      const { wordTimestamps } = content;
 
-      currentEndMs =
-        character_end_times_seconds[currentCharIndex] * 1000 + durationMs;
-      currentCharIndex++;
-    }
+      const lenMs = Math.ceil(
+        wordTimestamps[wordTimestamps.length - 1].end * 1000,
+      );
 
-    if (currentText.trim().length > 0) {
-      const textElem: TextElement = {
-        startMs: currentStartMs,
-        endMs:
-          character_end_times_seconds[character_end_times_seconds.length - 1] *
-            1000 +
-          durationMs,
-        text: currentText.trim(),
-        position: "center",
-        animations: getTextAnimations(),
+      const bgElem: BackgroundElement = {
+        startMs: durationMs,
+        endMs: durationMs + lenMs,
+        imageUrl: content.uid,
+        enterTransition: "blur",
+        exitTransition: "blur",
+        animations: getBgAnimations(lenMs, zoomIn),
       };
 
-      timeline.text.push(textElem);
-    }
+      timeline.elements.push(bgElem);
+      timeline.audio.push({
+        startMs: durationMs,
+        endMs: durationMs + lenMs,
+        audioUrl: content.uid,
+      });
 
-    durationMs += lenMs;
+      const MaxSentenseSizeChars = 14;
+      let currentWords: string[] = [];
+      let currentStartMs = wordTimestamps[0].start * 1000 + durationMs;
+      let currentEndMs = durationMs;
+
+      for (const wordTs of wordTimestamps) {
+        const candidateText = [...currentWords, wordTs.word].join(" ");
+
+        if (
+          candidateText.length > MaxSentenseSizeChars &&
+          currentWords.length > 0
+        ) {
+          const endMs = Math.max(currentEndMs, currentStartMs + 100);
+          const textElem: TextElement = {
+            startMs: currentStartMs,
+            endMs,
+            text: currentWords.join(" "),
+            position: "center",
+            animations: getTextAnimations(),
+          };
+
+          timeline.text.push(textElem);
+
+          currentWords = [];
+          currentStartMs = endMs;
+        }
+
+        currentWords.push(wordTs.word);
+        currentEndMs = wordTs.end * 1000 + durationMs;
+      }
+
+      if (currentWords.length > 0) {
+        const lastEndMs =
+          wordTimestamps[wordTimestamps.length - 1].end * 1000 + durationMs;
+        const textElem: TextElement = {
+          startMs: currentStartMs,
+          endMs: Math.max(lastEndMs, currentStartMs + 100),
+          text: currentWords.join(" "),
+          position: "center",
+          animations: getTextAnimations(),
+        };
+
+        timeline.text.push(textElem);
+      }
+
+      durationMs += lenMs;
+    }
 
     zoomIn = !zoomIn;
   }

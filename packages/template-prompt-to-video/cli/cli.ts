@@ -9,6 +9,7 @@ import * as dotenv from "dotenv";
 import {
   generateAiImage,
   generateVoice,
+  generateVoiceTypecast,
   getGenerateImageDescriptionPrompt,
   getGenerateStoryPrompt,
   openaiStructuredCompletion,
@@ -28,9 +29,14 @@ import { createTimeLineFromStoryWithDetails } from "./timeline";
 
 dotenv.config({ quiet: true });
 
+type TtsProvider = "elevenlabs" | "typecast";
+
 interface GenerateOptions {
   apiKey?: string;
+  ttsProvider?: TtsProvider;
   elevenlabsApiKey?: string;
+  typecastApiKey?: string;
+  voiceId?: string;
   title?: string;
   topic?: string;
 }
@@ -87,8 +93,12 @@ class ContentFS {
 async function generateStory(options: GenerateOptions) {
   try {
     let apiKey = options.apiKey || process.env.OPENAI_API_KEY;
+    const ttsProvider: TtsProvider = options.ttsProvider || "elevenlabs";
     let elevenlabsApiKey =
       options.elevenlabsApiKey || process.env.ELEVENLABS_API_KEY;
+    let typecastApiKey =
+      options.typecastApiKey || process.env.TYPECAST_API_KEY;
+    const voiceId = options.voiceId;
 
     if (!apiKey) {
       const response = await prompts({
@@ -106,7 +116,7 @@ async function generateStory(options: GenerateOptions) {
       apiKey = response.apiKey;
     }
 
-    if (!elevenlabsApiKey) {
+    if (ttsProvider === "elevenlabs" && !elevenlabsApiKey) {
       const response = await prompts({
         type: "password",
         name: "elevenlabsApiKey",
@@ -121,6 +131,23 @@ async function generateStory(options: GenerateOptions) {
       }
 
       elevenlabsApiKey = response.elevenlabsApiKey;
+    }
+
+    if (ttsProvider === "typecast" && !typecastApiKey) {
+      const response = await prompts({
+        type: "password",
+        name: "typecastApiKey",
+        message: "Enter your Typecast API key:",
+        validate: (value) =>
+          value.length > 0 || "Typecast API key is required",
+      });
+
+      if (!response.typecastApiKey) {
+        console.log(chalk.red("API key is required. Exiting..."));
+        process.exit(1);
+      }
+
+      typecastApiKey = response.typecastApiKey;
     }
 
     let { title, topic } = options;
@@ -180,11 +207,15 @@ async function generateStory(options: GenerateOptions) {
         text: item.text,
         imageDescription: item.imageDescription,
         uid: uuidv4(),
-        audioTimestamps: {
-          characters: [],
-          characterStartTimesSeconds: [],
-          characterEndTimesSeconds: [],
-        },
+        ...(ttsProvider === "elevenlabs"
+          ? {
+              audioTimestamps: {
+                characters: [],
+                characterStartTimesSeconds: [],
+                characterEndTimesSeconds: [],
+              },
+            }
+          : { wordTimestamps: [] }),
       };
 
       storyWithDetails.content.push(contentWithDetails);
@@ -205,12 +236,23 @@ async function generateStory(options: GenerateOptions) {
         },
       });
       imagesSpinner.text = `[${i * 2 + 2}/${storyWithDetails.content.length * 2}] Generating voice for ${storyItem.text}`;
-      const timings = await generateVoice(
-        storyItem.text,
-        elevenlabsApiKey!,
-        contentFs.getAudioPath(storyItem.uid),
-      );
-      storyItem.audioTimestamps = timings;
+      if (ttsProvider === "typecast") {
+        const wordTimestamps = await generateVoiceTypecast(
+          storyItem.text,
+          typecastApiKey!,
+          voiceId,
+          contentFs.getAudioPath(storyItem.uid),
+        );
+        storyItem.wordTimestamps = wordTimestamps;
+      } else {
+        const timings = await generateVoice(
+          storyItem.text,
+          elevenlabsApiKey!,
+          voiceId,
+          contentFs.getAudioPath(storyItem.uid),
+        );
+        storyItem.audioTimestamps = timings;
+      }
     }
     contentFs.saveDescriptor(storyWithDetails);
     imagesSpinner.succeed(chalk.green("Images generated!"));
@@ -241,6 +283,20 @@ yargs(hideBin(process.argv))
           type: "string",
           description: "OpenAI API key",
         })
+        .option("tts-provider", {
+          type: "string",
+          choices: ["elevenlabs", "typecast"] as const,
+          default: "elevenlabs",
+          description: "TTS provider to use",
+        })
+        .option("typecast-api-key", {
+          type: "string",
+          description: "Typecast API key (required when --tts-provider=typecast)",
+        })
+        .option("voice-id", {
+          type: "string",
+          description: "TTS voice ID (defaults per provider)",
+        })
         .option("title", {
           alias: "t",
           type: "string",
@@ -256,6 +312,9 @@ yargs(hideBin(process.argv))
     async (argv) => {
       await generateStory({
         apiKey: argv["api-key"],
+        ttsProvider: argv["tts-provider"] as TtsProvider,
+        typecastApiKey: argv["typecast-api-key"],
+        voiceId: argv["voice-id"],
         title: argv.title,
         topic: argv.topic,
       });
@@ -271,6 +330,20 @@ yargs(hideBin(process.argv))
           type: "string",
           description: "OpenAI API key",
         })
+        .option("tts-provider", {
+          type: "string",
+          choices: ["elevenlabs", "typecast"] as const,
+          default: "elevenlabs",
+          description: "TTS provider to use",
+        })
+        .option("typecast-api-key", {
+          type: "string",
+          description: "Typecast API key (required when --tts-provider=typecast)",
+        })
+        .option("voice-id", {
+          type: "string",
+          description: "TTS voice ID (defaults per provider)",
+        })
         .option("title", {
           alias: "t",
           type: "string",
@@ -286,6 +359,9 @@ yargs(hideBin(process.argv))
     async (argv) => {
       await generateStory({
         apiKey: argv["api-key"],
+        ttsProvider: argv["tts-provider"] as TtsProvider,
+        typecastApiKey: argv["typecast-api-key"],
+        voiceId: argv["voice-id"],
         title: argv.title,
         topic: argv.topic,
       });

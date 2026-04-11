@@ -1976,6 +1976,7 @@
       },
       "devDependencies": {
         "@elevenlabs/elevenlabs-js": "^2.20.0",
+        "@neosapience/typecast-js": "^0.1.8",
         "@remotion/eslint-config-flat": "workspace:*",
         "@types/prompts": "^2.4.9",
         "@types/react": "19.2.7",
@@ -1985,6 +1986,7 @@
         "chalk": "^5.6.2",
         "dotenv": "17.3.1",
         "eslint": "9.19.0",
+        "openai": "^4.0.0",
         "ora": "^9.0.0",
         "prettier": "3.8.1",
         "prompts": "^2.4.2",
@@ -3445,6 +3447,8 @@
     "@mux/upchunk": ["@mux/upchunk@3.5.0", "", { "dependencies": { "event-target-shim": "^6.0.2", "xhr": "^2.6.0" } }, "sha512-D+TtvlujlZQjh5I+vFzJ31h5E1uVpEaLdR8M3BNaCFbVLnFMZs8J/L/fYSUyVGnyHT/yDtPHn/IHKdo3G6oSjA=="],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.0.7", "", { "dependencies": { "@emnapi/core": "^1.5.0", "@emnapi/runtime": "^1.5.0", "@tybys/wasm-util": "^0.10.1" } }, "sha512-SeDnOO0Tk7Okiq6DbXmmBODgOAb9dp9gjlphokTUxmt8U3liIP1ZsozBahH69j/RJv+Rfs6IwUKHTgQYJ/HBAw=="],
+
+    "@neosapience/typecast-js": ["@neosapience/typecast-js@0.1.8", "", {}, "sha512-HpLr6XUQZq4H1AEm8/gcaqClXNoc1u+onrmSCZijnmfrwq7V+hpizgzUU/hjNM9AjMy8pi7RXDGmpiJCsFnEBQ=="],
 
     "@next/env": ["@next/env@16.2.3", "", {}, "sha512-ZWXyj4uNu4GCWQw9cjRxWlbD+33mcDszIo9iQxFnBX3Wmgq9ulaSJcl6VhuWx5pCWqqD+9W6Wfz7N0lM5lYPMA=="],
 

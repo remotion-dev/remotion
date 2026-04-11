@@ -25,6 +25,8 @@
   },
   "devDependencies": {
     "@elevenlabs/elevenlabs-js": "^2.20.0",
+    "@neosapience/typecast-js": "^0.1.8",
+    "openai": "^4.0.0",
     "@remotion/eslint-config-flat": "workspace:*",
     "@types/prompts": "^2.4.9",
     "@types/react": "19.2.7",
