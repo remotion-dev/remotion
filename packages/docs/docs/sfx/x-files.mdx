@@ -1,0 +1,42 @@
+---
+image: /generated/articles-docs-sfx-x-files.png
+title: 'xFiles'
+crumb: '@remotion/sfx'
+---
+
+# xFiles<AvailableFrom v="4.0.449" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/x-files.wav" />
+<br />
+
+A URL pointing to a X Files sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {xFiles} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={xFiles} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/x-files.wav
+```
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/x-files/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## See also
+
+- [`failHorn`](/docs/sfx/fail-horn)
+- [`romance`](/docs/sfx/romance)

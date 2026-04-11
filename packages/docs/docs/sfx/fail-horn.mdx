@@ -1,0 +1,42 @@
+---
+image: /generated/articles-docs-sfx-fail-horn.png
+title: 'failHorn'
+crumb: '@remotion/sfx'
+---
+
+# failHorn<AvailableFrom v="4.0.449" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/fail-horn.wav" />
+<br />
+
+A URL pointing to a Fail horn sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {failHorn} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={failHorn} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/fail-horn.wav
+```
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/fail-horn/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## See also
+
+- [`romance`](/docs/sfx/romance)
+- [`boneCrack`](/docs/sfx/bone-crack)

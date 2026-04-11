@@ -1,0 +1,42 @@
+---
+image: /generated/articles-docs-sfx-romance.png
+title: 'romance'
+crumb: '@remotion/sfx'
+---
+
+# romance<AvailableFrom v="4.0.449" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/romance.wav" />
+<br />
+
+A URL pointing to a Romance sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {romance} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={romance} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/romance.wav
+```
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/romanceeeeeeeeeeeeee-29042/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## See also
+
+- [`boneCrack`](/docs/sfx/bone-crack)
+- [`animeWow`](/docs/sfx/anime-wow)

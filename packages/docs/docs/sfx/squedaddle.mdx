@@ -1,0 +1,42 @@
+---
+image: /generated/articles-docs-sfx-squedaddle.png
+title: 'squedaddle'
+crumb: '@remotion/sfx'
+---
+
+# squedaddle<AvailableFrom v="4.0.449" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/squedaddle.wav" />
+<br />
+
+A URL pointing to a Squedaddle sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {squedaddle} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={squedaddle} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/squedaddle.wav
+```
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/skedaddle-78470/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## See also
+
+- [`notification`](/docs/sfx/notification)
+- [`aah`](/docs/sfx/aah)

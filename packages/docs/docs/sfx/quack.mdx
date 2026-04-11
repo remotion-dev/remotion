@@ -1,0 +1,42 @@
+---
+image: /generated/articles-docs-sfx-quack.png
+title: 'quack'
+crumb: '@remotion/sfx'
+---
+
+# quack<AvailableFrom v="4.0.449" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/quack.wav" />
+<br />
+
+A URL pointing to a Quack sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {quack} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={quack} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/quack.wav
+```
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/mac-quack-83896/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## See also
+
+- [`squedaddle`](/docs/sfx/squedaddle)
+- [`notification`](/docs/sfx/notification)

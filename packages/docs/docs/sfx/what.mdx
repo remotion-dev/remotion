@@ -1,0 +1,42 @@
+---
+image: /generated/articles-docs-sfx-what.png
+title: 'what'
+crumb: '@remotion/sfx'
+---
+
+# what<AvailableFrom v="4.0.449" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/what.wav" />
+<br />
+
+A URL pointing to a What? sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {what} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={what} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/what.wav
+```
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/what-bottom-text-meme-sanctuary-guardian-s-24591/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## See also
+
+- [`hurt`](/docs/sfx/hurt)
+- [`ohMaGaud`](/docs/sfx/oh-ma-gaud)

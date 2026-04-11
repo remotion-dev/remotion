@@ -1,0 +1,42 @@
+---
+image: /generated/articles-docs-sfx-hurt.png
+title: 'hurt'
+crumb: '@remotion/sfx'
+---
+
+# hurt<AvailableFrom v="4.0.449" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/hurt.wav" />
+<br />
+
+A URL pointing to a Hurt sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {hurt} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={hurt} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/hurt.wav
+```
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/minecraft-hurt/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## See also
+
+- [`ohMaGaud`](/docs/sfx/oh-ma-gaud)
+- [`illuminatiConfirmed`](/docs/sfx/illuminati-confirmed)

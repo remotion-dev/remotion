@@ -1,0 +1,42 @@
+---
+image: /generated/articles-docs-sfx-anime-wow.png
+title: 'animeWow'
+crumb: '@remotion/sfx'
+---
+
+# animeWow<AvailableFrom v="4.0.449" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/anime-wow.wav" />
+<br />
+
+A URL pointing to a Anime wow sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {animeWow} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={animeWow} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/anime-wow.wav
+```
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/anime-wow/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## See also
+
+- [`yippieh`](/docs/sfx/yippieh)
+- [`lagging`](/docs/sfx/lagging)

@@ -1,0 +1,42 @@
+---
+image: /generated/articles-docs-sfx-core.png
+title: 'core'
+crumb: '@remotion/sfx'
+---
+
+# core<AvailableFrom v="4.0.449" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/core.wav" />
+<br />
+
+A URL pointing to a Core sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {core} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={core} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/core.wav
+```
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/core-sound-effect-57998/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## See also
+
+- [`faaah`](/docs/sfx/faaah)
+- [`spongebobFail`](/docs/sfx/spongebob-fail)

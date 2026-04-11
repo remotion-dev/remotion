@@ -1,0 +1,42 @@
+---
+image: /generated/articles-docs-sfx-spongebob-fail.png
+title: 'spongebobFail'
+crumb: '@remotion/sfx'
+---
+
+# spongebobFail<AvailableFrom v="4.0.449" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/spongebob-fail.wav" />
+<br />
+
+A URL pointing to a Spongebob Fail sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {spongebobFail} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={spongebobFail} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/spongebob-fail.wav
+```
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/spongebob-fail-11236/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## See also
+
+- [`omgHellNah`](/docs/sfx/omg-hell-nah)
+- [`xFiles`](/docs/sfx/x-files)

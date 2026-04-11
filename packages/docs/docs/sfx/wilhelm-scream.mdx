@@ -1,0 +1,42 @@
+---
+image: /generated/articles-docs-sfx-wilhelm-scream.png
+title: 'wilhelmScream'
+crumb: '@remotion/sfx'
+---
+
+# wilhelmScream<AvailableFrom v="4.0.449" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/wilhelm-scream.wav" />
+<br />
+
+A URL pointing to a Wilhelm scream sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {wilhelmScream} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={wilhelmScream} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/wilhelm-scream.wav
+```
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/man-screaming-aaaah-32768/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## See also
+
+- [`quack`](/docs/sfx/quack)
+- [`squedaddle`](/docs/sfx/squedaddle)
