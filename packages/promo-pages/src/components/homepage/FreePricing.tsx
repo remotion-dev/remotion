@@ -69,7 +69,8 @@ const PricingSlider: React.FC<{
 	readonly min: number;
 	readonly max: number;
 	readonly step?: number;
-}> = ({value, onChange, min, max, step = 1}) => {
+	readonly 'aria-label'?: string;
+}> = ({value, onChange, min, max, step = 1, 'aria-label': ariaLabel}) => {
 	const percentage = ((value - min) / (max - min)) * 100;
 
 	return (
@@ -115,6 +116,7 @@ const PricingSlider: React.FC<{
 				step={step}
 				value={value}
 				onChange={(e) => onChange(Number(e.target.value))}
+				aria-label={ariaLabel}
 				className="pricing-slider w-full"
 				style={{
 					background: `linear-gradient(to right, var(--color-brand) 0%, var(--color-brand) ${percentage}%, var(--background) ${percentage}%, var(--background) 100%)`,
@@ -239,7 +241,11 @@ const SectionCheckbox: React.FC<{
 			className="flex flex-row gap-3 cursor-pointer select-none items-center"
 			onClick={() => onChange(!checked)}
 		>
-			<Switch active={checked} onToggle={() => onChange(!checked)} />
+			<Switch
+				active={checked}
+				onToggle={() => onChange(!checked)}
+				aria-label={title}
+			/>
 			<div className="flex flex-col">
 				<div className="fontbrand font-bold text-lg flex flex-row items-center gap-1">
 					{title}
@@ -340,6 +346,7 @@ export const CompanyPricing: React.FC = () => {
 							? 'grid-template-rows 150ms ease-out, opacity 150ms ease-out 75ms'
 							: 'opacity 150ms ease-out, grid-template-rows 150ms ease-out 75ms',
 					}}
+					inert={!creatorsSelected}
 				>
 					<div className="overflow-hidden">
 						<p className="text-sm text-muted fontbrand pt-3 pb-1">
@@ -354,6 +361,7 @@ export const CompanyPricing: React.FC = () => {
 									onChange={setDevSeatCount}
 									min={1}
 									max={50}
+									aria-label="Number of seats"
 								/>
 							</div>
 
@@ -401,6 +409,7 @@ export const CompanyPricing: React.FC = () => {
 							? 'grid-template-rows 150ms ease-out, opacity 150ms ease-out 75ms'
 							: 'opacity 150ms ease-out, grid-template-rows 150ms ease-out 75ms',
 					}}
+					inert={!automatorsSelected}
 				>
 					<div className="overflow-hidden">
 						<p className="text-sm text-muted fontbrand pt-3 pb-1">
@@ -417,6 +426,7 @@ export const CompanyPricing: React.FC = () => {
 									min={1000}
 									max={100000}
 									step={1000}
+									aria-label="Number of renders"
 								/>
 							</div>
 
