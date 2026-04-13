@@ -22,7 +22,7 @@ beforeEach(() => {
 
 describe('macOS version requirements', () => {
 	test('warns for macOS versions older than 15', () => {
-		expect(getMacOSRequirementWarning('23.7.0')).toBe(
+		expect(getMacOSRequirementWarning('23.9.0')).toBe(
 			'Your macOS version is older than macOS 15 (Sequoia). Some features such as rendering may not work.',
 		);
 	});
@@ -30,6 +30,7 @@ describe('macOS version requirements', () => {
 	test('does not warn for macOS 15 and newer', () => {
 		expect(getMacOSRequirementWarning('24.0.0')).toBe(null);
 		expect(getMacOSRequirementWarning('24.1.0')).toBe(null);
+		expect(getMacOSRequirementWarning('25.0.0')).toBe(null);
 	});
 
 	test('prints the updated continuity camera requirement', () => {
