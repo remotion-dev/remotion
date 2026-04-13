@@ -97,26 +97,31 @@ const checkBunVersion = () => {
 	}
 };
 
-// Darwin kernel major version 22 = macOS 13 (Ventura)
-const MIN_DARWIN_VERSION = 22;
-const MIN_MACOS_DISPLAY_VERSION = '13 (Ventura)';
+// Darwin kernel major version 19 = macOS 10.15 (Catalina)
+const MIN_DARWIN_VERSION = 19;
+const MIN_MACOS_DISPLAY_VERSION = '10.15 (Catalina)';
+
+export const getMacOSRequirementWarning = (darwinRelease: string) => {
+	const majorVersion = Number(darwinRelease.split('.')[0]);
+	if (Number.isNaN(majorVersion)) {
+		return null;
+	}
+
+	if (majorVersion >= MIN_DARWIN_VERSION) {
+		return null;
+	}
+
+	return `Your macOS version is older than macOS ${MIN_MACOS_DISPLAY_VERSION}. Some features such as rendering may not work.`;
+};
 
 const checkMacOSVersion = (logLevel: LogLevel, indent: boolean) => {
 	if (process.platform !== 'darwin') {
 		return;
 	}
 
-	const darwinRelease = os.release();
-	const majorVersion = Number(darwinRelease.split('.')[0]);
-	if (Number.isNaN(majorVersion)) {
-		return;
-	}
-
-	if (majorVersion < MIN_DARWIN_VERSION) {
-		Log.warn(
-			{logLevel, indent},
-			`Your macOS version is older than macOS ${MIN_MACOS_DISPLAY_VERSION}. Some features such as rendering may not work.`,
-		);
+	const warning = getMacOSRequirementWarning(os.release());
+	if (warning) {
+		Log.warn({logLevel, indent}, warning);
 	}
 };
 
