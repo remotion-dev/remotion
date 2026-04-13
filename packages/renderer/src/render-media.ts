@@ -136,7 +136,7 @@ export type InternalRenderMediaOptions = {
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
 	proResProfile: _InternalTypes['ProResProfile'] | undefined;
-	bitsPerMb: number | undefined;
+	bitsPerMb?: number | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	chromiumOptions: ChromiumOptions;

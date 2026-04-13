@@ -75,7 +75,7 @@ type InternalStitchFramesToVideoOptions = {
 	binariesDirectory: string | null;
 	metadata: Record<string, string> | null;
 	sampleRate: number;
-	bitsPerMb: number | undefined;
+	bitsPerMb?: number | undefined;
 } & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
