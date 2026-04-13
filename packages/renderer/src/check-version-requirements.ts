@@ -97,9 +97,9 @@ const checkBunVersion = () => {
 	}
 };
 
-// Darwin kernel major version 19 = macOS 10.15 (Catalina)
-const MIN_DARWIN_VERSION = 19;
-const MIN_MACOS_DISPLAY_VERSION = '10.15 (Catalina)';
+// Darwin kernel major version 24 = macOS 15 (Sequoia)
+const MIN_DARWIN_VERSION = 24;
+const MIN_MACOS_DISPLAY_VERSION = '15 (Sequoia)';
 
 export const getMacOSRequirementWarning = (darwinRelease: string) => {
 	const majorVersion = Number(darwinRelease.split('.')[0]);

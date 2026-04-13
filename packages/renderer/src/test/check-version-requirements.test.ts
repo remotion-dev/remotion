@@ -21,14 +21,14 @@ beforeEach(() => {
 });
 
 describe('macOS version requirements', () => {
-	test('warns for macOS versions older than 10.15', () => {
-		expect(getMacOSRequirementWarning('18.7.0')).toBe(
-			'Your macOS version is older than macOS 10.15 (Catalina). Some features such as rendering may not work.',
+	test('warns for macOS versions older than 15', () => {
+		expect(getMacOSRequirementWarning('23.7.0')).toBe(
+			'Your macOS version is older than macOS 15 (Sequoia). Some features such as rendering may not work.',
 		);
 	});
 
-	test('does not warn for macOS 10.15 and newer', () => {
-		expect(getMacOSRequirementWarning('19.0.0')).toBe(null);
+	test('does not warn for macOS 15 and newer', () => {
+		expect(getMacOSRequirementWarning('24.0.0')).toBe(null);
 		expect(getMacOSRequirementWarning('24.1.0')).toBe(null);
 	});
 
@@ -41,9 +41,7 @@ describe('macOS version requirements', () => {
 
 		expect(
 			infoMock.mock.calls.some((call) => {
-				return (
-					call[1] === '💡 Remotion requires macOS 10.15 (Catalina) or later.'
-				);
+				return call[1] === '💡 Remotion requires macOS 15 (Sequoia) or later.';
 			}),
 		).toBe(true);
 	});
