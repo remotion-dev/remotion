@@ -58,6 +58,7 @@ type PreStitcherOptions = {
 	colorSpace: ColorSpace | null;
 	binariesDirectory: string | null;
 	hardwareAcceleration: HardwareAccelerationOption;
+	bitsPerMb?: number | undefined;
 };
 
 export const prespawnFfmpeg = (options: PreStitcherOptions) => {
@@ -112,6 +113,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			hardwareAcceleration: options.hardwareAcceleration,
 			indent: options.indent,
 			logLevel: options.logLevel,
+			bitsPerMb: options.bitsPerMb,
 		}),
 
 		'-y',

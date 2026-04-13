@@ -34,7 +34,10 @@ import {
 	DEFAULT_PIXEL_FORMAT,
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
-import {validateSelectedCodecAndProResCombination} from './prores-profile';
+import {
+	validateSelectedCodecAndBitsPerMbCombination,
+	validateSelectedCodecAndProResCombination,
+} from './prores-profile';
 import {getShouldRenderAudio} from './render-has-audio';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
@@ -72,6 +75,7 @@ type InternalStitchFramesToVideoOptions = {
 	binariesDirectory: string | null;
 	metadata: Record<string, string> | null;
 	sampleRate: number;
+	bitsPerMb: number | undefined;
 } & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
@@ -103,6 +107,7 @@ export type StitchFramesToVideoOptions = {
 	binariesDirectory?: string | null;
 	metadata?: Record<string, string> | null;
 	sampleRate?: number;
+	bitsPerMb?: number;
 } & Partial<ToOptions<typeof optionsMap.stitchFramesToVideo>>;
 
 type ReturnType = Promise<Buffer | null>;
@@ -142,6 +147,7 @@ const innerStitchFramesToVideo = async (
 		metadata,
 		hardwareAcceleration,
 		sampleRate,
+		bitsPerMb,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -159,6 +165,10 @@ const innerStitchFramesToVideo = async (
 	validateSelectedCodecAndProResCombination({
 		codec,
 		proResProfile,
+	});
+	validateSelectedCodecAndBitsPerMbCombination({
+		codec,
+		bitsPerMb,
 	});
 
 	validateBitrate(audioBitrate, 'audioBitrate');
@@ -373,6 +383,7 @@ const innerStitchFramesToVideo = async (
 			hardwareAcceleration,
 			indent,
 			logLevel,
+			bitsPerMb,
 		}),
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		// Ignore metadata that may come from remote media
@@ -537,6 +548,7 @@ export const stitchFramesToVideo = ({
 	metadata,
 	hardwareAcceleration,
 	sampleRate,
+	bitsPerMb,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
@@ -572,5 +584,6 @@ export const stitchFramesToVideo = ({
 		separateAudioTo: separateAudioTo ?? null,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		sampleRate: sampleRate ?? 48000,
+		bitsPerMb,
 	});
 };

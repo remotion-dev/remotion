@@ -20,6 +20,7 @@ const firstEncodingStepOnly = ({
 	encodingMaxRate,
 	encodingBufferSize,
 	hardwareAcceleration,
+	bitsPerMb,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -31,6 +32,7 @@ const firstEncodingStepOnly = ({
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	hardwareAcceleration: HardwareAccelerationOption;
+	bitsPerMb: number | undefined;
 }): string[][] => {
 	if (hasPreencoded || codec === 'gif') {
 		return [];
@@ -55,6 +57,7 @@ const firstEncodingStepOnly = ({
 			encodingBufferSize,
 			hardwareAcceleration,
 		}),
+		bitsPerMb !== undefined ? ['-bits_per_mb', String(bitsPerMb)] : null,
 	].filter(truthy);
 };
 
@@ -72,6 +75,7 @@ export const generateFfmpegArgs = ({
 	hardwareAcceleration,
 	indent,
 	logLevel,
+	bitsPerMb,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -86,6 +90,7 @@ export const generateFfmpegArgs = ({
 	hardwareAcceleration: HardwareAccelerationOption;
 	indent: boolean;
 	logLevel: LogLevel;
+	bitsPerMb?: number | undefined;
 }): string[][] => {
 	const encoderSettings = getCodecName({
 		codec,
@@ -164,6 +169,7 @@ export const generateFfmpegArgs = ({
 			encodingBufferSize,
 			x264Preset,
 			hardwareAcceleration,
+			bitsPerMb,
 		}),
 	].filter(truthy);
 };

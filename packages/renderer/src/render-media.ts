@@ -58,7 +58,10 @@ import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
-import {validateSelectedCodecAndProResCombination} from './prores-profile';
+import {
+	validateSelectedCodecAndBitsPerMbCombination,
+	validateSelectedCodecAndProResCombination,
+} from './prores-profile';
 import type {OnArtifact} from './render-frames';
 import {internalRenderFrames} from './render-frames';
 import {
@@ -133,6 +136,7 @@ export type InternalRenderMediaOptions = {
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
 	proResProfile: _InternalTypes['ProResProfile'] | undefined;
+	bitsPerMb: number | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	chromiumOptions: ChromiumOptions;
@@ -183,6 +187,7 @@ export type RenderMediaOptions = Prettify<{
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: _InternalTypes['ProResProfile'];
+	bitsPerMb?: number;
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
 	 */
@@ -228,6 +233,7 @@ type RenderMediaResult = {
 
 const internalRenderMediaRaw = ({
 	proResProfile,
+	bitsPerMb,
 	x264Preset,
 	crf,
 	composition: compositionWithPossibleUnevenDimensions,
@@ -322,6 +328,10 @@ const internalRenderMediaRaw = ({
 	validateSelectedCodecAndProResCombination({
 		codec,
 		proResProfile,
+	});
+	validateSelectedCodecAndBitsPerMbCombination({
+		codec,
+		bitsPerMb,
 	});
 
 	validateSelectedCodecAndPresetCombination({
@@ -562,6 +572,7 @@ const internalRenderMediaRaw = ({
 				colorSpace,
 				binariesDirectory,
 				hardwareAcceleration,
+				bitsPerMb,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -822,6 +833,7 @@ const internalRenderMediaRaw = ({
 					metadata,
 					hardwareAcceleration,
 					sampleRate,
+					bitsPerMb,
 				});
 			})
 			.then((buffer) => {
@@ -954,6 +966,7 @@ export const internalRenderMedia = wrapWithErrorHandling(
  */
 export const renderMedia = ({
 	proResProfile,
+	bitsPerMb,
 	x264Preset,
 	crf,
 	composition,
@@ -1031,6 +1044,7 @@ export const renderMedia = ({
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
+		bitsPerMb,
 		x264Preset: x264Preset ?? null,
 		codec,
 		composition,
