@@ -101,28 +101,20 @@ const checkBunVersion = () => {
 const MIN_DARWIN_VERSION = 24;
 const MIN_MACOS_DISPLAY_VERSION = '15 (Sequoia)';
 
-export const getMacOSRequirementWarning = (darwinRelease: string) => {
-	const majorVersion = Number(darwinRelease.split('.')[0]);
-	if (Number.isNaN(majorVersion)) {
-		return null;
-	}
-
-	if (majorVersion >= MIN_DARWIN_VERSION) {
-		return null;
-	}
-
-	return `Your macOS version is older than macOS ${MIN_MACOS_DISPLAY_VERSION}. Some features such as rendering may not work.`;
-};
-
 const checkMacOSVersion = (logLevel: LogLevel, indent: boolean) => {
 	if (process.platform !== 'darwin') {
 		return;
 	}
 
-	const warning = getMacOSRequirementWarning(os.release());
-	if (warning) {
-		Log.warn({logLevel, indent}, warning);
+	const majorVersion = Number(os.release().split('.')[0]);
+	if (Number.isNaN(majorVersion) || majorVersion >= MIN_DARWIN_VERSION) {
+		return;
 	}
+
+	Log.warn(
+		{logLevel, indent},
+		`Your macOS version is older than macOS ${MIN_MACOS_DISPLAY_VERSION}. Some features such as rendering may not work.`,
+	);
 };
 
 export const checkRuntimeVersion = (logLevel: LogLevel, indent: boolean) => {
