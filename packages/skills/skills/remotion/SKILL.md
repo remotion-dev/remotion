@@ -21,7 +21,7 @@ Replace `my-video` with a suitable project name.
 
 ## Starting preview
 
-Stsrt the Remotion Studio to preview a video:
+Start the Remotion Studio to preview a video:
 
 ```bash
 npx remotion studio
