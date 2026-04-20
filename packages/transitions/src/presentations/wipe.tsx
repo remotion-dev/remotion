@@ -157,6 +157,8 @@ Z`;
 	}
 };
 
+const svgContainerStyle: React.CSSProperties = {pointerEvents: 'none'};
+
 const WipePresentation: React.FC<
 	TransitionPresentationComponentProps<WipeProps>
 > = ({
@@ -213,7 +215,7 @@ const WipePresentation: React.FC<
 	return (
 		<AbsoluteFill style={outerStyle}>
 			<AbsoluteFill style={style}>{children}</AbsoluteFill>
-			<AbsoluteFill>
+			<AbsoluteFill style={svgContainerStyle}>
 				<svg viewBox="0 0 1 1" style={svgStyle}>
 					<defs>
 						<clipPath id={clipId} clipPathUnits="objectBoundingBox">

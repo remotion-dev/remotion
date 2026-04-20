@@ -16,6 +16,8 @@ export type IrisProps = {
 	innerExitStyle?: React.CSSProperties;
 };
 
+const svgContainerStyle: React.CSSProperties = {pointerEvents: 'none'};
+
 const IrisPresentation: React.FC<
 	TransitionPresentationComponentProps<IrisProps>
 > = ({children, presentationDirection, presentationProgress, passedProps}) => {
@@ -75,7 +77,7 @@ const IrisPresentation: React.FC<
 		<AbsoluteFill style={outerStyle}>
 			<AbsoluteFill style={style}>{children}</AbsoluteFill>
 			{presentationDirection === 'exiting' ? null : (
-				<AbsoluteFill>
+				<AbsoluteFill style={svgContainerStyle}>
 					<svg>
 						<defs>
 							<clipPath id={clipId}>

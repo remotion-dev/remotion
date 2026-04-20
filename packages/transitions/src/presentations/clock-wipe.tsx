@@ -16,6 +16,8 @@ export type ClockWipeProps = {
 	innerExitStyle?: React.CSSProperties;
 };
 
+const svgContainerStyle: React.CSSProperties = {pointerEvents: 'none'};
+
 const ClockWipePresentation: React.FC<
 	TransitionPresentationComponentProps<ClockWipeProps>
 > = ({children, presentationDirection, presentationProgress, passedProps}) => {
@@ -65,7 +67,7 @@ const ClockWipePresentation: React.FC<
 		<AbsoluteFill style={outerStyle}>
 			<AbsoluteFill style={style}>{children}</AbsoluteFill>
 			{presentationDirection === 'exiting' ? null : (
-				<AbsoluteFill>
+				<AbsoluteFill style={svgContainerStyle}>
 					<svg>
 						<defs>
 							<clipPath id={clipId}>
