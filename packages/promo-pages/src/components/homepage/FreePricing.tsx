@@ -317,163 +317,151 @@ export const CompanyPricing: React.FC = () => {
 				text="$250 Mux credits (applies only to new Mux customers)"
 				checked
 			/>
-			<div style={{height: 24}} />
+			<div style={{height: 30}} />
 
 			{/* Remotion for Creators Section */}
+			<SectionCheckbox
+				checked={creatorsSelected}
+				onChange={setCreatorsSelected}
+				title="Remotion for Creators"
+				subtitle="Create videos for yourself - $25/mo per seat"
+			/>
 			<div
 				className={cn(
-					'rounded-lg border-2 border-[var(--border-color)] p-4 transition-colors duration-150',
+					'grid ease-out',
 					creatorsSelected
-						? 'bg-[var(--background)]'
-						: 'bg-transparent border-dashed',
+						? 'grid-rows-[1fr] opacity-100'
+						: 'grid-rows-[0fr] opacity-0',
 				)}
+				style={{
+					transition: creatorsSelected
+						? 'grid-template-rows 150ms ease-out, opacity 150ms ease-out 75ms'
+						: 'opacity 150ms ease-out, grid-template-rows 150ms ease-out 75ms',
+				}}
+				inert={!creatorsSelected}
 			>
-				<SectionCheckbox
-					checked={creatorsSelected}
-					onChange={setCreatorsSelected}
-					title="Remotion for Creators"
-					subtitle="Create videos for yourself - $25/mo per seat"
-				/>
-				<div
-					className={cn(
-						'grid ease-out',
-						creatorsSelected
-							? 'grid-rows-[1fr] opacity-100'
-							: 'grid-rows-[0fr] opacity-0',
-					)}
-					style={{
-						transition: creatorsSelected
-							? 'grid-template-rows 150ms ease-out, opacity 150ms ease-out 75ms'
-							: 'opacity 150ms ease-out, grid-template-rows 150ms ease-out 75ms',
-					}}
-					inert={!creatorsSelected}
-				>
-					<div className="overflow-hidden">
-						<p className="text-sm text-muted fontbrand pt-3 pb-1">
-							Intended for low volume video creations through coding and
-							prompting, and building motion design systems in a local
-							environment. Get 1 Seat per user.
-						</p>
-						<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
-							<div className="flex-1 min-w-0">
-								<PricingSlider
-									value={devSeatCount}
-									onChange={setDevSeatCount}
-									min={1}
-									max={50}
-									aria-label="Number of seats"
-								/>
-							</div>
+				<div className="overflow-hidden">
+					<p className="text-sm text-muted fontbrand pt-3 pb-1">
+						Intended for low volume video creations through coding and
+						prompting, and building motion design systems in a local
+						environment. Get 1 Seat per user.
+					</p>
+					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
+						<div className="flex-1 min-w-0">
+							<PricingSlider
+								value={devSeatCount}
+								onChange={setDevSeatCount}
+								min={1}
+								max={50}
+								aria-label="Number of seats"
+							/>
+						</div>
 
-							<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-center tabular-nums">
-								{devSeatCount} {devSeatCount === 1 ? 'Seat' : 'Seats'}
-							</div>
+						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-center tabular-nums">
+							{devSeatCount} {devSeatCount === 1 ? 'Seat' : 'Seats'}
+						</div>
 
-							<div className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap tabular-nums">
-								$
-								{new Intl.NumberFormat('en-US', {
-									maximumFractionDigits: 0,
-								}).format(SEAT_PRICE * devSeatCount)}
-							</div>
+						<div className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap tabular-nums">
+							$
+							{new Intl.NumberFormat('en-US', {
+								maximumFractionDigits: 0,
+							}).format(SEAT_PRICE * devSeatCount)}
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<div className="h-3" />
+			<div className="h-6" />
 
 			{/* Remotion for Automators Section */}
+			<SectionCheckbox
+				checked={automatorsSelected}
+				onChange={setAutomatorsSelected}
+				title="Remotion for Automators"
+				subtitle="Build video creation tools - $0.01 per render, $100/mo minimum"
+			/>
 			<div
 				className={cn(
-					'rounded-lg border-2 border-[var(--border-color)] p-4 transition-colors duration-150',
+					'grid ease-out',
 					automatorsSelected
-						? 'bg-[var(--background)]'
-						: 'bg-transparent border-dashed',
+						? 'grid-rows-[1fr] opacity-100'
+						: 'grid-rows-[0fr] opacity-0',
 				)}
+				style={{
+					transition: automatorsSelected
+						? 'grid-template-rows 150ms ease-out, opacity 150ms ease-out 75ms'
+						: 'opacity 150ms ease-out, grid-template-rows 150ms ease-out 75ms',
+				}}
+				inert={!automatorsSelected}
 			>
-				<SectionCheckbox
-					checked={automatorsSelected}
-					onChange={setAutomatorsSelected}
-					title="Remotion for Automators"
-					subtitle="Build video creation tools - $0.01 per render, $100/mo minimum"
-				/>
-				<div
-					className={cn(
-						'grid ease-out',
-						automatorsSelected
-							? 'grid-rows-[1fr] opacity-100'
-							: 'grid-rows-[0fr] opacity-0',
-					)}
-					style={{
-						transition: automatorsSelected
-							? 'grid-template-rows 150ms ease-out, opacity 150ms ease-out 75ms'
-							: 'opacity 150ms ease-out, grid-template-rows 150ms ease-out 75ms',
-					}}
-					inert={!automatorsSelected}
-				>
-					<div className="overflow-hidden">
-						<p className="text-sm text-muted fontbrand pt-3 pb-1">
-							Intended for companies launching SaaS applications; such as video
-							editors and prompt-to-video apps, and automated high-volume video
-							creation. A $100/mo Minimum Spend applies. Developers working on
-							automation projects do not require a Seat.
-						</p>
-						<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
-							<div className="flex-1 min-w-0">
-								<PricingSlider
-									value={cloudRenders}
-									onChange={setCloudRenders}
-									min={1000}
-									max={100000}
-									step={1000}
-									aria-label="Number of renders"
-								/>
-							</div>
+				<div className="overflow-hidden">
+					<p className="text-sm text-muted fontbrand pt-3 pb-1">
+						Intended for companies launching SaaS applications; such as video
+						editors and prompt-to-video apps, and automated high-volume video
+						creation. A $100/mo Minimum Spend applies. Developers working on
+						automation projects do not require a Seat.
+					</p>
+					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
+						<div className="flex-1 min-w-0">
+							<PricingSlider
+								value={cloudRenders}
+								onChange={setCloudRenders}
+								min={1000}
+								max={100000}
+								step={1000}
+								aria-label="Number of renders"
+							/>
+						</div>
 
-							<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-right tabular-nums">
-								{new Intl.NumberFormat('en-US').format(cloudRenders)} Renders
-							</div>
+						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-right tabular-nums">
+							{new Intl.NumberFormat('en-US').format(cloudRenders)} Renders
+						</div>
 
-							<div className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap tabular-nums">
-								$
-								{new Intl.NumberFormat('en-US', {
-									maximumFractionDigits: 0,
-								}).format(Math.ceil(cloudRenders / 1000) * RENDER_UNIT_PRICE)}
-							</div>
+						<div className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap tabular-nums">
+							$
+							{new Intl.NumberFormat('en-US', {
+								maximumFractionDigits: 0,
+							}).format(Math.ceil(cloudRenders / 1000) * RENDER_UNIT_PRICE)}
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<div className="mt-5 pt-4 border-t-2 border-[var(--border-color)]">
-				<div className="flex flex-row items-baseline justify-end gap-2">
-					<div className="fontbrand text-muted text-sm">Total</div>
-					<PriceTag>{totalPriceString}/month</PriceTag>
-				</div>
-				<div className="flex flex-col items-end">
-					<BottomInfo
-						data-visible={showMinimumMessage}
-						className="opacity-0 data-[visible=true]:opacity-100 transition-opacity mt-1"
+			<div style={{height: 14}} />
+			<div className="flex flex-row items-baseline justify-end gap-2">
+				<div className="fontbrand text-muted text-sm">Total</div>
+				<PriceTag>{totalPriceString}/month</PriceTag>
+			</div>
+			<div className="flex flex-col items-end">
+				<BottomInfo
+					data-visible={showMinimumMessage}
+					className="opacity-0 data-[visible=true]:opacity-100 transition-opacity mt-1"
+				>
+					The minimum is $100 per month for Remotion for Automators
+				</BottomInfo>
+				<BottomInfo
+					data-visible={showEnterpriseMessage}
+					className="opacity-0 data-[visible=true]:opacity-100 transition-opacity mt-1"
+				>
+					At this spend, you are eligible for the Enterprise License.
+					<br /> You can select it when setting up your license, or{' '}
+					<a
+						className="bluelink"
+						target="_blank"
+						href="https://www.remotion.pro/contact"
 					>
-						The minimum is $100 per month for Remotion for Automators
-					</BottomInfo>
-					<BottomInfo
-						data-visible={showEnterpriseMessage}
-						className="opacity-0 data-[visible=true]:opacity-100 transition-opacity mt-1"
-					>
-						At this spend, you are eligible for the Enterprise License.
-						<br /> You can select it when setting up your license, or{' '}
-						<a
-							className="bluelink"
-							target="_blank"
-							href="https://www.remotion.pro/contact"
-						>
-							contact us
-						</a>
-						.
-					</BottomInfo>
-				</div>
-				<div className="flex flex-row justify-end mt-3">
+						contact us
+					</a>
+					.
+				</BottomInfo>
+			</div>
+			<div className={'flex flex-row justify-end mt-4'}>
+				<div
+					style={{
+						...textUnitWrapper,
+						alignItems: 'flex-end',
+					}}
+				>
 					<a
 						href="https://remotion.pro/dashboard"
 						className="font-brand text-brand flex flex-row items-center gap-1 no-underline"
