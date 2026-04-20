@@ -1,4 +1,136 @@
----
+import React from 'react';
+import { 
+  AbsoluteFill, 
+  interpolate, 
+  spring, 
+  useCurrentFrame, 
+  useVideoConfig, 
+  Img 
+} from 'remotion';
+
+// --- Constants ---
+const NVIDIA_GREEN = '#76B900';
+const DARK_GLASS = 'rgba(10, 25, 10, 0.8)';
+
+export const CEOIntro: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps, width, height } = useVideoConfig();
+
+  // 1. Text Animation Logic (Pop-in)
+  const textSpring = spring({
+    frame,
+    fps,
+    config: { damping: 12, stiffness: 100 },
+  });
+  const textScale = interpolate(textSpring, [0, 1], [3, 1]);
+
+  // 2. Jensen Entrance (Starts at Frame 40)
+  const jensenSpring = spring({
+    frame: frame - 40,
+    fps,
+    config: { damping: 10, mass: 0.8 },
+  });
+  const jensenX = interpolate(jensenSpring, [0, 1], [1000, 0]);
+  
+  // Floating & Glitch Effect
+  const float = Math.sin(frame / 10) * 10;
+  const glitch = frame % 45 < 3 ? `skew(${frame % 5}deg) hue-rotate(90deg)` : 'none';
+
+  // 3. HUD Panel Slide
+  const hudSlide = spring({
+    frame: frame - 40,
+    fps,
+    config: { tension: 50 },
+  });
+  const hudX = interpolate(hudSlide, [0, 1], [-600, 20]);
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: 'white', overflow: 'hidden' }}>
+      {/* Background Radial Noise (Simplified) */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'radial-gradient(circle, rgba(0,0,0,0.05) 0%, rgba(255,255,255,1) 70%)',
+        opacity: 0.5,
+      }} />
+
+      {/* Background Tech Rings */}
+      <div style={{
+        position: 'absolute',
+        right: '-10%',
+        top: '20%',
+        width: 600,
+        height: 600,
+        border: `4px dashed ${NVIDIA_GREEN}44`,
+        borderRadius: '50%',
+        transform: `rotate(${frame}deg)`,
+      }} />
+
+      {/* Massive Centered Name */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+        transform: `scale(${textScale})`,
+        opacity: textSpring,
+      }}>
+        <h1 style={{
+          fontFamily: 'Knewave, cursive',
+          fontSize: 180,
+          color: NVIDIA_GREEN,
+          margin: 0,
+        }}>
+          JENSEN HUANG
+        </h1>
+      </div>
+
+      {/* Glassmorphism HUD Panel */}
+      <div style={{
+        position: 'absolute',
+        left: hudX,
+        top: '35%',
+        width: 450,
+        padding: '30px',
+        background: DARK_GLASS,
+        backdropFilter: 'blur(10px)',
+        borderLeft: `5px solid ${NVIDIA_GREEN}`,
+        clipPath: 'polygon(0% 0%, 90% 0%, 100% 15%, 100% 100%, 0% 100%)',
+        color: 'white',
+        fontFamily: 'monospace',
+      }}>
+        <h2 style={{ color: NVIDIA_GREEN, margin: 0 }}>CEO & Co-Founder</h2>
+        <p style={{ fontSize: 18 }}>Leading the AI Revolution through GPU computing and accelerated systems.</p>
+      </div>
+
+      {/* Jensen Cutout Image */}
+      {frame >= 40 && (
+        <div style={{
+          position: 'absolute',
+          right: 100 + jensenX,
+          bottom: -50 + float,
+          filter: glitch,
+        }}>
+          <Img 
+            src="https://path-to-your-jensen-cutout.png" 
+            style={{ height: height * 0.9 }} 
+          />
+        </div>
+      )}
+
+      {/* Vertical Scanner Line */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: `${(frame * 2) % 100}%`,
+        width: '2px',
+        height: '100%',
+        background: `linear-gradient(to bottom, transparent, ${NVIDIA_GREEN}, transparent)`,
+        opacity: 0.3,
+      }} />
+    </AbsoluteFill>
+  );
+};---
 image: /generated/articles-docs-ai-claude-code.png
 crumb: 'AI'
 title: Prompting videos with Claude Code
