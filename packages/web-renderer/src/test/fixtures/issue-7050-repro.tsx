@@ -19,7 +19,6 @@ const Component: React.FC = () => {
 					border: 'none',
 					boxShadow: 'none',
 					zIndex: 10,
-					transition: '0.2s',
 					borderRadius: 4,
 					fontSize: 21,
 					overflowWrap: 'break-word',

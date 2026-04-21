@@ -32,6 +32,7 @@ import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {gradientTransparentKeyword} from './fixtures/gradient-transparent-keyword';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
+import {issue7050Minimal} from './fixtures/issue-7050-minimal';
 import {issue7050Repro} from './fixtures/issue-7050-repro';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
@@ -180,6 +181,7 @@ export const Root: React.FC = () => {
 				<Composition {...manyLayers} />
 				<Composition {...threeDFlattening} />
 				<Composition {...issue7050Repro} />
+				<Composition {...issue7050Minimal} />
 			</Folder>
 			<Folder name="clip-path">
 				<Composition {...clipPathPolygon} />

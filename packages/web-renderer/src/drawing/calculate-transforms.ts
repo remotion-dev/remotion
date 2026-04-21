@@ -47,6 +47,12 @@ export const calculateTransforms = ({
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	let maskImageInfo: LinearGradientInfo | null = null;
 	while (parent) {
+		// Neutralize transition before reading computed style to prevent
+		// CSS transitions from returning intermediate (t=0) transform values
+		// when we set transform to 'none' for measurement
+		const originalTransition = parent.style.transition;
+		parent.style.transition = 'none';
+
 		const computedStyle = getComputedStyle(parent);
 
 		if (parent === element) {
@@ -107,6 +113,12 @@ export const calculateTransforms = ({
 				parentRef!.style.transform = transform;
 				parentRef!.style.scale = scale;
 				parentRef!.style.rotate = rotate;
+				parentRef!.style.transition = originalTransition;
+			});
+		} else {
+			const parentRef = parent;
+			toReset.push(() => {
+				parentRef!.style.transition = originalTransition;
 			});
 		}
 
