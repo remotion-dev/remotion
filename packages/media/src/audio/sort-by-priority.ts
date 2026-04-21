@@ -24,12 +24,20 @@ const processNext = (): void => {
 		return;
 	}
 
+	// Collect stale waiters first, remove them from the queue,
+	// and only then fire their onError callbacks. onError may synchronously
+	// re-enter processNext, which would otherwise shrink `waiters` from under
+	// the iteration and leave `waiters[i]` undefined on the next `i--`.
+	const staleWaiters: Waiter[] = [];
 	for (let i = waiters.length - 1; i >= 0; i--) {
 		if (waiters[i].getStale()) {
 			const [stale] = waiters.splice(i, 1);
-			stale.onError(new StaleWaiterError(), processNext);
-			console.log('stale');
+			staleWaiters.push(stale);
 		}
+	}
+
+	for (const stale of staleWaiters) {
+		stale.onError(new StaleWaiterError(), processNext);
 	}
 
 	if (waiters.length === 0) {
