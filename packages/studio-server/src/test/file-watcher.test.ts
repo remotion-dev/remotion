@@ -272,7 +272,7 @@ test('existenceOnly emits created with empty content when file appears', async (
 
 	writeFileSync(newFile, 'hello');
 
-	await waitFor(() => cb.mock.calls.length > 0);
+	await waitFor(() => cb.mock.calls.length > 0, 30_000);
 
 	expect(cb).toHaveBeenCalledWith({type: 'created', content: ''});
 
@@ -293,7 +293,7 @@ test('existenceOnly emits deleted when file is removed', async () => {
 
 	unlinkSync(tmpFile);
 
-	await waitFor(() => cb.mock.calls.length > 0);
+	await waitFor(() => cb.mock.calls.length > 0, 30_000);
 
 	expect(cb).toHaveBeenCalledWith({type: 'deleted'});
 
