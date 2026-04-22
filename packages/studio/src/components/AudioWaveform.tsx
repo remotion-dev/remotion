@@ -5,6 +5,20 @@ import {TIMELINE_BORDER} from '../helpers/timeline-layout';
 import {drawBars} from './draw-peaks';
 import {loadWaveformPeaks, TARGET_SAMPLE_RATE} from './load-waveform-peaks';
 
+type SchedulerPostTask = (
+	callback: () => void,
+	options?: {
+		priority?: 'user-blocking' | 'user-visible' | 'background';
+		signal?: AbortSignal;
+	},
+) => Promise<void>;
+
+const getSchedulerPostTask = (): SchedulerPostTask | null => {
+	const s = (globalThis as {scheduler?: {postTask?: SchedulerPostTask}})
+		.scheduler;
+	return s?.postTask ? s.postTask.bind(s) : null;
+};
+
 const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
@@ -116,7 +130,23 @@ export const AudioWaveform: React.FC<{
 		canvasElement.height = h;
 
 		const vol = typeof volume === 'number' ? volume : 1;
-		drawBars(canvasElement, portionPeaks, 'rgba(255, 255, 255, 0.6)', vol, w);
+		const draw = () => {
+			drawBars(canvasElement, portionPeaks, 'rgba(255, 255, 255, 0.6)', vol, w);
+		};
+
+		const postTask = getSchedulerPostTask();
+		if (postTask) {
+			const controller = new AbortController();
+			postTask(draw, {
+				priority: 'background',
+				signal: controller.signal,
+			}).catch(() => {
+				// Task was aborted
+			});
+			return () => controller.abort();
+		}
+
+		draw();
 	}, [portionPeaks, visualizationWidth, volume]);
 
 	useEffect(() => {
