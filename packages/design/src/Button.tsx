@@ -151,6 +151,21 @@ export const Button: React.FC<ButtonProps> = ({
 		</div>
 	) : null;
 
+	const slottableChild = asChild
+		? React.cloneElement(
+				children as React.ReactElement<{children?: React.ReactNode}>,
+				undefined,
+				<span
+					className={cn(loading && 'invisible', 'inline-flex items-center')}
+				>
+					{
+						(children as React.ReactElement<{children?: React.ReactNode}>).props
+							.children
+					}
+				</span>,
+			)
+		: null;
+
 	const content = asChild ? (
 		<Slot
 			{...(rest as React.ComponentPropsWithoutRef<typeof Slot>)}
@@ -159,7 +174,7 @@ export const Button: React.FC<ButtonProps> = ({
 			tabIndex={isDisabled ? -1 : undefined}
 			onClickCapture={isDisabled ? preventInteraction : undefined}
 		>
-			<Slottable>{children}</Slottable>
+			<Slottable>{slottableChild}</Slottable>
 			{spinnerOverlay}
 		</Slot>
 	) : isAnchor ? (
