@@ -140,8 +140,12 @@ export const AudioWaveform: React.FC<{
 			postTask(draw, {
 				priority: 'background',
 				signal: controller.signal,
-			}).catch(() => {
-				// Task was aborted
+			}).catch((err) => {
+				if (err instanceof DOMException && err.name === 'AbortError') {
+					return;
+				}
+
+				throw err;
 			});
 			return () => controller.abort();
 		}
