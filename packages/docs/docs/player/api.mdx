@@ -126,9 +126,11 @@ Once you have set this prop, you cannot change it anymore or an error will be th
 
 ### `playbackRate?`
 
-A number between -4 and 4 (excluding 0) for the speed that the Player will run the media.
+A number between -10 and 10 (excluding 0) for the speed that the Player will run the media.
 
 A `playbackRate` of `2` means the video plays twice as fast. A playbackRate of `0.5` means the video plays twice as slow. A playbackRate of `-1` means the video plays in reverse. Note that the media tags ([`<Audio>`](/docs/media/audio), [`<Video>`](/docs/media/video), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo)) cannot be played in reverse, this is a browser limitation.
+
+Until `v4.0.451`, the allowed range was -4 to 4.
 
 Default `1`.
 

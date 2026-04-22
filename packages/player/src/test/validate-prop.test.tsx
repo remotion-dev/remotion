@@ -123,13 +123,13 @@ test('Invalid playbackRate should give error', () => {
 				component={HelloWorld}
 				controls
 				showVolumeControls
-				playbackRate={-5}
+				playbackRate={11}
 				inputProps={{}}
 			/>,
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			/The lowest possible playback rate is -4. You passed: -5/,
+			/The highest possible playback rate is 10. You passed: 11/,
 		);
 	}
 });
