@@ -246,12 +246,14 @@ test('existenceOnly emits created with empty content when file appears', () => {
 	const newFile = path.join(tmpDir, `existence-created-${Date.now()}.txt`);
 
 	let capturedListener: (() => void) | null = null;
-	const watchFileSpy = spyOn(fs, 'watchFile').mockImplementation(
-		(_filename: any, _options: any, listener: any) => {
-			capturedListener = listener;
-			return {} as fs.StatWatcher;
-		},
-	);
+	const watchFileSpy = spyOn(fs, 'watchFile').mockImplementation(((
+		_filename: any,
+		_options: any,
+		listener: any,
+	) => {
+		capturedListener = listener;
+		return {} as fs.StatWatcher;
+	}) as typeof fs.watchFile);
 
 	const cb = mock(() => {});
 
@@ -275,12 +277,14 @@ test('existenceOnly emits created with empty content when file appears', () => {
 
 test('existenceOnly emits deleted when file is removed', () => {
 	let capturedListener: (() => void) | null = null;
-	const watchFileSpy = spyOn(fs, 'watchFile').mockImplementation(
-		(_filename: any, _options: any, listener: any) => {
-			capturedListener = listener;
-			return {} as fs.StatWatcher;
-		},
-	);
+	const watchFileSpy = spyOn(fs, 'watchFile').mockImplementation(((
+		_filename: any,
+		_options: any,
+		listener: any,
+	) => {
+		capturedListener = listener;
+		return {} as fs.StatWatcher;
+	}) as typeof fs.watchFile);
 
 	const cb = mock(() => {});
 
