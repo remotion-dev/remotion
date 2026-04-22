@@ -7,21 +7,6 @@ import {createFileWatcherRegistry} from '../file-watcher';
 
 const tmpDir = os.tmpdir();
 
-const waitFor = async (
-	predicate: () => boolean,
-	timeoutMs = 5_000,
-	intervalMs = 50,
-): Promise<void> => {
-	const deadline = Date.now() + timeoutMs;
-	while (!predicate()) {
-		if (Date.now() >= deadline) {
-			throw new Error(`waitFor timed out after ${timeoutMs}ms`);
-		}
-
-		await new Promise((resolve) => setTimeout(resolve, intervalMs));
-	}
-};
-
 let registry: ReturnType<typeof createFileWatcherRegistry>;
 let tmpFile: string;
 
@@ -264,6 +249,7 @@ test('existenceOnly emits created with empty content when file appears', () => {
 	const watchFileSpy = spyOn(fs, 'watchFile').mockImplementation(
 		(_filename: any, _options: any, listener: any) => {
 			capturedListener = listener;
+			return {} as fs.StatWatcher;
 		},
 	);
 
@@ -292,6 +278,7 @@ test('existenceOnly emits deleted when file is removed', () => {
 	const watchFileSpy = spyOn(fs, 'watchFile').mockImplementation(
 		(_filename: any, _options: any, listener: any) => {
 			capturedListener = listener;
+			return {} as fs.StatWatcher;
 		},
 	);
 
