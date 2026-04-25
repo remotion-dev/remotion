@@ -22,7 +22,7 @@ jobs:
         with:
           bun-version: 1.3.3
       - name: Install
-        run: bun ci
+        run: bun ci --ignore-scripts
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@v2.3.11
       - name: Test Lambda IT
@@ -48,7 +48,7 @@ jobs:
         with:
           bun-version: 1.3.3
       - name: Install
-        run: bun ci
+        run: bun ci --ignore-scripts
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@v2.3.11
       - name: Test Lambda IT
@@ -70,7 +70,7 @@ jobs:
         with:
           bun-version: 1.3.3
       - name: Install
-        run: bun ci
+        run: bun ci --ignore-scripts
       - name: Install deps
         run: cd packages/webcodecs && bunx playwright install --with-deps
       - name: Cache Turbo
@@ -95,7 +95,7 @@ jobs:
         with:
           bun-version: 1.3.3
       - name: Install
-        run: bun ci
+        run: bun ci --ignore-scripts
       - name: Install deps
         run: cd packages/web-renderer && bunx playwright install --with-deps && cd ../media && bunx playwright install --with-deps
       - name: Cache Turbo
@@ -115,7 +115,7 @@ jobs:
         with:
           bun-version: 1.3.3
       - name: Install
-        run: bun ci
+        run: bun ci --ignore-scripts
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
@@ -202,7 +202,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-bun-
       - name: Install
-        run: bun ci
+        run: bun ci --ignore-scripts
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@v2.3.11
       - name: Test templates
@@ -221,7 +221,7 @@ jobs:
         with:
           bun-version: 1.3.3
       - name: Install
-        run: bun ci
+        run: bun ci --ignore-scripts
         env:
           CI: true
       - name: Cache Turbo
@@ -262,7 +262,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-bun-
       - name: Install
-        run: bun ci
+        run: bun ci --ignore-scripts
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@v2.3.11
       - name: Build & Test
