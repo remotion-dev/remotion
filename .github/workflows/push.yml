@@ -21,6 +21,18 @@ jobs:
       - uses: oven-sh/setup-bun@v2.1.2
         with:
           bun-version: 1.3.3
+      - name: Force IPv4 (workaround for bun install hang via IPv6 black-hole on hosted runners, see oven-sh/bun#29516)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+            sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            networksetup -listallnetworkservices | tail -n +2 | while read -r service; do
+              sudo networksetup -setv6off "$service" || true
+            done
+          fi
       - name: Install
         run: bun ci
       - name: Cache Turbo
@@ -47,6 +59,18 @@ jobs:
       - uses: oven-sh/setup-bun@v2.1.2
         with:
           bun-version: 1.3.3
+      - name: Force IPv4 (workaround for bun install hang via IPv6 black-hole on hosted runners, see oven-sh/bun#29516)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+            sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            networksetup -listallnetworkservices | tail -n +2 | while read -r service; do
+              sudo networksetup -setv6off "$service" || true
+            done
+          fi
       - name: Install
         run: bun ci
       - name: Cache Turbo
@@ -69,6 +93,18 @@ jobs:
       - uses: oven-sh/setup-bun@v2.1.2
         with:
           bun-version: 1.3.3
+      - name: Force IPv4 (workaround for bun install hang via IPv6 black-hole on hosted runners, see oven-sh/bun#29516)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+            sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            networksetup -listallnetworkservices | tail -n +2 | while read -r service; do
+              sudo networksetup -setv6off "$service" || true
+            done
+          fi
       - name: Install
         run: bun ci
       - name: Install deps
@@ -94,6 +130,18 @@ jobs:
       - uses: oven-sh/setup-bun@v2.1.2
         with:
           bun-version: 1.3.3
+      - name: Force IPv4 (workaround for bun install hang via IPv6 black-hole on hosted runners, see oven-sh/bun#29516)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+            sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            networksetup -listallnetworkservices | tail -n +2 | while read -r service; do
+              sudo networksetup -setv6off "$service" || true
+            done
+          fi
       - name: Install
         run: bun ci
       - name: Install deps
@@ -114,6 +162,18 @@ jobs:
       - uses: oven-sh/setup-bun@v2.1.2
         with:
           bun-version: 1.3.3
+      - name: Force IPv4 (workaround for bun install hang via IPv6 black-hole on hosted runners, see oven-sh/bun#29516)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+            sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            networksetup -listallnetworkservices | tail -n +2 | while read -r service; do
+              sudo networksetup -setv6off "$service" || true
+            done
+          fi
       - name: Install
         run: bun ci
       - name: Setup Python
@@ -201,6 +261,18 @@ jobs:
           key: ${{ matrix.os }}-bun-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
             ${{ matrix.os }}-bun-
+      - name: Force IPv4 (workaround for bun install hang via IPv6 black-hole on hosted runners, see oven-sh/bun#29516)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+            sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            networksetup -listallnetworkservices | tail -n +2 | while read -r service; do
+              sudo networksetup -setv6off "$service" || true
+            done
+          fi
       - name: Install
         run: bun ci
       - name: Cache Turbo
@@ -220,6 +292,18 @@ jobs:
       - uses: oven-sh/setup-bun@v2.1.2
         with:
           bun-version: 1.3.3
+      - name: Force IPv4 (workaround for bun install hang via IPv6 black-hole on hosted runners, see oven-sh/bun#29516)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+            sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            networksetup -listallnetworkservices | tail -n +2 | while read -r service; do
+              sudo networksetup -setv6off "$service" || true
+            done
+          fi
       - name: Install
         run: bun ci
         env:
@@ -261,6 +345,18 @@ jobs:
           key: ${{ matrix.os }}-bun-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
             ${{ matrix.os }}-bun-
+      - name: Force IPv4 (workaround for bun install hang via IPv6 black-hole on hosted runners, see oven-sh/bun#29516)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+            sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            networksetup -listallnetworkservices | tail -n +2 | while read -r service; do
+              sudo networksetup -setv6off "$service" || true
+            done
+          fi
       - name: Install
         run: bun ci
       - name: Cache Turbo
