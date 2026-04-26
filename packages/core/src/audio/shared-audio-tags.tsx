@@ -12,6 +12,7 @@ import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {Log} from '../log.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
+import {resumeAudioContextWithRamp} from './audio-ramp.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
 import {useSingletonAudioContext} from './use-audio-context.js';
@@ -80,6 +81,7 @@ type SharedContext = {
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
 	audioContext: AudioContext | null;
+	masterGain: GainNode | null;
 	audioSyncAnchor: {value: number};
 	scheduleAudioNode: (
 		options: ScheduleAudioNodeOptions,
@@ -155,11 +157,13 @@ export const SharedAudioContextProvider: React.FC<{
 	}
 
 	const logLevel = useLogLevel();
-	const audioContext = useSingletonAudioContext({
+	const singleton = useSingletonAudioContext({
 		logLevel,
 		latencyHint: audioLatencyHint,
 		audioEnabled,
 	});
+	const audioContext = singleton?.audioContext ?? null;
+	const masterGain = singleton?.masterGain ?? null;
 
 	const audioSyncAnchor = useMemo(() => ({value: 0}), []);
 
@@ -493,8 +497,10 @@ export const SharedAudioContextProvider: React.FC<{
 				isPlayer: env.isPlayer,
 			});
 		});
-		audioContext?.resume();
-	}, [audioContext, logLevel, mountTime, refs, env.isPlayer]);
+		if (audioContext && masterGain) {
+			resumeAudioContextWithRamp(audioContext, masterGain);
+		}
+	}, [audioContext, masterGain, logLevel, mountTime, refs, env.isPlayer]);
 
 	const value: SharedContext = useMemo(() => {
 		return {
@@ -504,6 +510,7 @@ export const SharedAudioContextProvider: React.FC<{
 			playAllAudios,
 			numberOfAudioTags,
 			audioContext,
+			masterGain,
 			audioSyncAnchor,
 			scheduleAudioNode,
 		};
@@ -514,6 +521,7 @@ export const SharedAudioContextProvider: React.FC<{
 		unregisterAudio,
 		updateAudio,
 		audioContext,
+		masterGain,
 		audioSyncAnchor,
 		scheduleAudioNode,
 	]);

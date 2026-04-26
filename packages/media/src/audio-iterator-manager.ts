@@ -42,7 +42,7 @@ export const audioIteratorManager = ({
 	let currentVolume = 1;
 
 	const gainNode = sharedAudioContext.audioContext.createGain();
-	gainNode.connect(sharedAudioContext.audioContext.destination);
+	gainNode.connect(sharedAudioContext.masterGain);
 
 	const audioSink = new AudioBufferSink(audioTrack);
 	const prewarmedAudioIteratorCache =

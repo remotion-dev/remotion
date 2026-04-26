@@ -82,7 +82,12 @@ export const usePlayer = (): UsePlayerMethods => {
 				seek(0);
 			}
 
-			audioContext?.audioContext?.resume();
+			if (audioContext?.audioContext && audioContext.masterGain) {
+				Internals.resumeAudioContextWithRamp(
+					audioContext.audioContext,
+					audioContext.masterGain,
+				);
+			}
 
 			/**
 			 * Play silent audio tags to warm them up for autoplay

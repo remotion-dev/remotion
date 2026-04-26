@@ -23,8 +23,11 @@ test('dispose should immediately unblock playback delays', async () => {
 	};
 
 	const audioContext = new AudioContext();
+	const masterGain = audioContext.createGain();
+	masterGain.connect(audioContext.destination);
 	const sharedAudioContext: SharedAudioContextForMediaPlayer = {
 		audioContext,
+		masterGain,
 		audioSyncAnchor: {value: 0},
 		scheduleAudioNode: () => ({
 			type: 'started',
