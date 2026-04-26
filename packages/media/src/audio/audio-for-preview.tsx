@@ -214,15 +214,21 @@ const AudioForPreviewAssertedShowing: React.FC<
 	useEffect(() => {
 		if (!sharedAudioContext) return;
 		if (!sharedAudioContext.audioContext) return;
+		if (!sharedAudioContext.masterGain) return;
 
-		const {audioContext, audioSyncAnchor, scheduleAudioNode} =
+		const {audioContext, masterGain, audioSyncAnchor, scheduleAudioNode} =
 			sharedAudioContext;
 
 		try {
 			const player = new MediaPlayer({
 				src: preloadedSrc,
 				logLevel,
-				sharedAudioContext: {audioContext, audioSyncAnchor, scheduleAudioNode},
+				sharedAudioContext: {
+					audioContext,
+					masterGain,
+					audioSyncAnchor,
+					scheduleAudioNode,
+				},
 				loop,
 				trimAfter: initialTrimAfterRef.current,
 				trimBefore: initialTrimBeforeRef.current,

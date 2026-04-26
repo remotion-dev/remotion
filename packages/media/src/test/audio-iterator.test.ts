@@ -24,6 +24,7 @@ const prepare = async () => {
 		}),
 		sharedAudioContext: {
 			audioContext,
+			masterGain: audioContext.createGain(),
 			audioSyncAnchor: {value: 0},
 			scheduleAudioNode: () => ({
 				type: 'started',
@@ -238,6 +239,7 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 		}),
 		sharedAudioContext: {
 			audioContext,
+			masterGain: audioContext.createGain(),
 			audioSyncAnchor: {value: 0},
 			scheduleAudioNode: () => ({
 				type: 'started',
@@ -314,6 +316,7 @@ test('should not decode + schedule audio chunks beyond the end time', async () =
 		}),
 		sharedAudioContext: {
 			audioContext,
+			masterGain: audioContext.createGain(),
 			audioSyncAnchor: {value: 0},
 			scheduleAudioNode: () => ({
 				type: 'started',

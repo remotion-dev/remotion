@@ -89,14 +89,18 @@ test('same goes for audio', async () => {
 			unblock: () => {},
 			[Symbol.dispose]: () => {},
 		}),
-		sharedAudioContext: {
-			audioContext: new AudioContext(),
-			audioSyncAnchor: {value: 0},
-			scheduleAudioNode: () => ({
-				type: 'started',
-				scheduledTime: 0,
-			}),
-		},
+		sharedAudioContext: (() => {
+			const ctx = new AudioContext();
+			return {
+				audioContext: ctx,
+				masterGain: ctx.createGain(),
+				audioSyncAnchor: {value: 0},
+				scheduleAudioNode: () => ({
+					type: 'started',
+					scheduledTime: 0,
+				}),
+			};
+		})(),
 		getIsLooping: () => false,
 		getEndTime: () => Infinity,
 		getStartTime: () => 0,
