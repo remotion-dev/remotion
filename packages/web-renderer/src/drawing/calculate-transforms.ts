@@ -3,6 +3,25 @@ import {getMaskImageValue, parseMaskImage} from './mask-image';
 import type {LinearGradientInfo} from './parse-linear-gradient';
 import {parseTransformOrigin} from './parse-transform-origin';
 
+/**
+ * CSS filters that affect children and require precompositing.
+ * drop-shadow must be applied to the composite of parent + children,
+ * not to individual draw operations.
+ */
+const filterRequiresPrecompositing = (filter: string): string | null => {
+	if (!filter || filter === 'none') {
+		return null;
+	}
+
+	// Check for drop-shadow filter - this requires precompositing
+	// because the shadow should be based on the composite alpha of parent + children
+	if (filter.includes('drop-shadow')) {
+		return filter;
+	}
+
+	return null;
+};
+
 type Transform = {
 	matrices: DOMMatrix[];
 	element: Element;
@@ -46,6 +65,7 @@ export const calculateTransforms = ({
 	let opacity = 1;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	let maskImageInfo: LinearGradientInfo | null = null;
+	let filterForPrecompositing: string | null = null;
 	while (parent) {
 		// Neutralize transition before reading computed style to prevent
 		// CSS transitions from returning intermediate (t=0) transform values
@@ -60,17 +80,29 @@ export const calculateTransforms = ({
 			opacity = parseFloat(computedStyle.opacity);
 			const maskImageValue = getMaskImageValue(computedStyle);
 			maskImageInfo = maskImageValue ? parseMaskImage(maskImageValue) : null;
+			filterForPrecompositing = filterRequiresPrecompositing(
+				computedStyle.filter,
+			);
 
 			const originalMaskImage = parent.style.maskImage;
 			const originalWebkitMaskImage = parent.style.webkitMaskImage;
 			parent.style.maskImage = 'none';
 			parent.style.webkitMaskImage = 'none';
 
+			// Neutralize filter if it requires precompositing to prevent double-application
+			const originalFilter = parent.style.filter;
+			if (filterForPrecompositing) {
+				parent.style.filter = 'none';
+			}
+
 			const parentRef = parent;
 
 			toReset.push(() => {
 				parentRef!.style.maskImage = originalMaskImage;
 				parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
+				if (filterForPrecompositing) {
+					parentRef!.style.filter = originalFilter;
+				}
 			});
 		}
 
@@ -158,6 +190,7 @@ export const calculateTransforms = ({
 
 	const needs3DTransformViaWebGL = !totalMatrix.is2D;
 	const needsMaskImage = maskImageInfo !== null;
+	const needsFilterPrecompositing = filterForPrecompositing !== null;
 
 	return {
 		dimensions,
@@ -174,7 +207,10 @@ export const calculateTransforms = ({
 		precompositing: {
 			needs3DTransformViaWebGL,
 			needsMaskImage: maskImageInfo,
-			needsPrecompositing: Boolean(needs3DTransformViaWebGL || needsMaskImage),
+			needsFilterPrecompositing: filterForPrecompositing,
+			needsPrecompositing: Boolean(
+				needs3DTransformViaWebGL || needsMaskImage || needsFilterPrecompositing,
+			),
 		},
 	};
 };

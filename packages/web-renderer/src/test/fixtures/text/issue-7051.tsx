@@ -1,3 +1,4 @@
+import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
 const Component: React.FC = () => {
@@ -12,6 +13,8 @@ const Component: React.FC = () => {
 			<div
 				style={{
 					position: 'absolute',
+					left: '50%',
+					top: '50%',
 					textAlign: 'center',
 					padding: 40,
 					userSelect: 'none',
@@ -19,12 +22,13 @@ const Component: React.FC = () => {
 					border: 'none',
 					boxShadow: 'none',
 					zIndex: 10,
+					transition: '0.2s',
 					borderRadius: 4,
 					fontSize: 21,
 					overflowWrap: 'break-word',
 					wordBreak: 'break-word',
 					lineHeight: 0.9,
-					transform: 'translate3d(0, 0, 0)',
+					transform: 'translate3d(-50%, -50%, 0px)',
 					display: 'flex',
 					placeItems: 'center',
 					justifyContent: 'center',
@@ -50,24 +54,22 @@ const Component: React.FC = () => {
 							id="word-wrapper"
 							style={{
 								display: 'flex',
+								whiteSpace: 'nowrap',
 								flexDirection: 'column',
 								filter:
-									'drop-shadow(rgb(160, 216, 62) 0px 0px 100px) drop-shadow(rgba(0, 0, 0, 0.35) 5px 5px 15px)',
+									'drop-shadow(rgb(255, 255, 255) 0px 0px 100px) drop-shadow(rgba(0, 0, 0, 0.35) 5px 5px 15px)',
 							}}
 						>
-							{/* First line: "just by" */}
 							<div
 								style={{
-									textAlign: 'left',
-									whiteSpace: 'nowrap',
 									width: '100%',
 									position: 'relative',
-									overflow: 'visible',
+									textAlign: 'center',
 								}}
 							>
 								<div
-									data-line-id="2"
-									data-line-active="false"
+									data-line-id="9"
+									data-line-active="true"
 									style={{
 										display: 'block',
 										position: 'relative',
@@ -75,7 +77,7 @@ const Component: React.FC = () => {
 										fontSize: 32,
 										lineHeight: 0.9,
 										color: 'rgb(255, 255, 255)',
-										textAlign: 'left',
+										textAlign: 'center',
 										textShadow: 'rgba(0, 0, 0, 0.35) 5px 5px 15px',
 										height: 'unset',
 										opacity: 1,
@@ -103,13 +105,13 @@ const Component: React.FC = () => {
 											}}
 										/>
 										<span
-											data-word-id="6"
+											data-word-id="19"
 											style={{
 												fontFamily: 'sans-serif',
 												fontSize: 63,
 												color: 'rgb(255, 255, 255)',
 												display: 'inline-block',
-												textAlign: 'left',
+												textAlign: 'center',
 												textShadow: 'none',
 												fontWeight: 800,
 												lineHeight: 0.9,
@@ -118,7 +120,7 @@ const Component: React.FC = () => {
 												whiteSpace: 'pre',
 											}}
 										>
-											just
+											announced by
 										</span>
 									</span>
 									<span
@@ -149,7 +151,7 @@ const Component: React.FC = () => {
 												fontSize: 63,
 												color: 'rgb(255, 255, 255)',
 												display: 'inline-block',
-												textAlign: 'left',
+												textAlign: 'center',
 												textShadow: 'none',
 												fontWeight: 800,
 												lineHeight: 0.9,
@@ -183,13 +185,13 @@ const Component: React.FC = () => {
 											}}
 										/>
 										<span
-											data-word-id="7"
+											data-word-id="20"
 											style={{
 												fontFamily: 'sans-serif',
 												fontSize: 63,
 												color: 'rgb(255, 255, 255)',
 												display: 'inline-block',
-												textAlign: 'left',
+												textAlign: 'center',
 												textShadow: 'none',
 												fontWeight: 800,
 												lineHeight: 0.9,
@@ -198,81 +200,7 @@ const Component: React.FC = () => {
 												whiteSpace: 'pre',
 											}}
 										>
-											by
-										</span>
-									</span>
-								</div>
-							</div>
-							{/* Second line: "ordering" with gradient */}
-							<div
-								style={{
-									textAlign: 'center',
-									width: '100%',
-									position: 'relative',
-									overflow: 'visible',
-									marginTop: -12,
-									zIndex: 101,
-								}}
-							>
-								<div
-									data-line-id="3"
-									data-line-active="true"
-									style={{
-										display: 'block',
-										position: 'relative',
-										fontFamily: 'sans-serif',
-										fontSize: 32,
-										lineHeight: 0.9,
-										color: 'rgb(255, 255, 255)',
-										textAlign: 'center',
-										textShadow: 'rgba(0, 0, 0, 0.35) 5px 5px 15px',
-										height: 'unset',
-										opacity: 1,
-									}}
-								>
-									<span
-										style={{
-											position: 'relative',
-											display: 'inline-block',
-											whiteSpace: 'pre',
-										}}
-									>
-										<span
-											aria-hidden="true"
-											style={{
-												position: 'absolute',
-												top: '50%',
-												left: '50%',
-												width: '150%',
-												height: '100%',
-												transform: 'translate(-50%, -50%)',
-												filter: 'blur(15px)',
-												pointerEvents: 'none',
-												zIndex: 0,
-											}}
-										/>
-										<span
-											data-word-id="8"
-											style={{
-												fontFamily: 'sans-serif',
-												fontSize: 137.812,
-												color: 'rgb(160, 216, 62)',
-												display: 'inline-block',
-												textAlign: 'center',
-												textShadow: 'none',
-												backgroundClip: 'text',
-												WebkitTextFillColor: 'transparent',
-												fontWeight: 900,
-												lineHeight: 0.9,
-												filter: 'drop-shadow(rgba(0, 0, 0, 0.35) 5px 5px 15px)',
-												textTransform: 'uppercase',
-												opacity: 1,
-												backgroundImage:
-													'linear-gradient(90deg, rgb(160, 216, 62) 0%, rgb(160, 216, 62) 20%, rgb(170, 220, 83) 40%, rgb(202, 233, 147) 50%, rgb(170, 220, 83) 70%, rgb(160, 216, 62) 80%, rgb(160, 216, 62) 100%)',
-												whiteSpace: 'pre',
-											}}
-										>
-											ordering
+											a
 										</span>
 									</span>
 								</div>
@@ -285,9 +213,9 @@ const Component: React.FC = () => {
 	);
 };
 
-export const issue7050Repro = {
+export const issue7051Repro = {
 	component: Component,
-	id: 'issue-7050-repro',
+	id: 'issue-7051-repro',
 	width: 800,
 	height: 400,
 	fps: 25,
