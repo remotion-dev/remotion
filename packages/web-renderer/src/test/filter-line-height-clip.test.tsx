@@ -1,10 +1,10 @@
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
-import {issue7051Repro} from './fixtures/text/issue-7051';
+import {issue7051Repro} from './fixtures/text/filter-line-height-clip';
 import {testImage} from './utils';
 
-test('should render issue-7051-repro', async () => {
+test('should render filter-line-height-clip', async () => {
 	const blob = await (
 		await renderStillOnWeb({
 			licenseKey: 'free-license',
@@ -14,5 +14,5 @@ test('should render issue-7051-repro', async () => {
 		})
 	).blob({format: 'png'});
 
-	await testImage({blob, testId: 'issue-7051-repro'});
+	await testImage({blob, testId: 'filter-line-height-clip'});
 });
