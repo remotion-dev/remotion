@@ -10,7 +10,7 @@ import {skipToNextNonDescendant} from './walk-tree';
 const getTextOverflowForLineHeight = (
 	computedStyle: CSSStyleDeclaration,
 ): {top: number; bottom: number} => {
-	const lineHeight = computedStyle.lineHeight;
+	const {lineHeight} = computedStyle;
 	const fontSize = parseFloat(computedStyle.fontSize);
 
 	if (!fontSize || isNaN(fontSize)) {
@@ -30,7 +30,7 @@ const getTextOverflowForLineHeight = (
 		// Unitless value or percentage
 		lineHeightValue = parseFloat(lineHeight);
 		if (lineHeight.endsWith('%')) {
-			lineHeightValue = lineHeightValue / 100;
+			lineHeightValue /= 100;
 		}
 	}
 
