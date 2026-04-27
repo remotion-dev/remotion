@@ -11,9 +11,9 @@ import type {
 import {drawBars} from './draw-peaks';
 import {loadWaveformPeaks} from './load-waveform-peaks';
 import {
-	getAudioWaveformLoopWidth,
-	shouldRepeatAudioWaveform,
-} from './looped-audio-waveform';
+	getLoopDisplayWidth,
+	shouldTileLoopDisplay,
+} from './looped-media-timeline';
 import {sliceWaveformPeaks} from './slice-waveform-peaks';
 
 const EMPTY_PEAKS = new Float32Array(0);
@@ -228,7 +228,7 @@ export const AudioWaveform: React.FC<{
 		}
 
 		return sliceWaveformPeaks({
-			durationInFrames: shouldRepeatAudioWaveform(loopDisplay)
+			durationInFrames: shouldTileLoopDisplay(loopDisplay)
 				? loopDisplay.durationInFrames
 				: durationInFrames,
 			fps: vidConf.fps,
@@ -285,13 +285,13 @@ export const AudioWaveform: React.FC<{
 		canvasElement.width = w;
 		canvasElement.height = h;
 
-		if (shouldRepeatAudioWaveform(loopDisplay)) {
+		if (shouldTileLoopDisplay(loopDisplay)) {
 			drawLoopedWaveform({
 				canvas: canvasElement,
 				peaks: portionPeaks ?? EMPTY_PEAKS,
 				volume: vol,
 				visualizationWidth,
-				loopWidth: getAudioWaveformLoopWidth({
+				loopWidth: getLoopDisplayWidth({
 					visualizationWidth,
 					loopDisplay,
 				}),

@@ -18,7 +18,10 @@ import {
 	TIMELINE_LAYER_HEIGHT_IMAGE,
 } from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
-import {shouldRepeatAudioWaveform} from '../looped-audio-waveform';
+import {
+	getLoopDisplayWidth,
+	shouldTileLoopDisplay,
+} from '../looped-media-timeline';
 
 const FILMSTRIP_HEIGHT = TIMELINE_LAYER_HEIGHT_IMAGE - 2;
 
@@ -62,20 +65,6 @@ const fixRounding = (value: number) => {
 	}
 
 	return Math.floor(value);
-};
-
-const getLoopWidth = ({
-	naturalWidth,
-	loopDisplay,
-}: {
-	naturalWidth: number;
-	loopDisplay: LoopDisplay | undefined;
-}) => {
-	if (!loopDisplay || loopDisplay.numberOfTimes <= 0) {
-		return naturalWidth;
-	}
-
-	return naturalWidth / loopDisplay.numberOfTimes;
 };
 
 const calculateTimestampSlots = ({
@@ -345,8 +334,11 @@ export const TimelineVideoInfo: React.FC<{
 
 		current.appendChild(canvas);
 
-		const loopWidth = getLoopWidth({naturalWidth, loopDisplay});
-		const shouldRepeatVideo = shouldRepeatAudioWaveform(loopDisplay);
+		const loopWidth = getLoopDisplayWidth({
+			visualizationWidth: naturalWidth,
+			loopDisplay,
+		});
+		const shouldRepeatVideo = shouldTileLoopDisplay(loopDisplay);
 		const targetCanvas = shouldRepeatVideo
 			? document.createElement('canvas')
 			: canvas;

@@ -1,27 +1,27 @@
 import {expect, test} from 'bun:test';
 import {
-	getAudioWaveformLoopWidth,
-	shouldRepeatAudioWaveform,
-} from '../components/looped-audio-waveform';
+	getLoopDisplayWidth,
+	shouldTileLoopDisplay,
+} from '../components/looped-media-timeline';
 
-test('Should only repeat waveforms if more than one loop is visible', () => {
-	expect(shouldRepeatAudioWaveform(undefined)).toBe(false);
+test('Should only tile media if more than one loop is visible', () => {
+	expect(shouldTileLoopDisplay(undefined)).toBe(false);
 	expect(
-		shouldRepeatAudioWaveform({
+		shouldTileLoopDisplay({
 			durationInFrames: 100,
 			numberOfTimes: 0.5,
 			startOffset: 0,
 		}),
 	).toBe(false);
 	expect(
-		shouldRepeatAudioWaveform({
+		shouldTileLoopDisplay({
 			durationInFrames: 100,
 			numberOfTimes: 1,
 			startOffset: 0,
 		}),
 	).toBe(false);
 	expect(
-		shouldRepeatAudioWaveform({
+		shouldTileLoopDisplay({
 			durationInFrames: 100,
 			numberOfTimes: 2,
 			startOffset: 0,
@@ -31,7 +31,7 @@ test('Should only repeat waveforms if more than one loop is visible', () => {
 
 test('Should calculate loop width from visible repeats', () => {
 	expect(
-		getAudioWaveformLoopWidth({
+		getLoopDisplayWidth({
 			visualizationWidth: 300,
 			loopDisplay: {
 				durationInFrames: 100,
@@ -41,7 +41,7 @@ test('Should calculate loop width from visible repeats', () => {
 		}),
 	).toBe(100);
 	expect(
-		getAudioWaveformLoopWidth({
+		getLoopDisplayWidth({
 			visualizationWidth: 300,
 			loopDisplay: {
 				durationInFrames: 100,

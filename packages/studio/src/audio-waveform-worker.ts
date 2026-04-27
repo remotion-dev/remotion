@@ -8,9 +8,9 @@ import type {
 import {drawBars} from './components/draw-peaks';
 import {loadWaveformPeaks} from './components/load-waveform-peaks';
 import {
-	getAudioWaveformLoopWidth,
-	shouldRepeatAudioWaveform,
-} from './components/looped-audio-waveform';
+	getLoopDisplayWidth,
+	shouldTileLoopDisplay,
+} from './components/looped-media-timeline';
 import {sliceWaveformPeaks} from './components/slice-waveform-peaks';
 
 declare const self: DedicatedWorkerGlobalScope;
@@ -40,7 +40,7 @@ const drawPartialWaveform = (
 	}
 
 	const portionPeaks = sliceWaveformPeaks({
-		durationInFrames: shouldRepeatAudioWaveform(message.loopDisplay)
+		durationInFrames: shouldTileLoopDisplay(message.loopDisplay)
 			? message.loopDisplay.durationInFrames
 			: message.durationInFrames,
 		fps: message.fps,
@@ -49,7 +49,7 @@ const drawPartialWaveform = (
 		startFrom: message.startFrom,
 	});
 
-	if (!shouldRepeatAudioWaveform(message.loopDisplay)) {
+	if (!shouldTileLoopDisplay(message.loopDisplay)) {
 		drawBars(
 			canvas,
 			portionPeaks,
@@ -60,7 +60,7 @@ const drawPartialWaveform = (
 		return;
 	}
 
-	const loopWidth = getAudioWaveformLoopWidth({
+	const loopWidth = getLoopDisplayWidth({
 		visualizationWidth: message.width,
 		loopDisplay: message.loopDisplay,
 	});
