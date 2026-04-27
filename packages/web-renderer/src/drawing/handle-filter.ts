@@ -9,9 +9,9 @@ const parseDropShadowExpansion = (
 ): {left: number; right: number; top: number; bottom: number} => {
 	const expansion = {left: 0, right: 0, top: 0, bottom: 0};
 
-	// Match drop-shadow function: drop-shadow(offset-x offset-y blur-radius color)
-	// or drop-shadow(offset-x offset-y color) or drop-shadow(color offset-x offset-y blur-radius)
-	const dropShadowRegex = /drop-shadow\(([^)]+)\)/gi;
+	// Match drop-shadow function with support for nested parentheses (e.g., rgba() inside drop-shadow())
+	// getComputedStyle returns colors as rgb()/rgba(), so we need to handle one level of nesting
+	const dropShadowRegex = /drop-shadow\(((?:[^()]+|\([^()]*\))+)\)/gi;
 	let match;
 
 	while ((match = dropShadowRegex.exec(filter)) !== null) {
