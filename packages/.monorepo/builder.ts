@@ -1,4 +1,5 @@
 import path from 'path';
+import type {BunPlugin} from 'bun';
 import {build} from 'bun';
 import {Exports, validateExports} from './validate-exports';
 
@@ -82,6 +83,7 @@ export const buildPackage = async ({
 	formats,
 	external,
 	entrypoints,
+	plugins = [],
 	filterExternal = (external) => external,
 }: {
 	formats: {
@@ -89,6 +91,7 @@ export const buildPackage = async ({
 		cjs: FormatAction;
 	};
 	external: 'dependencies' | string[];
+	plugins?: BunPlugin[];
 	filterExternal?: (external: string[]) => string[];
 	entrypoints: EntryPoint[];
 }) => {
@@ -122,6 +125,7 @@ export const buildPackage = async ({
 					target,
 					format,
 					splitting: splitting ?? false,
+					plugins,
 				});
 
 				for (const file of output.outputs) {
