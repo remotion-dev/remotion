@@ -39,9 +39,9 @@ const parseDropShadowExpansion = (
 			const blurRadius = numbers.length >= 3 ? numbers[2] : 0;
 
 			// Expand the rect to account for shadow offset and blur
-			// Blur radius creates a spread in all directions
-			// We multiply blur by 2 to ensure we capture the full gaussian blur spread
-			const blurSpread = blurRadius * 2;
+			// CSS drop-shadow blur-radius is a Gaussian standard deviation
+			// Visible extent is approximately 3σ, so we multiply by 3
+			const blurSpread = blurRadius * 3;
 
 			if (offsetX > 0) {
 				expansion.right = Math.max(expansion.right, offsetX + blurSpread);
