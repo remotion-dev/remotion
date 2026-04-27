@@ -26,6 +26,46 @@ export const updateAllElementsSizes = () => {
 	}
 };
 
+// `el.offsetWidth` / `el.offsetHeight` is the element's CSS layout box —
+// the pre-transform width and height the browser allocates during layout.
+// Reading those is robust against ALL ancestor CSS transforms (uniform 2D
+// scale, asymmetric 2D scale, 3D rotation, perspective, matrix3d) which
+// `getClientRects()` cannot recover from with a single scalar.
+//
+// `getClientRects()[0]` is still used for the (x, y) corner since
+// `offsetLeft` / `offsetTop` are relative to the offset parent (not the
+// viewport), and consumers like the controls layer want viewport coords.
+//
+// Callers that explicitly want the post-transform AABB pass
+// `shouldApplyCssTransforms: true` (used by `PlayerSeekBar` to track the
+// transformed scrubber). For those, we keep the current `getClientRects()`
+// behaviour for both axes.
+const measureElement = (
+	el: HTMLElement,
+	shouldApplyCssTransforms: boolean,
+): {width: number; height: number; left: number; top: number} | null => {
+	const rect = el.getClientRects();
+	if (!rect[0]) {
+		return null;
+	}
+
+	if (shouldApplyCssTransforms) {
+		return {
+			width: rect[0].width,
+			height: rect[0].height,
+			left: rect[0].x,
+			top: rect[0].y,
+		};
+	}
+
+	return {
+		width: el.offsetWidth || rect[0].width,
+		height: el.offsetHeight || rect[0].height,
+		left: rect[0].x,
+		top: rect[0].y,
+	};
+};
+
 export const useElementSize = (
 	ref: React.RefObject<HTMLElement | null>,
 	options: {
@@ -38,16 +78,16 @@ export const useElementSize = (
 			return null;
 		}
 
-		const rect = ref.current.getClientRects();
-		if (!rect[0]) {
+		const measured = measureElement(
+			ref.current,
+			options.shouldApplyCssTransforms,
+		);
+		if (!measured) {
 			return null;
 		}
 
 		return {
-			width: rect[0].width as number,
-			height: rect[0].height as number,
-			left: rect[0].x as number,
-			top: rect[0].y as number,
+			...measured,
 			windowSize: {
 				height: window.innerHeight,
 				width: window.innerWidth,
@@ -61,35 +101,24 @@ export const useElementSize = (
 		}
 
 		return new ResizeObserver((entries) => {
-			// The contentRect returns the width without any `scale()`'s being applied. The height is wrong
-			const {contentRect, target} = entries[0];
-			// The clientRect returns the size with `scale()` being applied.
-			const newSize = target.getClientRects();
+			const {target} = entries[0];
+			const measured = measureElement(
+				target as HTMLElement,
+				options.shouldApplyCssTransforms,
+			);
 
-			if (!newSize?.[0]) {
+			if (!measured) {
 				setSize(null);
 				return;
 			}
 
-			const probableCssParentScale =
-				contentRect.width === 0 ? 1 : newSize[0].width / contentRect.width;
-
-			const width =
-				options.shouldApplyCssTransforms || probableCssParentScale === 0
-					? newSize[0].width
-					: newSize[0].width * (1 / probableCssParentScale);
-			const height =
-				options.shouldApplyCssTransforms || probableCssParentScale === 0
-					? newSize[0].height
-					: newSize[0].height * (1 / probableCssParentScale);
-
 			setSize((prevState) => {
 				const isSame =
 					prevState &&
-					prevState.width === width &&
-					prevState.height === height &&
-					prevState.left === newSize[0].x &&
-					prevState.top === newSize[0].y &&
+					prevState.width === measured.width &&
+					prevState.height === measured.height &&
+					prevState.left === measured.left &&
+					prevState.top === measured.top &&
 					prevState.windowSize.height === window.innerHeight &&
 					prevState.windowSize.width === window.innerWidth;
 				if (isSame) {
@@ -97,10 +126,7 @@ export const useElementSize = (
 				}
 
 				return {
-					width,
-					height,
-					left: newSize[0].x,
-					top: newSize[0].y,
+					...measured,
 					windowSize: {
 						height: window.innerHeight,
 						width: window.innerWidth,
@@ -115,8 +141,11 @@ export const useElementSize = (
 			return;
 		}
 
-		const rect = ref.current.getClientRects();
-		if (!rect[0]) {
+		const measured = measureElement(
+			ref.current,
+			options.shouldApplyCssTransforms,
+		);
+		if (!measured) {
 			setSize(null);
 			return;
 		}
@@ -124,10 +153,10 @@ export const useElementSize = (
 		setSize((prevState) => {
 			const isSame =
 				prevState &&
-				prevState.width === rect[0].width &&
-				prevState.height === rect[0].height &&
-				prevState.left === rect[0].x &&
-				prevState.top === rect[0].y &&
+				prevState.width === measured.width &&
+				prevState.height === measured.height &&
+				prevState.left === measured.left &&
+				prevState.top === measured.top &&
 				prevState.windowSize.height === window.innerHeight &&
 				prevState.windowSize.width === window.innerWidth;
 			if (isSame) {
@@ -135,17 +164,14 @@ export const useElementSize = (
 			}
 
 			return {
-				width: rect[0].width as number,
-				height: rect[0].height as number,
-				left: rect[0].x as number,
-				top: rect[0].y as number,
+				...measured,
 				windowSize: {
 					height: window.innerHeight,
 					width: window.innerWidth,
 				},
 			};
 		});
-	}, [ref]);
+	}, [ref, options.shouldApplyCssTransforms]);
 
 	useEffect(() => {
 		if (!observer) {
