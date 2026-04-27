@@ -39,7 +39,8 @@ export const uncompressMediaAsset = (
 	const [, id, frame] = isCompressed;
 
 	const assetToFill = allRenderAssets.find(
-		(a) => a.id === id && String(a.frame) === frame,
+		(a) =>
+			a.id === id && String(a.frame) === frame && !a.src.startsWith('same-as'),
 	);
 	if (!assetToFill) {
 		console.log('List of assets:');
