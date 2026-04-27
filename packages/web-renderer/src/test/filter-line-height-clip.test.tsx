@@ -1,14 +1,14 @@
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
-import {issue7051Repro} from './fixtures/text/filter-line-height-clip';
+import {filterLineHeightClip} from './fixtures/text/filter-line-height-clip';
 import {testImage} from './utils';
 
 test('should render filter-line-height-clip', async () => {
 	const blob = await (
 		await renderStillOnWeb({
 			licenseKey: 'free-license',
-			composition: issue7051Repro,
+			composition: filterLineHeightClip,
 			frame: 0,
 			inputProps: {},
 		})

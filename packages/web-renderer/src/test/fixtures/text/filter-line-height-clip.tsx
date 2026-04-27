@@ -212,9 +212,9 @@ const Component: React.FC = () => {
 	);
 };
 
-export const issue7051Repro = {
+export const filterLineHeightClip = {
 	component: Component,
-	id: 'issue-7051-repro',
+	id: 'filter-line-height-clip',
 	width: 800,
 	height: 400,
 	fps: 25,
