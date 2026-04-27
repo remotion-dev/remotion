@@ -40,8 +40,8 @@ const getTextOverflowForLineHeight = (
 
 	// When line-height < 1, the line box is smaller than the font-size.
 	// Text can overflow by approximately (1 - lineHeight) * fontSize total,
-	// split between top and bottom. Add some extra margin for safety.
-	const overflow = (1 - lineHeightValue) * fontSize * 0.6;
+	// split between top and bottom.
+	const overflow = (1 - lineHeightValue) * fontSize;
 
 	return {top: overflow, bottom: overflow};
 };
