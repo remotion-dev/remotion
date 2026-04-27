@@ -1,4 +1,4 @@
-import type {TSequence} from 'remotion';
+import type {LoopDisplay, TSequence} from 'remotion';
 import {
 	getCascadedStart,
 	getTimelineVisibleDuration,
@@ -12,6 +12,26 @@ import type {
 } from './get-timeline-sequence-sort-key';
 import {getTimelineSequenceSequenceSortKey} from './get-timeline-sequence-sort-key';
 import {sortItemsByNonceHistory} from './sort-by-nonce-history';
+
+const getInheritedLoopDisplay = (
+	sequence: TSequence,
+	sequences: TSequence[],
+): LoopDisplay | undefined => {
+	if (sequence.loopDisplay) {
+		return sequence.loopDisplay;
+	}
+
+	if (!sequence.parent) {
+		return undefined;
+	}
+
+	const parent = sequences.find((s) => s.id === sequence.parent);
+	if (!parent) {
+		return undefined;
+	}
+
+	return getInheritedLoopDisplay(parent, sequences);
+};
 
 export const calculateTimeline = ({
 	sequences,
@@ -62,6 +82,10 @@ export const calculateTimeline = ({
 				...sequence,
 				from: visibleStart,
 				duration: visibleDuration,
+				loopDisplay:
+					sequence.type === 'audio' || sequence.type === 'video'
+						? getInheritedLoopDisplay(sequence, sortedSequences)
+						: sequence.loopDisplay,
 			},
 			depth: getTimelineNestedLevel(sequence, sortedSequences, 0),
 			hash: actualHash,

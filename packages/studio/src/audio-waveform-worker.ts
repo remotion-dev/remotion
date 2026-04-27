@@ -7,6 +7,10 @@ import type {
 } from './components/audio-waveform-worker-types';
 import {drawBars} from './components/draw-peaks';
 import {loadWaveformPeaks} from './components/load-waveform-peaks';
+import {
+	getAudioWaveformLoopWidth,
+	shouldRepeatAudioWaveform,
+} from './components/looped-audio-waveform';
 import {sliceWaveformPeaks} from './components/slice-waveform-peaks';
 
 declare const self: DedicatedWorkerGlobalScope;
@@ -36,20 +40,58 @@ const drawPartialWaveform = (
 	}
 
 	const portionPeaks = sliceWaveformPeaks({
-		durationInFrames: message.durationInFrames,
+		durationInFrames: shouldRepeatAudioWaveform(message.loopDisplay)
+			? message.loopDisplay.durationInFrames
+			: message.durationInFrames,
 		fps: message.fps,
 		peaks,
 		playbackRate: message.playbackRate,
 		startFrom: message.startFrom,
 	});
 
+	if (!shouldRepeatAudioWaveform(message.loopDisplay)) {
+		drawBars(
+			canvas,
+			portionPeaks,
+			'rgba(255, 255, 255, 0.6)',
+			message.volume,
+			message.width,
+		);
+		return;
+	}
+
+	const loopWidth = getAudioWaveformLoopWidth({
+		visualizationWidth: message.width,
+		loopDisplay: message.loopDisplay,
+	});
+	const targetCanvas = new OffscreenCanvas(
+		Math.max(1, Math.ceil(loopWidth)),
+		message.height,
+	);
 	drawBars(
-		canvas,
+		targetCanvas,
 		portionPeaks,
 		'rgba(255, 255, 255, 0.6)',
 		message.volume,
-		message.width,
+		targetCanvas.width,
 	);
+
+	const ctx = canvas.getContext('2d');
+	if (!ctx) {
+		throw new Error('Failed to get canvas context');
+	}
+
+	const pattern = ctx.createPattern(targetCanvas, 'repeat-x');
+	if (!pattern) {
+		return;
+	}
+
+	pattern.setTransform(
+		new DOMMatrix().scaleSelf(loopWidth / targetCanvas.width, 1),
+	);
+	ctx.clearRect(0, 0, message.width, message.height);
+	ctx.fillStyle = pattern;
+	ctx.fillRect(0, 0, message.width, message.height);
 };
 
 const renderWaveform = async (message: AudioWaveformWorkerRenderMessage) => {

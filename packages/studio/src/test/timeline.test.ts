@@ -133,3 +133,57 @@ test('Should follow order of nesting', () => {
 		},
 	]);
 });
+
+test('Should inherit loop display from parent for media tracks', () => {
+	const calculated = calculateTimeline({
+		sequences: [
+			{
+				displayName: 'Loop',
+				duration: 100,
+				from: 50,
+				id: 'loop',
+				parent: null,
+				rootId: 'root',
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				stack: null,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: {
+					durationInFrames: 100,
+					numberOfTimes: 3,
+					startOffset: -50,
+				},
+			},
+			{
+				displayName: 'video.mp4',
+				duration: 100,
+				from: 0,
+				id: 'video',
+				parent: 'loop',
+				rootId: 'root',
+				showInTimeline: true,
+				type: 'video',
+				nonce: [[0, 1]],
+				stack: null,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				src: 'video.mp4',
+				volume: 1,
+				doesVolumeChange: false,
+				startMediaFrom: 0,
+				playbackRate: 1,
+			},
+		],
+	});
+
+	expect(calculated[1].sequence.loopDisplay).toEqual({
+		durationInFrames: 100,
+		numberOfTimes: 3,
+		startOffset: -50,
+	});
+});

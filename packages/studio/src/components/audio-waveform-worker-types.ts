@@ -1,3 +1,5 @@
+import type {LoopDisplay} from 'remotion';
+
 export type AudioWaveformWorkerInitMessage = {
 	readonly type: 'init';
 	readonly canvas: OffscreenCanvas;
@@ -14,6 +16,7 @@ export type AudioWaveformWorkerRenderMessage = {
 	readonly durationInFrames: number;
 	readonly fps: number;
 	readonly playbackRate: number;
+	readonly loopDisplay: LoopDisplay | undefined;
 };
 
 export type AudioWaveformWorkerDisposeMessage = {

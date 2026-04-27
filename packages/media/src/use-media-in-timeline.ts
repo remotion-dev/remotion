@@ -1,6 +1,6 @@
-import {useContext, useState, useEffect} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import type {LoopDisplay, SequenceControls} from 'remotion';
-import {Internals, useCurrentFrame, type VolumeProp} from 'remotion';
+import {Internals, type VolumeProp} from 'remotion';
 
 export const useMediaInTimeline = ({
 	volume,
@@ -39,9 +39,7 @@ export const useMediaInTimeline = ({
 		Internals.SequenceManager,
 	);
 
-	const [sequenceId] = useState(() => String(Math.random()));
 	const [mediaId] = useState(() => String(Math.random()));
-	const frame = useCurrentFrame();
 
 	const {
 		volumes,
@@ -75,36 +73,13 @@ export const useMediaInTimeline = ({
 			return;
 		}
 
-		const loopIteration = loopDisplay
-			? Math.floor(frame / loopDisplay.durationInFrames)
-			: 0;
-
-		if (loopDisplay) {
-			registerSequence({
-				type: 'sequence',
-				premountDisplay,
-				postmountDisplay,
-				parent: parentSequence?.id ?? null,
-				displayName: finalDisplayName,
-				rootId,
-				showInTimeline: true,
-				nonce: nonce.get(),
-				loopDisplay,
-				stack,
-				from: 0,
-				duration,
-				id: sequenceId,
-				controls: null,
-			});
-		}
-
 		registerSequence({
 			type: mediaType,
 			src,
 			id: mediaId,
-			duration: loopDisplay?.durationInFrames ?? duration,
-			from: loopDisplay ? loopIteration * loopDisplay.durationInFrames : 0,
-			parent: loopDisplay ? sequenceId : (parentSequence?.id ?? null),
+			duration,
+			from: 0,
+			parent: parentSequence?.id ?? null,
 			displayName: finalDisplayName,
 			rootId,
 			volume: volumes,
@@ -112,19 +87,15 @@ export const useMediaInTimeline = ({
 			nonce: nonce.get(),
 			startMediaFrom: 0 - startsAt + (trimBefore ?? 0),
 			doesVolumeChange,
-			loopDisplay: undefined,
+			loopDisplay,
 			playbackRate,
 			stack,
-			premountDisplay: null,
-			postmountDisplay: null,
+			premountDisplay,
+			postmountDisplay,
 			controls: controls ?? null,
 		});
 
 		return () => {
-			if (loopDisplay) {
-				unregisterSequence(sequenceId);
-			}
-
 			unregisterSequence(mediaId);
 		};
 	}, [
@@ -143,14 +114,12 @@ export const useMediaInTimeline = ({
 		premountDisplay,
 		registerSequence,
 		rootId,
-		sequenceId,
 		showInTimeline,
 		src,
 		stack,
 		startsAt,
 		unregisterSequence,
 		volumes,
-		frame,
 		trimBefore,
 	]);
 

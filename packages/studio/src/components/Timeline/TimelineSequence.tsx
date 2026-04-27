@@ -42,6 +42,7 @@ const Inner: React.FC<{
 	const video = Internals.useVideo();
 
 	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
+	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
 
 	if (!video) {
 		throw new TypeError('Expected video config');
@@ -49,15 +50,19 @@ const Inner: React.FC<{
 
 	const frame = useCurrentFrame();
 	const relativeFrame = frame - s.from;
+	const displayDurationInFrames = s.loopDisplay
+		? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
+		: s.duration;
 	const relativeFrameWithPremount = relativeFrame + (s.premountDisplay ?? 0);
-	const relativeFrameWithPostmount = relativeFrame - s.duration;
+	const relativeFrameWithPostmount = relativeFrame - displayDurationInFrames;
 
 	const roundedFrame = Math.round(relativeFrame * 100) / 100;
 
-	const isInRange = relativeFrame >= 0 && relativeFrame < s.duration;
+	const isInRange =
+		relativeFrame >= 0 && relativeFrame < displayDurationInFrames;
 	const isPremounting =
 		relativeFrameWithPremount >= 0 &&
-		relativeFrameWithPremount < s.duration &&
+		relativeFrameWithPremount < displayDurationInFrames &&
 		!isInRange;
 	const isPostmounting =
 		relativeFrameWithPostmount >= 0 &&
@@ -67,19 +72,23 @@ const Inner: React.FC<{
 	const {marginLeft, width, naturalWidth, premountWidth, postmountWidth} =
 		useMemo(() => {
 			return getTimelineSequenceLayout({
-				durationInFrames: s.loopDisplay
-					? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
-					: s.duration,
+				durationInFrames: displayDurationInFrames,
 				startFrom: s.loopDisplay ? s.from + s.loopDisplay.startOffset : s.from,
 				startFromMedia:
 					s.type === 'sequence' || s.type === 'image' ? 0 : s.startMediaFrom,
-				maxMediaDuration,
+				maxMediaDuration: effectiveMaxMediaDuration,
 				video,
 				windowWidth,
 				premountDisplay: s.premountDisplay,
 				postmountDisplay: s.postmountDisplay,
 			});
-		}, [maxMediaDuration, s, video, windowWidth]);
+		}, [
+			displayDurationInFrames,
+			effectiveMaxMediaDuration,
+			s,
+			video,
+			windowWidth,
+		]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -103,7 +112,7 @@ const Inner: React.FC<{
 		};
 	}, [isInRange, marginLeft, s.type, width]);
 
-	if (maxMediaDuration === null) {
+	if (maxMediaDuration === null && !s.loopDisplay) {
 		return null;
 	}
 
@@ -153,6 +162,7 @@ const Inner: React.FC<{
 					durationInFrames={s.duration}
 					volume={s.volume}
 					playbackRate={s.playbackRate}
+					loopDisplay={s.loopDisplay}
 				/>
 			) : null}
 			{s.type === 'video' ? (
@@ -167,6 +177,7 @@ const Inner: React.FC<{
 					doesVolumeChange={s.doesVolumeChange}
 					premountWidth={premountWidth ?? 0}
 					postmountWidth={postmountWidth ?? 0}
+					loopDisplay={s.loopDisplay}
 				/>
 			) : null}
 			{s.type === 'image' ? (

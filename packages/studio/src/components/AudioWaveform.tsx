@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
+import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
 import {LIGHT_TRANSPARENT} from '../helpers/colors';
 import {TIMELINE_BORDER} from '../helpers/timeline-layout';
@@ -9,6 +10,10 @@ import type {
 } from './audio-waveform-worker-types';
 import {drawBars} from './draw-peaks';
 import {loadWaveformPeaks} from './load-waveform-peaks';
+import {
+	getAudioWaveformLoopWidth,
+	shouldRepeatAudioWaveform,
+} from './looped-audio-waveform';
 import {sliceWaveformPeaks} from './slice-waveform-peaks';
 
 const EMPTY_PEAKS = new Float32Array(0);
@@ -60,6 +65,54 @@ const volumeCanvasStyle: React.CSSProperties = {
 	position: 'absolute',
 };
 
+const drawLoopedWaveform = ({
+	canvas,
+	peaks,
+	volume,
+	visualizationWidth,
+	loopWidth,
+}: {
+	canvas: HTMLCanvasElement;
+	peaks: Float32Array;
+	volume: number;
+	visualizationWidth: number;
+	loopWidth: number;
+}) => {
+	const h = canvas.height;
+	const w = Math.ceil(visualizationWidth);
+	const targetCanvas = document.createElement('canvas');
+	targetCanvas.width = Math.max(1, Math.ceil(loopWidth));
+	targetCanvas.height = h;
+
+	drawBars(
+		targetCanvas,
+		peaks,
+		'rgba(255, 255, 255, 0.6)',
+		volume,
+		targetCanvas.width,
+	);
+
+	canvas.width = w;
+	canvas.height = h;
+
+	const ctx = canvas.getContext('2d');
+	if (!ctx) {
+		throw new Error('Failed to get canvas context');
+	}
+
+	const pattern = ctx.createPattern(targetCanvas, 'repeat-x');
+	if (!pattern) {
+		return;
+	}
+
+	pattern.setTransform(
+		new DOMMatrix().scaleSelf(loopWidth / targetCanvas.width, 1),
+	);
+	ctx.clearRect(0, 0, w, h);
+	ctx.fillStyle = pattern;
+	ctx.fillRect(0, 0, w, h);
+};
+
 export const AudioWaveform: React.FC<{
 	readonly src: string;
 	readonly visualizationWidth: number;
@@ -68,6 +121,7 @@ export const AudioWaveform: React.FC<{
 	readonly volume: string | number;
 	readonly doesVolumeChange: boolean;
 	readonly playbackRate: number;
+	readonly loopDisplay: LoopDisplay | undefined;
 }> = ({
 	src,
 	startFrom,
@@ -76,6 +130,7 @@ export const AudioWaveform: React.FC<{
 	volume,
 	doesVolumeChange,
 	playbackRate,
+	loopDisplay,
 }) => {
 	const [peaks, setPeaks] = useState<Float32Array | null>(null);
 	const [error, setError] = useState<Error | null>(null);
@@ -173,7 +228,9 @@ export const AudioWaveform: React.FC<{
 		}
 
 		return sliceWaveformPeaks({
-			durationInFrames,
+			durationInFrames: shouldRepeatAudioWaveform(loopDisplay)
+				? loopDisplay.durationInFrames
+				: durationInFrames,
 			fps: vidConf.fps,
 			peaks,
 			playbackRate,
@@ -182,6 +239,7 @@ export const AudioWaveform: React.FC<{
 	}, [
 		canUseWorkerPath,
 		durationInFrames,
+		loopDisplay,
 		peaks,
 		playbackRate,
 		startFrom,
@@ -218,6 +276,7 @@ export const AudioWaveform: React.FC<{
 				durationInFrames,
 				fps: vidConf.fps,
 				playbackRate,
+				loopDisplay,
 			};
 			worker.postMessage(message);
 			return;
@@ -226,16 +285,30 @@ export const AudioWaveform: React.FC<{
 		canvasElement.width = w;
 		canvasElement.height = h;
 
-		drawBars(
-			canvasElement,
-			portionPeaks ?? EMPTY_PEAKS,
-			'rgba(255, 255, 255, 0.6)',
-			vol,
-			w,
-		);
+		if (shouldRepeatAudioWaveform(loopDisplay)) {
+			drawLoopedWaveform({
+				canvas: canvasElement,
+				peaks: portionPeaks ?? EMPTY_PEAKS,
+				volume: vol,
+				visualizationWidth,
+				loopWidth: getAudioWaveformLoopWidth({
+					visualizationWidth,
+					loopDisplay,
+				}),
+			});
+		} else {
+			drawBars(
+				canvasElement,
+				portionPeaks ?? EMPTY_PEAKS,
+				'rgba(255, 255, 255, 0.6)',
+				vol,
+				w,
+			);
+		}
 	}, [
 		canUseWorkerPath,
 		durationInFrames,
+		loopDisplay,
 		playbackRate,
 		portionPeaks,
 		src,
