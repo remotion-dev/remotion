@@ -24,7 +24,7 @@ const Component: React.FC = () => {
 					overflowWrap: 'break-word',
 					wordBreak: 'break-word',
 					lineHeight: 0.9,
-					transform: 'translate3d(0, 0, 0) scale(0.67)',
+					transform: 'translate3d(0, 0, 0)',
 					display: 'flex',
 					placeItems: 'center',
 					justifyContent: 'center',
