@@ -14,7 +14,6 @@ test('should render issue-7050-repro', async () => {
 			composition: issue7050Repro,
 			frame: 0,
 			inputProps: {},
-			scale: 2,
 		})
 	).blob({format: 'png'});
 

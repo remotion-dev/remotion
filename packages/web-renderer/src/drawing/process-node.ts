@@ -186,15 +186,58 @@ export const processNode = async ({
 			);
 		};
 
-		// Apply filter when drawing the precomposed canvas if needed
-		if (precompositing.needsFilterPrecompositing) {
-			applyFilterToDrawOperation({
-				context,
-				filter: precompositing.needsFilterPrecompositing,
-				drawFn: drawPrecomposedCanvas,
-			});
+		// For filter-only precompositing with 2D transforms, we need to apply the transform
+		// when drawing because the temp canvas was rendered without transforms
+		const needsManual2DTransform =
+			precompositing.needsFilterPrecompositing &&
+			!precompositing.needs3DTransformViaWebGL &&
+			!totalMatrix.isIdentity;
+
+		if (needsManual2DTransform) {
+			// Draw at the original precomposeRect position, applying the transform manually
+			// Use the same coordinate transformation as setTransform in transform.ts
+			const drawWithTransform = () => {
+				context.save();
+				const offsetMatrix = new DOMMatrix()
+					.scale(scale, scale)
+					.translate(-parentRect.x, -parentRect.y)
+					.multiply(totalMatrix)
+					.translate(parentRect.x, parentRect.y);
+				context.setTransform(offsetMatrix);
+				context.drawImage(
+					drawable,
+					0,
+					0,
+					drawable.width,
+					drawable.height,
+					precomposeRect.left,
+					precomposeRect.top,
+					precomposeRect.width,
+					precomposeRect.height,
+				);
+				context.restore();
+			};
+
+			if (precompositing.needsFilterPrecompositing) {
+				applyFilterToDrawOperation({
+					context,
+					filter: precompositing.needsFilterPrecompositing,
+					drawFn: drawWithTransform,
+				});
+			} else {
+				drawWithTransform();
+			}
 		} else {
-			drawPrecomposedCanvas();
+			// Apply filter when drawing the precomposed canvas if needed
+			if (precompositing.needsFilterPrecompositing) {
+				applyFilterToDrawOperation({
+					context,
+					filter: precompositing.needsFilterPrecompositing,
+					drawFn: drawPrecomposedCanvas,
+				});
+			} else {
+				drawPrecomposedCanvas();
+			}
 		}
 
 		context.setTransform(previousTransform);
