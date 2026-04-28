@@ -33,7 +33,9 @@ if (!output.success) {
 }
 
 for (const file of output.outputs) {
-	const str = await file.text();
+	// Work around Bun preserving nested directives when bundling dependencies:
+	// https://github.com/oven-sh/bun/issues/6854
+	const str = (await file.text()).replace(/^\s*['"]use client['"];\n?/gm, '');
 	const out = path.join('dist', 'esm', file.path);
 
 	await Bun.write(out, str);
