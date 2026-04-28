@@ -172,72 +172,56 @@ export const processNode = async ({
 
 		context.setTransform(new DOMMatrix());
 
+		// Compute scaled parent offset for correct positioning
+		// rectAfterTransforms is in scaled coordinates, parentRect is in DOM coordinates
+		const scaledParentOffsetX = parentRect.x * scale;
+		const scaledParentOffsetY = parentRect.y * scale;
+
+		// For 3D transforms, handle3dTransform already produced a transformed canvas
+		// at rectAfterTransforms size. For filter-only (2D), we need to draw the full
+		// temp canvas and let the destination rectangle handle scaling.
+		const is3DTransformed = precompositing.needs3DTransformViaWebGL;
+
 		const drawPrecomposedCanvas = () => {
-			context.drawImage(
-				drawable,
-				0,
-				drawable.height - rectAfterTransforms.height,
-				rectAfterTransforms.width,
-				rectAfterTransforms.height,
-				rectAfterTransforms.left - parentRect.x,
-				rectAfterTransforms.top - parentRect.y,
-				rectAfterTransforms.width,
-				rectAfterTransforms.height,
-			);
-		};
-
-		// For filter-only precompositing with 2D transforms, we need to apply the transform
-		// when drawing because the temp canvas was rendered without transforms
-		const needsManual2DTransform =
-			precompositing.needsFilterPrecompositing &&
-			!precompositing.needs3DTransformViaWebGL &&
-			!totalMatrix.isIdentity;
-
-		if (needsManual2DTransform) {
-			// Draw at the original precomposeRect position, applying the transform manually
-			// Use the same coordinate transformation as setTransform in transform.ts
-			const drawWithTransform = () => {
-				context.save();
-				const offsetMatrix = new DOMMatrix()
-					.scale(scale, scale)
-					.translate(-parentRect.x, -parentRect.y)
-					.multiply(totalMatrix)
-					.translate(parentRect.x, parentRect.y);
-				context.setTransform(offsetMatrix);
+			if (is3DTransformed) {
+				// 3D: drawable is already transformed, read from the correct region
+				context.drawImage(
+					drawable,
+					0,
+					drawable.height - rectAfterTransforms.height,
+					rectAfterTransforms.width,
+					rectAfterTransforms.height,
+					rectAfterTransforms.left - scaledParentOffsetX,
+					rectAfterTransforms.top - scaledParentOffsetY,
+					rectAfterTransforms.width,
+					rectAfterTransforms.height,
+				);
+			} else {
+				// 2D/filter-only: drawable is at precomposeRect size (scaled by render scale)
+				// Draw the full temp canvas, destination rect handles the CSS transform scaling
 				context.drawImage(
 					drawable,
 					0,
 					0,
 					drawable.width,
 					drawable.height,
-					precomposeRect.left,
-					precomposeRect.top,
-					precomposeRect.width,
-					precomposeRect.height,
+					rectAfterTransforms.left - scaledParentOffsetX,
+					rectAfterTransforms.top - scaledParentOffsetY,
+					rectAfterTransforms.width,
+					rectAfterTransforms.height,
 				);
-				context.restore();
-			};
+			}
+		};
 
-			if (precompositing.needsFilterPrecompositing) {
-				applyFilterToDrawOperation({
-					context,
-					filter: precompositing.needsFilterPrecompositing,
-					drawFn: drawWithTransform,
-				});
-			} else {
-				drawWithTransform();
-			}
+		// Apply filter when drawing the precomposed canvas if needed
+		if (precompositing.needsFilterPrecompositing) {
+			applyFilterToDrawOperation({
+				context,
+				filter: precompositing.needsFilterPrecompositing,
+				drawFn: drawPrecomposedCanvas,
+			});
 		} else {
-			// Apply filter when drawing the precomposed canvas if needed
-			if (precompositing.needsFilterPrecompositing) {
-				applyFilterToDrawOperation({
-					context,
-					filter: precompositing.needsFilterPrecompositing,
-					drawFn: drawPrecomposedCanvas,
-				});
-			} else {
-				drawPrecomposedCanvas();
-			}
+			drawPrecomposedCanvas();
 		}
 
 		context.setTransform(previousTransform);
