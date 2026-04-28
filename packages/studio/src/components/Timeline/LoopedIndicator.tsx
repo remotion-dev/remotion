@@ -11,6 +11,8 @@ const width: React.CSSProperties = {
 
 const icon: React.CSSProperties = {
 	height: 12,
+	filter:
+		'drop-shadow(0 0 2px rgba(0, 0, 0, 0.9)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8))',
 };
 
 const Icon: React.FC = () => (
@@ -27,6 +29,7 @@ const topLine: React.CSSProperties = {
 	height: 2,
 	width: 1,
 	background: LIGHT_COLOR,
+	boxShadow: '0 0 2px rgba(0, 0, 0, 0.9)',
 };
 
 const bottomLine: React.CSSProperties = {
@@ -34,6 +37,7 @@ const bottomLine: React.CSSProperties = {
 	height: 2,
 	width: 1,
 	background: LIGHT_COLOR,
+	boxShadow: '0 0 2px rgba(0, 0, 0, 0.9)',
 };
 
 const topContainer: React.CSSProperties = {
