@@ -11,7 +11,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 	const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);
 
 	return {
-		durationInFrames: Math.round(durationInSeconds * fps!),
+		durationInFrames: Math.round(durationInSeconds * fps!) * 4,
 		fps: fps!,
 		width: dimensions!.width,
 		height: dimensions!.height,
@@ -19,7 +19,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 };
 
 export const Component = () => {
-	return <Video src={src} debugOverlay />;
+	return <Video loop src={src} debugOverlay />;
 };
 
 export const NewVideoComp = () => {

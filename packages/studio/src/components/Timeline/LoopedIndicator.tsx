@@ -24,25 +24,10 @@ const Icon: React.FC = () => (
 	</svg>
 );
 
-const topLine: React.CSSProperties = {
-	top: 0,
-	height: 2,
+const verticalLine: React.CSSProperties = {
+	height: '100%',
 	width: 1,
-	background: LIGHT_COLOR,
-	boxShadow: '0 0 2px rgba(0, 0, 0, 0.9)',
-};
-
-const bottomLine: React.CSSProperties = {
-	top: 0,
-	height: 2,
-	width: 1,
-	background: LIGHT_COLOR,
-	boxShadow: '0 0 2px rgba(0, 0, 0, 0.9)',
-};
-
-const topContainer: React.CSSProperties = {
-	justifyContent: 'flex-start',
-	alignItems: 'center',
+	background: 'rgb(255,255,255, 0.5)',
 };
 
 const centerContainer: React.CSSProperties = {
@@ -50,19 +35,11 @@ const centerContainer: React.CSSProperties = {
 	alignItems: 'center',
 };
 
-const bottomContainer: React.CSSProperties = {
-	justifyContent: 'flex-end',
-	alignItems: 'center',
-};
-
 export const LoopedIndicator: React.FC = () => {
 	return (
 		<div style={width}>
-			<AbsoluteFill style={topContainer}>
-				<div style={topLine} />
-			</AbsoluteFill>
-			<AbsoluteFill style={bottomContainer}>
-				<div style={bottomLine} />
+			<AbsoluteFill style={centerContainer}>
+				<div style={verticalLine} />
 			</AbsoluteFill>
 			<AbsoluteFill style={centerContainer}>
 				<Icon />
