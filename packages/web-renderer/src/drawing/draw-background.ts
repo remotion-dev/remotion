@@ -17,7 +17,6 @@ export const drawBackground = async ({
 	offsetLeft: parentOffsetLeft,
 	offsetTop: parentOffsetTop,
 	scale,
-	transformRoot,
 }: {
 	backgroundImage: string;
 	context: OffscreenCanvasRenderingContext2D;
@@ -31,7 +30,6 @@ export const drawBackground = async ({
 	offsetLeft: number;
 	offsetTop: number;
 	scale: number;
-	transformRoot: HTMLElement | SVGElement;
 }) => {
 	let contextToDraw = context;
 
@@ -77,7 +75,6 @@ export const drawBackground = async ({
 		);
 		const onlyBackgroundClipText = await createLayer({
 			element,
-			transformRoot,
 			cutout: textLayerCutout,
 			logLevel,
 			internalState,

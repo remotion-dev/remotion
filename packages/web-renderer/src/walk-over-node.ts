@@ -11,7 +11,7 @@ export const walkOverNode = ({
 	logLevel,
 	parentRect,
 	internalState,
-	transformRoot,
+	rootElement,
 	onlyBackgroundClipText,
 	scale,
 }: {
@@ -20,7 +20,7 @@ export const walkOverNode = ({
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
-	transformRoot: HTMLElement | SVGElement;
+	rootElement: HTMLElement | SVGElement;
 	onlyBackgroundClipText: boolean;
 	scale: number;
 }): Promise<ProcessNodeReturnValue> => {
@@ -32,7 +32,7 @@ export const walkOverNode = ({
 			logLevel,
 			parentRect,
 			internalState,
-			transformRoot,
+			rootElement,
 			scale,
 		});
 	}
@@ -44,7 +44,7 @@ export const walkOverNode = ({
 			logLevel,
 			parentRect,
 			internalState,
-			transformRoot,
+			rootElement,
 			onlyBackgroundClipText,
 			scale,
 		});

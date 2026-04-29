@@ -18,7 +18,6 @@ export const createLayer = async ({
 	cutout,
 	htmlInCanvasContext,
 	onHtmlInCanvasLayerOutcome,
-	transformRoot,
 }: {
 	element: HTMLElement | SVGElement;
 	scale: number;
@@ -28,8 +27,6 @@ export const createLayer = async ({
 	cutout: DOMRect;
 	htmlInCanvasContext?: HtmlInCanvasContext | null;
 	onHtmlInCanvasLayerOutcome?: (outcome: HtmlInCanvasLayerOutcome) => void;
-	/** Defaults to `element`. Pass the top-level composition root for nested layers. */
-	transformRoot?: HTMLElement | SVGElement;
 }) => {
 	const scaledWidth = Math.ceil(cutout.width * scale);
 	const scaledHeight = Math.ceil(cutout.height * scale);
@@ -79,7 +76,6 @@ export const createLayer = async ({
 		internalState,
 		onlyBackgroundClipText,
 		scale,
-		transformRoot,
 	});
 
 	return context;
