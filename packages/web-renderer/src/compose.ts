@@ -33,6 +33,7 @@ export const compose = async ({
 	internalState,
 	onlyBackgroundClipText,
 	scale,
+	transformRoot,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -41,7 +42,10 @@ export const compose = async ({
 	internalState: InternalState;
 	onlyBackgroundClipText: boolean;
 	scale: number;
+	/** Defaults to `element` (same transform boundary as subtree root). */
+	transformRoot?: HTMLElement | SVGElement;
 }) => {
+	const resolvedTransformRoot = transformRoot ?? element;
 	const treeWalker = document.createTreeWalker(
 		element,
 		onlyBackgroundClipText
@@ -70,7 +74,7 @@ export const compose = async ({
 			logLevel,
 			parentRect,
 			internalState,
-			rootElement: element,
+			transformRoot: resolvedTransformRoot,
 			onlyBackgroundClipText,
 			scale,
 		});

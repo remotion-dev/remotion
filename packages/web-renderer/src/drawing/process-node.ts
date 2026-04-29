@@ -17,7 +17,6 @@ import {
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
-import {transformDOMRect} from './transform-rect-with-matrix';
 
 export type ProcessNodeReturnValue =
 	| {type: 'continue'; cleanupAfterChildren: null | (() => void)}
@@ -30,7 +29,7 @@ export const processNode = async ({
 	logLevel,
 	parentRect,
 	internalState,
-	rootElement,
+	transformRoot,
 	scale,
 }: {
 	element: HTMLElement | SVGElement;
@@ -39,12 +38,12 @@ export const processNode = async ({
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
-	rootElement: HTMLElement | SVGElement;
+	transformRoot: HTMLElement | SVGElement;
 	scale: number;
 }): Promise<ProcessNodeReturnValue> => {
 	using transforms = calculateTransforms({
 		element,
-		rootElement,
+		transformRoot,
 	});
 
 	const {opacity, computedStyle, totalMatrix, dimensions, precompositing} =
@@ -126,6 +125,7 @@ export const processNode = async ({
 		const tempContext = await createLayer({
 			cutout: precomposeRect,
 			element,
+			transformRoot,
 			logLevel,
 			internalState,
 			scale,
@@ -134,13 +134,11 @@ export const processNode = async ({
 
 		let drawable: OffscreenCanvas | null = tempContext.canvas;
 
+		// precomposeRect is viewport space; scale to pixels only (not matrixTransform).
 		const rectAfterTransforms = roundToExpandRect(
 			scaleRect({
 				scale,
-				rect: transformDOMRect({
-					rect: precomposeRect,
-					matrix: totalMatrix,
-				}),
+				rect: precomposeRect,
 			}),
 		);
 
@@ -226,6 +224,7 @@ export const processNode = async ({
 		element,
 		internalState,
 		scale,
+		transformRoot,
 	});
 
 	return {type: 'continue', cleanupAfterChildren};

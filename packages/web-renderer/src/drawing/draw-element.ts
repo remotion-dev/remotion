@@ -24,6 +24,7 @@ export const drawElement = async ({
 	element,
 	internalState,
 	scale,
+	transformRoot,
 }: {
 	rect: DOMRect;
 	computedStyle: CSSStyleDeclaration;
@@ -36,6 +37,7 @@ export const drawElement = async ({
 	element: HTMLElement | SVGElement;
 	internalState: InternalState;
 	scale: number;
+	transformRoot: HTMLElement | SVGElement;
 }) => {
 	const {backgroundImage, backgroundColor, backgroundClip} = computedStyle;
 	const borderRadius = parseBorderRadius({
@@ -97,6 +99,7 @@ export const drawElement = async ({
 		offsetLeft: parentRect.left,
 		offsetTop: parentRect.top,
 		scale,
+		transformRoot,
 	});
 
 	await draw({dimensions: rect, computedStyle, contextToDraw: context});

@@ -10,7 +10,7 @@ export const handleTextNode = async ({
 	logLevel,
 	parentRect,
 	internalState,
-	rootElement,
+	transformRoot,
 	onlyBackgroundClipText,
 	scale,
 }: {
@@ -19,7 +19,7 @@ export const handleTextNode = async ({
 	logLevel: LogLevel;
 	parentRect: DOMRect;
 	internalState: InternalState;
-	rootElement: HTMLElement | SVGElement;
+	transformRoot: HTMLElement | SVGElement;
 	onlyBackgroundClipText: boolean;
 	scale: number;
 }): Promise<ProcessNodeReturnValue> => {
@@ -40,7 +40,7 @@ export const handleTextNode = async ({
 		logLevel,
 		parentRect,
 		internalState,
-		rootElement,
+		transformRoot,
 		scale,
 	});
 

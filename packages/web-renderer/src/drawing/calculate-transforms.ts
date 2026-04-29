@@ -52,10 +52,16 @@ const getGlobalTransformOrigin = ({transform}: {transform: Transform}) => {
 
 export const calculateTransforms = ({
 	element,
-	rootElement,
+	transformRoot,
 }: {
 	element: HTMLElement | SVGElement;
-	rootElement: HTMLElement | SVGElement;
+	/**
+	 * Stop walking the parent chain when this node is reached.
+	 * Must be the same as the top-level composition root (e.g. the Remotion
+	 * container) so nested `createLayer` precompose passes still include
+	 * ancestor transforms.
+	 */
+	transformRoot: HTMLElement | SVGElement;
 }) => {
 	// Compute the cumulative transform by traversing parent nodes
 	let parent: HTMLElement | SVGElement | null = element;
@@ -154,7 +160,7 @@ export const calculateTransforms = ({
 			});
 		}
 
-		if (parent === rootElement) {
+		if (parent === transformRoot) {
 			break;
 		}
 
