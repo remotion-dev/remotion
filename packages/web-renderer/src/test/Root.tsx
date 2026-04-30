@@ -34,6 +34,7 @@ import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
 import {issue7050Minimal} from './fixtures/issue-7050-minimal';
 import {issue7050Repro} from './fixtures/issue-7050-repro';
+import {issue7199ScaleAndDropShadow} from './fixtures/issue-7199-scale-and-drop-shadow';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
@@ -182,6 +183,7 @@ export const Root: React.FC = () => {
 				<Composition {...threeDFlattening} />
 				<Composition {...issue7050Repro} />
 				<Composition {...issue7050Minimal} />
+				<Composition {...issue7199ScaleAndDropShadow} />
 			</Folder>
 			<Folder name="clip-path">
 				<Composition {...clipPathPolygon} />
