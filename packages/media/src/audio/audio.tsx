@@ -78,15 +78,27 @@ const AudioInner: React.FC<
 		number | null
 	>(null);
 
-	const loopDisplay = getLoopDisplay({
-		loop: props.loop ?? false,
-		mediaDurationInSeconds,
-		playbackRate: props.playbackRate ?? 1,
-		trimAfter: props.trimAfter,
-		trimBefore: props.trimBefore,
-		sequenceDurationInFrames,
-		compFps: videoConfig.fps,
-	});
+	const loopDisplay = useMemo(
+		() =>
+			getLoopDisplay({
+				loop: props.loop ?? false,
+				mediaDurationInSeconds,
+				playbackRate: props.playbackRate ?? 1,
+				trimAfter: props.trimAfter,
+				trimBefore: props.trimBefore,
+				sequenceDurationInFrames,
+				compFps: videoConfig.fps,
+			}),
+		[
+			props.loop,
+			mediaDurationInSeconds,
+			props.playbackRate,
+			props.trimAfter,
+			props.trimBefore,
+			sequenceDurationInFrames,
+			videoConfig.fps,
+		],
+	);
 
 	const isMedia = useMemo(
 		() => ({

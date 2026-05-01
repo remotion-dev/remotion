@@ -256,15 +256,27 @@ const VideoInner: React.FC<
 		number | null
 	>(null);
 
-	const loopDisplay = getLoopDisplay({
-		loop: loop ?? false,
-		mediaDurationInSeconds,
-		playbackRate: playbackRate ?? 1,
-		trimAfter,
-		trimBefore,
-		sequenceDurationInFrames,
-		compFps: videoConfig.fps,
-	});
+	const loopDisplay = useMemo(
+		() =>
+			getLoopDisplay({
+				loop: loop ?? false,
+				mediaDurationInSeconds,
+				playbackRate: playbackRate ?? 1,
+				trimAfter,
+				trimBefore,
+				sequenceDurationInFrames,
+				compFps: videoConfig.fps,
+			}),
+		[
+			loop,
+			mediaDurationInSeconds,
+			playbackRate,
+			trimAfter,
+			trimBefore,
+			sequenceDurationInFrames,
+			videoConfig.fps,
+		],
+	);
 
 	const isMedia = useMemo(
 		() => ({
