@@ -35,7 +35,7 @@ const audioSchema = {
 
 const AudioInner: React.FC<
 	AudioProps & {
-		readonly controls: SequenceControls | undefined;
+		readonly _experimentalControls: SequenceControls | undefined;
 	}
 > = (props) => {
 	// Should only destruct `trimBefore` and `trimAfter` from props,
@@ -44,7 +44,7 @@ const AudioInner: React.FC<
 		name,
 		stack,
 		showInTimeline,
-		controls,
+		_experimentalControls: controls,
 		from,
 		durationInFrames,
 		...otherProps

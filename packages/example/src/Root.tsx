@@ -31,6 +31,7 @@ import {
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
+import {ExperimentalControlsShowcase} from './ExperimentalControls';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
@@ -2047,6 +2048,14 @@ export const Index: React.FC = () => {
 					durationInFrames={90}
 				/>
 			</Folder>
+			<Composition
+				id="experimental-controls-showcase"
+				component={ExperimentalControlsShowcase}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={120}
+			/>
 			<Composition
 				id="sfx"
 				component={SfxExample}

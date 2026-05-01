@@ -1,4 +1,9 @@
-import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
+import type {
+	LogLevel,
+	LoopVolumeCurveBehavior,
+	SequenceProps,
+	VolumeProp,
+} from 'remotion';
 import type {MediaOnError} from '../on-error';
 
 export type FallbackHtml5AudioProps = {
@@ -11,20 +16,10 @@ export type FallbackHtml5AudioProps = {
 
 export type AudioProps = {
 	src: string;
-	/**
-	 * When set, `<Audio>` applies timing via an inner `<Sequence layout="none">` that is hidden from the timeline (`showInTimeline={false}`) so the clip still appears once as media.
-	 */
-	from?: number;
-	/**
-	 * When set with `from`, bounds the clip in frames. Defaults to `Infinity` like `<Sequence>`.
-	 */
-	durationInFrames?: number;
 	trimBefore?: number;
 	trimAfter?: number;
 	volume?: VolumeProp;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
-	name?: string;
-	showInTimeline?: boolean;
 	playbackRate?: number;
 	muted?: boolean;
 	style?: React.CSSProperties;
@@ -43,4 +38,7 @@ export type AudioProps = {
 	delayRenderTimeoutInMilliseconds?: number;
 	onError?: MediaOnError;
 	credentials?: RequestCredentials;
-};
+} & Pick<
+	SequenceProps,
+	'from' | 'durationInFrames' | 'name' | 'showInTimeline'
+>;
