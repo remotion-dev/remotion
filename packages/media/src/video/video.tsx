@@ -300,6 +300,7 @@ const VideoInner: React.FC<
 			name={name ?? '<Video>'}
 			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
+			showInTimeline={showInTimeline ?? true}
 		>
 			<InnerVideo
 				audioStreamIndex={audioStreamIndex ?? 0}

@@ -241,7 +241,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				effects: memoizedEffects,
 				displayName: timelineClipName,
 				doesVolumeChange: isMedia.data.doesVolumeChange,
-				duration: isMedia.data.duration,
+				duration: actualDurationInFrames,
 				from,
 				id,
 				loopDisplay,

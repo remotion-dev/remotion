@@ -135,6 +135,7 @@ const AudioInner: React.FC<
 			name={name ?? '<Audio>'}
 			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
+			showInTimeline={showInTimeline ?? true}
 		>
 			{environment.isRendering ? (
 				<AudioForRendering {...otherProps} />
