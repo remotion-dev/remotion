@@ -295,7 +295,7 @@ const htmlInCanvasSchema = {
 const HtmlInCanvasInner = forwardRef<
 	HTMLCanvasElement,
 	HtmlInCanvasProps & {
-		readonly controls: SequenceControls | undefined;
+		readonly _experimentalControls: SequenceControls | undefined;
 	}
 >(
 	(
@@ -306,7 +306,7 @@ const HtmlInCanvasInner = forwardRef<
 			children,
 			onPaint,
 			onInit,
-			controls,
+			_experimentalControls: controls,
 			style,
 			durationInFrames,
 			...sequenceProps
@@ -517,7 +517,7 @@ const HtmlInCanvasInner = forwardRef<
 			<Sequence
 				durationInFrames={resolvedDuration}
 				name="<HtmlInCanvas>"
-				controls={controls}
+				_experimentalControls={controls}
 				layout="none"
 				{...sequenceProps}
 			>

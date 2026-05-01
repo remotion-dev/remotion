@@ -91,7 +91,7 @@ const imgSchema = {
 
 const ImgInner: React.FC<
 	ImgProps & {
-		readonly controls: SequenceControls | undefined;
+		readonly _experimentalControls: SequenceControls | undefined;
 	}
 > = ({
 	onError,
@@ -106,7 +106,7 @@ const ImgInner: React.FC<
 	name,
 	stack,
 	ref,
-	controls,
+	_experimentalControls: controls,
 	...props
 }) => {
 	const imageRef = useRef<HTMLImageElement>(null);

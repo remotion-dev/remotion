@@ -76,11 +76,11 @@ const GifInner = ({
 	delayRenderTimeoutInMilliseconds,
 	durationInFrames,
 	style,
-	controls,
+	_experimentalControls: controls,
 	ref,
 	...sequenceProps
 }: GifProps & {
-	readonly controls?: SequenceControls | undefined;
+	readonly _experimentalControls?: SequenceControls | undefined;
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const env = useRemotionEnvironment();
@@ -112,7 +112,7 @@ const GifInner = ({
 			layout="none"
 			durationInFrames={resolvedDuration}
 			name="<Gif>"
-			controls={controls}
+			_experimentalControls={controls}
 			{...sequenceProps}
 		>
 			{inner}

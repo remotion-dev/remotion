@@ -366,7 +366,7 @@ const starburstSchema = {
 
 const StarburstInner: React.FC<
 	StarburstProps & {
-		readonly controls: SequenceControls | undefined;
+		readonly _experimentalControls: SequenceControls | undefined;
 	}
 > = ({
 	rays,
@@ -378,7 +378,7 @@ const StarburstInner: React.FC<
 	originOffsetY = 0,
 	durationInFrames,
 	style,
-	controls,
+	_experimentalControls: controls,
 	...sequenceProps
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
@@ -434,7 +434,7 @@ const StarburstInner: React.FC<
 		<Sequence
 			durationInFrames={resolvedDuration}
 			name="<Starburst>"
-			controls={controls}
+			_experimentalControls={controls}
 			{...sequenceProps}
 			style={style}
 		>

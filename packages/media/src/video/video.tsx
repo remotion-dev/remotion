@@ -63,7 +63,7 @@ const videoSchema = {
 
 const InnerVideo: React.FC<
 	InnerVideoProps & {
-		readonly controls: SequenceControls | undefined;
+		readonly _experimentalControls: SequenceControls | undefined;
 		readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	}
 > = ({
@@ -91,7 +91,7 @@ const InnerVideo: React.FC<
 	headless,
 	onError,
 	credentials,
-	controls,
+	_experimentalControls: controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
 	_experimentalEffects,
@@ -193,7 +193,7 @@ const InnerVideo: React.FC<
 
 const VideoInner: React.FC<
 	VideoProps & {
-		readonly controls: SequenceControls | undefined;
+		readonly _experimentalControls: SequenceControls | undefined;
 	}
 > = ({
 	src,
@@ -221,7 +221,7 @@ const VideoInner: React.FC<
 	headless,
 	onError,
 	credentials,
-	controls,
+	_experimentalControls: controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
 	_experimentalEffects,
@@ -298,7 +298,7 @@ const VideoInner: React.FC<
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
 			name={name ?? '<Video>'}
-			controls={controls}
+			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
 		>
 			<InnerVideo
@@ -330,7 +330,7 @@ const VideoInner: React.FC<
 				headless={headless ?? false}
 				onError={onError}
 				credentials={credentials}
-				controls={controls}
+				_experimentalControls={controls}
 				objectFit={objectFit ?? 'contain'}
 				_experimentalInitiallyDrawCachedFrame={
 					_experimentalInitiallyDrawCachedFrame ?? false

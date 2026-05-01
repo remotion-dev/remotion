@@ -133,7 +133,7 @@ const AudioInner: React.FC<
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
 			name={name ?? '<Audio>'}
-			controls={controls}
+			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
 		>
 			{environment.isRendering ? (

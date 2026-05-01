@@ -275,14 +275,14 @@ const lightLeakSchema = {
 
 const LightLeakInner: React.FC<
 	LightLeakProps & {
-		readonly controls: SequenceControls | undefined;
+		readonly _experimentalControls: SequenceControls | undefined;
 	}
 > = ({
 	seed = 0,
 	hueShift = 0,
 	durationInFrames,
 	style,
-	controls,
+	_experimentalControls: controls,
 	...sequenceProps
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
@@ -309,7 +309,7 @@ const LightLeakInner: React.FC<
 		<Sequence
 			durationInFrames={resolvedDuration}
 			name="<LightLeak>"
-			controls={controls}
+			_experimentalControls={controls}
 			{...sequenceProps}
 			style={style}
 		>

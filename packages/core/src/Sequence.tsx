@@ -53,7 +53,7 @@ export type SequencePropsWithoutDuration = {
 	readonly from?: number;
 	readonly name?: string;
 	readonly showInTimeline?: boolean;
-	readonly controls?: SequenceControls;
+	readonly _experimentalControls?: SequenceControls;
 	readonly _experimentalEffects?: EffectsProp;
 	/**
 	 * @deprecated For internal use only.
@@ -104,7 +104,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		height,
 		width,
 		showInTimeline = true,
-		controls,
+		_experimentalControls: controls,
 		_experimentalEffects,
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,

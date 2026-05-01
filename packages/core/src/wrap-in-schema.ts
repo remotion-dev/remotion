@@ -61,7 +61,7 @@ const mergeValues = (
 
 export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 	Component: React.ComponentType<
-		Props & {readonly controls: SequenceControls | undefined}
+		Props & {readonly _experimentalControls: SequenceControls | undefined}
 	>,
 	schema: S,
 ): React.ComponentType<Props> => {
@@ -77,9 +77,12 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 		) {
 			return React.createElement(Component, {
 				...props,
-				controls: null,
+				_experimentalControls: null,
 				ref,
-			} as Props & {controls: SequenceControls | undefined; ref: typeof ref});
+			} as Props & {
+				_experimentalControls: SequenceControls | undefined;
+				ref: typeof ref;
+			});
 		}
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -113,9 +116,12 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 
 		return React.createElement(Component, {
 			...mergedProps,
-			controls,
+			_experimentalControls: controls,
 			ref,
-		} as Props & {controls: SequenceControls | undefined; ref: typeof ref});
+		} as Props & {
+			_experimentalControls: SequenceControls | undefined;
+			ref: typeof ref;
+		});
 	});
 
 	Wrapped.displayName = `wrapInSchema(${Component.displayName || Component.name || 'Component'})`;
