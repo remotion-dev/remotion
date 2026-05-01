@@ -73,7 +73,7 @@ const AudioInner: React.FC<
 		loop: props.loop ?? false,
 	});
 
-	// TODO: This we should only have to call in the Studio
+	// TODO: Redundant with what we do in the Studio
 	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
 		number | null
 	>(null);
