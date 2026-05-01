@@ -117,7 +117,10 @@ const AudioInner: React.FC<
 		<Sequence
 			layout="none"
 			from={from ?? 0}
-			durationInFrames={basicInfo.duration}
+			durationInFrames={Math.min(
+				basicInfo.duration,
+				durationInFrames ?? Infinity,
+			)}
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
 			name={name ?? '<Audio>'}
