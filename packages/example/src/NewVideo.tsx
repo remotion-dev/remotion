@@ -27,7 +27,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 export const Component = () => {
 	return (
 		<Sequence>
-			<Html5Video src={src} trimBefore={30} trimAfter={40} loop />
+			<Video src={src} trimBefore={30} trimAfter={120} loop />
 		</Sequence>
 	);
 };

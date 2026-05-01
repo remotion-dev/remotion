@@ -232,10 +232,9 @@ const VideoInner: React.FC<
 	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
 	const videoConfig = useVideoConfig();
-	const sequenceDurationInFrames = Math.max(
-		// TODO: 0 crashes
-		0,
-		videoConfig.durationInFrames - (from ?? 0),
+	const sequenceDurationInFrames = Math.min(
+		durationInFrames ?? Infinity,
+		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
 	);
 
 	const basicInfo = Internals.useBasicMediaInTimeline({
@@ -283,10 +282,7 @@ const VideoInner: React.FC<
 		<Sequence
 			layout="none"
 			from={from ?? 0}
-			durationInFrames={Math.min(
-				basicInfo.duration,
-				durationInFrames ?? Infinity,
-			)}
+			durationInFrames={basicInfo.duration}
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
 			name={name ?? '<Video>'}
