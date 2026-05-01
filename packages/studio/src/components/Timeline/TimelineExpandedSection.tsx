@@ -127,6 +127,7 @@ export const TimelineExpandedSection: React.FC<{
 							isExpanded={isExpanded}
 							onClick={() => toggleTrack(node.id)}
 							label={`${node.label} section`}
+							hasExpandableContent
 						/>
 						<span style={rowLabel}>{node.label}</span>
 					</div>

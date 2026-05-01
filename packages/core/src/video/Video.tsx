@@ -112,6 +112,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				})}
 				layout="none"
 				name={name}
+				showInTimeline={false}
 			>
 				<Html5Video
 					{...propsOtherThanLoop}

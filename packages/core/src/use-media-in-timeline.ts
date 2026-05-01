@@ -32,6 +32,9 @@ export const useBasicMediaInTimeline = ({
 	trimBefore,
 	trimAfter,
 	playbackRate,
+	sequenceDurationInFrames,
+	mediaStartsAt,
+	loop,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -41,23 +44,25 @@ export const useBasicMediaInTimeline = ({
 	trimBefore: number | undefined;
 	trimAfter: number | undefined;
 	playbackRate: number;
+	sequenceDurationInFrames: number;
+	mediaStartsAt: number;
+	loop: boolean;
 }) => {
 	if (!src) {
 		throw new Error('No src passed');
 	}
 
-	const startsAt = useMediaStartsAt();
 	const parentSequence = useContext(SequenceContext);
-	const videoConfig = useVideoConfig();
 
 	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
 
 	const duration = getTimelineDuration({
-		compositionDurationInFrames: videoConfig.durationInFrames,
+		compositionDurationInFrames: sequenceDurationInFrames,
 		playbackRate,
 		trimBefore,
 		trimAfter,
 		parentSequenceDurationInFrames: parentSequence?.durationInFrames ?? null,
+		loop,
 	});
 
 	const volumes: string | number = useMemo(() => {
@@ -65,17 +70,17 @@ export const useBasicMediaInTimeline = ({
 			return volume;
 		}
 
-		return new Array(Math.floor(Math.max(0, duration + startsAt)))
+		return new Array(Math.floor(Math.max(0, duration + mediaStartsAt)))
 			.fill(true)
 			.map((_, i) => {
 				return evaluateVolume({
-					frame: i + startsAt,
+					frame: i + mediaStartsAt,
 					volume,
 					mediaVolume,
 				});
 			})
 			.join(',');
-	}, [duration, startsAt, volume, mediaVolume]);
+	}, [duration, mediaStartsAt, volume, mediaVolume]);
 
 	useEffect(() => {
 		if (typeof volume === 'number' && volume !== initialVolume) {
@@ -90,15 +95,38 @@ export const useBasicMediaInTimeline = ({
 	const nonce = useNonce();
 	const {rootId} = useTimelineContext();
 
-	return {
+	const startMediaFrom = 0 - mediaStartsAt + (trimBefore ?? 0);
+
+	const memoizedResult = useMemo(() => {
+		return {
+			volumes,
+			duration,
+			doesVolumeChange,
+			nonce,
+			rootId,
+			finalDisplayName: displayName ?? getAssetDisplayName(src),
+			startMediaFrom,
+			src,
+			playbackRate,
+		};
+	}, [
 		volumes,
 		duration,
 		doesVolumeChange,
 		nonce,
 		rootId,
-		finalDisplayName: displayName ?? getAssetDisplayName(src),
-	};
+		displayName,
+		src,
+		startMediaFrom,
+		playbackRate,
+	]);
+
+	return memoizedResult;
 };
+
+export type BasicMediaInTimelineReturnType = ReturnType<
+	typeof useBasicMediaInTimeline
+>;
 
 export const useImageInTimeline = ({
 	src,
@@ -124,6 +152,8 @@ export const useImageInTimeline = ({
 	const parentSequence = useContext(SequenceContext);
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 
+	const {durationInFrames} = useVideoConfig();
+	const mediaStartsAt = useMediaStartsAt();
 	const {duration, nonce, rootId, finalDisplayName} = useBasicMediaInTimeline({
 		volume: undefined,
 		mediaVolume: 0,
@@ -133,6 +163,9 @@ export const useImageInTimeline = ({
 		trimAfter: undefined,
 		trimBefore: undefined,
 		playbackRate: 1,
+		sequenceDurationInFrames: durationInFrames,
+		mediaStartsAt,
+		loop: false,
 	});
 
 	const {isStudio} = useRemotionEnvironment();
@@ -222,6 +255,8 @@ export const useMediaInTimeline = ({
 	const parentSequence = useContext(SequenceContext);
 	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
+	const {durationInFrames} = useVideoConfig();
+	const mediaStartsAt = useMediaStartsAt();
 
 	const {volumes, duration, doesVolumeChange, nonce, rootId, finalDisplayName} =
 		useBasicMediaInTimeline({
@@ -233,6 +268,9 @@ export const useMediaInTimeline = ({
 			trimAfter: undefined,
 			trimBefore: undefined,
 			playbackRate,
+			sequenceDurationInFrames: durationInFrames,
+			mediaStartsAt,
+			loop: false,
 		});
 
 	const {isStudio} = useRemotionEnvironment();

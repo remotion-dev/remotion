@@ -23,9 +23,7 @@ import {
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
-import {useLoopDisplay} from '../show-in-timeline';
 import {useCommonEffects} from '../use-common-effects';
-import {useMediaInTimeline} from '../use-media-in-timeline';
 import type {FallbackOffthreadVideoProps, VideoObjectFit} from './props';
 import {cacheVideoFrame, getCachedVideoFrame} from './video-frame-cache';
 import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
@@ -41,9 +39,7 @@ const {
 	warnAboutTooHighVolume,
 	usePreload,
 	SequenceContext,
-	SequenceVisibilityToggleContext,
 	useEffectChainState,
-	useMemoizedEffects,
 } = Internals;
 
 type VideoForPreviewProps = {
@@ -58,7 +54,6 @@ type VideoForPreviewProps = {
 	readonly onVideoFrame: undefined | ((frame: CanvasImageSource) => void);
 	readonly showInTimeline: boolean;
 	readonly loop: boolean;
-	readonly name: string | undefined;
 	readonly trimAfter: number | undefined;
 	readonly trimBefore: number | undefined;
 	readonly stack: string | null;
@@ -70,13 +65,12 @@ type VideoForPreviewProps = {
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
 	readonly objectFit: VideoObjectFit;
+	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly _experimentalEffects: EffectsProp;
 };
 
-type VideoForPreviewAssertedShowingProps = VideoForPreviewProps & {
-	readonly controls: SequenceControls | undefined;
-};
+type VideoForPreviewAssertedShowingProps = VideoForPreviewProps;
 
 const VideoForPreviewAssertedShowing: React.FC<
 	VideoForPreviewAssertedShowingProps
@@ -92,7 +86,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 	onVideoFrame,
 	showInTimeline,
 	loop,
-	name,
 	trimAfter,
 	trimBefore,
 	stack,
@@ -103,10 +96,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	headless,
 	onError,
 	credentials,
-	controls,
 	objectFit: objectFitProp,
 	_experimentalInitiallyDrawCachedFrame,
 	_experimentalEffects,
+	setMediaDurationInSeconds,
 }) => {
 	const src = usePreload(unpreloadedSrc);
 
@@ -130,11 +123,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const [mediaMuted] = useMediaMutedState();
 	const [mediaVolume] = useMediaVolumeState();
-	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
-		number | null
-	>(null);
-
-	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
 
@@ -153,7 +141,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const effectChainState = useEffectChainState();
 	const experimentalEffectsRef = useRef(_experimentalEffects);
 	experimentalEffectsRef.current = _experimentalEffects;
-	const memoizedEffects = useMemoizedEffects(_experimentalEffects.flat());
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
 	const frameRef = useRef(frame);
@@ -166,34 +153,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		((parentSequence?.cumulatedFrom ?? 0) +
 			(parentSequence?.relativeFrom ?? 0)) /
 		videoConfig.fps;
-
-	const loopDisplay = useLoopDisplay({
-		loop,
-		mediaDurationInSeconds,
-		playbackRate,
-		trimAfter,
-		trimBefore,
-	});
-
-	const {id: timelineId} = useMediaInTimeline({
-		volume,
-		mediaType: 'video',
-		src,
-		playbackRate,
-		displayName: name ?? null,
-		stack,
-		showInTimeline,
-		premountDisplay: parentSequence?.premountDisplay ?? null,
-		postmountDisplay: parentSequence?.postmountDisplay ?? null,
-		loopDisplay,
-		mediaVolume,
-		trimAfter,
-		trimBefore,
-		controls,
-		_experimentalEffects: memoizedEffects,
-	});
-
-	const isSequenceHidden = hidden[timelineId] ?? false;
 
 	const currentTime = frame / videoConfig.fps;
 
@@ -209,8 +168,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 		);
 	}
 
-	const effectiveMuted =
-		isSequenceHidden || muted || mediaMuted || userPreferredVolume <= 0;
+	// TODO: Consider Sequence hidden
+	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
 
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
@@ -387,6 +346,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					if (result.type === 'success') {
 						setMediaPlayerReady(true);
 						setMediaDurationInSeconds(result.durationInSeconds);
+
 						hasDrawnRealFrameRef.current = true;
 					}
 				})
@@ -455,6 +415,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		videoConfig.fps,
 		onError,
 		credentials,
+		setMediaDurationInSeconds,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});
@@ -510,10 +471,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...style,
-			opacity: isSequenceHidden ? 0 : (style?.opacity ?? 1),
+			// TODO: Previousy we did hide on isSequenceHidden
 			objectFit: objectFitProp,
 		};
-	}, [isSequenceHidden, objectFitProp, style]);
+	}, [objectFitProp, style]);
 
 	if (shouldFallbackToNativeVideo && !disallowFallbackToOffthreadVideo) {
 		// <Video> will fallback to <VideoForPreview> anyway
@@ -529,7 +490,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
 				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
-				name={name}
+				name={'<Html5Video> (fallback)'}
 				loop={loop}
 				showInTimeline={showInTimeline}
 				stack={stack ?? undefined}
@@ -591,7 +552,5 @@ export const VideoForPreview: React.FC<
 		return null;
 	}
 
-	return (
-		<VideoForPreviewAssertedShowing {...props} controls={props.controls} />
-	);
+	return <VideoForPreviewAssertedShowing {...props} />;
 };

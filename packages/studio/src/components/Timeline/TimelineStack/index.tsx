@@ -185,6 +185,8 @@ export const TimelineStack: React.FC<{
 			textOverflow: 'ellipsis',
 			overflow: 'hidden',
 			flexShrink: 100000,
+			userSelect: 'none',
+			WebkitUserSelect: 'none',
 		};
 	}, [opening, stackHovered, stackHoverable]);
 

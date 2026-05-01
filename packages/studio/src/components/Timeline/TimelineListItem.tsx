@@ -6,16 +6,14 @@ import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
+	TIMELINE_LAYER_HEIGHT_AUDIO,
 } from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {ExpandedTracksContext} from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {
-	TimelineExpandArrowButton,
-	TimelineExpandArrowSpacer,
-} from './TimelineExpandArrowButton';
+import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineLayerEye} from './TimelineLayerEye';
 import {TimelineStack} from './TimelineStack';
@@ -210,6 +208,14 @@ export const TimelineListItem: React.FC<{
 		return {
 			height:
 				getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
+			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
+		};
+	}, [sequence.type]);
+
+	const inner: React.CSSProperties = useMemo(() => {
+		return {
+			// TODO: Not so small
+			height: TIMELINE_LAYER_HEIGHT_AUDIO,
 			color: 'white',
 			fontFamily: 'Arial, Helvetica, sans-serif',
 			display: 'flex',
@@ -218,38 +224,36 @@ export const TimelineListItem: React.FC<{
 			wordBreak: 'break-all',
 			textAlign: 'left',
 			paddingLeft: SPACING,
-			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 		};
-	}, [sequence.type]);
+	}, []);
 
 	const hasExpandableContent =
 		Boolean(sequence.controls) || sequence.effects.length > 0;
 
 	const trackRow = (
 		<div style={outer}>
-			<TimelineLayerEye
-				type={sequence.type === 'audio' ? 'speaker' : 'eye'}
-				hidden={isItemHidden}
-				onInvoked={onToggleVisibility}
-			/>
-			<div style={padder} />
-			{sequence.parent && nestedDepth > 0 ? <div style={space} /> : null}
-			{visualModeActive ? (
-				hasExpandableContent ? (
+			<div style={inner}>
+				<TimelineLayerEye
+					type={sequence.type === 'audio' ? 'speaker' : 'eye'}
+					hidden={isItemHidden}
+					onInvoked={onToggleVisibility}
+				/>
+				<div style={padder} />
+				{sequence.parent && nestedDepth > 0 ? <div style={space} /> : null}
+				{visualModeActive ? (
 					<TimelineExpandArrowButton
 						isExpanded={isExpanded}
 						onClick={onToggleExpand}
 						label="track properties"
+						hasExpandableContent={hasExpandableContent}
 					/>
-				) : (
-					<TimelineExpandArrowSpacer />
-				)
-			) : null}
-			<TimelineStack
-				sequence={sequence}
-				isCompact={isCompact}
-				originalLocation={originalLocation}
-			/>
+				) : null}
+				<TimelineStack
+					sequence={sequence}
+					isCompact={isCompact}
+					originalLocation={originalLocation}
+				/>
+			</div>
 		</div>
 	);
 

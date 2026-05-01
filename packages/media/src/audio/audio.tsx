@@ -1,6 +1,13 @@
+import {useState} from 'react';
 import React from 'react';
-import type {SequenceControls, SequenceSchema} from 'remotion';
+import {useMemo} from 'react';
+import {
+	useVideoConfig,
+	type SequenceControls,
+	type SequenceSchema,
+} from 'remotion';
 import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
+import {getLoopDisplay} from '../show-in-timeline';
 import {AudioForPreview} from './audio-for-preview';
 import {AudioForRendering} from './audio-for-rendering';
 import type {AudioProps} from './props';
@@ -44,6 +51,51 @@ const AudioInner: React.FC<
 	} = props;
 	const environment = useRemotionEnvironment();
 
+	const [mediaVolume] = Internals.useMediaVolumeState();
+	const mediaStartsAt = Internals.useMediaStartsAt();
+	const videoConfig = useVideoConfig();
+	const sequenceDurationInFrames = Math.max(
+		0,
+		videoConfig.durationInFrames - (from ?? 0),
+	);
+
+	const basicInfo = Internals.useBasicMediaInTimeline({
+		src: props.src,
+		volume: props.volume,
+		playbackRate: props.playbackRate ?? 1,
+		trimBefore: props.trimBefore,
+		trimAfter: props.trimAfter,
+		sequenceDurationInFrames,
+		mediaType: 'audio',
+		displayName: name ?? '<Audio>',
+		mediaVolume,
+		mediaStartsAt,
+		loop: props.loop ?? false,
+	});
+
+	// TODO: This we should only have to call in the Studio
+	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
+		number | null
+	>(null);
+
+	const loopDisplay = getLoopDisplay({
+		loop: props.loop ?? false,
+		mediaDurationInSeconds,
+		playbackRate: props.playbackRate ?? 1,
+		trimAfter: props.trimAfter,
+		trimBefore: props.trimBefore,
+		sequenceDurationInFrames,
+		compFps: videoConfig.fps,
+	});
+
+	const isMedia = useMemo(
+		() => ({
+			type: 'audio' as const,
+			data: basicInfo,
+		}),
+		[basicInfo],
+	);
+
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
 			`The \`<Audio>\` tag requires a string for \`src\`, but got ${JSON.stringify(
@@ -57,12 +109,20 @@ const AudioInner: React.FC<
 		'Audio',
 	);
 
+	if (sequenceDurationInFrames === 0) {
+		return null;
+	}
+
 	return (
 		<Sequence
 			layout="none"
 			from={from ?? 0}
-			durationInFrames={durationInFrames ?? Infinity}
-			showInTimeline={false}
+			durationInFrames={basicInfo.duration}
+			_remotionInternalStack={stack}
+			_remotionInternalIsMedia={isMedia}
+			name={name ?? '<Audio>'}
+			controls={controls}
+			_remotionInternalLoopDisplay={loopDisplay}
 		>
 			{environment.isRendering ? (
 				<AudioForRendering {...otherProps} />
@@ -71,7 +131,7 @@ const AudioInner: React.FC<
 					name={name}
 					{...otherProps}
 					stack={stack ?? null}
-					controls={controls}
+					setMediaDurationInSeconds={setMediaDurationInSeconds}
 				/>
 			)}
 		</Sequence>

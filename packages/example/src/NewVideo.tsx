@@ -1,5 +1,11 @@
-import {Video} from '@remotion/media';
-import {CalculateMetadataFunction, Composition} from 'remotion';
+import {Audio, Video} from '@remotion/media';
+import {
+	CalculateMetadataFunction,
+	Composition,
+	Html5Audio,
+	Html5Video,
+	Sequence,
+} from 'remotion';
 // https://www.remotion.dev/docs/mediabunny/metadata
 import {getMediaMetadata} from './get-media-metadata';
 
@@ -19,7 +25,11 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 };
 
 export const Component = () => {
-	return <Video src={src} debugOverlay />;
+	return (
+		<Sequence>
+			<Html5Video src={src} trimBefore={30} trimAfter={40} loop />
+		</Sequence>
+	);
 };
 
 export const NewVideoComp = () => {

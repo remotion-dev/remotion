@@ -51,27 +51,6 @@ The URL of the audio to be rendered. Can be a remote URL or a local file referen
 
 At which frame this clip should start relative to the parent timeline. Default is `0`. Same meaning as [`from`](/docs/sequence#from) on [`<Sequence>`](/docs/sequence).
 
-### `durationInFrames?`<AvailableFrom v="4.0.445" />
-
-For how many frames the clip stays mounted. Default is `Infinity`. Same meaning as [`durationInFrames`](/docs/sequence#durationinframes) on [`<Sequence>`](/docs/sequence).
-
-:::note
-You can still wrap `<Audio>` in an outer [`<Sequence>`](/docs/sequence). Timing [cascades](/docs/sequence#cascading) like nested sequences.
-:::
-
-```tsx twoslash title="Clip starting at frame 30, lasting 90 frames"
-import {AbsoluteFill, staticFile} from 'remotion';
-import {Audio} from '@remotion/media';
-
-export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Audio from={30} durationInFrames={90} src={staticFile('audio.mp3')} />
-    </AbsoluteFill>
-  );
-};
-```
-
 ### `trimBefore?`
 
 Will remove a portion of the audio at the beginning (left side).

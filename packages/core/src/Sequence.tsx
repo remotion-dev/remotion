@@ -25,6 +25,7 @@ import {
 	useTimelinePosition,
 } from './timeline-position-state.js';
 import {useCurrentFrame} from './use-current-frame';
+import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
@@ -78,6 +79,13 @@ export type SequencePropsWithoutDuration = {
 	 * @deprecated For internal use only.
 	 */
 	readonly _remotionInternalIsPostmounting?: boolean;
+	/**
+	 * @deprecated For internal use only.
+	 */
+	readonly _remotionInternalIsMedia?: {
+		type: 'video' | 'audio';
+		data: BasicMediaInTimelineReturnType;
+	};
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -102,6 +110,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalStack: stack,
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
+		_remotionInternalIsMedia: isMedia,
 		...other
 	},
 	ref,
@@ -225,6 +234,34 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
+		if (isMedia) {
+			registerSequence({
+				type: isMedia.type,
+				controls: controls ?? null,
+				effects: memoizedEffects,
+				displayName: timelineClipName,
+				doesVolumeChange: isMedia.data.doesVolumeChange,
+				duration: isMedia.data.duration,
+				from,
+				id,
+				loopDisplay,
+				nonce: nonce.get(),
+				parent: parentSequence?.id ?? null,
+				playbackRate: isMedia.data.playbackRate,
+				postmountDisplay: postmountDisplay ?? null,
+				premountDisplay: premountDisplay ?? null,
+				rootId,
+				showInTimeline,
+				src: isMedia.data.src,
+				stack: stack ?? inheritedStack,
+				startMediaFrom: isMedia.data.startMediaFrom,
+				volume: isMedia.data.volumes,
+			});
+			return () => {
+				unregisterSequence(id);
+			};
+		}
+
 		registerSequence({
 			from,
 			duration: actualDurationInFrames,
@@ -266,6 +303,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		inheritedStack,
 		controls,
 		memoizedEffects,
+		isMedia,
 	]);
 
 	// Ceil to support floats

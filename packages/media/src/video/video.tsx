@@ -1,6 +1,12 @@
+import {useMemo, useState} from 'react';
 import React from 'react';
-import type {SequenceControls, SequenceSchema} from 'remotion';
+import {
+	useVideoConfig,
+	type SequenceControls,
+	type SequenceSchema,
+} from 'remotion';
 import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
+import {getLoopDisplay} from '../show-in-timeline';
 import type {InnerVideoProps, VideoProps} from './props';
 import {VideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
@@ -58,6 +64,7 @@ const videoSchema = {
 const InnerVideo: React.FC<
 	InnerVideoProps & {
 		readonly controls: SequenceControls | undefined;
+		readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	}
 > = ({
 	src,
@@ -71,7 +78,6 @@ const InnerVideo: React.FC<
 	loop,
 	loopVolumeCurveBehavior,
 	muted,
-	name,
 	onVideoFrame,
 	playbackRate,
 	style,
@@ -89,6 +95,7 @@ const InnerVideo: React.FC<
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
 	_experimentalEffects,
+	setMediaDurationInSeconds,
 }) => {
 	const environment = useRemotionEnvironment();
 
@@ -128,7 +135,6 @@ const InnerVideo: React.FC<
 				disallowFallbackToOffthreadVideo={
 					disallowFallbackToOffthreadVideo ?? false
 				}
-				name={name}
 				fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
 				logLevel={logLevel}
 				loop={loop}
@@ -153,9 +159,9 @@ const InnerVideo: React.FC<
 
 	return (
 		<VideoForPreview
+			setMediaDurationInSeconds={setMediaDurationInSeconds}
 			audioStreamIndex={audioStreamIndex ?? 0}
 			className={className}
-			name={name}
 			logLevel={logLevel}
 			loop={loop}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
@@ -220,15 +226,68 @@ const VideoInner: React.FC<
 	_experimentalInitiallyDrawCachedFrame,
 	_experimentalEffects,
 	from,
-	durationInFrames,
 }) => {
 	const fallbackLogLevel = Internals.useLogLevel();
+	const [mediaVolume] = Internals.useMediaVolumeState();
+	const mediaStartsAt = Internals.useMediaStartsAt();
+	const videoConfig = useVideoConfig();
+	const sequenceDurationInFrames = Math.max(
+		// TODO: 0 crashes
+		0,
+		videoConfig.durationInFrames - (from ?? 0),
+	);
+
+	const basicInfo = Internals.useBasicMediaInTimeline({
+		src,
+		volume,
+		playbackRate: playbackRate ?? 1,
+		trimBefore,
+		trimAfter,
+		sequenceDurationInFrames,
+		mediaType: 'video',
+		displayName: name ?? '<Video>',
+		mediaVolume,
+		mediaStartsAt,
+		loop: loop ?? false,
+	});
+
+	// TODO: This we should only have to call in the Studio
+	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
+		number | null
+	>(null);
+
+	const loopDisplay = getLoopDisplay({
+		loop: loop ?? false,
+		mediaDurationInSeconds,
+		playbackRate: playbackRate ?? 1,
+		trimAfter,
+		trimBefore,
+		sequenceDurationInFrames,
+		compFps: videoConfig.fps,
+	});
+
+	const isMedia = useMemo(
+		() => ({
+			type: 'video' as const,
+			data: basicInfo,
+		}),
+		[basicInfo],
+	);
+
+	if (sequenceDurationInFrames === 0) {
+		return null;
+	}
+
 	return (
 		<Sequence
 			layout="none"
 			from={from ?? 0}
-			durationInFrames={durationInFrames ?? Infinity}
-			showInTimeline={false}
+			durationInFrames={basicInfo.duration}
+			_remotionInternalStack={stack}
+			_remotionInternalIsMedia={isMedia}
+			name={name ?? '<Video>'}
+			controls={controls}
+			_remotionInternalLoopDisplay={loopDisplay}
 		>
 			<InnerVideo
 				audioStreamIndex={audioStreamIndex ?? 0}
@@ -245,7 +304,6 @@ const VideoInner: React.FC<
 				loop={loop ?? false}
 				loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
 				muted={muted ?? false}
-				name={name}
 				onVideoFrame={onVideoFrame}
 				playbackRate={playbackRate ?? 1}
 				showInTimeline={showInTimeline ?? true}
@@ -266,6 +324,7 @@ const VideoInner: React.FC<
 					_experimentalInitiallyDrawCachedFrame ?? false
 				}
 				_experimentalEffects={_experimentalEffects ?? []}
+				setMediaDurationInSeconds={setMediaDurationInSeconds}
 			/>
 		</Sequence>
 	);

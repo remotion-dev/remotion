@@ -8,6 +8,7 @@ test('playbackRate 2.45 with 300 composition frames returns 300', () => {
 		trimBefore: undefined,
 		trimAfter: undefined,
 		parentSequenceDurationInFrames: null,
+		loop: false,
 	});
 
 	expect(duration).toBe(300);
@@ -20,6 +21,7 @@ test('playbackRate 1 returns composition duration unchanged', () => {
 		trimBefore: undefined,
 		trimAfter: undefined,
 		parentSequenceDurationInFrames: null,
+		loop: false,
 	});
 
 	expect(duration).toBe(300);
@@ -32,6 +34,7 @@ test('playbackRate 0.5 with 300 composition frames returns 300', () => {
 		trimBefore: undefined,
 		trimAfter: undefined,
 		parentSequenceDurationInFrames: null,
+		loop: false,
 	});
 
 	expect(duration).toBe(300);
@@ -44,6 +47,7 @@ test('parentSequence caps the duration', () => {
 		trimBefore: undefined,
 		trimAfter: undefined,
 		parentSequenceDurationInFrames: 100,
+		loop: false,
 	});
 
 	expect(duration).toBe(100);
@@ -56,6 +60,7 @@ test('parentSequence with playbackRate 2.45 caps correctly', () => {
 		trimBefore: undefined,
 		trimAfter: undefined,
 		parentSequenceDurationInFrames: 100,
+		loop: false,
 	});
 
 	expect(duration).toBe(245);
@@ -68,6 +73,7 @@ test('trimBefore is accounted for', () => {
 		trimBefore: 30,
 		trimAfter: undefined,
 		parentSequenceDurationInFrames: null,
+		loop: false,
 	});
 
 	expect(duration).toBe(300);
