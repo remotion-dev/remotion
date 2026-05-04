@@ -57,7 +57,8 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 	};
 
 	const getListOfAssets = () => {
-		return Object.keys(openFiles);
+		// Use writtenHeaders so paths stay listed after finish() closes descriptors for tone processing.
+		return Object.keys(writtenHeaders);
 	};
 
 	const getFilePath = (asset: InlineAudioAsset) => {
@@ -162,12 +163,21 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		cancelSignal: CancelSignal | undefined;
 		sampleRate: number;
 	}) => {
-		for (const fd of Object.keys(openFiles)) {
-			const frequency = toneFrequencies[fd];
+		// Snapshot paths: finish() may delete keys from openFiles while iterating.
+		const filePaths = Object.keys(openFiles);
+		for (const filePath of filePaths) {
+			const frequency = toneFrequencies[filePath];
 			if (frequency !== 1) {
-				const tmpFile = fd.replace(/.wav$/, '-tmp.wav');
+				// Windows returns EPERM if we rename over a path still open for writing; close first.
+				const descriptor = openFiles[filePath];
+				if (descriptor !== undefined) {
+					fs.closeSync(descriptor);
+					delete openFiles[filePath];
+				}
+
+				const tmpFile = filePath.replace(/.wav$/, '-tmp.wav');
 				await applyToneFrequencyUsingFfmpeg({
-					input: fd,
+					input: filePath,
 					output: tmpFile,
 					toneFrequency: frequency,
 					indent,
@@ -176,7 +186,7 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 					cancelSignal,
 					sampleRate: finishSampleRate,
 				});
-				fs.renameSync(tmpFile, fd);
+				fs.renameSync(tmpFile, filePath);
 			}
 		}
 	};
