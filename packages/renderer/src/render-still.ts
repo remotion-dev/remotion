@@ -257,7 +257,7 @@ const innerRenderStill = async ({
 		if (puppeteerInstance) {
 			await page.close();
 		} else {
-			browserInstance.close({silent: true}).catch((err) => {
+			await browserInstance.close({silent: true}).catch((err) => {
 				Log.error({indent, logLevel}, 'Unable to close browser', err);
 			});
 		}
