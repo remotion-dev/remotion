@@ -10,6 +10,7 @@
 	"scripts": {
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun --env-file=.env scripts/update-font-db.ts",
+		"test": "bun test test",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src"
 	},
