@@ -635,54 +635,109 @@ const internalRenderFramesRaw = ({
 					sampleRate,
 				});
 			}),
-		])
-			.then((res) => {
-				server?.compositor
-					.executeCommand('CloseAllVideos', {})
-					.then(() => {
-						Log.verbose(
-							{indent, logLevel, tag: 'compositor'},
-							'Freed memory from compositor',
+		]).then(
+			async (res) => {
+				try {
+					if (server?.compositor) {
+						await server.compositor
+							.executeCommand('CloseAllVideos', {})
+							.then(() => {
+								Log.verbose(
+									{indent, logLevel, tag: 'compositor'},
+									'Freed memory from compositor',
+								);
+							});
+					}
+				} catch (err) {
+					Log.verbose({indent, logLevel}, 'Could not close compositor', err);
+				}
+
+				if (cleanup[0]) {
+					cleanup[0]();
+				}
+
+				try {
+					if (puppeteerInstance) {
+						await Promise.all(openedPages.map((p) => p.close())).catch(
+							(err) => {
+								if (isTargetClosedErr(err)) {
+									return;
+								}
+
+								Log.error(
+									{indent, logLevel},
+									'Unable to close browser tab',
+									err,
+								);
+							},
 						);
-					})
-					.catch((err) => {
-						Log.verbose({indent, logLevel}, 'Could not close compositor', err);
-					});
-				return resolve(res);
-			})
-			.catch((err) => reject(err))
-			.finally(() => {
-				// If browser instance was passed in, we close all the pages
-				// we opened.
-				// If new browser was opened, then closing the browser as a cleanup.
-
-				if (puppeteerInstance) {
-					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
-						if (isTargetClosedErr(err)) {
-							return;
-						}
-
-						Log.error({indent, logLevel}, 'Unable to close browser tab', err);
-					});
-				} else {
-					Promise.resolve(browserInstance)
-						.then((instance) => {
-							return instance.close({silent: true});
-						})
-						.catch((err) => {
+					} else {
+						const instance = await Promise.resolve(browserInstance);
+						await instance.close({silent: true}).catch((err) => {
 							if (
 								!(err as Error | undefined)?.message.includes('Target closed')
 							) {
 								Log.error({indent, logLevel}, 'Unable to close browser', err);
 							}
 						});
+					}
+				} catch (err) {
+					Log.error({indent, logLevel}, 'Unable to close browser', err);
 				}
 
-				cleanup.forEach((c) => {
-					c();
-				});
-				// Don't clear download dir because it might be used by stitchFramesToVideo
-			});
+				if (cleanup[1]) {
+					try {
+						await cleanup[1]();
+					} catch (err) {
+						Log.error({indent, logLevel}, 'Could not cleanup server', err);
+					}
+				}
+
+				resolve(res);
+			},
+			async (err) => {
+				try {
+					if (server?.compositor) {
+						await server.compositor.executeCommand('CloseAllVideos', {});
+					}
+				} catch {
+					// ignore
+				}
+
+				if (cleanup[0]) {
+					cleanup[0]();
+				}
+
+				try {
+					if (puppeteerInstance) {
+						await Promise.all(openedPages.map((p) => p.close())).catch(() => {
+							// ignore
+						});
+					} else {
+						const instance = await Promise.resolve(browserInstance).catch(
+							() => null,
+						);
+						if (instance) {
+							await instance.close({silent: true}).catch(() => {
+								// ignore
+							});
+						}
+					}
+				} catch {
+					// ignore
+				}
+
+				if (cleanup[1]) {
+					try {
+						await cleanup[1]();
+					} catch {
+						// ignore
+					}
+				}
+
+				reject(err);
+			},
+		);
 	});
 };
 
