@@ -41,7 +41,9 @@ export const usePlayback = ({
 	// In that case, we use setTimeout() instead.
 	const isBackgroundedRef = useIsBackgrounded();
 
-	const lastTimeUpdateTimestamp = useRef<number>(0);
+	const latestFrameForTimeUpdateRef = useRef(frame);
+	const lastTimeUpdateEmitAtRef = useRef(0);
+	const timeUpdateTimeoutRef = useRef<Timer | null>(null);
 
 	const context = useContext(Internals.BufferingContextReact);
 	if (!context) {
@@ -55,6 +57,8 @@ export const usePlayback = ({
 		playbackRate,
 		videoConfig: config,
 	});
+
+	latestFrameForTimeUpdateRef.current = frame;
 
 	useLayoutEffect(() => {
 		if (!sharedAudioContext) {
@@ -264,21 +268,35 @@ export const usePlayback = ({
 	]);
 
 	useEffect(() => {
-		const now = performance.now();
-		const timeSinceLastUpdate = now - lastTimeUpdateTimestamp.current;
+		return () => {
+			if (timeUpdateTimeoutRef.current !== null) {
+				clearTimeout(timeUpdateTimeoutRef.current);
+				timeUpdateTimeoutRef.current = null;
+			}
+		};
+	}, []);
 
-		if (timeSinceLastUpdate >= 250) {
+	useEffect(() => {
+		const now = performance.now();
+		const elapsedSinceEmit = now - lastTimeUpdateEmitAtRef.current;
+
+		if (elapsedSinceEmit >= 250) {
 			emitter.dispatchTimeUpdate({frame});
-			lastTimeUpdateTimestamp.current = now;
+			lastTimeUpdateEmitAtRef.current = now;
 			return;
 		}
 
-		const timeoutId = setTimeout(() => {
-			emitter.dispatchTimeUpdate({frame});
-			lastTimeUpdateTimestamp.current = performance.now();
-		}, 250 - timeSinceLastUpdate);
+		if (timeUpdateTimeoutRef.current !== null) {
+			return;
+		}
 
-		return () => clearTimeout(timeoutId);
+		const delay = Math.max(0, 250 - elapsedSinceEmit);
+
+		timeUpdateTimeoutRef.current = setTimeout(() => {
+			timeUpdateTimeoutRef.current = null;
+			emitter.dispatchTimeUpdate({frame: latestFrameForTimeUpdateRef.current});
+			lastTimeUpdateEmitAtRef.current = performance.now();
+		}, delay);
 	}, [emitter, frame]);
 
 	useEffect(() => {

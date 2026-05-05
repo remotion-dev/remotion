@@ -3,6 +3,7 @@ import {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import type {PlayerEmitter} from './event-emitter.js';
+import {PLAYER_COMP_ID} from './SharedPlayerContext.js';
 
 type UsePlayerMethods = {
 	frameBack: (frames: number) => void;
@@ -60,15 +61,15 @@ export const usePlayer = (): UsePlayerMethods => {
 
 	const seek = useCallback(
 		(newFrame: number) => {
-			if (video?.id) {
-				setTimelinePosition((c) => ({...c, [video.id]: newFrame}));
-			}
+			const compositionId = video?.id ?? config?.id ?? PLAYER_COMP_ID;
+
+			setTimelinePosition((c) => ({...c, [compositionId]: newFrame}));
 
 			frameRef.current = newFrame;
 
 			emitter.dispatchSeek(newFrame);
 		},
-		[emitter, setTimelinePosition, video?.id],
+		[config?.id, emitter, setTimelinePosition, video?.id],
 	);
 
 	const play = useCallback(
