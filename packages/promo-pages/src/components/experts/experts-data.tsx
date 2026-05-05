@@ -474,7 +474,7 @@ export const experts: Expert[] = [
 				currently building{' '}
 				<a target={'_blank'} href="https://crawlchat.app">
 					CrawlChat
-				</a>{' '}
+				</a>
 				. I love helping the community. Feel free to reach out. Looking forward!
 			</div>
 		),
