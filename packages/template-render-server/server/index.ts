@@ -4,7 +4,24 @@ import { bundle } from "@remotion/bundler";
 import path from "node:path";
 import { ensureBrowser } from "@remotion/renderer";
 
-const { PORT = 3000, REMOTION_SERVE_URL } = process.env;
+const { PORT = 3000, REMOTION_SERVE_URL, API_KEY } = process.env;
+
+function authMiddleware(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) {
+  if (!API_KEY) {
+    res.status(500).json({ message: "Server is not configured with an API_KEY" });
+    return;
+  }
+  const authHeader = req.headers["authorization"];
+  if (!authHeader || authHeader !== `Bearer ${API_KEY}`) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+  next();
+}
 
 function setupApp({ remotionBundleUrl }: { remotionBundleUrl: string }) {
   const app = express();
@@ -22,7 +39,7 @@ function setupApp({ remotionBundleUrl }: { remotionBundleUrl: string }) {
   app.use(express.json());
 
   // Endpoint to create a new job
-  app.post("/renders", async (req, res) => {
+  app.post("/renders", authMiddleware, async (req, res) => {
     const titleText = req.body?.titleText || "Hello, world!";
 
     if (typeof titleText !== "string") {
@@ -36,7 +53,7 @@ function setupApp({ remotionBundleUrl }: { remotionBundleUrl: string }) {
   });
 
   // Endpoint to get a job status
-  app.get("/renders/:jobId", (req, res) => {
+  app.get("/renders/:jobId", authMiddleware, (req, res) => {
     const jobId = req.params.jobId;
     const job = queue.jobs.get(jobId);
 
@@ -44,7 +61,7 @@ function setupApp({ remotionBundleUrl }: { remotionBundleUrl: string }) {
   });
 
   // Endpoint to cancel a job
-  app.delete("/renders/:jobId", (req, res) => {
+  app.delete("/renders/:jobId", authMiddleware, (req, res) => {
     const jobId = req.params.jobId;
 
     const job = queue.jobs.get(jobId);
