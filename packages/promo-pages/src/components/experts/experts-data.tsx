@@ -439,7 +439,7 @@ export const experts: Expert[] = [
 		slug: 'pramod-kumar',
 		name: 'Pramod Kumar',
 		image: '/img/freelancers/pramod.jpg',
-		website: 'https://www.pramod73.in/',
+		website: null,
 		x: 'pramodk73',
 		github: 'pskd73',
 		linkedin: 'in/pramod-kumar-1a135b74/',
@@ -470,8 +470,12 @@ export const experts: Expert[] = [
 				>
 					remotion-animate-text
 				</a>{' '}
-				for Remotion to animate text. I build products in public on X. I love
-				helping the community. Feel free to reach out. Looking forward!
+				for Remotion to animate text. I build products in public on X and
+				currently building{' '}
+				<a target={'_blank'} href="https://crawlchat.app">
+					CrawlChat
+				</a>{' '}
+				. I love helping the community. Feel free to reach out. Looking forward!
 			</div>
 		),
 	},
