@@ -744,7 +744,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/ashok-reddy-kakumanu-8a3078247/',
 		email: 'ashok17748@gmail.com',
 		videocall: null,
-		discord: null,
+		discord: {
+			username: '.8gates',
+			userId: '668293302767845376',
+		},
 		since: new Date('2026-04-30').getTime(),
 		description: (
 			<div>
@@ -772,8 +775,8 @@ export const experts: Expert[] = [
 		email: 'zz41354899@gmail.com',
 		videocall: null,
 		discord: {
-			username: '.8gates',
-			userId: '668293302767845376',
+			username: 'Nocts',
+			userId: '444852671191580672',
 		},
 		since: new Date('2026-05-05').getTime(),
 		description: (
