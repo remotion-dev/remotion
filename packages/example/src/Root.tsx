@@ -37,6 +37,7 @@ import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {FreezePortion} from './FreezePortion/FreezePortion';
+import {GoogleFontsCjk} from './GoogleFontsCjk/GoogleFontsCjk';
 import {Green} from './Green';
 import {HlsDemo} from './Hls/HlsDemo';
 import {
@@ -1215,6 +1216,12 @@ export const Index: React.FC = () => {
 					defaultProps={{flag: false}}
 				/>
 				<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
+				<Still
+					id="google-fonts-cjk"
+					component={GoogleFontsCjk}
+					width={1920}
+					height={1080}
+				/>
 				<Composition
 					id="dynamic-duration"
 					component={VideoTesting}

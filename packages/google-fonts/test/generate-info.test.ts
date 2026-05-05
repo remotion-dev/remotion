@@ -38,9 +38,10 @@ const testFile = `
 
 test('Should extract correctly', () => {
 	const data = extractInfoFromCss({
-		contents: testFile,
+		contents: testFile.trim(),
 		fontFamily: 'ABeeZee',
 		importName: 'ABeeZee',
+		subsets: ['latin', 'latin-ext'],
 		url: 'https://fonts.googleapis.com/css2?family=ABeeZee:ital,wght@0,400;1,400',
 		version: 'v22',
 	});
@@ -73,5 +74,6 @@ test('Should extract correctly', () => {
 				},
 			},
 		},
+		subsets: ['latin', 'latin-ext'],
 	});
 });
