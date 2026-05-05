@@ -3,7 +3,15 @@ import {LightLeak} from '@remotion/light-leaks';
 import {Audio, Video} from '@remotion/media';
 import {Starburst} from '@remotion/starburst';
 import React from 'react';
-import {AbsoluteFill, HtmlInCanvas, Img, Sequence, staticFile} from 'remotion';
+import {
+	AbsoluteFill,
+	Html5Audio,
+	Html5Video,
+	HtmlInCanvas,
+	Img,
+	Sequence,
+	staticFile,
+} from 'remotion';
 
 const Tile: React.FC<{
 	readonly title: string;
@@ -177,6 +185,30 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 					<Sequence name="layout='none'" layout={'none'}>
 						hi
 					</Sequence>
+				</Tile>
+			</div>
+			<div style={{flex: 1, display: 'flex', flexDirection: 'row', gap: 16}}>
+				<Tile title="Html5Video">
+					<Html5Video
+						src={staticFile('bigbuckbunny.mp4')}
+						style={{
+							width: '100%',
+							height: '100%',
+						}}
+					/>
+				</Tile>
+				<Tile title="Html5Audio">
+					<div
+						style={{
+							color: 'white',
+							fontFamily: 'sans-serif',
+							fontSize: 24,
+							textAlign: 'center',
+						}}
+					>
+						Html5Audio (no visual)
+						<Html5Audio src={staticFile('music.mp3')} volume={1} />
+					</div>
 				</Tile>
 			</div>
 		</AbsoluteFill>

@@ -21,7 +21,6 @@ export const TIMELINE_ITEM_BORDER_BOTTOM = 1;
 export const TIMELINE_TRACK_EXPANDED_HEIGHT = 100;
 
 export const TREE_GROUP_ROW_HEIGHT = 22;
-export const TREE_INDENT_PER_LEVEL = 16;
 export const EXPANDED_SECTION_PADDING_LEFT = 28;
 export const EXPANDED_SECTION_PADDING_RIGHT = 10;
 
@@ -102,19 +101,14 @@ export const buildTimelineTree = ({
 	});
 
 	if (controlFields && controlFields.length > 0) {
-		roots.push({
-			kind: 'group',
-			id: `${sequence.id}::controls`,
-			label: 'Controls',
-			children: controlFields.map(
-				(f): TimelineTreeNode => ({
-					kind: 'field',
-					id: `${sequence.id}::controls::${f.key}`,
-					label: f.description ?? f.key,
-					field: f,
-				}),
-			),
-		});
+		for (const f of controlFields) {
+			roots.push({
+				kind: 'field',
+				id: `${sequence.id}::controls::${f.key}`,
+				label: f.description ?? f.key,
+				field: f,
+			});
+		}
 	}
 
 	return roots;

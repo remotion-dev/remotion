@@ -53,7 +53,7 @@ export const sequenceStyleSchema = {
 		type: 'translate',
 		step: 1,
 		default: '0px 0px',
-		description: 'Position',
+		description: 'Offset',
 	},
 	'style.scale': {
 		type: 'number',

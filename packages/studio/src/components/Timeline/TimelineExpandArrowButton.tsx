@@ -25,22 +25,19 @@ export const TimelineExpandArrowButton: React.FC<{
 	readonly isExpanded: boolean;
 	readonly onClick: () => void;
 	readonly label: string;
-	readonly hasExpandableContent: boolean;
-}> = ({isExpanded, onClick, label, hasExpandableContent}) => {
+}> = ({isExpanded, onClick, label}) => {
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...arrowButton,
 			transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-			opacity: hasExpandableContent ? 1 : 0.2,
 		};
-	}, [isExpanded, hasExpandableContent]);
+	}, [isExpanded]);
 
 	return (
 		<button
 			type="button"
 			style={style}
 			onClick={onClick}
-			disabled={!hasExpandableContent}
 			aria-expanded={isExpanded}
 			aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${label}`}
 		>

@@ -97,7 +97,11 @@ For WebGL, set up the context, program, and texture in `onInit` and return a cle
 ```tsx
 const onInit: HtmlInCanvasOnInit = useCallback(({ canvas }) => {
   const gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true });
-  if (!gl) throw new Error("WebGL2 unavailable");
+  if (!gl) {
+    throw new Error(
+      "WebGL2 unavailable. Try rendering with the --gl=angle option. See https://remotion.dev/docs/gl-options.",
+    );
+  }
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   // compile program, create texture, set up VAO...
   return () => {

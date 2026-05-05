@@ -6,6 +6,7 @@ import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-sou
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
+import {Padder} from './Padder';
 import {TimelineFieldValue} from './TimelineSchemaField';
 
 const fieldRowBase: React.CSSProperties = {
@@ -34,6 +35,7 @@ export const TimelineFieldRow: React.FC<{
 	readonly overrideId: string;
 	readonly validatedLocation: CodePosition | null;
 	readonly paddingLeft: number;
+	readonly nestedDepth: number;
 	readonly nodePath: SequenceNodePath | null;
 	readonly schema: SequenceSchema;
 }> = ({
@@ -41,6 +43,7 @@ export const TimelineFieldRow: React.FC<{
 	overrideId,
 	validatedLocation,
 	paddingLeft,
+	nestedDepth,
 	nodePath,
 	schema,
 }) => {
@@ -133,6 +136,7 @@ export const TimelineFieldRow: React.FC<{
 
 	return (
 		<div style={style}>
+			<Padder depth={nestedDepth + 1} />
 			<div style={fieldLabelRow}>
 				<span style={fieldName}>{field.description ?? field.key}</span>
 			</div>

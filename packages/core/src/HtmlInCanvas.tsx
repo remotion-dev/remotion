@@ -275,7 +275,7 @@ const HtmlInCanvasInner = forwardRef<
 		{
 			width,
 			height,
-			_experimentalEffects: experimentalEffects = [],
+			_experimentalEffects: effects = [],
 			children,
 			onPaint,
 			onInit,
@@ -326,8 +326,8 @@ const HtmlInCanvasInner = forwardRef<
 		const chainState = useEffectChainState();
 
 		// Refs so the paint handler always reads fresh values.
-		const effectsRef = useRef(experimentalEffects);
-		effectsRef.current = experimentalEffects;
+		const effectsRef = useRef(effects);
+		effectsRef.current = effects;
 		const frameRef = useRef(frame);
 		frameRef.current = frame;
 		const onPaintRef = useRef(onPaint);
@@ -486,9 +486,8 @@ const HtmlInCanvasInner = forwardRef<
 			return {
 				width,
 				height,
-				...style,
 			};
-		}, [width, height, style]);
+		}, [width, height]);
 
 		if (isInsideAncestorHtmlInCanvas) {
 			throw new Error(
@@ -501,11 +500,17 @@ const HtmlInCanvasInner = forwardRef<
 				durationInFrames={resolvedDuration}
 				name="<HtmlInCanvas>"
 				_experimentalControls={controls}
+				_experimentalEffects={effects}
 				layout="none"
 				{...sequenceProps}
 			>
 				<HtmlInCanvasAncestorContext.Provider value>
-					<canvas ref={setLayoutCanvasRef} width={width} height={height}>
+					<canvas
+						ref={setLayoutCanvasRef}
+						width={width}
+						height={height}
+						style={style}
+					>
 						<div ref={divRef} style={innerStyle}>
 							{children}
 						</div>

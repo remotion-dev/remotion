@@ -80,7 +80,9 @@ const HtmlInCanvasDocsWebGLInner: React.FC = () => {
 			antialias: false,
 		});
 		if (!gl) {
-			throw new Error('WebGL2 unavailable');
+			throw new Error(
+				'WebGL2 unavailable. Try rendering with the --gl=angle option. See https://remotion.dev/docs/gl-options.',
+			);
 		}
 
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);

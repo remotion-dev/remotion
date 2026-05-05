@@ -87,8 +87,8 @@ export const saveSequencePropsHandler: ApiHandler<
 			remotionRoot,
 			logLine,
 			description: {
-				undoMessage: `Undid ${undoPropChange}`,
-				redoMessage: `Redid ${redoPropChange}`,
+				undoMessage: `Undo: ${undoPropChange}`,
+				redoMessage: `Redo: ${redoPropChange}`,
 			},
 			entryType: 'sequence-props',
 			suppressHmrOnFileRestore: true,

@@ -13,19 +13,18 @@ import {ContextMenu} from '../ContextMenu';
 import {ExpandedTracksContext} from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
+import {Padder} from './Padder';
+import {
+	TimelineExpandArrowButton,
+	TimelineExpandArrowSpacer,
+} from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineLayerEye} from './TimelineLayerEye';
 import {TimelineStack} from './TimelineStack';
 import {useResolvedStack} from './use-resolved-stack';
 import {useSequencePropsSubscription} from './use-sequence-props-subscription';
 
-export const SPACING = 5;
-
-const space: React.CSSProperties = {
-	width: SPACING,
-	flexShrink: 0,
-};
+export const INDENT = 10;
 
 export const TimelineListItem: React.FC<{
 	readonly sequence: TSequence;
@@ -181,13 +180,6 @@ export const TimelineListItem: React.FC<{
 		toggleTrack(sequence.id);
 	}, [sequence.id, toggleTrack]);
 
-	const padder = useMemo((): React.CSSProperties => {
-		return {
-			width: Number(SPACING) * nestedDepth,
-			flexShrink: 0,
-		};
-	}, [nestedDepth]);
-
 	const isItemHidden = useMemo(() => {
 		return hidden[sequence.id] ?? false;
 	}, [hidden, sequence.id]);
@@ -223,7 +215,7 @@ export const TimelineListItem: React.FC<{
 			alignItems: 'center',
 			wordBreak: 'break-all',
 			textAlign: 'left',
-			paddingLeft: SPACING,
+			paddingLeft: 5,
 		};
 	}, []);
 
@@ -238,15 +230,17 @@ export const TimelineListItem: React.FC<{
 					hidden={isItemHidden}
 					onInvoked={onToggleVisibility}
 				/>
-				<div style={padder} />
-				{sequence.parent && nestedDepth > 0 ? <div style={space} /> : null}
+				<Padder depth={nestedDepth} />
 				{visualModeActive ? (
-					<TimelineExpandArrowButton
-						isExpanded={isExpanded}
-						onClick={onToggleExpand}
-						label="track properties"
-						hasExpandableContent={hasExpandableContent}
-					/>
+					hasExpandableContent ? (
+						<TimelineExpandArrowButton
+							isExpanded={isExpanded}
+							onClick={onToggleExpand}
+							label="track properties"
+						/>
+					) : (
+						<TimelineExpandArrowSpacer />
+					)
 				) : null}
 				<TimelineStack
 					sequence={sequence}
@@ -268,8 +262,8 @@ export const TimelineListItem: React.FC<{
 				<TimelineExpandedSection
 					sequence={sequence}
 					originalLocation={originalLocation}
-					nestedDepth={nestedDepth}
 					nodePath={nodePath}
+					nestedDepth={nestedDepth}
 				/>
 			) : null}
 		</>

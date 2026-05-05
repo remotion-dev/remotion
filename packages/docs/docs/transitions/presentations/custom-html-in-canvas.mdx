@@ -61,7 +61,9 @@ void main() {
 export const myShader: HtmlInCanvasShader<MyShaderProps> = (canvas) => {
   const gl = canvas.getContext('webgl2', {premultipliedAlpha: true});
   if (!gl) {
-    throw new Error('WebGL2 unavailable');
+    throw new Error(
+      'WebGL2 unavailable. Try rendering with the --gl=angle option. See https://remotion.dev/docs/gl-options.',
+    );
   }
 
   // Compile + link program, create textures, bind a fullscreen quad...

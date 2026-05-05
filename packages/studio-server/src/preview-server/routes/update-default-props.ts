@@ -61,8 +61,8 @@ export const updateDefaultPropsHandler: ApiHandler<
 			remotionRoot,
 			logLine,
 			description: {
-				undoMessage: `Undid default props update for "${compositionId}"`,
-				redoMessage: `Redid default props update for "${compositionId}"`,
+				undoMessage: `Undo: default props update for "${compositionId}"`,
+				redoMessage: `Redo: default props update for "${compositionId}"`,
 			},
 			entryType: 'default-props',
 			suppressHmrOnFileRestore: true,

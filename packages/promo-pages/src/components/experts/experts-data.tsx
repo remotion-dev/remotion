@@ -676,4 +676,30 @@ export const experts: Expert[] = [
 			</div>
 		),
 	},
+        {
+                slug: 'huang-chi-chang',
+                name: 'Huang Chi Chang',
+                image: '/img/freelancers/huang-chi-chang.jpg',
+                website: 'https://swift-clip.vercel.app/',
+                x: null,
+                github: 'zz41354899',
+                linkedin: null,
+                email: 'zz41354899@gmail.com',
+                videocall: null,
+                since: new Date('2026-05-05').getTime(),
+                description: (
+                        <div>
+                                I&apos;m a Product Designer and Indie Hacker based in Taiwan. I
+                                specialize in using Remotion to automate video production, building
+                                dynamic templates and automated rendering pipelines.
+                                <br />
+                                My project,{' '}
+                                <a target={'_blank'} href="https://swift-clip.vercel.app/">
+                                        SwiftClip
+                                </a>
+                                , is a tool designed to streamline professional video creation
+                                through programmatic workflows.
+                        </div>
+                ),
+        },
 ];
