@@ -5,13 +5,24 @@ title: HTML-in-canvas
 crumb: 'Designing visuals'
 ---
 
+<video
+  src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/html-in-canvas-banner.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginBottom: 'var(--ifm-leading)'}}
+/>
+
 <SuggestedPrompts prompts={['use remotion html-in-canvas best practices. create a sample composition and apply a glitch effect to it!', 'use remotion html-in-canvas best practices. make a new composition and implement a subtle CRT convex shape shader on top of a HTML element. content: terminal and remotion themed. the command and output of "npx create-video@latest --yes --blank my-video" should be animated. then "claude" should be invoked and the prompt "Add a CRT effect using HTML-in-canvas " should be shown']} />
 
 # HTML-in-canvas<AvailableFrom v="4.0.455" />
 
-[HTML-in-canvas](https://github.com/WICG/html-in-canvas) is an experimental browser API currently only available in Chrome Canary behind a flag.
+Regular video editors are canvas-based which allows for complex effects and compositing that is not possible with plain CSS.
 
-It allows you to draw a live DOM node into a `<canvas>` and post-process it with the Canvas 2D API, WebGL or WebGPU.
+[HTML-in-canvas](https://github.com/WICG/html-in-canvas) is an experimental browser API currently only available in Chrome Canary behind a flag, which allows you to draw a live DOM node into a `<canvas>` and post-process it with the Canvas 2D API, WebGL or WebGPU.
+
+Remotion offers a [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) component, [transitions](#with-remotiontransitions) and HTML-in-canvas-based client-side rendering.
 
 ## Enabling the flag in Chrome Canary
 
