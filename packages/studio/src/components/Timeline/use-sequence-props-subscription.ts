@@ -1,4 +1,4 @@
-import type {EventSourceEvent, SequenceNodePath} from '@remotion/studio-shared';
+import type {SequenceNodePath} from '@remotion/studio-shared';
 import {
 	useCallback,
 	useContext,
@@ -11,7 +11,15 @@ import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
 import type {TSequence} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {callApi} from '../call-api';
+import {
+	acquireSequencePropsSubscription,
+	type SequencePropsSnapshot,
+} from './sequence-props-subscription-store';
+
+const EMPTY_STATE = {
+	nodePath: null as SequenceNodePath | null,
+	jsxInMapCallback: false,
+};
 
 export const useSequencePropsSubscription = (
 	sequence: TSequence,
@@ -56,31 +64,9 @@ export const useSequencePropsSubscription = (
 		};
 	}, [originalLocation]);
 
-	const locationSource = validatedLocation?.source ?? null;
-	const locationLine = validatedLocation?.line ?? null;
-	const locationColumn = validatedLocation?.column ?? null;
-
-	const currentLocationSource = useRef(locationSource);
-	currentLocationSource.current = locationSource;
-	const currentLocationLine = useRef(locationLine);
-	currentLocationLine.current = locationLine;
-	const currentLocationColumn = useRef(locationColumn);
-	currentLocationColumn.current = locationColumn;
-
-	const nodePathRef = useRef<SequenceNodePath | null>(null);
-	const [subscriptionState, setSubscriptionState] = useState<{
-		nodePath: SequenceNodePath | null;
-		jsxInMapCallback: boolean;
-	}>({nodePath: null, jsxInMapCallback: false});
+	const [subscriptionState, setSubscriptionState] =
+		useState<typeof EMPTY_STATE>(EMPTY_STATE);
 	const isMountedRef = useRef(true);
-
-	const updateSubscriptionState = useCallback(
-		(next: {nodePath: SequenceNodePath | null; jsxInMapCallback: boolean}) => {
-			nodePathRef.current = next.nodePath;
-			setSubscriptionState(next);
-		},
-		[],
-	);
 
 	useEffect(() => {
 		isMountedRef.current = true;
@@ -89,10 +75,15 @@ export const useSequencePropsSubscription = (
 		};
 	}, []);
 
+	const schema = sequence.controls?.schema;
+	const locationSource = validatedLocation?.source ?? null;
+	const locationLine = validatedLocation?.line ?? null;
+	const locationColumn = validatedLocation?.column ?? null;
+
 	useEffect(() => {
 		if (!visualModeEnabled) {
 			setPropStatusesForSequence(null);
-			updateSubscriptionState({nodePath: null, jsxInMapCallback: false});
+			setSubscriptionState(EMPTY_STATE);
 			return;
 		}
 
@@ -100,130 +91,51 @@ export const useSequencePropsSubscription = (
 			!clientId ||
 			!locationSource ||
 			!locationLine ||
-			locationColumn === null
+			locationColumn === null ||
+			!schema
 		) {
 			setPropStatusesForSequence(null);
-			updateSubscriptionState({nodePath: null, jsxInMapCallback: false});
+			setSubscriptionState(EMPTY_STATE);
 			return;
 		}
 
-		const schema = sequence.controls?.schema;
-		if (!schema) {
-			setPropStatusesForSequence(null);
-			updateSubscriptionState({nodePath: null, jsxInMapCallback: false});
-			return;
-		}
+		const onChange = (snapshot: SequencePropsSnapshot) => {
+			setSubscriptionState({
+				nodePath: snapshot.nodePath,
+				jsxInMapCallback: snapshot.jsxInMapCallback,
+			});
+			setPropStatusesForSequence(snapshot.props);
+		};
 
-		callApi('/api/subscribe-to-sequence-props', {
+		const release = acquireSequencePropsSubscription({
+			clientId,
 			fileName: locationSource,
 			line: locationLine,
 			column: locationColumn,
 			schema,
-			clientId,
-		})
-			.then((result) => {
-				if (
-					currentLocationSource.current !== locationSource ||
-					currentLocationLine.current !== locationLine ||
-					currentLocationColumn.current !== locationColumn
-				) {
-					return;
-				}
-
-				if (result.canUpdate) {
-					updateSubscriptionState({
-						nodePath: result.nodePath,
-						jsxInMapCallback: result.jsxInMapCallback,
-					});
-					setPropStatusesForSequence(result.props);
-				} else {
-					updateSubscriptionState({nodePath: null, jsxInMapCallback: false});
-					setPropStatusesForSequence(null);
-				}
-			})
-			.catch((err) => {
-				updateSubscriptionState({nodePath: null, jsxInMapCallback: false});
-				Internals.Log.error(err);
-				setPropStatusesForSequence(null);
-			});
+			subscribeToEvent,
+			onChange,
+		});
 
 		return () => {
-			const currentNodePath = nodePathRef.current;
+			release();
 			// Only clear props on true unmount, not on re-subscribe due to
-			// line number changes — avoids flicker while re-subscribing.
+			// location changes — avoids flicker while re-subscribing.
 			if (!isMountedRef.current) {
 				setPropStatusesForSequence(null);
 			}
 
-			updateSubscriptionState({nodePath: null, jsxInMapCallback: false});
-			if (currentNodePath) {
-				callApi('/api/unsubscribe-from-sequence-props', {
-					fileName: locationSource,
-					nodePath: currentNodePath,
-					clientId,
-				}).catch(() => {
-					// Ignore unsubscribe errors
-				});
-			}
+			setSubscriptionState(EMPTY_STATE);
 		};
 	}, [
 		clientId,
 		locationColumn,
 		locationLine,
 		locationSource,
-		sequence.controls?.schema,
+		schema,
 		setPropStatusesForSequence,
-		updateSubscriptionState,
-		visualModeEnabled,
-	]);
-
-	useEffect(() => {
-		if (!visualModeEnabled) {
-			return;
-		}
-
-		if (!locationSource || !locationLine || locationColumn === null) {
-			return;
-		}
-
-		const listener = (event: EventSourceEvent) => {
-			if (event.type !== 'sequence-props-updated') {
-				return;
-			}
-
-			if (
-				event.fileName !== currentLocationSource.current ||
-				!nodePathRef.current ||
-				JSON.stringify(event.nodePath) !== JSON.stringify(nodePathRef.current)
-			) {
-				return;
-			}
-
-			if (event.result.canUpdate) {
-				const {jsxInMapCallback: nextJsxInMapCallback, props} = event.result;
-				setSubscriptionState((prev) => ({
-					nodePath: prev.nodePath,
-					jsxInMapCallback: nextJsxInMapCallback,
-				}));
-				setPropStatusesForSequence(props);
-			} else {
-				setPropStatusesForSequence(null);
-				updateSubscriptionState({nodePath: null, jsxInMapCallback: false});
-			}
-		};
-
-		const unsub = subscribeToEvent('sequence-props-updated', listener);
-		return () => {
-			unsub();
-		};
-	}, [
-		visualModeEnabled,
-		locationSource,
-		locationLine,
-		locationColumn,
 		subscribeToEvent,
-		setPropStatusesForSequence,
-		updateSubscriptionState,
+		visualModeEnabled,
 	]);
 
 	return subscriptionState;
