@@ -2,17 +2,16 @@ import {loadFont} from '@remotion/google-fonts/NotoSansSC';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
-const {fontFamily} = loadFont('normal', {
-	weights: ['400'],
-	subsets: ['latin', 'chinese-simplified'],
-	ignoreTooManyRequestsWarning: true,
-});
-
 /**
  * Regression cover for #7258: named CJK subsets must resolve to numbered Google Fonts chunks.
  * Loads many files on purpose — open only when validating CJK loading.
  */
 export const GoogleFontsCjk: React.FC = () => {
+	const {fontFamily} = loadFont('normal', {
+		weights: ['400'],
+		subsets: ['latin', 'chinese-simplified'],
+		ignoreTooManyRequestsWarning: true,
+	});
 	return (
 		<AbsoluteFill
 			style={{
