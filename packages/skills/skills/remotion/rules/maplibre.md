@@ -331,6 +331,8 @@ export const MyComposition = () => {
 		);
 
 		map.once('idle', () => continueRender(handle));
+		// Force an idle event even if the camera parameters are unchanged from the previous frame.
+		map.triggerRepaint();
 	}, [continueRender, delayRender, durationInFrames, frame, map]);
 
 	return (

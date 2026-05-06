@@ -201,7 +201,10 @@ const targetRoute = turf.lineString([
   [8.5417, 47.3769],
   [-74.006, 40.7128],
 ]);
-const cameraRoute = targetRoute;
+const cameraRoute = turf.lineString([
+  [8.5417, 46.2769],
+  [-74.006, 39.6128],
+]);
 const targetRouteDistance = turf.length(targetRoute);
 const cameraRouteDistance = turf.length(cameraRoute);
 // ---cut---
@@ -226,13 +229,15 @@ useEffect(() => {
 
   map.jumpTo(
     map.calculateCameraOptionsFromTo(
-      new maplibregl.LngLat(camera[0], camera[1] - 1.1),
+      new maplibregl.LngLat(camera[0], camera[1]),
       cameraAltitudeMeters,
       new maplibregl.LngLat(target[0], target[1]),
     ),
   );
 
   map.once('idle', () => continueRender(handle));
+  // Force an idle event even if the camera parameters are unchanged from the previous frame.
+  map.triggerRepaint();
 }, [frame, durationInFrames, map, delayRender, continueRender]);
 ```
 
