@@ -337,26 +337,24 @@ export const SharedAudioContextProvider: React.FC<{
 		ctxAndGain.gainNode.gain.cancelScheduledValues(
 			ctxAndGain.audioContext.currentTime,
 		);
-		ctxAndGain.gainNode?.gain.setValueAtTime(
+		ctxAndGain.gainNode.gain.setValueAtTime(
 			0,
 			ctxAndGain.audioContext.currentTime,
 		);
-		ctxAndGain.gainNode?.gain.linearRampToValueAtTime(
+		ctxAndGain.gainNode.gain.linearRampToValueAtTime(
 			1,
 			ctxAndGain.audioContext.currentTime + 0.03,
 		);
 
-		return resumePromise
-			.then(() => {
-				nodesToResume.current.forEach((r, node) =>
-					node.start(r.scheduledTime, r.offset, r.duration),
-				);
-				nodesToResume.current.clear();
-			})
-			.catch(() => {
-				// Already logged above; swallow to avoid unhandled rejection
-				// since callers (e.g. use-playback.ts) do not await this.
-			});
+		nodesToResume.current.forEach((r, node) =>
+			node.start(r.scheduledTime, r.offset, r.duration),
+		);
+		nodesToResume.current.clear();
+
+		return resumePromise.catch(() => {
+			// Already logged above; swallow to avoid unhandled rejection
+			// since callers (e.g. use-playback.ts) do not await this.
+		});
 	}, [ctxAndGain, logLevel]);
 
 	const getIsResumingAudioContext = useCallback(() => {
