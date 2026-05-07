@@ -90,3 +90,11 @@ export const sequenceSchema = {
 		},
 	},
 } as const satisfies SequenceSchema;
+
+export const sequenceSchemaDefaultLayoutNone: SequenceSchema = {
+	...sequenceSchema,
+	layout: {
+		...sequenceSchema.layout,
+		default: 'none',
+	},
+};
