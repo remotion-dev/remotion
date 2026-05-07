@@ -53,6 +53,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior,
 		audioStreamIndex,
 		onVideoFrame,
+		preservesPitch,
 		...props
 	},
 	ref,
@@ -151,6 +152,16 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	useImperativeHandle(ref, () => {
 		return videoRef.current as HTMLVideoElement;
 	}, []);
+
+	useLayoutEffect(() => {
+		if (
+			videoRef.current &&
+			preservesPitch !== undefined &&
+			videoRef.current.preservesPitch !== preservesPitch
+		) {
+			videoRef.current.preservesPitch = preservesPitch;
+		}
+	}, [preservesPitch]);
 
 	useEffect(() => {
 		if (!window.remotion_videoEnabled) {

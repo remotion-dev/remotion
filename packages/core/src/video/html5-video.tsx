@@ -151,7 +151,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	validateMediaProps(
-		{playbackRate: props.playbackRate, volume: props.volume},
+		{
+			playbackRate: props.playbackRate,
+			preservesPitch: props.preservesPitch,
+			volume: props.volume,
+		},
 		'Html5Video',
 	);
 

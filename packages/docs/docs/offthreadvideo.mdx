@@ -192,6 +192,12 @@ export const MyComposition = () => {
 Playing a video in reverse is not supported.
 :::
 
+### `preservesPitch?`<AvailableFrom v="4.0.458" />
+
+Controls whether the audio pitch is preserved when [`playbackRate`](#playbackrate) is not `1`.
+
+Accepts `true`, `false`, or `undefined`. Default: `undefined`, which uses the browser default for [`HTMLMediaElement.preservesPitch`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/preservesPitch).
+
 ### `muted?`
 
 You can drop the audio of the video by adding a `muted` prop:

@@ -1,11 +1,39 @@
 import {afterEach, describe, expect, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
+import type React from 'react';
+import {SharedAudioContextProvider} from '../audio/shared-audio-tags.js';
+import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
 import {OffthreadVideo} from '../video/index.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 afterEach(() => {
 	cleanup();
 });
+
+const previewEnvironment = {
+	isClientSideRendering: false,
+	isPlayer: false,
+	isReadOnlyStudio: false,
+	isRendering: false,
+	isStudio: false,
+};
+
+const WrapPreviewContext: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	return (
+		<RemotionEnvironmentContext.Provider value={previewEnvironment}>
+			<WrapSequenceContext>
+				<SharedAudioContextProvider
+					audioEnabled={false}
+					audioLatencyHint="playback"
+				>
+					{children}
+				</SharedAudioContextProvider>
+			</WrapSequenceContext>
+		</RemotionEnvironmentContext.Provider>
+	);
+};
 
 describe('OffthreadVideo render correctly with props', () => {
 	test('It should render OffthreadVideo without startFrom / endAt props', () => {
@@ -96,5 +124,79 @@ describe('OffthreadVideo render correctly with props', () => {
 				</WrapSequenceContext>,
 			),
 		).toThrow(/Cannot use both endAt and trimAfter props/);
+	});
+
+	test('It should not set preservesPitch if the prop is omitted from OffthreadVideo', () => {
+		const descriptor = Object.getOwnPropertyDescriptor(
+			HTMLMediaElement.prototype,
+			'preservesPitch',
+		);
+		let writes = 0;
+
+		Object.defineProperty(HTMLMediaElement.prototype, 'preservesPitch', {
+			configurable: true,
+			get() {
+				return descriptor?.get?.call(this) ?? true;
+			},
+			set(value) {
+				writes++;
+				descriptor?.set?.call(this, value);
+			},
+		});
+
+		try {
+			render(
+				<WrapPreviewContext>
+					<OffthreadVideo src="https://example.com/test.mp4" />
+				</WrapPreviewContext>,
+			);
+
+			expect(writes).toBe(0);
+		} finally {
+			if (descriptor) {
+				Object.defineProperty(
+					HTMLMediaElement.prototype,
+					'preservesPitch',
+					descriptor,
+				);
+			}
+		}
+	});
+
+	test('It should sync preservesPitch on OffthreadVideo', () => {
+		const {container, rerender} = render(
+			<WrapPreviewContext>
+				<OffthreadVideo preservesPitch src="https://example.com/test.mp4" />
+			</WrapPreviewContext>,
+		);
+
+		expect(container.querySelector('video')?.preservesPitch).toBe(true);
+
+		rerender(
+			<WrapPreviewContext>
+				<OffthreadVideo
+					preservesPitch={false}
+					src="https://example.com/test.mp4"
+				/>
+			</WrapPreviewContext>,
+		);
+
+		expect(container.querySelector('video')?.preservesPitch).toBe(false);
+	});
+
+	test('It should reject invalid preservesPitch values on OffthreadVideo', () => {
+		expect(() =>
+			render(
+				<WrapSequenceContext>
+					<OffthreadVideo
+						// @ts-expect-error
+						preservesPitch="yes"
+						src="test"
+					/>
+				</WrapSequenceContext>,
+			),
+		).toThrow(
+			/'preservesPitch' must be a boolean or undefined but got 'string' instead/,
+		);
 	});
 });

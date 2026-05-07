@@ -44,6 +44,7 @@ export type RemotionVideoProps = NativeVideoProps & {
 	name?: string;
 	volume?: VolumeProp;
 	playbackRate?: number;
+	preservesPitch?: boolean;
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
 	useWebAudioApi?: boolean;
@@ -76,6 +77,7 @@ type OptionalOffthreadVideoProps = {
 	style: React.CSSProperties | undefined;
 	volume: VolumeProp | undefined;
 	playbackRate: number;
+	preservesPitch: boolean | undefined;
 	muted: boolean;
 	onError: undefined | ((err: Error) => void);
 	acceptableTimeShiftInSeconds: undefined | number;

@@ -292,13 +292,15 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 
 	continueRender(imageSrc.handle);
 
+	const {preservesPitch: _preservesPitch, ...propsForImg} = props;
+
 	return (
 		<Img
 			src={imageSrc.src}
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 			onImageFrame={onImageFrame}
-			{...props}
+			{...propsForImg}
 			onError={onErr}
 			className={className}
 		/>

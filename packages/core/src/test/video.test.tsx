@@ -1,5 +1,6 @@
 import {beforeEach, expect, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
+import {createRef} from 'react';
 import {Html5Video} from '../video/index.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
@@ -90,4 +91,59 @@ test('It should throw when both endAt and trimAfter are provided', () => {
 			</WrapSequenceContext>,
 		),
 	).toThrow(/Cannot use both endAt and trimAfter props/);
+});
+
+test('It should not set preservesPitch if the prop is omitted from Video', () => {
+	let video: HTMLVideoElement | null = null;
+
+	render(
+		<WrapSequenceContext>
+			<Html5Video
+				ref={(element) => {
+					if (element) {
+						element.preservesPitch = false;
+						video = element;
+					}
+				}}
+				src="test"
+			/>
+		</WrapSequenceContext>,
+	);
+
+	expect((video as HTMLVideoElement | null)?.preservesPitch).toBe(false);
+});
+
+test('It should sync preservesPitch on Video', () => {
+	const ref = createRef<HTMLVideoElement>();
+	const {rerender} = render(
+		<WrapSequenceContext>
+			<Html5Video ref={ref} preservesPitch src="test" />
+		</WrapSequenceContext>,
+	);
+
+	expect(ref.current?.preservesPitch).toBe(true);
+
+	rerender(
+		<WrapSequenceContext>
+			<Html5Video ref={ref} preservesPitch={false} src="test" />
+		</WrapSequenceContext>,
+	);
+
+	expect(ref.current?.preservesPitch).toBe(false);
+});
+
+test('It should reject invalid preservesPitch values on Video', () => {
+	expect(() =>
+		render(
+			<WrapSequenceContext>
+				<Html5Video
+					// @ts-expect-error
+					preservesPitch="yes"
+					src="test"
+				/>
+			</WrapSequenceContext>,
+		),
+	).toThrow(
+		/'preservesPitch' must be a boolean or undefined but got 'string' instead/,
+	);
 });
