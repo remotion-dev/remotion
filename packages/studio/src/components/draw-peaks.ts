@@ -18,6 +18,14 @@ export const drawBars = (
 	const {height} = canvas;
 	const w = canvas.width;
 
+	// Skip drawing when the target canvas has not been laid out yet.
+	// `createImageData(0, h)` / `(w, 0)` throws a DOMException, which
+	// surfaces in Studio's console for compositions with many audio
+	// sequences — some segments are 0 px wide at certain zoom levels.
+	if (w === 0 || height === 0) {
+		return;
+	}
+
 	ctx.clearRect(0, 0, w, height);
 
 	if (volume === 0) return;
