@@ -4202,11 +4202,6 @@ export const getAvailableFonts = () => [
 		load: () => import('./LibertinusKeyboard') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'Libertinus Math',
-		importName: 'LibertinusMath',
-		load: () => import('./LibertinusMath') as Promise<GoogleFont>,
-	},
-	{
 		fontFamily: 'Libertinus Mono',
 		importName: 'LibertinusMono',
 		load: () => import('./LibertinusMono') as Promise<GoogleFont>,
@@ -5641,11 +5636,6 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Noto Sans Masaram Gondi',
 		importName: 'NotoSansMasaramGondi',
 		load: () => import('./NotoSansMasaramGondi') as Promise<GoogleFont>,
-	},
-	{
-		fontFamily: 'Noto Sans Math',
-		importName: 'NotoSansMath',
-		load: () => import('./NotoSansMath') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Noto Sans Mayan Numerals',

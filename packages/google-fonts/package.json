@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.457",
+	"version": "4.0.458",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -2523,9 +2523,6 @@
 			"LibertinusKeyboard": [
 				"dist/cjs/LibertinusKeyboard.d.ts"
 			],
-			"LibertinusMath": [
-				"dist/cjs/LibertinusMath.d.ts"
-			],
 			"LibertinusMono": [
 				"dist/cjs/LibertinusMono.d.ts"
 			],
@@ -3386,9 +3383,6 @@
 			],
 			"NotoSansMasaramGondi": [
 				"dist/cjs/NotoSansMasaramGondi.d.ts"
-			],
-			"NotoSansMath": [
-				"dist/cjs/NotoSansMath.d.ts"
 			],
 			"NotoSansMayanNumerals": [
 				"dist/cjs/NotoSansMayanNumerals.d.ts"
