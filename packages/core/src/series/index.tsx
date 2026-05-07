@@ -1,9 +1,11 @@
-import type {FC, PropsWithChildren} from 'react';
+import {type FC, type PropsWithChildren} from 'react';
 import React, {Children, forwardRef, useMemo} from 'react';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {sequenceSchemaDefaultLayoutNone} from '../sequence-field-schema.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
+import {wrapInSchema} from '../wrap-in-schema.js';
 import {flattenChildren} from './flatten-children.js';
 import {
 	IsInsideSeriesContainer,
@@ -23,7 +25,6 @@ type SeriesSequenceProps = PropsWithChildren<
 const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SeriesSequenceProps
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 > = ({children}, _ref) => {
 	useRequireToBeInsideSeries();
 	// Discard ref
@@ -35,13 +36,7 @@ const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
 
 type SeriesProps = SequenceProps;
 
-/**
- * @description with this component, you can easily stitch together scenes that should play sequentially after another.
- * @see [Documentation](https://www.remotion.dev/docs/series)
- */
-const Series: FC<SeriesProps> & {
-	Sequence: typeof SeriesSequence;
-} = (props) => {
+const SeriesInner: FC<SeriesProps> = (props) => {
 	const childrenValue = useMemo(() => {
 		let startFrame = 0;
 		const flattenedChildren = flattenChildren(props.children);
@@ -118,6 +113,7 @@ const Series: FC<SeriesProps> & {
 
 			const currentStartFrame = startFrame + offset;
 			startFrame += durationInFramesProp + offset;
+
 			return (
 				<Sequence
 					name={name || '<Series.Sequence>'}
@@ -141,7 +137,15 @@ const Series: FC<SeriesProps> & {
 	);
 };
 
-Series.Sequence = SeriesSequence;
+/**
+ * @description with this component, you can easily stitch together scenes that should play sequentially after another.
+ * @see [Documentation](https://www.remotion.dev/docs/series)
+ */
+const Series: React.ComponentType<SeriesProps> & {
+	Sequence: typeof SeriesSequence;
+} = Object.assign(wrapInSchema(SeriesInner, sequenceSchemaDefaultLayoutNone), {
+	Sequence: SeriesSequence,
+});
 
 export {Series};
 
