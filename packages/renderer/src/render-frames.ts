@@ -539,7 +539,8 @@ const internalRenderFramesRaw = ({
 	const openedPages: Page[] = [];
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
-		const cleanup: CleanupFn[] = [];
+		let cyclingCleanup: () => Promise<unknown> | undefined;
+		let serverCleanup: () => Promise<unknown> | undefined;
 
 		const onError = (err: Error) => {
 			reject(err);
@@ -584,11 +585,12 @@ const internalRenderFramesRaw = ({
 					logLevel,
 					indent,
 				});
-				cleanup.push(() => {
+				cyclingCleanup = () => {
 					cycle.stopCycling();
 					return Promise.resolve();
-				});
-				cleanup.push(() => cleanupServer(false));
+				};
+
+				serverCleanup = () => cleanupServer(false);
 
 				return innerRenderFrames({
 					onError,
@@ -652,8 +654,8 @@ const internalRenderFramesRaw = ({
 					Log.verbose({indent, logLevel}, 'Could not close compositor', err);
 				}
 
-				if (cleanup[0]) {
-					cleanup[0]();
+				if (cyclingCleanup) {
+					cyclingCleanup();
 				}
 
 				try {
@@ -685,9 +687,9 @@ const internalRenderFramesRaw = ({
 					Log.error({indent, logLevel}, 'Unable to close browser', err);
 				}
 
-				if (cleanup[1]) {
+				if (serverCleanup) {
 					try {
-						await cleanup[1]();
+						await serverCleanup();
 					} catch (err) {
 						Log.error({indent, logLevel}, 'Could not cleanup server', err);
 					}
@@ -704,8 +706,8 @@ const internalRenderFramesRaw = ({
 					// ignore
 				}
 
-				if (cleanup[0]) {
-					cleanup[0]();
+				if (cyclingCleanup) {
+					cyclingCleanup();
 				}
 
 				try {
@@ -727,9 +729,9 @@ const internalRenderFramesRaw = ({
 					// ignore
 				}
 
-				if (cleanup[1]) {
+				if (serverCleanup) {
 					try {
-						await cleanup[1]();
+						await serverCleanup();
 					} catch {
 						// ignore
 					}
