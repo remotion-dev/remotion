@@ -452,8 +452,6 @@ const innerRenderFrames = async ({
 	};
 };
 
-type CleanupFn = () => Promise<unknown>;
-
 const internalRenderFramesRaw = ({
 	browserExecutable,
 	cancelSignal,
