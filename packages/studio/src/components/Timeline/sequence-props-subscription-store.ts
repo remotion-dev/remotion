@@ -32,12 +32,8 @@ type Entry = {
 const entries = new Map<string, Entry>();
 let globalUnsubscribe: (() => void) | null = null;
 
-const makeKey = (
-	clientId: string,
-	fileName: string,
-	line: number,
-	column: number,
-): string => `${clientId}|${fileName}|${line}|${column}`;
+const makeKey = (fileName: string, line: number, column: number): string =>
+	`${fileName}|${line}|${column}`;
 
 const nodePathsEqual = (
 	a: SequenceNodePath | null,
@@ -77,7 +73,11 @@ const handleEvent = (event: EventSourceEvent) => {
 				props: event.result.props,
 			};
 		} else {
-			entry.snapshot = INITIAL_SNAPSHOT;
+			entry.snapshot = {
+				nodePath: entry.snapshot.nodePath,
+				jsxInMapCallback: false,
+				props: null,
+			};
 		}
 
 		notify(entry);
@@ -134,7 +134,7 @@ export const acquireSequencePropsSubscription = ({
 	subscribeToEvent: SubscribeToEvent;
 	onChange: (snapshot: SequencePropsSnapshot) => void;
 }): (() => void) => {
-	const key = makeKey(clientId, fileName, line, column);
+	const key = makeKey(fileName, line, column);
 	let entry = entries.get(key);
 
 	if (!entry) {

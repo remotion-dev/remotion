@@ -124,8 +124,6 @@ export const useSequencePropsSubscription = (
 			if (!isMountedRef.current) {
 				setPropStatusesForSequence(null);
 			}
-
-			setSubscriptionState(EMPTY_STATE);
 		};
 	}, [
 		clientId,
