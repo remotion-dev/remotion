@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import {useEffect, useMemo} from 'react';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
 import {useRemotionEnvironment} from '../use-remotion-environment';
@@ -32,7 +32,7 @@ export const useSingletonAudioContext = ({
 }) => {
 	const env = useRemotionEnvironment();
 
-	return useMemo(() => {
+	const context = useMemo(() => {
 		if (env.isRendering) {
 			return null;
 		}
@@ -56,10 +56,21 @@ export const useSingletonAudioContext = ({
 
 		const gainNode = audioContext.createGain();
 		gainNode.connect(audioContext.destination);
+		Log.trace({logLevel, tag: 'audio'}, 'Creating new audio context');
+
+		audioContext.suspend();
 
 		return {
 			audioContext,
 			gainNode,
 		};
 	}, [logLevel, latencyHint, env.isRendering, audioEnabled]);
+
+	useEffect(() => {
+		return () => {
+			context?.audioContext?.close();
+		};
+	}, [context]);
+
+	return context;
 };
