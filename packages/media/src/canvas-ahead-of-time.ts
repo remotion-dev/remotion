@@ -21,6 +21,7 @@ export const canvasesAheadOfTime = (
 	let chaining = false;
 	let reachedEnd = false;
 	let closed = false;
+	let inFlight: Promise<void> | null = null;
 
 	const closeFrame = (frame: WrappedCanvas) => {
 		(frame as unknown as {close?: () => void}).close?.();
@@ -33,10 +34,11 @@ export const canvasesAheadOfTime = (
 		chaining = true;
 		const slot: Slot = {promise: iterator.next(), resolved: null};
 		buffer.push(slot);
-		slot.promise.then(
+		inFlight = slot.promise.then(
 			(result) => {
 				slot.resolved = result;
 				chaining = false;
+				inFlight = null;
 				if (result.done) {
 					reachedEnd = true;
 					return;
@@ -51,6 +53,7 @@ export const canvasesAheadOfTime = (
 			},
 			() => {
 				chaining = false;
+				inFlight = null;
 			},
 		);
 	};
@@ -59,11 +62,30 @@ export const canvasesAheadOfTime = (
 
 	const next = (): CanvasAheadOfTimeNext => {
 		const slot = buffer.shift();
-		if (!slot) {
-			return {type: 'ready', frame: null};
-		}
-
 		fillNext();
+
+		if (!slot) {
+			if (reachedEnd || closed) {
+				return {type: 'ready', frame: null};
+			}
+
+			const chain = inFlight;
+			return {
+				type: 'pending',
+				wait: async () => {
+					await chain;
+					const next2 = buffer.shift();
+					fillNext();
+					if (!next2) return null;
+					if (next2.resolved) {
+						return next2.resolved.done ? null : next2.resolved.value;
+					}
+
+					const result = await next2.promise;
+					return result.done ? null : result.value;
+				},
+			};
+		}
 
 		if (slot.resolved) {
 			if (slot.resolved.done) {
@@ -85,20 +107,11 @@ export const canvasesAheadOfTime = (
 	const closeIterator = async () => {
 		closed = true;
 		for (const slot of buffer) {
-			if (slot.resolved) {
-				if (!slot.resolved.done) {
-					closeFrame(slot.resolved.value);
-				}
-			} else {
-				slot.promise.then(
-					(result) => {
-						if (!result.done) {
-							closeFrame(result.value);
-						}
-					},
-					() => undefined,
-				);
+			if (slot.resolved && !slot.resolved.done) {
+				closeFrame(slot.resolved.value);
 			}
+			// Unresolved slots: the chain handler in fillNext will close
+			// the frame when it resolves (it observes `closed === true`).
 		}
 
 		buffer.length = 0;
