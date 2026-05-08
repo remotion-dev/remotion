@@ -1,4 +1,4 @@
-import {useEffect, useMemo} from 'react';
+import {useMemo} from 'react';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
 import {useRemotionEnvironment} from '../use-remotion-environment';
@@ -65,12 +65,6 @@ export const useSingletonAudioContext = ({
 			gainNode,
 		};
 	}, [logLevel, latencyHint, env.isRendering, audioEnabled]);
-
-	useEffect(() => {
-		return () => {
-			context?.audioContext?.close();
-		};
-	}, [context]);
 
 	return context;
 };
