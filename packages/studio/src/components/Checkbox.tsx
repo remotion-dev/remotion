@@ -6,33 +6,22 @@ import {
 } from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
 
-const size = 20;
+const SIZES = {
+	default: 20,
+	small: 18,
+} as const;
 
-const background: React.CSSProperties = {
-	height: size,
-	width: size,
-	position: 'relative',
-};
+const BULLET_SIZES = {
+	default: 10,
+	small: 9,
+} as const;
 
-const bullet: React.CSSProperties = {
-	width: 10,
-	height: 10,
-	backgroundColor: LIGHT_TEXT,
-	borderRadius: '50%',
-};
+const CHECKMARK_SIZES = {
+	default: 14,
+	small: 13,
+} as const;
 
-const box: React.CSSProperties = {
-	display: 'flex',
-	justifyContent: 'center',
-	alignItems: 'center',
-	position: 'absolute',
-	height: size,
-	width: size,
-	top: 0,
-	left: 0,
-	pointerEvents: 'none',
-	color: 'white',
-};
+export type CheckboxVariant = keyof typeof SIZES;
 
 export const Checkbox: React.FC<{
 	readonly checked: boolean;
@@ -40,8 +29,48 @@ export const Checkbox: React.FC<{
 	readonly name: string;
 	readonly rounded?: boolean;
 	readonly disabled?: boolean;
-}> = ({checked, onChange, disabled, name, rounded}) => {
+	readonly variant?: CheckboxVariant;
+}> = ({checked, onChange, disabled, name, rounded, variant = 'default'}) => {
 	const ref = useRef<HTMLInputElement>(null);
+	const size = SIZES[variant];
+	const bulletSize = BULLET_SIZES[variant];
+	const checkmarkSize = CHECKMARK_SIZES[variant];
+
+	const background: React.CSSProperties = useMemo(
+		() => ({
+			height: size,
+			width: size,
+			position: 'relative',
+		}),
+		[size],
+	);
+
+	const bullet: React.CSSProperties = useMemo(
+		() => ({
+			width: bulletSize,
+			height: bulletSize,
+			backgroundColor: LIGHT_TEXT,
+			borderRadius: '50%',
+		}),
+		[bulletSize],
+	);
+
+	const box: React.CSSProperties = useMemo(
+		() => ({
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center',
+			position: 'absolute',
+			height: size,
+			width: size,
+			top: 0,
+			left: 0,
+			pointerEvents: 'none',
+			color: 'white',
+		}),
+		[size],
+	);
+
 	const input: React.CSSProperties = useMemo(() => {
 		return {
 			appearance: 'none',
@@ -54,7 +83,7 @@ export const Checkbox: React.FC<{
 			position: 'absolute',
 			margin: 0,
 		};
-	}, [disabled]);
+	}, [disabled, size]);
 
 	useEffect(() => {
 		if (ref.current) {
@@ -78,7 +107,13 @@ export const Checkbox: React.FC<{
 				name={name}
 			/>
 			<div style={box}>
-				{checked ? rounded ? <div style={bullet} /> : <Checkmark /> : null}
+				{checked ? (
+					rounded ? (
+						<div style={bullet} />
+					) : (
+						<Checkmark size={checkmarkSize} />
+					)
+				) : null}
 			</div>
 		</div>
 	);
