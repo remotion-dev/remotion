@@ -105,7 +105,11 @@ const handleFallback = async ({
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
 }) => {
-	reloadPreviouslySuppressedFiles();
+	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
+	if (request.method === 'GET' && acceptsHtml) {
+		await reloadPreviouslySuppressedFiles();
+	}
+
 	const requestUrl = new URL(request.url as string, 'http://localhost');
 	const {pathname} = requestUrl;
 	const staticFileHint = getStaticFileFallbackHint({
