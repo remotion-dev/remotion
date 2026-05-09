@@ -26,19 +26,24 @@ const timelineContent: React.CSSProperties = {
 	minHeight: '100%',
 };
 
-const getExpandedPlaceholderStyle = (
-	sequence: TSequence,
-	expandedTracks: Record<string, boolean>,
-	dragOverrides: DragOverrides,
-	codeValues: CodeValues,
-): React.CSSProperties => ({
+const getExpandedPlaceholderStyle = ({
+	sequence,
+	expandedTracks,
+	dragOverrides,
+	codeValues,
+}: {
+	sequence: TSequence;
+	expandedTracks: Record<string, boolean>;
+	dragOverrides: DragOverrides;
+	codeValues: CodeValues;
+}): React.CSSProperties => ({
 	height:
-		getExpandedTrackHeight(
+		getExpandedTrackHeight({
 			sequence,
 			expandedTracks,
 			dragOverrides,
 			codeValues,
-		) + TIMELINE_ITEM_BORDER_BOTTOM,
+		}) + TIMELINE_ITEM_BORDER_BOTTOM,
 });
 
 export const TimelineTracks: React.FC<{
@@ -85,12 +90,12 @@ export const TimelineTracks: React.FC<{
 							</div>
 							{visualModeEnabled && isExpanded ? (
 								<div
-									style={getExpandedPlaceholderStyle(
-										track.sequence,
+									style={getExpandedPlaceholderStyle({
+										sequence: track.sequence,
 										expandedTracks,
 										dragOverrides,
 										codeValues,
-									)}
+									})}
 								/>
 							) : null}
 						</div>

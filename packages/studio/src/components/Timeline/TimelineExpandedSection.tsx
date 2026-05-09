@@ -69,12 +69,12 @@ export const TimelineExpandedSection: React.FC<{
 
 	const expandedHeight = useMemo(
 		() =>
-			getExpandedTrackHeight(
+			getExpandedTrackHeight({
 				sequence,
 				expandedTracks,
 				dragOverrides,
 				codeValues,
-			),
+			}),
 		[sequence, expandedTracks, dragOverrides, codeValues],
 	);
 

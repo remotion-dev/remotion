@@ -153,12 +153,17 @@ export const getTreeRowHeight = (node: TimelineTreeNode): number => {
 	return TREE_GROUP_ROW_HEIGHT;
 };
 
-export const getExpandedTrackHeight = (
-	sequence: TSequence,
-	expandedTracks: Record<string, boolean>,
-	dragOverrides: DragOverrides,
-	codeValues: CodeValues,
-): number => {
+export const getExpandedTrackHeight = ({
+	sequence,
+	expandedTracks,
+	dragOverrides,
+	codeValues,
+}: {
+	sequence: TSequence;
+	expandedTracks: Record<string, boolean>;
+	dragOverrides: DragOverrides;
+	codeValues: CodeValues;
+}): number => {
 	const tree = buildTimelineTree({sequence, dragOverrides, codeValues});
 	const flat = flattenVisibleTreeNodes({nodes: tree, expandedTracks});
 
