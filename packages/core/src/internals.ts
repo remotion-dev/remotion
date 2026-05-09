@@ -147,7 +147,6 @@ import {
 	type CodeValues,
 	type DragOverrides,
 } from './use-schema.js';
-import {useSequenceControlOverride} from './use-sequence-control-override.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
 import {validateMediaProps} from './validate-media-props.js';
@@ -219,7 +218,6 @@ export const Internals = {
 	sequenceStyleSchema,
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
-	useSequenceControlOverride,
 	RemotionRootContexts,
 	CompositionManagerProvider,
 	useVideo,
