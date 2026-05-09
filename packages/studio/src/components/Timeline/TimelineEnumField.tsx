@@ -1,14 +1,10 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {Combobox} from '../NewComposition/ComboBox';
 
-const selectStyle: React.CSSProperties = {
+const comboboxStyle: React.CSSProperties = {
 	marginLeft: 8,
-	background: 'transparent',
-	color: 'white',
-	border: '1px solid rgba(255, 255, 255, 0.2)',
-	borderRadius: 3,
-	fontSize: 12,
-	padding: '1px 4px',
 };
 
 export const TimelineEnumField: React.FC<{
@@ -36,9 +32,8 @@ export const TimelineEnumField: React.FC<{
 	const variantKeys = Object.keys(fieldSchema.variants);
 	const current = String(effectiveValue ?? fieldSchema.default);
 
-	const onChange = useCallback(
-		(e: React.ChangeEvent<HTMLSelectElement>) => {
-			const newValue = e.target.value;
+	const onSelect = useCallback(
+		(newValue: string) => {
 			if (!canUpdate || newValue === codeValue) {
 				return;
 			}
@@ -51,18 +46,28 @@ export const TimelineEnumField: React.FC<{
 		[canUpdate, codeValue, field.key, onSave, onDragValueChange, onDragEnd],
 	);
 
+	const items = useMemo<ComboboxValue[]>(() => {
+		return variantKeys.map((key) => ({
+			type: 'item',
+			id: key,
+			value: key,
+			label: key,
+			onClick: () => onSelect(key),
+			keyHint: null,
+			leftItem: null,
+			subMenu: null,
+			quickSwitcherLabel: null,
+			disabled: !canUpdate,
+		}));
+	}, [variantKeys, onSelect, canUpdate]);
+
 	return (
-		<select
-			disabled={!canUpdate}
-			value={current}
-			onChange={onChange}
-			style={selectStyle}
-		>
-			{variantKeys.map((key) => (
-				<option key={key} value={key}>
-					{key}
-				</option>
-			))}
-		</select>
+		<Combobox
+			small
+			title={field.key}
+			selectedId={current}
+			values={items}
+			style={comboboxStyle}
+		/>
 	);
 };

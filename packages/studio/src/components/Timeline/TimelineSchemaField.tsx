@@ -19,6 +19,10 @@ const notEditableBackground: React.CSSProperties = {
 	padding: '0 4px',
 };
 
+const inlineWrapper: React.CSSProperties = {
+	fontSize: 12,
+};
+
 export const TimelineFieldValue: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly onSave: (key: string, value: unknown) => Promise<void>;
@@ -129,7 +133,7 @@ export const TimelineFieldValue: React.FC<{
 
 	if (field.typeName === 'enum') {
 		return (
-			<span style={wrapperStyle}>
+			<span style={inlineWrapper}>
 				<TimelineEnumField
 					field={field}
 					codeValue={codeValue}
