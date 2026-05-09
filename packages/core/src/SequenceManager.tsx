@@ -35,33 +35,38 @@ export const SequenceVisibilityToggleContext =
 		},
 	});
 
-export type VisualModeOverrides = {
+export type VisualModeGetters = {
 	visualModeEnabled: boolean;
 	dragOverrides: DragOverrides;
+	codeValues: CodeValues;
+};
+
+export type VisualModeSetters = {
 	setDragOverrides: (sequenceId: string, key: string, value: unknown) => void;
 	clearDragOverrides: (sequenceId: string) => void;
-	codeValues: CodeValues;
 	setCodeValues: (
 		sequenceId: string,
 		values: Record<string, CanUpdateSequencePropStatus> | null,
 	) => void;
 };
 
-export const VisualModeOverridesContext =
-	React.createContext<VisualModeOverrides>({
-		dragOverrides: {},
-		setDragOverrides: () => {
-			throw new Error('VisualModeOverridesContext not initialized');
-		},
-		clearDragOverrides: () => {
-			throw new Error('VisualModeOverridesContext not initialized');
-		},
-		codeValues: {},
-		setCodeValues: () => {
-			throw new Error('VisualModeOverridesContext not initialized');
-		},
-		visualModeEnabled: false,
-	});
+export const VisualModeGettersContext = React.createContext<VisualModeGetters>({
+	dragOverrides: {},
+	codeValues: {},
+	visualModeEnabled: false,
+});
+
+export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
+	setDragOverrides: () => {
+		throw new Error('VisualModeSettersContext not initialized');
+	},
+	clearDragOverrides: () => {
+		throw new Error('VisualModeSettersContext not initialized');
+	},
+	setCodeValues: () => {
+		throw new Error('VisualModeSettersContext not initialized');
+	},
+});
 
 export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
@@ -150,30 +155,30 @@ export const SequenceManagerProvider: React.FC<{
 		};
 	}, [hidden]);
 
-	const overrideContext: VisualModeOverrides = useMemo(() => {
+	const gettersContext: VisualModeGetters = useMemo(() => {
 		return {
 			visualModeEnabled,
 			dragOverrides,
+			codeValues,
+		};
+	}, [visualModeEnabled, dragOverrides, codeValues]);
+
+	const settersContext: VisualModeSetters = useMemo(() => {
+		return {
 			setDragOverrides,
 			clearDragOverrides,
-			codeValues,
 			setCodeValues,
 		};
-	}, [
-		visualModeEnabled,
-		dragOverrides,
-		setDragOverrides,
-		clearDragOverrides,
-		codeValues,
-		setCodeValues,
-	]);
+	}, [setDragOverrides, clearDragOverrides, setCodeValues]);
 
 	return (
 		<SequenceManager.Provider value={sequenceContext}>
 			<SequenceVisibilityToggleContext.Provider value={hiddenContext}>
-				<VisualModeOverridesContext.Provider value={overrideContext}>
-					{children}
-				</VisualModeOverridesContext.Provider>
+				<VisualModeGettersContext.Provider value={gettersContext}>
+					<VisualModeSettersContext.Provider value={settersContext}>
+						{children}
+					</VisualModeSettersContext.Provider>
+				</VisualModeGettersContext.Provider>
 			</SequenceVisibilityToggleContext.Provider>
 		</SequenceManager.Provider>
 	);

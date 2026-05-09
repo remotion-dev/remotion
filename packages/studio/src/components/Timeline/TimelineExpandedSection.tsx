@@ -36,7 +36,7 @@ export const TimelineExpandedSection: React.FC<{
 }> = ({sequence, originalLocation, nodePath, nestedDepth}) => {
 	const {expandedTracks, toggleTrack} = useContext(ExpandedTracksContext);
 	const {dragOverrides, codeValues} = useContext(
-		Internals.VisualModeOverridesContext,
+		Internals.VisualModeGettersContext,
 	);
 
 	const {overrideId} = sequence.controls!;

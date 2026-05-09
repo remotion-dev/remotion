@@ -51,7 +51,7 @@ const TimelineInner: React.FC = () => {
 	const {expandedTracks} = useContext(ExpandedTracksContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {dragOverrides, codeValues} = useContext(
-		Internals.VisualModeOverridesContext,
+		Internals.VisualModeGettersContext,
 	);
 	const visualModeEnabled =
 		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&

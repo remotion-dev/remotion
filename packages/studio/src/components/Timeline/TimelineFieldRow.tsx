@@ -47,8 +47,12 @@ export const TimelineFieldRow: React.FC<{
 	nodePath,
 	schema,
 }) => {
-	const {setDragOverrides, clearDragOverrides, dragOverrides, codeValues} =
-		useContext(Internals.VisualModeOverridesContext);
+	const {dragOverrides, codeValues} = useContext(
+		Internals.VisualModeGettersContext,
+	);
+	const {setDragOverrides, clearDragOverrides} = useContext(
+		Internals.VisualModeSettersContext,
+	);
 
 	const codeValuesForOverride = codeValues[overrideId] ?? null;
 	const codeValue = codeValuesForOverride?.[field.key] ?? null;
@@ -65,7 +69,7 @@ export const TimelineFieldRow: React.FC<{
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
-	const {setCodeValues} = useContext(Internals.VisualModeOverridesContext);
+	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 
 	const onSave = useCallback(
 		(key: string, value: unknown): Promise<void> => {

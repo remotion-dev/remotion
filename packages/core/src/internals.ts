@@ -106,7 +106,8 @@ import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
-	VisualModeOverridesContext,
+	VisualModeGettersContext,
+	VisualModeSettersContext,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
@@ -208,7 +209,8 @@ export const Internals = {
 	VideoForPreview,
 	CompositionManager,
 	CompositionSetters,
-	VisualModeOverridesContext,
+	VisualModeGettersContext,
+	VisualModeSettersContext,
 	SequenceManager,
 	SequenceStackTracesUpdateContext,
 	SequenceVisibilityToggleContext,

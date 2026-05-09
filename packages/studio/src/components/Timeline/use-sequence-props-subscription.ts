@@ -29,7 +29,7 @@ export const useSequencePropsSubscription = (
 	nodePath: SequenceNodePath | null;
 	jsxInMapCallback: boolean;
 } => {
-	const {setCodeValues} = useContext(Internals.VisualModeOverridesContext);
+	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const overrideId = sequence.controls?.overrideId ?? null;
 
 	const setPropStatusesForSequence = useCallback(

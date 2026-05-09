@@ -5,7 +5,7 @@ import {
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
 import type {SequenceSchema} from './sequence-field-schema.js';
-import {VisualModeOverridesContext} from './SequenceManager.js';
+import {VisualModeGettersContext} from './SequenceManager.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {computeEffectiveSchemaValuesDotNotation} from './use-schema.js';
 
@@ -108,7 +108,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 		const env = useRemotionEnvironment();
 
 		const {visualModeEnabled, dragOverrides, codeValues} = useContext(
-			VisualModeOverridesContext,
+			VisualModeGettersContext,
 		);
 
 		if (

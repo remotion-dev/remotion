@@ -7,7 +7,8 @@ import {Sequence} from '../Sequence.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {
 	SequenceManager,
-	VisualModeOverridesContext,
+	VisualModeGettersContext,
+	VisualModeSettersContext,
 } from '../SequenceManager.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
@@ -36,13 +37,19 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 			[registerSequence, unregisterSequence],
 		);
 
-		const visualOverrides = useMemo(
+		const visualGetters = useMemo(
 			() => ({
 				visualModeEnabled: true,
 				dragOverrides: {},
+				codeValues: {},
+			}),
+			[],
+		);
+
+		const visualSetters = useMemo(
+			() => ({
 				setDragOverrides: () => undefined,
 				clearDragOverrides: () => undefined,
-				codeValues: {},
 				setCodeValues: () => undefined,
 			}),
 			[],
@@ -60,9 +67,11 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 					}}
 				>
 					<SequenceManager.Provider value={ctx}>
-						<VisualModeOverridesContext.Provider value={visualOverrides}>
-							{children}
-						</VisualModeOverridesContext.Provider>
+						<VisualModeGettersContext.Provider value={visualGetters}>
+							<VisualModeSettersContext.Provider value={visualSetters}>
+								{children}
+							</VisualModeSettersContext.Provider>
+						</VisualModeGettersContext.Provider>
 					</SequenceManager.Provider>
 				</Internals.RemotionEnvironmentContext>
 			</WrapSequenceContext>
