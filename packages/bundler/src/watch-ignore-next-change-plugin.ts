@@ -69,6 +69,7 @@ export class WatchIgnoreNextChangePlugin {
 	private dirsToIgnore = new Set<string>();
 	private snapshotFileTimestamps = new Map<string, TimeInfoEntry>();
 	private snapshotDirTimestamps = new Map<string, TimeInfoEntry>();
+	private suppressedFilesHistory = new Set<string>();
 	private currentWatcher: Watcher | null = null;
 	private trace: TraceLogFn;
 
@@ -116,6 +117,15 @@ export class WatchIgnoreNextChangePlugin {
 		this.dirsToIgnore.delete(dir);
 		this.snapshotFileTimestamps.delete(file);
 		this.snapshotDirTimestamps.delete(dir);
+	}
+
+	// Returns and clears the list of files whose changes were previously
+	// suppressed. Caller can use this to e.g. touch the files later and
+	// trigger a real rebuild.
+	consumeSuppressedFilesHistory(): string[] {
+		const files = [...this.suppressedFilesHistory];
+		this.suppressedFilesHistory.clear();
+		return files;
 	}
 
 	apply(compiler: Compiler): void {
@@ -192,6 +202,7 @@ export class WatchIgnoreNextChangePlugin {
 
 							if (wasInChanged) {
 								suppressedFiles.push(file);
+								self.suppressedFilesHistory.add(file);
 								self.filesToIgnore.delete(file);
 								self.snapshotFileTimestamps.delete(file);
 							}

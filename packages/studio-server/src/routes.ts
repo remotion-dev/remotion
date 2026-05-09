@@ -37,8 +37,8 @@ import type {LiveEventsServer} from './preview-server/live-events';
 import {parseRequestBody} from './preview-server/parse-body';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {serveStatic} from './preview-server/serve-static';
+import {reloadPreviouslySuppressedFiles} from './preview-server/watch-ignore-next-change';
 import type {RemotionConfigResponse} from './remotion-config-response';
-
 const editorGuess = guessEditor();
 const loggedStaticFileHints = new Set<string>();
 
@@ -105,6 +105,7 @@ const handleFallback = async ({
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
 }) => {
+	reloadPreviouslySuppressedFiles();
 	const requestUrl = new URL(request.url as string, 'http://localhost');
 	const {pathname} = requestUrl;
 	const staticFileHint = getStaticFileFallbackHint({
