@@ -11,6 +11,7 @@ import {isTrackHidden} from './is-collapsed';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
+import {TimelineHeightContainer} from './TimelineHeightContainer';
 import {TimelineInOutPointer} from './TimelineInOutPointer';
 import {TimelineList} from './TimelineList';
 import {TimelinePinchZoom} from './TimelinePinchZoom';
@@ -23,7 +24,6 @@ import {
 } from './TimelineTimeIndicators';
 import {TimelineTracks} from './TimelineTracks';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
-import {useTimelineHeight} from './use-timeline-height';
 
 const container: React.CSSProperties = {
 	minHeight: '100%',
@@ -66,19 +66,6 @@ const TimelineInner: React.FC = () => {
 	const shown = filtered.slice(0, MAX_TIMELINE_TRACKS);
 	const hasBeenCut = filtered.length > shown.length;
 
-	const height = useTimelineHeight({shown, hasBeenCut});
-
-	const inner: React.CSSProperties = useMemo(
-		() => ({
-			height,
-			display: 'flex',
-			flex: 1,
-			minHeight: '100%',
-			overflowX: 'hidden',
-		}),
-		[height],
-	);
-
 	return (
 		<div
 			ref={timelineVerticalScroll}
@@ -87,7 +74,7 @@ const TimelineInner: React.FC = () => {
 		>
 			<TimelineWidthProvider>
 				<TimelinePinchZoom />
-				<div style={inner}>
+				<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
 					<SplitterContainer
 						orientation="vertical"
 						defaultFlex={0.2}
@@ -113,7 +100,7 @@ const TimelineInner: React.FC = () => {
 							</TimelineScrollable>
 						</SplitterElement>
 					</SplitterContainer>
-				</div>
+				</TimelineHeightContainer>
 			</TimelineWidthProvider>
 		</div>
 	);
