@@ -90,7 +90,7 @@ export const SequencePropsSubscriptionProvider: React.FC<{
 	);
 };
 
-const EMPTY_STATE: SequencePropsSubscriptionState = {
+export const EMPTY_STATE: SequencePropsSubscriptionState = {
 	nodePath: null,
 	jsxInMapCallback: false,
 };

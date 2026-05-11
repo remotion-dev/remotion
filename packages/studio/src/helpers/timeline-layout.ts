@@ -59,11 +59,11 @@ export type TimelineTreeNode =
 export const buildTimelineTree = ({
 	sequence,
 	dragOverrides,
-	codeValues,
+	getCodeValues,
 }: {
 	sequence: TSequence;
 	dragOverrides: DragOverrides;
-	codeValues: CodeValues;
+	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 
@@ -96,7 +96,7 @@ export const buildTimelineTree = ({
 		currentRuntimeValueDotNotation:
 			sequence.controls!.currentRuntimeValueDotNotation,
 		dragOverrides,
-		codeValues,
+		getCodeValues,
 		overrideId: sequence.controls!.overrideId!,
 	});
 
@@ -157,14 +157,14 @@ export const getExpandedTrackHeight = ({
 	sequence,
 	expandedTracks,
 	dragOverrides,
-	codeValues,
+	getCodeValues,
 }: {
 	sequence: TSequence;
 	expandedTracks: Record<string, boolean>;
 	dragOverrides: DragOverrides;
-	codeValues: CodeValues;
+	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
 }): number => {
-	const tree = buildTimelineTree({sequence, dragOverrides, codeValues});
+	const tree = buildTimelineTree({sequence, dragOverrides, getCodeValues});
 	const flat = flattenVisibleTreeNodes({nodes: tree, expandedTracks});
 
 	if (flat.length === 0) {

@@ -38,7 +38,7 @@ export const SequenceVisibilityToggleContext =
 export type VisualModeGetters = {
 	visualModeEnabled: boolean;
 	dragOverrides: DragOverrides;
-	codeValues: CodeValues;
+	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
 };
 
 export type VisualModeSetters = {
@@ -50,9 +50,17 @@ export type VisualModeSetters = {
 	) => void;
 };
 
+const getCodeValues = (codeValues: CodeValues, overrideId: string) => {
+	return codeValues[overrideId] ?? undefined;
+};
+
+export type GetCodeValuesType = typeof getCodeValues;
+
 export const VisualModeGettersContext = React.createContext<VisualModeGetters>({
 	dragOverrides: {},
-	codeValues: {},
+	getCodeValues: () => {
+		throw new Error('VisualModeGettersContext not initialized');
+	},
 	visualModeEnabled: false,
 });
 
@@ -159,7 +167,8 @@ export const SequenceManagerProvider: React.FC<{
 		return {
 			visualModeEnabled,
 			dragOverrides,
-			codeValues,
+			getCodeValues: (overrideId: string) =>
+				getCodeValues(codeValues, overrideId),
 		};
 	}, [visualModeEnabled, dragOverrides, codeValues]);
 

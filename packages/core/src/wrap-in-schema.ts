@@ -107,7 +107,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
 		const env = useRemotionEnvironment();
 
-		const {visualModeEnabled, dragOverrides, codeValues} = useContext(
+		const {visualModeEnabled, dragOverrides, getCodeValues} = useContext(
 			VisualModeGettersContext,
 		);
 
@@ -172,9 +172,14 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 				schema,
 				currentValue: currentRuntimeValueDotNotation,
 				overrideValues: dragOverrides[overrideId] ?? {},
-				propStatus: codeValues[overrideId],
+				propStatus: getCodeValues(overrideId),
 			});
-		}, [currentRuntimeValueDotNotation, dragOverrides, overrideId, codeValues]);
+		}, [
+			currentRuntimeValueDotNotation,
+			dragOverrides,
+			overrideId,
+			getCodeValues,
+		]);
 
 		// 4. Eliminate values forbidden by the resolved discriminated union.
 		const activeKeys = selectActiveKeys(schema, valuesDotNotation);

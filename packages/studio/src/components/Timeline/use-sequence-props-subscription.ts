@@ -1,11 +1,10 @@
-import type {SequenceNodePath} from '@remotion/studio-shared';
 import {useCallback, useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
 import type {TSequence} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
-	SequencePropsSubscriptionGettersContext,
+	EMPTY_STATE,
 	SequencePropsSubscriptionSettersContext,
 } from '../../state/sequence-props-subscription-state';
 import {
@@ -13,25 +12,14 @@ import {
 	type SequencePropsSnapshot,
 } from './sequence-props-subscription-store';
 
-const EMPTY_STATE = {
-	nodePath: null as SequenceNodePath | null,
-	jsxInMapCallback: false,
-};
-
 export const useSequencePropsSubscription = (
 	sequence: TSequence,
 	originalLocation: OriginalPosition | null,
 	visualModeEnabled: boolean,
-): {
-	nodePath: SequenceNodePath | null;
-	jsxInMapCallback: boolean;
-} => {
+) => {
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const {setSubscriptionState} = useContext(
 		SequencePropsSubscriptionSettersContext,
-	);
-	const {subscriptionStates} = useContext(
-		SequencePropsSubscriptionGettersContext,
 	);
 	const overrideId = sequence.controls?.overrideId ?? null;
 
@@ -154,10 +142,4 @@ export const useSequencePropsSubscription = (
 		subscribeToEvent,
 		visualModeEnabled,
 	]);
-
-	if (!overrideId) {
-		return EMPTY_STATE;
-	}
-
-	return subscriptionStates[overrideId] ?? EMPTY_STATE;
 };
