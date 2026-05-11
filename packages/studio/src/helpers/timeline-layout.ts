@@ -5,7 +5,11 @@ import {
 	type SchemaFieldInfo,
 	type SequenceControls,
 } from '@remotion/studio-shared';
-import type {EffectDefinitionAndStack, TSequence} from 'remotion';
+import type {
+	EffectDefinitionAndStack,
+	GetCodeValues,
+	TSequence,
+} from 'remotion';
 
 export type {CodeValues, DragOverrides, SchemaFieldInfo, SequenceControls};
 export {
@@ -63,7 +67,7 @@ export const buildTimelineTree = ({
 }: {
 	sequence: TSequence;
 	dragOverrides: DragOverrides;
-	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
+	getCodeValues: GetCodeValues;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 
@@ -162,7 +166,7 @@ export const getExpandedTrackHeight = ({
 	sequence: TSequence;
 	expandedTracks: Record<string, boolean>;
 	dragOverrides: DragOverrides;
-	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
+	getCodeValues: GetCodeValues;
 }): number => {
 	const tree = buildTimelineTree({sequence, dragOverrides, getCodeValues});
 	const flat = flattenVisibleTreeNodes({nodes: tree, expandedTracks});

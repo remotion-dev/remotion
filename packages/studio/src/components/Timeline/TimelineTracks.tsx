@@ -1,4 +1,5 @@
 import React, {useContext, useMemo} from 'react';
+import type {GetCodeValues} from 'remotion';
 import {Internals, type TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
@@ -7,7 +8,6 @@ import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_PADDING,
-	type CodeValues,
 	type DragOverrides,
 } from '../../helpers/timeline-layout';
 import {ExpandedTracksContext} from '../ExpandedTracksProvider';
@@ -35,7 +35,7 @@ const getExpandedPlaceholderStyle = ({
 	sequence: TSequence;
 	expandedTracks: Record<string, boolean>;
 	dragOverrides: DragOverrides;
-	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
+	getCodeValues: GetCodeValues;
 }): React.CSSProperties => ({
 	height:
 		getExpandedTrackHeight({

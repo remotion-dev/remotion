@@ -141,6 +141,7 @@ import {
 	useBasicMediaInTimeline,
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
+import type {GetCodeValues} from './use-schema.js';
 import {
 	computeEffectiveSchemaValuesDotNotation,
 	type CanUpdateSequencePropStatus,
@@ -336,6 +337,7 @@ export type {
 	CanUpdateSequencePropStatus,
 	CodeValues,
 	DragOverrides,
+	GetCodeValues,
 	ScheduleAudioNodeResult,
 	NonceHistory,
 };

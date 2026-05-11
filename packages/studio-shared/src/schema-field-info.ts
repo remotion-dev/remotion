@@ -1,6 +1,7 @@
 import type {
 	CodeValues,
 	DragOverrides,
+	GetCodeValues,
 	SequenceControls,
 	SequenceFieldSchema,
 	SequenceSchema,
@@ -40,7 +41,7 @@ export const getFieldsToShow = ({
 	schema: SequenceSchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
 	dragOverrides: DragOverrides;
-	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
+	getCodeValues: GetCodeValues;
 	overrideId: string;
 }): SchemaFieldInfo[] | null => {
 	const valuesDotNotation = Internals.computeEffectiveSchemaValuesDotNotation({

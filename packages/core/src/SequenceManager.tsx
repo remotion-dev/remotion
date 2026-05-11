@@ -4,6 +4,7 @@ import type {
 	CanUpdateSequencePropStatus,
 	CodeValues,
 	DragOverrides,
+	GetCodeValues,
 } from './use-schema.js';
 
 export type SequenceManagerContext = {
@@ -38,7 +39,7 @@ export const SequenceVisibilityToggleContext =
 export type VisualModeGetters = {
 	visualModeEnabled: boolean;
 	dragOverrides: DragOverrides;
-	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
+	getCodeValues: GetCodeValues;
 };
 
 export type VisualModeSetters = {
