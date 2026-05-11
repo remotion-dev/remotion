@@ -379,6 +379,8 @@ export const audioIteratorManager = ({
 		audioIteratorsCreated++;
 		audioBufferIterator = iterator;
 
+		let chunksScheduled = 0;
+
 		proceedScheduling({
 			iterator,
 			nonce,
@@ -386,7 +388,12 @@ export const audioIteratorManager = ({
 			playbackRate,
 			scheduleAudioNode,
 			onScheduled: () => {
-				delayHandle.unblock();
+				chunksScheduled++;
+				// Need to schedule a bit into the future to unblock the buffer state,
+				// otherwise we might be scheduling too late.
+				if (chunksScheduled === 6) {
+					delayHandle.unblock();
+				}
 			},
 			onDestroyed: () => {
 				delayHandle.unblock();

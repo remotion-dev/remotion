@@ -231,8 +231,10 @@ export const SharedAudioContextProvider: React.FC<{
 				throw new Error('Audio context not found');
 			}
 
+			const suspended = ctxAndGain.audioContext.state === 'suspended';
+
 			if (duration > 0) {
-				if (ctxAndGain.audioContext.state === 'suspended') {
+				if (suspended) {
 					nodesToResume.current.set(node, {
 						scheduledTime,
 						offset,
@@ -264,7 +266,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 			Log.verbose(
 				{logLevel, tag: 'audio-scheduling'},
-				'scheduled %c%s%c %s %c%s%c %s %c%s%c %s %s %s',
+				'scheduled %c%s%c %s %c%s%c %s %c%s%c %s %s %s %s',
 				scheduledMismatch ? 'color: red; font-weight: bold' : '',
 				scheduledTime.toFixed(4),
 				'',
@@ -284,6 +286,7 @@ export const SharedAudioContextProvider: React.FC<{
 							(timeDiff < 0 ? ' delay' : ' ahead'),
 				'',
 				'current=' + currentTime.toFixed(4),
+				'actualcurrent=' + ctxAndGain.audioContext.currentTime.toFixed(4),
 				'offset=' + offset.toFixed(4),
 				'latency=' + latency.toFixed(4),
 				'state=' + ctxAndGain.audioContext.state,
