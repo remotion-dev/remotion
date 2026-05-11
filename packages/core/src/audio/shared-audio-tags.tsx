@@ -267,7 +267,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 			Log.verbose(
 				{logLevel, tag: 'audio-scheduling'},
-				'scheduled %c%s%c %s %c%s%c %s %c%s%c %s %s %s %s %s %s',
+				'scheduled %c%s%c %s %c%s%c %s %c%s%c %s %s %s %s %s',
 				scheduledMismatch ? 'color: red; font-weight: bold' : '',
 				scheduledTime.toFixed(4),
 				'',
