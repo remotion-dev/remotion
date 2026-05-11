@@ -158,7 +158,8 @@ export const usePlayback = ({
 
 			if (
 				nextFrame !== getCurrentFrame() &&
-				(!hasEnded || moveToBeginningWhenEnded)
+				(!hasEnded || moveToBeginningWhenEnded) &&
+				!context.buffering.current
 			) {
 				setFrame((c) => ({...c, [config.id]: nextFrame}));
 			}
