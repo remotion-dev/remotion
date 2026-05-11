@@ -32,7 +32,7 @@ const SUPPORTED_SCHEMA_TYPES = new Set([
 
 export const getFieldsToShow = ({
 	dragOverrides,
-	codeValues,
+	getCodeValues,
 	overrideId,
 	schema,
 	currentRuntimeValueDotNotation,
@@ -40,14 +40,14 @@ export const getFieldsToShow = ({
 	schema: SequenceSchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
 	dragOverrides: DragOverrides;
-	codeValues: CodeValues;
+	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
 	overrideId: string;
 }): SchemaFieldInfo[] | null => {
 	const valuesDotNotation = Internals.computeEffectiveSchemaValuesDotNotation({
 		schema,
 		currentValue: currentRuntimeValueDotNotation,
 		overrideValues: dragOverrides[overrideId] ?? {},
-		propStatus: codeValues[overrideId],
+		propStatus: getCodeValues(overrideId),
 	});
 
 	const activeSchema = Internals.flattenActiveSchema(

@@ -30,19 +30,19 @@ const getExpandedPlaceholderStyle = ({
 	sequence,
 	expandedTracks,
 	dragOverrides,
-	codeValues,
+	getCodeValues,
 }: {
 	sequence: TSequence;
 	expandedTracks: Record<string, boolean>;
 	dragOverrides: DragOverrides;
-	codeValues: CodeValues;
+	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
 }): React.CSSProperties => ({
 	height:
 		getExpandedTrackHeight({
 			sequence,
 			expandedTracks,
 			dragOverrides,
-			codeValues,
+			getCodeValues,
 		}) + TIMELINE_ITEM_BORDER_BOTTOM,
 });
 
@@ -52,7 +52,7 @@ export const TimelineTracks: React.FC<{
 }> = ({timeline, hasBeenCut}) => {
 	const {expandedTracks} = useContext(ExpandedTracksContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {dragOverrides, codeValues} = useContext(
+	const {dragOverrides, getCodeValues} = useContext(
 		Internals.VisualModeGettersContext,
 	);
 
@@ -94,7 +94,7 @@ export const TimelineTracks: React.FC<{
 										sequence: track.sequence,
 										expandedTracks,
 										dragOverrides,
-										codeValues,
+										getCodeValues,
 									})}
 								/>
 							) : null}

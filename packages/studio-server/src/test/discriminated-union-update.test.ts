@@ -15,7 +15,7 @@ test('Should correctly separate discriminated union for layout', () => {
 			layout: 'none',
 		},
 		overrideId: '0.7123890564498035',
-		codeValues: {},
+		getCodeValues: () => undefined,
 		dragOverrides: {},
 	});
 	expect(schemaFields?.map((s) => s.key)).toEqual(['layout']);
@@ -28,7 +28,7 @@ test('Should expose absolute-fill variant fields when active', () => {
 			layout: 'absolute-fill',
 		},
 		overrideId: '0.5636826614884479',
-		codeValues: {},
+		getCodeValues: () => undefined,
 		dragOverrides: {},
 	});
 	expect(schemaFields?.map((s) => s.key)).toEqual([

@@ -41,7 +41,7 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 			() => ({
 				visualModeEnabled: true,
 				dragOverrides: {},
-				codeValues: {},
+				getCodeValues: () => undefined,
 			}),
 			[],
 		);

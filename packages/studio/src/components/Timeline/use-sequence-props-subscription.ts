@@ -1,35 +1,26 @@
-import type {SequenceNodePath} from '@remotion/studio-shared';
-import {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import {useCallback, useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
 import type {TSequence} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
+	EMPTY_STATE,
+	SequencePropsSubscriptionSettersContext,
+} from '../../state/sequence-props-subscription-state';
+import {
 	acquireSequencePropsSubscription,
 	type SequencePropsSnapshot,
 } from './sequence-props-subscription-store';
-
-const EMPTY_STATE = {
-	nodePath: null as SequenceNodePath | null,
-	jsxInMapCallback: false,
-};
 
 export const useSequencePropsSubscription = (
 	sequence: TSequence,
 	originalLocation: OriginalPosition | null,
 	visualModeEnabled: boolean,
-): {
-	nodePath: SequenceNodePath | null;
-	jsxInMapCallback: boolean;
-} => {
+) => {
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {setSubscriptionState} = useContext(
+		SequencePropsSubscriptionSettersContext,
+	);
 	const overrideId = sequence.controls?.overrideId ?? null;
 
 	const setPropStatusesForSequence = useCallback(
@@ -41,6 +32,22 @@ export const useSequencePropsSubscription = (
 			setCodeValues(overrideId, statuses);
 		},
 		[overrideId, setCodeValues],
+	);
+
+	const setSubscriptionStateForSequence = useCallback(
+		(nextState: typeof EMPTY_STATE) => {
+			if (!overrideId) {
+				return;
+			}
+
+			if (nextState === EMPTY_STATE) {
+				setSubscriptionState(overrideId, null);
+				return;
+			}
+
+			setSubscriptionState(overrideId, nextState);
+		},
+		[overrideId, setSubscriptionState],
 	);
 
 	const {previewServerState: state, subscribeToEvent} = useContext(
@@ -64,8 +71,6 @@ export const useSequencePropsSubscription = (
 		};
 	}, [originalLocation]);
 
-	const [subscriptionState, setSubscriptionState] =
-		useState<typeof EMPTY_STATE>(EMPTY_STATE);
 	const isMountedRef = useRef(true);
 
 	useEffect(() => {
@@ -83,7 +88,7 @@ export const useSequencePropsSubscription = (
 	useEffect(() => {
 		if (!visualModeEnabled) {
 			setPropStatusesForSequence(null);
-			setSubscriptionState(EMPTY_STATE);
+			setSubscriptionStateForSequence(EMPTY_STATE);
 			return;
 		}
 
@@ -95,12 +100,12 @@ export const useSequencePropsSubscription = (
 			!schema
 		) {
 			setPropStatusesForSequence(null);
-			setSubscriptionState(EMPTY_STATE);
+			setSubscriptionStateForSequence(EMPTY_STATE);
 			return;
 		}
 
 		const onChange = (snapshot: SequencePropsSnapshot) => {
-			setSubscriptionState({
+			setSubscriptionStateForSequence({
 				nodePath: snapshot.nodePath,
 				jsxInMapCallback: snapshot.jsxInMapCallback,
 			});
@@ -123,6 +128,7 @@ export const useSequencePropsSubscription = (
 			// location changes — avoids flicker while re-subscribing.
 			if (!isMountedRef.current) {
 				setPropStatusesForSequence(null);
+				setSubscriptionStateForSequence(EMPTY_STATE);
 			}
 		};
 	}, [
@@ -132,9 +138,8 @@ export const useSequencePropsSubscription = (
 		locationSource,
 		schema,
 		setPropStatusesForSequence,
+		setSubscriptionStateForSequence,
 		subscribeToEvent,
 		visualModeEnabled,
 	]);
-
-	return subscriptionState;
 };

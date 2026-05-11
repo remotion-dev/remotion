@@ -5,6 +5,7 @@ import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
 import {drawRef} from '../state/canvas-ref';
+import {SequencePropsSubscriptionProvider} from '../state/sequence-props-subscription-state';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
@@ -81,33 +82,35 @@ export const Editor: React.FC<{
 	return (
 		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 			<TimelineZoomContext>
-				<Internals.CurrentScaleContext.Provider value={value}>
-					<ForceSpecificCursor />
-					<div style={background}>
-						<Internals.CompositionRenderErrorContext.Provider
-							value={compositionRenderErrorContextValue}
-						>
-							{canvasMounted ? <MemoRoot /> : null}
-						</Internals.CompositionRenderErrorContext.Provider>
-						<Internals.CanUseRemotionHooksProvider>
-							<RenderErrorContext.Provider value={renderErrorContextValue}>
-								<EditorContent readOnlyStudio={readOnlyStudio}>
-									<TopPanel
-										drawRef={drawRef}
-										bufferStateDelayInMilliseconds={
-											BUFFER_STATE_DELAY_IN_MILLISECONDS
-										}
-										onMounted={onMounted}
-										readOnlyStudio={readOnlyStudio}
-									/>
-								</EditorContent>
-							</RenderErrorContext.Provider>
-							<GlobalKeybindings />
-						</Internals.CanUseRemotionHooksProvider>
-					</div>
-				</Internals.CurrentScaleContext.Provider>
-				<Modals readOnlyStudio={readOnlyStudio} />
-				<NotificationCenter />
+				<SequencePropsSubscriptionProvider>
+					<Internals.CurrentScaleContext.Provider value={value}>
+						<ForceSpecificCursor />
+						<div style={background}>
+							<Internals.CompositionRenderErrorContext.Provider
+								value={compositionRenderErrorContextValue}
+							>
+								{canvasMounted ? <MemoRoot /> : null}
+							</Internals.CompositionRenderErrorContext.Provider>
+							<Internals.CanUseRemotionHooksProvider>
+								<RenderErrorContext.Provider value={renderErrorContextValue}>
+									<EditorContent readOnlyStudio={readOnlyStudio}>
+										<TopPanel
+											drawRef={drawRef}
+											bufferStateDelayInMilliseconds={
+												BUFFER_STATE_DELAY_IN_MILLISECONDS
+											}
+											onMounted={onMounted}
+											readOnlyStudio={readOnlyStudio}
+										/>
+									</EditorContent>
+								</RenderErrorContext.Provider>
+								<GlobalKeybindings />
+							</Internals.CanUseRemotionHooksProvider>
+						</div>
+					</Internals.CurrentScaleContext.Provider>
+					<Modals readOnlyStudio={readOnlyStudio} />
+					<NotificationCenter />
+				</SequencePropsSubscriptionProvider>
 			</TimelineZoomContext>
 		</HigherZIndex>
 	);
