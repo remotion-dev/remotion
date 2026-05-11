@@ -251,6 +251,7 @@ export const audioIteratorManager = ({
 		waitForTurn({
 			getPriority: () => {
 				if (iterator.isDestroyed()) {
+					onDestroyed();
 					return null;
 				}
 
@@ -316,10 +317,12 @@ export const audioIteratorManager = ({
 				if (e instanceof InputDisposedError) {
 					// iterator was disposed by a newer startAudioIterator call
 					// this is expected during rapid seeking
+					onDestroyed();
 					return;
 				}
 
 				if (e instanceof StaleWaiterError) {
+					onDestroyed();
 					// iterator was stale before it got its turn
 					return;
 				}
