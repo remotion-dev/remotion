@@ -82,7 +82,7 @@ type SharedAudioContextValue = {
 		options: ScheduleAudioNodeOptions,
 	) => ScheduleAudioNodeResult;
 	resume: () => Promise<void>;
-	suspend: () => Promise<void>;
+	suspend: () => void;
 	getIsResumingAudioContext: () => Promise<void> | null;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
 };
@@ -336,7 +336,6 @@ export const SharedAudioContextProvider: React.FC<{
 			ctxAndGain.audioContext.currentTime + 0.03,
 		);
 
-		console.log('scheduling nodes!');
 		nodesToResume.current.forEach((r, node) =>
 			node.start(r.scheduledTime, r.offset, r.duration),
 		);
