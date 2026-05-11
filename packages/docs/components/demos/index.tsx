@@ -157,6 +157,7 @@ export const Demo: React.FC<{
 							? '1px solid var(--ifm-color-emphasis-300)'
 							: 0,
 				}}
+				logLevel={demo.logLevel}
 				errorFallback={({error}) => {
 					return (
 						<AbsoluteFill
