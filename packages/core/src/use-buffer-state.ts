@@ -28,14 +28,25 @@ export const useBufferState = (): UseBufferState => {
 					);
 				}
 
-				Log.trace({logLevel, tag: '[buffer-state]'}, 'Adding buffer handle');
+				Log.trace(
+					{logLevel, tag: '[buffer-state]'},
+					'Adding buffer handle',
+					new Error().stack,
+				);
 
 				const {unblock} = addBlock({
 					id: String(Math.random()),
 				});
 
+				let unblocked = false;
+
 				return {
 					unblock: () => {
+						if (unblocked) {
+							return;
+						}
+
+						unblocked = true;
 						Log.trace(
 							{logLevel, tag: '[buffer-state]'},
 							'Removing buffer handle',
