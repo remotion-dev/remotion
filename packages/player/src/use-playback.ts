@@ -78,7 +78,7 @@ export const usePlayback = ({
 		const changed = setGlobalTimeAnchor({
 			audioContext: sharedAudioContext.audioContext,
 			audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
-			absoluteTimeInSeconds: getCurrentFrame() / config.fps,
+			absoluteTimeInSeconds: frame / config.fps,
 			globalPlaybackRate: playbackRate,
 			logLevel,
 			force: false,
@@ -86,14 +86,7 @@ export const usePlayback = ({
 		if (changed) {
 			sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
 		}
-	}, [
-		config,
-		getCurrentFrame,
-		logLevel,
-		playbackRate,
-		sharedAudioContext,
-		muted,
-	]);
+	}, [config, frame, logLevel, playbackRate, sharedAudioContext, muted]);
 
 	// When the audio context is suspended, we use the opportunity to
 	// re-anchor the time to be exact.
