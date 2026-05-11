@@ -123,6 +123,21 @@ See: [Modifying the timeout](/docs/delay-render#modifying-the-timeout)
 />
 ```
 
+### `requestInit?`<AvailableFrom v="4.0.460" />
+
+Options that are passed to the internal [`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) call when loading the GIF. This can be used to pass credentials or headers for authenticated GIFs.
+
+Remotion manages the internal `signal` option itself, so passing a `signal` in `requestInit` has no effect.
+
+```tsx
+<Gif
+  src="https://example.com/authenticated-gif.gif"
+  requestInit={{
+    credentials: 'include',
+  }}
+/>
+```
+
 ## Differences to `<AnimatedImage>`
 
 - `<Gif>` does not support animated AVIF and WebP images.

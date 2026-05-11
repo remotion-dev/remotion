@@ -14,6 +14,7 @@ export type RemotionAnimatedImageProps = {
 	loopBehavior?: RemotionAnimatedImageLoopBehavior;
 	id?: string;
 	className?: string;
+	requestInit?: RequestInit;
 };
 
 export type AnimatedImageFillMode = 'contain' | 'cover' | 'fill';

@@ -15,6 +15,7 @@ import {Canvas} from './canvas';
 import type {RemotionImageDecoder} from './decode-image.js';
 import {decodeImage} from './decode-image.js';
 import type {RemotionAnimatedImageProps} from './props';
+import {serializeRequestInit} from './request-init';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
 export const AnimatedImage = forwardRef<
@@ -30,6 +31,7 @@ export const AnimatedImage = forwardRef<
 			loopBehavior = 'loop',
 			playbackRate = 1,
 			fit = 'fill',
+			requestInit,
 			...props
 		},
 		canvasRef,
@@ -58,6 +60,9 @@ export const AnimatedImage = forwardRef<
 		const currentTime = frame / playbackRate / fps;
 		const currentTimeRef = useRef<number>(currentTime);
 		currentTimeRef.current = currentTime;
+		const requestInitKey = serializeRequestInit(requestInit);
+		const requestInitRef = useRef(requestInit);
+		requestInitRef.current = requestInit;
 
 		const ref = useRef<AnimatedImageCanvasRef>(null);
 
@@ -77,6 +82,7 @@ export const AnimatedImage = forwardRef<
 			decodeImage({
 				resolvedSrc,
 				signal: controller.signal,
+				requestInit: requestInitRef.current,
 				currentTime: currentTimeRef.current,
 				initialLoopBehavior,
 			})
@@ -106,6 +112,7 @@ export const AnimatedImage = forwardRef<
 			resolvedSrc,
 			decodeHandle,
 			onError,
+			requestInitKey,
 			initialLoopBehavior,
 			continueRender,
 		]);

@@ -80,6 +80,21 @@ The looping behavior of the animated image. Can be one of these values:
 
 The playback rate of the animated image. Defaults to `1`. For example, `2` will play the animation twice as fast, `0.5` will play it at half speed.
 
+### `requestInit?`<AvailableFrom v="4.0.460" />
+
+Options that are passed to the internal [`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) call when loading the animated image. This can be used to pass credentials or headers for authenticated animated images.
+
+Remotion manages the internal `signal` option itself, so passing a `signal` in `requestInit` has no effect.
+
+```tsx
+<AnimatedImage
+  src="https://example.com/authenticated-image.webp"
+  requestInit={{
+    credentials: 'include',
+  }}
+/>
+```
+
 ### `ref?`<AvailableFrom v="3.3.88" />
 
 You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to `<AnimatedImage />`. If you use TypeScript, you need to type it with `HTMLCanvasElement`.

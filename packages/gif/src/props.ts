@@ -20,6 +20,7 @@ export type RemotionGifProps = {
 	loopBehavior?: GifLoopBehavior;
 	id?: string;
 	delayRenderTimeoutInMilliseconds?: number;
+	requestInit?: RequestInit;
 };
 
 export type GifState = {
