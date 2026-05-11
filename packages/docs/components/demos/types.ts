@@ -94,7 +94,6 @@ export const arrowDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	logLevel: 'info',
 	options: [
 		{
 			default: 300,
@@ -1301,6 +1300,6 @@ export const htmlInCanvasDemoWebGPU: DemoType = {
 	id: 'html-in-canvas-webgpu',
 	autoPlay: true,
 	controls: true,
-	logLevel: 'info',
+	logLevel: 'trace',
 	options: [],
 };

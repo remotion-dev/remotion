@@ -69,6 +69,10 @@ export const usePlayback = ({
 			return;
 		}
 
+		if (muted) {
+			return;
+		}
+
 		const changed = setGlobalTimeAnchor({
 			audioContext: sharedAudioContext.audioContext,
 			audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
@@ -79,7 +83,7 @@ export const usePlayback = ({
 		if (changed) {
 			sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
 		}
-	}, [config, frame, logLevel, playbackRate, sharedAudioContext]);
+	}, [config, frame, logLevel, playbackRate, sharedAudioContext, muted]);
 
 	useEffect(() => {
 		if (!config) {
@@ -201,8 +205,11 @@ export const usePlayback = ({
 				return;
 			}
 
-			if (context.buffering.current && !muted) {
-				sharedAudioContext?.suspend?.();
+			if (context.buffering.current) {
+				if (!muted) {
+					sharedAudioContext?.suspend?.();
+				}
+
 				const stopListening = context.listenForResume(() => {
 					stopListening.remove();
 					startedTime = performance.now();
