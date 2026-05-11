@@ -1,6 +1,6 @@
-import type {EventSourceEvent, SequenceNodePath} from '@remotion/studio-shared';
+import type {EventSourceEvent} from '@remotion/studio-shared';
 import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
-import type {SequenceSchema} from 'remotion';
+import type {SequenceSchema, SequenceNodePath} from 'remotion';
 import {callApi} from '../call-api';
 
 export type SequencePropsSnapshot = {

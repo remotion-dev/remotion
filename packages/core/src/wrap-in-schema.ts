@@ -5,6 +5,7 @@ import {
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
 import type {SequenceSchema} from './sequence-field-schema.js';
+import {SequencePropsSubscriptionGettersContext} from './sequence-node-path.js';
 import {VisualModeGettersContext} from './SequenceManager.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {computeEffectiveSchemaValuesDotNotation} from './use-schema.js';
@@ -110,6 +111,8 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 		const {visualModeEnabled, getDragOverrides, getCodeValues} = useContext(
 			VisualModeGettersContext,
 		);
+		const nodePathMapping = useContext(SequencePropsSubscriptionGettersContext);
+		const nodePath = null;
 
 		if (
 			!env.isStudio ||
@@ -141,6 +144,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const [overrideId] = useState(() => String(Math.random()));
+		console.log(nodePathMapping, overrideId);
 
 		// Read the runtime values for every flat key from the JSX props,
 		// memoized on the leaf values so the object reference is stable
@@ -171,13 +175,13 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 			return computeEffectiveSchemaValuesDotNotation({
 				schema,
 				currentValue: currentRuntimeValueDotNotation,
-				overrideValues: getDragOverrides(overrideId),
-				propStatus: getCodeValues(overrideId),
+				overrideValues: nodePath === null ? {} : getDragOverrides(nodePath),
+				propStatus: nodePath === null ? undefined : getCodeValues(nodePath),
 			});
 		}, [
 			currentRuntimeValueDotNotation,
 			getDragOverrides,
-			overrideId,
+			nodePath,
 			getCodeValues,
 		]);
 

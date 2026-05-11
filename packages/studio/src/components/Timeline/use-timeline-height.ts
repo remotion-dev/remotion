@@ -23,6 +23,9 @@ export const useTimelineHeight = ({
 	const {getDragOverrides, getCodeValues} = useContext(
 		Internals.VisualModeGettersContext,
 	);
+	const {subscriptionStates} = useContext(
+		Internals.SequencePropsSubscriptionGettersContext,
+	);
 
 	const visualModeEnabled =
 		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&
@@ -41,6 +44,7 @@ export const useTimelineHeight = ({
 						expandedTracks,
 						getDragOverrides,
 						getCodeValues,
+						sequencePropsSubscriptionState: subscriptionStates,
 					}) + TIMELINE_ITEM_BORDER_BOTTOM
 				: 0;
 			return acc + layerHeight + expandedHeight;
@@ -59,5 +63,6 @@ export const useTimelineHeight = ({
 		visualModeEnabled,
 		getDragOverrides,
 		getCodeValues,
+		subscriptionStates,
 	]);
 };

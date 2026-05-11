@@ -1,5 +1,9 @@
 import React, {useContext, useMemo} from 'react';
-import type {GetCodeValues, GetDragOverrides} from 'remotion';
+import type {
+	GetCodeValues,
+	GetDragOverrides,
+	SequencePropsSubscriptionStates,
+} from 'remotion';
 import {Internals, type TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
@@ -30,11 +34,13 @@ const getExpandedPlaceholderStyle = ({
 	expandedTracks,
 	getDragOverrides,
 	getCodeValues,
+	sequencePropsSubscriptionState,
 }: {
 	sequence: TSequence;
 	expandedTracks: Record<string, boolean>;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
+	sequencePropsSubscriptionState: SequencePropsSubscriptionStates;
 }): React.CSSProperties => ({
 	height:
 		getExpandedTrackHeight({
@@ -42,6 +48,7 @@ const getExpandedPlaceholderStyle = ({
 			expandedTracks,
 			getDragOverrides,
 			getCodeValues,
+			sequencePropsSubscriptionState,
 		}) + TIMELINE_ITEM_BORDER_BOTTOM,
 });
 
@@ -53,6 +60,9 @@ export const TimelineTracks: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {getDragOverrides, getCodeValues} = useContext(
 		Internals.VisualModeGettersContext,
+	);
+	const {subscriptionStates} = useContext(
+		Internals.SequencePropsSubscriptionGettersContext,
 	);
 
 	const visualModeEnabled =
@@ -94,6 +104,7 @@ export const TimelineTracks: React.FC<{
 										expandedTracks,
 										getDragOverrides,
 										getCodeValues,
+										sequencePropsSubscriptionState: subscriptionStates,
 									})}
 								/>
 							) : null}

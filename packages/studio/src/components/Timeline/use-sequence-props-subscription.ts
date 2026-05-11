@@ -1,10 +1,12 @@
 import {useCallback, useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
-import type {SequenceSchema} from 'remotion';
+import type {
+	SequenceSchema,
+	SequencePropsSubscriptionState,
+	SequenceNodePath,
+} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {SequencePropsSubscriptionState} from '../../state/sequence-props-subscription-state';
-import {SequencePropsSubscriptionSettersContext} from '../../state/sequence-props-subscription-state';
 import {
 	acquireSequencePropsSubscription,
 	type SequencePropsSnapshot,
@@ -18,22 +20,25 @@ export const useSequencePropsSubscription = (
 ) => {
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const {setSubscriptionState} = useContext(
-		SequencePropsSubscriptionSettersContext,
+		Internals.SequencePropsSubscriptionSettersContext,
 	);
 
 	const setPropStatusesForSequence = useCallback(
-		(statuses: Record<string, CanUpdateSequencePropStatus> | null) => {
+		(
+			nodePath: SequenceNodePath,
+			statuses: Record<string, CanUpdateSequencePropStatus> | null,
+		) => {
 			if (!overrideId) {
 				return;
 			}
 
-			setCodeValues(overrideId, statuses);
+			setCodeValues(nodePath, statuses);
 		},
 		[overrideId, setCodeValues],
 	);
 
 	const setSubscriptionStateForSequence = useCallback(
-		(nextState: SequencePropsSubscriptionState | null) => {
+		(nextState: SequencePropsSubscriptionState) => {
 			setSubscriptionState(overrideId, nextState);
 		},
 		[overrideId, setSubscriptionState],
@@ -93,7 +98,9 @@ export const useSequencePropsSubscription = (
 				nodePath: snapshot.nodePath,
 				jsxInMapCallback: snapshot.jsxInMapCallback,
 			});
-			setPropStatusesForSequence(snapshot.props);
+			if (snapshot.nodePath) {
+				setPropStatusesForSequence(snapshot.nodePath, snapshot.props);
+			}
 		};
 
 		const release = acquireSequencePropsSubscription({

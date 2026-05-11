@@ -12,13 +12,12 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {_InternalTypes, SequenceSchema} from 'remotion';
 import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {SequenceNodePath} from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {RequiredChromiumOptions} from './render-job';
 import type {EnumPath} from './stringify-default-props';
-
-export type SequenceNodePath = Array<string | number>;
 
 export type OpenInFileExplorerRequest = {
 	directory: string;

@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {TSequence} from 'remotion';
+import type {TSequence, SequencePropsSubscriptionState} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
@@ -8,7 +8,6 @@ import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LAYER_HEIGHT_AUDIO,
 } from '../../helpers/timeline-layout';
-import {useSubscribedNodePath} from '../../state/sequence-props-subscription-state';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {ExpandedTracksContext} from '../ExpandedTracksProvider';
@@ -25,6 +24,20 @@ import {TimelineStack} from './TimelineStack';
 import {useResolvedStack} from './use-resolved-stack';
 
 export const INDENT = 10;
+
+const useSubscribedNodePath = (
+	sequence: TSequence,
+): SequencePropsSubscriptionState | null => {
+	const {subscriptionStates} = useContext(
+		Internals.SequencePropsSubscriptionGettersContext,
+	);
+	const overrideId = sequence.controls?.overrideId ?? null;
+	if (!overrideId) {
+		return null;
+	}
+
+	return subscriptionStates[overrideId] ?? null;
+};
 
 export const TimelineListItem: React.FC<{
 	readonly sequence: TSequence;

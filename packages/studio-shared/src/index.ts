@@ -33,7 +33,6 @@ export {
 	RestartStudioResponse,
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
-	SequenceNodePath,
 	SimpleDiff,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,

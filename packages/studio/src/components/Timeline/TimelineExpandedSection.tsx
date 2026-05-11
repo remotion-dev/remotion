@@ -1,5 +1,5 @@
-import type {SequenceNodePath} from '@remotion/studio-shared';
 import React, {useContext, useMemo} from 'react';
+import type {SequenceNodePath} from 'remotion';
 import {Internals, type TSequence} from 'remotion';
 import type {
 	CodePosition,
@@ -38,8 +38,10 @@ export const TimelineExpandedSection: React.FC<{
 	const {getDragOverrides, getCodeValues} = useContext(
 		Internals.VisualModeGettersContext,
 	);
+	const {subscriptionStates} = useContext(
+		Internals.SequencePropsSubscriptionGettersContext,
+	);
 
-	const {overrideId} = sequence.controls!;
 	const validatedLocation: CodePosition | null = useMemo(() => {
 		if (
 			!originalLocation ||
@@ -57,8 +59,14 @@ export const TimelineExpandedSection: React.FC<{
 	}, [originalLocation]);
 
 	const tree = useMemo(
-		() => buildTimelineTree({sequence, getDragOverrides, getCodeValues}),
-		[sequence, getDragOverrides, getCodeValues],
+		() =>
+			buildTimelineTree({
+				sequence,
+				getDragOverrides,
+				getCodeValues,
+				sequencePropsSubscriptionState: subscriptionStates,
+			}),
+		[sequence, getDragOverrides, getCodeValues, subscriptionStates],
 	);
 
 	const flat = useMemo(
@@ -73,8 +81,15 @@ export const TimelineExpandedSection: React.FC<{
 				expandedTracks,
 				getDragOverrides,
 				getCodeValues,
+				sequencePropsSubscriptionState: subscriptionStates,
 			}),
-		[sequence, expandedTracks, getDragOverrides, getCodeValues],
+		[
+			sequence,
+			expandedTracks,
+			getDragOverrides,
+			getCodeValues,
+			subscriptionStates,
+		],
 	);
 
 	const style = useMemo(() => {
@@ -102,7 +117,6 @@ export const TimelineExpandedSection: React.FC<{
 							nestedDepth={nestedDepth}
 							expandedTracks={expandedTracks}
 							toggleTrack={toggleTrack}
-							overrideId={overrideId}
 							validatedLocation={validatedLocation}
 							nodePath={nodePath}
 							schema={schema}

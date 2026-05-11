@@ -102,9 +102,18 @@ import type {
 	SequenceSchema,
 } from './sequence-field-schema.js';
 import {sequenceSchema, sequenceStyleSchema} from './sequence-field-schema.js';
+import type {
+	SequencePropsSubscriptionState,
+	SequencePropsSubscriptionStates,
+	SequencePropsSubscriptionStatesGetters,
+	SequencePropsSubscriptionStatesSetters,
+} from './sequence-node-path.js';
+import {SequencePropsSubscriptionSettersContext} from './sequence-node-path.js';
+import {SequencePropsSubscriptionGettersContext} from './sequence-node-path.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
+import type {SequenceNodePath} from './SequenceManager.js';
 import {
 	VisualModeGettersContext,
 	VisualModeSettersContext,
@@ -312,6 +321,8 @@ export const Internals = {
 	defineEffect,
 	createDescriptor,
 	computeEffectiveSchemaValuesDotNotation,
+	SequencePropsSubscriptionGettersContext,
+	SequencePropsSubscriptionSettersContext,
 } as const;
 
 export type {
@@ -341,4 +352,11 @@ export type {
 	ScheduleAudioNodeResult,
 	GetDragOverrides,
 	NonceHistory,
+	SequencePropsSubscriptionGettersContext,
+	SequencePropsSubscriptionSettersContext,
+	SequencePropsSubscriptionState,
+	SequenceNodePath,
+	SequencePropsSubscriptionStates,
+	SequencePropsSubscriptionStatesSetters,
+	SequencePropsSubscriptionStatesGetters,
 };

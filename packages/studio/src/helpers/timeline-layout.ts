@@ -10,6 +10,7 @@ import type {
 	GetCodeValues,
 	GetDragOverrides,
 	TSequence,
+	SequencePropsSubscriptionStates,
 } from 'remotion';
 
 export type {CodeValues, DragOverrides, SchemaFieldInfo, SequenceControls};
@@ -65,10 +66,12 @@ export const buildTimelineTree = ({
 	sequence,
 	getDragOverrides,
 	getCodeValues,
+	sequencePropsSubscriptionState,
 }: {
 	sequence: TSequence;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
+	sequencePropsSubscriptionState: SequencePropsSubscriptionStates;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 
@@ -96,13 +99,15 @@ export const buildTimelineTree = ({
 		});
 	}
 
+	const {nodePath} =
+		sequencePropsSubscriptionState[sequence.controls!.overrideId!];
 	const controlFields = getFieldsToShow({
 		schema: sequence.controls!.schema,
 		currentRuntimeValueDotNotation:
 			sequence.controls!.currentRuntimeValueDotNotation,
 		getDragOverrides,
 		getCodeValues,
-		overrideId: sequence.controls!.overrideId!,
+		nodePath,
 	});
 
 	if (controlFields && controlFields.length > 0) {
@@ -163,13 +168,20 @@ export const getExpandedTrackHeight = ({
 	expandedTracks,
 	getDragOverrides,
 	getCodeValues,
+	sequencePropsSubscriptionState,
 }: {
 	sequence: TSequence;
 	expandedTracks: Record<string, boolean>;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
+	sequencePropsSubscriptionState: SequencePropsSubscriptionStates;
 }): number => {
-	const tree = buildTimelineTree({sequence, getDragOverrides, getCodeValues});
+	const tree = buildTimelineTree({
+		sequence,
+		getDragOverrides,
+		getCodeValues,
+		sequencePropsSubscriptionState,
+	});
 	const flat = flattenVisibleTreeNodes({nodes: tree, expandedTracks});
 
 	if (flat.length === 0) {

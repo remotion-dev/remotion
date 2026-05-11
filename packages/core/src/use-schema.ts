@@ -3,6 +3,7 @@ import type {
 	SequenceFieldSchema,
 	SequenceSchema,
 } from './sequence-field-schema.js';
+import type {SequenceNodePath} from './SequenceManager.js';
 
 export type CanUpdateSequencePropStatus =
 	| {canUpdate: true; codeValue: unknown}
@@ -15,10 +16,12 @@ export type CodeValues = Record<
 >;
 
 export type GetCodeValues = (
-	overrideId: string,
+	nodePath: SequenceNodePath,
 ) => CodeValues[string] | undefined;
 
-export type GetDragOverrides = (overrideId: string) => DragOverrides[string];
+export type GetDragOverrides = (
+	nodePath: SequenceNodePath,
+) => DragOverrides[string];
 
 const findFieldInSchema = (
 	schema: SequenceSchema,

@@ -1,8 +1,6 @@
 import path from 'node:path';
-import type {
-	CanUpdateSequencePropsResponse,
-	SequenceNodePath,
-} from '@remotion/studio-shared';
+import type {CanUpdateSequencePropsResponse} from '@remotion/studio-shared';
+import type {SequenceNodePath} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
 import {getCachedNodePath, setCachedNodePath} from './node-path-cache';

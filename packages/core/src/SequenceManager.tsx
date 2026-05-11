@@ -14,6 +14,16 @@ export type SequenceManagerContext = {
 	sequences: TSequence[];
 };
 
+export type SequenceNodePath = Array<string | number>;
+
+const nodePathToString = (nodePath: SequenceNodePath): string => {
+	return JSON.stringify(nodePath);
+};
+
+export const stringToNodePath = (string: string): SequenceNodePath => {
+	return JSON.parse(string);
+};
+
 export const SequenceManager = React.createContext<SequenceManagerContext>({
 	registerSequence: () => {
 		throw new Error('SequenceManagerContext not initialized');
@@ -44,16 +54,20 @@ export type VisualModeGetters = {
 };
 
 export type VisualModeSetters = {
-	setDragOverrides: (sequenceId: string, key: string, value: unknown) => void;
-	clearDragOverrides: (sequenceId: string) => void;
+	setDragOverrides: (
+		nodePath: SequenceNodePath,
+		key: string,
+		value: unknown,
+	) => void;
+	clearDragOverrides: (nodePath: SequenceNodePath) => void;
 	setCodeValues: (
-		sequenceId: string,
+		nodePath: SequenceNodePath,
 		values: Record<string, CanUpdateSequencePropStatus> | null,
 	) => void;
 };
 
-const getCodeValues = (codeValues: CodeValues, overrideId: string) => {
-	return codeValues[overrideId] ?? undefined;
+const getCodeValues = (codeValues: CodeValues, nodePath: SequenceNodePath) => {
+	return codeValues[nodePathToString(nodePath)] ?? undefined;
 };
 
 export type GetCodeValuesType = typeof getCodeValues;
@@ -92,11 +106,11 @@ export const SequenceManagerProvider: React.FC<{
 	const [codeValues, setCodeValuesMapState] = useState<CodeValues>({});
 
 	const setDragOverrides = useCallback(
-		(sequenceId: string, key: string, value: unknown) => {
+		(nodePath: SequenceNodePath, key: string, value: unknown) => {
 			setControlOverrides((prev) => ({
 				...prev,
-				[sequenceId]: {
-					...prev[sequenceId],
+				[nodePathToString(nodePath)]: {
+					...prev[nodePathToString(nodePath)],
 					[key]: value,
 				},
 			}));
@@ -104,39 +118,41 @@ export const SequenceManagerProvider: React.FC<{
 		[],
 	);
 
-	const clearDragOverrides = useCallback((sequenceId: string) => {
+	const clearDragOverrides = useCallback((nodePath: SequenceNodePath) => {
 		setControlOverrides((prev) => {
-			if (!prev[sequenceId]) {
+			const key = nodePathToString(nodePath);
+			if (!prev[key]) {
 				return prev;
 			}
 
 			const next = {...prev};
-			delete next[sequenceId];
+			delete next[key];
 			return next;
 		});
 	}, []);
 
 	const setCodeValues = useCallback(
 		(
-			sequenceId: string,
+			nodePath: SequenceNodePath,
 			values: Record<string, CanUpdateSequencePropStatus> | null,
 		) => {
 			setCodeValuesMapState((prev) => {
-				if (prev[sequenceId] === values) {
+				const key = nodePathToString(nodePath);
+				if (prev[key] === values) {
 					return prev;
 				}
 
 				if (values === null) {
-					if (!(sequenceId in prev)) {
+					if (!(key in prev)) {
 						return prev;
 					}
 
 					const next = {...prev};
-					delete next[sequenceId];
+					delete next[key];
 					return next;
 				}
 
-				return {...prev, [sequenceId]: values};
+				return {...prev, [key]: values};
 			});
 		},
 		[],
@@ -170,9 +186,10 @@ export const SequenceManagerProvider: React.FC<{
 	const gettersContext: VisualModeGetters = useMemo(() => {
 		return {
 			visualModeEnabled,
-			getDragOverrides: (overrideId: string) => dragOverrides[overrideId] ?? {},
-			getCodeValues: (overrideId: string) =>
-				getCodeValues(codeValues, overrideId),
+			getDragOverrides: (nodePath: SequenceNodePath) =>
+				dragOverrides[nodePathToString(nodePath)] ?? {},
+			getCodeValues: (nodePath: SequenceNodePath) =>
+				getCodeValues(codeValues, nodePath),
 		};
 	}, [visualModeEnabled, dragOverrides, codeValues]);
 

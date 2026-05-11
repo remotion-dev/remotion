@@ -1,6 +1,5 @@
-import type {SequenceNodePath} from '@remotion/studio-shared';
 import React, {useMemo} from 'react';
-import type {SequenceSchema} from 'remotion';
+import type {SequenceSchema, SequenceNodePath} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
 import {
@@ -39,7 +38,6 @@ export const TimelineExpandedRow: React.FC<{
 	readonly nestedDepth: number;
 	readonly expandedTracks: Record<string, boolean>;
 	readonly toggleTrack: (id: string) => void;
-	readonly overrideId: string;
 	readonly validatedLocation: CodePosition | null;
 	readonly nodePath: SequenceNodePath | null;
 	readonly schema: SequenceSchema;
@@ -49,7 +47,6 @@ export const TimelineExpandedRow: React.FC<{
 	nestedDepth,
 	expandedTracks,
 	toggleTrack,
-	overrideId,
 	validatedLocation,
 	nodePath,
 	schema,
@@ -89,7 +86,6 @@ export const TimelineExpandedRow: React.FC<{
 		return (
 			<TimelineFieldRow
 				field={node.field}
-				overrideId={overrideId}
 				validatedLocation={validatedLocation}
 				paddingLeft={paddingLeft}
 				nestedDepth={nestedDepth}
