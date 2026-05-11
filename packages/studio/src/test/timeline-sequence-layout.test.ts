@@ -149,6 +149,22 @@ test('media trimmed past its duration has zero width', () => {
 	expect(result.naturalWidth).toBe(0);
 });
 
+test('media trimmed past its duration and timeline end has zero width', () => {
+	const result = getTimelineSequenceLayout({
+		durationInFrames: 200,
+		startFrom: 200,
+		startFromMedia: 500,
+		maxMediaDuration: 300,
+		premountDisplay: null,
+		postmountDisplay: null,
+		video: makeVideoConfig(300),
+		windowWidth: 1000,
+	});
+
+	expect(result.width).toBe(0);
+	expect(result.naturalWidth).toBe(0);
+});
+
 test('Loop overshoot: naturalWidth > width when total loop duration exceeds comp', () => {
 	// 4 full iterations of 100 frames = 400, but comp is only 350
 	const overshoot = getTimelineSequenceLayout({
