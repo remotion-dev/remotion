@@ -63,9 +63,16 @@ const useBufferManager = (
 				};
 			}
 
+			let unblocked = false;
+
 			setBlocks((b) => [...b, block]);
 			return {
 				unblock: () => {
+					if (unblocked) {
+						return;
+					}
+
+					unblocked = true;
 					setBlocks((b) => {
 						const newArr = b.filter((bx) => bx !== block);
 						if (newArr.length === b.length) {
