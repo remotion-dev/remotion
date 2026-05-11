@@ -242,14 +242,6 @@ export const SharedAudioContextProvider: React.FC<{
 						duration,
 					});
 				} else {
-					console.log(
-						'starting node!',
-						scheduledTime,
-						mediaTimestamp,
-						offset,
-						duration,
-					);
-
 					node.start(scheduledTime, offset, duration);
 				}
 			}
