@@ -174,6 +174,7 @@ import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {
 	PLAY_RANGES_MEDIA_DEFAULT,
 	PLAY_RANGES_MEDIA_VIDEO_URL_DEFAULT,
+	PLAY_RANGES_MEDIA_ZIP_DEFAULT,
 	PlayRangesMediaVideo,
 	calculateMetadataPlayRangesMedia,
 } from './PlayRangesMediaVideo';
@@ -1073,6 +1074,17 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						url: PLAY_RANGES_MEDIA_VIDEO_URL_DEFAULT,
 						playRanges: PLAY_RANGES_MEDIA_DEFAULT,
+					}}
+				/>
+				<Composition
+					id="play-ranges-media-video-zip"
+					component={PlayRangesMediaVideo}
+					width={480}
+					height={270}
+					calculateMetadata={calculateMetadataPlayRangesMedia}
+					defaultProps={{
+						url: PLAY_RANGES_MEDIA_VIDEO_URL_DEFAULT,
+						playRanges: PLAY_RANGES_MEDIA_ZIP_DEFAULT,
 					}}
 				/>
 				<Composition

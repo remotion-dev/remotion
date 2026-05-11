@@ -1,5 +1,5 @@
 // Repro: @remotion/media Video inside Series.Sequence with trim windows and premount.
-import {Video} from '@remotion/media';
+import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {CalculateMetadataFunction, Series} from 'remotion';
 
@@ -18,6 +18,14 @@ export const PLAY_RANGES_MEDIA_DEFAULT: PlayRangeSection[] = [
 	{trimBefore: 1.5 * fps, trimAfter: 2 * fps},
 	{trimBefore: 2.5 * fps, trimAfter: 3 * fps},
 	{trimBefore: 3.5 * fps, trimAfter: 4 * fps},
+	{trimBefore: 4.5 * fps, trimAfter: 5 * fps},
+	{trimBefore: 5.5 * fps, trimAfter: 6 * fps},
+	{trimBefore: 6.5 * fps, trimAfter: 7 * fps},
+	{trimBefore: 7.5 * fps, trimAfter: 8 * fps},
+];
+
+export const PLAY_RANGES_MEDIA_ZIP_DEFAULT: PlayRangeSection[] = [
+	{trimBefore: 0 * fps, trimAfter: 4 * fps},
 	{trimBefore: 4.5 * fps, trimAfter: 5 * fps},
 	{trimBefore: 5.5 * fps, trimAfter: 6 * fps},
 	{trimBefore: 6.5 * fps, trimAfter: 7 * fps},
