@@ -24,6 +24,14 @@ export const PLAY_RANGES_MEDIA_DEFAULT: PlayRangeSection[] = [
 	{trimBefore: 7.5 * fps, trimAfter: 8 * fps},
 ];
 
+export const PLAY_RANGES_MEDIA_ZIP_DEFAULT: PlayRangeSection[] = [
+	{trimBefore: 0 * fps, trimAfter: 4 * fps},
+	{trimBefore: 4.5 * fps, trimAfter: 5 * fps},
+	{trimBefore: 5.5 * fps, trimAfter: 6 * fps},
+	{trimBefore: 6.5 * fps, trimAfter: 7 * fps},
+	{trimBefore: 7.5 * fps, trimAfter: 8 * fps},
+];
+
 export type PlayRangesMediaVideoProps = {
 	url: string;
 	playRanges: PlayRangeSection[];
