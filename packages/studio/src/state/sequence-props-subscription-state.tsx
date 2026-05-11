@@ -90,21 +90,16 @@ export const SequencePropsSubscriptionProvider: React.FC<{
 	);
 };
 
-export const EMPTY_STATE: SequencePropsSubscriptionState = {
-	nodePath: null,
-	jsxInMapCallback: false,
-};
-
 export const useSubscribedNodePath = (
 	sequence: TSequence,
-): SequencePropsSubscriptionState => {
+): SequencePropsSubscriptionState | null => {
 	const {subscriptionStates} = useContext(
 		SequencePropsSubscriptionGettersContext,
 	);
 	const overrideId = sequence.controls?.overrideId ?? null;
 	if (!overrideId) {
-		return EMPTY_STATE;
+		return null;
 	}
 
-	return subscriptionStates[overrideId] ?? EMPTY_STATE;
+	return subscriptionStates[overrideId] ?? null;
 };

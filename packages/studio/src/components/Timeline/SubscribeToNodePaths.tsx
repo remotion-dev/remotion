@@ -13,12 +13,24 @@ export const SubscribeToNodePaths: React.FC<{
 	const visualModeEnvEnabled = Boolean(
 		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
 	);
+	if (sequence.controls === null || !visualModeEnvEnabled) {
+		return;
+	}
+
 	const previewConnected = previewServerState.type === 'connected';
 
 	const visualModeActive = visualModeEnvEnabled && previewConnected;
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
-	useSequencePropsSubscription(sequence, originalLocation, visualModeActive);
+
+	// eslint-disable-next-line react-hooks/rules-of-hooks
+	useSequencePropsSubscription(
+		sequence.controls.overrideId,
+		sequence.controls.schema,
+		originalLocation,
+		visualModeActive,
+	);
 
 	return null;
 };

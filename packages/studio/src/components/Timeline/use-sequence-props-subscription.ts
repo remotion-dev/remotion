@@ -1,19 +1,18 @@
 import {useCallback, useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
-import type {TSequence} from 'remotion';
+import type {SequenceSchema} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {
-	EMPTY_STATE,
-	SequencePropsSubscriptionSettersContext,
-} from '../../state/sequence-props-subscription-state';
+import type {SequencePropsSubscriptionState} from '../../state/sequence-props-subscription-state';
+import {SequencePropsSubscriptionSettersContext} from '../../state/sequence-props-subscription-state';
 import {
 	acquireSequencePropsSubscription,
 	type SequencePropsSnapshot,
 } from './sequence-props-subscription-store';
 
 export const useSequencePropsSubscription = (
-	sequence: TSequence,
+	overrideId: string,
+	schema: SequenceSchema,
 	originalLocation: OriginalPosition | null,
 	visualModeEnabled: boolean,
 ) => {
@@ -21,7 +20,6 @@ export const useSequencePropsSubscription = (
 	const {setSubscriptionState} = useContext(
 		SequencePropsSubscriptionSettersContext,
 	);
-	const overrideId = sequence.controls?.overrideId ?? null;
 
 	const setPropStatusesForSequence = useCallback(
 		(statuses: Record<string, CanUpdateSequencePropStatus> | null) => {
@@ -35,16 +33,7 @@ export const useSequencePropsSubscription = (
 	);
 
 	const setSubscriptionStateForSequence = useCallback(
-		(nextState: typeof EMPTY_STATE) => {
-			if (!overrideId) {
-				return;
-			}
-
-			if (nextState === EMPTY_STATE) {
-				setSubscriptionState(overrideId, null);
-				return;
-			}
-
+		(nextState: SequencePropsSubscriptionState | null) => {
 			setSubscriptionState(overrideId, nextState);
 		},
 		[overrideId, setSubscriptionState],
@@ -80,16 +69,13 @@ export const useSequencePropsSubscription = (
 		};
 	}, []);
 
-	const schema = sequence.controls?.schema;
 	const locationSource = validatedLocation?.source ?? null;
 	const locationLine = validatedLocation?.line ?? null;
 	const locationColumn = validatedLocation?.column ?? null;
 
 	useEffect(() => {
 		if (!visualModeEnabled) {
-			setPropStatusesForSequence(null);
-			setSubscriptionStateForSequence(EMPTY_STATE);
-			return;
+			throw new Error('Visual mode is not enabled');
 		}
 
 		if (
@@ -99,8 +85,6 @@ export const useSequencePropsSubscription = (
 			locationColumn === null ||
 			!schema
 		) {
-			setPropStatusesForSequence(null);
-			setSubscriptionStateForSequence(EMPTY_STATE);
 			return;
 		}
 
@@ -126,10 +110,6 @@ export const useSequencePropsSubscription = (
 			release();
 			// Only clear props on true unmount, not on re-subscribe due to
 			// location changes — avoids flicker while re-subscribing.
-			if (!isMountedRef.current) {
-				setPropStatusesForSequence(null);
-				setSubscriptionStateForSequence(EMPTY_STATE);
-			}
 		};
 	}, [
 		clientId,

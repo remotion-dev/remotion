@@ -43,7 +43,7 @@ export const TimelineListItem: React.FC<{
 	const {expandedTracks, toggleTrack} = useContext(ExpandedTracksContext);
 
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
-	const {nodePath, jsxInMapCallback} = useSubscribedNodePath(sequence);
+	const nodePathState = useSubscribedNodePath(sequence);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -61,7 +61,9 @@ export const TimelineListItem: React.FC<{
 		};
 	}, [originalLocation]);
 
-	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
+	const canDeleteFromSource = Boolean(
+		nodePathState && validatedLocation?.source,
+	);
 
 	const deleteDisabled = useMemo(
 		() => !previewConnected || !sequence.controls || !canDeleteFromSource,
@@ -71,11 +73,15 @@ export const TimelineListItem: React.FC<{
 	const duplicateDisabled = deleteDisabled;
 
 	const onDuplicateSequenceFromSource = useCallback(async () => {
-		if (!validatedLocation?.source || !nodePath) {
+		if (
+			!validatedLocation?.source ||
+			!nodePathState ||
+			!nodePathState.nodePath
+		) {
 			return;
 		}
 
-		if (jsxInMapCallback) {
+		if (nodePathState.jsxInMapCallback) {
 			const message =
 				'This sequence is rendered inside a .map() callback. Duplicating inserts another copy in that callback (affecting each list item). Continue?';
 			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
@@ -87,7 +93,7 @@ export const TimelineListItem: React.FC<{
 		try {
 			const result = await callApi('/api/duplicate-jsx-node', {
 				fileName: validatedLocation.source,
-				nodePath,
+				nodePath: nodePathState.nodePath,
 			});
 			if (result.success) {
 				showNotification('Duplicated sequence in source file', 2000);
@@ -97,17 +103,21 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [jsxInMapCallback, nodePath, validatedLocation?.source]);
+	}, [nodePathState, validatedLocation?.source]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
-		if (!validatedLocation?.source || !nodePath) {
+		if (
+			!validatedLocation?.source ||
+			!nodePathState ||
+			!nodePathState.nodePath
+		) {
 			return;
 		}
 
 		try {
 			const result = await callApi('/api/delete-jsx-node', {
 				fileName: validatedLocation.source,
-				nodePath,
+				nodePath: nodePathState.nodePath,
 			});
 			if (result.success) {
 				showNotification('Removed sequence from source file', 2000);
@@ -117,7 +127,7 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePath, validatedLocation?.source]);
+	}, [nodePathState, validatedLocation?.source]);
 
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		if (!visualModeEnvEnabled) {
@@ -254,11 +264,14 @@ export const TimelineListItem: React.FC<{
 			) : (
 				trackRow
 			)}
-			{visualModeActive && isExpanded && hasExpandableContent ? (
+			{visualModeActive &&
+			isExpanded &&
+			hasExpandableContent &&
+			nodePathState ? (
 				<TimelineExpandedSection
 					sequence={sequence}
 					originalLocation={originalLocation}
-					nodePath={nodePath}
+					nodePath={nodePathState.nodePath}
 					nestedDepth={nestedDepth}
 				/>
 			) : null}
