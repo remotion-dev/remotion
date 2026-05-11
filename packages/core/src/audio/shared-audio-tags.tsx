@@ -242,6 +242,14 @@ export const SharedAudioContextProvider: React.FC<{
 						duration,
 					});
 				} else {
+					console.log(
+						'starting node!',
+						scheduledTime,
+						mediaTimestamp,
+						offset,
+						duration,
+					);
+
 					node.start(scheduledTime, offset, duration);
 				}
 			}
@@ -336,9 +344,9 @@ export const SharedAudioContextProvider: React.FC<{
 			ctxAndGain.audioContext.currentTime + 0.03,
 		);
 
-		nodesToResume.current.forEach((r, node) =>
-			node.start(r.scheduledTime, r.offset, r.duration),
-		);
+		nodesToResume.current.forEach((r, node) => {
+			node.start(r.scheduledTime, r.offset, r.duration);
+		});
 		nodesToResume.current.clear();
 
 		const resumePromise = ctxAndGain.audioContext.resume();
