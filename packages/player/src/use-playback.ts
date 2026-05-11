@@ -134,7 +134,12 @@ export const usePlayback = ({
 				return;
 			}
 
-			if (!muted) {
+			if (!muted && !context.buffering.current) {
+				Internals.Log.trace(
+					{logLevel, tag: 'audio'},
+					'Resuming audio context',
+					sharedAudioContext?.audioContext?.currentTime,
+				);
 				sharedAudioContext?.resume?.();
 			}
 
