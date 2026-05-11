@@ -9,6 +9,7 @@ import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {isTrackHidden} from './is-collapsed';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
+import {SubscribeToNodePaths} from './SubscribeToNodePaths';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineHeightContainer} from './TimelineHeightContainer';
@@ -72,6 +73,9 @@ const TimelineInner: React.FC = () => {
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
+			{sequences.map((sequence) => (
+				<SubscribeToNodePaths key={sequence.id} sequence={sequence} />
+			))}
 			<TimelineWidthProvider>
 				<TimelinePinchZoom />
 				<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>

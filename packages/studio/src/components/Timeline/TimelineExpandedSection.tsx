@@ -40,7 +40,6 @@ export const TimelineExpandedSection: React.FC<{
 	);
 
 	const {overrideId} = sequence.controls!;
-
 	const validatedLocation: CodePosition | null = useMemo(() => {
 		if (
 			!originalLocation ||

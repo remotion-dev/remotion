@@ -8,6 +8,7 @@ import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LAYER_HEIGHT_AUDIO,
 } from '../../helpers/timeline-layout';
+import {useSubscribedNodePath} from '../../state/sequence-props-subscription-state';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {ExpandedTracksContext} from '../ExpandedTracksProvider';
@@ -22,7 +23,6 @@ import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineLayerEye} from './TimelineLayerEye';
 import {TimelineStack} from './TimelineStack';
 import {useResolvedStack} from './use-resolved-stack';
-import {useSequencePropsSubscription} from './use-sequence-props-subscription';
 
 export const INDENT = 10;
 
@@ -43,11 +43,7 @@ export const TimelineListItem: React.FC<{
 	const {expandedTracks, toggleTrack} = useContext(ExpandedTracksContext);
 
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
-	const {nodePath, jsxInMapCallback} = useSequencePropsSubscription(
-		sequence,
-		originalLocation,
-		visualModeActive,
-	);
+	const {nodePath, jsxInMapCallback} = useSubscribedNodePath(sequence);
 
 	const validatedLocation = useMemo(() => {
 		if (
