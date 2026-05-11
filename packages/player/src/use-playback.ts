@@ -69,6 +69,10 @@ export const usePlayback = ({
 			return;
 		}
 
+		if (muted) {
+			return;
+		}
+
 		const changed = setGlobalTimeAnchor({
 			audioContext: sharedAudioContext.audioContext,
 			audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
@@ -79,7 +83,7 @@ export const usePlayback = ({
 		if (changed) {
 			sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
 		}
-	}, [config, frame, logLevel, playbackRate, sharedAudioContext]);
+	}, [config, frame, logLevel, playbackRate, sharedAudioContext, muted]);
 
 	useEffect(() => {
 		if (!config) {
