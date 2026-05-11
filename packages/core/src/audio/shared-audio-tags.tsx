@@ -369,15 +369,15 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const suspend = useCallback(() => {
 		if (!ctxAndGain) {
-			return Promise.resolve();
+			return;
 		}
 
 		if (!audioContextIsPlayingEventually.current) {
-			return Promise.resolve();
+			return;
 		}
 
 		audioContextIsPlayingEventually.current = false;
-		return ctxAndGain.audioContext.suspend();
+		ctxAndGain.audioContext.suspend();
 	}, [ctxAndGain]);
 
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {
