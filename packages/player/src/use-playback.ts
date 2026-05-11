@@ -201,8 +201,11 @@ export const usePlayback = ({
 				return;
 			}
 
-			if (context.buffering.current && !muted) {
-				sharedAudioContext?.suspend?.();
+			if (context.buffering.current) {
+				if (!muted) {
+					sharedAudioContext?.suspend?.();
+				}
+
 				const stopListening = context.listenForResume(() => {
 					stopListening.remove();
 					startedTime = performance.now();
