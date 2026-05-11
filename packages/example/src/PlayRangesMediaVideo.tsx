@@ -1,5 +1,5 @@
 // Repro: @remotion/media Video inside Series.Sequence with trim windows and premount.
-import {Audio, Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 import React from 'react';
 import {CalculateMetadataFunction, Series} from 'remotion';
 
