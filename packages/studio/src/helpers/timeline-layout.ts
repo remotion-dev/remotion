@@ -5,7 +5,12 @@ import {
 	type SchemaFieldInfo,
 	type SequenceControls,
 } from '@remotion/studio-shared';
-import type {EffectDefinitionAndStack, TSequence} from 'remotion';
+import type {
+	EffectDefinitionAndStack,
+	GetCodeValues,
+	GetDragOverrides,
+	TSequence,
+} from 'remotion';
 
 export type {CodeValues, DragOverrides, SchemaFieldInfo, SequenceControls};
 export {
@@ -58,12 +63,12 @@ export type TimelineTreeNode =
 
 export const buildTimelineTree = ({
 	sequence,
-	dragOverrides,
+	getDragOverrides,
 	getCodeValues,
 }: {
 	sequence: TSequence;
-	dragOverrides: DragOverrides;
-	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
+	getDragOverrides: GetDragOverrides;
+	getCodeValues: GetCodeValues;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 
@@ -95,7 +100,7 @@ export const buildTimelineTree = ({
 		schema: sequence.controls!.schema,
 		currentRuntimeValueDotNotation:
 			sequence.controls!.currentRuntimeValueDotNotation,
-		dragOverrides,
+		getDragOverrides,
 		getCodeValues,
 		overrideId: sequence.controls!.overrideId!,
 	});
@@ -156,15 +161,15 @@ export const getTreeRowHeight = (node: TimelineTreeNode): number => {
 export const getExpandedTrackHeight = ({
 	sequence,
 	expandedTracks,
-	dragOverrides,
+	getDragOverrides,
 	getCodeValues,
 }: {
 	sequence: TSequence;
 	expandedTracks: Record<string, boolean>;
-	dragOverrides: DragOverrides;
-	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
+	getDragOverrides: GetDragOverrides;
+	getCodeValues: GetCodeValues;
 }): number => {
-	const tree = buildTimelineTree({sequence, dragOverrides, getCodeValues});
+	const tree = buildTimelineTree({sequence, getDragOverrides, getCodeValues});
 	const flat = flattenVisibleTreeNodes({nodes: tree, expandedTracks});
 
 	if (flat.length === 0) {

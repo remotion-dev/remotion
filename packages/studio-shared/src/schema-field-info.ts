@@ -4,6 +4,8 @@ import type {
 	SequenceControls,
 	SequenceFieldSchema,
 	SequenceSchema,
+	GetDragOverrides,
+	GetCodeValues,
 } from 'remotion';
 import {Internals} from 'remotion';
 
@@ -31,7 +33,7 @@ const SUPPORTED_SCHEMA_TYPES = new Set([
 ]);
 
 export const getFieldsToShow = ({
-	dragOverrides,
+	getDragOverrides,
 	getCodeValues,
 	overrideId,
 	schema,
@@ -39,14 +41,14 @@ export const getFieldsToShow = ({
 }: {
 	schema: SequenceSchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
-	dragOverrides: DragOverrides;
-	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
+	getDragOverrides: GetDragOverrides;
+	getCodeValues: GetCodeValues;
 	overrideId: string;
 }): SchemaFieldInfo[] | null => {
 	const valuesDotNotation = Internals.computeEffectiveSchemaValuesDotNotation({
 		schema,
 		currentValue: currentRuntimeValueDotNotation,
-		overrideValues: dragOverrides[overrideId] ?? {},
+		overrideValues: getDragOverrides(overrideId),
 		propStatus: getCodeValues(overrideId),
 	});
 

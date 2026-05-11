@@ -47,7 +47,7 @@ export const TimelineFieldRow: React.FC<{
 	nodePath,
 	schema,
 }) => {
-	const {dragOverrides, getCodeValues} = useContext(
+	const {getDragOverrides, getCodeValues} = useContext(
 		Internals.VisualModeGettersContext,
 	);
 	const {setDragOverrides, clearDragOverrides} = useContext(
@@ -58,8 +58,8 @@ export const TimelineFieldRow: React.FC<{
 	const codeValue = codeValuesForOverride?.[field.key] ?? null;
 
 	const dragOverrideValue = useMemo(() => {
-		return (dragOverrides[overrideId] ?? {})[field.key];
-	}, [dragOverrides, overrideId, field.key]);
+		return (getDragOverrides(overrideId) ?? {})[field.key];
+	}, [getDragOverrides, overrideId, field.key]);
 
 	const effectiveValue = Internals.getEffectiveVisualModeValue({
 		codeValue,

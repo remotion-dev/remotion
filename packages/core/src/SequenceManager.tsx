@@ -4,6 +4,8 @@ import type {
 	CanUpdateSequencePropStatus,
 	CodeValues,
 	DragOverrides,
+	GetCodeValues,
+	GetDragOverrides,
 } from './use-schema.js';
 
 export type SequenceManagerContext = {
@@ -37,8 +39,8 @@ export const SequenceVisibilityToggleContext =
 
 export type VisualModeGetters = {
 	visualModeEnabled: boolean;
-	dragOverrides: DragOverrides;
-	getCodeValues: (overrideId: string) => CodeValues[string] | undefined;
+	getDragOverrides: GetDragOverrides;
+	getCodeValues: GetCodeValues;
 };
 
 export type VisualModeSetters = {
@@ -57,7 +59,9 @@ const getCodeValues = (codeValues: CodeValues, overrideId: string) => {
 export type GetCodeValuesType = typeof getCodeValues;
 
 export const VisualModeGettersContext = React.createContext<VisualModeGetters>({
-	dragOverrides: {},
+	getDragOverrides: () => {
+		throw new Error('VisualModeGettersContext not initialized');
+	},
 	getCodeValues: () => {
 		throw new Error('VisualModeGettersContext not initialized');
 	},
@@ -166,7 +170,7 @@ export const SequenceManagerProvider: React.FC<{
 	const gettersContext: VisualModeGetters = useMemo(() => {
 		return {
 			visualModeEnabled,
-			dragOverrides,
+			getDragOverrides: (overrideId: string) => dragOverrides[overrideId] ?? {},
 			getCodeValues: (overrideId: string) =>
 				getCodeValues(codeValues, overrideId),
 		};

@@ -107,7 +107,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
 		const env = useRemotionEnvironment();
 
-		const {visualModeEnabled, dragOverrides, getCodeValues} = useContext(
+		const {visualModeEnabled, getDragOverrides, getCodeValues} = useContext(
 			VisualModeGettersContext,
 		);
 
@@ -171,12 +171,12 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 			return computeEffectiveSchemaValuesDotNotation({
 				schema,
 				currentValue: currentRuntimeValueDotNotation,
-				overrideValues: dragOverrides[overrideId] ?? {},
+				overrideValues: getDragOverrides(overrideId),
 				propStatus: getCodeValues(overrideId),
 			});
 		}, [
 			currentRuntimeValueDotNotation,
-			dragOverrides,
+			getDragOverrides,
 			overrideId,
 			getCodeValues,
 		]);

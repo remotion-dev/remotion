@@ -14,6 +14,12 @@ export type CodeValues = Record<
 	Record<string, CanUpdateSequencePropStatus>
 >;
 
+export type GetCodeValues = (
+	overrideId: string,
+) => CodeValues[string] | undefined;
+
+export type GetDragOverrides = (overrideId: string) => DragOverrides[string];
+
 const findFieldInSchema = (
 	schema: SequenceSchema,
 	key: string,

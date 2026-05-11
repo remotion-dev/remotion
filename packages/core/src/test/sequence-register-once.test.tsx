@@ -40,8 +40,12 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 		const visualGetters = useMemo(
 			() => ({
 				visualModeEnabled: true,
-				dragOverrides: {},
-				getCodeValues: () => undefined,
+				getDragOverrides: () => {
+					throw new Error('VisualModeGettersContext not initialized');
+				},
+				getCodeValues: () => {
+					throw new Error('VisualModeGettersContext not initialized');
+				},
 			}),
 			[],
 		);
