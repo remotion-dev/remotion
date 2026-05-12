@@ -28,7 +28,7 @@
 		"mime-types": "2.1.34",
 		"@aws-sdk/credential-provider-ini": "catalog:",
 		"@remotion/serverless-client": "workspace:*",
-		"@types/express": "^5.0.0",
+		"@types/express": "5.0.1",
 		"express": "4.21.0",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",

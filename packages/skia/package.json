@@ -33,7 +33,7 @@
 		"@remotion/bundler": "workspace:*",
 		"@shopify/react-native-skia": "2.0.0",
 		"canvaskit-wasm": "0.40.0",
-		"@types/react-native": "^0.69.2",
+		"@types/react-native": "0.69.2",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"remotion": "workspace:*",

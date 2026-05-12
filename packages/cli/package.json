@@ -54,9 +54,9 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@types/minimist": "^1.2.2",
-		"@types/prompts": "^2.4.1",
-		"@types/prettier": "^2.7.2",
+		"@types/minimist": "1.2.2",
+		"@types/prompts": "2.4.9",
+		"@types/prettier": "2.7.2",
 		"@types/node": "catalog:",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/tailwind-v4": "workspace:*",
