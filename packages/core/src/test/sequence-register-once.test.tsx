@@ -46,9 +46,6 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 				getCodeValues: () => {
 					throw new Error('VisualModeGettersContext not initialized');
 				},
-				getIsJsxInMapCallback: () => {
-					throw new Error('VisualModeGettersContext not initialized');
-				},
 			}),
 			[],
 		);

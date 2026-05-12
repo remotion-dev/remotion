@@ -80,13 +80,21 @@ export const buildTimelineTree = ({
 	if (sequence.effects.length > 0) {
 		roots.push({
 			kind: 'group',
-			nodePathInfo: {nodePath: [...nodePath, 'effects'], index},
+			nodePathInfo: {
+				nodePath: [...nodePath, 'effects'],
+				index,
+				numberOfSequencesWithThisNodePath: 0,
+			},
 			label: 'Effects',
 			children: sequence.effects.map((effect, i): TimelineTreeNode => {
 				const effectNodePath = [...nodePath, 'effects', i];
 				return {
 					kind: 'group',
-					nodePathInfo: {nodePath: effectNodePath, index},
+					nodePathInfo: {
+						nodePath: effectNodePath,
+						index,
+						numberOfSequencesWithThisNodePath: 0,
+					},
 					label: effect.definition.label,
 					children: getEffectSchemaLabels(effect).map(
 						(label): TimelineTreeNode => ({
@@ -94,6 +102,7 @@ export const buildTimelineTree = ({
 							nodePathInfo: {
 								nodePath: [...effectNodePath, label.key],
 								index,
+								numberOfSequencesWithThisNodePath: 0,
 							},
 							label: label.description ?? label.key,
 							field: null,
@@ -117,7 +126,11 @@ export const buildTimelineTree = ({
 		for (const f of controlFields) {
 			roots.push({
 				kind: 'field',
-				nodePathInfo: {nodePath: [...nodePath, 'controls', f.key], index},
+				nodePathInfo: {
+					nodePath: [...nodePath, 'controls', f.key],
+					index,
+					numberOfSequencesWithThisNodePath: 0,
+				},
 				label: f.description ?? f.key,
 				field: f,
 			});

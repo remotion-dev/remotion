@@ -47,9 +47,6 @@ export const TimelineListItem: React.FC<{
 	);
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
-	const {getIsJsxInMapCallback} = useContext(
-		Internals.VisualModeGettersContext,
-	);
 
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
 
@@ -83,9 +80,11 @@ export const TimelineListItem: React.FC<{
 			return;
 		}
 
-		if (getIsJsxInMapCallback(nodePath)) {
+		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
 			const message =
-				'This sequence is rendered inside a .map() callback. Duplicating inserts another copy in that callback (affecting each list item). Continue?';
+				'This sequence is programmatically duplicated ' +
+				nodePathInfo.numberOfSequencesWithThisNodePath +
+				' times in the code. Duplicating inserts another copy. Continue?';
 			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
 			if (!window.confirm(message)) {
 				return;
@@ -105,16 +104,18 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePath, validatedLocation?.source, getIsJsxInMapCallback]);
+	}, [nodePath, validatedLocation?.source, nodePathInfo]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
 		if (!validatedLocation?.source || !nodePath) {
 			return;
 		}
 
-		if (getIsJsxInMapCallback(nodePath)) {
+		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
 			const message =
-				'This sequence is rendered inside a .map() callback. Deleting removes all sequences in that callback. Continue?';
+				'This sequence is programmatically duplicated ' +
+				nodePathInfo.numberOfSequencesWithThisNodePath +
+				' times in the code. Deleting removes all instances. Continue?';
 			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
 			if (!window.confirm(message)) {
 				return;
@@ -134,7 +135,7 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePath, validatedLocation?.source, getIsJsxInMapCallback]);
+	}, [nodePath, validatedLocation?.source, nodePathInfo]);
 
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		if (!visualModeEnvEnabled) {
