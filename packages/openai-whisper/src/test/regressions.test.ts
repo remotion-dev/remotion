@@ -128,3 +128,43 @@ test('Regression test 2', () => {
 		},
 	]);
 });
+
+test('Issue 7298 - apostrophe variants', () => {
+	expect(
+		openAiWhisperApiToCaptions({
+			transcription: {
+				task: 'transcribe',
+				text: " Let's go!",
+				words: [
+					{
+						start: 0,
+						end: 0.1,
+						word: 'Let’s',
+					},
+					{
+						start: 0.1,
+						end: 0.2,
+						word: 'go',
+					},
+				],
+				duration: 0.2,
+				language: 'english',
+			},
+		}).captions,
+	).toEqual([
+		{
+			confidence: null,
+			endMs: 100,
+			startMs: 0,
+			text: " Let's",
+			timestampMs: 50,
+		},
+		{
+			confidence: null,
+			endMs: 200,
+			startMs: 100,
+			text: ' go!',
+			timestampMs: 150.00000000000003,
+		},
+	]);
+});
