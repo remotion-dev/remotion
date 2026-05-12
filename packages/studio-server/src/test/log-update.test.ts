@@ -158,6 +158,22 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 		const expectedLine = `${chalk.blueBright(`src/Example.tsx:${logLine}:`)} ${expectedPropChange}`;
 
 		expect(logged).toBe(expectedLine);
+
+		const normalizedOld = normalizeQuotes(oldValueStrings[0]);
+		const normalizedNew = normalizeQuotes(newValueString);
+		const normalizedDefault = normalizeQuotes(defaultValueString);
+
+		const undoPropChange = formatPropChange({
+			key: 'layout',
+			oldValueString: normalizedNew,
+			newValueString: normalizedOld,
+			defaultValueString: normalizedDefault,
+			removedProps: [],
+			addedProps: removedProps,
+		});
+
+		const expectedUndoPropChange = `${strikeThrough(simpleProp('layout', "'none'"))}, style={{ scale: 1.74 }}`;
+		expect(undoPropChange).toBe(expectedUndoPropChange);
 	} finally {
 		consoleSpy.mockRestore();
 	}
