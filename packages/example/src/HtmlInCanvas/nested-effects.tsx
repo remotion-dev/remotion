@@ -65,7 +65,7 @@ export const HtmlInCanvasNestedEffects: React.FC = () => {
 					alignItems: 'center',
 				}}
 			>
-				<HtmlInCanvas width={200} height={200} onPaint={paintRotation}>
+				<HtmlInCanvas width={200} height={200} onPaint={paintRotation} nested>
 					<AbsoluteFill
 						style={{
 							backgroundColor: '#ffcc00',
@@ -73,7 +73,7 @@ export const HtmlInCanvasNestedEffects: React.FC = () => {
 							alignItems: 'center',
 						}}
 					>
-						<HtmlInCanvas width={100} height={100} onPaint={paintBlur}>
+						<HtmlInCanvas width={100} height={100} onPaint={paintBlur} nested>
 							<AbsoluteFill
 								style={{
 									backgroundColor: '#ff0044',

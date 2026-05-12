@@ -1,6 +1,8 @@
 import React, {
+	createContext,
 	forwardRef,
 	useCallback,
+	useContext,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -259,8 +261,15 @@ export type HtmlInCanvasProps = Omit<
 		readonly children: React.ReactNode;
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
+		readonly nested?: boolean;
 	};
 /* eslint-enable react/require-default-props */
+
+const HtmlInCanvasAncestorContext = createContext(false);
+
+const hiddenAuxiliaryCanvasContainerStyle: React.CSSProperties = {
+	position: 'absolute',
+};
 
 const HtmlInCanvasInner = forwardRef<
 	HTMLCanvasElement,
@@ -279,10 +288,15 @@ const HtmlInCanvasInner = forwardRef<
 			_experimentalControls: controls,
 			style,
 			durationInFrames,
+			nested = false,
 			...sequenceProps
 		},
 		ref,
 	) => {
+		const isInsideAncestorHtmlInCanvas = useContext(
+			HtmlInCanvasAncestorContext,
+		);
+
 		assertHtmlInCanvasDimensions(width, height);
 		const {continueRender, cancelRender} = useDelayRender();
 
@@ -316,6 +330,15 @@ const HtmlInCanvasInner = forwardRef<
 		);
 		const shadowCanvasRef = useRef<HTMLCanvasElement | null>(null);
 		const [offscreenCanvas] = useState(() => new OffscreenCanvas(1, 1));
+		const auxiliaryCanvasContainer = useMemo(() => {
+			if (!nested || typeof document === 'undefined') {
+				return null;
+			}
+
+			const container = document.createElement('div');
+			Object.assign(container.style, hiddenAuxiliaryCanvasContainerStyle);
+			return container;
+		}, [nested]);
 
 		const chainState = useEffectChainState();
 
@@ -408,9 +431,18 @@ const HtmlInCanvasInner = forwardRef<
 					height,
 				});
 
-				shadowCanvasRef.current
-					?.getContext('2d')
-					?.drawImage(canvas2dRef.current!, 0, 0);
+				const shadowCanvas = shadowCanvasRef.current;
+				if (shadowCanvas) {
+					const shadowContext = shadowCanvas.getContext('2d');
+					if (!shadowContext) {
+						throw new Error(
+							'Failed to acquire 2D context for <HtmlInCanvas> shadow canvas',
+						);
+					}
+
+					shadowContext.clearRect(0, 0, width, height);
+					shadowContext.drawImage(canvas2dRef.current!, 0, 0);
+				}
 
 				continueRender(handle);
 			} catch (error) {
@@ -424,6 +456,18 @@ const HtmlInCanvasInner = forwardRef<
 			height,
 			offscreenCanvas,
 		]);
+
+		useLayoutEffect(() => {
+			if (!auxiliaryCanvasContainer) {
+				return;
+			}
+
+			document.body.appendChild(auxiliaryCanvasContainer);
+
+			return () => {
+				auxiliaryCanvasContainer.remove();
+			};
+		}, [auxiliaryCanvasContainer]);
 
 		// Set up layoutSubtree and persistent paint listener. Runs as a
 		// layout effect so the listener is attached before the resize effect
@@ -487,6 +531,25 @@ const HtmlInCanvasInner = forwardRef<
 			};
 		}, [width, height]);
 
+		if (isInsideAncestorHtmlInCanvas && !nested) {
+			throw new Error(
+				'<HtmlInCanvas> cannot be nested by default. Pass the `nested` prop to the inner <HtmlInCanvas> to opt into rendering it through an auxiliary canvas, or merge the effects into one <HtmlInCanvas> if possible.',
+			);
+		}
+
+		const layoutCanvasElement = (
+			<canvas
+				ref={setLayoutCanvasRef}
+				width={width}
+				height={height}
+				style={style}
+			>
+				<div ref={divRef} style={innerStyle}>
+					{children}
+				</div>
+			</canvas>
+		);
+
 		return (
 			<Sequence
 				durationInFrames={resolvedDuration}
@@ -496,25 +559,23 @@ const HtmlInCanvasInner = forwardRef<
 				layout="none"
 				{...sequenceProps}
 			>
-				{createPortal(
-					<canvas
-						ref={setLayoutCanvasRef}
-						width={width}
-						height={height}
-						style={style}
-					>
-						<div ref={divRef} style={innerStyle}>
-							{children}
-						</div>
-					</canvas>,
-					document.body,
-				)}
-				<canvas
-					ref={shadowCanvasRef}
-					width={width}
-					height={height}
-					style={style}
-				/>
+				<HtmlInCanvasAncestorContext.Provider value>
+					{nested ? (
+						<>
+							{auxiliaryCanvasContainer
+								? createPortal(layoutCanvasElement, auxiliaryCanvasContainer)
+								: null}
+							<canvas
+								ref={shadowCanvasRef}
+								width={width}
+								height={height}
+								style={style}
+							/>
+						</>
+					) : (
+						layoutCanvasElement
+					)}
+				</HtmlInCanvasAncestorContext.Provider>
 			</Sequence>
 		);
 	},
