@@ -1,31 +1,21 @@
 import {useState, useCallback, useMemo} from 'react';
 import {Internals} from 'remotion';
 import type {
-	SequencePropsSubscriptionState,
-	SequencePropsSubscriptionStates,
-	SequencePropsSubscriptionStatesGetters,
-	SequencePropsSubscriptionStatesSetters,
+	NodePathsState,
+	OverrideIdToNodePaths,
+	OverrideToNodePathGetters,
+	OverrideToNodeSetters,
 } from 'remotion';
 
 export const SequencePropsSubscriptionProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [subscriptionStates, setSubscriptionStates] =
-		useState<SequencePropsSubscriptionStates>({});
+		useState<OverrideIdToNodePaths>({});
 
 	const setSubscriptionState = useCallback(
-		(overrideId: string, state: SequencePropsSubscriptionState) => {
+		(overrideId: string, state: NodePathsState) => {
 			setSubscriptionStates((prev) => {
-				if (state === null) {
-					if (!(overrideId in prev)) {
-						return prev;
-					}
-
-					const next = {...prev};
-					delete next[overrideId];
-					return next;
-				}
-
 				const existing = prev[overrideId];
 				if (
 					existing &&
@@ -41,21 +31,19 @@ export const SequencePropsSubscriptionProvider: React.FC<{
 		[],
 	);
 
-	const getters = useMemo((): SequencePropsSubscriptionStatesGetters => {
-		return {subscriptionStates};
+	const getters = useMemo((): OverrideToNodePathGetters => {
+		return {overrideIdToNodePathMappings: subscriptionStates};
 	}, [subscriptionStates]);
 
-	const setters = useMemo((): SequencePropsSubscriptionStatesSetters => {
-		return {setSubscriptionState};
+	const setters = useMemo((): OverrideToNodeSetters => {
+		return {setOverrideIdToNodePath: setSubscriptionState};
 	}, [setSubscriptionState]);
 
 	return (
-		<Internals.SequencePropsSubscriptionGettersContext.Provider value={getters}>
-			<Internals.SequencePropsSubscriptionSettersContext.Provider
-				value={setters}
-			>
+		<Internals.OverrideIdsToNodePathsGettersContext.Provider value={getters}>
+			<Internals.OverrideIdsToNodePathsSettersContext.Provider value={setters}>
 				{children}
-			</Internals.SequencePropsSubscriptionSettersContext.Provider>
-		</Internals.SequencePropsSubscriptionGettersContext.Provider>
+			</Internals.OverrideIdsToNodePathsSettersContext.Provider>
+		</Internals.OverrideIdsToNodePathsGettersContext.Provider>
 	);
 };

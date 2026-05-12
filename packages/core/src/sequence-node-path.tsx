@@ -1,37 +1,29 @@
 import {createContext} from 'react';
 import type {SequenceNodePath} from './SequenceManager';
 
-export type SequencePropsSubscriptionState = {
+export type NodePathsState = {
 	nodePath: SequenceNodePath | null;
 	jsxInMapCallback: boolean;
 };
 
-export type SequencePropsSubscriptionStates = Record<
-	string,
-	SequencePropsSubscriptionState
->;
+export type OverrideIdToNodePaths = Record<string, NodePathsState>;
 
-export type SequencePropsSubscriptionStatesGetters = {
-	subscriptionStates: SequencePropsSubscriptionStates;
+export type OverrideToNodePathGetters = {
+	overrideIdToNodePathMappings: OverrideIdToNodePaths;
 };
 
-export type SequencePropsSubscriptionStatesSetters = {
-	setSubscriptionState: (
-		overrideId: string,
-		state: SequencePropsSubscriptionState,
-	) => void;
+export type OverrideToNodeSetters = {
+	setOverrideIdToNodePath: (overrideId: string, state: NodePathsState) => void;
 };
 
-export const SequencePropsSubscriptionGettersContext =
-	createContext<SequencePropsSubscriptionStatesGetters>({
-		subscriptionStates: {},
+export const OverrideIdsToNodePathsGettersContext =
+	createContext<OverrideToNodePathGetters>({
+		overrideIdToNodePathMappings: {},
 	});
 
-export const SequencePropsSubscriptionSettersContext =
-	createContext<SequencePropsSubscriptionStatesSetters>({
-		setSubscriptionState: () => {
-			throw new Error(
-				'SequencePropsSubscriptionSettersContext not initialized',
-			);
+export const OverrideIdsToNodePathsSettersContext =
+	createContext<OverrideToNodeSetters>({
+		setOverrideIdToNodePath: () => {
+			throw new Error('OverrideIdsToNodePathsSettersContext not initialized');
 		},
 	});

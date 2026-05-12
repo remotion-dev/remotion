@@ -103,13 +103,13 @@ import type {
 } from './sequence-field-schema.js';
 import {sequenceSchema, sequenceStyleSchema} from './sequence-field-schema.js';
 import type {
-	SequencePropsSubscriptionState,
-	SequencePropsSubscriptionStates,
-	SequencePropsSubscriptionStatesGetters,
-	SequencePropsSubscriptionStatesSetters,
+	NodePathsState,
+	OverrideIdToNodePaths,
+	OverrideToNodePathGetters,
+	OverrideToNodeSetters,
 } from './sequence-node-path.js';
-import {SequencePropsSubscriptionSettersContext} from './sequence-node-path.js';
-import {SequencePropsSubscriptionGettersContext} from './sequence-node-path.js';
+import {OverrideIdsToNodePathsSettersContext} from './sequence-node-path.js';
+import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
@@ -321,8 +321,8 @@ export const Internals = {
 	defineEffect,
 	createDescriptor,
 	computeEffectiveSchemaValuesDotNotation,
-	SequencePropsSubscriptionGettersContext,
-	SequencePropsSubscriptionSettersContext,
+	OverrideIdsToNodePathsGettersContext,
+	OverrideIdsToNodePathsSettersContext,
 } as const;
 
 export type {
@@ -352,11 +352,11 @@ export type {
 	ScheduleAudioNodeResult,
 	GetDragOverrides,
 	NonceHistory,
-	SequencePropsSubscriptionGettersContext,
-	SequencePropsSubscriptionSettersContext,
-	SequencePropsSubscriptionState,
+	OverrideIdsToNodePathsGettersContext,
+	OverrideIdsToNodePathsSettersContext,
+	NodePathsState,
 	SequenceNodePath,
-	SequencePropsSubscriptionStates,
-	SequencePropsSubscriptionStatesSetters,
-	SequencePropsSubscriptionStatesGetters,
+	OverrideIdToNodePaths,
+	OverrideToNodeSetters,
+	OverrideToNodePathGetters,
 };

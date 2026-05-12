@@ -23,8 +23,8 @@ export const useTimelineHeight = ({
 	const {getDragOverrides, getCodeValues} = useContext(
 		Internals.VisualModeGettersContext,
 	);
-	const {subscriptionStates} = useContext(
-		Internals.SequencePropsSubscriptionGettersContext,
+	const {overrideIdToNodePathMappings: subscriptionStates} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 
 	const visualModeEnabled =

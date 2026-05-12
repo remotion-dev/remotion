@@ -2,7 +2,7 @@ import React, {useContext, useMemo} from 'react';
 import type {
 	GetCodeValues,
 	GetDragOverrides,
-	SequencePropsSubscriptionStates,
+	OverrideIdToNodePaths,
 } from 'remotion';
 import {Internals, type TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -40,7 +40,7 @@ const getExpandedPlaceholderStyle = ({
 	expandedTracks: Record<string, boolean>;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
-	sequencePropsSubscriptionState: SequencePropsSubscriptionStates;
+	sequencePropsSubscriptionState: OverrideIdToNodePaths;
 }): React.CSSProperties => ({
 	height:
 		getExpandedTrackHeight({
@@ -61,8 +61,8 @@ export const TimelineTracks: React.FC<{
 	const {getDragOverrides, getCodeValues} = useContext(
 		Internals.VisualModeGettersContext,
 	);
-	const {subscriptionStates} = useContext(
-		Internals.SequencePropsSubscriptionGettersContext,
+	const {overrideIdToNodePathMappings: subscriptionStates} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 
 	const visualModeEnabled =

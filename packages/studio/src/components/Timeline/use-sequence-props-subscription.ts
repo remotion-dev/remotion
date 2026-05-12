@@ -1,10 +1,6 @@
 import {useCallback, useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
-import type {
-	SequenceSchema,
-	SequencePropsSubscriptionState,
-	SequenceNodePath,
-} from 'remotion';
+import type {SequenceSchema, NodePathsState, SequenceNodePath} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
@@ -19,8 +15,8 @@ export const useSequencePropsSubscription = (
 	visualModeEnabled: boolean,
 ) => {
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
-	const {setSubscriptionState} = useContext(
-		Internals.SequencePropsSubscriptionSettersContext,
+	const {setOverrideIdToNodePath} = useContext(
+		Internals.OverrideIdsToNodePathsSettersContext,
 	);
 
 	const setPropStatusesForSequence = useCallback(
@@ -34,10 +30,10 @@ export const useSequencePropsSubscription = (
 	);
 
 	const setSubscriptionStateForSequence = useCallback(
-		(nextState: SequencePropsSubscriptionState) => {
-			setSubscriptionState(overrideId, nextState);
+		(nextState: NodePathsState) => {
+			setOverrideIdToNodePath(overrideId, nextState);
 		},
-		[overrideId, setSubscriptionState],
+		[overrideId, setOverrideIdToNodePath],
 	);
 
 	const {previewServerState: state, subscribeToEvent} = useContext(

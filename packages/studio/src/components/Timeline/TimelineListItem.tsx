@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {TSequence, SequencePropsSubscriptionState} from 'remotion';
+import type {TSequence, NodePathsState} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
@@ -25,11 +25,9 @@ import {useResolvedStack} from './use-resolved-stack';
 
 export const INDENT = 10;
 
-const useSubscribedNodePath = (
-	sequence: TSequence,
-): SequencePropsSubscriptionState | null => {
-	const {subscriptionStates} = useContext(
-		Internals.SequencePropsSubscriptionGettersContext,
+const useSubscribedNodePath = (sequence: TSequence): NodePathsState | null => {
+	const {overrideIdToNodePathMappings: subscriptionStates} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const overrideId = sequence.controls?.overrideId ?? null;
 	if (!overrideId) {

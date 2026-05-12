@@ -10,7 +10,7 @@ import type {
 	GetCodeValues,
 	GetDragOverrides,
 	TSequence,
-	SequencePropsSubscriptionStates,
+	OverrideIdToNodePaths,
 } from 'remotion';
 
 export type {CodeValues, DragOverrides, SchemaFieldInfo, SequenceControls};
@@ -71,7 +71,7 @@ export const buildTimelineTree = ({
 	sequence: TSequence;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
-	sequencePropsSubscriptionState: SequencePropsSubscriptionStates;
+	sequencePropsSubscriptionState: OverrideIdToNodePaths;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 
@@ -99,8 +99,9 @@ export const buildTimelineTree = ({
 		});
 	}
 
-	const {nodePath} =
-		sequencePropsSubscriptionState[sequence.controls!.overrideId!];
+	const nodePath =
+		sequencePropsSubscriptionState[sequence.controls!.overrideId!]?.nodePath ??
+		null;
 	const controlFields = getFieldsToShow({
 		schema: sequence.controls!.schema,
 		currentRuntimeValueDotNotation:
@@ -174,7 +175,7 @@ export const getExpandedTrackHeight = ({
 	expandedTracks: Record<string, boolean>;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
-	sequencePropsSubscriptionState: SequencePropsSubscriptionStates;
+	sequencePropsSubscriptionState: OverrideIdToNodePaths;
 }): number => {
 	const tree = buildTimelineTree({
 		sequence,
