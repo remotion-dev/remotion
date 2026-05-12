@@ -1,35 +1,35 @@
 {
-	"name": "template-music-visualization",
-	"version": "1.0.0",
-	"description": "My Remotion video",
-	"scripts": {
-		"dev": "remotion studio",
-		"build": "remotion bundle",
-		"upgrade": "remotion upgrade",
-		"lint": "eslint src && tsc"
-	},
-	"author": "Igor Samokhovets",
-	"repository": {},
-	"license": "UNLICENSED",
-	"dependencies": {
-		"@remotion/cli": "workspace:*",
-		"@remotion/media": "workspace:*",
-		"@remotion/media-utils": "workspace:*",
-		"@remotion/google-fonts": "workspace:*",
-		"@remotion/zod-types": "workspace:*",
-		"mediabunny": "1.42.0",
-		"react": "19.2.3",
-		"react-dom": "19.2.3",
-		"remotion": "workspace:*",
-		"zod": "4.3.6"
-	},
-	"devDependencies": {
-		"@remotion/eslint-config-flat": "workspace:*",
-		"@types/react": "19.2.7",
-		"@types/web": "0.0.166",
-		"eslint": "9.19.0",
-		"prettier": "3.8.1",
-		"typescript": "5.9.3"
-	},
-	"private": true
+  "name": "template-music-visualization",
+  "version": "1.0.0",
+  "description": "My Remotion video",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc"
+  },
+  "author": "Igor Samokhovets",
+  "repository": {},
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/cli": "workspace:*",
+    "@remotion/media": "workspace:*",
+    "@remotion/media-utils": "workspace:*",
+    "@remotion/google-fonts": "workspace:*",
+    "@remotion/zod-types": "workspace:*",
+    "mediabunny": "1.42.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "workspace:*",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "private": true
 }

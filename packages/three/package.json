@@ -15,7 +15,7 @@
 		"lint": "eslint src",
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
-	"author": "Bj\u00f6rn Zeutzheim",
+	"author": "Björn Zeutzheim",
 	"contributors": [],
 	"license": "MIT",
 	"bugs": {
