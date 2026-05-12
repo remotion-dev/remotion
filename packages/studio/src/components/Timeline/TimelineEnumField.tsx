@@ -12,8 +12,8 @@ export const TimelineEnumField: React.FC<{
 	readonly codeValue: unknown;
 	readonly effectiveValue: unknown;
 	readonly canUpdate: boolean;
-	readonly onSave: (key: string, value: unknown) => Promise<void>;
-	readonly onDragValueChange: (key: string, value: unknown) => void;
+	readonly onSave: (value: unknown) => Promise<void>;
+	readonly onDragValueChange: (value: unknown) => void;
 	readonly onDragEnd: () => void;
 }> = ({
 	field,
@@ -38,12 +38,12 @@ export const TimelineEnumField: React.FC<{
 				return;
 			}
 
-			onDragValueChange(field.key, newValue);
-			onSave(field.key, newValue).finally(() => {
+			onDragValueChange(newValue);
+			onSave(newValue).finally(() => {
 				onDragEnd();
 			});
 		},
-		[canUpdate, codeValue, field.key, onSave, onDragValueChange, onDragEnd],
+		[canUpdate, codeValue, onSave, onDragValueChange, onDragEnd],
 	);
 
 	const items = useMemo<ComboboxValue[]>(() => {

@@ -8,8 +8,8 @@ export const TimelineNumberField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly codeValue: unknown;
 	readonly canUpdate: boolean;
-	readonly onSave: (key: string, value: unknown) => Promise<void>;
-	readonly onDragValueChange: (key: string, value: unknown) => void;
+	readonly onSave: (value: unknown) => Promise<void>;
+	readonly onDragValueChange: (value: unknown) => void;
 	readonly onDragEnd: () => void;
 }> = ({
 	field,
@@ -25,15 +25,15 @@ export const TimelineNumberField: React.FC<{
 	const onValueChange = useCallback(
 		(newVal: number) => {
 			setDragValue(newVal);
-			onDragValueChange(field.key, newVal);
+			onDragValueChange(newVal);
 		},
-		[onDragValueChange, field.key],
+		[onDragValueChange],
 	);
 
 	const onValueChangeEnd = useCallback(
 		(newVal: number) => {
 			if (canUpdate && newVal !== codeValue) {
-				onSave(field.key, newVal).finally(() => {
+				onSave(newVal).finally(() => {
 					setDragValue(null);
 					onDragEnd();
 				});
@@ -42,7 +42,7 @@ export const TimelineNumberField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[canUpdate, onSave, field.key, codeValue, onDragEnd],
+		[canUpdate, onSave, codeValue, onDragEnd],
 	);
 
 	const onTextChange = useCallback(
@@ -51,13 +51,13 @@ export const TimelineNumberField: React.FC<{
 				const parsed = Number(newVal);
 				if (!Number.isNaN(parsed) && parsed !== codeValue) {
 					setDragValue(parsed);
-					onSave(field.key, parsed).catch(() => {
+					onSave(parsed).catch(() => {
 						setDragValue(null);
 					});
 				}
 			}
 		},
-		[canUpdate, onSave, field.key, codeValue],
+		[canUpdate, onSave, codeValue],
 	);
 
 	const step =

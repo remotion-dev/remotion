@@ -32,8 +32,8 @@ export const TimelineTranslateField: React.FC<{
 	readonly codeValue: unknown;
 	readonly effectiveValue: unknown;
 	readonly canUpdate: boolean;
-	readonly onSave: (key: string, value: unknown) => Promise<void>;
-	readonly onDragValueChange: (key: string, value: unknown) => void;
+	readonly onSave: (value: unknown) => Promise<void>;
+	readonly onDragValueChange: (value: unknown) => void;
 	readonly onDragEnd: () => void;
 }> = ({
 	field,
@@ -74,9 +74,9 @@ export const TimelineTranslateField: React.FC<{
 		(newVal: number) => {
 			setDragX(newVal);
 			const currentY = dragY ?? codeY;
-			onDragValueChange(field.key, makeString(newVal, currentY));
+			onDragValueChange(makeString(newVal, currentY));
 		},
-		[onDragValueChange, field.key, dragY, codeY, makeString],
+		[onDragValueChange, dragY, codeY, makeString],
 	);
 
 	const onXChangeEnd = useCallback(
@@ -84,7 +84,7 @@ export const TimelineTranslateField: React.FC<{
 			const currentY = dragY ?? codeY;
 			const newStr = makeString(newVal, currentY);
 			if (canUpdate && newStr !== codeValue) {
-				onSave(field.key, newStr).finally(() => {
+				onSave(newStr).finally(() => {
 					setDragX(null);
 					onDragEnd();
 				});
@@ -93,16 +93,7 @@ export const TimelineTranslateField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[
-			dragY,
-			codeY,
-			makeString,
-			canUpdate,
-			codeValue,
-			onSave,
-			field.key,
-			onDragEnd,
-		],
+		[dragY, codeY, makeString, canUpdate, codeValue, onSave, onDragEnd],
 	);
 
 	const onXTextChange = useCallback(
@@ -114,12 +105,12 @@ export const TimelineTranslateField: React.FC<{
 					const newStr = makeString(parsed, currentY);
 					if (newStr !== codeValue) {
 						setDragX(parsed);
-						onSave(field.key, newStr);
+						onSave(newStr);
 					}
 				}
 			}
 		},
-		[canUpdate, dragY, codeY, makeString, codeValue, onSave, field.key],
+		[canUpdate, dragY, codeY, makeString, codeValue, onSave],
 	);
 
 	// --- Y callbacks ---
@@ -127,9 +118,9 @@ export const TimelineTranslateField: React.FC<{
 		(newVal: number) => {
 			setDragY(newVal);
 			const currentX = dragX ?? codeX;
-			onDragValueChange(field.key, makeString(currentX, newVal));
+			onDragValueChange(makeString(currentX, newVal));
 		},
-		[onDragValueChange, field.key, dragX, codeX, makeString],
+		[onDragValueChange, dragX, codeX, makeString],
 	);
 
 	const onYChangeEnd = useCallback(
@@ -137,7 +128,7 @@ export const TimelineTranslateField: React.FC<{
 			const currentX = dragX ?? codeX;
 			const newStr = makeString(currentX, newVal);
 			if (canUpdate && newStr !== codeValue) {
-				onSave(field.key, newStr).finally(() => {
+				onSave(newStr).finally(() => {
 					setDragY(null);
 					onDragEnd();
 				});
@@ -146,16 +137,7 @@ export const TimelineTranslateField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[
-			dragX,
-			codeX,
-			makeString,
-			canUpdate,
-			codeValue,
-			onSave,
-			field.key,
-			onDragEnd,
-		],
+		[dragX, codeX, makeString, canUpdate, codeValue, onSave, onDragEnd],
 	);
 
 	const onYTextChange = useCallback(
@@ -167,14 +149,14 @@ export const TimelineTranslateField: React.FC<{
 					const newStr = makeString(currentX, parsed);
 					if (newStr !== codeValue) {
 						setDragY(parsed);
-						onSave(field.key, newStr).catch(() => {
+						onSave(newStr).catch(() => {
 							setDragY(null);
 						});
 					}
 				}
 			}
 		},
-		[canUpdate, onSave, field.key, codeValue, dragX, codeX, makeString],
+		[canUpdate, onSave, codeValue, dragX, codeX, makeString],
 	);
 
 	return (

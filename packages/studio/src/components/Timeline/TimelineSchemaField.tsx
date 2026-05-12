@@ -25,8 +25,8 @@ const inlineWrapper: React.CSSProperties = {
 
 export const TimelineFieldValue: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly onSave: (key: string, value: unknown) => Promise<void>;
-	readonly onDragValueChange: (key: string, value: unknown) => void;
+	readonly onSave: (value: unknown) => Promise<void>;
+	readonly onDragValueChange: (value: unknown) => void;
 	readonly onDragEnd: () => void;
 	readonly canUpdate: boolean;
 	readonly propStatus: CanUpdateSequencePropStatus | null;

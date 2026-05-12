@@ -31,8 +31,8 @@ export const TimelineRotationField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly codeValue: unknown;
 	readonly canUpdate: boolean;
-	readonly onSave: (key: string, value: unknown) => Promise<void>;
-	readonly onDragValueChange: (key: string, value: unknown) => void;
+	readonly onSave: (value: unknown) => Promise<void>;
+	readonly onDragValueChange: (value: unknown) => void;
 	readonly onDragEnd: () => void;
 }> = ({
 	field,
@@ -53,16 +53,16 @@ export const TimelineRotationField: React.FC<{
 	const onValueChange = useCallback(
 		(newVal: number) => {
 			setDragValue(newVal);
-			onDragValueChange(field.key, `${newVal}deg`);
+			onDragValueChange(`${newVal}deg`);
 		},
-		[onDragValueChange, field.key],
+		[onDragValueChange],
 	);
 
 	const onValueChangeEnd = useCallback(
 		(newVal: number) => {
 			const newStr = `${newVal}deg`;
 			if (canUpdate && newStr !== codeValue) {
-				onSave(field.key, newStr).finally(() => {
+				onSave(newStr).finally(() => {
 					setDragValue(null);
 					onDragEnd();
 				});
@@ -71,7 +71,7 @@ export const TimelineRotationField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[canUpdate, onSave, field.key, codeValue, onDragEnd],
+		[canUpdate, onSave, codeValue, onDragEnd],
 	);
 
 	const onTextChange = useCallback(
@@ -82,14 +82,14 @@ export const TimelineRotationField: React.FC<{
 					const newStr = `${parsed}deg`;
 					if (newStr !== codeValue) {
 						setDragValue(parsed);
-						onSave(field.key, newStr).catch(() => {
+						onSave(newStr).catch(() => {
 							setDragValue(null);
 						});
 					}
 				}
 			}
 		},
-		[canUpdate, onSave, field.key, codeValue],
+		[canUpdate, onSave, codeValue],
 	);
 
 	const step =
