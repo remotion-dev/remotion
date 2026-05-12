@@ -118,6 +118,15 @@ export const TimelineListItem: React.FC<{
 			return;
 		}
 
+		if (getIsJsxInMapCallback(nodePath)) {
+			const message =
+				'This sequence is rendered inside a .map() callback. Deleting removes all sequences in that callback. Continue?';
+			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
+			if (!window.confirm(message)) {
+				return;
+			}
+		}
+
 		try {
 			const result = await callApi('/api/delete-jsx-node', {
 				fileName: validatedLocation.source,
