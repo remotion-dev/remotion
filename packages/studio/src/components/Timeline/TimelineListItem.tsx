@@ -25,8 +25,8 @@ import {useResolvedStack} from './use-resolved-stack';
 
 export const INDENT = 10;
 
-const useSubscribedNodePath = (sequence: TSequence): NodePathsState | null => {
-	const {overrideIdToNodePathMappings: subscriptionStates} = useContext(
+const useNodePath = (sequence: TSequence): NodePathsState | null => {
+	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const overrideId = sequence.controls?.overrideId ?? null;
@@ -34,7 +34,7 @@ const useSubscribedNodePath = (sequence: TSequence): NodePathsState | null => {
 		return null;
 	}
 
-	return subscriptionStates[overrideId] ?? null;
+	return overrideIdToNodePathMappings[overrideId] ?? null;
 };
 
 export const TimelineListItem: React.FC<{
@@ -54,7 +54,7 @@ export const TimelineListItem: React.FC<{
 	const {expandedTracks, toggleTrack} = useContext(ExpandedTracksContext);
 
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
-	const nodePathState = useSubscribedNodePath(sequence);
+	const nodePathState = useNodePath(sequence);
 
 	const validatedLocation = useMemo(() => {
 		if (

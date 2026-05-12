@@ -18,7 +18,7 @@ type Entry = {
 	promise: Promise<SubscribeResult>;
 	fileName: string;
 	clientId: string;
-	apply: ApplyResult | null;
+	applyOnce: ApplyResult | null;
 };
 
 const entries = new Map<Key, Entry>();
@@ -29,14 +29,16 @@ export const acquireSequencePropsSubscription = ({
 	column,
 	schema,
 	clientId,
-	apply,
+	applyOnce,
+	applyEach,
 }: {
 	fileName: string;
 	line: number;
 	column: number;
 	schema: SequenceSchema;
 	clientId: string;
-	apply: ApplyResult;
+	applyOnce: ApplyResult;
+	applyEach: ApplyResult;
 }): {release: () => void} => {
 	const key = makeKey(fileName, line, column);
 	let entry = entries.get(key);
@@ -54,7 +56,7 @@ export const acquireSequencePropsSubscription = ({
 			promise,
 			fileName,
 			clientId,
-			apply,
+			applyOnce,
 		};
 		entries.set(key, created);
 		entry = created;
@@ -62,12 +64,12 @@ export const acquireSequencePropsSubscription = ({
 		promise
 			.then((result) => {
 				const current = entries.get(key);
-				if (current !== created || !current.apply) {
+				if (current !== created || !current.applyOnce) {
 					return;
 				}
 
-				const cb = current.apply;
-				current.apply = null;
+				const cb = current.applyOnce;
+				current.applyOnce = null;
 				cb(result);
 			})
 			.catch((err) => {
@@ -76,13 +78,17 @@ export const acquireSequencePropsSubscription = ({
 					return;
 				}
 
-				current.apply = null;
+				current.applyOnce = null;
 				Internals.Log.error(err);
 			});
 	}
 
 	entry.refCount++;
 	const acquired = entry;
+
+	acquired.promise.then(applyEach).catch(() => {
+		// Error already logged by the first acquirer.
+	});
 
 	let released = false;
 	return {

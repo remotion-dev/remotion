@@ -60,7 +60,14 @@ export const useSequencePropsSubscription = (
 			column: locationColumn,
 			schema,
 			clientId,
-			apply: (result) => {
+			applyOnce: (result) => {
+				if (!result.canUpdate) {
+					return;
+				}
+
+				setCodeValues(result.nodePath, result.props);
+			},
+			applyEach: (result) => {
 				if (!result.canUpdate) {
 					return;
 				}
@@ -69,7 +76,6 @@ export const useSequencePropsSubscription = (
 					nodePath: result.nodePath,
 					jsxInMapCallback: result.jsxInMapCallback,
 				});
-				setCodeValues(result.nodePath, result.props);
 			},
 		});
 
