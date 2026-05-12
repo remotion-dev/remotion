@@ -17,7 +17,7 @@ export type SequenceManagerContext = {
 export type SequenceNodePath = Array<string | number>;
 
 const nodePathToString = (nodePath: SequenceNodePath): string => {
-	return JSON.stringify(nodePath);
+	return nodePath.join('.');
 };
 
 export const SequenceManager = React.createContext<SequenceManagerContext>({
