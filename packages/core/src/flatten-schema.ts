@@ -9,7 +9,9 @@ export const flattenActiveSchema = (
 	const out: SequenceSchema = {};
 	for (const key of Object.keys(schema)) {
 		const field = schema[key];
-		if (field.type === 'enum') {
+		if (field.type === 'hidden') {
+			continue;
+		} else if (field.type === 'enum') {
 			out[key] = field;
 			const current = (resolve(key) as string | undefined) ?? field.default;
 			const variant = field.variants[current];
