@@ -129,6 +129,7 @@
         "@remotion/media-parser": "workspace:*",
         "@remotion/studio": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
+        "@remotion/timeline-utils": "workspace:*",
         "@rspack/core": "1.7.6",
         "@rspack/plugin-react-refresh": "1.6.1",
         "esbuild": "0.25.0",

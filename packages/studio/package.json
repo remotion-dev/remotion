@@ -76,12 +76,6 @@
 			"require": "./dist/previewEntry.js",
 			"module": "./dist/esm/previewEntry.mjs",
 			"import": "./dist/esm/previewEntry.mjs"
-		},
-		"./audio-waveform-worker": {
-			"types": "./dist/audio-waveform-worker.d.ts",
-			"require": "./dist/audio-waveform-worker.js",
-			"module": "./dist/esm/audio-waveform-worker.mjs",
-			"import": "./dist/esm/audio-waveform-worker.mjs"
 		}
 	},
 	"homepage": "https://www.remotion.dev/docs/studio/api",
@@ -95,9 +89,6 @@
 			],
 			"previewEntry": [
 				"./dist/previewEntry.d.ts"
-			],
-			"audio-waveform-worker": [
-				"./dist/audio-waveform-worker.d.ts"
 			]
 		}
 	}

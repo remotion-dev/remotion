@@ -5,14 +5,14 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const output = await build({
-	entrypoints: ['src/index.ts'],
+	entrypoints: ['src/index.ts', 'src/audio-waveform-worker.ts'],
 	naming: '[name].mjs',
 	external: ['mediabunny'],
 });
 
-const [file] = output.outputs;
-const text = await file.text();
-
-await Bun.write('dist/esm/index.mjs', text);
+for (const file of output.outputs) {
+	const text = await file.text();
+	await Bun.write(`dist/esm/${file.path.split('/').pop()}`, text);
+}
 
 export {};
