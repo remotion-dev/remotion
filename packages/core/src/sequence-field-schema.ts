@@ -88,6 +88,9 @@ export const sequenceStyleSchema = {
 		default: 0,
 		description: 'Premount For',
 	},
+	postmountFor: {
+		type: 'hidden',
+	},
 	styleWhilePremounted: {
 		type: 'hidden',
 	},
