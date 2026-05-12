@@ -31,7 +31,7 @@
 		"@radix-ui/react-slot": "1.2.4",
 		"@radix-ui/react-tabs": "1.1.13",
 		"@remix-run/node": "2.15.2",
-		"@remix-run/react": "2.15.2",
+		"@remix-run/react": "2.17.3",
 		"@remix-run/serve": "2.15.2",
 		"@remotion/captions": "workspace:*",
 		"@remotion/design": "workspace:*",
