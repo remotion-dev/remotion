@@ -96,7 +96,9 @@ export const calculateTimeline = ({
 			hash: actualHash,
 			cascadedStart,
 			cascadedDuration: sequence.duration,
-			nodePathInfo: nodePath ? {nodePath, index: 0} : null,
+			nodePathInfo: nodePath
+				? {nodePath, index: 0, numberOfSequencesWithThisNodePath: 0}
+				: null,
 		});
 	}
 
@@ -130,17 +132,40 @@ export const calculateTimeline = ({
 	});
 
 	const nodePathIndexCounters = new Map<string, number>();
-	return sortedTracks.map((track): TrackWithHash => {
-		if (track.nodePathInfo === null) {
-			return track;
-		}
 
-		const key = JSON.stringify(track.nodePathInfo.nodePath);
-		const index = nodePathIndexCounters.get(key) ?? 0;
-		nodePathIndexCounters.set(key, index + 1);
-		return {
-			...track,
-			nodePathInfo: {nodePath: track.nodePathInfo.nodePath, index},
-		};
-	});
+	return sortedTracks
+		.map((track): TrackWithHash => {
+			if (track.nodePathInfo === null) {
+				return track;
+			}
+
+			const key = track.nodePathInfo.nodePath.join('.');
+			const index = nodePathIndexCounters.get(key) ?? 0;
+			nodePathIndexCounters.set(key, index + 1);
+			return {
+				...track,
+				nodePathInfo: {
+					nodePath: track.nodePathInfo.nodePath,
+					index,
+					numberOfSequencesWithThisNodePath: 0,
+				},
+			};
+		})
+		.map((track) => {
+			if (track.nodePathInfo === null) {
+				return track;
+			}
+
+			const key = track.nodePathInfo.nodePath.join('.');
+
+			return {
+				...track,
+				nodePathInfo: {
+					nodePath: track.nodePathInfo.nodePath,
+					index: track.nodePathInfo.index,
+					numberOfSequencesWithThisNodePath:
+						nodePathIndexCounters.get(key) ?? 0,
+				},
+			};
+		});
 };
