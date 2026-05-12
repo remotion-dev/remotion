@@ -45,8 +45,8 @@ export const deleteJsxNodeHandler: ApiHandler<
 			remotionRoot,
 			logLine,
 			description: {
-				undoMessage: `Undo: Deletion of ${nodeLabel}`,
-				redoMessage: `Redo: Deletion of ${nodeLabel}`,
+				undoMessage: `↩️  Deletion of ${nodeLabel}`,
+				redoMessage: `↪️  Deletion of ${nodeLabel}`,
 			},
 			entryType: 'delete-jsx-node',
 			suppressHmrOnFileRestore: false,

@@ -8,7 +8,13 @@ import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {updateSequenceProps} from '../codemods/update-sequence-props';
-import {fg, logUpdate} from '../preview-server/routes/log-update';
+import {
+	fg,
+	formatPropChange,
+	logUpdate,
+	normalizeQuotes,
+	strikeThrough,
+} from '../preview-server/routes/log-update';
 import {lineColumnToNodePath} from './test-utils';
 
 const {chalk} = RenderInternals;
@@ -64,6 +70,8 @@ test('logUpdate emits Monokai-colored output after an AST update', async () => {
 			defaultValueString: null,
 			formatted,
 			logLevel: 'info',
+			removedProps: [],
+			addedProps: [],
 		});
 
 		expect(consoleSpy).toHaveBeenCalledTimes(1);
@@ -95,20 +103,24 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 		'utf-8',
 	);
 
-	const {oldValueStrings, formatted, logLine} = await updateSequenceProps({
-		input: fixture,
-		nodePath: lineColumnToNodePath(fixture, 3),
-		updates: [
-			{
-				key: 'layout',
-				value: 'none',
-				defaultValue: Internals.sequenceSchema.layout.default,
-			},
-		],
-		schema: Internals.sequenceSchema,
-	});
+	const {oldValueStrings, formatted, logLine, removedProps} =
+		await updateSequenceProps({
+			input: fixture,
+			nodePath: lineColumnToNodePath(fixture, 3),
+			updates: [
+				{
+					key: 'layout',
+					value: 'none',
+					defaultValue: Internals.sequenceSchema.layout.default,
+				},
+			],
+			schema: Internals.sequenceSchema,
+		});
 
 	expect(oldValueStrings[0]).toBe('"absolute-fill"');
+	expect(removedProps).toEqual([
+		{key: 'style', valueString: 'style={{ scale: 1.74 }}'},
+	]);
 
 	const newValueString = JSON.stringify('none');
 	const defaultValueString = JSON.stringify(
@@ -127,6 +139,8 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 			defaultValueString,
 			formatted,
 			logLevel: 'info',
+			removedProps,
+			addedProps: [],
 		});
 
 		expect(consoleSpy).toHaveBeenCalledTimes(1);
@@ -140,7 +154,7 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 		const simpleProp = (key: string, value: string) =>
 			`${attrName(key)}${equals('=')}${punctuation('{')}${stringValue(value)}${punctuation('}')}`;
 
-		const expectedPropChange = simpleProp('layout', "'none'");
+		const expectedPropChange = `${simpleProp('layout', "'none'")}, ${strikeThrough('style={{ scale: 1.74 }}')}`;
 		const expectedLine = `${chalk.blueBright(`src/Example.tsx:${logLine}:`)} ${expectedPropChange}`;
 
 		expect(logged).toBe(expectedLine);

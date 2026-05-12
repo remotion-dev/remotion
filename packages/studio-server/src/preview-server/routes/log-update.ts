@@ -76,26 +76,61 @@ const formatNestedProp = (
 	return `${attrName(parentKey)}${equals('=')}${punctuation('{{')}${punctuation(childKey)}${punctuation(':')} ${colorValue(value)}${punctuation('}}')}`;
 };
 
+export type PropDelta = {
+	key: string;
+	valueString: string;
+};
+
+const formatSideProps = ({
+	removedProps,
+	addedProps,
+}: {
+	removedProps: PropDelta[];
+	addedProps: PropDelta[];
+}) => {
+	const parts: string[] = [];
+
+	for (const {valueString} of removedProps) {
+		parts.push(colorEnabled() ? strikeThrough(valueString) : valueString);
+	}
+
+	for (const {valueString} of addedProps) {
+		parts.push(valueString);
+	}
+
+	if (parts.length === 0) {
+		return '';
+	}
+
+	return `, ${parts.join(', ')}`;
+};
+
 export const formatPropChange = ({
 	key,
 	oldValueString,
 	newValueString,
 	defaultValueString,
+	removedProps,
+	addedProps,
 }: {
 	key: string;
 	oldValueString: string;
 	newValueString: string;
 	defaultValueString: string | null;
+	removedProps: PropDelta[];
+	addedProps: PropDelta[];
 }) => {
+	const suffix = formatSideProps({removedProps, addedProps});
+
 	if (!colorEnabled()) {
 		const dotIdx = key.indexOf('.');
 		if (dotIdx === -1) {
-			return `${key}={${oldValueString}} \u2192 ${key}={${newValueString}}`;
+			return `${key}={${oldValueString}} \u2192 ${key}={${newValueString}}${suffix}`;
 		}
 
 		const parent = key.slice(0, dotIdx);
 		const child = key.slice(dotIdx + 1);
-		return `${parent}={{${child}: ${oldValueString}}} \u2192 ${parent}={{${child}: ${newValueString}}}`;
+		return `${parent}={{${child}: ${oldValueString}}} \u2192 ${parent}={{${child}: ${newValueString}}}${suffix}`;
 	}
 
 	const dotIndex = key.indexOf('.');
@@ -109,14 +144,14 @@ export const formatPropChange = ({
 				);
 
 	if (defaultValueString !== null && newValueString === defaultValueString) {
-		return strikeThrough(formatProp(oldValueString));
+		return `${strikeThrough(formatProp(oldValueString))}${suffix}`;
 	}
 
 	if (defaultValueString !== null && oldValueString === defaultValueString) {
-		return formatProp(newValueString);
+		return `${formatProp(newValueString)}${suffix}`;
 	}
 
-	return `${formatProp(oldValueString)} \u2192 ${formatProp(newValueString)}`;
+	return `${formatProp(oldValueString)} \u2192 ${formatProp(newValueString)}${suffix}`;
 };
 
 export const logUpdate = ({
@@ -128,6 +163,8 @@ export const logUpdate = ({
 	defaultValueString,
 	formatted,
 	logLevel,
+	removedProps,
+	addedProps,
 }: {
 	fileRelativeToRoot: string;
 	line: number;
@@ -137,6 +174,8 @@ export const logUpdate = ({
 	defaultValueString: string | null;
 	formatted: boolean;
 	logLevel: LogLevel;
+	removedProps: PropDelta[];
+	addedProps: PropDelta[];
 }) => {
 	const locationLabel = `${fileRelativeToRoot}:${line}`;
 	const propChange = formatPropChange({
@@ -145,6 +184,8 @@ export const logUpdate = ({
 		newValueString: normalizeQuotes(newValueString),
 		defaultValueString:
 			defaultValueString !== null ? normalizeQuotes(defaultValueString) : null,
+		removedProps,
+		addedProps,
 	});
 	RenderInternals.Log.info(
 		{indent: false, logLevel},

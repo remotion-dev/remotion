@@ -22,6 +22,11 @@ export type SequencePropUpdate = {
 	defaultValue: unknown | null;
 };
 
+export type RemovedProp = {
+	key: string;
+	valueString: string;
+};
+
 const removeVariantKey = ({
 	node,
 	variantKey,
@@ -54,6 +59,26 @@ const removeVariantKey = ({
 	});
 };
 
+const snapshotTopLevelAttrs = (
+	node: JSXOpeningElementLike,
+): Map<string, string> => {
+	const result = new Map<string, string>();
+	for (const a of node.attributes ?? []) {
+		if (a.type === 'JSXAttribute' && a.name.type === 'JSXIdentifier') {
+			result.set(
+				a.name.name,
+				recast
+					.print(a)
+					.code.replace(/\s+/g, ' ')
+					.replace(/,(\s*[}\]])/g, '$1')
+					.trim(),
+			);
+		}
+	}
+
+	return result;
+};
+
 type JSXOpeningElementLike = NonNullable<
 	ReturnType<typeof findJsxElementAtNodePath>
 >;
@@ -72,6 +97,7 @@ export const updateSequencePropsAst = ({
 	serialized: string;
 	oldValueStrings: string[];
 	logLine: number;
+	removedProps: RemovedProp[];
 } => {
 	const ast = parseAst(input);
 
@@ -85,6 +111,13 @@ export const updateSequencePropsAst = ({
 	const logLine = node.loc?.start.line ?? 1;
 
 	const oldValueStrings: string[] = [];
+	const initialAttrs = snapshotTopLevelAttrs(node);
+	const updatedTopLevelKeys = new Set(
+		updates.map(({key}) => {
+			const dot = key.indexOf('.');
+			return dot === -1 ? key : key.slice(0, dot);
+		}),
+	);
 
 	for (const {key, value, defaultValue} of updates) {
 		let oldValueString = '';
@@ -204,10 +237,27 @@ export const updateSequencePropsAst = ({
 		}
 	}
 
+	const finalAttrNames = new Set<string>();
+	for (const a of node.attributes ?? []) {
+		if (a.type === 'JSXAttribute' && a.name.type === 'JSXIdentifier') {
+			finalAttrNames.add(a.name.name);
+		}
+	}
+
+	const removedProps: RemovedProp[] = [];
+	for (const [name, valueString] of initialAttrs) {
+		if (finalAttrNames.has(name) || updatedTopLevelKeys.has(name)) {
+			continue;
+		}
+
+		removedProps.push({key: name, valueString});
+	}
+
 	return {
 		serialized: serializeAst(ast),
 		oldValueStrings,
 		logLine,
+		removedProps,
 	};
 };
 
@@ -228,13 +278,15 @@ export const updateSequenceProps = async ({
 	oldValueStrings: string[];
 	formatted: boolean;
 	logLine: number;
+	removedProps: RemovedProp[];
 }> => {
-	const {serialized, oldValueStrings, logLine} = updateSequencePropsAst({
-		input,
-		nodePath,
-		updates,
-		schema,
-	});
+	const {serialized, oldValueStrings, logLine, removedProps} =
+		updateSequencePropsAst({
+			input,
+			nodePath,
+			updates,
+			schema,
+		});
 
 	const {output, formatted} = await formatFileContent({
 		input: serialized,
@@ -246,5 +298,6 @@ export const updateSequenceProps = async ({
 		oldValueStrings,
 		formatted,
 		logLine,
+		removedProps,
 	};
 };
