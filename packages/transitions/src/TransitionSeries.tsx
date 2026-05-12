@@ -340,12 +340,6 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 			const debugInfo = `index = ${i}, duration = ${castedChildAgain.props.durationInFrames}`;
 
-			if (!castedChildAgain?.props.children) {
-				throw new TypeError(
-					`A <TransitionSeries.Sequence /> component (${debugInfo}) was detected to not have any children. Delete it to fix this error.`,
-				);
-			}
-
 			const durationInFramesProp = castedChildAgain.props.durationInFrames;
 			const {
 				durationInFrames,
