@@ -41,7 +41,7 @@
 	},
 	"devDependencies": {
 		"@remotion/bundler": "workspace:*",
-		"@types/express": "^5.0.0",
+		"@types/express": "5.0.1",
 		"express": "4.21.0",
 		"@remotion/compositor-linux-arm64-gnu": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",

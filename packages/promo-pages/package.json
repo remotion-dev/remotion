@@ -25,7 +25,7 @@
 		"polished": "4.3.1",
 		"remotion": "workspace:*",
 		"zod": "catalog:",
-		"@mux/upchunk": "^3.5.0",
+		"@mux/upchunk": "3.5.0",
 		"@vidstack/react": "1.12.13",
 		"bun-plugin-tailwind": "0.1.2",
 		"@mediabunny/ac3": "catalog:",

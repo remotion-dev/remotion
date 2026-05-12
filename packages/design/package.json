@@ -21,12 +21,12 @@
 	},
 	"dependencies": {
 		"@radix-ui/react-select": "2.1.1",
-		"@radix-ui/react-slot": "^1.2.4",
-		"@radix-ui/react-tabs": "^1.1.0",
+		"@radix-ui/react-slot": "1.2.4",
+		"@radix-ui/react-tabs": "1.1.13",
 		"@remotion/paths": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/svg-3d-engine": "workspace:*",
-		"clsx": "^2.1.1",
+		"clsx": "2.1.1",
 		"lucide-react": "0.439.0",
 		"remotion": "workspace:*"
 	},
@@ -41,7 +41,7 @@
 		"react-dom": "catalog:",
 		"tailwindcss": "4.2.0",
 		"@tailwindcss/cli": "4.2.0",
-		"tailwind-merge": "^2.6.0",
+		"tailwind-merge": "2.6.0",
 		"bun-plugin-tailwind": "0.1.2",
 		"@typescript/native-preview": "catalog:"
 	},
