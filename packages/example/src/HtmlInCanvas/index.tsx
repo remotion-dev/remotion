@@ -1,6 +1,7 @@
 export {HtmlInCanvasComplexText} from './complex-text';
 export {HtmlInCanvasComposeAsyncBitmap} from './compose-async-bitmap';
 export {HtmlInCanvasDocsDemo2DBlur} from './docs-demo-2d-blur';
+export {HtmlInCanvasNestedEffects} from './nested-effects';
 export {HtmlInCanvasDocsMinimalWebGL} from './minimal-docs-webgl';
 export {HtmlInCanvasDocsMinimalWebGPU} from './minimal-docs-webgpu';
 export {HtmlInCanvasComposeWebGL} from './compose-webgl';

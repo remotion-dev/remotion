@@ -1,13 +1,12 @@
 import React, {
-	createContext,
 	forwardRef,
 	useCallback,
-	useContext,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
+import {createPortal} from 'react-dom';
 import type {SequenceControls} from './CompositionManager.js';
 import {delayRender} from './delay-render.js';
 import type {EffectsProp} from './effects/effect-types.js';
@@ -263,8 +262,6 @@ export type HtmlInCanvasProps = Omit<
 	};
 /* eslint-enable react/require-default-props */
 
-const HtmlInCanvasAncestorContext = createContext(false);
-
 const HtmlInCanvasInner = forwardRef<
 	HTMLCanvasElement,
 	HtmlInCanvasProps & {
@@ -286,10 +283,6 @@ const HtmlInCanvasInner = forwardRef<
 		},
 		ref,
 	) => {
-		const isInsideAncestorHtmlInCanvas = useContext(
-			HtmlInCanvasAncestorContext,
-		);
-
 		assertHtmlInCanvasDimensions(width, height);
 		const {continueRender, cancelRender} = useDelayRender();
 
@@ -321,6 +314,7 @@ const HtmlInCanvasInner = forwardRef<
 			},
 			[ref],
 		);
+		const shadowCanvasRef = useRef<HTMLCanvasElement | null>(null);
 		const [offscreenCanvas] = useState(() => new OffscreenCanvas(1, 1));
 
 		const chainState = useEffectChainState();
@@ -414,6 +408,10 @@ const HtmlInCanvasInner = forwardRef<
 					height,
 				});
 
+				shadowCanvasRef.current
+					?.getContext('2d')
+					?.drawImage(canvas2dRef.current!, 0, 0);
+
 				continueRender(handle);
 			} catch (error) {
 				cancelRender(error);
@@ -489,12 +487,6 @@ const HtmlInCanvasInner = forwardRef<
 			};
 		}, [width, height]);
 
-		if (isInsideAncestorHtmlInCanvas) {
-			throw new Error(
-				'<HtmlInCanvas> effects cannot be nested together. Chrome will only display the outer effect. Consider merging the effects into one if you can.',
-			);
-		}
-
 		return (
 			<Sequence
 				durationInFrames={resolvedDuration}
@@ -504,7 +496,7 @@ const HtmlInCanvasInner = forwardRef<
 				layout="none"
 				{...sequenceProps}
 			>
-				<HtmlInCanvasAncestorContext.Provider value>
+				{createPortal(
 					<canvas
 						ref={setLayoutCanvasRef}
 						width={width}
@@ -514,8 +506,15 @@ const HtmlInCanvasInner = forwardRef<
 						<div ref={divRef} style={innerStyle}>
 							{children}
 						</div>
-					</canvas>
-				</HtmlInCanvasAncestorContext.Provider>
+					</canvas>,
+					document.body,
+				)}
+				<canvas
+					ref={shadowCanvasRef}
+					width={width}
+					height={height}
+					style={style}
+				/>
 			</Sequence>
 		);
 	},
