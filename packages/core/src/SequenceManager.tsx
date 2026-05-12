@@ -178,16 +178,6 @@ export const SequenceManagerProvider: React.FC<{
 					return prev;
 				}
 
-				if (values === null) {
-					if (!(key in prev)) {
-						return prev;
-					}
-
-					const next = {...prev};
-					delete next[key];
-					return next;
-				}
-
 				return {...prev, [key]: values};
 			});
 		},
