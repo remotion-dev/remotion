@@ -1,6 +1,7 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -45,6 +46,10 @@ const TimelineInner: React.FC = () => {
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+
+	const previewConnected = previewServerState.type === 'connected';
+
 	const videoConfigIsNull = videoConfig === null;
 
 	const timeline = useMemo((): TrackWithHash[] => {
@@ -72,6 +77,9 @@ const TimelineInner: React.FC = () => {
 
 	const shown = filtered.slice(0, MAX_TIMELINE_TRACKS);
 	const hasBeenCut = filtered.length > shown.length;
+	const visualModeEnvEnabled = Boolean(
+		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
+	);
 
 	return (
 		<div
@@ -79,9 +87,26 @@ const TimelineInner: React.FC = () => {
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
-			{sequences.map((sequence) => (
-				<SubscribeToNodePaths key={sequence.id} sequence={sequence} />
-			))}
+			{visualModeEnvEnabled
+				? sequences.map((sequence) => {
+						if (!sequence.controls) {
+							return null;
+						}
+
+						if (!previewConnected) {
+							return null;
+						}
+
+						return (
+							<SubscribeToNodePaths
+								key={sequence.id}
+								sequence={sequence}
+								overrideId={sequence.controls.overrideId}
+								schema={sequence.controls.schema}
+							/>
+						);
+					})
+				: null}
 			<SequencePropsObserver />
 			<TimelineWidthProvider>
 				<TimelinePinchZoom />
