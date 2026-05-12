@@ -183,19 +183,18 @@ export const getExpandedTrackHeight = ({
 	sequence,
 	nodePathInfo,
 	getIsExpanded,
-	getDragOverrides,
 	getCodeValues,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getIsExpanded: GetIsExpanded;
-	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
 }): number => {
 	const tree = buildTimelineTree({
 		sequence,
 		nodePathInfo,
-		getDragOverrides,
+		// We assume that no drag overrides can change the timeline layout
+		getDragOverrides: () => ({}),
 		getCodeValues,
 	});
 	const flat = flattenVisibleTreeNodes({nodes: tree, getIsExpanded});

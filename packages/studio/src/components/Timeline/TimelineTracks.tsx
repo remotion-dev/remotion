@@ -1,5 +1,5 @@
 import React, {useContext, useMemo} from 'react';
-import type {GetCodeValues, GetDragOverrides} from 'remotion';
+import type {GetCodeValues} from 'remotion';
 import {Internals, type TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {
@@ -35,13 +35,11 @@ const getExpandedPlaceholderStyle = ({
 	sequence,
 	nodePathInfo,
 	getIsExpanded,
-	getDragOverrides,
 	getCodeValues,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getIsExpanded: GetIsExpanded;
-	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
 }): React.CSSProperties => ({
 	height:
@@ -49,7 +47,6 @@ const getExpandedPlaceholderStyle = ({
 			sequence,
 			nodePathInfo,
 			getIsExpanded,
-			getDragOverrides,
 			getCodeValues,
 		}) + TIMELINE_ITEM_BORDER_BOTTOM,
 });
@@ -60,9 +57,7 @@ export const TimelineTracks: React.FC<{
 }> = ({timeline, hasBeenCut}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {getDragOverrides, getCodeValues} = useContext(
-		Internals.VisualModeGettersContext,
-	);
+	const {getCodeValues} = useContext(Internals.VisualModeGettersContext);
 
 	const visualModeEnabled =
 		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&
@@ -103,7 +98,6 @@ export const TimelineTracks: React.FC<{
 										sequence: track.sequence,
 										nodePathInfo: track.nodePathInfo,
 										getIsExpanded,
-										getDragOverrides,
 										getCodeValues,
 									})}
 								/>

@@ -73,7 +73,10 @@ export type CanUpdateSequencePropsResponse =
 			reason: string;
 	  };
 
-const getCodeValues = (codeValues: CodeValues, nodePath: SequenceNodePath) => {
+const getCodeValuesCtx = (
+	codeValues: CodeValues,
+	nodePath: SequenceNodePath,
+) => {
 	const status = codeValues[nodePathToString(nodePath)];
 	if (!status) {
 		return undefined;
@@ -86,7 +89,7 @@ const getCodeValues = (codeValues: CodeValues, nodePath: SequenceNodePath) => {
 	return status.props;
 };
 
-export type GetCodeValuesType = typeof getCodeValues;
+export type GetCodeValuesType = typeof getCodeValuesCtx;
 
 export const VisualModeGettersContext = React.createContext<VisualModeGetters>({
 	getDragOverrides: () => {
@@ -187,15 +190,27 @@ export const SequenceManagerProvider: React.FC<{
 		};
 	}, [hidden]);
 
+	const getDragOverrides = useCallback(
+		(nodePath: SequenceNodePath) => {
+			return dragOverrides[nodePathToString(nodePath)] ?? {};
+		},
+		[dragOverrides],
+	);
+
+	const getCodeValues = useCallback(
+		(nodePath: SequenceNodePath) => {
+			return getCodeValuesCtx(codeValues, nodePath);
+		},
+		[codeValues],
+	);
+
 	const gettersContext: VisualModeGetters = useMemo(() => {
 		return {
 			visualModeEnabled,
-			getDragOverrides: (nodePath: SequenceNodePath) =>
-				dragOverrides[nodePathToString(nodePath)] ?? {},
-			getCodeValues: (nodePath: SequenceNodePath) =>
-				getCodeValues(codeValues, nodePath),
+			getDragOverrides,
+			getCodeValues,
 		};
-	}, [visualModeEnabled, dragOverrides, codeValues]);
+	}, [visualModeEnabled, getDragOverrides, getCodeValues]);
 
 	const settersContext: VisualModeSetters = useMemo(() => {
 		return {

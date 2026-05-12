@@ -20,9 +20,7 @@ export const useTimelineHeight = ({
 }): number => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {getDragOverrides, getCodeValues} = useContext(
-		Internals.VisualModeGettersContext,
-	);
+	const {getCodeValues} = useContext(Internals.VisualModeGettersContext);
 
 	const visualModeEnabled =
 		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&
@@ -43,7 +41,6 @@ export const useTimelineHeight = ({
 							sequence: track.sequence,
 							nodePathInfo: track.nodePathInfo,
 							getIsExpanded,
-							getDragOverrides,
 							getCodeValues,
 						}) + TIMELINE_ITEM_BORDER_BOTTOM
 					: 0;
@@ -56,12 +53,5 @@ export const useTimelineHeight = ({
 			(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0) +
 			TIMELINE_TIME_INDICATOR_HEIGHT
 		);
-	}, [
-		shown,
-		hasBeenCut,
-		visualModeEnabled,
-		getIsExpanded,
-		getDragOverrides,
-		getCodeValues,
-	]);
+	}, [shown, hasBeenCut, visualModeEnabled, getIsExpanded, getCodeValues]);
 };

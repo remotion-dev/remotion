@@ -81,10 +81,9 @@ export const TimelineExpandedSection: React.FC<{
 				sequence,
 				nodePathInfo,
 				getIsExpanded,
-				getDragOverrides,
 				getCodeValues,
 			}),
-		[sequence, nodePathInfo, getIsExpanded, getDragOverrides, getCodeValues],
+		[sequence, nodePathInfo, getIsExpanded, getCodeValues],
 	);
 
 	const style = useMemo(() => {
