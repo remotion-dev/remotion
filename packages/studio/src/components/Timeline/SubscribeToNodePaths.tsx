@@ -25,12 +25,12 @@ export const SubscribeToNodePaths: React.FC<{
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
 
 	// eslint-disable-next-line react-hooks/rules-of-hooks
-	useSequencePropsSubscription(
-		sequence.controls.overrideId,
-		sequence.controls.schema,
+	useSequencePropsSubscription({
+		overrideId: sequence.controls.overrideId,
+		schema: sequence.controls.schema,
 		originalLocation,
-		visualModeActive,
-	);
+		visualModeEnabled: visualModeActive,
+	});
 
 	return null;
 };

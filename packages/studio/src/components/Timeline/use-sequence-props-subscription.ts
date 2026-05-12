@@ -5,12 +5,17 @@ import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {acquireSequencePropsSubscription} from './sequence-props-subscription-store';
 
-export const useSequencePropsSubscription = (
-	overrideId: string,
-	schema: SequenceSchema,
-	originalLocation: OriginalPosition | null,
-	visualModeEnabled: boolean,
-) => {
+export const useSequencePropsSubscription = ({
+	originalLocation,
+	overrideId,
+	schema,
+	visualModeEnabled,
+}: {
+	overrideId: string;
+	schema: SequenceSchema;
+	originalLocation: OriginalPosition | null;
+	visualModeEnabled: boolean;
+}) => {
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const {setOverrideIdToNodePath} = useContext(
 		Internals.OverrideIdsToNodePathsSettersContext,
