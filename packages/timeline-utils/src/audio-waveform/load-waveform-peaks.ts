@@ -1,10 +1,9 @@
 import {ALL_FORMATS, AudioSampleSink, Input, UrlSource} from 'mediabunny';
+import {TARGET_SAMPLE_RATE} from './constants';
 import {
 	createWaveformPeakProcessor,
 	emitWaveformProgress,
 } from './waveform-peak-processor';
-
-const TARGET_SAMPLE_RATE = 100;
 const DEFAULT_PROGRESS_INTERVAL_IN_MS = 50;
 
 const peaksCache = new Map<string, Float32Array>();

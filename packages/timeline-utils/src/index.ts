@@ -1,3 +1,17 @@
+export type {
+	AudioWaveformWorkerIncomingMessage,
+	AudioWaveformWorkerOutgoingMessage,
+	AudioWaveformWorkerRenderMessage,
+} from './audio-waveform/audio-waveform-worker-types';
+export {TARGET_SAMPLE_RATE} from './audio-waveform/constants';
+export {drawBars} from './audio-waveform/draw-peaks';
+export {loadWaveformPeaks} from './audio-waveform/load-waveform-peaks';
+export {makeAudioWaveformWorker} from './audio-waveform/make-audio-waveform-worker';
+export {sliceWaveformPeaks} from './audio-waveform/slice-waveform-peaks';
+export {
+	createWaveformPeakProcessor,
+	emitWaveformProgress,
+} from './audio-waveform/waveform-peak-processor';
 export {extractFrames} from './extract-frames';
 export type {
 	ExtractFramesProps,

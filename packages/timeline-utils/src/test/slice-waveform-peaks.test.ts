@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {sliceWaveformPeaks} from '../components/slice-waveform-peaks';
+import {sliceWaveformPeaks} from '../audio-waveform/slice-waveform-peaks';
 
 test('Should slice waveform peaks based on timeline window', () => {
 	const peaks = Float32Array.from({length: 300}, (_, i) => i);
