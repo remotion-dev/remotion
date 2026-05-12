@@ -61,11 +61,16 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 	const merged: Record<string, unknown> = {};
 	for (const key of Object.keys(currentValue)) {
 		const codeValueStatus = propStatus?.[key] ?? null;
+		const field = findFieldInSchema(schema, key);
+		if (field?.type === 'hidden') {
+			continue;
+		}
+
 		merged[key] = getEffectiveVisualModeValue({
 			codeValue: codeValueStatus,
 			runtimeValue: currentValue[key],
 			dragOverrideValue: overrideValues[key],
-			defaultValue: findFieldInSchema(schema, key)?.default,
+			defaultValue: field?.default,
 			shouldResortToDefaultValueIfUndefined: false,
 		});
 	}
