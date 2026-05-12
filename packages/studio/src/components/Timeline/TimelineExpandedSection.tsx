@@ -39,8 +39,9 @@ export const TimelineExpandedSection: React.FC<{
 }> = ({sequence, originalLocation, nodePathInfo, nestedDepth}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
-	const {getDragOverrides, getCodeValues} = useContext(
-		Internals.VisualModeGettersContext,
+	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
 	);
 
 	const validatedLocation: CodePosition | null = useMemo(() => {

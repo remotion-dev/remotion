@@ -6,7 +6,10 @@ import {
 } from './flatten-schema.js';
 import type {SequenceSchema} from './sequence-field-schema.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
-import {VisualModeGettersContext} from './SequenceManager.js';
+import {
+	VisualModeCodeValuesContext,
+	VisualModeDragOverridesContext,
+} from './SequenceManager.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {computeEffectiveSchemaValuesDotNotation} from './use-schema.js';
 
@@ -110,9 +113,10 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
 		const env = useRemotionEnvironment();
 
-		const {visualModeEnabled, getDragOverrides, getCodeValues} = useContext(
-			VisualModeGettersContext,
+		const {visualModeEnabled, getCodeValues} = useContext(
+			VisualModeCodeValuesContext,
 		);
+		const {getDragOverrides} = useContext(VisualModeDragOverridesContext);
 		const nodePathMapping = useContext(OverrideIdsToNodePathsGettersContext);
 
 		if (

@@ -43,10 +43,13 @@ export const SequenceVisibilityToggleContext =
 		},
 	});
 
-export type VisualModeGetters = {
+export type VisualModeCodeValues = {
 	visualModeEnabled: boolean;
-	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
+};
+
+export type VisualModeDragOverrides = {
+	getDragOverrides: GetDragOverrides;
 };
 
 export type VisualModeSetters = {
@@ -91,15 +94,20 @@ const getCodeValuesCtx = (
 
 export type GetCodeValuesType = typeof getCodeValuesCtx;
 
-export const VisualModeGettersContext = React.createContext<VisualModeGetters>({
-	getDragOverrides: () => {
-		throw new Error('VisualModeGettersContext not initialized');
-	},
-	getCodeValues: () => {
-		throw new Error('VisualModeGettersContext not initialized');
-	},
-	visualModeEnabled: false,
-});
+export const VisualModeCodeValuesContext =
+	React.createContext<VisualModeCodeValues>({
+		getCodeValues: () => {
+			throw new Error('VisualModeCodeValuesContext not initialized');
+		},
+		visualModeEnabled: false,
+	});
+
+export const VisualModeDragOverridesContext =
+	React.createContext<VisualModeDragOverrides>({
+		getDragOverrides: () => {
+			throw new Error('VisualModeDragOverridesContext not initialized');
+		},
+	});
 
 export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 	setDragOverrides: () => {
@@ -204,13 +212,18 @@ export const SequenceManagerProvider: React.FC<{
 		[codeValues],
 	);
 
-	const gettersContext: VisualModeGetters = useMemo(() => {
+	const codeValuesContext: VisualModeCodeValues = useMemo(() => {
 		return {
 			visualModeEnabled,
-			getDragOverrides,
 			getCodeValues,
 		};
-	}, [visualModeEnabled, getDragOverrides, getCodeValues]);
+	}, [visualModeEnabled, getCodeValues]);
+
+	const dragOverridesContext: VisualModeDragOverrides = useMemo(() => {
+		return {
+			getDragOverrides,
+		};
+	}, [getDragOverrides]);
 
 	const settersContext: VisualModeSetters = useMemo(() => {
 		return {
@@ -223,11 +236,13 @@ export const SequenceManagerProvider: React.FC<{
 	return (
 		<SequenceManager.Provider value={sequenceContext}>
 			<SequenceVisibilityToggleContext.Provider value={hiddenContext}>
-				<VisualModeGettersContext.Provider value={gettersContext}>
-					<VisualModeSettersContext.Provider value={settersContext}>
-						{children}
-					</VisualModeSettersContext.Provider>
-				</VisualModeGettersContext.Provider>
+				<VisualModeCodeValuesContext.Provider value={codeValuesContext}>
+					<VisualModeDragOverridesContext.Provider value={dragOverridesContext}>
+						<VisualModeSettersContext.Provider value={settersContext}>
+							{children}
+						</VisualModeSettersContext.Provider>
+					</VisualModeDragOverridesContext.Provider>
+				</VisualModeCodeValuesContext.Provider>
 			</SequenceVisibilityToggleContext.Provider>
 		</SequenceManager.Provider>
 	);

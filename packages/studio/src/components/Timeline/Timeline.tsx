@@ -75,8 +75,14 @@ const TimelineInner: React.FC = () => {
 		);
 	}, [durationInFrames, timeline]);
 
-	const shown = filtered.slice(0, MAX_TIMELINE_TRACKS);
+	const shown = useMemo(() => {
+		return filtered.length > MAX_TIMELINE_TRACKS
+			? filtered.slice(0, MAX_TIMELINE_TRACKS)
+			: filtered;
+	}, [filtered]);
+
 	const hasBeenCut = filtered.length > shown.length;
+
 	const visualModeEnvEnabled = Boolean(
 		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
 	);

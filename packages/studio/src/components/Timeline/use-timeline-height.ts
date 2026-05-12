@@ -20,7 +20,7 @@ export const useTimelineHeight = ({
 }): number => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {getCodeValues} = useContext(Internals.VisualModeGettersContext);
+	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
 
 	const visualModeEnabled =
 		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&

@@ -51,13 +51,13 @@ const getExpandedPlaceholderStyle = ({
 		}) + TIMELINE_ITEM_BORDER_BOTTOM,
 });
 
-export const TimelineTracks: React.FC<{
+const TimelineTracksInner: React.FC<{
 	readonly timeline: TrackWithHash[];
 	readonly hasBeenCut: boolean;
 }> = ({timeline, hasBeenCut}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {getCodeValues} = useContext(Internals.VisualModeGettersContext);
+	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
 
 	const visualModeEnabled =
 		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&
@@ -110,3 +110,5 @@ export const TimelineTracks: React.FC<{
 		</div>
 	);
 };
+
+export const TimelineTracks = React.memo(TimelineTracksInner);

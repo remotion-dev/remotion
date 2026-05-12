@@ -45,8 +45,9 @@ export const TimelineFieldRow: React.FC<{
 	nodePath,
 	schema,
 }) => {
-	const {getDragOverrides, getCodeValues} = useContext(
-		Internals.VisualModeGettersContext,
+	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
 	);
 	const {setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,

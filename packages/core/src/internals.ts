@@ -117,7 +117,8 @@ import type {
 	SequenceNodePath,
 } from './SequenceManager.js';
 import {
-	VisualModeGettersContext,
+	VisualModeCodeValuesContext,
+	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
@@ -220,7 +221,8 @@ export const Internals = {
 	VideoForPreview,
 	CompositionManager,
 	CompositionSetters,
-	VisualModeGettersContext,
+	VisualModeCodeValuesContext,
+	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 	SequenceManager,
 	SequenceStackTracesUpdateContext,
