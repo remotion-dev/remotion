@@ -67,12 +67,6 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 
 			const debugInfo = `index = ${i}, duration = ${castedChild.props.durationInFrames}`;
 
-			if (!castedChild?.props.children) {
-				throw new TypeError(
-					`A <Series.Sequence /> component (${debugInfo}) was detected to not have any children. Delete it to fix this error.`,
-				);
-			}
-
 			const durationInFramesProp = castedChild.props.durationInFrames;
 			const {
 				durationInFrames,

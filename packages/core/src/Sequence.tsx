@@ -49,7 +49,7 @@ export type LayoutAndStyle =
 	  };
 
 export type SequencePropsWithoutDuration = {
-	readonly children: React.ReactNode;
+	readonly children?: React.ReactNode;
 	readonly width?: number;
 	readonly height?: number;
 	readonly from?: number;
