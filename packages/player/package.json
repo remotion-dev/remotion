@@ -39,13 +39,13 @@
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
-		"react": ">=16.8.0",
-		"react-dom": ">=16.8.0"
+		"react": "19.2.3",
+		"react-dom": "19.2.3"
 	},
 	"devDependencies": {
 		"@testing-library/react": "16.1.0",
 		"@happy-dom/global-registrator": "14.5.1",
-		"csstype": "^3.1.1",
+		"csstype": "3.2.3",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"webpack": "5.105.0",

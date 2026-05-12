@@ -20,7 +20,7 @@
 	},
 	"devDependencies": {
 		"@types/css-font-loading-module": "0.0.14",
-		"@types/prettier": "^2.7.1",
+		"@types/prettier": "2.7.2",
 		"postcss": "8.5.10",
 		"@typescript/native-preview": "catalog:"
 	},

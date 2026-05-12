@@ -22,7 +22,7 @@
 	"license": "ISC",
 	"dependencies": {},
 	"peerDependencies": {
-		"eslint": ">=7.15.0"
+		"eslint": "9.19.0"
 	},
 	"devDependencies": {
 		"@remotion/eslint-plugin": "workspace:*",

@@ -27,7 +27,7 @@
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"msw": "^2.7.1",
+		"msw": "2.12.7",
 		"remotion": "workspace:*",
 		"@typescript/native-preview": "catalog:"
 	},

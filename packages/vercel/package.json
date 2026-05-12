@@ -28,7 +28,7 @@
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
-		"@vercel/sandbox": ">=1.0.0"
+		"@vercel/sandbox": "1.6.0"
 	},
 	"exports": {
 		".": {

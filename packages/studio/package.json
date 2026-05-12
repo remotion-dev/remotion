@@ -21,8 +21,8 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"peerDependencies": {
-		"react": ">=16.8.0",
-		"react-dom": ">=16.8.0"
+		"react": "19.2.3",
+		"react-dom": "19.2.3"
 	},
 	"dependencies": {
 		"semver": "7.5.3",
@@ -37,13 +37,13 @@
 		"mediabunny": "catalog:",
 		"memfs": "3.4.3",
 		"source-map": "0.7.3",
-		"open": "^8.4.2",
+		"open": "8.4.2",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"@types/semver": "^7.3.4",
+		"@types/semver": "7.5.3",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"@typescript/native-preview": "catalog:"

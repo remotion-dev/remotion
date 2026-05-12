@@ -45,12 +45,12 @@
 		"react-dom": "catalog:",
 		"three": "catalog:",
 		"vitest": "catalog:",
-		"vitest-browser-react": "^2.0.2",
+		"vitest-browser-react": "2.0.2",
 		"zod": "catalog:"
 	},
 	"peerDependencies": {
-		"react": ">=18.0.0",
-		"react-dom": ">=18.0.0"
+		"react": "19.2.3",
+		"react-dom": "19.2.3"
 	},
 	"publishConfig": {
 		"access": "public"

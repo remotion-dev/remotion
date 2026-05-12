@@ -27,7 +27,7 @@
 	},
 	"devDependencies": {
 		"@types/minimist": "1.2.2",
-		"@types/prompts": "^2.0.12",
+		"@types/prompts": "2.4.9",
 		"@types/tar": "6.1.1",
 		"react": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",

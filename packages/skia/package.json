@@ -25,15 +25,15 @@
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
-		"@shopify/react-native-skia": ">=0.1.191",
-		"react": ">=16.8.0",
-		"react-dom": ">=16.8.0"
+		"@shopify/react-native-skia": "2.0.0",
+		"react": "19.2.3",
+		"react-dom": "19.2.3"
 	},
 	"devDependencies": {
 		"@remotion/bundler": "workspace:*",
 		"@shopify/react-native-skia": "2.0.0",
 		"canvaskit-wasm": "0.40.0",
-		"@types/react-native": "^0.69.2",
+		"@types/react-native": "0.69.2",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"remotion": "workspace:*",

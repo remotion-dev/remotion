@@ -1,36 +1,36 @@
 {
-  "name": "template-tiktok",
-  "version": "1.0.0",
-  "description": "A Remotion template for TikTok-style captions",
-  "scripts": {
-    "dev": "remotion studio",
-    "build": "remotion bundle",
-    "upgrade": "remotion upgrade",
-    "lint": "eslint src && tsc",
-    "create-subtitles": "node sub.mjs"
-  },
-  "repository": {},
-  "license": "UNLICENSED",
-  "dependencies": {
-    "@remotion/cli": "workspace:*",
-    "@remotion/zod-types": "workspace:*",
-    "@remotion/animation-utils": "workspace:*",
-    "@remotion/layout-utils": "workspace:*",
-    "@remotion/media-utils": "workspace:*",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "remotion": "workspace:*",
-    "zod": "4.3.6"
-  },
-  "devDependencies": {
-    "@remotion/eslint-config-flat": "workspace:*",
-    "@remotion/install-whisper-cpp": "workspace:*",
-    "@remotion/captions": "workspace:*",
-    "@types/react": "19.2.7",
-    "@types/web": "0.0.166",
-    "eslint": "9.19.0",
-    "prettier": "3.8.1",
-    "typescript": "5.9.3"
-  },
-  "private": true
+	"name": "template-tiktok",
+	"version": "1.0.0",
+	"description": "A Remotion template for TikTok-style captions",
+	"scripts": {
+		"dev": "remotion studio",
+		"build": "remotion bundle",
+		"upgrade": "remotion upgrade",
+		"lint": "eslint src && tsc",
+		"create-subtitles": "node sub.mjs"
+	},
+	"repository": {},
+	"license": "UNLICENSED",
+	"dependencies": {
+		"@remotion/cli": "workspace:*",
+		"@remotion/zod-types": "workspace:*",
+		"@remotion/animation-utils": "workspace:*",
+		"@remotion/layout-utils": "workspace:*",
+		"@remotion/media-utils": "workspace:*",
+		"react": "19.2.3",
+		"react-dom": "19.2.3",
+		"remotion": "workspace:*",
+		"zod": "4.3.6"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-flat": "workspace:*",
+		"@remotion/install-whisper-cpp": "workspace:*",
+		"@remotion/captions": "workspace:*",
+		"@types/react": "19.2.7",
+		"@types/web": "0.0.166",
+		"eslint": "9.19.0",
+		"prettier": "3.8.1",
+		"typescript": "5.9.3"
+	},
+	"private": true
 }

@@ -25,8 +25,8 @@
 		"mediabunny": "catalog:"
 	},
 	"peerDependencies": {
-		"react": ">=16.8.0",
-		"react-dom": ">=16.8.0"
+		"react": "19.2.3",
+		"react-dom": "19.2.3"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",

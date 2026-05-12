@@ -15,7 +15,7 @@
 		"lint": "eslint src",
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
-	"author": "Björn Zeutzheim",
+	"author": "Bj\u00f6rn Zeutzheim",
 	"contributors": [],
 	"license": "MIT",
 	"bugs": {
@@ -25,10 +25,10 @@
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
-		"@react-three/fiber": ">=8.0.0",
-		"react": ">=16.8.0",
-		"react-dom": ">=16.8.0",
-		"three": ">=0.137.0",
+		"@react-three/fiber": "9.2.0",
+		"react": "19.2.3",
+		"react-dom": "19.2.3",
+		"three": "0.178.0",
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {

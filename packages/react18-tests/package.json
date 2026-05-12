@@ -33,14 +33,14 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"vitest": "catalog:",
-		"vitest-browser-react": "^2.0.2",
+		"vitest-browser-react": "2.0.2",
 		"@types/react": "18.3.1",
 		"@types/react-dom": "18.3.1",
 		"@typescript/native-preview": "catalog:"
 	},
 	"peerDependencies": {
-		"react": ">=18.0.0",
-		"react-dom": ">=18.0.0"
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
 	},
 	"private": true
 }
