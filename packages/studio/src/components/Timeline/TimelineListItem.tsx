@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {TSequence, NodePathsState} from 'remotion';
+import type {SequenceNodePath, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
@@ -25,7 +25,7 @@ import {useResolvedStack} from './use-resolved-stack';
 
 export const INDENT = 10;
 
-const useNodePath = (sequence: TSequence): NodePathsState | null => {
+const useNodePath = (sequence: TSequence): SequenceNodePath | null => {
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -54,7 +54,7 @@ export const TimelineListItem: React.FC<{
 	const {expandedTracks, toggleTrack} = useContext(ExpandedTracksContext);
 
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
-	const nodePathState = useNodePath(sequence);
+	const nodePath = useNodePath(sequence);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -72,9 +72,7 @@ export const TimelineListItem: React.FC<{
 		};
 	}, [originalLocation]);
 
-	const canDeleteFromSource = Boolean(
-		nodePathState && validatedLocation?.source,
-	);
+	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 
 	const deleteDisabled = useMemo(
 		() => !previewConnected || !sequence.controls || !canDeleteFromSource,
@@ -84,15 +82,11 @@ export const TimelineListItem: React.FC<{
 	const duplicateDisabled = deleteDisabled;
 
 	const onDuplicateSequenceFromSource = useCallback(async () => {
-		if (
-			!validatedLocation?.source ||
-			!nodePathState ||
-			!nodePathState.nodePath
-		) {
+		if (!validatedLocation?.source || !nodePath) {
 			return;
 		}
 
-		if (nodePathState.jsxInMapCallback) {
+		if (nodePath.jsxInMapCallback) {
 			const message =
 				'This sequence is rendered inside a .map() callback. Duplicating inserts another copy in that callback (affecting each list item). Continue?';
 			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
@@ -104,7 +98,7 @@ export const TimelineListItem: React.FC<{
 		try {
 			const result = await callApi('/api/duplicate-jsx-node', {
 				fileName: validatedLocation.source,
-				nodePath: nodePathState.nodePath,
+				nodePath,
 			});
 			if (result.success) {
 				showNotification('Duplicated sequence in source file', 2000);
@@ -114,21 +108,17 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePathState, validatedLocation?.source]);
+	}, [nodePath, validatedLocation?.source]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
-		if (
-			!validatedLocation?.source ||
-			!nodePathState ||
-			!nodePathState.nodePath
-		) {
+		if (!validatedLocation?.source || !nodePath) {
 			return;
 		}
 
 		try {
 			const result = await callApi('/api/delete-jsx-node', {
 				fileName: validatedLocation.source,
-				nodePath: nodePathState.nodePath,
+				nodePath,
 			});
 			if (result.success) {
 				showNotification('Removed sequence from source file', 2000);
@@ -138,7 +128,7 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePathState, validatedLocation?.source]);
+	}, [nodePath, validatedLocation?.source]);
 
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		if (!visualModeEnvEnabled) {
@@ -275,14 +265,11 @@ export const TimelineListItem: React.FC<{
 			) : (
 				trackRow
 			)}
-			{visualModeActive &&
-			isExpanded &&
-			hasExpandableContent &&
-			nodePathState ? (
+			{visualModeActive && isExpanded && hasExpandableContent && nodePath ? (
 				<TimelineExpandedSection
 					sequence={sequence}
 					originalLocation={originalLocation}
-					nodePath={nodePathState.nodePath}
+					nodePath={nodePath}
 					nestedDepth={nestedDepth}
 				/>
 			) : null}

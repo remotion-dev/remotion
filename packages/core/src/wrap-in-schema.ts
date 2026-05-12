@@ -144,8 +144,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const [overrideId] = useState(() => String(Math.random()));
 		const nodePath =
-			nodePathMapping.overrideIdToNodePathMappings[overrideId]?.nodePath ??
-			null;
+			nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null;
 
 		// Read the runtime values for every flat key from the JSX props,
 		// memoized on the leaf values so the object reference is stable

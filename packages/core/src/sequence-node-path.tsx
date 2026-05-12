@@ -1,19 +1,17 @@
 import {createContext} from 'react';
 import type {SequenceNodePath} from './SequenceManager';
 
-export type NodePathsState = {
-	nodePath: SequenceNodePath | null;
-	jsxInMapCallback: boolean;
-};
-
-export type OverrideIdToNodePaths = Record<string, NodePathsState>;
+export type OverrideIdToNodePaths = Record<string, SequenceNodePath>;
 
 export type OverrideToNodePathGetters = {
 	overrideIdToNodePathMappings: OverrideIdToNodePaths;
 };
 
 export type OverrideToNodeSetters = {
-	setOverrideIdToNodePath: (overrideId: string, state: NodePathsState) => void;
+	setOverrideIdToNodePath: (
+		overrideId: string,
+		nodePath: SequenceNodePath,
+	) => void;
 };
 
 export const OverrideIdsToNodePathsGettersContext =

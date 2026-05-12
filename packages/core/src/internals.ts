@@ -103,7 +103,6 @@ import type {
 } from './sequence-field-schema.js';
 import {sequenceSchema, sequenceStyleSchema} from './sequence-field-schema.js';
 import type {
-	NodePathsState,
 	OverrideIdToNodePaths,
 	OverrideToNodePathGetters,
 	OverrideToNodeSetters,
@@ -357,7 +356,6 @@ export type {
 	NonceHistory,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
-	NodePathsState,
 	SequenceNodePath,
 	OverrideIdToNodePaths,
 	OverrideToNodeSetters,

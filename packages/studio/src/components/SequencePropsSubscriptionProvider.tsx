@@ -1,27 +1,23 @@
 import {useState, useCallback, useMemo} from 'react';
 import {Internals} from 'remotion';
 import type {
-	NodePathsState,
 	OverrideIdToNodePaths,
 	OverrideToNodePathGetters,
 	OverrideToNodeSetters,
+	SequenceNodePath,
 } from 'remotion';
 
 export const SequencePropsSubscriptionProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const [subscriptionStates, setSubscriptionStates] =
+	const [overrideToNodePathMap, setOverrideIdToNodePathMap] =
 		useState<OverrideIdToNodePaths>({});
 
-	const setSubscriptionState = useCallback(
-		(overrideId: string, state: NodePathsState) => {
-			setSubscriptionStates((prev) => {
+	const setOverrideIdToNodePath = useCallback(
+		(overrideId: string, state: SequenceNodePath) => {
+			setOverrideIdToNodePathMap((prev) => {
 				const existing = prev[overrideId];
-				if (
-					existing &&
-					existing.nodePath === state.nodePath &&
-					existing.jsxInMapCallback === state.jsxInMapCallback
-				) {
+				if (existing && existing === state) {
 					return prev;
 				}
 
@@ -32,12 +28,12 @@ export const SequencePropsSubscriptionProvider: React.FC<{
 	);
 
 	const getters = useMemo((): OverrideToNodePathGetters => {
-		return {overrideIdToNodePathMappings: subscriptionStates};
-	}, [subscriptionStates]);
+		return {overrideIdToNodePathMappings: overrideToNodePathMap};
+	}, [overrideToNodePathMap]);
 
 	const setters = useMemo((): OverrideToNodeSetters => {
-		return {setOverrideIdToNodePath: setSubscriptionState};
-	}, [setSubscriptionState]);
+		return {setOverrideIdToNodePath};
+	}, [setOverrideIdToNodePath]);
 
 	return (
 		<Internals.OverrideIdsToNodePathsGettersContext.Provider value={getters}>

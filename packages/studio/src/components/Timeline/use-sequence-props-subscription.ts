@@ -72,10 +72,7 @@ export const useSequencePropsSubscription = (
 					return;
 				}
 
-				setOverrideIdToNodePath(overrideId, {
-					nodePath: result.nodePath,
-					jsxInMapCallback: result.jsxInMapCallback,
-				});
+				setOverrideIdToNodePath(overrideId, result.nodePath);
 			},
 		});
 

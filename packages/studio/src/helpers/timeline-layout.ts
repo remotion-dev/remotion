@@ -100,8 +100,7 @@ export const buildTimelineTree = ({
 	}
 
 	const nodePath =
-		sequencePropsSubscriptionState[sequence.controls!.overrideId!]?.nodePath ??
-		null;
+		sequencePropsSubscriptionState[sequence.controls!.overrideId!] ?? null;
 	const controlFields = getFieldsToShow({
 		schema: sequence.controls!.schema,
 		currentRuntimeValueDotNotation:
