@@ -41,6 +41,10 @@ const noop = () => undefined;
 const TimelineInner: React.FC = () => {
 	const {sequences} = useContext(Internals.SequenceManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+
 	const videoConfigIsNull = videoConfig === null;
 
 	const timeline = useMemo((): TrackWithHash[] => {
@@ -50,8 +54,9 @@ const TimelineInner: React.FC = () => {
 
 		return calculateTimeline({
 			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 		});
-	}, [sequences, videoConfigIsNull]);
+	}, [sequences, videoConfigIsNull, overrideIdToNodePathMappings]);
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 

@@ -25,23 +25,12 @@ import {useResolvedStack} from './use-resolved-stack';
 
 export const INDENT = 10;
 
-const useNodePath = (sequence: TSequence): SequenceNodePath | null => {
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
-	);
-	const overrideId = sequence.controls?.overrideId ?? null;
-	if (!overrideId) {
-		return null;
-	}
-
-	return overrideIdToNodePathMappings[overrideId] ?? null;
-};
-
 export const TimelineListItem: React.FC<{
 	readonly sequence: TSequence;
 	readonly nestedDepth: number;
 	readonly isCompact: boolean;
-}> = ({nestedDepth, sequence, isCompact}) => {
+	readonly nodePath: SequenceNodePath | null;
+}> = ({nestedDepth, sequence, isCompact, nodePath}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const visualModeEnvEnabled = Boolean(
 		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
@@ -57,7 +46,6 @@ export const TimelineListItem: React.FC<{
 	);
 
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
-	const nodePath = useNodePath(sequence);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -140,7 +128,7 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePath, validatedLocation?.source]);
+	}, [nodePath, validatedLocation?.source, getIsJsxInMapCallback]);
 
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		if (!visualModeEnvEnabled) {

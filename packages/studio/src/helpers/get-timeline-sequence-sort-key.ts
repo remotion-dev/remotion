@@ -1,8 +1,9 @@
-import type {TSequence} from 'remotion';
+import type {SequenceNodePath, TSequence} from 'remotion';
 
 type Track = {
 	sequence: TSequence;
 	depth: number;
+	nodePath: SequenceNodePath | null;
 };
 
 export type TrackWithHash = Track & {

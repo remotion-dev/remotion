@@ -1,4 +1,4 @@
-import type {LoopDisplay, TSequence} from 'remotion';
+import type {LoopDisplay, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {
 	getCascadedStart,
 	getTimelineVisibleDuration,
@@ -35,8 +35,10 @@ const getInheritedLoopDisplay = (
 
 export const calculateTimeline = ({
 	sequences,
+	overrideIdsToNodePaths,
 }: {
 	sequences: TSequence[];
+	overrideIdsToNodePaths: OverrideIdToNodePaths;
 }): TrackWithHash[] => {
 	const sortedSequences = sortItemsByNonceHistory(sequences);
 	const tracks: TrackWithHashAndOriginalTimings[] = [];
@@ -77,6 +79,9 @@ export const calculateTimeline = ({
 			sortedSequences,
 		);
 
+		const overrideId = sequence.controls?.overrideId ?? null;
+		const nodePath = overrideId ? overrideIdsToNodePaths[overrideId] : null;
+
 		tracks.push({
 			sequence: {
 				...sequence,
@@ -91,6 +96,7 @@ export const calculateTimeline = ({
 			hash: actualHash,
 			cascadedStart,
 			cascadedDuration: sequence.duration,
+			nodePath,
 		});
 	}
 
