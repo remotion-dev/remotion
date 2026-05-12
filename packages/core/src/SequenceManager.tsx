@@ -134,6 +134,7 @@ export const SequenceManagerProvider: React.FC<{
 		) => {
 			setCodeValuesMapState((prev) => {
 				const key = nodePathToString(nodePath);
+
 				if (prev[key] === values) {
 					return prev;
 				}

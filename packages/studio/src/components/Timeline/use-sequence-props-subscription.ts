@@ -28,13 +28,9 @@ export const useSequencePropsSubscription = (
 			nodePath: SequenceNodePath,
 			statuses: Record<string, CanUpdateSequencePropStatus> | null,
 		) => {
-			if (!overrideId) {
-				return;
-			}
-
 			setCodeValues(nodePath, statuses);
 		},
-		[overrideId, setCodeValues],
+		[setCodeValues],
 	);
 
 	const setSubscriptionStateForSequence = useCallback(
