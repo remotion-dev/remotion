@@ -136,7 +136,7 @@ export const MenuBuildIndicator: React.FC = () => {
 			) : (
 				<div style={noSpinner} />
 			)}
-			{isClickable ? <Spacing x={0.5} /> : null}
+			<Spacing x={0.5} />
 			{isClickable ? (
 				<a
 					style={projectNameHovered ? projectNameLinkHovered : projectNameLink}
