@@ -78,6 +78,7 @@ export const TimelineExpandedRow: React.FC<{
 					isExpanded={isExpanded}
 					onClick={() => toggleTrack(node.nodePathInfo)}
 					label={`${node.label} section`}
+					disabled={false}
 				/>
 				<span style={rowLabel}>{node.label}</span>
 			</div>

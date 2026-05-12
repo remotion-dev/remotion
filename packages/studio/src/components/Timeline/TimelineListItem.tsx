@@ -255,6 +255,7 @@ export const TimelineListItem: React.FC<{
 							isExpanded={isExpanded}
 							onClick={onToggleExpand}
 							label="track properties"
+							disabled={nodePathInfo === null}
 						/>
 					) : (
 						<TimelineExpandArrowSpacer />
