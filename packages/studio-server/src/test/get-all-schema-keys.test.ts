@@ -15,6 +15,7 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 			'style.rotate',
 			'style.opacity',
 			'premountFor',
+			'postmountFor',
 			'styleWhilePremounted',
 			'styleWhilePostmounted',
 		].sort(),
