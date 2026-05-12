@@ -88,6 +88,8 @@ export const mergeValues = ({
 	return merged;
 };
 
+const stackToOverrideMap: Record<string, string> = {};
+
 export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 	Component: React.ComponentType<
 		Props & {readonly _experimentalControls: SequenceControls | undefined}
@@ -142,7 +144,21 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 		}
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const [overrideId] = useState(() => String(Math.random()));
+		const [overrideId] = useState(() => {
+			const {stack} = props as {stack?: string};
+			if (!stack) {
+				return String(Math.random());
+			}
+
+			const existingOverrideId = stackToOverrideMap[stack];
+			if (existingOverrideId) {
+				return existingOverrideId;
+			}
+
+			const newOverrideId = String(Math.random());
+			stackToOverrideMap[stack] = newOverrideId;
+			return newOverrideId;
+		});
 		const nodePath =
 			nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null;
 
