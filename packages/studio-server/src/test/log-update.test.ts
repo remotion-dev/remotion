@@ -8,7 +8,7 @@ import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {updateSequenceProps} from '../codemods/update-sequence-props';
-import {bg, fg, logUpdate} from '../preview-server/routes/log-update';
+import {fg, logUpdate} from '../preview-server/routes/log-update';
 import {lineColumnToNodePath} from './test-utils';
 
 const {chalk} = RenderInternals;
@@ -74,13 +74,11 @@ test('logUpdate emits Monokai-colored output after an AST update', async () => {
 		const equals = (s: string) => fg(249, 38, 114, s);
 		const punctuation = (s: string) => fg(248, 248, 242, s);
 		const numberValue = (s: string) => fg(174, 129, 255, s);
-		const removedBg = (s: string) => bg(80, 20, 20, s);
-		const addedBg = (s: string) => bg(30, 80, 30, s);
 
 		const simpleProp = (key: string, value: string) =>
 			`${attrName(key)}${equals('=')}${punctuation('{')}${numberValue(value)}${punctuation('}')}`;
 
-		const expectedPropChange = `${removedBg(simpleProp('hueShift', '30'))} → ${addedBg(simpleProp('hueShift', '90'))}`;
+		const expectedPropChange = `${simpleProp('hueShift', '30')} → ${simpleProp('hueShift', '90')}`;
 		const expectedLine = `${chalk.blueBright('src/Example.tsx:8:')} ${expectedPropChange}`;
 
 		expect(logged).toBe(expectedLine);
