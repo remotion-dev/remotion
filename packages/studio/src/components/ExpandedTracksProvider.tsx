@@ -4,6 +4,30 @@ import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-k
 const nodePathInfoToKey = (info: SequenceNodePathInfo): string =>
 	JSON.stringify([info.nodePath, info.index]);
 
+const LOCAL_STORAGE_KEY = 'remotion.editor.expandedTracks';
+
+const loadExpandedTracks = (): Record<string, boolean> => {
+	if (typeof window === 'undefined') {
+		return {};
+	}
+
+	const item = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+	if (item === null) {
+		return {};
+	}
+
+	try {
+		const parsed = JSON.parse(item);
+		if (parsed && typeof parsed === 'object') {
+			return parsed as Record<string, boolean>;
+		}
+
+		return {};
+	} catch {
+		return {};
+	}
+};
+
 export type GetIsExpanded = (nodePathInfo: SequenceNodePathInfo) => boolean;
 
 type ExpandedTracksGetterContextValue = {
@@ -31,14 +55,15 @@ export const ExpandedTracksSetterContext =
 export const ExpandedTracksProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const [expandedTracks, setExpandedTracks] = useState<Record<string, boolean>>(
-		{},
-	);
+	const [expandedTracks, setExpandedTracks] =
+		useState<Record<string, boolean>>(loadExpandedTracks);
 
 	const toggleTrack = useCallback((nodePathInfo: SequenceNodePathInfo) => {
 		setExpandedTracks((prev) => {
 			const key = nodePathInfoToKey(nodePathInfo);
-			return {...prev, [key]: !prev[key]};
+			const next = {...prev, [key]: !prev[key]};
+			window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(next));
+			return next;
 		});
 	}, []);
 
