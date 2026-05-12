@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/timeline-utils",
 	"version": "4.0.459",
-	"description": "Undocumented utilities for timeline rendering",
+	"description": "Internal utilities for rendering Remotion timelines",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {

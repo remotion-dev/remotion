@@ -70,6 +70,7 @@ export const listOfRemotionPackages = [
 	'@remotion/studio',
 	'@remotion/tailwind',
 	'@remotion/tailwind-v4',
+	'@remotion/timeline-utils',
 	'@remotion/test-utils',
 	'@remotion/three',
 	'@remotion/transitions',
