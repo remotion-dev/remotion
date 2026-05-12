@@ -89,20 +89,16 @@ const TimelineInner: React.FC = () => {
 		>
 			{visualModeEnvEnabled
 				? sequences.map((sequence) => {
-						if (!sequence.controls) {
-							return null;
-						}
-
-						if (!previewConnected) {
+						if (!sequence.controls || !previewConnected || !sequence.stack) {
 							return null;
 						}
 
 						return (
 							<SubscribeToNodePaths
 								key={sequence.id}
-								sequence={sequence}
 								overrideId={sequence.controls.overrideId}
 								schema={sequence.controls.schema}
+								stack={sequence.stack}
 							/>
 						);
 					})
