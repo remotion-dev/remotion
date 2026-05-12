@@ -18,6 +18,7 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'style.rotate',
 			'style.opacity',
 			'premountFor',
+			'postmountFor',
 			'styleWhilePremounted',
 			'styleWhilePostmounted',
 		].sort(),
@@ -58,9 +59,15 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'style.rotate',
 			'style.opacity',
 			'premountFor',
-			'styleWhilePremounted',
-			'styleWhilePostmounted',
 		].sort(),
+	);
+
+	const values2 = {
+		layout: 'none',
+		'style.scale': 2,
+	};
+	expect(selectActiveKeys(sequenceSchema, values2).sort()).toEqual(
+		['layout'].sort(),
 	);
 });
 

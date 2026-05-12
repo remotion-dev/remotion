@@ -19,7 +19,7 @@ const SlicedVideo: React.FC = () => {
 						key={i}
 						from={from}
 						durationInFrames={SLICE_DURATION_FRAMES}
-						premountFor={PREMOUNT_SEC * fps}
+						layout={'none'}
 					>
 						<Audio src={src} trimBefore={from} />
 					</Sequence>
