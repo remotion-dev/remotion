@@ -8,6 +8,7 @@ import {
 	getTreeRowHeight,
 	TREE_GROUP_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
+import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {Padder} from './Padder';
 import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineFieldRow} from './TimelineFieldRow';
@@ -36,8 +37,8 @@ export const TimelineExpandedRow: React.FC<{
 	readonly node: TimelineTreeNode;
 	readonly depth: number;
 	readonly nestedDepth: number;
-	readonly expandedTracks: Record<string, boolean>;
-	readonly toggleTrack: (id: string) => void;
+	readonly getIsExpanded: GetIsExpanded;
+	readonly toggleTrack: (nodePath: SequenceNodePath) => void;
 	readonly validatedLocation: CodePosition | null;
 	readonly nodePath: SequenceNodePath | null;
 	readonly schema: SequenceSchema;
@@ -45,7 +46,7 @@ export const TimelineExpandedRow: React.FC<{
 	node,
 	depth,
 	nestedDepth,
-	expandedTracks,
+	getIsExpanded,
 	toggleTrack,
 	validatedLocation,
 	nodePath,
@@ -68,13 +69,13 @@ export const TimelineExpandedRow: React.FC<{
 	);
 
 	if (node.kind === 'group') {
-		const isExpanded = expandedTracks[node.id] ?? false;
+		const isExpanded = getIsExpanded(node.nodePath);
 		return (
 			<div style={groupStyle}>
 				<Padder depth={nestedDepth + 1} />
 				<TimelineExpandArrowButton
 					isExpanded={isExpanded}
-					onClick={() => toggleTrack(node.id)}
+					onClick={() => toggleTrack(node.nodePath)}
 					label={`${node.label} section`}
 				/>
 				<span style={rowLabel}>{node.label}</span>

@@ -7,7 +7,7 @@ import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
-import {ExpandedTracksContext} from '../ExpandedTracksProvider';
+import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 
@@ -18,13 +18,10 @@ export const useTimelineHeight = ({
 	shown: TrackWithHash[];
 	hasBeenCut: boolean;
 }): number => {
-	const {expandedTracks} = useContext(ExpandedTracksContext);
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {getDragOverrides, getCodeValues} = useContext(
 		Internals.VisualModeGettersContext,
-	);
-	const {overrideIdToNodePathMappings: subscriptionStates} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 
 	const visualModeEnabled =
@@ -34,19 +31,22 @@ export const useTimelineHeight = ({
 	return useMemo(() => {
 		const tracksHeight = shown.reduce((acc, track) => {
 			const isExpanded =
-				visualModeEnabled && (expandedTracks[track.sequence.id] ?? false);
+				visualModeEnabled &&
+				track.nodePath !== null &&
+				getIsExpanded(track.nodePath);
 			const layerHeight =
 				getTimelineLayerHeight(track.sequence.type) +
 				TIMELINE_ITEM_BORDER_BOTTOM;
-			const expandedHeight = isExpanded
-				? getExpandedTrackHeight({
-						sequence: track.sequence,
-						expandedTracks,
-						getDragOverrides,
-						getCodeValues,
-						sequencePropsSubscriptionState: subscriptionStates,
-					}) + TIMELINE_ITEM_BORDER_BOTTOM
-				: 0;
+			const expandedHeight =
+				isExpanded && track.nodePath
+					? getExpandedTrackHeight({
+							sequence: track.sequence,
+							nodePath: track.nodePath,
+							getIsExpanded,
+							getDragOverrides,
+							getCodeValues,
+						}) + TIMELINE_ITEM_BORDER_BOTTOM
+					: 0;
 			return acc + layerHeight + expandedHeight;
 		}, 0);
 
@@ -59,10 +59,9 @@ export const useTimelineHeight = ({
 	}, [
 		shown,
 		hasBeenCut,
-		expandedTracks,
 		visualModeEnabled,
+		getIsExpanded,
 		getDragOverrides,
 		getCodeValues,
-		subscriptionStates,
 	]);
 };

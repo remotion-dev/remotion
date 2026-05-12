@@ -1,16 +1,32 @@
 import React, {createContext, useCallback, useMemo, useState} from 'react';
+import type {SequenceNodePath} from 'remotion';
 
-type ExpandedTracksContextValue = {
-	readonly expandedTracks: Record<string, boolean>;
-	readonly toggleTrack: (id: string) => void;
+const nodePathToKey = (nodePath: SequenceNodePath): string =>
+	JSON.stringify(nodePath);
+
+export type GetIsExpanded = (nodePath: SequenceNodePath) => boolean;
+
+type ExpandedTracksGetterContextValue = {
+	readonly getIsExpanded: GetIsExpanded;
 };
 
-export const ExpandedTracksContext = createContext<ExpandedTracksContextValue>({
-	expandedTracks: {},
-	toggleTrack: () => {
-		throw new Error('ExpandedTracksContext not initialized');
-	},
-});
+type ExpandedTracksSetterContextValue = {
+	readonly toggleTrack: (nodePath: SequenceNodePath) => void;
+};
+
+export const ExpandedTracksGetterContext =
+	createContext<ExpandedTracksGetterContextValue>({
+		getIsExpanded: () => {
+			throw new Error('ExpandedTracksGetterContext not initialized');
+		},
+	});
+
+export const ExpandedTracksSetterContext =
+	createContext<ExpandedTracksSetterContextValue>({
+		toggleTrack: () => {
+			throw new Error('ExpandedTracksSetterContext not initialized');
+		},
+	});
 
 export const ExpandedTracksProvider: React.FC<{
 	readonly children: React.ReactNode;
@@ -19,24 +35,31 @@ export const ExpandedTracksProvider: React.FC<{
 		{},
 	);
 
-	const toggleTrack = useCallback((id: string) => {
-		setExpandedTracks((prev) => ({
-			...prev,
-			[id]: !prev[id],
-		}));
+	const toggleTrack = useCallback((nodePath: SequenceNodePath) => {
+		setExpandedTracks((prev) => {
+			const key = nodePathToKey(nodePath);
+			return {...prev, [key]: !prev[key]};
+		});
 	}, []);
 
-	const value = useMemo(
-		(): ExpandedTracksContextValue => ({
-			expandedTracks,
-			toggleTrack,
+	const getterValue = useMemo(
+		(): ExpandedTracksGetterContextValue => ({
+			getIsExpanded: (nodePath) =>
+				expandedTracks[nodePathToKey(nodePath)] ?? false,
 		}),
-		[expandedTracks, toggleTrack],
+		[expandedTracks],
+	);
+
+	const setterValue = useMemo(
+		(): ExpandedTracksSetterContextValue => ({toggleTrack}),
+		[toggleTrack],
 	);
 
 	return (
-		<ExpandedTracksContext.Provider value={value}>
-			{children}
-		</ExpandedTracksContext.Provider>
+		<ExpandedTracksSetterContext.Provider value={setterValue}>
+			<ExpandedTracksGetterContext.Provider value={getterValue}>
+				{children}
+			</ExpandedTracksGetterContext.Provider>
+		</ExpandedTracksSetterContext.Provider>
 	);
 };

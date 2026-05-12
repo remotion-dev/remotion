@@ -10,7 +10,10 @@ import {
 } from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
-import {ExpandedTracksContext} from '../ExpandedTracksProvider';
+import {
+	ExpandedTracksGetterContext,
+	ExpandedTracksSetterContext,
+} from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {Padder} from './Padder';
@@ -40,7 +43,8 @@ export const TimelineListItem: React.FC<{
 	const {hidden, setHidden} = useContext(
 		Internals.SequenceVisibilityToggleContext,
 	);
-	const {expandedTracks, toggleTrack} = useContext(ExpandedTracksContext);
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
+	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {getIsJsxInMapCallback} = useContext(
 		Internals.VisualModeGettersContext,
 	);
@@ -181,11 +185,16 @@ export const TimelineListItem: React.FC<{
 		visualModeEnvEnabled,
 	]);
 
-	const isExpanded = visualModeActive && (expandedTracks[sequence.id] ?? false);
+	const isExpanded =
+		visualModeActive && nodePath !== null && getIsExpanded(nodePath);
 
 	const onToggleExpand = useCallback(() => {
-		toggleTrack(sequence.id);
-	}, [sequence.id, toggleTrack]);
+		if (nodePath === null) {
+			return;
+		}
+
+		toggleTrack(nodePath);
+	}, [nodePath, toggleTrack]);
 
 	const isItemHidden = useMemo(() => {
 		return hidden[sequence.id] ?? false;

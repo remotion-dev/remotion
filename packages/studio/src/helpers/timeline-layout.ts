@@ -9,9 +9,10 @@ import type {
 	EffectDefinitionAndStack,
 	GetCodeValues,
 	GetDragOverrides,
+	SequenceNodePath,
 	TSequence,
-	OverrideIdToNodePaths,
 } from 'remotion';
+import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
 
 export type {CodeValues, DragOverrides, SchemaFieldInfo, SequenceControls};
 export {
@@ -51,45 +52,45 @@ export const getEffectSchemaLabels = (
 export type TimelineTreeNode =
 	| {
 			readonly kind: 'group';
-			readonly id: string;
+			readonly nodePath: SequenceNodePath;
 			readonly label: string;
 			readonly children: TimelineTreeNode[];
 	  }
 	| {
 			readonly kind: 'field';
-			readonly id: string;
+			readonly nodePath: SequenceNodePath;
 			readonly label: string;
 			readonly field: SchemaFieldInfo | null;
 	  };
 
 export const buildTimelineTree = ({
 	sequence,
+	nodePath,
 	getDragOverrides,
 	getCodeValues,
-	sequencePropsSubscriptionState,
 }: {
 	sequence: TSequence;
+	nodePath: SequenceNodePath;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
-	sequencePropsSubscriptionState: OverrideIdToNodePaths;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 
 	if (sequence.effects.length > 0) {
 		roots.push({
 			kind: 'group',
-			id: `${sequence.id}::effects`,
+			nodePath: [...nodePath, 'effects'],
 			label: 'Effects',
 			children: sequence.effects.map((effect, i): TimelineTreeNode => {
-				const effectId = `${sequence.id}::effects::${i}`;
+				const effectNodePath: SequenceNodePath = [...nodePath, 'effects', i];
 				return {
 					kind: 'group',
-					id: effectId,
+					nodePath: effectNodePath,
 					label: effect.definition.label,
 					children: getEffectSchemaLabels(effect).map(
 						(label): TimelineTreeNode => ({
 							kind: 'field',
-							id: `${effectId}::${label.key}`,
+							nodePath: [...effectNodePath, label.key],
 							label: label.description ?? label.key,
 							field: null,
 						}),
@@ -99,8 +100,6 @@ export const buildTimelineTree = ({
 		});
 	}
 
-	const nodePath =
-		sequencePropsSubscriptionState[sequence.controls!.overrideId!] ?? null;
 	const controlFields = getFieldsToShow({
 		schema: sequence.controls!.schema,
 		currentRuntimeValueDotNotation:
@@ -114,7 +113,7 @@ export const buildTimelineTree = ({
 		for (const f of controlFields) {
 			roots.push({
 				kind: 'field',
-				id: `${sequence.id}::controls::${f.key}`,
+				nodePath: [...nodePath, 'controls', f.key],
 				label: f.description ?? f.key,
 				field: f,
 			});
@@ -131,21 +130,21 @@ export type FlatTreeRow = {
 
 export const flattenVisibleTreeNodes = ({
 	nodes,
-	expandedTracks,
+	getIsExpanded,
 	depth = 0,
 }: {
 	nodes: TimelineTreeNode[];
-	expandedTracks: Record<string, boolean>;
+	getIsExpanded: GetIsExpanded;
 	depth?: number;
 }): FlatTreeRow[] => {
 	const out: FlatTreeRow[] = [];
 	for (const node of nodes) {
 		out.push({node, depth});
-		if (node.kind === 'group' && (expandedTracks[node.id] ?? false)) {
+		if (node.kind === 'group' && getIsExpanded(node.nodePath)) {
 			out.push(
 				...flattenVisibleTreeNodes({
 					nodes: node.children,
-					expandedTracks,
+					getIsExpanded,
 					depth: depth + 1,
 				}),
 			);
@@ -165,24 +164,24 @@ export const getTreeRowHeight = (node: TimelineTreeNode): number => {
 
 export const getExpandedTrackHeight = ({
 	sequence,
-	expandedTracks,
+	nodePath,
+	getIsExpanded,
 	getDragOverrides,
 	getCodeValues,
-	sequencePropsSubscriptionState,
 }: {
 	sequence: TSequence;
-	expandedTracks: Record<string, boolean>;
+	nodePath: SequenceNodePath;
+	getIsExpanded: GetIsExpanded;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
-	sequencePropsSubscriptionState: OverrideIdToNodePaths;
 }): number => {
 	const tree = buildTimelineTree({
 		sequence,
+		nodePath,
 		getDragOverrides,
 		getCodeValues,
-		sequencePropsSubscriptionState,
 	});
-	const flat = flattenVisibleTreeNodes({nodes: tree, expandedTracks});
+	const flat = flattenVisibleTreeNodes({nodes: tree, getIsExpanded});
 
 	if (flat.length === 0) {
 		return TIMELINE_TRACK_EXPANDED_HEIGHT;

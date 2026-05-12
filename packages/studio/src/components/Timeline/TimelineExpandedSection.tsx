@@ -11,7 +11,10 @@ import {
 	flattenVisibleTreeNodes,
 	getExpandedTrackHeight,
 } from '../../helpers/timeline-layout';
-import {ExpandedTracksContext} from '../ExpandedTracksProvider';
+import {
+	ExpandedTracksGetterContext,
+	ExpandedTracksSetterContext,
+} from '../ExpandedTracksProvider';
 import {TimelineExpandedRow} from './TimelineExpandedRow';
 
 const expandedSectionBase: React.CSSProperties = {
@@ -31,15 +34,13 @@ const separator: React.CSSProperties = {
 export const TimelineExpandedSection: React.FC<{
 	readonly sequence: TSequence;
 	readonly originalLocation: OriginalPosition | null;
-	readonly nodePath: SequenceNodePath | null;
+	readonly nodePath: SequenceNodePath;
 	readonly nestedDepth: number;
 }> = ({sequence, originalLocation, nodePath, nestedDepth}) => {
-	const {expandedTracks, toggleTrack} = useContext(ExpandedTracksContext);
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
+	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {getDragOverrides, getCodeValues} = useContext(
 		Internals.VisualModeGettersContext,
-	);
-	const {overrideIdToNodePathMappings: subscriptionStates} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 
 	const validatedLocation: CodePosition | null = useMemo(() => {
@@ -62,34 +63,28 @@ export const TimelineExpandedSection: React.FC<{
 		() =>
 			buildTimelineTree({
 				sequence,
+				nodePath,
 				getDragOverrides,
 				getCodeValues,
-				sequencePropsSubscriptionState: subscriptionStates,
 			}),
-		[sequence, getDragOverrides, getCodeValues, subscriptionStates],
+		[sequence, nodePath, getDragOverrides, getCodeValues],
 	);
 
 	const flat = useMemo(
-		() => flattenVisibleTreeNodes({nodes: tree, expandedTracks}),
-		[tree, expandedTracks],
+		() => flattenVisibleTreeNodes({nodes: tree, getIsExpanded}),
+		[tree, getIsExpanded],
 	);
 
 	const expandedHeight = useMemo(
 		() =>
 			getExpandedTrackHeight({
 				sequence,
-				expandedTracks,
+				nodePath,
+				getIsExpanded,
 				getDragOverrides,
 				getCodeValues,
-				sequencePropsSubscriptionState: subscriptionStates,
 			}),
-		[
-			sequence,
-			expandedTracks,
-			getDragOverrides,
-			getCodeValues,
-			subscriptionStates,
-		],
+		[sequence, nodePath, getIsExpanded, getDragOverrides, getCodeValues],
 	);
 
 	const style = useMemo(() => {
@@ -109,13 +104,13 @@ export const TimelineExpandedSection: React.FC<{
 		<div style={style}>
 			{flat.map(({node, depth}, i) => {
 				return (
-					<React.Fragment key={node.id}>
+					<React.Fragment key={JSON.stringify(node.nodePath)}>
 						{i > 0 ? <div style={separator} /> : null}
 						<TimelineExpandedRow
 							node={node}
 							depth={depth}
 							nestedDepth={nestedDepth}
-							expandedTracks={expandedTracks}
+							getIsExpanded={getIsExpanded}
 							toggleTrack={toggleTrack}
 							validatedLocation={validatedLocation}
 							nodePath={nodePath}
