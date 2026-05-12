@@ -1,6 +1,11 @@
 import {readdir, stat} from 'node:fs/promises';
 import {join} from 'node:path';
-import {commandToString, runCommand, type CommandResult} from './command';
+import {
+	commandToString,
+	runCommand,
+	type CommandOutput,
+	type CommandResult,
+} from './command';
 
 export type PiRun = {
 	command: CommandResult;
@@ -8,6 +13,18 @@ export type PiRun = {
 	htmlExport: string;
 	exportCommand: CommandResult;
 };
+
+export type PiOutput = CommandOutput & {
+	phase: 'pi' | 'pi-export';
+};
+
+const harnessMessages = [
+	`Harness instruction:
+Generate and render a video artifact that can be reviewed. Prefer an MP4 file, and do not stop after producing only a still image or screenshot.`,
+];
+
+const composePiPrompt = (scenarioPrompt: string) =>
+	[scenarioPrompt, ...harnessMessages].join('\n\n');
 
 const listFilesRecursively = async (dir: string): Promise<string[]> => {
 	const entries = await readdir(dir, {withFileTypes: true});
@@ -48,12 +65,14 @@ const findNewestSessionFile = async (sessionDir: string) => {
 };
 
 export const runPi = async ({
+	onOutput,
 	projectRoot,
 	sessionDir,
 	model,
 	prompt,
 	timeoutMs,
 }: {
+	onOutput?: (output: PiOutput) => void;
 	projectRoot: string;
 	sessionDir: string;
 	model: string;
@@ -67,11 +86,12 @@ export const runPi = async ({
 		'--session-dir',
 		sessionDir,
 		'-p',
-		prompt,
+		composePiPrompt(prompt),
 	];
 	const result = await runCommand({
 		command,
 		cwd: projectRoot,
+		onOutput: (output) => onOutput?.({...output, phase: 'pi'}),
 		timeoutMs,
 	});
 
@@ -86,6 +106,7 @@ export const runPi = async ({
 	const exportCommand = await runCommand({
 		command: ['pi', '--export', sessionFile, htmlExport],
 		cwd: projectRoot,
+		onOutput: (output) => onOutput?.({...output, phase: 'pi-export'}),
 	});
 
 	if (exportCommand.exitCode !== 0) {

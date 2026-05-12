@@ -11,7 +11,7 @@ import {
 import {dirname, extname, join, relative, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import type {CommandResult} from './command';
-import {runCommand} from './command';
+import {runCommand, type CommandOutput} from './command';
 import type {
 	LoggedCommand,
 	SkillEvalManifest,
@@ -22,8 +22,18 @@ import type {
 import {runPi} from './pi';
 import type {SkillEvalScenario} from './scenarios';
 
+export type SkillEvalOutput = CommandOutput & {
+	phase: 'install' | 'pi' | 'pi-export';
+};
+
 type SkillEvalScenarioInput = SkillEvalScenario & {
+	onOutput?: (output: SkillEvalOutput) => void;
 	runRoot?: string;
+	runLabel?: 'before' | 'after';
+	skillsSourcePath?: string;
+	skillSnapshot?: Partial<
+		Pick<SkillSnapshot, 'comparisonId' | 'gitRef' | 'isWorkingTree' | 'label'>
+	>;
 };
 
 type PackageJson = {
@@ -52,6 +62,10 @@ const visualArtifactExtensions = new Set([
 	'.png',
 	'.webm',
 ]);
+const visualArtifactTypePriority: Record<VisualArtifact['type'], number> = {
+	video: 0,
+	image: 1,
+};
 
 const createTimestamp = () => new Date().toISOString().replace(/[:.]/g, '-');
 
@@ -63,23 +77,17 @@ const sanitizePathPart = (value: string) => {
 		.slice(0, 80);
 };
 
-const createPromptHash = async (prompt: string) => {
-	const digest = await crypto.subtle.digest(
-		'SHA-256',
-		new TextEncoder().encode(prompt),
-	);
-
-	return [...new Uint8Array(digest)]
-		.map((byte) => byte.toString(16).padStart(2, '0'))
-		.join('')
-		.slice(0, 12);
-};
-
 const copyDirectory = async (from: string, to: string) => {
 	await rm(to, {force: true, recursive: true});
 	await cp(from, to, {
 		recursive: true,
-		filter: (source) => !source.split(/[\\/]/).includes('node_modules'),
+		filter: (source) => {
+			const pathParts = source.split(/[\\/]/);
+
+			return (
+				!pathParts.includes('node_modules') && !pathParts.includes('.DS_Store')
+			);
+		},
 	});
 };
 
@@ -192,17 +200,23 @@ const copyBlankTemplate = async ({
 
 const copySkillsForPiDiscovery = async ({
 	projectRoot,
+	skillSnapshot,
+	skillsSourcePath,
 }: {
 	projectRoot: string;
+	skillSnapshot?: SkillEvalScenarioInput['skillSnapshot'];
+	skillsSourcePath?: string;
 }): Promise<SkillSnapshot> => {
 	const projectSkillsRoot = join(projectRoot, '.pi', 'skills');
 	const sandboxPath = join(projectSkillsRoot, 'remotion');
+	const sourcePath = skillsSourcePath ?? skillsSource;
 
 	await mkdir(projectSkillsRoot, {recursive: true});
-	await copyDirectory(join(skillsSource, 'remotion'), sandboxPath);
+	await copyDirectory(join(sourcePath, 'remotion'), sandboxPath);
 
 	return {
-		sourcePath: skillsSource,
+		...skillSnapshot,
+		sourcePath,
 		sandboxPath,
 		hash: await hashDirectory(sandboxPath),
 	};
@@ -235,7 +249,11 @@ const discoverVisualArtifacts = async (
 			}),
 	);
 
-	return artifacts.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
+	return artifacts.sort(
+		(a, b) =>
+			visualArtifactTypePriority[a.type] - visualArtifactTypePriority[b.type] ||
+			a.relativePath.localeCompare(b.relativePath),
+	);
 };
 
 const logCommand = async ({
@@ -266,12 +284,12 @@ const logCommand = async ({
 export const runSkillEval = async (
 	input: SkillEvalScenarioInput,
 ): Promise<SkillEvalResult> => {
-	const promptHash = await createPromptHash(input.prompt);
 	const runRoot = input.runRoot ?? runsRoot;
+	const runLabel = input.runLabel ? `${input.runLabel}--` : '';
 	const runDir = join(
 		runRoot,
 		sanitizePathPart(input.id),
-		`${createTimestamp()}--${sanitizePathPart(input.model)}--${promptHash}`,
+		`${createTimestamp()}--${runLabel}${sanitizePathPart(input.model)}`,
 	);
 	const projectRoot = join(runDir, 'project');
 	const sessionDir = join(runDir, 'pi-session');
@@ -285,10 +303,15 @@ export const runSkillEval = async (
 		projectName: `skills-eval-${sanitizePathPart(input.id)}`,
 		projectRoot,
 	});
-	const skillSnapshot = await copySkillsForPiDiscovery({projectRoot});
+	const skillSnapshot = await copySkillsForPiDiscovery({
+		projectRoot,
+		skillSnapshot: input.skillSnapshot,
+		skillsSourcePath: input.skillsSourcePath,
+	});
 	const install = await runCommand({
 		command: ['bun', 'install'],
 		cwd: projectRoot,
+		onOutput: (output) => input.onOutput?.({...output, phase: 'install'}),
 	});
 
 	if (install.exitCode !== 0) {
@@ -299,6 +322,7 @@ export const runSkillEval = async (
 
 	const pi = await runPi({
 		model: input.model,
+		onOutput: input.onOutput,
 		projectRoot,
 		prompt: input.prompt,
 		sessionDir,
@@ -317,7 +341,6 @@ export const runSkillEval = async (
 		id: input.id,
 		model: input.model,
 		prompt: input.prompt,
-		promptHash,
 		createdAt,
 		completedAt,
 		runDir,

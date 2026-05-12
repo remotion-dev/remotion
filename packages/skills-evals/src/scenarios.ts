@@ -14,6 +14,6 @@ export const scenarios: SkillEvalScenario[] = [
 
 The video should be an animated bar chart comparing four fictional product metrics. Make it visually refined: clear typography, smooth timing, nice spacing, and a short title.
 
-Use the Remotion skill guidance available in this project. When you are done, render a visual artifact that can be reviewed, preferably an MP4 video.`,
+Use the Remotion skill guidance available in this project.`,
 	},
 ];

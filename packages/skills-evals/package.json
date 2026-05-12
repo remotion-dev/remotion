@@ -5,6 +5,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"dev": "bun src/server.ts",
 		"eval": "bun src/cli.ts",
 		"format": "oxfmt src",
 		"formatting": "oxfmt src --check",

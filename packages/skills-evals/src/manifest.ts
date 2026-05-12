@@ -5,6 +5,10 @@ export type SkillSnapshot = {
 	sourcePath: string;
 	sandboxPath: string;
 	hash: string;
+	label?: 'before' | 'after';
+	gitRef?: string;
+	comparisonId?: string;
+	isWorkingTree?: boolean;
 };
 
 export type VisualArtifact = {
@@ -26,7 +30,6 @@ export type SkillEvalManifest = {
 	id: string;
 	model: string;
 	prompt: string;
-	promptHash: string;
 	createdAt: string;
 	completedAt: string;
 	runDir: string;
@@ -48,4 +51,28 @@ export type SkillEvalResult = {
 	manifest: SkillEvalManifest;
 	manifestPath: string;
 	scenario: SkillEvalScenario;
+};
+
+export type SkillEvalComparison = {
+	id: string;
+	scenarioId: string;
+	createdAt: string;
+	completedAt: string;
+	comparisonDir: string;
+	skillDiffPath: string;
+	before: {
+		label: 'before';
+		skillsPath: string;
+		hash: string;
+		gitRef?: string;
+		comparisonId?: string;
+		manifestPath: string;
+	};
+	after: {
+		label: 'after';
+		skillsPath: string;
+		hash: string;
+		isWorkingTree: boolean;
+		manifestPath: string;
+	};
 };
