@@ -19,9 +19,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 };
 
 export const Component = () => {
-	return (
-		<Video src={src} debugOverlay style={{scale: 0.5, rotate: '180deg'}} />
-	);
+	return <Video src={src} debugOverlay />;
 };
 
 export const NewVideoComp = () => {

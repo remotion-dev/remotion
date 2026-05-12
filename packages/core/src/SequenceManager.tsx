@@ -20,10 +20,6 @@ const nodePathToString = (nodePath: SequenceNodePath): string => {
 	return JSON.stringify(nodePath);
 };
 
-export const stringToNodePath = (string: string): SequenceNodePath => {
-	return JSON.parse(string);
-};
-
 export const SequenceManager = React.createContext<SequenceManagerContext>({
 	registerSequence: () => {
 		throw new Error('SequenceManagerContext not initialized');
