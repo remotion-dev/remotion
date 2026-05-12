@@ -1,17 +1,17 @@
 import React, {createContext, useCallback, useMemo, useState} from 'react';
-import type {SequenceNodePath} from 'remotion';
+import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
-const nodePathToKey = (nodePath: SequenceNodePath): string =>
-	JSON.stringify(nodePath);
+const nodePathInfoToKey = (info: SequenceNodePathInfo): string =>
+	JSON.stringify([info.nodePath, info.index]);
 
-export type GetIsExpanded = (nodePath: SequenceNodePath) => boolean;
+export type GetIsExpanded = (nodePathInfo: SequenceNodePathInfo) => boolean;
 
 type ExpandedTracksGetterContextValue = {
 	readonly getIsExpanded: GetIsExpanded;
 };
 
 type ExpandedTracksSetterContextValue = {
-	readonly toggleTrack: (nodePath: SequenceNodePath) => void;
+	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
 };
 
 export const ExpandedTracksGetterContext =
@@ -35,17 +35,17 @@ export const ExpandedTracksProvider: React.FC<{
 		{},
 	);
 
-	const toggleTrack = useCallback((nodePath: SequenceNodePath) => {
+	const toggleTrack = useCallback((nodePathInfo: SequenceNodePathInfo) => {
 		setExpandedTracks((prev) => {
-			const key = nodePathToKey(nodePath);
+			const key = nodePathInfoToKey(nodePathInfo);
 			return {...prev, [key]: !prev[key]};
 		});
 	}, []);
 
 	const getterValue = useMemo(
 		(): ExpandedTracksGetterContextValue => ({
-			getIsExpanded: (nodePath) =>
-				expandedTracks[nodePathToKey(nodePath)] ?? false,
+			getIsExpanded: (nodePathInfo) =>
+				expandedTracks[nodePathInfoToKey(nodePathInfo)] ?? false,
 		}),
 		[expandedTracks],
 	);

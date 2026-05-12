@@ -9,10 +9,10 @@ import type {
 	EffectDefinitionAndStack,
 	GetCodeValues,
 	GetDragOverrides,
-	SequenceNodePath,
 	TSequence,
 } from 'remotion';
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
+import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 
 export type {CodeValues, DragOverrides, SchemaFieldInfo, SequenceControls};
 export {
@@ -52,45 +52,49 @@ export const getEffectSchemaLabels = (
 export type TimelineTreeNode =
 	| {
 			readonly kind: 'group';
-			readonly nodePath: SequenceNodePath;
+			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly label: string;
 			readonly children: TimelineTreeNode[];
 	  }
 	| {
 			readonly kind: 'field';
-			readonly nodePath: SequenceNodePath;
+			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly label: string;
 			readonly field: SchemaFieldInfo | null;
 	  };
 
 export const buildTimelineTree = ({
 	sequence,
-	nodePath,
+	nodePathInfo,
 	getDragOverrides,
 	getCodeValues,
 }: {
 	sequence: TSequence;
-	nodePath: SequenceNodePath;
+	nodePathInfo: SequenceNodePathInfo;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
+	const {nodePath, index} = nodePathInfo;
 
 	if (sequence.effects.length > 0) {
 		roots.push({
 			kind: 'group',
-			nodePath: [...nodePath, 'effects'],
+			nodePathInfo: {nodePath: [...nodePath, 'effects'], index},
 			label: 'Effects',
 			children: sequence.effects.map((effect, i): TimelineTreeNode => {
-				const effectNodePath: SequenceNodePath = [...nodePath, 'effects', i];
+				const effectNodePath = [...nodePath, 'effects', i];
 				return {
 					kind: 'group',
-					nodePath: effectNodePath,
+					nodePathInfo: {nodePath: effectNodePath, index},
 					label: effect.definition.label,
 					children: getEffectSchemaLabels(effect).map(
 						(label): TimelineTreeNode => ({
 							kind: 'field',
-							nodePath: [...effectNodePath, label.key],
+							nodePathInfo: {
+								nodePath: [...effectNodePath, label.key],
+								index,
+							},
 							label: label.description ?? label.key,
 							field: null,
 						}),
@@ -113,7 +117,7 @@ export const buildTimelineTree = ({
 		for (const f of controlFields) {
 			roots.push({
 				kind: 'field',
-				nodePath: [...nodePath, 'controls', f.key],
+				nodePathInfo: {nodePath: [...nodePath, 'controls', f.key], index},
 				label: f.description ?? f.key,
 				field: f,
 			});
@@ -140,7 +144,7 @@ export const flattenVisibleTreeNodes = ({
 	const out: FlatTreeRow[] = [];
 	for (const node of nodes) {
 		out.push({node, depth});
-		if (node.kind === 'group' && getIsExpanded(node.nodePath)) {
+		if (node.kind === 'group' && getIsExpanded(node.nodePathInfo)) {
 			out.push(
 				...flattenVisibleTreeNodes({
 					nodes: node.children,
@@ -164,20 +168,20 @@ export const getTreeRowHeight = (node: TimelineTreeNode): number => {
 
 export const getExpandedTrackHeight = ({
 	sequence,
-	nodePath,
+	nodePathInfo,
 	getIsExpanded,
 	getDragOverrides,
 	getCodeValues,
 }: {
 	sequence: TSequence;
-	nodePath: SequenceNodePath;
+	nodePathInfo: SequenceNodePathInfo;
 	getIsExpanded: GetIsExpanded;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
 }): number => {
 	const tree = buildTimelineTree({
 		sequence,
-		nodePath,
+		nodePathInfo,
 		getDragOverrides,
 		getCodeValues,
 	});

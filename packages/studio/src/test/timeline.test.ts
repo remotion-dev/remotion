@@ -34,7 +34,7 @@ test('Should calculate a basic timeline', () => {
 	});
 	expect(calculated).toEqual([
 		{
-			nodePath: null,
+			nodePathInfo: null,
 			depth: 0,
 			sequence: {
 				displayName: 'Audio',
@@ -100,7 +100,7 @@ test('Should follow order of nesting', () => {
 	});
 	expect(calculated).toEqual([
 		{
-			nodePath: null,
+			nodePathInfo: null,
 			sequence: {
 				displayName: 'Audio',
 				duration: 100,
@@ -122,7 +122,7 @@ test('Should follow order of nesting', () => {
 			hash: '-Audio-100-0-sequence----0',
 		},
 		{
-			nodePath: null,
+			nodePathInfo: null,
 			sequence: {
 				displayName: 'Audio',
 				duration: 100,

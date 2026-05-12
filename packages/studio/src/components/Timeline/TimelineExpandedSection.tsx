@@ -1,11 +1,11 @@
 import React, {useContext, useMemo} from 'react';
-import type {SequenceNodePath} from 'remotion';
 import {Internals, type TSequence} from 'remotion';
 import type {
 	CodePosition,
 	OriginalPosition,
 } from '../../error-overlay/react-overlay/utils/get-source-map';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
@@ -34,9 +34,9 @@ const separator: React.CSSProperties = {
 export const TimelineExpandedSection: React.FC<{
 	readonly sequence: TSequence;
 	readonly originalLocation: OriginalPosition | null;
-	readonly nodePath: SequenceNodePath;
+	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly nestedDepth: number;
-}> = ({sequence, originalLocation, nodePath, nestedDepth}) => {
+}> = ({sequence, originalLocation, nodePathInfo, nestedDepth}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {getDragOverrides, getCodeValues} = useContext(
@@ -63,11 +63,11 @@ export const TimelineExpandedSection: React.FC<{
 		() =>
 			buildTimelineTree({
 				sequence,
-				nodePath,
+				nodePathInfo,
 				getDragOverrides,
 				getCodeValues,
 			}),
-		[sequence, nodePath, getDragOverrides, getCodeValues],
+		[sequence, nodePathInfo, getDragOverrides, getCodeValues],
 	);
 
 	const flat = useMemo(
@@ -79,12 +79,12 @@ export const TimelineExpandedSection: React.FC<{
 		() =>
 			getExpandedTrackHeight({
 				sequence,
-				nodePath,
+				nodePathInfo,
 				getIsExpanded,
 				getDragOverrides,
 				getCodeValues,
 			}),
-		[sequence, nodePath, getIsExpanded, getDragOverrides, getCodeValues],
+		[sequence, nodePathInfo, getIsExpanded, getDragOverrides, getCodeValues],
 	);
 
 	const style = useMemo(() => {
@@ -104,7 +104,7 @@ export const TimelineExpandedSection: React.FC<{
 		<div style={style}>
 			{flat.map(({node, depth}, i) => {
 				return (
-					<React.Fragment key={JSON.stringify(node.nodePath)}>
+					<React.Fragment key={JSON.stringify(node.nodePathInfo)}>
 						{i > 0 ? <div style={separator} /> : null}
 						<TimelineExpandedRow
 							node={node}
@@ -113,7 +113,7 @@ export const TimelineExpandedSection: React.FC<{
 							getIsExpanded={getIsExpanded}
 							toggleTrack={toggleTrack}
 							validatedLocation={validatedLocation}
-							nodePath={nodePath}
+							nodePath={nodePathInfo.nodePath}
 							schema={schema}
 						/>
 					</React.Fragment>

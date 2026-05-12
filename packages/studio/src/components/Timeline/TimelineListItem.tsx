@@ -1,8 +1,9 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {SequenceNodePath, TSequence} from 'remotion';
+import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -32,8 +33,9 @@ export const TimelineListItem: React.FC<{
 	readonly sequence: TSequence;
 	readonly nestedDepth: number;
 	readonly isCompact: boolean;
-	readonly nodePath: SequenceNodePath | null;
-}> = ({nestedDepth, sequence, isCompact, nodePath}) => {
+	readonly nodePathInfo: SequenceNodePathInfo | null;
+}> = ({nestedDepth, sequence, isCompact, nodePathInfo}) => {
+	const nodePath = nodePathInfo?.nodePath ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const visualModeEnvEnabled = Boolean(
 		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
@@ -186,15 +188,15 @@ export const TimelineListItem: React.FC<{
 	]);
 
 	const isExpanded =
-		visualModeActive && nodePath !== null && getIsExpanded(nodePath);
+		visualModeActive && nodePathInfo !== null && getIsExpanded(nodePathInfo);
 
 	const onToggleExpand = useCallback(() => {
-		if (nodePath === null) {
+		if (nodePathInfo === null) {
 			return;
 		}
 
-		toggleTrack(nodePath);
-	}, [nodePath, toggleTrack]);
+		toggleTrack(nodePathInfo);
+	}, [nodePathInfo, toggleTrack]);
 
 	const isItemHidden = useMemo(() => {
 		return hidden[sequence.id] ?? false;
@@ -274,11 +276,14 @@ export const TimelineListItem: React.FC<{
 			) : (
 				trackRow
 			)}
-			{visualModeActive && isExpanded && hasExpandableContent && nodePath ? (
+			{visualModeActive &&
+			isExpanded &&
+			hasExpandableContent &&
+			nodePathInfo ? (
 				<TimelineExpandedSection
 					sequence={sequence}
 					originalLocation={originalLocation}
-					nodePath={nodePath}
+					nodePathInfo={nodePathInfo}
 					nestedDepth={nestedDepth}
 				/>
 			) : null}

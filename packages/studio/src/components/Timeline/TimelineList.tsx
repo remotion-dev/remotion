@@ -32,7 +32,7 @@ export const TimelineList: React.FC<{
 							nestedDepth={track.depth}
 							sequence={track.sequence}
 							isCompact={isCompact}
-							nodePath={track.nodePath}
+							nodePathInfo={track.nodePathInfo}
 						/>
 					</div>
 				);

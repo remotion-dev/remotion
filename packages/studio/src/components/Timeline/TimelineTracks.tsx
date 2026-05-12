@@ -1,8 +1,11 @@
 import React, {useContext, useMemo} from 'react';
-import type {GetCodeValues, GetDragOverrides, SequenceNodePath} from 'remotion';
+import type {GetCodeValues, GetDragOverrides} from 'remotion';
 import {Internals, type TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TrackWithHash,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getExpandedTrackHeight,
 	getTimelineLayerHeight,
@@ -30,13 +33,13 @@ const timelineContent: React.CSSProperties = {
 
 const getExpandedPlaceholderStyle = ({
 	sequence,
-	nodePath,
+	nodePathInfo,
 	getIsExpanded,
 	getDragOverrides,
 	getCodeValues,
 }: {
 	sequence: TSequence;
-	nodePath: SequenceNodePath;
+	nodePathInfo: SequenceNodePathInfo;
 	getIsExpanded: GetIsExpanded;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
@@ -44,7 +47,7 @@ const getExpandedPlaceholderStyle = ({
 	height:
 		getExpandedTrackHeight({
 			sequence,
-			nodePath,
+			nodePathInfo,
 			getIsExpanded,
 			getDragOverrides,
 			getCodeValues,
@@ -82,7 +85,7 @@ export const TimelineTracks: React.FC<{
 					}
 
 					const isExpanded =
-						track.nodePath !== null && getIsExpanded(track.nodePath);
+						track.nodePathInfo !== null && getIsExpanded(track.nodePathInfo);
 
 					return (
 						<div key={track.sequence.id}>
@@ -94,11 +97,11 @@ export const TimelineTracks: React.FC<{
 							>
 								<TimelineSequence s={track.sequence} />
 							</div>
-							{visualModeEnabled && isExpanded && track.nodePath ? (
+							{visualModeEnabled && isExpanded && track.nodePathInfo ? (
 								<div
 									style={getExpandedPlaceholderStyle({
 										sequence: track.sequence,
-										nodePath: track.nodePath,
+										nodePathInfo: track.nodePathInfo,
 										getIsExpanded,
 										getDragOverrides,
 										getCodeValues,

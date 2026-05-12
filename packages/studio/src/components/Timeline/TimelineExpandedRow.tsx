@@ -1,6 +1,7 @@
 import React, {useMemo} from 'react';
 import type {SequenceSchema, SequenceNodePath} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
 import {
 	EXPANDED_SECTION_PADDING_LEFT,
@@ -38,7 +39,7 @@ export const TimelineExpandedRow: React.FC<{
 	readonly depth: number;
 	readonly nestedDepth: number;
 	readonly getIsExpanded: GetIsExpanded;
-	readonly toggleTrack: (nodePath: SequenceNodePath) => void;
+	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
 	readonly validatedLocation: CodePosition | null;
 	readonly nodePath: SequenceNodePath | null;
 	readonly schema: SequenceSchema;
@@ -69,13 +70,13 @@ export const TimelineExpandedRow: React.FC<{
 	);
 
 	if (node.kind === 'group') {
-		const isExpanded = getIsExpanded(node.nodePath);
+		const isExpanded = getIsExpanded(node.nodePathInfo);
 		return (
 			<div style={groupStyle}>
 				<Padder depth={nestedDepth + 1} />
 				<TimelineExpandArrowButton
 					isExpanded={isExpanded}
-					onClick={() => toggleTrack(node.nodePath)}
+					onClick={() => toggleTrack(node.nodePathInfo)}
 					label={`${node.label} section`}
 				/>
 				<span style={rowLabel}>{node.label}</span>

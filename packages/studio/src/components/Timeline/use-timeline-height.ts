@@ -32,16 +32,16 @@ export const useTimelineHeight = ({
 		const tracksHeight = shown.reduce((acc, track) => {
 			const isExpanded =
 				visualModeEnabled &&
-				track.nodePath !== null &&
-				getIsExpanded(track.nodePath);
+				track.nodePathInfo !== null &&
+				getIsExpanded(track.nodePathInfo);
 			const layerHeight =
 				getTimelineLayerHeight(track.sequence.type) +
 				TIMELINE_ITEM_BORDER_BOTTOM;
 			const expandedHeight =
-				isExpanded && track.nodePath
+				isExpanded && track.nodePathInfo
 					? getExpandedTrackHeight({
 							sequence: track.sequence,
-							nodePath: track.nodePath,
+							nodePathInfo: track.nodePathInfo,
 							getIsExpanded,
 							getDragOverrides,
 							getCodeValues,
