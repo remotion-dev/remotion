@@ -7,7 +7,7 @@ import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
-import {ExpandedTracksContext} from '../ExpandedTracksProvider';
+import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 
@@ -18,7 +18,7 @@ export const useTimelineHeight = ({
 	shown: TrackWithHash[];
 	hasBeenCut: boolean;
 }): number => {
-	const {expandedTracks} = useContext(ExpandedTracksContext);
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {getDragOverrides, getCodeValues} = useContext(
 		Internals.VisualModeGettersContext,
@@ -31,18 +31,22 @@ export const useTimelineHeight = ({
 	return useMemo(() => {
 		const tracksHeight = shown.reduce((acc, track) => {
 			const isExpanded =
-				visualModeEnabled && (expandedTracks[track.sequence.id] ?? false);
+				visualModeEnabled &&
+				track.nodePathInfo !== null &&
+				getIsExpanded(track.nodePathInfo);
 			const layerHeight =
 				getTimelineLayerHeight(track.sequence.type) +
 				TIMELINE_ITEM_BORDER_BOTTOM;
-			const expandedHeight = isExpanded
-				? getExpandedTrackHeight({
-						sequence: track.sequence,
-						expandedTracks,
-						getDragOverrides,
-						getCodeValues,
-					}) + TIMELINE_ITEM_BORDER_BOTTOM
-				: 0;
+			const expandedHeight =
+				isExpanded && track.nodePathInfo
+					? getExpandedTrackHeight({
+							sequence: track.sequence,
+							nodePathInfo: track.nodePathInfo,
+							getIsExpanded,
+							getDragOverrides,
+							getCodeValues,
+						}) + TIMELINE_ITEM_BORDER_BOTTOM
+					: 0;
 			return acc + layerHeight + expandedHeight;
 		}, 0);
 
@@ -55,8 +59,8 @@ export const useTimelineHeight = ({
 	}, [
 		shown,
 		hasBeenCut,
-		expandedTracks,
 		visualModeEnabled,
+		getIsExpanded,
 		getDragOverrides,
 		getCodeValues,
 	]);

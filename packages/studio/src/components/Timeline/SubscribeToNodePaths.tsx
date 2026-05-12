@@ -1,36 +1,20 @@
 import type React from 'react';
-import {useContext} from 'react';
-import type {TSequence} from 'remotion';
-import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import type {SequenceSchema} from 'remotion';
 import {useResolvedStack} from './use-resolved-stack';
 import {useSequencePropsSubscription} from './use-sequence-props-subscription';
 
 export const SubscribeToNodePaths: React.FC<{
-	readonly sequence: TSequence;
-}> = ({sequence}) => {
-	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	readonly overrideId: string;
+	readonly schema: SequenceSchema;
+	readonly stack: string;
+}> = ({overrideId, schema, stack}) => {
+	const originalLocation = useResolvedStack(stack);
 
-	const visualModeEnvEnabled = Boolean(
-		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
-	);
-	if (sequence.controls === null || !visualModeEnvEnabled) {
-		return;
-	}
-
-	const previewConnected = previewServerState.type === 'connected';
-
-	const visualModeActive = visualModeEnvEnabled && previewConnected;
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	const originalLocation = useResolvedStack(sequence.stack ?? null);
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	useSequencePropsSubscription(
-		sequence.controls.overrideId,
-		sequence.controls.schema,
+	useSequencePropsSubscription({
+		overrideId,
+		schema,
 		originalLocation,
-		visualModeActive,
-	);
+	});
 
 	return null;
 };

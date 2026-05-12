@@ -1,6 +1,7 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -9,6 +10,7 @@ import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {isTrackHidden} from './is-collapsed';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
+import {SequencePropsObserver} from './SequencePropsObserver';
 import {SubscribeToNodePaths} from './SubscribeToNodePaths';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
@@ -40,6 +42,14 @@ const noop = () => undefined;
 const TimelineInner: React.FC = () => {
 	const {sequences} = useContext(Internals.SequenceManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+
+	const previewConnected = previewServerState.type === 'connected';
+
 	const videoConfigIsNull = videoConfig === null;
 
 	const timeline = useMemo((): TrackWithHash[] => {
@@ -49,8 +59,9 @@ const TimelineInner: React.FC = () => {
 
 		return calculateTimeline({
 			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 		});
-	}, [sequences, videoConfigIsNull]);
+	}, [sequences, videoConfigIsNull, overrideIdToNodePathMappings]);
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
@@ -66,6 +77,9 @@ const TimelineInner: React.FC = () => {
 
 	const shown = filtered.slice(0, MAX_TIMELINE_TRACKS);
 	const hasBeenCut = filtered.length > shown.length;
+	const visualModeEnvEnabled = Boolean(
+		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
+	);
 
 	return (
 		<div
@@ -73,9 +87,23 @@ const TimelineInner: React.FC = () => {
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
-			{sequences.map((sequence) => (
-				<SubscribeToNodePaths key={sequence.id} sequence={sequence} />
-			))}
+			{visualModeEnvEnabled
+				? sequences.map((sequence) => {
+						if (!sequence.controls || !previewConnected || !sequence.stack) {
+							return null;
+						}
+
+						return (
+							<SubscribeToNodePaths
+								key={sequence.id}
+								overrideId={sequence.controls.overrideId}
+								schema={sequence.controls.schema}
+								stack={sequence.stack}
+							/>
+						);
+					})
+				: null}
+			<SequencePropsObserver />
 			<TimelineWidthProvider>
 				<TimelinePinchZoom />
 				<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>

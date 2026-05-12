@@ -3,22 +3,27 @@ import type {
 	SequenceFieldSchema,
 	SequenceSchema,
 } from './sequence-field-schema.js';
+import type {
+	CanUpdateSequencePropsResponse,
+	SequenceNodePath,
+} from './SequenceManager.js';
 
 export type CanUpdateSequencePropStatus =
 	| {canUpdate: true; codeValue: unknown}
 	| {canUpdate: false; reason: 'computed'};
 
 export type DragOverrides = Record<string, Record<string, unknown>>;
-export type CodeValues = Record<
-	string,
-	Record<string, CanUpdateSequencePropStatus>
->;
+export type CodeValues = Record<string, CanUpdateSequencePropsResponse>;
 
 export type GetCodeValues = (
-	overrideId: string,
-) => CodeValues[string] | undefined;
+	nodePath: SequenceNodePath,
+) => Record<string, CanUpdateSequencePropStatus> | undefined;
 
-export type GetDragOverrides = (overrideId: string) => DragOverrides[string];
+export type GetIsJsxInMapCallback = (nodePath: SequenceNodePath) => boolean;
+
+export type GetDragOverrides = (
+	nodePath: SequenceNodePath,
+) => DragOverrides[string];
 
 const findFieldInSchema = (
 	schema: SequenceSchema,

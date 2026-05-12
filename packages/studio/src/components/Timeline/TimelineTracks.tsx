@@ -2,14 +2,20 @@ import React, {useContext, useMemo} from 'react';
 import type {GetCodeValues, GetDragOverrides} from 'remotion';
 import {Internals, type TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TrackWithHash,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getExpandedTrackHeight,
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
-import {ExpandedTracksContext} from '../ExpandedTracksProvider';
+import {
+	ExpandedTracksGetterContext,
+	type GetIsExpanded,
+} from '../ExpandedTracksProvider';
 import {isTrackHidden} from './is-collapsed';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {TimelineSequence} from './TimelineSequence';
@@ -27,19 +33,22 @@ const timelineContent: React.CSSProperties = {
 
 const getExpandedPlaceholderStyle = ({
 	sequence,
-	expandedTracks,
+	nodePathInfo,
+	getIsExpanded,
 	getDragOverrides,
 	getCodeValues,
 }: {
 	sequence: TSequence;
-	expandedTracks: Record<string, boolean>;
+	nodePathInfo: SequenceNodePathInfo;
+	getIsExpanded: GetIsExpanded;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
 }): React.CSSProperties => ({
 	height:
 		getExpandedTrackHeight({
 			sequence,
-			expandedTracks,
+			nodePathInfo,
+			getIsExpanded,
 			getDragOverrides,
 			getCodeValues,
 		}) + TIMELINE_ITEM_BORDER_BOTTOM,
@@ -49,7 +58,7 @@ export const TimelineTracks: React.FC<{
 	readonly timeline: TrackWithHash[];
 	readonly hasBeenCut: boolean;
 }> = ({timeline, hasBeenCut}) => {
-	const {expandedTracks} = useContext(ExpandedTracksContext);
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {getDragOverrides, getCodeValues} = useContext(
 		Internals.VisualModeGettersContext,
@@ -75,7 +84,8 @@ export const TimelineTracks: React.FC<{
 						return null;
 					}
 
-					const isExpanded = expandedTracks[track.sequence.id] ?? false;
+					const isExpanded =
+						track.nodePathInfo !== null && getIsExpanded(track.nodePathInfo);
 
 					return (
 						<div key={track.sequence.id}>
@@ -87,11 +97,12 @@ export const TimelineTracks: React.FC<{
 							>
 								<TimelineSequence s={track.sequence} />
 							</div>
-							{visualModeEnabled && isExpanded ? (
+							{visualModeEnabled && isExpanded && track.nodePathInfo ? (
 								<div
 									style={getExpandedPlaceholderStyle({
 										sequence: track.sequence,
-										expandedTracks,
+										nodePathInfo: track.nodePathInfo,
+										getIsExpanded,
 										getDragOverrides,
 										getCodeValues,
 									})}

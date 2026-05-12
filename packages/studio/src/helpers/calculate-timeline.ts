@@ -1,4 +1,4 @@
-import type {LoopDisplay, TSequence} from 'remotion';
+import type {LoopDisplay, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {
 	getCascadedStart,
 	getTimelineVisibleDuration,
@@ -35,8 +35,10 @@ const getInheritedLoopDisplay = (
 
 export const calculateTimeline = ({
 	sequences,
+	overrideIdsToNodePaths,
 }: {
 	sequences: TSequence[];
+	overrideIdsToNodePaths: OverrideIdToNodePaths;
 }): TrackWithHash[] => {
 	const sortedSequences = sortItemsByNonceHistory(sequences);
 	const tracks: TrackWithHashAndOriginalTimings[] = [];
@@ -77,6 +79,9 @@ export const calculateTimeline = ({
 			sortedSequences,
 		);
 
+		const overrideId = sequence.controls?.overrideId ?? null;
+		const nodePath = overrideId ? overrideIdsToNodePaths[overrideId] : null;
+
 		tracks.push({
 			sequence: {
 				...sequence,
@@ -91,6 +96,7 @@ export const calculateTimeline = ({
 			hash: actualHash,
 			cascadedStart,
 			cascadedDuration: sequence.duration,
+			nodePathInfo: nodePath ? {nodePath, index: 0} : null,
 		});
 	}
 
@@ -107,7 +113,7 @@ export const calculateTimeline = ({
 		nonceRanks.set(tracks[i].sequence.id, i);
 	}
 
-	return uniqueTracks.sort((a, b) => {
+	const sortedTracks = uniqueTracks.sort((a, b) => {
 		const sortKeyA = getTimelineSequenceSequenceSortKey(
 			a,
 			tracks,
@@ -121,5 +127,20 @@ export const calculateTimeline = ({
 			nonceRanks,
 		);
 		return sortKeyA.localeCompare(sortKeyB);
+	});
+
+	const nodePathIndexCounters = new Map<string, number>();
+	return sortedTracks.map((track): TrackWithHash => {
+		if (track.nodePathInfo === null) {
+			return track;
+		}
+
+		const key = JSON.stringify(track.nodePathInfo.nodePath);
+		const index = nodePathIndexCounters.get(key) ?? 0;
+		nodePathIndexCounters.set(key, index + 1);
+		return {
+			...track,
+			nodePathInfo: {nodePath: track.nodePathInfo.nodePath, index},
+		};
 	});
 };

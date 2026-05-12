@@ -5,6 +5,7 @@ import {
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
 import type {SequenceSchema} from './sequence-field-schema.js';
+import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {VisualModeGettersContext} from './SequenceManager.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {computeEffectiveSchemaValuesDotNotation} from './use-schema.js';
@@ -87,6 +88,8 @@ export const mergeValues = ({
 	return merged;
 };
 
+const stackToOverrideMap: Record<string, string> = {};
+
 export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 	Component: React.ComponentType<
 		Props & {readonly _experimentalControls: SequenceControls | undefined}
@@ -110,6 +113,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 		const {visualModeEnabled, getDragOverrides, getCodeValues} = useContext(
 			VisualModeGettersContext,
 		);
+		const nodePathMapping = useContext(OverrideIdsToNodePathsGettersContext);
 
 		if (
 			!env.isStudio ||
@@ -140,7 +144,23 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 		}
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const [overrideId] = useState(() => String(Math.random()));
+		const [overrideId] = useState(() => {
+			const {stack} = props as {stack?: string};
+			if (!stack) {
+				return String(Math.random());
+			}
+
+			const existingOverrideId = stackToOverrideMap[stack];
+			if (existingOverrideId) {
+				return existingOverrideId;
+			}
+
+			const newOverrideId = String(Math.random());
+			stackToOverrideMap[stack] = newOverrideId;
+			return newOverrideId;
+		});
+		const nodePath =
+			nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null;
 
 		// Read the runtime values for every flat key from the JSX props,
 		// memoized on the leaf values so the object reference is stable
@@ -171,13 +191,13 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 			return computeEffectiveSchemaValuesDotNotation({
 				schema,
 				currentValue: currentRuntimeValueDotNotation,
-				overrideValues: getDragOverrides(overrideId),
-				propStatus: getCodeValues(overrideId),
+				overrideValues: nodePath === null ? {} : getDragOverrides(nodePath),
+				propStatus: nodePath === null ? undefined : getCodeValues(nodePath),
 			});
 		}, [
 			currentRuntimeValueDotNotation,
 			getDragOverrides,
-			overrideId,
+			nodePath,
 			getCodeValues,
 		]);
 

@@ -102,9 +102,20 @@ import type {
 	SequenceSchema,
 } from './sequence-field-schema.js';
 import {sequenceSchema, sequenceStyleSchema} from './sequence-field-schema.js';
+import type {
+	OverrideIdToNodePaths,
+	OverrideToNodePathGetters,
+	OverrideToNodeSetters,
+} from './sequence-node-path.js';
+import {OverrideIdsToNodePathsSettersContext} from './sequence-node-path.js';
+import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
+import type {
+	CanUpdateSequencePropsResponse,
+	SequenceNodePath,
+} from './SequenceManager.js';
 import {
 	VisualModeGettersContext,
 	VisualModeSettersContext,
@@ -312,6 +323,8 @@ export const Internals = {
 	defineEffect,
 	createDescriptor,
 	computeEffectiveSchemaValuesDotNotation,
+	OverrideIdsToNodePathsGettersContext,
+	OverrideIdsToNodePathsSettersContext,
 } as const;
 
 export type {
@@ -341,4 +354,11 @@ export type {
 	ScheduleAudioNodeResult,
 	GetDragOverrides,
 	NonceHistory,
+	OverrideIdsToNodePathsGettersContext,
+	OverrideIdsToNodePathsSettersContext,
+	SequenceNodePath,
+	OverrideIdToNodePaths,
+	OverrideToNodeSetters,
+	OverrideToNodePathGetters,
+	CanUpdateSequencePropsResponse,
 };

@@ -3,6 +3,7 @@ import {calculateTimeline} from '../helpers/calculate-timeline';
 
 test('Should calculate timeline with no sequences', () => {
 	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
 		sequences: [],
 	});
 	expect(calculated).toEqual([]);
@@ -10,6 +11,7 @@ test('Should calculate timeline with no sequences', () => {
 
 test('Should calculate a basic timeline', () => {
 	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
 		sequences: [
 			{
 				displayName: 'Audio',
@@ -32,6 +34,7 @@ test('Should calculate a basic timeline', () => {
 	});
 	expect(calculated).toEqual([
 		{
+			nodePathInfo: null,
 			depth: 0,
 			sequence: {
 				displayName: 'Audio',
@@ -57,6 +60,7 @@ test('Should calculate a basic timeline', () => {
 
 test('Should follow order of nesting', () => {
 	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
 		sequences: [
 			{
 				displayName: 'Audio',
@@ -96,6 +100,7 @@ test('Should follow order of nesting', () => {
 	});
 	expect(calculated).toEqual([
 		{
+			nodePathInfo: null,
 			sequence: {
 				displayName: 'Audio',
 				duration: 100,
@@ -117,6 +122,7 @@ test('Should follow order of nesting', () => {
 			hash: '-Audio-100-0-sequence----0',
 		},
 		{
+			nodePathInfo: null,
 			sequence: {
 				displayName: 'Audio',
 				duration: 100,
@@ -142,6 +148,7 @@ test('Should follow order of nesting', () => {
 
 test('Should inherit loop display from parent for media tracks', () => {
 	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
 		sequences: [
 			{
 				effects: [],

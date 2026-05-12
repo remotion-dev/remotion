@@ -1,5 +1,5 @@
-import type {SequenceNodePath} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
+import type {SequenceNodePath} from 'remotion';
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -32,15 +32,13 @@ const fieldLabelRow: React.CSSProperties = {
 
 export const TimelineFieldRow: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly overrideId: string;
 	readonly validatedLocation: CodePosition | null;
 	readonly paddingLeft: number;
 	readonly nestedDepth: number;
-	readonly nodePath: SequenceNodePath | null;
+	readonly nodePath: SequenceNodePath;
 	readonly schema: SequenceSchema;
 }> = ({
 	field,
-	overrideId,
 	validatedLocation,
 	paddingLeft,
 	nestedDepth,
@@ -54,12 +52,14 @@ export const TimelineFieldRow: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 
-	const codeValuesForOverride = getCodeValues(overrideId) ?? null;
+	const codeValuesForOverride = getCodeValues(nodePath);
 	const codeValue = codeValuesForOverride?.[field.key] ?? null;
 
 	const dragOverrideValue = useMemo(() => {
-		return (getDragOverrides(overrideId) ?? {})[field.key];
-	}, [getDragOverrides, overrideId, field.key]);
+		return nodePath === null
+			? undefined
+			: (getDragOverrides(nodePath) ?? {})[field.key];
+	}, [getDragOverrides, nodePath, field.key]);
 
 	const effectiveValue = Internals.getEffectiveVisualModeValue({
 		codeValue,
@@ -96,12 +96,7 @@ export const TimelineFieldRow: React.FC<{
 				schema,
 			}).then((data) => {
 				if (data.success) {
-					if (data.newStatus.canUpdate) {
-						setCodeValues(overrideId, data.newStatus.props);
-					} else {
-						setCodeValues(overrideId, null);
-					}
-
+					setCodeValues(nodePath, data.newStatus);
 					return;
 				}
 
@@ -112,7 +107,6 @@ export const TimelineFieldRow: React.FC<{
 			codeValuesForOverride,
 			field.fieldSchema.default,
 			nodePath,
-			overrideId,
 			schema,
 			setCodeValues,
 			validatedLocation,
@@ -121,14 +115,22 @@ export const TimelineFieldRow: React.FC<{
 
 	const onDragValueChange = useCallback(
 		(key: string, value: unknown) => {
-			setDragOverrides(overrideId, key, value);
+			if (nodePath === null) {
+				throw new Error('Cannot drag value');
+			}
+
+			setDragOverrides(nodePath, key, value);
 		},
-		[setDragOverrides, overrideId],
+		[setDragOverrides, nodePath],
 	);
 
 	const onDragEnd = useCallback(() => {
-		clearDragOverrides(overrideId);
-	}, [clearDragOverrides, overrideId]);
+		if (nodePath === null) {
+			throw new Error('Cannot clear drag value');
+		}
+
+		clearDragOverrides(nodePath);
+	}, [clearDragOverrides, nodePath]);
 
 	const style = useMemo(() => {
 		return {

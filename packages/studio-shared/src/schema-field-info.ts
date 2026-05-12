@@ -6,6 +6,7 @@ import type {
 	SequenceSchema,
 	GetDragOverrides,
 	GetCodeValues,
+	SequenceNodePath,
 } from 'remotion';
 import {Internals} from 'remotion';
 
@@ -35,7 +36,7 @@ const SUPPORTED_SCHEMA_TYPES = new Set([
 export const getFieldsToShow = ({
 	getDragOverrides,
 	getCodeValues,
-	overrideId,
+	nodePath,
 	schema,
 	currentRuntimeValueDotNotation,
 }: {
@@ -43,13 +44,13 @@ export const getFieldsToShow = ({
 	currentRuntimeValueDotNotation: Record<string, unknown>;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
-	overrideId: string;
+	nodePath: SequenceNodePath;
 }): SchemaFieldInfo[] | null => {
 	const valuesDotNotation = Internals.computeEffectiveSchemaValuesDotNotation({
 		schema,
 		currentValue: currentRuntimeValueDotNotation,
-		overrideValues: getDragOverrides(overrideId),
-		propStatus: getCodeValues(overrideId),
+		overrideValues: getDragOverrides(nodePath),
+		propStatus: getCodeValues(nodePath),
 	});
 
 	const activeSchema = Internals.flattenActiveSchema(

@@ -5,7 +5,6 @@ import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
 import {drawRef} from '../state/canvas-ref';
-import {SequencePropsSubscriptionProvider} from '../state/sequence-props-subscription-state';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
@@ -14,6 +13,7 @@ import {GlobalKeybindings} from './GlobalKeybindings';
 import {Modals} from './Modals';
 import {NotificationCenter} from './Notifications/NotificationCenter';
 import {RenderErrorContext} from './RenderErrorContext';
+import {SequencePropsSubscriptionProvider} from './SequencePropsSubscriptionProvider';
 import {TopPanel} from './TopPanel';
 
 const background: React.CSSProperties = {

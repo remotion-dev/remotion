@@ -14,6 +14,12 @@ export type SequenceManagerContext = {
 	sequences: TSequence[];
 };
 
+export type SequenceNodePath = Array<string | number>;
+
+const nodePathToString = (nodePath: SequenceNodePath): string => {
+	return nodePath.join('.');
+};
+
 export const SequenceManager = React.createContext<SequenceManagerContext>({
 	registerSequence: () => {
 		throw new Error('SequenceManagerContext not initialized');
@@ -41,19 +47,62 @@ export type VisualModeGetters = {
 	visualModeEnabled: boolean;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
+	getIsJsxInMapCallback: (nodePath: SequenceNodePath) => boolean;
 };
 
 export type VisualModeSetters = {
-	setDragOverrides: (sequenceId: string, key: string, value: unknown) => void;
-	clearDragOverrides: (sequenceId: string) => void;
+	setDragOverrides: (
+		nodePath: SequenceNodePath,
+		key: string,
+		value: unknown,
+	) => void;
+	clearDragOverrides: (nodePath: SequenceNodePath) => void;
 	setCodeValues: (
-		sequenceId: string,
-		values: Record<string, CanUpdateSequencePropStatus> | null,
+		nodePath: SequenceNodePath,
+		values: CanUpdateSequencePropsResponse,
 	) => void;
 };
 
-const getCodeValues = (codeValues: CodeValues, overrideId: string) => {
-	return codeValues[overrideId] ?? undefined;
+export type CanUpdateSequencePropsResponse =
+	| {
+			canUpdate: true;
+			props: Record<string, CanUpdateSequencePropStatus>;
+			nodePath: SequenceNodePath;
+			/** True when the JSX is inside a `.map()` callback (list iteration). */
+			jsxInMapCallback: boolean;
+	  }
+	| {
+			canUpdate: false;
+			reason: string;
+	  };
+
+const getCodeValues = (codeValues: CodeValues, nodePath: SequenceNodePath) => {
+	const status = codeValues[nodePathToString(nodePath)];
+	if (!status) {
+		return undefined;
+	}
+
+	if (!status.canUpdate) {
+		return undefined;
+	}
+
+	return status.props;
+};
+
+const getIsJsxInMapCallback = (
+	codeValues: CodeValues,
+	nodePath: SequenceNodePath,
+) => {
+	const status = codeValues[nodePathToString(nodePath)];
+	if (!status) {
+		return false;
+	}
+
+	if (!status.canUpdate) {
+		return false;
+	}
+
+	return status.jsxInMapCallback;
 };
 
 export type GetCodeValuesType = typeof getCodeValues;
@@ -63,6 +112,9 @@ export const VisualModeGettersContext = React.createContext<VisualModeGetters>({
 		throw new Error('VisualModeGettersContext not initialized');
 	},
 	getCodeValues: () => {
+		throw new Error('VisualModeGettersContext not initialized');
+	},
+	getIsJsxInMapCallback: () => {
 		throw new Error('VisualModeGettersContext not initialized');
 	},
 	visualModeEnabled: false,
@@ -92,11 +144,11 @@ export const SequenceManagerProvider: React.FC<{
 	const [codeValues, setCodeValuesMapState] = useState<CodeValues>({});
 
 	const setDragOverrides = useCallback(
-		(sequenceId: string, key: string, value: unknown) => {
+		(nodePath: SequenceNodePath, key: string, value: unknown) => {
 			setControlOverrides((prev) => ({
 				...prev,
-				[sequenceId]: {
-					...prev[sequenceId],
+				[nodePathToString(nodePath)]: {
+					...prev[nodePathToString(nodePath)],
 					[key]: value,
 				},
 			}));
@@ -104,39 +156,29 @@ export const SequenceManagerProvider: React.FC<{
 		[],
 	);
 
-	const clearDragOverrides = useCallback((sequenceId: string) => {
+	const clearDragOverrides = useCallback((nodePath: SequenceNodePath) => {
 		setControlOverrides((prev) => {
-			if (!prev[sequenceId]) {
+			const key = nodePathToString(nodePath);
+			if (!prev[key]) {
 				return prev;
 			}
 
 			const next = {...prev};
-			delete next[sequenceId];
+			delete next[key];
 			return next;
 		});
 	}, []);
 
 	const setCodeValues = useCallback(
-		(
-			sequenceId: string,
-			values: Record<string, CanUpdateSequencePropStatus> | null,
-		) => {
+		(nodePath: SequenceNodePath, values: CanUpdateSequencePropsResponse) => {
 			setCodeValuesMapState((prev) => {
-				if (prev[sequenceId] === values) {
+				const key = nodePathToString(nodePath);
+
+				if (prev[key] === values) {
 					return prev;
 				}
 
-				if (values === null) {
-					if (!(sequenceId in prev)) {
-						return prev;
-					}
-
-					const next = {...prev};
-					delete next[sequenceId];
-					return next;
-				}
-
-				return {...prev, [sequenceId]: values};
+				return {...prev, [key]: values};
 			});
 		},
 		[],
@@ -170,9 +212,12 @@ export const SequenceManagerProvider: React.FC<{
 	const gettersContext: VisualModeGetters = useMemo(() => {
 		return {
 			visualModeEnabled,
-			getDragOverrides: (overrideId: string) => dragOverrides[overrideId] ?? {},
-			getCodeValues: (overrideId: string) =>
-				getCodeValues(codeValues, overrideId),
+			getDragOverrides: (nodePath: SequenceNodePath) =>
+				dragOverrides[nodePathToString(nodePath)] ?? {},
+			getCodeValues: (nodePath: SequenceNodePath) =>
+				getCodeValues(codeValues, nodePath),
+			getIsJsxInMapCallback: (nodePath: SequenceNodePath) =>
+				getIsJsxInMapCallback(codeValues, nodePath),
 		};
 	}, [visualModeEnabled, dragOverrides, codeValues]);
 

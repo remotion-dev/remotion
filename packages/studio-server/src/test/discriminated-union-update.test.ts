@@ -14,7 +14,7 @@ test('Should correctly separate discriminated union for layout', () => {
 		currentRuntimeValueDotNotation: {
 			layout: 'none',
 		},
-		overrideId: '0.7123890564498035',
+		nodePath: [],
 		getCodeValues: () => undefined,
 		getDragOverrides: () => ({}),
 	});
@@ -27,7 +27,7 @@ test('Should expose absolute-fill variant fields when active', () => {
 		currentRuntimeValueDotNotation: {
 			layout: 'absolute-fill',
 		},
-		overrideId: '0.5636826614884479',
+		nodePath: [],
 		getCodeValues: () => undefined,
 		getDragOverrides: () => ({}),
 	});

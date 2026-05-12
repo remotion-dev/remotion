@@ -6,8 +6,8 @@ import type {
 	JSXSpreadAttribute,
 	StringLiteral,
 } from '@babel/types';
-import type {SequenceNodePath} from '@remotion/studio-shared';
 import * as recast from 'recast';
+import type {SequenceNodePath} from 'remotion';
 import type {SequenceSchema} from 'remotion';
 import {findJsxElementAtNodePath} from '../preview-server/routes/can-update-sequence-props';
 import {formatFileContent} from './format-file-content';
