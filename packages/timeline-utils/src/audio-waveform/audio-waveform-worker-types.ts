@@ -1,4 +1,4 @@
-import type {LoopDisplay} from 'remotion';
+import type {TimelineLoopDisplay} from '../loop-display';
 
 export type AudioWaveformWorkerInitMessage = {
 	readonly type: 'init';
@@ -16,7 +16,7 @@ export type AudioWaveformWorkerRenderMessage = {
 	readonly durationInFrames: number;
 	readonly fps: number;
 	readonly playbackRate: number;
-	readonly loopDisplay: LoopDisplay | undefined;
+	readonly loopDisplay: TimelineLoopDisplay | undefined;
 };
 
 export type AudioWaveformWorkerDisposeMessage = {
