@@ -17,6 +17,9 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'style.scale',
 			'style.rotate',
 			'style.opacity',
+			'premountFor',
+			'styleWhilePremounted',
+			'styleWhilePostmounted',
 		].sort(),
 	);
 });
@@ -54,6 +57,9 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'style.scale',
 			'style.rotate',
 			'style.opacity',
+			'premountFor',
+			'styleWhilePremounted',
+			'styleWhilePostmounted',
 		].sort(),
 	);
 });
