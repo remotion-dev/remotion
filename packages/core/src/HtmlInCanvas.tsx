@@ -269,6 +269,7 @@ const HtmlInCanvasAncestorContext = createContext(false);
 
 const hiddenAuxiliaryCanvasContainerStyle: React.CSSProperties = {
 	position: 'absolute',
+	pointerEvents: 'none',
 };
 
 const HtmlInCanvasInner = forwardRef<
@@ -336,9 +337,12 @@ const HtmlInCanvasInner = forwardRef<
 			}
 
 			const container = document.createElement('div');
-			Object.assign(container.style, hiddenAuxiliaryCanvasContainerStyle);
+			Object.assign(container.style, hiddenAuxiliaryCanvasContainerStyle, {
+				left: `-${width - 1}px`,
+				top: `-${height - 1}px`,
+			});
 			return container;
-		}, [nested]);
+		}, [nested, width, height]);
 
 		const chainState = useEffectChainState();
 
@@ -380,6 +384,8 @@ const HtmlInCanvasInner = forwardRef<
 						'Failed to acquire 2D context for <HtmlInCanvas> layout canvas',
 					);
 				}
+
+				layout2d.clearRect(0, 0, width, height);
 
 				const handle = delayRender('onPaint');
 				if (!initializedRef.current) {
