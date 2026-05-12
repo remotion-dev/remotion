@@ -32,6 +32,7 @@
 		"@remotion/renderer": "workspace:*",
 		"@remotion/web-renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
+		"@remotion/timeline-utils": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"mediabunny": "catalog:",
 		"memfs": "3.4.3",

@@ -1503,6 +1503,7 @@
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
+        "@remotion/timeline-utils": "workspace:*",
         "@remotion/web-renderer": "workspace:*",
         "@remotion/zod-types": "workspace:*",
         "mediabunny": "catalog:",
@@ -2361,6 +2362,18 @@
         "react-dom": ">=16.8.0",
         "remotion": "workspace:*",
         "three": ">=0.137.0",
+      },
+    },
+    "packages/timeline-utils": {
+      "name": "@remotion/timeline-utils",
+      "version": "4.0.459",
+      "dependencies": {
+        "mediabunny": "catalog:",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
       },
     },
     "packages/transitions": {
@@ -3947,6 +3960,8 @@
     "@remotion/test-utils": ["@remotion/test-utils@workspace:packages/test-utils"],
 
     "@remotion/three": ["@remotion/three@workspace:packages/three"],
+
+    "@remotion/timeline-utils": ["@remotion/timeline-utils@workspace:packages/timeline-utils"],
 
     "@remotion/transitions": ["@remotion/transitions@workspace:packages/transitions"],
 
