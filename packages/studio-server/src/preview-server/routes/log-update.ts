@@ -30,10 +30,11 @@ export const normalizeQuotes = (str: string): string => {
 };
 
 // 24-bit ANSI helpers
-const fg = (r: number, g: number, b: number, str: string) =>
+export const fg = (r: number, g: number, b: number, str: string) =>
 	`\u001b[38;2;${r};${g};${b}m${str}\u001b[39m`;
-const bg = (r: number, g: number, b: number, str: string) =>
+export const bg = (r: number, g: number, b: number, str: string) =>
 	`\u001b[48;2;${r};${g};${b}m${str}\u001b[49m`;
+export const strikeThrough = (str: string) => `\u001b[9m${str}\u001b[29m`;
 
 // Monokai-inspired syntax colors
 const attrName = (str: string) => fg(166, 226, 46, str);
@@ -56,10 +57,6 @@ const colorValue = (str: string) => {
 
 	return punctuation(str);
 };
-
-// Subtle background tints
-const removedBg = (str: string) => bg(80, 20, 20, str);
-const addedBg = (str: string) => bg(30, 80, 30, str);
 
 const colorEnabled = () => RenderInternals.chalk.enabled();
 
@@ -99,36 +96,25 @@ export const formatPropChange = ({
 		return `${parent}={{${child}: ${oldValueString}}} \u2192 ${parent}={{${child}: ${newValueString}}}`;
 	}
 
-	const isResetToDefault =
-		defaultValueString !== null && newValueString === defaultValueString;
-	const isChangeFromDefault =
-		defaultValueString !== null && oldValueString === defaultValueString;
-
 	const dotIndex = key.indexOf('.');
-	if (dotIndex === -1) {
-		if (isResetToDefault) {
-			return removedBg(formatSimpleProp(key, oldValueString));
-		}
+	const formatProp = (value: string) =>
+		dotIndex === -1
+			? formatSimpleProp(key, value)
+			: formatNestedProp(
+					key.slice(0, dotIndex),
+					key.slice(dotIndex + 1),
+					value,
+				);
 
-		if (isChangeFromDefault) {
-			return addedBg(formatSimpleProp(key, newValueString));
-		}
-
-		return `${removedBg(formatSimpleProp(key, oldValueString))} \u2192 ${addedBg(formatSimpleProp(key, newValueString))}`;
+	if (defaultValueString !== null && newValueString === defaultValueString) {
+		return strikeThrough(formatProp(oldValueString));
 	}
 
-	const parentKey = key.slice(0, dotIndex);
-	const childKey = key.slice(dotIndex + 1);
-
-	if (isResetToDefault) {
-		return removedBg(formatNestedProp(parentKey, childKey, oldValueString));
+	if (defaultValueString !== null && oldValueString === defaultValueString) {
+		return formatProp(newValueString);
 	}
 
-	if (isChangeFromDefault) {
-		return addedBg(formatNestedProp(parentKey, childKey, newValueString));
-	}
-
-	return `${removedBg(formatNestedProp(parentKey, childKey, oldValueString))} \u2192 ${addedBg(formatNestedProp(parentKey, childKey, newValueString))}`;
+	return `${formatProp(oldValueString)} \u2192 ${formatProp(newValueString)}`;
 };
 
 export const logUpdate = ({
