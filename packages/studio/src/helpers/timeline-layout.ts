@@ -11,6 +11,7 @@ import type {
 	GetDragOverrides,
 	TSequence,
 } from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 
@@ -43,10 +44,18 @@ export const getEffectSchemaLabels = (
 		return [];
 	}
 
-	return Object.entries(effect.definition.schema).map(([key, fieldSchema]) => ({
-		key,
-		description: fieldSchema.description,
-	}));
+	return Object.entries(effect.definition.schema)
+		.map(([key, fieldSchema]) => {
+			if (fieldSchema.type === 'hidden') {
+				return null;
+			}
+
+			return {
+				key,
+				description: fieldSchema.description,
+			};
+		})
+		.filter(NoReactInternals.truthy);
 };
 
 export type TimelineTreeNode =

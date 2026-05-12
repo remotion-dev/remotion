@@ -1,3 +1,7 @@
+export type HiddenFieldSchema = {
+	type: 'hidden';
+};
+
 export type NumberFieldSchema = {
 	type: 'number';
 	min?: number;
@@ -34,12 +38,14 @@ export type EnumFieldSchema = {
 	variants: Record<string, SequenceSchema>;
 };
 
-export type SequenceFieldSchema =
+export type VisibleFieldSchema =
 	| NumberFieldSchema
 	| BooleanFieldSchema
 	| RotationFieldSchema
 	| TranslateFieldSchema
 	| EnumFieldSchema;
+
+export type SequenceFieldSchema = VisibleFieldSchema | HiddenFieldSchema;
 
 export type SequenceSchema = {[key: string]: SequenceFieldSchema};
 
@@ -76,6 +82,17 @@ export const sequenceStyleSchema = {
 		step: 0.01,
 		default: 1,
 		description: 'Opacity',
+	},
+	premountFor: {
+		type: 'number',
+		default: 0,
+		description: 'Premount For',
+	},
+	styleWhilePremounted: {
+		type: 'hidden',
+	},
+	styleWhilePostmounted: {
+		type: 'hidden',
 	},
 } as const satisfies SequenceSchema;
 

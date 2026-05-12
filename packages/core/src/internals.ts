@@ -100,6 +100,7 @@ import {
 import type {
 	SequenceFieldSchema,
 	SequenceSchema,
+	VisibleFieldSchema,
 } from './sequence-field-schema.js';
 import {sequenceSchema, sequenceStyleSchema} from './sequence-field-schema.js';
 import type {
@@ -335,6 +336,7 @@ export type {
 	MediaVolumeContextValue,
 	RemotionEnvironment,
 	SequenceFieldSchema,
+	VisibleFieldSchema,
 	SequenceSchema,
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,
