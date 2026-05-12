@@ -19,6 +19,8 @@ export type GetCodeValues = (
 	nodePath: SequenceNodePath,
 ) => Record<string, CanUpdateSequencePropStatus> | undefined;
 
+export type GetIsJsxInMapCallback = (nodePath: SequenceNodePath) => boolean;
+
 export type GetDragOverrides = (
 	nodePath: SequenceNodePath,
 ) => DragOverrides[string];

@@ -52,6 +52,9 @@ export const TimelineListItem: React.FC<{
 		Internals.SequenceVisibilityToggleContext,
 	);
 	const {expandedTracks, toggleTrack} = useContext(ExpandedTracksContext);
+	const {getIsJsxInMapCallback} = useContext(
+		Internals.VisualModeGettersContext,
+	);
 
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
 	const nodePath = useNodePath(sequence);
@@ -86,7 +89,7 @@ export const TimelineListItem: React.FC<{
 			return;
 		}
 
-		if (nodePath.jsxInMapCallback) {
+		if (getIsJsxInMapCallback(nodePath)) {
 			const message =
 				'This sequence is rendered inside a .map() callback. Duplicating inserts another copy in that callback (affecting each list item). Continue?';
 			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
@@ -108,7 +111,7 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePath, validatedLocation?.source]);
+	}, [nodePath, validatedLocation?.source, getIsJsxInMapCallback]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
 		if (!validatedLocation?.source || !nodePath) {

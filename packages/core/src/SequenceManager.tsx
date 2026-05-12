@@ -47,6 +47,7 @@ export type VisualModeGetters = {
 	visualModeEnabled: boolean;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
+	getIsJsxInMapCallback: (nodePath: SequenceNodePath) => boolean;
 };
 
 export type VisualModeSetters = {
@@ -88,6 +89,22 @@ const getCodeValues = (codeValues: CodeValues, nodePath: SequenceNodePath) => {
 	return status.props;
 };
 
+const getIsJsxInMapCallback = (
+	codeValues: CodeValues,
+	nodePath: SequenceNodePath,
+) => {
+	const status = codeValues[nodePathToString(nodePath)];
+	if (!status) {
+		return false;
+	}
+
+	if (!status.canUpdate) {
+		return false;
+	}
+
+	return status.jsxInMapCallback;
+};
+
 export type GetCodeValuesType = typeof getCodeValues;
 
 export const VisualModeGettersContext = React.createContext<VisualModeGetters>({
@@ -95,6 +112,9 @@ export const VisualModeGettersContext = React.createContext<VisualModeGetters>({
 		throw new Error('VisualModeGettersContext not initialized');
 	},
 	getCodeValues: () => {
+		throw new Error('VisualModeGettersContext not initialized');
+	},
+	getIsJsxInMapCallback: () => {
 		throw new Error('VisualModeGettersContext not initialized');
 	},
 	visualModeEnabled: false,
@@ -206,6 +226,8 @@ export const SequenceManagerProvider: React.FC<{
 				dragOverrides[nodePathToString(nodePath)] ?? {},
 			getCodeValues: (nodePath: SequenceNodePath) =>
 				getCodeValues(codeValues, nodePath),
+			getIsJsxInMapCallback: (nodePath: SequenceNodePath) =>
+				getIsJsxInMapCallback(codeValues, nodePath),
 		};
 	}, [visualModeEnabled, dragOverrides, codeValues]);
 
