@@ -18,6 +18,9 @@
 			"path": "../studio-shared"
 		},
 		{
+			"path": "../timeline-utils"
+		},
+		{
 			"path": "../zod-types"
 		},
 		{

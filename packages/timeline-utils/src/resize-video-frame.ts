@@ -22,7 +22,6 @@ export const resizeVideoFrame = ({
 	frame: VideoFrame;
 	scale: number;
 }) => {
-	// No resize, no rotation
 	if (scale === 1) {
 		return frame;
 	}
@@ -43,7 +42,6 @@ export const resizeVideoFrame = ({
 	canvas.height = height;
 
 	ctx.scale(scale, scale);
-
 	ctx.drawImage(frame, 0, 0);
 
 	return new VideoFrame(canvas, {

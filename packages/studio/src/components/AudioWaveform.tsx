@@ -1,3 +1,7 @@
+import {
+	getLoopDisplayWidth,
+	shouldTileLoopDisplay,
+} from '@remotion/timeline-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
@@ -10,10 +14,6 @@ import type {
 } from './audio-waveform-worker-types';
 import {drawBars} from './draw-peaks';
 import {loadWaveformPeaks} from './load-waveform-peaks';
-import {
-	getLoopDisplayWidth,
-	shouldTileLoopDisplay,
-} from './looped-media-timeline';
 import {sliceWaveformPeaks} from './slice-waveform-peaks';
 
 const EMPTY_PEAKS = new Float32Array(0);

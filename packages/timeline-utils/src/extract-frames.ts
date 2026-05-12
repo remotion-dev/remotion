@@ -101,10 +101,8 @@ export async function extractFrames({
 				onVideoSample(videoSample);
 			}
 		} finally {
-			// When input.dispose() causes the iterator to throw
-			// InputDisposedError, for-await does not call .return() on the
-			// iterator (it only does so on `break`). Explicitly call it so
-			// the iterator can close any internally buffered VideoSamples.
+			// When input.dispose() causes the iterator to throw InputDisposedError,
+			// for-await does not call .return() on the iterator.
 			try {
 				await sampleIterator.return?.();
 			} catch {

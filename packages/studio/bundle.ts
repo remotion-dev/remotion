@@ -7,6 +7,7 @@ const external = [
 	'react',
 	'@remotion/media-utils',
 	'@remotion/studio-shared',
+	'@remotion/timeline-utils',
 	'@remotion/zod-types',
 	'@remotion/renderer',
 	'@remotion/player',
