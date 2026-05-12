@@ -1,10 +1,9 @@
-import type {CanUpdateSequencePropsResponse} from '@remotion/studio-shared';
 import {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
-import type {SequenceSchema} from 'remotion';
+import type {SequenceSchema, SequenceNodePath} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {acquireSequencePropsSubscription} from './sequence-props-subscription-store';
+import {callApi} from '../call-api';
 
 export const useSequencePropsSubscription = (
 	overrideId: string,
@@ -64,29 +63,39 @@ export const useSequencePropsSubscription = (
 			return;
 		}
 
-		const onChange = (snapshot: CanUpdateSequencePropsResponse) => {
-			if (snapshot.canUpdate) {
-				setOverrideIdToNodePath(overrideId, {
-					nodePath: snapshot.nodePath,
-					jsxInMapCallback: snapshot.jsxInMapCallback,
-				});
-				setCodeValues(snapshot.nodePath, snapshot.props);
-			}
-		};
-
-		const release = acquireSequencePropsSubscription({
-			clientId,
+		let resolvedNodePath: SequenceNodePath | null = null;
+		callApi('/api/subscribe-to-sequence-props', {
 			fileName: locationSource,
 			line: locationLine,
 			column: locationColumn,
 			schema,
-			onChange,
-		});
+			clientId,
+		})
+			.then((result) => {
+				if (result.canUpdate) {
+					resolvedNodePath = result.nodePath;
+
+					setOverrideIdToNodePath(overrideId, {
+						nodePath: result.nodePath,
+						jsxInMapCallback: result.jsxInMapCallback,
+					});
+					setCodeValues(result.nodePath, result.props);
+				}
+			})
+			.catch((err) => {
+				Internals.Log.error(err);
+			});
 
 		return () => {
-			release();
-			// Only clear props on true unmount, not on re-subscribe due to
-			// location changes — avoids flicker while re-subscribing.
+			if (resolvedNodePath) {
+				callApi('/api/unsubscribe-from-sequence-props', {
+					fileName: locationSource,
+					nodePath: resolvedNodePath,
+					clientId,
+				}).catch(() => {
+					// Ignore unsubscribe errors
+				});
+			}
 		};
 	}, [
 		clientId,

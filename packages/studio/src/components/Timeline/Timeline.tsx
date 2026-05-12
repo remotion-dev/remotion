@@ -9,6 +9,7 @@ import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {isTrackHidden} from './is-collapsed';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
+import {SequencePropsObserver} from './SequencePropsObserver';
 import {SubscribeToNodePaths} from './SubscribeToNodePaths';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
@@ -76,6 +77,7 @@ const TimelineInner: React.FC = () => {
 			{sequences.map((sequence) => (
 				<SubscribeToNodePaths key={sequence.id} sequence={sequence} />
 			))}
+			<SequencePropsObserver />
 			<TimelineWidthProvider>
 				<TimelinePinchZoom />
 				<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>

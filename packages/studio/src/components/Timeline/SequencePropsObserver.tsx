@@ -26,4 +26,6 @@ export const SequencePropsObserver = () => {
 			unsubscribe();
 		};
 	}, [setCodeValues, subscribeToEvent]);
+
+	return null;
 };
