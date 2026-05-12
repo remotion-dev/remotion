@@ -9,12 +9,10 @@ export const useSequencePropsSubscription = ({
 	originalLocation,
 	overrideId,
 	schema,
-	visualModeEnabled,
 }: {
 	overrideId: string;
 	schema: SequenceSchema;
 	originalLocation: OriginalPosition | null;
-	visualModeEnabled: boolean;
 }) => {
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const {setOverrideIdToNodePath} = useContext(
@@ -45,10 +43,6 @@ export const useSequencePropsSubscription = ({
 	const locationColumn = validatedLocation?.column ?? null;
 
 	useEffect(() => {
-		if (!visualModeEnabled) {
-			throw new Error('Visual mode is not enabled');
-		}
-
 		if (
 			!clientId ||
 			!locationSource ||
@@ -93,6 +87,5 @@ export const useSequencePropsSubscription = ({
 		schema,
 		setCodeValues,
 		setOverrideIdToNodePath,
-		visualModeEnabled,
 	]);
 };

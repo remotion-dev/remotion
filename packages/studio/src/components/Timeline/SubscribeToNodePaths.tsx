@@ -14,7 +14,6 @@ export const SubscribeToNodePaths: React.FC<{
 		overrideId,
 		schema,
 		originalLocation,
-		visualModeEnabled: true,
 	});
 
 	return null;
