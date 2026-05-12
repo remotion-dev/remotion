@@ -87,6 +87,13 @@ export const audioIteratorManager = ({
 	let totalAudioScheduledInSeconds = 0;
 	let currentDelayHandle: {unblock: () => void} | null = null;
 
+	const unblockCurrentDelayHandle = () => {
+		if (currentDelayHandle) {
+			currentDelayHandle.unblock();
+			currentDelayHandle = null;
+		}
+	};
+
 	const pendingScheduleWaiters: {
 		remaining: number;
 		resolve: () => void;
@@ -366,6 +373,8 @@ export const audioIteratorManager = ({
 		}
 
 		audioBufferIterator?.destroy();
+		unblockCurrentDelayHandle();
+
 		const delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 
@@ -442,6 +451,10 @@ export const audioIteratorManager = ({
 		fps: number;
 		getAudioContextCurrentTimeMockedInTest: () => number;
 	}) => {
+		if (nonce.isStale()) {
+			return;
+		}
+
 		if (
 			currentSeek.time === newTime &&
 			currentSeek.playbackRate === playbackRate &&
@@ -526,11 +539,7 @@ export const audioIteratorManager = ({
 		destroyIterator: () => {
 			audioBufferIterator?.destroy();
 			audioBufferIterator = null;
-
-			if (currentDelayHandle) {
-				currentDelayHandle.unblock();
-				currentDelayHandle = null;
-			}
+			unblockCurrentDelayHandle();
 		},
 		seek,
 		getAudioIteratorsCreated: () => audioIteratorsCreated,
