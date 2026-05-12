@@ -1,9 +1,9 @@
-import {useContext, useEffect, useMemo, useRef} from 'react';
+import {useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
-import type {SequenceSchema, SequenceNodePath} from 'remotion';
+import type {SequenceSchema} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {callApi} from '../call-api';
+import {acquireSequencePropsSubscription} from './sequence-props-subscription-store';
 
 export const useSequencePropsSubscription = (
 	overrideId: string,
@@ -35,15 +35,6 @@ export const useSequencePropsSubscription = (
 		};
 	}, [originalLocation]);
 
-	const isMountedRef = useRef(true);
-
-	useEffect(() => {
-		isMountedRef.current = true;
-		return () => {
-			isMountedRef.current = false;
-		};
-	}, []);
-
 	const locationSource = validatedLocation?.source ?? null;
 	const locationLine = validatedLocation?.line ?? null;
 	const locationColumn = validatedLocation?.column ?? null;
@@ -63,39 +54,27 @@ export const useSequencePropsSubscription = (
 			return;
 		}
 
-		let resolvedNodePath: SequenceNodePath | null = null;
-		callApi('/api/subscribe-to-sequence-props', {
+		const {release} = acquireSequencePropsSubscription({
 			fileName: locationSource,
 			line: locationLine,
 			column: locationColumn,
 			schema,
 			clientId,
-		})
-			.then((result) => {
-				if (result.canUpdate) {
-					resolvedNodePath = result.nodePath;
-
-					setOverrideIdToNodePath(overrideId, {
-						nodePath: result.nodePath,
-						jsxInMapCallback: result.jsxInMapCallback,
-					});
-					setCodeValues(result.nodePath, result.props);
+			apply: (result) => {
+				if (!result.canUpdate) {
+					return;
 				}
-			})
-			.catch((err) => {
-				Internals.Log.error(err);
-			});
+
+				setOverrideIdToNodePath(overrideId, {
+					nodePath: result.nodePath,
+					jsxInMapCallback: result.jsxInMapCallback,
+				});
+				setCodeValues(result.nodePath, result.props);
+			},
+		});
 
 		return () => {
-			if (resolvedNodePath) {
-				callApi('/api/unsubscribe-from-sequence-props', {
-					fileName: locationSource,
-					nodePath: resolvedNodePath,
-					clientId,
-				}).catch(() => {
-					// Ignore unsubscribe errors
-				});
-			}
+			release();
 		};
 	}, [
 		clientId,
