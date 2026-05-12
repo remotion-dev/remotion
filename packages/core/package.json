@@ -22,8 +22,8 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"peerDependencies": {
-		"react": "19.2.3",
-		"react-dom": "19.2.3"
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
 		"@testing-library/react": "16.1.0",

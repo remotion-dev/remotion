@@ -25,9 +25,9 @@
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
-		"@shopify/react-native-skia": "2.0.0",
-		"react": "19.2.3",
-		"react-dom": "19.2.3"
+		"@shopify/react-native-skia": ">=0.1.191",
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
 		"@remotion/bundler": "workspace:*",

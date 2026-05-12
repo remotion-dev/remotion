@@ -25,10 +25,10 @@
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
-		"@react-three/fiber": "9.2.0",
-		"react": "19.2.3",
-		"react-dom": "19.2.3",
-		"three": "0.178.0",
+		"@react-three/fiber": ">=8.0.0",
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0",
+		"three": ">=0.137.0",
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {

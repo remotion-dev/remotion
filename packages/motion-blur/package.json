@@ -25,8 +25,8 @@
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
-		"react": "19.2.3",
-		"react-dom": "19.2.3"
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"exports": {
 		"./package.json": "./package.json",

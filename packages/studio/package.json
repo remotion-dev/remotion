@@ -21,8 +21,8 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"peerDependencies": {
-		"react": "19.2.3",
-		"react-dom": "19.2.3"
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"dependencies": {
 		"semver": "7.5.3",

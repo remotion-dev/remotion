@@ -31,8 +31,8 @@
 		"@remotion/licensing": "workspace:*"
 	},
 	"peerDependencies": {
-		"react": "19.2.3",
-		"react-dom": "19.2.3"
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
 		"@testing-library/dom": "10.4.0",

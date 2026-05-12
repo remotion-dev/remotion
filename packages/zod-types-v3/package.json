@@ -28,7 +28,7 @@
 		"@remotion/zod-types": "workspace:*"
 	},
 	"peerDependencies": {
-		"zod": "3.22.3"
+		"zod": ">=3.0.0 <4.0.0"
 	},
 	"exports": {
 		".": {
