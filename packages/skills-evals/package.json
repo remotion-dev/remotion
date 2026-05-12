@@ -1,0 +1,22 @@
+{
+	"name": "@remotion/skills-evals",
+	"version": "4.0.459",
+	"description": "Visual evals for Remotion agent skills",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"eval": "bun src/cli.ts",
+		"format": "oxfmt src",
+		"formatting": "oxfmt src --check",
+		"lint": "eslint src && tsgo"
+	},
+	"dependencies": {
+		"@remotion/skills": "workspace:*"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@types/bun": "catalog:",
+		"@typescript/native-preview": "catalog:",
+		"eslint": "catalog:"
+	}
+}
