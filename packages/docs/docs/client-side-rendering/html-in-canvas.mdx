@@ -12,7 +12,15 @@ Experimental feature - expect bugs and breaking changes at any time.
 
 # HTML-in-canvas<AvailableFrom v="4.0.447" />
 
-On supported Chromium-based browsers, [`@remotion/web-renderer`](/docs/web-renderer) can optionally capture full frames using the experimental [HTML-in-canvas](https://github.com/WICG/html-in-canvas) APIs.
+:::note
+This is not the same as the [`<HtmlInCanvas>`](/docs/html-in-canvas) component for designing visuals. This page describes a [`@remotion/web-renderer`](/docs/web-renderer) option that uses HTML-in-canvas to capture full frames during client-side rendering.
+:::
+
+On supported Chromium-based browsers, [`@remotion/web-renderer`](/docs/web-renderer) can optionally capture full frames using the experimental [HTML-in-canvas](/docs/html-in-canvas) APIs.
+
+:::info
+As of April 2026, this feature requires [Chrome Canary](https://www.google.com/chrome/canary/). Regular Chrome has partial support ([`drawElementImage`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents)) but is missing `canvas.requestPaint()`, which can cause rendering issues such as frames being repeated. See [Compatibility](#compatibility) for details.
+:::
 
 Enabling the option does not guarantee that this path runs. If the browser does not have HTML-in-canvas enabled, it falls back to the [default frame capturing mechanism](/docs/client-side-rendering/how-it-works).
 
@@ -96,8 +104,11 @@ If HTML-in-canvas is not available, or not allowed, no warning will be printed.
 
 HTML-in-canvas depends on Chromium flag `chrome://flags/#canvas-draw-element` which needs to be explicitly enabled as of time of writing in April 2026.
 
+As of April 2026, [Chrome Canary](https://www.google.com/chrome/canary/) is required for full support. Regular Chrome exposes [`drawElementImage`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) when the flag is enabled, but does not yet ship `canvas.requestPaint()`. Without `requestPaint()`, the renderer cannot synchronize paint operations, which can lead to repeated or incorrect frames.
+
 ## See also
 
+- [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas)
 - [How client-side rendering works](/docs/client-side-rendering/how-it-works)
 - [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web)
 - [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web)

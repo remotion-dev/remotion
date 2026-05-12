@@ -250,7 +250,7 @@ const renderContent = (Root: React.FC) => {
 					videoEnabled={window.remotion_videoEnabled}
 					logLevel={window.remotion_logLevel ?? 'info'}
 					numberOfAudioTags={0}
-					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
 					visualModeEnabled={false}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
@@ -278,7 +278,7 @@ const renderContent = (Root: React.FC) => {
 					videoEnabled={window.remotion_videoEnabled}
 					logLevel={window.remotion_logLevel ?? 'info'}
 					numberOfAudioTags={0}
-					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
 					visualModeEnabled={false}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>

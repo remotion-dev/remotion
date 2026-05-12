@@ -1,7 +1,7 @@
 import {translatePath} from '@remotion/paths';
 import {makePie} from '@remotion/shapes';
-import React, {useMemo, useState} from 'react';
-import {AbsoluteFill, random} from 'remotion';
+import React, {useMemo} from 'react';
+import {AbsoluteFill} from 'remotion';
 import type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
@@ -33,19 +33,20 @@ const ClockWipePresentation: React.FC<
 		-(finishedRadius * 2 - passedProps.height) / 2,
 	);
 
-	const [clipId] = useState(() => String(random(null)));
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			width: '100%',
 			height: '100%',
 			clipPath:
-				presentationDirection === 'exiting' ? undefined : `url(#${clipId})`,
+				presentationDirection === 'exiting'
+					? undefined
+					: `path("${translatedPath}")`,
 			...(presentationDirection === 'entering'
 				? passedProps.innerEnterStyle
 				: passedProps.innerExitStyle),
 		};
 	}, [
-		clipId,
+		translatedPath,
 		passedProps.innerEnterStyle,
 		passedProps.innerExitStyle,
 		presentationDirection,
@@ -64,17 +65,6 @@ const ClockWipePresentation: React.FC<
 	return (
 		<AbsoluteFill style={outerStyle}>
 			<AbsoluteFill style={style}>{children}</AbsoluteFill>
-			{presentationDirection === 'exiting' ? null : (
-				<AbsoluteFill>
-					<svg>
-						<defs>
-							<clipPath id={clipId}>
-								<path d={translatedPath} fill="black" />
-							</clipPath>
-						</defs>
-					</svg>
-				</AbsoluteFill>
-			)}
 		</AbsoluteFill>
 	);
 };

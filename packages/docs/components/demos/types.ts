@@ -1,3 +1,4 @@
+import type {LogLevel} from 'remotion';
 import {
 	ClockWipeDemo,
 	CubeDemo,
@@ -15,6 +16,9 @@ import {ArrowDemo} from './Arrow';
 import {CircleDemo} from './Circle';
 import {EllipseDemo} from './Ellipse';
 import {HeartDemo} from './Heart';
+import {HtmlInCanvasDocsDemo2DBlur} from './HtmlInCanvasDocsDemo2DBlur';
+import {HtmlInCanvasDocsDemoWebGL} from './HtmlInCanvasDocsDemoWebGL';
+import {HtmlInCanvasDocsDemoWebGPU} from './HtmlInCanvasDocsDemoWebGPU';
 import {LightLeakDemoComp} from './LightLeakDemo';
 import {NoiseComp} from './NoiseDemo';
 import {PieDemo} from './Pie';
@@ -37,6 +41,8 @@ import {
 	TranslateDemo,
 } from './Translate';
 import {TriangleDemo} from './Triangle';
+import {ZoomBlurDocsDemo} from './ZoomBlurDemo';
+import {ZoomInOutDocsDemo} from './ZoomInOutDemo';
 
 export type Option = {
 	name: string;
@@ -75,6 +81,7 @@ export type DemoType = {
 	options: Option[];
 	autoPlay: boolean;
 	controls: boolean;
+	logLevel: LogLevel;
 };
 
 export const arrowDemo: DemoType = {
@@ -86,6 +93,7 @@ export const arrowDemo: DemoType = {
 	id: 'arrow',
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			default: 300,
@@ -151,6 +159,7 @@ export const rectDemo: DemoType = {
 	id: 'rect',
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			default: 200,
@@ -206,6 +215,7 @@ export const triangleDemo: DemoType = {
 	id: 'triangle',
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			default: 200,
@@ -259,6 +269,7 @@ export const circleDemo: DemoType = {
 	id: 'circle',
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			default: 200,
@@ -281,6 +292,7 @@ export const heartDemo: DemoType = {
 	id: 'heart',
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			default: 300,
@@ -337,6 +349,7 @@ export const translateDemo: DemoType = {
 	comp: TranslateDemo,
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	compHeight: 400,
 	compWidth: 1280,
 	durationInFrames: 150,
@@ -368,6 +381,7 @@ export const skewDemo: DemoType = {
 	comp: SkewDemo,
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	compHeight: 400,
 	compWidth: 1280,
 	durationInFrames: 150,
@@ -390,6 +404,7 @@ export const scaleDemo: DemoType = {
 	comp: ScaleDemo,
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	compHeight: 400,
 	compWidth: 1280,
 	durationInFrames: 150,
@@ -412,6 +427,7 @@ export const opacityDemo: DemoType = {
 	comp: OpacityDemo,
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	compHeight: 400,
 	compWidth: 1280,
 	durationInFrames: 150,
@@ -434,6 +450,7 @@ export const rotateDemo: DemoType = {
 	comp: RotateDemo,
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	compHeight: 400,
 	compWidth: 1280,
 	durationInFrames: 150,
@@ -461,6 +478,7 @@ export const pieDemo: DemoType = {
 	id: 'pie',
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			default: 200,
@@ -519,6 +537,7 @@ export const ellipseDemo: DemoType = {
 	id: 'ellipse',
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			default: 150,
@@ -549,6 +568,7 @@ export const polygonDemo: DemoType = {
 	id: 'polygon',
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			default: 3,
@@ -598,6 +618,7 @@ export const starDemo: DemoType = {
 	id: 'star',
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			default: 100,
@@ -656,6 +677,7 @@ export const noiseDemo: DemoType = {
 	id: 'noise',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			default: 0.01,
@@ -696,6 +718,7 @@ export const fadePresentationDemo: DemoType = {
 	id: 'fade',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [],
 };
 
@@ -708,6 +731,7 @@ export const slidePresentationDemo: DemoType = {
 	id: 'slide',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			type: 'enum',
@@ -727,6 +751,7 @@ export const flipPresentationDemo: DemoType = {
 	id: 'flip',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			type: 'enum',
@@ -747,6 +772,7 @@ export const nonePresentationDemo: DemoType = {
 	id: 'none',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [],
 };
 
@@ -759,6 +785,7 @@ export const slidePresentationDemoLongThreshold: DemoType = {
 	id: 'slide-long-duration-rest',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [],
 };
 
@@ -771,6 +798,7 @@ export const wipePresentationDemo: DemoType = {
 	id: 'wipe',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			type: 'enum',
@@ -800,6 +828,7 @@ export const roundedTextBoxDemo: DemoType = {
 	id: 'rounded-text-box',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			type: 'enum',
@@ -854,6 +883,7 @@ export const clockWipePresentationDemo: DemoType = {
 	id: 'clock-wipe',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [],
 };
 
@@ -866,6 +896,7 @@ export const irisPresentationDemo: DemoType = {
 	id: 'iris',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [],
 };
 
@@ -878,6 +909,7 @@ export const cubePresentationDemo: DemoType = {
 	id: 'cube',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			type: 'enum',
@@ -889,6 +921,32 @@ export const cubePresentationDemo: DemoType = {
 	],
 };
 
+export const zoomBlurPresentationDemo: DemoType = {
+	comp: ZoomBlurDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'zoom-blur',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const zoomInOutPresentationDemo: DemoType = {
+	comp: ZoomInOutDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'zoom-in-out',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
 export const customPresentationDemo: DemoType = {
 	comp: CustomTransitionDemo,
 	compHeight: 280,
@@ -898,6 +956,7 @@ export const customPresentationDemo: DemoType = {
 	id: 'custom-presentation',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [],
 };
 
@@ -910,6 +969,7 @@ export const customTimingDemo: DemoType = {
 	id: 'custom-timing',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [],
 };
 
@@ -922,6 +982,7 @@ export const animationMathDemo: DemoType = {
 	id: 'animation-math',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [],
 };
 
@@ -934,6 +995,7 @@ export const springDemo: DemoType = {
 	id: 'spring',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			name: 'damping',
@@ -995,6 +1057,7 @@ export const shaderDemo: DemoType = {
 	id: 'shader',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [],
 };
 
@@ -1007,6 +1070,7 @@ export const springDampingDemo: DemoType = {
 	id: 'spring-damping',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			name: 'damping',
@@ -1060,6 +1124,7 @@ export const starburstDemo: DemoType = {
 	id: 'starburst',
 	autoPlay: false,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			name: 'rays',
@@ -1127,6 +1192,7 @@ export const transitionSeriesTransitionDemo: DemoType = {
 	id: 'transition-series-transition',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			name: 'presentation',
@@ -1187,6 +1253,7 @@ export const transitionSeriesEnterExitDemo: DemoType = {
 	id: 'transition-series-enter-exit',
 	autoPlay: true,
 	controls: false,
+	logLevel: 'info',
 	options: [
 		{
 			name: 'presentation',
@@ -1196,4 +1263,43 @@ export const transitionSeriesEnterExitDemo: DemoType = {
 			optional: 'no',
 		},
 	],
+};
+
+export const htmlInCanvasDemo2DBlur: DemoType = {
+	comp: HtmlInCanvasDocsDemo2DBlur,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 120,
+	fps: 30,
+	id: 'html-in-canvas-2d-blur',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const htmlInCanvasDemoWebGL: DemoType = {
+	comp: HtmlInCanvasDocsDemoWebGL,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 120,
+	fps: 30,
+	id: 'html-in-canvas-webgl',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const htmlInCanvasDemoWebGPU: DemoType = {
+	comp: HtmlInCanvasDocsDemoWebGPU,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 120,
+	fps: 30,
+	id: 'html-in-canvas-webgpu',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'trace',
+	options: [],
 };

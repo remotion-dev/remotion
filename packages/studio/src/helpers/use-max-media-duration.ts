@@ -2,6 +2,7 @@ import {getVideoMetadata} from '@remotion/media-utils';
 import {ALL_FORMATS, Input, InputDisposedError, UrlSource} from 'mediabunny';
 import {useEffect, useState} from 'react';
 import {type TSequence} from 'remotion';
+import {getDurationOrCompute} from './get-duration-or-compute';
 
 const cache = new Map<string, number>();
 
@@ -33,8 +34,8 @@ export const useMaxMediaDuration = (s: TSequence, fps: number) => {
 			formats: ALL_FORMATS,
 			source: new UrlSource(src),
 		});
-		input
-			.computeDuration()
+
+		getDurationOrCompute(input)
 			.then((duration) => {
 				cache.set(src, Math.floor(duration * fps));
 				setMaxMediaDuration(Math.floor(duration * fps));

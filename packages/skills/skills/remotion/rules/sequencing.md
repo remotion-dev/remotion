@@ -10,14 +10,40 @@ Use `<Sequence>` to delay when an element appears in the timeline.
 ```tsx
 import { Sequence } from "remotion";
 
-const {fps} = useVideoConfig();
+export const Title = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
 
-<Sequence from={1 * fps} durationInFrames={2 * fps} premountFor={1 * fps}>
-  <Title />
-</Sequence>
-<Sequence from={2 * fps} durationInFrames={2 * fps} premountFor={1 * fps}>
-  <Subtitle />
-</Sequence>
+  const opacity = interpolate(frame, [0, 2 * fps], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+  });
+
+  return <div style={{ opacity }}>Title</div>;
+};
+
+export const Subtitle = () => {
+  return <div>Subtitle</div>;
+};
+
+const Main = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <AbsoluteFill>
+      <Sequence>
+        <Background />
+      </Sequence>
+      <Sequence from={1 * fps} durationInFrames={2 * fps} layout="none">
+        <Title />
+      </Sequence>
+      <Sequence from={2 * fps} durationInFrames={2 * fps} layout="none">
+        <Subtitle />
+      </Sequence>
+    </AbsoluteFill>
+  );
+}
 ```
 
 This will by default wrap the component in an absolute fill element.  

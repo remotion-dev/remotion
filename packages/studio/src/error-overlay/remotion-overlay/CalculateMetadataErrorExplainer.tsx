@@ -5,7 +5,7 @@ import {BORDER_COLOR} from '../../helpers/colors';
 export const CalculateMetadataErrorExplainer: React.FC<{}> = () => {
 	return (
 		<div style={style}>
-			This error occured while calling{' '}
+			This error occurred while calling{' '}
 			<code style={inlineCodeSnippet}>calculateMetadata()</code>.
 		</div>
 	);

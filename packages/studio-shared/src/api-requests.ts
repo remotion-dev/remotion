@@ -10,15 +10,14 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {_InternalTypes} from 'remotion';
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {_InternalTypes, SequenceSchema} from 'remotion';
+import type {CanUpdateSequencePropsResponse} from 'remotion';
+import type {SequenceNodePath} from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {RequiredChromiumOptions} from './render-job';
 import type {EnumPath} from './stringify-default-props';
-
-export type SequenceNodePath = Array<string | number>;
 
 export type OpenInFileExplorerRequest = {
 	directory: string;
@@ -214,7 +213,7 @@ export type SubscribeToSequencePropsRequest = {
 	fileName: string;
 	line: number;
 	column: number;
-	keys: string[];
+	schema: SequenceSchema;
 	clientId: string;
 };
 
@@ -226,26 +225,13 @@ export type UnsubscribeFromSequencePropsRequest = {
 	clientId: string;
 };
 
-export type CanUpdateSequencePropsResponse =
-	| {
-			canUpdate: true;
-			props: Record<string, CanUpdateSequencePropStatus>;
-			nodePath: SequenceNodePath;
-			/** True when the JSX is inside a `.map()` callback (list iteration). */
-			jsxInMapCallback: boolean;
-	  }
-	| {
-			canUpdate: false;
-			reason: string;
-	  };
-
 export type SaveSequencePropsRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	key: string;
 	value: string;
 	defaultValue: string | null;
-	observedKeys: string[];
+	schema: SequenceSchema;
 };
 
 export type SaveSequencePropsResponse =

@@ -4,10 +4,10 @@ import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 import type {ChromeMode} from '../options/chrome-mode';
 
-export const TESTED_VERSION = '144.0.7559.20';
+export const TESTED_VERSION = '149.0.7790.0';
 // https://github.com/microsoft/playwright/blame/e76ca6cba40c26bf22c19cf37398d2b9da9ed465/packages/playwright-core/browsers.json
 // packages/playwright-core/browsers.json
-const PLAYWRIGHT_VERSION = '1207'; // 144.0.7559.20
+const PLAYWRIGHT_VERSION = '1421'; // 149.0.7790.0
 
 export type Platform =
 	| 'linux64'
@@ -108,7 +108,7 @@ export function getChromeDownloadUrl({
 		// Amazon Linux 2023 on arm64 needs a special build.
 		// This binary is compatible with older glibc (no 2.35 requirement).
 		if (isAmazonLinux2023() && chromeMode === 'headless-shell' && !version) {
-			return 'https://remotion.media/chromium-headless-shell-amazon-linux-arm64-144.0.7559.20.zip';
+			return 'https://remotion.media/chromium-headless-shell-amazon-linux-arm64-149.0.7790.0.zip?clear';
 		}
 
 		if (chromeMode === 'chrome-for-testing') {
@@ -121,7 +121,7 @@ export function getChromeDownloadUrl({
 
 		// Regular arm64 binary requires glibc 2.35+
 		if (canUseRemotionMediaBinaries()) {
-			return `https://remotion.media/chromium-headless-shell-linux-arm64-${TESTED_VERSION}.zip?clearcache`;
+			return `https://remotion.media/chromium-headless-shell-linux-arm64-${TESTED_VERSION}.zip?clear`;
 		}
 
 		// Fall back to Playwright for older glibc (non-Amazon Linux systems)
@@ -132,12 +132,12 @@ export function getChromeDownloadUrl({
 		// Amazon Linux 2023 needs a special build.
 		// This binary is compatible with older glibc (no 2.35 requirement).
 		if (isAmazonLinux2023() && platform === 'linux64' && !version) {
-			return `https://remotion.media/chromium-headless-shell-amazon-linux-x64-144.0.7559.20.zip`;
+			return `https://remotion.media/chromium-headless-shell-amazon-linux-x64-149.0.7790.0.zip?clear`;
 		}
 
 		if (platform === 'linux64' && version === null) {
 			if (canUseRemotionMediaBinaries()) {
-				return `https://remotion.media/chromium-headless-shell-linux-x64-${TESTED_VERSION}.zip?clearcache`;
+				return `https://remotion.media/chromium-headless-shell-linux-x64-${TESTED_VERSION}.zip?clear`;
 			}
 
 			// Fall back to Google's CDN for older glibc

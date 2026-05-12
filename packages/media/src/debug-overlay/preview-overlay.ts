@@ -27,6 +27,7 @@ export const drawPreviewOverlay = ({
 		'Debug overlay',
 		`Video iterators created: ${videoIteratorManager?.getVideoIteratorsCreated()}`,
 		`Audio iterators created: ${audioIteratorManager?.getAudioIteratorsCreated()}`,
+		`Audio scheduled: ${(audioIteratorManager?.getTotalAudioScheduledInSeconds() ?? 0).toFixed(3)}s`,
 		`Frames rendered: ${videoIteratorManager?.getFramesRendered()}`,
 		`Audio context state: ${audioContextState}`,
 		audioTime

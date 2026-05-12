@@ -46,7 +46,7 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 	expect(audio2.data.data.length).toBe(3200);
 	expect(audio2.data.timestamp).toBe((1 / 30) * 1_000_000);
 	expect(audio2.data.durationInMicroSeconds).toBe((1 / 30) * 1_000_000);
-	expect(audio2.durationInSeconds).toBe(5.012666666666667);
+	expect(audio2.durationInSeconds).toBe(5.012666666666666);
 
 	// Time: 0.066sec, should return audio
 	const audio3 = await extractAudio({
@@ -73,5 +73,5 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 		(1 / 30) * 1_000_000,
 		0.000001,
 	);
-	expect(audio3.durationInSeconds).toBe(5.012666666666667);
+	expect(audio3.durationInSeconds).toBe(5.012666666666666);
 });

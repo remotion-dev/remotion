@@ -7,6 +7,7 @@ import type {
 	LoggingContextValue,
 	LogLevel,
 	MediaVolumeContextValue,
+	PlaybackRateContextValue,
 	RemotionEnvironment,
 	SetMediaVolumeContextValue,
 	TimelineContextValue,
@@ -19,6 +20,7 @@ export const PLAYER_COMP_ID = 'player-comp';
 export const SharedPlayerContexts: React.FC<{
 	readonly children: React.ReactNode;
 	readonly timelineContext: TimelineContextValue;
+	readonly playbackRateContext: PlaybackRateContextValue;
 	readonly fps: number;
 	readonly compositionWidth: number;
 	readonly compositionHeight: number;
@@ -29,11 +31,13 @@ export const SharedPlayerContexts: React.FC<{
 	readonly logLevel: LogLevel;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly volumePersistenceKey?: string;
+	readonly initialVolume?: number;
 	readonly inputProps: Record<string, unknown>;
 	readonly audioEnabled: boolean;
 }> = ({
 	children,
 	timelineContext,
+	playbackRateContext,
 	fps,
 	compositionHeight,
 	compositionWidth,
@@ -44,9 +48,11 @@ export const SharedPlayerContexts: React.FC<{
 	logLevel,
 	audioLatencyHint,
 	volumePersistenceKey,
+	initialVolume,
 	inputProps,
 	audioEnabled,
 }) => {
+	const persistVolumeToStorage = initialVolume === undefined;
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		const context: CompositionManagerContext = {
 			compositions: [
@@ -95,7 +101,9 @@ export const SharedPlayerContexts: React.FC<{
 
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => initiallyMuted);
 	const [mediaVolume, setMediaVolume] = useState<number>(() =>
-		getPreferredVolume(volumePersistenceKey ?? null),
+		persistVolumeToStorage
+			? getPreferredVolume(volumePersistenceKey ?? null)
+			: initialVolume,
 	);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
@@ -108,9 +116,11 @@ export const SharedPlayerContexts: React.FC<{
 	const setMediaVolumeAndPersist = useCallback(
 		(vol: number) => {
 			setMediaVolume(vol);
-			persistVolume(vol, logLevel, volumePersistenceKey ?? null);
+			if (persistVolumeToStorage) {
+				persistVolume(vol, logLevel, volumePersistenceKey ?? null);
+			}
 		},
-		[logLevel, volumePersistenceKey],
+		[persistVolumeToStorage, logLevel, volumePersistenceKey],
 	);
 
 	const setMediaVolumeContextValue = useMemo((): SetMediaVolumeContextValue => {
@@ -142,33 +152,38 @@ export const SharedPlayerContexts: React.FC<{
 			<Internals.LogLevelContext.Provider value={logLevelContext}>
 				<Internals.CanUseRemotionHooksProvider>
 					<Internals.AbsoluteTimeContext.Provider value={timelineContext}>
-						<Internals.TimelineContext.Provider value={timelineContext}>
-							<Internals.CompositionManager.Provider
-								value={compositionManagerContext}
-							>
-								<Internals.PrefetchProvider>
-									<Internals.DurationsContextProvider>
-										<Internals.MediaVolumeContext.Provider
-											value={mediaVolumeContextValue}
-										>
-											<Internals.SetMediaVolumeContext.Provider
-												value={setMediaVolumeContextValue}
+						<Internals.PlaybackRateContext.Provider value={playbackRateContext}>
+							<Internals.TimelineContext.Provider value={timelineContext}>
+								<Internals.CompositionManager.Provider
+									value={compositionManagerContext}
+								>
+									<Internals.PrefetchProvider>
+										<Internals.DurationsContextProvider>
+											<Internals.MediaVolumeContext.Provider
+												value={mediaVolumeContextValue}
 											>
-												<Internals.SharedAudioContextProvider
-													numberOfAudioTags={numberOfSharedAudioTags}
-													audioLatencyHint={audioLatencyHint}
-													audioEnabled={audioEnabled}
+												<Internals.SetMediaVolumeContext.Provider
+													value={setMediaVolumeContextValue}
 												>
 													<Internals.BufferingProvider>
-														{children}
+														<Internals.SharedAudioContextProvider
+															audioLatencyHint={audioLatencyHint}
+															audioEnabled={audioEnabled}
+														>
+															<Internals.SharedAudioTagsContextProvider
+																numberOfAudioTags={numberOfSharedAudioTags}
+															>
+																{children}
+															</Internals.SharedAudioTagsContextProvider>
+														</Internals.SharedAudioContextProvider>
 													</Internals.BufferingProvider>
-												</Internals.SharedAudioContextProvider>
-											</Internals.SetMediaVolumeContext.Provider>
-										</Internals.MediaVolumeContext.Provider>
-									</Internals.DurationsContextProvider>
-								</Internals.PrefetchProvider>
-							</Internals.CompositionManager.Provider>
-						</Internals.TimelineContext.Provider>
+												</Internals.SetMediaVolumeContext.Provider>
+											</Internals.MediaVolumeContext.Provider>
+										</Internals.DurationsContextProvider>
+									</Internals.PrefetchProvider>
+								</Internals.CompositionManager.Provider>
+							</Internals.TimelineContext.Provider>
+						</Internals.PlaybackRateContext.Provider>
 					</Internals.AbsoluteTimeContext.Provider>
 				</Internals.CanUseRemotionHooksProvider>
 			</Internals.LogLevelContext.Provider>

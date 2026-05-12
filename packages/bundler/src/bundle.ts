@@ -412,7 +412,7 @@ export const internalBundle = async (
 		// Actual log level is set in setPropsAndEnv()
 		logLevel: 'info',
 		mode: 'bundle',
-		audioLatencyHint: actualArgs.audioLatencyHint ?? 'interactive',
+		audioLatencyHint: actualArgs.audioLatencyHint ?? 'playback',
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);

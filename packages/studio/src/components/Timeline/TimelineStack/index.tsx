@@ -176,7 +176,7 @@ export const TimelineStack: React.FC<{
 				: stackHovered && stackHoverable
 					? LIGHT_TEXT
 					: VERY_LIGHT_TEXT,
-			marginLeft: 10,
+			marginLeft: 5,
 			cursor: stackHoverable ? 'pointer' : undefined,
 			display: 'flex',
 			flexDirection: 'row',
@@ -185,6 +185,8 @@ export const TimelineStack: React.FC<{
 			textOverflow: 'ellipsis',
 			overflow: 'hidden',
 			flexShrink: 100000,
+			userSelect: 'none',
+			WebkitUserSelect: 'none',
 		};
 	}, [opening, stackHovered, stackHoverable]);
 

@@ -48,7 +48,7 @@
     "eslint-config-next": "15.1.6",
     "@typescript-eslint/eslint-plugin": "8.46.0",
     "@typescript-eslint/parser": "8.46.0",
-    "postcss": "8.4.47",
+    "postcss": "8.5.10",
     "prettier": "3.8.1",
     "tailwindcss": "4.2.0",
     "turbo": "2.9.3",

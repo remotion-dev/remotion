@@ -7,6 +7,7 @@ const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
 
 const originalCreateElement = React.createElement;
 const originalJsx = JsxRuntime.jsx;
+const originalJsxs = JsxRuntime.jsxs;
 const originalJsxDev = JsxRuntimeDev.jsxDEV;
 
 const enableProxy = <
@@ -21,7 +22,7 @@ const enableProxy = <
 		apply(target, thisArg, argArray) {
 			if (componentsToAddStacksTo.includes(argArray[0])) {
 				const [first, props, ...rest] = argArray;
-				const newProps = props.stack
+				const newProps = props?.stack
 					? props
 					: {
 							...(props ?? {}),
@@ -38,4 +39,5 @@ const enableProxy = <
 
 React.createElement = enableProxy(originalCreateElement);
 JsxRuntime.jsx = enableProxy(originalJsx);
+JsxRuntime.jsxs = enableProxy(originalJsxs);
 JsxRuntimeDev.jsxDEV = enableProxy(originalJsxDev);

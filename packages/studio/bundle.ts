@@ -7,6 +7,7 @@ const external = [
 	'react',
 	'@remotion/media-utils',
 	'@remotion/studio-shared',
+	'@remotion/timeline-utils',
 	'@remotion/zod-types',
 	'@remotion/renderer',
 	'@remotion/player',
@@ -43,6 +44,10 @@ await buildPackage({
 		},
 		{
 			path: 'src/previewEntry.tsx',
+			target: 'browser',
+		},
+		{
+			path: 'src/audio-waveform-worker.ts',
 			target: 'browser',
 		},
 	],

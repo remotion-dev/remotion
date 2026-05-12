@@ -7,26 +7,6 @@ metadata:
 
 A `<Composition>` defines the component, width, height, fps and duration of a renderable video.
 
-It normally is placed in the `src/Root.tsx` file.
-
-```tsx
-import { Composition } from "remotion";
-import { MyComposition } from "./MyComposition";
-
-export const RemotionRoot = () => {
-  return (
-    <Composition
-      id="MyComposition"
-      component={MyComposition}
-      durationInFrames={100}
-      fps={30}
-      width={1080}
-      height={1080}
-    />
-  );
-};
-```
-
 ## Default Props
 
 Pass `defaultProps` to provide initial values for your component.  
@@ -128,7 +108,6 @@ export const RemotionRoot = () => {
     <Composition
       id="MyComposition"
       component={MyComposition}
-      durationInFrames={100} // Placeholder, will be overridden
       fps={30}
       width={1080}
       height={1080}

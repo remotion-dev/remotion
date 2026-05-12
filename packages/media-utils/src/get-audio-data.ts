@@ -9,6 +9,7 @@ const limit = pLimit(3);
 
 type Options = {
 	sampleRate?: number;
+	requestInit?: RequestInit;
 };
 
 const fn = async (
@@ -27,7 +28,7 @@ const fn = async (
 		sampleRate: options?.sampleRate ?? 48000,
 	});
 
-	const response = await fetchWithCorsCatch(src);
+	const response = await fetchWithCorsCatch(src, options?.requestInit);
 	if (!response.ok) {
 		throw new Error(
 			`Failed to fetch audio data from ${src}: ${response.status} ${response.statusText}`,

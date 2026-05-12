@@ -10,11 +10,8 @@ import type {
 	TSAsExpression,
 	UnaryExpression,
 } from '@babel/types';
-import type {
-	CanUpdateSequencePropsResponse,
-	SequenceNodePath,
-} from '@remotion/studio-shared';
 import * as recast from 'recast';
+import type {CanUpdateSequencePropsResponse, SequenceNodePath} from 'remotion';
 import type {CanUpdateSequencePropStatus} from 'remotion';
 import {isJsxUnderMapCallback} from '../../codemods/jsx-sequence-context';
 import {parseAst} from '../../codemods/parse-ast';
@@ -368,7 +365,7 @@ export const computeSequencePropsStatus = ({
 	}
 };
 
-export const computeSequencePropsStatusByLine = ({
+export const computeSequencePropsStatusFromFilenameByLine = ({
 	fileName,
 	line,
 	keys,

@@ -265,6 +265,7 @@ export const bundleOnCli = async ({
 		cancelSignal: null,
 		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 		indent,
+		logLevel,
 	});
 
 	let bundlingState: BundlingState = {

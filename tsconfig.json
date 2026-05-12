@@ -106,6 +106,9 @@
 			"path": "./packages/player-example"
 		},
 		{
+			"path": "./packages/player-a11y"
+		},
+		{
 			"path": "./packages/lambda-client"
 		},
 		{

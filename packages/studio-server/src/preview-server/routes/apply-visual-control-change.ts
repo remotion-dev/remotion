@@ -109,8 +109,8 @@ export const applyVisualControlHandler: ApiHandler<
 		remotionRoot,
 		logLine,
 		description: {
-			undoMessage: 'Undid visual control change',
-			redoMessage: 'Redid visual control change',
+			undoMessage: 'Undo: Visual control change',
+			redoMessage: 'Redo: Visual control change',
 		},
 		entryType: 'visual-control',
 		suppressHmrOnFileRestore: true,

@@ -147,6 +147,7 @@ export const renderStillFlow = async ({
 		cancelSignal,
 		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 		indent,
+		logLevel,
 	});
 
 	const updateRenderProgress = ({

@@ -1,6 +1,9 @@
+import assert from 'node:assert';
 import fs from 'fs';
 import {expect, test} from '@playwright/test';
-import {newVideoFile, STUDIO_URL} from './constants.mts';
+import {Internals} from 'remotion';
+import {apiCall} from './api-call.mts';
+import {newVideoFile} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 test.describe('node-path cache for stale source maps', () => {
@@ -49,26 +52,24 @@ test.describe('node-path cache for stale source maps', () => {
 		const videoLine = videoLineIndex + 1; // 1-indexed
 
 		// 1. Initial subscription → resolves line to AST nodePath and caches it
-		const res1 = await fetch(`${STUDIO_URL}/api/subscribe-to-sequence-props`, {
-			method: 'POST',
-			headers: {'content-type': 'application/json'},
-			body: JSON.stringify({
-				fileName: 'src/NewVideo.tsx',
-				line: videoLine,
-				column: 0,
-				keys: ['src'],
-				clientId: 'e2e-cache-test-1',
-			}),
+		const result1 = await apiCall('/api/subscribe-to-sequence-props', {
+			fileName: 'src/NewVideo.tsx',
+			line: videoLine,
+			column: 0,
+			schema: Internals.sequenceSchema,
+			clientId: 'e2e-cache-test-1',
 		});
-		const result1 = await res1.json();
+		expect(result1.success).toBe(true);
+		assert(result1.success);
 		expect(result1.data.canUpdate).toBe(true);
+		assert(result1.data.canUpdate);
 		expect(result1.data.nodePath).toBeTruthy();
 
 		// 2. Simulate prettier wrapping the return in parentheses,
 		//    shifting <Video> down by one line.
 		const editedContent = content.replace(
-			'return <Video src={src} />;',
-			'return (\n\t\t<Video src={src} />\n\t);',
+			'return <Video src={src} debugOverlay />;',
+			'return (\n\t\t<Video src={src} debugOverlay />\n\t);',
 		);
 		expect(editedContent).not.toBe(content);
 		fs.writeFileSync(newVideoFile, editedContent);
@@ -83,19 +84,17 @@ test.describe('node-path cache for stale source maps', () => {
 		// 3. Subscribe again with the ORIGINAL (stale) line number.
 		//    Without the cache, this would fail because the tag is no longer on this line.
 		//    With the cache, the previously resolved nodePath is reused.
-		const res2 = await fetch(`${STUDIO_URL}/api/subscribe-to-sequence-props`, {
-			method: 'POST',
-			headers: {'content-type': 'application/json'},
-			body: JSON.stringify({
-				fileName: 'src/NewVideo.tsx',
-				line: videoLine, // stale line number
-				column: 0,
-				keys: ['src'],
-				clientId: 'e2e-cache-test-2',
-			}),
+		const result2 = await apiCall('/api/subscribe-to-sequence-props', {
+			fileName: 'src/NewVideo.tsx',
+			line: videoLine, // stale line number
+			column: 0,
+			schema: Internals.sequenceSchema,
+			clientId: 'e2e-cache-test-2',
 		});
-		const result2 = await res2.json();
+		expect(result2.success).toBe(true);
+		assert(result2.success);
 		expect(result2.data.canUpdate).toBe(true);
+		assert(result2.data.canUpdate);
 		expect(result2.data.nodePath).toBeTruthy();
 
 		// The nodePath should be the same — both refer to the same <Video> element

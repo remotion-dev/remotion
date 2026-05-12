@@ -125,7 +125,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
-			audioStreamIndex: audioStreamIndex ?? 0,
+			audioStreamIndex: audioStreamIndex ?? null,
 			trimAfter,
 			trimBefore,
 			fps,

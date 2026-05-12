@@ -44,6 +44,41 @@ Remote audio files need to support [CORS](https://developer.mozilla.org/en-US/do
 
 A string pointing to an audio asset.
 
+### `options?`<AvailableFrom v="4.0.458"/>
+
+#### `sampleRate?`<AvailableFrom v="4.0.458"/>
+
+The `sampleRate` that should be passed into the [`AudioContext`](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext) constructor. If not provided, the default value is `48000`.
+
+#### `requestInit?`<AvailableFrom v="4.0.458"/>
+
+_`RequestInit`_
+
+Options that are passed to the [`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) call when loading the audio source.
+
+This can be used to load authenticated remote audio files:
+
+```tsx twoslash
+// ---cut---
+import {useAudioData} from '@remotion/media-utils';
+
+export const MyComponent: React.FC = () => {
+  const audioData = useAudioData('https://example.com/authenticated-audio.mp3', {
+    requestInit: {
+      credentials: 'include',
+    },
+  });
+
+  if (!audioData) {
+    return null;
+  }
+
+  return <div>This file has a {audioData.sampleRate} sampleRate.</div>;
+};
+```
+
+Only the `requestInit` from the **first** render is used; updates on later renders are ignored. That keeps hook dependencies stable when you pass an inline object every render (for example `{credentials: 'include'}`).
+
 ## Return value
 
 `AudioData | null` - An object containing audio data (see documentation of [`getAudioData()`](/docs/get-audio-data)) or `null` if the data has not been loaded.
@@ -73,6 +108,17 @@ If you pass in a file that has no audio track, this hook will throw an error (_f
 To determine if a file has an audio track, you may use the [`getVideoMetadata()`](/docs/renderer/get-video-metadata#audiocodec) function on the server to reject a file if it has no audio track. To do so, check if the `audioCodec` field is `null`.
 
 If you want to catch the error in the component, you need to make your own inline hook by taking the source code from the bottom of this page.
+
+## Types
+
+### `UseAudioDataOptions`<AvailableFrom v="4.0.458"/>
+
+```ts twoslash
+import type {
+  UseAudioDataOptions,
+  // ^?
+} from '@remotion/media-utils';
+```
 
 ## See also
 

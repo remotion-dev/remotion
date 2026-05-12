@@ -10,12 +10,28 @@ The following packages of Remotion are using [Mediabunny](https://mediabunny.dev
 - [`@remotion/media`](/docs/media)
 - [`@remotion/media-utils`](/docs/media-utils)
 
-The current version of Remotion uses version [`1.39.2`](https://github.com/Vanilagy/mediabunny/releases/tag/v1.39.2) of Mediabunny.
+The current version of Remotion uses version [`1.42.0`](https://github.com/Vanilagy/mediabunny/releases/tag/v1.42.0) of Mediabunny.
 
 If you use Mediabunny as a direct dependency in your project, you can install it with the correct version using:
 
 ```bash
 npx remotion add mediabunny
+```
+
+## Upgrading Remotion and Mediabunny together
+
+To upgrade Remotion to the latest version and pair it with the correct Mediabunny version, run [`npx remotion upgrade`](/docs/cli/upgrade):
+
+```bash
+npx remotion upgrade
+```
+
+## Ensuring the correct version
+
+You can validate that Mediabunny is installed with the correct version using [`npx remotion versions`](/docs/cli/versions):
+
+```bash
+npx remotion versions
 ```
 
 ## History
@@ -25,6 +41,7 @@ Note that only from 4.0.355, Mediabunny is not bundled in with Remotion but load
 
 | Remotion Version | Mediabunny Version |
 | ---------------- | ------------------ |
+| 4.0.454          | 1.42.0             |
 | 4.0.437          | 1.39.2             |
 | 4.0.433          | 1.37.0             |
 | 4.0.430          | 1.35.1             |

@@ -86,6 +86,7 @@ export const sitesCreateSubcommand = async (
 		// No browser logs
 		updatesDontOverwrite: false,
 		indent: false,
+		logLevel,
 	});
 
 	const multiProgress: {

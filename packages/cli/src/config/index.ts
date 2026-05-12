@@ -224,11 +224,19 @@ declare global {
 		 */
 		readonly setShouldOpenBrowser: (should: boolean) => void;
 		/**
-		 * Set the log level.
-		 * Acceptable values: 'error' | 'warning' | 'info' | 'verbose' | 'trace'
-		 * Default value: 'info'
+		 * Set the log level used by the Remotion CLI.
+		 * Acceptable values: `'error' | 'warn' | 'info' | 'verbose' | 'trace'`
+		 * Default value: `'info'`
 		 *
-		 * Set this to 'verbose' to get browser logs and other IO.
+		 * Set this to `'verbose'` to get browser logs and other IO.
+		 */
+		readonly setLogLevel: (
+			newLogLevel: 'trace' | 'verbose' | 'info' | 'warn' | 'error',
+		) => void;
+		/**
+		 * Set the log level used by the Remotion CLI.
+		 *
+		 * @deprecated Renamed to [`setLogLevel()`](/docs/config#setloglevel).
 		 */
 		readonly setLevel: (
 			newLogLevel: 'trace' | 'verbose' | 'info' | 'warn' | 'error',
@@ -476,7 +484,7 @@ declare global {
 		/**
 		 * Set the audio latency hint that the Studio will
 		 * use when playing back audio
-		 * Default: 'interactive'
+		 * Default: 'playback'
 		 */
 		readonly setAudioLatencyHint: (
 			audioLatencyHint: AudioContextLatencyCategory | null,
@@ -707,6 +715,7 @@ export const Config: FlatConfig = {
 	setRendererPort,
 	setPublicDir: publicDirOption.setConfig,
 	setEntryPoint,
+	setLogLevel: logLevelOption.setConfig,
 	setLevel: logLevelOption.setConfig,
 	setBrowserExecutable: browserExecutableOption.setConfig,
 	setTimeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.setConfig,

@@ -44,6 +44,7 @@ export const functionsRmCommand = async (
 			// No browser logs
 			updatesDontOverwrite: false,
 			indent: false,
+			logLevel,
 		});
 		infoOutput.update('Getting function info...', false);
 		const info = await getFunctionInfo({
@@ -74,6 +75,7 @@ export const functionsRmCommand = async (
 				logLevel,
 			}),
 			indent: false,
+			logLevel,
 		});
 		output.update('Deleting...', false);
 		await deleteFunction({region, functionName});

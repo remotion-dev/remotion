@@ -44,7 +44,11 @@ export type ChromiumOptions = {
 const featuresToEnable = (option?: OpenGlRenderer | null) => {
 	const renderer = option ?? DEFAULT_OPENGL_RENDERER;
 
-	const enableAlways = ['NetworkService', 'NetworkServiceInProcess'];
+	const enableAlways = [
+		'NetworkService',
+		'NetworkServiceInProcess',
+		'CanvasDrawElement',
+	];
 
 	if (renderer === 'vulkan') {
 		return [...enableAlways, 'Vulkan', 'UseSkiaRenderer'];

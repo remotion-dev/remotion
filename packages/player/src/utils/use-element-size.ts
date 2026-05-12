@@ -61,9 +61,11 @@ export const useElementSize = (
 		}
 
 		return new ResizeObserver((entries) => {
-			// The contentRect returns the width without any `scale()`'s being applied. The height is wrong
+			// `contentRect` is the element's pre-transform content box.
+			// `getClientRects()` is the post-transform AABB. Dividing each AABB
+			// axis by its content-box counterpart cancels the parent CSS transform
+			// whether it is uniform or not.
 			const {contentRect, target} = entries[0];
-			// The clientRect returns the size with `scale()` being applied.
 			const newSize = target.getClientRects();
 
 			if (!newSize?.[0]) {
@@ -71,17 +73,19 @@ export const useElementSize = (
 				return;
 			}
 
-			const probableCssParentScale =
+			const probableCssParentScaleX =
 				contentRect.width === 0 ? 1 : newSize[0].width / contentRect.width;
+			const probableCssParentScaleY =
+				contentRect.height === 0 ? 1 : newSize[0].height / contentRect.height;
 
 			const width =
-				options.shouldApplyCssTransforms || probableCssParentScale === 0
+				options.shouldApplyCssTransforms || probableCssParentScaleX === 0
 					? newSize[0].width
-					: newSize[0].width * (1 / probableCssParentScale);
+					: newSize[0].width * (1 / probableCssParentScaleX);
 			const height =
-				options.shouldApplyCssTransforms || probableCssParentScale === 0
+				options.shouldApplyCssTransforms || probableCssParentScaleY === 0
 					? newSize[0].height
-					: newSize[0].height * (1 / probableCssParentScale);
+					: newSize[0].height * (1 / probableCssParentScaleY);
 
 			setSize((prevState) => {
 				const isSame =

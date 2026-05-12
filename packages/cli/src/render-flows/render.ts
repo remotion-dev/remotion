@@ -271,6 +271,7 @@ export const renderVideoFlow = async ({
 		cancelSignal,
 		updatesDontOverwrite,
 		indent,
+		logLevel,
 	});
 
 	function updateBrowserProgress(progress: BrowserDownloadState) {

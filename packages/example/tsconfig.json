@@ -18,6 +18,7 @@
 		{"path": "../babel-loader"},
 		{"path": "../bundler"},
 		{"path": "../captions"},
+		{"path": "../effects"},
 		{"path": "../cli"},
 		{"path": "../eslint-config"},
 		{"path": "../eslint-plugin"},

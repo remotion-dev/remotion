@@ -18,21 +18,35 @@ export type LoadFontOptions = {
 	format?: FontFormat;
 };
 
-export const loadFont = async ({
-	family,
-	url,
-	ascentOverride,
-	descentOverride,
-	display,
-	featureSettings,
-	lineGapOverride,
-	stretch,
-	style,
-	unicodeRange,
-	weight,
-	format,
-	variant,
-}: LoadFontOptions): Promise<void> => {
+export const loadFont = async (options: LoadFontOptions): Promise<void> => {
+	if (typeof options !== 'object' || options === null) {
+		throw new TypeError(
+			`loadFont() requires an object as its argument, but received ${typeof options === 'string' ? `"${options}"` : typeof options}. If you want to load a Google Font, use the @remotion/google-fonts package instead. See: https://www.remotion.dev/docs/google-fonts/load-font`,
+		);
+	}
+
+	const {
+		family,
+		url,
+		ascentOverride,
+		descentOverride,
+		display,
+		featureSettings,
+		lineGapOverride,
+		stretch,
+		style,
+		unicodeRange,
+		weight,
+		format,
+		variant,
+	} = options;
+
+	if (typeof url !== 'string') {
+		throw new TypeError(
+			`loadFont() requires a "url" field in the options object, but received ${url === undefined ? 'undefined' : JSON.stringify(url)}. If you want to load a Google Font, use the @remotion/google-fonts package instead. See: https://www.remotion.dev/docs/google-fonts/load-font`,
+		);
+	}
+
 	const waitForFont = delayRender(
 		`Loading font ${family} (url: ${url}, format: ${format}, weight: ${weight}, style: ${style}, variant: ${variant}, ascentOverride: ${ascentOverride}, descentOverride: ${descentOverride}, display: ${display}, featureSettings: ${featureSettings}, lineGapOverride: ${lineGapOverride}, stretch: ${stretch}, unicodeRange: ${unicodeRange})`,
 	);

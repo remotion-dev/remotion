@@ -18,9 +18,11 @@ export const SANDBOX_CREATING_TIMEOUT = 5 * 60 * 1000;
 export async function createSandbox({
 	onProgress,
 	resources = {vcpus: 4},
+	timeoutInMilliseconds = SANDBOX_CREATING_TIMEOUT,
 }: {
 	onProgress?: CreateSandboxOnProgress;
 	resources?: CreateSandboxResources;
+	timeoutInMilliseconds?: number;
 } = {}): Promise<VercelSandbox> {
 	const report = async (progress: number, message: string) => {
 		await onProgress?.({progress, message});
@@ -29,7 +31,7 @@ export async function createSandbox({
 	const sandbox = await createDisposableSandbox({
 		runtime: 'node24',
 		resources,
-		timeout: SANDBOX_CREATING_TIMEOUT,
+		timeout: timeoutInMilliseconds,
 	});
 
 	// Preparation has 2 stages with weights:

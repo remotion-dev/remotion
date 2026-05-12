@@ -91,6 +91,7 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 		// No browser logs
 		updatesDontOverwrite: false,
 		indent: false,
+		logLevel,
 	});
 	output.update('Deploying Lambda...', false);
 	const {functionName, alreadyExisted} = await internalDeployFunction({

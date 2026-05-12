@@ -11,7 +11,7 @@ export const FramePersistor: React.FC = () => {
 	useEffect(() => {
 		if (!playing) {
 			setFrame((f) => {
-				const newObj = {...f, [config.id]: frame};
+				const newObj = f[config.id] === frame ? f : {...f, [config.id]: frame};
 				Internals.persistCurrentFrame(newObj);
 				return newObj;
 			});

@@ -7,6 +7,7 @@ const config: Config = {
 	url: 'https://www.remotion.dev',
 	baseUrl: '/',
 	onBrokenLinks: 'throw',
+	onBrokenAnchors: 'throw',
 	markdown: {
 		hooks: {
 			onBrokenMarkdownLinks: 'warn',

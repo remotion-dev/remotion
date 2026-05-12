@@ -8,7 +8,10 @@ import {slide} from '@remotion/transitions/slide';
 import {wipe} from '@remotion/transitions/wipe';
 import React from 'react';
 import {PresentationPreview} from '../../transitions/previews';
+import {ZoomBlurTocPreview} from '../../transitions/zoom-blur-toc-preview';
+import {ZoomInOutTocPreview} from '../../transitions/zoom-in-out-toc-preview';
 import {Grid} from '../Grid';
+import {HtmlInCanvasLabel} from '../html-in-canvas-label';
 import {ProLabel} from '../pro-label';
 import {TOCItem} from '../TOCItem';
 
@@ -113,6 +116,30 @@ export const Presentations: React.FC<{
 							<code>{'iris()'}</code>
 						</strong>
 						<div>Reveal the scene through a circular mask from center</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/zoom-blur">
+				<div style={row}>
+					<ZoomBlurTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'zoomBlur()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Zoom and rotate scenes with a radial blur</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/zoom-in-out">
+				<div style={row}>
+					<ZoomInOutTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'zoomInOut()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Zoom one scene in, crossfade, zoom the next out</div>
 					</div>
 				</div>
 			</TOCItem>

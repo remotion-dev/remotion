@@ -59,6 +59,16 @@ export const getResolveConfig = () => ({
 		),
 		// test visual controls before removing this
 		'@remotion/studio': require.resolve('@remotion/studio'),
+		[path.join(
+			require.resolve('@remotion/studio'),
+			'..',
+			'audio-waveform-worker.mjs',
+		)]: path.join(
+			require.resolve('@remotion/studio'),
+			'..',
+			'esm',
+			'audio-waveform-worker.mjs',
+		),
 		'react-dom/client': shouldUseReactDomClient
 			? require.resolve('react-dom/client')
 			: require.resolve('react-dom'),

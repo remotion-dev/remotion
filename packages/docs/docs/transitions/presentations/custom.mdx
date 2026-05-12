@@ -10,12 +10,9 @@ This page describes how to create your own custom effect for [`<TransitionSeries
 
 A presentation is a higher order component which wraps around the entering slide as well as the exiting slide and which implements an effect based on three parameters:
 
-<Step>1</Step> The current <code>presentationProgress</code>, influenced by the
-timing of the transition
-<br />
-<Step>2</Step> The <code>presentationDirection</code>, either <code>entering</code> or <code>exiting</code>
-<br />
-<Step>3</Step> The <code>presentationDurationInFrames</code> (_available from v4.0.153_)
+<Step>1</Step> The current <code>presentationProgress</code>, influenced by the timing of the transition<br />
+<Step>2</Step> The <code>presentationDirection</code>, either <code>entering</code> or <code>exiting</code><br />
+<Step>3</Step> The <code>presentationDurationInFrames</code> (_available from v4.0.153_)<br/>
 <Step>4</Step> Additional developer-defined <code>passedProps</code>
 
 ## Boilerplate
@@ -49,19 +46,15 @@ export const customPresentation = (
 
 The `component` is a React component which receives the following props:
 
-<Step>1</Step> <code>children</code>: The markup to wrap around
-<br />
+<Step>1</Step> <code>children</code>: The markup to wrap around<br />
 <Step>2</Step> <code>presentationDirection</code>: Either <code>
   "entering"
-</code> or <code>"exiting"</code>
-<br />
+</code> or <code>"exiting"</code><br />
 <Step>3</Step> <code>presentationProgress</code>: A number between <code>
   0
-</code> and <code>1</code> which represents the progress of the transition.
-<br />
+</code> and <code>1</code> which represents the progress of the transition.<br />
 <Step>4</Step> <code>passedProps</code>: The custom props passed to the presentation
 
-<br />
 <br />
 
 ```tsx twoslash title="StarPresentation.tsx"
@@ -92,15 +85,12 @@ const StarPresentation: React.FC<
 The following example implements a star mask transition:
 
 <Step>1</Step> Based on the <code>passedProps</code> <code>height</code> and <code>width</code>
-, the inner radius of the star is calculated that will completely fill the canvas.
-<br />
+, the inner radius of the star is calculated that will completely fill the canvas.<br />
 <Step>2</Step> Using <a href="/docs/shapes"><code>@remotion/shapes</code></a>, an SVG path is calculated, and grown from zero to the full size of the canvas. <br />
 <Step>3</Step> The <code>presentationProgress</code> is used to interpolate the shape
-size. <br /> <Step>4</Step> <a href="/docs/paths"><code>@remotion/paths</code></a> is used to center the star in the middle of the canvas.
-<br />
+size. <br /> <Step>4</Step> <a href="/docs/paths"><code>@remotion/paths</code></a> is used to center the star in the middle of the canvas.<br />
 <Step>5</Step> A <code>clipPath</code> is used to clip the entering slide.
-Inside the container, the <code>children</code> get rendered.
-<br />
+Inside the container, the <code>children</code> get rendered.<br />
 <Step>6</Step> The effect is disabled if <code>presentationDirection</code> is set
 to <code>"exiting"</code>{' '}
 

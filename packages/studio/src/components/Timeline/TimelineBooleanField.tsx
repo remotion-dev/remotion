@@ -29,6 +29,7 @@ export const TimelineBooleanField: React.FC<{
 				onChange={onChange}
 				name={field.key}
 				disabled={!canUpdate}
+				variant="small"
 			/>
 		</div>
 	);

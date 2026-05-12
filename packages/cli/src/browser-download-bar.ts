@@ -99,6 +99,7 @@ export const defaultBrowserDownloadProgress = ({
 			indent,
 			cancelSignal: null,
 			updatesDontOverwrite,
+			logLevel,
 		});
 
 		const startedAt = Date.now();

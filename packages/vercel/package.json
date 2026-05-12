@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/vercel",
-	"version": "4.0.448",
+	"version": "4.0.460",
 	"description": "Render Remotion videos on Vercel Sandbox",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -15,7 +15,7 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"watch": "tsgo -w",
-		"make": "bun --env-file=../.env.bundle bundle.ts && tsgo"
+		"make": "bun --env-file=../.env.bundle bundle.ts && tsgo && tsgo -p tsconfig.scripts.json"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],

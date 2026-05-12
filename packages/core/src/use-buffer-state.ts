@@ -1,5 +1,7 @@
 import {useContext, useMemo} from 'react';
 import {BufferingContextReact} from './buffering';
+import {Log} from './log';
+import {useLogLevel} from './log-level-context';
 
 export type DelayPlaybackHandle = {
 	unblock: () => void;
@@ -11,6 +13,7 @@ export type UseBufferState = {
 
 export const useBufferState = (): UseBufferState => {
 	const buffer = useContext(BufferingContextReact);
+	const logLevel = useLogLevel();
 
 	// Allows <Img> tag to be rendered without a context
 	// https://github.com/remotion-dev/remotion/issues/4007
@@ -25,13 +28,34 @@ export const useBufferState = (): UseBufferState => {
 					);
 				}
 
+				Log.trace(
+					{logLevel, tag: '[buffer-state]'},
+					'Adding buffer handle',
+					new Error().stack,
+				);
+
 				const {unblock} = addBlock({
 					id: String(Math.random()),
 				});
 
-				return {unblock};
+				let unblocked = false;
+
+				return {
+					unblock: () => {
+						if (unblocked) {
+							return;
+						}
+
+						unblocked = true;
+						Log.trace(
+							{logLevel, tag: '[buffer-state]'},
+							'Removing buffer handle',
+						);
+						unblock();
+					},
+				};
 			},
 		}),
-		[addBlock],
+		[addBlock, logLevel],
 	);
 };

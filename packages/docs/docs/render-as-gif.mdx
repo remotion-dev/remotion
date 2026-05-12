@@ -17,8 +17,10 @@ You can render a video as a GIF by:
 Commonly a GIF has a lower frame rate than a video. For this, we support a parameter `everyNthFrame` that works as follows:
 
 - By default, `everyNthFrame` is set to `1`: Frames `0`, `1`, `2`, `3`, `4` and so on are rendered.
-- Assuming `everyNthFrame` is `2`, only every 2nd frame is rendered: `1`, `3`, `5`, `7` and so on. A 30FPS video would now become a 15FPS GIF.
-- If `everyNthFrame` is `3`, only every 3rd frame is rendered: `2`, `5`, `8`, `11` and the pattern continues.
+- Assuming `everyNthFrame` is `2`, only every 2nd frame is rendered: `0`, `2`, `4`, `6` and so on. A 30FPS video would now become a 15FPS GIF.
+- If `everyNthFrame` is `3`, only every 3rd frame is rendered: `0`, `3`, `6`, `9` and the pattern continues.
+
+The first frame is always included. When using a custom `frameRange`, `everyNthFrame` offsets from the start of the range.
 
 `everyNthFrame` is supported:
 

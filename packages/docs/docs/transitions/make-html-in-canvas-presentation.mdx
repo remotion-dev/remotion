@@ -1,0 +1,322 @@
+---
+image: /generated/articles-docs-transitions-make-html-in-canvas-presentation.png
+crumb: '@remotion/transitions'
+title: 'makeHtmlInCanvasPresentation()'
+---
+
+# makeHtmlInCanvasPresentation()<AvailableFrom v="4.0.456" />
+
+Allows you to pass a shader to create a HTML-in-canvas-based [`@remotion/transitions`](/docs/transitions) presentation.
+
+For a step-by-step walkthrough, see [Custom HTML-in-canvas presentations](/docs/transitions/presentations/custom-html-in-canvas).
+
+```ts twoslash title="API Usage"
+// @noErrors
+import 'remotion';
+import {makeHtmlInCanvasPresentation, type HtmlInCanvasShader} from '@remotion/transitions';
+
+const VERTEX = `#version 300 es
+in vec2 a_pos;
+out vec2 v_uv;
+void main() {
+  v_uv = vec2(a_pos.x * 0.5 + 0.5, 0.5 - a_pos.y * 0.5);
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}`;
+
+const FRAGMENT = `#version 300 es
+precision highp float;
+uniform sampler2D u_prev;
+uniform sampler2D u_next;
+uniform float u_time;
+in vec2 v_uv;
+out vec4 outColor;
+void main() {
+  outColor = mix(texture(u_next, v_uv), texture(u_prev, v_uv), u_time);
+}`;
+
+const myShader: HtmlInCanvasShader<{}> = (canvas) => {
+  const gl = canvas.getContext('webgl2', {premultipliedAlpha: true})!;
+
+  const compile = (src: string, type: number) => {
+    const sh = gl.createShader(type)!;
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    return sh;
+  };
+
+  const program = gl.createProgram()!;
+  gl.attachShader(program, compile(VERTEX, gl.VERTEX_SHADER));
+  gl.attachShader(program, compile(FRAGMENT, gl.FRAGMENT_SHADER));
+  gl.linkProgram(program);
+
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+    gl.STATIC_DRAW,
+  );
+  const aPos = gl.getAttribLocation(program, 'a_pos');
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+  const prevTex = gl.createTexture();
+  const nextTex = gl.createTexture();
+
+  return {
+    clear: () => {
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+    },
+    cleanup: () => {
+      gl.deleteProgram(program);
+      gl.deleteTexture(prevTex);
+      gl.deleteTexture(nextTex);
+      gl.deleteBuffer(buffer);
+    },
+    draw: ({prevImage, nextImage, width, height, time}) => {
+      gl.viewport(0, 0, width, height);
+      gl.useProgram(program);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, prevTex);
+      if (prevImage) {
+        gl.texElementImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          prevImage,
+        );
+      }
+
+      gl.uniform1i(gl.getUniformLocation(program, 'u_prev'), 0);
+
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, nextTex);
+      if (nextImage) {
+        gl.texElementImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          nextImage,
+        );
+      }
+
+      gl.uniform1i(gl.getUniformLocation(program, 'u_next'), 1);
+
+      const t = !prevImage ? 0 : !nextImage ? 1 : time;
+      gl.uniform1f(gl.getUniformLocation(program, 'u_time'), t);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    },
+  };
+};
+// ---cut---
+const myPresentation = makeHtmlInCanvasPresentation(myShader);
+```
+
+<details>
+  <summary>Show <code>myShader</code> implementation</summary>
+
+```ts twoslash title="Minimal crossfade shader"
+// @noErrors
+import 'remotion';
+// ---cut---
+import {makeHtmlInCanvasPresentation, type HtmlInCanvasShader} from '@remotion/transitions';
+
+const VERTEX = `#version 300 es
+in vec2 a_pos;
+out vec2 v_uv;
+void main() {
+  v_uv = vec2(a_pos.x * 0.5 + 0.5, 0.5 - a_pos.y * 0.5);
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}`;
+
+const FRAGMENT = `#version 300 es
+precision highp float;
+uniform sampler2D u_prev;
+uniform sampler2D u_next;
+uniform float u_time;
+in vec2 v_uv;
+out vec4 outColor;
+void main() {
+  outColor = mix(texture(u_next, v_uv), texture(u_prev, v_uv), u_time);
+}`;
+
+const myShader: HtmlInCanvasShader<{}> = (canvas) => {
+  const gl = canvas.getContext('webgl2', {premultipliedAlpha: true})!;
+
+  const compile = (src: string, type: number) => {
+    const sh = gl.createShader(type)!;
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    return sh;
+  };
+
+  const program = gl.createProgram()!;
+  gl.attachShader(program, compile(VERTEX, gl.VERTEX_SHADER));
+  gl.attachShader(program, compile(FRAGMENT, gl.FRAGMENT_SHADER));
+  gl.linkProgram(program);
+
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+    gl.STATIC_DRAW,
+  );
+  const aPos = gl.getAttribLocation(program, 'a_pos');
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+  const prevTex = gl.createTexture();
+  const nextTex = gl.createTexture();
+
+  return {
+    clear: () => {
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+    },
+    cleanup: () => {
+      gl.deleteProgram(program);
+      gl.deleteTexture(prevTex);
+      gl.deleteTexture(nextTex);
+      gl.deleteBuffer(buffer);
+    },
+    draw: ({prevImage, nextImage, width, height, time}) => {
+      gl.viewport(0, 0, width, height);
+      gl.useProgram(program);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, prevTex);
+      if (prevImage) {
+        gl.texElementImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          prevImage,
+        );
+      }
+
+      gl.uniform1i(gl.getUniformLocation(program, 'u_prev'), 0);
+
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, nextTex);
+      if (nextImage) {
+        gl.texElementImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          nextImage,
+        );
+      }
+
+      gl.uniform1i(gl.getUniformLocation(program, 'u_next'), 1);
+
+      const t = !prevImage ? 0 : !nextImage ? 1 : time;
+      gl.uniform1f(gl.getUniformLocation(program, 'u_time'), t);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    },
+  };
+};
+
+const myPresentation = makeHtmlInCanvasPresentation(myShader);
+```
+
+</details>
+
+:::warning
+HTML-in-canvas requires [Chrome Canary](https://www.google.com/chrome/canary/) with `chrome://flags/#canvas-draw-element` enabled.
+:::
+
+## Arguments
+
+### `shader`
+
+A function of type [`HtmlInCanvasShader<Props>`](#htmlincanvasshader).  
+Must return an object with three callbacks: `clear`, `cleanup` and `draw`.
+
+#### `clear()`
+
+Called when there is nothing to draw (both scenes are unmounted).  
+Typically clears the WebGL color buffer.
+
+#### `cleanup()`
+
+Called once when the transition unmounts.  
+Release any GL resources you allocated.
+
+#### `draw()`
+
+Called every frame the transition is active.  
+Has the type [`HtmlInCanvasShaderDraw<Props>`](#htmlincanvasshaderdraw); the argument has the type [`HtmlInCanvasShaderDrawParams<Props>`](#htmlincanvasshaderdrawparams).
+
+##### `prevImage`
+
+[`ElementImage`](https://github.com/WICG/html-in-canvas#idl-changes)` | null` — the captured exiting scene. `null` while it has not yet rendered (e.g. at the very start).
+
+##### `nextImage`
+
+[`ElementImage`](https://github.com/WICG/html-in-canvas#idl-changes)` | null` — the captured entering scene. `null` after the entering scene has unmounted.
+
+##### `width` / `height`
+
+The pixel size of the canvas to draw into.
+
+##### `time`
+
+A `number` between `0` and `1`.
+
+`time = 0` means the shader should output the entering scene fully (i.e. transition end), and `time = 1` means the shader should output the exiting scene fully (i.e. transition start).
+
+When one image is missing, treat it as the boundary case: if `!prevImage`, force `time = 0` so the shader falls back to `nextImage` only; if `!nextImage`, force `time = 1` so the shader falls back to `prevImage` only.
+
+##### `passedProps`
+
+Whatever you typed your `Props` as.
+
+## Return value
+
+A `presentation` that you can pass to a [`<TransitionSeries.Transition>`](/docs/transitions/transitionseries#transitionseriestransition).
+
+## Types
+
+### `HtmlInCanvasShader`
+
+```ts twoslash
+import type {
+  HtmlInCanvasShader,
+  // ^?
+} from '@remotion/transitions';
+```
+
+### `HtmlInCanvasShaderDraw`
+
+```ts twoslash
+import type {
+  HtmlInCanvasShaderDraw,
+  // ^?
+} from '@remotion/transitions';
+```
+
+### `HtmlInCanvasShaderDrawParams`
+
+```ts twoslash
+import type {
+  HtmlInCanvasShaderDrawParams,
+  // ^?
+} from '@remotion/transitions';
+```
+
+## See also
+
+- [Custom HTML-in-canvas presentations](/docs/transitions/presentations/custom-html-in-canvas) — full walkthrough and example
+- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [Custom presentations](/docs/transitions/presentations/custom) — the CSS-based path

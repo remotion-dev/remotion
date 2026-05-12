@@ -39,9 +39,13 @@ const secondTick: React.CSSProperties = {
 	height: 15,
 };
 
+const TICK_LABEL_FONT_SIZE = 12;
+const TICK_LABEL_MARGIN_LEFT = 8;
+const TICK_LABEL_MIN_GAP = 16;
+
 const tickLabel: React.CSSProperties = {
-	fontSize: 12,
-	marginLeft: 8,
+	fontSize: TICK_LABEL_FONT_SIZE,
+	marginLeft: TICK_LABEL_MARGIN_LEFT,
 	marginTop: 7,
 	color: LIGHT_TEXT,
 };
@@ -149,10 +153,16 @@ const Inner: React.FC<{
 		);
 
 		const MIN_SPACING_BETWEEN_TICKS_PX = 5;
+		const maxTickLabelWidth =
+			renderFrame(durationInFrames - 1, fps).length *
+			TICK_LABEL_FONT_SIZE *
+			0.6;
+		const minSpacingBetweenTickLabelsPx =
+			TICK_LABEL_MARGIN_LEFT + maxTickLabelWidth + TICK_LABEL_MIN_GAP;
 
 		const seconds = Math.floor(durationInFrames / fps);
 		const secondMarkerEveryNth = Math.ceil(
-			(MIN_SPACING_BETWEEN_TICKS_PX * fps) / (frameInterval * fps),
+			minSpacingBetweenTickLabelsPx / (frameInterval * fps),
 		);
 		const frameMarkerEveryNth = Math.ceil(
 			MIN_SPACING_BETWEEN_TICKS_PX / frameInterval,

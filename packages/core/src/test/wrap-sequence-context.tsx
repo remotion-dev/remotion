@@ -6,8 +6,15 @@ import {CompositionManager} from '../CompositionManagerContext.js';
 import type {LoggingContextValue} from '../log-level-context.js';
 import {LogLevelContext} from '../log-level-context.js';
 import {SequenceManagerProvider} from '../SequenceManager.js';
-import type {TimelineContextValue} from '../TimelineContext.js';
-import {AbsoluteTimeContext, TimelineContext} from '../TimelineContext.js';
+import type {
+	PlaybackRateContextValue,
+	TimelineContextValue,
+} from '../TimelineContext.js';
+import {
+	AbsoluteTimeContext,
+	PlaybackRateContext,
+	TimelineContext,
+} from '../TimelineContext.js';
 
 const Comp: React.FC = () => null;
 
@@ -54,13 +61,16 @@ const logContext: LoggingContextValue = {
 const mockTimelineContext: TimelineContextValue = {
 	frame: {},
 	playing: false,
-	playbackRate: 1,
 	rootId: 'test-root',
 	imperativePlaying: {current: false},
+	audioAndVideoTags: {current: []},
+};
+
+const mockPlaybackRateContext: PlaybackRateContextValue = {
+	playbackRate: 1,
 	setPlaybackRate: () => {
 		throw new Error('not implemented');
 	},
-	audioAndVideoTags: {current: []},
 };
 
 const MaybeTimelineProvider: React.FC<{
@@ -81,6 +91,22 @@ const MaybeTimelineProvider: React.FC<{
 	);
 };
 
+const MaybePlaybackRateProvider: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	const existing = useContext(PlaybackRateContext);
+	if (existing !== null) {
+		// eslint-disable-next-line react/jsx-no-useless-fragment
+		return <>{children}</>;
+	}
+
+	return (
+		<PlaybackRateContext.Provider value={mockPlaybackRateContext}>
+			{children}
+		</PlaybackRateContext.Provider>
+	);
+};
+
 export const WrapSequenceContext: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
@@ -89,11 +115,13 @@ export const WrapSequenceContext: React.FC<{
 			<BufferingProvider>
 				<CanUseRemotionHooksProvider>
 					<MaybeTimelineProvider>
-						<SequenceManagerProvider visualModeEnabled={false}>
-							<CompositionManager.Provider value={mockCompositionContext}>
-								{children}
-							</CompositionManager.Provider>
-						</SequenceManagerProvider>
+						<MaybePlaybackRateProvider>
+							<SequenceManagerProvider visualModeEnabled={false}>
+								<CompositionManager.Provider value={mockCompositionContext}>
+									{children}
+								</CompositionManager.Provider>
+							</SequenceManagerProvider>
+						</MaybePlaybackRateProvider>
 					</MaybeTimelineProvider>
 				</CanUseRemotionHooksProvider>
 			</BufferingProvider>

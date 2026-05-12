@@ -135,7 +135,9 @@ Config.setEntryPoint('./src/index.ts');
 
 If you pass an entry point as a CLI argument, it will take precedence.
 
-## `setLevel()`<AvailableFrom v="2.0.1" />
+## `setLogLevel()`<AvailableFrom v="2.0.1" />
+
+_previously named "setLevel"_
 
 Increase or decrease the amount of log messages in the CLI.
 Acceptable values:
@@ -148,7 +150,7 @@ Acceptable values:
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setLevel('verbose');
+Config.setLogLevel('verbose');
 ```
 
 The [command line flag](/docs/cli/render#--log) `--log` will take precedence over this option.

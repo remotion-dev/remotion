@@ -508,6 +508,7 @@ export const benchmarkCommand = async (
 				cancelSignal: null,
 				updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 				indent: false,
+				logLevel,
 			});
 			Log.info({indent: false, logLevel});
 			Log.info(

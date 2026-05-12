@@ -20,3 +20,4 @@
   - Check for genuinely new contributors by running `gh api repos/remotion-dev/remotion/contributors --paginate --jq '.[].login'` and comparing against PR authors. Only add a "New Contributors" section for authors not in that list
   - Add `**Full Changelog**: https://github.com/remotion-dev/remotion/compare/v<previous_version>...v<new_version>` at the bottom
   - Use the same format as previous GitHub releases (check with `gh release view v<previous_version>`)
+  - Don't release until you get approval. Allow me to edit it before.

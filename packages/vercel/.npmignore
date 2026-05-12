@@ -8,3 +8,4 @@ tsconfig.json
 .prettierrc.js
 bundle.ts
 dist/cjs/test
+tsconfig.scripts.json

@@ -5,6 +5,8 @@ import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
+	SharedAudioTagsContext,
+	SharedAudioTagsContextProvider,
 	type ScheduleAudioNodeOptions,
 } from './audio/shared-audio-tags.js';
 import {
@@ -43,10 +45,18 @@ import {
 	EditorPropsProvider,
 	timeValueRef,
 } from './EditorProps.js';
+import {createDescriptor, defineEffect} from './effects/define-effect.js';
+import {runEffectChain} from './effects/run-effect-chain.js';
+import {useEffectChainState} from './effects/use-effect-chain-state.js';
+import {useMemoizedEffects} from './effects/use-memoized-effects.js';
 import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
 } from './enable-sequence-stack-traces.js';
+import {
+	flattenActiveSchema,
+	getFlatSchemaWithAllKeys,
+} from './flatten-schema.js';
 import {getEffectiveVisualModeValue} from './get-effective-visual-mode-value.js';
 import {
 	getPreviewDomElement,
@@ -91,11 +101,24 @@ import type {
 	SequenceFieldSchema,
 	SequenceSchema,
 } from './sequence-field-schema.js';
+import {sequenceSchema, sequenceStyleSchema} from './sequence-field-schema.js';
+import type {
+	OverrideIdToNodePaths,
+	OverrideToNodePathGetters,
+	OverrideToNodeSetters,
+} from './sequence-node-path.js';
+import {OverrideIdsToNodePathsSettersContext} from './sequence-node-path.js';
+import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
+import type {
+	CanUpdateSequencePropsResponse,
+	SequenceNodePath,
+} from './SequenceManager.js';
 import {
-	VisualModeOverridesContext,
+	VisualModeGettersContext,
+	VisualModeSettersContext,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
@@ -103,13 +126,16 @@ import {setupEnvVariables} from './setup-env-variables.js';
 import * as TimelinePosition from './timeline-position-state.js';
 import {
 	persistCurrentFrame,
+	usePlaybackRate,
 	useTimelineContext,
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
 import {
 	AbsoluteTimeContext,
+	PlaybackRateContext,
 	SetTimelineContext,
 	TimelineContext,
+	type PlaybackRateContextValue,
 	type SetTimelineContextValue,
 	type TimelineContextValue,
 } from './TimelineContext.js';
@@ -126,9 +152,13 @@ import {
 	useBasicMediaInTimeline,
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
-import type {CanUpdateSequencePropStatus} from './use-schema.js';
-import {useSchema} from './use-schema.js';
-import {useSequenceControlOverride} from './use-sequence-control-override.js';
+import type {GetCodeValues, GetDragOverrides} from './use-schema.js';
+import {
+	computeEffectiveSchemaValuesDotNotation,
+	type CanUpdateSequencePropStatus,
+	type CodeValues,
+	type DragOverrides,
+} from './use-schema.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
 import {validateMediaProps} from './validate-media-props.js';
@@ -164,6 +194,7 @@ import {
 	RemotionContextProvider,
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
+export type {EffectChainState} from './effects/run-effect-chain.js';
 
 // needs to be in core package so gets deduplicated in studio
 const compositionSelectorRef = createRef<{
@@ -189,13 +220,16 @@ export const Internals = {
 	VideoForPreview,
 	CompositionManager,
 	CompositionSetters,
-	VisualModeOverridesContext,
+	VisualModeGettersContext,
+	VisualModeSettersContext,
 	SequenceManager,
 	SequenceStackTracesUpdateContext,
 	SequenceVisibilityToggleContext,
-	useSchema,
 	wrapInSchema,
-	useSequenceControlOverride,
+	sequenceSchema,
+	sequenceStyleSchema,
+	flattenActiveSchema,
+	getFlatSchemaWithAllKeys,
 	RemotionRootContexts,
 	CompositionManagerProvider,
 	useVideo,
@@ -216,6 +250,8 @@ export const Internals = {
 	getRemotionEnvironment,
 	SharedAudioContext,
 	SharedAudioContextProvider,
+	SharedAudioTagsContext,
+	SharedAudioTagsContextProvider,
 	invalidCompositionErrorMessage,
 	calculateMediaDuration,
 	isCompositionIdValid,
@@ -242,6 +278,7 @@ export const Internals = {
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 	RenderAssetManager,
 	persistCurrentFrame,
+	usePlaybackRate,
 	useTimelineContext,
 	useTimelineSetFrame,
 	isIosSafari,
@@ -275,10 +312,19 @@ export const Internals = {
 	TimelinePosition,
 	DelayRenderContextType,
 	TimelineContext,
+	PlaybackRateContext,
 	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
 	getEffectiveVisualModeValue,
 	CompositionRenderErrorContext,
+	useEffectChainState,
+	runEffectChain,
+	useMemoizedEffects,
+	defineEffect,
+	createDescriptor,
+	computeEffectiveSchemaValuesDotNotation,
+	OverrideIdsToNodePathsGettersContext,
+	OverrideIdsToNodePathsSettersContext,
 } as const;
 
 export type {
@@ -293,6 +339,7 @@ export type {
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
+	PlaybackRateContextValue,
 	TCompMetadata,
 	TComposition,
 	TimelineContextValue,
@@ -301,6 +348,17 @@ export type {
 	WatchRemotionStaticFilesPayload,
 	ScheduleAudioNodeOptions,
 	CanUpdateSequencePropStatus,
+	CodeValues,
+	GetCodeValues,
+	DragOverrides,
 	ScheduleAudioNodeResult,
+	GetDragOverrides,
 	NonceHistory,
+	OverrideIdsToNodePathsGettersContext,
+	OverrideIdsToNodePathsSettersContext,
+	SequenceNodePath,
+	OverrideIdToNodePaths,
+	OverrideToNodeSetters,
+	OverrideToNodePathGetters,
+	CanUpdateSequencePropsResponse,
 };

@@ -101,6 +101,7 @@ test('frameRange starting from non-zero should produce correct duration', async 
 		frameRange,
 		outputTarget: 'arraybuffer',
 		licenseKey: 'free-license',
+		muted: true,
 	});
 
 	const blob = await result.getBlob();

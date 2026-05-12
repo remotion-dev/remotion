@@ -1,19 +1,21 @@
-import type {SequenceNodePath} from '@remotion/studio-shared';
-import React, {useMemo} from 'react';
-import type {TSequence} from 'remotion';
+import React, {useContext, useMemo} from 'react';
+import {Internals, type TSequence} from 'remotion';
 import type {
 	CodePosition,
 	OriginalPosition,
 } from '../../error-overlay/react-overlay/utils/get-source-map';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
+	buildTimelineTree,
+	flattenVisibleTreeNodes,
 	getExpandedTrackHeight,
-	getSchemaFields,
 } from '../../helpers/timeline-layout';
-import {TimelineFieldRow} from './TimelineFieldRow';
-
-export const EXPANDED_SECTION_PADDING_LEFT = 28;
-export const EXPANDED_SECTION_PADDING_RIGHT = 10;
+import {
+	ExpandedTracksGetterContext,
+	ExpandedTracksSetterContext,
+} from '../ExpandedTracksProvider';
+import {TimelineExpandedRow} from './TimelineExpandedRow';
 
 const expandedSectionBase: React.CSSProperties = {
 	color: 'white',
@@ -32,13 +34,13 @@ const separator: React.CSSProperties = {
 export const TimelineExpandedSection: React.FC<{
 	readonly sequence: TSequence;
 	readonly originalLocation: OriginalPosition | null;
+	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly nestedDepth: number;
-	readonly nodePath: SequenceNodePath | null;
-}> = ({sequence, originalLocation, nestedDepth, nodePath}) => {
-	const overrideId = sequence.controls?.overrideId ?? sequence.id;
-	const schemaFields = useMemo(
-		() => getSchemaFields(sequence.controls),
-		[sequence.controls],
+}> = ({sequence, originalLocation, nodePathInfo, nestedDepth}) => {
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
+	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
+	const {getDragOverrides, getCodeValues} = useContext(
+		Internals.VisualModeGettersContext,
 	);
 
 	const validatedLocation: CodePosition | null = useMemo(() => {
@@ -57,9 +59,32 @@ export const TimelineExpandedSection: React.FC<{
 		};
 	}, [originalLocation]);
 
+	const tree = useMemo(
+		() =>
+			buildTimelineTree({
+				sequence,
+				nodePathInfo,
+				getDragOverrides,
+				getCodeValues,
+			}),
+		[sequence, nodePathInfo, getDragOverrides, getCodeValues],
+	);
+
+	const flat = useMemo(
+		() => flattenVisibleTreeNodes({nodes: tree, getIsExpanded}),
+		[tree, getIsExpanded],
+	);
+
 	const expandedHeight = useMemo(
-		() => getExpandedTrackHeight(sequence.controls),
-		[sequence.controls],
+		() =>
+			getExpandedTrackHeight({
+				sequence,
+				nodePathInfo,
+				getIsExpanded,
+				getDragOverrides,
+				getCodeValues,
+			}),
+		[sequence, nodePathInfo, getIsExpanded, getDragOverrides, getCodeValues],
 	);
 
 	const style = useMemo(() => {
@@ -69,33 +94,31 @@ export const TimelineExpandedSection: React.FC<{
 		};
 	}, [expandedHeight]);
 
-	const keysToObserve = useMemo(() => {
-		if (!schemaFields) {
-			return [];
-		}
+	const {schema} = sequence.controls!;
 
-		return schemaFields.map((f) => f.key);
-	}, [schemaFields]);
+	if (flat.length === 0) {
+		return <div style={style}>No schema</div>;
+	}
 
 	return (
 		<div style={style}>
-			{schemaFields
-				? schemaFields.map((field, i) => {
-						return (
-							<React.Fragment key={field.key}>
-								{i > 0 ? <div style={separator} /> : null}
-								<TimelineFieldRow
-									field={field}
-									overrideId={overrideId}
-									validatedLocation={validatedLocation}
-									nestedDepth={nestedDepth}
-									nodePath={nodePath}
-									keysToObserve={keysToObserve}
-								/>
-							</React.Fragment>
-						);
-					})
-				: 'No schema'}
+			{flat.map(({node, depth}, i) => {
+				return (
+					<React.Fragment key={JSON.stringify(node.nodePathInfo)}>
+						{i > 0 ? <div style={separator} /> : null}
+						<TimelineExpandedRow
+							node={node}
+							depth={depth}
+							nestedDepth={nestedDepth}
+							getIsExpanded={getIsExpanded}
+							toggleTrack={toggleTrack}
+							validatedLocation={validatedLocation}
+							nodePath={nodePathInfo.nodePath}
+							schema={schema}
+						/>
+					</React.Fragment>
+				);
+			})}
 		</div>
 	);
 };

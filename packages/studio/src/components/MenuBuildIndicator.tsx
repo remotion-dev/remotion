@@ -31,7 +31,6 @@ const spinnerSize = 14;
 const spinner: React.CSSProperties = {
 	position: 'relative',
 	width: spinnerSize,
-	marginTop: 4,
 };
 
 const noSpinner: React.CSSProperties = {

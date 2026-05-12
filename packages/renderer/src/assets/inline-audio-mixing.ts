@@ -47,9 +47,10 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 	const toneFrequencies: Record<string, number> = {};
 
 	const cleanup = () => {
-		for (const fd of Object.values(openFiles)) {
+		for (const fileName of Object.keys(openFiles)) {
 			try {
-				fs.closeSync(fd);
+				fs.closeSync(openFiles[fileName]);
+				delete openFiles[fileName];
 			} catch {}
 		}
 
@@ -162,22 +163,28 @@ export const makeInlineAudioMixing = (dir: string, sampleRate: number) => {
 		cancelSignal: CancelSignal | undefined;
 		sampleRate: number;
 	}) => {
-		for (const fd of Object.keys(openFiles)) {
-			const frequency = toneFrequencies[fd];
-			if (frequency !== 1) {
-				const tmpFile = fd.replace(/.wav$/, '-tmp.wav');
-				await applyToneFrequencyUsingFfmpeg({
-					input: fd,
-					output: tmpFile,
-					toneFrequency: frequency,
-					indent,
-					logLevel,
-					binariesDirectory,
-					cancelSignal,
-					sampleRate: finishSampleRate,
-				});
-				fs.renameSync(tmpFile, fd);
+		for (const fileName of Object.keys(openFiles)) {
+			const frequency = toneFrequencies[fileName];
+			if (frequency === 1) {
+				continue;
 			}
+
+			const tmpFile = fileName.replace(/.wav$/, '-tmp.wav');
+			await applyToneFrequencyUsingFfmpeg({
+				input: fileName,
+				output: tmpFile,
+				toneFrequency: frequency,
+				indent,
+				logLevel,
+				binariesDirectory,
+				cancelSignal,
+				sampleRate: finishSampleRate,
+			});
+			try {
+				fs.closeSync(openFiles[fileName]);
+			} catch {}
+
+			fs.renameSync(tmpFile, fileName);
 		}
 	};
 

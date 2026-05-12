@@ -10,15 +10,7 @@ For all packages affected, run Oxfmt to format the code:
 bunx oxfmt src --write
 ```
 
-Commit the changes, use the following format:
-
-```
-`[package-name]`: [commit-message]
-```
-
-For example, "`@remotion/shapes`: Add heart shape".  
-The package name must be obtained from package.json.  
-If multiple packages are affected, use the one that you think if most relevant.
+Commit the changes. The title of the PR must be according to the [`pr-name`](../pr-name/SKILL.md) skill.
 
 Push the changes to the remote branch.  
 Use the `gh` CLI to create a pull request and use the same format as above for the title.

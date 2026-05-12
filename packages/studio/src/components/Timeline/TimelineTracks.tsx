@@ -1,14 +1,21 @@
 import React, {useContext, useMemo} from 'react';
-import type {SequenceControls} from 'remotion';
+import type {GetCodeValues, GetDragOverrides} from 'remotion';
+import {Internals, type TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TrackWithHash,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getExpandedTrackHeight,
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
-import {ExpandedTracksContext} from '../ExpandedTracksProvider';
+import {
+	ExpandedTracksGetterContext,
+	type GetIsExpanded,
+} from '../ExpandedTracksProvider';
 import {isTrackHidden} from './is-collapsed';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {TimelineSequence} from './TimelineSequence';
@@ -24,18 +31,38 @@ const timelineContent: React.CSSProperties = {
 	minHeight: '100%',
 };
 
-const getExpandedPlaceholderStyle = (
-	controls: SequenceControls | null,
-): React.CSSProperties => ({
-	height: getExpandedTrackHeight(controls) + TIMELINE_ITEM_BORDER_BOTTOM,
+const getExpandedPlaceholderStyle = ({
+	sequence,
+	nodePathInfo,
+	getIsExpanded,
+	getDragOverrides,
+	getCodeValues,
+}: {
+	sequence: TSequence;
+	nodePathInfo: SequenceNodePathInfo;
+	getIsExpanded: GetIsExpanded;
+	getDragOverrides: GetDragOverrides;
+	getCodeValues: GetCodeValues;
+}): React.CSSProperties => ({
+	height:
+		getExpandedTrackHeight({
+			sequence,
+			nodePathInfo,
+			getIsExpanded,
+			getDragOverrides,
+			getCodeValues,
+		}) + TIMELINE_ITEM_BORDER_BOTTOM,
 });
 
 export const TimelineTracks: React.FC<{
 	readonly timeline: TrackWithHash[];
 	readonly hasBeenCut: boolean;
 }> = ({timeline, hasBeenCut}) => {
-	const {expandedTracks} = useContext(ExpandedTracksContext);
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {getDragOverrides, getCodeValues} = useContext(
+		Internals.VisualModeGettersContext,
+	);
 
 	const visualModeEnabled =
 		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&
@@ -57,7 +84,8 @@ export const TimelineTracks: React.FC<{
 						return null;
 					}
 
-					const isExpanded = expandedTracks[track.sequence.id] ?? false;
+					const isExpanded =
+						track.nodePathInfo !== null && getIsExpanded(track.nodePathInfo);
 
 					return (
 						<div key={track.sequence.id}>
@@ -69,9 +97,15 @@ export const TimelineTracks: React.FC<{
 							>
 								<TimelineSequence s={track.sequence} />
 							</div>
-							{visualModeEnabled && isExpanded ? (
+							{visualModeEnabled && isExpanded && track.nodePathInfo ? (
 								<div
-									style={getExpandedPlaceholderStyle(track.sequence.controls)}
+									style={getExpandedPlaceholderStyle({
+										sequence: track.sequence,
+										nodePathInfo: track.nodePathInfo,
+										getIsExpanded,
+										getDragOverrides,
+										getCodeValues,
+									})}
 								/>
 							) : null}
 						</div>

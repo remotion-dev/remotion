@@ -2,8 +2,10 @@ import type {
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	OnVideoFrame,
+	SequenceProps,
 	VolumeProp,
 } from 'remotion';
+import type {EffectsProp} from 'remotion';
 import type {MediaOnError} from '../on-error';
 
 export type MediaErrorEvent = {
@@ -41,7 +43,6 @@ type OptionalVideoProps = {
 	className: string | undefined;
 	volume: VolumeProp;
 	loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
-	name: string | undefined;
 	onVideoFrame: OnVideoFrame | undefined;
 	playbackRate: number;
 	muted: boolean;
@@ -62,12 +63,12 @@ type OptionalVideoProps = {
 	toneFrequency: number;
 	showInTimeline: boolean;
 	debugOverlay: boolean;
-	debugAudioScheduling: boolean;
 	headless: boolean;
 	onError: MediaOnError | undefined;
 	credentials: RequestCredentials | undefined;
 	objectFit: VideoObjectFit;
 	_experimentalInitiallyDrawCachedFrame: boolean;
+	_experimentalEffects: EffectsProp;
 };
 
 export type InnerVideoProps = MandatoryVideoProps &
@@ -76,13 +77,5 @@ export type InnerVideoProps = MandatoryVideoProps &
 
 export type VideoProps = MandatoryVideoProps &
 	Partial<OuterVideoProps> &
-	Partial<OptionalVideoProps> & {
-		/**
-		 * When set, `<Video>` applies timing via an inner `<Sequence layout="none">` that is hidden from the timeline (`showInTimeline={false}`) so the clip still appears once as media.
-		 */
-		from?: number;
-		/**
-		 * Bounds the clip in frames together with `from`. Defaults to `Infinity` like `<Sequence>`.
-		 */
-		durationInFrames?: number;
-	};
+	Partial<OptionalVideoProps> &
+	Pick<SequenceProps, 'durationInFrames' | 'from' | 'name'>;

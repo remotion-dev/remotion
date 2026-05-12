@@ -4,23 +4,17 @@ import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
-import {
-	getExpandedTrackHeight,
-	getTimelineLayerHeight,
-	TIMELINE_ITEM_BORDER_BOTTOM,
-} from '../../helpers/timeline-layout';
-import {ExpandedTracksContext} from '../ExpandedTracksProvider';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {isTrackHidden} from './is-collapsed';
-import {
-	MAX_TIMELINE_TRACKS,
-	MAX_TIMELINE_TRACKS_NOTICE_HEIGHT,
-} from './MaxTimelineTracks';
+import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
+import {SequencePropsObserver} from './SequencePropsObserver';
+import {SubscribeToNodePaths} from './SubscribeToNodePaths';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
+import {TimelineHeightContainer} from './TimelineHeightContainer';
 import {TimelineInOutPointer} from './TimelineInOutPointer';
 import {TimelineList} from './TimelineList';
 import {TimelinePinchZoom} from './TimelinePinchZoom';
@@ -28,7 +22,6 @@ import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
 import {TimelineScrollable} from './TimelineScrollable';
 import {TimelineSlider} from './TimelineSlider';
 import {
-	TIMELINE_TIME_INDICATOR_HEIGHT,
 	TimelineTimeIndicators,
 	TimelineTimePlaceholders,
 } from './TimelineTimeIndicators';
@@ -48,12 +41,15 @@ const noop = () => undefined;
 
 const TimelineInner: React.FC = () => {
 	const {sequences} = useContext(Internals.SequenceManager);
-	const {expandedTracks} = useContext(ExpandedTracksContext);
-	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const visualModeEnabled =
-		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&
-		previewServerState.type === 'connected';
 	const videoConfig = Internals.useUnsafeVideoConfig();
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+
+	const previewConnected = previewServerState.type === 'connected';
+
 	const videoConfigIsNull = videoConfig === null;
 
 	const timeline = useMemo((): TrackWithHash[] => {
@@ -63,49 +59,27 @@ const TimelineInner: React.FC = () => {
 
 		return calculateTimeline({
 			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 		});
-	}, [sequences, videoConfigIsNull]);
+	}, [sequences, videoConfigIsNull, overrideIdToNodePathMappings]);
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
 	const filtered = useMemo(() => {
-		const withoutHidden = timeline.filter((t) => !isTrackHidden(t));
-
-		const withoutAfter = withoutHidden.filter((t) => {
-			return t.sequence.from <= durationInFrames && t.sequence.duration > 0;
-		});
-
-		return withoutAfter.filter((t) => t.sequence.showInTimeline);
+		return timeline.filter(
+			(t) =>
+				!isTrackHidden(t) &&
+				t.sequence.from <= durationInFrames &&
+				t.sequence.duration > 0 &&
+				t.sequence.showInTimeline,
+		);
 	}, [durationInFrames, timeline]);
 
 	const shown = filtered.slice(0, MAX_TIMELINE_TRACKS);
 	const hasBeenCut = filtered.length > shown.length;
-
-	const inner: React.CSSProperties = useMemo(() => {
-		return {
-			height:
-				shown.reduce((acc, track) => {
-					const isExpanded =
-						visualModeEnabled && (expandedTracks[track.sequence.id] ?? false);
-					return (
-						acc +
-						getTimelineLayerHeight(track.sequence.type) +
-						Number(TIMELINE_ITEM_BORDER_BOTTOM) +
-						(isExpanded
-							? getExpandedTrackHeight(track.sequence.controls) +
-								TIMELINE_ITEM_BORDER_BOTTOM
-							: 0)
-					);
-				}, 0) +
-				TIMELINE_ITEM_BORDER_BOTTOM +
-				(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0) +
-				TIMELINE_TIME_INDICATOR_HEIGHT,
-			display: 'flex',
-			flex: 1,
-			minHeight: '100%',
-			overflowX: 'hidden',
-		};
-	}, [hasBeenCut, shown, expandedTracks, visualModeEnabled]);
+	const visualModeEnvEnabled = Boolean(
+		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
+	);
 
 	return (
 		<div
@@ -113,9 +87,26 @@ const TimelineInner: React.FC = () => {
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
+			{visualModeEnvEnabled
+				? sequences.map((sequence) => {
+						if (!sequence.controls || !previewConnected || !sequence.stack) {
+							return null;
+						}
+
+						return (
+							<SubscribeToNodePaths
+								key={sequence.id}
+								overrideId={sequence.controls.overrideId}
+								schema={sequence.controls.schema}
+								stack={sequence.stack}
+							/>
+						);
+					})
+				: null}
+			<SequencePropsObserver />
 			<TimelineWidthProvider>
 				<TimelinePinchZoom />
-				<div style={inner}>
+				<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
 					<SplitterContainer
 						orientation="vertical"
 						defaultFlex={0.2}
@@ -141,7 +132,7 @@ const TimelineInner: React.FC = () => {
 							</TimelineScrollable>
 						</SplitterElement>
 					</SplitterContainer>
-				</div>
+				</TimelineHeightContainer>
 			</TimelineWidthProvider>
 		</div>
 	);

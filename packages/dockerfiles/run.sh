@@ -4,6 +4,13 @@ bun build-browser-downloader.ts
 cp ensure-browser.mjs ../dockerfiles/ensure-browser.mjs
 cd ../dockerfiles
 
+# Pack the local @remotion/cli + transitive workspace deps into ./tarballs/
+# and emit ./local-cli-package.json so each Docker image installs the local
+# build (e.g. flag changes in @remotion/renderer) instead of the published
+# version from npm.
+echo "Packing local @remotion/cli and transitive deps..."
+bun pack-cli.ts
+
 # Build the browser-test bundle from packages/example
 echo "Building browser-test bundle..."
 cd ../example
@@ -18,6 +25,8 @@ mkdir -p out
 # Function to build and extract video
 # Usage: build_and_extract <dockerfile> <tag> <output_name> [platform]
 # platform is optional, e.g., "linux/amd64" for x86 emulation
+# Extracts both the browser-test video (out/<output_name>) and the
+# html-in-canvas video (out/<output_name without .mp4>-html-in-canvas.mp4).
 build_and_extract() {
   local dockerfile=$1
   local tag=$2
@@ -34,11 +43,12 @@ build_and_extract() {
 
   docker build $platform_flag --file $dockerfile -t $tag .
 
-  echo "Extracting video from $tag..."
+  echo "Extracting videos from $tag..."
   container_id=$(docker create $platform_flag $tag)
   docker cp $container_id:/usr/app/out.mp4 ./out/$output_name
+  docker cp $container_id:/usr/app/out-html-in-canvas.mp4 ./out/${output_name%.mp4}-html-in-canvas.mp4
   docker rm $container_id
-  echo "Video saved to out/$output_name"
+  echo "Videos saved to out/$output_name and out/${output_name%.mp4}-html-in-canvas.mp4"
 }
 
 # x86 (amd64) emulation builds - useful for testing on ARM machines

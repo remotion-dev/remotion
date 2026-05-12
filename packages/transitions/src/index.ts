@@ -14,3 +14,10 @@ export {
 	TransitionState,
 	useTransitionProgress,
 } from './use-transition-progress.js';
+// HTML-in-canvas
+export {
+	HtmlInCanvasShader,
+	HtmlInCanvasShaderDraw,
+	HtmlInCanvasShaderDrawParams,
+	makeHtmlInCanvasPresentation,
+} from './html-in-canvas-presentation.js';

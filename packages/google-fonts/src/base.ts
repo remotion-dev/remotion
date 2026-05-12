@@ -1,5 +1,6 @@
 import {continueRender, delayRender} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {resolveFontSubsetKeys} from './resolve-font-subsets';
 
 const loadedFonts: Record<string, Promise<void> | undefined> = {};
 
@@ -10,6 +11,7 @@ export type FontInfo = {
 	url: string;
 	unicodeRanges: Record<string, string>;
 	fonts: Record<string, Record<string, Record<string, string>>>;
+	subsets: string[];
 };
 
 interface WithResolvers<T> {
@@ -118,8 +120,20 @@ export const loadFonts = (
 					`The font ${meta.fontFamily} does not  have a weight ${weight} in style ${style}`,
 				);
 			}
-			const subsets =
+			const requestedSubsets: string[] =
 				options?.subsets ?? Object.keys(meta.fonts[style][weight]);
+			const availableSubsetKeys = Object.keys(meta.fonts[style][weight]);
+			const subsets = [
+				...new Set(
+					requestedSubsets.flatMap((requestedSubset) =>
+						resolveFontSubsetKeys({
+							availableSubsetKeys,
+							metaSubsets: meta.subsets,
+							requestedSubset,
+						}),
+					),
+				),
+			];
 			for (const subset of subsets) {
 				//  Get font url from meta
 				let font = meta.fonts[style]?.[weight]?.[subset];

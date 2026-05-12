@@ -5,6 +5,8 @@ import type {
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
 } from '@remotion/studio-shared';
+import {Internals} from 'remotion';
+import {getAllSchemaKeys} from '../../codemods/get-all-schema-keys';
 import {updateSequenceProps} from '../../codemods/update-sequence-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
@@ -21,7 +23,7 @@ export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse
 > = async ({
-	input: {fileName, nodePath, key, value, defaultValue, observedKeys},
+	input: {fileName, nodePath, key, value, defaultValue, schema},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -38,14 +40,21 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 
-		const {output, oldValueString, formatted, logLine} =
+		const {output, oldValueStrings, formatted, logLine} =
 			await updateSequenceProps({
 				input: fileContents,
 				nodePath,
-				key,
-				value: JSON.parse(value),
-				defaultValue: defaultValue !== null ? JSON.parse(defaultValue) : null,
+				updates: [
+					{
+						key,
+						value: JSON.parse(value),
+						defaultValue:
+							defaultValue !== null ? JSON.parse(defaultValue) : null,
+					},
+				],
+				schema: Internals.sequenceSchema,
 			});
+		const oldValueString = oldValueStrings[0];
 
 		const newValueString = JSON.stringify(JSON.parse(value));
 		const parsedDefault =
@@ -78,8 +87,8 @@ export const saveSequencePropsHandler: ApiHandler<
 			remotionRoot,
 			logLine,
 			description: {
-				undoMessage: `Undid ${undoPropChange}`,
-				redoMessage: `Redid ${redoPropChange}`,
+				undoMessage: `Undo: ${undoPropChange}`,
+				redoMessage: `Redo: ${redoPropChange}`,
 			},
 			entryType: 'sequence-props',
 			suppressHmrOnFileRestore: true,
@@ -103,7 +112,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const newStatus = computeSequencePropsStatus({
 			fileName,
-			keys: observedKeys,
+			keys: getAllSchemaKeys(schema),
 			nodePath,
 			remotionRoot,
 		});

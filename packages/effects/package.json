@@ -1,0 +1,51 @@
+{
+	"name": "@remotion/effects",
+	"version": "4.0.460",
+	"description": "Experimental presets for Remotion canvas effect hooks",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/effects"
+	},
+	"sideEffects": false,
+	"type": "module",
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"watch": "tsgo -w",
+		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "UNLICENSED",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"remotion": "workspace:*"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"keywords": [
+		"remotion",
+		"effects",
+		"webgl",
+		"canvas"
+	],
+	"publishConfig": {
+		"access": "public"
+	}
+}

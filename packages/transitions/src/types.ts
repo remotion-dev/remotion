@@ -1,4 +1,6 @@
 import type {ComponentType} from 'react';
+import type React from 'react';
+import type {DrawFunction} from './TransitionSeries';
 
 export type PresentationDirection = 'entering' | 'exiting';
 
@@ -33,6 +35,9 @@ export type TransitionPresentationComponentProps<
 	presentationDirection: PresentationDirection;
 	passedProps: PresentationProps;
 	presentationDurationInFrames: number;
+	onElementImage: (elementImage: ElementImage, draw: DrawFunction) => void;
+	onUnmount: () => void;
+	bothEnteringAndExiting: boolean;
 };
 
 export type TransitionSeriesOverlayProps = {

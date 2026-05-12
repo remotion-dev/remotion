@@ -3,52 +3,39 @@ import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
+	TIMELINE_LAYER_HEIGHT_AUDIO,
 } from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
-import {ExpandedTracksContext} from '../ExpandedTracksProvider';
+import {
+	ExpandedTracksGetterContext,
+	ExpandedTracksSetterContext,
+} from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {Padder} from './Padder';
+import {
+	TimelineExpandArrowButton,
+	TimelineExpandArrowSpacer,
+} from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineLayerEye} from './TimelineLayerEye';
 import {TimelineStack} from './TimelineStack';
 import {useResolvedStack} from './use-resolved-stack';
-import {useSequencePropsSubscription} from './use-sequence-props-subscription';
 
-export const SPACING = 5;
-
-const space: React.CSSProperties = {
-	width: SPACING,
-	flexShrink: 0,
-};
-
-const arrowButton: React.CSSProperties = {
-	background: 'none',
-	border: 'none',
-	color: 'white',
-	cursor: 'pointer',
-	padding: 0,
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'center',
-	width: 12,
-	height: 12,
-	flexShrink: 0,
-	fontSize: 8,
-	marginRight: 4,
-	userSelect: 'none',
-	outline: 'none',
-	lineHeight: 1,
-};
+export const INDENT = 10;
 
 export const TimelineListItem: React.FC<{
 	readonly sequence: TSequence;
 	readonly nestedDepth: number;
 	readonly isCompact: boolean;
-}> = ({nestedDepth, sequence, isCompact}) => {
+	readonly nodePathInfo: SequenceNodePathInfo | null;
+}> = ({nestedDepth, sequence, isCompact, nodePathInfo}) => {
+	const nodePath = nodePathInfo?.nodePath ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const visualModeEnvEnabled = Boolean(
 		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
@@ -58,14 +45,13 @@ export const TimelineListItem: React.FC<{
 	const {hidden, setHidden} = useContext(
 		Internals.SequenceVisibilityToggleContext,
 	);
-	const {expandedTracks, toggleTrack} = useContext(ExpandedTracksContext);
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
+	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
+	const {getIsJsxInMapCallback} = useContext(
+		Internals.VisualModeGettersContext,
+	);
 
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
-	const {nodePath, jsxInMapCallback} = useSequencePropsSubscription(
-		sequence,
-		originalLocation,
-		visualModeActive,
-	);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -97,7 +83,7 @@ export const TimelineListItem: React.FC<{
 			return;
 		}
 
-		if (jsxInMapCallback) {
+		if (getIsJsxInMapCallback(nodePath)) {
 			const message =
 				'This sequence is rendered inside a .map() callback. Duplicating inserts another copy in that callback (affecting each list item). Continue?';
 			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
@@ -119,11 +105,20 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [jsxInMapCallback, nodePath, validatedLocation?.source]);
+	}, [nodePath, validatedLocation?.source, getIsJsxInMapCallback]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
 		if (!validatedLocation?.source || !nodePath) {
 			return;
+		}
+
+		if (getIsJsxInMapCallback(nodePath)) {
+			const message =
+				'This sequence is rendered inside a .map() callback. Deleting removes all sequences in that callback. Continue?';
+			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
+			if (!window.confirm(message)) {
+				return;
+			}
 		}
 
 		try {
@@ -139,7 +134,7 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePath, validatedLocation?.source]);
+	}, [nodePath, validatedLocation?.source, getIsJsxInMapCallback]);
 
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		if (!visualModeEnvEnabled) {
@@ -192,18 +187,16 @@ export const TimelineListItem: React.FC<{
 		visualModeEnvEnabled,
 	]);
 
-	const isExpanded = visualModeActive && (expandedTracks[sequence.id] ?? false);
+	const isExpanded =
+		visualModeActive && nodePathInfo !== null && getIsExpanded(nodePathInfo);
 
 	const onToggleExpand = useCallback(() => {
-		toggleTrack(sequence.id);
-	}, [sequence.id, toggleTrack]);
+		if (nodePathInfo === null) {
+			return;
+		}
 
-	const padder = useMemo((): React.CSSProperties => {
-		return {
-			width: Number(SPACING * 3) * nestedDepth,
-			flexShrink: 0,
-		};
-	}, [nestedDepth]);
+		toggleTrack(nodePathInfo);
+	}, [nodePathInfo, toggleTrack]);
 
 	const isItemHidden = useMemo(() => {
 		return hidden[sequence.id] ?? false;
@@ -225,6 +218,14 @@ export const TimelineListItem: React.FC<{
 		return {
 			height:
 				getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
+			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
+		};
+	}, [sequence.type]);
+
+	const inner: React.CSSProperties = useMemo(() => {
+		return {
+			// TODO: Not so small
+			height: TIMELINE_LAYER_HEIGHT_AUDIO,
 			color: 'white',
 			fontFamily: 'Arial, Helvetica, sans-serif',
 			display: 'flex',
@@ -232,54 +233,40 @@ export const TimelineListItem: React.FC<{
 			alignItems: 'center',
 			wordBreak: 'break-all',
 			textAlign: 'left',
-			paddingLeft: SPACING,
-			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
+			paddingLeft: 5,
 		};
-	}, [sequence.type]);
+	}, []);
 
-	const arrowStyle: React.CSSProperties = useMemo(() => {
-		return {
-			...arrowButton,
-			transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-		};
-	}, [isExpanded]);
+	const hasExpandableContent =
+		Boolean(sequence.controls) || sequence.effects.length > 0;
 
 	const trackRow = (
 		<div style={outer}>
-			<TimelineLayerEye
-				type={sequence.type === 'audio' ? 'speaker' : 'eye'}
-				hidden={isItemHidden}
-				onInvoked={onToggleVisibility}
-			/>
-			<div style={padder} />
-			{sequence.parent && nestedDepth > 0 ? <div style={space} /> : null}
-			{visualModeActive ? (
-				sequence.controls ? (
-					<button
-						type="button"
-						style={arrowStyle}
-						onClick={onToggleExpand}
-						aria-expanded={isExpanded}
-						aria-label={`${isExpanded ? 'Collapse' : 'Expand'} track`}
-					>
-						<svg
-							width="12"
-							height="12"
-							viewBox="0 0 8 8"
-							style={{display: 'block'}}
-						>
-							<path d="M2 1L6 4L2 7Z" fill="white" />
-						</svg>
-					</button>
-				) : (
-					<div style={arrowButton} />
-				)
-			) : null}
-			<TimelineStack
-				sequence={sequence}
-				isCompact={isCompact}
-				originalLocation={originalLocation}
-			/>
+			<div style={inner}>
+				<TimelineLayerEye
+					type={sequence.type === 'audio' ? 'speaker' : 'eye'}
+					hidden={isItemHidden}
+					onInvoked={onToggleVisibility}
+				/>
+				<Padder depth={nestedDepth} />
+				{visualModeActive ? (
+					hasExpandableContent ? (
+						<TimelineExpandArrowButton
+							isExpanded={isExpanded}
+							onClick={onToggleExpand}
+							label="track properties"
+							disabled={nodePathInfo === null}
+						/>
+					) : (
+						<TimelineExpandArrowSpacer />
+					)
+				) : null}
+				<TimelineStack
+					sequence={sequence}
+					isCompact={isCompact}
+					originalLocation={originalLocation}
+				/>
+			</div>
 		</div>
 	);
 
@@ -290,12 +277,15 @@ export const TimelineListItem: React.FC<{
 			) : (
 				trackRow
 			)}
-			{visualModeActive && isExpanded && sequence.controls ? (
+			{visualModeActive &&
+			isExpanded &&
+			hasExpandableContent &&
+			nodePathInfo ? (
 				<TimelineExpandedSection
 					sequence={sequence}
 					originalLocation={originalLocation}
+					nodePathInfo={nodePathInfo}
 					nestedDepth={nestedDepth}
-					nodePath={nodePath}
 				/>
 			) : null}
 		</>

@@ -8,7 +8,7 @@ const LoopedTrimmedAudio: React.FC = () => {
 			src={staticFile('music.mp3')}
 			startFrom={125}
 			endAt={370}
-			volume={(v) => v}
+			volume={(v) => Math.min(1, v / 30)}
 		/>
 	);
 };

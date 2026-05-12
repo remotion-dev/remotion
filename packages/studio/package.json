@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio"
 	},
 	"name": "@remotion/studio",
-	"version": "4.0.448",
+	"version": "4.0.460",
 	"description": "APIs for interacting with the Remotion Studio",
 	"main": "dist",
 	"sideEffects": false,
@@ -32,6 +32,7 @@
 		"@remotion/renderer": "workspace:*",
 		"@remotion/web-renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
+		"@remotion/timeline-utils": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"mediabunny": "catalog:",
 		"memfs": "3.4.3",
@@ -75,6 +76,12 @@
 			"require": "./dist/previewEntry.js",
 			"module": "./dist/esm/previewEntry.mjs",
 			"import": "./dist/esm/previewEntry.mjs"
+		},
+		"./audio-waveform-worker": {
+			"types": "./dist/audio-waveform-worker.d.ts",
+			"require": "./dist/audio-waveform-worker.js",
+			"module": "./dist/esm/audio-waveform-worker.mjs",
+			"import": "./dist/esm/audio-waveform-worker.mjs"
 		}
 	},
 	"homepage": "https://www.remotion.dev/docs/studio/api",
@@ -88,6 +95,9 @@
 			],
 			"previewEntry": [
 				"./dist/previewEntry.d.ts"
+			],
+			"audio-waveform-worker": [
+				"./dist/audio-waveform-worker.d.ts"
 			]
 		}
 	}

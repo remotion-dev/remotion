@@ -2,7 +2,6 @@ import {createContext} from 'react';
 
 export type PremountContextValue = {
 	premountFramesRemaining: number;
-	playing: boolean;
 };
 
 /**
@@ -13,5 +12,4 @@ export type PremountContextValue = {
  */
 export const PremountContext = createContext<PremountContextValue>({
 	premountFramesRemaining: 0,
-	playing: false,
 });

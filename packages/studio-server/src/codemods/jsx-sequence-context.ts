@@ -7,8 +7,8 @@ import type {
 	ParenthesizedExpression,
 	TSAsExpression,
 } from '@babel/types';
-import type {SequenceNodePath} from '@remotion/studio-shared';
 import type {types as RecastTypes} from 'recast';
+import type {SequenceNodePath} from 'remotion';
 import {findJsxElementPathForDeletion} from './delete-jsx-node';
 
 const unwrapExpression = (expr: Expression): Expression => {

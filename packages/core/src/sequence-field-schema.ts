@@ -27,15 +27,74 @@ export type TranslateFieldSchema = {
 	description?: string;
 };
 
+export type EnumFieldSchema = {
+	type: 'enum';
+	default: string;
+	description?: string;
+	variants: Record<string, SequenceSchema>;
+};
+
 export type SequenceFieldSchema =
 	| NumberFieldSchema
 	| BooleanFieldSchema
 	| RotationFieldSchema
-	| TranslateFieldSchema;
+	| TranslateFieldSchema
+	| EnumFieldSchema;
 
-export type SequenceSchema = Record<string, SequenceFieldSchema>;
+export type SequenceSchema = {[key: string]: SequenceFieldSchema};
 
 export type SchemaKeysRecord<S extends SequenceSchema> = Record<
 	keyof S,
 	unknown
 >;
+
+export const sequenceStyleSchema = {
+	'style.translate': {
+		type: 'translate',
+		step: 1,
+		default: '0px 0px',
+		description: 'Offset',
+	},
+	'style.scale': {
+		type: 'number',
+		min: 0.05,
+		max: 100,
+		step: 0.01,
+		default: 1,
+		description: 'Scale',
+	},
+	'style.rotate': {
+		type: 'rotation',
+		step: 1,
+		default: '0deg',
+		description: 'Rotation',
+	},
+	'style.opacity': {
+		type: 'number',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: 1,
+		description: 'Opacity',
+	},
+} as const satisfies SequenceSchema;
+
+export const sequenceSchema = {
+	layout: {
+		type: 'enum',
+		default: 'absolute-fill',
+		description: 'Layout',
+		variants: {
+			'absolute-fill': sequenceStyleSchema,
+			none: {},
+		},
+	},
+} as const satisfies SequenceSchema;
+
+export const sequenceSchemaDefaultLayoutNone: SequenceSchema = {
+	...sequenceSchema,
+	layout: {
+		...sequenceSchema.layout,
+		default: 'none',
+	},
+};

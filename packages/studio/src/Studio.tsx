@@ -32,7 +32,7 @@ const StudioInner: React.FC<{
 				videoEnabled={window.remotion_videoEnabled}
 				logLevel={window.remotion_logLevel ?? 'info'}
 				numberOfAudioTags={window.remotion_numberOfAudioTags}
-				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+				audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
 			>
 				<StaticFilesProvider>
 					<ResolveCompositionConfigInStudio>

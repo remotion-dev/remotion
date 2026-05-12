@@ -1,0 +1,60 @@
+{
+	"name": "@remotion/player-a11y",
+	"version": "4.0.460",
+	"description": "Accessible wrapper around @remotion/player with WCAG 2.1 AA controls",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player-a11y"
+	},
+	"sideEffects": false,
+	"type": "module",
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"watch": "tsgo -w",
+		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "Remotion License",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"remotion": "workspace:*",
+		"@remotion/player": "workspace:*"
+	},
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"devDependencies": {
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"keywords": [
+		"remotion",
+		"player",
+		"accessibility",
+		"a11y",
+		"wcag"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/player-a11y"
+}

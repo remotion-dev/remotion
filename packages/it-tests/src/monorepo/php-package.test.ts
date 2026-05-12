@@ -106,7 +106,7 @@ class Semantic
 				logLevel: 'info',
 				maxRetries: 1,
 				muted: false,
-				numberOfGifLoops: 0,
+				numberOfGifLoops: null,
 				offthreadVideoCacheSizeInBytes: null,
 				offthreadVideoThreads: null,
 				outName: null,

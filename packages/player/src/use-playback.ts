@@ -1,3 +1,4 @@
+import {useLayoutEffect} from 'react';
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import {useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
@@ -5,6 +6,7 @@ import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
+import {setGlobalTimeAnchor} from './set-global-time-anchor.js';
 import type {GetCurrentFrame} from './use-frame-imperative.js';
 import {usePlayer} from './use-player.js';
 
@@ -16,6 +18,7 @@ export const usePlayback = ({
 	outFrame,
 	browserMediaControlsBehavior,
 	getCurrentFrame,
+	muted,
 }: {
 	loop: boolean;
 	playbackRate: number;
@@ -24,18 +27,21 @@ export const usePlayback = ({
 	outFrame: number | null;
 	browserMediaControlsBehavior: BrowserMediaControlsBehavior;
 	getCurrentFrame: GetCurrentFrame;
+	muted: boolean;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
 	const {playing, pause, emitter, isPlaying} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
+	const sharedAudioContext = useContext(Internals.SharedAudioContext);
+	const logLevel = Internals.useLogLevel();
 
 	// requestAnimationFrame() does not work if the tab is not active.
 	// This means that audio will keep playing even if it has ended.
 	// In that case, we use setTimeout() instead.
 	const isBackgroundedRef = useIsBackgrounded();
 
-	const lastTimeUpdateEvent = useRef<number | null>(null);
+	const lastTimeUpdateTimestamp = useRef<number>(0);
 
 	const context = useContext(Internals.BufferingContextReact);
 	if (!context) {
@@ -50,7 +56,79 @@ export const usePlayback = ({
 		videoConfig: config,
 	});
 
-	//	complete code for media session API
+	// Update time anchor when seeking:
+	// If the user clicked on a different time in the timeline, we need to re-sync the anchor
+	useLayoutEffect(() => {
+		if (!sharedAudioContext) {
+			return;
+		}
+
+		if (!sharedAudioContext.audioContext) {
+			return;
+		}
+
+		if (!config) {
+			return;
+		}
+
+		if (muted) {
+			return;
+		}
+
+		const changed = setGlobalTimeAnchor({
+			audioContext: sharedAudioContext.audioContext,
+			audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+			absoluteTimeInSeconds: frame / config.fps,
+			globalPlaybackRate: playbackRate,
+			logLevel,
+			force: false,
+		});
+		if (changed) {
+			sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
+		}
+	}, [config, frame, logLevel, playbackRate, sharedAudioContext, muted]);
+
+	// When the audio context is suspended, we use the opportunity to
+	// re-anchor the time to be exact.
+	useLayoutEffect(() => {
+		const audioContext = sharedAudioContext?.audioContext;
+		if (!audioContext) {
+			return;
+		}
+
+		if (!config) {
+			return;
+		}
+
+		if (muted) {
+			return;
+		}
+
+		const callback = () => {
+			if (audioContext.state !== 'running') {
+				setGlobalTimeAnchor({
+					audioContext,
+					audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+					absoluteTimeInSeconds: getCurrentFrame() / config.fps,
+					globalPlaybackRate: playbackRate,
+					logLevel,
+					force: true,
+				});
+			}
+		};
+
+		audioContext?.addEventListener('statechange', callback);
+		return () => {
+			audioContext?.removeEventListener('statechange', callback);
+		};
+	}, [
+		config,
+		getCurrentFrame,
+		logLevel,
+		muted,
+		playbackRate,
+		sharedAudioContext,
+	]);
 
 	useEffect(() => {
 		if (!config) {
@@ -58,6 +136,7 @@ export const usePlayback = ({
 		}
 
 		if (!playing) {
+			sharedAudioContext?.suspend?.();
 			return;
 		}
 
@@ -96,7 +175,12 @@ export const usePlayback = ({
 			}
 
 			if (!isPlaying()) {
+				sharedAudioContext?.suspend?.();
 				return;
+			}
+
+			if (!muted && !context.buffering.current) {
+				sharedAudioContext?.resume?.();
 			}
 
 			const time = performance.now() - startedTime;
@@ -119,7 +203,8 @@ export const usePlayback = ({
 
 			if (
 				nextFrame !== getCurrentFrame() &&
-				(!hasEnded || moveToBeginningWhenEnded)
+				(!hasEnded || moveToBeginningWhenEnded) &&
+				!context.buffering.current
 			) {
 				setFrame((c) => ({...c, [config.id]: nextFrame}));
 			}
@@ -135,7 +220,23 @@ export const usePlayback = ({
 		};
 
 		const queueNextFrame = () => {
+			const getIsResumingAudioContext =
+				sharedAudioContext?.getIsResumingAudioContext?.() ?? null;
+			if (getIsResumingAudioContext !== null && !muted) {
+				getIsResumingAudioContext.then(() => {
+					startedTime = performance.now();
+					framesAdvanced = 0;
+					queueNextFrame();
+				});
+
+				return;
+			}
+
 			if (context.buffering.current) {
+				if (!muted) {
+					sharedAudioContext?.suspend?.();
+				}
+
 				const stopListening = context.listenForResume(() => {
 					stopListening.remove();
 					startedTime = performance.now();
@@ -191,20 +292,28 @@ export const usePlayback = ({
 		getCurrentFrame,
 		context,
 		isPlaying,
+		sharedAudioContext,
+		logLevel,
+		muted,
 	]);
 
 	useEffect(() => {
-		const interval = setInterval(() => {
-			if (lastTimeUpdateEvent.current === getCurrentFrame()) {
-				return;
-			}
+		const now = performance.now();
+		const timeSinceLastUpdate = now - lastTimeUpdateTimestamp.current;
 
-			emitter.dispatchTimeUpdate({frame: getCurrentFrame()});
-			lastTimeUpdateEvent.current = getCurrentFrame();
-		}, 250);
+		if (timeSinceLastUpdate >= 250) {
+			emitter.dispatchTimeUpdate({frame});
+			lastTimeUpdateTimestamp.current = now;
+			return;
+		}
 
-		return () => clearInterval(interval);
-	}, [emitter, getCurrentFrame]);
+		const timeoutId = setTimeout(() => {
+			emitter.dispatchTimeUpdate({frame});
+			lastTimeUpdateTimestamp.current = performance.now();
+		}, 250 - timeSinceLastUpdate);
+
+		return () => clearTimeout(timeoutId);
+	}, [emitter, frame]);
 
 	useEffect(() => {
 		emitter.dispatchFrameUpdate({frame});
