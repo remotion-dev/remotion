@@ -1,12 +1,10 @@
-import {useCallback, useContext, useEffect, useMemo, useRef} from 'react';
-import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
-import type {SequenceSchema, NodePathsState, SequenceNodePath} from 'remotion';
+import type {CanUpdateSequencePropsResponse} from '@remotion/studio-shared';
+import {useContext, useEffect, useMemo, useRef} from 'react';
+import {Internals} from 'remotion';
+import type {SequenceSchema} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {
-	acquireSequencePropsSubscription,
-	type SequencePropsSnapshot,
-} from './sequence-props-subscription-store';
+import {acquireSequencePropsSubscription} from './sequence-props-subscription-store';
 
 export const useSequencePropsSubscription = (
 	overrideId: string,
@@ -19,26 +17,7 @@ export const useSequencePropsSubscription = (
 		Internals.OverrideIdsToNodePathsSettersContext,
 	);
 
-	const setPropStatusesForSequence = useCallback(
-		(
-			nodePath: SequenceNodePath,
-			statuses: Record<string, CanUpdateSequencePropStatus> | null,
-		) => {
-			setCodeValues(nodePath, statuses);
-		},
-		[setCodeValues],
-	);
-
-	const setSubscriptionStateForSequence = useCallback(
-		(nextState: NodePathsState) => {
-			setOverrideIdToNodePath(overrideId, nextState);
-		},
-		[overrideId, setOverrideIdToNodePath],
-	);
-
-	const {previewServerState: state, subscribeToEvent} = useContext(
-		StudioServerConnectionCtx,
-	);
+	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
 
 	const validatedLocation = useMemo(() => {
@@ -85,13 +64,13 @@ export const useSequencePropsSubscription = (
 			return;
 		}
 
-		const onChange = (snapshot: SequencePropsSnapshot) => {
-			setSubscriptionStateForSequence({
-				nodePath: snapshot.nodePath,
-				jsxInMapCallback: snapshot.jsxInMapCallback,
-			});
-			if (snapshot.nodePath) {
-				setPropStatusesForSequence(snapshot.nodePath, snapshot.props);
+		const onChange = (snapshot: CanUpdateSequencePropsResponse) => {
+			if (snapshot.canUpdate) {
+				setOverrideIdToNodePath(overrideId, {
+					nodePath: snapshot.nodePath,
+					jsxInMapCallback: snapshot.jsxInMapCallback,
+				});
+				setCodeValues(snapshot.nodePath, snapshot.props);
 			}
 		};
 
@@ -101,7 +80,6 @@ export const useSequencePropsSubscription = (
 			line: locationLine,
 			column: locationColumn,
 			schema,
-			subscribeToEvent,
 			onChange,
 		});
 
@@ -115,10 +93,10 @@ export const useSequencePropsSubscription = (
 		locationColumn,
 		locationLine,
 		locationSource,
+		overrideId,
 		schema,
-		setPropStatusesForSequence,
-		setSubscriptionStateForSequence,
-		subscribeToEvent,
+		setCodeValues,
+		setOverrideIdToNodePath,
 		visualModeEnabled,
 	]);
 };
