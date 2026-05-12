@@ -35,7 +35,7 @@ export const TimelineFieldRow: React.FC<{
 	readonly validatedLocation: CodePosition | null;
 	readonly paddingLeft: number;
 	readonly nestedDepth: number;
-	readonly nodePath: SequenceNodePath | null;
+	readonly nodePath: SequenceNodePath;
 	readonly schema: SequenceSchema;
 }> = ({
 	field,
@@ -52,8 +52,7 @@ export const TimelineFieldRow: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 
-	const codeValuesForOverride =
-		nodePath === null ? null : (getCodeValues(nodePath) ?? null);
+	const codeValuesForOverride = getCodeValues(nodePath);
 	const codeValue = codeValuesForOverride?.[field.key] ?? null;
 
 	const dragOverrideValue = useMemo(() => {

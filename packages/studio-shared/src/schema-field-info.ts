@@ -44,13 +44,13 @@ export const getFieldsToShow = ({
 	currentRuntimeValueDotNotation: Record<string, unknown>;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
-	nodePath: SequenceNodePath | null;
+	nodePath: SequenceNodePath;
 }): SchemaFieldInfo[] | null => {
 	const valuesDotNotation = Internals.computeEffectiveSchemaValuesDotNotation({
 		schema,
 		currentValue: currentRuntimeValueDotNotation,
-		overrideValues: nodePath ? getDragOverrides(nodePath) : {},
-		propStatus: nodePath ? getCodeValues(nodePath) : undefined,
+		overrideValues: getDragOverrides(nodePath),
+		propStatus: getCodeValues(nodePath),
 	});
 
 	const activeSchema = Internals.flattenActiveSchema(
