@@ -10,7 +10,6 @@ import React, {
 } from 'react';
 import {createPortal} from 'react-dom';
 import type {SequenceControls} from './CompositionManager.js';
-import {delayRender} from './delay-render.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -261,7 +260,6 @@ export type HtmlInCanvasProps = Omit<
 		readonly children: React.ReactNode;
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
-		readonly nested?: boolean;
 	};
 /* eslint-enable react/require-default-props */
 
@@ -289,7 +287,6 @@ const HtmlInCanvasInner = forwardRef<
 			_experimentalControls: controls,
 			style,
 			durationInFrames,
-			nested = false,
 			...sequenceProps
 		},
 		ref,
@@ -299,7 +296,7 @@ const HtmlInCanvasInner = forwardRef<
 		);
 
 		assertHtmlInCanvasDimensions(width, height);
-		const {continueRender, cancelRender} = useDelayRender();
+		const {continueRender, cancelRender, delayRender} = useDelayRender();
 
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(
@@ -332,7 +329,7 @@ const HtmlInCanvasInner = forwardRef<
 		const shadowCanvasRef = useRef<HTMLCanvasElement | null>(null);
 		const [offscreenCanvas] = useState(() => new OffscreenCanvas(1, 1));
 		const auxiliaryCanvasContainer = useMemo(() => {
-			if (!nested || typeof document === 'undefined') {
+			if (!isInsideAncestorHtmlInCanvas || typeof document === 'undefined') {
 				return null;
 			}
 
@@ -342,7 +339,7 @@ const HtmlInCanvasInner = forwardRef<
 				top: `-${height - 1}px`,
 			});
 			return container;
-		}, [nested, width, height]);
+		}, [isInsideAncestorHtmlInCanvas, width, height]);
 
 		const chainState = useEffectChainState();
 
@@ -358,6 +355,7 @@ const HtmlInCanvasInner = forwardRef<
 		const initializedRef = useRef(false);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
+		const firstPaintAfterResizeHandleRef = useRef<number | null>(null);
 
 		const onPaintCb = useCallback(async () => {
 			const element = divRef.current;
@@ -427,7 +425,7 @@ const HtmlInCanvasInner = forwardRef<
 					elementImage: elImage!,
 				});
 
-				await runEffectChain({
+				const completed = await runEffectChain({
 					state: chainState.get(width, height)!,
 					source: offscreenCanvas,
 					effects: effectsRef.current,
@@ -436,6 +434,10 @@ const HtmlInCanvasInner = forwardRef<
 					width,
 					height,
 				});
+				if (!completed) {
+					continueRender(handle);
+					return;
+				}
 
 				const shadowCanvas = shadowCanvasRef.current;
 				if (shadowCanvas) {
@@ -450,6 +452,11 @@ const HtmlInCanvasInner = forwardRef<
 					shadowContext.drawImage(canvas2dRef.current!, 0, 0);
 				}
 
+				if (firstPaintAfterResizeHandleRef.current !== null) {
+					continueRender(firstPaintAfterResizeHandleRef.current);
+					firstPaintAfterResizeHandleRef.current = null;
+				}
+
 				continueRender(handle);
 			} catch (error) {
 				cancelRender(error);
@@ -461,6 +468,7 @@ const HtmlInCanvasInner = forwardRef<
 			width,
 			height,
 			offscreenCanvas,
+			delayRender,
 		]);
 
 		useLayoutEffect(() => {
@@ -517,18 +525,15 @@ const HtmlInCanvasInner = forwardRef<
 			}
 
 			const handle = delayRender('waiting for first paint after canvas resize');
-			canvas.addEventListener(
-				'paint',
-				() => {
-					continueRender(handle);
-				},
-				{once: true},
-			);
+			firstPaintAfterResizeHandleRef.current = handle;
 
 			return () => {
 				continueRender(handle);
+				if (firstPaintAfterResizeHandleRef.current === handle) {
+					firstPaintAfterResizeHandleRef.current = null;
+				}
 			};
-		}, [width, height, continueRender]);
+		}, [width, height, continueRender, delayRender]);
 
 		const innerStyle = useMemo(() => {
 			return {
@@ -537,18 +542,12 @@ const HtmlInCanvasInner = forwardRef<
 			};
 		}, [width, height]);
 
-		if (isInsideAncestorHtmlInCanvas && !nested) {
-			throw new Error(
-				'<HtmlInCanvas> cannot be nested by default. Pass the `nested` prop to the inner <HtmlInCanvas> to opt into rendering it through an auxiliary canvas, or merge the effects into one <HtmlInCanvas> if possible.',
-			);
-		}
-
 		const layoutCanvasElement = (
 			<canvas
 				ref={setLayoutCanvasRef}
 				width={width}
 				height={height}
-				style={style}
+				style={auxiliaryCanvasContainer ? undefined : style}
 			>
 				<div ref={divRef} style={innerStyle}>
 					{children}
@@ -566,7 +565,7 @@ const HtmlInCanvasInner = forwardRef<
 				{...sequenceProps}
 			>
 				<HtmlInCanvasAncestorContext.Provider value>
-					{nested ? (
+					{isInsideAncestorHtmlInCanvas ? (
 						<>
 							{auxiliaryCanvasContainer
 								? createPortal(layoutCanvasElement, auxiliaryCanvasContainer)
