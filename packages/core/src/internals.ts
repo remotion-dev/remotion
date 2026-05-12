@@ -113,7 +113,10 @@ import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
-import type {SequenceNodePath} from './SequenceManager.js';
+import type {
+	CanUpdateSequencePropsResponse,
+	SequenceNodePath,
+} from './SequenceManager.js';
 import {
 	VisualModeGettersContext,
 	VisualModeSettersContext,
@@ -359,4 +362,5 @@ export type {
 	OverrideIdToNodePaths,
 	OverrideToNodeSetters,
 	OverrideToNodePathGetters,
+	CanUpdateSequencePropsResponse,
 };

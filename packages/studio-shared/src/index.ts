@@ -8,7 +8,6 @@ export {
 	ApplyVisualControlResponse,
 	CanUpdateDefaultPropsResponse,
 	CanUpdateSequencePropsRequest,
-	CanUpdateSequencePropsResponse,
 	CancelRenderRequest,
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse,

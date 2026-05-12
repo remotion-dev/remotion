@@ -97,12 +97,7 @@ export const TimelineFieldRow: React.FC<{
 				schema,
 			}).then((data) => {
 				if (data.success) {
-					if (data.newStatus.canUpdate) {
-						setCodeValues(nodePath, data.newStatus.props);
-					} else {
-						setCodeValues(nodePath, null);
-					}
-
+					setCodeValues(nodePath, data.newStatus);
 					return;
 				}
 

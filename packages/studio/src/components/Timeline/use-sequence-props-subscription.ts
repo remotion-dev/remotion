@@ -65,7 +65,7 @@ export const useSequencePropsSubscription = (
 					return;
 				}
 
-				setCodeValues(result.nodePath, result.props);
+				setCodeValues(result.nodePath, result);
 			},
 			applyEach: (result) => {
 				if (!result.canUpdate) {

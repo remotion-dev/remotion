@@ -3,21 +3,21 @@ import type {
 	SequenceFieldSchema,
 	SequenceSchema,
 } from './sequence-field-schema.js';
-import type {SequenceNodePath} from './SequenceManager.js';
+import type {
+	CanUpdateSequencePropsResponse,
+	SequenceNodePath,
+} from './SequenceManager.js';
 
 export type CanUpdateSequencePropStatus =
 	| {canUpdate: true; codeValue: unknown}
 	| {canUpdate: false; reason: 'computed'};
 
 export type DragOverrides = Record<string, Record<string, unknown>>;
-export type CodeValues = Record<
-	string,
-	Record<string, CanUpdateSequencePropStatus>
->;
+export type CodeValues = Record<string, CanUpdateSequencePropsResponse>;
 
 export type GetCodeValues = (
 	nodePath: SequenceNodePath,
-) => CodeValues[string] | undefined;
+) => Record<string, CanUpdateSequencePropStatus> | undefined;
 
 export type GetDragOverrides = (
 	nodePath: SequenceNodePath,

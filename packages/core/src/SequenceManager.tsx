@@ -58,12 +58,34 @@ export type VisualModeSetters = {
 	clearDragOverrides: (nodePath: SequenceNodePath) => void;
 	setCodeValues: (
 		nodePath: SequenceNodePath,
-		values: Record<string, CanUpdateSequencePropStatus> | null,
+		values: CanUpdateSequencePropsResponse,
 	) => void;
 };
 
+export type CanUpdateSequencePropsResponse =
+	| {
+			canUpdate: true;
+			props: Record<string, CanUpdateSequencePropStatus>;
+			nodePath: SequenceNodePath;
+			/** True when the JSX is inside a `.map()` callback (list iteration). */
+			jsxInMapCallback: boolean;
+	  }
+	| {
+			canUpdate: false;
+			reason: string;
+	  };
+
 const getCodeValues = (codeValues: CodeValues, nodePath: SequenceNodePath) => {
-	return codeValues[nodePathToString(nodePath)] ?? undefined;
+	const status = codeValues[nodePathToString(nodePath)];
+	if (!status) {
+		return undefined;
+	}
+
+	if (!status.canUpdate) {
+		return undefined;
+	}
+
+	return status.props;
 };
 
 export type GetCodeValuesType = typeof getCodeValues;
@@ -128,10 +150,7 @@ export const SequenceManagerProvider: React.FC<{
 	}, []);
 
 	const setCodeValues = useCallback(
-		(
-			nodePath: SequenceNodePath,
-			values: Record<string, CanUpdateSequencePropStatus> | null,
-		) => {
+		(nodePath: SequenceNodePath, values: CanUpdateSequencePropsResponse) => {
 			setCodeValuesMapState((prev) => {
 				const key = nodePathToString(nodePath);
 
