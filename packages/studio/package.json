@@ -34,9 +34,9 @@
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/timeline-utils": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
+		"@jridgewell/trace-mapping": "0.3.31",
 		"mediabunny": "catalog:",
 		"memfs": "3.4.3",
-		"source-map": "0.7.3",
 		"open": "8.4.2",
 		"zod": "catalog:"
 	},

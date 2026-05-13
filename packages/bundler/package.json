@@ -33,7 +33,6 @@
 		"@remotion/timeline-utils": "workspace:*",
 		"@remotion/media-parser": "workspace:*",
 		"style-loader": "4.0.0",
-		"source-map": "0.7.3",
 		"webpack": "5.105.0"
 	},
 	"peerDependencies": {

@@ -4,7 +4,7 @@ import path from 'node:path';
 import {promisify} from 'node:util';
 import {isMainThread} from 'node:worker_threads';
 import type {GitSource, RenderDefaults} from '@remotion/studio-shared';
-import {getProjectName, SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
+import {getProjectName} from '@remotion/studio-shared';
 import webpack from 'webpack';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
@@ -419,10 +419,6 @@ export const internalBundle = async (
 	fs.copyFileSync(
 		path.join(__dirname, '../favicon.ico'),
 		path.join(outDir, 'favicon.ico'),
-	);
-	fs.copyFileSync(
-		path.resolve(require.resolve('source-map'), '..', 'lib', 'mappings.wasm'),
-		path.join(outDir, SOURCE_MAP_ENDPOINT.replace('/', '')),
 	);
 	return outDir;
 };

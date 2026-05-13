@@ -103,7 +103,6 @@ export type {
 	SchemaFieldInfo,
 	SequenceControls,
 } from './schema-field-info';
-export {SOURCE_MAP_ENDPOINT} from './source-map-endpoint';
 export {
 	ScriptLine,
 	SomeStackFrame,
