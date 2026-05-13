@@ -22,12 +22,20 @@ import type {
 } from './manifest';
 import {exportPiSession, runPi} from './pi';
 
+export type SkillEvalPhase = 'install' | 'pi' | 'pi-render' | 'pi-export';
+
 export type SkillEvalOutput = CommandOutput & {
-	phase: 'install' | 'pi' | 'pi-render' | 'pi-export';
+	phase: SkillEvalPhase;
+};
+
+export type SkillEvalPhaseEvent = {
+	phase: SkillEvalPhase;
+	status: 'completed' | 'started';
 };
 
 type SkillEvalScenarioInput = SkillEvalScenario & {
 	onOutput?: (output: SkillEvalOutput) => void;
+	onPhase?: (event: SkillEvalPhaseEvent) => void;
 	runRoot?: string;
 	runLabel?: 'before' | 'after';
 	skillsSourcePath?: string;
@@ -235,6 +243,33 @@ const logCommand = async ({
 	};
 };
 
+const runPhase = async ({
+	command,
+	cwd,
+	input,
+	phase,
+	timeoutMs,
+}: {
+	command: string[];
+	cwd: string;
+	input: SkillEvalScenarioInput;
+	phase: SkillEvalPhase;
+	timeoutMs?: number;
+}) => {
+	input.onPhase?.({phase, status: 'started'});
+
+	const result = await runCommand({
+		command,
+		cwd,
+		onOutput: (output) => input.onOutput?.({...output, phase}),
+		timeoutMs,
+	});
+
+	input.onPhase?.({phase, status: 'completed'});
+
+	return result;
+};
+
 export const runSkillEval = async (
 	input: SkillEvalScenarioInput,
 ): Promise<SkillEvalResult> => {
@@ -264,10 +299,11 @@ export const runSkillEval = async (
 		skillSnapshot: input.skillSnapshot,
 		skillsSourcePath: input.skillsSourcePath,
 	});
-	const install = await runCommand({
+	const install = await runPhase({
 		command: ['bun', 'install'],
 		cwd: projectRoot,
-		onOutput: (output) => input.onOutput?.({...output, phase: 'install'}),
+		input,
+		phase: 'install',
 	});
 
 	if (install.exitCode !== 0) {
@@ -279,6 +315,7 @@ export const runSkillEval = async (
 	const pi = await runPi({
 		model: input.model,
 		onOutput: (output) => input.onOutput?.({...output, phase: 'pi'}),
+		onPhase: (status) => input.onPhase?.({phase: 'pi', status}),
 		projectRoot,
 		prompt: input.prompt,
 		sessionDir,
@@ -287,6 +324,7 @@ export const runSkillEval = async (
 	const piRender = await runPi({
 		model: input.model,
 		onOutput: (output) => input.onOutput?.({...output, phase: 'pi-render'}),
+		onPhase: (status) => input.onPhase?.({phase: 'pi-render', status}),
 		projectRoot,
 		prompt: createRenderPrompt(expectedArtifactPath),
 		sessionDir,
@@ -296,6 +334,7 @@ export const runSkillEval = async (
 	const piExport = await exportPiSession({
 		htmlExport: join(sessionDir, 'session.html'),
 		onOutput: (output) => input.onOutput?.({...output, phase: 'pi-export'}),
+		onPhase: (status) => input.onPhase?.({phase: 'pi-export', status}),
 		projectRoot,
 		sessionFile: piRender.sessionFile,
 	});

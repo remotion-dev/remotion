@@ -1,4 +1,6 @@
 import {stat} from 'node:fs/promises';
+import {dirname, join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {
 	commandToString,
 	runCommand,
@@ -16,6 +18,11 @@ export type PiExport = {
 	command: CommandResult;
 	htmlExport: string;
 };
+
+const evalStreamExtensionPath = join(
+	dirname(fileURLToPath(import.meta.url)),
+	'pi-stream-extension.ts',
+);
 
 const findNewestSessionFile = async (sessionDir: string) => {
 	const sessionFiles = (await listFilesRecursively(sessionDir)).filter((file) =>
@@ -40,6 +47,7 @@ const findNewestSessionFile = async (sessionDir: string) => {
 
 export const runPi = async ({
 	onOutput,
+	onPhase,
 	projectRoot,
 	sessionFile,
 	sessionDir,
@@ -48,6 +56,7 @@ export const runPi = async ({
 	timeoutMs,
 }: {
 	onOutput?: (output: CommandOutput) => void;
+	onPhase?: (status: 'completed' | 'started') => void;
 	projectRoot: string;
 	sessionFile?: string;
 	sessionDir: string;
@@ -57,6 +66,10 @@ export const runPi = async ({
 }): Promise<PiRun> => {
 	const command = [
 		'pi',
+		'--extension',
+		evalStreamExtensionPath,
+		'--eval-stream',
+		'all',
 		'--model',
 		model,
 		'--session-dir',
@@ -65,6 +78,7 @@ export const runPi = async ({
 		'-p',
 		prompt,
 	];
+	onPhase?.('started');
 	const result = await runCommand({
 		command,
 		cwd: projectRoot,
@@ -78,6 +92,8 @@ export const runPi = async ({
 		);
 	}
 
+	onPhase?.('completed');
+
 	return {
 		command: result,
 		sessionFile: await findNewestSessionFile(sessionDir),
@@ -87,14 +103,17 @@ export const runPi = async ({
 export const exportPiSession = async ({
 	htmlExport,
 	onOutput,
+	onPhase,
 	projectRoot,
 	sessionFile,
 }: {
 	htmlExport: string;
 	onOutput?: (output: CommandOutput) => void;
+	onPhase?: (status: 'completed' | 'started') => void;
 	projectRoot: string;
 	sessionFile: string;
 }): Promise<PiExport> => {
+	onPhase?.('started');
 	const exportCommand = await runCommand({
 		command: ['pi', '--export', sessionFile, htmlExport],
 		cwd: projectRoot,
@@ -106,6 +125,8 @@ export const exportPiSession = async ({
 			`Pi export failed (${exportCommand.exitCode}): ${exportCommand.stderr}`,
 		);
 	}
+
+	onPhase?.('completed');
 
 	return {
 		command: exportCommand,

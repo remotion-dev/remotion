@@ -5,7 +5,7 @@ import {
 	type SkillEvalComparisonEvent,
 	type SkillEvalComparisonRunLabel,
 } from '../compare';
-import {runSkillEval, type SkillEvalOutput} from '../run-skill-eval';
+import {runSkillEval, type SkillEvalPhase} from '../run-skill-eval';
 import {toComparisonUrl} from './shared';
 
 export type Job = {
@@ -29,7 +29,7 @@ export type JobRun = {
 
 const jobs = new Map<string, Job>();
 
-const phaseLabels: Record<SkillEvalOutput['phase'], string> = {
+const phaseLabels: Record<SkillEvalPhase, string> = {
 	install: 'Installing dependencies',
 	pi: 'Generating project',
 	'pi-export': 'Exporting Pi session',
@@ -132,6 +132,15 @@ export const startComparison = (scenario: SkillEvalScenario) => {
 			return;
 		}
 
+		if (event.type === 'run-phase') {
+			run.status = 'running';
+			run.message = `${phaseLabels[event.event.phase]}${
+				event.event.status === 'completed' ? ' complete' : ''
+			}`;
+			updateJobMessage();
+			return;
+		}
+
 		if (event.type === 'run-output') {
 			run.status = 'running';
 			run.message = `${phaseLabels[event.output.phase]} (${event.output.stream})`;
@@ -201,6 +210,13 @@ export const startRun = (scenario: SkillEvalScenario) => {
 
 	const runPromise = runSkillEval({
 		...scenario,
+		onPhase: (event) => {
+			run.status = 'running';
+			run.message = `${phaseLabels[event.phase]}${
+				event.status === 'completed' ? ' complete' : ''
+			}`;
+			job.message = 'Running scenario...';
+		},
 		onOutput: (output) => {
 			run.status = 'running';
 			run.message = `${phaseLabels[output.phase]} (${output.stream})`;

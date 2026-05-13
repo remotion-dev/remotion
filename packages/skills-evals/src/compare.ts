@@ -10,7 +10,11 @@ import {
 	writeJson,
 } from './files';
 import type {SkillEvalComparison} from './manifest';
-import {runSkillEval, type SkillEvalOutput} from './run-skill-eval';
+import {
+	runSkillEval,
+	type SkillEvalOutput,
+	type SkillEvalPhaseEvent,
+} from './run-skill-eval';
 
 export type SkillEvalComparisonRunLabel = 'after' | 'before';
 
@@ -22,6 +26,11 @@ export type SkillEvalComparisonEvent =
 	| {
 			label: SkillEvalComparisonRunLabel;
 			type: 'run-start';
+	  }
+	| {
+			event: SkillEvalPhaseEvent;
+			label: SkillEvalComparisonRunLabel;
+			type: 'run-phase';
 	  }
 	| {
 			label: SkillEvalComparisonRunLabel;
@@ -164,6 +173,12 @@ export const runSkillEvalComparison = async (
 			);
 		};
 
+	const forwardPhase =
+		(label: SkillEvalComparisonRunLabel) => (event: SkillEvalPhaseEvent) => {
+			options.onEvent?.({event, label, type: 'run-phase'});
+			options.onLog?.(`[${label} ${event.phase}] ${event.status}\n`);
+		};
+
 	const runSnapshot = async (label: SkillEvalComparisonRunLabel) => {
 		emitMessage(`[compare] Running ${label} snapshot\n`);
 		options.onEvent?.({label, type: 'run-start'});
@@ -172,6 +187,7 @@ export const runSkillEvalComparison = async (
 			const result = await runSkillEval({
 				...scenario,
 				onOutput: forwardOutput(label),
+				onPhase: forwardPhase(label),
 				runLabel: label,
 				runRoot: join(comparisonDir, 'runs'),
 				skillSnapshot:
