@@ -8,7 +8,7 @@ export const applyTextTransform = (text: string, transform: string): string => {
 	}
 
 	if (transform === 'capitalize') {
-		return text.replace(/\b(?<!')\w/g, (char) => char.toUpperCase());
+		return text.replace(/\b(?<!['\u2019])\w/g, (char) => char.toUpperCase());
 	}
 
 	return text;
