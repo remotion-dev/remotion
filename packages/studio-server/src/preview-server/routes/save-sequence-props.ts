@@ -40,7 +40,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 
-		const {output, oldValueStrings, formatted, logLine} =
+		const {output, oldValueStrings, formatted, logLine, removedProps} =
 			await updateSequenceProps({
 				input: fileContents,
 				nodePath,
@@ -72,12 +72,16 @@ export const saveSequencePropsHandler: ApiHandler<
 			oldValueString: normalizedNew,
 			newValueString: normalizedOld,
 			defaultValueString: normalizedDefault,
+			removedProps: [],
+			addedProps: removedProps,
 		});
 		const redoPropChange = formatPropChange({
 			key,
 			oldValueString: normalizedOld,
 			newValueString: normalizedNew,
 			defaultValueString: normalizedDefault,
+			removedProps,
+			addedProps: [],
 		});
 
 		pushToUndoStack({
@@ -87,8 +91,8 @@ export const saveSequencePropsHandler: ApiHandler<
 			remotionRoot,
 			logLine,
 			description: {
-				undoMessage: `Undo: ${undoPropChange}`,
-				redoMessage: `Redo: ${redoPropChange}`,
+				undoMessage: `↩️  ${undoPropChange}`,
+				redoMessage: `↪️  ${redoPropChange}`,
 			},
 			entryType: 'sequence-props',
 			suppressHmrOnFileRestore: true,
@@ -106,6 +110,8 @@ export const saveSequencePropsHandler: ApiHandler<
 			defaultValueString,
 			formatted,
 			logLevel,
+			removedProps,
+			addedProps: [],
 		});
 
 		printUndoHint(logLevel);
