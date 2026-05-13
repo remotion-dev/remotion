@@ -4,14 +4,11 @@ import type {
 	AudioWaveformWorkerIncomingMessage,
 	AudioWaveformWorkerOutgoingMessage,
 	AudioWaveformWorkerRenderMessage,
-} from './components/audio-waveform-worker-types';
-import {drawBars} from './components/draw-peaks';
-import {loadWaveformPeaks} from './components/load-waveform-peaks';
-import {
-	getLoopDisplayWidth,
-	shouldTileLoopDisplay,
-} from './components/looped-media-timeline';
-import {sliceWaveformPeaks} from './components/slice-waveform-peaks';
+} from './audio-waveform/audio-waveform-worker-types';
+import {drawBars} from './audio-waveform/draw-peaks';
+import {loadWaveformPeaks} from './audio-waveform/load-waveform-peaks';
+import {sliceWaveformPeaks} from './audio-waveform/slice-waveform-peaks';
+import {getLoopDisplayWidth, shouldTileLoopDisplay} from './loop-display';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -50,13 +47,13 @@ const drawPartialWaveform = (
 	});
 
 	if (!shouldTileLoopDisplay(message.loopDisplay)) {
-		drawBars(
+		drawBars({
 			canvas,
-			portionPeaks,
-			'rgba(255, 255, 255, 0.6)',
-			message.volume,
-			message.width,
-		);
+			peaks: portionPeaks,
+			color: 'rgba(255, 255, 255, 0.6)',
+			volume: message.volume,
+			width: message.width,
+		});
 		return;
 	}
 
@@ -68,13 +65,13 @@ const drawPartialWaveform = (
 		Math.max(1, Math.ceil(loopWidth)),
 		message.height,
 	);
-	drawBars(
-		targetCanvas,
-		portionPeaks,
-		'rgba(255, 255, 255, 0.6)',
-		message.volume,
-		targetCanvas.width,
-	);
+	drawBars({
+		canvas: targetCanvas,
+		peaks: portionPeaks,
+		color: 'rgba(255, 255, 255, 0.6)',
+		volume: message.volume,
+		width: targetCanvas.width,
+	});
 
 	const ctx = canvas.getContext('2d');
 	if (!ctx) {

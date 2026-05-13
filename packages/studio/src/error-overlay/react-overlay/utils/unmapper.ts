@@ -9,13 +9,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import {sourceContentFor} from '@jridgewell/trace-mapping';
+import type {TraceMap} from '@jridgewell/trace-mapping';
 import type {
 	SomeStackFrame,
 	StackFrame,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
 import {Internals} from 'remotion';
-import type {SourceMapConsumer} from 'source-map';
 import {getLinesAround} from './get-lines-around';
 import {getOriginalPosition, getSourceMap} from './get-source-map';
 
@@ -42,7 +43,7 @@ export const unmap = async (
 			return getSourceMap(fileName as string, fileContents as string);
 		}),
 	);
-	const mapValues: Record<string, SourceMapConsumer | null> = {};
+	const mapValues: Record<string, TraceMap | null> = {};
 	for (let i = 0; i < uniqueFileNames.length; i++) {
 		mapValues[uniqueFileNames[i]] = maps[i];
 	}
@@ -65,7 +66,7 @@ export const unmap = async (
 			);
 			const {functionName} = frame.frame;
 			let hasSource: string | null = null;
-			hasSource = pos.source ? map.sourceContentFor(pos.source, false) : null;
+			hasSource = pos.source ? sourceContentFor(map, pos.source) : null;
 
 			const scriptCode =
 				hasSource && pos.line

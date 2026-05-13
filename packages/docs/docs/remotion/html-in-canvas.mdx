@@ -759,9 +759,6 @@ This might be necessary if you are implementing a multi-pass effect using multip
 ```tsx twoslash title="Async: createImageBitmap then drawImage"
 import {HtmlInCanvasOnPaint} from 'remotion';
 
-declare const width: number;
-declare const height: number;
-
 const onPaint: HtmlInCanvasOnPaint = async ({canvas, elementImage}) => {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
@@ -773,7 +770,7 @@ const onPaint: HtmlInCanvasOnPaint = async ({canvas, elementImage}) => {
   const bitmap = await createImageBitmap(canvas);
   try {
     ctx.reset();
-    ctx.drawImage(bitmap, 0, 0, width, height);
+    ctx.drawImage(bitmap, 0, 0);
   } finally {
     bitmap.close();
   }

@@ -7,7 +7,6 @@ import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
 import {setGlobalTimeAnchor} from './set-global-time-anchor.js';
-import type {GetCurrentFrame} from './use-frame-imperative.js';
 import {usePlayer} from './use-player.js';
 
 export const usePlayback = ({
@@ -26,7 +25,7 @@ export const usePlayback = ({
 	inFrame: number | null;
 	outFrame: number | null;
 	browserMediaControlsBehavior: BrowserMediaControlsBehavior;
-	getCurrentFrame: GetCurrentFrame;
+	getCurrentFrame: ReturnType<typeof usePlayer>['getCurrentFrame'];
 	muted: boolean;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
@@ -56,6 +55,8 @@ export const usePlayback = ({
 		videoConfig: config,
 	});
 
+	// Update time anchor when seeking:
+	// If the user clicked on a different time in the timeline, we need to re-sync the anchor
 	useLayoutEffect(() => {
 		if (!sharedAudioContext) {
 			return;
@@ -79,11 +80,54 @@ export const usePlayback = ({
 			absoluteTimeInSeconds: frame / config.fps,
 			globalPlaybackRate: playbackRate,
 			logLevel,
+			force: false,
 		});
 		if (changed) {
 			sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
 		}
 	}, [config, frame, logLevel, playbackRate, sharedAudioContext, muted]);
+
+	// When the audio context is suspended, we use the opportunity to
+	// re-anchor the time to be exact.
+	useLayoutEffect(() => {
+		const audioContext = sharedAudioContext?.audioContext;
+		if (!audioContext) {
+			return;
+		}
+
+		if (!config) {
+			return;
+		}
+
+		if (muted) {
+			return;
+		}
+
+		const callback = () => {
+			if (audioContext.state !== 'running') {
+				setGlobalTimeAnchor({
+					audioContext,
+					audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+					absoluteTimeInSeconds: getCurrentFrame() / config.fps,
+					globalPlaybackRate: playbackRate,
+					logLevel,
+					force: true,
+				});
+			}
+		};
+
+		audioContext?.addEventListener('statechange', callback);
+		return () => {
+			audioContext?.removeEventListener('statechange', callback);
+		};
+	}, [
+		config,
+		getCurrentFrame,
+		logLevel,
+		muted,
+		playbackRate,
+		sharedAudioContext,
+	]);
 
 	useEffect(() => {
 		if (!config) {
@@ -135,11 +179,6 @@ export const usePlayback = ({
 			}
 
 			if (!muted && !context.buffering.current) {
-				Internals.Log.trace(
-					{logLevel, tag: 'audio'},
-					'Resuming audio context',
-					sharedAudioContext?.audioContext?.currentTime,
-				);
 				sharedAudioContext?.resume?.();
 			}
 
@@ -184,25 +223,6 @@ export const usePlayback = ({
 				sharedAudioContext?.getIsResumingAudioContext?.() ?? null;
 			if (getIsResumingAudioContext !== null && !muted) {
 				getIsResumingAudioContext.then(() => {
-					if (!sharedAudioContext?.audioContext) {
-						return;
-					}
-
-					if (!sharedAudioContext.audioSyncAnchor) {
-						return;
-					}
-
-					// set it here and DON'T propagate an event
-					// the useLayoutEffect above is supposed to handle a user seek,
-					// this is a natural wait for the audio playback to start.
-					// we don't wanna destroy the iterators.
-					setGlobalTimeAnchor({
-						audioContext: sharedAudioContext.audioContext,
-						audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
-						absoluteTimeInSeconds: getCurrentFrame() / config.fps,
-						globalPlaybackRate: playbackRate,
-						logLevel,
-					});
 					startedTime = performance.now();
 					framesAdvanced = 0;
 					queueNextFrame();

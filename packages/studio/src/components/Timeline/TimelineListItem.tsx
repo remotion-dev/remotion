@@ -3,6 +3,7 @@ import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -10,7 +11,10 @@ import {
 } from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
-import {ExpandedTracksContext} from '../ExpandedTracksProvider';
+import {
+	ExpandedTracksGetterContext,
+	ExpandedTracksSetterContext,
+} from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {Padder} from './Padder';
@@ -22,7 +26,6 @@ import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineLayerEye} from './TimelineLayerEye';
 import {TimelineStack} from './TimelineStack';
 import {useResolvedStack} from './use-resolved-stack';
-import {useSequencePropsSubscription} from './use-sequence-props-subscription';
 
 export const INDENT = 10;
 
@@ -30,24 +33,18 @@ export const TimelineListItem: React.FC<{
 	readonly sequence: TSequence;
 	readonly nestedDepth: number;
 	readonly isCompact: boolean;
-}> = ({nestedDepth, sequence, isCompact}) => {
+	readonly nodePathInfo: SequenceNodePathInfo | null;
+}> = ({nestedDepth, sequence, isCompact, nodePathInfo}) => {
+	const nodePath = nodePathInfo?.nodePath ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const visualModeEnvEnabled = Boolean(
-		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
-	);
 	const previewConnected = previewServerState.type === 'connected';
-	const visualModeActive = visualModeEnvEnabled && previewConnected;
 	const {hidden, setHidden} = useContext(
 		Internals.SequenceVisibilityToggleContext,
 	);
-	const {expandedTracks, toggleTrack} = useContext(ExpandedTracksContext);
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
+	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
-	const {nodePath, jsxInMapCallback} = useSequencePropsSubscription(
-		sequence,
-		originalLocation,
-		visualModeActive,
-	);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -79,9 +76,11 @@ export const TimelineListItem: React.FC<{
 			return;
 		}
 
-		if (jsxInMapCallback) {
+		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
 			const message =
-				'This sequence is rendered inside a .map() callback. Duplicating inserts another copy in that callback (affecting each list item). Continue?';
+				'This sequence is programmatically duplicated ' +
+				nodePathInfo.numberOfSequencesWithThisNodePath +
+				' times in the code. Duplicating inserts another copy. Continue?';
 			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
 			if (!window.confirm(message)) {
 				return;
@@ -101,11 +100,22 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [jsxInMapCallback, nodePath, validatedLocation?.source]);
+	}, [nodePath, validatedLocation?.source, nodePathInfo]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
 		if (!validatedLocation?.source || !nodePath) {
 			return;
+		}
+
+		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
+			const message =
+				'This sequence is programmatically duplicated ' +
+				nodePathInfo.numberOfSequencesWithThisNodePath +
+				' times in the code. Deleting removes all instances. Continue?';
+			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
+			if (!window.confirm(message)) {
+				return;
+			}
 		}
 
 		try {
@@ -121,10 +131,10 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePath, validatedLocation?.source]);
+	}, [nodePath, validatedLocation?.source, nodePathInfo]);
 
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
-		if (!visualModeEnvEnabled) {
+		if (!previewConnected) {
 			return [];
 		}
 
@@ -171,14 +181,19 @@ export const TimelineListItem: React.FC<{
 		duplicateDisabled,
 		onDeleteSequenceFromSource,
 		onDuplicateSequenceFromSource,
-		visualModeEnvEnabled,
+		previewConnected,
 	]);
 
-	const isExpanded = visualModeActive && (expandedTracks[sequence.id] ?? false);
+	const isExpanded =
+		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
 
 	const onToggleExpand = useCallback(() => {
-		toggleTrack(sequence.id);
-	}, [sequence.id, toggleTrack]);
+		if (nodePathInfo === null) {
+			return;
+		}
+
+		toggleTrack(nodePathInfo);
+	}, [nodePathInfo, toggleTrack]);
 
 	const isItemHidden = useMemo(() => {
 		return hidden[sequence.id] ?? false;
@@ -231,12 +246,13 @@ export const TimelineListItem: React.FC<{
 					onInvoked={onToggleVisibility}
 				/>
 				<Padder depth={nestedDepth} />
-				{visualModeActive ? (
+				{previewConnected ? (
 					hasExpandableContent ? (
 						<TimelineExpandArrowButton
 							isExpanded={isExpanded}
 							onClick={onToggleExpand}
 							label="track properties"
+							disabled={nodePathInfo === null}
 						/>
 					) : (
 						<TimelineExpandArrowSpacer />
@@ -253,16 +269,19 @@ export const TimelineListItem: React.FC<{
 
 	return (
 		<>
-			{visualModeEnvEnabled ? (
+			{previewConnected ? (
 				<ContextMenu values={contextMenuValues}>{trackRow}</ContextMenu>
 			) : (
 				trackRow
 			)}
-			{visualModeActive && isExpanded && hasExpandableContent ? (
+			{previewConnected &&
+			isExpanded &&
+			hasExpandableContent &&
+			nodePathInfo ? (
 				<TimelineExpandedSection
 					sequence={sequence}
 					originalLocation={originalLocation}
-					nodePath={nodePath}
+					nodePathInfo={nodePathInfo}
 					nestedDepth={nestedDepth}
 				/>
 			) : null}

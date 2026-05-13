@@ -53,6 +53,7 @@ import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
 } from './enable-sequence-stack-traces.js';
+import {findPropsToDelete} from './find-props-to-delete.js';
 import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
@@ -100,13 +101,28 @@ import {
 import type {
 	SequenceFieldSchema,
 	SequenceSchema,
+	VisibleFieldSchema,
 } from './sequence-field-schema.js';
 import {sequenceSchema, sequenceStyleSchema} from './sequence-field-schema.js';
+import type {
+	OverrideIdToNodePaths,
+	OverrideToNodePathGetters,
+	OverrideToNodeSetters,
+} from './sequence-node-path.js';
+import {OverrideIdsToNodePathsSettersContext} from './sequence-node-path.js';
+import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
+import type {
+	CanUpdateSequencePropsResponse,
+	CanUpdateSequencePropsResponseTrue,
+	CanUpdateSequencePropsResponseFalse,
+	SequenceNodePath,
+} from './SequenceManager.js';
 import {
-	VisualModeGettersContext,
+	VisualModeCodeValuesContext,
+	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
@@ -141,6 +157,7 @@ import {
 	useBasicMediaInTimeline,
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
+import type {GetCodeValues, GetDragOverrides} from './use-schema.js';
 import {
 	computeEffectiveSchemaValuesDotNotation,
 	type CanUpdateSequencePropStatus,
@@ -208,7 +225,8 @@ export const Internals = {
 	VideoForPreview,
 	CompositionManager,
 	CompositionSetters,
-	VisualModeGettersContext,
+	VisualModeCodeValuesContext,
+	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 	SequenceManager,
 	SequenceStackTracesUpdateContext,
@@ -311,6 +329,9 @@ export const Internals = {
 	defineEffect,
 	createDescriptor,
 	computeEffectiveSchemaValuesDotNotation,
+	OverrideIdsToNodePathsGettersContext,
+	OverrideIdsToNodePathsSettersContext,
+	findPropsToDelete,
 } as const;
 
 export type {
@@ -321,6 +342,7 @@ export type {
 	MediaVolumeContextValue,
 	RemotionEnvironment,
 	SequenceFieldSchema,
+	VisibleFieldSchema,
 	SequenceSchema,
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,
@@ -335,7 +357,18 @@ export type {
 	ScheduleAudioNodeOptions,
 	CanUpdateSequencePropStatus,
 	CodeValues,
+	GetCodeValues,
 	DragOverrides,
 	ScheduleAudioNodeResult,
+	GetDragOverrides,
 	NonceHistory,
+	OverrideIdsToNodePathsGettersContext,
+	OverrideIdsToNodePathsSettersContext,
+	SequenceNodePath,
+	OverrideIdToNodePaths,
+	OverrideToNodeSetters,
+	OverrideToNodePathGetters,
+	CanUpdateSequencePropsResponse,
+	CanUpdateSequencePropsResponseTrue,
+	CanUpdateSequencePropsResponseFalse,
 };

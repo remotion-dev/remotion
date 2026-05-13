@@ -28,7 +28,7 @@ const TimelineSequenceFn: React.FC<{
 		return null;
 	}
 
-	return <Inner windowWidth={windowWidth} s={s} />;
+	return <TimelineSequenceInner windowWidth={windowWidth} s={s} />;
 };
 
 const TimelineSequenceCurrentFrame: React.FC<{
@@ -134,7 +134,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	);
 };
 
-const Inner: React.FC<{
+const TimelineSequenceInner: React.FC<{
 	readonly s: TSequence;
 	readonly windowWidth: number;
 }> = ({s, windowWidth}) => {

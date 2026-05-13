@@ -31,7 +31,6 @@ const spinnerSize = 14;
 const spinner: React.CSSProperties = {
 	position: 'relative',
 	width: spinnerSize,
-	marginTop: 4,
 };
 
 const noSpinner: React.CSSProperties = {
@@ -137,7 +136,7 @@ export const MenuBuildIndicator: React.FC = () => {
 			) : (
 				<div style={noSpinner} />
 			)}
-			{isClickable ? <Spacing x={0.5} /> : null}
+			<Spacing x={0.5} />
 			{isClickable ? (
 				<a
 					style={projectNameHovered ? projectNameLinkHovered : projectNameLink}

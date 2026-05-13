@@ -1,5 +1,3 @@
-// Cache the thumbnails of the timeline
-
 export type FrameDatabaseKey = string & {__brand: 'FrameDatabaseKey'};
 
 const KEY_SEPARATOR = '|';
@@ -19,7 +17,7 @@ type VideoFrameAndLastUsed = {
 	size: number;
 };
 
-const MAX_CACHE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_CACHE_SIZE_BYTES = 10 * 1024 * 1024;
 
 let totalCacheSize = 0;
 

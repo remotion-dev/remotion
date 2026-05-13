@@ -1,6 +1,7 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -9,6 +10,8 @@ import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
 import {isTrackHidden} from './is-collapsed';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
+import {SequencePropsObserver} from './SequencePropsObserver';
+import {SubscribeToNodePaths} from './SubscribeToNodePaths';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineHeightContainer} from './TimelineHeightContainer';
@@ -39,6 +42,14 @@ const noop = () => undefined;
 const TimelineInner: React.FC = () => {
 	const {sequences} = useContext(Internals.SequenceManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+
+	const previewConnected = previewServerState.type === 'connected';
+
 	const videoConfigIsNull = videoConfig === null;
 
 	const timeline = useMemo((): TrackWithHash[] => {
@@ -48,8 +59,9 @@ const TimelineInner: React.FC = () => {
 
 		return calculateTimeline({
 			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 		});
-	}, [sequences, videoConfigIsNull]);
+	}, [sequences, videoConfigIsNull, overrideIdToNodePathMappings]);
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
@@ -63,7 +75,12 @@ const TimelineInner: React.FC = () => {
 		);
 	}, [durationInFrames, timeline]);
 
-	const shown = filtered.slice(0, MAX_TIMELINE_TRACKS);
+	const shown = useMemo(() => {
+		return filtered.length > MAX_TIMELINE_TRACKS
+			? filtered.slice(0, MAX_TIMELINE_TRACKS)
+			: filtered;
+	}, [filtered]);
+
 	const hasBeenCut = filtered.length > shown.length;
 
 	return (
@@ -72,6 +89,21 @@ const TimelineInner: React.FC = () => {
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
+			{sequences.map((sequence) => {
+				if (!sequence.controls || !previewConnected || !sequence.stack) {
+					return null;
+				}
+
+				return (
+					<SubscribeToNodePaths
+						key={sequence.id}
+						overrideId={sequence.controls.overrideId}
+						schema={sequence.controls.schema}
+						stack={sequence.stack}
+					/>
+				);
+			})}
+			<SequencePropsObserver />
 			<TimelineWidthProvider>
 				<TimelinePinchZoom />
 				<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>

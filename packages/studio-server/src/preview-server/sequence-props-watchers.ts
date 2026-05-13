@@ -1,8 +1,6 @@
 import path from 'node:path';
-import type {
-	CanUpdateSequencePropsResponse,
-	SequenceNodePath,
-} from '@remotion/studio-shared';
+import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
+import type {CanUpdateSequencePropsResponse, SequenceNodePath} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
 import {getCachedNodePath, setCachedNodePath} from './node-path-cache';
@@ -41,7 +39,7 @@ const getSequencePropsStatus = ({
 	column: number;
 	keys: string[];
 	remotionRoot: string;
-}): CanUpdateSequencePropsResponse => {
+}): SubscribeToSequencePropsResponse => {
 	// Try cached nodePath first (handles stale source maps after suppressed rebuilds)
 	const cachedNodePath = getCachedNodePath(fileName, line, column);
 
@@ -54,16 +52,18 @@ const getSequencePropsStatus = ({
 		});
 
 		if (cachedResult.canUpdate) {
-			return cachedResult;
+			return {status: cachedResult, nodePath: cachedNodePath, success: true};
 		}
 	}
 
-	return computeSequencePropsStatusFromFilenameByLine({
+	const status = computeSequencePropsStatusFromFilenameByLine({
 		fileName,
 		line,
 		keys,
 		remotionRoot,
 	});
+
+	return status;
 };
 
 export const subscribeToSequencePropsWatchers = ({
@@ -80,7 +80,7 @@ export const subscribeToSequencePropsWatchers = ({
 	keys: string[];
 	remotionRoot: string;
 	clientId: string;
-}): CanUpdateSequencePropsResponse => {
+}): SubscribeToSequencePropsResponse => {
 	const initialResult = getSequencePropsStatus({
 		fileName,
 		line,
@@ -89,7 +89,7 @@ export const subscribeToSequencePropsWatchers = ({
 		remotionRoot,
 	});
 
-	if (!initialResult.canUpdate) {
+	if (!initialResult.success) {
 		return initialResult;
 	}
 

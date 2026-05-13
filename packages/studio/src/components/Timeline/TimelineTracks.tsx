@@ -1,16 +1,21 @@
 import React, {useContext, useMemo} from 'react';
+import type {GetCodeValues} from 'remotion';
 import {Internals, type TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {
+	SequenceNodePathInfo,
+	TrackWithHash,
+} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getExpandedTrackHeight,
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_PADDING,
-	type CodeValues,
-	type DragOverrides,
 } from '../../helpers/timeline-layout';
-import {ExpandedTracksContext} from '../ExpandedTracksProvider';
+import {
+	ExpandedTracksGetterContext,
+	type GetIsExpanded,
+} from '../ExpandedTracksProvider';
 import {isTrackHidden} from './is-collapsed';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {TimelineSequence} from './TimelineSequence';
@@ -28,37 +33,33 @@ const timelineContent: React.CSSProperties = {
 
 const getExpandedPlaceholderStyle = ({
 	sequence,
-	expandedTracks,
-	dragOverrides,
-	codeValues,
+	nodePathInfo,
+	getIsExpanded,
+	getCodeValues,
 }: {
 	sequence: TSequence;
-	expandedTracks: Record<string, boolean>;
-	dragOverrides: DragOverrides;
-	codeValues: CodeValues;
+	nodePathInfo: SequenceNodePathInfo;
+	getIsExpanded: GetIsExpanded;
+	getCodeValues: GetCodeValues;
 }): React.CSSProperties => ({
 	height:
 		getExpandedTrackHeight({
 			sequence,
-			expandedTracks,
-			dragOverrides,
-			codeValues,
+			nodePathInfo,
+			getIsExpanded,
+			getCodeValues,
 		}) + TIMELINE_ITEM_BORDER_BOTTOM,
 });
 
-export const TimelineTracks: React.FC<{
+const TimelineTracksInner: React.FC<{
 	readonly timeline: TrackWithHash[];
 	readonly hasBeenCut: boolean;
 }> = ({timeline, hasBeenCut}) => {
-	const {expandedTracks} = useContext(ExpandedTracksContext);
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {dragOverrides, codeValues} = useContext(
-		Internals.VisualModeGettersContext,
-	);
+	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
 
-	const visualModeEnabled =
-		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&
-		previewServerState.type === 'connected';
+	const previewServerConnected = previewServerState.type === 'connected';
 
 	const timelineStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -76,7 +77,8 @@ export const TimelineTracks: React.FC<{
 						return null;
 					}
 
-					const isExpanded = expandedTracks[track.sequence.id] ?? false;
+					const isExpanded =
+						track.nodePathInfo !== null && getIsExpanded(track.nodePathInfo);
 
 					return (
 						<div key={track.sequence.id}>
@@ -88,13 +90,13 @@ export const TimelineTracks: React.FC<{
 							>
 								<TimelineSequence s={track.sequence} />
 							</div>
-							{visualModeEnabled && isExpanded ? (
+							{isExpanded && track.nodePathInfo && previewServerConnected ? (
 								<div
 									style={getExpandedPlaceholderStyle({
 										sequence: track.sequence,
-										expandedTracks,
-										dragOverrides,
-										codeValues,
+										nodePathInfo: track.nodePathInfo,
+										getIsExpanded,
+										getCodeValues,
 									})}
 								/>
 							) : null}
@@ -106,3 +108,5 @@ export const TimelineTracks: React.FC<{
 		</div>
 	);
 };
+
+export const TimelineTracks = React.memo(TimelineTracksInner);

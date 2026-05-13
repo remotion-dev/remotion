@@ -28,7 +28,6 @@ const {
 	disableGitSourceOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
-	experimentalVisualModeOption,
 	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
@@ -164,9 +163,6 @@ export const sitesCreateSubcommand = async (
 		experimentalClientSideRenderingOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
-	const experimentalVisualModeEnabled = experimentalVisualModeOption.getValue({
-		commandLine: CliInternals.parsedCli,
-	}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -205,7 +201,6 @@ export const sitesCreateSubcommand = async (
 			rootDir: remotionRoot,
 			askAIEnabled,
 			experimentalClientSideRenderingEnabled,
-			experimentalVisualModeEnabled,
 			keyboardShortcutsEnabled,
 		},
 		indent: false,

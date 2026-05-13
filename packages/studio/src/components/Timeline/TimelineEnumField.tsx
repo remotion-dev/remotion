@@ -1,5 +1,10 @@
 import React, {useCallback, useMemo} from 'react';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 
@@ -9,17 +14,15 @@ const comboboxStyle: React.CSSProperties = {
 
 export const TimelineEnumField: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly codeValue: unknown;
+	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly effectiveValue: unknown;
-	readonly canUpdate: boolean;
-	readonly onSave: (key: string, value: unknown) => Promise<void>;
-	readonly onDragValueChange: (key: string, value: unknown) => void;
+	readonly onSave: TimelineFieldOnSave;
+	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
 }> = ({
 	field,
-	codeValue,
+	propStatus,
 	effectiveValue,
-	canUpdate,
 	onSave,
 	onDragValueChange,
 	onDragEnd,
@@ -34,16 +37,16 @@ export const TimelineEnumField: React.FC<{
 
 	const onSelect = useCallback(
 		(newValue: string) => {
-			if (!canUpdate || newValue === codeValue) {
+			if (!propStatus.canUpdate || newValue === propStatus.codeValue) {
 				return;
 			}
 
-			onDragValueChange(field.key, newValue);
-			onSave(field.key, newValue).finally(() => {
+			onDragValueChange(newValue);
+			onSave(newValue).finally(() => {
 				onDragEnd();
 			});
 		},
-		[canUpdate, codeValue, field.key, onSave, onDragValueChange, onDragEnd],
+		[propStatus, onSave, onDragValueChange, onDragEnd],
 	);
 
 	const items = useMemo<ComboboxValue[]>(() => {
@@ -57,9 +60,9 @@ export const TimelineEnumField: React.FC<{
 			leftItem: null,
 			subMenu: null,
 			quickSwitcherLabel: null,
-			disabled: !canUpdate,
+			disabled: !propStatus.canUpdate,
 		}));
-	}, [variantKeys, onSelect, canUpdate]);
+	}, [variantKeys, onSelect, propStatus]);
 
 	return (
 		<Combobox

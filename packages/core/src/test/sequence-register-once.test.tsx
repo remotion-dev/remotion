@@ -1,4 +1,3 @@
-import './enable-visual-mode-env.js';
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
 import React, {useCallback, useMemo, useState} from 'react';
@@ -7,7 +6,8 @@ import {Sequence} from '../Sequence.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {
 	SequenceManager,
-	VisualModeGettersContext,
+	VisualModeCodeValuesContext,
+	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
@@ -37,11 +37,20 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 			[registerSequence, unregisterSequence],
 		);
 
-		const visualGetters = useMemo(
+		const visualCodeValues = useMemo(
 			() => ({
-				visualModeEnabled: true,
-				dragOverrides: {},
-				codeValues: {},
+				getCodeValues: () => {
+					throw new Error('VisualModeCodeValuesContext not initialized');
+				},
+			}),
+			[],
+		);
+
+		const visualDragOverrides = useMemo(
+			() => ({
+				getDragOverrides: () => {
+					throw new Error('VisualModeDragOverridesContext not initialized');
+				},
 			}),
 			[],
 		);
@@ -67,11 +76,15 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 					}}
 				>
 					<SequenceManager.Provider value={ctx}>
-						<VisualModeGettersContext.Provider value={visualGetters}>
-							<VisualModeSettersContext.Provider value={visualSetters}>
-								{children}
-							</VisualModeSettersContext.Provider>
-						</VisualModeGettersContext.Provider>
+						<VisualModeCodeValuesContext.Provider value={visualCodeValues}>
+							<VisualModeDragOverridesContext.Provider
+								value={visualDragOverrides}
+							>
+								<VisualModeSettersContext.Provider value={visualSetters}>
+									{children}
+								</VisualModeSettersContext.Provider>
+							</VisualModeDragOverridesContext.Provider>
+						</VisualModeCodeValuesContext.Provider>
 					</SequenceManager.Provider>
 				</Internals.RemotionEnvironmentContext>
 			</WrapSequenceContext>

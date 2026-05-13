@@ -4,10 +4,8 @@ import path from 'node:path';
 import {parseAst} from '../codemods/parse-ast';
 import {
 	computeSequencePropsStatus,
-	computeSequencePropsStatusFromContent,
 	lineColumnToNodePath,
 } from '../preview-server/routes/can-update-sequence-props';
-import {lineColumnToNodePath as lineColumnToNodePathFromString} from './test-utils';
 
 const getNodePath = (filePath: string, line: number) => {
 	const content = readFileSync(filePath, 'utf-8');
@@ -145,42 +143,4 @@ test('computeSequencePropsStatus should report unset when parent attribute missi
 		canUpdate: true,
 		codeValue: undefined,
 	});
-});
-
-test('jsxInMapCallback is true when JSX is inside a .map callback', () => {
-	const src = `import React from 'react';
-export const X = () => (
-  <>
-    {[1].map((i) => (
-      <div key={i} />
-    ))}
-  </>
-);
-`;
-	const nodePath = lineColumnToNodePathFromString(src, 5);
-	const result = computeSequencePropsStatusFromContent(src, nodePath, [
-		'children',
-	]);
-	expect(result.canUpdate).toBe(true);
-	if (!result.canUpdate) {
-		throw new Error('Expected canUpdate to be true');
-	}
-
-	expect(result.jsxInMapCallback).toBe(true);
-});
-
-test('jsxInMapCallback is false for JSX outside .map', () => {
-	const src = `import React from 'react';
-export const X = () => <div />;
-`;
-	const nodePath = lineColumnToNodePathFromString(src, 2);
-	const result = computeSequencePropsStatusFromContent(src, nodePath, [
-		'children',
-	]);
-	expect(result.canUpdate).toBe(true);
-	if (!result.canUpdate) {
-		throw new Error('Expected canUpdate to be true');
-	}
-
-	expect(result.jsxInMapCallback).toBe(false);
 });

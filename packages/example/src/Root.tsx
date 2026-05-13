@@ -29,6 +29,7 @@ import {
 	discriminatedUnionRootSchema,
 } from './DiscriminatedUnionSchemaTest';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
+import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {ExperimentalControlsShowcase} from './ExperimentalControls';
@@ -174,6 +175,7 @@ import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {
 	PLAY_RANGES_MEDIA_DEFAULT,
 	PLAY_RANGES_MEDIA_VIDEO_URL_DEFAULT,
+	PLAY_RANGES_MEDIA_ZIP_DEFAULT,
 	PlayRangesMediaVideo,
 	calculateMetadataPlayRangesMedia,
 } from './PlayRangesMediaVideo';
@@ -480,6 +482,16 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={100}
+				/>
+			</Folder>
+			<Folder name="easing">
+				<Composition
+					id="easing-visualizer"
+					component={EasingVisualizer}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={210}
 				/>
 			</Folder>
 			<Folder name="regression-testing">
@@ -1073,6 +1085,17 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						url: PLAY_RANGES_MEDIA_VIDEO_URL_DEFAULT,
 						playRanges: PLAY_RANGES_MEDIA_DEFAULT,
+					}}
+				/>
+				<Composition
+					id="play-ranges-media-video-zip"
+					component={PlayRangesMediaVideo}
+					width={480}
+					height={270}
+					calculateMetadata={calculateMetadataPlayRangesMedia}
+					defaultProps={{
+						url: PLAY_RANGES_MEDIA_VIDEO_URL_DEFAULT,
+						playRanges: PLAY_RANGES_MEDIA_ZIP_DEFAULT,
 					}}
 				/>
 				<Composition

@@ -1,0 +1,57 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/timeline-utils"
+	},
+	"name": "@remotion/timeline-utils",
+	"version": "4.0.460",
+	"description": "Internal utilities for rendering Remotion timelines",
+	"main": "dist/index.js",
+	"sideEffects": false,
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
+		"test": "bun test src"
+	},
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"mediabunny": "catalog:"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		},
+		"./audio-waveform-worker": {
+			"types": "./dist/audio-waveform-worker.d.ts",
+			"module": "./dist/esm/audio-waveform-worker.mjs",
+			"import": "./dist/esm/audio-waveform-worker.mjs",
+			"require": "./dist/audio-waveform-worker.js"
+		}
+	},
+	"typesVersions": {
+		">=1.0": {
+			"audio-waveform-worker": [
+				"./dist/audio-waveform-worker.d.ts"
+			]
+		}
+	}
+}

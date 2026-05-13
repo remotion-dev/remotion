@@ -60,11 +60,11 @@ export const getResolveConfig = () => ({
 		// test visual controls before removing this
 		'@remotion/studio': require.resolve('@remotion/studio'),
 		[path.join(
-			require.resolve('@remotion/studio'),
+			require.resolve('@remotion/timeline-utils'),
 			'..',
 			'audio-waveform-worker.mjs',
 		)]: path.join(
-			require.resolve('@remotion/studio'),
+			require.resolve('@remotion/timeline-utils'),
 			'..',
 			'esm',
 			'audio-waveform-worker.mjs',

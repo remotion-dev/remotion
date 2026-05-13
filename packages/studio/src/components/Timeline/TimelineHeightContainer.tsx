@@ -9,7 +9,7 @@ const baseStyle: React.CSSProperties = {
 	overflowX: 'hidden',
 };
 
-export const TimelineHeightContainer: React.FC<{
+const TimelineHeightContainerInner: React.FC<{
 	readonly shown: TrackWithHash[];
 	readonly hasBeenCut: boolean;
 	readonly children: React.ReactNode;
@@ -23,3 +23,5 @@ export const TimelineHeightContainer: React.FC<{
 
 	return <div style={style}>{children}</div>;
 };
+
+export const TimelineHeightContainer = React.memo(TimelineHeightContainerInner);

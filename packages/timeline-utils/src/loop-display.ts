@@ -1,8 +1,12 @@
-import type {LoopDisplay} from 'remotion';
+export type TimelineLoopDisplay = {
+	durationInFrames: number;
+	numberOfTimes: number;
+	startOffset: number;
+};
 
 export const shouldTileLoopDisplay = (
-	loopDisplay: LoopDisplay | undefined,
-): loopDisplay is LoopDisplay => {
+	loopDisplay: TimelineLoopDisplay | undefined,
+): loopDisplay is TimelineLoopDisplay => {
 	return loopDisplay !== undefined && loopDisplay.numberOfTimes > 1;
 };
 
@@ -11,7 +15,7 @@ export const getLoopDisplayWidth = ({
 	loopDisplay,
 }: {
 	visualizationWidth: number;
-	loopDisplay: LoopDisplay | undefined;
+	loopDisplay: TimelineLoopDisplay | undefined;
 }) => {
 	if (!shouldTileLoopDisplay(loopDisplay)) {
 		return visualizationWidth;

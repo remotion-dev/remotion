@@ -87,6 +87,13 @@ export const audioIteratorManager = ({
 	let totalAudioScheduledInSeconds = 0;
 	let currentDelayHandle: {unblock: () => void} | null = null;
 
+	const unblockCurrentDelayHandle = () => {
+		if (currentDelayHandle) {
+			currentDelayHandle.unblock();
+			currentDelayHandle = null;
+		}
+	};
+
 	const pendingScheduleWaiters: {
 		remaining: number;
 		resolve: () => void;
@@ -251,6 +258,7 @@ export const audioIteratorManager = ({
 		waitForTurn({
 			getPriority: () => {
 				if (iterator.isDestroyed()) {
+					onDestroyed();
 					return null;
 				}
 
@@ -316,10 +324,12 @@ export const audioIteratorManager = ({
 				if (e instanceof InputDisposedError) {
 					// iterator was disposed by a newer startAudioIterator call
 					// this is expected during rapid seeking
+					onDestroyed();
 					return;
 				}
 
 				if (e instanceof StaleWaiterError) {
+					onDestroyed();
 					// iterator was stale before it got its turn
 					return;
 				}
@@ -363,6 +373,8 @@ export const audioIteratorManager = ({
 		}
 
 		audioBufferIterator?.destroy();
+		unblockCurrentDelayHandle();
+
 		const delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 
@@ -379,6 +391,8 @@ export const audioIteratorManager = ({
 		audioIteratorsCreated++;
 		audioBufferIterator = iterator;
 
+		let chunksScheduled = 0;
+
 		proceedScheduling({
 			iterator,
 			nonce,
@@ -386,7 +400,12 @@ export const audioIteratorManager = ({
 			playbackRate,
 			scheduleAudioNode,
 			onScheduled: () => {
-				delayHandle.unblock();
+				chunksScheduled++;
+				// Need to schedule a bit into the future to unblock the buffer state,
+				// otherwise we might be scheduling too late.
+				if (chunksScheduled === 6) {
+					delayHandle.unblock();
+				}
 			},
 			onDestroyed: () => {
 				delayHandle.unblock();
@@ -432,6 +451,10 @@ export const audioIteratorManager = ({
 		fps: number;
 		getAudioContextCurrentTimeMockedInTest: () => number;
 	}) => {
+		if (nonce.isStale()) {
+			return;
+		}
+
 		if (
 			currentSeek.time === newTime &&
 			currentSeek.playbackRate === playbackRate &&
@@ -516,11 +539,7 @@ export const audioIteratorManager = ({
 		destroyIterator: () => {
 			audioBufferIterator?.destroy();
 			audioBufferIterator = null;
-
-			if (currentDelayHandle) {
-				currentDelayHandle.unblock();
-				currentDelayHandle = null;
-			}
+			unblockCurrentDelayHandle();
 		},
 		seek,
 		getAudioIteratorsCreated: () => audioIteratorsCreated,

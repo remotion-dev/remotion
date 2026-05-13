@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/react18-tests"
 	},
 	"name": "@remotion/react18-tests",
-	"version": "4.0.459",
+	"version": "4.0.460",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -33,7 +33,7 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"vitest": "catalog:",
-		"vitest-browser-react": "^2.0.2",
+		"vitest-browser-react": "2.0.2",
 		"@types/react": "18.3.1",
 		"@types/react-dom": "18.3.1",
 		"@typescript/native-preview": "catalog:"

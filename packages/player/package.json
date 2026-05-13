@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player"
 	},
 	"name": "@remotion/player",
-	"version": "4.0.459",
+	"version": "4.0.460",
 	"description": "React component for embedding a Remotion preview into your app",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -45,7 +45,7 @@
 	"devDependencies": {
 		"@testing-library/react": "16.1.0",
 		"@happy-dom/global-registrator": "14.5.1",
-		"csstype": "^3.1.1",
+		"csstype": "3.2.3",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"webpack": "5.105.0",

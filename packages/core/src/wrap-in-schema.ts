@@ -1,11 +1,16 @@
 import React, {forwardRef, useState, useContext, useMemo} from 'react';
 import type {SequenceControls} from './CompositionManager.js';
+import {deleteNestedKey} from './delete-nested-key.js';
 import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
 import type {SequenceSchema} from './sequence-field-schema.js';
-import {VisualModeGettersContext} from './SequenceManager.js';
+import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
+import {
+	VisualModeCodeValuesContext,
+	VisualModeDragOverridesContext,
+} from './SequenceManager.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {computeEffectiveSchemaValuesDotNotation} from './use-schema.js';
 
@@ -51,10 +56,12 @@ export const mergeValues = ({
 	props,
 	valuesDotNotation,
 	schemaKeys,
+	propsToDelete,
 }: {
 	props: Record<string, unknown>;
 	valuesDotNotation: Record<string, unknown>;
 	schemaKeys: string[];
+	propsToDelete: Set<string>;
 }): Record<string, unknown> => {
 	const merged = {...props};
 
@@ -64,6 +71,7 @@ export const mergeValues = ({
 
 		if (parts.length === 1) {
 			merged[key] = value;
+
 			continue;
 		}
 
@@ -84,8 +92,12 @@ export const mergeValues = ({
 		current[parts[parts.length - 1]] = value;
 	}
 
+	deleteNestedKey(merged, propsToDelete);
+
 	return merged;
 };
+
+const stackToOverrideMap: Record<string, string> = {};
 
 export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 	Component: React.ComponentType<
@@ -93,13 +105,6 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 	>,
 	schema: S,
 ): React.ComponentType<Props> => {
-	if (
-		typeof process === 'undefined' ||
-		!process.env?.EXPERIMENTAL_VISUAL_MODE_ENABLED
-	) {
-		return Component as unknown as React.ComponentType<Props>;
-	}
-
 	// Schema is static for a component, so we move this outside
 	const flatSchema = getFlatSchemaWithAllKeys(schema);
 	const flatKeys = Object.keys(flatSchema);
@@ -107,16 +112,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
 		const env = useRemotionEnvironment();
 
-		const {visualModeEnabled, dragOverrides, codeValues} = useContext(
-			VisualModeGettersContext,
-		);
-
-		if (
-			!env.isStudio ||
-			env.isReadOnlyStudio ||
-			env.isRendering ||
-			!visualModeEnabled
-		) {
+		if (!env.isStudio || env.isReadOnlyStudio || env.isRendering) {
 			return React.createElement(Component, {
 				...props,
 				_experimentalControls: null,
@@ -126,6 +122,13 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 				ref: typeof ref;
 			});
 		}
+
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const {getCodeValues} = useContext(VisualModeCodeValuesContext);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const {getDragOverrides} = useContext(VisualModeDragOverridesContext);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const nodePathMapping = useContext(OverrideIdsToNodePathsGettersContext);
 
 		// If the parent has passed `_experimentalControls`, we should not override it.
 		// @ts-expect-error
@@ -140,7 +143,23 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 		}
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const [overrideId] = useState(() => String(Math.random()));
+		const [overrideId] = useState(() => {
+			const {stack} = props as {stack?: string};
+			if (!stack) {
+				return String(Math.random());
+			}
+
+			const existingOverrideId = stackToOverrideMap[stack];
+			if (existingOverrideId) {
+				return existingOverrideId;
+			}
+
+			const newOverrideId = String(Math.random());
+			stackToOverrideMap[stack] = newOverrideId;
+			return newOverrideId;
+		});
+		const nodePath =
+			nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null;
 
 		// Read the runtime values for every flat key from the JSX props,
 		// memoized on the leaf values so the object reference is stable
@@ -167,14 +186,19 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 
 		// 3. Apply drag/code overrides on top of the runtime values.
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const valuesDotNotation = useMemo(() => {
+		const {merged: valuesDotNotation, propsToDelete} = useMemo(() => {
 			return computeEffectiveSchemaValuesDotNotation({
 				schema,
 				currentValue: currentRuntimeValueDotNotation,
-				overrideValues: dragOverrides[overrideId] ?? {},
-				propStatus: codeValues[overrideId],
+				overrideValues: nodePath === null ? {} : getDragOverrides(nodePath),
+				propStatus: nodePath === null ? undefined : getCodeValues(nodePath),
 			});
-		}, [currentRuntimeValueDotNotation, dragOverrides, overrideId, codeValues]);
+		}, [
+			currentRuntimeValueDotNotation,
+			getDragOverrides,
+			nodePath,
+			getCodeValues,
+		]);
 
 		// 4. Eliminate values forbidden by the resolved discriminated union.
 		const activeKeys = selectActiveKeys(schema, valuesDotNotation);
@@ -184,6 +208,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 			props: props as Record<string, unknown>,
 			valuesDotNotation,
 			schemaKeys: activeKeys,
+			propsToDelete,
 		});
 
 		return React.createElement(Component, {
