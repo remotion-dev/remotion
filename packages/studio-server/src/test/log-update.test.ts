@@ -87,7 +87,7 @@ test('logUpdate emits Monokai-colored output after an AST update', async () => {
 			`${attrName(key)}${equals('=')}${punctuation('{')}${numberValue(value)}${punctuation('}')}`;
 
 		const expectedPropChange = `${simpleProp('hueShift', '30')} → ${simpleProp('hueShift', '90')}`;
-		const expectedLine = `${chalk.blueBright('src/Example.tsx:8:')} ${expectedPropChange}`;
+		const expectedLine = `${chalk.blueBright('src/Example.tsx:8')} ${expectedPropChange}`;
 
 		expect(logged).toBe(expectedLine);
 	} finally {
@@ -153,7 +153,7 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 			`${attrName(key)}${equals('=')}${punctuation('{')}${punctuation(value)}${punctuation('}')}`;
 
 		const expectedPropChange = `${simpleProp('layout', "'none'")}, ${strikeThrough(simplePropPunctuation('style', '{ scale: 1.74 }'))}`;
-		const expectedLine = `${chalk.blueBright(`src/Example.tsx:${logLine}:`)} ${expectedPropChange}`;
+		const expectedLine = `${chalk.blueBright(`src/Example.tsx:${logLine}`)} ${expectedPropChange}`;
 
 		expect(logged).toBe(expectedLine);
 
