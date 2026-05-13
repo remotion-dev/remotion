@@ -12,7 +12,7 @@ export type PropDelta = {
 	valueString: string;
 };
 
-const colorEnabled = () => RenderInternals.chalk.enabled();
+export const colorEnabled = () => RenderInternals.chalk.enabled();
 
 // Format key={value} with Monokai syntax highlighting
 const formatSimpleProp = (key: string, value: string) => {

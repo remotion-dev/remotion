@@ -8,6 +8,7 @@ import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {updateSequenceProps} from '../codemods/update-sequence-props/update-sequence-props';
+import {formatPropChange} from '../preview-server/routes/log-updates/format-prop-change';
 import {
 	attrName,
 	equals,
@@ -17,7 +18,6 @@ import {
 	stringValue,
 } from '../preview-server/routes/log-updates/formatting';
 import {
-	formatPropChange,
 	logUpdate,
 	normalizeQuotes,
 } from '../preview-server/routes/log-updates/log-update';
