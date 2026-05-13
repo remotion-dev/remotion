@@ -15,7 +15,7 @@ const external = [
 	'@remotion/renderer/pure',
 	'@remotion/web-renderer',
 	'@remotion/renderer/error-handling',
-	'source-map',
+	'@jridgewell/trace-mapping',
 	'zod',
 	'remotion/no-react',
 	'react/jsx-runtime',
