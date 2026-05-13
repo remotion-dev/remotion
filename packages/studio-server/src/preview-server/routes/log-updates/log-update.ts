@@ -1,5 +1,13 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {LogLevel} from '@remotion/renderer';
+import {formatSideProps, type PropDelta} from './format-side-props';
+import {
+	attrName,
+	colorValue,
+	equals,
+	punctuation,
+	strikeThrough,
+} from './formatting';
 
 let warnedAboutPrettier = false;
 
@@ -29,38 +37,6 @@ export const normalizeQuotes = (str: string): string => {
 	return str;
 };
 
-// 24-bit ANSI helpers
-export const fg = (r: number, g: number, b: number, str: string) =>
-	`\u001b[38;2;${r};${g};${b}m${str}\u001b[39m`;
-export const bg = (r: number, g: number, b: number, str: string) =>
-	`\u001b[48;2;${r};${g};${b}m${str}\u001b[49m`;
-// eslint-disable-next-line no-control-regex
-const stripAnsi = (str: string) => str.replace(/\u001b\[[0-9;]*m/g, '');
-export const strikeThrough = (str: string) =>
-	`\u001b[9m\u001b[38;2;255;85;85m${stripAnsi(str)}\u001b[39m\u001b[29m`;
-
-// Monokai-inspired syntax colors
-const attrName = (str: string) => fg(166, 226, 46, str);
-const equals = (str: string) => fg(249, 38, 114, str);
-const punctuation = (str: string) => fg(248, 248, 242, str);
-const stringValue = (str: string) => fg(230, 219, 116, str);
-const numberValue = (str: string) => fg(174, 129, 255, str);
-
-const colorValue = (str: string) => {
-	if (
-		(str.startsWith("'") && str.endsWith("'")) ||
-		(str.startsWith('"') && str.endsWith('"'))
-	) {
-		return stringValue(str);
-	}
-
-	if (/^-?\d+(\.\d+)?$/.test(str)) {
-		return numberValue(str);
-	}
-
-	return punctuation(str);
-};
-
 const colorEnabled = () => RenderInternals.chalk.enabled();
 
 // Format key={value} with Monokai syntax highlighting
@@ -75,60 +51,6 @@ const formatNestedProp = (
 	value: string,
 ) => {
 	return `${attrName(parentKey)}${equals('=')}${punctuation('{{')}${punctuation(childKey)}${punctuation(':')} ${colorValue(value)}${punctuation('}}')}`;
-};
-
-export type PropDelta = {
-	key: string;
-	valueString: string;
-};
-
-const formatPropDelta = ({key, valueString}: PropDelta) => {
-	if (!colorEnabled()) {
-		const dotIndex = key.indexOf('.');
-		if (dotIndex === -1) {
-			return `${key}={${valueString}}`;
-		}
-
-		const parent = key.slice(0, dotIndex);
-		const child = key.slice(dotIndex + 1);
-		return `${parent}={{${child}: ${valueString}}}`;
-	}
-
-	const dotIdx = key.indexOf('.');
-	if (dotIdx === -1) {
-		return formatSimpleProp(key, valueString);
-	}
-
-	return formatNestedProp(
-		key.slice(0, dotIdx),
-		key.slice(dotIdx + 1),
-		valueString,
-	);
-};
-
-const formatSideProps = ({
-	removedProps,
-	addedProps,
-}: {
-	removedProps: PropDelta[];
-	addedProps: PropDelta[];
-}) => {
-	const parts: string[] = [];
-
-	for (const prop of removedProps) {
-		const formatted = formatPropDelta(prop);
-		parts.push(colorEnabled() ? strikeThrough(formatted) : formatted);
-	}
-
-	for (const prop of addedProps) {
-		parts.push(formatPropDelta(prop));
-	}
-
-	if (parts.length === 0) {
-		return '';
-	}
-
-	return `, ${parts.join(', ')}`;
 };
 
 export const formatPropChange = ({

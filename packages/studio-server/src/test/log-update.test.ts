@@ -9,11 +9,17 @@ import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {updateSequenceProps} from '../codemods/update-sequence-props/update-sequence-props';
 import {
-	fg,
+	attrName,
+	equals,
+	numberValue,
+	punctuation,
+	strikeThrough,
+	stringValue,
+} from '../preview-server/routes/log-updates/formatting';
+import {
 	formatPropChange,
 	logUpdate,
 	normalizeQuotes,
-	strikeThrough,
 } from '../preview-server/routes/log-updates/log-update';
 import {lineColumnToNodePath} from './test-utils';
 
@@ -77,12 +83,6 @@ test('logUpdate emits Monokai-colored output after an AST update', async () => {
 		expect(consoleSpy).toHaveBeenCalledTimes(1);
 		const logged = consoleSpy.mock.calls[0].join(' ');
 
-		// Mirror the Monokai palette from log-update.ts.
-		const attrName = (s: string) => fg(166, 226, 46, s);
-		const equals = (s: string) => fg(249, 38, 114, s);
-		const punctuation = (s: string) => fg(248, 248, 242, s);
-		const numberValue = (s: string) => fg(174, 129, 255, s);
-
 		const simpleProp = (key: string, value: string) =>
 			`${attrName(key)}${equals('=')}${punctuation('{')}${numberValue(value)}${punctuation('}')}`;
 
@@ -145,11 +145,6 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 
 		expect(consoleSpy).toHaveBeenCalledTimes(1);
 		const logged = consoleSpy.mock.calls[0].join(' ');
-
-		const attrName = (s: string) => fg(166, 226, 46, s);
-		const equals = (s: string) => fg(249, 38, 114, s);
-		const punctuation = (s: string) => fg(248, 248, 242, s);
-		const stringValue = (s: string) => fg(230, 219, 116, s);
 
 		const simpleProp = (key: string, value: string) =>
 			`${attrName(key)}${equals('=')}${punctuation('{')}${stringValue(value)}${punctuation('}')}`;
