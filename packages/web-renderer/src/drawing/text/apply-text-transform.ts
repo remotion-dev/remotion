@@ -8,7 +8,11 @@ export const applyTextTransform = (text: string, transform: string): string => {
 	}
 
 	if (transform === 'capitalize') {
-		return text.replace(/\b\w/g, (char) => char.toUpperCase());
+		// CSS capitalize: uppercase first Letter/Number of each word, skipping leading punctuation/symbols
+		return text.replace(
+			/(^|\s)([^\p{L}\p{N}]*)(\p{L}|\p{N})/gu,
+			(_, space, symbols, char) => space + symbols + char.toUpperCase(),
+		);
 	}
 
 	return text;
