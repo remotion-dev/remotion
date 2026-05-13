@@ -116,12 +116,7 @@ export const TimelineFieldRow: React.FC<{
 				defaultValue,
 				schema,
 			}).then((data) => {
-				if (data.success) {
-					setCodeValues(nodePath, data.newStatus);
-					return;
-				}
-
-				return Promise.reject(new Error(data.reason));
+				setCodeValues(nodePath, data);
 			});
 		},
 		[

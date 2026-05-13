@@ -65,16 +65,19 @@ export type VisualModeSetters = {
 	) => void;
 };
 
+export type CanUpdateSequencePropsResponseTrue = {
+	canUpdate: true;
+	props: Record<string, CanUpdateSequencePropStatus>;
+};
+
+export type CanUpdateSequencePropsResponseFalse = {
+	canUpdate: false;
+	reason: string;
+};
+
 export type CanUpdateSequencePropsResponse =
-	| {
-			canUpdate: true;
-			props: Record<string, CanUpdateSequencePropStatus>;
-			nodePath: SequenceNodePath;
-	  }
-	| {
-			canUpdate: false;
-			reason: string;
-	  };
+	| CanUpdateSequencePropsResponseTrue
+	| CanUpdateSequencePropsResponseFalse;
 
 const getCodeValuesCtx = (
 	codeValues: CodeValues,
