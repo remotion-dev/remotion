@@ -245,7 +245,10 @@ const defaultOnPaint: HtmlInCanvasOnPaint = ({
 /* eslint-disable react/require-default-props -- optional fields mirror `<Sequence>` / canvas hooks API */
 export type HtmlInCanvasProps = Omit<
 	SequenceProps,
-	'children' | 'durationInFrames' | keyof LayoutAndStyle
+	| 'children'
+	| 'durationInFrames'
+	| keyof LayoutAndStyle
+	| '_experimentalEffects'
 > &
 	Omit<
 		AbsoluteFillLayout,
@@ -254,7 +257,6 @@ export type HtmlInCanvasProps = Omit<
 		| 'postmountFor'
 		| 'premountFor'
 		| 'styleWhilePremounted'
-		| '_experimentalEffects'
 	> & {
 		readonly durationInFrames?: number;
 		readonly width: number;
