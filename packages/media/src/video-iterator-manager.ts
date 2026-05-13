@@ -1,6 +1,10 @@
 import type {InputVideoTrack, WrappedCanvas} from 'mediabunny';
 import {CanvasSink} from 'mediabunny';
-import type {EffectChainState, EffectsProp, LogLevel} from 'remotion';
+import type {
+	EffectChainState,
+	EffectDefinitionAndStack,
+	LogLevel,
+} from 'remotion';
 import {Internals} from 'remotion';
 import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import type {Nonce} from './nonce-manager';
@@ -37,7 +41,7 @@ export const videoIteratorManager = async ({
 	getLoopSegmentMediaEndTimestamp: () => number;
 	getStartTime: () => number;
 	getIsLooping: () => boolean;
-	getEffects: () => EffectsProp;
+	getEffects: () => EffectDefinitionAndStack<unknown>[];
 	getEffectChainState: (
 		width: number,
 		height: number,

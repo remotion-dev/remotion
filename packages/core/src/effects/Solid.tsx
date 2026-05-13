@@ -1,9 +1,11 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {flattenEffects} from './effect-internals.js';
 import type {EffectsProp} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
 import {useEffectChainState} from './use-effect-chain-state.js';
+import {useMemoizedEffects} from './use-memoized-effects.js';
 
 export type SolidProps = {
 	readonly color: string;
@@ -29,6 +31,10 @@ export const Solid: React.FC<SolidProps> = ({
 
 	const [outputCanvas, setOutputCanvas] = useState<HTMLCanvasElement | null>(
 		null,
+	);
+
+	const memoizedEffects = useMemoizedEffects(
+		flattenEffects(experimentalEffects),
 	);
 
 	const sourceCanvas = useMemo(() => {
@@ -73,7 +79,7 @@ export const Solid: React.FC<SolidProps> = ({
 		runEffectChain({
 			state: chainState.get(width, height)!,
 			source: sourceCanvas,
-			effects: experimentalEffects,
+			effects: memoizedEffects,
 			output: outputCanvas,
 			frame,
 			width,
@@ -104,6 +110,7 @@ export const Solid: React.FC<SolidProps> = ({
 		delayRender,
 		continueRender,
 		cancelRender,
+		memoizedEffects,
 	]);
 
 	return (

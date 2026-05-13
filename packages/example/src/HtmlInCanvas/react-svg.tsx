@@ -18,9 +18,9 @@ export const HtmlInCanvasReactSvg: React.FC<{
 					halftone({
 						dotSize: 30,
 						dotSpacing: 20,
-						shape: 'line',
+						shape: 'square',
 					}),
-					tint({color: 'red', amount: 1}),
+					tint({color: 'green', amount: 1}),
 				]}
 			>
 				<ReactSvg transparent={transparent} />

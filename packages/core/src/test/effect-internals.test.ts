@@ -3,6 +3,7 @@ import {flattenEffects, groupByBackend} from '../effects/effect-internals.js';
 import type {
 	Backend,
 	EffectDefinition,
+	EffectDefinitionAndStack,
 	EffectDescriptor,
 } from '../effects/effect-types.js';
 
@@ -28,7 +29,17 @@ const makeDesc = (
 	params: {},
 	stack: new Error().stack!,
 	effectKey: type,
+	memoized: false,
 });
+
+const memoizeEffects = (
+	effects: EffectDescriptor<unknown>[],
+): EffectDefinitionAndStack<unknown>[] => {
+	return effects.map((e) => ({
+		...e,
+		memoized: true,
+	}));
+};
 
 test('flattenEffects unwraps nested-array descriptors', () => {
 	const a = makeDesc('a', '2d');
@@ -36,7 +47,7 @@ test('flattenEffects unwraps nested-array descriptors', () => {
 	const b2 = makeDesc('b2', '2d');
 	const c = makeDesc('c', 'webgl2');
 
-	const result = flattenEffects([a, [b1, b2], c]);
+	const result = memoizeEffects(flattenEffects([a, [b1, b2], c]));
 	expect(result.map((d) => d.definition.type)).toEqual(['a', 'b1', 'b2', 'c']);
 });
 
@@ -62,7 +73,7 @@ test('groupByBackend collapses adjacent same-backend effects', () => {
 		makeDesc('e', '2d'),
 	];
 
-	const runs = groupByBackend(effects);
+	const runs = groupByBackend(memoizeEffects(effects));
 	expect(runs).toHaveLength(3);
 	expect(runs[0].backend).toBe('2d');
 	expect(runs[0].effects.map((e) => e.definition.type)).toEqual(['a', 'b']);
@@ -79,7 +90,7 @@ test('groupByBackend returns single run for uniform backend', () => {
 		makeDesc('c', '2d'),
 	];
 
-	const runs = groupByBackend(effects);
+	const runs = groupByBackend(memoizeEffects(effects));
 	expect(runs).toHaveLength(1);
 	expect(runs[0].backend).toBe('2d');
 	expect(runs[0].effects).toHaveLength(3);
@@ -97,7 +108,7 @@ test('groupByBackend returns one run per backend transition', () => {
 		makeDesc('d', 'webgl2'),
 	];
 
-	const runs = groupByBackend(effects);
+	const runs = groupByBackend(memoizeEffects(effects));
 	expect(runs).toHaveLength(4);
 	expect(runs.map((r) => r.backend)).toEqual(['2d', 'webgl2', '2d', 'webgl2']);
 });

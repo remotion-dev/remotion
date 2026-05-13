@@ -46,6 +46,7 @@ import {
 	timeValueRef,
 } from './EditorProps.js';
 import {createDescriptor, defineEffect} from './effects/define-effect.js';
+import {flattenEffects} from './effects/effect-internals.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
 import {useMemoizedEffects} from './effects/use-memoized-effects.js';
@@ -332,6 +333,7 @@ export const Internals = {
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	findPropsToDelete,
+	flattenEffects,
 } as const;
 
 export type {

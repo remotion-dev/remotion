@@ -29,5 +29,6 @@ export const createDescriptor = <P, S>(
 		params,
 		stack: new Error().stack!,
 		effectKey: widened.calculateKey(params),
+		memoized: false,
 	};
 };
