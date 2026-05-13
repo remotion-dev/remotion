@@ -84,13 +84,13 @@ export type PropDelta = {
 
 const formatPropDelta = ({key, valueString}: PropDelta) => {
 	if (!colorEnabled()) {
-		const dotIdx = key.indexOf('.');
-		if (dotIdx === -1) {
+		const dotIndex = key.indexOf('.');
+		if (dotIndex === -1) {
 			return `${key}={${valueString}}`;
 		}
 
-		const parent = key.slice(0, dotIdx);
-		const child = key.slice(dotIdx + 1);
+		const parent = key.slice(0, dotIndex);
+		const child = key.slice(dotIndex + 1);
 		return `${parent}={{${child}: ${valueString}}}`;
 	}
 
