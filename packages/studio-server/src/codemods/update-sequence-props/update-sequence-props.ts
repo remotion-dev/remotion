@@ -6,10 +6,10 @@ import type {
 	JSXSpreadAttribute,
 	StringLiteral,
 } from '@babel/types';
-import {findPropsToDelete} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import type {SequenceSchema} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {findJsxElementAtNodePath} from '../../preview-server/routes/can-update-sequence-props';
 import {formatFileContent} from '../format-file-content';
 import {parseAst, serializeAst} from '../parse-ast';
@@ -216,7 +216,11 @@ export const updateSequencePropsAst = ({
 		if (!isNested) {
 			const fieldSchema = schema[key];
 			if (fieldSchema && fieldSchema.type === 'enum') {
-				const propsToDelete = findPropsToDelete({schema, key, value});
+				const propsToDelete = NoReactInternals.findPropsToDelete({
+					schema,
+					key,
+					value,
+				});
 				for (const propToDelete of propsToDelete) {
 					removeVariantKey({node, variantKey: propToDelete});
 				}

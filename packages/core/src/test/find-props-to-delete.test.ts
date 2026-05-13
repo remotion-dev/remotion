@@ -1,24 +1,23 @@
 import {expect, test} from 'bun:test';
 import {Internals} from 'remotion';
-import {findPropsToDelete} from '../find-props-to-delete';
 
 test('find right values to delete when upgrading a discriminated union', () => {
 	expect(
-		findPropsToDelete({
+		Internals.findPropsToDelete({
 			schema: Internals.sequenceSchema,
 			key: 'unknown',
 			value: 'none',
 		}),
-	).toEqual([]);
+	).toThrow('Key "unknown" not found in schema');
 	expect(() =>
-		findPropsToDelete({
+		Internals.findPropsToDelete({
 			schema: Internals.sequenceSchema,
 			key: 'layout',
 			value: 123,
 		}),
 	).toThrow('Value must be a string, but is 123');
 	expect(() =>
-		findPropsToDelete({
+		Internals.findPropsToDelete({
 			schema: Internals.sequenceSchema,
 			key: 'layout',
 			value: 'unknown',
@@ -28,7 +27,7 @@ test('find right values to delete when upgrading a discriminated union', () => {
 	);
 
 	expect(
-		findPropsToDelete({
+		Internals.findPropsToDelete({
 			schema: Internals.sequenceSchema,
 			key: 'layout',
 			value: 'none',
@@ -45,7 +44,7 @@ test('find right values to delete when upgrading a discriminated union', () => {
 	]);
 
 	expect(
-		findPropsToDelete({
+		Internals.findPropsToDelete({
 			schema: Internals.sequenceSchema,
 			key: 'layout',
 			value: 'absolute-fill',

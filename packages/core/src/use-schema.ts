@@ -1,3 +1,4 @@
+import {findPropsToDelete} from './find-props-to-delete.js';
 import {getEffectiveVisualModeValue} from './get-effective-visual-mode-value.js';
 import type {
 	SequenceFieldSchema,
@@ -59,9 +60,11 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
 }): Record<string, unknown> => {
 	const merged: Record<string, unknown> = {};
+	const propsToDelete = new Set<string>();
 	for (const key of Object.keys(currentValue)) {
 		const codeValueStatus = propStatus?.[key] ?? null;
 		const field = findFieldInSchema(schema, key);
+
 		if (field?.type === 'hidden') {
 			continue;
 		}
@@ -73,6 +76,23 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			defaultValue: field?.default,
 			shouldResortToDefaultValueIfUndefined: false,
 		});
+	}
+
+	for (const key of Object.keys(overrideValues)) {
+		if (schema[key]?.type === 'enum') {
+			const propsToDeleteForKey = findPropsToDelete({
+				schema,
+				key,
+				value: merged[key],
+			});
+			for (const propToDelete of propsToDeleteForKey) {
+				propsToDelete.add(propToDelete);
+			}
+		}
+	}
+
+	for (const propToDelete of propsToDelete) {
+		delete merged[propToDelete];
 	}
 
 	return merged;

@@ -1,9 +1,9 @@
-import type {
-	CanUpdateSequencePropsResponse,
-	CanUpdateSequencePropStatus,
-	SequenceSchema,
+import {
+	type CanUpdateSequencePropsResponse,
+	type CanUpdateSequencePropStatus,
+	type SequenceSchema,
 } from 'remotion';
-import {findPropsToDelete} from './find-props-to-delete';
+import {NoReactInternals} from 'remotion/no-react';
 
 export const optimisticUpdateForCodeValues = ({
 	previous,
@@ -25,14 +25,15 @@ export const optimisticUpdateForCodeValues = ({
 		[fieldKey]: {canUpdate: true, codeValue: value},
 	};
 
-	const propsToDelete = findPropsToDelete({
-		schema,
-		key: fieldKey,
-		value,
-	});
-
-	for (const propToDelete of propsToDelete) {
-		delete props[propToDelete];
+	if (schema[fieldKey]?.type === 'enum') {
+		const propsToDelete = NoReactInternals.findPropsToDelete({
+			schema,
+			key: fieldKey,
+			value,
+		});
+		for (const propToDelete of propsToDelete) {
+			delete props[propToDelete];
+		}
 	}
 
 	return {
