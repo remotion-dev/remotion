@@ -65,7 +65,7 @@ const snapshotTopLevelAttrs = (
 	const result = new Map<string, string>();
 	for (const a of node.attributes ?? []) {
 		if (a.type === 'JSXAttribute' && a.name.type === 'JSXIdentifier') {
-			const name = a.name.name;
+			const {name} = a.name;
 			const printed = recast
 				.print(a)
 				.code.replace(/\s+/g, ' ')
@@ -212,7 +212,7 @@ export const updateSequencePropsAst = ({
 
 		oldValueStrings.push(oldValueString);
 
-		if (schema && !isNested) {
+		if (!isNested) {
 			const fieldSchema = schema[key];
 			if (fieldSchema && fieldSchema.type === 'enum') {
 				let oldRawValue: unknown;
