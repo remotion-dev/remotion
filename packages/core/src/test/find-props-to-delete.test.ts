@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {Internals} from 'remotion';
+import {Internals} from '../internals';
 
 test('find right values to delete when upgrading a discriminated union', () => {
 	expect(() =>
