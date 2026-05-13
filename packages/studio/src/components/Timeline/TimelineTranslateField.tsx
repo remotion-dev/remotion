@@ -1,5 +1,10 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {getDecimalPlaces} from './timeline-field-utils';
 
@@ -29,17 +34,15 @@ const containerStyle: React.CSSProperties = {
 
 export const TimelineTranslateField: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly codeValue: unknown;
+	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly effectiveValue: unknown;
-	readonly canUpdate: boolean;
-	readonly onSave: (key: string, value: unknown) => Promise<void>;
-	readonly onDragValueChange: (key: string, value: unknown) => void;
+	readonly onSave: TimelineFieldOnSave;
+	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
 }> = ({
 	field,
-	codeValue,
+	propStatus,
 	effectiveValue,
-	canUpdate,
 	onSave,
 	onDragValueChange,
 	onDragEnd,
@@ -74,17 +77,17 @@ export const TimelineTranslateField: React.FC<{
 		(newVal: number) => {
 			setDragX(newVal);
 			const currentY = dragY ?? codeY;
-			onDragValueChange(field.key, makeString(newVal, currentY));
+			onDragValueChange(makeString(newVal, currentY));
 		},
-		[onDragValueChange, field.key, dragY, codeY, makeString],
+		[onDragValueChange, dragY, codeY, makeString],
 	);
 
 	const onXChangeEnd = useCallback(
 		(newVal: number) => {
 			const currentY = dragY ?? codeY;
 			const newStr = makeString(newVal, currentY);
-			if (canUpdate && newStr !== codeValue) {
-				onSave(field.key, newStr).finally(() => {
+			if (propStatus.canUpdate && newStr !== propStatus.codeValue) {
+				onSave(newStr).finally(() => {
 					setDragX(null);
 					onDragEnd();
 				});
@@ -93,33 +96,24 @@ export const TimelineTranslateField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[
-			dragY,
-			codeY,
-			makeString,
-			canUpdate,
-			codeValue,
-			onSave,
-			field.key,
-			onDragEnd,
-		],
+		[dragY, codeY, makeString, propStatus, onSave, onDragEnd],
 	);
 
 	const onXTextChange = useCallback(
 		(newVal: string) => {
-			if (canUpdate) {
+			if (propStatus.canUpdate) {
 				const parsed = Number(newVal);
 				if (!Number.isNaN(parsed)) {
 					const currentY = dragY ?? codeY;
 					const newStr = makeString(parsed, currentY);
-					if (newStr !== codeValue) {
+					if (newStr !== propStatus.codeValue) {
 						setDragX(parsed);
-						onSave(field.key, newStr);
+						onSave(newStr);
 					}
 				}
 			}
 		},
-		[canUpdate, dragY, codeY, makeString, codeValue, onSave, field.key],
+		[propStatus, dragY, codeY, makeString, onSave],
 	);
 
 	// --- Y callbacks ---
@@ -127,17 +121,17 @@ export const TimelineTranslateField: React.FC<{
 		(newVal: number) => {
 			setDragY(newVal);
 			const currentX = dragX ?? codeX;
-			onDragValueChange(field.key, makeString(currentX, newVal));
+			onDragValueChange(makeString(currentX, newVal));
 		},
-		[onDragValueChange, field.key, dragX, codeX, makeString],
+		[onDragValueChange, dragX, codeX, makeString],
 	);
 
 	const onYChangeEnd = useCallback(
 		(newVal: number) => {
 			const currentX = dragX ?? codeX;
 			const newStr = makeString(currentX, newVal);
-			if (canUpdate && newStr !== codeValue) {
-				onSave(field.key, newStr).finally(() => {
+			if (propStatus.canUpdate && newStr !== propStatus.codeValue) {
+				onSave(newStr).finally(() => {
 					setDragY(null);
 					onDragEnd();
 				});
@@ -146,35 +140,26 @@ export const TimelineTranslateField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[
-			dragX,
-			codeX,
-			makeString,
-			canUpdate,
-			codeValue,
-			onSave,
-			field.key,
-			onDragEnd,
-		],
+		[dragX, codeX, makeString, propStatus, onSave, onDragEnd],
 	);
 
 	const onYTextChange = useCallback(
 		(newVal: string) => {
-			if (canUpdate) {
+			if (propStatus.canUpdate) {
 				const parsed = Number(newVal);
 				if (!Number.isNaN(parsed)) {
 					const currentX = dragX ?? codeX;
 					const newStr = makeString(currentX, parsed);
-					if (newStr !== codeValue) {
+					if (newStr !== propStatus.codeValue) {
 						setDragY(parsed);
-						onSave(field.key, newStr).catch(() => {
+						onSave(newStr).catch(() => {
 							setDragY(null);
 						});
 					}
 				}
 			}
 		},
-		[canUpdate, onSave, field.key, codeValue, dragX, codeX, makeString],
+		[propStatus, onSave, dragX, codeX, makeString],
 	);
 
 	return (

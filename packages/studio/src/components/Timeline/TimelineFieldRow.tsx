@@ -3,7 +3,11 @@ import type {SequenceNodePath} from 'remotion';
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {Padder} from './Padder';
@@ -56,6 +60,10 @@ export const TimelineFieldRow: React.FC<{
 	const codeValuesForOverride = getCodeValues(nodePath);
 	const codeValue = codeValuesForOverride?.[field.key] ?? null;
 
+	if (codeValue === null) {
+		throw new Error('Unexpectedly got null code value for field' + field.key);
+	}
+
 	const dragOverrideValue = useMemo(() => {
 		return nodePath === null
 			? undefined
@@ -72,14 +80,13 @@ export const TimelineFieldRow: React.FC<{
 
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 
-	const onSave = useCallback(
-		(key: string, value: unknown): Promise<void> => {
+	const onSave = useCallback<TimelineFieldOnSave>(
+		(value) => {
 			if (!codeValuesForOverride || !validatedLocation || !nodePath) {
 				return Promise.reject(new Error('Cannot save'));
 			}
 
-			const status = codeValuesForOverride[key];
-			if (!status || !status.canUpdate) {
+			if (!codeValue || !codeValue.canUpdate) {
 				return Promise.reject(new Error('Cannot save'));
 			}
 
@@ -88,11 +95,24 @@ export const TimelineFieldRow: React.FC<{
 					? JSON.stringify(field.fieldSchema.default)
 					: null;
 
+			const stringifiedValue = JSON.stringify(value);
+
+			if (value === codeValue.codeValue) {
+				return Promise.resolve();
+			}
+
+			if (
+				defaultValue === stringifiedValue &&
+				codeValue.codeValue === undefined
+			) {
+				return Promise.resolve();
+			}
+
 			return callApi('/api/save-sequence-props', {
 				fileName: validatedLocation.source,
 				nodePath,
-				key,
-				value: JSON.stringify(value),
+				key: field.key,
+				value: stringifiedValue,
 				defaultValue,
 				schema,
 			}).then((data) => {
@@ -105,8 +125,10 @@ export const TimelineFieldRow: React.FC<{
 			});
 		},
 		[
+			codeValue,
 			codeValuesForOverride,
 			field.fieldSchema.default,
+			field.key,
 			nodePath,
 			schema,
 			setCodeValues,
@@ -114,15 +136,15 @@ export const TimelineFieldRow: React.FC<{
 		],
 	);
 
-	const onDragValueChange = useCallback(
-		(key: string, value: unknown) => {
+	const onDragValueChange = useCallback<TimelineFieldOnDragValueChange>(
+		(value) => {
 			if (nodePath === null) {
 				throw new Error('Cannot drag value');
 			}
 
-			setDragOverrides(nodePath, key, value);
+			setDragOverrides(nodePath, field.key, value);
 		},
-		[setDragOverrides, nodePath],
+		[setDragOverrides, nodePath, field.key],
 	);
 
 	const onDragEnd = useCallback(() => {
@@ -153,9 +175,7 @@ export const TimelineFieldRow: React.FC<{
 				onSave={onSave}
 				onDragValueChange={onDragValueChange}
 				onDragEnd={onDragEnd}
-				canUpdate={codeValue?.canUpdate ?? false}
 				effectiveValue={effectiveValue}
-				codeValue={codeValue}
 			/>
 		</div>
 	);
