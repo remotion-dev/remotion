@@ -34,6 +34,7 @@ export const fg = (r: number, g: number, b: number, str: string) =>
 	`\u001b[38;2;${r};${g};${b}m${str}\u001b[39m`;
 export const bg = (r: number, g: number, b: number, str: string) =>
 	`\u001b[48;2;${r};${g};${b}m${str}\u001b[49m`;
+// eslint-disable-next-line no-control-regex
 const stripAnsi = (str: string) => str.replace(/\u001b\[[0-9;]*m/g, '');
 export const strikeThrough = (str: string) =>
 	`\u001b[9m\u001b[38;2;255;85;85m${stripAnsi(str)}\u001b[39m\u001b[29m`;
