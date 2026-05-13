@@ -259,6 +259,10 @@ const VideoInner: React.FC<
 		[basicInfo],
 	);
 
+	const memoizedEffects = Internals.useMemoizedEffects(
+		Internals.flattenEffects(_experimentalEffects ?? []),
+	);
+
 	if (sequenceDurationInFrames === 0) {
 		return null;
 	}
@@ -273,6 +277,7 @@ const VideoInner: React.FC<
 			name={name ?? '<Video>'}
 			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
+			_experimentalEffects={memoizedEffects}
 			showInTimeline={showInTimeline ?? true}
 		>
 			<InnerVideo
@@ -309,7 +314,7 @@ const VideoInner: React.FC<
 				_experimentalInitiallyDrawCachedFrame={
 					_experimentalInitiallyDrawCachedFrame ?? false
 				}
-				_experimentalEffects={_experimentalEffects ?? []}
+				_experimentalEffects={memoizedEffects}
 				setMediaDurationInSeconds={setMediaDurationInSeconds}
 			/>
 		</Sequence>

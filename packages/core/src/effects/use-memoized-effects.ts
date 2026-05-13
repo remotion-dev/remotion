@@ -30,6 +30,7 @@ export const useMemoizedEffects = (
 		stack: e.stack,
 		effectKey: e.effectKey,
 		params: e.params,
+		memoized: true,
 	}));
 	previousRef.current = next;
 	return next;
