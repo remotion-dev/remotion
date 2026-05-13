@@ -23,8 +23,8 @@ const Component: React.FC = () => {
 					Capitalize: the quick brown fox jumps over the lazy dog.
 				</p>
 				<p style={{textTransform: 'capitalize', marginBottom: 10}}>
-					Capitalize with punctuation: the "brown fox, jumps over -the lazy
-					dog's back.
+					Capitalize with punctuation: the &quot;brown fox, jumps over -the lazy
+					dog&apos;s back.
 				</p>
 				<p style={{textTransform: 'capitalize', letterSpacing: '3px'}}>
 					Capitalize with spacing: the quick brown fox jumps over the lazy dog.
