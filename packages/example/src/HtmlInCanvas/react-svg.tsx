@@ -20,7 +20,7 @@ export const HtmlInCanvasReactSvg: React.FC<{
 						dotSpacing: 20,
 						shape: 'line',
 					}),
-					tint({color: 'green', amount: 1}),
+					tint({color: 'red', amount: 1}),
 				]}
 			>
 				<ReactSvg transparent={transparent} />

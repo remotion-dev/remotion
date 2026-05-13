@@ -18,6 +18,7 @@ const blurHorizontalDef = defineEffect<BlurHorizontalParams, BlurState>({
 	type: 'remotion/blur-horizontal',
 	label: 'Blur (horizontal)',
 	backend: 'webgl2',
+	calculateKey: (params) => String(params.radius),
 	setup: (target) => setupBlur(target, BLUR_FS_HORIZONTAL),
 	apply: ({source, width, height, params, state}) => {
 		applyBlur(state, source, width, height, params.radius);

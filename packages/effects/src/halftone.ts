@@ -267,6 +267,10 @@ const halftoneDef = defineEffect<HalftoneParams, HalftoneState>({
 	type: 'remotion/halftone',
 	label: 'Halftone',
 	backend: 'webgl2',
+	calculateKey: (params) => {
+		const r = resolve(params);
+		return `halftone-${r.shape}-${r.dotSize}-${r.dotSpacing}-${r.rotation}-${r.offsetX}-${r.offsetY}-${r.sampling}-${r.color}-${r.shadeOutside ? 1 : 0}`;
+	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
 			premultipliedAlpha: true,

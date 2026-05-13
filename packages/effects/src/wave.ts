@@ -31,6 +31,10 @@ const waveDef = defineEffect<WaveParams, null>({
 	type: 'remotion/wave',
 	label: 'Wave',
 	backend: '2d',
+	calculateKey: (params) => {
+		const r = resolve(params);
+		return `wave-${r.amplitude}-${r.wavelength}-${r.speed}-${r.sliceWidth}-${r.background}`;
+	},
 	setup: () => null,
 	apply: ({source, target, frame, width, height, params}) => {
 		const ctx = target.getContext('2d');
