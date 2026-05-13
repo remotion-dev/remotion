@@ -44,7 +44,6 @@ export const SequenceVisibilityToggleContext =
 	});
 
 export type VisualModeCodeValues = {
-	visualModeEnabled: boolean;
 	getCodeValues: GetCodeValues;
 };
 
@@ -104,7 +103,6 @@ export const VisualModeCodeValuesContext =
 		getCodeValues: () => {
 			throw new Error('VisualModeCodeValuesContext not initialized');
 		},
-		visualModeEnabled: false,
 	});
 
 export const VisualModeDragOverridesContext =
@@ -128,8 +126,7 @@ export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 
 export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
-	readonly visualModeEnabled: boolean;
-}> = ({children, visualModeEnabled}) => {
+}> = ({children}) => {
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 	const [hidden, setHidden] = useState<Record<string, boolean>>({});
 	const [dragOverrides, setControlOverrides] = useState<DragOverrides>({});
@@ -227,10 +224,9 @@ export const SequenceManagerProvider: React.FC<{
 
 	const codeValuesContext: VisualModeCodeValues = useMemo(() => {
 		return {
-			visualModeEnabled,
 			getCodeValues,
 		};
-	}, [visualModeEnabled, getCodeValues]);
+	}, [getCodeValues]);
 
 	const dragOverridesContext: VisualModeDragOverrides = useMemo(() => {
 		return {

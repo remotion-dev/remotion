@@ -1,4 +1,3 @@
-import './enable-visual-mode-env.js';
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
 import React, {useCallback, useMemo, useState} from 'react';
@@ -40,7 +39,6 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 
 		const visualCodeValues = useMemo(
 			() => ({
-				visualModeEnabled: true,
 				getCodeValues: () => {
 					throw new Error('VisualModeCodeValuesContext not initialized');
 				},

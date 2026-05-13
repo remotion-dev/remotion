@@ -85,14 +85,12 @@ export const getConfig = ({
 	bufferStateDelayInMilliseconds,
 	maxTimelineTracks,
 	experimentalClientSideRenderingEnabled,
-	experimentalVisualModeEnabled,
 }: {
 	outDir: string;
 	entryPoint: string;
 	resolvedRemotionRoot: string;
 	bufferStateDelayInMilliseconds: number | null;
 	experimentalClientSideRenderingEnabled: boolean;
-	experimentalVisualModeEnabled: boolean;
 	maxTimelineTracks: number | null;
 	onProgress: (progress: number) => void;
 	options: MandatoryLegacyBundleOptions;
@@ -118,7 +116,6 @@ export const getConfig = ({
 		bufferStateDelayInMilliseconds,
 		poll: null,
 		experimentalClientSideRenderingEnabled,
-		experimentalVisualModeEnabled,
 		askAIEnabled: options?.askAIEnabled ?? true,
 		extraPlugins: [],
 	};
@@ -140,7 +137,6 @@ type NewBundleOptions = {
 	bufferStateDelayInMilliseconds: number | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	experimentalClientSideRenderingEnabled: boolean;
-	experimentalVisualModeEnabled: boolean;
 	renderDefaults: RenderDefaults | null;
 };
 
@@ -258,7 +254,6 @@ export const internalBundle = async (
 		maxTimelineTracks: actualArgs.maxTimelineTracks,
 		experimentalClientSideRenderingEnabled:
 			actualArgs.experimentalClientSideRenderingEnabled,
-		experimentalVisualModeEnabled: actualArgs.experimentalVisualModeEnabled,
 	});
 
 	if (actualArgs.rspack) {
@@ -449,8 +444,6 @@ export async function bundle(...args: Arguments): Promise<string> {
 		audioLatencyHint: actualArgs.audioLatencyHint ?? null,
 		experimentalClientSideRenderingEnabled:
 			actualArgs.experimentalClientSideRenderingEnabled ?? false,
-		experimentalVisualModeEnabled:
-			actualArgs.experimentalVisualModeEnabled ?? false,
 		renderDefaults: actualArgs.renderDefaults ?? null,
 		askAIEnabled: actualArgs.askAIEnabled ?? true,
 		keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled ?? true,

@@ -50,7 +50,6 @@ const {
 	webpackPollOption,
 	keyboardShortcutsOption,
 	experimentalClientSideRenderingOption,
-	experimentalVisualModeOption,
 	imageSequencePatternOption,
 	scaleOption,
 	overwriteOption,
@@ -152,9 +151,6 @@ export type CommandLineOptions = {
 	[experimentalClientSideRenderingOption.cliFlag]: TypeOfOption<
 		typeof experimentalClientSideRenderingOption
 	>;
-	[experimentalVisualModeOption.cliFlag]: TypeOfOption<
-		typeof experimentalVisualModeOption
-	>;
 	[mutedOption.cliFlag]: TypeOfOption<typeof mutedOption>;
 	[overrideHeightOption.cliFlag]: TypeOfOption<typeof overrideHeightOption>;
 	[overrideWidthOption.cliFlag]: TypeOfOption<typeof overrideWidthOption>;
@@ -205,7 +201,6 @@ export const BooleanFlags = [
 	keyboardShortcutsOption.cliFlag,
 	allowHtmlInCanvasOption.cliFlag,
 	experimentalClientSideRenderingOption.cliFlag,
-	experimentalVisualModeOption.cliFlag,
 	ipv4Option.cliFlag,
 	beepOnFinishOption.cliFlag,
 	disableGitSourceOption.cliFlag,
@@ -224,7 +219,6 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[bundleCacheOption.cliFlag]: null,
 		[allowHtmlInCanvasOption.cliFlag]: null,
 		[experimentalClientSideRenderingOption.cliFlag]: null,
-		[experimentalVisualModeOption.cliFlag]: null,
 		[mutedOption.cliFlag]: null,
 	},
 }) as CommandLineOptions & {

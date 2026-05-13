@@ -83,32 +83,26 @@ const TimelineInner: React.FC = () => {
 
 	const hasBeenCut = filtered.length > shown.length;
 
-	const visualModeEnvEnabled = Boolean(
-		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
-	);
-
 	return (
 		<div
 			ref={timelineVerticalScroll}
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
-			{visualModeEnvEnabled
-				? sequences.map((sequence) => {
-						if (!sequence.controls || !previewConnected || !sequence.stack) {
-							return null;
-						}
+			{sequences.map((sequence) => {
+				if (!sequence.controls || !previewConnected || !sequence.stack) {
+					return null;
+				}
 
-						return (
-							<SubscribeToNodePaths
-								key={sequence.id}
-								overrideId={sequence.controls.overrideId}
-								schema={sequence.controls.schema}
-								stack={sequence.stack}
-							/>
-						);
-					})
-				: null}
+				return (
+					<SubscribeToNodePaths
+						key={sequence.id}
+						overrideId={sequence.controls.overrideId}
+						schema={sequence.controls.schema}
+						stack={sequence.stack}
+					/>
+				);
+			})}
 			<SequencePropsObserver />
 			<TimelineWidthProvider>
 				<TimelinePinchZoom />
