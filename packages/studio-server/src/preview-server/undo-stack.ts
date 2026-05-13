@@ -280,7 +280,7 @@ function logFileAction(action: string, filePath: string, logLine: number) {
 			: `${filePath}:${logLine}`;
 	RenderInternals.Log.info(
 		{indent: false, logLevel: storedLogLevel},
-		`${RenderInternals.chalk.blueBright(`${locationLabel}:`)} ${action}`,
+		`${RenderInternals.chalk.blueBright(`${locationLabel}`)} ${action}`,
 	);
 }
 

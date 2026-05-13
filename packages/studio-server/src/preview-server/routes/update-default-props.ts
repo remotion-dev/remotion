@@ -19,7 +19,7 @@ import {
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {checkIfTypeScriptFile} from './can-update-default-props';
-import {warnAboutPrettierOnce} from './log-update';
+import {warnAboutPrettierOnce} from './log-updates/log-update';
 
 export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,
@@ -78,7 +78,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 		});
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
-			`${RenderInternals.chalk.blueBright(`${locationLabel}:`)} Updated default props for "${compositionId}"`,
+			`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Updated default props for "${compositionId}"`,
 		);
 		if (!formatted) {
 			warnAboutPrettierOnce(logLevel);

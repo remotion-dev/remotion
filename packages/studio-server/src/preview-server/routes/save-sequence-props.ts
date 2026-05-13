@@ -15,7 +15,8 @@ import {
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {computeSequencePropsStatus} from './can-update-sequence-props';
-import {formatPropChange, logUpdate, normalizeQuotes} from './log-update';
+import {formatPropChange} from './log-updates/format-prop-change';
+import {logUpdate, normalizeQuotes} from './log-updates/log-update';
 
 export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
