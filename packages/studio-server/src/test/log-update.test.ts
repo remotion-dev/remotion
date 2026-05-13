@@ -7,7 +7,7 @@ import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
-import {updateSequenceProps} from '../codemods/update-sequence-props';
+import {updateSequenceProps} from '../codemods/update-sequence-props/update-sequence-props';
 import {
 	fg,
 	formatPropChange,
