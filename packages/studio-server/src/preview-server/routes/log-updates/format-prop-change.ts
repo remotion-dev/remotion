@@ -1,6 +1,5 @@
 import {formatSideProps} from './format-side-props';
 import {
-	colorEnabled,
 	formatAddition,
 	formatDeletion,
 	formatPropDelta,
@@ -44,8 +43,7 @@ export const formatPropChange = ({
 	removedProps: PropDelta[];
 	addedProps: PropDelta[];
 }) => {
-	const color = colorEnabled();
-	const suffix = formatSideProps({removedProps, addedProps, color});
+	const suffix = formatSideProps({removedProps, addedProps});
 
 	return [
 		formatInnerPropChange({
