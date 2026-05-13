@@ -1,4 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
+import type {CanUpdateSequencePropStatus} from 'remotion';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {draggerStyle, getDecimalPlaces} from './timeline-field-utils';
@@ -6,19 +7,17 @@ import {draggerStyle, getDecimalPlaces} from './timeline-field-utils';
 export const TimelineNumberField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly effectiveValue: unknown;
-	readonly codeValue: unknown;
-	readonly canUpdate: boolean;
+	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly onSave: (value: unknown) => Promise<void>;
 	readonly onDragValueChange: (value: unknown) => void;
 	readonly onDragEnd: () => void;
 }> = ({
 	field,
 	effectiveValue,
-	canUpdate,
 	onSave,
 	onDragValueChange,
 	onDragEnd,
-	codeValue,
+	propStatus,
 }) => {
 	const [dragValue, setDragValue] = useState<number | null>(null);
 
@@ -32,7 +31,7 @@ export const TimelineNumberField: React.FC<{
 
 	const onValueChangeEnd = useCallback(
 		(newVal: number) => {
-			if (canUpdate && newVal !== codeValue) {
+			if (propStatus.canUpdate && newVal !== propStatus.codeValue) {
 				onSave(newVal).finally(() => {
 					setDragValue(null);
 					onDragEnd();
@@ -42,14 +41,18 @@ export const TimelineNumberField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[canUpdate, onSave, codeValue, onDragEnd],
+		[onSave, propStatus, onDragEnd],
 	);
 
 	const onTextChange = useCallback(
 		(newVal: string) => {
-			if (canUpdate) {
+			if (propStatus.canUpdate) {
 				const parsed = Number(newVal);
-				if (!Number.isNaN(parsed) && parsed !== codeValue) {
+				if (
+					!Number.isNaN(parsed) &&
+					propStatus.canUpdate &&
+					parsed !== propStatus.codeValue
+				) {
 					setDragValue(parsed);
 					onSave(parsed).catch(() => {
 						setDragValue(null);
@@ -57,7 +60,7 @@ export const TimelineNumberField: React.FC<{
 				}
 			}
 		},
-		[canUpdate, onSave, codeValue],
+		[onSave, propStatus],
 	);
 
 	const step =

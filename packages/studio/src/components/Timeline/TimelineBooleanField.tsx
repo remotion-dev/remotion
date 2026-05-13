@@ -1,4 +1,5 @@
 import React, {useCallback} from 'react';
+import type {CanUpdateSequencePropStatus} from 'remotion';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {Checkbox} from '../Checkbox';
 
@@ -8,19 +9,18 @@ const checkboxContainer: React.CSSProperties = {
 
 export const TimelineBooleanField: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly codeValue: unknown;
+	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly effectiveValue: unknown;
-	readonly canUpdate: boolean;
-	readonly onSave: (key: string, value: unknown) => Promise<void>;
-}> = ({field, codeValue, effectiveValue, canUpdate, onSave}) => {
+	readonly onSave: (value: unknown) => Promise<void>;
+}> = ({field, propStatus, effectiveValue, onSave}) => {
 	const checked = Boolean(effectiveValue);
 
 	const onChange = useCallback(() => {
 		const newValue = !checked;
-		if (canUpdate && newValue !== codeValue) {
-			onSave(field.key, newValue);
+		if (propStatus.canUpdate && newValue !== propStatus.codeValue) {
+			onSave(newValue);
 		}
-	}, [canUpdate, onSave, field.key, checked, codeValue]);
+	}, [propStatus, onSave, checked]);
 
 	return (
 		<div style={checkboxContainer}>
@@ -28,7 +28,7 @@ export const TimelineBooleanField: React.FC<{
 				checked={checked}
 				onChange={onChange}
 				name={field.key}
-				disabled={!canUpdate}
+				disabled={!propStatus.canUpdate}
 				variant="small"
 			/>
 		</div>

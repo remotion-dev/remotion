@@ -56,6 +56,10 @@ export const TimelineFieldRow: React.FC<{
 	const codeValuesForOverride = getCodeValues(nodePath);
 	const codeValue = codeValuesForOverride?.[field.key] ?? null;
 
+	if (codeValue === null) {
+		throw new Error('Unexpectedly got null code value for field' + field.key);
+	}
+
 	const dragOverrideValue = useMemo(() => {
 		return nodePath === null
 			? undefined
@@ -167,9 +171,7 @@ export const TimelineFieldRow: React.FC<{
 				onSave={onSave}
 				onDragValueChange={onDragValueChange}
 				onDragEnd={onDragEnd}
-				canUpdate={codeValue?.canUpdate ?? false}
 				effectiveValue={effectiveValue}
-				codeValue={codeValue}
 			/>
 		</div>
 	);

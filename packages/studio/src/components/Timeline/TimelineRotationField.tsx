@@ -1,4 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
+import type {CanUpdateSequencePropStatus} from 'remotion';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {draggerStyle, getDecimalPlaces} from './timeline-field-utils';
@@ -29,16 +30,14 @@ const parseCssRotationToDegrees = (value: string): number => {
 export const TimelineRotationField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly effectiveValue: unknown;
-	readonly codeValue: unknown;
-	readonly canUpdate: boolean;
+	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly onSave: (value: unknown) => Promise<void>;
 	readonly onDragValueChange: (value: unknown) => void;
 	readonly onDragEnd: () => void;
 }> = ({
 	field,
 	effectiveValue,
-	codeValue,
-	canUpdate,
+	propStatus,
 	onSave,
 	onDragValueChange,
 	onDragEnd,
@@ -61,7 +60,7 @@ export const TimelineRotationField: React.FC<{
 	const onValueChangeEnd = useCallback(
 		(newVal: number) => {
 			const newStr = `${newVal}deg`;
-			if (canUpdate && newStr !== codeValue) {
+			if (propStatus.canUpdate && newStr !== propStatus.codeValue) {
 				onSave(newStr).finally(() => {
 					setDragValue(null);
 					onDragEnd();
@@ -71,16 +70,16 @@ export const TimelineRotationField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[canUpdate, onSave, codeValue, onDragEnd],
+		[propStatus, onSave, onDragEnd],
 	);
 
 	const onTextChange = useCallback(
 		(newVal: string) => {
-			if (canUpdate) {
+			if (propStatus.canUpdate) {
 				const parsed = Number(newVal);
 				if (!Number.isNaN(parsed)) {
 					const newStr = `${parsed}deg`;
-					if (newStr !== codeValue) {
+					if (newStr !== propStatus.codeValue) {
 						setDragValue(parsed);
 						onSave(newStr).catch(() => {
 							setDragValue(null);
@@ -89,7 +88,7 @@ export const TimelineRotationField: React.FC<{
 				}
 			}
 		},
-		[canUpdate, onSave, codeValue],
+		[propStatus, onSave],
 	);
 
 	const step =
