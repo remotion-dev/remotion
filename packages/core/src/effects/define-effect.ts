@@ -23,9 +23,11 @@ export const createDescriptor = <P, S>(
 	definition: EffectDefinition<P, S>,
 	params: P,
 ): EffectDescriptor<unknown> => {
+	const widened = definition as unknown as EffectDefinition<unknown, unknown>;
 	return {
-		definition: definition as unknown as EffectDefinition<unknown, unknown>,
+		definition: widened,
 		params,
 		stack: new Error().stack!,
+		effectKey: widened.calculateKey(params),
 	};
 };

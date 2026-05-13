@@ -15,7 +15,9 @@ export const useMemoizedEffects = (
 		previous.length === effects.length &&
 		previous.every(
 			(p, i) =>
-				p.definition === effects[i].definition && p.stack === effects[i].stack,
+				p.definition === effects[i].definition &&
+				p.stack === effects[i].stack &&
+				p.effectKey === effects[i].effectKey,
 		);
 
 	if (isSame) {
@@ -25,6 +27,7 @@ export const useMemoizedEffects = (
 	const next: EffectDefinitionAndStack<unknown>[] = effects.map((e) => ({
 		definition: e.definition,
 		stack: e.stack,
+		effectKey: e.effectKey,
 	}));
 	previousRef.current = next;
 	return next;

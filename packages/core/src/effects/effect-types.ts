@@ -33,6 +33,13 @@ export type EffectDefinition<P, S = unknown> = {
 	readonly type: string;
 	readonly label: string;
 	readonly backend: Backend;
+	/**
+	 * Stable string for comparing effect instances: two descriptors with the same
+	 * `definition` and the same `calculateKey(params)` are treated as equivalent
+	 * for memoization (e.g. timeline registration) even when `params` is a new object
+	 * reference each render.
+	 */
+	readonly calculateKey: (params: P) => string;
 	readonly setup: (target: HTMLCanvasElement) => S;
 	readonly apply: (params: EffectApplyParams<P, S>) => void;
 	readonly cleanup: (state: S) => void;
@@ -42,6 +49,7 @@ export type EffectDefinition<P, S = unknown> = {
 export type EffectDefinitionAndStack<P = unknown> = {
 	readonly definition: EffectDefinition<P, unknown>;
 	readonly stack: string;
+	readonly effectKey: string;
 };
 
 export type EffectDescriptor<P = unknown> = EffectDefinitionAndStack<P> & {

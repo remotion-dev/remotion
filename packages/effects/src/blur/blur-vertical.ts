@@ -18,6 +18,7 @@ const blurVerticalDef = defineEffect<BlurVerticalParams, BlurState>({
 	type: 'remotion/blur-vertical',
 	label: 'Blur (vertical)',
 	backend: 'webgl2',
+	calculateKey: (params) => String(params.radius),
 	setup: (target) => setupBlur(target, BLUR_FS_VERTICAL),
 	apply: ({source, width, height, params, state}) => {
 		applyBlur(state, source, width, height, params.radius);
