@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import assert from 'node:assert';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
-import {getFieldsToShow, findPropsToDelete} from '@remotion/studio-shared';
+import {getFieldsToShow} from '@remotion/studio-shared';
 import {Internals} from 'remotion';
 import {parseAst} from '../codemods/parse-ast';
 import {updateSequencePropsAst} from '../codemods/update-sequence-props/update-sequence-props';

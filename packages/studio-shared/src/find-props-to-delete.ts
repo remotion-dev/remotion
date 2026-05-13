@@ -12,7 +12,8 @@ export const findPropsToDelete = ({
 	const fieldSchema = schema[key];
 
 	if (!fieldSchema) {
-		throw new Error('Key ' + JSON.stringify(key) + ' not found in schema');
+		// could be a non-top-level key, we don't support it for now
+		return [];
 	}
 
 	if (typeof value !== 'string') {

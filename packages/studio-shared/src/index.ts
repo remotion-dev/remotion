@@ -114,3 +114,4 @@ export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 
 export type {VisualControlChange} from './codemods';
 export {findPropsToDelete} from './find-props-to-delete';
+export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';

@@ -1,3 +1,4 @@
+import {optimisticUpdateForCodeValues} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {SequenceNodePath} from 'remotion';
 import type {SequenceSchema} from 'remotion';
@@ -110,17 +111,12 @@ export const TimelineFieldRow: React.FC<{
 
 			// Optimistic update to prevent flicker
 			setCodeValues(nodePath, (prev) => {
-				if (!prev.canUpdate) {
-					return prev;
-				}
-
-				return {
-					canUpdate: true,
-					props: {
-						...prev.props,
-						[field.key]: {canUpdate: true, codeValue: value},
-					},
-				};
+				return optimisticUpdateForCodeValues({
+					previous: prev,
+					fieldKey: field.key,
+					value,
+					schema,
+				});
 			});
 
 			return callApi('/api/save-sequence-props', {

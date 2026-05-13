@@ -3,13 +3,13 @@ import {Internals} from 'remotion';
 import {findPropsToDelete} from '../find-props-to-delete';
 
 test('find right values to delete when upgrading a discriminated union', () => {
-	expect(() =>
+	expect(
 		findPropsToDelete({
 			schema: Internals.sequenceSchema,
 			key: 'unknown',
 			value: 'none',
 		}),
-	).toThrow('Key "unknown" not found in schema');
+	).toEqual([]);
 	expect(() =>
 		findPropsToDelete({
 			schema: Internals.sequenceSchema,
