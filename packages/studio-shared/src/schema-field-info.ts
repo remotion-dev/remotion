@@ -47,12 +47,13 @@ export const getFieldsToShow = ({
 	getCodeValues: GetCodeValues;
 	nodePath: SequenceNodePath;
 }): SchemaFieldInfo[] | null => {
-	const valuesDotNotation = Internals.computeEffectiveSchemaValuesDotNotation({
-		schema,
-		currentValue: currentRuntimeValueDotNotation,
-		overrideValues: getDragOverrides(nodePath),
-		propStatus: getCodeValues(nodePath),
-	});
+	const {merged: valuesDotNotation} =
+		Internals.computeEffectiveSchemaValuesDotNotation({
+			schema,
+			currentValue: currentRuntimeValueDotNotation,
+			overrideValues: getDragOverrides(nodePath),
+			propStatus: getCodeValues(nodePath),
+		});
 
 	const activeSchema = Internals.flattenActiveSchema(
 		schema,

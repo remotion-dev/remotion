@@ -58,7 +58,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 	currentValue: Record<string, unknown>;
 	overrideValues: Record<string, unknown>;
 	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
-}): Record<string, unknown> => {
+}): {merged: Record<string, unknown>; propsToDelete: Set<string>} => {
 	const merged: Record<string, unknown> = {};
 	const propsToDelete = new Set<string>();
 	for (const key of Object.keys(currentValue)) {
@@ -69,13 +69,18 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			continue;
 		}
 
-		merged[key] = getEffectiveVisualModeValue({
+		const value = getEffectiveVisualModeValue({
 			codeValue: codeValueStatus,
 			runtimeValue: currentValue[key],
 			dragOverrideValue: overrideValues[key],
 			defaultValue: field?.default,
 			shouldResortToDefaultValueIfUndefined: false,
 		});
+		if (value === undefined) {
+			propsToDelete.add(key);
+		}
+
+		merged[key] = value;
 	}
 
 	for (const key of Object.keys(overrideValues)) {
@@ -91,9 +96,5 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 		}
 	}
 
-	for (const propToDelete of propsToDelete) {
-		delete merged[propToDelete];
-	}
-
-	return merged;
+	return {merged, propsToDelete};
 };

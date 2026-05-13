@@ -78,6 +78,7 @@ test('mergeValues writes nested values back into props with dot keys', () => {
 		props,
 		valuesDotNotation: values,
 		schemaKeys: ['layout', 'style.scale'],
+		propsToDelete: new Set(),
 	});
 	expect(merged.layout).toBe('absolute-fill');
 	expect((merged.style as {scale: number}).scale).toBe(2);
@@ -92,6 +93,7 @@ test('end-to-end: layout=none drops style.scale from active props', () => {
 		props,
 		valuesDotNotation: values,
 		schemaKeys: activeKeys,
+		propsToDelete: new Set(),
 	});
 	expect(activeKeys).toEqual(['layout']);
 	// style.scale was not in activeKeys → original style preserved, not overwritten

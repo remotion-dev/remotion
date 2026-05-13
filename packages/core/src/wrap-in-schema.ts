@@ -1,5 +1,6 @@
 import React, {forwardRef, useState, useContext, useMemo} from 'react';
 import type {SequenceControls} from './CompositionManager.js';
+import {deleteNestedKey} from './delete-nested-key.js';
 import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
@@ -55,10 +56,12 @@ export const mergeValues = ({
 	props,
 	valuesDotNotation,
 	schemaKeys,
+	propsToDelete,
 }: {
 	props: Record<string, unknown>;
 	valuesDotNotation: Record<string, unknown>;
 	schemaKeys: string[];
+	propsToDelete: Set<string>;
 }): Record<string, unknown> => {
 	const merged = {...props};
 
@@ -68,6 +71,7 @@ export const mergeValues = ({
 
 		if (parts.length === 1) {
 			merged[key] = value;
+
 			continue;
 		}
 
@@ -87,6 +91,8 @@ export const mergeValues = ({
 
 		current[parts[parts.length - 1]] = value;
 	}
+
+	deleteNestedKey(merged, propsToDelete);
 
 	return merged;
 };
@@ -191,7 +197,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 
 		// 3. Apply drag/code overrides on top of the runtime values.
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const valuesDotNotation = useMemo(() => {
+		const {merged: valuesDotNotation, propsToDelete} = useMemo(() => {
 			return computeEffectiveSchemaValuesDotNotation({
 				schema,
 				currentValue: currentRuntimeValueDotNotation,
@@ -213,6 +219,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 			props: props as Record<string, unknown>,
 			valuesDotNotation,
 			schemaKeys: activeKeys,
+			propsToDelete,
 		});
 
 		return React.createElement(Component, {
