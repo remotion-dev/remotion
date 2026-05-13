@@ -9,6 +9,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",
+		"test": "bun test src",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"make": "tsgo -d"

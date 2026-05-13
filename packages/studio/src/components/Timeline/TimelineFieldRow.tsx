@@ -1,5 +1,6 @@
+import {optimisticUpdateForCodeValues} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {SequenceNodePath} from 'remotion';
+import type {CanUpdateSequencePropsResponse, SequenceNodePath} from 'remotion';
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -108,19 +109,17 @@ export const TimelineFieldRow: React.FC<{
 				return Promise.resolve();
 			}
 
+			let previousUpdate: CanUpdateSequencePropsResponse | undefined;
+
 			// Optimistic update to prevent flicker
 			setCodeValues(nodePath, (prev) => {
-				if (!prev.canUpdate) {
-					return prev;
-				}
-
-				return {
-					canUpdate: true,
-					props: {
-						...prev.props,
-						[field.key]: {canUpdate: true, codeValue: value},
-					},
-				};
+				previousUpdate = prev;
+				return optimisticUpdateForCodeValues({
+					previous: prev,
+					fieldKey: field.key,
+					value,
+					schema,
+				});
 			});
 
 			return callApi('/api/save-sequence-props', {
@@ -130,9 +129,22 @@ export const TimelineFieldRow: React.FC<{
 				value: stringifiedValue,
 				defaultValue,
 				schema,
-			}).then((data) => {
-				setCodeValues(nodePath, () => data);
-			});
+			})
+				.then((data) => {
+					setCodeValues(nodePath, () => data);
+				})
+				.catch(() => {
+					// In case something went wrong, undo optimistic update
+					if (previousUpdate) {
+						setCodeValues(nodePath, (current) => {
+							if (previousUpdate) {
+								return previousUpdate;
+							}
+
+							return current;
+						});
+					}
+				});
 		},
 		[
 			codeValue,
