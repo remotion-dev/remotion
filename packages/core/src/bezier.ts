@@ -146,19 +146,21 @@ export function bezier(
 	}
 
 	return function (x: number): number {
+		const clampedX = Math.min(1, Math.max(0, x));
+
 		if (mX1 === mY1 && mX2 === mY2) {
-			return x; // linear
+			return clampedX; // linear
 		}
 
 		// Because JavaScript number are imprecise, we should guarantee the extremes are right.
-		if (x === 0) {
+		if (clampedX === 0) {
 			return 0;
 		}
 
-		if (x === 1) {
+		if (clampedX === 1) {
 			return 1;
 		}
 
-		return calcBezier(getTForX(x), mY1, mY2);
+		return calcBezier(getTForX(clampedX), mY1, mY2);
 	};
 }
