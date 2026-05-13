@@ -14,6 +14,32 @@ import {
 import type {SkillEvalComparison} from './manifest';
 import {runSkillEval, type SkillEvalOutput} from './run-skill-eval';
 
+export type SkillEvalComparisonRunLabel = 'after' | 'before';
+
+export type SkillEvalComparisonEvent =
+	| {
+			message: string;
+			type: 'message';
+	  }
+	| {
+			label: SkillEvalComparisonRunLabel;
+			type: 'run-start';
+	  }
+	| {
+			label: SkillEvalComparisonRunLabel;
+			output: SkillEvalOutput;
+			type: 'run-output';
+	  }
+	| {
+			label: SkillEvalComparisonRunLabel;
+			type: 'run-complete';
+	  }
+	| {
+			error: string;
+			label: SkillEvalComparisonRunLabel;
+			type: 'run-error';
+	  };
+
 type SkillEvalComparisonResult =
 	| {
 			skipped: false;
@@ -25,6 +51,7 @@ type SkillEvalComparisonResult =
 	  };
 
 type SkillEvalComparisonOptions = {
+	onEvent?: (event: SkillEvalComparisonEvent) => void;
 	onLog?: (chunk: string) => void;
 };
 
@@ -45,6 +72,9 @@ const repoRoot = resolve(packageRoot, '..', '..');
 const runsRoot = resolve(packageRoot, '.runs');
 const skillsSource = resolve(packageRoot, '..', 'skills', 'skills');
 const comparisonsRoot = join(runsRoot, 'comparisons');
+
+const getErrorMessage = (error: unknown) =>
+	error instanceof Error ? error.message : String(error);
 
 const findLatestComparison = async (scenarioId: string) => {
 	const scenarioComparisonsRoot = join(
@@ -184,11 +214,15 @@ export const runSkillEvalComparison = async (
 	const afterSkillsPath = join(comparisonDir, 'after-skills');
 	const skillDiffPath = join(comparisonDir, 'skills.diff');
 	const createdAt = new Date().toISOString();
+	const emitMessage = (message: string) => {
+		options.onEvent?.({message, type: 'message'});
+		options.onLog?.(message);
+	};
 
 	await rm(comparisonDir, {force: true, recursive: true});
 	await mkdir(comparisonDir, {recursive: true});
 
-	options.onLog?.(`[compare] Preparing ${scenario.id}\n`);
+	emitMessage(`[compare] Preparing ${scenario.id}\n`);
 	const beforeSource = await prepareBeforeSkills({
 		beforeSkillsPath,
 		scenarioId: scenario.id,
@@ -204,7 +238,7 @@ export const runSkillEvalComparison = async (
 
 	await copyDirectory(skillsSource, afterSkillsPath);
 
-	options.onLog?.('[compare] Diffing skill snapshots\n');
+	emitMessage('[compare] Diffing skill snapshots\n');
 	const diff = await runCommand({
 		command: [
 			'git',
@@ -232,37 +266,65 @@ export const runSkillEvalComparison = async (
 	await writeFile(skillDiffPath, `${diff.stdout}${diff.stderr}`);
 
 	const forwardOutput =
-		(label: 'after' | 'before') => (output: SkillEvalOutput) => {
+		(label: SkillEvalComparisonRunLabel) => (output: SkillEvalOutput) => {
+			options.onEvent?.({label, output, type: 'run-output'});
 			options.onLog?.(
 				`[${label} ${output.phase} ${output.stream}] ${output.chunk}`,
 			);
 		};
 
-	options.onLog?.('[compare] Running before snapshot\n');
-	const before = await runSkillEval({
-		...scenario,
-		onOutput: forwardOutput('before'),
-		runLabel: 'before',
-		runRoot: join(comparisonDir, 'runs'),
-		skillSnapshot: {
-			comparisonId: beforeSource.comparisonId,
-			gitRef: beforeSource.gitRef,
-			label: 'before',
-		},
-		skillsSourcePath: beforeSkillsPath,
-	});
-	options.onLog?.('[compare] Running after snapshot\n');
-	const after = await runSkillEval({
-		...scenario,
-		onOutput: forwardOutput('after'),
-		runLabel: 'after',
-		runRoot: join(comparisonDir, 'runs'),
-		skillSnapshot: {
-			isWorkingTree: true,
-			label: 'after',
-		},
-		skillsSourcePath: afterSkillsPath,
-	});
+	const runSnapshot = async (label: SkillEvalComparisonRunLabel) => {
+		emitMessage(`[compare] Running ${label} snapshot\n`);
+		options.onEvent?.({label, type: 'run-start'});
+
+		try {
+			const result = await runSkillEval({
+				...scenario,
+				onOutput: forwardOutput(label),
+				runLabel: label,
+				runRoot: join(comparisonDir, 'runs'),
+				skillSnapshot:
+					label === 'before'
+						? {
+								comparisonId: beforeSource.comparisonId,
+								gitRef: beforeSource.gitRef,
+								label,
+							}
+						: {
+								isWorkingTree: true,
+								label,
+							},
+				skillsSourcePath:
+					label === 'before' ? beforeSkillsPath : afterSkillsPath,
+			});
+
+			options.onEvent?.({label, type: 'run-complete'});
+			return result;
+		} catch (error) {
+			options.onEvent?.({
+				error: getErrorMessage(error),
+				label,
+				type: 'run-error',
+			});
+			throw error;
+		}
+	};
+
+	const [beforeResult, afterResult] = await Promise.allSettled([
+		runSnapshot('before'),
+		runSnapshot('after'),
+	]);
+
+	if (beforeResult.status === 'rejected') {
+		throw beforeResult.reason;
+	}
+
+	if (afterResult.status === 'rejected') {
+		throw afterResult.reason;
+	}
+
+	const before = beforeResult.value;
+	const after = afterResult.value;
 	const completedAt = new Date().toISOString();
 	const comparison: SkillEvalComparison = {
 		after: {
@@ -290,7 +352,7 @@ export const runSkillEvalComparison = async (
 	};
 
 	await writeJson(join(comparisonDir, 'comparison.json'), comparison);
-	options.onLog?.('[compare] Comparison complete\n');
+	emitMessage('[compare] Comparison complete\n');
 
 	return {
 		comparison,
