@@ -1,4 +1,3 @@
-import {RenderInternals} from '@remotion/renderer';
 import {
 	attrName,
 	colorValue,
@@ -11,8 +10,6 @@ export type PropDelta = {
 	key: string;
 	valueString: string;
 };
-
-export const colorEnabled = () => RenderInternals.chalk.enabled();
 
 // Format key={value} with Monokai syntax highlighting
 const formatSimpleProp = (key: string, value: string) => {
@@ -28,8 +25,8 @@ const formatNestedProp = (
 	return `${attrName(parentKey)}${equals('=')}${punctuation('{{')}${punctuation(childKey)}${punctuation(':')} ${colorValue(value)}${punctuation('}}')}`;
 };
 
-const formatPropDelta = ({key, valueString}: PropDelta) => {
-	if (!colorEnabled()) {
+const formatPropDelta = ({key, valueString}: PropDelta, color: boolean) => {
+	if (!color) {
 		const dotIndex = key.indexOf('.');
 		if (dotIndex === -1) {
 			return `${key}={${valueString}}`;
@@ -55,24 +52,34 @@ const formatPropDelta = ({key, valueString}: PropDelta) => {
 export const formatSideProps = ({
 	removedProps,
 	addedProps,
+	color,
 }: {
 	removedProps: PropDelta[];
 	addedProps: PropDelta[];
+	color: boolean;
 }) => {
 	const parts: string[] = [];
 
 	for (const prop of removedProps) {
-		const formatted = formatPropDelta(prop);
-		parts.push(colorEnabled() ? strikeThrough(formatted) : formatted);
+		const formatted = formatPropDelta(prop, color);
+		if (color) {
+			parts.push(strikeThrough(formatted));
+		} else {
+			parts.push('removed: ' + formatted);
+		}
 	}
 
 	for (const prop of addedProps) {
-		parts.push(formatPropDelta(prop));
+		if (color) {
+			parts.push(formatPropDelta(prop, color));
+		} else {
+			parts.push('added: ' + formatPropDelta(prop, color));
+		}
 	}
 
 	if (parts.length === 0) {
-		return '';
+		return null;
 	}
 
-	return `, ${parts.join(', ')}`;
+	return parts.join(', ');
 };

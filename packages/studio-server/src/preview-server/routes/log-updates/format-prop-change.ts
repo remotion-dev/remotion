@@ -1,10 +1,7 @@
-import {
-	colorEnabled,
-	formatSideProps,
-	type PropDelta,
-} from './format-side-props';
+import {formatSideProps, type PropDelta} from './format-side-props';
 import {
 	attrName,
+	colorEnabled,
 	colorValue,
 	equals,
 	punctuation,
@@ -40,18 +37,8 @@ export const formatPropChange = ({
 	removedProps: PropDelta[];
 	addedProps: PropDelta[];
 }) => {
-	const suffix = formatSideProps({removedProps, addedProps});
-
-	if (!colorEnabled()) {
-		const dotIdx = key.indexOf('.');
-		if (dotIdx === -1) {
-			return `${key}={${oldValueString}} \u2192 ${key}={${newValueString}}${suffix}`;
-		}
-
-		const parent = key.slice(0, dotIdx);
-		const child = key.slice(dotIdx + 1);
-		return `${parent}={{${child}: ${oldValueString}}} \u2192 ${parent}={{${child}: ${newValueString}}}${suffix}`;
-	}
+	const color = colorEnabled();
+	const suffix = formatSideProps({removedProps, addedProps, color});
 
 	const dotIndex = key.indexOf('.');
 	const formatProp = (value: string) =>
@@ -64,12 +51,25 @@ export const formatPropChange = ({
 				);
 
 	if (defaultValueString !== null && newValueString === defaultValueString) {
-		return `${strikeThrough(formatProp(oldValueString))}${suffix}`;
+		if (!color) {
+			return ['removed: ' + formatProp(oldValueString), suffix]
+				.filter(Boolean)
+				.join(', ');
+		}
+
+		return [strikeThrough(formatProp(oldValueString)), suffix]
+			.filter(Boolean)
+			.join(', ');
 	}
 
 	if (defaultValueString !== null && oldValueString === defaultValueString) {
-		return `${formatProp(newValueString)}${suffix}`;
+		return [formatProp(newValueString), suffix].filter(Boolean).join(', ');
 	}
 
-	return `${formatProp(oldValueString)} \u2192 ${formatProp(newValueString)}${suffix}`;
+	return [
+		`${formatProp(oldValueString)} \u2192 ${formatProp(newValueString)}`,
+		suffix,
+	]
+		.filter(Boolean)
+		.join(', ');
 };

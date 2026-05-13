@@ -1,3 +1,7 @@
+import {RenderInternals} from '@remotion/renderer';
+
+export const colorEnabled = () => RenderInternals.chalk.enabled();
+
 export const colorValue = (str: string) => {
 	if (
 		(str.startsWith("'") && str.endsWith("'")) ||
@@ -18,9 +22,9 @@ const stripAnsi = (str: string) => str.replace(/\u001b\[[0-9;]*m/g, '');
 
 // 24-bit ANSI helpers
 export const fg = (r: number, g: number, b: number, str: string) =>
-	`\u001b[38;2;${r};${g};${b}m${str}\u001b[39m`;
+	colorEnabled() ? `\u001b[38;2;${r};${g};${b}m${str}\u001b[39m` : str;
 export const bg = (r: number, g: number, b: number, str: string) =>
-	`\u001b[48;2;${r};${g};${b}m${str}\u001b[49m`;
+	colorEnabled() ? `\u001b[48;2;${r};${g};${b}m${str}\u001b[49m` : str;
 
 // Monokai-inspired syntax colors
 export const attrName = (str: string) => fg(166, 226, 46, str);
