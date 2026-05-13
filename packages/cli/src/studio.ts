@@ -24,7 +24,6 @@ const {
 	enableCrossSiteIsolationOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
-	experimentalVisualModeOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -151,14 +150,6 @@ export const studioCommand = async (
 		);
 	}
 
-	const useVisualMode = experimentalVisualModeOption.getValue({
-		commandLine: parsedCli,
-	}).value;
-
-	if (useVisualMode) {
-		Log.warn({indent: false, logLevel}, 'Enabling experimental visual mode.');
-	}
-
 	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),
 		browserArgs: parsedCli['browser-args'],
@@ -171,7 +162,6 @@ export const studioCommand = async (
 		desiredPort,
 		keyboardShortcutsEnabled,
 		experimentalClientSideRenderingEnabled,
-		experimentalVisualModeEnabled: useVisualMode,
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
 		relativePublicDir,
