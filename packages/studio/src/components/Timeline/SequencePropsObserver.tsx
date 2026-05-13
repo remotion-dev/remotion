@@ -13,7 +13,7 @@ export const SequencePropsObserver = () => {
 				return;
 			}
 
-			setCodeValues(event.nodePath, event.result);
+			setCodeValues(event.nodePath, () => event.result);
 		};
 
 		const unsubscribe = subscribeToEvent('sequence-props-updated', handleEvent);

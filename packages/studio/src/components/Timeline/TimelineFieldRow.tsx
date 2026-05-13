@@ -108,6 +108,21 @@ export const TimelineFieldRow: React.FC<{
 				return Promise.resolve();
 			}
 
+			// Optimistic update to prevent flicker
+			setCodeValues(nodePath, (prev) => {
+				if (!prev.canUpdate) {
+					return prev;
+				}
+
+				return {
+					canUpdate: true,
+					props: {
+						...prev.props,
+						[field.key]: {canUpdate: true, codeValue: value},
+					},
+				};
+			});
+
 			return callApi('/api/save-sequence-props', {
 				fileName: validatedLocation.source,
 				nodePath,
@@ -116,7 +131,7 @@ export const TimelineFieldRow: React.FC<{
 				defaultValue,
 				schema,
 			}).then((data) => {
-				setCodeValues(nodePath, data);
+				setCodeValues(nodePath, () => data);
 			});
 		},
 		[

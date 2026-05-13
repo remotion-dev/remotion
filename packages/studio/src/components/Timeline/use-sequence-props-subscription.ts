@@ -64,7 +64,7 @@ export const useSequencePropsSubscription = ({
 					return;
 				}
 
-				setCodeValues(result.nodePath, result.status);
+				setCodeValues(result.nodePath, () => result.status);
 			},
 			applyEach: (result) => {
 				if (!result.success) {
