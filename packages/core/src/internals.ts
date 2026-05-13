@@ -53,6 +53,7 @@ import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
 } from './enable-sequence-stack-traces.js';
+import {findPropsToDelete} from './find-props-to-delete.js';
 import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
@@ -330,6 +331,7 @@ export const Internals = {
 	computeEffectiveSchemaValuesDotNotation,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
+	findPropsToDelete,
 } as const;
 
 export type {

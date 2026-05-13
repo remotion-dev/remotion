@@ -20,6 +20,7 @@ import {
 	DELAY_RENDER_RETRIES_LEFT,
 	DELAY_RENDER_RETRY_TOKEN,
 } from './delay-render';
+import {findPropsToDelete} from './find-props-to-delete';
 import {
 	deserializeJSONWithSpecialTypes,
 	serializeJSONWithSpecialTypes,
@@ -64,4 +65,5 @@ export const NoReactInternals = {
 	FILE_TOKEN,
 	validateCodec,
 	proResProfileOptions,
+	findPropsToDelete,
 };

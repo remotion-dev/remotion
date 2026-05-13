@@ -9,10 +9,11 @@ import type {
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import type {SequenceSchema} from 'remotion';
-import {findJsxElementAtNodePath} from '../preview-server/routes/can-update-sequence-props';
-import {formatFileContent} from './format-file-content';
-import {parseAst, serializeAst} from './parse-ast';
-import {parseValueExpression, updateNestedProp} from './update-nested-prop';
+import {NoReactInternals} from 'remotion/no-react';
+import {findJsxElementAtNodePath} from '../../preview-server/routes/can-update-sequence-props';
+import {formatFileContent} from '../format-file-content';
+import {parseAst, serializeAst} from '../parse-ast';
+import {parseValueExpression, updateNestedProp} from '../update-nested-prop';
 
 const b = recast.types.builders;
 
@@ -215,31 +216,13 @@ export const updateSequencePropsAst = ({
 		if (!isNested) {
 			const fieldSchema = schema[key];
 			if (fieldSchema && fieldSchema.type === 'enum') {
-				let oldRawValue: unknown;
-				try {
-					oldRawValue = JSON.parse(oldValueString);
-				} catch {
-					oldRawValue = oldValueString;
-				}
-
-				if (oldRawValue !== value) {
-					const oldVariant =
-						typeof oldRawValue === 'string'
-							? fieldSchema.variants[oldRawValue]
-							: undefined;
-					const newVariant =
-						typeof value === 'string' ? fieldSchema.variants[value] : undefined;
-
-					if (oldVariant) {
-						const newKeys = new Set(newVariant ? Object.keys(newVariant) : []);
-						for (const variantKey of Object.keys(oldVariant)) {
-							if (newKeys.has(variantKey)) {
-								continue;
-							}
-
-							removeVariantKey({node, variantKey});
-						}
-					}
+				const propsToDelete = NoReactInternals.findPropsToDelete({
+					schema,
+					key,
+					value,
+				});
+				for (const propToDelete of propsToDelete) {
+					removeVariantKey({node, variantKey: propToDelete});
 				}
 			}
 		}
