@@ -178,3 +178,37 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 		consoleSpy.mockRestore();
 	}
 });
+
+test('formatPropChange disambiguates removed vs added side props when colors are disabled', () => {
+	const enabledSpy = spyOn(chalk, 'enabled').mockReturnValue(false);
+
+	try {
+		const redoPropChange = formatPropChange({
+			key: 'layout',
+			oldValueString: '"absolute-fill"',
+			newValueString: '"none"',
+			defaultValueString: null,
+			removedProps: [{key: 'style', valueString: 'style={{ scale: 1.74 }}'}],
+			addedProps: [],
+		});
+
+		expect(redoPropChange).toBe(
+			'layout={"absolute-fill"} \u2192 layout={"none"}, ~~style={{ scale: 1.74 }}~~',
+		);
+
+		const undoPropChange = formatPropChange({
+			key: 'layout',
+			oldValueString: '"none"',
+			newValueString: '"absolute-fill"',
+			defaultValueString: null,
+			removedProps: [],
+			addedProps: [{key: 'style', valueString: 'style={{ scale: 1.74 }}'}],
+		});
+
+		expect(undoPropChange).toBe(
+			'layout={"none"} \u2192 layout={"absolute-fill"}, style={{ scale: 1.74 }}',
+		);
+	} finally {
+		enabledSpy.mockRestore();
+	}
+});

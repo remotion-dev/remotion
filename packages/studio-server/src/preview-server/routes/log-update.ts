@@ -92,7 +92,9 @@ const formatSideProps = ({
 	const parts: string[] = [];
 
 	for (const {valueString} of removedProps) {
-		parts.push(colorEnabled() ? strikeThrough(valueString) : valueString);
+		parts.push(
+			colorEnabled() ? strikeThrough(valueString) : `~~${valueString}~~`,
+		);
 	}
 
 	for (const {valueString} of addedProps) {
