@@ -1,5 +1,5 @@
+import type {SkillEvalScenario} from '../scenarios';
 import type {CommandResult} from './command';
-import type {SkillEvalScenario} from './scenarios';
 
 export type SkillSnapshot = {
 	sourcePath: string;
@@ -43,6 +43,7 @@ export type SkillEvalManifest = {
 	commands: {
 		install: LoggedCommand;
 		pi: LoggedCommand;
+		piRender: LoggedCommand;
 		piExport: LoggedCommand;
 	};
 };
@@ -62,6 +63,7 @@ export type SkillEvalComparison = {
 	skillDiffPath: string;
 	before: {
 		label: 'before';
+		source: 'head' | 'latest-comparison' | 'merge-base';
 		skillsPath: string;
 		hash: string;
 		gitRef?: string;

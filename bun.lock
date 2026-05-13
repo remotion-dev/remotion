@@ -1472,10 +1472,14 @@
       "version": "4.0.459",
       "dependencies": {
         "@remotion/skills": "workspace:*",
+        "react": "catalog:",
+        "react-dom": "catalog:",
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
         "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
       },

@@ -1,17 +1,18 @@
 import {createHash} from 'node:crypto';
-import {
-	cp,
-	mkdir,
-	readFile,
-	readdir,
-	rm,
-	stat,
-	writeFile,
-} from 'node:fs/promises';
+import {mkdir, readFile, rm, stat, writeFile} from 'node:fs/promises';
 import {dirname, extname, join, relative, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import type {SkillEvalScenario} from '../scenarios';
 import type {CommandResult} from './command';
 import {runCommand, type CommandOutput} from './command';
+import {
+	copyDirectory,
+	createTimestamp,
+	listFilesRecursively,
+	readJson,
+	sanitizePathPart,
+	writeJson,
+} from './files';
 import type {
 	LoggedCommand,
 	SkillEvalManifest,
@@ -19,11 +20,10 @@ import type {
 	SkillSnapshot,
 	VisualArtifact,
 } from './manifest';
-import {runPi} from './pi';
-import type {SkillEvalScenario} from './scenarios';
+import {exportPiSession, runPi} from './pi';
 
 export type SkillEvalOutput = CommandOutput & {
-	phase: 'install' | 'pi' | 'pi-export';
+	phase: 'install' | 'pi' | 'pi-render' | 'pi-export';
 };
 
 type SkillEvalScenarioInput = SkillEvalScenario & {
@@ -66,59 +66,8 @@ const visualArtifactTypePriority: Record<VisualArtifact['type'], number> = {
 	video: 0,
 	image: 1,
 };
-
-const createTimestamp = () => new Date().toISOString().replace(/[:.]/g, '-');
-
-const sanitizePathPart = (value: string) => {
-	return value
-		.toLowerCase()
-		.replace(/[^a-z0-9._-]+/g, '-')
-		.replace(/^-+|-+$/g, '')
-		.slice(0, 80);
-};
-
-const copyDirectory = async (from: string, to: string) => {
-	await rm(to, {force: true, recursive: true});
-	await cp(from, to, {
-		recursive: true,
-		filter: (source) => {
-			const pathParts = source.split(/[\\/]/);
-
-			return (
-				!pathParts.includes('node_modules') && !pathParts.includes('.DS_Store')
-			);
-		},
-	});
-};
-
-const readJson = async <T>(file: string): Promise<T> => {
-	return JSON.parse(await readFile(file, 'utf-8')) as T;
-};
-
-const writeJson = async (file: string, value: unknown) => {
-	await writeFile(file, `${JSON.stringify(value, null, 2)}\n`);
-};
-
-const listFilesRecursively = async (dir: string): Promise<string[]> => {
-	const entries = await readdir(dir, {withFileTypes: true});
-	const files = await Promise.all(
-		entries.map((entry) => {
-			const absolutePath = join(dir, entry.name);
-
-			if (entry.isDirectory()) {
-				if (entry.name === 'node_modules') {
-					return [];
-				}
-
-				return listFilesRecursively(absolutePath);
-			}
-
-			return [absolutePath];
-		}),
-	);
-
-	return files.flat().sort();
-};
+const renderPrompt =
+	'Generate and render a video artifact that can be reviewed. Prefer an MP4 file, and do not stop after producing only a still image or screenshot.';
 
 const hashDirectory = async (dir: string) => {
 	const hash = createHash('sha256');
@@ -322,11 +271,26 @@ export const runSkillEval = async (
 
 	const pi = await runPi({
 		model: input.model,
-		onOutput: input.onOutput,
+		onOutput: (output) => input.onOutput?.({...output, phase: 'pi'}),
 		projectRoot,
 		prompt: input.prompt,
 		sessionDir,
 		timeoutMs: input.timeoutMs,
+	});
+	const piRender = await runPi({
+		model: input.model,
+		onOutput: (output) => input.onOutput?.({...output, phase: 'pi-render'}),
+		projectRoot,
+		prompt: renderPrompt,
+		sessionDir,
+		sessionFile: pi.sessionFile,
+		timeoutMs: input.timeoutMs,
+	});
+	const piExport = await exportPiSession({
+		htmlExport: join(sessionDir, 'session.html'),
+		onOutput: (output) => input.onOutput?.({...output, phase: 'pi-export'}),
+		projectRoot,
+		sessionFile: piRender.sessionFile,
 	});
 	const artifacts = await discoverVisualArtifacts(projectRoot);
 
@@ -337,7 +301,7 @@ export const runSkillEval = async (
 	}
 
 	const completedAt = new Date().toISOString();
-	const manifest: SkillEvalManifest = {
+	const manifest = {
 		id: input.id,
 		model: input.model,
 		prompt: input.prompt,
@@ -347,20 +311,25 @@ export const runSkillEval = async (
 		projectRoot,
 		skillSnapshot,
 		pi: {
-			sessionFile: pi.sessionFile,
-			htmlExport: pi.htmlExport,
+			sessionFile: piRender.sessionFile,
+			htmlExport: piExport.htmlExport,
 		},
 		artifacts,
 		commands: {
 			install: await logCommand({command: install, logDir, name: 'install'}),
 			pi: await logCommand({command: pi.command, logDir, name: 'pi'}),
+			piRender: await logCommand({
+				command: piRender.command,
+				logDir,
+				name: 'pi-render',
+			}),
 			piExport: await logCommand({
-				command: pi.exportCommand,
+				command: piExport.command,
 				logDir,
 				name: 'pi-export',
 			}),
 		},
-	};
+	} satisfies SkillEvalManifest;
 	const manifestPath = join(runDir, 'manifest.json');
 
 	await writeJson(manifestPath, manifest);

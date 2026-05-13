@@ -5,18 +5,22 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "bun src/server.ts",
+		"dev": "bun src/server.tsx",
 		"eval": "bun src/cli.ts",
-		"format": "oxfmt src",
-		"formatting": "oxfmt src --check",
+		"format": "oxfmt src scenarios.ts",
+		"formatting": "oxfmt src scenarios.ts --check",
 		"lint": "eslint src && tsgo"
 	},
 	"dependencies": {
-		"@remotion/skills": "workspace:*"
+		"@remotion/skills": "workspace:*",
+		"react": "catalog:",
+		"react-dom": "catalog:"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@types/bun": "catalog:",
+		"@types/react": "catalog:",
+		"@types/react-dom": "catalog:",
 		"@typescript/native-preview": "catalog:",
 		"eslint": "catalog:"
 	}

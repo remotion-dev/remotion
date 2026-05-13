@@ -9,5 +9,5 @@
 		"module": "es2020",
 		"moduleResolution": "bundler"
 	},
-	"include": ["src"]
+	"include": ["src", "scenarios.ts"]
 }

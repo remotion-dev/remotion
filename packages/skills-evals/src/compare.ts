@@ -1,11 +1,18 @@
-import {existsSync} from 'node:fs';
-import {cp, mkdir, readdir, readFile, rm, writeFile} from 'node:fs/promises';
+import {mkdir, rm, writeFile} from 'node:fs/promises';
 import {dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import type {SkillEvalScenario} from '../scenarios';
 import {runCommand} from './command';
+import {
+	copyDirectory,
+	createTimestamp,
+	listFilesRecursively,
+	readJson,
+	sanitizePathPart,
+	writeJson,
+} from './files';
 import type {SkillEvalComparison} from './manifest';
 import {runSkillEval, type SkillEvalOutput} from './run-skill-eval';
-import type {SkillEvalScenario} from './scenarios';
 
 type SkillEvalComparisonResult =
 	| {
@@ -21,70 +28,29 @@ type SkillEvalComparisonOptions = {
 	onLog?: (chunk: string) => void;
 };
 
+type BeforeSkillsSource =
+	| {
+			comparisonId: string;
+			gitRef?: undefined;
+			source: 'latest-comparison';
+	  }
+	| {
+			comparisonId?: undefined;
+			gitRef: string;
+			source: 'head' | 'merge-base';
+	  };
+
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = resolve(packageRoot, '..', '..');
 const runsRoot = resolve(packageRoot, '.runs');
 const skillsSource = resolve(packageRoot, '..', 'skills', 'skills');
 const comparisonsRoot = join(runsRoot, 'comparisons');
 
-const createTimestamp = () => new Date().toISOString().replace(/[:.]/g, '-');
-
-const sanitizePathPart = (value: string) => {
-	return value
-		.toLowerCase()
-		.replace(/[^a-z0-9._-]+/g, '-')
-		.replace(/^-+|-+$/g, '')
-		.slice(0, 80);
-};
-
-const copyDirectory = async (from: string, to: string) => {
-	await rm(to, {force: true, recursive: true});
-	await cp(from, to, {
-		recursive: true,
-		filter: (source) => {
-			const pathParts = source.split(/[\\/]/);
-
-			return (
-				!pathParts.includes('node_modules') && !pathParts.includes('.DS_Store')
-			);
-		},
-	});
-};
-
-const readJson = async <T>(file: string): Promise<T> => {
-	return JSON.parse(await readFile(file, 'utf-8')) as T;
-};
-
-const writeJson = async (file: string, value: unknown) => {
-	await writeFile(file, `${JSON.stringify(value, null, 2)}\n`);
-};
-
-const listFilesRecursively = async (dir: string): Promise<string[]> => {
-	const entries = await readdir(dir, {withFileTypes: true});
-	const files = await Promise.all(
-		entries.map((entry) => {
-			const absolutePath = join(dir, entry.name);
-
-			if (entry.isDirectory()) {
-				return listFilesRecursively(absolutePath);
-			}
-
-			return [absolutePath];
-		}),
-	);
-
-	return files.flat().sort();
-};
-
 const findLatestComparison = async (scenarioId: string) => {
 	const scenarioComparisonsRoot = join(
 		comparisonsRoot,
 		sanitizePathPart(scenarioId),
 	);
-
-	if (!existsSync(scenarioComparisonsRoot)) {
-		return null;
-	}
 
 	const comparisonFiles = (
 		await listFilesRecursively(scenarioComparisonsRoot)
@@ -142,7 +108,7 @@ const prepareBeforeSkills = async ({
 }: {
 	beforeSkillsPath: string;
 	scenarioId: string;
-}) => {
+}): Promise<BeforeSkillsSource | null> => {
 	const latestComparison = await findLatestComparison(scenarioId);
 
 	if (latestComparison) {
@@ -150,6 +116,7 @@ const prepareBeforeSkills = async ({
 		return {
 			comparisonId: latestComparison.id,
 			gitRef: undefined,
+			source: 'latest-comparison',
 		};
 	}
 
@@ -167,6 +134,7 @@ const prepareBeforeSkills = async ({
 		return {
 			comparisonId: undefined,
 			gitRef: 'HEAD',
+			source: 'head',
 		};
 	}
 
@@ -198,6 +166,7 @@ const prepareBeforeSkills = async ({
 	return {
 		comparisonId: undefined,
 		gitRef: mergeBase,
+		source: 'merge-base',
 	};
 };
 
@@ -309,6 +278,7 @@ export const runSkillEvalComparison = async (
 			hash: before.manifest.skillSnapshot.hash,
 			label: 'before',
 			manifestPath: before.manifestPath,
+			source: beforeSource.source,
 			skillsPath: beforeSkillsPath,
 		},
 		completedAt,
