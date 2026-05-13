@@ -61,7 +61,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 		});
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
-			`${RenderInternals.chalk.blueBright(`${locationLabel}:`)} Deleted ${nodeLabel}`,
+			`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Deleted ${nodeLabel}`,
 		);
 		if (!formatted) {
 			warnAboutPrettierOnce(logLevel);

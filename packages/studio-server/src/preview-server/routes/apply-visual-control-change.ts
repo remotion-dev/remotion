@@ -139,7 +139,7 @@ export const applyVisualControlHandler: ApiHandler<
 	});
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
-		`${RenderInternals.chalk.blueBright(`${locationLabel}:`)} Applied visual control changes`,
+		`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Applied visual control changes`,
 	);
 	if (!formatted) {
 		warnAboutPrettierOnce(logLevel);

@@ -66,7 +66,7 @@ export const logUpdate = ({
 	});
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
-		`${RenderInternals.chalk.blueBright(`${locationLabel}:`)} ${propChange}`,
+		`${RenderInternals.chalk.blueBright(`${locationLabel}`)} ${propChange}`,
 	);
 	if (!formatted) {
 		warnAboutPrettierOnce(logLevel);

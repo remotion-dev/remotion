@@ -61,7 +61,7 @@ export const duplicateJsxNodeHandler: ApiHandler<
 		});
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
-			`${RenderInternals.chalk.blueBright(`${locationLabel}:`)} Duplicated ${nodeLabel}`,
+			`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Duplicated ${nodeLabel}`,
 		);
 		if (!formatted) {
 			warnAboutPrettierOnce(logLevel);

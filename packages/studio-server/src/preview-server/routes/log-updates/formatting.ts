@@ -37,7 +37,7 @@ export const strikeThrough = (str: string) =>
 export const strikeThroughOrRemovedPrefix = (str: string) =>
 	colorEnabled() ? strikeThrough(str) : 'removed: ' + str;
 export const addedPrefixIfNoColor = (str: string) =>
-	colorEnabled() ? 'added: ' + stripAnsi(str) : str;
+	colorEnabled() ? str : 'added: ' + stripAnsi(str);
 
 export type PropDelta = {
 	key: string;

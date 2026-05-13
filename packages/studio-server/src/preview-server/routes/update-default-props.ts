@@ -78,7 +78,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 		});
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
-			`${RenderInternals.chalk.blueBright(`${locationLabel}:`)} Updated default props for "${compositionId}"`,
+			`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Updated default props for "${compositionId}"`,
 		);
 		if (!formatted) {
 			warnAboutPrettierOnce(logLevel);
