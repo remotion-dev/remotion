@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import {Internals} from 'remotion';
-import {updateSequenceProps} from '../codemods/update-sequence-props';
+import {updateSequenceProps} from '../codemods/update-sequence-props/update-sequence-props';
 import {lineColumnToNodePath} from './test-utils';
 
 const nestedInput = `import React from 'react';

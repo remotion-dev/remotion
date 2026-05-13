@@ -7,14 +7,20 @@ import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
-import {updateSequenceProps} from '../codemods/update-sequence-props';
+import {updateSequenceProps} from '../codemods/update-sequence-props/update-sequence-props';
+import {formatPropChange} from '../preview-server/routes/log-updates/format-prop-change';
 import {
-	fg,
-	formatPropChange,
+	attrName,
+	equals,
+	numberValue,
+	punctuation,
+	strikeThrough,
+	stringValue,
+} from '../preview-server/routes/log-updates/formatting';
+import {
 	logUpdate,
 	normalizeQuotes,
-	strikeThrough,
-} from '../preview-server/routes/log-update';
+} from '../preview-server/routes/log-updates/log-update';
 import {lineColumnToNodePath} from './test-utils';
 
 const {chalk} = RenderInternals;
@@ -77,17 +83,11 @@ test('logUpdate emits Monokai-colored output after an AST update', async () => {
 		expect(consoleSpy).toHaveBeenCalledTimes(1);
 		const logged = consoleSpy.mock.calls[0].join(' ');
 
-		// Mirror the Monokai palette from log-update.ts.
-		const attrName = (s: string) => fg(166, 226, 46, s);
-		const equals = (s: string) => fg(249, 38, 114, s);
-		const punctuation = (s: string) => fg(248, 248, 242, s);
-		const numberValue = (s: string) => fg(174, 129, 255, s);
-
 		const simpleProp = (key: string, value: string) =>
 			`${attrName(key)}${equals('=')}${punctuation('{')}${numberValue(value)}${punctuation('}')}`;
 
 		const expectedPropChange = `${simpleProp('hueShift', '30')} → ${simpleProp('hueShift', '90')}`;
-		const expectedLine = `${chalk.blueBright('src/Example.tsx:8:')} ${expectedPropChange}`;
+		const expectedLine = `${chalk.blueBright('src/Example.tsx:8')} ${expectedPropChange}`;
 
 		expect(logged).toBe(expectedLine);
 	} finally {
@@ -146,11 +146,6 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 		expect(consoleSpy).toHaveBeenCalledTimes(1);
 		const logged = consoleSpy.mock.calls[0].join(' ');
 
-		const attrName = (s: string) => fg(166, 226, 46, s);
-		const equals = (s: string) => fg(249, 38, 114, s);
-		const punctuation = (s: string) => fg(248, 248, 242, s);
-		const stringValue = (s: string) => fg(230, 219, 116, s);
-
 		const simpleProp = (key: string, value: string) =>
 			`${attrName(key)}${equals('=')}${punctuation('{')}${stringValue(value)}${punctuation('}')}`;
 
@@ -158,7 +153,7 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 			`${attrName(key)}${equals('=')}${punctuation('{')}${punctuation(value)}${punctuation('}')}`;
 
 		const expectedPropChange = `${simpleProp('layout', "'none'")}, ${strikeThrough(simplePropPunctuation('style', '{ scale: 1.74 }'))}`;
-		const expectedLine = `${chalk.blueBright(`src/Example.tsx:${logLine}:`)} ${expectedPropChange}`;
+		const expectedLine = `${chalk.blueBright(`src/Example.tsx:${logLine}`)} ${expectedPropChange}`;
 
 		expect(logged).toBe(expectedLine);
 

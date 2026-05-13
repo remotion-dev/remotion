@@ -5,7 +5,7 @@ import type {SaveSequencePropsRequest} from '@remotion/studio-shared';
 import type {CanUpdateSequencePropsResponse} from 'remotion';
 import {Internals} from 'remotion';
 import {getAllSchemaKeys} from '../../codemods/get-all-schema-keys';
-import {updateSequenceProps} from '../../codemods/update-sequence-props';
+import {updateSequenceProps} from '../../codemods/update-sequence-props/update-sequence-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
 import {
@@ -15,7 +15,8 @@ import {
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {computeSequencePropsStatus} from './can-update-sequence-props';
-import {formatPropChange, logUpdate, normalizeQuotes} from './log-update';
+import {formatPropChange} from './log-updates/format-prop-change';
+import {logUpdate, normalizeQuotes} from './log-updates/log-update';
 
 export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,

@@ -19,7 +19,7 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {warnAboutPrettierOnce} from './log-update';
+import {warnAboutPrettierOnce} from './log-updates/log-update';
 
 const getVisualControlChangeLine = (file: File, changeId: string): number => {
 	let line = 1;
@@ -139,7 +139,7 @@ export const applyVisualControlHandler: ApiHandler<
 	});
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
-		`${RenderInternals.chalk.blueBright(`${locationLabel}:`)} Applied visual control changes`,
+		`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Applied visual control changes`,
 	);
 	if (!formatted) {
 		warnAboutPrettierOnce(logLevel);
