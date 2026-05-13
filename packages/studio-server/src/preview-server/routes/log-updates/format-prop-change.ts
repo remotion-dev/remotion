@@ -1,25 +1,32 @@
-import {formatSideProps, type PropDelta} from './format-side-props';
+import {formatSideProps} from './format-side-props';
 import {
-	attrName,
 	colorEnabled,
-	colorValue,
-	equals,
-	punctuation,
-	strikeThrough,
+	formatAddition,
+	formatDeletion,
+	formatPropDelta,
+	type PropDelta,
 } from './formatting';
 
-// Format key={value} with Monokai syntax highlighting
-const formatSimpleProp = (key: string, value: string) => {
-	return `${attrName(key)}${equals('=')}${punctuation('{')}${colorValue(value)}${punctuation('}')}`;
-};
+const formatInnerPropChange = ({
+	key,
+	oldValueString,
+	newValueString,
+	defaultValueString,
+}: {
+	key: string;
+	oldValueString: string;
+	newValueString: string;
+	defaultValueString: string | null;
+}) => {
+	if (defaultValueString !== null && newValueString === defaultValueString) {
+		return formatDeletion({valueString: oldValueString, key});
+	}
 
-// Format parentKey={{childKey: value}} with Monokai syntax highlighting
-const formatNestedProp = (
-	parentKey: string,
-	childKey: string,
-	value: string,
-) => {
-	return `${attrName(parentKey)}${equals('=')}${punctuation('{{')}${punctuation(childKey)}${punctuation(':')} ${colorValue(value)}${punctuation('}}')}`;
+	if (defaultValueString !== null && oldValueString === defaultValueString) {
+		return formatAddition({valueString: newValueString, key});
+	}
+
+	return `${formatPropDelta({valueString: oldValueString, key})} \u2192 ${formatPropDelta({valueString: newValueString, key})}`;
 };
 
 export const formatPropChange = ({
@@ -40,34 +47,13 @@ export const formatPropChange = ({
 	const color = colorEnabled();
 	const suffix = formatSideProps({removedProps, addedProps, color});
 
-	const dotIndex = key.indexOf('.');
-	const formatProp = (value: string) =>
-		dotIndex === -1
-			? formatSimpleProp(key, value)
-			: formatNestedProp(
-					key.slice(0, dotIndex),
-					key.slice(dotIndex + 1),
-					value,
-				);
-
-	if (defaultValueString !== null && newValueString === defaultValueString) {
-		if (!color) {
-			return ['removed: ' + formatProp(oldValueString), suffix]
-				.filter(Boolean)
-				.join(', ');
-		}
-
-		return [strikeThrough(formatProp(oldValueString)), suffix]
-			.filter(Boolean)
-			.join(', ');
-	}
-
-	if (defaultValueString !== null && oldValueString === defaultValueString) {
-		return [formatProp(newValueString), suffix].filter(Boolean).join(', ');
-	}
-
 	return [
-		`${formatProp(oldValueString)} \u2192 ${formatProp(newValueString)}`,
+		formatInnerPropChange({
+			key,
+			oldValueString,
+			newValueString,
+			defaultValueString,
+		}),
 		suffix,
 	]
 		.filter(Boolean)

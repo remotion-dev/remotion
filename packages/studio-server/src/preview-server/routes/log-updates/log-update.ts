@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {LogLevel} from '@remotion/renderer';
 import {formatPropChange} from './format-prop-change';
-import {type PropDelta} from './format-side-props';
+import type {PropDelta} from './formatting';
 
 let warnedAboutPrettier = false;
 
