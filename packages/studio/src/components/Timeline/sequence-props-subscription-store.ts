@@ -110,7 +110,7 @@ export const acquireSequencePropsSubscription = ({
 
 			acquired.promise
 				.then((result) => {
-					if (!result.canUpdate) {
+					if (!result.success) {
 						return;
 					}
 

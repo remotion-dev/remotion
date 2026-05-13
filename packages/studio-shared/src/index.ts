@@ -31,7 +31,6 @@ export {
 	RestartStudioRequest,
 	RestartStudioResponse,
 	SaveSequencePropsRequest,
-	SaveSequencePropsResponse,
 	SimpleDiff,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,

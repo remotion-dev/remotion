@@ -115,6 +115,8 @@ import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
 import type {
 	CanUpdateSequencePropsResponse,
+	CanUpdateSequencePropsResponseTrue,
+	CanUpdateSequencePropsResponseFalse,
 	SequenceNodePath,
 } from './SequenceManager.js';
 import {
@@ -365,4 +367,6 @@ export type {
 	OverrideToNodeSetters,
 	OverrideToNodePathGetters,
 	CanUpdateSequencePropsResponse,
+	CanUpdateSequencePropsResponseTrue,
+	CanUpdateSequencePropsResponseFalse,
 };
