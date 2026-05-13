@@ -31,7 +31,6 @@ export {
 	RestartStudioRequest,
 	RestartStudioResponse,
 	SaveSequencePropsRequest,
-	SaveSequencePropsResponse,
 	SimpleDiff,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
@@ -114,3 +113,4 @@ export {
 export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 
 export type {VisualControlChange} from './codemods';
+export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';

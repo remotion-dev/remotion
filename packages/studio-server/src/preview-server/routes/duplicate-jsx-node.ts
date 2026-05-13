@@ -45,8 +45,8 @@ export const duplicateJsxNodeHandler: ApiHandler<
 			remotionRoot,
 			logLine,
 			description: {
-				undoMessage: `Undo: duplication of ${nodeLabel}`,
-				redoMessage: `Redo: duplication of ${nodeLabel}`,
+				undoMessage: `↩️  Duplication of ${nodeLabel}`,
+				redoMessage: `↪️  Duplication of ${nodeLabel}`,
 			},
 			entryType: 'duplicate-jsx-node',
 			suppressHmrOnFileRestore: false,

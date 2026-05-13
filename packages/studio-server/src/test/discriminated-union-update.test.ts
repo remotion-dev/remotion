@@ -5,7 +5,7 @@ import path from 'node:path';
 import {getFieldsToShow} from '@remotion/studio-shared';
 import {Internals} from 'remotion';
 import {parseAst} from '../codemods/parse-ast';
-import {updateSequencePropsAst} from '../codemods/update-sequence-props';
+import {updateSequencePropsAst} from '../codemods/update-sequence-props/update-sequence-props';
 import {lineColumnToNodePath} from '../preview-server/routes/can-update-sequence-props';
 
 test('Should correctly separate discriminated union for layout', () => {
@@ -62,6 +62,7 @@ test('Should be able to update a discriminated union', () => {
 				defaultValue: Internals.sequenceSchema.layout.default,
 			},
 		],
+		schema: Internals.sequenceSchema,
 	});
 
 	const expected = readFileSync(

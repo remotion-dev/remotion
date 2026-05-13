@@ -30,10 +30,14 @@ export const normalizeQuotes = (str: string): string => {
 };
 
 // 24-bit ANSI helpers
-const fg = (r: number, g: number, b: number, str: string) =>
+export const fg = (r: number, g: number, b: number, str: string) =>
 	`\u001b[38;2;${r};${g};${b}m${str}\u001b[39m`;
-const bg = (r: number, g: number, b: number, str: string) =>
+export const bg = (r: number, g: number, b: number, str: string) =>
 	`\u001b[48;2;${r};${g};${b}m${str}\u001b[49m`;
+// eslint-disable-next-line no-control-regex
+const stripAnsi = (str: string) => str.replace(/\u001b\[[0-9;]*m/g, '');
+export const strikeThrough = (str: string) =>
+	`\u001b[9m\u001b[38;2;255;85;85m${stripAnsi(str)}\u001b[39m\u001b[29m`;
 
 // Monokai-inspired syntax colors
 const attrName = (str: string) => fg(166, 226, 46, str);
@@ -57,10 +61,6 @@ const colorValue = (str: string) => {
 	return punctuation(str);
 };
 
-// Subtle background tints
-const removedBg = (str: string) => bg(80, 20, 20, str);
-const addedBg = (str: string) => bg(30, 80, 30, str);
-
 const colorEnabled = () => RenderInternals.chalk.enabled();
 
 // Format key={value} with Monokai syntax highlighting
@@ -77,58 +77,107 @@ const formatNestedProp = (
 	return `${attrName(parentKey)}${equals('=')}${punctuation('{{')}${punctuation(childKey)}${punctuation(':')} ${colorValue(value)}${punctuation('}}')}`;
 };
 
+export type PropDelta = {
+	key: string;
+	valueString: string;
+};
+
+const formatPropDelta = ({key, valueString}: PropDelta) => {
+	if (!colorEnabled()) {
+		const dotIndex = key.indexOf('.');
+		if (dotIndex === -1) {
+			return `${key}={${valueString}}`;
+		}
+
+		const parent = key.slice(0, dotIndex);
+		const child = key.slice(dotIndex + 1);
+		return `${parent}={{${child}: ${valueString}}}`;
+	}
+
+	const dotIdx = key.indexOf('.');
+	if (dotIdx === -1) {
+		return formatSimpleProp(key, valueString);
+	}
+
+	return formatNestedProp(
+		key.slice(0, dotIdx),
+		key.slice(dotIdx + 1),
+		valueString,
+	);
+};
+
+const formatSideProps = ({
+	removedProps,
+	addedProps,
+}: {
+	removedProps: PropDelta[];
+	addedProps: PropDelta[];
+}) => {
+	const parts: string[] = [];
+
+	for (const prop of removedProps) {
+		const formatted = formatPropDelta(prop);
+		parts.push(colorEnabled() ? strikeThrough(formatted) : formatted);
+	}
+
+	for (const prop of addedProps) {
+		parts.push(formatPropDelta(prop));
+	}
+
+	if (parts.length === 0) {
+		return '';
+	}
+
+	return `, ${parts.join(', ')}`;
+};
+
 export const formatPropChange = ({
 	key,
 	oldValueString,
 	newValueString,
 	defaultValueString,
+	removedProps,
+	addedProps,
 }: {
 	key: string;
 	oldValueString: string;
 	newValueString: string;
 	defaultValueString: string | null;
+	removedProps: PropDelta[];
+	addedProps: PropDelta[];
 }) => {
+	const suffix = formatSideProps({removedProps, addedProps});
+
 	if (!colorEnabled()) {
 		const dotIdx = key.indexOf('.');
 		if (dotIdx === -1) {
-			return `${key}={${oldValueString}} \u2192 ${key}={${newValueString}}`;
+			return `${key}={${oldValueString}} \u2192 ${key}={${newValueString}}${suffix}`;
 		}
 
 		const parent = key.slice(0, dotIdx);
 		const child = key.slice(dotIdx + 1);
-		return `${parent}={{${child}: ${oldValueString}}} \u2192 ${parent}={{${child}: ${newValueString}}}`;
+		return `${parent}={{${child}: ${oldValueString}}} \u2192 ${parent}={{${child}: ${newValueString}}}${suffix}`;
 	}
-
-	const isResetToDefault =
-		defaultValueString !== null && newValueString === defaultValueString;
-	const isChangeFromDefault =
-		defaultValueString !== null && oldValueString === defaultValueString;
 
 	const dotIndex = key.indexOf('.');
-	if (dotIndex === -1) {
-		if (isResetToDefault) {
-			return removedBg(formatSimpleProp(key, oldValueString));
-		}
+	const formatProp = (value: string) =>
+		dotIndex === -1
+			? formatSimpleProp(key, value)
+			: formatNestedProp(
+					key.slice(0, dotIndex),
+					key.slice(dotIndex + 1),
+					value,
+				);
 
-		if (isChangeFromDefault) {
-			return addedBg(formatSimpleProp(key, newValueString));
-		}
-
-		return `${removedBg(formatSimpleProp(key, oldValueString))} \u2192 ${addedBg(formatSimpleProp(key, newValueString))}`;
+	if (defaultValueString !== null && newValueString === defaultValueString) {
+		return `${strikeThrough(formatProp(oldValueString))}${suffix}`;
 	}
 
-	const parentKey = key.slice(0, dotIndex);
-	const childKey = key.slice(dotIndex + 1);
-
-	if (isResetToDefault) {
-		return removedBg(formatNestedProp(parentKey, childKey, oldValueString));
+	if (defaultValueString !== null && oldValueString === defaultValueString) {
+		return `${formatProp(newValueString)}${suffix}`;
 	}
 
-	if (isChangeFromDefault) {
-		return addedBg(formatNestedProp(parentKey, childKey, newValueString));
-	}
-
-	return `${removedBg(formatNestedProp(parentKey, childKey, oldValueString))} \u2192 ${addedBg(formatNestedProp(parentKey, childKey, newValueString))}`;
+	return `${formatProp(oldValueString)} \u2192 ${formatProp(newValueString)}${suffix}`;
 };
 
 export const logUpdate = ({
@@ -140,6 +189,8 @@ export const logUpdate = ({
 	defaultValueString,
 	formatted,
 	logLevel,
+	removedProps,
+	addedProps,
 }: {
 	fileRelativeToRoot: string;
 	line: number;
@@ -149,6 +200,8 @@ export const logUpdate = ({
 	defaultValueString: string | null;
 	formatted: boolean;
 	logLevel: LogLevel;
+	removedProps: PropDelta[];
+	addedProps: PropDelta[];
 }) => {
 	const locationLabel = `${fileRelativeToRoot}:${line}`;
 	const propChange = formatPropChange({
@@ -157,6 +210,8 @@ export const logUpdate = ({
 		newValueString: normalizeQuotes(newValueString),
 		defaultValueString:
 			defaultValueString !== null ? normalizeQuotes(defaultValueString) : null,
+		removedProps,
+		addedProps,
 	});
 	RenderInternals.Log.info(
 		{indent: false, logLevel},

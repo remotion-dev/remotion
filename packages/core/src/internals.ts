@@ -53,6 +53,7 @@ import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
 } from './enable-sequence-stack-traces.js';
+import {findPropsToDelete} from './find-props-to-delete.js';
 import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
@@ -115,6 +116,8 @@ import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
 import type {
 	CanUpdateSequencePropsResponse,
+	CanUpdateSequencePropsResponseTrue,
+	CanUpdateSequencePropsResponseFalse,
 	SequenceNodePath,
 } from './SequenceManager.js';
 import {
@@ -328,6 +331,7 @@ export const Internals = {
 	computeEffectiveSchemaValuesDotNotation,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
+	findPropsToDelete,
 } as const;
 
 export type {
@@ -365,4 +369,6 @@ export type {
 	OverrideToNodeSetters,
 	OverrideToNodePathGetters,
 	CanUpdateSequencePropsResponse,
+	CanUpdateSequencePropsResponseTrue,
+	CanUpdateSequencePropsResponseFalse,
 };
