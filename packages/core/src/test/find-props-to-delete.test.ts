@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {Internals} from 'remotion';
 
 test('find right values to delete when upgrading a discriminated union', () => {
-	expect(
+	expect(() =>
 		Internals.findPropsToDelete({
 			schema: Internals.sequenceSchema,
 			key: 'unknown',
