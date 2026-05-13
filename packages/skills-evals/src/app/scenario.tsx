@@ -1,6 +1,8 @@
+import {basename, join} from 'node:path';
 import type {SkillEvalScenario} from '../../scenarios';
 import {runCommand} from '../command';
-import type {SkillEvalComparison} from '../manifest';
+import {listFilesRecursively, readJson} from '../files';
+import type {SkillEvalComparison, SkillEvalManifest} from '../manifest';
 import {loadComparisons} from './comparison-data';
 import {
 	createJobRuns,
@@ -15,12 +17,19 @@ import {
 	Header,
 	page,
 	repoRoot,
+	runsRoot,
 	toComparisonUrl,
 } from './shared';
 
 type SkillDiffState = {
 	hasChanges: boolean;
 	message: string;
+};
+
+type ScenarioRunListItem = {
+	completedAt: string;
+	href: string;
+	metadata: string;
 };
 
 const getSkillDiffState = async (): Promise<SkillDiffState> => {
@@ -41,29 +50,63 @@ const getSkillDiffState = async (): Promise<SkillDiffState> => {
 	throw new Error(`Could not inspect skill diff: ${result.stderr}`);
 };
 
-const ScenarioRuns = ({comparisons}: {comparisons: SkillEvalComparison[]}) => {
-	if (comparisons.length === 0) {
+const loadPlainRuns = async (
+	scenarioId: string,
+): Promise<SkillEvalManifest[]> => {
+	const manifestFiles = (
+		await listFilesRecursively(join(runsRoot, scenarioId))
+	).filter((file) => file.endsWith('/manifest.json'));
+
+	return Promise.all(
+		manifestFiles.map((file) => readJson<SkillEvalManifest>(file)),
+	);
+};
+
+const toRunListItems = ({
+	comparisons,
+	runs,
+}: {
+	comparisons: SkillEvalComparison[];
+	runs: SkillEvalManifest[];
+}) => {
+	const items: ScenarioRunListItem[] = [
+		...comparisons.map((comparison) => ({
+			completedAt: comparison.completedAt,
+			href: toComparisonUrl(comparison),
+			metadata: `${comparison.before.hash} -> ${comparison.after.hash}`,
+		})),
+		...runs.map((run) => ({
+			completedAt: run.completedAt,
+			href: `/runs/${encodeURIComponent(run.id)}/${encodeURIComponent(
+				basename(run.runDir),
+			)}`,
+			metadata: run.skillSnapshot.hash,
+		})),
+	];
+
+	return items.sort((a, b) => b.completedAt.localeCompare(a.completedAt));
+};
+
+const ScenarioRuns = ({items}: {items: ScenarioRunListItem[]}) => {
+	if (items.length === 0) {
 		return <p className="text-sm text-zinc-500">No runs yet.</p>;
 	}
 
 	return (
 		<div className="mt-3 grid">
-			{comparisons.map((comparison) => (
+			{items.map((item) => (
 				<a
 					className="flex items-center justify-between gap-4 border-t border-zinc-100 py-3 first:border-t-0 first:pt-0 last:pb-0"
-					href={toComparisonUrl(comparison)}
-					key={comparison.id}
+					href={item.href}
+					key={item.href}
 				>
 					<div>
 						<h3 className="text-sm font-semibold text-zinc-800">
-							{formatDate(comparison.completedAt)}
+							{formatDate(item.completedAt)}
 						</h3>
 						<p className="mt-1 text-[0.8125rem] text-zinc-500">
-							{comparison.before.hash} -&gt; {comparison.after.hash}
+							{item.metadata}
 						</p>
-					</div>
-					<div className="whitespace-nowrap text-right text-xs text-zinc-400">
-						{comparison.before.source ?? 'baseline'}
 					</div>
 				</a>
 			))}
@@ -242,7 +285,8 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 	const comparisons = (await loadComparisons()).filter(
 		(comparison) => comparison.scenarioId === scenario.id,
 	);
-	const latest = comparisons[0];
+	const runs = await loadPlainRuns(scenario.id);
+	const runItems = toRunListItems({comparisons, runs});
 
 	return page({
 		children: (
@@ -262,7 +306,6 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 							{skillDiffState.hasChanges ? 'Run comparison' : 'Run'}
 						</button>
 					}
-					eyebrow="Scenario"
 					subtitle={scenario.model}
 					title={scenario.id}
 				/>
@@ -291,42 +334,13 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 									{skillDiffState.message}
 								</p>
 							</div>
-							<span
-								className={`rounded-full px-2 py-1 text-xs ${
-									skillDiffState.hasChanges
-										? 'bg-amber-100 text-amber-800'
-										: 'bg-zinc-100 text-zinc-600'
-								}`}
-							>
-								{skillDiffState.hasChanges ? 'Compare against HEAD' : 'HEAD'}
-							</span>
+							{skillDiffState.hasChanges ? (
+								<span className="rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-800">
+									Compare against HEAD
+								</span>
+							) : null}
 						</div>
 					</section>
-					<Card>
-						<div>
-							<h2 className="text-[0.9375rem] font-semibold">
-								Latest comparison
-							</h2>
-							<p className="text-sm text-zinc-500">
-								{latest
-									? `Completed ${formatDate(latest.completedAt)}`
-									: 'No comparisons yet.'}
-							</p>
-						</div>
-						{latest ? (
-							<p className="mt-3 text-xs text-zinc-400">
-								{latest.before.hash} -&gt; {latest.after.hash}
-							</p>
-						) : null}
-					</Card>
-					<ActiveJobPanel
-						hasSkillChanges={skillDiffState.hasChanges}
-						job={activeJob}
-					/>
-					<Card>
-						<h2 className="text-[0.9375rem] font-semibold">Runs</h2>
-						<ScenarioRuns comparisons={comparisons} />
-					</Card>
 					<details className="min-w-0 rounded-2xl border border-zinc-200 bg-white p-4">
 						<summary className="cursor-pointer text-sm font-semibold">
 							Prompt
@@ -335,6 +349,14 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 							{scenario.prompt}
 						</pre>
 					</details>
+					<ActiveJobPanel
+						hasSkillChanges={skillDiffState.hasChanges}
+						job={activeJob}
+					/>
+					<Card>
+						<h2 className="text-[0.9375rem] font-semibold">Runs</h2>
+						<ScenarioRuns items={runItems} />
+					</Card>
 				</main>
 				<ScenarioPageScript activeJob={activeJob} />
 			</>

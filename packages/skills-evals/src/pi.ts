@@ -19,10 +19,49 @@ export type PiExport = {
 	htmlExport: string;
 };
 
+type PiAvailability = {
+	message?: string;
+	ok: boolean;
+};
+
+const piSetupMessage =
+	'Pi is not available. Install it from https://pi.dev, then run `pi config` to configure a provider before running skills evals.';
 const evalStreamExtensionPath = join(
 	dirname(fileURLToPath(import.meta.url)),
 	'pi-stream-extension.ts',
 );
+let piAvailabilityPromise: Promise<PiAvailability> | null = null;
+
+export const checkPiAvailable = ({cwd}: {cwd: string}) => {
+	piAvailabilityPromise ??= runCommand({
+		command: ['pi', '--version'],
+		cwd,
+	})
+		.then((result) => {
+			if (result.exitCode === 0) {
+				return {ok: true};
+			}
+
+			return {
+				message: `${piSetupMessage}\n\n\`pi --version\` failed with exit code ${result.exitCode}:\n${result.stderr}`,
+				ok: false,
+			};
+		})
+		.catch((error: unknown) => ({
+			message: `${piSetupMessage}\n\n${error instanceof Error ? error.message : String(error)}`,
+			ok: false,
+		}));
+
+	return piAvailabilityPromise;
+};
+
+const assertPiAvailable = async ({cwd}: {cwd: string}) => {
+	const availability = await checkPiAvailable({cwd});
+
+	if (!availability.ok) {
+		throw new Error(availability.message ?? piSetupMessage);
+	}
+};
 
 const findNewestSessionFile = async (sessionDir: string) => {
 	const sessionFiles = (await listFilesRecursively(sessionDir)).filter((file) =>
@@ -64,6 +103,8 @@ export const runPi = async ({
 	prompt: string;
 	timeoutMs?: number;
 }): Promise<PiRun> => {
+	await assertPiAvailable({cwd: projectRoot});
+
 	const command = [
 		'pi',
 		'--extension',

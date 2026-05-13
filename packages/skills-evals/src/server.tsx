@@ -1,6 +1,7 @@
 import {routes} from './app/routes';
 import {notFound, origin, port, repoRoot} from './app/shared';
 import {runCommand} from './command';
+import {checkPiAvailable} from './pi';
 
 const server = Bun.serve({
 	fetch: () => notFound(),
@@ -10,6 +11,20 @@ const server = Bun.serve({
 });
 
 process.stdout.write(`Skills eval server running at ${origin}\n`);
+
+checkPiAvailable({cwd: repoRoot})
+	.then((availability) => {
+		if (!availability.ok) {
+			process.stderr.write(`${availability.message}\n`);
+		}
+	})
+	.catch((error: unknown) => {
+		process.stderr.write(
+			`Could not check Pi availability: ${
+				error instanceof Error ? error.message : String(error)
+			}\n`,
+		);
+	});
 
 if (process.platform === 'darwin' && process.stdout.isTTY && !process.env.CI) {
 	const openBrowser = async () => {

@@ -16,15 +16,12 @@ export const origin = `http://localhost:${port}`;
 
 const AppLayout = ({children}: {children: React.ReactNode}) => (
 	<div className="isolate mx-auto max-w-6xl px-6 py-6 max-md:px-4">
-		<nav className="mb-8 flex items-center justify-between border-b border-zinc-200 pb-4">
-			<a className="text-sm font-semibold text-zinc-900" href="/">
-				Skills Evals
-			</a>
+		<nav className="mb-8 border-b border-zinc-200 pb-4">
 			<a
 				className="text-[0.8125rem] font-medium text-zinc-500 hover:text-zinc-900"
 				href="/"
 			>
-				All scenarios
+				Scenarios
 			</a>
 		</nav>
 		{children}
@@ -59,21 +56,25 @@ export const Header = ({
 	title,
 }: {
 	action?: React.ReactNode;
-	eyebrow: string;
+	eyebrow?: string;
 	subtitle: string;
 	title: string;
 }) => (
-	<header className="mb-6 flex items-start justify-between gap-5 max-md:flex-col">
-		<div>
-			<p className="mb-2 text-[0.8125rem] font-medium text-zinc-400">
-				{eyebrow}
-			</p>
-			<h1 className="text-3xl font-semibold tracking-tight text-balance">
-				{title}
-			</h1>
+	<header className="mb-6">
+		<div className="min-w-0">
+			{eyebrow ? (
+				<p className="mb-2 text-[0.8125rem] font-medium text-zinc-400">
+					{eyebrow}
+				</p>
+			) : null}
+			<div className="flex items-center justify-between gap-5 max-md:flex-col max-md:items-start">
+				<h1 className="text-3xl font-semibold tracking-tight text-balance">
+					{title}
+				</h1>
+				{action}
+			</div>
 			<p className="text-sm text-zinc-500 text-pretty">{subtitle}</p>
 		</div>
-		{action}
 	</header>
 );
 

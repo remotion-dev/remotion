@@ -1,7 +1,7 @@
 import {scenarios, type SkillEvalScenario} from '../../scenarios';
 import type {SkillEvalComparison} from '../manifest';
 import {getLatestComparisonByScenario} from './comparison-data';
-import {formatDate, Header, page, Pill} from './shared';
+import {formatDate, page, Pill} from './shared';
 
 const ScenarioCard = ({
 	latest,
@@ -35,19 +35,24 @@ export const renderHome = async () => {
 	return page({
 		children: (
 			<>
-				<Header
-					eyebrow="Skills evals"
-					subtitle="Run scenario-scoped skill comparisons and review the results."
-					title="Remotion Skills Evals"
-				/>
-				<main className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3">
-					{scenarios.map((scenario) => (
-						<ScenarioCard
-							key={scenario.id}
-							latest={latest.get(scenario.id)}
-							scenario={scenario}
-						/>
-					))}
+				<main className="grid gap-4">
+					<section className="max-w-3xl">
+						<h2 className="text-sm font-semibold text-zinc-700">Workflow</h2>
+						<p className="mt-1 text-sm leading-6 text-zinc-500">
+							When skills match HEAD, run a scenario as visual validation. When
+							you have local skill changes, run a comparison to see how those
+							changes affect the resulting videos.
+						</p>
+					</section>
+					<section className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3">
+						{scenarios.map((scenario) => (
+							<ScenarioCard
+								key={scenario.id}
+								latest={latest.get(scenario.id)}
+								scenario={scenario}
+							/>
+						))}
+					</section>
 				</main>
 			</>
 		),
