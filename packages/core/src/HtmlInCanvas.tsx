@@ -254,6 +254,7 @@ export type HtmlInCanvasProps = Omit<
 		| 'postmountFor'
 		| 'premountFor'
 		| 'styleWhilePremounted'
+		| '_experimentalEffects'
 	> & {
 		readonly durationInFrames?: number;
 		readonly width: number;
