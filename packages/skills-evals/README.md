@@ -25,10 +25,9 @@ browser on macOS.
 5. Review the before/after video artifacts, Pi exports, manifests, logs, and
    skill diff in the app.
 
-Comparisons are scenario-scoped. The first comparison uses the appropriate Git
-baseline for the skills. Later comparisons use the latest successful comparison
-for that scenario as the `before` snapshot, which makes iteration local and
-fast.
+Comparisons are scenario-scoped. Each comparison uses the skills from `HEAD` as
+the `before` snapshot and the current working tree as the `after` snapshot, so
+iteration is always measured against the checked-in baseline.
 
 ## CLI
 

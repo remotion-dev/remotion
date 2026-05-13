@@ -1,10 +1,11 @@
+import {basename} from 'node:path';
 import {scenarios, type SkillEvalScenario} from '../../scenarios';
 import {
 	runSkillEvalComparison,
 	type SkillEvalComparisonEvent,
 	type SkillEvalComparisonRunLabel,
 } from '../compare';
-import type {SkillEvalOutput} from '../run-skill-eval';
+import {runSkillEval, type SkillEvalOutput} from '../run-skill-eval';
 import {toComparisonUrl} from './shared';
 
 export type Job = {
@@ -17,6 +18,7 @@ export type Job = {
 	comparisonUrl?: string;
 	error?: string;
 	message?: string;
+	resultUrl?: string;
 };
 
 export type JobRun = {
@@ -171,6 +173,63 @@ export const startComparison = (scenario: SkillEvalScenario) => {
 			job.status = 'failed';
 		});
 	comparisonPromise.catch(() => undefined);
+
+	return job;
+};
+
+export const startRun = (scenario: SkillEvalScenario) => {
+	const existingJob = getActiveJob(scenario.id);
+
+	if (existingJob) {
+		return existingJob;
+	}
+
+	const job: Job = {
+		id: `${Date.now()}-${scenario.id}`,
+		logs: [],
+		message: 'Preparing run...',
+		runs: createJobRuns(),
+		scenarioId: scenario.id,
+		startedAt: new Date().toISOString(),
+		status: 'running',
+	};
+	const run = job.runs.after;
+
+	job.runs.before.message = 'Not needed for a plain run';
+	job.runs.before.status = 'completed';
+	jobs.set(job.id, job);
+
+	const runPromise = runSkillEval({
+		...scenario,
+		onOutput: (output) => {
+			run.status = 'running';
+			run.message = `${phaseLabels[output.phase]} (${output.stream})`;
+			run.logs.push(output.chunk);
+			trimLog(run.logs, 1000);
+			job.message = 'Running scenario...';
+		},
+		skillSnapshot: {
+			isWorkingTree: true,
+			label: 'after',
+		},
+	})
+		.then((result) => {
+			run.status = 'completed';
+			run.message = 'Run complete.';
+			job.message = 'Run complete.';
+			job.resultUrl = `/runs/${encodeURIComponent(
+				result.manifest.id,
+			)}/${encodeURIComponent(basename(result.manifest.runDir))}`;
+			job.status = 'completed';
+		})
+		.catch((error: unknown) => {
+			job.error = error instanceof Error ? error.message : String(error);
+			job.message = job.error;
+			job.status = 'failed';
+			run.status = 'failed';
+			run.message = job.error;
+		});
+	runPromise.catch(() => undefined);
 
 	return job;
 };

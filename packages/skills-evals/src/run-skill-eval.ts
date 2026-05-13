@@ -66,8 +66,13 @@ const visualArtifactTypePriority: Record<VisualArtifact['type'], number> = {
 	video: 0,
 	image: 1,
 };
-const renderPrompt =
-	'Generate and render a video artifact that can be reviewed. Prefer an MP4 file, and do not stop after producing only a still image or screenshot.';
+const createRenderPrompt = (expectedArtifactPath: string) =>
+	`Generate and render the final video artifact that can be reviewed.
+
+Render the final MP4 to this exact path:
+${expectedArtifactPath}
+
+Do not leave the final artifact only in /tmp or another temporary directory. Temporary files are fine, but the reviewed MP4 must exist at the path above. Do not stop after producing only a still image or screenshot.`;
 
 const hashDirectory = async (dir: string) => {
 	const hash = createHash('sha256');
@@ -241,6 +246,7 @@ export const runSkillEval = async (
 		`${createTimestamp()}--${runLabel}${sanitizePathPart(input.model)}`,
 	);
 	const projectRoot = join(runDir, 'project');
+	const expectedArtifactPath = join(projectRoot, 'out', 'skills-eval.mp4');
 	const sessionDir = join(runDir, 'pi-session');
 	const logDir = join(runDir, 'logs');
 	const createdAt = new Date().toISOString();
@@ -248,6 +254,7 @@ export const runSkillEval = async (
 	await rm(runDir, {force: true, recursive: true});
 	await mkdir(runDir, {recursive: true});
 	await mkdir(logDir, {recursive: true});
+	await mkdir(dirname(expectedArtifactPath), {recursive: true});
 	await copyBlankTemplate({
 		projectName: `skills-eval-${sanitizePathPart(input.id)}`,
 		projectRoot,
@@ -281,7 +288,7 @@ export const runSkillEval = async (
 		model: input.model,
 		onOutput: (output) => input.onOutput?.({...output, phase: 'pi-render'}),
 		projectRoot,
-		prompt: renderPrompt,
+		prompt: createRenderPrompt(expectedArtifactPath),
 		sessionDir,
 		sessionFile: pi.sessionFile,
 		timeoutMs: input.timeoutMs,

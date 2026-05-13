@@ -3,7 +3,8 @@ import {renderComparison} from './comparison';
 import {loadComparison} from './comparison-data';
 import {serveRunFile} from './files';
 import {renderHome} from './home';
-import {getJob, getScenario, startComparison} from './jobs';
+import {getJob, getScenario, startComparison, startRun} from './jobs';
+import {loadRun, renderRun} from './run';
 import {renderScenario} from './scenario';
 import {htmlResponse, json, notFound} from './shared';
 
@@ -30,6 +31,18 @@ export const routes = {
 		}
 
 		return json(job);
+	},
+
+	'/api/run/:scenarioId': {
+		POST: (request: BunRequest<'/api/run/:scenarioId'>) => {
+			const scenario = getScenario(request.params.scenarioId);
+
+			if (!scenario) {
+				return json({error: 'Unknown scenario'}, {status: 404});
+			}
+
+			return json(startRun(scenario));
+		},
 	},
 
 	'/comparisons/:scenarioId/:comparisonId': async (
@@ -64,5 +77,20 @@ export const routes = {
 		}
 
 		return htmlResponse(await renderScenario(scenario));
+	},
+
+	'/runs/:scenarioId/:runId': async (
+		request: BunRequest<'/runs/:scenarioId/:runId'>,
+	) => {
+		const manifest = await loadRun(
+			request.params.scenarioId,
+			request.params.runId,
+		);
+
+		if (!manifest) {
+			return notFound();
+		}
+
+		return htmlResponse(renderRun(manifest));
 	},
 };

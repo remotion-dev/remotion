@@ -6,8 +6,6 @@ import {runCommand} from './command';
 import {
 	copyDirectory,
 	createTimestamp,
-	listFilesRecursively,
-	readJson,
 	sanitizePathPart,
 	writeJson,
 } from './files';
@@ -55,17 +53,10 @@ type SkillEvalComparisonOptions = {
 	onLog?: (chunk: string) => void;
 };
 
-type BeforeSkillsSource =
-	| {
-			comparisonId: string;
-			gitRef?: undefined;
-			source: 'latest-comparison';
-	  }
-	| {
-			comparisonId?: undefined;
-			gitRef: string;
-			source: 'head' | 'merge-base';
-	  };
+type BeforeSkillsSource = {
+	gitRef: 'HEAD';
+	source: 'head';
+};
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = resolve(packageRoot, '..', '..');
@@ -75,41 +66,6 @@ const comparisonsRoot = join(runsRoot, 'comparisons');
 
 const getErrorMessage = (error: unknown) =>
 	error instanceof Error ? error.message : String(error);
-
-const findLatestComparison = async (scenarioId: string) => {
-	const scenarioComparisonsRoot = join(
-		comparisonsRoot,
-		sanitizePathPart(scenarioId),
-	);
-
-	const comparisonFiles = (
-		await listFilesRecursively(scenarioComparisonsRoot)
-	).filter((file) => file.endsWith('/comparison.json'));
-	const comparisons = await Promise.all(
-		comparisonFiles.map((comparisonPath) =>
-			readJson<SkillEvalComparison>(comparisonPath),
-		),
-	);
-
-	comparisons.sort((a, b) => b.completedAt.localeCompare(a.completedAt));
-
-	return comparisons[0] ?? null;
-};
-
-const getMergeBase = async () => {
-	for (const baseBranch of ['origin/main', 'main']) {
-		const result = await runCommand({
-			command: ['git', 'merge-base', baseBranch, 'HEAD'],
-			cwd: repoRoot,
-		});
-
-		if (result.exitCode === 0) {
-			return result.stdout.trim();
-		}
-	}
-
-	throw new Error('Could not determine a Git merge base against main.');
-};
 
 const copyGitSkills = async ({gitRef, to}: {gitRef: string; to: string}) => {
 	await mkdir(to, {recursive: true});
@@ -134,69 +90,13 @@ const copyGitSkills = async ({gitRef, to}: {gitRef: string; to: string}) => {
 
 const prepareBeforeSkills = async ({
 	beforeSkillsPath,
-	scenarioId,
 }: {
 	beforeSkillsPath: string;
-	scenarioId: string;
-}): Promise<BeforeSkillsSource | null> => {
-	const latestComparison = await findLatestComparison(scenarioId);
-
-	if (latestComparison) {
-		await copyDirectory(latestComparison.after.skillsPath, beforeSkillsPath);
-		return {
-			comparisonId: latestComparison.id,
-			gitRef: undefined,
-			source: 'latest-comparison',
-		};
-	}
-
-	const status = await runCommand({
-		command: ['git', 'status', '--porcelain', '--', 'packages/skills/skills'],
-		cwd: repoRoot,
-	});
-
-	if (status.exitCode !== 0) {
-		throw new Error(`Could not inspect skill status: ${status.stderr}`);
-	}
-
-	if (status.stdout.trim()) {
-		await copyGitSkills({gitRef: 'HEAD', to: beforeSkillsPath});
-		return {
-			comparisonId: undefined,
-			gitRef: 'HEAD',
-			source: 'head',
-		};
-	}
-
-	const mergeBase = await getMergeBase();
-	const branchDiff = await runCommand({
-		command: [
-			'git',
-			'diff',
-			'--quiet',
-			mergeBase,
-			'HEAD',
-			'--',
-			'packages/skills/skills',
-		],
-		cwd: repoRoot,
-	});
-
-	if (branchDiff.exitCode === 0) {
-		return null;
-	}
-
-	if (branchDiff.exitCode !== 1) {
-		throw new Error(
-			`Could not inspect branch skill diff: ${branchDiff.stderr}`,
-		);
-	}
-
-	await copyGitSkills({gitRef: mergeBase, to: beforeSkillsPath});
+}): Promise<BeforeSkillsSource> => {
+	await copyGitSkills({gitRef: 'HEAD', to: beforeSkillsPath});
 	return {
-		comparisonId: undefined,
-		gitRef: mergeBase,
-		source: 'merge-base',
+		gitRef: 'HEAD',
+		source: 'head',
 	};
 };
 
@@ -225,16 +125,7 @@ export const runSkillEvalComparison = async (
 	emitMessage(`[compare] Preparing ${scenario.id}\n`);
 	const beforeSource = await prepareBeforeSkills({
 		beforeSkillsPath,
-		scenarioId: scenario.id,
 	});
-
-	if (!beforeSource) {
-		await rm(comparisonDir, {force: true, recursive: true});
-		return {
-			reason: 'No skill changes found for this scenario.',
-			skipped: true,
-		};
-	}
 
 	await copyDirectory(skillsSource, afterSkillsPath);
 
@@ -254,7 +145,7 @@ export const runSkillEvalComparison = async (
 	if (diff.exitCode === 0) {
 		await rm(comparisonDir, {force: true, recursive: true});
 		return {
-			reason: 'No skill changes since the previous comparison.',
+			reason: 'No skill changes since HEAD.',
 			skipped: true,
 		};
 	}
@@ -286,7 +177,6 @@ export const runSkillEvalComparison = async (
 				skillSnapshot:
 					label === 'before'
 						? {
-								comparisonId: beforeSource.comparisonId,
 								gitRef: beforeSource.gitRef,
 								label,
 							}
@@ -335,7 +225,6 @@ export const runSkillEvalComparison = async (
 			skillsPath: afterSkillsPath,
 		},
 		before: {
-			comparisonId: beforeSource.comparisonId,
 			gitRef: beforeSource.gitRef,
 			hash: before.manifest.skillSnapshot.hash,
 			label: 'before',

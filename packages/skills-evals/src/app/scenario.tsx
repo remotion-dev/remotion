@@ -1,4 +1,5 @@
 import type {SkillEvalScenario} from '../../scenarios';
+import {runCommand} from '../command';
 import type {SkillEvalComparison} from '../manifest';
 import {loadComparisons} from './comparison-data';
 import {
@@ -8,7 +9,37 @@ import {
 	type Job,
 	type JobRun,
 } from './jobs';
-import {Card, formatDate, Header, page, toComparisonUrl} from './shared';
+import {
+	Card,
+	formatDate,
+	Header,
+	page,
+	repoRoot,
+	toComparisonUrl,
+} from './shared';
+
+type SkillDiffState = {
+	hasChanges: boolean;
+	message: string;
+};
+
+const getSkillDiffState = async (): Promise<SkillDiffState> => {
+	const result = await runCommand({
+		command: ['git', 'status', '--porcelain', '--', 'packages/skills/skills'],
+		cwd: repoRoot,
+	});
+
+	if (result.exitCode === 0) {
+		return {
+			hasChanges: result.stdout.trim().length > 0,
+			message: result.stdout.trim()
+				? 'Skills differ from HEAD. Run a before/after comparison against HEAD.'
+				: 'Skills match HEAD. This will run the scenario without a diff to review.',
+		};
+	}
+
+	throw new Error(`Could not inspect skill diff: ${result.stderr}`);
+};
 
 const ScenarioRuns = ({comparisons}: {comparisons: SkillEvalComparison[]}) => {
 	if (comparisons.length === 0) {
@@ -96,6 +127,11 @@ const poll = async (jobId) => {
 		return;
 	}
 
+	if (job.status === 'completed' && job.resultUrl) {
+		location.href = job.resultUrl;
+		return;
+	}
+
 	if (job.status === 'failed' || job.status === 'skipped') {
 		button.disabled = false;
 		return;
@@ -120,7 +156,7 @@ button?.addEventListener('click', async () => {
 		runLog[label].hidden = true;
 		runLog[label].textContent = '';
 	}
-	const response = await fetch('/api/compare/' + encodeURIComponent(button.dataset.scenario), {
+	const response = await fetch(button.dataset.actionUrl, {
 		method: 'POST',
 	});
 	const job = await response.json();
@@ -159,7 +195,13 @@ const RunProgressCard = ({
 	</section>
 );
 
-const ActiveJobPanel = ({job}: {job: Job | undefined}) => {
+const ActiveJobPanel = ({
+	hasSkillChanges,
+	job,
+}: {
+	hasSkillChanges: boolean;
+	job: Job | undefined;
+}) => {
 	const runs = job?.runs ?? createJobRuns();
 
 	return (
@@ -171,7 +213,9 @@ const ActiveJobPanel = ({job}: {job: Job | undefined}) => {
 			<div>
 				<h2 className="text-[0.9375rem] font-semibold">Active run</h2>
 				<p className="text-sm text-zinc-500">
-					Before and after run in parallel once the skill diff is ready.
+					{hasSkillChanges
+						? 'Before and after run in parallel once the skill diff is ready.'
+						: 'Scenario run without a before/after comparison.'}
 				</p>
 			</div>
 			<p className="mt-3 text-[0.8125rem] text-yellow-700" id="job-status">
@@ -194,6 +238,7 @@ const ActiveJobPanel = ({job}: {job: Job | undefined}) => {
 
 export const renderScenario = async (scenario: SkillEvalScenario) => {
 	const activeJob = getActiveJob(scenario.id);
+	const skillDiffState = await getSkillDiffState();
 	const comparisons = (await loadComparisons()).filter(
 		(comparison) => comparison.scenarioId === scenario.id,
 	);
@@ -206,10 +251,15 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 					action={
 						<button
 							className="rounded-full bg-zinc-900 px-3 py-2 text-[0.8125rem] font-semibold text-white hover:bg-zinc-800 disabled:bg-zinc-300 disabled:text-zinc-500"
+							data-action-url={
+								skillDiffState.hasChanges
+									? `/api/compare/${encodeURIComponent(scenario.id)}`
+									: `/api/run/${encodeURIComponent(scenario.id)}`
+							}
 							data-scenario={scenario.id}
 							id="run-comparison"
 						>
-							Run comparison
+							{skillDiffState.hasChanges ? 'Run comparison' : 'Run'}
 						</button>
 					}
 					eyebrow="Scenario"
@@ -217,6 +267,41 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 					title={scenario.id}
 				/>
 				<main className="grid min-w-0 gap-4">
+					<section
+						className={`min-w-0 rounded-2xl border p-4 ${
+							skillDiffState.hasChanges
+								? 'border-amber-200 bg-amber-50'
+								: 'border-zinc-200 bg-white'
+						}`}
+					>
+						<div className="flex items-start justify-between gap-4 max-md:flex-col">
+							<div>
+								<h2 className="text-[0.9375rem] font-semibold">
+									{skillDiffState.hasChanges
+										? 'Skills changed from HEAD'
+										: 'No skill changes'}
+								</h2>
+								<p
+									className={`mt-1 text-sm ${
+										skillDiffState.hasChanges
+											? 'text-amber-800'
+											: 'text-zinc-500'
+									}`}
+								>
+									{skillDiffState.message}
+								</p>
+							</div>
+							<span
+								className={`rounded-full px-2 py-1 text-xs ${
+									skillDiffState.hasChanges
+										? 'bg-amber-100 text-amber-800'
+										: 'bg-zinc-100 text-zinc-600'
+								}`}
+							>
+								{skillDiffState.hasChanges ? 'Compare against HEAD' : 'HEAD'}
+							</span>
+						</div>
+					</section>
 					<Card>
 						<div>
 							<h2 className="text-[0.9375rem] font-semibold">
@@ -234,7 +319,10 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 							</p>
 						) : null}
 					</Card>
-					<ActiveJobPanel job={activeJob} />
+					<ActiveJobPanel
+						hasSkillChanges={skillDiffState.hasChanges}
+						job={activeJob}
+					/>
 					<Card>
 						<h2 className="text-[0.9375rem] font-semibold">Runs</h2>
 						<ScenarioRuns comparisons={comparisons} />

@@ -199,16 +199,18 @@ Start the Remotion Studio to preview a video:
 npx remotion studio
 ```
 
-## Optional: one-frame render check
+## Validation
 
-You can render a single frame with the CLI to sanity-check layout, colors, or timing.  
-Skip it for trivial edits, pure refactors, or when you already have enough confidence from Studio or prior renders.
+After making visual changes, render a still of the main most useful frame of the video to validate how the work looks.
+Choose a representative frame where the important text, layout, images, and animation state are visible.
+Read the rendered image and use it to check whether text is readable, spacing is balanced, elements are not clipped or overlapping, and the layout is not broken.
 
 ```bash
 npx remotion still [composition-id] --scale=0.25 --frame=30
 ```
 
 At 30 fps, `--frame=30` is the one-second mark (`--frame` is zero-based).
+Adjust `--frame` to the most useful point in the video instead of always using frame 30.
 
 ## Captions
 
