@@ -50,6 +50,7 @@ export type EffectDefinitionAndStack<P = unknown> = {
 	readonly definition: EffectDefinition<P, unknown>;
 	readonly stack: string;
 	readonly effectKey: string;
+	readonly params: P;
 };
 
 export type EffectDescriptor<P = unknown> = EffectDefinitionAndStack<P> & {

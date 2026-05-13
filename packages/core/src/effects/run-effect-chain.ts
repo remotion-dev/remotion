@@ -1,6 +1,9 @@
 import {CanvasPool} from './canvas-pool.js';
-import {flattenEffects, groupByBackend} from './effect-internals.js';
-import type {EffectDefinition, EffectsProp} from './effect-types.js';
+import {groupByBackend} from './effect-internals.js';
+import type {
+	EffectDefinition,
+	EffectDefinitionAndStack,
+} from './effect-types.js';
 import {getGpuDevice} from './gpu-device.js';
 
 export type EffectChainState = {
@@ -49,7 +52,7 @@ const ensureSetup = <S>(
 export type RunEffectChainOptions = {
 	readonly state: EffectChainState;
 	readonly source: CanvasImageSource;
-	readonly effects: EffectsProp;
+	readonly effects: EffectDefinitionAndStack<unknown>[];
 	readonly output: HTMLCanvasElement;
 	readonly frame: number;
 	readonly width: number;
@@ -71,8 +74,7 @@ export const runEffectChain = async ({
 	const runId = ++state.currentRunId;
 	const isCancelled = () => state.currentRunId !== runId;
 
-	const flattened = flattenEffects(effects);
-	const runs = groupByBackend(flattened);
+	const runs = groupByBackend(effects);
 
 	let currentImage: CanvasImageSource = source;
 	let lastTarget: HTMLCanvasElement | null = null;

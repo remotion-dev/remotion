@@ -138,8 +138,14 @@ const VideoForPreviewAssertedShowing: React.FC<
 	warnAboutTooHighVolume(userPreferredVolume);
 
 	const effectChainState = useEffectChainState();
-	const experimentalEffectsRef = useRef(_experimentalEffects);
-	experimentalEffectsRef.current = _experimentalEffects;
+
+	const memoizedEffects = Internals.useMemoizedEffects(
+		Internals.flattenEffects(_experimentalEffects ?? []),
+	);
+
+	const experimentalEffectsRef = useRef(memoizedEffects);
+	experimentalEffectsRef.current = memoizedEffects;
+
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
 	const frameRef = useRef(frame);

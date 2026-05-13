@@ -10,9 +10,11 @@ import React, {
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
 import {delayRender} from './delay-render.js';
+import {flattenEffects} from './effects/effect-internals.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
+import {useMemoizedEffects} from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {sequenceStyleSchema} from './sequence-field-schema.js';
 import type {
@@ -325,9 +327,11 @@ const HtmlInCanvasInner = forwardRef<
 
 		const chainState = useEffectChainState();
 
+		const memoizedEffects = useMemoizedEffects(flattenEffects(effects));
+
 		// Refs so the paint handler always reads fresh values.
-		const effectsRef = useRef(effects);
-		effectsRef.current = effects;
+		const effectsRef = useRef(memoizedEffects);
+		effectsRef.current = memoizedEffects;
 		const frameRef = useRef(frame);
 		frameRef.current = frame;
 		const onPaintRef = useRef(onPaint);
@@ -460,7 +464,7 @@ const HtmlInCanvasInner = forwardRef<
 			}
 
 			canvas.requestPaint?.();
-		}, [onPaint]);
+		}, [onPaint, memoizedEffects]);
 
 		useLayoutEffect(() => {
 			const canvas = canvas2dRef.current;
