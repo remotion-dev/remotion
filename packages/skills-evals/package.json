@@ -1,7 +1,9 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/skills-evals"
+	},
 	"name": "@remotion/skills-evals",
 	"version": "4.0.459",
-	"description": "Visual evals for Remotion agent skills",
 	"private": true,
 	"type": "module",
 	"scripts": {

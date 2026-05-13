@@ -4,8 +4,6 @@ import path from 'path';
 import {Pkgs, packages} from '@remotion/studio-shared';
 import {CreateVideoInternals} from 'create-video';
 
-const internalDevPackages = ['skills-evals'];
-
 export const getAllPackages = () => {
 	const pkgDir = path.join(__dirname, '..', '..', '..');
 
@@ -20,8 +18,7 @@ export const getAllPackages = () => {
 			pkg: pkg as Pkgs,
 			path: path.join(pkgDir, pkg, 'package.json'),
 		}))
-		.filter(({path}) => existsSync(path))
-		.filter(({pkg}) => !internalDevPackages.includes(pkg));
+		.filter(({path}) => existsSync(path));
 
 	const packageAndTemplateNames = (
 		packages

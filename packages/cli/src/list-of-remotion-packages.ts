@@ -65,6 +65,7 @@ export const listOfRemotionPackages = [
 	'@remotion/serverless',
 	'@remotion/serverless-client',
 	'@remotion/skills',
+	'@remotion/skills-evals',
 	'@remotion/studio-server',
 	'@remotion/studio-shared',
 	'@remotion/studio',
