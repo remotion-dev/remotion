@@ -14,7 +14,7 @@ import {
 	logUpdate,
 	normalizeQuotes,
 	strikeThrough,
-} from '../preview-server/routes/log-update';
+} from '../preview-server/routes/log-updates/log-update';
 import {lineColumnToNodePath} from './test-utils';
 
 const {chalk} = RenderInternals;

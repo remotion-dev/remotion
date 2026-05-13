@@ -19,7 +19,7 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {warnAboutPrettierOnce} from './log-update';
+import {warnAboutPrettierOnce} from './log-updates/log-update';
 
 const getVisualControlChangeLine = (file: File, changeId: string): number => {
 	let line = 1;

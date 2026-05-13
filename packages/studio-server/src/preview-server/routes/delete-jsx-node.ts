@@ -14,7 +14,7 @@ import {
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {warnAboutPrettierOnce} from './log-update';
+import {warnAboutPrettierOnce} from './log-updates/log-update';
 
 export const deleteJsxNodeHandler: ApiHandler<
 	DeleteJsxNodeRequest,
