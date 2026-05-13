@@ -101,6 +101,19 @@ test('Easing test', () => {
 	).toEqual(1 - Math.cos((0.5 * Math.PI) / 2));
 });
 
+test('Easing.circle with default extrapolate extend clamps normalized input', () => {
+	expect(
+		interpolate(150, [0, 100], [0, 100], {
+			easing: Easing.circle,
+		}),
+	).toBe(100);
+	expect(
+		interpolate(-50, [0, 100], [0, 100], {
+			easing: Easing.circle,
+		}),
+	).toBe(0);
+});
+
 test('Extrapolation left test', () => {
 	const testValues: ('extend' | undefined)[] = ['extend', undefined];
 	testValues.forEach((entry) => {

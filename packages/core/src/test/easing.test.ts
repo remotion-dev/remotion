@@ -3,6 +3,9 @@ import {Easing} from '../easing.js';
 
 const numbersToTest = [-0.5, 0, 0.4, 0.5, 0.7, 1, 1.5];
 
+// Matches clamping in `Easing.circle` / `Easing.bounce` for tests that compare to reference impls.
+const clampUnit = (t: number): number => Math.min(1, Math.max(0, t));
+
 describe('Easing step0', () => {
 	const step0 = (n: number) => {
 		return n > 0 ? 1 : 0;
@@ -131,7 +134,10 @@ describe('Easing Cubic', () => {
 });
 
 describe('Easing Circle', () => {
-	const circle = (n: number) => 1 - Math.sqrt(1 - n * n);
+	const circle = (n: number) => {
+		const u = clampUnit(n);
+		return 1 - Math.sqrt(1 - u * u);
+	};
 	const out = (n: number) => 1 - circle(1 - n);
 	const inOut = (n: number) => {
 		if (n >= 0.5) {
@@ -186,21 +192,23 @@ describe('Easing Exp', () => {
 
 describe('Easing Bounce', () => {
 	const bounce = (n: number) => {
-		if (n < 1 / 2.75) {
-			return 7.5625 * n * n;
+		const u = clampUnit(n);
+
+		if (u < 1 / 2.75) {
+			return 7.5625 * u * u;
 		}
 
-		if (n < 2 / 2.75) {
-			const t2_ = n - 1.5 / 2.75;
+		if (u < 2 / 2.75) {
+			const t2_ = u - 1.5 / 2.75;
 			return 7.5625 * t2_ * t2_ + 0.75;
 		}
 
-		if (n < 2.5 / 2.75) {
-			const t2_ = n - 2.25 / 2.75;
+		if (u < 2.5 / 2.75) {
+			const t2_ = u - 2.25 / 2.75;
 			return 7.5625 * t2_ * t2_ + 0.9375;
 		}
 
-		const t2 = n - 2.625 / 2.75;
+		const t2 = u - 2.625 / 2.75;
 		return 7.5625 * t2 * t2 + 0.984375;
 	};
 

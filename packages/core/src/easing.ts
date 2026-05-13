@@ -2,6 +2,11 @@
 
 import {bezier} from './bezier.js';
 
+// Some easing curves are only defined on [0, 1] (e.g. quarter circle, bounce segments).
+// `interpolate(..., { extrapolate: 'extend' })` can pass values outside that interval; clamp
+// there so we return endpoints instead of NaN or unintended extrapolation.
+const clampUnit = (t: number): number => Math.min(1, Math.max(0, t));
+
 /**
  * @description The Easing module implements common easing functions. You can use it with the interpolate() API.
  * @see [Documentation](https://www.remotion.dev/docs/easing)
@@ -40,7 +45,8 @@ export class Easing {
 	}
 
 	static circle(t: number): number {
-		return 1 - Math.sqrt(1 - t * t);
+		const u = clampUnit(t);
+		return 1 - Math.sqrt(1 - u * u);
 	}
 
 	static exp(t: number): number {
@@ -58,21 +64,23 @@ export class Easing {
 	}
 
 	static bounce(t: number): number {
-		if (t < 1 / 2.75) {
-			return 7.5625 * t * t;
+		const u = clampUnit(t);
+
+		if (u < 1 / 2.75) {
+			return 7.5625 * u * u;
 		}
 
-		if (t < 2 / 2.75) {
-			const t2_ = t - 1.5 / 2.75;
+		if (u < 2 / 2.75) {
+			const t2_ = u - 1.5 / 2.75;
 			return 7.5625 * t2_ * t2_ + 0.75;
 		}
 
-		if (t < 2.5 / 2.75) {
-			const t2_ = t - 2.25 / 2.75;
+		if (u < 2.5 / 2.75) {
+			const t2_ = u - 2.25 / 2.75;
 			return 7.5625 * t2_ * t2_ + 0.9375;
 		}
 
-		const t2 = t - 2.625 / 2.75;
+		const t2 = u - 2.625 / 2.75;
 		return 7.5625 * t2 * t2 + 0.984375;
 	}
 
