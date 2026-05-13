@@ -82,6 +82,30 @@ export type PropDelta = {
 	valueString: string;
 };
 
+const formatPropDelta = ({key, valueString}: PropDelta) => {
+	if (!colorEnabled()) {
+		const dotIdx = key.indexOf('.');
+		if (dotIdx === -1) {
+			return `${key}={${valueString}}`;
+		}
+
+		const parent = key.slice(0, dotIdx);
+		const child = key.slice(dotIdx + 1);
+		return `${parent}={{${child}: ${valueString}}}`;
+	}
+
+	const dotIdx = key.indexOf('.');
+	if (dotIdx === -1) {
+		return formatSimpleProp(key, valueString);
+	}
+
+	return formatNestedProp(
+		key.slice(0, dotIdx),
+		key.slice(dotIdx + 1),
+		valueString,
+	);
+};
+
 const formatSideProps = ({
 	removedProps,
 	addedProps,
@@ -91,12 +115,13 @@ const formatSideProps = ({
 }) => {
 	const parts: string[] = [];
 
-	for (const {valueString} of removedProps) {
-		parts.push(colorEnabled() ? strikeThrough(valueString) : valueString);
+	for (const prop of removedProps) {
+		const formatted = formatPropDelta(prop);
+		parts.push(colorEnabled() ? strikeThrough(formatted) : formatted);
 	}
 
-	for (const {valueString} of addedProps) {
-		parts.push(valueString);
+	for (const prop of addedProps) {
+		parts.push(formatPropDelta(prop));
 	}
 
 	if (parts.length === 0) {

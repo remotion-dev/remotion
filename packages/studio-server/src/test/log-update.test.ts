@@ -119,7 +119,7 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 
 	expect(oldValueStrings[0]).toBe('"absolute-fill"');
 	expect(removedProps).toEqual([
-		{key: 'style', valueString: 'style={{ scale: 1.74 }}'},
+		{key: 'style', valueString: '{ scale: 1.74 }'},
 	]);
 
 	const newValueString = JSON.stringify('none');
@@ -154,7 +154,10 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 		const simpleProp = (key: string, value: string) =>
 			`${attrName(key)}${equals('=')}${punctuation('{')}${stringValue(value)}${punctuation('}')}`;
 
-		const expectedPropChange = `${simpleProp('layout', "'none'")}, ${strikeThrough('style={{ scale: 1.74 }}')}`;
+		const simplePropPunctuation = (key: string, value: string) =>
+			`${attrName(key)}${equals('=')}${punctuation('{')}${punctuation(value)}${punctuation('}')}`;
+
+		const expectedPropChange = `${simpleProp('layout', "'none'")}, ${strikeThrough(simplePropPunctuation('style', '{ scale: 1.74 }'))}`;
 		const expectedLine = `${chalk.blueBright(`src/Example.tsx:${logLine}:`)} ${expectedPropChange}`;
 
 		expect(logged).toBe(expectedLine);
@@ -172,9 +175,47 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 			addedProps: removedProps,
 		});
 
-		const expectedUndoPropChange = `${strikeThrough(simpleProp('layout', "'none'"))}, style={{ scale: 1.74 }}`;
+		const expectedUndoPropChange = `${strikeThrough(simpleProp('layout', "'none'"))}, ${simplePropPunctuation('style', '{ scale: 1.74 }')}`;
 		expect(undoPropChange).toBe(expectedUndoPropChange);
 	} finally {
 		consoleSpy.mockRestore();
 	}
+});
+
+test('Undo prop change should not nest key={key={value}} for re-added props', async () => {
+	const fixture = readFileSync(
+		path.join(__dirname, 'snapshots', 'discriminated-union-with-premount.tsx'),
+		'utf-8',
+	);
+
+	const {removedProps} = await updateSequenceProps({
+		input: fixture,
+		nodePath: lineColumnToNodePath(fixture, 3),
+		updates: [
+			{
+				key: 'layout',
+				value: 'none',
+				defaultValue: Internals.sequenceSchema.layout.default,
+			},
+		],
+		schema: Internals.sequenceSchema,
+	});
+
+	const premount = removedProps.find((p) => p.key === 'premountFor');
+	if (!premount) {
+		throw new Error('premountFor should have been removed');
+	}
+
+	const undoPropChange = formatPropChange({
+		key: 'layout',
+		oldValueString: "'none'",
+		newValueString: "'absolute-fill'",
+		defaultValueString: "'absolute-fill'",
+		removedProps: [],
+		addedProps: [premount],
+	});
+
+	expect(undoPropChange).not.toContain('premountFor={premountFor=');
+	expect(undoPropChange).toContain('premountFor');
+	expect(undoPropChange).toContain('25');
 });

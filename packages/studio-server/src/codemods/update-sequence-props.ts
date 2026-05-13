@@ -65,14 +65,22 @@ const snapshotTopLevelAttrs = (
 	const result = new Map<string, string>();
 	for (const a of node.attributes ?? []) {
 		if (a.type === 'JSXAttribute' && a.name.type === 'JSXIdentifier') {
-			result.set(
-				a.name.name,
-				recast
-					.print(a)
-					.code.replace(/\s+/g, ' ')
-					.replace(/,(\s*[}\]])/g, '$1')
-					.trim(),
-			);
+			const name = a.name.name;
+			const printed = recast
+				.print(a)
+				.code.replace(/\s+/g, ' ')
+				.replace(/,(\s*[}\]])/g, '$1')
+				.trim();
+
+			const prefix = `${name}=`;
+			let valueOnly = printed.startsWith(prefix)
+				? printed.slice(prefix.length)
+				: printed;
+			if (valueOnly.startsWith('{') && valueOnly.endsWith('}')) {
+				valueOnly = valueOnly.slice(1, -1).trim();
+			}
+
+			result.set(name, valueOnly);
 		}
 	}
 
@@ -92,7 +100,7 @@ export const updateSequencePropsAst = ({
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
-	schema?: SequenceSchema;
+	schema: SequenceSchema;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
