@@ -62,6 +62,7 @@ test('Should be able to update a discriminated union', () => {
 				defaultValue: Internals.sequenceSchema.layout.default,
 			},
 		],
+		schema: Internals.sequenceSchema,
 	});
 
 	const expected = readFileSync(
