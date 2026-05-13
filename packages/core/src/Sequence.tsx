@@ -46,6 +46,8 @@ export type LayoutAndStyle =
 	| AbsoluteFillLayout
 	| {
 			layout: 'none';
+			premountFor?: number;
+			postmountFor?: number;
 	  };
 
 export type SequencePropsWithoutDuration = {
@@ -133,12 +135,11 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	// @ts-expect-error
-	if (layout === 'none' && typeof other.style !== 'undefined') {
+	const styleForLayoutValidation = (other as Partial<AbsoluteFillLayout>).style;
+	if (layout === 'none' && typeof styleForLayoutValidation !== 'undefined') {
 		throw new TypeError(
 			'If layout="none", you may not pass a style. Passed: ' +
-				// @ts-expect-error
-				JSON.stringify(other.style),
+				JSON.stringify(styleForLayoutValidation),
 		);
 	}
 
@@ -372,22 +373,20 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	const frame =
 		useCurrentFrame() - parentPremountContext.premountFramesRemaining;
 
-	if (props.layout === 'none') {
-		throw new Error(
-			'`<Sequence>` with `premountFor` and `postmountFor` props does not support layout="none"',
-		);
-	}
-
 	const {
-		style: passedStyle,
 		from = 0,
 		durationInFrames = Infinity,
 		premountFor = 0,
 		postmountFor = 0,
+		...propsWithoutTiming
+	} = props;
+	const {
+		style: passedStyle,
 		styleWhilePremounted,
 		styleWhilePostmounted,
 		...otherProps
-	} = props;
+	} = propsWithoutTiming as typeof propsWithoutTiming &
+		Partial<AbsoluteFillLayout>;
 
 	const endThreshold = Math.ceil(from + durationInFrames - 1);
 	const premountingActive = frame < from && frame >= from - premountFor;
@@ -401,6 +400,12 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 			? from + durationInFrames - 1
 			: 0;
 	const isFreezingActive = premountingActive || postmountingActive;
+	const premountFramesRemaining = premountingActive ? from - frame : 0;
+	const premountContextValue = useMemo(() => {
+		return {
+			premountFramesRemaining,
+		};
+	}, [premountFramesRemaining]);
 
 	const style = useMemo(() => {
 		return {
@@ -421,20 +426,50 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 		styleWhilePostmounted,
 	]);
 
-	return (
-		<Freeze frame={freezeFrame} active={isFreezingActive}>
+	const sequence =
+		props.layout === 'none' ? (
 			<SequenceInner
 				ref={ref}
 				from={from}
 				durationInFrames={durationInFrames}
-				style={style}
 				_remotionInternalPremountDisplay={premountFor}
 				_remotionInternalPostmountDisplay={postmountFor}
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
-				{...otherProps}
+				{...(otherProps as unknown as SequenceProps & {layout: 'none'})}
 			/>
-		</Freeze>
+		) : (
+			<SequenceInner
+				ref={ref}
+				from={from}
+				durationInFrames={durationInFrames}
+				_remotionInternalPremountDisplay={premountFor}
+				_remotionInternalPostmountDisplay={postmountFor}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+				{...(otherProps as SequenceProps & AbsoluteFillLayout)}
+				style={style}
+			/>
+		);
+
+	return (
+		<PremountContext.Provider value={premountContextValue}>
+			<Freeze frame={freezeFrame} active={isFreezingActive}>
+				{props.layout === 'none' && isFreezingActive ? (
+					<div
+						style={{
+							display: 'contents',
+							visibility: 'hidden',
+							pointerEvents: 'none',
+						}}
+					>
+						{sequence}
+					</div>
+				) : (
+					sequence
+				)}
+			</Freeze>
+		</PremountContext.Provider>
 	);
 };
 
@@ -448,7 +483,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (props, ref) => {
 	const env = useRemotionEnvironment();
 	const {fps} = useVideoConfig();
-	if (props.layout !== 'none' && !env.isRendering) {
+	if (!env.isRendering) {
 		const effectivePremountFor = ENABLE_V5_BREAKING_CHANGES
 			? (props.premountFor ?? fps)
 			: props.premountFor;

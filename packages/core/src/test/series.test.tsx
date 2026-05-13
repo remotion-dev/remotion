@@ -4,6 +4,7 @@ import {renderToString} from 'react-dom/server';
 import {AbsoluteFill} from '../AbsoluteFill.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Internals} from '../internals.js';
+import {Sequence} from '../Sequence.js';
 import {Series} from '../series/index.js';
 import type {TimelineContextValue} from '../TimelineContext.js';
 import {AbsoluteTimeContext, TimelineContext} from '../TimelineContext.js';
@@ -456,4 +457,72 @@ test('should be the same with or without premountFor', () => {
 		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toContain('this must be printed');
+});
+
+test('should premount layout="none" sequences', () => {
+	const outerHTML = renderForFrame(
+		8,
+		<WrapSequenceContext>
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isRendering: false,
+					isClientSideRendering: false,
+					isPlayer: true,
+					isStudio: true,
+					isReadOnlyStudio: false,
+				}}
+			>
+				<Sequence layout="none" from={10} durationInFrames={5} premountFor={5}>
+					<First />
+				</Sequence>
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>,
+	);
+	expect(outerHTML).toContain('visibility:hidden');
+	expect(outerHTML).toContain('<div>first 0</div>');
+});
+
+test('should not wrap layout="none" sequences outside premounting', () => {
+	const outerHTML = renderForFrame(
+		10,
+		<WrapSequenceContext>
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isRendering: false,
+					isClientSideRendering: false,
+					isPlayer: true,
+					isStudio: true,
+					isReadOnlyStudio: false,
+				}}
+			>
+				<Sequence layout="none" from={10} durationInFrames={5} premountFor={5}>
+					<First />
+				</Sequence>
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>,
+	);
+	expect(outerHTML).toBe('<div>first 0</div>');
+});
+
+test('should postmount layout="none" sequences', () => {
+	const outerHTML = renderForFrame(
+		16,
+		<WrapSequenceContext>
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isRendering: false,
+					isClientSideRendering: false,
+					isPlayer: true,
+					isStudio: true,
+					isReadOnlyStudio: false,
+				}}
+			>
+				<Sequence layout="none" from={10} durationInFrames={5} postmountFor={3}>
+					<First />
+				</Sequence>
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>,
+	);
+	expect(outerHTML).toContain('visibility:hidden');
+	expect(outerHTML).toContain('<div>first 4</div>');
 });
