@@ -1,6 +1,10 @@
 import React from 'react';
 import type {CanUpdateSequencePropStatus} from 'remotion';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
 import {TimelineBooleanField} from './TimelineBooleanField';
 import {TimelineEnumField} from './TimelineEnumField';
 import {TimelineNumberField} from './TimelineNumberField';
@@ -25,8 +29,8 @@ const inlineWrapper: React.CSSProperties = {
 
 export const TimelineFieldValue: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly onSave: (value: unknown) => Promise<void>;
-	readonly onDragValueChange: (value: unknown) => void;
+	readonly onSave: TimelineFieldOnSave;
+	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
 	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly effectiveValue: unknown;

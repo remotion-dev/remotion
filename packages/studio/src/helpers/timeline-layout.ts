@@ -32,6 +32,9 @@ export const TREE_GROUP_ROW_HEIGHT = 22;
 export const EXPANDED_SECTION_PADDING_LEFT = 28;
 export const EXPANDED_SECTION_PADDING_RIGHT = 10;
 
+export type TimelineFieldOnSave = (value: unknown) => Promise<void>;
+export type TimelineFieldOnDragValueChange = (value: unknown) => void;
+
 export type EffectSchemaFieldLabel = {
 	key: string;
 	description: string | undefined;

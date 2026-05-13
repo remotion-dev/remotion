@@ -1,6 +1,10 @@
 import React, {useCallback, useMemo} from 'react';
 import type {CanUpdateSequencePropStatus} from 'remotion';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 
@@ -12,8 +16,8 @@ export const TimelineEnumField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly effectiveValue: unknown;
-	readonly onSave: (value: unknown) => Promise<void>;
-	readonly onDragValueChange: (value: unknown) => void;
+	readonly onSave: TimelineFieldOnSave;
+	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
 }> = ({
 	field,

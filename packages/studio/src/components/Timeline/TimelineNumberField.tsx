@@ -1,6 +1,10 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {CanUpdateSequencePropStatus} from 'remotion';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {draggerStyle, getDecimalPlaces} from './timeline-field-utils';
 
@@ -8,8 +12,8 @@ export const TimelineNumberField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly effectiveValue: unknown;
 	readonly propStatus: CanUpdateSequencePropStatus;
-	readonly onSave: (value: unknown) => Promise<void>;
-	readonly onDragValueChange: (value: unknown) => void;
+	readonly onSave: TimelineFieldOnSave;
+	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
 }> = ({
 	field,

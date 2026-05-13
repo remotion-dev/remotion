@@ -1,6 +1,9 @@
 import React, {useCallback} from 'react';
 import type {CanUpdateSequencePropStatus} from 'remotion';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
 import {Checkbox} from '../Checkbox';
 
 const checkboxContainer: React.CSSProperties = {
@@ -11,7 +14,7 @@ export const TimelineBooleanField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly effectiveValue: unknown;
-	readonly onSave: (value: unknown) => Promise<void>;
+	readonly onSave: TimelineFieldOnSave;
 }> = ({field, propStatus, effectiveValue, onSave}) => {
 	const checked = Boolean(effectiveValue);
 

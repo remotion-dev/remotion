@@ -3,7 +3,11 @@ import type {SequenceNodePath} from 'remotion';
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {Padder} from './Padder';
@@ -76,8 +80,8 @@ export const TimelineFieldRow: React.FC<{
 
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 
-	const onSave = useCallback(
-		(value: unknown): Promise<void> => {
+	const onSave = useCallback<TimelineFieldOnSave>(
+		(value) => {
 			if (!codeValuesForOverride || !validatedLocation || !nodePath) {
 				return Promise.reject(new Error('Cannot save'));
 			}
@@ -132,8 +136,8 @@ export const TimelineFieldRow: React.FC<{
 		],
 	);
 
-	const onDragValueChange = useCallback(
-		(value: unknown) => {
+	const onDragValueChange = useCallback<TimelineFieldOnDragValueChange>(
+		(value) => {
 			if (nodePath === null) {
 				throw new Error('Cannot drag value');
 			}
