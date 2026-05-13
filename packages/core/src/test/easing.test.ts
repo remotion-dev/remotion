@@ -138,6 +138,7 @@ describe('Easing Circle', () => {
 		const u = clampUnit(n);
 		return 1 - Math.sqrt(1 - u * u);
 	};
+
 	const out = (n: number) => 1 - circle(1 - n);
 	const inOut = (n: number) => {
 		if (n >= 0.5) {
