@@ -1,5 +1,10 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {draggerStyle, getDecimalPlaces} from './timeline-field-utils';
 
@@ -29,16 +34,14 @@ const parseCssRotationToDegrees = (value: string): number => {
 export const TimelineRotationField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly effectiveValue: unknown;
-	readonly codeValue: unknown;
-	readonly canUpdate: boolean;
-	readonly onSave: (key: string, value: unknown) => Promise<void>;
-	readonly onDragValueChange: (key: string, value: unknown) => void;
+	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly onSave: TimelineFieldOnSave;
+	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
 }> = ({
 	field,
 	effectiveValue,
-	codeValue,
-	canUpdate,
+	propStatus,
 	onSave,
 	onDragValueChange,
 	onDragEnd,
@@ -53,16 +56,16 @@ export const TimelineRotationField: React.FC<{
 	const onValueChange = useCallback(
 		(newVal: number) => {
 			setDragValue(newVal);
-			onDragValueChange(field.key, `${newVal}deg`);
+			onDragValueChange(`${newVal}deg`);
 		},
-		[onDragValueChange, field.key],
+		[onDragValueChange],
 	);
 
 	const onValueChangeEnd = useCallback(
 		(newVal: number) => {
 			const newStr = `${newVal}deg`;
-			if (canUpdate && newStr !== codeValue) {
-				onSave(field.key, newStr).finally(() => {
+			if (propStatus.canUpdate && newStr !== propStatus.codeValue) {
+				onSave(newStr).finally(() => {
 					setDragValue(null);
 					onDragEnd();
 				});
@@ -71,25 +74,25 @@ export const TimelineRotationField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[canUpdate, onSave, field.key, codeValue, onDragEnd],
+		[propStatus, onSave, onDragEnd],
 	);
 
 	const onTextChange = useCallback(
 		(newVal: string) => {
-			if (canUpdate) {
+			if (propStatus.canUpdate) {
 				const parsed = Number(newVal);
 				if (!Number.isNaN(parsed)) {
 					const newStr = `${parsed}deg`;
-					if (newStr !== codeValue) {
+					if (newStr !== propStatus.codeValue) {
 						setDragValue(parsed);
-						onSave(field.key, newStr).catch(() => {
+						onSave(newStr).catch(() => {
 							setDragValue(null);
 						});
 					}
 				}
 			}
 		},
-		[canUpdate, onSave, field.key, codeValue],
+		[propStatus, onSave],
 	);
 
 	const step =

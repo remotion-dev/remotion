@@ -99,7 +99,7 @@ export const TimelineTimeIndicators: React.FC = () => {
 	}
 
 	return (
-		<Inner
+		<TimelineTimeIndicatorsInner
 			durationInFrames={video.durationInFrames}
 			fps={video.fps}
 			windowWidth={sliderTrack}
@@ -107,7 +107,7 @@ export const TimelineTimeIndicators: React.FC = () => {
 	);
 };
 
-const Inner: React.FC<{
+const TimelineTimeIndicatorsInner: React.FC<{
 	readonly windowWidth: number;
 	readonly fps: number;
 	readonly durationInFrames: number;

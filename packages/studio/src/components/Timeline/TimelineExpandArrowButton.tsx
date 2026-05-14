@@ -46,7 +46,7 @@ export const TimelineExpandArrowButton: React.FC<{
 			aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${label}`}
 		>
 			<svg width="12" height="12" viewBox="0 0 8 8" style={svgStyle}>
-				<path d="M2 1L6 4L2 7Z" fill="white" />
+				<path d="M2 1L6 4L2 7Z" fill="#ccc" />
 			</svg>
 		</button>
 	);

@@ -116,7 +116,7 @@ export const WrapSequenceContext: React.FC<{
 				<CanUseRemotionHooksProvider>
 					<MaybeTimelineProvider>
 						<MaybePlaybackRateProvider>
-							<SequenceManagerProvider visualModeEnabled={false}>
+							<SequenceManagerProvider>
 								<CompositionManager.Provider value={mockCompositionContext}>
 									{children}
 								</CompositionManager.Provider>

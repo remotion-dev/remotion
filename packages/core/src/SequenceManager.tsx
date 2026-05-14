@@ -43,11 +43,12 @@ export const SequenceVisibilityToggleContext =
 		},
 	});
 
-export type VisualModeGetters = {
-	visualModeEnabled: boolean;
-	getDragOverrides: GetDragOverrides;
+export type VisualModeCodeValues = {
 	getCodeValues: GetCodeValues;
-	getIsJsxInMapCallback: (nodePath: SequenceNodePath) => boolean;
+};
+
+export type VisualModeDragOverrides = {
+	getDragOverrides: GetDragOverrides;
 };
 
 export type VisualModeSetters = {
@@ -59,24 +60,30 @@ export type VisualModeSetters = {
 	clearDragOverrides: (nodePath: SequenceNodePath) => void;
 	setCodeValues: (
 		nodePath: SequenceNodePath,
-		values: CanUpdateSequencePropsResponse,
+		values: (
+			prev: CanUpdateSequencePropsResponse,
+		) => CanUpdateSequencePropsResponse,
 	) => void;
 };
 
-export type CanUpdateSequencePropsResponse =
-	| {
-			canUpdate: true;
-			props: Record<string, CanUpdateSequencePropStatus>;
-			nodePath: SequenceNodePath;
-			/** True when the JSX is inside a `.map()` callback (list iteration). */
-			jsxInMapCallback: boolean;
-	  }
-	| {
-			canUpdate: false;
-			reason: string;
-	  };
+export type CanUpdateSequencePropsResponseTrue = {
+	canUpdate: true;
+	props: Record<string, CanUpdateSequencePropStatus>;
+};
 
-const getCodeValues = (codeValues: CodeValues, nodePath: SequenceNodePath) => {
+export type CanUpdateSequencePropsResponseFalse = {
+	canUpdate: false;
+	reason: string;
+};
+
+export type CanUpdateSequencePropsResponse =
+	| CanUpdateSequencePropsResponseTrue
+	| CanUpdateSequencePropsResponseFalse;
+
+const getCodeValuesCtx = (
+	codeValues: CodeValues,
+	nodePath: SequenceNodePath,
+) => {
 	const status = codeValues[nodePathToString(nodePath)];
 	if (!status) {
 		return undefined;
@@ -89,36 +96,21 @@ const getCodeValues = (codeValues: CodeValues, nodePath: SequenceNodePath) => {
 	return status.props;
 };
 
-const getIsJsxInMapCallback = (
-	codeValues: CodeValues,
-	nodePath: SequenceNodePath,
-) => {
-	const status = codeValues[nodePathToString(nodePath)];
-	if (!status) {
-		return false;
-	}
+export type GetCodeValuesType = typeof getCodeValuesCtx;
 
-	if (!status.canUpdate) {
-		return false;
-	}
+export const VisualModeCodeValuesContext =
+	React.createContext<VisualModeCodeValues>({
+		getCodeValues: () => {
+			throw new Error('VisualModeCodeValuesContext not initialized');
+		},
+	});
 
-	return status.jsxInMapCallback;
-};
-
-export type GetCodeValuesType = typeof getCodeValues;
-
-export const VisualModeGettersContext = React.createContext<VisualModeGetters>({
-	getDragOverrides: () => {
-		throw new Error('VisualModeGettersContext not initialized');
-	},
-	getCodeValues: () => {
-		throw new Error('VisualModeGettersContext not initialized');
-	},
-	getIsJsxInMapCallback: () => {
-		throw new Error('VisualModeGettersContext not initialized');
-	},
-	visualModeEnabled: false,
-});
+export const VisualModeDragOverridesContext =
+	React.createContext<VisualModeDragOverrides>({
+		getDragOverrides: () => {
+			throw new Error('VisualModeDragOverridesContext not initialized');
+		},
+	});
 
 export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 	setDragOverrides: () => {
@@ -134,8 +126,7 @@ export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 
 export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
-	readonly visualModeEnabled: boolean;
-}> = ({children, visualModeEnabled}) => {
+}> = ({children}) => {
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 	const [hidden, setHidden] = useState<Record<string, boolean>>({});
 	const [dragOverrides, setControlOverrides] = useState<DragOverrides>({});
@@ -170,15 +161,23 @@ export const SequenceManagerProvider: React.FC<{
 	}, []);
 
 	const setCodeValues = useCallback(
-		(nodePath: SequenceNodePath, values: CanUpdateSequencePropsResponse) => {
+		(
+			nodePath: SequenceNodePath,
+			values: (
+				prev: CanUpdateSequencePropsResponse,
+			) => CanUpdateSequencePropsResponse,
+		) => {
 			setCodeValuesMapState((prev) => {
 				const key = nodePathToString(nodePath);
 
-				if (prev[key] === values) {
+				const prevKey = prev[key];
+				const newKey = values(prevKey);
+
+				if (prevKey === newKey) {
 					return prev;
 				}
 
-				return {...prev, [key]: values};
+				return {...prev, [key]: newKey};
 			});
 		},
 		[],
@@ -209,17 +208,31 @@ export const SequenceManagerProvider: React.FC<{
 		};
 	}, [hidden]);
 
-	const gettersContext: VisualModeGetters = useMemo(() => {
+	const getDragOverrides = useCallback(
+		(nodePath: SequenceNodePath) => {
+			return dragOverrides[nodePathToString(nodePath)] ?? {};
+		},
+		[dragOverrides],
+	);
+
+	const getCodeValues = useCallback(
+		(nodePath: SequenceNodePath) => {
+			return getCodeValuesCtx(codeValues, nodePath);
+		},
+		[codeValues],
+	);
+
+	const codeValuesContext: VisualModeCodeValues = useMemo(() => {
 		return {
-			visualModeEnabled,
-			getDragOverrides: (nodePath: SequenceNodePath) =>
-				dragOverrides[nodePathToString(nodePath)] ?? {},
-			getCodeValues: (nodePath: SequenceNodePath) =>
-				getCodeValues(codeValues, nodePath),
-			getIsJsxInMapCallback: (nodePath: SequenceNodePath) =>
-				getIsJsxInMapCallback(codeValues, nodePath),
+			getCodeValues,
 		};
-	}, [visualModeEnabled, dragOverrides, codeValues]);
+	}, [getCodeValues]);
+
+	const dragOverridesContext: VisualModeDragOverrides = useMemo(() => {
+		return {
+			getDragOverrides,
+		};
+	}, [getDragOverrides]);
 
 	const settersContext: VisualModeSetters = useMemo(() => {
 		return {
@@ -232,11 +245,13 @@ export const SequenceManagerProvider: React.FC<{
 	return (
 		<SequenceManager.Provider value={sequenceContext}>
 			<SequenceVisibilityToggleContext.Provider value={hiddenContext}>
-				<VisualModeGettersContext.Provider value={gettersContext}>
-					<VisualModeSettersContext.Provider value={settersContext}>
-						{children}
-					</VisualModeSettersContext.Provider>
-				</VisualModeGettersContext.Provider>
+				<VisualModeCodeValuesContext.Provider value={codeValuesContext}>
+					<VisualModeDragOverridesContext.Provider value={dragOverridesContext}>
+						<VisualModeSettersContext.Provider value={settersContext}>
+							{children}
+						</VisualModeSettersContext.Provider>
+					</VisualModeDragOverridesContext.Provider>
+				</VisualModeCodeValuesContext.Provider>
 			</SequenceVisibilityToggleContext.Provider>
 		</SequenceManager.Provider>
 	);

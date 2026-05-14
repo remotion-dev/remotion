@@ -29,6 +29,7 @@ import {
 	discriminatedUnionRootSchema,
 } from './DiscriminatedUnionSchemaTest';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
+import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {ExperimentalControlsShowcase} from './ExperimentalControls';
@@ -482,6 +483,16 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={100}
+				/>
+			</Folder>
+			<Folder name="easing">
+				<Composition
+					id="easing-visualizer"
+					component={EasingVisualizer}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={210}
 				/>
 			</Folder>
 			<Folder name="regression-testing">

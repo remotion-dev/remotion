@@ -39,10 +39,10 @@ export const TimelineSlider: React.FC = () => {
 		return null;
 	}
 
-	return <Inner />;
+	return <TimelineSliderInner />;
 };
 
-const Inner: React.FC = () => {
+const TimelineSliderInner: React.FC = () => {
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const ref = useRef<HTMLDivElement>(null);

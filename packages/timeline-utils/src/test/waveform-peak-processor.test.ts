@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {createWaveformPeakProcessor} from '../components/waveform-peak-processor';
+import {createWaveformPeakProcessor} from '../audio-waveform/waveform-peak-processor';
 
 const expectPeaksToBeClose = (actual: number[], expected: number[]) => {
 	expect(actual).toHaveLength(expected.length);

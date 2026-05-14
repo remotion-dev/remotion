@@ -1,5 +1,5 @@
 import React, {useContext, useMemo} from 'react';
-import type {GetCodeValues, GetDragOverrides} from 'remotion';
+import type {GetCodeValues} from 'remotion';
 import {Internals, type TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {
@@ -35,13 +35,11 @@ const getExpandedPlaceholderStyle = ({
 	sequence,
 	nodePathInfo,
 	getIsExpanded,
-	getDragOverrides,
 	getCodeValues,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getIsExpanded: GetIsExpanded;
-	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
 }): React.CSSProperties => ({
 	height:
@@ -49,24 +47,19 @@ const getExpandedPlaceholderStyle = ({
 			sequence,
 			nodePathInfo,
 			getIsExpanded,
-			getDragOverrides,
 			getCodeValues,
 		}) + TIMELINE_ITEM_BORDER_BOTTOM,
 });
 
-export const TimelineTracks: React.FC<{
+const TimelineTracksInner: React.FC<{
 	readonly timeline: TrackWithHash[];
 	readonly hasBeenCut: boolean;
 }> = ({timeline, hasBeenCut}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {getDragOverrides, getCodeValues} = useContext(
-		Internals.VisualModeGettersContext,
-	);
+	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
 
-	const visualModeEnabled =
-		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&
-		previewServerState.type === 'connected';
+	const previewServerConnected = previewServerState.type === 'connected';
 
 	const timelineStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -97,13 +90,12 @@ export const TimelineTracks: React.FC<{
 							>
 								<TimelineSequence s={track.sequence} />
 							</div>
-							{visualModeEnabled && isExpanded && track.nodePathInfo ? (
+							{isExpanded && track.nodePathInfo && previewServerConnected ? (
 								<div
 									style={getExpandedPlaceholderStyle({
 										sequence: track.sequence,
 										nodePathInfo: track.nodePathInfo,
 										getIsExpanded,
-										getDragOverrides,
 										getCodeValues,
 									})}
 								/>
@@ -116,3 +108,5 @@ export const TimelineTracks: React.FC<{
 		</div>
 	);
 };
+
+export const TimelineTracks = React.memo(TimelineTracksInner);

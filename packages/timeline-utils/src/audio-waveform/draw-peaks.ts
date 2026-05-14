@@ -2,13 +2,19 @@ import {parseColor} from './parse-color';
 
 const CLIPPING_COLOR = '#FF7F50';
 
-export const drawBars = (
-	canvas: HTMLCanvasElement | OffscreenCanvas,
-	peaks: Float32Array,
-	color: string,
-	volume: number,
-	width: number,
-) => {
+export const drawBars = ({
+	canvas,
+	color,
+	peaks,
+	volume,
+	width,
+}: {
+	readonly canvas: HTMLCanvasElement | OffscreenCanvas;
+	readonly peaks: Float32Array;
+	readonly color: string;
+	readonly volume: number;
+	readonly width: number;
+}) => {
 	const ctx = canvas.getContext('2d');
 
 	if (!ctx) {

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/mcp"
 	},
 	"name": "@remotion/mcp",
-	"version": "4.0.460",
+	"version": "4.0.461",
 	"description": "Remotion's Model Context Protocol",
 	"main": "dist/esm/index.mjs",
 	"sideEffects": false,
@@ -31,7 +31,7 @@
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@types/command-line-args": "^5.2.3",
+		"@types/command-line-args": "5.2.3",
 		"@typescript/native-preview": "catalog:"
 	},
 	"keywords": [

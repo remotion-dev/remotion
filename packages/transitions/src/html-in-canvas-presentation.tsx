@@ -51,8 +51,12 @@ export const HtmlInCanvasPresentation = <
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
 
-	const effectsRef = useRef(_experimentalEffects);
-	effectsRef.current = _experimentalEffects;
+	const memoizedEffects = Internals.useMemoizedEffects(
+		Internals.flattenEffects(_experimentalEffects ?? []),
+	);
+
+	const effectsRef = useRef(memoizedEffects);
+	effectsRef.current = memoizedEffects;
 
 	const [instance] = useState(() => shader(offscreenCanvas));
 
@@ -158,7 +162,7 @@ export const HtmlInCanvasPresentation = <
 		}
 
 		canvas.requestPaint?.();
-	}, [presentationProgress, passThrough]);
+	}, [presentationProgress, passThrough, memoizedEffects]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {

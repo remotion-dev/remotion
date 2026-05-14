@@ -3,6 +3,7 @@ import type {SequenceNodePath, TSequence} from 'remotion';
 export type SequenceNodePathInfo = {
 	nodePath: SequenceNodePath;
 	index: number;
+	numberOfSequencesWithThisNodePath: number;
 };
 
 type Track = {

@@ -60,14 +60,14 @@ export const useSequencePropsSubscription = ({
 			schema,
 			clientId,
 			applyOnce: (result) => {
-				if (!result.canUpdate) {
+				if (!result.success) {
 					return;
 				}
 
-				setCodeValues(result.nodePath, result);
+				setCodeValues(result.nodePath, () => result.status);
 			},
 			applyEach: (result) => {
-				if (!result.canUpdate) {
+				if (!result.success) {
 					return;
 				}
 

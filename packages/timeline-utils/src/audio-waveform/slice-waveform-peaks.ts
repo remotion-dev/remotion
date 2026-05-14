@@ -1,4 +1,4 @@
-import {TARGET_SAMPLE_RATE} from './load-waveform-peaks';
+import {TARGET_SAMPLE_RATE} from './constants';
 
 export const sliceWaveformPeaks = ({
 	durationInFrames,

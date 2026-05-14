@@ -9,10 +9,11 @@ import type {
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import type {SequenceSchema} from 'remotion';
-import {findJsxElementAtNodePath} from '../preview-server/routes/can-update-sequence-props';
-import {formatFileContent} from './format-file-content';
-import {parseAst, serializeAst} from './parse-ast';
-import {parseValueExpression, updateNestedProp} from './update-nested-prop';
+import {NoReactInternals} from 'remotion/no-react';
+import {findJsxElementAtNodePath} from '../../preview-server/routes/can-update-sequence-props';
+import {formatFileContent} from '../format-file-content';
+import {parseAst, serializeAst} from '../parse-ast';
+import {parseValueExpression, updateNestedProp} from '../update-nested-prop';
 
 const b = recast.types.builders;
 
@@ -20,6 +21,11 @@ export type SequencePropUpdate = {
 	key: string;
 	value: unknown;
 	defaultValue: unknown | null;
+};
+
+export type RemovedProp = {
+	key: string;
+	valueString: string;
 };
 
 const removeVariantKey = ({
@@ -54,6 +60,34 @@ const removeVariantKey = ({
 	});
 };
 
+const snapshotTopLevelAttrs = (
+	node: JSXOpeningElementLike,
+): Map<string, string> => {
+	const result = new Map<string, string>();
+	for (const a of node.attributes ?? []) {
+		if (a.type === 'JSXAttribute' && a.name.type === 'JSXIdentifier') {
+			const {name} = a.name;
+			const printed = recast
+				.print(a)
+				.code.replace(/\s+/g, ' ')
+				.replace(/,(\s*[}\]])/g, '$1')
+				.trim();
+
+			const prefix = `${name}=`;
+			let valueOnly = printed.startsWith(prefix)
+				? printed.slice(prefix.length)
+				: printed;
+			if (valueOnly.startsWith('{') && valueOnly.endsWith('}')) {
+				valueOnly = valueOnly.slice(1, -1).trim();
+			}
+
+			result.set(name, valueOnly);
+		}
+	}
+
+	return result;
+};
+
 type JSXOpeningElementLike = NonNullable<
 	ReturnType<typeof findJsxElementAtNodePath>
 >;
@@ -67,11 +101,12 @@ export const updateSequencePropsAst = ({
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequencePropUpdate[];
-	schema?: SequenceSchema;
+	schema: SequenceSchema;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
 	logLine: number;
+	removedProps: RemovedProp[];
 } => {
 	const ast = parseAst(input);
 
@@ -85,6 +120,13 @@ export const updateSequencePropsAst = ({
 	const logLine = node.loc?.start.line ?? 1;
 
 	const oldValueStrings: string[] = [];
+	const initialAttrs = snapshotTopLevelAttrs(node);
+	const updatedTopLevelKeys = new Set(
+		updates.map(({key}) => {
+			const dot = key.indexOf('.');
+			return dot === -1 ? key : key.slice(0, dot);
+		}),
+	);
 
 	for (const {key, value, defaultValue} of updates) {
 		let oldValueString = '';
@@ -171,43 +213,42 @@ export const updateSequencePropsAst = ({
 
 		oldValueStrings.push(oldValueString);
 
-		if (schema && !isNested) {
+		if (!isNested) {
 			const fieldSchema = schema[key];
 			if (fieldSchema && fieldSchema.type === 'enum') {
-				let oldRawValue: unknown;
-				try {
-					oldRawValue = JSON.parse(oldValueString);
-				} catch {
-					oldRawValue = oldValueString;
-				}
-
-				if (oldRawValue !== value) {
-					const oldVariant =
-						typeof oldRawValue === 'string'
-							? fieldSchema.variants[oldRawValue]
-							: undefined;
-					const newVariant =
-						typeof value === 'string' ? fieldSchema.variants[value] : undefined;
-
-					if (oldVariant) {
-						const newKeys = new Set(newVariant ? Object.keys(newVariant) : []);
-						for (const variantKey of Object.keys(oldVariant)) {
-							if (newKeys.has(variantKey)) {
-								continue;
-							}
-
-							removeVariantKey({node, variantKey});
-						}
-					}
+				const propsToDelete = NoReactInternals.findPropsToDelete({
+					schema,
+					key,
+					value,
+				});
+				for (const propToDelete of propsToDelete) {
+					removeVariantKey({node, variantKey: propToDelete});
 				}
 			}
 		}
+	}
+
+	const finalAttrNames = new Set<string>();
+	for (const a of node.attributes ?? []) {
+		if (a.type === 'JSXAttribute' && a.name.type === 'JSXIdentifier') {
+			finalAttrNames.add(a.name.name);
+		}
+	}
+
+	const removedProps: RemovedProp[] = [];
+	for (const [name, valueString] of initialAttrs) {
+		if (finalAttrNames.has(name) || updatedTopLevelKeys.has(name)) {
+			continue;
+		}
+
+		removedProps.push({key: name, valueString});
 	}
 
 	return {
 		serialized: serializeAst(ast),
 		oldValueStrings,
 		logLine,
+		removedProps,
 	};
 };
 
@@ -228,13 +269,15 @@ export const updateSequenceProps = async ({
 	oldValueStrings: string[];
 	formatted: boolean;
 	logLine: number;
+	removedProps: RemovedProp[];
 }> => {
-	const {serialized, oldValueStrings, logLine} = updateSequencePropsAst({
-		input,
-		nodePath,
-		updates,
-		schema,
-	});
+	const {serialized, oldValueStrings, logLine, removedProps} =
+		updateSequencePropsAst({
+			input,
+			nodePath,
+			updates,
+			schema,
+		});
 
 	const {output, formatted} = await formatFileContent({
 		input: serialized,
@@ -246,5 +289,6 @@ export const updateSequenceProps = async ({
 		oldValueStrings,
 		formatted,
 		logLine,
+		removedProps,
 	};
 };

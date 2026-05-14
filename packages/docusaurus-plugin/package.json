@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/docusaurus-plugin",
-	"version": "4.0.460",
+	"version": "4.0.461",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
@@ -17,9 +17,9 @@
 		"shiki": "3.22.0",
 		"@shikijs/twoslash": "3.22.0",
 		"twoslash": "0.3.6",
-		"unified": "^11.0.5",
-		"unist-util-visit": "^5.0.0",
-		"fenceparser": "^2.2.0",
+		"unified": "11.0.5",
+		"unist-util-visit": "5.1.0",
+		"fenceparser": "2.2.0",
 		"@docusaurus/types": "3.6.0",
 		"@types/dom-webcodecs": "catalog:"
 	},

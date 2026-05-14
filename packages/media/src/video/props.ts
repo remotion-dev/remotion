@@ -1,11 +1,12 @@
 import type {
+	EffectDefinitionAndStack,
+	EffectDescriptor,
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	OnVideoFrame,
 	SequenceProps,
 	VolumeProp,
 } from 'remotion';
-import type {EffectsProp} from 'remotion';
 import type {MediaOnError} from '../on-error';
 
 export type MediaErrorEvent = {
@@ -68,12 +69,14 @@ type OptionalVideoProps = {
 	credentials: RequestCredentials | undefined;
 	objectFit: VideoObjectFit;
 	_experimentalInitiallyDrawCachedFrame: boolean;
-	_experimentalEffects: EffectsProp;
+	_experimentalEffects: EffectDescriptor<unknown>[];
 };
 
 export type InnerVideoProps = MandatoryVideoProps &
 	OuterVideoProps &
-	OptionalVideoProps;
+	Omit<OptionalVideoProps, '_experimentalEffects'> & {
+		_experimentalEffects: EffectDefinitionAndStack<unknown>[];
+	};
 
 export type VideoProps = MandatoryVideoProps &
 	Partial<OuterVideoProps> &

@@ -1,3 +1,4 @@
+import {findPropsToDelete} from './find-props-to-delete.js';
 import {getEffectiveVisualModeValue} from './get-effective-visual-mode-value.js';
 import type {
 	SequenceFieldSchema,
@@ -18,8 +19,6 @@ export type CodeValues = Record<string, CanUpdateSequencePropsResponse>;
 export type GetCodeValues = (
 	nodePath: SequenceNodePath,
 ) => Record<string, CanUpdateSequencePropStatus> | undefined;
-
-export type GetIsJsxInMapCallback = (nodePath: SequenceNodePath) => boolean;
 
 export type GetDragOverrides = (
 	nodePath: SequenceNodePath,
@@ -59,18 +58,43 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 	currentValue: Record<string, unknown>;
 	overrideValues: Record<string, unknown>;
 	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
-}): Record<string, unknown> => {
+}): {merged: Record<string, unknown>; propsToDelete: Set<string>} => {
 	const merged: Record<string, unknown> = {};
+	const propsToDelete = new Set<string>();
 	for (const key of Object.keys(currentValue)) {
 		const codeValueStatus = propStatus?.[key] ?? null;
-		merged[key] = getEffectiveVisualModeValue({
+		const field = findFieldInSchema(schema, key);
+
+		if (field?.type === 'hidden') {
+			continue;
+		}
+
+		const value = getEffectiveVisualModeValue({
 			codeValue: codeValueStatus,
 			runtimeValue: currentValue[key],
 			dragOverrideValue: overrideValues[key],
-			defaultValue: findFieldInSchema(schema, key)?.default,
+			defaultValue: field?.default,
 			shouldResortToDefaultValueIfUndefined: false,
 		});
+		if (value === undefined) {
+			propsToDelete.add(key);
+		}
+
+		merged[key] = value;
 	}
 
-	return merged;
+	for (const key of Object.keys(overrideValues)) {
+		if (schema[key]?.type === 'enum') {
+			const propsToDeleteForKey = findPropsToDelete({
+				schema,
+				key,
+				value: merged[key],
+			});
+			for (const propToDelete of propsToDeleteForKey) {
+				propsToDelete.add(propToDelete);
+			}
+		}
+	}
+
+	return {merged, propsToDelete};
 };

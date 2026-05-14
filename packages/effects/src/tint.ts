@@ -3,13 +3,15 @@ import {Internals} from 'remotion';
 
 const {createDescriptor, defineEffect} = Internals;
 
+const DEFAULT_AMOUNT = 0.5 as const;
+
 export const tintSchema = {
 	amount: {
 		type: 'number',
 		min: 0,
 		max: 1,
 		step: 0.01,
-		default: 0.5,
+		default: DEFAULT_AMOUNT,
 		description: 'Amount',
 	},
 } as const satisfies SequenceSchema;
@@ -19,10 +21,24 @@ export type TintParams = {
 	readonly amount?: number;
 };
 
+type TintResolved = {
+	color: string;
+	amount: number;
+};
+
+const resolve = (p: TintParams): TintResolved => ({
+	color: p.color,
+	amount: p.amount ?? DEFAULT_AMOUNT,
+});
+
 const tintDef = defineEffect<TintParams, null>({
 	type: 'remotion/tint',
 	label: 'Tint',
 	backend: '2d',
+	calculateKey: (params) => {
+		const r = resolve(params);
+		return `tint-${r.color}-${r.amount}`;
+	},
 	setup: () => null,
 	apply: ({source, target, width, height, params}) => {
 		const ctx = target.getContext('2d');
@@ -32,7 +48,8 @@ const tintDef = defineEffect<TintParams, null>({
 			);
 		}
 
-		const amount = Math.max(0, Math.min(1, params.amount ?? 0.5));
+		const r = resolve(params);
+		const amount = Math.max(0, Math.min(1, r.amount));
 
 		ctx.clearRect(0, 0, width, height);
 		ctx.globalAlpha = 1;
@@ -43,7 +60,7 @@ const tintDef = defineEffect<TintParams, null>({
 		// so the tint respects the source's alpha mask.
 		ctx.globalAlpha = amount;
 		ctx.globalCompositeOperation = 'source-atop';
-		ctx.fillStyle = params.color;
+		ctx.fillStyle = r.color;
 		ctx.fillRect(0, 0, width, height);
 
 		ctx.globalAlpha = 1;

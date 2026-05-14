@@ -10,7 +10,12 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {_InternalTypes, SequenceSchema} from 'remotion';
+import type {
+	_InternalTypes,
+	CanUpdateSequencePropsResponseFalse,
+	CanUpdateSequencePropsResponseTrue,
+	SequenceSchema,
+} from 'remotion';
 import type {CanUpdateSequencePropsResponse} from 'remotion';
 import type {SequenceNodePath} from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
@@ -217,7 +222,16 @@ export type SubscribeToSequencePropsRequest = {
 	clientId: string;
 };
 
-export type SubscribeToSequencePropsResponse = CanUpdateSequencePropsResponse;
+export type SubscribeToSequencePropsResponse =
+	| {
+			success: true;
+			status: CanUpdateSequencePropsResponseTrue;
+			nodePath: SequenceNodePath;
+	  }
+	| {
+			success: false;
+			status: CanUpdateSequencePropsResponseFalse;
+	  };
 
 export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
@@ -233,17 +247,6 @@ export type SaveSequencePropsRequest = {
 	defaultValue: string | null;
 	schema: SequenceSchema;
 };
-
-export type SaveSequencePropsResponse =
-	| {
-			success: true;
-			newStatus: CanUpdateSequencePropsResponse;
-	  }
-	| {
-			success: false;
-			reason: string;
-			stack: string;
-	  };
 
 export type DeleteJsxNodeRequest = {
 	fileName: string;
@@ -356,7 +359,7 @@ export type ApiRoutes = {
 	>;
 	'/api/save-sequence-props': ReqAndRes<
 		SaveSequencePropsRequest,
-		SaveSequencePropsResponse
+		CanUpdateSequencePropsResponse
 	>;
 	'/api/delete-jsx-node': ReqAndRes<
 		DeleteJsxNodeRequest,

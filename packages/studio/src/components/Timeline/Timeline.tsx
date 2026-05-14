@@ -75,11 +75,13 @@ const TimelineInner: React.FC = () => {
 		);
 	}, [durationInFrames, timeline]);
 
-	const shown = filtered.slice(0, MAX_TIMELINE_TRACKS);
+	const shown = useMemo(() => {
+		return filtered.length > MAX_TIMELINE_TRACKS
+			? filtered.slice(0, MAX_TIMELINE_TRACKS)
+			: filtered;
+	}, [filtered]);
+
 	const hasBeenCut = filtered.length > shown.length;
-	const visualModeEnvEnabled = Boolean(
-		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
-	);
 
 	return (
 		<div
@@ -87,22 +89,20 @@ const TimelineInner: React.FC = () => {
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
-			{visualModeEnvEnabled
-				? sequences.map((sequence) => {
-						if (!sequence.controls || !previewConnected || !sequence.stack) {
-							return null;
-						}
+			{sequences.map((sequence) => {
+				if (!sequence.controls || !previewConnected || !sequence.stack) {
+					return null;
+				}
 
-						return (
-							<SubscribeToNodePaths
-								key={sequence.id}
-								overrideId={sequence.controls.overrideId}
-								schema={sequence.controls.schema}
-								stack={sequence.stack}
-							/>
-						);
-					})
-				: null}
+				return (
+					<SubscribeToNodePaths
+						key={sequence.id}
+						overrideId={sequence.controls.overrideId}
+						schema={sequence.controls.schema}
+						stack={sequence.stack}
+					/>
+				);
+			})}
 			<SequencePropsObserver />
 			<TimelineWidthProvider>
 				<TimelinePinchZoom />

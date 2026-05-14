@@ -10,10 +10,11 @@ import type {
 	TSAsExpression,
 	UnaryExpression,
 } from '@babel/types';
+import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import * as recast from 'recast';
-import type {CanUpdateSequencePropsResponse, SequenceNodePath} from 'remotion';
+import type {CanUpdateSequencePropsResponseTrue} from 'remotion';
+import type {SequenceNodePath} from 'remotion';
 import type {CanUpdateSequencePropStatus} from 'remotion';
-import {isJsxUnderMapCallback} from '../../codemods/jsx-sequence-context';
 import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 
@@ -303,7 +304,7 @@ export const computeSequencePropsStatusFromContent = (
 	fileContents: string,
 	nodePath: SequenceNodePath,
 	keys: string[],
-): CanUpdateSequencePropsResponse => {
+): CanUpdateSequencePropsResponseTrue => {
 	const ast = parseAst(fileContents);
 
 	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
@@ -332,8 +333,6 @@ export const computeSequencePropsStatusFromContent = (
 	return {
 		canUpdate: true as const,
 		props: filteredProps,
-		nodePath,
-		jsxInMapCallback: isJsxUnderMapCallback(ast, nodePath),
 	};
 };
 
@@ -347,22 +346,15 @@ export const computeSequencePropsStatus = ({
 	nodePath: SequenceNodePath;
 	keys: string[];
 	remotionRoot: string;
-}): CanUpdateSequencePropsResponse => {
-	try {
-		const absolutePath = path.resolve(remotionRoot, fileName);
-		const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-		if (fileRelativeToRoot.startsWith('..')) {
-			throw new Error('Cannot read a file outside the project');
-		}
-
-		const fileContents = readFileSync(absolutePath, 'utf-8');
-		return computeSequencePropsStatusFromContent(fileContents, nodePath, keys);
-	} catch (err) {
-		return {
-			canUpdate: false as const,
-			reason: (err as Error).message,
-		};
+}): CanUpdateSequencePropsResponseTrue => {
+	const absolutePath = path.resolve(remotionRoot, fileName);
+	const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
+	if (fileRelativeToRoot.startsWith('..')) {
+		throw new Error('Cannot read a file outside the project');
 	}
+
+	const fileContents = readFileSync(absolutePath, 'utf-8');
+	return computeSequencePropsStatusFromContent(fileContents, nodePath, keys);
 };
 
 export const computeSequencePropsStatusFromFilenameByLine = ({
@@ -375,7 +367,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 	line: number;
 	keys: string[];
 	remotionRoot: string;
-}): CanUpdateSequencePropsResponse => {
+}): SubscribeToSequencePropsResponse => {
 	try {
 		const absolutePath = path.resolve(remotionRoot, fileName);
 		const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
@@ -391,16 +383,23 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 			throw new Error('Could not find a JSX element at the specified location');
 		}
 
-		return computeSequencePropsStatus({
-			fileName,
+		return {
+			status: computeSequencePropsStatus({
+				fileName,
+				nodePath: resolvedNodePath,
+				keys,
+				remotionRoot,
+			}),
 			nodePath: resolvedNodePath,
-			keys,
-			remotionRoot,
-		});
+			success: true,
+		};
 	} catch (err) {
 		return {
-			canUpdate: false as const,
-			reason: (err as Error).message,
+			status: {
+				canUpdate: false as const,
+				reason: (err as Error).message,
+			},
+			success: false,
 		};
 	}
 };

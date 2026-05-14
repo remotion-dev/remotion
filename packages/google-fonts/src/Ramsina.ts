@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ramsina',
 	importName: 'Ramsina',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Ramsina:ital,wght@0,400',
 	unicodeRanges: {
 		syriac:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				syriac:
-					'https://fonts.gstatic.com/s/ramsina/v2/daaYSTE-LGmCbhP9yMo_QrmM.woff2',
+					'https://fonts.gstatic.com/s/ramsina/v3/daaYSTE-LGmCbhP9yMo_QrmM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ramsina/v2/daaYSTE-LGmCbhP9yLk_Qg.woff2',
+					'https://fonts.gstatic.com/s/ramsina/v3/daaYSTE-LGmCbhP9yLk_Qg.woff2',
 			},
 		},
 	},

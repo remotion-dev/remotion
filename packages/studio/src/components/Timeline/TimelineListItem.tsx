@@ -37,19 +37,12 @@ export const TimelineListItem: React.FC<{
 }> = ({nestedDepth, sequence, isCompact, nodePathInfo}) => {
 	const nodePath = nodePathInfo?.nodePath ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const visualModeEnvEnabled = Boolean(
-		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
-	);
 	const previewConnected = previewServerState.type === 'connected';
-	const visualModeActive = visualModeEnvEnabled && previewConnected;
 	const {hidden, setHidden} = useContext(
 		Internals.SequenceVisibilityToggleContext,
 	);
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
-	const {getIsJsxInMapCallback} = useContext(
-		Internals.VisualModeGettersContext,
-	);
 
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
 
@@ -83,9 +76,11 @@ export const TimelineListItem: React.FC<{
 			return;
 		}
 
-		if (getIsJsxInMapCallback(nodePath)) {
+		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
 			const message =
-				'This sequence is rendered inside a .map() callback. Duplicating inserts another copy in that callback (affecting each list item). Continue?';
+				'This sequence is programmatically duplicated ' +
+				nodePathInfo.numberOfSequencesWithThisNodePath +
+				' times in the code. Duplicating inserts another copy. Continue?';
 			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
 			if (!window.confirm(message)) {
 				return;
@@ -105,16 +100,18 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePath, validatedLocation?.source, getIsJsxInMapCallback]);
+	}, [nodePath, validatedLocation?.source, nodePathInfo]);
 
 	const onDeleteSequenceFromSource = useCallback(async () => {
 		if (!validatedLocation?.source || !nodePath) {
 			return;
 		}
 
-		if (getIsJsxInMapCallback(nodePath)) {
+		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
 			const message =
-				'This sequence is rendered inside a .map() callback. Deleting removes all sequences in that callback. Continue?';
+				'This sequence is programmatically duplicated ' +
+				nodePathInfo.numberOfSequencesWithThisNodePath +
+				' times in the code. Deleting removes all instances. Continue?';
 			// eslint-disable-next-line no-alert -- native confirm before applying duplicate codemod in .map callbacks
 			if (!window.confirm(message)) {
 				return;
@@ -134,10 +131,10 @@ export const TimelineListItem: React.FC<{
 		} catch (err) {
 			showNotification((err as Error).message, 4000);
 		}
-	}, [nodePath, validatedLocation?.source, getIsJsxInMapCallback]);
+	}, [nodePath, validatedLocation?.source, nodePathInfo]);
 
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
-		if (!visualModeEnvEnabled) {
+		if (!previewConnected) {
 			return [];
 		}
 
@@ -184,11 +181,11 @@ export const TimelineListItem: React.FC<{
 		duplicateDisabled,
 		onDeleteSequenceFromSource,
 		onDuplicateSequenceFromSource,
-		visualModeEnvEnabled,
+		previewConnected,
 	]);
 
 	const isExpanded =
-		visualModeActive && nodePathInfo !== null && getIsExpanded(nodePathInfo);
+		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
 
 	const onToggleExpand = useCallback(() => {
 		if (nodePathInfo === null) {
@@ -249,7 +246,7 @@ export const TimelineListItem: React.FC<{
 					onInvoked={onToggleVisibility}
 				/>
 				<Padder depth={nestedDepth} />
-				{visualModeActive ? (
+				{previewConnected ? (
 					hasExpandableContent ? (
 						<TimelineExpandArrowButton
 							isExpanded={isExpanded}
@@ -272,12 +269,12 @@ export const TimelineListItem: React.FC<{
 
 	return (
 		<>
-			{visualModeEnvEnabled ? (
+			{previewConnected ? (
 				<ContextMenu values={contextMenuValues}>{trackRow}</ContextMenu>
 			) : (
 				trackRow
 			)}
-			{visualModeActive &&
+			{previewConnected &&
 			isExpanded &&
 			hasExpandableContent &&
 			nodePathInfo ? (
