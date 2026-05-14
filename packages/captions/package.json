@@ -6,7 +6,6 @@
 	"version": "4.0.461",
 	"description": "Primitives for dealing with captions",
 	"main": "dist/index.js",
-	"sideEffects": false,
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
