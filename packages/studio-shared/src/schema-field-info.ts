@@ -31,6 +31,7 @@ const SUPPORTED_SCHEMA_TYPES = new Set([
 	'boolean',
 	'rotation',
 	'translate',
+	'color',
 	'enum',
 ]);
 

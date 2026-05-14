@@ -6,6 +6,7 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {TimelineBooleanField} from './TimelineBooleanField';
+import {TimelineColorField} from './TimelineColorField';
 import {TimelineEnumField} from './TimelineEnumField';
 import {TimelineNumberField} from './TimelineNumberField';
 import {TimelineRotationField} from './TimelineRotationField';
@@ -109,6 +110,19 @@ export const TimelineFieldValue: React.FC<{
 		return (
 			<span style={wrapperStyle}>
 				<TimelineBooleanField
+					field={field}
+					propStatus={propStatus}
+					onSave={onSave}
+					effectiveValue={effectiveValue}
+				/>
+			</span>
+		);
+	}
+
+	if (field.typeName === 'color') {
+		return (
+			<span style={wrapperStyle}>
+				<TimelineColorField
 					field={field}
 					propStatus={propStatus}
 					onSave={onSave}
