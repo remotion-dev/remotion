@@ -2,9 +2,11 @@ import {blur} from '@remotion/effects/blur';
 import {halftone} from '@remotion/effects/halftone';
 import {tint} from '@remotion/effects/tint';
 import {wave} from '@remotion/effects/wave';
+import {LightLeakInternals} from '@remotion/light-leaks';
 import {Video} from '@remotion/media';
+import {StarburstInternals} from '@remotion/starburst';
 import React from 'react';
-import {AbsoluteFill, staticFile} from 'remotion';
+import {AbsoluteFill, Experimental, staticFile} from 'remotion';
 
 const SAMPLE_VIDEO = staticFile('bigbuckbunny.mp4');
 
@@ -151,7 +153,43 @@ export const EffectsTestbed: React.FC = () => {
 						muted
 						loop
 						objectFit="cover"
-						_experimentalEffects={[...blur({radius: 24})]}
+						_experimentalEffects={[blur({radius: 24})]}
+					/>
+				</Tile>
+				<Tile title="solid" subtitle="light leak">
+					<Experimental.Solid
+						width={400}
+						height={300}
+						color="#ff5fa2"
+						style={tileVideoStyle}
+						_experimentalEffects={[
+							LightLeakInternals.lightLeak({seed: 1, hueShift: 30}),
+						]}
+					/>
+				</Tile>
+			</div>
+			<div style={{flex: 1, display: 'flex', flexDirection: 'row', gap: 16}}>
+				<Tile title="starburst" subtitle="separable Gaussian, radius 24">
+					<Video
+						src={SAMPLE_VIDEO}
+						style={tileVideoStyle}
+						muted
+						loop
+						objectFit="cover"
+						_experimentalEffects={[
+							StarburstInternals.starburst({
+								colors: ['#ff5fa2', '#ff0000'],
+								rays: 12,
+							}),
+							blur({radius: 24}),
+							wave({
+								amplitude: 22,
+								wavelength: 180,
+								speed: 0.2,
+								sliceWidth: 4,
+								background: '#020617',
+							}),
+						]}
 					/>
 				</Tile>
 			</div>
