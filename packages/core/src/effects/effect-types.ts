@@ -48,7 +48,6 @@ export type EffectDefinition<P, S = unknown> = {
 
 type BaseEffectDescriptor<P = unknown> = {
 	readonly definition: EffectDefinition<P, unknown>;
-	readonly stack: string;
 	readonly effectKey: string;
 	readonly params: P;
 };

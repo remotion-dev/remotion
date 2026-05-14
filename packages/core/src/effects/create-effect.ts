@@ -21,7 +21,6 @@ export const createEffect = <P, S>(
 	const factory = (params: P = {} as P): EffectDescriptor<unknown> => ({
 		definition: widened,
 		params,
-		stack: new Error().stack!,
 		effectKey: widened.calculateKey(params),
 		memoized: false,
 	});

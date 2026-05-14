@@ -27,7 +27,6 @@ const makeDesc = (
 ): EffectDescriptor<unknown> => ({
 	definition: makeDef(type, backend),
 	params: {},
-	stack: new Error().stack!,
 	effectKey: type,
 	memoized: false,
 });

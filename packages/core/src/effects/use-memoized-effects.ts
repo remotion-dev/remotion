@@ -149,7 +149,6 @@ export const useMemoizedEffects = ({
 	const next: EffectDefinitionAndStack<unknown>[] = resolved.map(
 		({descriptor, params, effectKey}) => ({
 			definition: descriptor.definition,
-			stack: descriptor.stack,
 			effectKey,
 			params,
 			memoized: true,
