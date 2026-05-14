@@ -1,39 +1,42 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {draggerStyle, getDecimalPlaces} from './timeline-field-utils';
 
 export const TimelineNumberField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly effectiveValue: unknown;
-	readonly codeValue: unknown;
-	readonly canUpdate: boolean;
-	readonly onSave: (key: string, value: unknown) => Promise<void>;
-	readonly onDragValueChange: (key: string, value: unknown) => void;
+	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly onSave: TimelineFieldOnSave;
+	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
 }> = ({
 	field,
 	effectiveValue,
-	canUpdate,
 	onSave,
 	onDragValueChange,
 	onDragEnd,
-	codeValue,
+	propStatus,
 }) => {
 	const [dragValue, setDragValue] = useState<number | null>(null);
 
 	const onValueChange = useCallback(
 		(newVal: number) => {
 			setDragValue(newVal);
-			onDragValueChange(field.key, newVal);
+			onDragValueChange(newVal);
 		},
-		[onDragValueChange, field.key],
+		[onDragValueChange],
 	);
 
 	const onValueChangeEnd = useCallback(
 		(newVal: number) => {
-			if (canUpdate && newVal !== codeValue) {
-				onSave(field.key, newVal).finally(() => {
+			if (propStatus.canUpdate && newVal !== propStatus.codeValue) {
+				onSave(newVal).finally(() => {
 					setDragValue(null);
 					onDragEnd();
 				});
@@ -42,22 +45,26 @@ export const TimelineNumberField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[canUpdate, onSave, field.key, codeValue, onDragEnd],
+		[onSave, propStatus, onDragEnd],
 	);
 
 	const onTextChange = useCallback(
 		(newVal: string) => {
-			if (canUpdate) {
+			if (propStatus.canUpdate) {
 				const parsed = Number(newVal);
-				if (!Number.isNaN(parsed) && parsed !== codeValue) {
+				if (
+					!Number.isNaN(parsed) &&
+					propStatus.canUpdate &&
+					parsed !== propStatus.codeValue
+				) {
 					setDragValue(parsed);
-					onSave(field.key, parsed).catch(() => {
+					onSave(parsed).catch(() => {
 						setDragValue(null);
 					});
 				}
 			}
 		},
-		[canUpdate, onSave, field.key, codeValue],
+		[onSave, propStatus],
 	);
 
 	const step =

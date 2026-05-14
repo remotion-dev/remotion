@@ -3,12 +3,11 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/paths"
 	},
 	"name": "@remotion/paths",
-	"version": "4.0.460",
+	"version": "4.0.461",
 	"description": "Utilities for working with SVG paths",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
-	"sideEffects": false,
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",

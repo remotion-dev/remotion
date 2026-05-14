@@ -14,7 +14,7 @@ import {
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {warnAboutPrettierOnce} from './log-update';
+import {warnAboutPrettierOnce} from './log-updates/log-update';
 
 export const deleteJsxNodeHandler: ApiHandler<
 	DeleteJsxNodeRequest,
@@ -45,8 +45,8 @@ export const deleteJsxNodeHandler: ApiHandler<
 			remotionRoot,
 			logLine,
 			description: {
-				undoMessage: `Undo: Deletion of ${nodeLabel}`,
-				redoMessage: `Redo: Deletion of ${nodeLabel}`,
+				undoMessage: `↩️  Deletion of ${nodeLabel}`,
+				redoMessage: `↪️  Deletion of ${nodeLabel}`,
 			},
 			entryType: 'delete-jsx-node',
 			suppressHmrOnFileRestore: false,
@@ -61,7 +61,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 		});
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
-			`${RenderInternals.chalk.blueBright(`${locationLabel}:`)} Deleted ${nodeLabel}`,
+			`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Deleted ${nodeLabel}`,
 		);
 		if (!formatted) {
 			warnAboutPrettierOnce(logLevel);

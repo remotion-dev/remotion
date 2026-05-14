@@ -22,14 +22,12 @@ export const useTimelineHeight = ({
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
 
-	const visualModeEnabled =
-		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&
-		previewServerState.type === 'connected';
+	const previewServerConnected = previewServerState.type === 'connected';
 
 	return useMemo(() => {
 		const tracksHeight = shown.reduce((acc, track) => {
 			const isExpanded =
-				visualModeEnabled &&
+				previewServerConnected &&
 				track.nodePathInfo !== null &&
 				getIsExpanded(track.nodePathInfo);
 			const layerHeight =
@@ -53,5 +51,5 @@ export const useTimelineHeight = ({
 			(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0) +
 			TIMELINE_TIME_INDICATOR_HEIGHT
 		);
-	}, [shown, hasBeenCut, visualModeEnabled, getIsExpanded, getCodeValues]);
+	}, [shown, hasBeenCut, previewServerConnected, getIsExpanded, getCodeValues]);
 };

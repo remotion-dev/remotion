@@ -45,7 +45,8 @@ import {
 	EditorPropsProvider,
 	timeValueRef,
 } from './EditorProps.js';
-import {createDescriptor, defineEffect} from './effects/define-effect.js';
+import {createEffect} from './effects/create-effect.js';
+import {flattenEffects} from './effects/effect-internals.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
 import {useMemoizedEffects} from './effects/use-memoized-effects.js';
@@ -53,6 +54,7 @@ import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
 } from './enable-sequence-stack-traces.js';
+import {findPropsToDelete} from './find-props-to-delete.js';
 import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
@@ -115,6 +117,8 @@ import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
 import type {
 	CanUpdateSequencePropsResponse,
+	CanUpdateSequencePropsResponseTrue,
+	CanUpdateSequencePropsResponseFalse,
 	SequenceNodePath,
 } from './SequenceManager.js';
 import {
@@ -323,11 +327,12 @@ export const Internals = {
 	useEffectChainState,
 	runEffectChain,
 	useMemoizedEffects,
-	defineEffect,
-	createDescriptor,
+	createEffect,
 	computeEffectiveSchemaValuesDotNotation,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
+	findPropsToDelete,
+	flattenEffects,
 } as const;
 
 export type {
@@ -365,4 +370,6 @@ export type {
 	OverrideToNodeSetters,
 	OverrideToNodePathGetters,
 	CanUpdateSequencePropsResponse,
+	CanUpdateSequencePropsResponseTrue,
+	CanUpdateSequencePropsResponseFalse,
 };

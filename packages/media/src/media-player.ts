@@ -1,9 +1,12 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
-import type {LogLevel, useBufferState} from 'remotion';
+import type {
+	EffectDefinitionAndStack,
+	LogLevel,
+	useBufferState,
+} from 'remotion';
 import type {EffectChainState} from 'remotion';
 import {Internals} from 'remotion';
 import type {ScheduleAudioNodeResult} from 'remotion';
-import type {EffectsProp} from 'remotion';
 import {
 	audioIteratorManager,
 	type AudioIteratorManager,
@@ -70,7 +73,7 @@ export class MediaPlayer {
 	private onVideoFrameCallback: null | ((frame: CanvasImageSource) => void) =
 		null;
 
-	private getEffects: () => EffectsProp;
+	private getEffects: () => EffectDefinitionAndStack<unknown>[];
 	private getEffectChainState: (
 		width: number,
 		height: number,
@@ -133,7 +136,7 @@ export class MediaPlayer {
 		sequenceOffset: number;
 		credentials: RequestCredentials | undefined;
 		tagType: 'audio' | 'video';
-		getEffects: () => EffectsProp;
+		getEffects: () => EffectDefinitionAndStack<unknown>[];
 		getEffectChainState: (
 			width: number,
 			height: number,

@@ -1,7 +1,6 @@
-import type {EffectDescriptor} from 'remotion';
 import {Internals} from 'remotion';
 
-const {createDescriptor, defineEffect} = Internals;
+const {createEffect} = Internals;
 
 export type WaveParams = {
 	readonly amplitude?: number;
@@ -27,10 +26,16 @@ const resolve = (p: WaveParams): WaveResolved => ({
 	background: p.background ?? 'transparent',
 });
 
-const waveDef = defineEffect<WaveParams, null>({
+// Vertical-displacement wave effect: shifts vertical slices of the source
+// up/down with a sine wave that animates over time. Operates on the 2D backend.
+export const wave = createEffect<WaveParams, null>({
 	type: 'remotion/wave',
 	label: 'Wave',
 	backend: '2d',
+	calculateKey: (params) => {
+		const r = resolve(params);
+		return `wave-${r.amplitude}-${r.wavelength}-${r.speed}-${r.sliceWidth}-${r.background}`;
+	},
 	setup: () => null,
 	apply: ({source, target, frame, width, height, params}) => {
 		const ctx = target.getContext('2d');
@@ -68,8 +73,3 @@ const waveDef = defineEffect<WaveParams, null>({
 	cleanup: () => undefined,
 	schema: null,
 });
-
-// Vertical-displacement wave effect: shifts vertical slices of the source
-// up/down with a sine wave that animates over time. Operates on the 2D backend.
-export const wave = (params: WaveParams = {}): EffectDescriptor<unknown> =>
-	createDescriptor(waveDef, params);

@@ -129,7 +129,6 @@ export const renderVideoFlow = async ({
 	rspack,
 	askAIEnabled,
 	experimentalClientSideRenderingEnabled,
-	experimentalVisualModeEnabled,
 	keyboardShortcutsEnabled,
 	shouldCache,
 	sampleRate,
@@ -198,7 +197,6 @@ export const renderVideoFlow = async ({
 	rspack: boolean;
 	askAIEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
-	experimentalVisualModeEnabled: boolean;
 	keyboardShortcutsEnabled: boolean;
 	shouldCache: boolean;
 	sampleRate: number;
@@ -350,7 +348,6 @@ export const renderVideoFlow = async ({
 			publicPath,
 			audioLatencyHint,
 			experimentalClientSideRenderingEnabled,
-			experimentalVisualModeEnabled,
 			askAIEnabled,
 			keyboardShortcutsEnabled,
 			rspack,

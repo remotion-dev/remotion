@@ -61,3 +61,13 @@ test('bezier - right value at extremes', () => {
 		expect(easing(1)).toBe(1);
 	});
 });
+
+test('bezier - clamps evaluation input to [0, 1]', () => {
+	const linear = bezier(0, 0, 1, 1);
+	expect(linear(-2)).toBe(0);
+	expect(linear(3)).toBe(1);
+
+	const curved = bezier(0.42, 0, 1, 1);
+	expect(Number.isFinite(curved(2))).toBe(true);
+	expect(Number.isFinite(curved(-1))).toBe(true);
+});

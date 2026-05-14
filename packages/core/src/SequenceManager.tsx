@@ -44,7 +44,6 @@ export const SequenceVisibilityToggleContext =
 	});
 
 export type VisualModeCodeValues = {
-	visualModeEnabled: boolean;
 	getCodeValues: GetCodeValues;
 };
 
@@ -61,20 +60,25 @@ export type VisualModeSetters = {
 	clearDragOverrides: (nodePath: SequenceNodePath) => void;
 	setCodeValues: (
 		nodePath: SequenceNodePath,
-		values: CanUpdateSequencePropsResponse,
+		values: (
+			prev: CanUpdateSequencePropsResponse,
+		) => CanUpdateSequencePropsResponse,
 	) => void;
 };
 
+export type CanUpdateSequencePropsResponseTrue = {
+	canUpdate: true;
+	props: Record<string, CanUpdateSequencePropStatus>;
+};
+
+export type CanUpdateSequencePropsResponseFalse = {
+	canUpdate: false;
+	reason: string;
+};
+
 export type CanUpdateSequencePropsResponse =
-	| {
-			canUpdate: true;
-			props: Record<string, CanUpdateSequencePropStatus>;
-			nodePath: SequenceNodePath;
-	  }
-	| {
-			canUpdate: false;
-			reason: string;
-	  };
+	| CanUpdateSequencePropsResponseTrue
+	| CanUpdateSequencePropsResponseFalse;
 
 const getCodeValuesCtx = (
 	codeValues: CodeValues,
@@ -99,7 +103,6 @@ export const VisualModeCodeValuesContext =
 		getCodeValues: () => {
 			throw new Error('VisualModeCodeValuesContext not initialized');
 		},
-		visualModeEnabled: false,
 	});
 
 export const VisualModeDragOverridesContext =
@@ -123,8 +126,7 @@ export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 
 export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
-	readonly visualModeEnabled: boolean;
-}> = ({children, visualModeEnabled}) => {
+}> = ({children}) => {
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 	const [hidden, setHidden] = useState<Record<string, boolean>>({});
 	const [dragOverrides, setControlOverrides] = useState<DragOverrides>({});
@@ -159,15 +161,23 @@ export const SequenceManagerProvider: React.FC<{
 	}, []);
 
 	const setCodeValues = useCallback(
-		(nodePath: SequenceNodePath, values: CanUpdateSequencePropsResponse) => {
+		(
+			nodePath: SequenceNodePath,
+			values: (
+				prev: CanUpdateSequencePropsResponse,
+			) => CanUpdateSequencePropsResponse,
+		) => {
 			setCodeValuesMapState((prev) => {
 				const key = nodePathToString(nodePath);
 
-				if (prev[key] === values) {
+				const prevKey = prev[key];
+				const newKey = values(prevKey);
+
+				if (prevKey === newKey) {
 					return prev;
 				}
 
-				return {...prev, [key]: values};
+				return {...prev, [key]: newKey};
 			});
 		},
 		[],
@@ -214,10 +224,9 @@ export const SequenceManagerProvider: React.FC<{
 
 	const codeValuesContext: VisualModeCodeValues = useMemo(() => {
 		return {
-			visualModeEnabled,
 			getCodeValues,
 		};
-	}, [visualModeEnabled, getCodeValues]);
+	}, [getCodeValues]);
 
 	const dragOverridesContext: VisualModeDragOverrides = useMemo(() => {
 		return {

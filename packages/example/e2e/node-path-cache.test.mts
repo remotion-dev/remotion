@@ -1,5 +1,5 @@
-import assert from 'node:assert';
 import fs from 'fs';
+import assert from 'node:assert';
 import {expect, test} from '@playwright/test';
 import {Internals} from 'remotion';
 import {apiCall} from './api-call.mts';
@@ -61,9 +61,9 @@ test.describe('node-path cache for stale source maps', () => {
 		});
 		expect(result1.success).toBe(true);
 		assert(result1.success);
-		expect(result1.data.canUpdate).toBe(true);
-		assert(result1.data.canUpdate);
-		expect(result1.data.nodePath).toBeTruthy();
+		expect(result1.data.status.canUpdate).toBe(true);
+		assert(result1.data.status.canUpdate);
+		expect(result1.data.success && result1.data.nodePath).toBeTruthy();
 
 		// 2. Simulate prettier wrapping the return in parentheses,
 		//    shifting <Video> down by one line.
@@ -93,11 +93,13 @@ test.describe('node-path cache for stale source maps', () => {
 		});
 		expect(result2.success).toBe(true);
 		assert(result2.success);
-		expect(result2.data.canUpdate).toBe(true);
-		assert(result2.data.canUpdate);
-		expect(result2.data.nodePath).toBeTruthy();
+		expect(result2.data.status.canUpdate).toBe(true);
+		assert(result2.data.status.canUpdate);
+		expect(result2.data.success && result2.data.nodePath).toBeTruthy();
 
 		// The nodePath should be the same — both refer to the same <Video> element
-		expect(result2.data.nodePath).toEqual(result1.data.nodePath);
+		expect(result2.data.success && result2.data.nodePath).toEqual(
+			result1.data.success && result1.data.nodePath,
+		);
 	});
 });

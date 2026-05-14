@@ -3,10 +3,9 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/bundler"
 	},
 	"name": "@remotion/bundler",
-	"version": "4.0.460",
+	"version": "4.0.461",
 	"description": "Bundle Remotion compositions using Webpack",
 	"main": "dist/index.js",
-	"sideEffects": false,
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -33,7 +32,6 @@
 		"@remotion/timeline-utils": "workspace:*",
 		"@remotion/media-parser": "workspace:*",
 		"style-loader": "4.0.0",
-		"source-map": "0.7.3",
 		"webpack": "5.105.0"
 	},
 	"peerDependencies": {

@@ -8,9 +8,7 @@ import React, {
 } from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
-import {flattenEffects} from './effects/effect-internals.js';
-import type {EffectsProp} from './effects/effect-types.js';
-import {useMemoizedEffects} from './effects/use-memoized-effects.js';
+import type {EffectDefinitionAndStack} from './effects/effect-types.js';
 import {Freeze} from './freeze.js';
 import {useNonce} from './nonce.js';
 import {PremountContext} from './PremountContext.js';
@@ -58,7 +56,7 @@ export type SequencePropsWithoutDuration = {
 	readonly name?: string;
 	readonly showInTimeline?: boolean;
 	readonly _experimentalControls?: SequenceControls;
-	readonly _experimentalEffects?: EffectsProp;
+	readonly _experimentalEffects?: EffectDefinitionAndStack<unknown>[];
 	/**
 	 * @deprecated For internal use only.
 	 */
@@ -232,10 +230,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const inheritedStack = (other as any)?.stack ?? null;
 
-	const memoizedEffects = useMemoizedEffects(
-		flattenEffects(_experimentalEffects ?? []),
-	);
-
 	useEffect(() => {
 		if (!env.isStudio) {
 			return;
@@ -245,7 +239,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			registerSequence({
 				type: isMedia.type,
 				controls: controls ?? null,
-				effects: memoizedEffects,
+				effects: _experimentalEffects ?? [],
 				displayName: timelineClipName,
 				doesVolumeChange: isMedia.data.doesVolumeChange,
 				duration: actualDurationInFrames,
@@ -284,7 +278,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
 			controls: controls ?? null,
-			effects: memoizedEffects,
+			effects: _experimentalEffects ?? [],
 		});
 		return () => {
 			unregisterSequence(id);
@@ -309,7 +303,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		env.isStudio,
 		inheritedStack,
 		controls,
-		memoizedEffects,
+		_experimentalEffects,
 		isMedia,
 	]);
 

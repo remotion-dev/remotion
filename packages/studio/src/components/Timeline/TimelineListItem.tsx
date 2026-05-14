@@ -37,11 +37,7 @@ export const TimelineListItem: React.FC<{
 }> = ({nestedDepth, sequence, isCompact, nodePathInfo}) => {
 	const nodePath = nodePathInfo?.nodePath ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const visualModeEnvEnabled = Boolean(
-		process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED,
-	);
 	const previewConnected = previewServerState.type === 'connected';
-	const visualModeActive = visualModeEnvEnabled && previewConnected;
 	const {hidden, setHidden} = useContext(
 		Internals.SequenceVisibilityToggleContext,
 	);
@@ -138,7 +134,7 @@ export const TimelineListItem: React.FC<{
 	}, [nodePath, validatedLocation?.source, nodePathInfo]);
 
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
-		if (!visualModeEnvEnabled) {
+		if (!previewConnected) {
 			return [];
 		}
 
@@ -185,11 +181,11 @@ export const TimelineListItem: React.FC<{
 		duplicateDisabled,
 		onDeleteSequenceFromSource,
 		onDuplicateSequenceFromSource,
-		visualModeEnvEnabled,
+		previewConnected,
 	]);
 
 	const isExpanded =
-		visualModeActive && nodePathInfo !== null && getIsExpanded(nodePathInfo);
+		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
 
 	const onToggleExpand = useCallback(() => {
 		if (nodePathInfo === null) {
@@ -250,7 +246,7 @@ export const TimelineListItem: React.FC<{
 					onInvoked={onToggleVisibility}
 				/>
 				<Padder depth={nestedDepth} />
-				{visualModeActive ? (
+				{previewConnected ? (
 					hasExpandableContent ? (
 						<TimelineExpandArrowButton
 							isExpanded={isExpanded}
@@ -273,12 +269,12 @@ export const TimelineListItem: React.FC<{
 
 	return (
 		<>
-			{visualModeEnvEnabled ? (
+			{previewConnected ? (
 				<ContextMenu values={contextMenuValues}>{trackRow}</ContextMenu>
 			) : (
 				trackRow
 			)}
-			{visualModeActive &&
+			{previewConnected &&
 			isExpanded &&
 			hasExpandableContent &&
 			nodePathInfo ? (

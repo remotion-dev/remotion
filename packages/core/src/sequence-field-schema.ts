@@ -87,6 +87,8 @@ export const sequenceStyleSchema = {
 		type: 'number',
 		default: 0,
 		description: 'Premount For',
+		min: 0,
+		step: 1,
 	},
 	postmountFor: {
 		type: 'hidden',

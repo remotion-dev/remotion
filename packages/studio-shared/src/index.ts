@@ -31,7 +31,6 @@ export {
 	RestartStudioRequest,
 	RestartStudioResponse,
 	SaveSequencePropsRequest,
-	SaveSequencePropsResponse,
 	SimpleDiff,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
@@ -104,7 +103,6 @@ export type {
 	SchemaFieldInfo,
 	SequenceControls,
 } from './schema-field-info';
-export {SOURCE_MAP_ENDPOINT} from './source-map-endpoint';
 export {
 	ScriptLine,
 	SomeStackFrame,
@@ -114,3 +112,4 @@ export {
 export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 
 export type {VisualControlChange} from './codemods';
+export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';

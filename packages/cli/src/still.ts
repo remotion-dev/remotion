@@ -29,7 +29,6 @@ const {
 	darkModeOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
-	experimentalVisualModeOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	browserExecutableOption,
@@ -219,9 +218,6 @@ export const still = async (
 		experimentalClientSideRenderingEnabled:
 			experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
 				.value,
-		experimentalVisualModeEnabled: experimentalVisualModeOption.getValue({
-			commandLine: parsedCli,
-		}).value,
 		keyboardShortcutsEnabled,
 		rspack,
 		shouldCache,

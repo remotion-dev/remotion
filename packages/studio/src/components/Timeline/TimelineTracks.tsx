@@ -59,9 +59,7 @@ const TimelineTracksInner: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
 
-	const visualModeEnabled =
-		Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED) &&
-		previewServerState.type === 'connected';
+	const previewServerConnected = previewServerState.type === 'connected';
 
 	const timelineStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -92,7 +90,7 @@ const TimelineTracksInner: React.FC<{
 							>
 								<TimelineSequence s={track.sequence} />
 							</div>
-							{visualModeEnabled && isExpanded && track.nodePathInfo ? (
+							{isExpanded && track.nodePathInfo && previewServerConnected ? (
 								<div
 									style={getExpandedPlaceholderStyle({
 										sequence: track.sequence,
