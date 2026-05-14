@@ -15,10 +15,7 @@ import {PremountContext} from './PremountContext.js';
 import {sequenceSchema} from './sequence-field-schema.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
-import {
-	SequenceManager,
-	SequenceVisibilityToggleContext,
-} from './SequenceManager.js';
+import {SequenceManager} from './SequenceManager.js';
 import {
 	useTimelineContext,
 	useTimelinePosition,
@@ -53,6 +50,7 @@ export type SequencePropsWithoutDuration = {
 	readonly from?: number;
 	readonly name?: string;
 	readonly showInTimeline?: boolean;
+	readonly hidden?: boolean;
 	readonly _experimentalControls?: SequenceControls;
 	readonly _experimentalEffects?: EffectDefinitionAndStack<unknown>[];
 	/**
@@ -104,6 +102,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		height,
 		width,
 		showInTimeline = true,
+		hidden = false,
 		_experimentalControls: controls,
 		_experimentalEffects,
 		_remotionInternalLoopDisplay: loopDisplay,
@@ -175,7 +174,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
-	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	const premounting = useMemo(() => {
 		// || is intentional, ?? would not trigger on `false`
@@ -333,9 +331,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	const isSequenceHidden = hidden[id] ?? false;
-
-	if (isSequenceHidden) {
+	if (hidden) {
 		return null;
 	}
 

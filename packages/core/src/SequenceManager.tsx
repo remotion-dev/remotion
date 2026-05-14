@@ -30,19 +30,6 @@ export const SequenceManager = React.createContext<SequenceManagerContext>({
 	sequences: [],
 });
 
-export type SequenceVisibilityToggleState = {
-	hidden: Record<string, boolean>;
-	setHidden: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-};
-
-export const SequenceVisibilityToggleContext =
-	React.createContext<SequenceVisibilityToggleState>({
-		hidden: {},
-		setHidden: () => {
-			throw new Error('SequenceVisibilityToggle not initialized');
-		},
-	});
-
 export type VisualModeCodeValues = {
 	getCodeValues: GetCodeValues;
 };
@@ -128,7 +115,6 @@ export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [sequences, setSequences] = useState<TSequence[]>([]);
-	const [hidden, setHidden] = useState<Record<string, boolean>>({});
 	const [dragOverrides, setControlOverrides] = useState<DragOverrides>({});
 	const controlOverridesRef = useRef(dragOverrides);
 	controlOverridesRef.current = dragOverrides;
@@ -201,13 +187,6 @@ export const SequenceManagerProvider: React.FC<{
 		};
 	}, [registerSequence, sequences, unregisterSequence]);
 
-	const hiddenContext: SequenceVisibilityToggleState = useMemo(() => {
-		return {
-			hidden,
-			setHidden,
-		};
-	}, [hidden]);
-
 	const getDragOverrides = useCallback(
 		(nodePath: SequenceNodePath) => {
 			return dragOverrides[nodePathToString(nodePath)] ?? {};
@@ -244,15 +223,13 @@ export const SequenceManagerProvider: React.FC<{
 
 	return (
 		<SequenceManager.Provider value={sequenceContext}>
-			<SequenceVisibilityToggleContext.Provider value={hiddenContext}>
-				<VisualModeCodeValuesContext.Provider value={codeValuesContext}>
-					<VisualModeDragOverridesContext.Provider value={dragOverridesContext}>
-						<VisualModeSettersContext.Provider value={settersContext}>
-							{children}
-						</VisualModeSettersContext.Provider>
-					</VisualModeDragOverridesContext.Provider>
-				</VisualModeCodeValuesContext.Provider>
-			</SequenceVisibilityToggleContext.Provider>
+			<VisualModeCodeValuesContext.Provider value={codeValuesContext}>
+				<VisualModeDragOverridesContext.Provider value={dragOverridesContext}>
+					<VisualModeSettersContext.Provider value={settersContext}>
+						{children}
+					</VisualModeSettersContext.Provider>
+				</VisualModeDragOverridesContext.Provider>
+			</VisualModeCodeValuesContext.Provider>
 		</SequenceManager.Provider>
 	);
 };

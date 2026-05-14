@@ -126,7 +126,6 @@ import {
 	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 	SequenceManager,
-	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
 import * as TimelinePosition from './timeline-position-state.js';
@@ -231,7 +230,6 @@ export const Internals = {
 	VisualModeSettersContext,
 	SequenceManager,
 	SequenceStackTracesUpdateContext,
-	SequenceVisibilityToggleContext,
 	wrapInSchema,
 	sequenceSchema,
 	sequenceStyleSchema,

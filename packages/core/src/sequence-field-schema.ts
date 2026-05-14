@@ -102,6 +102,11 @@ export const sequenceStyleSchema = {
 } as const satisfies SequenceSchema;
 
 export const sequenceSchema = {
+	hidden: {
+		type: 'boolean',
+		default: false,
+		description: 'Hidden',
+	},
 	layout: {
 		type: 'enum',
 		default: 'absolute-fill',
