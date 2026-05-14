@@ -2,15 +2,15 @@ import {beforeAll, expect, test} from 'bun:test';
 import {registerMediabunnyServer} from '@mediabunny/server';
 import {loadWaveformPeaks} from '../audio-waveform/load-waveform-peaks';
 
-const SAMPLE_AUDIO_URL = 'https://remotion.media/dialogue.wav';
+const SAMPLE_MEDIA_URL = 'https://remotion.media/video.mp4';
 
 beforeAll(() => {
 	registerMediabunnyServer();
 });
 
-test('loadWaveformPeaks decodes remote audio with @mediabunny/server', async () => {
+test('loadWaveformPeaks decodes an MP4 audio track with @mediabunny/server', async () => {
 	const peaks = await loadWaveformPeaks(
-		SAMPLE_AUDIO_URL,
+		SAMPLE_MEDIA_URL,
 		new AbortController().signal,
 	);
 
@@ -27,12 +27,12 @@ test('loadWaveformPeaks decodes remote audio with @mediabunny/server', async () 
 	expect(max).toBeGreaterThan(0.01);
 });
 
-test('loadWaveformPeaks progress matches completed peak count for remote audio', async () => {
+test('loadWaveformPeaks progress matches completed peak count for MP4 audio', async () => {
 	let lastCompleted = 0;
 	let sawFinal = false;
 
 	const peaks = await loadWaveformPeaks(
-		SAMPLE_AUDIO_URL,
+		SAMPLE_MEDIA_URL,
 		new AbortController().signal,
 		{
 			progressIntervalInMs: 0,
