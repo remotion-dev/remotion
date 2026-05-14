@@ -101,16 +101,17 @@ export const getFieldsToShow = ({
 
 export const getEffectFieldsToShow = (
 	effect: EffectDefinitionAndStack<unknown>,
+	effectIndex: number,
 ): EffectSchemaFieldInfo[] => {
 	const effectSchema = effect.definition.schema;
 	if (!effectSchema) {
 		return [];
 	}
 
-	const params = (effect.params ?? {}) as Record<string, unknown>;
+	const params = effect.params as Record<string, unknown>;
 
 	return Object.entries(effectSchema)
-		.map(([key, fieldSchema], index): EffectSchemaFieldInfo | null => {
+		.map(([key, fieldSchema]): EffectSchemaFieldInfo | null => {
 			const typeName = fieldSchema.type;
 			if (typeName === 'hidden') {
 				return null;
@@ -130,7 +131,7 @@ export const getEffectFieldsToShow = (
 				currentRuntimeValue: params[key],
 				fieldSchema,
 				effectSchema,
-				effectIndex: index,
+				effectIndex,
 			};
 		})
 		.filter(NoReactInternals.truthy);

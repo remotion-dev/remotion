@@ -81,7 +81,7 @@ export const buildTimelineTree = ({
 			label: 'Effects',
 			children: sequence.effects.map((effect, i): TimelineTreeNode => {
 				const effectNodePath = [...nodePath, 'effects', i];
-				const effectFields = getEffectFieldsToShow(effect);
+				const effectFields = getEffectFieldsToShow(effect, i);
 				return {
 					kind: 'group',
 					nodePathInfo: {

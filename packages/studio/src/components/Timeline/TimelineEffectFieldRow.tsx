@@ -52,8 +52,9 @@ const Value: React.FC<{
 
 	const codeValuesForSequence = getCodeValues(nodePath);
 
-	const propStatus =
-		getEffectCodeValues(nodePath, field.effectIndex)?.[field.key] ?? null;
+	const codeValues = getEffectCodeValues(nodePath, field.effectIndex);
+
+	const propStatus = codeValues?.[field.key] ?? null;
 
 	const onDragValueChange = useCallback(
 		(value: unknown) => {
