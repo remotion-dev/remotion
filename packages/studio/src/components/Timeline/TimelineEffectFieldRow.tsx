@@ -34,31 +34,37 @@ const fieldLabelRow: React.CSSProperties = {
 	gap: 6,
 };
 
-export const TimelineEffectFieldRow: React.FC<{
+const Value: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
-	readonly validatedLocation: CodePosition | null;
-	readonly paddingLeft: number;
-	readonly nestedDepth: number;
 	readonly nodePath: SequenceNodePath;
-}> = ({field, validatedLocation, paddingLeft, nestedDepth, nodePath}) => {
-	const {getEffectCodeValues, getCodeValues} = useContext(
-		Internals.VisualModeCodeValuesContext,
-	);
-	const {getEffectDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
-	);
+	readonly validatedLocation: CodePosition | null;
+}> = ({field, nodePath, validatedLocation}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setCodeValues} =
 		useContext(Internals.VisualModeSettersContext);
 
+	const {getEffectDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+
+	const {getEffectCodeValues, getCodeValues} = useContext(
+		Internals.VisualModeCodeValuesContext,
+	);
+
 	const codeValuesForSequence = getCodeValues(nodePath);
+
 	const propStatus =
 		getEffectCodeValues(nodePath, field.effectIndex)?.[field.key] ?? null;
 
-	if (propStatus === null) {
-		throw new Error(
-			'Unexpectedly got null code value for effect field' + field.key,
-		);
-	}
+	const onDragValueChange = useCallback(
+		(value: unknown) => {
+			setEffectDragOverrides(nodePath, field.effectIndex, field.key, value);
+		},
+		[setEffectDragOverrides, nodePath, field.effectIndex, field.key],
+	);
+
+	const onDragEnd = useCallback(() => {
+		clearEffectDragOverrides(nodePath, field.effectIndex);
+	}, [clearEffectDragOverrides, nodePath, field.effectIndex]);
 
 	const dragOverrideValue = useMemo(() => {
 		const overrides = getEffectDragOverrides(nodePath, field.effectIndex);
@@ -76,6 +82,10 @@ export const TimelineEffectFieldRow: React.FC<{
 	const onSave = useCallback(
 		(value: unknown) => {
 			if (!codeValuesForSequence || !validatedLocation || !nodePath) {
+				return Promise.reject(new Error('Cannot save'));
+			}
+
+			if (!propStatus) {
 				return Promise.reject(new Error('Cannot save'));
 			}
 
@@ -145,15 +155,13 @@ export const TimelineEffectFieldRow: React.FC<{
 					});
 				})
 				.catch(() => {
-					if (previousUpdate) {
-						setCodeValues(nodePath, (current) => {
-							if (previousUpdate) {
-								return previousUpdate;
-							}
+					setCodeValues(nodePath, (current) => {
+						if (previousUpdate) {
+							return previousUpdate;
+						}
 
-							return current;
-						});
-					}
+						return current;
+					});
 				});
 		},
 		[
@@ -169,17 +177,29 @@ export const TimelineEffectFieldRow: React.FC<{
 		],
 	);
 
-	const onDragValueChange = useCallback(
-		(value: unknown) => {
-			setEffectDragOverrides(nodePath, field.effectIndex, field.key, value);
-		},
-		[setEffectDragOverrides, nodePath, field.effectIndex, field.key],
+	if (propStatus === null) {
+		return null;
+	}
+
+	return (
+		<TimelineFieldValue
+			field={field}
+			propStatus={propStatus}
+			onSave={onSave}
+			onDragValueChange={onDragValueChange}
+			onDragEnd={onDragEnd}
+			effectiveValue={effectiveValue}
+		/>
 	);
+};
 
-	const onDragEnd = useCallback(() => {
-		clearEffectDragOverrides(nodePath, field.effectIndex);
-	}, [clearEffectDragOverrides, nodePath, field.effectIndex]);
-
+export const TimelineEffectFieldRow: React.FC<{
+	readonly field: EffectSchemaFieldInfo;
+	readonly validatedLocation: CodePosition | null;
+	readonly paddingLeft: number;
+	readonly nestedDepth: number;
+	readonly nodePath: SequenceNodePath;
+}> = ({field, validatedLocation, paddingLeft, nestedDepth, nodePath}) => {
 	const style = useMemo(() => {
 		return {
 			...fieldRowBase,
@@ -194,13 +214,10 @@ export const TimelineEffectFieldRow: React.FC<{
 			<div style={fieldLabelRow}>
 				<span style={fieldName}>{field.description ?? field.key}</span>
 			</div>
-			<TimelineFieldValue
+			<Value
 				field={field}
-				propStatus={propStatus}
-				onSave={onSave}
-				onDragValueChange={onDragValueChange}
-				onDragEnd={onDragEnd}
-				effectiveValue={effectiveValue}
+				nodePath={nodePath}
+				validatedLocation={validatedLocation}
 			/>
 		</div>
 	);

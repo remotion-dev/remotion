@@ -99,15 +99,21 @@ export const TimelineExpandedRow: React.FC<{
 			);
 		}
 
-		return (
-			<TimelineFieldRow
-				field={node.field}
-				validatedLocation={validatedLocation}
-				paddingLeft={paddingLeft}
-				nestedDepth={nestedDepth}
-				nodePath={nodePath}
-				schema={schema}
-			/>
+		if (node.field.kind === 'sequence-field') {
+			return (
+				<TimelineFieldRow
+					field={node.field}
+					validatedLocation={validatedLocation}
+					paddingLeft={paddingLeft}
+					nestedDepth={nestedDepth}
+					nodePath={nodePath}
+					schema={schema}
+				/>
+			);
+		}
+
+		throw new Error(
+			'Unexpected field kind: ' + JSON.stringify(node.field satisfies never),
 		);
 	}
 
