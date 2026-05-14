@@ -116,7 +116,6 @@ export const getAssetsForMarkup = async (
 					initialCanvasContent={null}
 				>
 					<Internals.RemotionRootContexts
-						visualModeEnabled={false}
 						frameState={null}
 						audioEnabled
 						videoEnabled

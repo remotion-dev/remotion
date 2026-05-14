@@ -1,4 +1,12 @@
-import {cpSync, existsSync, mkdirSync, rmSync, readdirSync, statSync} from 'fs';
+import {
+	appendFileSync,
+	cpSync,
+	existsSync,
+	mkdirSync,
+	rmSync,
+	readdirSync,
+	statSync,
+} from 'fs';
 import {join, resolve} from 'path';
 
 const __dirname = new URL('.', import.meta.url).pathname;
@@ -25,6 +33,36 @@ function copySkillDir(src: string, destName: string) {
 	console.log(`  Copied ${destName}`);
 }
 
+const addCodexOnlyInstructions = () => {
+	const remotionSkill = join(skillsOut, 'remotion', 'SKILL.md');
+	if (!existsSync(remotionSkill)) {
+		return;
+	}
+
+	appendFileSync(
+		remotionSkill,
+		`
+
+## Codex troubleshooting
+
+When running inside Codex, first try starting the Remotion Studio normally:
+
+\`\`\`bash
+npx remotion studio
+\`\`\`
+
+Only if that fails with file watcher limits such as \`EMFILE: too many open files, watch\`, retry with polling and without opening a browser from Codex:
+
+\`\`\`bash
+npx remotion studio --no-open --webpack-poll 1000
+\`\`\`
+
+If Studio still fails to start from Codex, ask the user to start it manually from their macOS Terminal and then continue using the already-running Studio. Sandbox errors while launching Chromium from Codex are likely caused by the Codex/macOS sandbox rather than the Remotion project.
+`,
+	);
+	console.log('  Added Codex-only troubleshooting instructions');
+};
+
 console.log('Building Codex plugin skills...\n');
 
 if (existsSync(packagesSkillsDir)) {
@@ -36,6 +74,7 @@ if (existsSync(packagesSkillsDir)) {
 	for (const folder of skillFolders) {
 		copySkillDir(join(packagesSkillsDir, folder), folder);
 	}
+	addCodexOnlyInstructions();
 } else {
 	console.warn('Warning: packages/skills/skills/ not found');
 }

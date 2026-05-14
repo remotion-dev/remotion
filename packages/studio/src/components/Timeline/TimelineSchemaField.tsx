@@ -1,7 +1,12 @@
 import React from 'react';
 import type {CanUpdateSequencePropStatus} from 'remotion';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
+	TimelineFieldOnSave,
+} from '../../helpers/timeline-layout';
 import {TimelineBooleanField} from './TimelineBooleanField';
+import {TimelineEnumField} from './TimelineEnumField';
 import {TimelineNumberField} from './TimelineNumberField';
 import {TimelineRotationField} from './TimelineRotationField';
 import {TimelineTranslateField} from './TimelineTranslateField';
@@ -18,14 +23,16 @@ const notEditableBackground: React.CSSProperties = {
 	padding: '0 4px',
 };
 
+const inlineWrapper: React.CSSProperties = {
+	fontSize: 12,
+};
+
 export const TimelineFieldValue: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly onSave: (key: string, value: unknown) => Promise<void>;
-	readonly onDragValueChange: (key: string, value: unknown) => void;
+	readonly onSave: TimelineFieldOnSave;
+	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-	readonly canUpdate: boolean;
-	readonly propStatus: CanUpdateSequencePropStatus | null;
-	readonly codeValue: unknown;
+	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly effectiveValue: unknown;
 }> = ({
 	field,
@@ -33,20 +40,17 @@ export const TimelineFieldValue: React.FC<{
 	onDragValueChange,
 	onDragEnd,
 	propStatus,
-	canUpdate,
 	effectiveValue,
-	codeValue,
 }) => {
-	const wrapperStyle: React.CSSProperties | undefined =
-		canUpdate === null || canUpdate === false
-			? notEditableBackground
-			: undefined;
+	const wrapperStyle: React.CSSProperties | undefined = !propStatus.canUpdate
+		? notEditableBackground
+		: undefined;
 
 	if (!field.supported) {
 		return <span style={unsupportedLabel}>unsupported</span>;
 	}
 
-	if (propStatus !== null && !propStatus.canUpdate) {
+	if (!propStatus.canUpdate) {
 		if (propStatus.reason === 'computed') {
 			return <span style={unsupportedLabel}>computed</span>;
 		}
@@ -56,23 +60,14 @@ export const TimelineFieldValue: React.FC<{
 		);
 	}
 
-	if (propStatus === null) {
-		return (
-			<span style={notEditableBackground}>
-				<span style={unsupportedLabel}>error</span>
-			</span>
-		);
-	}
-
 	if (field.typeName === 'number') {
 		return (
 			<span style={wrapperStyle}>
 				<TimelineNumberField
 					field={field}
 					effectiveValue={effectiveValue}
-					canUpdate={canUpdate}
 					onSave={onSave}
-					codeValue={codeValue}
+					propStatus={propStatus}
 					onDragValueChange={onDragValueChange}
 					onDragEnd={onDragEnd}
 				/>
@@ -86,8 +81,7 @@ export const TimelineFieldValue: React.FC<{
 				<TimelineRotationField
 					field={field}
 					effectiveValue={effectiveValue}
-					codeValue={codeValue}
-					canUpdate={canUpdate}
+					propStatus={propStatus}
 					onSave={onSave}
 					onDragValueChange={onDragValueChange}
 					onDragEnd={onDragEnd}
@@ -102,8 +96,7 @@ export const TimelineFieldValue: React.FC<{
 				<TimelineTranslateField
 					field={field}
 					effectiveValue={effectiveValue}
-					codeValue={codeValue}
-					canUpdate={canUpdate}
+					propStatus={propStatus}
 					onSave={onSave}
 					onDragValueChange={onDragValueChange}
 					onDragEnd={onDragEnd}
@@ -117,10 +110,24 @@ export const TimelineFieldValue: React.FC<{
 			<span style={wrapperStyle}>
 				<TimelineBooleanField
 					field={field}
-					codeValue={codeValue}
-					canUpdate={canUpdate}
+					propStatus={propStatus}
 					onSave={onSave}
 					effectiveValue={effectiveValue}
+				/>
+			</span>
+		);
+	}
+
+	if (field.typeName === 'enum') {
+		return (
+			<span style={inlineWrapper}>
+				<TimelineEnumField
+					field={field}
+					propStatus={propStatus}
+					onSave={onSave}
+					effectiveValue={effectiveValue}
+					onDragValueChange={onDragValueChange}
+					onDragEnd={onDragEnd}
 				/>
 			</span>
 		);

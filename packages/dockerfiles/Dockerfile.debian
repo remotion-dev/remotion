@@ -5,6 +5,8 @@ WORKDIR /usr/app
 
 RUN apt install -y \
   git \
+  curl \
+  unzip \
   libnss3 \
   libdbus-1-3 \
   libatk1.0-0 \
@@ -20,7 +22,13 @@ RUN apt install -y \
   libcups2 \
   libcairo2
 
-RUN npm i -g @remotion/cli
+RUN curl -fsSL https://bun.com/install | bash && ln -s /root/.bun/bin/bun /usr/local/bin/bun
+
+# Install the local @remotion/cli build from packed workspace tarballs.
+COPY tarballs/ /usr/app/tarballs/
+COPY local-cli-package.json /usr/app/package.json
+RUN bun install
+ENV PATH="/usr/app/node_modules/.bin:$PATH"
 
 COPY ensure-browser.mjs .
 COPY ensure.mjs .
@@ -29,5 +37,6 @@ RUN node ensure.mjs
 # Copy the pre-built bundle
 COPY bundle/ /usr/app/bundle/
 
-RUN npx remotion compositions /usr/app/bundle
-RUN npx remotion render /usr/app/bundle browser-test /usr/app/out.mp4
+RUN remotion compositions /usr/app/bundle
+RUN remotion render /usr/app/bundle browser-test /usr/app/out.mp4
+RUN remotion render /usr/app/bundle html-in-canvas /usr/app/out-html-in-canvas.mp4

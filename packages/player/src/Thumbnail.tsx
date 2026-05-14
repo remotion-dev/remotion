@@ -16,6 +16,7 @@ import type {
 	AnyZodObject,
 	CompProps,
 	LogLevel,
+	PlaybackRateContextValue,
 	TimelineContextValue,
 } from 'remotion';
 import {Internals, random} from 'remotion';
@@ -93,15 +94,20 @@ const ThumbnailFn = <
 			imperativePlaying: {
 				current: false,
 			},
-			playbackRate: 1,
-			setPlaybackRate: () => {
-				throw new Error('thumbnail');
-			},
 			audioAndVideoTags: {current: []},
 		};
 
 		return value;
 	}, [frameToDisplay, thumbnailId]);
+
+	const playbackRateContext: PlaybackRateContextValue = useMemo(() => {
+		return {
+			playbackRate: 1,
+			setPlaybackRate: () => {
+				throw new Error('thumbnail');
+			},
+		};
+	}, []);
 
 	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
 
@@ -121,6 +127,7 @@ const ThumbnailFn = <
 		<Internals.IsPlayerContextProvider>
 			<SharedPlayerContexts
 				timelineContext={timelineState}
+				playbackRateContext={playbackRateContext}
 				component={Component}
 				compositionHeight={compositionHeight}
 				compositionWidth={compositionWidth}

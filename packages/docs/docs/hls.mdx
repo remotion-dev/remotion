@@ -1,0 +1,50 @@
+---
+image: /generated/articles-docs-hls.png
+title: 'HLS support (HTTP Live Streaming)'
+sidebar_label: 'HLS'
+id: hls
+crumb: 'Video'
+---
+
+# HLS support<AvailableFrom v="4.0.454" />
+
+[`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media) supports HLS / `.m3u8` files natively via [Mediabunny](https://mediabunny.dev).
+
+Simply pass an `.m3u8` URL as the `src` prop:
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+
+export const HlsExample = () => {
+  return (
+    <AbsoluteFill>
+      <Video src="https://stream.mux.com/nqGuji1CJuoPoU3iprRRhiy3HXiQN0201HLyliOg44HOU.m3u8" />
+    </AbsoluteFill>
+  );
+};
+```
+
+This works across all browsers and during rendering.
+When a master playlist with multiple quality variants is used, Remotion will automatically select the highest-quality video track and its accompanying audio.
+
+## Track selection
+
+Is currently not implemented by Remotion.  
+Currently, the highest-quality video track and its accompanying audio are selected automatically.
+
+## Live streams
+
+Are not supported by Remotion.  
+Any live HLS videos will be rejected.
+See: [Can Remotion be used for live streaming?](/docs/miscellaneous/live-streaming).
+
+:::note
+Only VOD (Video on Demand) HLS playlists are supported.
+Live HLS streams are not supported.
+:::
+
+## See also
+
+- [`<Video>` from `@remotion/media`](/docs/media/video)
+- [Mediabunny HLS reading guide](https://mediabunny.dev/guide/reading-hls)

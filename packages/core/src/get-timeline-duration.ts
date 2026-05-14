@@ -6,13 +6,19 @@ export const getTimelineDuration = ({
 	trimBefore,
 	trimAfter,
 	parentSequenceDurationInFrames,
+	loop,
 }: {
 	compositionDurationInFrames: number;
 	playbackRate: number;
 	trimBefore: number | undefined;
 	trimAfter: number | undefined;
 	parentSequenceDurationInFrames: number | null;
+	loop: boolean;
 }) => {
+	if (loop) {
+		return compositionDurationInFrames;
+	}
+
 	const mediaDuration = calculateMediaDuration({
 		mediaDurationInFrames:
 			compositionDurationInFrames * playbackRate + (trimBefore ?? 0),

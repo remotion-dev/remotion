@@ -48,6 +48,7 @@ type RenderVideoConfig = {
 	mediaCacheSizeInBytes: InternalRenderMediaOptions['mediaCacheSizeInBytes'];
 	offthreadVideoThreads: InternalRenderMediaOptions['offthreadVideoThreads'];
 	repro: InternalRenderMediaOptions['repro'];
+	sampleRate: InternalRenderMediaOptions['sampleRate'];
 };
 
 const config: RenderVideoConfig = JSON.parse(process.argv[2]);
@@ -161,6 +162,7 @@ try {
 		mediaCacheSizeInBytes: config.mediaCacheSizeInBytes,
 		offthreadVideoThreads: config.offthreadVideoThreads,
 		repro: config.repro,
+		sampleRate: config.sampleRate,
 		// Non-serializable fields with defaults
 		puppeteerInstance: browser,
 		onProgress: (progress) => {

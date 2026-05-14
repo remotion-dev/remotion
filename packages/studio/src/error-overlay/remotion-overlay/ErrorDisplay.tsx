@@ -109,10 +109,7 @@ export const ErrorDisplay: React.FC<{
 					<div style={spacer} />
 				</>
 			) : null}
-			<CopyStackTrace
-				canHaveKeyboardShortcuts={keyboardShortcuts}
-				errorText={errorTextForCopy}
-			/>
+			<CopyStackTrace errorText={errorTextForCopy} />
 			<div style={spacer} />
 			<SearchGithubIssues
 				canHaveKeyboardShortcuts={keyboardShortcuts}

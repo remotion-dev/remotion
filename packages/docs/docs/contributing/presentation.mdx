@@ -13,17 +13,15 @@ If this is your first contribution, see the [main instructions](/docs/contributi
 
 ## How to proceed
 
-<Step>1</Step> Create a custom transition. Look at the <a href="/docs/transitions/presentations/custom">custom presentation</a> docs to see how it's done.
-<br />
-<Step>2</Step>Add your presentation to the remotion monorepository under <code>packages/transitions/src/presentations</code>.<br />
-<Step>3</Step> In the <code>bundle.ts</code>, add your presentation to the <code>presentations array</code>.
-<br />
+<Step>1</Step> Create a custom transition. Look at the <a href="/docs/transitions/presentations/custom">custom presentation</a> docs to see how it's done.<br />
+<Step>2</Step>Add your presentation to the remotion monorepo under <a href="https://github.com/remotion-dev/remotion/tree/main/packages/transitions/src/presentations"><code>packages/transitions/src/presentations</code></a>.<br />
+<Step>3</Step> In the <code>bundle.ts</code>, add your presentation to the <code>presentations array</code>.<br />
 
 ```tsx
-  const presentations = ['slide', 'flip', 'wipe', 'fade', ..., 'yourPresentation'];
+const presentations = ['slide', 'flip', 'wipe', 'fade', ..., 'yourPresentation'];
 ```
 
-<Step>4</Step> Add your presentation to the <code>exports</code> of the <code>package.json</code> at <code>packages/transition/package.json</code> as well as to the <code>typesVersions</code>, so it can be correctly imported in other remotion projects.
+<Step>4</Step> Add your presentation to the <code>exports</code> of the <code>package.json</code> at <a href="https://github.com/remotion-dev/remotion/blob/main/packages/transitions/package.json"><code>packages/transitions/package.json</code></a> as well as to the <code>typesVersions</code>, so it can be correctly imported in other remotion projects.
 
 ```json
 "exports": {
@@ -73,7 +71,24 @@ one-liner describing what your presentation does.
 
 An pull request for reference containing all required steps and filechanges can be found <a href="https://github.com/remotion-dev/remotion/pull/3199/files">here</a>.
 
+## HTML-in-canvas presentations
+
+Some effects need to blend the entering and exiting scenes pixel-by-pixel.  
+See [Custom HTML-in-canvas presentations](/docs/transitions/presentations/custom-html-in-canvas) how to create a HTML-in-canvas presentation.
+
+If you want to contribute the presentations back into the `@remotion/transitions` package:
+
+<Step>1</Step> Author the shader using <a href="/docs/transitions/make-html-in-canvas-presentation"><code>makeHtmlInCanvasPresentation()</code></a> and the <a href="/docs/transitions/make-html-in-canvas-presentation#htmlincanvasshader"><code>HtmlInCanvasShader&lt;Props&gt;</code></a> type. See <a href="https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/zoom-blur.tsx"><code>zoom-blur.tsx</code></a> as a reference.<br />
+<Step>2</Step> [gl-transitions.com](https://gl-transitions.com/) is a great source of MIT-licensed fragment shaders that can be ported. Always credit the original author and the MIT license in a comment above the shader source. <a href="https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/zoom-in-out.tsx"><code>zoom-in-out.tsx</code></a> is an example of a port.<br />
+<Step>3</Step> Mind the time convention: in our shaders <code>u_time = 0</code> outputs the entering scene and <code>u_time = 1</code> outputs the exiting scene. When porting from gl-transitions, set <code>float progress = 1.0 - u_time;</code> at the top of <code>main()</code>.<br />
+<Step>4</Step> Handle the boundary cases inside the JS <code>draw()</code> function: when <code>prevImage</code> is <code>null</code>, force <code>time = 0</code>; when <code>nextImage</code> is <code>null</code>, force <code>time = 1</code>.<br />
+<Step>5</Step> Set <code>serverSideRendering</code>, <code>nodejs</code>, <code>bun</code> and <code>serverlessFunctions</code> to <code>true</code> in the <code>&lt;CompatibilityTable /&gt;</code> on your docs page — Remotion's bundled Chromium for Lambda already includes the required APIs. Set <code>firefox</code> and <code>safari</code> to <code>false</code>.<br />
+<Step>6</Step> The table-of-contents preview should always render the pre-rendered fallback video — the live <code>&lt;Player&gt;</code> would crash for readers without HTML-in-canvas enabled, and a tiny TOC tile gains nothing from running the real shader. See <a href="https://github.com/remotion-dev/remotion/blob/main/packages/docs/components/transitions/zoom-blur-toc-preview.tsx"><code>zoom-blur-toc-preview.tsx</code></a> for the pattern. For the in-page <code>&lt;Demo&gt;</code>, branch on <code>HtmlInCanvas.isSupported()</code> via the <code>useHtmlInCanvasDocsDemoBranch()</code> hook so supporting browsers see the real shader and others fall back to the video — see <a href="https://github.com/remotion-dev/remotion/blob/main/packages/docs/components/demos/ZoomBlurDemo.tsx"><code>ZoomBlurDemo.tsx</code></a>.<br />
+<Step>7</Step> Render the fallback videos from a composition under <code>packages/example/src/HtmlInCanvas/</code> using <code>npx remotion render &lt;id&gt; --browser-executable=&lt;path-to-Chrome-Canary&gt; --allow-html-in-canvas</code>. Drop a high-res 1920×1080 file at <code>packages/docs/static/img/&lt;name&gt;.mp4</code> for the docs page and a low-res 540×280 file at <code>&lt;name&gt;-thumb.mp4</code> for the TOC tile.<br />
+<Step>8</Step> Add an <code>&lt;HtmlInCanvasLabel /&gt;</code> next to the presentation name in the table-of-contents tile to flag the requirement.
+
 ## See also
 
 - [Implementing a new feature](/docs/contributing/feature)
 - [Writing documentation](/docs/contributing/docs)
+- [Custom HTML-in-canvas presentations](/docs/transitions/presentations/custom-html-in-canvas)

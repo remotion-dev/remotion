@@ -14,7 +14,7 @@ export type {
 	MediaUtilsAudioData,
 	VideoMetadata as VideoData,
 } from './types';
-export {useAudioData} from './use-audio-data';
+export {UseAudioDataOptions, useAudioData} from './use-audio-data';
 export {
 	UseWindowedAudioDataOptions,
 	UseWindowedAudioDataReturnValue,

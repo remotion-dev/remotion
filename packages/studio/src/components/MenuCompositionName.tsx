@@ -11,6 +11,7 @@ const baseStyle: React.CSSProperties = {
 	textDecoration: 'none',
 	fontSize: 'inherit',
 	textUnderlineOffset: 2,
+	whiteSpace: 'nowrap',
 };
 
 const compositionNameStyle: React.CSSProperties = {

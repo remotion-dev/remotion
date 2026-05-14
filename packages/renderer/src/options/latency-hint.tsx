@@ -22,7 +22,7 @@ export const audioLatencyHintOption = {
 	),
 	ssrName: 'audioLatencyHint' as const,
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media',
-	type: 'interactive' as AudioContextLatencyCategory,
+	type: 'playback' as AudioContextLatencyCategory,
 	getValue: ({commandLine}) => {
 		const val = commandLine[cliFlag];
 		if (typeof val !== 'undefined') {

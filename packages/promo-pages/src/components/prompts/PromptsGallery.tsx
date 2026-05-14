@@ -197,7 +197,7 @@ export const PromptsGalleryPage: React.FC<{
 				</div>
 				<div className="flex items-center gap-2">
 					<Button
-						href="/docs/ai/claude-code"
+						href="/docs/ai/coding-agents"
 						className="font-brand rounded-full bg-[#D97757] flex items-center text-white"
 					>
 						<svg

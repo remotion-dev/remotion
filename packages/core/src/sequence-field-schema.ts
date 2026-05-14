@@ -1,3 +1,7 @@
+export type HiddenFieldSchema = {
+	type: 'hidden';
+};
+
 export type NumberFieldSchema = {
 	type: 'number';
 	min?: number;
@@ -27,15 +31,92 @@ export type TranslateFieldSchema = {
 	description?: string;
 };
 
-export type SequenceFieldSchema =
+export type EnumFieldSchema = {
+	type: 'enum';
+	default: string;
+	description?: string;
+	variants: Record<string, SequenceSchema>;
+};
+
+export type VisibleFieldSchema =
 	| NumberFieldSchema
 	| BooleanFieldSchema
 	| RotationFieldSchema
-	| TranslateFieldSchema;
+	| TranslateFieldSchema
+	| EnumFieldSchema;
 
-export type SequenceSchema = Record<string, SequenceFieldSchema>;
+export type SequenceFieldSchema = VisibleFieldSchema | HiddenFieldSchema;
+
+export type SequenceSchema = {[key: string]: SequenceFieldSchema};
 
 export type SchemaKeysRecord<S extends SequenceSchema> = Record<
 	keyof S,
 	unknown
 >;
+
+export const sequenceStyleSchema = {
+	'style.translate': {
+		type: 'translate',
+		step: 1,
+		default: '0px 0px',
+		description: 'Offset',
+	},
+	'style.scale': {
+		type: 'number',
+		min: 0.05,
+		max: 100,
+		step: 0.01,
+		default: 1,
+		description: 'Scale',
+	},
+	'style.rotate': {
+		type: 'rotation',
+		step: 1,
+		default: '0deg',
+		description: 'Rotation',
+	},
+	'style.opacity': {
+		type: 'number',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: 1,
+		description: 'Opacity',
+	},
+	premountFor: {
+		type: 'number',
+		default: 0,
+		description: 'Premount For',
+		min: 0,
+		step: 1,
+	},
+	postmountFor: {
+		type: 'hidden',
+	},
+	styleWhilePremounted: {
+		type: 'hidden',
+	},
+	styleWhilePostmounted: {
+		type: 'hidden',
+	},
+} as const satisfies SequenceSchema;
+
+export const sequenceSchema = {
+	layout: {
+		type: 'enum',
+		default: 'absolute-fill',
+		description: 'Layout',
+		variants: {
+			'absolute-fill': sequenceStyleSchema,
+			none: {},
+		},
+	},
+} as const satisfies SequenceSchema;
+
+export const sequenceSchemaDefaultLayoutNone: SequenceSchema = {
+	...sequenceSchema,
+	layout: {
+		...sequenceSchema.layout,
+		default: 'none',
+	},
+};

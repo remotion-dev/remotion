@@ -10,55 +10,53 @@ export const createVideoIterator = async (
 	const iterator = cache.makeIteratorOrUsePrewarmed(timeToSeek);
 	let iteratorEnded = false;
 
-	const initialFrame = (await iterator.next())?.value ?? null;
+	const firstAwait = iterator.next();
+	const initialFrame =
+		firstAwait && firstAwait.type === 'ready'
+			? firstAwait.frame
+			: await firstAwait.wait();
 	let lastReturnedFrame = initialFrame;
 
-	const getNextOrNullIfNotAvailable = async () => {
+	const getNextOrNullIfNotAvailable = () => {
 		const next = iterator.next();
-		const result = await Promise.race([
-			next,
-			new Promise<void>((resolve) => {
-				Promise.resolve().then(() => resolve());
-			}),
-		]);
 
-		if (!result) {
+		if (next.type === 'pending') {
 			return {
 				type: 'need-to-wait-for-it' as const,
 				waitPromise: async () => {
-					const res = await next;
-					if (res.value) {
-						lastReturnedFrame = res.value;
+					const res = await next.wait();
+					if (res) {
+						lastReturnedFrame = res;
 					} else {
 						iteratorEnded = true;
 					}
 
-					return res.value;
+					return res;
 				},
 			};
 		}
 
-		if (result.value) {
-			lastReturnedFrame = result.value;
+		if (next.frame) {
+			lastReturnedFrame = next.frame;
 		} else {
 			iteratorEnded = true;
 		}
 
 		return {
 			type: 'got-frame-or-end' as const,
-			frame: result.value ?? null,
+			frame: next.frame ?? null,
 		};
 	};
 
 	const destroy = () => {
 		destroyed = true;
 		lastReturnedFrame = null;
-		iterator.return().catch(() => undefined);
+		iterator.closeIterator().catch(() => undefined);
 	};
 
-	const tryToSatisfySeek = async (
+	const tryToSatisfySeek = (
 		time: number,
-	): Promise<
+	):
 		| {
 				type: 'not-satisfied';
 				reason: string;
@@ -66,8 +64,7 @@ export const createVideoIterator = async (
 		| {
 				type: 'satisfied';
 				frame: WrappedCanvas;
-		  }
-	> => {
+		  } => {
 		if (lastReturnedFrame) {
 			const frameTimestamp = roundTo4Digits(lastReturnedFrame.timestamp);
 
@@ -117,7 +114,7 @@ export const createVideoIterator = async (
 		}
 
 		while (true) {
-			const frame = await getNextOrNullIfNotAvailable();
+			const frame = getNextOrNullIfNotAvailable();
 			if (frame.type === 'need-to-wait-for-it') {
 				return {
 					type: 'not-satisfied' as const,

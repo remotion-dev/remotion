@@ -30,7 +30,7 @@ export const getAudioTranscodingOptions = async ({
 
 	for (const codec of supportedCodecsByContainer) {
 		const codecs = await getEncodableAudioCodecs([codec], {
-			sampleRate: inputTrack.sampleRate,
+			sampleRate: await inputTrack.getSampleRate(),
 		});
 
 		if (codecs.includes(codec)) {
@@ -136,7 +136,7 @@ export const canCopyVideoTrack = ({
 	return outputContainer.getSupportedCodecs().includes(inputTrack.codec);
 };
 
-export const canCopyAudioTrack = ({
+export const canCopyAudioTrack = async ({
 	inputTrack,
 	outputContainer,
 	sampleRate,
@@ -149,7 +149,7 @@ export const canCopyAudioTrack = ({
 		return false;
 	}
 
-	if (sampleRate && inputTrack.sampleRate !== sampleRate) {
+	if (sampleRate && (await inputTrack.getSampleRate()) !== sampleRate) {
 		return false;
 	}
 

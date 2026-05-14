@@ -2,14 +2,8 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../helpers/colors';
-import {
-	createFolderTree,
-	splitParentIntoNameAndParent,
-} from '../helpers/create-folder-tree';
-import {
-	ExpandedFoldersContext,
-	openFolderKey,
-} from '../helpers/persist-open-folders';
+import {createFolderTree} from '../helpers/create-folder-tree';
+import {ExpandedFoldersContext} from '../helpers/persist-open-folders';
 import {sortItemsByNonceHistory} from '../helpers/sort-by-nonce-history';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ModalsContext} from '../state/modals';
@@ -112,26 +106,6 @@ const quickSwitcherTrigger: React.CSSProperties = {
 const shortcutLabel: React.CSSProperties = {
 	fontSize: 11,
 	opacity: 0.6,
-};
-
-export const getKeysToExpand = (
-	initialFolderName: string,
-	parentFolderName: string | null,
-	initial: string[] = [],
-): string[] => {
-	initial.push(
-		openFolderKey({
-			folderName: initialFolderName,
-			parentName: parentFolderName,
-		}),
-	);
-
-	const {name, parent} = splitParentIntoNameAndParent(parentFolderName);
-	if (!name) {
-		return initial;
-	}
-
-	return getKeysToExpand(name, parent, initial);
 };
 
 export const CompositionSelector: React.FC = () => {

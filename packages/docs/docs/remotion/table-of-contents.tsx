@@ -86,6 +86,10 @@ export const TableOfContents: React.FC = () => {
 						Render an <code>{'<iframe>'}</code> tag and wait for it to load
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/remotion/html-in-canvas">
+					<strong>{'<HtmlInCanvas>'}</strong>
+					<div>Draw DOM content into a canvas via HTML-in-canvas</div>
+				</TOCItem>
 				<TOCItem link="/docs/sequence">
 					<strong>{'<Sequence>'}</strong>
 					<div>Time-shifts it{"'"}s children</div>

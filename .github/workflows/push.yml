@@ -105,7 +105,7 @@ jobs:
           bun run testwebrenderer
   ssr-tests:
     runs-on: ubuntu-latest
-    name: SSR integration
+    name: SSR + Monorepo checks
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -119,14 +119,14 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: '3.11'
       - uses: ruby/setup-ruby@master
         with:
-          ruby-version: "3.1"
+          ruby-version: '3.1'
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: '8.4'
       - run: pip install pylint boto3 pytest
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@v2.3.11
@@ -134,6 +134,10 @@ jobs:
         timeout-minutes: 8
         run: |
           bun run testssr
+      - name: Monorepo checks
+        timeout-minutes: 10
+        run: |
+          cd packages/it-tests && bun test src/monorepo --run --timeout 40000
   template-tests-check:
     runs-on: ubuntu-latest
     name: Template tests precheck

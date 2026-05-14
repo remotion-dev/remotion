@@ -243,46 +243,19 @@ const lightLeakSchema = {
 		default: 0,
 		description: 'Hue Shift',
 	},
-	'style.translate': {
-		type: 'translate',
-		step: 1,
-		default: '0px 0px',
-		description: 'Position',
-	},
-	'style.scale': {
-		type: 'number',
-		min: 0.05,
-		max: 100,
-		step: 0.01,
-		default: 1,
-		description: 'Scale',
-	},
-	'style.rotate': {
-		type: 'rotation',
-		step: 1,
-		default: '0deg',
-		description: 'Rotation',
-	},
-	'style.opacity': {
-		type: 'number',
-		min: 0,
-		max: 1,
-		step: 0.01,
-		default: 1,
-		description: 'Opacity',
-	},
+	...Internals.sequenceStyleSchema,
 } as const satisfies SequenceSchema;
 
 const LightLeakInner: React.FC<
 	LightLeakProps & {
-		readonly controls: SequenceControls | undefined;
+		readonly _experimentalControls: SequenceControls | undefined;
 	}
 > = ({
 	seed = 0,
 	hueShift = 0,
 	durationInFrames,
 	style,
-	controls,
+	_experimentalControls: controls,
 	...sequenceProps
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
@@ -309,7 +282,7 @@ const LightLeakInner: React.FC<
 		<Sequence
 			durationInFrames={resolvedDuration}
 			name="<LightLeak>"
-			controls={controls}
+			_experimentalControls={controls}
 			{...sequenceProps}
 			style={style}
 		>

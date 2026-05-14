@@ -11,7 +11,7 @@ export const getFramesToRender = (
 		.map((_, index) => {
 			return index + frameRange[0];
 		})
-		.filter((index) => {
-			return index % everyNthFrame === 0;
+		.filter((frame) => {
+			return (frame - frameRange[0]) % everyNthFrame === 0;
 		});
 };

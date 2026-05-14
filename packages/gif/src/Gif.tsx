@@ -33,34 +33,7 @@ const gifSchema = {
 		default: 1,
 		description: 'Playback Rate',
 	},
-	'style.translate': {
-		type: 'translate',
-		step: 1,
-		default: '0px 0px',
-		description: 'Position',
-	},
-	'style.scale': {
-		type: 'number',
-		min: 0.05,
-		max: 100,
-		step: 0.01,
-		default: 1,
-		description: 'Scale',
-	},
-	'style.rotate': {
-		type: 'rotation',
-		step: 1,
-		default: '0deg',
-		description: 'Rotation',
-	},
-	'style.opacity': {
-		type: 'number',
-		min: 0,
-		max: 1,
-		step: 0.01,
-		default: 1,
-		description: 'Opacity',
-	},
+	...Internals.sequenceStyleSchema,
 } as const satisfies SequenceSchema;
 
 const GifInner = ({
@@ -76,11 +49,11 @@ const GifInner = ({
 	delayRenderTimeoutInMilliseconds,
 	durationInFrames,
 	style,
-	controls,
+	_experimentalControls: controls,
 	ref,
 	...sequenceProps
 }: GifProps & {
-	readonly controls?: SequenceControls | undefined;
+	readonly _experimentalControls?: SequenceControls | undefined;
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const env = useRemotionEnvironment();
@@ -112,7 +85,7 @@ const GifInner = ({
 			layout="none"
 			durationInFrames={resolvedDuration}
 			name="<Gif>"
-			controls={controls}
+			_experimentalControls={controls}
 			{...sequenceProps}
 		>
 			{inner}

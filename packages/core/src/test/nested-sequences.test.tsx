@@ -21,10 +21,6 @@ const getForFrame = (frame: number, content: React.ReactNode) => {
 					imperativePlaying: {
 						current: false,
 					},
-					playbackRate: 1,
-					setPlaybackRate: () => {
-						throw new Error('playback rate');
-					},
 					audioAndVideoTags: {
 						current: [],
 					},

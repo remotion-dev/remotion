@@ -27,7 +27,6 @@ export const rspackConfig = async ({
 	bufferStateDelayInMilliseconds,
 	poll,
 	experimentalClientSideRenderingEnabled,
-	experimentalVisualModeEnabled,
 	askAIEnabled,
 	extraPlugins,
 }: {
@@ -45,7 +44,6 @@ export const rspackConfig = async ({
 	poll: number | null;
 	askAIEnabled: boolean;
 	experimentalClientSideRenderingEnabled: boolean;
-	experimentalVisualModeEnabled: boolean;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	extraPlugins: any[];
 }): Promise<[string, RspackConfiguration]> => {
@@ -58,7 +56,6 @@ export const rspackConfig = async ({
 			keyboardShortcutsEnabled,
 			bufferStateDelayInMilliseconds,
 			experimentalClientSideRenderingEnabled,
-			experimentalVisualModeEnabled,
 		}),
 	);
 

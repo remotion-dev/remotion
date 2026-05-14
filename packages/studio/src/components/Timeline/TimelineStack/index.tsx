@@ -1,8 +1,6 @@
 import type {GitSource} from '@remotion/studio-shared';
-import {SOURCE_MAP_ENDPOINT} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
-import {SourceMapConsumer} from 'source-map';
 import type {OriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../../helpers/client-id';
 import {
@@ -18,18 +16,6 @@ import {Spacing} from '../../layout';
 import {showNotification} from '../../Notifications/NotificationCenter';
 import {Spinner} from '../../Spinner';
 import {getOriginalSourceAttribution} from './source-attribution';
-
-const publicPath =
-	window.remotion_publicPath === '/' ? '' : window.remotion_publicPath;
-
-const withoutSlashInTheEnd = publicPath.endsWith('/')
-	? publicPath.slice(0, -1)
-	: publicPath;
-
-// @ts-expect-error
-SourceMapConsumer.initialize({
-	'lib/mappings.wasm': withoutSlashInTheEnd + SOURCE_MAP_ENDPOINT,
-});
 
 export const TimelineStack: React.FC<{
 	readonly isCompact: boolean;
@@ -176,7 +162,7 @@ export const TimelineStack: React.FC<{
 				: stackHovered && stackHoverable
 					? LIGHT_TEXT
 					: VERY_LIGHT_TEXT,
-			marginLeft: 10,
+			marginLeft: 5,
 			cursor: stackHoverable ? 'pointer' : undefined,
 			display: 'flex',
 			flexDirection: 'row',
@@ -185,6 +171,8 @@ export const TimelineStack: React.FC<{
 			textOverflow: 'ellipsis',
 			overflow: 'hidden',
 			flexShrink: 100000,
+			userSelect: 'none',
+			WebkitUserSelect: 'none',
 		};
 	}, [opening, stackHovered, stackHoverable]);
 

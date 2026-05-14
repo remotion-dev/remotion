@@ -1,5 +1,8 @@
 import React, {useMemo} from 'react';
-import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
+import {
+	SharedAudioContextProvider,
+	SharedAudioTagsContextProvider,
+} from './audio/shared-audio-tags.js';
 import {BufferingProvider} from './buffering.js';
 import {EditorPropsProvider} from './EditorProps.js';
 import type {LoggingContextValue} from './log-level-context.js';
@@ -21,7 +24,6 @@ export const RemotionRootContexts: React.FC<{
 	readonly videoEnabled: boolean;
 	readonly audioEnabled: boolean;
 	readonly frameState: Record<string, number> | null;
-	readonly visualModeEnabled: boolean;
 }> = ({
 	children,
 	numberOfAudioTags,
@@ -30,7 +32,6 @@ export const RemotionRootContexts: React.FC<{
 	videoEnabled,
 	audioEnabled,
 	frameState,
-	visualModeEnabled,
 }) => {
 	const nonceContext = useMemo((): TNonceContext => {
 		let counter = 0;
@@ -53,16 +54,21 @@ export const RemotionRootContexts: React.FC<{
 					>
 						<EditorPropsProvider>
 							<PrefetchProvider>
-								<SequenceManagerProvider visualModeEnabled={visualModeEnabled}>
-									<SharedAudioContextProvider
-										numberOfAudioTags={numberOfAudioTags}
-										audioLatencyHint={audioLatencyHint}
-										audioEnabled={audioEnabled}
-									>
-										<DurationsContextProvider>
-											<BufferingProvider>{children}</BufferingProvider>
-										</DurationsContextProvider>
-									</SharedAudioContextProvider>
+								<SequenceManagerProvider>
+									<DurationsContextProvider>
+										<BufferingProvider>
+											<SharedAudioContextProvider
+												audioLatencyHint={audioLatencyHint}
+												audioEnabled={audioEnabled}
+											>
+												<SharedAudioTagsContextProvider
+													numberOfAudioTags={numberOfAudioTags}
+												>
+													{children}
+												</SharedAudioTagsContextProvider>
+											</SharedAudioContextProvider>
+										</BufferingProvider>
+									</DurationsContextProvider>
 								</SequenceManagerProvider>
 							</PrefetchProvider>
 						</EditorPropsProvider>

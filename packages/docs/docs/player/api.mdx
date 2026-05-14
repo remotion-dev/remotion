@@ -126,7 +126,7 @@ Once you have set this prop, you cannot change it anymore or an error will be th
 
 ### `playbackRate?`
 
-A number between -4 and 4 (excluding 0) for the speed that the Player will run the media.
+A number between -10 and 10 (excluding 0) for the speed that the Player will run the media.
 
 A `playbackRate` of `2` means the video plays twice as fast. A playbackRate of `0.5` means the video plays twice as slow. A playbackRate of `-1` means the video plays in reverse. Note that the media tags ([`<Audio>`](/docs/media/audio), [`<Video>`](/docs/media/video), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo)) cannot be played in reverse, this is a browser limitation.
 
@@ -436,6 +436,8 @@ By default, Remotion uses the key `"remotion.volumePreference"`.
 
 This prop is useful if you would like to scope the volume preference to a specific Player instance.
 
+To set a fixed initial volume and **not** use `localStorage` at all, use [`initialVolume`](#initialvolume) instead of this prop.
+
 **Example:**
 
 ```tsx
@@ -443,6 +445,22 @@ This prop is useful if you would like to scope the volume preference to a specif
   component={MyVideo}
   // ... other props
   volumePersistenceKey="my-app-volume-preference"
+/>
+```
+
+### `initialVolume?`<AvailableFrom v="4.0.453" />
+
+A number between `0` and `1` that sets the volume when the Player mounts (same range as the volume slider).
+
+If you pass this prop, the Player **does not** read the starting volume from `localStorage` or write volume changes back to `localStorage`. Omit it to keep the default behavior: load and save using [`volumePersistenceKey`](#volumepersistencekey) (or the default key).
+
+**Example:**
+
+```tsx
+<Player
+  component={MyVideo}
+  // ... other props
+  initialVolume={0.8}
 />
 ```
 

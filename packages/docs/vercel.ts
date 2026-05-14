@@ -56,6 +56,9 @@ export const config: VercelConfig = {
 			{permanent: false},
 		),
 		routes.redirect('/timeout', '/docs/timeout', {permanent: false}),
+		routes.redirect('/html-in-canvas', '/docs/html-in-canvas', {
+			permanent: false,
+		}),
 		routes.redirect('/acknowledgements', '/docs/acknowledgements', {
 			permanent: false,
 		}),
@@ -108,6 +111,9 @@ export const config: VercelConfig = {
 		),
 		routes.redirect('/support', '/docs/support', {permanent: true}),
 		routes.redirect('/webcodecs', '/docs/webcodecs', {permanent: true}),
+		routes.redirect('/docs/miscellaneous/snippets/hls', '/docs/hls', {
+			permanent: true,
+		}),
 		routes.redirect('/docs/player/api', '/docs/player/player', {
 			permanent: true,
 		}),
@@ -311,6 +317,9 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/privacy', 'https://remotion.pro/privacy', {
+			permanent: false,
+		}),
+		routes.redirect('/docs/ai/claude-code', '/docs/ai/coding-agents', {
 			permanent: false,
 		}),
 	],

@@ -3,16 +3,17 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-utils"
 	},
 	"name": "@remotion/media-utils",
-	"version": "4.0.448",
+	"version": "4.0.461",
 	"description": "Utilities for working with media files",
 	"main": "dist/index.js",
-	"sideEffects": false,
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"make": "tsgo -d"
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
 	"bugs": {
@@ -40,6 +41,15 @@
 	],
 	"publishConfig": {
 		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		}
 	},
 	"homepage": "https://www.remotion.dev/docs/media-utils"
 }

@@ -162,6 +162,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Akshar') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Akt',
+		importName: 'Akt',
+		load: () => import('./Akt') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Aladin',
 		importName: 'Aladin',
 		load: () => import('./Aladin') as Promise<GoogleFont>,
@@ -792,7 +797,7 @@ export const getAvailableFonts = () => [
 		load: () => import('./BIZUDPMincho') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'BJ Cree',
+		fontFamily: 'BJCree',
 		importName: 'BJCree',
 		load: () => import('./BJCree') as Promise<GoogleFont>,
 	},
@@ -2417,6 +2422,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Esteban') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Estedad',
+		importName: 'Estedad',
+		load: () => import('./Estedad') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Estonia',
 		importName: 'Estonia',
 		load: () => import('./Estonia') as Promise<GoogleFont>,
@@ -2555,6 +2565,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Finlandica',
 		importName: 'Finlandica',
 		load: () => import('./Finlandica') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Finlandica Headline',
+		importName: 'FinlandicaHeadline',
+		load: () => import('./FinlandicaHeadline') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Finlandica Text',
+		importName: 'FinlandicaText',
+		load: () => import('./FinlandicaText') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Fira Code',
@@ -4202,11 +4222,6 @@ export const getAvailableFonts = () => [
 		load: () => import('./LibertinusKeyboard') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'Libertinus Math',
-		importName: 'LibertinusMath',
-		load: () => import('./LibertinusMath') as Promise<GoogleFont>,
-	},
-	{
 		fontFamily: 'Libertinus Mono',
 		importName: 'LibertinusMono',
 		load: () => import('./LibertinusMono') as Promise<GoogleFont>,
@@ -4475,6 +4490,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'M PLUS Rounded 1c',
 		importName: 'MPLUSRounded1c',
 		load: () => import('./MPLUSRounded1c') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'M PLUS U',
+		importName: 'MPLUSU',
+		load: () => import('./MPLUSU') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Ma Shan Zheng',
@@ -5641,11 +5661,6 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Noto Sans Masaram Gondi',
 		importName: 'NotoSansMasaramGondi',
 		load: () => import('./NotoSansMasaramGondi') as Promise<GoogleFont>,
-	},
-	{
-		fontFamily: 'Noto Sans Math',
-		importName: 'NotoSansMath',
-		load: () => import('./NotoSansMath') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Noto Sans Mayan Numerals',
@@ -8211,6 +8226,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Strait',
 		importName: 'Strait',
 		load: () => import('./Strait') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Strichpunkt Sans',
+		importName: 'StrichpunktSans',
+		load: () => import('./StrichpunktSans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Style Script',

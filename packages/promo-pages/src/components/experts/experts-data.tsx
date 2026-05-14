@@ -10,6 +10,10 @@ export type Expert = {
 	linkedin: string | null;
 	email: string | null;
 	videocall: string | null;
+	discord: {
+		username: string;
+		userId: string;
+	} | null;
 	slug: string;
 	since: number;
 };
@@ -25,6 +29,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/sterv/',
 		email: 'stephen@middy.com',
 		videocall: null,
+		discord: {
+			username: 'stervdotcom',
+			userId: '613828260534550719',
+		},
 		since: new Date('2022-08-15').getTime(),
 		description: (
 			<div>
@@ -46,6 +54,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/just-moh-it/',
 		email: 'yo@mohitya.dev',
 		videocall: null,
+		discord: {
+			username: 'justmohit',
+			userId: '616199379530940426',
+		},
 		since: new Date('2022-08-15').getTime(),
 		description: (
 			<div>
@@ -70,6 +82,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/satelllte/',
 		email: 'lunaerxs@gmail.com',
 		videocall: null,
+		discord: {
+			username: 'satelllte',
+			userId: '564382615105306634',
+		},
 		since: new Date('2022-09-16').getTime(),
 
 		description: (
@@ -101,6 +117,10 @@ export const experts: Expert[] = [
 		linkedin: null,
 		email: 'ben@captok.ai',
 		videocall: null,
+		discord: {
+			username: 'ben201000',
+			userId: '833862694372245515',
+		},
 		since: new Date('2022-11-03').getTime(),
 		description: (
 			<div>
@@ -125,6 +145,7 @@ export const experts: Expert[] = [
 		since: new Date('2022-08-22').getTime(),
 		email: 'karel@asius.ai',
 		videocall: null,
+		discord: null,
 		description: (
 			<div>
 				I have created Remotion videos for many companies and helped them with
@@ -153,6 +174,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/alex-f-17a5bb56/',
 		email: 'alex.frndz@gmail.com',
 		videocall: 'https://cal.com/remotion-expert-alex-fernandez',
+		discord: {
+			username: 'alex12345670000',
+			userId: '1046357837976182894',
+		},
 		since: new Date('2022-12-02').getTime(),
 		description: (
 			<div>
@@ -171,6 +196,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/matthew-mcgillivray-68295a55',
 		email: 'mm@mattm9y.com',
 		videocall: 'https://cal.com/remotion-expert-matt-mcgillivray',
+		discord: {
+			username: 'umungobungo',
+			userId: '225141342894948352',
+		},
 		since: new Date('2023-01-30').getTime(),
 		description: (
 			<div>
@@ -234,6 +263,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/raymond-lotmar/',
 		email: 'ray@blocklab.ch',
 		videocall: 'https://cal.com/remotion-expert-ray-lotmar',
+		discord: {
+			username: 'ray_block',
+			userId: '402806969980944384',
+		},
 		since: new Date('2023-01-30').getTime(),
 		description: (
 			<div>
@@ -257,6 +290,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/lorenzobertolini/',
 		email: 'ciao@lorenzobertolini.com',
 		videocall: null,
+		discord: {
+			username: 'lorenzobertolini',
+			userId: '933408520789950516',
+		},
 		since: new Date('2023-03-14').getTime(),
 		description: (
 			<div>
@@ -288,6 +325,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/antoine-caron-slash/',
 		email: 'antoine395.caron+remotion@gmail.com',
 		videocall: null,
+		discord: {
+			username: 'antoinecaron.',
+			userId: '199566011849113600',
+		},
 		since: new Date('2023-03-17').getTime(),
 		description: (
 			<div>
@@ -314,6 +355,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/mickaelalves/',
 		email: 'alves.mckl@gmail.com',
 		videocall: null,
+		discord: {
+			username: 'cruuzazul',
+			userId: '455697698050277378',
+		},
 		since: new Date('2023-03-17').getTime(),
 		description: (
 			<div>
@@ -340,6 +385,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/pranavk7/',
 		email: 'hey@pranava.dev',
 		videocall: null,
+		discord: {
+			username: 'thecmdrunner',
+			userId: '768013898385063936',
+		},
 		since: new Date('2023-07-03').getTime(),
 		description: (
 			<div>
@@ -368,6 +417,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/rahulbansalrb/',
 		email: 'bansalrahul14@gmail.com',
 		videocall: 'https://cal.com/remotion-expert-rahul-bansal',
+		discord: {
+			username: 'raxrb',
+			userId: '564805165211713536',
+		},
 		since: new Date('2023-08-04').getTime(),
 		description: (
 			<div>
@@ -386,12 +439,16 @@ export const experts: Expert[] = [
 		slug: 'pramod-kumar',
 		name: 'Pramod Kumar',
 		image: '/img/freelancers/pramod.jpg',
-		website: 'https://www.pramod73.in/',
+		website: null,
 		x: 'pramodk73',
 		github: 'pskd73',
 		linkedin: 'in/pramod-kumar-1a135b74/',
 		email: 'pramodkumar.damam73@gmail.com',
 		videocall: 'https://cal.com/remotion-expert-pramod-kumar',
+		discord: {
+			username: 'pskd73',
+			userId: '517057574483525655',
+		},
 		since: new Date('2024-03-10').getTime(),
 		description: (
 			<div>
@@ -413,8 +470,12 @@ export const experts: Expert[] = [
 				>
 					remotion-animate-text
 				</a>{' '}
-				for Remotion to animate text. I build products in public on X. I love
-				helping the community. Feel free to reach out. Looking forward!
+				for Remotion to animate text. I build products in public on X and
+				currently building{' '}
+				<a target={'_blank'} href="https://crawlchat.app">
+					CrawlChat
+				</a>
+				. I love helping the community. Feel free to reach out. Looking forward!
 			</div>
 		),
 	},
@@ -428,6 +489,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/ayushsoni1001/',
 		email: 'hi@ayushsoni.com',
 		videocall: 'https://cal.com/remotion-expert-ayush-soni',
+		discord: {
+			username: 'ayushsoni',
+			userId: '624968675916513310',
+		},
 		since: new Date('2024-03-17').getTime(),
 		description: (
 			<div>
@@ -452,6 +517,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/andrei-terteci-935331151/',
 		email: 'hello@andreiterteci.com',
 		videocall: 'https://cal.com/remotion-expert-andrei-terteci',
+		discord: {
+			username: 'andreiterteci',
+			userId: '710924274361172078',
+		},
 		since: new Date('2024-03-17').getTime(),
 		description: (
 			<div>
@@ -477,6 +546,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/sambowenhughes/',
 		email: 'sam@reactvideoeditor.com',
 		videocall: 'https://calendly.com/reactvideoeditor/30min',
+		discord: {
+			username: '.samelliott',
+			userId: '862593906972688385',
+		},
 		since: new Date('2025-06-03').getTime(),
 		description: (
 			<div>
@@ -532,6 +605,10 @@ export const experts: Expert[] = [
 		email: 'shankhadeepdey99@gmail.com',
 		slug: 'iamshankhadeep',
 		videocall: 'https://cal.com/iamshankhadeep',
+		discord: {
+			username: 'iamshankhadeep',
+			userId: '441576588937527306',
+		},
 		since: new Date('2021-02-13').getTime(),
 		description: (
 			<div>
@@ -553,6 +630,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/amirtadrisi/',
 		email: 'amir@cubite.io',
 		videocall: null,
+		discord: {
+			username: 'aioppsos1565',
+			userId: '709545234882756711',
+		},
 		since: new Date('2025-01-01').getTime(),
 		description: (
 			<div>
@@ -602,6 +683,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/pablito-jean-pool-silva-inca-735a03192/',
 		email: 'pablito.silvainca@gmail.com',
 		videocall: null,
+		discord: {
+			username: 'pablituuu',
+			userId: '513743221109555206',
+		},
 		since: new Date('2026-02-13').getTime(),
 		description: (
 			<div>
@@ -627,6 +712,10 @@ export const experts: Expert[] = [
 		linkedin: 'in/haingt-dev/',
 		email: 'hai@haingt.dev',
 		videocall: null,
+		discord: {
+			username: 'haingt.dev',
+			userId: '384392709902827522',
+		},
 		since: new Date('2026-04-02').getTime(),
 		description: (
 			<div>
@@ -637,16 +726,75 @@ export const experts: Expert[] = [
 				>
 					AI video production pipeline
 				</a>{' '}
-				using Remotion 4.0 — orchestrating self-hosted TTS (viXTTS), Gemini
-				API image generation, SRT-driven subtitle timing, and Ken Burns motion
+				using Remotion 4.0 — orchestrating self-hosted TTS (viXTTS), Gemini API
+				image generation, SRT-driven subtitle timing, and Ken Burns motion
 				presets. The pipeline produces complete book-to-video content in about
 				an hour (1-person operation) with editorial design overlays,
 				cross-dissolve transitions, and audio spectrum visualization.
 				GPU-accelerated rendering on Linux.
 				<br />
-				Available for AI-powered video pipelines, multi-API media
-				orchestration, and Remotion integrations with existing backend
+				Available for AI-powered video pipelines, multi-API media orchestration,
+				and Remotion integrations with existing backend infrastructure.
+			</div>
+		),
+	},
+	{
+		slug: 'ashok-reddy',
+		name: 'Ashok Reddy',
+		image: '/img/freelancers/ashok.png',
+		website: null,
+		x: 'indieashok',
+		github: 'ashokDevs',
+		linkedin: 'in/ashok-reddy-kakumanu-8a3078247/',
+		email: 'ashok17748@gmail.com',
+		videocall: null,
+		discord: {
+			username: '.8gates',
+			userId: '668293302767845376',
+		},
+		since: new Date('2026-04-30').getTime(),
+		description: (
+			<div>
+				I built many trending templates at{' '}
+				<a target={'_blank'} href="https://vubo.ai">
+					Vubo
+				</a>
+				, along with automations and AI-generated media pipelines using
+				Remotion. I specialize in creating custom video templates, AI-powered
+				video generation workflows, and integrations with existing
 				infrastructure.
+				<br />
+				Available for hourly and project/milestone-based engagements.
+			</div>
+		),
+	},
+	{
+		slug: 'huang-chi-chang',
+		name: 'Huang Chi Chang',
+		image: '/img/freelancers/huang-chi-chang.jpg',
+		website: 'https://swift-clip.vercel.app/',
+		x: null,
+		github: 'zz41354899',
+		linkedin: null,
+		email: 'zz41354899@gmail.com',
+		videocall: null,
+		discord: {
+			username: 'Nocts',
+			userId: '444852671191580672',
+		},
+		since: new Date('2026-05-05').getTime(),
+		description: (
+			<div>
+				I&apos;m a Product Designer and Indie Hacker based in Taiwan. I
+				specialize in using Remotion to automate video production, building
+				dynamic templates and automated rendering pipelines.
+				<br />
+				My project,{' '}
+				<a target={'_blank'} href="https://swift-clip.vercel.app/">
+					SwiftClip
+				</a>
+				, is a tool designed to streamline professional video creation through
+				programmatic workflows.
 			</div>
 		),
 	},

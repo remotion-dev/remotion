@@ -36,6 +36,7 @@ export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 		cancelSignal: null,
 		updatesDontOverwrite: false,
 		indent: false,
+		logLevel,
 	});
 	infoOutput.update(`Checking ${region} for sites...`, false);
 

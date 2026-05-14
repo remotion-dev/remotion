@@ -1,6 +1,7 @@
 import type {LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
 import {parseBorderRadius, setBorderRadius} from './border-radius';
+import {setClipPath} from './clip-path';
 import {drawBackground} from './draw-background';
 import {drawBorder} from './draw-border';
 import {drawBorderRadius} from './draw-box-shadow';
@@ -48,6 +49,12 @@ export const drawElement = async ({
 		transform: totalMatrix,
 		parentRect,
 		scale,
+	});
+
+	const finishClipPath = setClipPath({
+		ctx: context,
+		clipPath: computedStyle.clipPath,
+		rect,
 	});
 
 	const finishOpacity = setOpacity({
@@ -126,6 +133,7 @@ export const drawElement = async ({
 		cleanupAfterChildren: () => {
 			finishFilter();
 			finishOpacity();
+			finishClipPath();
 			finishOverflowHidden();
 		},
 	};

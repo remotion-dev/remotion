@@ -9,6 +9,7 @@ import {ALL_FORMATS, BlobSource, Input, UrlSource} from 'mediabunny';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
+import {getDurationOrCompute} from '~/lib/get-duration-or-compute';
 
 export type ProbeResult = ReturnType<typeof useProbe>;
 
@@ -52,12 +53,25 @@ export const useProbe = ({src}: {src: Source}) => {
 		const run = async () => {
 			input.getFormat().then((format) => setContainer(format));
 			input.source.getSize().then((s) => setSize(s));
-			input
-				.computeDuration()
-				.then((duration) => setDurationInSeconds(duration));
+			getDurationOrCompute(input).then((duration) =>
+				setDurationInSeconds(duration),
+			);
 			input.getMetadataTags().then((tags) => setMetadata(tags));
 
 			const trx = await input.getTracks();
+			trx.forEach(async (track) => {
+				if (await track.isLive()) {
+					throw new Error(
+						'Live streams are not currently supported by Remotion. Sorry!',
+					);
+				}
+
+				if (await track.isRelativeToUnixEpoch()) {
+					throw new Error(
+						'Streams with UNIX timestamps are not currently supported by Remotion. Sorry!',
+					);
+				}
+			});
 			setTracks(trx);
 			let hasAudioTrack = false;
 			let hasVideoTrack = false;
@@ -78,7 +92,7 @@ export const useProbe = ({src}: {src: Source}) => {
 				} else if (track.isAudioTrack()) {
 					hasAudioTrack = true;
 					setAudioCodec(track.codec);
-					setSampleRate(track.sampleRate);
+					track.getSampleRate().then((sr) => setSampleRate(sr));
 				}
 			}
 

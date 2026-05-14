@@ -1,0 +1,216 @@
+import {afterAll, beforeAll, expect, spyOn, test} from 'bun:test';
+
+const originalForceColor = process.env.FORCE_COLOR;
+process.env.FORCE_COLOR = '1';
+
+import {readFileSync} from 'node:fs';
+import path from 'node:path';
+import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
+import {updateSequenceProps} from '../codemods/update-sequence-props/update-sequence-props';
+import {formatPropChange} from '../preview-server/routes/log-updates/format-prop-change';
+import {
+	attrName,
+	equals,
+	numberValue,
+	punctuation,
+	strikeThrough,
+	stringValue,
+} from '../preview-server/routes/log-updates/formatting';
+import {
+	logUpdate,
+	normalizeQuotes,
+} from '../preview-server/routes/log-updates/log-update';
+import {lineColumnToNodePath} from './test-utils';
+
+const {chalk} = RenderInternals;
+
+beforeAll(() => {
+	process.env.FORCE_COLOR = '1';
+});
+
+afterAll(() => {
+	if (originalForceColor === undefined) {
+		delete process.env.FORCE_COLOR;
+	} else {
+		process.env.FORCE_COLOR = originalForceColor;
+	}
+});
+
+const input = `import {LightLeak} from '@remotion/light-leaks';
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const LightLeakExample: React.FC = () => {
+	return (
+		<AbsoluteFill style={{backgroundColor: 'black'}}>
+			<LightLeak durationInFrames={60} seed={1} hueShift={30} />
+		</AbsoluteFill>
+	);
+};
+`;
+
+test('logUpdate emits Monokai-colored output after an AST update', async () => {
+	expect(chalk.enabled()).toBe(true);
+
+	const {output, oldValueStrings, formatted, logLine} =
+		await updateSequenceProps({
+			input,
+			nodePath: lineColumnToNodePath(input, 8),
+			updates: [{key: 'hueShift', value: 90, defaultValue: null}],
+			schema: Internals.sequenceSchema,
+		});
+
+	expect(oldValueStrings[0]).toBe('30');
+	expect(output).toContain('hueShift={90}');
+
+	const consoleSpy = spyOn(console, 'log').mockImplementation(() => undefined);
+
+	try {
+		logUpdate({
+			fileRelativeToRoot: 'src/Example.tsx',
+			line: logLine,
+			key: 'hueShift',
+			oldValueString: oldValueStrings[0],
+			newValueString: '90',
+			defaultValueString: null,
+			formatted,
+			logLevel: 'info',
+			removedProps: [],
+			addedProps: [],
+		});
+
+		expect(consoleSpy).toHaveBeenCalledTimes(1);
+		const logged = consoleSpy.mock.calls[0].join(' ');
+
+		const simpleProp = (key: string, value: string) =>
+			`${attrName(key)}${equals('=')}${punctuation('{')}${numberValue(value)}${punctuation('}')}`;
+
+		const expectedPropChange = `${simpleProp('hueShift', '30')} → ${simpleProp('hueShift', '90')}`;
+		const expectedLine = `${chalk.blueBright('src/Example.tsx:8')} ${expectedPropChange}`;
+
+		expect(logged).toBe(expectedLine);
+	} finally {
+		consoleSpy.mockRestore();
+	}
+});
+
+test('logUpdate emits change-from-default output for discriminated union enum change', async () => {
+	expect(chalk.enabled()).toBe(true);
+
+	const fixture = readFileSync(
+		path.join(__dirname, 'snapshots', 'discriminated-union-with-style.tsx'),
+		'utf-8',
+	);
+
+	const {oldValueStrings, formatted, logLine, removedProps} =
+		await updateSequenceProps({
+			input: fixture,
+			nodePath: lineColumnToNodePath(fixture, 3),
+			updates: [
+				{
+					key: 'layout',
+					value: 'none',
+					defaultValue: Internals.sequenceSchema.layout.default,
+				},
+			],
+			schema: Internals.sequenceSchema,
+		});
+
+	expect(oldValueStrings[0]).toBe('"absolute-fill"');
+	expect(removedProps).toEqual([
+		{key: 'style', valueString: '{ scale: 1.74 }'},
+	]);
+
+	const newValueString = JSON.stringify('none');
+	const defaultValueString = JSON.stringify(
+		Internals.sequenceSchema.layout.default,
+	);
+
+	const consoleSpy = spyOn(console, 'log').mockImplementation(() => undefined);
+
+	try {
+		logUpdate({
+			fileRelativeToRoot: 'src/Example.tsx',
+			line: logLine,
+			key: 'layout',
+			oldValueString: oldValueStrings[0],
+			newValueString,
+			defaultValueString,
+			formatted,
+			logLevel: 'info',
+			removedProps,
+			addedProps: [],
+		});
+
+		expect(consoleSpy).toHaveBeenCalledTimes(1);
+		const logged = consoleSpy.mock.calls[0].join(' ');
+
+		const simpleProp = (key: string, value: string) =>
+			`${attrName(key)}${equals('=')}${punctuation('{')}${stringValue(value)}${punctuation('}')}`;
+
+		const simplePropPunctuation = (key: string, value: string) =>
+			`${attrName(key)}${equals('=')}${punctuation('{')}${punctuation(value)}${punctuation('}')}`;
+
+		const expectedPropChange = `${simpleProp('layout', "'none'")}, ${strikeThrough(simplePropPunctuation('style', '{ scale: 1.74 }'))}`;
+		const expectedLine = `${chalk.blueBright(`src/Example.tsx:${logLine}`)} ${expectedPropChange}`;
+
+		expect(logged).toBe(expectedLine);
+
+		const normalizedOld = normalizeQuotes(oldValueStrings[0]);
+		const normalizedNew = normalizeQuotes(newValueString);
+		const normalizedDefault = normalizeQuotes(defaultValueString);
+
+		const undoPropChange = formatPropChange({
+			key: 'layout',
+			oldValueString: normalizedNew,
+			newValueString: normalizedOld,
+			defaultValueString: normalizedDefault,
+			removedProps: [],
+			addedProps: removedProps,
+		});
+
+		const expectedUndoPropChange = `${strikeThrough(simpleProp('layout', "'none'"))}, ${simplePropPunctuation('style', '{ scale: 1.74 }')}`;
+		expect(undoPropChange).toBe(expectedUndoPropChange);
+	} finally {
+		consoleSpy.mockRestore();
+	}
+});
+
+test('Undo prop change should not nest key={key={value}} for re-added props', async () => {
+	const fixture = readFileSync(
+		path.join(__dirname, 'snapshots', 'discriminated-union-with-premount.tsx'),
+		'utf-8',
+	);
+
+	const {removedProps} = await updateSequenceProps({
+		input: fixture,
+		nodePath: lineColumnToNodePath(fixture, 3),
+		updates: [
+			{
+				key: 'layout',
+				value: 'none',
+				defaultValue: Internals.sequenceSchema.layout.default,
+			},
+		],
+		schema: Internals.sequenceSchema,
+	});
+
+	const premount = removedProps.find((p) => p.key === 'premountFor');
+	if (!premount) {
+		throw new Error('premountFor should have been removed');
+	}
+
+	const undoPropChange = formatPropChange({
+		key: 'layout',
+		oldValueString: "'none'",
+		newValueString: "'absolute-fill'",
+		defaultValueString: "'absolute-fill'",
+		removedProps: [],
+		addedProps: [premount],
+	});
+
+	expect(undoPropChange).not.toContain('premountFor={premountFor=');
+	expect(undoPropChange).toContain('premountFor');
+	expect(undoPropChange).toContain('25');
+});

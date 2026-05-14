@@ -170,7 +170,7 @@ export const printUsefulErrorMessage = (
 	if (err.message.includes('AVCaptureDeviceTypeContinuityCamera')) {
 		Log.info(
 			{indent, logLevel},
-			'💡 Remotion requires macOS 13 (Ventura) or later.',
+			'💡 Remotion requires macOS 15 (Sequoia) or later.',
 		);
 		Log.info(
 			{indent, logLevel},

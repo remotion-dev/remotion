@@ -15,6 +15,7 @@ import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
 import {useSingletonAudioContext} from './use-audio-context.js';
+import {waitUntilActuallyResumed} from './wait-until-actually-resumed.js';
 
 /**
  * This functionality of Remotion will keep a certain amount
@@ -50,19 +51,43 @@ export type ScheduleAudioNodeResult =
 	  }
 	| {
 			type: 'not-started';
+			reason: string;
 	  };
 
 export type ScheduleAudioNodeOptions = {
 	readonly node: AudioBufferSourceNode;
-	readonly targetTime: number;
 	readonly mediaTimestamp: number;
 	readonly currentTime: number;
-	readonly sequenceEndTime: number;
-	readonly sequenceStartTime: number;
-	readonly debugAudioScheduling: boolean;
+	readonly scheduledTime: number;
+	readonly originalUnloopedMediaTimestamp: number;
+	readonly duration: number;
+	readonly offset: number;
 };
 
-type SharedContext = {
+export type AudioSyncAnchorEvent = 'changed';
+
+export type AudioSyncAnchorListener = (event: AudioSyncAnchorEvent) => void;
+
+export type AudioSyncAnchorEmitter = {
+	dispatch: (event: AudioSyncAnchorEvent) => void;
+	subscribe: (listener: AudioSyncAnchorListener) => {remove: () => void};
+};
+
+type SharedAudioContextValue = {
+	audioContext: AudioContext | null;
+	gainNode: GainNode | null;
+	audioSyncAnchor: {value: number};
+	audioSyncAnchorEmitter: AudioSyncAnchorEmitter;
+	scheduleAudioNode: (
+		options: ScheduleAudioNodeOptions,
+	) => ScheduleAudioNodeResult;
+	resume: () => Promise<void>;
+	suspend: () => void;
+	getIsResumingAudioContext: () => Promise<void> | null;
+	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
+};
+
+type SharedAudioTagsContextValue = {
 	registerAudio: (options: {
 		aud: AudioHTMLAttributes<HTMLAudioElement>;
 		audioId: string;
@@ -79,11 +104,6 @@ type SharedContext = {
 	}) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
-	audioContext: AudioContext | null;
-	audioSyncAnchor: {value: number};
-	scheduleAudioNode: (
-		options: ScheduleAudioNodeOptions,
-	) => ScheduleAudioNodeResult;
 };
 
 const compareProps = (
@@ -137,86 +157,93 @@ type Ref = {
 	mediaElementSourceNode: SharedElementSourceNode | null;
 };
 
-export const SharedAudioContext = createContext<SharedContext | null>(null);
+export const SharedAudioContext = createContext<SharedAudioContextValue | null>(
+	null,
+);
+
+export const SharedAudioTagsContext =
+	createContext<SharedAudioTagsContextValue | null>(null);
+
+type NodeToResume = {
+	scheduledTime: number;
+	offset: number;
+	duration: number;
+};
 
 export const SharedAudioContextProvider: React.FC<{
-	readonly numberOfAudioTags: number;
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly audioEnabled: boolean;
-}> = ({children, numberOfAudioTags, audioLatencyHint, audioEnabled}) => {
-	const audios = useRef<AudioElem[]>([]);
-	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
-
-	if (numberOfAudioTags !== initialNumberOfAudioTags) {
-		throw new Error(
-			'The number of shared audio tags has changed dynamically. Once you have set this property, you cannot change it afterwards.',
-		);
-	}
-
+}> = ({children, audioLatencyHint, audioEnabled}) => {
 	const logLevel = useLogLevel();
-	const audioContext = useSingletonAudioContext({
+	const ctxAndGain = useSingletonAudioContext({
 		logLevel,
 		latencyHint: audioLatencyHint,
 		audioEnabled,
 	});
+	const audioContextIsPlayingEventually = useRef(false);
+	const isResuming = useRef<Promise<void> | null>(null);
 
 	const audioSyncAnchor = useMemo(() => ({value: 0}), []);
+
+	const audioSyncAnchorListeners = useRef<AudioSyncAnchorListener[]>([]);
+	const audioSyncAnchorEmitter: AudioSyncAnchorEmitter = useMemo(() => {
+		return {
+			dispatch: (event) => {
+				audioSyncAnchorListeners.current.forEach((l) => l(event));
+			},
+			subscribe: (listener) => {
+				audioSyncAnchorListeners.current.push(listener);
+				return {
+					remove: () => {
+						audioSyncAnchorListeners.current =
+							audioSyncAnchorListeners.current.filter((l) => l !== listener);
+					},
+				};
+			},
+		};
+	}, []);
 
 	const prevEndTimes = useRef<{
 		scheduledEndTime: number | null;
 		mediaEndTime: number | null;
 	}>({scheduledEndTime: null, mediaEndTime: null});
 
+	const nodesToResume = useRef<Map<AudioBufferSourceNode, NodeToResume>>(
+		new Map(),
+	);
+
+	const unscheduleAudioNode = useCallback((node: AudioBufferSourceNode) => {
+		nodesToResume.current.delete(node);
+	}, []);
+
 	const scheduleAudioNode = useMemo(() => {
 		return ({
 			node,
 			mediaTimestamp,
-			targetTime,
 			currentTime,
-			sequenceEndTime,
-			sequenceStartTime,
-			debugAudioScheduling,
+			scheduledTime,
+			duration,
+			offset,
+			originalUnloopedMediaTimestamp,
 		}: ScheduleAudioNodeOptions): ScheduleAudioNodeResult => {
-			if (!audioContext) {
+			if (!ctxAndGain) {
 				throw new Error('Audio context not found');
 			}
 
-			const bufferDuration = node.buffer?.duration ?? 0;
-
-			const unclampedMediaEndTime = mediaTimestamp + bufferDuration;
-
-			const needsTrimEnd = unclampedMediaEndTime > sequenceEndTime;
-			const needsTrimStart = mediaTimestamp < sequenceStartTime;
-
-			const offsetBecauseOfTrim = needsTrimStart
-				? sequenceStartTime - mediaTimestamp
-				: 0;
-			const offsetBecauseOfTooLate = targetTime < 0 ? -targetTime : 0;
-			const offset = offsetBecauseOfTrim + offsetBecauseOfTooLate;
-
-			const duration = needsTrimEnd
-				? bufferDuration -
-					Math.max(0, unclampedMediaEndTime - sequenceEndTime) -
-					offset
-				: bufferDuration - offset;
-
-			const scheduledTime = targetTime + currentTime + offset;
-			if (offset < 0) {
-				throw new Error(
-					'offset < 0: ' +
-						JSON.stringify({
-							offset,
-							targetTime,
-							currentTime,
-							offsetBecauseOfTrim,
-							offsetBecauseOfTooLate,
-						}),
-				);
-			}
+			const saveForLater =
+				ctxAndGain.audioContext.state === 'suspended' && !isResuming.current;
 
 			if (duration > 0) {
-				node.start(scheduledTime, offset, duration);
+				if (saveForLater) {
+					nodesToResume.current.set(node, {
+						scheduledTime,
+						offset,
+						duration,
+					});
+				} else {
+					node.start(scheduledTime, offset, duration);
+				}
 			}
 
 			const scheduledEndTime =
@@ -226,8 +253,10 @@ export const SharedAudioContextProvider: React.FC<{
 
 			const mediaEndTime = mediaTime + duration;
 
-			const latency = audioContext.baseLatency + audioContext.outputLatency;
-			const timeDiff = scheduledTime - currentTime - latency;
+			const latency =
+				ctxAndGain.audioContext.baseLatency +
+				ctxAndGain.audioContext.outputLatency;
+			const timeDiff = scheduledTime - ctxAndGain.audioContext.currentTime;
 			const prev = prevEndTimes.current;
 			const scheduledMismatch =
 				prev.scheduledEndTime !== null &&
@@ -236,34 +265,38 @@ export const SharedAudioContextProvider: React.FC<{
 				prev.mediaEndTime !== null &&
 				Math.abs(mediaTime - prev.mediaEndTime) > 0.001;
 
-			if (debugAudioScheduling) {
-				Log.info(
-					{logLevel, tag: 'audio-scheduling'},
-					'scheduled %c%s%c %s %c%s%c %s %c%s%c %s %s %s',
-					scheduledMismatch ? 'color: red; font-weight: bold' : '',
-					scheduledTime.toFixed(4),
-					'',
-					scheduledEndTime.toFixed(4),
-					mediaMismatch ? 'color: red; font-weight: bold' : '',
-					mediaTime.toFixed(4),
-					'',
-					mediaEndTime.toFixed(4),
-					duration < 0
+			Log.verbose(
+				{logLevel, tag: 'audio-scheduling'},
+				'scheduled %c%s%c %s %c%s%c %s %c%s%c %s %s %s %s %s',
+				scheduledMismatch ? 'color: red; font-weight: bold' : '',
+				scheduledTime.toFixed(4),
+				'',
+				scheduledEndTime.toFixed(4),
+				mediaMismatch ? 'color: red; font-weight: bold' : '',
+				mediaTime.toFixed(4),
+				'',
+				mediaEndTime.toFixed(4),
+				duration < 0
+					? 'color: red; font-weight: bold'
+					: timeDiff < 0
 						? 'color: red; font-weight: bold'
-						: timeDiff < 0
-							? 'color: red; font-weight: bold'
-							: 'color: blue; font-weight: bold',
-					duration < 0
-						? 'missed ' + Math.abs(offset).toFixed(2) + 's'
-						: Math.abs(timeDiff).toFixed(2) +
-								(timeDiff < 0 ? ' delay' : ' ahead'),
-					'',
-					'current=' + currentTime.toFixed(4),
-					'offset=' + offset.toFixed(4),
-					'latency=' + latency.toFixed(4),
-					'state=' + audioContext.state,
-				);
-			}
+						: 'color: blue; font-weight: bold',
+				duration < 0
+					? 'missed ' + Math.abs(offset).toFixed(2) + 's'
+					: Math.abs(timeDiff).toFixed(2) +
+							(timeDiff < 0 ? ' delay' : ' ahead'),
+				'',
+				'current=' + currentTime.toFixed(4),
+				'actualcurrent=' + ctxAndGain.audioContext.currentTime.toFixed(4),
+				'offset=' + offset.toFixed(4),
+				'latency=' + latency.toFixed(4),
+				'state=' + ctxAndGain.audioContext.state,
+				originalUnloopedMediaTimestamp !== mediaTime
+					? 'original_ts=' + originalUnloopedMediaTimestamp.toFixed(4)
+					: '',
+				'action=' + (saveForLater ? 'schedule' : 'start'),
+				'',
+			);
 
 			prev.scheduledEndTime = scheduledEndTime;
 			prev.mediaEndTime = mediaEndTime;
@@ -275,9 +308,127 @@ export const SharedAudioContextProvider: React.FC<{
 					}
 				: {
 						type: 'not-started',
+						reason: 'missed ' + Math.abs(offset).toFixed(2) + 's',
 					};
 		};
-	}, [audioContext, logLevel]);
+	}, [ctxAndGain, logLevel]);
+
+	const resume = useCallback(() => {
+		if (!ctxAndGain) {
+			return Promise.resolve();
+		}
+
+		if (audioContextIsPlayingEventually.current) {
+			return Promise.resolve();
+		}
+
+		audioContextIsPlayingEventually.current = true;
+
+		ctxAndGain.gainNode.gain.cancelScheduledValues(
+			ctxAndGain.audioContext.currentTime,
+		);
+		ctxAndGain.gainNode.gain.setValueAtTime(
+			0,
+			ctxAndGain.audioContext.currentTime,
+		);
+		ctxAndGain.gainNode.gain.linearRampToValueAtTime(
+			1,
+			ctxAndGain.audioContext.currentTime + 0.03,
+		);
+
+		nodesToResume.current.forEach((r, node) => {
+			node.start(r.scheduledTime, r.offset, r.duration);
+		});
+		nodesToResume.current.clear();
+
+		const resumePromise = ctxAndGain.audioContext.resume();
+
+		isResuming.current = new Promise<void>((resolve) => {
+			waitUntilActuallyResumed(ctxAndGain.audioContext, logLevel).then(resolve);
+			resumePromise.catch((err) => {
+				Log.warn(
+					{logLevel, tag: 'audio'},
+					'AudioContext resume rejected, continuing without audio sync',
+					err,
+				);
+				resolve();
+			});
+		}).finally(() => {
+			isResuming.current = null;
+		});
+
+		return resumePromise.catch(() => {
+			// Already logged above; swallow to avoid unhandled rejection
+			// since callers (e.g. use-playback.ts) do not await this.
+		});
+	}, [ctxAndGain, logLevel]);
+
+	const getIsResumingAudioContext = useCallback(() => {
+		return isResuming.current;
+	}, []);
+
+	const suspend = useCallback(() => {
+		if (!ctxAndGain) {
+			return;
+		}
+
+		if (!audioContextIsPlayingEventually.current) {
+			return;
+		}
+
+		audioContextIsPlayingEventually.current = false;
+		ctxAndGain.audioContext.suspend();
+	}, [ctxAndGain]);
+
+	const audioContextValue: SharedAudioContextValue = useMemo(() => {
+		return {
+			audioContext: ctxAndGain?.audioContext ?? null,
+			gainNode: ctxAndGain?.gainNode ?? null,
+			audioSyncAnchor,
+			audioSyncAnchorEmitter,
+			scheduleAudioNode,
+			resume,
+			suspend,
+			getIsResumingAudioContext,
+			unscheduleAudioNode,
+		};
+	}, [
+		ctxAndGain,
+		audioSyncAnchor,
+		audioSyncAnchorEmitter,
+		scheduleAudioNode,
+		resume,
+		suspend,
+		getIsResumingAudioContext,
+		unscheduleAudioNode,
+	]);
+
+	return (
+		<SharedAudioContext.Provider value={audioContextValue}>
+			{children}
+		</SharedAudioContext.Provider>
+	);
+};
+
+export const SharedAudioTagsContextProvider: React.FC<{
+	readonly numberOfAudioTags: number;
+	readonly children: React.ReactNode;
+}> = ({children, numberOfAudioTags}) => {
+	const audios = useRef<AudioElem[]>([]);
+	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
+
+	if (numberOfAudioTags !== initialNumberOfAudioTags) {
+		throw new Error(
+			'The number of shared audio tags has changed dynamically. Once you have set this property, you cannot change it afterwards.',
+		);
+	}
+
+	const logLevel = useLogLevel();
+	const mountTime = useMountTime();
+	const env = useRemotionEnvironment();
+	const audioCtx = useContext(SharedAudioContext);
+	const audioContext = audioCtx?.audioContext ?? null;
+	const resume = audioCtx?.resume;
 
 	const refs = useMemo(() => {
 		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
@@ -472,10 +623,6 @@ export const SharedAudioContextProvider: React.FC<{
 		[rerenderAudios],
 	);
 
-	const mountTime = useMountTime();
-
-	const env = useRemotionEnvironment();
-
 	const playAllAudios = useCallback(() => {
 		refs.forEach((ref) => {
 			const audio = audios.current.find((a) => a.el === ref.ref);
@@ -493,19 +640,16 @@ export const SharedAudioContextProvider: React.FC<{
 				isPlayer: env.isPlayer,
 			});
 		});
-		audioContext?.resume();
-	}, [audioContext, logLevel, mountTime, refs, env.isPlayer]);
+		resume?.();
+	}, [logLevel, mountTime, refs, env.isPlayer, resume]);
 
-	const value: SharedContext = useMemo(() => {
+	const audioTagsValue: SharedAudioTagsContextValue = useMemo(() => {
 		return {
 			registerAudio,
 			unregisterAudio,
 			updateAudio,
 			playAllAudios,
 			numberOfAudioTags,
-			audioContext,
-			audioSyncAnchor,
-			scheduleAudioNode,
 		};
 	}, [
 		numberOfAudioTags,
@@ -513,13 +657,10 @@ export const SharedAudioContextProvider: React.FC<{
 		registerAudio,
 		unregisterAudio,
 		updateAudio,
-		audioContext,
-		audioSyncAnchor,
-		scheduleAudioNode,
 	]);
 
 	return (
-		<SharedAudioContext.Provider value={value}>
+		<SharedAudioTagsContext.Provider value={audioTagsValue}>
 			{refs.map(({id, ref}) => {
 				return (
 					// Without preload="metadata", iOS will seek the time internally
@@ -529,7 +670,7 @@ export const SharedAudioContextProvider: React.FC<{
 				);
 			})}
 			{children}
-		</SharedAudioContext.Provider>
+		</SharedAudioTagsContext.Provider>
 	);
 };
 
@@ -544,21 +685,22 @@ export const useSharedAudio = ({
 	premounting: boolean;
 	postmounting: boolean;
 }) => {
-	const ctx = useContext(SharedAudioContext);
+	const audioCtx = useContext(SharedAudioContext);
+	const tagsCtx = useContext(SharedAudioTagsContext);
 
 	/**
 	 * We work around this in React 18 so an audio tag will only register itself once
 	 */
 	const [elem] = useState((): AudioElem => {
-		if (ctx && ctx.numberOfAudioTags > 0) {
-			return ctx.registerAudio({aud, audioId, premounting, postmounting});
+		if (tagsCtx && tagsCtx.numberOfAudioTags > 0) {
+			return tagsCtx.registerAudio({aud, audioId, premounting, postmounting});
 		}
 
 		// numberOfSharedAudioTags is 0
 		const el = React.createRef<HTMLAudioElement>();
-		const mediaElementSourceNode = ctx?.audioContext
+		const mediaElementSourceNode = audioCtx?.audioContext
 			? makeSharedElementSourceNode({
-					audioContext: ctx.audioContext,
+					audioContext: audioCtx.audioContext,
 					ref: el,
 				})
 			: null;
@@ -589,18 +731,24 @@ export const useSharedAudio = ({
 
 	if (typeof document !== 'undefined') {
 		effectToUse(() => {
-			if (ctx && ctx.numberOfAudioTags > 0) {
-				ctx.updateAudio({id: elem.id, aud, audioId, premounting, postmounting});
+			if (tagsCtx && tagsCtx.numberOfAudioTags > 0) {
+				tagsCtx.updateAudio({
+					id: elem.id,
+					aud,
+					audioId,
+					premounting,
+					postmounting,
+				});
 			}
-		}, [aud, ctx, elem.id, audioId, premounting, postmounting]);
+		}, [aud, tagsCtx, elem.id, audioId, premounting, postmounting]);
 
 		effectToUse(() => {
 			return () => {
-				if (ctx && ctx.numberOfAudioTags > 0) {
-					ctx.unregisterAudio(elem.id);
+				if (tagsCtx && tagsCtx.numberOfAudioTags > 0) {
+					tagsCtx.unregisterAudio(elem.id);
 				}
 			};
-		}, [ctx, elem.id]);
+		}, [tagsCtx, elem.id]);
 	}
 
 	return elem;

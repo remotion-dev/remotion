@@ -33,7 +33,6 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	publicPath,
 	audioLatencyHint,
 	experimentalClientSideRenderingEnabled,
-	experimentalVisualModeEnabled,
 	askAIEnabled,
 	keyboardShortcutsEnabled,
 	rspack,
@@ -58,7 +57,6 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	publicPath: string | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	experimentalClientSideRenderingEnabled: boolean;
-	experimentalVisualModeEnabled: boolean;
 	askAIEnabled: boolean;
 	keyboardShortcutsEnabled: boolean;
 	rspack: boolean;
@@ -104,7 +102,6 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		publicPath,
 		audioLatencyHint,
 		experimentalClientSideRenderingEnabled,
-		experimentalVisualModeEnabled,
 		askAIEnabled,
 		keyboardShortcutsEnabled,
 		rspack,
@@ -134,7 +131,6 @@ export const bundleOnCli = async ({
 	publicPath,
 	audioLatencyHint,
 	experimentalClientSideRenderingEnabled,
-	experimentalVisualModeEnabled,
 	askAIEnabled,
 	keyboardShortcutsEnabled,
 	rspack,
@@ -159,7 +155,6 @@ export const bundleOnCli = async ({
 	publicPath: string | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	experimentalClientSideRenderingEnabled: boolean;
-	experimentalVisualModeEnabled: boolean;
 	keyboardShortcutsEnabled: boolean;
 	askAIEnabled: boolean;
 	rspack: boolean;
@@ -239,7 +234,6 @@ export const bundleOnCli = async ({
 		bufferStateDelayInMilliseconds,
 		maxTimelineTracks,
 		experimentalClientSideRenderingEnabled,
-		experimentalVisualModeEnabled,
 	});
 	const cacheExistedBefore = BundlerInternals.cacheExists(
 		remotionRoot,
@@ -265,6 +259,7 @@ export const bundleOnCli = async ({
 		cancelSignal: null,
 		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 		indent,
+		logLevel,
 	});
 
 	let bundlingState: BundlingState = {
@@ -289,7 +284,6 @@ export const bundleOnCli = async ({
 		bufferStateDelayInMilliseconds,
 		audioLatencyHint,
 		experimentalClientSideRenderingEnabled,
-		experimentalVisualModeEnabled,
 		renderDefaults: getRenderDefaults(),
 	});
 

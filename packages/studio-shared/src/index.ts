@@ -8,7 +8,6 @@ export {
 	ApplyVisualControlResponse,
 	CanUpdateDefaultPropsResponse,
 	CanUpdateSequencePropsRequest,
-	CanUpdateSequencePropsResponse,
 	CancelRenderRequest,
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse,
@@ -32,8 +31,6 @@ export {
 	RestartStudioRequest,
 	RestartStudioResponse,
 	SaveSequencePropsRequest,
-	SaveSequencePropsResponse,
-	SequenceNodePath,
 	SimpleDiff,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
@@ -95,7 +92,17 @@ export {
 	UiOpenGlOptions,
 } from './render-job';
 export type {CompletedClientRender} from './render-job';
-export {SOURCE_MAP_ENDPOINT} from './source-map-endpoint';
+export {
+	SCHEMA_FIELD_ROW_HEIGHT,
+	UNSUPPORTED_FIELD_ROW_HEIGHT,
+	getFieldsToShow,
+} from './schema-field-info';
+export type {
+	CodeValues,
+	DragOverrides,
+	SchemaFieldInfo,
+	SequenceControls,
+} from './schema-field-info';
 export {
 	ScriptLine,
 	SomeStackFrame,
@@ -105,3 +112,4 @@ export {
 export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 
 export type {VisualControlChange} from './codemods';
+export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';

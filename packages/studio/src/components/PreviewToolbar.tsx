@@ -82,7 +82,7 @@ export const PreviewToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, bufferStateDelayInMilliseconds}) => {
-	const {playbackRate, setPlaybackRate} = Internals.useTimelineContext();
+	const {playbackRate, setPlaybackRate} = Internals.usePlaybackRate();
 
 	const {mediaMuted} = useContext(Internals.MediaVolumeContext);
 	const {setMediaMuted} = useContext(Internals.SetMediaVolumeContext);
@@ -185,6 +185,7 @@ export const PreviewToolbar: React.FC<{
 						bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
 						loop={loop}
 						playbackRate={playbackRate}
+						muted={mediaMuted}
 					/>
 					<Spacing x={2} />
 					<LoopToggle loop={loop} setLoop={setLoop} />

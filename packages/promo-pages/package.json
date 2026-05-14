@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/promo-pages",
-	"version": "4.0.448",
+	"version": "4.0.461",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -25,7 +25,7 @@
 		"polished": "4.3.1",
 		"remotion": "workspace:*",
 		"zod": "catalog:",
-		"@mux/upchunk": "^3.5.0",
+		"@mux/upchunk": "3.5.0",
 		"@vidstack/react": "1.12.13",
 		"bun-plugin-tailwind": "0.1.2",
 		"@mediabunny/ac3": "catalog:",
@@ -41,7 +41,7 @@
 		"eslint": "catalog:",
 		"eslint-config-next": "15.1.6",
 		"plyr": "3.7.3",
-		"postcss": "8.4.47",
+		"postcss": "8.5.10",
 		"tailwindcss": "4.2.0",
 		"@tailwindcss/cli": "4.2.0",
 		"react": "catalog:",

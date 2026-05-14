@@ -102,6 +102,38 @@ The function will load the audio data around the current frame and the windows b
 
 In this example, the window is 10 seconds long, so the function will load the current window as well as the previous and next one, leading to up to 30 seconds of audio being loaded at a time.
 
+### `requestInit?`<AvailableFrom v="4.0.458"/>
+
+_`RequestInit`_
+
+Options that are passed to the requests that load the audio source.
+
+This can be used to load authenticated remote audio files:
+
+```tsx twoslash
+// ---cut---
+import {useWindowedAudioData} from '@remotion/media-utils';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComponent: React.FC = () => {
+  const {fps} = useVideoConfig();
+  const frame = useCurrentFrame();
+  const {audioData} = useWindowedAudioData({
+    src: 'https://example.com/authenticated-audio.mp3',
+    frame,
+    fps,
+    windowInSeconds: 10,
+    requestInit: {
+      credentials: 'include',
+    },
+  });
+
+  return audioData ? <div>Audio data loaded</div> : null;
+};
+```
+
+Only the `requestInit` from the **first** render is used; updates on later renders are ignored. That keeps hook dependencies stable when you pass an inline object every render (for example `{credentials: 'include'}`).
+
 ## Return value
 
 An object with:

@@ -57,6 +57,7 @@ export async function renderMediaOnVercel({
 	offthreadVideoCacheSizeInBytes,
 	mediaCacheSizeInBytes,
 	offthreadVideoThreads,
+	sampleRate,
 }: {
 	sandbox: Sandbox;
 	compositionId: string;
@@ -97,6 +98,7 @@ export async function renderMediaOnVercel({
 	offthreadVideoCacheSizeInBytes?: number | null;
 	mediaCacheSizeInBytes?: number | null;
 	offthreadVideoThreads?: number | null;
+	sampleRate?: number;
 }): Promise<{sandboxFilePath: string; contentType: string}> {
 	const serveUrl = `/vercel/sandbox/${REMOTION_SANDBOX_BUNDLE_DIR}`;
 
@@ -143,6 +145,7 @@ export async function renderMediaOnVercel({
 		browserExecutable: null,
 		binariesDirectory: null,
 		repro: false,
+		sampleRate: sampleRate ?? 48000,
 	};
 
 	const renderCmd = await sandbox.runCommand({

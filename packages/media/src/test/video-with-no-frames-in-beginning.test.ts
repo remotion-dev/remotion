@@ -22,9 +22,9 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		throw new Error('No video track found');
 	}
 
-	const manager = videoIteratorManager({
+	const manager = await videoIteratorManager({
 		getIsLooping: () => false,
-		getEndTime: () => {
+		getLoopSegmentMediaEndTimestamp: () => {
 			throw new Error('not implemented');
 		},
 		getStartTime: () => {
@@ -40,6 +40,9 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		drawDebugOverlay: () => {},
 		logLevel: 'info',
 		getOnVideoFrameCallback: () => null,
+		getEffects: () => [],
+		getEffectChainState: () => null,
+		getCurrentFrame: () => 0,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -89,45 +92,69 @@ test('same goes for audio', async () => {
 			unblock: () => {},
 			[Symbol.dispose]: () => {},
 		}),
-		sharedAudioContext: {
-			audioContext: new AudioContext(),
-			audioSyncAnchor: {value: 0},
-			scheduleAudioNode: () => ({
-				type: 'started',
-				scheduledTime: 0,
-			}),
-		},
-		getIsLooping: () => false,
-		getEndTime: () => Infinity,
+		sharedAudioContext: (() => {
+			const audioContext = new AudioContext();
+			return {
+				audioContext,
+				gainNode: audioContext.createGain(),
+				audioSyncAnchor: {value: 0},
+				scheduleAudioNode: () => ({
+					type: 'started',
+					scheduledTime: 0,
+				}),
+				unscheduleAudioNode: () => {},
+			};
+		})(),
+		getMediaEndTimestamp: () => Infinity,
+		getSequenceEndTimestamp: () => Infinity,
+		getSequenceDurationInSeconds: () => 10,
 		getStartTime: () => 0,
 		initialMuted: false,
 		drawDebugOverlay: () => {},
+		initialPlaybackRate: 1,
+		initialTrimBefore: undefined,
+		initialTrimAfter: undefined,
+		initialSequenceOffset: 0,
+		initialSequenceDurationInFrames: 10,
+		initialLoop: false,
+		initialFps: 30,
 	});
 
 	const nonceManager = makeNonceManager();
 
-	await manager.startAudioIterator({
+	manager.startAudioIterator({
 		nonce: nonceManager.createAsyncOperation(),
 		playbackRate: 1,
 		startFromSecond: 0.06671494248275864,
-		getIsPlaying: () => true,
 		scheduleAudioNode: () => ({
 			type: 'started',
 			scheduledTime: 0,
 		}),
-		debugAudioScheduling: false,
+		getTargetTime: (mediaTimestamp: number) => mediaTimestamp,
+		logLevel: 'info',
+		loop: false,
+		unscheduleAudioNode: () => {},
+		getAudioContextCurrentTimeMockedInTest: () => 0,
 	});
 
-	await manager.seek({
+	await manager.waitForNScheduledNodes(2);
+	manager.seek({
 		newTime: 0.10007241372413796,
 		nonce: nonceManager.createAsyncOperation(),
 		playbackRate: 1,
-		getIsPlaying: () => true,
 		scheduleAudioNode: () => ({
 			type: 'started',
 			scheduledTime: 0,
 		}),
-		debugAudioScheduling: false,
+		getTargetTime: (mediaTimestamp: number) => mediaTimestamp,
+		logLevel: 'info',
+		loop: false,
+		trimBefore: undefined,
+		trimAfter: undefined,
+		sequenceOffset: 0,
+		sequenceDurationInFrames: 10,
+		fps: 30,
+		getAudioContextCurrentTimeMockedInTest: () => 0,
 	});
 
 	const iterators = manager.getAudioIteratorsCreated();

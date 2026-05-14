@@ -27,6 +27,7 @@ import {
 	getActualVideoOperation,
 } from '~/lib/get-audio-video-config-index';
 import {getDefaultOutputFormat} from '~/lib/get-default-output-format';
+import {getDurationOrCompute} from '~/lib/get-duration-or-compute';
 import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
 import {isSubmitDisabled} from '~/lib/is-submit-enabled';
@@ -221,7 +222,7 @@ const ConvertUI = ({
 				target: new StreamTarget(stream),
 			});
 
-			const duration = await input.computeDuration();
+			const duration = await getDurationOrCompute(input);
 			waveform.setDuration(duration);
 
 			let videoFrames = 0;

@@ -16,6 +16,9 @@ packages/cloudrun/remotion-lambda-gcp.code-workspace
 .terraform*
 packages/example/sa-key.json
 packages/example/public/pts-framermp4withoutfileextension.mp4
+packages/example/public/long-audio.wav
+packages/example/public/long-audio.mp3
+packages/example/public/long-audio.aac
 packages/it-tests/packages/example/out/element-2.png
 packages/cloudrun/src/gcpInstaller/terraform*
 packages/cloudrun/src/gcpInstaller/*.tfplan

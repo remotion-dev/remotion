@@ -3,9 +3,8 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda-client"
 	},
 	"name": "@remotion/lambda-client",
-	"version": "4.0.448",
+	"version": "4.0.461",
 	"main": "dist/cjs/index.js",
-	"sideEffects": false,
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
@@ -28,7 +27,7 @@
 		"mime-types": "2.1.34",
 		"@aws-sdk/credential-provider-ini": "catalog:",
 		"@remotion/serverless-client": "workspace:*",
-		"@types/express": "^5.0.0",
+		"@types/express": "5.0.1",
 		"express": "4.21.0",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",

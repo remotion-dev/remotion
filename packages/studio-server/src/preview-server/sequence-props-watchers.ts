@@ -1,14 +1,12 @@
 import path from 'node:path';
-import type {
-	CanUpdateSequencePropsResponse,
-	SequenceNodePath,
-} from '@remotion/studio-shared';
+import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
+import type {CanUpdateSequencePropsResponse, SequenceNodePath} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
 import {getCachedNodePath, setCachedNodePath} from './node-path-cache';
 import {
 	computeSequencePropsStatusFromContent,
-	computeSequencePropsStatusByLine,
+	computeSequencePropsStatusFromFilenameByLine,
 	computeSequencePropsStatus,
 } from './routes/can-update-sequence-props';
 
@@ -29,6 +27,45 @@ const makeWatcherKey = ({
 	return `${absolutePath}:${JSON.stringify(nodePath)}`;
 };
 
+const getSequencePropsStatus = ({
+	fileName,
+	line,
+	column,
+	keys,
+	remotionRoot,
+}: {
+	fileName: string;
+	line: number;
+	column: number;
+	keys: string[];
+	remotionRoot: string;
+}): SubscribeToSequencePropsResponse => {
+	// Try cached nodePath first (handles stale source maps after suppressed rebuilds)
+	const cachedNodePath = getCachedNodePath(fileName, line, column);
+
+	if (cachedNodePath) {
+		const cachedResult = computeSequencePropsStatus({
+			fileName,
+			nodePath: cachedNodePath,
+			keys,
+			remotionRoot,
+		});
+
+		if (cachedResult.canUpdate) {
+			return {status: cachedResult, nodePath: cachedNodePath, success: true};
+		}
+	}
+
+	const status = computeSequencePropsStatusFromFilenameByLine({
+		fileName,
+		line,
+		keys,
+		remotionRoot,
+	});
+
+	return status;
+};
+
 export const subscribeToSequencePropsWatchers = ({
 	fileName,
 	line,
@@ -43,43 +80,20 @@ export const subscribeToSequencePropsWatchers = ({
 	keys: string[];
 	remotionRoot: string;
 	clientId: string;
-}): CanUpdateSequencePropsResponse => {
-	const absolutePath = path.resolve(remotionRoot, fileName);
+}): SubscribeToSequencePropsResponse => {
+	const initialResult = getSequencePropsStatus({
+		fileName,
+		line,
+		column,
+		keys,
+		remotionRoot,
+	});
 
-	// Try cached nodePath first (handles stale source maps after suppressed rebuilds)
-	const cachedNodePath = getCachedNodePath(fileName, line, column);
-	let initialResult: CanUpdateSequencePropsResponse;
-
-	if (cachedNodePath) {
-		const cachedResult = computeSequencePropsStatus({
-			fileName,
-			nodePath: cachedNodePath,
-			keys,
-			remotionRoot,
-		});
-		if (cachedResult.canUpdate) {
-			initialResult = cachedResult;
-		} else {
-			// Cached nodePath no longer valid, fall back to line-based lookup
-			initialResult = computeSequencePropsStatusByLine({
-				fileName,
-				line,
-				keys,
-				remotionRoot,
-			});
-		}
-	} else {
-		initialResult = computeSequencePropsStatusByLine({
-			fileName,
-			line,
-			keys,
-			remotionRoot,
-		});
-	}
-
-	if (!initialResult.canUpdate) {
+	if (!initialResult.success) {
 		return initialResult;
 	}
+
+	const absolutePath = path.resolve(remotionRoot, fileName);
 
 	// Cache the resolved nodePath for future lookups with stale source maps
 	setCachedNodePath(fileName, line, column, initialResult.nodePath);

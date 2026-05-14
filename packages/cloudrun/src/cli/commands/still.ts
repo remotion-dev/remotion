@@ -225,6 +225,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		cancelSignal: null,
 		updatesDontOverwrite: false,
 		indent: false,
+		logLevel,
 	});
 
 	type DoneIn = number | null;

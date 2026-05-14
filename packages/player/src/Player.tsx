@@ -12,6 +12,7 @@ import type {
 	AnyZodObject,
 	CompProps,
 	LogLevel,
+	PlaybackRateContextValue,
 	PlayableMediaTag,
 	SetTimelineContextValue,
 	TimelineContextValue,
@@ -97,6 +98,7 @@ export type PlayerProps<
 	readonly acknowledgeRemotionLicense?: boolean;
 	readonly audioLatencyHint?: AudioContextLatencyCategory;
 	readonly volumePersistenceKey?: string;
+	readonly initialVolume?: number;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -165,8 +167,9 @@ const PlayerFn = <
 		logLevel = 'info',
 		noSuspense,
 		acknowledgeRemotionLicense,
-		audioLatencyHint = 'interactive',
+		audioLatencyHint = 'playback',
 		volumePersistenceKey,
+		initialVolume,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -320,6 +323,27 @@ const PlayerFn = <
 	}
 
 	if (
+		typeof initialVolume !== 'undefined' &&
+		typeof initialVolume !== 'number'
+	) {
+		throw new TypeError(
+			`'initialVolume' must be a number or undefined but got '${typeof initialVolume}' instead`,
+		);
+	}
+
+	if (
+		typeof initialVolume === 'number' &&
+		(!Number.isFinite(initialVolume) ||
+			Number.isNaN(initialVolume) ||
+			initialVolume < 0 ||
+			initialVolume > 1)
+	) {
+		throw new TypeError(
+			`'initialVolume' must be between 0 and 1 but got '${initialVolume}' instead`,
+		);
+	}
+
+	if (
 		typeof numberOfSharedAudioTags !== 'number' ||
 		numberOfSharedAudioTags % 1 !== 0 ||
 		!Number.isFinite(numberOfSharedAudioTags) ||
@@ -355,14 +379,17 @@ const PlayerFn = <
 			frame,
 			playing,
 			rootId,
-			playbackRate: currentPlaybackRate,
 			imperativePlaying,
-			setPlaybackRate: (rate) => {
-				setCurrentPlaybackRate(rate);
-			},
 			audioAndVideoTags,
 		};
-	}, [frame, currentPlaybackRate, playing, rootId]);
+	}, [frame, playing, rootId]);
+
+	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
+		return {
+			playbackRate: currentPlaybackRate,
+			setPlaybackRate: setCurrentPlaybackRate,
+		};
+	}, [currentPlaybackRate]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
@@ -399,6 +426,7 @@ const PlayerFn = <
 		<Internals.IsPlayerContextProvider>
 			<SharedPlayerContexts
 				timelineContext={timelineContextValue}
+				playbackRateContext={playbackRateContextValue}
 				component={component}
 				compositionHeight={compositionHeight}
 				compositionWidth={compositionWidth}
@@ -409,6 +437,7 @@ const PlayerFn = <
 				logLevel={logLevel}
 				audioLatencyHint={audioLatencyHint}
 				volumePersistenceKey={volumePersistenceKey}
+				initialVolume={initialVolume}
 				inputProps={actualInputProps}
 				audioEnabled
 			>

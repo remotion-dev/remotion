@@ -1,6 +1,7 @@
 import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import React, {useCallback, useState} from 'react';
 import {Button} from '../../components/Button';
+import {openInEditor} from '../../helpers/open-in-editor';
 import {CaretDown, CaretRight} from './carets';
 import {CodeFrame} from './CodeFrame';
 import {formatLocation} from './format-location';
@@ -46,6 +47,20 @@ export const StackElement: React.FC<{
 				!s.originalFileName?.startsWith('webpack/')) ||
 			isFirst,
 	);
+	const [locationHovered, setLocationHovered] = useState(false);
+	const canOpenFileLocation = Boolean(
+		window.remotion_editorName && s.originalFileName,
+	);
+	const onOpenFileLocation = useCallback(() => {
+		if (!canOpenFileLocation) {
+			return;
+		}
+
+		openInEditor(s).catch((err: unknown) => {
+			// eslint-disable-next-line no-console
+			console.log('Could not open in editor', err);
+		});
+	}, [canOpenFileLocation, s]);
 	const toggleCodeFrame = useCallback(() => {
 		setShowCodeFrame((f) => !f);
 	}, []);
@@ -58,8 +73,31 @@ export const StackElement: React.FC<{
 					</div>
 					{s.originalFileName ? (
 						<div style={location}>
-							{formatLocation(s.originalFileName as string)}:
-							{s.originalLineNumber}
+							{canOpenFileLocation ? (
+								<span
+									onClick={onOpenFileLocation}
+									onPointerEnter={() => {
+										setLocationHovered(true);
+									}}
+									onPointerLeave={() => {
+										setLocationHovered(false);
+									}}
+									style={{
+										...location,
+										cursor: 'pointer',
+										textDecoration: locationHovered ? 'underline' : 'none',
+										textUnderlineOffset: locationHovered ? 4 : undefined,
+									}}
+								>
+									{formatLocation(s.originalFileName as string)}:
+									{s.originalLineNumber}
+								</span>
+							) : (
+								<>
+									{formatLocation(s.originalFileName as string)}:
+									{s.originalLineNumber}
+								</>
+							)}
 						</div>
 					) : null}
 				</div>

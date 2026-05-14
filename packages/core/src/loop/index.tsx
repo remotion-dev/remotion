@@ -1,6 +1,6 @@
 import React, {createContext, useMemo} from 'react';
 import type {LoopDisplay} from '../CompositionManager.js';
-import type {LayoutAndStyle} from '../Sequence.js';
+import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useVideoConfig} from '../use-video-config.js';
@@ -13,7 +13,8 @@ export type LoopProps = {
 	readonly times?: number;
 	readonly name?: string;
 	readonly children: React.ReactNode;
-} & LayoutAndStyle;
+} & LayoutAndStyle &
+	Pick<SequenceProps, 'showInTimeline'>;
 
 type LoopContextType = {
 	iteration: number;
@@ -32,7 +33,14 @@ const useLoop = () => {
  */
 export const Loop: React.FC<LoopProps> & {
 	useLoop: typeof useLoop;
-} = ({durationInFrames, times = Infinity, children, name, ...props}) => {
+} = ({
+	durationInFrames,
+	times = Infinity,
+	children,
+	name,
+	showInTimeline,
+	...props
+}) => {
 	const currentFrame = useCurrentFrame();
 	const {durationInFrames: compDuration} = useVideoConfig();
 
@@ -91,6 +99,7 @@ export const Loop: React.FC<LoopProps> & {
 				_remotionInternalLoopDisplay={loopDisplay}
 				layout={props.layout}
 				style={style}
+				showInTimeline={showInTimeline}
 			>
 				{children}
 			</Sequence>

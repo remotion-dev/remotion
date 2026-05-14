@@ -5,7 +5,6 @@ import {PlayerEventEmitterContext} from './emitter-context.js';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {CallbackListener, PlayerEventTypes} from './event-emitter.js';
 import {PlayerEmitter} from './event-emitter.js';
-import {useFrameImperative} from './use-frame-imperative.js';
 import {useHoverState} from './use-hover-state.js';
 import {usePlayback} from './use-playback.js';
 import {usePlayer} from './use-player.js';
@@ -46,5 +45,4 @@ export const PlayerInternals = {
 	updateAllElementsSizes,
 	PlayerEmitterProvider,
 	BufferingIndicator,
-	useFrameImperative,
 };

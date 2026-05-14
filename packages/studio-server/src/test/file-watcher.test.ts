@@ -7,21 +7,6 @@ import {createFileWatcherRegistry} from '../file-watcher';
 
 const tmpDir = os.tmpdir();
 
-const waitFor = async (
-	predicate: () => boolean,
-	timeoutMs = 5_000,
-	intervalMs = 50,
-): Promise<void> => {
-	const deadline = Date.now() + timeoutMs;
-	while (!predicate()) {
-		if (Date.now() >= deadline) {
-			throw new Error(`waitFor timed out after ${timeoutMs}ms`);
-		}
-
-		await new Promise((resolve) => setTimeout(resolve, intervalMs));
-	}
-};
-
 let registry: ReturnType<typeof createFileWatcherRegistry>;
 let tmpFile: string;
 
@@ -257,8 +242,18 @@ test('existenceOnly does not read the file when content changes', async () => {
 	readSpy.mockRestore();
 });
 
-test('existenceOnly emits created with empty content when file appears', async () => {
+test('existenceOnly emits created with empty content when file appears', () => {
 	const newFile = path.join(tmpDir, `existence-created-${Date.now()}.txt`);
+
+	let capturedListener: (() => void) | null = null;
+	const watchFileSpy = spyOn(fs, 'watchFile').mockImplementation(((
+		_filename: any,
+		_options: any,
+		listener: any,
+	) => {
+		capturedListener = listener;
+		return {} as fs.StatWatcher;
+	}) as typeof fs.watchFile);
 
 	const cb = mock(() => {});
 
@@ -271,16 +266,26 @@ test('existenceOnly emits created with empty content when file appears', async (
 	expect(w.exists).toBe(false);
 
 	writeFileSync(newFile, 'hello');
-
-	await waitFor(() => cb.mock.calls.length > 0);
+	capturedListener!();
 
 	expect(cb).toHaveBeenCalledWith({type: 'created', content: ''});
 
 	w.unwatch();
 	unlinkSync(newFile);
+	watchFileSpy.mockRestore();
 });
 
-test('existenceOnly emits deleted when file is removed', async () => {
+test('existenceOnly emits deleted when file is removed', () => {
+	let capturedListener: (() => void) | null = null;
+	const watchFileSpy = spyOn(fs, 'watchFile').mockImplementation(((
+		_filename: any,
+		_options: any,
+		listener: any,
+	) => {
+		capturedListener = listener;
+		return {} as fs.StatWatcher;
+	}) as typeof fs.watchFile);
+
 	const cb = mock(() => {});
 
 	const w = registry.installFileWatcher({
@@ -292,12 +297,12 @@ test('existenceOnly emits deleted when file is removed', async () => {
 	expect(w.exists).toBe(true);
 
 	unlinkSync(tmpFile);
-
-	await waitFor(() => cb.mock.calls.length > 0);
+	capturedListener!();
 
 	expect(cb).toHaveBeenCalledWith({type: 'deleted'});
 
 	w.unwatch();
+	watchFileSpy.mockRestore();
 });
 
 test('existenceOnly and content watchers on the same path use separate OS watchers', () => {

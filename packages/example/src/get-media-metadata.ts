@@ -12,8 +12,8 @@ export const getMediaMetadata = async (src: string) => {
 	const videoTrack = await input.getPrimaryVideoTrack();
 	const dimensions = videoTrack
 		? {
-				width: videoTrack.displayWidth,
-				height: videoTrack.displayHeight,
+				width: await videoTrack.getDisplayWidth(),
+				height: await videoTrack.getDisplayHeight(),
 			}
 		: null;
 	const packetStats = await videoTrack?.computePacketStats(50);

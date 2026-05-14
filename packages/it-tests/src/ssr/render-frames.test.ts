@@ -12,60 +12,64 @@ import {
 
 const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
 
-test('Legacy SSR way of rendering videos should still work', async () => {
-	const puppeteerInstance = await openBrowser('chrome');
-	const compositions = await getCompositions(exampleBuild, {
-		puppeteerInstance,
-		inputProps: {},
-	});
+test(
+	'Legacy SSR way of rendering videos should still work',
+	async () => {
+		const puppeteerInstance = await openBrowser('chrome');
+		const compositions = await getCompositions(exampleBuild, {
+			puppeteerInstance,
+			inputProps: {},
+		});
 
-	const reactSvg = compositions.find((c) => c.id === '22khz');
+		const reactSvg = compositions.find((c) => c.id === '22khz');
 
-	if (!reactSvg) {
-		throw new Error('not found');
-	}
+		if (!reactSvg) {
+			throw new Error('not found');
+		}
 
-	const tmpDir = os.tmpdir();
+		const tmpDir = os.tmpdir();
 
-	// We create a temporary directory for storing the frames
-	const framesDir = await fs.promises.mkdtemp(
-		path.join(os.tmpdir(), 'remotion-'),
-	);
+		// We create a temporary directory for storing the frames
+		const framesDir = await fs.promises.mkdtemp(
+			path.join(os.tmpdir(), 'remotion-'),
+		);
 
-	const outPath = path.join(tmpDir, 'out.mp4');
+		const outPath = path.join(tmpDir, 'out.mp4');
 
-	const {assetsInfo} = await renderFrames({
-		composition: reactSvg,
-		imageFormat: 'jpeg',
-		inputProps: {},
-		onFrameUpdate: () => undefined,
-		serveUrl: exampleBuild,
-		concurrency: null,
-		frameRange: [0, 10],
-		outputDir: framesDir,
-		onStart: () => undefined,
-	});
-	await stitchFramesToVideo({
-		assetsInfo,
-		force: true,
-		fps: reactSvg.fps,
-		height: reactSvg.height,
-		outputLocation: outPath,
-		width: reactSvg.width,
-		codec: 'h264',
-		metadata: {Author: 'Lunar'},
-	});
-	expect(fs.existsSync(outPath)).toBe(true);
-	const probe = await RenderInternals.callFf({
-		bin: 'ffprobe',
-		args: [outPath],
-		indent: false,
-		logLevel: 'info',
-		binariesDirectory: null,
-		cancelSignal: undefined,
-	});
-	expect(probe.stderr).toMatch(/Video: h264/);
+		const {assetsInfo} = await renderFrames({
+			composition: reactSvg,
+			imageFormat: 'jpeg',
+			inputProps: {},
+			onFrameUpdate: () => undefined,
+			serveUrl: exampleBuild,
+			concurrency: null,
+			frameRange: [0, 10],
+			outputDir: framesDir,
+			onStart: () => undefined,
+		});
+		await stitchFramesToVideo({
+			assetsInfo,
+			force: true,
+			fps: reactSvg.fps,
+			height: reactSvg.height,
+			outputLocation: outPath,
+			width: reactSvg.width,
+			codec: 'h264',
+			metadata: {Author: 'Lunar'},
+		});
+		expect(fs.existsSync(outPath)).toBe(true);
+		const probe = await RenderInternals.callFf({
+			bin: 'ffprobe',
+			args: [outPath],
+			indent: false,
+			logLevel: 'info',
+			binariesDirectory: null,
+			cancelSignal: undefined,
+		});
+		expect(probe.stderr).toMatch(/Video: h264/);
 
-	RenderInternals.deleteDirectory(framesDir);
-	await puppeteerInstance.close({silent: false});
-});
+		RenderInternals.deleteDirectory(framesDir);
+		await puppeteerInstance.close({silent: false});
+	},
+	{retry: 3},
+);

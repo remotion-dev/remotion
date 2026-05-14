@@ -30,8 +30,9 @@ let lastTimelinePositionWhileScrolling: TimelinePosition | null = null;
 
 export const TimelinePlayCursorSyncer: React.FC = () => {
 	const video = Internals.useVideo();
-	const timelineContext = Internals.useTimelineContext();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const [playing] = Internals.Timeline.usePlayingState();
+	const {playbackRate} = Internals.usePlaybackRate();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 
@@ -50,8 +51,6 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 		setCurrentFps(video.fps);
 	}
 
-	const playing = timelineContext.playing ?? false;
-
 	/**
 	 * While playing (forwards or backwards), jump one viewport width to the left or right when the cursor goes out of the viewport.
 	 */
@@ -65,11 +64,11 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 		}
 
 		ensureFrameIsInViewport({
-			direction: timelineContext.playbackRate > 0 ? 'page-right' : 'page-left',
+			direction: playbackRate > 0 ? 'page-right' : 'page-left',
 			durationInFrames: video.durationInFrames,
 			frame: timelinePosition,
 		});
-	}, [playing, timelineContext, timelinePosition, video]);
+	}, [playbackRate, playing, timelinePosition, video]);
 
 	/**
 	 * Restore state if `enter` is being pressed
