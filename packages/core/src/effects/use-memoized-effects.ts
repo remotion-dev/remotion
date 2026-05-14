@@ -79,7 +79,9 @@ export const useMemoizedEffects = (
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
-	const nodePath = overrideId ? overrideIdToNodePathMappings[overrideId] : null;
+	const nodePath = overrideId
+		? (overrideIdToNodePathMappings[overrideId] ?? null)
+		: null;
 
 	const resolved = effects.map((descriptor) => {
 		if (nodePath === null) {
