@@ -1468,6 +1468,23 @@
         "remotion": "workspace:*",
       },
     },
+    "packages/skills-evals": {
+      "name": "@remotion/skills-evals",
+      "version": "4.0.460",
+      "dependencies": {
+        "@remotion/skills": "workspace:*",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+      },
+    },
     "packages/starburst": {
       "name": "@remotion/starburst",
       "version": "4.0.461",
@@ -3978,6 +3995,8 @@
     "@remotion/skia": ["@remotion/skia@workspace:packages/skia"],
 
     "@remotion/skills": ["@remotion/skills@workspace:packages/skills"],
+
+    "@remotion/skills-evals": ["@remotion/skills-evals@workspace:packages/skills-evals"],
 
     "@remotion/starburst": ["@remotion/starburst@workspace:packages/starburst"],
 
