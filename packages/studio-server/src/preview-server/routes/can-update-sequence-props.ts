@@ -312,10 +312,10 @@ const computeEffectsForJsx = ({
 	jsxElement: JSXOpeningElement;
 	effects: EffectSubscription[];
 }) => {
-	return effects.map((effect) =>
+	return effects.map((effect, effectIndex) =>
 		computeEffectPropStatus({
 			jsx: jsxElement,
-			subscription: effect,
+			effectIndex,
 			keys: getAllSchemaKeys(effect.schema),
 		}),
 	);

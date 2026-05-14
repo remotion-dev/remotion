@@ -15,14 +15,13 @@ export const SubscribeToNodePaths: FC<{
 
 	const effectSubscriptions = useMemo<EffectSubscription[]>(() => {
 		return effects
-			.map((effect, index): EffectSubscription | null => {
+			.map((effect): EffectSubscription | null => {
 				if (!effect.schema) {
 					return null;
 				}
 
 				return {
 					schema: effect.schema,
-					effectIndex: index,
 				};
 			})
 			.filter(NoReactInternals.truthy);

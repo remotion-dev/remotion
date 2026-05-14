@@ -32,7 +32,7 @@ test('computeEffectPropStatus reports static props as canUpdate=true with codeVa
 	const input = buildInput('[tint({color: "red", opacity: 0.5})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
-		subscription: {effectIndex: 0},
+		effectIndex: 0,
 		keys: ['color', 'opacity'],
 	});
 
@@ -49,7 +49,7 @@ test('computeEffectPropStatus reports computed props', () => {
 	const input = buildInput('[tint({color: getColor(), opacity: 0.5})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
-		subscription: {effectIndex: 0},
+		effectIndex: 0,
 		keys: ['color', 'opacity'],
 	});
 
@@ -66,7 +66,7 @@ test('computeEffectPropStatus reports unset props as undefined codeValue', () =>
 	const input = buildInput('[tint({color: "red"})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
-		subscription: {effectIndex: 0},
+		effectIndex: 0,
 		keys: ['color', 'opacity'],
 	});
 
@@ -83,7 +83,7 @@ test('computeEffectPropStatus flags non-call expressions', () => {
 	const input = buildInput('[someEffect, tint({color: "red"})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
-		subscription: {effectIndex: 0},
+		effectIndex: 0,
 		keys: ['color'],
 	});
 
@@ -99,7 +99,7 @@ test('computeEffectPropStatus flags out-of-range effect indices', () => {
 	const input = buildInput('[tint({color: "red"})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
-		subscription: {effectIndex: 5},
+		effectIndex: 5,
 		keys: ['color'],
 	});
 
@@ -115,7 +115,7 @@ test('computeEffectPropStatus flags non-object first arg', () => {
 	const input = buildInput('[tint(getParams())]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
-		subscription: {effectIndex: 0},
+		effectIndex: 0,
 		keys: ['color'],
 	});
 

@@ -131,7 +131,7 @@ export const saveEffectPropsHandler: ApiHandler<
 
 	return computeEffectPropStatus({
 		jsx,
-		subscription: {effectIndex},
+		effectIndex,
 		keys: getAllSchemaKeys(schema),
 	});
 };

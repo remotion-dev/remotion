@@ -216,7 +216,6 @@ export type CanUpdateSequencePropsRequest = {
 };
 
 export type EffectSubscription = {
-	effectIndex: number;
 	schema: SequenceSchema;
 };
 

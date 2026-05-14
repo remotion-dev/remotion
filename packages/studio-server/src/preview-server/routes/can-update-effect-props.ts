@@ -99,11 +99,11 @@ const getPropsFromObjectExpression = ({
 
 export const computeEffectPropStatus = ({
 	jsx,
-	subscription,
+	effectIndex,
 	keys,
 }: {
 	jsx: JSXOpeningElement;
-	subscription: {effectIndex: number};
+	effectIndex: number;
 	keys: string[];
 }): CanUpdateEffectPropsResponse => {
 	const attr = findExperimentalEffectsAttr(jsx);
@@ -112,27 +112,24 @@ export const computeEffectPropStatus = ({
 	if (!elements) {
 		return {
 			canUpdate: false,
-			effectIndex: subscription.effectIndex,
+			effectIndex,
 			reason: 'not-found',
 		};
 	}
 
-	if (
-		subscription.effectIndex < 0 ||
-		subscription.effectIndex >= elements.length
-	) {
+	if (effectIndex < 0 || effectIndex >= elements.length) {
 		return {
 			canUpdate: false,
-			effectIndex: subscription.effectIndex,
+			effectIndex,
 			reason: 'not-found',
 		};
 	}
 
-	const target = elements[subscription.effectIndex];
+	const target = elements[effectIndex];
 	if (target.kind !== 'call') {
 		return {
 			canUpdate: false,
-			effectIndex: subscription.effectIndex,
+			effectIndex,
 			reason: 'not-call-expression',
 		};
 	}
@@ -146,7 +143,7 @@ export const computeEffectPropStatus = ({
 
 		return {
 			canUpdate: true,
-			effectIndex: subscription.effectIndex,
+			effectIndex,
 			props: emptyProps,
 		};
 	}
@@ -155,7 +152,7 @@ export const computeEffectPropStatus = ({
 	if (firstArg.type !== 'ObjectExpression') {
 		return {
 			canUpdate: false,
-			effectIndex: subscription.effectIndex,
+			effectIndex,
 			reason: 'no-args-object',
 		};
 	}
@@ -167,7 +164,7 @@ export const computeEffectPropStatus = ({
 
 	return {
 		canUpdate: true,
-		effectIndex: subscription.effectIndex,
+		effectIndex,
 		props: resolvedProps,
 	};
 };
@@ -186,17 +183,17 @@ export const computeEffectPropsStatusesFromContent = ({
 	const ast = parseAst(fileContents);
 	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
 	if (!jsx) {
-		return effects.map((effect) => ({
+		return effects.map((_effect, effectIndex) => ({
 			canUpdate: false as const,
-			effectIndex: effect.effectIndex,
+			effectIndex,
 			reason: 'not-found' as const,
 		}));
 	}
 
-	return effects.map((effect) =>
+	return effects.map((effect, effectIndex) =>
 		computeEffectPropStatus({
 			jsx,
-			subscription: effect,
+			effectIndex,
 			keys: keysFor(effect),
 		}),
 	);

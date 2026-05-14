@@ -46,6 +46,7 @@ export const acquireSequencePropsSubscription = ({
 	applyOnce: ApplyResult;
 	applyEach: ApplyResult;
 }): {release: () => void} => {
+	// TODO: Bug - schema keys and effects are not part of the cache key
 	const key = makeKey(fileName, line, column);
 	let entry = entries.get(key);
 
