@@ -41,8 +41,7 @@ export const TimelineEffectFieldRow: React.FC<{
 	readonly nestedDepth: number;
 	readonly nodePath: SequenceNodePath;
 }> = ({field, validatedLocation, paddingLeft, nestedDepth, nodePath}) => {
-	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
-	const {getEffectCodeValues} = useContext(
+	const {getEffectCodeValues, getCodeValues} = useContext(
 		Internals.VisualModeCodeValuesContext,
 	);
 	const {getEffectDragOverrides} = useContext(
