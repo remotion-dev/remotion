@@ -59,7 +59,7 @@ const extractCodeOverrides = (
 	const out: Record<string, unknown> = {};
 	let hasAny = false;
 	for (const [key, status] of Object.entries(propStatus)) {
-		if (status.canUpdate && 'codeValue' in status) {
+		if (status.canUpdate) {
 			out[key] = status.codeValue;
 			hasAny = true;
 		}
@@ -104,6 +104,9 @@ export const useMemoizedEffects = ({
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
+
+	const previous = previousRef.current;
+
 	const nodePath = overrideId
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
@@ -132,7 +135,6 @@ export const useMemoizedEffects = ({
 		return {descriptor, params, effectKey};
 	});
 
-	const previous = previousRef.current;
 	const isSame =
 		previous !== null &&
 		previous.length === resolved.length &&

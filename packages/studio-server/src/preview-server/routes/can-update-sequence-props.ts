@@ -378,12 +378,17 @@ export const computeSequencePropsOnlyStatus = ({
 	};
 };
 
-export const computeSequencePropsStatusFromContent = (
-	fileContents: string,
-	nodePath: SequenceNodePath,
-	keys: string[],
-	effects: EffectSubscription[],
-): CanUpdateSequencePropsResponseTrue => {
+export const computeSequencePropsStatusFromContent = ({
+	fileContents,
+	nodePath,
+	keys,
+	effects,
+}: {
+	fileContents: string;
+	nodePath: SequenceNodePath;
+	keys: string[];
+	effects: EffectSubscription[];
+}): CanUpdateSequencePropsResponseTrue => {
 	const ast = parseAst(fileContents);
 
 	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
@@ -422,12 +427,12 @@ export const computeSequencePropsStatus = ({
 	}
 
 	const fileContents = readFileSync(absolutePath, 'utf-8');
-	return computeSequencePropsStatusFromContent(
+	return computeSequencePropsStatusFromContent({
 		fileContents,
 		nodePath,
 		keys,
 		effects,
-	);
+	});
 };
 
 export const computeSequencePropsStatusFromFilenameByLine = ({

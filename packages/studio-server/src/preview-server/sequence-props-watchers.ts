@@ -127,12 +127,12 @@ export const subscribeToSequencePropsWatchers = ({
 
 			let result: CanUpdateSequencePropsResponse;
 			try {
-				result = computeSequencePropsStatusFromContent(
-					event.content,
+				result = computeSequencePropsStatusFromContent({
+					fileContents: event.content,
 					nodePath,
 					keys,
 					effects,
-				);
+				});
 			} catch {
 				return;
 			}
