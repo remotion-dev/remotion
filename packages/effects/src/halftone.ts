@@ -1,7 +1,7 @@
-import type {EffectDescriptor, SequenceSchema} from 'remotion';
+import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 
-const {createDescriptor, defineEffect} = Internals;
+const {createEffect} = Internals;
 
 const SHADE_OUTSIDE_DOT_SCALE = 0.5;
 
@@ -263,7 +263,13 @@ const parseColorRgba = (
 	return [data[0] / 255, data[1] / 255, data[2] / 255, data[3] / 255];
 };
 
-const halftoneDef = defineEffect<HalftoneParams, HalftoneState>({
+// Halftone effect (WebGL2). Converts luminance into a grid of dots, squares,
+// or lines. Each fragment determines its nearest grid cell and whether it falls
+// inside a dot, so edge dots are never culled. `dotSpacing` sets the grid pitch
+// (defaults to `dotSize`). `sampling` controls texture interpolation when
+// reading luminance at grid centres. `shadeOutside` fills transparent areas
+// with a screen tone instead of luminance-driven ink on opaque pixels alone.
+export const halftone = createEffect<HalftoneParams, HalftoneState>({
 	type: 'remotion/halftone',
 	label: 'Halftone',
 	backend: 'webgl2',
@@ -417,13 +423,3 @@ const halftoneDef = defineEffect<HalftoneParams, HalftoneState>({
 	},
 	schema: halftoneSchema,
 });
-
-// Halftone effect (WebGL2). Converts luminance into a grid of dots, squares,
-// or lines. Each fragment determines its nearest grid cell and whether it falls
-// inside a dot, so edge dots are never culled. `dotSpacing` sets the grid pitch
-// (defaults to `dotSize`). `sampling` controls texture interpolation when
-// reading luminance at grid centres. `shadeOutside` fills transparent areas
-// with a screen tone instead of luminance-driven ink on opaque pixels alone.
-export const halftone = (
-	params: HalftoneParams = {},
-): EffectDescriptor<unknown> => createDescriptor(halftoneDef, params);

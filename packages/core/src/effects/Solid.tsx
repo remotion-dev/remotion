@@ -100,7 +100,6 @@ export const Solid: React.FC<SolidProps> = ({
 	}, [
 		frame,
 		color,
-		experimentalEffects,
 		outputCanvas,
 		sourceCanvas,
 		chainState,

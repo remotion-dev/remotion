@@ -6,7 +6,6 @@
 	"version": "4.0.461",
 	"description": "Bundle Remotion compositions using Webpack",
 	"main": "dist/index.js",
-	"sideEffects": false,
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
