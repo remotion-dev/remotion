@@ -617,40 +617,6 @@ export const pricing: {
 			price: '0.0000133334',
 		},
 	},
-	'me-south-1': {
-		'Lambda Duration-Provisioned': {
-			rateCode: '55WKNBUF5TE92NZJ.JRTCKXETXF.6YS6EN2CT7',
-			price: '0.0000119251',
-		},
-		'Lambda Provisioned-Concurrency': {
-			rateCode: 'RPTP77J75VAKQZD9.JRTCKXETXF.6YS6EN2CT7',
-			price: '0.0000051108',
-		},
-		'Lambda Requests': {
-			rateCode: 'EMZ8YZDPGWMDYZNK.JRTCKXETXF.6YS6EN2CT7',
-			price: '0.0000002500',
-		},
-		'Lambda Requests-ARM': {
-			rateCode: 'KY96C7U4EB95UXGK.JRTCKXETXF.6YS6EN2CT7',
-			price: '0.0000002500',
-		},
-		'Lambda Storage-Duration': {
-			rateCode: 'DBA83XQ3BXSW7T3A.JRTCKXETXF.6YS6EN2CT7',
-			price: '0.0000000374',
-		},
-		'Lambda Storage-Duration-ARM': {
-			rateCode: '9PH9MHPV4V4MQNRH.JRTCKXETXF.6YS6EN2CT7',
-			price: '0.0000000374',
-		},
-		'Lambda Duration': {
-			rateCode: 'N7S38YMSMVSPHNAH.JRTCKXETXF.CUKFZ388N3',
-			price: '0.0000206667',
-		},
-		'Lambda Duration-ARM': {
-			rateCode: 'R3C6YVZV7TF52KUE.JRTCKXETXF.6NBUNBXSC3',
-			price: '0.0000165334',
-		},
-	},
 	'sa-east-1': {
 		'Lambda Duration-Provisioned': {
 			rateCode: 'VENWZ787B7TGFR3E.JRTCKXETXF.6YS6EN2CT7',

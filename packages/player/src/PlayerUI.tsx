@@ -169,6 +169,20 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const player = usePlayer();
 	const playerToggle = player.toggle;
+
+	const {mediaMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
+
+	useEffect(() => {
+		player.emitter.dispatchVolumeChange(mediaVolume);
+	}, [player.emitter, mediaVolume]);
+
+	const isMuted = mediaMuted || mediaVolume === 0;
+	useEffect(() => {
+		player.emitter.dispatchMuteChange({
+			isMuted,
+		});
+	}, [player.emitter, isMuted]);
+
 	usePlayback({
 		loop,
 		playbackRate,
@@ -177,6 +191,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		outFrame,
 		getCurrentFrame: player.getCurrentFrame,
 		browserMediaControlsBehavior,
+		muted: isMuted,
 	});
 
 	useEffect(() => {
@@ -315,17 +330,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const {setMediaVolume, setMediaMuted} = useContext(
 		Internals.SetMediaVolumeContext,
 	);
-	const {mediaMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
-	useEffect(() => {
-		player.emitter.dispatchVolumeChange(mediaVolume);
-	}, [player.emitter, mediaVolume]);
-
-	const isMuted = mediaMuted || mediaVolume === 0;
-	useEffect(() => {
-		player.emitter.dispatchMuteChange({
-			isMuted,
-		});
-	}, [player.emitter, isMuted]);
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
 
 	useEffect(() => {

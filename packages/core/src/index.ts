@@ -12,6 +12,7 @@ import type {
 	TRenderAsset,
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
+import {Solid} from './effects/Solid.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
@@ -130,6 +131,23 @@ export type BundleState =
 checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
 export * from './animated-image/index.js';
+export type {
+	EffectDefinitionAndStack,
+	EffectDescriptor,
+	EffectsProp,
+} from './effects/index.js';
+export type {SolidProps} from './effects/Solid.js';
+export {
+	HtmlInCanvas,
+	isHtmlInCanvasSupported,
+	type HtmlInCanvasOnInit,
+	type HtmlInCanvasOnInitCleanup,
+	type HtmlInCanvasOnPaint,
+} from './HtmlInCanvas.js';
+export type {
+	HtmlInCanvasOnPaintParams,
+	HtmlInCanvasProps,
+} from './HtmlInCanvas.js';
 export type {AnyZodObject} from './any-zod-type.js';
 export {Artifact} from './Artifact.js';
 export {Audio, Html5Audio, RemotionAudioProps} from './audio/index.js';
@@ -221,6 +239,7 @@ export const Experimental = {
 	 * @see [Documentation](https://www.remotion.dev/docs/null)
 	 */
 	Null,
+	Solid,
 	useIsPlayer,
 };
 

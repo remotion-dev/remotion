@@ -30,7 +30,7 @@ class RenderParams
     protected $chromiumOptions = null;
     protected $scale = 1;
     protected $everyNthFrame = 1;
-    protected $numberOfGifLoops = 0;
+    protected $numberOfGifLoops = null;
     protected $concurrencyPerLambda = 1;
     protected $concurrency = null;
     protected $downloadBehavior = [
@@ -82,7 +82,7 @@ class RenderParams
         ?object $chromiumOptions = null,
         ?int    $scale = 1,
         ?int    $everyNthFrame = 1,
-        ?int    $numberOfGifLoops = 0,
+        ?int    $numberOfGifLoops = null,
         ?int    $concurrencyPerLambda = 1,
         ?int    $concurrency = null,
         ?array  $downloadBehavior = null,

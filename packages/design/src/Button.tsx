@@ -1,3 +1,4 @@
+import {Slot, Slottable} from '@radix-ui/react-slot';
 import React, {useCallback, useRef, useState} from 'react';
 import {cn} from './helpers/cn';
 import {useHoverTransforms} from './helpers/hover-transforms';
@@ -13,16 +14,29 @@ type CommonProps = {
 type ButtonAsButton = CommonProps &
 	Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'href' | 'disabled'> & {
 		readonly href?: undefined;
+		readonly asChild?: false;
 	};
 
 type ButtonAsAnchor = CommonProps &
 	Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & {
 		readonly href: string;
+		readonly asChild?: false;
 	};
 
-export type ButtonProps = ButtonAsButton | ButtonAsAnchor;
+type ButtonAsChild = CommonProps &
+	Omit<
+		React.ComponentPropsWithoutRef<typeof Slot>,
+		'children' | 'disabled' | 'href'
+	> & {
+		readonly asChild: true;
+		readonly href?: never;
+		readonly children: React.ReactElement;
+	};
+
+export type ButtonProps = ButtonAsButton | ButtonAsAnchor | ButtonAsChild;
 
 export const Button: React.FC<ButtonProps> = ({
+	asChild = false,
 	children,
 	className,
 	disabled,
@@ -95,6 +109,7 @@ export const Button: React.FC<ButtonProps> = ({
 	);
 
 	const isDisabled = disabled || loading;
+	const isAnchor = !asChild && 'href' in rest && rest.href !== undefined;
 
 	const sharedClasses = cn(
 		'text-text',
@@ -120,40 +135,60 @@ export const Button: React.FC<ButtonProps> = ({
 		className,
 	);
 
-	const innerContent = (
-		<>
-			<div className={cn(loading && 'invisible', 'inline-flex items-center')}>
-				{children}
-			</div>
-			{loading ? (
-				<div
-					className={cn(
-						'absolute w-full h-full flex inset-0 items-center justify-center text-inherit bg-inherit',
-					)}
+	const preventInteraction = useCallback((e: React.MouseEvent<HTMLElement>) => {
+		e.preventDefault();
+		e.stopPropagation();
+	}, []);
+
+	const spinnerOverlay = loading ? (
+		<div
+			data-button-spinner
+			className={cn(
+				'absolute w-full h-full flex inset-0 items-center justify-center text-inherit bg-inherit',
+			)}
+		>
+			<Spinner size={20} duration={1} />
+		</div>
+	) : null;
+
+	const slottableChild = asChild
+		? React.cloneElement(
+				children as React.ReactElement<{children?: React.ReactNode}>,
+				undefined,
+				<span
+					className={cn(loading && 'invisible', 'inline-flex items-center')}
 				>
-					<Spinner size={20} duration={1} />
-				</div>
-			) : null}
-		</>
-	);
+					{
+						(children as React.ReactElement<{children?: React.ReactNode}>).props
+							.children
+					}
+				</span>,
+			)
+		: null;
 
-	const isAnchor = 'href' in rest && rest.href !== undefined;
-
-	const content = isAnchor ? (
+	const content = asChild ? (
+		<Slot
+			{...(rest as React.ComponentPropsWithoutRef<typeof Slot>)}
+			className={cn('no-underline text-inherit', sharedClasses)}
+			aria-disabled={isDisabled || undefined}
+			tabIndex={isDisabled ? -1 : undefined}
+			onClickCapture={isDisabled ? preventInteraction : undefined}
+		>
+			<Slottable>{slottableChild}</Slottable>
+			{spinnerOverlay}
+		</Slot>
+	) : isAnchor ? (
 		<a
 			{...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
 			className={cn('no-underline text-inherit', sharedClasses)}
 			aria-disabled={isDisabled || undefined}
 			tabIndex={isDisabled ? -1 : undefined}
-			onClick={
-				isDisabled
-					? (e: React.MouseEvent<HTMLAnchorElement>) => {
-							e.preventDefault();
-						}
-					: (rest as React.AnchorHTMLAttributes<HTMLAnchorElement>).onClick
-			}
+			onClickCapture={isDisabled ? preventInteraction : undefined}
 		>
-			{innerContent}
+			<div className={cn(loading && 'invisible', 'inline-flex items-center')}>
+				{children}
+			</div>
+			{spinnerOverlay}
 		</a>
 	) : (
 		<button
@@ -162,7 +197,10 @@ export const Button: React.FC<ButtonProps> = ({
 			className={sharedClasses}
 			{...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
 		>
-			{innerContent}
+			<div className={cn(loading && 'invisible', 'inline-flex items-center')}>
+				{children}
+			</div>
+			{spinnerOverlay}
 		</button>
 	);
 

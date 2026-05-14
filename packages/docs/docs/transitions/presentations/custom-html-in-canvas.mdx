@@ -1,0 +1,146 @@
+---
+image: /generated/articles-docs-transitions-presentations-custom-html-in-canvas.png
+crumb: '@remotion/transitions'
+title: 'Custom HTML-in-canvas presentations'
+---
+
+# Custom HTML-in-canvas presentations<AvailableFrom v="4.0.456" />
+
+Build a presentation that runs the entering and exiting scenes through a shader using the [HTML-in-canvas](/docs/html-in-canvas) APIs.
+
+:::warning
+HTML-in-canvas requires [Chrome Canary](https://www.google.com/chrome/canary/) with `chrome://flags/#canvas-draw-element` enabled in the browser.
+:::
+
+## When to use this
+
+Use this when you cannot implement the presentation in CSS.  
+Prefer CSS because it has wider browser support.
+
+## Concept
+
+Remotion captures both scenes via [`captureElementImage()`](https://github.com/WICG/html-in-canvas#4-captureelementimage) and passes them to your shader as two [`ElementImage`](https://github.com/WICG/html-in-canvas#idl-changes) handles (`prevImage` and `nextImage`) along with the transition `time` (`0` → `1`). Your shader uploads them as textures via [`drawElementImage()`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) (or its WebGL/WebGPU equivalents) and writes the blended result to an offscreen WebGL2 canvas, which Remotion then composites into the frame.
+
+You implement a single function — [`HtmlInCanvasShader<Props>`](/docs/transitions/make-html-in-canvas-presentation#htmlincanvasshader) — and pass it to [`makeHtmlInCanvasPresentation()`](/docs/transitions/make-html-in-canvas-presentation) to get back a `TransitionPresentation` constructor.
+
+## Boilerplate
+
+```tsx twoslash title="my-shader.tsx"
+import type {HtmlInCanvasShader} from '@remotion/transitions';
+import {makeHtmlInCanvasPresentation} from '@remotion/transitions';
+
+export type MyShaderProps = {
+  intensity?: number;
+};
+
+const VERTEX_SHADER = `#version 300 es
+in vec2 a_pos;
+out vec2 v_uv;
+void main() {
+  v_uv = vec2(a_pos.x * 0.5 + 0.5, 0.5 - a_pos.y * 0.5);
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}`;
+
+const FRAGMENT_SHADER = `#version 300 es
+precision highp float;
+uniform sampler2D u_prev;
+uniform sampler2D u_next;
+uniform float u_time;
+in vec2 v_uv;
+out vec4 outColor;
+
+void main() {
+  // u_time = 1 → fully prev, u_time = 0 → fully next
+  outColor = mix(
+    texture(u_next, v_uv),
+    texture(u_prev, v_uv),
+    u_time
+  );
+}`;
+
+export const myShader: HtmlInCanvasShader<MyShaderProps> = (canvas) => {
+  const gl = canvas.getContext('webgl2', {premultipliedAlpha: true});
+  if (!gl) {
+    throw new Error(
+      'WebGL2 unavailable. Try rendering with the --gl=angle option. See https://remotion.dev/docs/gl-options.',
+    );
+  }
+
+  // Compile + link program, create textures, bind a fullscreen quad...
+  // (see "Source references" below for a full implementation)
+
+  return {
+    clear: () => {
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+    },
+    cleanup: () => {
+      // Release WebGL resources here
+    },
+    draw: ({prevImage, nextImage, width, height, time, passedProps}) => {
+      // Upload prevImage / nextImage to textures via gl.texElementImage2D
+      // Set uniforms, draw the quad
+    },
+  };
+};
+
+export const myPresentation = makeHtmlInCanvasPresentation(myShader);
+```
+
+Use it like any other presentation:
+
+```tsx twoslash title="MyComp.tsx"
+import type {TransitionPresentation} from '@remotion/transitions';
+declare const myPresentation: (props: {}) => TransitionPresentation<{}>;
+// ---cut---
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {AbsoluteFill} from 'remotion';
+
+const SceneA: React.FC = () => <AbsoluteFill style={{backgroundColor: '#0b84f3'}} />;
+const SceneB: React.FC = () => <AbsoluteFill style={{backgroundColor: 'pink'}} />;
+
+export const MyComp: React.FC = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <SceneA />
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={myPresentation({})}
+        timing={linearTiming({durationInFrames: 30})}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <SceneB />
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+## API reference
+
+The signature of [`makeHtmlInCanvasPresentation()`](/docs/transitions/make-html-in-canvas-presentation) and the [`HtmlInCanvasShader<Props>`](/docs/transitions/make-html-in-canvas-presentation#htmlincanvasshader) callback contract — `clear`, `cleanup`, [`draw({prevImage, nextImage, width, height, time, passedProps})`](/docs/transitions/make-html-in-canvas-presentation#draw) — are documented on its own page.
+
+## Adapting GLSL transitions from gl-transitions.com
+
+[gl-transitions.com](https://gl-transitions.com/) is a curated catalog of community-contributed fragment shaders licensed under MIT — a great starting point.
+
+To port one to a Remotion HTML-in-canvas presentation:
+
+<Step>1</Step> Replace `getFromColor(uv)` with `texture(u_prev, uv)` and `getToColor(uv)` with `texture(u_next, uv)`.<br />
+<Step>2</Step> Map `progress` to Remotion's reversed convention with `float progress = 1.0 - u_time;` at the top of `main()`.<br />
+<Step>3</Step> Wrap the `transition()` body inside `void main() { outColor = transition(v_uv); }` (with `out vec4 outColor;` declared).<br />
+
+## Example implementations
+
+See the following example implementations:
+
+- [`zoom-blur.tsx`](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/zoom-blur.tsx)
+- [`zoom-in-out.tsx`](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/zoom-in-out.tsx) — adapted from a gl-transitions shader
+
+## See also
+
+- [`makeHtmlInCanvasPresentation()`](/docs/transitions/make-html-in-canvas-presentation) — API reference
+- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [Custom presentations](/docs/transitions/presentations/custom) — the CSS-based path
+- [Contributing a new presentation](/docs/contributing/presentation)

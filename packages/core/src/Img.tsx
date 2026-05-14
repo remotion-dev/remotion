@@ -11,7 +11,7 @@ import type {SequenceControls} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
-import type {SequenceSchema} from './sequence-field-schema.js';
+import {sequenceStyleSchema} from './sequence-field-schema.js';
 import {SequenceContext} from './SequenceContext.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
@@ -21,6 +21,16 @@ import {wrapInSchema} from './wrap-in-schema.js';
 
 function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
+}
+
+// Data URLs like the ones from canvas.toDataURL() can be many megabytes, which makes the delayRender() label
+// unreadable and bloats log output
+export function truncateSrcForLabel(src: string): string {
+	if (src.startsWith('data:') && src.length > 100) {
+		return src.slice(0, 60) + '...[' + src.length + ' chars total]';
+	}
+
+	return src;
 }
 
 type NativeImgProps = Omit<
@@ -48,40 +58,9 @@ export type ImgProps = NativeImgProps & {
 
 type Expected = Omit<NativeImgProps, 'onError' | 'src' | 'crossOrigin' | 'ref'>;
 
-const imgSchema = {
-	'style.translate': {
-		type: 'translate',
-		step: 1,
-		default: '0px 0px',
-		description: 'Position',
-	},
-	'style.scale': {
-		type: 'number',
-		min: 0.05,
-		max: 100,
-		step: 0.01,
-		default: 1,
-		description: 'Scale',
-	},
-	'style.rotate': {
-		type: 'rotation',
-		step: 1,
-		default: '0deg',
-		description: 'Rotation',
-	},
-	'style.opacity': {
-		type: 'number',
-		min: 0,
-		max: 1,
-		step: 0.01,
-		default: 1,
-		description: 'Opacity',
-	},
-} as const satisfies SequenceSchema;
-
 const ImgInner: React.FC<
 	ImgProps & {
-		readonly controls: SequenceControls | undefined;
+		readonly _experimentalControls: SequenceControls | undefined;
 	}
 > = ({
 	onError,
@@ -96,7 +75,7 @@ const ImgInner: React.FC<
 	name,
 	stack,
 	ref,
-	controls,
+	_experimentalControls: controls,
 	...props
 }) => {
 	const imageRef = useRef<HTMLImageElement>(null);
@@ -183,9 +162,9 @@ const ImgInner: React.FC<
 				);
 				// eslint-disable-next-line no-console
 				console.warn(
-					`Could not load image with source ${
-						imageRef.current?.src as string
-					}, retrying again in ${backoff}ms`,
+					`Could not load image with source ${truncateSrcForLabel(
+						imageRef.current?.src as string,
+					)}, retrying again in ${backoff}ms`,
 				);
 
 				retryIn(backoff);
@@ -194,7 +173,8 @@ const ImgInner: React.FC<
 
 			try {
 				cancelRender(
-					'Error loading image with src: ' + (imageRef.current?.src as string),
+					'Error loading image with src: ' +
+						truncateSrcForLabel(imageRef.current?.src as string),
 				);
 			} catch {
 				// cancelRender() intentionally throws after storing the error in scope.
@@ -222,10 +202,13 @@ const ImgInner: React.FC<
 				return;
 			}
 
-			const newHandle = delayRender('Loading <Img> with src=' + actualSrc, {
-				retries: delayRenderRetries ?? undefined,
-				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
-			});
+			const newHandle = delayRender(
+				'Loading <Img> with src=' + truncateSrcForLabel(actualSrc),
+				{
+					retries: delayRenderRetries ?? undefined,
+					timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+				},
+			);
 			const unblock =
 				pauseWhenLoading && !isPremounting && !isPostmounting
 					? delayPlayback().unblock
@@ -244,9 +227,9 @@ const ImgInner: React.FC<
 					delete errors.current[imageRef.current?.src as string];
 					// eslint-disable-next-line no-console
 					console.info(
-						`Retry successful - ${
-							imageRef.current?.src as string
-						} is now loaded`,
+						`Retry successful - ${truncateSrcForLabel(
+							imageRef.current?.src as string,
+						)} is now loaded`,
 					);
 				}
 
@@ -330,5 +313,5 @@ const ImgInner: React.FC<
  * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
  * @see [Documentation](https://remotion.dev/docs/img)
  */
-export const Img = wrapInSchema(ImgInner, imgSchema);
+export const Img = wrapInSchema(ImgInner, sequenceStyleSchema);
 addSequenceStackTraces(Img);

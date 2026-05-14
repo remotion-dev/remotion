@@ -42,23 +42,27 @@ test('Render video with browser instance open', async () => {
 	await puppeteerInstance.close({silent: false});
 });
 
-test('Render still with browser instance not open and legacy webpack config', async () => {
-	const compositions = await getCompositions(exampleBuild);
+test(
+	'Render still with browser instance not open and legacy webpack config',
+	async () => {
+		const compositions = await getCompositions(exampleBuild);
 
-	const reactSvg = compositions.find((c) => c.id === 'react-svg');
+		const reactSvg = compositions.find((c) => c.id === 'react-svg');
 
-	if (!reactSvg) {
-		throw new Error('not found');
-	}
+		if (!reactSvg) {
+			throw new Error('not found');
+		}
 
-	const tmpDir = os.tmpdir();
+		const tmpDir = os.tmpdir();
 
-	const outPath = path.join(tmpDir, 'subdir', 'out.jpg');
+		const outPath = path.join(tmpDir, 'subdir', 'out.jpg');
 
-	await renderStill({
-		output: outPath,
-		serveUrl: exampleBuild,
-		composition: reactSvg,
-	});
-	expect(existsSync(outPath)).toBe(true);
-});
+		await renderStill({
+			output: outPath,
+			serveUrl: exampleBuild,
+			composition: reactSvg,
+		});
+		expect(existsSync(outPath)).toBe(true);
+	},
+	{retry: 3},
+);

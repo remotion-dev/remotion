@@ -9,6 +9,23 @@ export type OpenAiToCaptionsOutput = {
 	captions: Caption[];
 };
 
+const escapeRegex = (text: string) => {
+	return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+const apostropheVariants = ['\u0027', '\u2018', '\u2019', '\u02bc', '\uff07'];
+const apostropheVariantRegex = `[${apostropheVariants.map(escapeRegex).join('')}]`;
+
+const escapeWordForRegex = (text: string) => {
+	return Array.from(text)
+		.map((character) => {
+			return apostropheVariants.includes(character)
+				? apostropheVariantRegex
+				: escapeRegex(character);
+		})
+		.join('');
+};
+
 export const openAiWhisperApiToCaptions = ({
 	transcription,
 }: OpenAiToCaptionsInput): OpenAiToCaptionsOutput => {
@@ -36,9 +53,10 @@ export const openAiWhisperApiToCaptions = ({
 			word.word = word.word.trimStart();
 		}
 
-		const punctuation = `\\?,\\.\\%\\–\\!\\;\\:\\'\\"\\-\\_\\(\\)\\[\\]\\{\\}\\@\\#\\$\\^\\&\\*\\+\\=\\/\\|\\<\\>\\~\``;
+		const punctuation = `\\?,\\.\\%\\–\\!\\;\\:\\'\\"\\-\\_\\(\\)\\[\\]\\{\\}\\@\\#\\$\\^\\&\\*\\+\\=\\/\\|\\<\\>\\~\`\\u2018\\u2019\\u02bc\\uff07`;
+		const wordToMatch = word.word.replace(new RegExp(`^[${punctuation}]+`), '');
 		const match = new RegExp(
-			`^([\\s?${punctuation}]{0,4})${word.word.replace(new RegExp(`^[${punctuation}]+`), '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([${punctuation}]{0,3})?`,
+			`^([\\s?${punctuation}]{0,4})${escapeWordForRegex(wordToMatch)}([${punctuation}]{0,3})?`,
 		).exec(remainingText);
 		if (!match) {
 			throw new Error(

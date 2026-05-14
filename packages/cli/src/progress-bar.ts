@@ -27,13 +27,22 @@ export type OverwriteableCliOutput = {
 
 export const LABEL_WIDTH = 20;
 
+const shouldSuppressCliProgressOutput = (options: {
+	quiet: boolean;
+	logLevel: LogLevel;
+}): boolean => {
+	// When --log=error, only error lines may be printed; progress is not an error.
+	return options.quiet || options.logLevel === 'error';
+};
+
 export const createOverwriteableCliOutput = (options: {
 	quiet: boolean;
 	cancelSignal: CancelSignal | null;
 	updatesDontOverwrite: boolean;
 	indent: boolean;
+	logLevel: LogLevel;
 }): OverwriteableCliOutput => {
-	if (options.quiet) {
+	if (shouldSuppressCliProgressOutput(options)) {
 		return {
 			update: () => false,
 		};

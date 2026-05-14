@@ -14,6 +14,7 @@ export const printError = async (err: Error, logLevel: LogLevel) => {
 			cancelSignal: null,
 			updatesDontOverwrite: !updatesDoOverwrite,
 			indent: false,
+			logLevel,
 		});
 
 		if (updatesDoOverwrite) {

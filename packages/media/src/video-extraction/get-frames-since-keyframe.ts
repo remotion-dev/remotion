@@ -10,6 +10,8 @@ import {
 	WEBM,
 } from 'mediabunny';
 import {canBrowserUseWebGl2} from '../browser-can-use-webgl2';
+import {getDurationOrCompute} from '../get-duration-or-compute';
+import {resolveAudioTrack} from '../helpers/resolve-audio-track';
 import {isNetworkError} from '../is-type-of-error';
 import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
 
@@ -82,6 +84,20 @@ export const getSinks = async (
 			return 'no-video-track';
 		}
 
+		if (await videoTrack.isLive()) {
+			throw new Error(
+				'Live streams are not currently supported by Remotion. Sorry! Source: ' +
+					src,
+			);
+		}
+
+		if (await videoTrack.isRelativeToUnixEpoch()) {
+			throw new Error(
+				'Streams with UNIX timestamps are not currently supported by Remotion. Sorry! Source: ' +
+					src,
+			);
+		}
+
 		const canDecode = await videoTrack.canDecode();
 
 		if (!canDecode) {
@@ -124,7 +140,9 @@ export const getSinks = async (
 		Promise<AudioSinkResult> | undefined
 	> = {};
 
-	const getAudioSinks = async (index: number): Promise<AudioSinkResult> => {
+	const getAudioSinks = async (
+		index: number | null,
+	): Promise<AudioSinkResult> => {
 		if (format === null) {
 			return 'unknown-container-format';
 		}
@@ -133,8 +151,16 @@ export const getSinks = async (
 			return 'network-error';
 		}
 
-		const audioTracks = await input.getAudioTracks();
-		const audioTrack = audioTracks[index];
+		const [videoTrack, audioTracks] = await Promise.all([
+			input.getPrimaryVideoTrack(),
+			input.getAudioTracks(),
+		]);
+
+		const audioTrack = await resolveAudioTrack({
+			videoTrack,
+			audioTracks,
+			audioStreamIndex: index,
+		});
 
 		if (!audioTrack) {
 			return 'no-audio-track';
@@ -151,22 +177,23 @@ export const getSinks = async (
 		};
 	};
 
-	const getAudioSinksPromise = (index: number) => {
-		if (audioSinksPromise[index]) {
-			return audioSinksPromise[index];
+	const getAudioSinksPromise = (index: number | null) => {
+		const keyIndex = index === null ? -1 : index;
+		if (audioSinksPromise[keyIndex]) {
+			return audioSinksPromise[keyIndex];
 		}
 
-		audioSinksPromise[index] = getAudioSinks(index);
-		return audioSinksPromise[index];
+		audioSinksPromise[keyIndex] = getAudioSinks(index);
+		return audioSinksPromise[keyIndex];
 	};
 
 	return {
 		getVideo: () => getVideoSinksPromise(),
-		getAudio: (index: number) => getAudioSinksPromise(index),
+		getAudio: (index: number | null) => getAudioSinksPromise(index),
 		actualMatroskaTimestamps: rememberActualMatroskaTimestamps(isMatroska),
 		isMatroska,
 		getDuration: () => {
-			return input.computeDuration();
+			return getDurationOrCompute(input);
 		},
 	};
 };

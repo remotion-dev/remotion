@@ -1,7 +1,7 @@
 {
   "name": "remotion/lambda",
   "type": "library",
-  "version": "4.0.448",
+  "version": "4.0.461",
   "description": "A PHP library for working with Remotion Lambda",
   "license": "proprietary",
   "autoload": {
@@ -14,7 +14,7 @@
     "aws/aws-sdk-php": "^3.269"
   },
   "require-dev": {
-    "phpunit/phpunit": "^10.1"
+    "phpunit/phpunit": "^10.1 || ^12.0"
   },
   "scripts": {
     "test": "phpunit tests"

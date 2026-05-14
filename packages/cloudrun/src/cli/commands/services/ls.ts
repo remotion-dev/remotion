@@ -14,6 +14,7 @@ export const servicesLsCommand = async (logLevel: LogLevel) => {
 		cancelSignal: null,
 		updatesDontOverwrite: false,
 		indent: false,
+		logLevel,
 	});
 	fetchingOutput.update(`Getting services in ${region}...`, false);
 

@@ -1,37 +1,31 @@
 import type React from 'react';
-import {
-	useCallback,
-	useContext,
-	useImperativeHandle,
-	useMemo,
-	useState,
-} from 'react';
+import {useCallback, useContext, useImperativeHandle, useMemo} from 'react';
 import {Internals} from 'remotion';
+import {getKeysToExpand} from '../helpers/create-folder-tree';
 import type {
 	ExpandedFoldersRef,
 	ExpandedFoldersState,
 } from '../helpers/persist-open-folders';
 import {
 	ExpandedFoldersContext,
-	loadExpandedFolders,
 	openFolderKey,
 	persistExpandedFolders,
 } from '../helpers/persist-open-folders';
+import {FolderContext} from '../state/folders';
 import {useSelectComposition} from './InitialCompositionLoader';
 
 export const CompSelectorRef: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
-	const [foldersExpanded, setFoldersExpanded] = useState<ExpandedFoldersState>(
-		loadExpandedFolders('compositions'),
-	);
+	const {compositionFoldersExpanded, setCompositionFoldersExpanded} =
+		useContext(FolderContext);
 
 	const selectComposition = useSelectComposition();
 
 	const toggleFolder = useCallback(
 		(folderName: string, parentName: string | null) => {
-			setFoldersExpanded((p) => {
+			setCompositionFoldersExpanded((p) => {
 				const key = openFolderKey({folderName, parentName});
 				const prev = p[key] ?? false;
 				const foldersExpandedState: ExpandedFoldersState = {
@@ -42,7 +36,7 @@ export const CompSelectorRef: React.FC<{
 				return foldersExpandedState;
 			});
 		},
-		[],
+		[setCompositionFoldersExpanded],
 	);
 
 	useImperativeHandle(
@@ -62,28 +56,13 @@ export const CompSelectorRef: React.FC<{
 						return;
 					}
 
-					setFoldersExpanded((previousState) => {
+					setCompositionFoldersExpanded((previousState) => {
+						const keysToExpand = getKeysToExpand(folderName, parentFolderName);
 						const foldersExpandedState: ExpandedFoldersState = {
 							...previousState,
 						};
-
-						const currentFolder: string | null = folderName;
-						const currentParentName: string | null = parentFolderName;
-						const key = openFolderKey({
-							folderName: currentFolder,
-							parentName: currentParentName,
-						});
-
-						const splitted = key.split('/');
-						for (let i = 0; i < splitted.length - 1; i++) {
-							const allExceptLast =
-								i === 0
-									? openFolderKey({
-											folderName: splitted.filter((s) => s !== 'no-parent')[0],
-											parentName: null,
-										})
-									: splitted.slice(0, i + 1).join('/');
-							foldersExpandedState[allExceptLast] = true;
+						for (const key of keysToExpand) {
+							foldersExpandedState[key] = true;
 						}
 
 						persistExpandedFolders('compositions', foldersExpandedState);
@@ -104,16 +83,24 @@ export const CompSelectorRef: React.FC<{
 				},
 			};
 		},
-		[compositions, selectComposition, toggleFolder],
+		[
+			compositions,
+			selectComposition,
+			setCompositionFoldersExpanded,
+			toggleFolder,
+		],
 	);
 
 	const contextValue: ExpandedFoldersRef = useMemo(() => {
 		return {
-			foldersExpanded,
-			setFoldersExpanded,
+			foldersExpanded: compositionFoldersExpanded,
+			setFoldersExpanded: (foldersExpanded) => {
+				setCompositionFoldersExpanded(foldersExpanded);
+				persistExpandedFolders('compositions', foldersExpanded);
+			},
 			toggleFolder,
 		};
-	}, [foldersExpanded, setFoldersExpanded, toggleFolder]);
+	}, [compositionFoldersExpanded, setCompositionFoldersExpanded, toggleFolder]);
 
 	return (
 		<ExpandedFoldersContext.Provider value={contextValue}>

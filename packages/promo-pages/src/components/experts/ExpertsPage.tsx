@@ -8,7 +8,7 @@ import {
 } from '../team/TeamCards';
 import type {Expert} from './experts-data';
 import {experts} from './experts-data';
-import {PersonalWebsite} from './experts-icons';
+import {DiscordLogo, PersonalWebsite} from './experts-icons';
 
 const arrowIcon: React.CSSProperties = {
 	height: 16,
@@ -166,6 +166,16 @@ const ExpertCard: React.FC<ExpertCardProps> = ({expert, Link}) => {
 							href={`mailto:${expert.email}`}
 						>
 							<EmailLogo />
+						</a>
+					) : null}
+					{expert.discord ? (
+						<a
+							className="no-underline text-inherit"
+							target="_blank"
+							href={`https://discord.com/users/${expert.discord.userId}`}
+							title={`@${expert.discord.username} on Discord`}
+						>
+							<DiscordLogo />
 						</a>
 					) : null}
 				</div>

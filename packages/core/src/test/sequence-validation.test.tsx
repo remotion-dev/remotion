@@ -94,4 +94,13 @@ describe('Composition-validation render should NOT throw with valid props', () =
 			),
 		).not.toThrow();
 	});
+	test('It should allow no children', () => {
+		expect(() =>
+			render(
+				<WrapSequenceContext>
+					<Sequence durationInFrames={100} from={0} />
+				</WrapSequenceContext>,
+			),
+		).not.toThrow();
+	});
 });

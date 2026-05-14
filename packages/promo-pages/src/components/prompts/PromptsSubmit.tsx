@@ -376,11 +376,11 @@ export const PromptsSubmitPage: React.FC = () => {
 
 					<h2 className="font-brand mt-5 font-bold">Model used</h2>
 					<p className="text-muted-foreground text-sm mb-0 font-brand">
-						Which AI model did you use? (e.g. Opus 4.5, GPT-5.2)
+						Which AI model did you use? (e.g. Opus 4.7, GPT-5.5)
 					</p>
 					<Input
 						name="modelUsed"
-						placeholder="Opus 4.5"
+						placeholder="Opus 4.7"
 						className="font-brand mt-3"
 						value={modelUsed}
 						onChange={(e) => setModelUsed(e.target.value)}

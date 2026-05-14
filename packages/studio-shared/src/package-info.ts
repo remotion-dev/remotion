@@ -51,6 +51,7 @@ export const packages = [
 	'motion-blur',
 	'noise',
 	'paths',
+	'player-a11y',
 	'player-example',
 	'player',
 	'preload',
@@ -68,6 +69,7 @@ export const packages = [
 	'studio',
 	'tailwind',
 	'tailwind-v4',
+	'timeline-utils',
 	'test-utils',
 	'three',
 	'transitions',
@@ -89,6 +91,7 @@ export const packages = [
 	'starburst',
 	'vercel',
 	'sfx',
+	'effects',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
@@ -103,13 +106,13 @@ export type ExtraPackage = {
 export const extraPackages: ExtraPackage[] = [
 	{
 		name: 'mediabunny',
-		version: '1.39.2',
+		version: '1.42.0',
 		description: 'Multimedia library used by Remotion',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/version',
 	},
 	{
 		name: '@mediabunny/ac3',
-		version: '1.39.2',
+		version: '1.42.0',
 		description: 'AC-3 and E-AC-3 audio codec support for Mediabunny',
 		docsUrl: 'https://www.remotion.dev/docs/mediabunny/formats#ac-3-and-e-ac-3',
 	},
@@ -168,6 +171,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'create-video': 'Create a new Remotion project',
 	'studio-shared':
 		'Internal package for shared objects between the Studio backend and frontend',
+	'timeline-utils': 'Internal utilities for rendering Remotion timelines',
 	tailwind: 'Enable TailwindCSS support in Remotion (TailwindCSS v3)',
 	'tailwind-v4': 'Enable TailwindCSS support in Remotion (TailwindCSS v4)',
 	streaming: 'Utilities for streaming data between programs',
@@ -214,9 +218,12 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'web-renderer': 'Render videos in the browser (not yet released)',
 	design: 'Design system',
 	'light-leaks': 'Light leak effects for Remotion',
+	'player-a11y':
+		'Accessible wrapper around @remotion/player with WCAG 2.1 AA controls',
 	starburst: 'Starburst ray effect for Remotion',
 	vercel: 'Render Remotion videos on Vercel Sandbox',
 	sfx: 'Sound effect library',
+	effects: 'Experimental presets for Remotion canvas effect hooks',
 };
 export const installableMap: {[key in Pkgs]: boolean} = {
 	'svg-3d-engine': false,
@@ -274,6 +281,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	noise: true,
 	paths: true,
 	'player-example': false,
+	'player-a11y': true,
 	player: true,
 	preload: true,
 	renderer: true,
@@ -289,6 +297,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	studio: true,
 	tailwind: true,
 	'tailwind-v4': true,
+	'timeline-utils': false,
 	'test-utils': false,
 	three: true,
 	transitions: true,
@@ -309,6 +318,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	starburst: true,
 	vercel: true,
 	sfx: true,
+	effects: true,
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -363,6 +373,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'lambda-python': null,
 	'lambda-ruby': 'https://www.remotion.dev/docs/lambda/ruby',
 	'player-example': null,
+	'player-a11y': 'https://www.remotion.dev/docs/player-a11y',
 	'astro-example': null,
 	'lambda-go-example': null,
 	'test-utils': null,
@@ -386,6 +397,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	serverless: null,
 	skills: null,
 	studio: 'https://www.remotion.dev/docs/studio/api',
+	'timeline-utils': null,
 	transitions: 'https://www.remotion.dev/transitions',
 	'animated-emoji': 'https://www.remotion.dev/docs/animated-emoji',
 	webcodecs: 'https://remotion.dev/webcodecs',
@@ -405,4 +417,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	starburst: 'https://www.remotion.dev/docs/starburst',
 	vercel: 'https://www.remotion.dev/docs/vercel/api',
 	sfx: 'https://www.remotion.dev/docs/sfx',
+	effects: null,
 };

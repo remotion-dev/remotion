@@ -33,12 +33,23 @@ const container: React.CSSProperties = {
 	maxWidth: '100%',
 };
 
+const smallContainer: React.CSSProperties = {
+	...container,
+	padding: '3px 4px',
+};
+
 const label: React.CSSProperties = {
 	flex: 1,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	fontSize: 14,
 	textAlign: 'left',
+};
+
+const smallLabel: React.CSSProperties = {
+	...label,
+	fontSize: 11,
+	lineHeight: 1,
 };
 
 type DividerItem = {
@@ -72,7 +83,8 @@ export const Combobox: React.FC<{
 	readonly selectedId: string | number;
 	readonly style?: React.CSSProperties;
 	readonly title: string;
-}> = ({values, selectedId, style: customStyle, title}) => {
+	readonly small?: boolean;
+}> = ({values, selectedId, style: customStyle, title, small = false}) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
@@ -215,7 +227,7 @@ export const Combobox: React.FC<{
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
-			...container,
+			...(small ? smallContainer : container),
 			...(customStyle ?? {}),
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
@@ -229,7 +241,7 @@ export const Combobox: React.FC<{
 					? INPUT_BORDER_COLOR_HOVERED
 					: INPUT_BORDER_COLOR_UNHOVERED,
 		};
-	}, [customStyle, hovered, opened]);
+	}, [customStyle, hovered, opened, small]);
 
 	return (
 		<>
@@ -246,12 +258,12 @@ export const Combobox: React.FC<{
 						title={
 							typeof selected.label === 'string' ? selected.label : undefined
 						}
-						style={label}
+						style={small ? smallLabel : label}
 					>
 						{selected?.label}
 					</div>
 				) : null}
-				<Spacing x={1} /> <CaretDown />
+				<Spacing x={small ? 0.5 : 1} /> <CaretDown small={small} />
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(

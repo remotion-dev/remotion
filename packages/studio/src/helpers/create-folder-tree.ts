@@ -79,6 +79,30 @@ export const splitParentIntoNameAndParent = (
 	};
 };
 
+/**
+ * Returns storage keys for the composition folder and each ancestor, so the
+ * tree can be expanded when navigating to a nested composition.
+ */
+export const getKeysToExpand = (
+	initialFolderName: string,
+	parentFolderName: string | null,
+	initial: string[] = [],
+): string[] => {
+	initial.push(
+		openFolderKey({
+			folderName: initialFolderName,
+			parentName: parentFolderName,
+		}),
+	);
+
+	const {name, parent} = splitParentIntoNameAndParent(parentFolderName);
+	if (!name) {
+		return initial;
+	}
+
+	return getKeysToExpand(name, parent, initial);
+};
+
 const doesFolderExist = (
 	items: CompositionSelectorItemType[],
 	folderName: string,

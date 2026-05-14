@@ -5,6 +5,9 @@ import {AbsoluteFill} from 'remotion';
 import {Control} from './control';
 import type {DemoType} from './types';
 import {
+	htmlInCanvasDemo2DBlur,
+	htmlInCanvasDemoWebGL,
+	htmlInCanvasDemoWebGPU,
 	animationMathDemo,
 	arrowDemo,
 	circleDemo,
@@ -41,6 +44,8 @@ import {
 	translateDemo,
 	triangleDemo,
 	wipePresentationDemo,
+	zoomBlurPresentationDemo,
+	zoomInOutPresentationDemo,
 } from './types';
 import styles from './styles.module.css';
 
@@ -53,6 +58,9 @@ const container: React.CSSProperties = {
 };
 
 const demos: DemoType[] = [
+	htmlInCanvasDemo2DBlur,
+	htmlInCanvasDemoWebGL,
+	htmlInCanvasDemoWebGPU,
 	noiseDemo,
 	arrowDemo,
 	triangleDemo,
@@ -89,6 +97,8 @@ const demos: DemoType[] = [
 	transitionSeriesTransitionDemo,
 	transitionSeriesOverlayDemo,
 	transitionSeriesEnterExitDemo,
+	zoomBlurPresentationDemo,
+	zoomInOutPresentationDemo,
 ];
 
 export const Demo: React.FC<{
@@ -147,6 +157,7 @@ export const Demo: React.FC<{
 							? '1px solid var(--ifm-color-emphasis-300)'
 							: 0,
 				}}
+				logLevel={demo.logLevel}
 				errorFallback={({error}) => {
 					return (
 						<AbsoluteFill
@@ -175,6 +186,7 @@ export const Demo: React.FC<{
 				inputProps={{...state, darkMode: colorMode === 'dark'}}
 				autoPlay={demo.autoPlay}
 				controls={demo.controls}
+				initiallyMuted
 				loop
 			/>
 			<div className={styles.containerrow}>

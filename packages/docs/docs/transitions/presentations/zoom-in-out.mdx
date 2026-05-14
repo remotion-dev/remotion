@@ -1,0 +1,92 @@
+---
+image: /generated/articles-docs-transitions-presentations-zoom-in-out.png
+crumb: '@remotion/transitions - Presentations'
+title: 'zoomInOut()'
+---
+
+# zoomInOut()<AvailableFrom v="4.0.457"/>
+
+A presentation where the outgoing scene zooms in toward the viewer and crossfades into the incoming scene, which then zooms back out from a magnified state.
+
+<Demo type="zoom-in-out" />
+
+:::warning
+This presentation is built with [HTML-in-canvas](/docs/remotion/html-in-canvas) and currently requires [Chrome Canary](https://www.google.com/chrome/canary/) with `chrome://flags/#canvas-draw-element` enabled. It does not work in Firefox or Safari.
+:::
+
+## Example
+
+```tsx twoslash title="ZoomInOutTransition.tsx"
+import {AbsoluteFill} from 'remotion';
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({children, color}) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: color,
+        opacity: 0.9,
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 200,
+        color: 'white',
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {zoomInOut} from '@remotion/transitions/zoom-in-out';
+
+const BasicTransition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={40}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={zoomInOut({})}
+        timing={linearTiming({durationInFrames: 30})}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="pink">B</Letter>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+## API
+
+`zoomInOut()` takes no options. Pass an empty object: `zoomInOut({})`.
+
+## Compatibility
+
+<CompatibilityTable
+  chrome
+  firefox={false}
+  safari={false}
+  nodejs
+  bun
+  serverlessFunctions
+  clientSideRendering
+  serverSideRendering
+  player
+  studio
+/>
+
+For Preview, Chrome Canary with the `chrome://flags/#canvas-draw-element` flag enabled is required.
+
+## Credits
+
+The fragment shader is adapted from the [`zoomInOut`](https://gl-transitions.com/editor/zoomInOut) GL Transition by [OllyOllyOlly](https://github.com/OllyOllyOlly), licensed under MIT.
+
+## See also
+
+- [Source code for this presentation](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/zoom-in-out.tsx)
+- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [Presentations](/docs/transitions/presentations)

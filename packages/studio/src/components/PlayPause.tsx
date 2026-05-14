@@ -33,7 +33,8 @@ export const PlayPause: React.FC<{
 	readonly playbackRate: number;
 	readonly loop: boolean;
 	readonly bufferStateDelayInMilliseconds: number;
-}> = ({playbackRate, loop, bufferStateDelayInMilliseconds}) => {
+	readonly muted: boolean;
+}> = ({playbackRate, loop, bufferStateDelayInMilliseconds, muted}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
@@ -62,6 +63,7 @@ export const PlayPause: React.FC<{
 		browserMediaControlsBehavior: {
 			mode: 'register-media-session',
 		},
+		muted,
 	});
 
 	const isStill = useIsStill();

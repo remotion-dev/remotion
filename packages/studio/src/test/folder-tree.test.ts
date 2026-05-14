@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import type {ComponentType} from 'react';
 import React from 'react';
 import {getZodIfPossible} from '../components/get-zod-if-possible';
-import {createFolderTree} from '../helpers/create-folder-tree';
+import {createFolderTree, getKeysToExpand} from '../helpers/create-folder-tree';
 
 const SampleComp: React.FC<{}> = () => null;
 const component = React.lazy(() =>
@@ -205,6 +205,23 @@ test('Should handle nested folders well', async () => {
 			],
 			type: 'folder',
 		},
+	]);
+});
+
+test('getKeysToExpand lists nested folder keys from leaf to root', () => {
+	expect(
+		getKeysToExpand('my-folder', 'my-third-folder/my-second-folder'),
+	).toEqual([
+		'my-third-folder/my-second-folder/my-folder',
+		'my-third-folder/my-second-folder',
+		'no-parent/my-third-folder',
+	]);
+});
+
+test('getKeysToExpand lists direct child folder and root folder', () => {
+	expect(getKeysToExpand('html-in-canvas', 'video-tests')).toEqual([
+		'video-tests/html-in-canvas',
+		'no-parent/video-tests',
 	]);
 });
 

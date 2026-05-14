@@ -1,13 +1,12 @@
 {
 	"name": "@remotion/design",
-	"version": "4.0.448",
+	"version": "4.0.461",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/design"
 	},
-	"sideEffects": false,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -20,14 +19,15 @@
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
+		"@radix-ui/react-select": "2.1.1",
+		"@radix-ui/react-slot": "1.2.4",
+		"@radix-ui/react-tabs": "1.1.13",
 		"@remotion/paths": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/svg-3d-engine": "workspace:*",
-		"clsx": "^2.1.1",
-		"remotion": "workspace:*",
-		"@radix-ui/react-select": "2.1.1",
-		"@radix-ui/react-tabs": "^1.1.0",
-		"lucide-react": "0.439.0"
+		"clsx": "2.1.1",
+		"lucide-react": "0.439.0",
+		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -40,7 +40,7 @@
 		"react-dom": "catalog:",
 		"tailwindcss": "4.2.0",
 		"@tailwindcss/cli": "4.2.0",
-		"tailwind-merge": "^2.6.0",
+		"tailwind-merge": "2.6.0",
 		"bun-plugin-tailwind": "0.1.2",
 		"@typescript/native-preview": "catalog:"
 	},

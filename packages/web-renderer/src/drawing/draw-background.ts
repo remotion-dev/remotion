@@ -67,14 +67,15 @@ export const drawBackground = async ({
 		const originalWebkitBackgroundClip = element.style.webkitBackgroundClip;
 		element.style.backgroundClip = 'initial';
 		element.style.webkitBackgroundClip = 'initial';
+		const textLayerCutout = new DOMRect(
+			boundingRect.left + parentOffsetLeft,
+			boundingRect.top + parentOffsetTop,
+			boundingRect.width,
+			boundingRect.height,
+		);
 		const onlyBackgroundClipText = await createLayer({
 			element,
-			cutout: new DOMRect(
-				boundingRect.left + parentOffsetLeft,
-				boundingRect.top + parentOffsetTop,
-				boundingRect.width,
-				boundingRect.height,
-			),
+			cutout: textLayerCutout,
 			logLevel,
 			internalState,
 			scale,

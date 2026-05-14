@@ -3,13 +3,14 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.448",
+	"version": "4.0.461",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun --env-file=.env scripts/update-font-db.ts",
+		"test": "bun test test",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src"
 	},
@@ -19,8 +20,8 @@
 	},
 	"devDependencies": {
 		"@types/css-font-loading-module": "0.0.14",
-		"@types/prettier": "^2.7.1",
-		"postcss": "8.4.47",
+		"@types/prettier": "2.7.2",
+		"postcss": "8.5.10",
 		"@typescript/native-preview": "catalog:"
 	},
 	"types": "dist/cjs/index.d.ts",
@@ -97,6 +98,9 @@
 			],
 			"Akshar": [
 				"dist/cjs/Akshar.d.ts"
+			],
+			"Akt": [
+				"dist/cjs/Akt.d.ts"
 			],
 			"Aladin": [
 				"dist/cjs/Aladin.d.ts"
@@ -1451,6 +1455,9 @@
 			"Esteban": [
 				"dist/cjs/Esteban.d.ts"
 			],
+			"Estedad": [
+				"dist/cjs/Estedad.d.ts"
+			],
 			"Estonia": [
 				"dist/cjs/Estonia.d.ts"
 			],
@@ -1534,6 +1541,12 @@
 			],
 			"Finlandica": [
 				"dist/cjs/Finlandica.d.ts"
+			],
+			"FinlandicaHeadline": [
+				"dist/cjs/FinlandicaHeadline.d.ts"
+			],
+			"FinlandicaText": [
+				"dist/cjs/FinlandicaText.d.ts"
 			],
 			"FiraCode": [
 				"dist/cjs/FiraCode.d.ts"
@@ -2522,9 +2535,6 @@
 			"LibertinusKeyboard": [
 				"dist/cjs/LibertinusKeyboard.d.ts"
 			],
-			"LibertinusMath": [
-				"dist/cjs/LibertinusMath.d.ts"
-			],
 			"LibertinusMono": [
 				"dist/cjs/LibertinusMono.d.ts"
 			],
@@ -2686,6 +2696,9 @@
 			],
 			"MPLUSRounded1c": [
 				"dist/cjs/MPLUSRounded1c.d.ts"
+			],
+			"MPLUSU": [
+				"dist/cjs/MPLUSU.d.ts"
 			],
 			"MaShanZheng": [
 				"dist/cjs/MaShanZheng.d.ts"
@@ -3385,9 +3398,6 @@
 			],
 			"NotoSansMasaramGondi": [
 				"dist/cjs/NotoSansMasaramGondi.d.ts"
-			],
-			"NotoSansMath": [
-				"dist/cjs/NotoSansMath.d.ts"
 			],
 			"NotoSansMayanNumerals": [
 				"dist/cjs/NotoSansMayanNumerals.d.ts"
@@ -4927,6 +4937,9 @@
 			],
 			"Strait": [
 				"dist/cjs/Strait.d.ts"
+			],
+			"StrichpunktSans": [
+				"dist/cjs/StrichpunktSans.d.ts"
 			],
 			"StyleScript": [
 				"dist/cjs/StyleScript.d.ts"

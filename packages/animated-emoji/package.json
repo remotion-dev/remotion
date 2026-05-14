@@ -1,10 +1,9 @@
 {
 	"name": "@remotion/animated-emoji",
-	"version": "4.0.448",
+	"version": "4.0.461",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
-	"sideEffects": false,
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",

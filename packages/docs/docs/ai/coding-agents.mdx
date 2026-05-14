@@ -1,0 +1,64 @@
+---
+image: /generated/articles-docs-ai-coding-agents.png
+crumb: 'AI'
+title: Prompting videos with coding agents
+sidebar_label: Coding Agents
+---
+
+<YouTube minutes={5} href="https://www.youtube.com/watch?v=5NRAOnKc3c8" thumb="https://i.ytimg.com/vi/5NRAOnKc3c8/hqdefault.jpg" title="Create motion graphics with AI – Simple tutorial for beginners" />
+
+You can create videos just from prompting.  
+This is an easy way to get started with Remotion!
+
+Remotion works well with coding agents such as [Claude Code](https://claude.com/product/claude-code), [Codex](https://developers.openai.com/codex) and [OpenCode](https://opencode.ai).
+
+## Prerequisites
+
+You first need to install a coding agent like [Claude Code](https://claude.com/product/claude-code), [Codex](https://developers.openai.com/codex) or [OpenCode](https://opencode.ai), as well as [Node.js](https://nodejs.org/en).  
+Most coding agents require a paid subscription.
+
+## Start a new project
+
+Create a new project using the following command:
+
+```bash
+npx create-video@latest
+```
+
+This will create a new project - we recommend the following settings:
+
+- Select the [Blank](https://remotion.dev/templates/blank) template
+- Say yes to use [TailwindCSS](/docs/tailwind)
+- Say yes to install [Skills](/docs/ai/skills)
+
+## Start the preview
+
+First, go into the directory that was created.  
+If you named your project `my-video`, you would run the following command:
+
+```bash
+cd my-video
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Start the project using the following command:
+
+```bash
+npm run dev
+```
+
+## Start your coding agent
+
+Open a separate terminal window and start your coding agent of choice:
+
+```bash
+cd my-video
+claude # or: codex / opencode
+```
+
+You can now prompt a video! See our video above for a few ideas on how to start.

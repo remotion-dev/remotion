@@ -32,6 +32,18 @@ export const useThumbnailAndWaveform = ({
 			const videoTrack = await input.getPrimaryVideoTrack();
 
 			if (videoTrack) {
+				if (await videoTrack.isLive()) {
+					throw new Error(
+						'Live streams are not currently supported by Remotion. Sorry!',
+					);
+				}
+
+				if (await videoTrack.isRelativeToUnixEpoch()) {
+					throw new Error(
+						'Streams with UNIX timestamps are not currently supported by Remotion. Sorry!',
+					);
+				}
+
 				const videoSink = new VideoSampleSink(videoTrack);
 				let samples = 0;
 				const iterator = videoSink.samples();

@@ -28,6 +28,7 @@ export const functionsLsCommand = async ({
 			logLevel,
 		}),
 		indent: false,
+		logLevel,
 	});
 	fetchingOutput.update('Getting functions...', false);
 

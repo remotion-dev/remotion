@@ -2,12 +2,13 @@ import type React from 'react';
 import {useCallback, useContext, useEffect} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
+import {getKeysToExpand} from '../helpers/create-folder-tree';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
+import {persistExpandedFolders} from '../helpers/persist-open-folders';
 import {getRoute, pushUrl} from '../helpers/url-state';
 import {FolderContext} from '../state/folders';
 import {SidebarContext} from '../state/sidebar';
-import {getKeysToExpand} from './CompositionSelector';
 import {explorerSidebarTabs} from './ExplorerPanel';
 import {deriveCanvasContentFromUrl} from './load-canvas-content-from-url';
 import {useStaticFiles} from './use-static-files';
@@ -67,6 +68,8 @@ export const useSelectComposition = () => {
 					for (const key of keysToExpand) {
 						newState[key] = true;
 					}
+
+					persistExpandedFolders('compositions', newState);
 
 					return newState;
 				});

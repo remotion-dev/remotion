@@ -3,6 +3,7 @@ import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {Internals, staticFile} from 'remotion';
 import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
+import {getDurationOrCompute} from '../helpers/get-duration-or-compute';
 import {useStaticFiles} from './use-static-files';
 
 export const CURRENT_ASSET_HEIGHT = 80;
@@ -94,16 +95,30 @@ export const CurrentAsset: React.FC = () => {
 		});
 
 		Promise.all([
-			input.computeDuration(),
+			getDurationOrCompute(input),
 			input.getFormat(),
 			input.getPrimaryVideoTrack(),
 		])
-			.then(([duration, format, videoTrack]) => {
+			.then(async ([duration, format, videoTrack]) => {
+				if (videoTrack && (await videoTrack.isLive())) {
+					throw new Error(
+						'Live streams are not currently supported by Remotion. Sorry! Source: ' +
+							url,
+					);
+				}
+
+				if (videoTrack && (await videoTrack.isRelativeToUnixEpoch())) {
+					throw new Error(
+						'Streams with UNIX timestamps are not currently supported by Remotion. Sorry! Source: ' +
+							url,
+					);
+				}
+
 				setMediaMetadata({
 					duration,
 					format: format.name,
-					width: videoTrack?.displayWidth ?? null,
-					height: videoTrack?.displayHeight ?? null,
+					width: videoTrack ? await videoTrack.getDisplayWidth() : null,
+					height: videoTrack ? await videoTrack.getDisplayHeight() : null,
 				});
 			})
 			.catch(() => {

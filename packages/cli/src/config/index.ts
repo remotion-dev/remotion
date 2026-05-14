@@ -95,7 +95,6 @@ const {
 	askAIOption,
 	publicLicenseKeyOption,
 	experimentalClientSideRenderingOption,
-	experimentalVisualModeOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -199,12 +198,6 @@ declare global {
 		 */
 		readonly setExperimentalRspackEnabled: (enabled: boolean) => void;
 		/**
-		 * Nothing here yet, but this is our playground for experiments.
-		 * @param enabled Boolean whether to enable experimental visual mode
-		 * @default false
-		 */
-		readonly setExperimentalVisualMode: (enabled: boolean) => void;
-		/**
 		 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop
 		 * @param numberOfAudioTags
 		 * @default 0
@@ -224,11 +217,19 @@ declare global {
 		 */
 		readonly setShouldOpenBrowser: (should: boolean) => void;
 		/**
-		 * Set the log level.
-		 * Acceptable values: 'error' | 'warning' | 'info' | 'verbose' | 'trace'
-		 * Default value: 'info'
+		 * Set the log level used by the Remotion CLI.
+		 * Acceptable values: `'error' | 'warn' | 'info' | 'verbose' | 'trace'`
+		 * Default value: `'info'`
 		 *
-		 * Set this to 'verbose' to get browser logs and other IO.
+		 * Set this to `'verbose'` to get browser logs and other IO.
+		 */
+		readonly setLogLevel: (
+			newLogLevel: 'trace' | 'verbose' | 'info' | 'warn' | 'error',
+		) => void;
+		/**
+		 * Set the log level used by the Remotion CLI.
+		 *
+		 * @deprecated Renamed to [`setLogLevel()`](/docs/config#setloglevel).
 		 */
 		readonly setLevel: (
 			newLogLevel: 'trace' | 'verbose' | 'info' | 'warn' | 'error',
@@ -476,7 +477,7 @@ declare global {
 		/**
 		 * Set the audio latency hint that the Studio will
 		 * use when playing back audio
-		 * Default: 'interactive'
+		 * Default: 'playback'
 		 */
 		readonly setAudioLatencyHint: (
 			audioLatencyHint: AudioContextLatencyCategory | null,
@@ -695,7 +696,6 @@ export const Config: FlatConfig = {
 		experimentalClientSideRenderingOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
-	setExperimentalVisualMode: experimentalVisualModeOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
 	setWebpackPollingInMilliseconds: webpackPollOption.setConfig,
 	setShouldOpenBrowser: noOpenOption.setConfig,
@@ -707,6 +707,7 @@ export const Config: FlatConfig = {
 	setRendererPort,
 	setPublicDir: publicDirOption.setConfig,
 	setEntryPoint,
+	setLogLevel: logLevelOption.setConfig,
 	setLevel: logLevelOption.setConfig,
 	setBrowserExecutable: browserExecutableOption.setConfig,
 	setTimeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.setConfig,

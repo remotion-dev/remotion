@@ -122,6 +122,12 @@ export const resolveProjectRoot = async (options?: {
 	}
 
 	if (assertFolderEmptyAsync(projectRoot).exists) {
+		// When the folder name came from the CLI, prompting again would reuse the same
+		// argument and recurse forever (see https://github.com/remotion-dev/remotion/issues/7219).
+		if (options?.directoryArgument) {
+			process.exit(1);
+		}
+
 		return resolveProjectRoot(options);
 	}
 

@@ -28,7 +28,6 @@ import {enforceAudioOption} from './enforce-audio';
 import {envFileOption} from './env-file';
 import {everyNthFrameOption} from './every-nth-frame';
 import {experimentalClientSideRenderingOption} from './experimental-client-side-rendering';
-import {experimentalVisualModeOption} from './experimental-visual-mode';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {forceNewStudioOption} from './force-new-studio';
@@ -154,7 +153,6 @@ export const allOptions = {
 	isProductionOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
-	experimentalVisualModeOption,
 	keyboardShortcutsOption,
 	framesOption,
 	forceNewStudioOption,

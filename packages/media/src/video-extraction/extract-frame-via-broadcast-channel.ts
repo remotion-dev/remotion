@@ -50,7 +50,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	includeVideo: boolean;
 	isClientSideRendering: boolean;
 	loop: boolean;
-	audioStreamIndex: number;
+	audioStreamIndex: number | null;
 	trimAfter: number | undefined;
 	trimBefore: number | undefined;
 	fps: number;

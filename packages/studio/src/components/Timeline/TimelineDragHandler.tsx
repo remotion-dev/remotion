@@ -91,12 +91,12 @@ export const TimelineDragHandler: React.FC = () => {
 
 	return (
 		<div ref={sliderAreaRef} style={containerStyle}>
-			{video ? <Inner /> : null}
+			{video ? <TimelineDragHandlerInnerMemo /> : null}
 		</div>
 	);
 };
 
-const Inner: React.FC = () => {
+const TimelineDragHandlerInner: React.FC = () => {
 	const videoConfig = useVideoConfig();
 	const size = PlayerInternals.useElementSize(scrollableRef, {
 		triggerOnWindowResize: true,
@@ -620,3 +620,5 @@ const Inner: React.FC = () => {
 		</div>
 	);
 };
+
+const TimelineDragHandlerInnerMemo = React.memo(TimelineDragHandlerInner);

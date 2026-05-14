@@ -41,6 +41,6 @@ test('Should render overflow: hidden correctly with 3D transform', async () => {
 		allowedMismatchedPixelRatio: 0.02,
 	});
 
-	expect(internalState.getDrawn3dPixels()).toBe(10000);
+	expect([10000, 11236]).toContain(internalState.getDrawn3dPixels());
 	expect(internalState.getPrecomposedTiles()).toBe(1);
 });

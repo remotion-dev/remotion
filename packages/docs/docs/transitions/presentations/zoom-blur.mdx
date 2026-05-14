@@ -1,0 +1,94 @@
+---
+image: /generated/articles-docs-transitions-presentations-zoom-blur.png
+crumb: '@remotion/transitions - Presentations'
+title: 'zoomBlur()'
+---
+
+# zoomBlur()<AvailableFrom v="4.0.456"/>
+
+A presentation where the outgoing scene zooms out and rotates while the incoming scene zooms in from the opposite angle, blended with a radial zoom blur.
+
+<Demo type="zoom-blur" />
+
+:::warning
+This presentation is built with [HTML-in-canvas](/docs/remotion/html-in-canvas) and currently requires [Chrome Canary](https://www.google.com/chrome/canary/) with `chrome://flags/#canvas-draw-element` enabled. It does not work in Firefox or Safari.
+:::
+
+## Example
+
+```tsx twoslash title="ZoomBlurTransition.tsx"
+import {AbsoluteFill} from 'remotion';
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({children, color}) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: color,
+        opacity: 0.9,
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 200,
+        color: 'white',
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {zoomBlur} from '@remotion/transitions/zoom-blur';
+
+const BasicTransition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={40}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={zoomBlur({})}
+        timing={linearTiming({durationInFrames: 30})}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="pink">B</Letter>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+## API
+
+Accepts an object with the following options:
+
+### `rotation?`
+
+The maximum rotation angle in radians applied to each scene as it transitions. The outgoing scene rotates from `0` to `-rotation` and the incoming scene rotates from `+rotation` to `0`.
+
+Defaults to `Math.PI / 6` (30°).
+
+## Compatibility
+
+<CompatibilityTable
+  chrome
+  firefox={false}
+  safari={false}
+  nodejs
+  bun
+  serverlessFunctions
+  clientSideRendering
+  serverSideRendering
+  player
+  studio
+/>
+
+For Preview, Chrome Canary with the `chrome://flags/#canvas-draw-element` flag enabled is required.
+
+## See also
+
+- [Source code for this presentation](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/zoom-blur.tsx)
+- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [Presentations](/docs/transitions/presentations)

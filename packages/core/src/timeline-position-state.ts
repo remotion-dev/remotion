@@ -2,8 +2,10 @@ import type {MutableRefObject} from 'react';
 import {useContext, useMemo} from 'react';
 import {
 	AbsoluteTimeContext,
+	PlaybackRateContext,
 	SetTimelineContext,
 	TimelineContext,
+	type PlaybackRateContextValue,
 	type TimelineContextValue,
 } from './TimelineContext.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -69,6 +71,17 @@ export const useTimelineContext = (): TimelineContextValue => {
 	if (state === null) {
 		throw new Error(
 			'TimelineContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',
+		);
+	}
+
+	return state;
+};
+
+export const usePlaybackRate = (): PlaybackRateContextValue => {
+	const state = useContext(PlaybackRateContext);
+	if (state === null) {
+		throw new Error(
+			'PlaybackRateContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',
 		);
 	}
 

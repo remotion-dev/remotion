@@ -247,15 +247,22 @@ impl FrameCache {
             let has_no_items_before = self.items.iter().all(|item| item.resolved_pts > time);
 
             if has_no_items_before {
+                // best_item is None when self.items is empty. The downstream
+                // get_frame() in opened_stream.rs already converts None into a
+                // clean error pointing at the troubleshooting docs, so return
+                // Ok(None) here rather than panicking on the unwrap() below.
+                let Some(best) = best_item else {
+                    return Ok(None);
+                };
+
                 let has_asked_time_before = self
                     .items
                     .iter()
                     .find(|item| item.asked_time <= time)
                     .is_some();
 
-                let asked_time_difference =
-                    (self.items[best_item.unwrap()].asked_time - time).abs();
-                if has_asked_time_before && self.items[best_item.unwrap()].asked_time <= time {
+                let asked_time_difference = (self.items[best].asked_time - time).abs();
+                if has_asked_time_before && self.items[best].asked_time <= time {
                     _print_debug(&format!(
                         "Found timestamp with too much threshold, but will let it pass because no closer frames found. difference = {}, threshold = {}",
                         asked_time_difference, threshold

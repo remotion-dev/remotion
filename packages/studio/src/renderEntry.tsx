@@ -250,8 +250,7 @@ const renderContent = (Root: React.FC) => {
 					videoEnabled={window.remotion_videoEnabled}
 					logLevel={window.remotion_logLevel ?? 'info'}
 					numberOfAudioTags={0}
-					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
-					visualModeEnabled={false}
+					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
 						<Root />
@@ -278,8 +277,7 @@ const renderContent = (Root: React.FC) => {
 					videoEnabled={window.remotion_videoEnabled}
 					logLevel={window.remotion_logLevel ?? 'info'}
 					numberOfAudioTags={0}
-					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
-					visualModeEnabled={false}
+					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
 						<Root />
@@ -307,13 +305,7 @@ const renderContent = (Root: React.FC) => {
 				window.remotion_isReadOnlyStudio = true;
 				window.remotion_inputProps = '{}';
 
-				renderToDOM(
-					<StudioInternals.Studio
-						readOnly
-						rootComponent={Root}
-						visualModeEnabled={false}
-					/>,
-				);
+				renderToDOM(<StudioInternals.Studio readOnly rootComponent={Root} />);
 			})
 			.catch((err) => {
 				renderToDOM(<div>Failed to load Remotion Studio: {err.message}</div>);

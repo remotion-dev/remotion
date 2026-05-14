@@ -17,7 +17,7 @@ import {playbackLogging} from './playback-logging.js';
 import {seek} from './seek.js';
 import {
 	usePlayingState,
-	useTimelineContext,
+	usePlaybackRate,
 	useTimelinePosition,
 } from './timeline-position-state.js';
 import {useCurrentFrame} from './use-current-frame.js';
@@ -51,7 +51,7 @@ export const useMediaPlayback = ({
 	isPostmounting: boolean;
 	onAutoPlayError: null | (() => void);
 }) => {
-	const {playbackRate: globalPlaybackRate} = useTimelineContext();
+	const {playbackRate: globalPlaybackRate} = usePlaybackRate();
 	const frame = useCurrentFrame();
 	const absoluteFrame = useTimelinePosition();
 	const [playing] = usePlayingState();

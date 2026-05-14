@@ -45,7 +45,7 @@ export const getAvailableMemory = (logLevel: LogLevel) => {
 			);
 			Log.warn(
 				{indent: false, logLevel},
-				'You might have inadvertenly set the --memory flag of `docker run` to a value that is higher than the global Docker memory limit.',
+				'You might have inadvertently set the --memory flag of `docker run` to a value that is higher than the global Docker memory limit.',
 			);
 			Log.warn(
 				{indent: false, logLevel},

@@ -17,10 +17,13 @@ export type TimelineContextValue = {
 	frame: Record<string, number>;
 	playing: boolean;
 	rootId: string;
-	playbackRate: number;
 	imperativePlaying: MutableRefObject<boolean>;
-	setPlaybackRate: (u: React.SetStateAction<number>) => void;
 	audioAndVideoTags: MutableRefObject<PlayableMediaTag[]>;
+};
+
+export type PlaybackRateContextValue = {
+	playbackRate: number;
+	setPlaybackRate: (u: React.SetStateAction<number>) => void;
 };
 
 export type SetTimelineContextValue = {
@@ -38,6 +41,9 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 });
 
 export const TimelineContext = createContext<TimelineContextValue | null>(null);
+
+export const PlaybackRateContext =
+	createContext<PlaybackRateContextValue | null>(null);
 
 export const AbsoluteTimeContext = createContext<TimelineContextValue | null>(
 	null,
@@ -102,11 +108,16 @@ export const TimelineContextProvider: React.FC<{
 			playing,
 			imperativePlaying,
 			rootId: remotionRootId,
-			playbackRate,
-			setPlaybackRate,
 			audioAndVideoTags,
 		};
-	}, [frame, playbackRate, playing, remotionRootId]);
+	}, [frame, playing, remotionRootId]);
+
+	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
+		return {
+			playbackRate,
+			setPlaybackRate,
+		};
+	}, [playbackRate]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
@@ -117,11 +128,13 @@ export const TimelineContextProvider: React.FC<{
 
 	return (
 		<AbsoluteTimeContext.Provider value={timelineContextValue}>
-			<TimelineContext.Provider value={timelineContextValue}>
-				<SetTimelineContext.Provider value={setTimelineContextValue}>
-					{children}
-				</SetTimelineContext.Provider>
-			</TimelineContext.Provider>
+			<PlaybackRateContext.Provider value={playbackRateContextValue}>
+				<TimelineContext.Provider value={timelineContextValue}>
+					<SetTimelineContext.Provider value={setTimelineContextValue}>
+						{children}
+					</SetTimelineContext.Provider>
+				</TimelineContext.Provider>
+			</PlaybackRateContext.Provider>
 		</AbsoluteTimeContext.Provider>
 	);
 };

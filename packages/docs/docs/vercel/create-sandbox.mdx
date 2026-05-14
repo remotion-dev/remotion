@@ -71,6 +71,12 @@ const sandbox = await createSandbox({
 
 Default: `{vcpus: 4}`.
 
+### `timeoutInMilliseconds?`<AvailableFrom v="4.0.452" />
+
+The maximum time allowed for the sandbox to be created, in milliseconds. If exceeded, sandbox creation is aborted.
+
+Default: `300000` (5 minutes).
+
 ## Return value
 
 A [`VercelSandbox`](/docs/vercel/types#vercelsandbox) object (a [`Sandbox`](https://vercel.com/docs/vercel-sandbox/sdk-reference#sandbox-class) with `AsyncDisposable` support).

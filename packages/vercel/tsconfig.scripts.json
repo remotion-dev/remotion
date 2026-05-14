@@ -1,0 +1,14 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"skipLibCheck": true,
+		"target": "ES2022",
+		"module": "es2022",
+		"moduleResolution": "bundler",
+		"noEmit": true,
+		"composite": false,
+		"declaration": false
+	},
+	"include": ["src/scripts"]
+}

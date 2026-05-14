@@ -17,6 +17,7 @@
 import * as childProcess from 'node:child_process';
 import {join} from 'node:path';
 import {deleteDirectory} from '../delete-directory';
+import {wrapExecutableWithSetprivIfAvailable} from '../linux/wrap-with-setpriv';
 import type {LogLevel} from '../log-level';
 import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
@@ -61,7 +62,18 @@ export const makeBrowserRunner = async ({
 		? ['ignore', 'pipe', 'pipe']
 		: ['pipe', 'pipe', 'pipe'];
 
-	const proc = childProcess.spawn(executablePath, processArguments, {
+	const launch = wrapExecutableWithSetprivIfAvailable({
+		executablePath,
+		args: processArguments,
+	});
+	if (launch.executablePath !== executablePath) {
+		Log.verbose(
+			{indent, logLevel},
+			'Using setpriv --pdeathsig SIGKILL so the browser is killed if the Node parent process dies (Linux).',
+		);
+	}
+
+	const proc = childProcess.spawn(launch.executablePath, launch.args, {
 		// On non-windows platforms, `detached: true` makes child process a
 		// leader of a new process group, making it possible to kill child
 		// process tree with `.kill(-pid)` command. @see

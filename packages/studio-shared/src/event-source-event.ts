@@ -1,9 +1,6 @@
 import type {StaticFile} from 'remotion';
-import type {
-	CanUpdateDefaultPropsResponse,
-	CanUpdateSequencePropsResponse,
-	SequenceNodePath,
-} from './api-requests';
+import type {SequenceNodePath, CanUpdateSequencePropsResponse} from 'remotion';
+import type {CanUpdateDefaultPropsResponse} from './api-requests';
 import type {HotMiddlewareMessage} from './hot-middleware';
 import type {CompletedClientRender, RenderJob} from './render-job';
 

@@ -39,6 +39,7 @@ export const servicesRmCommand = async (args: string[], logLevel: LogLevel) => {
 			cancelSignal: null,
 			updatesDontOverwrite: false,
 			indent: false,
+			logLevel,
 		});
 		infoOutput.update('Getting service info...', false);
 		const info = await getServiceInfo({
@@ -67,6 +68,7 @@ export const servicesRmCommand = async (args: string[], logLevel: LogLevel) => {
 			cancelSignal: null,
 			updatesDontOverwrite: false,
 			indent: false,
+			logLevel,
 		});
 		output.update('Deleting...', false);
 		await deleteService({

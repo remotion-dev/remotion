@@ -62,7 +62,7 @@ export const useVolume = ({
 		);
 	}
 
-	const {audioContext} = sharedAudioContext;
+	const {audioContext, gainNode: masterGainNode} = sharedAudioContext;
 
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -89,13 +89,17 @@ export const useVolume = ({
 				return;
 			}
 
+			if (!masterGainNode) {
+				return;
+			}
+
 			const gainNode = new GainNode(audioContext, {
 				gain: currentVolumeRef.current,
 			});
 
 			source.attemptToConnect();
 			source.get().connect(gainNode);
-			gainNode.connect(audioContext.destination);
+			gainNode.connect(masterGainNode);
 			audioStuffRef.current = {
 				gainNode,
 			};
@@ -110,7 +114,14 @@ export const useVolume = ({
 				gainNode.disconnect();
 				source.get().disconnect();
 			};
-		}, [logLevel, mediaRef, audioContext, source, shouldUseWebAudioApi]);
+		}, [
+			logLevel,
+			mediaRef,
+			audioContext,
+			source,
+			shouldUseWebAudioApi,
+			masterGainNode,
+		]);
 	}
 
 	if (audioStuffRef.current) {

@@ -1,10 +1,10 @@
 import {loadFonts} from './base';
 
 export const getInfo = () => ({
-	fontFamily: 'BJ Cree',
+	fontFamily: 'BJCree',
 	importName: 'BJCree',
-	version: 'v1',
-	url: 'https://fonts.googleapis.com/css2?family=BJ+Cree:ital,wght@0,400;0,500;0,600;0,700',
+	version: 'v3',
+	url: 'https://fonts.googleapis.com/css2?family=BJCree:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'canadian-aboriginal':
 			'U+02C7, U+02D8-02D9, U+02DB, U+0307, U+1400-167F, U+18B0-18F5, U+25CC, U+11AB0-11ABF',
@@ -15,34 +15,34 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/bjcree/v1/8QIJdijLoYvJ7b7biKAEqojk.woff2',
+					'https://fonts.gstatic.com/s/bjcree/v3/QldPNTVAjTwa8_QKFDmUcXg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bjcree/v1/8QIJdijLoYvJ7b7biI8Eqg.woff2',
+					'https://fonts.gstatic.com/s/bjcree/v3/QldPNTVAjTwa8_QKOzmU.woff2',
 			},
 			'500': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/bjcree/v1/8QIMdijLoYvJ7b7bgHwnv5jFHdVy.woff2',
+					'https://fonts.gstatic.com/s/bjcree/v3/QldMNTVAjTwa8_QCyBqBYVlb_qw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bjcree/v1/8QIMdijLoYvJ7b7bgHwnv7fFHQ.woff2',
+					'https://fonts.gstatic.com/s/bjcree/v3/QldMNTVAjTwa8_QCyBqBTllb.woff2',
 			},
 			'600': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/bjcree/v1/8QIMdijLoYvJ7b7bgFAgv5jFHdVy.woff2',
+					'https://fonts.gstatic.com/s/bjcree/v3/QldMNTVAjTwa8_QC5B2BYVlb_qw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bjcree/v1/8QIMdijLoYvJ7b7bgFAgv7fFHQ.woff2',
+					'https://fonts.gstatic.com/s/bjcree/v3/QldMNTVAjTwa8_QC5B2BTllb.woff2',
 			},
 			'700': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/bjcree/v1/8QIMdijLoYvJ7b7bgDQhv5jFHdVy.woff2',
+					'https://fonts.gstatic.com/s/bjcree/v3/QldMNTVAjTwa8_QCgByBYVlb_qw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bjcree/v1/8QIMdijLoYvJ7b7bgDQhv7fFHQ.woff2',
+					'https://fonts.gstatic.com/s/bjcree/v3/QldMNTVAjTwa8_QCgByBTllb.woff2',
 			},
 		},
 	},
 	subsets: ['canadian-aboriginal', 'latin'],
 });
 
-export const fontFamily = 'BJ Cree' as const;
+export const fontFamily = 'BJCree' as const;
 
 type Variants = {
 	normal: {

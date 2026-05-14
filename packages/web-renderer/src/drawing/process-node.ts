@@ -10,6 +10,10 @@ import {
 	getPrecomposeRectFor3DTransform,
 	handle3dTransform,
 } from './handle-3d-transform';
+import {
+	applyFilterToDrawOperation,
+	getPrecomposeRectForFilter,
+} from './handle-filter';
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
@@ -93,6 +97,20 @@ export const processNode = async ({
 			);
 		}
 
+		if (precompositing.needsFilterPrecompositing) {
+			const tentativePrecomposeRect = getPrecomposeRectForFilter({
+				element,
+				filter: precompositing.needsFilterPrecompositing,
+			});
+
+			precomposeRect = roundToExpandRect(
+				getWiderRectAndExpand({
+					firstRect: precomposeRect,
+					secondRect: tentativePrecomposeRect,
+				}),
+			);
+		}
+
 		if (!precomposeRect) {
 			throw new Error('Precompose rect not found');
 		}
@@ -153,17 +171,36 @@ export const processNode = async ({
 		const previousTransform = context.getTransform();
 
 		context.setTransform(new DOMMatrix());
-		context.drawImage(
-			drawable,
-			0,
-			drawable.height - rectAfterTransforms.height,
-			rectAfterTransforms.width,
-			rectAfterTransforms.height,
-			rectAfterTransforms.left - parentRect.x,
-			rectAfterTransforms.top - parentRect.y,
-			rectAfterTransforms.width,
-			rectAfterTransforms.height,
-		);
+
+		const drawPrecomposedCanvas = () => {
+			// Source = full drawable (it always contains the precomposed content
+			// at its native size). Destination = `rectAfterTransforms`, so
+			// `drawImage` stretches when ancestor transforms (e.g. scale) make
+			// the destination smaller/larger than the layer canvas.
+			// See https://github.com/remotion-dev/remotion/issues/7199.
+			context.drawImage(
+				drawable,
+				0,
+				0,
+				drawable.width,
+				drawable.height,
+				rectAfterTransforms.left - parentRect.x * scale,
+				rectAfterTransforms.top - parentRect.y * scale,
+				rectAfterTransforms.width,
+				rectAfterTransforms.height,
+			);
+		};
+
+		// Apply filter when drawing the precomposed canvas if needed
+		if (precompositing.needsFilterPrecompositing) {
+			applyFilterToDrawOperation({
+				context,
+				filter: precompositing.needsFilterPrecompositing,
+				drawFn: drawPrecomposedCanvas,
+			});
+		} else {
+			drawPrecomposedCanvas();
+		}
 
 		context.setTransform(previousTransform);
 

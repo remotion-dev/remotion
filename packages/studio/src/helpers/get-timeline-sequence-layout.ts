@@ -22,7 +22,7 @@ const getWidthOfTrack = ({
 			? fullWidth
 			: (spatialDuration / lastFrame) * fullWidth;
 
-	return base - SEQUENCE_BORDER_WIDTH + nonNegativeMarginLeft;
+	return Math.max(0, base - SEQUENCE_BORDER_WIDTH + nonNegativeMarginLeft);
 };
 
 export const getTimelineSequenceLayout = ({
@@ -48,16 +48,19 @@ export const getTimelineSequenceLayout = ({
 		(maxMediaDuration ?? Infinity) - startFromMedia;
 	const lastFrame = (video.durationInFrames ?? 1) - 1;
 
-	const spatialDuration = Math.min(
-		maxMediaSequenceDuration,
-		durationInFrames - 1,
-		lastFrame - startFrom,
+	const spatialDuration = Math.max(
+		0,
+		Math.min(
+			maxMediaSequenceDuration,
+			durationInFrames - 1,
+			lastFrame - startFrom,
+		),
 	);
 
 	// Unclipped spatial duration: without the lastFrame - startFrom constraint
-	const naturalSpatialDuration = Math.min(
-		maxMediaSequenceDuration,
-		durationInFrames - 1,
+	const naturalSpatialDuration = Math.max(
+		0,
+		Math.min(maxMediaSequenceDuration, durationInFrames - 1),
 	);
 
 	const marginLeft =

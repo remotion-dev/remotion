@@ -14,7 +14,7 @@ import type {
 	RenderJob,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {SOURCE_MAP_ENDPOINT, getProjectName} from '@remotion/studio-shared';
+import {getProjectName} from '@remotion/studio-shared';
 import {
 	addCompletedClientRender,
 	getCompletedClientRenders,
@@ -37,8 +37,8 @@ import type {LiveEventsServer} from './preview-server/live-events';
 import {parseRequestBody} from './preview-server/parse-body';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {serveStatic} from './preview-server/serve-static';
+import {reloadPreviouslySuppressedFiles} from './preview-server/watch-ignore-next-change';
 import type {RemotionConfigResponse} from './remotion-config-response';
-
 const editorGuess = guessEditor();
 const loggedStaticFileHints = new Set<string>();
 
@@ -105,6 +105,11 @@ const handleFallback = async ({
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
 }) => {
+	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
+	if (request.method === 'GET' && acceptsHtml) {
+		await reloadPreviouslySuppressedFiles();
+	}
+
 	const requestUrl = new URL(request.url as string, 'http://localhost');
 	const {pathname} = requestUrl;
 	const staticFileHint = getStaticFileFallbackHint({
@@ -176,7 +181,7 @@ const handleFallback = async ({
 				packageManager === 'unknown' ? 'unknown' : packageManager.manager,
 			logLevel,
 			mode: 'dev',
-			audioLatencyHint: audioLatencyHint ?? 'interactive',
+			audioLatencyHint: audioLatencyHint ?? 'playback',
 		}),
 	);
 };
@@ -447,29 +452,6 @@ const handleBeep = (
 	return Promise.resolve();
 };
 
-const handleWasm = (
-	_: IncomingMessage,
-	response: ServerResponse,
-): Promise<void> => {
-	const filePath = path.resolve(
-		require.resolve('source-map'),
-		'..',
-		'lib',
-		'mappings.wasm',
-	);
-
-	const stat = statSync(filePath);
-
-	response.writeHead(200, {
-		'Content-Type': 'application/wasm',
-		'Content-Length': stat.size,
-	});
-
-	const readStream = createReadStream(filePath);
-	readStream.pipe(response);
-	return Promise.resolve();
-};
-
 export const handleRoutes = ({
 	staticHash,
 	staticHashPrefix,
@@ -588,10 +570,6 @@ export const handleRoutes = ({
 
 	if (url.pathname === '/beep.wav') {
 		return handleBeep(request, response);
-	}
-
-	if (url.pathname === SOURCE_MAP_ENDPOINT) {
-		return handleWasm(request, response);
 	}
 
 	if (url.pathname === '/__remotion_config') {

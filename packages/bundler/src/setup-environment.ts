@@ -85,6 +85,9 @@ injectCSS(`
     color: #0584f2
   }
 
+  .__remotion-vertical-scrollbar {
+    scrollbar-gutter: stable;
+  }
   .__remotion-vertical-scrollbar::-webkit-scrollbar {
       width: 6px;
   }

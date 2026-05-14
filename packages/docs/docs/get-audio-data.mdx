@@ -46,6 +46,24 @@ The `sampleRate` that should be passed into the [`AudioContext`](https://develop
 
 In versions before 4.0.121, the default value was `undefined`, leading to undeterministic behavior across devices rendering.
 
+#### `requestInit?`<AvailableFrom v="4.0.458"/>
+
+_`RequestInit`_
+
+Options that are passed to the [`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) call when loading the audio source.
+
+This can be used to load authenticated remote audio files:
+
+```ts twoslash
+import {getAudioData} from '@remotion/media-utils';
+
+await getAudioData('https://example.com/authenticated-audio.mp3', {
+  requestInit: {
+    credentials: 'include',
+  },
+});
+```
+
 ## Return value
 
 _`Promise<AudioData>`_

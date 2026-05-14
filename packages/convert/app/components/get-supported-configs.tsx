@@ -147,7 +147,7 @@ export const getSupportedConfigs = async ({
 		if (track.isAudioTrack()) {
 			const audioTrackOperations: AudioOperation[] = [];
 
-			const canCopy = canCopyAudioTrack({
+			const canCopy = await canCopyAudioTrack({
 				outputContainer: container,
 				inputTrack: track,
 				sampleRate,

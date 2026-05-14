@@ -47,6 +47,7 @@ Full logs are available at https://console.cloud.google.com/run?project=${getPro
 		cancelSignal: null,
 		updatesDontOverwrite: false,
 		indent: false,
+		logLevel,
 	});
 
 	await (() => {

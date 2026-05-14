@@ -7,6 +7,7 @@
 		"skipLibCheck": true
 	},
 	"include": ["src"],
+	"exclude": ["src/test/snapshots"],
 	"references": [
 		{
 			"path": "../bundler"

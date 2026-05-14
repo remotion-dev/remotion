@@ -506,7 +506,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		longerDescription: `
 			<span>
 				A starter template to create overlays to use in conventional video
-				editing software.{' '}
+				editing software.
 				<a href="/docs/overlay">Read more about creating overlays.</a>
 			</span>
 			`,

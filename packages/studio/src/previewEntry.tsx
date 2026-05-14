@@ -61,11 +61,5 @@ const renderToDOM = (content: React.ReactElement) => {
 renderToDOM(<NoRegisterRoot />);
 
 Internals.waitForRoot((NewRoot) => {
-	renderToDOM(
-		<Studio
-			readOnly={false}
-			rootComponent={NewRoot}
-			visualModeEnabled={Boolean(process.env.EXPERIMENTAL_VISUAL_MODE_ENABLED)}
-		/>,
-	);
+	renderToDOM(<Studio readOnly={false} rootComponent={NewRoot} />);
 });

@@ -1,4 +1,5 @@
 import type {InputAudioTrack} from 'mediabunny';
+import {useEffect, useState} from 'react';
 import {renderHumanReadableAudioCodec} from '~/lib/render-codec-label';
 import {PacketList} from './PacketList';
 import {TextButtonWithChevron} from './TexrButtonWithChevron';
@@ -11,6 +12,13 @@ export const AudioTrackOverview: React.FC<{
 	readonly setShowPackets: (showPackets: boolean) => void;
 }> = ({track, showPackets, setShowPackets}) => {
 	const packets = usePackets({track});
+	const [sampleRate, setSampleRate] = useState<number | null>(null);
+	const [numberOfChannels, setNumberOfChannels] = useState<number | null>(null);
+
+	useEffect(() => {
+		track.getSampleRate().then((sr) => setSampleRate(sr));
+		track.getNumberOfChannels().then((ch) => setNumberOfChannels(ch));
+	}, [track]);
 
 	if (showPackets) {
 		return <PacketList packets={packets} />;
@@ -43,11 +51,13 @@ export const AudioTrackOverview: React.FC<{
 				</TableRow>
 				<TableRow>
 					<TableCell className="font-brand">Channels</TableCell>
-					<TableCell className="text-right">{track.numberOfChannels}</TableCell>
+					<TableCell className="text-right">
+						{numberOfChannels ?? '...'}
+					</TableCell>
 				</TableRow>
 				<TableRow>
 					<TableCell className="font-brand">Sample Rate</TableCell>
-					<TableCell className="text-right">{track.sampleRate}</TableCell>
+					<TableCell className="text-right">{sampleRate ?? '...'}</TableCell>
 				</TableRow>
 			</TableBody>
 		</Table>

@@ -21,8 +21,8 @@ import type {
 	VariableDeclarator,
 } from '@babel/types';
 import {cloneNode} from '@babel/types';
-import type {SequenceNodePath} from '@remotion/studio-shared';
 import * as recast from 'recast';
+import type {SequenceNodePath} from 'remotion';
 import {
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,

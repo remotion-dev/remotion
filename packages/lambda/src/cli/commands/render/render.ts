@@ -411,6 +411,7 @@ export const renderCommand = async ({
 		// No browser logs in Lambda
 		updatesDontOverwrite: false,
 		indent: false,
+		logLevel,
 	});
 
 	Log.info(

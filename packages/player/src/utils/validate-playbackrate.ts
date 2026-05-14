@@ -3,15 +3,15 @@ export const validatePlaybackRate = (playbackRate: number | undefined) => {
 		return;
 	}
 
-	if (playbackRate > 4) {
+	if (playbackRate > 10) {
 		throw new Error(
-			`The highest possible playback rate is 4. You passed: ${playbackRate}`,
+			`The highest possible playback rate is 10. You passed: ${playbackRate}`,
 		);
 	}
 
-	if (playbackRate < -4) {
+	if (playbackRate < -10) {
 		throw new Error(
-			`The lowest possible playback rate is -4. You passed: ${playbackRate}`,
+			`The lowest possible playback rate is -10. You passed: ${playbackRate}`,
 		);
 	}
 

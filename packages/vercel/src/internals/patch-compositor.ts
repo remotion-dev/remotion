@@ -3,6 +3,7 @@ import type {Sandbox} from '@vercel/sandbox';
 const GLIBC_DIR = '/tmp/glibc235';
 const LIBC6_DEB_URL =
 	'https://launchpadlibrarian.net/612471225/libc6_2.35-0ubuntu3.1_amd64.deb';
+const FALLBACK_URL = 'https://remotion.media/libc6_2.35-0ubuntu3.1_amd64.deb';
 
 /**
  * Remotion does not officially support glibc 2.34, but it can be patched.
@@ -68,7 +69,7 @@ echo "[patch-compositor] Found compositor binary: $COMPOSITOR_BIN"
 echo "[patch-compositor] Downloading glibc 2.35..."
 mkdir -p ${GLIBC_DIR}
 cd /tmp
-curl -fsSL -o libc6.deb "${LIBC6_DEB_URL}"
+curl -fsSL -o libc6.deb "${LIBC6_DEB_URL}" || curl -fsSL -o libc6.deb "${FALLBACK_URL}"
 ar x libc6.deb
 zstd -d data.tar.zst -o data.tar
 tar xf data.tar -C ${GLIBC_DIR} --strip-components=1

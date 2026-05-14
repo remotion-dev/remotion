@@ -35,7 +35,6 @@ type InnerVideoProps = {
 	readonly src: string;
 	readonly logLevel: LogLevel;
 	readonly muted: boolean;
-	readonly name: string | undefined;
 	readonly volume: VolumeProp;
 	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
 	readonly onVideoFrame: OnVideoFrame | undefined;
@@ -75,7 +74,6 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	className,
 	fallbackOffthreadVideoProps,
 	audioStreamIndex,
-	name,
 	disallowFallbackToOffthreadVideo,
 	stack,
 	toneFrequency,
@@ -422,12 +420,12 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				delayRenderTimeoutInMilliseconds={
 					delayRenderTimeoutInMilliseconds ?? undefined
 				}
+				name={'Fallback to <OffthreadVideo>'}
 				style={styleWithObjectFit}
 				allowAmplificationDuringRender
 				transparent={fallbackOffthreadVideoProps?.transparent ?? true}
 				toneMapped={fallbackOffthreadVideoProps?.toneMapped ?? true}
 				audioStreamIndex={audioStreamIndex ?? 0}
-				name={name}
 				className={className}
 				onVideoFrame={onVideoFrame}
 				volume={volumeProp}

@@ -4,3 +4,4 @@ dist/test
 eslint.config.mjs
 .turbo
 tsconfig.tsbuildinfo
+.prettierignore

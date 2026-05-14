@@ -17,6 +17,7 @@ export const servicesRmallCommand = async (logLevel: LogLevel) => {
 		cancelSignal: null,
 		updatesDontOverwrite: false,
 		indent: false,
+		logLevel,
 	});
 	fetchingOutput.update(`Getting services in ${region}...`, false);
 
@@ -53,6 +54,7 @@ export const servicesRmallCommand = async (logLevel: LogLevel) => {
 			cancelSignal: null,
 			updatesDontOverwrite: false,
 			indent: false,
+			logLevel,
 		});
 		output.update('Deleting...', false);
 		await deleteService({region: serv.region, serviceName: serv.serviceName});

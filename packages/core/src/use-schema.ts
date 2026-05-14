@@ -1,114 +1,100 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import {useContext, useMemo, useState} from 'react';
-import type {SequenceControls} from './CompositionManager.js';
+import {findPropsToDelete} from './find-props-to-delete.js';
 import {getEffectiveVisualModeValue} from './get-effective-visual-mode-value.js';
 import type {
-	SchemaKeysRecord,
+	SequenceFieldSchema,
 	SequenceSchema,
 } from './sequence-field-schema.js';
-import {VisualModeOverridesContext} from './SequenceManager.js';
-import {useRemotionEnvironment} from './use-remotion-environment.js';
+import type {
+	CanUpdateSequencePropsResponse,
+	SequenceNodePath,
+} from './SequenceManager.js';
 
 export type CanUpdateSequencePropStatus =
 	| {canUpdate: true; codeValue: unknown}
 	| {canUpdate: false; reason: 'computed'};
 
-export const useSchema = <
-	S extends SequenceSchema,
-	T extends SchemaKeysRecord<S>,
->(
-	schema: S | null,
-	currentValue: (T & Record<Exclude<keyof T, keyof S>, never>) | null,
-): {
-	controls: SequenceControls | undefined;
-	values: T;
-} => {
-	const env = useRemotionEnvironment();
-	const earlyReturn = useMemo(() => {
-		if (!env.isStudio || env.isReadOnlyStudio) {
-			return {
-				controls: undefined,
-				values: (currentValue ?? {}) as T,
-			};
-		}
+export type DragOverrides = Record<string, Record<string, unknown>>;
+export type CodeValues = Record<string, CanUpdateSequencePropsResponse>;
 
-		return undefined;
-	}, [env.isStudio, env.isReadOnlyStudio, currentValue]);
+export type GetCodeValues = (
+	nodePath: SequenceNodePath,
+) => Record<string, CanUpdateSequencePropStatus> | undefined;
 
-	if (earlyReturn) {
-		return earlyReturn;
+export type GetDragOverrides = (
+	nodePath: SequenceNodePath,
+) => DragOverrides[string];
+
+const findFieldInSchema = (
+	schema: SequenceSchema,
+	key: string,
+): SequenceFieldSchema | undefined => {
+	if (key in schema) {
+		return schema[key];
 	}
 
-	// Intentional conditional hook call, useRemotionEnvironment is stable.
-	const [overrideId] = useState(() => String(Math.random()));
-	const {
-		visualModeEnabled,
-		dragOverrides: overrides,
-		codeValues,
-	} = useContext(VisualModeOverridesContext);
-
-	const controls = useMemo(() => {
-		if (!visualModeEnabled) {
-			return undefined;
+	for (const field of Object.values(schema)) {
+		if (field.type !== 'enum') {
+			continue;
 		}
 
-		if (schema === null || currentValue === null) {
-			return undefined;
+		for (const variant of Object.values(field.variants)) {
+			const found = findFieldInSchema(variant, key);
+			if (found) {
+				return found;
+			}
+		}
+	}
+
+	return undefined;
+};
+
+export const computeEffectiveSchemaValuesDotNotation = ({
+	schema,
+	currentValue,
+	overrideValues,
+	propStatus,
+}: {
+	schema: SequenceSchema;
+	currentValue: Record<string, unknown>;
+	overrideValues: Record<string, unknown>;
+	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
+}): {merged: Record<string, unknown>; propsToDelete: Set<string>} => {
+	const merged: Record<string, unknown> = {};
+	const propsToDelete = new Set<string>();
+	for (const key of Object.keys(currentValue)) {
+		const codeValueStatus = propStatus?.[key] ?? null;
+		const field = findFieldInSchema(schema, key);
+
+		if (field?.type === 'hidden') {
+			continue;
 		}
 
-		return {
-			schema,
-			currentValue,
-			overrideId,
-		};
-	}, [schema, currentValue, overrideId, visualModeEnabled]);
-
-	return useMemo(() => {
-		if (
-			controls === undefined ||
-			currentValue === null ||
-			schema === null ||
-			!visualModeEnabled
-		) {
-			return {
-				controls: undefined,
-				values: (currentValue ?? {}) as T,
-			};
+		const value = getEffectiveVisualModeValue({
+			codeValue: codeValueStatus,
+			runtimeValue: currentValue[key],
+			dragOverrideValue: overrideValues[key],
+			defaultValue: field?.default,
+			shouldResortToDefaultValueIfUndefined: false,
+		});
+		if (value === undefined) {
+			propsToDelete.add(key);
 		}
 
-		const overrideValues = overrides[overrideId] ?? {};
-		const propStatus = codeValues[overrideId];
+		merged[key] = value;
+	}
 
-		const currentValueKeys = Object.keys(currentValue);
-
-		const keysToUpdate = [...new Set(currentValueKeys)];
-
-		const merged = {} as Record<string, unknown>;
-
-		// Apply code values over runtime values, falling back to schema default
-		for (const key of keysToUpdate) {
-			const codeValueStatus = propStatus?.[key] ?? null;
-
-			merged[key] = getEffectiveVisualModeValue({
-				codeValue: codeValueStatus,
-				runtimeValue: currentValue[key as keyof SchemaKeysRecord<S>] as unknown,
-				dragOverrideValue: overrideValues[key],
-				defaultValue: schema[key]?.default,
-				shouldResortToDefaultValueIfUndefined: false,
+	for (const key of Object.keys(overrideValues)) {
+		if (schema[key]?.type === 'enum') {
+			const propsToDeleteForKey = findPropsToDelete({
+				schema,
+				key,
+				value: merged[key],
 			});
+			for (const propToDelete of propsToDeleteForKey) {
+				propsToDelete.add(propToDelete);
+			}
 		}
+	}
 
-		return {
-			controls,
-			values: merged as T,
-		};
-	}, [
-		controls,
-		currentValue,
-		overrideId,
-		overrides,
-		codeValues,
-		schema,
-		visualModeEnabled,
-	]);
+	return {merged, propsToDelete};
 };

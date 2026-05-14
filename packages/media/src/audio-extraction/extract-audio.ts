@@ -26,7 +26,7 @@ type ExtractAudioParams = {
 	logLevel: LogLevel;
 	loop: boolean;
 	playbackRate: number;
-	audioStreamIndex: number;
+	audioStreamIndex: number | null;
 	trimBefore: number | undefined;
 	trimAfter: number | undefined;
 	fps: number;
