@@ -5,7 +5,6 @@
 	"name": "@remotion/media-parser",
 	"version": "4.0.461",
 	"main": "dist/index.js",
-	"sideEffects": false,
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",

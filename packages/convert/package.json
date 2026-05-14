@@ -2,7 +2,6 @@
 	"name": "@remotion/convert",
 	"version": "4.0.461",
 	"private": true,
-	"sideEffects": false,
 	"type": "module",
 	"author": "Jonny Burger <jonny@remotion.dev>, Hunain Ahmed <junaidhunain6@gmail.com>",
 	"scripts": {
