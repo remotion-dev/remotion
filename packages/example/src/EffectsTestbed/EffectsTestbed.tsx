@@ -1,11 +1,7 @@
-import {
-	blur,
-	blurHorizontal,
-	blurVertical,
-	halftone,
-	tint,
-	wave,
-} from '@remotion/effects';
+import {blur} from '@remotion/effects/blur';
+import {halftone} from '@remotion/effects/halftone';
+import {tint} from '@remotion/effects/tint';
+import {wave} from '@remotion/effects/wave';
 import {Video} from '@remotion/media';
 import React from 'react';
 import {AbsoluteFill, staticFile} from 'remotion';
@@ -156,26 +152,6 @@ export const EffectsTestbed: React.FC = () => {
 						loop
 						objectFit="cover"
 						_experimentalEffects={[...blur({radius: 24})]}
-					/>
-				</Tile>
-				<Tile title="blurHorizontal" subtitle="radius 24, single axis">
-					<Video
-						src={SAMPLE_VIDEO}
-						style={tileVideoStyle}
-						muted
-						loop
-						objectFit="cover"
-						_experimentalEffects={[blurHorizontal({radius: 24})]}
-					/>
-				</Tile>
-				<Tile title="blurVertical" subtitle="radius 24, single axis">
-					<Video
-						src={SAMPLE_VIDEO}
-						style={tileVideoStyle}
-						muted
-						loop
-						objectFit="cover"
-						_experimentalEffects={[blurVertical({radius: 24})]}
 					/>
 				</Tile>
 			</div>
