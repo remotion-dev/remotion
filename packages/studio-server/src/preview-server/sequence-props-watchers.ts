@@ -1,11 +1,10 @@
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import {
-	getAllSchemaKeys,
 	stringifySequenceSubscriptionKey,
 	type SubscribeToSequencePropsResponse,
 } from '@remotion/studio-shared';
-import type {SequenceNodePath, SequenceSchema} from 'remotion';
+import type {SequenceNodePath} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
 import {getCachedNodePath, setCachedNodePath} from './node-path-cache';
@@ -34,7 +33,7 @@ const getSequencePropsStatus = ({
 	line: number;
 	column: number;
 	keys: string[];
-	effects: SequenceSchema[];
+	effects: string[][];
 	remotionRoot: string;
 }): SubscribeToSequencePropsResponse => {
 	// Try cached nodePath first (handles stale source maps after suppressed rebuilds)
@@ -56,7 +55,7 @@ const getSequencePropsStatus = ({
 					absolutePath: fileName,
 					nodePath: cachedNodePath,
 					sequenceKeys: keys,
-					effectKeys: effects.map((effect) => getAllSchemaKeys(effect)),
+					effectKeys: effects,
 				},
 				success: true,
 			};
@@ -87,7 +86,7 @@ export const subscribeToSequencePropsWatchers = ({
 	line: number;
 	column: number;
 	keys: string[];
-	effects: SequenceSchema[];
+	effects: string[][];
 	remotionRoot: string;
 	clientId: string;
 }): SubscribeToSequencePropsResponse => {

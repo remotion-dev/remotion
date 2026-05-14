@@ -60,7 +60,7 @@ export const acquireSequencePropsSubscription = ({
 			line,
 			column,
 			keys: getAllSchemaKeys(schema),
-			effects,
+			effects: effectKeys,
 			clientId,
 		});
 		const created: Entry = {

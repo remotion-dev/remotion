@@ -221,7 +221,7 @@ export type SubscribeToSequencePropsRequest = {
 	line: number;
 	column: number;
 	keys: string[];
-	effects: SequenceSchema[];
+	effects: string[][];
 	clientId: string;
 };
 
