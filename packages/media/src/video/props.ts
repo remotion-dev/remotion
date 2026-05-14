@@ -1,6 +1,6 @@
 import type {
 	EffectDefinitionAndStack,
-	EffectDescriptor,
+	EffectsProp,
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	OnVideoFrame,
@@ -69,7 +69,7 @@ type OptionalVideoProps = {
 	credentials: RequestCredentials | undefined;
 	objectFit: VideoObjectFit;
 	_experimentalInitiallyDrawCachedFrame: boolean;
-	_experimentalEffects: EffectDescriptor<unknown>[];
+	_experimentalEffects: EffectsProp;
 };
 
 export type InnerVideoProps = MandatoryVideoProps &
