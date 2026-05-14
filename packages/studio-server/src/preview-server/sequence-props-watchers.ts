@@ -1,14 +1,11 @@
 import path from 'node:path';
+import {RenderInternals} from '@remotion/renderer';
 import {
 	getAllSchemaKeys,
 	stringifySequenceSubscriptionKey,
 	type SubscribeToSequencePropsResponse,
 } from '@remotion/studio-shared';
-import type {
-	CanUpdateSequencePropsResponse,
-	SequenceNodePath,
-	SequenceSchema,
-} from 'remotion';
+import type {SequenceNodePath, SequenceSchema} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
 import {getCachedNodePath, setCachedNodePath} from './node-path-cache';
@@ -129,26 +126,24 @@ export const subscribeToSequencePropsWatchers = ({
 				return;
 			}
 
-			let result: CanUpdateSequencePropsResponse;
 			try {
-				result = computeSequencePropsStatusFromContent({
+				const result = computeSequencePropsStatusFromContent({
 					fileContents: event.content,
 					nodePath: nodePath.nodePath,
 					keys,
 					effects,
 				});
-			} catch {
-				return;
-			}
-
-			waitForLiveEventsListener().then((listener) => {
-				listener.sendEventToClientId(clientId, {
-					type: 'sequence-props-updated',
-					fileName,
-					nodePath,
-					result,
+				waitForLiveEventsListener().then((listener) => {
+					listener.sendEventToClientId(clientId, {
+						type: 'sequence-props-updated',
+						fileName,
+						nodePath,
+						result,
+					});
 				});
-			});
+			} catch (error) {
+				RenderInternals.Log.error({indent: false, logLevel: 'error'}, error);
+			}
 		},
 	});
 
