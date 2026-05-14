@@ -113,7 +113,7 @@ export const TimelineExpandedSection: React.FC<{
 							getIsExpanded={getIsExpanded}
 							toggleTrack={toggleTrack}
 							validatedLocation={validatedLocation}
-							nodePath={nodePathInfo.nodePath}
+							nodePath={nodePathInfo.sequenceSubscriptionKey}
 							schema={schema}
 						/>
 					</React.Fragment>

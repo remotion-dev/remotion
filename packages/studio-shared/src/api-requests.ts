@@ -17,8 +17,9 @@ import type {
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
 	SequenceSchema,
+	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
-import type {SequenceNodePath} from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
@@ -211,7 +212,7 @@ export type UnsubscribeFromDefaultPropsRequest = {
 
 export type CanUpdateSequencePropsRequest = {
 	fileName: string;
-	nodePath: SequenceNodePath;
+	nodePath: SequencePropsSubscriptionKey;
 	keys: string[];
 };
 
@@ -228,7 +229,7 @@ export type SubscribeToSequencePropsResponse =
 	| {
 			success: true;
 			status: CanUpdateSequencePropsResponseTrue;
-			nodePath: SequenceNodePath;
+			nodePath: SequencePropsSubscriptionKey;
 	  }
 	| {
 			success: false;
@@ -237,7 +238,7 @@ export type SubscribeToSequencePropsResponse =
 
 export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
-	nodePath: SequenceNodePath;
+	nodePath: SequencePropsSubscriptionKey;
 	clientId: string;
 	sequenceKeys: string[];
 	effectKeys: string[][];
@@ -245,7 +246,7 @@ export type UnsubscribeFromSequencePropsRequest = {
 
 export type SaveSequencePropsRequest = {
 	fileName: string;
-	nodePath: SequenceNodePath;
+	nodePath: SequencePropsSubscriptionKey;
 	key: string;
 	value: string;
 	defaultValue: string | null;
@@ -264,7 +265,7 @@ export type SaveSequencePropsResponse =
 
 export type SaveEffectPropsRequest = {
 	fileName: string;
-	sequenceNodePath: SequenceNodePath;
+	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
 	key: string;
 	value: string;

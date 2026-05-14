@@ -1,6 +1,7 @@
 import path from 'node:path';
 import {
 	getAllSchemaKeys,
+	stringifySequenceSubscriptionKey,
 	type SubscribeToSequencePropsResponse,
 } from '@remotion/studio-shared';
 import type {
@@ -23,20 +24,6 @@ type WatcherInfo = {
 };
 
 const sequencePropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
-
-const makeWatcherKey = ({
-	absolutePath,
-	nodePath,
-	sequenceKeys,
-	effectKeys,
-}: {
-	absolutePath: string;
-	nodePath: SequenceNodePath;
-	sequenceKeys: string[];
-	effectKeys: string[][];
-}): string => {
-	return `${absolutePath}:${JSON.stringify(nodePath)}:${sequenceKeys.join('\0')}:${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}`;
-};
 
 const getSequencePropsStatus = ({
 	fileName,
@@ -66,7 +53,16 @@ const getSequencePropsStatus = ({
 		});
 
 		if (cachedResult.canUpdate) {
-			return {status: cachedResult, nodePath: cachedNodePath, success: true};
+			return {
+				status: cachedResult,
+				nodePath: {
+					absolutePath: fileName,
+					nodePath: cachedNodePath,
+					sequenceKeys: keys,
+					effectKeys: effects.map((effect) => getAllSchemaKeys(effect)),
+				},
+				success: true,
+			};
 		}
 	}
 
@@ -114,15 +110,10 @@ export const subscribeToSequencePropsWatchers = ({
 	const absolutePath = path.resolve(remotionRoot, fileName);
 
 	// Cache the resolved nodePath for future lookups with stale source maps
-	setCachedNodePath(fileName, line, column, initialResult.nodePath);
+	setCachedNodePath(fileName, line, column, initialResult.nodePath.nodePath);
 
 	const {nodePath} = initialResult;
-	const watcherKey = makeWatcherKey({
-		absolutePath,
-		nodePath,
-		sequenceKeys: keys,
-		effectKeys: effects.map((effect) => getAllSchemaKeys(effect)),
-	});
+	const watcherKey = stringifySequenceSubscriptionKey(nodePath);
 
 	// If a watcher already exists for this key, just bump the ref count
 	if (sequencePropsWatchers[clientId]?.[watcherKey]) {
@@ -142,7 +133,7 @@ export const subscribeToSequencePropsWatchers = ({
 			try {
 				result = computeSequencePropsStatusFromContent({
 					fileContents: event.content,
-					nodePath,
+					nodePath: nodePath.nodePath,
 					keys,
 					effects,
 				});
@@ -186,7 +177,7 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	effectKeys: string[][];
 }) => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
-	const watcherKey = makeWatcherKey({
+	const watcherKey = stringifySequenceSubscriptionKey({
 		absolutePath,
 		nodePath,
 		sequenceKeys,

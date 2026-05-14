@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import type {SequenceSchema, SequenceNodePath} from 'remotion';
+import type {SequenceSchema, SequencePropsSubscriptionKey} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
@@ -42,7 +42,7 @@ export const TimelineExpandedRow: React.FC<{
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
 	readonly validatedLocation: CodePosition | null;
-	readonly nodePath: SequenceNodePath;
+	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
 }> = ({
 	node,

@@ -6,7 +6,7 @@ import type {
 } from './sequence-field-schema.js';
 import type {
 	CanUpdateSequencePropsResponse,
-	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 } from './SequenceManager.js';
 
 export type CanUpdateSequencePropStatusTrue = {
@@ -28,20 +28,20 @@ export type EffectDragOverrides = Record<string, Record<string, unknown>>;
 export type CodeValues = Record<string, CanUpdateSequencePropsResponse>;
 
 export type GetCodeValues = (
-	nodePath: SequenceNodePath,
+	nodePath: SequencePropsSubscriptionKey,
 ) => Record<string, CanUpdateSequencePropStatus> | undefined;
 
 export type GetEffectCodeValues = (
-	nodePath: SequenceNodePath,
+	nodePath: SequencePropsSubscriptionKey,
 	effectIndex: number,
 ) => Record<string, CanUpdateSequencePropStatus> | undefined;
 
 export type GetDragOverrides = (
-	nodePath: SequenceNodePath,
+	nodePath: SequencePropsSubscriptionKey,
 ) => DragOverrides[string];
 
 export type GetEffectDragOverrides = (
-	nodePath: SequenceNodePath,
+	nodePath: SequencePropsSubscriptionKey,
 	effectIndex: number,
 ) => Record<string, unknown>;
 

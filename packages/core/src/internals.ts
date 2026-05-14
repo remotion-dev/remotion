@@ -125,6 +125,7 @@ import type {
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropsResponseFalse,
 	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 } from './SequenceManager.js';
 import {
 	VisualModeCodeValuesContext,
@@ -382,6 +383,7 @@ export type {
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 	OverrideIdToNodePaths,
 	OverrideToNodeSetters,
 	OverrideToNodePathGetters,

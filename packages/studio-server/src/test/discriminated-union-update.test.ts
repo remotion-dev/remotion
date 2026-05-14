@@ -15,7 +15,12 @@ test('Should correctly separate discriminated union for layout', () => {
 		currentRuntimeValueDotNotation: {
 			layout: 'none',
 		},
-		nodePath: [],
+		nodePath: {
+			absolutePath: '',
+			nodePath: [],
+			sequenceKeys: [],
+			effectKeys: [],
+		},
 		getCodeValues: () => undefined,
 		getDragOverrides: () => ({}),
 	});
@@ -28,7 +33,12 @@ test('Should expose absolute-fill variant fields when active', () => {
 		currentRuntimeValueDotNotation: {
 			layout: 'absolute-fill',
 		},
-		nodePath: [],
+		nodePath: {
+			absolutePath: '',
+			nodePath: [],
+			sequenceKeys: [],
+			effectKeys: [],
+		},
 		getCodeValues: () => undefined,
 		getDragOverrides: () => ({}),
 	});

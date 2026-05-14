@@ -471,7 +471,12 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 				effects,
 				remotionRoot,
 			}),
-			nodePath: resolvedNodePath,
+			nodePath: {
+				absolutePath,
+				nodePath: resolvedNodePath,
+				sequenceKeys: keys,
+				effectKeys: effects.map((effect) => getAllSchemaKeys(effect)),
+			},
 			success: true,
 		};
 	} catch (err) {

@@ -19,10 +19,6 @@ export type SequenceManagerContext = {
 
 export type SequenceNodePath = Array<string | number>;
 
-const nodePathToString = (nodePath: SequenceNodePath): string => {
-	return nodePath.join('.');
-};
-
 export const SequenceManager = React.createContext<SequenceManagerContext>({
 	registerSequence: () => {
 		throw new Error('SequenceManagerContext not initialized');
@@ -58,23 +54,23 @@ export type VisualModeDragOverrides = {
 
 export type VisualModeSetters = {
 	setDragOverrides: (
-		nodePath: SequenceNodePath,
+		nodePath: SequencePropsSubscriptionKey,
 		key: string,
 		value: unknown,
 	) => void;
-	clearDragOverrides: (nodePath: SequenceNodePath) => void;
+	clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
 	setEffectDragOverrides: (
-		nodePath: SequenceNodePath,
+		nodePath: SequencePropsSubscriptionKey,
 		effectIndex: number,
 		key: string,
 		value: unknown,
 	) => void;
 	clearEffectDragOverrides: (
-		nodePath: SequenceNodePath,
+		nodePath: SequencePropsSubscriptionKey,
 		effectIndex: number,
 	) => void;
 	setCodeValues: (
-		nodePath: SequenceNodePath,
+		nodePath: SequencePropsSubscriptionKey,
 		values: (
 			prev: CanUpdateSequencePropsResponse,
 		) => CanUpdateSequencePropsResponse,
@@ -112,11 +108,17 @@ export type CanUpdateSequencePropsResponse =
 	| CanUpdateSequencePropsResponseTrue
 	| CanUpdateSequencePropsResponseFalse;
 
+export const makeSequencePropsSubscriptionKey = (
+	key: SequencePropsSubscriptionKey,
+): string => {
+	return `${key.nodePath.join('.')}.${key.sequenceKeys.join('.')}.${key.effectKeys.map((keys) => keys.join('.')).join('.')}`;
+};
+
 const getCodeValuesCtx = (
 	codeValues: CodeValues,
-	nodePath: SequenceNodePath,
+	nodePath: SequencePropsSubscriptionKey,
 ) => {
-	const status = codeValues[nodePathToString(nodePath)];
+	const status = codeValues[makeSequencePropsSubscriptionKey(nodePath)];
 	if (!status) {
 		return undefined;
 	}
@@ -134,10 +136,10 @@ const getEffectCodeValuesCtx = ({
 	effectIndex,
 }: {
 	codeValues: CodeValues;
-	nodePath: SequenceNodePath;
+	nodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
 }) => {
-	const status = codeValues[nodePathToString(nodePath)];
+	const status = codeValues[makeSequencePropsSubscriptionKey(nodePath)];
 	if (!status || !status.canUpdate) {
 		return undefined;
 	}
@@ -190,10 +192,18 @@ export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 	},
 });
 
+export type SequencePropsSubscriptionKey = {
+	absolutePath: string;
+	nodePath: SequenceNodePath;
+	sequenceKeys: string[];
+	effectKeys: string[][];
+};
+
 const effectDragOverridesKey = (
-	nodePath: SequenceNodePath,
+	nodePath: SequencePropsSubscriptionKey,
 	effectIndex: number,
-): string => `${nodePathToString(nodePath)}.effects.${effectIndex}`;
+): string =>
+	`${makeSequencePropsSubscriptionKey(nodePath)}.effects.${effectIndex}`;
 
 export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
@@ -208,11 +218,11 @@ export const SequenceManagerProvider: React.FC<{
 	const [codeValues, setCodeValuesMapState] = useState<CodeValues>({});
 
 	const setDragOverrides = useCallback(
-		(nodePath: SequenceNodePath, key: string, value: unknown) => {
+		(nodePath: SequencePropsSubscriptionKey, key: string, value: unknown) => {
 			setControlOverrides((prev) => ({
 				...prev,
-				[nodePathToString(nodePath)]: {
-					...prev[nodePathToString(nodePath)],
+				[makeSequencePropsSubscriptionKey(nodePath)]: {
+					...prev[makeSequencePropsSubscriptionKey(nodePath)],
 					[key]: value,
 				},
 			}));
@@ -220,22 +230,25 @@ export const SequenceManagerProvider: React.FC<{
 		[],
 	);
 
-	const clearDragOverrides = useCallback((nodePath: SequenceNodePath) => {
-		setControlOverrides((prev) => {
-			const key = nodePathToString(nodePath);
-			if (!prev[key]) {
-				return prev;
-			}
+	const clearDragOverrides = useCallback(
+		(nodePath: SequencePropsSubscriptionKey) => {
+			setControlOverrides((prev) => {
+				const key = makeSequencePropsSubscriptionKey(nodePath);
+				if (!prev[key]) {
+					return prev;
+				}
 
-			const next = {...prev};
-			delete next[key];
-			return next;
-		});
-	}, []);
+				const next = {...prev};
+				delete next[key];
+				return next;
+			});
+		},
+		[],
+	);
 
 	const setEffectDragOverrides = useCallback(
 		(
-			nodePath: SequenceNodePath,
+			nodePath: SequencePropsSubscriptionKey,
 			effectIndex: number,
 			key: string,
 			value: unknown,
@@ -255,7 +268,7 @@ export const SequenceManagerProvider: React.FC<{
 	);
 
 	const clearEffectDragOverrides = useCallback(
-		(nodePath: SequenceNodePath, effectIndex: number) => {
+		(nodePath: SequencePropsSubscriptionKey, effectIndex: number) => {
 			setEffectDragOverridesState((prev) => {
 				const mapKey = effectDragOverridesKey(nodePath, effectIndex);
 				if (!prev[mapKey]) {
@@ -272,13 +285,13 @@ export const SequenceManagerProvider: React.FC<{
 
 	const setCodeValues = useCallback(
 		(
-			nodePath: SequenceNodePath,
+			nodePath: SequencePropsSubscriptionKey,
 			values: (
 				prev: CanUpdateSequencePropsResponse,
 			) => CanUpdateSequencePropsResponse,
 		) => {
 			setCodeValuesMapState((prev) => {
-				const key = nodePathToString(nodePath);
+				const key = makeSequencePropsSubscriptionKey(nodePath);
 
 				const prevKey = prev[key];
 				const newKey = values(prevKey);
@@ -319,14 +332,14 @@ export const SequenceManagerProvider: React.FC<{
 	}, [hidden]);
 
 	const getDragOverrides = useCallback(
-		(nodePath: SequenceNodePath) => {
-			return dragOverrides[nodePathToString(nodePath)] ?? {};
+		(nodePath: SequencePropsSubscriptionKey) => {
+			return dragOverrides[makeSequencePropsSubscriptionKey(nodePath)] ?? {};
 		},
 		[dragOverrides],
 	);
 
 	const getEffectDragOverrides = useCallback(
-		(nodePath: SequenceNodePath, effectIndex: number) => {
+		(nodePath: SequencePropsSubscriptionKey, effectIndex: number) => {
 			return (
 				effectDragOverridesState[
 					effectDragOverridesKey(nodePath, effectIndex)
@@ -337,14 +350,14 @@ export const SequenceManagerProvider: React.FC<{
 	);
 
 	const getCodeValues = useCallback(
-		(nodePath: SequenceNodePath) => {
+		(nodePath: SequencePropsSubscriptionKey) => {
 			return getCodeValuesCtx(codeValues, nodePath);
 		},
 		[codeValues],
 	);
 
 	const getEffectCodeValues = useCallback(
-		(nodePath: SequenceNodePath, effectIndex: number) => {
+		(nodePath: SequencePropsSubscriptionKey, effectIndex: number) => {
 			return getEffectCodeValuesCtx({codeValues, nodePath, effectIndex});
 		},
 		[codeValues],

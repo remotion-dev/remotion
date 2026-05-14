@@ -11,7 +11,7 @@ export const unsubscribeFromSequenceProps: ApiHandler<
 }) => {
 	unsubscribeFromSequencePropsWatchers({
 		fileName,
-		nodePath,
+		nodePath: nodePath.nodePath,
 		remotionRoot,
 		clientId,
 		sequenceKeys,

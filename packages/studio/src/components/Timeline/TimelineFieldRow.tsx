@@ -3,7 +3,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatusTrue,
 	CanUpdateSequencePropsResponse,
-	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
@@ -44,7 +44,7 @@ const fieldLabelRow: React.CSSProperties = {
 
 const Value: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly nodePath: SequenceNodePath;
+	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition | null;
 	readonly schema: SequenceSchema;
 	readonly codeValue: CanUpdateSequencePropStatusTrue;
@@ -190,7 +190,7 @@ export const TimelineFieldRow: React.FC<{
 	readonly validatedLocation: CodePosition | null;
 	readonly paddingLeft: number;
 	readonly nestedDepth: number;
-	readonly nodePath: SequenceNodePath;
+	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
 }> = ({
 	field,

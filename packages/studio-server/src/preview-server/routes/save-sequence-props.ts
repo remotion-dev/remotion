@@ -43,7 +43,7 @@ export const saveSequencePropsHandler: ApiHandler<
 	const {output, oldValueStrings, formatted, logLine, removedProps} =
 		await updateSequenceProps({
 			input: fileContents,
-			nodePath,
+			nodePath: nodePath.nodePath,
 			updates: [
 				{
 					key,
@@ -117,7 +117,7 @@ export const saveSequencePropsHandler: ApiHandler<
 	const newStatus = computeSequencePropsOnlyStatus({
 		fileName,
 		keys: getAllSchemaKeys(schema),
-		nodePath,
+		nodePath: nodePath.nodePath,
 		remotionRoot,
 	});
 

@@ -53,7 +53,7 @@ export const saveEffectPropsHandler: ApiHandler<
 
 	const {output, oldValueString, formatted, logLine} = await updateEffectProps({
 		input: fileContents,
-		sequenceNodePath,
+		sequenceNodePath: sequenceNodePath.nodePath,
 		effectIndex,
 		update: {
 			key,
@@ -120,7 +120,7 @@ export const saveEffectPropsHandler: ApiHandler<
 	printUndoHint(logLevel);
 
 	const ast = parseAst(readFileSync(absolutePath, 'utf-8'));
-	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
+	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath.nodePath);
 	if (!jsx) {
 		return {
 			canUpdate: false,

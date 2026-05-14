@@ -3,7 +3,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateEffectPropsResponse,
 	CanUpdateSequencePropsResponse,
-	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -39,7 +39,7 @@ const fieldLabelRow: React.CSSProperties = {
 
 const Value: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
-	readonly nodePath: SequenceNodePath;
+	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition | null;
 }> = ({field, nodePath, validatedLocation}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setCodeValues} =
@@ -205,7 +205,7 @@ export const TimelineEffectFieldRow: React.FC<{
 	readonly validatedLocation: CodePosition | null;
 	readonly paddingLeft: number;
 	readonly nestedDepth: number;
-	readonly nodePath: SequenceNodePath;
+	readonly nodePath: SequencePropsSubscriptionKey;
 }> = ({field, validatedLocation, paddingLeft, nestedDepth, nodePath}) => {
 	const style = useMemo(() => {
 		return {

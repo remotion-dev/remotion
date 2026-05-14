@@ -67,24 +67,25 @@ export const buildTimelineTree = ({
 	getCodeValues: GetCodeValues;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
-	const {nodePath, index} = nodePathInfo;
+	const {sequenceSubscriptionKey, index, auxiliaryKeys} = nodePathInfo;
 
 	if (sequence.effects.length > 0) {
 		roots.push({
 			kind: 'group',
 			nodePathInfo: {
-				nodePath: [...nodePath, 'effects'],
+				sequenceSubscriptionKey,
+				auxiliaryKeys: [...auxiliaryKeys, 'effects'],
 				index,
 				numberOfSequencesWithThisNodePath: 0,
 			},
 			label: 'Effects',
 			children: sequence.effects.map((effect, i): TimelineTreeNode => {
-				const effectNodePath = [...nodePath, 'effects', i];
 				const effectFields = getEffectFieldsToShow(effect, i);
 				return {
 					kind: 'group',
 					nodePathInfo: {
-						nodePath: effectNodePath,
+						sequenceSubscriptionKey,
+						auxiliaryKeys: [...auxiliaryKeys, 'effects', i.toString()],
 						index,
 						numberOfSequencesWithThisNodePath: 0,
 					},
@@ -93,7 +94,8 @@ export const buildTimelineTree = ({
 						(f): TimelineTreeNode => ({
 							kind: 'field',
 							nodePathInfo: {
-								nodePath: [...effectNodePath, f.key],
+								sequenceSubscriptionKey,
+								auxiliaryKeys: [...auxiliaryKeys, f.key],
 								index,
 								numberOfSequencesWithThisNodePath: 0,
 							},
@@ -112,7 +114,7 @@ export const buildTimelineTree = ({
 			sequence.controls!.currentRuntimeValueDotNotation,
 		getDragOverrides,
 		getCodeValues,
-		nodePath,
+		nodePath: sequenceSubscriptionKey,
 	});
 
 	if (controlFields && controlFields.length > 0) {
@@ -120,7 +122,8 @@ export const buildTimelineTree = ({
 			roots.push({
 				kind: 'field',
 				nodePathInfo: {
-					nodePath: [...nodePath, 'controls', f.key],
+					sequenceSubscriptionKey,
+					auxiliaryKeys: [...auxiliaryKeys, 'controls', f.key],
 					index,
 					numberOfSequencesWithThisNodePath: 0,
 				},

@@ -6,7 +6,7 @@ import type {
 	SequenceSchema,
 	GetDragOverrides,
 	GetCodeValues,
-	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 	EffectDefinition,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -60,7 +60,7 @@ export const getFieldsToShow = ({
 	currentRuntimeValueDotNotation: Record<string, unknown>;
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
-	nodePath: SequenceNodePath;
+	nodePath: SequencePropsSubscriptionKey;
 }): SequenceSchemaFieldInfo[] | null => {
 	const {merged: valuesDotNotation} =
 		Internals.computeEffectiveSchemaValuesDotNotation({

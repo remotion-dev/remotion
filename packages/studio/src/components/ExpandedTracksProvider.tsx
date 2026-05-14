@@ -1,8 +1,13 @@
+import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import React, {createContext, useCallback, useMemo, useState} from 'react';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
 const nodePathInfoToKey = (info: SequenceNodePathInfo): string =>
-	JSON.stringify([info.nodePath, info.index]);
+	[
+		stringifySequenceSubscriptionKey(info.sequenceSubscriptionKey),
+		info.auxiliaryKeys.join('.'),
+		info.index,
+	].join('.');
 
 const LOCAL_STORAGE_KEY = 'remotion.editor.expandedTracks';
 
