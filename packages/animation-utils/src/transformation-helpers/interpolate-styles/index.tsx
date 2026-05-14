@@ -1,4 +1,5 @@
 import {
+	assertValidInterpolateEasingOption,
 	interpolate,
 	interpolateColors,
 	type EasingFunction,
@@ -18,32 +19,6 @@ type InterpolateStylesResolvedOptions = {
 	extrapolateLeft: ExtrapolateType;
 	extrapolateRight: ExtrapolateType;
 };
-
-function assertInterpolateStylesEasingOption(
-	easing: EasingFunction | readonly EasingFunction[] | undefined,
-	inputRangeLength: number,
-) {
-	if (easing === undefined) {
-		return;
-	}
-
-	if (typeof easing === 'function') {
-		return;
-	}
-
-	const expectedLength = inputRangeLength - 1;
-	if (easing.length !== expectedLength) {
-		throw new Error(
-			`When easing is an array, it must have one entry per segment between keyframes (length inputRange.length - 1 = ${expectedLength}), but got length ${easing.length}`,
-		);
-	}
-
-	for (let i = 0; i < easing.length; i++) {
-		if (typeof easing[i] !== 'function') {
-			throw new Error(`easing[${i}] must be a function`);
-		}
-	}
-}
 
 const interpolatedPropertyPart = ({
 	inputValue,
@@ -342,7 +317,7 @@ export const interpolateStyles = (
 	const initialStyle = outputStylesRange[startIndex];
 	const finalStyle = outputStylesRange[endIndex];
 
-	assertInterpolateStylesEasingOption(options?.easing, inputRange.length);
+	assertValidInterpolateEasingOption(options?.easing, inputRange.length);
 
 	const easingOption = options?.easing;
 	const segmentEasing: EasingFunction =

@@ -120,7 +120,7 @@ function checkInfiniteRange(name: string, arr: readonly number[]) {
 	}
 }
 
-function checkValidEasingOption(
+export function assertValidInterpolateEasingOption(
 	easing: EasingFunction | readonly EasingFunction[] | undefined,
 	inputRangeLength: number,
 ) {
@@ -183,7 +183,7 @@ export function interpolate(
 
 	checkValidInputRange(inputRange);
 
-	checkValidEasingOption(options?.easing, inputRange.length);
+	assertValidInterpolateEasingOption(options?.easing, inputRange.length);
 
 	const easingOption = options?.easing;
 	const defaultEasing = (num: number): number => num;
@@ -196,6 +196,7 @@ export function interpolate(
 			return easingOption;
 		}
 
+		// `segmentIndex` is in [0, inputRange.length - 2]; array length was validated above.
 		return easingOption[segmentIndex] as EasingFunction;
 	};
 

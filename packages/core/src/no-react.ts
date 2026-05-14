@@ -6,6 +6,7 @@ export type {
 } from './CompositionManager';
 export {DownloadBehavior} from './download-behavior';
 export {
+	assertValidInterpolateEasingOption,
 	EasingFunction,
 	ExtrapolateType,
 	interpolate,
