@@ -122,3 +122,4 @@ export type {VisualControlChange} from './codemods';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
 export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
 export {stringifySequenceSubscriptionKey} from './stringify-sequence-subscription-key';
+export {stringifySequenceExpandedRowKey} from './stringify-sequence-subscription-key';
