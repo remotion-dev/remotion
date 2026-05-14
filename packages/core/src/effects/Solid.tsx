@@ -35,6 +35,8 @@ export const Solid: React.FC<SolidProps> = ({
 
 	const memoizedEffects = useMemoizedEffects(
 		flattenEffects(experimentalEffects),
+		// TODO: Add schema to Solid
+		null,
 	);
 
 	const sourceCanvas = useMemo(() => {

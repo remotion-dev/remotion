@@ -330,7 +330,10 @@ const HtmlInCanvasInner = forwardRef<
 
 		const chainState = useEffectChainState();
 
-		const memoizedEffects = useMemoizedEffects(flattenEffects(effects));
+		const memoizedEffects = useMemoizedEffects(
+			flattenEffects(effects),
+			controls?.overrideId ?? null,
+		);
 
 		// Refs so the paint handler always reads fresh values.
 		const effectsRef = useRef(memoizedEffects);

@@ -53,6 +53,7 @@ export const HtmlInCanvasPresentation = <
 
 	const memoizedEffects = Internals.useMemoizedEffects(
 		Internals.flattenEffects(_experimentalEffects ?? []),
+		null,
 	);
 
 	const effectsRef = useRef(memoizedEffects);

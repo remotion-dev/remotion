@@ -1,9 +1,9 @@
 import {useContext, useRef} from 'react';
+import {Internals} from '../internals.js';
 import {
 	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
 } from '../SequenceManager.js';
-import {EffectOverridesContext} from './effect-overrides-context.js';
 import type {
 	EffectDefinitionAndStack,
 	EffectDescriptor,
@@ -69,12 +69,17 @@ const extractCodeOverrides = (
 
 export const useMemoizedEffects = (
 	effects: EffectDescriptor<unknown>[],
+	overrideId: string | null,
 ): EffectDefinitionAndStack<unknown>[] => {
 	const previousRef = useRef<EffectDefinitionAndStack<unknown>[] | null>(null);
 
-	const {nodePath} = useContext(EffectOverridesContext);
 	const {getEffectCodeValues} = useContext(VisualModeCodeValuesContext);
 	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
+
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+	const nodePath = overrideId ? overrideIdToNodePathMappings[overrideId] : null;
 
 	const resolved = effects.map((descriptor) => {
 		if (nodePath === null) {
