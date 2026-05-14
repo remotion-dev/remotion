@@ -13,7 +13,10 @@ import {delayRender} from './delay-render.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
-import {useMemoizedEffects} from './effects/use-memoized-effects.js';
+import {
+	useMemoizedEffectDescriptors,
+	useMemoizedEffects,
+} from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {sequenceStyleSchema} from './sequence-field-schema.js';
 import type {
@@ -333,6 +336,7 @@ const HtmlInCanvasInner = forwardRef<
 			effects,
 			overrideId: controls?.overrideId ?? null,
 		});
+		const memoizedEffectDefinitions = useMemoizedEffectDescriptors(effects);
 
 		// Refs so the paint handler always reads fresh values.
 		const effectsRef = useRef(memoizedEffects);
@@ -509,7 +513,7 @@ const HtmlInCanvasInner = forwardRef<
 				durationInFrames={resolvedDuration}
 				name="<HtmlInCanvas>"
 				_experimentalControls={controls}
-				_experimentalEffects={memoizedEffects}
+				_experimentalEffects={memoizedEffectDefinitions}
 				layout="none"
 				{...sequenceProps}
 			>

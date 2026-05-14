@@ -1,13 +1,13 @@
 import type {
 	CodeValues,
 	DragOverrides,
-	EffectDefinitionAndStack,
 	SequenceControls,
 	VisibleFieldSchema,
 	SequenceSchema,
 	GetDragOverrides,
 	GetCodeValues,
 	SequenceNodePath,
+	EffectDefinition,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -100,15 +100,13 @@ export const getFieldsToShow = ({
 };
 
 export const getEffectFieldsToShow = (
-	effect: EffectDefinitionAndStack<unknown>,
+	effect: EffectDefinition<unknown>,
 	effectIndex: number,
 ): EffectSchemaFieldInfo[] => {
-	const effectSchema = effect.definition.schema;
+	const effectSchema = effect.schema;
 	if (!effectSchema) {
 		return [];
 	}
-
-	const params = effect.params as Record<string, unknown>;
 
 	return Object.entries(effectSchema)
 		.map(([key, fieldSchema]): EffectSchemaFieldInfo | null => {
@@ -128,7 +126,7 @@ export const getEffectFieldsToShow = (
 				rowHeight: supported
 					? SCHEMA_FIELD_ROW_HEIGHT
 					: UNSUPPORTED_FIELD_ROW_HEIGHT,
-				currentRuntimeValue: params[key],
+				currentRuntimeValue: undefined,
 				fieldSchema,
 				effectSchema,
 				effectIndex,

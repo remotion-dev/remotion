@@ -5,6 +5,7 @@ import {
 	VisualModeDragOverridesContext,
 } from '../SequenceManager.js';
 import type {
+	EffectDefinition,
 	EffectDefinitionAndStack,
 	EffectDescriptor,
 } from './effect-types.js';
@@ -65,6 +66,27 @@ const extractCodeOverrides = (
 	}
 
 	return hasAny ? out : null;
+};
+
+export const useMemoizedEffectDescriptors = (
+	effects: readonly EffectDescriptor<unknown>[],
+): readonly EffectDefinition<unknown>[] => {
+	const previousRef = useRef<readonly EffectDefinition<unknown>[] | null>(null);
+
+	const definitions = effects.map((descriptor) => descriptor.definition);
+
+	const previous = previousRef.current;
+	const isSame =
+		previous !== null &&
+		previous.length === definitions.length &&
+		previous.every((def, i) => def === definitions[i]);
+
+	if (isSame) {
+		return previous;
+	}
+
+	previousRef.current = definitions;
+	return definitions;
 };
 
 export const useMemoizedEffects = ({

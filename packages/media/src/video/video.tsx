@@ -263,6 +263,9 @@ const VideoInner: React.FC<
 		effects: _experimentalEffects ?? [],
 		overrideId: controls?.overrideId ?? null,
 	});
+	const memoizedEffectDefinitions = Internals.useMemoizedEffectDescriptors(
+		_experimentalEffects ?? [],
+	);
 
 	if (sequenceDurationInFrames === 0) {
 		return null;
@@ -278,7 +281,7 @@ const VideoInner: React.FC<
 			name={name ?? '<Video>'}
 			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
-			_experimentalEffects={memoizedEffects}
+			_experimentalEffects={memoizedEffectDefinitions}
 			showInTimeline={showInTimeline ?? true}
 		>
 			<InnerVideo

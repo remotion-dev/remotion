@@ -1,3 +1,4 @@
+import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 
 const {createEffect} = Internals;
@@ -11,6 +12,17 @@ import {
 export type BlurParams = {
 	readonly radius: number;
 };
+
+const blurSchema = {
+	radius: {
+		type: 'number',
+		min: 0,
+		max: 100,
+		step: 1,
+		default: 10,
+		description: 'Blur radius',
+	},
+} as const satisfies SequenceSchema;
 
 export const blur = createEffect<BlurParams, BlurState>({
 	type: 'remotion/blur',
@@ -28,5 +40,5 @@ export const blur = createEffect<BlurParams, BlurState>({
 		});
 	},
 	cleanup: (state) => cleanupBlur(state),
-	schema: null,
+	schema: blurSchema,
 });
