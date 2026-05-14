@@ -51,7 +51,7 @@
 		"node": ">=16"
 	},
 	"devDependencies": {
-		"@types/babel__standalone": "^7.1.9",
+		"@types/babel__standalone": "7.1.9",
 		"@types/bun": "catalog:",
 		"@types/deno": "2.0.0",
 		"@types/react": "catalog:",
@@ -113,7 +113,7 @@
 			"@mediabunny/aac-encoder": "1.42.0",
 			"@mediabunny/flac-encoder": "1.42.0",
 			"@mediabunny/ac3": "1.42.0",
-			"next": "16.2.3",
+			"next": "16.2.6",
 			"three": "0.178.0",
 			"sharp": "0.34.5",
 			"@react-three/fiber": "9.2.0",

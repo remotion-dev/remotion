@@ -1,4 +1,3 @@
-import type {SequenceNodePath} from '@remotion/studio-shared';
 import React, {useContext, useMemo} from 'react';
 import {Internals, type TSequence} from 'remotion';
 import type {
@@ -6,12 +5,16 @@ import type {
 	OriginalPosition,
 } from '../../error-overlay/react-overlay/utils/get-source-map';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
 	getExpandedTrackHeight,
 } from '../../helpers/timeline-layout';
-import {ExpandedTracksContext} from '../ExpandedTracksProvider';
+import {
+	ExpandedTracksGetterContext,
+	ExpandedTracksSetterContext,
+} from '../ExpandedTracksProvider';
 import {TimelineExpandedRow} from './TimelineExpandedRow';
 
 const expandedSectionBase: React.CSSProperties = {
@@ -31,15 +34,16 @@ const separator: React.CSSProperties = {
 export const TimelineExpandedSection: React.FC<{
 	readonly sequence: TSequence;
 	readonly originalLocation: OriginalPosition | null;
-	readonly nodePath: SequenceNodePath | null;
+	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly nestedDepth: number;
-}> = ({sequence, originalLocation, nodePath, nestedDepth}) => {
-	const {expandedTracks, toggleTrack} = useContext(ExpandedTracksContext);
-	const {getDragOverrides, getCodeValues} = useContext(
-		Internals.VisualModeGettersContext,
+}> = ({sequence, originalLocation, nodePathInfo, nestedDepth}) => {
+	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
+	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
+	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
 	);
 
-	const {overrideId} = sequence.controls!;
 	const validatedLocation: CodePosition | null = useMemo(() => {
 		if (
 			!originalLocation ||
@@ -57,24 +61,30 @@ export const TimelineExpandedSection: React.FC<{
 	}, [originalLocation]);
 
 	const tree = useMemo(
-		() => buildTimelineTree({sequence, getDragOverrides, getCodeValues}),
-		[sequence, getDragOverrides, getCodeValues],
+		() =>
+			buildTimelineTree({
+				sequence,
+				nodePathInfo,
+				getDragOverrides,
+				getCodeValues,
+			}),
+		[sequence, nodePathInfo, getDragOverrides, getCodeValues],
 	);
 
 	const flat = useMemo(
-		() => flattenVisibleTreeNodes({nodes: tree, expandedTracks}),
-		[tree, expandedTracks],
+		() => flattenVisibleTreeNodes({nodes: tree, getIsExpanded}),
+		[tree, getIsExpanded],
 	);
 
 	const expandedHeight = useMemo(
 		() =>
 			getExpandedTrackHeight({
 				sequence,
-				expandedTracks,
-				getDragOverrides,
+				nodePathInfo,
+				getIsExpanded,
 				getCodeValues,
 			}),
-		[sequence, expandedTracks, getDragOverrides, getCodeValues],
+		[sequence, nodePathInfo, getIsExpanded, getCodeValues],
 	);
 
 	const style = useMemo(() => {
@@ -94,17 +104,16 @@ export const TimelineExpandedSection: React.FC<{
 		<div style={style}>
 			{flat.map(({node, depth}, i) => {
 				return (
-					<React.Fragment key={node.id}>
+					<React.Fragment key={JSON.stringify(node.nodePathInfo)}>
 						{i > 0 ? <div style={separator} /> : null}
 						<TimelineExpandedRow
 							node={node}
 							depth={depth}
 							nestedDepth={nestedDepth}
-							expandedTracks={expandedTracks}
+							getIsExpanded={getIsExpanded}
 							toggleTrack={toggleTrack}
-							overrideId={overrideId}
 							validatedLocation={validatedLocation}
-							nodePath={nodePath}
+							nodePath={nodePathInfo.nodePath}
 							schema={schema}
 						/>
 					</React.Fragment>

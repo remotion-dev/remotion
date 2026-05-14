@@ -17,6 +17,10 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'style.scale',
 			'style.rotate',
 			'style.opacity',
+			'premountFor',
+			'postmountFor',
+			'styleWhilePremounted',
+			'styleWhilePostmounted',
 		].sort(),
 	);
 });
@@ -54,7 +58,16 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'style.scale',
 			'style.rotate',
 			'style.opacity',
+			'premountFor',
 		].sort(),
+	);
+
+	const values2 = {
+		layout: 'none',
+		'style.scale': 2,
+	};
+	expect(selectActiveKeys(sequenceSchema, values2).sort()).toEqual(
+		['layout'].sort(),
 	);
 });
 
@@ -65,6 +78,7 @@ test('mergeValues writes nested values back into props with dot keys', () => {
 		props,
 		valuesDotNotation: values,
 		schemaKeys: ['layout', 'style.scale'],
+		propsToDelete: new Set(),
 	});
 	expect(merged.layout).toBe('absolute-fill');
 	expect((merged.style as {scale: number}).scale).toBe(2);
@@ -79,6 +93,7 @@ test('end-to-end: layout=none drops style.scale from active props', () => {
 		props,
 		valuesDotNotation: values,
 		schemaKeys: activeKeys,
+		propsToDelete: new Set(),
 	});
 	expect(activeKeys).toEqual(['layout']);
 	// style.scale was not in activeKeys → original style preserved, not overwritten

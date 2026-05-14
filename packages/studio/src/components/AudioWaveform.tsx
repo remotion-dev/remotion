@@ -1,20 +1,18 @@
+import {
+	drawBars,
+	getLoopDisplayWidth,
+	loadWaveformPeaks,
+	makeAudioWaveformWorker,
+	shouldTileLoopDisplay,
+	sliceWaveformPeaks,
+	type AudioWaveformWorkerOutgoingMessage,
+	type AudioWaveformWorkerRenderMessage,
+} from '@remotion/timeline-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
 import {LIGHT_TRANSPARENT} from '../helpers/colors';
 import {TIMELINE_BORDER} from '../helpers/timeline-layout';
-import {makeAudioWaveformWorker} from '../make-audio-waveform-worker';
-import type {
-	AudioWaveformWorkerOutgoingMessage,
-	AudioWaveformWorkerRenderMessage,
-} from './audio-waveform-worker-types';
-import {drawBars} from './draw-peaks';
-import {loadWaveformPeaks} from './load-waveform-peaks';
-import {
-	getLoopDisplayWidth,
-	shouldTileLoopDisplay,
-} from './looped-media-timeline';
-import {sliceWaveformPeaks} from './slice-waveform-peaks';
 
 const EMPTY_PEAKS = new Float32Array(0);
 
@@ -84,13 +82,13 @@ const drawLoopedWaveform = ({
 	targetCanvas.width = Math.max(1, Math.ceil(loopWidth));
 	targetCanvas.height = h;
 
-	drawBars(
-		targetCanvas,
+	drawBars({
+		canvas: targetCanvas,
 		peaks,
-		'rgba(255, 255, 255, 0.6)',
+		color: 'rgba(255, 255, 255, 0.6)',
 		volume,
-		targetCanvas.width,
-	);
+		width: targetCanvas.width,
+	});
 
 	canvas.width = w;
 	canvas.height = h;
@@ -297,13 +295,13 @@ export const AudioWaveform: React.FC<{
 				}),
 			});
 		} else {
-			drawBars(
-				canvasElement,
-				portionPeaks ?? EMPTY_PEAKS,
-				'rgba(255, 255, 255, 0.6)',
-				vol,
-				w,
-			);
+			drawBars({
+				canvas: canvasElement,
+				peaks: portionPeaks ?? EMPTY_PEAKS,
+				color: 'rgba(255, 255, 255, 0.6)',
+				volume: vol,
+				width: w,
+			});
 		}
 	}, [
 		canUseWorkerPath,

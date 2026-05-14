@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import type {
-	EffectsProp,
+	EffectDefinitionAndStack,
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	SequenceControls,
@@ -67,7 +67,7 @@ type VideoForPreviewProps = {
 	readonly objectFit: VideoObjectFit;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
-	readonly _experimentalEffects: EffectsProp;
+	readonly _experimentalEffects: EffectDefinitionAndStack<unknown>[];
 };
 
 type VideoForPreviewAssertedShowingProps = VideoForPreviewProps;
@@ -138,8 +138,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	warnAboutTooHighVolume(userPreferredVolume);
 
 	const effectChainState = useEffectChainState();
+
 	const experimentalEffectsRef = useRef(_experimentalEffects);
 	experimentalEffectsRef.current = _experimentalEffects;
+
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
 	const frameRef = useRef(frame);

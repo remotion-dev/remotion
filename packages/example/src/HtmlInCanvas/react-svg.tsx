@@ -18,7 +18,7 @@ export const HtmlInCanvasReactSvg: React.FC<{
 					halftone({
 						dotSize: 30,
 						dotSpacing: 20,
-						shape: 'line',
+						shape: 'square',
 					}),
 					tint({color: 'green', amount: 1}),
 				]}

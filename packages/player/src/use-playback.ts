@@ -7,7 +7,6 @@ import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
 import {setGlobalTimeAnchor} from './set-global-time-anchor.js';
-import type {GetCurrentFrame} from './use-frame-imperative.js';
 import {usePlayer} from './use-player.js';
 
 export const usePlayback = ({
@@ -26,7 +25,7 @@ export const usePlayback = ({
 	inFrame: number | null;
 	outFrame: number | null;
 	browserMediaControlsBehavior: BrowserMediaControlsBehavior;
-	getCurrentFrame: GetCurrentFrame;
+	getCurrentFrame: ReturnType<typeof usePlayer>['getCurrentFrame'];
 	muted: boolean;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();

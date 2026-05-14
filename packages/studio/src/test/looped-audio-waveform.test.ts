@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {
 	getLoopDisplayWidth,
 	shouldTileLoopDisplay,
-} from '../components/looped-media-timeline';
+} from '@remotion/timeline-utils';
 
 test('Should only tile media if more than one loop is visible', () => {
 	expect(shouldTileLoopDisplay(undefined)).toBe(false);

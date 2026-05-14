@@ -11,8 +11,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type {RawSourceMap} from 'source-map';
-import {SourceMapConsumer} from 'source-map';
+import type {SourceMapInput} from '@jridgewell/trace-mapping';
+import {TraceMap, originalPositionFor} from '@jridgewell/trace-mapping';
 
 export type OriginalPosition = {
 	line: number | null;
@@ -27,11 +27,11 @@ export type CodePosition = {
 };
 
 export const getOriginalPosition = (
-	source_map: SourceMapConsumer,
+	sourceMap: TraceMap,
 	line: number,
 	column: number,
 ): OriginalPosition => {
-	const result = source_map.originalPositionFor({
+	const result = originalPositionFor(sourceMap, {
 		line,
 		column,
 	});
@@ -61,7 +61,7 @@ function extractSourceMapUrl(fileContents: string): string | null {
 export async function getSourceMap(
 	fileUri: string,
 	fileContents: string,
-): Promise<SourceMapConsumer | null> {
+): Promise<TraceMap | null> {
 	const sm = extractSourceMapUrl(fileContents);
 	if (sm === null) {
 		return null;
@@ -77,11 +77,11 @@ export async function getSourceMap(
 		}
 
 		const converted = window.atob(sm.substring(match2[0].length));
-		return new SourceMapConsumer(JSON.parse(converted) as RawSourceMap);
+		return new TraceMap(JSON.parse(converted) as SourceMapInput);
 	}
 
 	const index = fileUri.lastIndexOf('/');
 	const url = fileUri.substring(0, index + 1) + sm;
 	const obj = await fetch(url).then((res) => res.json());
-	return new SourceMapConsumer(obj);
+	return new TraceMap(obj as SourceMapInput);
 }

@@ -200,19 +200,22 @@ test('Should allow whitespace', () => {
 	expect(outerHtml).toBe(`${ABS_FILL}<div>second 1</div></div>`);
 });
 test('Handle empty Series.Sequence', () => {
-	expect(() =>
-		renderForFrame(
-			11,
+	const outerHTML = renderForFrame(
+		11,
+		<WrapSequenceContext>
 			<Series>
 				<Series.Sequence durationInFrames={10}>
 					<First />
 				</Series.Sequence>
 				<Series.Sequence durationInFrames={10} />
-			</Series>,
-		),
-	).toThrow(
-		/A <Series.Sequence \/> component \(index = 1, duration = 10\) was detected to not have any children\. Delete it to fix this error\./,
+				<Series.Sequence durationInFrames={10}>
+					<Second />
+				</Series.Sequence>
+			</Series>
+		</WrapSequenceContext>,
 	);
+
+	expect(outerHTML).toBe(ABS_FILL + '</div>');
 });
 
 test('Should allow negative overlap prop', () => {

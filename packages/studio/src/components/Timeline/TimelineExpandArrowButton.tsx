@@ -25,24 +25,28 @@ export const TimelineExpandArrowButton: React.FC<{
 	readonly isExpanded: boolean;
 	readonly onClick: () => void;
 	readonly label: string;
-}> = ({isExpanded, onClick, label}) => {
+	readonly disabled: boolean;
+}> = ({isExpanded, onClick, label, disabled = false}) => {
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...arrowButton,
 			transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+			cursor: disabled ? 'default' : 'pointer',
+			opacity: disabled ? 0.5 : 1,
 		};
-	}, [isExpanded]);
+	}, [isExpanded, disabled]);
 
 	return (
 		<button
 			type="button"
 			style={style}
 			onClick={onClick}
+			disabled={disabled}
 			aria-expanded={isExpanded}
 			aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${label}`}
 		>
 			<svg width="12" height="12" viewBox="0 0 8 8" style={svgStyle}>
-				<path d="M2 1L6 4L2 7Z" fill="white" />
+				<path d="M2 1L6 4L2 7Z" fill="#ccc" />
 			</svg>
 		</button>
 	);

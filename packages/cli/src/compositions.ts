@@ -28,7 +28,6 @@ const {
 	darkModeOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
-	experimentalVisualModeOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	browserExecutableOption,
@@ -135,9 +134,6 @@ export const listCompositionsCommand = async (
 		experimentalClientSideRenderingOption.getValue({
 			commandLine: parsedCli,
 		}).value;
-	const experimentalVisualModeEnabled = experimentalVisualModeOption.getValue({
-		commandLine: parsedCli,
-	}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -176,7 +172,6 @@ export const listCompositionsCommand = async (
 			publicPath,
 			audioLatencyHint,
 			experimentalClientSideRenderingEnabled,
-			experimentalVisualModeEnabled,
 			askAIEnabled,
 			keyboardShortcutsEnabled,
 			rspack,

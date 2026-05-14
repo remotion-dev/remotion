@@ -3,10 +3,9 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/licensing"
 	},
 	"name": "@remotion/licensing",
-	"version": "4.0.459",
+	"version": "4.0.461",
 	"description": "Manage your Remotion.pro license",
 	"main": "dist",
-	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",
 		"formatting": "oxfmt src --check",
@@ -27,7 +26,7 @@
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"msw": "^2.7.1",
+		"msw": "2.12.7",
 		"remotion": "workspace:*",
 		"@typescript/native-preview": "catalog:"
 	},

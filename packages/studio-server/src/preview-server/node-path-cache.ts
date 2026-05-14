@@ -1,4 +1,4 @@
-import type {SequenceNodePath} from '@remotion/studio-shared';
+import type {SequenceNodePath} from 'remotion';
 
 // Cache mapping source-mapped locations to resolved AST node paths.
 //

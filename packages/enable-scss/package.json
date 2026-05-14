@@ -3,12 +3,11 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/enable-scss"
 	},
 	"name": "@remotion/enable-scss",
-	"version": "4.0.459",
+	"version": "4.0.461",
 	"description": "Enable SCSS support in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
-	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",

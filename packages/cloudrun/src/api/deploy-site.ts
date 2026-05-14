@@ -31,7 +31,6 @@ type Options = {
 	keyboardShortcutsEnabled?: boolean;
 	askAIEnabled?: boolean;
 	experimentalClientSideRenderingEnabled?: boolean;
-	experimentalVisualModeEnabled?: boolean;
 	rspack?: boolean;
 };
 
@@ -109,8 +108,6 @@ export const internalDeploySiteRaw = async ({
 			audioLatencyHint: null,
 			experimentalClientSideRenderingEnabled:
 				options?.experimentalClientSideRenderingEnabled ?? false,
-			experimentalVisualModeEnabled:
-				options?.experimentalVisualModeEnabled ?? false,
 			renderDefaults: null,
 			askAIEnabled: options?.askAIEnabled ?? true,
 			keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,

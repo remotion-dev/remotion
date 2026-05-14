@@ -3,12 +3,11 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lottie"
 	},
 	"name": "@remotion/lottie",
-	"version": "4.0.459",
+	"version": "4.0.461",
 	"description": "Include Lottie animations in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
-	"sideEffects": false,
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",

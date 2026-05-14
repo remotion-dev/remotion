@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/light-leaks",
-	"version": "4.0.459",
+	"version": "4.0.461",
 	"description": "Light leak effects for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -8,7 +8,6 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/light-leaks"
 	},
-	"sideEffects": false,
 	"type": "module",
 	"scripts": {
 		"formatting": "oxfmt src --check",

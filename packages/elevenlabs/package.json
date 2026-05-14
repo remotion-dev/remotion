@@ -3,10 +3,9 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/elevenlabs"
 	},
 	"name": "@remotion/elevenlabs",
-	"version": "4.0.459",
+	"version": "4.0.461",
 	"description": "Work with the output of the ElevenLabs API",
 	"main": "dist/index.js",
-	"sideEffects": false,
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},

@@ -222,7 +222,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 	}, []);
 
 	const video = Internals.useVideo();
-	const getCurrentFrame = PlayerInternals.useFrameImperative();
+	const {getCurrentFrame} = PlayerInternals.usePlayer();
 
 	const {props} = useContext(Internals.EditorPropsContext);
 

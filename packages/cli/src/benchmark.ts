@@ -57,7 +57,6 @@ const {
 	darkModeOption,
 	askAIOption,
 	experimentalClientSideRenderingOption,
-	experimentalVisualModeOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	pixelFormatOption,
@@ -283,9 +282,6 @@ export const benchmarkCommand = async (
 		experimentalClientSideRenderingOption.getValue({
 			commandLine: parsedCli,
 		}).value;
-	const experimentalVisualModeEnabled = experimentalVisualModeOption.getValue({
-		commandLine: parsedCli,
-	}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
@@ -364,7 +360,6 @@ export const benchmarkCommand = async (
 			publicPath,
 			audioLatencyHint: null,
 			experimentalClientSideRenderingEnabled,
-			experimentalVisualModeEnabled,
 			askAIEnabled,
 			keyboardShortcutsEnabled,
 			rspack,

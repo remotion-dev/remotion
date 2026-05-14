@@ -1,56 +1,34 @@
-import {SourceMapConsumer} from 'source-map';
+import {TraceMap, type SourceMapInput} from '@jridgewell/trace-mapping';
 import {getOriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
 import {
 	getLocationOfFunctionCall,
 	getLocationOfSequence,
 } from '../../../helpers/get-location-of-sequence';
 
-type Waiter = {
-	id: string;
-	forFileName: string;
-	resolve: (consumer: SourceMapConsumer) => void;
-};
-
-const waiters: Waiter[] = [];
-
-const sourceMapConsumerCache: Record<string, SourceMapConsumer> = {};
-const isCreating: Record<string, boolean> = {};
+const traceMapCache: Partial<Record<string, TraceMap>> = {};
+const traceMapPromises: Partial<Record<string, Promise<TraceMap>>> = {};
 
 const getSourceMapCache = async (fileName: string) => {
-	if (sourceMapConsumerCache[fileName]) {
-		return sourceMapConsumerCache[fileName];
+	if (traceMapCache[fileName]) {
+		return traceMapCache[fileName];
 	}
 
-	if (isCreating[fileName]) {
-		return new Promise<SourceMapConsumer>((resolve) => {
-			waiters.push({
-				id: String(Math.random()),
-				forFileName: fileName,
-				resolve,
-			});
-		});
+	if (traceMapPromises[fileName]) {
+		return traceMapPromises[fileName];
 	}
 
-	isCreating[fileName] = true;
-	const res = await fetch(`${fileName}.map`);
-	const json = await res.json();
-
-	const map = await new Promise<SourceMapConsumer>((resolve) => {
-		SourceMapConsumer.with(json, null, (consumer) => {
-			resolve(consumer);
+	traceMapPromises[fileName] = fetch(`${fileName}.map`)
+		.then((res) => res.json())
+		.then((json) => {
+			const map = new TraceMap(json as SourceMapInput);
+			traceMapCache[fileName] = map;
+			return map;
+		})
+		.finally(() => {
+			delete traceMapPromises[fileName];
 		});
-	});
-	waiters.filter((w) => {
-		if (w.forFileName === fileName) {
-			w.resolve(map);
-			return false;
-		}
 
-		return true;
-	});
-	sourceMapConsumerCache[fileName] = map;
-	isCreating[fileName] = false;
-	return map;
+	return traceMapPromises[fileName];
 };
 
 export const getOriginalLocationFromStack = async (

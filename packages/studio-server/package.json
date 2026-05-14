@@ -3,10 +3,9 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-server"
 	},
 	"name": "@remotion/studio-server",
-	"version": "4.0.459",
+	"version": "4.0.461",
 	"description": "Run a Remotion Studio with a server backend",
 	"main": "dist",
-	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",
 		"test": "bun test src",
@@ -34,13 +33,12 @@
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"memfs": "3.4.3",
-		"source-map": "0.7.3",
-		"open": "^8.4.2"
+		"open": "8.4.2"
 	},
 	"devDependencies": {
 		"ast-types": "0.16.1",
 		"react": "catalog:",
-		"@types/semver": "^7.3.4",
+		"@types/semver": "7.5.3",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"@types/node": "catalog:",

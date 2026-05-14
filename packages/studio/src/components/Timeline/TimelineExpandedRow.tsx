@@ -1,7 +1,7 @@
-import type {SequenceNodePath} from '@remotion/studio-shared';
 import React, {useMemo} from 'react';
-import type {SequenceSchema} from 'remotion';
+import type {SequenceSchema, SequenceNodePath} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
 import {
 	EXPANDED_SECTION_PADDING_LEFT,
@@ -9,6 +9,7 @@ import {
 	getTreeRowHeight,
 	TREE_GROUP_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
+import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {Padder} from './Padder';
 import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineFieldRow} from './TimelineFieldRow';
@@ -37,19 +38,17 @@ export const TimelineExpandedRow: React.FC<{
 	readonly node: TimelineTreeNode;
 	readonly depth: number;
 	readonly nestedDepth: number;
-	readonly expandedTracks: Record<string, boolean>;
-	readonly toggleTrack: (id: string) => void;
-	readonly overrideId: string;
+	readonly getIsExpanded: GetIsExpanded;
+	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
 	readonly validatedLocation: CodePosition | null;
-	readonly nodePath: SequenceNodePath | null;
+	readonly nodePath: SequenceNodePath;
 	readonly schema: SequenceSchema;
 }> = ({
 	node,
 	depth,
 	nestedDepth,
-	expandedTracks,
+	getIsExpanded,
 	toggleTrack,
-	overrideId,
 	validatedLocation,
 	nodePath,
 	schema,
@@ -71,14 +70,15 @@ export const TimelineExpandedRow: React.FC<{
 	);
 
 	if (node.kind === 'group') {
-		const isExpanded = expandedTracks[node.id] ?? false;
+		const isExpanded = getIsExpanded(node.nodePathInfo);
 		return (
 			<div style={groupStyle}>
 				<Padder depth={nestedDepth + 1} />
 				<TimelineExpandArrowButton
 					isExpanded={isExpanded}
-					onClick={() => toggleTrack(node.id)}
+					onClick={() => toggleTrack(node.nodePathInfo)}
 					label={`${node.label} section`}
+					disabled={false}
 				/>
 				<span style={rowLabel}>{node.label}</span>
 			</div>
@@ -89,7 +89,6 @@ export const TimelineExpandedRow: React.FC<{
 		return (
 			<TimelineFieldRow
 				field={node.field}
-				overrideId={overrideId}
 				validatedLocation={validatedLocation}
 				paddingLeft={paddingLeft}
 				nestedDepth={nestedDepth}

@@ -61,6 +61,7 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/tailwind.svg?style=flat&color=black&label=@remotion/tailwind)](https://npmcharts.com/compare/@remotion/tailwind?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/tailwind-v4.svg?style=flat&color=black&label=@remotion/tailwind-v4)](https://npmcharts.com/compare/@remotion/tailwind-v4?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/three.svg?style=flat&color=black&label=@remotion/three)](https://npmcharts.com/compare/@remotion/three?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/timeline-utils.svg?style=flat&color=black&label=@remotion/timeline-utils)](https://npmcharts.com/compare/@remotion/timeline-utils?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/transitions.svg?style=flat&color=black&label=@remotion/transitions)](https://npmcharts.com/compare/@remotion/transitions?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/vercel.svg?style=flat&color=black&label=@remotion/vercel)](https://npmcharts.com/compare/@remotion/vercel?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/web-renderer.svg?style=flat&color=black&label=@remotion/web-renderer)](https://npmcharts.com/compare/@remotion/web-renderer?minimal=true)  
