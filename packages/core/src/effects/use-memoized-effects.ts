@@ -68,7 +68,7 @@ const extractCodeOverrides = (
 	return hasAny ? out : null;
 };
 
-export const useMemoizedEffectDescriptors = (
+export const useMemoizedEffectDefinitions = (
 	effects: readonly EffectDescriptor<unknown>[],
 ): readonly EffectDefinition<unknown>[] => {
 	const previousRef = useRef<readonly EffectDefinition<unknown>[] | null>(null);

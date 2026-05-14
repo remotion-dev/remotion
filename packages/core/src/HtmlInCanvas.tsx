@@ -14,7 +14,7 @@ import type {EffectsProp} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
 import {
-	useMemoizedEffectDescriptors,
+	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
@@ -336,7 +336,7 @@ const HtmlInCanvasInner = forwardRef<
 			effects,
 			overrideId: controls?.overrideId ?? null,
 		});
-		const memoizedEffectDefinitions = useMemoizedEffectDescriptors(effects);
+		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
 		// Refs so the paint handler always reads fresh values.
 		const effectsRef = useRef(memoizedEffects);

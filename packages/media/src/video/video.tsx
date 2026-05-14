@@ -263,7 +263,7 @@ const VideoInner: React.FC<
 		effects: _experimentalEffects ?? [],
 		overrideId: controls?.overrideId ?? null,
 	});
-	const memoizedEffectDefinitions = Internals.useMemoizedEffectDescriptors(
+	const memoizedEffectDefinitions = Internals.useMemoizedEffectDefinitions(
 		_experimentalEffects ?? [],
 	);
 

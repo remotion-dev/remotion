@@ -49,7 +49,7 @@ import {createEffect} from './effects/create-effect.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
 import {
-	useMemoizedEffectDescriptors,
+	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {
@@ -338,7 +338,7 @@ export const Internals = {
 	useEffectChainState,
 	runEffectChain,
 	useMemoizedEffects,
-	useMemoizedEffectDescriptors,
+	useMemoizedEffectDefinitions,
 	createEffect,
 	computeEffectiveSchemaValuesDotNotation,
 	OverrideIdsToNodePathsGettersContext,
