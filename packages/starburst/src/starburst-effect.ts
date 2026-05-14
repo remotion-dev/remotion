@@ -244,6 +244,8 @@ type StarburstGlState = {
 	uNumColors: WebGLUniformLocation | null;
 	uVignetteAmount: WebGLUniformLocation | null;
 	uOriginOffset: WebGLUniformLocation | null;
+	cachedPaletteKey: string;
+	palettePixelData: Uint8Array;
 };
 
 const compileShader = (
@@ -295,7 +297,7 @@ const starburstImpl = createEffect<StarburstEffectParams, StarburstGlState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `starburst-${r.rays}-${r.colors.join(',')}-${r.rotation}-${r.smoothness}-${r.vignette}-${r.originOffsetX}-${r.originOffsetY}`;
+		return `starburst-${r.rays}-${r.colors.join('|')}-${r.rotation}-${r.smoothness}-${r.vignette}-${r.originOffsetX}-${r.originOffsetY}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -382,6 +384,8 @@ const starburstImpl = createEffect<StarburstEffectParams, StarburstGlState>({
 			uNumColors: gl.getUniformLocation(program, 'numColors'),
 			uVignetteAmount: gl.getUniformLocation(program, 'vignetteAmount'),
 			uOriginOffset: gl.getUniformLocation(program, 'originOffset'),
+			cachedPaletteKey: '',
+			palettePixelData: new Uint8Array(0),
 		};
 	},
 	apply: ({source, width, height, params, state}) => {
@@ -405,13 +409,23 @@ const starburstImpl = createEffect<StarburstEffectParams, StarburstGlState>({
 
 		const rotationRad = (r.rotation * Math.PI) / 180;
 
-		const pixelData = new Uint8Array(r.colors.length * 4);
-		for (let i = 0; i < r.colors.length; i++) {
-			const rgb = hexToRgb(r.colors[i]);
-			pixelData[i * 4] = Math.round(rgb[0] * 255);
-			pixelData[i * 4 + 1] = Math.round(rgb[1] * 255);
-			pixelData[i * 4 + 2] = Math.round(rgb[2] * 255);
-			pixelData[i * 4 + 3] = 255;
+		const paletteKey = r.colors.join('|');
+		const paletteDirty = state.cachedPaletteKey !== paletteKey;
+		if (paletteDirty) {
+			state.cachedPaletteKey = paletteKey;
+			const len = r.colors.length * 4;
+			if (state.palettePixelData.length !== len) {
+				state.palettePixelData = new Uint8Array(len);
+			}
+
+			const {palettePixelData} = state;
+			for (let i = 0; i < r.colors.length; i++) {
+				const rgb = hexToRgb(r.colors[i]);
+				palettePixelData[i * 4] = Math.round(rgb[0] * 255);
+				palettePixelData[i * 4 + 1] = Math.round(rgb[1] * 255);
+				palettePixelData[i * 4 + 2] = Math.round(rgb[2] * 255);
+				palettePixelData[i * 4 + 3] = 255;
+			}
 		}
 
 		gl.viewport(0, 0, width, height);
@@ -436,17 +450,19 @@ const starburstImpl = createEffect<StarburstEffectParams, StarburstGlState>({
 
 		gl.activeTexture(gl.TEXTURE1);
 		gl.bindTexture(gl.TEXTURE_2D, paletteTexture);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			r.colors.length,
-			1,
-			0,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			pixelData,
-		);
+		if (paletteDirty) {
+			gl.texImage2D(
+				gl.TEXTURE_2D,
+				0,
+				gl.RGBA,
+				r.colors.length,
+				1,
+				0,
+				gl.RGBA,
+				gl.UNSIGNED_BYTE,
+				state.palettePixelData,
+			);
+		}
 
 		if (uSource) gl.uniform1i(uSource, 0);
 		if (uColorPalette) gl.uniform1i(uColorPalette, 1);
