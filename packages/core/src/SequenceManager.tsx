@@ -134,11 +134,15 @@ const getCodeValuesCtx = (
 	return status.props;
 };
 
-const getEffectCodeValuesCtx = (
-	codeValues: CodeValues,
-	nodePath: SequenceNodePath,
-	effectIndex: number,
-) => {
+const getEffectCodeValuesCtx = ({
+	codeValues,
+	nodePath,
+	effectIndex,
+}: {
+	codeValues: CodeValues;
+	nodePath: SequenceNodePath;
+	effectIndex: number;
+}) => {
 	const status = codeValues[nodePathToString(nodePath)];
 	if (!status || !status.canUpdate) {
 		return undefined;
@@ -347,7 +351,7 @@ export const SequenceManagerProvider: React.FC<{
 
 	const getEffectCodeValues = useCallback(
 		(nodePath: SequenceNodePath, effectIndex: number) => {
-			return getEffectCodeValuesCtx(codeValues, nodePath, effectIndex);
+			return getEffectCodeValuesCtx({codeValues, nodePath, effectIndex});
 		},
 		[codeValues],
 	);
