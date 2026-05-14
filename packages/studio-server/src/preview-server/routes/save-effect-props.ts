@@ -64,12 +64,11 @@ export const saveEffectPropsHandler: ApiHandler<
 		},
 	});
 
-	const newValueString = JSON.stringify(JSON.parse(value));
 	const defaultValueString =
 		parsedDefault !== null ? JSON.stringify(parsedDefault) : null;
 
 	const normalizedOld = normalizeQuotes(oldValueString);
-	const normalizedNew = normalizeQuotes(newValueString);
+	const normalizedNew = normalizeQuotes(value);
 	const normalizedDefault =
 		defaultValueString !== null ? normalizeQuotes(defaultValueString) : null;
 
@@ -112,7 +111,7 @@ export const saveEffectPropsHandler: ApiHandler<
 		line: logLine,
 		key: `${factoryName}[${effectIndex}].${key}`,
 		oldValueString,
-		newValueString,
+		newValueString: value,
 		defaultValueString,
 		formatted,
 		logLevel,
