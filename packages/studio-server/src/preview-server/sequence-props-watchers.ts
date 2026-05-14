@@ -1,9 +1,10 @@
 import path from 'node:path';
+import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import type {
-	EffectSubscription,
-	SubscribeToSequencePropsResponse,
-} from '@remotion/studio-shared';
-import type {CanUpdateSequencePropsResponse, SequenceNodePath} from 'remotion';
+	CanUpdateSequencePropsResponse,
+	SequenceNodePath,
+	SequenceSchema,
+} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
 import {getCachedNodePath, setCachedNodePath} from './node-path-cache';
@@ -42,7 +43,7 @@ const getSequencePropsStatus = ({
 	line: number;
 	column: number;
 	keys: string[];
-	effects: EffectSubscription[];
+	effects: SequenceSchema[];
 	remotionRoot: string;
 }): SubscribeToSequencePropsResponse => {
 	// Try cached nodePath first (handles stale source maps after suppressed rebuilds)
@@ -86,7 +87,7 @@ export const subscribeToSequencePropsWatchers = ({
 	line: number;
 	column: number;
 	keys: string[];
-	effects: EffectSubscription[];
+	effects: SequenceSchema[];
 	remotionRoot: string;
 	clientId: string;
 }): SubscribeToSequencePropsResponse => {

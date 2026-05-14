@@ -10,13 +10,13 @@ import type {
 	TSAsExpression,
 	UnaryExpression,
 } from '@babel/types';
-import type {
-	EffectSubscription,
-	SubscribeToSequencePropsResponse,
-} from '@remotion/studio-shared';
+import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
 import * as recast from 'recast';
-import type {CanUpdateSequencePropsResponseTrue} from 'remotion';
+import type {
+	CanUpdateSequencePropsResponseTrue,
+	SequenceSchema,
+} from 'remotion';
 import type {SequenceNodePath} from 'remotion';
 import type {CanUpdateSequencePropStatus} from 'remotion';
 import {parseAst} from '../../codemods/parse-ast';
@@ -310,13 +310,13 @@ const computeEffectsForJsx = ({
 	effects,
 }: {
 	jsxElement: JSXOpeningElement;
-	effects: EffectSubscription[];
+	effects: SequenceSchema[];
 }) => {
 	return effects.map((effect, effectIndex) =>
 		computeEffectPropStatus({
 			jsx: jsxElement,
 			effectIndex,
-			keys: getAllSchemaKeys(effect.schema),
+			keys: getAllSchemaKeys(effect),
 		}),
 	);
 };
@@ -387,7 +387,7 @@ export const computeSequencePropsStatusFromContent = ({
 	fileContents: string;
 	nodePath: SequenceNodePath;
 	keys: string[];
-	effects: EffectSubscription[];
+	effects: SequenceSchema[];
 }): CanUpdateSequencePropsResponseTrue => {
 	const ast = parseAst(fileContents);
 
@@ -417,7 +417,7 @@ export const computeSequencePropsStatus = ({
 	fileName: string;
 	nodePath: SequenceNodePath;
 	keys: string[];
-	effects: EffectSubscription[];
+	effects: SequenceSchema[];
 	remotionRoot: string;
 }): CanUpdateSequencePropsResponseTrue => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
@@ -445,7 +445,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 	fileName: string;
 	line: number;
 	keys: string[];
-	effects: EffectSubscription[];
+	effects: SequenceSchema[];
 	remotionRoot: string;
 }): SubscribeToSequencePropsResponse => {
 	try {

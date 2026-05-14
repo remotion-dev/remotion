@@ -1,4 +1,3 @@
-import type {EffectSubscription} from '@remotion/studio-shared';
 import {useMemo, type FC} from 'react';
 import type {EffectDefinition, SequenceSchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -13,16 +12,10 @@ export const SubscribeToNodePaths: FC<{
 }> = ({overrideId, schema, stack, effects}) => {
 	const originalLocation = useResolvedStack(stack);
 
-	const effectSubscriptions = useMemo<EffectSubscription[]>(() => {
+	const effectSubscriptions = useMemo<SequenceSchema[]>(() => {
 		return effects
-			.map((effect): EffectSubscription | null => {
-				if (!effect.schema) {
-					return null;
-				}
-
-				return {
-					schema: effect.schema,
-				};
+			.map((effect): SequenceSchema | null => {
+				return effect.schema;
 			})
 			.filter(NoReactInternals.truthy);
 	}, [effects]);

@@ -215,16 +215,12 @@ export type CanUpdateSequencePropsRequest = {
 	keys: string[];
 };
 
-export type EffectSubscription = {
-	schema: SequenceSchema;
-};
-
 export type SubscribeToSequencePropsRequest = {
 	fileName: string;
 	line: number;
 	column: number;
 	keys: string[];
-	effects: EffectSubscription[];
+	effects: SequenceSchema[];
 	clientId: string;
 };
 

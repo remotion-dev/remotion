@@ -9,7 +9,6 @@ export {
 	CanUpdateDefaultPropsResponse,
 	CanUpdateSequencePropsRequest,
 	CancelRenderRequest,
-	EffectSubscription,
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse,
 	UnsubscribeFromSequencePropsRequest,

@@ -8,11 +8,11 @@ import type {
 	ObjectExpression,
 	ObjectProperty,
 } from '@babel/types';
-import type {EffectSubscription} from '@remotion/studio-shared';
 import type {
 	CanUpdateEffectPropsResponse,
 	CanUpdateSequencePropStatus,
 	SequenceNodePath,
+	SequenceSchema,
 } from 'remotion';
 import {parseAst} from '../../codemods/parse-ast';
 import {
@@ -177,8 +177,8 @@ export const computeEffectPropsStatusesFromContent = ({
 }: {
 	fileContents: string;
 	sequenceNodePath: SequenceNodePath;
-	effects: EffectSubscription[];
-	keysFor: (effect: EffectSubscription) => string[];
+	effects: SequenceSchema[];
+	keysFor: (effect: SequenceSchema) => string[];
 }): CanUpdateEffectPropsResponse[] => {
 	const ast = parseAst(fileContents);
 	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
@@ -208,8 +208,8 @@ export const computeEffectPropsStatusesFromFile = ({
 }: {
 	fileName: string;
 	sequenceNodePath: SequenceNodePath;
-	effects: EffectSubscription[];
-	keysFor: (effect: EffectSubscription) => string[];
+	effects: SequenceSchema[];
+	keysFor: (effect: SequenceSchema) => string[];
 	remotionRoot: string;
 }): CanUpdateEffectPropsResponse[] => {
 	const absolutePath = path.resolve(remotionRoot, fileName);

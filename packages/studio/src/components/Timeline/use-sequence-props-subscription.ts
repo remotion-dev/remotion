@@ -1,4 +1,3 @@
-import type {EffectSubscription} from '@remotion/studio-shared';
 import {useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import type {SequenceSchema} from 'remotion';
@@ -14,7 +13,7 @@ export const useSequencePropsSubscription = ({
 }: {
 	overrideId: string;
 	schema: SequenceSchema;
-	effects: EffectSubscription[];
+	effects: SequenceSchema[];
 	originalLocation: OriginalPosition | null;
 }) => {
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
