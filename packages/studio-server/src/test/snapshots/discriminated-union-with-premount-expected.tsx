@@ -1,3 +1,3 @@
 export const ExperimentalControlsShowcase: React.FC = () => {
-	return (<Sequence layout={"none"}></Sequence>);
+	return <Sequence layout={'none'}></Sequence>;
 };
