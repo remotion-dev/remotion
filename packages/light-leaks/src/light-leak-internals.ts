@@ -1,7 +1,7 @@
-import type {EffectDescriptor, SequenceSchema} from 'remotion';
+import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 
-const {createDescriptor, defineEffect} = Internals;
+const {createEffect} = Internals;
 
 export const lightLeakEffectSchema = {
 	seed: {type: 'number', default: 0, description: 'Seed'},
@@ -193,7 +193,7 @@ const linkProgram = (
 	return program;
 };
 
-const lightLeakDef = defineEffect<LightLeakEffectParams, LightLeakGlState>({
+const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 	type: 'remotion/light-leak',
 	label: 'Light leak',
 	backend: 'webgl2',
@@ -355,10 +355,6 @@ const lightLeakDef = defineEffect<LightLeakEffectParams, LightLeakGlState>({
 	},
 	schema: lightLeakEffectSchema,
 });
-
-const lightLeak = (
-	params: LightLeakEffectParams = {},
-): EffectDescriptor<unknown> => createDescriptor(lightLeakDef, params);
 
 /**
  * Experimental internals for the light leak canvas effect pipeline.
