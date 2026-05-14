@@ -143,6 +143,7 @@ export const computeEffectPropStatus = ({
 
 		return {
 			canUpdate: true,
+			callee: target.callee,
 			effectIndex,
 			props: emptyProps,
 		};
@@ -165,6 +166,7 @@ export const computeEffectPropStatus = ({
 	return {
 		canUpdate: true,
 		effectIndex,
+		callee: target.callee,
 		props: resolvedProps,
 	};
 };

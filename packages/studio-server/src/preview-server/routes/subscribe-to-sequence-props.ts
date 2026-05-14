@@ -11,6 +11,7 @@ export const subscribeToSequenceProps: ApiHandler<
 > = ({
 	input: {fileName, line, column, keys, effects, clientId},
 	remotionRoot,
+	logLevel,
 }) => {
 	const result = subscribeToSequencePropsWatchers({
 		fileName,
@@ -20,6 +21,7 @@ export const subscribeToSequenceProps: ApiHandler<
 		effects,
 		remotionRoot,
 		clientId,
+		logLevel,
 	});
 
 	return Promise.resolve(result);

@@ -1,5 +1,6 @@
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/renderer';
 import {
 	stringifySequenceSubscriptionKey,
 	type SubscribeToSequencePropsResponse,
@@ -81,6 +82,7 @@ export const subscribeToSequencePropsWatchers = ({
 	effects,
 	remotionRoot,
 	clientId,
+	logLevel,
 }: {
 	fileName: string;
 	line: number;
@@ -89,6 +91,7 @@ export const subscribeToSequencePropsWatchers = ({
 	effects: string[][];
 	remotionRoot: string;
 	clientId: string;
+	logLevel: LogLevel;
 }): SubscribeToSequencePropsResponse => {
 	const initialResult = getSequencePropsStatus({
 		fileName,
@@ -132,6 +135,22 @@ export const subscribeToSequencePropsWatchers = ({
 					keys,
 					effects,
 				});
+				const previousEffectChain = result.effects.map(
+					(effect) => effect.canUpdate && effect.callee,
+				);
+				const newEffectChain =
+					initialResult.success &&
+					initialResult.status.effects.map(
+						(effect) => effect.canUpdate && effect.callee,
+					);
+				if (previousEffectChain.join(',') !== newEffectChain.join(',')) {
+					RenderInternals.Log.verbose(
+						{indent: false, logLevel},
+						'Effect chain changed, not sending "sequence-props-updated" event',
+					);
+					return;
+				}
+
 				waitForLiveEventsListener().then((listener) => {
 					listener.sendEventToClientId(clientId, {
 						type: 'sequence-props-updated',
@@ -141,7 +160,7 @@ export const subscribeToSequencePropsWatchers = ({
 					});
 				});
 			} catch (error) {
-				RenderInternals.Log.error({indent: false, logLevel: 'error'}, error);
+				RenderInternals.Log.error({indent: false, logLevel}, error);
 			}
 		},
 	});

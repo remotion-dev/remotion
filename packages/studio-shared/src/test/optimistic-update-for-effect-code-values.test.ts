@@ -14,6 +14,7 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 					color: {canUpdate: true, codeValue: 'red'},
 					opacity: {canUpdate: true, codeValue: 0.5},
 				},
+				callee: 'tint',
 			},
 		],
 	};
