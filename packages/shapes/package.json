@@ -6,7 +6,6 @@
 	"version": "4.0.461",
 	"description": "Generate SVG shapes",
 	"main": "dist/index.js",
-	"sideEffects": false,
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",

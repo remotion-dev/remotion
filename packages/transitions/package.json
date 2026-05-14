@@ -5,7 +5,6 @@
 	"name": "@remotion/transitions",
 	"version": "4.0.461",
 	"description": "Library for creating transitions in Remotion",
-	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
 	"module": "dist/esm/index.js",
 	"types": "dist/index.d.ts",

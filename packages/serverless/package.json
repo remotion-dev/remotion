@@ -6,7 +6,6 @@
 	"version": "4.0.461",
 	"description": "A runtime for distributed rendering",
 	"main": "dist",
-	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",
 		"formatting": "oxfmt src --check",
