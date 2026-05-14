@@ -42,27 +42,18 @@ const memoizeEffects = (
 	}));
 };
 
-test('flattenEffects unwraps nested-array descriptors', () => {
+test('flattenEffects assigns sourceIndex from array order', () => {
 	const a = makeDesc('a', '2d');
-	const b1 = makeDesc('b1', '2d');
-	const b2 = makeDesc('b2', '2d');
+	const b = makeDesc('b', '2d');
 	const c = makeDesc('c', 'webgl2');
 
-	const result = memoizeEffects(flattenEffects([a, [b1, b2], c]));
-	expect(result.map((d) => d.definition.type)).toEqual(['a', 'b1', 'b2', 'c']);
+	const result = memoizeEffects(flattenEffects([a, b, c]));
+	expect(result.map((d) => d.definition.type)).toEqual(['a', 'b', 'c']);
+	expect(result.map((d) => d.sourceIndex)).toEqual([0, 1, 2]);
 });
 
 test('flattenEffects handles empty input', () => {
 	expect(flattenEffects([])).toEqual([]);
-});
-
-test('flattenEffects handles only-nested input', () => {
-	const a = makeDesc('a', '2d');
-	const b = makeDesc('b', '2d');
-	expect(flattenEffects([[a, b]]).map((d) => d.definition.type)).toEqual([
-		'a',
-		'b',
-	]);
 });
 
 test('groupByBackend collapses adjacent same-backend effects', () => {

@@ -52,10 +52,9 @@ type BaseEffectDescriptor<P = unknown> = {
 	readonly effectKey: string;
 	readonly params: P;
 	/**
-	 * Index of this descriptor in the user's `_experimentalEffects` source array
-	 * (pre-flatten). Compound factories like `blur()` produce multiple
-	 * descriptors that share the same `sourceIndex`. `-1` means the descriptor
-	 * has not yet been placed in an effects array (e.g. fresh from `createEffect`).
+	 * Index of this descriptor in the user's `_experimentalEffects` array.
+	 * `-1` means the descriptor has not yet been placed in an effects array
+	 * (e.g. fresh from `createEffect`).
 	 */
 	readonly sourceIndex: number;
 };
@@ -69,11 +68,4 @@ export type EffectDefinitionAndStack<P = unknown> = BaseEffectDescriptor<P> & {
 	readonly memoized: true;
 };
 
-// Prop type for `effects`: callers may interleave single descriptors
-// with arrays of descriptors. The runtime calls `.flat()` once before
-// processing, which lets a single factory call (e.g. `blur(...)`) expand into
-// multiple passes (e.g. horizontal + vertical) without leaking that detail to
-// the call site.
-export type EffectsProp = ReadonlyArray<
-	EffectDescriptor<unknown> | ReadonlyArray<EffectDescriptor<unknown>>
->;
+export type EffectsProp = ReadonlyArray<EffectDescriptor<unknown>>;

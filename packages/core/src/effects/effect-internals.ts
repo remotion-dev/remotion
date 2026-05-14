@@ -10,22 +10,11 @@ import type {
 
 export const flattenEffects = (
 	effects: EffectsProp,
-): EffectDescriptor<unknown>[] => {
-	const out: EffectDescriptor<unknown>[] = [];
-	for (let sourceIndex = 0; sourceIndex < effects.length; sourceIndex++) {
-		const item = effects[sourceIndex];
-		if (Array.isArray(item)) {
-			for (const inner of item) {
-				out.push({...inner, sourceIndex});
-			}
-		} else {
-			const descriptor = item as EffectDescriptor<unknown>;
-			out.push({...descriptor, sourceIndex});
-		}
-	}
-
-	return out;
-};
+): EffectDescriptor<unknown>[] =>
+	effects.map((descriptor, sourceIndex) => ({
+		...descriptor,
+		sourceIndex,
+	}));
 
 export type Run = {
 	readonly backend: Backend;

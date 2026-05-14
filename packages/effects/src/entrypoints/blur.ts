@@ -1,11 +1,7 @@
 import * as blurExports from '../blur/index.js';
 
-export type {
-	BlurHorizontalParams,
-	BlurParams,
-	BlurVerticalParams,
-} from '../blur/index.js';
+export type {BlurParams} from '../blur/index.js';
 
-const {blur, blurHorizontal, blurVertical} = blurExports;
+const {blur} = blurExports;
 
-export {blur, blurHorizontal, blurVertical};
+export {blur};
