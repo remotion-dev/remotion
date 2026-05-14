@@ -17,6 +17,7 @@ export type BlurVerticalParams = {
 // use [`blur`](./index.ts) which composes both horizontal and vertical passes.
 export const blurVertical = createEffect<BlurVerticalParams, BlurState>({
 	type: 'remotion/blur-vertical',
+	factoryName: 'blurVertical',
 	label: 'Blur (vertical)',
 	backend: 'webgl2',
 	calculateKey: (params) => String(params.radius),

@@ -195,6 +195,7 @@ const linkProgram = (
 
 const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 	type: 'remotion/light-leak',
+	factoryName: 'lightLeak',
 	label: 'Light leak',
 	backend: 'webgl2',
 	calculateKey: (params) => {

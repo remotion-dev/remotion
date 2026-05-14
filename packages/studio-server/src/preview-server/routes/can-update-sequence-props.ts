@@ -10,13 +10,18 @@ import type {
 	TSAsExpression,
 	UnaryExpression,
 } from '@babel/types';
-import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
+import type {
+	EffectSubscription,
+	SubscribeToSequencePropsResponse,
+} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {CanUpdateSequencePropsResponseTrue} from 'remotion';
 import type {SequenceNodePath} from 'remotion';
 import type {CanUpdateSequencePropStatus} from 'remotion';
+import {getAllSchemaKeys} from '../../codemods/get-all-schema-keys';
 import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
+import {computeEffectPropStatus} from './can-update-effect-props';
 
 type CanUpdatePropStatus = CanUpdateSequencePropStatus;
 
@@ -300,19 +305,29 @@ const getNestedPropStatus = (
 	return {canUpdate: true, codeValue};
 };
 
-export const computeSequencePropsStatusFromContent = (
-	fileContents: string,
-	nodePath: SequenceNodePath,
-	keys: string[],
-): CanUpdateSequencePropsResponseTrue => {
-	const ast = parseAst(fileContents);
+const computeEffectsForJsx = ({
+	jsxElement,
+	effects,
+}: {
+	jsxElement: JSXOpeningElement;
+	effects: EffectSubscription[];
+}) => {
+	return effects.map((effect) =>
+		computeEffectPropStatus({
+			jsx: jsxElement,
+			subscription: effect,
+			keys: getAllSchemaKeys(effect.schema),
+		}),
+	);
+};
 
-	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
-
-	if (!jsxElement) {
-		throw new Error('Could not find a JSX element at the specified location');
-	}
-
+const computeSequenceOnlyPropsRecord = ({
+	jsxElement,
+	keys,
+}: {
+	jsxElement: JSXOpeningElement;
+	keys: string[];
+}): Record<string, CanUpdatePropStatus> => {
 	const allProps = getPropsStatus(jsxElement);
 	const filteredProps: Record<string, CanUpdatePropStatus> = {};
 	for (const key of keys) {
@@ -330,13 +345,10 @@ export const computeSequencePropsStatusFromContent = (
 		}
 	}
 
-	return {
-		canUpdate: true as const,
-		props: filteredProps,
-	};
+	return filteredProps;
 };
 
-export const computeSequencePropsStatus = ({
+export const computeSequencePropsOnlyStatus = ({
 	fileName,
 	nodePath,
 	keys,
@@ -346,6 +358,62 @@ export const computeSequencePropsStatus = ({
 	nodePath: SequenceNodePath;
 	keys: string[];
 	remotionRoot: string;
+}): {canUpdate: true; props: Record<string, CanUpdatePropStatus>} => {
+	const absolutePath = path.resolve(remotionRoot, fileName);
+	const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
+	if (fileRelativeToRoot.startsWith('..')) {
+		throw new Error('Cannot read a file outside the project');
+	}
+
+	const fileContents = readFileSync(absolutePath, 'utf-8');
+	const ast = parseAst(fileContents);
+	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
+	if (!jsxElement) {
+		throw new Error('Could not find a JSX element at the specified location');
+	}
+
+	return {
+		canUpdate: true as const,
+		props: computeSequenceOnlyPropsRecord({jsxElement, keys}),
+	};
+};
+
+export const computeSequencePropsStatusFromContent = (
+	fileContents: string,
+	nodePath: SequenceNodePath,
+	keys: string[],
+	effects: EffectSubscription[],
+): CanUpdateSequencePropsResponseTrue => {
+	const ast = parseAst(fileContents);
+
+	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
+
+	if (!jsxElement) {
+		throw new Error('Could not find a JSX element at the specified location');
+	}
+
+	const filteredProps = computeSequenceOnlyPropsRecord({jsxElement, keys});
+	const effectsStatuses = computeEffectsForJsx({jsxElement, effects});
+
+	return {
+		canUpdate: true as const,
+		props: filteredProps,
+		effects: effectsStatuses,
+	};
+};
+
+export const computeSequencePropsStatus = ({
+	fileName,
+	nodePath,
+	keys,
+	effects,
+	remotionRoot,
+}: {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	keys: string[];
+	effects: EffectSubscription[];
+	remotionRoot: string;
 }): CanUpdateSequencePropsResponseTrue => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
 	const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
@@ -354,18 +422,25 @@ export const computeSequencePropsStatus = ({
 	}
 
 	const fileContents = readFileSync(absolutePath, 'utf-8');
-	return computeSequencePropsStatusFromContent(fileContents, nodePath, keys);
+	return computeSequencePropsStatusFromContent(
+		fileContents,
+		nodePath,
+		keys,
+		effects,
+	);
 };
 
 export const computeSequencePropsStatusFromFilenameByLine = ({
 	fileName,
 	line,
 	keys,
+	effects,
 	remotionRoot,
 }: {
 	fileName: string;
 	line: number;
 	keys: string[];
+	effects: EffectSubscription[];
 	remotionRoot: string;
 }): SubscribeToSequencePropsResponse => {
 	try {
@@ -388,6 +463,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 				fileName,
 				nodePath: resolvedNodePath,
 				keys,
+				effects,
 				remotionRoot,
 			}),
 			nodePath: resolvedNodePath,

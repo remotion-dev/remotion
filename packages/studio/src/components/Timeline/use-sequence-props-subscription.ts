@@ -1,3 +1,4 @@
+import type {EffectSubscription} from '@remotion/studio-shared';
 import {useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import type {SequenceSchema} from 'remotion';
@@ -9,9 +10,11 @@ export const useSequencePropsSubscription = ({
 	originalLocation,
 	overrideId,
 	schema,
+	effects,
 }: {
 	overrideId: string;
 	schema: SequenceSchema;
+	effects: EffectSubscription[];
 	originalLocation: OriginalPosition | null;
 }) => {
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
@@ -58,6 +61,7 @@ export const useSequencePropsSubscription = ({
 			line: locationLine,
 			column: locationColumn,
 			schema,
+			effects,
 			clientId,
 			applyOnce: (result) => {
 				if (!result.success) {
@@ -80,6 +84,7 @@ export const useSequencePropsSubscription = ({
 		};
 	}, [
 		clientId,
+		effects,
 		locationColumn,
 		locationLine,
 		locationSource,

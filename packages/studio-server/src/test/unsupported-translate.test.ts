@@ -30,6 +30,7 @@ const getTranslateStatus = (translateValue: string) => {
 		input,
 		lineColumnToNodePath(input, 7),
 		['style.translate'],
+		[],
 	);
 
 	assert(result.canUpdate);

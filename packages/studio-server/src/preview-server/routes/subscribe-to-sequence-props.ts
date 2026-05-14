@@ -9,12 +9,16 @@ import {subscribeToSequencePropsWatchers} from '../sequence-props-watchers';
 export const subscribeToSequenceProps: ApiHandler<
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse
-> = ({input: {fileName, line, column, schema, clientId}, remotionRoot}) => {
+> = ({
+	input: {fileName, line, column, schema, effects, clientId},
+	remotionRoot,
+}) => {
 	const result = subscribeToSequencePropsWatchers({
 		fileName,
 		line,
 		column,
 		keys: getAllSchemaKeys(schema),
+		effects,
 		remotionRoot,
 		clientId,
 	});

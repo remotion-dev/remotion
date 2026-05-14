@@ -30,6 +30,7 @@ const resolve = (p: WaveParams): WaveResolved => ({
 // up/down with a sine wave that animates over time. Operates on the 2D backend.
 export const wave = createEffect<WaveParams, null>({
 	type: 'remotion/wave',
+	factoryName: 'wave',
 	label: 'Wave',
 	backend: '2d',
 	calculateKey: (params) => {

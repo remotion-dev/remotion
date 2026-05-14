@@ -11,6 +11,7 @@ import {
 } from '../../helpers/timeline-layout';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {Padder} from './Padder';
+import {TimelineEffectFieldRow} from './TimelineEffectFieldRow';
 import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineFieldRow} from './TimelineFieldRow';
 import {INDENT} from './TimelineListItem';
@@ -86,6 +87,18 @@ export const TimelineExpandedRow: React.FC<{
 	}
 
 	if (node.field) {
+		if (node.field.kind === 'effect-field') {
+			return (
+				<TimelineEffectFieldRow
+					field={node.field}
+					validatedLocation={validatedLocation}
+					paddingLeft={paddingLeft}
+					nestedDepth={nestedDepth}
+					nodePath={nodePath}
+				/>
+			);
+		}
+
 		return (
 			<TimelineFieldRow
 				field={node.field}

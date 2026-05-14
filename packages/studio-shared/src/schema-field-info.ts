@@ -1,6 +1,7 @@
 import type {
 	CodeValues,
 	DragOverrides,
+	EffectDefinitionAndStack,
 	SequenceControls,
 	VisibleFieldSchema,
 	SequenceSchema,
@@ -22,6 +23,21 @@ export type SchemaFieldInfo = {
 	currentRuntimeValue: unknown;
 	fieldSchema: VisibleFieldSchema;
 };
+
+export type SequenceSchemaFieldInfo = SchemaFieldInfo & {
+	readonly kind: 'sequence-field';
+};
+
+export type EffectSchemaFieldInfo = SchemaFieldInfo & {
+	readonly kind: 'effect-field';
+	readonly effectIndex: number;
+	readonly factoryName: string;
+	readonly effectSchema: SequenceSchema;
+};
+
+export type AnySchemaFieldInfo =
+	| SequenceSchemaFieldInfo
+	| EffectSchemaFieldInfo;
 
 export const SCHEMA_FIELD_ROW_HEIGHT = 22;
 export const UNSUPPORTED_FIELD_ROW_HEIGHT = 22;
@@ -46,7 +62,7 @@ export const getFieldsToShow = ({
 	getDragOverrides: GetDragOverrides;
 	getCodeValues: GetCodeValues;
 	nodePath: SequenceNodePath;
-}): SchemaFieldInfo[] | null => {
+}): SequenceSchemaFieldInfo[] | null => {
 	const {merged: valuesDotNotation} =
 		Internals.computeEffectiveSchemaValuesDotNotation({
 			schema,
@@ -61,7 +77,7 @@ export const getFieldsToShow = ({
 	);
 
 	return Object.entries(activeSchema)
-		.map(([key, fieldSchema]) => {
+		.map(([key, fieldSchema]): SequenceSchemaFieldInfo | null => {
 			const typeName = fieldSchema.type;
 			const supported = SUPPORTED_SCHEMA_TYPES.has(typeName);
 			if (typeName === 'hidden') {
@@ -69,6 +85,7 @@ export const getFieldsToShow = ({
 			}
 
 			return {
+				kind: 'sequence-field',
 				key,
 				description: fieldSchema.description,
 				typeName,
@@ -78,6 +95,44 @@ export const getFieldsToShow = ({
 					: UNSUPPORTED_FIELD_ROW_HEIGHT,
 				currentRuntimeValue: currentRuntimeValueDotNotation[key],
 				fieldSchema,
+			};
+		})
+		.filter(NoReactInternals.truthy);
+};
+
+export const getEffectFieldsToShow = (
+	effect: EffectDefinitionAndStack<unknown>,
+): EffectSchemaFieldInfo[] => {
+	const effectSchema = effect.definition.schema;
+	if (!effectSchema) {
+		return [];
+	}
+
+	const params = (effect.params ?? {}) as Record<string, unknown>;
+
+	return Object.entries(effectSchema)
+		.map(([key, fieldSchema]): EffectSchemaFieldInfo | null => {
+			const typeName = fieldSchema.type;
+			if (typeName === 'hidden') {
+				return null;
+			}
+
+			const supported = SUPPORTED_SCHEMA_TYPES.has(typeName);
+
+			return {
+				kind: 'effect-field',
+				key,
+				description: fieldSchema.description,
+				typeName,
+				supported,
+				rowHeight: supported
+					? SCHEMA_FIELD_ROW_HEIGHT
+					: UNSUPPORTED_FIELD_ROW_HEIGHT,
+				currentRuntimeValue: params[key],
+				fieldSchema,
+				effectIndex: effect.sourceIndex,
+				factoryName: effect.definition.factoryName,
+				effectSchema,
 			};
 		})
 		.filter(NoReactInternals.truthy);

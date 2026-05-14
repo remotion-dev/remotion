@@ -9,6 +9,7 @@ export {
 	CanUpdateDefaultPropsResponse,
 	CanUpdateSequencePropsRequest,
 	CancelRenderRequest,
+	EffectSubscription,
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse,
 	UnsubscribeFromSequencePropsRequest,
@@ -30,7 +31,10 @@ export {
 	RemoveRenderRequest,
 	RestartStudioRequest,
 	RestartStudioResponse,
+	SaveEffectPropsRequest,
+	SaveEffectPropsResponse,
 	SaveSequencePropsRequest,
+	SaveSequencePropsResponse,
 	SimpleDiff,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
@@ -95,13 +99,17 @@ export type {CompletedClientRender} from './render-job';
 export {
 	SCHEMA_FIELD_ROW_HEIGHT,
 	UNSUPPORTED_FIELD_ROW_HEIGHT,
+	getEffectFieldsToShow,
 	getFieldsToShow,
 } from './schema-field-info';
 export type {
+	AnySchemaFieldInfo,
 	CodeValues,
 	DragOverrides,
+	EffectSchemaFieldInfo,
 	SchemaFieldInfo,
 	SequenceControls,
+	SequenceSchemaFieldInfo,
 } from './schema-field-info';
 export {
 	ScriptLine,
@@ -113,3 +121,4 @@ export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 
 export type {VisualControlChange} from './codemods';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
+export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';

@@ -1,3 +1,4 @@
+import type {EffectSubscription} from '@remotion/studio-shared';
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import {callApi} from '../call-api';
@@ -28,6 +29,7 @@ export const acquireSequencePropsSubscription = ({
 	line,
 	column,
 	schema,
+	effects,
 	clientId,
 	applyOnce,
 	applyEach,
@@ -36,6 +38,7 @@ export const acquireSequencePropsSubscription = ({
 	line: number;
 	column: number;
 	schema: SequenceSchema;
+	effects: EffectSubscription[];
 	clientId: string;
 	applyOnce: ApplyResult;
 	applyEach: ApplyResult;
@@ -49,6 +52,7 @@ export const acquireSequencePropsSubscription = ({
 			line,
 			column,
 			schema,
+			effects,
 			clientId,
 		});
 		const created: Entry = {

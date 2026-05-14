@@ -1,5 +1,8 @@
 import path from 'node:path';
-import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
+import type {
+	EffectSubscription,
+	SubscribeToSequencePropsResponse,
+} from '@remotion/studio-shared';
 import type {CanUpdateSequencePropsResponse, SequenceNodePath} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
@@ -32,12 +35,14 @@ const getSequencePropsStatus = ({
 	line,
 	column,
 	keys,
+	effects,
 	remotionRoot,
 }: {
 	fileName: string;
 	line: number;
 	column: number;
 	keys: string[];
+	effects: EffectSubscription[];
 	remotionRoot: string;
 }): SubscribeToSequencePropsResponse => {
 	// Try cached nodePath first (handles stale source maps after suppressed rebuilds)
@@ -48,6 +53,7 @@ const getSequencePropsStatus = ({
 			fileName,
 			nodePath: cachedNodePath,
 			keys,
+			effects,
 			remotionRoot,
 		});
 
@@ -60,6 +66,7 @@ const getSequencePropsStatus = ({
 		fileName,
 		line,
 		keys,
+		effects,
 		remotionRoot,
 	});
 
@@ -71,6 +78,7 @@ export const subscribeToSequencePropsWatchers = ({
 	line,
 	column,
 	keys,
+	effects,
 	remotionRoot,
 	clientId,
 }: {
@@ -78,6 +86,7 @@ export const subscribeToSequencePropsWatchers = ({
 	line: number;
 	column: number;
 	keys: string[];
+	effects: EffectSubscription[];
 	remotionRoot: string;
 	clientId: string;
 }): SubscribeToSequencePropsResponse => {
@@ -86,6 +95,7 @@ export const subscribeToSequencePropsWatchers = ({
 		line,
 		column,
 		keys,
+		effects,
 		remotionRoot,
 	});
 
@@ -121,6 +131,7 @@ export const subscribeToSequencePropsWatchers = ({
 					event.content,
 					nodePath,
 					keys,
+					effects,
 				);
 			} catch {
 				return;

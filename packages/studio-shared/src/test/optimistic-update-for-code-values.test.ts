@@ -11,6 +11,7 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 				codeValue: 0.5,
 			},
 		},
+		effects: [],
 	};
 	const updated = optimisticUpdateForCodeValues({
 		previous,
@@ -27,6 +28,7 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 				codeValue: 0.6,
 			},
 		},
+		effects: [],
 	});
 
 	const layout = optimisticUpdateForCodeValues({
@@ -43,5 +45,6 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 				codeValue: 'none',
 			},
 		},
+		effects: [],
 	});
 });

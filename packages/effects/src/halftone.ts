@@ -271,6 +271,7 @@ const parseColorRgba = (
 // with a screen tone instead of luminance-driven ink on opaque pixels alone.
 export const halftone = createEffect<HalftoneParams, HalftoneState>({
 	type: 'remotion/halftone',
+	factoryName: 'halftone',
 	label: 'Halftone',
 	backend: 'webgl2',
 	calculateKey: (params) => {

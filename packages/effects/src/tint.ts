@@ -36,6 +36,7 @@ const resolve = (p: TintParams): TintResolved => ({
 // backend; tinting respects the source's alpha mask.
 export const tint = createEffect<TintParams, null>({
 	type: 'remotion/tint',
+	factoryName: 'tint',
 	label: 'Tint',
 	backend: '2d',
 	calculateKey: (params) => {

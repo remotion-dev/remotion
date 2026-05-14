@@ -12,13 +12,15 @@ export const flattenEffects = (
 	effects: EffectsProp,
 ): EffectDescriptor<unknown>[] => {
 	const out: EffectDescriptor<unknown>[] = [];
-	for (const item of effects) {
+	for (let sourceIndex = 0; sourceIndex < effects.length; sourceIndex++) {
+		const item = effects[sourceIndex];
 		if (Array.isArray(item)) {
 			for (const inner of item) {
-				out.push(inner);
+				out.push({...inner, sourceIndex});
 			}
 		} else {
-			out.push(item as EffectDescriptor<unknown>);
+			const descriptor = item as EffectDescriptor<unknown>;
+			out.push({...descriptor, sourceIndex});
 		}
 	}
 

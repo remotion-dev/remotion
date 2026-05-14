@@ -14,15 +14,26 @@ export type CanUpdateSequencePropStatus =
 	| {canUpdate: false; reason: 'computed'};
 
 export type DragOverrides = Record<string, Record<string, unknown>>;
+export type EffectDragOverrides = Record<string, Record<string, unknown>>;
 export type CodeValues = Record<string, CanUpdateSequencePropsResponse>;
 
 export type GetCodeValues = (
 	nodePath: SequenceNodePath,
 ) => Record<string, CanUpdateSequencePropStatus> | undefined;
 
+export type GetEffectCodeValues = (
+	nodePath: SequenceNodePath,
+	effectIndex: number,
+) => Record<string, CanUpdateSequencePropStatus> | undefined;
+
 export type GetDragOverrides = (
 	nodePath: SequenceNodePath,
 ) => DragOverrides[string];
+
+export type GetEffectDragOverrides = (
+	nodePath: SequenceNodePath,
+	effectIndex: number,
+) => Record<string, unknown>;
 
 const findFieldInSchema = (
 	schema: SequenceSchema,

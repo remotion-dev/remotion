@@ -24,6 +24,7 @@ test('canUpdateSequenceProps should flag computed props', () => {
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
 		keys: ['durationInFrames', 'seed', 'hueShift', 'nonExistentProp'],
+		effects: [],
 		remotionRoot: '/',
 	});
 
@@ -50,6 +51,7 @@ test('computeSequencePropsStatus should detect static nested props', () => {
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 7),
 		keys: ['style.opacity', 'style.scale'],
+		effects: [],
 		remotionRoot: '/',
 	});
 
@@ -72,6 +74,7 @@ test('computeSequencePropsStatus should flag computed nested props', () => {
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
 		keys: ['style.opacity', 'style.scale'],
+		effects: [],
 		remotionRoot: '/',
 	});
 
@@ -96,6 +99,7 @@ test('computeSequencePropsStatus should flag computed when parent is not an obje
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 9),
 		keys: ['style.opacity'],
+		effects: [],
 		remotionRoot: '/',
 	});
 
@@ -115,6 +119,7 @@ test('computeSequencePropsStatus should report unset nested props as undefined',
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 7),
 		keys: ['style.rotate'],
+		effects: [],
 		remotionRoot: '/',
 	});
 
@@ -133,6 +138,7 @@ test('computeSequencePropsStatus should report unset when parent attribute missi
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 10),
 		keys: ['style.opacity'],
+		effects: [],
 		remotionRoot: '/',
 	});
 

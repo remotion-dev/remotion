@@ -23,6 +23,7 @@ export const createEffect = <P, S>(
 		params,
 		stack: new Error().stack!,
 		effectKey: widened.calculateKey(params),
+		sourceIndex: -1,
 		memoized: false,
 	});
 	return factory as EffectFactory<P>;

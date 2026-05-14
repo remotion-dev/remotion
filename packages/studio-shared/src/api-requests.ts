@@ -12,11 +12,12 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {
 	_InternalTypes,
+	CanUpdateEffectPropsResponse,
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
+	CanUpdateSequencePropStatus,
 	SequenceSchema,
 } from 'remotion';
-import type {CanUpdateSequencePropsResponse} from 'remotion';
 import type {SequenceNodePath} from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
@@ -214,11 +215,18 @@ export type CanUpdateSequencePropsRequest = {
 	keys: string[];
 };
 
+export type EffectSubscription = {
+	effectIndex: number;
+	factoryName: string;
+	schema: SequenceSchema;
+};
+
 export type SubscribeToSequencePropsRequest = {
 	fileName: string;
 	line: number;
 	column: number;
 	schema: SequenceSchema;
+	effects: EffectSubscription[];
 	clientId: string;
 };
 
@@ -247,6 +255,29 @@ export type SaveSequencePropsRequest = {
 	defaultValue: string | null;
 	schema: SequenceSchema;
 };
+
+export type SaveSequencePropsResponse =
+	| {
+			canUpdate: true;
+			props: Record<string, CanUpdateSequencePropStatus>;
+	  }
+	| {
+			canUpdate: false;
+			reason: string;
+	  };
+
+export type SaveEffectPropsRequest = {
+	fileName: string;
+	sequenceNodePath: SequenceNodePath;
+	effectIndex: number;
+	factoryName: string;
+	key: string;
+	value: string;
+	defaultValue: string | null;
+	schema: SequenceSchema;
+};
+
+export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
 
 export type DeleteJsxNodeRequest = {
 	fileName: string;
@@ -359,7 +390,11 @@ export type ApiRoutes = {
 	>;
 	'/api/save-sequence-props': ReqAndRes<
 		SaveSequencePropsRequest,
-		CanUpdateSequencePropsResponse
+		SaveSequencePropsResponse
+	>;
+	'/api/save-effect-props': ReqAndRes<
+		SaveEffectPropsRequest,
+		SaveEffectPropsResponse
 	>;
 	'/api/delete-jsx-node': ReqAndRes<
 		DeleteJsxNodeRequest,

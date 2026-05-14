@@ -116,6 +116,9 @@ import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
 import type {
+	CanUpdateEffectPropsResponse,
+	CanUpdateEffectPropsResponseFalse,
+	CanUpdateEffectPropsResponseTrue,
 	CanUpdateSequencePropsResponse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropsResponseFalse,
@@ -158,12 +161,18 @@ import {
 	useBasicMediaInTimeline,
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
-import type {GetCodeValues, GetDragOverrides} from './use-schema.js';
+import type {
+	GetCodeValues,
+	GetDragOverrides,
+	GetEffectCodeValues,
+	GetEffectDragOverrides,
+} from './use-schema.js';
 import {
 	computeEffectiveSchemaValuesDotNotation,
 	type CanUpdateSequencePropStatus,
 	type CodeValues,
 	type DragOverrides,
+	type EffectDragOverrides,
 } from './use-schema.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
@@ -359,9 +368,12 @@ export type {
 	CanUpdateSequencePropStatus,
 	CodeValues,
 	GetCodeValues,
+	GetEffectCodeValues,
 	DragOverrides,
+	EffectDragOverrides,
 	ScheduleAudioNodeResult,
 	GetDragOverrides,
+	GetEffectDragOverrides,
 	NonceHistory,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
@@ -369,6 +381,9 @@ export type {
 	OverrideIdToNodePaths,
 	OverrideToNodeSetters,
 	OverrideToNodePathGetters,
+	CanUpdateEffectPropsResponse,
+	CanUpdateEffectPropsResponseTrue,
+	CanUpdateEffectPropsResponseFalse,
 	CanUpdateSequencePropsResponse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropsResponseFalse,

@@ -1,6 +1,7 @@
 import React, {forwardRef, useState, useContext, useMemo} from 'react';
 import type {SequenceControls} from './CompositionManager.js';
 import {deleteNestedKey} from './delete-nested-key.js';
+import {EffectOverridesContext} from './effects/effect-overrides-context.js';
 import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
@@ -211,14 +212,26 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 			propsToDelete,
 		});
 
-		return React.createElement(Component, {
-			...mergedProps,
-			_experimentalControls: controls,
-			ref,
-		} as Props & {
-			_experimentalControls: SequenceControls | undefined;
-			ref: typeof ref;
-		});
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const effectOverridesContext = useMemo(
+			() => ({
+				nodePath,
+			}),
+			[nodePath],
+		);
+
+		return React.createElement(
+			EffectOverridesContext.Provider,
+			{value: effectOverridesContext},
+			React.createElement(Component, {
+				...mergedProps,
+				_experimentalControls: controls,
+				ref,
+			} as Props & {
+				_experimentalControls: SequenceControls | undefined;
+				ref: typeof ref;
+			}),
+		);
 	});
 
 	Wrapped.displayName = `wrapInSchema(${Component.displayName || Component.name || 'Component'})`;

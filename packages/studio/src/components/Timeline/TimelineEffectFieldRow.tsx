@@ -1,14 +1,13 @@
-import {optimisticUpdateForCodeValues} from '@remotion/studio-shared';
+import {optimisticUpdateForEffectCodeValues} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {CanUpdateSequencePropsResponse, SequenceNodePath} from 'remotion';
-import type {SequenceSchema} from 'remotion';
+import type {
+	CanUpdateEffectPropsResponse,
+	CanUpdateSequencePropsResponse,
+	SequenceNodePath,
+} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import type {
-	SchemaFieldInfo,
-	TimelineFieldOnDragValueChange,
-	TimelineFieldOnSave,
-} from '../../helpers/timeline-layout';
+import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {Padder} from './Padder';
@@ -35,59 +34,53 @@ const fieldLabelRow: React.CSSProperties = {
 	gap: 6,
 };
 
-export const TimelineFieldRow: React.FC<{
-	readonly field: SchemaFieldInfo;
+export const TimelineEffectFieldRow: React.FC<{
+	readonly field: EffectSchemaFieldInfo;
 	readonly validatedLocation: CodePosition | null;
 	readonly paddingLeft: number;
 	readonly nestedDepth: number;
 	readonly nodePath: SequenceNodePath;
-	readonly schema: SequenceSchema;
-}> = ({
-	field,
-	validatedLocation,
-	paddingLeft,
-	nestedDepth,
-	nodePath,
-	schema,
-}) => {
+}> = ({field, validatedLocation, paddingLeft, nestedDepth, nodePath}) => {
 	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
-	const {getDragOverrides} = useContext(
+	const {getEffectCodeValues} = useContext(
+		Internals.VisualModeCodeValuesContext,
+	);
+	const {getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const {setDragOverrides, clearDragOverrides} = useContext(
-		Internals.VisualModeSettersContext,
-	);
+	const {setEffectDragOverrides, clearEffectDragOverrides, setCodeValues} =
+		useContext(Internals.VisualModeSettersContext);
 
-	const codeValuesForOverride = getCodeValues(nodePath);
-	const codeValue = codeValuesForOverride?.[field.key] ?? null;
+	const codeValuesForSequence = getCodeValues(nodePath);
+	const propStatus =
+		getEffectCodeValues(nodePath, field.effectIndex)?.[field.key] ?? null;
 
-	if (codeValue === null) {
-		throw new Error('Unexpectedly got null code value for field' + field.key);
+	if (propStatus === null) {
+		throw new Error(
+			'Unexpectedly got null code value for effect field' + field.key,
+		);
 	}
 
 	const dragOverrideValue = useMemo(() => {
-		return nodePath === null
-			? undefined
-			: (getDragOverrides(nodePath) ?? {})[field.key];
-	}, [getDragOverrides, nodePath, field.key]);
+		const overrides = getEffectDragOverrides(nodePath, field.effectIndex);
+		return overrides[field.key];
+	}, [getEffectDragOverrides, nodePath, field.effectIndex, field.key]);
 
 	const effectiveValue = Internals.getEffectiveVisualModeValue({
-		codeValue,
+		codeValue: propStatus,
 		runtimeValue: field.currentRuntimeValue,
 		dragOverrideValue,
 		defaultValue: field.fieldSchema.default,
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
-	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
-
-	const onSave = useCallback<TimelineFieldOnSave>(
-		(value) => {
-			if (!codeValuesForOverride || !validatedLocation || !nodePath) {
+	const onSave = useCallback(
+		(value: unknown) => {
+			if (!codeValuesForSequence || !validatedLocation || !nodePath) {
 				return Promise.reject(new Error('Cannot save'));
 			}
 
-			if (!codeValue || !codeValue.canUpdate) {
+			if (!propStatus.canUpdate) {
 				return Promise.reject(new Error('Cannot save'));
 			}
 
@@ -98,53 +91,62 @@ export const TimelineFieldRow: React.FC<{
 
 			const stringifiedValue = JSON.stringify(value);
 
-			if (value === codeValue.codeValue) {
+			if (value === propStatus.codeValue) {
 				return Promise.resolve();
 			}
 
 			if (
 				defaultValue === stringifiedValue &&
-				codeValue.codeValue === undefined
+				propStatus.codeValue === undefined
 			) {
 				return Promise.resolve();
 			}
 
 			let previousUpdate: CanUpdateSequencePropsResponse | undefined;
 
-			// Optimistic update to prevent flicker
 			setCodeValues(nodePath, (prev) => {
 				previousUpdate = prev;
-				return optimisticUpdateForCodeValues({
+				return optimisticUpdateForEffectCodeValues({
 					previous: prev,
+					effectIndex: field.effectIndex,
 					fieldKey: field.key,
 					value,
-					schema,
+					schema: field.effectSchema,
 				});
 			});
 
-			return callApi('/api/save-sequence-props', {
+			return callApi('/api/save-effect-props', {
 				fileName: validatedLocation.source,
-				nodePath,
+				sequenceNodePath: nodePath,
+				effectIndex: field.effectIndex,
+				factoryName: field.factoryName,
 				key: field.key,
 				value: stringifiedValue,
 				defaultValue,
-				schema,
+				schema: field.effectSchema,
 			})
-				.then((data) => {
+				.then((data: CanUpdateEffectPropsResponse) => {
 					setCodeValues(nodePath, (prev) => {
-						if (!data.canUpdate) {
-							return data;
+						if (!prev.canUpdate) {
+							return prev;
 						}
 
-						return {
-							canUpdate: true,
-							props: data.props,
-							effects: prev.canUpdate ? prev.effects : [],
-						};
+						const idx = prev.effects.findIndex(
+							(e) => e.effectIndex === field.effectIndex,
+						);
+						if (idx === -1) {
+							return {
+								...prev,
+								effects: [...prev.effects, data],
+							};
+						}
+
+						const next = [...prev.effects];
+						next[idx] = data;
+						return {...prev, effects: next};
 					});
 				})
 				.catch(() => {
-					// In case something went wrong, undo optimistic update
 					if (previousUpdate) {
 						setCodeValues(nodePath, (current) => {
 							if (previousUpdate) {
@@ -157,35 +159,29 @@ export const TimelineFieldRow: React.FC<{
 				});
 		},
 		[
-			codeValue,
-			codeValuesForOverride,
+			codeValuesForSequence,
+			field.effectIndex,
+			field.effectSchema,
+			field.factoryName,
 			field.fieldSchema.default,
 			field.key,
 			nodePath,
-			schema,
+			propStatus,
 			setCodeValues,
 			validatedLocation,
 		],
 	);
 
-	const onDragValueChange = useCallback<TimelineFieldOnDragValueChange>(
-		(value) => {
-			if (nodePath === null) {
-				throw new Error('Cannot drag value');
-			}
-
-			setDragOverrides(nodePath, field.key, value);
+	const onDragValueChange = useCallback(
+		(value: unknown) => {
+			setEffectDragOverrides(nodePath, field.effectIndex, field.key, value);
 		},
-		[setDragOverrides, nodePath, field.key],
+		[setEffectDragOverrides, nodePath, field.effectIndex, field.key],
 	);
 
 	const onDragEnd = useCallback(() => {
-		if (nodePath === null) {
-			throw new Error('Cannot clear drag value');
-		}
-
-		clearDragOverrides(nodePath);
-	}, [clearDragOverrides, nodePath]);
+		clearEffectDragOverrides(nodePath, field.effectIndex);
+	}, [clearEffectDragOverrides, nodePath, field.effectIndex]);
 
 	const style = useMemo(() => {
 		return {
@@ -203,7 +199,7 @@ export const TimelineFieldRow: React.FC<{
 			</div>
 			<TimelineFieldValue
 				field={field}
-				propStatus={codeValue}
+				propStatus={propStatus}
 				onSave={onSave}
 				onDragValueChange={onDragValueChange}
 				onDragEnd={onDragEnd}

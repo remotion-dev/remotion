@@ -32,6 +32,13 @@ export type EffectApplyParams<P, S> = {
 export type EffectDefinition<P, S = unknown> = {
 	readonly type: string;
 	readonly label: string;
+	/**
+	 * Public source identifier of the factory function the user calls in their
+	 * code (e.g. `'tint'` for `tint({...})`). Used by the studio to verify
+	 * that an effect at array index `i` in `_experimentalEffects` still
+	 * matches the runtime effect when saving prop edits back to source.
+	 */
+	readonly factoryName: string;
 	readonly backend: Backend;
 	/**
 	 * Stable string for comparing effect instances: two descriptors with the same
@@ -51,6 +58,13 @@ type BaseEffectDescriptor<P = unknown> = {
 	readonly stack: string;
 	readonly effectKey: string;
 	readonly params: P;
+	/**
+	 * Index of this descriptor in the user's `_experimentalEffects` source array
+	 * (pre-flatten). Compound factories like `blur()` produce multiple
+	 * descriptors that share the same `sourceIndex`. `-1` means the descriptor
+	 * has not yet been placed in an effects array (e.g. fresh from `createEffect`).
+	 */
+	readonly sourceIndex: number;
 };
 
 export type EffectDescriptor<P = unknown> = BaseEffectDescriptor<P> & {
