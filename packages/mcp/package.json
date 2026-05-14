@@ -6,7 +6,6 @@
 	"version": "4.0.461",
 	"description": "Remotion's Model Context Protocol",
 	"main": "dist/esm/index.mjs",
-	"sideEffects": false,
 	"type": "module",
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"

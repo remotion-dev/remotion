@@ -5,7 +5,6 @@
 	"name": "@remotion/test-utils",
 	"version": "4.0.461",
 	"main": "dist",
-	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",
 		"make": "tsgo -d"

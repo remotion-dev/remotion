@@ -7,7 +7,6 @@
 	"description": "Render Remotion videos using Node.js or Bun",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
-	"sideEffects": false,
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",

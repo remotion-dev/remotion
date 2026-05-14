@@ -8,7 +8,6 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/zod-types-v3"
 	},
-	"sideEffects": false,
 	"type": "module",
 	"scripts": {
 		"formatting": "oxfmt src --check",

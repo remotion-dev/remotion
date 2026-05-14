@@ -5,7 +5,6 @@
 	"name": "@remotion/compositor",
 	"version": "4.0.461",
 	"description": "Rust binary for Remotion",
-	"sideEffects": false,
 	"scripts": {
 		"build-all": "bun build.ts --all"
 	},

@@ -6,7 +6,6 @@
 	"version": "4.0.461",
 	"description": "Internal package for shared objects between the Studio backend and frontend",
 	"main": "dist",
-	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",
 		"test": "bun test src",
