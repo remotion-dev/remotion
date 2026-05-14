@@ -5,8 +5,14 @@ import {callApi} from '../call-api';
 
 type Key = string;
 
-const makeKey = (fileName: string, line: number, column: number): Key =>
-	`${fileName}\0${line}\0${column}`;
+const makeKey = (
+	fileName: string,
+	line: number,
+	column: number,
+	sequenceKeys: string[],
+	effectKeys: string[][],
+): Key =>
+	`${fileName}\0${line}\0${column}\0${sequenceKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}`;
 
 type SubscribeResult = Awaited<
 	ReturnType<typeof callApi<'/api/subscribe-to-sequence-props'>>
@@ -43,8 +49,10 @@ export const acquireSequencePropsSubscription = ({
 	applyOnce: ApplyResult;
 	applyEach: ApplyResult;
 }): {release: () => void} => {
+	const sequenceKeys = getAllSchemaKeys(schema);
+	const effectKeys = effects.map((effect) => getAllSchemaKeys(effect));
 	// TODO: Bug - schema keys and effects are not part of the cache key
-	const key = makeKey(fileName, line, column);
+	const key = makeKey(fileName, line, column, sequenceKeys, effectKeys);
 	let entry = entries.get(key);
 
 	if (!entry) {
