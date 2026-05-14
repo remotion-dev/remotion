@@ -179,6 +179,12 @@ export const runSkillEvalComparison = async (
 			options.onLog?.(`[${label} ${event.phase}] ${event.status}\n`);
 		};
 
+	const abortControllers: Record<SkillEvalComparisonRunLabel, AbortController> =
+		{
+			after: new AbortController(),
+			before: new AbortController(),
+		};
+	let firstSnapshotError: unknown = null;
 	const runSnapshot = async (label: SkillEvalComparisonRunLabel) => {
 		emitMessage(`[compare] Running ${label} snapshot\n`);
 		options.onEvent?.({label, type: 'run-start'});
@@ -190,6 +196,7 @@ export const runSkillEvalComparison = async (
 				onPhase: forwardPhase(label),
 				runLabel: label,
 				runRoot: join(comparisonDir, 'runs'),
+				signal: abortControllers[label].signal,
 				skillSnapshot:
 					label === 'before'
 						? {
@@ -216,10 +223,30 @@ export const runSkillEvalComparison = async (
 		}
 	};
 
+	const runSnapshotWithSiblingCancellation = async (
+		label: SkillEvalComparisonRunLabel,
+		sibling: SkillEvalComparisonRunLabel,
+	) => {
+		try {
+			return await runSnapshot(label);
+		} catch (error) {
+			if (!firstSnapshotError) {
+				firstSnapshotError = error;
+				abortControllers[sibling].abort();
+			}
+
+			throw error;
+		}
+	};
+
 	const [beforeResult, afterResult] = await Promise.allSettled([
-		runSnapshot('before'),
-		runSnapshot('after'),
+		runSnapshotWithSiblingCancellation('before', 'after'),
+		runSnapshotWithSiblingCancellation('after', 'before'),
 	]);
+
+	if (firstSnapshotError) {
+		throw firstSnapshotError;
+	}
 
 	if (beforeResult.status === 'rejected') {
 		throw beforeResult.reason;

@@ -1,5 +1,5 @@
 import {existsSync} from 'node:fs';
-import {cp, readdir, readFile, rm, writeFile} from 'node:fs/promises';
+import {cp, lstat, readdir, readFile, rm, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 
 export const createTimestamp = () =>
@@ -17,8 +17,12 @@ export const copyDirectory = async (from: string, to: string) => {
 	await rm(to, {force: true, recursive: true});
 	await cp(from, to, {
 		recursive: true,
-		filter: (source) => {
+		filter: async (source) => {
 			const pathParts = source.split(/[\\/]/);
+
+			if ((await lstat(source)).isSymbolicLink()) {
+				return false;
+			}
 
 			return (
 				!pathParts.includes('node_modules') && !pathParts.includes('.DS_Store')
@@ -44,6 +48,10 @@ export const listFilesRecursively = async (dir: string): Promise<string[]> => {
 	const files = await Promise.all(
 		entries.map((entry) => {
 			const absolutePath = join(dir, entry.name);
+
+			if (entry.isSymbolicLink()) {
+				return [];
+			}
 
 			if (entry.isDirectory()) {
 				if (entry.name === 'node_modules') {

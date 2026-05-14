@@ -88,6 +88,7 @@ export const runPi = async ({
 	onOutput,
 	onPhase,
 	projectRoot,
+	signal,
 	sessionFile,
 	sessionDir,
 	model,
@@ -97,6 +98,7 @@ export const runPi = async ({
 	onOutput?: (output: CommandOutput) => void;
 	onPhase?: (status: 'completed' | 'started') => void;
 	projectRoot: string;
+	signal?: AbortSignal;
 	sessionFile?: string;
 	sessionDir: string;
 	model: string;
@@ -124,10 +126,19 @@ export const runPi = async ({
 		command,
 		cwd: projectRoot,
 		onOutput,
+		signal,
 		timeoutMs,
 	});
 
 	if (result.exitCode !== 0) {
+		if (result.timedOut) {
+			throw new Error(`Pi timed out after ${result.durationMs}ms.`);
+		}
+
+		if (result.aborted) {
+			throw new Error('Pi was cancelled.');
+		}
+
 		throw new Error(
 			`Pi failed (${result.exitCode}): ${commandToString(result.command)}\n${result.stderr}`,
 		);
@@ -146,22 +157,38 @@ export const exportPiSession = async ({
 	onOutput,
 	onPhase,
 	projectRoot,
+	signal,
 	sessionFile,
+	timeoutMs,
 }: {
 	htmlExport: string;
 	onOutput?: (output: CommandOutput) => void;
 	onPhase?: (status: 'completed' | 'started') => void;
 	projectRoot: string;
+	signal?: AbortSignal;
 	sessionFile: string;
+	timeoutMs?: number;
 }): Promise<PiExport> => {
 	onPhase?.('started');
 	const exportCommand = await runCommand({
 		command: ['pi', '--export', sessionFile, htmlExport],
 		cwd: projectRoot,
 		onOutput,
+		signal,
+		timeoutMs,
 	});
 
 	if (exportCommand.exitCode !== 0) {
+		if (exportCommand.timedOut) {
+			throw new Error(
+				`Pi export timed out after ${exportCommand.durationMs}ms.`,
+			);
+		}
+
+		if (exportCommand.aborted) {
+			throw new Error('Pi export was cancelled.');
+		}
+
 		throw new Error(
 			`Pi export failed (${exportCommand.exitCode}): ${exportCommand.stderr}`,
 		);

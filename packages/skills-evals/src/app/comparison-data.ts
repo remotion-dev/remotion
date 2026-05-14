@@ -1,7 +1,7 @@
 import {existsSync} from 'node:fs';
 import {readFile} from 'node:fs/promises';
 import {join} from 'node:path';
-import {listFilesRecursively, readJson} from '../files';
+import {listFilesRecursively, readJson, sanitizePathPart} from '../files';
 import type {SkillEvalComparison, SkillEvalManifest} from '../manifest';
 import {comparisonsRoot} from './shared';
 
@@ -43,7 +43,7 @@ export const loadComparison = async (
 ): Promise<ComparisonWithManifests | null> => {
 	const comparisonPath = join(
 		comparisonsRoot,
-		scenarioId,
+		sanitizePathPart(scenarioId),
 		comparisonId,
 		'comparison.json',
 	);

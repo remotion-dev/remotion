@@ -4,6 +4,15 @@ import {runCommand} from './command';
 import {checkPiAvailable} from './pi';
 
 const server = Bun.serve({
+	error: (error) => {
+		process.stderr.write(
+			`Skills eval server error: ${
+				error instanceof Error ? error.stack : String(error)
+			}\n`,
+		);
+
+		return new Response('Internal Server Error', {status: 500});
+	},
 	fetch: () => notFound(),
 	hostname: '127.0.0.1',
 	port,

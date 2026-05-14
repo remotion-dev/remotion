@@ -38,6 +38,7 @@ type SkillEvalScenarioInput = SkillEvalScenario & {
 	onPhase?: (event: SkillEvalPhaseEvent) => void;
 	runRoot?: string;
 	runLabel?: 'before' | 'after';
+	signal?: AbortSignal;
 	skillsSourcePath?: string;
 	skillSnapshot?: Partial<
 		Pick<SkillSnapshot, 'comparisonId' | 'gitRef' | 'isWorkingTree' | 'label'>
@@ -102,18 +103,32 @@ const hashDirectory = async (dir: string) => {
 	return hash.digest('hex').slice(0, 12);
 };
 
-const getCurrentRemotionVersion = async () => {
-	const versionFile = await readFile(
-		join(repoRoot, 'packages', 'core', 'src', 'version.ts'),
-		'utf-8',
-	);
-	const match = versionFile.match(/VERSION = '([^']+)'/);
+let publishedRemotionVersionPromise: Promise<string> | null = null;
 
-	if (!match) {
-		throw new Error('Could not read the current Remotion version.');
-	}
+const getPublishedRemotionVersion = () => {
+	publishedRemotionVersionPromise ??= (async () => {
+		const override = process.env.REMOTION_SKILLS_EVALS_REMOTION_VERSION;
 
-	return match[1];
+		if (override) {
+			return override;
+		}
+
+		const result = await runCommand({
+			command: ['bun', 'pm', 'view', 'remotion', 'version'],
+			cwd: repoRoot,
+			timeoutMs: 30_000,
+		});
+
+		if (result.exitCode !== 0) {
+			throw new Error(
+				`Could not resolve the latest published Remotion version: ${result.stderr}`,
+			);
+		}
+
+		return result.stdout.trim();
+	})();
+
+	return publishedRemotionVersionPromise;
 };
 
 const patchDependencyMap = (
@@ -145,7 +160,7 @@ const copyBlankTemplate = async ({
 
 	const packageJsonFile = join(projectRoot, 'package.json');
 	const packageJson = await readJson<PackageJson>(packageJsonFile);
-	const version = await getCurrentRemotionVersion();
+	const version = await getPublishedRemotionVersion();
 
 	await writeJson(packageJsonFile, {
 		...packageJson,
@@ -243,6 +258,18 @@ const logCommand = async ({
 	};
 };
 
+const describeCommandFailure = (name: string, command: CommandResult) => {
+	if (command.timedOut) {
+		return `${name} timed out after ${command.durationMs}ms.`;
+	}
+
+	if (command.aborted) {
+		return `${name} was cancelled.`;
+	}
+
+	return `${name} failed (${command.exitCode}): ${command.stderr}`;
+};
+
 const runPhase = async ({
 	command,
 	cwd,
@@ -262,6 +289,7 @@ const runPhase = async ({
 		command,
 		cwd,
 		onOutput: (output) => input.onOutput?.({...output, phase}),
+		signal: input.signal,
 		timeoutMs,
 	});
 
@@ -307,9 +335,7 @@ export const runSkillEval = async (
 	});
 
 	if (install.exitCode !== 0) {
-		throw new Error(
-			`bun install failed (${install.exitCode}): ${install.stderr}`,
-		);
+		throw new Error(describeCommandFailure('bun install', install));
 	}
 
 	const pi = await runPi({
@@ -318,6 +344,7 @@ export const runSkillEval = async (
 		onPhase: (status) => input.onPhase?.({phase: 'pi', status}),
 		projectRoot,
 		prompt: input.prompt,
+		signal: input.signal,
 		sessionDir,
 		timeoutMs: input.timeoutMs,
 	});
@@ -327,6 +354,7 @@ export const runSkillEval = async (
 		onPhase: (status) => input.onPhase?.({phase: 'pi-render', status}),
 		projectRoot,
 		prompt: createRenderPrompt(expectedArtifactPath),
+		signal: input.signal,
 		sessionDir,
 		sessionFile: pi.sessionFile,
 		timeoutMs: input.timeoutMs,
@@ -336,7 +364,9 @@ export const runSkillEval = async (
 		onOutput: (output) => input.onOutput?.({...output, phase: 'pi-export'}),
 		onPhase: (status) => input.onPhase?.({phase: 'pi-export', status}),
 		projectRoot,
+		signal: input.signal,
 		sessionFile: piRender.sessionFile,
+		timeoutMs: input.timeoutMs,
 	});
 	const artifacts = await discoverVisualArtifacts(projectRoot);
 

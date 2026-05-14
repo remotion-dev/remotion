@@ -1,12 +1,17 @@
 import {existsSync} from 'node:fs';
 import {join} from 'node:path';
-import {readJson} from '../files';
+import {readJson, sanitizePathPart} from '../files';
 import type {SkillEvalManifest} from '../manifest';
 import {getPreferredArtifact} from './comparison-data';
 import {Card, Header, page, runsRoot, toFileUrl} from './shared';
 
 export const loadRun = async (scenarioId: string, runId: string) => {
-	const manifestPath = join(runsRoot, scenarioId, runId, 'manifest.json');
+	const manifestPath = join(
+		runsRoot,
+		sanitizePathPart(scenarioId),
+		runId,
+		'manifest.json',
+	);
 
 	if (!existsSync(manifestPath)) {
 		return null;

@@ -1,7 +1,7 @@
 import {basename, join} from 'node:path';
 import type {SkillEvalScenario} from '../../scenarios';
 import {runCommand} from '../command';
-import {listFilesRecursively, readJson} from '../files';
+import {listFilesRecursively, readJson, sanitizePathPart} from '../files';
 import type {SkillEvalComparison, SkillEvalManifest} from '../manifest';
 import {loadComparisons} from './comparison-data';
 import {
@@ -24,6 +24,7 @@ import {
 type SkillDiffState = {
 	hasChanges: boolean;
 	message: string;
+	title: string;
 };
 
 type ScenarioRunListItem = {
@@ -44,17 +45,24 @@ const getSkillDiffState = async (): Promise<SkillDiffState> => {
 			message: result.stdout.trim()
 				? 'Skills differ from HEAD. Run a before/after comparison against HEAD.'
 				: 'Skills match HEAD. This will run the scenario without a diff to review.',
+			title: result.stdout.trim()
+				? 'Skills changed from HEAD'
+				: 'No skill changes',
 		};
 	}
 
-	throw new Error(`Could not inspect skill diff: ${result.stderr}`);
+	return {
+		hasChanges: false,
+		message: `Could not inspect skill diff. The scenario can still run without a comparison. ${result.stderr}`,
+		title: 'Skill diff unavailable',
+	};
 };
 
 const loadPlainRuns = async (
 	scenarioId: string,
 ): Promise<SkillEvalManifest[]> => {
 	const manifestFiles = (
-		await listFilesRecursively(join(runsRoot, scenarioId))
+		await listFilesRecursively(join(runsRoot, sanitizePathPart(scenarioId)))
 	).filter((file) => file.endsWith('/manifest.json'));
 
 	return Promise.all(
@@ -320,9 +328,7 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 						<div className="flex items-start justify-between gap-4 max-md:flex-col">
 							<div>
 								<h2 className="text-[0.9375rem] font-semibold">
-									{skillDiffState.hasChanges
-										? 'Skills changed from HEAD'
-										: 'No skill changes'}
+									{skillDiffState.title}
 								</h2>
 								<p
 									className={`mt-1 text-sm ${

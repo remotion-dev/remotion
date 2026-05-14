@@ -266,9 +266,6 @@
 		},
 		{
 			"path": "./packages/sfx"
-		},
-		{
-			"path": "./packages/skills-evals"
 		}
 	]
 }

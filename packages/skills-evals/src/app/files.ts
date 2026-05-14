@@ -1,17 +1,29 @@
 import {existsSync} from 'node:fs';
-import {stat} from 'node:fs/promises';
-import {extname, resolve} from 'node:path';
+import {realpath, stat} from 'node:fs/promises';
+import {extname, isAbsolute, relative, resolve} from 'node:path';
 import {notFound, runsRoot} from './shared';
 
 export const serveRunFile = async (relativePath: string) => {
 	const file = resolve(runsRoot, relativePath);
-	const resolvedRunsRoot = resolve(runsRoot);
 
-	if (!file.startsWith(`${resolvedRunsRoot}/`)) {
+	if (!existsSync(runsRoot)) {
 		return notFound();
 	}
 
-	if (!existsSync(file) || !(await stat(file)).isFile()) {
+	const resolvedRunsRoot = await realpath(runsRoot);
+
+	if (!existsSync(file)) {
+		return notFound();
+	}
+
+	const realFile = await realpath(file);
+	const relativeToRunsRoot = relative(resolvedRunsRoot, realFile);
+
+	if (relativeToRunsRoot.startsWith('..') || isAbsolute(relativeToRunsRoot)) {
+		return notFound();
+	}
+
+	if (!(await stat(realFile)).isFile()) {
 		return notFound();
 	}
 
@@ -24,9 +36,9 @@ export const serveRunFile = async (relativePath: string) => {
 			'.mp4': 'video/mp4',
 			'.png': 'image/png',
 			'.webm': 'video/webm',
-		}[extname(file)] ?? 'application/octet-stream';
+		}[extname(realFile)] ?? 'application/octet-stream';
 
-	return new Response(Bun.file(file), {
+	return new Response(Bun.file(realFile), {
 		headers: {'content-type': contentType},
 	});
 };

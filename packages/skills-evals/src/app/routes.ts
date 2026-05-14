@@ -62,7 +62,13 @@ export const routes = {
 
 	'/files/*': (request: Request) => {
 		const {pathname} = new URL(request.url);
-		const relativePath = decodeURIComponent(pathname.replace(/^\/files\//, ''));
+		let relativePath: string;
+
+		try {
+			relativePath = decodeURIComponent(pathname.replace(/^\/files\//, ''));
+		} catch {
+			return new Response('Bad request', {status: 400});
+		}
 
 		return serveRunFile(relativePath);
 	},
