@@ -113,7 +113,6 @@ export const computeEffectPropStatus = ({
 		return {
 			canUpdate: false,
 			effectIndex: subscription.effectIndex,
-			factoryName: subscription.factoryName,
 			reason: 'not-found',
 		};
 	}
@@ -125,7 +124,6 @@ export const computeEffectPropStatus = ({
 		return {
 			canUpdate: false,
 			effectIndex: subscription.effectIndex,
-			factoryName: subscription.factoryName,
 			reason: 'not-found',
 		};
 	}
@@ -135,7 +133,6 @@ export const computeEffectPropStatus = ({
 		return {
 			canUpdate: false,
 			effectIndex: subscription.effectIndex,
-			factoryName: subscription.factoryName,
 			reason: 'not-call-expression',
 		};
 	}
@@ -144,7 +141,6 @@ export const computeEffectPropStatus = ({
 		return {
 			canUpdate: false,
 			effectIndex: subscription.effectIndex,
-			factoryName: subscription.factoryName,
 			reason: 'effect-reordered',
 		};
 	}
@@ -169,7 +165,6 @@ export const computeEffectPropStatus = ({
 		return {
 			canUpdate: false,
 			effectIndex: subscription.effectIndex,
-			factoryName: subscription.factoryName,
 			reason: 'no-args-object',
 		};
 	}

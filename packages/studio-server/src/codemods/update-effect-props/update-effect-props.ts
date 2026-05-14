@@ -145,8 +145,7 @@ export const findEffectCallExpression = ({
 		return {kind: 'error', reason: 'not-call-expression'};
 	}
 
-	const arr = expr as ArrayExpression;
-	const elements = enumerateEffectArrayElements(arr);
+	const elements = enumerateEffectArrayElements(expr);
 
 	if (effectIndex < 0 || effectIndex >= elements.length) {
 		return {kind: 'error', reason: 'not-found'};

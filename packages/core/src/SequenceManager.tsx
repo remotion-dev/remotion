@@ -91,7 +91,6 @@ export type CanUpdateEffectPropsResponseTrue = {
 export type CanUpdateEffectPropsResponseFalse = {
 	canUpdate: false;
 	effectIndex: number;
-	factoryName: string;
 	reason:
 		| 'effect-reordered'
 		| 'no-args-object'

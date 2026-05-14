@@ -83,7 +83,6 @@ test('optimisticUpdateForEffectCodeValues is a no-op when effect status is non-u
 			{
 				canUpdate: false,
 				effectIndex: 0,
-				factoryName: 'tint',
 				reason: 'effect-reordered',
 			},
 		],
