@@ -217,7 +217,6 @@ export type CanUpdateSequencePropsRequest = {
 
 export type EffectSubscription = {
 	effectIndex: number;
-	factoryName: string;
 	schema: SequenceSchema;
 };
 
@@ -270,7 +269,6 @@ export type SaveEffectPropsRequest = {
 	fileName: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
-	factoryName: string;
 	key: string;
 	value: string;
 	defaultValue: string | null;

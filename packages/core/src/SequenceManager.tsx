@@ -84,19 +84,13 @@ export type VisualModeSetters = {
 export type CanUpdateEffectPropsResponseTrue = {
 	canUpdate: true;
 	effectIndex: number;
-	factoryName: string;
 	props: Record<string, CanUpdateSequencePropStatus>;
 };
 
 export type CanUpdateEffectPropsResponseFalse = {
 	canUpdate: false;
 	effectIndex: number;
-	reason:
-		| 'effect-reordered'
-		| 'no-args-object'
-		| 'not-found'
-		| 'computed'
-		| 'not-call-expression';
+	reason: 'no-args-object' | 'not-found' | 'computed' | 'not-call-expression';
 };
 
 export type CanUpdateEffectPropsResponse =

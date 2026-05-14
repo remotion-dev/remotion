@@ -121,20 +121,14 @@ export const enumerateEffectArrayElements = (
 export const findEffectCallExpression = ({
 	attr,
 	effectIndex,
-	factoryName,
 }: {
 	attr: JSXAttribute;
 	effectIndex: number;
-	factoryName: string;
 }):
 	| {kind: 'ok'; call: CallExpression}
 	| {
 			kind: 'error';
-			reason:
-				| 'no-args-object'
-				| 'not-found'
-				| 'effect-reordered'
-				| 'not-call-expression';
+			reason: 'no-args-object' | 'not-found' | 'not-call-expression';
 	  } => {
 	if (!attr.value || attr.value.type !== 'JSXExpressionContainer') {
 		return {kind: 'error', reason: 'not-call-expression'};
@@ -154,10 +148,6 @@ export const findEffectCallExpression = ({
 	const target = elements[effectIndex];
 	if (target.kind !== 'call') {
 		return {kind: 'error', reason: 'not-call-expression'};
-	}
-
-	if (target.callee !== factoryName) {
-		return {kind: 'error', reason: 'effect-reordered'};
 	}
 
 	return {kind: 'ok', call: target.node};
@@ -188,13 +178,11 @@ export const updateEffectPropsAst = ({
 	input,
 	sequenceNodePath,
 	effectIndex,
-	factoryName,
 	update,
 }: {
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
-	factoryName: string;
 	update: EffectPropUpdate;
 }): {
 	serialized: string;
@@ -219,7 +207,6 @@ export const updateEffectPropsAst = ({
 	const found = findEffectCallExpression({
 		attr,
 		effectIndex,
-		factoryName,
 	});
 
 	if (found.kind === 'error') {
@@ -283,14 +270,12 @@ export const updateEffectProps = async ({
 	input,
 	sequenceNodePath,
 	effectIndex,
-	factoryName,
 	update,
 	prettierConfigOverride,
 }: {
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
-	factoryName: string;
 	update: EffectPropUpdate;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<UpdateEffectPropsResult> => {
@@ -298,7 +283,6 @@ export const updateEffectProps = async ({
 		input,
 		sequenceNodePath,
 		effectIndex,
-		factoryName,
 		update,
 	});
 

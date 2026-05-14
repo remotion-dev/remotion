@@ -12,7 +12,6 @@ const makeDef = (
 	backend: Backend,
 ): EffectDefinition<unknown, unknown> => ({
 	type,
-	factoryName: type,
 	label: type,
 	backend,
 	calculateKey: () => type,

@@ -22,7 +22,6 @@ test('updateEffectProps updates an existing prop on the right effect', () => {
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 0,
-		factoryName: 'tint',
 		update: {key: 'opacity', value: 0.8, defaultValue: null},
 	});
 
@@ -36,7 +35,6 @@ test('updateEffectProps adds a missing prop', () => {
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 0,
-		factoryName: 'tint',
 		update: {key: 'opacity', value: 0.25, defaultValue: null},
 	});
 
@@ -50,7 +48,6 @@ test('updateEffectProps removes a prop equal to default', () => {
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 0,
-		factoryName: 'tint',
 		update: {key: 'opacity', value: 1, defaultValue: 1},
 	});
 
@@ -66,26 +63,12 @@ test('updateEffectProps targets the correct effect by index when there are multi
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 1,
-		factoryName: 'tint',
 		update: {key: 'opacity', value: 0.9, defaultValue: null},
 	});
 
 	expect(serialized).toContain('opacity: 0.9');
 	expect(serialized).toContain('color: "red"');
 	expect(serialized).toContain('color: "green"');
-});
-
-test('updateEffectProps throws on factoryName mismatch (effect-reordered)', () => {
-	const input = buildInput('[tint({color: "red"}), halftone({})]');
-	expect(() => {
-		updateEffectPropsAst({
-			input,
-			sequenceNodePath: lineColumnToNodePath(input, 6),
-			effectIndex: 1,
-			factoryName: 'tint',
-			update: {key: 'opacity', value: 0.5, defaultValue: null},
-		});
-	}).toThrow(/effect-reordered/);
 });
 
 test('updateEffectProps throws when effect index is out of range', () => {
@@ -95,7 +78,6 @@ test('updateEffectProps throws when effect index is out of range', () => {
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 6),
 			effectIndex: 5,
-			factoryName: 'tint',
 			update: {key: 'opacity', value: 0.5, defaultValue: null},
 		});
 	}).toThrow(/not-found/);
@@ -108,7 +90,6 @@ test('updateEffectProps throws when first arg is not an object literal (no-args-
 			input,
 			sequenceNodePath: lineColumnToNodePath(input, 6),
 			effectIndex: 0,
-			factoryName: 'tint',
 			update: {key: 'opacity', value: 0.5, defaultValue: null},
 		});
 	}).toThrow(/no-args-object/);

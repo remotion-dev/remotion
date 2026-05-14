@@ -31,7 +31,6 @@ export type SequenceSchemaFieldInfo = SchemaFieldInfo & {
 export type EffectSchemaFieldInfo = SchemaFieldInfo & {
 	readonly kind: 'effect-field';
 	readonly effectIndex: number;
-	readonly factoryName: string;
 	readonly effectSchema: SequenceSchema;
 };
 
@@ -131,7 +130,6 @@ export const getEffectFieldsToShow = (
 				currentRuntimeValue: params[key],
 				fieldSchema,
 				effectIndex: effect.sourceIndex,
-				factoryName: effect.definition.factoryName,
 				effectSchema,
 			};
 		})

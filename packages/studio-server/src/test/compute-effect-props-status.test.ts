@@ -32,7 +32,7 @@ test('computeEffectPropStatus reports static props as canUpdate=true with codeVa
 	const input = buildInput('[tint({color: "red", opacity: 0.5})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
-		subscription: {effectIndex: 0, factoryName: 'tint'},
+		subscription: {effectIndex: 0},
 		keys: ['color', 'opacity'],
 	});
 
@@ -49,7 +49,7 @@ test('computeEffectPropStatus reports computed props', () => {
 	const input = buildInput('[tint({color: getColor(), opacity: 0.5})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
-		subscription: {effectIndex: 0, factoryName: 'tint'},
+		subscription: {effectIndex: 0},
 		keys: ['color', 'opacity'],
 	});
 
@@ -66,7 +66,7 @@ test('computeEffectPropStatus reports unset props as undefined codeValue', () =>
 	const input = buildInput('[tint({color: "red"})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
-		subscription: {effectIndex: 0, factoryName: 'tint'},
+		subscription: {effectIndex: 0},
 		keys: ['color', 'opacity'],
 	});
 
@@ -79,27 +79,11 @@ test('computeEffectPropStatus reports unset props as undefined codeValue', () =>
 	expect(result.props.opacity).toEqual({canUpdate: true, codeValue: undefined});
 });
 
-test('computeEffectPropStatus flags reordered effect (factoryName mismatch)', () => {
-	const input = buildInput('[tint({color: "red"}), halftone({})]');
-	const result = computeEffectPropStatus({
-		jsx: findJsx(input),
-		subscription: {effectIndex: 1, factoryName: 'tint'},
-		keys: ['color'],
-	});
-
-	expect(result.canUpdate).toBe(false);
-	if (result.canUpdate) {
-		throw new Error('expected canUpdate false');
-	}
-
-	expect(result.reason).toBe('effect-reordered');
-});
-
 test('computeEffectPropStatus flags non-call expressions', () => {
 	const input = buildInput('[someEffect, tint({color: "red"})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
-		subscription: {effectIndex: 0, factoryName: 'tint'},
+		subscription: {effectIndex: 0},
 		keys: ['color'],
 	});
 
@@ -115,7 +99,7 @@ test('computeEffectPropStatus flags out-of-range effect indices', () => {
 	const input = buildInput('[tint({color: "red"})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
-		subscription: {effectIndex: 5, factoryName: 'tint'},
+		subscription: {effectIndex: 5},
 		keys: ['color'],
 	});
 
@@ -131,7 +115,7 @@ test('computeEffectPropStatus flags non-object first arg', () => {
 	const input = buildInput('[tint(getParams())]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
-		subscription: {effectIndex: 0, factoryName: 'tint'},
+		subscription: {effectIndex: 0},
 		keys: ['color'],
 	});
 

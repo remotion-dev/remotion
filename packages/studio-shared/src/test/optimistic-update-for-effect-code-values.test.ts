@@ -10,7 +10,6 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 			{
 				canUpdate: true,
 				effectIndex: 0,
-				factoryName: 'tint',
 				props: {
 					color: {canUpdate: true, codeValue: 'red'},
 					opacity: {canUpdate: true, codeValue: 0.5},
@@ -62,30 +61,6 @@ test('optimisticUpdateForEffectCodeValues is a no-op when effect index not found
 		canUpdate: true,
 		props: {},
 		effects: [],
-	};
-
-	const result = optimisticUpdateForEffectCodeValues({
-		previous,
-		effectIndex: 0,
-		fieldKey: 'opacity',
-		value: 0.8,
-		schema: {opacity: {type: 'number', default: 1}},
-	});
-
-	expect(result).toBe(previous);
-});
-
-test('optimisticUpdateForEffectCodeValues is a no-op when effect status is non-updateable', () => {
-	const previous: CanUpdateSequencePropsResponse = {
-		canUpdate: true,
-		props: {},
-		effects: [
-			{
-				canUpdate: false,
-				effectIndex: 0,
-				reason: 'effect-reordered',
-			},
-		],
 	};
 
 	const result = optimisticUpdateForEffectCodeValues({

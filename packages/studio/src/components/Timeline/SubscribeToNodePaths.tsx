@@ -22,7 +22,6 @@ export const SubscribeToNodePaths: FC<{
 
 				return {
 					effectIndex: effect.sourceIndex,
-					factoryName: effect.definition.factoryName,
 					schema: effect.definition.schema,
 				};
 			})

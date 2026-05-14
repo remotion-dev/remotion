@@ -293,7 +293,6 @@ const linkProgram = (
 
 const starburstImpl = createEffect<StarburstEffectParams, StarburstGlState>({
 	type: 'remotion/starburst',
-	factoryName: 'starburstImpl',
 	label: 'Starburst',
 	backend: 'webgl2',
 	calculateKey: (params) => {

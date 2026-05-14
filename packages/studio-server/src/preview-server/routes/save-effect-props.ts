@@ -29,7 +29,6 @@ export const saveEffectPropsHandler: ApiHandler<
 		fileName,
 		sequenceNodePath,
 		effectIndex,
-		factoryName,
 		key,
 		value,
 		defaultValue,
@@ -40,7 +39,7 @@ export const saveEffectPropsHandler: ApiHandler<
 }) => {
 	RenderInternals.Log.trace(
 		{indent: false, logLevel},
-		`[save-effect-props] Received request for fileName="${fileName}" effectIndex=${effectIndex} factoryName="${factoryName}" key="${key}"`,
+		`[save-effect-props] Received request for fileName="${fileName}" effectIndex=${effectIndex} key="${key}"`,
 	);
 	const absolutePath = path.resolve(remotionRoot, fileName);
 	const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
@@ -56,7 +55,6 @@ export const saveEffectPropsHandler: ApiHandler<
 		input: fileContents,
 		sequenceNodePath,
 		effectIndex,
-		factoryName,
 		update: {
 			key,
 			value: JSON.parse(value),
@@ -109,7 +107,7 @@ export const saveEffectPropsHandler: ApiHandler<
 	logUpdate({
 		fileRelativeToRoot,
 		line: logLine,
-		key: `${factoryName}[${effectIndex}].${key}`,
+		key: `[${effectIndex}].${key}`,
 		oldValueString,
 		newValueString: value,
 		defaultValueString,
@@ -127,14 +125,13 @@ export const saveEffectPropsHandler: ApiHandler<
 		return {
 			canUpdate: false,
 			effectIndex,
-			factoryName,
 			reason: 'not-found',
 		};
 	}
 
 	return computeEffectPropStatus({
 		jsx,
-		subscription: {effectIndex, factoryName},
+		subscription: {effectIndex},
 		keys: getAllSchemaKeys(schema),
 	});
 };

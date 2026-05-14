@@ -103,7 +103,7 @@ export const computeEffectPropStatus = ({
 	keys,
 }: {
 	jsx: JSXOpeningElement;
-	subscription: {effectIndex: number; factoryName: string};
+	subscription: {effectIndex: number};
 	keys: string[];
 }): CanUpdateEffectPropsResponse => {
 	const attr = findExperimentalEffectsAttr(jsx);
@@ -137,14 +137,6 @@ export const computeEffectPropStatus = ({
 		};
 	}
 
-	if (target.callee !== subscription.factoryName) {
-		return {
-			canUpdate: false,
-			effectIndex: subscription.effectIndex,
-			reason: 'effect-reordered',
-		};
-	}
-
 	const call: CallExpression = target.node;
 	if (call.arguments.length === 0) {
 		const emptyProps: Record<string, CanUpdateSequencePropStatus> = {};
@@ -155,7 +147,6 @@ export const computeEffectPropStatus = ({
 		return {
 			canUpdate: true,
 			effectIndex: subscription.effectIndex,
-			factoryName: subscription.factoryName,
 			props: emptyProps,
 		};
 	}
@@ -177,7 +168,6 @@ export const computeEffectPropStatus = ({
 	return {
 		canUpdate: true,
 		effectIndex: subscription.effectIndex,
-		factoryName: subscription.factoryName,
 		props: resolvedProps,
 	};
 };
@@ -199,7 +189,6 @@ export const computeEffectPropsStatusesFromContent = ({
 		return effects.map((effect) => ({
 			canUpdate: false as const,
 			effectIndex: effect.effectIndex,
-			factoryName: effect.factoryName,
 			reason: 'not-found' as const,
 		}));
 	}
