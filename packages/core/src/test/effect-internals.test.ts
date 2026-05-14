@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {flattenEffects, groupByBackend} from '../effects/effect-internals.js';
+import {groupByBackend} from '../effects/effect-internals.js';
 import type {
 	Backend,
 	EffectDefinition,
@@ -29,7 +29,6 @@ const makeDesc = (
 	params: {},
 	stack: new Error().stack!,
 	effectKey: type,
-	sourceIndex: -1,
 	memoized: false,
 });
 
@@ -41,20 +40,6 @@ const memoizeEffects = (
 		memoized: true,
 	}));
 };
-
-test('flattenEffects assigns sourceIndex from array order', () => {
-	const a = makeDesc('a', '2d');
-	const b = makeDesc('b', '2d');
-	const c = makeDesc('c', 'webgl2');
-
-	const result = memoizeEffects(flattenEffects([a, b, c]));
-	expect(result.map((d) => d.definition.type)).toEqual(['a', 'b', 'c']);
-	expect(result.map((d) => d.sourceIndex)).toEqual([0, 1, 2]);
-});
-
-test('flattenEffects handles empty input', () => {
-	expect(flattenEffects([])).toEqual([]);
-});
 
 test('groupByBackend collapses adjacent same-backend effects', () => {
 	const effects = [

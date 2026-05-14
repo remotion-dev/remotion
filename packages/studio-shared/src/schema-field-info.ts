@@ -110,7 +110,7 @@ export const getEffectFieldsToShow = (
 	const params = (effect.params ?? {}) as Record<string, unknown>;
 
 	return Object.entries(effectSchema)
-		.map(([key, fieldSchema]): EffectSchemaFieldInfo | null => {
+		.map(([key, fieldSchema], index): EffectSchemaFieldInfo | null => {
 			const typeName = fieldSchema.type;
 			if (typeName === 'hidden') {
 				return null;
@@ -129,8 +129,8 @@ export const getEffectFieldsToShow = (
 					: UNSUPPORTED_FIELD_ROW_HEIGHT,
 				currentRuntimeValue: params[key],
 				fieldSchema,
-				effectIndex: effect.sourceIndex,
 				effectSchema,
+				effectIndex: index,
 			};
 		})
 		.filter(NoReactInternals.truthy);

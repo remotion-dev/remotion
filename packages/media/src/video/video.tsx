@@ -259,10 +259,10 @@ const VideoInner: React.FC<
 		[basicInfo],
 	);
 
-	const memoizedEffects = Internals.useMemoizedEffects(
-		Internals.flattenEffects(_experimentalEffects ?? []),
-		controls?.overrideId ?? null,
-	);
+	const memoizedEffects = Internals.useMemoizedEffects({
+		effects: _experimentalEffects ?? [],
+		overrideId: controls?.overrideId ?? null,
+	});
 
 	if (sequenceDurationInFrames === 0) {
 		return null;

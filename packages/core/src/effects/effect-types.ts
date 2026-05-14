@@ -51,12 +51,6 @@ type BaseEffectDescriptor<P = unknown> = {
 	readonly stack: string;
 	readonly effectKey: string;
 	readonly params: P;
-	/**
-	 * Index of this descriptor in the user's `_experimentalEffects` array.
-	 * `-1` means the descriptor has not yet been placed in an effects array
-	 * (e.g. fresh from `createEffect`).
-	 */
-	readonly sourceIndex: number;
 };
 
 export type EffectDescriptor<P = unknown> = BaseEffectDescriptor<P> & {

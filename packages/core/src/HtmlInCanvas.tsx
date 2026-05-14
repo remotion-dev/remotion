@@ -10,7 +10,6 @@ import React, {
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
 import {delayRender} from './delay-render.js';
-import {flattenEffects} from './effects/effect-internals.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -330,10 +329,10 @@ const HtmlInCanvasInner = forwardRef<
 
 		const chainState = useEffectChainState();
 
-		const memoizedEffects = useMemoizedEffects(
-			flattenEffects(effects),
-			controls?.overrideId ?? null,
-		);
+		const memoizedEffects = useMemoizedEffects({
+			effects,
+			overrideId: controls?.overrideId ?? null,
+		});
 
 		// Refs so the paint handler always reads fresh values.
 		const effectsRef = useRef(memoizedEffects);

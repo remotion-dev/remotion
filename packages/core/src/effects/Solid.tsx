@@ -1,7 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {flattenEffects} from './effect-internals.js';
 import type {EffectsProp} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
 import {useEffectChainState} from './use-effect-chain-state.js';
@@ -33,11 +32,11 @@ export const Solid: React.FC<SolidProps> = ({
 		null,
 	);
 
-	const memoizedEffects = useMemoizedEffects(
-		flattenEffects(experimentalEffects),
+	const memoizedEffects = useMemoizedEffects({
+		effects: experimentalEffects,
 		// TODO: Add schema to Solid
-		null,
-	);
+		overrideId: null,
+	});
 
 	const sourceCanvas = useMemo(() => {
 		if (typeof document === 'undefined') {

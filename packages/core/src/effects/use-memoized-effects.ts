@@ -67,10 +67,13 @@ const extractCodeOverrides = (
 	return hasAny ? out : null;
 };
 
-export const useMemoizedEffects = (
-	effects: EffectDescriptor<unknown>[],
-	overrideId: string | null,
-): EffectDefinitionAndStack<unknown>[] => {
+export const useMemoizedEffects = ({
+	effects,
+	overrideId,
+}: {
+	effects: readonly EffectDescriptor<unknown>[];
+	readonly overrideId: string | null;
+}): EffectDefinitionAndStack<unknown>[] => {
 	const previousRef = useRef<EffectDefinitionAndStack<unknown>[] | null>(null);
 
 	const {getEffectCodeValues} = useContext(VisualModeCodeValuesContext);
@@ -83,7 +86,7 @@ export const useMemoizedEffects = (
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
 
-	const resolved = effects.map((descriptor) => {
+	const resolved = effects.map((descriptor, index) => {
 		if (nodePath === null) {
 			return {
 				descriptor,
@@ -92,12 +95,9 @@ export const useMemoizedEffects = (
 			};
 		}
 
-		const propStatus = getEffectCodeValues(nodePath, descriptor.sourceIndex);
+		const propStatus = getEffectCodeValues(nodePath, index);
 		const codeOverrides = extractCodeOverrides(propStatus);
-		const dragOverridesMap = getEffectDragOverrides(
-			nodePath,
-			descriptor.sourceIndex,
-		);
+		const dragOverridesMap = getEffectDragOverrides(nodePath, index);
 		const dragOverrides =
 			Object.keys(dragOverridesMap).length === 0 ? null : dragOverridesMap;
 
@@ -117,8 +117,7 @@ export const useMemoizedEffects = (
 		previous.every(
 			(p, i) =>
 				p.definition === resolved[i].descriptor.definition &&
-				p.effectKey === resolved[i].effectKey &&
-				p.sourceIndex === resolved[i].descriptor.sourceIndex,
+				p.effectKey === resolved[i].effectKey,
 		);
 
 	if (isSame) {
@@ -131,7 +130,6 @@ export const useMemoizedEffects = (
 			stack: descriptor.stack,
 			effectKey,
 			params,
-			sourceIndex: descriptor.sourceIndex,
 			memoized: true,
 		}),
 	);
