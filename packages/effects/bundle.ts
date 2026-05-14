@@ -5,9 +5,17 @@ if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
 }
 
+const effectEntrypoints = [
+	'src/index.ts',
+	'src/halftone.ts',
+	'src/tint.ts',
+	'src/wave.ts',
+	'src/entrypoints/blur.ts',
+];
+
 console.time('Generated.');
 const output = await build({
-	entrypoints: ['src/index.ts'],
+	entrypoints: effectEntrypoints,
 	naming: '[name].mjs',
 	external: [
 		'remotion',
