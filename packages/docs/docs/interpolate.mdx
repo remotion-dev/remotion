@@ -183,7 +183,7 @@ const frame = useCurrentFrame();
 import {interpolate, Easing} from 'remotion';
 
 interpolate(frame, [0, 100, 200], [0, 1, 2], {
-  easing: [Easing.bezier(0, 0, 1, 1), Easing.bezier(0, 0, 1, 1)],
+  easing: [Easing.out(Easing.cubic), Easing.in(Easing.cubic)],
 });
 ```
 
