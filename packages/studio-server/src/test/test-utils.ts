@@ -1,7 +1,17 @@
 import type {Expression} from '@babel/types';
 import type {SequenceNodePath} from 'remotion';
+import {formatFileContent} from '../codemods/format-file-content';
 import {parseAst} from '../codemods/parse-ast';
 import {lineColumnToNodePath as _lineColumnToNodePath} from '../preview-server/routes/can-update-sequence-props';
+
+export const prettify = async (input: string): Promise<string> => {
+	const {output, formatted} = await formatFileContent({input});
+	if (!formatted) {
+		throw new Error('prettier could not format input');
+	}
+
+	return output;
+};
 
 export const parseExpression = (code: string): Expression => {
 	const ast = parseAst(`a = ${code}`);

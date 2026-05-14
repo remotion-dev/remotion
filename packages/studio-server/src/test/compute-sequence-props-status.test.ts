@@ -19,7 +19,7 @@ const getNodePath = (filePath: string, line: number) => {
 };
 
 test('canUpdateSequenceProps should flag computed props', () => {
-	const filePath = path.join(__dirname, 'snapshots', 'light-leak-computed.txt');
+	const filePath = path.join(__dirname, 'snapshots', 'light-leak-computed.tsx');
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
@@ -45,7 +45,7 @@ test('canUpdateSequenceProps should flag computed props', () => {
 });
 
 test('computeSequencePropsStatus should detect static nested props', () => {
-	const filePath = path.join(__dirname, 'snapshots', 'nested-props.txt');
+	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 7),
@@ -67,7 +67,7 @@ test('computeSequencePropsStatus should detect static nested props', () => {
 });
 
 test('computeSequencePropsStatus should flag computed nested props', () => {
-	const filePath = path.join(__dirname, 'snapshots', 'nested-props.txt');
+	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
@@ -91,7 +91,7 @@ test('computeSequencePropsStatus should flag computed nested props', () => {
 });
 
 test('computeSequencePropsStatus should flag computed when parent is not an object', () => {
-	const filePath = path.join(__dirname, 'snapshots', 'nested-props.txt');
+	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 9),
@@ -110,7 +110,7 @@ test('computeSequencePropsStatus should flag computed when parent is not an obje
 });
 
 test('computeSequencePropsStatus should report unset nested props as undefined', () => {
-	const filePath = path.join(__dirname, 'snapshots', 'nested-props.txt');
+	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 7),
@@ -128,7 +128,7 @@ test('computeSequencePropsStatus should report unset nested props as undefined',
 });
 
 test('computeSequencePropsStatus should report unset when parent attribute missing', () => {
-	const filePath = path.join(__dirname, 'snapshots', 'nested-props.txt');
+	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 10),
