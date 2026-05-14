@@ -17,8 +17,7 @@ export type {CodeValues, DragOverrides, SequenceControls};
 export type SchemaFieldInfo = {
 	key: string;
 	description: string | undefined;
-	typeName: 'enum' | 'number' | 'boolean' | 'rotation' | 'translate';
-	supported: boolean;
+	typeName: SupportedSchemaType;
 	rowHeight: number;
 	fieldSchema: VisibleFieldSchema;
 };
@@ -38,15 +37,17 @@ export type AnySchemaFieldInfo =
 	| EffectSchemaFieldInfo;
 
 export const SCHEMA_FIELD_ROW_HEIGHT = 22;
-export const UNSUPPORTED_FIELD_ROW_HEIGHT = 22;
 
-const SUPPORTED_SCHEMA_TYPES = new Set([
+const SUPPORTED_SCHEMA_TYPES = [
 	'number',
 	'boolean',
 	'rotation',
 	'translate',
 	'enum',
-]);
+	'hidden',
+] as const;
+
+type SupportedSchemaType = (typeof SUPPORTED_SCHEMA_TYPES)[number];
 
 export const getFieldsToShow = ({
 	getDragOverrides,
@@ -77,7 +78,10 @@ export const getFieldsToShow = ({
 	return Object.entries(activeSchema)
 		.map(([key, fieldSchema]): SequenceSchemaFieldInfo | null => {
 			const typeName = fieldSchema.type;
-			const supported = SUPPORTED_SCHEMA_TYPES.has(typeName);
+			if (SUPPORTED_SCHEMA_TYPES.indexOf(typeName) === -1) {
+				throw new Error(`Unsupported field type: ${typeName}`);
+			}
+
 			if (typeName === 'hidden') {
 				return null;
 			}
@@ -87,10 +91,7 @@ export const getFieldsToShow = ({
 				key,
 				description: fieldSchema.description,
 				typeName,
-				supported,
-				rowHeight: supported
-					? SCHEMA_FIELD_ROW_HEIGHT
-					: UNSUPPORTED_FIELD_ROW_HEIGHT,
+				rowHeight: SCHEMA_FIELD_ROW_HEIGHT,
 				fieldSchema,
 			};
 		})
@@ -113,17 +114,16 @@ export const getEffectFieldsToShow = (
 				return null;
 			}
 
-			const supported = SUPPORTED_SCHEMA_TYPES.has(typeName);
+			if (SUPPORTED_SCHEMA_TYPES.indexOf(typeName) === -1) {
+				throw new Error(`Unsupported field type: ${typeName}`);
+			}
 
 			return {
 				kind: 'effect-field',
 				key,
 				description: fieldSchema.description,
 				typeName,
-				supported,
-				rowHeight: supported
-					? SCHEMA_FIELD_ROW_HEIGHT
-					: UNSUPPORTED_FIELD_ROW_HEIGHT,
+				rowHeight: SCHEMA_FIELD_ROW_HEIGHT,
 				fieldSchema,
 				effectSchema,
 				effectIndex,

@@ -24,7 +24,6 @@ export type {
 };
 export {
 	SCHEMA_FIELD_ROW_HEIGHT,
-	UNSUPPORTED_FIELD_ROW_HEIGHT,
 	getEffectFieldsToShow,
 	getFieldsToShow,
 } from '@remotion/studio-shared';

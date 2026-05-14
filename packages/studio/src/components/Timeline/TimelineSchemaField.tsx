@@ -65,10 +65,6 @@ export const TimelineFieldValue: React.FC<{
 		? notEditableBackground
 		: undefined;
 
-	if (!field.supported) {
-		return <span style={unsupportedLabel}>unsupported</span>;
-	}
-
 	if (field.typeName === 'number') {
 		return (
 			<span style={wrapperStyle}>

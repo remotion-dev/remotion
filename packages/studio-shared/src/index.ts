@@ -98,7 +98,6 @@ export {
 export type {CompletedClientRender} from './render-job';
 export {
 	SCHEMA_FIELD_ROW_HEIGHT,
-	UNSUPPORTED_FIELD_ROW_HEIGHT,
 	getEffectFieldsToShow,
 	getFieldsToShow,
 } from './schema-field-info';
