@@ -9,9 +9,19 @@ import type {
 	SequenceNodePath,
 } from './SequenceManager.js';
 
+export type CanUpdateSequencePropStatusTrue = {
+	canUpdate: true;
+	codeValue: unknown;
+};
+
+export type CanUpdateSequencePropStatusFalse = {
+	canUpdate: false;
+	reason: 'computed';
+};
+
 export type CanUpdateSequencePropStatus =
-	| {canUpdate: true; codeValue: unknown}
-	| {canUpdate: false; reason: 'computed'};
+	| CanUpdateSequencePropStatusTrue
+	| CanUpdateSequencePropStatusFalse;
 
 export type DragOverrides = Record<string, Record<string, unknown>>;
 export type EffectDragOverrides = Record<string, Record<string, unknown>>;
@@ -80,13 +90,15 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			continue;
 		}
 
-		const value = getEffectiveVisualModeValue({
-			codeValue: codeValueStatus,
-			runtimeValue: currentValue[key],
-			dragOverrideValue: overrideValues[key],
-			defaultValue: field?.default,
-			shouldResortToDefaultValueIfUndefined: false,
-		});
+		const value =
+			codeValueStatus === null || codeValueStatus.canUpdate === false
+				? currentValue[key]
+				: getEffectiveVisualModeValue({
+						codeValue: codeValueStatus,
+						dragOverrideValue: overrideValues[key],
+						defaultValue: field?.default,
+						shouldResortToDefaultValueIfUndefined: false,
+					});
 		if (value === undefined) {
 			propsToDelete.add(key);
 		}

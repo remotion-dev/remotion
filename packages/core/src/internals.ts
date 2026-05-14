@@ -164,6 +164,8 @@ import {
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
 import type {
+	CanUpdateSequencePropStatusFalse,
+	CanUpdateSequencePropStatusTrue,
 	GetCodeValues,
 	GetDragOverrides,
 	GetEffectCodeValues,
@@ -389,4 +391,6 @@ export type {
 	CanUpdateSequencePropsResponse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropsResponseFalse,
+	CanUpdateSequencePropStatusTrue,
+	CanUpdateSequencePropStatusFalse,
 };

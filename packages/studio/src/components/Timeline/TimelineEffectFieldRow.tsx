@@ -11,7 +11,10 @@ import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {Padder} from './Padder';
-import {TimelineFieldValue} from './TimelineSchemaField';
+import {
+	TimelineFieldValue,
+	TimelineNonEditableStatus,
+} from './TimelineSchemaField';
 
 const fieldRowBase: React.CSSProperties = {
 	display: 'flex',
@@ -71,14 +74,6 @@ const Value: React.FC<{
 		const overrides = getEffectDragOverrides(nodePath, field.effectIndex);
 		return overrides[field.key];
 	}, [getEffectDragOverrides, nodePath, field.effectIndex, field.key]);
-
-	const effectiveValue = Internals.getEffectiveVisualModeValue({
-		codeValue: propStatus,
-		runtimeValue: field.currentRuntimeValue,
-		dragOverrideValue,
-		defaultValue: field.fieldSchema.default,
-		shouldResortToDefaultValueIfUndefined: true,
-	});
 
 	const onSave = useCallback(
 		(value: unknown) => {
@@ -181,6 +176,17 @@ const Value: React.FC<{
 	if (propStatus === null) {
 		return null;
 	}
+
+	if (propStatus.canUpdate === false) {
+		return <TimelineNonEditableStatus propStatus={propStatus} />;
+	}
+
+	const effectiveValue = Internals.getEffectiveVisualModeValue({
+		codeValue: propStatus,
+		dragOverrideValue,
+		defaultValue: field.fieldSchema.default,
+		shouldResortToDefaultValueIfUndefined: true,
+	});
 
 	return (
 		<TimelineFieldValue

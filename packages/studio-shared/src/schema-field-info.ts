@@ -17,10 +17,9 @@ export type {CodeValues, DragOverrides, SequenceControls};
 export type SchemaFieldInfo = {
 	key: string;
 	description: string | undefined;
-	typeName: string;
+	typeName: 'enum' | 'number' | 'boolean' | 'rotation' | 'translate';
 	supported: boolean;
 	rowHeight: number;
-	currentRuntimeValue: unknown;
 	fieldSchema: VisibleFieldSchema;
 };
 
@@ -92,7 +91,6 @@ export const getFieldsToShow = ({
 				rowHeight: supported
 					? SCHEMA_FIELD_ROW_HEIGHT
 					: UNSUPPORTED_FIELD_ROW_HEIGHT,
-				currentRuntimeValue: currentRuntimeValueDotNotation[key],
 				fieldSchema,
 			};
 		})
@@ -126,7 +124,6 @@ export const getEffectFieldsToShow = (
 				rowHeight: supported
 					? SCHEMA_FIELD_ROW_HEIGHT
 					: UNSUPPORTED_FIELD_ROW_HEIGHT,
-				currentRuntimeValue: undefined,
 				fieldSchema,
 				effectSchema,
 				effectIndex,
