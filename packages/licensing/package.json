@@ -6,7 +6,6 @@
 	"version": "4.0.461",
 	"description": "Manage your Remotion.pro license",
 	"main": "dist",
-	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",
 		"formatting": "oxfmt src --check",

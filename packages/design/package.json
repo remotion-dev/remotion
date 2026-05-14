@@ -7,7 +7,6 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/design"
 	},
-	"sideEffects": false,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"

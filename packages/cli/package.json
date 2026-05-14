@@ -6,7 +6,6 @@
 	"version": "4.0.461",
 	"description": "Control Remotion features using the `npx remotion` command",
 	"main": "dist/index.js",
-	"sideEffects": false,
 	"bin": {
 		"remotion": "remotion-cli.js",
 		"remotionb": "remotionb-cli.js",
