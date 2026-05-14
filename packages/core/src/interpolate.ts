@@ -10,16 +10,22 @@ export type ExtrapolateType = 'extend' | 'identity' | 'clamp' | 'wrap';
 export type EasingFunction = (input: number) => number;
 
 export type InterpolateOptions = Partial<{
-	easing: EasingFunction;
+	easing: EasingFunction | readonly EasingFunction[];
 	extrapolateLeft: ExtrapolateType;
 	extrapolateRight: ExtrapolateType;
 }>;
+
+type InterpolateSegmentResolvedOptions = {
+	easing: EasingFunction;
+	extrapolateLeft: ExtrapolateType;
+	extrapolateRight: ExtrapolateType;
+};
 
 function interpolateFunction(
 	input: number,
 	inputRange: [number, number],
 	outputRange: [number, number],
-	options: Required<InterpolateOptions>,
+	options: InterpolateSegmentResolvedOptions,
 ): number {
 	const {extrapolateLeft, extrapolateRight, easing} = options;
 
@@ -114,6 +120,32 @@ function checkInfiniteRange(name: string, arr: readonly number[]) {
 	}
 }
 
+function checkValidEasingOption(
+	easing: EasingFunction | readonly EasingFunction[] | undefined,
+	inputRangeLength: number,
+) {
+	if (easing === undefined) {
+		return;
+	}
+
+	if (typeof easing === 'function') {
+		return;
+	}
+
+	const expectedLength = inputRangeLength - 1;
+	if (easing.length !== expectedLength) {
+		throw new Error(
+			`When easing is an array, it must have one entry per segment between keyframes (length inputRange.length - 1 = ${expectedLength}), but got length ${easing.length}`,
+		);
+	}
+
+	for (let i = 0; i < easing.length; i++) {
+		if (typeof easing[i] !== 'function') {
+			throw new Error(`easing[${i}] must be a function`);
+		}
+	}
+}
+
 /*
  * @description Allows you to map a range of values to another using a concise syntax.
  * @see [Documentation](https://remotion.dev/docs/interpolate)
@@ -151,7 +183,21 @@ export function interpolate(
 
 	checkValidInputRange(inputRange);
 
-	const easing = options?.easing ?? ((num: number): number => num);
+	checkValidEasingOption(options?.easing, inputRange.length);
+
+	const easingOption = options?.easing;
+	const defaultEasing = (num: number): number => num;
+	const resolveEasingForSegment = (segmentIndex: number): EasingFunction => {
+		if (easingOption === undefined) {
+			return defaultEasing;
+		}
+
+		if (typeof easingOption === 'function') {
+			return easingOption;
+		}
+
+		return easingOption[segmentIndex] as EasingFunction;
+	};
 
 	let extrapolateLeft: ExtrapolateType = 'extend';
 	if (options?.extrapolateLeft !== undefined) {
@@ -173,7 +219,7 @@ export function interpolate(
 		[inputRange[range], inputRange[range + 1]],
 		[outputRange[range], outputRange[range + 1]],
 		{
-			easing,
+			easing: resolveEasingForSegment(range),
 			extrapolateLeft,
 			extrapolateRight,
 		},

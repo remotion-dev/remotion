@@ -1,5 +1,10 @@
-import type {ExtrapolateType, InterpolateOptions} from 'remotion';
-import {interpolate, interpolateColors} from 'remotion';
+import {
+	interpolate,
+	interpolateColors,
+	type EasingFunction,
+	type ExtrapolateType,
+	type InterpolateOptions,
+} from 'remotion';
 import type {
 	CSSPropertiesKey,
 	CSSPropertiesValue,
@@ -7,6 +12,38 @@ import type {
 	UnitNumberAndFunction,
 } from '../../type';
 import {breakDownValueIntoUnitNumberAndFunctions} from './utils';
+
+type InterpolateStylesResolvedOptions = {
+	easing: EasingFunction;
+	extrapolateLeft: ExtrapolateType;
+	extrapolateRight: ExtrapolateType;
+};
+
+function assertInterpolateStylesEasingOption(
+	easing: EasingFunction | readonly EasingFunction[] | undefined,
+	inputRangeLength: number,
+) {
+	if (easing === undefined) {
+		return;
+	}
+
+	if (typeof easing === 'function') {
+		return;
+	}
+
+	const expectedLength = inputRangeLength - 1;
+	if (easing.length !== expectedLength) {
+		throw new Error(
+			`When easing is an array, it must have one entry per segment between keyframes (length inputRange.length - 1 = ${expectedLength}), but got length ${easing.length}`,
+		);
+	}
+
+	for (let i = 0; i < easing.length; i++) {
+		if (typeof easing[i] !== 'function') {
+			throw new Error(`easing[${i}] must be a function`);
+		}
+	}
+}
 
 const interpolatedPropertyPart = ({
 	inputValue,
@@ -23,7 +60,7 @@ const interpolatedPropertyPart = ({
 	finalStylePropertyPart: UnitNumberAndFunction;
 	initialStyleProperty: CSSPropertiesValue;
 	finalStyleProperty: CSSPropertiesValue;
-	options: Required<InterpolateOptions>;
+	options: InterpolateStylesResolvedOptions;
 }): string | number => {
 	if (finalStylePropertyPart === undefined) {
 		throw new TypeError(
@@ -129,7 +166,7 @@ const interpolateProperty = ({
 	inputRange: number[];
 	initialStyleProperty: CSSPropertiesValue;
 	finalStyleProperty: CSSPropertiesValue;
-	options: Required<InterpolateOptions>;
+	options: InterpolateStylesResolvedOptions;
 }) => {
 	if (
 		typeof initialStyleProperty !== typeof finalStyleProperty &&
@@ -180,7 +217,7 @@ const interpolateStylesFunction = ({
 	inputRange: number[];
 	initialStyle: Style;
 	finalStyle: Style;
-	options: Required<InterpolateOptions>;
+	options: InterpolateStylesResolvedOptions;
 }): Style => {
 	const [startingValue, endingValue] = inputRange;
 	return Object.keys(initialStyle).reduce((acc, key) => {
@@ -305,7 +342,15 @@ export const interpolateStyles = (
 	const initialStyle = outputStylesRange[startIndex];
 	const finalStyle = outputStylesRange[endIndex];
 
-	const easing = options?.easing ?? ((num: number): number => num);
+	assertInterpolateStylesEasingOption(options?.easing, inputRange.length);
+
+	const easingOption = options?.easing;
+	const segmentEasing: EasingFunction =
+		easingOption === undefined
+			? (num: number): number => num
+			: typeof easingOption === 'function'
+				? easingOption
+				: easingOption[startIndex];
 
 	const extrapolateLeft: ExtrapolateType = options?.extrapolateLeft ?? 'extend';
 	const extrapolateRight: ExtrapolateType =
@@ -317,7 +362,7 @@ export const interpolateStyles = (
 		initialStyle,
 		finalStyle,
 		options: {
-			easing,
+			easing: segmentEasing,
 			extrapolateLeft,
 			extrapolateRight,
 		},
