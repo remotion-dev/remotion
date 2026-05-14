@@ -1,5 +1,8 @@
 import path from 'node:path';
-import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
+import {
+	getAllSchemaKeys,
+	type SubscribeToSequencePropsResponse,
+} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequenceNodePath,
@@ -24,11 +27,15 @@ const sequencePropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
 const makeWatcherKey = ({
 	absolutePath,
 	nodePath,
+	sequenceKeys,
+	effectKeys,
 }: {
 	absolutePath: string;
 	nodePath: SequenceNodePath;
+	sequenceKeys: string[];
+	effectKeys: string[][];
 }): string => {
-	return `${absolutePath}:${JSON.stringify(nodePath)}`;
+	return `${absolutePath}:${JSON.stringify(nodePath)}:${sequenceKeys.join('\0')}:${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}`;
 };
 
 const getSequencePropsStatus = ({
@@ -110,7 +117,12 @@ export const subscribeToSequencePropsWatchers = ({
 	setCachedNodePath(fileName, line, column, initialResult.nodePath);
 
 	const {nodePath} = initialResult;
-	const watcherKey = makeWatcherKey({absolutePath, nodePath});
+	const watcherKey = makeWatcherKey({
+		absolutePath,
+		nodePath,
+		sequenceKeys: keys,
+		effectKeys: effects.map((effect) => getAllSchemaKeys(effect)),
+	});
 
 	// If a watcher already exists for this key, just bump the ref count
 	if (sequencePropsWatchers[clientId]?.[watcherKey]) {
@@ -163,14 +175,23 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	nodePath,
 	remotionRoot,
 	clientId,
+	sequenceKeys,
+	effectKeys,
 }: {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	remotionRoot: string;
 	clientId: string;
+	sequenceKeys: string[];
+	effectKeys: string[][];
 }) => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
-	const watcherKey = makeWatcherKey({absolutePath, nodePath});
+	const watcherKey = makeWatcherKey({
+		absolutePath,
+		nodePath,
+		sequenceKeys,
+		effectKeys,
+	});
 
 	if (
 		!sequencePropsWatchers[clientId] ||

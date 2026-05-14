@@ -51,7 +51,6 @@ export const acquireSequencePropsSubscription = ({
 }): {release: () => void} => {
 	const sequenceKeys = getAllSchemaKeys(schema);
 	const effectKeys = effects.map((effect) => getAllSchemaKeys(effect));
-	// TODO: Bug - schema keys and effects are not part of the cache key
 	const key = makeKey(fileName, line, column, sequenceKeys, effectKeys);
 	let entry = entries.get(key);
 
@@ -131,6 +130,8 @@ export const acquireSequencePropsSubscription = ({
 						fileName: acquired.fileName,
 						nodePath: result.nodePath,
 						clientId: acquired.clientId,
+						sequenceKeys,
+						effectKeys,
 					});
 				})
 				.catch(() => {

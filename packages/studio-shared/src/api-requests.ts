@@ -239,6 +239,8 @@ export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	clientId: string;
+	sequenceKeys: string[];
+	effectKeys: string[][];
 };
 
 export type SaveSequencePropsRequest = {
