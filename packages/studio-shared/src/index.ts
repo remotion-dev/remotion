@@ -54,6 +54,7 @@ export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getDefaultOutLocation} from './get-default-out-name';
+export {getAllSchemaKeys} from './get-all-keys';
 export {
 	ErrorLocation,
 	getLocationFromBuildError,

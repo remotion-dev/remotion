@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
+import {getAllSchemaKeys} from '@remotion/studio-shared';
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
-import {getAllSchemaKeys} from '../codemods/get-all-schema-keys';
 
 const {getFlatSchemaWithAllKeys} = Internals;
 

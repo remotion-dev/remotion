@@ -5,8 +5,8 @@ import type {
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
 } from '@remotion/studio-shared';
+import {getAllSchemaKeys} from '@remotion/studio-shared';
 import {Internals} from 'remotion';
-import {getAllSchemaKeys} from '../../codemods/get-all-schema-keys';
 import {updateSequenceProps} from '../../codemods/update-sequence-props/update-sequence-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';

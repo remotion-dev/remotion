@@ -224,7 +224,7 @@ export type SubscribeToSequencePropsRequest = {
 	fileName: string;
 	line: number;
 	column: number;
-	schema: SequenceSchema;
+	keys: string[];
 	effects: EffectSubscription[];
 	clientId: string;
 };

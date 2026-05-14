@@ -14,11 +14,11 @@ import type {
 	EffectSubscription,
 	SubscribeToSequencePropsResponse,
 } from '@remotion/studio-shared';
+import {getAllSchemaKeys} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {CanUpdateSequencePropsResponseTrue} from 'remotion';
 import type {SequenceNodePath} from 'remotion';
 import type {CanUpdateSequencePropStatus} from 'remotion';
-import {getAllSchemaKeys} from '../../codemods/get-all-schema-keys';
 import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {computeEffectPropStatus} from './can-update-effect-props';

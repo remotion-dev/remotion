@@ -1,4 +1,7 @@
-import type {EffectSubscription} from '@remotion/studio-shared';
+import {
+	getAllSchemaKeys,
+	type EffectSubscription,
+} from '@remotion/studio-shared';
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import {callApi} from '../call-api';
@@ -51,7 +54,7 @@ export const acquireSequencePropsSubscription = ({
 			fileName,
 			line,
 			column,
-			schema,
+			keys: getAllSchemaKeys(schema),
 			effects,
 			clientId,
 		});

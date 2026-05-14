@@ -5,7 +5,7 @@ import type {
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
 } from '@remotion/studio-shared';
-import {getAllSchemaKeys} from '../../codemods/get-all-schema-keys';
+import {getAllSchemaKeys} from '@remotion/studio-shared';
 import {parseAst} from '../../codemods/parse-ast';
 import {updateEffectProps} from '../../codemods/update-effect-props/update-effect-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
