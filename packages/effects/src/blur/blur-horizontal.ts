@@ -1,7 +1,6 @@
-import type {EffectDescriptor} from 'remotion';
 import {Internals} from 'remotion';
 
-const {createDescriptor, defineEffect} = Internals;
+const {createEffect} = Internals;
 import {
 	applyBlur,
 	cleanupBlur,
@@ -14,10 +13,13 @@ export type BlurHorizontalParams = {
 	readonly radius: number;
 };
 
-const blurHorizontalDef = defineEffect<BlurHorizontalParams, BlurState>({
+// Single horizontal pass of the separable Gaussian blur. Most callers should
+// use [`blur`](./index.ts) which composes both horizontal and vertical passes.
+export const blurHorizontal = createEffect<BlurHorizontalParams, BlurState>({
 	type: 'remotion/blur-horizontal',
 	label: 'Blur (horizontal)',
 	backend: 'webgl2',
+	calculateKey: (params) => String(params.radius),
 	setup: (target) => setupBlur(target, BLUR_FS_HORIZONTAL),
 	apply: ({source, width, height, params, state}) => {
 		applyBlur(state, source, width, height, params.radius);
@@ -25,9 +27,3 @@ const blurHorizontalDef = defineEffect<BlurHorizontalParams, BlurState>({
 	cleanup: (state) => cleanupBlur(state),
 	schema: null,
 });
-
-// Single horizontal pass of the separable Gaussian blur. Most callers should
-// use [`blur`](./index.ts) which composes both horizontal and vertical passes.
-export const blurHorizontal = (
-	params: BlurHorizontalParams,
-): EffectDescriptor<unknown> => createDescriptor(blurHorizontalDef, params);

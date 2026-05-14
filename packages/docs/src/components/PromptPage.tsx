@@ -1,7 +1,6 @@
 import Head from '@docusaurus/Head';
 import {useLocation} from '@docusaurus/router';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import '@remotion/promo-pages/dist/prompts/PromptsShow.css';
 import {PromptsShowPage} from '@remotion/promo-pages/dist/prompts/PromptsShow.js';
 import Layout from '@theme/Layout';
 import React from 'react';

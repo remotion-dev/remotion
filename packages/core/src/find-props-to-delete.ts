@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {SequenceSchema} from './internals';
 
 export const findPropsToDelete = ({
 	schema,

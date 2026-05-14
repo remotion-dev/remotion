@@ -1,11 +1,12 @@
 import type {
+	EffectDefinitionAndStack,
+	EffectsProp,
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	OnVideoFrame,
 	SequenceProps,
 	VolumeProp,
 } from 'remotion';
-import type {EffectsProp} from 'remotion';
 import type {MediaOnError} from '../on-error';
 
 export type MediaErrorEvent = {
@@ -73,7 +74,9 @@ type OptionalVideoProps = {
 
 export type InnerVideoProps = MandatoryVideoProps &
 	OuterVideoProps &
-	OptionalVideoProps;
+	Omit<OptionalVideoProps, '_experimentalEffects'> & {
+		_experimentalEffects: EffectDefinitionAndStack<unknown>[];
+	};
 
 export type VideoProps = MandatoryVideoProps &
 	Partial<OuterVideoProps> &

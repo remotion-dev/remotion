@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/vercel",
-	"version": "4.0.460",
+	"version": "4.0.461",
 	"description": "Render Remotion videos on Vercel Sandbox",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -8,7 +8,6 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/vercel"
 	},
-	"sideEffects": false,
 	"type": "module",
 	"scripts": {
 		"formatting": "oxfmt src --check",

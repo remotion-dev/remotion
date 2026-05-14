@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Idiqlat',
 	importName: 'Idiqlat',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Idiqlat:ital,wght@0,200;0,300;0,400',
 	unicodeRanges: {
 		syriac:
@@ -15,21 +15,21 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				syriac:
-					'https://fonts.gstatic.com/s/idiqlat/v2/YA9Wr0ef50XNM6kiAOrKolUgsoGt.woff2',
+					'https://fonts.gstatic.com/s/idiqlat/v3/YA9Wr0ef50XNM6kiAOrKolUgsoGt.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/idiqlat/v2/YA9Wr0ef50XNM6kiAOrKoiYgsg.woff2',
+					'https://fonts.gstatic.com/s/idiqlat/v3/YA9Wr0ef50XNM6kiAOrKoiYgsg.woff2',
 			},
 			'300': {
 				syriac:
-					'https://fonts.gstatic.com/s/idiqlat/v2/YA9Wr0ef50XNM6kiAI7JolUgsoGt.woff2',
+					'https://fonts.gstatic.com/s/idiqlat/v3/YA9Wr0ef50XNM6kiAI7JolUgsoGt.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/idiqlat/v2/YA9Wr0ef50XNM6kiAI7JoiYgsg.woff2',
+					'https://fonts.gstatic.com/s/idiqlat/v3/YA9Wr0ef50XNM6kiAI7JoiYgsg.woff2',
 			},
 			'400': {
 				syriac:
-					'https://fonts.gstatic.com/s/idiqlat/v2/YA9Tr0ef50XNM6kiCFbrtxkB.woff2',
+					'https://fonts.gstatic.com/s/idiqlat/v3/YA9Tr0ef50XNM6kiCFbrtxkB.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/idiqlat/v2/YA9Tr0ef50XNM6kiCCXrtw.woff2',
+					'https://fonts.gstatic.com/s/idiqlat/v3/YA9Tr0ef50XNM6kiCCXrtw.woff2',
 			},
 		},
 	},
