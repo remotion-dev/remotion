@@ -8,7 +8,6 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/effects"
 	},
-	"sideEffects": false,
 	"type": "module",
 	"scripts": {
 		"formatting": "oxfmt src --check",
@@ -32,7 +31,35 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
+		"./halftone": {
+			"types": "./dist/halftone.d.ts",
+			"module": "./dist/esm/halftone.mjs",
+			"import": "./dist/esm/halftone.mjs"
+		},
+		"./tint": {
+			"types": "./dist/tint.d.ts",
+			"module": "./dist/esm/tint.mjs",
+			"import": "./dist/esm/tint.mjs"
+		},
+		"./wave": {
+			"types": "./dist/wave.d.ts",
+			"module": "./dist/esm/wave.mjs",
+			"import": "./dist/esm/wave.mjs"
+		},
+		"./blur": {
+			"types": "./dist/entrypoints/blur.d.ts",
+			"module": "./dist/esm/blur.mjs",
+			"import": "./dist/esm/blur.mjs"
+		},
 		"./package.json": "./package.json"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"halftone": ["dist/halftone.d.ts"],
+			"tint": ["dist/tint.d.ts"],
+			"wave": ["dist/wave.d.ts"],
+			"blur": ["dist/entrypoints/blur.d.ts"]
+		}
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",

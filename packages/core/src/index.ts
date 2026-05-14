@@ -178,6 +178,7 @@ export {interpolateColors} from './interpolate-colors.js';
 export {LogLevel} from './log.js';
 export {Loop} from './loop/index.js';
 export {
+	assertValidInterpolateEasingOption,
 	EasingFunction,
 	ExtrapolateType,
 	interpolate,
