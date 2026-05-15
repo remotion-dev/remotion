@@ -136,6 +136,7 @@ export type {
 	EffectDescriptor,
 	EffectsProp,
 	EffectDefinition,
+	EffectFactory,
 } from './effects/index.js';
 export type {SolidProps} from './effects/Solid.js';
 export {

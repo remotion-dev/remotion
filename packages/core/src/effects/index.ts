@@ -4,4 +4,5 @@ export type {
 	EffectDescriptor,
 	EffectsProp,
 	EffectDefinition,
+	EffectFactory,
 } from './effect-types.js';
