@@ -49,6 +49,8 @@ import {createEffect} from './effects/create-effect.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
 import {
+	getCodeValuesCtx,
+	getEffectCodeValuesCtx,
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
@@ -117,15 +119,16 @@ import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
-import type {
-	CanUpdateEffectPropsResponse,
-	CanUpdateEffectPropsResponseFalse,
-	CanUpdateEffectPropsResponseTrue,
-	CanUpdateSequencePropsResponse,
-	CanUpdateSequencePropsResponseTrue,
-	CanUpdateSequencePropsResponseFalse,
-	SequenceNodePath,
-	SequencePropsSubscriptionKey,
+import {
+	type CanUpdateEffectPropsResponse,
+	type CanUpdateEffectPropsResponseFalse,
+	type CanUpdateEffectPropsResponseTrue,
+	type CanUpdateSequencePropsResponse,
+	type CanUpdateSequencePropsResponseTrue,
+	type CanUpdateSequencePropsResponseFalse,
+	type SequenceNodePath,
+	type SequencePropsSubscriptionKey,
+	makeSequencePropsSubscriptionKey,
 } from './SequenceManager.js';
 import {
 	VisualModeCodeValuesContext,
@@ -347,6 +350,9 @@ export const Internals = {
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	findPropsToDelete,
+	makeSequencePropsSubscriptionKey,
+	getCodeValuesCtx,
+	getEffectCodeValuesCtx,
 } as const;
 
 export type {

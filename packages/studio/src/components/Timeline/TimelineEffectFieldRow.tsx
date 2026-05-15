@@ -50,11 +50,15 @@ const Value: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 
-	const {getEffectCodeValues} = useContext(
+	const {codeValues: visualModeCodeValues} = useContext(
 		Internals.VisualModeCodeValuesContext,
 	);
 
-	const codeValues = getEffectCodeValues(nodePath, field.effectIndex);
+	const codeValues = Internals.getEffectCodeValuesCtx({
+		codeValues: visualModeCodeValues,
+		nodePath,
+		effectIndex: field.effectIndex,
+	});
 
 	const propStatus = codeValues?.[field.key] ?? null;
 

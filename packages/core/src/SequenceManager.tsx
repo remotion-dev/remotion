@@ -5,9 +5,7 @@ import type {
 	CodeValues,
 	DragOverrides,
 	EffectDragOverrides,
-	GetCodeValues,
 	GetDragOverrides,
-	GetEffectCodeValues,
 	GetEffectDragOverrides,
 } from './use-schema.js';
 
@@ -43,8 +41,7 @@ export const SequenceVisibilityToggleContext =
 	});
 
 export type VisualModeCodeValues = {
-	getCodeValues: GetCodeValues;
-	getEffectCodeValues: GetEffectCodeValues;
+	codeValues: CodeValues;
 };
 
 export type VisualModeDragOverrides = {
@@ -115,54 +112,9 @@ export const makeSequencePropsSubscriptionKey = (
 	return `${key.nodePath.join('.')}.${key.sequenceKeys.join('.')}.${key.effectKeys.map((keys) => keys.join('.')).join('.')}`;
 };
 
-const getCodeValuesCtx = (
-	codeValues: CodeValues,
-	nodePath: SequencePropsSubscriptionKey,
-) => {
-	const status = codeValues[makeSequencePropsSubscriptionKey(nodePath)];
-	if (!status) {
-		return undefined;
-	}
-
-	if (!status.canUpdate) {
-		return undefined;
-	}
-
-	return status.props;
-};
-
-const getEffectCodeValuesCtx = ({
-	codeValues,
-	nodePath,
-	effectIndex,
-}: {
-	codeValues: CodeValues;
-	nodePath: SequencePropsSubscriptionKey;
-	effectIndex: number;
-}) => {
-	const status = codeValues[makeSequencePropsSubscriptionKey(nodePath)];
-	if (!status || !status.canUpdate) {
-		return undefined;
-	}
-
-	const effect = status.effects.find((e) => e.effectIndex === effectIndex);
-	if (!effect || !effect.canUpdate) {
-		return undefined;
-	}
-
-	return effect.props;
-};
-
-export type GetCodeValuesType = typeof getCodeValuesCtx;
-
 export const VisualModeCodeValuesContext =
 	React.createContext<VisualModeCodeValues>({
-		getCodeValues: () => {
-			throw new Error('VisualModeCodeValuesContext not initialized');
-		},
-		getEffectCodeValues: () => {
-			throw new Error('VisualModeCodeValuesContext not initialized');
-		},
+		codeValues: {},
 	});
 
 export const VisualModeDragOverridesContext =
@@ -350,26 +302,11 @@ export const SequenceManagerProvider: React.FC<{
 		[effectDragOverridesState],
 	);
 
-	const getCodeValues = useCallback(
-		(nodePath: SequencePropsSubscriptionKey) => {
-			return getCodeValuesCtx(codeValues, nodePath);
-		},
-		[codeValues],
-	);
-
-	const getEffectCodeValues = useCallback(
-		(nodePath: SequencePropsSubscriptionKey, effectIndex: number) => {
-			return getEffectCodeValuesCtx({codeValues, nodePath, effectIndex});
-		},
-		[codeValues],
-	);
-
 	const codeValuesContext: VisualModeCodeValues = useMemo(() => {
 		return {
-			getCodeValues,
-			getEffectCodeValues,
+			codeValues,
 		};
-	}, [getCodeValues, getEffectCodeValues]);
+	}, [codeValues]);
 
 	const dragOverridesContext: VisualModeDragOverrides = useMemo(() => {
 		return {

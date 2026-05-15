@@ -36,7 +36,9 @@ export const TimelineExpandedSection: React.FC<{
 }> = ({sequence, validatedLocation, nodePathInfo, nestedDepth}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
-	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {codeValues: visualModeCodeValues} = useContext(
+		Internals.VisualModeCodeValuesContext,
+	);
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -47,9 +49,9 @@ export const TimelineExpandedSection: React.FC<{
 				sequence,
 				nodePathInfo,
 				getDragOverrides,
-				getCodeValues,
+				codeValues: visualModeCodeValues,
 			}),
-		[sequence, nodePathInfo, getDragOverrides, getCodeValues],
+		[sequence, nodePathInfo, getDragOverrides, visualModeCodeValues],
 	);
 
 	const flat = useMemo(
@@ -63,9 +65,9 @@ export const TimelineExpandedSection: React.FC<{
 				sequence,
 				nodePathInfo,
 				getIsExpanded,
-				getCodeValues,
+				codeValues: visualModeCodeValues,
 			}),
-		[sequence, nodePathInfo, getIsExpanded, getCodeValues],
+		[sequence, nodePathInfo, getIsExpanded, visualModeCodeValues],
 	);
 
 	const style = useMemo(() => {

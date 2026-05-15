@@ -39,12 +39,7 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 
 		const visualCodeValues = useMemo(
 			() => ({
-				getCodeValues: () => {
-					throw new Error('VisualModeCodeValuesContext not initialized');
-				},
-				getEffectCodeValues: () => {
-					throw new Error('VisualModeCodeValuesContext not initialized');
-				},
+				codeValues: {},
 			}),
 			[],
 		);

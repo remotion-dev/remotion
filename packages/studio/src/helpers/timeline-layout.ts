@@ -9,7 +9,7 @@ import {
 	type SequenceControls,
 	type SequenceSchemaFieldInfo,
 } from '@remotion/studio-shared';
-import type {GetCodeValues, GetDragOverrides, TSequence} from 'remotion';
+import type {GetDragOverrides, TSequence} from 'remotion';
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 
@@ -59,12 +59,12 @@ export const buildTimelineTree = ({
 	sequence,
 	nodePathInfo,
 	getDragOverrides,
-	getCodeValues,
+	codeValues,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getDragOverrides: GetDragOverrides;
-	getCodeValues: GetCodeValues;
+	codeValues: CodeValues;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys} = nodePathInfo;
@@ -113,7 +113,7 @@ export const buildTimelineTree = ({
 		currentRuntimeValueDotNotation:
 			sequence.controls!.currentRuntimeValueDotNotation,
 		getDragOverrides,
-		getCodeValues,
+		codeValues,
 		nodePath: sequenceSubscriptionKey,
 	});
 
@@ -179,19 +179,19 @@ export const getExpandedTrackHeight = ({
 	sequence,
 	nodePathInfo,
 	getIsExpanded,
-	getCodeValues,
+	codeValues,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getIsExpanded: GetIsExpanded;
-	getCodeValues: GetCodeValues;
+	codeValues: CodeValues;
 }): number => {
 	const tree = buildTimelineTree({
 		sequence,
 		nodePathInfo,
 		// We assume that no drag overrides can change the timeline layout
 		getDragOverrides: () => ({}),
-		getCodeValues,
+		codeValues,
 	});
 	const flat = flattenVisibleTreeNodes({nodes: tree, getIsExpanded});
 

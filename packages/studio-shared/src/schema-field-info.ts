@@ -5,7 +5,6 @@ import type {
 	VisibleFieldSchema,
 	SequenceSchema,
 	GetDragOverrides,
-	GetCodeValues,
 	SequencePropsSubscriptionKey,
 	EffectDefinition,
 } from 'remotion';
@@ -51,7 +50,7 @@ type SupportedSchemaType = (typeof SUPPORTED_SCHEMA_TYPES)[number];
 
 export const getFieldsToShow = ({
 	getDragOverrides,
-	getCodeValues,
+	codeValues,
 	nodePath,
 	schema,
 	currentRuntimeValueDotNotation,
@@ -59,7 +58,7 @@ export const getFieldsToShow = ({
 	schema: SequenceSchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
 	getDragOverrides: GetDragOverrides;
-	getCodeValues: GetCodeValues;
+	codeValues: CodeValues;
 	nodePath: SequencePropsSubscriptionKey;
 }): SequenceSchemaFieldInfo[] | null => {
 	const {merged: valuesDotNotation} =
@@ -67,7 +66,7 @@ export const getFieldsToShow = ({
 			schema,
 			currentValue: currentRuntimeValueDotNotation,
 			overrideValues: getDragOverrides(nodePath),
-			propStatus: getCodeValues(nodePath),
+			propStatus: Internals.getCodeValuesCtx(codeValues, nodePath),
 		});
 
 	const activeSchema = Internals.flattenActiveSchema(

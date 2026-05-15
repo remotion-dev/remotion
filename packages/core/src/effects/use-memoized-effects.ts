@@ -1,5 +1,10 @@
 import {useContext, useRef} from 'react';
+import type {CodeValues} from '../internals.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
+import {
+	makeSequencePropsSubscriptionKey,
+	type SequencePropsSubscriptionKey,
+} from '../SequenceManager.js';
 import {
 	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
@@ -89,6 +94,46 @@ export const useMemoizedEffectDefinitions = (
 	return definitions;
 };
 
+export const getEffectCodeValuesCtx = ({
+	codeValues,
+	nodePath,
+	effectIndex,
+}: {
+	codeValues: CodeValues;
+	nodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+}) => {
+	const status = codeValues[makeSequencePropsSubscriptionKey(nodePath)];
+	if (!status || !status.canUpdate) {
+		return undefined;
+	}
+
+	const effect = status.effects.find((e) => e.effectIndex === effectIndex);
+	if (!effect || !effect.canUpdate) {
+		return undefined;
+	}
+
+	return effect.props;
+};
+
+export const getCodeValuesCtx = (
+	codeValues: CodeValues,
+	nodePath: SequencePropsSubscriptionKey,
+) => {
+	const status = codeValues[makeSequencePropsSubscriptionKey(nodePath)];
+	if (!status) {
+		return undefined;
+	}
+
+	if (!status.canUpdate) {
+		return undefined;
+	}
+
+	return status.props;
+};
+
+export type GetCodeValuesType = typeof getCodeValuesCtx;
+
 export const useMemoizedEffects = ({
 	effects,
 	overrideId,
@@ -98,7 +143,7 @@ export const useMemoizedEffects = ({
 }): EffectDefinitionAndStack<unknown>[] => {
 	const previousRef = useRef<EffectDefinitionAndStack<unknown>[] | null>(null);
 
-	const {getEffectCodeValues} = useContext(VisualModeCodeValuesContext);
+	const {codeValues} = useContext(VisualModeCodeValuesContext);
 	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
 
 	const {overrideIdToNodePathMappings} = useContext(
@@ -120,7 +165,11 @@ export const useMemoizedEffects = ({
 			};
 		}
 
-		const propStatus = getEffectCodeValues(nodePath, index);
+		const propStatus = getEffectCodeValuesCtx({
+			codeValues,
+			nodePath,
+			effectIndex: index,
+		});
 		const codeOverrides = extractCodeOverrides(propStatus);
 		const dragOverridesMap = getEffectDragOverrides(nodePath, index);
 		const dragOverrides =

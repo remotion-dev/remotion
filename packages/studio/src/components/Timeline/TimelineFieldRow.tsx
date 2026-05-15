@@ -203,9 +203,14 @@ export const TimelineFieldRow: React.FC<{
 	nodePath,
 	schema,
 }) => {
-	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {codeValues: visualModeCodeValues} = useContext(
+		Internals.VisualModeCodeValuesContext,
+	);
 
-	const codeValuesForOverride = getCodeValues(nodePath);
+	const codeValuesForOverride = Internals.getCodeValuesCtx(
+		visualModeCodeValues,
+		nodePath,
+	);
 	const codeValue = codeValuesForOverride?.[field.key] ?? null;
 
 	if (codeValue === null) {
