@@ -1,7 +1,8 @@
 import fs from 'fs';
 import assert from 'node:assert';
 import {expect, test} from '@playwright/test';
-import {Internals} from 'remotion';
+import {getAllSchemaKeys} from '@remotion/studio-shared';
+import {NoReactInternals} from 'remotion/no-react';
 import {apiCall} from './api-call.mts';
 import {newVideoFile} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
@@ -56,7 +57,8 @@ test.describe('node-path cache for stale source maps', () => {
 			fileName: 'src/NewVideo.tsx',
 			line: videoLine,
 			column: 0,
-			schema: Internals.sequenceSchema,
+			effects: [],
+			keys: getAllSchemaKeys(NoReactInternals.sequenceSchema),
 			clientId: 'e2e-cache-test-1',
 		});
 		expect(result1.success).toBe(true);
@@ -88,7 +90,8 @@ test.describe('node-path cache for stale source maps', () => {
 			fileName: 'src/NewVideo.tsx',
 			line: videoLine, // stale line number
 			column: 0,
-			schema: Internals.sequenceSchema,
+			keys: getAllSchemaKeys(NoReactInternals.sequenceSchema),
+			effects: [],
 			clientId: 'e2e-cache-test-2',
 		});
 		expect(result2.success).toBe(true);

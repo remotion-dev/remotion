@@ -6,7 +6,7 @@ import type {
 	SaveSequencePropsResponse,
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {updateSequenceProps} from '../../codemods/update-sequence-props/update-sequence-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
@@ -51,7 +51,7 @@ export const saveSequencePropsHandler: ApiHandler<
 					defaultValue: defaultValue !== null ? JSON.parse(defaultValue) : null,
 				},
 			],
-			schema: Internals.sequenceSchema,
+			schema: NoReactInternals.sequenceSchema,
 		});
 	const oldValueString = oldValueStrings[0];
 
