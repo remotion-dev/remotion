@@ -257,7 +257,17 @@ export const TimelineListItem: React.FC<{
 				schema,
 			})
 				.then((data) => {
-					setCodeValues(nodePath, () => data);
+					setCodeValues(nodePath, (prev) => {
+						if (!data.canUpdate) {
+							return data;
+						}
+
+						return {
+							canUpdate: true,
+							props: data.props,
+							effects: prev.canUpdate ? prev.effects : [],
+						};
+					});
 				})
 				.catch(() => {
 					if (previousUpdate) {
