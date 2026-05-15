@@ -128,9 +128,8 @@ import type {
 	SequencePropsSubscriptionKey,
 } from './SequenceManager.js';
 import {
+	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
-	VisualModeEffectCodeValuesContext,
-	VisualModeSequenceCodeValuesContext,
 	VisualModeSettersContext,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
@@ -241,8 +240,7 @@ export const Internals = {
 	VideoForPreview,
 	CompositionManager,
 	CompositionSetters,
-	VisualModeSequenceCodeValuesContext,
-	VisualModeEffectCodeValuesContext,
+	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 	SequenceManager,

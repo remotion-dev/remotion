@@ -6,9 +6,8 @@ import {Sequence} from '../Sequence.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {
 	SequenceManager,
+	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
-	VisualModeEffectCodeValuesContext,
-	VisualModeSequenceCodeValuesContext,
 	VisualModeSettersContext,
 } from '../SequenceManager.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
@@ -38,21 +37,13 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 			[registerSequence, unregisterSequence],
 		);
 
-		const visualSequenceCodeValues = useMemo(
+		const visualCodeValues = useMemo(
 			() => ({
 				getCodeValues: () => {
-					throw new Error(
-						'VisualModeSequenceCodeValuesContext not initialized',
-					);
+					throw new Error('VisualModeCodeValuesContext not initialized');
 				},
-			}),
-			[],
-		);
-
-		const visualEffectCodeValues = useMemo(
-			() => ({
 				getEffectCodeValues: () => {
-					throw new Error('VisualModeEffectCodeValuesContext not initialized');
+					throw new Error('VisualModeCodeValuesContext not initialized');
 				},
 			}),
 			[],
@@ -93,21 +84,15 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 					}}
 				>
 					<SequenceManager.Provider value={ctx}>
-						<VisualModeSequenceCodeValuesContext.Provider
-							value={visualSequenceCodeValues}
-						>
-							<VisualModeEffectCodeValuesContext.Provider
-								value={visualEffectCodeValues}
+						<VisualModeCodeValuesContext.Provider value={visualCodeValues}>
+							<VisualModeDragOverridesContext.Provider
+								value={visualDragOverrides}
 							>
-								<VisualModeDragOverridesContext.Provider
-									value={visualDragOverrides}
-								>
-									<VisualModeSettersContext.Provider value={visualSetters}>
-										{children}
-									</VisualModeSettersContext.Provider>
-								</VisualModeDragOverridesContext.Provider>
-							</VisualModeEffectCodeValuesContext.Provider>
-						</VisualModeSequenceCodeValuesContext.Provider>
+								<VisualModeSettersContext.Provider value={visualSetters}>
+									{children}
+								</VisualModeSettersContext.Provider>
+							</VisualModeDragOverridesContext.Provider>
+						</VisualModeCodeValuesContext.Provider>
 					</SequenceManager.Provider>
 				</Internals.RemotionEnvironmentContext>
 			</WrapSequenceContext>
