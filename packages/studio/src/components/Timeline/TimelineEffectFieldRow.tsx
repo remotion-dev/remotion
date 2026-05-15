@@ -40,7 +40,7 @@ const fieldLabelRow: React.CSSProperties = {
 const Value: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly validatedLocation: CodePosition | null;
+	readonly validatedLocation: CodePosition;
 }> = ({field, nodePath, validatedLocation}) => {
 	const {setEffectDragOverrides, clearEffectDragOverrides, setCodeValues} =
 		useContext(Internals.VisualModeSettersContext);
@@ -75,7 +75,7 @@ const Value: React.FC<{
 
 	const onSave = useCallback(
 		(value: unknown) => {
-			if (!validatedLocation || !nodePath) {
+			if (!validatedLocation) {
 				return Promise.reject(new Error('Cannot save'));
 			}
 
@@ -199,7 +199,7 @@ const Value: React.FC<{
 
 export const TimelineEffectFieldRow: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
-	readonly validatedLocation: CodePosition | null;
+	readonly validatedLocation: CodePosition;
 	readonly paddingLeft: number;
 	readonly nestedDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;

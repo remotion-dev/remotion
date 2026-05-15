@@ -41,7 +41,7 @@ export const TimelineExpandedRow: React.FC<{
 	readonly nestedDepth: number;
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
-	readonly validatedLocation: CodePosition | null;
+	readonly validatedLocation: CodePosition;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
 }> = ({

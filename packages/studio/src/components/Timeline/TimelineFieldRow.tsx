@@ -45,7 +45,7 @@ const fieldLabelRow: React.CSSProperties = {
 const Value: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly validatedLocation: CodePosition | null;
+	readonly validatedLocation: CodePosition;
 	readonly schema: SequenceSchema;
 	readonly codeValue: CanUpdateSequencePropStatusTrue;
 }> = ({field, nodePath, validatedLocation, schema, codeValue}) => {
@@ -72,10 +72,6 @@ const Value: React.FC<{
 
 	const onSave = useCallback<TimelineFieldOnSave>(
 		(value) => {
-			if (!validatedLocation || !nodePath) {
-				return Promise.reject(new Error('Cannot save'));
-			}
-
 			if (!codeValue || !codeValue.canUpdate) {
 				return Promise.reject(new Error('Cannot save'));
 			}
@@ -187,7 +183,7 @@ const Value: React.FC<{
 
 export const TimelineFieldRow: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly validatedLocation: CodePosition | null;
+	readonly validatedLocation: CodePosition;
 	readonly paddingLeft: number;
 	readonly nestedDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;

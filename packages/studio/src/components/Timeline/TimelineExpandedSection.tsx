@@ -1,9 +1,6 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals, type TSequence} from 'remotion';
-import type {
-	CodePosition,
-	OriginalPosition,
-} from '../../error-overlay/react-overlay/utils/get-source-map';
+import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
@@ -33,10 +30,10 @@ const separator: React.CSSProperties = {
 
 export const TimelineExpandedSection: React.FC<{
 	readonly sequence: TSequence;
-	readonly originalLocation: OriginalPosition | null;
+	readonly validatedLocation: CodePosition;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly nestedDepth: number;
-}> = ({sequence, originalLocation, nodePathInfo, nestedDepth}) => {
+}> = ({sequence, validatedLocation, nodePathInfo, nestedDepth}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {getCodeValues} = useContext(
@@ -45,22 +42,6 @@ export const TimelineExpandedSection: React.FC<{
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-
-	const validatedLocation: CodePosition | null = useMemo(() => {
-		if (
-			!originalLocation ||
-			!originalLocation.source ||
-			!originalLocation.line
-		) {
-			return null;
-		}
-
-		return {
-			source: originalLocation.source,
-			line: originalLocation.line,
-			column: originalLocation.column ?? 0,
-		};
-	}, [originalLocation]);
 
 	const tree = useMemo(
 		() =>

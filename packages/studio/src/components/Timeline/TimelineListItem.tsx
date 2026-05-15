@@ -277,10 +277,11 @@ export const TimelineListItem: React.FC<{
 			{previewConnected &&
 			isExpanded &&
 			hasExpandableContent &&
-			nodePathInfo ? (
+			nodePathInfo &&
+			validatedLocation ? (
 				<TimelineExpandedSection
 					sequence={sequence}
-					originalLocation={originalLocation}
+					validatedLocation={validatedLocation}
 					nodePathInfo={nodePathInfo}
 					nestedDepth={nestedDepth}
 				/>
