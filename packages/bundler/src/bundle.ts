@@ -72,6 +72,12 @@ export type MandatoryLegacyBundleOptions = {
 	keyboardShortcutsEnabled: boolean;
 	askAIEnabled: boolean;
 	rspack: boolean;
+	/**
+	 * If true, the public directory is symlinked into the bundle output instead of copied.
+	 * Safe for throwaway bundles (e.g. CLI render where the output folder is deleted after);
+	 * do not use when the bundle must be self-contained for deployment.
+	 */
+	symlinkPublicDir?: boolean;
 };
 
 export type LegacyBundleOptions = Partial<MandatoryLegacyBundleOptions>;
@@ -360,16 +366,24 @@ export const internalBundle = async (
 	};
 
 	if (fs.existsSync(from)) {
-		await copyDir({
-			src: from,
-			dest: to,
-			onSymlinkDetected: showSymlinkWarning,
-			onProgress: (prog) => {
-				return options.onPublicDirCopyProgress?.(prog);
-			},
-			copiedBytes: 0,
-			lastReportedProgress: 0,
-		});
+		if (actualArgs.symlinkPublicDir) {
+			if (process.platform === 'win32') {
+				await fs.promises.symlink(from, to, 'dir');
+			} else {
+				await fs.promises.symlink(from, to);
+			}
+		} else {
+			await copyDir({
+				src: from,
+				dest: to,
+				onSymlinkDetected: showSymlinkWarning,
+				onProgress: (prog) => {
+					return options.onPublicDirCopyProgress?.(prog);
+				},
+				copiedBytes: 0,
+				lastReportedProgress: 0,
+			});
+		}
 	}
 
 	const html = indexHtml({
@@ -448,6 +462,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		askAIEnabled: actualArgs.askAIEnabled ?? true,
 		keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled ?? true,
 		rspack: actualArgs.rspack ?? false,
+		symlinkPublicDir: actualArgs.symlinkPublicDir ?? false,
 	});
 	return result;
 }
