@@ -11,7 +11,7 @@ import type {SequenceControls} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
-import {sequenceStyleSchema} from './sequence-field-schema.js';
+import {hiddenField, sequenceStyleSchema} from './sequence-field-schema.js';
 import {SequenceContext} from './SequenceContext.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
@@ -56,13 +56,17 @@ export type ImgProps = NativeImgProps & {
 	readonly stack?: string;
 };
 
-type Expected = Omit<NativeImgProps, 'onError' | 'src' | 'crossOrigin' | 'ref'>;
+type Expected = Omit<
+	NativeImgProps,
+	'onError' | 'src' | 'crossOrigin' | 'ref' | 'hidden'
+>;
 
-const ImgInner: React.FC<
-	ImgProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
-	}
-> = ({
+type ImgContentProps = Omit<
+	ImgProps,
+	'hidden' | 'name' | 'stack' | 'showInTimeline'
+>;
+
+const ImgContent: React.FC<ImgContentProps> = ({
 	onError,
 	maxRetries = 2,
 	src,
@@ -71,22 +75,13 @@ const ImgInner: React.FC<
 	delayRenderTimeoutInMilliseconds,
 	onImageFrame,
 	crossOrigin,
-	showInTimeline,
-	name,
-	stack,
 	ref,
-	_experimentalControls: controls,
 	...props
 }) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
 	const {delayPlayback} = useBufferState();
 	const sequenceContext = useContext(SequenceContext);
-	const [timelineId] = useState(() => String(Math.random()));
-
-	if (!src) {
-		throw new Error('No "src" prop was passed to <Img>.');
-	}
 
 	const _propsValid: IsExact<typeof props, Expected> = true;
 
@@ -97,18 +92,6 @@ const ImgInner: React.FC<
 	useImperativeHandle(ref, () => {
 		return imageRef.current as HTMLImageElement;
 	}, []);
-
-	useImageInTimeline({
-		src,
-		displayName: name ?? null,
-		id: timelineId,
-		stack: stack ?? null,
-		showInTimeline: showInTimeline ?? true,
-		premountDisplay: sequenceContext?.premountDisplay ?? null,
-		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
-		loopDisplay: undefined,
-		controls: controls ?? null,
-	});
 
 	const actualSrc = usePreload(src as string);
 
@@ -309,9 +292,53 @@ const ImgInner: React.FC<
 	);
 };
 
+const ImgInner: React.FC<
+	ImgProps & {
+		readonly _experimentalControls: SequenceControls | undefined;
+	}
+> = ({
+	hidden,
+	name,
+	stack,
+	showInTimeline,
+	src,
+	_experimentalControls: controls,
+	...props
+}) => {
+	const sequenceContext = useContext(SequenceContext);
+	const [timelineId] = useState(() => String(Math.random()));
+
+	if (!src) {
+		throw new Error('No "src" prop was passed to <Img>.');
+	}
+
+	useImageInTimeline({
+		src,
+		displayName: name ?? null,
+		id: timelineId,
+		stack: stack ?? null,
+		showInTimeline: showInTimeline ?? true,
+		premountDisplay: sequenceContext?.premountDisplay ?? null,
+		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
+		loopDisplay: undefined,
+		controls: controls ?? null,
+	});
+
+	if (hidden) {
+		return null;
+	}
+
+	return <ImgContent src={src} {...props} />;
+};
+
+const imgSchema = {
+	...sequenceStyleSchema,
+	hidden: hiddenField,
+};
+
 /*
  * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
  * @see [Documentation](https://remotion.dev/docs/img)
  */
-export const Img = wrapInSchema(ImgInner, sequenceStyleSchema);
+export const Img = wrapInSchema(ImgInner, imgSchema);
 addSequenceStackTraces(Img);

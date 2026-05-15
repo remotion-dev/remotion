@@ -244,6 +244,7 @@ const lightLeakSchema = {
 		description: 'Hue Shift',
 	},
 	...Internals.sequenceStyleSchema,
+	hidden: Internals.hiddenField,
 } as const satisfies SequenceSchema;
 
 const LightLeakInner: React.FC<

@@ -1,6 +1,5 @@
-import {optimisticUpdateForCodeValues} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {CanUpdateSequencePropsResponse, TSequence} from 'remotion';
+import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
@@ -19,6 +18,7 @@ import {
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {Padder} from './Padder';
+import {saveSequenceProp} from './save-sequence-prop';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
@@ -236,50 +236,15 @@ export const TimelineListItem: React.FC<{
 					? JSON.stringify(fieldSchema.default)
 					: null;
 
-			let previousUpdate: CanUpdateSequencePropsResponse | undefined;
-
-			setCodeValues(nodePath, (prev) => {
-				previousUpdate = prev;
-				return optimisticUpdateForCodeValues({
-					previous: prev,
-					fieldKey: 'hidden',
-					value: newValue,
-					schema,
-				});
-			});
-
-			callApi('/api/save-sequence-props', {
+			saveSequenceProp({
 				fileName: validatedLocation.source,
 				nodePath,
-				key: 'hidden',
-				value: JSON.stringify(newValue),
+				fieldKey: 'hidden',
+				value: newValue,
 				defaultValue,
 				schema,
-			})
-				.then((data) => {
-					setCodeValues(nodePath, (prev) => {
-						if (!data.canUpdate) {
-							return data;
-						}
-
-						return {
-							canUpdate: true,
-							props: data.props,
-							effects: prev.canUpdate ? prev.effects : [],
-						};
-					});
-				})
-				.catch(() => {
-					if (previousUpdate) {
-						setCodeValues(nodePath, (current) => {
-							if (previousUpdate) {
-								return previousUpdate;
-							}
-
-							return current;
-						});
-					}
-				});
+				setCodeValues,
+			});
 		},
 		[
 			codeHiddenStatus,

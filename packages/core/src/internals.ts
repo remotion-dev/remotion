@@ -103,10 +103,11 @@ import {
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
-import type {
-	SequenceFieldSchema,
-	SequenceSchema,
-	VisibleFieldSchema,
+import {
+	hiddenField,
+	type SequenceFieldSchema,
+	type SequenceSchema,
+	type VisibleFieldSchema,
 } from './sequence-field-schema.js';
 import {sequenceSchema, sequenceStyleSchema} from './sequence-field-schema.js';
 import type {
@@ -352,6 +353,7 @@ export const Internals = {
 	makeSequencePropsSubscriptionKey,
 	getCodeValuesCtx,
 	getEffectCodeValuesCtx,
+	hiddenField,
 } as const;
 
 export type {
