@@ -46,10 +46,14 @@ import {
 	timeValueRef,
 } from './EditorProps.js';
 import {createEffect} from './effects/create-effect.js';
-import {flattenEffects} from './effects/effect-internals.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
-import {useMemoizedEffects} from './effects/use-memoized-effects.js';
+import {
+	getCodeValuesCtx,
+	getEffectCodeValuesCtx,
+	useMemoizedEffectDefinitions,
+	useMemoizedEffects,
+} from './effects/use-memoized-effects.js';
 import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
@@ -115,11 +119,17 @@ import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
-import type {
-	CanUpdateSequencePropsResponse,
-	CanUpdateSequencePropsResponseTrue,
-	CanUpdateSequencePropsResponseFalse,
-	SequenceNodePath,
+import type {CannotUpdateSequenceReason} from './SequenceManager.js';
+import {
+	type CanUpdateEffectPropsResponse,
+	type CanUpdateEffectPropsResponseFalse,
+	type CanUpdateEffectPropsResponseTrue,
+	type CanUpdateSequencePropsResponse,
+	type CanUpdateSequencePropsResponseTrue,
+	type CanUpdateSequencePropsResponseFalse,
+	type SequenceNodePath,
+	type SequencePropsSubscriptionKey,
+	makeSequencePropsSubscriptionKey,
 } from './SequenceManager.js';
 import {
 	VisualModeCodeValuesContext,
@@ -157,12 +167,20 @@ import {
 	useBasicMediaInTimeline,
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
-import type {GetCodeValues, GetDragOverrides} from './use-schema.js';
+import type {
+	CanUpdateSequencePropStatusFalse,
+	CanUpdateSequencePropStatusTrue,
+	GetCodeValues,
+	GetDragOverrides,
+	GetEffectCodeValues,
+	GetEffectDragOverrides,
+} from './use-schema.js';
 import {
 	computeEffectiveSchemaValuesDotNotation,
 	type CanUpdateSequencePropStatus,
 	type CodeValues,
 	type DragOverrides,
+	type EffectDragOverrides,
 } from './use-schema.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
@@ -325,12 +343,15 @@ export const Internals = {
 	useEffectChainState,
 	runEffectChain,
 	useMemoizedEffects,
+	useMemoizedEffectDefinitions,
 	createEffect,
 	computeEffectiveSchemaValuesDotNotation,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	findPropsToDelete,
-	flattenEffects,
+	makeSequencePropsSubscriptionKey,
+	getCodeValuesCtx,
+	getEffectCodeValuesCtx,
 } as const;
 
 export type {
@@ -357,17 +378,27 @@ export type {
 	CanUpdateSequencePropStatus,
 	CodeValues,
 	GetCodeValues,
+	GetEffectCodeValues,
 	DragOverrides,
+	EffectDragOverrides,
 	ScheduleAudioNodeResult,
 	GetDragOverrides,
+	GetEffectDragOverrides,
 	NonceHistory,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 	OverrideIdToNodePaths,
 	OverrideToNodeSetters,
 	OverrideToNodePathGetters,
+	CanUpdateEffectPropsResponse,
+	CanUpdateEffectPropsResponseTrue,
+	CanUpdateEffectPropsResponseFalse,
 	CanUpdateSequencePropsResponse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropsResponseFalse,
+	CanUpdateSequencePropStatusTrue,
+	CanUpdateSequencePropStatusFalse,
+	CannotUpdateSequenceReason,
 };

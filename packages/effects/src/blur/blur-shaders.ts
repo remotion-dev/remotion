@@ -1,16 +1,13 @@
-// Shared GLSL sources for the separable Gaussian blur passes.
+// GLSL for the WebGL2 Gaussian blur: one fragment shader per separable axis.
+// `blur-runtime` runs horizontal into an offscreen texture, then vertical onto
+// the canvas, so both passes stay branch-free (direction is a `const vec2`).
 //
-// The blur is implemented as a 9-tap kernel (KERNEL_HALF = 4) with the sample
-// stride scaled by `uRadius` so the kernel always spans approximately
-// ±uRadius pixels. Sigma is set to uRadius / 3 (the standard 3-sigma rule)
-// so weights at the kernel edges are small but non-zero.
-//
-// The sampling direction is baked into the fragment shader as a vec2 constant
-// to keep the inner loop branch-free.
+// 9 taps (KERNEL_HALF = 4), stride scaled by `uRadius` (~±uRadius span),
+// sigma = uRadius / 3.
 
 export const BLUR_VS = /* glsl */ `#version 300 es
-in vec2 aPos;
-in vec2 aUv;
+layout(location = 0) in vec2 aPos;
+layout(location = 1) in vec2 aUv;
 out vec2 vUv;
 void main() {
 	vUv = aUv;

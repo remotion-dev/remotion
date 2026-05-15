@@ -6,23 +6,44 @@ import type {
 } from './sequence-field-schema.js';
 import type {
 	CanUpdateSequencePropsResponse,
-	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 } from './SequenceManager.js';
 
+export type CanUpdateSequencePropStatusTrue = {
+	canUpdate: true;
+	codeValue: unknown;
+};
+
+export type CanUpdateSequencePropStatusFalse = {
+	canUpdate: false;
+	reason: 'computed';
+};
+
 export type CanUpdateSequencePropStatus =
-	| {canUpdate: true; codeValue: unknown}
-	| {canUpdate: false; reason: 'computed'};
+	| CanUpdateSequencePropStatusTrue
+	| CanUpdateSequencePropStatusFalse;
 
 export type DragOverrides = Record<string, Record<string, unknown>>;
+export type EffectDragOverrides = Record<string, Record<string, unknown>>;
 export type CodeValues = Record<string, CanUpdateSequencePropsResponse>;
 
 export type GetCodeValues = (
-	nodePath: SequenceNodePath,
+	nodePath: SequencePropsSubscriptionKey,
+) => Record<string, CanUpdateSequencePropStatus> | undefined;
+
+export type GetEffectCodeValues = (
+	nodePath: SequencePropsSubscriptionKey,
+	effectIndex: number,
 ) => Record<string, CanUpdateSequencePropStatus> | undefined;
 
 export type GetDragOverrides = (
-	nodePath: SequenceNodePath,
+	nodePath: SequencePropsSubscriptionKey,
 ) => DragOverrides[string];
+
+export type GetEffectDragOverrides = (
+	nodePath: SequencePropsSubscriptionKey,
+	effectIndex: number,
+) => Record<string, unknown>;
 
 const findFieldInSchema = (
 	schema: SequenceSchema,
@@ -69,13 +90,15 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			continue;
 		}
 
-		const value = getEffectiveVisualModeValue({
-			codeValue: codeValueStatus,
-			runtimeValue: currentValue[key],
-			dragOverrideValue: overrideValues[key],
-			defaultValue: field?.default,
-			shouldResortToDefaultValueIfUndefined: false,
-		});
+		const value =
+			codeValueStatus === null || codeValueStatus.canUpdate === false
+				? currentValue[key]
+				: getEffectiveVisualModeValue({
+						codeValue: codeValueStatus,
+						dragOverrideValue: overrideValues[key],
+						defaultValue: field?.default,
+						shouldResortToDefaultValueIfUndefined: false,
+					});
 		if (value === undefined) {
 			propsToDelete.add(key);
 		}

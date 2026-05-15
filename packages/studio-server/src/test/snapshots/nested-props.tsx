@@ -1,5 +1,5 @@
-import React from "react";
-import {AbsoluteFill} from "remotion";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
 
 export const Example: React.FC = () => {
 	return (

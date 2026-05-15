@@ -1,8 +1,13 @@
+import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
 import React, {createContext, useCallback, useMemo, useState} from 'react';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
-const nodePathInfoToKey = (info: SequenceNodePathInfo): string =>
-	JSON.stringify([info.nodePath, info.index]);
+const nodePathInfoToExpandedKey = (info: SequenceNodePathInfo): string =>
+	[
+		stringifySequenceExpandedRowKey(info.sequenceSubscriptionKey),
+		info.auxiliaryKeys.join('.'),
+		info.index,
+	].join('.');
 
 const LOCAL_STORAGE_KEY = 'remotion.editor.expandedTracks';
 
@@ -60,7 +65,7 @@ export const ExpandedTracksProvider: React.FC<{
 
 	const toggleTrack = useCallback((nodePathInfo: SequenceNodePathInfo) => {
 		setExpandedTracks((prev) => {
-			const key = nodePathInfoToKey(nodePathInfo);
+			const key = nodePathInfoToExpandedKey(nodePathInfo);
 			const next = {...prev, [key]: !prev[key]};
 			window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(next));
 			return next;
@@ -70,7 +75,7 @@ export const ExpandedTracksProvider: React.FC<{
 	const getterValue = useMemo(
 		(): ExpandedTracksGetterContextValue => ({
 			getIsExpanded: (nodePathInfo) =>
-				expandedTracks[nodePathInfoToKey(nodePathInfo)] ?? false,
+				expandedTracks[nodePathInfoToExpandedKey(nodePathInfo)] ?? false,
 		}),
 		[expandedTracks],
 	);

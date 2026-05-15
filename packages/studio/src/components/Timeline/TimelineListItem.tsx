@@ -36,7 +36,7 @@ export const TimelineListItem: React.FC<{
 	readonly isCompact: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 }> = ({nestedDepth, sequence, isCompact, nodePathInfo}) => {
-	const nodePath = nodePathInfo?.nodePath ?? null;
+	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
@@ -90,7 +90,7 @@ export const TimelineListItem: React.FC<{
 		try {
 			const result = await callApi('/api/duplicate-jsx-node', {
 				fileName: validatedLocation.source,
-				nodePath,
+				nodePath: nodePath.nodePath,
 			});
 			if (result.success) {
 				showNotification('Duplicated sequence in source file', 2000);
@@ -121,7 +121,7 @@ export const TimelineListItem: React.FC<{
 		try {
 			const result = await callApi('/api/delete-jsx-node', {
 				fileName: validatedLocation.source,
-				nodePath,
+				nodePath: nodePath.nodePath,
 			});
 			if (result.success) {
 				showNotification('Removed sequence from source file', 2000);
@@ -357,10 +357,11 @@ export const TimelineListItem: React.FC<{
 			{previewConnected &&
 			isExpanded &&
 			hasExpandableContent &&
-			nodePathInfo ? (
+			nodePathInfo &&
+			validatedLocation ? (
 				<TimelineExpandedSection
 					sequence={sequence}
-					originalLocation={originalLocation}
+					validatedLocation={validatedLocation}
 					nodePathInfo={nodePathInfo}
 					nestedDepth={nestedDepth}
 				/>

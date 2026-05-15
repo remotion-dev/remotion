@@ -100,6 +100,7 @@ const TimelineInner: React.FC = () => {
 						overrideId={sequence.controls.overrideId}
 						schema={sequence.controls.schema}
 						stack={sequence.stack}
+						effects={sequence.effects}
 					/>
 				);
 			})}

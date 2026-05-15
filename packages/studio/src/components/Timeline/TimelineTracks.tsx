@@ -1,5 +1,5 @@
 import React, {useContext, useMemo} from 'react';
-import type {GetCodeValues} from 'remotion';
+import type {CodeValues} from 'remotion';
 import {Internals, type TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {
@@ -35,19 +35,19 @@ const getExpandedPlaceholderStyle = ({
 	sequence,
 	nodePathInfo,
 	getIsExpanded,
-	getCodeValues,
+	codeValues,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getIsExpanded: GetIsExpanded;
-	getCodeValues: GetCodeValues;
+	codeValues: CodeValues;
 }): React.CSSProperties => ({
 	height:
 		getExpandedTrackHeight({
 			sequence,
 			nodePathInfo,
 			getIsExpanded,
-			getCodeValues,
+			codeValues,
 		}) + TIMELINE_ITEM_BORDER_BOTTOM,
 });
 
@@ -57,7 +57,7 @@ const TimelineTracksInner: React.FC<{
 }> = ({timeline, hasBeenCut}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 
 	const previewServerConnected = previewServerState.type === 'connected';
 
@@ -96,7 +96,7 @@ const TimelineTracksInner: React.FC<{
 										sequence: track.sequence,
 										nodePathInfo: track.nodePathInfo,
 										getIsExpanded,
-										getCodeValues,
+										codeValues,
 									})}
 								/>
 							) : null}

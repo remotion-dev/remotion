@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
-import type {EffectDefinitionAndStack} from './effects/effect-types.js';
+import type {EffectDefinition} from './effects/effect-types.js';
 import {Freeze} from './freeze.js';
 import {useNonce} from './nonce.js';
 import {PremountContext} from './PremountContext.js';
@@ -52,7 +52,7 @@ export type SequencePropsWithoutDuration = {
 	readonly showInTimeline?: boolean;
 	readonly hidden?: boolean;
 	readonly _experimentalControls?: SequenceControls;
-	readonly _experimentalEffects?: EffectDefinitionAndStack<unknown>[];
+	readonly _experimentalEffects?: readonly EffectDefinition<unknown>[];
 	/**
 	 * @deprecated For internal use only.
 	 */

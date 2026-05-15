@@ -10,11 +10,13 @@ import React, {
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
 import {delayRender} from './delay-render.js';
-import {flattenEffects} from './effects/effect-internals.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
-import {useMemoizedEffects} from './effects/use-memoized-effects.js';
+import {
+	useMemoizedEffectDefinitions,
+	useMemoizedEffects,
+} from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {hiddenField, sequenceStyleSchema} from './sequence-field-schema.js';
 import type {
@@ -197,6 +199,10 @@ export const isHtmlInCanvasSupported = (): boolean => {
 	return cachedSupport;
 };
 
+/** Shown when {@link isHtmlInCanvasSupported} is false: APIs are absent (old Chrome and/or flag off). */
+export const HTML_IN_CANVAS_UNSUPPORTED_MESSAGE =
+	'HTML in Canvas is not supported. Two common causes: Chrome is older than version 148 (update Chrome), or the HTML-in-Canvas flag is disabled at chrome://flags/#canvas-draw-element (enable it and restart Chrome).';
+
 export type HtmlInCanvasOnPaint = (
 	params: HtmlInCanvasOnPaintParams,
 ) => void | Promise<void>;
@@ -299,11 +305,7 @@ const HtmlInCanvasInner = forwardRef<
 		const {continueRender, cancelRender} = useDelayRender();
 
 		if (!isHtmlInCanvasSupported()) {
-			cancelRender(
-				new Error(
-					'HTML in Canvas is not supported. Open this page in Chrome Canary with chrome://flags/#canvas-draw-element enabled.',
-				),
-			);
+			cancelRender(new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE));
 		}
 
 		const {durationInFrames: videoDuration} = useVideoConfig();
@@ -330,7 +332,11 @@ const HtmlInCanvasInner = forwardRef<
 
 		const chainState = useEffectChainState();
 
-		const memoizedEffects = useMemoizedEffects(flattenEffects(effects));
+		const memoizedEffects = useMemoizedEffects({
+			effects,
+			overrideId: controls?.overrideId ?? null,
+		});
+		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
 		// Refs so the paint handler always reads fresh values.
 		const effectsRef = useRef(memoizedEffects);
@@ -507,7 +513,7 @@ const HtmlInCanvasInner = forwardRef<
 				durationInFrames={resolvedDuration}
 				name="<HtmlInCanvas>"
 				_experimentalControls={controls}
-				_experimentalEffects={memoizedEffects}
+				_experimentalEffects={memoizedEffectDefinitions}
 				layout="none"
 				{...sequenceProps}
 			>

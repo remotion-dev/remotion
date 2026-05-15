@@ -1,10 +1,12 @@
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
-import type {SaveSequencePropsRequest} from '@remotion/studio-shared';
-import type {CanUpdateSequencePropsResponse} from 'remotion';
-import {Internals} from 'remotion';
-import {getAllSchemaKeys} from '../../codemods/get-all-schema-keys';
+import type {
+	SaveSequencePropsRequest,
+	SaveSequencePropsResponse,
+} from '@remotion/studio-shared';
+import {getAllSchemaKeys} from '@remotion/studio-shared';
+import {NoReactInternals} from 'remotion/no-react';
 import {updateSequenceProps} from '../../codemods/update-sequence-props/update-sequence-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
@@ -14,13 +16,13 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {computeSequencePropsStatus} from './can-update-sequence-props';
+import {computeSequencePropsOnlyStatus} from './can-update-sequence-props';
 import {formatPropChange} from './log-updates/format-prop-change';
 import {logUpdate, normalizeQuotes} from './log-updates/log-update';
 
 export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
-	CanUpdateSequencePropsResponse
+	SaveSequencePropsResponse
 > = async ({
 	input: {fileName, nodePath, key, value, defaultValue, schema},
 	remotionRoot,
@@ -41,7 +43,7 @@ export const saveSequencePropsHandler: ApiHandler<
 	const {output, oldValueStrings, formatted, logLine, removedProps} =
 		await updateSequenceProps({
 			input: fileContents,
-			nodePath,
+			nodePath: nodePath.nodePath,
 			updates: [
 				{
 					key,
@@ -49,7 +51,7 @@ export const saveSequencePropsHandler: ApiHandler<
 					defaultValue: defaultValue !== null ? JSON.parse(defaultValue) : null,
 				},
 			],
-			schema: Internals.sequenceSchema,
+			schema: NoReactInternals.sequenceSchema,
 		});
 	const oldValueString = oldValueStrings[0];
 
@@ -112,10 +114,10 @@ export const saveSequencePropsHandler: ApiHandler<
 
 	printUndoHint(logLevel);
 
-	const newStatus = computeSequencePropsStatus({
+	const newStatus = computeSequencePropsOnlyStatus({
 		fileName,
 		keys: getAllSchemaKeys(schema),
-		nodePath,
+		nodePath: nodePath.nodePath,
 		remotionRoot,
 	});
 

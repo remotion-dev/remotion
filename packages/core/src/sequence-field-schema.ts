@@ -31,6 +31,12 @@ export type TranslateFieldSchema = {
 	description?: string;
 };
 
+export type ColorFieldSchema = {
+	type: 'color';
+	default: string;
+	description?: string;
+};
+
 export type EnumFieldSchema = {
 	type: 'enum';
 	default: string;
@@ -43,6 +49,7 @@ export type VisibleFieldSchema =
 	| BooleanFieldSchema
 	| RotationFieldSchema
 	| TranslateFieldSchema
+	| ColorFieldSchema
 	| EnumFieldSchema;
 
 export type SequenceFieldSchema = VisibleFieldSchema | HiddenFieldSchema;

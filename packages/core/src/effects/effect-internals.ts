@@ -1,29 +1,7 @@
-import type {
-	Backend,
-	EffectDefinitionAndStack,
-	EffectDescriptor,
-	EffectsProp,
-} from './effect-types.js';
+import type {Backend, EffectDefinitionAndStack} from './effect-types.js';
 
 // Internal helpers for the chain runtime. Exported separately so they can be
 // unit-tested without spinning up the React lifecycle / canvas mocking.
-
-export const flattenEffects = (
-	effects: EffectsProp,
-): EffectDescriptor<unknown>[] => {
-	const out: EffectDescriptor<unknown>[] = [];
-	for (const item of effects) {
-		if (Array.isArray(item)) {
-			for (const inner of item) {
-				out.push(inner);
-			}
-		} else {
-			out.push(item as EffectDescriptor<unknown>);
-		}
-	}
-
-	return out;
-};
 
 export type Run = {
 	readonly backend: Backend;

@@ -112,6 +112,7 @@ export const internalDeploySiteRaw = async ({
 			askAIEnabled: options?.askAIEnabled ?? true,
 			keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
 			rspack: options?.rspack ?? false,
+			symlinkPublicDir: false,
 		}),
 	]);
 

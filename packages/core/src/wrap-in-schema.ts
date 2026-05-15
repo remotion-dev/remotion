@@ -1,6 +1,7 @@
 import React, {forwardRef, useState, useContext, useMemo} from 'react';
 import type {SequenceControls} from './CompositionManager.js';
 import {deleteNestedKey} from './delete-nested-key.js';
+import {getCodeValuesCtx} from './effects/use-memoized-effects.js';
 import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
@@ -124,7 +125,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 		}
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const {getCodeValues} = useContext(VisualModeCodeValuesContext);
+		const {codeValues} = useContext(VisualModeCodeValuesContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const {getDragOverrides} = useContext(VisualModeDragOverridesContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -191,13 +192,16 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 				schema,
 				currentValue: currentRuntimeValueDotNotation,
 				overrideValues: nodePath === null ? {} : getDragOverrides(nodePath),
-				propStatus: nodePath === null ? undefined : getCodeValues(nodePath),
+				propStatus:
+					nodePath === null
+						? undefined
+						: getCodeValuesCtx(codeValues, nodePath),
 			});
 		}, [
 			currentRuntimeValueDotNotation,
 			getDragOverrides,
 			nodePath,
-			getCodeValues,
+			codeValues,
 		]);
 
 		// 4. Eliminate values forbidden by the resolved discriminated union.
