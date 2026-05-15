@@ -29,7 +29,7 @@ afterAll(() => {
 });
 
 const halftoneCall = (propKey: string, value: string) => {
-	return `${attrName('halftone')}${punctuation('(')}${punctuation('{')}${attrName(propKey)}${punctuation(': ')}${numberValue(value)}${punctuation('}')}${punctuation(')')}`;
+	return `${attrName('halftone')}${punctuation('(')}${punctuation('{')}${punctuation(propKey)}${punctuation(': ')}${numberValue(value)}${punctuation('}')}${punctuation(')')}`;
 };
 
 test('logEffectUpdate prints halftone({dotSize}) → halftone({dotSize}) when dotSize changes', () => {
@@ -117,7 +117,7 @@ test('logEffectUpdate strikes only the prop body when removing offsetX to defaul
 		const logged = consoleSpy.mock.calls[0].join(' ');
 
 		const struck = strikeThroughOrRemovedPrefix(
-			`${attrName('offsetX')}${punctuation(': ')}${numberValue('58')}`,
+			`${punctuation('offsetX')}${punctuation(': ')}${numberValue('58')}`,
 		);
 		const expectedPropChange = `${attrName('halftone')}${punctuation('(')}${punctuation('{')}${struck}${punctuation('}')}${punctuation(')')}`;
 		const expectedLine = `${chalk.blueBright('src/HtmlInCanvas/react-svg.tsx:21')} ${expectedPropChange}`;
@@ -140,7 +140,7 @@ test('undo of an added effect prop strikes only offsetX inside halftone({…})',
 	});
 
 	const struck = strikeThroughOrRemovedPrefix(
-		`${attrName('offsetX')}${punctuation(': ')}${numberValue('37')}`,
+		`${punctuation('offsetX')}${punctuation(': ')}${numberValue('37')}`,
 	);
 	const expectedUndo = `${attrName('halftone')}${punctuation('(')}${punctuation('{')}${struck}${punctuation('}')}${punctuation(')')}`;
 

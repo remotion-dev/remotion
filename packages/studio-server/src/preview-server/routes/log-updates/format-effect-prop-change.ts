@@ -9,7 +9,7 @@ import {
 } from './formatting';
 
 const formatEffectPropBody = (key: string, valueString: string) => {
-	return `${attrName(key)}${punctuation(': ')}${colorValue(valueString)}`;
+	return `${punctuation(key)}${punctuation(': ')}${colorValue(valueString)}`;
 };
 
 const formatEffectCall = (
