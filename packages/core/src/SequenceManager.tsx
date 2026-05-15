@@ -81,10 +81,15 @@ export type CanUpdateEffectPropsResponseTrue = {
 	props: Record<string, CanUpdateSequencePropStatus>;
 };
 
+export type CannotUpdateEffectReason =
+	| 'not-found'
+	| 'computed'
+	| 'not-call-expression';
+
 export type CanUpdateEffectPropsResponseFalse = {
 	canUpdate: false;
 	effectIndex: number;
-	reason: 'not-found' | 'computed' | 'not-call-expression';
+	reason: CannotUpdateEffectReason;
 };
 
 export type CanUpdateEffectPropsResponse =

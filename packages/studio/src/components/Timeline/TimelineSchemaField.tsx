@@ -30,6 +30,12 @@ const inlineWrapper: React.CSSProperties = {
 	fontSize: 12,
 };
 
+export const UnsupportedStatus: React.FC<{
+	readonly label: string;
+}> = ({label}) => {
+	return <span style={unsupportedLabel}>{label}</span>;
+};
+
 export const TimelineNonEditableStatus: React.FC<{
 	readonly propStatus: CanUpdateSequencePropStatusFalse;
 }> = ({propStatus}) => {

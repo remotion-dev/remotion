@@ -12,10 +12,7 @@ import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {Padder} from './Padder';
-import {
-	TimelineFieldValue,
-	TimelineNonEditableStatus,
-} from './TimelineSchemaField';
+import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
 
 const fieldRowBase: React.CSSProperties = {
 	display: 'flex',
@@ -54,13 +51,16 @@ const Value: React.FC<{
 		Internals.VisualModeCodeValuesContext,
 	);
 
-	const codeValues = Internals.getEffectCodeValuesCtx({
+	const effectStatus = Internals.getEffectCodeValuesCtx({
 		codeValues: visualModeCodeValues,
 		nodePath,
 		effectIndex: field.effectIndex,
 	});
 
-	const propStatus = codeValues?.[field.key] ?? null;
+	const propStatus =
+		effectStatus.type === 'can-update-effect'
+			? (effectStatus.props?.[field.key] ?? null)
+			: null;
 
 	const onDragValueChange = useCallback(
 		(value: unknown) => {
@@ -181,12 +181,30 @@ const Value: React.FC<{
 		],
 	);
 
-	if (propStatus === null) {
-		return null;
+	if (effectStatus.type === 'cannot-update-effect') {
+		if (effectStatus.reason === 'computed') {
+			return <UnsupportedStatus label="computed" />;
+		}
+
+		if (effectStatus.reason === 'not-call-expression') {
+			return <UnsupportedStatus label="not inline" />;
+		}
+
+		if (effectStatus.reason === 'not-found') {
+			return <UnsupportedStatus label="not found in code" />;
+		}
+
+		throw new Error(
+			`Unsupported effect status: ${effectStatus.reason satisfies never}`,
+		);
 	}
 
-	if (propStatus.canUpdate === false) {
-		return <TimelineNonEditableStatus propStatus={propStatus} />;
+	if (effectStatus.type === 'cannot-update-sequence') {
+		return <UnsupportedStatus label={effectStatus.reason} />;
+	}
+
+	if (propStatus === null || !propStatus.canUpdate) {
+		return null;
 	}
 
 	const effectiveValue = Internals.getEffectiveVisualModeValue({

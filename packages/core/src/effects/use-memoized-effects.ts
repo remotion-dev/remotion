@@ -1,6 +1,6 @@
 import {useContext, useRef} from 'react';
-import type {CodeValues} from '../internals.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
+import type {CannotUpdateEffectReason} from '../SequenceManager.js';
 import {
 	makeSequencePropsSubscriptionKey,
 	type SequencePropsSubscriptionKey,
@@ -9,6 +9,7 @@ import {
 	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
 } from '../SequenceManager.js';
+import type {CanUpdateSequencePropStatus, CodeValues} from '../use-schema.js';
 import type {
 	EffectDefinition,
 	EffectDefinitionAndStack,
@@ -94,6 +95,20 @@ export const useMemoizedEffectDefinitions = (
 	return definitions;
 };
 
+type EffectStatus =
+	| {
+			type: 'cannot-update-sequence';
+			reason: string;
+	  }
+	| {
+			type: 'cannot-update-effect';
+			reason: CannotUpdateEffectReason;
+	  }
+	| {
+			type: 'can-update-effect';
+			props: Record<string, CanUpdateSequencePropStatus>;
+	  };
+
 export const getEffectCodeValuesCtx = ({
 	codeValues,
 	nodePath,
@@ -102,18 +117,26 @@ export const getEffectCodeValuesCtx = ({
 	codeValues: CodeValues;
 	nodePath: SequencePropsSubscriptionKey;
 	effectIndex: number;
-}) => {
+}): EffectStatus => {
 	const status = codeValues[makeSequencePropsSubscriptionKey(nodePath)];
-	if (!status || !status.canUpdate) {
-		return undefined;
+	if (!status) {
+		return {type: 'cannot-update-sequence', reason: 'not-found'};
+	}
+
+	if (!status.canUpdate) {
+		return {type: 'cannot-update-sequence', reason: status.reason};
 	}
 
 	const effect = status.effects.find((e) => e.effectIndex === effectIndex);
-	if (!effect || !effect.canUpdate) {
-		return undefined;
+	if (!effect) {
+		return {type: 'cannot-update-effect', reason: 'not-found'};
 	}
 
-	return effect.props;
+	if (!effect.canUpdate) {
+		return {type: 'cannot-update-effect', reason: effect.reason};
+	}
+
+	return {type: 'can-update-effect', props: effect.props};
 };
 
 export const getCodeValuesCtx = (
@@ -165,12 +188,15 @@ export const useMemoizedEffects = ({
 			};
 		}
 
-		const propStatus = getEffectCodeValuesCtx({
+		const effectStatus = getEffectCodeValuesCtx({
 			codeValues,
 			nodePath,
 			effectIndex: index,
 		});
-		const codeOverrides = extractCodeOverrides(propStatus);
+		const codeOverrides =
+			effectStatus.type === 'can-update-effect'
+				? extractCodeOverrides(effectStatus.props)
+				: null;
 		const dragOverridesMap = getEffectDragOverrides(nodePath, index);
 		const dragOverrides =
 			Object.keys(dragOverridesMap).length === 0 ? null : dragOverridesMap;
