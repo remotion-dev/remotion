@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {getFieldsToShow} from '@remotion/studio-shared';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../codemods/parse-ast';
 import {updateSequencePropsAst} from '../codemods/update-sequence-props/update-sequence-props';
 import {lineColumnToNodePath} from '../preview-server/routes/can-update-sequence-props';
@@ -11,7 +11,7 @@ import {prettify} from './test-utils';
 
 test('Should correctly separate discriminated union for layout', () => {
 	const schemaFields = getFieldsToShow({
-		schema: Internals.sequenceSchema,
+		schema: NoReactInternals.sequenceSchema,
 		currentRuntimeValueDotNotation: {
 			layout: 'none',
 		},
@@ -29,7 +29,7 @@ test('Should correctly separate discriminated union for layout', () => {
 
 test('Should expose absolute-fill variant fields when active', () => {
 	const schemaFields = getFieldsToShow({
-		schema: Internals.sequenceSchema,
+		schema: NoReactInternals.sequenceSchema,
 		currentRuntimeValueDotNotation: {
 			layout: 'absolute-fill',
 		},
@@ -70,10 +70,10 @@ test('Should be able to update a discriminated union', async () => {
 			{
 				key: 'layout',
 				value: 'none',
-				defaultValue: Internals.sequenceSchema.layout.default,
+				defaultValue: NoReactInternals.sequenceSchema.layout.default,
 			},
 		],
-		schema: Internals.sequenceSchema,
+		schema: NoReactInternals.sequenceSchema,
 	});
 
 	const expected = readFileSync(
@@ -102,10 +102,10 @@ test('Should remove variant-specific props when switching enum value', async () 
 			{
 				key: 'layout',
 				value: 'none',
-				defaultValue: Internals.sequenceSchema.layout.default,
+				defaultValue: NoReactInternals.sequenceSchema.layout.default,
 			},
 		],
-		schema: Internals.sequenceSchema,
+		schema: NoReactInternals.sequenceSchema,
 	});
 
 	const expected = readFileSync(
@@ -138,10 +138,10 @@ test('Should remove premountFor and styleWhile* when switching to layout="none"'
 			{
 				key: 'layout',
 				value: 'none',
-				defaultValue: Internals.sequenceSchema.layout.default,
+				defaultValue: NoReactInternals.sequenceSchema.layout.default,
 			},
 		],
-		schema: Internals.sequenceSchema,
+		schema: NoReactInternals.sequenceSchema,
 	});
 
 	const expected = readFileSync(

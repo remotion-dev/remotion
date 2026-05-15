@@ -6,7 +6,7 @@ process.env.FORCE_COLOR = '1';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {updateSequenceProps} from '../codemods/update-sequence-props/update-sequence-props';
 import {formatPropChange} from '../preview-server/routes/log-updates/format-prop-change';
 import {
@@ -54,7 +54,7 @@ test('logUpdate emits Monokai-colored output after an AST update', async () => {
 			input,
 			nodePath: lineColumnToNodePath(input, 8),
 			updates: [{key: 'hueShift', value: 90, defaultValue: null}],
-			schema: Internals.sequenceSchema,
+			schema: NoReactInternals.sequenceSchema,
 		});
 
 	expect(oldValueStrings[0]).toBe('30');
@@ -105,10 +105,10 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 				{
 					key: 'layout',
 					value: 'none',
-					defaultValue: Internals.sequenceSchema.layout.default,
+					defaultValue: NoReactInternals.sequenceSchema.layout.default,
 				},
 			],
-			schema: Internals.sequenceSchema,
+			schema: NoReactInternals.sequenceSchema,
 		});
 
 	expect(oldValueStrings[0]).toBe('"absolute-fill"');
@@ -118,7 +118,7 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 
 	const newValueString = JSON.stringify('none');
 	const defaultValueString = JSON.stringify(
-		Internals.sequenceSchema.layout.default,
+		NoReactInternals.sequenceSchema.layout.default,
 	);
 
 	const consoleSpy = spyOn(console, 'log').mockImplementation(() => undefined);
@@ -172,10 +172,10 @@ test('Undo prop change should not nest key={key={value}} for re-added props', as
 			{
 				key: 'layout',
 				value: 'none',
-				defaultValue: Internals.sequenceSchema.layout.default,
+				defaultValue: NoReactInternals.sequenceSchema.layout.default,
 			},
 		],
-		schema: Internals.sequenceSchema,
+		schema: NoReactInternals.sequenceSchema,
 	});
 
 	const premount = removedProps.find((p) => p.key === 'premountFor');

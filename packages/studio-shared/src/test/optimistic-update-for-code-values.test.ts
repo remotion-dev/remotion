@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
-import {Internals, type CanUpdateSequencePropsResponse} from 'remotion';
+import {type CanUpdateSequencePropsResponse} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {optimisticUpdateForCodeValues} from '../optimistic-update-for-code-values';
 
 test('optimisticUpdateForCodeValues should return the correct response', () => {
@@ -17,7 +18,7 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 		previous,
 		fieldKey: 'style.opacity',
 		value: 0.6,
-		schema: Internals.sequenceSchema,
+		schema: NoReactInternals.sequenceSchema,
 	});
 
 	expect(updated).toEqual({
@@ -35,7 +36,7 @@ test('optimisticUpdateForCodeValues should return the correct response', () => {
 		previous: updated,
 		fieldKey: 'layout',
 		value: 'none',
-		schema: Internals.sequenceSchema,
+		schema: NoReactInternals.sequenceSchema,
 	});
 	expect(layout).toEqual({
 		canUpdate: true,
