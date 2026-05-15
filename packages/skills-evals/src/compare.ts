@@ -64,14 +64,15 @@ type SkillEvalComparisonResult =
 	  };
 
 type SkillEvalComparisonOptions = {
+	beforeGitRef?: string;
 	onEvent?: (event: SkillEvalComparisonEvent) => void;
 	onLog?: (chunk: string) => void;
 	runCount?: number;
 };
 
 type BeforeSkillsSource = {
-	gitRef: 'HEAD';
-	source: 'head';
+	gitRef: string;
+	source: 'git-ref';
 };
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -79,6 +80,9 @@ const repoRoot = resolve(packageRoot, '..', '..');
 const runsRoot = resolve(packageRoot, '.runs');
 const skillsSource = resolve(packageRoot, '..', 'skills', 'skills');
 const comparisonsRoot = join(runsRoot, 'comparisons');
+
+export const getDefaultComparisonBaseRef = () =>
+	process.env.REMOTION_SKILLS_EVALS_BASE_REF ?? 'origin/main';
 
 const getErrorMessage = (error: unknown) =>
 	error instanceof Error ? error.message : String(error);
@@ -143,13 +147,15 @@ const copyGitSkills = async ({gitRef, to}: {gitRef: string; to: string}) => {
 
 const prepareBeforeSkills = async ({
 	beforeSkillsPath,
+	gitRef,
 }: {
 	beforeSkillsPath: string;
+	gitRef: string;
 }): Promise<BeforeSkillsSource> => {
-	await copyGitSkills({gitRef: 'HEAD', to: beforeSkillsPath});
+	await copyGitSkills({gitRef, to: beforeSkillsPath});
 	return {
-		gitRef: 'HEAD',
-		source: 'head',
+		gitRef,
+		source: 'git-ref',
 	};
 };
 
@@ -168,6 +174,7 @@ export const runSkillEvalComparison = async (
 	const afterSkillsPath = join(comparisonDir, 'after-skills');
 	const skillDiffPath = join(comparisonDir, 'skills.diff');
 	const createdAt = new Date().toISOString();
+	const beforeGitRef = options.beforeGitRef ?? getDefaultComparisonBaseRef();
 	const emitMessage = (message: string) => {
 		options.onEvent?.({message, type: 'message'});
 		options.onLog?.(message);
@@ -176,9 +183,10 @@ export const runSkillEvalComparison = async (
 	await rm(comparisonDir, {force: true, recursive: true});
 	await mkdir(comparisonDir, {recursive: true});
 
-	emitMessage(`[compare] Preparing ${scenario.id}\n`);
+	emitMessage(`[compare] Preparing ${scenario.id} against ${beforeGitRef}\n`);
 	const beforeSource = await prepareBeforeSkills({
 		beforeSkillsPath,
+		gitRef: beforeGitRef,
 	});
 
 	await copyDirectory(skillsSource, afterSkillsPath);
@@ -199,7 +207,7 @@ export const runSkillEvalComparison = async (
 	if (diff.exitCode === 0) {
 		await rm(comparisonDir, {force: true, recursive: true});
 		return {
-			reason: 'No skill changes since HEAD.',
+			reason: `No skill changes since ${beforeGitRef}.`,
 			skipped: true,
 		};
 	}

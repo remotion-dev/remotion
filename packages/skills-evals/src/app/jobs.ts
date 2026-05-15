@@ -101,9 +101,9 @@ const runWithConcurrency = async <TInput, TOutput>({
 
 export const startComparison = (
 	scenario: SkillEvalScenario,
-	runCountInput?: number,
+	options: {beforeGitRef?: string; runCount?: number} = {},
 ) => {
-	const runCount = validateSkillEvalRunCount(runCountInput);
+	const runCount = validateSkillEvalRunCount(options.runCount);
 	const existingJob = getActiveJob(scenario.id);
 
 	if (existingJob) {
@@ -204,6 +204,7 @@ export const startComparison = (
 	};
 
 	const comparisonPromise = runSkillEvalComparison(scenario, {
+		beforeGitRef: options.beforeGitRef,
 		onEvent: handleEvent,
 		runCount,
 	})

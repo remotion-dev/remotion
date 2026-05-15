@@ -39,9 +39,9 @@ export const renderHome = async () => {
 					<section className="max-w-3xl">
 						<h2 className="text-sm font-semibold text-zinc-700">Workflow</h2>
 						<p className="mt-1 text-sm leading-6 text-zinc-500">
-							When skills match HEAD, run a scenario as visual validation. When
-							you have local skill changes, run a comparison to see how those
-							changes affect the resulting videos.
+							When skills match the configured base ref, run a scenario as
+							visual validation. When you have skill changes, run a comparison
+							to see how those changes affect the resulting videos.
 						</p>
 					</section>
 					<section className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3">

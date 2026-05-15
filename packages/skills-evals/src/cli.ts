@@ -48,6 +48,37 @@ const parseRunCount = (args: string[]) => {
 	return validateSkillEvalRunCount(runCount, '--runs');
 };
 
+const parseCompareOptions = (args: string[]) => {
+	let beforeGitRef: string | undefined;
+	const runCountArgs: string[] = [];
+
+	for (let index = 0; index < args.length; index++) {
+		const arg = args[index];
+
+		if (arg === '--runs') {
+			const value = args[index + 1];
+
+			if (!value) {
+				throw new Error('Pass a value after --runs.');
+			}
+
+			runCountArgs.push(arg, value);
+			index++;
+		} else if (arg.startsWith('--runs=')) {
+			runCountArgs.push(arg);
+		} else if (!beforeGitRef) {
+			beforeGitRef = arg;
+		} else {
+			throw new Error(`Unknown option "${arg}".`);
+		}
+	}
+
+	return {
+		beforeGitRef,
+		runCount: parseRunCount(runCountArgs),
+	};
+};
+
 const runWithConcurrency = async <TInput, TOutput>({
 	inputs,
 	limit,
@@ -80,13 +111,14 @@ const main = async () => {
 		await import('./server');
 	} else if (command === 'compare') {
 		const scenario = getScenario(process.argv[3]);
-		const runCount = parseRunCount(process.argv.slice(4));
+		const {beforeGitRef, runCount} = parseCompareOptions(process.argv.slice(4));
 		process.stdout.write(
-			`Comparing ${scenario.id} with ${scenario.model} (${runCount} ${
-				runCount === 1 ? 'run' : 'runs'
-			})\n`,
+			`Comparing ${scenario.id} with ${scenario.model}${
+				beforeGitRef ? ` against ${beforeGitRef}` : ''
+			} (${runCount} ${runCount === 1 ? 'run' : 'runs'})\n`,
 		);
 		const result = await runSkillEvalComparison(scenario, {
+			beforeGitRef,
 			onLog: (chunk) => process.stdout.write(chunk),
 			runCount,
 		});
@@ -158,7 +190,7 @@ const main = async () => {
 		}
 	} else {
 		process.stdout.write(
-			'Usage: bun run eval <list|run|compare|dev> [scenario-id|--all] [--runs 1-4]\n',
+			'Usage: bun run eval <list|run|compare|dev> [scenario-id|--all] [base-ref] [--runs 1-4]\n',
 		);
 		process.exit(command ? 1 : 0);
 	}

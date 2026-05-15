@@ -179,6 +179,7 @@ export const renderComparison = (comparisonData: ComparisonWithManifests) => {
 						const runMetadata = comparison.runs?.find(
 							(candidate) => candidate.index === run.index,
 						);
+						const beforeMetadata = runMetadata?.before ?? comparison.before;
 
 						return (
 							<section className="grid min-w-0 gap-3" key={run.index}>
@@ -189,7 +190,7 @@ export const renderComparison = (comparisonData: ComparisonWithManifests) => {
 								) : null}
 								<div className="grid grid-cols-2 gap-3 max-lg:grid-cols-1">
 									<RunPanel
-										label="Before"
+										label={`Before (${beforeMetadata.gitRef ?? beforeMetadata.source})`}
 										manifest={run.beforeManifest}
 										manifestPath={
 											runMetadata?.before.manifestPath ??

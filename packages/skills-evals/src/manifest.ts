@@ -56,7 +56,7 @@ export type SkillEvalResult = {
 
 export type SkillEvalComparisonBeforeRun = {
 	label: 'before';
-	source: 'head';
+	source: 'git-ref' | 'head';
 	skillsPath: string;
 	hash: string;
 	gitRef?: string;

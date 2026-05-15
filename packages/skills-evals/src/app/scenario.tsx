@@ -1,6 +1,7 @@
 import {basename, join} from 'node:path';
 import type {SkillEvalScenario} from '../../scenarios';
 import {runCommand} from '../command';
+import {getDefaultComparisonBaseRef} from '../compare';
 import {listFilesRecursively, readJson, sanitizePathPart} from '../files';
 import type {SkillEvalComparison, SkillEvalManifest} from '../manifest';
 import {loadComparisons} from './comparison-data';
@@ -22,6 +23,7 @@ import {
 } from './shared';
 
 type SkillDiffState = {
+	baseRef: string;
 	hasChanges: boolean;
 	message: string;
 	title: string;
@@ -34,26 +36,36 @@ type ScenarioRunListItem = {
 };
 
 const getSkillDiffState = async (): Promise<SkillDiffState> => {
+	const baseRef = getDefaultComparisonBaseRef();
 	const result = await runCommand({
-		command: ['git', 'status', '--porcelain', '--', 'packages/skills/skills'],
+		command: [
+			'git',
+			'diff',
+			'--quiet',
+			'--exit-code',
+			baseRef,
+			'--',
+			'packages/skills/skills',
+		],
 		cwd: repoRoot,
 	});
 
-	if (result.exitCode === 0) {
+	if (result.exitCode === 0 || result.exitCode === 1) {
+		const hasChanges = result.exitCode === 1;
 		return {
-			hasChanges: result.stdout.trim().length > 0,
-			message: result.stdout.trim()
-				? 'Skills differ from HEAD. Run a before/after comparison against HEAD.'
-				: 'Skills match HEAD. This will run the scenario without a diff to review.',
-			title: result.stdout.trim()
-				? 'Skills changed from HEAD'
-				: 'No skill changes',
+			baseRef,
+			hasChanges,
+			message: hasChanges
+				? `Skills differ from ${baseRef}. Run a before/after comparison against ${baseRef}.`
+				: `Skills match ${baseRef}. This will run the scenario without a diff to review.`,
+			title: hasChanges ? `Skills changed from ${baseRef}` : 'No skill changes',
 		};
 	}
 
 	return {
+		baseRef,
 		hasChanges: false,
-		message: `Could not inspect skill diff. The scenario can still run without a comparison. ${result.stderr}`,
+		message: `Could not inspect skill diff against ${baseRef}. The scenario can still run without a comparison. ${result.stderr}`,
 		title: 'Skill diff unavailable',
 	};
 };
@@ -125,12 +137,19 @@ const ScenarioRuns = ({items}: {items: ScenarioRunListItem[]}) => {
 	);
 };
 
-const ScenarioPageScript = ({activeJob}: {activeJob: Job | undefined}) => (
+const ScenarioPageScript = ({
+	activeJob,
+	baseRef,
+}: {
+	activeJob: Job | undefined;
+	baseRef: string;
+}) => (
 	<script
 		dangerouslySetInnerHTML={{
 			__html: `
 const button = document.getElementById('run-comparison');
 const runCountSelect = document.getElementById('run-count');
+const baseRefInput = document.getElementById('comparison-base-ref');
 const panel = document.getElementById('active-job');
 const log = document.getElementById('job-log');
 const status = document.getElementById('job-status');
@@ -143,6 +162,7 @@ const runLog = {
 	after: document.getElementById('after-run-log'),
 };
 const activeJobId = ${JSON.stringify(activeJob?.id ?? null)};
+const defaultBaseRef = ${JSON.stringify(baseRef)};
 
 const renderJob = (job) => {
 	panel.hidden = false;
@@ -211,9 +231,13 @@ button?.addEventListener('click', async () => {
 		runLog[label].hidden = true;
 		runLog[label].textContent = '';
 	}
-	const actionUrl = new URL(button.dataset.actionUrl, location.origin);
-	actionUrl.searchParams.set('runs', runCountSelect.value);
-	const response = await fetch(actionUrl.pathname + actionUrl.search, {
+	const beforeGitRef = baseRefInput?.value?.trim() || defaultBaseRef;
+	const shouldCompare = button.dataset.hasSkillChanges === 'true' || beforeGitRef !== defaultBaseRef;
+	const targetUrl = new URL(shouldCompare ? button.dataset.compareUrl : button.dataset.runUrl, location.origin);
+	targetUrl.searchParams.set('runs', runCountSelect.value);
+	const response = await fetch(targetUrl.pathname + targetUrl.search, {
+		body: shouldCompare ? JSON.stringify({beforeGitRef}) : undefined,
+		headers: shouldCompare ? {'content-type': 'application/json'} : undefined,
 		method: 'POST',
 	});
 	const job = await response.json();
@@ -331,11 +355,9 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 							</select>
 							<button
 								className="rounded-full bg-zinc-900 px-3 py-2 text-[0.8125rem] font-semibold text-white hover:bg-zinc-800 disabled:bg-zinc-300 disabled:text-zinc-500"
-								data-action-url={
-									skillDiffState.hasChanges
-										? `/api/compare/${encodeURIComponent(scenario.id)}`
-										: `/api/run/${encodeURIComponent(scenario.id)}`
-								}
+								data-compare-url={`/api/compare/${encodeURIComponent(scenario.id)}`}
+								data-has-skill-changes={String(skillDiffState.hasChanges)}
+								data-run-url={`/api/run/${encodeURIComponent(scenario.id)}`}
 								data-scenario={scenario.id}
 								id="run-comparison"
 							>
@@ -371,10 +393,20 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 							</div>
 							{skillDiffState.hasChanges ? (
 								<span className="rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-800">
-									Compare against HEAD
+									Compare against {skillDiffState.baseRef}
 								</span>
 							) : null}
 						</div>
+						<label className="mt-4 block max-w-sm text-sm font-medium text-zinc-700">
+							Comparison base ref
+							<input
+								className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
+								defaultValue={skillDiffState.baseRef}
+								id="comparison-base-ref"
+								name="comparison-base-ref"
+								spellCheck={false}
+							/>
+						</label>
 					</section>
 					<details className="min-w-0 rounded-2xl border border-zinc-200 bg-white p-4">
 						<summary className="cursor-pointer text-sm font-semibold">
@@ -393,7 +425,10 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 						<ScenarioRuns items={runItems} />
 					</Card>
 				</main>
-				<ScenarioPageScript activeJob={activeJob} />
+				<ScenarioPageScript
+					activeJob={activeJob}
+					baseRef={skillDiffState.baseRef}
+				/>
 			</>
 		),
 		title: scenario.id,
