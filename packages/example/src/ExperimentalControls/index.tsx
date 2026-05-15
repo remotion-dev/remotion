@@ -210,7 +210,6 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 							style={{
 								rotate: '55deg',
 							}}
-							hidden
 						>
 							<AbsoluteFill style={{backgroundColor: 'red'}}></AbsoluteFill>
 						</Series.Sequence>
