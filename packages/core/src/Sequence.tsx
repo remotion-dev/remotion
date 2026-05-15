@@ -226,6 +226,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const env = useRemotionEnvironment();
 
 	const inheritedStack = (other as any)?.stack ?? null;
+	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
+	// and if it changes, it would lead to-remounting of the sequence.
+	const [stackDoesntChange] = useState(() => stack ?? inheritedStack);
 
 	useEffect(() => {
 		if (!env.isStudio) {
@@ -251,7 +254,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				rootId,
 				showInTimeline,
 				src: isMedia.data.src,
-				stack: stack ?? inheritedStack,
+				stack: stackDoesntChange,
 				startMediaFrom: isMedia.data.startMediaFrom,
 				volume: isMedia.data.volumes,
 			});
@@ -271,7 +274,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			showInTimeline,
 			nonce: nonce.get(),
 			loopDisplay,
-			stack: stack ?? inheritedStack,
+			stack: stackDoesntChange,
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
 			controls: controls ?? null,
@@ -294,11 +297,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		nonce,
 		loopDisplay,
-		stack,
+		stackDoesntChange,
 		premountDisplay,
 		postmountDisplay,
 		env.isStudio,
-		inheritedStack,
 		controls,
 		_experimentalEffects,
 		isMedia,
