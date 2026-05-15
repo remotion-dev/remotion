@@ -79,7 +79,7 @@ export const runEffectChain = async ({
 	// transitions. The `disabled` flag is injected by `createEffect` and lives
 	// on `params` so it flows through code/drag override merging.
 	const enabledEffects = effects.filter(
-		(e) => !(e.params as {disabled?: boolean})?.disabled,
+		(e) => !(e.params as {disabled?: boolean}).disabled,
 	);
 	const runs = groupByBackend(enabledEffects);
 

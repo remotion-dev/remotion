@@ -68,6 +68,11 @@ export type EffectsProp = ReadonlyArray<EffectDescriptor<unknown>>;
 // Defined here (rather than in `create-effect.ts`) so that the inferred type
 // of factory exports in downstream packages is reachable through a path that
 // is also referenced via `EffectDefinition` etc., avoiding TS2742 in `tsgo`.
-export type EffectFactory<P> = (
-	params?: P & {readonly disabled?: boolean},
-) => EffectDescriptor<unknown>;
+//
+// The `{} extends P` conditional preserves required-param enforcement: when
+// the user's `P` has required fields (e.g. `TintParams.color`), the factory
+// signature requires a params argument; when every field is optional, the
+// argument is optional too.
+export type EffectFactory<P> = {} extends P
+	? (params?: P & {readonly disabled?: boolean}) => EffectDescriptor<unknown>
+	: (params: P & {readonly disabled?: boolean}) => EffectDescriptor<unknown>;

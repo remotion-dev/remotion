@@ -100,7 +100,7 @@ test('runEffectChain filters disabled effects before grouping', () => {
 		{...makeDesc('d', 'webgl2'), params: {disabled: true}},
 	];
 	const enabled = all.filter(
-		(e) => !(e.params as {disabled?: boolean})?.disabled,
+		(e) => !(e.params as {disabled?: boolean}).disabled,
 	);
 	const runs = groupByBackend(memoizeEffects(enabled));
 	expect(runs).toHaveLength(2);
