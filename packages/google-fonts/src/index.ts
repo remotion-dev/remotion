@@ -2562,6 +2562,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./FingerPaint') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Finlandica',
+		importName: 'Finlandica',
+		load: () => import('./Finlandica') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Finlandica Headline',
 		importName: 'FinlandicaHeadline',
 		load: () => import('./FinlandicaHeadline') as Promise<GoogleFont>,
@@ -7581,6 +7586,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Saira Stencil',
 		importName: 'SairaStencil',
 		load: () => import('./SairaStencil') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Saira Stencil One',
+		importName: 'SairaStencilOne',
+		load: () => import('./SairaStencilOne') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Salsa',
