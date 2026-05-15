@@ -1,14 +1,8 @@
-import type {EffectDefinition, EffectDescriptor} from './effect-types.js';
-
-// `disabled` is injected by the framework into every effect factory's
-// parameter type. When truthy, `runEffectChain` bypasses the effect entirely
-// (see `run-effect-chain.ts`). Effect authors do not declare it themselves —
-// `createEffect` adds it here so every current and future effect inherits it.
-export type WithDisabled<P> = P & {readonly disabled?: boolean};
-
-type EffectFactory<P> = {} extends P
-	? (params?: WithDisabled<P>) => EffectDescriptor<unknown>
-	: (params: WithDisabled<P>) => EffectDescriptor<unknown>;
+import type {
+	EffectDefinition,
+	EffectDescriptor,
+	EffectFactory,
+} from './effect-types.js';
 
 // Defines an effect and returns a factory that produces per-frame descriptors.
 // The returned function is the public API effect authors expose to users:
@@ -35,12 +29,14 @@ export const createEffect = <P, S>(
 		},
 	};
 	const factory = (
-		params: WithDisabled<P> = {} as WithDisabled<P>,
+		params: P & {readonly disabled?: boolean} = {} as P & {
+			readonly disabled?: boolean;
+		},
 	): EffectDescriptor<unknown> => ({
 		definition: widened,
 		params,
 		effectKey: widened.calculateKey(params),
 		memoized: false,
 	});
-	return factory as EffectFactory<P>;
+	return factory;
 };
