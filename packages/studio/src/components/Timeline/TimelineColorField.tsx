@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {CanUpdateSequencePropStatus} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
@@ -7,6 +7,7 @@ import {
 } from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {EyedropperIcon} from '../../icons/eyedropper';
@@ -18,7 +19,7 @@ const SWATCH_HEIGHT = 15;
 const containerStyle: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
-	gap: 6,
+	gap: 3,
 };
 
 const swatchWrapperBase: React.CSSProperties = {
@@ -59,14 +60,14 @@ const eyedropperButtonBase: React.CSSProperties = {
 	display: 'inline-flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	width: 16,
-	height: 16,
+	width: 20,
+	height: 20,
 	color: 'rgba(255, 255, 255, 0.7)',
 };
 
 const eyedropperIconStyle: React.CSSProperties = {
-	width: 12,
-	height: 12,
+	width: 16,
+	height: 16,
 };
 
 // Normalizes any color string the user provided (e.g. `red`, `rgb(...)`, `#fff`)
@@ -93,29 +94,78 @@ export const TimelineColorField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly onSave: TimelineFieldOnSave;
-}> = ({field, effectiveValue, propStatus, onSave}) => {
+	readonly onDragValueChange: TimelineFieldOnDragValueChange;
+	readonly onDragEnd: () => void;
+}> = ({
+	field,
+	effectiveValue,
+	propStatus,
+	onSave,
+	onDragValueChange,
+	onDragEnd,
+}) => {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [isHovered, setIsHovered] = useState(false);
 	const [isFocused, setIsFocused] = useState(false);
 	const {tabIndex} = useZIndex();
 
+	const commitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const pendingCommitRef = useRef<(() => void) | null>(null);
+
+	// `<input type="color">` doesn't fire an event when dismissed; debounce
+	// commits and flush any pending commit on unmount so we never lose the
+	// final value.
+	useEffect(() => {
+		return () => {
+			if (commitTimeoutRef.current) {
+				clearTimeout(commitTimeoutRef.current);
+			}
+
+			if (pendingCommitRef.current) {
+				pendingCommitRef.current();
+			}
+		};
+	}, []);
+
 	const currentValue =
 		typeof effectiveValue === 'string'
 			? effectiveValue
-			: ((field.fieldSchema.type === 'color'
-					? field.fieldSchema.default
-					: '') ?? '');
+			: field.fieldSchema.type === 'color'
+				? field.fieldSchema.default
+				: '';
 
 	const hexValue = useMemo(() => toHex(currentValue), [currentValue]);
 
 	const onColorChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			const newValue = e.target.value;
-			if (propStatus.canUpdate && newValue !== propStatus.codeValue) {
-				onSave(newValue);
+			if (!propStatus.canUpdate) {
+				return;
 			}
+
+			onDragValueChange(newValue);
+
+			if (commitTimeoutRef.current) {
+				clearTimeout(commitTimeoutRef.current);
+			}
+
+			const commit = () => {
+				pendingCommitRef.current = null;
+				if (propStatus.canUpdate && newValue !== propStatus.codeValue) {
+					onSave(newValue);
+				}
+
+				onDragEnd();
+			};
+
+			pendingCommitRef.current = commit;
+
+			commitTimeoutRef.current = setTimeout(() => {
+				commitTimeoutRef.current = null;
+				commit();
+			}, 500);
 		},
-		[onSave, propStatus],
+		[onSave, onDragValueChange, onDragEnd, propStatus],
 	);
 
 	const onPickColor = useCallback(() => {
@@ -154,6 +204,7 @@ export const TimelineColorField: React.FC<{
 					? INPUT_BORDER_COLOR_HOVERED
 					: INPUT_BORDER_COLOR_UNHOVERED,
 			cursor: propStatus.canUpdate ? 'pointer' : 'not-allowed',
+			marginLeft: 5,
 		};
 	}, [isFocused, isHovered, propStatus.canUpdate]);
 
@@ -161,6 +212,8 @@ export const TimelineColorField: React.FC<{
 		return {
 			...swatchFillStyle,
 			backgroundColor: currentValue || hexValue,
+			position: 'absolute',
+			display: 'block',
 		};
 	}, [currentValue, hexValue]);
 

@@ -137,6 +137,8 @@ export const TimelineFieldValue: React.FC<{
 					field={field}
 					propStatus={propStatus}
 					onSave={onSave}
+					onDragValueChange={onDragValueChange}
+					onDragEnd={onDragEnd}
 					effectiveValue={effectiveValue}
 				/>
 			</span>
