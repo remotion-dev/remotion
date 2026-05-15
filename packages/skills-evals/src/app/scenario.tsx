@@ -81,7 +81,10 @@ const toRunListItems = ({
 		...comparisons.map((comparison) => ({
 			completedAt: comparison.completedAt,
 			href: toComparisonUrl(comparison),
-			metadata: `${comparison.before.hash} -> ${comparison.after.hash}`,
+			metadata:
+				comparison.runs && comparison.runs.length > 1
+					? `${comparison.runs.length} comparison runs`
+					: `${comparison.before.hash} -> ${comparison.after.hash}`,
 		})),
 		...runs.map((run) => ({
 			completedAt: run.completedAt,
@@ -127,6 +130,7 @@ const ScenarioPageScript = ({activeJob}: {activeJob: Job | undefined}) => (
 		dangerouslySetInnerHTML={{
 			__html: `
 const button = document.getElementById('run-comparison');
+const runCountSelect = document.getElementById('run-count');
 const panel = document.getElementById('active-job');
 const log = document.getElementById('job-log');
 const status = document.getElementById('job-status');
@@ -207,7 +211,9 @@ button?.addEventListener('click', async () => {
 		runLog[label].hidden = true;
 		runLog[label].textContent = '';
 	}
-	const response = await fetch(button.dataset.actionUrl, {
+	const actionUrl = new URL(button.dataset.actionUrl, location.origin);
+	actionUrl.searchParams.set('runs', runCountSelect.value);
+	const response = await fetch(actionUrl.pathname + actionUrl.search, {
 		method: 'POST',
 	});
 	const job = await response.json();
@@ -265,8 +271,12 @@ const ActiveJobPanel = ({
 				<h2 className="text-[0.9375rem] font-semibold">Active run</h2>
 				<p className="text-sm text-zinc-500">
 					{hasSkillChanges
-						? 'Before and after run in parallel once the skill diff is ready.'
-						: 'Scenario run without a before/after comparison.'}
+						? `Before and after run in parallel once the skill diff is ready${
+								job && job.runCount > 1 ? ` (${job.runCount} runs).` : '.'
+							}`
+						: `Scenario run without a before/after comparison${
+								job && job.runCount > 1 ? ` (${job.runCount} runs).` : '.'
+							}`}
 				</p>
 			</div>
 			<p className="mt-3 text-[0.8125rem] text-yellow-700" id="job-status">
@@ -301,18 +311,37 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 			<>
 				<Header
 					action={
-						<button
-							className="rounded-full bg-zinc-900 px-3 py-2 text-[0.8125rem] font-semibold text-white hover:bg-zinc-800 disabled:bg-zinc-300 disabled:text-zinc-500"
-							data-action-url={
-								skillDiffState.hasChanges
-									? `/api/compare/${encodeURIComponent(scenario.id)}`
-									: `/api/run/${encodeURIComponent(scenario.id)}`
-							}
-							data-scenario={scenario.id}
-							id="run-comparison"
-						>
-							{skillDiffState.hasChanges ? 'Run comparison' : 'Run'}
-						</button>
+						<div className="flex flex-wrap items-center gap-2">
+							<label
+								className="text-[0.8125rem] font-medium text-zinc-500"
+								htmlFor="run-count"
+							>
+								Runs
+							</label>
+							<select
+								className="rounded-full border border-zinc-200 bg-white px-3 py-2 text-[0.8125rem] font-semibold text-zinc-700"
+								defaultValue="1"
+								id="run-count"
+							>
+								{[1, 2, 3, 4].map((runCount) => (
+									<option key={runCount} value={runCount}>
+										{runCount}
+									</option>
+								))}
+							</select>
+							<button
+								className="rounded-full bg-zinc-900 px-3 py-2 text-[0.8125rem] font-semibold text-white hover:bg-zinc-800 disabled:bg-zinc-300 disabled:text-zinc-500"
+								data-action-url={
+									skillDiffState.hasChanges
+										? `/api/compare/${encodeURIComponent(scenario.id)}`
+										: `/api/run/${encodeURIComponent(scenario.id)}`
+								}
+								data-scenario={scenario.id}
+								id="run-comparison"
+							>
+								{skillDiffState.hasChanges ? 'Run comparison' : 'Run'}
+							</button>
+						</div>
 					}
 					subtitle={scenario.model}
 					title={scenario.id}

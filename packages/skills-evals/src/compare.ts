@@ -10,6 +10,7 @@ import {
 	writeJson,
 } from './files';
 import type {SkillEvalComparison} from './manifest';
+import {maxParallelSkillEvalRuns, validateSkillEvalRunCount} from './run-count';
 import {
 	runSkillEval,
 	type SkillEvalOutput,
@@ -25,25 +26,30 @@ export type SkillEvalComparisonEvent =
 	  }
 	| {
 			label: SkillEvalComparisonRunLabel;
+			runIndex: number;
 			type: 'run-start';
 	  }
 	| {
 			event: SkillEvalPhaseEvent;
 			label: SkillEvalComparisonRunLabel;
+			runIndex: number;
 			type: 'run-phase';
 	  }
 	| {
 			label: SkillEvalComparisonRunLabel;
 			output: SkillEvalOutput;
+			runIndex: number;
 			type: 'run-output';
 	  }
 	| {
 			label: SkillEvalComparisonRunLabel;
+			runIndex: number;
 			type: 'run-complete';
 	  }
 	| {
 			error: string;
 			label: SkillEvalComparisonRunLabel;
+			runIndex: number;
 			type: 'run-error';
 	  };
 
@@ -60,6 +66,7 @@ type SkillEvalComparisonResult =
 type SkillEvalComparisonOptions = {
 	onEvent?: (event: SkillEvalComparisonEvent) => void;
 	onLog?: (chunk: string) => void;
+	runCount?: number;
 };
 
 type BeforeSkillsSource = {
@@ -75,6 +82,43 @@ const comparisonsRoot = join(runsRoot, 'comparisons');
 
 const getErrorMessage = (error: unknown) =>
 	error instanceof Error ? error.message : String(error);
+
+const runWithConcurrency = async <TInput, TOutput>({
+	inputs,
+	limit,
+	worker,
+}: {
+	inputs: TInput[];
+	limit: number;
+	worker: (input: TInput) => Promise<TOutput>;
+}) => {
+	const results: TOutput[] = [];
+	let nextIndex = 0;
+	let firstError: unknown = null;
+	const workerCount = Math.min(limit, inputs.length);
+
+	await Promise.allSettled(
+		Array.from({length: workerCount}, async () => {
+			while (nextIndex < inputs.length && !firstError) {
+				const currentIndex = nextIndex;
+				nextIndex++;
+
+				try {
+					results[currentIndex] = await worker(inputs[currentIndex]);
+				} catch (error) {
+					firstError ??= error;
+					throw error;
+				}
+			}
+		}),
+	);
+
+	if (firstError) {
+		throw firstError;
+	}
+
+	return results;
+};
 
 const copyGitSkills = async ({gitRef, to}: {gitRef: string; to: string}) => {
 	await mkdir(to, {recursive: true});
@@ -113,6 +157,7 @@ export const runSkillEvalComparison = async (
 	scenario: SkillEvalScenario,
 	options: SkillEvalComparisonOptions = {},
 ): Promise<SkillEvalComparisonResult> => {
+	const runCount = validateSkillEvalRunCount(options.runCount);
 	const comparisonId = `${createTimestamp()}--${sanitizePathPart(scenario.id)}`;
 	const comparisonDir = join(
 		comparisonsRoot,
@@ -165,38 +210,57 @@ export const runSkillEvalComparison = async (
 
 	await writeFile(skillDiffPath, `${diff.stdout}${diff.stderr}`);
 
+	const formatRun = (label: SkillEvalComparisonRunLabel, runIndex: number) =>
+		runCount === 1 ? label : `${label}#${runIndex}`;
+
 	const forwardOutput =
-		(label: SkillEvalComparisonRunLabel) => (output: SkillEvalOutput) => {
-			options.onEvent?.({label, output, type: 'run-output'});
+		(label: SkillEvalComparisonRunLabel, runIndex: number) =>
+		(output: SkillEvalOutput) => {
+			options.onEvent?.({label, output, runIndex, type: 'run-output'});
 			options.onLog?.(
-				`[${label} ${output.phase} ${output.stream}] ${output.chunk}`,
+				`[${formatRun(label, runIndex)} ${output.phase} ${
+					output.stream
+				}] ${output.chunk}`,
 			);
 		};
 
 	const forwardPhase =
-		(label: SkillEvalComparisonRunLabel) => (event: SkillEvalPhaseEvent) => {
-			options.onEvent?.({event, label, type: 'run-phase'});
-			options.onLog?.(`[${label} ${event.phase}] ${event.status}\n`);
+		(label: SkillEvalComparisonRunLabel, runIndex: number) =>
+		(event: SkillEvalPhaseEvent) => {
+			options.onEvent?.({event, label, runIndex, type: 'run-phase'});
+			options.onLog?.(
+				`[${formatRun(label, runIndex)} ${event.phase}] ${event.status}\n`,
+			);
 		};
 
-	const abortControllers: Record<SkillEvalComparisonRunLabel, AbortController> =
-		{
-			after: new AbortController(),
-			before: new AbortController(),
-		};
-	let firstSnapshotError: unknown = null;
-	const runSnapshot = async (label: SkillEvalComparisonRunLabel) => {
-		emitMessage(`[compare] Running ${label} snapshot\n`);
-		options.onEvent?.({label, type: 'run-start'});
+	type SnapshotTask = {
+		label: SkillEvalComparisonRunLabel;
+		runIndex: number;
+	};
+	const abortControllers = new Set<AbortController>();
+	const abortAll = () => {
+		for (const controller of abortControllers) {
+			controller.abort();
+		}
+	};
+
+	const runSnapshot = async ({label, runIndex}: SnapshotTask) => {
+		const controller = new AbortController();
+		abortControllers.add(controller);
+		emitMessage(`[compare] Running ${formatRun(label, runIndex)} snapshot\n`);
+		options.onEvent?.({label, runIndex, type: 'run-start'});
 
 		try {
 			const result = await runSkillEval({
 				...scenario,
-				onOutput: forwardOutput(label),
-				onPhase: forwardPhase(label),
-				runLabel: label,
+				onOutput: forwardOutput(label, runIndex),
+				onPhase: forwardPhase(label, runIndex),
+				runLabel:
+					runCount === 1
+						? label
+						: `${label}-${String(runIndex).padStart(2, '0')}`,
 				runRoot: join(comparisonDir, 'runs'),
-				signal: abortControllers[label].signal,
+				signal: controller.signal,
 				skillSnapshot:
 					label === 'before'
 						? {
@@ -211,74 +275,77 @@ export const runSkillEvalComparison = async (
 					label === 'before' ? beforeSkillsPath : afterSkillsPath,
 			});
 
-			options.onEvent?.({label, type: 'run-complete'});
-			return result;
+			options.onEvent?.({label, runIndex, type: 'run-complete'});
+			return {label, result, runIndex};
 		} catch (error) {
 			options.onEvent?.({
 				error: getErrorMessage(error),
 				label,
+				runIndex,
 				type: 'run-error',
 			});
+			abortAll();
 			throw error;
+		} finally {
+			abortControllers.delete(controller);
 		}
 	};
 
-	const runSnapshotWithSiblingCancellation = async (
-		label: SkillEvalComparisonRunLabel,
-		sibling: SkillEvalComparisonRunLabel,
-	) => {
-		try {
-			return await runSnapshot(label);
-		} catch (error) {
-			if (!firstSnapshotError) {
-				firstSnapshotError = error;
-				abortControllers[sibling].abort();
-			}
+	const snapshotTasks = Array.from({length: runCount}, (_, index) => index + 1)
+		.map((runIndex) => [
+			{label: 'before' as const, runIndex},
+			{label: 'after' as const, runIndex},
+		])
+		.flat();
+	const snapshotResults = await runWithConcurrency({
+		inputs: snapshotTasks,
+		limit: maxParallelSkillEvalRuns,
+		worker: runSnapshot,
+	});
+	const resultsByKey = new Map(
+		snapshotResults.map((snapshot) => [
+			`${snapshot.label}:${snapshot.runIndex}`,
+			snapshot.result,
+		]),
+	);
+	const runPairs = Array.from({length: runCount}, (_, index) => {
+		const runIndex = index + 1;
+		const before = resultsByKey.get(`before:${runIndex}`);
+		const after = resultsByKey.get(`after:${runIndex}`);
 
-			throw error;
+		if (!before || !after) {
+			throw new Error(`Missing results for comparison run ${runIndex}.`);
 		}
-	};
 
-	const [beforeResult, afterResult] = await Promise.allSettled([
-		runSnapshotWithSiblingCancellation('before', 'after'),
-		runSnapshotWithSiblingCancellation('after', 'before'),
-	]);
-
-	if (firstSnapshotError) {
-		throw firstSnapshotError;
-	}
-
-	if (beforeResult.status === 'rejected') {
-		throw beforeResult.reason;
-	}
-
-	if (afterResult.status === 'rejected') {
-		throw afterResult.reason;
-	}
-
-	const before = beforeResult.value;
-	const after = afterResult.value;
+		return {
+			after: {
+				hash: after.manifest.skillSnapshot.hash,
+				isWorkingTree: true,
+				label: 'after' as const,
+				manifestPath: after.manifestPath,
+				skillsPath: afterSkillsPath,
+			},
+			before: {
+				gitRef: beforeSource.gitRef,
+				hash: before.manifest.skillSnapshot.hash,
+				label: 'before' as const,
+				manifestPath: before.manifestPath,
+				source: beforeSource.source,
+				skillsPath: beforeSkillsPath,
+			},
+			index: runIndex,
+		};
+	});
 	const completedAt = new Date().toISOString();
 	const comparison: SkillEvalComparison = {
-		after: {
-			hash: after.manifest.skillSnapshot.hash,
-			isWorkingTree: true,
-			label: 'after',
-			manifestPath: after.manifestPath,
-			skillsPath: afterSkillsPath,
-		},
-		before: {
-			gitRef: beforeSource.gitRef,
-			hash: before.manifest.skillSnapshot.hash,
-			label: 'before',
-			manifestPath: before.manifestPath,
-			source: beforeSource.source,
-			skillsPath: beforeSkillsPath,
-		},
+		after: runPairs[0].after,
+		before: runPairs[0].before,
 		completedAt,
 		comparisonDir,
 		createdAt,
 		id: comparisonId,
+		runCount,
+		runs: runPairs,
 		scenarioId: scenario.id,
 		skillDiffPath,
 	};

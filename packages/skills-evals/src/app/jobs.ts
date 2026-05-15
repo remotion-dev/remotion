@@ -5,6 +5,10 @@ import {
 	type SkillEvalComparisonEvent,
 	type SkillEvalComparisonRunLabel,
 } from '../compare';
+import {
+	maxParallelSkillEvalRuns,
+	validateSkillEvalRunCount,
+} from '../run-count';
 import {runSkillEval, type SkillEvalPhase} from '../run-skill-eval';
 import {toComparisonUrl} from './shared';
 
@@ -19,6 +23,7 @@ export type Job = {
 	error?: string;
 	message?: string;
 	resultUrl?: string;
+	runCount: number;
 };
 
 export type JobRun = {
@@ -69,7 +74,36 @@ export const getActiveJob = (scenarioId: string) =>
 		(job) => job.scenarioId === scenarioId && job.status === 'running',
 	);
 
-export const startComparison = (scenario: SkillEvalScenario) => {
+const runWithConcurrency = async <TInput, TOutput>({
+	inputs,
+	limit,
+	worker,
+}: {
+	inputs: TInput[];
+	limit: number;
+	worker: (input: TInput) => Promise<TOutput>;
+}) => {
+	const results: TOutput[] = [];
+	let nextIndex = 0;
+
+	await Promise.all(
+		Array.from({length: Math.min(limit, inputs.length)}, async () => {
+			while (nextIndex < inputs.length) {
+				const currentIndex = nextIndex;
+				nextIndex++;
+				results[currentIndex] = await worker(inputs[currentIndex]);
+			}
+		}),
+	);
+
+	return results;
+};
+
+export const startComparison = (
+	scenario: SkillEvalScenario,
+	runCountInput?: number,
+) => {
+	const runCount = validateSkillEvalRunCount(runCountInput);
 	const existingJob = getActiveJob(scenario.id);
 
 	if (existingJob) {
@@ -80,6 +114,7 @@ export const startComparison = (scenario: SkillEvalScenario) => {
 		id: `${Date.now()}-${scenario.id}`,
 		logs: [],
 		message: 'Preparing comparison...',
+		runCount,
 		runs: createJobRuns(),
 		scenarioId: scenario.id,
 		startedAt: new Date().toISOString(),
@@ -101,7 +136,7 @@ export const startComparison = (scenario: SkillEvalScenario) => {
 		if (running.length > 0) {
 			job.message = `${running.join(' and ')} ${
 				running.length === 1 ? 'is' : 'are'
-			} generating.`;
+			} generating${job.runCount > 1 ? ` across ${job.runCount} runs` : ''}.`;
 			return;
 		}
 
@@ -127,23 +162,27 @@ export const startComparison = (scenario: SkillEvalScenario) => {
 
 		if (event.type === 'run-start') {
 			run.status = 'running';
-			run.message = `${formatRunLabel(event.label)} is generating.`;
+			run.message = `${formatRunLabel(event.label)} ${
+				job.runCount > 1 ? `#${event.runIndex} ` : ''
+			}is generating.`;
 			updateJobMessage();
 			return;
 		}
 
 		if (event.type === 'run-phase') {
 			run.status = 'running';
-			run.message = `${phaseLabels[event.event.phase]}${
-				event.event.status === 'completed' ? ' complete' : ''
-			}`;
+			run.message = `${job.runCount > 1 ? `#${event.runIndex}: ` : ''}${
+				phaseLabels[event.event.phase]
+			}${event.event.status === 'completed' ? ' complete' : ''}`;
 			updateJobMessage();
 			return;
 		}
 
 		if (event.type === 'run-output') {
 			run.status = 'running';
-			run.message = `${phaseLabels[event.output.phase]} (${event.output.stream})`;
+			run.message = `${job.runCount > 1 ? `#${event.runIndex}: ` : ''}${
+				phaseLabels[event.output.phase]
+			} (${event.output.stream})`;
 			run.logs.push(event.output.chunk);
 			trimLog(run.logs, 1000);
 			updateJobMessage();
@@ -152,7 +191,9 @@ export const startComparison = (scenario: SkillEvalScenario) => {
 
 		if (event.type === 'run-complete') {
 			run.status = 'completed';
-			run.message = `${formatRunLabel(event.label)} complete.`;
+			run.message = `${formatRunLabel(event.label)} ${
+				job.runCount > 1 ? `#${event.runIndex} ` : ''
+			}complete.`;
 			updateJobMessage();
 			return;
 		}
@@ -164,6 +205,7 @@ export const startComparison = (scenario: SkillEvalScenario) => {
 
 	const comparisonPromise = runSkillEvalComparison(scenario, {
 		onEvent: handleEvent,
+		runCount,
 	})
 		.then((result) => {
 			if (result.skipped) {
@@ -186,7 +228,11 @@ export const startComparison = (scenario: SkillEvalScenario) => {
 	return job;
 };
 
-export const startRun = (scenario: SkillEvalScenario) => {
+export const startRun = (
+	scenario: SkillEvalScenario,
+	runCountInput?: number,
+) => {
+	const runCount = validateSkillEvalRunCount(runCountInput);
 	const existingJob = getActiveJob(scenario.id);
 
 	if (existingJob) {
@@ -197,6 +243,7 @@ export const startRun = (scenario: SkillEvalScenario) => {
 		id: `${Date.now()}-${scenario.id}`,
 		logs: [],
 		message: 'Preparing run...',
+		runCount,
 		runs: createJobRuns(),
 		scenarioId: scenario.id,
 		startedAt: new Date().toISOString(),
@@ -208,31 +255,55 @@ export const startRun = (scenario: SkillEvalScenario) => {
 	job.runs.before.status = 'completed';
 	jobs.set(job.id, job);
 
-	const runPromise = runSkillEval({
-		...scenario,
-		onPhase: (event) => {
-			run.status = 'running';
-			run.message = `${phaseLabels[event.phase]}${
-				event.status === 'completed' ? ' complete' : ''
-			}`;
-			job.message = 'Running scenario...';
-		},
-		onOutput: (output) => {
-			run.status = 'running';
-			run.message = `${phaseLabels[output.phase]} (${output.stream})`;
-			run.logs.push(output.chunk);
-			trimLog(run.logs, 1000);
-			job.message = 'Running scenario...';
-		},
-		skillSnapshot: {
-			isWorkingTree: true,
-			label: 'after',
-		},
+	const runPromise = runWithConcurrency({
+		inputs: Array.from({length: runCount}, (_, index) => index + 1),
+		limit: maxParallelSkillEvalRuns,
+		worker: (runIndex) =>
+			runSkillEval({
+				...scenario,
+				onPhase: (event) => {
+					run.status = 'running';
+					run.message = `${
+						runCount > 1 ? `Run #${runIndex}: ` : ''
+					}${phaseLabels[event.phase]}${
+						event.status === 'completed' ? ' complete' : ''
+					}`;
+					job.message = `Running scenario${
+						runCount > 1 ? ` (${runCount} runs)` : ''
+					}...`;
+				},
+				onOutput: (output) => {
+					run.status = 'running';
+					run.message = `${
+						runCount > 1 ? `Run #${runIndex}: ` : ''
+					}${phaseLabels[output.phase]} (${output.stream})`;
+					run.logs.push(output.chunk);
+					trimLog(run.logs, 1000);
+					job.message = `Running scenario${
+						runCount > 1 ? ` (${runCount} runs)` : ''
+					}...`;
+				},
+				runLabel:
+					runCount === 1
+						? undefined
+						: `run-${String(runIndex).padStart(2, '0')}`,
+				skillSnapshot: {
+					isWorkingTree: true,
+					label: 'after',
+				},
+			}),
 	})
-		.then((result) => {
+		.then((results) => {
+			const result = results[0];
+
+			if (!result) {
+				throw new Error('No run result was produced.');
+			}
+
 			run.status = 'completed';
-			run.message = 'Run complete.';
-			job.message = 'Run complete.';
+			run.message =
+				runCount === 1 ? 'Run complete.' : `${runCount} runs complete.`;
+			job.message = run.message;
 			job.resultUrl = `/runs/${encodeURIComponent(
 				result.manifest.id,
 			)}/${encodeURIComponent(basename(result.manifest.runDir))}`;

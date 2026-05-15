@@ -151,7 +151,9 @@ const ComparisonDiffScript = () => (
 );
 
 export const renderComparison = (comparisonData: ComparisonWithManifests) => {
-	const {afterManifest, beforeManifest, comparison, skillDiff} = comparisonData;
+	const {afterManifest, beforeManifest, comparison, runs, skillDiff} =
+		comparisonData;
+	const hasBatch = runs.length > 1;
 
 	return page({
 		children: (
@@ -173,18 +175,39 @@ export const renderComparison = (comparisonData: ComparisonWithManifests) => {
 					title={comparison.scenarioId}
 				/>
 				<main className="grid min-w-0 gap-4">
-					<div className="grid grid-cols-2 gap-3 max-lg:grid-cols-1">
-						<RunPanel
-							label="Before"
-							manifest={beforeManifest}
-							manifestPath={comparison.before.manifestPath}
-						/>
-						<RunPanel
-							label="After"
-							manifest={afterManifest}
-							manifestPath={comparison.after.manifestPath}
-						/>
-					</div>
+					{runs.map((run) => {
+						const runMetadata = comparison.runs?.find(
+							(candidate) => candidate.index === run.index,
+						);
+
+						return (
+							<section className="grid min-w-0 gap-3" key={run.index}>
+								{hasBatch ? (
+									<h2 className="text-[0.9375rem] font-semibold">
+										Run #{run.index}
+									</h2>
+								) : null}
+								<div className="grid grid-cols-2 gap-3 max-lg:grid-cols-1">
+									<RunPanel
+										label="Before"
+										manifest={run.beforeManifest}
+										manifestPath={
+											runMetadata?.before.manifestPath ??
+											comparison.before.manifestPath
+										}
+									/>
+									<RunPanel
+										label="After"
+										manifest={run.afterManifest}
+										manifestPath={
+											runMetadata?.after.manifestPath ??
+											comparison.after.manifestPath
+										}
+									/>
+								</div>
+							</section>
+						);
+					})}
 					<details
 						className="min-w-0 rounded-2xl border border-zinc-200 bg-white p-4"
 						open

@@ -37,7 +37,7 @@ type SkillEvalScenarioInput = SkillEvalScenario & {
 	onOutput?: (output: SkillEvalOutput) => void;
 	onPhase?: (event: SkillEvalPhaseEvent) => void;
 	runRoot?: string;
-	runLabel?: 'before' | 'after';
+	runLabel?: string;
 	signal?: AbortSignal;
 	skillsSourcePath?: string;
 	skillSnapshot?: Partial<
