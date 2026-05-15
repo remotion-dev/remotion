@@ -49,14 +49,9 @@ const Value: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 
-	const {getCodeValues} = useContext(
-		Internals.VisualModeSequenceCodeValuesContext,
-	);
 	const {getEffectCodeValues} = useContext(
 		Internals.VisualModeEffectCodeValuesContext,
 	);
-
-	const codeValuesForSequence = getCodeValues(nodePath);
 
 	const codeValues = getEffectCodeValues(nodePath, field.effectIndex);
 
@@ -80,7 +75,7 @@ const Value: React.FC<{
 
 	const onSave = useCallback(
 		(value: unknown) => {
-			if (!codeValuesForSequence || !validatedLocation || !nodePath) {
+			if (!validatedLocation || !nodePath) {
 				return Promise.reject(new Error('Cannot save'));
 			}
 
@@ -164,7 +159,6 @@ const Value: React.FC<{
 				});
 		},
 		[
-			codeValuesForSequence,
 			field.effectIndex,
 			field.effectSchema,
 			field.fieldSchema.default,
