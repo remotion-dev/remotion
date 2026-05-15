@@ -49,8 +49,11 @@ const Value: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 
-	const {getEffectCodeValues, getCodeValues} = useContext(
-		Internals.VisualModeCodeValuesContext,
+	const {getCodeValues} = useContext(
+		Internals.VisualModeSequenceCodeValuesContext,
+	);
+	const {getEffectCodeValues} = useContext(
+		Internals.VisualModeEffectCodeValuesContext,
 	);
 
 	const codeValuesForSequence = getCodeValues(nodePath);

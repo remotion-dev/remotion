@@ -8,8 +8,8 @@ import {
 import type {SequenceSchema} from './sequence-field-schema.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {
-	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
+	VisualModeSequenceCodeValuesContext,
 } from './SequenceManager.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {computeEffectiveSchemaValuesDotNotation} from './use-schema.js';
@@ -124,7 +124,7 @@ export const wrapInSchema = <S extends SequenceSchema, Props extends object>(
 		}
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const {getCodeValues} = useContext(VisualModeCodeValuesContext);
+		const {getCodeValues} = useContext(VisualModeSequenceCodeValuesContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const {getDragOverrides} = useContext(VisualModeDragOverridesContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks

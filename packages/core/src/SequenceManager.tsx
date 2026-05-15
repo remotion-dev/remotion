@@ -42,8 +42,11 @@ export const SequenceVisibilityToggleContext =
 		},
 	});
 
-export type VisualModeCodeValues = {
+export type VisualModeSequenceCodeValues = {
 	getCodeValues: GetCodeValues;
+};
+
+export type VisualModeEffectCodeValues = {
 	getEffectCodeValues: GetEffectCodeValues;
 };
 
@@ -153,15 +156,73 @@ const getEffectCodeValuesCtx = ({
 	return effect.props;
 };
 
+const didSequenceCodeValuesChange = (
+	prev: CanUpdateSequencePropsResponse | undefined,
+	next: CanUpdateSequencePropsResponse | undefined,
+): boolean => {
+	if (prev === next) {
+		return false;
+	}
+
+	if (!prev || !next) {
+		return true;
+	}
+
+	if (prev.canUpdate !== next.canUpdate) {
+		return true;
+	}
+
+	if (!prev.canUpdate && !next.canUpdate) {
+		return prev.reason !== next.reason;
+	}
+
+	if (!prev.canUpdate || !next.canUpdate) {
+		return true;
+	}
+
+	return prev.props !== next.props;
+};
+
+const didEffectCodeValuesChange = (
+	prev: CanUpdateSequencePropsResponse | undefined,
+	next: CanUpdateSequencePropsResponse | undefined,
+): boolean => {
+	if (prev === next) {
+		return false;
+	}
+
+	if (!prev || !next) {
+		return true;
+	}
+
+	if (prev.canUpdate !== next.canUpdate) {
+		return true;
+	}
+
+	if (!prev.canUpdate && !next.canUpdate) {
+		return prev.reason !== next.reason;
+	}
+
+	if (!prev.canUpdate || !next.canUpdate) {
+		return true;
+	}
+
+	return prev.effects !== next.effects;
+};
+
 export type GetCodeValuesType = typeof getCodeValuesCtx;
 
-export const VisualModeCodeValuesContext =
-	React.createContext<VisualModeCodeValues>({
+export const VisualModeSequenceCodeValuesContext =
+	React.createContext<VisualModeSequenceCodeValues>({
 		getCodeValues: () => {
-			throw new Error('VisualModeCodeValuesContext not initialized');
+			throw new Error('VisualModeSequenceCodeValuesContext not initialized');
 		},
+	});
+
+export const VisualModeEffectCodeValuesContext =
+	React.createContext<VisualModeEffectCodeValues>({
 		getEffectCodeValues: () => {
-			throw new Error('VisualModeCodeValuesContext not initialized');
+			throw new Error('VisualModeEffectCodeValuesContext not initialized');
 		},
 	});
 
@@ -216,7 +277,14 @@ export const SequenceManagerProvider: React.FC<{
 	controlOverridesRef.current = dragOverrides;
 	const [effectDragOverridesState, setEffectDragOverridesState] =
 		useState<EffectDragOverrides>({});
-	const [codeValues, setCodeValuesMapState] = useState<CodeValues>({});
+	const [codeValuesStore, setCodeValuesStore] = useState<{
+		codeValues: CodeValues;
+		sequenceVersion: number;
+		effectVersion: number;
+	}>({codeValues: {}, sequenceVersion: 0, effectVersion: 0});
+	const codeValuesRef = useRef<CodeValues>(codeValuesStore.codeValues);
+	codeValuesRef.current = codeValuesStore.codeValues;
+	const {sequenceVersion, effectVersion} = codeValuesStore;
 
 	const setDragOverrides = useCallback(
 		(nodePath: SequencePropsSubscriptionKey, key: string, value: unknown) => {
@@ -291,17 +359,41 @@ export const SequenceManagerProvider: React.FC<{
 				prev: CanUpdateSequencePropsResponse,
 			) => CanUpdateSequencePropsResponse,
 		) => {
-			setCodeValuesMapState((prev) => {
+			setCodeValuesStore((prev) => {
 				const key = makeSequencePropsSubscriptionKey(nodePath);
 
-				const prevKey = prev[key];
+				const prevKey = prev.codeValues[key];
 				const newKey = values(prevKey);
 
 				if (prevKey === newKey) {
 					return prev;
 				}
 
-				return {...prev, [key]: newKey};
+				const nextCodeValues = {...prev.codeValues, [key]: newKey};
+				const sequenceChanged = didSequenceCodeValuesChange(prevKey, newKey);
+				const effectChanged = didEffectCodeValuesChange(prevKey, newKey);
+
+				let nextSequenceVersion = prev.sequenceVersion;
+				let nextEffectVersion = prev.effectVersion;
+
+				if (sequenceChanged) {
+					nextSequenceVersion++;
+				}
+
+				if (effectChanged) {
+					nextEffectVersion++;
+				}
+
+				if (!sequenceChanged && !effectChanged) {
+					nextSequenceVersion++;
+					nextEffectVersion++;
+				}
+
+				return {
+					codeValues: nextCodeValues,
+					sequenceVersion: nextSequenceVersion,
+					effectVersion: nextEffectVersion,
+				};
 			});
 		},
 		[],
@@ -350,26 +442,27 @@ export const SequenceManagerProvider: React.FC<{
 		[effectDragOverridesState],
 	);
 
-	const getCodeValues = useCallback(
-		(nodePath: SequencePropsSubscriptionKey) => {
-			return getCodeValuesCtx(codeValues, nodePath);
-		},
-		[codeValues],
-	);
+	const sequenceCodeValuesContext: VisualModeSequenceCodeValues =
+		useMemo(() => {
+			return {
+				getCodeValues: (nodePath: SequencePropsSubscriptionKey) =>
+					getCodeValuesCtx(codeValuesRef.current, nodePath),
+			};
+		}, [sequenceVersion]);
 
-	const getEffectCodeValues = useCallback(
-		(nodePath: SequencePropsSubscriptionKey, effectIndex: number) => {
-			return getEffectCodeValuesCtx({codeValues, nodePath, effectIndex});
-		},
-		[codeValues],
-	);
-
-	const codeValuesContext: VisualModeCodeValues = useMemo(() => {
+	const effectCodeValuesContext: VisualModeEffectCodeValues = useMemo(() => {
 		return {
-			getCodeValues,
-			getEffectCodeValues,
+			getEffectCodeValues: (
+				nodePath: SequencePropsSubscriptionKey,
+				effectIndex: number,
+			) =>
+				getEffectCodeValuesCtx({
+					codeValues: codeValuesRef.current,
+					nodePath,
+					effectIndex,
+				}),
 		};
-	}, [getCodeValues, getEffectCodeValues]);
+	}, [effectVersion]);
 
 	const dragOverridesContext: VisualModeDragOverrides = useMemo(() => {
 		return {
@@ -397,13 +490,21 @@ export const SequenceManagerProvider: React.FC<{
 	return (
 		<SequenceManager.Provider value={sequenceContext}>
 			<SequenceVisibilityToggleContext.Provider value={hiddenContext}>
-				<VisualModeCodeValuesContext.Provider value={codeValuesContext}>
-					<VisualModeDragOverridesContext.Provider value={dragOverridesContext}>
-						<VisualModeSettersContext.Provider value={settersContext}>
-							{children}
-						</VisualModeSettersContext.Provider>
-					</VisualModeDragOverridesContext.Provider>
-				</VisualModeCodeValuesContext.Provider>
+				<VisualModeSequenceCodeValuesContext.Provider
+					value={sequenceCodeValuesContext}
+				>
+					<VisualModeEffectCodeValuesContext.Provider
+						value={effectCodeValuesContext}
+					>
+						<VisualModeDragOverridesContext.Provider
+							value={dragOverridesContext}
+						>
+							<VisualModeSettersContext.Provider value={settersContext}>
+								{children}
+							</VisualModeSettersContext.Provider>
+						</VisualModeDragOverridesContext.Provider>
+					</VisualModeEffectCodeValuesContext.Provider>
+				</VisualModeSequenceCodeValuesContext.Provider>
 			</SequenceVisibilityToggleContext.Provider>
 		</SequenceManager.Provider>
 	);

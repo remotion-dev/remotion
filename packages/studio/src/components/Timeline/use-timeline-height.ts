@@ -20,7 +20,9 @@ export const useTimelineHeight = ({
 }): number => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {getCodeValues} = useContext(
+		Internals.VisualModeSequenceCodeValuesContext,
+	);
 
 	const previewServerConnected = previewServerState.type === 'connected';
 

@@ -200,7 +200,9 @@ export const TimelineFieldRow: React.FC<{
 	nodePath,
 	schema,
 }) => {
-	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {getCodeValues} = useContext(
+		Internals.VisualModeSequenceCodeValuesContext,
+	);
 
 	const codeValuesForOverride = getCodeValues(nodePath);
 	const codeValue = codeValuesForOverride?.[field.key] ?? null;

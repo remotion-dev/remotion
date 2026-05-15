@@ -1,8 +1,8 @@
 import {useContext, useRef} from 'react';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import {
-	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
+	VisualModeEffectCodeValuesContext,
 } from '../SequenceManager.js';
 import type {
 	EffectDefinition,
@@ -98,7 +98,7 @@ export const useMemoizedEffects = ({
 }): EffectDefinitionAndStack<unknown>[] => {
 	const previousRef = useRef<EffectDefinitionAndStack<unknown>[] | null>(null);
 
-	const {getEffectCodeValues} = useContext(VisualModeCodeValuesContext);
+	const {getEffectCodeValues} = useContext(VisualModeEffectCodeValuesContext);
 	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
 
 	const {overrideIdToNodePathMappings} = useContext(
