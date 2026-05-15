@@ -42,6 +42,7 @@ const SUPPORTED_SCHEMA_TYPES = [
 	'boolean',
 	'rotation',
 	'translate',
+	'color',
 	'enum',
 	'hidden',
 ] as const;

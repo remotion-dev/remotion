@@ -4,8 +4,14 @@ import {Internals} from 'remotion';
 const {createEffect} = Internals;
 
 const DEFAULT_AMOUNT = 0.5 as const;
+const DEFAULT_COLOR = '#ff0000' as const;
 
 export const tintSchema = {
+	color: {
+		type: 'color',
+		default: DEFAULT_COLOR,
+		description: 'Color',
+	},
 	amount: {
 		type: 'number',
 		min: 0,
