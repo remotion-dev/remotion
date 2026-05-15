@@ -1,0 +1,29 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/skills-evals"
+	},
+	"name": "@remotion/skills-evals",
+	"version": "4.0.461",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "bun src/server.tsx",
+		"eval": "bun src/cli.ts",
+		"format": "oxfmt src scenarios.ts",
+		"formatting": "oxfmt src scenarios.ts --check",
+		"lint": "eslint src && tsgo"
+	},
+	"dependencies": {
+		"@remotion/skills": "workspace:*",
+		"react": "catalog:",
+		"react-dom": "catalog:"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@types/bun": "catalog:",
+		"@types/react": "catalog:",
+		"@types/react-dom": "catalog:",
+		"@typescript/native-preview": "catalog:",
+		"eslint": "catalog:"
+	}
+}

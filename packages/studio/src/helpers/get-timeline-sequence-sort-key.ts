@@ -1,7 +1,8 @@
-import type {SequenceNodePath, TSequence} from 'remotion';
+import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
 
 export type SequenceNodePathInfo = {
-	nodePath: SequenceNodePath;
+	sequenceSubscriptionKey: SequencePropsSubscriptionKey;
+	auxiliaryKeys: string[];
 	index: number;
 	numberOfSequencesWithThisNodePath: number;
 };

@@ -58,7 +58,7 @@ export const TimelineNumberField: React.FC<{
 					parsed !== propStatus.codeValue
 				) {
 					setDragValue(parsed);
-					onSave(parsed).catch(() => {
+					onSave(parsed).finally(() => {
 						setDragValue(null);
 					});
 				}
