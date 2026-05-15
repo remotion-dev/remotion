@@ -16,7 +16,7 @@ import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
 import {useMemoizedEffects} from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
-import {sequenceStyleSchema} from './sequence-field-schema.js';
+import {hiddenField, sequenceStyleSchema} from './sequence-field-schema.js';
 import type {
 	AbsoluteFillLayout,
 	LayoutAndStyle,
@@ -530,10 +530,12 @@ const HtmlInCanvasInner = forwardRef<
 
 HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
-const HtmlInCanvasWrapped = wrapInSchema(
-	HtmlInCanvasInner,
-	sequenceStyleSchema,
-);
+const htmlInCanvasSchema = {
+	...sequenceStyleSchema,
+	hidden: hiddenField,
+};
+
+const HtmlInCanvasWrapped = wrapInSchema(HtmlInCanvasInner, htmlInCanvasSchema);
 
 export const HtmlInCanvas = Object.assign(HtmlInCanvasWrapped, {
 	isSupported: isHtmlInCanvasSupported,

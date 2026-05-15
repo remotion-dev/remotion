@@ -101,12 +101,14 @@ export const sequenceStyleSchema = {
 	},
 } as const satisfies SequenceSchema;
 
+export const hiddenField: SequenceFieldSchema = {
+	type: 'boolean',
+	default: false,
+	description: 'Hidden',
+};
+
 export const sequenceSchema = {
-	hidden: {
-		type: 'boolean',
-		default: false,
-		description: 'Hidden',
-	},
+	hidden: hiddenField,
 	layout: {
 		type: 'enum',
 		default: 'absolute-fill',
