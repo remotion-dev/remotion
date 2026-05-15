@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.461",
+	"version": "4.0.462",
 	"description": "Experimental presets for Remotion canvas effect hooks",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -55,10 +55,18 @@
 	},
 	"typesVersions": {
 		">=1.0": {
-			"halftone": ["dist/halftone.d.ts"],
-			"tint": ["dist/tint.d.ts"],
-			"wave": ["dist/wave.d.ts"],
-			"blur": ["dist/entrypoints/blur.d.ts"]
+			"halftone": [
+				"dist/halftone.d.ts"
+			],
+			"tint": [
+				"dist/tint.d.ts"
+			],
+			"wave": [
+				"dist/wave.d.ts"
+			],
+			"blur": [
+				"dist/entrypoints/blur.d.ts"
+			]
 		}
 	},
 	"devDependencies": {

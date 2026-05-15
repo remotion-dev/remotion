@@ -10,3 +10,6 @@ Config.overrideWebpackConfig(async (config) => {
 });
 
 Config.setExperimentalClientSideRenderingEnabled(true);
+Config.setBrowserExecutable(
+	'/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
+);
