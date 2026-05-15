@@ -3,4 +3,5 @@ export type {
 	EffectDefinitionAndStack,
 	EffectDescriptor,
 	EffectsProp,
+	EffectDefinition,
 } from './effect-types.js';

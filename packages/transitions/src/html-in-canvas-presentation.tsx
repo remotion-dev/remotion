@@ -54,9 +54,10 @@ export const HtmlInCanvasPresentation = <
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
 
-	const memoizedEffects = Internals.useMemoizedEffects(
-		Internals.flattenEffects(_experimentalEffects ?? []),
-	);
+	const memoizedEffects = Internals.useMemoizedEffects({
+		effects: _experimentalEffects ?? [],
+		overrideId: null,
+	});
 
 	const effectsRef = useRef(memoizedEffects);
 	effectsRef.current = memoizedEffects;

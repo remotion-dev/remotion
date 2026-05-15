@@ -2,12 +2,12 @@ import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import type {
-	SaveSequencePropsRequest,
-	SaveSequencePropsResponse,
+	SaveEffectPropsRequest,
+	SaveEffectPropsResponse,
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
-import {NoReactInternals} from 'remotion/no-react';
-import {updateSequenceProps} from '../../codemods/update-sequence-props/update-sequence-props';
+import {parseAst} from '../../codemods/parse-ast';
+import {updateEffectProps} from '../../codemods/update-effect-props/update-effect-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
 import {
@@ -16,21 +16,31 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {computeSequencePropsOnlyStatus} from './can-update-sequence-props';
-import {formatPropChange} from './log-updates/format-prop-change';
-import {logUpdate, normalizeQuotes} from './log-updates/log-update';
+import {computeEffectPropStatus} from './can-update-effect-props';
+import {findJsxElementAtNodePath} from './can-update-sequence-props';
+import {formatEffectPropChange} from './log-updates/format-effect-prop-change';
+import {logEffectUpdate} from './log-updates/log-effect-update';
+import {normalizeQuotes} from './log-updates/log-update';
 
-export const saveSequencePropsHandler: ApiHandler<
-	SaveSequencePropsRequest,
-	SaveSequencePropsResponse
+export const saveEffectPropsHandler: ApiHandler<
+	SaveEffectPropsRequest,
+	SaveEffectPropsResponse
 > = async ({
-	input: {fileName, nodePath, key, value, defaultValue, schema},
+	input: {
+		fileName,
+		sequenceNodePath,
+		effectIndex,
+		key,
+		value,
+		defaultValue,
+		schema,
+	},
 	remotionRoot,
 	logLevel,
 }) => {
 	RenderInternals.Log.trace(
 		{indent: false, logLevel},
-		`[save-sequence-props] Received request for fileName="${fileName}" key="${key}"`,
+		`[save-effect-props] Received request for fileName="${fileName}" effectIndex=${effectIndex} key="${key}"`,
 	);
 	const absolutePath = path.resolve(remotionRoot, fileName);
 	const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
@@ -40,45 +50,44 @@ export const saveSequencePropsHandler: ApiHandler<
 
 	const fileContents = readFileSync(absolutePath, 'utf-8');
 
-	const {output, oldValueStrings, formatted, logLine, removedProps} =
-		await updateSequenceProps({
-			input: fileContents,
-			nodePath: nodePath.nodePath,
-			updates: [
-				{
-					key,
-					value: JSON.parse(value),
-					defaultValue: defaultValue !== null ? JSON.parse(defaultValue) : null,
-				},
-			],
-			schema: NoReactInternals.sequenceSchema,
-		});
-	const oldValueString = oldValueStrings[0];
-
-	const newValueString = JSON.stringify(JSON.parse(value));
 	const parsedDefault = defaultValue !== null ? JSON.parse(defaultValue) : null;
+
+	const {output, oldValueString, formatted, logLine, effectCallee} =
+		await updateEffectProps({
+			input: fileContents,
+			sequenceNodePath: sequenceNodePath.nodePath,
+			effectIndex,
+			update: {
+				key,
+				value: JSON.parse(value),
+				defaultValue: parsedDefault,
+			},
+		});
+
 	const defaultValueString =
 		parsedDefault !== null ? JSON.stringify(parsedDefault) : null;
 
 	const normalizedOld = normalizeQuotes(oldValueString);
-	const normalizedNew = normalizeQuotes(newValueString);
+	const normalizedNew = normalizeQuotes(value);
 	const normalizedDefault =
 		defaultValueString !== null ? normalizeQuotes(defaultValueString) : null;
 
-	const undoPropChange = formatPropChange({
+	const undoPropChange = formatEffectPropChange({
+		effectName: effectCallee,
 		key,
 		oldValueString: normalizedNew,
 		newValueString: normalizedOld,
 		defaultValueString: normalizedDefault,
 		removedProps: [],
-		addedProps: removedProps,
+		addedProps: [],
 	});
-	const redoPropChange = formatPropChange({
+	const redoPropChange = formatEffectPropChange({
+		effectName: effectCallee,
 		key,
 		oldValueString: normalizedOld,
 		newValueString: normalizedNew,
 		defaultValueString: normalizedDefault,
-		removedProps,
+		removedProps: [],
 		addedProps: [],
 	});
 
@@ -92,34 +101,42 @@ export const saveSequencePropsHandler: ApiHandler<
 			undoMessage: `↩️  ${undoPropChange}`,
 			redoMessage: `↪️  ${redoPropChange}`,
 		},
-		entryType: 'sequence-props',
+		entryType: 'effect-props',
 		suppressHmrOnFileRestore: true,
 	});
 	suppressUndoStackInvalidation(absolutePath);
 	suppressBundlerUpdateForFile(absolutePath);
 	writeFileAndNotifyFileWatchers(absolutePath, output);
 
-	logUpdate({
+	logEffectUpdate({
 		fileRelativeToRoot,
 		line: logLine,
-		key,
+		effectName: effectCallee,
+		propKey: key,
 		oldValueString,
-		newValueString,
+		newValueString: value,
 		defaultValueString,
 		formatted,
 		logLevel,
-		removedProps,
+		removedProps: [],
 		addedProps: [],
 	});
 
 	printUndoHint(logLevel);
 
-	const newStatus = computeSequencePropsOnlyStatus({
-		fileName,
-		keys: getAllSchemaKeys(schema),
-		nodePath: nodePath.nodePath,
-		remotionRoot,
-	});
+	const ast = parseAst(readFileSync(absolutePath, 'utf-8'));
+	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath.nodePath);
+	if (!jsx) {
+		return {
+			canUpdate: false,
+			effectIndex,
+			reason: 'not-found',
+		};
+	}
 
-	return newStatus;
+	return computeEffectPropStatus({
+		jsx,
+		effectIndex,
+		keys: getAllSchemaKeys(schema),
+	});
 };
