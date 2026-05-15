@@ -7,7 +7,7 @@ export type SkillEvalScenario = {
 
 export const scenarios: SkillEvalScenario[] = [
 	{
-		id: 'vertical-promo-text-motion',
+		id: 'vertical-promo-text-layout-proportions',
 		model: 'openai-codex/gpt-5.5',
 		prompt: `Make a simple short vertical promo video for a new productivity app called FlowPilot.
 
@@ -20,6 +20,23 @@ Please include these phrases in the video:
 - "Calendar sync"
 - "Focus blocks"
 - "Try FlowPilot today"
+
+Use a few animated shapes, simple app-style cards, and smooth transitions. Keep it around 10 seconds long.`,
+		timeoutMs: 20 * 60 * 1000,
+	},
+	{
+		id: 'landscape-promo-text-layout-proportions',
+		model: 'openai-codex/gpt-5.5',
+		prompt: `Make a simple short landscape promo video for a new productivity app called FlowPilot.
+
+It's an app that helps small teams plan projects, assign tasks, and see what needs attention next. The video should feel like a clean website hero animation or YouTube pre-roll.
+
+Please include these phrases in the video:
+- "Bring the whole team into focus"
+- "Plan projects faster"
+- "Assign tasks clearly"
+- "See what needs attention"
+- "Start with FlowPilot"
 
 Use a few animated shapes, simple app-style cards, and smooth transitions. Keep it around 10 seconds long.`,
 		timeoutMs: 20 * 60 * 1000,
