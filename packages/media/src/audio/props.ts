@@ -40,5 +40,5 @@ export type AudioProps = {
 	credentials?: RequestCredentials;
 } & Pick<
 	SequenceProps,
-	'from' | 'durationInFrames' | 'name' | 'showInTimeline'
+	'from' | 'durationInFrames' | 'name' | 'showInTimeline' | 'hidden'
 >;

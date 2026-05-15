@@ -34,6 +34,7 @@ const gifSchema = {
 		description: 'Playback Rate',
 	},
 	...Internals.sequenceStyleSchema,
+	hidden: Internals.hiddenField,
 } as const satisfies SequenceSchema;
 
 const GifInner = ({
