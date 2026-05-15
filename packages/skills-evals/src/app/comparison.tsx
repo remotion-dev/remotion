@@ -3,7 +3,15 @@ import {
 	getPreferredArtifact,
 	type ComparisonWithManifests,
 } from './comparison-data';
-import {formatDate, Header, page, Pill, toFileUrl} from './shared';
+import {
+	formatDate,
+	formatDuration,
+	getDurationMs,
+	Header,
+	page,
+	Pill,
+	toFileUrl,
+} from './shared';
 
 const Artifact = ({manifest}: {manifest: SkillEvalManifest}) => {
 	const artifact = getPreferredArtifact(manifest);
@@ -50,12 +58,14 @@ const RunPanel = ({
 	manifestPath: string;
 }) => {
 	const artifact = getPreferredArtifact(manifest);
+	const duration = formatDuration(getDurationMs(manifest));
 
 	return (
 		<section className="rounded-2xl border border-zinc-200 bg-white p-3">
 			<div className="mb-2 flex items-center justify-between gap-3">
 				<h2 className="text-[0.9375rem] font-semibold">{label}</h2>
 				<div className="flex flex-wrap items-center gap-3">
+					<Pill>Took {duration}</Pill>
 					<a
 						className="text-[0.8125rem] text-zinc-600"
 						href={toFileUrl(manifest.pi.htmlExport)}
