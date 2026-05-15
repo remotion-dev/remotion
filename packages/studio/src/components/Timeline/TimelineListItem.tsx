@@ -41,7 +41,7 @@ export const TimelineListItem: React.FC<{
 	const previewConnected = previewServerState.type === 'connected';
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
-	const {getCodeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 
 	const originalLocation = useResolvedStack(sequence.stack ?? null);
@@ -196,8 +196,10 @@ export const TimelineListItem: React.FC<{
 	}, [nodePathInfo, toggleTrack]);
 
 	const codeValuesForOverride = useMemo(() => {
-		return nodePath ? getCodeValues(nodePath) : undefined;
-	}, [getCodeValues, nodePath]);
+		return nodePath
+			? Internals.getCodeValuesCtx(codeValues, nodePath)
+			: undefined;
+	}, [codeValues, nodePath]);
 
 	const codeHiddenStatus = codeValuesForOverride?.hidden;
 
