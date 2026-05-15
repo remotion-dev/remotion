@@ -54,6 +54,30 @@ export type SkillEvalResult = {
 	scenario: SkillEvalScenario;
 };
 
+export type SkillEvalComparisonBeforeRun = {
+	label: 'before';
+	source: 'git-ref' | 'head';
+	skillsPath: string;
+	hash: string;
+	gitRef?: string;
+	comparisonId?: string;
+	manifestPath: string;
+};
+
+export type SkillEvalComparisonAfterRun = {
+	label: 'after';
+	skillsPath: string;
+	hash: string;
+	isWorkingTree: boolean;
+	manifestPath: string;
+};
+
+export type SkillEvalComparisonRunPair = {
+	after: SkillEvalComparisonAfterRun;
+	before: SkillEvalComparisonBeforeRun;
+	index: number;
+};
+
 export type SkillEvalComparison = {
 	id: string;
 	scenarioId: string;
@@ -61,20 +85,8 @@ export type SkillEvalComparison = {
 	completedAt: string;
 	comparisonDir: string;
 	skillDiffPath: string;
-	before: {
-		label: 'before';
-		source: 'git-ref' | 'head';
-		skillsPath: string;
-		hash: string;
-		gitRef?: string;
-		comparisonId?: string;
-		manifestPath: string;
-	};
-	after: {
-		label: 'after';
-		skillsPath: string;
-		hash: string;
-		isWorkingTree: boolean;
-		manifestPath: string;
-	};
+	before: SkillEvalComparisonBeforeRun;
+	after: SkillEvalComparisonAfterRun;
+	runCount?: number;
+	runs?: SkillEvalComparisonRunPair[];
 };

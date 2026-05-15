@@ -5,13 +5,18 @@ import {
 	type SkillEvalComparisonEvent,
 	type SkillEvalComparisonRunLabel,
 } from '../compare';
+import {
+	maxParallelSkillEvalRuns,
+	validateSkillEvalRunCount,
+} from '../run-count';
 import {runSkillEval, type SkillEvalPhase} from '../run-skill-eval';
+import {runWithConcurrency} from '../run-with-concurrency';
 import {toComparisonUrl} from './shared';
 
 export type Job = {
 	id: string;
 	logs: string[];
-	runs: Record<SkillEvalComparisonRunLabel, JobRun>;
+	runs: JobRunGroup[];
 	scenarioId: string;
 	startedAt: string;
 	status: 'running' | 'completed' | 'failed' | 'skipped';
@@ -19,6 +24,13 @@ export type Job = {
 	error?: string;
 	message?: string;
 	resultUrl?: string;
+	runCount: number;
+};
+
+export type JobRunGroup = {
+	after: JobRun;
+	before: JobRun;
+	index: number;
 };
 
 export type JobRun = {
@@ -42,13 +54,12 @@ const createJobRun = (): JobRun => ({
 	status: 'waiting',
 });
 
-export const createJobRuns = (): Record<
-	SkillEvalComparisonRunLabel,
-	JobRun
-> => ({
-	after: createJobRun(),
-	before: createJobRun(),
-});
+export const createJobRuns = (runCount = 1): JobRunGroup[] =>
+	Array.from({length: runCount}, (_, index) => ({
+		after: createJobRun(),
+		before: createJobRun(),
+		index: index + 1,
+	}));
 
 export const formatRunLabel = (label: SkillEvalComparisonRunLabel) =>
 	label === 'before' ? 'Before' : 'After';
@@ -71,8 +82,9 @@ export const getActiveJob = (scenarioId: string) =>
 
 export const startComparison = (
 	scenario: SkillEvalScenario,
-	options: {beforeGitRef?: string} = {},
+	options: {beforeGitRef?: string; runCount?: number} = {},
 ) => {
+	const runCount = validateSkillEvalRunCount(options.runCount);
 	const existingJob = getActiveJob(scenario.id);
 
 	if (existingJob) {
@@ -83,7 +95,8 @@ export const startComparison = (
 		id: `${Date.now()}-${scenario.id}`,
 		logs: [],
 		message: 'Preparing comparison...',
-		runs: createJobRuns(),
+		runCount,
+		runs: createJobRuns(runCount),
 		scenarioId: scenario.id,
 		startedAt: new Date().toISOString(),
 		status: 'running',
@@ -97,9 +110,11 @@ export const startComparison = (
 	};
 
 	const updateJobMessage = () => {
-		const running = Object.entries(job.runs)
-			.filter(([, run]) => run.status === 'running')
-			.map(([label]) => formatRunLabel(label as SkillEvalComparisonRunLabel));
+		const running = job.runs.flatMap((runGroup) =>
+			(['before', 'after'] as const)
+				.filter((label) => runGroup[label].status === 'running')
+				.map((label) => `${formatRunLabel(label)} #${runGroup.index}`),
+		);
 
 		if (running.length > 0) {
 			job.message = `${running.join(' and ')} ${
@@ -108,14 +123,16 @@ export const startComparison = (
 			return;
 		}
 
-		const failed = Object.entries(job.runs).find(
-			([, run]) => run.status === 'failed',
-		);
+		const failed = job.runs.flatMap((runGroup) =>
+			(['before', 'after'] as const)
+				.filter((label) => runGroup[label].status === 'failed')
+				.map((label) => ({label, runGroup})),
+		)[0];
 
 		if (failed) {
-			job.message = `${formatRunLabel(
-				failed[0] as SkillEvalComparisonRunLabel,
-			)} failed.`;
+			job.message = `${formatRunLabel(failed.label)} #${
+				failed.runGroup.index
+			} failed.`;
 		}
 	};
 
@@ -126,7 +143,12 @@ export const startComparison = (
 			return;
 		}
 
-		const run = job.runs[event.label];
+		const runGroup = job.runs[event.runIndex - 1];
+		const run = runGroup?.[event.label];
+
+		if (!run) {
+			return;
+		}
 
 		if (event.type === 'run-start') {
 			run.status = 'running';
@@ -168,6 +190,7 @@ export const startComparison = (
 	const comparisonPromise = runSkillEvalComparison(scenario, {
 		beforeGitRef: options.beforeGitRef,
 		onEvent: handleEvent,
+		runCount,
 	})
 		.then((result) => {
 			if (result.skipped) {
@@ -190,7 +213,11 @@ export const startComparison = (
 	return job;
 };
 
-export const startRun = (scenario: SkillEvalScenario) => {
+export const startRun = (
+	scenario: SkillEvalScenario,
+	runCountInput?: number,
+) => {
+	const runCount = validateSkillEvalRunCount(runCountInput);
 	const existingJob = getActiveJob(scenario.id);
 
 	if (existingJob) {
@@ -201,53 +228,100 @@ export const startRun = (scenario: SkillEvalScenario) => {
 		id: `${Date.now()}-${scenario.id}`,
 		logs: [],
 		message: 'Preparing run...',
-		runs: createJobRuns(),
+		runCount,
+		runs: createJobRuns(runCount),
 		scenarioId: scenario.id,
 		startedAt: new Date().toISOString(),
 		status: 'running',
 	};
-	const run = job.runs.after;
 
-	job.runs.before.message = 'Not needed for a plain run';
-	job.runs.before.status = 'completed';
+	for (const runGroup of job.runs) {
+		runGroup.before.message = 'Not needed for a plain run';
+		runGroup.before.status = 'completed';
+	}
+
 	jobs.set(job.id, job);
 
-	const runPromise = runSkillEval({
-		...scenario,
-		onPhase: (event) => {
-			run.status = 'running';
-			run.message = `${phaseLabels[event.phase]}${
-				event.status === 'completed' ? ' complete' : ''
-			}`;
-			job.message = 'Running scenario...';
-		},
-		onOutput: (output) => {
-			run.status = 'running';
-			run.message = `${phaseLabels[output.phase]} (${output.stream})`;
-			run.logs.push(output.chunk);
-			trimLog(run.logs, 1000);
-			job.message = 'Running scenario...';
-		},
-		skillSnapshot: {
-			isWorkingTree: true,
-			label: 'after',
+	const runPromise = runWithConcurrency({
+		inputs: Array.from({length: runCount}, (_, index) => index + 1),
+		limit: maxParallelSkillEvalRuns,
+		worker: async (runIndex) => {
+			const run = job.runs[runIndex - 1]?.after;
+
+			if (!run) {
+				throw new Error(`Missing run state for run #${runIndex}.`);
+			}
+
+			try {
+				const result = await runSkillEval({
+					...scenario,
+					onPhase: (event) => {
+						run.status = 'running';
+						run.message = `${phaseLabels[event.phase]}${
+							event.status === 'completed' ? ' complete' : ''
+						}`;
+						job.message = `Running scenario${
+							runCount > 1 ? ` (${runCount} runs)` : ''
+						}...`;
+					},
+					onOutput: (output) => {
+						run.status = 'running';
+						run.message = `${phaseLabels[output.phase]} (${output.stream})`;
+						run.logs.push(output.chunk);
+						trimLog(run.logs, 1000);
+						job.message = `Running scenario${
+							runCount > 1 ? ` (${runCount} runs)` : ''
+						}...`;
+					},
+					runLabel:
+						runCount === 1
+							? undefined
+							: `run-${String(runIndex).padStart(2, '0')}`,
+					skillSnapshot: {
+						isWorkingTree: true,
+						label: 'after',
+					},
+				});
+
+				run.status = 'completed';
+				run.message = 'Run complete.';
+				return result;
+			} catch (error) {
+				run.status = 'failed';
+				run.message = error instanceof Error ? error.message : String(error);
+				throw error;
+			}
 		},
 	})
-		.then((result) => {
-			run.status = 'completed';
-			run.message = 'Run complete.';
-			job.message = 'Run complete.';
-			job.resultUrl = `/runs/${encodeURIComponent(
-				result.manifest.id,
-			)}/${encodeURIComponent(basename(result.manifest.runDir))}`;
+		.then((results) => {
+			const result = results[0];
+
+			if (!result) {
+				throw new Error('No run result was produced.');
+			}
+
+			job.message =
+				runCount === 1 ? 'Run complete.' : `${runCount} runs complete.`;
+			if (runCount === 1) {
+				job.resultUrl = `/runs/${encodeURIComponent(
+					result.manifest.id,
+				)}/${encodeURIComponent(basename(result.manifest.runDir))}`;
+			}
+
 			job.status = 'completed';
 		})
 		.catch((error: unknown) => {
 			job.error = error instanceof Error ? error.message : String(error);
 			job.message = job.error;
 			job.status = 'failed';
-			run.status = 'failed';
-			run.message = job.error;
+			for (const runGroup of job.runs) {
+				const run = runGroup.after;
+
+				if (run.status === 'running' || run.status === 'waiting') {
+					run.status = 'failed';
+					run.message = job.error;
+				}
+			}
 		});
 	runPromise.catch(() => undefined);
 

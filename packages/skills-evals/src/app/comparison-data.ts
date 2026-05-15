@@ -9,6 +9,11 @@ export type ComparisonWithManifests = {
 	afterManifest: SkillEvalManifest;
 	beforeManifest: SkillEvalManifest;
 	comparison: SkillEvalComparison;
+	runs: {
+		afterManifest: SkillEvalManifest;
+		beforeManifest: SkillEvalManifest;
+		index: number;
+	}[];
 	skillDiff: string;
 };
 
@@ -53,13 +58,43 @@ export const loadComparison = async (
 	}
 
 	const comparison = await readJson<SkillEvalComparison>(comparisonPath);
-	const [beforeManifest, afterManifest, skillDiff] = await Promise.all([
-		readJson<SkillEvalManifest>(comparison.before.manifestPath),
-		readJson<SkillEvalManifest>(comparison.after.manifestPath),
+	const comparisonRuns = comparison.runs ?? [
+		{
+			after: comparison.after,
+			before: comparison.before,
+			index: 1,
+		},
+	];
+	const [runManifests, skillDiff] = await Promise.all([
+		Promise.all(
+			comparisonRuns.map(async (run) => {
+				const [beforeManifest, afterManifest] = await Promise.all([
+					readJson<SkillEvalManifest>(run.before.manifestPath),
+					readJson<SkillEvalManifest>(run.after.manifestPath),
+				]);
+
+				return {
+					afterManifest,
+					beforeManifest,
+					index: run.index,
+				};
+			}),
+		),
 		readFile(comparison.skillDiffPath, 'utf-8'),
 	]);
+	const firstRun = runManifests[0];
 
-	return {afterManifest, beforeManifest, comparison, skillDiff};
+	if (!firstRun) {
+		return null;
+	}
+
+	return {
+		afterManifest: firstRun.afterManifest,
+		beforeManifest: firstRun.beforeManifest,
+		comparison,
+		runs: runManifests,
+		skillDiff,
+	};
 };
 
 export const getPreferredArtifact = (manifest: SkillEvalManifest) =>
