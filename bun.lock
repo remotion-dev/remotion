@@ -976,7 +976,14 @@
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@typescript/native-preview": "catalog:",
+        "@vitejs/plugin-react": "catalog:",
+        "@vitest/browser-playwright": "catalog:",
         "eslint": "catalog:",
+        "playwright": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "remotion": "workspace:*",
+        "vitest": "catalog:",
       },
     },
     "packages/licensing": {
