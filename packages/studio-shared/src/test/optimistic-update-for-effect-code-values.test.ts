@@ -74,3 +74,39 @@ test('optimisticUpdateForEffectCodeValues is a no-op when effect index not found
 
 	expect(result).toBe(previous);
 });
+
+test('optimisticUpdateForEffectCodeValues applies when effect props are unset (zero-arg style)', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {},
+		effects: [
+			{
+				canUpdate: true,
+				effectIndex: 0,
+				callee: 'tint',
+				props: {
+					amount: {canUpdate: true, codeValue: undefined},
+				},
+			},
+		],
+	};
+
+	const updated = optimisticUpdateForEffectCodeValues({
+		previous,
+		effectIndex: 0,
+		fieldKey: 'amount',
+		value: 0.5,
+		schema: {amount: {type: 'number', default: 1}},
+	});
+
+	if (!updated.canUpdate) {
+		throw new Error('expected canUpdate true');
+	}
+
+	const effect = updated.effects[0];
+	if (!effect.canUpdate) {
+		throw new Error('expected effect canUpdate true');
+	}
+
+	expect(effect.props.amount).toEqual({canUpdate: true, codeValue: 0.5});
+});

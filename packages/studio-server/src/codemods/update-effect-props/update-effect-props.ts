@@ -128,7 +128,7 @@ export const findEffectCallExpression = ({
 	| {kind: 'ok'; call: CallExpression}
 	| {
 			kind: 'error';
-			reason: 'no-args-object' | 'not-found' | 'not-call-expression';
+			reason: 'not-found' | 'not-call-expression';
 	  } => {
 	if (!attr.value || attr.value.type !== 'JSXExpressionContainer') {
 		return {kind: 'error', reason: 'not-call-expression'};
@@ -215,19 +215,31 @@ export const updateEffectPropsAst = ({
 
 	const {call} = found;
 
-	if (
-		call.arguments.length === 0 ||
-		call.arguments[0].type !== 'ObjectExpression'
-	) {
-		throw new Error('Cannot update effect prop: no-args-object');
-	}
-
-	const objExpr = call.arguments[0] as ObjectExpression;
-	const {prop} = findObjectProperty(objExpr, update.key);
-
 	const isDefault =
 		update.defaultValue !== null &&
 		JSON.stringify(update.value) === JSON.stringify(update.defaultValue);
+
+	let objExpr: ObjectExpression;
+
+	if (call.arguments.length === 0) {
+		if (isDefault) {
+			const logLine = call.loc?.start.line ?? jsx.loc?.start.line ?? 1;
+			return {
+				serialized: serializeAst(ast),
+				oldValueString: '',
+				logLine,
+			};
+		}
+
+		objExpr = b.objectExpression([]) as ObjectExpression;
+		call.arguments.push(objExpr);
+	} else if (call.arguments[0].type !== 'ObjectExpression') {
+		throw new Error('Cannot update effect prop: computed');
+	} else {
+		objExpr = call.arguments[0] as ObjectExpression;
+	}
+
+	const {prop} = findObjectProperty(objExpr, update.key);
 
 	let oldValueString = '';
 	if (prop) {

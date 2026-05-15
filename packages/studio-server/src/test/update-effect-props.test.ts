@@ -83,7 +83,20 @@ test('updateEffectProps throws when effect index is out of range', () => {
 	}).toThrow(/not-found/);
 });
 
-test('updateEffectProps throws when first arg is not an object literal (no-args-object)', () => {
+test('updateEffectProps inserts object literal when effect has no arguments', () => {
+	const input = buildInput('[tint()]');
+	const {serialized} = updateEffectPropsAst({
+		input,
+		sequenceNodePath: lineColumnToNodePath(input, 6),
+		effectIndex: 0,
+		update: {key: 'amount', value: 0.5, defaultValue: null},
+	});
+
+	expect(serialized).toContain('amount: 0.5');
+	expect(serialized).toMatch(/tint\s*\(\s*\{/);
+});
+
+test('updateEffectProps throws when first arg is not an object literal', () => {
 	const input = buildInput('[tint(getParams())]');
 	expect(() => {
 		updateEffectPropsAst({
@@ -92,5 +105,5 @@ test('updateEffectProps throws when first arg is not an object literal (no-args-
 			effectIndex: 0,
 			update: {key: 'opacity', value: 0.5, defaultValue: null},
 		});
-	}).toThrow(/no-args-object/);
+	}).toThrow(/computed/);
 });

@@ -111,7 +111,7 @@ test('computeEffectPropStatus flags out-of-range effect indices', () => {
 	expect(result.reason).toBe('not-found');
 });
 
-test('computeEffectPropStatus flags non-object first arg', () => {
+test('computeEffectPropStatus treats non-object first arg as computed', () => {
 	const input = buildInput('[tint(getParams())]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
@@ -124,5 +124,24 @@ test('computeEffectPropStatus flags non-object first arg', () => {
 		throw new Error('expected canUpdate false');
 	}
 
-	expect(result.reason).toBe('no-args-object');
+	expect(result.reason).toBe('computed');
+});
+
+test('computeEffectPropStatus treats zero-arg effect as editable with undefined props', () => {
+	const input = buildInput('[tint()]');
+	const result = computeEffectPropStatus({
+		jsx: findJsx(input),
+		effectIndex: 0,
+		keys: ['amount'],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) {
+		throw new Error('expected canUpdate true');
+	}
+
+	expect(result.props.amount).toEqual({
+		canUpdate: true,
+		codeValue: undefined,
+	});
 });

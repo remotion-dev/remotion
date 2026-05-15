@@ -90,7 +90,7 @@ export type CanUpdateEffectPropsResponseTrue = {
 export type CanUpdateEffectPropsResponseFalse = {
 	canUpdate: false;
 	effectIndex: number;
-	reason: 'no-args-object' | 'not-found' | 'computed' | 'not-call-expression';
+	reason: 'not-found' | 'computed' | 'not-call-expression';
 };
 
 export type CanUpdateEffectPropsResponse =

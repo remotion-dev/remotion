@@ -154,7 +154,7 @@ export const computeEffectPropStatus = ({
 		return {
 			canUpdate: false,
 			effectIndex,
-			reason: 'no-args-object',
+			reason: 'computed',
 		};
 	}
 
