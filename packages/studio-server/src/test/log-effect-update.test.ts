@@ -7,7 +7,6 @@ import {RenderInternals} from '@remotion/renderer';
 import {formatEffectPropChange} from '../preview-server/routes/log-updates/format-effect-prop-change';
 import {
 	attrName,
-	colorEnabled,
 	numberValue,
 	punctuation,
 	strikeThroughOrRemovedPrefix,
@@ -84,10 +83,7 @@ test('logEffectUpdate prints halftone({dotSpacing}) when dotSpacing is added exp
 		const logged = consoleSpy.mock.calls[0].join(' ');
 
 		const addedCall = halftoneCall('dotSpacing', '2');
-		const expectedPropChange = colorEnabled()
-			? addedCall
-			: `added: ${addedCall}`;
-		const expectedLine = `${chalk.blueBright('src/HtmlInCanvas/react-svg.tsx:21')} ${expectedPropChange}`;
+		const expectedLine = `${chalk.blueBright('src/HtmlInCanvas/react-svg.tsx:21')} ${addedCall}`;
 
 		expect(logged).toBe(expectedLine);
 	} finally {

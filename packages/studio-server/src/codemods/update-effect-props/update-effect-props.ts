@@ -126,7 +126,7 @@ export const findEffectCallExpression = ({
 	attr: JSXAttribute;
 	effectIndex: number;
 }):
-	| {kind: 'ok'; call: CallExpression}
+	| {kind: 'ok'; call: CallExpression; callee: string}
 	| {
 			kind: 'error';
 			reason: 'not-found' | 'not-call-expression';
@@ -151,7 +151,7 @@ export const findEffectCallExpression = ({
 		return {kind: 'error', reason: 'not-call-expression'};
 	}
 
-	return {kind: 'ok', call: target.node};
+	return {kind: 'ok', call: target.node, callee: target.callee};
 };
 
 const findObjectProperty = (
@@ -215,11 +215,7 @@ export const updateEffectPropsAst = ({
 		throw new Error(`Cannot update effect prop: ${found.reason}`);
 	}
 
-	const {call} = found;
-	const effectCallee = getCalleeName(call);
-	if (effectCallee === null) {
-		throw new Error('Cannot update effect prop: not-call-expression');
-	}
+	const {call, callee: effectCallee} = found;
 
 	const isDefault =
 		update.defaultValue !== null &&
@@ -229,11 +225,10 @@ export const updateEffectPropsAst = ({
 
 	if (call.arguments.length === 0) {
 		if (isDefault) {
-			const logLine = call.loc?.start.line ?? jsx.loc?.start.line ?? 1;
 			return {
 				serialized: serializeAst(ast),
 				oldValueString: '',
-				logLine,
+				logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
 				effectCallee,
 			};
 		}
