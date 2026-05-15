@@ -42,6 +42,16 @@ export const halftoneSchema = {
 		default: 0,
 		description: 'Offset Y',
 	},
+	shape: {
+		type: 'enum',
+		variants: {
+			circle: {},
+			square: {},
+			line: {},
+		},
+		default: 'circle' as const,
+		description: 'Shape',
+	},
 } as const satisfies SequenceSchema;
 
 export type HalftoneShape = 'circle' | 'square' | 'line';
