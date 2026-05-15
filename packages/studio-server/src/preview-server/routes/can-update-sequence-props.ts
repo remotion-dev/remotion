@@ -365,7 +365,9 @@ export const computeSequencePropsOnlyStatus = ({
 	const ast = parseAst(fileContents);
 	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
 	if (!jsxElement) {
-		throw new Error('Could not find a JSX element at the specified location');
+		throw new Error(
+			'Cannot compute sequence props: Could not find a JSX element at the specified location',
+		);
 	}
 
 	return {
@@ -390,7 +392,9 @@ export const computeSequencePropsStatusFromContent = ({
 	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
 
 	if (!jsxElement) {
-		throw new Error('Could not find a JSX element at the specified location');
+		throw new Error(
+			'Cannot compute sequence props status: Could not find a JSX element at the specified location',
+		);
 	}
 
 	const filteredProps = computeSequenceOnlyPropsRecord({jsxElement, keys});
@@ -456,7 +460,9 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 
 		const resolvedNodePath = lineColumnToNodePath(ast, line);
 		if (!resolvedNodePath) {
-			throw new Error('Could not find a JSX element at the specified location');
+			throw new Error(
+				'Cannot compute: Could not find a JSX element at the specified location',
+			);
 		}
 
 		return {
