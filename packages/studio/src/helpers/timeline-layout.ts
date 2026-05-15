@@ -9,7 +9,11 @@ import {
 	type SequenceControls,
 	type SequenceSchemaFieldInfo,
 } from '@remotion/studio-shared';
-import type {GetDragOverrides, TSequence} from 'remotion';
+import type {
+	GetDragOverrides,
+	SequenceSchema as SequenceSchemaShape,
+	TSequence,
+} from 'remotion';
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 
@@ -41,12 +45,21 @@ export const EXPANDED_SECTION_PADDING_RIGHT = 10;
 export type TimelineFieldOnSave = (value: unknown) => Promise<void>;
 export type TimelineFieldOnDragValueChange = (value: unknown) => void;
 
+export type TimelineEffectGroupInfo = {
+	readonly effectIndex: number;
+	readonly effectSchema: SequenceSchemaShape;
+};
+
 export type TimelineTreeNode =
 	| {
 			readonly kind: 'group';
 			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly label: string;
 			readonly children: TimelineTreeNode[];
+			// Present when this group represents a single effect (not the outer
+			// "Effects" container). Lets the row component render the eye toggle and
+			// wire `disabled` saves without re-deriving the effect index.
+			readonly effectInfo: TimelineEffectGroupInfo | null;
 	  }
 	| {
 			readonly kind: 'field';
@@ -79,6 +92,7 @@ export const buildTimelineTree = ({
 				numberOfSequencesWithThisNodePath: 0,
 			},
 			label: 'Effects',
+			effectInfo: null,
 			children: sequence.effects.map((effect, i): TimelineTreeNode => {
 				const effectFields = getEffectFieldsToShow(effect, i);
 				return {
@@ -90,6 +104,9 @@ export const buildTimelineTree = ({
 						numberOfSequencesWithThisNodePath: 0,
 					},
 					label: effect.label,
+					effectInfo: effect.schema
+						? {effectIndex: i, effectSchema: effect.schema}
+						: null,
 					children: effectFields.map(
 						(f): TimelineTreeNode => ({
 							kind: 'field',

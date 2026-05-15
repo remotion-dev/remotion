@@ -1,8 +1,19 @@
+import type {SequenceFieldSchema} from '../sequence-field-schema.js';
 import type {
 	EffectDefinition,
 	EffectDescriptor,
 	EffectFactory,
 } from './effect-types.js';
+
+// Framework-level field that every effect inherits. Mirrors `hidden` for
+// sequences: rendered as the eye toggle on the timeline effect row and saved
+// to source via `/api/save-effect-props`. `getEffectFieldsToShow` filters it
+// out of the regular field list so the toggle is the only control.
+export const disabledEffectField: SequenceFieldSchema = {
+	type: 'boolean',
+	default: false,
+	description: 'Disabled',
+};
 
 // Defines an effect and returns a factory that produces per-frame descriptors.
 // The returned function is the public API effect authors expose to users:
@@ -26,6 +37,10 @@ export const createEffect = <P, S>(
 		calculateKey: (params: unknown) => {
 			const disabled = (params as {disabled?: boolean})?.disabled ?? false;
 			return `${userCalculateKey(params as P)}-disabled-${disabled}`;
+		},
+		schema: {
+			disabled: disabledEffectField,
+			...(definition.schema ?? {}),
 		},
 	};
 	const factory = (

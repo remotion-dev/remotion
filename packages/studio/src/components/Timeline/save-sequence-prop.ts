@@ -7,7 +7,7 @@ import type {
 import {callApi} from '../call-api';
 import {enqueueSavePropChange} from './save-prop-queue';
 
-type SetCodeValues = (
+export type SetCodeValues = (
 	nodePath: SequencePropsSubscriptionKey,
 	values: (
 		prev: CanUpdateSequencePropsResponse,

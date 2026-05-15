@@ -120,6 +120,12 @@ export const getEffectFieldsToShow = (
 				return null;
 			}
 
+			// `disabled` is represented as the eye icon on the effect timeline row,
+			// so we don't render it as a regular field in the expanded section.
+			if (key === 'disabled') {
+				return null;
+			}
+
 			if (SUPPORTED_SCHEMA_TYPES.indexOf(typeName) === -1) {
 				throw new Error(`Unsupported field type: ${typeName}`);
 			}

@@ -40,3 +40,39 @@ test('definition.calculateKey reflects `disabled` for override merge path', () =
 	const disabledKey = desc.definition.calculateKey({amount: 1, disabled: true});
 	expect(enabledKey).not.toBe(disabledKey);
 });
+
+test('createEffect injects `disabled` into the schema for save-effect-props', () => {
+	const foo = createEffect<FooParams, null>({
+		type: 'test/foo',
+		label: 'Foo',
+		backend: '2d',
+		calculateKey: (p) => `foo-${p.amount}`,
+		setup: () => null,
+		apply: () => undefined,
+		cleanup: () => undefined,
+		schema: {
+			amount: {type: 'number', default: 0, description: 'Amount'},
+		},
+	});
+	const desc = foo({amount: 1});
+	expect(desc.definition.schema?.disabled).toEqual({
+		type: 'boolean',
+		default: false,
+		description: 'Disabled',
+	});
+	expect(desc.definition.schema?.amount).toEqual({
+		type: 'number',
+		default: 0,
+		description: 'Amount',
+	});
+});
+
+test('createEffect injects `disabled` even when the effect declares no schema', () => {
+	const foo = makeFoo();
+	const desc = foo({amount: 1});
+	expect(desc.definition.schema?.disabled).toEqual({
+		type: 'boolean',
+		default: false,
+		description: 'Disabled',
+	});
+});
