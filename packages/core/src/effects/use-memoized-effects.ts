@@ -1,6 +1,9 @@
 import {useContext, useRef} from 'react';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
-import type {CannotUpdateEffectReason} from '../SequenceManager.js';
+import type {
+	CannotUpdateEffectReason,
+	CannotUpdateSequenceReason,
+} from '../SequenceManager.js';
 import {
 	makeSequencePropsSubscriptionKey,
 	type SequencePropsSubscriptionKey,
@@ -98,7 +101,7 @@ export const useMemoizedEffectDefinitions = (
 type EffectStatus =
 	| {
 			type: 'cannot-update-sequence';
-			reason: string;
+			reason: CannotUpdateSequenceReason;
 	  }
 	| {
 			type: 'cannot-update-effect';

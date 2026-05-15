@@ -10,6 +10,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {CannotUpdateSequenceReason} from 'remotion';
 import type {
 	_InternalTypes,
 	CanUpdateEffectPropsResponse,
@@ -260,7 +261,7 @@ export type SaveSequencePropsResponse =
 	  }
 	| {
 			canUpdate: false;
-			reason: string;
+			reason: CannotUpdateSequenceReason;
 	  };
 
 export type SaveEffectPropsRequest = {

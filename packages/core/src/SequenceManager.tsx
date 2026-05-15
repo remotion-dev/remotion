@@ -86,6 +86,8 @@ export type CannotUpdateEffectReason =
 	| 'computed'
 	| 'not-call-expression';
 
+export type CannotUpdateSequenceReason = 'not-found' | 'error';
+
 export type CanUpdateEffectPropsResponseFalse = {
 	canUpdate: false;
 	effectIndex: number;
@@ -104,7 +106,7 @@ export type CanUpdateSequencePropsResponseTrue = {
 
 export type CanUpdateSequencePropsResponseFalse = {
 	canUpdate: false;
-	reason: string;
+	reason: CannotUpdateSequenceReason;
 };
 
 export type CanUpdateSequencePropsResponse =

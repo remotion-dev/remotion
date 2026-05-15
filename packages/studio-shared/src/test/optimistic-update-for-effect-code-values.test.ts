@@ -43,7 +43,7 @@ test('optimisticUpdateForEffectCodeValues updates the matching effect prop', () 
 test('optimisticUpdateForEffectCodeValues is a no-op when sequence is not updateable', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: false,
-		reason: 'something',
+		reason: 'not-found',
 	};
 
 	const result = optimisticUpdateForEffectCodeValues({

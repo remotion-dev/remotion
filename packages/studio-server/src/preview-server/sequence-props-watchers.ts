@@ -29,6 +29,7 @@ const getSequencePropsStatus = ({
 	keys,
 	effects,
 	remotionRoot,
+	logLevel,
 }: {
 	fileName: string;
 	line: number;
@@ -36,6 +37,7 @@ const getSequencePropsStatus = ({
 	keys: string[];
 	effects: string[][];
 	remotionRoot: string;
+	logLevel: LogLevel;
 }): SubscribeToSequencePropsResponse => {
 	// Try cached nodePath first (handles stale source maps after suppressed rebuilds)
 	const cachedNodePath = getCachedNodePath(fileName, line, column);
@@ -69,6 +71,7 @@ const getSequencePropsStatus = ({
 		keys,
 		effects,
 		remotionRoot,
+		logLevel,
 	});
 
 	return status;
@@ -100,6 +103,7 @@ export const subscribeToSequencePropsWatchers = ({
 		keys,
 		effects,
 		remotionRoot,
+		logLevel,
 	});
 
 	if (!initialResult.success) {

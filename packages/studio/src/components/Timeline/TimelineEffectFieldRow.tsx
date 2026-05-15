@@ -200,7 +200,17 @@ const Value: React.FC<{
 	}
 
 	if (effectStatus.type === 'cannot-update-sequence') {
-		return <UnsupportedStatus label={effectStatus.reason} />;
+		if (effectStatus.reason === 'not-found') {
+			return <UnsupportedStatus label="not found in code" />;
+		}
+
+		if (effectStatus.reason === 'error') {
+			return <UnsupportedStatus label="error" />;
+		}
+
+		throw new Error(
+			`Unsupported effect status: ${effectStatus.reason satisfies never}`,
+		);
 	}
 
 	if (propStatus === null || !propStatus.canUpdate) {

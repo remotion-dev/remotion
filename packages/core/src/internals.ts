@@ -119,6 +119,7 @@ import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceContext} from './SequenceContext.js';
+import type {CannotUpdateSequenceReason} from './SequenceManager.js';
 import {
 	type CanUpdateEffectPropsResponse,
 	type CanUpdateEffectPropsResponseFalse,
@@ -401,4 +402,5 @@ export type {
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropStatusTrue,
 	CanUpdateSequencePropStatusFalse,
+	CannotUpdateSequenceReason,
 };

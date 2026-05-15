@@ -10,9 +10,10 @@ import type {
 	TSAsExpression,
 	UnaryExpression,
 } from '@babel/types';
+import {RenderInternals} from '@remotion/renderer';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import * as recast from 'recast';
-import type {CanUpdateSequencePropsResponseTrue} from 'remotion';
+import type {CanUpdateSequencePropsResponseTrue, LogLevel} from 'remotion';
 import type {SequenceNodePath} from 'remotion';
 import type {CanUpdateSequencePropStatus} from 'remotion';
 import {parseAst} from '../../codemods/parse-ast';
@@ -441,12 +442,14 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 	keys,
 	effects,
 	remotionRoot,
+	logLevel,
 }: {
 	fileName: string;
 	line: number;
 	keys: string[];
 	effects: string[][];
 	remotionRoot: string;
+	logLevel: LogLevel;
 }): SubscribeToSequencePropsResponse => {
 	try {
 		const absolutePath = path.resolve(remotionRoot, fileName);
@@ -460,9 +463,13 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 
 		const resolvedNodePath = lineColumnToNodePath(ast, line);
 		if (!resolvedNodePath) {
-			throw new Error(
-				'Cannot compute: Could not find a JSX element at the specified location',
-			);
+			return {
+				status: {
+					canUpdate: false,
+					reason: 'not-found',
+				},
+				success: false,
+			};
 		}
 
 		return {
@@ -482,10 +489,11 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 			success: true,
 		};
 	} catch (err) {
+		RenderInternals.Log.error({indent: false, logLevel}, err);
 		return {
 			status: {
 				canUpdate: false as const,
-				reason: (err as Error).message,
+				reason: 'error',
 			},
 			success: false,
 		};
