@@ -5,6 +5,7 @@ import {
 	getCompositionDefaultPropsLine,
 	updateDefaultProps,
 } from '../codemods/update-default-props';
+import {prettify} from './test-utils';
 
 test('Should be able to update default props', async () => {
 	const file = readFileSync(
@@ -23,7 +24,7 @@ test('Should be able to update default props', async () => {
 		enumPaths: [],
 	});
 
-	expect(output).toBe(expected);
+	expect(await prettify(output)).toBe(await prettify(expected));
 });
 
 test('getCompositionDefaultPropsLine returns the opening tag line (ast-types visitor must traverse)', () => {
@@ -42,11 +43,11 @@ test('getCompositionDefaultPropsLine returns the opening tag line (ast-types vis
 
 test('Should be able to update default props', async () => {
 	const file = readFileSync(
-		path.join(__dirname, 'snapshots', 'problematic.txt'),
+		path.join(__dirname, 'snapshots', 'problematic.tsx'),
 		'utf-8',
 	);
 	const expected = readFileSync(
-		path.join(__dirname, 'snapshots', 'fixed.txt'),
+		path.join(__dirname, 'snapshots', 'fixed.tsx'),
 		'utf-8',
 	);
 
@@ -57,5 +58,5 @@ test('Should be able to update default props', async () => {
 		enumPaths: [],
 	});
 
-	expect(output).toBe(expected);
+	expect(await prettify(output)).toBe(await prettify(expected));
 });

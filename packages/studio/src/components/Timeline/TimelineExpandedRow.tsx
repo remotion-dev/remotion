@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import type {SequenceSchema, SequenceNodePath} from 'remotion';
+import type {SequenceSchema, SequencePropsSubscriptionKey} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
@@ -11,6 +11,7 @@ import {
 } from '../../helpers/timeline-layout';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {Padder} from './Padder';
+import {TimelineEffectFieldRow} from './TimelineEffectFieldRow';
 import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineFieldRow} from './TimelineFieldRow';
 import {INDENT} from './TimelineListItem';
@@ -40,8 +41,8 @@ export const TimelineExpandedRow: React.FC<{
 	readonly nestedDepth: number;
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
-	readonly validatedLocation: CodePosition | null;
-	readonly nodePath: SequenceNodePath;
+	readonly validatedLocation: CodePosition;
+	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
 }> = ({
 	node,
@@ -86,15 +87,33 @@ export const TimelineExpandedRow: React.FC<{
 	}
 
 	if (node.field) {
-		return (
-			<TimelineFieldRow
-				field={node.field}
-				validatedLocation={validatedLocation}
-				paddingLeft={paddingLeft}
-				nestedDepth={nestedDepth}
-				nodePath={nodePath}
-				schema={schema}
-			/>
+		if (node.field.kind === 'effect-field') {
+			return (
+				<TimelineEffectFieldRow
+					field={node.field}
+					validatedLocation={validatedLocation}
+					paddingLeft={paddingLeft}
+					nestedDepth={nestedDepth}
+					nodePath={nodePath}
+				/>
+			);
+		}
+
+		if (node.field.kind === 'sequence-field') {
+			return (
+				<TimelineFieldRow
+					field={node.field}
+					validatedLocation={validatedLocation}
+					paddingLeft={paddingLeft}
+					nestedDepth={nestedDepth}
+					nodePath={nodePath}
+					schema={schema}
+				/>
+			);
+		}
+
+		throw new Error(
+			'Unexpected field kind: ' + JSON.stringify(node.field satisfies never),
 		);
 	}
 

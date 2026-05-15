@@ -9,9 +9,11 @@ export const useSequencePropsSubscription = ({
 	originalLocation,
 	overrideId,
 	schema,
+	effects,
 }: {
 	overrideId: string;
 	schema: SequenceSchema;
+	effects: SequenceSchema[];
 	originalLocation: OriginalPosition | null;
 }) => {
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
@@ -58,6 +60,7 @@ export const useSequencePropsSubscription = ({
 			line: locationLine,
 			column: locationColumn,
 			schema,
+			effects,
 			clientId,
 			applyOnce: (result) => {
 				if (!result.success) {
@@ -80,6 +83,7 @@ export const useSequencePropsSubscription = ({
 		};
 	}, [
 		clientId,
+		effects,
 		locationColumn,
 		locationLine,
 		locationSource,

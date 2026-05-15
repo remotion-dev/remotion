@@ -5,9 +5,17 @@ if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
 }
 
+const effectEntrypoints = [
+	'src/index.ts',
+	'src/halftone.ts',
+	'src/tint.ts',
+	'src/wave.ts',
+	'src/entrypoints/blur.ts',
+];
+
 console.time('Generated.');
 const output = await build({
-	entrypoints: ['src/index.ts'],
+	entrypoints: effectEntrypoints,
 	naming: '[name].mjs',
 	external: [
 		'remotion',
@@ -25,8 +33,13 @@ if (!output.success) {
 }
 
 for (const file of output.outputs) {
-	const str = await file.text();
+	let str = await file.text();
 	const out = path.join('dist', 'esm', file.path);
+
+	// Bun can emit a 0-byte file for `export {}` only; Node needs a real empty module.
+	if (path.basename(file.path) === 'index.mjs' && str.trim() === '') {
+		str = 'export {};\n';
+	}
 
 	await Bun.write(out, str);
 }

@@ -5,12 +5,17 @@ import {unsubscribeFromSequencePropsWatchers} from '../sequence-props-watchers';
 export const unsubscribeFromSequenceProps: ApiHandler<
 	UnsubscribeFromSequencePropsRequest,
 	undefined
-> = ({input: {fileName, nodePath, clientId}, remotionRoot}) => {
+> = ({
+	input: {fileName, nodePath, clientId, sequenceKeys, effectKeys},
+	remotionRoot,
+}) => {
 	unsubscribeFromSequencePropsWatchers({
 		fileName,
-		nodePath,
+		nodePath: nodePath.nodePath,
 		remotionRoot,
 		clientId,
+		sequenceKeys,
+		effectKeys,
 	});
 	return Promise.resolve(undefined);
 };

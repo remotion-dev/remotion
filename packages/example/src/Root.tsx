@@ -159,6 +159,7 @@ import {AudioSmoothnessTrimButtonComp} from './AudioSmoothness/TrimButton';
 import Amplify from './AudioTesting/Amplify';
 import {BrowserTest} from './BrowserTest';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
+import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {LightLeakExample} from './LightLeak';
@@ -2121,6 +2122,16 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={90}
+				/>
+			</Folder>
+			<Folder name="effects">
+				<Composition
+					id="effects-testbed"
+					component={EffectsTestbed}
+					width={1920}
+					height={1920}
+					fps={30}
+					durationInFrames={300}
 				/>
 			</Folder>
 			<Composition

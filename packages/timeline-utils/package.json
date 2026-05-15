@@ -24,6 +24,7 @@
 		"mediabunny": "catalog:"
 	},
 	"devDependencies": {
+		"@mediabunny/server": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"@typescript/native-preview": "catalog:"

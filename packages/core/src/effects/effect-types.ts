@@ -48,7 +48,6 @@ export type EffectDefinition<P, S = unknown> = {
 
 type BaseEffectDescriptor<P = unknown> = {
 	readonly definition: EffectDefinition<P, unknown>;
-	readonly stack: string;
 	readonly effectKey: string;
 	readonly params: P;
 };
@@ -62,11 +61,6 @@ export type EffectDefinitionAndStack<P = unknown> = BaseEffectDescriptor<P> & {
 	readonly memoized: true;
 };
 
-// Prop type for `effects`: callers may interleave single descriptors
-// with arrays of descriptors. The runtime calls `.flat()` once before
-// processing, which lets a single factory call (e.g. `blur(...)`) expand into
-// multiple passes (e.g. horizontal + vertical) without leaking that detail to
-// the call site.
 export type EffectsProp = ReadonlyArray<
 	EffectDescriptor<unknown> | ReadonlyArray<EffectDescriptor<unknown>>
 >;

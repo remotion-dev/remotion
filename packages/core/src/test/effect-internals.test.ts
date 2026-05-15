@@ -27,7 +27,6 @@ const makeDesc = (
 ): EffectDescriptor<unknown> => ({
 	definition: makeDef(type, backend),
 	params: {},
-	stack: new Error().stack!,
 	effectKey: type,
 	memoized: false,
 });
@@ -37,7 +36,7 @@ const memoizeEffects = (
 ): EffectDefinitionAndStack<unknown>[] => {
 	return effects.map((e) => ({
 		...e,
-		memoized: true,
+		memoized: true as const,
 	}));
 };
 

@@ -33,9 +33,11 @@ export const Solid: React.FC<SolidProps> = ({
 		null,
 	);
 
-	const memoizedEffects = useMemoizedEffects(
-		flattenEffects(experimentalEffects),
-	);
+	const memoizedEffects = useMemoizedEffects({
+		effects: flattenEffects(experimentalEffects),
+		// TODO: Add schema to Solid
+		overrideId: null,
+	});
 
 	const sourceCanvas = useMemo(() => {
 		if (typeof document === 'undefined') {
