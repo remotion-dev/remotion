@@ -1,5 +1,5 @@
 import {useContext, useRef} from 'react';
-import {Internals} from '../internals.js';
+import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import {
 	VisualModeCodeValuesContext,
 	VisualModeDragOverridesContext,
@@ -102,7 +102,7 @@ export const useMemoizedEffects = ({
 	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
 
 	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+		OverrideIdsToNodePathsGettersContext,
 	);
 
 	const previous = previousRef.current;
