@@ -86,6 +86,12 @@ export const getFieldsToShow = ({
 				return null;
 			}
 
+			// `hidden` is represented as the eye/speaker icon on the timeline track,
+			// so we don't render it as a regular field in the expanded section.
+			if (key === 'hidden') {
+				return null;
+			}
+
 			return {
 				kind: 'sequence-field',
 				key,

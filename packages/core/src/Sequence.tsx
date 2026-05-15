@@ -15,10 +15,7 @@ import {PremountContext} from './PremountContext.js';
 import {sequenceSchema} from './sequence-field-schema.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
-import {
-	SequenceManager,
-	SequenceVisibilityToggleContext,
-} from './SequenceManager.js';
+import {SequenceManager} from './SequenceManager.js';
 import {
 	useTimelineContext,
 	useTimelinePosition,
@@ -53,6 +50,7 @@ export type SequencePropsWithoutDuration = {
 	readonly from?: number;
 	readonly name?: string;
 	readonly showInTimeline?: boolean;
+	readonly hidden?: boolean;
 	readonly _experimentalControls?: SequenceControls;
 	readonly _experimentalEffects?: readonly EffectDefinition<unknown>[];
 	/**
@@ -104,6 +102,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		height,
 		width,
 		showInTimeline = true,
+		hidden = false,
 		_experimentalControls: controls,
 		_experimentalEffects,
 		_remotionInternalLoopDisplay: loopDisplay,
@@ -175,7 +174,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
-	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	const premounting = useMemo(() => {
 		// || is intentional, ?? would not trigger on `false`
@@ -228,6 +226,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const env = useRemotionEnvironment();
 
 	const inheritedStack = (other as any)?.stack ?? null;
+	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
+	// and if it changes, it would lead to-remounting of the sequence.
+	const [stackDoesntChange] = useState(() => stack ?? inheritedStack);
 
 	useEffect(() => {
 		if (!env.isStudio) {
@@ -253,7 +254,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				rootId,
 				showInTimeline,
 				src: isMedia.data.src,
-				stack: stack ?? inheritedStack,
+				stack: stackDoesntChange,
 				startMediaFrom: isMedia.data.startMediaFrom,
 				volume: isMedia.data.volumes,
 			});
@@ -273,7 +274,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			showInTimeline,
 			nonce: nonce.get(),
 			loopDisplay,
-			stack: stack ?? inheritedStack,
+			stack: stackDoesntChange,
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
 			controls: controls ?? null,
@@ -296,11 +297,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		nonce,
 		loopDisplay,
-		stack,
+		stackDoesntChange,
 		premountDisplay,
 		postmountDisplay,
 		env.isStudio,
-		inheritedStack,
 		controls,
 		_experimentalEffects,
 		isMedia,
@@ -333,9 +333,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	const isSequenceHidden = hidden[id] ?? false;
-
-	if (isSequenceHidden) {
+	if (hidden) {
 		return null;
 	}
 

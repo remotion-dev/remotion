@@ -323,6 +323,7 @@ const starburstSchema = {
 		description: 'Origin Offset Y',
 	},
 	...Internals.sequenceStyleSchema,
+	hidden: Internals.hiddenField,
 } as const satisfies SequenceSchema;
 
 const StarburstInner: React.FC<

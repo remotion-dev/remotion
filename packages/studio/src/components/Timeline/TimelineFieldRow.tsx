@@ -1,8 +1,6 @@
-import {optimisticUpdateForCodeValues} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatusTrue,
-	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import type {SequenceSchema} from 'remotion';
@@ -14,9 +12,8 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
-import {callApi} from '../call-api';
-import {showNotification} from '../Notifications/NotificationCenter';
 import {Padder} from './Padder';
+import {saveSequenceProp} from './save-sequence-prop';
 import {
 	TimelineFieldValue,
 	TimelineNonEditableStatus,
@@ -95,56 +92,15 @@ const Value: React.FC<{
 				return Promise.resolve();
 			}
 
-			let previousUpdate: CanUpdateSequencePropsResponse | undefined;
-
-			// Optimistic update to prevent flicker
-			setCodeValues(nodePath, (prev) => {
-				previousUpdate = prev;
-				return optimisticUpdateForCodeValues({
-					previous: prev,
-					fieldKey: field.key,
-					value,
-					schema,
-				});
-			});
-
-			return callApi('/api/save-sequence-props', {
+			return saveSequenceProp({
 				fileName: validatedLocation.source,
 				nodePath,
-				key: field.key,
-				value: stringifiedValue,
+				fieldKey: field.key,
+				value,
 				defaultValue,
 				schema,
-			})
-				.then((data) => {
-					setCodeValues(nodePath, (prev) => {
-						if (!data.canUpdate) {
-							return data;
-						}
-
-						return {
-							canUpdate: true,
-							props: data.props,
-							effects: prev.canUpdate ? prev.effects : [],
-						};
-					});
-				})
-				.catch((err) => {
-					// In case something went wrong, undo optimistic update
-					setCodeValues(nodePath, (current) => {
-						if (previousUpdate) {
-							return previousUpdate;
-						}
-
-						return current;
-					});
-					showNotification(
-						`Could not save sequence prop: ${
-							err instanceof Error ? err.message : String(err)
-						}`,
-						4000,
-					);
-				});
+				setCodeValues,
+			});
 		},
 		[
 			codeValue,

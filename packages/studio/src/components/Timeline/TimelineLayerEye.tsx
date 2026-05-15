@@ -1,4 +1,4 @@
-import {useCallback} from 'react';
+import React, {useCallback} from 'react';
 import {LIGHT_COLOR} from '../../helpers/colors';
 import type {RenderInlineAction} from '../InlineAction';
 
@@ -29,9 +29,9 @@ const container: React.CSSProperties = {
 let layerPointedDown: null | 'enable' | 'disable' = null;
 
 export const TimelineLayerEye: React.FC<{
-	onInvoked: (type: 'enable' | 'disable') => void;
-	hidden: boolean;
-	type: 'eye' | 'speaker';
+	readonly onInvoked: (type: 'enable' | 'disable') => void;
+	readonly hidden: boolean;
+	readonly type: 'eye' | 'speaker';
 }> = ({onInvoked, hidden, type}) => {
 	const renderAction: RenderInlineAction = useCallback(
 		(color) => {
@@ -96,4 +96,15 @@ export const TimelineLayerEye: React.FC<{
 			{renderAction(LIGHT_COLOR)}
 		</div>
 	);
+};
+
+const spacerStyle: React.CSSProperties = {
+	width: 16,
+	height: 16,
+	marginRight: 6,
+	flexShrink: 0,
+};
+
+export const TimelineLayerEyeSpacer: React.FC = () => {
+	return <div style={spacerStyle} />;
 };

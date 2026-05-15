@@ -81,4 +81,4 @@ export type InnerVideoProps = MandatoryVideoProps &
 export type VideoProps = MandatoryVideoProps &
 	Partial<OuterVideoProps> &
 	Partial<OptionalVideoProps> &
-	Pick<SequenceProps, 'durationInFrames' | 'from' | 'name'>;
+	Pick<SequenceProps, 'durationInFrames' | 'from' | 'name' | 'hidden'>;

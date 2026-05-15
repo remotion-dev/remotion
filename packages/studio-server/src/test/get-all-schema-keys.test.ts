@@ -10,6 +10,7 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 	const keys = getAllSchemaKeys(NoReactInternals.sequenceSchema);
 	expect(keys.sort()).toEqual(
 		[
+			'hidden',
 			'layout',
 			'style.translate',
 			'style.scale',
