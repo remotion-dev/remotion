@@ -1,17 +1,13 @@
 import {optimisticUpdateForEffectCodeValues} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {
-	CanUpdateEffectPropsResponse,
-	CanUpdateSequencePropsResponse,
-	SequencePropsSubscriptionKey,
-} from 'remotion';
+import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
-import {showNotification} from '../Notifications/NotificationCenter';
 import {Padder} from './Padder';
+import {enqueueSavePropChange} from './save-prop-queue';
 import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
 
 const fieldRowBase: React.CSSProperties = {
@@ -110,64 +106,48 @@ const Value: React.FC<{
 				return Promise.resolve();
 			}
 
-			let previousUpdate: CanUpdateSequencePropsResponse | undefined;
+			return enqueueSavePropChange({
+				nodePath,
+				setCodeValues,
+				applyOptimistic: (prev) =>
+					optimisticUpdateForEffectCodeValues({
+						previous: prev,
+						effectIndex: field.effectIndex,
+						fieldKey: field.key,
+						value,
+						schema: field.effectSchema,
+					}),
+				apiCall: () =>
+					callApi('/api/save-effect-props', {
+						fileName: validatedLocation.source,
+						sequenceNodePath: nodePath,
+						effectIndex: field.effectIndex,
+						key: field.key,
+						value: stringifiedValue,
+						defaultValue,
+						schema: field.effectSchema,
+					}),
+				mergeServerResponse: (prev, data) => {
+					if (!prev.canUpdate) {
+						return prev;
+					}
 
-			setCodeValues(nodePath, (prev) => {
-				previousUpdate = prev;
-				return optimisticUpdateForEffectCodeValues({
-					previous: prev,
-					effectIndex: field.effectIndex,
-					fieldKey: field.key,
-					value,
-					schema: field.effectSchema,
-				});
-			});
-
-			return callApi('/api/save-effect-props', {
-				fileName: validatedLocation.source,
-				sequenceNodePath: nodePath,
-				effectIndex: field.effectIndex,
-				key: field.key,
-				value: stringifiedValue,
-				defaultValue,
-				schema: field.effectSchema,
-			})
-				.then((data: CanUpdateEffectPropsResponse) => {
-					setCodeValues(nodePath, (prev) => {
-						if (!prev.canUpdate) {
-							return prev;
-						}
-
-						const idx = prev.effects.findIndex(
-							(e) => e.effectIndex === field.effectIndex,
-						);
-						if (idx === -1) {
-							return {
-								...prev,
-								effects: [...prev.effects, data],
-							};
-						}
-
-						const next = [...prev.effects];
-						next[idx] = data;
-						return {...prev, effects: next};
-					});
-				})
-				.catch((err) => {
-					setCodeValues(nodePath, (current) => {
-						if (previousUpdate) {
-							return previousUpdate;
-						}
-
-						return current;
-					});
-					showNotification(
-						`Could not save effect prop: ${
-							err instanceof Error ? err.message : String(err)
-						}`,
-						4000,
+					const idx = prev.effects.findIndex(
+						(e) => e.effectIndex === field.effectIndex,
 					);
-				});
+					if (idx === -1) {
+						return {
+							...prev,
+							effects: [...prev.effects, data],
+						};
+					}
+
+					const nextEffects = [...prev.effects];
+					nextEffects[idx] = data;
+					return {...prev, effects: nextEffects};
+				},
+				errorLabel: 'Could not save effect prop',
+			});
 		},
 		[
 			field.effectIndex,

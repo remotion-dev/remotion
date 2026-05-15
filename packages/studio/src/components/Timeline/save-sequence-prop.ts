@@ -5,7 +5,7 @@ import type {
 	SequenceSchema,
 } from 'remotion';
 import {callApi} from '../call-api';
-import {showNotification} from '../Notifications/NotificationCenter';
+import {enqueueSavePropChange} from './save-prop-queue';
 
 type SetCodeValues = (
 	nodePath: SequencePropsSubscriptionKey,
@@ -31,52 +31,36 @@ export const saveSequenceProp = ({
 	schema: SequenceSchema;
 	setCodeValues: SetCodeValues;
 }): Promise<void> => {
-	let previousUpdate: CanUpdateSequencePropsResponse | undefined;
-
-	setCodeValues(nodePath, (prev) => {
-		previousUpdate = prev;
-		return optimisticUpdateForCodeValues({
-			previous: prev,
-			fieldKey,
-			value,
-			schema,
-		});
-	});
-
-	return callApi('/api/save-sequence-props', {
-		fileName,
+	return enqueueSavePropChange({
 		nodePath,
-		key: fieldKey,
-		value: JSON.stringify(value),
-		defaultValue,
-		schema,
-	})
-		.then((data) => {
-			setCodeValues(nodePath, (prev) => {
-				if (!data.canUpdate) {
-					return data;
-				}
+		setCodeValues,
+		applyOptimistic: (prev) =>
+			optimisticUpdateForCodeValues({
+				previous: prev,
+				fieldKey,
+				value,
+				schema,
+			}),
+		apiCall: () =>
+			callApi('/api/save-sequence-props', {
+				fileName,
+				nodePath,
+				key: fieldKey,
+				value: JSON.stringify(value),
+				defaultValue,
+				schema,
+			}),
+		mergeServerResponse: (prev, data) => {
+			if (!data.canUpdate) {
+				return data;
+			}
 
-				return {
-					canUpdate: true,
-					props: data.props,
-					effects: prev.canUpdate ? prev.effects : [],
-				};
-			});
-		})
-		.catch((err) => {
-			setCodeValues(nodePath, (current) => {
-				if (previousUpdate) {
-					return previousUpdate;
-				}
-
-				return current;
-			});
-			showNotification(
-				`Could not save sequence prop: ${
-					err instanceof Error ? err.message : String(err)
-				}`,
-				4000,
-			);
-		});
+			return {
+				canUpdate: true,
+				props: data.props,
+				effects: prev.canUpdate ? prev.effects : [],
+			};
+		},
+		errorLabel: 'Could not save sequence prop',
+	});
 };
