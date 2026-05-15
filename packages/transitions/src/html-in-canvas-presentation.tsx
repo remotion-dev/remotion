@@ -25,7 +25,7 @@ export const HtmlInCanvasPresentation = <
 }) => {
 	if (!HtmlInCanvas.isSupported()) {
 		throw new Error(
-			'HTML in Canvas is not supported. Open this page in Chrome Canary with chrome://flags/#canvas-draw-element enabled.',
+			'HTML in Canvas is not supported. Open this page in Chrome with chrome://flags/#canvas-draw-element enabled.',
 		);
 	}
 
