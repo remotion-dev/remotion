@@ -29,8 +29,14 @@ const main = async () => {
 		await import('./server');
 	} else if (command === 'compare') {
 		const scenario = getScenario(process.argv[3]);
-		process.stdout.write(`Comparing ${scenario.id} with ${scenario.model}\n`);
+		const beforeGitRef = process.argv[4];
+		process.stdout.write(
+			`Comparing ${scenario.id} with ${scenario.model}${
+				beforeGitRef ? ` against ${beforeGitRef}` : ''
+			}\n`,
+		);
 		const result = await runSkillEvalComparison(scenario, {
+			beforeGitRef,
 			onLog: (chunk) => process.stdout.write(chunk),
 		});
 
@@ -63,7 +69,7 @@ const main = async () => {
 		}
 	} else {
 		process.stdout.write(
-			'Usage: bun run eval <list|run|compare|dev> [scenario-id|--all]\n',
+			'Usage: bun run eval <list|run|compare|dev> [scenario-id|--all] [base-ref]\n',
 		);
 		process.exit(command ? 1 : 0);
 	}

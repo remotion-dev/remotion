@@ -12,14 +12,23 @@ export const routes = {
 	'/': async () => htmlResponse(await renderHome()),
 
 	'/api/compare/:scenarioId': {
-		POST: (request: BunRequest<'/api/compare/:scenarioId'>) => {
+		POST: async (request: BunRequest<'/api/compare/:scenarioId'>) => {
 			const scenario = getScenario(request.params.scenarioId);
 
 			if (!scenario) {
 				return json({error: 'Unknown scenario'}, {status: 404});
 			}
 
-			return json(startComparison(scenario));
+			const body = await request.json().catch(() => null);
+			const beforeGitRef =
+				body &&
+				typeof body === 'object' &&
+				'beforeGitRef' in body &&
+				typeof body.beforeGitRef === 'string'
+					? body.beforeGitRef
+					: undefined;
+
+			return json(startComparison(scenario, {beforeGitRef}));
 		},
 	},
 

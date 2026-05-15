@@ -63,7 +63,7 @@ export type SkillEvalComparison = {
 	skillDiffPath: string;
 	before: {
 		label: 'before';
-		source: 'head';
+		source: 'git-ref' | 'head';
 		skillsPath: string;
 		hash: string;
 		gitRef?: string;
