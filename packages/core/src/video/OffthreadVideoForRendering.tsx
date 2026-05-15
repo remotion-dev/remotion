@@ -292,7 +292,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 
 	continueRender(imageSrc.handle);
 
-	const {preservesPitch: _preservesPitch, ...propsForImg} = props;
+	const {preservePitch: _preservePitch, ...propsForImg} = props;
 
 	return (
 		<Img

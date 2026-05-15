@@ -4,7 +4,7 @@ export const validateMediaProps = (
 	props: {
 		volume: VolumeProp | undefined;
 		playbackRate: number | undefined;
-		preservesPitch?: boolean | undefined;
+		preservePitch?: boolean | undefined;
 	},
 	component: 'Html5Video' | 'Html5Audio' | 'Audio' | 'Video',
 ) => {
@@ -45,11 +45,11 @@ export const validateMediaProps = (
 	}
 
 	if (
-		typeof props.preservesPitch !== 'boolean' &&
-		typeof props.preservesPitch !== 'undefined'
+		typeof props.preservePitch !== 'boolean' &&
+		typeof props.preservePitch !== 'undefined'
 	) {
 		throw new TypeError(
-			`'preservesPitch' must be a boolean or undefined but got '${typeof props.preservesPitch}' instead`,
+			`'preservePitch' must be a boolean or undefined but got '${typeof props.preservePitch}' instead`,
 		);
 	}
 };

@@ -47,7 +47,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior,
 		pauseWhenBuffering,
 		audioStreamIndex,
-		preservesPitch,
+		preservePitch: _preservePitch,
 		...nativeProps
 	} = props;
 
@@ -87,16 +87,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	useImperativeHandle(ref, () => {
 		return audioRef.current as HTMLVideoElement;
 	}, []);
-
-	useLayoutEffect(() => {
-		if (
-			audioRef.current &&
-			preservesPitch !== undefined &&
-			audioRef.current.preservesPitch !== preservesPitch
-		) {
-			audioRef.current.preservesPitch = preservesPitch;
-		}
-	}, [preservesPitch]);
 
 	useEffect(() => {
 		if (!props.src) {

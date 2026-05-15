@@ -118,7 +118,7 @@ test('It should throw when both endAt and trimAfter are provided', () => {
 	).toThrow(/Cannot use both endAt and trimAfter props/);
 });
 
-test('It should not set preservesPitch if the prop is omitted from Audio', () => {
+test('It should default preservePitch to true on Audio', () => {
 	let audio: HTMLAudioElement | null = null;
 
 	render(
@@ -136,14 +136,14 @@ test('It should not set preservesPitch if the prop is omitted from Audio', () =>
 		</WrapSequenceContext>,
 	);
 
-	expect((audio as HTMLAudioElement | null)?.preservesPitch).toBe(false);
+	expect((audio as HTMLAudioElement | null)?.preservesPitch).toBe(true);
 });
 
-test('It should sync preservesPitch on Audio', () => {
+test('It should sync preservePitch on Audio', () => {
 	const ref = createRef<HTMLAudioElement>();
 	const {rerender} = render(
 		<WrapSequenceContext>
-			<Html5Audio ref={ref} preservesPitch src="test" volume={1} />
+			<Html5Audio ref={ref} preservePitch src="test" volume={1} />
 		</WrapSequenceContext>,
 	);
 
@@ -151,26 +151,26 @@ test('It should sync preservesPitch on Audio', () => {
 
 	rerender(
 		<WrapSequenceContext>
-			<Html5Audio ref={ref} preservesPitch={false} src="test" volume={1} />
+			<Html5Audio ref={ref} preservePitch={false} src="test" volume={1} />
 		</WrapSequenceContext>,
 	);
 
 	expect(ref.current?.preservesPitch).toBe(false);
 });
 
-test('It should reject invalid preservesPitch values on Audio', () => {
+test('It should reject invalid preservePitch values on Audio', () => {
 	expect(() =>
 		render(
 			<WrapSequenceContext>
 				<Html5Audio
 					// @ts-expect-error
-					preservesPitch="yes"
+					preservePitch="yes"
 					src="test"
 					volume={1}
 				/>
 			</WrapSequenceContext>,
 		),
 	).toThrow(
-		/'preservesPitch' must be a boolean or undefined but got 'string' instead/,
+		/'preservePitch' must be a boolean or undefined but got 'string' instead/,
 	);
 });

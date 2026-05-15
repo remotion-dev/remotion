@@ -77,7 +77,7 @@ describe('ValidateMediaProps should throw with invalid playbackRate', () => {
 	});
 });
 
-describe('ValidateMediaProps should validate preservesPitch', () => {
+describe('ValidateMediaProps should validate preservePitch', () => {
 	const testComponents = [
 		'Audio',
 		'Video',
@@ -86,47 +86,47 @@ describe('ValidateMediaProps should validate preservesPitch', () => {
 	] as const;
 
 	testComponents.forEach((component) => {
-		test(`It should allow ${component} preservesPitch to be undefined`, () => {
+		test(`It should allow ${component} preservePitch to be undefined`, () => {
 			expect(() =>
 				validateMediaProps(
-					{playbackRate: 1, preservesPitch: undefined, volume: undefined},
+					{playbackRate: 1, preservePitch: undefined, volume: undefined},
 					component,
 				),
 			).not.toThrow();
 		});
 
-		test(`It should allow ${component} preservesPitch to be true`, () => {
+		test(`It should allow ${component} preservePitch to be true`, () => {
 			expect(() =>
 				validateMediaProps(
-					{playbackRate: 1, preservesPitch: true, volume: undefined},
+					{playbackRate: 1, preservePitch: true, volume: undefined},
 					component,
 				),
 			).not.toThrow();
 		});
 
-		test(`It should allow ${component} preservesPitch to be false`, () => {
+		test(`It should allow ${component} preservePitch to be false`, () => {
 			expect(() =>
 				validateMediaProps(
-					{playbackRate: 1, preservesPitch: false, volume: undefined},
+					{playbackRate: 1, preservePitch: false, volume: undefined},
 					component,
 				),
 			).not.toThrow();
 		});
 	});
 
-	test('It should reject non-boolean preservesPitch values', () => {
+	test('It should reject non-boolean preservePitch values', () => {
 		expectToThrow(
 			() =>
 				validateMediaProps(
 					{
 						playbackRate: 1,
 						// @ts-expect-error
-						preservesPitch: 'yes',
+						preservePitch: 'yes',
 						volume: undefined,
 					},
 					'Html5Video',
 				),
-			/'preservesPitch' must be a boolean or undefined but got 'string' instead/,
+			/'preservePitch' must be a boolean or undefined but got 'string' instead/,
 		);
 	});
 });

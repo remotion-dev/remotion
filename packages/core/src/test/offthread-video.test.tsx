@@ -126,7 +126,7 @@ describe('OffthreadVideo render correctly with props', () => {
 		).toThrow(/Cannot use both endAt and trimAfter props/);
 	});
 
-	test('It should not set preservesPitch if the prop is omitted from OffthreadVideo', () => {
+	test('It should preserve the default pitch behavior if the prop is omitted from OffthreadVideo', () => {
 		const descriptor = Object.getOwnPropertyDescriptor(
 			HTMLMediaElement.prototype,
 			'preservesPitch',
@@ -163,10 +163,10 @@ describe('OffthreadVideo render correctly with props', () => {
 		}
 	});
 
-	test('It should sync preservesPitch on OffthreadVideo', () => {
+	test('It should sync preservePitch on OffthreadVideo', () => {
 		const {container, rerender} = render(
 			<WrapPreviewContext>
-				<OffthreadVideo preservesPitch src="https://example.com/test.mp4" />
+				<OffthreadVideo preservePitch src="https://example.com/test.mp4" />
 			</WrapPreviewContext>,
 		);
 
@@ -175,7 +175,7 @@ describe('OffthreadVideo render correctly with props', () => {
 		rerender(
 			<WrapPreviewContext>
 				<OffthreadVideo
-					preservesPitch={false}
+					preservePitch={false}
 					src="https://example.com/test.mp4"
 				/>
 			</WrapPreviewContext>,
@@ -184,19 +184,19 @@ describe('OffthreadVideo render correctly with props', () => {
 		expect(container.querySelector('video')?.preservesPitch).toBe(false);
 	});
 
-	test('It should reject invalid preservesPitch values on OffthreadVideo', () => {
+	test('It should reject invalid preservePitch values on OffthreadVideo', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
 					<OffthreadVideo
 						// @ts-expect-error
-						preservesPitch="yes"
+						preservePitch="yes"
 						src="test"
 					/>
 				</WrapSequenceContext>,
 			),
 		).toThrow(
-			/'preservesPitch' must be a boolean or undefined but got 'string' instead/,
+			/'preservePitch' must be a boolean or undefined but got 'string' instead/,
 		);
 	});
 });
