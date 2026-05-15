@@ -11,6 +11,7 @@ import {
 	getActiveJob,
 	type Job,
 	type JobRun,
+	type JobRunGroup,
 } from './jobs';
 import {
 	Card,
@@ -153,16 +154,70 @@ const baseRefInput = document.getElementById('comparison-base-ref');
 const panel = document.getElementById('active-job');
 const log = document.getElementById('job-log');
 const status = document.getElementById('job-status');
-const runStatus = {
-	before: document.getElementById('before-run-status'),
-	after: document.getElementById('after-run-status'),
-};
-const runLog = {
-	before: document.getElementById('before-run-log'),
-	after: document.getElementById('after-run-log'),
-};
+const runGroups = document.getElementById('run-groups');
 const activeJobId = ${JSON.stringify(activeJob?.id ?? null)};
 const defaultBaseRef = ${JSON.stringify(baseRef)};
+
+const formatLabel = (label) => label === 'before' ? 'Before' : 'After';
+const createRunPanel = (runGroup, label) => {
+	const run = runGroup[label];
+	const section = document.createElement('section');
+	section.className = 'min-w-0 rounded-xl border border-zinc-200 bg-white p-3';
+
+	const header = document.createElement('div');
+	header.className = 'flex items-center justify-between gap-3';
+
+	const title = document.createElement('h4');
+	title.className = 'text-sm font-semibold';
+	title.textContent = formatLabel(label);
+
+	const pill = document.createElement('span');
+	pill.className = 'rounded-full bg-zinc-50 px-2 py-1 text-xs text-zinc-500 data-[status=completed]:text-emerald-700 data-[status=failed]:text-red-700 data-[status=running]:text-yellow-700';
+	pill.dataset.status = run.status;
+	pill.textContent = run.message || run.status;
+
+	header.append(title, pill);
+	section.append(header);
+
+	const pre = document.createElement('pre');
+	pre.className = 'mt-3 max-h-70 overflow-auto whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700';
+	pre.hidden = !run.logs?.length;
+	pre.textContent = run.logs?.join('') || '';
+	section.append(pre);
+	pre.scrollTop = pre.scrollHeight;
+
+	return section;
+};
+
+const createRunGroup = (runGroup, totalRuns) => {
+	const section = document.createElement('section');
+	section.className = 'min-w-0 rounded-2xl border border-zinc-200 bg-zinc-50 p-4';
+
+	const title = document.createElement('h3');
+	title.className = 'text-[0.9375rem] font-semibold';
+	title.textContent = totalRuns > 1 ? 'Run #' + runGroup.index : 'Run';
+	section.append(title);
+
+	const grid = document.createElement('div');
+	grid.className = 'mt-3 grid grid-cols-2 gap-3 max-lg:grid-cols-1';
+	grid.append(createRunPanel(runGroup, 'before'), createRunPanel(runGroup, 'after'));
+	section.append(grid);
+
+	return section;
+};
+
+const createWaitingRunGroups = (runCount) => Array.from({length: runCount}, (_, index) => ({
+	index: index + 1,
+	before: {logs: [], message: 'Waiting to start', status: 'waiting'},
+	after: {logs: [], message: 'Waiting to start', status: 'waiting'},
+}));
+
+const renderRunGroups = (runs) => {
+	const runList = runs || [];
+	runGroups.replaceChildren(
+		...runList.map((runGroup) => createRunGroup(runGroup, runList.length)),
+	);
+};
 
 const renderJob = (job) => {
 	panel.hidden = false;
@@ -174,22 +229,7 @@ const renderJob = (job) => {
 		log.scrollTop = log.scrollHeight;
 	}
 
-	for (const label of ['before', 'after']) {
-		const run = job.runs?.[label];
-
-		if (!run) {
-			continue;
-		}
-
-		runStatus[label].textContent = run.message || run.status;
-		runStatus[label].dataset.status = run.status;
-
-		if (run.logs?.length) {
-			runLog[label].hidden = false;
-			runLog[label].textContent = run.logs.join('');
-			runLog[label].scrollTop = runLog[label].scrollHeight;
-		}
-	}
+	renderRunGroups(job.runs);
 };
 
 const poll = async (jobId) => {
@@ -225,12 +265,7 @@ button?.addEventListener('click', async () => {
 	button.disabled = true;
 	panel.hidden = false;
 	status.textContent = 'Starting comparison...';
-	for (const label of ['before', 'after']) {
-		runStatus[label].textContent = 'Waiting to start';
-		runStatus[label].dataset.status = 'waiting';
-		runLog[label].hidden = true;
-		runLog[label].textContent = '';
-	}
+	renderRunGroups(createWaitingRunGroups(Number(runCountSelect.value)));
 	const beforeGitRef = baseRefInput?.value?.trim() || defaultBaseRef;
 	const shouldCompare = button.dataset.hasSkillChanges === 'true' || beforeGitRef !== defaultBaseRef;
 	const targetUrl = new URL(shouldCompare ? button.dataset.compareUrl : button.dataset.runUrl, location.origin);
@@ -255,24 +290,40 @@ const RunProgressCard = ({
 	jobRun: JobRun;
 	label: 'after' | 'before';
 }) => (
-	<section className="min-w-0 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+	<section className="min-w-0 rounded-xl border border-zinc-200 bg-white p-3">
 		<div className="flex items-center justify-between gap-3">
-			<h3 className="text-sm font-semibold">{formatRunLabel(label)}</h3>
+			<h4 className="text-sm font-semibold">{formatRunLabel(label)}</h4>
 			<span
-				className="rounded-full bg-white px-2 py-1 text-xs text-zinc-500 data-[status=completed]:text-emerald-700 data-[status=failed]:text-red-700 data-[status=running]:text-yellow-700"
+				className="rounded-full bg-zinc-50 px-2 py-1 text-xs text-zinc-500 data-[status=completed]:text-emerald-700 data-[status=failed]:text-red-700 data-[status=running]:text-yellow-700"
 				data-status={jobRun.status}
-				id={`${label}-run-status`}
 			>
 				{jobRun.message}
 			</span>
 		</div>
 		<pre
-			className="mt-3 max-h-70 overflow-auto whitespace-pre-wrap rounded-lg border border-zinc-200 bg-white p-3 text-xs text-zinc-700"
+			className="mt-3 max-h-70 overflow-auto whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700"
 			hidden={jobRun.logs.length === 0}
-			id={`${label}-run-log`}
 		>
 			{jobRun.logs.join('')}
 		</pre>
+	</section>
+);
+
+const RunProgressGroup = ({
+	runCount,
+	runGroup,
+}: {
+	runCount: number;
+	runGroup: JobRunGroup;
+}) => (
+	<section className="min-w-0 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+		<h3 className="text-[0.9375rem] font-semibold">
+			{runCount > 1 ? `Run #${runGroup.index}` : 'Run'}
+		</h3>
+		<div className="mt-3 grid grid-cols-2 gap-3 max-lg:grid-cols-1">
+			<RunProgressCard jobRun={runGroup.before} label="before" />
+			<RunProgressCard jobRun={runGroup.after} label="after" />
+		</div>
 	</section>
 );
 
@@ -284,6 +335,7 @@ const ActiveJobPanel = ({
 	job: Job | undefined;
 }) => {
 	const runs = job?.runs ?? createJobRuns();
+	const runCount = job?.runCount ?? runs.length;
 
 	return (
 		<section
@@ -313,9 +365,14 @@ const ActiveJobPanel = ({
 			>
 				{job?.logs.join('') ?? ''}
 			</pre>
-			<div className="mt-3 grid grid-cols-2 gap-3 max-lg:grid-cols-1">
-				<RunProgressCard jobRun={runs.before} label="before" />
-				<RunProgressCard jobRun={runs.after} label="after" />
+			<div className="mt-3 grid gap-3" id="run-groups">
+				{runs.map((runGroup) => (
+					<RunProgressGroup
+						key={runGroup.index}
+						runCount={runCount}
+						runGroup={runGroup}
+					/>
+				))}
 			</div>
 		</section>
 	);
