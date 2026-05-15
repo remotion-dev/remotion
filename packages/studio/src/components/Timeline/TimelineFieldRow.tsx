@@ -213,10 +213,6 @@ export const TimelineFieldRow: React.FC<{
 	);
 	const codeValue = codeValuesForOverride?.[field.key] ?? null;
 
-	if (codeValue === null) {
-		throw new Error('Unexpectedly got null code value for field' + field.key);
-	}
-
 	const style = useMemo(() => {
 		return {
 			...fieldRowBase,
@@ -224,6 +220,10 @@ export const TimelineFieldRow: React.FC<{
 			paddingLeft,
 		};
 	}, [field.rowHeight, paddingLeft]);
+
+	if (codeValue === null) {
+		return null;
+	}
 
 	return (
 		<div style={style}>
