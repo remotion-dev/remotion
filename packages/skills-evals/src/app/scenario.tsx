@@ -158,11 +158,15 @@ const runGroups = document.getElementById('run-groups');
 const activeJobId = ${JSON.stringify(activeJob?.id ?? null)};
 const defaultBaseRef = ${JSON.stringify(baseRef)};
 
+const shouldStickToBottom = (element) =>
+	element.scrollHeight - element.scrollTop - element.clientHeight < 8;
+
 const formatLabel = (label) => label === 'before' ? 'Before' : 'After';
 const createRunPanel = (runGroup, label) => {
 	const run = runGroup[label];
 	const section = document.createElement('section');
 	section.className = 'min-w-0 rounded-xl border border-zinc-200 bg-white p-3';
+	section.dataset.runLabel = label;
 
 	const header = document.createElement('div');
 	header.className = 'flex items-center justify-between gap-3';
@@ -173,6 +177,7 @@ const createRunPanel = (runGroup, label) => {
 
 	const pill = document.createElement('span');
 	pill.className = 'rounded-full bg-zinc-50 px-2 py-1 text-xs text-zinc-500 data-[status=completed]:text-emerald-700 data-[status=failed]:text-red-700 data-[status=running]:text-yellow-700';
+	pill.dataset.runStatus = label;
 	pill.dataset.status = run.status;
 	pill.textContent = run.message || run.status;
 
@@ -181,6 +186,7 @@ const createRunPanel = (runGroup, label) => {
 
 	const pre = document.createElement('pre');
 	pre.className = 'mt-3 max-h-70 overflow-auto whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700';
+	pre.dataset.runLog = label;
 	pre.hidden = !run.logs?.length;
 	pre.textContent = run.logs?.join('') || '';
 	section.append(pre);
@@ -192,6 +198,7 @@ const createRunPanel = (runGroup, label) => {
 const createRunGroup = (runGroup, totalRuns) => {
 	const section = document.createElement('section');
 	section.className = 'min-w-0 rounded-2xl border border-zinc-200 bg-zinc-50 p-4';
+	section.dataset.runIndex = String(runGroup.index);
 
 	const title = document.createElement('h3');
 	title.className = 'text-[0.9375rem] font-semibold';
@@ -206,6 +213,33 @@ const createRunGroup = (runGroup, totalRuns) => {
 	return section;
 };
 
+const updateRunPanel = (section, runGroup, label) => {
+	const run = runGroup[label];
+	const pill = section.querySelector('[data-run-status="' + label + '"]');
+	const pre = section.querySelector('[data-run-log="' + label + '"]');
+	const logText = run.logs?.join('') || '';
+
+	pill.dataset.status = run.status;
+	pill.textContent = run.message || run.status;
+
+	if (pre.textContent !== logText) {
+		const stickToBottom = shouldStickToBottom(pre);
+		pre.textContent = logText;
+		pre.hidden = !logText;
+
+		if (stickToBottom) {
+			pre.scrollTop = pre.scrollHeight;
+		}
+	}
+};
+
+const updateRunGroup = (section, runGroup, totalRuns) => {
+	const title = section.querySelector('h3');
+	title.textContent = totalRuns > 1 ? 'Run #' + runGroup.index : 'Run';
+	updateRunPanel(section.querySelector('[data-run-label="before"]'), runGroup, 'before');
+	updateRunPanel(section.querySelector('[data-run-label="after"]'), runGroup, 'after');
+};
+
 const createWaitingRunGroups = (runCount) => Array.from({length: runCount}, (_, index) => ({
 	index: index + 1,
 	before: {logs: [], message: 'Waiting to start', status: 'waiting'},
@@ -214,9 +248,30 @@ const createWaitingRunGroups = (runCount) => Array.from({length: runCount}, (_, 
 
 const renderRunGroups = (runs) => {
 	const runList = runs || [];
-	runGroups.replaceChildren(
-		...runList.map((runGroup) => createRunGroup(runGroup, runList.length)),
-	);
+	const seen = new Set();
+
+	for (const runGroup of runList) {
+		const key = String(runGroup.index);
+		let section = runGroups.querySelector('[data-run-index="' + key + '"]');
+
+		if (!section) {
+			section = createRunGroup(runGroup, runList.length);
+			runGroups.append(section);
+			for (const pre of section.querySelectorAll('[data-run-log]')) {
+				pre.scrollTop = pre.scrollHeight;
+			}
+		} else {
+			updateRunGroup(section, runGroup, runList.length);
+		}
+
+		seen.add(key);
+	}
+
+	for (const section of [...runGroups.querySelectorAll('[data-run-index]')]) {
+		if (!seen.has(section.dataset.runIndex)) {
+			section.remove();
+		}
+	}
 };
 
 const renderJob = (job) => {
@@ -290,11 +345,15 @@ const RunProgressCard = ({
 	jobRun: JobRun;
 	label: 'after' | 'before';
 }) => (
-	<section className="min-w-0 rounded-xl border border-zinc-200 bg-white p-3">
+	<section
+		className="min-w-0 rounded-xl border border-zinc-200 bg-white p-3"
+		data-run-label={label}
+	>
 		<div className="flex items-center justify-between gap-3">
 			<h4 className="text-sm font-semibold">{formatRunLabel(label)}</h4>
 			<span
 				className="rounded-full bg-zinc-50 px-2 py-1 text-xs text-zinc-500 data-[status=completed]:text-emerald-700 data-[status=failed]:text-red-700 data-[status=running]:text-yellow-700"
+				data-run-status={label}
 				data-status={jobRun.status}
 			>
 				{jobRun.message}
@@ -302,6 +361,7 @@ const RunProgressCard = ({
 		</div>
 		<pre
 			className="mt-3 max-h-70 overflow-auto whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700"
+			data-run-log={label}
 			hidden={jobRun.logs.length === 0}
 		>
 			{jobRun.logs.join('')}
@@ -316,7 +376,10 @@ const RunProgressGroup = ({
 	runCount: number;
 	runGroup: JobRunGroup;
 }) => (
-	<section className="min-w-0 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+	<section
+		className="min-w-0 rounded-2xl border border-zinc-200 bg-zinc-50 p-4"
+		data-run-index={runGroup.index}
+	>
 		<h3 className="text-[0.9375rem] font-semibold">
 			{runCount > 1 ? `Run #${runGroup.index}` : 'Run'}
 		</h3>
