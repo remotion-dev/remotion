@@ -55,7 +55,7 @@ const getSequencePropsStatus = ({
 			return {
 				status: cachedResult,
 				nodePath: {
-					absolutePath: fileName,
+					absolutePath: path.resolve(remotionRoot, fileName),
 					nodePath: cachedNodePath,
 					sequenceKeys: keys,
 					effectKeys: effects,

@@ -4,15 +4,15 @@ export type {
 	InlineAudioAsset,
 	TRenderAsset,
 } from './CompositionManager';
-export {DownloadBehavior} from './download-behavior';
-export {
-	assertValidInterpolateEasingOption,
+export type {DownloadBehavior} from './download-behavior';
+export {assertValidInterpolateEasingOption, interpolate} from './interpolate';
+export type {
 	EasingFunction,
 	ExtrapolateType,
-	interpolate,
 	InterpolateOptions,
 } from './interpolate';
-export {random, RandomSeed} from './random.js';
+export {random} from './random.js';
+export type {RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
 
 import {
