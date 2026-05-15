@@ -2,6 +2,7 @@ import {scenarios} from '../scenarios';
 import {runSkillEvalComparison} from './compare';
 import {maxParallelSkillEvalRuns, validateSkillEvalRunCount} from './run-count';
 import {runSkillEval} from './run-skill-eval';
+import {runWithConcurrency} from './run-with-concurrency';
 
 const serverUrl = 'http://localhost:4321';
 
@@ -77,31 +78,6 @@ const parseCompareOptions = (args: string[]) => {
 		beforeGitRef,
 		runCount: parseRunCount(runCountArgs),
 	};
-};
-
-const runWithConcurrency = async <TInput, TOutput>({
-	inputs,
-	limit,
-	worker,
-}: {
-	inputs: TInput[];
-	limit: number;
-	worker: (input: TInput) => Promise<TOutput>;
-}) => {
-	const results: TOutput[] = [];
-	let nextIndex = 0;
-
-	await Promise.all(
-		Array.from({length: Math.min(limit, inputs.length)}, async () => {
-			while (nextIndex < inputs.length) {
-				const currentIndex = nextIndex;
-				nextIndex++;
-				results[currentIndex] = await worker(inputs[currentIndex]);
-			}
-		}),
-	);
-
-	return results;
 };
 
 const main = async () => {

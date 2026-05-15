@@ -302,6 +302,11 @@ const poll = async (jobId) => {
 		return;
 	}
 
+	if (job.status === 'completed') {
+		button.disabled = false;
+		return;
+	}
+
 	if (job.status === 'failed' || job.status === 'skipped') {
 		button.disabled = false;
 		return;

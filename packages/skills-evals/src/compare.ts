@@ -16,6 +16,7 @@ import {
 	type SkillEvalOutput,
 	type SkillEvalPhaseEvent,
 } from './run-skill-eval';
+import {runWithConcurrency} from './run-with-concurrency';
 
 export type SkillEvalComparisonRunLabel = 'after' | 'before';
 
@@ -86,43 +87,6 @@ export const getDefaultComparisonBaseRef = () =>
 
 const getErrorMessage = (error: unknown) =>
 	error instanceof Error ? error.message : String(error);
-
-const runWithConcurrency = async <TInput, TOutput>({
-	inputs,
-	limit,
-	worker,
-}: {
-	inputs: TInput[];
-	limit: number;
-	worker: (input: TInput) => Promise<TOutput>;
-}) => {
-	const results: TOutput[] = [];
-	let nextIndex = 0;
-	let firstError: unknown = null;
-	const workerCount = Math.min(limit, inputs.length);
-
-	await Promise.allSettled(
-		Array.from({length: workerCount}, async () => {
-			while (nextIndex < inputs.length && !firstError) {
-				const currentIndex = nextIndex;
-				nextIndex++;
-
-				try {
-					results[currentIndex] = await worker(inputs[currentIndex]);
-				} catch (error) {
-					firstError ??= error;
-					throw error;
-				}
-			}
-		}),
-	);
-
-	if (firstError) {
-		throw firstError;
-	}
-
-	return results;
-};
 
 const copyGitSkills = async ({gitRef, to}: {gitRef: string; to: string}) => {
 	await mkdir(to, {recursive: true});

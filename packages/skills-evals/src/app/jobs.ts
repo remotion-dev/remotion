@@ -10,6 +10,7 @@ import {
 	validateSkillEvalRunCount,
 } from '../run-count';
 import {runSkillEval, type SkillEvalPhase} from '../run-skill-eval';
+import {runWithConcurrency} from '../run-with-concurrency';
 import {toComparisonUrl} from './shared';
 
 export type Job = {
@@ -78,42 +79,6 @@ export const getActiveJob = (scenarioId: string) =>
 	[...jobs.values()].find(
 		(job) => job.scenarioId === scenarioId && job.status === 'running',
 	);
-
-const runWithConcurrency = async <TInput, TOutput>({
-	inputs,
-	limit,
-	worker,
-}: {
-	inputs: TInput[];
-	limit: number;
-	worker: (input: TInput) => Promise<TOutput>;
-}) => {
-	const results: TOutput[] = [];
-	let nextIndex = 0;
-	let firstError: unknown = null;
-
-	await Promise.allSettled(
-		Array.from({length: Math.min(limit, inputs.length)}, async () => {
-			while (nextIndex < inputs.length && !firstError) {
-				const currentIndex = nextIndex;
-				nextIndex++;
-
-				try {
-					results[currentIndex] = await worker(inputs[currentIndex]);
-				} catch (error) {
-					firstError ??= error;
-					throw error;
-				}
-			}
-		}),
-	);
-
-	if (firstError) {
-		throw firstError;
-	}
-
-	return results;
-};
 
 export const startComparison = (
 	scenario: SkillEvalScenario,
@@ -337,9 +302,12 @@ export const startRun = (
 
 			job.message =
 				runCount === 1 ? 'Run complete.' : `${runCount} runs complete.`;
-			job.resultUrl = `/runs/${encodeURIComponent(
-				result.manifest.id,
-			)}/${encodeURIComponent(basename(result.manifest.runDir))}`;
+			if (runCount === 1) {
+				job.resultUrl = `/runs/${encodeURIComponent(
+					result.manifest.id,
+				)}/${encodeURIComponent(basename(result.manifest.runDir))}`;
+			}
+
 			job.status = 'completed';
 		})
 		.catch((error: unknown) => {
