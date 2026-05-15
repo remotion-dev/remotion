@@ -97,15 +97,7 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 					</Sequence>
 				</Tile>
 				<Tile title="HtmlInCanvas">
-					<HtmlInCanvas
-						width={400}
-						height={300}
-						style={{
-							translate: '0px -124px',
-							scale: 2.06,
-							rotate: '48deg',
-						}}
-					>
+					<HtmlInCanvas width={400} height={300}>
 						<div
 							style={{
 								width: 400,
