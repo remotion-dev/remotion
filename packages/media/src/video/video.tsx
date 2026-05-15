@@ -30,6 +30,11 @@ const videoSchema = {
 		default: 1,
 		description: 'Playback Rate',
 	},
+	hidden: {
+		type: 'boolean',
+		default: false,
+		description: 'Hidden',
+	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	...Internals.sequenceStyleSchema,
 } as const satisfies SequenceSchema;
@@ -200,6 +205,7 @@ const VideoInner: React.FC<
 	_experimentalEffects,
 	durationInFrames,
 	from,
+	hidden,
 }) => {
 	const fallbackLogLevel = Internals.useLogLevel();
 	const [mediaVolume] = Internals.useMediaVolumeState();
@@ -279,6 +285,7 @@ const VideoInner: React.FC<
 			_remotionInternalLoopDisplay={loopDisplay}
 			_experimentalEffects={memoizedEffects}
 			showInTimeline={showInTimeline ?? true}
+			hidden={hidden}
 		>
 			<InnerVideo
 				audioStreamIndex={audioStreamIndex ?? 0}
