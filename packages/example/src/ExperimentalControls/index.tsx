@@ -10,6 +10,7 @@ import {
 	HtmlInCanvas,
 	Img,
 	Sequence,
+	Series,
 	staticFile,
 } from 'remotion';
 
@@ -201,6 +202,19 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 						Html5Audio (no visual)
 						<Html5Audio src={staticFile('music.mp3')} volume={1} />
 					</div>
+				</Tile>{' '}
+				<Tile title="Series">
+					<Series>
+						<Series.Sequence
+							durationInFrames={120}
+							style={{
+								rotate: '55deg',
+							}}
+							hidden
+						>
+							<AbsoluteFill style={{backgroundColor: 'red'}}></AbsoluteFill>
+						</Series.Sequence>
+					</Series>
 				</Tile>
 			</div>
 		</AbsoluteFill>
