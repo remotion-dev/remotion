@@ -20,15 +20,15 @@ crumb: 'Designing visuals'
 
 Regular video editors are canvas-based which allows for complex effects and compositing that is not possible with plain CSS.
 
-[HTML-in-canvas](https://github.com/WICG/html-in-canvas) is an experimental browser API currently only available in Chrome Canary behind a flag, which allows you to draw a live DOM node into a `<canvas>` and post-process it with the Canvas 2D API, WebGL or WebGPU.
+[HTML-in-canvas](https://github.com/WICG/html-in-canvas) is an experimental browser API available in Chrome and other Chromium-based browsers behind a flag, which allows you to draw a live DOM node into a `<canvas>` and post-process it with the Canvas 2D API, WebGL or WebGPU.
 
 Remotion offers a [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) component, [transitions](#with-remotiontransitions) and HTML-in-canvas-based client-side rendering.
 
-## Enabling the flag in Chrome Canary
+## Enabling the flag in Chrome
 
-To preview HTML-in-canvas effects in the [Remotion Studio](/docs/studio), you need to use [Chrome Canary](https://www.google.com/chrome/canary/) v149 and enable a flag:
+To preview HTML-in-canvas effects in the [Remotion Studio](/docs/studio), use [Google Chrome](https://www.google.com/chrome/) v149 or later and enable a flag:
 
-1. Install [Chrome Canary](https://www.google.com/chrome/canary/).
+1. Install or update [Google Chrome](https://www.google.com/chrome/).
 2. Open `chrome://flags/#canvas-draw-element`.
 3. Set the `HTML-in-Canvas` flag to `Enabled` and restart.
 
@@ -90,7 +90,7 @@ You can also build your own — see [Making a custom HTML-in-canvas presentation
 
 ## Limitations
 
-HTML-in-canvas is only available in [Chrome Canary](https://www.google.com/chrome/canary/) (Chrome 149 and later) with the `chrome://flags/#canvas-draw-element` flag enabled.  
+HTML-in-canvas is only available in Chrome 149 and later with the `chrome://flags/#canvas-draw-element` flag enabled.  
 The API is unstable - Chrome may change the API or even remove it in the future.
 
 Nesting `<HtmlInCanvas>` inside another `<HtmlInCanvas>` is not supported. Chrome would only display the outer effect, so this is invalid in Remotion. It will throw an error.  
@@ -100,7 +100,7 @@ If you need to combine multiple effects, try to merge them into a single `onPain
 
 From [`v4.0.455`](https://github.com/remotion-dev/remotion/releases/tag/v4.0.455), render is supported locally via [`npx remotion render`](/docs/cli/render) and Studio, on [Lambda](/docs/lambda), on [Vercel](/docs/vercel) and through [server-side rendering](/docs/ssr) APIs.
 
-We compiled a version of Chrome Canary and made it the default, and enabled the flag for you.
+We compiled a version of Chrome and made it the default, and enabled the flag for you.
 
 If your effect uses a WebGL shader, pass [`--gl=angle`](/docs/gl-options) to make the render work:
 

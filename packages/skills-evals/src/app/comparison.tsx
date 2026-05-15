@@ -175,7 +175,7 @@ export const renderComparison = (comparisonData: ComparisonWithManifests) => {
 				<main className="grid min-w-0 gap-4">
 					<div className="grid grid-cols-2 gap-3 max-lg:grid-cols-1">
 						<RunPanel
-							label="Before"
+							label={`Before (${comparison.before.gitRef ?? comparison.before.source})`}
 							manifest={beforeManifest}
 							manifestPath={comparison.before.manifestPath}
 						/>

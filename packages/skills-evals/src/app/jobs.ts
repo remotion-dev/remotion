@@ -69,7 +69,10 @@ export const getActiveJob = (scenarioId: string) =>
 		(job) => job.scenarioId === scenarioId && job.status === 'running',
 	);
 
-export const startComparison = (scenario: SkillEvalScenario) => {
+export const startComparison = (
+	scenario: SkillEvalScenario,
+	options: {beforeGitRef?: string} = {},
+) => {
 	const existingJob = getActiveJob(scenario.id);
 
 	if (existingJob) {
@@ -163,6 +166,7 @@ export const startComparison = (scenario: SkillEvalScenario) => {
 	};
 
 	const comparisonPromise = runSkillEvalComparison(scenario, {
+		beforeGitRef: options.beforeGitRef,
 		onEvent: handleEvent,
 	})
 		.then((result) => {
