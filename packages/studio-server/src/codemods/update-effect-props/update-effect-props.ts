@@ -28,6 +28,7 @@ export type UpdateEffectPropsResult = {
 	formatted: boolean;
 	oldValueString: string;
 	logLine: number;
+	effectCallee: string;
 };
 
 const parseValueExpression = (value: unknown): ExpressionKind => {
@@ -188,6 +189,7 @@ export const updateEffectPropsAst = ({
 	serialized: string;
 	oldValueString: string;
 	logLine: number;
+	effectCallee: string;
 } => {
 	const ast = parseAst(input);
 	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
@@ -214,6 +216,10 @@ export const updateEffectPropsAst = ({
 	}
 
 	const {call} = found;
+	const effectCallee = getCalleeName(call);
+	if (effectCallee === null) {
+		throw new Error('Cannot update effect prop: not-call-expression');
+	}
 
 	const isDefault =
 		update.defaultValue !== null &&
@@ -228,6 +234,7 @@ export const updateEffectPropsAst = ({
 				serialized: serializeAst(ast),
 				oldValueString: '',
 				logLine,
+				effectCallee,
 			};
 		}
 
@@ -275,6 +282,7 @@ export const updateEffectPropsAst = ({
 		serialized: serializeAst(ast),
 		oldValueString,
 		logLine,
+		effectCallee,
 	};
 };
 
@@ -291,12 +299,13 @@ export const updateEffectProps = async ({
 	update: EffectPropUpdate;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<UpdateEffectPropsResult> => {
-	const {serialized, oldValueString, logLine} = updateEffectPropsAst({
-		input,
-		sequenceNodePath,
-		effectIndex,
-		update,
-	});
+	const {serialized, oldValueString, logLine, effectCallee} =
+		updateEffectPropsAst({
+			input,
+			sequenceNodePath,
+			effectIndex,
+			update,
+		});
 
 	const {output, formatted} = await formatFileContent({
 		input: serialized,
@@ -308,5 +317,6 @@ export const updateEffectProps = async ({
 		oldValueString,
 		formatted,
 		logLine,
+		effectCallee,
 	};
 };

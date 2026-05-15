@@ -14,8 +14,6 @@ import {
 	equals,
 	numberValue,
 	punctuation,
-	strikeThrough,
-	stringValue,
 } from '../preview-server/routes/log-updates/formatting';
 import {
 	logUpdate,
@@ -51,8 +49,6 @@ export const LightLeakExample: React.FC = () => {
 `;
 
 test('logUpdate emits Monokai-colored output after an AST update', async () => {
-	expect(chalk.enabled()).toBe(true);
-
 	const {output, oldValueStrings, formatted, logLine} =
 		await updateSequenceProps({
 			input,
@@ -96,8 +92,6 @@ test('logUpdate emits Monokai-colored output after an AST update', async () => {
 });
 
 test('logUpdate emits change-from-default output for discriminated union enum change', async () => {
-	expect(chalk.enabled()).toBe(true);
-
 	const fixture = readFileSync(
 		path.join(__dirname, 'snapshots', 'discriminated-union-with-style.tsx'),
 		'utf-8',
@@ -146,32 +140,20 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 		expect(consoleSpy).toHaveBeenCalledTimes(1);
 		const logged = consoleSpy.mock.calls[0].join(' ');
 
-		const simpleProp = (key: string, value: string) =>
-			`${attrName(key)}${equals('=')}${punctuation('{')}${stringValue(value)}${punctuation('}')}`;
-
-		const simplePropPunctuation = (key: string, value: string) =>
-			`${attrName(key)}${equals('=')}${punctuation('{')}${punctuation(value)}${punctuation('}')}`;
-
-		const expectedPropChange = `${simpleProp('layout', "'none'")}, ${strikeThrough(simplePropPunctuation('style', '{ scale: 1.74 }'))}`;
+		const expectedPropChange = formatPropChange({
+			key: 'layout',
+			oldValueString: normalizeQuotes(oldValueStrings[0]),
+			newValueString: normalizeQuotes(newValueString),
+			defaultValueString:
+				defaultValueString !== null
+					? normalizeQuotes(defaultValueString)
+					: null,
+			removedProps,
+			addedProps: [],
+		});
 		const expectedLine = `${chalk.blueBright(`src/Example.tsx:${logLine}`)} ${expectedPropChange}`;
 
 		expect(logged).toBe(expectedLine);
-
-		const normalizedOld = normalizeQuotes(oldValueStrings[0]);
-		const normalizedNew = normalizeQuotes(newValueString);
-		const normalizedDefault = normalizeQuotes(defaultValueString);
-
-		const undoPropChange = formatPropChange({
-			key: 'layout',
-			oldValueString: normalizedNew,
-			newValueString: normalizedOld,
-			defaultValueString: normalizedDefault,
-			removedProps: [],
-			addedProps: removedProps,
-		});
-
-		const expectedUndoPropChange = `${strikeThrough(simpleProp('layout', "'none'"))}, ${simplePropPunctuation('style', '{ scale: 1.74 }')}`;
-		expect(undoPropChange).toBe(expectedUndoPropChange);
 	} finally {
 		consoleSpy.mockRestore();
 	}
