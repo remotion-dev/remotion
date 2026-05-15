@@ -24,7 +24,7 @@
 		"loader-utils": "2.0.4",
 		"postcss": "8.5.10",
 		"postcss-value-parser": "4.2.0",
-		"esbuild": "0.25.0",
+		"esbuild": "0.28.0",
 		"react-refresh": "0.18.0",
 		"remotion": "workspace:*",
 		"@remotion/studio": "workspace:*",

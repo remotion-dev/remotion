@@ -8,6 +8,12 @@ import {loadRun, renderRun} from './run';
 import {renderScenario} from './scenario';
 import {htmlResponse, json, notFound} from './shared';
 
+const getRunCount = (request: Request) => {
+	const value = new URL(request.url).searchParams.get('runs');
+
+	return value === null ? undefined : Number(value);
+};
+
 export const routes = {
 	'/': async () => htmlResponse(await renderHome()),
 
@@ -28,7 +34,19 @@ export const routes = {
 					? body.beforeGitRef
 					: undefined;
 
-			return json(startComparison(scenario, {beforeGitRef}));
+			try {
+				return json(
+					startComparison(scenario, {
+						beforeGitRef,
+						runCount: getRunCount(request),
+					}),
+				);
+			} catch (error) {
+				return json(
+					{error: error instanceof Error ? error.message : String(error)},
+					{status: 400},
+				);
+			}
 		},
 	},
 
@@ -50,7 +68,14 @@ export const routes = {
 				return json({error: 'Unknown scenario'}, {status: 404});
 			}
 
-			return json(startRun(scenario));
+			try {
+				return json(startRun(scenario, getRunCount(request)));
+			} catch (error) {
+				return json(
+					{error: error instanceof Error ? error.message : String(error)},
+					{status: 400},
+				);
+			}
 		},
 	},
 

@@ -1,12 +1,13 @@
 import {expect, test} from 'bun:test';
+import {getAllSchemaKeys} from '@remotion/studio-shared';
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
-import {getAllSchemaKeys} from '../codemods/get-all-schema-keys';
+import {NoReactInternals} from 'remotion/no-react';
 
 const {getFlatSchemaWithAllKeys} = Internals;
 
 test('getAllSchemaKeys returns every key across all enum variants', () => {
-	const keys = getAllSchemaKeys(Internals.sequenceSchema);
+	const keys = getAllSchemaKeys(NoReactInternals.sequenceSchema);
 	expect(keys.sort()).toEqual(
 		[
 			'layout',

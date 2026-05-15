@@ -10,14 +10,17 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {CannotUpdateSequenceReason} from 'remotion';
 import type {
 	_InternalTypes,
+	CanUpdateEffectPropsResponse,
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
+	CanUpdateSequencePropStatus,
 	SequenceSchema,
+	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
-import type {CanUpdateSequencePropsResponse} from 'remotion';
-import type {SequenceNodePath} from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
@@ -210,7 +213,7 @@ export type UnsubscribeFromDefaultPropsRequest = {
 
 export type CanUpdateSequencePropsRequest = {
 	fileName: string;
-	nodePath: SequenceNodePath;
+	nodePath: SequencePropsSubscriptionKey;
 	keys: string[];
 };
 
@@ -218,7 +221,8 @@ export type SubscribeToSequencePropsRequest = {
 	fileName: string;
 	line: number;
 	column: number;
-	schema: SequenceSchema;
+	keys: string[];
+	effects: string[][];
 	clientId: string;
 };
 
@@ -226,7 +230,7 @@ export type SubscribeToSequencePropsResponse =
 	| {
 			success: true;
 			status: CanUpdateSequencePropsResponseTrue;
-			nodePath: SequenceNodePath;
+			nodePath: SequencePropsSubscriptionKey;
 	  }
 	| {
 			success: false;
@@ -235,18 +239,42 @@ export type SubscribeToSequencePropsResponse =
 
 export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
-	nodePath: SequenceNodePath;
+	nodePath: SequencePropsSubscriptionKey;
 	clientId: string;
+	sequenceKeys: string[];
+	effectKeys: string[][];
 };
 
 export type SaveSequencePropsRequest = {
 	fileName: string;
-	nodePath: SequenceNodePath;
+	nodePath: SequencePropsSubscriptionKey;
 	key: string;
 	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
 };
+
+export type SaveSequencePropsResponse =
+	| {
+			canUpdate: true;
+			props: Record<string, CanUpdateSequencePropStatus>;
+	  }
+	| {
+			canUpdate: false;
+			reason: CannotUpdateSequenceReason;
+	  };
+
+export type SaveEffectPropsRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+	key: string;
+	value: string;
+	defaultValue: string | null;
+	schema: SequenceSchema;
+};
+
+export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
 
 export type DeleteJsxNodeRequest = {
 	fileName: string;
@@ -359,7 +387,11 @@ export type ApiRoutes = {
 	>;
 	'/api/save-sequence-props': ReqAndRes<
 		SaveSequencePropsRequest,
-		CanUpdateSequencePropsResponse
+		SaveSequencePropsResponse
+	>;
+	'/api/save-effect-props': ReqAndRes<
+		SaveEffectPropsRequest,
+		SaveEffectPropsResponse
 	>;
 	'/api/delete-jsx-node': ReqAndRes<
 		DeleteJsxNodeRequest,

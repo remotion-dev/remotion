@@ -139,6 +139,7 @@ const mandatoryDeploySite = async ({
 			keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
 			renderDefaults: null,
 			rspack: options?.rspack ?? false,
+			symlinkPublicDir: false,
 		}),
 	]);
 

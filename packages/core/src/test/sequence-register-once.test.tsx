@@ -39,9 +39,7 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 
 		const visualCodeValues = useMemo(
 			() => ({
-				getCodeValues: () => {
-					throw new Error('VisualModeCodeValuesContext not initialized');
-				},
+				codeValues: {},
 			}),
 			[],
 		);
@@ -49,6 +47,9 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 		const visualDragOverrides = useMemo(
 			() => ({
 				getDragOverrides: () => {
+					throw new Error('VisualModeDragOverridesContext not initialized');
+				},
+				getEffectDragOverrides: () => {
 					throw new Error('VisualModeDragOverridesContext not initialized');
 				},
 			}),
@@ -59,6 +60,8 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 			() => ({
 				setDragOverrides: () => undefined,
 				clearDragOverrides: () => undefined,
+				setEffectDragOverrides: () => undefined,
+				clearEffectDragOverrides: () => undefined,
 				setCodeValues: () => undefined,
 			}),
 			[],

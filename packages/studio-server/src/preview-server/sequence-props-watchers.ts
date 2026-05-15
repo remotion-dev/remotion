@@ -1,6 +1,11 @@
 import path from 'node:path';
-import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
-import type {CanUpdateSequencePropsResponse, SequenceNodePath} from 'remotion';
+import {RenderInternals} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/renderer';
+import {
+	stringifySequenceSubscriptionKey,
+	type SubscribeToSequencePropsResponse,
+} from '@remotion/studio-shared';
+import type {SequenceNodePath} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
 import {getCachedNodePath, setCachedNodePath} from './node-path-cache';
@@ -17,28 +22,22 @@ type WatcherInfo = {
 
 const sequencePropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
 
-const makeWatcherKey = ({
-	absolutePath,
-	nodePath,
-}: {
-	absolutePath: string;
-	nodePath: SequenceNodePath;
-}): string => {
-	return `${absolutePath}:${JSON.stringify(nodePath)}`;
-};
-
 const getSequencePropsStatus = ({
 	fileName,
 	line,
 	column,
 	keys,
+	effects,
 	remotionRoot,
+	logLevel,
 }: {
 	fileName: string;
 	line: number;
 	column: number;
 	keys: string[];
+	effects: string[][];
 	remotionRoot: string;
+	logLevel: LogLevel;
 }): SubscribeToSequencePropsResponse => {
 	// Try cached nodePath first (handles stale source maps after suppressed rebuilds)
 	const cachedNodePath = getCachedNodePath(fileName, line, column);
@@ -48,11 +47,21 @@ const getSequencePropsStatus = ({
 			fileName,
 			nodePath: cachedNodePath,
 			keys,
+			effects,
 			remotionRoot,
 		});
 
 		if (cachedResult.canUpdate) {
-			return {status: cachedResult, nodePath: cachedNodePath, success: true};
+			return {
+				status: cachedResult,
+				nodePath: {
+					absolutePath: path.resolve(remotionRoot, fileName),
+					nodePath: cachedNodePath,
+					sequenceKeys: keys,
+					effectKeys: effects,
+				},
+				success: true,
+			};
 		}
 	}
 
@@ -60,7 +69,9 @@ const getSequencePropsStatus = ({
 		fileName,
 		line,
 		keys,
+		effects,
 		remotionRoot,
+		logLevel,
 	});
 
 	return status;
@@ -71,22 +82,28 @@ export const subscribeToSequencePropsWatchers = ({
 	line,
 	column,
 	keys,
+	effects,
 	remotionRoot,
 	clientId,
+	logLevel,
 }: {
 	fileName: string;
 	line: number;
 	column: number;
 	keys: string[];
+	effects: string[][];
 	remotionRoot: string;
 	clientId: string;
+	logLevel: LogLevel;
 }): SubscribeToSequencePropsResponse => {
 	const initialResult = getSequencePropsStatus({
 		fileName,
 		line,
 		column,
 		keys,
+		effects,
 		remotionRoot,
+		logLevel,
 	});
 
 	if (!initialResult.success) {
@@ -96,10 +113,10 @@ export const subscribeToSequencePropsWatchers = ({
 	const absolutePath = path.resolve(remotionRoot, fileName);
 
 	// Cache the resolved nodePath for future lookups with stale source maps
-	setCachedNodePath(fileName, line, column, initialResult.nodePath);
+	setCachedNodePath(fileName, line, column, initialResult.nodePath.nodePath);
 
 	const {nodePath} = initialResult;
-	const watcherKey = makeWatcherKey({absolutePath, nodePath});
+	const watcherKey = stringifySequenceSubscriptionKey(nodePath);
 
 	// If a watcher already exists for this key, just bump the ref count
 	if (sequencePropsWatchers[clientId]?.[watcherKey]) {
@@ -115,25 +132,40 @@ export const subscribeToSequencePropsWatchers = ({
 				return;
 			}
 
-			let result: CanUpdateSequencePropsResponse;
 			try {
-				result = computeSequencePropsStatusFromContent(
-					event.content,
-					nodePath,
+				const result = computeSequencePropsStatusFromContent({
+					fileContents: event.content,
+					nodePath: nodePath.nodePath,
 					keys,
-				);
-			} catch {
-				return;
-			}
-
-			waitForLiveEventsListener().then((listener) => {
-				listener.sendEventToClientId(clientId, {
-					type: 'sequence-props-updated',
-					fileName,
-					nodePath,
-					result,
+					effects,
 				});
-			});
+				const previousEffectChain = result.effects.map(
+					(effect) => effect.canUpdate && effect.callee,
+				);
+				const newEffectChain =
+					initialResult.success &&
+					initialResult.status.effects.map(
+						(effect) => effect.canUpdate && effect.callee,
+					);
+				if (previousEffectChain.join(',') !== newEffectChain.join(',')) {
+					RenderInternals.Log.verbose(
+						{indent: false, logLevel},
+						'Effect chain changed, not sending "sequence-props-updated" event',
+					);
+					return;
+				}
+
+				waitForLiveEventsListener().then((listener) => {
+					listener.sendEventToClientId(clientId, {
+						type: 'sequence-props-updated',
+						fileName,
+						nodePath,
+						result,
+					});
+				});
+			} catch (error) {
+				RenderInternals.Log.error({indent: false, logLevel}, error);
+			}
 		},
 	});
 
@@ -151,14 +183,23 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	nodePath,
 	remotionRoot,
 	clientId,
+	sequenceKeys,
+	effectKeys,
 }: {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	remotionRoot: string;
 	clientId: string;
+	sequenceKeys: string[];
+	effectKeys: string[][];
 }) => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
-	const watcherKey = makeWatcherKey({absolutePath, nodePath});
+	const watcherKey = stringifySequenceSubscriptionKey({
+		absolutePath,
+		nodePath,
+		sequenceKeys,
+		effectKeys,
+	});
 
 	if (
 		!sequencePropsWatchers[clientId] ||

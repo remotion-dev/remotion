@@ -1,11 +1,15 @@
 import React from 'react';
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {
+	CanUpdateSequencePropStatusFalse,
+	CanUpdateSequencePropStatusTrue,
+} from 'remotion';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {TimelineBooleanField} from './TimelineBooleanField';
+import {TimelineColorField} from './TimelineColorField';
 import {TimelineEnumField} from './TimelineEnumField';
 import {TimelineNumberField} from './TimelineNumberField';
 import {TimelineRotationField} from './TimelineRotationField';
@@ -27,12 +31,34 @@ const inlineWrapper: React.CSSProperties = {
 	fontSize: 12,
 };
 
+export const UnsupportedStatus: React.FC<{
+	readonly label: string;
+}> = ({label}) => {
+	return <span style={unsupportedLabel}>{label}</span>;
+};
+
+export const TimelineNonEditableStatus: React.FC<{
+	readonly propStatus: CanUpdateSequencePropStatusFalse;
+}> = ({propStatus}) => {
+	if (propStatus.canUpdate) {
+		return null;
+	}
+
+	if (propStatus.reason === 'computed') {
+		return <span style={unsupportedLabel}>computed</span>;
+	}
+
+	throw new Error(
+		`Unsupported prop status: ${propStatus.reason satisfies never}`,
+	);
+};
+
 export const TimelineFieldValue: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly propStatus: CanUpdateSequencePropStatusTrue;
 	readonly effectiveValue: unknown;
 }> = ({
 	field,
@@ -45,20 +71,6 @@ export const TimelineFieldValue: React.FC<{
 	const wrapperStyle: React.CSSProperties | undefined = !propStatus.canUpdate
 		? notEditableBackground
 		: undefined;
-
-	if (!field.supported) {
-		return <span style={unsupportedLabel}>unsupported</span>;
-	}
-
-	if (!propStatus.canUpdate) {
-		if (propStatus.reason === 'computed') {
-			return <span style={unsupportedLabel}>computed</span>;
-		}
-
-		throw new Error(
-			`Unsupported prop status: ${propStatus.reason satisfies never}`,
-		);
-	}
 
 	if (field.typeName === 'number') {
 		return (
@@ -118,6 +130,21 @@ export const TimelineFieldValue: React.FC<{
 		);
 	}
 
+	if (field.typeName === 'color') {
+		return (
+			<span style={wrapperStyle}>
+				<TimelineColorField
+					field={field}
+					propStatus={propStatus}
+					onSave={onSave}
+					onDragValueChange={onDragValueChange}
+					onDragEnd={onDragEnd}
+					effectiveValue={effectiveValue}
+				/>
+			</span>
+		);
+	}
+
 	if (field.typeName === 'enum') {
 		return (
 			<span style={inlineWrapper}>
@@ -133,9 +160,5 @@ export const TimelineFieldValue: React.FC<{
 		);
 	}
 
-	return (
-		<span style={{...unsupportedLabel, fontStyle: 'normal'}}>
-			{String(effectiveValue)}
-		</span>
-	);
+	throw new Error(`Unsupported field type: ${field.typeName}`);
 };
