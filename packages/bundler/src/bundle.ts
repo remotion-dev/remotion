@@ -76,8 +76,9 @@ export type MandatoryLegacyBundleOptions = {
 	 * If true, the public directory is symlinked into the bundle output instead of copied.
 	 * Safe for throwaway bundles (e.g. CLI render where the output folder is deleted after);
 	 * do not use when the bundle must be self-contained for deployment.
+	 * Has no effect on Windows, where the public directory is always copied.
 	 */
-	symlinkPublicDir?: boolean;
+	symlinkPublicDir: boolean;
 };
 
 export type LegacyBundleOptions = Partial<MandatoryLegacyBundleOptions>;
@@ -366,12 +367,8 @@ export const internalBundle = async (
 	};
 
 	if (fs.existsSync(from)) {
-		if (actualArgs.symlinkPublicDir) {
-			if (process.platform === 'win32') {
-				await fs.promises.symlink(from, to, 'dir');
-			} else {
-				await fs.promises.symlink(from, to);
-			}
+		if (actualArgs.symlinkPublicDir && process.platform !== 'win32') {
+			await fs.promises.symlink(from, to);
 		} else {
 			await copyDir({
 				src: from,
