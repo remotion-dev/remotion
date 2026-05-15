@@ -13,7 +13,6 @@ import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
 import {SequenceContext} from '../SequenceContext.js';
-import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
@@ -99,8 +98,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
 
-	const {hidden} = useContext(SequenceVisibilityToggleContext);
-
 	if (!src) {
 		throw new TypeError("No 'src' was passed to <Html5Audio>.");
 	}
@@ -110,8 +107,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	const sequenceContext = useContext(SequenceContext);
 
 	const [timelineId] = useState(() => String(Math.random()));
-
-	const isSequenceHidden = hidden[timelineId] ?? false;
 
 	const userPreferredVolume = evaluateVolume({
 		frame: volumePropFrame,
@@ -129,8 +124,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const propsToPass = useMemo((): AudioHTMLAttributes<HTMLAudioElement> => {
 		return {
-			muted:
-				muted || mediaMuted || isSequenceHidden || userPreferredVolume <= 0,
+			muted: muted || mediaMuted || userPreferredVolume <= 0,
 			src: preloadedSrc,
 			loop: _remotionInternalNativeLoopPassed,
 			crossOrigin: crossOriginValue,
@@ -138,7 +132,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		};
 	}, [
 		_remotionInternalNativeLoopPassed,
-		isSequenceHidden,
 		mediaMuted,
 		muted,
 		nativeProps,

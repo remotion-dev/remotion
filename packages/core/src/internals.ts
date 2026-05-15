@@ -103,10 +103,11 @@ import {
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
-import type {
-	SequenceFieldSchema,
-	SequenceSchema,
-	VisibleFieldSchema,
+import {
+	hiddenField,
+	type SequenceFieldSchema,
+	type SequenceSchema,
+	type VisibleFieldSchema,
 } from './sequence-field-schema.js';
 import {sequenceSchema, sequenceStyleSchema} from './sequence-field-schema.js';
 import type {
@@ -136,7 +137,6 @@ import {
 	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 	SequenceManager,
-	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
 import * as TimelinePosition from './timeline-position-state.js';
@@ -249,7 +249,6 @@ export const Internals = {
 	VisualModeSettersContext,
 	SequenceManager,
 	SequenceStackTracesUpdateContext,
-	SequenceVisibilityToggleContext,
 	wrapInSchema,
 	sequenceSchema,
 	sequenceStyleSchema,
@@ -354,6 +353,7 @@ export const Internals = {
 	makeSequencePropsSubscriptionKey,
 	getCodeValuesCtx,
 	getEffectCodeValuesCtx,
+	hiddenField,
 } as const;
 
 export type {

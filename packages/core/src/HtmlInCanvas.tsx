@@ -18,7 +18,7 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
-import {sequenceStyleSchema} from './sequence-field-schema.js';
+import {hiddenField, sequenceStyleSchema} from './sequence-field-schema.js';
 import type {
 	AbsoluteFillLayout,
 	LayoutAndStyle,
@@ -276,25 +276,23 @@ export type HtmlInCanvasProps = Omit<
 
 const HtmlInCanvasAncestorContext = createContext(false);
 
-const HtmlInCanvasInner = forwardRef<
+type HtmlInCanvasContentProps = {
+	readonly width: number;
+	readonly height: number;
+	readonly effects: EffectsProp;
+	readonly children: React.ReactNode;
+	readonly onPaint: HtmlInCanvasOnPaint | undefined;
+	readonly onInit: HtmlInCanvasOnInit | undefined;
+	readonly controls: SequenceControls | undefined;
+	readonly style: React.CSSProperties | undefined;
+};
+
+const HtmlInCanvasContent = forwardRef<
 	HTMLCanvasElement,
-	HtmlInCanvasProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
-	}
+	HtmlInCanvasContentProps
 >(
 	(
-		{
-			width,
-			height,
-			_experimentalEffects: effects = [],
-			children,
-			onPaint,
-			onInit,
-			_experimentalControls: controls,
-			style,
-			durationInFrames,
-			...sequenceProps
-		},
+		{width, height, effects, children, onPaint, onInit, controls, style},
 		ref,
 	) => {
 		const isInsideAncestorHtmlInCanvas = useContext(
@@ -307,9 +305,6 @@ const HtmlInCanvasInner = forwardRef<
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE));
 		}
-
-		const {durationInFrames: videoDuration} = useVideoConfig();
-		const resolvedDuration = durationInFrames ?? videoDuration;
 
 		const frame = useCurrentFrame();
 
@@ -336,7 +331,6 @@ const HtmlInCanvasInner = forwardRef<
 			effects,
 			overrideId: controls?.overrideId ?? null,
 		});
-		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
 		// Refs so the paint handler always reads fresh values.
 		const effectsRef = useRef(memoizedEffects);
@@ -509,6 +503,51 @@ const HtmlInCanvasInner = forwardRef<
 		}
 
 		return (
+			<HtmlInCanvasAncestorContext.Provider value>
+				<canvas
+					ref={setLayoutCanvasRef}
+					width={width}
+					height={height}
+					style={style}
+				>
+					<div ref={divRef} style={innerStyle}>
+						{children}
+					</div>
+				</canvas>
+			</HtmlInCanvasAncestorContext.Provider>
+		);
+	},
+);
+
+HtmlInCanvasContent.displayName = 'HtmlInCanvasContent';
+
+const HtmlInCanvasInner = forwardRef<
+	HTMLCanvasElement,
+	HtmlInCanvasProps & {
+		readonly _experimentalControls: SequenceControls | undefined;
+	}
+>(
+	(
+		{
+			width,
+			height,
+			_experimentalEffects: effects = [],
+			children,
+			onPaint,
+			onInit,
+			_experimentalControls: controls,
+			style,
+			durationInFrames,
+			...sequenceProps
+		},
+		ref,
+	) => {
+		const {durationInFrames: videoDuration} = useVideoConfig();
+		const resolvedDuration = durationInFrames ?? videoDuration;
+
+		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
+
+		return (
 			<Sequence
 				durationInFrames={resolvedDuration}
 				name="<HtmlInCanvas>"
@@ -517,18 +556,18 @@ const HtmlInCanvasInner = forwardRef<
 				layout="none"
 				{...sequenceProps}
 			>
-				<HtmlInCanvasAncestorContext.Provider value>
-					<canvas
-						ref={setLayoutCanvasRef}
-						width={width}
-						height={height}
-						style={style}
-					>
-						<div ref={divRef} style={innerStyle}>
-							{children}
-						</div>
-					</canvas>
-				</HtmlInCanvasAncestorContext.Provider>
+				<HtmlInCanvasContent
+					ref={ref}
+					width={width}
+					height={height}
+					effects={effects}
+					onPaint={onPaint}
+					onInit={onInit}
+					controls={controls}
+					style={style}
+				>
+					{children}
+				</HtmlInCanvasContent>
 			</Sequence>
 		);
 	},
@@ -536,10 +575,12 @@ const HtmlInCanvasInner = forwardRef<
 
 HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
-const HtmlInCanvasWrapped = wrapInSchema(
-	HtmlInCanvasInner,
-	sequenceStyleSchema,
-);
+const htmlInCanvasSchema = {
+	...sequenceStyleSchema,
+	hidden: hiddenField,
+};
+
+const HtmlInCanvasWrapped = wrapInSchema(HtmlInCanvasInner, htmlInCanvasSchema);
 
 export const HtmlInCanvas = Object.assign(HtmlInCanvasWrapped, {
 	isSupported: isHtmlInCanvasSupported,
