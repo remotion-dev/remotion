@@ -1,7 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {flattenEffects} from './effect-internals.js';
 import type {EffectsProp} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
 import {useEffectChainState} from './use-effect-chain-state.js';
@@ -34,7 +33,7 @@ export const Solid: React.FC<SolidProps> = ({
 	);
 
 	const memoizedEffects = useMemoizedEffects({
-		effects: flattenEffects(experimentalEffects),
+		effects: experimentalEffects,
 		// TODO: Add schema to Solid
 		overrideId: null,
 	});

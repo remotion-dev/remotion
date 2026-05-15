@@ -10,7 +10,6 @@ import React, {
 } from 'react';
 import {createPortal} from 'react-dom';
 import type {SequenceControls} from './CompositionManager.js';
-import {flattenEffects} from './effects/effect-internals.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -273,9 +272,13 @@ export type HtmlInCanvasProps = Omit<
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
 	};
-/* eslint-enable react/require-default-props */
 
-const HtmlInCanvasAncestorContext = createContext(false);
+type NestedHtmlInCanvasProps = {
+	requestParentPaint: () => void;
+};
+
+const HtmlInCanvasAncestorContext =
+	createContext<NestedHtmlInCanvasProps | null>(null);
 
 const hiddenAuxiliaryCanvasContainerStyle: React.CSSProperties = {
 	position: 'absolute',
@@ -337,7 +340,7 @@ const HtmlInCanvasInner = forwardRef<
 		const shadowCanvasRef = useRef<HTMLCanvasElement | null>(null);
 		const [offscreenCanvas] = useState(() => new OffscreenCanvas(1, 1));
 		const auxiliaryCanvasContainer = useMemo(() => {
-			if (!isInsideAncestorHtmlInCanvas || typeof document === 'undefined') {
+			if (typeof document === 'undefined') {
 				return null;
 			}
 
@@ -347,16 +350,15 @@ const HtmlInCanvasInner = forwardRef<
 				top: `-${height - 1}px`,
 			});
 			return container;
-		}, [isInsideAncestorHtmlInCanvas, width, height]);
+		}, [width, height]);
 
 		const chainState = useEffectChainState();
 
-		const flatEffects = flattenEffects(effects);
 		const memoizedEffects = useMemoizedEffects({
-			effects: flatEffects,
+			effects,
 			overrideId: controls?.overrideId ?? null,
 		});
-		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(flatEffects);
+		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
 		// Refs so the paint handler always reads fresh values.
 		const effectsRef = useRef(memoizedEffects);
@@ -455,17 +457,17 @@ const HtmlInCanvasInner = forwardRef<
 				}
 
 				const shadowCanvas = shadowCanvasRef.current;
-				if (shadowCanvas) {
-					const shadowContext = shadowCanvas.getContext('2d');
-					if (!shadowContext) {
-						throw new Error(
-							'Failed to acquire 2D context for <HtmlInCanvas> shadow canvas',
-						);
-					}
-
-					shadowContext.clearRect(0, 0, width, height);
-					shadowContext.drawImage(canvas2dRef.current!, 0, 0);
+				const shadowContext = shadowCanvas!.getContext('2d');
+				if (!shadowContext) {
+					throw new Error(
+						'Failed to acquire 2D context for <HtmlInCanvas> shadow canvas',
+					);
 				}
+
+				shadowContext.clearRect(0, 0, width, height);
+				shadowContext.drawImage(canvas2dRef.current!, 0, 0);
+
+				isInsideAncestorHtmlInCanvas?.requestParentPaint();
 
 				if (firstPaintAfterResizeHandleRef.current !== null) {
 					continueRender(firstPaintAfterResizeHandleRef.current);
@@ -484,6 +486,7 @@ const HtmlInCanvasInner = forwardRef<
 			height,
 			offscreenCanvas,
 			delayRender,
+			isInsideAncestorHtmlInCanvas,
 		]);
 
 		useLayoutEffect(() => {
@@ -570,6 +573,19 @@ const HtmlInCanvasInner = forwardRef<
 			</canvas>
 		);
 
+		const contextValue = useMemo(() => {
+			return {
+				requestParentPaint: () => {
+					const canvas = canvas2dRef.current;
+					if (!canvas) {
+						return;
+					}
+
+					canvas.requestPaint?.();
+				},
+			};
+		}, [canvas2dRef]);
+
 		return (
 			<Sequence
 				durationInFrames={resolvedDuration}
@@ -579,22 +595,18 @@ const HtmlInCanvasInner = forwardRef<
 				layout="none"
 				{...sequenceProps}
 			>
-				<HtmlInCanvasAncestorContext.Provider value>
-					{isInsideAncestorHtmlInCanvas ? (
-						<>
-							{auxiliaryCanvasContainer
-								? createPortal(layoutCanvasElement, auxiliaryCanvasContainer)
-								: null}
-							<canvas
-								ref={shadowCanvasRef}
-								width={width}
-								height={height}
-								style={style}
-							/>
-						</>
-					) : (
-						layoutCanvasElement
-					)}
+				<HtmlInCanvasAncestorContext.Provider value={contextValue}>
+					<>
+						{auxiliaryCanvasContainer
+							? createPortal(layoutCanvasElement, auxiliaryCanvasContainer)
+							: null}
+						<canvas
+							ref={shadowCanvasRef}
+							width={width}
+							height={height}
+							style={style}
+						/>
+					</>
 				</HtmlInCanvasAncestorContext.Provider>
 			</Sequence>
 		);

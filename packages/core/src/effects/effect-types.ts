@@ -61,6 +61,4 @@ export type EffectDefinitionAndStack<P = unknown> = BaseEffectDescriptor<P> & {
 	readonly memoized: true;
 };
 
-export type EffectsProp = ReadonlyArray<
-	EffectDescriptor<unknown> | ReadonlyArray<EffectDescriptor<unknown>>
->;
+export type EffectsProp = ReadonlyArray<EffectDescriptor<unknown>>;

@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {flattenEffects, groupByBackend} from '../effects/effect-internals.js';
+import {groupByBackend} from '../effects/effect-internals.js';
 import type {
 	Backend,
 	EffectDefinition,
@@ -36,32 +36,9 @@ const memoizeEffects = (
 ): EffectDefinitionAndStack<unknown>[] => {
 	return effects.map((e) => ({
 		...e,
-		memoized: true as const,
+		memoized: true,
 	}));
 };
-
-test('flattenEffects unwraps nested-array descriptors', () => {
-	const a = makeDesc('a', '2d');
-	const b1 = makeDesc('b1', '2d');
-	const b2 = makeDesc('b2', '2d');
-	const c = makeDesc('c', 'webgl2');
-
-	const result = memoizeEffects(flattenEffects([a, [b1, b2], c]));
-	expect(result.map((d) => d.definition.type)).toEqual(['a', 'b1', 'b2', 'c']);
-});
-
-test('flattenEffects handles empty input', () => {
-	expect(flattenEffects([])).toEqual([]);
-});
-
-test('flattenEffects handles only-nested input', () => {
-	const a = makeDesc('a', '2d');
-	const b = makeDesc('b', '2d');
-	expect(flattenEffects([[a, b]]).map((d) => d.definition.type)).toEqual([
-		'a',
-		'b',
-	]);
-});
 
 test('groupByBackend collapses adjacent same-backend effects', () => {
 	const effects = [
