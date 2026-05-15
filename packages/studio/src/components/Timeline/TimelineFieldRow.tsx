@@ -15,6 +15,7 @@ import type {
 } from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {Padder} from './Padder';
 import {
 	TimelineFieldValue,
@@ -128,7 +129,7 @@ const Value: React.FC<{
 						};
 					});
 				})
-				.catch(() => {
+				.catch((err) => {
 					// In case something went wrong, undo optimistic update
 					setCodeValues(nodePath, (current) => {
 						if (previousUpdate) {
@@ -137,6 +138,13 @@ const Value: React.FC<{
 
 						return current;
 					});
+					showNotification(
+						`Could not save sequence prop: ${
+							err instanceof Error ? err.message : String(err)
+						}`,
+						4000,
+					);
+					throw err;
 				});
 		},
 		[
