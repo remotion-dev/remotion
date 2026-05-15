@@ -31,13 +31,14 @@ test('updateEffectProps updates an existing prop on the right effect', () => {
 
 test('updateEffectProps adds a missing prop', () => {
 	const input = buildInput('[tint({color: "red"})]');
-	const {serialized} = updateEffectPropsAst({
+	const {serialized, effectCallee} = updateEffectPropsAst({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
 		effectIndex: 0,
 		update: {key: 'opacity', value: 0.25, defaultValue: null},
 	});
 
+	expect(effectCallee).toBe('tint');
 	expect(serialized).toContain('opacity: 0.25');
 	expect(serialized).toContain('color: "red"');
 });

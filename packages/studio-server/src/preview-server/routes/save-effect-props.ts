@@ -18,8 +18,9 @@ import {
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {computeEffectPropStatus} from './can-update-effect-props';
 import {findJsxElementAtNodePath} from './can-update-sequence-props';
-import {formatPropChange} from './log-updates/format-prop-change';
-import {logUpdate, normalizeQuotes} from './log-updates/log-update';
+import {formatEffectPropChange} from './log-updates/format-effect-prop-change';
+import {logEffectUpdate} from './log-updates/log-effect-update';
+import {normalizeQuotes} from './log-updates/log-update';
 
 export const saveEffectPropsHandler: ApiHandler<
 	SaveEffectPropsRequest,
@@ -51,16 +52,17 @@ export const saveEffectPropsHandler: ApiHandler<
 
 	const parsedDefault = defaultValue !== null ? JSON.parse(defaultValue) : null;
 
-	const {output, oldValueString, formatted, logLine} = await updateEffectProps({
-		input: fileContents,
-		sequenceNodePath: sequenceNodePath.nodePath,
-		effectIndex,
-		update: {
-			key,
-			value: JSON.parse(value),
-			defaultValue: parsedDefault,
-		},
-	});
+	const {output, oldValueString, formatted, logLine, effectCallee} =
+		await updateEffectProps({
+			input: fileContents,
+			sequenceNodePath: sequenceNodePath.nodePath,
+			effectIndex,
+			update: {
+				key,
+				value: JSON.parse(value),
+				defaultValue: parsedDefault,
+			},
+		});
 
 	const defaultValueString =
 		parsedDefault !== null ? JSON.stringify(parsedDefault) : null;
@@ -70,7 +72,8 @@ export const saveEffectPropsHandler: ApiHandler<
 	const normalizedDefault =
 		defaultValueString !== null ? normalizeQuotes(defaultValueString) : null;
 
-	const undoPropChange = formatPropChange({
+	const undoPropChange = formatEffectPropChange({
+		effectName: effectCallee,
 		key,
 		oldValueString: normalizedNew,
 		newValueString: normalizedOld,
@@ -78,7 +81,8 @@ export const saveEffectPropsHandler: ApiHandler<
 		removedProps: [],
 		addedProps: [],
 	});
-	const redoPropChange = formatPropChange({
+	const redoPropChange = formatEffectPropChange({
+		effectName: effectCallee,
 		key,
 		oldValueString: normalizedOld,
 		newValueString: normalizedNew,
@@ -104,10 +108,11 @@ export const saveEffectPropsHandler: ApiHandler<
 	suppressBundlerUpdateForFile(absolutePath);
 	writeFileAndNotifyFileWatchers(absolutePath, output);
 
-	logUpdate({
+	logEffectUpdate({
 		fileRelativeToRoot,
 		line: logLine,
-		key: `[${effectIndex}].${key}`,
+		effectName: effectCallee,
+		propKey: key,
 		oldValueString,
 		newValueString: value,
 		defaultValueString,

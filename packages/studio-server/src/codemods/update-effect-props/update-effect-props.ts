@@ -28,6 +28,7 @@ export type UpdateEffectPropsResult = {
 	formatted: boolean;
 	oldValueString: string;
 	logLine: number;
+	effectCallee: string;
 };
 
 const parseValueExpression = (value: unknown): ExpressionKind => {
@@ -125,7 +126,7 @@ export const findEffectCallExpression = ({
 	attr: JSXAttribute;
 	effectIndex: number;
 }):
-	| {kind: 'ok'; call: CallExpression}
+	| {kind: 'ok'; call: CallExpression; callee: string}
 	| {
 			kind: 'error';
 			reason: 'not-found' | 'not-call-expression';
@@ -150,7 +151,7 @@ export const findEffectCallExpression = ({
 		return {kind: 'error', reason: 'not-call-expression'};
 	}
 
-	return {kind: 'ok', call: target.node};
+	return {kind: 'ok', call: target.node, callee: target.callee};
 };
 
 const findObjectProperty = (
@@ -188,6 +189,7 @@ export const updateEffectPropsAst = ({
 	serialized: string;
 	oldValueString: string;
 	logLine: number;
+	effectCallee: string;
 } => {
 	const ast = parseAst(input);
 	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
@@ -213,7 +215,7 @@ export const updateEffectPropsAst = ({
 		throw new Error(`Cannot update effect prop: ${found.reason}`);
 	}
 
-	const {call} = found;
+	const {call, callee: effectCallee} = found;
 
 	const isDefault =
 		update.defaultValue !== null &&
@@ -223,11 +225,11 @@ export const updateEffectPropsAst = ({
 
 	if (call.arguments.length === 0) {
 		if (isDefault) {
-			const logLine = call.loc?.start.line ?? jsx.loc?.start.line ?? 1;
 			return {
 				serialized: serializeAst(ast),
 				oldValueString: '',
-				logLine,
+				logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
+				effectCallee,
 			};
 		}
 
@@ -275,6 +277,7 @@ export const updateEffectPropsAst = ({
 		serialized: serializeAst(ast),
 		oldValueString,
 		logLine,
+		effectCallee,
 	};
 };
 
@@ -291,12 +294,13 @@ export const updateEffectProps = async ({
 	update: EffectPropUpdate;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<UpdateEffectPropsResult> => {
-	const {serialized, oldValueString, logLine} = updateEffectPropsAst({
-		input,
-		sequenceNodePath,
-		effectIndex,
-		update,
-	});
+	const {serialized, oldValueString, logLine, effectCallee} =
+		updateEffectPropsAst({
+			input,
+			sequenceNodePath,
+			effectIndex,
+			update,
+		});
 
 	const {output, formatted} = await formatFileContent({
 		input: serialized,
@@ -308,5 +312,6 @@ export const updateEffectProps = async ({
 		oldValueString,
 		formatted,
 		logLine,
+		effectCallee,
 	};
 };
