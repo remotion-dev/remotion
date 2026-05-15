@@ -101,7 +101,7 @@ export const enqueueSavePropChange = <TResponse>({
 			}
 		} catch (err) {
 			myQueue.cancelled = true;
-			const committed = myQueue.committed;
+			const {committed} = myQueue;
 			if (committed !== null) {
 				setCodeValues(nodePath, () => committed);
 			}
