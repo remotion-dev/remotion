@@ -108,7 +108,9 @@ export const TimelineTranslateField: React.FC<{
 					const newStr = makeString(parsed, currentY);
 					if (newStr !== propStatus.codeValue) {
 						setDragX(parsed);
-						onSave(newStr);
+						onSave(newStr).finally(() => {
+							setDragX(null);
+						});
 					}
 				}
 			}
@@ -152,7 +154,7 @@ export const TimelineTranslateField: React.FC<{
 					const newStr = makeString(currentX, parsed);
 					if (newStr !== propStatus.codeValue) {
 						setDragY(parsed);
-						onSave(newStr).catch(() => {
+						onSave(newStr).finally(() => {
 							setDragY(null);
 						});
 					}
