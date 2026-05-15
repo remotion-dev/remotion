@@ -265,7 +265,10 @@ export const TimelineColorField: React.FC<{
 					title="Pick color from screen"
 					aria-label="Pick color from screen"
 				>
-					<EyedropperIcon style={eyedropperIconStyle} />
+					<EyedropperIcon
+						style={eyedropperIconStyle}
+						color="rgba(255, 255, 255, 0.7)"
+					/>
 				</button>
 			) : null}
 		</span>
