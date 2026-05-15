@@ -163,7 +163,6 @@ const Value: React.FC<{
 						}`,
 						4000,
 					);
-					throw err;
 				});
 		},
 		[
