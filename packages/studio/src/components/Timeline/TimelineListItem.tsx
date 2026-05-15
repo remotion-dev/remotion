@@ -212,7 +212,7 @@ export const TimelineListItem: React.FC<{
 			sequence.controls?.currentRuntimeValueDotNotation.hidden;
 		const effective = (codeValue ?? runtimeValue) as boolean | undefined;
 		return effective ?? false;
-	}, [codeHiddenStatus, sequence.controls]);
+	}, [codeHiddenStatus, sequence.controls?.currentRuntimeValueDotNotation]);
 
 	const onToggleVisibility = useCallback(
 		(type: 'enable' | 'disable') => {
