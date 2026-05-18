@@ -109,6 +109,10 @@ export const useSequencePropsSubscription = ({
 		return () => {
 			release();
 		};
+		// overrideIdToNodePathMappings is read only to snapshot this override's node
+		// path when location changes. Listing the full map would re-subscribe every
+		// sequence whenever any other sequence's node path updates.
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- see above
 	}, [
 		clientId,
 		effects,
