@@ -27,45 +27,15 @@ export const toggleBooleanMapKey = (
 	return next;
 };
 
-export const loadPersistedBooleanMap = ({
-	sessionStorageKey,
-	legacyLocalStorageKey,
-}: {
-	sessionStorageKey: string;
-	legacyLocalStorageKey?: string;
-}): BooleanMap => {
+export const loadPersistedBooleanMap = (
+	sessionStorageKey: string,
+): BooleanMap => {
 	if (typeof window === 'undefined') {
 		return {};
 	}
 
 	try {
-		let raw = window.sessionStorage.getItem(sessionStorageKey);
-
-		if (raw === null && legacyLocalStorageKey) {
-			raw = window.localStorage.getItem(legacyLocalStorageKey);
-			if (raw !== null) {
-				window.localStorage.removeItem(legacyLocalStorageKey);
-				try {
-					const parsed: unknown = JSON.parse(raw);
-					if (parsed && typeof parsed === 'object') {
-						const migrated = onlyExpandedBooleanMapValues(parsed as BooleanMap);
-						try {
-							window.sessionStorage.setItem(
-								sessionStorageKey,
-								JSON.stringify(migrated),
-							);
-						} catch {
-							// Ignore quota errors during migration.
-						}
-
-						return migrated;
-					}
-				} catch {
-					return {};
-				}
-			}
-		}
-
+		const raw = window.sessionStorage.getItem(sessionStorageKey);
 		if (raw === null) {
 			return {};
 		}

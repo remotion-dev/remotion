@@ -1,13 +1,11 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {
-	loadPersistedBooleanMap,
 	onlyExpandedBooleanMapValues,
 	persistBooleanMap,
 	toggleBooleanMapKey,
 } from '../helpers/persist-boolean-map';
 
 const sessionKey = 'test.session.boolean-map';
-const legacyKey = 'test.local.boolean-map';
 
 const createStorage = () => {
 	const map = new Map<string, string>();
@@ -26,7 +24,6 @@ const createStorage = () => {
 beforeEach(() => {
 	globalThis.window = {
 		sessionStorage: createStorage(),
-		localStorage: createStorage(),
 	} as Window & typeof globalThis;
 });
 
@@ -60,24 +57,5 @@ test('persistBooleanMap stores only expanded keys in sessionStorage', () => {
 
 	expect(window.sessionStorage.getItem(sessionKey)).toBe(
 		JSON.stringify({expanded: true}),
-	);
-});
-
-test('loadPersistedBooleanMap migrates from localStorage once', () => {
-	window.localStorage.setItem(
-		legacyKey,
-		JSON.stringify({fromLegacy: true, collapsed: false}),
-	);
-
-	expect(
-		loadPersistedBooleanMap({
-			sessionStorageKey: sessionKey,
-			legacyLocalStorageKey: legacyKey,
-		}),
-	).toEqual({fromLegacy: true});
-
-	expect(window.localStorage.getItem(legacyKey)).toBeNull();
-	expect(window.sessionStorage.getItem(sessionKey)).toBe(
-		JSON.stringify({fromLegacy: true}),
 	);
 });

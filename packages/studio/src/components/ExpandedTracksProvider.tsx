@@ -17,10 +17,7 @@ const nodePathInfoToExpandedKey = (info: SequenceNodePathInfo): string =>
 const SESSION_STORAGE_KEY = 'remotion.editor.expandedTracks';
 
 const loadExpandedTracks = () => {
-	return loadPersistedBooleanMap({
-		sessionStorageKey: SESSION_STORAGE_KEY,
-		legacyLocalStorageKey: SESSION_STORAGE_KEY,
-	});
+	return loadPersistedBooleanMap(SESSION_STORAGE_KEY);
 };
 
 export type GetIsExpanded = (nodePathInfo: SequenceNodePathInfo) => boolean;

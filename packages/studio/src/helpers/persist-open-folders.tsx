@@ -34,10 +34,7 @@ export const persistExpandedFolders = (
 export const loadExpandedFolders = (
 	type: PersistanceType,
 ): ExpandedFoldersState => {
-	return loadPersistedBooleanMap({
-		sessionStorageKey: sessionStorageKey(type),
-		legacyLocalStorageKey: sessionStorageKey(type),
-	});
+	return loadPersistedBooleanMap(sessionStorageKey(type));
 };
 
 export type ExpandedFoldersRef = {
