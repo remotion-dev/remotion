@@ -34,6 +34,12 @@ type ScenarioRunListItem = {
 	completedAt: string;
 	href: string;
 	metadata: string;
+	shareTarget: {
+		comparisonId?: string;
+		runId?: string;
+		scenarioId: string;
+		type: 'comparison' | 'run';
+	};
 };
 
 const getSkillDiffState = async (): Promise<SkillDiffState> => {
@@ -98,6 +104,11 @@ const toRunListItems = ({
 				comparison.runs && comparison.runs.length > 1
 					? `${comparison.runs.length} comparison runs`
 					: `${comparison.before.hash} -> ${comparison.after.hash}`,
+			shareTarget: {
+				comparisonId: comparison.id,
+				scenarioId: comparison.scenarioId,
+				type: 'comparison' as const,
+			},
 		})),
 		...runs.map((run) => ({
 			completedAt: run.completedAt,
@@ -105,6 +116,11 @@ const toRunListItems = ({
 				basename(run.runDir),
 			)}`,
 			metadata: run.skillSnapshot.hash,
+			shareTarget: {
+				runId: basename(run.runDir),
+				scenarioId: run.id,
+				type: 'run' as const,
+			},
 		})),
 	];
 
@@ -119,21 +135,42 @@ const ScenarioRuns = ({items}: {items: ScenarioRunListItem[]}) => {
 	return (
 		<div className="mt-3 grid">
 			{items.map((item) => (
-				<a
-					className="flex items-center justify-between gap-4 border-t border-zinc-100 py-3 first:border-t-0 first:pt-0 last:pb-0"
-					href={item.href}
+				<div
+					className="flex items-center gap-3 border-t border-zinc-100 py-3 first:border-t-0 first:pt-0 last:pb-0"
 					key={item.href}
 				>
-					<div>
+					<input
+						aria-label={`Select ${formatDate(item.completedAt)} for sharing`}
+						className="size-4 rounded border-zinc-300"
+						data-share-result="true"
+						type="checkbox"
+						value={JSON.stringify(item.shareTarget)}
+					/>
+					<a className="min-w-0 flex-1" href={item.href}>
 						<h3 className="text-sm font-semibold text-zinc-800">
 							{formatDate(item.completedAt)}
 						</h3>
 						<p className="mt-1 text-[0.8125rem] text-zinc-500">
 							{item.metadata}
 						</p>
-					</div>
-				</a>
+					</a>
+				</div>
 			))}
+			<div className="mt-3 flex flex-wrap items-center gap-2">
+				<button
+					className="rounded-full border border-zinc-200 bg-white px-3 py-2 text-[0.8125rem] font-semibold text-zinc-700 hover:border-zinc-300 disabled:bg-zinc-100 disabled:text-zinc-400"
+					disabled
+					id="share-selected"
+					type="button"
+				>
+					Share selected
+				</button>
+				<code
+					className="max-w-180 overflow-auto whitespace-pre-wrap rounded-xl bg-zinc-100 px-3 py-2 text-xs text-zinc-600"
+					hidden
+					id="share-selected-output"
+				/>
+			</div>
 		</div>
 	);
 };
@@ -155,6 +192,8 @@ const panel = document.getElementById('active-job');
 const log = document.getElementById('job-log');
 const status = document.getElementById('job-status');
 const runGroups = document.getElementById('run-groups');
+const shareSelectedButton = document.getElementById('share-selected');
+const shareSelectedOutput = document.getElementById('share-selected-output');
 const activeJobId = ${JSON.stringify(activeJob?.id ?? null)};
 const defaultBaseRef = ${JSON.stringify(baseRef)};
 
@@ -338,6 +377,57 @@ button?.addEventListener('click', async () => {
 	const job = await response.json();
 	poll(job.id);
 });
+
+const getSelectedShareTargets = () =>
+	[...document.querySelectorAll('[data-share-result]:checked')]
+		.map((input) => JSON.parse(input.value));
+
+const updateShareSelectedButton = () => {
+	if (!shareSelectedButton) {
+		return;
+	}
+
+	shareSelectedButton.disabled = getSelectedShareTargets().length === 0;
+};
+
+document.addEventListener('change', (event) => {
+	if (event.target?.matches?.('[data-share-result]')) {
+		updateShareSelectedButton();
+	}
+});
+
+shareSelectedButton?.addEventListener('click', async () => {
+	const targets = getSelectedShareTargets();
+
+	if (targets.length === 0 || !shareSelectedOutput) {
+		return;
+	}
+
+	shareSelectedButton.disabled = true;
+	shareSelectedOutput.hidden = false;
+	shareSelectedOutput.textContent = 'Building share bundle...';
+
+	try {
+		const response = await fetch('/api/share/selection', {
+			body: JSON.stringify({targets}),
+			headers: {'content-type': 'application/json'},
+			method: 'POST',
+		});
+		const result = await response.json();
+
+		if (!response.ok) {
+			throw new Error(result.error || 'Could not build share bundle.');
+		}
+
+		shareSelectedOutput.textContent = 'Built: ' + result.indexHtmlPath + '\\nDeploy: ' + result.deployCommand;
+	} catch (error) {
+		shareSelectedOutput.textContent = error instanceof Error ? error.message : String(error);
+	} finally {
+		updateShareSelectedButton();
+	}
+});
+
+updateShareSelectedButton();
 `,
 		}}
 	/>

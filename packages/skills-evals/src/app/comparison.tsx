@@ -3,9 +3,24 @@ import {
 	getPreferredArtifact,
 	type ComparisonWithManifests,
 } from './comparison-data';
-import {formatDate, Header, page, Pill, toFileUrl} from './shared';
+import {
+	formatDate,
+	Header,
+	page,
+	Pill,
+	type RenderOptions,
+	ShareResultButton,
+	ShareResultScript,
+	toFileUrl,
+} from './shared';
 
-const Artifact = ({manifest}: {manifest: SkillEvalManifest}) => {
+const Artifact = ({
+	manifest,
+	renderOptions,
+}: {
+	manifest: SkillEvalManifest;
+	renderOptions?: RenderOptions;
+}) => {
 	const artifact = getPreferredArtifact(manifest);
 
 	if (!artifact) {
@@ -16,7 +31,7 @@ const Artifact = ({manifest}: {manifest: SkillEvalManifest}) => {
 		);
 	}
 
-	const href = toFileUrl(artifact.path);
+	const href = toFileUrl(artifact.path, renderOptions);
 
 	if (artifact.type === 'image') {
 		return (
@@ -44,10 +59,12 @@ const RunPanel = ({
 	label,
 	manifest,
 	manifestPath,
+	renderOptions,
 }: {
 	label: string;
 	manifest: SkillEvalManifest;
 	manifestPath: string;
+	renderOptions?: RenderOptions;
 }) => {
 	const artifact = getPreferredArtifact(manifest);
 
@@ -58,19 +75,19 @@ const RunPanel = ({
 				<div className="flex flex-wrap items-center gap-3">
 					<a
 						className="text-[0.8125rem] text-zinc-600"
-						href={toFileUrl(manifest.pi.htmlExport)}
+						href={toFileUrl(manifest.pi.htmlExport, renderOptions)}
 					>
 						Pi export
 					</a>
 					<a
 						className="text-[0.8125rem] text-zinc-600"
-						href={toFileUrl(manifestPath)}
+						href={toFileUrl(manifestPath, renderOptions)}
 					>
 						Manifest
 					</a>
 				</div>
 			</div>
-			<Artifact manifest={manifest} />
+			<Artifact manifest={manifest} renderOptions={renderOptions} />
 			<div className="mt-2 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-zinc-500">
 				{artifact?.relativePath ?? 'No artifact'}
 			</div>
@@ -150,7 +167,10 @@ const ComparisonDiffScript = () => (
 	</>
 );
 
-export const renderComparison = (comparisonData: ComparisonWithManifests) => {
+export const renderComparison = (
+	comparisonData: ComparisonWithManifests,
+	renderOptions?: RenderOptions,
+) => {
 	const {afterManifest, beforeManifest, comparison, runs, skillDiff} =
 		comparisonData;
 	const hasBatch = runs.length > 1;
@@ -162,12 +182,21 @@ export const renderComparison = (comparisonData: ComparisonWithManifests) => {
 					action={
 						<div className="flex flex-wrap items-center gap-3">
 							<Pill>{formatDate(comparison.completedAt)}</Pill>
-							<a
-								className="text-[0.8125rem] text-zinc-600"
-								href={`/scenarios/${encodeURIComponent(comparison.scenarioId)}`}
-							>
-								Scenario
-							</a>
+							{renderOptions?.mode === 'static' ? null : (
+								<a
+									className="text-[0.8125rem] text-zinc-600"
+									href={`/scenarios/${encodeURIComponent(comparison.scenarioId)}`}
+								>
+									Scenario
+								</a>
+							)}
+							{renderOptions?.mode === 'static' ? null : (
+								<ShareResultButton
+									endpoint={`/api/share/comparison/${encodeURIComponent(
+										comparison.scenarioId,
+									)}/${encodeURIComponent(comparison.id)}`}
+								/>
+							)}
 						</div>
 					}
 					eyebrow="Comparison"
@@ -196,6 +225,7 @@ export const renderComparison = (comparisonData: ComparisonWithManifests) => {
 											runMetadata?.before.manifestPath ??
 											comparison.before.manifestPath
 										}
+										renderOptions={renderOptions}
 									/>
 									<RunPanel
 										label="After"
@@ -204,6 +234,7 @@ export const renderComparison = (comparisonData: ComparisonWithManifests) => {
 											runMetadata?.after.manifestPath ??
 											comparison.after.manifestPath
 										}
+										renderOptions={renderOptions}
 									/>
 								</div>
 							</section>
@@ -238,8 +269,10 @@ export const renderComparison = (comparisonData: ComparisonWithManifests) => {
 					</details>
 				</main>
 				<ComparisonDiffScript />
+				{renderOptions?.mode === 'static' ? null : <ShareResultScript />}
 			</>
 		),
+		renderOptions,
 		title: `${comparison.scenarioId} Comparison`,
 	});
 };

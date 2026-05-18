@@ -1,4 +1,5 @@
 export {runSkillEvalComparison} from './compare';
+export {exportStaticSite} from './export-static-site';
 export {runSkillEval} from './run-skill-eval';
 export {scenarios} from '../scenarios';
 export type {

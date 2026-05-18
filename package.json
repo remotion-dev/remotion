@@ -87,6 +87,7 @@
 			"!packages/template-audiogram/whisper.cpp/**",
 			"!packages/template-vercel/**",
 			"!packages/skills-evals/.runs/**",
+			"!packages/skills-evals/.site/**",
 			"!packages/bugs"
 		],
 		"catalog": {

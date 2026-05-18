@@ -1,5 +1,6 @@
 import {scenarios} from '../scenarios';
 import {runSkillEvalComparison} from './compare';
+import {exportStaticSite} from './export-static-site';
 import {maxParallelSkillEvalRuns, validateSkillEvalRunCount} from './run-count';
 import {runSkillEval} from './run-skill-eval';
 import {runWithConcurrency} from './run-with-concurrency';
@@ -80,6 +81,36 @@ const parseCompareOptions = (args: string[]) => {
 	};
 };
 
+const parseExportOptions = (args: string[]) => {
+	let outDir: string | undefined;
+	const targets: string[] = [];
+
+	for (let index = 0; index < args.length; index++) {
+		const arg = args[index];
+
+		if (arg === '--out') {
+			const value = args[index + 1];
+
+			if (!value) {
+				throw new Error('Pass a value after --out.');
+			}
+
+			outDir = value;
+			index++;
+		} else if (arg.startsWith('--out=')) {
+			outDir = arg.slice('--out='.length);
+		} else {
+			targets.push(arg);
+		}
+	}
+
+	if (targets.length === 0) {
+		throw new Error('Pass at least one run or comparison path.');
+	}
+
+	return {outDir, targets};
+};
+
 const main = async () => {
 	const command = process.argv[2];
 
@@ -114,6 +145,13 @@ const main = async () => {
 				`${scenario.id}: ${result.comparison.before.hash} -> ${result.comparison.after.hash}\n`,
 		);
 		process.stdout.write(`Preview: ${serverUrl}\n`);
+	} else if (command === 'export') {
+		const {outDir, targets} = parseExportOptions(process.argv.slice(3));
+		const result = await exportStaticSite({outDir, targets});
+
+		process.stdout.write(`Exported ${result.targetCount} result(s).\n`);
+		process.stdout.write(`Index: ${result.indexHtmlPath}\n`);
+		process.stdout.write(`Deploy: ${result.deployCommand}\n`);
 	} else if (command === 'list') {
 		for (const scenario of scenarios) {
 			process.stdout.write(`${scenario.id}\t${scenario.model}\n`);
@@ -166,7 +204,7 @@ const main = async () => {
 		}
 	} else {
 		process.stdout.write(
-			'Usage: bun run eval <list|run|compare|dev> [scenario-id|--all] [base-ref] [--runs 1-4]\n',
+			'Usage: bun run eval <list|run|compare|export|dev> [scenario-id|--all] [base-ref] [--runs 1-4]\n',
 		);
 		process.exit(command ? 1 : 0);
 	}

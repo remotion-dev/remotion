@@ -1,9 +1,18 @@
 import {existsSync} from 'node:fs';
-import {join} from 'node:path';
+import {basename, join} from 'node:path';
 import {readJson, sanitizePathPart} from '../files';
 import type {SkillEvalManifest} from '../manifest';
 import {getPreferredArtifact} from './comparison-data';
-import {Card, Header, page, runsRoot, toFileUrl} from './shared';
+import {
+	Card,
+	Header,
+	page,
+	type RenderOptions,
+	runsRoot,
+	ShareResultButton,
+	ShareResultScript,
+	toFileUrl,
+} from './shared';
 
 export const loadRun = async (scenarioId: string, runId: string) => {
 	const manifestPath = join(
@@ -22,7 +31,13 @@ export const loadRun = async (scenarioId: string, runId: string) => {
 	return manifest;
 };
 
-const Artifact = ({manifest}: {manifest: SkillEvalManifest}) => {
+const Artifact = ({
+	manifest,
+	renderOptions,
+}: {
+	manifest: SkillEvalManifest;
+	renderOptions?: RenderOptions;
+}) => {
 	const artifact = getPreferredArtifact(manifest);
 
 	if (!artifact) {
@@ -33,7 +48,7 @@ const Artifact = ({manifest}: {manifest: SkillEvalManifest}) => {
 		);
 	}
 
-	const href = toFileUrl(artifact.path);
+	const href = toFileUrl(artifact.path, renderOptions);
 
 	if (artifact.type === 'image') {
 		return (
@@ -57,25 +72,37 @@ const Artifact = ({manifest}: {manifest: SkillEvalManifest}) => {
 	);
 };
 
-export const renderRun = (manifest: SkillEvalManifest) =>
+export const renderRun = (
+	manifest: SkillEvalManifest,
+	renderOptions?: RenderOptions,
+) =>
 	page({
 		children: (
 			<>
 				<Header
 					action={
 						<div className="flex flex-wrap items-center gap-3">
+							{renderOptions?.mode === 'static' ? null : (
+								<a
+									className="text-[0.8125rem] text-zinc-600"
+									href={`/scenarios/${encodeURIComponent(manifest.id)}`}
+								>
+									Scenario
+								</a>
+							)}
 							<a
 								className="text-[0.8125rem] text-zinc-600"
-								href={`/scenarios/${encodeURIComponent(manifest.id)}`}
-							>
-								Scenario
-							</a>
-							<a
-								className="text-[0.8125rem] text-zinc-600"
-								href={toFileUrl(manifest.pi.htmlExport)}
+								href={toFileUrl(manifest.pi.htmlExport, renderOptions)}
 							>
 								Pi export
 							</a>
+							{renderOptions?.mode === 'static' ? null : (
+								<ShareResultButton
+									endpoint={`/api/share/run/${encodeURIComponent(
+										manifest.id,
+									)}/${encodeURIComponent(basename(manifest.runDir))}`}
+								/>
+							)}
 						</div>
 					}
 					eyebrow="Run"
@@ -84,7 +111,7 @@ export const renderRun = (manifest: SkillEvalManifest) =>
 				/>
 				<main className="grid min-w-0 gap-4">
 					<Card>
-						<Artifact manifest={manifest} />
+						<Artifact manifest={manifest} renderOptions={renderOptions} />
 					</Card>
 					<details className="min-w-0 rounded-2xl border border-zinc-200 bg-white p-4">
 						<summary className="cursor-pointer text-sm font-semibold">
@@ -95,7 +122,9 @@ export const renderRun = (manifest: SkillEvalManifest) =>
 						</pre>
 					</details>
 				</main>
+				{renderOptions?.mode === 'static' ? null : <ShareResultScript />}
 			</>
 		),
+		renderOptions,
 		title: `${manifest.id} Run`,
 	});
