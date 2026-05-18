@@ -1,4 +1,3 @@
-/* eslint-disable react/require-default-props */
 import React, {
 	forwardRef,
 	useCallback,
@@ -25,15 +24,23 @@ import {
 	useMemoizedEffects,
 } from './use-memoized-effects.js';
 
-export type SolidProps = {
+type MandatoryProps = {
 	readonly color: string;
 	readonly width: number;
 	readonly height: number;
-	readonly _experimentalEffects?: EffectsProp;
-	readonly className?: string;
-	readonly style?: React.CSSProperties;
-	readonly pixelRatio?: number;
 };
+
+type OptionalProps = {
+	readonly _experimentalEffects: EffectsProp;
+	readonly className: string | undefined;
+	readonly style: React.CSSProperties | undefined;
+};
+
+type InnerSolidProps = MandatoryProps &
+	OptionalProps & {
+		overrideId: string | null;
+	};
+export type SolidProps = MandatoryProps & Partial<OptionalProps>;
 
 const solidSchema = {
 	color: {
@@ -59,7 +66,7 @@ const solidSchema = {
 } as const satisfies SequenceSchema;
 
 const SolidInner: React.FC<
-	SolidProps & {
+	InnerSolidProps & {
 		readonly overrideId: string | null;
 		readonly ref?: React.Ref<HTMLCanvasElement>;
 	}
@@ -70,7 +77,6 @@ const SolidInner: React.FC<
 	_experimentalEffects: experimentalEffects = [],
 	className,
 	style,
-	pixelRatio = 1,
 	overrideId,
 	ref,
 }) => {
@@ -167,7 +173,6 @@ const SolidInner: React.FC<
 		chainState,
 		width,
 		height,
-		pixelRatio,
 		delayRender,
 		continueRender,
 		cancelRender,
@@ -203,7 +208,6 @@ const SolidOuter = forwardRef<
 			width,
 			className,
 			durationInFrames,
-			pixelRatio,
 			style,
 			name,
 			from,
@@ -228,6 +232,8 @@ const SolidOuter = forwardRef<
 				_experimentalEffects={memoizedEffectDefinitions}
 				durationInFrames={durationInFrames}
 				name={name ?? '<Solid>'}
+				// 'stack' is in props
+				{...props}
 			>
 				<SolidInner
 					ref={ref}
@@ -236,8 +242,8 @@ const SolidOuter = forwardRef<
 					height={height}
 					width={width}
 					className={className}
-					pixelRatio={pixelRatio}
 					style={style}
+					_experimentalEffects={_experimentalEffects}
 				/>
 			</Sequence>
 		);
