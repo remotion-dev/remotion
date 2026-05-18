@@ -1,6 +1,13 @@
 import React, {useEffect, useMemo, useState} from 'react';
+import type {SequenceControls} from '../CompositionManager.js';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {
+	sequenceStyleSchema,
+	type SequenceSchema,
+} from '../sequence-field-schema.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {wrapInSchema} from '../wrap-in-schema.js';
 import type {EffectsProp} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
 import {useEffectChainState} from './use-effect-chain-state.js';
@@ -16,11 +23,39 @@ export type SolidProps = {
 	readonly pixelRatio?: number;
 };
 
-export const Solid: React.FC<SolidProps> = ({
+const solidSchema = {
+	color: {
+		type: 'color',
+		default: '#ffffff',
+		description: 'Color',
+	},
+	width: {
+		type: 'number',
+		min: 1,
+		step: 1,
+		default: 1920,
+		description: 'Width',
+	},
+	height: {
+		type: 'number',
+		min: 1,
+		step: 1,
+		default: 1080,
+		description: 'Height',
+	},
+	...sequenceStyleSchema,
+} as const satisfies SequenceSchema;
+
+const SolidInner: React.FC<
+	SolidProps & {
+		readonly _experimentalControls: SequenceControls | undefined;
+	}
+> = ({
 	color,
 	width,
 	height,
 	_experimentalEffects: experimentalEffects = [],
+	_experimentalControls: controls,
 	className,
 	style,
 	pixelRatio = 1,
@@ -34,8 +69,7 @@ export const Solid: React.FC<SolidProps> = ({
 
 	const memoizedEffects = useMemoizedEffects({
 		effects: experimentalEffects,
-		// TODO: Add schema to Solid
-		overrideId: null,
+		overrideId: controls?.overrideId ?? null,
 	});
 
 	const sourceCanvas = useMemo(() => {
@@ -123,3 +157,11 @@ export const Solid: React.FC<SolidProps> = ({
 		/>
 	);
 };
+
+SolidInner.displayName = 'Solid';
+
+export const Solid = wrapInSchema(SolidInner, solidSchema);
+
+Solid.displayName = 'Solid';
+
+addSequenceStackTraces(Solid);
