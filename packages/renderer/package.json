@@ -22,7 +22,7 @@
 	},
 	"dependencies": {
 		"execa": "5.1.1",
-		"yauzl": "3.3.0",
+		"yauzl": "file:./vendor/yauzl",
 		"remotion": "workspace:*",
 		"@remotion/streaming": "workspace:*",
 		"source-map": "0.8.0-beta.0",

@@ -1,0 +1,11 @@
+{
+	"name": "yauzl",
+	"version": "3.3.0",
+	"description": "yet another unzip library for node (vendored by @remotion/renderer with Node.js 26 fd-slicer fix)",
+	"main": "index.js",
+	"license": "MIT",
+	"dependencies": {
+		"buffer-crc32": "~0.2.3",
+		"pend": "~1.2.0"
+	}
+}

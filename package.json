@@ -129,8 +129,5 @@
 			"vitest": "4.0.9",
 			"@typescript/native-preview": "7.0.0-dev.20260217.1"
 		}
-	},
-	"patchedDependencies": {
-		"yauzl@3.3.0": "patches/yauzl@3.3.0.patch"
 	}
 }

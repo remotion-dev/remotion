@@ -1316,7 +1316,7 @@
         "remotion": "workspace:*",
         "source-map": "0.8.0-beta.0",
         "ws": "8.17.1",
-        "yauzl": "3.3.0",
+        "yauzl": "file:./vendor/yauzl",
       },
       "devDependencies": {
         "@happy-dom/global-registrator": "14.5.1",
@@ -1344,6 +1344,14 @@
       "peerDependencies": {
         "react": ">=16.8.0",
         "react-dom": ">=16.8.0",
+      },
+    },
+    "packages/renderer/vendor/yauzl": {
+      "name": "yauzl",
+      "version": "3.3.0",
+      "dependencies": {
+        "buffer-crc32": "~0.2.3",
+        "pend": "~1.2.0",
       },
     },
     "packages/rive": {
@@ -2544,9 +2552,6 @@
         "zod": ">=3.0.0 <4.0.0",
       },
     },
-  },
-  "patchedDependencies": {
-    "yauzl@3.3.0": "patches/yauzl@3.3.0.patch",
   },
   "overrides": {
     "@rspack/core": "1.7.6",
@@ -8173,7 +8178,7 @@
 
     "yargs-parser": ["yargs-parser@22.0.0", "", {}, "sha512-rwu/ClNdSMpkSrUb+d6BRsSkLUq1fmfsY6TOpYzTwvwkg1/NRG85KBy3kq++A8LKQwX6lsu+aWad+2khvuXrqw=="],
 
-    "yauzl": ["yauzl@3.3.0", "", { "dependencies": { "buffer-crc32": "~0.2.3", "pend": "~1.2.0" } }, "sha512-PtGEvEP30p7sbIBJKUBjUnqgTVOyMURc4dLo9iNyAJnNIEz9pm88cCXF21w94Kg3k6RXkeZh5DHOGS0qEONvNQ=="],
+    "yauzl": ["yauzl@workspace:packages/renderer/vendor/yauzl"],
 
     "yocto-queue": ["yocto-queue@1.2.1", "", {}, "sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg=="],
 
