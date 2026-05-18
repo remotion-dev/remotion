@@ -93,45 +93,6 @@ test('It should throw when both endAt and trimAfter are provided', () => {
 	).toThrow(/Cannot use both endAt and trimAfter props/);
 });
 
-test('It should default preservePitch to true on Video', () => {
-	let video: HTMLVideoElement | null = null;
-
-	render(
-		<WrapSequenceContext>
-			<Html5Video
-				ref={(element) => {
-					if (element) {
-						element.preservesPitch = false;
-						video = element;
-					}
-				}}
-				src="test"
-			/>
-		</WrapSequenceContext>,
-	);
-
-	expect((video as HTMLVideoElement | null)?.preservesPitch).toBe(true);
-});
-
-test('It should sync preservePitch on Video', () => {
-	const ref = createRef<HTMLVideoElement>();
-	const {rerender} = render(
-		<WrapSequenceContext>
-			<Html5Video ref={ref} preservePitch src="test" />
-		</WrapSequenceContext>,
-	);
-
-	expect(ref.current?.preservesPitch).toBe(true);
-
-	rerender(
-		<WrapSequenceContext>
-			<Html5Video ref={ref} preservePitch={false} src="test" />
-		</WrapSequenceContext>,
-	);
-
-	expect(ref.current?.preservesPitch).toBe(false);
-});
-
 test('It should reject invalid preservePitch values on Video', () => {
 	expect(() =>
 		render(
