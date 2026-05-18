@@ -12,36 +12,33 @@ export const lightLeakEffectSchema = {
 		default: 0,
 		description: 'Hue Shift',
 	},
-	durationInFrames: {
+	progress: {
 		type: 'number',
-		min: 1,
-		max: 100_000,
-		step: 1,
-		default: 300,
-		description: 'Duration in frames',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: 0,
+		description: 'Progress',
 	},
 } as const satisfies SequenceSchema;
 
 export type LightLeakEffectParams = {
 	readonly seed?: number;
 	readonly hueShift?: number;
-	/**
-	 * Controls evolve/retract timing, matching `<LightLeak>` when set to the same
-	 * duration as your composition or sequence.
-	 */
-	readonly durationInFrames?: number;
+	/** Evolve/retract phase from 0 (start) to 1 (end). */
+	readonly progress?: number;
 };
 
 type LightLeakResolved = {
 	seed: number;
 	hueShift: number;
-	durationInFrames: number;
+	progress: number;
 };
 
 const resolve = (p: LightLeakEffectParams): LightLeakResolved => ({
 	seed: p.seed ?? 0,
 	hueShift: p.hueShift ?? 0,
-	durationInFrames: p.durationInFrames ?? 300,
+	progress: p.progress ?? 0,
 });
 
 const LIGHT_LEAK_VS = /* glsl */ `#version 300 es
@@ -199,7 +196,7 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `light-leak-${r.seed}-${r.hueShift}-${r.durationInFrames}`;
+		return `light-leak-${r.seed}-${r.hueShift}-${r.progress}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -273,7 +270,7 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 			uResolution: gl.getUniformLocation(program, 'resolution'),
 		};
 	},
-	apply: ({source, width, height, params, state, frame}) => {
+	apply: ({source, width, height, params, state}) => {
 		const r = resolve(params);
 
 		if (typeof r.seed !== 'number' || !Number.isFinite(r.seed)) {
@@ -294,8 +291,7 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 			);
 		}
 
-		const duration = r.durationInFrames;
-		const normalized = duration <= 1 ? 0 : frame / (duration - 1);
+		const normalized = Math.min(1, Math.max(0, r.progress));
 		const evolveProgress = Math.min(1, normalized * 2);
 		const retractProgress = Math.max(0, normalized * 2 - 1);
 

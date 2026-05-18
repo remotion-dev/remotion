@@ -144,8 +144,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
-	const frameRef = useRef(frame);
-	frameRef.current = frame;
 
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
@@ -281,7 +279,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffects: () => experimentalEffectsRef.current,
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
-				getCurrentFrame: () => frameRef.current,
 			});
 
 			mediaPlayerRef.current = player;

@@ -6,7 +6,13 @@ import {LightLeakInternals} from '@remotion/light-leaks';
 import {Video} from '@remotion/media';
 import {StarburstInternals} from '@remotion/starburst';
 import React from 'react';
-import {AbsoluteFill, Experimental, staticFile} from 'remotion';
+import {
+	AbsoluteFill,
+	Experimental,
+	staticFile,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 const SAMPLE_VIDEO = staticFile('bigbuckbunny.mp4');
 
@@ -77,6 +83,81 @@ const tileVideoStyle: React.CSSProperties = {
 	height: '100%',
 };
 
+const AnimatedWaveVideo: React.FC = () => {
+	const frame = useCurrentFrame();
+	const evolution = frame * 0.2;
+
+	return (
+		<Video
+			src={SAMPLE_VIDEO}
+			style={tileVideoStyle}
+			muted
+			loop
+			objectFit="cover"
+			_experimentalEffects={[
+				wave({
+					amplitude: 22,
+					wavelength: 180,
+					evolution,
+					sliceWidth: 4,
+					background: '#020617',
+				}),
+			]}
+		/>
+	);
+};
+
+const AnimatedLightLeakSolid: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
+	const progress = durationInFrames <= 1 ? 0 : frame / (durationInFrames - 1);
+
+	return (
+		<Experimental.Solid
+			width={400}
+			height={300}
+			color="#ff5fa2"
+			style={tileVideoStyle}
+			_experimentalEffects={[
+				LightLeakInternals.lightLeak({
+					seed: 1,
+					hueShift: 30,
+					progress,
+				}),
+			]}
+		/>
+	);
+};
+
+const AnimatedStackVideo: React.FC = () => {
+	const frame = useCurrentFrame();
+	const evolution = frame * 0.2;
+
+	return (
+		<Video
+			src={SAMPLE_VIDEO}
+			style={tileVideoStyle}
+			muted
+			loop
+			objectFit="cover"
+			_experimentalEffects={[
+				StarburstInternals.starburst({
+					colors: ['#ff5fa2', '#ff0000'],
+					rays: 12,
+				}),
+				blur({radius: 24}),
+				wave({
+					amplitude: 22,
+					wavelength: 180,
+					evolution,
+					sliceWidth: 4,
+					background: '#020617',
+				}),
+			]}
+		/>
+	);
+};
+
 export const EffectsTestbed: React.FC = () => {
 	return (
 		<AbsoluteFill
@@ -126,23 +207,8 @@ export const EffectsTestbed: React.FC = () => {
 						]}
 					/>
 				</Tile>
-				<Tile title="wave" subtitle="amplitude 22, animated">
-					<Video
-						src={SAMPLE_VIDEO}
-						style={tileVideoStyle}
-						muted
-						loop
-						objectFit="cover"
-						_experimentalEffects={[
-							wave({
-								amplitude: 22,
-								wavelength: 180,
-								speed: 0.2,
-								sliceWidth: 4,
-								background: '#020617',
-							}),
-						]}
-					/>
+				<Tile title="wave" subtitle="amplitude 22, evolution from frame">
+					<AnimatedWaveVideo />
 				</Tile>
 			</div>
 			<div style={{flex: 1, display: 'flex', flexDirection: 'row', gap: 16}}>
@@ -156,41 +222,13 @@ export const EffectsTestbed: React.FC = () => {
 						_experimentalEffects={[blur({radius: 24})]}
 					/>
 				</Tile>
-				<Tile title="solid" subtitle="light leak">
-					<Experimental.Solid
-						width={400}
-						height={300}
-						color="#ff5fa2"
-						style={tileVideoStyle}
-						_experimentalEffects={[
-							LightLeakInternals.lightLeak({seed: 1, hueShift: 30}),
-						]}
-					/>
+				<Tile title="solid" subtitle="light leak, progress from frame">
+					<AnimatedLightLeakSolid />
 				</Tile>
 			</div>
 			<div style={{flex: 1, display: 'flex', flexDirection: 'row', gap: 16}}>
-				<Tile title="starburst" subtitle="separable Gaussian, radius 24">
-					<Video
-						src={SAMPLE_VIDEO}
-						style={tileVideoStyle}
-						muted
-						loop
-						objectFit="cover"
-						_experimentalEffects={[
-							StarburstInternals.starburst({
-								colors: ['#ff5fa2', '#ff0000'],
-								rays: 12,
-							}),
-							blur({radius: 24}),
-							wave({
-								amplitude: 22,
-								wavelength: 180,
-								speed: 0.2,
-								sliceWidth: 4,
-								background: '#020617',
-							}),
-						]}
-					/>
+				<Tile title="starburst" subtitle="starburst + blur + wave">
+					<AnimatedStackVideo />
 				</Tile>
 			</div>
 		</AbsoluteFill>
