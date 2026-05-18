@@ -538,6 +538,7 @@ const HtmlInCanvasInner = forwardRef<
 			_experimentalControls: controls,
 			style,
 			durationInFrames,
+			name,
 			...sequenceProps
 		},
 		ref,
@@ -550,7 +551,7 @@ const HtmlInCanvasInner = forwardRef<
 		return (
 			<Sequence
 				durationInFrames={resolvedDuration}
-				name="<HtmlInCanvas>"
+				name={name ?? '<HtmlInCanvas>'}
 				_experimentalControls={controls}
 				_experimentalEffects={memoizedEffectDefinitions}
 				layout="none"
