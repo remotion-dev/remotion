@@ -42,7 +42,7 @@ export type EffectDefinition<P, S = unknown> = {
 	readonly setup: (target: HTMLCanvasElement) => S;
 	readonly apply: (params: EffectApplyParams<P, S>) => void;
 	readonly cleanup: (state: S) => void;
-	readonly schema: SequenceSchema | null;
+	readonly schema: SequenceSchema;
 };
 
 type BaseEffectDescriptor<P = unknown> = {

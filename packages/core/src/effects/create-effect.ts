@@ -40,7 +40,7 @@ export const createEffect = <P, S>(
 		},
 		schema: {
 			disabled: disabledEffectField,
-			...(definition.schema ?? {}),
+			...definition.schema,
 		},
 	};
 	const factory = (

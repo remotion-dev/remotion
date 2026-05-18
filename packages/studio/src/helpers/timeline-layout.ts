@@ -104,9 +104,7 @@ export const buildTimelineTree = ({
 						numberOfSequencesWithThisNodePath: 0,
 					},
 					label: effect.label,
-					effectInfo: effect.schema
-						? {effectIndex: i, effectSchema: effect.schema}
-						: null,
+					effectInfo: {effectIndex: i, effectSchema: effect.schema},
 					children: effectFields.map(
 						(f): TimelineTreeNode => ({
 							kind: 'field',
