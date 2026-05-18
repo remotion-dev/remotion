@@ -229,7 +229,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const inheritedStack = (other as any)?.stack ?? null;
 	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
 	// and if it changes, it would lead to-remounting of the sequence.
-	const [stackDoesntChange] = useState(() => stack ?? inheritedStack);
 	const stackRef = useRef<string | null>(null);
 	stackRef.current = stack ?? inheritedStack;
 
@@ -300,7 +299,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		nonce,
 		loopDisplay,
-		stackDoesntChange,
 		premountDisplay,
 		postmountDisplay,
 		env.isStudio,
