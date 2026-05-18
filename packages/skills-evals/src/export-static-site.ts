@@ -76,11 +76,13 @@ const siteRoot = join(packageRoot, '.site');
 
 const toPosixPath = (path: string) => path.split(/[\\/]/).join('/');
 
-const encodedRelativePath = (from: string, to: string) => {
+const posixRelativePath = (from: string, to: string) => {
 	const path = toPosixPath(relative(from, to));
 
 	return path === '' ? '.' : path;
 };
+
+const shellQuote = (value: string) => JSON.stringify(value);
 
 const writeHtml = async (file: string, html: string) => {
 	await mkdir(dirname(file), {recursive: true});
@@ -90,11 +92,7 @@ const writeHtml = async (file: string, html: string) => {
 const assertInsideRunsRoot = (file: string) => {
 	const relativePath = relative(runsRoot, file);
 
-	if (
-		relativePath.startsWith('..') ||
-		relativePath === '..' ||
-		isAbsolute(relativePath)
-	) {
+	if (relativePath.startsWith('..') || isAbsolute(relativePath)) {
 		throw new Error(`Cannot export file outside .runs: ${file}`);
 	}
 
@@ -313,7 +311,7 @@ const renderOptionsForPage = (
 	outDir: string,
 	pageDir: string,
 ): RenderOptions => ({
-	fileHrefPrefix: encodedRelativePath(pageDir, join(outDir, 'files')),
+	fileHrefPrefix: posixRelativePath(pageDir, join(outDir, 'files')),
 	mode: 'static',
 });
 
@@ -433,7 +431,7 @@ export const exportStaticSite = async ({
 	});
 
 	return {
-		deployCommand: `vercel deploy ${output}`,
+		deployCommand: `vercel deploy ${shellQuote(output)}`,
 		indexHtmlPath: join(output, 'index.html'),
 		outDir: output,
 		targetCount: resolvedTargets.length,
