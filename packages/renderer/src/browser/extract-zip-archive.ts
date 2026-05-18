@@ -5,6 +5,22 @@ import {promisify} from 'node:util';
 
 const execFileAsync = promisify(execFile);
 
+const getMissingArchiveUtilityMessage = (): string => {
+	const base =
+		'Failed to extract the downloaded Chrome archive. A zip extraction utility must be installed and available on your PATH.';
+
+	switch (process.platform) {
+		case 'win32':
+			return `${base} On Windows, Remotion uses the built-in tar utility in System32. Ensure you are on Windows 10 version 1803 or later.`;
+		case 'darwin':
+			return `${base} On macOS, install unzip, for example with Homebrew: brew install unzip`;
+		case 'linux':
+			return `${base} On Linux, install unzip, for example: apt install unzip, yum install unzip, or apk add unzip`;
+		default:
+			return `${base} Install a zip extraction utility for your operating system.`;
+	}
+};
+
 export const extractZipArchive = async (
 	archivePath: string,
 	folderPath: string,
@@ -41,10 +57,7 @@ export const extractZipArchive = async (
 			'code' in error &&
 			error.code === 'ENOENT'
 		) {
-			throw new Error(
-				"Extraction failed: Required native binary ('tar.exe' or 'unzip') was not found in the system PATH.",
-				{cause: error},
-			);
+			throw new Error(getMissingArchiveUtilityMessage(), {cause: error});
 		}
 
 		const stderr =
@@ -57,8 +70,11 @@ export const extractZipArchive = async (
 
 		const message = error instanceof Error ? error.message : String(error);
 
-		throw new Error(`Extraction failed: ${stderr ?? message}`, {
-			cause: error instanceof Error ? error : undefined,
-		});
+		throw new Error(
+			`Failed to extract the downloaded Chrome archive: ${stderr ?? message}`,
+			{
+				cause: error instanceof Error ? error : undefined,
+			},
+		);
 	}
 };
