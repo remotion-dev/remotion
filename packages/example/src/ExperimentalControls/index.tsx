@@ -6,6 +6,7 @@ import React from 'react';
 import {
 	AbsoluteFill,
 	AnimatedImage,
+	Experimental,
 	Html5Audio,
 	Html5Video,
 	HtmlInCanvas,
@@ -226,6 +227,9 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 							<AbsoluteFill style={{backgroundColor: 'red'}}></AbsoluteFill>
 						</Series.Sequence>
 					</Series>
+				</Tile>
+				<Tile title="Solid">
+					<Experimental.Solid color="red" width={100} height={100} />
 				</Tile>
 			</div>
 		</AbsoluteFill>
