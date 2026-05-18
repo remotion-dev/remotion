@@ -22,7 +22,7 @@
 	},
 	"dependencies": {
 		"execa": "5.1.1",
-		"extract-zip": "2.0.1",
+		"yauzl": "3.3.0",
 		"remotion": "workspace:*",
 		"@remotion/streaming": "workspace:*",
 		"source-map": "0.8.0-beta.0",
@@ -44,7 +44,8 @@
 		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@types/node": "catalog:"
+		"@types/node": "catalog:",
+		"@types/yauzl": "2.10.3"
 	},
 	"optionalDependencies": {
 		"@remotion/compositor-darwin-arm64": "workspace:*",
