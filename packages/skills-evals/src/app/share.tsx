@@ -1,38 +1,19 @@
-import {basename} from 'node:path';
-import type {SkillEvalComparison, SkillEvalManifest} from '../manifest';
+import {getSkillEvalName} from '../eval';
+import type {SkillEval} from '../manifest';
 import {formatDate, Header, page, Pill} from './shared';
 
-export type ShareRunResult = {
+export type ShareResult = {
+	evaluation: SkillEval;
 	href: string;
-	manifest: SkillEvalManifest;
-	type: 'run';
 };
 
-export type ShareComparisonResult = {
-	comparison: SkillEvalComparison;
-	href: string;
-	type: 'comparison';
-};
-
-export type ShareResult = ShareComparisonResult | ShareRunResult;
+const resultMetadata = (result: ShareResult) =>
+	`${result.evaluation.scenarioId} - ${result.evaluation.runCount} ${
+		result.evaluation.runCount === 1 ? 'run' : 'runs'
+	}`;
 
 const resultTitle = (result: ShareResult) =>
-	result.type === 'run' ? result.manifest.id : result.comparison.scenarioId;
-
-const resultDate = (result: ShareResult) =>
-	result.type === 'run'
-		? result.manifest.completedAt
-		: result.comparison.completedAt;
-
-const resultMetadata = (result: ShareResult) => {
-	if (result.type === 'run') {
-		return `${result.manifest.model} - ${result.manifest.skillSnapshot.hash}`;
-	}
-
-	return result.comparison.runs && result.comparison.runs.length > 1
-		? `${result.comparison.runs.length} comparison runs`
-		: `${result.comparison.before.hash} -> ${result.comparison.after.hash}`;
-};
+	getSkillEvalName(result.evaluation);
 
 export const renderShareIndex = (results: ShareResult[]) =>
 	page({
@@ -50,7 +31,7 @@ export const renderShareIndex = (results: ShareResult[]) =>
 						<a
 							className="block rounded-2xl border border-zinc-200 bg-white p-4 hover:border-zinc-300"
 							href={result.href}
-							key={`${result.type}:${result.href}`}
+							key={result.href}
 						>
 							<div className="flex items-start justify-between gap-3">
 								<div className="min-w-0">
@@ -61,10 +42,14 @@ export const renderShareIndex = (results: ShareResult[]) =>
 										{resultMetadata(result)}
 									</p>
 								</div>
-								<Pill>{result.type === 'run' ? 'Run' : 'Comparison'}</Pill>
+								<Pill>
+									{result.evaluation.type === 'run'
+										? 'Run eval'
+										: 'Comparison eval'}
+								</Pill>
 							</div>
 							<p className="mt-4 text-xs text-zinc-400">
-								{formatDate(resultDate(result))}
+								{formatDate(result.evaluation.completedAt)}
 							</p>
 						</a>
 					))}
@@ -74,13 +59,3 @@ export const renderShareIndex = (results: ShareResult[]) =>
 		renderOptions: {mode: 'static'},
 		title: 'Skills Eval Share',
 	});
-
-export const runShareHref = (manifest: SkillEvalManifest) =>
-	`runs/${encodeURIComponent(manifest.id)}/${encodeURIComponent(
-		basename(manifest.runDir),
-	)}/`;
-
-export const comparisonShareHref = (comparison: SkillEvalComparison) =>
-	`comparisons/${encodeURIComponent(comparison.scenarioId)}/${encodeURIComponent(
-		comparison.id,
-	)}/`;

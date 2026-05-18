@@ -174,18 +174,25 @@ export const toComparisonUrl = (comparison: SkillEvalComparison) =>
 		comparison.id,
 	)}`;
 
-export const ShareResultButton = ({endpoint}: {endpoint: string}) => (
-	<div className="flex flex-wrap items-center gap-2">
+export const ShareResultButton = ({
+	endpoint,
+	label = 'Share',
+}: {
+	endpoint: string;
+	label?: string;
+}) => (
+	<div className="relative">
 		<button
 			className="rounded-full border border-zinc-200 bg-white px-3 py-2 text-[0.8125rem] font-semibold text-zinc-700 hover:border-zinc-300 disabled:bg-zinc-100 disabled:text-zinc-400"
 			data-share-endpoint={endpoint}
 			id="share-result"
 			type="button"
 		>
-			Share
+			{label}
 		</button>
-		<code
-			className="max-w-180 overflow-auto whitespace-pre-wrap rounded-xl bg-zinc-100 px-3 py-2 text-xs text-zinc-600"
+		<div
+			aria-live="polite"
+			className="absolute right-0 top-full z-10 mt-2 w-[min(32rem,calc(100vw-2rem))] rounded-2xl border border-zinc-200 bg-white p-3 text-left shadow-[0_16px_40px_rgba(24,24,27,0.12)]"
 			hidden
 			id="share-result-output"
 		/>
@@ -204,6 +211,71 @@ export const ShareResultScript = () => (
 		return;
 	}
 
+	const closeOutput = () => {
+		output.hidden = true;
+	};
+
+	const renderOutput = ({command, isError = false, message, title}) => {
+		output.hidden = false;
+		output.replaceChildren();
+
+		const titleElement = document.createElement('p');
+		titleElement.className = isError ? 'text-sm font-semibold text-red-700' : 'text-sm font-semibold text-zinc-900';
+		titleElement.textContent = title;
+		output.append(titleElement);
+
+		if (message) {
+			const messageElement = document.createElement('p');
+			messageElement.className = isError ? 'mt-1 text-xs text-red-600' : 'mt-1 text-xs text-zinc-500';
+			messageElement.textContent = message;
+			output.append(messageElement);
+		}
+
+		if (!command) {
+			return;
+		}
+
+		const commandRow = document.createElement('div');
+		commandRow.className = 'mt-3 flex items-start gap-2';
+
+		const commandElement = document.createElement('code');
+		commandElement.className = 'min-w-0 flex-1 overflow-auto whitespace-pre rounded-xl bg-zinc-100 px-3 py-2 text-xs text-zinc-700';
+		commandElement.textContent = command;
+		commandRow.append(commandElement);
+
+		const copyButton = document.createElement('button');
+		copyButton.className = 'shrink-0 rounded-full border border-zinc-200 bg-white px-3 py-2 text-xs font-semibold text-zinc-700 hover:border-zinc-300';
+		copyButton.type = 'button';
+		copyButton.textContent = 'Copy';
+		copyButton.addEventListener('click', async () => {
+			await navigator.clipboard?.writeText(command);
+			copyButton.textContent = 'Copied';
+			setTimeout(() => {
+				copyButton.textContent = 'Copy';
+			}, 1500);
+		});
+		commandRow.append(copyButton);
+		output.append(commandRow);
+	};
+
+	document.addEventListener('click', (event) => {
+		if (output.hidden) {
+			return;
+		}
+
+		if (button.contains(event.target) || output.contains(event.target)) {
+			return;
+		}
+
+		closeOutput();
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape') {
+			closeOutput();
+		}
+	});
+
 	button.addEventListener('click', async () => {
 		const endpoint = button.dataset.shareEndpoint;
 
@@ -212,8 +284,10 @@ export const ShareResultScript = () => (
 		}
 
 		button.disabled = true;
-		output.hidden = false;
-		output.textContent = 'Building share bundle...';
+		renderOutput({
+			message: 'Preparing the static files locally.',
+			title: 'Building share bundle...',
+		});
 
 		try {
 			const response = await fetch(endpoint, {method: 'POST'});
@@ -223,9 +297,17 @@ export const ShareResultScript = () => (
 				throw new Error(result.error || 'Could not build share bundle.');
 			}
 
-			output.textContent = 'Built: ' + result.indexHtmlPath + '\\nDeploy: ' + result.deployCommand;
+			renderOutput({
+				command: result.deployCommand,
+				message: 'Static share bundle is ready. Deploy it with Vercel CLI:',
+				title: 'Share bundle ready',
+			});
 		} catch (error) {
-			output.textContent = error instanceof Error ? error.message : String(error);
+			renderOutput({
+				isError: true,
+				message: error instanceof Error ? error.message : String(error),
+				title: 'Could not build share bundle',
+			});
 		} finally {
 			button.disabled = false;
 		}

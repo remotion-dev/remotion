@@ -194,11 +194,12 @@ export const renderComparison = (
 									Scenario
 								</a>
 							)}
-							{renderOptions?.mode === 'static' ? null : (
+							{renderOptions?.mode === 'static' || !comparison.evalId ? null : (
 								<ShareResultButton
-									endpoint={`/api/share/comparison/${encodeURIComponent(
+									endpoint={`/api/share/eval/${encodeURIComponent(
 										comparison.scenarioId,
-									)}/${encodeURIComponent(comparison.id)}`}
+									)}/${encodeURIComponent(comparison.evalId)}`}
+									label="Share eval"
 								/>
 							)}
 						</div>

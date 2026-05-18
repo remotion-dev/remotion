@@ -8,62 +8,36 @@ import {
 	relative,
 	resolve,
 } from 'node:path';
-import {renderComparison} from './app/comparison';
+import {type ComparisonWithManifests} from './app/comparison-data';
 import {
-	loadComparison,
-	type ComparisonWithManifests,
-} from './app/comparison-data';
-import {loadRun, renderRun} from './app/run';
-import {
-	comparisonShareHref,
-	renderShareIndex,
-	runShareHref,
-	type ShareResult,
-} from './app/share';
-import {
-	comparisonsRoot,
-	packageRoot,
-	type RenderOptions,
-	runsRoot,
-} from './app/shared';
+	loadSkillEvalData,
+	renderEval,
+	type SkillEvalWithData,
+} from './app/eval';
+import {renderShareIndex, type ShareResult} from './app/share';
+import {packageRoot, type RenderOptions, runsRoot} from './app/shared';
+import {getSkillEvalPath, loadSkillEval} from './eval';
 import {createTimestamp, readJson, sanitizePathPart, writeJson} from './files';
-import type {SkillEvalComparison, SkillEvalManifest} from './manifest';
+import type {SkillEval, SkillEvalManifest} from './manifest';
 
-export type StaticExportRunTarget = {
-	runId: string;
+export type StaticExportEvalTarget = {
+	evalId: string;
 	scenarioId: string;
-	type: 'run';
+	type: 'eval';
 };
 
-export type StaticExportComparisonTarget = {
-	comparisonId: string;
-	scenarioId: string;
-	type: 'comparison';
-};
-
-export type StaticExportTarget =
-	| StaticExportComparisonTarget
-	| StaticExportRunTarget
-	| string;
+export type StaticExportTarget = StaticExportEvalTarget | string;
 
 export type ExportStaticSiteOptions = {
 	outDir?: string;
 	targets: StaticExportTarget[];
 };
 
-type ResolvedRunTarget = {
-	manifest: SkillEvalManifest;
-	manifestPath: string;
-	type: 'run';
+type ResolvedTarget = {
+	data: SkillEvalWithData;
+	evalPath: string;
+	type: 'eval';
 };
-
-type ResolvedComparisonTarget = {
-	comparisonData: ComparisonWithManifests;
-	comparisonPath: string;
-	type: 'comparison';
-};
-
-type ResolvedTarget = ResolvedComparisonTarget | ResolvedRunTarget;
 
 export type ExportStaticSiteResult = {
 	deployCommand: string;
@@ -169,35 +143,42 @@ const collectComparisonAssets = (
 	}
 };
 
+const collectEvalAssets = (assetPaths: Set<string>, target: ResolvedTarget) => {
+	addIfExists(assetPaths, target.evalPath);
+
+	if (target.data.type === 'run') {
+		for (const [index, manifest] of target.data.manifests.entries()) {
+			collectManifestAssets(
+				assetPaths,
+				manifest,
+				target.data.evaluation.runs[index]?.manifestPath,
+			);
+		}
+
+		return;
+	}
+
+	collectComparisonAssets(
+		assetPaths,
+		target.data.comparisonData,
+		target.data.evaluation.comparisonPath,
+	);
+};
+
 const defaultOutDir = (targets: ResolvedTarget[]) => {
 	if (targets.length === 1) {
 		const target = targets[0];
 
-		if (target.type === 'run') {
-			return join(
-				siteRoot,
-				'runs',
-				sanitizePathPart(target.manifest.id),
-				sanitizePathPart(basename(target.manifest.runDir)),
-			);
-		}
-
 		return join(
 			siteRoot,
-			'comparisons',
-			sanitizePathPart(target.comparisonData.comparison.scenarioId),
-			sanitizePathPart(target.comparisonData.comparison.id),
+			'evals',
+			sanitizePathPart(target.data.evaluation.scenarioId),
+			sanitizePathPart(target.data.evaluation.id),
 		);
 	}
 
 	const scenarioIds = [
-		...new Set(
-			targets.map((target) =>
-				target.type === 'run'
-					? target.manifest.id
-					: target.comparisonData.comparison.scenarioId,
-			),
-		),
+		...new Set(targets.map((target) => target.data.evaluation.scenarioId)),
 	];
 
 	return join(
@@ -208,50 +189,29 @@ const defaultOutDir = (targets: ResolvedTarget[]) => {
 	);
 };
 
-const resolveRunTarget = async (
-	target: StaticExportRunTarget,
-): Promise<ResolvedRunTarget> => {
-	const manifest = await loadRun(target.scenarioId, target.runId);
+const resolveEvalTarget = async (
+	target: StaticExportEvalTarget,
+): Promise<ResolvedTarget> => {
+	const evaluation = await loadSkillEval(target.scenarioId, target.evalId);
 
-	if (!manifest) {
-		throw new Error(`Could not find run ${target.scenarioId}/${target.runId}.`);
+	if (!evaluation) {
+		throw new Error(
+			`Could not find eval ${target.scenarioId}/${target.evalId}.`,
+		);
 	}
 
-	return {
-		manifest,
-		manifestPath: join(
-			runsRoot,
-			sanitizePathPart(target.scenarioId),
-			target.runId,
-			'manifest.json',
-		),
-		type: 'run',
-	};
-};
+	const data = await loadSkillEvalData(evaluation);
 
-const resolveComparisonTarget = async (
-	target: StaticExportComparisonTarget,
-): Promise<ResolvedComparisonTarget> => {
-	const comparisonData = await loadComparison(
-		target.scenarioId,
-		target.comparisonId,
-	);
-
-	if (!comparisonData) {
+	if (!data) {
 		throw new Error(
-			`Could not find comparison ${target.scenarioId}/${target.comparisonId}.`,
+			`Could not load eval ${target.scenarioId}/${target.evalId}.`,
 		);
 	}
 
 	return {
-		comparisonData,
-		comparisonPath: join(
-			comparisonsRoot,
-			sanitizePathPart(target.scenarioId),
-			target.comparisonId,
-			'comparison.json',
-		),
-		type: 'comparison',
+		data,
+		evalPath: getSkillEvalPath(target.scenarioId, target.evalId),
+		type: 'eval',
 	};
 };
 
@@ -259,42 +219,25 @@ const resolvePathTarget = async (input: string): Promise<ResolvedTarget> => {
 	const absolutePath = resolve(input);
 	const stats = await stat(absolutePath);
 	const file = stats.isDirectory()
-		? existsSync(join(absolutePath, 'manifest.json'))
-			? join(absolutePath, 'manifest.json')
-			: join(absolutePath, 'comparison.json')
+		? join(absolutePath, 'eval.json')
 		: absolutePath;
 
-	if (basename(file) === 'manifest.json') {
-		const manifest = await readJson<SkillEvalManifest>(file);
+	if (basename(file) === 'eval.json') {
+		const evaluation = await readJson<SkillEval>(file);
+		const data = await loadSkillEvalData(evaluation);
 
-		return {
-			manifest,
-			manifestPath: file,
-			type: 'run',
-		};
-	}
-
-	if (basename(file) === 'comparison.json') {
-		const comparison = await readJson<SkillEvalComparison>(file);
-		const comparisonData = await loadComparison(
-			comparison.scenarioId,
-			comparison.id,
-		);
-
-		if (!comparisonData) {
-			throw new Error(`Could not load comparison from ${file}.`);
+		if (!data) {
+			throw new Error(`Could not load eval from ${file}.`);
 		}
 
 		return {
-			comparisonData,
-			comparisonPath: file,
-			type: 'comparison',
+			data,
+			evalPath: file,
+			type: 'eval',
 		};
 	}
 
-	throw new Error(
-		`Expected a run manifest, comparison JSON, or directory: ${input}`,
-	);
+	throw new Error(`Expected an eval JSON file or directory: ${input}`);
 };
 
 const resolveTarget = (target: StaticExportTarget) => {
@@ -302,9 +245,7 @@ const resolveTarget = (target: StaticExportTarget) => {
 		return resolvePathTarget(target);
 	}
 
-	return target.type === 'run'
-		? resolveRunTarget(target)
-		: resolveComparisonTarget(target);
+	return resolveEvalTarget(target);
 };
 
 const renderOptionsForPage = (
@@ -315,23 +256,24 @@ const renderOptionsForPage = (
 	mode: 'static',
 });
 
-const resultPagePath = (outDir: string, target: ResolvedTarget) => {
-	if (target.type === 'run') {
-		return join(
-			outDir,
-			'runs',
-			encodeURIComponent(target.manifest.id),
-			encodeURIComponent(basename(target.manifest.runDir)),
-			'index.html',
-		);
-	}
-
-	return join(
+const evalPagePath = (outDir: string, target: ResolvedTarget) =>
+	join(
 		outDir,
-		'comparisons',
-		encodeURIComponent(target.comparisonData.comparison.scenarioId),
-		encodeURIComponent(target.comparisonData.comparison.id),
+		'evals',
+		encodeURIComponent(target.data.evaluation.scenarioId),
+		encodeURIComponent(target.data.evaluation.id),
 		'index.html',
+	);
+
+const renderEvalPage = async (
+	outDir: string,
+	indexHtmlPath: string,
+	target: ResolvedTarget,
+) => {
+	const evalPageDir = dirname(indexHtmlPath);
+	await writeHtml(
+		indexHtmlPath,
+		renderEval(target.data, renderOptionsForPage(outDir, evalPageDir)),
 	);
 };
 
@@ -340,7 +282,7 @@ export const exportStaticSite = async ({
 	targets,
 }: ExportStaticSiteOptions): Promise<ExportStaticSiteResult> => {
 	if (targets.length === 0) {
-		throw new Error('Pass at least one run or comparison to export.');
+		throw new Error('Pass at least one eval to export.');
 	}
 
 	const resolvedTargets = await Promise.all(targets.map(resolveTarget));
@@ -353,55 +295,23 @@ export const exportStaticSite = async ({
 	if (resolvedTargets.length === 1) {
 		const target = resolvedTargets[0];
 		const indexHtmlPath = join(output, 'index.html');
-		const renderOptions = renderOptionsForPage(output, output);
 
-		if (target.type === 'run') {
-			await writeHtml(indexHtmlPath, renderRun(target.manifest, renderOptions));
-			collectManifestAssets(assetPaths, target.manifest, target.manifestPath);
-		} else {
-			await writeHtml(
-				indexHtmlPath,
-				renderComparison(target.comparisonData, renderOptions),
-			);
-			collectComparisonAssets(
-				assetPaths,
-				target.comparisonData,
-				target.comparisonPath,
-			);
-		}
+		await renderEvalPage(output, indexHtmlPath, target);
+		collectEvalAssets(assetPaths, target);
 	} else {
 		const shareResults: ShareResult[] = [];
 
 		for (const target of resolvedTargets) {
-			const file = resultPagePath(output, target);
-			const pageDir = dirname(file);
-			const renderOptions = renderOptionsForPage(output, pageDir);
+			const file = evalPagePath(output, target);
 
-			if (target.type === 'run') {
-				await writeHtml(file, renderRun(target.manifest, renderOptions));
-				collectManifestAssets(assetPaths, target.manifest, target.manifestPath);
-				shareResults.push({
-					href: runShareHref(target.manifest),
-					manifest: target.manifest,
-					type: 'run',
-				});
-			} else {
-				await writeHtml(
-					file,
-					renderComparison(target.comparisonData, renderOptions),
-				);
-				collectComparisonAssets(
-					assetPaths,
-					target.comparisonData,
-					target.comparisonPath,
-				);
-
-				shareResults.push({
-					comparison: target.comparisonData.comparison,
-					href: comparisonShareHref(target.comparisonData.comparison),
-					type: 'comparison',
-				});
-			}
+			await renderEvalPage(output, file, target);
+			collectEvalAssets(assetPaths, target);
+			shareResults.push({
+				evaluation: target.data.evaluation,
+				href: `evals/${encodeURIComponent(
+					target.data.evaluation.scenarioId,
+				)}/${encodeURIComponent(target.data.evaluation.id)}/`,
+			});
 		}
 
 		await writeHtml(join(output, 'index.html'), renderShareIndex(shareResults));
@@ -413,21 +323,12 @@ export const exportStaticSite = async ({
 
 	await writeJson(join(output, 'metadata.json'), {
 		createdAt: new Date().toISOString(),
-		targets: resolvedTargets.map((target) =>
-			target.type === 'run'
-				? {
-						id: basename(target.manifest.runDir),
-						manifestPath: target.manifestPath,
-						scenarioId: target.manifest.id,
-						type: 'run',
-					}
-				: {
-						comparisonId: target.comparisonData.comparison.id,
-						comparisonPath: target.comparisonPath,
-						scenarioId: target.comparisonData.comparison.scenarioId,
-						type: 'comparison',
-					},
-		),
+		targets: resolvedTargets.map((target) => ({
+			evalId: target.data.evaluation.id,
+			evalPath: target.evalPath,
+			scenarioId: target.data.evaluation.scenarioId,
+			type: 'eval',
+		})),
 	});
 
 	return {

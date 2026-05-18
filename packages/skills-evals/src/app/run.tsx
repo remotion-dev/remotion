@@ -1,5 +1,5 @@
 import {existsSync} from 'node:fs';
-import {basename, join} from 'node:path';
+import {join} from 'node:path';
 import {readJson, sanitizePathPart} from '../files';
 import type {SkillEvalManifest} from '../manifest';
 import {getPreferredArtifact} from './comparison-data';
@@ -100,11 +100,12 @@ export const renderRun = (
 							>
 								Pi export
 							</a>
-							{renderOptions?.mode === 'static' ? null : (
+							{renderOptions?.mode === 'static' || !manifest.evalId ? null : (
 								<ShareResultButton
-									endpoint={`/api/share/run/${encodeURIComponent(
+									endpoint={`/api/share/eval/${encodeURIComponent(
 										manifest.id,
-									)}/${encodeURIComponent(basename(manifest.runDir))}`}
+									)}/${encodeURIComponent(manifest.evalId)}`}
+									label="Share eval"
 								/>
 							)}
 						</div>
