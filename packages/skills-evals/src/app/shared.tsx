@@ -96,6 +96,31 @@ export const formatDate = (value: string) =>
 		timeStyle: 'medium',
 	}).format(new Date(value));
 
+export const formatDuration = (durationMs: number) => {
+	const totalSeconds = Math.max(0, Math.round(durationMs / 1000));
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor((totalSeconds % 3600) / 60);
+	const seconds = totalSeconds % 60;
+
+	if (hours > 0) {
+		return `${hours}h ${minutes}m ${seconds}s`;
+	}
+
+	if (minutes > 0) {
+		return `${minutes}m ${seconds}s`;
+	}
+
+	return `${seconds}s`;
+};
+
+export const getDurationMs = ({
+	completedAt,
+	createdAt,
+}: {
+	completedAt: string;
+	createdAt: string;
+}) => new Date(completedAt).getTime() - new Date(createdAt).getTime();
+
 export const toFileUrl = (file: string) => {
 	const relativePath = relative(runsRoot, file);
 

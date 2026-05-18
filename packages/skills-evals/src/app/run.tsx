@@ -3,7 +3,16 @@ import {join} from 'node:path';
 import {readJson, sanitizePathPart} from '../files';
 import type {SkillEvalManifest} from '../manifest';
 import {getPreferredArtifact} from './comparison-data';
-import {Card, Header, page, runsRoot, toFileUrl} from './shared';
+import {
+	Card,
+	formatDuration,
+	getDurationMs,
+	Header,
+	page,
+	Pill,
+	runsRoot,
+	toFileUrl,
+} from './shared';
 
 export const loadRun = async (scenarioId: string, runId: string) => {
 	const manifestPath = join(
@@ -64,6 +73,7 @@ export const renderRun = (manifest: SkillEvalManifest) =>
 				<Header
 					action={
 						<div className="flex flex-wrap items-center gap-3">
+							<Pill>Took {formatDuration(getDurationMs(manifest))}</Pill>
 							<a
 								className="text-[0.8125rem] text-zinc-600"
 								href={`/scenarios/${encodeURIComponent(manifest.id)}`}

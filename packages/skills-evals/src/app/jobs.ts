@@ -34,8 +34,11 @@ export type JobRunGroup = {
 };
 
 export type JobRun = {
+	completedAt?: string;
+	durationMs?: number;
 	logs: string[];
 	message: string;
+	startedAt?: string;
 	status: 'completed' | 'failed' | 'running' | 'waiting';
 };
 
@@ -53,6 +56,34 @@ const createJobRun = (): JobRun => ({
 	message: 'Waiting to start',
 	status: 'waiting',
 });
+
+const startJobRun = (run: JobRun, startedAt = new Date().toISOString()) => {
+	run.completedAt = undefined;
+	run.durationMs = undefined;
+	run.startedAt = startedAt;
+	run.status = 'running';
+};
+
+const completeJobRun = (
+	run: JobRun,
+	completedAt = new Date().toISOString(),
+) => {
+	run.completedAt = completedAt;
+	run.durationMs =
+		run.startedAt === undefined
+			? undefined
+			: new Date(completedAt).getTime() - new Date(run.startedAt).getTime();
+	run.status = 'completed';
+};
+
+const failJobRun = (run: JobRun, completedAt = new Date().toISOString()) => {
+	run.completedAt = completedAt;
+	run.durationMs =
+		run.startedAt === undefined
+			? undefined
+			: new Date(completedAt).getTime() - new Date(run.startedAt).getTime();
+	run.status = 'failed';
+};
 
 export const createJobRuns = (runCount = 1): JobRunGroup[] =>
 	Array.from({length: runCount}, (_, index) => ({
@@ -151,7 +182,7 @@ export const startComparison = (
 		}
 
 		if (event.type === 'run-start') {
-			run.status = 'running';
+			startJobRun(run, event.startedAt);
 			run.message = `${formatRunLabel(event.label)} is generating.`;
 			updateJobMessage();
 			return;
@@ -176,13 +207,13 @@ export const startComparison = (
 		}
 
 		if (event.type === 'run-complete') {
-			run.status = 'completed';
+			completeJobRun(run, event.completedAt);
 			run.message = `${formatRunLabel(event.label)} complete.`;
 			updateJobMessage();
 			return;
 		}
 
-		run.status = 'failed';
+		failJobRun(run, event.completedAt);
 		run.message = event.error;
 		updateJobMessage();
 	};
@@ -253,6 +284,7 @@ export const startRun = (
 			}
 
 			try {
+				startJobRun(run);
 				const result = await runSkillEval({
 					...scenario,
 					onPhase: (event) => {
@@ -283,11 +315,11 @@ export const startRun = (
 					},
 				});
 
-				run.status = 'completed';
+				completeJobRun(run);
 				run.message = 'Run complete.';
 				return result;
 			} catch (error) {
-				run.status = 'failed';
+				failJobRun(run);
 				run.message = error instanceof Error ? error.message : String(error);
 				throw error;
 			}
@@ -318,7 +350,7 @@ export const startRun = (
 				const run = runGroup.after;
 
 				if (run.status === 'running' || run.status === 'waiting') {
-					run.status = 'failed';
+					failJobRun(run);
 					run.message = job.error;
 				}
 			}

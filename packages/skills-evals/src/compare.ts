@@ -28,6 +28,7 @@ export type SkillEvalComparisonEvent =
 	| {
 			label: SkillEvalComparisonRunLabel;
 			runIndex: number;
+			startedAt: string;
 			type: 'run-start';
 	  }
 	| {
@@ -43,11 +44,15 @@ export type SkillEvalComparisonEvent =
 			type: 'run-output';
 	  }
 	| {
+			completedAt: string;
+			durationMs: number;
 			label: SkillEvalComparisonRunLabel;
 			runIndex: number;
 			type: 'run-complete';
 	  }
 	| {
+			completedAt: string;
+			durationMs: number;
 			error: string;
 			label: SkillEvalComparisonRunLabel;
 			runIndex: number;
@@ -219,8 +224,10 @@ export const runSkillEvalComparison = async (
 	const runSnapshot = async ({label, runIndex}: SnapshotTask) => {
 		const controller = new AbortController();
 		abortControllers.add(controller);
+		const startedAtMs = Date.now();
+		const startedAt = new Date(startedAtMs).toISOString();
 		emitMessage(`[compare] Running ${formatRun(label, runIndex)} snapshot\n`);
-		options.onEvent?.({label, runIndex, type: 'run-start'});
+		options.onEvent?.({label, runIndex, startedAt, type: 'run-start'});
 
 		try {
 			const result = await runSkillEval({
@@ -247,10 +254,20 @@ export const runSkillEvalComparison = async (
 					label === 'before' ? beforeSkillsPath : afterSkillsPath,
 			});
 
-			options.onEvent?.({label, runIndex, type: 'run-complete'});
+			const completedAtMs = Date.now();
+			options.onEvent?.({
+				completedAt: new Date(completedAtMs).toISOString(),
+				durationMs: completedAtMs - startedAtMs,
+				label,
+				runIndex,
+				type: 'run-complete',
+			});
 			return {label, result, runIndex};
 		} catch (error) {
+			const completedAtMs = Date.now();
 			options.onEvent?.({
+				completedAt: new Date(completedAtMs).toISOString(),
+				durationMs: completedAtMs - startedAtMs,
 				error: getErrorMessage(error),
 				label,
 				runIndex,
