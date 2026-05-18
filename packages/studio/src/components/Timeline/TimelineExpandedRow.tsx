@@ -12,6 +12,7 @@ import {
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {Padder} from './Padder';
 import {TimelineEffectFieldRow} from './TimelineEffectFieldRow';
+import {TimelineEffectGroupRow} from './TimelineEffectGroupRow';
 import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineFieldRow} from './TimelineFieldRow';
 import {INDENT} from './TimelineListItem';
@@ -71,6 +72,23 @@ export const TimelineExpandedRow: React.FC<{
 	);
 
 	if (node.kind === 'group') {
+		if (node.effectInfo) {
+			return (
+				<TimelineEffectGroupRow
+					label={node.label}
+					nodePathInfo={node.nodePathInfo}
+					effectIndex={node.effectInfo.effectIndex}
+					effectSchema={node.effectInfo.effectSchema}
+					nodePath={nodePath}
+					validatedLocation={validatedLocation}
+					nestedDepth={nestedDepth}
+					style={groupStyle}
+					getIsExpanded={getIsExpanded}
+					toggleTrack={toggleTrack}
+				/>
+			);
+		}
+
 		const isExpanded = getIsExpanded(node.nodePathInfo);
 		return (
 			<div style={groupStyle}>

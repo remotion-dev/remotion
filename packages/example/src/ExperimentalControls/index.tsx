@@ -5,11 +5,13 @@ import {Starburst} from '@remotion/starburst';
 import React from 'react';
 import {
 	AbsoluteFill,
+	AnimatedImage,
 	Html5Audio,
 	Html5Video,
 	HtmlInCanvas,
 	Img,
 	Sequence,
+	Series,
 	staticFile,
 } from 'remotion';
 
@@ -97,15 +99,7 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 					</Sequence>
 				</Tile>
 				<Tile title="HtmlInCanvas">
-					<HtmlInCanvas
-						width={400}
-						height={300}
-						style={{
-							translate: '0px -124px',
-							scale: 2.06,
-							rotate: '48deg',
-						}}
-					>
+					<HtmlInCanvas width={400} height={300}>
 						<div
 							style={{
 								width: 400,
@@ -148,6 +142,17 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 				</Tile>
 				<Tile title="Gif">
 					<Gif
+						src={staticFile('giphy.gif')}
+						fit="contain"
+						width={400}
+						height={300}
+						style={{
+							translate: '0px 59px',
+						}}
+					/>
+				</Tile>
+				<Tile title="AnimatedImage">
+					<AnimatedImage
 						src={staticFile('giphy.gif')}
 						fit="contain"
 						width={400}
@@ -209,6 +214,18 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 						Html5Audio (no visual)
 						<Html5Audio src={staticFile('music.mp3')} volume={1} />
 					</div>
+				</Tile>{' '}
+				<Tile title="Series">
+					<Series>
+						<Series.Sequence
+							durationInFrames={120}
+							style={{
+								rotate: '55deg',
+							}}
+						>
+							<AbsoluteFill style={{backgroundColor: 'red'}}></AbsoluteFill>
+						</Series.Sequence>
+					</Series>
 				</Tile>
 			</div>
 		</AbsoluteFill>

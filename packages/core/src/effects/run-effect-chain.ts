@@ -74,7 +74,14 @@ export const runEffectChain = async ({
 	const runId = ++state.currentRunId;
 	const isCancelled = () => state.currentRunId !== runId;
 
-	const runs = groupByBackend(effects);
+	// Bypass any effect with `disabled: true` before grouping by backend, so
+	// disabled effects don't create empty runs or force unnecessary backend
+	// transitions. The `disabled` flag is injected by `createEffect` and lives
+	// on `params` so it flows through code/drag override merging.
+	const enabledEffects = effects.filter(
+		(e) => !(e.params as {disabled?: boolean}).disabled,
+	);
+	const runs = groupByBackend(enabledEffects);
 
 	let currentImage: CanvasImageSource = source;
 	let lastTarget: HTMLCanvasElement | null = null;

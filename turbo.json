@@ -30,6 +30,9 @@
 		"testwebrenderer": {
 			"dependsOn": ["@remotion/web-renderer#make"]
 		},
+		"testlayoututils": {
+			"dependsOn": ["@remotion/layout-utils#make"]
+		},
 		"build": {
 			"dependsOn": ["^make"],
 			"outputs": ["dist"],

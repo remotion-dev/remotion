@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/layout-utils"
 	},
 	"name": "@remotion/layout-utils",
-	"version": "4.0.461",
+	"version": "4.0.462",
 	"description": "Utilities for working with layouts",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -12,7 +12,10 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
+		"testlayoututils": "vitest src/test --browser --run",
+		"studio": "cd ../example && bunx remotion studio ../layout-utils/src/test/studio.ts --public-dir=../example-videos/videos",
+		"remotion": "cd ../example && bunx remotion studio ../layout-utils/src/test/studio.ts --public-dir=../example-videos/videos"
 	},
 	"exports": {
 		"./package.json": "./package.json",
@@ -25,8 +28,15 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@vitejs/plugin-react": "catalog:",
+		"@vitest/browser-playwright": "catalog:",
+		"@typescript/native-preview": "catalog:",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"playwright": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"remotion": "workspace:*",
+		"vitest": "catalog:"
 	},
 	"author": "Yehor Misiats (https://github.com/satelllte)",
 	"maintainers": [

@@ -21,11 +21,12 @@ import {findJsxElementAtNodePath} from './can-update-sequence-props';
 import {formatEffectPropChange} from './log-updates/format-effect-prop-change';
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {normalizeQuotes} from './log-updates/log-update';
+import {withSavePropsLock} from './save-props-mutex';
 
 export const saveEffectPropsHandler: ApiHandler<
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse
-> = async ({
+> = ({
 	input: {
 		fileName,
 		sequenceNodePath,
@@ -37,106 +38,108 @@ export const saveEffectPropsHandler: ApiHandler<
 	},
 	remotionRoot,
 	logLevel,
-}) => {
-	RenderInternals.Log.trace(
-		{indent: false, logLevel},
-		`[save-effect-props] Received request for fileName="${fileName}" effectIndex=${effectIndex} key="${key}"`,
-	);
-	const absolutePath = path.resolve(remotionRoot, fileName);
-	const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-	if (fileRelativeToRoot.startsWith('..')) {
-		throw new Error('Cannot modify a file outside the project');
-	}
+}) =>
+	withSavePropsLock(async () => {
+		RenderInternals.Log.trace(
+			{indent: false, logLevel},
+			`[save-effect-props] Received request for fileName="${fileName}" effectIndex=${effectIndex} key="${key}"`,
+		);
+		const absolutePath = path.resolve(remotionRoot, fileName);
+		const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
+		if (fileRelativeToRoot.startsWith('..')) {
+			throw new Error('Cannot modify a file outside the project');
+		}
 
-	const fileContents = readFileSync(absolutePath, 'utf-8');
+		const fileContents = readFileSync(absolutePath, 'utf-8');
 
-	const parsedDefault = defaultValue !== null ? JSON.parse(defaultValue) : null;
+		const parsedDefault =
+			defaultValue !== null ? JSON.parse(defaultValue) : null;
 
-	const {output, oldValueString, formatted, logLine, effectCallee} =
-		await updateEffectProps({
-			input: fileContents,
-			sequenceNodePath: sequenceNodePath.nodePath,
-			effectIndex,
-			update: {
-				key,
-				value: JSON.parse(value),
-				defaultValue: parsedDefault,
-			},
+		const {output, oldValueString, formatted, logLine, effectCallee} =
+			await updateEffectProps({
+				input: fileContents,
+				sequenceNodePath: sequenceNodePath.nodePath,
+				effectIndex,
+				update: {
+					key,
+					value: JSON.parse(value),
+					defaultValue: parsedDefault,
+				},
+			});
+
+		const defaultValueString =
+			parsedDefault !== null ? JSON.stringify(parsedDefault) : null;
+
+		const normalizedOld = normalizeQuotes(oldValueString);
+		const normalizedNew = normalizeQuotes(value);
+		const normalizedDefault =
+			defaultValueString !== null ? normalizeQuotes(defaultValueString) : null;
+
+		const undoPropChange = formatEffectPropChange({
+			effectName: effectCallee,
+			key,
+			oldValueString: normalizedNew,
+			newValueString: normalizedOld,
+			defaultValueString: normalizedDefault,
+			removedProps: [],
+			addedProps: [],
+		});
+		const redoPropChange = formatEffectPropChange({
+			effectName: effectCallee,
+			key,
+			oldValueString: normalizedOld,
+			newValueString: normalizedNew,
+			defaultValueString: normalizedDefault,
+			removedProps: [],
+			addedProps: [],
 		});
 
-	const defaultValueString =
-		parsedDefault !== null ? JSON.stringify(parsedDefault) : null;
+		pushToUndoStack({
+			filePath: absolutePath,
+			oldContents: fileContents,
+			logLevel,
+			remotionRoot,
+			logLine,
+			description: {
+				undoMessage: `↩️  ${undoPropChange}`,
+				redoMessage: `↪️  ${redoPropChange}`,
+			},
+			entryType: 'effect-props',
+			suppressHmrOnFileRestore: true,
+		});
+		suppressUndoStackInvalidation(absolutePath);
+		suppressBundlerUpdateForFile(absolutePath);
+		writeFileAndNotifyFileWatchers(absolutePath, output);
 
-	const normalizedOld = normalizeQuotes(oldValueString);
-	const normalizedNew = normalizeQuotes(value);
-	const normalizedDefault =
-		defaultValueString !== null ? normalizeQuotes(defaultValueString) : null;
+		logEffectUpdate({
+			fileRelativeToRoot,
+			line: logLine,
+			effectName: effectCallee,
+			propKey: key,
+			oldValueString,
+			newValueString: value,
+			defaultValueString,
+			formatted,
+			logLevel,
+			removedProps: [],
+			addedProps: [],
+		});
 
-	const undoPropChange = formatEffectPropChange({
-		effectName: effectCallee,
-		key,
-		oldValueString: normalizedNew,
-		newValueString: normalizedOld,
-		defaultValueString: normalizedDefault,
-		removedProps: [],
-		addedProps: [],
-	});
-	const redoPropChange = formatEffectPropChange({
-		effectName: effectCallee,
-		key,
-		oldValueString: normalizedOld,
-		newValueString: normalizedNew,
-		defaultValueString: normalizedDefault,
-		removedProps: [],
-		addedProps: [],
-	});
+		printUndoHint(logLevel);
 
-	pushToUndoStack({
-		filePath: absolutePath,
-		oldContents: fileContents,
-		logLevel,
-		remotionRoot,
-		logLine,
-		description: {
-			undoMessage: `↩️  ${undoPropChange}`,
-			redoMessage: `↪️  ${redoPropChange}`,
-		},
-		entryType: 'effect-props',
-		suppressHmrOnFileRestore: true,
-	});
-	suppressUndoStackInvalidation(absolutePath);
-	suppressBundlerUpdateForFile(absolutePath);
-	writeFileAndNotifyFileWatchers(absolutePath, output);
+		const ast = parseAst(readFileSync(absolutePath, 'utf-8'));
+		const jsx = findJsxElementAtNodePath(ast, sequenceNodePath.nodePath);
+		if (!jsx) {
+			return {
+				canUpdate: false,
+				effectIndex,
+				reason: 'not-found',
+			};
+		}
 
-	logEffectUpdate({
-		fileRelativeToRoot,
-		line: logLine,
-		effectName: effectCallee,
-		propKey: key,
-		oldValueString,
-		newValueString: value,
-		defaultValueString,
-		formatted,
-		logLevel,
-		removedProps: [],
-		addedProps: [],
-	});
-
-	printUndoHint(logLevel);
-
-	const ast = parseAst(readFileSync(absolutePath, 'utf-8'));
-	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath.nodePath);
-	if (!jsx) {
-		return {
-			canUpdate: false,
+		return computeEffectPropStatus({
+			jsx,
 			effectIndex,
-			reason: 'not-found',
-		};
-	}
-
-	return computeEffectPropStatus({
-		jsx,
-		effectIndex,
-		keys: getAllSchemaKeys(schema),
+			keys: getAllSchemaKeys(schema),
+		});
 	});
-};

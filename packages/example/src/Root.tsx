@@ -189,6 +189,7 @@ import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
+import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
 import {WebGlTransition} from './Transitions/WebGlTransition';
 import {
@@ -712,6 +713,12 @@ export const Index: React.FC = () => {
 						maxLines: 3,
 						textAlign: 'right' as const,
 					}}
+				/>
+				<Still
+					id="issue-7359-fit-text-on-n-lines"
+					component={Issue7359FitTextOnNLines}
+					width={1280}
+					height={720}
 				/>
 				<Composition
 					id="beta-text"

@@ -50,7 +50,7 @@ test.describe('suppress webpack rebuild', () => {
 					return content.includes(`delay: ${newDelay}`);
 				},
 				{
-					message: `Expected Root.tsx to contain "delay: ${newDelay}"`,
+					message: `Expected E2eTestRoot.tsx to contain "delay: ${newDelay}"`,
 					timeout: 10_000,
 				},
 			)
@@ -60,13 +60,9 @@ test.describe('suppress webpack rebuild', () => {
 		await expect
 			.poll(
 				() => {
-					const newLogs = readStudioLogs()
-						.slice(logCountBefore)
-						.map(stripAnsi);
+					const newLogs = readStudioLogs().slice(logCountBefore).map(stripAnsi);
 					return newLogs.some((log) =>
-						log.includes(
-							'[WatchIgnoreNextChange] All changes suppressed',
-						),
+						log.includes('[WatchIgnoreNextChange] All changes suppressed'),
 					);
 				},
 				{
@@ -84,9 +80,7 @@ test.describe('suppress webpack rebuild', () => {
 		const suppressionIndex = logsAfterApiUpdate.findIndex((log) =>
 			log.includes('[WatchIgnoreNextChange] All changes suppressed'),
 		);
-		const logsAfterSuppression = logsAfterApiUpdate.slice(
-			suppressionIndex + 1,
-		);
+		const logsAfterSuppression = logsAfterApiUpdate.slice(suppressionIndex + 1);
 		const hadRebuildAfterSuppression = logsAfterSuppression.some((log) =>
 			log.includes('Built in'),
 		);
@@ -111,8 +105,7 @@ test.describe('suppress webpack rebuild', () => {
 					return newLogs.some((log) => log.includes('Built in'));
 				},
 				{
-					message:
-						'Expected webpack to rebuild after manual file edit',
+					message: 'Expected webpack to rebuild after manual file edit',
 					timeout: 15_000,
 				},
 			)

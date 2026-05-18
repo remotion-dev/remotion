@@ -2,6 +2,7 @@ import type React from 'react';
 import {useCallback, useContext, useImperativeHandle, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {getKeysToExpand} from '../helpers/create-folder-tree';
+import {toggleBooleanMapKey} from '../helpers/persist-boolean-map';
 import type {
 	ExpandedFoldersRef,
 	ExpandedFoldersState,
@@ -27,11 +28,7 @@ export const CompSelectorRef: React.FC<{
 		(folderName: string, parentName: string | null) => {
 			setCompositionFoldersExpanded((p) => {
 				const key = openFolderKey({folderName, parentName});
-				const prev = p[key] ?? false;
-				const foldersExpandedState: ExpandedFoldersState = {
-					...p,
-					[key]: !prev,
-				};
+				const foldersExpandedState = toggleBooleanMapKey(p, key);
 				persistExpandedFolders('compositions', foldersExpandedState);
 				return foldersExpandedState;
 			});
