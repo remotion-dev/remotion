@@ -34,6 +34,8 @@ export const useSequencePropsSubscription = ({
 
 	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
+	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
+	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
 
 	const effectsSignature = useMemo(
@@ -74,7 +76,7 @@ export const useSequencePropsSubscription = ({
 		}
 
 		const nodePathAtResubscribe =
-			overrideIdToNodePathMappings[overrideId] ?? null;
+			overrideIdToNodePathMappingsRef.current[overrideId] ?? null;
 
 		const {release} = acquireSequencePropsSubscription({
 			fileName: locationSource,
