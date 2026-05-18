@@ -115,7 +115,11 @@ export const TimelineEffectGroupRow: React.FC<{
 		<div style={mergedStyle}>
 			<Padder depth={nestedDepth + 1} />
 			{canToggle ? (
-				<TimelineLayerEye type="eye" hidden={isDisabled} onInvoked={onToggle} />
+				<TimelineLayerEye
+					type="effect"
+					hidden={isDisabled}
+					onInvoked={onToggle}
+				/>
 			) : (
 				<TimelineLayerEyeSpacer />
 			)}
