@@ -1,4 +1,7 @@
-import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
+import {
+	getAllSchemaKeys,
+	stringifySequenceSubscriptionKey,
+} from '@remotion/studio-shared';
 import {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
@@ -31,11 +34,13 @@ export const useSequencePropsSubscription = ({
 
 	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
-	const nodePathAtResubscribeRef = useRef<SequencePropsSubscriptionKey | null>(
-		null,
-	);
-	const previousLocationKeyRef = useRef<string | null>(null);
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
+
+	const effectsSignature = useMemo(
+		() =>
+			effects.map((effect) => getAllSchemaKeys(effect).join('\0')).join('\0\0'),
+		[effects],
+	);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -57,17 +62,6 @@ export const useSequencePropsSubscription = ({
 	const locationLine = validatedLocation?.line ?? null;
 	const locationColumn = validatedLocation?.column ?? null;
 
-	const locationKey =
-		locationSource !== null && locationLine !== null && locationColumn !== null
-			? `${locationSource}\0${locationLine}\0${locationColumn}`
-			: null;
-
-	if (locationKey !== previousLocationKeyRef.current) {
-		previousLocationKeyRef.current = locationKey;
-		nodePathAtResubscribeRef.current =
-			overrideIdToNodePathMappings[overrideId] ?? null;
-	}
-
 	useEffect(() => {
 		if (
 			!clientId ||
@@ -78,6 +72,9 @@ export const useSequencePropsSubscription = ({
 		) {
 			return;
 		}
+
+		const nodePathAtResubscribe =
+			overrideIdToNodePathMappings[overrideId] ?? null;
 
 		const {release} = acquireSequencePropsSubscription({
 			fileName: locationSource,
@@ -99,14 +96,18 @@ export const useSequencePropsSubscription = ({
 				}
 
 				const newNodePath = result.nodePath;
+				const newNodePathKey = stringifySequenceSubscriptionKey(newNodePath);
 				const previousNodePath =
-					previousNodePathRef.current ?? nodePathAtResubscribeRef.current;
+					previousNodePathRef.current ?? nodePathAtResubscribe;
+				const previousNodePathKey = previousNodePath
+					? stringifySequenceSubscriptionKey(previousNodePath)
+					: null;
 
-				if (
-					previousNodePath &&
-					stringifySequenceSubscriptionKey(previousNodePath) !==
-						stringifySequenceSubscriptionKey(newNodePath)
-				) {
+				if (previousNodePathKey === newNodePathKey) {
+					return;
+				}
+
+				if (previousNodePath) {
 					migrateExpandedTracksForSubscriptionKey(
 						previousNodePath,
 						newNodePath,
@@ -124,6 +125,7 @@ export const useSequencePropsSubscription = ({
 	}, [
 		clientId,
 		effects,
+		effectsSignature,
 		locationColumn,
 		locationLine,
 		locationSource,
