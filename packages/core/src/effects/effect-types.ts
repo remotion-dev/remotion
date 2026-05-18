@@ -23,7 +23,6 @@ export type EffectApplyParams<P, S> = {
 	readonly target: HTMLCanvasElement;
 	readonly state: S;
 	readonly params: P;
-	readonly frame: number;
 	readonly width: number;
 	readonly height: number;
 	readonly gpuDevice: AnyGpuDevice | null;
@@ -43,7 +42,7 @@ export type EffectDefinition<P, S = unknown> = {
 	readonly setup: (target: HTMLCanvasElement) => S;
 	readonly apply: (params: EffectApplyParams<P, S>) => void;
 	readonly cleanup: (state: S) => void;
-	readonly schema: SequenceSchema | null;
+	readonly schema: SequenceSchema;
 };
 
 type BaseEffectDescriptor<P = unknown> = {

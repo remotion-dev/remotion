@@ -79,8 +79,6 @@ export class MediaPlayer {
 		height: number,
 	) => EffectChainState | null;
 
-	private getCurrentFrame: () => number;
-
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
 	private bufferState: ReturnType<typeof useBufferState>;
@@ -113,7 +111,6 @@ export class MediaPlayer {
 		tagType,
 		getEffects,
 		getEffectChainState,
-		getCurrentFrame,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -141,7 +138,6 @@ export class MediaPlayer {
 			width: number,
 			height: number,
 		) => EffectChainState | null;
-		getCurrentFrame: () => number;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -177,7 +173,6 @@ export class MediaPlayer {
 		this.tagType = tagType;
 		this.getEffects = getEffects;
 		this.getEffectChainState = getEffectChainState;
-		this.getCurrentFrame = getCurrentFrame;
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
@@ -338,7 +333,6 @@ export class MediaPlayer {
 					getIsLooping: () => this.loop,
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
-					getCurrentFrame: this.getCurrentFrame,
 				});
 			}
 

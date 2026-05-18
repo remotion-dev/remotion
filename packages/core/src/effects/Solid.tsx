@@ -13,7 +13,6 @@ import {
 } from '../sequence-field-schema.js';
 import type {SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
-import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {wrapInSchema} from '../wrap-in-schema.js';
 import type {EffectsProp} from './effect-types.js';
@@ -80,7 +79,6 @@ const SolidInner: React.FC<
 	overrideId,
 	ref,
 }) => {
-	const frame = useCurrentFrame();
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const [outputCanvas, setOutputCanvas] = useState<HTMLCanvasElement | null>(
@@ -124,7 +122,7 @@ const SolidInner: React.FC<
 			return;
 		}
 
-		const handle = delayRender(`Solid effect chain (frame ${frame})`);
+		const handle = delayRender('Solid effect chain');
 
 		if (!chainState) {
 			continueRender(handle);
@@ -149,7 +147,6 @@ const SolidInner: React.FC<
 			source: sourceCanvas,
 			effects: memoizedEffects,
 			output: outputCanvas,
-			frame,
 			width,
 			height,
 		})
@@ -166,7 +163,6 @@ const SolidInner: React.FC<
 			continueRender(handle);
 		};
 	}, [
-		frame,
 		color,
 		outputCanvas,
 		sourceCanvas,

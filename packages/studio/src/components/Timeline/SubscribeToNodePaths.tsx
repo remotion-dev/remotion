@@ -1,6 +1,5 @@
 import {useMemo, type FC} from 'react';
 import type {EffectDefinition, SequenceSchema} from 'remotion';
-import {NoReactInternals} from 'remotion/no-react';
 import {useResolvedStack} from './use-resolved-stack';
 import {useSequencePropsSubscription} from './use-sequence-props-subscription';
 
@@ -13,11 +12,7 @@ export const SubscribeToNodePaths: FC<{
 	const originalLocation = useResolvedStack(stack);
 
 	const effectSubscriptions = useMemo<SequenceSchema[]>(() => {
-		return effects
-			.map((effect): SequenceSchema | null => {
-				return effect.schema;
-			})
-			.filter(NoReactInternals.truthy);
+		return effects.map((effect) => effect.schema);
 	}, [effects]);
 
 	useSequencePropsSubscription({

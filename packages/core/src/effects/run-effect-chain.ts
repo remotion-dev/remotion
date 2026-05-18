@@ -54,7 +54,6 @@ export type RunEffectChainOptions = {
 	readonly source: CanvasImageSource;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
 	readonly output: HTMLCanvasElement;
-	readonly frame: number;
 	readonly width: number;
 	readonly height: number;
 };
@@ -67,7 +66,6 @@ export const runEffectChain = async ({
 	source,
 	effects,
 	output,
-	frame,
 	width,
 	height,
 }: RunEffectChainOptions): Promise<boolean> => {
@@ -130,7 +128,6 @@ export const runEffectChain = async ({
 				target: dst,
 				state: setupState,
 				params: eff.params,
-				frame,
 				width,
 				height,
 				gpuDevice,
