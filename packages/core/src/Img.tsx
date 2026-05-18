@@ -312,11 +312,14 @@ const ImgInner: React.FC<
 		throw new Error('No "src" prop was passed to <Img>.');
 	}
 
+	const stackRef = useRef<string | null>(null);
+	stackRef.current = stack ?? null;
+
 	useImageInTimeline({
 		src,
 		displayName: name ?? null,
 		id: timelineId,
-		stack: stack ?? null,
+		getStack: () => stackRef.current,
 		showInTimeline: showInTimeline ?? true,
 		premountDisplay: sequenceContext?.premountDisplay ?? null,
 		postmountDisplay: sequenceContext?.postmountDisplay ?? null,

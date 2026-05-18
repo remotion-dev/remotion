@@ -26,7 +26,7 @@ import {
 import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineStack} from './TimelineStack';
-import {useResolvedStack} from './use-resolved-stack';
+import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 
 export const INDENT = 10;
 
@@ -44,7 +44,8 @@ export const TimelineListItem: React.FC<{
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 
-	const originalLocation = useResolvedStack(sequence.stack ?? null);
+	// TODO: When location changes, we should apply the same expanded state to the new location.
+	const originalLocation = useResolveStackAndReactToChange(sequence.getStack);
 
 	const validatedLocation = useMemo(() => {
 		if (

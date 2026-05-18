@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import {useRef} from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
 import type {EffectDefinition} from './effects/effect-types.js';
@@ -229,6 +230,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
 	// and if it changes, it would lead to-remounting of the sequence.
 	const [stackDoesntChange] = useState(() => stack ?? inheritedStack);
+	const stackRef = useRef<string | null>(null);
+	stackRef.current = stack ?? inheritedStack;
 
 	useEffect(() => {
 		if (!env.isStudio) {
@@ -254,7 +257,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				rootId,
 				showInTimeline,
 				src: isMedia.data.src,
-				stack: stackDoesntChange,
+				getStack: () => stackRef.current,
 				startMediaFrom: isMedia.data.startMediaFrom,
 				volume: isMedia.data.volumes,
 			});
@@ -274,7 +277,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			showInTimeline,
 			nonce: nonce.get(),
 			loopDisplay,
-			stack: stackDoesntChange,
+			getStack: () => stackRef.current,
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
 			controls: controls ?? null,

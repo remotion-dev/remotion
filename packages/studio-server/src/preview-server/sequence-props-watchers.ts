@@ -164,6 +164,15 @@ export const subscribeToSequencePropsWatchers = ({
 					});
 				});
 			} catch (error) {
+				// TODO: Check error if we are supposed to be here
+				waitForLiveEventsListener().then((listener) => {
+					listener.sendEventToClientId(clientId, {
+						type: 'lost-node-path',
+						fileName,
+						line,
+						column,
+					});
+				});
 				RenderInternals.Log.error({indent: false, logLevel}, error);
 			}
 		},
