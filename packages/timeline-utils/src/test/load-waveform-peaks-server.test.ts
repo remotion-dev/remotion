@@ -3,6 +3,7 @@ import {registerMediabunnyServer} from '@mediabunny/server';
 import {loadWaveformPeaks} from '../audio-waveform/load-waveform-peaks';
 
 const SAMPLE_MEDIA_URL = 'https://remotion.media/video.mp4';
+const EDTS_MEDIA_URL = 'https://remotion.media/edts.mp4';
 
 beforeAll(() => {
 	registerMediabunnyServer();
@@ -47,4 +48,14 @@ test('loadWaveformPeaks progress matches completed peak count for MP4 audio', as
 
 	expect(sawFinal).toBe(true);
 	expect(lastCompleted).toBe(peaks.length);
+});
+
+test('loadWaveformPeaks draws a non-zero first peak for edts.mp4', async () => {
+	const peaks = await loadWaveformPeaks(
+		EDTS_MEDIA_URL,
+		new AbortController().signal,
+	);
+
+	expect(peaks.length).toBeGreaterThan(0);
+	expect(Math.abs(peaks[0] ?? 0)).toBeGreaterThan(0.001);
 });
