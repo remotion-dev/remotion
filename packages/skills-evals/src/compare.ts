@@ -52,7 +52,7 @@ export type SkillEvalComparisonEvent =
 	  }
 	| {
 			completedAt: string;
-			durationMs?: number;
+			durationMs: number;
 			error: string;
 			label: SkillEvalComparisonRunLabel;
 			runIndex: number;

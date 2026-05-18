@@ -208,14 +208,12 @@ export const startComparison = (
 
 		if (event.type === 'run-complete') {
 			completeJobRun(run, event.completedAt);
-			run.durationMs = event.durationMs;
 			run.message = `${formatRunLabel(event.label)} complete.`;
 			updateJobMessage();
 			return;
 		}
 
 		failJobRun(run, event.completedAt);
-		run.durationMs = event.durationMs;
 		run.message = event.error;
 		updateJobMessage();
 	};
