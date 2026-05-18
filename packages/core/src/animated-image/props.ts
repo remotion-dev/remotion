@@ -1,3 +1,5 @@
+import type {SequenceProps} from '../Sequence.js';
+
 export type RemotionAnimatedImageLoopBehavior =
 	| 'loop'
 	| 'pause-after-finish'
@@ -15,5 +17,13 @@ export type RemotionAnimatedImageProps = {
 	id?: string;
 	className?: string;
 };
+
+export type AnimatedImageProps = Omit<
+	SequenceProps,
+	'children' | 'durationInFrames' | 'layout'
+> &
+	RemotionAnimatedImageProps & {
+		readonly durationInFrames?: number;
+	};
 
 export type AnimatedImageFillMode = 'contain' | 'cover' | 'fill';

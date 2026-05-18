@@ -5,6 +5,7 @@ import {Starburst} from '@remotion/starburst';
 import React from 'react';
 import {
 	AbsoluteFill,
+	AnimatedImage,
 	Html5Audio,
 	Html5Video,
 	HtmlInCanvas,
@@ -141,6 +142,17 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 				</Tile>
 				<Tile title="Gif">
 					<Gif
+						src={staticFile('giphy.gif')}
+						fit="contain"
+						width={400}
+						height={300}
+						style={{
+							translate: '0px 59px',
+						}}
+					/>
+				</Tile>
+				<Tile title="AnimatedImage">
+					<AnimatedImage
 						src={staticFile('giphy.gif')}
 						fit="contain"
 						width={400}
