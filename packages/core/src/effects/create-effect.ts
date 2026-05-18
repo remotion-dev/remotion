@@ -15,7 +15,7 @@ export const disabledEffectField: SequenceFieldSchema = {
 	description: 'Disabled',
 };
 
-// Defines an effect and returns a factory that produces per-frame descriptors.
+// Defines an effect and returns a factory that produces effect descriptors.
 // The returned function is the public API effect authors expose to users:
 //
 //   export const blur = createEffect<BlurParams, BlurState>({ ... });

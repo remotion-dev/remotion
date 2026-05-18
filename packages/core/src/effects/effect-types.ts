@@ -23,7 +23,6 @@ export type EffectApplyParams<P, S> = {
 	readonly target: HTMLCanvasElement;
 	readonly state: S;
 	readonly params: P;
-	readonly frame: number;
 	readonly width: number;
 	readonly height: number;
 	readonly gpuDevice: AnyGpuDevice | null;

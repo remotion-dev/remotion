@@ -29,7 +29,6 @@ export const videoIteratorManager = async ({
 	getIsLooping,
 	getEffects,
 	getEffectChainState,
-	getCurrentFrame,
 }: {
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
@@ -46,7 +45,6 @@ export const videoIteratorManager = async ({
 		width: number,
 		height: number,
 	) => EffectChainState | null;
-	getCurrentFrame: () => number;
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
@@ -85,7 +83,6 @@ export const videoIteratorManager = async ({
 					source: frame.canvas,
 					effects,
 					output: canvas,
-					frame: getCurrentFrame(),
 					width: canvas.width,
 					height: canvas.height,
 				});
