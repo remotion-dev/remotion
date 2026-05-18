@@ -8,10 +8,7 @@ import {
 
 export default async function globalTeardown(): Promise<void> {
 	if (fs.existsSync(ORIGINAL_CONTENT_FILE)) {
-		fs.writeFileSync(
-			rootFile,
-			fs.readFileSync(ORIGINAL_CONTENT_FILE, 'utf-8'),
-		);
+		fs.writeFileSync(rootFile, fs.readFileSync(ORIGINAL_CONTENT_FILE, 'utf-8'));
 		fs.unlinkSync(ORIGINAL_CONTENT_FILE);
 	}
 
