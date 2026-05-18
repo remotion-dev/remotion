@@ -31,6 +31,10 @@ export const useSequencePropsSubscription = ({
 
 	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
+	const nodePathAtResubscribeRef = useRef<SequencePropsSubscriptionKey | null>(
+		null,
+	);
+	const previousLocationKeyRef = useRef<string | null>(null);
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
 
 	const validatedLocation = useMemo(() => {
@@ -53,6 +57,17 @@ export const useSequencePropsSubscription = ({
 	const locationLine = validatedLocation?.line ?? null;
 	const locationColumn = validatedLocation?.column ?? null;
 
+	const locationKey =
+		locationSource !== null && locationLine !== null && locationColumn !== null
+			? `${locationSource}\0${locationLine}\0${locationColumn}`
+			: null;
+
+	if (locationKey !== previousLocationKeyRef.current) {
+		previousLocationKeyRef.current = locationKey;
+		nodePathAtResubscribeRef.current =
+			overrideIdToNodePathMappings[overrideId] ?? null;
+	}
+
 	useEffect(() => {
 		if (
 			!clientId ||
@@ -63,9 +78,6 @@ export const useSequencePropsSubscription = ({
 		) {
 			return;
 		}
-
-		const nodePathAtResubscribe =
-			overrideIdToNodePathMappings[overrideId] ?? null;
 
 		const {release} = acquireSequencePropsSubscription({
 			fileName: locationSource,
@@ -88,7 +100,7 @@ export const useSequencePropsSubscription = ({
 
 				const newNodePath = result.nodePath;
 				const previousNodePath =
-					previousNodePathRef.current ?? nodePathAtResubscribe;
+					previousNodePathRef.current ?? nodePathAtResubscribeRef.current;
 
 				if (
 					previousNodePath &&
@@ -109,10 +121,6 @@ export const useSequencePropsSubscription = ({
 		return () => {
 			release();
 		};
-		// overrideIdToNodePathMappings is read only to snapshot this override's node
-		// path when location changes. Listing the full map would re-subscribe every
-		// sequence whenever any other sequence's node path updates.
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- see above
 	}, [
 		clientId,
 		effects,
