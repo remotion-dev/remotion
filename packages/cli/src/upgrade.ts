@@ -4,6 +4,7 @@ import {StudioServerInternals} from '@remotion/studio-server';
 import {
 	findVersionSpecifier,
 	findWorkspaceRoot,
+	getCatalogEntries,
 	isCatalogProtocol,
 	updateCatalogEntry,
 } from './catalog-utils';
@@ -34,6 +35,65 @@ const getExtraPackageVersionsForRemotionVersion = (
 		// If we can't fetch the versions, return the default versions from EXTRA_PACKAGES
 		return EXTRA_PACKAGES;
 	}
+};
+
+type DepsWithVersions = {
+	dependencies: Record<string, string>;
+	devDependencies: Record<string, string>;
+	optionalDependencies: Record<string, string>;
+	peerDependencies: Record<string, string>;
+};
+
+export const getPackagesToUpgrade = ({
+	depsWithVersions,
+	catalogEntries,
+	targetVersion,
+	extraPackageVersions,
+}: {
+	depsWithVersions: DepsWithVersions;
+	catalogEntries: Record<string, string>;
+	targetVersion: string;
+	extraPackageVersions: Record<string, string>;
+}) => {
+	const allDeps = [
+		...Object.keys(depsWithVersions.dependencies),
+		...Object.keys(depsWithVersions.devDependencies),
+		...Object.keys(depsWithVersions.optionalDependencies),
+		...Object.keys(depsWithVersions.peerDependencies),
+	];
+	const catalogPackages = new Set(Object.keys(catalogEntries));
+
+	const remotionToUpgrade = listOfRemotionPackages.filter(
+		(u) => allDeps.includes(u) || catalogPackages.has(u),
+	);
+
+	const installedExtraPackages = Object.keys(EXTRA_PACKAGES).filter(
+		(pkg) => allDeps.includes(pkg) || catalogPackages.has(pkg),
+	);
+
+	const allPackagesToUpgrade = [
+		...remotionToUpgrade,
+		...installedExtraPackages,
+	];
+
+	const normalPackages: {pkg: string; version: string}[] = [];
+	const catalogPackagesToUpgrade: {pkg: string; version: string}[] = [];
+
+	for (const pkg of allPackagesToUpgrade) {
+		const versionSpec = findVersionSpecifier(depsWithVersions, pkg);
+		const targetVersionForPkg = extraPackageVersions[pkg] ?? targetVersion;
+
+		if (
+			(versionSpec && isCatalogProtocol(versionSpec)) ||
+			(!versionSpec && catalogPackages.has(pkg))
+		) {
+			catalogPackagesToUpgrade.push({pkg, version: targetVersionForPkg});
+		} else {
+			normalPackages.push({pkg, version: targetVersionForPkg});
+		}
+	}
+
+	return {normalPackages, catalogPackages: catalogPackagesToUpgrade};
 };
 
 export const upgradeCommand = async ({
@@ -83,52 +143,33 @@ export const upgradeCommand = async ({
 		);
 	}
 
-	const allDeps = [
-		...Object.keys(depsWithVersions.dependencies),
-		...Object.keys(depsWithVersions.devDependencies),
-		...Object.keys(depsWithVersions.optionalDependencies),
-		...Object.keys(depsWithVersions.peerDependencies),
-	];
-
-	const remotionToUpgrade = listOfRemotionPackages.filter((u) =>
-		allDeps.includes(u),
-	);
-
-	const installedExtraPackages = Object.keys(EXTRA_PACKAGES).filter((pkg) =>
-		allDeps.includes(pkg),
-	);
-
 	const extraPackageVersions =
 		getExtraPackageVersionsForRemotionVersion(targetVersion);
+	const workspaceRoot = findWorkspaceRoot(remotionRoot);
+	const catalogEntries = workspaceRoot ? getCatalogEntries(workspaceRoot) : {};
 
-	if (installedExtraPackages.length > 0) {
+	const {normalPackages, catalogPackages} = getPackagesToUpgrade({
+		depsWithVersions,
+		catalogEntries,
+		targetVersion,
+		extraPackageVersions,
+	});
+
+	if (
+		normalPackages.some(({pkg}) => pkg in EXTRA_PACKAGES) ||
+		catalogPackages.some(({pkg}) => pkg in EXTRA_PACKAGES)
+	) {
+		const installedExtraPackages = [
+			...normalPackages,
+			...catalogPackages,
+		].filter(({pkg}) => pkg in EXTRA_PACKAGES);
 		Log.info(
 			{indent: false, logLevel},
-			`Also upgrading extra packages: ${installedExtraPackages.map((pkg) => `${pkg}@${extraPackageVersions[pkg]}`).join(', ')}`,
+			`Also upgrading extra packages: ${installedExtraPackages.map(({pkg}) => `${pkg}@${extraPackageVersions[pkg]}`).join(', ')}`,
 		);
 	}
 
-	const allPackagesToUpgrade = [
-		...remotionToUpgrade,
-		...installedExtraPackages,
-	];
-
-	const normalPackages: {pkg: string; version: string}[] = [];
-	const catalogPackages: {pkg: string; version: string}[] = [];
-
-	for (const pkg of allPackagesToUpgrade) {
-		const versionSpec = findVersionSpecifier(depsWithVersions, pkg);
-		const targetVersionForPkg = extraPackageVersions[pkg] ?? targetVersion;
-
-		if (versionSpec && isCatalogProtocol(versionSpec)) {
-			catalogPackages.push({pkg, version: targetVersionForPkg});
-		} else {
-			normalPackages.push({pkg, version: targetVersionForPkg});
-		}
-	}
-
 	if (catalogPackages.length > 0) {
-		const workspaceRoot = findWorkspaceRoot(remotionRoot);
 		if (workspaceRoot) {
 			const updatedCatalogEntries: string[] = [];
 
