@@ -16,6 +16,7 @@ import {
 import {
 	Card,
 	formatDate,
+	formatDuration,
 	Header,
 	page,
 	repoRoot,
@@ -175,6 +176,29 @@ const ScenarioRuns = ({items}: {items: ScenarioRunListItem[]}) => {
 	);
 };
 
+const getJobRunDurationMs = (jobRun: JobRun) => {
+	if (jobRun.durationMs !== undefined) {
+		return jobRun.durationMs;
+	}
+
+	if (jobRun.status === 'running' && jobRun.startedAt) {
+		return Date.now() - new Date(jobRun.startedAt).getTime();
+	}
+
+	return null;
+};
+
+const formatJobRunStatus = (jobRun: JobRun) => {
+	const message = jobRun.message || jobRun.status;
+	const durationMs = getJobRunDurationMs(jobRun);
+
+	if (durationMs === null) {
+		return message;
+	}
+
+	return `${message} - ${formatDuration(durationMs)}`;
+};
+
 const ScenarioPageScript = ({
 	activeJob,
 	baseRef,
@@ -200,6 +224,39 @@ const defaultBaseRef = ${JSON.stringify(baseRef)};
 const shouldStickToBottom = (element) =>
 	element.scrollHeight - element.scrollTop - element.clientHeight < 8;
 
+const formatDuration = (durationMs) => {
+	const totalSeconds = Math.max(0, Math.round(durationMs / 1000));
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor((totalSeconds % 3600) / 60);
+	const seconds = totalSeconds % 60;
+
+	if (hours > 0) {
+		return hours + 'h ' + minutes + 'm ' + seconds + 's';
+	}
+
+	if (minutes > 0) {
+		return minutes + 'm ' + seconds + 's';
+	}
+
+	return seconds + 's';
+};
+const getRunDurationMs = (run) => {
+	if (typeof run.durationMs === 'number') {
+		return run.durationMs;
+	}
+
+	if (run.status === 'running' && run.startedAt) {
+		return Date.now() - new Date(run.startedAt).getTime();
+	}
+
+	return null;
+};
+const formatRunStatus = (run) => {
+	const message = run.message || run.status;
+	const durationMs = getRunDurationMs(run);
+
+	return durationMs === null ? message : message + ' - ' + formatDuration(durationMs);
+};
 const formatLabel = (label) => label === 'before' ? 'Before' : 'After';
 const createRunPanel = (runGroup, label) => {
 	const run = runGroup[label];
@@ -218,7 +275,7 @@ const createRunPanel = (runGroup, label) => {
 	pill.className = 'rounded-full bg-zinc-50 px-2 py-1 text-xs text-zinc-500 data-[status=completed]:text-emerald-700 data-[status=failed]:text-red-700 data-[status=running]:text-yellow-700';
 	pill.dataset.runStatus = label;
 	pill.dataset.status = run.status;
-	pill.textContent = run.message || run.status;
+	pill.textContent = formatRunStatus(run);
 
 	header.append(title, pill);
 	section.append(header);
@@ -259,7 +316,7 @@ const updateRunPanel = (section, runGroup, label) => {
 	const logText = run.logs?.join('') || '';
 
 	pill.dataset.status = run.status;
-	pill.textContent = run.message || run.status;
+	pill.textContent = formatRunStatus(run);
 
 	if (pre.textContent !== logText) {
 		const stickToBottom = shouldStickToBottom(pre);
@@ -451,7 +508,7 @@ const RunProgressCard = ({
 				data-run-status={label}
 				data-status={jobRun.status}
 			>
-				{jobRun.message}
+				{formatJobRunStatus(jobRun)}
 			</span>
 		</div>
 		<pre

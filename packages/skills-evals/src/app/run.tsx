@@ -5,8 +5,11 @@ import type {SkillEvalManifest} from '../manifest';
 import {getPreferredArtifact} from './comparison-data';
 import {
 	Card,
+	formatDuration,
+	getDurationMs,
 	Header,
 	page,
+	Pill,
 	type RenderOptions,
 	runsRoot,
 	ShareResultButton,
@@ -82,6 +85,7 @@ export const renderRun = (
 				<Header
 					action={
 						<div className="flex flex-wrap items-center gap-3">
+							<Pill>Took {formatDuration(getDurationMs(manifest))}</Pill>
 							{renderOptions?.mode === 'static' ? null : (
 								<a
 									className="text-[0.8125rem] text-zinc-600"
