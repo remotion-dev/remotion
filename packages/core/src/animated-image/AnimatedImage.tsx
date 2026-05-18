@@ -1,3 +1,4 @@
+import type React from 'react';
 import {
 	forwardRef,
 	useEffect,
@@ -7,17 +8,39 @@ import {
 	useState,
 } from 'react';
 import {cancelRender} from '../cancel-render.js';
+import type {SequenceControls} from '../CompositionManager.js';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {
+	hiddenField,
+	sequenceStyleSchema,
+	type SequenceSchema,
+} from '../sequence-field-schema.js';
+import {Sequence} from '../Sequence.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {useVideoConfig} from '../use-video-config.js';
+import {wrapInSchema} from '../wrap-in-schema.js';
 import type {AnimatedImageCanvasRef} from './canvas';
 import {Canvas} from './canvas';
 import type {RemotionImageDecoder} from './decode-image.js';
 import {decodeImage} from './decode-image.js';
-import type {RemotionAnimatedImageProps} from './props';
+import type {AnimatedImageProps, RemotionAnimatedImageProps} from './props';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
-export const AnimatedImage = forwardRef<
+const animatedImageSchema = {
+	playbackRate: {
+		type: 'number',
+		min: 0,
+		max: 10,
+		step: 0.1,
+		default: 1,
+		description: 'Playback Rate',
+	},
+	...sequenceStyleSchema,
+	hidden: hiddenField,
+} as const satisfies SequenceSchema;
+
+const AnimatedImageContent = forwardRef<
 	HTMLCanvasElement,
 	RemotionAnimatedImageProps
 >(
@@ -155,3 +178,62 @@ export const AnimatedImage = forwardRef<
 		);
 	},
 );
+
+AnimatedImageContent.displayName = 'AnimatedImageContent';
+
+const AnimatedImageInner = ({
+	src,
+	width,
+	height,
+	onError,
+	fit,
+	playbackRate,
+	loopBehavior,
+	id,
+	className,
+	style,
+	durationInFrames,
+	_experimentalControls: controls,
+	ref,
+	...sequenceProps
+}: AnimatedImageProps & {
+	readonly _experimentalControls?: SequenceControls | undefined;
+	readonly ref?: React.Ref<HTMLCanvasElement>;
+}) => {
+	const {durationInFrames: videoDuration} = useVideoConfig();
+	const resolvedDuration = durationInFrames ?? videoDuration;
+
+	const animatedImageProps: RemotionAnimatedImageProps = {
+		src,
+		width,
+		height,
+		onError,
+		fit,
+		playbackRate,
+		loopBehavior,
+		id,
+		className,
+		style,
+	};
+
+	return (
+		<Sequence
+			layout="none"
+			durationInFrames={resolvedDuration}
+			name="<AnimatedImage>"
+			_experimentalControls={controls}
+			{...sequenceProps}
+		>
+			<AnimatedImageContent {...animatedImageProps} ref={ref} />
+		</Sequence>
+	);
+};
+
+export const AnimatedImage = wrapInSchema(
+	AnimatedImageInner,
+	animatedImageSchema,
+);
+
+AnimatedImage.displayName = 'AnimatedImage';
+
+addSequenceStackTraces(AnimatedImage);
