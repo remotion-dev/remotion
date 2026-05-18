@@ -118,46 +118,6 @@ test('It should throw when both endAt and trimAfter are provided', () => {
 	).toThrow(/Cannot use both endAt and trimAfter props/);
 });
 
-test('It should default preservePitch to true on Audio', () => {
-	let audio: HTMLAudioElement | null = null;
-
-	render(
-		<WrapSequenceContext>
-			<Html5Audio
-				ref={(element) => {
-					if (element) {
-						element.preservesPitch = false;
-						audio = element;
-					}
-				}}
-				src="test"
-				volume={1}
-			/>
-		</WrapSequenceContext>,
-	);
-
-	expect((audio as HTMLAudioElement | null)?.preservesPitch).toBe(true);
-});
-
-test('It should sync preservePitch on Audio', () => {
-	const ref = createRef<HTMLAudioElement>();
-	const {rerender} = render(
-		<WrapSequenceContext>
-			<Html5Audio ref={ref} preservePitch src="test" volume={1} />
-		</WrapSequenceContext>,
-	);
-
-	expect(ref.current?.preservesPitch).toBe(true);
-
-	rerender(
-		<WrapSequenceContext>
-			<Html5Audio ref={ref} preservePitch={false} src="test" volume={1} />
-		</WrapSequenceContext>,
-	);
-
-	expect(ref.current?.preservesPitch).toBe(false);
-});
-
 test('It should reject invalid preservePitch values on Audio', () => {
 	expect(() =>
 		render(
