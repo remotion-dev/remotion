@@ -21,8 +21,9 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"buffer-crc32": "~0.2.3",
 		"execa": "5.1.1",
-		"yauzl": "file:./vendor/yauzl",
+		"pend": "~1.2.0",
 		"remotion": "workspace:*",
 		"@remotion/streaming": "workspace:*",
 		"source-map": "0.8.0-beta.0",

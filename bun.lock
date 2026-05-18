@@ -1312,11 +1312,12 @@
       "dependencies": {
         "@remotion/licensing": "workspace:*",
         "@remotion/streaming": "workspace:*",
+        "buffer-crc32": "~0.2.3",
         "execa": "5.1.1",
+        "pend": "~1.2.0",
         "remotion": "workspace:*",
         "source-map": "0.8.0-beta.0",
         "ws": "8.17.1",
-        "yauzl": "file:./vendor/yauzl",
       },
       "devDependencies": {
         "@happy-dom/global-registrator": "14.5.1",
@@ -1344,14 +1345,6 @@
       "peerDependencies": {
         "react": ">=16.8.0",
         "react-dom": ">=16.8.0",
-      },
-    },
-    "packages/renderer/vendor/yauzl": {
-      "name": "yauzl",
-      "version": "3.3.0",
-      "dependencies": {
-        "buffer-crc32": "~0.2.3",
-        "pend": "~1.2.0",
       },
     },
     "packages/rive": {
@@ -8178,7 +8171,7 @@
 
     "yargs-parser": ["yargs-parser@22.0.0", "", {}, "sha512-rwu/ClNdSMpkSrUb+d6BRsSkLUq1fmfsY6TOpYzTwvwkg1/NRG85KBy3kq++A8LKQwX6lsu+aWad+2khvuXrqw=="],
 
-    "yauzl": ["yauzl@workspace:packages/renderer/vendor/yauzl"],
+    "yauzl": ["yauzl@2.10.0", "", { "dependencies": { "buffer-crc32": "0.2.13", "fd-slicer": "1.1.0" } }, "sha512-p4a9I6X6nu6IhoGmBqAcbJy1mlC4j27vEPZX9F4L4/vZT3Lyq1VkFHw/V/PUcB9Buo+DG3iHkT0x3Qya58zc3g=="],
 
     "yocto-queue": ["yocto-queue@1.2.1", "", {}, "sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg=="],
 
@@ -10251,8 +10244,6 @@
     "ext/type": ["type@2.7.2", "", {}, "sha512-dzlvlNlt6AXU7EBSfpAscydQ7gXB+pPGsPnfJnZpiNJBDj7IaJzQlBZYGdEi4R9HmPdBv2XmWJ6YUtoTa7lmCw=="],
 
     "extract-zip/get-stream": ["get-stream@5.2.0", "", { "dependencies": { "pump": "3.0.0" } }, "sha512-nBF+F1rAZVCu/p7rjzgA+Yb4lfYXrpl7a6VmJrU8wF9I1CKvP/QwPNZHnOlwbTkY6dvtFIzFMSyQXbLoTQPRpA=="],
-
-    "extract-zip/yauzl": ["yauzl@2.10.0", "", { "dependencies": { "buffer-crc32": "0.2.13", "fd-slicer": "1.1.0" } }, "sha512-p4a9I6X6nu6IhoGmBqAcbJy1mlC4j27vEPZX9F4L4/vZT3Lyq1VkFHw/V/PUcB9Buo+DG3iHkT0x3Qya58zc3g=="],
 
     "fast-glob/glob-parent": ["glob-parent@5.1.2", "", { "dependencies": { "is-glob": "4.0.3" } }, "sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow=="],
 
