@@ -4,8 +4,8 @@ import * as path from 'node:path';
 import {buffer} from 'node:stream/consumers';
 import {pipeline} from 'node:stream/promises';
 import {promisify} from 'node:util';
-import type {Entry, ZipFile} from 'yauzl';
 import * as yauzl from '../../vendor/yauzl-patched';
+import type {Entry, ZipFile} from '../../vendor/yauzl-patched';
 
 const openZip = promisify(yauzl.open) as (
 	zipPath: string,

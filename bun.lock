@@ -1327,7 +1327,6 @@
         "@testing-library/react": "16.1.0",
         "@types/node": "catalog:",
         "@types/ws": "8.5.10",
-        "@types/yauzl": "2.10.3",
         "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
         "react": "catalog:",
