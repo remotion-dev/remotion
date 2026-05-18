@@ -44,7 +44,6 @@ export const TimelineListItem: React.FC<{
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 
-	// TODO: When location changes, we should apply the same expanded state to the new location.
 	const originalLocation = useResolveStackAndReactToChange(sequence.getStack);
 
 	const validatedLocation = useMemo(() => {
