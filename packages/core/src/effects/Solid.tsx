@@ -1,17 +1,29 @@
-import React, {useEffect, useMemo, useState} from 'react';
+/* eslint-disable react/require-default-props */
+import React, {
+	forwardRef,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {
 	sequenceStyleSchema,
 	type SequenceSchema,
 } from '../sequence-field-schema.js';
+import type {SequenceProps} from '../Sequence.js';
+import {Sequence} from '../Sequence.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {wrapInSchema} from '../wrap-in-schema.js';
 import type {EffectsProp} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
 import {useEffectChainState} from './use-effect-chain-state.js';
-import {useMemoizedEffects} from './use-memoized-effects.js';
+import {
+	useMemoizedEffectDefinitions,
+	useMemoizedEffects,
+} from './use-memoized-effects.js';
 
 export type SolidProps = {
 	readonly color: string;
@@ -48,17 +60,19 @@ const solidSchema = {
 
 const SolidInner: React.FC<
 	SolidProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly overrideId: string | null;
+		readonly ref?: React.Ref<HTMLCanvasElement>;
 	}
 > = ({
 	color,
 	width,
 	height,
 	_experimentalEffects: experimentalEffects = [],
-	_experimentalControls: controls,
 	className,
 	style,
 	pixelRatio = 1,
+	overrideId,
+	ref,
 }) => {
 	const frame = useCurrentFrame();
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
@@ -69,7 +83,7 @@ const SolidInner: React.FC<
 
 	const memoizedEffects = useMemoizedEffects({
 		effects: experimentalEffects,
-		overrideId: controls?.overrideId ?? null,
+		overrideId: overrideId ?? null,
 	});
 
 	const sourceCanvas = useMemo(() => {
@@ -84,6 +98,19 @@ const SolidInner: React.FC<
 	}, []);
 
 	const chainState = useEffectChainState();
+
+	const canvasRef = useCallback(
+		(canvas: HTMLCanvasElement | null) => {
+			setOutputCanvas(canvas);
+
+			if (typeof ref === 'function') {
+				ref(canvas);
+			} else if (ref) {
+				ref.current = canvas;
+			}
+		},
+		[ref],
+	);
 
 	// Fill source and run effect chain on every frame / color change.
 	useEffect(() => {
@@ -149,7 +176,7 @@ const SolidInner: React.FC<
 
 	return (
 		<canvas
-			ref={setOutputCanvas}
+			ref={canvasRef}
 			width={width}
 			height={height}
 			className={className}
@@ -158,9 +185,66 @@ const SolidInner: React.FC<
 	);
 };
 
-SolidInner.displayName = 'Solid';
+const SolidOuter = forwardRef<
+	HTMLCanvasElement,
+	SolidProps & {
+		readonly _experimentalControls: SequenceControls | undefined;
+	} & Pick<
+			SequenceProps,
+			'durationInFrames' | 'name' | 'from' | 'showInTimeline' | 'hidden'
+		>
+>(
+	(
+		{
+			_experimentalEffects = [],
+			_experimentalControls: controls,
+			color,
+			height,
+			width,
+			className,
+			durationInFrames,
+			pixelRatio,
+			style,
+			name,
+			from,
+			hidden,
+			showInTimeline,
+			...props
+		},
+		ref,
+	) => {
+		props satisfies Record<string, never>;
 
-export const Solid = wrapInSchema(SolidInner, solidSchema);
+		const memoizedEffectDefinitions =
+			useMemoizedEffectDefinitions(_experimentalEffects);
+
+		return (
+			<Sequence
+				layout="none"
+				from={from}
+				hidden={hidden}
+				showInTimeline={showInTimeline}
+				_experimentalControls={controls}
+				_experimentalEffects={memoizedEffectDefinitions}
+				durationInFrames={durationInFrames}
+				name={name ?? '<Solid>'}
+			>
+				<SolidInner
+					ref={ref}
+					overrideId={controls?.overrideId ?? null}
+					color={color}
+					height={height}
+					width={width}
+					className={className}
+					pixelRatio={pixelRatio}
+					style={style}
+				/>
+			</Sequence>
+		);
+	},
+);
+
+export const Solid = wrapInSchema(SolidOuter, solidSchema);
 
 Solid.displayName = 'Solid';
 
