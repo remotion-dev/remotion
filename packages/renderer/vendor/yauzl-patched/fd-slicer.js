@@ -5,7 +5,7 @@ var stream = require('stream');
 var Readable = stream.Readable;
 var Writable = stream.Writable;
 var PassThrough = stream.PassThrough;
-var Pend = require('pend');
+var Pend = require('./pend');
 var EventEmitter = require('events').EventEmitter;
 
 exports.createFromBuffer = createFromBuffer;
