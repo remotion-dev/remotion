@@ -291,6 +291,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				acceptableTimeShiftInSeconds={
 					fallbackHtml5AudioProps?.acceptableTimeShiftInSeconds
 				}
+				preservePitch={fallbackHtml5AudioProps?.preservePitch ?? false}
 				name={name}
 				showInTimeline={showInTimeline}
 			/>
