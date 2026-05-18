@@ -8,6 +8,7 @@ import {
 	ORIGINAL_VISUAL_CONTROLS_FILE,
 	STUDIO_PORT,
 	STUDIO_URL,
+	e2eEntryPoint,
 	exampleDir,
 	remotionBin,
 	rootFile,
@@ -40,10 +41,7 @@ async function waitForServer(
 export async function startStudio(): Promise<void> {
 	// Save original files if not already saved
 	if (!fs.existsSync(ORIGINAL_CONTENT_FILE)) {
-		fs.writeFileSync(
-			ORIGINAL_CONTENT_FILE,
-			fs.readFileSync(rootFile, 'utf-8'),
-		);
+		fs.writeFileSync(ORIGINAL_CONTENT_FILE, fs.readFileSync(rootFile, 'utf-8'));
 	}
 
 	if (!fs.existsSync(ORIGINAL_VISUAL_CONTROLS_FILE)) {
@@ -54,10 +52,7 @@ export async function startStudio(): Promise<void> {
 	}
 
 	// Restore original files before starting
-	fs.writeFileSync(
-		rootFile,
-		fs.readFileSync(ORIGINAL_CONTENT_FILE, 'utf-8'),
-	);
+	fs.writeFileSync(rootFile, fs.readFileSync(ORIGINAL_CONTENT_FILE, 'utf-8'));
 	fs.writeFileSync(
 		visualControlsFile,
 		fs.readFileSync(ORIGINAL_VISUAL_CONTROLS_FILE, 'utf-8'),
@@ -86,6 +81,7 @@ export async function startStudio(): Promise<void> {
 		remotionBin,
 		[
 			'studio',
+			e2eEntryPoint,
 			'--port',
 			String(STUDIO_PORT),
 			'--props',
@@ -176,10 +172,7 @@ export async function stopStudio(): Promise<void> {
 
 	// Restore original files
 	if (fs.existsSync(ORIGINAL_CONTENT_FILE)) {
-		fs.writeFileSync(
-			rootFile,
-			fs.readFileSync(ORIGINAL_CONTENT_FILE, 'utf-8'),
-		);
+		fs.writeFileSync(rootFile, fs.readFileSync(ORIGINAL_CONTENT_FILE, 'utf-8'));
 	}
 
 	if (fs.existsSync(ORIGINAL_VISUAL_CONTROLS_FILE)) {

@@ -10,7 +10,8 @@ export const exampleDir = path.resolve(
 	'..',
 );
 
-export const rootFile = path.join(exampleDir, 'src', 'Root.tsx');
+export const rootFile = path.join(exampleDir, 'src', 'E2eTestRoot.tsx');
+export const e2eEntryPoint = path.join(exampleDir, 'src', 'e2e-test-entry.ts');
 export const visualControlsFile = path.join(
 	exampleDir,
 	'src',
@@ -31,7 +32,7 @@ export const LOGS_FILE = path.join(
 );
 export const ORIGINAL_CONTENT_FILE = path.join(
 	os.tmpdir(),
-	'remotion-e2e-original-root.tsx',
+	'remotion-e2e-original-e2e-test-root.tsx',
 );
 export const ORIGINAL_VISUAL_CONTROLS_FILE = path.join(
 	os.tmpdir(),
