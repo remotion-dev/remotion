@@ -9,6 +9,7 @@
 	"scripts": {
 		"dev": "bun src/server.tsx",
 		"eval": "bun src/cli.ts",
+		"export": "bun src/cli.ts export",
 		"format": "oxfmt src scenarios.ts",
 		"formatting": "oxfmt src scenarios.ts --check",
 		"lint": "eslint src && tsgo"

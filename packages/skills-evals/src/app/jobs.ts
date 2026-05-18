@@ -1,10 +1,17 @@
-import {basename} from 'node:path';
+import {join} from 'node:path';
 import {scenarios, type SkillEvalScenario} from '../../scenarios';
 import {
 	runSkillEvalComparison,
 	type SkillEvalComparisonEvent,
 	type SkillEvalComparisonRunLabel,
 } from '../compare';
+import {
+	createSkillEvalId,
+	createSkillEvalName,
+	getSkillEvalDir,
+	toEvalUrl,
+	writeSkillEval,
+} from '../eval';
 import {
 	maxParallelSkillEvalRuns,
 	validateSkillEvalRunCount,
@@ -21,6 +28,7 @@ export type Job = {
 	startedAt: string;
 	status: 'running' | 'completed' | 'failed' | 'skipped';
 	comparisonUrl?: string;
+	evalUrl?: string;
 	error?: string;
 	message?: string;
 	resultUrl?: string;
@@ -122,6 +130,8 @@ export const startComparison = (
 		return existingJob;
 	}
 
+	const evalId = createSkillEvalId(scenario.id);
+	const evalName = createSkillEvalName({id: evalId, type: 'comparison'});
 	const job: Job = {
 		id: `${Date.now()}-${scenario.id}`,
 		logs: [],
@@ -220,16 +230,32 @@ export const startComparison = (
 
 	const comparisonPromise = runSkillEvalComparison(scenario, {
 		beforeGitRef: options.beforeGitRef,
+		evalId,
 		onEvent: handleEvent,
 		runCount,
 	})
-		.then((result) => {
+		.then(async (result) => {
 			if (result.skipped) {
 				job.message = result.reason;
 				job.status = 'skipped';
 				return;
 			}
 
+			await writeSkillEval({
+				comparisonPath: join(
+					result.comparison.comparisonDir,
+					'comparison.json',
+				),
+				completedAt: result.comparison.completedAt,
+				createdAt: result.comparison.createdAt,
+				evalDir: getSkillEvalDir(scenario.id, evalId),
+				id: evalId,
+				name: evalName,
+				runCount,
+				scenarioId: scenario.id,
+				type: 'comparison',
+			});
+			job.evalUrl = toEvalUrl({id: evalId, scenarioId: scenario.id});
 			job.comparisonUrl = toComparisonUrl(result.comparison);
 			job.message = 'Comparison complete.';
 			job.status = 'completed';
@@ -255,6 +281,8 @@ export const startRun = (
 		return existingJob;
 	}
 
+	const evalId = createSkillEvalId(scenario.id);
+	const evalName = createSkillEvalName({id: evalId, type: 'run'});
 	const job: Job = {
 		id: `${Date.now()}-${scenario.id}`,
 		logs: [],
@@ -287,6 +315,8 @@ export const startRun = (
 				startJobRun(run);
 				const result = await runSkillEval({
 					...scenario,
+					evalId,
+					evalRunIndex: runIndex,
 					onPhase: (event) => {
 						run.status = 'running';
 						run.message = `${phaseLabels[event.phase]}${
@@ -325,20 +355,30 @@ export const startRun = (
 			}
 		},
 	})
-		.then((results) => {
-			const result = results[0];
-
-			if (!result) {
+		.then(async (results) => {
+			if (results.length === 0) {
 				throw new Error('No run result was produced.');
 			}
 
+			const completedAt = new Date().toISOString();
+			await writeSkillEval({
+				completedAt,
+				createdAt: job.startedAt,
+				evalDir: getSkillEvalDir(scenario.id, evalId),
+				id: evalId,
+				name: evalName,
+				runCount,
+				runs: results.map((result, index) => ({
+					index: index + 1,
+					manifestPath: result.manifestPath,
+				})),
+				scenarioId: scenario.id,
+				type: 'run',
+			});
+			job.evalUrl = toEvalUrl({id: evalId, scenarioId: scenario.id});
 			job.message =
 				runCount === 1 ? 'Run complete.' : `${runCount} runs complete.`;
-			if (runCount === 1) {
-				job.resultUrl = `/runs/${encodeURIComponent(
-					result.manifest.id,
-				)}/${encodeURIComponent(basename(result.manifest.runDir))}`;
-			}
+			job.resultUrl = job.evalUrl;
 
 			job.status = 'completed';
 		})

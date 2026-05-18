@@ -71,6 +71,7 @@ type SkillEvalComparisonResult =
 
 type SkillEvalComparisonOptions = {
 	beforeGitRef?: string;
+	evalId?: string;
 	onEvent?: (event: SkillEvalComparisonEvent) => void;
 	onLog?: (chunk: string) => void;
 	runCount?: number;
@@ -232,6 +233,8 @@ export const runSkillEvalComparison = async (
 		try {
 			const result = await runSkillEval({
 				...scenario,
+				evalId: options.evalId,
+				evalRunIndex: runIndex,
 				onOutput: forwardOutput(label, runIndex),
 				onPhase: forwardPhase(label, runIndex),
 				runLabel:
@@ -332,6 +335,7 @@ export const runSkillEvalComparison = async (
 		completedAt,
 		comparisonDir,
 		createdAt,
+		evalId: options.evalId,
 		id: comparisonId,
 		runCount,
 		runs: runPairs,

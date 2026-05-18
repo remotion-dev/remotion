@@ -28,6 +28,8 @@ export type LoggedCommand = Pick<
 
 export type SkillEvalManifest = {
 	id: string;
+	evalId?: string;
+	evalRunIndex?: number;
 	model: string;
 	prompt: string;
 	createdAt: string;
@@ -80,6 +82,7 @@ export type SkillEvalComparisonRunPair = {
 
 export type SkillEvalComparison = {
 	id: string;
+	evalId?: string;
 	scenarioId: string;
 	createdAt: string;
 	completedAt: string;
@@ -90,3 +93,30 @@ export type SkillEvalComparison = {
 	runCount?: number;
 	runs?: SkillEvalComparisonRunPair[];
 };
+
+export type SkillEvalRunEntry = {
+	index: number;
+	manifestPath: string;
+};
+
+type SkillEvalBase = {
+	id: string;
+	scenarioId: string;
+	name: string;
+	createdAt: string;
+	completedAt: string;
+	evalDir: string;
+	runCount: number;
+};
+
+export type SkillEvalRun = SkillEvalBase & {
+	runs: SkillEvalRunEntry[];
+	type: 'run';
+};
+
+export type SkillEvalComparisonEval = SkillEvalBase & {
+	comparisonPath: string;
+	type: 'comparison';
+};
+
+export type SkillEval = SkillEvalComparisonEval | SkillEvalRun;
