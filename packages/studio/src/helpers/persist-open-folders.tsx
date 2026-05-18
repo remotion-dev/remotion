@@ -1,4 +1,9 @@
 import {createContext} from 'react';
+import {
+	loadPersistedBooleanMap,
+	persistBooleanMap,
+	type BooleanMap,
+} from './persist-boolean-map';
 
 export const openFolderKey = ({
 	folderName,
@@ -10,9 +15,9 @@ export const openFolderKey = ({
 	return [parentName ?? 'no-parent', folderName].join('/');
 };
 
-export type ExpandedFoldersState = Record<string, boolean>;
+export type ExpandedFoldersState = BooleanMap;
 
-const localStorageKey = (type: PersistanceType) =>
+const sessionStorageKey = (type: PersistanceType) =>
 	type === 'compositions'
 		? 'remotion.expandedFolders'
 		: 'remotion.expandedAssetFolders';
@@ -23,18 +28,16 @@ export const persistExpandedFolders = (
 	type: PersistanceType,
 	state: ExpandedFoldersState,
 ) => {
-	window.localStorage.setItem(localStorageKey(type), JSON.stringify(state));
+	persistBooleanMap(sessionStorageKey(type), state);
 };
 
 export const loadExpandedFolders = (
 	type: PersistanceType,
 ): ExpandedFoldersState => {
-	const item = window.localStorage.getItem(localStorageKey(type));
-	if (item === null) {
-		return {};
-	}
-
-	return JSON.parse(item);
+	return loadPersistedBooleanMap({
+		sessionStorageKey: sessionStorageKey(type),
+		legacyLocalStorageKey: sessionStorageKey(type),
+	});
 };
 
 export type ExpandedFoldersRef = {
