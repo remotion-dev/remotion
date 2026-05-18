@@ -1,3 +1,4 @@
+import type React from 'react';
 import {
 	forwardRef,
 	useEffect,
@@ -180,61 +181,53 @@ const AnimatedImageContent = forwardRef<
 
 AnimatedImageContent.displayName = 'AnimatedImageContent';
 
-const AnimatedImageInner = forwardRef<
-	HTMLCanvasElement,
-	AnimatedImageProps & {
-		readonly _experimentalControls?: SequenceControls | undefined;
-	}
->(
-	(
-		{
-			src,
-			width,
-			height,
-			onError,
-			fit,
-			playbackRate,
-			loopBehavior,
-			id,
-			className,
-			style,
-			durationInFrames,
-			_experimentalControls: controls,
-			...sequenceProps
-		},
-		ref,
-	) => {
-		const {durationInFrames: videoDuration} = useVideoConfig();
-		const resolvedDuration = durationInFrames ?? videoDuration;
+const AnimatedImageInner = ({
+	src,
+	width,
+	height,
+	onError,
+	fit,
+	playbackRate,
+	loopBehavior,
+	id,
+	className,
+	style,
+	durationInFrames,
+	_experimentalControls: controls,
+	ref,
+	...sequenceProps
+}: AnimatedImageProps & {
+	readonly _experimentalControls?: SequenceControls | undefined;
+	readonly ref?: React.Ref<HTMLCanvasElement>;
+}) => {
+	const {durationInFrames: videoDuration} = useVideoConfig();
+	const resolvedDuration = durationInFrames ?? videoDuration;
 
-		const animatedImageProps: RemotionAnimatedImageProps = {
-			src,
-			width,
-			height,
-			onError,
-			fit,
-			playbackRate,
-			loopBehavior,
-			id,
-			className,
-			style,
-		};
+	const animatedImageProps: RemotionAnimatedImageProps = {
+		src,
+		width,
+		height,
+		onError,
+		fit,
+		playbackRate,
+		loopBehavior,
+		id,
+		className,
+		style,
+	};
 
-		return (
-			<Sequence
-				layout="none"
-				durationInFrames={resolvedDuration}
-				name="<AnimatedImage>"
-				_experimentalControls={controls}
-				{...sequenceProps}
-			>
-				<AnimatedImageContent {...animatedImageProps} ref={ref} />
-			</Sequence>
-		);
-	},
-);
-
-AnimatedImageInner.displayName = 'AnimatedImage';
+	return (
+		<Sequence
+			layout="none"
+			durationInFrames={resolvedDuration}
+			name="<AnimatedImage>"
+			_experimentalControls={controls}
+			{...sequenceProps}
+		>
+			<AnimatedImageContent {...animatedImageProps} ref={ref} />
+		</Sequence>
+	);
+};
 
 export const AnimatedImage = wrapInSchema(
 	AnimatedImageInner,
