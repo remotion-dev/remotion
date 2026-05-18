@@ -1,37 +1,45 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
+import { StudioServerInternals } from "@remotion/studio-server";
 
 const ROOT_RELATIVE_PATH = path.join("remotion", "Root.tsx");
 const TEMPLATE_COMPOSITION_ID = "empty";
 
-const findEmptyCompositionBlock = (src: string): string | null => {
-  const idMarker = `id="${TEMPLATE_COMPOSITION_ID}"`;
-  const idIndex = src.indexOf(idMarker);
-  if (idIndex === -1) {
-    return null;
-  }
-
-  const startIndex = src.lastIndexOf("<Composition", idIndex);
-  if (startIndex === -1) {
-    return null;
-  }
-
-  const endMarker = "/>";
-  const endIndex = src.indexOf(endMarker, idIndex);
-  if (endIndex === -1) {
-    return null;
-  }
-
-  return src.slice(startIndex, endIndex + endMarker.length);
+const compositionExists = (src: string, compositionId: string) => {
+  return (
+    src.includes(`id="${compositionId}"`) ||
+    src.includes(`id={'${compositionId}'}`) ||
+    src.includes(`id={"${compositionId}"}`)
+  );
 };
 
-export const registerComposition = ({
+const getDefaultPropsForNewProject = () => ({
+  theme: "light",
+  canvasLayout: "square",
+  platform: "youtube",
+  scenes: [
+    {
+      type: "videoscene",
+      webcamPosition: "bottom-right",
+      endOffset: 0,
+      transitionToNextScene: false,
+      newChapter: "",
+      stopChapteringAfterThis: false,
+      music: "none",
+      startOffset: 0,
+      bRolls: [],
+    },
+  ],
+  scenesAndMetadata: [],
+});
+
+export const registerComposition = async ({
   rootDir,
   projectName,
 }: {
   rootDir: string;
   projectName: string;
-}): { registered: boolean; reason?: string } => {
+}): Promise<{ registered: boolean; reason?: string }> => {
   const rootPath = path.join(rootDir, ROOT_RELATIVE_PATH);
 
   if (!existsSync(rootPath)) {
@@ -40,41 +48,44 @@ export const registerComposition = ({
 
   const src = readFileSync(rootPath, "utf-8");
 
-  if (src.includes(`id="${projectName}"`)) {
+  if (compositionExists(src, projectName)) {
     return { registered: false, reason: "Composition already exists" };
   }
 
-  const emptyBlock = findEmptyCompositionBlock(src);
-  if (!emptyBlock) {
+  try {
+    const { newContents: duplicated } =
+      StudioServerInternals.parseAndApplyCodemod({
+        input: src,
+        codeMod: {
+          type: "duplicate-composition",
+          idToDuplicate: TEMPLATE_COMPOSITION_ID,
+          newId: projectName,
+          newHeight: null,
+          newWidth: null,
+          newFps: null,
+          newDurationInFrames: null,
+          tag: "Composition",
+        },
+      });
+
+    const { output: withDefaultScene } =
+      await StudioServerInternals.updateDefaultProps({
+        input: duplicated,
+        compositionId: projectName,
+        newDefaultProps: getDefaultPropsForNewProject(),
+        enumPaths: [],
+      });
+
+    const formatted = await StudioServerInternals.formatOutput(
+      withDefaultScene,
+    );
+
+    writeFileSync(rootPath, formatted, "utf-8");
+    return { registered: true };
+  } catch (err) {
     return {
       registered: false,
-      reason: 'Could not find <Composition id="empty"> to clone',
+      reason: err instanceof Error ? err.message : String(err),
     };
   }
-
-  const defaultVideoScene = `          scenes: [
-            {
-              type: "videoscene" as const,
-              webcamPosition: "bottom-right" as const,
-              endOffset: 0,
-              transitionToNextScene: false,
-              newChapter: "",
-              stopChapteringAfterThis: false,
-              music: "none" as const,
-              startOffset: 0,
-              bRolls: [],
-            },
-          ],`;
-
-  const cloned = emptyBlock
-    .replace(
-      `id="${TEMPLATE_COMPOSITION_ID}"`,
-      `id="${projectName}"`,
-    )
-    .replace("          scenes: [],", defaultVideoScene);
-
-  const newSrc = src.replace(emptyBlock, `${cloned}\n      ${emptyBlock}`);
-
-  writeFileSync(rootPath, newSrc, "utf-8");
-  return { registered: true };
 };

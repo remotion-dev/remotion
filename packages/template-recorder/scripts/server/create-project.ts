@@ -50,11 +50,14 @@ export const createProject = async (
 
     let registrationMessage = "";
     try {
-      const result = registerComposition({ rootDir, projectName });
+      const result = await registerComposition({ rootDir, projectName });
       if (result.registered) {
         registrationMessage =
           " Composition registered in remotion/Root.tsx.";
-      } else if (result.reason && result.reason !== "Composition already exists") {
+      } else if (
+        result.reason &&
+        result.reason !== "Composition already exists"
+      ) {
         registrationMessage = ` Folder created but composition was not registered: ${result.reason}. Edit remotion/Root.tsx manually to add it.`;
       }
     } catch (err) {
