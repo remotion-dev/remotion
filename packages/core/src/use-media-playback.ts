@@ -206,10 +206,7 @@ export const useMediaPlayback = ({
 			mediaRef.current.playbackRate = playbackRateToSet;
 		}
 
-		if (
-			mediaRef.current &&
-			mediaRef.current.preservesPitch !== preservePitch
-		) {
+		if (mediaRef.current && mediaRef.current.preservesPitch !== preservePitch) {
 			mediaRef.current.preservesPitch = preservePitch;
 		}
 	}, [mediaRef, playbackRate, preservePitch]);
