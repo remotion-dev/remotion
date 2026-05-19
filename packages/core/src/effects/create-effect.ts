@@ -48,7 +48,7 @@ export const createEffect = <P, S>(
 			readonly disabled?: boolean;
 		},
 	): EffectDescriptor<unknown> => {
-		validateParams?.(params as P);
+		validateParams(params as P);
 		return {
 			definition: widened,
 			params,

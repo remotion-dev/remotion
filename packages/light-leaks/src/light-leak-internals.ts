@@ -350,6 +350,7 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 		gl.deleteTexture(texture);
 	},
 	schema: lightLeakEffectSchema,
+	validateParams: () => {},
 });
 
 /**

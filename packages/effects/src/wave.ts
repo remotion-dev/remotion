@@ -110,4 +110,5 @@ export const wave = createEffect<WaveParams, null>({
 	},
 	cleanup: () => undefined,
 	schema: waveSchema,
+	validateParams: () => {},
 });

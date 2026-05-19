@@ -44,7 +44,7 @@ export type EffectDefinition<P, S = unknown> = {
 	readonly cleanup: (state: S) => void;
 	readonly schema: SequenceSchema;
 	/** Throws when mandatory params are missing or invalid. Called by `createEffect` before returning a descriptor. */
-	readonly validateParams?: (params: P) => void;
+	readonly validateParams: (params: P) => void;
 };
 
 type BaseEffectDescriptor<P = unknown> = {
