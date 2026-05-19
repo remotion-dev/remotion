@@ -1,5 +1,9 @@
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
+import {
+	assertEffectParamsObject,
+	assertRequiredFiniteNumber,
+} from '../validate-effect-param.js';
 
 const {createEffect} = Internals;
 import {
@@ -19,10 +23,15 @@ const blurSchema = {
 		min: 0,
 		max: 100,
 		step: 1,
-		default: 10,
+		default: undefined,
 		description: 'Blur radius',
 	},
 } as const satisfies SequenceSchema;
+
+const validateBlurParams = (params: BlurParams): void => {
+	assertEffectParamsObject(params, 'Blur');
+	assertRequiredFiniteNumber(params.radius, 'radius');
+};
 
 export const blur = createEffect<BlurParams, BlurState>({
 	type: 'remotion/blur',
@@ -41,4 +50,5 @@ export const blur = createEffect<BlurParams, BlurState>({
 	},
 	cleanup: (state) => cleanupBlur(state),
 	schema: blurSchema,
+	validateParams: validateBlurParams,
 });

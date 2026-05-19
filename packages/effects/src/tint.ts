@@ -1,15 +1,18 @@
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
+import {
+	assertEffectParamsObject,
+	assertRequiredColor,
+} from './validate-effect-param.js';
 
 const {createEffect} = Internals;
 
 const DEFAULT_AMOUNT = 0.5 as const;
-const DEFAULT_COLOR = '#ff0000' as const;
 
 export const tintSchema = {
 	color: {
 		type: 'color',
-		default: DEFAULT_COLOR,
+		default: '#ff0000',
 		description: 'Color',
 	},
 	amount: {
@@ -36,6 +39,11 @@ const resolve = (p: TintParams): TintResolved => ({
 	color: p.color,
 	amount: p.amount ?? DEFAULT_AMOUNT,
 });
+
+const validateTintParams = (params: TintParams): void => {
+	assertEffectParamsObject(params, 'Tint');
+	assertRequiredColor(params.color, 'color');
+};
 
 // Tints the source with a flat color. `amount` controls the blend strength
 // (0 = no tint, 1 = full color over opaque pixels). Operates on the 2D
@@ -77,4 +85,5 @@ export const tint = createEffect<TintParams, null>({
 	},
 	cleanup: () => undefined,
 	schema: tintSchema,
+	validateParams: validateTintParams,
 });

@@ -32,6 +32,7 @@ export const createEffect = <P, S>(
 	// memoization key. Without this, toggling `disabled` via code/drag overrides
 	// would not invalidate the cached `EffectDefinitionAndStack`.
 	const userCalculateKey = definition.calculateKey;
+	const validateParams = definition.validateParams;
 	const widened: EffectDefinition<unknown, unknown> = {
 		...(definition as unknown as EffectDefinition<unknown, unknown>),
 		calculateKey: (params: unknown) => {
@@ -47,11 +48,14 @@ export const createEffect = <P, S>(
 		params: P & {readonly disabled?: boolean} = {} as P & {
 			readonly disabled?: boolean;
 		},
-	): EffectDescriptor<unknown> => ({
-		definition: widened,
-		params,
-		effectKey: widened.calculateKey(params),
-		memoized: false,
-	});
+	): EffectDescriptor<unknown> => {
+		validateParams?.(params as P);
+		return {
+			definition: widened,
+			params,
+			effectKey: widened.calculateKey(params),
+			memoized: false,
+		};
+	};
 	return factory;
 };
