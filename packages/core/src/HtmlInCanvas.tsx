@@ -18,7 +18,10 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
-import {hiddenField, sequenceStyleSchema} from './sequence-field-schema.js';
+import {
+	hiddenField,
+	sequenceVisualStyleSchema,
+} from './sequence-field-schema.js';
 import type {
 	AbsoluteFillLayout,
 	LayoutAndStyle,
@@ -571,7 +574,7 @@ const HtmlInCanvasInner = forwardRef<
 HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
 const htmlInCanvasSchema = {
-	...sequenceStyleSchema,
+	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
 };
 

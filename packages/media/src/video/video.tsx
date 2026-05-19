@@ -36,7 +36,7 @@ const videoSchema = {
 		description: 'Hidden',
 	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
-	...Internals.sequenceStyleSchema,
+	...Internals.sequenceVisualStyleSchema,
 } as const satisfies SequenceSchema;
 
 const InnerVideo: React.FC<

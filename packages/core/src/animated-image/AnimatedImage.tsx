@@ -17,7 +17,7 @@ import {
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {
 	hiddenField,
-	sequenceStyleSchema,
+	sequenceVisualStyleSchema,
 	type SequenceSchema,
 } from '../sequence-field-schema.js';
 import {Sequence} from '../Sequence.js';
@@ -41,7 +41,7 @@ const animatedImageSchema = {
 		default: 1,
 		description: 'Playback Rate',
 	},
-	...sequenceStyleSchema,
+	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
 } as const satisfies SequenceSchema;
 

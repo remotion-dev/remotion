@@ -11,7 +11,10 @@ import type {SequenceControls} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
-import {hiddenField, sequenceStyleSchema} from './sequence-field-schema.js';
+import {
+	hiddenField,
+	sequenceVisualStyleSchema,
+} from './sequence-field-schema.js';
 import {SequenceContext} from './SequenceContext.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
@@ -337,7 +340,7 @@ const ImgInner: React.FC<
 };
 
 const imgSchema = {
-	...sequenceStyleSchema,
+	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
 };
 

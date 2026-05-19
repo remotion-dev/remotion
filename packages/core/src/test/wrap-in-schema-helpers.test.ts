@@ -1,12 +1,26 @@
 import {expect, test} from 'bun:test';
 import {getFlatSchemaWithAllKeys} from '../flatten-schema.js';
-import {sequenceSchema} from '../sequence-field-schema.js';
+import {
+	sequencePremountSchema,
+	sequenceSchema,
+	sequenceStyleSchema,
+	sequenceVisualStyleSchema,
+} from '../sequence-field-schema.js';
 import {
 	getNestedValue,
 	mergeValues,
 	readValuesFromProps,
 	selectActiveKeys,
 } from '../wrap-in-schema.js';
+
+test('sequenceStyleSchema is the union of visual style and premount fields', () => {
+	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
+		[
+			...Object.keys(sequenceVisualStyleSchema),
+			...Object.keys(sequencePremountSchema),
+		].sort(),
+	);
+});
 
 test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 	const flat = getFlatSchemaWithAllKeys(sequenceSchema);
