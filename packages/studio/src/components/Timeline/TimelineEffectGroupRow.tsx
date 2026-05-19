@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {Padder} from './Padder';
@@ -43,6 +44,8 @@ export const TimelineEffectGroupRow: React.FC<{
 	getIsExpanded,
 	toggleTrack,
 }) => {
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const previewConnected = previewServerState.type === 'connected';
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 
@@ -69,7 +72,8 @@ export const TimelineEffectGroupRow: React.FC<{
 		return false;
 	}, [disabledStatus]);
 
-	const canToggle = disabledStatus !== null && disabledStatus.canUpdate;
+	const canToggle =
+		previewConnected && disabledStatus !== null && disabledStatus.canUpdate;
 
 	const onToggle = useCallback(
 		(type: 'enable' | 'disable') => {
