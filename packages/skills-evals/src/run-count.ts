@@ -1,4 +1,5 @@
-export const maxParallelSkillEvalRuns = 4;
+export const maxSkillEvalRunCount = 4;
+export const maxParallelSkillEvalRuns = 8;
 
 export const validateSkillEvalRunCount = (
 	runCount: number | undefined,
@@ -11,10 +12,10 @@ export const validateSkillEvalRunCount = (
 	if (
 		!Number.isInteger(runCount) ||
 		runCount < 1 ||
-		runCount > maxParallelSkillEvalRuns
+		runCount > maxSkillEvalRunCount
 	) {
 		throw new Error(
-			`${name} must be an integer between 1 and ${maxParallelSkillEvalRuns}.`,
+			`${name} must be an integer between 1 and ${maxSkillEvalRunCount}.`,
 		);
 	}
 
