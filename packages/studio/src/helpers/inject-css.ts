@@ -94,13 +94,6 @@ const makeDefaultGlobalCSS = () => {
       inset -1px 1px #555;
   }
   
-  input[type='color'].__remotion_color_picker::-webkit-color-swatch-wrapper {
-    padding: 0;
-  }
-  input[type='color'].__remotion_color_picker::-webkit-color-swatch {
-    border: none;
-  }
-  
   .__remotion_thumb,
   .__remotion_thumb::-webkit-slider-thumb {
     -webkit-appearance: none;
