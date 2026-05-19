@@ -281,6 +281,7 @@ export const TimelineListItem: React.FC<{
 		Boolean(sequence.controls) || sequence.effects.length > 0;
 
 	const canToggleVisibility =
+		previewConnected &&
 		Boolean(sequence.controls) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
