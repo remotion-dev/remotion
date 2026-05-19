@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {Padder} from './Padder';
@@ -28,6 +29,7 @@ export const TimelineEffectGroupRow: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly nestedDepth: number;
+	readonly depth: number;
 	readonly style: React.CSSProperties;
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
@@ -39,10 +41,13 @@ export const TimelineEffectGroupRow: React.FC<{
 	nodePath,
 	validatedLocation,
 	nestedDepth,
+	depth,
 	style,
 	getIsExpanded,
 	toggleTrack,
 }) => {
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const previewConnected = previewServerState.type === 'connected';
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 
@@ -69,7 +74,8 @@ export const TimelineEffectGroupRow: React.FC<{
 		return false;
 	}, [disabledStatus]);
 
-	const canToggle = disabledStatus !== null && disabledStatus.canUpdate;
+	const canToggle =
+		previewConnected && disabledStatus !== null && disabledStatus.canUpdate;
 
 	const onToggle = useCallback(
 		(type: 'enable' | 'disable') => {
@@ -113,7 +119,6 @@ export const TimelineEffectGroupRow: React.FC<{
 
 	return (
 		<div style={mergedStyle}>
-			<Padder depth={nestedDepth + 1} />
 			{canToggle ? (
 				<TimelineLayerEye
 					type="effect"
@@ -123,6 +128,7 @@ export const TimelineEffectGroupRow: React.FC<{
 			) : (
 				<TimelineLayerEyeSpacer />
 			)}
+			<Padder depth={nestedDepth + 1 + depth} />
 			<TimelineExpandArrowButton
 				isExpanded={isExpanded}
 				onClick={() => toggleTrack(nodePathInfo)}

@@ -90,7 +90,7 @@ const TimelineInner: React.FC = () => {
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
 			{sequences.map((sequence) => {
-				if (!sequence.controls || !previewConnected || !sequence.stack) {
+				if (!sequence.controls || !previewConnected || !sequence.getStack()) {
 					return null;
 				}
 
@@ -99,7 +99,7 @@ const TimelineInner: React.FC = () => {
 						key={sequence.id}
 						overrideId={sequence.controls.overrideId}
 						schema={sequence.controls.schema}
-						stack={sequence.stack}
+						getStack={sequence.getStack}
 						effects={sequence.effects}
 					/>
 				);

@@ -149,6 +149,7 @@ import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
+import {AnimatedImageEffects} from './AnimatedImage/Effects';
 import {AudioSmoothnessBufferInterruptionComp} from './AudioSmoothness/BufferInterruption';
 import {AudioSmoothnessLoopedAudioComp} from './AudioSmoothness/LoopedAudio';
 import {AudioSmoothnessNewVideoComp} from './AudioSmoothness/NewVideo';
@@ -1150,6 +1151,7 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="AnimatedImage">
 				<AnimatedImages />
+				<AnimatedImageEffects />
 			</Folder>
 			<Folder name="still-tests">
 				<Still

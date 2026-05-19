@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync } from "fs";
 import { IncomingMessage, ServerResponse } from "http";
 import path from "path";
+import { registerComposition } from "./register-composition";
 
 export const createProject = async (
   req: IncomingMessage,
@@ -46,11 +47,28 @@ export const createProject = async (
 
   try {
     mkdirSync(finalPath);
+
+    let registrationMessage = "";
+    try {
+      const result = await registerComposition({ rootDir, projectName });
+      if (result.registered) {
+        registrationMessage =
+          " Composition registered in remotion/Root.tsx.";
+      } else if (
+        result.reason &&
+        result.reason !== "Composition already exists"
+      ) {
+        registrationMessage = ` Folder created but composition was not registered: ${result.reason}. Edit remotion/Root.tsx manually to add it.`;
+      }
+    } catch (err) {
+      registrationMessage = ` Folder created but composition registration threw: ${(err as Error).message}.`;
+    }
+
     res.statusCode = 201;
     res.write(
       JSON.stringify({
         success: true,
-        message: `Project "${projectName}" created successfully.`,
+        message: `Project "${projectName}" created successfully.${registrationMessage}`,
       }),
     );
     return res.end();

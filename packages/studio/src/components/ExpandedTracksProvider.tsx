@@ -1,6 +1,8 @@
 import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
 import React, {createContext, useCallback, useMemo, useState} from 'react';
+import type {SequencePropsSubscriptionKey} from 'remotion';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {migrateExpandedTracksForSubscriptionKey} from '../helpers/migrate-expanded-tracks-for-subscription-key';
 import {
 	loadPersistedBooleanMap,
 	persistBooleanMap,
@@ -28,6 +30,10 @@ type ExpandedTracksGetterContextValue = {
 
 type ExpandedTracksSetterContextValue = {
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
+	readonly migrateExpandedTracksForSubscriptionKey: (
+		oldKey: SequencePropsSubscriptionKey,
+		newKey: SequencePropsSubscriptionKey,
+	) => void;
 };
 
 export const ExpandedTracksGetterContext =
@@ -40,6 +46,9 @@ export const ExpandedTracksGetterContext =
 export const ExpandedTracksSetterContext =
 	createContext<ExpandedTracksSetterContextValue>({
 		toggleTrack: () => {
+			throw new Error('ExpandedTracksSetterContext not initialized');
+		},
+		migrateExpandedTracksForSubscriptionKey: () => {
 			throw new Error('ExpandedTracksSetterContext not initialized');
 		},
 	});
@@ -59,6 +68,28 @@ export const ExpandedTracksProvider: React.FC<{
 		});
 	}, []);
 
+	const migrateExpandedTracks = useCallback(
+		(
+			oldKey: SequencePropsSubscriptionKey,
+			newKey: SequencePropsSubscriptionKey,
+		) => {
+			setExpandedTracks((prev) => {
+				const next = migrateExpandedTracksForSubscriptionKey(
+					prev,
+					oldKey,
+					newKey,
+				);
+				if (!next) {
+					return prev;
+				}
+
+				persistBooleanMap(SESSION_STORAGE_KEY, next);
+				return next;
+			});
+		},
+		[],
+	);
+
 	const getterValue = useMemo(
 		(): ExpandedTracksGetterContextValue => ({
 			getIsExpanded: (nodePathInfo) =>
@@ -68,8 +99,11 @@ export const ExpandedTracksProvider: React.FC<{
 	);
 
 	const setterValue = useMemo(
-		(): ExpandedTracksSetterContextValue => ({toggleTrack}),
-		[toggleTrack],
+		(): ExpandedTracksSetterContextValue => ({
+			toggleTrack,
+			migrateExpandedTracksForSubscriptionKey: migrateExpandedTracks,
+		}),
+		[toggleTrack, migrateExpandedTracks],
 	);
 
 	return (

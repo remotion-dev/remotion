@@ -1,3 +1,4 @@
+import {useCallback} from 'react';
 import type {AudioHTMLAttributes} from 'react';
 import React, {
 	forwardRef,
@@ -170,6 +171,10 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		postmounting: Boolean(sequenceContext?.postmounting),
 	});
 
+	const getStack = useCallback(() => {
+		return _remotionInternalStack ?? null;
+	}, [_remotionInternalStack]);
+
 	useMediaInTimeline({
 		volume,
 		mediaVolume,
@@ -178,7 +183,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		playbackRate: playbackRate ?? 1,
 		displayName: name ?? null,
 		id: timelineId,
-		stack: _remotionInternalStack,
+		getStack,
 		showInTimeline,
 		premountDisplay: sequenceContext?.premountDisplay ?? null,
 		postmountDisplay: sequenceContext?.postmountDisplay ?? null,

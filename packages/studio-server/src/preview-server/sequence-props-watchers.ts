@@ -7,6 +7,7 @@ import {
 } from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
+import {JsxElementNotFoundAtLocationError} from './jsx-element-not-found-at-location-error';
 import {waitForLiveEventsListener} from './live-events';
 import {getCachedNodePath, setCachedNodePath} from './node-path-cache';
 import {
@@ -164,6 +165,18 @@ export const subscribeToSequencePropsWatchers = ({
 					});
 				});
 			} catch (error) {
+				if (error instanceof JsxElementNotFoundAtLocationError) {
+					waitForLiveEventsListener().then((listener) => {
+						listener.sendEventToClientId(clientId, {
+							type: 'lost-node-path',
+							fileName,
+							line,
+							column,
+						});
+					});
+					return;
+				}
+
 				RenderInternals.Log.error({indent: false, logLevel}, error);
 			}
 		},

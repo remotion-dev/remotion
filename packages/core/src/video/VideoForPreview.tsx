@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useRef,
 	useState,
+	useCallback,
 } from 'react';
 import type {IsExact} from '../audio/props.js';
 import {SharedAudioContext} from '../audio/shared-audio-tags.js';
@@ -155,6 +156,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	warnAboutTooHighVolume(userPreferredVolume);
 
+	const getStack = useCallback(() => {
+		return _remotionInternalStack ?? null;
+	}, [_remotionInternalStack]);
+
 	useMediaInTimeline({
 		volume,
 		mediaVolume,
@@ -163,7 +168,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate: props.playbackRate ?? 1,
 		displayName: name ?? null,
 		id: timelineId,
-		stack: _remotionInternalStack,
+		getStack,
 		showInTimeline,
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,

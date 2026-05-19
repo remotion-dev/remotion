@@ -26,9 +26,7 @@ import {
 import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineStack} from './TimelineStack';
-import {useResolvedStack} from './use-resolved-stack';
-
-export const INDENT = 10;
+import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 
 export const TimelineListItem: React.FC<{
 	readonly sequence: TSequence;
@@ -44,7 +42,7 @@ export const TimelineListItem: React.FC<{
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 
-	const originalLocation = useResolvedStack(sequence.stack ?? null);
+	const originalLocation = useResolveStackAndReactToChange(sequence.getStack);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -283,6 +281,7 @@ export const TimelineListItem: React.FC<{
 		Boolean(sequence.controls) || sequence.effects.length > 0;
 
 	const canToggleVisibility =
+		previewConnected &&
 		Boolean(sequence.controls) &&
 		nodePath !== null &&
 		validatedLocation !== null &&

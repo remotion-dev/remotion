@@ -23,7 +23,7 @@
     "react-dom": "19.2.3",
     "remotion": "workspace:*",
     "scheduler": "0.27.0",
-    "ws": "8.17.1"
+    "ws": "8.20.1"
   },
   "optionalDependencies": {
     "@remotion/compositor-darwin-arm64": "workspace:*",
