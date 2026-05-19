@@ -134,7 +134,10 @@ export const TimelineColorField: React.FC<{
 				? field.fieldSchema.default
 				: '';
 
-	const hexValue = useMemo(() => toHex(currentValue), [currentValue]);
+	const hexValue = useMemo(
+		() => toHex(currentValue ?? '#000000'),
+		[currentValue],
+	);
 
 	const onColorChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
