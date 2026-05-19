@@ -8,8 +8,7 @@ const webGlContextErrorMessage = (
 	effectName: string,
 ): string =>
 	`Failed to acquire ${versionLabel} context for ${effectName}. ` +
-	'Headless Chromium often cannot create a WebGL context without the ANGLE renderer. ' +
-	'Pass --gl=angle when using the CLI, set chromiumOptions: { gl: "angle" } when using server-side rendering APIs, ' +
+	'Pass --gl=angle when using the CLI, set chromiumOptions: { gl: "angle" } when using SSR APIs, ' +
 	'or set "OpenGL render backend" to "angle" in the Advanced section when rendering in the Studio. ' +
 	`See ${WEBGL_CONTEXT_DOCS_URL}`;
 
