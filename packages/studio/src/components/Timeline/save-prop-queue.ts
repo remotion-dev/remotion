@@ -15,7 +15,6 @@ type SetCodeValues = (
 type QueueState = {
 	chain: Promise<unknown>;
 	cancelled: boolean;
-	committed: CanUpdateSequencePropsResponse | null;
 };
 
 const queues = new Map<string, QueueState>();
@@ -24,7 +23,7 @@ const getQueue = (nodePath: SequencePropsSubscriptionKey): QueueState => {
 	const key = Internals.makeSequencePropsSubscriptionKey(nodePath);
 	let q = queues.get(key);
 	if (!q) {
-		q = {chain: Promise.resolve(), cancelled: false, committed: null};
+		q = {chain: Promise.resolve(), cancelled: false};
 		queues.set(key, q);
 	}
 
@@ -48,10 +47,6 @@ export type EnqueueSaveOptions<TResponse> = {
 		prev: CanUpdateSequencePropsResponse,
 	) => CanUpdateSequencePropsResponse;
 	apiCall: () => Promise<TResponse>;
-	mergeServerResponse: (
-		prev: CanUpdateSequencePropsResponse,
-		response: TResponse,
-	) => CanUpdateSequencePropsResponse;
 	errorLabel: string;
 };
 
@@ -60,7 +55,6 @@ export const enqueueSavePropChange = <TResponse>({
 	setCodeValues,
 	applyOptimistic,
 	apiCall,
-	mergeServerResponse,
 	errorLabel,
 }: EnqueueSaveOptions<TResponse>): Promise<void> => {
 	const q = getQueue(nodePath);
@@ -70,10 +64,6 @@ export const enqueueSavePropChange = <TResponse>({
 	}
 
 	setCodeValues(nodePath, (prev) => {
-		if (q.committed === null) {
-			q.committed = prev;
-		}
-
 		return applyOptimistic(prev);
 	});
 
@@ -84,16 +74,10 @@ export const enqueueSavePropChange = <TResponse>({
 		}
 
 		try {
-			const response = await apiCall();
+			await apiCall();
 			if (myQueue.cancelled) {
 				return;
 			}
-
-			setCodeValues(nodePath, (prev) => mergeServerResponse(prev, response));
-			myQueue.committed = mergeServerResponse(
-				myQueue.committed as CanUpdateSequencePropsResponse,
-				response,
-			);
 
 			// If nothing more is queued, reset baseline so the next round starts fresh.
 			if (myQueue.chain === next) {
@@ -101,10 +85,6 @@ export const enqueueSavePropChange = <TResponse>({
 			}
 		} catch (err) {
 			myQueue.cancelled = true;
-			const {committed} = myQueue;
-			if (committed !== null) {
-				setCodeValues(nodePath, () => committed);
-			}
 
 			dropQueue(nodePath, myQueue);
 			showNotification(

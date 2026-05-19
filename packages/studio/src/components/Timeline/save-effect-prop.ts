@@ -44,20 +44,6 @@ export const saveEffectProp = ({
 				defaultValue,
 				schema,
 			}),
-		mergeServerResponse: (prev, data) => {
-			if (!prev.canUpdate) {
-				return prev;
-			}
-
-			const idx = prev.effects.findIndex((e) => e.effectIndex === effectIndex);
-			if (idx === -1) {
-				return {...prev, effects: [...prev.effects, data]};
-			}
-
-			const nextEffects = [...prev.effects];
-			nextEffects[idx] = data;
-			return {...prev, effects: nextEffects};
-		},
 		errorLabel: 'Could not save effect prop',
 	});
 };

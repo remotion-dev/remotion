@@ -50,17 +50,6 @@ export const saveSequenceProp = ({
 				defaultValue,
 				schema,
 			}),
-		mergeServerResponse: (prev, data) => {
-			if (!data.canUpdate) {
-				return data;
-			}
-
-			return {
-				canUpdate: true,
-				props: data.props,
-				effects: prev.canUpdate ? prev.effects : [],
-			};
-		},
 		errorLabel: 'Could not save sequence prop',
 	});
 };
