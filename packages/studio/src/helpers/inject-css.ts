@@ -84,7 +84,7 @@ const makeDefaultGlobalCSS = () => {
   
   input:focus,
   textarea:focus,
-  button:focus:not(.__remotion_input_dragger),
+  button:focus:not(.__remotion_input_dragger):not(.__remotion_color_swatch),
   a:focus {
     outline: none;
     box-shadow:
@@ -92,6 +92,10 @@ const makeDefaultGlobalCSS = () => {
       inset -1px -1px #555,
       inset 1px -1px #555,
       inset -1px 1px #555;
+  }
+
+  .__remotion_color_swatch:focus {
+    outline: none;
   }
   
   .__remotion_thumb,

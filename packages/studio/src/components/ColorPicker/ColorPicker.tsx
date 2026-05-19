@@ -1,6 +1,12 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
+import {
+	FAIL_COLOR,
+	INPUT_BORDER_COLOR_HOVERED,
+	INPUT_BORDER_COLOR_UNHOVERED,
+	WARNING_COLOR,
+} from '../../helpers/colors';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
 import {getPortal} from '../Menu/portals';
@@ -11,7 +17,6 @@ import {
 	outerPortal,
 } from '../Menu/styles';
 import type {RemInputStatus} from '../NewComposition/RemInput';
-import {getInputBorderColor} from '../NewComposition/RemInput';
 import {
 	CHECKER_BACKGROUND_COLOR,
 	CHECKER_BACKGROUND_IMAGE,
@@ -19,6 +24,35 @@ import {
 	CHECKER_BACKGROUND_SIZE,
 } from './checker';
 import {ColorPickerPopup, POPUP_WIDTH} from './ColorPickerPopup';
+
+// Class name used to opt the swatch button out of the global
+// `button:focus` inset box-shadow defined in inject-css.ts. On a small
+// swatch those four corner-shadows read as a dashed line, so we let the
+// border color change (matching the previous span-based swatch) signal
+// hover and focus instead.
+const SWATCH_CLASSNAME = '__remotion_color_swatch';
+
+const getSwatchBorderColor = ({
+	status,
+	isFocused,
+	isHovered,
+}: {
+	status: RemInputStatus;
+	isFocused: boolean;
+	isHovered: boolean;
+}) => {
+	if (status === 'warning') {
+		return WARNING_COLOR;
+	}
+
+	if (status === 'error') {
+		return FAIL_COLOR;
+	}
+
+	return isFocused || isHovered
+		? INPUT_BORDER_COLOR_HOVERED
+		: INPUT_BORDER_COLOR_UNHOVERED;
+};
 
 const swatchBaseStyle: React.CSSProperties = {
 	position: 'relative',
@@ -100,7 +134,7 @@ export const ColorPicker: React.FC<Props> = ({
 			width,
 			height,
 			borderRadius,
-			borderColor: getInputBorderColor({status, isFocused, isHovered}),
+			borderColor: getSwatchBorderColor({status, isFocused, isHovered}),
 			cursor: disabled ? 'not-allowed' : 'pointer',
 			opacity: disabled ? 0.5 : 1,
 			...(customStyle ?? {}),
@@ -220,11 +254,9 @@ export const ColorPicker: React.FC<Props> = ({
 			<button
 				ref={triggerRef}
 				type="button"
-				className={
-					className
-						? `${MENU_INITIATOR_CLASSNAME} ${className}`
-						: MENU_INITIATOR_CLASSNAME
-				}
+				className={[MENU_INITIATOR_CLASSNAME, SWATCH_CLASSNAME, className]
+					.filter(Boolean)
+					.join(' ')}
 				disabled={disabled}
 				name={name}
 				title={title ?? value}
