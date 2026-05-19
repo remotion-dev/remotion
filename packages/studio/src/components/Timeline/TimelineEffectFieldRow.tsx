@@ -194,6 +194,10 @@ const Value: React.FC<{
 	}
 
 	if (propStatus === null || !propStatus.canUpdate) {
+		if (propStatus?.reason === 'computed') {
+			return <UnsupportedStatus label="computed" />;
+		}
+
 		return null;
 	}
 
