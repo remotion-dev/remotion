@@ -19,6 +19,7 @@ const makeDef = (
 	apply: () => undefined,
 	cleanup: () => undefined,
 	schema: {},
+	validateParams: () => {},
 });
 
 const makeDesc = (

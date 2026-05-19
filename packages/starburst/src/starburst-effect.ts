@@ -1,4 +1,4 @@
-import type {EffectDescriptor, SequenceSchema} from 'remotion';
+import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import {hexToRgb} from './hex-to-rgb';
 
@@ -10,7 +10,7 @@ export const starburstEffectSchema = {
 		min: 2,
 		max: 100,
 		step: 1,
-		default: 12,
+		default: undefined,
 		description: 'Number of Rays',
 	},
 	rotation: {
@@ -86,6 +86,12 @@ const resolve = (p: StarburstEffectParams): StarburstResolved => ({
 });
 
 const validateStarburstEffectParams = (params: StarburstEffectParams): void => {
+	if (params === null || typeof params !== 'object') {
+		throw new TypeError(
+			`Starburst effect requires a parameters object, but got ${JSON.stringify(params)}`,
+		);
+	}
+
 	const {rays, colors} = params;
 
 	if (typeof rays !== 'number' || !Number.isFinite(rays)) {
@@ -291,7 +297,7 @@ const linkProgram = (
 	return program;
 };
 
-const starburstImpl = createEffect<StarburstEffectParams, StarburstGlState>({
+export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 	type: 'remotion/starburst',
 	label: 'Starburst',
 	backend: 'webgl2',
@@ -489,14 +495,5 @@ const starburstImpl = createEffect<StarburstEffectParams, StarburstGlState>({
 		gl.deleteTexture(paletteTexture);
 	},
 	schema: starburstEffectSchema,
+	validateParams: validateStarburstEffectParams,
 });
-
-// WebGL2 effect: composites the same radial color rays as `<Starburst>` over the
-// incoming canvas using premultiplied alpha-over. Experimental; use via
-// `StarburstInternals.starburst(...)`.
-export const starburst = (
-	params: StarburstEffectParams,
-): EffectDescriptor<unknown> => {
-	validateStarburstEffectParams(params);
-	return starburstImpl(params);
-};

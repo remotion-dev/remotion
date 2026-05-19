@@ -432,4 +432,5 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		gl.deleteTexture(texture);
 	},
 	schema: halftoneSchema,
+	validateParams: () => {},
 });
