@@ -73,8 +73,13 @@ const Comp: React.FC = () => {
 					fit="contain"
 					style={{borderRadius: 16}}
 					_experimentalEffects={[
-						blur({radius: blurRadius}),
-						tint({color: '#ff5fa2', amount: 0.35}),
+						blur({
+							radius: blurRadius,
+						}),
+						tint({
+							color: '#41f500',
+							amount: 0.35,
+						}),
 					]}
 				/>
 				<div style={labelStyle}>blur + tint</div>
