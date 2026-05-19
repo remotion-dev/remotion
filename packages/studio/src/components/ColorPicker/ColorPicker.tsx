@@ -26,10 +26,7 @@ import {
 import {ColorPickerPopup, POPUP_WIDTH} from './ColorPickerPopup';
 
 // Class name used to opt the swatch button out of the global
-// `button:focus` inset box-shadow defined in inject-css.ts. On a small
-// swatch those four corner-shadows read as a dashed line, so we let the
-// border color change (matching the previous span-based swatch) signal
-// hover and focus instead.
+// `button:focus` inset box-shadow defined in inject-css.ts.
 const SWATCH_CLASSNAME = '__remotion_color_swatch';
 
 const getSwatchBorderColor = ({
@@ -65,8 +62,6 @@ const swatchBaseStyle: React.CSSProperties = {
 	backgroundImage: CHECKER_BACKGROUND_IMAGE,
 	backgroundSize: CHECKER_BACKGROUND_SIZE,
 	backgroundPosition: CHECKER_BACKGROUND_POSITION,
-	borderStyle: 'solid',
-	borderWidth: 1,
 	boxSizing: 'border-box',
 };
 
