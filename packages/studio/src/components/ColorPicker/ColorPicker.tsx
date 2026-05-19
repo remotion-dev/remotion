@@ -249,7 +249,6 @@ export const ColorPicker: React.FC<Props> = ({
 											value={value}
 											onChange={onChange}
 											onChangeComplete={onChangeComplete}
-											tabIndex={tabIndex}
 										/>
 									</div>
 								</HigherZIndex>

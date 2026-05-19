@@ -8,6 +8,7 @@ import {
 } from '../../helpers/color-conversion';
 import {INPUT_BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
 import {EyedropperIcon} from '../../icons/eyedropper';
+import {useZIndex} from '../../state/z-index';
 import {AlphaSlider} from './AlphaSlider';
 import {
 	CHECKER_BACKGROUND_COLOR,
@@ -120,24 +121,27 @@ const eyedropperButtonStyle: React.CSSProperties = {
 const hasEyeDropper = (): boolean =>
 	typeof window !== 'undefined' && 'EyeDropper' in window;
 
+export type ChannelKey = 'r' | 'g' | 'b' | 'a-percent';
+
 type ChannelInputProps = {
 	readonly label: string;
+	readonly channel: ChannelKey;
 	readonly value: number;
 	readonly min: number;
 	readonly max: number;
-	readonly tabIndex: number;
-	readonly onCommit: (next: number) => void;
+	readonly onCommit: (channel: ChannelKey, next: number) => void;
 };
 
 const ChannelInput: React.FC<ChannelInputProps> = ({
 	label,
+	channel,
 	value,
 	min,
 	max,
-	tabIndex,
 	onCommit,
 }) => {
 	const [draft, setDraft] = useState<string>(String(Math.round(value)));
+	const {tabIndex} = useZIndex();
 
 	useEffect(() => {
 		setDraft(String(Math.round(value)));
@@ -156,8 +160,8 @@ const ChannelInput: React.FC<ChannelInputProps> = ({
 
 		const clamped = Math.max(min, Math.min(max, parsed));
 		setDraft(String(Math.round(clamped)));
-		onCommit(clamped);
-	}, [draft, max, min, onCommit, value]);
+		onCommit(channel, clamped);
+	}, [channel, draft, max, min, onCommit, value]);
 
 	const onKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter') {
@@ -185,9 +189,9 @@ const ChannelInput: React.FC<ChannelInputProps> = ({
 const HexInput: React.FC<{
 	readonly value: string;
 	readonly onCommit: (next: string) => void;
-	readonly tabIndex: number;
-}> = ({value, onCommit, tabIndex}) => {
+}> = ({value, onCommit}) => {
 	const [draft, setDraft] = useState(value);
+	const {tabIndex} = useZIndex();
 
 	useEffect(() => {
 		setDraft(value);
@@ -241,8 +245,11 @@ export const ColorPickerPopup: React.FC<{
 	readonly value: string;
 	readonly onChange: (next: string) => void;
 	readonly onChangeComplete: (next: string) => void;
-	readonly tabIndex: number;
-}> = ({value, onChange, onChangeComplete, tabIndex}) => {
+}> = ({value, onChange, onChangeComplete}) => {
+	// useZIndex is intentionally read inside the popup (which is wrapped by
+	// HigherZIndex) so child inputs receive the popup's tabIndex rather than
+	// the trigger's, which would resolve to -1 once the popup is open.
+	const {tabIndex} = useZIndex();
 	// HSV is the source of truth while the picker is open. We seed it from
 	// the incoming value but keep our own state so that hue and saturation
 	// don't snap back to 0 when the user drags into pure black/white.
@@ -323,7 +330,13 @@ export const ColorPickerPopup: React.FC<{
 	);
 
 	const onChannelCommit = useCallback(
-		(channel: 'r' | 'g' | 'b' | 'a', next: number) => {
+		(channel: ChannelKey, next: number) => {
+			if (channel === 'a-percent') {
+				const clamped = Math.max(0, Math.min(100, next));
+				emit({...hsva, a: clamped / 100}, 'complete');
+				return;
+			}
+
 			const updatedRgba = {...rgba, [channel]: next};
 			const newHsva = rgbaToHsva(updatedRgba);
 			// Preserve hue when transitioning through achromatic colors.
@@ -333,7 +346,7 @@ export const ColorPickerPopup: React.FC<{
 
 			emit(newHsva, 'complete');
 		},
-		[emit, hsva.h, rgba],
+		[emit, hsva, rgba],
 	);
 
 	const onHexCommit = useCallback(
@@ -433,45 +446,38 @@ export const ColorPickerPopup: React.FC<{
 				</div>
 			</div>
 			<div style={inputsRowStyle}>
-				<HexInput
-					value={formatted}
-					onCommit={onHexCommit}
-					tabIndex={tabIndex}
-				/>
+				<HexInput value={formatted} onCommit={onHexCommit} />
 				<ChannelInput
 					label="R"
+					channel="r"
 					value={rgba.r}
 					min={0}
 					max={255}
-					tabIndex={tabIndex}
-					onCommit={(next) => onChannelCommit('r', next)}
+					onCommit={onChannelCommit}
 				/>
 				<ChannelInput
 					label="G"
+					channel="g"
 					value={rgba.g}
 					min={0}
 					max={255}
-					tabIndex={tabIndex}
-					onCommit={(next) => onChannelCommit('g', next)}
+					onCommit={onChannelCommit}
 				/>
 				<ChannelInput
 					label="B"
+					channel="b"
 					value={rgba.b}
 					min={0}
 					max={255}
-					tabIndex={tabIndex}
-					onCommit={(next) => onChannelCommit('b', next)}
+					onCommit={onChannelCommit}
 				/>
 				<ChannelInput
 					label="A%"
+					channel="a-percent"
 					value={Math.round(hsva.a * 100)}
 					min={0}
 					max={100}
-					tabIndex={tabIndex}
-					onCommit={(next) => {
-						const clamped = Math.max(0, Math.min(100, next));
-						emit({...hsva, a: clamped / 100}, 'complete');
-					}}
+					onCommit={onChannelCommit}
 				/>
 			</div>
 		</div>

@@ -33,7 +33,6 @@ export const SaturationValueArea: React.FC<{
 	readonly onChangeComplete: (next: {s: number; v: number}) => void;
 }> = ({hue, saturation, value, onChange, onChangeComplete}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
-	const lastSV = useRef({s: saturation, v: value});
 
 	const baseColor = useMemo(() => {
 		const {r, g, b} = hsvToRgb({h: hue, s: 1, v: 1});
@@ -51,7 +50,6 @@ export const SaturationValueArea: React.FC<{
 			const x = clamp((clientX - rect.left) / rect.width, 0, 1);
 			const y = clamp((clientY - rect.top) / rect.height, 0, 1);
 			const next = {s: x, v: 1 - y};
-			lastSV.current = next;
 			if (isFinal) {
 				onChangeComplete(next);
 			} else {

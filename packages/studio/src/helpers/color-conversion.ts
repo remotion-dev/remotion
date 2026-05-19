@@ -42,17 +42,17 @@ export const parseAnyColor = (input: string): Rgba => {
 	}
 };
 
+export const formatRgbHex = ({r, g, b}: {r: number; g: number; b: number}) => {
+	return `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}`;
+};
+
 export const formatRgba = ({r, g, b, a}: Rgba): string => {
 	if (a >= 255) {
-		return `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}`;
+		return formatRgbHex({r, g, b});
 	}
 
 	const opacity = Number((a / 255).toFixed(2));
 	return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${opacity})`;
-};
-
-export const formatRgbHex = ({r, g, b}: {r: number; g: number; b: number}) => {
-	return `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}`;
 };
 
 export const rgbToHsv = ({
