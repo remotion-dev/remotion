@@ -478,11 +478,15 @@ test('should premount layout="none" sequences', () => {
 			</Internals.RemotionEnvironmentContext>
 		</WrapSequenceContext>,
 	);
-	expect(outerHTML).toContain('visibility:hidden');
+	expect(outerHTML).toContain('display:block');
+	expect(outerHTML).toContain('position:absolute');
+	expect(outerHTML).toContain('opacity:0');
+	expect(outerHTML).toContain('pointer-events:none');
+	expect(outerHTML).toContain('overflow:hidden');
 	expect(outerHTML).toContain('<div>first 0</div>');
 });
 
-test('should not wrap layout="none" sequences outside premounting', () => {
+test('should not add a layout-affecting wrapper outside layout="none" premounting', () => {
 	const outerHTML = renderForFrame(
 		10,
 		<WrapSequenceContext>
@@ -501,7 +505,9 @@ test('should not wrap layout="none" sequences outside premounting', () => {
 			</Internals.RemotionEnvironmentContext>
 		</WrapSequenceContext>,
 	);
-	expect(outerHTML).toBe('<div>first 0</div>');
+	expect(outerHTML).toBe(
+		'<div style="display:contents"><div>first 0</div></div>',
+	);
 });
 
 test('should postmount layout="none" sequences', () => {
@@ -523,6 +529,10 @@ test('should postmount layout="none" sequences', () => {
 			</Internals.RemotionEnvironmentContext>
 		</WrapSequenceContext>,
 	);
-	expect(outerHTML).toContain('visibility:hidden');
+	expect(outerHTML).toContain('display:block');
+	expect(outerHTML).toContain('position:absolute');
+	expect(outerHTML).toContain('opacity:0');
+	expect(outerHTML).toContain('pointer-events:none');
+	expect(outerHTML).toContain('overflow:hidden');
 	expect(outerHTML).toContain('<div>first 4</div>');
 });

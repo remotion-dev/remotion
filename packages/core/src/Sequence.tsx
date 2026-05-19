@@ -382,6 +382,13 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	} = propsWithoutTiming as typeof propsWithoutTiming &
 		Partial<AbsoluteFillLayout>;
 
+	if (props.layout === 'none' && typeof passedStyle !== 'undefined') {
+		throw new TypeError(
+			'If layout="none", you may not pass a style. Passed: ' +
+				JSON.stringify(passedStyle),
+		);
+	}
+
 	const endThreshold = Math.ceil(from + durationInFrames - 1);
 	const premountingActive = frame < from && frame >= from - premountFor;
 	const postmountingActive =
@@ -394,12 +401,33 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 			? from + durationInFrames - 1
 			: 0;
 	const isFreezingActive = premountingActive || postmountingActive;
-	const premountFramesRemaining = premountingActive ? from - frame : 0;
+	const premountFramesRemaining = premountingActive
+		? parentPremountContext.premountFramesRemaining + from - frame
+		: parentPremountContext.premountFramesRemaining;
 	const premountContextValue = useMemo(() => {
 		return {
 			premountFramesRemaining,
 		};
 	}, [premountFramesRemaining]);
+
+	const layoutNoneWrapperStyle: React.CSSProperties = useMemo(() => {
+		if (!isFreezingActive) {
+			return {
+				display: 'contents',
+			};
+		}
+
+		return {
+			display: 'block',
+			position: 'absolute',
+			inset: 0,
+			width: '100%',
+			height: '100%',
+			opacity: 0,
+			pointerEvents: 'none',
+			overflow: 'hidden',
+		};
+	}, [isFreezingActive]);
 
 	const style = useMemo(() => {
 		return {
@@ -449,16 +477,8 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	return (
 		<PremountContext.Provider value={premountContextValue}>
 			<Freeze frame={freezeFrame} active={isFreezingActive}>
-				{props.layout === 'none' && isFreezingActive ? (
-					<div
-						style={{
-							display: 'contents',
-							visibility: 'hidden',
-							pointerEvents: 'none',
-						}}
-					>
-						{sequence}
-					</div>
+				{props.layout === 'none' ? (
+					<div style={layoutNoneWrapperStyle}>{sequence}</div>
 				) : (
 					sequence
 				)}

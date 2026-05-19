@@ -220,11 +220,13 @@ A class name to be applied to the container. If `layout` is set to `none`, there
 
 [Premount](/docs/player/premounting) the sequence for a set number of frames.
 From [v5.0](/docs/5-0-migration), the default value changes from `0` to `fps` (1 second).
+This prop also works with `layout="none"`; during premounting, Remotion uses an internal invisible host that does not affect normal playback layout.
 
 ### `postmountFor?`<AvailableFrom v="4.0.340" />
 
 Same as `premountFor`, but for after the sequence has ended.  
 Use this only if you expect the user to frequently seek backwards in the timeline and you want to avoid flickers for this behavior.
+This prop also works with `layout="none"`.
 
 ### `styleWhilePremounted?`<AvailableFrom v="4.0.252" />
 

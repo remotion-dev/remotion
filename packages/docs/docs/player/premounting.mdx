@@ -60,9 +60,8 @@ In the [Remotion Studio](/docs/studio), a premounted component is indicated with
 <br />
 <br />
 
-A premounted [`<Sequence>`](/docs/sequence) does carry the styles `opacity: 0` and `pointer-events: none`.
-
-It is not possible to premount a [`<Sequence>`](/docs/sequence) with `layout="none"` because such a sequence does not have a container to apply the styles to.
+A premounted [`<Sequence>`](/docs/sequence) with the default layout carries the styles `opacity: 0` and `pointer-events: none`.
+For `layout="none"`, Remotion uses an internal wrapper that does not affect layout during normal playback and becomes an invisible out-of-flow host while premounting or postmounting.
 
 ## With `<Series>` and `<TransitionSeries>`
 
@@ -119,6 +118,9 @@ export const PremountedSequence = forwardRef(PremountedSequenceRefForwardingFunc
 ```
 
 :::note
+The built-in [`<Sequence>`](/docs/sequence) component supports premounting with `layout="none"`.
+This custom implementation does not support it because it applies hidden styles to the sequence container directly.
+
 One caveat of this custom component: In a premounted sequence, the native buffer state can still be triggered.  
 It is your task to disable triggering the native buffer state (e.g set [`pauseWhenBuffering`](/docs/offthreadvideo#pausewhenbuffering) to false) when in a premounted sequence.  
 You can achieve this for example by using a React context.

@@ -54,6 +54,25 @@ export type SchemaKeysRecord<S extends SequenceSchema> = Record<
 	unknown
 >;
 
+export const sequenceTimingSchema = {
+	premountFor: {
+		type: 'number',
+		default: 0,
+		description: 'Premount For',
+		min: 0,
+		step: 1,
+	},
+	postmountFor: {
+		type: 'hidden',
+	},
+	styleWhilePremounted: {
+		type: 'hidden',
+	},
+	styleWhilePostmounted: {
+		type: 'hidden',
+	},
+} as const satisfies SequenceSchema;
+
 export const sequenceStyleSchema = {
 	'style.translate': {
 		type: 'translate',
@@ -83,22 +102,7 @@ export const sequenceStyleSchema = {
 		default: 1,
 		description: 'Opacity',
 	},
-	premountFor: {
-		type: 'number',
-		default: 0,
-		description: 'Premount For',
-		min: 0,
-		step: 1,
-	},
-	postmountFor: {
-		type: 'hidden',
-	},
-	styleWhilePremounted: {
-		type: 'hidden',
-	},
-	styleWhilePostmounted: {
-		type: 'hidden',
-	},
+	...sequenceTimingSchema,
 } as const satisfies SequenceSchema;
 
 export const sequenceSchema = {
@@ -108,7 +112,7 @@ export const sequenceSchema = {
 		description: 'Layout',
 		variants: {
 			'absolute-fill': sequenceStyleSchema,
-			none: {},
+			none: sequenceTimingSchema,
 		},
 	},
 } as const satisfies SequenceSchema;
