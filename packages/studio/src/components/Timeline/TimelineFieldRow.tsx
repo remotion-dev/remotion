@@ -6,6 +6,7 @@ import type {
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -67,11 +68,20 @@ const Value: React.FC<{
 	});
 
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const clientId =
+		previewServerState.type === 'connected'
+			? previewServerState.clientId
+			: null;
 
 	const onSave = useCallback<TimelineFieldOnSave>(
 		(value) => {
 			if (!codeValue || !codeValue.canUpdate) {
 				return Promise.reject(new Error('Cannot save'));
+			}
+
+			if (!clientId) {
+				return Promise.reject(new Error('Not connected to studio server'));
 			}
 
 			const defaultValue =
@@ -100,10 +110,12 @@ const Value: React.FC<{
 				defaultValue,
 				schema,
 				setCodeValues,
+				clientId,
 			});
 		},
 		[
 			codeValue,
+			clientId,
 			field.fieldSchema.default,
 			field.key,
 			nodePath,

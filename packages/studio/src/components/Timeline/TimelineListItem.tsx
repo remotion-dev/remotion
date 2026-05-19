@@ -220,7 +220,8 @@ export const TimelineListItem: React.FC<{
 				!validatedLocation ||
 				!codeValuesForOverride ||
 				!codeHiddenStatus ||
-				!codeHiddenStatus.canUpdate
+				!codeHiddenStatus.canUpdate ||
+				previewServerState.type !== 'connected'
 			) {
 				return;
 			}
@@ -242,12 +243,14 @@ export const TimelineListItem: React.FC<{
 				defaultValue,
 				schema,
 				setCodeValues,
+				clientId: previewServerState.clientId,
 			});
 		},
 		[
 			codeHiddenStatus,
 			codeValuesForOverride,
 			nodePath,
+			previewServerState,
 			sequence.controls,
 			setCodeValues,
 			validatedLocation,

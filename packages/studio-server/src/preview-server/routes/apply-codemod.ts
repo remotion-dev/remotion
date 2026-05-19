@@ -41,7 +41,11 @@ export const applyCodemodHandler: ApiHandler<
 		});
 
 		if (!dryRun) {
-			writeFileAndNotifyFileWatchers(projectInfo.rootFile, formatted);
+			writeFileAndNotifyFileWatchers(
+				projectInfo.rootFile,
+				formatted,
+				undefined,
+			);
 			const end = Date.now() - time;
 			RenderInternals.Log.info(
 				{indent: false, logLevel},

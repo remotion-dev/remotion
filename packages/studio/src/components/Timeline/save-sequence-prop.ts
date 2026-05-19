@@ -22,6 +22,7 @@ export const saveSequenceProp = ({
 	defaultValue,
 	schema,
 	setCodeValues,
+	clientId,
 }: {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -30,6 +31,7 @@ export const saveSequenceProp = ({
 	defaultValue: string | null;
 	schema: SequenceSchema;
 	setCodeValues: SetCodeValues;
+	clientId: string;
 }): Promise<void> => {
 	return enqueueSavePropChange({
 		nodePath,
@@ -49,6 +51,7 @@ export const saveSequenceProp = ({
 				value: JSON.stringify(value),
 				defaultValue,
 				schema,
+				clientId,
 			}),
 		errorLabel: 'Could not save sequence prop',
 	});

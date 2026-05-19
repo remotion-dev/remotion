@@ -79,7 +79,7 @@ export const TimelineEffectGroupRow: React.FC<{
 
 	const onToggle = useCallback(
 		(type: 'enable' | 'disable') => {
-			if (!canToggle) {
+			if (!canToggle || previewServerState.type !== 'connected') {
 				return;
 			}
 
@@ -99,6 +99,7 @@ export const TimelineEffectGroupRow: React.FC<{
 				defaultValue,
 				schema: effectSchema,
 				setCodeValues,
+				clientId: previewServerState.clientId,
 			});
 		},
 		[
@@ -106,6 +107,7 @@ export const TimelineEffectGroupRow: React.FC<{
 			effectIndex,
 			effectSchema,
 			nodePath,
+			previewServerState,
 			setCodeValues,
 			validatedLocation.source,
 		],

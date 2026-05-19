@@ -252,6 +252,7 @@ export type SaveSequencePropsRequest = {
 	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
+	clientId: string;
 };
 
 export type SaveSequencePropsResponse =
@@ -272,6 +273,7 @@ export type SaveEffectPropsRequest = {
 	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
+	clientId: string;
 };
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;

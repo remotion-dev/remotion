@@ -25,7 +25,7 @@ export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse
 > = ({
-	input: {fileName, nodePath, key, value, defaultValue, schema},
+	input: {fileName, nodePath, key, value, defaultValue, schema, clientId},
 	remotionRoot,
 	logLevel,
 }) =>
@@ -101,7 +101,7 @@ export const saveSequencePropsHandler: ApiHandler<
 		});
 		suppressUndoStackInvalidation(absolutePath);
 		suppressBundlerUpdateForFile(absolutePath);
-		writeFileAndNotifyFileWatchers(absolutePath, output);
+		writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
 
 		logUpdate({
 			fileRelativeToRoot,

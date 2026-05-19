@@ -307,7 +307,7 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 		suppressBundlerUpdateForFile(entry.filePath);
 	}
 
-	writeFileAndNotifyFileWatchers(entry.filePath, entry.oldContents);
+	writeFileAndNotifyFileWatchers(entry.filePath, entry.oldContents, undefined);
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: storedLogLevel},
@@ -347,7 +347,7 @@ export function popRedo(): {success: true} | {success: false; reason: string} {
 		suppressBundlerUpdateForFile(entry.filePath);
 	}
 
-	writeFileAndNotifyFileWatchers(entry.filePath, entry.oldContents);
+	writeFileAndNotifyFileWatchers(entry.filePath, entry.oldContents, undefined);
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: storedLogLevel},

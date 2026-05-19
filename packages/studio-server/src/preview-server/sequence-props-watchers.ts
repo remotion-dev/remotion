@@ -133,6 +133,10 @@ export const subscribeToSequencePropsWatchers = ({
 				return;
 			}
 
+			if (event.originatorClientId === clientId) {
+				return;
+			}
+
 			try {
 				const result = computeSequencePropsStatusFromContent({
 					fileContents: event.content,
