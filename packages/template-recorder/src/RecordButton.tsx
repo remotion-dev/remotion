@@ -163,7 +163,7 @@ export const RecordButton: React.FC<{
 
   const disabled =
     mediaSources.webcam.streamState.type !== "loaded" ||
-    mediaSources.webcam.streamState.stream.getAudioTracks().length === 0 ||
+    mediaSources.webcam.streamState.stream.getVideoTracks().length === 0 ||
     processingStatus !== null;
 
   const onPressR = useCallback(() => {
@@ -214,7 +214,7 @@ export const RecordButton: React.FC<{
     <div
       title={
         disabled
-          ? "A webcam and an audio source have to be selected to start the recording"
+          ? "A video source has to be selected on the webcam view to start the recording"
           : undefined
       }
     >
@@ -234,7 +234,7 @@ export const RecordButton: React.FC<{
         <div className="w-2"></div>
         <div>
           {disabled
-            ? "Select audio+video to record"
+            ? "Select video to record"
             : recordingStatus.type === "recording-finished"
               ? "Discard and retake"
               : "Start recording"}
