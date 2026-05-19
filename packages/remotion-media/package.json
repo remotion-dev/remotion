@@ -1,0 +1,40 @@
+{
+	"name": "@remotion/remotion-media",
+	"version": "4.0.463",
+	"private": true,
+	"type": "module",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/remotion-media"
+	},
+	"scripts": {
+		"dev": "bun --hot src/index.tsx",
+		"start": "NODE_ENV=production bun src/index.tsx",
+		"build": "bun generate.ts && bun run build.ts",
+		"generate": "bun generate.ts",
+		"bundle": "bun run build.ts",
+		"clean": "bun clean.ts",
+		"lint": "eslint src && tsc",
+		"formatting": "prettier src --check"
+	},
+	"dependencies": {
+		"@remotion/cli": "workspace:*",
+		"@remotion/media": "workspace:*",
+		"@remotion/paths": "workspace:*",
+		"@remotion/shapes": "workspace:*",
+		"@remotion/studio": "workspace:*",
+		"bun-plugin-tailwind": "0.1.2",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"remotion": "workspace:*",
+		"tailwindcss": "4.2.0"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@types/bun": "catalog:",
+		"@types/react": "catalog:",
+		"@types/react-dom": "catalog:",
+		"@typescript/native-preview": "catalog:",
+		"eslint": "catalog:",
+		"prettier": "catalog:"
+	}
+}
