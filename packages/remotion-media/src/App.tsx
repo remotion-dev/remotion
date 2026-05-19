@@ -98,6 +98,7 @@ const categoryLabelMap: Record<string, string> = {
 	greenscreen: 'Green Screen',
 	'edge-cases': 'Edge Cases',
 	'sound-effects': 'Sound Effects',
+	hls: 'HLS',
 };
 
 const getCategoryLabel = (category: string) =>

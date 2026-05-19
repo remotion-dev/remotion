@@ -1,5 +1,5 @@
-import { $ } from "bun";
+import {$} from 'bun';
 
-$`rm -rf files`;
-$`rm -rf out`;
-$`rm -rf dist`;
+await $`rm -rf files`;
+await $`rm -rf out`;
+await $`rm -rf dist`;

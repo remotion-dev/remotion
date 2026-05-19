@@ -1311,10 +1311,8 @@
       "version": "4.0.463",
       "dependencies": {
         "@remotion/cli": "workspace:*",
-        "@remotion/media": "workspace:*",
         "@remotion/paths": "workspace:*",
         "@remotion/shapes": "workspace:*",
-        "@remotion/studio": "workspace:*",
         "bun-plugin-tailwind": "0.1.2",
         "react": "catalog:",
         "react-dom": "catalog:",

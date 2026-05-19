@@ -18,9 +18,11 @@ Requires `ffmpeg` on your PATH. Renders base compositions from `src/compositions
 bun run generate
 ```
 
+Place `multiple-audio-streams.mov` in the package root before running `generate` if you want that edge-case fixture included in the catalog.
+
 ## Build and deploy
 
-Bundles the catalog UI and uploads to Cloudflare R2 when `AWS_ACCESS_KEY_ID` and `AWS_ACCESS_SECRET_ACCESS_KEY` are set:
+Bundles the catalog UI and uploads to Cloudflare R2 when `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are set:
 
 ```bash
 bun run build
