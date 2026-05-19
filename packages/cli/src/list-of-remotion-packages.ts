@@ -87,6 +87,7 @@ export const listOfRemotionPackages = [
 	'@remotion/example-videos',
 	'@remotion/whisper-web',
 	'@remotion/media',
+	'@remotion/remotion-media',
 	'@remotion/web-renderer',
 	'@remotion/design',
 	'@remotion/light-leaks',
