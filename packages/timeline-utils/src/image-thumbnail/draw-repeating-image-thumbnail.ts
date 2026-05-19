@@ -23,11 +23,9 @@ const createOffscreenCanvas = (width: number, height: number) => {
 export const drawRepeatingImageThumbnail = ({
 	canvas,
 	image,
-	visualizationWidth,
 }: {
 	readonly canvas: HTMLCanvasElement | OffscreenCanvas;
 	readonly image: ImageWithNaturalDimensions;
-	readonly visualizationWidth: number;
 }) => {
 	const ctx = canvas.getContext('2d');
 
@@ -37,7 +35,7 @@ export const drawRepeatingImageThumbnail = ({
 
 	const {width, height} = canvas;
 
-	if (width === 0 || height === 0 || visualizationWidth === 0) {
+	if (width === 0 || height === 0) {
 		return;
 	}
 

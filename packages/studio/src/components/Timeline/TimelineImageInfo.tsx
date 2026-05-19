@@ -44,7 +44,6 @@ export const TimelineImageInfo: React.FC<{
 			drawRepeatingImageThumbnail({
 				canvas,
 				image: img,
-				visualizationWidth,
 			});
 		};
 
