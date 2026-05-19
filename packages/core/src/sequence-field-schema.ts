@@ -33,7 +33,7 @@ export type TranslateFieldSchema = {
 
 export type ColorFieldSchema = {
 	type: 'color';
-	default: string;
+	default: string | undefined;
 	description?: string;
 };
 

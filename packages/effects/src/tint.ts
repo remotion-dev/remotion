@@ -12,7 +12,7 @@ const DEFAULT_AMOUNT = 0.5 as const;
 export const tintSchema = {
 	color: {
 		type: 'color',
-		default: '#ff0000',
+		default: undefined,
 		description: 'Color',
 	},
 	amount: {
