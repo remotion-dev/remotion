@@ -10,7 +10,7 @@ import {
 import {rethrowSandboxError} from './internals/format-sandbox-error';
 
 const resolveBundleDirectory = (bundleDir: string): string => {
-	return path.isAbsolute(bundleDir) ? bundleDir : path.resolve(bundleDir);
+	return path.resolve(bundleDir);
 };
 
 async function getRemotionBundleFiles(
