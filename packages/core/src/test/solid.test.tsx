@@ -69,6 +69,16 @@ test('<Solid> forwards className and style', () => {
 	expect(canvas?.style.opacity).toBe('0.5');
 });
 
+test('<Solid> renders without a color', () => {
+	const {container} = render(
+		<WrapSequenceContext>
+			<Solid width={64} height={64} />
+		</WrapSequenceContext>,
+	);
+
+	expect(container.querySelector('canvas')).not.toBeNull();
+});
+
 test('<Solid> accepts an empty effects array', () => {
 	const {container} = render(
 		<WrapSequenceContext>

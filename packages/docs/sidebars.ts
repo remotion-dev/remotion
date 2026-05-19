@@ -170,6 +170,7 @@ const sidebars: SidebarsConfig = {
 				'sequence',
 				'series',
 				'spring',
+				'solid',
 				'staticfile',
 				'still',
 				'use-buffer-state',

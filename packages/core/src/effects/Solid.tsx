@@ -24,12 +24,12 @@ import {
 } from './use-memoized-effects.js';
 
 type MandatoryProps = {
-	readonly color: string;
 	readonly width: number;
 	readonly height: number;
 };
 
 type OptionalProps = {
+	readonly color: string | undefined;
 	readonly _experimentalEffects: EffectsProp;
 	readonly className: string | undefined;
 	readonly style: React.CSSProperties | undefined;
@@ -44,7 +44,7 @@ export type SolidProps = MandatoryProps & Partial<OptionalProps>;
 const solidSchema = {
 	color: {
 		type: 'color',
-		default: '#ffffff',
+		default: undefined,
 		description: 'Color',
 	},
 	width: {
@@ -139,8 +139,11 @@ const SolidInner: React.FC<
 			return;
 		}
 
-		ctx.fillStyle = color;
-		ctx.fillRect(0, 0, 1, 1);
+		ctx.clearRect(0, 0, 1, 1);
+		if (color !== undefined) {
+			ctx.fillStyle = color;
+			ctx.fillRect(0, 0, 1, 1);
+		}
 
 		runEffectChain({
 			state: chainState.get(width, height)!,
