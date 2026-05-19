@@ -91,7 +91,18 @@ export const getVideoStream = async ({
     return getDisplayStream(selectedVideoSource);
   }
   if (selectedVideoSource.type === "display-without-audio") {
-    return getDisplayStream(selectedVideoSource);
+    const displayStream = await getDisplayStream(selectedVideoSource);
+    if (recordAudio && selectedAudioSource) {
+      const audioStream = await window.navigator.mediaDevices.getUserMedia({
+        audio: { deviceId: selectedAudioSource },
+      });
+      return new MediaStream([
+        ...displayStream.getVideoTracks(),
+        ...audioStream.getAudioTracks(),
+      ]);
+    }
+
+    return displayStream;
   }
   if (selectedVideoSource.type === "camera") {
     return getCameraStram({
