@@ -1,4 +1,7 @@
+import {Internals} from 'remotion';
 import {BLUR_FS_HORIZONTAL, BLUR_FS_VERTICAL, BLUR_VS} from './blur-shaders.js';
+
+const {createWebGL2ContextError} = Internals;
 
 // WebGL2 separable Gaussian blur: horizontal pass renders into an intermediate
 // texture (FBO), vertical pass samples that texture and draws to the canvas.
@@ -112,7 +115,7 @@ export const setupBlur = (target: HTMLCanvasElement): BlurState => {
 		preserveDrawingBuffer: true,
 	});
 	if (!gl) {
-		throw new Error('Failed to acquire WebGL2 context for blur effect');
+		throw createWebGL2ContextError('blur effect');
 	}
 
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);

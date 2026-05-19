@@ -1,0 +1,74 @@
+---
+image: /generated/articles-docs-troubleshooting-webgl2-context.png
+title: Failed to acquire WebGL2 context
+sidebar_label: Failed to acquire WebGL2 context
+crumb: 'Troubleshooting'
+---
+
+You may see an error like this when rendering a composition that uses WebGL-based canvas effects (for example blur, halftone, light leaks, or starburst):
+
+```
+Failed to acquire WebGL2 context for blur effect. Headless Chromium often cannot create a WebGL context without the ANGLE renderer. Pass --gl=angle when using the CLI, set chromiumOptions: { gl: "angle" } when using server-side rendering APIs, or set "OpenGL render backend" to "angle" in the Advanced section when rendering in the Studio. See https://remotion.dev/docs/troubleshooting/webgl2-context
+```
+
+This means Chromium could not create a WebGL context for the effect. It often happens in headless environments (CLI renders, Lambda, Docker) where the default OpenGL backend does not expose WebGL.
+
+## Fix: use the ANGLE renderer
+
+Enable the ANGLE OpenGL backend so Chromium can create a WebGL context.
+
+### CLI
+
+Pass [`--gl=angle`](/docs/cli/render#--gl) to your render command:
+
+```bash
+npx remotion render MyComp out/video.mp4 --gl=angle
+```
+
+You can also set it as the default in [`remotion.config.ts`](/docs/config):
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumOpenGlRenderer('angle');
+```
+
+### Server-side rendering APIs
+
+Pass `gl: "angle"` in [`chromiumOptions`](/docs/renderer/render-media#gl):
+
+```tsx twoslash
+import {renderMedia} from '@remotion/renderer';
+
+// ---cut---
+await renderMedia({
+  composition: 'MyComp',
+  serveUrl: bundleLocation,
+  codec: 'h264',
+  outputLocation: 'out/video.mp4',
+  chromiumOptions: {
+    gl: 'angle',
+  },
+});
+```
+
+This applies to [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`renderFrames()`](/docs/renderer/render-frames), [`getCompositions()`](/docs/renderer/get-compositions), and the [Lambda](/docs/lambda/rendermediaonlambda) and [Vercel](/docs/vercel/render-media-on-vercel) equivalents.
+
+### Remotion Studio
+
+When rendering from the Studio UI, open the render modal, expand **Advanced**, and set **OpenGL render backend** to `angle`.
+
+## Machines without a GPU
+
+If you are on a machine without a GPU (for example AWS Lambda), use [`--gl=swangle`](/docs/gl-options) instead. This is the default on Lambda.
+
+## Related
+
+- [OpenGL renderer backends](/docs/gl-options)
+- [`--gl` Chromium flag](/docs/chromium-flags#--gl)
+- [GPU rendering](/docs/gpu)
+- [`<HtmlInCanvas>` rendering guide](/docs/html-in-canvas-guide#rendering)
+
+---
+
+If you believe this error was triggered by a bug in Remotion, please [open an issue](/docs/get-help).
