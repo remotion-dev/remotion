@@ -30,7 +30,6 @@ const Tile: React.FC<{
 				border: '1px solid #1f2937',
 				borderRadius: 12,
 				overflow: 'hidden',
-				backgroundColor: '#000',
 				minWidth: 0,
 				minHeight: 0,
 			}}
@@ -113,19 +112,7 @@ const AnimatedLightLeakSolid: React.FC = () => {
 	const progress = durationInFrames <= 1 ? 0 : frame / (durationInFrames - 1);
 
 	return (
-		<Solid
-			width={400}
-			height={300}
-			color="#ff5fa2"
-			style={tileVideoStyle}
-			_experimentalEffects={[
-				LightLeakInternals.lightLeak({
-					seed: 1,
-					hueShift: 30,
-					progress,
-				}),
-			]}
-		/>
+		<Solid width={400} height={300} style={tileVideoStyle} color={'#db0e0e'} />
 	);
 };
 
@@ -162,7 +149,6 @@ export const EffectsTestbed: React.FC = () => {
 	return (
 		<AbsoluteFill
 			style={{
-				backgroundColor: '#020617',
 				padding: 24,
 				gap: 16,
 				display: 'flex',
@@ -179,56 +165,10 @@ export const EffectsTestbed: React.FC = () => {
 			>
 				@remotion/effects testbed
 			</div>
+
 			<div style={{flex: 1, display: 'flex', flexDirection: 'row', gap: 16}}>
-				<Tile title="tint" subtitle="color: '#ff5fa2', amount: 0.6">
-					<Video
-						src={SAMPLE_VIDEO}
-						style={tileVideoStyle}
-						muted
-						loop
-						objectFit="cover"
-						_experimentalEffects={[tint({color: '#ff5fa2', amount: 0.6})]}
-					/>
-				</Tile>
-				<Tile title="halftone" subtitle="circles, dotSize 12, on luminance">
-					<Video
-						src={SAMPLE_VIDEO}
-						style={tileVideoStyle}
-						muted
-						loop
-						objectFit="cover"
-						_experimentalEffects={[
-							halftone({
-								shape: 'circle',
-								dotSize: 12,
-								dotSpacing: 12,
-								color: '#000',
-							}),
-						]}
-					/>
-				</Tile>
-				<Tile title="wave" subtitle="amplitude 22, evolution from frame">
-					<AnimatedWaveVideo />
-				</Tile>
-			</div>
-			<div style={{flex: 1, display: 'flex', flexDirection: 'row', gap: 16}}>
-				<Tile title="blur" subtitle="separable Gaussian, radius 24">
-					<Video
-						src={SAMPLE_VIDEO}
-						style={tileVideoStyle}
-						muted
-						loop
-						objectFit="cover"
-						_experimentalEffects={[blur({radius: 24})]}
-					/>
-				</Tile>
 				<Tile title="solid" subtitle="light leak, progress from frame">
 					<AnimatedLightLeakSolid />
-				</Tile>
-			</div>
-			<div style={{flex: 1, display: 'flex', flexDirection: 'row', gap: 16}}>
-				<Tile title="starburst" subtitle="starburst + blur + wave">
-					<AnimatedStackVideo />
 				</Tile>
 			</div>
 		</AbsoluteFill>

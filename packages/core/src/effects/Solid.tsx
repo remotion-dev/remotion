@@ -44,7 +44,7 @@ export type SolidProps = MandatoryProps & Partial<OptionalProps>;
 const solidSchema = {
 	color: {
 		type: 'color',
-		default: undefined,
+		default: 'transparent',
 		description: 'Color',
 	},
 	width: {
