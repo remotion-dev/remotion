@@ -132,7 +132,7 @@ export const useImageInTimeline = ({
 	src,
 	displayName,
 	id,
-	stack,
+	getStack,
 	showInTimeline,
 	premountDisplay,
 	postmountDisplay,
@@ -142,7 +142,7 @@ export const useImageInTimeline = ({
 	src: string | undefined;
 	displayName: string | null;
 	id: string;
-	stack: string | null;
+	getStack: () => string | null;
 	showInTimeline: boolean;
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
@@ -195,7 +195,7 @@ export const useImageInTimeline = ({
 			showInTimeline: true,
 			nonce: nonce.get(),
 			loopDisplay,
-			stack,
+			getStack,
 			premountDisplay,
 			postmountDisplay,
 			controls,
@@ -213,7 +213,7 @@ export const useImageInTimeline = ({
 		registerSequence,
 		unregisterSequence,
 		nonce,
-		stack,
+		getStack,
 		showInTimeline,
 		premountDisplay,
 		postmountDisplay,
@@ -233,7 +233,7 @@ export const useMediaInTimeline = ({
 	playbackRate,
 	displayName,
 	id,
-	stack,
+	getStack,
 	showInTimeline,
 	premountDisplay,
 	postmountDisplay,
@@ -246,7 +246,7 @@ export const useMediaInTimeline = ({
 	playbackRate: number;
 	displayName: string | null;
 	id: string;
-	stack: string | null;
+	getStack: () => string | null;
 	showInTimeline: boolean;
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
@@ -304,7 +304,7 @@ export const useMediaInTimeline = ({
 			doesVolumeChange,
 			loopDisplay,
 			playbackRate,
-			stack,
+			getStack,
 			premountDisplay,
 			postmountDisplay,
 			controls: null,
@@ -327,7 +327,7 @@ export const useMediaInTimeline = ({
 		mediaType,
 		startsAt,
 		playbackRate,
-		stack,
+		getStack,
 		showInTimeline,
 		premountDisplay,
 		postmountDisplay,

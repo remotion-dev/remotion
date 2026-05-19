@@ -1,12 +1,12 @@
 import React, {useMemo} from 'react';
-import {INDENT} from './TimelineListItem';
+import {TIMELINE_INDENT} from './timeline-indent';
 
 export const Padder: React.FC<{
 	readonly depth: number;
 }> = ({depth}) => {
 	const style = useMemo(
 		(): React.CSSProperties => ({
-			width: INDENT * depth,
+			width: TIMELINE_INDENT * depth,
 			flexShrink: 0,
 		}),
 		[depth],

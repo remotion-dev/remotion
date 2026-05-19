@@ -29,7 +29,11 @@ import {
 	getCompletedClientRenders,
 	removeCompletedClientRender,
 } from './client-render-queue';
-import {parseAndApplyCodemod} from './codemods/duplicate-composition';
+import {
+	formatOutput,
+	parseAndApplyCodemod,
+} from './codemods/duplicate-composition';
+import {updateDefaultProps} from './codemods/update-default-props';
 import {
 	createFileWatcherRegistry,
 	installFileWatcher,
@@ -70,6 +74,8 @@ export const StudioServerInternals = {
 	AnsiDiff,
 	formatBytes,
 	parseAndApplyCodemod,
+	formatOutput,
+	updateDefaultProps,
 	getInstalledDependencies,
 	getInstalledDependenciesWithVersions,
 	getInstallCommand,

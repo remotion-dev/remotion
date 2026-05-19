@@ -111,7 +111,7 @@ export type TSequence = {
 	showInTimeline: boolean;
 	nonce: NonceHistory;
 	loopDisplay: LoopDisplay | undefined;
-	stack: string | null;
+	getStack: () => string | null;
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
 	controls: SequenceControls | null;
