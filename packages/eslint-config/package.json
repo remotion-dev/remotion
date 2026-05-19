@@ -30,6 +30,7 @@
 		"@typescript-eslint/parser": "6.21.0",
 		"eslint-plugin-react": "7.37.4",
 		"eslint-plugin-react-hooks": "4.6.0",
+		"eslint-plugin-react-refresh": "0.5.2",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"@typescript/native-preview": "catalog:"

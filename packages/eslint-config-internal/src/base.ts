@@ -583,6 +583,7 @@ export const rules = ({react}: {react: boolean}) => {
 					'react/jsx-fragments': react ? 'off' : undefined,
 					'react-hooks/rules-of-hooks': 'error',
 					'react-hooks/exhaustive-deps': 'error',
+					'react-refresh/only-export-components': 'warn',
 				} satisfies Partial<Linter.RulesRecord>)
 			: {}),
 	} satisfies Partial<Linter.RulesRecord>;

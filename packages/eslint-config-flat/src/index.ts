@@ -3,6 +3,7 @@ import remotionPlugin from '@remotion/eslint-plugin';
 import type {Linter} from 'eslint';
 import reactPlugin from 'eslint-plugin-react';
 import hooksPlugin from 'eslint-plugin-react-hooks';
+import {reactRefresh} from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 
 export const makeConfig = ({
@@ -28,6 +29,7 @@ export const makeConfig = ({
 			plugins: {
 				react: reactPlugin,
 				'react-hooks': hooksPlugin,
+				'react-refresh': reactRefresh.plugin,
 			},
 			languageOptions: {
 				...reactPlugin.configs.flat.recommended.languageOptions,
@@ -50,6 +52,7 @@ export const makeConfig = ({
 				'react/jsx-no-useless-fragment': 'off',
 				// This is generally okay because on every frame, there will be a full rerender anyway!
 				'react/no-array-index-key': 'off',
+				'react-refresh/only-export-components': 'warn',
 			},
 			settings: {
 				react: {
