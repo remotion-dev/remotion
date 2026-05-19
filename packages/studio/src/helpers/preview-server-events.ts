@@ -20,6 +20,7 @@ type ConnectionStateListener = (state: PreviewServerConnectionState) => void;
 
 let source: EventSource | null = null;
 let connectionState: PreviewServerConnectionState = {type: 'init'};
+let lastInitEvent: Extract<EventSourceEvent, {type: 'init'}> | null = null;
 const messageListeners = new Set<MessageListener>();
 const connectionStateListeners = new Set<ConnectionStateListener>();
 
@@ -46,6 +47,7 @@ const openEventSource = () => {
 		try {
 			const newEvent = JSON.parse(event.data) as EventSourceEvent;
 			if (newEvent.type === 'init') {
+				lastInitEvent = newEvent;
 				connectionState = {
 					type: 'connected',
 					clientId: newEvent.clientId,
@@ -91,6 +93,10 @@ export const subscribeToPreviewServerEvents = (
 	ensurePreviewServerEventSource();
 	messageListeners.add(listener);
 
+	if (lastInitEvent && connectionState.type === 'connected') {
+		listener(lastInitEvent);
+	}
+
 	return () => {
 		messageListeners.delete(listener);
 	};
@@ -99,6 +105,7 @@ export const subscribeToPreviewServerEvents = (
 export const subscribeToPreviewServerConnectionState = (
 	listener: ConnectionStateListener,
 ): (() => void) => {
+	ensurePreviewServerEventSource();
 	connectionStateListeners.add(listener);
 	listener(connectionState);
 
