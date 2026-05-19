@@ -14,7 +14,7 @@ const makeFoo = () =>
 		setup: () => null,
 		apply: () => undefined,
 		cleanup: () => undefined,
-		schema: null,
+		schema: {},
 	});
 
 test('createEffect factory accepts `disabled` without complaint', () => {
@@ -55,22 +55,22 @@ test('createEffect injects `disabled` into the schema for save-effect-props', ()
 		},
 	});
 	const desc = foo({amount: 1});
-	expect(desc.definition.schema?.disabled).toEqual({
+	expect(desc.definition.schema.disabled).toEqual({
 		type: 'boolean',
 		default: false,
 		description: 'Disabled',
 	});
-	expect(desc.definition.schema?.amount).toEqual({
+	expect(desc.definition.schema.amount).toEqual({
 		type: 'number',
 		default: 0,
 		description: 'Amount',
 	});
 });
 
-test('createEffect injects `disabled` even when the effect declares no schema', () => {
+test('createEffect injects `disabled` even when the effect schema is empty', () => {
 	const foo = makeFoo();
 	const desc = foo({amount: 1});
-	expect(desc.definition.schema?.disabled).toEqual({
+	expect(desc.definition.schema.disabled).toEqual({
 		type: 'boolean',
 		default: false,
 		description: 'Disabled',

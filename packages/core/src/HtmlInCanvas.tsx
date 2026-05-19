@@ -25,7 +25,6 @@ import type {
 	SequenceProps,
 } from './Sequence.js';
 import {Sequence} from './Sequence.js';
-import {useCurrentFrame} from './use-current-frame.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useVideoConfig} from './use-video-config.js';
 import {wrapInSchema} from './wrap-in-schema.js';
@@ -306,8 +305,6 @@ const HtmlInCanvasContent = forwardRef<
 			cancelRender(new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE));
 		}
 
-		const frame = useCurrentFrame();
-
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
 		const divRef = useRef<HTMLDivElement | null>(null);
 
@@ -335,8 +332,6 @@ const HtmlInCanvasContent = forwardRef<
 		// Refs so the paint handler always reads fresh values.
 		const effectsRef = useRef(memoizedEffects);
 		effectsRef.current = memoizedEffects;
-		const frameRef = useRef(frame);
-		frameRef.current = frame;
 		const onPaintRef = useRef(onPaint);
 		onPaintRef.current = onPaint;
 		const onInitRef = useRef(onInit);
@@ -416,7 +411,6 @@ const HtmlInCanvasContent = forwardRef<
 					source: offscreenCanvas,
 					effects: effectsRef.current,
 					output: canvas2dRef.current!,
-					frame: frameRef.current,
 					width,
 					height,
 				});
@@ -538,6 +532,7 @@ const HtmlInCanvasInner = forwardRef<
 			_experimentalControls: controls,
 			style,
 			durationInFrames,
+			name,
 			...sequenceProps
 		},
 		ref,
@@ -550,7 +545,7 @@ const HtmlInCanvasInner = forwardRef<
 		return (
 			<Sequence
 				durationInFrames={resolvedDuration}
-				name="<HtmlInCanvas>"
+				name={name ?? '<HtmlInCanvas>'}
 				_experimentalControls={controls}
 				_experimentalEffects={memoizedEffectDefinitions}
 				layout="none"

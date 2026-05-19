@@ -47,6 +47,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior,
 		pauseWhenBuffering,
 		audioStreamIndex,
+		preservePitch: _preservePitch,
 		...nativeProps
 	} = props;
 

@@ -28,6 +28,7 @@ export const TimelineEffectGroupRow: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly nestedDepth: number;
+	readonly depth: number;
 	readonly style: React.CSSProperties;
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
@@ -39,6 +40,7 @@ export const TimelineEffectGroupRow: React.FC<{
 	nodePath,
 	validatedLocation,
 	nestedDepth,
+	depth,
 	style,
 	getIsExpanded,
 	toggleTrack,
@@ -113,12 +115,16 @@ export const TimelineEffectGroupRow: React.FC<{
 
 	return (
 		<div style={mergedStyle}>
-			<Padder depth={nestedDepth + 1} />
 			{canToggle ? (
-				<TimelineLayerEye type="eye" hidden={isDisabled} onInvoked={onToggle} />
+				<TimelineLayerEye
+					type="effect"
+					hidden={isDisabled}
+					onInvoked={onToggle}
+				/>
 			) : (
 				<TimelineLayerEyeSpacer />
 			)}
+			<Padder depth={nestedDepth + 1 + depth} />
 			<TimelineExpandArrowButton
 				isExpanded={isExpanded}
 				onClick={() => toggleTrack(nodePathInfo)}

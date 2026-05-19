@@ -152,6 +152,7 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 	onVideoFrame,
 	pauseWhenBuffering,
 	playbackRate,
+	preservePitch,
 	showInTimeline,
 	style,
 	toneFrequency,
@@ -191,6 +192,7 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 			onVideoFrame={onVideoFrame}
 			pauseWhenBuffering={pauseWhenBuffering ?? true}
 			playbackRate={playbackRate ?? 1}
+			preservePitch={preservePitch}
 			toneFrequency={toneFrequency ?? 1}
 			showInTimeline={showInTimeline ?? true}
 			src={src}

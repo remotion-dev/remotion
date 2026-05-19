@@ -2748,29 +2748,29 @@ export const googleFonts: Font[] = [
 			'latin-ext',
 			'vietnamese',
 		],
-		version: 'v35',
-		lastModified: '2025-09-08',
+		version: 'v36',
+		lastModified: '2026-05-18',
 		files: {
 			'500':
-				'https://fonts.gstatic.com/s/arimo/v35/P5sfzZCDf9_T_3cV7NCUECyoxNk338xsAhDAVQI4aA.woff2',
+				'https://fonts.gstatic.com/s/arimo/v36/P5sfzZCDf9_T_3cV7NCUECyoxNk338xsAhDAVQI4aA.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/arimo/v35/P5sfzZCDf9_T_3cV7NCUECyoxNk3M8tsAhDAVQI4aA.woff2',
+				'https://fonts.gstatic.com/s/arimo/v36/P5sfzZCDf9_T_3cV7NCUECyoxNk3M8tsAhDAVQI4aA.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/arimo/v35/P5sfzZCDf9_T_3cV7NCUECyoxNk3CstsAhDAVQI4aA.woff2',
+				'https://fonts.gstatic.com/s/arimo/v36/P5sfzZCDf9_T_3cV7NCUECyoxNk3CstsAhDAVQI4aA.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/arimo/v35/P5sfzZCDf9_T_3cV7NCUECyoxNk37cxsAhDAVQI4aA.woff2',
+				'https://fonts.gstatic.com/s/arimo/v36/P5sfzZCDf9_T_3cV7NCUECyoxNk37cxsAhDAVQI4aA.woff2',
 			italic:
-				'https://fonts.gstatic.com/s/arimo/v35/P5sdzZCDf9_T_10c3i9MeUcyat4iJY-ERBrBdwcoaKww.woff2',
+				'https://fonts.gstatic.com/s/arimo/v36/P5sdzZCDf9_T_10c3i9MeUcyat4iJY-ERBrBdwcoaKww.woff2',
 			'500italic':
-				'https://fonts.gstatic.com/s/arimo/v35/P5sdzZCDf9_T_10c3i9MeUcyat4iJY-2RBrBdwcoaKww.woff2',
+				'https://fonts.gstatic.com/s/arimo/v36/P5sdzZCDf9_T_10c3i9MeUcyat4iJY-2RBrBdwcoaKww.woff2',
 			'600italic':
-				'https://fonts.gstatic.com/s/arimo/v35/P5sdzZCDf9_T_10c3i9MeUcyat4iJY9aQxrBdwcoaKww.woff2',
+				'https://fonts.gstatic.com/s/arimo/v36/P5sdzZCDf9_T_10c3i9MeUcyat4iJY9aQxrBdwcoaKww.woff2',
 			'700italic':
-				'https://fonts.gstatic.com/s/arimo/v35/P5sdzZCDf9_T_10c3i9MeUcyat4iJY9jQxrBdwcoaKww.woff2',
+				'https://fonts.gstatic.com/s/arimo/v36/P5sdzZCDf9_T_10c3i9MeUcyat4iJY9jQxrBdwcoaKww.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/arimo/v35/P5sfzZCDf9_T_3cV7NCUECyoxNk37cxcBhrB.woff2',
+		menu: 'https://fonts.gstatic.com/s/arimo/v36/P5sfzZCDf9_T_3cV7NCUECyoxNk37cxcBhrB.woff2',
 	},
 	{
 		family: 'Arizonia',
@@ -8810,21 +8810,21 @@ export const googleFonts: Font[] = [
 			'latin-ext',
 			'vietnamese',
 		],
-		version: 'v29',
-		lastModified: '2025-09-08',
+		version: 'v30',
+		lastModified: '2026-05-18',
 		files: {
 			'700':
-				'https://fonts.gstatic.com/s/cousine/v29/d6lNkaiiRdih4SpP9Z8K6TvG09BlnmQ.woff2',
+				'https://fonts.gstatic.com/s/cousine/v30/d6lNkaiiRdih4SpP9Z8K6TvG09BlnmQ.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/cousine/v29/d6lIkaiiRdih4SpPzSYlzTbtz9k.woff2',
+				'https://fonts.gstatic.com/s/cousine/v30/d6lIkaiiRdih4SpPzSYlzTbtz9k.woff2',
 			italic:
-				'https://fonts.gstatic.com/s/cousine/v29/d6lKkaiiRdih4SpP_SEvzBTo39l8hw.woff2',
+				'https://fonts.gstatic.com/s/cousine/v30/d6lKkaiiRdih4SpP_SEvzBTo39l8hw.woff2',
 			'700italic':
-				'https://fonts.gstatic.com/s/cousine/v29/d6lPkaiiRdih4SpP_SEXdTvM0vJgjmRpOA.woff2',
+				'https://fonts.gstatic.com/s/cousine/v30/d6lPkaiiRdih4SpP_SEXdTvM0vJgjmRpOA.woff2',
 		},
 		category: 'monospace',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/cousine/v29/d6lIkaiiRdih4SpP_SIvzA.woff2',
+		menu: 'https://fonts.gstatic.com/s/cousine/v30/d6lIkaiiRdih4SpP_SIvzA.woff2',
 	},
 	{
 		family: 'Coustard',

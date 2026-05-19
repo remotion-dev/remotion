@@ -1,6 +1,9 @@
 import type {BunRequest} from 'bun';
+import {loadSkillEval} from '../eval';
+import {exportStaticSite, type StaticExportTarget} from '../export-static-site';
 import {renderComparison} from './comparison';
 import {loadComparison} from './comparison-data';
+import {loadSkillEvalData, renderEval} from './eval';
 import {serveRunFile} from './files';
 import {renderHome} from './home';
 import {getJob, getScenario, startComparison, startRun} from './jobs';
@@ -12,6 +15,17 @@ const getRunCount = (request: Request) => {
 	const value = new URL(request.url).searchParams.get('runs');
 
 	return value === null ? undefined : Number(value);
+};
+
+const shareResponse = async (targets: StaticExportTarget[]) => {
+	try {
+		return json(await exportStaticSite({targets}));
+	} catch (error) {
+		return json(
+			{error: error instanceof Error ? error.message : String(error)},
+			{status: 400},
+		);
+	}
 };
 
 export const routes = {
@@ -79,6 +93,17 @@ export const routes = {
 		},
 	},
 
+	'/api/share/eval/:scenarioId/:evalId': {
+		POST: (request: BunRequest<'/api/share/eval/:scenarioId/:evalId'>) =>
+			shareResponse([
+				{
+					evalId: request.params.evalId,
+					scenarioId: request.params.scenarioId,
+					type: 'eval',
+				},
+			]),
+	},
+
 	'/comparisons/:scenarioId/:comparisonId': async (
 		request: BunRequest<'/comparisons/:scenarioId/:comparisonId'>,
 	) => {
@@ -105,6 +130,22 @@ export const routes = {
 		}
 
 		return serveRunFile(relativePath);
+	},
+
+	'/evals/:scenarioId/:evalId': async (
+		request: BunRequest<'/evals/:scenarioId/:evalId'>,
+	) => {
+		const evaluation = await loadSkillEval(
+			request.params.scenarioId,
+			request.params.evalId,
+		);
+		const data = evaluation ? await loadSkillEvalData(evaluation) : null;
+
+		if (!data) {
+			return notFound();
+		}
+
+		return htmlResponse(renderEval(data));
 	},
 
 	'/scenarios/:scenarioId': async (

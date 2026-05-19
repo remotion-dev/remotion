@@ -53,6 +53,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	// https://discord.com/channels/809501355504959528/844143007183667220/1311639632496033813
 	crossOrigin,
 	audioStreamIndex,
+	preservePitch: _preservePitch,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();

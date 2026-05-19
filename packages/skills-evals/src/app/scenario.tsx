@@ -1,10 +1,8 @@
-import {basename, join} from 'node:path';
 import type {SkillEvalScenario} from '../../scenarios';
 import {runCommand} from '../command';
 import {getDefaultComparisonBaseRef} from '../compare';
-import {listFilesRecursively, readJson, sanitizePathPart} from '../files';
-import type {SkillEvalComparison, SkillEvalManifest} from '../manifest';
-import {loadComparisons} from './comparison-data';
+import {getSkillEvalName, listSkillEvals, toEvalUrl} from '../eval';
+import type {SkillEval} from '../manifest';
 import {
 	createJobRuns,
 	formatRunLabel,
@@ -20,8 +18,6 @@ import {
 	Header,
 	page,
 	repoRoot,
-	runsRoot,
-	toComparisonUrl,
 } from './shared';
 
 type SkillDiffState = {
@@ -31,10 +27,11 @@ type SkillDiffState = {
 	title: string;
 };
 
-type ScenarioRunListItem = {
+type ScenarioEvalListItem = {
 	completedAt: string;
 	href: string;
 	metadata: string;
+	title: string;
 };
 
 const getSkillDiffState = async (): Promise<SkillDiffState> => {
@@ -72,67 +69,45 @@ const getSkillDiffState = async (): Promise<SkillDiffState> => {
 	};
 };
 
-const loadPlainRuns = async (
+const evalMetadata = (evaluation: SkillEval) =>
+	evaluation.type === 'run'
+		? `${evaluation.runCount} ${evaluation.runCount === 1 ? 'run' : 'runs'}`
+		: `${evaluation.runCount} ${
+				evaluation.runCount === 1 ? 'comparison run' : 'comparison runs'
+			}`;
+
+const toEvalListItems = async (
 	scenarioId: string,
-): Promise<SkillEvalManifest[]> => {
-	const manifestFiles = (
-		await listFilesRecursively(join(runsRoot, sanitizePathPart(scenarioId)))
-	).filter((file) => file.endsWith('/manifest.json'));
+): Promise<ScenarioEvalListItem[]> => {
+	const evaluations = await listSkillEvals(scenarioId);
 
-	return Promise.all(
-		manifestFiles.map((file) => readJson<SkillEvalManifest>(file)),
-	);
+	return evaluations
+		.map((evaluation) => ({
+			completedAt: evaluation.completedAt,
+			href: toEvalUrl(evaluation),
+			metadata: evalMetadata(evaluation),
+			title: getSkillEvalName(evaluation),
+		}))
+		.sort((a, b) => b.completedAt.localeCompare(a.completedAt));
 };
 
-const toRunListItems = ({
-	comparisons,
-	runs,
-}: {
-	comparisons: SkillEvalComparison[];
-	runs: SkillEvalManifest[];
-}) => {
-	const items: ScenarioRunListItem[] = [
-		...comparisons.map((comparison) => ({
-			completedAt: comparison.completedAt,
-			href: toComparisonUrl(comparison),
-			metadata:
-				comparison.runs && comparison.runs.length > 1
-					? `${comparison.runs.length} comparison runs`
-					: `${comparison.before.hash} -> ${comparison.after.hash}`,
-		})),
-		...runs.map((run) => ({
-			completedAt: run.completedAt,
-			href: `/runs/${encodeURIComponent(run.id)}/${encodeURIComponent(
-				basename(run.runDir),
-			)}`,
-			metadata: run.skillSnapshot.hash,
-		})),
-	];
-
-	return items.sort((a, b) => b.completedAt.localeCompare(a.completedAt));
-};
-
-const ScenarioRuns = ({items}: {items: ScenarioRunListItem[]}) => {
+const ScenarioEvals = ({items}: {items: ScenarioEvalListItem[]}) => {
 	if (items.length === 0) {
-		return <p className="text-sm text-zinc-500">No runs yet.</p>;
+		return <p className="text-sm text-zinc-500">No evals yet.</p>;
 	}
 
 	return (
 		<div className="mt-3 grid">
 			{items.map((item) => (
 				<a
-					className="flex items-center justify-between gap-4 border-t border-zinc-100 py-3 first:border-t-0 first:pt-0 last:pb-0"
+					className="block border-t border-zinc-100 py-3 first:border-t-0 first:pt-0 last:pb-0"
 					href={item.href}
 					key={item.href}
 				>
-					<div>
-						<h3 className="text-sm font-semibold text-zinc-800">
-							{formatDate(item.completedAt)}
-						</h3>
-						<p className="mt-1 text-[0.8125rem] text-zinc-500">
-							{item.metadata}
-						</p>
-					</div>
+					<h3 className="text-sm font-semibold text-zinc-800">{item.title}</h3>
+					<p className="mt-1 text-[0.8125rem] text-zinc-500">
+						{item.metadata} - {formatDate(item.completedAt)}
+					</p>
 				</a>
 			))}
 		</div>
@@ -349,6 +324,11 @@ const poll = async (jobId) => {
 	const job = await response.json();
 	renderJob(job);
 
+	if (job.status === 'completed' && job.evalUrl) {
+		location.href = job.evalUrl;
+		return;
+	}
+
 	if (job.status === 'completed' && job.comparisonUrl) {
 		location.href = job.comparisonUrl;
 		return;
@@ -506,11 +486,7 @@ const ActiveJobPanel = ({
 export const renderScenario = async (scenario: SkillEvalScenario) => {
 	const activeJob = getActiveJob(scenario.id);
 	const skillDiffState = await getSkillDiffState();
-	const comparisons = (await loadComparisons()).filter(
-		(comparison) => comparison.scenarioId === scenario.id,
-	);
-	const runs = await loadPlainRuns(scenario.id);
-	const runItems = toRunListItems({comparisons, runs});
+	const evalItems = await toEvalListItems(scenario.id);
 
 	return page({
 		children: (
@@ -603,8 +579,8 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 						job={activeJob}
 					/>
 					<Card>
-						<h2 className="text-[0.9375rem] font-semibold">Runs</h2>
-						<ScenarioRuns items={runItems} />
+						<h2 className="text-[0.9375rem] font-semibold">Evals</h2>
+						<ScenarioEvals items={evalItems} />
 					</Card>
 				</main>
 				<ScenarioPageScript

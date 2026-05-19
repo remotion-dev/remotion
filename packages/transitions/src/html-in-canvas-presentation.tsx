@@ -5,7 +5,7 @@ import {
 	useDelayRender,
 	type EffectsProp,
 } from 'remotion';
-import {AbsoluteFill, Internals, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Internals} from 'remotion';
 import type {DrawFunction} from './TransitionSeries';
 import type {
 	TransitionPresentation,
@@ -49,10 +49,6 @@ export const HtmlInCanvasPresentation = <
 
 	const passedPropsRef = useRef(passedProps);
 	passedPropsRef.current = passedProps;
-
-	const frame = useCurrentFrame();
-	const frameRef = useRef(frame);
-	frameRef.current = frame;
 
 	const memoizedEffects = Internals.useMemoizedEffects({
 		effects: _experimentalEffects ?? [],
@@ -112,7 +108,6 @@ export const HtmlInCanvasPresentation = <
 				state: chainState.get(width, height)!,
 				source: offscreenCanvas,
 				effects: effectsRef.current ?? [],
-				frame: frameRef.current,
 				width,
 				height,
 				output: canvasRef.current,

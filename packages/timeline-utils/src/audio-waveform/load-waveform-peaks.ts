@@ -1,5 +1,6 @@
 import {ALL_FORMATS, AudioSampleSink, Input, UrlSource} from 'mediabunny';
 import {TARGET_SAMPLE_RATE} from './constants';
+import {getAudioSampleStartFrameAtTimelineZero} from './trim-audio-sample-before-zero';
 import {
 	createWaveformPeakProcessor,
 	emitWaveformProgress,
@@ -90,12 +91,31 @@ export async function loadWaveformPeaks(
 				return new Float32Array(0);
 			}
 
+			const startFrame = getAudioSampleStartFrameAtTimelineZero(sample);
+			if (startFrame === null) {
+				sample.close();
+				continue;
+			}
+
+			const frameCount = sample.numberOfFrames - startFrame;
+			if (frameCount <= 0) {
+				sample.close();
+				continue;
+			}
+
 			const bytesNeeded = sample.allocationSize({
 				format: 'f32',
 				planeIndex: 0,
+				frameOffset: startFrame,
+				frameCount,
 			});
 			const floats = new Float32Array(bytesNeeded / 4);
-			sample.copyTo(floats, {format: 'f32', planeIndex: 0});
+			sample.copyTo(floats, {
+				format: 'f32',
+				planeIndex: 0,
+				frameOffset: startFrame,
+				frameCount,
+			});
 			const channels = Math.max(1, sample.numberOfChannels);
 			sample.close();
 
