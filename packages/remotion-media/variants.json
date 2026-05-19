@@ -1,0 +1,1116 @@
+[
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video.mp4",
+      "video-h264.mp4",
+      "video-aac.mp4",
+      "video-h264-aac.mp4"
+    ],
+    "size": 2005880,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "flac",
+    "container": "mp4",
+    "fileNames": [
+      "video-flac.mp4",
+      "video-h264-flac.mp4"
+    ],
+    "size": 1966571,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "mp3",
+    "container": "mp4",
+    "fileNames": [
+      "video-mp3.mp4",
+      "video-h264-mp3.mp4"
+    ],
+    "size": 2003652,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "pcm",
+    "container": "mp4",
+    "fileNames": [
+      "video-pcm.mp4",
+      "video-h264-pcm.mp4"
+    ],
+    "size": 3760128,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "none",
+    "container": "mp4",
+    "fileNames": [
+      "video-none.mp4",
+      "video-h264-none.mp4"
+    ],
+    "size": 1837459,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-h265.mp4",
+      "video-h265-aac.mp4"
+    ],
+    "size": 1449927,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "flac",
+    "container": "mp4",
+    "fileNames": [
+      "video-h265-flac.mp4"
+    ],
+    "size": 1410618,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "mp3",
+    "container": "mp4",
+    "fileNames": [
+      "video-h265-mp3.mp4"
+    ],
+    "size": 1447699,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "pcm",
+    "container": "mp4",
+    "fileNames": [
+      "video-h265-pcm.mp4"
+    ],
+    "size": 3204175,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "none",
+    "container": "mp4",
+    "fileNames": [
+      "video-h265-none.mp4"
+    ],
+    "size": 1281506,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio.wav",
+      "audio-pcm.wav"
+    ],
+    "size": 1920078,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "mp3",
+    "container": "mp3",
+    "fileNames": [
+      "audio.mp3",
+      "audio-mp3.mp3"
+    ],
+    "size": 160748,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "flac",
+    "container": "flac",
+    "fileNames": [
+      "audio.flac",
+      "audio-flac.flac"
+    ],
+    "size": 135327,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp8",
+    "audioCodec": "opus",
+    "container": "webm",
+    "fileNames": [
+      "video-opus.webm",
+      "video-vp8-opus.webm"
+    ],
+    "size": 1065491,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp8",
+    "audioCodec": "vorbis",
+    "container": "webm",
+    "fileNames": [
+      "video-vorbis.webm",
+      "video-vp8-vorbis.webm"
+    ],
+    "size": 937784,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp8",
+    "audioCodec": "none",
+    "container": "webm",
+    "fileNames": [
+      "video-none.webm",
+      "video-vp8-none.webm"
+    ],
+    "size": 879717,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp9",
+    "audioCodec": "opus",
+    "container": "webm",
+    "fileNames": [
+      "video-vp9-opus.webm"
+    ],
+    "size": 2661566,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp9",
+    "audioCodec": "vorbis",
+    "container": "webm",
+    "fileNames": [
+      "video-vp9-vorbis.webm"
+    ],
+    "size": 2533859,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp9",
+    "audioCodec": "none",
+    "container": "webm",
+    "fileNames": [
+      "video-vp9-none.webm"
+    ],
+    "size": 2475792,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mkv",
+    "fileNames": [
+      "video.mkv",
+      "video-h264.mkv",
+      "video-aac.mkv",
+      "video-h264-aac.mkv"
+    ],
+    "size": 1999677,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "flac",
+    "container": "mkv",
+    "fileNames": [
+      "video-flac.mkv",
+      "video-h264-flac.mkv"
+    ],
+    "size": 1963723,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "mp3",
+    "container": "mkv",
+    "fileNames": [
+      "video-mp3.mkv",
+      "video-h264-mp3.mkv"
+    ],
+    "size": 1999377,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "opus",
+    "container": "mkv",
+    "fileNames": [
+      "video-opus.mkv",
+      "video-h264-opus.mkv"
+    ],
+    "size": 2021519,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "vorbis",
+    "container": "mkv",
+    "fileNames": [
+      "video-vorbis.mkv",
+      "video-h264-vorbis.mkv"
+    ],
+    "size": 1893814,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "none",
+    "container": "mkv",
+    "fileNames": [
+      "video-none.mkv",
+      "video-h264-none.mkv"
+    ],
+    "size": 1835744,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "aac",
+    "container": "mkv",
+    "fileNames": [
+      "video-h265.mkv",
+      "video-h265-aac.mkv"
+    ],
+    "size": 1443360,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "flac",
+    "container": "mkv",
+    "fileNames": [
+      "video-h265-flac.mkv"
+    ],
+    "size": 1407405,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "mp3",
+    "container": "mkv",
+    "fileNames": [
+      "video-h265-mp3.mkv"
+    ],
+    "size": 1443060,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "opus",
+    "container": "mkv",
+    "fileNames": [
+      "video-h265-opus.mkv"
+    ],
+    "size": 1465202,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "vorbis",
+    "container": "mkv",
+    "fileNames": [
+      "video-h265-vorbis.mkv"
+    ],
+    "size": 1337497,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "none",
+    "container": "mkv",
+    "fileNames": [
+      "video-h265-none.mkv"
+    ],
+    "size": 1279427,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp8",
+    "audioCodec": "aac",
+    "container": "mkv",
+    "fileNames": [
+      "video-vp8.mkv",
+      "video-vp8-aac.mkv"
+    ],
+    "size": 1043733,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp8",
+    "audioCodec": "flac",
+    "container": "mkv",
+    "fileNames": [
+      "video-vp8-flac.mkv"
+    ],
+    "size": 1007776,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp8",
+    "audioCodec": "mp3",
+    "container": "mkv",
+    "fileNames": [
+      "video-vp8-mp3.mkv"
+    ],
+    "size": 1043433,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp8",
+    "audioCodec": "opus",
+    "container": "mkv",
+    "fileNames": [
+      "video-vp8-opus.mkv"
+    ],
+    "size": 1065575,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp8",
+    "audioCodec": "vorbis",
+    "container": "mkv",
+    "fileNames": [
+      "video-vp8-vorbis.mkv"
+    ],
+    "size": 937868,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp8",
+    "audioCodec": "none",
+    "container": "mkv",
+    "fileNames": [
+      "video-vp8-none.mkv"
+    ],
+    "size": 879797,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp9",
+    "audioCodec": "aac",
+    "container": "mkv",
+    "fileNames": [
+      "video-vp9.mkv",
+      "video-vp9-aac.mkv"
+    ],
+    "size": 2639808,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp9",
+    "audioCodec": "flac",
+    "container": "mkv",
+    "fileNames": [
+      "video-vp9-flac.mkv"
+    ],
+    "size": 2603851,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp9",
+    "audioCodec": "mp3",
+    "container": "mkv",
+    "fileNames": [
+      "video-vp9-mp3.mkv"
+    ],
+    "size": 2639508,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp9",
+    "audioCodec": "opus",
+    "container": "mkv",
+    "fileNames": [
+      "video-vp9-opus.mkv"
+    ],
+    "size": 2661650,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp9",
+    "audioCodec": "vorbis",
+    "container": "mkv",
+    "fileNames": [
+      "video-vp9-vorbis.mkv"
+    ],
+    "size": 2533943,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "vp9",
+    "audioCodec": "none",
+    "container": "mkv",
+    "fileNames": [
+      "video-vp9-none.mkv"
+    ],
+    "size": 2475872,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "prores",
+    "audioCodec": "aac",
+    "container": "mkv",
+    "fileNames": [
+      "video-prores.mkv",
+      "video-prores-aac.mkv"
+    ],
+    "size": 140913336,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "prores",
+    "audioCodec": "flac",
+    "container": "mkv",
+    "fileNames": [
+      "video-prores-flac.mkv"
+    ],
+    "size": 140877186,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "prores",
+    "audioCodec": "mp3",
+    "container": "mkv",
+    "fileNames": [
+      "video-prores-mp3.mkv"
+    ],
+    "size": 140913036,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "prores",
+    "audioCodec": "opus",
+    "container": "mkv",
+    "fileNames": [
+      "video-prores-opus.mkv"
+    ],
+    "size": 140935179,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "prores",
+    "audioCodec": "vorbis",
+    "container": "mkv",
+    "fileNames": [
+      "video-prores-vorbis.mkv"
+    ],
+    "size": 140807173,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "prores",
+    "audioCodec": "none",
+    "container": "mkv",
+    "fileNames": [
+      "video-prores-none.mkv"
+    ],
+    "size": 140749103,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mov",
+    "fileNames": [
+      "video.mov",
+      "video-h264.mov",
+      "video-aac.mov",
+      "video-h264-aac.mov"
+    ],
+    "size": 2005957,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "pcm",
+    "container": "mov",
+    "fileNames": [
+      "video-pcm.mov",
+      "video-h264-pcm.mov"
+    ],
+    "size": 3760113,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "none",
+    "container": "mov",
+    "fileNames": [
+      "video-none.mov",
+      "video-h264-none.mov"
+    ],
+    "size": 1837432,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "aac",
+    "container": "mov",
+    "fileNames": [
+      "video-h265.mov",
+      "video-h265-aac.mov"
+    ],
+    "size": 1450008,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "pcm",
+    "container": "mov",
+    "fileNames": [
+      "video-h265-pcm.mov"
+    ],
+    "size": 3204164,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h265",
+    "audioCodec": "none",
+    "container": "mov",
+    "fileNames": [
+      "video-h265-none.mov"
+    ],
+    "size": 1281483,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "prores",
+    "audioCodec": "aac",
+    "container": "mov",
+    "fileNames": [
+      "video-prores.mov",
+      "video-prores-aac.mov"
+    ],
+    "size": 140908351,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "prores",
+    "audioCodec": "pcm",
+    "container": "mov",
+    "fileNames": [
+      "video-prores-pcm.mov"
+    ],
+    "size": 142663059,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "prores",
+    "audioCodec": "none",
+    "container": "mov",
+    "fileNames": [
+      "video-prores-none.mov"
+    ],
+    "size": 140740422,
+    "category": "codecs"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-360p.mp4"
+    ],
+    "size": 35728439,
+    "category": "dimensions"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-480p.mp4"
+    ],
+    "size": 35983115,
+    "category": "dimensions"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-720p.mp4"
+    ],
+    "size": 36507967,
+    "category": "dimensions"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-1080p.mp4"
+    ],
+    "size": 37378464,
+    "category": "dimensions"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-1440p.mp4"
+    ],
+    "size": 38300807,
+    "category": "dimensions"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-2160p.mp4"
+    ],
+    "size": 40365974,
+    "category": "dimensions"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-5s.mp4"
+    ],
+    "size": 2061745,
+    "category": "durations"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-10s.mp4"
+    ],
+    "size": 4335431,
+    "category": "durations"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-30s.mp4"
+    ],
+    "size": 12756693,
+    "category": "durations"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-1m.mp4"
+    ],
+    "size": 25266373,
+    "category": "durations"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-5m.mp4"
+    ],
+    "size": 125507936,
+    "category": "durations"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-10m.mp4"
+    ],
+    "size": 249897169,
+    "category": "durations"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-30m.mp4"
+    ],
+    "size": 748909719,
+    "category": "durations"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-24fps.mp4"
+    ],
+    "size": 3700056,
+    "category": "fps"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-25fps.mp4"
+    ],
+    "size": 3795076,
+    "category": "fps"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-29.97fps.mp4"
+    ],
+    "size": 4273776,
+    "category": "fps"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-30fps.mp4"
+    ],
+    "size": 4275384,
+    "category": "fps"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-59.94fps.mp4"
+    ],
+    "size": 5881638,
+    "category": "fps"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-60fps.mp4"
+    ],
+    "size": 5887211,
+    "category": "fps"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-120fps.mp4"
+    ],
+    "size": 9030640,
+    "category": "fps"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "video-240fps.mp4"
+    ],
+    "size": 17780437,
+    "category": "fps"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "dialogue.wav"
+    ],
+    "size": 4787658,
+    "category": "audio"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "pcm",
+    "container": "mov",
+    "fileNames": [
+      "multiple-audio-streams.mov"
+    ],
+    "size": 66906020,
+    "category": "audio"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-8000hz.wav"
+    ],
+    "size": 160078,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-11025hz.wav"
+    ],
+    "size": 220578,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-12000hz.wav"
+    ],
+    "size": 240078,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-16000hz.wav"
+    ],
+    "size": 320078,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-22050hz.wav"
+    ],
+    "size": 441078,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-24000hz.wav"
+    ],
+    "size": 480078,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-32000hz.wav"
+    ],
+    "size": 640078,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-44100hz.wav"
+    ],
+    "size": 882078,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-48000hz.wav"
+    ],
+    "size": 960078,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-88200hz.wav"
+    ],
+    "size": 1764102,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-96000hz.wav"
+    ],
+    "size": 1920102,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-176400hz.wav"
+    ],
+    "size": 3528102,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "audio-192000hz.wav"
+    ],
+    "size": 3840102,
+    "category": "sample-rates"
+  },
+  {
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "container": "mp4",
+    "fileNames": [
+      "greenscreen.mp4"
+    ],
+    "size": 888217,
+    "category": "greenscreen"
+  },
+  {
+    "videoCodec": "vp9",
+    "audioCodec": "opus",
+    "container": "webm",
+    "fileNames": [
+      "first-frame-at-4sec.webm"
+    ],
+    "size": 911894,
+    "category": "edge-cases"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "whoosh.wav"
+    ],
+    "size": 13620,
+    "category": "sound-effects",
+    "attribution": "Woosh by 1bob -- https://freesound.org/s/831936/ -- License: Creative Commons 0"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "whip.wav"
+    ],
+    "size": 66732,
+    "category": "sound-effects",
+    "attribution": "SWSH_Badminton Racquet_Recording_01_JW Audio by JW_Audio -- https://freesound.org/s/838766/ -- License: Creative Commons 0"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "page-turn.wav"
+    ],
+    "size": 35334,
+    "category": "sound-effects",
+    "attribution": "Draw Knife 1 by kenney.nl -- https://kenney.nl -- License: Creative Commons 0"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "switch.wav"
+    ],
+    "size": 58290,
+    "category": "sound-effects",
+    "attribution": "UI Audio - Switch 35 by kenney.nl -- https://kenney.nl -- License: Creative Commons 0"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "mouse-click.wav"
+    ],
+    "size": 70110,
+    "category": "sound-effects",
+    "attribution": "Mouse Click Sound.mp3 by Pixeliota -- https://freesound.org/s/678248/ -- License: Creative Commons 0"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "shutter-modern.wav"
+    ],
+    "size": 43224,
+    "category": "sound-effects",
+    "attribution": "DSLR Shutter fast 006.wav by ristooooo1 -- https://freesound.org/s/539136/ -- License: Creative Commons 0"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "shutter-old.wav"
+    ],
+    "size": 55600,
+    "category": "sound-effects",
+    "attribution": "Werra.wav by hmilleo -- https://freesound.org/s/409093/ -- License: Creative Commons 0"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "bruh.wav"
+    ],
+    "size": 207438,
+    "category": "sound-effects",
+    "attribution": "Bruh Sound Effect -- https://soundeffects.fandom.com/wiki/Bruh_Sound_Effect"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "windows-xp-error.wav"
+    ],
+    "size": 87630,
+    "category": "sound-effects",
+    "attribution": "Windows XP Error -- https://www.myinstants.com/en/instant/windows-xp-error/"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "vine-boom.wav"
+    ],
+    "size": 221516,
+    "category": "sound-effects",
+    "attribution": "Vine Boom Sound -- https://www.myinstants.com/en/instant/vine-boom-sound-70972/"
+  },
+  {
+    "videoCodec": "none",
+    "audioCodec": "pcm",
+    "container": "wav",
+    "fileNames": [
+      "ding.wav"
+    ],
+    "size": 520782,
+    "category": "sound-effects",
+    "attribution": "Ding Sound Effect -- https://www.myinstants.com/en/instant/ding-sound-effect/"
+  }
+]

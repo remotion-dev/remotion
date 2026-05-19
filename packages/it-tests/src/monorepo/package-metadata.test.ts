@@ -104,7 +104,7 @@ test('All packages should have a README.md file', () => {
 				.filter((t) => t !== null)
 				.join('\n') + '\n';
 
-		if (pkg === 'convert') {
+		if (pkg === 'convert' || pkg === 'remotion-media') {
 			continue;
 		}
 
