@@ -5638,6 +5638,15 @@ export const articles = [
 		slug: 'slow-method-to-extract-frame',
 	},
 	{
+		id: 'solid',
+		title: '<Solid>',
+		relativePath: 'docs/solid.mdx',
+		compId: 'articles-docs-solid',
+		crumb: 'API',
+		noAi: false,
+		slug: 'solid',
+	},
+	{
 		id: 'spline',
 		title: 'Import from Spline',
 		relativePath: 'docs/spline.mdx',

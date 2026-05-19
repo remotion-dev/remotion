@@ -1,0 +1,78 @@
+---
+image: /generated/articles-docs-solid.png
+id: solid
+title: <Solid>
+crumb: 'API'
+---
+
+# &lt;Solid&gt;<AvailableFrom v="4.0.464" />
+
+Renders a solid-color rectangle on a [`<canvas>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/canvas) element.
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, Solid} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Solid color="#3344ff" width={1920} height={1080} />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+### `width`
+
+Width of the canvas in pixels. Must be a positive integer.
+
+### `height`
+
+Height of the canvas in pixels. Must be a positive integer.
+
+### `color?`
+
+Fill color of the rectangle.  
+If omitted, it is `transparent`.
+
+### `className?`
+
+A class name to apply to the `<canvas>` element.
+
+### `style?`
+
+Inline styles to apply to the `<canvas>` element.
+
+## Inherited props
+
+`<Solid>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from `<Sequence>`.
+
+## Adding a ref
+
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to a `<Solid>` component.  
+If you use TypeScript, type it with `HTMLCanvasElement`:
+
+```tsx twoslash title="MyComp.tsx"
+import {useRef} from 'react';
+import {Solid} from 'remotion';
+
+const MyComp = () => {
+  const ref = useRef<HTMLCanvasElement>(null);
+  return <Solid ref={ref} color="red" width={100} height={100} />;
+};
+```
+
+## What is this component for?
+
+This is mainly a component for adding effects to.  
+Effects are an upcoming feature of Remotion - if you are here, you are early!
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers/>
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/effects/Solid.tsx)
+- [`<AbsoluteFill>`](/docs/absolute-fill)

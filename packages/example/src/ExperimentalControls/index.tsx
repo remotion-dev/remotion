@@ -6,13 +6,13 @@ import React from 'react';
 import {
 	AbsoluteFill,
 	AnimatedImage,
-	Experimental,
 	Html5Audio,
 	Html5Video,
 	HtmlInCanvas,
 	Img,
 	Sequence,
 	Series,
+	Solid,
 	staticFile,
 } from 'remotion';
 
@@ -229,7 +229,7 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 					</Series>
 				</Tile>
 				<Tile title="Solid">
-					<Experimental.Solid color="red" width={100} height={100} />
+					<Solid color="red" width={100} height={100} />
 				</Tile>
 			</div>
 		</AbsoluteFill>

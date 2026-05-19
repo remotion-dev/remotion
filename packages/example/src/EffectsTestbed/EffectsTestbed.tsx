@@ -8,7 +8,7 @@ import {StarburstInternals} from '@remotion/starburst';
 import React from 'react';
 import {
 	AbsoluteFill,
-	Experimental,
+	Solid,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
@@ -113,7 +113,7 @@ const AnimatedLightLeakSolid: React.FC = () => {
 	const progress = durationInFrames <= 1 ? 0 : frame / (durationInFrames - 1);
 
 	return (
-		<Experimental.Solid
+		<Solid
 			width={400}
 			height={300}
 			color="#ff5fa2"
