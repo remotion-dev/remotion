@@ -3,7 +3,7 @@ import React, {useMemo} from 'react';
 import {SvgExtrusion} from '../3DContext/Extrusion';
 import {FrontFaceG} from '../3DContext/FrontFaceG';
 import {PathProvider} from '../3DContext/path-context';
-import {useTransformations} from '../3DContext/transformation-context';
+import {useTransformations} from '../3DContext/use-transformations';
 import {isBacksideVisible} from '../3DContext/viewing-frontside';
 
 export const G3D: React.FC<

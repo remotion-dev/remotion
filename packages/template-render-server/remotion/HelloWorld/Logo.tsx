@@ -1,4 +1,5 @@
 import {
+import {myCompSchema2} from './Logo-my-comp-schema2';
   AbsoluteFill,
   interpolate,
   spring,
@@ -10,10 +11,6 @@ import { Atom } from "./Atom";
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
 
-export const myCompSchema2 = z.object({
-  logoColor1: zColor(),
-  logoColor2: zColor(),
-});
 
 export const Logo: React.FC<z.infer<typeof myCompSchema2>> = ({
   logoColor1: color1,

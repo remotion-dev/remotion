@@ -4,7 +4,6 @@ import {
 	useOffthreadVideoTexture,
 	useVideoTexture,
 } from '@remotion/three';
-import {zColor} from '@remotion/zod-types';
 import React, {useEffect, useRef, useState} from 'react';
 import {
 	AbsoluteFill,
@@ -13,8 +12,9 @@ import {
 	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
-import {z} from 'zod';
+import type {z} from 'zod';
 import {Phone} from './Phone';
+import {myCompSchema} from './Scene-schema';
 
 const container: React.CSSProperties = {
 	backgroundColor: 'white',
@@ -24,12 +24,6 @@ const videoStyle: React.CSSProperties = {
 	position: 'absolute',
 	opacity: 0,
 };
-
-export const myCompSchema = z.object({
-	phoneColor: zColor(),
-	deviceType: z.enum(['phone', 'tablet']),
-	textureType: z.enum(['video', 'offthreadvideo']),
-});
 
 type MyCompSchemaType = z.infer<typeof myCompSchema>;
 

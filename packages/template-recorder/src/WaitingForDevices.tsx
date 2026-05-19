@@ -1,4 +1,6 @@
 import {
+import {DevicesContext} from './WaitingForDevices-context';
+import {useDevices} from './useDevices';
   createContext,
   useCallback,
   useContext,
@@ -14,7 +16,6 @@ export type DevicesContext = {
   isRescanning: boolean;
 };
 
-export const DevicesContext = createContext<DevicesContext | null>(null);
 
 export const WaitingForDevices: React.FC<{
   children: React.ReactNode;
@@ -70,8 +71,6 @@ export const WaitingForDevices: React.FC<{
   );
 };
 
-export const useDevices = (): MediaDeviceInfo[] => {
-  const context = useContext(DevicesContext);
   if (!context?.devices) {
     throw new Error("useDevices must be used within a DevicesContextProvider");
   }

@@ -1,14 +1,5 @@
-import {
-	Html5Audio,
-	Sequence,
-	random,
-	staticFile,
-	useCurrentFrame,
-} from 'remotion';
-
-export function selectColor(color: string, frame: number): number {
-	return Math.floor((random(`${color}-${frame}`) * 255) % 255);
-}
+import {Html5Audio, Sequence, staticFile, useCurrentFrame} from 'remotion';
+import {selectColor} from './framer-utils';
 
 export const Framer: React.FC<{
 	playbackRate?: number;

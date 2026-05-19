@@ -1,5 +1,6 @@
 import { spring } from "remotion";
 import {
+import {helloWorldCompSchema} from './HelloWorld-schema';
   AbsoluteFill,
   interpolate,
   Sequence,
@@ -12,12 +13,6 @@ import { Title } from "./HelloWorld/Title";
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
 
-export const helloWorldCompSchema = z.object({
-  titleText: z.string(),
-  titleColor: zColor(),
-  logoColor1: zColor(),
-  logoColor2: zColor(),
-});
 
 export const HelloWorld: React.FC<z.infer<typeof helloWorldCompSchema>> = ({
   titleText: propOne,

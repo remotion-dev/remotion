@@ -2,15 +2,12 @@ import {fitText} from '@remotion/layout-utils';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {z} from 'zod';
+import {fitTextSchema} from './FitText-schema';
 
 const boxWidth = 600;
 // Must be loaded before calling fitText()
 const fontFamily = 'GT Planar';
 const fontWeight = 'bold';
-
-export const fitTextSchema = z.object({
-	line: z.string(),
-});
 
 export const FitText: React.FC<z.infer<typeof fitTextSchema>> = ({line}) => {
 	const fontSize = Math.min(

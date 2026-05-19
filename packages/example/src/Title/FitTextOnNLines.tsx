@@ -4,6 +4,7 @@ import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {z} from 'zod';
 import {TIKTOK_TEXT_BOX_HORIZONTAL_PADDING} from '../TikTokTextbox/TikTokTextBox';
+import {fitTextOnNLinesSchema} from './FitTextOnNLines-schema';
 
 const boxWidth = 1500;
 const fontFamily = 'Proxima Nova';
@@ -12,12 +13,6 @@ const horizontalPadding = 30;
 const cornerRadius = 20;
 const lineHeight = 1.5;
 const maxFontSize = 100;
-
-export const fitTextOnNLinesSchema = z.object({
-	text: z.string(),
-	maxLines: z.number().step(1),
-	textAlign: z.enum(['left', 'center', 'right']),
-});
 
 export const FitTextOnNLines: React.FC<
 	z.infer<typeof fitTextOnNLinesSchema>

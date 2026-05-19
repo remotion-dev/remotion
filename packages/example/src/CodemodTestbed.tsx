@@ -1,7 +1,8 @@
 import React, {useCallback} from 'react';
 import {CalculateMetadataFunction, Composition, Folder} from 'remotion';
 import {z} from 'zod';
-import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
+import {DynamicDuration} from './DynamicDuration';
+import {dynamicDurationSchema} from './DynamicDuration-schema';
 
 // TODO: This does not yet work because it would require a fragment
 function AltCodemodRootNoFragment() {

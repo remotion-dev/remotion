@@ -2,11 +2,11 @@ import {Video} from '@remotion/media';
 import {Player} from '@remotion/player';
 import React from 'react';
 
-const NewVideoTag: React.FC = () => {
+export const NewVideoTag: React.FC = () => {
 	return <Video src={'https://remotion.media/video.mp4'} />;
 };
 
-export default () => {
+export default function Video-ssr() => {
 	return (
 		<Player
 			component={NewVideoTag}

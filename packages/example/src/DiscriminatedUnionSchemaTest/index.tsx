@@ -1,20 +1,7 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {z} from 'zod';
-
-export const discriminatedUnionRootSchema = z.discriminatedUnion('preset', [
-	z.object({
-		preset: z.literal('Simple'),
-		track: z.string(),
-		fontSize: z.number().default(48),
-	}),
-	z.object({
-		preset: z.literal('Fancy'),
-		track: z.string(),
-		fontSize: z.number().default(48),
-		outline: z.boolean().default(false),
-	}),
-]);
+import {discriminatedUnionRootSchema} from './index-schema';
 
 export const DiscriminatedUnionSchemaTest: React.FC<
 	z.infer<typeof discriminatedUnionRootSchema>

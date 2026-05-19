@@ -1,18 +1,18 @@
-export {HtmlInCanvasComplexText} from './complex-text';
-export {HtmlInCanvasComposeAsyncBitmap} from './compose-async-bitmap';
-export {HtmlInCanvasDocsDemo2DBlur} from './docs-demo-2d-blur';
-export {HtmlInCanvasDocsMinimalWebGL} from './minimal-docs-webgl';
-export {HtmlInCanvasDocsMinimalWebGPU} from './minimal-docs-webgpu';
-export {HtmlInCanvasComposeWebGL} from './compose-webgl';
-export {HtmlInCanvasComposeWebGLCrt} from './compose-webgl-crt';
-export {HtmlInCanvasComposeWebGPU} from './compose-webgpu';
+import {HtmlInCanvasComplexText} from './complex-text';
+import {HtmlInCanvasComposeAsyncBitmap} from './compose-async-bitmap';
+import {HtmlInCanvasComposeWebGL} from './compose-webgl';
+import {HtmlInCanvasComposeWebGLCrt} from './compose-webgl-crt';
+import {HtmlInCanvasComposeWebGPU} from './compose-webgpu';
+import {HtmlInCanvasDocsDemo2DBlur} from './docs-demo-2d-blur';
+import {HtmlInCanvasDocsMinimalWebGL} from './minimal-docs-webgl';
+import {HtmlInCanvasDocsMinimalWebGPU} from './minimal-docs-webgpu';
+import {HtmlInCanvasPrivacy} from './privacy';
+import {HtmlInCanvasReactSvg} from './react-svg';
+import {HtmlInCanvasScene} from './scene';
 export {
 	HtmlInCanvasChangingSize,
 	HtmlInCanvasChangingSize as HtmlInCanvasDemo,
 } from './changing-size';
-export {HtmlInCanvasPrivacy} from './privacy';
-export {HtmlInCanvasReactSvg} from './react-svg';
-export {HtmlInCanvasScene} from './scene';
 export {
 	ZoomBlurTransitionDoc,
 	ZoomBlurTransitionDocThumb,

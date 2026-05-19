@@ -6,8 +6,8 @@ import {
 	translateY,
 } from '@remotion/svg-3d-engine';
 import {Faces} from '../3DEngine/Faces';
-import {useRect} from './path-context';
-import {useTransformations} from './transformation-context';
+import {useRect} from './use-rect';
+import {useTransformations} from './use-transformations';
 
 export const SvgExtrusion: React.FC<{
 	depth: number;

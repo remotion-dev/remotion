@@ -6,15 +6,12 @@ import { z } from "zod";
 import { MediabunnyMetadata } from "./helpers/get-media-metadata";
 import { getPhoneLayout } from "./helpers/layout";
 import { Phone } from "./Phone";
+import {myCompSchema} from './Scene-schema';
 
 const container: React.CSSProperties = {
   backgroundColor: "white",
 };
 
-export const myCompSchema = z.object({
-  phoneColor: zColor(),
-  deviceType: z.enum(["phone", "tablet"]),
-});
 
 type MyCompSchemaType = z.infer<typeof myCompSchema>;
 

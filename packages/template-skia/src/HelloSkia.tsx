@@ -5,13 +5,10 @@ import { staticFile, useVideoConfig } from "remotion";
 import { z } from "zod";
 import { AssetManager } from "./AssetManager";
 import { Drawing } from "./Drawing";
+import {helloSkiaSchema} from './HelloSkia-schema';
 
 const roboto = staticFile("Roboto-Bold.ttf");
 
-export const helloSkiaSchema = z.object({
-  color1: zColor(),
-  color2: zColor(),
-});
 
 export const HelloSkia: React.FC<z.infer<typeof helloSkiaSchema>> = ({
   color1,

@@ -8,7 +8,7 @@ type MyComponentProps = {
 	readonly b: string;
 };
 
-function MyComponent(props: MyComponentProps) {
+export function MyComponent(props: MyComponentProps) {
 	return (
 		<div>
 			{props.a} {props.b}
@@ -34,7 +34,7 @@ function MyComponent(props: MyComponentProps) {
 />;
 
 // React.FC syntax
-const MyComponent2: React.FC<{
+export const MyComponent2: React.FC<{
 	readonly c: number;
 }> = ({c}) => {
 	return <div>{c}</div>;
@@ -52,7 +52,7 @@ const MyComponent2: React.FC<{
 />;
 
 // React.FC syntax
-const MyComponent3: React.FC<{
+export const MyComponent3: React.FC<{
 	readonly a: number;
 }> = ({a}) => {
 	return <div>{a}</div>;
@@ -69,7 +69,7 @@ const MyComponent3: React.FC<{
 	defaultProps={{a: 2}}
 />;
 
-const CompWithNoProps: React.FC = () => {
+export const CompWithNoProps: React.FC = () => {
 	return <div />;
 };
 

@@ -4,6 +4,7 @@ import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
 import {z} from 'zod';
+import {betaTextSchema} from './index-schema';
 
 const BRAND_GRADIENT = ['#5851db', '#405de6'];
 const solidBrand = mix(0.5, BRAND_GRADIENT[0], BRAND_GRADIENT[1]);
@@ -87,11 +88,6 @@ const Row: React.FC<{
 		</div>
 	);
 };
-
-export const betaTextSchema = z.object({
-	word1: z.string(),
-	color: z.array(zColor()),
-});
 
 const BetaText = ({
 	word1,

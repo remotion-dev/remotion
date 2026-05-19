@@ -2,10 +2,7 @@ import {saveDefaultProps, updateDefaultProps} from '@remotion/studio';
 import React, {useCallback} from 'react';
 import {AbsoluteFill, useVideoConfig} from 'remotion';
 import {z} from 'zod';
-
-export const saveStudioSchema = z.object({
-	color: z.string(),
-});
+import {saveStudioSchema} from './SaveDefaultProps-schema';
 
 export const SaveDefaultProps: React.FC = () => {
 	const {id} = useVideoConfig();

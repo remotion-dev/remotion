@@ -1,15 +1,10 @@
 import {createContext, useContext} from 'react';
 import {AbsoluteFill} from 'remotion';
+import {MyCtx} from './index-context';
 
 type RegressionTestContext = {
 	hi: () => 'hithere';
 };
-
-export const MyCtx = createContext<RegressionTestContext>({
-	hi: () => {
-		throw new Error('context not provided');
-	},
-});
 
 export const WrappedInContext: React.FC = () => {
 	const value = useContext(MyCtx);

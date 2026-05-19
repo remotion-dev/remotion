@@ -1,5 +1,5 @@
 import {SvgExtrusion} from './Extrusion';
-import {useRect} from './path-context';
+import {useRect} from './use-rect';
 
 export const DivExtrusion: React.FC<{
 	depth: number;

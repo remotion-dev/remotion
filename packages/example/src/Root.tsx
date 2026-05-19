@@ -11,7 +11,8 @@ import {
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import {UseanimatedEmojis} from './AnimatedEmojis';
-import BetaText, {betaTextSchema} from './BetaText';
+import BetaText from './BetaText';
+import {betaTextSchema} from './BetaText/index-schema';
 import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
 import {NativeBufferStateForVideo} from './BufferState/Video';
@@ -19,16 +20,16 @@ import {CancelRender} from './CancelRender';
 import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
-import {MyCtx, WrappedInContext} from './Context';
+import {WrappedInContext} from './Context';
+import {MyCtx} from './Context/index-context';
 import CorruptVideo from './CorruptVideo';
 import {CssLoaderTest} from './CssLoaderTest';
 import {DarkModeTest} from './DarkModeTest';
 import {DecoderDemo} from './DecoderDemo';
-import {
-	DiscriminatedUnionSchemaTest,
-	discriminatedUnionRootSchema,
-} from './DiscriminatedUnionSchemaTest';
-import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
+import {DiscriminatedUnionSchemaTest} from './DiscriminatedUnionSchemaTest';
+import {discriminatedUnionRootSchema} from './DiscriminatedUnionSchemaTest/index-schema';
+import {DynamicDuration} from './DynamicDuration';
+import {dynamicDurationSchema} from './DynamicDuration-schema';
 import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
@@ -64,7 +65,8 @@ import {
 	ZoomInOutTransitionDocThumb,
 } from './HtmlInCanvas';
 import {HugeImage} from './HugeImage';
-import {HugePayload, hugePayloadSchema} from './HugePayload';
+import {HugePayload} from './HugePayload';
+import {hugePayloadSchema} from './HugePayload-schema';
 import {Layers} from './Layers';
 import {LongAudio} from './LongAudio';
 import {ManyAudio} from './ManyAudio';
@@ -88,7 +90,8 @@ import RemoteVideo from './RemoteVideo';
 import {RetryDelayRender} from './RetryDelayRender';
 import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
-import {SchemaTest, schemaTestSchema} from './SchemaTest';
+import {SchemaTest} from './SchemaTest';
+import {schemaTestSchema} from './SchemaTest/index-schema';
 import {Scripts} from './Scripts';
 import {WidthHeightSequences} from './Sequence/WidthHeightSequences';
 import CircleTest from './Shapes/CircleTest';
@@ -105,10 +108,8 @@ import {StillHelloWorld} from './StillHelloWorld';
 import {StillZoom} from './StillZoom';
 import {DeleteStaticFile} from './StudioApis/DeleteStaticFile';
 import {ClickUpdate} from './StudioApis/RestartStudio';
-import {
-	SaveDefaultProps,
-	saveStudioSchema,
-} from './StudioApis/SaveDefaultProps';
+import {SaveDefaultProps} from './StudioApis/SaveDefaultProps';
+import {saveStudioSchema} from './StudioApis/SaveDefaultProps-schema';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
@@ -121,7 +122,8 @@ import ThreeBasic from './ThreeBasic';
 import {ThreeHtml} from './ThreeHtml/ThreeHtml';
 import {VideoTextureDemo} from './ThreeScene/Scene';
 import {Timeout} from './Timeout';
-import {FitText, fitTextSchema} from './Title/FitText';
+import {FitText} from './Title/FitText';
+import {fitTextSchema} from './Title/FitText-schema';
 import {AudioTransition} from './Transitions/AudioTransition';
 import {BasicTransition} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
@@ -133,7 +135,8 @@ import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {WatchStaticDemo} from './watch-static';
-import {ZodV4SchemaTest, zodV4Schema} from './ZodV4SchemaTest';
+import {ZodV4SchemaTest} from './ZodV4SchemaTest';
+import {zodV4Schema} from './ZodV4SchemaTest-schema';
 // @ts-expect-error no types
 import styles from './styles.module.scss';
 
@@ -160,7 +163,9 @@ import {BrowserTest} from './BrowserTest';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {Empty} from './Empty';
-import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
+import {JumpCuts} from './JumpCuts';
+import {calculateMetadataJumpCuts} from './JumpCuts-calculate-metadata';
+import {SAMPLE_SECTIONS} from './JumpCuts-sections';
 import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
@@ -174,12 +179,14 @@ import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
 import {OffthreadRemoteSeries} from './OffthreadRemoteVideo/OffthreadRemoteSeries';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {
-	PLAY_RANGES_MEDIA_DEFAULT,
 	PLAY_RANGES_MEDIA_VIDEO_URL_DEFAULT,
-	PLAY_RANGES_MEDIA_ZIP_DEFAULT,
 	PlayRangesMediaVideo,
-	calculateMetadataPlayRangesMedia,
 } from './PlayRangesMediaVideo';
+import {calculateMetadataPlayRangesMedia} from './PlayRangesMediaVideo-calculate-metadata';
+import {
+	PLAY_RANGES_MEDIA_DEFAULT,
+	PLAY_RANGES_MEDIA_ZIP_DEFAULT,
+} from './PlayRangesMediaVideo-defaults';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {PrintProps} from './PrintProps';
 import {SfxExample} from './Sfx';
@@ -188,7 +195,8 @@ import {SpringSeason} from './SpringSeason';
 import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
-import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
+import {FitTextOnNLines} from './Title/FitTextOnNLines';
+import {fitTextOnNLinesSchema} from './Title/FitTextOnNLines-schema';
 import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
 import {WebGlTransition} from './Transitions/WebGlTransition';

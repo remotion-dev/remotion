@@ -4,6 +4,7 @@ import { AbsoluteFill } from "remotion";
 import { z } from "zod";
 import "./fonts.css";
 import { Swirl } from "./Swirl";
+import {myCompSchema} from './PreviewCard-schema';
 
 const fontFamily = "Inter";
 
@@ -58,11 +59,6 @@ const sloganStyle: React.CSSProperties = {
   whiteSpace: "pre",
 };
 
-export const myCompSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  color: zColor(),
-});
 
 export const PreviewCard: React.FC<z.infer<typeof myCompSchema>> = ({
   title,

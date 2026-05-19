@@ -1,6 +1,8 @@
 import { Composition } from "remotion";
-import { HelloWorld, myCompSchema } from "./HelloWorld";
-import { Logo, myCompSchema2 } from "./HelloWorld/Logo";
+import { HelloWorld } from "./HelloWorld";
+import { Logo } from "./HelloWorld/Logo";
+import {myCompSchema} from "./hello-world-schema";
+import {myCompSchema2} from "./HelloWorld/logo-schema";
 
 // Each <Composition> is an entry in the sidebar!
 

@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useVideoConfig } from "remotion";
 import { Cameras } from "../../../../config/scenes";
 import { DeleteRecordingAction } from "./DeleteRecordingAction";
+import {container} from './Actions-container';
 
 const gradientSteps = [
   0, 0.013, 0.049, 0.104, 0.175, 0.259, 0.352, 0.45, 0.55, 0.648, 0.741, 0.825,
@@ -15,22 +16,6 @@ const gradientOpacities = [
 
 const globalGradientOpacity = 1;
 
-export const container: React.CSSProperties = {
-  height: 100,
-  backgroundImage: `linear-gradient(to top,${gradientSteps
-    .map((g, i) => {
-      return `hsla(0, 100%, 100%, ${g}) ${
-        (gradientOpacities[i] as number) * globalGradientOpacity
-      }%`;
-    })
-    .join(", ")}, hsl(0, 0%, 0%) 100%)`,
-  top: 0,
-  position: "absolute",
-  justifyContent: "center",
-  color: "white",
-  display: "flex",
-  transition: "opacity 0.15s",
-};
 
 export const Actions: React.FC<{
   cameras: Cameras;

@@ -1,40 +1,16 @@
 import { getThemeColors } from "@code-hike/lighter";
 import React from "react";
 import { z } from "zod";
+import {themeSchema} from './theme-schema';
+import {ThemeColorsContext} from './theme-context';
+import {useThemeColors} from './useThemeColors';
 
 export type ThemeColors = Awaited<ReturnType<typeof getThemeColors>>;
 
-export const themeSchema = z.enum([
-  "dark-plus",
-  "dracula-soft",
-  "dracula",
-  "github-dark",
-  "github-dark-dimmed",
-  "github-light",
-  "light-plus",
-  "material-darker",
-  "material-default",
-  "material-lighter",
-  "material-ocean",
-  "material-palenight",
-  "min-dark",
-  "min-light",
-  "monokai",
-  "nord",
-  "one-dark-pro",
-  "poimandres",
-  "slack-dark",
-  "slack-ochin",
-  "solarized-dark",
-  "solarized-light",
-]);
 
 export type Theme = z.infer<typeof themeSchema>;
 
-export const ThemeColorsContext = React.createContext<ThemeColors | null>(null);
 
-export const useThemeColors = () => {
-  const themeColors = React.useContext(ThemeColorsContext);
   if (!themeColors) {
     throw new Error("ThemeColorsContext not found");
   }

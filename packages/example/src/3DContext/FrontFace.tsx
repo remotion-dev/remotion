@@ -4,8 +4,8 @@ import {
 	scaleX,
 	translateZ,
 } from '@remotion/svg-3d-engine';
-import {useRect} from './path-context';
-import {useTransformations} from './transformation-context';
+import {useRect} from './use-rect';
+import {useTransformations} from './use-transformations';
 
 export const Face: React.FC<{
 	children: React.ReactNode;

@@ -1,4 +1,3 @@
-import { zColor } from "@remotion/zod-types";
 import {
   AbsoluteFill,
   interpolate,
@@ -6,14 +5,10 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { z } from "zod";
+import type {z} from "zod";
 import { Arc } from "./Arc";
 import { Atom } from "./Atom";
-
-export const myCompSchema2 = z.object({
-  logoColor1: zColor(),
-  logoColor2: zColor(),
-});
+import {myCompSchema2} from "./logo-schema";
 
 export const Logo: React.FC<z.infer<typeof myCompSchema2>> = ({
   logoColor1: color1,

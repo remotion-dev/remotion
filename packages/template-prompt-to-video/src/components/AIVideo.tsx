@@ -7,10 +7,8 @@ import { TimelineSchema } from "../lib/types";
 import { calculateFrameTiming, getAudioPath } from "../lib/utils";
 import { Background } from "./Background";
 import Subtitle from "./Subtitle";
+import {aiVideoSchema} from './AIVideo-schema';
 
-export const aiVideoSchema = z.object({
-  timeline: TimelineSchema.nullable(),
-});
 
 const { fontFamily } = loadFont();
 

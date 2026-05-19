@@ -7,7 +7,7 @@ import {
 	translateZ,
 } from '@remotion/svg-3d-engine';
 import React from 'react';
-import {useTransformations} from './transformation-context';
+import {useTransformations} from './use-transformations';
 import {isTopsideVisible} from './viewing-frontside';
 
 export const TopSide: React.FC<{

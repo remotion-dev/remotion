@@ -2,6 +2,8 @@ import type { SkData, SkImage, SkTypeface } from "@shopify/react-native-skia";
 import { Skia } from "@shopify/react-native-skia";
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useState } from "react";
+import {useTypefaces} from './useTypefaces';
+import {useImages} from './useImages';
 
 type ImagesToLoad = Record<string, ReturnType<typeof require>>;
 type TypefacesToLoad = Record<string, ReturnType<typeof require>>;
@@ -29,13 +31,9 @@ const useAssetManager = () => {
   return assetManager;
 };
 
-export const useTypefaces = () => {
-  const assetManager = useAssetManager();
   return assetManager.typefaces;
 };
 
-export const useImages = () => {
-  const assetManager = useAssetManager();
   return assetManager.images;
 };
 

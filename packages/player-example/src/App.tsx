@@ -33,7 +33,7 @@ type CompProps<T> =
 			component: AnyComponent<T>;
 	  };
 
-const ControlsOnly: React.FC<{
+export const ControlsOnly: React.FC<{
 	readonly playerRef: React.RefObject<PlayerRef | null>;
 	readonly color: string;
 	readonly setColor: React.Dispatch<React.SetStateAction<string>>;
@@ -557,7 +557,7 @@ const ControlsOnly: React.FC<{
 	);
 };
 
-const PlayerOnly: React.FC<
+export const PlayerOnly: React.FC<
 	{
 		readonly playerRef: React.RefObject<PlayerRef | null>;
 		readonly inputProps: Record<string, unknown>;
@@ -691,7 +691,7 @@ const PlayerOnly: React.FC<
 	);
 };
 
-export default ({
+export default function App({
 	durationInFrames,
 	...props
 }: {

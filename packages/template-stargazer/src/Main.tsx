@@ -3,13 +3,8 @@ import { z } from "zod";
 import { Stargazer } from "./cache";
 import { Content } from "./Content";
 import { getProgress } from "./utils";
+import {mainSchema} from './Main-schema';
 
-export const mainSchema = z.object({
-  repoOrg: z.string(),
-  repoName: z.string(),
-  starCount: z.number().step(1),
-  duration: z.number().step(1),
-});
 
 type SchemaProps = z.infer<typeof mainSchema>;
 

@@ -1,5 +1,6 @@
 import {createRef, useCallback, useImperativeHandle, useState} from 'react';
 import {
+import {playerExampleComp} from './CarSlideshow-ref';
 	Html5Video,
 	Img,
 	Sequence,
@@ -15,9 +16,6 @@ type Props = {
 	readonly color: string;
 };
 
-export const playerExampleComp = createRef<{
-	triggerError: () => void;
-}>();
 
 const CarSlideshow = ({title, bgColor, color}: Props) => {
 	const frame = useCurrentFrame();

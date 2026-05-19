@@ -4,7 +4,7 @@ import {
 	scaleY,
 	translateZ,
 } from '@remotion/svg-3d-engine';
-import {useTransformations} from './transformation-context';
+import {useTransformations} from './use-transformations';
 
 export const FrontFaceG: React.FC<{
 	children: React.ReactNode;

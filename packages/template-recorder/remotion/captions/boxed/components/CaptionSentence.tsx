@@ -1,6 +1,9 @@
 import { Caption } from "@remotion/captions";
 import React from "react";
 import {
+import {getSubtitlesFontSize} from './CaptionSentence-get-subtitles-font-size';
+import {getSubtitlesLines} from './CaptionSentence-get-subtitles-lines';
+import {getBorderWidthForSubtitles} from './CaptionSentence-get-border-width-for-subtitles';
   Sequence,
   interpolate,
   useCurrentFrame,
@@ -26,18 +29,8 @@ const getEndOfSegment = (segment: CaptionPage) => {
   return (segment.captions[segment.captions.length - 1] as Caption).endMs;
 };
 
-export const getSubtitlesFontSize = () => {
-  return 56;
 };
 
-export const getSubtitlesLines = ({
-  boxHeight,
-  fontSize,
-}: {
-  boxHeight: number;
-  fontSize: number;
-}) => {
-  const boxPadding = 50;
 
   const nrOfLines = Math.floor(
     (boxHeight - boxPadding) / (fontSize * LINE_HEIGHT),
@@ -45,8 +38,6 @@ export const getSubtitlesLines = ({
   return nrOfLines;
 };
 
-export const getBorderWidthForSubtitles = () => {
-  return 3;
 };
 
 const FadeSentence: React.FC<{

@@ -1,5 +1,6 @@
 import { Caption } from "@remotion/captions";
 import React, { useContext } from "react";
+import {useCaptions} from './useCaptions';
 
 export type CaptionsContextType = {
   captions: Caption[] | null;
@@ -13,8 +14,6 @@ const context = React.createContext<CaptionsContextType>({
   },
 });
 
-export const useCaptions = (): Caption[] => {
-  const ctx = useContext(context);
 
   if (!ctx.captions) {
     throw new Error("Should not render without a captions");

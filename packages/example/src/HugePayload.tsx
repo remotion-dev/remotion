@@ -1,11 +1,6 @@
 import {Img, useVideoConfig} from 'remotion';
 import {z} from 'zod';
-
-export const hugePayloadSchema = z.object({
-	str: z.string(),
-	date: z.date(),
-	file: z.string(),
-});
+import {hugePayloadSchema} from './HugePayload-schema';
 
 export const HugePayload: React.FC<
 	z.infer<typeof hugePayloadSchema> & {

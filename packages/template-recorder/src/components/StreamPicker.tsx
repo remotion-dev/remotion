@@ -4,6 +4,7 @@ import { DeviceItem } from "../DeviceItem";
 import { useDevices } from "../WaitingForDevices";
 import { Label, formatDeviceLabel } from "../helpers/format-device-label";
 import { RescanDevices } from "./RescanDevices";
+import {getDeviceLabel} from './StreamPicker-get-device-label';
 
 const title: React.CSSProperties = {
   fontWeight: "bold",
@@ -26,8 +27,6 @@ const clearStyle: React.CSSProperties = {
   cursor: "pointer",
 };
 
-export const getDeviceLabel = (device: MediaDeviceInfo): string => {
-  const labels: Label[] = JSON.parse(localStorage.getItem("labels") ?? "[]");
   const found = labels.find((l) => l.id === device.deviceId);
   if (found) {
     return found.label;

@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useDevices } from "../WaitingForDevices";
 import { Prefix } from "../helpers/prefixes";
 import { getPreferredDeviceIfExists } from "../preferred-device-localstorage";
+import {useMediaSources} from './useMediaSources';
 
 export type StreamState =
   | { type: "initial" }
@@ -91,8 +92,6 @@ export const MediaSourcesProvider: React.FC<{
   );
 };
 
-export const useMediaSources = () => {
-  const context = React.useContext(MediaSourcesContext);
   if (!context) {
     throw new Error(
       "useMediaSources must be used within a MediaSourcesProvider",

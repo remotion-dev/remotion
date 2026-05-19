@@ -1,5 +1,6 @@
 import type { ChangeEvent, SetStateAction } from "react";
 import React, {
+import {createNewFolderRef} from './NewFolderDialog-ref';
   createRef,
   useCallback,
   useImperativeHandle,
@@ -20,9 +21,6 @@ import {
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
-export const createNewFolderRef = createRef<{
-  openDialog: () => void;
-}>();
 
 export const NewFolderDialog: React.FC<{
   setSelectedFolder: React.Dispatch<SetStateAction<string | null>>;

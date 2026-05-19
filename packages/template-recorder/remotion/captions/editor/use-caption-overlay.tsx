@@ -1,5 +1,6 @@
 import { Caption } from "@remotion/captions";
 import React, { useContext, useMemo } from "react";
+import {useCaptionOverlay} from './useCaptionOverlay';
 
 type CaptionOverlayContext = {
   open: Caption | false;
@@ -13,11 +14,6 @@ const context = React.createContext<CaptionOverlayContext>({
   },
 });
 
-export const useCaptionOverlay = (): {
-  isOpen: Caption | false;
-  setOpen: React.Dispatch<React.SetStateAction<Caption | false>>;
-} => {
-  const ctx = useContext(context);
 
   return useMemo(
     () => ({ isOpen: ctx.open, setOpen: ctx.setOpen }),

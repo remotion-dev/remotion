@@ -4,7 +4,7 @@ import {DivExtrusion} from './DivExtrusion';
 import {Face} from './FrontFace';
 import {RectProvider} from './path-context';
 import {BottomSide, TopSide} from './TopSide';
-import {useTransformations} from './transformation-context';
+import {useTransformations} from './use-transformations';
 import {isBacksideVisible} from './viewing-frontside';
 
 export const ExtrudeDiv: React.FC<{
