@@ -344,13 +344,11 @@ const InnerRecordingView: React.FC<{
             onPickVideo={onPickVideo}
             onPickAudio={onPickAudio}
             canSelectAudio={recordAudio}
-            canSelectScreen
             onPickScreenWithoutAudio={selectScreenWithoutAudio}
             onPickScreenWithAudio={selectScreenWithAudio}
             selectedAudioDevice={mediaStream.audioDevice}
             selectedVideoDevice={mediaStream.videoDevice}
             clear={clear}
-            canClear
           />
         ) : null}
         {canShowResolutionLimiter ? (
