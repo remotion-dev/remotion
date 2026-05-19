@@ -5,13 +5,11 @@ sidebar_label: Failed to acquire WebGL2 context
 crumb: 'Troubleshooting'
 ---
 
-You may see an error like this when rendering a composition that uses WebGL-based canvas effects (for example blur, halftone, light leaks, or starburst):
+You may see an error like this when rendering a composition that uses WebGL:
 
 ```
-Failed to acquire WebGL2 context for blur effect. Headless Chromium often cannot create a WebGL context without the ANGLE renderer. Pass --gl=angle when using the CLI, set chromiumOptions: { gl: "angle" } when using server-side rendering APIs, or set "OpenGL render backend" to "angle" in the Advanced section when rendering in the Studio. See https://remotion.dev/docs/troubleshooting/webgl2-context
+Failed to acquire WebGL2 context for blur effect. Pass --gl=angle when using the CLI, set chromiumOptions: { gl: "angle" } when using SSR APIs, or set "OpenGL render backend" to "angle" in the Advanced section when rendering in the Studio. See https://remotion.dev/docs/troubleshooting/webgl2-context
 ```
-
-This means Chromium could not create a WebGL context for the effect. It often happens in headless environments (CLI renders, Lambda, Docker) where the default OpenGL backend does not expose WebGL.
 
 ## Fix: use the ANGLE renderer
 
@@ -75,7 +73,3 @@ If you are on a machine without a GPU (for example AWS Lambda), use [`--gl=swang
 - [`--gl` Chromium flag](/docs/chromium-flags#--gl)
 - [GPU rendering](/docs/gpu)
 - [`<HtmlInCanvas>` rendering guide](/docs/html-in-canvas-guide#rendering)
-
----
-
-If you believe this error was triggered by a bug in Remotion, please [open an issue](/docs/get-help).
