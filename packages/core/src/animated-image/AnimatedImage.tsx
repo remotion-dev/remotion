@@ -9,6 +9,11 @@ import {
 } from 'react';
 import {cancelRender} from '../cancel-render.js';
 import type {SequenceControls} from '../CompositionManager.js';
+import type {EffectsProp} from '../effects/effect-types.js';
+import {
+	useMemoizedEffectDefinitions,
+	useMemoizedEffects,
+} from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {
 	hiddenField,
@@ -40,9 +45,14 @@ const animatedImageSchema = {
 	hidden: hiddenField,
 } as const satisfies SequenceSchema;
 
+type AnimatedImageContentProps = RemotionAnimatedImageProps & {
+	readonly effects: EffectsProp;
+	readonly controls: SequenceControls | undefined;
+};
+
 const AnimatedImageContent = forwardRef<
 	HTMLCanvasElement,
-	RemotionAnimatedImageProps
+	AnimatedImageContentProps
 >(
 	(
 		{
@@ -53,6 +63,8 @@ const AnimatedImageContent = forwardRef<
 			loopBehavior = 'loop',
 			playbackRate = 1,
 			fit = 'fill',
+			effects,
+			controls,
 			...props
 		},
 		canvasRef,
@@ -83,6 +95,11 @@ const AnimatedImageContent = forwardRef<
 		currentTimeRef.current = currentTime;
 
 		const ref = useRef<AnimatedImageCanvasRef>(null);
+
+		const memoizedEffects = useMemoizedEffects({
+			effects,
+			overrideId: controls?.overrideId ?? null,
+		});
 
 		useImperativeHandle(canvasRef, () => {
 			const c = ref.current?.getCanvas();
@@ -142,20 +159,31 @@ const AnimatedImageContent = forwardRef<
 				`Rendering frame at ${currentTime} of <AnimatedImage src="${src}"/>`,
 			);
 
+			let cancelled = false;
+
 			imageDecoder
 				.getFrame(currentTime, loopBehavior)
-				.then((videoFrame) => {
-					if (mountState.current.isMounted) {
-						if (videoFrame === null) {
-							ref.current?.clear();
-						} else {
-							ref.current?.draw(videoFrame.frame!);
-						}
+				.then(async (videoFrame) => {
+					if (!mountState.current.isMounted || cancelled) {
+						return;
 					}
 
-					continueRender(delay);
+					if (videoFrame === null) {
+						ref.current?.clear();
+						continueRender(delay);
+						return;
+					}
+
+					const completed = await ref.current?.draw(videoFrame.frame!);
+					if (completed && !cancelled) {
+						continueRender(delay);
+					}
 				})
 				.catch((err) => {
+					if (cancelled) {
+						return;
+					}
+
 					if (onError) {
 						onError(err as Error);
 						continueRender(delay);
@@ -163,6 +191,11 @@ const AnimatedImageContent = forwardRef<
 						cancelRender(err);
 					}
 				});
+
+			return () => {
+				cancelled = true;
+				continueRender(delay);
+			};
 		}, [
 			currentTime,
 			imageDecoder,
@@ -171,10 +204,21 @@ const AnimatedImageContent = forwardRef<
 			src,
 			continueRender,
 			delayRender,
+			memoizedEffects,
+			fit,
+			width,
+			height,
 		]);
 
 		return (
-			<Canvas ref={ref} width={width} height={height} fit={fit} {...props} />
+			<Canvas
+				ref={ref}
+				width={width}
+				height={height}
+				fit={fit}
+				effects={memoizedEffects}
+				{...props}
+			/>
 		);
 	},
 );
@@ -193,6 +237,7 @@ const AnimatedImageInner = ({
 	className,
 	style,
 	durationInFrames,
+	_experimentalEffects: effects = [],
 	_experimentalControls: controls,
 	ref,
 	...sequenceProps
@@ -202,6 +247,8 @@ const AnimatedImageInner = ({
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
 	const resolvedDuration = durationInFrames ?? videoDuration;
+
+	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
 	const animatedImageProps: RemotionAnimatedImageProps = {
 		src,
@@ -222,9 +269,15 @@ const AnimatedImageInner = ({
 			durationInFrames={resolvedDuration}
 			name="<AnimatedImage>"
 			_experimentalControls={controls}
+			_experimentalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
 		>
-			<AnimatedImageContent {...animatedImageProps} ref={ref} />
+			<AnimatedImageContent
+				{...animatedImageProps}
+				effects={effects}
+				controls={controls}
+				ref={ref}
+			/>
 		</Sequence>
 	);
 };

@@ -1,3 +1,4 @@
+import type {EffectsProp} from '../effects/effect-types.js';
 import type {SequenceProps} from '../Sequence.js';
 
 export type RemotionAnimatedImageLoopBehavior =
@@ -20,10 +21,11 @@ export type RemotionAnimatedImageProps = {
 
 export type AnimatedImageProps = Omit<
 	SequenceProps,
-	'children' | 'durationInFrames' | 'layout'
+	'children' | 'durationInFrames' | 'layout' | '_experimentalEffects'
 > &
 	RemotionAnimatedImageProps & {
 		readonly durationInFrames?: number;
+		readonly _experimentalEffects?: EffectsProp;
 	};
 
 export type AnimatedImageFillMode = 'contain' | 'cover' | 'fill';
