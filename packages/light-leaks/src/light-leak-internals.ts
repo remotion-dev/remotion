@@ -1,7 +1,7 @@
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 
-const {createEffect} = Internals;
+const {createEffect, createWebGL2ContextError} = Internals;
 
 export const lightLeakEffectSchema = {
 	seed: {type: 'number', default: 0, description: 'Seed'},
@@ -205,7 +205,7 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 			preserveDrawingBuffer: true,
 		});
 		if (!gl) {
-			throw new Error('Failed to acquire WebGL2 context for light leak effect');
+			throw createWebGL2ContextError('light leak effect');
 		}
 
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
@@ -350,6 +350,7 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 		gl.deleteTexture(texture);
 	},
 	schema: lightLeakEffectSchema,
+	validateParams: () => {},
 });
 
 /**

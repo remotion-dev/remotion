@@ -1422,6 +1422,7 @@ const sidebars: SidebarsConfig = {
 				'troubleshooting/broken-fast-refresh',
 				'troubleshooting/timed-out-page-function',
 				'troubleshooting/delay-render-proxy',
+				'troubleshooting/webgl2-context',
 				'troubleshooting/bundling-bundle',
 				'troubleshooting/browser-launch',
 				'troubleshooting/sigkill',

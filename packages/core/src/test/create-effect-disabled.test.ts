@@ -15,6 +15,7 @@ const makeFoo = () =>
 		apply: () => undefined,
 		cleanup: () => undefined,
 		schema: {},
+		validateParams: () => {},
 	});
 
 test('createEffect factory accepts `disabled` without complaint', () => {
@@ -53,6 +54,7 @@ test('createEffect injects `disabled` into the schema for save-effect-props', ()
 		schema: {
 			amount: {type: 'number', default: 0, description: 'Amount'},
 		},
+		validateParams: () => {},
 	});
 	const desc = foo({amount: 1});
 	expect(desc.definition.schema.disabled).toEqual({

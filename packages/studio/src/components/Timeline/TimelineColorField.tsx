@@ -35,7 +35,7 @@ export const TimelineColorField: React.FC<{
 		typeof effectiveValue === 'string'
 			? effectiveValue
 			: field.fieldSchema.type === 'color'
-				? field.fieldSchema.default
+				? (field.fieldSchema.default ?? '#000')
 				: '';
 
 	const onChange = useCallback(

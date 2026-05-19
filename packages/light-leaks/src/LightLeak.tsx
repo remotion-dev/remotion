@@ -12,6 +12,8 @@ import {
 	type SequenceProps,
 } from 'remotion';
 
+const {createWebGLContextError} = Internals;
+
 export type LightLeakProps = Omit<
 	SequenceProps,
 	'children' | 'durationInFrames' | keyof LayoutAndStyle
@@ -137,11 +139,7 @@ const LightLeakCanvas: React.FC<{
 				alpha: true,
 			});
 			if (!gl) {
-				cancelRender(
-					new Error(
-						'Failed to get WebGL context. Try rendering with --gl=angle to enable WebGL.',
-					),
-				);
+				cancelRender(createWebGLContextError('light leak'));
 				return null;
 			}
 

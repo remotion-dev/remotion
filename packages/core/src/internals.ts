@@ -55,6 +55,10 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {
+	createWebGL2ContextError,
+	createWebGLContextError,
+} from './effects/webgl2-context-error.js';
+import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
 } from './enable-sequence-stack-traces.js';
@@ -346,6 +350,8 @@ export const Internals = {
 	useMemoizedEffects,
 	useMemoizedEffectDefinitions,
 	createEffect,
+	createWebGLContextError,
+	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
