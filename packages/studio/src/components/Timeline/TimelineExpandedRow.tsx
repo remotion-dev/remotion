@@ -62,6 +62,11 @@ export const TimelineExpandedRow: React.FC<{
 		[paddingLeft],
 	);
 
+	const effectGroupStyle = useMemo(
+		(): React.CSSProperties => ({...groupRowBase, paddingLeft: 5}),
+		[],
+	);
+
 	const labelOnlyStyle = useMemo(
 		(): React.CSSProperties => ({
 			...labelOnlyRowBase,
@@ -82,7 +87,8 @@ export const TimelineExpandedRow: React.FC<{
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 					nestedDepth={nestedDepth}
-					style={groupStyle}
+					depth={depth}
+					style={effectGroupStyle}
 					getIsExpanded={getIsExpanded}
 					toggleTrack={toggleTrack}
 				/>
