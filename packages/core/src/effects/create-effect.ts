@@ -31,8 +31,7 @@ export const createEffect = <P, S>(
 	// Wrap `calculateKey` to fold the framework-level `disabled` flag into the
 	// memoization key. Without this, toggling `disabled` via code/drag overrides
 	// would not invalidate the cached `EffectDefinitionAndStack`.
-	const userCalculateKey = definition.calculateKey;
-	const validateParams = definition.validateParams;
+	const {calculateKey: userCalculateKey, validateParams} = definition;
 	const widened: EffectDefinition<unknown, unknown> = {
 		...(definition as unknown as EffectDefinition<unknown, unknown>),
 		calculateKey: (params: unknown) => {
@@ -57,5 +56,6 @@ export const createEffect = <P, S>(
 			memoized: false,
 		};
 	};
+
 	return factory;
 };
