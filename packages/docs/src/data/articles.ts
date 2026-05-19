@@ -6719,6 +6719,15 @@ export const articles = [
 		slug: 'troubleshooting/video-has-no-sound',
 	},
 	{
+		id: 'troubleshooting/webgl2-context',
+		title: 'Failed to acquire WebGL2 context',
+		relativePath: 'docs/troubleshooting/webgl2-context.mdx',
+		compId: 'articles-docs-troubleshooting-webgl2-context',
+		crumb: 'Troubleshooting',
+		noAi: false,
+		slug: 'troubleshooting/webgl2-context',
+	},
+	{
 		id: 'upgrading',
 		title: 'Upgrading Remotion',
 		relativePath: 'docs/upgrading.mdx',

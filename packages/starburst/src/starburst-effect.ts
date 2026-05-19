@@ -2,7 +2,7 @@ import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import {hexToRgb} from './hex-to-rgb';
 
-const {createEffect} = Internals;
+const {createEffect, createWebGL2ContextError} = Internals;
 
 export const starburstEffectSchema = {
 	rays: {
@@ -312,7 +312,7 @@ export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 			preserveDrawingBuffer: true,
 		});
 		if (!gl) {
-			throw new Error('Failed to acquire WebGL2 context for starburst effect');
+			throw createWebGL2ContextError('starburst effect');
 		}
 
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
