@@ -273,10 +273,10 @@ const AnimatedImageInner = ({
 			{...sequenceProps}
 		>
 			<AnimatedImageContent
+				ref={ref}
 				{...animatedImageProps}
 				effects={effects}
 				controls={controls}
-				ref={ref}
 			/>
 		</Sequence>
 	);
