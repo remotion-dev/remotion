@@ -8,7 +8,7 @@ import React, {
 import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {
-	sequenceStyleSchema,
+	sequenceVisualStyleSchema,
 	type SequenceSchema,
 } from '../sequence-field-schema.js';
 import type {SequenceProps} from '../Sequence.js';
@@ -61,7 +61,7 @@ const solidSchema = {
 		default: 1080,
 		description: 'Height',
 	},
-	...sequenceStyleSchema,
+	...sequenceVisualStyleSchema,
 } as const satisfies SequenceSchema;
 
 const SolidInner: React.FC<

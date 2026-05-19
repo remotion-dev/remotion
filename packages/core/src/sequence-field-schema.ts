@@ -61,7 +61,7 @@ export type SchemaKeysRecord<S extends SequenceSchema> = Record<
 	unknown
 >;
 
-export const sequenceStyleSchema = {
+export const sequenceVisualStyleSchema = {
 	'style.translate': {
 		type: 'translate',
 		step: 1,
@@ -90,6 +90,9 @@ export const sequenceStyleSchema = {
 		default: 1,
 		description: 'Opacity',
 	},
+} as const satisfies SequenceSchema;
+
+export const sequencePremountSchema = {
 	premountFor: {
 		type: 'number',
 		default: 0,
@@ -106,6 +109,11 @@ export const sequenceStyleSchema = {
 	styleWhilePostmounted: {
 		type: 'hidden',
 	},
+} as const satisfies SequenceSchema;
+
+export const sequenceStyleSchema = {
+	...sequenceVisualStyleSchema,
+	...sequencePremountSchema,
 } as const satisfies SequenceSchema;
 
 export const hiddenField: SequenceFieldSchema = {

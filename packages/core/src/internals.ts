@@ -113,7 +113,12 @@ import {
 	type SequenceSchema,
 	type VisibleFieldSchema,
 } from './sequence-field-schema.js';
-import {sequenceSchema, sequenceStyleSchema} from './sequence-field-schema.js';
+import {
+	sequencePremountSchema,
+	sequenceSchema,
+	sequenceStyleSchema,
+	sequenceVisualStyleSchema,
+} from './sequence-field-schema.js';
 import type {
 	OverrideIdToNodePaths,
 	OverrideToNodePathGetters,
@@ -256,6 +261,8 @@ export const Internals = {
 	wrapInSchema,
 	sequenceSchema,
 	sequenceStyleSchema,
+	sequenceVisualStyleSchema,
+	sequencePremountSchema,
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 	RemotionRootContexts,
