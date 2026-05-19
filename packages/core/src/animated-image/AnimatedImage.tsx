@@ -69,16 +69,6 @@ const AnimatedImageContent = forwardRef<
 		},
 		canvasRef,
 	) => {
-		const mountState = useRef({isMounted: true});
-
-		useEffect(() => {
-			const {current} = mountState;
-			current.isMounted = true;
-			return () => {
-				current.isMounted = false;
-			};
-		}, []);
-
 		const resolvedSrc = resolveAnimatedImageSource(src);
 		const [imageDecoder, setImageDecoder] =
 			useState<RemotionImageDecoder | null>(null);
@@ -164,7 +154,7 @@ const AnimatedImageContent = forwardRef<
 			imageDecoder
 				.getFrame(currentTime, loopBehavior)
 				.then(async (videoFrame) => {
-					if (!mountState.current.isMounted || cancelled) {
+					if (cancelled) {
 						return;
 					}
 
@@ -274,9 +264,9 @@ const AnimatedImageInner = ({
 		>
 			<AnimatedImageContent
 				{...animatedImageProps}
+				ref={ref}
 				effects={effects}
 				controls={controls}
-				ref={ref}
 			/>
 		</Sequence>
 	);
