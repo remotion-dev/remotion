@@ -13,6 +13,7 @@ export const saveEffectProp = ({
 	defaultValue,
 	schema,
 	setCodeValues,
+	clientId,
 }: {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -22,6 +23,7 @@ export const saveEffectProp = ({
 	defaultValue: string | null;
 	schema: SequenceSchema;
 	setCodeValues: SetCodeValues;
+	clientId: string;
 }): Promise<void> => {
 	return enqueueSavePropChange({
 		nodePath,
@@ -43,21 +45,8 @@ export const saveEffectProp = ({
 				value: JSON.stringify(value),
 				defaultValue,
 				schema,
+				clientId,
 			}),
-		mergeServerResponse: (prev, data) => {
-			if (!prev.canUpdate) {
-				return prev;
-			}
-
-			const idx = prev.effects.findIndex((e) => e.effectIndex === effectIndex);
-			if (idx === -1) {
-				return {...prev, effects: [...prev.effects, data]};
-			}
-
-			const nextEffects = [...prev.effects];
-			nextEffects[idx] = data;
-			return {...prev, effects: nextEffects};
-		},
 		errorLabel: 'Could not save effect prop',
 	});
 };

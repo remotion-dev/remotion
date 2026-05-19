@@ -52,7 +52,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 			suppressHmrOnFileRestore: false,
 		});
 		suppressUndoStackInvalidation(absolutePath);
-		writeFileAndNotifyFileWatchers(absolutePath, output);
+		writeFileAndNotifyFileWatchers(absolutePath, output, undefined);
 
 		const locationLabel = formatLogFileLocation({
 			remotionRoot,

@@ -35,6 +35,7 @@ export const saveEffectPropsHandler: ApiHandler<
 		value,
 		defaultValue,
 		schema,
+		clientId,
 	},
 	remotionRoot,
 	logLevel,
@@ -109,7 +110,7 @@ export const saveEffectPropsHandler: ApiHandler<
 		});
 		suppressUndoStackInvalidation(absolutePath);
 		suppressBundlerUpdateForFile(absolutePath);
-		writeFileAndNotifyFileWatchers(absolutePath, output);
+		writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
 
 		logEffectUpdate({
 			fileRelativeToRoot,

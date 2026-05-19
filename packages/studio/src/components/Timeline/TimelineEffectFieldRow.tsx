@@ -3,6 +3,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
@@ -47,6 +48,12 @@ const Value: React.FC<{
 		Internals.VisualModeCodeValuesContext,
 	);
 
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const clientId =
+		previewServerState.type === 'connected'
+			? previewServerState.clientId
+			: null;
+
 	const effectStatus = Internals.getEffectCodeValuesCtx({
 		codeValues: visualModeCodeValues,
 		nodePath,
@@ -88,6 +95,10 @@ const Value: React.FC<{
 				return Promise.reject(new Error('Cannot save'));
 			}
 
+			if (!clientId) {
+				return Promise.reject(new Error('Not connected to studio server'));
+			}
+
 			const defaultValue =
 				field.fieldSchema.default !== undefined
 					? JSON.stringify(field.fieldSchema.default)
@@ -126,30 +137,13 @@ const Value: React.FC<{
 						value: stringifiedValue,
 						defaultValue,
 						schema: field.effectSchema,
+						clientId,
 					}),
-				mergeServerResponse: (prev, data) => {
-					if (!prev.canUpdate) {
-						return prev;
-					}
-
-					const idx = prev.effects.findIndex(
-						(e) => e.effectIndex === field.effectIndex,
-					);
-					if (idx === -1) {
-						return {
-							...prev,
-							effects: [...prev.effects, data],
-						};
-					}
-
-					const nextEffects = [...prev.effects];
-					nextEffects[idx] = data;
-					return {...prev, effects: nextEffects};
-				},
 				errorLabel: 'Could not save effect prop',
 			});
 		},
 		[
+			clientId,
 			field.effectIndex,
 			field.effectSchema,
 			field.fieldSchema.default,

@@ -46,12 +46,20 @@ test('multiple watchers on the same file share a single OS watcher', () => {
 	expect(w2.exists).toBe(true);
 
 	// writeFileAndNotifyFileWatchers should notify both
-	registry.writeFileAndNotifyFileWatchers(tmpFile, 'updated');
+	registry.writeFileAndNotifyFileWatchers(tmpFile, 'updated', undefined);
 
 	expect(cb1).toHaveBeenCalledTimes(1);
-	expect(cb1).toHaveBeenCalledWith({type: 'changed', content: 'updated'});
+	expect(cb1).toHaveBeenCalledWith({
+		type: 'changed',
+		content: 'updated',
+		originatorClientId: undefined,
+	});
 	expect(cb2).toHaveBeenCalledTimes(1);
-	expect(cb2).toHaveBeenCalledWith({type: 'changed', content: 'updated'});
+	expect(cb2).toHaveBeenCalledWith({
+		type: 'changed',
+		content: 'updated',
+		originatorClientId: undefined,
+	});
 
 	w1.unwatch();
 	w2.unwatch();
@@ -103,11 +111,15 @@ test('unwatching one subscriber does not affect the other', () => {
 
 	w1.unwatch();
 
-	registry.writeFileAndNotifyFileWatchers(tmpFile, 'after-unwatch');
+	registry.writeFileAndNotifyFileWatchers(tmpFile, 'after-unwatch', undefined);
 
 	expect(cb1).toHaveBeenCalledTimes(0);
 	expect(cb2).toHaveBeenCalledTimes(1);
-	expect(cb2).toHaveBeenCalledWith({type: 'changed', content: 'after-unwatch'});
+	expect(cb2).toHaveBeenCalledWith({
+		type: 'changed',
+		content: 'after-unwatch',
+		originatorClientId: undefined,
+	});
 
 	w2.unwatch();
 });
@@ -123,7 +135,7 @@ test('writeFileAndNotifyFileWatchers passes content to subscribers', () => {
 		},
 	});
 
-	registry.writeFileAndNotifyFileWatchers(tmpFile, 'hello world');
+	registry.writeFileAndNotifyFileWatchers(tmpFile, 'hello world', undefined);
 
 	const event = receivedEvent!;
 	expect(event.type).toBe('changed');
@@ -143,7 +155,7 @@ test('writeFileAndNotifyFileWatchers writes the file to disk', () => {
 		onChange: () => {},
 	});
 
-	registry.writeFileAndNotifyFileWatchers(tmpFile, 'disk content');
+	registry.writeFileAndNotifyFileWatchers(tmpFile, 'disk content', undefined);
 
 	expect(readFileSync(tmpFile, 'utf-8')).toBe('disk content');
 
@@ -152,7 +164,7 @@ test('writeFileAndNotifyFileWatchers writes the file to disk', () => {
 
 test('writeFileAndNotifyFileWatchers works even without watchers', () => {
 	// Should not throw
-	registry.writeFileAndNotifyFileWatchers(tmpFile, 'no watchers');
+	registry.writeFileAndNotifyFileWatchers(tmpFile, 'no watchers', undefined);
 
 	expect(readFileSync(tmpFile, 'utf-8')).toBe('no watchers');
 });
@@ -167,7 +179,7 @@ test('duplicate content from fs.watchFile is suppressed', async () => {
 	});
 
 	// Simulate a write via our API — sets lastKnownContent
-	registry.writeFileAndNotifyFileWatchers(tmpFile, 'new content');
+	registry.writeFileAndNotifyFileWatchers(tmpFile, 'new content', undefined);
 	expect(cb).toHaveBeenCalledTimes(1);
 
 	// Wait for fs.watchFile to poll (100ms interval + generous buffer)
@@ -196,7 +208,11 @@ test('registries are isolated from each other', () => {
 		onChange: cb2,
 	});
 
-	registry.writeFileAndNotifyFileWatchers(tmpFile, 'from registry 1');
+	registry.writeFileAndNotifyFileWatchers(
+		tmpFile,
+		'from registry 1',
+		undefined,
+	);
 
 	expect(cb1).toHaveBeenCalledTimes(1);
 	expect(cb2).toHaveBeenCalledTimes(0);
@@ -268,7 +284,11 @@ test('existenceOnly emits created with empty content when file appears', () => {
 	writeFileSync(newFile, 'hello');
 	capturedListener!();
 
-	expect(cb).toHaveBeenCalledWith({type: 'created', content: ''});
+	expect(cb).toHaveBeenCalledWith({
+		type: 'created',
+		content: '',
+		originatorClientId: undefined,
+	});
 
 	w.unwatch();
 	unlinkSync(newFile);
