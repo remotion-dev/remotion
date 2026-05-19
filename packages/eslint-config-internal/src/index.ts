@@ -10,7 +10,6 @@ const __dirname = new URL('.', import.meta.url).pathname;
 const {configs, rules: reactRules} = require('eslint-plugin-react');
 
 import {Linter} from 'eslint';
-import {reactRefresh} from 'eslint-plugin-react-refresh';
 import {rules} from './base.js';
 
 const compat = new FlatCompat({
@@ -53,7 +52,6 @@ export const remotionFlatConfig = ({
 		// @ts-expect-error
 		'@typescript-eslint': typescriptPlugin,
 		...(react ? compat.plugins('react-hooks')[0].plugins : {}),
-		...(react ? {'react-refresh': reactRefresh.plugin} : {}),
 	},
 	rules: rules({react}),
 	files: [

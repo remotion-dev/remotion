@@ -640,7 +640,6 @@
         "eslint-plugin-10x": "1.5.2",
         "eslint-plugin-react": "7.37.4",
         "eslint-plugin-react-hooks": "5.0.0",
-        "eslint-plugin-react-refresh": "0.5.2",
       },
       "devDependencies": {
         "@types/eslint__eslintrc": "2.1.2",
