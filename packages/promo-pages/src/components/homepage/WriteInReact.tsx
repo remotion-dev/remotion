@@ -20,7 +20,7 @@ export const WriteInReact: React.FC = () => {
 				className="font-medium text-center text-lg"
 			>
 				Create real MP4 videos with React. <br />
-				Parametrize content, render server-side and build applications.
+				Use coding agents, build apps and render in bulk.
 			</p>
 			<br />
 			<div>
