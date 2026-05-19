@@ -315,11 +315,13 @@ const ImgInner: React.FC<
 	const stackRef = useRef<string | null>(null);
 	stackRef.current = stack ?? null;
 
+	const getStack = useCallback(() => stackRef.current, []);
+
 	useImageInTimeline({
 		src,
 		displayName: name ?? null,
 		id: timelineId,
-		getStack: () => stackRef.current,
+		getStack,
 		showInTimeline: showInTimeline ?? true,
 		premountDisplay: sequenceContext?.premountDisplay ?? null,
 		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
