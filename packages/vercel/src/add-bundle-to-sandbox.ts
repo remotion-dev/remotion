@@ -1,12 +1,22 @@
 import {readdir, readFile} from 'fs/promises';
 import path from 'path';
 import type {Sandbox} from '@vercel/sandbox';
-import {REMOTION_SANDBOX_BUNDLE_DIR} from './internals/add-bundle';
+import {
+	getAncestorDirectories,
+	REMOTION_SANDBOX_BUNDLE_DIR,
+	toPosixPath,
+	toSandboxBundlePath,
+} from './internals/add-bundle';
+import {rethrowSandboxError} from './internals/format-sandbox-error';
+
+const resolveBundleDirectory = (bundleDir: string): string => {
+	return path.isAbsolute(bundleDir) ? bundleDir : path.resolve(bundleDir);
+};
 
 async function getRemotionBundleFiles(
 	bundleDir: string,
 ): Promise<{path: string; content: Buffer}[]> {
-	const fullBundleDir = path.join(process.cwd(), bundleDir);
+	const fullBundleDir = resolveBundleDirectory(bundleDir);
 
 	const files: {path: string; content: Buffer}[] = [];
 
@@ -19,7 +29,7 @@ async function getRemotionBundleFiles(
 				await readDirRecursive(fullPath, relativePath);
 			} else {
 				const content = await readFile(fullPath);
-				files.push({path: relativePath, content});
+				files.push({path: toPosixPath(relativePath), content});
 			}
 		}
 	}
@@ -27,6 +37,20 @@ async function getRemotionBundleFiles(
 	await readDirRecursive(fullBundleDir);
 	return files;
 }
+
+const collectBundleDirectories = (
+	bundleFiles: {path: string; content: Buffer}[],
+): string[] => {
+	const dirs = new Set<string>();
+
+	for (const file of bundleFiles) {
+		for (const dir of getAncestorDirectories(file.path)) {
+			dirs.add(dir);
+		}
+	}
+
+	return Array.from(dirs).sort();
+};
 
 export async function addBundleToSandbox({
 	sandbox,
@@ -36,23 +60,32 @@ export async function addBundleToSandbox({
 	bundleDir: string;
 }): Promise<void> {
 	const bundleFiles = await getRemotionBundleFiles(bundleDir);
+	const directories = collectBundleDirectories(bundleFiles);
 
-	const dirs = new Set<string>();
-	for (const file of bundleFiles) {
-		const dir = path.dirname(file.path);
-		if (dir && dir !== '.') {
-			dirs.add(dir);
+	for (const dir of directories) {
+		const sandboxPath = toSandboxBundlePath(dir);
+		try {
+			await sandbox.mkDir(sandboxPath);
+		} catch (error) {
+			rethrowSandboxError({
+				error,
+				operation: `create directory "${dir}"`,
+				sandboxPath,
+			});
 		}
 	}
 
-	for (const dir of Array.from(dirs).sort()) {
-		await sandbox.mkDir(REMOTION_SANDBOX_BUNDLE_DIR + '/' + dir);
+	try {
+		await sandbox.writeFiles(
+			bundleFiles.map((file) => ({
+				path: toSandboxBundlePath(file.path),
+				content: file.content,
+			})),
+		);
+	} catch (error) {
+		rethrowSandboxError({
+			error,
+			operation: `upload ${bundleFiles.length} bundle file(s) to "${REMOTION_SANDBOX_BUNDLE_DIR}"`,
+		});
 	}
-
-	await sandbox.writeFiles(
-		bundleFiles.map((file) => ({
-			path: REMOTION_SANDBOX_BUNDLE_DIR + '/' + file.path,
-			content: file.content,
-		})),
-	);
 }
