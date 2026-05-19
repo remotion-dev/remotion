@@ -18,6 +18,7 @@ import type {SequenceNodePath} from 'remotion';
 import type {CanUpdateSequencePropStatus} from 'remotion';
 import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
+import {JsxElementNotFoundAtLocationError} from '../jsx-element-not-found-at-location-error';
 import {computeEffectPropStatus} from './can-update-effect-props';
 
 type CanUpdatePropStatus = CanUpdateSequencePropStatus;
@@ -393,9 +394,7 @@ export const computeSequencePropsStatusFromContent = ({
 	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
 
 	if (!jsxElement) {
-		throw new Error(
-			'Cannot compute sequence props status: Could not find a JSX element at the specified location',
-		);
+		throw new JsxElementNotFoundAtLocationError();
 	}
 
 	const filteredProps = computeSequenceOnlyPropsRecord({jsxElement, keys});

@@ -18,6 +18,12 @@ export const visualControlsFile = path.join(
 	'VisualControls',
 	'index.tsx',
 );
+export const lostNodePathE2eFile = path.join(
+	exampleDir,
+	'src',
+	'LostNodePathE2e',
+	'LostNodePathRepro.tsx',
+);
 export const newVideoFile = path.join(exampleDir, 'src', 'NewVideo.tsx');
 export const remotionBin = path.join(
 	exampleDir,
@@ -37,6 +43,10 @@ export const ORIGINAL_CONTENT_FILE = path.join(
 export const ORIGINAL_VISUAL_CONTROLS_FILE = path.join(
 	os.tmpdir(),
 	'remotion-e2e-original-visual-controls.tsx',
+);
+export const ORIGINAL_LOST_NODE_PATH_E2E_FILE = path.join(
+	os.tmpdir(),
+	'remotion-e2e-original-lost-node-path-repro.tsx',
 );
 export const PID_FILE = path.join(os.tmpdir(), 'remotion-e2e-studio.pid');
 export const EXPANDED_SIDEBAR_STATE = path.join(
