@@ -11,11 +11,11 @@ import {
 } from '../../helpers/timeline-layout';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {Padder} from './Padder';
+import {TIMELINE_INDENT} from './timeline-indent';
 import {TimelineEffectFieldRow} from './TimelineEffectFieldRow';
 import {TimelineEffectGroupRow} from './TimelineEffectGroupRow';
 import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineFieldRow} from './TimelineFieldRow';
-import {INDENT} from './TimelineListItem';
 
 const groupRowBase: React.CSSProperties = {
 	height: TREE_GROUP_ROW_HEIGHT,
@@ -55,7 +55,7 @@ export const TimelineExpandedRow: React.FC<{
 	nodePath,
 	schema,
 }) => {
-	const paddingLeft = EXPANDED_SECTION_PADDING_LEFT + depth * INDENT;
+	const paddingLeft = EXPANDED_SECTION_PADDING_LEFT + depth * TIMELINE_INDENT;
 
 	const groupStyle = useMemo(
 		(): React.CSSProperties => ({...groupRowBase, paddingLeft}),
