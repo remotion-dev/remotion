@@ -12,6 +12,7 @@ export type FallbackHtml5AudioProps = {
 	useWebAudioApi?: boolean;
 	acceptableTimeShiftInSeconds?: number;
 	pauseWhenBuffering?: boolean;
+	preservePitch?: boolean;
 };
 
 export type AudioProps = {

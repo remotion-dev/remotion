@@ -29,6 +29,7 @@ export type FallbackOffthreadVideoProps = {
 	useWebAudioApi?: boolean;
 	pauseWhenBuffering?: boolean;
 	onAutoPlayError?: null | (() => void);
+	preservePitch?: boolean;
 };
 
 type MandatoryVideoProps = {

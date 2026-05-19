@@ -38,6 +38,7 @@ export type RemotionAudioProps = NativeAudioProps & {
 	name?: string;
 	volume?: VolumeProp;
 	playbackRate?: number;
+	preservePitch?: boolean;
 	acceptableTimeShiftInSeconds?: number;
 	/**
 	 * @deprecated Amplification is now always enabled. To prevent amplification, set `volume` to a value less than 1.
