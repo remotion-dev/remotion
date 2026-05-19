@@ -1,3 +1,4 @@
+import {drawRepeatingImageThumbnail} from '@remotion/timeline-utils';
 import React, {useEffect, useRef} from 'react';
 import {getTimelineLayerHeight} from '../../helpers/timeline-layout';
 
@@ -40,32 +41,11 @@ export const TimelineImageInfo: React.FC<{
 		img.crossOrigin = 'anonymous';
 
 		img.onload = () => {
-			const scale = (HEIGHT * window.devicePixelRatio) / img.naturalHeight;
-			const scaledWidth = img.naturalWidth * scale;
-			const scaledHeight = HEIGHT * window.devicePixelRatio;
-
-			const offscreen = document.createElement('canvas');
-			offscreen.width = scaledWidth;
-			offscreen.height = scaledHeight;
-			const offCtx = offscreen.getContext('2d');
-			if (!offCtx) {
-				return;
-			}
-
-			offCtx.drawImage(img, 0, 0, scaledWidth, scaledHeight);
-
-			const pattern = ctx.createPattern(offscreen, 'repeat-x');
-			if (!pattern) {
-				return;
-			}
-
-			ctx.fillStyle = pattern;
-			ctx.fillRect(
-				0,
-				0,
-				visualizationWidth * window.devicePixelRatio,
-				HEIGHT * window.devicePixelRatio,
-			);
+			drawRepeatingImageThumbnail({
+				canvas,
+				image: img,
+				visualizationWidth,
+			});
 		};
 
 		img.src = src;
