@@ -467,7 +467,10 @@ const getRules = (typescript: boolean) => {
 
 		'react-hooks/rules-of-hooks': 'error',
 		'react-hooks/exhaustive-deps': 'warn',
-		'react-refresh/only-export-components': 'warn',
+		'react-refresh/only-export-components': [
+			'warn',
+			{allowConstantExport: true},
+		],
 		// Turning off rules that are too strict or don't apply to Remotion
 		'react/jsx-no-constructed-context-values': 'off',
 		'no-console': 'off',

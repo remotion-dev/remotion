@@ -52,7 +52,10 @@ export const makeConfig = ({
 				'react/jsx-no-useless-fragment': 'off',
 				// This is generally okay because on every frame, there will be a full rerender anyway!
 				'react/no-array-index-key': 'off',
-				'react-refresh/only-export-components': 'warn',
+				'react-refresh/only-export-components': [
+					'warn',
+					{allowConstantExport: true},
+				],
 			},
 			settings: {
 				react: {
