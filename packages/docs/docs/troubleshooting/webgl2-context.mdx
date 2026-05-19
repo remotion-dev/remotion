@@ -38,12 +38,19 @@ Config.setChromiumOpenGlRenderer('angle');
 Pass `gl: "angle"` in [`chromiumOptions`](/docs/renderer/render-media#gl):
 
 ```tsx twoslash
-import {renderMedia} from '@remotion/renderer';
+const serveUrl = '/path/to/bundle';
+
+import {renderMedia, selectComposition} from '@remotion/renderer';
+
+const composition = await selectComposition({
+  serveUrl,
+  id: 'MyComp',
+});
 
 // ---cut---
 await renderMedia({
-  composition: 'MyComp',
-  serveUrl: bundleLocation,
+  composition,
+  serveUrl,
   codec: 'h264',
   outputLocation: 'out/video.mp4',
   chromiumOptions: {
