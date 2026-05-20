@@ -445,9 +445,12 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		from,
 		showInTimeline,
 		hidden,
+		...props
 	},
 	ref,
 ) => {
+	props satisfies Record<string, never>;
+
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
 	return (
@@ -460,6 +463,8 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 			durationInFrames={durationInFrames}
 			_experimentalControls={controls}
 			_experimentalEffects={memoizedEffectDefinitions}
+			// 'stack' is in props
+			{...props}
 		>
 			<RemotionRiveCanvasContent
 				ref={ref}
