@@ -1,5 +1,6 @@
 import React from 'react';
 import {Composition, Folder} from 'remotion';
+import {ErrorOverlayRepro} from './ErrorOverlayE2e/ErrorOverlayRepro';
 import {LostNodePathRepro} from './LostNodePathE2e/LostNodePathRepro';
 import {NewVideoComp} from './NewVideo';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
@@ -53,6 +54,16 @@ export const E2eTestRoot: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={90}
+				/>
+			</Folder>
+			<Folder name="error-overlay">
+				<Composition
+					id="error-overlay-e2e"
+					component={ErrorOverlayRepro}
+					width={400}
+					height={400}
+					fps={30}
+					durationInFrames={30}
 				/>
 			</Folder>
 			<NewVideoComp />

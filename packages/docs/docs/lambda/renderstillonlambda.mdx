@@ -83,6 +83,8 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat). Default: `"png"`.
 
+`pdf` is not supported on Remotion Lambda due to function size constraints.
+
 ### `onInit?`<AvailableFrom v="4.0.6" />
 
 A callback function that gets called when the render starts, useful to obtain the link to the logs even if the render fails.
