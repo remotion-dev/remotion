@@ -27,14 +27,8 @@ if (!output.success) {
 }
 
 for (const file of output.outputs) {
-	let str = await file.text();
+	const str = await file.text();
 	const out = path.join('dist', 'esm', file.path);
-
-	// Bun can emit a 0-byte file for `export {}` only; Node needs a real empty module.
-	if (path.basename(file.path) === 'index.mjs' && str.trim() === '') {
-		str = 'export {};\n';
-	}
-
 	await Bun.write(out, str);
 }
 
