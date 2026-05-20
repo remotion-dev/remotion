@@ -8,9 +8,9 @@ import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
-import {isTrackHidden} from './is-collapsed';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
 import {SequencePropsObserver} from './SequencePropsObserver';
+import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
 import {SubscribeToNodePaths} from './SubscribeToNodePaths';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
@@ -66,12 +66,8 @@ const TimelineInner: React.FC = () => {
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
 	const filtered = useMemo(() => {
-		return timeline.filter(
-			(t) =>
-				!isTrackHidden(t) &&
-				t.sequence.from <= durationInFrames &&
-				t.sequence.duration > 0 &&
-				t.sequence.showInTimeline,
+		return timeline.filter((t) =>
+			shouldShowTrackInTimeline(t, durationInFrames),
 		);
 	}, [durationInFrames, timeline]);
 
