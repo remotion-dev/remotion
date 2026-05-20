@@ -3,7 +3,7 @@ import type {_InternalTypes, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {BACKGROUND, BLUE, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -80,6 +80,14 @@ const tabWrapper: React.CSSProperties = {
 	marginBottom: '4px',
 	flexDirection: 'row',
 	alignItems: 'center',
+};
+
+const resolveLinkStyle: React.CSSProperties = {
+	color: BLUE,
+	fontSize: 13,
+	fontFamily: 'sans-serif',
+	textDecoration: 'none',
+	whiteSpace: 'nowrap',
 };
 
 const persistanceKey = 'remotion.show-render-modalwarning';
@@ -299,12 +307,24 @@ export const DataEditor: React.FC<{
 				</div>
 				{showWarning && warnings.length > 0
 					? warnings.map((warning) => (
-							<React.Fragment key={warning}>
+							<React.Fragment key={warning.id}>
 								<Spacing y={1} />
 								<ValidationMessage
-									message={warning}
+									message={warning.message}
 									align="flex-start"
 									type="warning"
+									action={
+										warning.resolveLink ? (
+											<a
+												href={warning.resolveLink}
+												target="_blank"
+												rel="noopener noreferrer"
+												style={resolveLinkStyle}
+											>
+												Resolve
+											</a>
+										) : null
+									}
 								/>
 							</React.Fragment>
 						))

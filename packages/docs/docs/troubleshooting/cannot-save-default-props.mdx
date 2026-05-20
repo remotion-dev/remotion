@@ -1,0 +1,103 @@
+---
+image: /generated/articles-docs-troubleshooting-cannot-save-default-props.png
+sidebar_label: Cannot save default props
+title: Cannot save default props
+crumb: 'Troubleshooting'
+---
+
+# Cannot save default props
+
+If the Props editor shows this warning:
+
+```
+Can't save default props: Could not find or extract defaultProps for composition "[composition-id]".
+```
+
+Remotion Studio can preview the composition, but it cannot write edited props back to your root file.
+
+## Why this warning appears
+
+The Props editor saves changes by modifying the `defaultProps` prop on the matching [`<Composition>`](/docs/composition) or [`<Still>`](/docs/still).
+For that to work, Remotion needs to find the root file and extract the existing `defaultProps` value from source code.
+
+This warning appears if one of these conditions is true:
+
+- The composition has no `defaultProps` prop.
+- The composition ID is not hardcoded as a string.
+- The `defaultProps` value is not a hardcoded object literal.
+- The root file cannot be found from the entry point or the known root file paths.
+- The root file is not TypeScript.
+
+## How to fix it
+
+Put the composition in a root file that Remotion can find, and hardcode the `id` and `defaultProps` values:
+
+```tsx title="Root.tsx"
+import {Composition} from 'remotion';
+import {MyComposition} from './MyComposition';
+
+export const RemotionRoot = () => {
+  return (
+    <Composition
+      id="my-comp"
+      component={MyComposition}
+      durationInFrames={150}
+      fps={30}
+      width={1920}
+      height={1080}
+      defaultProps={{
+        title: 'Hello world',
+        color: '#ffffff',
+      }}
+    />
+  );
+};
+```
+
+Avoid values that need runtime evaluation:
+
+```tsx title="Root.tsx"
+import {Composition} from 'remotion';
+import {MyComposition} from './MyComposition';
+
+const props = {
+  title: 'Hello world',
+};
+
+export const RemotionRoot = () => {
+  return <Composition id={'my-comp'} component={MyComposition} durationInFrames={150} fps={30} width={1920} height={1080} defaultProps={props} />;
+};
+```
+
+## Root file paths
+
+Remotion can automatically find a root file at these paths:
+
+- `src/Root.tsx`
+- `src/Root.jsx`
+- `remotion/Root.tsx`
+- `remotion/Root.jsx`
+- `app/remotion/Root.tsx`
+- `src/Video.tsx`
+- `src/Video.jsx`
+- `src/remotion/Root.tsx`
+- `src/remotion/Root.jsx`
+
+If your entry point ends in `-entry`, Remotion also looks for a matching PascalCase root next to it.
+For example, `gold-star-entry.tsx` maps to `GoldStarRoot.tsx`.
+
+## AI agent prompt
+
+Use this prompt to resolve the warning:
+
+```txt
+Remotion Studio shows "Can't save default props" for my composition.
+Find the root file that registers the composition, then make the composition id and defaultProps statically analyzable.
+The id should be a hardcoded string and defaultProps should be an inline object literal on the <Composition> or <Still>.
+Preserve the current prop values and keep the composition behavior unchanged.
+```
+
+## See also
+
+- [`<Composition>`](/docs/composition)
+- [`saveDefaultProps()`](/docs/studio/save-default-props)

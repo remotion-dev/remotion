@@ -6754,6 +6754,15 @@ export const articles = [
 		slug: 'troubleshooting/bundling-bundle',
 	},
 	{
+		id: 'troubleshooting/cannot-save-default-props',
+		title: 'Cannot save default props',
+		relativePath: 'docs/troubleshooting/cannot-save-default-props.mdx',
+		compId: 'articles-docs-troubleshooting-cannot-save-default-props',
+		crumb: 'Troubleshooting',
+		noAi: false,
+		slug: 'troubleshooting/cannot-save-default-props',
+	},
+	{
 		id: 'troubleshooting/could-not-be-parsed-as-a-value-list',
 		title: 'The source provided could not be parsed as a value list',
 		relativePath:
