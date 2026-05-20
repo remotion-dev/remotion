@@ -54,7 +54,7 @@ export const parseAndApplyCodemod = ({
 
 	if (changesMade.length === 0) {
 		throw new Error(
-			'Unable to calculate the changes needed for this file. Edit the root file manually.',
+			'Unable to calculate the changes needed for this file. Edit the file manually.',
 		);
 	}
 
