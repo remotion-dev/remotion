@@ -468,7 +468,7 @@ const HtmlInCanvasContent = forwardRef<
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};
-		}, [onPaintCb, cancelRender, canvasSizeKey]);
+		}, [onPaintCb, cancelRender, width, height]);
 
 		const onPaintChangedRef = useRef(false);
 		useLayoutEffect(() => {
