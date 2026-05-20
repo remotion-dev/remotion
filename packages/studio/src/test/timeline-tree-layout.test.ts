@@ -1,5 +1,9 @@
 import {expect, test} from 'bun:test';
-import type {TSequence} from 'remotion';
+import type {
+	SequenceNodePath,
+	SequencePropsSubscriptionKey,
+	TSequence,
+} from 'remotion';
 import {
 	getExpandedRowDepth,
 	getTimelineRowPaddingLeft,
@@ -10,11 +14,17 @@ import {
 	flattenVisibleTreeNodes,
 } from '../helpers/timeline-layout';
 
+const makeSubscriptionKey = (
+	nodePath: SequenceNodePath,
+): SequencePropsSubscriptionKey => ({
+	absolutePath: '/project/src/Comp.tsx',
+	nodePath,
+	sequenceKeys: ['from', 'durationInFrames'],
+	effectKeys: [],
+});
+
 const nodePathInfo: SequenceNodePathInfo = {
-	sequenceSubscriptionKey: {
-		nodePath: ['Composition', 'Sequence'],
-		overrideId: 'test',
-	},
+	sequenceSubscriptionKey: makeSubscriptionKey(['Composition', 'Sequence']),
 	auxiliaryKeys: [],
 	index: 0,
 	numberOfSequencesWithThisNodePath: 1,
@@ -33,12 +43,14 @@ const makeSequence = (): TSequence => ({
 	getStack: () => null,
 	premountDisplay: null,
 	postmountDisplay: null,
+	loopDisplay: undefined,
 	controls: {
 		overrideId: 'test',
 		schema: {
 			translate: {
 				type: 'translate',
 				description: 'Translate',
+				default: '0px 0px',
 			},
 		},
 		currentRuntimeValueDotNotation: {},
@@ -50,10 +62,11 @@ const makeSequence = (): TSequence => ({
 				color: {
 					type: 'color',
 					description: 'Color',
+					default: '#ffffff',
 				},
 			},
 		},
-	],
+	] as unknown as TSequence['effects'],
 });
 
 test('effect field auxiliaryKeys include effect path', () => {
