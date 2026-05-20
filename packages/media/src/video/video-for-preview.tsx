@@ -142,14 +142,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const experimentalEffectsRef = useRef(_experimentalEffects);
 	experimentalEffectsRef.current = _experimentalEffects;
 
-	const experimentalEffectsSignature = useMemo(
-		() =>
-			_experimentalEffects
-				.map((effect) => `${effect.definition.type}:${effect.effectKey}`)
-				.join('|'),
-		[_experimentalEffects],
-	);
-
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
 
@@ -483,7 +475,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.redrawVideoEffects().catch(() => {
 			// Player may have been disposed between layout and the async redraw.
 		});
-	}, [experimentalEffectsSignature, mediaPlayerReady, mediaPlayerRef]);
+	}, [_experimentalEffects, mediaPlayerReady, mediaPlayerRef]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
