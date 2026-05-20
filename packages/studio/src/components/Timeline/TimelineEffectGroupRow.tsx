@@ -4,16 +4,15 @@ import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {
+	EXPANDED_SECTION_PADDING_RIGHT,
+	TREE_GROUP_ROW_HEIGHT,
+} from '../../helpers/timeline-layout';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
-import {Padder} from './Padder';
 import {saveEffectProp} from './save-effect-prop';
 import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
-
-const groupRowBase: React.CSSProperties = {
-	display: 'flex',
-	alignItems: 'center',
-};
+import {TimelineRowChrome} from './TimelineRowChrome';
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
@@ -28,9 +27,7 @@ export const TimelineEffectGroupRow: React.FC<{
 	readonly effectSchema: SequenceSchema;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
-	readonly nestedDepth: number;
-	readonly depth: number;
-	readonly style: React.CSSProperties;
+	readonly rowDepth: number;
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
 }> = ({
@@ -40,9 +37,7 @@ export const TimelineEffectGroupRow: React.FC<{
 	effectSchema,
 	nodePath,
 	validatedLocation,
-	nestedDepth,
-	depth,
-	style,
+	rowDepth,
 	getIsExpanded,
 	toggleTrack,
 }) => {
@@ -114,30 +109,40 @@ export const TimelineEffectGroupRow: React.FC<{
 	);
 
 	const isExpanded = getIsExpanded(nodePathInfo);
-	const mergedStyle = useMemo(
-		(): React.CSSProperties => ({...groupRowBase, ...style}),
-		[style],
+
+	const rowStyle = useMemo(
+		(): React.CSSProperties => ({
+			height: TREE_GROUP_ROW_HEIGHT,
+			paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
+		}),
+		[],
 	);
 
 	return (
-		<div style={mergedStyle}>
-			{canToggle ? (
-				<TimelineLayerEye
-					type="effect"
-					hidden={isDisabled}
-					onInvoked={onToggle}
+		<TimelineRowChrome
+			depth={rowDepth}
+			eye={
+				canToggle ? (
+					<TimelineLayerEye
+						type="effect"
+						hidden={isDisabled}
+						onInvoked={onToggle}
+					/>
+				) : (
+					<TimelineLayerEyeSpacer />
+				)
+			}
+			arrow={
+				<TimelineExpandArrowButton
+					isExpanded={isExpanded}
+					onClick={() => toggleTrack(nodePathInfo)}
+					label={`${label} section`}
+					disabled={false}
 				/>
-			) : (
-				<TimelineLayerEyeSpacer />
-			)}
-			<Padder depth={nestedDepth + 1 + depth} />
-			<TimelineExpandArrowButton
-				isExpanded={isExpanded}
-				onClick={() => toggleTrack(nodePathInfo)}
-				label={`${label} section`}
-				disabled={false}
-			/>
+			}
+			style={rowStyle}
+		>
 			<span style={rowLabel}>{label}</span>
-		</div>
+		</TimelineRowChrome>
 	);
 };

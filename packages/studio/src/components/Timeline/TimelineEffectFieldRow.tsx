@@ -7,13 +7,13 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
-import {Padder} from './Padder';
 import {enqueueSavePropChange} from './save-prop-queue';
+import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
+import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
+import {TimelineRowChrome} from './TimelineRowChrome';
 import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
 
 const fieldRowBase: React.CSSProperties = {
-	display: 'flex',
-	alignItems: 'center',
 	gap: 8,
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
@@ -217,21 +217,23 @@ const Value: React.FC<{
 export const TimelineEffectFieldRow: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
-	readonly paddingLeft: number;
-	readonly nestedDepth: number;
+	readonly rowDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
-}> = ({field, validatedLocation, paddingLeft, nestedDepth, nodePath}) => {
+}> = ({field, validatedLocation, rowDepth, nodePath}) => {
 	const style = useMemo(() => {
 		return {
 			...fieldRowBase,
 			height: field.rowHeight,
-			paddingLeft,
 		};
-	}, [field.rowHeight, paddingLeft]);
+	}, [field.rowHeight]);
 
 	return (
-		<div style={style}>
-			<Padder depth={nestedDepth + 1} />
+		<TimelineRowChrome
+			depth={rowDepth}
+			eye={<TimelineLayerEyeSpacer />}
+			arrow={<TimelineExpandArrowSpacer />}
+			style={style}
+		>
 			<div style={fieldLabelRow}>
 				<span style={fieldName}>{field.description ?? field.key}</span>
 			</div>
@@ -240,6 +242,6 @@ export const TimelineEffectFieldRow: React.FC<{
 				nodePath={nodePath}
 				validatedLocation={validatedLocation}
 			/>
-		</div>
+		</TimelineRowChrome>
 	);
 };

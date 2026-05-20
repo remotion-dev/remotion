@@ -17,7 +17,6 @@ import {
 } from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {Padder} from './Padder';
 import {saveSequenceProp} from './save-sequence-prop';
 import {
 	TimelineExpandArrowButton,
@@ -25,6 +24,7 @@ import {
 } from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
+import {TimelineRowChrome} from './TimelineRowChrome';
 import {TimelineStack} from './TimelineStack';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 
@@ -271,12 +271,8 @@ export const TimelineListItem: React.FC<{
 			height: TIMELINE_LAYER_HEIGHT_AUDIO,
 			color: 'white',
 			fontFamily: 'Arial, Helvetica, sans-serif',
-			display: 'flex',
-			flexDirection: 'row',
-			alignItems: 'center',
 			wordBreak: 'break-all',
 			textAlign: 'left',
-			paddingLeft: 5,
 		};
 	}, []);
 
@@ -294,35 +290,39 @@ export const TimelineListItem: React.FC<{
 
 	const trackRow = (
 		<div style={outer}>
-			<div style={inner}>
-				{canToggleVisibility ? (
-					<TimelineLayerEye
-						type={sequence.type === 'audio' ? 'speaker' : 'eye'}
-						hidden={isItemHidden}
-						onInvoked={onToggleVisibility}
-					/>
-				) : (
-					<TimelineLayerEyeSpacer />
-				)}
-				<Padder depth={nestedDepth} />
-				{previewConnected ? (
+			<TimelineRowChrome
+				depth={nestedDepth}
+				eye={
+					canToggleVisibility ? (
+						<TimelineLayerEye
+							type={sequence.type === 'audio' ? 'speaker' : 'eye'}
+							hidden={isItemHidden}
+							onInvoked={onToggleVisibility}
+						/>
+					) : (
+						<TimelineLayerEyeSpacer />
+					)
+				}
+				arrow={
 					hasExpandableContent ? (
 						<TimelineExpandArrowButton
 							isExpanded={isExpanded}
 							onClick={onToggleExpand}
 							label="track properties"
-							disabled={nodePathInfo === null}
+							disabled={!previewConnected || nodePathInfo === null}
 						/>
 					) : (
 						<TimelineExpandArrowSpacer />
 					)
-				) : null}
+				}
+				style={inner}
+			>
 				<TimelineStack
 					sequence={sequence}
 					isCompact={isCompact}
 					originalLocation={originalLocation}
 				/>
-			</div>
+			</TimelineRowChrome>
 		</div>
 	);
 

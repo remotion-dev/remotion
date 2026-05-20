@@ -39,7 +39,6 @@ export const TIMELINE_ITEM_BORDER_BOTTOM = 1;
 export const TIMELINE_TRACK_EXPANDED_HEIGHT = 100;
 
 export const TREE_GROUP_ROW_HEIGHT = 22;
-export const EXPANDED_SECTION_PADDING_LEFT = 28;
 export const EXPANDED_SECTION_PADDING_RIGHT = 10;
 
 export type TimelineFieldOnSave = (value: unknown) => Promise<void>;
@@ -110,7 +109,12 @@ export const buildTimelineTree = ({
 							kind: 'field',
 							nodePathInfo: {
 								sequenceSubscriptionKey,
-								auxiliaryKeys: [...auxiliaryKeys, f.key],
+								auxiliaryKeys: [
+									...auxiliaryKeys,
+									'effects',
+									i.toString(),
+									f.key,
+								],
 								index,
 								numberOfSequencesWithThisNodePath: 0,
 							},

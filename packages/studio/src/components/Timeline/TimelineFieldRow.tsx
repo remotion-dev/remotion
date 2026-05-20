@@ -13,16 +13,16 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
-import {Padder} from './Padder';
 import {saveSequenceProp} from './save-sequence-prop';
+import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
+import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
+import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	TimelineFieldValue,
 	TimelineNonEditableStatus,
 } from './TimelineSchemaField';
 
 const fieldRowBase: React.CSSProperties = {
-	display: 'flex',
-	alignItems: 'center',
 	gap: 8,
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
@@ -159,18 +159,10 @@ const Value: React.FC<{
 export const TimelineFieldRow: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
-	readonly paddingLeft: number;
-	readonly nestedDepth: number;
+	readonly rowDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
-}> = ({
-	field,
-	validatedLocation,
-	paddingLeft,
-	nestedDepth,
-	nodePath,
-	schema,
-}) => {
+}> = ({field, validatedLocation, rowDepth, nodePath, schema}) => {
 	const {codeValues: visualModeCodeValues} = useContext(
 		Internals.VisualModeCodeValuesContext,
 	);
@@ -185,17 +177,20 @@ export const TimelineFieldRow: React.FC<{
 		return {
 			...fieldRowBase,
 			height: field.rowHeight,
-			paddingLeft,
 		};
-	}, [field.rowHeight, paddingLeft]);
+	}, [field.rowHeight]);
 
 	if (codeValue === null) {
 		return null;
 	}
 
 	return (
-		<div style={style}>
-			<Padder depth={nestedDepth + 1} />
+		<TimelineRowChrome
+			depth={rowDepth}
+			eye={<TimelineLayerEyeSpacer />}
+			arrow={<TimelineExpandArrowSpacer />}
+			style={style}
+		>
 			<div style={fieldLabelRow}>
 				<span style={fieldName}>{field.description ?? field.key}</span>
 			</div>
@@ -210,6 +205,6 @@ export const TimelineFieldRow: React.FC<{
 			) : (
 				<TimelineNonEditableStatus propStatus={codeValue} />
 			)}
-		</div>
+		</TimelineRowChrome>
 	);
 };
