@@ -52,6 +52,7 @@ type InnerVideoProps = {
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
+	readonly fetchCache: RequestCache | undefined;
 	readonly objectFit: VideoObjectFit;
 };
 
@@ -82,6 +83,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	headless,
 	onError,
 	credentials,
+	fetchCache,
 	objectFit: objectFitProp,
 }) => {
 	if (!src) {
@@ -188,6 +190,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			fps,
 			maxCacheSize,
 			credentials,
+			fetchCache,
 		})
 			.then((result) => {
 				const handleError = (
@@ -389,6 +392,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		headless,
 		onError,
 		credentials,
+		fetchCache,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});

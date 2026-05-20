@@ -45,6 +45,7 @@ type NewAudioForPreviewProps = {
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
+	readonly fetchCache: RequestCache | undefined;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 };
 
@@ -67,6 +68,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	fallbackHtml5AudioProps,
 	onError,
 	credentials,
+	fetchCache,
 	setMediaDurationInSeconds,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
@@ -210,6 +212,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				playing: initialPlaying.current,
 				sequenceOffset: initialSequenceOffset.current,
 				credentials,
+				fetchCache,
 				tagType: 'audio',
 				getEffects: () => [],
 				getEffectChainState: () => null,
@@ -348,6 +351,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		buffer,
 		onError,
 		credentials,
+		fetchCache,
 		setMediaDurationInSeconds,
 	]);
 
@@ -403,6 +407,7 @@ type InnerAudioProps = {
 	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
 	readonly onError?: MediaOnError;
 	readonly credentials?: RequestCredentials;
+	readonly fetchCache?: RequestCache;
 	readonly setMediaDurationInSeconds?: (durationInSeconds: number) => void;
 };
 
@@ -425,6 +430,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	fallbackHtml5AudioProps,
 	onError,
 	credentials,
+	fetchCache,
 	setMediaDurationInSeconds,
 }) => {
 	const preloadedSrc = usePreload(src);
@@ -485,6 +491,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			toneFrequency={toneFrequency}
 			onError={onError}
 			credentials={credentials}
+			fetchCache={fetchCache}
 			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
 			setMediaDurationInSeconds={setMediaDurationInSeconds}
 		/>

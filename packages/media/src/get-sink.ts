@@ -5,12 +5,23 @@ import {getSinks} from './video-extraction/get-frames-since-keyframe';
 
 export const sinkPromises: Record<string, Promise<GetSink>> = {};
 
+export const getSinkCacheKey = ({
+	src,
+	credentials,
+	fetchCache,
+}: {
+	src: string;
+	credentials: RequestCredentials | undefined;
+	fetchCache: RequestCache | undefined;
+}) => JSON.stringify([src, credentials, fetchCache]);
+
 export const getSink = (
 	src: string,
 	logLevel: LogLevel,
 	credentials: RequestCredentials | undefined,
+	fetchCache?: RequestCache,
 ) => {
-	const cacheKey = credentials ? `${src}::${credentials}` : src;
+	const cacheKey = getSinkCacheKey({src, credentials, fetchCache});
 	let promise = sinkPromises[cacheKey];
 	if (!promise) {
 		Internals.Log.verbose(
@@ -20,7 +31,7 @@ export const getSink = (
 			},
 			`Sink for ${src} was not found, creating new sink`,
 		);
-		promise = getSinks(src, credentials);
+		promise = getSinks(src, credentials, fetchCache);
 		sinkPromises[cacheKey] = promise;
 	}
 

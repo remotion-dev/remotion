@@ -39,6 +39,7 @@ export type AudioProps = {
 	delayRenderTimeoutInMilliseconds?: number;
 	onError?: MediaOnError;
 	credentials?: RequestCredentials;
+	fetchCache?: RequestCache;
 } & Pick<
 	SequenceProps,
 	'from' | 'durationInFrames' | 'name' | 'showInTimeline' | 'hidden'

@@ -273,6 +273,27 @@ export const MyComposition = () => {
 };
 ```
 
+### `fetchCache?`<AvailableFrom v="4.0.465" />
+
+Controls the [`cache`](https://developer.mozilla.org/en-US/docs/Web/API/Request/cache) option of the `fetch()` requests made to retrieve the audio data.
+
+Accepts `"default"` (default behavior of `fetch()`), `"no-store"`, `"reload"`, `"no-cache"`, `"force-cache"` or `"only-if-cached"`.
+Set to `"no-store"` if a CDN or browser cache returns invalid range request responses.
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio fetchCache="no-store" src="https://example.com/audio.mp3" />
+    </AbsoluteFill>
+  );
+};
+```
+
 ### `toneFrequency?`
 
 Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.

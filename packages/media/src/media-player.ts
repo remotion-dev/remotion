@@ -27,6 +27,7 @@ import {makeNonceManager} from './nonce-manager';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
+import {makeRequestInit} from './request-init';
 
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
@@ -108,6 +109,7 @@ export class MediaPlayer {
 		playing,
 		sequenceOffset,
 		credentials,
+		fetchCache,
 		tagType,
 		getEffects,
 		getEffectChainState,
@@ -132,6 +134,7 @@ export class MediaPlayer {
 		playing: boolean;
 		sequenceOffset: number;
 		credentials: RequestCredentials | undefined;
+		fetchCache?: RequestCache;
 		tagType: 'audio' | 'video';
 		getEffects: () => EffectDefinitionAndStack<unknown>[];
 		getEffectChainState: (
@@ -159,12 +162,13 @@ export class MediaPlayer {
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
 		this.sequenceOffset = sequenceOffset;
+		const requestInit = makeRequestInit({credentials, fetchCache});
 		this.input = new Input({
 			source: new UrlSource(
 				this.src,
-				credentials
+				requestInit
 					? {
-							requestInit: {credentials},
+							requestInit,
 						}
 					: undefined,
 			),

@@ -69,6 +69,7 @@ const InnerVideo: React.FC<
 	headless,
 	onError,
 	credentials,
+	fetchCache,
 	_experimentalControls: controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
@@ -130,6 +131,7 @@ const InnerVideo: React.FC<
 				headless={headless}
 				onError={onError}
 				credentials={credentials}
+				fetchCache={fetchCache}
 				objectFit={objectFit}
 			/>
 		);
@@ -159,6 +161,7 @@ const InnerVideo: React.FC<
 			headless={headless ?? false}
 			onError={onError}
 			credentials={credentials}
+			fetchCache={fetchCache}
 			controls={controls}
 			objectFit={objectFit}
 			effects={effects}
@@ -199,6 +202,7 @@ const VideoInner: React.FC<
 	headless,
 	onError,
 	credentials,
+	fetchCache,
 	_experimentalControls: controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
@@ -320,6 +324,7 @@ const VideoInner: React.FC<
 				headless={headless ?? false}
 				onError={onError}
 				credentials={credentials}
+				fetchCache={fetchCache}
 				_experimentalControls={controls}
 				objectFit={objectFit ?? 'contain'}
 				_experimentalInitiallyDrawCachedFrame={
