@@ -22,7 +22,7 @@ const {
 
 export type GifProps = Omit<
 	SequenceProps,
-	'children' | 'durationInFrames' | 'layout'
+	'children' | 'durationInFrames' | 'layout' | '_experimentalEffects'
 > &
 	RemotionGifProps & {
 		readonly durationInFrames?: number;
