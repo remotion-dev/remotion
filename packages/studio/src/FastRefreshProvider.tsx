@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {Internals} from 'remotion';
 import {FastRefreshContext} from './fast-refresh-context';
 
 declare const __webpack_module__: {
@@ -37,9 +36,7 @@ export const FastRefreshProvider: React.FC<{
 
 	return (
 		<FastRefreshContext.Provider value={value}>
-			<Internals.FastRefreshSignalContext.Provider value={fastRefreshes}>
-				{children}
-			</Internals.FastRefreshSignalContext.Provider>
+			{children}
 		</FastRefreshContext.Provider>
 	);
 };
