@@ -11,12 +11,12 @@ import {startStudio, stopStudio} from './studio-server.mts';
  * `<Solid>` component to throw a `TypeError` during render. The studio's
  * `CompositionErrorBoundary` catches it and shows the error UI inside the
  * canvas area. Adding the argument back should dismiss the error once HMR
- * applies the fix.
+ * applies the fix — and removing it again should bring the error back.
  *
- * The bug is that the error UI does not dismiss until the page is reloaded:
- * `CompositionErrorBoundary` sets `hasError: true` on catch, returns `null`
- * forever, and never resets that flag, so the boundary's children are never
- * re-rendered after the fix arrives.
+ * Before the fix, the error UI never dismissed without a full page reload:
+ * `CompositionErrorBoundary` set `hasError: true` on catch, returned `null`
+ * forever, and never reset that flag, so the boundary's children were never
+ * re-rendered after the fix arrived.
  */
 test.describe('error overlay dismissal', () => {
 	test.beforeEach(async () => {
@@ -27,7 +27,7 @@ test.describe('error overlay dismissal', () => {
 		await stopStudio();
 	});
 
-	test('error UI dismisses after the underlying runtime error is fixed', async ({
+	test('error UI toggles with the underlying runtime error across HMR cycles', async ({
 		page,
 	}) => {
 		const originalContent = fs.readFileSync(errorOverlayE2eFile, 'utf-8');
@@ -35,68 +35,55 @@ test.describe('error overlay dismissal', () => {
 		// Make sure the marker only appears once so the swap is unambiguous.
 		expect(originalContent.split('blur({radius: 24})')).toHaveLength(2);
 
-		await page.goto(`${STUDIO_URL}/error-overlay-e2e`);
-		await expect(page).toHaveURL(/error-overlay-e2e/, {timeout: 15_000});
-
-		// Sanity check: no error visible initially.
-		await expect(
-			page.getByText('"radius" must be a finite number'),
-		).toHaveCount(0);
-
-		// 1. Introduce the bug: remove the `radius: 24` argument.
 		const buggyContent = originalContent.replace(
 			'blur({radius: 24})',
 			'blur({})',
 		);
 		expect(buggyContent).not.toBe(originalContent);
 
-		const logCountBeforeBug = readStudioLogs().length;
-		fs.writeFileSync(errorOverlayE2eFile, buggyContent);
+		const errorMessage = page.getByText('"radius" must be a finite number');
 
-		// Webpack rebuilds successfully — the bug is a runtime error, not a build error.
-		await expect
-			.poll(
-				() => {
-					const newLogs = readStudioLogs()
-						.slice(logCountBeforeBug)
-						.map(stripAnsi);
-					return newLogs.some((log) => log.includes('Built in'));
-				},
-				{
-					message: 'Expected webpack to rebuild after introducing the bug',
-					timeout: 30_000,
-				},
-			)
-			.toBe(true);
+		const writeAndWaitForRebuild = async (
+			content: string,
+			label: string,
+		): Promise<void> => {
+			const logCountBefore = readStudioLogs().length;
+			fs.writeFileSync(errorOverlayE2eFile, content);
+			await expect
+				.poll(
+					() => {
+						const newLogs = readStudioLogs()
+							.slice(logCountBefore)
+							.map(stripAnsi);
+						return newLogs.some((log) => log.includes('Built in'));
+					},
+					{
+						message: `Expected webpack to rebuild after ${label}`,
+						timeout: 30_000,
+					},
+				)
+				.toBe(true);
+		};
 
-		// Error should appear with the radius validation message.
-		await expect(
-			page.getByText('"radius" must be a finite number'),
-		).toBeVisible({timeout: 15_000});
+		await page.goto(`${STUDIO_URL}/error-overlay-e2e`);
+		await expect(page).toHaveURL(/error-overlay-e2e/, {timeout: 15_000});
 
-		// 2. Fix the bug: restore the `radius: 24` argument.
-		const logCountBeforeFix = readStudioLogs().length;
-		fs.writeFileSync(errorOverlayE2eFile, originalContent);
+		// Sanity check: no error visible initially.
+		await expect(errorMessage).toHaveCount(0);
 
-		await expect
-			.poll(
-				() => {
-					const newLogs = readStudioLogs()
-						.slice(logCountBeforeFix)
-						.map(stripAnsi);
-					return newLogs.some((log) => log.includes('Built in'));
-				},
-				{
-					message: 'Expected webpack to rebuild after fixing the bug',
-					timeout: 30_000,
-				},
-			)
-			.toBe(true);
+		// 1. Introduce the bug: remove the `radius: 24` argument.
+		await writeAndWaitForRebuild(buggyContent, 'introducing the bug');
+		await expect(errorMessage).toBeVisible({timeout: 15_000});
 
-		// 3. The error UI should dismiss once HMR applies the fix. This is the
-		//    assertion that currently fails — it stays on screen forever.
-		await expect(
-			page.getByText('"radius" must be a finite number'),
-		).toHaveCount(0, {timeout: 15_000});
+		// 2. Fix the bug: restore the `radius: 24` argument. The error UI should
+		//    dismiss once HMR applies the fix.
+		await writeAndWaitForRebuild(originalContent, 'fixing the bug');
+		await expect(errorMessage).toHaveCount(0, {timeout: 15_000});
+
+		// 3. Re-introduce the bug: the error UI should come back. This guards
+		//    against the boundary getting permanently stuck in the success state
+		//    after the first reset.
+		await writeAndWaitForRebuild(buggyContent, 're-introducing the bug');
+		await expect(errorMessage).toBeVisible({timeout: 15_000});
 	});
 });
