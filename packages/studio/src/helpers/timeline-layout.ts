@@ -39,7 +39,6 @@ export const TIMELINE_ITEM_BORDER_BOTTOM = 1;
 export const TIMELINE_TRACK_EXPANDED_HEIGHT = 100;
 
 export const TREE_GROUP_ROW_HEIGHT = 22;
-export const EXPANDED_SECTION_PADDING_LEFT = 28;
 export const EXPANDED_SECTION_PADDING_RIGHT = 10;
 
 export type TimelineFieldOnSave = (value: unknown) => Promise<void>;
@@ -82,6 +81,31 @@ export const buildTimelineTree = ({
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys} = nodePathInfo;
 
+	const controlFields = getFieldsToShow({
+		schema: sequence.controls!.schema,
+		currentRuntimeValueDotNotation:
+			sequence.controls!.currentRuntimeValueDotNotation,
+		getDragOverrides,
+		codeValues,
+		nodePath: sequenceSubscriptionKey,
+	});
+
+	if (controlFields && controlFields.length > 0) {
+		for (const f of controlFields) {
+			roots.push({
+				kind: 'field',
+				nodePathInfo: {
+					sequenceSubscriptionKey,
+					auxiliaryKeys: [...auxiliaryKeys, 'controls', f.key],
+					index,
+					numberOfSequencesWithThisNodePath: 0,
+				},
+				label: f.description ?? f.key,
+				field: f,
+			});
+		}
+	}
+
 	if (sequence.effects.length > 0) {
 		roots.push({
 			kind: 'group',
@@ -110,7 +134,12 @@ export const buildTimelineTree = ({
 							kind: 'field',
 							nodePathInfo: {
 								sequenceSubscriptionKey,
-								auxiliaryKeys: [...auxiliaryKeys, f.key],
+								auxiliaryKeys: [
+									...auxiliaryKeys,
+									'effects',
+									i.toString(),
+									f.key,
+								],
 								index,
 								numberOfSequencesWithThisNodePath: 0,
 							},
@@ -121,31 +150,6 @@ export const buildTimelineTree = ({
 				};
 			}),
 		});
-	}
-
-	const controlFields = getFieldsToShow({
-		schema: sequence.controls!.schema,
-		currentRuntimeValueDotNotation:
-			sequence.controls!.currentRuntimeValueDotNotation,
-		getDragOverrides,
-		codeValues,
-		nodePath: sequenceSubscriptionKey,
-	});
-
-	if (controlFields && controlFields.length > 0) {
-		for (const f of controlFields) {
-			roots.push({
-				kind: 'field',
-				nodePathInfo: {
-					sequenceSubscriptionKey,
-					auxiliaryKeys: [...auxiliaryKeys, 'controls', f.key],
-					index,
-					numberOfSequencesWithThisNodePath: 0,
-				},
-				label: f.description ?? f.key,
-				field: f,
-			});
-		}
 	}
 
 	return roots;

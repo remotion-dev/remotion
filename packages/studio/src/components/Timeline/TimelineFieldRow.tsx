@@ -13,17 +13,17 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
-import {Padder} from './Padder';
 import {saveSequenceProp} from './save-sequence-prop';
+import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
+import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
+import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
+import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	TimelineFieldValue,
 	TimelineNonEditableStatus,
 } from './TimelineSchemaField';
 
 const fieldRowBase: React.CSSProperties = {
-	display: 'flex',
-	alignItems: 'center',
-	gap: 8,
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
@@ -31,14 +31,6 @@ const fieldName: React.CSSProperties = {
 	fontSize: 12,
 	color: 'rgba(255, 255, 255, 0.8)',
 	userSelect: 'none',
-};
-
-const fieldLabelRow: React.CSSProperties = {
-	flex: '0 0 50%',
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	gap: 6,
 };
 
 const Value: React.FC<{
@@ -159,18 +151,10 @@ const Value: React.FC<{
 export const TimelineFieldRow: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
-	readonly paddingLeft: number;
-	readonly nestedDepth: number;
+	readonly rowDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
-}> = ({
-	field,
-	validatedLocation,
-	paddingLeft,
-	nestedDepth,
-	nodePath,
-	schema,
-}) => {
+}> = ({field, validatedLocation, rowDepth, nodePath, schema}) => {
 	const {codeValues: visualModeCodeValues} = useContext(
 		Internals.VisualModeCodeValuesContext,
 	);
@@ -185,18 +169,26 @@ export const TimelineFieldRow: React.FC<{
 		return {
 			...fieldRowBase,
 			height: field.rowHeight,
-			paddingLeft,
 		};
-	}, [field.rowHeight, paddingLeft]);
+	}, [field.rowHeight]);
+
+	const labelRowStyle = useMemo(
+		() => getTimelineFieldLabelRowStyle(rowDepth),
+		[rowDepth],
+	);
 
 	if (codeValue === null) {
 		return null;
 	}
 
 	return (
-		<div style={style}>
-			<Padder depth={nestedDepth + 1} />
-			<div style={fieldLabelRow}>
+		<TimelineRowChrome
+			depth={rowDepth}
+			eye={<TimelineLayerEyeSpacer />}
+			arrow={<TimelineExpandArrowSpacer />}
+			style={style}
+		>
+			<div style={labelRowStyle}>
 				<span style={fieldName}>{field.description ?? field.key}</span>
 			</div>
 			{codeValue.canUpdate ? (
@@ -210,6 +202,6 @@ export const TimelineFieldRow: React.FC<{
 			) : (
 				<TimelineNonEditableStatus propStatus={codeValue} />
 			)}
-		</div>
+		</TimelineRowChrome>
 	);
 };

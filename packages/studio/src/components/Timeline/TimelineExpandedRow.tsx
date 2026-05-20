@@ -1,39 +1,29 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import type {SequenceSchema, SequencePropsSubscriptionKey} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
 import {
-	EXPANDED_SECTION_PADDING_LEFT,
 	EXPANDED_SECTION_PADDING_RIGHT,
 	getTreeRowHeight,
 	TREE_GROUP_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
-import {Padder} from './Padder';
-import {TIMELINE_INDENT} from './timeline-indent';
+import {getExpandedRowDepth} from './timeline-row-layout';
 import {TimelineEffectFieldRow} from './TimelineEffectFieldRow';
 import {TimelineEffectGroupRow} from './TimelineEffectGroupRow';
-import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
+import {
+	TimelineExpandArrowButton,
+	TimelineExpandArrowSpacer,
+} from './TimelineExpandArrowButton';
 import {TimelineFieldRow} from './TimelineFieldRow';
-
-const groupRowBase: React.CSSProperties = {
-	height: TREE_GROUP_ROW_HEIGHT,
-	display: 'flex',
-	alignItems: 'center',
-	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
-};
+import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
+import {TimelineRowChrome} from './TimelineRowChrome';
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
 	color: 'rgba(255, 255, 255, 0.8)',
 	userSelect: 'none',
-};
-
-const labelOnlyRowBase: React.CSSProperties = {
-	display: 'flex',
-	alignItems: 'center',
-	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
 export const TimelineExpandedRow: React.FC<{
@@ -55,26 +45,7 @@ export const TimelineExpandedRow: React.FC<{
 	nodePath,
 	schema,
 }) => {
-	const paddingLeft = EXPANDED_SECTION_PADDING_LEFT + depth * TIMELINE_INDENT;
-
-	const groupStyle = useMemo(
-		(): React.CSSProperties => ({...groupRowBase, paddingLeft}),
-		[paddingLeft],
-	);
-
-	const effectGroupStyle = useMemo(
-		(): React.CSSProperties => ({...groupRowBase, paddingLeft: 5}),
-		[],
-	);
-
-	const labelOnlyStyle = useMemo(
-		(): React.CSSProperties => ({
-			...labelOnlyRowBase,
-			height: getTreeRowHeight(node),
-			paddingLeft,
-		}),
-		[node, paddingLeft],
-	);
+	const rowDepth = getExpandedRowDepth({nestedDepth, treeDepth: depth});
 
 	if (node.kind === 'group') {
 		if (node.effectInfo) {
@@ -86,9 +57,7 @@ export const TimelineExpandedRow: React.FC<{
 					effectSchema={node.effectInfo.effectSchema}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
-					nestedDepth={nestedDepth}
-					depth={depth}
-					style={effectGroupStyle}
+					rowDepth={rowDepth}
 					getIsExpanded={getIsExpanded}
 					toggleTrack={toggleTrack}
 				/>
@@ -97,16 +66,24 @@ export const TimelineExpandedRow: React.FC<{
 
 		const isExpanded = getIsExpanded(node.nodePathInfo);
 		return (
-			<div style={groupStyle}>
-				<Padder depth={nestedDepth + 1} />
-				<TimelineExpandArrowButton
-					isExpanded={isExpanded}
-					onClick={() => toggleTrack(node.nodePathInfo)}
-					label={`${node.label} section`}
-					disabled={false}
-				/>
+			<TimelineRowChrome
+				depth={rowDepth}
+				eye={<TimelineLayerEyeSpacer />}
+				arrow={
+					<TimelineExpandArrowButton
+						isExpanded={isExpanded}
+						onClick={() => toggleTrack(node.nodePathInfo)}
+						label={`${node.label} section`}
+						disabled={false}
+					/>
+				}
+				style={{
+					height: TREE_GROUP_ROW_HEIGHT,
+					paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
+				}}
+			>
 				<span style={rowLabel}>{node.label}</span>
-			</div>
+			</TimelineRowChrome>
 		);
 	}
 
@@ -116,8 +93,7 @@ export const TimelineExpandedRow: React.FC<{
 				<TimelineEffectFieldRow
 					field={node.field}
 					validatedLocation={validatedLocation}
-					paddingLeft={paddingLeft}
-					nestedDepth={nestedDepth}
+					rowDepth={rowDepth}
 					nodePath={nodePath}
 				/>
 			);
@@ -128,8 +104,7 @@ export const TimelineExpandedRow: React.FC<{
 				<TimelineFieldRow
 					field={node.field}
 					validatedLocation={validatedLocation}
-					paddingLeft={paddingLeft}
-					nestedDepth={nestedDepth}
+					rowDepth={rowDepth}
 					nodePath={nodePath}
 					schema={schema}
 				/>
@@ -142,9 +117,16 @@ export const TimelineExpandedRow: React.FC<{
 	}
 
 	return (
-		<div style={labelOnlyStyle}>
-			<Padder depth={nestedDepth + 1} />
+		<TimelineRowChrome
+			depth={rowDepth}
+			eye={<TimelineLayerEyeSpacer />}
+			arrow={<TimelineExpandArrowSpacer />}
+			style={{
+				height: getTreeRowHeight(node),
+				paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
+			}}
+		>
 			<span style={rowLabel}>{node.label}</span>
-		</div>
+		</TimelineRowChrome>
 	);
 };
