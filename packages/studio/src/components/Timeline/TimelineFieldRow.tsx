@@ -14,6 +14,7 @@ import type {
 } from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {saveSequenceProp} from './save-sequence-prop';
+import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
@@ -23,7 +24,6 @@ import {
 } from './TimelineSchemaField';
 
 const fieldRowBase: React.CSSProperties = {
-	gap: 8,
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
@@ -31,14 +31,6 @@ const fieldName: React.CSSProperties = {
 	fontSize: 12,
 	color: 'rgba(255, 255, 255, 0.8)',
 	userSelect: 'none',
-};
-
-const fieldLabelRow: React.CSSProperties = {
-	flex: '0 0 50%',
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	gap: 6,
 };
 
 const Value: React.FC<{
@@ -180,6 +172,11 @@ export const TimelineFieldRow: React.FC<{
 		};
 	}, [field.rowHeight]);
 
+	const labelRowStyle = useMemo(
+		() => getTimelineFieldLabelRowStyle(rowDepth),
+		[rowDepth],
+	);
+
 	if (codeValue === null) {
 		return null;
 	}
@@ -191,7 +188,7 @@ export const TimelineFieldRow: React.FC<{
 			arrow={<TimelineExpandArrowSpacer />}
 			style={style}
 		>
-			<div style={fieldLabelRow}>
+			<div style={labelRowStyle}>
 				<span style={fieldName}>{field.description ?? field.key}</span>
 			</div>
 			{codeValue.canUpdate ? (

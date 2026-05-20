@@ -6,7 +6,9 @@ import type {
 } from 'remotion';
 import {
 	getExpandedRowDepth,
+	getTimelineFieldLabelFlexBasis,
 	getTimelineRowIndentWidth,
+	getTimelineRowLeftChromeWidth,
 } from '../components/Timeline/timeline-row-layout';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
@@ -133,4 +135,10 @@ test('getExpandedRowDepth combines composition and tree depth', () => {
 		}),
 	).toBe(4);
 	expect(getTimelineRowIndentWidth(4)).toBe(40);
+});
+
+test('getTimelineFieldLabelFlexBasis subtracts left chrome width', () => {
+	expect(getTimelineRowLeftChromeWidth(0)).toBe(43);
+	expect(getTimelineRowLeftChromeWidth(4)).toBe(83);
+	expect(getTimelineFieldLabelFlexBasis(4)).toBe('calc(50% - 83px)');
 });
