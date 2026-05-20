@@ -137,7 +137,7 @@ export const Canvas = forwardRef(
 		}, []);
 
 		const chainState = useEffectChainState();
-		const {delayRender, continueRender} = useDelayRender();
+		const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 		const size = useElementSize(canvasRef);
 
@@ -264,7 +264,7 @@ export const Canvas = forwardRef(
 					continueRender(effectChainHandle);
 				})
 				.catch((err: unknown) => {
-					throw err;
+					cancelRender(err);
 				});
 
 			return () => {
