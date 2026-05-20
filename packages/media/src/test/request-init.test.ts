@@ -3,9 +3,9 @@ import {getSinkCacheKey} from '../get-sink';
 import {makeRequestInit} from '../request-init';
 
 test('creates no RequestInit if no fetch options are set', () => {
-	expect(
-		makeRequestInit({credentials: undefined, fetchCache: undefined}),
-	).toBe(undefined);
+	expect(makeRequestInit({credentials: undefined, fetchCache: undefined})).toBe(
+		undefined,
+	);
 });
 
 test('passes fetch cache and credentials to mediabunny', () => {
