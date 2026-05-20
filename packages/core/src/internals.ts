@@ -62,6 +62,7 @@ import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
 } from './enable-sequence-stack-traces.js';
+import {FastRefreshSignalContext} from './fast-refresh-signal-context.js';
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
 	flattenActiveSchema,
@@ -352,6 +353,7 @@ export const Internals = {
 	RenderAssetManagerProvider,
 	getEffectiveVisualModeValue,
 	CompositionRenderErrorContext,
+	FastRefreshSignalContext,
 	useEffectChainState,
 	runEffectChain,
 	useMemoizedEffects,

@@ -12,6 +12,7 @@ import {CompositionRenderErrorContext} from './composition-render-error-context.
 import {CompositionErrorBoundary} from './CompositionErrorBoundary.js';
 import type {TComposition} from './CompositionManager.js';
 import {CompositionSetters} from './CompositionManagerContext.js';
+import {FastRefreshSignalContext} from './fast-refresh-signal-context.js';
 import {FolderContext} from './Folder.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import {useIsPlayer} from './is-player.js';
@@ -231,6 +232,7 @@ const InnerComposition = <
 	const resolved = useResolvedVideoConfig(id);
 
 	const {setError, clearError} = useContext(CompositionRenderErrorContext);
+	const fastRefreshSignal = useContext(FastRefreshSignalContext);
 
 	const onError = useCallback(
 		(error: Error) => {
@@ -260,7 +262,11 @@ const InnerComposition = <
 
 		return createPortal(
 			<CanUseRemotionHooksProvider>
-				<CompositionErrorBoundary onError={onError} onClear={onClear}>
+				<CompositionErrorBoundary
+					onError={onError}
+					onClear={onClear}
+					resetKey={fastRefreshSignal}
+				>
 					<Suspense fallback={<Loading />}>
 						<Comp
 							{
