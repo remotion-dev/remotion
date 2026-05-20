@@ -41117,21 +41117,21 @@ export const googleFonts: Font[] = [
 			'latin-ext',
 			'vietnamese',
 		],
-		version: 'v25',
-		lastModified: '2025-09-08',
+		version: 'v26',
+		lastModified: '2026-05-19',
 		files: {
 			'700':
-				'https://fonts.gstatic.com/s/tinos/v25/buE1poGnedXvwj1AW0Fs2i43-cxL.woff2',
+				'https://fonts.gstatic.com/s/tinos/v26/buE1poGnedXvwj1AW0Fs2i43-cxL.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/tinos/v25/buE4poGnedXvwgX5dGVh8TI-.woff2',
+				'https://fonts.gstatic.com/s/tinos/v26/buE4poGnedXvwgX5dGVh8TI-.woff2',
 			italic:
-				'https://fonts.gstatic.com/s/tinos/v25/buE2poGnedXvwjX-fmRD9CI-4NU.woff2',
+				'https://fonts.gstatic.com/s/tinos/v26/buE2poGnedXvwjX-fmRD9CI-4NU.woff2',
 			'700italic':
-				'https://fonts.gstatic.com/s/tinos/v25/buEzpoGnedXvwjX-Rt1s0C8V_NxLeiw.woff2',
+				'https://fonts.gstatic.com/s/tinos/v26/buEzpoGnedXvwjX-Rt1s0C8V_NxLeiw.woff2',
 		},
 		category: 'serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/tinos/v25/buE4poGnedXvwjX9fmQ.woff2',
+		menu: 'https://fonts.gstatic.com/s/tinos/v26/buE4poGnedXvwjX9fmQ.woff2',
 	},
 	{
 		family: 'Tiny5',
