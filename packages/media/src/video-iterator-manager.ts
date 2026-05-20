@@ -53,10 +53,7 @@ export const videoIteratorManager = async ({
 	let lastDrawnFrame: WrappedCanvas | null = null;
 
 	const clearLastDrawnFrame = () => {
-		if (lastDrawnFrame) {
-			lastDrawnFrame.close();
-			lastDrawnFrame = null;
-		}
+		lastDrawnFrame = null;
 	};
 
 	if (canvas) {
@@ -103,10 +100,6 @@ export const videoIteratorManager = async ({
 
 	const drawFrame = async (frame: WrappedCanvas): Promise<void> => {
 		await paintFrame(frame);
-		if (lastDrawnFrame !== frame) {
-			clearLastDrawnFrame();
-		}
-
 		lastDrawnFrame = frame;
 
 		framesRendered++;
