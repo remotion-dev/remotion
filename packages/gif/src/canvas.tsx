@@ -285,6 +285,7 @@ export const Canvas = forwardRef(
 			chainState,
 			delayRender,
 			continueRender,
+			cancelRender,
 		]);
 
 		return (
