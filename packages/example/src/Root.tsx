@@ -86,6 +86,7 @@ import ReactSvg from './ReactSvg';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {RetryDelayRender} from './RetryDelayRender';
+import {RiveEffectsTestbed} from './Rive/RiveEffects';
 import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
@@ -1663,6 +1664,7 @@ export const Index: React.FC = () => {
 					}}
 					durationInFrames={150}
 				/>
+				<RiveEffectsTestbed />
 			</Folder>
 			<Folder name="Premount">
 				<Composition

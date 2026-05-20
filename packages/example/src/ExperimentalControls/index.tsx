@@ -1,6 +1,7 @@
 import {Gif} from '@remotion/gif';
 import {LightLeak} from '@remotion/light-leaks';
 import {Audio, Video} from '@remotion/media';
+import {RemotionRiveCanvas} from '@remotion/rive';
 import {Starburst} from '@remotion/starburst';
 import React from 'react';
 import {
@@ -230,6 +231,17 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 				</Tile>
 				<Tile title="Solid">
 					<Solid color="red" width={100} height={100} />
+				</Tile>
+				<Tile title="RemotionRiveCanvas">
+					<RemotionRiveCanvas
+						src="https://cdn.rive.app/animations/vehicles.riv"
+						style={{
+							width: '100%',
+							height: '100%',
+							translate: '0px 20px',
+							scale: 0.95,
+						}}
+					/>
 				</Tile>
 			</div>
 		</AbsoluteFill>
