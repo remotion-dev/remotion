@@ -191,17 +191,14 @@ for (const file of files) {
 	cpSync(path.join(outdir, file), path.join(filesDir, file));
 }
 
-const awsSecretAccessKey =
-	Bun.env.AWS_SECRET_ACCESS_KEY ?? Bun.env.AWS_ACCESS_SECRET_KEY;
-
-if (!Bun.env.AWS_ACCESS_KEY_ID || !awsSecretAccessKey) {
+if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
 	console.log(
 		'Skipping R2 upload: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are not set',
 	);
 } else {
 	const client = new S3Client({
 		accessKeyId: Bun.env.AWS_ACCESS_KEY_ID,
-		secretAccessKey: awsSecretAccessKey,
+		secretAccessKey: Bun.env.AWS_SECRET_ACCESS_KEY,
 		endpoint:
 			'https://2fe488b3b0f4deee223aef7464784c46.r2.cloudflarestorage.com',
 		bucket: 'parser-media',
