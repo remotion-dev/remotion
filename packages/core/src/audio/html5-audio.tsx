@@ -2,7 +2,6 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {calculateMediaDuration} from '../calculate-media-duration.js';
-import {cancelRender} from '../cancel-render.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
@@ -40,7 +39,6 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		stack,
 		pauseWhenBuffering,
 		showInTimeline,
-		onError: onRemotionError,
 		...otherProps
 	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
@@ -63,31 +61,6 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	const preloadedSrc = usePreload(props.src);
-
-	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
-		(e) => {
-			// eslint-disable-next-line no-console
-			console.log(e.currentTarget.error);
-
-			// If there is no `loop` property, we don't need to get the duration
-			// and this does not need to be a fatal error
-			const errMessage = `Could not play audio with src ${preloadedSrc}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`;
-
-			if (loop) {
-				if (onRemotionError) {
-					onRemotionError(new Error(errMessage));
-					return;
-				}
-
-				cancelRender(new Error(errMessage));
-			} else {
-				onRemotionError?.(new Error(errMessage));
-				// eslint-disable-next-line no-console
-				console.warn(errMessage);
-			}
-		},
-		[loop, onRemotionError, preloadedSrc],
-	);
 
 	const onDuration = useCallback(
 		(src: string, durationInSeconds: number) => {
@@ -178,7 +151,6 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				onDuration={onDuration}
 				{...props}
 				ref={ref}
-				onNativeError={onError}
 				_remotionInternalNeedsDurationCalculation={Boolean(loop)}
 			/>
 		);
@@ -195,7 +167,6 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			}
 			{...props}
 			ref={ref}
-			onNativeError={onError}
 			onDuration={onDuration}
 			// Proposal: Make this default to true in v5
 			pauseWhenBuffering={pauseWhenBuffering ?? false}

@@ -13,7 +13,7 @@ export const useReportMediaPlaybackError = () => {
 			onError,
 		}: {
 			error: MediaPlaybackError;
-			onError: ((error: MediaPlaybackError) => void) | undefined;
+			onError: ((error: Error) => void) | undefined;
 		}) => {
 			if (onError) {
 				onError(error);

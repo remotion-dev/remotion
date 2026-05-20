@@ -59,7 +59,6 @@ describe('Register and unregister asset', () => {
 			muted: false,
 			volume: 50,
 			onDuration: mock(),
-			onNativeError: mock(),
 			audioStreamIndex: 0,
 		};
 		const {unmount} = render(
@@ -81,7 +80,6 @@ describe('Register and unregister asset', () => {
 			muted: false,
 			volume: 50,
 			onDuration: mock(),
-			onNativeError: mock(),
 			audioStreamIndex: 0,
 		};
 		expectToThrow(() => {

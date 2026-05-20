@@ -15,6 +15,7 @@ import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {MediaPlaybackError} from '../video/MediaPlaybackError.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import type {RemotionAudioProps} from './props.js';
@@ -22,7 +23,6 @@ import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
-	readonly onNativeError: React.ReactEventHandler<HTMLAudioElement>;
 };
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -41,7 +41,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalNativeLoopPassed,
 		acceptableTimeShiftInSeconds,
 		name,
-		onNativeError,
+		onError,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		loopVolumeCurveBehavior,
@@ -176,14 +176,43 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			current?.addEventListener('loadedmetadata', didLoad, {once: true});
 		}
 
+		const errorHandler = () => {
+			if (current?.error) {
+				// eslint-disable-next-line no-console
+				console.error('Error occurred in audio', current?.error);
+
+				if (onError) {
+					return;
+				}
+
+				throw new MediaPlaybackError({
+					message: `The browser threw an error while playing the audio ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`,
+					src: src as string,
+				});
+			}
+
+			if (onError) {
+				return;
+			}
+
+			throw new MediaPlaybackError({
+				message: `The browser threw an error while playing the audio ${src}`,
+				src: src as string,
+			});
+		};
+
+		current?.addEventListener('error', errorHandler, {once: true});
+
 		// If tag gets unmounted, clear pending handles because video metadata is not going to load
 		return () => {
 			current?.removeEventListener('loadedmetadata', didLoad);
+			current?.removeEventListener('error', errorHandler);
 			continueRender(newHandle);
 		};
 	}, [
 		src,
 		onDuration,
+		onError,
 		needsToRenderAudioTag,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
@@ -195,7 +224,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		return null;
 	}
 
-	return <audio ref={audioRef} {...nativeProps} onError={onNativeError} />;
+	return <audio ref={audioRef} {...nativeProps} />;
 };
 
 export const AudioForRendering = forwardRef(

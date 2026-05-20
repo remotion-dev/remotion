@@ -18,6 +18,8 @@ import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
+import {useReportMediaPlaybackError} from '../use-report-media-playback-error.js';
+import {MediaPlaybackError} from '../video/MediaPlaybackError.js';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
@@ -78,7 +80,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		toneFrequency,
 		useWebAudioApi,
 		onError,
-		onNativeError,
 		audioStreamIndex,
 		...nativeProps
 	} = props;
@@ -174,6 +175,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	const getStack = useCallback(() => {
 		return _remotionInternalStack ?? null;
 	}, [_remotionInternalStack]);
+
+	const reportMediaPlaybackError = useReportMediaPlaybackError();
 
 	useMediaInTimeline({
 		volume,
@@ -272,6 +275,41 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 			current.removeEventListener('loadedmetadata', onLoadedMetadata);
 		};
 	}, [audioRef, src]);
+
+	useEffect(() => {
+		const {current} = audioRef;
+		if (!current) {
+			return;
+		}
+
+		const errorHandler = () => {
+			if (current.error) {
+				// eslint-disable-next-line no-console
+				console.error('Error occurred in audio', current?.error);
+
+				reportMediaPlaybackError({
+					onError,
+					error: new MediaPlaybackError({
+						message: `The browser threw an error while playing the audio ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`,
+						src,
+					}),
+				});
+			} else {
+				reportMediaPlaybackError({
+					onError,
+					error: new MediaPlaybackError({
+						message: `The browser threw an error while playing the audio ${src}`,
+						src,
+					}),
+				});
+			}
+		};
+
+		current.addEventListener('error', errorHandler, {once: true});
+		return () => {
+			current.removeEventListener('error', errorHandler);
+		};
+	}, [audioRef, onError, reportMediaPlaybackError, src]);
 
 	if (initialShouldPreMountAudioElements) {
 		return null;
