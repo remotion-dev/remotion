@@ -6,7 +6,7 @@ import type {
 } from 'remotion';
 import {
 	getExpandedRowDepth,
-	getTimelineRowPaddingLeft,
+	getTimelineRowIndentWidth,
 } from '../components/Timeline/timeline-row-layout';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
@@ -132,5 +132,5 @@ test('getExpandedRowDepth combines composition and tree depth', () => {
 			treeDepth: 2,
 		}),
 	).toBe(4);
-	expect(getTimelineRowPaddingLeft(4)).toBe(45);
+	expect(getTimelineRowIndentWidth(4)).toBe(40);
 });

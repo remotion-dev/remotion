@@ -1,5 +1,9 @@
 import React, {useMemo} from 'react';
-import {getTimelineRowPaddingLeft} from './timeline-row-layout';
+import {Padder} from './Padder';
+import {
+	TIMELINE_ROW_BASE_PADDING,
+	getTimelineRowIndentWidth,
+} from './timeline-row-layout';
 
 const rowBase: React.CSSProperties = {
 	display: 'flex',
@@ -16,15 +20,18 @@ export const TimelineRowChrome: React.FC<{
 	const rowStyle = useMemo(
 		(): React.CSSProperties => ({
 			...rowBase,
-			paddingLeft: getTimelineRowPaddingLeft(depth),
+			paddingLeft: TIMELINE_ROW_BASE_PADDING,
 			...style,
 		}),
-		[depth, style],
+		[style],
 	);
+
+	const indentWidth = getTimelineRowIndentWidth(depth);
 
 	return (
 		<div style={rowStyle}>
 			{eye}
+			{indentWidth > 0 ? <Padder depth={depth} /> : null}
 			{arrow}
 			{children}
 		</div>
