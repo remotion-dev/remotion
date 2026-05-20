@@ -287,12 +287,67 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 	}, [onLoad, rive]);
 
 	React.useEffect(() => {
-		if (!riveCanvasInstance) {
+		if (!riveCanvasInstance || !rive) {
 			return;
 		}
 
 		const outputCanvas = canvas.current;
 		if (!outputCanvas || !sourceCanvas) {
+			return;
+		}
+
+		// Keep source/output dimensions in sync with the video config.
+		if (sourceCanvas.width !== width || sourceCanvas.height !== height) {
+			sourceCanvas.width = width;
+			sourceCanvas.height = height;
+		}
+
+		if (outputCanvas.width !== width || outputCanvas.height !== height) {
+			outputCanvas.width = width;
+			outputCanvas.height = height;
+		}
+
+		const diff = frame - lastFrame.current;
+
+		rive.renderer.clear();
+
+		if (rive.animation) {
+			rive.animation.advance(diff / fps);
+			rive.animation.apply(1);
+		}
+
+		rive.artboard.advance(diff / fps);
+
+		rive.renderer.save();
+		rive.renderer.align(
+			mapToFit(fit, riveCanvasInstance),
+			mapToAlignment(alignment, riveCanvasInstance.Alignment),
+			{
+				minX: 0,
+				minY: 0,
+				maxX: sourceCanvas.width,
+				maxY: sourceCanvas.height,
+			},
+			rive.artboard.bounds,
+		);
+
+		rive.artboard.draw(rive.renderer);
+		rive.renderer.restore();
+
+		// Flush the renderer's queued draw calls so `sourceCanvas` actually
+		// contains the pixels we just drew before `runEffectChain` reads from
+		// it. We don't use `riveCanvasInstance.requestAnimationFrame` (which
+		// would flush implicitly at the end of its own callback) because the
+		// effect chain needs the flushed pixels synchronously, and waiting
+		// for a Rive-scheduled frame would mean the very first paint after
+		// mount (and after every prop change) would composite an empty /
+		// stale source canvas to the output.
+		riveCanvasInstance.resolveAnimationFrame();
+
+		lastFrame.current = frame;
+
+		const state = chainState.get(width, height);
+		if (!state) {
 			return;
 		}
 
@@ -302,79 +357,22 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 
 		let cancelled = false;
 
-		riveCanvasInstance.requestAnimationFrame(() => {
-			if (cancelled) {
-				return;
-			}
-
-			if (!rive) {
-				continueRender(effectChainHandle);
-				return;
-			}
-
-			// Keep source/output dimensions in sync with the video config.
-			if (sourceCanvas.width !== width || sourceCanvas.height !== height) {
-				sourceCanvas.width = width;
-				sourceCanvas.height = height;
-			}
-
-			if (outputCanvas.width !== width || outputCanvas.height !== height) {
-				outputCanvas.width = width;
-				outputCanvas.height = height;
-			}
-
-			const diff = frame - lastFrame.current;
-
-			rive.renderer.clear();
-
-			if (rive.animation) {
-				rive.animation.advance(diff / fps);
-				rive.animation.apply(1);
-			}
-
-			rive.artboard.advance(diff / fps);
-
-			rive.renderer.save();
-			rive.renderer.align(
-				mapToFit(fit, riveCanvasInstance),
-				mapToAlignment(alignment, riveCanvasInstance.Alignment),
-				{
-					minX: 0,
-					minY: 0,
-					maxX: sourceCanvas.width,
-					maxY: sourceCanvas.height,
-				},
-				rive.artboard.bounds,
-			);
-
-			rive.artboard.draw(rive.renderer);
-			rive.renderer.restore();
-
-			lastFrame.current = frame;
-
-			const state = chainState.get(width, height);
-			if (!state) {
-				continueRender(effectChainHandle);
-				return;
-			}
-
-			runEffectChain({
-				state,
-				source: sourceCanvas,
-				effects: memoizedEffects,
-				output: outputCanvas,
-				width,
-				height,
+		runEffectChain({
+			state,
+			source: sourceCanvas,
+			effects: memoizedEffects,
+			output: outputCanvas,
+			width,
+			height,
+		})
+			.then(() => {
+				if (!cancelled) {
+					continueRender(effectChainHandle);
+				}
 			})
-				.then(() => {
-					if (!cancelled) {
-						continueRender(effectChainHandle);
-					}
-				})
-				.catch((newErr) => {
-					setError(newErr);
-				});
-		});
+			.catch((newErr) => {
+				setError(newErr);
+			});
 
 		return () => {
 			cancelled = true;
