@@ -13,16 +13,19 @@ const getSequenceLine = (content: string): number => {
 };
 
 const applyIssue7393Refactor = (content: string): string => {
-	if (content.includes('const t = tint')) {
+	if (content.includes('const t = EffectInternals.tint')) {
 		return content;
 	}
 
 	return content
 		.replace(
-			'\tconst experimentalEffects = Internals.useMemoizedEffectDefinitions([',
-			"\tconst t = tint({color: 'green', amount: 1});\n\tconst experimentalEffects = Internals.useMemoizedEffectDefinitions([",
+			'\tconst memoizedEffects = Internals.useMemoizedEffectDefinitions([',
+			"\tconst t = EffectInternals.tint({color: 'green', amount: 1});\n\tconst memoizedEffects = Internals.useMemoizedEffectDefinitions([",
 		)
-		.replace("\t\ttint({color: 'green', amount: 1}),", '\t\tt,');
+		.replace(
+			"\t\tEffectInternals.tint({color: 'green', amount: 1}),",
+			'\t\tt,',
+		);
 };
 
 const stackAttribution = (line: number) => `LostNodePathRepro.tsx:${line}`;

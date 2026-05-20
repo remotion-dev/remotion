@@ -64,7 +64,7 @@ type RemotionRiveCanvasOwnProps = {
 	readonly assetLoader?: assetLoadCallback;
 	readonly className?: string;
 	readonly style?: React.CSSProperties;
-	readonly _experimentalEffects?: EffectsProp;
+	readonly effects?: EffectsProp;
 };
 
 export type RemotionRiveCanvasProps = RemotionRiveCanvasOwnProps &
@@ -121,7 +121,7 @@ const riveCanvasSchema = {
 
 type RemotionRiveCanvasContentProps = Omit<
 	RemotionRiveCanvasOwnProps,
-	'_experimentalEffects'
+	'effects'
 > & {
 	readonly fit: RemotionRiveCanvasFit;
 	readonly alignment: RemotionRiveCanvasAlignment;
@@ -436,7 +436,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		enableRiveAssetCdn = true,
 		className,
 		style,
-		_experimentalEffects: effects = [],
+		effects = [],
 		_experimentalControls: controls,
 		durationInFrames,
 		name,
@@ -460,7 +460,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 			name={name ?? '<RemotionRiveCanvas>'}
 			durationInFrames={durationInFrames}
 			_experimentalControls={controls}
-			_experimentalEffects={memoizedEffectDefinitions}
+			_remotionInternalEffects={memoizedEffectDefinitions}
 			// 'stack' is in props
 			{...props}
 		>

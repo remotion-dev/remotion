@@ -1,7 +1,4 @@
-import {blur} from '@remotion/effects/blur';
-import {halftone} from '@remotion/effects/halftone';
-import {tint} from '@remotion/effects/tint';
-import {wave} from '@remotion/effects/wave';
+import {EffectInternals} from '@remotion/effects';
 import {LightLeakInternals} from '@remotion/light-leaks';
 import {Video} from '@remotion/media';
 import {StarburstInternals} from '@remotion/starburst';
@@ -94,8 +91,8 @@ const AnimatedWaveVideo: React.FC = () => {
 			muted
 			loop
 			objectFit="cover"
-			_experimentalEffects={[
-				wave({
+			effects={[
+				EffectInternals.wave({
 					amplitude: 22,
 					wavelength: 180,
 					evolution,
@@ -118,7 +115,7 @@ const AnimatedLightLeakSolid: React.FC = () => {
 			height={300}
 			color="#ff5fa2"
 			style={tileVideoStyle}
-			_experimentalEffects={[
+			effects={[
 				LightLeakInternals.lightLeak({
 					seed: 1,
 					hueShift: 30,
@@ -140,13 +137,13 @@ const AnimatedStackVideo: React.FC = () => {
 			muted
 			loop
 			objectFit="cover"
-			_experimentalEffects={[
+			effects={[
 				StarburstInternals.starburst({
 					colors: ['#ff5fa2', '#ff0000'],
 					rays: 12,
 				}),
-				blur({radius: 24}),
-				wave({
+				EffectInternals.blur({radius: 24}),
+				EffectInternals.wave({
 					amplitude: 22,
 					wavelength: 180,
 					evolution,
@@ -187,7 +184,7 @@ export const EffectsTestbed: React.FC = () => {
 						muted
 						loop
 						objectFit="cover"
-						_experimentalEffects={[tint({color: '#ff5fa2', amount: 0.6})]}
+						effects={[EffectInternals.tint({color: '#ff5fa2', amount: 0.6})]}
 					/>
 				</Tile>
 				<Tile title="halftone" subtitle="circles, dotSize 12, on luminance">
@@ -197,8 +194,8 @@ export const EffectsTestbed: React.FC = () => {
 						muted
 						loop
 						objectFit="cover"
-						_experimentalEffects={[
-							halftone({
+						effects={[
+							EffectInternals.halftone({
 								shape: 'circle',
 								dotSize: 12,
 								dotSpacing: 12,
@@ -219,7 +216,7 @@ export const EffectsTestbed: React.FC = () => {
 						muted
 						loop
 						objectFit="cover"
-						_experimentalEffects={[blur({radius: 24})]}
+						effects={[EffectInternals.blur({radius: 24})]}
 					/>
 				</Tile>
 				<Tile title="solid" subtitle="light leak, progress from frame">

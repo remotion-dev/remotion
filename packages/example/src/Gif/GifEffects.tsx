@@ -1,7 +1,4 @@
-import {blur} from '@remotion/effects/blur';
-import {halftone} from '@remotion/effects/halftone';
-import {tint} from '@remotion/effects/tint';
-import {wave} from '@remotion/effects/wave';
+import {EffectInternals} from '@remotion/effects';
 import {Gif} from '@remotion/gif';
 import {StudioInternals} from '@remotion/studio';
 import React from 'react';
@@ -93,7 +90,7 @@ const AnimatedBlurGif: React.FC = () => {
 			src={GIF_SRC}
 			fit="contain"
 			style={tileGifStyle}
-			_experimentalEffects={[blur({radius: blurRadius})]}
+			effects={[EffectInternals.blur({radius: blurRadius})]}
 		/>
 	);
 };
@@ -107,8 +104,8 @@ const AnimatedWaveGif: React.FC = () => {
 			src={GIF_SRC}
 			fit="contain"
 			style={tileGifStyle}
-			_experimentalEffects={[
-				wave({
+			effects={[
+				EffectInternals.wave({
 					amplitude: 22,
 					wavelength: 180,
 					evolution,
@@ -129,16 +126,16 @@ const StackedGif: React.FC = () => {
 			src={GIF_SRC}
 			fit="contain"
 			style={tileGifStyle}
-			_experimentalEffects={[
-				tint({color: '#ff5fa2', amount: 0.4}),
-				wave({
+			effects={[
+				EffectInternals.tint({color: '#ff5fa2', amount: 0.4}),
+				EffectInternals.wave({
 					amplitude: 12,
 					wavelength: 160,
 					evolution,
 					sliceWidth: 4,
 					background: '#020617',
 				}),
-				blur({radius: 6}),
+				EffectInternals.blur({radius: 6}),
 			]}
 		/>
 	);
@@ -174,7 +171,7 @@ const Comp: React.FC = () => {
 						src={GIF_SRC}
 						fit="contain"
 						style={tileGifStyle}
-						_experimentalEffects={[tint({color: '#ff5fa2', amount: 0.6})]}
+						effects={[EffectInternals.tint({color: '#ff5fa2', amount: 0.6})]}
 					/>
 				</Tile>
 				<Tile title="halftone" subtitle="circles, dotSize 12, on luminance">
@@ -182,8 +179,8 @@ const Comp: React.FC = () => {
 						src={GIF_SRC}
 						fit="contain"
 						style={tileGifStyle}
-						_experimentalEffects={[
-							halftone({
+						effects={[
+							EffectInternals.halftone({
 								shape: 'circle',
 								dotSize: 12,
 								dotSpacing: 12,

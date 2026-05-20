@@ -25,18 +25,13 @@ import {
 	isStaticValue,
 } from './can-update-sequence-props';
 
-const findExperimentalEffectsAttr = (
-	jsx: JSXOpeningElement,
-): JSXAttribute | null => {
+const findEffectsAttr = (jsx: JSXOpeningElement): JSXAttribute | null => {
 	for (const attr of jsx.attributes) {
 		if (attr.type !== 'JSXAttribute') {
 			continue;
 		}
 
-		if (
-			attr.name.type === 'JSXIdentifier' &&
-			attr.name.name === '_experimentalEffects'
-		) {
+		if (attr.name.type === 'JSXIdentifier' && attr.name.name === 'effects') {
 			return attr;
 		}
 	}
@@ -106,7 +101,7 @@ export const computeEffectPropStatus = ({
 	effectIndex: number;
 	keys: string[];
 }): CanUpdateEffectPropsResponse => {
-	const attr = findExperimentalEffectsAttr(jsx);
+	const attr = findEffectsAttr(jsx);
 	const elements = getEffectsArrayElements(attr);
 
 	if (!elements) {

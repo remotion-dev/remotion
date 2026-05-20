@@ -53,7 +53,7 @@ export type SequencePropsWithoutDuration = {
 	readonly showInTimeline?: boolean;
 	readonly hidden?: boolean;
 	readonly _experimentalControls?: SequenceControls;
-	readonly _experimentalEffects?: readonly EffectDefinition<unknown>[];
+	readonly _remotionInternalEffects?: readonly EffectDefinition<unknown>[];
 	/**
 	 * @deprecated For internal use only.
 	 */
@@ -105,7 +105,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline = true,
 		hidden = false,
 		_experimentalControls: controls,
-		_experimentalEffects,
+		_remotionInternalEffects,
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalPremountDisplay: premountDisplay,
@@ -241,7 +241,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			registerSequence({
 				type: isMedia.type,
 				controls: controls ?? null,
-				effects: _experimentalEffects ?? [],
+				effects: _remotionInternalEffects ?? [],
 				displayName: timelineClipName,
 				doesVolumeChange: isMedia.data.doesVolumeChange,
 				duration: actualDurationInFrames,
@@ -280,7 +280,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
 			controls: controls ?? null,
-			effects: _experimentalEffects ?? [],
+			effects: _remotionInternalEffects ?? [],
 		});
 		return () => {
 			unregisterSequence(id);
@@ -303,7 +303,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		postmountDisplay,
 		env.isStudio,
 		controls,
-		_experimentalEffects,
+		_remotionInternalEffects,
 		isMedia,
 	]);
 

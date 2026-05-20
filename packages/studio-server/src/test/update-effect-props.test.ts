@@ -5,11 +5,11 @@ import {lineColumnToNodePath} from './test-utils';
 const buildInput = (
 	effects: string,
 ) => `import {HtmlInCanvas} from '@remotion/html-in-canvas';
-import {tint} from '@remotion/effects';
+import {EffectInternals} from '@remotion/effects';
 
 export const Comp = () => {
 \treturn (
-\t\t<HtmlInCanvas _experimentalEffects={${effects}}>
+\t\t<HtmlInCanvas effects={${effects}}>
 \t\t\thi
 \t\t</HtmlInCanvas>
 \t);
@@ -17,7 +17,9 @@ export const Comp = () => {
 `;
 
 test('updateEffectProps updates an existing prop on the right effect', () => {
-	const input = buildInput('[tint({color: "red", opacity: 0.5})]');
+	const input = buildInput(
+		'[EffectInternals.tint({color: "red", opacity: 0.5})]',
+	);
 	const {serialized} = updateEffectPropsAst({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
@@ -30,7 +32,7 @@ test('updateEffectProps updates an existing prop on the right effect', () => {
 });
 
 test('updateEffectProps adds a missing prop', () => {
-	const input = buildInput('[tint({color: "red"})]');
+	const input = buildInput('[EffectInternals.tint({color: "red"})]');
 	const {serialized, effectCallee} = updateEffectPropsAst({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
@@ -44,7 +46,9 @@ test('updateEffectProps adds a missing prop', () => {
 });
 
 test('updateEffectProps removes a prop equal to default', () => {
-	const input = buildInput('[tint({color: "red", opacity: 0.5})]');
+	const input = buildInput(
+		'[EffectInternals.tint({color: "red", opacity: 0.5})]',
+	);
 	const {serialized} = updateEffectPropsAst({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
@@ -58,7 +62,7 @@ test('updateEffectProps removes a prop equal to default', () => {
 
 test('updateEffectProps targets the correct effect by index when there are multiple', () => {
 	const input = buildInput(
-		'[tint({color: "red"}), tint({color: "green", opacity: 0.4})]',
+		'[EffectInternals.tint({color: "red"}), EffectInternals.tint({color: "green", opacity: 0.4})]',
 	);
 	const {serialized} = updateEffectPropsAst({
 		input,
@@ -73,7 +77,7 @@ test('updateEffectProps targets the correct effect by index when there are multi
 });
 
 test('updateEffectProps throws when effect index is out of range', () => {
-	const input = buildInput('[tint({color: "red"})]');
+	const input = buildInput('[EffectInternals.tint({color: "red"})]');
 	expect(() => {
 		updateEffectPropsAst({
 			input,
@@ -85,7 +89,7 @@ test('updateEffectProps throws when effect index is out of range', () => {
 });
 
 test('updateEffectProps inserts object literal when effect has no arguments', () => {
-	const input = buildInput('[tint()]');
+	const input = buildInput('[EffectInternals.tint()]');
 	const {serialized} = updateEffectPropsAst({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
@@ -98,7 +102,7 @@ test('updateEffectProps inserts object literal when effect has no arguments', ()
 });
 
 test('updateEffectProps throws when first arg is not an object literal', () => {
-	const input = buildInput('[tint(getParams())]');
+	const input = buildInput('[EffectInternals.tint(getParams())]');
 	expect(() => {
 		updateEffectPropsAst({
 			input,

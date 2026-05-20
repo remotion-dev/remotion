@@ -30,7 +30,7 @@ type MandatoryProps = {
 
 type OptionalProps = {
 	readonly color: string | undefined;
-	readonly _experimentalEffects: EffectsProp;
+	readonly effects: EffectsProp;
 	readonly className: string | undefined;
 	readonly style: React.CSSProperties | undefined;
 };
@@ -73,7 +73,7 @@ const SolidInner: React.FC<
 	color,
 	width,
 	height,
-	_experimentalEffects: experimentalEffects = [],
+	effects = [],
 	className,
 	style,
 	overrideId,
@@ -86,7 +86,7 @@ const SolidInner: React.FC<
 	);
 
 	const memoizedEffects = useMemoizedEffects({
-		effects: experimentalEffects,
+		effects,
 		overrideId: overrideId ?? null,
 	});
 
@@ -200,7 +200,7 @@ const SolidOuter = forwardRef<
 >(
 	(
 		{
-			_experimentalEffects = [],
+			effects = [],
 			_experimentalControls: controls,
 			color,
 			height,
@@ -218,8 +218,7 @@ const SolidOuter = forwardRef<
 	) => {
 		props satisfies Record<string, never>;
 
-		const memoizedEffectDefinitions =
-			useMemoizedEffectDefinitions(_experimentalEffects);
+		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
 		return (
 			<Sequence
@@ -228,7 +227,7 @@ const SolidOuter = forwardRef<
 				hidden={hidden}
 				showInTimeline={showInTimeline}
 				_experimentalControls={controls}
-				_experimentalEffects={memoizedEffectDefinitions}
+				_remotionInternalEffects={memoizedEffectDefinitions}
 				durationInFrames={durationInFrames}
 				name={name ?? '<Solid>'}
 				// 'stack' is in props
@@ -242,7 +241,7 @@ const SolidOuter = forwardRef<
 					width={width}
 					className={className}
 					style={style}
-					_experimentalEffects={_experimentalEffects}
+					effects={effects}
 				/>
 			</Sequence>
 		);

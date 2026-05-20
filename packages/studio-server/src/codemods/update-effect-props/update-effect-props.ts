@@ -45,7 +45,7 @@ const parseValueExpression = (value: unknown): ExpressionKind => {
 	return stmt.expression.right as ExpressionKind;
 };
 
-const findExperimentalEffectsAttr = (
+const findEffectsAttr = (
 	attrs: readonly (JSXAttribute | unknown)[],
 ): JSXAttribute | null => {
 	for (const attr of attrs) {
@@ -54,10 +54,7 @@ const findExperimentalEffectsAttr = (
 		}
 
 		const a = attr as JSXAttribute;
-		if (
-			a.name.type === 'JSXIdentifier' &&
-			a.name.name === '_experimentalEffects'
-		) {
+		if (a.name.type === 'JSXIdentifier' && a.name.name === 'effects') {
 			return a;
 		}
 	}
@@ -199,11 +196,9 @@ export const updateEffectPropsAst = ({
 		);
 	}
 
-	const attr = findExperimentalEffectsAttr(jsx.attributes ?? []);
+	const attr = findEffectsAttr(jsx.attributes ?? []);
 	if (!attr) {
-		throw new Error(
-			'Could not find _experimentalEffects on the target JSX element',
-		);
+		throw new Error('Could not find effects on the target JSX element');
 	}
 
 	const found = findEffectCallExpression({

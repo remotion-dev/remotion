@@ -22,11 +22,11 @@ const {
 
 export type GifProps = Omit<
 	SequenceProps,
-	'children' | 'durationInFrames' | 'layout' | '_experimentalEffects'
+	'children' | 'durationInFrames' | 'layout' | '_remotionInternalEffects'
 > &
 	RemotionGifProps & {
 		readonly durationInFrames?: number;
-		readonly _experimentalEffects?: EffectsProp;
+		readonly effects?: EffectsProp;
 	};
 
 /*
@@ -60,7 +60,7 @@ const GifInner = ({
 	durationInFrames,
 	style,
 	_experimentalControls: controls,
-	_experimentalEffects: effects = [],
+	effects = [],
 	ref,
 	...sequenceProps
 }: GifProps & {
@@ -106,7 +106,7 @@ const GifInner = ({
 			durationInFrames={resolvedDuration}
 			name="<Gif>"
 			_experimentalControls={controls}
-			_experimentalEffects={memoizedEffectDefinitions}
+			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
 		>
 			{inner}

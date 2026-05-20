@@ -1,4 +1,4 @@
-// Types needed outside core for `_experimentalEffects` / `@remotion/effects/*` typing.
+// Types needed outside core for `effects` / `@remotion/effects` typing.
 export type {
 	EffectDefinitionAndStack,
 	EffectDescriptor,

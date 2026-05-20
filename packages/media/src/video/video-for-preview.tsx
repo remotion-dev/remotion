@@ -67,7 +67,7 @@ type VideoForPreviewProps = {
 	readonly objectFit: VideoObjectFit;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
-	readonly _experimentalEffects: EffectDefinitionAndStack<unknown>[];
+	readonly effects: EffectDefinitionAndStack<unknown>[];
 };
 
 type VideoForPreviewAssertedShowingProps = VideoForPreviewProps;
@@ -98,7 +98,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	credentials,
 	objectFit: objectFitProp,
 	_experimentalInitiallyDrawCachedFrame,
-	_experimentalEffects,
+	effects,
 	setMediaDurationInSeconds,
 }) => {
 	const src = usePreload(unpreloadedSrc);
@@ -139,8 +139,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const effectChainState = useEffectChainState();
 
-	const experimentalEffectsRef = useRef(_experimentalEffects);
-	experimentalEffectsRef.current = _experimentalEffects;
+	const effectsRef = useRef(effects);
+	effectsRef.current = effects;
 
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
@@ -276,7 +276,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				sequenceOffset: initialSequenceOffset.current,
 				credentials,
 				tagType: 'video',
-				getEffects: () => experimentalEffectsRef.current,
+				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
 			});
@@ -475,7 +475,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.redrawVideoEffects().catch(() => {
 			// Player may have been disposed between layout and the async redraw.
 		});
-	}, [_experimentalEffects, mediaPlayerReady, mediaPlayerRef]);
+	}, [effects, mediaPlayerReady, mediaPlayerRef]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {

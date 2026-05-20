@@ -70,13 +70,13 @@ type OptionalVideoProps = {
 	credentials: RequestCredentials | undefined;
 	objectFit: VideoObjectFit;
 	_experimentalInitiallyDrawCachedFrame: boolean;
-	_experimentalEffects: EffectsProp;
+	effects: EffectsProp;
 };
 
 export type InnerVideoProps = MandatoryVideoProps &
 	OuterVideoProps &
-	Omit<OptionalVideoProps, '_experimentalEffects'> & {
-		_experimentalEffects: EffectDefinitionAndStack<unknown>[];
+	Omit<OptionalVideoProps, 'effects'> & {
+		effects: EffectDefinitionAndStack<unknown>[];
 	};
 
 export type VideoProps = MandatoryVideoProps &

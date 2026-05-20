@@ -1,7 +1,7 @@
 // Regression fixture for https://github.com/remotion-dev/remotion/issues/7447
 // The error overlay does not dismiss after a runtime error is fixed.
 // The e2e test toggles the radius argument below to reproduce.
-import {blur} from '@remotion/effects/blur';
+import {EffectInternals} from '@remotion/effects';
 import React from 'react';
 import {AbsoluteFill, Solid} from 'remotion';
 
@@ -15,7 +15,7 @@ export const ErrorOverlayRepro: React.FC = () => {
 				height={400}
 				color="#ff5fa2"
 				style={STYLE}
-				_experimentalEffects={[blur({radius: 24})]}
+				effects={[EffectInternals.blur({radius: 24})]}
 			/>
 		</AbsoluteFill>
 	);
