@@ -38,6 +38,7 @@ import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {FreezePortion} from './FreezePortion/FreezePortion';
+import {GifEffectsTestbed} from './Gif/GifEffects';
 import {GoogleFontsCjk} from './GoogleFontsCjk/GoogleFontsCjk';
 import {Green} from './Green';
 import {HlsDemo} from './Hls/HlsDemo';
@@ -1665,6 +1666,7 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 				/>
 				<RiveEffectsTestbed />
+				<GifEffectsTestbed />
 			</Folder>
 			<Folder name="Premount">
 				<Composition

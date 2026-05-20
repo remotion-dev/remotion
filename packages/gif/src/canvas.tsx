@@ -3,11 +3,16 @@ import {
 	forwardRef,
 	useEffect,
 	useImperativeHandle,
+	useMemo,
 	useRef,
 	useState,
 } from 'react';
+import type {EffectDefinitionAndStack} from 'remotion';
+import {Internals, useDelayRender} from 'remotion';
 import type {GifFillMode} from './props';
 import {useElementSize} from './use-element-size';
+
+const {runEffectChain, useEffectChainState} = Internals;
 
 const calcArgs = (
 	fit: GifFillMode,
@@ -102,14 +107,37 @@ type Props = {
 	readonly fit: GifFillMode;
 	readonly className?: string;
 	readonly style?: React.CSSProperties;
+	readonly effects: EffectDefinitionAndStack<unknown>[];
 };
 
 export const Canvas = forwardRef(
-	({index, frames, width, height, fit, className, style}: Props, ref) => {
+	(
+		{index, frames, width, height, fit, className, style, effects}: Props,
+		ref,
+	) => {
 		const canvasRef = useRef<HTMLCanvasElement>(null);
 		const [tempCtx] = useState(() => {
 			return makeCanvas();
 		});
+
+		const sourceCanvas = useMemo(() => {
+			if (typeof document === 'undefined') {
+				return null;
+			}
+
+			return document.createElement('canvas');
+		}, []);
+
+		const effectOutputCanvas = useMemo(() => {
+			if (typeof document === 'undefined') {
+				return null;
+			}
+
+			return document.createElement('canvas');
+		}, []);
+
+		const chainState = useEffectChainState();
+		const {delayRender, continueRender} = useDelayRender();
 
 		const size = useElementSize(canvasRef);
 
@@ -123,28 +151,141 @@ export const Canvas = forwardRef(
 			}
 
 			const imageData = frames[index];
-			const ctx = canvasRef.current?.getContext('2d');
-			if (imageData && tempCtx && ctx) {
-				if (
-					tempCtx.canvas.width < imageData.width ||
-					tempCtx.canvas.height < imageData.height
-				) {
-					tempCtx.canvas.width = imageData.width;
-					tempCtx.canvas.height = imageData.height;
-				}
-
-				if (size.width > 0 && size.height > 0) {
-					ctx.clearRect(0, 0, size.width, size.height);
-					tempCtx.clearRect(0, 0, tempCtx.canvas.width, tempCtx.canvas.height);
-				}
-
-				tempCtx.putImageData(imageData, 0, 0);
-				ctx.drawImage(
-					tempCtx.canvas,
-					...calcArgs(fit, imageData, {width: size.width, height: size.height}),
-				);
+			const outputCanvas = canvasRef.current;
+			const outputCtx = outputCanvas?.getContext('2d');
+			if (!imageData || !tempCtx || !outputCtx || !outputCanvas) {
+				return;
 			}
-		}, [index, frames, fit, tempCtx, size]);
+
+			if (
+				tempCtx.canvas.width < imageData.width ||
+				tempCtx.canvas.height < imageData.height
+			) {
+				tempCtx.canvas.width = imageData.width;
+				tempCtx.canvas.height = imageData.height;
+			}
+
+			const layoutWidth = width ?? size.width;
+			const layoutHeight = height ?? size.height;
+
+			if (layoutWidth <= 0 || layoutHeight <= 0) {
+				return;
+			}
+
+			if (size.width > 0 && size.height > 0) {
+				outputCtx.clearRect(0, 0, size.width, size.height);
+				tempCtx.clearRect(0, 0, tempCtx.canvas.width, tempCtx.canvas.height);
+			}
+
+			tempCtx.putImageData(imageData, 0, 0);
+
+			const frameSize = {
+				width: imageData.width,
+				height: imageData.height,
+			};
+			const layoutSize = {
+				width: layoutWidth,
+				height: layoutHeight,
+			};
+
+			if (effects.length === 0) {
+				outputCtx.drawImage(
+					tempCtx.canvas,
+					...calcArgs(fit, frameSize, layoutSize),
+				);
+				return;
+			}
+
+			if (!sourceCanvas || !effectOutputCanvas) {
+				return;
+			}
+
+			// Effects run at the GIF's intrinsic pixel dimensions; fit is applied
+			// when compositing onto the layout-sized output canvas.
+			if (
+				sourceCanvas.width !== frameSize.width ||
+				sourceCanvas.height !== frameSize.height
+			) {
+				sourceCanvas.width = frameSize.width;
+				sourceCanvas.height = frameSize.height;
+			}
+
+			if (
+				effectOutputCanvas.width !== frameSize.width ||
+				effectOutputCanvas.height !== frameSize.height
+			) {
+				effectOutputCanvas.width = frameSize.width;
+				effectOutputCanvas.height = frameSize.height;
+			}
+
+			const sourceCtx = sourceCanvas.getContext('2d');
+			if (!sourceCtx) {
+				return;
+			}
+
+			sourceCtx.clearRect(0, 0, frameSize.width, frameSize.height);
+			sourceCtx.putImageData(imageData, 0, 0);
+
+			const state = chainState.get(frameSize.width, frameSize.height);
+			if (!state) {
+				return;
+			}
+
+			if (
+				outputCanvas.width !== layoutWidth ||
+				outputCanvas.height !== layoutHeight
+			) {
+				outputCanvas.width = layoutWidth;
+				outputCanvas.height = layoutHeight;
+			}
+
+			const effectChainHandle = delayRender('Rendering <Gif/> effect chain');
+
+			let cancelled = false;
+
+			runEffectChain({
+				state,
+				source: sourceCanvas,
+				effects,
+				output: effectOutputCanvas,
+				width: frameSize.width,
+				height: frameSize.height,
+			})
+				.then((completed: boolean) => {
+					if (cancelled || !completed) {
+						return;
+					}
+
+					outputCtx.clearRect(0, 0, layoutWidth, layoutHeight);
+					outputCtx.drawImage(
+						effectOutputCanvas,
+						...calcArgs(fit, frameSize, layoutSize),
+					);
+					continueRender(effectChainHandle);
+				})
+				.catch((err: unknown) => {
+					throw err;
+				});
+
+			return () => {
+				cancelled = true;
+				continueRender(effectChainHandle);
+			};
+		}, [
+			index,
+			frames,
+			fit,
+			tempCtx,
+			size,
+			width,
+			height,
+			effects,
+			sourceCanvas,
+			effectOutputCanvas,
+			chainState,
+			delayRender,
+			continueRender,
+		]);
 
 		return (
 			<canvas
