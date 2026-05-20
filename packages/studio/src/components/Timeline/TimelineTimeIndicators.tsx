@@ -20,7 +20,7 @@ import {TimelineWidthContext} from './TimelineWidthProvider';
 export const TIMELINE_TIME_INDICATOR_HEIGHT = 39;
 
 const container: React.CSSProperties = {
-	height: TIMELINE_TIME_INDICATOR_HEIGHT - 4,
+	height: TIMELINE_TIME_INDICATOR_HEIGHT,
 	boxShadow: `0 0 4px ${TIMELINE_BACKGROUND}`,
 	position: 'absolute',
 	backgroundColor: TIMELINE_BACKGROUND,
@@ -140,7 +140,6 @@ const TimelineTimeIndicatorsInner: React.FC<{
 			...container,
 			width: windowWidth - SPLITTER_HANDLE_SIZE / 2,
 			overflow: 'hidden',
-			// Since
 			marginLeft: SPLITTER_HANDLE_SIZE / 2,
 			pointerEvents: 'none',
 		};
