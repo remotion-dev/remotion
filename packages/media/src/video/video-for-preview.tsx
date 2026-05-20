@@ -142,6 +142,14 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const experimentalEffectsRef = useRef(_experimentalEffects);
 	experimentalEffectsRef.current = _experimentalEffects;
 
+	const experimentalEffectsSignature = useMemo(
+		() =>
+			_experimentalEffects
+				.map((effect) => `${effect.definition.type}:${effect.effectKey}`)
+				.join('|'),
+		[_experimentalEffects],
+	);
+
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
 
@@ -465,6 +473,17 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
 	}, [onVideoFrame, mediaPlayerReady]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.redrawVideoEffects().catch(() => {
+			// Player may have been disposed between layout and the async redraw.
+		});
+	}, [experimentalEffectsSignature, mediaPlayerReady, mediaPlayerRef]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
