@@ -4,6 +4,7 @@ import {
 	Sequence,
 	useRemotionEnvironment,
 	useVideoConfig,
+	type EffectsProp,
 	type SequenceControls,
 	type SequenceProps,
 	type SequenceSchema,
@@ -12,12 +13,20 @@ import {GifForDevelopment} from './GifForDevelopment';
 import {GifForRendering} from './GifForRendering';
 import type {RemotionGifProps} from './props';
 
+const {
+	addSequenceStackTraces,
+	useMemoizedEffectDefinitions,
+	useMemoizedEffects,
+	wrapInSchema,
+} = Internals;
+
 export type GifProps = Omit<
 	SequenceProps,
-	'children' | 'durationInFrames' | 'layout'
+	'children' | 'durationInFrames' | 'layout' | '_experimentalEffects'
 > &
 	RemotionGifProps & {
 		readonly durationInFrames?: number;
+		readonly _experimentalEffects?: EffectsProp;
 	};
 
 /*
@@ -51,6 +60,7 @@ const GifInner = ({
 	durationInFrames,
 	style,
 	_experimentalControls: controls,
+	_experimentalEffects: effects = [],
 	ref,
 	...sequenceProps
 }: GifProps & {
@@ -61,7 +71,15 @@ const GifInner = ({
 	const {durationInFrames: videoDuration} = useVideoConfig();
 	const resolvedDuration = durationInFrames ?? videoDuration;
 
-	const gifProps: RemotionGifProps = {
+	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
+	const memoizedEffects = useMemoizedEffects({
+		effects,
+		overrideId: controls?.overrideId ?? null,
+	});
+
+	const gifProps: RemotionGifProps & {
+		readonly effects: typeof memoizedEffects;
+	} = {
 		src,
 		width,
 		height,
@@ -73,6 +91,7 @@ const GifInner = ({
 		id,
 		delayRenderTimeoutInMilliseconds,
 		style,
+		effects: memoizedEffects,
 	};
 
 	const inner = env.isRendering ? (
@@ -87,6 +106,7 @@ const GifInner = ({
 			durationInFrames={resolvedDuration}
 			name="<Gif>"
 			_experimentalControls={controls}
+			_experimentalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
 		>
 			{inner}
@@ -94,8 +114,8 @@ const GifInner = ({
 	);
 };
 
-export const Gif = Internals.wrapInSchema(GifInner, gifSchema);
+export const Gif = wrapInSchema(GifInner, gifSchema);
 
 Gif.displayName = 'Gif';
 
-Internals.addSequenceStackTraces(Gif);
+addSequenceStackTraces(Gif);

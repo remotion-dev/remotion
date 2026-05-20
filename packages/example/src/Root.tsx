@@ -38,6 +38,7 @@ import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {FreezePortion} from './FreezePortion/FreezePortion';
+import {GifEffectsTestbed} from './Gif/GifEffects';
 import {GoogleFontsCjk} from './GoogleFontsCjk/GoogleFontsCjk';
 import {Green} from './Green';
 import {HlsDemo} from './Hls/HlsDemo';
@@ -1153,7 +1154,6 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="AnimatedImage">
 				<AnimatedImages />
-				<AnimatedImageEffects />
 			</Folder>
 			<Folder name="still-tests">
 				<Still
@@ -1664,7 +1664,27 @@ export const Index: React.FC = () => {
 					}}
 					durationInFrames={150}
 				/>
+			</Folder>
+			<Folder name="Effects">
 				<RiveEffectsTestbed />
+				<GifEffectsTestbed />
+				<AnimatedImageEffects />
+				<Composition
+					id="effects-testbed"
+					component={EffectsTestbed}
+					width={1920}
+					height={1920}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="video-effects-fast-refresh"
+					component={VideoEffectsFastRefresh}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={300}
+				/>
 			</Folder>
 			<Folder name="Premount">
 				<Composition
@@ -2125,24 +2145,6 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={90}
-				/>
-			</Folder>
-			<Folder name="effects">
-				<Composition
-					id="effects-testbed"
-					component={EffectsTestbed}
-					width={1920}
-					height={1920}
-					fps={30}
-					durationInFrames={300}
-				/>
-				<Composition
-					id="video-effects-fast-refresh"
-					component={VideoEffectsFastRefresh}
-					width={1920}
-					height={1080}
-					fps={30}
-					durationInFrames={300}
 				/>
 			</Folder>
 			<Composition
