@@ -26,8 +26,6 @@ The following sound effects are available:
 - `https://remotion.media/bruh.wav`
 - `https://remotion.media/vine-boom.wav`
 - `https://remotion.media/windows-xp-error.wav`
-
-<!-- Issue #7054 -->
 - `https://remotion.media/fah.wav`
 - `https://remotion.media/spongebob-fail.wav`
 - `https://remotion.media/omg-hell-nah.wav`

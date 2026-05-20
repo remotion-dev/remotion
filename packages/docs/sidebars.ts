@@ -500,7 +500,6 @@ const sidebars: SidebarsConfig = {
 				'sfx/bruh',
 				'sfx/vine-boom',
 				'sfx/windows-xp-error',
-				// Issue #7054
 				'sfx/fah',
 				'sfx/spongebob-fail',
 				'sfx/omg-hell-nah',

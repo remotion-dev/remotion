@@ -11,8 +11,6 @@ export const bruh = 'https://remotion.media/bruh.wav' as const;
 export const vineBoom = 'https://remotion.media/vine-boom.wav' as const;
 export const windowsXpError =
 	'https://remotion.media/windows-xp-error.wav' as const;
-
-// Issue #7054 myinstants sound effects
 export const fah = 'https://remotion.media/fah.wav' as const;
 export const spongebobFail =
 	'https://remotion.media/spongebob-fail.wav' as const;
