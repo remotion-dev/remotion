@@ -83,9 +83,13 @@ const tabWrapper: React.CSSProperties = {
 };
 
 const resolveLinkStyle: React.CSSProperties = {
-	color: BLUE,
+	backgroundColor: BLUE,
+	borderRadius: 4,
+	color: 'white',
+	display: 'inline-flex',
 	fontSize: 13,
 	fontFamily: 'sans-serif',
+	padding: '2px 6px',
 	textDecoration: 'none',
 	whiteSpace: 'nowrap',
 };

@@ -45,13 +45,13 @@ export const ValidationMessage: React.FC<{
 			<Row align="center" justify={align}>
 				<WarningTriangle style={finalStyle} />
 				<Spacing x={1} />
-				<div style={label}>{message}</div>
 				{action ? (
 					<>
-						<Spacing x={1} />
 						{action}
+						<Spacing x={1} />
 					</>
 				) : null}
+				<div style={label}>{message}</div>
 			</Row>
 		</div>
 	);
