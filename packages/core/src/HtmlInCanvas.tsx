@@ -6,7 +6,6 @@ import React, {
 	useLayoutEffect,
 	useMemo,
 	useRef,
-	useState,
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
 import {delayRender} from './delay-render.js';
@@ -78,16 +77,20 @@ declare global {
 	}
 
 	interface OffscreenCanvasRenderingContext2D {
-		drawElementImage(element: ElementImage, dx: number, dy: number): DOMMatrix;
 		drawElementImage(
-			element: ElementImage,
+			element: Element | ElementImage,
+			dx: number,
+			dy: number,
+		): DOMMatrix;
+		drawElementImage(
+			element: Element | ElementImage,
 			dx: number,
 			dy: number,
 			dwidth: number,
 			dheight: number,
 		): DOMMatrix;
 		drawElementImage(
-			element: ElementImage,
+			element: Element | ElementImage,
 			sx: number,
 			sy: number,
 			swidth: number,
@@ -96,7 +99,7 @@ declare global {
 			dy: number,
 		): DOMMatrix;
 		drawElementImage(
-			element: ElementImage,
+			element: Element | ElementImage,
 			sx: number,
 			sy: number,
 			swidth: number,
@@ -173,6 +176,10 @@ declare global {
 }
 
 export type HtmlInCanvasOnPaintParams = {
+	/**
+	 * The `OffscreenCanvas` from {@link HTMLCanvasElement.transferControlToOffscreen}
+	 * on the layout `<canvas>` (same logical canvas as the forwarded ref).
+	 */
 	readonly canvas: OffscreenCanvas;
 	readonly element: HTMLDivElement;
 	readonly elementImage: ElementImage;
@@ -197,7 +204,8 @@ export const isHtmlInCanvasSupported = (): boolean => {
 	cachedSupport =
 		typeof ctx?.drawElementImage === 'function' &&
 		typeof canvas.requestPaint === 'function' &&
-		typeof canvas.captureElementImage === 'function';
+		typeof canvas.captureElementImage === 'function' &&
+		'transferControlToOffscreen' in HTMLCanvasElement.prototype;
 	return cachedSupport;
 };
 
@@ -309,7 +317,9 @@ const HtmlInCanvasContent = forwardRef<
 		}
 
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
+		const offscreenRef = useRef<OffscreenCanvas | null>(null);
 		const divRef = useRef<HTMLDivElement | null>(null);
+		const canvasSizeKey = `${width}x${height}`;
 
 		const setLayoutCanvasRef = useCallback(
 			(node: HTMLCanvasElement | null) => {
@@ -323,7 +333,6 @@ const HtmlInCanvasContent = forwardRef<
 			},
 			[ref],
 		);
-		const [offscreenCanvas] = useState(() => new OffscreenCanvas(1, 1));
 
 		const chainState = useEffectChainState();
 
@@ -350,22 +359,29 @@ const HtmlInCanvasContent = forwardRef<
 				throw new Error('Canvas or scene element not found');
 			}
 
-			offscreenCanvas.width = width;
-			offscreenCanvas.height = height;
+			const offscreen = offscreenRef.current;
+			if (!offscreen) {
+				throw new Error(
+					'HtmlInCanvas: offscreen canvas not ready (transferControlToOffscreen failed or canvas is remounting)',
+				);
+			}
+
+			offscreen.width = width;
+			offscreen.height = height;
 
 			try {
-				const layoutCanvas = canvas2dRef.current;
-				if (!layoutCanvas) {
+				const placeholderCanvas = canvas2dRef.current;
+				if (!placeholderCanvas) {
 					throw new Error('Canvas not found');
 				}
 
 				// `GPUQueue.copyElementImageToTexture` / related paths validate the
-				// layout canvas has a rendering context. `runEffectChain` only runs
-				// after `onPaint`, so acquire `2d` here before any capture or handler.
-				const layout2d = layoutCanvas.getContext('2d');
-				if (!layout2d) {
+				// linked offscreen surface has a rendering context. Acquire `2d` here
+				// before any capture or handler (must not call getContext on placeholder).
+				const offscreen2d = offscreen.getContext('2d');
+				if (!offscreen2d) {
 					throw new Error(
-						'Failed to acquire 2D context for <HtmlInCanvas> layout canvas',
+						'Failed to acquire 2D context for <HtmlInCanvas> offscreen canvas',
 					);
 				}
 
@@ -378,11 +394,11 @@ const HtmlInCanvasContent = forwardRef<
 					// can invalidate the capture's paint context, leaving subsequent
 					// uploads (e.g. `copyElementImageToTexture`) failing with
 					// "No context found for ElementImage" on the very first paint.
-					const initImage = layoutCanvas.captureElementImage(element);
+					const initImage = placeholderCanvas.captureElementImage(element);
 					const currentOnInit = onInitRef.current;
 					if (currentOnInit) {
 						const cleanup = await currentOnInit({
-							canvas: offscreenCanvas,
+							canvas: offscreen,
 							element,
 							elementImage: initImage!,
 						});
@@ -402,18 +418,18 @@ const HtmlInCanvasContent = forwardRef<
 
 				const handler = onPaintRef.current ?? defaultOnPaint;
 
-				const elImage = layoutCanvas.captureElementImage(element);
+				const elImage = placeholderCanvas.captureElementImage(element);
 				await handler({
-					canvas: offscreenCanvas,
+					canvas: offscreen,
 					element,
 					elementImage: elImage!,
 				});
 
 				await runEffectChain({
 					state: chainState.get(width, height)!,
-					source: offscreenCanvas,
+					source: offscreen,
 					effects: effectsRef.current,
-					output: canvas2dRef.current!,
+					output: offscreen,
 					width,
 					height,
 				});
@@ -422,34 +438,37 @@ const HtmlInCanvasContent = forwardRef<
 			} catch (error) {
 				cancelRender(error);
 			}
-		}, [
-			chainState,
-			continueRender,
-			cancelRender,
-			width,
-			height,
-			offscreenCanvas,
-		]);
+		}, [chainState, continueRender, cancelRender, width, height]);
 
-		// Set up layoutSubtree and persistent paint listener. Runs as a
-		// layout effect so the listener is attached before the resize effect
-		// below dispatches its first synthetic paint.
+		// Transfer control once per layout canvas instance, then listen for paint on
+		// the placeholder (capture) while drawing on the linked offscreen surface.
 		useLayoutEffect(() => {
-			const canvas = canvas2dRef.current;
-			if (!canvas) {
+			const placeholder = canvas2dRef.current;
+			if (!placeholder) {
 				throw new Error('Canvas not found');
 			}
 
-			canvas.layoutSubtree = true;
-			canvas.addEventListener('paint', onPaintCb);
+			placeholder.layoutSubtree = true;
+
+			const offscreen = placeholder.transferControlToOffscreen();
+			offscreenRef.current = offscreen;
+			offscreen.width = width;
+			offscreen.height = height;
+
+			initializedRef.current = false;
+			unmountedRef.current = false;
+
+			placeholder.addEventListener('paint', onPaintCb);
 
 			return () => {
-				canvas.removeEventListener('paint', onPaintCb);
+				placeholder.removeEventListener('paint', onPaintCb);
+				offscreenRef.current = null;
+				initializedRef.current = false;
 				unmountedRef.current = true;
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};
-		}, [onPaintCb, cancelRender]);
+		}, [onPaintCb, cancelRender, canvasSizeKey]);
 
 		const onPaintChangedRef = useRef(false);
 		useLayoutEffect(() => {
@@ -484,7 +503,7 @@ const HtmlInCanvasContent = forwardRef<
 			return () => {
 				continueRender(handle);
 			};
-		}, [width, height, continueRender]);
+		}, [width, height, continueRender, canvasSizeKey]);
 
 		const innerStyle = useMemo(() => {
 			return {
@@ -502,6 +521,7 @@ const HtmlInCanvasContent = forwardRef<
 		return (
 			<HtmlInCanvasAncestorContext.Provider value>
 				<canvas
+					key={canvasSizeKey}
 					ref={setLayoutCanvasRef}
 					width={width}
 					height={height}

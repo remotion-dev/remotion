@@ -49,11 +49,14 @@ const ensureSetup = <S>(
 	return setupState;
 };
 
+/** Final compositing target for an effect chain (layout canvas or transferred offscreen). */
+export type EffectChainOutput = HTMLCanvasElement | OffscreenCanvas;
+
 export type RunEffectChainOptions = {
 	readonly state: EffectChainState;
 	readonly source: CanvasImageSource;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
-	readonly output: HTMLCanvasElement;
+	readonly output: EffectChainOutput;
 	readonly width: number;
 	readonly height: number;
 };
