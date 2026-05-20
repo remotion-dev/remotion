@@ -21,6 +21,7 @@ import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
+import {useReportMediaPlaybackError} from '../use-report-media-playback-error.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {VERSION} from '../version.js';
 import {
@@ -160,6 +161,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return _remotionInternalStack ?? null;
 	}, [_remotionInternalStack]);
 
+	const reportMediaPlaybackError = useReportMediaPlaybackError();
+
 	useMediaInTimeline({
 		volume,
 		mediaVolume,
@@ -248,34 +251,20 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 				// eslint-disable-next-line no-console
 				console.error('Error occurred in video', current?.error);
 
-				// If user is handling the error, we don't cause an unhandled exception
-				if (onError) {
-					const err = new MediaPlaybackError({
-						message: `Code ${current.error.code}: ${current.error.message}`,
+				reportMediaPlaybackError({
+					onError,
+					error: new MediaPlaybackError({
+						message: `The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`,
 						src: src as string,
-					});
-					onError(err);
-					return;
-				}
-
-				throw new MediaPlaybackError({
-					message: `The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`,
-					src: src as string,
+					}),
 				});
 			} else {
-				// If user is handling the error, we don't cause an unhandled exception
-				if (onError) {
-					const err = new MediaPlaybackError({
+				reportMediaPlaybackError({
+					onError,
+					error: new MediaPlaybackError({
 						message: `The browser threw an error while playing the video ${src}`,
 						src: src as string,
-					});
-					onError(err);
-					return;
-				}
-
-				throw new MediaPlaybackError({
-					message: 'The browser threw an error while playing the video',
-					src: src as string,
+					}),
 				});
 			}
 		};
@@ -284,7 +273,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, [onError, src]);
+	}, [onError, reportMediaPlaybackError, src]);
 
 	const currentOnDurationCallback =
 		useRef<VideoForPreviewProps['onDuration']>(onDuration);
