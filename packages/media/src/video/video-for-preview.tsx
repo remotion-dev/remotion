@@ -466,6 +466,17 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
 	}, [onVideoFrame, mediaPlayerReady]);
 
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.redrawVideoEffects().catch(() => {
+			// Player may have been disposed between layout and the async redraw.
+		});
+	}, [_experimentalEffects, mediaPlayerReady, mediaPlayerRef]);
+
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...style,

@@ -779,6 +779,10 @@ export class MediaPlayer {
 		this.onVideoFrameCallback = callback;
 	}
 
+	public async redrawVideoEffects(): Promise<void> {
+		await this.videoIteratorManager?.redrawCurrentFrame();
+	}
+
 	private drawDebugOverlay = () => {
 		if (!this.debugOverlay) return;
 		if (this.context && this.canvas) {

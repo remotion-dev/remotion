@@ -160,6 +160,7 @@ import Amplify from './AudioTesting/Amplify';
 import {BrowserTest} from './BrowserTest';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
+import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {LightLeakExample} from './LightLeak';
@@ -2130,6 +2131,14 @@ export const Index: React.FC = () => {
 					component={EffectsTestbed}
 					width={1920}
 					height={1920}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="video-effects-fast-refresh"
+					component={VideoEffectsFastRefresh}
+					width={1920}
+					height={1080}
 					fps={30}
 					durationInFrames={300}
 				/>
