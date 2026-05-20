@@ -64,7 +64,7 @@ type VideoForPreviewProps = {
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
-	readonly fetchCache: RequestCache | undefined;
+	readonly requestInit: RequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
@@ -97,7 +97,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	headless,
 	onError,
 	credentials,
-	fetchCache,
+	requestInit,
 	objectFit: objectFitProp,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
@@ -112,6 +112,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialTrimBeforeRef = useRef(trimBefore);
 	const initialTrimAfterRef = useRef(trimAfter);
 	const initialOnVideoFrameRef = useRef(onVideoFrame);
+	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
 	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
@@ -277,7 +278,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				playing: initialPlaying.current,
 				sequenceOffset: initialSequenceOffset.current,
 				credentials,
-				fetchCache,
+				requestInit: initialRequestInit,
 				tagType: 'video',
 				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
@@ -416,7 +417,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		videoConfig.fps,
 		onError,
 		credentials,
-		fetchCache,
+		initialRequestInit,
 		setMediaDurationInSeconds,
 	]);
 

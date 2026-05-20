@@ -5,23 +5,41 @@ import {getSinks} from './video-extraction/get-frames-since-keyframe';
 
 export const sinkPromises: Record<string, Promise<GetSink>> = {};
 
+const requestInitIds = new WeakMap<RequestInit, number>();
+let requestInitId = 0;
+
+const getRequestInitKey = (requestInit: RequestInit | undefined) => {
+	if (!requestInit) {
+		return null;
+	}
+
+	const cachedId = requestInitIds.get(requestInit);
+	if (cachedId !== undefined) {
+		return cachedId;
+	}
+
+	requestInitId++;
+	requestInitIds.set(requestInit, requestInitId);
+	return requestInitId;
+};
+
 export const getSinkCacheKey = ({
 	src,
 	credentials,
-	fetchCache,
+	requestInit,
 }: {
 	src: string;
 	credentials: RequestCredentials | undefined;
-	fetchCache: RequestCache | undefined;
-}) => JSON.stringify([src, credentials, fetchCache]);
+	requestInit: RequestInit | undefined;
+}) => JSON.stringify([src, credentials, getRequestInitKey(requestInit)]);
 
 export const getSink = (
 	src: string,
 	logLevel: LogLevel,
 	credentials: RequestCredentials | undefined,
-	fetchCache?: RequestCache,
+	requestInit?: RequestInit,
 ) => {
-	const cacheKey = getSinkCacheKey({src, credentials, fetchCache});
+	const cacheKey = getSinkCacheKey({src, credentials, requestInit});
 	let promise = sinkPromises[cacheKey];
 	if (!promise) {
 		Internals.Log.verbose(
@@ -31,7 +49,7 @@ export const getSink = (
 			},
 			`Sink for ${src} was not found, creating new sink`,
 		);
-		promise = getSinks(src, credentials, fetchCache);
+		promise = getSinks(src, credentials, requestInit);
 		sinkPromises[cacheKey] = promise;
 	}
 

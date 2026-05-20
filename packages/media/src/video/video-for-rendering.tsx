@@ -52,7 +52,7 @@ type InnerVideoProps = {
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
-	readonly fetchCache: RequestCache | undefined;
+	readonly requestInit: RequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
 };
 
@@ -83,7 +83,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	headless,
 	onError,
 	credentials,
-	fetchCache,
+	requestInit,
 	objectFit: objectFitProp,
 }) => {
 	if (!src) {
@@ -122,6 +122,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] = useState<
 		FallbackToOffthreadVideo | false
 	>(false);
+	const [initialRequestInit] = useState(requestInit);
 
 	const audioEnabled = Internals.useAudioEnabled();
 	const videoEnabled = Internals.useVideoEnabled();
@@ -190,7 +191,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			fps,
 			maxCacheSize,
 			credentials,
-			fetchCache,
+			requestInit: initialRequestInit,
 		})
 			.then((result) => {
 				const handleError = (
@@ -392,7 +393,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		headless,
 		onError,
 		credentials,
-		fetchCache,
+		initialRequestInit,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});

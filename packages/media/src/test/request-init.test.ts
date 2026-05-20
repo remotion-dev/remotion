@@ -1,32 +1,36 @@
 import {expect, test} from 'vitest';
 import {getSinkCacheKey} from '../get-sink';
-import {makeRequestInit} from '../request-init';
+import {resolveRequestInit} from '../request-init';
 
 test('creates no RequestInit if no fetch options are set', () => {
-	expect(makeRequestInit({credentials: undefined, fetchCache: undefined})).toBe(
-		undefined,
-	);
+	expect(
+		resolveRequestInit({credentials: undefined, requestInit: undefined}),
+	).toBe(undefined);
 });
 
-test('passes fetch cache and credentials to mediabunny', () => {
+test('passes requestInit and credentials to mediabunny', () => {
 	expect(
-		makeRequestInit({credentials: 'include', fetchCache: 'no-store'}),
+		resolveRequestInit({
+			credentials: 'include',
+			requestInit: {cache: 'no-store'},
+		}),
 	).toEqual({
 		credentials: 'include',
 		cache: 'no-store',
 	});
 });
 
-test('uses fetch cache in the sink cache key', () => {
+test('uses requestInit in the sink cache key', () => {
+	const requestInit = {cache: 'no-store'} as const;
 	const defaultKey = getSinkCacheKey({
 		src: 'https://example.com/video.mp4',
 		credentials: undefined,
-		fetchCache: undefined,
+		requestInit: undefined,
 	});
 	const noStoreKey = getSinkCacheKey({
 		src: 'https://example.com/video.mp4',
 		credentials: undefined,
-		fetchCache: 'no-store',
+		requestInit,
 	});
 
 	expect(noStoreKey).not.toBe(defaultKey);

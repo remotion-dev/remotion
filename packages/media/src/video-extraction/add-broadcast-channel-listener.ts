@@ -54,7 +54,7 @@ export type ExtractFrameRequest = {
 	fps: number;
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
-	fetchCache?: RequestCache;
+	requestInit?: RequestInit;
 };
 
 // Send to other channels a message to let them know that the
@@ -105,7 +105,7 @@ export const addBroadcastChannelListener = () => {
 						fps: data.fps,
 						maxCacheSize: data.maxCacheSize,
 						credentials: data.credentials,
-						fetchCache: data.fetchCache,
+						requestInit: data.requestInit,
 					});
 
 					if (result.type === 'cannot-decode') {

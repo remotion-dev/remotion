@@ -24,7 +24,7 @@ import {resolveAudioTrack} from './helpers/resolve-audio-track';
 import {isNetworkError} from './is-type-of-error';
 import type {Nonce, NonceManager} from './nonce-manager';
 import {makeNonceManager} from './nonce-manager';
-import {makeRequestInit} from './request-init';
+import {resolveRequestInit} from './request-init';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
@@ -109,7 +109,7 @@ export class MediaPlayer {
 		playing,
 		sequenceOffset,
 		credentials,
-		fetchCache,
+		requestInit,
 		tagType,
 		getEffects,
 		getEffectChainState,
@@ -134,7 +134,7 @@ export class MediaPlayer {
 		playing: boolean;
 		sequenceOffset: number;
 		credentials: RequestCredentials | undefined;
-		fetchCache?: RequestCache;
+		requestInit?: RequestInit;
 		tagType: 'audio' | 'video';
 		getEffects: () => EffectDefinitionAndStack<unknown>[];
 		getEffectChainState: (
@@ -162,13 +162,13 @@ export class MediaPlayer {
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
 		this.sequenceOffset = sequenceOffset;
-		const requestInit = makeRequestInit({credentials, fetchCache});
+		const resolvedRequestInit = resolveRequestInit({credentials, requestInit});
 		this.input = new Input({
 			source: new UrlSource(
 				this.src,
-				requestInit
+				resolvedRequestInit
 					? {
-							requestInit,
+							requestInit: resolvedRequestInit,
 						}
 					: undefined,
 			),

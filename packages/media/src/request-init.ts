@@ -1,21 +1,18 @@
 export type MediaRequestInitOptions = {
 	credentials: RequestCredentials | undefined;
-	fetchCache: RequestCache | undefined;
+	requestInit: RequestInit | undefined;
 };
 
-export const makeRequestInit = ({
+export const resolveRequestInit = ({
 	credentials,
-	fetchCache,
+	requestInit,
 }: MediaRequestInitOptions): RequestInit | undefined => {
-	const requestInit: RequestInit = {};
-
-	if (credentials) {
-		requestInit.credentials = credentials;
+	if (credentials === undefined) {
+		return requestInit;
 	}
 
-	if (fetchCache) {
-		requestInit.cache = fetchCache;
-	}
-
-	return Object.keys(requestInit).length === 0 ? undefined : requestInit;
+	return {
+		...requestInit,
+		credentials,
+	};
 };

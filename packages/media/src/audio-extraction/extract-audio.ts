@@ -32,7 +32,7 @@ type ExtractAudioParams = {
 	fps: number;
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
-	fetchCache?: RequestCache;
+	requestInit?: RequestInit;
 };
 
 const extractAudioInternal = async ({
@@ -48,7 +48,7 @@ const extractAudioInternal = async ({
 	fps,
 	maxCacheSize,
 	credentials,
-	fetchCache,
+	requestInit,
 }: ExtractAudioParams): Promise<
 	| {
 			data: PcmS16AudioData | null;
@@ -59,7 +59,7 @@ const extractAudioInternal = async ({
 	| 'network-error'
 > => {
 	const {getAudio, actualMatroskaTimestamps, isMatroska, getDuration} =
-		await getSink(src, logLevel, credentials, fetchCache);
+		await getSink(src, logLevel, credentials, requestInit);
 
 	let mediaDurationInSeconds: number | null = null;
 	if (loop) {

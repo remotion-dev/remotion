@@ -13,7 +13,7 @@ import {canBrowserUseWebGl2} from '../browser-can-use-webgl2';
 import {getDurationOrCompute} from '../get-duration-or-compute';
 import {resolveAudioTrack} from '../helpers/resolve-audio-track';
 import {isNetworkError} from '../is-type-of-error';
-import {makeRequestInit} from '../request-init';
+import {resolveRequestInit} from '../request-init';
 import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
 
 type VideoSinks = {
@@ -59,14 +59,14 @@ const getFormatOrNullOrNetworkError = async (
 export const getSinks = async (
 	src: string,
 	credentials: RequestCredentials | undefined,
-	fetchCache?: RequestCache,
+	requestInit?: RequestInit,
 ) => {
-	const requestInit = makeRequestInit({credentials, fetchCache});
+	const resolvedRequestInit = resolveRequestInit({credentials, requestInit});
 	const input = new Input({
 		formats: ALL_FORMATS,
 		source: new UrlSource(src, {
 			getRetryDelay,
-			...(requestInit ? {requestInit} : undefined),
+			...(resolvedRequestInit ? {requestInit: resolvedRequestInit} : undefined),
 		}),
 	});
 

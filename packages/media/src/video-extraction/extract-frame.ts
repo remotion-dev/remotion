@@ -26,7 +26,7 @@ type ExtractFrameParams = {
 	fps: number;
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
-	fetchCache?: RequestCache;
+	requestInit?: RequestInit;
 };
 
 const extractFrameInternal = async ({
@@ -40,9 +40,9 @@ const extractFrameInternal = async ({
 	fps,
 	maxCacheSize,
 	credentials,
-	fetchCache,
+	requestInit,
 }: ExtractFrameParams): Promise<ExtractFrameResult> => {
-	const sink = await getSink(src, logLevel, credentials, fetchCache);
+	const sink = await getSink(src, logLevel, credentials, requestInit);
 
 	const [video, mediaDurationInSecondsRaw] = await Promise.all([
 		sink.getVideo(),
