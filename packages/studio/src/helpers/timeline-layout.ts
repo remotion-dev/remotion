@@ -81,6 +81,31 @@ export const buildTimelineTree = ({
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys} = nodePathInfo;
 
+	const controlFields = getFieldsToShow({
+		schema: sequence.controls!.schema,
+		currentRuntimeValueDotNotation:
+			sequence.controls!.currentRuntimeValueDotNotation,
+		getDragOverrides,
+		codeValues,
+		nodePath: sequenceSubscriptionKey,
+	});
+
+	if (controlFields && controlFields.length > 0) {
+		for (const f of controlFields) {
+			roots.push({
+				kind: 'field',
+				nodePathInfo: {
+					sequenceSubscriptionKey,
+					auxiliaryKeys: [...auxiliaryKeys, 'controls', f.key],
+					index,
+					numberOfSequencesWithThisNodePath: 0,
+				},
+				label: f.description ?? f.key,
+				field: f,
+			});
+		}
+	}
+
 	if (sequence.effects.length > 0) {
 		roots.push({
 			kind: 'group',
@@ -125,31 +150,6 @@ export const buildTimelineTree = ({
 				};
 			}),
 		});
-	}
-
-	const controlFields = getFieldsToShow({
-		schema: sequence.controls!.schema,
-		currentRuntimeValueDotNotation:
-			sequence.controls!.currentRuntimeValueDotNotation,
-		getDragOverrides,
-		codeValues,
-		nodePath: sequenceSubscriptionKey,
-	});
-
-	if (controlFields && controlFields.length > 0) {
-		for (const f of controlFields) {
-			roots.push({
-				kind: 'field',
-				nodePathInfo: {
-					sequenceSubscriptionKey,
-					auxiliaryKeys: [...auxiliaryKeys, 'controls', f.key],
-					index,
-					numberOfSequencesWithThisNodePath: 0,
-				},
-				label: f.description ?? f.key,
-				field: f,
-			});
-		}
 	}
 
 	return roots;

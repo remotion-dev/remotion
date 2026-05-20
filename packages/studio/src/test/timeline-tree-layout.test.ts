@@ -118,10 +118,10 @@ test('flattenVisibleTreeNodes assigns increasing tree depth', () => {
 	});
 
 	expect(flat.map(({node, depth}) => ({label: node.label, depth}))).toEqual([
+		{label: 'Translate', depth: 0},
 		{label: 'Effects', depth: 0},
 		{label: 'Halftone', depth: 1},
 		{label: 'Color', depth: 2},
-		{label: 'Translate', depth: 0},
 	]);
 });
 
