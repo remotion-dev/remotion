@@ -520,7 +520,7 @@ const sidebars: SidebarsConfig = {
 				'sfx/oh-my-god-vine',
 				'sfx/illuminati-confirmed',
 				'sfx/dramatic-boomer',
-				'sfx/core-sound-effect',
+				'sfx/triggered',
 			],
 		},
 		{

@@ -155,12 +155,12 @@ export const SFX_FINAL: SfxFinal[] = [
 		description: 'Dramatic boomer sound effect',
 	},
 	{
-		slug: 'core-sound-effect',
-		fileName: 'core-sound-effect.wav',
-		exportName: 'coreSoundEffect',
-		oldFileName: 'core-trigger.wav',
+		slug: 'triggered',
+		fileName: 'triggered.wav',
+		exportName: 'triggered',
+		oldFileName: 'core-sound-effect.wav',
 		pageUrl: 'https://www.myinstants.com/en/instant/core-sound-effect-57998/',
-		description: 'Core sound effect',
+		description: 'Triggered meme sound effect',
 	},
 ];
 

@@ -40,5 +40,4 @@ export const illuminatiConfirmed =
 	'https://remotion.media/illuminati-confirmed.wav' as const;
 export const dramaticBoomer =
 	'https://remotion.media/dramatic-boomer.wav' as const;
-export const coreSoundEffect =
-	'https://remotion.media/core-sound-effect.wav' as const;
+export const triggered = 'https://remotion.media/triggered.wav' as const;

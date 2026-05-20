@@ -47,6 +47,6 @@ The following sound effects are available:
 - `https://remotion.media/oh-my-god-vine.wav`
 - `https://remotion.media/illuminati-confirmed.wav`
 - `https://remotion.media/dramatic-boomer.wav`
-- `https://remotion.media/core-sound-effect.wav`
+- `https://remotion.media/triggered.wav`
 
 For more sound effects, search the internet. A good resource is https://github.com/kapishdima/soundcn/tree/main/assets.

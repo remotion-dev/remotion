@@ -1327,10 +1327,10 @@
     "audioCodec": "pcm",
     "container": "wav",
     "fileNames": [
-      "core-sound-effect.wav"
+      "triggered.wav"
     ],
     "size": 122958,
     "category": "sound-effects",
-    "attribution": "Core -- https://www.myinstants.com/en/instant/core-sound-effect-57998/"
+    "attribution": "Triggered -- https://www.myinstants.com/en/instant/core-sound-effect-57998/"
   }
 ]

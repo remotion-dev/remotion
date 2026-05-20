@@ -5341,15 +5341,6 @@ export const articles = [
 		slug: 'sfx/bruh',
 	},
 	{
-		id: 'sfx/core-sound-effect',
-		title: 'coreSoundEffect',
-		relativePath: 'docs/sfx/core-sound-effect.mdx',
-		compId: 'articles-docs-sfx-core-sound-effect',
-		crumb: '@remotion/sfx',
-		noAi: false,
-		slug: 'sfx/core-sound-effect',
-	},
-	{
 		id: 'sfx/ding',
 		title: 'ding',
 		relativePath: 'docs/sfx/ding.mdx',
@@ -5537,6 +5528,15 @@ export const articles = [
 		crumb: '@remotion/sfx',
 		noAi: false,
 		slug: 'sfx/spongebob-fail',
+	},
+	{
+		id: 'sfx/triggered',
+		title: 'triggered',
+		relativePath: 'docs/sfx/triggered.mdx',
+		compId: 'articles-docs-sfx-triggered',
+		crumb: '@remotion/sfx',
+		noAi: false,
+		slug: 'sfx/triggered',
 	},
 	{
 		id: 'sfx/ui-switch',

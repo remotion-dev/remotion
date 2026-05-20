@@ -720,8 +720,9 @@ const soundEffects = [
 		attribution: 'Dramatic boomer -- https://www.myinstants.com/en/instant/dramatic-boomer-29428/',
 	},
 	{
-		fileName: 'core-sound-effect.wav',
-		attribution: 'Core -- https://www.myinstants.com/en/instant/core-sound-effect-57998/',
+		fileName: 'triggered.wav',
+		attribution:
+			'Triggered -- https://www.myinstants.com/en/instant/core-sound-effect-57998/',
 	},
 ];
 

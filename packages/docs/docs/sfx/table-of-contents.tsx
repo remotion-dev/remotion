@@ -56,7 +56,7 @@ export const TableOfContents: React.FC = () => {
 				<SfxItem link="/docs/sfx/oh-my-god-vine" src="https://remotion.media/oh-my-god-vine.wav" name="ohMyGodVine" description="Oh my god vine sound effect" />
 				<SfxItem link="/docs/sfx/illuminati-confirmed" src="https://remotion.media/illuminati-confirmed.wav" name="illuminatiConfirmed" description="Illuminati confirmed sound effect" />
 				<SfxItem link="/docs/sfx/dramatic-boomer" src="https://remotion.media/dramatic-boomer.wav" name="dramaticBoomer" description="Dramatic boomer sound effect" />
-				<SfxItem link="/docs/sfx/core-sound-effect" src="https://remotion.media/core-sound-effect.wav" name="coreSoundEffect" description="Core sound effect" />
+				<SfxItem link="/docs/sfx/triggered" src="https://remotion.media/triggered.wav" name="triggered" description="Triggered meme sound effect" />
 			</Grid>
 		</div>
 	);

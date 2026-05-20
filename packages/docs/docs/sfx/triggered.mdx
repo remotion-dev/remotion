@@ -1,38 +1,38 @@
 ---
-image: /generated/articles-docs-sfx-core-sound-effect.png
-title: 'coreSoundEffect'
+image: /generated/articles-docs-sfx-triggered.png
+title: 'triggered'
 crumb: '@remotion/sfx'
 ---
 
-# coreSoundEffect<AvailableFrom v="4.0.464" />
+# triggered<AvailableFrom v="4.0.464" />
 
 import {PlayButton} from './PlayButton';
 
-<PlayButton src="https://remotion.media/core-sound-effect.wav" />
+<PlayButton src="https://remotion.media/triggered.wav" />
 <br />
 
-A URL pointing to a Core WAV file.
+A URL pointing to a triggered meme sound effect WAV file.
 
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {coreSoundEffect} from '@remotion/sfx';
+import {triggered} from '@remotion/sfx';
 import {Audio} from '@remotion/media';
 
 const MyVideo = () => {
-  return <Audio src={coreSoundEffect} />;
+  return <Audio src={triggered} />;
 };
 ```
 
 ## Value
 
 ```bash
-https://remotion.media/core-sound-effect.wav
+https://remotion.media/triggered.wav
 ```
 
 ## Duration
 
-0.696599 seconds (2 ch,  44100 Hz, Int16, interleaved)
+0.696599 seconds (2 channels, 44100 Hz, 16-bit)
 
 ## Attribution
 
