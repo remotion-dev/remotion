@@ -128,7 +128,7 @@ const ErrorLoading: React.FC<{
 			<ErrorLoader
 				key={error.stack}
 				canHaveDismissButton={false}
-				keyboardShortcuts={false}
+				keyboardShortcuts
 				error={error}
 				onRetry={() =>
 					Internals.resolveCompositionsRef.current?.reloadCurrentlySelectedComposition()

@@ -10,7 +10,7 @@ const container: React.CSSProperties = {
 	marginLeft: 6,
 	opacity: 0.6,
 	verticalAlign: 'middle',
-	fontSize: 14,
+	fontSize: 'inherit',
 };
 
 export const ShortcutHint: React.FC<{
@@ -22,11 +22,13 @@ export const ShortcutHint: React.FC<{
 			return {
 				display: 'inline-block',
 				transform: `translateY(2px)`,
-				fontSize: 14,
+				fontSize: 'inherit',
 			};
 		}
 
-		return {};
+		return {
+			fontSize: 'inherit',
+		};
 	}, [keyToPress]);
 	if (areKeyboardShortcutsDisabled()) {
 		return null;
