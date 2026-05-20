@@ -11,7 +11,6 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
-import {SPLITTER_HANDLE_SIZE} from '../Splitter/SplitterHandle';
 import {TimeValue} from '../TimeValue';
 import {timelineVerticalScroll} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
@@ -138,9 +137,8 @@ const TimelineTimeIndicatorsInner: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...container,
-			width: windowWidth - SPLITTER_HANDLE_SIZE / 2,
+			width: windowWidth,
 			overflow: 'hidden',
-			marginLeft: SPLITTER_HANDLE_SIZE / 2,
 			pointerEvents: 'none',
 		};
 	}, [windowWidth]);
@@ -175,10 +173,7 @@ const TimelineTimeIndicatorsInner: React.FC<{
 					frame: index * fps,
 					style: {
 						...secondTick,
-						left:
-							frameInterval * index * fps +
-							TIMELINE_PADDING -
-							SPLITTER_HANDLE_SIZE / 2,
+						left: frameInterval * index * fps + TIMELINE_PADDING,
 					},
 					showTime: index > 0,
 				};
@@ -192,10 +187,7 @@ const TimelineTimeIndicatorsInner: React.FC<{
 					frame: index,
 					style: {
 						...tick,
-						left:
-							frameInterval * index +
-							TIMELINE_PADDING -
-							SPLITTER_HANDLE_SIZE / 2,
+						left: frameInterval * index + TIMELINE_PADDING,
 						height:
 							index % fps === 0
 								? 10
