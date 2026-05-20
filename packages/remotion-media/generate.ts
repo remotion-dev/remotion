@@ -642,6 +642,87 @@ const soundEffects = [
 		attribution:
 			'Ding Sound Effect -- https://www.myinstants.com/en/instant/ding-sound-effect/',
 	},
+
+	{
+		fileName: 'fah.wav',
+		attribution: 'Fah meme -- https://www.myinstants.com/en/instant/fahhhhhhhhhhhhhh-3525/',
+	},
+	{
+		fileName: 'spongebob-fail.wav',
+		attribution: 'SpongeBob fail -- https://www.myinstants.com/en/instant/spongebob-fail-11236/',
+	},
+	{
+		fileName: 'omg-hell-nah.wav',
+		attribution: 'Oh my god bro hell nah -- https://www.myinstants.com/en/instant/oh-my-god-bro-oh-hell-nah-man-42939/',
+	},
+	{
+		fileName: 'price-is-right-fail.wav',
+		attribution: 'Price Is Right fail horn -- https://www.myinstants.com/en/instant/fail-horn/',
+	},
+	{
+		fileName: 'romance-meme.wav',
+		attribution: 'Romance meme -- https://www.myinstants.com/en/instant/romanceeeeeeeeeeeeee-29042/',
+	},
+	{
+		fileName: 'bone-crack.wav',
+		attribution: 'Bone crack -- https://www.myinstants.com/en/instant/bone-crack-23901/',
+	},
+	{
+		fileName: 'anime-wow.wav',
+		attribution: 'Anime wow -- https://www.myinstants.com/en/instant/anime-wow/',
+	},
+	{
+		fileName: 'yippee.wav',
+		attribution: 'Yippee -- https://www.myinstants.com/en/instant/yippeeeeeeeeeeeeee-34261/',
+	},
+	{
+		fileName: 'loading-lag.wav',
+		attribution: 'Loading lag -- https://www.myinstants.com/en/instant/lagging-loading-11339/',
+	},
+	{
+		fileName: 'wilhelm-scream.wav',
+		attribution: 'Wilhelm scream -- https://www.myinstants.com/en/instant/man-screaming-aaaah-32768/',
+	},
+	{
+		fileName: 'mac-quack.wav',
+		attribution: 'Mac quack -- https://www.myinstants.com/en/instant/mac-quack-83896/',
+	},
+	{
+		fileName: 'skedaddle.wav',
+		attribution: 'Skedaddle -- https://www.myinstants.com/en/instant/skedaddle-78470/',
+	},
+	{
+		fileName: 'snapchat-notification.wav',
+		attribution: 'Snapchat notification -- https://www.myinstants.com/en/instant/notification-snap-43481/',
+	},
+	{
+		fileName: 'nelly-ahh.wav',
+		attribution: 'Nelly ahh -- https://www.myinstants.com/en/instant/nelly-ahh-89172/',
+	},
+	{
+		fileName: 'sanctuary-guardian-what.wav',
+		attribution: 'Sanctuary Guardian what meme -- https://www.myinstants.com/en/instant/what-bottom-text-meme-sanctuary-guardian-s-24591/',
+	},
+	{
+		fileName: 'minecraft-hurt.wav',
+		attribution: 'Minecraft hurt -- https://www.myinstants.com/en/instant/minecraft-hurt/',
+	},
+	{
+		fileName: 'oh-my-god-vine.wav',
+		attribution: 'Oh my god vine -- https://www.myinstants.com/en/instant/oh-ma-gaud-vine-78004/',
+	},
+	{
+		fileName: 'illuminati-confirmed.wav',
+		attribution: 'Illuminati confirmed -- https://www.myinstants.com/en/instant/illuminati-confirmed-meme-99730/',
+	},
+	{
+		fileName: 'dramatic-boomer.wav',
+		attribution: 'Dramatic boomer -- https://www.myinstants.com/en/instant/dramatic-boomer-29428/',
+	},
+	{
+		fileName: 'core-sound-effect.wav',
+		attribution: 'Core -- https://www.myinstants.com/en/instant/core-sound-effect-57998/',
+	},
 ];
 
 for (const sfx of soundEffects) {

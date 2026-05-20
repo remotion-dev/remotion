@@ -1,0 +1,47 @@
+---
+image: /generated/articles-docs-sfx-core-sound-effect.png
+title: 'coreSoundEffect'
+crumb: '@remotion/sfx'
+---
+
+# coreSoundEffect<AvailableFrom v="4.0.464" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/core-sound-effect.wav" />
+<br />
+
+A URL pointing to a Core WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {coreSoundEffect} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={coreSoundEffect} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/core-sound-effect.wav
+```
+
+## Duration
+
+0.696599 seconds (2 ch,  44100 Hz, Int16, interleaved)
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/core-sound-effect-57998/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## See also
+
+- [`bruh`](/docs/sfx/bruh)
+- [`vineBoom`](/docs/sfx/vine-boom)
+- [`windowsXpError`](/docs/sfx/windows-xp-error)
