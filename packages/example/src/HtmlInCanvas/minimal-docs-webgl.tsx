@@ -122,7 +122,7 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
 	}, []);
 
 	const onPaint: HtmlInCanvasOnPaint = useCallback(
-		({elementImage}) => {
+		({element}) => {
 			const gpu = gpuRef.current;
 			if (!gpu) {
 				return;
@@ -140,7 +140,7 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
 				gl.RGBA,
 				gl.RGBA,
 				gl.UNSIGNED_BYTE,
-				elementImage,
+				element,
 			);
 
 			if (gpu.uTex) {
@@ -161,6 +161,7 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
 		<HtmlInCanvas
 			width={width}
 			height={height}
+			renderingContext="webgl2"
 			onInit={onInit}
 			onPaint={onPaint}
 		>

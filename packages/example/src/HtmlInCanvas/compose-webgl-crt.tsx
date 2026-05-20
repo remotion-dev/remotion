@@ -1,4 +1,3 @@
-import {tint} from '@remotion/effects/tint';
 import React, {useCallback, useRef} from 'react';
 import {
 	HtmlInCanvas,
@@ -90,6 +89,9 @@ void main() {
   // Noise
   col += (rand(uv * u_time) - 0.5) * 0.04;
 
+  // Red tint (formerly _experimentalEffects tint red)
+  col *= vec3(1.2, 0.85, 0.85);
+
   o = vec4(col, 1.0);
 }`;
 
@@ -180,7 +182,7 @@ export const HtmlInCanvasComposeWebGLCrt: React.FC = () => {
 	}, []);
 
 	const onPaint: HtmlInCanvasOnPaint = useCallback(
-		({elementImage}) => {
+		({element}) => {
 			const gpu = gpuRef.current;
 			if (!gpu) {
 				return;
@@ -198,7 +200,7 @@ export const HtmlInCanvasComposeWebGLCrt: React.FC = () => {
 				gl.RGBA,
 				gl.RGBA,
 				gl.UNSIGNED_BYTE,
-				elementImage,
+				element,
 			);
 
 			if (gpu.uTex) {
@@ -227,9 +229,9 @@ export const HtmlInCanvasComposeWebGLCrt: React.FC = () => {
 		<HtmlInCanvas
 			width={width}
 			height={height}
+			renderingContext="webgl2"
 			onInit={onInit}
 			onPaint={onPaint}
-			_experimentalEffects={[tint({color: 'red'})]}
 			style={{
 				backgroundColor: 'white',
 				color: 'black',

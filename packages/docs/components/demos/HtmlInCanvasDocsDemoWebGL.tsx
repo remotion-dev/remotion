@@ -123,7 +123,7 @@ const HtmlInCanvasDocsWebGLInner: React.FC = () => {
 	}, []);
 
 	const onPaint: HtmlInCanvasOnPaint = useCallback(
-		({elementImage}) => {
+		({element}) => {
 			const gpu = gpuRef.current;
 			if (!gpu) {
 				return;
@@ -141,7 +141,7 @@ const HtmlInCanvasDocsWebGLInner: React.FC = () => {
 				gl.RGBA,
 				gl.RGBA,
 				gl.UNSIGNED_BYTE,
-				elementImage,
+				element,
 			);
 
 			if (gpu.uTex) {
@@ -162,6 +162,7 @@ const HtmlInCanvasDocsWebGLInner: React.FC = () => {
 		<HtmlInCanvas
 			width={width}
 			height={height}
+			renderingContext="webgl2"
 			onInit={onInit}
 			onPaint={onPaint}
 		>

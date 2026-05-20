@@ -145,7 +145,7 @@ const HtmlInCanvasDocsWebGPUInner: React.FC = () => {
 			}
 		).getContext('webgpu');
 		if (!context) {
-			throw new Error('WebGPU context unavailable on OffscreenCanvas');
+			throw new Error('WebGPU context unavailable on <HtmlInCanvas> canvas');
 		}
 
 		const presentationFormat = gpu.getPreferredCanvasFormat();
@@ -238,7 +238,7 @@ const HtmlInCanvasDocsWebGPUInner: React.FC = () => {
 	}, []);
 
 	const onPaint: HtmlInCanvasOnPaint = useCallback(
-		({elementImage}) => {
+		({canvas, element}) => {
 			const gpu = gpuRef.current;
 			if (!gpu) {
 				return;
@@ -247,6 +247,7 @@ const HtmlInCanvasDocsWebGPUInner: React.FC = () => {
 			const {device, context, pipeline, texture, bindGroup, uniformBuffer} =
 				gpu;
 
+			const elementImage = canvas.captureElementImage(element);
 			device.queue.copyElementImageToTexture(
 				elementImage,
 				gpu.width,
@@ -288,6 +289,7 @@ const HtmlInCanvasDocsWebGPUInner: React.FC = () => {
 			<HtmlInCanvas
 				width={width}
 				height={height}
+				renderingContext="webgpu"
 				onInit={onInit}
 				onPaint={onPaint}
 			>

@@ -132,15 +132,26 @@ export const HtmlInCanvasPresentation = <
 
 		canvas.layoutSubtree = true;
 
-		const onPaint = () => {
+		const onPaint = async () => {
 			const firstChild = canvas.firstChild as HTMLElement;
 
 			if (!firstChild) {
 				return;
 			}
 
-			const elementImage = canvas.captureElementImage(firstChild);
-			onElementImage(elementImage, draw);
+			const ctx = canvas.getContext('2d');
+			if (!ctx) {
+				throw new Error(
+					'Failed to acquire 2D context for HtmlInCanvas transition canvas',
+				);
+			}
+
+			const handle = delayRender('HtmlInCanvas transition capture');
+			ctx.reset();
+			ctx.drawElementImage(firstChild, 0, 0);
+			const bitmap = await createImageBitmap(canvas);
+			continueRender(handle);
+			onElementImage(bitmap, draw);
 		};
 
 		canvas.addEventListener('paint', onPaint);
@@ -148,7 +159,14 @@ export const HtmlInCanvasPresentation = <
 		return () => {
 			canvas.removeEventListener('paint', onPaint);
 		};
-	}, [onElementImage, presentationDirection, draw, passThrough]);
+	}, [
+		onElementImage,
+		presentationDirection,
+		draw,
+		passThrough,
+		delayRender,
+		continueRender,
+	]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -205,8 +223,8 @@ export const HtmlInCanvasPresentation = <
 };
 
 export type HtmlInCanvasShaderDrawParams<Props> = {
-	prevImage: ElementImage | null;
-	nextImage: ElementImage | null;
+	prevImage: ImageBitmap | null;
+	nextImage: ImageBitmap | null;
 	width: number;
 	height: number;
 	time: number;

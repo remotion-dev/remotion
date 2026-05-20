@@ -72,18 +72,18 @@ type TypeChild<PresentationProps extends Record<string, unknown>> =
 	| string;
 
 export type DrawFunction = (
-	prevImage: ElementImage | null,
-	nextImage: ElementImage | null,
+	prevImage: ImageBitmap | null,
+	nextImage: ImageBitmap | null,
 	progress: number,
 ) => void;
 
-type ElementImageAndProgress = {
-	elementImage: ElementImage | null;
+type FrameBitmapAndProgress = {
+	imageBitmap: ImageBitmap | null;
 	progress: number | null;
 	draw: DrawFunction | null;
 };
 
-type ImageMap = Record<number, ElementImageAndProgress>;
+type ImageMap = Record<number, FrameBitmapAndProgress>;
 
 const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 	children,
@@ -101,26 +101,26 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 	const drawIfSynced = useCallback((index: number) => {
 		const prevImage = prevImageRef?.current?.[index];
 		const nextImage = nextImageRef?.current?.[index];
-		if (!nextImage?.elementImage && prevImage?.elementImage) {
+		if (!nextImage?.imageBitmap && prevImage?.imageBitmap) {
 			nextImage?.draw?.(null, null, 0);
-			prevImage?.draw?.(prevImage?.elementImage ?? null, null, 0);
+			prevImage?.draw?.(prevImage?.imageBitmap ?? null, null, 0);
 			return;
 		}
 
-		if (!prevImage?.elementImage && nextImage?.elementImage) {
+		if (!prevImage?.imageBitmap && nextImage?.imageBitmap) {
 			prevImage?.draw?.(null, null, 0);
-			nextImage?.draw?.(null, nextImage?.elementImage ?? null, 0);
+			nextImage?.draw?.(null, nextImage?.imageBitmap ?? null, 0);
 			return;
 		}
 
 		if (
 			(prevImage && nextImage && prevImage.progress === nextImage.progress) ||
-			!prevImage?.elementImage ||
-			!nextImage?.elementImage
+			!prevImage?.imageBitmap ||
+			!nextImage?.imageBitmap
 		) {
 			prevImage?.draw?.(
-				prevImage?.elementImage ?? null,
-				nextImage?.elementImage ?? null,
+				prevImage?.imageBitmap ?? null,
+				nextImage?.imageBitmap ?? null,
 				prevImage?.progress ?? nextImage?.progress ?? 0,
 			);
 			nextImage?.draw?.(null, null, 0);
@@ -129,12 +129,12 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 	const onNextElementImage = useCallback(
 		(
-			elementImage: ElementImage | null,
+			imageBitmap: ImageBitmap | null,
 			progress: number | null,
 			draw: DrawFunction | null,
 			index: number,
 		) => {
-			prevImageRef.current[index] = {elementImage, progress, draw};
+			prevImageRef.current[index] = {imageBitmap, progress, draw};
 
 			drawIfSynced(index);
 		},
@@ -143,12 +143,12 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 	const onPrevElementImage = useCallback(
 		(
-			elementImage: ElementImage | null,
+			imageBitmap: ImageBitmap | null,
 			progress: number | null,
 			draw: DrawFunction | null,
 			index: number,
 		) => {
-			nextImageRef.current[index] = {elementImage, progress, draw};
+			nextImageRef.current[index] = {imageBitmap, progress, draw};
 
 			drawIfSynced(index);
 		},

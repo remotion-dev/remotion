@@ -216,7 +216,7 @@ export const zoomBlurShader = (
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, prevTex);
 		if (prevImage) {
-			gl.texElementImage2D(
+			gl.texImage2D(
 				gl.TEXTURE_2D,
 				0,
 				gl.RGBA,
@@ -231,7 +231,7 @@ export const zoomBlurShader = (
 		gl.activeTexture(gl.TEXTURE1);
 		gl.bindTexture(gl.TEXTURE_2D, nextTex);
 		if (nextImage) {
-			gl.texElementImage2D(
+			gl.texImage2D(
 				gl.TEXTURE_2D,
 				0,
 				gl.RGBA,

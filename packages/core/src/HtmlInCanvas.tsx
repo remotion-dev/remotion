@@ -6,7 +6,6 @@ import React, {
 	useLayoutEffect,
 	useMemo,
 	useRef,
-	useState,
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
 import {delayRender} from './delay-render.js';
@@ -66,37 +65,6 @@ declare global {
 		): DOMMatrix;
 		drawElementImage(
 			element: Element | ElementImage,
-			sx: number,
-			sy: number,
-			swidth: number,
-			sheight: number,
-			dx: number,
-			dy: number,
-			dwidth: number,
-			dheight: number,
-		): DOMMatrix;
-	}
-
-	interface OffscreenCanvasRenderingContext2D {
-		drawElementImage(element: ElementImage, dx: number, dy: number): DOMMatrix;
-		drawElementImage(
-			element: ElementImage,
-			dx: number,
-			dy: number,
-			dwidth: number,
-			dheight: number,
-		): DOMMatrix;
-		drawElementImage(
-			element: ElementImage,
-			sx: number,
-			sy: number,
-			swidth: number,
-			sheight: number,
-			dx: number,
-			dy: number,
-		): DOMMatrix;
-		drawElementImage(
-			element: ElementImage,
 			sx: number,
 			sy: number,
 			swidth: number,
@@ -172,10 +140,18 @@ declare global {
 	}
 }
 
+export type HtmlInCanvasRenderingContext = '2d' | 'webgl2' | 'webgpu';
+
 export type HtmlInCanvasOnPaintParams = {
-	readonly canvas: OffscreenCanvas;
+	/** The layout canvas (same element as the forwarded ref). */
+	readonly canvas: HTMLCanvasElement;
+	/** The scene root — direct child of `canvas`. */
 	readonly element: HTMLDivElement;
-	readonly elementImage: ElementImage;
+	/**
+	 * The 2D rendering context on `canvas`.
+	 * Only present when {@link HtmlInCanvasProps.renderingContext} is `'2d'` (default).
+	 */
+	readonly ctx?: CanvasRenderingContext2D;
 };
 
 // Memoize the support check across the session — neither the platform
@@ -235,18 +211,15 @@ function assertHtmlInCanvasDimensions(width: unknown, height: unknown): void {
 	}
 }
 
-const defaultOnPaint: HtmlInCanvasOnPaint = ({
-	canvas,
-	element,
-	elementImage,
-}) => {
-	const ctx = canvas.getContext('2d');
+const defaultOnPaint: HtmlInCanvasOnPaint = ({ctx, element}) => {
 	if (!ctx) {
-		throw new Error('Failed to acquire 2D context for <HtmlInCanvas> canvas');
+		throw new Error(
+			'HtmlInCanvas: default paint requires a 2D context (`renderingContext="2d"`).',
+		);
 	}
 
 	ctx.reset();
-	const transform = ctx.drawElementImage(elementImage, 0, 0);
+	const transform = ctx.drawElementImage(element, 0, 0);
 	element.style.transform = transform.toString();
 };
 
@@ -271,6 +244,13 @@ export type HtmlInCanvasProps = Omit<
 		readonly height: number;
 		readonly _experimentalEffects?: EffectsProp;
 		readonly children: React.ReactNode;
+		/**
+		 * Which rendering context to use on the layout canvas.
+		 * `'2d'` (default) supports {@link HtmlInCanvasProps._experimentalEffects}.
+		 * `'webgl2'` and `'webgpu'` require custom `onInit`/`onPaint` and cannot be
+		 * combined with `_experimentalEffects` on the same instance.
+		 */
+		readonly renderingContext?: HtmlInCanvasRenderingContext;
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
 	};
@@ -281,6 +261,7 @@ const HtmlInCanvasAncestorContext = createContext(false);
 type HtmlInCanvasContentProps = {
 	readonly width: number;
 	readonly height: number;
+	readonly renderingContext: HtmlInCanvasRenderingContext;
 	readonly effects: EffectsProp;
 	readonly children: React.ReactNode;
 	readonly onPaint: HtmlInCanvasOnPaint | undefined;
@@ -294,7 +275,17 @@ const HtmlInCanvasContent = forwardRef<
 	HtmlInCanvasContentProps
 >(
 	(
-		{width, height, effects, children, onPaint, onInit, controls, style},
+		{
+			width,
+			height,
+			renderingContext,
+			effects,
+			children,
+			onPaint,
+			onInit,
+			controls,
+			style,
+		},
 		ref,
 	) => {
 		const isInsideAncestorHtmlInCanvas = useContext(
@@ -323,7 +314,6 @@ const HtmlInCanvasContent = forwardRef<
 			},
 			[ref],
 		);
-		const [offscreenCanvas] = useState(() => new OffscreenCanvas(1, 1));
 
 		const chainState = useEffectChainState();
 
@@ -331,6 +321,14 @@ const HtmlInCanvasContent = forwardRef<
 			effects,
 			overrideId: controls?.overrideId ?? null,
 		});
+
+		const hasEffects = memoizedEffects.length > 0;
+
+		if (renderingContext !== '2d' && hasEffects) {
+			throw new Error(
+				'HtmlInCanvas: `_experimentalEffects` requires `renderingContext="2d"`. Use custom `onPaint` for WebGL/WebGPU, or split into separate compositions.',
+			);
+		}
 
 		// Refs so the paint handler always reads fresh values.
 		const effectsRef = useRef(memoizedEffects);
@@ -350,73 +348,90 @@ const HtmlInCanvasContent = forwardRef<
 				throw new Error('Canvas or scene element not found');
 			}
 
-			offscreenCanvas.width = width;
-			offscreenCanvas.height = height;
-
 			try {
 				const layoutCanvas = canvas2dRef.current;
 				if (!layoutCanvas) {
 					throw new Error('Canvas not found');
 				}
 
-				// `GPUQueue.copyElementImageToTexture` / related paths validate the
-				// layout canvas has a rendering context. `runEffectChain` only runs
-				// after `onPaint`, so acquire `2d` here before any capture or handler.
-				const layout2d = layoutCanvas.getContext('2d');
-				if (!layout2d) {
-					throw new Error(
-						'Failed to acquire 2D context for <HtmlInCanvas> layout canvas',
-					);
-				}
-
 				const handle = delayRender('onPaint');
-				if (!initializedRef.current) {
-					initializedRef.current = true;
-					// `onInit` may be async (e.g. WebGPU `requestAdapter`/`requestDevice`).
-					// Capture an `ElementImage` here only for `onInit` consumers — do NOT
-					// reuse it for the paint handler below, because awaiting `onInit`
-					// can invalidate the capture's paint context, leaving subsequent
-					// uploads (e.g. `copyElementImageToTexture`) failing with
-					// "No context found for ElementImage" on the very first paint.
-					const initImage = layoutCanvas.captureElementImage(element);
-					const currentOnInit = onInitRef.current;
-					if (currentOnInit) {
-						const cleanup = await currentOnInit({
-							canvas: offscreenCanvas,
-							element,
-							elementImage: initImage!,
-						});
-						if (typeof cleanup !== 'function') {
-							throw new Error(
-								'HtmlInCanvas: when `onInit` is provided, it must return a cleanup function, or a Promise that resolves to one.',
-							);
-						}
 
-						if (unmountedRef.current) {
-							cleanup();
-						} else {
-							onInitCleanupRef.current = cleanup;
+				const paintParams: HtmlInCanvasOnPaintParams = {
+					canvas: layoutCanvas,
+					element,
+				};
+
+				if (renderingContext === '2d') {
+					// `GPUQueue.copyElementImageToTexture` / related paths validate the
+					// layout canvas has a rendering context. Acquire `2d` before paint.
+					const layout2d = layoutCanvas.getContext('2d');
+					if (!layout2d) {
+						throw new Error(
+							'Failed to acquire 2D context for <HtmlInCanvas> layout canvas',
+						);
+					}
+
+					paintParams.ctx = layout2d;
+
+					if (!initializedRef.current) {
+						initializedRef.current = true;
+						const currentOnInit = onInitRef.current;
+						if (currentOnInit) {
+							const cleanup = await currentOnInit(paintParams);
+							if (typeof cleanup !== 'function') {
+								throw new Error(
+									'HtmlInCanvas: when `onInit` is provided, it must return a cleanup function, or a Promise that resolves to one.',
+								);
+							}
+
+							if (unmountedRef.current) {
+								cleanup();
+							} else {
+								onInitCleanupRef.current = cleanup;
+							}
 						}
 					}
+
+					const handler = onPaintRef.current ?? defaultOnPaint;
+					await handler(paintParams);
+
+					await runEffectChain({
+						state: chainState.get(width, height)!,
+						source: layoutCanvas,
+						effects: effectsRef.current,
+						output: layoutCanvas,
+						width,
+						height,
+					});
+				} else {
+					if (!initializedRef.current) {
+						initializedRef.current = true;
+						const currentOnInit = onInitRef.current;
+						if (currentOnInit) {
+							const cleanup = await currentOnInit(paintParams);
+							if (typeof cleanup !== 'function') {
+								throw new Error(
+									'HtmlInCanvas: when `onInit` is provided, it must return a cleanup function, or a Promise that resolves to one.',
+								);
+							}
+
+							if (unmountedRef.current) {
+								cleanup();
+							} else {
+								onInitCleanupRef.current = cleanup;
+							}
+						}
+					}
+
+					const handler = onPaintRef.current;
+					if (!handler) {
+						throw new Error(
+							`HtmlInCanvas: \`onPaint\` is required when \`renderingContext\` is "${renderingContext}".`,
+						);
+					}
+
+					await handler(paintParams);
 				}
-
-				const handler = onPaintRef.current ?? defaultOnPaint;
-
-				const elImage = layoutCanvas.captureElementImage(element);
-				await handler({
-					canvas: offscreenCanvas,
-					element,
-					elementImage: elImage!,
-				});
-
-				await runEffectChain({
-					state: chainState.get(width, height)!,
-					source: offscreenCanvas,
-					effects: effectsRef.current,
-					output: canvas2dRef.current!,
-					width,
-					height,
-				});
 
 				continueRender(handle);
 			} catch (error) {
@@ -428,7 +443,7 @@ const HtmlInCanvasContent = forwardRef<
 			cancelRender,
 			width,
 			height,
-			offscreenCanvas,
+			renderingContext,
 		]);
 
 		// Set up layoutSubtree and persistent paint listener. Runs as a
@@ -528,6 +543,7 @@ const HtmlInCanvasInner = forwardRef<
 		{
 			width,
 			height,
+			renderingContext = '2d',
 			_experimentalEffects: effects = [],
 			children,
 			onPaint,
@@ -558,6 +574,7 @@ const HtmlInCanvasInner = forwardRef<
 					ref={ref}
 					width={width}
 					height={height}
+					renderingContext={renderingContext}
 					effects={effects}
 					onPaint={onPaint}
 					onInit={onInit}

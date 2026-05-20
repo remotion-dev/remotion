@@ -18,8 +18,7 @@ export const HtmlInCanvasComplexText: React.FC = () => {
 				width={1276}
 				height={636}
 				style={{border: '2px solid blue'}}
-				onPaint={({canvas, element, elementImage}) => {
-					const ctx = canvas.getContext('2d');
+				onPaint={({ctx, element}) => {
 					if (!ctx) {
 						throw new Error('Failed to acquire 2D context');
 					}
@@ -27,7 +26,7 @@ export const HtmlInCanvasComplexText: React.FC = () => {
 					ctx.reset();
 					ctx.rotate((15 * Math.PI) / 180);
 					ctx.translate(160, -40);
-					const transform = ctx.drawElementImage(elementImage, 0, 0);
+					const transform = ctx.drawElementImage(element, 0, 0);
 					element.style.transform = transform.toString();
 				}}
 			>

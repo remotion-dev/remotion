@@ -143,7 +143,7 @@ export const HtmlInCanvasComposeWebGPU: React.FC = () => {
 			}
 		).getContext('webgpu');
 		if (!context) {
-			throw new Error('WebGPU context unavailable on OffscreenCanvas');
+			throw new Error('WebGPU context unavailable on <HtmlInCanvas> canvas');
 		}
 
 		// Use the device's preferred swap-chain format (typically `bgra8unorm`)
@@ -239,7 +239,7 @@ export const HtmlInCanvasComposeWebGPU: React.FC = () => {
 	}, []);
 
 	const onPaint: HtmlInCanvasOnPaint = useCallback(
-		({elementImage}) => {
+		({canvas, element}) => {
 			const gpu = gpuRef.current;
 			if (!gpu) {
 				return;
@@ -248,6 +248,7 @@ export const HtmlInCanvasComposeWebGPU: React.FC = () => {
 			const {device, context, pipeline, texture, bindGroup, uniformBuffer} =
 				gpu;
 
+			const elementImage = canvas.captureElementImage(element);
 			device.queue.copyElementImageToTexture(
 				elementImage,
 				gpu.width,
@@ -289,6 +290,7 @@ export const HtmlInCanvasComposeWebGPU: React.FC = () => {
 			<HtmlInCanvas
 				width={width}
 				height={height}
+				renderingContext="webgpu"
 				onInit={onInit}
 				onPaint={onPaint}
 			>

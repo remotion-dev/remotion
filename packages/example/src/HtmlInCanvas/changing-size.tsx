@@ -19,8 +19,7 @@ export const HtmlInCanvasChangingSize: React.FC = () => {
 			<HtmlInCanvas
 				width={size}
 				height={size}
-				onPaint={({canvas, elementImage, element}) => {
-					const ctx = canvas.getContext('2d', {willReadFrequently: true});
+				onPaint={({canvas, ctx, element}) => {
 					if (!ctx) {
 						throw new Error(
 							'Failed to acquire 2D context for <HtmlInCanvas> canvas',
@@ -32,7 +31,7 @@ export const HtmlInCanvasChangingSize: React.FC = () => {
 					//    actual sampled pixel data from the rendered subtree.
 					ctx.reset();
 					const transform = ctx.drawElementImage(
-						elementImage,
+						element,
 						0,
 						0,
 						canvas.width,

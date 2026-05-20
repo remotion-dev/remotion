@@ -49,7 +49,7 @@ export const MyComp = () => {
 
 ## 2D effect with `onPaint`
 
-`onPaint` runs whenever the content updates. Call `ctx.drawElementImage(elementImage, 0, 0)` to draw the captured DOM, and assign the returned transform to `element.style.transform` so DOM selection still aligns with the painted output.
+`onPaint` runs whenever the content updates. Draw the DOM subtree with `ctx.drawElementImage(element, 0, 0)` on the **same** layout canvas (passed as `canvas` and `ctx`), and assign the returned transform to `element.style.transform` so DOM selection still aligns with the painted output.
 
 ```tsx
 import {
@@ -66,15 +66,14 @@ export const Blur = () => {
   const { width, height, fps } = useVideoConfig();
 
   const onPaint: HtmlInCanvasOnPaint = useCallback(
-    ({ canvas, element, elementImage }) => {
-      const ctx = canvas.getContext("2d");
+    ({ ctx, element }) => {
       if (!ctx) throw new Error("Failed to acquire 2D context");
 
       const blurPx = 4 + 18 * (0.5 + 0.5 * Math.sin((frame / fps) * Math.PI));
 
       ctx.reset();
       ctx.filter = `blur(${blurPx}px)`;
-      const transform = ctx.drawElementImage(elementImage, 0, 0);
+      const transform = ctx.drawElementImage(element, 0, 0);
       element.style.transform = transform.toString();
     },
     [frame, fps],
@@ -92,7 +91,7 @@ export const Blur = () => {
 
 ## WebGL effects
 
-For WebGL, set up the context, program, and texture in `onInit` and return a cleanup function. Inside `onPaint`, upload the captured DOM with `gl.texElementImage2D(...)` and draw.
+Use `renderingContext="webgl2"`. Set up the context, program, and texture in `onInit` on the **layout** canvas. In `onPaint`, upload the DOM with `gl.texElementImage2D(..., element)` (the element, not a captured `ElementImage`).
 
 ```tsx
 const onInit: HtmlInCanvasOnInit = useCallback(({ canvas }) => {
@@ -109,11 +108,19 @@ const onInit: HtmlInCanvasOnInit = useCallback(({ canvas }) => {
   };
 }, []);
 
-const onPaint: HtmlInCanvasOnPaint = useCallback(({ elementImage }) => {
-  gl.texElementImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, elementImage);
+const onPaint: HtmlInCanvasOnPaint = useCallback(({ element }) => {
+  gl.texElementImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, element);
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 }, []);
+
+return (
+  <HtmlInCanvas renderingContext="webgl2" onInit={onInit} onPaint={onPaint} width={1280} height={720}>
+    ...
+  </HtmlInCanvas>
+);
 ```
+
+`_experimentalEffects` cannot be combined with `renderingContext="webgl2"` or `"webgpu"`.
 
 For a fully working minimal example, see https://github.com/remotion-dev/remotion/blob/main/packages/docs/components/demos/HtmlInCanvasDocsDemoWebGL.tsx.
 

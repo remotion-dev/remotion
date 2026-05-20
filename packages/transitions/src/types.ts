@@ -35,7 +35,7 @@ export type TransitionPresentationComponentProps<
 	presentationDirection: PresentationDirection;
 	passedProps: PresentationProps;
 	presentationDurationInFrames: number;
-	onElementImage: (elementImage: ElementImage, draw: DrawFunction) => void;
+	onElementImage: (imageBitmap: ImageBitmap, draw: DrawFunction) => void;
 	onUnmount: () => void;
 	bothEnteringAndExiting: boolean;
 };

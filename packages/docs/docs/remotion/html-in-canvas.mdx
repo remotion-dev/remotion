@@ -91,15 +91,14 @@ If this callback is omitted, the children are painted using a `2d` context with 
 ```tsx twoslash title="Simple example"
 import {HtmlInCanvasOnPaint} from 'remotion';
 
-const onPaint: HtmlInCanvasOnPaint = ({canvas, element, elementImage}) => {
-  const ctx = canvas.getContext('2d');
+const onPaint: HtmlInCanvasOnPaint = ({ctx, element}) => {
   if (!ctx) {
     throw new Error('Failed to acquire 2D context');
   }
 
   ctx.reset();
   ctx.filter = 'blur(10px)';
-  const transform = ctx.drawElementImage(elementImage, 0, 0);
+  const transform = ctx.drawElementImage(element, 0, 0);
   element.style.transform = transform.toString();
 };
 ```
@@ -110,24 +109,30 @@ The callback receives:
 
 #### `canvas`
 
-An [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) with dimensions `width` × `height`.  
-You should paint to this canvas.
+The layout [`HTMLCanvasElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement) (same node as the forwarded `ref`).  
+[`drawElementImage()`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) must target this canvas — Chrome rejects captures drawn on a different canvas.
 
 #### `element`
 
 The inner [`HTMLDivElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement) that wraps `children`.  
-You should apply the return value of [`drawElementImage`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) to this element's `style.transform` property.
+Pass it to `drawElementImage()` / `texElementImage2D()`, and apply the returned transform to `element.style.transform` so DOM selection still aligns.
 
-#### `elementImage`
+#### `ctx?`
 
-An [`ElementImage`](https://github.com/WICG/html-in-canvas#idl-changes) handle for the current capture.  
-You should paint this image to the canvas.
+The [`CanvasRenderingContext2D`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D) on `canvas`, pre-acquired when [`renderingContext`](#renderingcontext) is `'2d'` (default). Omitted for `'webgl2'` and `'webgpu'`.
+
+### `renderingContext?`
+
+<AvailableFrom version="4.0.400" />
+
+`'2d'` (default), `'webgl2'`, or `'webgpu'`.  
+Only one context can be active per canvas. [`_experimentalEffects`](#_experimentaleffects) require `'2d'`. Custom WebGL/WebGPU handlers must set `renderingContext` accordingly and provide [`onPaint`](#onpaint).
 
 ### `onInit?`
 
-Runs once before the first paint. Use it to create GPU contexts or other resources tied to the [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas). Must return a cleanup function, or a `Promise` that resolves to one. The cleanup runs on unmount.
+Runs once before the first paint. Use it to create GPU contexts or other resources on the layout canvas. Must return a cleanup function, or a `Promise` that resolves to one. The cleanup runs on unmount.
 
-The argument object matches [`onPaint`](#onpaint) (`canvas`, `element`, `elementImage`). The `elementImage` passed here is only for initialization — capture again inside [`onPaint`](#onpaint) for each frame.
+The argument object matches [`onPaint`](#onpaint) (`canvas`, `element`, and `ctx` when using `'2d'`).
 
 ### `durationInFrames?`
 
@@ -163,7 +168,7 @@ export const Example: React.FC = () => {
 
 ### 2D
 
-Call [`drawElementImage()`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) on the 2D context to draw `elementImage` into the bitmap.  
+Call [`drawElementImage()`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) on the 2D context to draw `element` into the bitmap.  
 HTML-in-canvas recommends that you use the return value and assign it to `element.style.transform`, so that the original DOM element matches the transform, so that selection still works.
 
 For 2D, you usually do not need `onInit`.
@@ -189,8 +194,7 @@ export const HtmlInCanvas2DBlur: React.FC = () => {
   const {width, height, fps} = useVideoConfig();
 
   const onPaint: HtmlInCanvasOnPaint = useCallback(
-    ({canvas, element, elementImage}) => {
-      const ctx = canvas.getContext('2d');
+    ({ctx, element}) => {
       if (!ctx) {
         throw new Error('Failed to acquire 2D context');
       }
@@ -202,7 +206,7 @@ export const HtmlInCanvas2DBlur: React.FC = () => {
 
       ctx.reset();
       ctx.filter = `blur(${blurPx}px)`;
-      const transform = ctx.drawElementImage(elementImage, 0, 0);
+      const transform = ctx.drawElementImage(element, 0, 0);
       element.style.transform = transform.toString();
     },
     [frame, fps],
@@ -232,7 +236,7 @@ export const HtmlInCanvas2DBlur: React.FC = () => {
 Do all setup in [`onInit`](#oninit) such as getting the WebGL context and compiling the shader.  
 `onInit` must return a cleanup function that destroys the resources that were created in `onInit`.
 
-Use [`texElementImage2D`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) to turn the `elementImage` into a texture.
+Set `renderingContext="webgl2"` and use [`texElementImage2D`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) with the `element` on the layout canvas.
 
 <Demo type="html-in-canvas-webgl" />
 
@@ -364,7 +368,7 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
   }, []);
 
   const onPaint: HtmlInCanvasOnPaint = useCallback(
-    ({elementImage}) => {
+    ({element}) => {
       const gpu = gpuRef.current;
       if (!gpu) {
         return;
@@ -382,7 +386,7 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
         gl.RGBA,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        elementImage,
+        element,
       );
 
       if (gpu.uTex) {
@@ -403,6 +407,7 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
     <HtmlInCanvas
       width={width}
       height={height}
+      renderingContext="webgl2"
       onInit={onInit}
       onPaint={onPaint}
     >
@@ -426,9 +431,9 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
 
 ### WebGPU
 
-Use [`onInit`](#oninit) to get a WebGPU context, to request a GPU and to compile shaders.  
+Set `renderingContext="webgpu"`. Use [`onInit`](#oninit) to get a WebGPU context, request a GPU, and compile shaders.  
 `onInit` must return a cleanup function that destroys the resources that were created in `onInit`.  
-In `onPaint`, draw the `elementImage` to the canvas using [`copyElementImageToTexture`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents).
+In `onPaint`, call `canvas.captureElementImage(element)` on the layout canvas, then [`copyElementImageToTexture`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) on the same canvas.
 
 <Demo type="html-in-canvas-webgpu" />
 
@@ -581,7 +586,7 @@ export const HtmlInCanvasComposeWebGPU: React.FC = () => {
       }
     ).getContext('webgpu');
     if (!context) {
-      throw new Error('WebGPU context unavailable on OffscreenCanvas');
+      throw new Error('WebGPU context unavailable on <HtmlInCanvas> canvas');
     }
 
     // Use the device's preferred swap-chain format (typically `bgra8unorm`)
@@ -677,7 +682,7 @@ export const HtmlInCanvasComposeWebGPU: React.FC = () => {
   }, []);
 
   const onPaint: HtmlInCanvasOnPaint = useCallback(
-    ({elementImage}) => {
+    ({canvas, element}) => {
       const gpu = gpuRef.current;
       if (!gpu) {
         return;
@@ -686,6 +691,7 @@ export const HtmlInCanvasComposeWebGPU: React.FC = () => {
       const {device, context, pipeline, texture, bindGroup, uniformBuffer} =
         gpu;
 
+      const elementImage = canvas.captureElementImage(element);
       device.queue.copyElementImageToTexture(
         elementImage,
         gpu.width,
@@ -727,6 +733,7 @@ export const HtmlInCanvasComposeWebGPU: React.FC = () => {
       <HtmlInCanvas
         width={width}
         height={height}
+        renderingContext="webgpu"
         onInit={onInit}
         onPaint={onPaint}
       >
@@ -759,14 +766,13 @@ This might be necessary if you are implementing a multi-pass effect using multip
 ```tsx twoslash title="Async: createImageBitmap then drawImage"
 import {HtmlInCanvasOnPaint} from 'remotion';
 
-const onPaint: HtmlInCanvasOnPaint = async ({canvas, elementImage}) => {
-  const ctx = canvas.getContext('2d');
+const onPaint: HtmlInCanvasOnPaint = async ({canvas, ctx, element}) => {
   if (!ctx) {
     return;
   }
 
   ctx.reset();
-  ctx.drawElementImage(elementImage, 0, 0);
+  ctx.drawElementImage(element, 0, 0);
   const bitmap = await createImageBitmap(canvas);
   try {
     ctx.reset();

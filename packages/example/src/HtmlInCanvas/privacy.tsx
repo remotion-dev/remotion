@@ -123,14 +123,13 @@ export const HtmlInCanvasPrivacy: React.FC = () => {
 					width={600}
 					height={760}
 					style={{border: '1px dashed #888'}}
-					onPaint={({canvas, element, elementImage}) => {
-						const ctx = canvas.getContext('2d');
+					onPaint={({ctx, element}) => {
 						if (!ctx) {
 							throw new Error('Failed to acquire 2D context');
 						}
 
 						ctx.reset();
-						ctx.drawElementImage(elementImage, 0, 0);
+						ctx.drawElementImage(element, 0, 0);
 
 						// Push the live DOM off-screen so the canvas pixels (which
 						// have the redactions applied) are visible. CSS transforms

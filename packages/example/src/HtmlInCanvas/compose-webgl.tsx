@@ -124,7 +124,7 @@ export const HtmlInCanvasComposeWebGL: React.FC = () => {
 	}, []);
 
 	const onPaint: HtmlInCanvasOnPaint = useCallback(
-		({elementImage}) => {
+		({element}) => {
 			const gpu = gpuRef.current;
 			if (!gpu) {
 				return;
@@ -146,7 +146,7 @@ export const HtmlInCanvasComposeWebGL: React.FC = () => {
 				gl.RGBA,
 				gl.RGBA,
 				gl.UNSIGNED_BYTE,
-				elementImage,
+				element,
 			);
 
 			if (gpu.uTex) {
@@ -167,6 +167,7 @@ export const HtmlInCanvasComposeWebGL: React.FC = () => {
 		<HtmlInCanvas
 			width={width}
 			height={height}
+			renderingContext="webgl2"
 			onInit={onInit}
 			onPaint={onPaint}
 		>
