@@ -12,6 +12,7 @@ export const hasResolvedStack = (stack: string | null): boolean => {
 
 	return resolvedCache.has(stack);
 };
+
 const inFlight = new Set<string>();
 const subscribers = new Map<
 	string,
