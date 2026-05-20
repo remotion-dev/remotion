@@ -264,7 +264,7 @@ export type HtmlInCanvasProps = Omit<
 	| 'children'
 	| 'durationInFrames'
 	| keyof LayoutAndStyle
-	| '_experimentalEffects'
+	| '_remotionInternalEffects'
 > &
 	Omit<
 		AbsoluteFillLayout,
@@ -277,7 +277,7 @@ export type HtmlInCanvasProps = Omit<
 		readonly durationInFrames?: number;
 		readonly width: number;
 		readonly height: number;
-		readonly _experimentalEffects?: EffectsProp;
+		readonly effects?: EffectsProp;
 		readonly children: React.ReactNode;
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
@@ -548,7 +548,7 @@ const HtmlInCanvasInner = forwardRef<
 		{
 			width,
 			height,
-			_experimentalEffects: effects = [],
+			effects = [],
 			children,
 			onPaint,
 			onInit,
@@ -570,7 +570,7 @@ const HtmlInCanvasInner = forwardRef<
 				durationInFrames={resolvedDuration}
 				name={name ?? '<HtmlInCanvas>'}
 				_experimentalControls={controls}
-				_experimentalEffects={memoizedEffectDefinitions}
+				_remotionInternalEffects={memoizedEffectDefinitions}
 				layout="none"
 				{...sequenceProps}
 			>

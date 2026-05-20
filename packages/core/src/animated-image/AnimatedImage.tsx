@@ -227,7 +227,7 @@ const AnimatedImageInner = ({
 	className,
 	style,
 	durationInFrames,
-	_experimentalEffects: effects = [],
+	effects = [],
 	_experimentalControls: controls,
 	ref,
 	...sequenceProps
@@ -259,7 +259,7 @@ const AnimatedImageInner = ({
 			durationInFrames={resolvedDuration}
 			name="<AnimatedImage>"
 			_experimentalControls={controls}
-			_experimentalEffects={memoizedEffectDefinitions}
+			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}
 		>
 			<AnimatedImageContent

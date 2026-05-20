@@ -1,5 +1,4 @@
-import {blur} from '@remotion/effects/blur';
-import {tint} from '@remotion/effects/tint';
+import {EffectInternals} from '@remotion/effects';
 import {StudioInternals} from '@remotion/studio';
 import React from 'react';
 import {
@@ -34,7 +33,7 @@ const columnStyle: React.CSSProperties = {
 };
 
 /**
- * `<AnimatedImage>` with `_experimentalEffects` — animated blur + tint.
+ * `<AnimatedImage>` with `effects` — animated blur + tint.
  * Composition id: `animated-image-effects`.
  */
 const Comp: React.FC = () => {
@@ -72,11 +71,11 @@ const Comp: React.FC = () => {
 					height={IMAGE_SIZE}
 					fit="contain"
 					style={{borderRadius: 16}}
-					_experimentalEffects={[
-						blur({
+					effects={[
+						EffectInternals.blur({
 							radius: blurRadius,
 						}),
-						tint({
+						EffectInternals.tint({
 							color: '#41f500',
 							amount: 0.35,
 						}),

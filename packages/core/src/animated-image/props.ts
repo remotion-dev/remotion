@@ -21,11 +21,11 @@ export type RemotionAnimatedImageProps = {
 
 export type AnimatedImageProps = Omit<
 	SequenceProps,
-	'children' | 'durationInFrames' | 'layout' | '_experimentalEffects'
+	'children' | 'durationInFrames' | 'layout' | '_remotionInternalEffects'
 > &
 	RemotionAnimatedImageProps & {
 		readonly durationInFrames?: number;
-		readonly _experimentalEffects?: EffectsProp;
+		readonly effects?: EffectsProp;
 	};
 
 export type AnimatedImageFillMode = 'contain' | 'cover' | 'fill';

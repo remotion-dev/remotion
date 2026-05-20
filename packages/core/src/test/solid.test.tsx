@@ -82,7 +82,7 @@ test('<Solid> renders without a color', () => {
 test('<Solid> accepts an empty effects array', () => {
 	const {container} = render(
 		<WrapSequenceContext>
-			<Solid color="green" width={64} height={64} _experimentalEffects={[]} />
+			<Solid color="green" width={64} height={64} effects={[]} />
 		</WrapSequenceContext>,
 	);
 

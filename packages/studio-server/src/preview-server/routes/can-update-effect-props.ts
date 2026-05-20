@@ -33,10 +33,7 @@ const findExperimentalEffectsAttr = (
 			continue;
 		}
 
-		if (
-			attr.name.type === 'JSXIdentifier' &&
-			attr.name.name === '_experimentalEffects'
-		) {
+		if (attr.name.type === 'JSXIdentifier' && attr.name.name === 'effects') {
 			return attr;
 		}
 	}
