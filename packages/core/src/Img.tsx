@@ -3,10 +3,11 @@ import React, {
 	useContext,
 	useImperativeHandle,
 	useLayoutEffect,
+	useMemo,
 	useRef,
-	useState,
 } from 'react';
 import type {IsExact} from './audio/props.js';
+import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import type {SequenceControls} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
@@ -15,11 +16,14 @@ import {
 	hiddenField,
 	sequenceVisualStyleSchema,
 } from './sequence-field-schema.js';
+import type {SequenceProps} from './Sequence.js';
+import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
-import {useImageInTimeline} from './use-media-in-timeline.js';
+import {useBasicMediaInTimeline} from './use-media-in-timeline.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
+import {useVideoConfig} from './use-video-config.js';
 import {wrapInSchema} from './wrap-in-schema.js';
 
 function exponentialBackoff(errorCount: number): number {
@@ -57,7 +61,7 @@ export type ImgProps = NativeImgProps & {
 	 * @deprecated For internal use only
 	 */
 	readonly stack?: string;
-};
+} & Pick<SequenceProps, 'durationInFrames' | 'from' | 'hidden'>;
 
 type Expected = Omit<
 	NativeImgProps,
@@ -66,7 +70,7 @@ type Expected = Omit<
 
 type ImgContentProps = Omit<
 	ImgProps,
-	'hidden' | 'name' | 'stack' | 'showInTimeline'
+	'hidden' | 'name' | 'stack' | 'showInTimeline' | 'from' | 'durationInFrames'
 >;
 
 const ImgContent: React.FC<ImgContentProps> = ({
@@ -305,38 +309,64 @@ const ImgInner: React.FC<
 	stack,
 	showInTimeline,
 	src,
+	from,
+	durationInFrames,
 	_experimentalControls: controls,
 	...props
 }) => {
-	const sequenceContext = useContext(SequenceContext);
-	const [timelineId] = useState(() => String(Math.random()));
+	const videoConfig = useVideoConfig();
+	const mediaStartsAt = useMediaStartsAt();
 
 	if (!src) {
 		throw new Error('No "src" prop was passed to <Img>.');
 	}
 
-	const stackRef = useRef<string | null>(null);
-	stackRef.current = stack ?? null;
+	const sequenceDurationInFrames = Math.min(
+		durationInFrames ?? Infinity,
+		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
+	);
 
-	const getStack = useCallback(() => stackRef.current, []);
-
-	useImageInTimeline({
+	const basicInfo = useBasicMediaInTimeline({
+		volume: undefined,
+		mediaVolume: 0,
+		mediaType: 'image',
 		src,
 		displayName: name ?? null,
-		id: timelineId,
-		getStack,
-		showInTimeline: showInTimeline ?? true,
-		premountDisplay: sequenceContext?.premountDisplay ?? null,
-		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
-		loopDisplay: undefined,
-		controls: controls ?? null,
+		trimBefore: undefined,
+		trimAfter: undefined,
+		playbackRate: 1,
+		sequenceDurationInFrames,
+		mediaStartsAt,
+		loop: false,
 	});
 
-	if (hidden) {
+	const isMedia = useMemo(
+		() => ({
+			type: 'image' as const,
+			data: basicInfo,
+		}),
+		[basicInfo],
+	);
+
+	if (sequenceDurationInFrames === 0) {
 		return null;
 	}
 
-	return <ImgContent src={src} {...props} />;
+	return (
+		<Sequence
+			layout="none"
+			from={from ?? 0}
+			durationInFrames={basicInfo.duration}
+			_remotionInternalStack={stack}
+			_remotionInternalIsMedia={isMedia}
+			name={name ?? basicInfo.finalDisplayName}
+			_experimentalControls={controls}
+			showInTimeline={showInTimeline ?? true}
+			hidden={hidden}
+		>
+			<ImgContent src={src} {...props} />
+		</Sequence>
+	);
 };
 
 const imgSchema = {
