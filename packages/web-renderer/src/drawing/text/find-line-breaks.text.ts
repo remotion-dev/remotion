@@ -3,35 +3,51 @@ type Token = {
 	rect: DOMRect;
 };
 
-export const findWords = (span: HTMLSpanElement) => {
-	const originalText = span.textContent;
-	const segmenter = new Intl.Segmenter('en', {granularity: 'word'});
-	const segments = segmenter.segment(span.textContent);
-	const words = Array.from(segments).map((s) => s.segment);
+const measureRange = (textNode: Text, start: number, end: number) => {
+	const range = document.createRange();
+	range.setStart(textNode, start);
+	range.setEnd(textNode, end);
+	return range.getBoundingClientRect();
+};
+
+export const findWords = (span: HTMLSpanElement): Token[] => {
+	const textNode = span.firstChild;
+	if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
+		return [{text: span.textContent ?? '', rect: span.getBoundingClientRect()}];
+	}
+
+	const text = textNode.textContent ?? '';
+	if (text.length === 0) {
+		return [];
+	}
+
+	const wholeRange = document.createRange();
+	wholeRange.setStart(textNode, 0);
+	wholeRange.setEnd(textNode, text.length);
+	const lineRects = Array.from(wholeRange.getClientRects());
+	if (lineRects.length <= 1) {
+		return [{text, rect: wholeRange.getBoundingClientRect()}];
+	}
 
 	const tokens: Token[] = [];
-
-	for (let i = 0; i < words.length; i++) {
-		const wordsBefore = words.slice(0, i);
-		const wordsAfter = words.slice(i + 1);
-		const word = words[i];
-
-		const wordsBeforeText = wordsBefore.join('');
-		const wordsAfterText = wordsAfter.join('');
-
-		const beforeNode = document.createTextNode(wordsBeforeText);
-		const afterNode = document.createTextNode(wordsAfterText);
-		const interstitialNode = document.createElement('span');
-		interstitialNode.textContent = word;
-		span.textContent = '';
-		span.appendChild(beforeNode);
-		span.appendChild(interstitialNode);
-		span.appendChild(afterNode);
-
-		const rect = interstitialNode.getBoundingClientRect();
-		span.textContent = originalText;
-		tokens.push({text: word, rect});
+	let lineStart = 0;
+	let currentTop = measureRange(textNode, 0, 1).top;
+	for (let i = 1; i < text.length; i++) {
+		const top = measureRange(textNode, i, i + 1).top;
+		if (Math.abs(top - currentTop) > 1) {
+			tokens.push({
+				text: text.slice(lineStart, i),
+				rect: measureRange(textNode, lineStart, i),
+			});
+			lineStart = i;
+			currentTop = top;
+		}
 	}
+
+	tokens.push({
+		text: text.slice(lineStart),
+		rect: measureRange(textNode, lineStart, text.length),
+	});
 
 	return tokens;
 };
