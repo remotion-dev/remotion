@@ -1,7 +1,7 @@
 # @remotion/effects
 
-Experimental presets for Remotion canvas effect hooks
+Internal presets for Remotion canvas effect hooks.
 
 ## Usage
 
-This is an internal package and has no documentation.
+Presets are exposed via `EffectInternals` only. This package has no public effect documentation yet.

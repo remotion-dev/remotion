@@ -50,7 +50,6 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
-		getCurrentFrame: () => 0,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -104,7 +103,6 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
-		getCurrentFrame: () => 0,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -125,4 +123,40 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 	// With the fix, max concurrent blocks should be 1
 	expect(maxConcurrentBlocks).toBe(1);
 	expect(activeBlocks).toBe(0);
+});
+
+test('redrawCurrentFrame should not create a new video iterator', async () => {
+	const {videoTrack} = await prepare();
+
+	const manager = await videoIteratorManager({
+		videoTrack,
+		delayPlaybackHandleIfNotPremounting: () => ({
+			unblock: () => {},
+			[Symbol.dispose]: () => {},
+		}),
+		context: null,
+		canvas: null,
+		getOnVideoFrameCallback: () => null,
+		logLevel: 'error',
+		drawDebugOverlay: () => {},
+		getLoopSegmentMediaEndTimestamp: () => {
+			throw new Error('not implemented');
+		},
+		getStartTime: () => {
+			throw new Error('not implemented');
+		},
+		getIsLooping: () => false,
+		getEffects: () => [],
+		getEffectChainState: () => null,
+	});
+
+	const nonceManager = makeNonceManager();
+
+	await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+	expect(manager.getVideoIteratorsCreated()).toBe(1);
+
+	await manager.redrawCurrentFrame();
+	await manager.redrawCurrentFrame();
+
+	expect(manager.getVideoIteratorsCreated()).toBe(1);
 });

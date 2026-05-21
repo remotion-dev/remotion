@@ -21,6 +21,8 @@ Replace `my-video` with a suitable project name.
 
 ## Designing a video
 
+Before designing visual scenes, layouts, promos, motion graphics, or text-heavy videos, load [rules/video-layout.md](rules/video-layout.md) for video-first layout and text sizing guidance.
+
 Animate properties using `useCurrentFrame()` and `interpolate()`. Use Easing to customize the timing of the animation.
 
 ```tsx

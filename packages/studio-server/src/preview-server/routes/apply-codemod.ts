@@ -1,13 +1,14 @@
 import {readFileSync} from 'node:fs';
+import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
 } from '@remotion/studio-shared';
 import {
-	formatOutput,
-	parseAndApplyCodemod,
-} from '../../codemods/duplicate-composition';
+	applyCodemodToFile,
+	resolveFilePathFromSymbolicatedStack,
+} from '../../codemods/apply-codemod-to-file';
 import {simpleDiff} from '../../codemods/simple-diff';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
@@ -17,23 +18,30 @@ import {checkIfTypeScriptFile} from './can-update-default-props';
 export const applyCodemodHandler: ApiHandler<
 	ApplyCodemodRequest,
 	ApplyCodemodResponse
-> = async ({input: {codemod, dryRun}, logLevel, remotionRoot, entryPoint}) => {
+> = async ({
+	input: {codemod, dryRun, symbolicatedStack},
+	logLevel,
+	remotionRoot,
+	entryPoint,
+}) => {
 	try {
 		const time = Date.now();
-		const projectInfo = await getProjectInfo(remotionRoot, entryPoint);
-		if (!projectInfo.rootFile) {
-			throw new Error('Cannot find root file in project');
+
+		const filePath = symbolicatedStack
+			? resolveFilePathFromSymbolicatedStack(remotionRoot, symbolicatedStack)
+			: (await getProjectInfo(remotionRoot, entryPoint)).rootFile;
+
+		if (!filePath) {
+			throw new Error('Cannot find file for composition in project');
 		}
 
-		checkIfTypeScriptFile(projectInfo.rootFile);
+		checkIfTypeScriptFile(filePath);
 
-		const input = readFileSync(projectInfo.rootFile, 'utf-8');
-
-		const {newContents} = parseAndApplyCodemod({
+		const input = readFileSync(filePath, 'utf-8');
+		const formatted = await applyCodemodToFile({
+			filePath,
 			codeMod: codemod,
-			input,
 		});
-		const formatted = await formatOutput(newContents);
 
 		const diff = simpleDiff({
 			oldLines: input.split('\n'),
@@ -41,11 +49,12 @@ export const applyCodemodHandler: ApiHandler<
 		});
 
 		if (!dryRun) {
-			writeFileAndNotifyFileWatchers(projectInfo.rootFile, formatted);
+			writeFileAndNotifyFileWatchers(filePath, formatted, undefined);
 			const end = Date.now() - time;
+			const relativePath = path.relative(remotionRoot, filePath);
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				RenderInternals.chalk.blue(`Edited root file in ${end}ms`),
+				RenderInternals.chalk.blue(`Edited ${relativePath} in ${end}ms`),
 			);
 		}
 

@@ -1,13 +1,13 @@
 import {scenarios, type SkillEvalScenario} from '../../scenarios';
-import type {SkillEvalComparison} from '../manifest';
-import {getLatestComparisonByScenario} from './comparison-data';
+import {listSkillEvals} from '../eval';
+import type {SkillEval} from '../manifest';
 import {formatDate, page, Pill} from './shared';
 
 const ScenarioCard = ({
 	latest,
 	scenario,
 }: {
-	latest: SkillEvalComparison | undefined;
+	latest: SkillEval | undefined;
 	scenario: SkillEvalScenario;
 }) => (
 	<a
@@ -22,15 +22,19 @@ const ScenarioCard = ({
 			<Pill>{latest ? 'Ready' : 'New'}</Pill>
 		</div>
 		<p className="mt-4 text-xs text-zinc-400">
-			{latest
-				? `Last run ${formatDate(latest.completedAt)}`
-				: 'No comparisons yet.'}
+			{latest ? `Last eval ${formatDate(latest.completedAt)}` : 'No evals yet.'}
 		</p>
 	</a>
 );
 
 export const renderHome = async () => {
-	const latest = await getLatestComparisonByScenario();
+	const latest = new Map<string, SkillEval>();
+
+	for (const evaluation of await listSkillEvals()) {
+		if (!latest.has(evaluation.scenarioId)) {
+			latest.set(evaluation.scenarioId, evaluation);
+		}
+	}
 
 	return page({
 		children: (

@@ -1,6 +1,8 @@
 import {expect, test} from 'bun:test';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 
+const getStack = () => null;
+
 test('Should calculate timeline with no sequences', () => {
 	const calculated = calculateTimeline({
 		overrideIdsToNodePaths: {},
@@ -23,7 +25,7 @@ test('Should calculate a basic timeline', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: [[0, 0]],
-				stack: null,
+				getStack,
 				premountDisplay: null,
 				postmountDisplay: null,
 				controls: null,
@@ -48,7 +50,7 @@ test('Should calculate a basic timeline', () => {
 				postmountDisplay: null,
 				controls: null,
 				loopDisplay: undefined,
-				stack: null,
+				getStack,
 				type: 'sequence',
 				nonce: [[0, 0]],
 				effects: [],
@@ -72,7 +74,7 @@ test('Should follow order of nesting', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: [[0, 0]],
-				stack: null,
+				getStack,
 				premountDisplay: null,
 				postmountDisplay: null,
 				controls: null,
@@ -93,7 +95,7 @@ test('Should follow order of nesting', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: [[0, 0]],
-				stack: null,
+				getStack,
 				effects: [],
 			},
 		],
@@ -115,7 +117,7 @@ test('Should follow order of nesting', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: [[0, 0]],
-				stack: null,
+				getStack,
 				effects: [],
 			},
 			depth: 0,
@@ -133,7 +135,7 @@ test('Should follow order of nesting', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: [[0, 0]],
-				stack: null,
+				getStack,
 				premountDisplay: null,
 				postmountDisplay: null,
 				controls: null,
@@ -161,7 +163,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: [[0, 0]],
-				stack: null,
+				getStack,
 				premountDisplay: null,
 				postmountDisplay: null,
 				controls: null,
@@ -181,7 +183,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 				showInTimeline: true,
 				type: 'video',
 				nonce: [[0, 1]],
-				stack: null,
+				getStack,
 				premountDisplay: null,
 				postmountDisplay: null,
 				controls: null,

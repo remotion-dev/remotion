@@ -12,6 +12,7 @@ export type FallbackHtml5AudioProps = {
 	useWebAudioApi?: boolean;
 	acceptableTimeShiftInSeconds?: number;
 	pauseWhenBuffering?: boolean;
+	preservePitch?: boolean;
 };
 
 export type AudioProps = {
@@ -40,5 +41,5 @@ export type AudioProps = {
 	credentials?: RequestCredentials;
 } & Pick<
 	SequenceProps,
-	'from' | 'durationInFrames' | 'name' | 'showInTimeline'
+	'from' | 'durationInFrames' | 'name' | 'showInTimeline' | 'hidden'
 >;

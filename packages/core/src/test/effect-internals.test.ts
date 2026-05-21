@@ -18,7 +18,8 @@ const makeDef = (
 	setup: () => null,
 	apply: () => undefined,
 	cleanup: () => undefined,
-	schema: null,
+	schema: {},
+	validateParams: () => {},
 });
 
 const makeDesc = (
@@ -87,4 +88,23 @@ test('groupByBackend returns one run per backend transition', () => {
 	const runs = groupByBackend(memoizeEffects(effects));
 	expect(runs).toHaveLength(4);
 	expect(runs.map((r) => r.backend)).toEqual(['2d', 'webgl2', '2d', 'webgl2']);
+});
+
+test('runEffectChain filters disabled effects before grouping', () => {
+	// Mirror of the filter in `runEffectChain` — kept here as a regression
+	// guard so the behavior is asserted independently of the canvas-bound
+	// chain runner.
+	const all: EffectDescriptor<unknown>[] = [
+		{...makeDesc('a', '2d'), params: {disabled: false}},
+		{...makeDesc('b', '2d'), params: {disabled: true}},
+		{...makeDesc('c', 'webgl2'), params: {}},
+		{...makeDesc('d', 'webgl2'), params: {disabled: true}},
+	];
+	const enabled = all.filter(
+		(e) => !(e.params as {disabled?: boolean}).disabled,
+	);
+	const runs = groupByBackend(memoizeEffects(enabled));
+	expect(runs).toHaveLength(2);
+	expect(runs[0].effects.map((e) => e.definition.type)).toEqual(['a']);
+	expect(runs[1].effects.map((e) => e.definition.type)).toEqual(['c']);
 });

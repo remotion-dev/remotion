@@ -58,6 +58,12 @@ export type EventSourceEvent =
 			result: CanUpdateSequencePropsResponse;
 	  }
 	| {
+			type: 'lost-node-path';
+			fileName: string;
+			line: number;
+			column: number;
+	  }
+	| {
 			type: 'default-props-updatable-changed';
 			compositionId: string;
 			result: CanUpdateDefaultPropsResponse;

@@ -91,6 +91,8 @@ The file name of the media output as stored in the S3 bucket. By default, it is 
 
 <Options id="still-image-format" />
 
+`pdf` is not supported on Remotion Lambda due to function size constraints.
+
 ### `--jpeg-quality`
 
 [Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when rendering an image format other than JPEG.

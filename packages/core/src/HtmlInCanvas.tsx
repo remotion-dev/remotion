@@ -6,10 +6,9 @@ import React, {
 	useLayoutEffect,
 	useMemo,
 	useRef,
-	useState,
 } from 'react';
-import {createPortal} from 'react-dom';
 import type {SequenceControls} from './CompositionManager.js';
+import {delayRender} from './delay-render.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -18,14 +17,16 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
-import {sequenceStyleSchema} from './sequence-field-schema.js';
+import {
+	hiddenField,
+	sequenceVisualStyleSchema,
+} from './sequence-field-schema.js';
 import type {
 	AbsoluteFillLayout,
 	LayoutAndStyle,
 	SequenceProps,
 } from './Sequence.js';
 import {Sequence} from './Sequence.js';
-import {useCurrentFrame} from './use-current-frame.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useVideoConfig} from './use-video-config.js';
 import {wrapInSchema} from './wrap-in-schema.js';
@@ -76,16 +77,20 @@ declare global {
 	}
 
 	interface OffscreenCanvasRenderingContext2D {
-		drawElementImage(element: ElementImage, dx: number, dy: number): DOMMatrix;
 		drawElementImage(
-			element: ElementImage,
+			element: Element | ElementImage,
+			dx: number,
+			dy: number,
+		): DOMMatrix;
+		drawElementImage(
+			element: Element | ElementImage,
 			dx: number,
 			dy: number,
 			dwidth: number,
 			dheight: number,
 		): DOMMatrix;
 		drawElementImage(
-			element: ElementImage,
+			element: Element | ElementImage,
 			sx: number,
 			sy: number,
 			swidth: number,
@@ -94,7 +99,7 @@ declare global {
 			dy: number,
 		): DOMMatrix;
 		drawElementImage(
-			element: ElementImage,
+			element: Element | ElementImage,
 			sx: number,
 			sy: number,
 			swidth: number,
@@ -171,6 +176,10 @@ declare global {
 }
 
 export type HtmlInCanvasOnPaintParams = {
+	/**
+	 * The `OffscreenCanvas` from {@link HTMLCanvasElement.transferControlToOffscreen}
+	 * on the layout `<canvas>` (same logical canvas as the forwarded ref).
+	 */
 	readonly canvas: OffscreenCanvas;
 	readonly element: HTMLDivElement;
 	readonly elementImage: ElementImage;
@@ -195,7 +204,8 @@ export const isHtmlInCanvasSupported = (): boolean => {
 	cachedSupport =
 		typeof ctx?.drawElementImage === 'function' &&
 		typeof canvas.requestPaint === 'function' &&
-		typeof canvas.captureElementImage === 'function';
+		typeof canvas.captureElementImage === 'function' &&
+		'transferControlToOffscreen' in HTMLCanvasElement.prototype;
 	return cachedSupport;
 };
 
@@ -254,7 +264,7 @@ export type HtmlInCanvasProps = Omit<
 	| 'children'
 	| 'durationInFrames'
 	| keyof LayoutAndStyle
-	| '_experimentalEffects'
+	| '_remotionInternalEffects'
 > &
 	Omit<
 		AbsoluteFillLayout,
@@ -267,63 +277,56 @@ export type HtmlInCanvasProps = Omit<
 		readonly durationInFrames?: number;
 		readonly width: number;
 		readonly height: number;
-		readonly _experimentalEffects?: EffectsProp;
+		readonly effects?: EffectsProp;
 		readonly children: React.ReactNode;
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
 	};
+/* eslint-enable react/require-default-props */
 
-type NestedHtmlInCanvasProps = {
-	requestParentPaint: () => void;
+type HtmlInCanvasAncestor = {
+	readonly requestParentPaint: () => void;
 };
 
-const HtmlInCanvasAncestorContext =
-	createContext<NestedHtmlInCanvasProps | null>(null);
+// When a nested <HtmlInCanvas> sits inside another one, the inner canvas
+// must notify the outer canvas after each paint so the outer captures the
+// already-painted nested bitmap (not a stale frame).
+const HtmlInCanvasAncestorContext = createContext<HtmlInCanvasAncestor | null>(
+	null,
+);
 
-const hiddenAuxiliaryCanvasContainerStyle: React.CSSProperties = {
-	position: 'absolute',
-	pointerEvents: 'none',
+type HtmlInCanvasContentProps = {
+	readonly width: number;
+	readonly height: number;
+	readonly effects: EffectsProp;
+	readonly children: React.ReactNode;
+	readonly onPaint: HtmlInCanvasOnPaint | undefined;
+	readonly onInit: HtmlInCanvasOnInit | undefined;
+	readonly controls: SequenceControls | undefined;
+	readonly style: React.CSSProperties | undefined;
 };
 
-const HtmlInCanvasInner = forwardRef<
+const HtmlInCanvasContent = forwardRef<
 	HTMLCanvasElement,
-	HtmlInCanvasProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
-	}
+	HtmlInCanvasContentProps
 >(
 	(
-		{
-			width,
-			height,
-			_experimentalEffects: effects = [],
-			children,
-			onPaint,
-			onInit,
-			_experimentalControls: controls,
-			style,
-			durationInFrames,
-			...sequenceProps
-		},
+		{width, height, effects, children, onPaint, onInit, controls, style},
 		ref,
 	) => {
-		const isInsideAncestorHtmlInCanvas = useContext(
-			HtmlInCanvasAncestorContext,
-		);
+		const ancestor = useContext(HtmlInCanvasAncestorContext);
 
 		assertHtmlInCanvasDimensions(width, height);
-		const {continueRender, cancelRender, delayRender} = useDelayRender();
+		const {continueRender, cancelRender} = useDelayRender();
 
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE));
 		}
 
-		const {durationInFrames: videoDuration} = useVideoConfig();
-		const resolvedDuration = durationInFrames ?? videoDuration;
-
-		const frame = useCurrentFrame();
-
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
+		const offscreenRef = useRef<OffscreenCanvas | null>(null);
 		const divRef = useRef<HTMLDivElement | null>(null);
+		const canvasSizeKey = `${width}x${height}`;
 
 		const setLayoutCanvasRef = useCallback(
 			(node: HTMLCanvasElement | null) => {
@@ -337,20 +340,6 @@ const HtmlInCanvasInner = forwardRef<
 			},
 			[ref],
 		);
-		const shadowCanvasRef = useRef<HTMLCanvasElement | null>(null);
-		const [offscreenCanvas] = useState(() => new OffscreenCanvas(1, 1));
-		const auxiliaryCanvasContainer = useMemo(() => {
-			if (typeof document === 'undefined') {
-				return null;
-			}
-
-			const container = document.createElement('div');
-			Object.assign(container.style, hiddenAuxiliaryCanvasContainerStyle, {
-				left: `-${width - 1}px`,
-				top: `-${height - 1}px`,
-			});
-			return container;
-		}, [width, height]);
 
 		const chainState = useEffectChainState();
 
@@ -358,13 +347,10 @@ const HtmlInCanvasInner = forwardRef<
 			effects,
 			overrideId: controls?.overrideId ?? null,
 		});
-		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
 		// Refs so the paint handler always reads fresh values.
 		const effectsRef = useRef(memoizedEffects);
 		effectsRef.current = memoizedEffects;
-		const frameRef = useRef(frame);
-		frameRef.current = frame;
 		const onPaintRef = useRef(onPaint);
 		onPaintRef.current = onPaint;
 		const onInitRef = useRef(onInit);
@@ -372,7 +358,8 @@ const HtmlInCanvasInner = forwardRef<
 		const initializedRef = useRef(false);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
-		const firstPaintAfterResizeHandleRef = useRef<number | null>(null);
+		const ancestorRef = useRef(ancestor);
+		ancestorRef.current = ancestor;
 
 		const onPaintCb = useCallback(async () => {
 			const element = divRef.current;
@@ -381,26 +368,31 @@ const HtmlInCanvasInner = forwardRef<
 				throw new Error('Canvas or scene element not found');
 			}
 
-			offscreenCanvas.width = width;
-			offscreenCanvas.height = height;
+			const offscreen = offscreenRef.current;
+			if (!offscreen) {
+				throw new Error(
+					'HtmlInCanvas: offscreen canvas not ready (transferControlToOffscreen failed or canvas is remounting)',
+				);
+			}
+
+			offscreen.width = width;
+			offscreen.height = height;
 
 			try {
-				const layoutCanvas = canvas2dRef.current;
-				if (!layoutCanvas) {
+				const placeholderCanvas = canvas2dRef.current;
+				if (!placeholderCanvas) {
 					throw new Error('Canvas not found');
 				}
 
 				// `GPUQueue.copyElementImageToTexture` / related paths validate the
-				// layout canvas has a rendering context. `runEffectChain` only runs
-				// after `onPaint`, so acquire `2d` here before any capture or handler.
-				const layout2d = layoutCanvas.getContext('2d');
-				if (!layout2d) {
+				// linked offscreen surface has a rendering context. Acquire `2d` here
+				// before any capture or handler (must not call getContext on placeholder).
+				const offscreen2d = offscreen.getContext('2d');
+				if (!offscreen2d) {
 					throw new Error(
-						'Failed to acquire 2D context for <HtmlInCanvas> layout canvas',
+						'Failed to acquire 2D context for <HtmlInCanvas> offscreen canvas',
 					);
 				}
-
-				layout2d.clearRect(0, 0, width, height);
 
 				const handle = delayRender('onPaint');
 				if (!initializedRef.current) {
@@ -411,11 +403,11 @@ const HtmlInCanvasInner = forwardRef<
 					// can invalidate the capture's paint context, leaving subsequent
 					// uploads (e.g. `copyElementImageToTexture`) failing with
 					// "No context found for ElementImage" on the very first paint.
-					const initImage = layoutCanvas.captureElementImage(element);
+					const initImage = placeholderCanvas.captureElementImage(element);
 					const currentOnInit = onInitRef.current;
 					if (currentOnInit) {
 						const cleanup = await currentOnInit({
-							canvas: offscreenCanvas,
+							canvas: offscreen,
 							element,
 							elementImage: initImage!,
 						});
@@ -435,91 +427,62 @@ const HtmlInCanvasInner = forwardRef<
 
 				const handler = onPaintRef.current ?? defaultOnPaint;
 
-				const elImage = layoutCanvas.captureElementImage(element);
+				const elImage = placeholderCanvas.captureElementImage(element);
 				await handler({
-					canvas: offscreenCanvas,
+					canvas: offscreen,
 					element,
 					elementImage: elImage!,
 				});
 
-				const completed = await runEffectChain({
+				await runEffectChain({
 					state: chainState.get(width, height)!,
-					source: offscreenCanvas,
+					source: offscreen,
 					effects: effectsRef.current,
-					output: canvas2dRef.current!,
-					frame: frameRef.current,
+					output: offscreen,
 					width,
 					height,
 				});
-				if (!completed) {
-					continueRender(handle);
-					return;
-				}
 
-				const shadowCanvas = shadowCanvasRef.current;
-				const shadowContext = shadowCanvas!.getContext('2d');
-				if (!shadowContext) {
-					throw new Error(
-						'Failed to acquire 2D context for <HtmlInCanvas> shadow canvas',
-					);
-				}
-
-				shadowContext.clearRect(0, 0, width, height);
-				shadowContext.drawImage(canvas2dRef.current!, 0, 0);
-
-				isInsideAncestorHtmlInCanvas?.requestParentPaint();
-
-				if (firstPaintAfterResizeHandleRef.current !== null) {
-					continueRender(firstPaintAfterResizeHandleRef.current);
-					firstPaintAfterResizeHandleRef.current = null;
-				}
+				// Nested <HtmlInCanvas>: tell the outer canvas to re-paint, so that
+				// the parent captures this freshly-painted bitmap instead of a stale
+				// (or empty) one. The parent will skip work if nothing changed.
+				ancestorRef.current?.requestParentPaint();
 
 				continueRender(handle);
 			} catch (error) {
 				cancelRender(error);
 			}
-		}, [
-			chainState,
-			continueRender,
-			cancelRender,
-			width,
-			height,
-			offscreenCanvas,
-			delayRender,
-			isInsideAncestorHtmlInCanvas,
-		]);
+		}, [chainState, continueRender, cancelRender, width, height]);
 
+		// Transfer control once per layout canvas instance, then listen for paint on
+		// the placeholder (capture) while drawing on the linked offscreen surface.
 		useLayoutEffect(() => {
-			if (!auxiliaryCanvasContainer) {
-				return;
-			}
-
-			document.body.appendChild(auxiliaryCanvasContainer);
-
-			return () => {
-				auxiliaryCanvasContainer.remove();
-			};
-		}, [auxiliaryCanvasContainer]);
-
-		// Set up layoutSubtree and persistent paint listener. Runs as a
-		// layout effect so the listener is attached before the resize effect
-		// below dispatches its first synthetic paint.
-		useLayoutEffect(() => {
-			const canvas = canvas2dRef.current;
-			if (!canvas) {
+			const placeholder = canvas2dRef.current;
+			if (!placeholder) {
 				throw new Error('Canvas not found');
 			}
 
-			canvas.layoutSubtree = true;
-			canvas.addEventListener('paint', onPaintCb);
+			placeholder.layoutSubtree = true;
+
+			const offscreen = placeholder.transferControlToOffscreen();
+			offscreenRef.current = offscreen;
+			offscreen.width = width;
+			offscreen.height = height;
+
+			initializedRef.current = false;
+			unmountedRef.current = false;
+
+			placeholder.addEventListener('paint', onPaintCb);
 
 			return () => {
-				canvas.removeEventListener('paint', onPaintCb);
+				placeholder.removeEventListener('paint', onPaintCb);
+				offscreenRef.current = null;
+				initializedRef.current = false;
 				unmountedRef.current = true;
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};
-		}, [onPaintCb, cancelRender]);
+		}, [onPaintCb, cancelRender, width, height]);
 
 		const onPaintChangedRef = useRef(false);
 		useLayoutEffect(() => {
@@ -543,15 +506,18 @@ const HtmlInCanvasInner = forwardRef<
 			}
 
 			const handle = delayRender('waiting for first paint after canvas resize');
-			firstPaintAfterResizeHandleRef.current = handle;
+			canvas.addEventListener(
+				'paint',
+				() => {
+					continueRender(handle);
+				},
+				{once: true},
+			);
 
 			return () => {
 				continueRender(handle);
-				if (firstPaintAfterResizeHandleRef.current === handle) {
-					firstPaintAfterResizeHandleRef.current = null;
-				}
 			};
-		}, [width, height, continueRender, delayRender]);
+		}, [width, height, continueRender, canvasSizeKey]);
 
 		const innerStyle = useMemo(() => {
 			return {
@@ -560,54 +526,85 @@ const HtmlInCanvasInner = forwardRef<
 			};
 		}, [width, height]);
 
-		const layoutCanvasElement = (
-			<canvas
-				ref={setLayoutCanvasRef}
-				width={width}
-				height={height}
-				style={auxiliaryCanvasContainer ? undefined : style}
-			>
-				<div ref={divRef} style={innerStyle}>
-					{children}
-				</div>
-			</canvas>
-		);
-
-		const contextValue = useMemo(() => {
+		// Context value for descendant <HtmlInCanvas> instances: when they finish
+		// painting, ask this canvas to repaint so the new pixels make it onto our
+		// offscreen surface on the next paint event.
+		const ancestorValue = useMemo<HtmlInCanvasAncestor>(() => {
 			return {
 				requestParentPaint: () => {
-					const canvas = canvas2dRef.current;
-					if (!canvas) {
-						return;
-					}
-
-					canvas.requestPaint?.();
+					canvas2dRef.current?.requestPaint?.();
 				},
 			};
-		}, [canvas2dRef]);
+		}, []);
+
+		return (
+			<HtmlInCanvasAncestorContext.Provider value={ancestorValue}>
+				<canvas
+					key={canvasSizeKey}
+					ref={setLayoutCanvasRef}
+					width={width}
+					height={height}
+					style={style}
+				>
+					<div ref={divRef} style={innerStyle}>
+						{children}
+					</div>
+				</canvas>
+			</HtmlInCanvasAncestorContext.Provider>
+		);
+	},
+);
+
+HtmlInCanvasContent.displayName = 'HtmlInCanvasContent';
+
+const HtmlInCanvasInner = forwardRef<
+	HTMLCanvasElement,
+	HtmlInCanvasProps & {
+		readonly _experimentalControls: SequenceControls | undefined;
+	}
+>(
+	(
+		{
+			width,
+			height,
+			effects = [],
+			children,
+			onPaint,
+			onInit,
+			_experimentalControls: controls,
+			style,
+			durationInFrames,
+			name,
+			...sequenceProps
+		},
+		ref,
+	) => {
+		const {durationInFrames: videoDuration} = useVideoConfig();
+		const resolvedDuration = durationInFrames ?? videoDuration;
+
+		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
 		return (
 			<Sequence
 				durationInFrames={resolvedDuration}
-				name="<HtmlInCanvas>"
+				name={name ?? '<HtmlInCanvas>'}
 				_experimentalControls={controls}
-				_experimentalEffects={memoizedEffectDefinitions}
+				_remotionInternalEffects={memoizedEffectDefinitions}
 				layout="none"
 				{...sequenceProps}
 			>
-				<HtmlInCanvasAncestorContext.Provider value={contextValue}>
-					<>
-						{auxiliaryCanvasContainer
-							? createPortal(layoutCanvasElement, auxiliaryCanvasContainer)
-							: null}
-						<canvas
-							ref={shadowCanvasRef}
-							width={width}
-							height={height}
-							style={style}
-						/>
-					</>
-				</HtmlInCanvasAncestorContext.Provider>
+				<HtmlInCanvasContent
+					ref={ref}
+					width={width}
+					height={height}
+					effects={effects}
+					onPaint={onPaint}
+					onInit={onInit}
+					controls={controls}
+					style={style}
+				>
+					{children}
+				</HtmlInCanvasContent>
 			</Sequence>
 		);
 	},
@@ -615,10 +612,12 @@ const HtmlInCanvasInner = forwardRef<
 
 HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
-const HtmlInCanvasWrapped = wrapInSchema(
-	HtmlInCanvasInner,
-	sequenceStyleSchema,
-);
+const htmlInCanvasSchema = {
+	...sequenceVisualStyleSchema,
+	hidden: hiddenField,
+};
+
+const HtmlInCanvasWrapped = wrapInSchema(HtmlInCanvasInner, htmlInCanvasSchema);
 
 export const HtmlInCanvas = Object.assign(HtmlInCanvasWrapped, {
 	isSupported: isHtmlInCanvasSupported,

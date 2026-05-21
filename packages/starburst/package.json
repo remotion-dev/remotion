@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/starburst",
-	"version": "4.0.461",
+	"version": "4.0.464",
 	"description": "Starburst ray effect for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -10,6 +10,7 @@
 	},
 	"type": "module",
 	"scripts": {
+		"test": "bun test src/test",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",

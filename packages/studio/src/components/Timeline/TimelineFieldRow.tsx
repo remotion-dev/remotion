@@ -1,31 +1,29 @@
-import {optimisticUpdateForCodeValues} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatusTrue,
-	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
-import {callApi} from '../call-api';
-import {showNotification} from '../Notifications/NotificationCenter';
-import {Padder} from './Padder';
+import {saveSequenceProp} from './save-sequence-prop';
+import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
+import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
+import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
+import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	TimelineFieldValue,
 	TimelineNonEditableStatus,
 } from './TimelineSchemaField';
 
 const fieldRowBase: React.CSSProperties = {
-	display: 'flex',
-	alignItems: 'center',
-	gap: 8,
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
@@ -33,14 +31,6 @@ const fieldName: React.CSSProperties = {
 	fontSize: 12,
 	color: 'rgba(255, 255, 255, 0.8)',
 	userSelect: 'none',
-};
-
-const fieldLabelRow: React.CSSProperties = {
-	flex: '0 0 50%',
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	gap: 6,
 };
 
 const Value: React.FC<{
@@ -70,11 +60,20 @@ const Value: React.FC<{
 	});
 
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const clientId =
+		previewServerState.type === 'connected'
+			? previewServerState.clientId
+			: null;
 
 	const onSave = useCallback<TimelineFieldOnSave>(
 		(value) => {
 			if (!codeValue || !codeValue.canUpdate) {
 				return Promise.reject(new Error('Cannot save'));
+			}
+
+			if (!clientId) {
+				return Promise.reject(new Error('Not connected to studio server'));
 			}
 
 			const defaultValue =
@@ -95,59 +94,20 @@ const Value: React.FC<{
 				return Promise.resolve();
 			}
 
-			let previousUpdate: CanUpdateSequencePropsResponse | undefined;
-
-			// Optimistic update to prevent flicker
-			setCodeValues(nodePath, (prev) => {
-				previousUpdate = prev;
-				return optimisticUpdateForCodeValues({
-					previous: prev,
-					fieldKey: field.key,
-					value,
-					schema,
-				});
-			});
-
-			return callApi('/api/save-sequence-props', {
+			return saveSequenceProp({
 				fileName: validatedLocation.source,
 				nodePath,
-				key: field.key,
-				value: stringifiedValue,
+				fieldKey: field.key,
+				value,
 				defaultValue,
 				schema,
-			})
-				.then((data) => {
-					setCodeValues(nodePath, (prev) => {
-						if (!data.canUpdate) {
-							return data;
-						}
-
-						return {
-							canUpdate: true,
-							props: data.props,
-							effects: prev.canUpdate ? prev.effects : [],
-						};
-					});
-				})
-				.catch((err) => {
-					// In case something went wrong, undo optimistic update
-					setCodeValues(nodePath, (current) => {
-						if (previousUpdate) {
-							return previousUpdate;
-						}
-
-						return current;
-					});
-					showNotification(
-						`Could not save sequence prop: ${
-							err instanceof Error ? err.message : String(err)
-						}`,
-						4000,
-					);
-				});
+				setCodeValues,
+				clientId,
+			});
 		},
 		[
 			codeValue,
+			clientId,
 			field.fieldSchema.default,
 			field.key,
 			nodePath,
@@ -191,18 +151,10 @@ const Value: React.FC<{
 export const TimelineFieldRow: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
-	readonly paddingLeft: number;
-	readonly nestedDepth: number;
+	readonly rowDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: SequenceSchema;
-}> = ({
-	field,
-	validatedLocation,
-	paddingLeft,
-	nestedDepth,
-	nodePath,
-	schema,
-}) => {
+}> = ({field, validatedLocation, rowDepth, nodePath, schema}) => {
 	const {codeValues: visualModeCodeValues} = useContext(
 		Internals.VisualModeCodeValuesContext,
 	);
@@ -217,18 +169,26 @@ export const TimelineFieldRow: React.FC<{
 		return {
 			...fieldRowBase,
 			height: field.rowHeight,
-			paddingLeft,
 		};
-	}, [field.rowHeight, paddingLeft]);
+	}, [field.rowHeight]);
+
+	const labelRowStyle = useMemo(
+		() => getTimelineFieldLabelRowStyle(rowDepth),
+		[rowDepth],
+	);
 
 	if (codeValue === null) {
 		return null;
 	}
 
 	return (
-		<div style={style}>
-			<Padder depth={nestedDepth + 1} />
-			<div style={fieldLabelRow}>
+		<TimelineRowChrome
+			depth={rowDepth}
+			eye={<TimelineLayerEyeSpacer />}
+			arrow={<TimelineExpandArrowSpacer />}
+			style={style}
+		>
+			<div style={labelRowStyle}>
 				<span style={fieldName}>{field.description ?? field.key}</span>
 			</div>
 			{codeValue.canUpdate ? (
@@ -242,6 +202,6 @@ export const TimelineFieldRow: React.FC<{
 			) : (
 				<TimelineNonEditableStatus propStatus={codeValue} />
 			)}
-		</div>
+		</TimelineRowChrome>
 	);
 };

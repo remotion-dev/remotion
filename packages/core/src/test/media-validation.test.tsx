@@ -76,3 +76,57 @@ describe('ValidateMediaProps should throw with invalid playbackRate', () => {
 		).not.toThrow();
 	});
 });
+
+describe('ValidateMediaProps should validate preservePitch', () => {
+	const testComponents = [
+		'Audio',
+		'Video',
+		'Html5Audio',
+		'Html5Video',
+	] as const;
+
+	testComponents.forEach((component) => {
+		test(`It should allow ${component} preservePitch to be undefined`, () => {
+			expect(() =>
+				validateMediaProps(
+					{playbackRate: 1, preservePitch: undefined, volume: undefined},
+					component,
+				),
+			).not.toThrow();
+		});
+
+		test(`It should allow ${component} preservePitch to be true`, () => {
+			expect(() =>
+				validateMediaProps(
+					{playbackRate: 1, preservePitch: true, volume: undefined},
+					component,
+				),
+			).not.toThrow();
+		});
+
+		test(`It should allow ${component} preservePitch to be false`, () => {
+			expect(() =>
+				validateMediaProps(
+					{playbackRate: 1, preservePitch: false, volume: undefined},
+					component,
+				),
+			).not.toThrow();
+		});
+	});
+
+	test('It should reject non-boolean preservePitch values', () => {
+		expectToThrow(
+			() =>
+				validateMediaProps(
+					{
+						playbackRate: 1,
+						// @ts-expect-error
+						preservePitch: 'yes',
+						volume: undefined,
+					},
+					'Html5Video',
+				),
+			/'preservePitch' must be a boolean or undefined but got 'string' instead/,
+		);
+	});
+});

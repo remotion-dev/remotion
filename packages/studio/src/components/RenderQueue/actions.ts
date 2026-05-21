@@ -339,15 +339,18 @@ export const openInFileExplorer = ({directory}: {directory: string}) => {
 export const applyCodemod = ({
 	codemod,
 	dryRun,
+	symbolicatedStack,
 	signal,
 }: {
 	codemod: RecastCodemod;
 	dryRun: boolean;
+	symbolicatedStack: ApplyCodemodRequest['symbolicatedStack'];
 	signal: AbortController['signal'];
 }) => {
 	const body: ApplyCodemodRequest = {
 		codemod,
 		dryRun,
+		symbolicatedStack,
 	};
 	return callApi('/api/apply-codemod', body, signal);
 };

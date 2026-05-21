@@ -5,22 +5,15 @@ import {Internals} from 'remotion';
 import {showNotification} from '../components/Notifications/NotificationCenter';
 import playBeepSound from '../components/PlayBeepSound';
 import {renderJobsRef} from '../components/RenderQueue/context';
+import {
+	subscribeToPreviewServerConnectionState,
+	subscribeToPreviewServerEvents,
+	type PreviewServerConnectionState,
+} from './preview-server-events';
 import {reloadUrl} from './url-state';
 
-type PreviewServerState =
-	| {
-			type: 'init';
-	  }
-	| {
-			type: 'connected';
-			clientId: string;
-	  }
-	| {
-			type: 'disconnected';
-	  };
-
 type Context = {
-	previewServerState: PreviewServerState;
+	previewServerState: PreviewServerConnectionState;
 	subscribeToEvent: (
 		type: EventSourceEvent['type'],
 		listener: (event: EventSourceEvent) => void,
@@ -63,11 +56,16 @@ export const PreviewServerConnection: React.FC<{
 		[],
 	);
 
-	const openEventSource = useCallback(() => {
-		const source = new EventSource('/events');
+	const [state, setState] = React.useState<PreviewServerConnectionState>({
+		type: 'init',
+	});
 
-		source.addEventListener('message', (event) => {
-			const newEvent = JSON.parse(event.data) as EventSourceEvent;
+	useEffect(() => {
+		if (readOnlyStudio) {
+			return;
+		}
+
+		const handleEvent = (newEvent: EventSourceEvent) => {
 			if (
 				newEvent.type === 'new-input-props' ||
 				newEvent.type === 'new-env-variables'
@@ -76,11 +74,6 @@ export const PreviewServerConnection: React.FC<{
 			}
 
 			if (newEvent.type === 'init') {
-				setState({
-					type: 'connected',
-					clientId: newEvent.clientId,
-				});
-
 				listeners.current.forEach((l) => {
 					if (l.type === 'undo-redo-stack-changed') {
 						l.listener({
@@ -124,58 +117,22 @@ export const PreviewServerConnection: React.FC<{
 				);
 			}
 
-			if (newEvent.type === 'hmr') {
-				window.__remotion_processHmrEvent?.(newEvent.hmrEvent);
-			}
-
 			listeners.current.forEach((l) => {
 				if (l.type === newEvent.type) {
 					l.listener(newEvent);
 				}
 			});
-		});
-
-		source.addEventListener('open', () => {
-			(source as EventSource).addEventListener(
-				'error',
-				() => {
-					setState({type: 'disconnected'});
-					// Display an error message that the studio server has disconnected.
-					source?.close();
-
-					// Retry later
-					setTimeout(() => {
-						openEventSource();
-					}, 1000);
-				},
-				{once: true},
-			);
-		});
-
-		const close = () => {
-			source.close();
 		};
 
-		return {
-			close,
-		};
-	}, []);
-
-	useEffect(() => {
-		if (readOnlyStudio) {
-			return;
-		}
-
-		const {close} = openEventSource();
+		const unsubscribeFromEvents = subscribeToPreviewServerEvents(handleEvent);
+		const unsubscribeFromConnectionState =
+			subscribeToPreviewServerConnectionState(setState);
 
 		return () => {
-			close();
+			unsubscribeFromEvents();
+			unsubscribeFromConnectionState();
 		};
-	}, [openEventSource, readOnlyStudio]);
-
-	const [state, setState] = React.useState<PreviewServerState>({
-		type: 'init',
-	});
+	}, [readOnlyStudio]);
 
 	const context: Context = useMemo(() => {
 		return {

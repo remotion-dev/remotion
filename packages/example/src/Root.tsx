@@ -38,6 +38,7 @@ import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {FreezePortion} from './FreezePortion/FreezePortion';
+import {GifEffectsTestbed} from './Gif/GifEffects';
 import {GoogleFontsCjk} from './GoogleFontsCjk/GoogleFontsCjk';
 import {Green} from './Green';
 import {HlsDemo} from './Hls/HlsDemo';
@@ -87,6 +88,7 @@ import ReactSvg from './ReactSvg';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {RetryDelayRender} from './RetryDelayRender';
+import {RiveEffectsTestbed} from './Rive/RiveEffects';
 import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
@@ -150,6 +152,7 @@ import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
+import {AnimatedImageEffects} from './AnimatedImage/Effects';
 import {AudioSmoothnessBufferInterruptionComp} from './AudioSmoothness/BufferInterruption';
 import {AudioSmoothnessLoopedAudioComp} from './AudioSmoothness/LoopedAudio';
 import {AudioSmoothnessNewVideoComp} from './AudioSmoothness/NewVideo';
@@ -160,6 +163,7 @@ import Amplify from './AudioTesting/Amplify';
 import {BrowserTest} from './BrowserTest';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
+import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {LightLeakExample} from './LightLeak';
@@ -190,6 +194,7 @@ import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
+import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
 import {WebGlTransition} from './Transitions/WebGlTransition';
 import {
@@ -713,6 +718,12 @@ export const Index: React.FC = () => {
 						maxLines: 3,
 						textAlign: 'right' as const,
 					}}
+				/>
+				<Still
+					id="issue-7359-fit-text-on-n-lines"
+					component={Issue7359FitTextOnNLines}
+					width={1280}
+					height={720}
 				/>
 				<Composition
 					id="beta-text"
@@ -1663,6 +1674,27 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 				/>
 			</Folder>
+			<Folder name="Effects">
+				<RiveEffectsTestbed />
+				<GifEffectsTestbed />
+				<AnimatedImageEffects />
+				<Composition
+					id="effects-testbed"
+					component={EffectsTestbed}
+					width={1920}
+					height={1920}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="video-effects-fast-refresh"
+					component={VideoEffectsFastRefresh}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={300}
+				/>
+			</Folder>
 			<Folder name="Premount">
 				<Composition
 					id="premounted"
@@ -2122,16 +2154,6 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={90}
-				/>
-			</Folder>
-			<Folder name="effects">
-				<Composition
-					id="effects-testbed"
-					component={EffectsTestbed}
-					width={1920}
-					height={1920}
-					fps={30}
-					durationInFrames={300}
 				/>
 			</Folder>
 			<Composition

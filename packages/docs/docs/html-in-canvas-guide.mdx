@@ -94,7 +94,7 @@ HTML-in-canvas is only available in Chrome 149 and later with the `chrome://flag
 The API is unstable - Chrome may change the API or even remove it in the future.
 
 Nesting `<HtmlInCanvas>` inside another `<HtmlInCanvas>` is supported from <AvailableFrom v="4.0.461" inline />.
-Remotion detects the nested canvas automatically and uses an auxiliary canvas outside the viewport, then copies the result into the visible canvas.
+The inner canvas paints to its own `OffscreenCanvas` and notifies the outer canvas so the next paint captures the freshly composited bitmap.
 
 ## Rendering
 
@@ -134,7 +134,7 @@ Not directly related, but also leveraging the same technology is the [HTML-in-ca
 
 When enabled, the [client-side renderer](/docs/client-side-rendering) uses HTML-in-canvas to capture full frames in the browser, which can produce more accurate output than the default DOM compositor.
 
-This mode can render compositions that contain [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) elements from <AvailableFrom v="4.0.461" inline /> because nested HTML-in-canvas captures are handled using an auxiliary canvas.
+This mode can render compositions that contain [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) elements from <AvailableFrom v="4.0.461" inline /> because nested HTML-in-canvas captures are handled automatically.
 
 ## See also
 

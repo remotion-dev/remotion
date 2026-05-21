@@ -1,7 +1,7 @@
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 
-const {createEffect} = Internals;
+const {createEffect, createWebGL2ContextError} = Internals;
 
 const SHADE_OUTSIDE_DOT_SCALE = 0.5;
 
@@ -41,6 +41,16 @@ export const halftoneSchema = {
 		step: 1,
 		default: 0,
 		description: 'Offset Y',
+	},
+	shape: {
+		type: 'enum',
+		variants: {
+			circle: {},
+			square: {},
+			line: {},
+		},
+		default: 'circle' as const,
+		description: 'Shape',
 	},
 } as const satisfies SequenceSchema;
 
@@ -284,7 +294,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 			preserveDrawingBuffer: true,
 		});
 		if (!gl) {
-			throw new Error('Failed to acquire WebGL2 context for halftone effect');
+			throw createWebGL2ContextError('halftone effect');
 		}
 
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
@@ -422,4 +432,5 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		gl.deleteTexture(texture);
 	},
 	schema: halftoneSchema,
+	validateParams: () => {},
 });

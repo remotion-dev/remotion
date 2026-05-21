@@ -3,9 +3,26 @@ import {
 	getPreferredArtifact,
 	type ComparisonWithManifests,
 } from './comparison-data';
-import {formatDate, Header, page, Pill, toFileUrl} from './shared';
+import {
+	formatDate,
+	formatDuration,
+	getDurationMs,
+	Header,
+	page,
+	Pill,
+	type RenderOptions,
+	ShareResultButton,
+	ShareResultScript,
+	toFileUrl,
+} from './shared';
 
-const Artifact = ({manifest}: {manifest: SkillEvalManifest}) => {
+const Artifact = ({
+	manifest,
+	renderOptions,
+}: {
+	manifest: SkillEvalManifest;
+	renderOptions?: RenderOptions;
+}) => {
 	const artifact = getPreferredArtifact(manifest);
 
 	if (!artifact) {
@@ -16,7 +33,7 @@ const Artifact = ({manifest}: {manifest: SkillEvalManifest}) => {
 		);
 	}
 
-	const href = toFileUrl(artifact.path);
+	const href = toFileUrl(artifact.path, renderOptions);
 
 	if (artifact.type === 'image') {
 		return (
@@ -44,33 +61,37 @@ const RunPanel = ({
 	label,
 	manifest,
 	manifestPath,
+	renderOptions,
 }: {
 	label: string;
 	manifest: SkillEvalManifest;
 	manifestPath: string;
+	renderOptions?: RenderOptions;
 }) => {
 	const artifact = getPreferredArtifact(manifest);
+	const duration = formatDuration(getDurationMs(manifest));
 
 	return (
 		<section className="rounded-2xl border border-zinc-200 bg-white p-3">
 			<div className="mb-2 flex items-center justify-between gap-3">
 				<h2 className="text-[0.9375rem] font-semibold">{label}</h2>
 				<div className="flex flex-wrap items-center gap-3">
+					<Pill>Took {duration}</Pill>
 					<a
 						className="text-[0.8125rem] text-zinc-600"
-						href={toFileUrl(manifest.pi.htmlExport)}
+						href={toFileUrl(manifest.pi.htmlExport, renderOptions)}
 					>
 						Pi export
 					</a>
 					<a
 						className="text-[0.8125rem] text-zinc-600"
-						href={toFileUrl(manifestPath)}
+						href={toFileUrl(manifestPath, renderOptions)}
 					>
 						Manifest
 					</a>
 				</div>
 			</div>
-			<Artifact manifest={manifest} />
+			<Artifact manifest={manifest} renderOptions={renderOptions} />
 			<div className="mt-2 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-zinc-500">
 				{artifact?.relativePath ?? 'No artifact'}
 			</div>
@@ -150,8 +171,13 @@ const ComparisonDiffScript = () => (
 	</>
 );
 
-export const renderComparison = (comparisonData: ComparisonWithManifests) => {
-	const {afterManifest, beforeManifest, comparison, skillDiff} = comparisonData;
+export const renderComparison = (
+	comparisonData: ComparisonWithManifests,
+	renderOptions?: RenderOptions,
+) => {
+	const {afterManifest, beforeManifest, comparison, runs, skillDiff} =
+		comparisonData;
+	const hasBatch = runs.length > 1;
 
 	return page({
 		children: (
@@ -160,12 +186,22 @@ export const renderComparison = (comparisonData: ComparisonWithManifests) => {
 					action={
 						<div className="flex flex-wrap items-center gap-3">
 							<Pill>{formatDate(comparison.completedAt)}</Pill>
-							<a
-								className="text-[0.8125rem] text-zinc-600"
-								href={`/scenarios/${encodeURIComponent(comparison.scenarioId)}`}
-							>
-								Scenario
-							</a>
+							{renderOptions?.mode === 'static' ? null : (
+								<a
+									className="text-[0.8125rem] text-zinc-600"
+									href={`/scenarios/${encodeURIComponent(comparison.scenarioId)}`}
+								>
+									Scenario
+								</a>
+							)}
+							{renderOptions?.mode === 'static' || !comparison.evalId ? null : (
+								<ShareResultButton
+									endpoint={`/api/share/eval/${encodeURIComponent(
+										comparison.scenarioId,
+									)}/${encodeURIComponent(comparison.evalId)}`}
+									label="Share eval"
+								/>
+							)}
 						</div>
 					}
 					eyebrow="Comparison"
@@ -173,18 +209,42 @@ export const renderComparison = (comparisonData: ComparisonWithManifests) => {
 					title={comparison.scenarioId}
 				/>
 				<main className="grid min-w-0 gap-4">
-					<div className="grid grid-cols-2 gap-3 max-lg:grid-cols-1">
-						<RunPanel
-							label={`Before (${comparison.before.gitRef ?? comparison.before.source})`}
-							manifest={beforeManifest}
-							manifestPath={comparison.before.manifestPath}
-						/>
-						<RunPanel
-							label="After"
-							manifest={afterManifest}
-							manifestPath={comparison.after.manifestPath}
-						/>
-					</div>
+					{runs.map((run) => {
+						const runMetadata = comparison.runs?.find(
+							(candidate) => candidate.index === run.index,
+						);
+						const beforeMetadata = runMetadata?.before ?? comparison.before;
+
+						return (
+							<section className="grid min-w-0 gap-3" key={run.index}>
+								{hasBatch ? (
+									<h2 className="text-[0.9375rem] font-semibold">
+										Run #{run.index}
+									</h2>
+								) : null}
+								<div className="grid grid-cols-2 gap-3 max-lg:grid-cols-1">
+									<RunPanel
+										label={`Before (${beforeMetadata.gitRef ?? beforeMetadata.source})`}
+										manifest={run.beforeManifest}
+										manifestPath={
+											runMetadata?.before.manifestPath ??
+											comparison.before.manifestPath
+										}
+										renderOptions={renderOptions}
+									/>
+									<RunPanel
+										label="After"
+										manifest={run.afterManifest}
+										manifestPath={
+											runMetadata?.after.manifestPath ??
+											comparison.after.manifestPath
+										}
+										renderOptions={renderOptions}
+									/>
+								</div>
+							</section>
+						);
+					})}
 					<details
 						className="min-w-0 rounded-2xl border border-zinc-200 bg-white p-4"
 						open
@@ -214,8 +274,10 @@ export const renderComparison = (comparisonData: ComparisonWithManifests) => {
 					</details>
 				</main>
 				<ComparisonDiffScript />
+				{renderOptions?.mode === 'static' ? null : <ShareResultScript />}
 			</>
 		),
+		renderOptions,
 		title: `${comparison.scenarioId} Comparison`,
 	});
 };

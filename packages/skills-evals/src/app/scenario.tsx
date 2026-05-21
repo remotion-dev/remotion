@@ -1,25 +1,23 @@
-import {basename, join} from 'node:path';
 import type {SkillEvalScenario} from '../../scenarios';
 import {runCommand} from '../command';
 import {getDefaultComparisonBaseRef} from '../compare';
-import {listFilesRecursively, readJson, sanitizePathPart} from '../files';
-import type {SkillEvalComparison, SkillEvalManifest} from '../manifest';
-import {loadComparisons} from './comparison-data';
+import {getSkillEvalName, listSkillEvals, toEvalUrl} from '../eval';
+import type {SkillEval} from '../manifest';
 import {
 	createJobRuns,
 	formatRunLabel,
 	getActiveJob,
 	type Job,
 	type JobRun,
+	type JobRunGroup,
 } from './jobs';
 import {
 	Card,
 	formatDate,
+	formatDuration,
 	Header,
 	page,
 	repoRoot,
-	runsRoot,
-	toComparisonUrl,
 } from './shared';
 
 type SkillDiffState = {
@@ -29,10 +27,11 @@ type SkillDiffState = {
 	title: string;
 };
 
-type ScenarioRunListItem = {
+type ScenarioEvalListItem = {
 	completedAt: string;
 	href: string;
 	metadata: string;
+	title: string;
 };
 
 const getSkillDiffState = async (): Promise<SkillDiffState> => {
@@ -70,68 +69,72 @@ const getSkillDiffState = async (): Promise<SkillDiffState> => {
 	};
 };
 
-const loadPlainRuns = async (
+const evalMetadata = (evaluation: SkillEval) =>
+	evaluation.type === 'run'
+		? `${evaluation.runCount} ${evaluation.runCount === 1 ? 'run' : 'runs'}`
+		: `${evaluation.runCount} ${
+				evaluation.runCount === 1 ? 'comparison run' : 'comparison runs'
+			}`;
+
+const toEvalListItems = async (
 	scenarioId: string,
-): Promise<SkillEvalManifest[]> => {
-	const manifestFiles = (
-		await listFilesRecursively(join(runsRoot, sanitizePathPart(scenarioId)))
-	).filter((file) => file.endsWith('/manifest.json'));
+): Promise<ScenarioEvalListItem[]> => {
+	const evaluations = await listSkillEvals(scenarioId);
 
-	return Promise.all(
-		manifestFiles.map((file) => readJson<SkillEvalManifest>(file)),
-	);
+	return evaluations
+		.map((evaluation) => ({
+			completedAt: evaluation.completedAt,
+			href: toEvalUrl(evaluation),
+			metadata: evalMetadata(evaluation),
+			title: getSkillEvalName(evaluation),
+		}))
+		.sort((a, b) => b.completedAt.localeCompare(a.completedAt));
 };
 
-const toRunListItems = ({
-	comparisons,
-	runs,
-}: {
-	comparisons: SkillEvalComparison[];
-	runs: SkillEvalManifest[];
-}) => {
-	const items: ScenarioRunListItem[] = [
-		...comparisons.map((comparison) => ({
-			completedAt: comparison.completedAt,
-			href: toComparisonUrl(comparison),
-			metadata: `${comparison.before.hash} -> ${comparison.after.hash}`,
-		})),
-		...runs.map((run) => ({
-			completedAt: run.completedAt,
-			href: `/runs/${encodeURIComponent(run.id)}/${encodeURIComponent(
-				basename(run.runDir),
-			)}`,
-			metadata: run.skillSnapshot.hash,
-		})),
-	];
-
-	return items.sort((a, b) => b.completedAt.localeCompare(a.completedAt));
-};
-
-const ScenarioRuns = ({items}: {items: ScenarioRunListItem[]}) => {
+const ScenarioEvals = ({items}: {items: ScenarioEvalListItem[]}) => {
 	if (items.length === 0) {
-		return <p className="text-sm text-zinc-500">No runs yet.</p>;
+		return <p className="text-sm text-zinc-500">No evals yet.</p>;
 	}
 
 	return (
 		<div className="mt-3 grid">
 			{items.map((item) => (
 				<a
-					className="flex items-center justify-between gap-4 border-t border-zinc-100 py-3 first:border-t-0 first:pt-0 last:pb-0"
+					className="block border-t border-zinc-100 py-3 first:border-t-0 first:pt-0 last:pb-0"
 					href={item.href}
 					key={item.href}
 				>
-					<div>
-						<h3 className="text-sm font-semibold text-zinc-800">
-							{formatDate(item.completedAt)}
-						</h3>
-						<p className="mt-1 text-[0.8125rem] text-zinc-500">
-							{item.metadata}
-						</p>
-					</div>
+					<h3 className="text-sm font-semibold text-zinc-800">{item.title}</h3>
+					<p className="mt-1 text-[0.8125rem] text-zinc-500">
+						{item.metadata} - {formatDate(item.completedAt)}
+					</p>
 				</a>
 			))}
 		</div>
 	);
+};
+
+const getJobRunDurationMs = (jobRun: JobRun) => {
+	if (jobRun.durationMs !== undefined) {
+		return jobRun.durationMs;
+	}
+
+	if (jobRun.status === 'running' && jobRun.startedAt) {
+		return Date.now() - new Date(jobRun.startedAt).getTime();
+	}
+
+	return null;
+};
+
+const formatJobRunStatus = (jobRun: JobRun) => {
+	const message = jobRun.message || jobRun.status;
+	const durationMs = getJobRunDurationMs(jobRun);
+
+	if (durationMs === null) {
+		return message;
+	}
+
+	return `${message} - ${formatDuration(durationMs)}`;
 };
 
 const ScenarioPageScript = ({
@@ -145,20 +148,163 @@ const ScenarioPageScript = ({
 		dangerouslySetInnerHTML={{
 			__html: `
 const button = document.getElementById('run-comparison');
+const runCountSelect = document.getElementById('run-count');
 const baseRefInput = document.getElementById('comparison-base-ref');
 const panel = document.getElementById('active-job');
 const log = document.getElementById('job-log');
 const status = document.getElementById('job-status');
-const runStatus = {
-	before: document.getElementById('before-run-status'),
-	after: document.getElementById('after-run-status'),
-};
-const runLog = {
-	before: document.getElementById('before-run-log'),
-	after: document.getElementById('after-run-log'),
-};
+const runGroups = document.getElementById('run-groups');
 const activeJobId = ${JSON.stringify(activeJob?.id ?? null)};
 const defaultBaseRef = ${JSON.stringify(baseRef)};
+
+const shouldStickToBottom = (element) =>
+	element.scrollHeight - element.scrollTop - element.clientHeight < 8;
+
+const formatDuration = (durationMs) => {
+	const totalSeconds = Math.max(0, Math.round(durationMs / 1000));
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor((totalSeconds % 3600) / 60);
+	const seconds = totalSeconds % 60;
+
+	if (hours > 0) {
+		return hours + 'h ' + minutes + 'm ' + seconds + 's';
+	}
+
+	if (minutes > 0) {
+		return minutes + 'm ' + seconds + 's';
+	}
+
+	return seconds + 's';
+};
+const getRunDurationMs = (run) => {
+	if (typeof run.durationMs === 'number') {
+		return run.durationMs;
+	}
+
+	if (run.status === 'running' && run.startedAt) {
+		return Date.now() - new Date(run.startedAt).getTime();
+	}
+
+	return null;
+};
+const formatRunStatus = (run) => {
+	const message = run.message || run.status;
+	const durationMs = getRunDurationMs(run);
+
+	return durationMs === null ? message : message + ' - ' + formatDuration(durationMs);
+};
+const formatLabel = (label) => label === 'before' ? 'Before' : 'After';
+const createRunPanel = (runGroup, label) => {
+	const run = runGroup[label];
+	const section = document.createElement('section');
+	section.className = 'min-w-0 rounded-xl border border-zinc-200 bg-white p-3';
+	section.dataset.runLabel = label;
+
+	const header = document.createElement('div');
+	header.className = 'flex items-center justify-between gap-3';
+
+	const title = document.createElement('h4');
+	title.className = 'text-sm font-semibold';
+	title.textContent = formatLabel(label);
+
+	const pill = document.createElement('span');
+	pill.className = 'rounded-full bg-zinc-50 px-2 py-1 text-xs text-zinc-500 data-[status=completed]:text-emerald-700 data-[status=failed]:text-red-700 data-[status=running]:text-yellow-700';
+	pill.dataset.runStatus = label;
+	pill.dataset.status = run.status;
+	pill.textContent = formatRunStatus(run);
+
+	header.append(title, pill);
+	section.append(header);
+
+	const pre = document.createElement('pre');
+	pre.className = 'mt-3 max-h-70 overflow-auto whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700';
+	pre.dataset.runLog = label;
+	pre.hidden = !run.logs?.length;
+	pre.textContent = run.logs?.join('') || '';
+	section.append(pre);
+	pre.scrollTop = pre.scrollHeight;
+
+	return section;
+};
+
+const createRunGroup = (runGroup, totalRuns) => {
+	const section = document.createElement('section');
+	section.className = 'min-w-0 rounded-2xl border border-zinc-200 bg-zinc-50 p-4';
+	section.dataset.runIndex = String(runGroup.index);
+
+	const title = document.createElement('h3');
+	title.className = 'text-[0.9375rem] font-semibold';
+	title.textContent = totalRuns > 1 ? 'Run #' + runGroup.index : 'Run';
+	section.append(title);
+
+	const grid = document.createElement('div');
+	grid.className = 'mt-3 grid grid-cols-2 gap-3 max-lg:grid-cols-1';
+	grid.append(createRunPanel(runGroup, 'before'), createRunPanel(runGroup, 'after'));
+	section.append(grid);
+
+	return section;
+};
+
+const updateRunPanel = (section, runGroup, label) => {
+	const run = runGroup[label];
+	const pill = section.querySelector('[data-run-status="' + label + '"]');
+	const pre = section.querySelector('[data-run-log="' + label + '"]');
+	const logText = run.logs?.join('') || '';
+
+	pill.dataset.status = run.status;
+	pill.textContent = formatRunStatus(run);
+
+	if (pre.textContent !== logText) {
+		const stickToBottom = shouldStickToBottom(pre);
+		pre.textContent = logText;
+		pre.hidden = !logText;
+
+		if (stickToBottom) {
+			pre.scrollTop = pre.scrollHeight;
+		}
+	}
+};
+
+const updateRunGroup = (section, runGroup, totalRuns) => {
+	const title = section.querySelector('h3');
+	title.textContent = totalRuns > 1 ? 'Run #' + runGroup.index : 'Run';
+	updateRunPanel(section.querySelector('[data-run-label="before"]'), runGroup, 'before');
+	updateRunPanel(section.querySelector('[data-run-label="after"]'), runGroup, 'after');
+};
+
+const createWaitingRunGroups = (runCount) => Array.from({length: runCount}, (_, index) => ({
+	index: index + 1,
+	before: {logs: [], message: 'Waiting to start', status: 'waiting'},
+	after: {logs: [], message: 'Waiting to start', status: 'waiting'},
+}));
+
+const renderRunGroups = (runs) => {
+	const runList = runs || [];
+	const seen = new Set();
+
+	for (const runGroup of runList) {
+		const key = String(runGroup.index);
+		let section = runGroups.querySelector('[data-run-index="' + key + '"]');
+
+		if (!section) {
+			section = createRunGroup(runGroup, runList.length);
+			runGroups.append(section);
+			for (const pre of section.querySelectorAll('[data-run-log]')) {
+				pre.scrollTop = pre.scrollHeight;
+			}
+		} else {
+			updateRunGroup(section, runGroup, runList.length);
+		}
+
+		seen.add(key);
+	}
+
+	for (const section of [...runGroups.querySelectorAll('[data-run-index]')]) {
+		if (!seen.has(section.dataset.runIndex)) {
+			section.remove();
+		}
+	}
+};
 
 const renderJob = (job) => {
 	panel.hidden = false;
@@ -170,28 +316,18 @@ const renderJob = (job) => {
 		log.scrollTop = log.scrollHeight;
 	}
 
-	for (const label of ['before', 'after']) {
-		const run = job.runs?.[label];
-
-		if (!run) {
-			continue;
-		}
-
-		runStatus[label].textContent = run.message || run.status;
-		runStatus[label].dataset.status = run.status;
-
-		if (run.logs?.length) {
-			runLog[label].hidden = false;
-			runLog[label].textContent = run.logs.join('');
-			runLog[label].scrollTop = runLog[label].scrollHeight;
-		}
-	}
+	renderRunGroups(job.runs);
 };
 
 const poll = async (jobId) => {
 	const response = await fetch('/api/jobs/' + encodeURIComponent(jobId));
 	const job = await response.json();
 	renderJob(job);
+
+	if (job.status === 'completed' && job.evalUrl) {
+		location.href = job.evalUrl;
+		return;
+	}
 
 	if (job.status === 'completed' && job.comparisonUrl) {
 		location.href = job.comparisonUrl;
@@ -200,6 +336,11 @@ const poll = async (jobId) => {
 
 	if (job.status === 'completed' && job.resultUrl) {
 		location.href = job.resultUrl;
+		return;
+	}
+
+	if (job.status === 'completed') {
+		button.disabled = false;
 		return;
 	}
 
@@ -221,15 +362,12 @@ button?.addEventListener('click', async () => {
 	button.disabled = true;
 	panel.hidden = false;
 	status.textContent = 'Starting comparison...';
-	for (const label of ['before', 'after']) {
-		runStatus[label].textContent = 'Waiting to start';
-		runStatus[label].dataset.status = 'waiting';
-		runLog[label].hidden = true;
-		runLog[label].textContent = '';
-	}
+	renderRunGroups(createWaitingRunGroups(Number(runCountSelect.value)));
 	const beforeGitRef = baseRefInput?.value?.trim() || defaultBaseRef;
 	const shouldCompare = button.dataset.hasSkillChanges === 'true' || beforeGitRef !== defaultBaseRef;
-	const response = await fetch(shouldCompare ? button.dataset.compareUrl : button.dataset.runUrl, {
+	const targetUrl = new URL(shouldCompare ? button.dataset.compareUrl : button.dataset.runUrl, location.origin);
+	targetUrl.searchParams.set('runs', runCountSelect.value);
+	const response = await fetch(targetUrl.pathname + targetUrl.search, {
 		body: shouldCompare ? JSON.stringify({beforeGitRef}) : undefined,
 		headers: shouldCompare ? {'content-type': 'application/json'} : undefined,
 		method: 'POST',
@@ -249,24 +387,48 @@ const RunProgressCard = ({
 	jobRun: JobRun;
 	label: 'after' | 'before';
 }) => (
-	<section className="min-w-0 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+	<section
+		className="min-w-0 rounded-xl border border-zinc-200 bg-white p-3"
+		data-run-label={label}
+	>
 		<div className="flex items-center justify-between gap-3">
-			<h3 className="text-sm font-semibold">{formatRunLabel(label)}</h3>
+			<h4 className="text-sm font-semibold">{formatRunLabel(label)}</h4>
 			<span
-				className="rounded-full bg-white px-2 py-1 text-xs text-zinc-500 data-[status=completed]:text-emerald-700 data-[status=failed]:text-red-700 data-[status=running]:text-yellow-700"
+				className="rounded-full bg-zinc-50 px-2 py-1 text-xs text-zinc-500 data-[status=completed]:text-emerald-700 data-[status=failed]:text-red-700 data-[status=running]:text-yellow-700"
+				data-run-status={label}
 				data-status={jobRun.status}
-				id={`${label}-run-status`}
 			>
-				{jobRun.message}
+				{formatJobRunStatus(jobRun)}
 			</span>
 		</div>
 		<pre
-			className="mt-3 max-h-70 overflow-auto whitespace-pre-wrap rounded-lg border border-zinc-200 bg-white p-3 text-xs text-zinc-700"
+			className="mt-3 max-h-70 overflow-auto whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-700"
+			data-run-log={label}
 			hidden={jobRun.logs.length === 0}
-			id={`${label}-run-log`}
 		>
 			{jobRun.logs.join('')}
 		</pre>
+	</section>
+);
+
+const RunProgressGroup = ({
+	runCount,
+	runGroup,
+}: {
+	runCount: number;
+	runGroup: JobRunGroup;
+}) => (
+	<section
+		className="min-w-0 rounded-2xl border border-zinc-200 bg-zinc-50 p-4"
+		data-run-index={runGroup.index}
+	>
+		<h3 className="text-[0.9375rem] font-semibold">
+			{runCount > 1 ? `Run #${runGroup.index}` : 'Run'}
+		</h3>
+		<div className="mt-3 grid grid-cols-2 gap-3 max-lg:grid-cols-1">
+			<RunProgressCard jobRun={runGroup.before} label="before" />
+			<RunProgressCard jobRun={runGroup.after} label="after" />
+		</div>
 	</section>
 );
 
@@ -278,6 +440,7 @@ const ActiveJobPanel = ({
 	job: Job | undefined;
 }) => {
 	const runs = job?.runs ?? createJobRuns();
+	const runCount = job?.runCount ?? runs.length;
 
 	return (
 		<section
@@ -289,8 +452,12 @@ const ActiveJobPanel = ({
 				<h2 className="text-[0.9375rem] font-semibold">Active run</h2>
 				<p className="text-sm text-zinc-500">
 					{hasSkillChanges
-						? 'Before and after run in parallel once the skill diff is ready.'
-						: 'Scenario run without a before/after comparison.'}
+						? `Before and after run in parallel once the skill diff is ready${
+								job && job.runCount > 1 ? ` (${job.runCount} runs).` : '.'
+							}`
+						: `Scenario run without a before/after comparison${
+								job && job.runCount > 1 ? ` (${job.runCount} runs).` : '.'
+							}`}
 				</p>
 			</div>
 			<p className="mt-3 text-[0.8125rem] text-yellow-700" id="job-status">
@@ -303,9 +470,14 @@ const ActiveJobPanel = ({
 			>
 				{job?.logs.join('') ?? ''}
 			</pre>
-			<div className="mt-3 grid grid-cols-2 gap-3 max-lg:grid-cols-1">
-				<RunProgressCard jobRun={runs.before} label="before" />
-				<RunProgressCard jobRun={runs.after} label="after" />
+			<div className="mt-3 grid gap-3" id="run-groups">
+				{runs.map((runGroup) => (
+					<RunProgressGroup
+						key={runGroup.index}
+						runCount={runCount}
+						runGroup={runGroup}
+					/>
+				))}
 			</div>
 		</section>
 	);
@@ -314,27 +486,42 @@ const ActiveJobPanel = ({
 export const renderScenario = async (scenario: SkillEvalScenario) => {
 	const activeJob = getActiveJob(scenario.id);
 	const skillDiffState = await getSkillDiffState();
-	const comparisons = (await loadComparisons()).filter(
-		(comparison) => comparison.scenarioId === scenario.id,
-	);
-	const runs = await loadPlainRuns(scenario.id);
-	const runItems = toRunListItems({comparisons, runs});
+	const evalItems = await toEvalListItems(scenario.id);
 
 	return page({
 		children: (
 			<>
 				<Header
 					action={
-						<button
-							className="rounded-full bg-zinc-900 px-3 py-2 text-[0.8125rem] font-semibold text-white hover:bg-zinc-800 disabled:bg-zinc-300 disabled:text-zinc-500"
-							data-compare-url={`/api/compare/${encodeURIComponent(scenario.id)}`}
-							data-has-skill-changes={String(skillDiffState.hasChanges)}
-							data-run-url={`/api/run/${encodeURIComponent(scenario.id)}`}
-							data-scenario={scenario.id}
-							id="run-comparison"
-						>
-							{skillDiffState.hasChanges ? 'Run comparison' : 'Run'}
-						</button>
+						<div className="flex flex-wrap items-center gap-2">
+							<label
+								className="text-[0.8125rem] font-medium text-zinc-500"
+								htmlFor="run-count"
+							>
+								Runs
+							</label>
+							<select
+								className="rounded-full border border-zinc-200 bg-white px-3 py-2 text-[0.8125rem] font-semibold text-zinc-700"
+								defaultValue="1"
+								id="run-count"
+							>
+								{[1, 2, 3, 4].map((runCount) => (
+									<option key={runCount} value={runCount}>
+										{runCount}
+									</option>
+								))}
+							</select>
+							<button
+								className="rounded-full bg-zinc-900 px-3 py-2 text-[0.8125rem] font-semibold text-white hover:bg-zinc-800 disabled:bg-zinc-300 disabled:text-zinc-500"
+								data-compare-url={`/api/compare/${encodeURIComponent(scenario.id)}`}
+								data-has-skill-changes={String(skillDiffState.hasChanges)}
+								data-run-url={`/api/run/${encodeURIComponent(scenario.id)}`}
+								data-scenario={scenario.id}
+								id="run-comparison"
+							>
+								{skillDiffState.hasChanges ? 'Run comparison' : 'Run'}
+							</button>
+						</div>
 					}
 					subtitle={scenario.model}
 					title={scenario.id}
@@ -392,8 +579,8 @@ export const renderScenario = async (scenario: SkillEvalScenario) => {
 						job={activeJob}
 					/>
 					<Card>
-						<h2 className="text-[0.9375rem] font-semibold">Runs</h2>
-						<ScenarioRuns items={runItems} />
+						<h2 className="text-[0.9375rem] font-semibold">Evals</h2>
+						<ScenarioEvals items={evalItems} />
 					</Card>
 				</main>
 				<ScenarioPageScript

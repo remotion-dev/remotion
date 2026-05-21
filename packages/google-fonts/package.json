@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.461",
+	"version": "4.0.464",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -1538,9 +1538,6 @@
 			],
 			"FingerPaint": [
 				"dist/cjs/FingerPaint.d.ts"
-			],
-			"Finlandica": [
-				"dist/cjs/Finlandica.d.ts"
 			],
 			"FinlandicaHeadline": [
 				"dist/cjs/FinlandicaHeadline.d.ts"
@@ -4553,9 +4550,6 @@
 			],
 			"SairaStencil": [
 				"dist/cjs/SairaStencil.d.ts"
-			],
-			"SairaStencilOne": [
-				"dist/cjs/SairaStencilOne.d.ts"
 			],
 			"Salsa": [
 				"dist/cjs/Salsa.d.ts"

@@ -34,10 +34,12 @@ export type SkillEvalPhaseEvent = {
 };
 
 type SkillEvalScenarioInput = SkillEvalScenario & {
+	evalId?: string;
+	evalRunIndex?: number;
 	onOutput?: (output: SkillEvalOutput) => void;
 	onPhase?: (event: SkillEvalPhaseEvent) => void;
 	runRoot?: string;
-	runLabel?: 'before' | 'after';
+	runLabel?: string;
 	signal?: AbortSignal;
 	skillsSourcePath?: string;
 	skillSnapshot?: Partial<
@@ -379,6 +381,8 @@ export const runSkillEval = async (
 	const completedAt = new Date().toISOString();
 	const manifest = {
 		id: input.id,
+		evalId: input.evalId,
+		evalRunIndex: input.evalRunIndex,
 		model: input.model,
 		prompt: input.prompt,
 		createdAt,

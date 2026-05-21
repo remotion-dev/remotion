@@ -1,23 +1,20 @@
 import {optimisticUpdateForEffectCodeValues} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {
-	CanUpdateEffectPropsResponse,
-	CanUpdateSequencePropsResponse,
-	SequencePropsSubscriptionKey,
-} from 'remotion';
+import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
-import {showNotification} from '../Notifications/NotificationCenter';
-import {Padder} from './Padder';
+import {enqueueSavePropChange} from './save-prop-queue';
+import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
+import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
+import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
+import {TimelineRowChrome} from './TimelineRowChrome';
 import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
 
 const fieldRowBase: React.CSSProperties = {
-	display: 'flex',
-	alignItems: 'center',
-	gap: 8,
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
@@ -25,14 +22,6 @@ const fieldName: React.CSSProperties = {
 	fontSize: 12,
 	color: 'rgba(255, 255, 255, 0.8)',
 	userSelect: 'none',
-};
-
-const fieldLabelRow: React.CSSProperties = {
-	flex: '0 0 50%',
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	gap: 6,
 };
 
 const Value: React.FC<{
@@ -50,6 +39,12 @@ const Value: React.FC<{
 	const {codeValues: visualModeCodeValues} = useContext(
 		Internals.VisualModeCodeValuesContext,
 	);
+
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const clientId =
+		previewServerState.type === 'connected'
+			? previewServerState.clientId
+			: null;
 
 	const effectStatus = Internals.getEffectCodeValuesCtx({
 		codeValues: visualModeCodeValues,
@@ -92,6 +87,10 @@ const Value: React.FC<{
 				return Promise.reject(new Error('Cannot save'));
 			}
 
+			if (!clientId) {
+				return Promise.reject(new Error('Not connected to studio server'));
+			}
+
 			const defaultValue =
 				field.fieldSchema.default !== undefined
 					? JSON.stringify(field.fieldSchema.default)
@@ -110,66 +109,33 @@ const Value: React.FC<{
 				return Promise.resolve();
 			}
 
-			let previousUpdate: CanUpdateSequencePropsResponse | undefined;
-
-			setCodeValues(nodePath, (prev) => {
-				previousUpdate = prev;
-				return optimisticUpdateForEffectCodeValues({
-					previous: prev,
-					effectIndex: field.effectIndex,
-					fieldKey: field.key,
-					value,
-					schema: field.effectSchema,
-				});
+			return enqueueSavePropChange({
+				nodePath,
+				setCodeValues,
+				applyOptimistic: (prev) =>
+					optimisticUpdateForEffectCodeValues({
+						previous: prev,
+						effectIndex: field.effectIndex,
+						fieldKey: field.key,
+						value,
+						schema: field.effectSchema,
+					}),
+				apiCall: () =>
+					callApi('/api/save-effect-props', {
+						fileName: validatedLocation.source,
+						sequenceNodePath: nodePath,
+						effectIndex: field.effectIndex,
+						key: field.key,
+						value: stringifiedValue,
+						defaultValue,
+						schema: field.effectSchema,
+						clientId,
+					}),
+				errorLabel: 'Could not save effect prop',
 			});
-
-			return callApi('/api/save-effect-props', {
-				fileName: validatedLocation.source,
-				sequenceNodePath: nodePath,
-				effectIndex: field.effectIndex,
-				key: field.key,
-				value: stringifiedValue,
-				defaultValue,
-				schema: field.effectSchema,
-			})
-				.then((data: CanUpdateEffectPropsResponse) => {
-					setCodeValues(nodePath, (prev) => {
-						if (!prev.canUpdate) {
-							return prev;
-						}
-
-						const idx = prev.effects.findIndex(
-							(e) => e.effectIndex === field.effectIndex,
-						);
-						if (idx === -1) {
-							return {
-								...prev,
-								effects: [...prev.effects, data],
-							};
-						}
-
-						const next = [...prev.effects];
-						next[idx] = data;
-						return {...prev, effects: next};
-					});
-				})
-				.catch((err) => {
-					setCodeValues(nodePath, (current) => {
-						if (previousUpdate) {
-							return previousUpdate;
-						}
-
-						return current;
-					});
-					showNotification(
-						`Could not save effect prop: ${
-							err instanceof Error ? err.message : String(err)
-						}`,
-						4000,
-					);
-				});
 		},
 		[
+			clientId,
 			field.effectIndex,
 			field.effectSchema,
 			field.fieldSchema.default,
@@ -214,6 +180,10 @@ const Value: React.FC<{
 	}
 
 	if (propStatus === null || !propStatus.canUpdate) {
+		if (propStatus?.reason === 'computed') {
+			return <UnsupportedStatus label="computed" />;
+		}
+
 		return null;
 	}
 
@@ -239,22 +209,29 @@ const Value: React.FC<{
 export const TimelineEffectFieldRow: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
-	readonly paddingLeft: number;
-	readonly nestedDepth: number;
+	readonly rowDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
-}> = ({field, validatedLocation, paddingLeft, nestedDepth, nodePath}) => {
+}> = ({field, validatedLocation, rowDepth, nodePath}) => {
 	const style = useMemo(() => {
 		return {
 			...fieldRowBase,
 			height: field.rowHeight,
-			paddingLeft,
 		};
-	}, [field.rowHeight, paddingLeft]);
+	}, [field.rowHeight]);
+
+	const labelRowStyle = useMemo(
+		() => getTimelineFieldLabelRowStyle(rowDepth),
+		[rowDepth],
+	);
 
 	return (
-		<div style={style}>
-			<Padder depth={nestedDepth + 1} />
-			<div style={fieldLabelRow}>
+		<TimelineRowChrome
+			depth={rowDepth}
+			eye={<TimelineLayerEyeSpacer />}
+			arrow={<TimelineExpandArrowSpacer />}
+			style={style}
+		>
+			<div style={labelRowStyle}>
 				<span style={fieldName}>{field.description ?? field.key}</span>
 			</div>
 			<Value
@@ -262,6 +239,6 @@ export const TimelineEffectFieldRow: React.FC<{
 				nodePath={nodePath}
 				validatedLocation={validatedLocation}
 			/>
-		</div>
+		</TimelineRowChrome>
 	);
 };

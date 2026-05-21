@@ -4,7 +4,7 @@ import {writeStaticFile} from '../api/write-static-file';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
-import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
+import {toggleBooleanMapKey} from '../helpers/persist-boolean-map';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
 import useAssetDragEvents from '../helpers/use-asset-drag-events';
 import {FolderContext} from '../state/folders';
@@ -77,12 +77,7 @@ export const AssetSelector: React.FC<{
 		(folderName: string, parentName: string | null) => {
 			setAssetFoldersExpanded((p) => {
 				const key = [parentName, folderName].filter(Boolean).join('/');
-
-				const prev = p[key] ?? false;
-				const foldersExpandedState: ExpandedFoldersState = {
-					...p,
-					[key]: !prev,
-				};
+				const foldersExpandedState = toggleBooleanMapKey(p, key);
 				persistExpandedFolders('assets', foldersExpandedState);
 				return foldersExpandedState;
 			});

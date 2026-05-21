@@ -52,7 +52,7 @@ export const fillTextBox = ({
 			const widths = lineWithWord.map((w) => measureText(w).width);
 			const lineWidthWithWordAdded = widths.reduce((a, b) => a + b, 0);
 
-			if (Math.ceil(lineWidthWithWordAdded) < maxBoxWidth) {
+			if (Math.ceil(lineWidthWithWordAdded) <= maxBoxWidth) {
 				lines[currentlyAt].push({
 					text: lines[currentlyAt].length === 0 ? text.trimStart() : text,
 					fontFamily,
@@ -61,6 +61,8 @@ export const fillTextBox = ({
 					letterSpacing,
 					textTransform,
 					fontVariantNumeric,
+					validateFontIsLoaded,
+					additionalStyles,
 				});
 
 				return {exceedsBox: false, newLine: false};
@@ -70,17 +72,26 @@ export const fillTextBox = ({
 				return {exceedsBox: true, newLine: false};
 			}
 
-			lines[currentlyAt + 1] = [
-				{
-					text: text.trimStart(),
-					fontFamily,
-					fontWeight,
-					fontSize,
-					letterSpacing,
-					textTransform,
-					fontVariantNumeric,
-				},
-			];
+			const wordForNewLine: Word = {
+				text: text.trimStart(),
+				fontFamily,
+				fontWeight,
+				fontSize,
+				letterSpacing,
+				fontVariantNumeric,
+				validateFontIsLoaded,
+				textTransform,
+				additionalStyles,
+			};
+
+			const wordAloneWidth = measureText(wordForNewLine).width;
+
+			if (Math.ceil(wordAloneWidth) > maxBoxWidth) {
+				return {exceedsBox: true, newLine: false};
+			}
+
+			lines[currentlyAt + 1] = [wordForNewLine];
+
 			return {exceedsBox: false, newLine: true};
 		},
 	};

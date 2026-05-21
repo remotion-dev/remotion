@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import {useRef} from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
 import type {EffectDefinition} from './effects/effect-types.js';
@@ -15,10 +16,7 @@ import {PremountContext} from './PremountContext.js';
 import {sequenceSchema} from './sequence-field-schema.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
-import {
-	SequenceManager,
-	SequenceVisibilityToggleContext,
-} from './SequenceManager.js';
+import {SequenceManager} from './SequenceManager.js';
 import {
 	useTimelineContext,
 	useTimelinePosition,
@@ -53,8 +51,9 @@ export type SequencePropsWithoutDuration = {
 	readonly from?: number;
 	readonly name?: string;
 	readonly showInTimeline?: boolean;
+	readonly hidden?: boolean;
 	readonly _experimentalControls?: SequenceControls;
-	readonly _experimentalEffects?: readonly EffectDefinition<unknown>[];
+	readonly _remotionInternalEffects?: readonly EffectDefinition<unknown>[];
 	/**
 	 * @deprecated For internal use only.
 	 */
@@ -104,8 +103,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		height,
 		width,
 		showInTimeline = true,
+		hidden = false,
 		_experimentalControls: controls,
-		_experimentalEffects,
+		_remotionInternalEffects,
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalPremountDisplay: premountDisplay,
@@ -175,7 +175,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
-	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	const premounting = useMemo(() => {
 		// || is intentional, ?? would not trigger on `false`
@@ -228,6 +227,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const env = useRemotionEnvironment();
 
 	const inheritedStack = (other as any)?.stack ?? null;
+	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
+	// and if it changes, it would lead to-remounting of the sequence.
+	const stackRef = useRef<string | null>(null);
+	stackRef.current = stack ?? inheritedStack;
 
 	useEffect(() => {
 		if (!env.isStudio) {
@@ -238,7 +241,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			registerSequence({
 				type: isMedia.type,
 				controls: controls ?? null,
-				effects: _experimentalEffects ?? [],
+				effects: _remotionInternalEffects ?? [],
 				displayName: timelineClipName,
 				doesVolumeChange: isMedia.data.doesVolumeChange,
 				duration: actualDurationInFrames,
@@ -253,7 +256,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				rootId,
 				showInTimeline,
 				src: isMedia.data.src,
-				stack: stack ?? inheritedStack,
+				getStack: () => stackRef.current,
 				startMediaFrom: isMedia.data.startMediaFrom,
 				volume: isMedia.data.volumes,
 			});
@@ -273,11 +276,11 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			showInTimeline,
 			nonce: nonce.get(),
 			loopDisplay,
-			stack: stack ?? inheritedStack,
+			getStack: () => stackRef.current,
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
 			controls: controls ?? null,
-			effects: _experimentalEffects ?? [],
+			effects: _remotionInternalEffects ?? [],
 		});
 		return () => {
 			unregisterSequence(id);
@@ -296,13 +299,11 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		nonce,
 		loopDisplay,
-		stack,
 		premountDisplay,
 		postmountDisplay,
 		env.isStudio,
-		inheritedStack,
 		controls,
-		_experimentalEffects,
+		_remotionInternalEffects,
 		isMedia,
 	]);
 
@@ -333,9 +334,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	const isSequenceHidden = hidden[id] ?? false;
-
-	if (isSequenceHidden) {
+	if (hidden) {
 		return null;
 	}
 

@@ -213,7 +213,6 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				tagType: 'audio',
 				getEffects: () => [],
 				getEffectChainState: () => null,
-				getCurrentFrame: () => 0,
 			});
 
 			mediaPlayerRef.current = player;

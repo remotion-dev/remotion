@@ -30,8 +30,13 @@ const videoSchema = {
 		default: 1,
 		description: 'Playback Rate',
 	},
+	hidden: {
+		type: 'boolean',
+		default: false,
+		description: 'Hidden',
+	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
-	...Internals.sequenceStyleSchema,
+	...Internals.sequenceVisualStyleSchema,
 } as const satisfies SequenceSchema;
 
 const InnerVideo: React.FC<
@@ -67,7 +72,7 @@ const InnerVideo: React.FC<
 	_experimentalControls: controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
-	_experimentalEffects,
+	effects,
 	setMediaDurationInSeconds,
 }) => {
 	const environment = useRemotionEnvironment();
@@ -156,7 +161,7 @@ const InnerVideo: React.FC<
 			credentials={credentials}
 			controls={controls}
 			objectFit={objectFit}
-			_experimentalEffects={_experimentalEffects}
+			effects={effects}
 			_experimentalInitiallyDrawCachedFrame={
 				_experimentalInitiallyDrawCachedFrame
 			}
@@ -197,9 +202,10 @@ const VideoInner: React.FC<
 	_experimentalControls: controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
-	_experimentalEffects,
+	effects,
 	durationInFrames,
 	from,
+	hidden,
 }) => {
 	const fallbackLogLevel = Internals.useLogLevel();
 	const [mediaVolume] = Internals.useMediaVolumeState();
@@ -260,11 +266,11 @@ const VideoInner: React.FC<
 	);
 
 	const memoizedEffects = Internals.useMemoizedEffects({
-		effects: _experimentalEffects ?? [],
+		effects: effects ?? [],
 		overrideId: controls?.overrideId ?? null,
 	});
 	const memoizedEffectDefinitions = Internals.useMemoizedEffectDefinitions(
-		_experimentalEffects ?? [],
+		effects ?? [],
 	);
 
 	if (sequenceDurationInFrames === 0) {
@@ -281,8 +287,9 @@ const VideoInner: React.FC<
 			name={name ?? '<Video>'}
 			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
-			_experimentalEffects={memoizedEffectDefinitions}
+			_remotionInternalEffects={memoizedEffectDefinitions}
 			showInTimeline={showInTimeline ?? true}
+			hidden={hidden}
 		>
 			<InnerVideo
 				audioStreamIndex={audioStreamIndex ?? 0}
@@ -318,7 +325,7 @@ const VideoInner: React.FC<
 				_experimentalInitiallyDrawCachedFrame={
 					_experimentalInitiallyDrawCachedFrame ?? false
 				}
-				_experimentalEffects={memoizedEffects}
+				effects={memoizedEffects}
 				setMediaDurationInSeconds={setMediaDurationInSeconds}
 			/>
 		</Sequence>

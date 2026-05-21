@@ -9,6 +9,7 @@
  */
 import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 import {hotMiddlewareOptions, stripAnsi} from '@remotion/studio-shared';
+import {subscribeToPreviewServerEvents} from '../helpers/preview-server-events';
 import {processUpdate} from './process-update';
 
 declare global {
@@ -115,6 +116,7 @@ function processMessage(obj: HotMiddlewareMessage) {
 
 let reporter: Reporter;
 const singletonKey = '__webpack_hot_middleware_reporter__' as const;
+let unsubscribeFromPreviewServerEvents: (() => void) | null = null;
 
 export const enableHotMiddleware = () => {
 	if (typeof window !== 'undefined') {
@@ -129,22 +131,17 @@ export const enableHotMiddleware = () => {
 		processMessage(hmrEvent);
 	};
 
-	// Create a standalone SSE listener for HMR events immediately.
-	// This is needed because lazy-compiled modules require HMR updates
-	// to deliver compiled code, but the React-managed /events SSE
-	// (in PreviewServerConnection) only connects after React mounts —
-	// which itself depends on lazy modules loading first.
+	// Connect to /events immediately so HMR works before React mounts.
+	// PreviewServerConnection reuses the same EventSource via preview-server-events.
 	if (typeof window !== 'undefined' && typeof EventSource !== 'undefined') {
-		const source = new EventSource('/events');
-		source.addEventListener('message', (event) => {
-			try {
-				const parsed = JSON.parse(event.data);
-				if (parsed.type === 'hmr') {
-					processMessage(parsed.hmrEvent);
-				}
-			} catch {
-				// Ignore parse errors
-			}
-		});
+		if (!unsubscribeFromPreviewServerEvents) {
+			unsubscribeFromPreviewServerEvents = subscribeToPreviewServerEvents(
+				(event) => {
+					if (event.type === 'hmr') {
+						processMessage(event.hmrEvent);
+					}
+				},
+			);
+		}
 	}
 };

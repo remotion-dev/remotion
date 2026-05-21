@@ -12,7 +12,6 @@ import type {
 	TRenderAsset,
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
-import {Solid} from './effects/Solid.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
@@ -136,7 +135,13 @@ export type {
 	EffectDescriptor,
 	EffectsProp,
 	EffectDefinition,
+	EffectFactory,
 } from './effects/index.js';
+/**
+ * @description Renders a solid-color rectangle on a `<canvas>`.
+ * @see [Documentation](https://www.remotion.dev/docs/solid)
+ */
+export {Solid} from './effects/Solid.js';
 export type {SolidProps} from './effects/Solid.js';
 export {
 	HtmlInCanvas,
@@ -242,7 +247,6 @@ export const Experimental = {
 	 * @see [Documentation](https://www.remotion.dev/docs/null)
 	 */
 	Null,
-	Solid,
 	useIsPlayer,
 };
 

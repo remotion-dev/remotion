@@ -25,6 +25,7 @@ import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {RequiredChromiumOptions} from './render-job';
+import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 
 export type OpenInFileExplorerRequest = {
@@ -163,6 +164,7 @@ export type UpdateDefaultPropsResponse =
 export type ApplyCodemodRequest = {
 	codemod: RecastCodemod;
 	dryRun: boolean;
+	symbolicatedStack: SymbolicatedStackFrame | null;
 };
 
 export type SimpleDiff = {
@@ -252,6 +254,7 @@ export type SaveSequencePropsRequest = {
 	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
+	clientId: string;
 };
 
 export type SaveSequencePropsResponse =
@@ -272,6 +275,7 @@ export type SaveEffectPropsRequest = {
 	value: string;
 	defaultValue: string | null;
 	schema: SequenceSchema;
+	clientId: string;
 };
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;

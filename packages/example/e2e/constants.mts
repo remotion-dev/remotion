@@ -10,12 +10,25 @@ export const exampleDir = path.resolve(
 	'..',
 );
 
-export const rootFile = path.join(exampleDir, 'src', 'Root.tsx');
+export const rootFile = path.join(exampleDir, 'src', 'E2eTestRoot.tsx');
+export const e2eEntryPoint = path.join(exampleDir, 'src', 'e2e-test-entry.ts');
 export const visualControlsFile = path.join(
 	exampleDir,
 	'src',
 	'VisualControls',
 	'index.tsx',
+);
+export const lostNodePathE2eFile = path.join(
+	exampleDir,
+	'src',
+	'LostNodePathE2e',
+	'LostNodePathRepro.tsx',
+);
+export const errorOverlayE2eFile = path.join(
+	exampleDir,
+	'src',
+	'ErrorOverlayE2e',
+	'ErrorOverlayRepro.tsx',
 );
 export const newVideoFile = path.join(exampleDir, 'src', 'NewVideo.tsx');
 export const remotionBin = path.join(
@@ -31,11 +44,19 @@ export const LOGS_FILE = path.join(
 );
 export const ORIGINAL_CONTENT_FILE = path.join(
 	os.tmpdir(),
-	'remotion-e2e-original-root.tsx',
+	'remotion-e2e-original-e2e-test-root.tsx',
 );
 export const ORIGINAL_VISUAL_CONTROLS_FILE = path.join(
 	os.tmpdir(),
 	'remotion-e2e-original-visual-controls.tsx',
+);
+export const ORIGINAL_LOST_NODE_PATH_E2E_FILE = path.join(
+	os.tmpdir(),
+	'remotion-e2e-original-lost-node-path-repro.tsx',
+);
+export const ORIGINAL_ERROR_OVERLAY_E2E_FILE = path.join(
+	os.tmpdir(),
+	'remotion-e2e-original-error-overlay-repro.tsx',
 );
 export const PID_FILE = path.join(os.tmpdir(), 'remotion-e2e-studio.pid');
 export const EXPANDED_SIDEBAR_STATE = path.join(

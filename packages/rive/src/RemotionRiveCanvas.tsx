@@ -15,17 +15,45 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {useCurrentFrame, useDelayRender, useVideoConfig} from 'remotion';
+import type {
+	EffectsProp,
+	SequenceControls,
+	SequenceProps,
+	SequenceSchema,
+} from 'remotion';
+import {
+	Internals,
+	Sequence,
+	useCurrentFrame,
+	useDelayRender,
+	useVideoConfig,
+} from 'remotion';
 import type {
 	RemotionRiveCanvasAlignment,
 	RemotionRiveCanvasFit,
 } from './map-enums.js';
 import {mapToAlignment, mapToFit} from './map-enums.js';
 
+const {
+	addSequenceStackTraces,
+	hiddenField,
+	runEffectChain,
+	sequenceVisualStyleSchema,
+	useEffectChainState,
+	useMemoizedEffectDefinitions,
+	useMemoizedEffects,
+	wrapInSchema,
+} = Internals;
+
 type assetLoadCallback = (asset: FileAsset, bytes: Uint8Array) => boolean;
 type onLoadCallback = (file: File) => void;
 
-interface RiveProps {
+type RiveSequenceInheritedProps = Pick<
+	SequenceProps,
+	'durationInFrames' | 'name' | 'from' | 'showInTimeline' | 'hidden'
+>;
+
+type RemotionRiveCanvasOwnProps = {
 	readonly src: string;
 	readonly fit?: RemotionRiveCanvasFit;
 	readonly alignment?: RemotionRiveCanvasAlignment;
@@ -34,7 +62,13 @@ interface RiveProps {
 	readonly onLoad?: onLoadCallback | null;
 	readonly enableRiveAssetCdn?: boolean;
 	readonly assetLoader?: assetLoadCallback;
-}
+	readonly className?: string;
+	readonly style?: React.CSSProperties;
+	readonly effects?: EffectsProp;
+};
+
+export type RemotionRiveCanvasProps = RemotionRiveCanvasOwnProps &
+	RiveSequenceInheritedProps;
 
 export type RiveCanvasRef = {
 	getAnimationInstance: () => LinearAnimationInstance | null;
@@ -43,19 +77,76 @@ export type RiveCanvasRef = {
 	getCanvas: () => RiveCanvas | null;
 };
 
-const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
+const riveFitVariants: Record<RemotionRiveCanvasFit, SequenceSchema> = {
+	contain: {},
+	cover: {},
+	fill: {},
+	'fit-height': {},
+	'fit-width': {},
+	none: {},
+	'scale-down': {},
+};
+
+const riveAlignmentVariants: Record<
+	RemotionRiveCanvasAlignment,
+	SequenceSchema
+> = {
+	center: {},
+	'bottom-center': {},
+	'bottom-left': {},
+	'bottom-right': {},
+	'center-left': {},
+	'center-right': {},
+	'top-center': {},
+	'top-left': {},
+	'top-right': {},
+};
+
+const riveCanvasSchema = {
+	fit: {
+		type: 'enum',
+		default: 'contain',
+		description: 'Fit',
+		variants: riveFitVariants,
+	},
+	alignment: {
+		type: 'enum',
+		default: 'center',
+		description: 'Alignment',
+		variants: riveAlignmentVariants,
+	},
+	...sequenceVisualStyleSchema,
+	hidden: hiddenField,
+} as const satisfies SequenceSchema;
+
+type RemotionRiveCanvasContentProps = Omit<
+	RemotionRiveCanvasOwnProps,
+	'effects'
+> & {
+	readonly fit: RemotionRiveCanvasFit;
+	readonly alignment: RemotionRiveCanvasAlignment;
+	readonly enableRiveAssetCdn: boolean;
+	readonly effects: EffectsProp;
+	readonly controls: SequenceControls | undefined;
+};
+
+const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunction<
 	RiveCanvasRef,
-	RiveProps
+	RemotionRiveCanvasContentProps
 > = (
 	{
 		src,
-		fit = 'contain',
-		alignment = 'center',
+		fit,
+		alignment,
 		artboard: artboardName,
 		animation: animationIndex,
 		onLoad = null,
 		assetLoader,
-		enableRiveAssetCdn = true,
+		enableRiveAssetCdn,
+		className,
+		style,
+		effects,
+		controls,
 	},
 	ref,
 ) => {
@@ -67,6 +158,23 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 	const {delayRender, continueRender} = useDelayRender();
 	const [handle] = useState(() => delayRender());
 	const lastFrame = useRef<number>(0);
+
+	// Rive draws to this offscreen-style canvas; the effect chain then
+	// composites from here onto the visible output canvas.
+	const sourceCanvas = useMemo(() => {
+		if (typeof document === 'undefined') {
+			return null;
+		}
+
+		return document.createElement('canvas');
+	}, []);
+
+	const chainState = useEffectChainState();
+
+	const memoizedEffects = useMemoizedEffects({
+		effects,
+		overrideId: controls?.overrideId ?? null,
+	});
 
 	if (err) {
 		throw err;
@@ -111,13 +219,14 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 	}, [handle, continueRender]);
 
 	useEffect(() => {
-		if (!riveCanvasInstance) {
+		if (!riveCanvasInstance || !sourceCanvas) {
 			return;
 		}
 
-		const renderer = riveCanvasInstance.makeRenderer(
-			canvas.current as HTMLCanvasElement,
-		);
+		sourceCanvas.width = width;
+		sourceCanvas.height = height;
+
+		const renderer = riveCanvasInstance.makeRenderer(sourceCanvas);
 
 		fetch(new Request(src))
 			.then((f) => f.arrayBuffer())
@@ -166,6 +275,9 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 		onLoad,
 		assetLoader,
 		enableRiveAssetCdn,
+		sourceCanvas,
+		width,
+		height,
 	]);
 
 	useEffect(() => {
@@ -175,57 +287,218 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 	}, [onLoad, rive]);
 
 	React.useEffect(() => {
-		if (!riveCanvasInstance) {
+		if (!riveCanvasInstance || !rive) {
 			return;
 		}
 
-		riveCanvasInstance.requestAnimationFrame(() => {
-			if (!rive || !canvas.current) {
-				return;
-			}
+		const outputCanvas = canvas.current;
+		if (!outputCanvas || !sourceCanvas) {
+			return;
+		}
 
-			const diff = frame - lastFrame.current;
+		// Keep source/output dimensions in sync with the video config.
+		if (sourceCanvas.width !== width || sourceCanvas.height !== height) {
+			sourceCanvas.width = width;
+			sourceCanvas.height = height;
+		}
 
-			rive.renderer.clear();
+		if (outputCanvas.width !== width || outputCanvas.height !== height) {
+			outputCanvas.width = width;
+			outputCanvas.height = height;
+		}
 
-			if (rive.animation) {
-				rive.animation.advance(diff / fps);
-				rive.animation.apply(1);
-			}
+		const diff = frame - lastFrame.current;
 
-			rive.artboard.advance(diff / fps);
+		rive.renderer.clear();
 
-			rive.renderer.save();
-			rive.renderer.align(
-				mapToFit(fit, riveCanvasInstance),
-				mapToAlignment(alignment, riveCanvasInstance.Alignment),
-				{
-					minX: 0,
-					minY: 0,
-					maxX: canvas.current.width,
-					maxY: canvas.current.height,
-				},
-				rive.artboard.bounds,
-			);
+		if (rive.animation) {
+			rive.animation.advance(diff / fps);
+			rive.animation.apply(1);
+		}
 
-			rive.artboard.draw(rive.renderer);
-			rive.renderer.restore();
+		rive.artboard.advance(diff / fps);
 
-			lastFrame.current = frame;
-		});
-	}, [frame, fps, rive, riveCanvasInstance, fit, alignment]);
+		rive.renderer.save();
+		rive.renderer.align(
+			mapToFit(fit, riveCanvasInstance),
+			mapToAlignment(alignment, riveCanvasInstance.Alignment),
+			{
+				minX: 0,
+				minY: 0,
+				maxX: sourceCanvas.width,
+				maxY: sourceCanvas.height,
+			},
+			rive.artboard.bounds,
+		);
 
-	const style: React.CSSProperties = useMemo(
+		rive.artboard.draw(rive.renderer);
+		rive.renderer.restore();
+
+		// Flush the renderer's queued draw calls so `sourceCanvas` actually
+		// contains the pixels we just drew before `runEffectChain` reads from
+		// it. We don't use `riveCanvasInstance.requestAnimationFrame` (which
+		// would flush implicitly at the end of its own callback) because the
+		// effect chain needs the flushed pixels synchronously, and waiting
+		// for a Rive-scheduled frame would mean the very first paint after
+		// mount (and after every prop change) would composite an empty /
+		// stale source canvas to the output.
+		riveCanvasInstance.resolveAnimationFrame();
+
+		lastFrame.current = frame;
+
+		const state = chainState.get(width, height);
+		if (!state) {
+			return;
+		}
+
+		const effectChainHandle = delayRender(
+			`Rendering frame at ${frame} of <RemotionRiveCanvas src="${src}"/>`,
+		);
+
+		let cancelled = false;
+
+		runEffectChain({
+			state,
+			source: sourceCanvas,
+			effects: memoizedEffects,
+			output: outputCanvas,
+			width,
+			height,
+		})
+			.then(() => {
+				if (!cancelled) {
+					continueRender(effectChainHandle);
+				}
+			})
+			.catch((newErr) => {
+				setError(newErr);
+			});
+
+		return () => {
+			cancelled = true;
+			continueRender(effectChainHandle);
+		};
+	}, [
+		frame,
+		fps,
+		rive,
+		riveCanvasInstance,
+		fit,
+		alignment,
+		width,
+		height,
+		sourceCanvas,
+		memoizedEffects,
+		chainState,
+		delayRender,
+		continueRender,
+		src,
+	]);
+
+	const canvasStyle: React.CSSProperties = useMemo(
 		() => ({
 			height,
 			width,
+			...style,
 		}),
-		[height, width],
+		[height, style, width],
 	);
 
-	return <canvas ref={canvas} width={width} height={height} style={style} />;
+	return (
+		<canvas
+			ref={canvas}
+			width={width}
+			height={height}
+			className={className}
+			style={canvasStyle}
+		/>
+	);
 };
 
-export const RemotionRiveCanvas = forwardRef(
-	RemotionRiveCanvasForwardRefFunction,
+const RemotionRiveCanvasContent = forwardRef(
+	RemotionRiveCanvasContentForwardRefFunction,
 );
+
+const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
+	RiveCanvasRef,
+	RemotionRiveCanvasProps & {
+		readonly _experimentalControls?: SequenceControls | undefined;
+	}
+> = (
+	{
+		src,
+		fit = 'contain',
+		alignment = 'center',
+		artboard,
+		animation,
+		onLoad = null,
+		assetLoader,
+		enableRiveAssetCdn = true,
+		className,
+		style,
+		effects = [],
+		_experimentalControls: controls,
+		durationInFrames,
+		name,
+		from,
+		showInTimeline,
+		hidden,
+		...props
+	},
+	ref,
+) => {
+	props satisfies Record<string, never>;
+
+	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
+
+	return (
+		<Sequence
+			layout="none"
+			from={from}
+			hidden={hidden}
+			showInTimeline={showInTimeline}
+			name={name ?? '<RemotionRiveCanvas>'}
+			durationInFrames={durationInFrames}
+			_experimentalControls={controls}
+			_remotionInternalEffects={memoizedEffectDefinitions}
+			// 'stack' is in props
+			{...props}
+		>
+			<RemotionRiveCanvasContent
+				ref={ref}
+				src={src}
+				fit={fit}
+				alignment={alignment}
+				artboard={artboard}
+				animation={animation}
+				onLoad={onLoad}
+				assetLoader={assetLoader}
+				enableRiveAssetCdn={enableRiveAssetCdn}
+				className={className}
+				style={style}
+				effects={effects}
+				controls={controls}
+			/>
+		</Sequence>
+	);
+};
+
+const RemotionRiveCanvasInner = forwardRef(
+	RemotionRiveCanvasInnerForwardRefFunction,
+);
+
+export const RemotionRiveCanvas = wrapInSchema(
+	RemotionRiveCanvasInner as unknown as React.ComponentType<
+		RemotionRiveCanvasProps & {
+			readonly _experimentalControls: SequenceControls | undefined;
+		}
+	>,
+	riveCanvasSchema,
+) as React.ForwardRefExoticComponent<
+	RemotionRiveCanvasProps & React.RefAttributes<RiveCanvasRef>
+>;
+
+addSequenceStackTraces(RemotionRiveCanvas);
+
+(RemotionRiveCanvas as unknown as {displayName: string}).displayName =
+	'RemotionRiveCanvas';

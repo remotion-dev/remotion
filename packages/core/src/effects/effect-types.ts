@@ -23,7 +23,6 @@ export type EffectApplyParams<P, S> = {
 	readonly target: HTMLCanvasElement;
 	readonly state: S;
 	readonly params: P;
-	readonly frame: number;
 	readonly width: number;
 	readonly height: number;
 	readonly gpuDevice: AnyGpuDevice | null;
@@ -43,7 +42,9 @@ export type EffectDefinition<P, S = unknown> = {
 	readonly setup: (target: HTMLCanvasElement) => S;
 	readonly apply: (params: EffectApplyParams<P, S>) => void;
 	readonly cleanup: (state: S) => void;
-	readonly schema: SequenceSchema | null;
+	readonly schema: SequenceSchema;
+	/** Throws when mandatory params are missing or invalid. Called by `createEffect` before returning a descriptor. */
+	readonly validateParams: (params: P) => void;
 };
 
 type BaseEffectDescriptor<P = unknown> = {
@@ -62,3 +63,17 @@ export type EffectDefinitionAndStack<P = unknown> = BaseEffectDescriptor<P> & {
 };
 
 export type EffectsProp = ReadonlyArray<EffectDescriptor<unknown>>;
+
+// `disabled` is injected by the framework into every effect factory's
+// parameter type. When truthy, `runEffectChain` bypasses the effect entirely.
+// Defined here (rather than in `create-effect.ts`) so that the inferred type
+// of factory exports in downstream packages is reachable through a path that
+// is also referenced via `EffectDefinition` etc., avoiding TS2742 in `tsgo`.
+//
+// The `{} extends P` conditional preserves required-param enforcement: when
+// the user's `P` has required fields (e.g. `TintParams.color`), the factory
+// signature requires a params argument; when every field is optional, the
+// argument is optional too.
+export type EffectFactory<P> = {} extends P
+	? (params?: P & {readonly disabled?: boolean}) => EffectDescriptor<unknown>
+	: (params: P & {readonly disabled?: boolean}) => EffectDescriptor<unknown>;

@@ -78,7 +78,7 @@ Children to draw to the canvas.
 Children will be wrapped in a `<div>` with the given `width` and `height`.
 
 Nesting `<HtmlInCanvas>` inside another `<HtmlInCanvas>` is supported from <AvailableFrom v="4.0.461" inline />.
-When nested, Remotion uses an auxiliary canvas outside the viewport and copies the result into the visible canvas.
+The inner canvas paints to its own `OffscreenCanvas` and then asks the outer canvas to repaint so it captures the freshly composited bitmap on the next frame.
 
 ### `onPaint?`
 

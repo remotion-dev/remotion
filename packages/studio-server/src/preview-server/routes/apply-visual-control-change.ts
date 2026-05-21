@@ -117,7 +117,7 @@ export const applyVisualControlHandler: ApiHandler<
 	});
 	suppressUndoStackInvalidation(absolutePath);
 	suppressBundlerUpdateForFile(absolutePath);
-	writeFileAndNotifyFileWatchers(absolutePath, output);
+	writeFileAndNotifyFileWatchers(absolutePath, output, undefined);
 
 	waitForLiveEventsListener().then((listener) => {
 		listener.sendEventToClient({

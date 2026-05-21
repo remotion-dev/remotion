@@ -1,3 +1,4 @@
+import {useCallback} from 'react';
 import type {AudioHTMLAttributes} from 'react';
 import React, {
 	forwardRef,
@@ -13,7 +14,6 @@ import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
 import {SequenceContext} from '../SequenceContext.js';
-import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
@@ -58,6 +58,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		volume,
 		muted,
 		playbackRate,
+		preservePitch,
 		shouldPreMountAudioTags,
 		src,
 		onDuration,
@@ -99,8 +100,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
 
-	const {hidden} = useContext(SequenceVisibilityToggleContext);
-
 	if (!src) {
 		throw new TypeError("No 'src' was passed to <Html5Audio>.");
 	}
@@ -110,8 +109,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	const sequenceContext = useContext(SequenceContext);
 
 	const [timelineId] = useState(() => String(Math.random()));
-
-	const isSequenceHidden = hidden[timelineId] ?? false;
 
 	const userPreferredVolume = evaluateVolume({
 		frame: volumePropFrame,
@@ -129,8 +126,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const propsToPass = useMemo((): AudioHTMLAttributes<HTMLAudioElement> => {
 		return {
-			muted:
-				muted || mediaMuted || isSequenceHidden || userPreferredVolume <= 0,
+			muted: muted || mediaMuted || userPreferredVolume <= 0,
 			src: preloadedSrc,
 			loop: _remotionInternalNativeLoopPassed,
 			crossOrigin: crossOriginValue,
@@ -138,7 +134,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		};
 	}, [
 		_remotionInternalNativeLoopPassed,
-		isSequenceHidden,
 		mediaMuted,
 		muted,
 		nativeProps,
@@ -176,6 +171,10 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		postmounting: Boolean(sequenceContext?.postmounting),
 	});
 
+	const getStack = useCallback(() => {
+		return _remotionInternalStack ?? null;
+	}, [_remotionInternalStack]);
+
 	useMediaInTimeline({
 		volume,
 		mediaVolume,
@@ -184,7 +183,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		playbackRate: playbackRate ?? 1,
 		displayName: name ?? null,
 		id: timelineId,
-		stack: _remotionInternalStack,
+		getStack,
 		showInTimeline,
 		premountDisplay: sequenceContext?.premountDisplay ?? null,
 		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
@@ -198,6 +197,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
+		preservePitch,
 		onlyWarnForMediaSeekingError: false,
 		acceptableTimeshift: acceptableTimeShiftInSeconds ?? null,
 		isPremounting: Boolean(sequenceContext?.premounting),

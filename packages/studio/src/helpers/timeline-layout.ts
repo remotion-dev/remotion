@@ -9,7 +9,11 @@ import {
 	type SequenceControls,
 	type SequenceSchemaFieldInfo,
 } from '@remotion/studio-shared';
-import type {GetDragOverrides, TSequence} from 'remotion';
+import type {
+	GetDragOverrides,
+	SequenceSchema as SequenceSchemaShape,
+	TSequence,
+} from 'remotion';
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 
@@ -35,11 +39,15 @@ export const TIMELINE_ITEM_BORDER_BOTTOM = 1;
 export const TIMELINE_TRACK_EXPANDED_HEIGHT = 100;
 
 export const TREE_GROUP_ROW_HEIGHT = 22;
-export const EXPANDED_SECTION_PADDING_LEFT = 28;
 export const EXPANDED_SECTION_PADDING_RIGHT = 10;
 
 export type TimelineFieldOnSave = (value: unknown) => Promise<void>;
 export type TimelineFieldOnDragValueChange = (value: unknown) => void;
+
+export type TimelineEffectGroupInfo = {
+	readonly effectIndex: number;
+	readonly effectSchema: SequenceSchemaShape;
+};
 
 export type TimelineTreeNode =
 	| {
@@ -47,6 +55,10 @@ export type TimelineTreeNode =
 			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly label: string;
 			readonly children: TimelineTreeNode[];
+			// Present when this group represents a single effect (not the outer
+			// "Effects" container). Lets the row component render the eye toggle and
+			// wire `disabled` saves without re-deriving the effect index.
+			readonly effectInfo: TimelineEffectGroupInfo | null;
 	  }
 	| {
 			readonly kind: 'field';
@@ -68,45 +80,6 @@ export const buildTimelineTree = ({
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys} = nodePathInfo;
-
-	if (sequence.effects.length > 0) {
-		roots.push({
-			kind: 'group',
-			nodePathInfo: {
-				sequenceSubscriptionKey,
-				auxiliaryKeys: [...auxiliaryKeys, 'effects'],
-				index,
-				numberOfSequencesWithThisNodePath: 0,
-			},
-			label: 'Effects',
-			children: sequence.effects.map((effect, i): TimelineTreeNode => {
-				const effectFields = getEffectFieldsToShow(effect, i);
-				return {
-					kind: 'group',
-					nodePathInfo: {
-						sequenceSubscriptionKey,
-						auxiliaryKeys: [...auxiliaryKeys, 'effects', i.toString()],
-						index,
-						numberOfSequencesWithThisNodePath: 0,
-					},
-					label: effect.label,
-					children: effectFields.map(
-						(f): TimelineTreeNode => ({
-							kind: 'field',
-							nodePathInfo: {
-								sequenceSubscriptionKey,
-								auxiliaryKeys: [...auxiliaryKeys, f.key],
-								index,
-								numberOfSequencesWithThisNodePath: 0,
-							},
-							label: f.description ?? f.key,
-							field: f,
-						}),
-					),
-				};
-			}),
-		});
-	}
 
 	const controlFields = getFieldsToShow({
 		schema: sequence.controls!.schema,
@@ -131,6 +104,52 @@ export const buildTimelineTree = ({
 				field: f,
 			});
 		}
+	}
+
+	if (sequence.effects.length > 0) {
+		roots.push({
+			kind: 'group',
+			nodePathInfo: {
+				sequenceSubscriptionKey,
+				auxiliaryKeys: [...auxiliaryKeys, 'effects'],
+				index,
+				numberOfSequencesWithThisNodePath: 0,
+			},
+			label: 'Effects',
+			effectInfo: null,
+			children: sequence.effects.map((effect, i): TimelineTreeNode => {
+				const effectFields = getEffectFieldsToShow(effect, i);
+				return {
+					kind: 'group',
+					nodePathInfo: {
+						sequenceSubscriptionKey,
+						auxiliaryKeys: [...auxiliaryKeys, 'effects', i.toString()],
+						index,
+						numberOfSequencesWithThisNodePath: 0,
+					},
+					label: effect.label,
+					effectInfo: {effectIndex: i, effectSchema: effect.schema},
+					children: effectFields.map(
+						(f): TimelineTreeNode => ({
+							kind: 'field',
+							nodePathInfo: {
+								sequenceSubscriptionKey,
+								auxiliaryKeys: [
+									...auxiliaryKeys,
+									'effects',
+									i.toString(),
+									f.key,
+								],
+								index,
+								numberOfSequencesWithThisNodePath: 0,
+							},
+							label: f.description ?? f.key,
+							field: f,
+						}),
+					),
+				};
+			}),
+		});
 	}
 
 	return roots;

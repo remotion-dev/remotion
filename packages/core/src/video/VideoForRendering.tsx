@@ -53,6 +53,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior,
 		audioStreamIndex,
 		onVideoFrame,
+		preservePitch: _preservePitch,
 		...props
 	},
 	ref,

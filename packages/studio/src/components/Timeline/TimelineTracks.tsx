@@ -16,7 +16,6 @@ import {
 	ExpandedTracksGetterContext,
 	type GetIsExpanded,
 } from '../ExpandedTracksProvider';
-import {isTrackHidden} from './is-collapsed';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {TimelineSequence} from './TimelineSequence';
 import {TimelineTimePadding} from './TimelineTimeIndicators';
@@ -73,10 +72,6 @@ const TimelineTracksInner: React.FC<{
 			<div style={content}>
 				<TimelineTimePadding />
 				{timeline.map((track) => {
-					if (isTrackHidden(track)) {
-						return null;
-					}
-
 					const isExpanded =
 						track.nodePathInfo !== null && getIsExpanded(track.nodePathInfo);
 

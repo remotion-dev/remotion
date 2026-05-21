@@ -17,17 +17,16 @@ import {
 } from '../ExpandedTracksProvider';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {Padder} from './Padder';
+import {saveSequenceProp} from './save-sequence-prop';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
-import {TimelineLayerEye} from './TimelineLayerEye';
+import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
+import {TimelineRowChrome} from './TimelineRowChrome';
 import {TimelineStack} from './TimelineStack';
-import {useResolvedStack} from './use-resolved-stack';
-
-export const INDENT = 10;
+import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 
 export const TimelineListItem: React.FC<{
 	readonly sequence: TSequence;
@@ -38,13 +37,12 @@ export const TimelineListItem: React.FC<{
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
-	const {hidden, setHidden} = useContext(
-		Internals.SequenceVisibilityToggleContext,
-	);
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
+	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 
-	const originalLocation = useResolvedStack(sequence.stack ?? null);
+	const originalLocation = useResolveStackAndReactToChange(sequence.getStack);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -195,20 +193,68 @@ export const TimelineListItem: React.FC<{
 		toggleTrack(nodePathInfo);
 	}, [nodePathInfo, toggleTrack]);
 
+	const codeValuesForOverride = useMemo(() => {
+		return nodePath
+			? Internals.getCodeValuesCtx(codeValues, nodePath)
+			: undefined;
+	}, [codeValues, nodePath]);
+
+	const codeHiddenStatus = codeValuesForOverride?.hidden;
+
 	const isItemHidden = useMemo(() => {
-		return hidden[sequence.id] ?? false;
-	}, [hidden, sequence.id]);
+		const codeValue =
+			codeHiddenStatus && codeHiddenStatus.canUpdate
+				? codeHiddenStatus.codeValue
+				: undefined;
+		const runtimeValue =
+			sequence.controls?.currentRuntimeValueDotNotation.hidden;
+		const effective = (codeValue ?? runtimeValue) as boolean | undefined;
+		return effective ?? false;
+	}, [codeHiddenStatus, sequence.controls?.currentRuntimeValueDotNotation]);
 
 	const onToggleVisibility = useCallback(
 		(type: 'enable' | 'disable') => {
-			setHidden((prev) => {
-				return {
-					...prev,
-					[sequence.id]: type !== 'enable',
-				};
+			if (
+				!sequence.controls ||
+				!nodePath ||
+				!validatedLocation ||
+				!codeValuesForOverride ||
+				!codeHiddenStatus ||
+				!codeHiddenStatus.canUpdate ||
+				previewServerState.type !== 'connected'
+			) {
+				return;
+			}
+
+			const newValue = type !== 'enable';
+			const {schema} = sequence.controls;
+
+			const fieldSchema = schema.hidden;
+			const defaultValue =
+				fieldSchema && fieldSchema.type === 'boolean'
+					? JSON.stringify(fieldSchema.default)
+					: null;
+
+			saveSequenceProp({
+				fileName: validatedLocation.source,
+				nodePath,
+				fieldKey: 'hidden',
+				value: newValue,
+				defaultValue,
+				schema,
+				setCodeValues,
+				clientId: previewServerState.clientId,
 			});
 		},
-		[sequence.id, setHidden],
+		[
+			codeHiddenStatus,
+			codeValuesForOverride,
+			nodePath,
+			previewServerState,
+			sequence.controls,
+			setCodeValues,
+			validatedLocation,
+		],
 	);
 
 	const outer: React.CSSProperties = useMemo(() => {
@@ -225,45 +271,58 @@ export const TimelineListItem: React.FC<{
 			height: TIMELINE_LAYER_HEIGHT_AUDIO,
 			color: 'white',
 			fontFamily: 'Arial, Helvetica, sans-serif',
-			display: 'flex',
-			flexDirection: 'row',
-			alignItems: 'center',
 			wordBreak: 'break-all',
 			textAlign: 'left',
-			paddingLeft: 5,
 		};
 	}, []);
 
 	const hasExpandableContent =
 		Boolean(sequence.controls) || sequence.effects.length > 0;
 
+	const canToggleVisibility =
+		previewConnected &&
+		Boolean(sequence.controls) &&
+		nodePath !== null &&
+		validatedLocation !== null &&
+		codeHiddenStatus !== undefined &&
+		codeHiddenStatus !== null &&
+		codeHiddenStatus.canUpdate;
+
 	const trackRow = (
 		<div style={outer}>
-			<div style={inner}>
-				<TimelineLayerEye
-					type={sequence.type === 'audio' ? 'speaker' : 'eye'}
-					hidden={isItemHidden}
-					onInvoked={onToggleVisibility}
-				/>
-				<Padder depth={nestedDepth} />
-				{previewConnected ? (
+			<TimelineRowChrome
+				depth={nestedDepth}
+				eye={
+					canToggleVisibility ? (
+						<TimelineLayerEye
+							type={sequence.type === 'audio' ? 'speaker' : 'eye'}
+							hidden={isItemHidden}
+							onInvoked={onToggleVisibility}
+						/>
+					) : (
+						<TimelineLayerEyeSpacer />
+					)
+				}
+				arrow={
 					hasExpandableContent ? (
 						<TimelineExpandArrowButton
 							isExpanded={isExpanded}
 							onClick={onToggleExpand}
 							label="track properties"
-							disabled={nodePathInfo === null}
+							disabled={!previewConnected || nodePathInfo === null}
 						/>
 					) : (
 						<TimelineExpandArrowSpacer />
 					)
-				) : null}
+				}
+				style={inner}
+			>
 				<TimelineStack
 					sequence={sequence}
 					isCompact={isCompact}
 					originalLocation={originalLocation}
 				/>
-			</div>
+			</TimelineRowChrome>
 		</div>
 	);
 

@@ -42,6 +42,7 @@ const SUPPORTED_SCHEMA_TYPES = [
 	'boolean',
 	'rotation',
 	'translate',
+	'color',
 	'enum',
 	'hidden',
 ] as const;
@@ -85,6 +86,12 @@ export const getFieldsToShow = ({
 				return null;
 			}
 
+			// `hidden` is represented as the eye/speaker icon on the timeline track,
+			// so we don't render it as a regular field in the expanded section.
+			if (key === 'hidden') {
+				return null;
+			}
+
 			return {
 				kind: 'sequence-field',
 				key,
@@ -101,15 +108,16 @@ export const getEffectFieldsToShow = (
 	effect: EffectDefinition<unknown>,
 	effectIndex: number,
 ): EffectSchemaFieldInfo[] => {
-	const effectSchema = effect.schema;
-	if (!effectSchema) {
-		return [];
-	}
-
-	return Object.entries(effectSchema)
+	return Object.entries(effect.schema)
 		.map(([key, fieldSchema]): EffectSchemaFieldInfo | null => {
 			const typeName = fieldSchema.type;
 			if (typeName === 'hidden') {
+				return null;
+			}
+
+			// `disabled` is represented as the eye icon on the effect timeline row,
+			// so we don't render it as a regular field in the expanded section.
+			if (key === 'disabled') {
 				return null;
 			}
 
@@ -124,7 +132,7 @@ export const getEffectFieldsToShow = (
 				typeName,
 				rowHeight: SCHEMA_FIELD_ROW_HEIGHT,
 				fieldSchema,
-				effectSchema,
+				effectSchema: effect.schema,
 				effectIndex,
 			};
 		})

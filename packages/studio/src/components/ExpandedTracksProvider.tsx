@@ -1,6 +1,13 @@
 import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
 import React, {createContext, useCallback, useMemo, useState} from 'react';
+import type {SequencePropsSubscriptionKey} from 'remotion';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {migrateExpandedTracksForSubscriptionKey} from '../helpers/migrate-expanded-tracks-for-subscription-key';
+import {
+	loadPersistedBooleanMap,
+	persistBooleanMap,
+	toggleBooleanMapKey,
+} from '../helpers/persist-boolean-map';
 
 const nodePathInfoToExpandedKey = (info: SequenceNodePathInfo): string =>
 	[
@@ -9,28 +16,10 @@ const nodePathInfoToExpandedKey = (info: SequenceNodePathInfo): string =>
 		info.index,
 	].join('.');
 
-const LOCAL_STORAGE_KEY = 'remotion.editor.expandedTracks';
+const SESSION_STORAGE_KEY = 'remotion.editor.expandedTracks';
 
-const loadExpandedTracks = (): Record<string, boolean> => {
-	if (typeof window === 'undefined') {
-		return {};
-	}
-
-	const item = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-	if (item === null) {
-		return {};
-	}
-
-	try {
-		const parsed = JSON.parse(item);
-		if (parsed && typeof parsed === 'object') {
-			return parsed as Record<string, boolean>;
-		}
-
-		return {};
-	} catch {
-		return {};
-	}
+const loadExpandedTracks = () => {
+	return loadPersistedBooleanMap(SESSION_STORAGE_KEY);
 };
 
 export type GetIsExpanded = (nodePathInfo: SequenceNodePathInfo) => boolean;
@@ -41,6 +30,10 @@ type ExpandedTracksGetterContextValue = {
 
 type ExpandedTracksSetterContextValue = {
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
+	readonly migrateExpandedTracksForSubscriptionKey: (
+		oldKey: SequencePropsSubscriptionKey,
+		newKey: SequencePropsSubscriptionKey,
+	) => void;
 };
 
 export const ExpandedTracksGetterContext =
@@ -55,6 +48,9 @@ export const ExpandedTracksSetterContext =
 		toggleTrack: () => {
 			throw new Error('ExpandedTracksSetterContext not initialized');
 		},
+		migrateExpandedTracksForSubscriptionKey: () => {
+			throw new Error('ExpandedTracksSetterContext not initialized');
+		},
 	});
 
 export const ExpandedTracksProvider: React.FC<{
@@ -66,11 +62,33 @@ export const ExpandedTracksProvider: React.FC<{
 	const toggleTrack = useCallback((nodePathInfo: SequenceNodePathInfo) => {
 		setExpandedTracks((prev) => {
 			const key = nodePathInfoToExpandedKey(nodePathInfo);
-			const next = {...prev, [key]: !prev[key]};
-			window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(next));
+			const next = toggleBooleanMapKey(prev, key);
+			persistBooleanMap(SESSION_STORAGE_KEY, next);
 			return next;
 		});
 	}, []);
+
+	const migrateExpandedTracks = useCallback(
+		(
+			oldKey: SequencePropsSubscriptionKey,
+			newKey: SequencePropsSubscriptionKey,
+		) => {
+			setExpandedTracks((prev) => {
+				const next = migrateExpandedTracksForSubscriptionKey(
+					prev,
+					oldKey,
+					newKey,
+				);
+				if (!next) {
+					return prev;
+				}
+
+				persistBooleanMap(SESSION_STORAGE_KEY, next);
+				return next;
+			});
+		},
+		[],
+	);
 
 	const getterValue = useMemo(
 		(): ExpandedTracksGetterContextValue => ({
@@ -81,8 +99,11 @@ export const ExpandedTracksProvider: React.FC<{
 	);
 
 	const setterValue = useMemo(
-		(): ExpandedTracksSetterContextValue => ({toggleTrack}),
-		[toggleTrack],
+		(): ExpandedTracksSetterContextValue => ({
+			toggleTrack,
+			migrateExpandedTracksForSubscriptionKey: migrateExpandedTracks,
+		}),
+		[toggleTrack, migrateExpandedTracks],
 	);
 
 	return (

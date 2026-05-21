@@ -105,6 +105,17 @@ export const printUsefulErrorMessage = (
 		);
 	}
 
+	if (
+		err.message.includes('Failed to acquire WebGL2 context') ||
+		err.message.includes('Failed to acquire WebGL context')
+	) {
+		Log.info({indent, logLevel});
+		Log.info(
+			{indent, logLevel},
+			'💡 Get help for this issue at https://remotion.dev/docs/troubleshooting/webgl2-context',
+		);
+	}
+
 	if (err.message.includes('Error creating WebGL context')) {
 		Log.info({indent, logLevel});
 		Log.warn(
@@ -120,6 +131,10 @@ export const printUsefulErrorMessage = (
 				logLevel,
 			},
 			"💡 Check how it's done at https://www.remotion.dev/docs/chromium-flags#--gl",
+		);
+		Log.info(
+			{indent, logLevel},
+			'💡 Get help for this issue at https://remotion.dev/docs/troubleshooting/webgl2-context',
 		);
 	}
 

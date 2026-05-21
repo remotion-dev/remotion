@@ -1,6 +1,18 @@
+import {join} from 'node:path';
 import {scenarios} from '../scenarios';
 import {runSkillEvalComparison} from './compare';
+import {
+	createSkillEvalId,
+	createSkillEvalName,
+	getSkillEvalDir,
+	getSkillEvalPath,
+	toEvalUrl,
+	writeSkillEval,
+} from './eval';
+import {exportStaticSite} from './export-static-site';
+import {maxParallelSkillEvalRuns, validateSkillEvalRunCount} from './run-count';
 import {runSkillEval} from './run-skill-eval';
+import {runWithConcurrency} from './run-with-concurrency';
 
 const serverUrl = 'http://localhost:4321';
 
@@ -22,6 +34,92 @@ const getScenario = (id: string | undefined) => {
 	return scenario;
 };
 
+const parseRunCount = (args: string[]) => {
+	let runCount = 1;
+
+	for (let index = 0; index < args.length; index++) {
+		const arg = args[index];
+
+		if (arg === '--runs') {
+			const value = args[index + 1];
+
+			if (!value) {
+				throw new Error('Pass a value after --runs.');
+			}
+
+			runCount = Number(value);
+			index++;
+		} else if (arg.startsWith('--runs=')) {
+			runCount = Number(arg.slice('--runs='.length));
+		} else {
+			throw new Error(`Unknown option "${arg}".`);
+		}
+	}
+
+	return validateSkillEvalRunCount(runCount, '--runs');
+};
+
+const parseCompareOptions = (args: string[]) => {
+	let beforeGitRef: string | undefined;
+	const runCountArgs: string[] = [];
+
+	for (let index = 0; index < args.length; index++) {
+		const arg = args[index];
+
+		if (arg === '--runs') {
+			const value = args[index + 1];
+
+			if (!value) {
+				throw new Error('Pass a value after --runs.');
+			}
+
+			runCountArgs.push(arg, value);
+			index++;
+		} else if (arg.startsWith('--runs=')) {
+			runCountArgs.push(arg);
+		} else if (!beforeGitRef) {
+			beforeGitRef = arg;
+		} else {
+			throw new Error(`Unknown option "${arg}".`);
+		}
+	}
+
+	return {
+		beforeGitRef,
+		runCount: parseRunCount(runCountArgs),
+	};
+};
+
+const parseExportOptions = (args: string[]) => {
+	let outDir: string | undefined;
+	const targets: string[] = [];
+
+	for (let index = 0; index < args.length; index++) {
+		const arg = args[index];
+
+		if (arg === '--out') {
+			const value = args[index + 1];
+
+			if (!value) {
+				throw new Error('Pass a value after --out.');
+			}
+
+			outDir = value;
+			index++;
+		} else if (arg.startsWith('--out=')) {
+			outDir = arg.slice('--out='.length);
+		} else {
+			targets.push(arg);
+		}
+	}
+
+	if (targets.length === 0) {
+		throw new Error('Pass at least one eval path.');
+	}
+
+	return {outDir, targets};
+};
+
 const main = async () => {
 	const command = process.argv[2];
 
@@ -29,15 +127,18 @@ const main = async () => {
 		await import('./server');
 	} else if (command === 'compare') {
 		const scenario = getScenario(process.argv[3]);
-		const beforeGitRef = process.argv[4];
+		const {beforeGitRef, runCount} = parseCompareOptions(process.argv.slice(4));
+		const evalId = createSkillEvalId(scenario.id);
 		process.stdout.write(
 			`Comparing ${scenario.id} with ${scenario.model}${
 				beforeGitRef ? ` against ${beforeGitRef}` : ''
-			}\n`,
+			} (${runCount} ${runCount === 1 ? 'run' : 'runs'})\n`,
 		);
 		const result = await runSkillEvalComparison(scenario, {
 			beforeGitRef,
+			evalId,
 			onLog: (chunk) => process.stdout.write(chunk),
+			runCount,
 		});
 
 		if (result.skipped) {
@@ -45,10 +146,41 @@ const main = async () => {
 			return;
 		}
 
+		const evalName = createSkillEvalName({id: evalId, type: 'comparison'});
+		await writeSkillEval({
+			comparisonPath: join(result.comparison.comparisonDir, 'comparison.json'),
+			completedAt: result.comparison.completedAt,
+			createdAt: result.comparison.createdAt,
+			evalDir: getSkillEvalDir(scenario.id, evalId),
+			id: evalId,
+			name: evalName,
+			runCount,
+			scenarioId: scenario.id,
+			type: 'comparison',
+		});
 		process.stdout.write(
-			`${scenario.id}: ${result.comparison.before.hash} -> ${result.comparison.after.hash}\n`,
+			result.comparison.runs
+				?.map(
+					(run) =>
+						`${scenario.id} #${run.index}: ${run.before.hash} -> ${run.after.hash}\n`,
+				)
+				.join('') ??
+				`${scenario.id}: ${result.comparison.before.hash} -> ${result.comparison.after.hash}\n`,
+		);
+		process.stdout.write(
+			`Eval: ${evalName} - ${serverUrl}${toEvalUrl({id: evalId, scenarioId: scenario.id})}\n`,
+		);
+		process.stdout.write(
+			`Eval metadata: ${getSkillEvalPath(scenario.id, evalId)}\n`,
 		);
 		process.stdout.write(`Preview: ${serverUrl}\n`);
+	} else if (command === 'export') {
+		const {outDir, targets} = parseExportOptions(process.argv.slice(3));
+		const result = await exportStaticSite({outDir, targets});
+
+		process.stdout.write(`Exported ${result.targetCount} result(s).\n`);
+		process.stdout.write(`Index: ${result.indexHtmlPath}\n`);
+		process.stdout.write(`Deploy: ${result.deployCommand}\n`);
 	} else if (command === 'list') {
 		for (const scenario of scenarios) {
 			process.stdout.write(`${scenario.id}\t${scenario.model}\n`);
@@ -61,15 +193,73 @@ const main = async () => {
 
 		const scenariosToRun =
 			scenarioId === '--all' ? scenarios : [getScenario(scenarioId)];
+		const runCount = parseRunCount(process.argv.slice(4));
 
 		for (const scenario of scenariosToRun) {
-			process.stdout.write(`Running ${scenario.id} with ${scenario.model}\n`);
-			const result = await runSkillEval(scenario);
-			process.stdout.write(`Wrote ${result.manifestPath}\n`);
+			const createdAt = new Date().toISOString();
+			const evalId = createSkillEvalId(scenario.id);
+			process.stdout.write(
+				`Running ${scenario.id} with ${scenario.model} (${runCount} ${
+					runCount === 1 ? 'run' : 'runs'
+				})\n`,
+			);
+			const runIndexes = Array.from(
+				{length: runCount},
+				(_, index) => index + 1,
+			);
+			const results = await runWithConcurrency({
+				inputs: runIndexes,
+				limit: maxParallelSkillEvalRuns,
+				worker: async (runIndex) => {
+					const result = await runSkillEval({
+						...scenario,
+						evalId,
+						evalRunIndex: runIndex,
+						runLabel:
+							runCount === 1
+								? undefined
+								: `run-${String(runIndex).padStart(2, '0')}`,
+						skillSnapshot: {
+							isWorkingTree: true,
+							label: 'after',
+						},
+					});
+					process.stdout.write(
+						`Wrote run #${runIndex}: ${result.manifestPath}\n`,
+					);
+					return result;
+				},
+			});
+
+			const completedAt = new Date().toISOString();
+			const evalName = createSkillEvalName({id: evalId, type: 'run'});
+			await writeSkillEval({
+				completedAt,
+				createdAt,
+				evalDir: getSkillEvalDir(scenario.id, evalId),
+				id: evalId,
+				name: evalName,
+				runCount,
+				runs: results.map((result, index) => ({
+					index: index + 1,
+					manifestPath: result.manifestPath,
+				})),
+				scenarioId: scenario.id,
+				type: 'run',
+			});
+			process.stdout.write(
+				`Completed ${results.length} ${results.length === 1 ? 'run' : 'runs'} for ${scenario.id}\n`,
+			);
+			process.stdout.write(
+				`Eval: ${evalName} - ${serverUrl}${toEvalUrl({id: evalId, scenarioId: scenario.id})}\n`,
+			);
+			process.stdout.write(
+				`Eval metadata: ${getSkillEvalPath(scenario.id, evalId)}\n`,
+			);
 		}
 	} else {
 		process.stdout.write(
-			'Usage: bun run eval <list|run|compare|dev> [scenario-id|--all] [base-ref]\n',
+			'Usage: bun run eval <list|run|compare|export|dev> [scenario-id|--all] [base-ref] [--runs 1-4]\n',
 		);
 		process.exit(command ? 1 : 0);
 	}

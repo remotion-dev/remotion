@@ -55,6 +55,10 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {
+	createWebGL2ContextError,
+	createWebGLContextError,
+} from './effects/webgl2-context-error.js';
+import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
 } from './enable-sequence-stack-traces.js';
@@ -103,12 +107,18 @@ import {
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
-import type {
-	SequenceFieldSchema,
-	SequenceSchema,
-	VisibleFieldSchema,
+import {
+	hiddenField,
+	type SequenceFieldSchema,
+	type SequenceSchema,
+	type VisibleFieldSchema,
 } from './sequence-field-schema.js';
-import {sequenceSchema, sequenceStyleSchema} from './sequence-field-schema.js';
+import {
+	sequencePremountSchema,
+	sequenceSchema,
+	sequenceStyleSchema,
+	sequenceVisualStyleSchema,
+} from './sequence-field-schema.js';
 import type {
 	OverrideIdToNodePaths,
 	OverrideToNodePathGetters,
@@ -136,7 +146,6 @@ import {
 	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 	SequenceManager,
-	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
 import * as TimelinePosition from './timeline-position-state.js';
@@ -249,10 +258,11 @@ export const Internals = {
 	VisualModeSettersContext,
 	SequenceManager,
 	SequenceStackTracesUpdateContext,
-	SequenceVisibilityToggleContext,
 	wrapInSchema,
 	sequenceSchema,
 	sequenceStyleSchema,
+	sequenceVisualStyleSchema,
+	sequencePremountSchema,
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 	RemotionRootContexts,
@@ -347,6 +357,8 @@ export const Internals = {
 	useMemoizedEffects,
 	useMemoizedEffectDefinitions,
 	createEffect,
+	createWebGLContextError,
+	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
@@ -354,6 +366,7 @@ export const Internals = {
 	makeSequencePropsSubscriptionKey,
 	getCodeValuesCtx,
 	getEffectCodeValuesCtx,
+	hiddenField,
 } as const;
 
 export type {

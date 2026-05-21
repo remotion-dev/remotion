@@ -37,6 +37,26 @@ export const TableOfContents: React.FC = () => {
 				<SfxItem link="/docs/sfx/bruh" src="https://remotion.media/bruh.wav" name="bruh" description="Bruh sound effect" />
 				<SfxItem link="/docs/sfx/vine-boom" src="https://remotion.media/vine-boom.wav" name="vineBoom" description="Vine boom sound effect" />
 				<SfxItem link="/docs/sfx/windows-xp-error" src="https://remotion.media/windows-xp-error.wav" name="windowsXpError" description="Windows XP error sound effect" />
+				<SfxItem link="/docs/sfx/fah" src="https://remotion.media/fah.wav" name="fah" description="Fah meme sound effect" />
+				<SfxItem link="/docs/sfx/spongebob-fail" src="https://remotion.media/spongebob-fail.wav" name="spongebobFail" description="SpongeBob fail sound effect" />
+				<SfxItem link="/docs/sfx/omg-hell-nah" src="https://remotion.media/omg-hell-nah.wav" name="omgHellNah" description="Oh my god bro hell nah sound effect" />
+				<SfxItem link="/docs/sfx/price-is-right-fail" src="https://remotion.media/price-is-right-fail.wav" name="priceIsRightFail" description="Price Is Right fail horn sound effect" />
+				<SfxItem link="/docs/sfx/romance-meme" src="https://remotion.media/romance-meme.wav" name="romanceMeme" description="Romance meme sound effect" />
+				<SfxItem link="/docs/sfx/bone-crack" src="https://remotion.media/bone-crack.wav" name="boneCrack" description="Bone crack sound effect" />
+				<SfxItem link="/docs/sfx/anime-wow" src="https://remotion.media/anime-wow.wav" name="animeWow" description="Anime wow sound effect" />
+				<SfxItem link="/docs/sfx/yippee" src="https://remotion.media/yippee.wav" name="yippee" description="Yippee sound effect" />
+				<SfxItem link="/docs/sfx/loading-lag" src="https://remotion.media/loading-lag.wav" name="loadingLag" description="Loading lag sound effect" />
+				<SfxItem link="/docs/sfx/wilhelm-scream" src="https://remotion.media/wilhelm-scream.wav" name="wilhelmScream" description="Wilhelm scream sound effect" />
+				<SfxItem link="/docs/sfx/mac-quack" src="https://remotion.media/mac-quack.wav" name="macQuack" description="Mac quack sound effect" />
+				<SfxItem link="/docs/sfx/skedaddle" src="https://remotion.media/skedaddle.wav" name="skedaddle" description="Skedaddle sound effect" />
+				<SfxItem link="/docs/sfx/snapchat-notification" src="https://remotion.media/snapchat-notification.wav" name="snapchatNotification" description="Snapchat notification sound effect" />
+				<SfxItem link="/docs/sfx/nelly-ahh" src="https://remotion.media/nelly-ahh.wav" name="nellyAhh" description="Nelly ahh sound effect" />
+				<SfxItem link="/docs/sfx/sanctuary-guardian-what" src="https://remotion.media/sanctuary-guardian-what.wav" name="sanctuaryGuardianWhat" description="Sanctuary Guardian what meme sound effect" />
+				<SfxItem link="/docs/sfx/minecraft-hurt" src="https://remotion.media/minecraft-hurt.wav" name="minecraftHurt" description="Minecraft hurt sound effect" />
+				<SfxItem link="/docs/sfx/oh-my-god-vine" src="https://remotion.media/oh-my-god-vine.wav" name="ohMyGodVine" description="Oh my god vine sound effect" />
+				<SfxItem link="/docs/sfx/illuminati-confirmed" src="https://remotion.media/illuminati-confirmed.wav" name="illuminatiConfirmed" description="Illuminati confirmed sound effect" />
+				<SfxItem link="/docs/sfx/dramatic-boomer" src="https://remotion.media/dramatic-boomer.wav" name="dramaticBoomer" description="Dramatic boomer sound effect" />
+				<SfxItem link="/docs/sfx/triggered" src="https://remotion.media/triggered.wav" name="triggered" description="Triggered meme sound effect" />
 			</Grid>
 		</div>
 	);

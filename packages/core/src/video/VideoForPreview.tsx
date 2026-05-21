@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useRef,
 	useState,
+	useCallback,
 } from 'react';
 import type {IsExact} from '../audio/props.js';
 import {SharedAudioContext} from '../audio/shared-audio-tags.js';
@@ -16,7 +17,6 @@ import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
 import {SequenceContext} from '../SequenceContext.js';
-import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
@@ -96,6 +96,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		volume,
 		muted,
 		playbackRate,
+		preservePitch,
 		onlyWarnForMediaSeekingError,
 		src,
 		onDuration,
@@ -133,12 +134,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 	const {fps, durationInFrames} = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
-	const {hidden} = useContext(SequenceVisibilityToggleContext);
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
 
 	const [timelineId] = useState(() => String(Math.random()));
-	const isSequenceHidden = hidden[timelineId] ?? false;
 
 	if (typeof acceptableTimeShift !== 'undefined') {
 		throw new Error(
@@ -157,6 +156,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	warnAboutTooHighVolume(userPreferredVolume);
 
+	const getStack = useCallback(() => {
+		return _remotionInternalStack ?? null;
+	}, [_remotionInternalStack]);
+
 	useMediaInTimeline({
 		volume,
 		mediaVolume,
@@ -165,7 +168,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate: props.playbackRate ?? 1,
 		displayName: name ?? null,
 		id: timelineId,
-		stack: _remotionInternalStack,
+		getStack,
 		showInTimeline,
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
@@ -179,6 +182,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		src,
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
+		preservePitch,
 		onlyWarnForMediaSeekingError,
 		acceptableTimeshift: acceptableTimeShiftInSeconds ?? null,
 		isPremounting: Boolean(parentSequence?.premounting),
@@ -333,9 +337,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...style,
-			opacity: isSequenceHidden ? 0 : (style?.opacity ?? 1),
 		};
-	}, [isSequenceHidden, style]);
+	}, [style]);
 
 	const crossOriginValue = getCrossOriginValue({
 		crossOrigin,
@@ -346,9 +349,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	return (
 		<video
 			ref={videoRef}
-			muted={
-				muted || mediaMuted || isSequenceHidden || userPreferredVolume <= 0
-			}
+			muted={muted || mediaMuted || userPreferredVolume <= 0}
 			playsInline
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}

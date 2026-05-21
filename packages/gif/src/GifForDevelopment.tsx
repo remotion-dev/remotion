@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import {forwardRef, useEffect, useRef, useState} from 'react';
+import type {EffectDefinitionAndStack} from 'remotion';
 import {Canvas} from './canvas';
 import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
@@ -10,7 +11,9 @@ import {useCurrentGifIndex} from './useCurrentGifIndex';
 
 export const GifForDevelopment = forwardRef<
 	HTMLCanvasElement,
-	RemotionGifProps
+	RemotionGifProps & {
+		readonly effects: EffectDefinitionAndStack<unknown>[];
+	}
 >(
 	(
 		{
@@ -22,6 +25,7 @@ export const GifForDevelopment = forwardRef<
 			playbackRate = 1,
 			onLoad,
 			fit = 'fill',
+			effects,
 			...props
 		},
 		ref,
@@ -112,6 +116,7 @@ export const GifForDevelopment = forwardRef<
 				frames={state.frames}
 				width={width}
 				height={height}
+				effects={effects}
 				{...props}
 				ref={ref}
 			/>

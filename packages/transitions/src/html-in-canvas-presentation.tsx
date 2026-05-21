@@ -5,7 +5,7 @@ import {
 	useDelayRender,
 	type EffectsProp,
 } from 'remotion';
-import {AbsoluteFill, Internals, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Internals} from 'remotion';
 import type {DrawFunction} from './TransitionSeries';
 import type {
 	TransitionPresentation,
@@ -21,12 +21,12 @@ export const HtmlInCanvasPresentation = <
 	presentationProgress,
 	presentationDirection,
 	shader,
-	_experimentalEffects,
+	effects,
 	passedProps,
 	bothEnteringAndExiting,
 }: TransitionPresentationComponentProps<TPassedProps> & {
 	readonly shader: HtmlInCanvasShader<TPassedProps>;
-	readonly _experimentalEffects?: EffectsProp;
+	readonly effects?: EffectsProp;
 }) => {
 	if (!HtmlInCanvas.isSupported()) {
 		throw new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE);
@@ -50,12 +50,8 @@ export const HtmlInCanvasPresentation = <
 	const passedPropsRef = useRef(passedProps);
 	passedPropsRef.current = passedProps;
 
-	const frame = useCurrentFrame();
-	const frameRef = useRef(frame);
-	frameRef.current = frame;
-
 	const memoizedEffects = Internals.useMemoizedEffects({
-		effects: _experimentalEffects ?? [],
+		effects: effects ?? [],
 		overrideId: null,
 	});
 
@@ -112,7 +108,6 @@ export const HtmlInCanvasPresentation = <
 				state: chainState.get(width, height)!,
 				source: offscreenCanvas,
 				effects: effectsRef.current ?? [],
-				frame: frameRef.current,
 				width,
 				height,
 				output: canvasRef.current,
@@ -233,17 +228,17 @@ export const makeHtmlInCanvasPresentation = <
 >(
 	shader: HtmlInCanvasShader<TPassedProps>,
 ) => {
-	type AugmentedProps = TPassedProps & {_experimentalEffects?: EffectsProp};
+	type AugmentedProps = TPassedProps & {effects?: EffectsProp};
 	const CompWithShader: React.FC<
 		TransitionPresentationComponentProps<AugmentedProps>
 	> = (props) => {
 		const {passedProps, ...otherProps} = props;
-		const {_experimentalEffects, ...restPassedProps} = props.passedProps;
+		const {effects, ...restPassedProps} = props.passedProps;
 		return (
 			<HtmlInCanvasPresentation
 				shader={shader}
 				passedProps={restPassedProps as TPassedProps}
-				_experimentalEffects={_experimentalEffects}
+				effects={effects}
 				{...otherProps}
 			/>
 		);

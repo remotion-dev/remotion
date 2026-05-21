@@ -237,6 +237,12 @@ If set to `false`, the track will not be shown in the Studio's timeline.
 Child `<Sequence>`'s will show by default, unless `showInTimeline` is also set to false.  
 This behavior is stable as of v4.0.110, previously the behavior was different, but this prop not documented.
 
+### `hidden?`<AvailableFrom v="4.0.462" />
+
+If set to `true`, the sequence and its children are not rendered.
+
+The eye icon in the Studio timeline toggles this prop and persists it to your source code.
+
 ## Adding a ref
 
 You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to an `<Sequence>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
