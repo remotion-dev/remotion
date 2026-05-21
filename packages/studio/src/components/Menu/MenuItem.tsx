@@ -27,6 +27,7 @@ export type MenuId =
 	| 'remotion'
 	| 'file'
 	| 'view'
+	| 'composition'
 	| 'install'
 	| 'tools'
 	| 'help';
