@@ -30,38 +30,50 @@ import {
 } from '../TableOfContents/transitions/presentations';
 import {customPresentation} from './custom-transition';
 
-const SceneA: React.FC = () => {
+const sceneStyle: React.CSSProperties = {
+	justifyContent: 'center',
+	alignItems: 'center',
+	fontFamily: 'sans-serif',
+	fontWeight: 900,
+	color: 'white',
+	fontSize: 100,
+};
+
+const backgroundImageStyle: React.CSSProperties = {
+	position: 'absolute',
+	inset: 0,
+	width: '100%',
+	height: '100%',
+	objectFit: 'cover',
+};
+
+const letterStyle: React.CSSProperties = {
+	position: 'relative',
+	textShadow: '0 4px 30px rgba(0, 0, 0, 0.55)',
+};
+
+const SceneA: React.FC<{readonly small: boolean}> = ({small}) => {
 	return (
-		<AbsoluteFill
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				backgroundColor: '#0b84f3',
-				fontFamily: 'sans-serif',
-				fontWeight: 900,
-				color: 'white',
-				fontSize: 100,
-			}}
-		>
-			A
+		<AbsoluteFill style={sceneStyle}>
+			<img
+				src={`https://remotion.media/transition-bg-blue${small ? '-small' : ''}.jpg`}
+				style={backgroundImageStyle}
+				alt=""
+			/>
+			<div style={letterStyle}>A</div>
 		</AbsoluteFill>
 	);
 };
 
-const SceneB: React.FC = () => {
+const SceneB: React.FC<{readonly small: boolean}> = ({small}) => {
 	return (
-		<AbsoluteFill
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				backgroundColor: 'pink',
-				fontFamily: 'sans-serif',
-				fontWeight: 900,
-				color: 'white',
-				fontSize: 100,
-			}}
-		>
-			B
+		<AbsoluteFill style={sceneStyle}>
+			<img
+				src={`https://remotion.media/transition-bg-pink${small ? '-small' : ''}.jpg`}
+				style={backgroundImageStyle}
+				alt=""
+			/>
+			<div style={letterStyle}>B</div>
 		</AbsoluteFill>
 	);
 };
@@ -70,11 +82,12 @@ export const SampleTransition: React.FC<{
 	readonly effect: TransitionPresentation<Record<string, unknown>>;
 	readonly durationRestThreshold: number;
 	readonly transition?: TransitionTiming;
-}> = ({durationRestThreshold, effect, transition}) => {
+	readonly small?: boolean;
+}> = ({durationRestThreshold, effect, transition, small = false}) => {
 	return (
 		<TransitionSeries>
 			<TransitionSeries.Sequence durationInFrames={60}>
-				<SceneA />
+				<SceneA small={small} />
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={effect}
@@ -90,7 +103,7 @@ export const SampleTransition: React.FC<{
 				}
 			/>
 			<TransitionSeries.Sequence durationInFrames={90}>
-				<SceneB />
+				<SceneB small={small} />
 			</TransitionSeries.Sequence>
 		</TransitionSeries>
 	);
@@ -278,6 +291,7 @@ export const PresentationPreview: React.FC<{
 			inputProps={{
 				effect,
 				durationRestThreshold,
+				small: true,
 			}}
 		/>
 	);
