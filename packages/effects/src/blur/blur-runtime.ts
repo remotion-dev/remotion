@@ -1,4 +1,5 @@
 import {Internals} from 'remotion';
+import {shouldFlipYOnWebGLUpload} from '../webgl-upload-orientation.js';
 import {BLUR_FS_HORIZONTAL, BLUR_FS_VERTICAL, BLUR_VS} from './blur-shaders.js';
 
 const {createWebGL2ContextError} = Internals;
@@ -119,7 +120,6 @@ export const setupBlur = (target: HTMLCanvasElement): BlurState => {
 	}
 
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 	const programHorizontal = createProgram(gl, BLUR_VS, BLUR_FS_HORIZONTAL);
 	const programVertical = createProgram(gl, BLUR_VS, BLUR_FS_VERTICAL);
@@ -275,6 +275,7 @@ const uploadBlurSource = ({
 	width: number;
 	height: number;
 }): void => {
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, shouldFlipYOnWebGLUpload(source));
 	gl.bindTexture(gl.TEXTURE_2D, textureSource);
 	gl.texImage2D(
 		gl.TEXTURE_2D,
