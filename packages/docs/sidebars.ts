@@ -266,7 +266,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'effects/effects-api',
 			},
-			items: ['effects/blur'],
+			items: ['effects/effects-blur'],
 		},
 		{
 			type: 'category',
