@@ -38,7 +38,7 @@ export const CodemodDiffPreview: React.FC<{
 	return (
 		<div style={{lineHeight: 1.2}}>
 			<span style={{color: LIGHT_TEXT, fontSize: 13, lineHeight: 1.2}}>
-				This will edit your Root file.
+				This will edit your codebase.
 			</span>
 			<br />
 			<span style={{color: BLUE, fontSize: 13, lineHeight: 1.2}}>

@@ -30,7 +30,8 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 		throw new Error('Resolved composition context');
 	}
 
-	const {resolved} = context;
+	const {resolved, unresolved} = context;
+	const compositionStack = unresolved.stack ?? null;
 
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [newId, setName] = useState(() => {
@@ -103,6 +104,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 						genericSubmitLabel={'Rename'}
 						submitLabel={({relativeRootPath}) => `Modify ${relativeRootPath}`}
 						codemod={codemod}
+						stack={compositionStack}
 						valid={valid}
 						onSuccess={null}
 					/>
