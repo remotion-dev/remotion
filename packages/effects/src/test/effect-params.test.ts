@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {blur} from '../blur/index.js';
 import {tint} from '../tint.js';
+import {wave} from '../wave/index.js';
 
 test('tint() throws when color is not passed', () => {
 	expect(() => tint({} as Parameters<typeof tint>[0])).toThrow(
@@ -53,4 +54,28 @@ test('blur() axis flags produce distinct effect keys', () => {
 		neither.effectKey,
 	];
 	expect(new Set(keys).size).toBe(keys.length);
+});
+
+test('wave() accepts default params', () => {
+	expect(() => wave()).not.toThrow();
+});
+
+test('wave() rejects invalid direction', () => {
+	expect(() => wave({direction: 'diagonal' as 'horizontal'})).toThrow(
+		'"direction" must be "horizontal" or "vertical"',
+	);
+});
+
+test('wave() rejects non-positive wavelength', () => {
+	expect(() => wave({wavelength: 0})).toThrow('"wavelength" must be > 0');
+});
+
+test('wave() rejects negative amplitude', () => {
+	expect(() => wave({amplitude: -1})).toThrow('"amplitude" must be >= 0');
+});
+
+test('wave() direction produces distinct effect keys', () => {
+	const horizontal = wave({direction: 'horizontal'});
+	const vertical = wave({direction: 'vertical'});
+	expect(horizontal.effectKey).not.toBe(vertical.effectKey);
 });

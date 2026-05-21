@@ -1,5 +1,6 @@
 import {EffectInternals} from '@remotion/effects';
 import {blur} from '@remotion/effects/blur';
+import {wave} from '@remotion/effects/wave';
 import {LightLeakInternals} from '@remotion/light-leaks';
 import {Video} from '@remotion/media';
 import {StarburstInternals} from '@remotion/starburst';
@@ -83,7 +84,7 @@ const tileVideoStyle: React.CSSProperties = {
 
 const AnimatedWaveVideo: React.FC = () => {
 	const frame = useCurrentFrame();
-	const evolution = frame * 0.2;
+	const phase = frame * 0.2;
 
 	return (
 		<Video
@@ -93,12 +94,10 @@ const AnimatedWaveVideo: React.FC = () => {
 			loop
 			objectFit="cover"
 			effects={[
-				EffectInternals.wave({
+				wave({
+					phase,
 					amplitude: 22,
 					wavelength: 180,
-					evolution,
-					sliceWidth: 4,
-					background: '#020617',
 				}),
 			]}
 		/>
@@ -129,7 +128,7 @@ const AnimatedLightLeakSolid: React.FC = () => {
 
 const AnimatedStackVideo: React.FC = () => {
 	const frame = useCurrentFrame();
-	const evolution = frame * 0.2;
+	const phase = frame * 0.2;
 
 	return (
 		<Video
@@ -144,12 +143,10 @@ const AnimatedStackVideo: React.FC = () => {
 					rays: 12,
 				}),
 				blur({radius: 24}),
-				EffectInternals.wave({
+				wave({
+					phase,
 					amplitude: 22,
 					wavelength: 180,
-					evolution,
-					sliceWidth: 4,
-					background: '#020617',
 				}),
 			]}
 		/>
@@ -205,7 +202,7 @@ export const EffectsTestbed: React.FC = () => {
 						]}
 					/>
 				</Tile>
-				<Tile title="wave" subtitle="amplitude 22, evolution from frame">
+				<Tile title="wave" subtitle="amplitude 22, phase from frame">
 					<AnimatedWaveVideo />
 				</Tile>
 			</div>
