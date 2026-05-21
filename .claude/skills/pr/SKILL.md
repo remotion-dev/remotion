@@ -10,7 +10,15 @@ For all packages affected, run Oxfmt to format the code:
 bunx oxfmt src --write
 ```
 
-Then run `bun run build` and `bun run formatting` to ensure we compile.
+Then run
+
+```
+bun run build
+bun run formatting
+
+```
+
+to ensure we compile.
 
 Commit the changes. The title of the PR must be according to the [`pr-name`](../pr-name/SKILL.md) skill.
 
