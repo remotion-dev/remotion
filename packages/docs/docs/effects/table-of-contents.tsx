@@ -35,6 +35,21 @@ export const TableOfContents: React.FC = () => {
 						</div>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/effects/wave">
+					<div style={row}>
+						<img
+							src="/img/effects-wave-preview.jpg"
+							alt="wave effect preview"
+							style={previewImage}
+						/>
+						<div style={{flex: 1, marginLeft: 10}}>
+							<strong>
+								<code>{'wave()'}</code>
+							</strong>
+							<div>Sine wave warp for canvas components</div>
+						</div>
+					</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

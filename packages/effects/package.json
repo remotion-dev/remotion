@@ -37,12 +37,20 @@
 			"module": "./dist/esm/blur.mjs",
 			"import": "./dist/esm/blur.mjs"
 		},
+		"./wave": {
+			"types": "./dist/wave.d.ts",
+			"module": "./dist/esm/wave.mjs",
+			"import": "./dist/esm/wave.mjs"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
 		">=1.0": {
 			"blur": [
 				"dist/blur.d.ts"
+			],
+			"wave": [
+				"dist/wave.d.ts"
 			]
 		}
 	},
