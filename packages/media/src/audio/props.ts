@@ -38,6 +38,9 @@ export type AudioProps = {
 	delayRenderRetries?: number;
 	delayRenderTimeoutInMilliseconds?: number;
 	onError?: MediaOnError;
+	/**
+	 * @deprecated Use `requestInit={{credentials: ...}}` instead.
+	 */
 	credentials?: RequestCredentials;
 	requestInit?: RequestInit;
 } & Pick<

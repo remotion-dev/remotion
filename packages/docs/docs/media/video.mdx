@@ -345,7 +345,11 @@ export const MyComposition = () => {
 };
 ```
 
-### `credentials?`<AvailableFrom v="4.0.437" />
+### ~~`credentials?`<AvailableFrom v="4.0.437" />~~
+
+:::note Deprecated
+Use [`requestInit`](#requestinit) instead.
+:::
 
 Controls the [`credentials`](https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials) option of the `fetch()` requests made to retrieve the video data.
 
@@ -360,7 +364,7 @@ import {Video} from '@remotion/media';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video credentials="include" src="https://example.com/protected-video.mp4" />
+      <Video requestInit={{credentials: 'include'}} src="https://example.com/protected-video.mp4" />
     </AbsoluteFill>
   );
 };

@@ -12,7 +12,7 @@ export const resolveRequestInit = ({
 	}
 
 	return {
-		...requestInit,
 		credentials,
+		...requestInit,
 	};
 };

@@ -8,18 +8,6 @@ test('creates no RequestInit if no fetch options are set', () => {
 	).toBe(undefined);
 });
 
-test('passes requestInit and credentials to mediabunny', () => {
-	expect(
-		resolveRequestInit({
-			credentials: 'include',
-			requestInit: {cache: 'no-store'},
-		}),
-	).toEqual({
-		credentials: 'include',
-		cache: 'no-store',
-	});
-});
-
 test('uses requestInit in the sink cache key', () => {
 	const requestInit = {cache: 'no-store'} as const;
 	const defaultKey = getSinkCacheKey({

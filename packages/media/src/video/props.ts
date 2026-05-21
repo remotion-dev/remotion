@@ -67,6 +67,9 @@ type OptionalVideoProps = {
 	debugOverlay: boolean;
 	headless: boolean;
 	onError: MediaOnError | undefined;
+	/**
+	 * @deprecated Use `requestInit={{credentials: ...}}` instead.
+	 */
 	credentials: RequestCredentials | undefined;
 	requestInit: RequestInit | undefined;
 	objectFit: VideoObjectFit;
