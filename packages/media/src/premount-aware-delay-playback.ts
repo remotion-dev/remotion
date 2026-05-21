@@ -77,7 +77,13 @@ export class PremountAwareDelayPlayback {
 			armed = false;
 		};
 
-		const dispose = () => {
+		const entry: TrackedDelayHandle = {
+			arm,
+			disarm,
+			dispose: () => {},
+		};
+
+		entry.dispose = () => {
 			if (disposed) {
 				return;
 			}
@@ -87,7 +93,6 @@ export class PremountAwareDelayPlayback {
 			this.activeHandles.delete(entry);
 		};
 
-		const entry: TrackedDelayHandle = {arm, disarm, dispose};
 		this.activeHandles.add(entry);
 
 		if (this.shouldDelayPlayback()) {
@@ -95,8 +100,8 @@ export class PremountAwareDelayPlayback {
 		}
 
 		return {
-			unblock: dispose,
-			[Symbol.dispose]: dispose,
+			unblock: entry.dispose,
+			[Symbol.dispose]: entry.dispose,
 		};
 	}
 }
