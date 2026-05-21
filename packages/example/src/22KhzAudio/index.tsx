@@ -5,7 +5,7 @@ export const TwentyTwoKHzAudio = () => {
 	return (
 		<AbsoluteFill>
 			<Sequence from={1} durationInFrames={30}>
-				<Html5Audio src={staticFile('music.mp3')} />
+				<Html5Audio src="https://remotion.media/music.mp3" />
 			</Sequence>
 			<Sequence from={31} durationInFrames={100}>
 				<Html5Audio src={twenty} />

@@ -781,7 +781,7 @@ export const Index: React.FC = () => {
 					component={NewAudioExample}
 					fps={30}
 					defaultProps={{
-						src: staticFile('music.mp3'),
+						src: 'https://remotion.media/music.mp3',
 					}}
 					calculateMetadata={async ({props}) => {
 						const fps = 30;
