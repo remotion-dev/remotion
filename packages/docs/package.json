@@ -43,6 +43,7 @@
 		"@remotion/cloudrun": "workspace:*",
 		"@remotion/design": "workspace:*",
 		"@remotion/docusaurus-plugin": "workspace:*",
+		"@remotion/effects": "workspace:*",
 		"@remotion/elevenlabs": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",

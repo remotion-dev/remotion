@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/effects",
 	"version": "4.0.464",
-	"description": "Built-in effects for Remotion canvas components",
+	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -39,7 +39,14 @@
 		},
 		"./package.json": "./package.json"
 	},
-	"homepage": "https://www.remotion.dev/docs/effects",
+	"typesVersions": {
+		">=1.0": {
+			"blur": [
+				"dist/blur.d.ts"
+			]
+		}
+	},
+	"homepage": "https://www.remotion.dev/docs/effects/api",
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",

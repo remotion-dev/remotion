@@ -40,17 +40,17 @@ const blurSchema = {
 		max: 100,
 		step: 1,
 		default: undefined,
-		description: 'Blur radius',
+		description: 'Blur',
 	},
 	horizontal: {
 		type: 'boolean',
 		default: true,
-		description: 'Blur horizontally',
+		description: 'Horizontal',
 	},
 	vertical: {
 		type: 'boolean',
 		default: true,
-		description: 'Blur vertically',
+		description: 'Vertical',
 	},
 } as const satisfies SequenceSchema;
 

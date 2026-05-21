@@ -261,15 +261,6 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/enable-scss',
-			link: {
-				type: 'doc',
-				id: 'enable-scss/overview',
-			},
-			items: ['enable-scss/enable-scss'],
-		},
-		{
-			type: 'category',
 			label: '@remotion/effects',
 			link: {
 				type: 'doc',
@@ -285,6 +276,15 @@ const sidebars: SidebarsConfig = {
 				id: 'elevenlabs/index',
 			},
 			items: ['elevenlabs/elevenlabs-transcript-to-captions'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/enable-scss',
+			link: {
+				type: 'doc',
+				id: 'enable-scss/overview',
+			},
+			items: ['enable-scss/enable-scss'],
 		},
 		{
 			type: 'category',

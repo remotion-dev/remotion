@@ -16,27 +16,20 @@ Applies a separable Gaussian blur to a canvas-backed component using WebGL2.
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, Solid} from 'remotion';
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
 import {blur} from '@remotion/effects/blur';
 
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Solid
-        color="#3344ff"
-        width={1920}
-        height={1080}
+      <Video
+        src="https://remotion.media/video.mp4"
         effects={[blur({radius: 8})]}
       />
     </AbsoluteFill>
   );
 };
-```
-
-You can also import from the package root:
-
-```tsx
-import {blur} from '@remotion/effects';
 ```
 
 ## API
@@ -63,20 +56,7 @@ effects={[blur({radius: 8, horizontal: true, vertical: false})]}
 
 ### `disabled?`
 
-When `true`, the effect is skipped. Defaults to `false`. This field is added automatically for all effects and can be toggled in the Remotion Studio timeline.
-
-## Usage
-
-Add the effect to the `effects` prop of a component that supports canvas effects, for example [`<Solid>`](/docs/solid), [`<Img>`](/docs/img), [`<Video>`](/docs/video), or [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
-
-```tsx
-<Solid
-  color="red"
-  width={400}
-  height={400}
-  effects={[blur({radius: 12}), blur({radius: 4, horizontal: false})]}
-/>
-```
+When `true`, the effect is skipped. Defaults to `false`.
 
 ## Requirements
 

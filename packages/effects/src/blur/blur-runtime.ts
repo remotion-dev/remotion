@@ -332,6 +332,8 @@ export const applyBlur = ({
 	gl.clearColor(0, 0, 0, 0);
 
 	if (!horizontal && !vertical) {
+		// Passthrough: relies on the `uRadius <= 0.0` early-out in
+		// `blur-shaders.ts` to forward the source texture unchanged.
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 		gl.activeTexture(gl.TEXTURE0);

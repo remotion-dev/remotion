@@ -1,14 +1,14 @@
 # @remotion/effects
 
-Built-in effects for Remotion canvas components.
+Effects that can be applied to Remotion-based canvas components.
 
 ## Usage
 
 ```tsx
+import {Video} from '@remotion/media';
 import {blur} from '@remotion/effects/blur';
-import {Solid} from 'remotion';
 
-<Solid color="red" width={400} height={400} effects={[blur({radius: 8})]} />;
+<Video src="https://remotion.media/video.mp4" effects={[blur({radius: 8})]} />;
 ```
 
 See the [documentation](https://www.remotion.dev/docs/effects/api).
