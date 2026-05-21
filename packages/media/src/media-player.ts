@@ -17,13 +17,13 @@ import {
 	getScheduledTime,
 } from './audio/get-scheduled-time';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
-import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import {getDurationOrCompute} from './get-duration-or-compute';
 import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
 import {resolveAudioTrack} from './helpers/resolve-audio-track';
 import {isNetworkError} from './is-type-of-error';
 import type {Nonce, NonceManager} from './nonce-manager';
 import {makeNonceManager} from './nonce-manager';
+import {PremountAwareDelayPlayback} from './premount-aware-delay-playback';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
@@ -81,10 +81,7 @@ export class MediaPlayer {
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
-	private bufferState: ReturnType<typeof useBufferState>;
-
-	private isPremounting: boolean;
-	private isPostmounting: boolean;
+	private premountAwareDelayPlayback: PremountAwareDelayPlayback;
 	private seekPromiseChain: Promise<unknown> = Promise.resolve();
 
 	constructor({
@@ -151,9 +148,11 @@ export class MediaPlayer {
 		this.audioStreamIndex = audioStreamIndex;
 		this.fps = fps;
 		this.debugOverlay = debugOverlay;
-		this.bufferState = bufferState;
-		this.isPremounting = isPremounting;
-		this.isPostmounting = isPostmounting;
+		this.premountAwareDelayPlayback = new PremountAwareDelayPlayback({
+			bufferState,
+			isPremounting,
+			isPostmounting,
+		});
 		this.sequenceDurationInFrames = durationInFrames;
 		this.nonceManager = makeNonceManager();
 		this.onVideoFrameCallback = onVideoFrameCallback;
@@ -513,23 +512,9 @@ export class MediaPlayer {
 		this.drawDebugOverlay();
 	}
 
-	private delayPlaybackHandleIfNotPremounting =
-		(): DelayPlaybackIfNotPremounting => {
-			if (this.isPremounting || this.isPostmounting) {
-				return {
-					unblock: () => {},
-					[Symbol.dispose]: () => {},
-				};
-			}
-
-			const {unblock} = this.bufferState.delayPlayback();
-			return {
-				unblock,
-				[Symbol.dispose]: () => {
-					unblock();
-				},
-			};
-		};
+	private delayPlaybackHandleIfNotPremounting = () => {
+		return this.premountAwareDelayPlayback.createHandle();
+	};
 
 	public pause(): void {
 		if (!this.playing) {
@@ -630,11 +615,11 @@ export class MediaPlayer {
 	}
 
 	public setIsPremounting(isPremounting: boolean): void {
-		this.isPremounting = isPremounting;
+		this.premountAwareDelayPlayback.setIsPremounting(isPremounting);
 	}
 
 	public setIsPostmounting(isPostmounting: boolean): void {
-		this.isPostmounting = isPostmounting;
+		this.premountAwareDelayPlayback.setIsPostmounting(isPostmounting);
 	}
 
 	public async setLoop(
