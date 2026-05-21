@@ -8,7 +8,6 @@ import React, {
 import type {IsExact} from './audio/props.js';
 import type {SequenceControls} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
-import {getAssetDisplayName} from './get-asset-file-name.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
 import {
@@ -322,7 +321,7 @@ const ImgInner: React.FC<
 			durationInFrames={durationInFrames ?? Infinity}
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={{type: 'image', src}}
-			name={name ?? getAssetDisplayName(src)}
+			name={name ?? '<Img>'}
 			_experimentalControls={controls}
 			showInTimeline={showInTimeline ?? true}
 			hidden={hidden}
