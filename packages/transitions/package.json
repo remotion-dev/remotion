@@ -109,6 +109,12 @@
 			"import": "./dist/esm/iris.mjs",
 			"require": "./dist/presentations/iris.js"
 		},
+		"./dissolve": {
+			"types": "./dist/presentations/dissolve.d.ts",
+			"module": "./dist/esm/dissolve.mjs",
+			"import": "./dist/esm/dissolve.mjs",
+			"require": "./dist/presentations/dissolve.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -139,6 +145,9 @@
 			],
 			"zoom-in-out": [
 				"dist/presentations/zoom-in-out.d.ts"
+			],
+			"dissolve": [
+				"dist/presentations/dissolve.d.ts"
 			]
 		}
 	},

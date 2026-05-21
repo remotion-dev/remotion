@@ -41,6 +41,9 @@ const aliases = {
 	'@remotion/transitions/zoom-in-out': resolveCwd(
 		'@remotion/transitions/zoom-in-out',
 	),
+	'@remotion/transitions/dissolve': resolveCwd(
+		'@remotion/transitions/dissolve',
+	),
 	'@remotion/transitions/wipe': resolveCwd('@remotion/transitions/wipe'),
 	'@remotion/transitions/iris': resolveCwd('@remotion/transitions/iris'),
 	'@remotion/transitions/none': resolveCwd('@remotion/transitions/none'),
