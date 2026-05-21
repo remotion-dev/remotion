@@ -1,4 +1,5 @@
 import {EffectInternals} from '@remotion/effects';
+import {blur} from '@remotion/effects/blur';
 import {LightLeakInternals} from '@remotion/light-leaks';
 import {Video} from '@remotion/media';
 import {StarburstInternals} from '@remotion/starburst';
@@ -142,7 +143,7 @@ const AnimatedStackVideo: React.FC = () => {
 					colors: ['#ff5fa2', '#ff0000'],
 					rays: 12,
 				}),
-				EffectInternals.blur({radius: 24}),
+				blur({radius: 24}),
 				EffectInternals.wave({
 					amplitude: 22,
 					wavelength: 180,
@@ -216,7 +217,7 @@ export const EffectsTestbed: React.FC = () => {
 						muted
 						loop
 						objectFit="cover"
-						effects={[EffectInternals.blur({radius: 24})]}
+						effects={[blur({radius: 24})]}
 					/>
 				</Tile>
 				<Tile title="solid" subtitle="light leak, progress from frame">

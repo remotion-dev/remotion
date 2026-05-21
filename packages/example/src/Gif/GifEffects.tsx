@@ -1,4 +1,5 @@
 import {EffectInternals} from '@remotion/effects';
+import {blur} from '@remotion/effects/blur';
 import {Gif} from '@remotion/gif';
 import {StudioInternals} from '@remotion/studio';
 import React from 'react';
@@ -90,7 +91,7 @@ const AnimatedBlurGif: React.FC = () => {
 			src={GIF_SRC}
 			fit="contain"
 			style={tileGifStyle}
-			effects={[EffectInternals.blur({radius: blurRadius})]}
+			effects={[blur({radius: blurRadius})]}
 		/>
 	);
 };
@@ -135,7 +136,7 @@ const StackedGif: React.FC = () => {
 					sliceWidth: 4,
 					background: '#020617',
 				}),
-				EffectInternals.blur({radius: 6}),
+				blur({radius: 6}),
 			]}
 		/>
 	);

@@ -1,4 +1,5 @@
 import {EffectInternals} from '@remotion/effects';
+import {blur} from '@remotion/effects/blur';
 import {RemotionRiveCanvas} from '@remotion/rive';
 import {StudioInternals} from '@remotion/studio';
 import React from 'react';
@@ -86,7 +87,7 @@ const AnimatedBlurRive: React.FC = () => {
 		<RemotionRiveCanvas
 			src={RIVE_SRC}
 			style={tileRiveStyle}
-			effects={[EffectInternals.blur({radius: blurRadius})]}
+			effects={[blur({radius: blurRadius})]}
 		/>
 	);
 };
@@ -129,7 +130,7 @@ const StackedRive: React.FC = () => {
 					sliceWidth: 4,
 					background: '#020617',
 				}),
-				EffectInternals.blur({radius: 6}),
+				blur({radius: 6}),
 			]}
 		/>
 	);

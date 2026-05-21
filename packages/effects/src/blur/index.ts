@@ -15,7 +15,23 @@ import {
 
 export type BlurParams = {
 	readonly radius: number;
+	/** Apply blur along the horizontal axis. Defaults to `true`. */
+	readonly horizontal?: boolean;
+	/** Apply blur along the vertical axis. Defaults to `true`. */
+	readonly vertical?: boolean;
 };
+
+type BlurResolved = {
+	readonly radius: number;
+	readonly horizontal: boolean;
+	readonly vertical: boolean;
+};
+
+const resolveBlurParams = (params: BlurParams): BlurResolved => ({
+	radius: params.radius,
+	horizontal: params.horizontal ?? true,
+	vertical: params.vertical ?? true,
+});
 
 const blurSchema = {
 	radius: {
@@ -25,6 +41,16 @@ const blurSchema = {
 		step: 1,
 		default: undefined,
 		description: 'Blur radius',
+	},
+	horizontal: {
+		type: 'boolean',
+		default: true,
+		description: 'Blur horizontally',
+	},
+	vertical: {
+		type: 'boolean',
+		default: true,
+		description: 'Blur vertically',
 	},
 } as const satisfies SequenceSchema;
 
@@ -37,15 +63,21 @@ export const blur = createEffect<BlurParams, BlurState>({
 	type: 'remotion/blur',
 	label: 'Blur',
 	backend: 'webgl2',
-	calculateKey: (params) => String(params.radius),
+	calculateKey: (params) => {
+		const r = resolveBlurParams(params);
+		return `${r.radius}-${r.horizontal ? 1 : 0}-${r.vertical ? 1 : 0}`;
+	},
 	setup: (target) => setupBlur(target),
 	apply: ({source, width, height, params, state}) => {
+		const r = resolveBlurParams(params);
 		applyBlur({
 			state,
 			source,
 			width,
 			height,
-			radius: params.radius,
+			radius: r.radius,
+			horizontal: r.horizontal,
+			vertical: r.vertical,
 		});
 	},
 	cleanup: (state) => cleanupBlur(state),

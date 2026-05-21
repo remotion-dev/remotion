@@ -21,3 +21,21 @@ test('blur() throws when radius is not passed', () => {
 test('blur() accepts valid params', () => {
 	expect(() => blur({radius: 4})).not.toThrow();
 });
+
+test('blur() accepts horizontal-only blur', () => {
+	expect(() =>
+		blur({radius: 4, horizontal: true, vertical: false}),
+	).not.toThrow();
+});
+
+test('blur() accepts vertical-only blur', () => {
+	expect(() =>
+		blur({radius: 4, horizontal: false, vertical: true}),
+	).not.toThrow();
+});
+
+test('blur() accepts both axes disabled', () => {
+	expect(() =>
+		blur({radius: 4, horizontal: false, vertical: false}),
+	).not.toThrow();
+});

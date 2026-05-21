@@ -270,6 +270,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/effects',
+			link: {
+				type: 'doc',
+				id: 'effects/effects-api',
+			},
+			items: ['effects/blur'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/elevenlabs',
 			link: {
 				type: 'doc',

@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/effects",
 	"version": "4.0.464",
-	"description": "Internal presets for Remotion canvas effect hooks",
+	"description": "Built-in effects for Remotion canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -32,8 +32,14 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
+		"./blur": {
+			"types": "./dist/blur.d.ts",
+			"module": "./dist/esm/blur.mjs",
+			"import": "./dist/esm/blur.mjs"
+		},
 		"./package.json": "./package.json"
 	},
+	"homepage": "https://www.remotion.dev/docs/effects",
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
