@@ -43,6 +43,11 @@
 			"outputs": ["dist"],
 			"outputLogs": "new-only"
 		},
+		"@remotion/example-videos#make": {
+			"dependsOn": ["^make"],
+			"outputs": ["dist", "node_modules/.videos/**"],
+			"outputLogs": "new-only"
+		},
 		"@remotion/example#bundle": {
 			"dependsOn": ["^make", "make"],
 			"outputs": ["build", "./node_modules/.cache"],
