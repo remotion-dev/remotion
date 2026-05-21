@@ -12,7 +12,7 @@ const measureRange = (textNode: Text, start: number, end: number) => {
 
 export const findWords = (span: HTMLSpanElement): Token[] => {
 	const textNode = span.firstChild;
-	if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
+	if (!textNode || !(textNode instanceof Text)) {
 		return [{text: span.textContent ?? '', rect: span.getBoundingClientRect()}];
 	}
 
@@ -33,7 +33,7 @@ export const findWords = (span: HTMLSpanElement): Token[] => {
 	let lineStart = 0;
 	let currentTop = measureRange(textNode, 0, 1).top;
 	for (let i = 1; i < text.length; i++) {
-		const top = measureRange(textNode, i, i + 1).top;
+		const {top} = measureRange(textNode, i, i + 1);
 		if (Math.abs(top - currentTop) > 1) {
 			tokens.push({
 				text: text.slice(lineStart, i),
