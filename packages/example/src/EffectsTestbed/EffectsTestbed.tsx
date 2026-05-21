@@ -3,15 +3,9 @@ import {LightLeakInternals} from '@remotion/light-leaks';
 import {Video} from '@remotion/media';
 import {StarburstInternals} from '@remotion/starburst';
 import React from 'react';
-import {
-	AbsoluteFill,
-	Solid,
-	staticFile,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {AbsoluteFill, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 
-const SAMPLE_VIDEO = staticFile('bigbuckbunny.mp4');
+const SAMPLE_VIDEO = 'https://remotion.media/bigbuckbunny.mp4';
 
 const Tile: React.FC<{
 	readonly title: string;

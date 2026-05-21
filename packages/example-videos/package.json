@@ -9,7 +9,8 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
-		"make": "tsgo -d"
+		"download-media": "bun download-cached-example-media.ts",
+		"make": "tsgo -d && bun download-cached-example-media.ts"
 	},
 	"author": "Jonny Burger",
 	"license": "MIT",

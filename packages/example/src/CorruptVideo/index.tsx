@@ -1,4 +1,4 @@
-import {interpolate, OffthreadVideo, staticFile} from 'remotion';
+import {interpolate, OffthreadVideo} from 'remotion';
 
 const CorruptVideo: React.FC = () => {
 	return (
@@ -6,7 +6,7 @@ const CorruptVideo: React.FC = () => {
 			volume={(f) =>
 				interpolate(f, [0, 500], [1, 0], {extrapolateRight: 'clamp'})
 			}
-			src={staticFile('corrupted.mp4')}
+			src="https://remotion.media/corrupted.mp4"
 		/>
 	);
 };

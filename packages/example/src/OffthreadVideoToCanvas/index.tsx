@@ -1,10 +1,5 @@
 import {useCallback, useRef} from 'react';
-import {
-	AbsoluteFill,
-	OffthreadVideo,
-	staticFile,
-	useVideoConfig,
-} from 'remotion';
+import {AbsoluteFill, OffthreadVideo, useVideoConfig} from 'remotion';
 
 export const OffthreadVideoToCanvas: React.FC = () => {
 	const canvas = useRef<HTMLCanvasElement>(null);
@@ -46,7 +41,7 @@ export const OffthreadVideoToCanvas: React.FC = () => {
 				<OffthreadVideo
 					muted
 					style={{opacity: 0}}
-					src={staticFile('vid1.mp4')}
+					src="https://remotion.media/vid1.mp4"
 					onVideoFrame={onVideoFrame}
 				/>
 			</AbsoluteFill>

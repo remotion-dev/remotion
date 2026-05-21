@@ -166,7 +166,7 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 				</Tile>
 				<Tile title="Video">
 					<Video
-						src={staticFile('bigbuckbunny.mp4')}
+						src="https://remotion.media/bigbuckbunny.mp4"
 						style={{
 							width: '100%',
 							height: '100%',
@@ -185,7 +185,7 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 						}}
 					>
 						Audio (no visual)
-						<Audio src={staticFile('music.mp3')} volume={1.29} />
+						<Audio src="https://remotion.media/music.mp3" volume={1.29} />
 					</div>
 				</Tile>
 				<Tile title="Sequence layout='none'">
@@ -197,7 +197,7 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 			<div style={{flex: 1, display: 'flex', flexDirection: 'row', gap: 16}}>
 				<Tile title="Html5Video">
 					<Html5Video
-						src={staticFile('bigbuckbunny.mp4')}
+						src="https://remotion.media/bigbuckbunny.mp4"
 						style={{
 							width: '100%',
 							height: '100%',
@@ -214,7 +214,7 @@ export const ExperimentalControlsShowcase: React.FC = () => {
 						}}
 					>
 						Html5Audio (no visual)
-						<Html5Audio src={staticFile('music.mp3')} volume={1} />
+						<Html5Audio src="https://remotion.media/music.mp3" volume={1} />
 					</div>
 				</Tile>{' '}
 				<Tile title="Series">
