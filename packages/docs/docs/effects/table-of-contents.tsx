@@ -9,8 +9,8 @@ const row: React.CSSProperties = {
 };
 
 const previewImage: React.CSSProperties = {
-	width: 180,
-	height: 120,
+	width: 150,
+	height: 100,
 	objectFit: 'cover',
 	borderRadius: 4,
 	flexShrink: 0,
@@ -31,7 +31,7 @@ export const TableOfContents: React.FC = () => {
 							<strong>
 								<code>{'blur()'}</code>
 							</strong>
-							<div>Gaussian blur for canvas components</div>
+							<div>Gaussian blur effect</div>
 						</div>
 					</div>
 				</TOCItem>
@@ -46,7 +46,7 @@ export const TableOfContents: React.FC = () => {
 							<strong>
 								<code>{'wave()'}</code>
 							</strong>
-							<div>Sine wave warp for canvas components</div>
+							<div>Sine wave distortion</div>
 						</div>
 					</div>
 				</TOCItem>
