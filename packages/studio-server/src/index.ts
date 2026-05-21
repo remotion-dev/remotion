@@ -29,6 +29,7 @@ import {
 	getCompletedClientRenders,
 	removeCompletedClientRender,
 } from './client-render-queue';
+import {applyCodemodToFile} from './codemods/apply-codemod-to-file';
 import {
 	formatOutput,
 	parseAndApplyCodemod,
@@ -74,6 +75,7 @@ export const StudioServerInternals = {
 	AnsiDiff,
 	formatBytes,
 	parseAndApplyCodemod,
+	applyCodemodToFile,
 	formatOutput,
 	updateDefaultProps,
 	getInstalledDependencies,
