@@ -117,6 +117,9 @@ export const runEffectChain = async ({
 		return false;
 	}
 
+	// Raw component sources are 2D frame canvases (Gif, WrappedCanvas.canvas, …).
+	let flipWebGLSourceY = true;
+
 	for (let runIndex = 0; runIndex < runs.length; runIndex++) {
 		const run = runs[runIndex];
 		const [a, b] = state.pool.getPair(run.backend);
@@ -134,9 +137,11 @@ export const runEffectChain = async ({
 				width,
 				height,
 				gpuDevice,
+				flipSourceY: run.backend === 'webgl2' ? flipWebGLSourceY : false,
 			});
 
 			if (run.backend === 'webgl2') {
+				flipWebGLSourceY = false;
 				state.pool.assertContextNotLost(dst);
 			}
 
@@ -148,20 +153,29 @@ export const runEffectChain = async ({
 
 		const nextRun = runs[runIndex + 1];
 		if (nextRun && nextRun.backend !== run.backend && lastTarget) {
-			// Bridge between backend groups via `createImageBitmap` rather than
-			// passing the canvas straight through. A direct `drawImage(webglCanvas)`
-			// in the next backend's first effect forces an implicit GPU readback /
-			// finish on the consuming context, which empirically blows the per-frame
-			// vsync budget and halves the paint rate. `createImageBitmap` performs
-			// the same handoff but pipelines the GPU work, so the next effect reads
-			// from a ready-to-sample bitmap without stalling.
-			const bitmap = await createImageBitmap(lastTarget);
-			if (isCancelled()) {
-				bitmap.close();
-				return false;
-			}
+			// 2D → WebGL: pass the 2D canvas directly so `texImage2D` + `UNPACK_FLIP_Y`
+			// matches blur-only on a raw frame canvas. `createImageBitmap` here changes
+			// upload orientation and produced upside-down stacks (wave + blur).
+			if (run.backend === '2d' && nextRun.backend === 'webgl2') {
+				currentImage = lastTarget;
+				flipWebGLSourceY = true;
+			} else {
+				// Other bridges use `createImageBitmap` rather than passing the canvas
+				// straight through. A direct `drawImage(webglCanvas)` in the next
+				// backend's first effect forces an implicit GPU readback / finish on the
+				// consuming context, which empirically blows the per-frame vsync budget and
+				// halves the paint rate. `createImageBitmap` pipelines the GPU work.
+				const bitmap = await createImageBitmap(lastTarget);
+				if (isCancelled()) {
+					bitmap.close();
+					return false;
+				}
 
-			currentImage = bitmap;
+				currentImage = bitmap;
+				if (nextRun.backend === 'webgl2') {
+					flipWebGLSourceY = false;
+				}
+			}
 		}
 	}
 

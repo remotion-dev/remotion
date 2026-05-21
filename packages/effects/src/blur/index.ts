@@ -68,7 +68,7 @@ export const blur = createEffect<BlurParams, BlurState>({
 		return `${r.radius}-${r.horizontal ? 1 : 0}-${r.vertical ? 1 : 0}`;
 	},
 	setup: (target) => setupBlur(target),
-	apply: ({source, width, height, params, state}) => {
+	apply: ({source, width, height, params, state, flipSourceY}) => {
 		const r = resolveBlurParams(params);
 		applyBlur({
 			state,
@@ -78,6 +78,7 @@ export const blur = createEffect<BlurParams, BlurState>({
 			radius: r.radius,
 			horizontal: r.horizontal,
 			vertical: r.vertical,
+			flipSourceY,
 		});
 	},
 	cleanup: (state) => cleanupBlur(state),

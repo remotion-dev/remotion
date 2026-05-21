@@ -1,6 +1,5 @@
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
-import {shouldFlipYOnWebGLUpload} from './webgl-upload-orientation.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -372,7 +371,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 			cachedColorRgba: [0, 0, 0, 1] as [number, number, number, number],
 		};
 	},
-	apply: ({source, width, height, params, state}) => {
+	apply: ({source, width, height, params, state, flipSourceY}) => {
 		const r = resolve(params);
 		const {gl, program, vao, texture} = state;
 
@@ -396,7 +395,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, shouldFlipYOnWebGLUpload(source));
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
 		gl.texImage2D(
 			gl.TEXTURE_2D,
 			0,
