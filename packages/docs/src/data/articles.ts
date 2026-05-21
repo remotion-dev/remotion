@@ -6655,6 +6655,15 @@ export const articles = [
 		slug: 'transitions/presentations/zoom-in-out',
 	},
 	{
+		id: 'transitions/presentations/dissolve',
+		title: 'dissolve()',
+		relativePath: 'docs/transitions/presentations/dissolve.mdx',
+		compId: 'articles-docs-transitions-presentations-dissolve',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/dissolve',
+	},
+	{
 		id: 'transitions/timings/custom',
 		title: 'Custom timings',
 		relativePath: 'docs/transitions/timings/custom.mdx',

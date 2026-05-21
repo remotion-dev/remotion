@@ -772,6 +772,7 @@ const sidebars: SidebarsConfig = {
 						'transitions/presentations/iris',
 						'transitions/presentations/zoom-blur',
 						'transitions/presentations/zoom-in-out',
+						'transitions/presentations/dissolve',
 						'transitions/presentations/none',
 						{
 							type: 'doc',

@@ -7,6 +7,7 @@ import {none} from '@remotion/transitions/none';
 import {slide} from '@remotion/transitions/slide';
 import {wipe} from '@remotion/transitions/wipe';
 import React from 'react';
+import {DissolveTocPreview} from '../../transitions/dissolve-toc-preview';
 import {PresentationPreview} from '../../transitions/previews';
 import {ZoomBlurTocPreview} from '../../transitions/zoom-blur-toc-preview';
 import {ZoomInOutTocPreview} from '../../transitions/zoom-in-out-toc-preview';
@@ -140,6 +141,18 @@ export const Presentations: React.FC<{
 						</strong>
 						<HtmlInCanvasLabel />
 						<div>Zoom one scene in, crossfade, zoom the next out</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/dissolve">
+				<div style={row}>
+					<DissolveTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'dissolve()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Burn through the previous scene with a glowing edge</div>
 					</div>
 				</div>
 			</TOCItem>

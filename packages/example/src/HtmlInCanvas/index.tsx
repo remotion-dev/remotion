@@ -21,3 +21,7 @@ export {
 	ZoomInOutTransitionDoc,
 	ZoomInOutTransitionDocThumb,
 } from './zoom-in-out-doc';
+export {
+	DissolveTransitionDoc,
+	DissolveTransitionDocThumb,
+} from './dissolve-doc';

@@ -63,6 +63,8 @@ import {
 	ZoomBlurTransitionDocThumb,
 	ZoomInOutTransitionDoc,
 	ZoomInOutTransitionDocThumb,
+	DissolveTransitionDoc,
+	DissolveTransitionDocThumb,
 } from './HtmlInCanvas';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
@@ -1012,6 +1014,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="zoom-in-out-transition-doc-thumb"
 						component={ZoomInOutTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="dissolve-transition-doc"
+						component={DissolveTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="dissolve-transition-doc-thumb"
+						component={DissolveTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}
