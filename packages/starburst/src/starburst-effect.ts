@@ -316,7 +316,6 @@ export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 		}
 
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 		const vs = compileShader(gl, gl.VERTEX_SHADER, STARBURST_VS);
 		const fs = compileShader(gl, gl.FRAGMENT_SHADER, STARBURST_FS);
@@ -394,7 +393,7 @@ export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 			palettePixelData: new Uint8Array(0),
 		};
 	},
-	apply: ({source, width, height, params, state}) => {
+	apply: ({source, width, height, params, state, flipSourceY}) => {
 		const r = resolve(params);
 		const {
 			gl,
@@ -445,6 +444,7 @@ export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 		gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
 		gl.texImage2D(
 			gl.TEXTURE_2D,
 			0,
