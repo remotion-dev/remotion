@@ -164,7 +164,7 @@ export const CodemodFooter: React.FC<{
 			callback() {
 				trigger();
 			},
-			commandCtrlKey: true,
+			commandCtrlKey: false,
 			key: 'Enter',
 			event: 'keydown',
 			preventDefault: true,
@@ -185,7 +185,7 @@ export const CodemodFooter: React.FC<{
 				{relativeFilePath
 					? submitLabel({relativeRootPath: relativeFilePath})
 					: genericSubmitLabel}
-				<ShortcutHint keyToPress="↵" cmdOrCtrl />
+				<ShortcutHint keyToPress="↵" cmdOrCtrl={false} />
 			</ModalButton>
 		</Row>
 	);
