@@ -37,7 +37,12 @@ export const TableOfContents: React.FC = () => {
 				</TOCItem>
 				<TOCItem link="/docs/effects/wave">
 					<div style={row}>
-						<div style={{flex: 1}}>
+						<img
+							src="/img/effects-wave-preview.jpg"
+							alt="wave effect preview"
+							style={previewImage}
+						/>
+						<div style={{flex: 1, marginLeft: 10}}>
 							<strong>
 								<code>{'wave()'}</code>
 							</strong>
