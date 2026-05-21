@@ -1,6 +1,1 @@
-export {
-	wave,
-	waveSchema,
-	type WaveDirection,
-	type WaveParams,
-} from './wave/index.js';
+export {wave, type WaveDirection, type WaveParams} from './wave/index.js';

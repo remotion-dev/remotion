@@ -15,7 +15,7 @@ const {createEffect} = Internals;
 
 export type WaveDirection = 'horizontal' | 'vertical';
 
-export const waveSchema = {
+const waveSchema = {
 	phase: {
 		type: 'number',
 		default: 0,
