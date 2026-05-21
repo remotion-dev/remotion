@@ -51,6 +51,14 @@ However, you also pay for the time that the server is idle.
 
 Conclusion: The more videos you render, the more a long-running server might be worth for you.
 
+## Runtime limits
+
+Vercel Sandbox jobs can run longer than a Vercel Function request, but if you call `renderMediaOnVercel()` from a Vercel Function, the function timeout still applies.
+Depending on the function type and plan, that limit may be around 800 seconds or 15 minutes.
+
+Remotion Lambda also has a 15-minute execution limit per function, but it renders in parallel across multiple functions.
+If you expect long renders, compare options carefully and avoid awaiting the full render in a short-lived request.
+
 ## Ease of setup
 
 Vercel Sandbox is the easiest to set up. You only need a Vercel account and a Blob store. Push to deploy.

@@ -63,6 +63,12 @@ The Sandbox is heavy, containing Chrome and FFmpeg and takes a few seconds to st
 The timeout limit for Vercel Sandbox is 45 minutes on the Hobby plan, and 5 hours on the Pro and Enterprise plans.  
 For concurrency, the limit is 10 simultaneous renders on Hobby, and 2000 on Pro and Enterprise.
 
+If you trigger renders through a Vercel Function, the function timeout applies as well.
+Depending on function type and plan, this can be lower (for example 800 seconds or 15 minutes), so long renders can still time out before `renderMediaOnVercel()` resolves.
+
+For long renders, avoid awaiting the full render in a request/response cycle.
+Use a queue/worker pattern and poll for completion, or choose another SSR option that is better suited for long-running jobs.
+
 For more details, see: [Vercel Sandbox pricing](https://vercel.com/docs/vercel-sandbox/pricing)
 
 ## Source Code
