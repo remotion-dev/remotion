@@ -3,13 +3,12 @@ import React, {
 	useContext,
 	useImperativeHandle,
 	useLayoutEffect,
-	useMemo,
 	useRef,
 } from 'react';
 import type {IsExact} from './audio/props.js';
-import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import type {SequenceControls} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {getAssetDisplayName} from './get-asset-file-name.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
 import {
@@ -21,9 +20,7 @@ import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
-import {useBasicMediaInTimeline} from './use-media-in-timeline.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
-import {useVideoConfig} from './use-video-config.js';
 import {wrapInSchema} from './wrap-in-schema.js';
 
 function exponentialBackoff(errorCount: number): number {
@@ -314,52 +311,18 @@ const ImgInner: React.FC<
 	_experimentalControls: controls,
 	...props
 }) => {
-	const videoConfig = useVideoConfig();
-	const mediaStartsAt = useMediaStartsAt();
-
 	if (!src) {
 		throw new Error('No "src" prop was passed to <Img>.');
-	}
-
-	const sequenceDurationInFrames = Math.min(
-		durationInFrames ?? Infinity,
-		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
-	);
-
-	const basicInfo = useBasicMediaInTimeline({
-		volume: undefined,
-		mediaVolume: 0,
-		mediaType: 'image',
-		src,
-		displayName: name ?? null,
-		trimBefore: undefined,
-		trimAfter: undefined,
-		playbackRate: 1,
-		sequenceDurationInFrames,
-		mediaStartsAt,
-		loop: false,
-	});
-
-	const isMedia = useMemo(
-		() => ({
-			type: 'image' as const,
-			data: basicInfo,
-		}),
-		[basicInfo],
-	);
-
-	if (sequenceDurationInFrames === 0) {
-		return null;
 	}
 
 	return (
 		<Sequence
 			layout="none"
 			from={from ?? 0}
-			durationInFrames={basicInfo.duration}
+			durationInFrames={durationInFrames ?? Infinity}
 			_remotionInternalStack={stack}
-			_remotionInternalIsMedia={isMedia}
-			name={name ?? basicInfo.finalDisplayName}
+			_remotionInternalIsMedia={{type: 'image', src}}
+			name={name ?? getAssetDisplayName(src)}
 			_experimentalControls={controls}
 			showInTimeline={showInTimeline ?? true}
 			hidden={hidden}

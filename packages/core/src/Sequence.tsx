@@ -81,10 +81,15 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
-	readonly _remotionInternalIsMedia?: {
-		type: 'video' | 'audio' | 'image';
-		data: BasicMediaInTimelineReturnType;
-	};
+	readonly _remotionInternalIsMedia?:
+		| {
+				type: 'video' | 'audio';
+				data: BasicMediaInTimelineReturnType;
+		  }
+		| {
+				type: 'image';
+				src: string;
+		  };
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -254,7 +259,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					premountDisplay: premountDisplay ?? null,
 					rootId,
 					showInTimeline,
-					src: isMedia.data.src,
+					src: isMedia.src,
 					getStack: () => stackRef.current,
 				});
 			} else {
