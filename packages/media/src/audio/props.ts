@@ -39,7 +39,8 @@ export type AudioProps = {
 	delayRenderTimeoutInMilliseconds?: number;
 	onError?: MediaOnError;
 	/**
-	 * @deprecated Use `requestInit={{credentials: ...}}` instead.
+	 * @deprecated Use `requestInit={{credentials: ...}}` instead. If both are
+	 * passed, `requestInit.credentials` wins over this prop.
 	 */
 	credentials?: RequestCredentials;
 	requestInit?: RequestInit;

@@ -68,7 +68,8 @@ type OptionalVideoProps = {
 	headless: boolean;
 	onError: MediaOnError | undefined;
 	/**
-	 * @deprecated Use `requestInit={{credentials: ...}}` instead.
+	 * @deprecated Use `requestInit={{credentials: ...}}` instead. If both are
+	 * passed, `requestInit.credentials` wins over this prop.
 	 */
 	credentials: RequestCredentials | undefined;
 	requestInit: RequestInit | undefined;

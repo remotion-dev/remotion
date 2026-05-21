@@ -282,7 +282,7 @@ export const MyComposition = () => {
 Passes [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) options to the `fetch()` requests made to retrieve the audio data.
 
 Set `cache` to `"no-store"` if a CDN or browser cache returns invalid range request responses.
-Updates after mount are ignored, so inline objects do not recreate the media source every render.
+The value is captured when the component mounts; later updates to the prop are ignored, so passing an inline object is safe.
 
 ```tsx twoslash
 import {AbsoluteFill} from 'remotion';
