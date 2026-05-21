@@ -119,7 +119,6 @@ export const setupBlur = (target: HTMLCanvasElement): BlurState => {
 	}
 
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 	const programHorizontal = createProgram(gl, BLUR_VS, BLUR_FS_HORIZONTAL);
 	const programVertical = createProgram(gl, BLUR_VS, BLUR_FS_VERTICAL);
@@ -258,6 +257,7 @@ type ApplyBlurParams = {
 	readonly radius: number;
 	readonly horizontal: boolean;
 	readonly vertical: boolean;
+	readonly flipSourceY: boolean;
 };
 
 const uploadBlurSource = ({
@@ -267,6 +267,7 @@ const uploadBlurSource = ({
 	textureIntermediate,
 	width,
 	height,
+	flipSourceY,
 }: {
 	gl: WebGL2RenderingContext;
 	textureSource: WebGLTexture;
@@ -274,7 +275,9 @@ const uploadBlurSource = ({
 	textureIntermediate: WebGLTexture;
 	width: number;
 	height: number;
+	flipSourceY: boolean;
 }): void => {
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
 	gl.bindTexture(gl.TEXTURE_2D, textureSource);
 	gl.texImage2D(
 		gl.TEXTURE_2D,
@@ -308,6 +311,7 @@ export const applyBlur = ({
 	radius,
 	horizontal,
 	vertical,
+	flipSourceY,
 }: ApplyBlurParams): void => {
 	const {
 		gl,
@@ -327,6 +331,7 @@ export const applyBlur = ({
 		textureIntermediate,
 		width,
 		height,
+		flipSourceY,
 	});
 
 	gl.clearColor(0, 0, 0, 0);

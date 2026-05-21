@@ -298,9 +298,6 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		}
 
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		// DOM sources (video, canvas) are top-left origin; GL texture space matches
-		// our quad UVs (y up in clip space) only when uploads flip vertically.
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 		const vs = compileShader(gl, gl.VERTEX_SHADER, HALFTONE_VS);
 		const fs = compileShader(gl, gl.FRAGMENT_SHADER, HALFTONE_FS);
@@ -374,7 +371,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 			cachedColorRgba: [0, 0, 0, 1] as [number, number, number, number],
 		};
 	},
-	apply: ({source, width, height, params, state}) => {
+	apply: ({source, width, height, params, state, flipSourceY}) => {
 		const r = resolve(params);
 		const {gl, program, vao, texture} = state;
 
@@ -398,6 +395,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
 		gl.texImage2D(
 			gl.TEXTURE_2D,
 			0,

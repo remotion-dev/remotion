@@ -26,6 +26,12 @@ export type EffectApplyParams<P, S> = {
 	readonly width: number;
 	readonly height: number;
 	readonly gpuDevice: AnyGpuDevice | null;
+	/**
+	 * When `true`, WebGL `texImage2D` uploads use `UNPACK_FLIP_Y_WEBGL` so DOM-style
+	 * 2D frame canvases match clip-space UVs. Set by `runEffectChain` — `false` for
+	 * prior WebGL outputs and `ImageBitmap` bridges from WebGL.
+	 */
+	readonly flipSourceY: boolean;
 };
 
 export type EffectDefinition<P, S = unknown> = {
