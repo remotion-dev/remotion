@@ -41,7 +41,7 @@ export const getCompositionMenuItems = ({
 							showNotification((err as Error).message, 2000);
 						}
 					},
-					quickSwitcherLabel: `Show composition in ${editorName}`,
+					quickSwitcherLabel: null,
 					subMenu: null,
 					type: 'item' as const,
 					value: 'show-in-editor',
@@ -66,7 +66,7 @@ export const getCompositionMenuItems = ({
 					compositionId: composition.id,
 				});
 			},
-			quickSwitcherLabel: `Composition: Rename ${composition.id}`,
+			quickSwitcherLabel: null,
 			subMenu: null,
 			type: 'item' as const,
 			value: 'rename',
@@ -85,7 +85,7 @@ export const getCompositionMenuItems = ({
 						composition.durationInFrames === 1 ? 'still' : 'composition',
 				});
 			},
-			quickSwitcherLabel: `Composition: Duplicate ${composition.id}`,
+			quickSwitcherLabel: null,
 			subMenu: null,
 			type: 'item' as const,
 			value: 'duplicate',
@@ -102,7 +102,7 @@ export const getCompositionMenuItems = ({
 					compositionId: composition.id,
 				});
 			},
-			quickSwitcherLabel: `Composition: Delete ${composition.id}`,
+			quickSwitcherLabel: null,
 			subMenu: null,
 			type: 'item' as const,
 			value: 'delete',
@@ -130,7 +130,7 @@ export const getCompositionMenuItems = ({
 						);
 					});
 			},
-			quickSwitcherLabel: `Composition: Copy ID ${composition.id}`,
+			quickSwitcherLabel: null,
 			subMenu: null,
 			type: 'item' as const,
 			value: 'copy-id',
