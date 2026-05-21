@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import type {RecastCodemod} from '@remotion/studio-shared';
 import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
@@ -70,7 +71,15 @@ const getHandlerOptions = <T>({
 	binariesDirectory: null,
 });
 
-test('applyCodemodHandler pushes composition changes to undo and redo stacks', async () => {
+const runCompositionCodemodUndoRedoTest = async ({
+	codemod,
+	assertApplied,
+	expectedUndoMessage,
+}: {
+	codemod: RecastCodemod;
+	assertApplied: (contents: string) => void;
+	expectedUndoMessage: string;
+}) => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
@@ -91,7 +100,7 @@ test('applyCodemodHandler pushes composition changes to undo and redo stacks', a
 		const applyResponse = await applyCodemodHandler(
 			getHandlerOptions({
 				input: {
-					codemod: {type: 'delete-composition', idToDelete: 'DeleteMe'},
+					codemod,
 					dryRun: false,
 					symbolicatedStack: {
 						originalFunctionName: null,
@@ -107,9 +116,9 @@ test('applyCodemodHandler pushes composition changes to undo and redo stacks', a
 		);
 
 		expect(applyResponse.success).toBe(true);
-		expect(readFileSync(entryPoint, 'utf-8')).not.toContain('id="DeleteMe"');
-		expect(readFileSync(entryPoint, 'utf-8')).toContain('id="KeepMe"');
+		assertApplied(readFileSync(entryPoint, 'utf-8'));
 		expect(getUndoStack().length).toBe(1);
+		expect(getUndoStack()[0].description.undoMessage).toBe(expectedUndoMessage);
 		expect(getRedoStack().length).toBe(0);
 
 		const undoResponse = await undoHandler(
@@ -124,8 +133,7 @@ test('applyCodemodHandler pushes composition changes to undo and redo stacks', a
 			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
 		);
 		expect(redoResponse.success).toBe(true);
-		expect(readFileSync(entryPoint, 'utf-8')).not.toContain('id="DeleteMe"');
-		expect(readFileSync(entryPoint, 'utf-8')).toContain('id="KeepMe"');
+		assertApplied(readFileSync(entryPoint, 'utf-8'));
 		expect(getUndoStack().length).toBe(1);
 		expect(getRedoStack().length).toBe(0);
 	} finally {
@@ -134,4 +142,53 @@ test('applyCodemodHandler pushes composition changes to undo and redo stacks', a
 		cleanupFileWatcher();
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
+};
+
+test('applyCodemodHandler pushes composition deletions to undo and redo stacks', async () => {
+	await runCompositionCodemodUndoRedoTest({
+		codemod: {type: 'delete-composition', idToDelete: 'DeleteMe'},
+		assertApplied: (contents) => {
+			expect(contents).not.toContain('id="DeleteMe"');
+			expect(contents).toContain('id="KeepMe"');
+		},
+		expectedUndoMessage: '↩️  Deletion of composition "DeleteMe"',
+	});
+});
+
+test('applyCodemodHandler pushes composition renames to undo and redo stacks', async () => {
+	await runCompositionCodemodUndoRedoTest({
+		codemod: {
+			type: 'rename-composition',
+			idToRename: 'DeleteMe',
+			newId: 'Renamed',
+		},
+		assertApplied: (contents) => {
+			expect(contents).not.toContain('id="DeleteMe"');
+			expect(contents).toContain('id="Renamed"');
+			expect(contents).toContain('id="KeepMe"');
+		},
+		expectedUndoMessage: '↩️  Rename of composition "DeleteMe" to "Renamed"',
+	});
+});
+
+test('applyCodemodHandler pushes composition duplications to undo and redo stacks', async () => {
+	await runCompositionCodemodUndoRedoTest({
+		codemod: {
+			type: 'duplicate-composition',
+			idToDuplicate: 'DeleteMe',
+			newId: 'Duplicated',
+			newDurationInFrames: null,
+			newFps: null,
+			newHeight: null,
+			newWidth: null,
+			tag: 'Composition',
+		},
+		assertApplied: (contents) => {
+			expect(contents).toContain('id="DeleteMe"');
+			expect(contents).toContain('id="Duplicated"');
+			expect(contents).toContain('id="KeepMe"');
+		},
+		expectedUndoMessage:
+			'↩️  Duplication of composition "DeleteMe" to "Duplicated"',
+	});
 });
