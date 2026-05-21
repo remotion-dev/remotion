@@ -6,6 +6,10 @@ if (typeof globalThis.HTMLCanvasElement === 'undefined') {
 		class HTMLCanvasElement {} as typeof HTMLCanvasElement;
 }
 
+if (typeof globalThis.ImageBitmap === 'undefined') {
+	globalThis.ImageBitmap = class ImageBitmap {} as typeof ImageBitmap;
+}
+
 const canvasProto = HTMLCanvasElement.prototype;
 
 const asCanvas = (getContext: (kind: string) => unknown): HTMLCanvasElement => {
@@ -15,11 +19,7 @@ const asCanvas = (getContext: (kind: string) => unknown): HTMLCanvasElement => {
 };
 
 test('shouldFlipYOnWebGLUpload: ImageBitmap from 2D bridge is not flipped', () => {
-	const bitmap = {
-		close: () => {},
-		width: 1,
-		height: 1,
-	} as ImageBitmap;
+	const bitmap = Object.create(ImageBitmap.prototype) as ImageBitmap;
 	expect(shouldFlipYOnWebGLUpload(bitmap)).toBe(false);
 });
 
@@ -33,6 +33,6 @@ test('shouldFlipYOnWebGLUpload: WebGL ping-pong canvas is not flipped', () => {
 	expect(shouldFlipYOnWebGLUpload(canvas)).toBe(false);
 });
 
-test('shouldFlipYOnWebGLUpload: unknown DOM-like sources default to flipped', () => {
-	expect(shouldFlipYOnWebGLUpload({} as CanvasImageSource)).toBe(true);
+test('shouldFlipYOnWebGLUpload: unrelated sources are not flipped', () => {
+	expect(shouldFlipYOnWebGLUpload({} as CanvasImageSource)).toBe(false);
 });
