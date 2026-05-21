@@ -7,7 +7,7 @@ export const EffectsBlurPreview: React.FC = () => {
 	const {width, height} = useVideoConfig();
 
 	return (
-		<HtmlInCanvas width={width} height={height} effects={[blur({radius: 25})]}>
+		<HtmlInCanvas width={width} height={height} effects={[blur({radius: 40})]}>
 			<EffectsPreviewImage />
 		</HtmlInCanvas>
 	);
