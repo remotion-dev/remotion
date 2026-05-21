@@ -21,7 +21,7 @@ import type {SlideDirection} from '@remotion/transitions/slide';
 import {slide} from '@remotion/transitions/slide';
 import type {WipeDirection} from '@remotion/transitions/wipe';
 import {wipe} from '@remotion/transitions/wipe';
-import React, {useEffect, useRef} from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 import type {SpringConfig} from 'remotion';
 import {AbsoluteFill, measureSpring, spring, useVideoConfig} from 'remotion';
 import {
@@ -253,46 +253,53 @@ export const PresentationPreview: React.FC<{
 	readonly durationRestThreshold: number;
 }> = ({effect, durationRestThreshold}) => {
 	const ref = useRef<PlayerRef>(null);
+	const wrapperRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
-		const {current} = ref;
-		if (!current) {
-			return;
-		}
-
-		const callback = () => {
-			current?.seekTo(0);
-			current?.play();
-		};
-
-		current?.getContainerNode()?.addEventListener('pointerenter', callback);
-
-		return () => {
-			current
-				?.getContainerNode()
-				?.removeEventListener('pointerenter', callback);
-		};
+	const playFromStart = useCallback(() => {
+		ref.current?.seekTo(0);
+		ref.current?.play();
 	}, []);
 
+	// `pointerenter` only fires when the pointer transitions into the
+	// element, so if the cursor happens to already be inside the tile when
+	// the component mounts (very common on this page because the tiles are
+	// small and tightly packed), the first hover after page load is missed
+	// and the preview never plays. Trigger the preview once on mount in
+	// that case so the behavior is reliable.
+	useEffect(() => {
+		if (wrapperRef.current?.matches(':hover')) {
+			playFromStart();
+		}
+	}, [playFromStart]);
+
 	return (
-		<Player
-			ref={ref}
-			acknowledgeRemotionLicense
-			component={SampleTransition}
-			compositionHeight={presentationCompositionHeight}
-			compositionWidth={presentationCompositionWidth}
-			durationInFrames={60}
-			fps={30}
-			numberOfSharedAudioTags={0}
+		<div
+			ref={wrapperRef}
+			onPointerEnter={playFromStart}
 			style={{
-				height: 60,
+				display: 'flex',
 				borderRadius: 6,
+				overflow: 'hidden',
 			}}
-			inputProps={{
-				effect,
-				durationRestThreshold,
-				small: true,
-			}}
-		/>
+		>
+			<Player
+				ref={ref}
+				acknowledgeRemotionLicense
+				component={SampleTransition}
+				compositionHeight={presentationCompositionHeight}
+				compositionWidth={presentationCompositionWidth}
+				durationInFrames={60}
+				fps={30}
+				numberOfSharedAudioTags={0}
+				style={{
+					height: 60,
+				}}
+				inputProps={{
+					effect,
+					durationRestThreshold,
+					small: true,
+				}}
+			/>
+		</div>
 	);
 };
