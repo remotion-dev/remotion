@@ -1,40 +1,54 @@
 import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import {zoomBlur} from '@remotion/transitions/zoom-blur';
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, Img} from 'remotion';
 
-const SceneA: React.FC = () => {
+const sceneStyle: React.CSSProperties = {
+	justifyContent: 'center',
+	alignItems: 'center',
+	fontFamily: 'sans-serif',
+	fontWeight: 900,
+	color: 'white',
+	fontSize: '40cqmin',
+};
+
+const backgroundImageStyle: React.CSSProperties = {
+	position: 'absolute',
+	inset: 0,
+	width: '100%',
+	height: '100%',
+	objectFit: 'cover',
+};
+
+const letterStyle: React.CSSProperties = {
+	position: 'relative',
+	textShadow: '0 4px 30px rgba(0, 0, 0, 0.55)',
+};
+
+const SceneA: React.FC<{readonly small: boolean}> = ({small}) => {
 	return (
-		<AbsoluteFill
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				backgroundColor: '#0b84f3',
-				fontFamily: 'sans-serif',
-				fontWeight: 900,
-				color: 'white',
-				fontSize: '40cqmin',
-			}}
-		>
-			A
+		<AbsoluteFill style={sceneStyle}>
+			<Img
+				crossOrigin="anonymous"
+				src={`https://remotion.media/transition-bg-blue${small ? '-small' : ''}.jpg`}
+				style={backgroundImageStyle}
+				alt=""
+			/>
+			<div style={letterStyle}>A</div>
 		</AbsoluteFill>
 	);
 };
 
-const SceneB: React.FC = () => {
+const SceneB: React.FC<{readonly small: boolean}> = ({small}) => {
 	return (
-		<AbsoluteFill
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				backgroundColor: 'pink',
-				fontFamily: 'sans-serif',
-				fontWeight: 900,
-				color: 'white',
-				fontSize: '40cqmin',
-			}}
-		>
-			B
+		<AbsoluteFill style={sceneStyle}>
+			<Img
+				crossOrigin="anonymous"
+				src={`https://remotion.media/transition-bg-pink${small ? '-small' : ''}.jpg`}
+				style={backgroundImageStyle}
+				alt=""
+			/>
+			<div style={letterStyle}>B</div>
 		</AbsoluteFill>
 	);
 };
@@ -44,14 +58,14 @@ export const ZoomBlurTransitionDoc: React.FC = () => {
 		<AbsoluteFill style={{containerType: 'size'}}>
 			<TransitionSeries>
 				<TransitionSeries.Sequence durationInFrames={60}>
-					<SceneA />
+					<SceneA small={false} />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Transition
 					presentation={zoomBlur({})}
 					timing={linearTiming({durationInFrames: 30})}
 				/>
 				<TransitionSeries.Sequence durationInFrames={60}>
-					<SceneB />
+					<SceneB small={false} />
 				</TransitionSeries.Sequence>
 			</TransitionSeries>
 		</AbsoluteFill>
@@ -63,14 +77,14 @@ export const ZoomBlurTransitionDocThumb: React.FC = () => {
 		<AbsoluteFill style={{containerType: 'size'}}>
 			<TransitionSeries>
 				<TransitionSeries.Sequence durationInFrames={30}>
-					<SceneA />
+					<SceneA small />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Transition
 					presentation={zoomBlur({})}
 					timing={linearTiming({durationInFrames: 30})}
 				/>
 				<TransitionSeries.Sequence durationInFrames={60}>
-					<SceneB />
+					<SceneB small />
 				</TransitionSeries.Sequence>
 			</TransitionSeries>
 		</AbsoluteFill>
