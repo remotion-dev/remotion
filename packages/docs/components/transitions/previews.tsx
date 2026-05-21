@@ -283,6 +283,7 @@ export const PresentationPreview: React.FC<{
 			compositionWidth={presentationCompositionWidth}
 			durationInFrames={60}
 			fps={30}
+			initiallyMuted
 			numberOfSharedAudioTags={0}
 			style={{
 				height: 60,

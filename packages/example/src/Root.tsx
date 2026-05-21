@@ -65,6 +65,8 @@ import {
 	ZoomInOutTransitionDocThumb,
 	DissolveTransitionDoc,
 	DissolveTransitionDocThumb,
+	EffectsBlurPreview,
+	EffectsWavePreview,
 } from './HtmlInCanvas';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
@@ -1002,6 +1004,22 @@ export const Index: React.FC = () => {
 						height={280}
 						width={540}
 						durationInFrames={60}
+					/>
+					<Composition
+						id="html-in-canvas-effects-blur-preview"
+						component={EffectsBlurPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-wave-preview"
+						component={EffectsWavePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
 					/>
 					<Composition
 						id="zoom-in-out-transition-doc"

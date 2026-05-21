@@ -1,4 +1,6 @@
 import {EffectInternals} from '@remotion/effects';
+import {blur} from '@remotion/effects/blur';
+import {wave} from '@remotion/effects/wave';
 import {Gif} from '@remotion/gif';
 import {StudioInternals} from '@remotion/studio';
 import React from 'react';
@@ -90,14 +92,14 @@ const AnimatedBlurGif: React.FC = () => {
 			src={GIF_SRC}
 			fit="contain"
 			style={tileGifStyle}
-			effects={[EffectInternals.blur({radius: blurRadius})]}
+			effects={[blur({radius: blurRadius})]}
 		/>
 	);
 };
 
 const AnimatedWaveGif: React.FC = () => {
 	const frame = useCurrentFrame();
-	const evolution = frame * 0.2;
+	const phase = frame * 0.2;
 
 	return (
 		<Gif
@@ -105,12 +107,10 @@ const AnimatedWaveGif: React.FC = () => {
 			fit="contain"
 			style={tileGifStyle}
 			effects={[
-				EffectInternals.wave({
+				wave({
+					phase,
 					amplitude: 22,
 					wavelength: 180,
-					evolution,
-					sliceWidth: 4,
-					background: '#020617',
 				}),
 			]}
 		/>
@@ -119,7 +119,7 @@ const AnimatedWaveGif: React.FC = () => {
 
 const StackedGif: React.FC = () => {
 	const frame = useCurrentFrame();
-	const evolution = frame * 0.2;
+	const phase = frame * 0.2;
 
 	return (
 		<Gif
@@ -128,14 +128,12 @@ const StackedGif: React.FC = () => {
 			style={tileGifStyle}
 			effects={[
 				EffectInternals.tint({color: '#ff5fa2', amount: 0.4}),
-				EffectInternals.wave({
+				wave({
+					phase,
 					amplitude: 12,
 					wavelength: 160,
-					evolution,
-					sliceWidth: 4,
-					background: '#020617',
 				}),
-				EffectInternals.blur({radius: 6}),
+				blur({radius: 6}),
 			]}
 		/>
 	);
@@ -194,7 +192,7 @@ const Comp: React.FC = () => {
 				<Tile title="blur" subtitle="separable Gaussian, animated 0→18">
 					<AnimatedBlurGif />
 				</Tile>
-				<Tile title="wave" subtitle="amplitude 22, evolution from frame">
+				<Tile title="wave" subtitle="amplitude 22, phase from frame">
 					<AnimatedWaveGif />
 				</Tile>
 				<Tile title="tint + wave + blur" subtitle="effect chain">
