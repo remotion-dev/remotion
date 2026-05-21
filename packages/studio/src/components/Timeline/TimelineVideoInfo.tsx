@@ -20,6 +20,7 @@ import {
 	TIMELINE_LAYER_HEIGHT_IMAGE,
 } from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
+import {getTimelineVideoInfoWidths} from './get-timeline-video-info-widths';
 
 const FILMSTRIP_HEIGHT = TIMELINE_LAYER_HEIGHT_IMAGE - 2;
 
@@ -32,7 +33,6 @@ const outerStyle: React.CSSProperties = {
 
 const filmstripContainerStyle: React.CSSProperties = {
 	height: FILMSTRIP_HEIGHT,
-	width: '100%',
 	backgroundColor: 'rgba(0, 0, 0, 0.3)',
 	display: 'flex',
 	borderTopLeftRadius: 2,
@@ -69,6 +69,14 @@ export const TimelineVideoInfo: React.FC<{
 	const ref = useRef<HTMLDivElement>(null);
 	const [error, setError] = useState<Error | null>(null);
 	const aspectRatio = useRef<number | null>(getAspectRatioFromCache(src));
+	const {mediaVisualizationWidth, mediaNaturalWidth} = useMemo(() => {
+		return getTimelineVideoInfoWidths({
+			visualizationWidth,
+			naturalWidth,
+			premountWidth,
+			postmountWidth,
+		});
+	}, [naturalWidth, postmountWidth, premountWidth, visualizationWidth]);
 
 	// for rendering frames
 	useEffect(() => {
@@ -84,7 +92,7 @@ export const TimelineVideoInfo: React.FC<{
 		const controller = new AbortController();
 
 		const canvas = document.createElement('canvas');
-		canvas.width = visualizationWidth;
+		canvas.width = mediaVisualizationWidth;
 		canvas.height = FILMSTRIP_HEIGHT;
 		const ctx = canvas.getContext('2d');
 		if (!ctx) {
@@ -94,7 +102,7 @@ export const TimelineVideoInfo: React.FC<{
 		current.appendChild(canvas);
 
 		const loopWidth = getLoopDisplayWidth({
-			visualizationWidth: naturalWidth,
+			visualizationWidth: mediaNaturalWidth,
 			loopDisplay,
 		});
 		const shouldRepeatVideo = shouldTileLoopDisplay(loopDisplay);
@@ -141,7 +149,9 @@ export const TimelineVideoInfo: React.FC<{
 		// advances the source video by `playbackRate` source frames.
 		const toSeconds =
 			fromSeconds + (visibleDurationInFrames * playbackRate) / fps;
-		const targetWidth = shouldRepeatVideo ? targetCanvas.width : naturalWidth;
+		const targetWidth = shouldRepeatVideo
+			? targetCanvas.width
+			: mediaNaturalWidth;
 
 		if (aspectRatio.current !== null) {
 			ensureSlots({
@@ -286,14 +296,22 @@ export const TimelineVideoInfo: React.FC<{
 		error,
 		fps,
 		loopDisplay,
-		naturalWidth,
+		mediaNaturalWidth,
+		mediaVisualizationWidth,
 		playbackRate,
 		src,
 		trimBefore,
-		visualizationWidth,
 	]);
 
-	const audioWidth = visualizationWidth - premountWidth - postmountWidth;
+	const audioWidth = mediaVisualizationWidth;
+
+	const filmstripStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...filmstripContainerStyle,
+			width: mediaVisualizationWidth,
+			marginLeft: premountWidth,
+		};
+	}, [mediaVisualizationWidth, premountWidth]);
 
 	const audioStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -306,7 +324,7 @@ export const TimelineVideoInfo: React.FC<{
 
 	return (
 		<div style={outerStyle}>
-			<div ref={ref} style={filmstripContainerStyle} />
+			<div ref={ref} style={filmstripStyle} />
 			<div style={audioStyle}>
 				<AudioWaveform
 					src={src}
