@@ -14,7 +14,7 @@ export const getCompositionMenuItems = ({
 	setSelectedModal,
 	closeMenu,
 }: {
-	composition: _InternalTypes['AnyComposition'];
+	composition: _InternalTypes['AnyComposition'] | null;
 	connectionStatus: string;
 	resolvedLocation: ResolvedStackLocation | null;
 	setSelectedModal: (value: SetStateAction<ModalState | null>) => void;
@@ -31,7 +31,7 @@ export const getCompositionMenuItems = ({
 					leftItem: null,
 					onClick: async () => {
 						closeMenu();
-						if (!resolvedLocation) {
+						if (!composition || !resolvedLocation) {
 							return;
 						}
 
@@ -45,7 +45,10 @@ export const getCompositionMenuItems = ({
 					subMenu: null,
 					type: 'item' as const,
 					value: 'show-in-editor',
-					disabled: connectionStatus !== 'connected' || !resolvedLocation,
+					disabled:
+						!composition ||
+						connectionStatus !== 'connected' ||
+						!resolvedLocation,
 				}
 			: null,
 		editorName
@@ -60,6 +63,10 @@ export const getCompositionMenuItems = ({
 			label: `Rename...`,
 			leftItem: null,
 			onClick: () => {
+				if (!composition) {
+					return;
+				}
+
 				closeMenu();
 				setSelectedModal({
 					type: 'rename-comp',
@@ -70,6 +77,7 @@ export const getCompositionMenuItems = ({
 			subMenu: null,
 			type: 'item' as const,
 			value: 'rename',
+			disabled: !composition,
 		},
 		{
 			id: 'duplicate',
@@ -77,6 +85,10 @@ export const getCompositionMenuItems = ({
 			label: `Duplicate...`,
 			leftItem: null,
 			onClick: () => {
+				if (!composition) {
+					return;
+				}
+
 				closeMenu();
 				setSelectedModal({
 					type: 'duplicate-comp',
@@ -89,6 +101,7 @@ export const getCompositionMenuItems = ({
 			subMenu: null,
 			type: 'item' as const,
 			value: 'duplicate',
+			disabled: !composition,
 		},
 		{
 			id: 'delete',
@@ -96,6 +109,10 @@ export const getCompositionMenuItems = ({
 			label: `Delete...`,
 			leftItem: null,
 			onClick: () => {
+				if (!composition) {
+					return;
+				}
+
 				closeMenu();
 				setSelectedModal({
 					type: 'delete-comp',
@@ -106,6 +123,7 @@ export const getCompositionMenuItems = ({
 			subMenu: null,
 			type: 'item' as const,
 			value: 'delete',
+			disabled: !composition,
 		},
 		{
 			type: 'divider' as const,
@@ -117,6 +135,10 @@ export const getCompositionMenuItems = ({
 			label: `Copy ID`,
 			leftItem: null,
 			onClick: () => {
+				if (!composition) {
+					return;
+				}
+
 				closeMenu();
 				navigator.clipboard
 					.writeText(composition.id)
@@ -134,6 +156,7 @@ export const getCompositionMenuItems = ({
 			subMenu: null,
 			type: 'item' as const,
 			value: 'copy-id',
+			disabled: !composition,
 		},
 	].filter(truthy);
 };

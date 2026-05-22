@@ -679,21 +679,19 @@ export const useMenuStructure = (
 						: null,
 				].filter(Internals.truthy),
 			},
-			currentComposition
-				? {
-						id: 'composition' as const,
-						label: 'Composition',
-						leaveLeftPadding: false,
-						items: getCompositionMenuItems({
-							closeMenu,
-							composition: currentComposition,
-							connectionStatus: type,
-							resolvedLocation: resolvedCompositionLocation,
-							setSelectedModal,
-						}),
-						quickSwitcherLabel: null,
-					}
-				: null,
+			{
+				id: 'composition' as const,
+				label: 'Composition',
+				leaveLeftPadding: false,
+				items: getCompositionMenuItems({
+					closeMenu,
+					composition: currentComposition,
+					connectionStatus: type,
+					resolvedLocation: resolvedCompositionLocation,
+					setSelectedModal,
+				}),
+				quickSwitcherLabel: null,
+			},
 			{
 				id: 'tools' as const,
 				label: 'Tools',
