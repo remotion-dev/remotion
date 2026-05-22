@@ -2,29 +2,44 @@ import type MediaFox from '@mediafox/core';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useElementSize} from './use-element-size';
 
-const getTimeFromX = (
+const clamp = (value: number, min: number, max: number) => {
+	return Math.min(Math.max(value, min), max);
+};
+
+export const getTimeFromX = (
 	clientX: number,
 	durationInSeconds: number,
 	width: number,
 ) => {
-	const pos = clientX;
-
-	const min = 0;
-	const max = width;
-	const value = pos;
-	const outMin = 0;
-	const outMax = durationInSeconds - 1;
-	let t;
-	if (value <= min) {
-		t = 0;
-	} else if (value >= max) {
-		t = 1;
-	} else {
-		t = (value - min) / (max - min);
+	if (
+		width <= 0 ||
+		durationInSeconds <= 0 ||
+		!Number.isFinite(clientX) ||
+		!Number.isFinite(durationInSeconds) ||
+		!Number.isFinite(width)
+	) {
+		return 0;
 	}
 
-	const frame = outMin + (outMax - outMin) * t;
-	return frame;
+	const progress = clamp(clientX / width, 0, 1);
+
+	return durationInSeconds * progress;
+};
+
+export const getSeekBarProgress = (
+	currentTime: number,
+	durationInSeconds: number,
+) => {
+	if (
+		currentTime <= 0 ||
+		durationInSeconds <= 0 ||
+		!Number.isFinite(currentTime) ||
+		!Number.isFinite(durationInSeconds)
+	) {
+		return 0;
+	}
+
+	return clamp(currentTime / durationInSeconds, 0, 1);
 };
 
 const BAR_HEIGHT = 5;
@@ -250,6 +265,8 @@ export const PlayerSeekBar: React.FC<{
 	}, [dragging.dragging, onPointerMove, onPointerUp]);
 
 	const knobStyle: React.CSSProperties = useMemo(() => {
+		const progress = getSeekBarProgress(frame, playerRef.duration);
+
 		return {
 			height: KNOB_SIZE,
 			width: KNOB_SIZE,
@@ -257,21 +274,20 @@ export const PlayerSeekBar: React.FC<{
 			position: 'absolute',
 			backgroundColor: 'white',
 			top: VERTICAL_PADDING - KNOB_SIZE / 2 + 5 / 2,
-			left: Math.max(
-				0,
-				(frame / Math.max(1, playerRef.duration - 1)) * width - KNOB_SIZE / 2,
-			),
+			left: Math.max(0, progress * width - KNOB_SIZE / 2),
 			outline: '2px solid #000',
 			opacity: Number(barHovered),
-			transition: 'opacity 0.s ease',
+			transition: 'opacity 0.2s ease',
 		};
 	}, [barHovered, frame, playerRef.duration, width]);
 
 	const fillStyle: React.CSSProperties = useMemo(() => {
+		const progress = getSeekBarProgress(frame, playerRef.duration);
+
 		return {
 			height: BAR_HEIGHT,
 			backgroundColor: 'black',
-			width: (frame / (playerRef.duration - 1)) * 100 + '%',
+			width: `${progress * 100}%`,
 			borderRadius: BAR_HEIGHT / 2,
 		};
 	}, [frame, playerRef.duration]);
@@ -281,11 +297,11 @@ export const PlayerSeekBar: React.FC<{
 			height: BAR_HEIGHT,
 			backgroundColor: 'black',
 			opacity: 0.2,
-			width: ((playerRef.duration - 1) / (playerRef.duration - 1)) * 100 + '%',
+			width: '100%',
 			borderRadius: BAR_HEIGHT / 2,
 			position: 'absolute',
 		};
-	}, [playerRef.duration]);
+	}, []);
 
 	return (
 		<div

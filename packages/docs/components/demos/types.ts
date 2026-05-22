@@ -14,6 +14,7 @@ import {
 } from '../transitions/previews';
 import {ArrowDemo} from './Arrow';
 import {CircleDemo} from './Circle';
+import {DissolveDocsDemo} from './DissolveDemo';
 import {EllipseDemo} from './Ellipse';
 import {HeartDemo} from './Heart';
 import {HtmlInCanvasDocsDemo2DBlur} from './HtmlInCanvasDocsDemo2DBlur';
@@ -941,6 +942,19 @@ export const zoomInOutPresentationDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'zoom-in-out',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const dissolvePresentationDemo: DemoType = {
+	comp: DissolveDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'dissolve',
 	autoPlay: true,
 	controls: false,
 	logLevel: 'info',

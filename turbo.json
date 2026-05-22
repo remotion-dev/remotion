@@ -53,13 +53,24 @@
 			"outputs": ["build", "./node_modules/.cache"],
 			"outputLogs": "new-only"
 		},
+		"@remotion/example#bundle-testbed": {
+			"dependsOn": ["^make", "make"],
+			"outputs": ["build-testbed", "./node_modules/.cache"],
+			"outputLogs": "new-only"
+		},
 		"@remotion/example#test": {
 			"dependsOn": ["@remotion/example#bundle"],
 			"outputs": [],
 			"outputLogs": "new-only"
 		},
 		"build-docs": {
-			"dependsOn": ["^make", "make", "@remotion/convert#build-spa", "@remotion/brand#bundle"],
+			"dependsOn": [
+				"^make",
+				"make",
+				"@remotion/convert#build-spa",
+				"@remotion/brand#bundle",
+				"@remotion/example#bundle-testbed"
+			],
 			"outputs": [".docusaurus", "build", "node_modules/.cache/twoslash"],
 			"outputLogs": "new-only"
 		},

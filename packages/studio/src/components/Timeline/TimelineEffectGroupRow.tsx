@@ -8,7 +8,11 @@ import {
 	EXPANDED_SECTION_PADDING_RIGHT,
 	TREE_GROUP_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
+import {callApi} from '../call-api';
+import {ContextMenu} from '../ContextMenu';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {saveEffectProp} from './save-effect-prop';
 import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
@@ -72,6 +76,59 @@ export const TimelineEffectGroupRow: React.FC<{
 	const canToggle =
 		previewConnected && disabledStatus !== null && disabledStatus.canUpdate;
 
+	const deleteDisabled =
+		!previewConnected ||
+		effectStatus.type !== 'can-update-effect' ||
+		!validatedLocation.source;
+
+	const onDeleteEffectFromSource = useCallback(async () => {
+		if (deleteDisabled) {
+			return;
+		}
+
+		try {
+			const result = await callApi('/api/delete-effect', {
+				fileName: validatedLocation.source,
+				sequenceNodePath: nodePath,
+				effectIndex,
+			});
+			if (result.success) {
+				showNotification('Removed effect from source file', 2000);
+			} else {
+				showNotification(result.reason, 4000);
+			}
+		} catch (err) {
+			showNotification((err as Error).message, 4000);
+		}
+	}, [deleteDisabled, effectIndex, nodePath, validatedLocation.source]);
+
+	const contextMenuValues = useMemo((): ComboboxValue[] => {
+		if (!previewConnected) {
+			return [];
+		}
+
+		return [
+			{
+				type: 'item',
+				id: 'delete-effect',
+				keyHint: null,
+				label: 'Delete',
+				leftItem: null,
+				disabled: deleteDisabled,
+				onClick: () => {
+					if (deleteDisabled) {
+						return;
+					}
+
+					onDeleteEffectFromSource();
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'delete-effect',
+			},
+		];
+	}, [deleteDisabled, onDeleteEffectFromSource, previewConnected]);
+
 	const onToggle = useCallback(
 		(type: 'enable' | 'disable') => {
 			if (!canToggle || previewServerState.type !== 'connected') {
@@ -118,7 +175,7 @@ export const TimelineEffectGroupRow: React.FC<{
 		[],
 	);
 
-	return (
+	const row = (
 		<TimelineRowChrome
 			depth={rowDepth}
 			eye={
@@ -144,5 +201,11 @@ export const TimelineEffectGroupRow: React.FC<{
 		>
 			<span style={rowLabel}>{label}</span>
 		</TimelineRowChrome>
+	);
+
+	return previewConnected ? (
+		<ContextMenu values={contextMenuValues}>{row}</ContextMenu>
+	) : (
+		row
 	);
 };

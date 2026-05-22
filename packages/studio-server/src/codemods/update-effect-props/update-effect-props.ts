@@ -45,7 +45,7 @@ const parseValueExpression = (value: unknown): ExpressionKind => {
 	return stmt.expression.right as ExpressionKind;
 };
 
-const findEffectsAttr = (
+export const findEffectsAttr = (
 	attrs: readonly (JSXAttribute | unknown)[],
 ): JSXAttribute | null => {
 	for (const attr of attrs) {
