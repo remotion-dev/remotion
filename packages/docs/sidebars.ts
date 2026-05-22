@@ -261,12 +261,12 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/enable-scss',
+			label: '@remotion/effects',
 			link: {
 				type: 'doc',
-				id: 'enable-scss/overview',
+				id: 'effects/effects-api',
 			},
-			items: ['enable-scss/enable-scss'],
+			items: ['effects/blur', 'effects/wave'],
 		},
 		{
 			type: 'category',
@@ -276,6 +276,15 @@ const sidebars: SidebarsConfig = {
 				id: 'elevenlabs/index',
 			},
 			items: ['elevenlabs/elevenlabs-transcript-to-captions'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/enable-scss',
+			link: {
+				type: 'doc',
+				id: 'enable-scss/overview',
+			},
+			items: ['enable-scss/enable-scss'],
 		},
 		{
 			type: 'category',
@@ -772,6 +781,7 @@ const sidebars: SidebarsConfig = {
 						'transitions/presentations/iris',
 						'transitions/presentations/zoom-blur',
 						'transitions/presentations/zoom-in-out',
+						'transitions/presentations/dissolve',
 						'transitions/presentations/none',
 						{
 							type: 'doc',

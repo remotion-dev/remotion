@@ -5,7 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
 }
 
-const effectEntrypoints = ['src/index.ts'];
+const effectEntrypoints = ['src/index.ts', 'src/blur.ts', 'src/wave.ts'];
 
 console.time('Generated.');
 const output = await build({

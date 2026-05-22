@@ -14,14 +14,14 @@
 import {EffectInternals} from '@remotion/effects';
 import {Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, Solid, staticFile} from 'remotion';
+import {AbsoluteFill, Solid} from 'remotion';
 
 // --- Edit these values and save to test fast refresh ---
 const TINT_COLOR = '#ff5fa2';
 const TINT_AMOUNT = 0.2;
 // -------------------------------------------------------
 
-const SAMPLE_VIDEO = staticFile('bigbuckbunny.mp4');
+const SAMPLE_VIDEO = 'https://remotion.media/bigbuckbunny.mp4';
 
 const panelStyle: React.CSSProperties = {
 	flex: 1,

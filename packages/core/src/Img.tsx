@@ -4,7 +4,6 @@ import React, {
 	useImperativeHandle,
 	useLayoutEffect,
 	useRef,
-	useState,
 } from 'react';
 import type {IsExact} from './audio/props.js';
 import type {SequenceControls} from './CompositionManager.js';
@@ -15,10 +14,11 @@ import {
 	hiddenField,
 	sequenceVisualStyleSchema,
 } from './sequence-field-schema.js';
+import type {SequenceProps} from './Sequence.js';
+import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
-import {useImageInTimeline} from './use-media-in-timeline.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {wrapInSchema} from './wrap-in-schema.js';
 
@@ -57,7 +57,7 @@ export type ImgProps = NativeImgProps & {
 	 * @deprecated For internal use only
 	 */
 	readonly stack?: string;
-};
+} & Pick<SequenceProps, 'durationInFrames' | 'from' | 'hidden'>;
 
 type Expected = Omit<
 	NativeImgProps,
@@ -66,7 +66,7 @@ type Expected = Omit<
 
 type ImgContentProps = Omit<
 	ImgProps,
-	'hidden' | 'name' | 'stack' | 'showInTimeline'
+	'hidden' | 'name' | 'stack' | 'showInTimeline' | 'from' | 'durationInFrames'
 >;
 
 const ImgContent: React.FC<ImgContentProps> = ({
@@ -305,38 +305,30 @@ const ImgInner: React.FC<
 	stack,
 	showInTimeline,
 	src,
+	from,
+	durationInFrames,
 	_experimentalControls: controls,
 	...props
 }) => {
-	const sequenceContext = useContext(SequenceContext);
-	const [timelineId] = useState(() => String(Math.random()));
-
 	if (!src) {
 		throw new Error('No "src" prop was passed to <Img>.');
 	}
 
-	const stackRef = useRef<string | null>(null);
-	stackRef.current = stack ?? null;
-
-	const getStack = useCallback(() => stackRef.current, []);
-
-	useImageInTimeline({
-		src,
-		displayName: name ?? null,
-		id: timelineId,
-		getStack,
-		showInTimeline: showInTimeline ?? true,
-		premountDisplay: sequenceContext?.premountDisplay ?? null,
-		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
-		loopDisplay: undefined,
-		controls: controls ?? null,
-	});
-
-	if (hidden) {
-		return null;
-	}
-
-	return <ImgContent src={src} {...props} />;
+	return (
+		<Sequence
+			layout="none"
+			from={from ?? 0}
+			durationInFrames={durationInFrames ?? Infinity}
+			_remotionInternalStack={stack}
+			_remotionInternalIsMedia={{type: 'image', src}}
+			name={name ?? '<Img>'}
+			_experimentalControls={controls}
+			showInTimeline={showInTimeline ?? true}
+			hidden={hidden}
+		>
+			<ImgContent src={src} {...props} />
+		</Sequence>
+	);
 };
 
 const imgSchema = {

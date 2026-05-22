@@ -46,6 +46,7 @@ import {
 	wipePresentationDemo,
 	zoomBlurPresentationDemo,
 	zoomInOutPresentationDemo,
+	dissolvePresentationDemo,
 } from './types';
 import styles from './styles.module.css';
 
@@ -99,6 +100,7 @@ const demos: DemoType[] = [
 	transitionSeriesEnterExitDemo,
 	zoomBlurPresentationDemo,
 	zoomInOutPresentationDemo,
+	dissolvePresentationDemo,
 ];
 
 export const Demo: React.FC<{

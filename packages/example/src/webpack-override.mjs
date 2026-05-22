@@ -41,11 +41,22 @@ const aliases = {
 	'@remotion/transitions/zoom-in-out': resolveCwd(
 		'@remotion/transitions/zoom-in-out',
 	),
+	'@remotion/transitions/dissolve': resolveCwd(
+		'@remotion/transitions/dissolve',
+	),
 	'@remotion/transitions/wipe': resolveCwd('@remotion/transitions/wipe'),
 	'@remotion/transitions/iris': resolveCwd('@remotion/transitions/iris'),
 	'@remotion/transitions/none': resolveCwd('@remotion/transitions/none'),
 	'@remotion/transitions': resolveCwd('@remotion/transitions'),
 	'@remotion/zod-types': resolveCwd('@remotion/zod-types'),
+	'@remotion/effects/blur': path.join(
+		process.cwd(),
+		'../effects/dist/esm/blur.mjs',
+	),
+	'@remotion/effects/wave': path.join(
+		process.cwd(),
+		'../effects/dist/esm/wave.mjs',
+	),
 };
 
 /**

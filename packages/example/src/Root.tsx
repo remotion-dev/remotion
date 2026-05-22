@@ -63,6 +63,10 @@ import {
 	ZoomBlurTransitionDocThumb,
 	ZoomInOutTransitionDoc,
 	ZoomInOutTransitionDocThumb,
+	DissolveTransitionDoc,
+	DissolveTransitionDocThumb,
+	EffectsBlurPreview,
+	EffectsWavePreview,
 } from './HtmlInCanvas';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
@@ -779,7 +783,7 @@ export const Index: React.FC = () => {
 					component={NewAudioExample}
 					fps={30}
 					defaultProps={{
-						src: staticFile('music.mp3'),
+						src: 'https://remotion.media/music.mp3',
 					}}
 					calculateMetadata={async ({props}) => {
 						const fps = 30;
@@ -1002,6 +1006,22 @@ export const Index: React.FC = () => {
 						durationInFrames={60}
 					/>
 					<Composition
+						id="html-in-canvas-effects-blur-preview"
+						component={EffectsBlurPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-wave-preview"
+						component={EffectsWavePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
 						id="zoom-in-out-transition-doc"
 						component={ZoomInOutTransitionDoc}
 						fps={30}
@@ -1012,6 +1032,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="zoom-in-out-transition-doc-thumb"
 						component={ZoomInOutTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="dissolve-transition-doc"
+						component={DissolveTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="dissolve-transition-doc-thumb"
+						component={DissolveTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}

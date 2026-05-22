@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/effects",
 	"version": "4.0.464",
-	"description": "Internal presets for Remotion canvas effect hooks",
+	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -32,8 +32,29 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
+		"./blur": {
+			"types": "./dist/blur.d.ts",
+			"module": "./dist/esm/blur.mjs",
+			"import": "./dist/esm/blur.mjs"
+		},
+		"./wave": {
+			"types": "./dist/wave.d.ts",
+			"module": "./dist/esm/wave.mjs",
+			"import": "./dist/esm/wave.mjs"
+		},
 		"./package.json": "./package.json"
 	},
+	"typesVersions": {
+		">=1.0": {
+			"blur": [
+				"dist/blur.d.ts"
+			],
+			"wave": [
+				"dist/wave.d.ts"
+			]
+		}
+	},
+	"homepage": "https://www.remotion.dev/docs/effects/api",
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",

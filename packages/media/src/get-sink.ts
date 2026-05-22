@@ -63,7 +63,7 @@ export const getSink = (
 	src: string,
 	logLevel: LogLevel,
 	credentials: RequestCredentials | undefined,
-	requestInit?: RequestInit,
+	requestInit: RequestInit | undefined,
 ) => {
 	const cacheKey = getSinkCacheKey({src, credentials, requestInit});
 	let promise = sinkPromises[cacheKey];
