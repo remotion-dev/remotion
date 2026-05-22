@@ -1,11 +1,11 @@
 import type {SetStateAction} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import type {PreviewServerConnectionState} from '../helpers/preview-server-events';
 import type {ModalState} from '../state/modals';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
-
-const truthy = <T>(value: T | null): value is T => value !== null;
 
 export const getCompositionMenuItems = ({
 	composition,
@@ -15,12 +15,14 @@ export const getCompositionMenuItems = ({
 	closeMenu,
 }: {
 	composition: _InternalTypes['AnyComposition'] | null;
-	connectionStatus: string;
+	connectionStatus: PreviewServerConnectionState['type'];
 	resolvedLocation: ResolvedStackLocation | null;
 	setSelectedModal: (value: SetStateAction<ModalState | null>) => void;
 	closeMenu: () => void;
 }): ComboboxValue[] => {
 	const editorName = window.remotion_editorName;
+	const showInEditorDisabled =
+		!composition || connectionStatus !== 'connected' || !resolvedLocation;
 
 	return [
 		editorName
@@ -45,10 +47,7 @@ export const getCompositionMenuItems = ({
 					subMenu: null,
 					type: 'item' as const,
 					value: 'show-in-editor',
-					disabled:
-						!composition ||
-						connectionStatus !== 'connected' ||
-						!resolvedLocation,
+					disabled: showInEditorDisabled,
 				}
 			: null,
 		editorName
@@ -158,5 +157,5 @@ export const getCompositionMenuItems = ({
 			value: 'copy-id',
 			disabled: !composition,
 		},
-	].filter(truthy);
+	].filter(NoReactInternals.truthy);
 };
