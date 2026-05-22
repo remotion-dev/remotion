@@ -74,7 +74,7 @@ export const deleteEffect = async ({
 	return {
 		output,
 		formatted,
-		effectLabel: `${found.callee}() effect`,
+		effectLabel: `${found.callee}()`,
 		logLine: found.call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
 	};
 };

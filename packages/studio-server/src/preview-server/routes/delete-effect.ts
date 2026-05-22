@@ -14,6 +14,7 @@ import {
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
+import {strikeThroughOrRemovedPrefix} from './log-updates/formatting';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
 
 export const deleteEffectHandler: ApiHandler<
@@ -65,7 +66,7 @@ export const deleteEffectHandler: ApiHandler<
 		});
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
-			`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Deleted ${effectLabel}`,
+			`${RenderInternals.chalk.blueBright(`${locationLabel}`)} ${strikeThroughOrRemovedPrefix(effectLabel)}`,
 		);
 		if (!formatted) {
 			warnAboutPrettierOnce(logLevel);
