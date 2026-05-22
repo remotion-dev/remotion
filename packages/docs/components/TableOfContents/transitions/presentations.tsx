@@ -9,6 +9,7 @@ import {wipe} from '@remotion/transitions/wipe';
 import React from 'react';
 import {DissolveTocPreview} from '../../transitions/dissolve-toc-preview';
 import {PresentationPreview} from '../../transitions/previews';
+import {RippleTocPreview} from '../../transitions/ripple-toc-preview';
 import {ZoomBlurTocPreview} from '../../transitions/zoom-blur-toc-preview';
 import {ZoomInOutTocPreview} from '../../transitions/zoom-in-out-toc-preview';
 import {Grid} from '../Grid';
@@ -153,6 +154,18 @@ export const Presentations: React.FC<{
 						</strong>
 						<HtmlInCanvasLabel />
 						<div>Burn through the previous scene with a glowing edge</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/ripple">
+				<div style={row}>
+					<RippleTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'ripple()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Ripple the outgoing scene with a sinusoidal wave</div>
 					</div>
 				</div>
 			</TOCItem>

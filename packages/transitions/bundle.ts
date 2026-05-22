@@ -16,6 +16,7 @@ const presentations = [
 	'zoom-blur',
 	'zoom-in-out',
 	'dissolve',
+	'ripple',
 ];
 
 const output = await build({

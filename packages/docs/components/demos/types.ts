@@ -25,6 +25,7 @@ import {NoiseComp} from './NoiseDemo';
 import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
 import {RectDemo} from './Rect';
+import {RippleDocsDemo} from './RippleDemo';
 import {RoundedTextBox} from './RoundedTextBox';
 import {ShaderDemoComp} from './ShaderDemo';
 import {SpringDemo} from './Spring';
@@ -955,6 +956,19 @@ export const dissolvePresentationDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'dissolve',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const ripplePresentationDemo: DemoType = {
+	comp: RippleDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'ripple',
 	autoPlay: true,
 	controls: false,
 	logLevel: 'info',
