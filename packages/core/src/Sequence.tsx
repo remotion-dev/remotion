@@ -81,10 +81,15 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
-	readonly _remotionInternalIsMedia?: {
-		type: 'video' | 'audio';
-		data: BasicMediaInTimelineReturnType;
-	};
+	readonly _remotionInternalIsMedia?:
+		| {
+				type: 'video' | 'audio';
+				data: BasicMediaInTimelineReturnType;
+		  }
+		| {
+				type: 'image';
+				src: string;
+		  };
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -238,28 +243,50 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 
 		if (isMedia) {
-			registerSequence({
-				type: isMedia.type,
-				controls: controls ?? null,
-				effects: _remotionInternalEffects ?? [],
-				displayName: timelineClipName,
-				doesVolumeChange: isMedia.data.doesVolumeChange,
-				duration: actualDurationInFrames,
-				from,
-				id,
-				loopDisplay,
-				nonce: nonce.get(),
-				parent: parentSequence?.id ?? null,
-				playbackRate: isMedia.data.playbackRate,
-				postmountDisplay: postmountDisplay ?? null,
-				premountDisplay: premountDisplay ?? null,
-				rootId,
-				showInTimeline,
-				src: isMedia.data.src,
-				getStack: () => stackRef.current,
-				startMediaFrom: isMedia.data.startMediaFrom,
-				volume: isMedia.data.volumes,
-			});
+			if (isMedia.type === 'image') {
+				registerSequence({
+					type: 'image',
+					controls: controls ?? null,
+					effects: _remotionInternalEffects ?? [],
+					displayName: timelineClipName,
+					duration: actualDurationInFrames,
+					from,
+					id,
+					loopDisplay,
+					nonce: nonce.get(),
+					parent: parentSequence?.id ?? null,
+					postmountDisplay: postmountDisplay ?? null,
+					premountDisplay: premountDisplay ?? null,
+					rootId,
+					showInTimeline,
+					src: isMedia.src,
+					getStack: () => stackRef.current,
+				});
+			} else {
+				registerSequence({
+					type: isMedia.type,
+					controls: controls ?? null,
+					effects: _remotionInternalEffects ?? [],
+					displayName: timelineClipName,
+					doesVolumeChange: isMedia.data.doesVolumeChange,
+					duration: actualDurationInFrames,
+					from,
+					id,
+					loopDisplay,
+					nonce: nonce.get(),
+					parent: parentSequence?.id ?? null,
+					playbackRate: isMedia.data.playbackRate,
+					postmountDisplay: postmountDisplay ?? null,
+					premountDisplay: premountDisplay ?? null,
+					rootId,
+					showInTimeline,
+					src: isMedia.data.src,
+					getStack: () => stackRef.current,
+					startMediaFrom: isMedia.data.startMediaFrom,
+					volume: isMedia.data.volumes,
+				});
+			}
+
 			return () => {
 				unregisterSequence(id);
 			};
