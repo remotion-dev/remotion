@@ -25,5 +25,6 @@ export {
 	DissolveTransitionDoc,
 	DissolveTransitionDocThumb,
 } from './dissolve-doc';
+export {RippleTransitionDoc, RippleTransitionDocThumb} from './ripple-doc';
 export {EffectsBlurPreview} from './effects-blur-preview';
 export {EffectsWavePreview} from './effects-wave-preview';

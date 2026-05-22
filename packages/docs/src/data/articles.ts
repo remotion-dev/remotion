@@ -6655,6 +6655,15 @@ export const articles = [
 		slug: 'transitions/presentations/none',
 	},
 	{
+		id: 'transitions/presentations/ripple',
+		title: 'ripple()',
+		relativePath: 'docs/transitions/presentations/ripple.mdx',
+		compId: 'articles-docs-transitions-presentations-ripple',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/ripple',
+	},
+	{
 		id: 'transitions/presentations/slide',
 		title: 'slide()',
 		relativePath: 'docs/transitions/presentations/slide.mdx',

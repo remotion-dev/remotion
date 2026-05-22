@@ -47,6 +47,7 @@ import {
 	zoomBlurPresentationDemo,
 	zoomInOutPresentationDemo,
 	dissolvePresentationDemo,
+	ripplePresentationDemo,
 } from './types';
 import styles from './styles.module.css';
 
@@ -101,6 +102,7 @@ const demos: DemoType[] = [
 	zoomBlurPresentationDemo,
 	zoomInOutPresentationDemo,
 	dissolvePresentationDemo,
+	ripplePresentationDemo,
 ];
 
 export const Demo: React.FC<{

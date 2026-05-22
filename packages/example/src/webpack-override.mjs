@@ -44,6 +44,7 @@ const aliases = {
 	'@remotion/transitions/dissolve': resolveCwd(
 		'@remotion/transitions/dissolve',
 	),
+	'@remotion/transitions/ripple': resolveCwd('@remotion/transitions/ripple'),
 	'@remotion/transitions/wipe': resolveCwd('@remotion/transitions/wipe'),
 	'@remotion/transitions/iris': resolveCwd('@remotion/transitions/iris'),
 	'@remotion/transitions/none': resolveCwd('@remotion/transitions/none'),

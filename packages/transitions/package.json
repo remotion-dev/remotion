@@ -115,6 +115,12 @@
 			"import": "./dist/esm/dissolve.mjs",
 			"require": "./dist/presentations/dissolve.js"
 		},
+		"./ripple": {
+			"types": "./dist/presentations/ripple.d.ts",
+			"module": "./dist/esm/ripple.mjs",
+			"import": "./dist/esm/ripple.mjs",
+			"require": "./dist/presentations/ripple.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -148,6 +154,9 @@
 			],
 			"dissolve": [
 				"dist/presentations/dissolve.d.ts"
+			],
+			"ripple": [
+				"dist/presentations/ripple.d.ts"
 			]
 		}
 	},
