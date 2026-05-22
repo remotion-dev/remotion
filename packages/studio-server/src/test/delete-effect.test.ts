@@ -24,7 +24,7 @@ test('deleteEffect removes the only effect and the effects prop', async () => {
 		effectIndex: 0,
 	});
 
-	expect(effectLabel).toBe('tint() effect');
+	expect(effectLabel).toBe('tint()');
 	expect(output).not.toContain('effects=');
 	expect(output).not.toContain('EffectInternals.tint');
 	expect(output).toContain('<HtmlInCanvas>');
