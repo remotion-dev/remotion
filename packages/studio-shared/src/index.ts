@@ -14,6 +14,8 @@ export {
 	UnsubscribeFromSequencePropsRequest,
 	CancelRenderResponse,
 	CopyStillToClipboardRequest,
+	DeleteEffectRequest,
+	DeleteEffectResponse,
 	DeleteJsxNodeRequest,
 	DeleteJsxNodeResponse,
 	DuplicateJsxNodeRequest,

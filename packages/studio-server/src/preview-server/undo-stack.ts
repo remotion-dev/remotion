@@ -21,6 +21,7 @@ type UndoEntryType =
 	| 'default-props'
 	| 'sequence-props'
 	| 'effect-props'
+	| 'delete-effect'
 	| 'delete-jsx-node'
 	| 'duplicate-jsx-node';
 
@@ -37,6 +38,7 @@ type UndoEntry = {
 	| {entryType: 'default-props'}
 	| {entryType: 'sequence-props'}
 	| {entryType: 'effect-props'}
+	| {entryType: 'delete-effect'}
 	| {entryType: 'delete-jsx-node'}
 	| {entryType: 'duplicate-jsx-node'}
 );
