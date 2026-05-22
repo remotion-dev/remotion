@@ -5,6 +5,8 @@ import path from 'path';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import {$} from 'bun';
 
+const lambdaPhpDir = path.join(process.cwd(), '..', 'lambda-php');
+
 const referenceVersion = readFileSync(
 	path.join(process.cwd(), '..', 'core', 'package.json'),
 	'utf-8',
@@ -12,11 +14,30 @@ const referenceVersion = readFileSync(
 const referenceVersionJson = JSON.parse(referenceVersion);
 const version = referenceVersionJson.version;
 
+const installComposerDependencies = (cwd: string) => {
+	const maxAttempts = 3;
+	for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+		try {
+			execSync('php composer.phar --quiet install', {cwd});
+			return;
+		} catch (err) {
+			if (attempt === maxAttempts) {
+				throw err;
+			}
+		}
+	}
+};
+
 beforeAll(async () => {
-	await $`php composer.phar update --quiet --lock`.cwd(
-		path.join(process.cwd(), '..', 'lambda-php'),
-	);
-}, 120_000);
+	const result = await $`php composer.phar validate --no-check-publish --quiet`
+		.cwd(lambdaPhpDir)
+		.nothrow();
+	if (result.exitCode === 2) {
+		throw new Error(
+			'composer.lock is not in sync with composer.json in packages/lambda-php. Run `php composer.phar update --lock` there and commit the change.',
+		);
+	}
+});
 
 describe('These should run serially', () => {
 	test('Set the right version for phpunit', () => {
@@ -65,9 +86,7 @@ class Semantic
 	});
 
 	test('PHP package should create the same renderMedia payload as normal Lambda package', async () => {
-		execSync('php composer.phar --quiet install', {
-			cwd: path.join(process.cwd(), '..', 'lambda-php'),
-		});
+		installComposerDependencies(lambdaPhpDir);
 		const phpOutput = execSync('php phpunit.phar ./tests/PHPClientTest.php', {
 			cwd: path.join(process.cwd(), '..', 'lambda-php'),
 		});
@@ -145,9 +164,7 @@ class Semantic
 	});
 
 	test('PHP package should create the same progress payload as normal Lambda package', async () => {
-		execSync('php composer.phar --quiet install', {
-			cwd: path.join(process.cwd(), '..', 'lambda-php'),
-		});
+		installComposerDependencies(lambdaPhpDir);
 		const phpOutput = execSync(
 			'php phpunit.phar ./tests/PHPRenderProgressTest.php',
 			{
