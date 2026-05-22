@@ -18,7 +18,7 @@
 		"start-bun": "PATCH_BUN_DEVELOPMENT=true bun --bun remotion studio",
 		"start-js": "remotion preview src/entry.jsx",
 		"comps": "remotion compositions",
-		"clean": "rm -rf build && rm -rf out",
+		"clean": "rm -rf build && rm -rf build-testbed && rm -rf out",
 		"lint": "eslint src",
 		"test": "tsc && bun test src --timeout 60000",
 		"test:e2e": "playwright test",
