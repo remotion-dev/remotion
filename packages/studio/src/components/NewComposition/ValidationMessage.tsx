@@ -31,7 +31,8 @@ export const ValidationMessage: React.FC<{
 	readonly message: React.ReactNode;
 	readonly align: 'flex-start' | 'flex-end';
 	readonly type: 'warning' | 'error';
-}> = ({message, align, type}) => {
+	readonly action?: React.ReactNode;
+}> = ({message, align, type, action}) => {
 	const finalStyle = useMemo(() => {
 		return {
 			...style,
@@ -45,6 +46,12 @@ export const ValidationMessage: React.FC<{
 				<WarningTriangle style={finalStyle} />
 				<Spacing x={1} />
 				<div style={label}>{message}</div>
+				{action ? (
+					<>
+						<Spacing x={1} />
+						{action}
+					</>
+				) : null}
 			</Row>
 		</div>
 	);

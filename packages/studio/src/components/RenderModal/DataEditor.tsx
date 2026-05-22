@@ -310,24 +310,20 @@ export const DataEditor: React.FC<{
 							<React.Fragment key={warning.id}>
 								<Spacing y={1} />
 								<ValidationMessage
+									message={warning.message}
 									align="flex-start"
 									type="warning"
-									message={
+									action={
 										warning.resolveLink ? (
-											<>
-												{warning.message}{' '}
-												<a
-													href={warning.resolveLink}
-													target="_blank"
-													rel="noopener noreferrer"
-													style={resolveLinkStyle}
-												>
-													Resolve.
-												</a>
-											</>
-										) : (
-											warning.message
-										)
+											<a
+												href={warning.resolveLink}
+												target="_blank"
+												rel="noopener noreferrer"
+												style={resolveLinkStyle}
+											>
+												Resolve
+											</a>
+										) : null
 									}
 								/>
 							</React.Fragment>
