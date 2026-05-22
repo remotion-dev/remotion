@@ -23,14 +23,15 @@ For that to work, Remotion needs to find the root file and extract the existing 
 This warning appears if one of these conditions is true:
 
 - The composition has no `defaultProps` prop.
-- The composition ID is not hardcoded as a string.
-- The `defaultProps` value is not a hardcoded object literal.
+- The `id` is not a JSX string literal.
+- The `defaultProps` value is not an inline object literal.
 - The root file cannot be found from the entry point or the known root file paths.
 - The root file is not TypeScript.
 
 ## How to fix it
 
-Put the composition in a root file that Remotion can find, and hardcode the `id` and `defaultProps` values:
+Put the composition in a TypeScript root file that Remotion can find.
+The `id` must be a JSX string literal and `defaultProps` must be an inline object literal:
 
 ```tsx title="Root.tsx"
 import {Composition} from 'remotion';
@@ -54,7 +55,7 @@ export const RemotionRoot = () => {
 };
 ```
 
-Avoid values that need runtime evaluation:
+Avoid values that are not written in the required JSX shape:
 
 ```tsx title="Root.tsx"
 import {Composition} from 'remotion';
@@ -71,20 +72,18 @@ export const RemotionRoot = () => {
 
 ## Root file paths
 
-Remotion can automatically find a root file at these paths:
+For saving default props, Remotion can automatically find TypeScript root files at these paths:
 
 - `src/Root.tsx`
-- `src/Root.jsx`
 - `remotion/Root.tsx`
-- `remotion/Root.jsx`
 - `app/remotion/Root.tsx`
 - `src/Video.tsx`
-- `src/Video.jsx`
 - `src/remotion/Root.tsx`
-- `src/remotion/Root.jsx`
 
-If your entry point ends in `-entry`, Remotion also looks for a matching PascalCase root next to it.
-For example, `gold-star-entry.tsx` maps to `GoldStarRoot.tsx`.
+Remotion Studio may also discover JavaScript root files, but saving default props requires TypeScript.
+
+If your entry point ends in `-entry`, Remotion also looks for a matching PascalCase root file next to it.
+For example, `gold-star-entry.tsx` maps to `GoldStarRoot.tsx` or `GoldStarRoot.ts`.
 
 ## AI agent prompt
 
@@ -93,7 +92,7 @@ Use this prompt to resolve the warning:
 ```txt
 Remotion Studio shows "Can't save default props" for my composition.
 Find the root file that registers the composition, then make the composition id and defaultProps statically analyzable.
-The id should be a hardcoded string and defaultProps should be an inline object literal on the <Composition> or <Still>.
+The id should be a JSX string literal and defaultProps should be an inline object literal on the <Composition> or <Still>.
 Preserve the current prop values and keep the composition behavior unchanged.
 ```
 

@@ -28,7 +28,7 @@ const label: React.CSSProperties = {
 };
 
 export const ValidationMessage: React.FC<{
-	readonly message: React.ReactNode;
+	readonly message: string;
 	readonly align: 'flex-start' | 'flex-end';
 	readonly type: 'warning' | 'error';
 	readonly action?: React.ReactNode;

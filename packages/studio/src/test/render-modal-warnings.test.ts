@@ -48,3 +48,46 @@ test('Does not add warnings before default props saveability is determined', () 
 
 	expect(warnings).toStrictEqual([]);
 });
+
+test('Keeps other warnings as stable entries without Resolve links', () => {
+	const warnings = getRenderModalWarnings({
+		cliProps: {title: 'Hello'},
+		canSaveDefaultProps: {
+			canUpdate: true,
+		},
+		isCustomDateUsed: true,
+		customFileUsed: true,
+		jsMapUsed: true,
+		jsSetUsed: true,
+		inJSONEditor: true,
+		propsEditType: 'default-props',
+	});
+
+	expect(warnings).toStrictEqual([
+		{
+			id: 'input-props-override',
+			message:
+				'The data that was passed using --props takes priority over the data you enter here.',
+		},
+		{
+			id: 'custom-date-used',
+			message:
+				'There is a Date in the schema which was serialized. Note the custom syntax.',
+		},
+		{
+			id: 'static-file-used',
+			message:
+				'There is a staticFile() in the schema which was serialized. Note the custom syntax.',
+		},
+		{
+			id: 'map-used',
+			message:
+				'A `Map` was used in the schema which can not be serialized to JSON.',
+		},
+		{
+			id: 'set-used',
+			message:
+				'A `Set` was used in the schema which can not be serialized to JSON.',
+		},
+	]);
+});
