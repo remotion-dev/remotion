@@ -996,6 +996,10 @@ const itemToSearchResult = (
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void,
 	prefixes: string[],
 ): TQuickSwitcherResult[] => {
+	if (item.disabled) {
+		return [];
+	}
+
 	if (item.subMenu) {
 		return item.subMenu.items
 			.map((subItem) => {
