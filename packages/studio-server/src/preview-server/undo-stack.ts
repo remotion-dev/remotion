@@ -23,7 +23,10 @@ type UndoEntryType =
 	| 'effect-props'
 	| 'delete-effect'
 	| 'delete-jsx-node'
-	| 'duplicate-jsx-node';
+	| 'duplicate-jsx-node'
+	| 'delete-composition'
+	| 'rename-composition'
+	| 'duplicate-composition';
 
 type UndoEntry = {
 	filePath: string;
@@ -41,6 +44,9 @@ type UndoEntry = {
 	| {entryType: 'delete-effect'}
 	| {entryType: 'delete-jsx-node'}
 	| {entryType: 'duplicate-jsx-node'}
+	| {entryType: 'delete-composition'}
+	| {entryType: 'rename-composition'}
+	| {entryType: 'duplicate-composition'}
 );
 
 const MAX_ENTRIES = 100;
