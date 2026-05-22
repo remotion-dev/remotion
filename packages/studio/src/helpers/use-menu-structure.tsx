@@ -3,6 +3,7 @@ import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {restartStudio} from '../api/restart-studio';
 import {askAiModalRef} from '../components/AskAiModal';
+import {getCompositionMenuItems} from '../components/composition-menu-items';
 import {Row} from '../components/layout';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {
@@ -12,6 +13,7 @@ import type {
 import {showNotification} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
+import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {Checkmark} from '../icons/Checkmark';
@@ -196,6 +198,9 @@ export const useMenuStructure = (
 		EditorShowGuidesContext,
 	);
 	const {size, setSize} = useContext(Internals.PreviewSizeContext);
+	const {canvasContent, compositions} = useContext(
+		Internals.CompositionManager,
+	);
 	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
 
 	const {
@@ -214,6 +219,18 @@ export const useMenuStructure = (
 	);
 
 	const mobileLayout = useMobileLayout();
+	const currentComposition = useMemo(() => {
+		if (canvasContent === null || canvasContent.type !== 'composition') {
+			return null;
+		}
+
+		return (
+			compositions.find((c) => c.id === canvasContent.compositionId) ?? null
+		);
+	}, [canvasContent, compositions]);
+	const resolvedCompositionLocation = useResolvedStack(
+		currentComposition?.stack ?? null,
+	);
 	const structure = useMemo((): Structure => {
 		let struct: Structure = [
 			{
@@ -663,6 +680,19 @@ export const useMenuStructure = (
 				].filter(Internals.truthy),
 			},
 			{
+				id: 'composition' as const,
+				label: 'Composition',
+				leaveLeftPadding: false,
+				items: getCompositionMenuItems({
+					closeMenu,
+					composition: currentComposition,
+					connectionStatus: type,
+					resolvedLocation: resolvedCompositionLocation,
+					setSelectedModal,
+				}),
+				quickSwitcherLabel: null,
+			},
+			{
 				id: 'tools' as const,
 				label: 'Tools',
 				leaveLeftPadding: false,
@@ -925,6 +955,8 @@ export const useMenuStructure = (
 		type,
 		sizePreselectIndex,
 		sizes,
+		currentComposition,
+		resolvedCompositionLocation,
 		editorZoomGestures,
 		editorShowRulers,
 		editorShowGuides,
@@ -964,6 +996,10 @@ const itemToSearchResult = (
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void,
 	prefixes: string[],
 ): TQuickSwitcherResult[] => {
+	if (item.disabled) {
+		return [];
+	}
+
 	if (item.subMenu) {
 		return item.subMenu.items
 			.map((subItem) => {
