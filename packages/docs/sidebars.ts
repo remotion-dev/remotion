@@ -529,6 +529,7 @@ const sidebars: SidebarsConfig = {
 				'sfx/illuminati-confirmed',
 				'sfx/dramatic-boomer',
 				'sfx/triggered',
+				'sfx/record-scratch',
 			],
 		},
 		{
