@@ -48,6 +48,8 @@ import {
 	HlsMediaVideoTrimmed,
 } from './Hls/HlsMediaVideo';
 import {
+	BookFlipTransitionDoc,
+	BookFlipTransitionDocThumb,
 	CrosswarpTransitionDoc,
 	CrosswarpTransitionDocThumb,
 	DissolveTransitionDoc,
@@ -1084,6 +1086,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="zoom-in-out-transition-doc-thumb"
 						component={ZoomInOutTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="book-flip-transition-doc"
+						component={BookFlipTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="book-flip-transition-doc-thumb"
+						component={BookFlipTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}

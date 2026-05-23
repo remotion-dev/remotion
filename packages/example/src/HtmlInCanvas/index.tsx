@@ -1,4 +1,6 @@
 export {
+	BookFlipTransitionDoc,
+	BookFlipTransitionDocThumb,
 	HtmlInCanvasChangingSize,
 	HtmlInCanvasChangingSize as HtmlInCanvasDemo,
 } from './changing-size';

@@ -1,11 +1,12 @@
-import {useLayoutEffect, useMemo, useRef, useState, useCallback} from 'react';
+import {useCallback, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
-	HtmlInCanvas,
+	AbsoluteFill,
 	HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
+	HtmlInCanvas,
+	Internals,
 	useDelayRender,
 	type EffectsProp,
 } from 'remotion';
-import {AbsoluteFill, Internals} from 'remotion';
 import type {DrawFunction} from './TransitionSeries';
 import type {
 	TransitionPresentation,
@@ -33,6 +34,7 @@ export const HtmlInCanvasPresentation = <
 	}
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const offscreenRef = useRef<OffscreenCanvas | null>(null);
 	const canvasSubtreeStyle: React.CSSProperties = useMemo(() => {
 		return {
 			width: '100%',
@@ -46,6 +48,7 @@ export const HtmlInCanvasPresentation = <
 	}, []);
 
 	const [offscreenCanvas] = useState(() => new OffscreenCanvas(1, 1));
+	const didPaintRef = useRef(false);
 
 	const passedPropsRef = useRef(passedProps);
 	passedPropsRef.current = passedProps;
@@ -59,12 +62,32 @@ export const HtmlInCanvasPresentation = <
 	effectsRef.current = memoizedEffects;
 
 	const [instance] = useState(() => shader(offscreenCanvas));
+	const passThrough =
+		bothEnteringAndExiting && presentationDirection === 'exiting';
 
 	useLayoutEffect(() => {
 		return () => {
 			instance.cleanup();
 		};
 	}, [offscreenCanvas, instance]);
+
+	useLayoutEffect(() => {
+		if (passThrough) {
+			return;
+		}
+
+		const canvas = canvasRef.current;
+		if (!canvas) {
+			throw new Error('Canvas not found');
+		}
+
+		canvas.layoutSubtree = true;
+		offscreenRef.current = canvas.transferControlToOffscreen();
+
+		return () => {
+			offscreenRef.current = null;
+		};
+	}, [passThrough]);
 
 	const chainState = Internals.useEffectChainState();
 	const {delayRender, continueRender} = useDelayRender();
@@ -110,15 +133,28 @@ export const HtmlInCanvasPresentation = <
 				effects: effectsRef.current ?? [],
 				width,
 				height,
-				output: canvasRef.current,
+				output: offscreenRef.current ?? offscreenCanvas,
 			});
 			continueRender(handle);
 		},
 		[chainState, instance, offscreenCanvas, continueRender, delayRender],
 	);
 
-	const passThrough =
-		bothEnteringAndExiting && presentationDirection === 'exiting';
+	const captureCanvas = useCallback(() => {
+		const canvas = canvasRef.current;
+		if (!canvas) {
+			throw new Error('Canvas not found');
+		}
+
+		const firstChild = canvas.firstChild as HTMLElement | null;
+		if (!firstChild) {
+			return;
+		}
+
+		const elementImage = canvas.captureElementImage(firstChild);
+		didPaintRef.current = true;
+		onElementImage(elementImage, draw);
+	}, [draw, onElementImage]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -130,17 +166,8 @@ export const HtmlInCanvasPresentation = <
 			throw new Error('Canvas not found');
 		}
 
-		canvas.layoutSubtree = true;
-
 		const onPaint = () => {
-			const firstChild = canvas.firstChild as HTMLElement;
-
-			if (!firstChild) {
-				return;
-			}
-
-			const elementImage = canvas.captureElementImage(firstChild);
-			onElementImage(elementImage, draw);
+			captureCanvas();
 		};
 
 		canvas.addEventListener('paint', onPaint);
@@ -148,7 +175,7 @@ export const HtmlInCanvasPresentation = <
 		return () => {
 			canvas.removeEventListener('paint', onPaint);
 		};
-	}, [onElementImage, presentationDirection, draw, passThrough]);
+	}, [captureCanvas, presentationDirection, passThrough]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -160,8 +187,22 @@ export const HtmlInCanvasPresentation = <
 			throw new Error('Canvas not found');
 		}
 
-		canvas.requestPaint?.();
-	}, [presentationProgress, passThrough, memoizedEffects]);
+		if (canvas.requestPaint) {
+			didPaintRef.current = false;
+			canvas.requestPaint();
+			const timeout = setTimeout(() => {
+				if (!didPaintRef.current) {
+					captureCanvas();
+				}
+			}, 100);
+
+			return () => {
+				clearTimeout(timeout);
+			};
+		}
+
+		captureCanvas();
+	}, [captureCanvas, presentationProgress, passThrough, memoizedEffects]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {

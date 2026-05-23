@@ -788,6 +788,7 @@ const sidebars: SidebarsConfig = {
 						'transitions/presentations/clock-wipe',
 						'transitions/presentations/iris',
 						'transitions/presentations/zoom-blur',
+						'transitions/presentations/book-flip',
 						'transitions/presentations/zoom-in-out',
 						'transitions/presentations/dissolve',
 						'transitions/presentations/ripple',

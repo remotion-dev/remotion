@@ -21,3 +21,6 @@ export {
 	HtmlInCanvasShaderDrawParams,
 	makeHtmlInCanvasPresentation,
 } from './html-in-canvas-presentation.js';
+
+export {bookFlip} from './presentations/book-flip.js';
+export type {BookFlipProps} from './presentations/book-flip.js';

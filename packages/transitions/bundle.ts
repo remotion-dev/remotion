@@ -19,6 +19,7 @@ const presentations = [
 	'ripple',
 	'crosswarp',
 	'swap',
+	'book-flip',
 ];
 
 const output = await build({

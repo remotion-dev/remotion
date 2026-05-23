@@ -14,6 +14,7 @@ import {
 } from '../transitions/previews';
 import {ArrowDemo} from './Arrow';
 import {CircleDemo} from './Circle';
+import {BookFlipDocsDemo} from './BookFlipDemo';
 import {CrosswarpDocsDemo} from './CrosswarpDemo';
 import {DissolveDocsDemo} from './DissolveDemo';
 import {EllipseDemo} from './Ellipse';
@@ -932,6 +933,19 @@ export const zoomBlurPresentationDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'zoom-blur',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const bookFlipPresentationDemo: DemoType = {
+	comp: BookFlipDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'book-flip',
 	autoPlay: true,
 	controls: false,
 	logLevel: 'info',

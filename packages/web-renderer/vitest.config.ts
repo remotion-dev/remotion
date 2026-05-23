@@ -21,6 +21,7 @@ export default defineConfig({
 					provider: playwright({
 						launchOptions: {
 							channel: 'chrome',
+							args: ['--enable-features=DrawElementImage'],
 						},
 						actionTimeout: 5_000,
 					}),

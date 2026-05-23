@@ -133,6 +133,12 @@
 			"import": "./dist/esm/swap.mjs",
 			"require": "./dist/presentations/swap.js"
 		},
+		"./book-flip": {
+			"types": "./dist/presentations/book-flip.d.ts",
+			"module": "./dist/esm/book-flip.mjs",
+			"import": "./dist/esm/book-flip.mjs",
+			"require": "./dist/presentations/book-flip.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -175,6 +181,9 @@
 			],
 			"swap": [
 				"dist/presentations/swap.d.ts"
+			],
+			"book-flip": [
+				"dist/presentations/book-flip.d.ts"
 			]
 		}
 	},
