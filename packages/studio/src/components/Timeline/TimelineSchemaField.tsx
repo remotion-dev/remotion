@@ -1,5 +1,6 @@
 import React from 'react';
 import type {
+	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusTrue,
 } from 'remotion';
@@ -47,6 +48,22 @@ export const getComputedStatusLabel = (
 	}
 
 	return propStatus.keyframes?.length ? 'keyframed' : 'computed';
+};
+
+export const getTimelineKeyframes = (
+	propStatus: CanUpdateSequencePropStatus | null | undefined,
+): {frame: number; value: unknown}[] => {
+	if (!propStatus || propStatus.canUpdate) {
+		return [];
+	}
+
+	if (propStatus.reason !== 'computed') {
+		throw new Error(
+			`Unsupported prop status: ${propStatus.reason satisfies never}`,
+		);
+	}
+
+	return propStatus.keyframes ?? [];
 };
 
 export const TimelineNonEditableStatus: React.FC<{
