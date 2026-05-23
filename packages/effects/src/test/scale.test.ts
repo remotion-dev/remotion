@@ -31,7 +31,9 @@ describe('scale', () => {
 			scale: number;
 			horizontal: string;
 		};
-		expect(() => scale(params as Parameters<typeof scale>[0])).toThrow();
+		expect(() =>
+			scale(params as unknown as Parameters<typeof scale>[0]),
+		).toThrow();
 	});
 
 	it('should throw when vertical is not a boolean', () => {
@@ -39,12 +41,16 @@ describe('scale', () => {
 			scale: number;
 			vertical: string;
 		};
-		expect(() => scale(params as Parameters<typeof scale>[0])).toThrow();
+		expect(() =>
+			scale(params as unknown as Parameters<typeof scale>[0]),
+		).toThrow();
 	});
 
 	it('should throw when params is not an object', () => {
 		const params = 'not an object';
-		expect(() => scale(params as Parameters<typeof scale>[0])).toThrow();
+		expect(() =>
+			scale(params as unknown as Parameters<typeof scale>[0]),
+		).toThrow();
 	});
 
 	it('should produce distinct effect keys for different parameters', () => {
