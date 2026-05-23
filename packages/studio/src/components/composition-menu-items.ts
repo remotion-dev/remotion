@@ -13,12 +13,14 @@ export const getCompositionMenuItems = ({
 	resolvedLocation,
 	setSelectedModal,
 	closeMenu,
+	readOnlyStudio,
 }: {
 	composition: _InternalTypes['AnyComposition'] | null;
 	connectionStatus: PreviewServerConnectionState['type'];
 	resolvedLocation: ResolvedStackLocation | null;
 	setSelectedModal: (value: SetStateAction<ModalState | null>) => void;
 	closeMenu: () => void;
+	readOnlyStudio: boolean;
 }): ComboboxValue[] => {
 	const editorName = window.remotion_editorName;
 	const showInEditorDisabled =
@@ -76,7 +78,7 @@ export const getCompositionMenuItems = ({
 			subMenu: null,
 			type: 'item' as const,
 			value: 'rename',
-			disabled: !composition,
+			disabled: !composition || readOnlyStudio,
 		},
 		{
 			id: 'duplicate',
@@ -100,7 +102,7 @@ export const getCompositionMenuItems = ({
 			subMenu: null,
 			type: 'item' as const,
 			value: 'duplicate',
-			disabled: !composition,
+			disabled: !composition || readOnlyStudio,
 		},
 		{
 			id: 'delete',
@@ -122,11 +124,7 @@ export const getCompositionMenuItems = ({
 			subMenu: null,
 			type: 'item' as const,
 			value: 'delete',
-			disabled: !composition,
-		},
-		{
-			type: 'divider' as const,
-			id: 'copy-id-divider',
+			disabled: !composition || readOnlyStudio,
 		},
 		{
 			id: 'copy-id',

@@ -188,6 +188,7 @@ export const CompositionSelectorItem: React.FC<{
 				connectionStatus,
 				resolvedLocation,
 				setSelectedModal,
+				readOnlyStudio: Boolean(window.remotion_isReadOnlyStudio),
 			});
 		}
 

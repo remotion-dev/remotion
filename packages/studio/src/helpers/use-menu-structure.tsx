@@ -689,6 +689,7 @@ export const useMenuStructure = (
 					connectionStatus: type,
 					resolvedLocation: resolvedCompositionLocation,
 					setSelectedModal,
+					readOnlyStudio,
 				}),
 				quickSwitcherLabel: null,
 			},
