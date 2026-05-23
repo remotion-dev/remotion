@@ -13,6 +13,7 @@ import {
 	WipeDemo,
 } from '../transitions/previews';
 import {ArrowDemo} from './Arrow';
+import {BookFlipDocsDemo} from './BookFlipDemo';
 import {CircleDemo} from './Circle';
 import {CrosswarpDocsDemo} from './CrosswarpDemo';
 import {DissolveDocsDemo} from './DissolveDemo';
@@ -945,6 +946,19 @@ export const zoomInOutPresentationDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'zoom-in-out',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const bookFlipPresentationDemo: DemoType = {
+	comp: BookFlipDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'book-flip',
 	autoPlay: true,
 	controls: false,
 	logLevel: 'info',

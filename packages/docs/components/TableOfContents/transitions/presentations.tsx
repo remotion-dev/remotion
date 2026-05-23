@@ -7,6 +7,7 @@ import {none} from '@remotion/transitions/none';
 import {slide} from '@remotion/transitions/slide';
 import {wipe} from '@remotion/transitions/wipe';
 import React from 'react';
+import {BookFlipTocPreview} from '../../transitions/book-flip-toc-preview';
 import {CrosswarpTocPreview} from '../../transitions/crosswarp-toc-preview';
 import {DissolveTocPreview} from '../../transitions/dissolve-toc-preview';
 import {PresentationPreview} from '../../transitions/previews';
@@ -132,6 +133,18 @@ export const Presentations: React.FC<{
 						</strong>
 						<HtmlInCanvasLabel />
 						<div>Zoom and rotate scenes with a radial blur</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/book-flip">
+				<div style={row}>
+					<BookFlipTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'bookFlip()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Turn the scenes like a shaded book page</div>
 					</div>
 				</div>
 			</TOCItem>

@@ -6619,6 +6619,15 @@ export const articles = [
 		slug: 'transitions/make-html-in-canvas-presentation',
 	},
 	{
+		id: 'transitions/presentations/book-flip',
+		title: 'bookFlip()',
+		relativePath: 'docs/transitions/presentations/book-flip.mdx',
+		compId: 'articles-docs-transitions-presentations-book-flip',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/book-flip',
+	},
+	{
 		id: 'transitions/presentations/clock-wipe',
 		title: 'clockWipe()',
 		relativePath: 'docs/transitions/presentations/clock-wipe.mdx',
