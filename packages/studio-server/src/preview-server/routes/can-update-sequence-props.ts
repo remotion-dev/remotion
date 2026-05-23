@@ -1,6 +1,7 @@
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import type {
+	CallExpression,
 	Expression,
 	File,
 	JSXAttribute,
@@ -13,15 +14,20 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import * as recast from 'recast';
-import type {CanUpdateSequencePropsResponseTrue, LogLevel} from 'remotion';
-import type {SequenceNodePath} from 'remotion';
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {
+	CanUpdateSequencePropsResponseTrue,
+	CanUpdateSequencePropStatus,
+	LogLevel,
+	SequenceNodePath,
+} from 'remotion';
 import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {JsxElementNotFoundAtLocationError} from '../jsx-element-not-found-at-location-error';
 import {computeEffectPropStatus} from './can-update-effect-props';
 
 type CanUpdatePropStatus = CanUpdateSequencePropStatus;
+type ComputedPropStatus = Extract<CanUpdatePropStatus, {canUpdate: false}>;
+type PropKeyframes = NonNullable<ComputedPropStatus['keyframes']>;
 
 export const isStaticValue = (node: Expression): boolean => {
 	switch (node.type) {
@@ -114,6 +120,100 @@ export const extractStaticValue = (node: Expression): unknown => {
 	}
 };
 
+const getNumericValue = (node: Expression): number | null => {
+	if (node.type === 'NumericLiteral') {
+		return node.value;
+	}
+
+	if (
+		node.type === 'UnaryExpression' &&
+		(node.operator === '-' || node.operator === '+') &&
+		node.argument.type === 'NumericLiteral'
+	) {
+		return node.operator === '-' ? -node.argument.value : node.argument.value;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getNumericValue(node.expression as Expression);
+	}
+
+	return null;
+};
+
+const getInterpolateKeyframes = (
+	node: Expression,
+): PropKeyframes | undefined => {
+	if (node.type === 'TSAsExpression') {
+		return getInterpolateKeyframes(node.expression as Expression);
+	}
+
+	if (node.type !== 'CallExpression') {
+		return undefined;
+	}
+
+	const callExpression = node as CallExpression;
+	if (
+		callExpression.callee.type !== 'Identifier' ||
+		callExpression.callee.name !== 'interpolate'
+	) {
+		return undefined;
+	}
+
+	const inputArg = callExpression.arguments[1];
+	const outputArg = callExpression.arguments[2];
+	if (
+		!inputArg ||
+		!outputArg ||
+		inputArg.type !== 'ArrayExpression' ||
+		outputArg.type !== 'ArrayExpression'
+	) {
+		return undefined;
+	}
+
+	if (inputArg.elements.length !== outputArg.elements.length) {
+		return undefined;
+	}
+
+	const keyframes: PropKeyframes = [];
+	for (let i = 0; i < inputArg.elements.length; i++) {
+		const inputElement = inputArg.elements[i];
+		const outputElement = outputArg.elements[i];
+		if (
+			!inputElement ||
+			!outputElement ||
+			inputElement.type === 'SpreadElement' ||
+			outputElement.type === 'SpreadElement'
+		) {
+			return undefined;
+		}
+
+		const frame = getNumericValue(inputElement);
+		if (frame === null || !isStaticValue(outputElement)) {
+			return undefined;
+		}
+
+		keyframes.push({
+			frame,
+			value: extractStaticValue(outputElement),
+		});
+	}
+
+	return keyframes.length > 0 ? keyframes : undefined;
+};
+
+const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
+	const keyframes = getInterpolateKeyframes(node);
+	if (!keyframes) {
+		return {canUpdate: false, reason: 'computed'};
+	}
+
+	return {
+		canUpdate: false,
+		reason: 'computed',
+		keyframes,
+	};
+};
+
 const getPropsStatus = (
 	jsxElement: JSXOpeningElement,
 ): Record<string, CanUpdatePropStatus> => {
@@ -150,11 +250,13 @@ const getPropsStatus = (
 
 		if (value.type === 'JSXExpressionContainer') {
 			const {expression} = value;
-			if (
-				expression.type === 'JSXEmptyExpression' ||
-				!isStaticValue(expression)
-			) {
+			if (expression.type === 'JSXEmptyExpression') {
 				props[name] = {canUpdate: false, reason: 'computed'};
+				continue;
+			}
+
+			if (!isStaticValue(expression)) {
+				props[name] = getComputedStatus(expression);
 				continue;
 			}
 
@@ -292,7 +394,7 @@ const getNestedPropStatus = (
 
 	const propValue = prop.value as Expression;
 	if (!isStaticValue(propValue)) {
-		return {canUpdate: false, reason: 'computed'};
+		return getComputedStatus(propValue);
 	}
 
 	const codeValue = extractStaticValue(propValue);
