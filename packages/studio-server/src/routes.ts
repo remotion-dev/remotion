@@ -27,6 +27,7 @@ import {
 	guessEditor,
 	launchEditor,
 } from './helpers/open-in-editor';
+import {resolveCompositionComponent} from './helpers/resolve-composition-component';
 import {resolveOutputPath} from './helpers/resolve-output-path';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
@@ -265,6 +266,55 @@ const handleOpenInEditor = async (
 		res.end(
 			JSON.stringify({
 				success: false,
+			}),
+		);
+	}
+};
+
+const handleResolveCompositionComponent = async (
+	remotionRoot: string,
+	req: IncomingMessage,
+	res: ServerResponse,
+) => {
+	if (req.method === 'OPTIONS') {
+		res.statusCode = 200;
+		res.end();
+		return;
+	}
+
+	res.setHeader('content-type', 'application/json');
+	try {
+		const body = (await parseRequestBody(req)) as {
+			compositionFile: string;
+			compositionId: string;
+		};
+		if (typeof body.compositionFile !== 'string') {
+			throw new TypeError('Need to pass compositionFile');
+		}
+
+		if (typeof body.compositionId !== 'string') {
+			throw new TypeError('Need to pass compositionId');
+		}
+
+		const location = await resolveCompositionComponent({
+			remotionRoot,
+			compositionFile: body.compositionFile,
+			compositionId: body.compositionId,
+		});
+
+		res.writeHead(200);
+		res.end(
+			JSON.stringify({
+				success: true,
+				location,
+			}),
+		);
+	} catch (err) {
+		res.writeHead(200);
+		res.end(
+			JSON.stringify({
+				success: false,
+				error: (err as Error).message,
 			}),
 		);
 	}
@@ -510,6 +560,10 @@ export const handleRoutes = ({
 
 	if (url.pathname === '/api/open-in-editor') {
 		return handleOpenInEditor(remotionRoot, request, response, logLevel);
+	}
+
+	if (url.pathname === '/api/resolve-composition-component') {
+		return handleResolveCompositionComponent(remotionRoot, request, response);
 	}
 
 	if (url.pathname === `${staticHash}/api/add-asset`) {
