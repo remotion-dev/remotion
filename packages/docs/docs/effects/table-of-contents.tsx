@@ -35,6 +35,21 @@ export const TableOfContents: React.FC = () => {
 						</div>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/effects/brightness">
+					<div style={row}>
+						<img
+							src="/img/effects-brightness-preview.jpg"
+							alt="brightness effect preview"
+							style={previewImage}
+						/>
+						<div style={{flex: 1, marginLeft: 10}}>
+							<strong>
+								<code>{'brightness()'}</code>
+							</strong>
+							<div>Brightness adjustment effect</div>
+						</div>
+					</div>
+				</TOCItem>
 				<TOCItem link="/docs/effects/grayscale">
 					<div style={row}>
 						<img

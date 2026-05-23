@@ -2,6 +2,7 @@ import type {SequenceSchema} from 'remotion';
 import {assertRequiredFiniteNumber} from './validate-effect-param.js';
 
 export const DEFAULT_AMOUNT = 1 as const;
+export const DEFAULT_BRIGHTNESS_AMOUNT = 0 as const;
 export const DEFAULT_HUE_DEGREES = 0 as const;
 
 export const colorAmountSchema = {
@@ -10,6 +11,15 @@ export const colorAmountSchema = {
 	max: 1,
 	step: 0.01,
 	default: DEFAULT_AMOUNT,
+	description: 'Amount',
+} as const satisfies SequenceSchema['amount'];
+
+export const brightnessAmountSchema = {
+	type: 'number',
+	min: -1,
+	max: 1,
+	step: 0.01,
+	default: DEFAULT_BRIGHTNESS_AMOUNT,
 	description: 'Amount',
 } as const satisfies SequenceSchema['amount'];
 
@@ -43,4 +53,25 @@ export const validateUnitInterval = (value: number, name: string): void => {
 			`"${name}" must be <= 1, but got ${JSON.stringify(value)}`,
 		);
 	}
+};
+
+export const validateSignedUnitInterval = (
+	value: number,
+	name: string,
+): void => {
+	if (value < -1) {
+		throw new TypeError(
+			`"${name}" must be >= -1, but got ${JSON.stringify(value)}`,
+		);
+	}
+
+	if (value > 1) {
+		throw new TypeError(
+			`"${name}" must be <= 1, but got ${JSON.stringify(value)}`,
+		);
+	}
+};
+
+export const clampColorChannel = (value: number): number => {
+	return Math.max(0, Math.min(255, value));
 };
