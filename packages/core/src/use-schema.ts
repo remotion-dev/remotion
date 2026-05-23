@@ -14,9 +14,15 @@ export type CanUpdateSequencePropStatusTrue = {
 	codeValue: unknown;
 };
 
+export type CanUpdateSequencePropStatusKeyframe = {
+	frame: number;
+	value: unknown;
+};
+
 export type CanUpdateSequencePropStatusFalse = {
 	canUpdate: false;
 	reason: 'computed';
+	keyframes?: CanUpdateSequencePropStatusKeyframe[];
 };
 
 export type CanUpdateSequencePropStatus =
