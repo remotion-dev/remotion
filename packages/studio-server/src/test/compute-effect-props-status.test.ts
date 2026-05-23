@@ -66,6 +66,31 @@ test('computeEffectPropStatus reports computed props', () => {
 	expect(result.props.opacity).toEqual({canUpdate: true, codeValue: 0.5});
 });
 
+test('computeEffectPropStatus reports keyframes for inline interpolated effect props', () => {
+	const input = buildInput(
+		'[EffectInternals.tint({amount: interpolate(frame, [0, 100], [0.2, 0.8])})]',
+	);
+	const result = computeEffectPropStatus({
+		jsx: findJsx(input),
+		effectIndex: 0,
+		keys: ['amount'],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) {
+		throw new Error('expected canUpdate true');
+	}
+
+	expect(result.props.amount).toEqual({
+		canUpdate: false,
+		reason: 'computed',
+		keyframes: [
+			{frame: 0, value: 0.2},
+			{frame: 100, value: 0.8},
+		],
+	});
+});
+
 test('computeEffectPropStatus reports unset props as undefined codeValue', () => {
 	const input = buildInput('[EffectInternals.tint({color: "red"})]');
 	const result = computeEffectPropStatus({

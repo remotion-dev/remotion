@@ -22,6 +22,7 @@ import {
 import {
 	extractStaticValue,
 	findJsxElementAtNodePath,
+	getComputedStatus,
 	isStaticValue,
 } from './can-update-sequence-props';
 
@@ -79,7 +80,7 @@ const getPropsFromObjectExpression = ({
 
 		const valueExpr = prop.value as Expression;
 		if (!isStaticValue(valueExpr)) {
-			out[key] = {canUpdate: false, reason: 'computed'};
+			out[key] = getComputedStatus(valueExpr);
 			continue;
 		}
 
