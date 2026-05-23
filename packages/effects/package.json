@@ -57,6 +57,11 @@
 			"module": "./dist/esm/invert.mjs",
 			"import": "./dist/esm/invert.mjs"
 		},
+		"./scale": {
+			"types": "./dist/scale.d.ts",
+			"module": "./dist/esm/scale.mjs",
+			"import": "./dist/esm/scale.mjs"
+		},
 		"./wave": {
 			"types": "./dist/wave.d.ts",
 			"module": "./dist/esm/wave.mjs",
@@ -80,6 +85,9 @@
 			],
 			"invert": [
 				"dist/invert.d.ts"
+			],
+			"scale": [
+				"dist/scale.d.ts"
 			],
 			"wave": [
 				"dist/wave.d.ts"
