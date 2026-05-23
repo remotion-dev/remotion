@@ -4,6 +4,7 @@ import {brightness} from '../brightness.js';
 import {grayscale} from '../grayscale.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
+import {scale} from '../scale.js';
 import {tint} from '../tint.js';
 import {wave} from '../wave/index.js';
 
@@ -173,4 +174,51 @@ test('hue() degrees produces distinct effect keys', () => {
 	const noRotation = hue({degrees: 0});
 	const rotated = hue({degrees: 90});
 	expect(noRotation.effectKey).not.toBe(rotated.effectKey);
+});
+
+test('scale() throws when scale is not passed', () => {
+	expect(() => scale({} as Parameters<typeof scale>[0])).toThrow(
+		'"scale" must be a finite number, but got undefined',
+	);
+});
+
+test('scale() accepts valid params', () => {
+	expect(() => scale({scale: 1.5})).not.toThrow();
+});
+
+test('scale() accepts horizontal-only scaling', () => {
+	expect(() =>
+		scale({scale: 1.5, horizontal: true, vertical: false}),
+	).not.toThrow();
+});
+
+test('scale() accepts vertical-only scaling', () => {
+	expect(() =>
+		scale({scale: 1.5, horizontal: false, vertical: true}),
+	).not.toThrow();
+});
+
+test('scale() accepts both axes disabled', () => {
+	expect(() =>
+		scale({scale: 1.5, horizontal: false, vertical: false}),
+	).not.toThrow();
+});
+
+test('scale() rejects non-positive scale', () => {
+	expect(() => scale({scale: 0})).toThrow('"scale" must be greater than 0');
+});
+
+test('scale() axis flags produce distinct effect keys', () => {
+	const both = scale({scale: 1.5});
+	const horizontalOnly = scale({scale: 1.5, vertical: false});
+	const verticalOnly = scale({scale: 1.5, horizontal: false});
+	const neither = scale({scale: 1.5, horizontal: false, vertical: false});
+
+	const keys = [
+		both.effectKey,
+		horizontalOnly.effectKey,
+		verticalOnly.effectKey,
+		neither.effectKey,
+	];
+	expect(new Set(keys).size).toBe(keys.length);
 });
