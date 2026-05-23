@@ -85,6 +85,12 @@
 			"import": "./dist/esm/clock-wipe.mjs",
 			"require": "./dist/presentations/clock-wipe.js"
 		},
+		"./book-flip": {
+			"types": "./dist/presentations/book-flip.d.ts",
+			"module": "./dist/esm/book-flip.mjs",
+			"import": "./dist/esm/book-flip.mjs",
+			"require": "./dist/presentations/book-flip.js"
+		},
 		"./zoom-blur": {
 			"types": "./dist/presentations/zoom-blur.d.ts",
 			"module": "./dist/esm/zoom-blur.mjs",
@@ -154,6 +160,9 @@
 			],
 			"clock-wipe": [
 				"dist/presentations/clock-wipe.d.ts"
+			],
+			"book-flip": [
+				"dist/presentations/book-flip.d.ts"
 			],
 			"iris": [
 				"dist/presentations/iris.d.ts"

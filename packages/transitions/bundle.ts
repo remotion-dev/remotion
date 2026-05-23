@@ -1,5 +1,5 @@
-import path from 'path';
 import {build} from 'bun';
+import path from 'path';
 
 if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
@@ -13,6 +13,7 @@ const presentations = [
 	'clock-wipe',
 	'none',
 	'iris',
+	'book-flip',
 	'zoom-blur',
 	'zoom-in-out',
 	'dissolve',

@@ -1755,6 +1755,15 @@ export const articles = [
 		slug: 'effects/api',
 	},
 	{
+		id: 'effects/invert',
+		title: 'invert()',
+		relativePath: 'docs/effects/invert.mdx',
+		compId: 'articles-docs-effects-invert',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/invert',
+	},
+	{
 		id: 'effects/wave',
 		title: 'wave()',
 		relativePath: 'docs/effects/wave.mdx',
@@ -5521,6 +5530,15 @@ export const articles = [
 		slug: 'sfx/price-is-right-fail',
 	},
 	{
+		id: 'sfx/record-scratch',
+		title: 'recordScratch',
+		relativePath: 'docs/sfx/record-scratch.mdx',
+		compId: 'articles-docs-sfx-record-scratch',
+		crumb: '@remotion/sfx',
+		noAi: false,
+		slug: 'sfx/record-scratch',
+	},
+	{
 		id: 'sfx/romance-meme',
 		title: 'romanceMeme',
 		relativePath: 'docs/sfx/romance-meme.mdx',
@@ -6590,6 +6608,15 @@ export const articles = [
 		crumb: '@remotion/transitions',
 		noAi: false,
 		slug: 'transitions/make-html-in-canvas-presentation',
+	},
+	{
+		id: 'transitions/presentations/book-flip',
+		title: 'bookFlip()',
+		relativePath: 'docs/transitions/presentations/book-flip.mdx',
+		compId: 'articles-docs-transitions-presentations-book-flip',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/book-flip',
 	},
 	{
 		id: 'transitions/presentations/clock-wipe',

@@ -3,6 +3,7 @@ import {Thumbnail} from '@remotion/player';
 import type React from 'react';
 import {renderToString} from 'react-dom/server';
 import {useCurrentFrame} from 'remotion';
+import {bookFlip} from '../index';
 
 const Comp: React.FC<{}> = () => {
 	const frame = useCurrentFrame();
@@ -24,4 +25,10 @@ test('should work', () => {
 	);
 
 	expect(readStream).toContain('<div>We are on frame 10</div>');
+});
+
+test('should export bookFlip from the package root', () => {
+	const presentation = bookFlip({});
+	expect(presentation.props).toEqual({});
+	expect(typeof presentation.component).toBe('function');
 });

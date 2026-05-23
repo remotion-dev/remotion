@@ -3,21 +3,22 @@ export {linearTiming} from './timings/linear-timing.js';
 export {springTiming} from './timings/spring-timing.js';
 // Component
 export {TransitionSeries} from './TransitionSeries.js';
-export {
+export type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
 	TransitionSeriesOverlayProps,
 	TransitionTiming,
 } from './types.js';
 // Hooks
-export {
-	TransitionState,
-	useTransitionProgress,
-} from './use-transition-progress.js';
+export {useTransitionProgress} from './use-transition-progress.js';
+export type {TransitionState} from './use-transition-progress.js';
 // HTML-in-canvas
-export {
+export {makeHtmlInCanvasPresentation} from './html-in-canvas-presentation.js';
+export type {
 	HtmlInCanvasShader,
 	HtmlInCanvasShaderDraw,
 	HtmlInCanvasShaderDrawParams,
-	makeHtmlInCanvasPresentation,
 } from './html-in-canvas-presentation.js';
+// Presentations
+export {bookFlip} from './presentations/book-flip.js';
+export type {BookFlipProps} from './presentations/book-flip.js';
