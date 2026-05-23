@@ -10,6 +10,7 @@ import React from 'react';
 import {DissolveTocPreview} from '../../transitions/dissolve-toc-preview';
 import {PresentationPreview} from '../../transitions/previews';
 import {RippleTocPreview} from '../../transitions/ripple-toc-preview';
+import {SwapTocPreview} from '../../transitions/swap-toc-preview';
 import {ZoomBlurTocPreview} from '../../transitions/zoom-blur-toc-preview';
 import {ZoomInOutTocPreview} from '../../transitions/zoom-in-out-toc-preview';
 import {Grid} from '../Grid';
@@ -166,6 +167,18 @@ export const Presentations: React.FC<{
 						</strong>
 						<HtmlInCanvasLabel />
 						<div>Ripple the outgoing scene with a sinusoidal wave</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/swap">
+				<div style={row}>
+					<SwapTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'swap()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Swap scenes with perspective and reflections</div>
 					</div>
 				</div>
 			</TOCItem>

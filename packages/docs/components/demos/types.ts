@@ -32,6 +32,7 @@ import {SpringDemo} from './Spring';
 import {StarDemo} from './Star';
 import {StarburstDemoComp} from './StarburstDemo';
 import {AnimationMath} from './SubtractAnimations';
+import {SwapDocsDemo} from './SwapDemo';
 import {TransitionSeriesEnterExitDemoComp} from './TransitionSeriesEnterExitDemo';
 import {TransitionSeriesOverlayDemoComp} from './TransitionSeriesOverlayDemo';
 import {TransitionSeriesTransitionDemoComp} from './TransitionSeriesTransitionDemo';
@@ -969,6 +970,19 @@ export const ripplePresentationDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'ripple',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const swapPresentationDemo: DemoType = {
+	comp: SwapDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'swap',
 	autoPlay: true,
 	controls: false,
 	logLevel: 'info',

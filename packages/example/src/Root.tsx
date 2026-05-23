@@ -67,6 +67,8 @@ import {
 	DissolveTransitionDocThumb,
 	RippleTransitionDoc,
 	RippleTransitionDocThumb,
+	SwapTransitionDoc,
+	SwapTransitionDocThumb,
 	EffectsBlurPreview,
 	EffectsWavePreview,
 } from './HtmlInCanvas';
@@ -1066,6 +1068,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="ripple-transition-doc-thumb"
 						component={RippleTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="swap-transition-doc"
+						component={SwapTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="swap-transition-doc-thumb"
+						component={SwapTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}
