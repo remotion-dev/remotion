@@ -7,6 +7,7 @@ import {none} from '@remotion/transitions/none';
 import {slide} from '@remotion/transitions/slide';
 import {wipe} from '@remotion/transitions/wipe';
 import React from 'react';
+import {CrosswarpTocPreview} from '../../transitions/crosswarp-toc-preview';
 import {DissolveTocPreview} from '../../transitions/dissolve-toc-preview';
 import {PresentationPreview} from '../../transitions/previews';
 import {RippleTocPreview} from '../../transitions/ripple-toc-preview';
@@ -167,6 +168,18 @@ export const Presentations: React.FC<{
 						</strong>
 						<HtmlInCanvasLabel />
 						<div>Ripple the outgoing scene with a sinusoidal wave</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/crosswarp">
+				<div style={row}>
+					<CrosswarpTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'crosswarp()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Warp both scenes across the x-axis and blend them</div>
 					</div>
 				</div>
 			</TOCItem>

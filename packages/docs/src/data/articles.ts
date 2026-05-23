@@ -6583,6 +6583,15 @@ export const articles = [
 		slug: 'transitions/presentations/clock-wipe',
 	},
 	{
+		id: 'transitions/presentations/crosswarp',
+		title: 'crosswarp()',
+		relativePath: 'docs/transitions/presentations/crosswarp.mdx',
+		compId: 'articles-docs-transitions-presentations-crosswarp',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/crosswarp',
+	},
+	{
 		id: 'transitions/presentations/cube',
 		title: 'cube()',
 		relativePath: 'docs/transitions/presentations/cube.mdx',

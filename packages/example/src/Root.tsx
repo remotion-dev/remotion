@@ -48,6 +48,8 @@ import {
 	HlsMediaVideoTrimmed,
 } from './Hls/HlsMediaVideo';
 import {
+	CrosswarpTransitionDoc,
+	CrosswarpTransitionDocThumb,
 	DissolveTransitionDoc,
 	DissolveTransitionDocThumb,
 	EffectsBlurPreview,
@@ -1096,6 +1098,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="ripple-transition-doc-thumb"
 						component={RippleTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="crosswarp-transition-doc"
+						component={CrosswarpTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="crosswarp-transition-doc-thumb"
+						component={CrosswarpTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}

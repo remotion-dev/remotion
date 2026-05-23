@@ -17,6 +17,7 @@ const presentations = [
 	'zoom-in-out',
 	'dissolve',
 	'ripple',
+	'crosswarp',
 	'swap',
 ];
 

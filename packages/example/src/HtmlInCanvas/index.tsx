@@ -8,6 +8,10 @@ export {HtmlInCanvasComposeWebGL} from './compose-webgl';
 export {HtmlInCanvasComposeWebGLCrt} from './compose-webgl-crt';
 export {HtmlInCanvasComposeWebGPU} from './compose-webgpu';
 export {
+	CrosswarpTransitionDoc,
+	CrosswarpTransitionDocThumb,
+} from './crosswarp-doc';
+export {
 	DissolveTransitionDoc,
 	DissolveTransitionDocThumb,
 } from './dissolve-doc';
