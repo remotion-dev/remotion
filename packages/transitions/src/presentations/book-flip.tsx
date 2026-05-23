@@ -214,6 +214,8 @@ const getDirectionConstant = (direction: BookFlipDirection): number => {
 			return DIRECTION_FROM_TOP;
 		case 'from-bottom':
 			return DIRECTION_FROM_BOTTOM;
+		default:
+			return DIRECTION_FROM_RIGHT;
 	}
 };
 
