@@ -4,8 +4,8 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
-import {RenderInternals} from '@remotion/renderer';
 import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
 	CompletedClientRender,
@@ -271,7 +271,7 @@ const handleOpenInEditor = async (
 	}
 };
 
-const handleResolveCompositionComponent = async (
+const handleGetCompositionComponentInfo = async (
 	remotionRoot: string,
 	req: IncomingMessage,
 	res: ServerResponse,
@@ -307,6 +307,7 @@ const handleResolveCompositionComponent = async (
 			JSON.stringify({
 				success: true,
 				location,
+				canAddSequence: location.canAddSequence,
 			}),
 		);
 	} catch (err) {
@@ -562,8 +563,8 @@ export const handleRoutes = ({
 		return handleOpenInEditor(remotionRoot, request, response, logLevel);
 	}
 
-	if (url.pathname === '/api/resolve-composition-component') {
-		return handleResolveCompositionComponent(remotionRoot, request, response);
+	if (url.pathname === '/api/composition-component-info') {
+		return handleGetCompositionComponentInfo(remotionRoot, request, response);
 	}
 
 	if (url.pathname === `${staticHash}/api/add-asset`) {

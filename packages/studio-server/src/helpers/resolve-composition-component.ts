@@ -6,6 +6,7 @@ import type {
 	JSXAttribute,
 	JSXElement,
 } from '@babel/types';
+import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {parseAst} from '../codemods/parse-ast';
 
@@ -27,6 +28,7 @@ export type ResolvedCompositionComponent = {
 	source: string;
 	line: number;
 	column: number;
+	canAddSequence: boolean;
 };
 
 type ImportTarget = {
@@ -408,6 +410,300 @@ const findDefaultExportLocation = (ast: File): SourceLocation | null => {
 	return location;
 };
 
+type LocalComponentDeclaration =
+	| namedTypes.VariableDeclarator
+	| namedTypes.FunctionDeclaration
+	| namedTypes.ClassDeclaration;
+
+type FunctionLikeNode =
+	| namedTypes.ArrowFunctionExpression
+	| namedTypes.FunctionExpression
+	| namedTypes.FunctionDeclaration;
+
+type DefaultExportDeclaration =
+	namedTypes.ExportDefaultDeclaration['declaration'];
+
+const findLocalComponentDeclaration = ({
+	ast,
+	name,
+}: {
+	ast: File;
+	name: string;
+}): LocalComponentDeclaration | null => {
+	let declaration: LocalComponentDeclaration | null = null;
+
+	recast.types.visit(ast, {
+		visitVariableDeclarator(astPath) {
+			if (declaration) {
+				return false;
+			}
+
+			const {node} = astPath;
+			if (node.id.type === 'Identifier' && node.id.name === name) {
+				declaration = node;
+				return false;
+			}
+
+			this.traverse(astPath);
+			return undefined;
+		},
+		visitFunctionDeclaration(astPath) {
+			if (declaration) {
+				return false;
+			}
+
+			const {node} = astPath;
+			if (node.id?.name === name) {
+				declaration = node;
+				return false;
+			}
+
+			this.traverse(astPath);
+			return undefined;
+		},
+		visitClassDeclaration(astPath) {
+			if (declaration) {
+				return false;
+			}
+
+			const {node} = astPath;
+			if (node.id?.name === name) {
+				declaration = node;
+				return false;
+			}
+
+			this.traverse(astPath);
+			return undefined;
+		},
+	});
+
+	return declaration;
+};
+
+const getTopLevelReturnStatement = (
+	statements: namedTypes.Statement[],
+): namedTypes.ReturnStatement | null => {
+	const returnStatements: namedTypes.ReturnStatement[] = [];
+	for (const statement of statements) {
+		if (recast.types.namedTypes.ReturnStatement.check(statement)) {
+			returnStatements.push(statement);
+		}
+	}
+
+	if (returnStatements.length !== 1) {
+		return null;
+	}
+
+	const singleReturn = returnStatements[0];
+	const finalStatement = statements.at(-1);
+	if (singleReturn !== finalStatement) {
+		return null;
+	}
+
+	return singleReturn;
+};
+
+const getReturnedJsxFromFunction = (
+	fn: FunctionLikeNode,
+): namedTypes.JSXElement | namedTypes.JSXFragment | null => {
+	if (fn.type === 'ArrowFunctionExpression') {
+		if (fn.body.type === 'JSXElement' || fn.body.type === 'JSXFragment') {
+			return fn.body;
+		}
+
+		if (fn.body.type !== 'BlockStatement') {
+			return null;
+		}
+
+		const arrowReturnStatement = getTopLevelReturnStatement(fn.body.body);
+		if (!arrowReturnStatement?.argument) {
+			return null;
+		}
+
+		return arrowReturnStatement.argument.type === 'JSXElement' ||
+			arrowReturnStatement.argument.type === 'JSXFragment'
+			? arrowReturnStatement.argument
+			: null;
+	}
+
+	if (fn.body.type !== 'BlockStatement') {
+		return null;
+	}
+
+	const returnStatement = getTopLevelReturnStatement(fn.body.body);
+	if (!returnStatement?.argument) {
+		return null;
+	}
+
+	return returnStatement.argument.type === 'JSXElement' ||
+		returnStatement.argument.type === 'JSXFragment'
+		? returnStatement.argument
+		: null;
+};
+
+const findRenderMethod = (
+	declaration: namedTypes.ClassDeclaration,
+): namedTypes.ClassMethod | null => {
+	const renderMethod = declaration.body.body.find((member) => {
+		return (
+			member.type === 'ClassMethod' &&
+			member.kind === 'method' &&
+			member.key.type === 'Identifier' &&
+			member.key.name === 'render'
+		);
+	});
+
+	return renderMethod?.type === 'ClassMethod' ? renderMethod : null;
+};
+
+const getComponentRootNode = (
+	declaration: LocalComponentDeclaration | DefaultExportDeclaration,
+): namedTypes.JSXElement | namedTypes.JSXFragment | null => {
+	if (declaration.type === 'VariableDeclarator') {
+		if (
+			!declaration.init ||
+			(declaration.init.type !== 'ArrowFunctionExpression' &&
+				declaration.init.type !== 'FunctionExpression')
+		) {
+			return null;
+		}
+
+		return getReturnedJsxFromFunction(declaration.init);
+	}
+
+	if (
+		declaration.type === 'ArrowFunctionExpression' ||
+		declaration.type === 'FunctionExpression' ||
+		declaration.type === 'FunctionDeclaration'
+	) {
+		return getReturnedJsxFromFunction(declaration);
+	}
+
+	if (declaration.type !== 'ClassDeclaration') {
+		return null;
+	}
+
+	const renderMethod = findRenderMethod(declaration);
+	if (!renderMethod) {
+		return null;
+	}
+
+	const returnStatement = getTopLevelReturnStatement(renderMethod.body.body);
+	if (!returnStatement?.argument) {
+		return null;
+	}
+
+	return returnStatement.argument.type === 'JSXElement' ||
+		returnStatement.argument.type === 'JSXFragment'
+		? returnStatement.argument
+		: null;
+};
+
+const createSequenceElement = (): namedTypes.JSXElement => {
+	return recast.types.builders.jsxElement(
+		recast.types.builders.jsxOpeningElement(
+			recast.types.builders.jsxIdentifier('Sequence'),
+			[],
+		),
+		recast.types.builders.jsxClosingElement(
+			recast.types.builders.jsxIdentifier('Sequence'),
+		),
+		[],
+	);
+};
+
+const getDefaultExportDeclaration = (
+	ast: File,
+): LocalComponentDeclaration | DefaultExportDeclaration | null => {
+	let declaration: DefaultExportDeclaration | null = null;
+	let identifierName: string | null = null;
+
+	recast.types.visit(ast, {
+		visitExportDefaultDeclaration(astPath) {
+			if (declaration || identifierName) {
+				return false;
+			}
+
+			const {node} = astPath;
+			if (node.declaration.type === 'Identifier') {
+				identifierName = node.declaration.name;
+				return false;
+			}
+
+			declaration = node.declaration;
+			return false;
+		},
+	});
+
+	if (identifierName) {
+		return findLocalComponentDeclaration({ast, name: identifierName});
+	}
+
+	return declaration;
+};
+
+const getDeclarationByExportName = ({
+	ast,
+	exportName,
+}: {
+	ast: File;
+	exportName: string | 'default';
+}): LocalComponentDeclaration | DefaultExportDeclaration | null => {
+	if (exportName === 'default') {
+		return getDefaultExportDeclaration(ast);
+	}
+
+	return findLocalComponentDeclaration({ast, name: exportName});
+};
+
+const canAddSequenceToComponent = ({
+	ast,
+	exportName,
+}: {
+	ast: File;
+	exportName: string | 'default';
+}): boolean => {
+	const declaration = getDeclarationByExportName({ast, exportName});
+	if (!declaration) {
+		return false;
+	}
+
+	const rootNode = getComponentRootNode(declaration);
+	if (!rootNode) {
+		return false;
+	}
+
+	if (rootNode.type === 'JSXElement') {
+		if (rootNode.openingElement.selfClosing) {
+			return false;
+		}
+
+		if (!rootNode.children) {
+			return false;
+		}
+
+		rootNode.children.push(createSequenceElement());
+		try {
+			recast.print(ast);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
+	if (!rootNode.children) {
+		return false;
+	}
+
+	rootNode.children.push(createSequenceElement());
+	try {
+		recast.print(ast);
+		return true;
+	} catch {
+		return false;
+	}
+};
+
 const getComponentLocationInFile = async ({
 	remotionRoot,
 	fileName,
@@ -419,15 +715,21 @@ const getComponentLocationInFile = async ({
 }): Promise<ResolvedCompositionComponent> => {
 	const input = await readSourceFile({remotionRoot, fileName});
 	const ast = parseAst(input);
+	const astForSequenceSimulation = parseAst(input);
 	const location =
 		exportName === 'default'
 			? findDefaultExportLocation(ast)
 			: findLocalSymbolLocation({ast, name: exportName});
+	const canAddSequence = canAddSequenceToComponent({
+		ast: astForSequenceSimulation,
+		exportName,
+	});
 
 	return {
 		source: path.relative(remotionRoot, fileName),
 		line: location?.line ?? 1,
 		column: location?.column ?? 0,
+		canAddSequence,
 	};
 };
 

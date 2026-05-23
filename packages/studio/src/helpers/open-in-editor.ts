@@ -49,11 +49,90 @@ type ResolveCompositionComponentResponse =
 	| {
 			success: true;
 			location: ResolvedCompositionComponentLocation;
+			canAddSequence: boolean;
 	  }
 	| {
 			success: false;
 			error: string;
 	  };
+
+const componentResolutionCache = new Map<
+	string,
+	Promise<{
+		location: ResolvedCompositionComponentLocation;
+		canAddSequence: boolean;
+	}>
+>();
+
+const getComponentResolutionCacheKey = ({
+	compositionFile,
+	compositionId,
+}: {
+	compositionFile: string;
+	compositionId: string;
+}) => {
+	return `${compositionFile}::${compositionId}`;
+};
+
+const loadCompositionComponentInfo = async ({
+	compositionFile,
+	compositionId,
+}: {
+	compositionFile: string;
+	compositionId: string;
+}) => {
+	const cacheKey = getComponentResolutionCacheKey({
+		compositionFile,
+		compositionId,
+	});
+	const existing = componentResolutionCache.get(cacheKey);
+	if (existing) {
+		return existing;
+	}
+
+	const promise = (async () => {
+		const response = await fetch(`/api/composition-component-info`, {
+			method: 'post',
+			headers: {
+				'content-type': 'application/json',
+			},
+			body: JSON.stringify({
+				compositionFile,
+				compositionId,
+			}),
+		});
+		const body = (await response.json()) as ResolveCompositionComponentResponse;
+		if (!body.success) {
+			throw new Error(body.error);
+		}
+
+		return {
+			location: body.location,
+			canAddSequence: body.canAddSequence,
+		};
+	})();
+	componentResolutionCache.set(cacheKey, promise);
+
+	try {
+		return await promise;
+	} catch (err) {
+		componentResolutionCache.delete(cacheKey);
+		throw err;
+	}
+};
+
+export const preloadCompositionComponentInfo = ({
+	compositionFile,
+	compositionId,
+}: {
+	compositionFile: string;
+	compositionId: string;
+}) => {
+	loadCompositionComponentInfo({
+		compositionFile,
+		compositionId,
+	}).catch(() => undefined);
+};
 
 export const openCompositionComponentInEditor = async ({
 	compositionFile,
@@ -62,20 +141,9 @@ export const openCompositionComponentInEditor = async ({
 	compositionFile: string;
 	compositionId: string;
 }) => {
-	const response = await fetch(`/api/resolve-composition-component`, {
-		method: 'post',
-		headers: {
-			'content-type': 'application/json',
-		},
-		body: JSON.stringify({
-			compositionFile,
-			compositionId,
-		}),
+	const info = await loadCompositionComponentInfo({
+		compositionFile,
+		compositionId,
 	});
-	const body = (await response.json()) as ResolveCompositionComponentResponse;
-	if (!body.success) {
-		throw new Error(body.error);
-	}
-
-	await openOriginalPositionInEditor(body.location);
+	await openOriginalPositionInEditor(info.location);
 };
