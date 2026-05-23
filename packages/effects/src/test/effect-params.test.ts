@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {blur} from '../blur/index.js';
+import {grayscale} from '../grayscale.js';
 import {tint} from '../tint.js';
 import {wave} from '../wave/index.js';
 
@@ -78,4 +79,28 @@ test('wave() direction produces distinct effect keys', () => {
 	const horizontal = wave({direction: 'horizontal'});
 	const vertical = wave({direction: 'vertical'});
 	expect(horizontal.effectKey).not.toBe(vertical.effectKey);
+});
+
+test('grayscale() accepts default params', () => {
+	expect(() => grayscale()).not.toThrow();
+});
+
+test('grayscale() rejects non-finite amount', () => {
+	expect(() => grayscale({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('grayscale() rejects amount below range', () => {
+	expect(() => grayscale({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('grayscale() rejects amount above range', () => {
+	expect(() => grayscale({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('grayscale() amount produces distinct effect keys', () => {
+	const none = grayscale({amount: 0});
+	const full = grayscale({amount: 1});
+	expect(none.effectKey).not.toBe(full.effectKey);
 });

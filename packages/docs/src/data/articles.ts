@@ -1719,6 +1719,15 @@ export const articles = [
 		slug: 'effects/blur',
 	},
 	{
+		id: 'effects/grayscale',
+		title: 'grayscale()',
+		relativePath: 'docs/effects/grayscale.mdx',
+		compId: 'articles-docs-effects-grayscale',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/grayscale',
+	},
+	{
 		id: 'effects-api',
 		title: '@remotion/effects',
 		relativePath: 'docs/effects/index.mdx',
