@@ -201,7 +201,7 @@ const getInterpolateKeyframes = (
 	return keyframes.length > 0 ? keyframes : undefined;
 };
 
-const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
+export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
 	const keyframes = getInterpolateKeyframes(node);
 	if (!keyframes) {
 		return {canUpdate: false, reason: 'computed'};
