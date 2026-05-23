@@ -37,6 +37,18 @@ export const UnsupportedStatus: React.FC<{
 	return <span style={unsupportedLabel}>{label}</span>;
 };
 
+export const getComputedStatusLabel = (
+	propStatus: CanUpdateSequencePropStatusFalse,
+): string => {
+	if (propStatus.reason !== 'computed') {
+		throw new Error(
+			`Unsupported prop status: ${propStatus.reason satisfies never}`,
+		);
+	}
+
+	return propStatus.keyframes?.length ? 'keyframed' : 'computed';
+};
+
 export const TimelineNonEditableStatus: React.FC<{
 	readonly propStatus: CanUpdateSequencePropStatusFalse;
 }> = ({propStatus}) => {
@@ -45,7 +57,9 @@ export const TimelineNonEditableStatus: React.FC<{
 	}
 
 	if (propStatus.reason === 'computed') {
-		return <span style={unsupportedLabel}>computed</span>;
+		return (
+			<span style={unsupportedLabel}>{getComputedStatusLabel(propStatus)}</span>
+		);
 	}
 
 	throw new Error(

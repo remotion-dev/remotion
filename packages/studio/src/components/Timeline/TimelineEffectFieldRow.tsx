@@ -12,7 +12,11 @@ import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
-import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
+import {
+	getComputedStatusLabel,
+	TimelineFieldValue,
+	UnsupportedStatus,
+} from './TimelineSchemaField';
 
 const fieldRowBase: React.CSSProperties = {
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
@@ -181,7 +185,7 @@ const Value: React.FC<{
 
 	if (propStatus === null || !propStatus.canUpdate) {
 		if (propStatus?.reason === 'computed') {
-			return <UnsupportedStatus label="computed" />;
+			return <UnsupportedStatus label={getComputedStatusLabel(propStatus)} />;
 		}
 
 		return null;
