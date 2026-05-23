@@ -1,6 +1,5 @@
 import React from 'react';
 import type {
-	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusTrue,
 } from 'remotion';
@@ -9,6 +8,7 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {TimelineBooleanField} from './TimelineBooleanField';
 import {TimelineColorField} from './TimelineColorField';
 import {TimelineEnumField} from './TimelineEnumField';
@@ -36,34 +36,6 @@ export const UnsupportedStatus: React.FC<{
 	readonly label: string;
 }> = ({label}) => {
 	return <span style={unsupportedLabel}>{label}</span>;
-};
-
-export const getComputedStatusLabel = (
-	propStatus: CanUpdateSequencePropStatusFalse,
-): string => {
-	if (propStatus.reason !== 'computed') {
-		throw new Error(
-			`Unsupported prop status: ${propStatus.reason satisfies never}`,
-		);
-	}
-
-	return propStatus.keyframes?.length ? 'keyframed' : 'computed';
-};
-
-export const getTimelineKeyframes = (
-	propStatus: CanUpdateSequencePropStatus | null | undefined,
-): {frame: number; value: unknown}[] => {
-	if (!propStatus || propStatus.canUpdate) {
-		return [];
-	}
-
-	if (propStatus.reason !== 'computed') {
-		throw new Error(
-			`Unsupported prop status: ${propStatus.reason satisfies never}`,
-		);
-	}
-
-	return propStatus.keyframes ?? [];
 };
 
 export const TimelineNonEditableStatus: React.FC<{

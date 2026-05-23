@@ -12,7 +12,7 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
-import {getTimelineKeyframes} from './TimelineSchemaField';
+import {getTimelineKeyframes} from './get-timeline-keyframes';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const row: React.CSSProperties = {
@@ -80,19 +80,16 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
-	);
 
 	const tree = useMemo(
 		() =>
 			buildTimelineTree({
 				sequence,
 				nodePathInfo,
-				getDragOverrides,
+				getDragOverrides: () => ({}),
 				codeValues,
 			}),
-		[codeValues, getDragOverrides, nodePathInfo, sequence],
+		[codeValues, nodePathInfo, sequence],
 	);
 
 	const flat = useMemo(
@@ -141,7 +138,7 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 									? null
 									: keyframes.map((keyframe) => (
 											<div
-												key={`${keyframe.frame}-${JSON.stringify(keyframe.value)}`}
+												key={String(keyframe.frame)}
 												style={{
 													...diamondBase,
 													left:
