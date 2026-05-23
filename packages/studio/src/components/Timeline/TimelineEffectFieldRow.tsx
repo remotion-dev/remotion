@@ -7,16 +7,13 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
+import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {enqueueSavePropChange} from './save-prop-queue';
 import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
-import {
-	getComputedStatusLabel,
-	TimelineFieldValue,
-	UnsupportedStatus,
-} from './TimelineSchemaField';
+import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
 
 const fieldRowBase: React.CSSProperties = {
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
