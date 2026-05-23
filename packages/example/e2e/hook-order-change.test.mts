@@ -22,16 +22,15 @@ test.describe('hook order refresh', () => {
 
 		const updatedContent = originalContent.replace(
 			'\tconst frame = useCurrentFrame();\n\n\treturn <div data-frame={frame}>one hook</div>;\n',
-			`\tconst frame = useCurrentFrame();\n\tconst [enabled] = React.useState(false);\n\n\treturn <div data-frame={frame} data-enabled={enabled ? 'yes' : 'no'}>two hooks</div>;\n`,
+			`\tconst frame = useCurrentFrame();\n\tReact.useState(false);\n\n\treturn <div data-frame={frame}>two hooks</div>;\n`,
 		);
 		expect(updatedContent).not.toBe(originalContent);
-
-		const logCountBefore = readStudioLogs().length;
 
 		await page.goto(`${STUDIO_URL}/hook-order-change-e2e`);
 		await expect(page).toHaveURL(/hook-order-change-e2e/, {timeout: 15_000});
 		await expect(page.getByText('one hook')).toBeVisible({timeout: 15_000});
 
+		const logCountBefore = readStudioLogs().length;
 		fs.writeFileSync(hookOrderChangeE2eFile, updatedContent);
 
 		await expect
