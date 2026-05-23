@@ -121,6 +121,12 @@
 			"import": "./dist/esm/ripple.mjs",
 			"require": "./dist/presentations/ripple.js"
 		},
+		"./swap": {
+			"types": "./dist/presentations/swap.d.ts",
+			"module": "./dist/esm/swap.mjs",
+			"import": "./dist/esm/swap.mjs",
+			"require": "./dist/presentations/swap.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -157,6 +163,9 @@
 			],
 			"ripple": [
 				"dist/presentations/ripple.d.ts"
+			],
+			"swap": [
+				"dist/presentations/swap.d.ts"
 			]
 		}
 	},

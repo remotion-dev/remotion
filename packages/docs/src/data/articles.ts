@@ -6682,6 +6682,15 @@ export const articles = [
 		slug: 'transitions/presentations/slide',
 	},
 	{
+		id: 'transitions/presentations/swap',
+		title: 'swap()',
+		relativePath: 'docs/transitions/presentations/swap.mdx',
+		compId: 'articles-docs-transitions-presentations-swap',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/swap',
+	},
+	{
 		id: 'transitions/presentations/wipe',
 		title: 'wipe()',
 		relativePath: 'docs/transitions/presentations/wipe.mdx',
