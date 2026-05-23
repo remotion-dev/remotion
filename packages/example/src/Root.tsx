@@ -342,6 +342,16 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Folder name="copilot-tests">
+				<Composition
+					id="keyframed-props-test"
+					lazyComponent={() => import('./KeyframedPropsTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+			</Folder>
 			<Folder name="dynamic-parameters">
 				<Composition
 					id="dynamic-length"
