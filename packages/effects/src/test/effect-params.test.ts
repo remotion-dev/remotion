@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {blur} from '../blur/index.js';
+import {brightness} from '../brightness.js';
 import {grayscale} from '../grayscale.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
@@ -105,6 +106,33 @@ test('grayscale() amount produces distinct effect keys', () => {
 	const none = grayscale({amount: 0});
 	const full = grayscale({amount: 1});
 	expect(none.effectKey).not.toBe(full.effectKey);
+});
+
+test('brightness() accepts default params', () => {
+	expect(() => brightness()).not.toThrow();
+});
+
+test('brightness() rejects non-finite amount', () => {
+	expect(() => brightness({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('brightness() rejects amount below range', () => {
+	expect(() => brightness({amount: -1.1})).toThrow('"amount" must be >= -1');
+});
+
+test('brightness() rejects amount above range', () => {
+	expect(() => brightness({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('brightness() amount produces distinct effect keys', () => {
+	const darker = brightness({amount: -0.4});
+	const neutral = brightness({amount: 0});
+	const brighter = brightness({amount: 0.4});
+	expect(
+		new Set([darker.effectKey, neutral.effectKey, brighter.effectKey]).size,
+	).toBe(3);
 });
 
 test('invert() accepts default params', () => {

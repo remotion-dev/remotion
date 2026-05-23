@@ -8,6 +8,7 @@ if (process.env.NODE_ENV !== 'production') {
 const effectEntrypoints = [
 	'src/index.ts',
 	'src/blur.ts',
+	'src/brightness.ts',
 	'src/grayscale.ts',
 	'src/hue.ts',
 	'src/invert.ts',

@@ -37,6 +37,11 @@
 			"module": "./dist/esm/blur.mjs",
 			"import": "./dist/esm/blur.mjs"
 		},
+		"./brightness": {
+			"types": "./dist/brightness.d.ts",
+			"module": "./dist/esm/brightness.mjs",
+			"import": "./dist/esm/brightness.mjs"
+		},
 		"./grayscale": {
 			"types": "./dist/grayscale.d.ts",
 			"module": "./dist/esm/grayscale.mjs",
@@ -63,6 +68,9 @@
 		">=1.0": {
 			"blur": [
 				"dist/blur.d.ts"
+			],
+			"brightness": [
+				"dist/brightness.d.ts"
 			],
 			"grayscale": [
 				"dist/grayscale.d.ts"

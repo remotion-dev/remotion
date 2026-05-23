@@ -268,6 +268,7 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'effects/blur',
+				'effects/brightness',
 				'effects/grayscale',
 				'effects/hue',
 				'effects/invert',

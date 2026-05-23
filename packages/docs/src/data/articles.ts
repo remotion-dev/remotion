@@ -1719,6 +1719,15 @@ export const articles = [
 		slug: 'effects/blur',
 	},
 	{
+		id: 'effects/brightness',
+		title: 'brightness()',
+		relativePath: 'docs/effects/brightness.mdx',
+		compId: 'articles-docs-effects-brightness',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/brightness',
+	},
+	{
 		id: 'effects/grayscale',
 		title: 'grayscale()',
 		relativePath: 'docs/effects/grayscale.mdx',
