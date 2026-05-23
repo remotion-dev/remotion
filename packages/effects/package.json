@@ -42,6 +42,11 @@
 			"module": "./dist/esm/grayscale.mjs",
 			"import": "./dist/esm/grayscale.mjs"
 		},
+		"./hue": {
+			"types": "./dist/hue.d.ts",
+			"module": "./dist/esm/hue.mjs",
+			"import": "./dist/esm/hue.mjs"
+		},
 		"./invert": {
 			"types": "./dist/invert.d.ts",
 			"module": "./dist/esm/invert.mjs",
@@ -61,6 +66,9 @@
 			],
 			"grayscale": [
 				"dist/grayscale.d.ts"
+			],
+			"hue": [
+				"dist/hue.d.ts"
 			],
 			"invert": [
 				"dist/invert.d.ts"

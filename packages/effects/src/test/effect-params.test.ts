@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {blur} from '../blur/index.js';
 import {grayscale} from '../grayscale.js';
+import {hue} from '../hue.js';
 import {invert} from '../invert.js';
 import {tint} from '../tint.js';
 import {wave} from '../wave/index.js';
@@ -128,4 +129,20 @@ test('invert() amount produces distinct effect keys', () => {
 	const none = invert({amount: 0});
 	const full = invert({amount: 1});
 	expect(none.effectKey).not.toBe(full.effectKey);
+});
+
+test('hue() accepts default params', () => {
+	expect(() => hue()).not.toThrow();
+});
+
+test('hue() rejects non-finite degrees', () => {
+	expect(() => hue({degrees: Number.NaN})).toThrow(
+		'"degrees" must be a finite number',
+	);
+});
+
+test('hue() degrees produces distinct effect keys', () => {
+	const noRotation = hue({degrees: 0});
+	const rotated = hue({degrees: 90});
+	expect(noRotation.effectKey).not.toBe(rotated.effectKey);
 });

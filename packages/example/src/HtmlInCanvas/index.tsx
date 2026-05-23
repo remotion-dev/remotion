@@ -18,6 +18,7 @@ export {
 export {HtmlInCanvasDocsDemo2DBlur} from './docs-demo-2d-blur';
 export {EffectsBlurPreview} from './effects-blur-preview';
 export {EffectsGrayscalePreview} from './effects-grayscale-preview';
+export {EffectsHuePreview} from './effects-hue-preview';
 export {EffectsInvertPreview} from './effects-invert-preview';
 export {EffectsWavePreview} from './effects-wave-preview';
 export {HtmlInCanvasDocsMinimalWebGL} from './minimal-docs-webgl';

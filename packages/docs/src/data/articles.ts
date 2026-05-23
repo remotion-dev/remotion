@@ -1728,6 +1728,15 @@ export const articles = [
 		slug: 'effects/grayscale',
 	},
 	{
+		id: 'effects/hue',
+		title: 'hue()',
+		relativePath: 'docs/effects/hue.mdx',
+		compId: 'articles-docs-effects-hue',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/hue',
+	},
+	{
 		id: 'effects-api',
 		title: '@remotion/effects',
 		relativePath: 'docs/effects/index.mdx',

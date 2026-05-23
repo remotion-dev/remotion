@@ -9,6 +9,7 @@ const effectEntrypoints = [
 	'src/index.ts',
 	'src/blur.ts',
 	'src/grayscale.ts',
+	'src/hue.ts',
 	'src/invert.ts',
 	'src/wave.ts',
 ];
