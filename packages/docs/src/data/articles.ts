@@ -1737,6 +1737,15 @@ export const articles = [
 		slug: 'effects/grayscale',
 	},
 	{
+		id: 'effects/halftone',
+		title: 'halftone()',
+		relativePath: 'docs/effects/halftone.mdx',
+		compId: 'articles-docs-effects-halftone',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/halftone',
+	},
+	{
 		id: 'effects/hue',
 		title: 'hue()',
 		relativePath: 'docs/effects/hue.mdx',

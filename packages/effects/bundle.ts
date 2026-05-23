@@ -10,6 +10,7 @@ const effectEntrypoints = [
 	'src/blur.ts',
 	'src/brightness.ts',
 	'src/grayscale.ts',
+	'src/halftone.ts',
 	'src/hue.ts',
 	'src/invert.ts',
 	'src/scale.ts',

@@ -42,6 +42,11 @@
 			"module": "./dist/esm/brightness.mjs",
 			"import": "./dist/esm/brightness.mjs"
 		},
+		"./halftone": {
+			"types": "./dist/halftone.d.ts",
+			"module": "./dist/esm/halftone.mjs",
+			"import": "./dist/esm/halftone.mjs"
+		},
 		"./grayscale": {
 			"types": "./dist/grayscale.d.ts",
 			"module": "./dist/esm/grayscale.mjs",
@@ -76,6 +81,9 @@
 			],
 			"brightness": [
 				"dist/brightness.d.ts"
+			],
+			"halftone": [
+				"dist/halftone.d.ts"
 			],
 			"grayscale": [
 				"dist/grayscale.d.ts"
