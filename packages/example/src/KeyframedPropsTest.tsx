@@ -11,7 +11,6 @@ import {
 
 const KeyframedPropsTest: React.FC = () => {
 	const frame = useCurrentFrame();
-	const blurRadius = interpolate(frame, [0, 60, 119], [0, 24, 4]);
 
 	return (
 		<AbsoluteFill
@@ -44,7 +43,11 @@ const KeyframedPropsTest: React.FC = () => {
 						borderRadius: 24,
 						overflow: 'hidden',
 					}}
-					effects={[blur({radius: blurRadius})]}
+					effects={[
+						blur({
+							radius: interpolate(frame, [0, 60, 119], [0, 24, 4]),
+						}),
+					]}
 				/>
 			</Sequence>
 		</AbsoluteFill>
