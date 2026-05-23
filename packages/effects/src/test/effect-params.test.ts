@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {blur} from '../blur/index.js';
 import {grayscale} from '../grayscale.js';
+import {invert} from '../invert.js';
 import {tint} from '../tint.js';
 import {wave} from '../wave/index.js';
 
@@ -102,5 +103,29 @@ test('grayscale() rejects amount above range', () => {
 test('grayscale() amount produces distinct effect keys', () => {
 	const none = grayscale({amount: 0});
 	const full = grayscale({amount: 1});
+	expect(none.effectKey).not.toBe(full.effectKey);
+});
+
+test('invert() accepts default params', () => {
+	expect(() => invert()).not.toThrow();
+});
+
+test('invert() rejects non-finite amount', () => {
+	expect(() => invert({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('invert() rejects amount below range', () => {
+	expect(() => invert({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('invert() rejects amount above range', () => {
+	expect(() => invert({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('invert() amount produces distinct effect keys', () => {
+	const none = invert({amount: 0});
+	const full = invert({amount: 1});
 	expect(none.effectKey).not.toBe(full.effectKey);
 });
