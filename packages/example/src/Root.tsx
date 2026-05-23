@@ -54,6 +54,7 @@ import {
 	DissolveTransitionDocThumb,
 	EffectsBlurPreview,
 	EffectsGrayscalePreview,
+	EffectsInvertPreview,
 	EffectsWavePreview,
 	HtmlInCanvasComplexText,
 	HtmlInCanvasComposeAsyncBitmap,
@@ -1033,6 +1034,14 @@ export const Index: React.FC = () => {
 					<Composition
 						id="html-in-canvas-effects-grayscale-preview"
 						component={EffectsGrayscalePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-invert-preview"
+						component={EffectsInvertPreview}
 						fps={30}
 						height={720}
 						width={1080}
