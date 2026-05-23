@@ -21,6 +21,3 @@ export {
 	HtmlInCanvasShaderDrawParams,
 	makeHtmlInCanvasPresentation,
 } from './html-in-canvas-presentation.js';
-// Presentations
-export {swap} from './presentations/swap.js';
-export type {SwapProps} from './presentations/swap.js';
