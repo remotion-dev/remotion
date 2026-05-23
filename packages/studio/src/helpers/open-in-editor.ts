@@ -39,10 +39,16 @@ export const openOriginalPositionInEditor = async (
 	});
 };
 
+type ResolvedCompositionComponentLocation = {
+	source: string;
+	line: number;
+	column: number;
+};
+
 type ResolveCompositionComponentResponse =
 	| {
 			success: true;
-			location: OriginalPosition;
+			location: ResolvedCompositionComponentLocation;
 	  }
 	| {
 			success: false;
