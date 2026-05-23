@@ -38,6 +38,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	trimBefore,
 	onError,
 	credentials,
+	_remotionInternalMediaStartsAt,
 }) => {
 	const defaultLogLevel = Internals.useLogLevel();
 	const logLevel = overriddenLogLevel ?? defaultLogLevel;
@@ -48,7 +49,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const {registerRenderAsset, unregisterRenderAsset} = useContext(
 		Internals.RenderAssetManager,
 	);
-	const startsAt = Internals.useMediaStartsAt();
+	const startsAtFromContext = Internals.useMediaStartsAt();
+	const startsAt = _remotionInternalMediaStartsAt ?? startsAtFromContext;
 
 	const environment = useRemotionEnvironment();
 

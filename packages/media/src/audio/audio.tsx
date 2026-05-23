@@ -141,13 +141,17 @@ const AudioInner: React.FC<
 			hidden={hidden}
 		>
 			{environment.isRendering ? (
-				<AudioForRendering {...otherProps} />
+				<AudioForRendering
+					{...otherProps}
+					_remotionInternalMediaStartsAt={mediaStartsAt}
+				/>
 			) : (
 				<AudioForPreview
 					name={name}
 					{...otherProps}
 					stack={stack ?? null}
 					setMediaDurationInSeconds={setMediaDurationInSeconds}
+					_remotionInternalMediaStartsAt={mediaStartsAt}
 				/>
 			)}
 		</Sequence>

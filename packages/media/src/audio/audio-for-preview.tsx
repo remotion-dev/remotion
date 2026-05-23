@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
 import {
 	Internals,
+	Loop,
 	Audio as RemotionAudio,
 	useBufferState,
 	useCurrentFrame,
@@ -19,7 +20,6 @@ const {
 	SharedAudioContext,
 	useMediaMutedState,
 	useMediaVolumeState,
-	useFrameForVolumeProp,
 	evaluateVolume,
 	warnAboutTooHighVolume,
 	usePreload,
@@ -46,6 +46,7 @@ type NewAudioForPreviewProps = {
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
+	readonly mediaStartsAt: number;
 };
 
 const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
@@ -68,6 +69,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	onError,
 	credentials,
 	setMediaDurationInSeconds,
+	mediaStartsAt,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
@@ -87,9 +89,11 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const [mediaMuted] = useMediaMutedState();
 	const [mediaVolume] = useMediaVolumeState();
 
-	const volumePropFrame = useFrameForVolumeProp(
-		loopVolumeCurveBehavior ?? 'repeat',
-	);
+	const loopInfo = Loop.useLoop();
+	const volumePropFrame =
+		loopVolumeCurveBehavior === 'repeat' || loopInfo === null
+			? frame + mediaStartsAt
+			: frame + mediaStartsAt + loopInfo.durationInFrames * loopInfo.iteration;
 
 	const userPreferredVolume = evaluateVolume({
 		frame: volumePropFrame,
@@ -404,6 +408,7 @@ type InnerAudioProps = {
 	readonly onError?: MediaOnError;
 	readonly credentials?: RequestCredentials;
 	readonly setMediaDurationInSeconds?: (durationInSeconds: number) => void;
+	readonly _remotionInternalMediaStartsAt?: number;
 };
 
 export const AudioForPreview: React.FC<InnerAudioProps> = ({
@@ -426,6 +431,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	onError,
 	credentials,
 	setMediaDurationInSeconds,
+	_remotionInternalMediaStartsAt,
 }) => {
 	const preloadedSrc = usePreload(src);
 
@@ -433,6 +439,9 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const currentTime = frame / videoConfig.fps;
+
+	const startsAtFromContext = Internals.useMediaStartsAt();
+	const mediaStartsAt = _remotionInternalMediaStartsAt ?? startsAtFromContext;
 
 	const showShow = useMemo(() => {
 		return (
@@ -487,6 +496,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			credentials={credentials}
 			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
 			setMediaDurationInSeconds={setMediaDurationInSeconds}
+			mediaStartsAt={mediaStartsAt}
 		/>
 	);
 };

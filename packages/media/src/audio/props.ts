@@ -32,6 +32,10 @@ export type AudioProps = {
 	loop?: boolean;
 	audioStreamIndex?: number;
 	_remotionInternalNativeLoopPassed?: boolean;
+	/**
+	 * @deprecated For internal use only
+	 */
+	_remotionInternalMediaStartsAt?: number;
 	fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
 	disallowFallbackToHtml5Audio?: boolean;
 	toneFrequency?: number;
