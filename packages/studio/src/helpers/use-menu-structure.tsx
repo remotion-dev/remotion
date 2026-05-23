@@ -1,4 +1,4 @@
-import {useContext, useMemo} from 'react';
+import {useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {restartStudio} from '../api/restart-studio';
@@ -30,7 +30,7 @@ import {checkFullscreenSupport} from './check-fullscreen-support';
 import {StudioServerConnectionCtx} from './client-id';
 import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
-import {openInEditor} from './open-in-editor';
+import {openInEditor, preloadCompositionComponentInfo} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {SHOW_BROWSER_RENDERING} from './show-browser-rendering';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
@@ -231,6 +231,23 @@ export const useMenuStructure = (
 	const resolvedCompositionLocation = useResolvedStack(
 		currentComposition?.stack ?? null,
 	);
+
+	useEffect(() => {
+		if (
+			type !== 'connected' ||
+			!window.remotion_editorName ||
+			!currentComposition ||
+			!resolvedCompositionLocation?.source
+		) {
+			return;
+		}
+
+		preloadCompositionComponentInfo({
+			compositionFile: resolvedCompositionLocation.source,
+			compositionId: currentComposition.id,
+		});
+	}, [currentComposition, resolvedCompositionLocation?.source, type]);
+
 	const structure = useMemo((): Structure => {
 		let struct: Structure = [
 			{
