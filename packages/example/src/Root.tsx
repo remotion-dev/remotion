@@ -68,6 +68,7 @@ import {
 	RippleTransitionDoc,
 	RippleTransitionDocThumb,
 	EffectsBlurPreview,
+	EffectsGrayscalePreview,
 	EffectsWavePreview,
 } from './HtmlInCanvas';
 import {HugeImage} from './HugeImage';
@@ -1010,6 +1011,14 @@ export const Index: React.FC = () => {
 					<Composition
 						id="html-in-canvas-effects-blur-preview"
 						component={EffectsBlurPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-grayscale-preview"
+						component={EffectsGrayscalePreview}
 						fps={30}
 						height={720}
 						width={1080}

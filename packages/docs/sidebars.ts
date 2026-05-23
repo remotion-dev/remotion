@@ -266,7 +266,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'effects/effects-api',
 			},
-			items: ['effects/blur', 'effects/wave'],
+			items: ['effects/blur', 'effects/grayscale', 'effects/wave'],
 		},
 		{
 			type: 'category',

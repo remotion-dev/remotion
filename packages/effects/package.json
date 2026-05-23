@@ -37,6 +37,11 @@
 			"module": "./dist/esm/blur.mjs",
 			"import": "./dist/esm/blur.mjs"
 		},
+		"./grayscale": {
+			"types": "./dist/grayscale.d.ts",
+			"module": "./dist/esm/grayscale.mjs",
+			"import": "./dist/esm/grayscale.mjs"
+		},
 		"./wave": {
 			"types": "./dist/wave.d.ts",
 			"module": "./dist/esm/wave.mjs",
@@ -48,6 +53,9 @@
 		">=1.0": {
 			"blur": [
 				"dist/blur.d.ts"
+			],
+			"grayscale": [
+				"dist/grayscale.d.ts"
 			],
 			"wave": [
 				"dist/wave.d.ts"
