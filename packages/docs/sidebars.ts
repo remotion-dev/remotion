@@ -266,7 +266,12 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'effects/effects-api',
 			},
-			items: ['effects/blur', 'effects/grayscale', 'effects/wave'],
+			items: [
+				'effects/blur',
+				'effects/grayscale',
+				'effects/invert',
+				'effects/wave',
+			],
 		},
 		{
 			type: 'category',
