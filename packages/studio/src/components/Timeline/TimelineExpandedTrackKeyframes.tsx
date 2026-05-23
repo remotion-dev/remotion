@@ -1,6 +1,6 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals, type TSequence, useVideoConfig} from 'remotion';
-import {TIMELINE_TRACK_SEPARATOR, WARNING_COLOR} from '../../helpers/colors';
+import {LIGHT_TEXT, TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
@@ -9,6 +9,7 @@ import {
 	getExpandedTrackHeight,
 	getTreeRowHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
+	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getTimelineKeyframes} from './TimelineSchemaField';
@@ -31,7 +32,7 @@ const diamondBase: React.CSSProperties = {
 	position: 'absolute',
 	width: 8,
 	height: 8,
-	backgroundColor: WARNING_COLOR,
+	backgroundColor: LIGHT_TEXT,
 	borderRadius: 1,
 	boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.4)',
 	pointerEvents: 'none',
@@ -143,11 +144,12 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 												key={`${keyframe.frame}-${JSON.stringify(keyframe.value)}`}
 												style={{
 													...diamondBase,
-													left: getXPositionOfItemInTimelineImperatively(
-														keyframe.frame,
-														videoConfig.durationInFrames,
-														timelineWidth,
-													),
+													left:
+														getXPositionOfItemInTimelineImperatively(
+															keyframe.frame,
+															videoConfig.durationInFrames,
+															timelineWidth,
+														) - TIMELINE_PADDING,
 													top: height / 2,
 													transform: 'translate(-50%, -50%) rotate(45deg)',
 												}}
