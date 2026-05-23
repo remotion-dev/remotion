@@ -14,17 +14,17 @@ const scaleSchema = {
 		max: 10,
 		step: 0.1,
 		default: 1,
-		description: 'Scale amount',
+		description: 'Factor',
 	},
 	horizontal: {
 		type: 'boolean',
 		default: true,
-		description: 'Apply horizontal scaling',
+		description: 'Horizontal',
 	},
 	vertical: {
 		type: 'boolean',
 		default: true,
-		description: 'Apply vertical scaling',
+		description: 'Vertical',
 	},
 } as const satisfies SequenceSchema;
 

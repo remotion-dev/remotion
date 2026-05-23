@@ -1,4 +1,5 @@
 import {blur} from '@remotion/effects/blur';
+import {scale} from '@remotion/effects/scale';
 import {Gif} from '@remotion/gif';
 import React from 'react';
 import {
@@ -46,6 +47,9 @@ const KeyframedPropsTest: React.FC = () => {
 					effects={[
 						blur({
 							radius: interpolate(frame, [0, 60, 119], [0, 24, 4]),
+						}),
+						scale({
+							scale: 2.2,
 						}),
 					]}
 				/>
