@@ -28,7 +28,7 @@ test('should work', () => {
 });
 
 test('should export bookFlip from the package root', () => {
-	const presentation = bookFlip({});
-	expect(presentation.props).toEqual({});
+	const presentation = bookFlip({direction: 'from-top'});
+	expect(presentation.props).toEqual({direction: 'from-top'});
 	expect(typeof presentation.component).toBe('function');
 });

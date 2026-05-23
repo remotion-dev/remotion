@@ -1,7 +1,22 @@
 import type {HtmlInCanvasShader} from '../html-in-canvas-presentation';
 import {makeHtmlInCanvasPresentation} from '../html-in-canvas-presentation';
 
-export type BookFlipProps = Record<string, never>;
+export type BookFlipDirection =
+	| 'from-left'
+	| 'from-right'
+	| 'from-top'
+	| 'from-bottom';
+
+export type BookFlipProps = {
+	direction?: BookFlipDirection;
+};
+
+const DIRECTION_FROM_LEFT = 0;
+const DIRECTION_FROM_RIGHT = 1;
+const DIRECTION_FROM_TOP = 2;
+const DIRECTION_FROM_BOTTOM = 3;
+
+const DEFAULT_DIRECTION: BookFlipDirection = 'from-right';
 
 const VERTEX_SHADER = `#version 300 es
 in vec2 a_pos;
@@ -19,6 +34,7 @@ precision highp float;
 uniform sampler2D u_prev;
 uniform sampler2D u_next;
 uniform float u_time;
+uniform float u_direction;
 
 in vec2 v_uv;
 out vec4 outColor;
@@ -58,27 +74,68 @@ vec4 addShade(float progress) {
 	return vec4(vec3(shadeVal), 1.0);
 }
 
+vec2 toCanonicalUv(vec2 p) {
+	if (u_direction < 0.5) {
+		return p;
+	}
+
+	if (u_direction < 1.5) {
+		return vec2(1.0 - p.x, p.y);
+	}
+
+	if (u_direction < 2.5) {
+		return vec2(p.y, 1.0 - p.x);
+	}
+
+	return vec2(1.0 - p.y, p.x);
+}
+
+vec2 fromCanonicalUv(vec2 p) {
+	if (u_direction < 0.5) {
+		return p;
+	}
+
+	if (u_direction < 1.5) {
+		return vec2(1.0 - p.x, p.y);
+	}
+
+	if (u_direction < 2.5) {
+		return vec2(1.0 - p.y, p.x);
+	}
+
+	return vec2(p.y, 1.0 - p.x);
+}
+
+vec4 samplePrev(vec2 p) {
+	return texture(u_prev, fromCanonicalUv(p));
+}
+
+vec4 sampleNext(vec2 p) {
+	return texture(u_next, fromCanonicalUv(p));
+}
+
 vec4 transition(vec2 p, float progress) {
 	float pr = step(1.0 - progress, p.x);
 
 	if (p.x < 0.5) {
 		return mix(
-			texture(u_prev, p),
-			texture(u_next, skewLeft(p, progress)) * addShade(progress),
+			samplePrev(p),
+			sampleNext(skewLeft(p, progress)) * addShade(progress),
 			pr
 		);
 	}
 
 	return mix(
-		texture(u_prev, skewRight(p, progress)) * addShade(progress),
-		texture(u_next, p),
+		samplePrev(skewRight(p, progress)) * addShade(progress),
+		sampleNext(p),
 		pr
 	);
 }
 
 void main() {
+	vec2 p = toCanonicalUv(v_uv);
 	float progress = 1.0 - u_time;
-	outColor = transition(v_uv, progress);
+	outColor = transition(p, progress);
 }`;
 
 const compileShader = (
@@ -147,6 +204,19 @@ const createTexture = (gl: WebGL2RenderingContext): WebGLTexture => {
 	return tex;
 };
 
+const getDirectionConstant = (direction: BookFlipDirection): number => {
+	switch (direction) {
+		case 'from-left':
+			return DIRECTION_FROM_LEFT;
+		case 'from-right':
+			return DIRECTION_FROM_RIGHT;
+		case 'from-top':
+			return DIRECTION_FROM_TOP;
+		case 'from-bottom':
+			return DIRECTION_FROM_BOTTOM;
+	}
+};
+
 export const bookFlipShader = (
 	canvas: OffscreenCanvas,
 ): ReturnType<HtmlInCanvasShader<BookFlipProps>> => {
@@ -175,6 +245,7 @@ export const bookFlipShader = (
 	const uTime = gl.getUniformLocation(program, 'u_time');
 	const uPrev = gl.getUniformLocation(program, 'u_prev');
 	const uNext = gl.getUniformLocation(program, 'u_next');
+	const uDirection = gl.getUniformLocation(program, 'u_direction');
 
 	const cleanup: ReturnType<
 		HtmlInCanvasShader<BookFlipProps>
@@ -195,7 +266,10 @@ export const bookFlipShader = (
 		width,
 		height,
 		time,
+		passedProps,
 	}) => {
+		const {direction = DEFAULT_DIRECTION} = passedProps;
+
 		if (!prevImage && !nextImage) {
 			return;
 		}
@@ -246,6 +320,7 @@ export const bookFlipShader = (
 
 		gl.uniform1i(uNext, 1);
 		gl.uniform1f(uTime, effectiveTime);
+		gl.uniform1f(uDirection, getDirectionConstant(direction));
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	};

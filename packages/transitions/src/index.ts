@@ -21,4 +21,7 @@ export type {
 } from './html-in-canvas-presentation.js';
 // Presentations
 export {bookFlip} from './presentations/book-flip.js';
-export type {BookFlipProps} from './presentations/book-flip.js';
+export type {
+	BookFlipDirection,
+	BookFlipProps,
+} from './presentations/book-flip.js';
