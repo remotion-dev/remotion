@@ -65,6 +65,21 @@ export const TableOfContents: React.FC = () => {
 						</div>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/effects/halftone">
+					<div style={row}>
+						<img
+							src="/img/effects-halftone-preview.jpg"
+							alt="halftone effect preview"
+							style={previewImage}
+						/>
+						<div style={{flex: 1, marginLeft: 10}}>
+							<strong>
+								<code>{'halftone()'}</code>
+							</strong>
+							<div>Halftone dot grid effect</div>
+						</div>
+					</div>
+				</TOCItem>
 				<TOCItem link="/docs/effects/invert">
 					<div style={row}>
 						<img

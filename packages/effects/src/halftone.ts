@@ -1,7 +1,11 @@
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
+import {assertOptionalFiniteNumber} from './color-utils.js';
+import {assertEffectParamsObject} from './validate-effect-param.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
+const HALFTONE_SHAPES = ['circle', 'square', 'line'] as const;
+const HALFTONE_SAMPLING = ['bilinear', 'nearest'] as const;
 
 export const halftoneSchema = {
 	dotSize: {
@@ -55,10 +59,15 @@ export const halftoneSchema = {
 		default: false,
 		description: 'Invert',
 	},
+	color: {
+		type: 'color',
+		default: 'black',
+		description: 'Color',
+	},
 } as const satisfies SequenceSchema;
 
-export type HalftoneShape = 'circle' | 'square' | 'line';
-export type HalftoneSampling = 'bilinear' | 'nearest';
+export type HalftoneShape = (typeof HALFTONE_SHAPES)[number];
+export type HalftoneSampling = (typeof HALFTONE_SAMPLING)[number];
 
 export type HalftoneParams = {
 	readonly shape?: HalftoneShape;
@@ -94,6 +103,55 @@ type HalftoneResolved = {
 	invert: boolean;
 };
 
+const formatEnum = (variants: readonly string[]): string => {
+	if (variants.length === 2) {
+		return `"${variants[0]}" or "${variants[1]}"`;
+	}
+
+	return `${variants
+		.slice(0, -1)
+		.map((variant) => `"${variant}"`)
+		.join(', ')} or "${variants[variants.length - 1]}"`;
+};
+
+const assertOptionalEnum = <T extends string>(
+	value: unknown,
+	name: string,
+	variants: readonly T[],
+): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (typeof value !== 'string' || !variants.includes(value as T)) {
+		throw new TypeError(`"${name}" must be ${formatEnum(variants)}`);
+	}
+};
+
+const assertOptionalBoolean = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (typeof value !== 'boolean') {
+		throw new TypeError(
+			`"${name}" must be a boolean, but got ${JSON.stringify(value)}`,
+		);
+	}
+};
+
+const assertOptionalColor = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (typeof value !== 'string' || value.length === 0) {
+		throw new TypeError(
+			`"${name}" must be a non-empty string, but got ${JSON.stringify(value)}`,
+		);
+	}
+};
+
 const resolve = (p: HalftoneParams): HalftoneResolved => ({
 	shape: p.shape ?? 'circle',
 	dotSize: p.dotSize ?? 20,
@@ -105,6 +163,31 @@ const resolve = (p: HalftoneParams): HalftoneResolved => ({
 	color: p.color ?? 'black',
 	invert: p.invert ?? false,
 });
+
+const validateHalftoneParams = (params: HalftoneParams): void => {
+	assertEffectParamsObject(params, 'Halftone');
+	assertOptionalFiniteNumber(params.dotSize, 'dotSize');
+	assertOptionalFiniteNumber(params.dotSpacing, 'dotSpacing');
+	assertOptionalFiniteNumber(params.rotation, 'rotation');
+	assertOptionalFiniteNumber(params.offsetX, 'offsetX');
+	assertOptionalFiniteNumber(params.offsetY, 'offsetY');
+	assertOptionalEnum(params.shape, 'shape', HALFTONE_SHAPES);
+	assertOptionalEnum(params.sampling, 'sampling', HALFTONE_SAMPLING);
+	assertOptionalColor(params.color, 'color');
+	assertOptionalBoolean(params.invert, 'invert');
+
+	if (params.dotSize !== undefined && params.dotSize < 1) {
+		throw new TypeError(
+			`"dotSize" must be >= 1, but got ${JSON.stringify(params.dotSize)}`,
+		);
+	}
+
+	if (params.dotSpacing !== undefined && params.dotSpacing < 1) {
+		throw new TypeError(
+			`"dotSpacing" must be >= 1, but got ${JSON.stringify(params.dotSpacing)}`,
+		);
+	}
+};
 
 const HALFTONE_VS = /* glsl */ `#version 300 es
 in vec2 aPos;
@@ -430,5 +513,5 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		gl.deleteTexture(texture);
 	},
 	schema: halftoneSchema,
-	validateParams: () => {},
+	validateParams: validateHalftoneParams,
 });

@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
 import {grayscale} from '../grayscale.js';
+import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
 import {scale} from '../scale.js';
@@ -134,6 +135,42 @@ test('brightness() amount produces distinct effect keys', () => {
 	expect(
 		new Set([darker.effectKey, neutral.effectKey, brighter.effectKey]).size,
 	).toBe(3);
+});
+
+test('halftone() accepts default params', () => {
+	expect(() => halftone()).not.toThrow();
+});
+
+test('halftone() rejects shape outside the enum', () => {
+	expect(() =>
+		halftone({
+			shape: 'triangle' as Exclude<
+				Parameters<typeof halftone>[0],
+				undefined
+			>['shape'],
+		}),
+	).toThrow('"shape" must be "circle", "square" or "line"');
+});
+
+test('halftone() rejects sampling outside the enum', () => {
+	expect(() =>
+		halftone({
+			sampling: 'cubic' as Exclude<
+				Parameters<typeof halftone>[0],
+				undefined
+			>['sampling'],
+		}),
+	).toThrow('"sampling" must be "bilinear" or "nearest"');
+});
+
+test('halftone() rejects dotSize below range', () => {
+	expect(() => halftone({dotSize: 0})).toThrow('"dotSize" must be >= 1');
+});
+
+test('halftone() rejects empty color strings', () => {
+	expect(() => halftone({color: ''})).toThrow(
+		'"color" must be a non-empty string, but got ""',
+	);
 });
 
 test('invert() accepts default params', () => {

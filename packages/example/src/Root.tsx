@@ -55,6 +55,7 @@ import {
 	EffectsBlurPreview,
 	EffectsBrightnessPreview,
 	EffectsGrayscalePreview,
+	EffectsHalftonePreview,
 	EffectsHuePreview,
 	EffectsInvertPreview,
 	EffectsWavePreview,
@@ -1048,6 +1049,14 @@ export const Index: React.FC = () => {
 						height={720}
 						width={1080}
 						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-halftone-preview"
+						component={EffectsHalftonePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={2}
 					/>
 					<Composition
 						id="html-in-canvas-effects-hue-preview"
