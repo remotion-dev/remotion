@@ -25,6 +25,7 @@ const container: React.CSSProperties = {
 	marginLeft: 0 - BORDER_SIZE,
 	overflowY: 'auto',
 	overflowX: 'hidden',
+	scrollbarGutter: 'auto',
 	minWidth: 200,
 	maxWidth: MAX_MENU_WIDTH,
 };
