@@ -13,7 +13,6 @@ const KeyframedPropsTest: React.FC = () => {
 			}}
 		>
 			<Sequence
-				from={0}
 				durationInFrames={120}
 				style={{scale: interpolate(frame, [0, 100], [2, 4])}}
 			>
