@@ -16,7 +16,7 @@ export const EffectsHalftonePreview: React.FC = () => {
 					dotSize: 8,
 					dotSpacing: 7,
 					rotation: 12,
-					color: '#111827',
+					color: '#0b84f3',
 				}),
 			]}
 		>

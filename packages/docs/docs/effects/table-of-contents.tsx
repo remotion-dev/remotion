@@ -68,7 +68,7 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/effects/halftone">
 					<div style={row}>
 						<img
-							src="/img/effects-halftone-preview.jpg"
+							src="/img/effects-halftone-preview.png"
 							alt="halftone effect preview"
 							style={previewImage}
 						/>
