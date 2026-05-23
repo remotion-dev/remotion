@@ -3,7 +3,7 @@ import React from 'react';
 import {HtmlInCanvas, useVideoConfig} from 'remotion';
 import {EffectsPreviewImage} from './effects-preview-image';
 
-export const EffectsWavePreview: React.FC = () => {
+export const EffectsScalePreview: React.FC = () => {
 	const {width, height} = useVideoConfig();
 
 	return (

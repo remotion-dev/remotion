@@ -1074,6 +1074,14 @@ export const Index: React.FC = () => {
 						durationInFrames={1}
 					/>
 					<Composition
+						id="html-in-canvas-effects-scale-preview"
+						component={EffectsWavePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
 						id="zoom-in-out-transition-doc"
 						component={ZoomInOutTransitionDoc}
 						fps={30}
