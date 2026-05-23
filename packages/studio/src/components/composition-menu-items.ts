@@ -127,6 +127,10 @@ export const getCompositionMenuItems = ({
 			disabled: !composition || readOnlyStudio,
 		},
 		{
+			type: 'divider' as const,
+			id: 'copy-id-divider',
+		},
+		{
 			id: 'copy-id',
 			keyHint: null,
 			label: `Copy ID`,
