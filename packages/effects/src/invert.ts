@@ -1,23 +1,17 @@
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
-	assertEffectParamsObject,
-	assertRequiredFiniteNumber,
-} from './validate-effect-param.js';
+	assertOptionalFiniteNumber,
+	colorAmountSchema,
+	DEFAULT_AMOUNT,
+	validateUnitInterval,
+} from './color-utils.js';
+import {assertEffectParamsObject} from './validate-effect-param.js';
 
 const {createEffect} = Internals;
 
-const DEFAULT_AMOUNT = 1 as const;
-
 const invertSchema = {
-	amount: {
-		type: 'number',
-		min: 0,
-		max: 1,
-		step: 0.01,
-		default: DEFAULT_AMOUNT,
-		description: 'Amount',
-	},
+	amount: colorAmountSchema,
 } as const satisfies SequenceSchema;
 
 export type InvertParams = {
@@ -33,30 +27,12 @@ const resolve = (p: InvertParams): InvertResolved => ({
 	amount: p.amount ?? DEFAULT_AMOUNT,
 });
 
-const assertOptionalFiniteNumber = (value: unknown, name: string): void => {
-	if (value === undefined) {
-		return;
-	}
-
-	assertRequiredFiniteNumber(value, name);
-};
-
 const validateInvertParams = (params: InvertParams): void => {
 	assertEffectParamsObject(params, 'Invert');
 	assertOptionalFiniteNumber(params.amount, 'amount');
 
 	const {amount} = resolve(params);
-	if (amount < 0) {
-		throw new TypeError(
-			`"amount" must be >= 0, but got ${JSON.stringify(amount)}`,
-		);
-	}
-
-	if (amount > 1) {
-		throw new TypeError(
-			`"amount" must be <= 1, but got ${JSON.stringify(amount)}`,
-		);
-	}
+	validateUnitInterval(amount, 'amount');
 };
 
 export const invert = createEffect<InvertParams, null>({
