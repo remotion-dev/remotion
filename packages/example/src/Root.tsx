@@ -48,30 +48,32 @@ import {
 	HlsMediaVideoTrimmed,
 } from './Hls/HlsMediaVideo';
 import {
+	CrosswarpTransitionDoc,
+	CrosswarpTransitionDocThumb,
+	DissolveTransitionDoc,
+	DissolveTransitionDocThumb,
+	EffectsBlurPreview,
+	EffectsGrayscalePreview,
+	EffectsWavePreview,
 	HtmlInCanvasComplexText,
 	HtmlInCanvasComposeAsyncBitmap,
 	HtmlInCanvasComposeWebGL,
 	HtmlInCanvasComposeWebGLCrt,
 	HtmlInCanvasComposeWebGPU,
+	HtmlInCanvasDemo,
+	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
-	HtmlInCanvasDocsDemo2DBlur,
-	HtmlInCanvasDemo,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
-	ZoomBlurTransitionDoc,
-	ZoomBlurTransitionDocThumb,
-	ZoomInOutTransitionDoc,
-	ZoomInOutTransitionDocThumb,
-	DissolveTransitionDoc,
-	DissolveTransitionDocThumb,
 	RippleTransitionDoc,
 	RippleTransitionDocThumb,
 	SwapTransitionDoc,
 	SwapTransitionDocThumb,
-	EffectsBlurPreview,
-	EffectsGrayscalePreview,
-	EffectsWavePreview,
+	ZoomBlurTransitionDoc,
+	ZoomBlurTransitionDocThumb,
+	ZoomInOutTransitionDoc,
+	ZoomInOutTransitionDocThumb,
 } from './HtmlInCanvas';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
@@ -122,8 +124,8 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
-import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import './style.css';
+import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
@@ -1087,6 +1089,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="ripple-transition-doc-thumb"
 						component={RippleTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="crosswarp-transition-doc"
+						component={CrosswarpTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="crosswarp-transition-doc-thumb"
+						component={CrosswarpTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}

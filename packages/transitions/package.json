@@ -121,6 +121,12 @@
 			"import": "./dist/esm/ripple.mjs",
 			"require": "./dist/presentations/ripple.js"
 		},
+		"./crosswarp": {
+			"types": "./dist/presentations/crosswarp.d.ts",
+			"module": "./dist/esm/crosswarp.mjs",
+			"import": "./dist/esm/crosswarp.mjs",
+			"require": "./dist/presentations/crosswarp.js"
+		},
 		"./swap": {
 			"types": "./dist/presentations/swap.d.ts",
 			"module": "./dist/esm/swap.mjs",
@@ -163,6 +169,9 @@
 			],
 			"ripple": [
 				"dist/presentations/ripple.d.ts"
+			],
+			"crosswarp": [
+				"dist/presentations/crosswarp.d.ts"
 			],
 			"swap": [
 				"dist/presentations/swap.d.ts"

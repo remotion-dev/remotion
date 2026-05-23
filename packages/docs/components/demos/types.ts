@@ -14,6 +14,7 @@ import {
 } from '../transitions/previews';
 import {ArrowDemo} from './Arrow';
 import {CircleDemo} from './Circle';
+import {CrosswarpDocsDemo} from './CrosswarpDemo';
 import {DissolveDocsDemo} from './DissolveDemo';
 import {EllipseDemo} from './Ellipse';
 import {HeartDemo} from './Heart';
@@ -970,6 +971,19 @@ export const ripplePresentationDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'ripple',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const crosswarpPresentationDemo: DemoType = {
+	comp: CrosswarpDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'crosswarp',
 	autoPlay: true,
 	controls: false,
 	logLevel: 'info',

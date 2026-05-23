@@ -784,6 +784,7 @@ const sidebars: SidebarsConfig = {
 						'transitions/presentations/zoom-in-out',
 						'transitions/presentations/dissolve',
 						'transitions/presentations/ripple',
+						'transitions/presentations/crosswarp',
 						'transitions/presentations/swap',
 						'transitions/presentations/none',
 						{
