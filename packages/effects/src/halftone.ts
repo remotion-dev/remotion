@@ -3,8 +3,6 @@ import {Internals} from 'remotion';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
-const SHADE_OUTSIDE_DOT_SCALE = 0.5;
-
 export const halftoneSchema = {
 	dotSize: {
 		type: 'number',
@@ -52,6 +50,11 @@ export const halftoneSchema = {
 		default: 'circle' as const,
 		description: 'Shape',
 	},
+	invert: {
+		type: 'boolean',
+		default: false,
+		description: 'Invert',
+	},
 } as const satisfies SequenceSchema;
 
 export type HalftoneShape = 'circle' | 'square' | 'line';
@@ -72,12 +75,11 @@ export type HalftoneParams = {
 	/** Dot color. Defaults to black. */
 	readonly color?: string;
 	/**
-	 * When false (default), halftone follows luminance on opaque pixels (classic
-	 * halftone on your subject). When true, the same dot pattern fills transparent
-	 * and low-alpha areas instead—e.g. the canvas around a cut-out shape—while
-	 * leaving the opaque shape mostly free of those dots.
+	 * When false (default), dark areas produce larger dots.
+	 * When true, the pattern is inverted:
+	 * bright and transparent areas produce larger dots instead.
 	 */
-	readonly shadeOutside?: boolean;
+	readonly invert?: boolean;
 };
 
 type HalftoneResolved = {
@@ -89,7 +91,7 @@ type HalftoneResolved = {
 	offsetY: number;
 	sampling: HalftoneSampling;
 	color: string;
-	shadeOutside: boolean;
+	invert: boolean;
 };
 
 const resolve = (p: HalftoneParams): HalftoneResolved => ({
@@ -101,7 +103,7 @@ const resolve = (p: HalftoneParams): HalftoneResolved => ({
 	offsetY: p.offsetY ?? 0,
 	sampling: p.sampling ?? 'bilinear',
 	color: p.color ?? 'black',
-	shadeOutside: p.shadeOutside ?? false,
+	invert: p.invert ?? false,
 });
 
 const HALFTONE_VS = /* glsl */ `#version 300 es
@@ -129,8 +131,6 @@ uniform vec2 uOffset;
 uniform vec4 uColor;
 uniform int uShape;
 uniform bool uShadeOutside;
-
-const float SHADE_OUTSIDE_SCALE = ${SHADE_OUTSIDE_DOT_SCALE.toFixed(1)};
 
 void main() {
 	vec2 fragPos = vUv * uResolution;
@@ -163,7 +163,7 @@ void main() {
 
 	float lumDefault = lum * alpha + (1.0 - alpha);
 	float dotScale = uShadeOutside
-		? (1.0 - alpha) * SHADE_OUTSIDE_SCALE
+		? lumDefault
 		: 1.0 - lumDefault;
 
 	if (dotScale <= 0.01) {
@@ -277,15 +277,15 @@ const parseColorRgba = (
 // or lines. Each fragment determines its nearest grid cell and whether it falls
 // inside a dot, so edge dots are never culled. `dotSpacing` sets the grid pitch
 // (defaults to `dotSize`). `sampling` controls texture interpolation when
-// reading luminance at grid centres. `shadeOutside` fills transparent areas
-// with a screen tone instead of luminance-driven ink on opaque pixels alone.
+// reading luminance at grid centres. `invert` inverts the pattern so
+// bright/transparent areas produce larger dots and dark areas produce fewer.
 export const halftone = createEffect<HalftoneParams, HalftoneState>({
 	type: 'remotion/halftone',
 	label: 'Halftone',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `halftone-${r.shape}-${r.dotSize}-${r.dotSpacing}-${r.rotation}-${r.offsetX}-${r.offsetY}-${r.sampling}-${r.color}-${r.shadeOutside ? 1 : 0}`;
+		return `halftone-${r.shape}-${r.dotSize}-${r.dotSpacing}-${r.rotation}-${r.offsetX}-${r.offsetY}-${r.sampling}-${r.color}-${r.invert ? 1 : 0}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -415,7 +415,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		if (state.uColor) gl.uniform4f(state.uColor, cr * ca, cg * ca, cb * ca, ca);
 		if (state.uShape) gl.uniform1i(state.uShape, SHAPE_INDEX[r.shape]);
 		if (state.uShadeOutside)
-			gl.uniform1i(state.uShadeOutside, r.shadeOutside ? 1 : 0);
+			gl.uniform1i(state.uShadeOutside, r.invert ? 1 : 0);
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 

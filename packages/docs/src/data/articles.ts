@@ -1764,6 +1764,15 @@ export const articles = [
 		slug: 'effects/invert',
 	},
 	{
+		id: 'effects/scale',
+		title: 'scale()',
+		relativePath: 'docs/effects/scale.mdx',
+		compId: 'articles-docs-effects-scale',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/scale',
+	},
+	{
 		id: 'effects/wave',
 		title: 'wave()',
 		relativePath: 'docs/effects/wave.mdx',
