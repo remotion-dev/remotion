@@ -272,6 +272,7 @@ const sidebars: SidebarsConfig = {
 				'effects/grayscale',
 				'effects/hue',
 				'effects/invert',
+				'effects/scale',
 				'effects/wave',
 			],
 		},

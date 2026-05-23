@@ -95,6 +95,21 @@ export const TableOfContents: React.FC = () => {
 						</div>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/effects/scale">
+					<div style={row}>
+						<img
+							src="/img/effects-scale-preview.jpg"
+							alt="scale effect preview"
+							style={previewImage}
+						/>
+						<div style={{flex: 1, marginLeft: 10}}>
+							<strong>
+								<code>{'scale()'}</code>
+							</strong>
+							<div>Scale transform effect</div>
+						</div>
+					</div>
+				</TOCItem>
 				<TOCItem link="/docs/effects/wave">
 					<div style={row}>
 						<img
