@@ -2,6 +2,124 @@ import React from 'react';
 import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
 
+type Effect = {
+	readonly link: string;
+	readonly preview: string;
+	readonly alt: string;
+	readonly name: string;
+	readonly description: string;
+};
+
+const categories: {
+	readonly title: string;
+	readonly effects: Effect[];
+}[] = [
+	{
+		title: 'Color',
+		effects: [
+			{
+				link: '/docs/effects/brightness',
+				preview: '/img/effects-brightness-preview.jpg',
+				alt: 'brightness effect preview',
+				name: 'brightness()',
+				description: 'Brightness adjustment effect',
+			},
+			{
+				link: '/docs/effects/grayscale',
+				preview: '/img/effects-grayscale-preview.jpg',
+				alt: 'grayscale effect preview',
+				name: 'grayscale()',
+				description: 'Black-and-white effect',
+			},
+			{
+				link: '/docs/effects/hue',
+				preview: '/img/effects-hue-preview.jpg',
+				alt: 'hue effect preview',
+				name: 'hue()',
+				description: 'Hue rotation effect',
+			},
+			{
+				link: '/docs/effects/invert',
+				preview: '/img/effects-invert-preview.jpg',
+				alt: 'invert effect preview',
+				name: 'invert()',
+				description: 'Negative color effect',
+			},
+			{
+				link: '/docs/effects/saturation',
+				preview: '/img/effects-saturation-preview.jpg',
+				alt: 'saturation effect preview',
+				name: 'saturation()',
+				description: 'Saturation adjustment effect',
+			},
+			{
+				link: '/docs/effects/tint',
+				preview: '/img/effects-tint-preview.jpg',
+				alt: 'tint effect preview',
+				name: 'tint()',
+				description: 'Color tint effect',
+			},
+		],
+	},
+	{
+		title: 'Transform',
+		effects: [
+			{
+				link: '/docs/effects/mirror',
+				preview: '/img/effects-mirror-preview.jpg',
+				alt: 'mirror effect preview',
+				name: 'mirror()',
+				description: 'Mirror reflection effect',
+			},
+			{
+				link: '/docs/effects/scale',
+				preview: '/img/effects-scale-preview.jpg',
+				alt: 'scale effect preview',
+				name: 'scale()',
+				description: 'Scale transform effect',
+			},
+		],
+	},
+	{
+		title: 'Distort',
+		effects: [
+			{
+				link: '/docs/effects/barrel-distortion',
+				preview: '/img/effects-barrel-distortion-preview.jpg',
+				alt: 'barrel distortion effect preview',
+				name: 'barrelDistortion()',
+				description: 'Barrel distortion effect',
+			},
+			{
+				link: '/docs/effects/blur',
+				preview: '/img/effects-blur-preview.jpg',
+				alt: 'blur effect preview',
+				name: 'blur()',
+				description: 'Gaussian blur effect',
+			},
+			{
+				link: '/docs/effects/wave',
+				preview: '/img/effects-wave-preview.jpg',
+				alt: 'wave effect preview',
+				name: 'wave()',
+				description: 'Sine wave distortion',
+			},
+		],
+	},
+	{
+		title: 'Generative',
+		effects: [
+			{
+				link: '/docs/effects/halftone',
+				preview: '/img/effects-halftone-preview.png',
+				alt: 'halftone effect preview',
+				name: 'halftone()',
+				description: 'Halftone dot grid effect',
+			},
+		],
+	},
+];
+
 const row: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
@@ -16,191 +134,39 @@ const previewImage: React.CSSProperties = {
 	flexShrink: 0,
 };
 
+const EffectCard: React.FC<{
+	readonly effect: Effect;
+}> = ({effect}) => {
+	return (
+		<TOCItem link={effect.link}>
+			<div style={row}>
+				<img src={effect.preview} alt={effect.alt} style={previewImage} />
+				<div style={{flex: 1, marginLeft: 10}}>
+					<strong>
+						<code>{effect.name}</code>
+					</strong>
+					<div>{effect.description}</div>
+				</div>
+			</div>
+		</TOCItem>
+	);
+};
+
 export const TableOfContents: React.FC = () => {
 	return (
 		<div>
-			<Grid>
-				<TOCItem link="/docs/effects/barrel-distortion">
-					<div style={row}>
-						<img
-							src="/img/effects-barrel-distortion-preview.jpg"
-							alt="barrel distortion effect preview"
-							style={previewImage}
-						/>
-						<div style={{flex: 1, marginLeft: 10}}>
-							<strong>
-								<code>{'barrelDistortion()'}</code>
-							</strong>
-							<div>Barrel distortion effect</div>
-						</div>
-					</div>
-				</TOCItem>
-				<TOCItem link="/docs/effects/blur">
-					<div style={row}>
-						<img
-							src="/img/effects-blur-preview.jpg"
-							alt="blur effect preview"
-							style={previewImage}
-						/>
-						<div style={{flex: 1, marginLeft: 10}}>
-							<strong>
-								<code>{'blur()'}</code>
-							</strong>
-							<div>Gaussian blur effect</div>
-						</div>
-					</div>
-				</TOCItem>
-				<TOCItem link="/docs/effects/brightness">
-					<div style={row}>
-						<img
-							src="/img/effects-brightness-preview.jpg"
-							alt="brightness effect preview"
-							style={previewImage}
-						/>
-						<div style={{flex: 1, marginLeft: 10}}>
-							<strong>
-								<code>{'brightness()'}</code>
-							</strong>
-							<div>Brightness adjustment effect</div>
-						</div>
-					</div>
-				</TOCItem>
-				<TOCItem link="/docs/effects/grayscale">
-					<div style={row}>
-						<img
-							src="/img/effects-grayscale-preview.jpg"
-							alt="grayscale effect preview"
-							style={previewImage}
-						/>
-						<div style={{flex: 1, marginLeft: 10}}>
-							<strong>
-								<code>{'grayscale()'}</code>
-							</strong>
-							<div>Black-and-white effect</div>
-						</div>
-					</div>
-				</TOCItem>
-				<TOCItem link="/docs/effects/halftone">
-					<div style={row}>
-						<img
-							src="/img/effects-halftone-preview.png"
-							alt="halftone effect preview"
-							style={previewImage}
-						/>
-						<div style={{flex: 1, marginLeft: 10}}>
-							<strong>
-								<code>{'halftone()'}</code>
-							</strong>
-							<div>Halftone dot grid effect</div>
-						</div>
-					</div>
-				</TOCItem>
-				<TOCItem link="/docs/effects/invert">
-					<div style={row}>
-						<img
-							src="/img/effects-invert-preview.jpg"
-							alt="invert effect preview"
-							style={previewImage}
-						/>
-						<div style={{flex: 1, marginLeft: 10}}>
-							<strong>
-								<code>{'invert()'}</code>
-							</strong>
-							<div>Negative color effect</div>
-						</div>
-					</div>
-				</TOCItem>
-				<TOCItem link="/docs/effects/hue">
-					<div style={row}>
-						<img
-							src="/img/effects-hue-preview.jpg"
-							alt="hue effect preview"
-							style={previewImage}
-						/>
-						<div style={{flex: 1, marginLeft: 10}}>
-							<strong>
-								<code>{'hue()'}</code>
-							</strong>
-							<div>Hue rotation effect</div>
-						</div>
-					</div>
-				</TOCItem>
-				<TOCItem link="/docs/effects/mirror">
-					<div style={row}>
-						<img
-							src="/img/effects-mirror-preview.jpg"
-							alt="mirror effect preview"
-							style={previewImage}
-						/>
-						<div style={{flex: 1, marginLeft: 10}}>
-							<strong>
-								<code>{'mirror()'}</code>
-							</strong>
-							<div>Mirror reflection effect</div>
-						</div>
-					</div>
-				</TOCItem>
-				<TOCItem link="/docs/effects/saturation">
-					<div style={row}>
-						<img
-							src="/img/effects-saturation-preview.jpg"
-							alt="saturation effect preview"
-							style={previewImage}
-						/>
-						<div style={{flex: 1, marginLeft: 10}}>
-							<strong>
-								<code>{'saturation()'}</code>
-							</strong>
-							<div>Saturation adjustment effect</div>
-						</div>
-					</div>
-				</TOCItem>
-				<TOCItem link="/docs/effects/scale">
-					<div style={row}>
-						<img
-							src="/img/effects-scale-preview.jpg"
-							alt="scale effect preview"
-							style={previewImage}
-						/>
-						<div style={{flex: 1, marginLeft: 10}}>
-							<strong>
-								<code>{'scale()'}</code>
-							</strong>
-							<div>Scale transform effect</div>
-						</div>
-					</div>
-				</TOCItem>
-				<TOCItem link="/docs/effects/tint">
-					<div style={row}>
-						<img
-							src="/img/effects-tint-preview.jpg"
-							alt="tint effect preview"
-							style={previewImage}
-						/>
-						<div style={{flex: 1, marginLeft: 10}}>
-							<strong>
-								<code>{'tint()'}</code>
-							</strong>
-							<div>Color tint effect</div>
-						</div>
-					</div>
-				</TOCItem>
-				<TOCItem link="/docs/effects/wave">
-					<div style={row}>
-						<img
-							src="/img/effects-wave-preview.jpg"
-							alt="wave effect preview"
-							style={previewImage}
-						/>
-						<div style={{flex: 1, marginLeft: 10}}>
-							<strong>
-								<code>{'wave()'}</code>
-							</strong>
-							<div>Sine wave distortion</div>
-						</div>
-					</div>
-				</TOCItem>
-			</Grid>
+			{categories.map((category) => {
+				return (
+					<React.Fragment key={category.title}>
+						<h3>{category.title}</h3>
+						<Grid>
+							{category.effects.map((effect) => {
+								return <EffectCard key={effect.link} effect={effect} />;
+							})}
+						</Grid>
+					</React.Fragment>
+				);
+			})}
 		</div>
 	);
 };
