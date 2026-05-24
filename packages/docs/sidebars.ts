@@ -793,6 +793,7 @@ const sidebars: SidebarsConfig = {
 						'transitions/presentations/iris',
 						'transitions/presentations/book-flip',
 						'transitions/presentations/zoom-blur',
+						'transitions/presentations/linear-blur',
 						'transitions/presentations/zoom-in-out',
 						'transitions/presentations/dissolve',
 						'transitions/presentations/ripple',

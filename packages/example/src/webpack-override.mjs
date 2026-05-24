@@ -38,6 +38,9 @@ const aliases = {
 	'@remotion/transitions/zoom-blur': resolveCwd(
 		'@remotion/transitions/zoom-blur',
 	),
+	'@remotion/transitions/linear-blur': resolveCwd(
+		'@remotion/transitions/linear-blur',
+	),
 	'@remotion/transitions/zoom-in-out': resolveCwd(
 		'@remotion/transitions/zoom-in-out',
 	),

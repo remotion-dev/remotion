@@ -15,6 +15,7 @@ const presentations = [
 	'iris',
 	'book-flip',
 	'zoom-blur',
+	'linear-blur',
 	'zoom-in-out',
 	'dissolve',
 	'ripple',

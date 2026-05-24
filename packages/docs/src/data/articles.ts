@@ -6745,6 +6745,15 @@ export const articles = [
 		slug: 'transitions/presentations/iris',
 	},
 	{
+		id: 'transitions/presentations/linear-blur',
+		title: 'linearBlur()',
+		relativePath: 'docs/transitions/presentations/linear-blur.mdx',
+		compId: 'articles-docs-transitions-presentations-linear-blur',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/linear-blur',
+	},
+	{
 		id: 'transitions/presentations/none',
 		title: 'none()',
 		relativePath: 'docs/transitions/presentations/none.mdx',

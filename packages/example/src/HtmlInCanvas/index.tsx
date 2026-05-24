@@ -31,6 +31,10 @@ export {EffectsTintPreview} from './effects-tint-preview';
 export {EffectsWavePreview} from './effects-wave-preview';
 export {HtmlInCanvasDocsMinimalWebGL} from './minimal-docs-webgl';
 export {HtmlInCanvasDocsMinimalWebGPU} from './minimal-docs-webgpu';
+export {
+	LinearBlurTransitionDoc,
+	LinearBlurTransitionDocThumb,
+} from './linear-blur-doc';
 export {HtmlInCanvasPrivacy} from './privacy';
 export {HtmlInCanvasReactSvg} from './react-svg';
 export {RippleTransitionDoc, RippleTransitionDocThumb} from './ripple-doc';

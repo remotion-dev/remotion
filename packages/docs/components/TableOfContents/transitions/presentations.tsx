@@ -13,6 +13,7 @@ import {DissolveTocPreview} from '../../transitions/dissolve-toc-preview';
 import {PresentationPreview} from '../../transitions/previews';
 import {RippleTocPreview} from '../../transitions/ripple-toc-preview';
 import {SwapTocPreview} from '../../transitions/swap-toc-preview';
+import {LinearBlurTocPreview} from '../../transitions/linear-blur-toc-preview';
 import {ZoomBlurTocPreview} from '../../transitions/zoom-blur-toc-preview';
 import {ZoomInOutTocPreview} from '../../transitions/zoom-in-out-toc-preview';
 import {Grid} from '../Grid';
@@ -133,6 +134,18 @@ export const Presentations: React.FC<{
 						</strong>
 						<HtmlInCanvasLabel />
 						<div>Zoom and rotate scenes with a radial blur</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/linear-blur">
+				<div style={row}>
+					<LinearBlurTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'linearBlur()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Blend scenes with a directional multi-sample blur</div>
 					</div>
 				</div>
 			</TOCItem>
