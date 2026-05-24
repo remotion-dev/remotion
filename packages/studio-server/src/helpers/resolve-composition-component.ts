@@ -1,6 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type {
+	ExportAllDeclaration,
+	ExportNamedDeclaration,
+	ExportSpecifier,
 	File,
 	ImportDeclaration,
 	JSXAttribute,
@@ -32,6 +35,11 @@ export type ResolvedCompositionComponent = {
 };
 
 type ImportTarget = {
+	importPath: string;
+	exportName: string | 'default';
+};
+
+type ReExportTarget = {
 	importPath: string;
 	exportName: string | 'default';
 };
@@ -281,6 +289,91 @@ const findImportTarget = ({
 	});
 
 	return found;
+};
+
+const getExportedName = (exported: unknown) => {
+	if (!exported) {
+		return null;
+	}
+
+	if (!isRecord(exported)) {
+		return null;
+	}
+
+	if (exported.type === 'Identifier' && typeof exported.name === 'string') {
+		return exported.name;
+	}
+
+	if (exported.type === 'StringLiteral' && typeof exported.value === 'string') {
+		return exported.value;
+	}
+
+	return null;
+};
+
+const getSpecifierLocalName = (specifier: ExportSpecifier) => {
+	if (specifier.local.type === 'Identifier') {
+		return specifier.local.name;
+	}
+
+	return null;
+};
+
+const findReExportTargets = ({
+	ast,
+	exportName,
+}: {
+	ast: File;
+	exportName: string | 'default';
+}) => {
+	const targets: ReExportTarget[] = [];
+
+	recast.types.visit(ast, {
+		visitExportNamedDeclaration(astPath) {
+			const node = astPath.node as ExportNamedDeclaration;
+			if (typeof node.source?.value !== 'string') {
+				return false;
+			}
+
+			for (const specifier of node.specifiers) {
+				if (specifier.type !== 'ExportSpecifier') {
+					continue;
+				}
+
+				const exportedName = getExportedName(specifier.exported);
+				if (exportedName !== exportName) {
+					continue;
+				}
+
+				const localName = getSpecifierLocalName(specifier);
+				if (!localName) {
+					continue;
+				}
+
+				targets.push({
+					importPath: node.source.value,
+					exportName: localName === 'default' ? 'default' : localName,
+				});
+			}
+
+			return false;
+		},
+		visitExportAllDeclaration(astPath) {
+			const node = astPath.node as ExportAllDeclaration;
+			if (typeof node.source.value !== 'string') {
+				return false;
+			}
+
+			targets.push({
+				importPath: node.source.value,
+				exportName,
+			});
+
+			return false;
+		},
+	});
+
+	return targets;
 };
 
 const resolveImportPath = ({
@@ -733,6 +826,69 @@ const getComponentLocationInFile = async ({
 	};
 };
 
+const getComponentLocationRecursively = async ({
+	remotionRoot,
+	fileName,
+	exportName,
+	visited,
+}: {
+	remotionRoot: string;
+	fileName: string;
+	exportName: string | 'default';
+	visited: Set<string>;
+}): Promise<ResolvedCompositionComponent> => {
+	const key = `${fileName}:${exportName}`;
+	if (visited.has(key)) {
+		throw new Error(
+			`Could not resolve component export "${exportName}" in ${path.relative(remotionRoot, fileName)}`,
+		);
+	}
+
+	visited.add(key);
+
+	const input = await readSourceFile({remotionRoot, fileName});
+	const ast = parseAst(input);
+	const localDeclaration = getDeclarationByExportName({
+		ast,
+		exportName,
+	});
+	if (localDeclaration) {
+		return getComponentLocationInFile({
+			remotionRoot,
+			fileName,
+			exportName,
+		});
+	}
+
+	const reExportTargets = findReExportTargets({
+		ast,
+		exportName,
+	});
+	for (const target of reExportTargets) {
+		try {
+			const resolvedImportPath = resolveImportPath({
+				importPath: target.importPath,
+				fromFile: fileName,
+			});
+
+			return getComponentLocationRecursively({
+				remotionRoot,
+				fileName: resolvedImportPath,
+				exportName: target.exportName,
+				visited,
+			});
+		} catch {
+			continue;
+		}
+	}
+
+	return getComponentLocationInFile({
+		remotionRoot,
+		fileName,
+		exportName,
+	});
+};
+
 export const resolveCompositionComponent = async ({
 	remotionRoot,
 	compositionFile,
@@ -759,10 +915,11 @@ export const resolveCompositionComponent = async ({
 			importPath: lazyImportPath,
 			fromFile: compositionFileName,
 		});
-		return getComponentLocationInFile({
+		return getComponentLocationRecursively({
 			remotionRoot,
 			fileName: lazyComponentFile,
 			exportName: 'default',
+			visited: new Set(),
 		});
 	}
 
@@ -787,9 +944,10 @@ export const resolveCompositionComponent = async ({
 		fromFile: compositionFileName,
 	});
 
-	return getComponentLocationInFile({
+	return getComponentLocationRecursively({
 		remotionRoot,
 		fileName: importedComponentFile,
 		exportName: importTarget.exportName,
+		visited: new Set(),
 	});
 };
