@@ -1,21 +1,18 @@
-import type {ChromeMode, Codec, X264Preset} from '@remotion/renderer';
-import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {ChromeMode} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {UiOpenGlOptions} from '@remotion/studio-shared';
 import type {ChangeEvent} from 'react';
 import React, {useCallback, useMemo} from 'react';
-import {labelx264Preset} from '../../helpers/presets-labels';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import type {ComboboxValue, SelectionItem} from '../NewComposition/ComboBox';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {input, label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
-import {RenderModalEnvironmentVariables} from './RenderModalEnvironmentVariables';
 import {RenderModalHr} from './RenderModalHr';
 
 export type RenderType = 'still' | 'video' | 'audio' | 'sequence';
@@ -33,10 +30,6 @@ export const RenderModalAdvanced: React.FC<{
 	readonly concurrency: number;
 	readonly delayRenderTimeout: number;
 	readonly setDelayRenderTimeout: React.Dispatch<React.SetStateAction<number>>;
-	readonly disallowParallelEncoding: boolean;
-	readonly setDisallowParallelEncoding: React.Dispatch<
-		React.SetStateAction<boolean>
-	>;
 	readonly setDisableWebSecurity: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setIgnoreCertificateErrors: React.Dispatch<
 		React.SetStateAction<boolean>
@@ -53,18 +46,6 @@ export const RenderModalAdvanced: React.FC<{
 	readonly setChromeModeOption: React.Dispatch<
 		React.SetStateAction<ChromeMode>
 	>;
-	readonly envVariables: [string, string][];
-	readonly setEnvVariables: React.Dispatch<
-		React.SetStateAction<[string, string][]>
-	>;
-	readonly x264Preset: X264Preset | null;
-	readonly setx264Preset: React.Dispatch<React.SetStateAction<X264Preset>>;
-	readonly gopSize: number | null;
-	readonly setGopSize: React.Dispatch<React.SetStateAction<number | null>>;
-	readonly hardwareAcceleration: HardwareAccelerationOption;
-	readonly setHardwareAcceleration: React.Dispatch<
-		React.SetStateAction<HardwareAccelerationOption>
-	>;
 	readonly offthreadVideoCacheSizeInBytes: number | null;
 	readonly setOffthreadVideoCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number | null>
@@ -77,7 +58,6 @@ export const RenderModalAdvanced: React.FC<{
 	readonly setOffthreadVideoThreads: React.Dispatch<
 		React.SetStateAction<number | null>
 	>;
-	readonly codec: Codec;
 	readonly enableMultiProcessOnLinux: boolean;
 	readonly darkMode: boolean;
 	readonly setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
@@ -98,8 +78,6 @@ export const RenderModalAdvanced: React.FC<{
 	concurrency,
 	delayRenderTimeout,
 	setDelayRenderTimeout,
-	disallowParallelEncoding,
-	setDisallowParallelEncoding,
 	setDisableWebSecurity,
 	setIgnoreCertificateErrors,
 	setHeadless,
@@ -108,13 +86,6 @@ export const RenderModalAdvanced: React.FC<{
 	disableWebSecurity,
 	openGlOption,
 	setOpenGlOption,
-	setEnvVariables,
-	envVariables,
-	setx264Preset,
-	x264Preset,
-	gopSize,
-	setGopSize,
-	codec,
 	setMediaCacheSizeInBytes,
 	mediaCacheSizeInBytes,
 	offthreadVideoCacheSizeInBytes,
@@ -129,10 +100,8 @@ export const RenderModalAdvanced: React.FC<{
 	setBeep,
 	repro,
 	setRepro,
-	hardwareAcceleration,
 	chromeModeOption,
 	setChromeModeOption,
-	setHardwareAcceleration,
 	darkMode,
 	setDarkMode,
 }) => {
@@ -178,16 +147,6 @@ export const RenderModalAdvanced: React.FC<{
 		});
 	}, [setOffthreadVideoThreads]);
 
-	const toggleCustomGopSize = useCallback(() => {
-		setGopSize((previous) => {
-			if (previous === null) {
-				return 120;
-			}
-
-			return null;
-		});
-	}, [setGopSize]);
-
 	const toggleCustomUserAgent = useCallback(() => {
 		setUserAgent((previous) => {
 			if (previous === null) {
@@ -197,13 +156,6 @@ export const RenderModalAdvanced: React.FC<{
 			return null;
 		});
 	}, [setUserAgent]);
-
-	const onDisallowParallelEncodingChanged = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			setDisallowParallelEncoding(e.target.checked);
-		},
-		[setDisallowParallelEncoding],
-	);
 
 	const onDisableWebSecurityChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -296,41 +248,6 @@ export const RenderModalAdvanced: React.FC<{
 		});
 	}, [chromeModeOption, setChromeModeOption]);
 
-	const x264PresetOptions = useMemo((): ComboboxValue[] => {
-		return BrowserSafeApis.x264PresetOptions.map((option) => {
-			return {
-				label: labelx264Preset(option),
-				onClick: () => setx264Preset(option),
-				key: option,
-				type: 'item',
-				id: option,
-				keyHint: null,
-				leftItem: x264Preset === option ? <Checkmark /> : null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: option,
-			};
-		});
-	}, [setx264Preset, x264Preset]);
-
-	const hardwareAccelerationValues = useMemo((): ComboboxValue[] => {
-		return BrowserSafeApis.hardwareAccelerationOptions.map(
-			(option): SelectionItem => {
-				return {
-					label: option,
-					onClick: () => setHardwareAcceleration(option),
-					leftItem: hardwareAcceleration === option ? <Checkmark /> : null,
-					subMenu: null,
-					quickSwitcherLabel: null,
-					type: 'item',
-					id: option,
-					keyHint: null,
-					value: option,
-				};
-			},
-		);
-	}, [hardwareAcceleration, setHardwareAcceleration]);
-
 	const changeMediaCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number>
 	> = useCallback(
@@ -388,24 +305,6 @@ export const RenderModalAdvanced: React.FC<{
 		[setOffthreadVideoThreads],
 	);
 
-	const changeGopSize: React.Dispatch<React.SetStateAction<number>> =
-		useCallback(
-			(cb) => {
-				setGopSize((prev) => {
-					if (prev === null) {
-						throw new TypeError('Expected previous value');
-					}
-
-					if (typeof cb === 'function') {
-						return cb(prev);
-					}
-
-					return cb;
-				});
-			},
-			[setGopSize],
-		);
-
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			{renderMode === 'still' ? null : (
@@ -419,66 +318,6 @@ export const RenderModalAdvanced: React.FC<{
 					value={concurrency}
 				/>
 			)}
-			{renderMode === 'video' && codec === 'h264' ? (
-				<div style={optionRow}>
-					<div style={label}>
-						x264 Preset
-						<Spacing x={0.5} />
-						<OptionExplainerBubble id="x264Option" />
-					</div>
-					<div style={rightRow}>
-						<Combobox
-							title={x264Preset as string}
-							selectedId={x264Preset as string}
-							values={x264PresetOptions}
-						/>
-					</div>
-				</div>
-			) : null}
-			{renderMode === 'video' && codec !== 'gif' ? (
-				<div style={optionRow}>
-					<div style={label}>
-						Custom GOP size
-						<Spacing x={0.5} />
-						<OptionExplainerBubble id="gopSizeOption" />
-					</div>
-					<div style={rightRow}>
-						<Checkbox
-							checked={gopSize !== null}
-							onChange={toggleCustomGopSize}
-							name="custom-gop-size"
-						/>
-					</div>
-				</div>
-			) : null}
-			{renderMode === 'video' && codec !== 'gif' && gopSize !== null ? (
-				<NumberSetting
-					min={1}
-					max={10000}
-					step={1}
-					name="GOP size"
-					formatter={(value) => `${value} frames`}
-					onValueChanged={changeGopSize}
-					value={gopSize}
-				/>
-			) : null}
-			{renderMode === 'video' ? (
-				<div style={optionRow}>
-					<div style={label}>
-						Hardware acceleration
-						<Spacing x={0.5} />
-						<OptionExplainerBubble id="hardwareAccelerationOption" />
-					</div>
-					<div style={rightRow}>
-						<Combobox
-							title={hardwareAcceleration as string}
-							selectedId={hardwareAcceleration as string}
-							values={hardwareAccelerationValues}
-						/>
-					</div>
-				</div>
-			) : null}
-
 			<NumberSetting
 				// Also appears in packages/renderer/src/validate-puppeteer-timeout.ts
 				min={7_000}
@@ -490,16 +329,6 @@ export const RenderModalAdvanced: React.FC<{
 				hint="delayRenderTimeoutInMillisecondsOption"
 				value={delayRenderTimeout}
 			/>
-			<div style={optionRow}>
-				<div style={label}>No parallel encoding</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={disallowParallelEncoding}
-						onChange={onDisallowParallelEncodingChanged}
-						name="disallow-parallel-encoding"
-					/>
-				</div>
-			</div>
 			{renderMode === 'audio' ? null : (
 				<div style={optionRow}>
 					<div style={label}>
@@ -712,11 +541,6 @@ export const RenderModalAdvanced: React.FC<{
 					/>
 				</div>
 			</div>
-			<RenderModalHr />
-			<RenderModalEnvironmentVariables
-				envVariables={envVariables}
-				setEnvVariables={setEnvVariables}
-			/>
 		</div>
 	);
 };
