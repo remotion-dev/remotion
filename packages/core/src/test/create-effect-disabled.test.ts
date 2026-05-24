@@ -78,3 +78,28 @@ test('createEffect injects `disabled` even when the effect schema is empty', () 
 		description: 'Disabled',
 	});
 });
+
+test('createEffect preserves documentation links on definitions', () => {
+	const foo = createEffect<FooParams, null>({
+		type: 'test/foo',
+		label: 'Foo',
+		documentationLink: 'https://www.remotion.dev/docs/effects/foo',
+		backend: '2d',
+		calculateKey: (p) => `foo-${p.amount}`,
+		setup: () => null,
+		apply: () => undefined,
+		cleanup: () => undefined,
+		schema: {},
+		validateParams: () => {},
+	});
+	const desc = foo({amount: 1});
+	expect(desc.definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/foo',
+	);
+});
+
+test('createEffect defaults documentation links to null', () => {
+	const foo = makeFoo();
+	const desc = foo({amount: 1});
+	expect(desc.definition.documentationLink).toBe(null);
+});

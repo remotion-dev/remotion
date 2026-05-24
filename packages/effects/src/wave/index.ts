@@ -113,6 +113,7 @@ const validateWaveParams = (params: WaveParams): void => {
 export const wave = createEffect<WaveParams, WaveState>({
 	type: 'remotion/wave',
 	label: 'Wave',
+	documentationLink: 'https://www.remotion.dev/docs/effects/wave',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);

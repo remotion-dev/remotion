@@ -60,6 +60,7 @@ const validateTintParams = (params: TintParams): void => {
 export const tint = createEffect<TintParams, null>({
 	type: 'remotion/tint',
 	label: 'Tint',
+	documentationLink: 'https://www.remotion.dev/docs/effects/tint',
 	backend: '2d',
 	calculateKey: (params) => {
 		const r = resolve(params);

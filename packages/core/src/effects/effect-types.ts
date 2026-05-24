@@ -37,6 +37,7 @@ export type EffectApplyParams<P, S> = {
 export type EffectDefinition<P, S = unknown> = {
 	readonly type: string;
 	readonly label: string;
+	readonly documentationLink?: string | null;
 	readonly backend: Backend;
 	/**
 	 * Stable string for comparing effect instances: two descriptors with the same

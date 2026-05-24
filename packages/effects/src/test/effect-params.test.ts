@@ -10,6 +10,39 @@ import {scale} from '../scale.js';
 import {tint} from '../tint.js';
 import {wave} from '../wave/index.js';
 
+test('@remotion/effects expose documentation links', () => {
+	expect(blur({radius: 1}).definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/blur',
+	);
+	expect(brightness().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/brightness',
+	);
+	expect(grayscale().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/grayscale',
+	);
+	expect(halftone().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/halftone',
+	);
+	expect(hue().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/hue',
+	);
+	expect(invert().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/invert',
+	);
+	expect(saturation().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/saturation',
+	);
+	expect(scale({scale: 1}).definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/scale',
+	);
+	expect(tint({color: '#fff'}).definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/tint',
+	);
+	expect(wave().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/wave',
+	);
+});
+
 test('tint() throws when color is not passed', () => {
 	expect(() => tint({} as Parameters<typeof tint>[0])).toThrow(
 		'"color" must be a non-empty string, but got undefined',
