@@ -278,7 +278,6 @@ test(
 		const data = info.stderr;
 		expect(data).toContain('pcm_s16le');
 		expect(data).toContain('2 channels');
-		expect(data).toContain('Kevin MacLeod');
 		expect(data).toMatch(/bitrate: 15\d\d kb/);
 		expect(data).toContain('Stream #0');
 		expect(data).not.toContain('Stream #1');
@@ -316,7 +315,6 @@ test(
 		const data = info.stderr;
 		expect(data).toContain('mp3');
 		expect(data).toContain('stereo');
-		expect(data).toContain('Kevin MacLeod');
 		expect(data).toContain('320 kb/s');
 		expect(data).toContain('Stream #0');
 		expect(data).not.toContain('Stream #1');

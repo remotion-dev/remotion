@@ -39,7 +39,7 @@ export const Issue7568: React.FC = () => {
 				<Html5Audio src="https://remotion.media/music.mp3" volume={() => 0} />
 			</Sequence>
 			<Sequence from={-30} layout="none">
-				<Sequence from={0} layout="none">
+				<Sequence layout="none">
 					<Probe label="@remotion/media Audio (wrapped)" />
 				</Sequence>
 				<Audio src="https://remotion.media/music.mp3" volume={() => 0} />
