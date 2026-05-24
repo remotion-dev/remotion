@@ -60,6 +60,7 @@ import {
 	EffectsHalftonePreview,
 	EffectsHuePreview,
 	EffectsInvertPreview,
+	EffectsSaturationPreview,
 	EffectsTintPreview,
 	EffectsWavePreview,
 	HtmlInCanvasComplexText,
@@ -1088,6 +1089,14 @@ export const Index: React.FC = () => {
 					<Composition
 						id="html-in-canvas-effects-invert-preview"
 						component={EffectsInvertPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-saturation-preview"
+						component={EffectsSaturationPreview}
 						fps={30}
 						height={720}
 						width={1080}

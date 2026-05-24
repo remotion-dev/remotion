@@ -1773,6 +1773,15 @@ export const articles = [
 		slug: 'effects/invert',
 	},
 	{
+		id: 'effects/saturation',
+		title: 'saturation()',
+		relativePath: 'docs/effects/saturation.mdx',
+		compId: 'articles-docs-effects-saturation',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/saturation',
+	},
+	{
 		id: 'effects/scale',
 		title: 'scale()',
 		relativePath: 'docs/effects/scale.mdx',

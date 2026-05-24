@@ -5,6 +5,7 @@ import {grayscale} from '../grayscale.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
+import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {tint} from '../tint.js';
 import {wave} from '../wave/index.js';
@@ -213,6 +214,34 @@ test('invert() amount produces distinct effect keys', () => {
 	const none = invert({amount: 0});
 	const full = invert({amount: 1});
 	expect(none.effectKey).not.toBe(full.effectKey);
+});
+
+test('saturation() accepts default params', () => {
+	expect(() => saturation()).not.toThrow();
+});
+
+test('saturation() accepts oversaturation', () => {
+	expect(() => saturation({amount: 2})).not.toThrow();
+});
+
+test('saturation() rejects non-finite amount', () => {
+	expect(() => saturation({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('saturation() rejects amount below range', () => {
+	expect(() => saturation({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('saturation() amount produces distinct effect keys', () => {
+	const desaturated = saturation({amount: 0});
+	const neutral = saturation({amount: 1});
+	const oversaturated = saturation({amount: 2});
+	expect(
+		new Set([desaturated.effectKey, neutral.effectKey, oversaturated.effectKey])
+			.size,
+	).toBe(3);
 });
 
 test('hue() accepts default params', () => {
