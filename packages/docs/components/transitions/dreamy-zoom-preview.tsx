@@ -1,5 +1,5 @@
 import {linearTiming, TransitionSeries} from '@remotion/transitions';
-import {ripple} from '@remotion/transitions/ripple';
+import {dreamyZoom} from '@remotion/transitions/dreamy-zoom';
 import React from 'react';
 import {AbsoluteFill, Img} from 'remotion';
 
@@ -53,7 +53,7 @@ const SceneB: React.FC = () => {
 	);
 };
 
-export const RippleTransitionPreview: React.FC = () => {
+export const DreamyZoomTransitionPreview: React.FC = () => {
 	return (
 		<AbsoluteFill style={{containerType: 'size'}}>
 			<TransitionSeries>
@@ -61,7 +61,7 @@ export const RippleTransitionPreview: React.FC = () => {
 					<SceneA />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Transition
-					presentation={ripple({})}
+					presentation={dreamyZoom({})}
 					timing={linearTiming({durationInFrames: 30})}
 				/>
 				<TransitionSeries.Sequence durationInFrames={60}>
@@ -72,7 +72,7 @@ export const RippleTransitionPreview: React.FC = () => {
 	);
 };
 
-export const RippleTransitionPreviewThumb: React.FC = () => {
+export const DreamyZoomTransitionPreviewThumb: React.FC = () => {
 	return (
 		<AbsoluteFill style={{containerType: 'size'}}>
 			<TransitionSeries>
@@ -80,7 +80,7 @@ export const RippleTransitionPreviewThumb: React.FC = () => {
 					<SceneA />
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Transition
-					presentation={ripple({})}
+					presentation={dreamyZoom({})}
 					timing={linearTiming({durationInFrames: 30})}
 				/>
 				<TransitionSeries.Sequence durationInFrames={60}>

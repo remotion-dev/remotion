@@ -97,6 +97,12 @@
 			"import": "./dist/esm/zoom-blur.mjs",
 			"require": "./dist/presentations/zoom-blur.js"
 		},
+		"./dreamy-zoom": {
+			"types": "./dist/presentations/dreamy-zoom.d.ts",
+			"module": "./dist/esm/dreamy-zoom.mjs",
+			"import": "./dist/esm/dreamy-zoom.mjs",
+			"require": "./dist/presentations/dreamy-zoom.js"
+		},
 		"./linear-blur": {
 			"types": "./dist/presentations/linear-blur.d.ts",
 			"module": "./dist/esm/linear-blur.mjs",
@@ -175,6 +181,9 @@
 			],
 			"zoom-blur": [
 				"dist/presentations/zoom-blur.d.ts"
+			],
+			"dreamy-zoom": [
+				"dist/presentations/dreamy-zoom.d.ts"
 			],
 			"linear-blur": [
 				"dist/presentations/linear-blur.d.ts"

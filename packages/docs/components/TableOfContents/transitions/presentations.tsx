@@ -10,6 +10,7 @@ import React from 'react';
 import {BookFlipTocPreview} from '../../transitions/book-flip-toc-preview';
 import {CrosswarpTocPreview} from '../../transitions/crosswarp-toc-preview';
 import {DissolveTocPreview} from '../../transitions/dissolve-toc-preview';
+import {DreamyZoomTocPreview} from '../../transitions/dreamy-zoom-toc-preview';
 import {PresentationPreview} from '../../transitions/previews';
 import {RippleTocPreview} from '../../transitions/ripple-toc-preview';
 import {SwapTocPreview} from '../../transitions/swap-toc-preview';
@@ -134,6 +135,18 @@ export const Presentations: React.FC<{
 						</strong>
 						<HtmlInCanvasLabel />
 						<div>Zoom and rotate scenes with a radial blur</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/dreamy-zoom">
+				<div style={row}>
+					<DreamyZoomTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'dreamyZoom()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Zoom through a white flash with gentle rotation</div>
 					</div>
 				</div>
 			</TOCItem>

@@ -23,7 +23,13 @@ import type {WipeDirection} from '@remotion/transitions/wipe';
 import {wipe} from '@remotion/transitions/wipe';
 import React, {useEffect, useRef} from 'react';
 import type {SpringConfig} from 'remotion';
-import {AbsoluteFill, measureSpring, spring, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	Img,
+	measureSpring,
+	spring,
+	useVideoConfig,
+} from 'remotion';
 import {
 	presentationCompositionHeight,
 	presentationCompositionWidth,
@@ -55,7 +61,7 @@ const letterStyle: React.CSSProperties = {
 const SceneA: React.FC<{readonly small: boolean}> = ({small}) => {
 	return (
 		<AbsoluteFill style={sceneStyle}>
-			<img
+			<Img
 				src={`https://remotion.media/transition-bg-blue${small ? '-small' : ''}.jpg`}
 				style={backgroundImageStyle}
 				alt=""
@@ -68,7 +74,7 @@ const SceneA: React.FC<{readonly small: boolean}> = ({small}) => {
 const SceneB: React.FC<{readonly small: boolean}> = ({small}) => {
 	return (
 		<AbsoluteFill style={sceneStyle}>
-			<img
+			<Img
 				src={`https://remotion.media/transition-bg-pink${small ? '-small' : ''}.jpg`}
 				style={backgroundImageStyle}
 				alt=""
