@@ -67,6 +67,11 @@
 			"module": "./dist/esm/scale.mjs",
 			"import": "./dist/esm/scale.mjs"
 		},
+		"./tint": {
+			"types": "./dist/tint.d.ts",
+			"module": "./dist/esm/tint.mjs",
+			"import": "./dist/esm/tint.mjs"
+		},
 		"./wave": {
 			"types": "./dist/wave.d.ts",
 			"module": "./dist/esm/wave.mjs",
@@ -96,6 +101,9 @@
 			],
 			"scale": [
 				"dist/scale.d.ts"
+			],
+			"tint": [
+				"dist/tint.d.ts"
 			],
 			"wave": [
 				"dist/wave.d.ts"
