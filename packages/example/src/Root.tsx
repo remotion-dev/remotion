@@ -70,6 +70,8 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
+	LinearBlurTransitionDoc,
+	LinearBlurTransitionDocThumb,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
 	RippleTransitionDoc,
@@ -1039,6 +1041,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="zoom-blur-transition-doc-thumb"
 						component={ZoomBlurTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="linear-blur-transition-doc"
+						component={LinearBlurTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="linear-blur-transition-doc-thumb"
+						component={LinearBlurTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}
