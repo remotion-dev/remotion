@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {barrelDistortion} from '../barrel-distortion/index.js';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
 import {grayscale} from '../grayscale.js';
@@ -12,6 +13,9 @@ import {tint} from '../tint.js';
 import {wave} from '../wave/index.js';
 
 test('@remotion/effects expose documentation links', () => {
+	expect(barrelDistortion().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/barrel-distortion',
+	);
 	expect(blur({radius: 1}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/blur',
 	);
@@ -30,6 +34,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(invert().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/invert',
 	);
+	expect(mirror().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/mirror',
+	);
 	expect(saturation().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/saturation',
 	);
@@ -42,6 +49,34 @@ test('@remotion/effects expose documentation links', () => {
 	expect(wave().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/wave',
 	);
+});
+
+test('barrelDistortion() accepts default params', () => {
+	expect(() => barrelDistortion()).not.toThrow();
+});
+
+test('barrelDistortion() rejects non-finite amount', () => {
+	expect(() => barrelDistortion({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('barrelDistortion() rejects amount below range', () => {
+	expect(() => barrelDistortion({amount: -0.1})).toThrow(
+		'"amount" must be >= 0',
+	);
+});
+
+test('barrelDistortion() rejects amount above range', () => {
+	expect(() => barrelDistortion({amount: 1.1})).toThrow(
+		'"amount" must be <= 1',
+	);
+});
+
+test('barrelDistortion() amount produces distinct effect keys', () => {
+	const none = barrelDistortion({amount: 0});
+	const strong = barrelDistortion({amount: 0.5});
+	expect(none.effectKey).not.toBe(strong.effectKey);
 });
 
 test('tint() throws when color is not passed', () => {

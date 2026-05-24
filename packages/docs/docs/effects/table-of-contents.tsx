@@ -20,6 +20,21 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
+				<TOCItem link="/docs/effects/barrel-distortion">
+					<div style={row}>
+						<img
+							src="/img/effects-barrel-distortion-preview.jpg"
+							alt="barrel distortion effect preview"
+							style={previewImage}
+						/>
+						<div style={{flex: 1, marginLeft: 10}}>
+							<strong>
+								<code>{'barrelDistortion()'}</code>
+							</strong>
+							<div>Barrel distortion effect</div>
+						</div>
+					</div>
+				</TOCItem>
 				<TOCItem link="/docs/effects/blur">
 					<div style={row}>
 						<img
