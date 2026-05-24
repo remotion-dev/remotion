@@ -35,6 +35,7 @@ type RenderVideoConfig = {
 	muted: InternalRenderMediaOptions['muted'];
 	numberOfGifLoops: InternalRenderMediaOptions['numberOfGifLoops'];
 	x264Preset: InternalRenderMediaOptions['x264Preset'];
+	gopSize: InternalRenderMediaOptions['gopSize'];
 	colorSpace: InternalRenderMediaOptions['colorSpace'];
 	jpegQuality: InternalRenderMediaOptions['jpegQuality'];
 	audioCodec: InternalRenderMediaOptions['audioCodec'];
@@ -149,6 +150,7 @@ try {
 		muted: config.muted,
 		numberOfGifLoops: config.numberOfGifLoops,
 		x264Preset: config.x264Preset,
+		gopSize: config.gopSize,
 		colorSpace: config.colorSpace,
 		jpegQuality: config.jpegQuality,
 		audioCodec: config.audioCodec,

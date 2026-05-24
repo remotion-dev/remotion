@@ -1,0 +1,32 @@
+import {expect, test} from 'bun:test';
+import {generateFfmpegArgs} from '../ffmpeg-args';
+import {validateGopSize} from '../options/gop-size';
+
+test('validates GOP size', () => {
+	expect(() => validateGopSize(null)).not.toThrow();
+	expect(() => validateGopSize(239)).not.toThrow();
+	expect(() => validateGopSize(0)).toThrow(/GOP size/);
+	expect(() => validateGopSize(1.5)).toThrow(/GOP size/);
+});
+
+test('passes GOP size to FFmpeg', () => {
+	const args = generateFfmpegArgs({
+		hasPreencoded: false,
+		proResProfileName: null,
+		pixelFormat: 'yuv420p',
+		x264Preset: null,
+		gopSize: 239,
+		codec: 'h264',
+		crf: null,
+		videoBitrate: null,
+		encodingMaxRate: null,
+		encodingBufferSize: null,
+		colorSpace: 'default',
+		hardwareAcceleration: 'disable',
+		indent: false,
+		logLevel: 'info',
+	});
+
+	expect(args.flat()).toContain('-g');
+	expect(args.flat()).toContain('239');
+});

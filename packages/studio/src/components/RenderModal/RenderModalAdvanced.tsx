@@ -59,6 +59,8 @@ export const RenderModalAdvanced: React.FC<{
 	>;
 	readonly x264Preset: X264Preset | null;
 	readonly setx264Preset: React.Dispatch<React.SetStateAction<X264Preset>>;
+	readonly gopSize: number | null;
+	readonly setGopSize: React.Dispatch<React.SetStateAction<number | null>>;
 	readonly hardwareAcceleration: HardwareAccelerationOption;
 	readonly setHardwareAcceleration: React.Dispatch<
 		React.SetStateAction<HardwareAccelerationOption>
@@ -110,6 +112,8 @@ export const RenderModalAdvanced: React.FC<{
 	envVariables,
 	setx264Preset,
 	x264Preset,
+	gopSize,
+	setGopSize,
 	codec,
 	setMediaCacheSizeInBytes,
 	mediaCacheSizeInBytes,
@@ -173,6 +177,16 @@ export const RenderModalAdvanced: React.FC<{
 			return null;
 		});
 	}, [setOffthreadVideoThreads]);
+
+	const toggleCustomGopSize = useCallback(() => {
+		setGopSize((previous) => {
+			if (previous === null) {
+				return 120;
+			}
+
+			return null;
+		});
+	}, [setGopSize]);
 
 	const toggleCustomUserAgent = useCallback(() => {
 		setUserAgent((previous) => {
@@ -374,6 +388,24 @@ export const RenderModalAdvanced: React.FC<{
 		[setOffthreadVideoThreads],
 	);
 
+	const changeGopSize: React.Dispatch<React.SetStateAction<number>> =
+		useCallback(
+			(cb) => {
+				setGopSize((prev) => {
+					if (prev === null) {
+						throw new TypeError('Expected previous value');
+					}
+
+					if (typeof cb === 'function') {
+						return cb(prev);
+					}
+
+					return cb;
+				});
+			},
+			[setGopSize],
+		);
+
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			{renderMode === 'still' ? null : (
@@ -402,6 +434,33 @@ export const RenderModalAdvanced: React.FC<{
 						/>
 					</div>
 				</div>
+			) : null}
+			{renderMode === 'video' && codec !== 'gif' ? (
+				<div style={optionRow}>
+					<div style={label}>
+						Custom GOP size
+						<Spacing x={0.5} />
+						<OptionExplainerBubble id="gopSizeOption" />
+					</div>
+					<div style={rightRow}>
+						<Checkbox
+							checked={gopSize !== null}
+							onChange={toggleCustomGopSize}
+							name="custom-gop-size"
+						/>
+					</div>
+				</div>
+			) : null}
+			{renderMode === 'video' && codec !== 'gif' && gopSize !== null ? (
+				<NumberSetting
+					min={1}
+					max={10000}
+					step={1}
+					name="GOP size"
+					formatter={(value) => `${value} frames`}
+					onValueChanged={changeGopSize}
+					value={gopSize}
+				/>
 			) : null}
 			{renderMode === 'video' ? (
 				<div style={optionRow}>

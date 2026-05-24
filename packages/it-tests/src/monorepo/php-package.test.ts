@@ -141,6 +141,7 @@ class Semantic
 				encodingBufferSize: null,
 				webhook: null,
 				x264Preset: null,
+				gopSize: null,
 				preferLossless: false,
 				indent: false,
 				forcePathStyle: false,

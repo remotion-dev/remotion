@@ -96,6 +96,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		pixelFormat: params.pixelFormat ?? null,
 		proResProfile: params.proResProfile ?? null,
 		x264Preset: params.x264Preset,
+		gopSize: params.gopSize ?? null,
 		jpegQuality: params.jpegQuality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
