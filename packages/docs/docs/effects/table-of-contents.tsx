@@ -110,6 +110,21 @@ export const TableOfContents: React.FC = () => {
 						</div>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/effects/saturation">
+					<div style={row}>
+						<img
+							src="/img/effects-saturation-preview.jpg"
+							alt="saturation effect preview"
+							style={previewImage}
+						/>
+						<div style={{flex: 1, marginLeft: 10}}>
+							<strong>
+								<code>{'saturation()'}</code>
+							</strong>
+							<div>Saturation adjustment effect</div>
+						</div>
+					</div>
+				</TOCItem>
 				<TOCItem link="/docs/effects/scale">
 					<div style={row}>
 						<img
