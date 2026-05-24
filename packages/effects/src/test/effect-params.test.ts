@@ -5,6 +5,7 @@ import {grayscale} from '../grayscale.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
+import {mirror} from '../mirror.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {tint} from '../tint.js';
@@ -214,6 +215,52 @@ test('invert() amount produces distinct effect keys', () => {
 	const none = invert({amount: 0});
 	const full = invert({amount: 1});
 	expect(none.effectKey).not.toBe(full.effectKey);
+});
+
+test('mirror() accepts default params', () => {
+	expect(() => mirror()).not.toThrow();
+});
+
+test('mirror() rejects invalid direction', () => {
+	expect(() => mirror({direction: 'diagonal' as 'horizontal'})).toThrow(
+		'"direction" must be "horizontal" or "vertical"',
+	);
+});
+
+test('mirror() rejects non-finite position', () => {
+	expect(() => mirror({position: Number.NaN})).toThrow(
+		'"position" must be a finite number',
+	);
+});
+
+test('mirror() rejects position below range', () => {
+	expect(() => mirror({position: -0.1})).toThrow('"position" must be >= 0');
+});
+
+test('mirror() rejects position above range', () => {
+	expect(() => mirror({position: 1.1})).toThrow('"position" must be <= 1');
+});
+
+test('mirror() rejects non-boolean invert', () => {
+	expect(() => mirror({invert: 'yes' as unknown as boolean})).toThrow(
+		'"invert" must be a boolean',
+	);
+});
+
+test('mirror() parameters produce distinct effect keys', () => {
+	const horizontal = mirror({direction: 'horizontal'});
+	const vertical = mirror({direction: 'vertical'});
+	const shifted = mirror({position: 0.25});
+	const inverted = mirror({invert: true});
+
+	expect(
+		new Set([
+			horizontal.effectKey,
+			vertical.effectKey,
+			shifted.effectKey,
+			inverted.effectKey,
+		]).size,
+	).toBe(4);
 });
 
 test('saturation() accepts default params', () => {

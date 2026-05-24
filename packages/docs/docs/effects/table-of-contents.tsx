@@ -110,6 +110,21 @@ export const TableOfContents: React.FC = () => {
 						</div>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/effects/mirror">
+					<div style={row}>
+						<img
+							src="/img/effects-mirror-preview.jpg"
+							alt="mirror effect preview"
+							style={previewImage}
+						/>
+						<div style={{flex: 1, marginLeft: 10}}>
+							<strong>
+								<code>{'mirror()'}</code>
+							</strong>
+							<div>Mirror reflection effect</div>
+						</div>
+					</div>
+				</TOCItem>
 				<TOCItem link="/docs/effects/saturation">
 					<div style={row}>
 						<img

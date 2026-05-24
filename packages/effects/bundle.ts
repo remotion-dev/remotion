@@ -13,6 +13,7 @@ const effectEntrypoints = [
 	'src/halftone.ts',
 	'src/hue.ts',
 	'src/invert.ts',
+	'src/mirror.ts',
 	'src/saturation.ts',
 	'src/scale.ts',
 	'src/tint.ts',

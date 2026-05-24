@@ -62,6 +62,11 @@
 			"module": "./dist/esm/invert.mjs",
 			"import": "./dist/esm/invert.mjs"
 		},
+		"./mirror": {
+			"types": "./dist/mirror.d.ts",
+			"module": "./dist/esm/mirror.mjs",
+			"import": "./dist/esm/mirror.mjs"
+		},
 		"./saturation": {
 			"types": "./dist/saturation.d.ts",
 			"module": "./dist/esm/saturation.mjs",
@@ -103,6 +108,9 @@
 			],
 			"invert": [
 				"dist/invert.d.ts"
+			],
+			"mirror": [
+				"dist/mirror.d.ts"
 			],
 			"saturation": [
 				"dist/saturation.d.ts"
