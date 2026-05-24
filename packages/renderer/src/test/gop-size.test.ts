@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import type {Codec} from '../codec';
 import {generateFfmpegArgs} from '../ffmpeg-args';
 import {validateGopSize} from '../options/gop-size';
 
@@ -29,4 +30,39 @@ test('passes GOP size to FFmpeg', () => {
 
 	expect(args.flat()).toContain('-g');
 	expect(args.flat()).toContain('239');
+});
+
+test('passes GOP size to all non-GIF video codecs', () => {
+	const codecs: Codec[] = [
+		'h264',
+		'h264-mkv',
+		'h264-ts',
+		'h265',
+		'vp8',
+		'vp9',
+		'av1',
+		'prores',
+	];
+
+	for (const codec of codecs) {
+		const args = generateFfmpegArgs({
+			hasPreencoded: false,
+			proResProfileName: codec === 'prores' ? 'hq' : null,
+			pixelFormat: 'yuv420p',
+			x264Preset: null,
+			gopSize: 239,
+			codec,
+			crf: null,
+			videoBitrate: null,
+			encodingMaxRate: null,
+			encodingBufferSize: null,
+			colorSpace: 'default',
+			hardwareAcceleration: 'disable',
+			indent: false,
+			logLevel: 'info',
+		});
+
+		expect(args.flat()).toContain('-g');
+		expect(args.flat()).toContain('239');
+	}
 });
