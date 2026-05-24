@@ -80,14 +80,22 @@ export const TimelineStack: React.FC<{
 		originalLocation;
 
 	const canOpenInGitHub = window.remotion_gitSource && originalLocation;
+	const documentationLink = sequence.documentationLink ?? null;
 
 	const titleHoverable =
-		(isCompact && (canOpenInEditor || canOpenInGitHub)) || assetPath;
+		documentationLink ||
+		(isCompact && (canOpenInEditor || canOpenInGitHub)) ||
+		assetPath;
 	const stackHoverable = !isCompact && (canOpenInEditor || canOpenInGitHub);
 
 	const onClickTitle = useCallback(() => {
 		if (!titleHoverable) {
 			return null;
+		}
+
+		if (documentationLink) {
+			window.open(documentationLink, '_blank', 'noopener,noreferrer');
+			return;
 		}
 
 		if (assetPath) {
@@ -114,6 +122,7 @@ export const TimelineStack: React.FC<{
 		assetPath,
 		canOpenInEditor,
 		canOpenInGitHub,
+		documentationLink,
 		navigateToAsset,
 		openEditor,
 		originalLocation,
@@ -204,9 +213,11 @@ export const TimelineStack: React.FC<{
 				onPointerEnter={onTitlePointerEnter}
 				onPointerLeave={onTitlePointerLeave}
 				title={
-					originalLocation
-						? getOriginalSourceAttribution(originalLocation)
-						: text || '<Sequence>'
+					documentationLink
+						? `Open documentation: ${documentationLink}`
+						: originalLocation
+							? getOriginalSourceAttribution(originalLocation)
+							: text || '<Sequence>'
 				}
 				style={titleStyle}
 				onClick={onClickTitle}

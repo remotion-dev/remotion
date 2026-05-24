@@ -73,6 +73,10 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
+	readonly _remotionInternalDocumentationLink?: string;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	readonly _remotionInternalIsPremounting?: boolean;
 	/**
 	 * @deprecated For internal use only.
@@ -113,6 +117,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalEffects,
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
+		_remotionInternalDocumentationLink: documentationLink,
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
@@ -229,6 +234,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		return name ?? '';
 	}, [name]);
 
+	const resolvedDocumentationLink =
+		documentationLink ??
+		(name === undefined ? 'https://www.remotion.dev/docs/sequence' : undefined);
+
 	const env = useRemotionEnvironment();
 
 	const inheritedStack = (other as any)?.stack ?? null;
@@ -249,6 +258,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					controls: controls ?? null,
 					effects: _remotionInternalEffects ?? [],
 					displayName: timelineClipName,
+					documentationLink: resolvedDocumentationLink,
 					duration: actualDurationInFrames,
 					from,
 					id,
@@ -268,6 +278,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					controls: controls ?? null,
 					effects: _remotionInternalEffects ?? [],
 					displayName: timelineClipName,
+					documentationLink: resolvedDocumentationLink,
 					doesVolumeChange: isMedia.data.doesVolumeChange,
 					duration: actualDurationInFrames,
 					from,
@@ -297,6 +308,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			duration: actualDurationInFrames,
 			id,
 			displayName: timelineClipName,
+			documentationLink: resolvedDocumentationLink,
 			parent: parentSequence?.id ?? null,
 			type: 'sequence',
 			rootId,
@@ -332,6 +344,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		controls,
 		_remotionInternalEffects,
 		isMedia,
+		resolvedDocumentationLink,
 	]);
 
 	// Ceil to support floats
