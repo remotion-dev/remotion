@@ -32,6 +32,11 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
+		"./barrel-distortion": {
+			"types": "./dist/barrel-distortion.d.ts",
+			"module": "./dist/esm/barrel-distortion.mjs",
+			"import": "./dist/esm/barrel-distortion.mjs"
+		},
 		"./blur": {
 			"types": "./dist/blur.d.ts",
 			"module": "./dist/esm/blur.mjs",
@@ -91,6 +96,9 @@
 	},
 	"typesVersions": {
 		">=1.0": {
+			"barrel-distortion": [
+				"dist/barrel-distortion.d.ts"
+			],
 			"blur": [
 				"dist/blur.d.ts"
 			],

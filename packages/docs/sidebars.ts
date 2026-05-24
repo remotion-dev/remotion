@@ -267,6 +267,7 @@ const sidebars: SidebarsConfig = {
 				id: 'effects/effects-api',
 			},
 			items: [
+				'effects/barrel-distortion',
 				'effects/blur',
 				'effects/brightness',
 				'effects/grayscale',

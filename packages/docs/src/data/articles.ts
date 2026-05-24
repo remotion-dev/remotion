@@ -1710,6 +1710,15 @@ export const articles = [
 		slug: 'editor-starter/vs-studio',
 	},
 	{
+		id: 'effects/barrel-distortion',
+		title: 'barrelDistortion()',
+		relativePath: 'docs/effects/barrel-distortion.mdx',
+		compId: 'articles-docs-effects-barrel-distortion',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/barrel-distortion',
+	},
+	{
 		id: 'effects/blur',
 		title: 'blur()',
 		relativePath: 'docs/effects/blur.mdx',

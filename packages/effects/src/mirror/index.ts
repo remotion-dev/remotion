@@ -90,6 +90,7 @@ const validateMirrorParams = (params: MirrorParams): void => {
 export const mirror = createEffect<MirrorParams, MirrorState>({
 	type: 'remotion/mirror',
 	label: 'Mirror',
+	documentationLink: 'https://www.remotion.dev/docs/effects/mirror',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
