@@ -1773,6 +1773,15 @@ export const articles = [
 		slug: 'effects/invert',
 	},
 	{
+		id: 'effects/mirror',
+		title: 'mirror()',
+		relativePath: 'docs/effects/mirror.mdx',
+		compId: 'articles-docs-effects-mirror',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/mirror',
+	},
+	{
 		id: 'effects/saturation',
 		title: 'saturation()',
 		relativePath: 'docs/effects/saturation.mdx',

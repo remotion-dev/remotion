@@ -273,6 +273,7 @@ const sidebars: SidebarsConfig = {
 				'effects/halftone',
 				'effects/hue',
 				'effects/invert',
+				'effects/mirror',
 				'effects/saturation',
 				'effects/scale',
 				'effects/tint',
