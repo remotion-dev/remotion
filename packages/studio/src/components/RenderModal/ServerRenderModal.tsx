@@ -160,6 +160,7 @@ type RenderModalProps = {
 	readonly initialEnforceAudioTrack: boolean;
 	readonly initialProResProfile: _InternalTypes['ProResProfile'] | null;
 	readonly initialx264Preset: X264Preset;
+	readonly initialGopSize: number | null;
 	readonly initialPixelFormat: PixelFormat | null;
 	readonly initialVideoBitrate: string | null;
 	readonly initialAudioBitrate: string | null;
@@ -215,6 +216,7 @@ const RenderModal: React.FC<
 	initialEnforceAudioTrack,
 	initialProResProfile,
 	initialx264Preset,
+	initialGopSize,
 	initialPixelFormat,
 	initialVideoBitrate,
 	initialAudioBitrate,
@@ -417,6 +419,7 @@ const RenderModal: React.FC<
 	const [x264PresetSetting, setx264Preset] = useState<X264Preset>(
 		() => initialx264Preset,
 	);
+	const [gopSize, setGopSize] = useState<number | null>(() => initialGopSize);
 	const [hardwareAcceleration, setHardwareAcceleration] =
 		useState<HardwareAccelerationOption>(() => initialHardwareAcceleration);
 
@@ -841,6 +844,7 @@ const RenderModal: React.FC<
 				hardwareAcceleration !== 'required'
 					? crf
 					: null,
+			gopSize,
 			endFrame,
 			startFrame,
 			muted,
@@ -920,6 +924,7 @@ const RenderModal: React.FC<
 		beepOnFinish,
 		repro,
 		forSeamlessAacConcatenation,
+		gopSize,
 		separateAudioTo,
 		setSelectedModal,
 		metadata,
@@ -1215,6 +1220,7 @@ const RenderModal: React.FC<
 				hardwareAcceleration !== 'required'
 					? crf
 					: null,
+			gopSize,
 			videoBitrate,
 			audioBitrate,
 			audioCodec,
@@ -1269,6 +1275,7 @@ const RenderModal: React.FC<
 		everyNthFrame,
 		frame,
 		forSeamlessAacConcatenation,
+		gopSize,
 		hardwareAcceleration,
 		headless,
 		ignoreCertificateErrors,
@@ -1600,6 +1607,8 @@ const RenderModal: React.FC<
 						<RenderModalAdvanced
 							x264Preset={x264Preset}
 							setx264Preset={setx264Preset}
+							gopSize={gopSize}
+							setGopSize={setGopSize}
 							concurrency={concurrency}
 							maxConcurrency={maxConcurrency}
 							minConcurrency={minConcurrency}

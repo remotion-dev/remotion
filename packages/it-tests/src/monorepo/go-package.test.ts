@@ -76,6 +76,7 @@ test(
 				encodingBufferSize: null,
 				webhook: null,
 				x264Preset: null,
+				gopSize: null,
 				inputProps: {},
 				preferLossless: false,
 				indent: false,

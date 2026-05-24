@@ -43,6 +43,7 @@ import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import {mimeLookup} from './mime-types';
 import type {ChromiumOptions} from './open-browser';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
+import {validateGopSize} from './options/gop-size';
 import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
@@ -229,6 +230,7 @@ type RenderMediaResult = {
 const internalRenderMediaRaw = ({
 	proResProfile,
 	x264Preset,
+	gopSize,
 	crf,
 	composition: compositionWithPossibleUnevenDimensions,
 	serializedInputPropsWithCustomSchema,
@@ -314,6 +316,7 @@ const internalRenderMediaRaw = ({
 		encodingBufferSize,
 		hardwareAcceleration,
 	});
+	validateGopSize(gopSize);
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
 	validateBitrate(encodingMaxRate, 'encodingMaxRate');
@@ -559,6 +562,7 @@ const internalRenderMediaRaw = ({
 				encodingBufferSize,
 				indent,
 				x264Preset: x264Preset ?? null,
+				gopSize,
 				colorSpace,
 				binariesDirectory,
 				hardwareAcceleration,
@@ -783,6 +787,7 @@ const internalRenderMediaRaw = ({
 					codec,
 					proResProfile,
 					crf,
+					gopSize,
 					assetsInfo,
 					onProgress: (frame: number) => {
 						// With seamless AAC concatenation, the amount of rendered frames
@@ -955,6 +960,7 @@ export const internalRenderMedia = wrapWithErrorHandling(
 export const renderMedia = ({
 	proResProfile,
 	x264Preset,
+	gopSize,
 	crf,
 	composition,
 	inputProps,
@@ -1032,6 +1038,7 @@ export const renderMedia = ({
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
 		x264Preset: x264Preset ?? null,
+		gopSize: gopSize ?? null,
 		codec,
 		composition,
 		serveUrl,

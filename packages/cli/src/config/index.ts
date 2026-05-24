@@ -71,6 +71,7 @@ const {
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	gopSizeOption,
 	headlessOption,
 	numberOfGifLoopsOption,
 	beepOnFinishOption,
@@ -401,6 +402,11 @@ declare global {
 		 * possible values greatly differs between codecs.
 		 */
 		readonly setCrf: (newCrf: Crf) => void;
+		/**
+		 * Set the maximum number of frames between two keyframes.
+		 * Default: null, which lets the encoder decide.
+		 */
+		readonly setGopSize: (gopSize: number | null) => void;
 		/**
 		 * Set to true if don't want a video but an image sequence as the output.
 		 */
@@ -750,6 +756,7 @@ export const Config: FlatConfig = {
 	setPixelFormat: pixelFormatOption.setConfig,
 	setCodec: videoCodecOption.setConfig,
 	setCrf: crfOption.setConfig,
+	setGopSize: gopSizeOption.setConfig,
 	setImageSequence: imageSequenceOption.setConfig,
 	setProResProfile: proResProfileOption.setConfig,
 	setX264Preset: x264Option.setConfig,
