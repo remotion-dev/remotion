@@ -1,79 +1,9 @@
 import React, {useCallback, useImperativeHandle, useMemo, useRef} from 'react';
+import {calculateImageFit} from '../calculate-image-fit.js';
 import type {EffectDefinitionAndStack} from '../effects/effect-types.js';
 import {runEffectChain} from '../effects/run-effect-chain.js';
 import {useEffectChainState} from '../effects/use-effect-chain-state.js';
 import type {AnimatedImageFillMode} from './props';
-
-const calcArgs = (
-	fit: AnimatedImageFillMode,
-	frameSize: {
-		width: number;
-		height: number;
-	},
-	canvasSize: {
-		width: number;
-		height: number;
-	},
-): [number, number, number, number, number, number, number, number] => {
-	switch (fit) {
-		case 'fill': {
-			return [
-				0,
-				0,
-				frameSize.width,
-				frameSize.height,
-				0,
-				0,
-				canvasSize.width,
-				canvasSize.height,
-			];
-		}
-
-		case 'contain': {
-			const ratio = Math.min(
-				canvasSize.width / frameSize.width,
-				canvasSize.height / frameSize.height,
-			);
-
-			const centerX = (canvasSize.width - frameSize.width * ratio) / 2;
-			const centerY = (canvasSize.height - frameSize.height * ratio) / 2;
-
-			return [
-				0,
-				0,
-				frameSize.width,
-				frameSize.height,
-				centerX,
-				centerY,
-				frameSize.width * ratio,
-				frameSize.height * ratio,
-			];
-		}
-
-		case 'cover': {
-			const ratio = Math.max(
-				canvasSize.width / frameSize.width,
-				canvasSize.height / frameSize.height,
-			);
-			const centerX = (canvasSize.width - frameSize.width * ratio) / 2;
-			const centerY = (canvasSize.height - frameSize.height * ratio) / 2;
-
-			return [
-				0,
-				0,
-				frameSize.width,
-				frameSize.height,
-				centerX,
-				centerY,
-				frameSize.width * ratio,
-				frameSize.height * ratio,
-			];
-		}
-
-		default:
-			throw new Error('Unknown fit: ' + fit);
-	}
-};
 
 type Props = {
 	readonly width?: number;
@@ -132,7 +62,7 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 
 			sourceCtx.drawImage(
 				imageData,
-				...calcArgs(
+				...calculateImageFit(
 					fit,
 					{
 						height: imageData.displayHeight,

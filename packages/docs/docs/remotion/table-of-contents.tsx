@@ -76,6 +76,10 @@ export const TableOfContents: React.FC = () => {
 						Render an <code>{'<img>'}</code> tag and wait for it to load
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/canvasimage">
+					<strong>{'<CanvasImage>'}</strong>
+					<div>Render an image into a canvas and apply effects</div>
+				</TOCItem>
 				<TOCItem link="/docs/interpolate-colors">
 					<strong>interpolateColors()</strong>
 					<div>Map a range of values to colors</div>

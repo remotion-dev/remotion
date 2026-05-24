@@ -522,6 +522,15 @@ export const articles = [
 		slug: 'cancel-render',
 	},
 	{
+		id: 'canvasimage',
+		title: '<CanvasImage>',
+		relativePath: 'docs/canvasimage.mdx',
+		compId: 'articles-docs-canvasimage',
+		crumb: 'API',
+		noAi: false,
+		slug: 'canvasimage',
+	},
+	{
 		id: 'captions/api',
 		title: '@remotion/captions',
 		relativePath: 'docs/captions/api.mdx',

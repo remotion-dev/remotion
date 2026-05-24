@@ -1,0 +1,102 @@
+---
+image: /generated/articles-docs-canvasimage.png
+id: canvasimage
+title: '<CanvasImage>'
+crumb: 'API'
+---
+
+# &lt;CanvasImage&gt;<AvailableFrom v="4.0.466" />
+
+Renders a static image onto a [`<canvas>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/canvas) element.
+
+Use it when you want to apply Remotion [`effects`](/docs/effects) to a static image.  
+Use [`<Img>`](/docs/img) if you need a regular `<img>` tag without effects.
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <CanvasImage src={staticFile('image.png')} width={1920} height={1080} />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+### `src`
+
+The URL of the image. Can be a remote URL or a local file path from [`staticFile()`](/docs/staticfile).
+
+Remote images need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) because the image is drawn onto a canvas.
+
+### `width?`
+
+The canvas width in pixels.  
+If omitted, the decoded image width is used.
+
+### `height?`
+
+The canvas height in pixels.  
+If omitted, the decoded image height is used.
+
+### `fit?`
+
+Must be one of these values:
+
+- `'fill'`: The image will completely fill the canvas, and will be stretched if necessary. (_default_)
+- `'contain'`: The image is scaled to fit the canvas, while aspect ratio is maintained.
+- `'cover'`: The image completely fills the canvas and maintains its aspect ratio. It will be cropped if necessary.
+
+### `effects?`
+
+An array of Remotion effects to apply to the image after it has been drawn to the source canvas.
+
+### `className?`
+
+A class name to apply to the `<canvas>` element.
+
+### `style?`
+
+Inline styles to apply to the `<canvas>` element.
+
+### `id?`
+
+An ID to apply to the `<canvas>` element.
+
+### `onError?`
+
+Called when the image cannot be loaded, decoded, or drawn.  
+If omitted, [`cancelRender()`](/docs/cancel-render) is called.
+
+### Inherited props
+
+`<CanvasImage>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
+
+## Adding a ref
+
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to a `<CanvasImage>` component.  
+If you use TypeScript, type it with `HTMLCanvasElement`:
+
+```tsx twoslash title="MyComp.tsx"
+import {useRef} from 'react';
+import {CanvasImage, staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  return <CanvasImage ref={ref} src={staticFile('image.png')} />;
+};
+```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/canvas-image/CanvasImage.tsx)
+- [`<Img>`](/docs/img)
+- [`<AnimatedImage>`](/docs/animatedimage)
