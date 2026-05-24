@@ -258,6 +258,7 @@ const AnimatedImageInner = ({
 			layout="none"
 			durationInFrames={resolvedDuration}
 			name="<AnimatedImage>"
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/animatedimage"
 			_experimentalControls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}

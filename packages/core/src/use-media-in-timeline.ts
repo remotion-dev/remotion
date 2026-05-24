@@ -141,6 +141,7 @@ export const useMediaInTimeline = ({
 	premountDisplay,
 	postmountDisplay,
 	loopDisplay,
+	documentationLink,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -154,6 +155,7 @@ export const useMediaInTimeline = ({
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
 	loopDisplay: LoopDisplay | undefined;
+	documentationLink: string | null;
 }) => {
 	const parentSequence = useContext(SequenceContext);
 	const startsAt = useMediaStartsAt();
@@ -199,6 +201,7 @@ export const useMediaInTimeline = ({
 			from: 0,
 			parent: parentSequence?.id ?? null,
 			displayName: finalDisplayName,
+			documentationLink,
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
@@ -235,6 +238,7 @@ export const useMediaInTimeline = ({
 		premountDisplay,
 		postmountDisplay,
 		loopDisplay,
+		documentationLink,
 		rootId,
 		finalDisplayName,
 		isStudio,
