@@ -1,10 +1,4 @@
-import React, {
-	forwardRef,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import {forwardRef, useCallback, useEffect, useMemo, useState} from 'react';
 import {calculateImageFit} from '../calculate-image-fit.js';
 import type {SequenceControls} from '../CompositionManager.js';
 import type {EffectsProp} from '../effects/effect-types.js';
