@@ -5,7 +5,7 @@ import {lineColumnToNodePath} from './test-utils';
 const buildInput = (
 	effects: string,
 ) => `import {HtmlInCanvas} from '@remotion/html-in-canvas';
-import {EffectInternals} from '@remotion/effects';
+import {tint} from '@remotion/effects/tint';
 
 export const Comp = () => {
 	return (
@@ -17,7 +17,7 @@ export const Comp = () => {
 `;
 
 test('deleteEffect removes the only effect and the effects prop', async () => {
-	const input = buildInput('[EffectInternals.tint({color: "red"})]');
+	const input = buildInput('[tint({color: "red"})]');
 	const {output, effectLabel} = await deleteEffect({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
@@ -26,13 +26,13 @@ test('deleteEffect removes the only effect and the effects prop', async () => {
 
 	expect(effectLabel).toBe('tint()');
 	expect(output).not.toContain('effects=');
-	expect(output).not.toContain('EffectInternals.tint');
+	expect(output).not.toContain('tint(');
 	expect(output).toContain('<HtmlInCanvas>');
 });
 
 test('deleteEffect removes the targeted effect by index', async () => {
 	const input = buildInput(
-		'[EffectInternals.tint({color: "red"}), EffectInternals.tint({color: "green"}), EffectInternals.tint({color: "blue"})]',
+		'[tint({color: "red"}), tint({color: "green"}), tint({color: "blue"})]',
 	);
 	const {output} = await deleteEffect({
 		input,
@@ -47,9 +47,7 @@ test('deleteEffect removes the targeted effect by index', async () => {
 });
 
 test('deleteEffect keeps the effects prop when other effects remain', async () => {
-	const input = buildInput(
-		'[EffectInternals.tint({color: "red"}), EffectInternals.tint({color: "green"})]',
-	);
+	const input = buildInput('[tint({color: "red"}), tint({color: "green"})]');
 	const {output} = await deleteEffect({
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, 6),
@@ -62,7 +60,7 @@ test('deleteEffect keeps the effects prop when other effects remain', async () =
 });
 
 test('deleteEffect throws when effect index is out of range', async () => {
-	const input = buildInput('[EffectInternals.tint({color: "red"})]');
+	const input = buildInput('[tint({color: "red"})]');
 	await expect(
 		deleteEffect({
 			input,
@@ -84,9 +82,7 @@ test('deleteEffect throws when effects are not an inline array', async () => {
 });
 
 test('deleteEffect throws when the target effect is unsupported', async () => {
-	const input = buildInput(
-		'[EffectInternals.tint({color: "red"}), ...effects]',
-	);
+	const input = buildInput('[tint({color: "red"}), ...effects]');
 	await expect(
 		deleteEffect({
 			input,

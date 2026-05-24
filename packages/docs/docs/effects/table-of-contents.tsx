@@ -125,6 +125,21 @@ export const TableOfContents: React.FC = () => {
 						</div>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/effects/tint">
+					<div style={row}>
+						<img
+							src="/img/effects-tint-preview.jpg"
+							alt="tint effect preview"
+							style={previewImage}
+						/>
+						<div style={{flex: 1, marginLeft: 10}}>
+							<strong>
+								<code>{'tint()'}</code>
+							</strong>
+							<div>Color tint effect</div>
+						</div>
+					</div>
+				</TOCItem>
 				<TOCItem link="/docs/effects/wave">
 					<div style={row}>
 						<img

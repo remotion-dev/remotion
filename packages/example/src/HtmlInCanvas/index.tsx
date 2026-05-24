@@ -26,6 +26,7 @@ export {EffectsGrayscalePreview} from './effects-grayscale-preview';
 export {EffectsHalftonePreview} from './effects-halftone-preview';
 export {EffectsHuePreview} from './effects-hue-preview';
 export {EffectsInvertPreview} from './effects-invert-preview';
+export {EffectsTintPreview} from './effects-tint-preview';
 export {EffectsWavePreview} from './effects-wave-preview';
 export {HtmlInCanvasDocsMinimalWebGL} from './minimal-docs-webgl';
 export {HtmlInCanvasDocsMinimalWebGPU} from './minimal-docs-webgpu';

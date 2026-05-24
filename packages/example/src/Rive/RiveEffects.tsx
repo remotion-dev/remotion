@@ -1,5 +1,6 @@
-import {EffectInternals} from '@remotion/effects';
 import {blur} from '@remotion/effects/blur';
+import {halftone} from '@remotion/effects/halftone';
+import {tint} from '@remotion/effects/tint';
 import {wave} from '@remotion/effects/wave';
 import {RemotionRiveCanvas} from '@remotion/rive';
 import {StudioInternals} from '@remotion/studio';
@@ -121,7 +122,7 @@ const StackedRive: React.FC = () => {
 			src={RIVE_SRC}
 			style={tileRiveStyle}
 			effects={[
-				EffectInternals.tint({color: '#ff5fa2', amount: 0.4}),
+				tint({color: '#ff5fa2', amount: 0.4}),
 				wave({
 					phase,
 					amplitude: 12,
@@ -162,7 +163,7 @@ const Comp: React.FC = () => {
 					<RemotionRiveCanvas
 						src={RIVE_SRC}
 						style={tileRiveStyle}
-						effects={[EffectInternals.tint({color: '#ff5fa2', amount: 0.6})]}
+						effects={[tint({color: '#ff5fa2', amount: 0.6})]}
 					/>
 				</Tile>
 				<Tile title="halftone" subtitle="circles, dotSize 12, on luminance">
@@ -170,7 +171,7 @@ const Comp: React.FC = () => {
 						src={RIVE_SRC}
 						style={tileRiveStyle}
 						effects={[
-							EffectInternals.halftone({
+							halftone({
 								shape: 'circle',
 								dotSize: 12,
 								dotSpacing: 12,

@@ -19,6 +19,24 @@ test('tint() accepts valid params', () => {
 	expect(() => tint({color: '#ff0000'})).not.toThrow();
 });
 
+test('tint() rejects non-finite amount', () => {
+	expect(() => tint({color: '#ff0000', amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('tint() rejects amount above 1', () => {
+	expect(() => tint({color: '#ff0000', amount: 1.5})).toThrow(
+		'"amount" must be <= 1',
+	);
+});
+
+test('tint() rejects amount below 0', () => {
+	expect(() => tint({color: '#ff0000', amount: -0.1})).toThrow(
+		'"amount" must be >= 0',
+	);
+});
+
 test('blur() throws when radius is not passed', () => {
 	expect(() => blur({} as Parameters<typeof blur>[0])).toThrow(
 		'"radius" must be a finite number, but got undefined',
