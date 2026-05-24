@@ -61,7 +61,7 @@ export const getCompositionMenuItems = ({
 			? {
 					id: 'open-component-in-editor',
 					keyHint: null,
-					label: `Open component in ${editorName}`,
+					label: `Show component in ${editorName}`,
 					leftItem: null,
 					onClick: async () => {
 						closeMenu();
@@ -78,7 +78,7 @@ export const getCompositionMenuItems = ({
 							showNotification((err as Error).message, 2000);
 						}
 					},
-					quickSwitcherLabel: `Open composition component in ${editorName}`,
+					quickSwitcherLabel: `Show composition component in ${editorName}`,
 					subMenu: null,
 					type: 'item' as const,
 					value: 'open-component-in-editor',
