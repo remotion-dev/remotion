@@ -845,48 +845,57 @@ const getComponentLocationRecursively = async ({
 	}
 
 	visited.add(key);
+	try {
+		const input = await readSourceFile({remotionRoot, fileName});
+		const ast = parseAst(input);
+		const localDeclaration = getDeclarationByExportName({
+			ast,
+			exportName,
+		});
+		if (localDeclaration) {
+			return await getComponentLocationInFile({
+				remotionRoot,
+				fileName,
+				exportName,
+			});
+		}
 
-	const input = await readSourceFile({remotionRoot, fileName});
-	const ast = parseAst(input);
-	const localDeclaration = getDeclarationByExportName({
-		ast,
-		exportName,
-	});
-	if (localDeclaration) {
-		return getComponentLocationInFile({
+		const reExportTargets = findReExportTargets({
+			ast,
+			exportName,
+		});
+		for (const target of reExportTargets) {
+			try {
+				const resolvedImportPath = resolveImportPath({
+					importPath: target.importPath,
+					fromFile: fileName,
+				});
+
+				return await getComponentLocationRecursively({
+					remotionRoot,
+					fileName: resolvedImportPath,
+					exportName: target.exportName,
+					visited,
+				});
+			} catch {
+				continue;
+			}
+		}
+
+		if (reExportTargets.length > 0) {
+			throw new Error(
+				`Could not resolve component export "${exportName}" in ${path.relative(remotionRoot, fileName)}`,
+			);
+		}
+
+		return await getComponentLocationInFile({
 			remotionRoot,
 			fileName,
 			exportName,
 		});
+	} finally {
+		visited.delete(key);
 	}
-
-	const reExportTargets = findReExportTargets({
-		ast,
-		exportName,
-	});
-	for (const target of reExportTargets) {
-		try {
-			const resolvedImportPath = resolveImportPath({
-				importPath: target.importPath,
-				fromFile: fileName,
-			});
-
-			return getComponentLocationRecursively({
-				remotionRoot,
-				fileName: resolvedImportPath,
-				exportName: target.exportName,
-				visited,
-			});
-		} catch {
-			continue;
-		}
-	}
-
-	return getComponentLocationInFile({
-		remotionRoot,
-		fileName,
-		exportName,
-	});
 };
 
 export const resolveCompositionComponent = async ({

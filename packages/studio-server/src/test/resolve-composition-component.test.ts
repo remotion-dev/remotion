@@ -80,6 +80,68 @@ test('resolves recursively through re-exported composition components', async ()
 	}
 });
 
+test('resolves through fallback re-export branch after cycle', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './components';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.mkdir(path.join(tempDir, 'components', 'valid'), {
+			recursive: true,
+		});
+		await fs.writeFile(
+			path.join(tempDir, 'components', 'index.tsx'),
+			[
+				"export {MyComp} from './cycle-a';",
+				"export {MyComp} from './valid';",
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'components', 'cycle-a.tsx'),
+			["export {MyComp} from './cycle-b';", ''].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'components', 'cycle-b.tsx'),
+			["export {MyComp} from './cycle-a';", ''].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'components', 'valid', 'index.tsx'),
+			["export {MyComp} from './MyComp';", ''].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'components', 'valid', 'MyComp.tsx'),
+			[
+				'export const MyComp: React.FC = () => {',
+				'\treturn <div>hello</div>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const location = await resolveCompositionComponent({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+		});
+		expect(location.source).toBe(
+			path.join('components', 'valid', 'MyComp.tsx'),
+		);
+		expect(location.line).toBe(1);
+		expect(location.canAddSequence).toBe(true);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
 test('resolves a same-file composition component', async () => {
 	const location = await resolveCompositionComponent({
 		remotionRoot,
