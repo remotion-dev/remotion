@@ -6718,6 +6718,15 @@ export const articles = [
 		slug: 'transitions/presentations/dissolve',
 	},
 	{
+		id: 'transitions/presentations/dreamy-zoom',
+		title: 'dreamyZoom()',
+		relativePath: 'docs/transitions/presentations/dreamy-zoom.mdx',
+		compId: 'articles-docs-transitions-presentations-dreamy-zoom',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/dreamy-zoom',
+	},
+	{
 		id: 'transitions/presentations/fade',
 		title: 'fade()',
 		relativePath: 'docs/transitions/presentations/fade.mdx',
