@@ -235,11 +235,11 @@ test('saturation() rejects amount below range', () => {
 });
 
 test('saturation() amount produces distinct effect keys', () => {
-	const grayscale = saturation({amount: 0});
+	const desaturated = saturation({amount: 0});
 	const neutral = saturation({amount: 1});
 	const oversaturated = saturation({amount: 2});
 	expect(
-		new Set([grayscale.effectKey, neutral.effectKey, oversaturated.effectKey])
+		new Set([desaturated.effectKey, neutral.effectKey, oversaturated.effectKey])
 			.size,
 	).toBe(3);
 });
