@@ -1,7 +1,7 @@
 import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import {crosswarp} from '@remotion/transitions/crosswarp';
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, Img} from 'remotion';
 
 const sceneStyle: React.CSSProperties = {
 	justifyContent: 'center',
@@ -28,7 +28,7 @@ const letterStyle: React.CSSProperties = {
 const SceneA: React.FC = () => {
 	return (
 		<AbsoluteFill style={sceneStyle}>
-			<img
+			<Img
 				crossOrigin="anonymous"
 				src="https://remotion.media/transition-bg-blue.jpg"
 				style={backgroundImageStyle}
@@ -42,7 +42,7 @@ const SceneA: React.FC = () => {
 const SceneB: React.FC = () => {
 	return (
 		<AbsoluteFill style={sceneStyle}>
-			<img
+			<Img
 				crossOrigin="anonymous"
 				src="https://remotion.media/transition-bg-pink.jpg"
 				style={backgroundImageStyle}
