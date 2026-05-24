@@ -9,6 +9,7 @@ const makeFoo = () =>
 	createEffect<FooParams, null>({
 		type: 'test/foo',
 		label: 'Foo',
+		documentationLink: null,
 		backend: '2d',
 		calculateKey: (p) => `foo-${p.amount}`,
 		setup: () => null,
@@ -46,6 +47,7 @@ test('createEffect injects `disabled` into the schema for save-effect-props', ()
 	const foo = createEffect<FooParams, null>({
 		type: 'test/foo',
 		label: 'Foo',
+		documentationLink: null,
 		backend: '2d',
 		calculateKey: (p) => `foo-${p.amount}`,
 		setup: () => null,
