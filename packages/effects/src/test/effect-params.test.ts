@@ -30,6 +30,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(invert().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/invert',
 	);
+	expect(mirror().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/mirror',
+	);
 	expect(saturation().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/saturation',
 	);
