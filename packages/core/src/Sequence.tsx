@@ -236,7 +236,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const resolvedDocumentationLink =
 		documentationLink ??
-		(name === undefined ? 'https://www.remotion.dev/docs/sequence' : undefined);
+		(name === undefined ? 'https://www.remotion.dev/docs/sequence' : null);
 
 	const env = useRemotionEnvironment();
 

@@ -105,6 +105,7 @@ const GifInner = ({
 			layout="none"
 			durationInFrames={resolvedDuration}
 			name="<Gif>"
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/gif/gif"
 			_experimentalControls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			{...sequenceProps}

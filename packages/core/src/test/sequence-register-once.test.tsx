@@ -2,6 +2,7 @@ import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {TSequence} from '../CompositionManager.js';
+import {Img} from '../Img.js';
 import {Internals} from '../internals.js';
 import {Sequence} from '../Sequence.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
@@ -18,17 +19,18 @@ afterEach(cleanup);
 const SequenceTestWrapper: React.FC<{
 	readonly children: React.ReactNode;
 	readonly onRegisterSequence: (sequence: TSequence) => void;
-}> = ({children, onRegisterSequence}) => {
-	// Mirror the real SequenceManagerProvider: registering produces a state
-	// update, which re-renders consumers.
+	readonly rerenderOnRegister?: boolean;
+}> = ({children, onRegisterSequence, rerenderOnRegister = false}) => {
 	const [, setTick] = useState(0);
 
 	const registerSequence = useCallback(
 		(sequence: TSequence) => {
 			onRegisterSequence(sequence);
-			setTick((t) => t + 1);
+			if (rerenderOnRegister) {
+				setTick((t) => t + 1);
+			}
 		},
-		[onRegisterSequence],
+		[onRegisterSequence, rerenderOnRegister],
 	);
 
 	const unregisterSequence = useCallback(() => undefined, []);
@@ -100,6 +102,7 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 
 	render(
 		<SequenceTestWrapper
+			rerenderOnRegister
 			onRegisterSequence={() => {
 				registerCalls++;
 			}}
@@ -131,7 +134,7 @@ test('Sequence registers its documentation link', () => {
 	);
 });
 
-test('Sequence registers the sequence documentation link for default labels', () => {
+test('Img registers its documentation link for default labels', () => {
 	const registeredSequences: TSequence[] = [];
 
 	render(
@@ -140,16 +143,16 @@ test('Sequence registers the sequence documentation link for default labels', ()
 				registeredSequences.push(sequence);
 			}}
 		>
-			<Sequence>hi</Sequence>
+			<Img src="test.png" />
 		</SequenceTestWrapper>,
 	);
 
 	expect(registeredSequences[0]?.documentationLink).toBe(
-		'https://www.remotion.dev/docs/sequence',
+		'https://www.remotion.dev/docs/img',
 	);
 });
 
-test('Named sequences do not receive the default documentation link', () => {
+test('Named Img components do not receive the default documentation link', () => {
 	const registeredSequences: TSequence[] = [];
 
 	render(
@@ -158,9 +161,9 @@ test('Named sequences do not receive the default documentation link', () => {
 				registeredSequences.push(sequence);
 			}}
 		>
-			<Sequence name="Intro">hi</Sequence>
+			<Img src="test.png" name="Intro" />
 		</SequenceTestWrapper>,
 	);
 
-	expect(registeredSequences[0]?.documentationLink).toBe(undefined);
+	expect(registeredSequences[0]?.documentationLink).toBe(null);
 });

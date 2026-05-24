@@ -106,7 +106,7 @@ export type TSequence = {
 	duration: number;
 	id: string;
 	displayName: string;
-	documentationLink?: string;
+	documentationLink: string | null;
 	parent: string | null;
 	rootId: string;
 	showInTimeline: boolean;
