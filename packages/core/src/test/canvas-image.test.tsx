@@ -56,13 +56,13 @@ class MockImage {
 	public decode = () => Promise.resolve();
 	private currentSrc = '';
 
+	public get src() {
+		return this.currentSrc;
+	}
+
 	public set src(src: string) {
 		this.currentSrc = src;
 		queueMicrotask(() => this.onload?.());
-	}
-
-	public get src() {
-		return this.currentSrc;
 	}
 }
 

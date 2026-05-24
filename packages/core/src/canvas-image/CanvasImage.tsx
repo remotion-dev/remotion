@@ -77,13 +77,12 @@ const loadImage = ({
 		const image = new Image();
 		let settled = false;
 
-		const cleanup = () => {
+		function cleanup() {
 			image.onload = null;
 			image.onerror = null;
-			signal.removeEventListener('abort', onAbort);
-		};
+		}
 
-		const settle = (callback: () => void) => {
+		function settle(callback: () => void) {
 			if (settled) {
 				return;
 			}
@@ -91,11 +90,11 @@ const loadImage = ({
 			settled = true;
 			cleanup();
 			callback();
-		};
+		}
 
-		const onAbort = () => {
+		function onAbort() {
 			settle(() => reject(makeAbortError()));
-		};
+		}
 
 		image.onload = () => {
 			Promise.resolve(image.decode?.())
@@ -223,7 +222,7 @@ const CanvasImageContent = forwardRef<
 			};
 
 			loadImage({src: actualSrc, signal: controller.signal})
-				.then(async (image) => {
+				.then((image) => {
 					if (cancelled) {
 						return;
 					}
@@ -321,7 +320,7 @@ CanvasImageContent.displayName = 'CanvasImageContent';
 const CanvasImageInner = forwardRef<
 	HTMLCanvasElement,
 	CanvasImageProps & {
-		readonly _experimentalControls?: SequenceControls | undefined;
+		readonly _experimentalControls: SequenceControls | undefined;
 	}
 >(
 	(

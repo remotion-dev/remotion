@@ -39,7 +39,7 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, []);
 
 	const draw = useCallback(
-		async (imageData: VideoFrame) => {
+		(imageData: VideoFrame) => {
 			const canvas = canvasRef.current;
 			const canvasWidth = width ?? imageData.displayWidth;
 			const canvasHeight = height ?? imageData.displayHeight;
