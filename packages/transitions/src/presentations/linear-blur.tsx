@@ -32,7 +32,7 @@ vec4 transition(vec2 uv, float progress) {
 	vec4 c1 = vec4(0.0);
 	vec4 c2 = vec4(0.0);
 
-	float disp = u_intensity * (0.5 - distance(vec2(0.5), vec2(progress)));
+	float disp = u_intensity * (0.5 - distance(0.5, progress));
 	for (int xi = 0; xi < PASSES; xi++) {
 		float x = float(xi) / float(PASSES) - 0.5;
 		for (int yi = 0; yi < PASSES; yi++) {
