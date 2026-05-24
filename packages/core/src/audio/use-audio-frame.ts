@@ -5,7 +5,10 @@ import {useCurrentFrame} from '../use-current-frame.js';
 
 export const useMediaStartsAt = () => {
 	const parentSequence = useContext(SequenceContext);
-	const startsAt = Math.min(0, parentSequence?.relativeFrom ?? 0);
+	const startsAt = Math.min(
+		0,
+		(parentSequence?.cumulatedFrom ?? 0) + (parentSequence?.relativeFrom ?? 0),
+	);
 	return startsAt;
 };
 
