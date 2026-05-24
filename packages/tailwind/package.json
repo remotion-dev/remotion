@@ -20,6 +20,7 @@
 	},
 	"dependencies": {
 		"autoprefixer": "10.4.20",
+		"css-loader": "7.1.4",
 		"postcss": "8.5.10",
 		"postcss-loader": "7.3.4",
 		"postcss-preset-env": "8.3.2",
