@@ -176,6 +176,7 @@ import {AudioSmoothnessSlicedVideoComp} from './AudioSmoothness/SlicedVideo';
 import {AudioSmoothnessTrimAfterLoopComp} from './AudioSmoothness/TrimAfterLoop';
 import {AudioSmoothnessTrimButtonComp} from './AudioSmoothness/TrimButton';
 import Amplify from './AudioTesting/Amplify';
+import {Issue7568} from './AudioTesting/Issue7568';
 import {BrowserTest} from './BrowserTest';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
@@ -1515,6 +1516,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={300}
+				/>
+				<Composition
+					id="audio-issue-7568"
+					component={Issue7568}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
 				/>
 				<Composition
 					id="audio-visualization"
