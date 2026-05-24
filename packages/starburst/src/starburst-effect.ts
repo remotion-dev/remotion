@@ -300,6 +300,7 @@ const linkProgram = (
 export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 	type: 'remotion/starburst',
 	label: 'Starburst',
+	documentationLink: 'https://www.remotion.dev/docs/starburst/starburst',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
