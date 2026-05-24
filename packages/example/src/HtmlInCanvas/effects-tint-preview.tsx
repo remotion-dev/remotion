@@ -10,7 +10,7 @@ export const EffectsTintPreview: React.FC = () => {
 		<HtmlInCanvas
 			width={width}
 			height={height}
-			effects={[tint({color: '#ff0080', amount: 0.5})]}
+			effects={[tint({color: '#1ec8ff', amount: 0.7})]}
 		>
 			<EffectsPreviewImage />
 		</HtmlInCanvas>
