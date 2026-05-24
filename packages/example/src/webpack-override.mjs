@@ -69,6 +69,10 @@ const aliases = {
 		process.cwd(),
 		'../effects/dist/esm/halftone.mjs',
 	),
+	'@remotion/effects/tint': path.join(
+		process.cwd(),
+		'../effects/dist/esm/tint.mjs',
+	),
 };
 
 /**

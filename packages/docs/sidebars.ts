@@ -274,6 +274,7 @@ const sidebars: SidebarsConfig = {
 				'effects/hue',
 				'effects/invert',
 				'effects/scale',
+				'effects/tint',
 				'effects/wave',
 			],
 		},

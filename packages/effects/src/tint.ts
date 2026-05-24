@@ -1,6 +1,10 @@
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
+	assertOptionalFiniteNumber,
+	validateUnitInterval,
+} from './color-utils.js';
+import {
 	assertEffectParamsObject,
 	assertRequiredColor,
 } from './validate-effect-param.js';
@@ -43,6 +47,11 @@ const resolve = (p: TintParams): TintResolved => ({
 const validateTintParams = (params: TintParams): void => {
 	assertEffectParamsObject(params, 'Tint');
 	assertRequiredColor(params.color, 'color');
+	assertOptionalFiniteNumber(params.amount, 'amount');
+
+	if (params.amount !== undefined) {
+		validateUnitInterval(params.amount, 'amount');
+	}
 };
 
 // Tints the source with a flat color. `amount` controls the blend strength
