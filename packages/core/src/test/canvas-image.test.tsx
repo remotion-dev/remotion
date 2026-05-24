@@ -89,8 +89,8 @@ test('<CanvasImage> renders a canvas element with the decoded image dimensions',
 	expect(canvas?.tagName).toBe('CANVAS');
 
 	await waitFor(() => {
-		expect(canvas?.getAttribute('width')).toBe('200');
-		expect(canvas?.getAttribute('height')).toBe('100');
+		expect(canvas?.width).toBe(200);
+		expect(canvas?.height).toBe(100);
 	});
 });
 
