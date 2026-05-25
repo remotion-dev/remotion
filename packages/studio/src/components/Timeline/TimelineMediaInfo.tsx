@@ -104,6 +104,10 @@ const useAssetLink = (src: string) => {
 			color: linkInfo && hovered ? LIGHT_TEXT : VERY_LIGHT_TEXT,
 			cursor: linkInfo ? 'pointer' : undefined,
 			textDecoration: 'none',
+			display: 'inline-block',
+			overflow: 'hidden',
+			whiteSpace: 'pre',
+			textOverflow: 'ellipsis',
 		}),
 		[linkInfo, hovered],
 	);

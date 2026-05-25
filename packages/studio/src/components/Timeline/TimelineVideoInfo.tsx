@@ -15,14 +15,11 @@ import {
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {useVideoConfig} from 'remotion';
-import {
-	TIMELINE_LAYER_HEIGHT_IMAGE,
-	TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT,
-} from '../../helpers/timeline-layout';
+import {TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT} from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
 import {getTimelineVideoInfoWidths} from './get-timeline-video-info-widths';
 
-const FILMSTRIP_HEIGHT = TIMELINE_LAYER_HEIGHT_IMAGE - 2;
+const FILMSTRIP_HEIGHT = 48;
 
 const outerStyle: React.CSSProperties = {
 	width: '100%',
