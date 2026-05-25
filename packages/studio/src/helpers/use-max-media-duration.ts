@@ -6,16 +6,6 @@ const cache = new Map<string, number>();
 
 const getCacheKey = (src: string, fps: number) => JSON.stringify([src, fps]);
 
-export const getMediaDurationInFrames = ({
-	durationInSeconds,
-	fps,
-}: {
-	durationInSeconds: number;
-	fps: number;
-}) => {
-	return Number((durationInSeconds * fps).toFixed(10));
-};
-
 const getSrc = (s: TSequence) => {
 	if (s.type === 'video') {
 		return s.src;
@@ -56,10 +46,7 @@ export const useMaxMediaDuration = (s: TSequence, fps: number) => {
 					return;
 				}
 
-				const duration = getMediaDurationInFrames({
-					durationInSeconds: metadata.duration,
-					fps,
-				});
+				const duration = Math.floor(metadata.duration * fps);
 				cache.set(cacheKey, duration);
 				setMaxMediaDuration(duration);
 			})

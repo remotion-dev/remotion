@@ -4,7 +4,6 @@ import {
 	SEQUENCE_BORDER_WIDTH,
 	getTimelineSequenceLayout,
 } from '../helpers/get-timeline-sequence-layout';
-import {getMediaDurationInFrames} from '../helpers/use-max-media-duration';
 
 const makeVideoConfig = (durationInFrames: number): VideoConfig => ({
 	durationInFrames,
@@ -162,15 +161,6 @@ test('adjacent sequences have no visual gap', () => {
 	expect(first.marginLeft + first.width + SEQUENCE_BORDER_WIDTH).toBe(
 		second.marginLeft,
 	);
-});
-
-test('max media duration keeps subframe durations', () => {
-	expect(
-		getMediaDurationInFrames({
-			durationInSeconds: 23.5 / 30,
-			fps: 30,
-		}),
-	).toBe(23.5);
 });
 
 test('media trimmed past its duration has zero width', () => {
