@@ -75,6 +75,7 @@ type AddRenderRequestDynamicFields =
 			logLevel: LogLevel;
 			concurrency: number;
 			crf: number | null;
+			gopSize: number | null;
 			startFrame: number;
 			endFrame: number;
 			muted: boolean;

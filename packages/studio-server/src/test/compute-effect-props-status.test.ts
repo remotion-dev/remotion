@@ -7,7 +7,7 @@ import {lineColumnToNodePath} from './test-utils';
 const buildInput = (
 	effects: string,
 ) => `import {HtmlInCanvas} from '@remotion/html-in-canvas';
-import {EffectInternals} from '@remotion/effects';
+import {tint} from '@remotion/effects/tint';
 
 export const Comp = () => {
 \treturn (
@@ -29,9 +29,7 @@ const findJsx = (input: string) => {
 };
 
 test('computeEffectPropStatus reports static props as canUpdate=true with codeValue', () => {
-	const input = buildInput(
-		'[EffectInternals.tint({color: "red", opacity: 0.5})]',
-	);
+	const input = buildInput('[tint({color: "red", opacity: 0.5})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
 		effectIndex: 0,
@@ -48,9 +46,7 @@ test('computeEffectPropStatus reports static props as canUpdate=true with codeVa
 });
 
 test('computeEffectPropStatus reports computed props', () => {
-	const input = buildInput(
-		'[EffectInternals.tint({color: getColor(), opacity: 0.5})]',
-	);
+	const input = buildInput('[tint({color: getColor(), opacity: 0.5})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
 		effectIndex: 0,
@@ -68,7 +64,7 @@ test('computeEffectPropStatus reports computed props', () => {
 
 test('computeEffectPropStatus reports keyframes for inline interpolated effect props', () => {
 	const input = buildInput(
-		'[EffectInternals.tint({amount: interpolate(frame, [0, 100], [0.2, 0.8])})]',
+		'[tint({amount: interpolate(frame, [0, 100], [0.2, 0.8])})]',
 	);
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
@@ -92,7 +88,7 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 });
 
 test('computeEffectPropStatus reports unset props as undefined codeValue', () => {
-	const input = buildInput('[EffectInternals.tint({color: "red"})]');
+	const input = buildInput('[tint({color: "red"})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
 		effectIndex: 0,
@@ -109,9 +105,7 @@ test('computeEffectPropStatus reports unset props as undefined codeValue', () =>
 });
 
 test('computeEffectPropStatus flags non-call expressions', () => {
-	const input = buildInput(
-		'[someEffect, EffectInternals.tint({color: "red"})]',
-	);
+	const input = buildInput('[someEffect, tint({color: "red"})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
 		effectIndex: 0,
@@ -127,7 +121,7 @@ test('computeEffectPropStatus flags non-call expressions', () => {
 });
 
 test('computeEffectPropStatus flags out-of-range effect indices', () => {
-	const input = buildInput('[EffectInternals.tint({color: "red"})]');
+	const input = buildInput('[tint({color: "red"})]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
 		effectIndex: 5,
@@ -143,7 +137,7 @@ test('computeEffectPropStatus flags out-of-range effect indices', () => {
 });
 
 test('computeEffectPropStatus treats non-object first arg as computed', () => {
-	const input = buildInput('[EffectInternals.tint(getParams())]');
+	const input = buildInput('[tint(getParams())]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
 		effectIndex: 0,
@@ -159,7 +153,7 @@ test('computeEffectPropStatus treats non-object first arg as computed', () => {
 });
 
 test('computeEffectPropStatus treats zero-arg effect as editable with undefined props', () => {
-	const input = buildInput('[EffectInternals.tint()]');
+	const input = buildInput('[tint()]');
 	const result = computeEffectPropStatus({
 		jsx: findJsx(input),
 		effectIndex: 0,

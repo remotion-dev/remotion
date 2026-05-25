@@ -39,6 +39,7 @@ const validateBrightnessParams = (params: BrightnessParams): void => {
 export const brightness = createEffect<BrightnessParams, null>({
 	type: 'remotion/brightness',
 	label: 'Brightness',
+	documentationLink: 'https://www.remotion.dev/docs/effects/brightness',
 	backend: '2d',
 	calculateKey: (params) => {
 		const r = resolve(params);

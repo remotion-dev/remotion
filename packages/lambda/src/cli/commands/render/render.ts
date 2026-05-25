@@ -37,6 +37,7 @@ const {
 	offthreadVideoThreadsOption,
 	scaleOption,
 	crfOption,
+	gopSizeOption,
 	jpegQualityOption,
 	videoBitrateOption,
 	mutedOption,
@@ -159,6 +160,9 @@ export const renderCommand = async ({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const crf = crfOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const gopSize = gopSizeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const jpegQuality = jpegQualityOption.getValue({
@@ -345,6 +349,7 @@ export const renderCommand = async ({
 		codec: codec as ServerlessCodec,
 		imageFormat,
 		crf: crf ?? undefined,
+		gopSize,
 		envVariables,
 		pixelFormat,
 		proResProfile,

@@ -97,6 +97,18 @@
 			"import": "./dist/esm/zoom-blur.mjs",
 			"require": "./dist/presentations/zoom-blur.js"
 		},
+		"./dreamy-zoom": {
+			"types": "./dist/presentations/dreamy-zoom.d.ts",
+			"module": "./dist/esm/dreamy-zoom.mjs",
+			"import": "./dist/esm/dreamy-zoom.mjs",
+			"require": "./dist/presentations/dreamy-zoom.js"
+		},
+		"./linear-blur": {
+			"types": "./dist/presentations/linear-blur.d.ts",
+			"module": "./dist/esm/linear-blur.mjs",
+			"import": "./dist/esm/linear-blur.mjs",
+			"require": "./dist/presentations/linear-blur.js"
+		},
 		"./zoom-in-out": {
 			"types": "./dist/presentations/zoom-in-out.d.ts",
 			"module": "./dist/esm/zoom-in-out.mjs",
@@ -169,6 +181,12 @@
 			],
 			"zoom-blur": [
 				"dist/presentations/zoom-blur.d.ts"
+			],
+			"dreamy-zoom": [
+				"dist/presentations/dreamy-zoom.d.ts"
+			],
+			"linear-blur": [
+				"dist/presentations/linear-blur.d.ts"
 			],
 			"zoom-in-out": [
 				"dist/presentations/zoom-in-out.d.ts"

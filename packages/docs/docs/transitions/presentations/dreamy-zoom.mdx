@@ -1,0 +1,104 @@
+---
+image: /generated/articles-docs-transitions-presentations-dreamy-zoom.png
+crumb: '@remotion/transitions - Presentations'
+title: 'dreamyZoom()'
+---
+
+# dreamyZoom()<AvailableFrom v="4.0.466"/>
+
+A presentation that zooms and rotates through a white flash between scenes.
+
+<Demo type="dreamy-zoom" />
+
+:::warning
+This presentation is built with [HTML-in-canvas](/docs/remotion/html-in-canvas) and requires [Google Chrome](https://www.google.com/chrome/) with `chrome://flags/#canvas-draw-element` enabled. It does not work in Firefox or Safari.
+:::
+
+## Example
+
+```tsx twoslash title="DreamyZoomTransition.tsx"
+import {AbsoluteFill} from 'remotion';
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({children, color}) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: color,
+        opacity: 0.9,
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 200,
+        color: 'white',
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {dreamyZoom} from '@remotion/transitions/dreamy-zoom';
+
+const BasicTransition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={40}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={dreamyZoom({rotation: 6, scale: 1.2})}
+        timing={linearTiming({durationInFrames: 30})}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="pink">B</Letter>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+## API
+
+Accepts an object with the following options:
+
+### `rotation?`
+
+The rotation angle in degrees.
+
+Defaults to `6`.
+
+### `scale?`
+
+The zoom scale at the white flash in the middle of the transition.
+
+Defaults to `1.2`.
+
+## Compatibility
+
+<CompatibilityTable
+  chrome
+  firefox={false}
+  safari={false}
+  nodejs
+  bun
+  serverlessFunctions
+  clientSideRendering
+  serverSideRendering
+  player
+  studio
+/>
+
+For Preview, Chrome with the `chrome://flags/#canvas-draw-element` flag enabled is required.
+
+## Credits
+
+The fragment shader is adapted from the [`DreamyZoom`](https://gl-transitions.com/editor/DreamyZoom) GL Transition by Zeh Fernando, licensed under MIT.
+
+## See also
+
+- [Source code for this presentation](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/dreamy-zoom.tsx)
+- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [Presentations](/docs/transitions/presentations)

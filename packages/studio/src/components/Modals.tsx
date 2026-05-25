@@ -71,6 +71,7 @@ export const Modals: React.FC<{
 					initialEnforceAudioTrack={modalContextType.initialEnforceAudioTrack}
 					initialProResProfile={modalContextType.initialProResProfile}
 					initialx264Preset={modalContextType.initialx264Preset}
+					initialGopSize={modalContextType.initialGopSize}
 					initialPixelFormat={modalContextType.initialPixelFormat}
 					initialAudioBitrate={modalContextType.initialAudioBitrate}
 					initialVideoBitrate={modalContextType.initialVideoBitrate}

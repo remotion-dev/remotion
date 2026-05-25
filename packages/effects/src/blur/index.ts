@@ -4,14 +4,14 @@ import {
 	assertEffectParamsObject,
 	assertRequiredFiniteNumber,
 } from '../validate-effect-param.js';
-
-const {createEffect} = Internals;
 import {
 	applyBlur,
 	cleanupBlur,
 	setupBlur,
 	type BlurState,
 } from './blur-runtime.js';
+
+const {createEffect} = Internals;
 
 export type BlurParams = {
 	readonly radius: number;
@@ -62,6 +62,7 @@ const validateBlurParams = (params: BlurParams): void => {
 export const blur = createEffect<BlurParams, BlurState>({
 	type: 'remotion/blur',
 	label: 'Blur',
+	documentationLink: 'https://www.remotion.dev/docs/effects/blur',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolveBlurParams(params);

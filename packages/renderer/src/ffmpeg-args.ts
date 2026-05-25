@@ -5,6 +5,7 @@ import {getCodecName} from './get-codec-name';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
+import {validateGopSize} from './options/gop-size';
 import type {X264Preset} from './options/x264-preset';
 import type {PixelFormat} from './pixel-format';
 import {truthy} from './truthy';
@@ -14,6 +15,7 @@ const firstEncodingStepOnly = ({
 	proResProfileName,
 	pixelFormat,
 	x264Preset,
+	gopSize,
 	codec,
 	crf,
 	videoBitrate,
@@ -25,6 +27,7 @@ const firstEncodingStepOnly = ({
 	proResProfileName: string | null;
 	pixelFormat: PixelFormat;
 	x264Preset: X264Preset | null;
+	gopSize: number | null;
 	crf: unknown;
 	codec: Codec;
 	videoBitrate: string | null;
@@ -36,6 +39,8 @@ const firstEncodingStepOnly = ({
 		return [];
 	}
 
+	validateGopSize(gopSize);
+
 	return [
 		proResProfileName ? ['-profile:v', proResProfileName] : null,
 		['-pix_fmt', pixelFormat],
@@ -44,6 +49,7 @@ const firstEncodingStepOnly = ({
 		// transparent WebM generation doesn't work
 		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
 		x264Preset ? ['-preset', x264Preset] : null,
+		gopSize === null ? null : ['-g', String(gopSize)],
 		// Apply a fixed a timescale across all environments:
 		// https://discord.com/channels/809501355504959528/817306238811111454/1437471619089170613
 		['-video_track_timescale', '90000'],
@@ -63,6 +69,7 @@ export const generateFfmpegArgs = ({
 	proResProfileName,
 	pixelFormat,
 	x264Preset,
+	gopSize,
 	codec,
 	crf,
 	videoBitrate,
@@ -77,6 +84,7 @@ export const generateFfmpegArgs = ({
 	proResProfileName: string | null;
 	pixelFormat: PixelFormat;
 	x264Preset: X264Preset | null;
+	gopSize: number | null;
 	crf: unknown;
 	codec: Codec;
 	videoBitrate: string | null;
@@ -163,6 +171,7 @@ export const generateFfmpegArgs = ({
 			encodingMaxRate,
 			encodingBufferSize,
 			x264Preset,
+			gopSize,
 			hardwareAcceleration,
 		}),
 	].filter(truthy);

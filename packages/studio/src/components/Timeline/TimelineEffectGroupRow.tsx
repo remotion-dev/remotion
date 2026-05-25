@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -29,6 +29,7 @@ export const TimelineEffectGroupRow: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly effectIndex: number;
 	readonly effectSchema: SequenceSchema;
+	readonly documentationLink: string | null;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;
@@ -39,12 +40,14 @@ export const TimelineEffectGroupRow: React.FC<{
 	nodePathInfo,
 	effectIndex,
 	effectSchema,
+	documentationLink,
 	nodePath,
 	validatedLocation,
 	rowDepth,
 	getIsExpanded,
 	toggleTrack,
 }) => {
+	const [labelHovered, setLabelHovered] = useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
@@ -175,6 +178,24 @@ export const TimelineEffectGroupRow: React.FC<{
 		[],
 	);
 
+	const labelStyle = useMemo((): React.CSSProperties => {
+		const hoverEffect = labelHovered && documentationLink !== null;
+		return {
+			...rowLabel,
+			textDecoration: hoverEffect ? 'underline' : 'none',
+			textUnderlineOffset: 2,
+			cursor: hoverEffect ? 'pointer' : undefined,
+		};
+	}, [documentationLink, labelHovered]);
+
+	const onClickLabel = useCallback(() => {
+		if (documentationLink === null) {
+			return;
+		}
+
+		window.open(documentationLink, '_blank', 'noopener,noreferrer');
+	}, [documentationLink]);
+
 	const row = (
 		<TimelineRowChrome
 			depth={rowDepth}
@@ -199,7 +220,17 @@ export const TimelineEffectGroupRow: React.FC<{
 			}
 			style={rowStyle}
 		>
-			<span style={rowLabel}>{label}</span>
+			<span
+				onPointerEnter={() => setLabelHovered(true)}
+				onPointerLeave={() => setLabelHovered(false)}
+				onClick={onClickLabel}
+				title={
+					documentationLink ? `Open documentation: ${documentationLink}` : label
+				}
+				style={labelStyle}
+			>
+				{label}
+			</span>
 		</TimelineRowChrome>
 	);
 
