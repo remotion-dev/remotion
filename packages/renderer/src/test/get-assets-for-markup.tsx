@@ -12,7 +12,9 @@ import React, {
 import type {CompositionManagerContext, TRenderAsset} from 'remotion';
 import {Internals} from 'remotion';
 
-GlobalRegistrator.register();
+if (typeof window === 'undefined') {
+	GlobalRegistrator.register();
+}
 (global.window as unknown as Record<string, unknown>).remotion_staticBase =
 	'/static-abcdef';
 (
