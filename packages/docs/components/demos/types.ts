@@ -1811,7 +1811,7 @@ export const effectsHalftoneDemo: DemoType = {
 			optional: 'no',
 		},
 		{
-			name: 'color',
+			name: 'dotColor',
 			type: 'color',
 			default: '#0b84f3',
 			optional: 'no',

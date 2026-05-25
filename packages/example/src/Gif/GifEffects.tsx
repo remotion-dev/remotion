@@ -183,7 +183,7 @@ const Comp: React.FC = () => {
 								shape: 'circle',
 								dotSize: 12,
 								dotSpacing: 12,
-								color: '#000',
+								dotColor: '#000',
 							}),
 						]}
 					/>

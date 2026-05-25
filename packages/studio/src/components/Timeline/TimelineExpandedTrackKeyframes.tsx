@@ -87,6 +87,7 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 				sequence,
 				nodePathInfo,
 				getDragOverrides: () => ({}),
+				getEffectDragOverrides: () => ({}),
 				codeValues,
 			}),
 		[codeValues, nodePathInfo, sequence],

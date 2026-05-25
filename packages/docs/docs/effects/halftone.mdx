@@ -36,7 +36,7 @@ export const MyComp: React.FC = () => {
             dotSize: 18,
             dotSpacing: 20,
             rotation: 12,
-            color: '#111827',
+            dotColor: '#111827',
           }),
         ]}
       />
@@ -83,9 +83,19 @@ Texture sampling mode used when reading luminance from the source. Defaults to `
 
 Allowed values are `'bilinear'` and `'nearest'`.
 
-### `color?`
+### `colorMode?`<AvailableFrom v="4.0.467" />
 
-Color of the dots. Defaults to `'black'`.
+Controls how dots are colored. Defaults to `'solid'`.
+
+Allowed values are `'solid'` and `'source'`.
+
+When set to `'solid'`, each dot uses `dotColor`. When set to `'source'`, each dot uses the sampled source color at the grid cell.
+
+### `dotColor?`<AvailableFrom v="4.0.467" />
+
+Color of the dots when `colorMode` is `'solid'`. Defaults to `'black'`.
+
+Previously named `color`.
 
 ### `invert?`
 

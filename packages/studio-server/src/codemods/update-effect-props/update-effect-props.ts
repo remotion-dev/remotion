@@ -10,7 +10,8 @@ import type {
 import {stringifyDefaultProps} from '@remotion/studio-shared';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
-import type {SequenceNodePath} from 'remotion';
+import type {SequenceNodePath, SequenceSchema} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {findJsxElementAtNodePath} from '../../preview-server/routes/can-update-sequence-props';
 import {formatFileContent} from '../format-file-content';
 import {parseAst, serializeAst} from '../parse-ast';
@@ -29,6 +30,12 @@ export type UpdateEffectPropsResult = {
 	oldValueString: string;
 	logLine: number;
 	effectCallee: string;
+	removedProps: PropDelta[];
+};
+
+export type PropDelta = {
+	key: string;
+	valueString: string;
 };
 
 const parseValueExpression = (value: unknown): ExpressionKind => {
@@ -172,21 +179,52 @@ const findObjectProperty = (
 	};
 };
 
+const printObjectPropertyValue = (prop: ObjectProperty) =>
+	recast
+		.print(prop.value)
+		.code.replace(/\s+/g, ' ')
+		.replace(/,(\s*[}\]])/g, '$1')
+		.trim();
+
+const removeObjectProperty = ({
+	objExpr,
+	propertyName,
+}: {
+	objExpr: ObjectExpression;
+	propertyName: string;
+}): PropDelta | null => {
+	const {propIndex, prop} = findObjectProperty(objExpr, propertyName);
+	if (!prop || propIndex === -1) {
+		return null;
+	}
+
+	const valueString = printObjectPropertyValue(prop);
+	objExpr.properties.splice(propIndex, 1);
+
+	return {
+		key: propertyName,
+		valueString,
+	};
+};
+
 export const updateEffectPropsAst = ({
 	input,
 	sequenceNodePath,
 	effectIndex,
 	update,
+	schema,
 }: {
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	update: EffectPropUpdate;
+	schema: SequenceSchema;
 }): {
 	serialized: string;
 	oldValueString: string;
 	logLine: number;
 	effectCallee: string;
+	removedProps: PropDelta[];
 } => {
 	const ast = parseAst(input);
 	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
@@ -225,6 +263,7 @@ export const updateEffectPropsAst = ({
 				oldValueString: '',
 				logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
 				effectCallee,
+				removedProps: [],
 			};
 		}
 
@@ -237,6 +276,7 @@ export const updateEffectPropsAst = ({
 	}
 
 	const {prop} = findObjectProperty(objExpr, update.key);
+	const removedProps: PropDelta[] = [];
 
 	let oldValueString = '';
 	if (prop) {
@@ -266,6 +306,24 @@ export const updateEffectPropsAst = ({
 		}
 	}
 
+	const fieldSchema = schema[update.key];
+	if (fieldSchema && fieldSchema.type === 'enum') {
+		const propsToDelete = NoReactInternals.findPropsToDelete({
+			schema,
+			key: update.key,
+			value: update.value,
+		});
+		for (const propToDelete of propsToDelete) {
+			const removed = removeObjectProperty({
+				objExpr,
+				propertyName: propToDelete,
+			});
+			if (removed) {
+				removedProps.push(removed);
+			}
+		}
+	}
+
 	const logLine = call.loc?.start.line ?? jsx.loc?.start.line ?? 1;
 
 	return {
@@ -273,6 +331,7 @@ export const updateEffectPropsAst = ({
 		oldValueString,
 		logLine,
 		effectCallee,
+		removedProps,
 	};
 };
 
@@ -281,20 +340,23 @@ export const updateEffectProps = async ({
 	sequenceNodePath,
 	effectIndex,
 	update,
+	schema,
 	prettierConfigOverride,
 }: {
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	update: EffectPropUpdate;
+	schema: SequenceSchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<UpdateEffectPropsResult> => {
-	const {serialized, oldValueString, logLine, effectCallee} =
+	const {serialized, oldValueString, logLine, effectCallee, removedProps} =
 		updateEffectPropsAst({
 			input,
 			sequenceNodePath,
 			effectIndex,
 			update,
+			schema,
 		});
 
 	const {output, formatted} = await formatFileContent({
@@ -308,5 +370,6 @@ export const updateEffectProps = async ({
 		formatted,
 		logLine,
 		effectCallee,
+		removedProps,
 	};
 };

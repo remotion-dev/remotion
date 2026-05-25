@@ -9,9 +9,9 @@ export const EffectsHalftonePreview: React.FC<{
 	readonly dotSize: number;
 	readonly dotSpacing: number;
 	readonly rotation: number;
-	readonly color: string;
+	readonly dotColor: string;
 	readonly invert: boolean;
-}> = ({shape, dotSize, dotSpacing, rotation, color, invert}) => {
+}> = ({shape, dotSize, dotSpacing, rotation, dotColor, invert}) => {
 	return (
 		<CanvasImage
 			src={EFFECTS_PREVIEW_IMAGE_SRC}
@@ -23,7 +23,7 @@ export const EffectsHalftonePreview: React.FC<{
 					dotSize,
 					dotSpacing,
 					rotation,
-					color,
+					dotColor,
 					invert,
 				}),
 			]}

@@ -6,6 +6,7 @@ import {assertEffectParamsObject} from './validate-effect-param.js';
 const {createEffect, createWebGL2ContextError} = Internals;
 const HALFTONE_SHAPES = ['circle', 'square', 'line'] as const;
 const HALFTONE_SAMPLING = ['bilinear', 'nearest'] as const;
+const HALFTONE_COLOR_MODES = ['solid', 'source'] as const;
 
 export const halftoneSchema = {
 	dotSize: {
@@ -59,17 +60,28 @@ export const halftoneSchema = {
 		default: false,
 		description: 'Invert',
 	},
-	color: {
-		type: 'color',
-		default: 'black',
-		description: 'Color',
+	colorMode: {
+		type: 'enum',
+		default: 'solid',
+		description: 'Color mode',
+		variants: {
+			solid: {
+				dotColor: {
+					type: 'color',
+					default: 'black',
+					description: 'Dot color',
+				},
+			},
+			source: {},
+		},
 	},
 } as const satisfies SequenceSchema;
 
 export type HalftoneShape = (typeof HALFTONE_SHAPES)[number];
 export type HalftoneSampling = (typeof HALFTONE_SAMPLING)[number];
+export type HalftoneColorMode = (typeof HALFTONE_COLOR_MODES)[number];
 
-export type HalftoneParams = {
+type HalftoneCommonParams = {
 	readonly shape?: HalftoneShape;
 	readonly dotSize?: number;
 	/**
@@ -81,8 +93,6 @@ export type HalftoneParams = {
 	readonly offsetX?: number;
 	readonly offsetY?: number;
 	readonly sampling?: HalftoneSampling;
-	/** Dot color. Defaults to black. */
-	readonly color?: string;
 	/**
 	 * When false (default), dark areas produce larger dots.
 	 * When true, the pattern is inverted:
@@ -90,6 +100,18 @@ export type HalftoneParams = {
 	 */
 	readonly invert?: boolean;
 };
+
+export type HalftoneParams = HalftoneCommonParams &
+	(
+		| {
+				readonly colorMode?: 'solid';
+				/** Dot color. Defaults to black. */
+				readonly dotColor?: string;
+		  }
+		| {
+				readonly colorMode: 'source';
+		  }
+	);
 
 type HalftoneResolved = {
 	shape: HalftoneShape;
@@ -99,7 +121,8 @@ type HalftoneResolved = {
 	offsetX: number;
 	offsetY: number;
 	sampling: HalftoneSampling;
-	color: string;
+	colorMode: HalftoneColorMode;
+	dotColor: string;
 	invert: boolean;
 };
 
@@ -160,7 +183,11 @@ const resolve = (p: HalftoneParams): HalftoneResolved => ({
 	offsetX: p.offsetX ?? 0,
 	offsetY: p.offsetY ?? 0,
 	sampling: p.sampling ?? 'bilinear',
-	color: p.color ?? 'black',
+	colorMode: p.colorMode ?? 'solid',
+	dotColor:
+		(p.colorMode ?? 'solid') === 'solid' && 'dotColor' in p
+			? (p.dotColor ?? 'black')
+			: 'black',
 	invert: p.invert ?? false,
 });
 
@@ -173,7 +200,21 @@ const validateHalftoneParams = (params: HalftoneParams): void => {
 	assertOptionalFiniteNumber(params.offsetY, 'offsetY');
 	assertOptionalEnum(params.shape, 'shape', HALFTONE_SHAPES);
 	assertOptionalEnum(params.sampling, 'sampling', HALFTONE_SAMPLING);
-	assertOptionalColor(params.color, 'color');
+	assertOptionalEnum(params.colorMode, 'colorMode', HALFTONE_COLOR_MODES);
+	if ('color' in params) {
+		throw new TypeError('"color" has been renamed to "dotColor"');
+	}
+
+	if (params.colorMode === 'source' && 'dotColor' in params) {
+		throw new TypeError(
+			'"dotColor" can only be set when "colorMode" is "solid"',
+		);
+	}
+
+	assertOptionalColor(
+		'dotColor' in params ? params.dotColor : undefined,
+		'dotColor',
+	);
 	assertOptionalBoolean(params.invert, 'invert');
 
 	if (params.dotSize !== undefined && params.dotSize < 1) {
@@ -214,6 +255,7 @@ uniform vec2 uOffset;
 uniform vec4 uColor;
 uniform int uShape;
 uniform bool uShadeOutside;
+uniform bool uUseSourceColor;
 
 void main() {
 	vec2 fragPos = vUv * uResolution;
@@ -272,7 +314,7 @@ void main() {
 				 * (1.0 - smoothstep(lineHalf - 0.5, lineHalf + 0.5, abs(diff.y)));
 	}
 
-	fragColor = uColor * coverage;
+	fragColor = (uUseSourceColor ? texColor : uColor) * coverage;
 }
 `;
 
@@ -291,6 +333,7 @@ type HalftoneState = {
 	uColor: WebGLUniformLocation | null;
 	uShape: WebGLUniformLocation | null;
 	uShadeOutside: WebGLUniformLocation | null;
+	uUseSourceColor: WebGLUniformLocation | null;
 	colorCtx: CanvasRenderingContext2D;
 	cachedColorStr: string;
 	cachedColorRgba: [number, number, number, number];
@@ -362,6 +405,8 @@ const parseColorRgba = (
 // (defaults to `dotSize`). `sampling` controls texture interpolation when
 // reading luminance at grid centres. `invert` inverts the pattern so
 // bright/transparent areas produce larger dots and dark areas produce fewer.
+// `colorMode` controls whether dots use a solid `dotColor` or the sampled source
+// color at each grid cell.
 export const halftone = createEffect<HalftoneParams, HalftoneState>({
 	type: 'remotion/halftone',
 	label: 'Halftone',
@@ -369,7 +414,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `halftone-${r.shape}-${r.dotSize}-${r.dotSpacing}-${r.rotation}-${r.offsetX}-${r.offsetY}-${r.sampling}-${r.color}-${r.invert ? 1 : 0}`;
+		return `halftone-${r.shape}-${r.dotSize}-${r.dotSpacing}-${r.rotation}-${r.offsetX}-${r.offsetY}-${r.sampling}-${r.colorMode}-${r.dotColor}-${r.invert ? 1 : 0}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -450,6 +495,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 			uColor: gl.getUniformLocation(program, 'uColor'),
 			uShape: gl.getUniformLocation(program, 'uShape'),
 			uShadeOutside: gl.getUniformLocation(program, 'uShadeOutside'),
+			uUseSourceColor: gl.getUniformLocation(program, 'uUseSourceColor'),
 			colorCtx,
 			cachedColorStr: '',
 			cachedColorRgba: [0, 0, 0, 1] as [number, number, number, number],
@@ -459,9 +505,9 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		const r = resolve(params);
 		const {gl, program, vao, texture} = state;
 
-		if (state.cachedColorStr !== r.color) {
-			state.cachedColorStr = r.color;
-			state.cachedColorRgba = parseColorRgba(state.colorCtx, r.color);
+		if (state.cachedColorStr !== r.dotColor) {
+			state.cachedColorStr = r.dotColor;
+			state.cachedColorRgba = parseColorRgba(state.colorCtx, r.dotColor);
 		}
 
 		const [cr, cg, cb, ca] = state.cachedColorRgba;
@@ -500,6 +546,8 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		if (state.uShape) gl.uniform1i(state.uShape, SHAPE_INDEX[r.shape]);
 		if (state.uShadeOutside)
 			gl.uniform1i(state.uShadeOutside, r.invert ? 1 : 0);
+		if (state.uUseSourceColor)
+			gl.uniform1i(state.uUseSourceColor, r.colorMode === 'source' ? 1 : 0);
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
