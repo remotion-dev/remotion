@@ -11,6 +11,10 @@ import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
+import {
+	EffectsUvTranslatePreview,
+	EffectsXyTranslatePreview,
+} from '../effects/effects-translate-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {
 	ClockWipeDemo,
@@ -1658,6 +1662,70 @@ export const effectsScaleDemo: DemoType = {
 			name: 'vertical',
 			type: 'boolean',
 			default: true,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsXyTranslateDemo: DemoType = {
+	comp: EffectsXyTranslatePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-xy-translate',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'x',
+			type: 'numeric',
+			min: -640,
+			max: 640,
+			step: 1,
+			default: 180,
+			optional: 'no',
+		},
+		{
+			name: 'y',
+			type: 'numeric',
+			min: -360,
+			max: 360,
+			step: 1,
+			default: 90,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsUvTranslateDemo: DemoType = {
+	comp: EffectsUvTranslatePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-uv-translate',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'u',
+			type: 'numeric',
+			min: -1,
+			max: 1,
+			step: 0.01,
+			default: 0.15,
+			optional: 'no',
+		},
+		{
+			name: 'v',
+			type: 'numeric',
+			min: -1,
+			max: 1,
+			step: 0.01,
+			default: 0.125,
 			optional: 'no',
 		},
 	],

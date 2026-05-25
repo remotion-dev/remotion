@@ -19,6 +19,7 @@ const effectEntrypoints = [
 	'src/saturation.ts',
 	'src/scale.ts',
 	'src/tint.ts',
+	'src/translate.ts',
 	'src/wave.ts',
 ];
 

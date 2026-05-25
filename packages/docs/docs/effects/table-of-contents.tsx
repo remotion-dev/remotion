@@ -85,6 +85,20 @@ const categories: {
 				name: 'scale()',
 				description: 'Scale transform effect',
 			},
+			{
+				link: '/docs/effects/xy-translate',
+				preview: '/img/effects-xy-translate-preview.jpg',
+				alt: 'XY translate effect preview',
+				name: 'xyTranslate()',
+				description: 'Pixel-based translate effect',
+			},
+			{
+				link: '/docs/effects/uv-translate',
+				preview: '/img/effects-uv-translate-preview.jpg',
+				alt: 'UV translate effect preview',
+				name: 'uvTranslate()',
+				description: 'UV-based translate effect',
+			},
 		],
 	},
 	{
