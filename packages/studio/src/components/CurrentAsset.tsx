@@ -72,7 +72,10 @@ export const CurrentAsset: React.FC = () => {
 	}
 
 	if (mediaMetadata) {
-		subtitleParts.push(mediaMetadata.format);
+		if (mediaMetadata.format) {
+			subtitleParts.push(mediaMetadata.format);
+		}
+
 		if (mediaMetadata.width !== null && mediaMetadata.height !== null) {
 			subtitleParts.push(`${mediaMetadata.width}x${mediaMetadata.height}`);
 		}
