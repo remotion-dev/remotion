@@ -1,12 +1,12 @@
 import React, {useMemo} from 'react';
 import {Internals} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {VERY_LIGHT_TEXT} from '../../helpers/colors';
 import {formatMediaDuration} from '../../helpers/format-media-duration';
 import {useMediaMetadata} from '../../helpers/use-media-metadata';
 
 const containerStyle: React.CSSProperties = {
 	fontFamily: 'Arial, Helvetica, sans-serif',
-	color: LIGHT_TEXT,
+	color: VERY_LIGHT_TEXT,
 	fontSize: 12,
 	lineHeight: 1.1,
 	overflow: 'hidden',
@@ -21,12 +21,6 @@ const lineStyle: React.CSSProperties = {
 	textOverflow: 'ellipsis',
 	minWidth: 0,
 	fontSize: 12,
-};
-
-const fileNameStyle: React.CSSProperties = {
-	...lineStyle,
-	fontWeight: 'bold',
-	color: 'white',
 };
 
 export const TimelineMediaInfo: React.FC<{
@@ -65,7 +59,7 @@ export const TimelineMediaInfo: React.FC<{
 
 	return (
 		<div style={containerStyle}>
-			<div style={fileNameStyle} title={fileName}>
+			<div style={lineStyle} title={fileName}>
 				{fileName}
 			</div>
 			{detailsLine ? (
