@@ -78,6 +78,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	delayRenderTimeoutInMilliseconds,
 	onImageFrame,
 	crossOrigin,
+	decoding,
 	ref,
 	...props
 }) => {
@@ -86,7 +87,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	const {delayPlayback} = useBufferState();
 	const sequenceContext = useContext(SequenceContext);
 
-	const _propsValid: IsExact<typeof props, Expected> = true;
+	const _propsValid: IsExact<typeof props, Omit<Expected, 'decoding'>> = true;
 
 	if (!_propsValid) {
 		throw new Error('typecheck error');
@@ -275,7 +276,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 		]);
 	}
 
-	const {isClientSideRendering} = useRemotionEnvironment();
+	const {isClientSideRendering, isRendering} = useRemotionEnvironment();
 
 	const crossOriginValue = getCrossOriginValue({
 		crossOrigin,
@@ -290,7 +291,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 			ref={imageRef}
 			crossOrigin={crossOriginValue}
 			onError={didGetError}
-			decoding="sync"
+			decoding={isRendering ? 'sync' : decoding}
 		/>
 	);
 };
