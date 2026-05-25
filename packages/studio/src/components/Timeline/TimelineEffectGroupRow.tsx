@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
@@ -8,7 +8,11 @@ import {
 	EXPANDED_SECTION_PADDING_RIGHT,
 	TREE_GROUP_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
+import {callApi} from '../call-api';
+import {ContextMenu} from '../ContextMenu';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {saveEffectProp} from './save-effect-prop';
 import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
@@ -25,6 +29,7 @@ export const TimelineEffectGroupRow: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly effectIndex: number;
 	readonly effectSchema: SequenceSchema;
+	readonly documentationLink: string | null;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;
@@ -35,12 +40,14 @@ export const TimelineEffectGroupRow: React.FC<{
 	nodePathInfo,
 	effectIndex,
 	effectSchema,
+	documentationLink,
 	nodePath,
 	validatedLocation,
 	rowDepth,
 	getIsExpanded,
 	toggleTrack,
 }) => {
+	const [labelHovered, setLabelHovered] = useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
@@ -71,6 +78,59 @@ export const TimelineEffectGroupRow: React.FC<{
 
 	const canToggle =
 		previewConnected && disabledStatus !== null && disabledStatus.canUpdate;
+
+	const deleteDisabled =
+		!previewConnected ||
+		effectStatus.type !== 'can-update-effect' ||
+		!validatedLocation.source;
+
+	const onDeleteEffectFromSource = useCallback(async () => {
+		if (deleteDisabled) {
+			return;
+		}
+
+		try {
+			const result = await callApi('/api/delete-effect', {
+				fileName: validatedLocation.source,
+				sequenceNodePath: nodePath,
+				effectIndex,
+			});
+			if (result.success) {
+				showNotification('Removed effect from source file', 2000);
+			} else {
+				showNotification(result.reason, 4000);
+			}
+		} catch (err) {
+			showNotification((err as Error).message, 4000);
+		}
+	}, [deleteDisabled, effectIndex, nodePath, validatedLocation.source]);
+
+	const contextMenuValues = useMemo((): ComboboxValue[] => {
+		if (!previewConnected) {
+			return [];
+		}
+
+		return [
+			{
+				type: 'item',
+				id: 'delete-effect',
+				keyHint: null,
+				label: 'Delete',
+				leftItem: null,
+				disabled: deleteDisabled,
+				onClick: () => {
+					if (deleteDisabled) {
+						return;
+					}
+
+					onDeleteEffectFromSource();
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'delete-effect',
+			},
+		];
+	}, [deleteDisabled, onDeleteEffectFromSource, previewConnected]);
 
 	const onToggle = useCallback(
 		(type: 'enable' | 'disable') => {
@@ -118,7 +178,25 @@ export const TimelineEffectGroupRow: React.FC<{
 		[],
 	);
 
-	return (
+	const labelStyle = useMemo((): React.CSSProperties => {
+		const hoverEffect = labelHovered && documentationLink !== null;
+		return {
+			...rowLabel,
+			textDecoration: hoverEffect ? 'underline' : 'none',
+			textUnderlineOffset: 2,
+			cursor: hoverEffect ? 'pointer' : undefined,
+		};
+	}, [documentationLink, labelHovered]);
+
+	const onClickLabel = useCallback(() => {
+		if (documentationLink === null) {
+			return;
+		}
+
+		window.open(documentationLink, '_blank', 'noopener,noreferrer');
+	}, [documentationLink]);
+
+	const row = (
 		<TimelineRowChrome
 			depth={rowDepth}
 			eye={
@@ -142,7 +220,23 @@ export const TimelineEffectGroupRow: React.FC<{
 			}
 			style={rowStyle}
 		>
-			<span style={rowLabel}>{label}</span>
+			<span
+				onPointerEnter={() => setLabelHovered(true)}
+				onPointerLeave={() => setLabelHovered(false)}
+				onClick={onClickLabel}
+				title={
+					documentationLink ? `Open documentation: ${documentationLink}` : label
+				}
+				style={labelStyle}
+			>
+				{label}
+			</span>
 		</TimelineRowChrome>
+	);
+
+	return previewConnected ? (
+		<ContextMenu values={contextMenuValues}>{row}</ContextMenu>
+	) : (
+		row
 	);
 };

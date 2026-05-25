@@ -1,4 +1,5 @@
-import {EffectInternals} from '@remotion/effects';
+import {blur} from '@remotion/effects/blur';
+import {tint} from '@remotion/effects/tint';
 import {StudioInternals} from '@remotion/studio';
 import React from 'react';
 import {
@@ -72,10 +73,10 @@ const Comp: React.FC = () => {
 					fit="contain"
 					style={{borderRadius: 16}}
 					effects={[
-						EffectInternals.blur({
+						blur({
 							radius: blurRadius,
 						}),
-						EffectInternals.tint({
+						tint({
 							color: '#41f500',
 							amount: 0.35,
 						}),

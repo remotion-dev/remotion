@@ -25,6 +25,7 @@ import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {RequiredChromiumOptions} from './render-job';
+import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 
 export type OpenInFileExplorerRequest = {
@@ -74,6 +75,7 @@ type AddRenderRequestDynamicFields =
 			logLevel: LogLevel;
 			concurrency: number;
 			crf: number | null;
+			gopSize: number | null;
 			startFrame: number;
 			endFrame: number;
 			muted: boolean;
@@ -163,6 +165,7 @@ export type UpdateDefaultPropsResponse =
 export type ApplyCodemodRequest = {
 	codemod: RecastCodemod;
 	dryRun: boolean;
+	symbolicatedStack: SymbolicatedStackFrame | null;
 };
 
 export type SimpleDiff = {
@@ -277,6 +280,22 @@ export type SaveEffectPropsRequest = {
 };
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
+
+export type DeleteEffectRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+};
+
+export type DeleteEffectResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
 
 export type DeleteJsxNodeRequest = {
 	fileName: string;
@@ -395,6 +414,7 @@ export type ApiRoutes = {
 		SaveEffectPropsRequest,
 		SaveEffectPropsResponse
 	>;
+	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/delete-jsx-node': ReqAndRes<
 		DeleteJsxNodeRequest,
 		DeleteJsxNodeResponse

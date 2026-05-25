@@ -4,6 +4,15 @@ import type {ResolvedStackLocation} from 'remotion';
 import {getOriginalLocationFromStack} from './TimelineStack/get-stack';
 
 const resolvedCache = new Map<string, ResolvedStackLocation | null>();
+
+export const hasResolvedStack = (stack: string | null): boolean => {
+	if (!stack) {
+		return true;
+	}
+
+	return resolvedCache.has(stack);
+};
+
 const inFlight = new Set<string>();
 const subscribers = new Map<
 	string,
@@ -54,6 +63,8 @@ export const useResolvedStack = (
 				.catch((err) => {
 					// eslint-disable-next-line no-console
 					console.error('Could not get original location of Sequence', err);
+					resolvedCache.set(stack, null);
+					subs.forEach((fn) => fn(null));
 				})
 				.finally(() => {
 					inFlight.delete(stack);

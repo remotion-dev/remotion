@@ -62,6 +62,7 @@ const {
 	bundleCacheOption,
 	envFileOption,
 	glOption,
+	gopSizeOption,
 	runsOption,
 	reproOption,
 	mutedOption,
@@ -126,6 +127,7 @@ export type CommandLineOptions = {
 	[audioCodecOption.cliFlag]: AudioCodec;
 	[publicPathOption.cliFlag]: string;
 	[crfOption.cliFlag]: TypeOfOption<typeof crfOption>;
+	[gopSizeOption.cliFlag]: TypeOfOption<typeof gopSizeOption>;
 	output: string | undefined;
 	[overwriteOption.cliFlag]: TypeOfOption<typeof overwriteOption>;
 	png: boolean;

@@ -1,6 +1,6 @@
 import {Video, VideoObjectFit} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, Composition, staticFile} from 'remotion';
+import {AbsoluteFill, Composition} from 'remotion';
 import {z} from 'zod';
 
 const objectFitSchema = z.object({
@@ -13,7 +13,7 @@ const ObjectFitTest: React.FC<z.infer<typeof objectFitSchema>> = ({
 	return (
 		<AbsoluteFill style={{backgroundColor: '#333'}}>
 			<Video
-				src={staticFile('bigbuckbunny.mp4')}
+				src="https://remotion.media/bigbuckbunny.mp4"
 				style={{width: '100%', height: '100%'}}
 				objectFit={objectFit as VideoObjectFit}
 				muted

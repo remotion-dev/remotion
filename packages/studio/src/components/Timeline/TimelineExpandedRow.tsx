@@ -1,5 +1,5 @@
 import React from 'react';
-import type {SequenceSchema, SequencePropsSubscriptionKey} from 'remotion';
+import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
@@ -55,6 +55,7 @@ export const TimelineExpandedRow: React.FC<{
 					nodePathInfo={node.nodePathInfo}
 					effectIndex={node.effectInfo.effectIndex}
 					effectSchema={node.effectInfo.effectSchema}
+					documentationLink={node.effectInfo.documentationLink}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}

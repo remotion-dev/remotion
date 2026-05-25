@@ -1,0 +1,103 @@
+---
+image: /generated/articles-docs-effects-halftone.png
+slug: /effects/halftone
+title: halftone()
+sidebar_label: halftone()
+crumb: '@remotion/effects'
+---
+
+# halftone()<AvailableFrom v="4.0.466" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A halftone effect that turns luminance into a grid of circles, squares, or lines on canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+Use it when you want a printed-dot look while still controlling effect order through the `effects` array.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {halftone} from '@remotion/effects/halftone';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          halftone({
+            shape: 'circle',
+            dotSize: 18,
+            dotSpacing: 20,
+            rotation: 12,
+            color: '#111827',
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `halftone()` without arguments.
+
+### `shape?`
+
+Halftone primitive. Defaults to `'circle'`.
+
+Allowed values are `'circle'`, `'square'`, and `'line'`.
+
+### `dotSize?`
+
+Maximum size of each dot, square, or line in pixels. Defaults to `20`. Must be at least `1`.
+
+### `dotSpacing?`
+
+Distance between adjacent grid centers in pixels. Defaults to the value of `dotSize`. Must be at least `1`.
+
+Increase this value beyond `dotSize` to create more negative space between dots.
+
+### `rotation?`
+
+Rotation of the grid in degrees. Defaults to `0`.
+
+### `offsetX?`
+
+Horizontal grid offset in pixels. Defaults to `0`.
+
+### `offsetY?`
+
+Vertical grid offset in pixels. Defaults to `0`.
+
+### `sampling?`
+
+Texture sampling mode used when reading luminance from the source. Defaults to `'bilinear'`.
+
+Allowed values are `'bilinear'` and `'nearest'`.
+
+### `color?`
+
+Color of the dots. Defaults to `'black'`.
+
+### `invert?`
+
+When `false`, darker areas produce larger dots. When `true`, brighter and transparent areas produce larger dots. Defaults to `false`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`halftone()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`grayscale()`](/docs/effects/grayscale)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/halftone.ts)

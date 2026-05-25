@@ -73,6 +73,10 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
+	readonly _remotionInternalDocumentationLink?: string;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	readonly _remotionInternalIsPremounting?: boolean;
 	/**
 	 * @deprecated For internal use only.
@@ -81,10 +85,15 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
-	readonly _remotionInternalIsMedia?: {
-		type: 'video' | 'audio';
-		data: BasicMediaInTimelineReturnType;
-	};
+	readonly _remotionInternalIsMedia?:
+		| {
+				type: 'video' | 'audio';
+				data: BasicMediaInTimelineReturnType;
+		  }
+		| {
+				type: 'image';
+				src: string;
+		  };
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -108,6 +117,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalEffects,
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
+		_remotionInternalDocumentationLink: documentationLink,
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
@@ -224,6 +234,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		return name ?? '';
 	}, [name]);
 
+	const resolvedDocumentationLink =
+		documentationLink ??
+		(name === undefined ? 'https://www.remotion.dev/docs/sequence' : null);
+
 	const env = useRemotionEnvironment();
 
 	const inheritedStack = (other as any)?.stack ?? null;
@@ -238,28 +252,52 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 
 		if (isMedia) {
-			registerSequence({
-				type: isMedia.type,
-				controls: controls ?? null,
-				effects: _remotionInternalEffects ?? [],
-				displayName: timelineClipName,
-				doesVolumeChange: isMedia.data.doesVolumeChange,
-				duration: actualDurationInFrames,
-				from,
-				id,
-				loopDisplay,
-				nonce: nonce.get(),
-				parent: parentSequence?.id ?? null,
-				playbackRate: isMedia.data.playbackRate,
-				postmountDisplay: postmountDisplay ?? null,
-				premountDisplay: premountDisplay ?? null,
-				rootId,
-				showInTimeline,
-				src: isMedia.data.src,
-				getStack: () => stackRef.current,
-				startMediaFrom: isMedia.data.startMediaFrom,
-				volume: isMedia.data.volumes,
-			});
+			if (isMedia.type === 'image') {
+				registerSequence({
+					type: 'image',
+					controls: controls ?? null,
+					effects: _remotionInternalEffects ?? [],
+					displayName: timelineClipName,
+					documentationLink: resolvedDocumentationLink,
+					duration: actualDurationInFrames,
+					from,
+					id,
+					loopDisplay,
+					nonce: nonce.get(),
+					parent: parentSequence?.id ?? null,
+					postmountDisplay: postmountDisplay ?? null,
+					premountDisplay: premountDisplay ?? null,
+					rootId,
+					showInTimeline,
+					src: isMedia.src,
+					getStack: () => stackRef.current,
+				});
+			} else {
+				registerSequence({
+					type: isMedia.type,
+					controls: controls ?? null,
+					effects: _remotionInternalEffects ?? [],
+					displayName: timelineClipName,
+					documentationLink: resolvedDocumentationLink,
+					doesVolumeChange: isMedia.data.doesVolumeChange,
+					duration: actualDurationInFrames,
+					from,
+					id,
+					loopDisplay,
+					nonce: nonce.get(),
+					parent: parentSequence?.id ?? null,
+					playbackRate: isMedia.data.playbackRate,
+					postmountDisplay: postmountDisplay ?? null,
+					premountDisplay: premountDisplay ?? null,
+					rootId,
+					showInTimeline,
+					src: isMedia.data.src,
+					getStack: () => stackRef.current,
+					startMediaFrom: isMedia.data.startMediaFrom,
+					volume: isMedia.data.volumes,
+				});
+			}
+
 			return () => {
 				unregisterSequence(id);
 			};
@@ -270,6 +308,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			duration: actualDurationInFrames,
 			id,
 			displayName: timelineClipName,
+			documentationLink: resolvedDocumentationLink,
 			parent: parentSequence?.id ?? null,
 			type: 'sequence',
 			rootId,
@@ -305,6 +344,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		controls,
 		_remotionInternalEffects,
 		isMedia,
+		resolvedDocumentationLink,
 	]);
 
 	// Ceil to support floats

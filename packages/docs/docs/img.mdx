@@ -84,7 +84,27 @@ Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delay
 Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.  
 Prefer the [`maxRetries`](#maxretries) prop over this.
 
-## Other props
+### Inherited props<AvailableFrom v="4.0.465" />
+
+`<Img>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
+
+:::note
+You can still wrap `<Img>` in an outer [`<Sequence>`](/docs/sequence). Timing [cascades](/docs/sequence#cascading) like nested sequences.
+:::
+
+```tsx twoslash title="Clip starting at frame 30, lasting 90 frames"
+import {AbsoluteFill, Img, staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Img from={30} durationInFrames={90} src={staticFile('hi.png')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### Other props
 
 Remotion inherits the props of the regular `<img>` tag, like for example `style`.
 

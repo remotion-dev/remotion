@@ -119,7 +119,6 @@ export const setupBlur = (target: HTMLCanvasElement): BlurState => {
 	}
 
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 	const programHorizontal = createProgram(gl, BLUR_VS, BLUR_FS_HORIZONTAL);
 	const programVertical = createProgram(gl, BLUR_VS, BLUR_FS_VERTICAL);
@@ -256,26 +255,29 @@ type ApplyBlurParams = {
 	readonly width: number;
 	readonly height: number;
 	readonly radius: number;
+	readonly horizontal: boolean;
+	readonly vertical: boolean;
+	readonly flipSourceY: boolean;
 };
 
-export const applyBlur = ({
-	state,
+const uploadBlurSource = ({
+	gl,
+	textureSource,
 	source,
+	textureIntermediate,
 	width,
 	height,
-	radius,
-}: ApplyBlurParams): void => {
-	const {
-		gl,
-		programHorizontal,
-		programVertical,
-		textureSource,
-		textureIntermediate,
-		framebuffer,
-	} = state;
-
-	gl.viewport(0, 0, width, height);
-
+	flipSourceY,
+}: {
+	gl: WebGL2RenderingContext;
+	textureSource: WebGLTexture;
+	source: CanvasImageSource;
+	textureIntermediate: WebGLTexture;
+	width: number;
+	height: number;
+	flipSourceY: boolean;
+}): void => {
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
 	gl.bindTexture(gl.TEXTURE_2D, textureSource);
 	gl.texImage2D(
 		gl.TEXTURE_2D,
@@ -299,38 +301,109 @@ export const applyBlur = ({
 		null,
 	);
 	gl.bindTexture(gl.TEXTURE_2D, null);
+};
+
+export const applyBlur = ({
+	state,
+	source,
+	width,
+	height,
+	radius,
+	horizontal,
+	vertical,
+	flipSourceY,
+}: ApplyBlurParams): void => {
+	const {
+		gl,
+		programHorizontal,
+		programVertical,
+		textureSource,
+		textureIntermediate,
+		framebuffer,
+	} = state;
+
+	gl.viewport(0, 0, width, height);
+
+	uploadBlurSource({
+		gl,
+		textureSource,
+		source,
+		textureIntermediate,
+		width,
+		height,
+		flipSourceY,
+	});
 
 	gl.clearColor(0, 0, 0, 0);
 
-	// Pass 1: horizontal blur from `textureSource` into `textureIntermediate`.
-	gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+	if (!horizontal && !vertical) {
+		// Passthrough: relies on the `uRadius <= 0.0` early-out in
+		// `blur-shaders.ts` to forward the source texture unchanged.
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, textureSource);
+		gl.useProgram(programVertical);
+		setBlurUniforms({
+			gl,
+			uniforms: state.vertical,
+			radius: 0,
+			width,
+			height,
+		});
+		drawFullscreenQuad(state);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		gl.useProgram(null);
+		return;
+	}
+
+	if (horizontal && vertical) {
+		// Pass 1: horizontal blur from `textureSource` into `textureIntermediate`.
+		gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, textureSource);
+		gl.useProgram(programHorizontal);
+		setBlurUniforms({
+			gl,
+			uniforms: state.horizontal,
+			radius,
+			width,
+			height,
+		});
+		drawFullscreenQuad(state);
+
+		// Pass 2: vertical blur from `textureIntermediate` onto the default framebuffer.
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.bindTexture(gl.TEXTURE_2D, textureIntermediate);
+		gl.useProgram(programVertical);
+		setBlurUniforms({
+			gl,
+			uniforms: state.vertical,
+			radius,
+			width,
+			height,
+		});
+		drawFullscreenQuad(state);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		gl.useProgram(null);
+		return;
+	}
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.clear(gl.COLOR_BUFFER_BIT);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, textureSource);
-	gl.useProgram(programHorizontal);
+	gl.useProgram(horizontal ? programHorizontal : programVertical);
 	setBlurUniforms({
 		gl,
-		uniforms: state.horizontal,
+		uniforms: horizontal ? state.horizontal : state.vertical,
 		radius,
 		width,
 		height,
 	});
 	drawFullscreenQuad(state);
-
-	// Pass 2: vertical blur from `textureIntermediate` onto the default framebuffer.
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	gl.clear(gl.COLOR_BUFFER_BIT);
-	gl.bindTexture(gl.TEXTURE_2D, textureIntermediate);
-	gl.useProgram(programVertical);
-	setBlurUniforms({
-		gl,
-		uniforms: state.vertical,
-		radius,
-		width,
-		height,
-	});
-	drawFullscreenQuad(state);
-
 	gl.bindTexture(gl.TEXTURE_2D, null);
 	gl.useProgram(null);
 };

@@ -2,9 +2,11 @@ import fs from 'fs';
 import {
 	ORIGINAL_CONTENT_FILE,
 	ORIGINAL_ERROR_OVERLAY_E2E_FILE,
+	ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE,
 	ORIGINAL_LOST_NODE_PATH_E2E_FILE,
 	ORIGINAL_VISUAL_CONTROLS_FILE,
 	errorOverlayE2eFile,
+	hookOrderChangeE2eFile,
 	lostNodePathE2eFile,
 	rootFile,
 	visualControlsFile,
@@ -38,5 +40,13 @@ export default async function globalTeardown(): Promise<void> {
 			fs.readFileSync(ORIGINAL_ERROR_OVERLAY_E2E_FILE, 'utf-8'),
 		);
 		fs.unlinkSync(ORIGINAL_ERROR_OVERLAY_E2E_FILE);
+	}
+
+	if (fs.existsSync(ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE)) {
+		fs.writeFileSync(
+			hookOrderChangeE2eFile,
+			fs.readFileSync(ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE, 'utf-8'),
+		);
+		fs.unlinkSync(ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE);
 	}
 }

@@ -1,22 +1,14 @@
 import React, {useContext, useMemo} from 'react';
-import type {CodeValues} from 'remotion';
-import {Internals, type TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {
-	SequenceNodePathInfo,
-	TrackWithHash,
-} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
-	getExpandedTrackHeight,
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
-import {
-	ExpandedTracksGetterContext,
-	type GetIsExpanded,
-} from '../ExpandedTracksProvider';
+import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
+import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
 import {TimelineSequence} from './TimelineSequence';
 import {TimelineTimePadding} from './TimelineTimeIndicators';
 
@@ -30,34 +22,12 @@ const timelineContent: React.CSSProperties = {
 	minHeight: '100%',
 };
 
-const getExpandedPlaceholderStyle = ({
-	sequence,
-	nodePathInfo,
-	getIsExpanded,
-	codeValues,
-}: {
-	sequence: TSequence;
-	nodePathInfo: SequenceNodePathInfo;
-	getIsExpanded: GetIsExpanded;
-	codeValues: CodeValues;
-}): React.CSSProperties => ({
-	height:
-		getExpandedTrackHeight({
-			sequence,
-			nodePathInfo,
-			getIsExpanded,
-			codeValues,
-		}) + TIMELINE_ITEM_BORDER_BOTTOM,
-});
-
 const TimelineTracksInner: React.FC<{
 	readonly timeline: TrackWithHash[];
 	readonly hasBeenCut: boolean;
 }> = ({timeline, hasBeenCut}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
-
 	const previewServerConnected = previewServerState.type === 'connected';
 
 	const timelineStyle: React.CSSProperties = useMemo(() => {
@@ -86,13 +56,9 @@ const TimelineTracksInner: React.FC<{
 								<TimelineSequence s={track.sequence} />
 							</div>
 							{isExpanded && track.nodePathInfo && previewServerConnected ? (
-								<div
-									style={getExpandedPlaceholderStyle({
-										sequence: track.sequence,
-										nodePathInfo: track.nodePathInfo,
-										getIsExpanded,
-										codeValues,
-									})}
+								<TimelineExpandedTrackKeyframes
+									sequence={track.sequence}
+									nodePathInfo={track.nodePathInfo}
 								/>
 							) : null}
 						</div>

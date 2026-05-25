@@ -1,15 +1,10 @@
 import {parseMedia} from '@remotion/media-parser';
 import {StudioInternals} from '@remotion/studio';
-import {
-	CalculateMetadataFunction,
-	OffthreadVideo,
-	Series,
-	staticFile,
-} from 'remotion';
+import {CalculateMetadataFunction, OffthreadVideo, Series} from 'remotion';
 
 const fps = 30;
 const sources = [
-	staticFile('bigbuckbunny.mp4'),
+	'https://remotion.media/bigbuckbunny.mp4',
 	'https://remotion.media/video.mp4',
 ];
 

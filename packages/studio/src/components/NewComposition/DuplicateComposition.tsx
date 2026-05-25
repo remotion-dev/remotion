@@ -47,6 +47,7 @@ const DuplicateCompositionLoaded: React.FC<{
 	}
 
 	const {resolved, unresolved} = context;
+	const compositionStack = unresolved.stack ?? null;
 
 	const [initialCompType] = useState<CompType>(initialType);
 
@@ -367,6 +368,7 @@ const DuplicateCompositionLoaded: React.FC<{
 						genericSubmitLabel={'Duplicate'}
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
 						codemod={codemod}
+						stack={compositionStack}
 						valid={valid}
 						onSuccess={onDuplicateSuccess}
 					/>

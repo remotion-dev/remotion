@@ -45,6 +45,7 @@ import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
+import {FilmIcon} from '../../icons/video';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
@@ -86,8 +87,9 @@ import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
 import {RenderModalAudio} from './RenderModalAudio';
 import {RenderModalBasic} from './RenderModalBasic';
+import {RenderModalEncoding, type QualityControl} from './RenderModalEncoding';
+import {RenderModalEnvironmentVariables} from './RenderModalEnvironmentVariables';
 import {RenderModalGif} from './RenderModalGif';
-import type {QualityControl} from './RenderModalPicture';
 import {RenderModalPicture} from './RenderModalPicture';
 import {
 	ResolveCompositionBeforeModal,
@@ -160,6 +162,7 @@ type RenderModalProps = {
 	readonly initialEnforceAudioTrack: boolean;
 	readonly initialProResProfile: _InternalTypes['ProResProfile'] | null;
 	readonly initialx264Preset: X264Preset;
+	readonly initialGopSize: number | null;
 	readonly initialPixelFormat: PixelFormat | null;
 	readonly initialVideoBitrate: string | null;
 	readonly initialAudioBitrate: string | null;
@@ -215,6 +218,7 @@ const RenderModal: React.FC<
 	initialEnforceAudioTrack,
 	initialProResProfile,
 	initialx264Preset,
+	initialGopSize,
 	initialPixelFormat,
 	initialVideoBitrate,
 	initialAudioBitrate,
@@ -417,6 +421,7 @@ const RenderModal: React.FC<
 	const [x264PresetSetting, setx264Preset] = useState<X264Preset>(
 		() => initialx264Preset,
 	);
+	const [gopSize, setGopSize] = useState<number | null>(() => initialGopSize);
 	const [hardwareAcceleration, setHardwareAcceleration] =
 		useState<HardwareAccelerationOption>(() => initialHardwareAcceleration);
 
@@ -841,6 +846,7 @@ const RenderModal: React.FC<
 				hardwareAcceleration !== 'required'
 					? crf
 					: null,
+			gopSize,
 			endFrame,
 			startFrame,
 			muted,
@@ -920,6 +926,7 @@ const RenderModal: React.FC<
 		beepOnFinish,
 		repro,
 		forSeamlessAacConcatenation,
+		gopSize,
 		separateAudioTo,
 		setSelectedModal,
 		metadata,
@@ -1215,6 +1222,7 @@ const RenderModal: React.FC<
 				hardwareAcceleration !== 'required'
 					? crf
 					: null,
+			gopSize,
 			videoBitrate,
 			audioBitrate,
 			audioCodec,
@@ -1269,6 +1277,7 @@ const RenderModal: React.FC<
 		everyNthFrame,
 		frame,
 		forSeamlessAacConcatenation,
+		gopSize,
 		hardwareAcceleration,
 		headless,
 		ignoreCertificateErrors,
@@ -1477,6 +1486,30 @@ const RenderModal: React.FC<
 							GIF
 						</VerticalTab>
 					) : null}
+					{shownTabs.includes('encoding') ? (
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'encoding'}
+							onClick={() => setTab('encoding')}
+						>
+							<div style={iconContainer}>
+								<FilmIcon style={icon} color="currentcolor" />
+							</div>
+							Encoding
+						</VerticalTab>
+					) : null}
+					{shownTabs.includes('environment') ? (
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'environment'}
+							onClick={() => setTab('environment')}
+						>
+							<div style={iconContainer}>
+								<DataIcon style={icon} />
+							</div>
+							Environment
+						</VerticalTab>
+					) : null}
 					{shownTabs.includes('advanced') ? (
 						<VerticalTab
 							style={horizontalTab}
@@ -1520,30 +1553,11 @@ const RenderModal: React.FC<
 							renderMode={renderMode}
 							scale={scale}
 							setScale={setScale}
-							pixelFormat={pixelFormat}
-							pixelFormatOptions={pixelFormatOptions}
 							imageFormatOptions={imageFormatOptions}
-							crf={crf}
-							setCrf={setCrf}
-							customTargetVideoBitrate={customTargetVideoBitrate}
-							maxCrf={maxCrf}
-							minCrf={minCrf}
 							jpegQuality={jpegQuality}
-							qualityControlType={qualityControlType}
 							setJpegQuality={setJpegQuality}
-							setColorSpace={setColorSpace}
-							colorSpace={colorSpace}
-							setCustomTargetVideoBitrateValue={
-								setCustomTargetVideoBitrateValue
-							}
-							setQualityControl={setQualityControl}
 							videoImageFormat={videoImageFormat}
 							stillImageFormat={stillImageFormat}
-							shouldDisplayQualityControlPicker={supportsBothQualityControls}
-							encodingBufferSize={encodingBufferSize}
-							setEncodingBufferSize={setEncodingBufferSize}
-							encodingMaxRate={encodingMaxRate}
-							setEncodingMaxRate={setEncodingMaxRate}
 							compositionWidth={resolvedComposition.width}
 							compositionHeight={resolvedComposition.height}
 						/>
@@ -1584,6 +1598,43 @@ const RenderModal: React.FC<
 							setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
 							setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
 						/>
+					) : tab === 'encoding' ? (
+						<RenderModalEncoding
+							renderMode={renderMode}
+							codec={codec}
+							qualityControlType={qualityControlType}
+							setQualityControl={setQualityControl}
+							shouldDisplayQualityControlPicker={supportsBothQualityControls}
+							crf={crf}
+							setCrf={setCrf}
+							maxCrf={maxCrf}
+							minCrf={minCrf}
+							customTargetVideoBitrate={customTargetVideoBitrate}
+							setCustomTargetVideoBitrateValue={
+								setCustomTargetVideoBitrateValue
+							}
+							encodingBufferSize={encodingBufferSize}
+							setEncodingBufferSize={setEncodingBufferSize}
+							encodingMaxRate={encodingMaxRate}
+							setEncodingMaxRate={setEncodingMaxRate}
+							pixelFormat={pixelFormat}
+							pixelFormatOptions={pixelFormatOptions}
+							colorSpace={colorSpace}
+							setColorSpace={setColorSpace}
+							x264Preset={x264Preset}
+							setx264Preset={setx264Preset}
+							gopSize={gopSize}
+							setGopSize={setGopSize}
+							hardwareAcceleration={hardwareAcceleration}
+							setHardwareAcceleration={setHardwareAcceleration}
+							disallowParallelEncoding={disallowParallelEncoding}
+							setDisallowParallelEncoding={setDisallowParallelEncoding}
+						/>
+					) : tab === 'environment' ? (
+						<RenderModalEnvironmentVariables
+							envVariables={envVariables}
+							setEnvVariables={setEnvVariables}
+						/>
 					) : tab === 'data' ? (
 						<DataEditor
 							defaultProps={inputProps}
@@ -1598,8 +1649,6 @@ const RenderModal: React.FC<
 						/>
 					) : (
 						<RenderModalAdvanced
-							x264Preset={x264Preset}
-							setx264Preset={setx264Preset}
 							concurrency={concurrency}
 							maxConcurrency={maxConcurrency}
 							minConcurrency={minConcurrency}
@@ -1607,8 +1656,6 @@ const RenderModal: React.FC<
 							setConcurrency={setConcurrency}
 							delayRenderTimeout={delayRenderTimeout}
 							setDelayRenderTimeout={setDelayRenderTimeout}
-							disallowParallelEncoding={disallowParallelEncoding}
-							setDisallowParallelEncoding={setDisallowParallelEncoding}
 							setDisableWebSecurity={setDisableWebSecurity}
 							setIgnoreCertificateErrors={setIgnoreCertificateErrors}
 							setHeadless={setHeadless}
@@ -1617,8 +1664,6 @@ const RenderModal: React.FC<
 							disableWebSecurity={disableWebSecurity}
 							openGlOption={openGlOption}
 							setOpenGlOption={setOpenGlOption}
-							setEnvVariables={setEnvVariables}
-							envVariables={envVariables}
 							offthreadVideoCacheSizeInBytes={offthreadVideoCacheSizeInBytes}
 							setMediaCacheSizeInBytes={setMediaCacheSizeInBytes}
 							mediaCacheSizeInBytes={mediaCacheSizeInBytes}
@@ -1629,15 +1674,12 @@ const RenderModal: React.FC<
 							setOffthreadVideoThreads={setOffthreadVideoThreads}
 							enableMultiProcessOnLinux={multiProcessOnLinux}
 							setChromiumMultiProcessOnLinux={setChromiumMultiProcessOnLinux}
-							codec={codec}
 							userAgent={userAgent}
 							setUserAgent={setUserAgent}
 							setBeep={setBeepOnFinish}
 							beep={beepOnFinish}
 							repro={repro}
 							setRepro={setRepro}
-							hardwareAcceleration={hardwareAcceleration}
-							setHardwareAcceleration={setHardwareAcceleration}
 							chromeModeOption={chromeMode}
 							setChromeModeOption={setChromeMode}
 							darkMode={darkMode}

@@ -193,6 +193,7 @@ const linkProgram = (
 const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 	type: 'remotion/light-leak',
 	label: 'Light leak',
+	documentationLink: 'https://www.remotion.dev/docs/light-leaks/light-leak',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
@@ -209,7 +210,6 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 		}
 
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 		const vs = compileShader(gl, gl.VERTEX_SHADER, LIGHT_LEAK_VS);
 		const fs = compileShader(gl, gl.FRAGMENT_SHADER, LIGHT_LEAK_FS);
@@ -270,7 +270,7 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 			uResolution: gl.getUniformLocation(program, 'resolution'),
 		};
 	},
-	apply: ({source, width, height, params, state}) => {
+	apply: ({source, width, height, params, state, flipSourceY}) => {
 		const r = resolve(params);
 
 		if (typeof r.seed !== 'number' || !Number.isFinite(r.seed)) {
@@ -320,6 +320,7 @@ const lightLeak = createEffect<LightLeakEffectParams, LightLeakGlState>({
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
 		gl.texImage2D(
 			gl.TEXTURE_2D,
 			0,

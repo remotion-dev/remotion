@@ -104,7 +104,8 @@ export const usePlayback = ({
 		}
 
 		const callback = () => {
-			if (audioContext.state !== 'running') {
+			const newState = sharedAudioContext?.getAudioContextState();
+			if (newState !== 'running') {
 				setGlobalTimeAnchor({
 					audioContext,
 					audioSyncAnchor: sharedAudioContext.audioSyncAnchor,

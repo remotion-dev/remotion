@@ -1,17 +1,14 @@
-import {EffectInternals} from '@remotion/effects';
+import {blur} from '@remotion/effects/blur';
+import {halftone} from '@remotion/effects/halftone';
+import {tint} from '@remotion/effects/tint';
+import {wave} from '@remotion/effects/wave';
 import {LightLeakInternals} from '@remotion/light-leaks';
 import {Video} from '@remotion/media';
 import {StarburstInternals} from '@remotion/starburst';
 import React from 'react';
-import {
-	AbsoluteFill,
-	Solid,
-	staticFile,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {AbsoluteFill, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 
-const SAMPLE_VIDEO = staticFile('bigbuckbunny.mp4');
+const SAMPLE_VIDEO = 'https://remotion.media/bigbuckbunny.mp4';
 
 const Tile: React.FC<{
 	readonly title: string;
@@ -82,7 +79,7 @@ const tileVideoStyle: React.CSSProperties = {
 
 const AnimatedWaveVideo: React.FC = () => {
 	const frame = useCurrentFrame();
-	const evolution = frame * 0.2;
+	const phase = frame * 0.2;
 
 	return (
 		<Video
@@ -92,12 +89,10 @@ const AnimatedWaveVideo: React.FC = () => {
 			loop
 			objectFit="cover"
 			effects={[
-				EffectInternals.wave({
+				wave({
+					phase,
 					amplitude: 22,
 					wavelength: 180,
-					evolution,
-					sliceWidth: 4,
-					background: '#020617',
 				}),
 			]}
 		/>
@@ -128,7 +123,7 @@ const AnimatedLightLeakSolid: React.FC = () => {
 
 const AnimatedStackVideo: React.FC = () => {
 	const frame = useCurrentFrame();
-	const evolution = frame * 0.2;
+	const phase = frame * 0.2;
 
 	return (
 		<Video
@@ -142,13 +137,11 @@ const AnimatedStackVideo: React.FC = () => {
 					colors: ['#ff5fa2', '#ff0000'],
 					rays: 12,
 				}),
-				EffectInternals.blur({radius: 24}),
-				EffectInternals.wave({
+				blur({radius: 24}),
+				wave({
+					phase,
 					amplitude: 22,
 					wavelength: 180,
-					evolution,
-					sliceWidth: 4,
-					background: '#020617',
 				}),
 			]}
 		/>
@@ -184,7 +177,7 @@ export const EffectsTestbed: React.FC = () => {
 						muted
 						loop
 						objectFit="cover"
-						effects={[EffectInternals.tint({color: '#ff5fa2', amount: 0.6})]}
+						effects={[tint({color: '#ff5fa2', amount: 0.6})]}
 					/>
 				</Tile>
 				<Tile title="halftone" subtitle="circles, dotSize 12, on luminance">
@@ -195,7 +188,7 @@ export const EffectsTestbed: React.FC = () => {
 						loop
 						objectFit="cover"
 						effects={[
-							EffectInternals.halftone({
+							halftone({
 								shape: 'circle',
 								dotSize: 12,
 								dotSpacing: 12,
@@ -204,7 +197,7 @@ export const EffectsTestbed: React.FC = () => {
 						]}
 					/>
 				</Tile>
-				<Tile title="wave" subtitle="amplitude 22, evolution from frame">
+				<Tile title="wave" subtitle="amplitude 22, phase from frame">
 					<AnimatedWaveVideo />
 				</Tile>
 			</div>
@@ -216,7 +209,7 @@ export const EffectsTestbed: React.FC = () => {
 						muted
 						loop
 						objectFit="cover"
-						effects={[EffectInternals.blur({radius: 24})]}
+						effects={[blur({radius: 24})]}
 					/>
 				</Tile>
 				<Tile title="solid" subtitle="light leak, progress from frame">

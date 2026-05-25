@@ -173,6 +173,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
 		loopDisplay: undefined,
+		documentationLink:
+			name === undefined
+				? onlyWarnForMediaSeekingError
+					? 'https://www.remotion.dev/docs/offthreadvideo'
+					: 'https://www.remotion.dev/docs/html5-video'
+				: null,
 	});
 
 	// putting playback before useVolume

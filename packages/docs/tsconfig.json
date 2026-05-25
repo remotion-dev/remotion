@@ -27,6 +27,7 @@
 		{"path": "../core"},
 		{"path": "../media-utils"},
 		{"path": "../docusaurus-plugin"},
+		{"path": "../effects"},
 		{"path": "../babel-loader"},
 		{"path": "../cloudrun"},
 		{"path": "../create-video"},

@@ -13,23 +13,30 @@ import {
 	WipeDemo,
 } from '../transitions/previews';
 import {ArrowDemo} from './Arrow';
+import {BookFlipDocsDemo} from './BookFlipDemo';
 import {CircleDemo} from './Circle';
+import {CrosswarpDocsDemo} from './CrosswarpDemo';
+import {DissolveDocsDemo} from './DissolveDemo';
+import {DreamyZoomDocsDemo} from './DreamyZoomDemo';
 import {EllipseDemo} from './Ellipse';
 import {HeartDemo} from './Heart';
 import {HtmlInCanvasDocsDemo2DBlur} from './HtmlInCanvasDocsDemo2DBlur';
 import {HtmlInCanvasDocsDemoWebGL} from './HtmlInCanvasDocsDemoWebGL';
 import {HtmlInCanvasDocsDemoWebGPU} from './HtmlInCanvasDocsDemoWebGPU';
 import {LightLeakDemoComp} from './LightLeakDemo';
+import {LinearBlurDocsDemo} from './LinearBlurDemo';
 import {NoiseComp} from './NoiseDemo';
 import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
 import {RectDemo} from './Rect';
+import {RippleDocsDemo} from './RippleDemo';
 import {RoundedTextBox} from './RoundedTextBox';
 import {ShaderDemoComp} from './ShaderDemo';
 import {SpringDemo} from './Spring';
 import {StarDemo} from './Star';
 import {StarburstDemoComp} from './StarburstDemo';
 import {AnimationMath} from './SubtractAnimations';
+import {SwapDocsDemo} from './SwapDemo';
 import {TransitionSeriesEnterExitDemoComp} from './TransitionSeriesEnterExitDemo';
 import {TransitionSeriesOverlayDemoComp} from './TransitionSeriesOverlayDemo';
 import {TransitionSeriesTransitionDemoComp} from './TransitionSeriesTransitionDemo';
@@ -934,6 +941,32 @@ export const zoomBlurPresentationDemo: DemoType = {
 	options: [],
 };
 
+export const dreamyZoomPresentationDemo: DemoType = {
+	comp: DreamyZoomDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'dreamy-zoom',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const linearBlurPresentationDemo: DemoType = {
+	comp: LinearBlurDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'linear-blur',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
 export const zoomInOutPresentationDemo: DemoType = {
 	comp: ZoomInOutDocsDemo,
 	compHeight: 1080,
@@ -941,6 +974,71 @@ export const zoomInOutPresentationDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'zoom-in-out',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const bookFlipPresentationDemo: DemoType = {
+	comp: BookFlipDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'book-flip',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const dissolvePresentationDemo: DemoType = {
+	comp: DissolveDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'dissolve',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const ripplePresentationDemo: DemoType = {
+	comp: RippleDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'ripple',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const crosswarpPresentationDemo: DemoType = {
+	comp: CrosswarpDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'crosswarp',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const swapPresentationDemo: DemoType = {
+	comp: SwapDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'swap',
 	autoPlay: true,
 	controls: false,
 	logLevel: 'info',

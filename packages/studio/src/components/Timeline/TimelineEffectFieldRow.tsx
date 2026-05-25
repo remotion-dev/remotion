@@ -7,6 +7,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
+import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {enqueueSavePropChange} from './save-prop-queue';
 import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -181,7 +182,7 @@ const Value: React.FC<{
 
 	if (propStatus === null || !propStatus.canUpdate) {
 		if (propStatus?.reason === 'computed') {
-			return <UnsupportedStatus label="computed" />;
+			return <UnsupportedStatus label={getComputedStatusLabel(propStatus)} />;
 		}
 
 		return null;

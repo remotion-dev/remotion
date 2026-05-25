@@ -48,17 +48,38 @@ import {
 	HlsMediaVideoTrimmed,
 } from './Hls/HlsMediaVideo';
 import {
+	BookFlipTransitionDoc,
+	BookFlipTransitionDocThumb,
+	CrosswarpTransitionDoc,
+	CrosswarpTransitionDocThumb,
+	DissolveTransitionDoc,
+	DissolveTransitionDocThumb,
+	EffectsBlurPreview,
+	EffectsBrightnessPreview,
+	EffectsGrayscalePreview,
+	EffectsHalftonePreview,
+	EffectsHuePreview,
+	EffectsInvertPreview,
+	EffectsSaturationPreview,
+	EffectsTintPreview,
+	EffectsWavePreview,
 	HtmlInCanvasComplexText,
 	HtmlInCanvasComposeAsyncBitmap,
 	HtmlInCanvasComposeWebGL,
 	HtmlInCanvasComposeWebGLCrt,
 	HtmlInCanvasComposeWebGPU,
+	HtmlInCanvasDemo,
+	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
-	HtmlInCanvasDocsDemo2DBlur,
-	HtmlInCanvasDemo,
+	LinearBlurTransitionDoc,
+	LinearBlurTransitionDocThumb,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
+	RippleTransitionDoc,
+	RippleTransitionDocThumb,
+	SwapTransitionDoc,
+	SwapTransitionDocThumb,
 	ZoomBlurTransitionDoc,
 	ZoomBlurTransitionDocThumb,
 	ZoomInOutTransitionDoc,
@@ -113,8 +134,8 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
-import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import './style.css';
+import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
@@ -187,6 +208,7 @@ import {
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {PrintProps} from './PrintProps';
 import {SfxExample} from './Sfx';
+import {CanvasImg} from './SimpleImg/CanvasImg';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {SpringSeason} from './SpringSeason';
 import {StarburstExample} from './Starburst';
@@ -336,6 +358,16 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Folder name="copilot-tests">
+				<Composition
+					id="keyframed-props-test"
+					lazyComponent={() => import('./KeyframedPropsTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+			</Folder>
 			<Folder name="dynamic-parameters">
 				<Composition
 					id="dynamic-length"
@@ -510,6 +542,14 @@ export const Index: React.FC = () => {
 					durationInFrames={10}
 				/>
 				<Composition
+					id="canvas-img"
+					component={CanvasImg}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
+				/>
+				<Composition
 					id="missing-img"
 					component={MissingImg}
 					width={1080}
@@ -541,7 +581,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={10}
 				/>
-
 				<Composition
 					id="framer"
 					component={Framer}
@@ -779,7 +818,7 @@ export const Index: React.FC = () => {
 					component={NewAudioExample}
 					fps={30}
 					defaultProps={{
-						src: staticFile('music.mp3'),
+						src: 'https://remotion.media/music.mp3',
 					}}
 					calculateMetadata={async ({props}) => {
 						const fps = 30;
@@ -986,6 +1025,22 @@ export const Index: React.FC = () => {
 						durationInFrames={120}
 					/>
 					<Composition
+						id="book-flip-transition-doc"
+						component={BookFlipTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="book-flip-transition-doc-thumb"
+						component={BookFlipTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
 						id="zoom-blur-transition-doc"
 						component={ZoomBlurTransitionDoc}
 						fps={30}
@@ -1002,6 +1057,102 @@ export const Index: React.FC = () => {
 						durationInFrames={60}
 					/>
 					<Composition
+						id="linear-blur-transition-doc"
+						component={LinearBlurTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="linear-blur-transition-doc-thumb"
+						component={LinearBlurTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="html-in-canvas-effects-brightness-preview"
+						component={EffectsBrightnessPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-blur-preview"
+						component={EffectsBlurPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-grayscale-preview"
+						component={EffectsGrayscalePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-halftone-preview"
+						component={EffectsHalftonePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={2}
+					/>
+					<Composition
+						id="html-in-canvas-effects-hue-preview"
+						component={EffectsHuePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-invert-preview"
+						component={EffectsInvertPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-saturation-preview"
+						component={EffectsSaturationPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-tint-preview"
+						component={EffectsTintPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-wave-preview"
+						component={EffectsWavePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-scale-preview"
+						component={EffectsWavePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
 						id="zoom-in-out-transition-doc"
 						component={ZoomInOutTransitionDoc}
 						fps={30}
@@ -1012,6 +1163,70 @@ export const Index: React.FC = () => {
 					<Composition
 						id="zoom-in-out-transition-doc-thumb"
 						component={ZoomInOutTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="dissolve-transition-doc"
+						component={DissolveTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="dissolve-transition-doc-thumb"
+						component={DissolveTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="ripple-transition-doc"
+						component={RippleTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="ripple-transition-doc-thumb"
+						component={RippleTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="crosswarp-transition-doc"
+						component={CrosswarpTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="crosswarp-transition-doc-thumb"
+						component={CrosswarpTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="swap-transition-doc"
+						component={SwapTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="swap-transition-doc-thumb"
+						component={SwapTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}

@@ -34,6 +34,7 @@ export const createEffect = <P, S>(
 	const {calculateKey: userCalculateKey, validateParams} = definition;
 	const widened: EffectDefinition<unknown, unknown> = {
 		...(definition as unknown as EffectDefinition<unknown, unknown>),
+		documentationLink: definition.documentationLink ?? null,
 		calculateKey: (params: unknown) => {
 			const disabled = (params as {disabled?: boolean}).disabled ?? false;
 			return `${userCalculateKey(params as P)}-disabled-${disabled}`;

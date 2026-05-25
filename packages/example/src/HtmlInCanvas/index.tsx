@@ -1,18 +1,45 @@
-export {HtmlInCanvasComplexText} from './complex-text';
-export {HtmlInCanvasComposeAsyncBitmap} from './compose-async-bitmap';
-export {HtmlInCanvasDocsDemo2DBlur} from './docs-demo-2d-blur';
-export {HtmlInCanvasDocsMinimalWebGL} from './minimal-docs-webgl';
-export {HtmlInCanvasDocsMinimalWebGPU} from './minimal-docs-webgpu';
-export {HtmlInCanvasComposeWebGL} from './compose-webgl';
-export {HtmlInCanvasComposeWebGLCrt} from './compose-webgl-crt';
-export {HtmlInCanvasComposeWebGPU} from './compose-webgpu';
+export {
+	BookFlipTransitionDoc,
+	BookFlipTransitionDocThumb,
+} from './book-flip-doc';
 export {
 	HtmlInCanvasChangingSize,
 	HtmlInCanvasChangingSize as HtmlInCanvasDemo,
 } from './changing-size';
+export {HtmlInCanvasComplexText} from './complex-text';
+export {HtmlInCanvasComposeAsyncBitmap} from './compose-async-bitmap';
+export {HtmlInCanvasComposeWebGL} from './compose-webgl';
+export {HtmlInCanvasComposeWebGLCrt} from './compose-webgl-crt';
+export {HtmlInCanvasComposeWebGPU} from './compose-webgpu';
+export {
+	CrosswarpTransitionDoc,
+	CrosswarpTransitionDocThumb,
+} from './crosswarp-doc';
+export {
+	DissolveTransitionDoc,
+	DissolveTransitionDocThumb,
+} from './dissolve-doc';
+export {HtmlInCanvasDocsDemo2DBlur} from './docs-demo-2d-blur';
+export {EffectsBlurPreview} from './effects-blur-preview';
+export {EffectsBrightnessPreview} from './effects-brightness-preview';
+export {EffectsGrayscalePreview} from './effects-grayscale-preview';
+export {EffectsHalftonePreview} from './effects-halftone-preview';
+export {EffectsHuePreview} from './effects-hue-preview';
+export {EffectsInvertPreview} from './effects-invert-preview';
+export {EffectsSaturationPreview} from './effects-saturation-preview';
+export {EffectsTintPreview} from './effects-tint-preview';
+export {EffectsWavePreview} from './effects-wave-preview';
+export {HtmlInCanvasDocsMinimalWebGL} from './minimal-docs-webgl';
+export {HtmlInCanvasDocsMinimalWebGPU} from './minimal-docs-webgpu';
+export {
+	LinearBlurTransitionDoc,
+	LinearBlurTransitionDocThumb,
+} from './linear-blur-doc';
 export {HtmlInCanvasPrivacy} from './privacy';
 export {HtmlInCanvasReactSvg} from './react-svg';
+export {RippleTransitionDoc, RippleTransitionDocThumb} from './ripple-doc';
 export {HtmlInCanvasScene} from './scene';
+export {SwapTransitionDoc, SwapTransitionDocThumb} from './swap-doc';
 export {
 	ZoomBlurTransitionDoc,
 	ZoomBlurTransitionDocThumb,

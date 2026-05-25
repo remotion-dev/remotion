@@ -16,6 +16,7 @@
   - Categorize PRs into sections: "What's Changed", "Templates", "Docs", "Internal"
   - In "What's Changed", sort items so that entries for the same package are adjacent (no subheadings, just sorted order). Changes to the `remotion` core package should appear first
   - Strip redundant prefixes from PR titles (e.g. remove "Docs:" from items in the Docs section)
+  - Linkify items whose PR added a new documentation page: run `git diff --diff-filter=A --name-only v<previous_version>..v<new_version> -- 'packages/docs/docs/**/*.mdx' 'packages/docs/docs/**/*.md'` to list added docs pages, map each added page to the PR that introduced it, and wrap that item's title in a markdown link to the page (e.g. `* [<title>](https://remotion.dev/docs/<slug>) by @author in <url>`). Determine the URL from the page's `slug:` frontmatter if present, otherwise from its file path relative to `packages/docs/docs/`. Leave items without a new docs page unlinked.
   - "Templates" is a separate section for any template-\* changes
   - Check for genuinely new contributors by running `gh api repos/remotion-dev/remotion/contributors --paginate --jq '.[].login'` and comparing against PR authors. Only add a "New Contributors" section for authors not in that list
   - Add `**Full Changelog**: https://github.com/remotion-dev/remotion/compare/v<previous_version>...v<new_version>` at the bottom

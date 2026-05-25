@@ -29,7 +29,9 @@ export const bg = (r: number, g: number, b: number, str: string) =>
 // Monokai-inspired syntax colors
 export const attrName = (str: string) => fg(166, 226, 46, str);
 export const equals = (str: string) => fg(249, 38, 114, str);
-export const punctuation = (str: string) => fg(248, 248, 242, str);
+// Use the terminal's default foreground color so punctuation is visible in both
+// light and dark terminal themes.
+export const punctuation = (str: string) => str;
 export const stringValue = (str: string) => fg(230, 219, 116, str);
 export const numberValue = (str: string) => fg(174, 129, 255, str);
 export const strikeThrough = (str: string) =>

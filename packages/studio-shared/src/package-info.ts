@@ -227,7 +227,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	starburst: 'Starburst ray effect for Remotion',
 	vercel: 'Render Remotion videos on Vercel Sandbox',
 	sfx: 'Sound effect library',
-	effects: 'Experimental presets for Remotion canvas effect hooks',
+	effects: 'Effects that can be applied to Remotion-based canvas components',
 };
 export const installableMap: {[key in Pkgs]: boolean} = {
 	'svg-3d-engine': false,
@@ -425,5 +425,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	starburst: 'https://www.remotion.dev/docs/starburst',
 	vercel: 'https://www.remotion.dev/docs/vercel/api',
 	sfx: 'https://www.remotion.dev/docs/sfx',
-	effects: null,
+	effects: 'https://www.remotion.dev/docs/effects/api',
 };

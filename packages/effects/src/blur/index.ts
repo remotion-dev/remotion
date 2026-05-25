@@ -4,8 +4,6 @@ import {
 	assertEffectParamsObject,
 	assertRequiredFiniteNumber,
 } from '../validate-effect-param.js';
-
-const {createEffect} = Internals;
 import {
 	applyBlur,
 	cleanupBlur,
@@ -13,9 +11,27 @@ import {
 	type BlurState,
 } from './blur-runtime.js';
 
+const {createEffect} = Internals;
+
 export type BlurParams = {
 	readonly radius: number;
+	/** Apply blur along the horizontal axis. Defaults to `true`. */
+	readonly horizontal?: boolean;
+	/** Apply blur along the vertical axis. Defaults to `true`. */
+	readonly vertical?: boolean;
 };
+
+type BlurResolved = {
+	readonly radius: number;
+	readonly horizontal: boolean;
+	readonly vertical: boolean;
+};
+
+const resolveBlurParams = (params: BlurParams): BlurResolved => ({
+	radius: params.radius,
+	horizontal: params.horizontal ?? true,
+	vertical: params.vertical ?? true,
+});
 
 const blurSchema = {
 	radius: {
@@ -24,7 +40,17 @@ const blurSchema = {
 		max: 100,
 		step: 1,
 		default: undefined,
-		description: 'Blur radius',
+		description: 'Radius',
+	},
+	horizontal: {
+		type: 'boolean',
+		default: true,
+		description: 'Horizontal',
+	},
+	vertical: {
+		type: 'boolean',
+		default: true,
+		description: 'Vertical',
 	},
 } as const satisfies SequenceSchema;
 
@@ -36,16 +62,24 @@ const validateBlurParams = (params: BlurParams): void => {
 export const blur = createEffect<BlurParams, BlurState>({
 	type: 'remotion/blur',
 	label: 'Blur',
+	documentationLink: 'https://www.remotion.dev/docs/effects/blur',
 	backend: 'webgl2',
-	calculateKey: (params) => String(params.radius),
+	calculateKey: (params) => {
+		const r = resolveBlurParams(params);
+		return `${r.radius}-${r.horizontal ? 1 : 0}-${r.vertical ? 1 : 0}`;
+	},
 	setup: (target) => setupBlur(target),
-	apply: ({source, width, height, params, state}) => {
+	apply: ({source, width, height, params, state, flipSourceY}) => {
+		const r = resolveBlurParams(params);
 		applyBlur({
 			state,
 			source,
 			width,
 			height,
-			radius: params.radius,
+			radius: r.radius,
+			horizontal: r.horizontal,
+			vertical: r.vertical,
+			flipSourceY,
 		});
 	},
 	cleanup: (state) => cleanupBlur(state),

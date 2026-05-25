@@ -53,6 +53,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	pixelFormat: PixelFormat | undefined;
 	proResProfile: _InternalTypes['ProResProfile'] | undefined;
 	x264Preset: X264Preset | null;
+	gopSize: number | null;
 	privacy: Privacy;
 	jpegQuality: number;
 	maxRetries: number;
@@ -111,6 +112,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	pixelFormat,
 	proResProfile,
 	x264Preset,
+	gopSize,
 	maxRetries,
 	privacy,
 	logLevel,
@@ -194,6 +196,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		pixelFormat: pixelFormat ?? null,
 		proResProfile: proResProfile ?? null,
 		x264Preset,
+		gopSize,
 		jpegQuality,
 		maxRetries,
 		privacy,

@@ -25,6 +25,7 @@ import {makeMetadataArgs} from './make-metadata-args';
 import type {AudioCodec} from './options/audio-codec';
 import {resolveAudioCodec} from './options/audio-codec';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
+import {validateGopSize} from './options/gop-size';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import type {X264Preset} from './options/x264-preset';
@@ -56,6 +57,7 @@ type InternalStitchFramesToVideoOptions = {
 	codec: Codec;
 	audioCodec: AudioCodec | null;
 	crf: number | null;
+	gopSize: number | null;
 	onProgress?: null | ((progress: number) => void);
 	onDownload: undefined | RenderMediaOnDownload;
 	proResProfile: undefined | _InternalTypes['ProResProfile'];
@@ -90,6 +92,7 @@ export type StitchFramesToVideoOptions = {
 	codec?: Codec;
 	audioCodec?: AudioCodec | null;
 	crf?: number | null;
+	gopSize?: number | null;
 	onProgress?: (progress: number) => void;
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: _InternalTypes['ProResProfile'];
@@ -115,6 +118,7 @@ const innerStitchFramesToVideo = async (
 		cancelSignal,
 		codec,
 		crf,
+		gopSize,
 		enforceAudioTrack,
 		ffmpegOverride,
 		force,
@@ -166,6 +170,7 @@ const innerStitchFramesToVideo = async (
 	validateBitrate(maxRate, 'maxRate');
 	// bufferSize is not a bitrate but need to be validated using the same format
 	validateBitrate(bufferSize, 'bufferSize');
+	validateGopSize(gopSize);
 	validateFps(fps, 'in `stitchFramesToVideo()`', false);
 	assetsInfo.downloadMap.preventCleanup();
 
@@ -369,6 +374,7 @@ const innerStitchFramesToVideo = async (
 			proResProfileName,
 			pixelFormat,
 			x264Preset,
+			gopSize,
 			colorSpace,
 			hardwareAcceleration,
 			indent,
@@ -517,6 +523,7 @@ export const stitchFramesToVideo = ({
 	cancelSignal,
 	codec,
 	crf,
+	gopSize,
 	enforceAudioTrack,
 	ffmpegOverride,
 	muted,
@@ -547,6 +554,7 @@ export const stitchFramesToVideo = ({
 		cancelSignal: cancelSignal ?? null,
 		codec: codec ?? DEFAULT_CODEC,
 		crf: crf ?? null,
+		gopSize: gopSize ?? null,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		ffmpegOverride: ffmpegOverride ?? null,
 		force: force ?? true,

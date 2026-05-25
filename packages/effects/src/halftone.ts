@@ -1,9 +1,11 @@
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
+import {assertOptionalFiniteNumber} from './color-utils.js';
+import {assertEffectParamsObject} from './validate-effect-param.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
-
-const SHADE_OUTSIDE_DOT_SCALE = 0.5;
+const HALFTONE_SHAPES = ['circle', 'square', 'line'] as const;
+const HALFTONE_SAMPLING = ['bilinear', 'nearest'] as const;
 
 export const halftoneSchema = {
 	dotSize: {
@@ -52,10 +54,20 @@ export const halftoneSchema = {
 		default: 'circle' as const,
 		description: 'Shape',
 	},
+	invert: {
+		type: 'boolean',
+		default: false,
+		description: 'Invert',
+	},
+	color: {
+		type: 'color',
+		default: 'black',
+		description: 'Color',
+	},
 } as const satisfies SequenceSchema;
 
-export type HalftoneShape = 'circle' | 'square' | 'line';
-export type HalftoneSampling = 'bilinear' | 'nearest';
+export type HalftoneShape = (typeof HALFTONE_SHAPES)[number];
+export type HalftoneSampling = (typeof HALFTONE_SAMPLING)[number];
 
 export type HalftoneParams = {
 	readonly shape?: HalftoneShape;
@@ -72,12 +84,11 @@ export type HalftoneParams = {
 	/** Dot color. Defaults to black. */
 	readonly color?: string;
 	/**
-	 * When false (default), halftone follows luminance on opaque pixels (classic
-	 * halftone on your subject). When true, the same dot pattern fills transparent
-	 * and low-alpha areas instead—e.g. the canvas around a cut-out shape—while
-	 * leaving the opaque shape mostly free of those dots.
+	 * When false (default), dark areas produce larger dots.
+	 * When true, the pattern is inverted:
+	 * bright and transparent areas produce larger dots instead.
 	 */
-	readonly shadeOutside?: boolean;
+	readonly invert?: boolean;
 };
 
 type HalftoneResolved = {
@@ -89,7 +100,56 @@ type HalftoneResolved = {
 	offsetY: number;
 	sampling: HalftoneSampling;
 	color: string;
-	shadeOutside: boolean;
+	invert: boolean;
+};
+
+const formatEnum = (variants: readonly string[]): string => {
+	if (variants.length === 2) {
+		return `"${variants[0]}" or "${variants[1]}"`;
+	}
+
+	return `${variants
+		.slice(0, -1)
+		.map((variant) => `"${variant}"`)
+		.join(', ')} or "${variants[variants.length - 1]}"`;
+};
+
+const assertOptionalEnum = <T extends string>(
+	value: unknown,
+	name: string,
+	variants: readonly T[],
+): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (typeof value !== 'string' || !variants.includes(value as T)) {
+		throw new TypeError(`"${name}" must be ${formatEnum(variants)}`);
+	}
+};
+
+const assertOptionalBoolean = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (typeof value !== 'boolean') {
+		throw new TypeError(
+			`"${name}" must be a boolean, but got ${JSON.stringify(value)}`,
+		);
+	}
+};
+
+const assertOptionalColor = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (typeof value !== 'string' || value.length === 0) {
+		throw new TypeError(
+			`"${name}" must be a non-empty string, but got ${JSON.stringify(value)}`,
+		);
+	}
 };
 
 const resolve = (p: HalftoneParams): HalftoneResolved => ({
@@ -101,8 +161,33 @@ const resolve = (p: HalftoneParams): HalftoneResolved => ({
 	offsetY: p.offsetY ?? 0,
 	sampling: p.sampling ?? 'bilinear',
 	color: p.color ?? 'black',
-	shadeOutside: p.shadeOutside ?? false,
+	invert: p.invert ?? false,
 });
+
+const validateHalftoneParams = (params: HalftoneParams): void => {
+	assertEffectParamsObject(params, 'Halftone');
+	assertOptionalFiniteNumber(params.dotSize, 'dotSize');
+	assertOptionalFiniteNumber(params.dotSpacing, 'dotSpacing');
+	assertOptionalFiniteNumber(params.rotation, 'rotation');
+	assertOptionalFiniteNumber(params.offsetX, 'offsetX');
+	assertOptionalFiniteNumber(params.offsetY, 'offsetY');
+	assertOptionalEnum(params.shape, 'shape', HALFTONE_SHAPES);
+	assertOptionalEnum(params.sampling, 'sampling', HALFTONE_SAMPLING);
+	assertOptionalColor(params.color, 'color');
+	assertOptionalBoolean(params.invert, 'invert');
+
+	if (params.dotSize !== undefined && params.dotSize < 1) {
+		throw new TypeError(
+			`"dotSize" must be >= 1, but got ${JSON.stringify(params.dotSize)}`,
+		);
+	}
+
+	if (params.dotSpacing !== undefined && params.dotSpacing < 1) {
+		throw new TypeError(
+			`"dotSpacing" must be >= 1, but got ${JSON.stringify(params.dotSpacing)}`,
+		);
+	}
+};
 
 const HALFTONE_VS = /* glsl */ `#version 300 es
 in vec2 aPos;
@@ -129,8 +214,6 @@ uniform vec2 uOffset;
 uniform vec4 uColor;
 uniform int uShape;
 uniform bool uShadeOutside;
-
-const float SHADE_OUTSIDE_SCALE = ${SHADE_OUTSIDE_DOT_SCALE.toFixed(1)};
 
 void main() {
 	vec2 fragPos = vUv * uResolution;
@@ -163,7 +246,7 @@ void main() {
 
 	float lumDefault = lum * alpha + (1.0 - alpha);
 	float dotScale = uShadeOutside
-		? (1.0 - alpha) * SHADE_OUTSIDE_SCALE
+		? lumDefault
 		: 1.0 - lumDefault;
 
 	if (dotScale <= 0.01) {
@@ -277,15 +360,16 @@ const parseColorRgba = (
 // or lines. Each fragment determines its nearest grid cell and whether it falls
 // inside a dot, so edge dots are never culled. `dotSpacing` sets the grid pitch
 // (defaults to `dotSize`). `sampling` controls texture interpolation when
-// reading luminance at grid centres. `shadeOutside` fills transparent areas
-// with a screen tone instead of luminance-driven ink on opaque pixels alone.
+// reading luminance at grid centres. `invert` inverts the pattern so
+// bright/transparent areas produce larger dots and dark areas produce fewer.
 export const halftone = createEffect<HalftoneParams, HalftoneState>({
 	type: 'remotion/halftone',
 	label: 'Halftone',
+	documentationLink: 'https://www.remotion.dev/docs/effects/halftone',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `halftone-${r.shape}-${r.dotSize}-${r.dotSpacing}-${r.rotation}-${r.offsetX}-${r.offsetY}-${r.sampling}-${r.color}-${r.shadeOutside ? 1 : 0}`;
+		return `halftone-${r.shape}-${r.dotSize}-${r.dotSpacing}-${r.rotation}-${r.offsetX}-${r.offsetY}-${r.sampling}-${r.color}-${r.invert ? 1 : 0}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -298,9 +382,6 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		}
 
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		// DOM sources (video, canvas) are top-left origin; GL texture space matches
-		// our quad UVs (y up in clip space) only when uploads flip vertically.
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 		const vs = compileShader(gl, gl.VERTEX_SHADER, HALFTONE_VS);
 		const fs = compileShader(gl, gl.FRAGMENT_SHADER, HALFTONE_FS);
@@ -374,7 +455,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 			cachedColorRgba: [0, 0, 0, 1] as [number, number, number, number],
 		};
 	},
-	apply: ({source, width, height, params, state}) => {
+	apply: ({source, width, height, params, state, flipSourceY}) => {
 		const r = resolve(params);
 		const {gl, program, vao, texture} = state;
 
@@ -398,6 +479,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
 		gl.texImage2D(
 			gl.TEXTURE_2D,
 			0,
@@ -417,7 +499,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		if (state.uColor) gl.uniform4f(state.uColor, cr * ca, cg * ca, cb * ca, ca);
 		if (state.uShape) gl.uniform1i(state.uShape, SHAPE_INDEX[r.shape]);
 		if (state.uShadeOutside)
-			gl.uniform1i(state.uShadeOutside, r.shadeOutside ? 1 : 0);
+			gl.uniform1i(state.uShadeOutside, r.invert ? 1 : 0);
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -432,5 +514,5 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		gl.deleteTexture(texture);
 	},
 	schema: halftoneSchema,
-	validateParams: () => {},
+	validateParams: validateHalftoneParams,
 });

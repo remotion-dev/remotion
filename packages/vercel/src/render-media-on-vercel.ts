@@ -46,6 +46,7 @@ export async function renderMediaOnVercel({
 	muted = false,
 	numberOfGifLoops,
 	x264Preset,
+	gopSize,
 	colorSpace = 'default',
 	jpegQuality = 80,
 	audioCodec,
@@ -87,6 +88,7 @@ export async function renderMediaOnVercel({
 	muted?: boolean;
 	numberOfGifLoops?: number | null;
 	x264Preset?: X264Preset | null;
+	gopSize?: number | null;
 	colorSpace?: ColorSpace;
 	jpegQuality?: number;
 	audioCodec?: AudioCodec | null;
@@ -130,6 +132,7 @@ export async function renderMediaOnVercel({
 		muted,
 		numberOfGifLoops: numberOfGifLoops ?? null,
 		x264Preset: x264Preset ?? null,
+		gopSize: gopSize ?? null,
 		colorSpace,
 		jpegQuality,
 		audioCodec: audioCodec ?? null,

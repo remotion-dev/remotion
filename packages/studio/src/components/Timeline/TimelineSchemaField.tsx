@@ -8,6 +8,7 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {TimelineBooleanField} from './TimelineBooleanField';
 import {TimelineColorField} from './TimelineColorField';
 import {TimelineEnumField} from './TimelineEnumField';
@@ -45,7 +46,9 @@ export const TimelineNonEditableStatus: React.FC<{
 	}
 
 	if (propStatus.reason === 'computed') {
-		return <span style={unsupportedLabel}>computed</span>;
+		return (
+			<span style={unsupportedLabel}>{getComputedStatusLabel(propStatus)}</span>
+		);
 	}
 
 	throw new Error(
