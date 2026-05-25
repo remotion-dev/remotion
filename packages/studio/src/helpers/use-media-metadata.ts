@@ -23,55 +23,72 @@ export const useMediaMetadata = (src: string | null): MediaMetadata | null => {
 			return;
 		}
 
-		const input = new Input({
-			formats: ALL_FORMATS,
-			source: new UrlSource(src),
+		let cancelled = false;
+		let input: Input | null = null;
+
+		try {
+			input = new Input({
+				formats: ALL_FORMATS,
+				source: new UrlSource(src),
+			});
+		} catch {
+			return;
+		}
+
+		const safeCall = async <T>(fn: () => Promise<T>): Promise<T | null> => {
+			try {
+				return await fn();
+			} catch {
+				return null;
+			}
+		};
+
+		(async () => {
+			if (!input) {
+				return;
+			}
+
+			const [duration, format, videoTrack, audioTrack] = await Promise.all([
+				safeCall(() => getDurationOrCompute(input!)),
+				safeCall(() => input!.getFormat()),
+				safeCall(() => input!.getPrimaryVideoTrack()),
+				safeCall(() => input!.getPrimaryAudioTrack()),
+			]);
+
+			if (cancelled || !format || duration === null) {
+				return;
+			}
+
+			const [width, height, videoCodec, audioCodec] = await Promise.all([
+				videoTrack ? safeCall(() => videoTrack.getDisplayWidth()) : null,
+				videoTrack ? safeCall(() => videoTrack.getDisplayHeight()) : null,
+				videoTrack ? safeCall(() => videoTrack.getCodec()) : null,
+				audioTrack ? safeCall(() => audioTrack.getCodec()) : null,
+			]);
+
+			if (cancelled) {
+				return;
+			}
+
+			setMediaMetadata({
+				duration,
+				format: format.name,
+				width,
+				height,
+				videoCodec,
+				audioCodec,
+			});
+		})().catch(() => {
+			// Swallow any unexpected error — this is a non-essential UI enhancement.
 		});
 
-		Promise.all([
-			getDurationOrCompute(input),
-			input.getFormat(),
-			input.getPrimaryVideoTrack(),
-			input.getPrimaryAudioTrack(),
-		])
-			.then(async ([duration, format, videoTrack, audioTrack]) => {
-				if (videoTrack && (await videoTrack.isLive())) {
-					throw new Error(
-						'Live streams are not currently supported by Remotion. Sorry! Source: ' +
-							src,
-					);
-				}
-
-				if (videoTrack && (await videoTrack.isRelativeToUnixEpoch())) {
-					throw new Error(
-						'Streams with UNIX timestamps are not currently supported by Remotion. Sorry! Source: ' +
-							src,
-					);
-				}
-
-				const [width, height, videoCodec, audioCodec] = await Promise.all([
-					videoTrack ? videoTrack.getDisplayWidth() : null,
-					videoTrack ? videoTrack.getDisplayHeight() : null,
-					videoTrack ? videoTrack.getCodec() : null,
-					audioTrack ? audioTrack.getCodec() : null,
-				]);
-
-				setMediaMetadata({
-					duration,
-					format: format.name,
-					width,
-					height,
-					videoCodec,
-					audioCodec,
-				});
-			})
-			.catch(() => {
-				// InputDisposedError (user navigated away) and
-				// non-media files (e.g. .png, .json) — ignore silently
-			});
-
 		return () => {
-			input.dispose();
+			cancelled = true;
+			try {
+				input?.dispose();
+			} catch {
+				// ignore
+			}
 		};
 	}, [src]);
 
