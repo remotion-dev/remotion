@@ -14,6 +14,7 @@ import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
+import type {RemotionAudioContextState} from './use-audio-context.js';
 import {useSingletonAudioContext} from './use-audio-context.js';
 import {waitUntilActuallyResumed} from './wait-until-actually-resumed.js';
 
@@ -75,7 +76,7 @@ export type AudioSyncAnchorEmitter = {
 
 type SharedAudioContextValue = {
 	audioContext: AudioContext | null;
-	getAudioContextState: () => AudioContextState | null;
+	getAudioContextState: () => RemotionAudioContextState | null;
 	gainNode: GainNode | null;
 	audioSyncAnchor: {value: number};
 	audioSyncAnchorEmitter: AudioSyncAnchorEmitter;

@@ -3,6 +3,14 @@ import type {LogLevel} from '../log';
 import {Log} from '../log';
 import {useRemotionEnvironment} from '../use-remotion-environment';
 
+// The native AudioContext.state can be 'closed' | 'interrupted' | 'running' | 'suspended'.
+// resume() and suspend() do not change the state immediately, so we expose two
+// additional transition states to reflect that a change is in progress.
+export type RemotionAudioContextState =
+	| AudioContextState
+	| 'running-to-suspended'
+	| 'suspended-to-running';
+
 let warned = false;
 
 const warnOnce = (logLevel: LogLevel) => {
@@ -60,9 +68,49 @@ export const useSingletonAudioContext = ({
 
 		audioContext.suspend();
 
-		const getState = () => audioContext.state;
-		const resume = () => audioContext.resume();
-		const suspend = () => audioContext.suspend();
+		// Tracks the state we are transitioning towards while resume()/suspend()
+		// have been called but the native state has not updated yet.
+		let transitionTarget: 'running' | 'suspended' | null = null;
+
+		const getState = (): RemotionAudioContextState => {
+			const nativeState = audioContext.state;
+
+			if (transitionTarget === 'running' && nativeState !== 'running') {
+				return 'suspended-to-running';
+			}
+
+			if (transitionTarget === 'suspended' && nativeState !== 'suspended') {
+				return 'running-to-suspended';
+			}
+
+			return nativeState;
+		};
+
+		const resume = () => {
+			transitionTarget = 'running';
+			const promise = audioContext.resume();
+
+			promise.finally(() => {
+				if (transitionTarget === 'running') {
+					transitionTarget = null;
+				}
+			});
+
+			return promise;
+		};
+
+		const suspend = () => {
+			transitionTarget = 'suspended';
+			const promise = audioContext.suspend();
+
+			promise.finally(() => {
+				if (transitionTarget === 'suspended') {
+					transitionTarget = null;
+				}
+			});
+
+			return promise;
+		};
 
 		return {
 			audioContext,
