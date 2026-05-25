@@ -75,6 +75,7 @@ export type AudioSyncAnchorEmitter = {
 
 type SharedAudioContextValue = {
 	audioContext: AudioContext | null;
+	getAudioContextState: () => AudioContextState | null;
 	gainNode: GainNode | null;
 	audioSyncAnchor: {value: number};
 	audioSyncAnchorEmitter: AudioSyncAnchorEmitter;
@@ -232,7 +233,7 @@ export const SharedAudioContextProvider: React.FC<{
 			}
 
 			const saveForLater =
-				ctxAndGain.audioContext.state === 'suspended' && !isResuming.current;
+				ctxAndGain.getState() === 'suspended' && !isResuming.current;
 
 			if (duration > 0) {
 				if (saveForLater) {
@@ -383,6 +384,7 @@ export const SharedAudioContextProvider: React.FC<{
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {
 		return {
 			audioContext: ctxAndGain?.audioContext ?? null,
+			getAudioContextState: () => ctxAndGain?.audioContext?.state ?? null,
 			gainNode: ctxAndGain?.gainNode ?? null,
 			audioSyncAnchor,
 			audioSyncAnchorEmitter,
