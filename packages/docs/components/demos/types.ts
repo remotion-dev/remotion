@@ -32,6 +32,7 @@ import {CrossZoomDocsDemo} from './CrossZoomDemo';
 import {DissolveDocsDemo} from './DissolveDemo';
 import {DreamyZoomDocsDemo} from './DreamyZoomDemo';
 import {EllipseDemo} from './Ellipse';
+import {FilmBurnDocsDemo} from './FilmBurnDemo';
 import {HeartDemo} from './Heart';
 import {HtmlInCanvasDocsDemo2DBlur} from './HtmlInCanvasDocsDemo2DBlur';
 import {HtmlInCanvasDocsDemoWebGL} from './HtmlInCanvasDocsDemoWebGL';
@@ -965,6 +966,19 @@ export const dreamyZoomPresentationDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'dreamy-zoom',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const filmBurnPresentationDemo: DemoType = {
+	comp: FilmBurnDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'film-burn',
 	autoPlay: true,
 	controls: false,
 	logLevel: 'info',

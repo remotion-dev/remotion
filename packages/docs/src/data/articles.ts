@@ -6763,6 +6763,15 @@ export const articles = [
 		slug: 'transitions/presentations/fade',
 	},
 	{
+		id: 'transitions/presentations/film-burn',
+		title: 'filmBurn()',
+		relativePath: 'docs/transitions/presentations/film-burn.mdx',
+		compId: 'articles-docs-transitions-presentations-film-burn',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/film-burn',
+	},
+	{
 		id: 'transitions/presentations/flip',
 		title: 'flip()',
 		relativePath: 'docs/transitions/presentations/flip.mdx',

@@ -16,6 +16,7 @@ const presentations = [
 	'book-flip',
 	'zoom-blur',
 	'dreamy-zoom',
+	'film-burn',
 	'linear-blur',
 	'zoom-in-out',
 	'dissolve',

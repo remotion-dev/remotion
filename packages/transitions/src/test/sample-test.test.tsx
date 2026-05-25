@@ -6,6 +6,7 @@ import {useCurrentFrame} from 'remotion';
 import {bookFlip} from '../presentations/book-flip';
 import {crossZoom} from '../presentations/cross-zoom';
 import {dreamyZoom} from '../presentations/dreamy-zoom';
+import {filmBurn} from '../presentations/film-burn';
 import {linearBlur} from '../presentations/linear-blur';
 
 const Comp: React.FC<{}> = () => {
@@ -51,5 +52,11 @@ test('dreamyZoom() should return a presentation', () => {
 test('crossZoom() should return a presentation', () => {
 	const presentation = crossZoom({strength: 0.8});
 	expect(presentation.props).toEqual({strength: 0.8});
+	expect(typeof presentation.component).toBe('function');
+});
+
+test('filmBurn() should return a presentation', () => {
+	const presentation = filmBurn({seed: 3.14});
+	expect(presentation.props).toEqual({seed: 3.14});
 	expect(typeof presentation.component).toBe('function');
 });

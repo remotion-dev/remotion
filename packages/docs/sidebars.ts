@@ -797,6 +797,7 @@ const sidebars: SidebarsConfig = {
 						'transitions/presentations/book-flip',
 						'transitions/presentations/zoom-blur',
 						'transitions/presentations/dreamy-zoom',
+						'transitions/presentations/film-burn',
 						'transitions/presentations/linear-blur',
 						'transitions/presentations/zoom-in-out',
 						'transitions/presentations/dissolve',
