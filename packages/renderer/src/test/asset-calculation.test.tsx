@@ -130,14 +130,14 @@ test('Should support sequencing', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Sequence durationInFrames={30} from={-20}>
-				<Html5Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
+				<Html5Video src={'https://remotion.media/video.mp4'} />
 			</Sequence>
 		);
 	});
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
-		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://remotion.media/video.mp4',
 		duration: 10,
 		startInVideo: 0,
 		trimLeft: 20,
@@ -158,14 +158,14 @@ test('Should calculate volumes correctly', async () => {
 						extrapolateRight: 'clamp',
 					})
 				}
-				src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4"
+				src={'https://remotion.media/video.mp4'}
 			/>
 		);
 	});
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'video',
-		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://remotion.media/video.mp4',
 		duration: 59,
 		startInVideo: 1,
 		trimLeft: 1,
@@ -189,9 +189,7 @@ test('Should calculate startFrom correctly (Html5Audio)', async () => {
 				<Html5Audio
 					trimBefore={100}
 					trimAfter={200}
-					src={
-						'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4'
-					}
+					src={'https://remotion.media/video.mp4'}
 					volume={(f) =>
 						interpolate(f, [0, 50, 100], [0, 1, 0], {
 							extrapolateLeft: 'clamp',
@@ -205,7 +203,7 @@ test('Should calculate startFrom correctly (Html5Audio)', async () => {
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'audio',
-		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://remotion.media/video.mp4',
 		// why duration of 58 and startInVideo of 2?
 		// 60 original duration
 		// minus 1 because of from={1}
@@ -233,9 +231,7 @@ test('Should calculate startFrom correctly (@remotion/media)', async () => {
 				<Audio
 					trimBefore={100}
 					trimAfter={200}
-					src={
-						'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4'
-					}
+					src={'https://remotion.media/video.mp4'}
 					volume={(f) =>
 						interpolate(f, [0, 50, 100], [0, 1, 0], {
 							extrapolateLeft: 'clamp',
@@ -249,7 +245,7 @@ test('Should calculate startFrom correctly (@remotion/media)', async () => {
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'audio',
-		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		src: 'https://remotion.media/video.mp4',
 		// why duration of 58 and startInVideo of 2?
 		// 60 original duration
 		// minus 1 because of from={1}
