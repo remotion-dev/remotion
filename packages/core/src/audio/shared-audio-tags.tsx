@@ -172,6 +172,23 @@ type NodeToResume = {
 	duration: number;
 };
 
+const shouldSaveForLater = (state: RemotionAudioContextState) => {
+	if (
+		state === 'suspended' ||
+		state === 'running-to-suspended' ||
+		state === 'interrupted' ||
+		state === 'closed'
+	) {
+		return true;
+	}
+
+	if (state === 'running' || state === 'suspended-to-running') {
+		return false;
+	}
+
+	throw new Error(`Unexpected audio context state: ${state satisfies never}`);
+};
+
 export const SharedAudioContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
@@ -233,8 +250,8 @@ export const SharedAudioContextProvider: React.FC<{
 				throw new Error('Audio context not found');
 			}
 
-			const saveForLater =
-				ctxAndGain.getState() === 'suspended' && !isResuming.current;
+			const currentState = ctxAndGain.getState();
+			const saveForLater = shouldSaveForLater(currentState);
 
 			if (duration > 0) {
 				if (saveForLater) {
