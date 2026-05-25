@@ -103,7 +103,7 @@ const useAssetLink = (src: string) => {
 			...lineStyle,
 			color: linkInfo && hovered ? LIGHT_TEXT : VERY_LIGHT_TEXT,
 			cursor: linkInfo ? 'pointer' : undefined,
-			textDecoration: linkInfo && hovered ? 'underline' : 'none',
+			textDecoration: 'none',
 		}),
 		[linkInfo, hovered],
 	);
