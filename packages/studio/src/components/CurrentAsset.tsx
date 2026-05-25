@@ -1,9 +1,9 @@
 import {formatBytes} from '@remotion/studio-shared';
-import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {Internals, staticFile} from 'remotion';
 import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
-import {getDurationOrCompute} from '../helpers/get-duration-or-compute';
+import {formatMediaDuration} from '../helpers/format-media-duration';
+import {useMediaMetadata} from '../helpers/use-media-metadata';
 import {useStaticFiles} from './use-static-files';
 
 export const CURRENT_ASSET_HEIGHT = 80;
@@ -40,26 +40,6 @@ const row: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
-const formatDuration = (seconds: number): string => {
-	const h = Math.floor(seconds / 3600);
-	const m = Math.floor((seconds % 3600) / 60);
-	const s = seconds % 60;
-	const sFixed = s.toFixed(2).padStart(5, '0');
-
-	if (h > 0) {
-		return `${h}:${String(m).padStart(2, '0')}:${sFixed}`;
-	}
-
-	return `${String(m).padStart(2, '0')}:${sFixed}`;
-};
-
-type MediaMetadata = {
-	duration: number;
-	format: string;
-	width: number | null;
-	height: number | null;
-};
-
 export const CurrentAsset: React.FC = () => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
@@ -77,59 +57,8 @@ export const CurrentAsset: React.FC = () => {
 		return file?.sizeInBytes ?? null;
 	}, [assetName, staticFiles]);
 
-	const [mediaMetadata, setMediaMetadata] = useState<MediaMetadata | null>(
-		null,
-	);
-
-	useEffect(() => {
-		setMediaMetadata(null);
-
-		if (!assetName) {
-			return;
-		}
-
-		const url = staticFile(assetName);
-		const input = new Input({
-			formats: ALL_FORMATS,
-			source: new UrlSource(url),
-		});
-
-		Promise.all([
-			getDurationOrCompute(input),
-			input.getFormat(),
-			input.getPrimaryVideoTrack(),
-		])
-			.then(async ([duration, format, videoTrack]) => {
-				if (videoTrack && (await videoTrack.isLive())) {
-					throw new Error(
-						'Live streams are not currently supported by Remotion. Sorry! Source: ' +
-							url,
-					);
-				}
-
-				if (videoTrack && (await videoTrack.isRelativeToUnixEpoch())) {
-					throw new Error(
-						'Streams with UNIX timestamps are not currently supported by Remotion. Sorry! Source: ' +
-							url,
-					);
-				}
-
-				setMediaMetadata({
-					duration,
-					format: format.name,
-					width: videoTrack ? await videoTrack.getDisplayWidth() : null,
-					height: videoTrack ? await videoTrack.getDisplayHeight() : null,
-				});
-			})
-			.catch(() => {
-				// InputDisposedError (user navigated away) and
-				// non-media files (e.g. .png, .json) — ignore silently
-			});
-
-		return () => {
-			input.dispose();
-		};
-	}, [assetName]);
+	const src = assetName ? staticFile(assetName) : null;
+	const mediaMetadata = useMediaMetadata(src);
 
 	if (!assetName) {
 		return <div style={container} />;
@@ -158,7 +87,9 @@ export const CurrentAsset: React.FC = () => {
 						<div style={subtitle}>{subtitleParts.join(' · ')}</div>
 					) : null}
 					{mediaMetadata ? (
-						<div style={subtitle}>{formatDuration(mediaMetadata.duration)}</div>
+						<div style={subtitle}>
+							{formatMediaDuration(mediaMetadata.duration)}
+						</div>
 					) : null}
 				</div>
 			</div>

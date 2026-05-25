@@ -17,6 +17,11 @@ import type {
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 
+export {
+	getEffectFieldsToShow,
+	getFieldsToShow,
+	SCHEMA_FIELD_ROW_HEIGHT,
+} from '@remotion/studio-shared';
 export type {
 	AnySchemaFieldInfo,
 	CodeValues,
@@ -26,11 +31,6 @@ export type {
 	SequenceControls,
 	SequenceSchemaFieldInfo,
 };
-export {
-	SCHEMA_FIELD_ROW_HEIGHT,
-	getEffectFieldsToShow,
-	getFieldsToShow,
-} from '@remotion/studio-shared';
 
 export const TIMELINE_PADDING = 16;
 export const TIMELINE_BORDER = 1;
@@ -232,8 +232,13 @@ export const getExpandedTrackHeight = ({
 };
 
 export const TIMELINE_LAYER_HEIGHT_VIDEO = 75;
-export const TIMELINE_LAYER_HEIGHT_IMAGE = 50;
-export const TIMELINE_LAYER_HEIGHT_AUDIO = 25;
+export const TIMELINE_LAYER_HEIGHT_IMAGE = 58;
+export const TIMELINE_LAYER_HEIGHT_AUDIO = 58;
+export const TIMELINE_LAYER_HEIGHT_DEFAULT = 25;
+// The horizontal row inside a timeline list item (eye + arrow + label).
+export const TIMELINE_LIST_ITEM_ROW_HEIGHT = 25;
+// The waveform stripe rendered underneath the filmstrip in TimelineVideoInfo.
+export const TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT = 25;
 
 export const getTimelineLayerHeight = (
 	type: 'video' | 'image' | 'audio' | 'sequence' | 'other',
@@ -246,5 +251,9 @@ export const getTimelineLayerHeight = (
 		return TIMELINE_LAYER_HEIGHT_IMAGE;
 	}
 
-	return TIMELINE_LAYER_HEIGHT_AUDIO;
+	if (type === 'audio') {
+		return TIMELINE_LAYER_HEIGHT_AUDIO;
+	}
+
+	return TIMELINE_LAYER_HEIGHT_DEFAULT;
 };

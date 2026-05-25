@@ -7,7 +7,7 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
-	TIMELINE_LAYER_HEIGHT_AUDIO,
+	TIMELINE_LIST_ITEM_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
@@ -18,12 +18,14 @@ import {
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {saveSequenceProp} from './save-sequence-prop';
+import {getTimelineRowLeftChromeWidth} from './timeline-row-layout';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
+import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {TimelineStack} from './TimelineStack';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
@@ -262,19 +264,38 @@ export const TimelineListItem: React.FC<{
 			height:
 				getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
 			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
+			display: 'flex',
+			flexDirection: 'column',
 		};
 	}, [sequence.type]);
 
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
-			// TODO: Not so small
-			height: TIMELINE_LAYER_HEIGHT_AUDIO,
+			height: TIMELINE_LIST_ITEM_ROW_HEIGHT,
 			color: 'white',
 			fontFamily: 'Arial, Helvetica, sans-serif',
 			wordBreak: 'break-all',
 			textAlign: 'left',
+			flexShrink: 0,
 		};
 	}, []);
+
+	const mediaInfoStyle: React.CSSProperties = useMemo(() => {
+		return {
+			paddingLeft: getTimelineRowLeftChromeWidth(nestedDepth),
+			paddingRight: 8,
+			marginTop: -6,
+			overflow: 'hidden',
+			minHeight: 0,
+		};
+	}, [nestedDepth]);
+
+	const mediaSrc =
+		sequence.type === 'audio' ||
+		sequence.type === 'video' ||
+		sequence.type === 'image'
+			? sequence.src
+			: null;
 
 	const hasExpandableContent =
 		Boolean(sequence.controls) || sequence.effects.length > 0;
@@ -323,6 +344,14 @@ export const TimelineListItem: React.FC<{
 					originalLocation={originalLocation}
 				/>
 			</TimelineRowChrome>
+			{mediaSrc ? (
+				<div style={mediaInfoStyle}>
+					<TimelineMediaInfo
+						src={mediaSrc}
+						type={sequence.type as 'audio' | 'video' | 'image'}
+					/>
+				</div>
+			) : null}
 		</div>
 	);
 
