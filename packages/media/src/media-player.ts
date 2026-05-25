@@ -1,20 +1,20 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import type {
+	EffectChainState,
 	EffectDefinitionAndStack,
 	LogLevel,
+	ScheduleAudioNodeResult,
 	useBufferState,
 } from 'remotion';
-import type {EffectChainState} from 'remotion';
 import {Internals} from 'remotion';
-import type {ScheduleAudioNodeResult} from 'remotion';
 import {
 	audioIteratorManager,
 	type AudioIteratorManager,
 } from './audio-iterator-manager';
 import {
 	getDurationOfNode,
-	getOffset,
 	getScheduledTime,
+	getTrimStartForAudioNode,
 } from './audio/get-scheduled-time';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getDurationOrCompute} from './get-duration-or-compute';
@@ -24,6 +24,8 @@ import {isNetworkError} from './is-type-of-error';
 import type {Nonce, NonceManager} from './nonce-manager';
 import {makeNonceManager} from './nonce-manager';
 import {PremountAwareDelayPlayback} from './premount-aware-delay-playback';
+import type {MediaRequestInit} from './request-init';
+import {resolveRequestInit} from './request-init';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
@@ -105,6 +107,7 @@ export class MediaPlayer {
 		playing,
 		sequenceOffset,
 		credentials,
+		requestInit,
 		tagType,
 		getEffects,
 		getEffectChainState,
@@ -129,6 +132,7 @@ export class MediaPlayer {
 		playing: boolean;
 		sequenceOffset: number;
 		credentials: RequestCredentials | undefined;
+		requestInit: MediaRequestInit | undefined;
 		tagType: 'audio' | 'video';
 		getEffects: () => EffectDefinitionAndStack<unknown>[];
 		getEffectChainState: (
@@ -158,12 +162,13 @@ export class MediaPlayer {
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
 		this.sequenceOffset = sequenceOffset;
+		const resolvedRequestInit = resolveRequestInit({credentials, requestInit});
 		this.input = new Input({
 			source: new UrlSource(
 				this.src,
-				credentials
+				resolvedRequestInit
 					? {
-							requestInit: {credentials},
+							requestInit: resolvedRequestInit,
 						}
 					: undefined,
 			),
@@ -691,6 +696,7 @@ export class MediaPlayer {
 		const timeInSeconds = globalTime - this.sequenceOffset;
 
 		const localTime = this.getTrimmedTime(timeInSeconds);
+
 		if (localTime === null) {
 			return null;
 		}
@@ -706,13 +712,16 @@ export class MediaPlayer {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		originalUnloopedMediaTimestamp: number,
-		currentTime: number,
 	): ScheduleAudioNodeResult => {
 		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
 		}
 
-		const targetTime = this.getTargetTime(mediaTimestamp, currentTime);
+		const targetTime = this.getTargetTime(
+			mediaTimestamp,
+			this.sharedAudioContext.audioContext.currentTime,
+		);
+		const combinedPlaybackRate = this.playbackRate * this.globalPlaybackRate;
 		if (targetTime === null) {
 			return {
 				type: 'not-started',
@@ -720,17 +729,18 @@ export class MediaPlayer {
 					'no target for' +
 					mediaTimestamp.toFixed(3) +
 					',' +
-					currentTime.toFixed(3),
+					this.sharedAudioContext.audioContext.currentTime.toFixed(3),
 			};
 		}
 
 		const sequenceStartTime = this.getStartTime();
 		const loopSegmentMediaEndTimestamp = this.getLoopSegmentMediaEndTimestamp();
 
-		const offset = getOffset({
+		const offset = getTrimStartForAudioNode({
 			mediaTimestamp,
 			targetTime,
 			sequenceStartTime,
+			combinedPlaybackRate,
 		});
 
 		const duration = getDurationOfNode({
@@ -743,14 +753,13 @@ export class MediaPlayer {
 		const scheduledTime = getScheduledTime({
 			mediaTimestamp,
 			targetTime,
-			currentTime,
 			sequenceStartTime,
+			currentTime: this.sharedAudioContext.audioContext.currentTime,
 		});
 
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,
 			mediaTimestamp,
-			currentTime,
 			scheduledTime,
 			duration,
 			offset,

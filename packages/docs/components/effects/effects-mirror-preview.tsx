@@ -1,18 +1,20 @@
+import type {MirrorDirection} from '@remotion/effects/mirror';
 import {mirror} from '@remotion/effects/mirror';
 import React from 'react';
-import {HtmlInCanvas, useVideoConfig} from 'remotion';
-import {EffectsPreviewImage} from './effects-preview-image';
+import {CanvasImage} from 'remotion';
+import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 
-export const EffectsMirrorPreview: React.FC = () => {
-	const {width, height} = useVideoConfig();
-
+export const EffectsMirrorPreview: React.FC<{
+	readonly direction: MirrorDirection;
+	readonly position: number;
+	readonly invert: boolean;
+}> = ({direction, position, invert}) => {
 	return (
-		<HtmlInCanvas
-			width={width}
-			height={height}
-			effects={[mirror({direction: 'horizontal', position: 0.5})]}
-		>
-			<EffectsPreviewImage />
-		</HtmlInCanvas>
+		<CanvasImage
+			src={EFFECTS_PREVIEW_IMAGE_SRC}
+			width={1280}
+			height={720}
+			effects={[mirror({direction, position, invert})]}
+		/>
 	);
 };

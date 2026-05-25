@@ -9,6 +9,7 @@ import {
 	SharedAudioTagsContextProvider,
 	type ScheduleAudioNodeOptions,
 } from './audio/shared-audio-tags.js';
+import type {RemotionAudioContextState} from './audio/use-audio-context.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
@@ -416,4 +417,5 @@ export type {
 	TSequence,
 	VisibleFieldSchema,
 	WatchRemotionStaticFilesPayload,
+	RemotionAudioContextState,
 };

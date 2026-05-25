@@ -1,4 +1,16 @@
 import type {LogLevel} from 'remotion';
+import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
+import {EffectsBlurPreview} from '../effects/effects-blur-preview';
+import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
+import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
+import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
+import {EffectsHuePreview} from '../effects/effects-hue-preview';
+import {EffectsInvertPreview} from '../effects/effects-invert-preview';
+import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
+import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
+import {EffectsScalePreview} from '../effects/effects-scale-preview';
+import {EffectsTintPreview} from '../effects/effects-tint-preview';
+import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {
 	ClockWipeDemo,
 	CubeDemo,
@@ -16,6 +28,7 @@ import {ArrowDemo} from './Arrow';
 import {BookFlipDocsDemo} from './BookFlipDemo';
 import {CircleDemo} from './Circle';
 import {CrosswarpDocsDemo} from './CrosswarpDemo';
+import {CrossZoomDocsDemo} from './CrossZoomDemo';
 import {DissolveDocsDemo} from './DissolveDemo';
 import {DreamyZoomDocsDemo} from './DreamyZoomDemo';
 import {EllipseDemo} from './Ellipse';
@@ -75,6 +88,10 @@ export type Option = {
 			type: 'string';
 			default: string;
 			optional: 'no';
+	  }
+	| {
+			type: 'color';
+			default: string;
 	  }
 );
 
@@ -1032,6 +1049,19 @@ export const crosswarpPresentationDemo: DemoType = {
 	options: [],
 };
 
+export const crossZoomPresentationDemo: DemoType = {
+	comp: CrossZoomDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'cross-zoom',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
 export const swapPresentationDemo: DemoType = {
 	comp: SwapDocsDemo,
 	compHeight: 1080,
@@ -1374,6 +1404,387 @@ export const htmlInCanvasDemo2DBlur: DemoType = {
 	controls: true,
 	logLevel: 'info',
 	options: [],
+};
+
+export const effectsBrightnessDemo: DemoType = {
+	comp: EffectsBrightnessPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-brightness',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: -1,
+			max: 1,
+			step: 0.01,
+			default: 0.25,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsGrayscaleDemo: DemoType = {
+	comp: EffectsGrayscalePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-grayscale',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsHueDemo: DemoType = {
+	comp: EffectsHuePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-hue',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'degrees',
+			type: 'numeric',
+			min: 0,
+			max: 360,
+			step: 1,
+			default: 120,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsInvertDemo: DemoType = {
+	comp: EffectsInvertPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-invert',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsSaturationDemo: DemoType = {
+	comp: EffectsSaturationPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-saturation',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 5,
+			step: 0.1,
+			default: 1.8,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsTintDemo: DemoType = {
+	comp: EffectsTintPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-tint',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'color',
+			type: 'color',
+			default: '#1ec8ff',
+			optional: 'no',
+		},
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.7,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsMirrorDemo: DemoType = {
+	comp: EffectsMirrorPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-mirror',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'direction',
+			type: 'enum',
+			values: ['horizontal', 'vertical'],
+			default: 'horizontal',
+			optional: 'no',
+		},
+		{
+			name: 'position',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.5,
+			optional: 'no',
+		},
+		{
+			name: 'invert',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsScaleDemo: DemoType = {
+	comp: EffectsScalePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-scale',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'scale',
+			type: 'numeric',
+			min: 0.1,
+			max: 3,
+			step: 0.05,
+			default: 0.8,
+			optional: 'no',
+		},
+		{
+			name: 'horizontal',
+			type: 'boolean',
+			default: true,
+			optional: 'no',
+		},
+		{
+			name: 'vertical',
+			type: 'boolean',
+			default: true,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsBarrelDistortionDemo: DemoType = {
+	comp: EffectsBarrelDistortionPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-barrel-distortion',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.28,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsBlurDemo: DemoType = {
+	comp: EffectsBlurPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-blur',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'radius',
+			type: 'numeric',
+			min: 0,
+			max: 100,
+			step: 1,
+			default: 40,
+			optional: 'no',
+		},
+		{
+			name: 'horizontal',
+			type: 'boolean',
+			default: true,
+			optional: 'no',
+		},
+		{
+			name: 'vertical',
+			type: 'boolean',
+			default: true,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsWaveDemo: DemoType = {
+	comp: EffectsWavePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-wave',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'phase',
+			type: 'numeric',
+			min: 0,
+			max: 6.28,
+			step: 0.01,
+			default: 1.2,
+			optional: 'no',
+		},
+		{
+			name: 'amplitude',
+			type: 'numeric',
+			min: 0,
+			max: 200,
+			step: 1,
+			default: 50,
+			optional: 'no',
+		},
+		{
+			name: 'wavelength',
+			type: 'numeric',
+			min: 1,
+			max: 1000,
+			step: 1,
+			default: 200,
+			optional: 'no',
+		},
+		{
+			name: 'direction',
+			type: 'enum',
+			values: ['horizontal', 'vertical'],
+			default: 'horizontal',
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsHalftoneDemo: DemoType = {
+	comp: EffectsHalftonePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-halftone',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'shape',
+			type: 'enum',
+			values: ['circle', 'square', 'line'],
+			default: 'circle',
+			optional: 'no',
+		},
+		{
+			name: 'dotSize',
+			type: 'numeric',
+			min: 1,
+			max: 50,
+			step: 1,
+			default: 8,
+			optional: 'no',
+		},
+		{
+			name: 'dotSpacing',
+			type: 'numeric',
+			min: 1,
+			max: 50,
+			step: 1,
+			default: 7,
+			optional: 'no',
+		},
+		{
+			name: 'rotation',
+			type: 'numeric',
+			min: -180,
+			max: 180,
+			step: 1,
+			default: 12,
+			optional: 'no',
+		},
+		{
+			name: 'color',
+			type: 'color',
+			default: '#0b84f3',
+			optional: 'no',
+		},
+		{
+			name: 'invert',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
+		},
+	],
 };
 
 export const htmlInCanvasDemoWebGL: DemoType = {

@@ -12,6 +12,10 @@ export {HtmlInCanvasComposeWebGL} from './compose-webgl';
 export {HtmlInCanvasComposeWebGLCrt} from './compose-webgl-crt';
 export {HtmlInCanvasComposeWebGPU} from './compose-webgpu';
 export {
+	CrossZoomTransitionDoc,
+	CrossZoomTransitionDocThumb,
+} from './cross-zoom-doc';
+export {
 	CrosswarpTransitionDoc,
 	CrosswarpTransitionDocThumb,
 } from './crosswarp-doc';

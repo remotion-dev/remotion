@@ -6691,6 +6691,15 @@ export const articles = [
 		slug: 'transitions/presentations/clock-wipe',
 	},
 	{
+		id: 'transitions/presentations/cross-zoom',
+		title: 'crossZoom()',
+		relativePath: 'docs/transitions/presentations/cross-zoom.mdx',
+		compId: 'articles-docs-transitions-presentations-cross-zoom',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/cross-zoom',
+	},
+	{
 		id: 'transitions/presentations/crosswarp',
 		title: 'crosswarp()',
 		relativePath: 'docs/transitions/presentations/crosswarp.mdx',
@@ -6950,6 +6959,15 @@ export const articles = [
 		crumb: 'Troubleshooting',
 		noAi: false,
 		slug: 'troubleshooting/bundling-bundle',
+	},
+	{
+		id: 'troubleshooting/cannot-save-default-props',
+		title: 'Cannot save default props',
+		relativePath: 'docs/troubleshooting/cannot-save-default-props.mdx',
+		compId: 'articles-docs-troubleshooting-cannot-save-default-props',
+		crumb: 'Troubleshooting',
+		noAi: false,
+		slug: 'troubleshooting/cannot-save-default-props',
 	},
 	{
 		id: 'troubleshooting/could-not-be-parsed-as-a-value-list',

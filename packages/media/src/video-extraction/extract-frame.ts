@@ -2,6 +2,7 @@ import {Internals, type LogLevel} from 'remotion';
 import {keyframeManager} from '../caches';
 import {getSink} from '../get-sink';
 import {getTimeInSeconds} from '../get-time-in-seconds';
+import type {MediaRequestInit} from '../request-init';
 
 type ExtractFrameResult =
 	| {
@@ -26,6 +27,7 @@ type ExtractFrameParams = {
 	fps: number;
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
+	requestInit?: MediaRequestInit;
 };
 
 const extractFrameInternal = async ({
@@ -39,8 +41,9 @@ const extractFrameInternal = async ({
 	fps,
 	maxCacheSize,
 	credentials,
+	requestInit,
 }: ExtractFrameParams): Promise<ExtractFrameResult> => {
-	const sink = await getSink(src, logLevel, credentials);
+	const sink = await getSink(src, logLevel, credentials, requestInit);
 
 	const [video, mediaDurationInSecondsRaw] = await Promise.all([
 		sink.getVideo(),

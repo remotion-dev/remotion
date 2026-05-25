@@ -54,6 +54,9 @@ const aliases = {
 	'@remotion/transitions/crosswarp': resolveCwd(
 		'@remotion/transitions/crosswarp',
 	),
+	'@remotion/transitions/cross-zoom': resolveCwd(
+		'@remotion/transitions/cross-zoom',
+	),
 	'@remotion/transitions/swap': resolveCwd('@remotion/transitions/swap'),
 	'@remotion/transitions/wipe': resolveCwd('@remotion/transitions/wipe'),
 	'@remotion/transitions/iris': resolveCwd('@remotion/transitions/iris'),

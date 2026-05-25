@@ -23,6 +23,7 @@ import {
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
 import type {FallbackOffthreadVideoProps, VideoObjectFit} from './props';
 import {cacheVideoFrame, getCachedVideoFrame} from './video-frame-cache';
@@ -64,6 +65,7 @@ type VideoForPreviewProps = {
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
+	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
@@ -96,6 +98,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	headless,
 	onError,
 	credentials,
+	requestInit,
 	objectFit: objectFitProp,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
@@ -110,6 +113,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialTrimBeforeRef = useRef(trimBefore);
 	const initialTrimAfterRef = useRef(trimAfter);
 	const initialOnVideoFrameRef = useRef(onVideoFrame);
+	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
 	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
@@ -275,6 +279,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				playing: initialPlaying.current,
 				sequenceOffset: initialSequenceOffset.current,
 				credentials,
+				requestInit: initialRequestInit,
 				tagType: 'video',
 				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
@@ -413,6 +418,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		videoConfig.fps,
 		onError,
 		credentials,
+		initialRequestInit,
 		setMediaDurationInSeconds,
 	]);
 
