@@ -48,14 +48,16 @@ export const getDurationOfNode = ({
 	return duration;
 };
 
-export const getOffset = ({
+export const getTrimStartForAudioNode = ({
 	mediaTimestamp,
 	targetTime,
 	sequenceStartTime,
+	combinedPlaybackRate,
 }: {
 	mediaTimestamp: number;
 	targetTime: number;
 	sequenceStartTime: number;
+	combinedPlaybackRate: number;
 }) => {
 	const needsTrimStart = mediaTimestamp < sequenceStartTime;
 
@@ -65,5 +67,5 @@ export const getOffset = ({
 	const offsetBecauseOfTooLate = targetTime < 0 ? -targetTime : 0;
 
 	const offset = offsetBecauseOfTrim + offsetBecauseOfTooLate;
-	return offset;
+	return offset * combinedPlaybackRate;
 };

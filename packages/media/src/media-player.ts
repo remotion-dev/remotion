@@ -13,7 +13,7 @@ import {
 } from './audio-iterator-manager';
 import {
 	getDurationOfNode,
-	getOffset,
+	getTrimStartForAudioNode,
 	getScheduledTime,
 } from './audio/get-scheduled-time';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
@@ -691,6 +691,7 @@ export class MediaPlayer {
 		const timeInSeconds = globalTime - this.sequenceOffset;
 
 		const localTime = this.getTrimmedTime(timeInSeconds);
+
 		if (localTime === null) {
 			return null;
 		}
@@ -713,6 +714,7 @@ export class MediaPlayer {
 		}
 
 		const targetTime = this.getTargetTime(mediaTimestamp, currentTime);
+		const combinedPlaybackRate = this.playbackRate * this.globalPlaybackRate;
 		if (targetTime === null) {
 			return {
 				type: 'not-started',
@@ -727,10 +729,11 @@ export class MediaPlayer {
 		const sequenceStartTime = this.getStartTime();
 		const loopSegmentMediaEndTimestamp = this.getLoopSegmentMediaEndTimestamp();
 
-		const offset = getOffset({
+		const offset = getTrimStartForAudioNode({
 			mediaTimestamp,
 			targetTime,
 			sequenceStartTime,
+			combinedPlaybackRate,
 		});
 
 		const duration = getDurationOfNode({
