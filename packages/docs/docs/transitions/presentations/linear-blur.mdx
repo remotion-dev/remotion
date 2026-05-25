@@ -1,0 +1,98 @@
+---
+image: /generated/articles-docs-transitions-presentations-linear-blur.png
+crumb: '@remotion/transitions - Presentations'
+title: 'linearBlur()'
+---
+
+# linearBlur()<AvailableFrom v="4.0.466"/>
+
+A presentation that applies a directional multi-sample blur while blending between scenes.
+
+<Demo type="linear-blur" />
+
+:::warning
+This presentation is built with [HTML-in-canvas](/docs/remotion/html-in-canvas) and requires [Google Chrome](https://www.google.com/chrome/) with `chrome://flags/#canvas-draw-element` enabled. It does not work in Firefox or Safari.
+:::
+
+## Example
+
+```tsx twoslash title="LinearBlurTransition.tsx"
+import {AbsoluteFill} from 'remotion';
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({children, color}) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: color,
+        opacity: 0.9,
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 200,
+        color: 'white',
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {linearBlur} from '@remotion/transitions/linear-blur';
+
+const BasicTransition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={40}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={linearBlur({intensity: 0.1})}
+        timing={linearTiming({durationInFrames: 30})}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="pink">B</Letter>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+## API
+
+Accepts an object with the following options:
+
+### `intensity?`
+
+Controls how far the 6×6 blur samples spread during the transition.
+
+Defaults to `0.1`.
+
+## Compatibility
+
+<CompatibilityTable
+  chrome
+  firefox={false}
+  safari={false}
+  nodejs
+  bun
+  serverlessFunctions
+  clientSideRendering
+  serverSideRendering
+  player
+  studio
+/>
+
+For Preview, Chrome with the `chrome://flags/#canvas-draw-element` flag enabled is required.
+
+## Credits
+
+The fragment shader is adapted from the [`LinearBlur`](https://gl-transitions.com/editor/LinearBlur) GL Transition by gre, licensed under MIT.
+
+## See also
+
+- [Source code for this presentation](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/linear-blur.tsx)
+- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [Presentations](/docs/transitions/presentations)

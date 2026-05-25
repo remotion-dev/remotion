@@ -3,31 +3,37 @@ import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
 import {Control} from './control';
+import styles from './styles.module.css';
 import type {DemoType} from './types';
 import {
-	htmlInCanvasDemo2DBlur,
-	htmlInCanvasDemoWebGL,
-	htmlInCanvasDemoWebGPU,
 	animationMathDemo,
 	arrowDemo,
+	bookFlipPresentationDemo,
 	circleDemo,
 	clockWipePresentationDemo,
+	crosswarpPresentationDemo,
 	cubePresentationDemo,
 	customPresentationDemo,
 	customTimingDemo,
+	dissolvePresentationDemo,
+	dreamyZoomPresentationDemo,
 	ellipseDemo,
 	fadePresentationDemo,
 	flipPresentationDemo,
 	heartDemo,
+	htmlInCanvasDemo2DBlur,
+	htmlInCanvasDemoWebGL,
+	htmlInCanvasDemoWebGPU,
 	irisPresentationDemo,
 	lightLeakDemo,
-	starburstDemo,
+	linearBlurPresentationDemo,
 	noiseDemo,
 	nonePresentationDemo,
 	opacityDemo,
 	pieDemo,
 	polygonDemo,
 	rectDemo,
+	ripplePresentationDemo,
 	rotateDemo,
 	roundedTextBoxDemo,
 	scaleDemo,
@@ -37,7 +43,9 @@ import {
 	slidePresentationDemoLongThreshold,
 	springDampingDemo,
 	springDemo,
+	starburstDemo,
 	starDemo,
+	swapPresentationDemo,
 	transitionSeriesEnterExitDemo,
 	transitionSeriesOverlayDemo,
 	transitionSeriesTransitionDemo,
@@ -46,9 +54,7 @@ import {
 	wipePresentationDemo,
 	zoomBlurPresentationDemo,
 	zoomInOutPresentationDemo,
-	dissolvePresentationDemo,
 } from './types';
-import styles from './styles.module.css';
 
 const container: React.CSSProperties = {
 	overflow: 'hidden',
@@ -98,9 +104,15 @@ const demos: DemoType[] = [
 	transitionSeriesTransitionDemo,
 	transitionSeriesOverlayDemo,
 	transitionSeriesEnterExitDemo,
+	bookFlipPresentationDemo,
 	zoomBlurPresentationDemo,
+	dreamyZoomPresentationDemo,
+	linearBlurPresentationDemo,
 	zoomInOutPresentationDemo,
 	dissolvePresentationDemo,
+	ripplePresentationDemo,
+	crosswarpPresentationDemo,
+	swapPresentationDemo,
 ];
 
 export const Demo: React.FC<{

@@ -47,6 +47,7 @@ export type TimelineFieldOnDragValueChange = (value: unknown) => void;
 export type TimelineEffectGroupInfo = {
 	readonly effectIndex: number;
 	readonly effectSchema: SequenceSchemaShape;
+	readonly documentationLink: string | null;
 };
 
 export type TimelineTreeNode =
@@ -128,7 +129,11 @@ export const buildTimelineTree = ({
 						numberOfSequencesWithThisNodePath: 0,
 					},
 					label: effect.label,
-					effectInfo: {effectIndex: i, effectSchema: effect.schema},
+					effectInfo: {
+						effectIndex: i,
+						effectSchema: effect.schema,
+						documentationLink: effect.documentationLink ?? null,
+					},
 					children: effectFields.map(
 						(f): TimelineTreeNode => ({
 							kind: 'field',

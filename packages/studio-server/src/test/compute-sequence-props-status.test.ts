@@ -150,3 +150,26 @@ test('computeSequencePropsStatus should report unset when parent attribute missi
 		codeValue: undefined,
 	});
 });
+
+test('computeSequencePropsStatus should return keyframes for interpolated style props', () => {
+	const filePath = path.join(__dirname, 'snapshots', 'keyframed-props.tsx');
+	const result = computeSequencePropsStatus({
+		fileName: filePath,
+		nodePath: getNodePath(filePath, 8),
+		keys: ['style.scale'],
+		effects: [],
+		remotionRoot: '/',
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		canUpdate: false,
+		reason: 'computed',
+		keyframes: [
+			{frame: 0, value: 2},
+			{frame: 100, value: 4},
+		],
+	});
+});

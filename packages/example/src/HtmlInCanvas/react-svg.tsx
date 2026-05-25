@@ -1,4 +1,5 @@
-import {EffectInternals} from '@remotion/effects';
+import {halftone} from '@remotion/effects/halftone';
+import {tint} from '@remotion/effects/tint';
 import React from 'react';
 import {HtmlInCanvas, useVideoConfig} from 'remotion';
 import ReactSvg from '../ReactSvg';
@@ -15,12 +16,12 @@ export const HtmlInCanvasReactSvg: React.FC<{
 				width={width}
 				height={height}
 				effects={[
-					EffectInternals.halftone({
+					halftone({
 						dotSize: 30,
 						dotSpacing: 20,
 						shape: 'square',
 					}),
-					EffectInternals.tint({color: 'green', amount: 1}),
+					tint({color: 'green', amount: 1}),
 				]}
 			>
 				<ReactSvg transparent={transparent} />

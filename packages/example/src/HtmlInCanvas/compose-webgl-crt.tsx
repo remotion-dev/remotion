@@ -1,4 +1,4 @@
-import {EffectInternals} from '@remotion/effects';
+import {tint} from '@remotion/effects/tint';
 import React, {useCallback, useRef} from 'react';
 import {
 	HtmlInCanvas,
@@ -229,7 +229,7 @@ export const HtmlInCanvasComposeWebGLCrt: React.FC = () => {
 			height={height}
 			onInit={onInit}
 			onPaint={onPaint}
-			effects={[EffectInternals.tint({color: 'red'})]}
+			effects={[tint({color: 'red'})]}
 			style={{
 				backgroundColor: 'white',
 				color: 'black',

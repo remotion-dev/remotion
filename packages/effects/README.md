@@ -1,18 +1,18 @@
 # @remotion/effects
 
-Effects that can be applied to Remotion-based canvas components.
+Effects that can be applied to Remotion-based canvas components
+
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/effects.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/effects?minimal=true)
+
+## Installation
+
+```bash
+npm install @remotion/effects --save-exact
+```
+
+When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
+Remove the `^` character from the version number to use the exact version.
 
 ## Usage
 
-```tsx
-import {Video} from '@remotion/media';
-import {blur} from '@remotion/effects/blur';
-import {wave} from '@remotion/effects/wave';
-
-<Video
-  src="https://remotion.media/video.mp4"
-  effects={[blur({radius: 8}), wave({phase: 0, amplitude: 22, wavelength: 180})]}
-/>;
-```
-
-See the [documentation](https://www.remotion.dev/docs/effects/api).
+See the [documentation](https://www.remotion.dev/docs/effects/api) for more information.

@@ -30,6 +30,12 @@ export const errorOverlayE2eFile = path.join(
 	'ErrorOverlayE2e',
 	'ErrorOverlayRepro.tsx',
 );
+export const hookOrderChangeE2eFile = path.join(
+	exampleDir,
+	'src',
+	'HookOrderChangeE2e',
+	'HookOrderChangeRepro.tsx',
+);
 export const newVideoFile = path.join(exampleDir, 'src', 'NewVideo.tsx');
 export const remotionBin = path.join(
 	exampleDir,
@@ -57,6 +63,10 @@ export const ORIGINAL_LOST_NODE_PATH_E2E_FILE = path.join(
 export const ORIGINAL_ERROR_OVERLAY_E2E_FILE = path.join(
 	os.tmpdir(),
 	'remotion-e2e-original-error-overlay-repro.tsx',
+);
+export const ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE = path.join(
+	os.tmpdir(),
+	'remotion-e2e-original-hook-order-change-repro.tsx',
 );
 export const PID_FILE = path.join(os.tmpdir(), 'remotion-e2e-studio.pid');
 export const EXPANDED_SIDEBAR_STATE = path.join(

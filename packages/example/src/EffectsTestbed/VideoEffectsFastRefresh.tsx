@@ -1,7 +1,7 @@
 /**
  * Minimal repro for https://github.com/remotion-dev/remotion/issues/7449
  *
- * `<Video>` does not fast-refresh effects when `EffectInternals.tint()` params change in code.
+ * `<Video>` does not fast-refresh effects when `tint()` params change in code.
  *
  * Repro:
  * 1. `cd packages/example && bun run dev`
@@ -11,7 +11,7 @@
  * 5. Expected: the video tint updates immediately
  * 6. Bug: the canvas keeps the old tint until you seek or remount
  */
-import {EffectInternals} from '@remotion/effects';
+import {tint} from '@remotion/effects/tint';
 import {Video} from '@remotion/media';
 import React from 'react';
 import {AbsoluteFill, Solid} from 'remotion';
@@ -105,7 +105,7 @@ export const VideoEffectsFastRefresh: React.FC = () => {
 							&lt;Video&gt; (bug surface)
 						</div>
 						<div>
-							EffectInternals.tint(
+							tint(
 							{`{color: '${TINT_COLOR}', amount: ${TINT_AMOUNT}}`})
 						</div>
 					</div>
@@ -115,7 +115,7 @@ export const VideoEffectsFastRefresh: React.FC = () => {
 						muted
 						loop
 						objectFit="cover"
-						effects={[EffectInternals.tint({color: TINT_COLOR, amount: 0.57})]}
+						effects={[tint({color: TINT_COLOR, amount: 0.57})]}
 					/>
 				</div>
 				<div style={panelStyle}>
@@ -133,7 +133,7 @@ export const VideoEffectsFastRefresh: React.FC = () => {
 						height={1080}
 						color="#3b82f6"
 						style={mediaStyle}
-						effects={[EffectInternals.tint({color: TINT_COLOR, amount: 0.2})]}
+						effects={[tint({color: TINT_COLOR, amount: 0.2})]}
 					/>
 				</div>
 			</div>

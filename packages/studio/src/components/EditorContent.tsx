@@ -1,6 +1,5 @@
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
-import {useIsStill} from '../helpers/is-current-selected-still';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
@@ -22,11 +21,10 @@ export const EditorContent: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly children: React.ReactNode;
 }> = ({readOnlyStudio, children}) => {
-	const isStill = useIsStill();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
 	const showTimeline =
-		canvasContent !== null && !isStill && canvasContent.type === 'composition';
+		canvasContent !== null && canvasContent.type === 'composition';
 
 	return (
 		<div style={container}>

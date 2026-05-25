@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/transitions"
 	},
 	"name": "@remotion/transitions",
-	"version": "4.0.464",
+	"version": "4.0.466",
 	"description": "Library for creating transitions in Remotion",
 	"main": "dist/esm/index.mjs",
 	"module": "dist/esm/index.js",
@@ -85,11 +85,29 @@
 			"import": "./dist/esm/clock-wipe.mjs",
 			"require": "./dist/presentations/clock-wipe.js"
 		},
+		"./book-flip": {
+			"types": "./dist/presentations/book-flip.d.ts",
+			"module": "./dist/esm/book-flip.mjs",
+			"import": "./dist/esm/book-flip.mjs",
+			"require": "./dist/presentations/book-flip.js"
+		},
 		"./zoom-blur": {
 			"types": "./dist/presentations/zoom-blur.d.ts",
 			"module": "./dist/esm/zoom-blur.mjs",
 			"import": "./dist/esm/zoom-blur.mjs",
 			"require": "./dist/presentations/zoom-blur.js"
+		},
+		"./dreamy-zoom": {
+			"types": "./dist/presentations/dreamy-zoom.d.ts",
+			"module": "./dist/esm/dreamy-zoom.mjs",
+			"import": "./dist/esm/dreamy-zoom.mjs",
+			"require": "./dist/presentations/dreamy-zoom.js"
+		},
+		"./linear-blur": {
+			"types": "./dist/presentations/linear-blur.d.ts",
+			"module": "./dist/esm/linear-blur.mjs",
+			"import": "./dist/esm/linear-blur.mjs",
+			"require": "./dist/presentations/linear-blur.js"
 		},
 		"./zoom-in-out": {
 			"types": "./dist/presentations/zoom-in-out.d.ts",
@@ -115,6 +133,24 @@
 			"import": "./dist/esm/dissolve.mjs",
 			"require": "./dist/presentations/dissolve.js"
 		},
+		"./ripple": {
+			"types": "./dist/presentations/ripple.d.ts",
+			"module": "./dist/esm/ripple.mjs",
+			"import": "./dist/esm/ripple.mjs",
+			"require": "./dist/presentations/ripple.js"
+		},
+		"./crosswarp": {
+			"types": "./dist/presentations/crosswarp.d.ts",
+			"module": "./dist/esm/crosswarp.mjs",
+			"import": "./dist/esm/crosswarp.mjs",
+			"require": "./dist/presentations/crosswarp.js"
+		},
+		"./swap": {
+			"types": "./dist/presentations/swap.d.ts",
+			"module": "./dist/esm/swap.mjs",
+			"import": "./dist/esm/swap.mjs",
+			"require": "./dist/presentations/swap.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -137,17 +173,35 @@
 			"clock-wipe": [
 				"dist/presentations/clock-wipe.d.ts"
 			],
+			"book-flip": [
+				"dist/presentations/book-flip.d.ts"
+			],
 			"iris": [
 				"dist/presentations/iris.d.ts"
 			],
 			"zoom-blur": [
 				"dist/presentations/zoom-blur.d.ts"
 			],
+			"dreamy-zoom": [
+				"dist/presentations/dreamy-zoom.d.ts"
+			],
+			"linear-blur": [
+				"dist/presentations/linear-blur.d.ts"
+			],
 			"zoom-in-out": [
 				"dist/presentations/zoom-in-out.d.ts"
 			],
 			"dissolve": [
 				"dist/presentations/dissolve.d.ts"
+			],
+			"ripple": [
+				"dist/presentations/ripple.d.ts"
+			],
+			"crosswarp": [
+				"dist/presentations/crosswarp.d.ts"
+			],
+			"swap": [
+				"dist/presentations/swap.d.ts"
 			]
 		}
 	},

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/bundler"
 	},
 	"name": "@remotion/bundler",
-	"version": "4.0.464",
+	"version": "4.0.466",
 	"description": "Bundle Remotion compositions using Webpack",
 	"main": "dist/index.js",
 	"bugs": {
@@ -21,9 +21,7 @@
 	"dependencies": {
 		"@rspack/core": "1.7.6",
 		"@rspack/plugin-react-refresh": "1.6.1",
-		"loader-utils": "2.0.4",
-		"postcss": "8.5.10",
-		"postcss-value-parser": "4.2.0",
+		"css-loader": "7.1.4",
 		"esbuild": "0.28.0",
 		"react-refresh": "0.18.0",
 		"remotion": "workspace:*",
@@ -55,7 +53,6 @@
 	],
 	"exports": {
 		".": "./dist/index.js",
-		"./css-loader": "./css-loader/index.js",
 		"./package.json": "./package.json"
 	},
 	"publishConfig": {

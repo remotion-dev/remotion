@@ -320,6 +320,9 @@ const ImgInner: React.FC<
 			from={from ?? 0}
 			durationInFrames={durationInFrames ?? Infinity}
 			_remotionInternalStack={stack}
+			_remotionInternalDocumentationLink={
+				name === undefined ? 'https://www.remotion.dev/docs/img' : undefined
+			}
 			_remotionInternalIsMedia={{type: 'image', src}}
 			name={name ?? '<Img>'}
 			_experimentalControls={controls}

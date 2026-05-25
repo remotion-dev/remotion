@@ -10,8 +10,6 @@ import {
 } from '../../../helpers/colors';
 import {getGitRefUrl} from '../../../helpers/get-git-menu-item';
 import {openOriginalPositionInEditor} from '../../../helpers/open-in-editor';
-import {pushUrl} from '../../../helpers/url-state';
-import {useSelectAsset} from '../../InitialCompositionLoader';
 import {Spacing} from '../../layout';
 import {showNotification} from '../../Notifications/NotificationCenter';
 import {Spinner} from '../../Spinner';
@@ -25,39 +23,9 @@ export const TimelineStack: React.FC<{
 	const [stackHovered, setStackHovered] = useState(false);
 	const [titleHovered, setTitleHovered] = useState(false);
 	const [opening, setOpening] = useState(false);
-	const selectAsset = useSelectAsset();
 
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
-
-	const assetPath = useMemo(() => {
-		if (
-			sequence.type !== 'video' &&
-			sequence.type !== 'audio' &&
-			sequence.type !== 'image'
-		) {
-			return null;
-		}
-
-		const isStatic = sequence.src.startsWith(window.remotion_staticBase);
-		if (!isStatic) {
-			return null;
-		}
-
-		const relativePath = sequence.src.replace(
-			window.remotion_staticBase + '/',
-			'',
-		);
-		return relativePath;
-	}, [sequence]);
-
-	const navigateToAsset = useCallback(
-		(asset: string) => {
-			selectAsset(asset);
-			pushUrl(`/assets/${asset}`);
-		},
-		[selectAsset],
-	);
 
 	const openEditor = useCallback(async (location: OriginalPosition) => {
 		if (!window.remotion_editorName) {
@@ -80,45 +48,18 @@ export const TimelineStack: React.FC<{
 		originalLocation;
 
 	const canOpenInGitHub = window.remotion_gitSource && originalLocation;
+	const {documentationLink} = sequence;
 
-	const titleHoverable =
-		(isCompact && (canOpenInEditor || canOpenInGitHub)) || assetPath;
+	const titleHoverable = documentationLink !== null;
 	const stackHoverable = !isCompact && (canOpenInEditor || canOpenInGitHub);
 
 	const onClickTitle = useCallback(() => {
-		if (!titleHoverable) {
+		if (documentationLink === null) {
 			return null;
 		}
 
-		if (assetPath) {
-			navigateToAsset(assetPath);
-			return;
-		}
-
-		if (!originalLocation) {
-			return;
-		}
-
-		if (canOpenInEditor) {
-			openEditor(originalLocation);
-			return;
-		}
-
-		if (canOpenInGitHub) {
-			window.open(
-				getGitRefUrl(window.remotion_gitSource as GitSource, originalLocation),
-				'_blank',
-			);
-		}
-	}, [
-		assetPath,
-		canOpenInEditor,
-		canOpenInGitHub,
-		navigateToAsset,
-		openEditor,
-		originalLocation,
-		titleHoverable,
-	]);
+		window.open(documentationLink, '_blank', 'noopener,noreferrer');
+	}, [documentationLink]);
 
 	const onClickStack = useCallback(() => {
 		if (!originalLocation) {
@@ -204,8 +145,8 @@ export const TimelineStack: React.FC<{
 				onPointerEnter={onTitlePointerEnter}
 				onPointerLeave={onTitlePointerLeave}
 				title={
-					originalLocation
-						? getOriginalSourceAttribution(originalLocation)
+					documentationLink
+						? `Open documentation: ${documentationLink}`
 						: text || '<Sequence>'
 				}
 				style={titleStyle}

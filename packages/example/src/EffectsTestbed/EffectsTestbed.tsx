@@ -1,5 +1,6 @@
-import {EffectInternals} from '@remotion/effects';
 import {blur} from '@remotion/effects/blur';
+import {halftone} from '@remotion/effects/halftone';
+import {tint} from '@remotion/effects/tint';
 import {wave} from '@remotion/effects/wave';
 import {LightLeakInternals} from '@remotion/light-leaks';
 import {Video} from '@remotion/media';
@@ -176,7 +177,7 @@ export const EffectsTestbed: React.FC = () => {
 						muted
 						loop
 						objectFit="cover"
-						effects={[EffectInternals.tint({color: '#ff5fa2', amount: 0.6})]}
+						effects={[tint({color: '#ff5fa2', amount: 0.6})]}
 					/>
 				</Tile>
 				<Tile title="halftone" subtitle="circles, dotSize 12, on luminance">
@@ -187,7 +188,7 @@ export const EffectsTestbed: React.FC = () => {
 						loop
 						objectFit="cover"
 						effects={[
-							EffectInternals.halftone({
+							halftone({
 								shape: 'circle',
 								dotSize: 12,
 								dotSpacing: 12,

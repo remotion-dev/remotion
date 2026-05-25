@@ -13,6 +13,7 @@ const makeDef = (
 ): EffectDefinition<unknown, unknown> => ({
 	type,
 	label: type,
+	documentationLink: null,
 	backend,
 	calculateKey: () => type,
 	setup: () => null,

@@ -8,12 +8,14 @@ import React, {
 	useState,
 } from 'react';
 import {type _InternalTypes} from 'remotion';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
 	LIGHT_TEXT,
 	getBackgroundFromHoverState,
 } from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
+import {noop} from '../helpers/noop';
 import {
 	markCompositionSidebarScrollFromRowClick,
 	maybeScrollCompositionSidebarRowIntoView,
@@ -22,12 +24,13 @@ import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {FilmIcon} from '../icons/video';
 import {ModalsContext} from '../state/modals';
+import {getCompositionMenuItems} from './composition-menu-items';
 import {CompositionContextButton} from './CompositionContextButton';
 import {ContextMenu} from './ContextMenu';
 import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import {showNotification} from './Notifications/NotificationCenter';
 import {SidebarRenderButton} from './SidebarRenderButton';
+import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 const COMPOSITION_ITEM_HEIGHT = 32;
 
@@ -171,94 +174,26 @@ export const CompositionSelectorItem: React.FC<{
 	);
 
 	const {setSelectedModal} = useContext(ModalsContext);
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
+	const resolvedLocation = useResolvedStack(
+		item.type === 'composition' ? item.composition.stack : null,
+	);
 
 	const contextMenu = useMemo((): ComboboxValue[] => {
 		if (item.type === 'composition') {
-			return [
-				{
-					id: 'duplicate',
-					keyHint: null,
-					label: `Duplicate...`,
-					leftItem: null,
-					onClick: () => {
-						setSelectedModal({
-							type: 'duplicate-comp',
-							compositionId: item.composition.id,
-							compositionType:
-								item.composition.durationInFrames === 1
-									? 'still'
-									: 'composition',
-						});
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					type: 'item',
-					value: 'duplicate',
-				},
-				{
-					id: 'rename',
-					keyHint: null,
-					label: `Rename...`,
-					leftItem: null,
-					onClick: () => {
-						setSelectedModal({
-							type: 'rename-comp',
-							compositionId: item.composition.id,
-						});
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					type: 'item',
-					value: 'rename',
-				},
-				{
-					id: 'delete',
-					keyHint: null,
-					label: `Delete...`,
-					leftItem: null,
-					onClick: () => {
-						setSelectedModal({
-							type: 'delete-comp',
-							compositionId: item.composition.id,
-						});
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					type: 'item',
-					value: 'delete',
-				},
-				{
-					type: 'divider',
-					id: 'copy-id-divider',
-				},
-				{
-					id: 'copy-id',
-					keyHint: null,
-					label: `Copy ID`,
-					leftItem: null,
-					onClick: () => {
-						navigator.clipboard
-							.writeText(item.composition.id)
-							.catch((err) => {
-								showNotification(
-									`Could not copy to clipboard: ${err.message}`,
-									1000,
-								);
-							})
-							.then(() => {
-								showNotification('Copied to clipboard', 1000);
-							});
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					type: 'item',
-					value: 'remove',
-				},
-			];
+			return getCompositionMenuItems({
+				closeMenu: noop,
+				composition: item.composition,
+				connectionStatus,
+				resolvedLocation,
+				setSelectedModal,
+				readOnlyStudio: window.remotion_isReadOnlyStudio,
+			});
 		}
 
 		return [];
-	}, [item, setSelectedModal]);
+	}, [connectionStatus, item, resolvedLocation, setSelectedModal]);
 
 	if (item.type === 'folder') {
 		return (

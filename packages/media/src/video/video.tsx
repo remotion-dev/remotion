@@ -289,6 +289,11 @@ const VideoInner: React.FC<
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
 			name={name ?? '<Video>'}
+			_remotionInternalDocumentationLink={
+				name === undefined
+					? 'https://www.remotion.dev/docs/media/video'
+					: undefined
+			}
 			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
 			_remotionInternalEffects={memoizedEffectDefinitions}

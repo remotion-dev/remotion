@@ -179,6 +179,12 @@ See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile
 
 <Options id="x264-preset" />
 
+### `gopSize?`<AvailableFrom v="4.0.466" />
+
+<Options id="gop" />
+
+On Lambda, this sets the maximum GOP size per chunk. Additional keyframes will appear at chunk boundaries, every `framesPerLambda` frames.
+
 ### `jpegQuality?`
 
 See [`renderMedia() -> jpegQuality`](/docs/renderer/render-media#jpegquality).
