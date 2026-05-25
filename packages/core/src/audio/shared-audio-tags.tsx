@@ -83,7 +83,7 @@ type SharedAudioContextValue = {
 		options: ScheduleAudioNodeOptions,
 	) => ScheduleAudioNodeResult;
 	resume: () => Promise<void>;
-	suspend: () => void;
+	suspend: () => Promise<void>;
 	getIsResumingAudioContext: () => Promise<void> | null;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
 };
@@ -342,7 +342,7 @@ export const SharedAudioContextProvider: React.FC<{
 		});
 		nodesToResume.current.clear();
 
-		const resumePromise = ctxAndGain.audioContext.resume();
+		const resumePromise = ctxAndGain.resume();
 
 		isResuming.current = new Promise<void>((resolve) => {
 			waitUntilActuallyResumed(ctxAndGain.audioContext, logLevel).then(resolve);
@@ -370,15 +370,15 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const suspend = useCallback(() => {
 		if (!ctxAndGain) {
-			return;
+			return Promise.resolve();
 		}
 
 		if (!audioContextIsPlayingEventually.current) {
-			return;
+			return Promise.resolve();
 		}
 
 		audioContextIsPlayingEventually.current = false;
-		ctxAndGain.audioContext.suspend();
+		return ctxAndGain.suspend();
 	}, [ctxAndGain]);
 
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {

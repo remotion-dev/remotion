@@ -61,11 +61,15 @@ export const useSingletonAudioContext = ({
 		audioContext.suspend();
 
 		const getState = () => audioContext.state;
+		const resume = () => audioContext.resume();
+		const suspend = () => audioContext.suspend();
 
 		return {
 			audioContext,
 			gainNode,
 			getState,
+			resume,
+			suspend,
 		};
 	}, [logLevel, latencyHint, env.isRendering, audioEnabled]);
 
