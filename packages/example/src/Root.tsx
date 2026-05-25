@@ -2,7 +2,6 @@ import {alias} from 'lib/alias';
 import React, {useCallback, useMemo} from 'react';
 import {
 	CalculateMetadataFunction,
-	CanvasImage,
 	Composition,
 	Folder,
 	Still,
@@ -74,6 +73,8 @@ import {
 	HtmlInCanvasDocsMinimalWebGPU,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
+	LinearBlurTransitionDoc,
+	LinearBlurTransitionDocThumb,
 	RippleTransitionDoc,
 	RippleTransitionDocThumb,
 	SwapTransitionDoc,
