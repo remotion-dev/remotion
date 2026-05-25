@@ -22,20 +22,6 @@ import {wrapInSchema} from '../wrap-in-schema.js';
 import type {CanvasImageProps} from './props.js';
 
 const canvasImageSchema = {
-	width: {
-		type: 'number',
-		min: 1,
-		step: 1,
-		default: undefined,
-		description: 'Width',
-	},
-	height: {
-		type: 'number',
-		min: 1,
-		step: 1,
-		default: undefined,
-		description: 'Height',
-	},
 	fit: {
 		type: 'enum',
 		default: 'fill',

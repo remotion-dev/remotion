@@ -2,6 +2,7 @@ import {alias} from 'lib/alias';
 import React, {useCallback, useMemo} from 'react';
 import {
 	CalculateMetadataFunction,
+	CanvasImage,
 	Composition,
 	Folder,
 	Still,
@@ -205,6 +206,7 @@ import {
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {PrintProps} from './PrintProps';
 import {SfxExample} from './Sfx';
+import {CanvasImg} from './SimpleImg/CanvasImg';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {SpringSeason} from './SpringSeason';
 import {StarburstExample} from './Starburst';
@@ -538,6 +540,14 @@ export const Index: React.FC = () => {
 					durationInFrames={10}
 				/>
 				<Composition
+					id="canvas-img"
+					component={CanvasImg}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
+				/>
+				<Composition
 					id="missing-img"
 					component={MissingImg}
 					width={1080}
@@ -569,7 +579,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={10}
 				/>
-
 				<Composition
 					id="framer"
 					component={Framer}
