@@ -14,7 +14,7 @@ import {
 
 const {createEffect} = Internals;
 
-const DEFAULT_CHROMATIC_ABERRATION_AMOUNT = 4 as const;
+const DEFAULT_CHROMATIC_ABERRATION_AMOUNT = 8 as const;
 const DEFAULT_CHROMATIC_ABERRATION_ANGLE = 0 as const;
 
 const chromaticAberrationSchema = {
@@ -35,7 +35,7 @@ const chromaticAberrationSchema = {
 } as const satisfies SequenceSchema;
 
 export type ChromaticAberrationParams = {
-	/** RGB channel separation in pixels. Defaults to `4`. */
+	/** RGB channel separation in pixels. Defaults to `8`. */
 	readonly amount?: number;
 	/** Direction of the split in degrees. Defaults to `0`. */
 	readonly angle?: number;
