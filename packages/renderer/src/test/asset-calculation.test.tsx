@@ -213,15 +213,12 @@ test('Should calculate startFrom correctly', async () => {
 		startInVideo: 2,
 		trimLeft: 101,
 		playbackRate: 1,
-		volume: new Array(58)
-			.fill(true)
-			.map((_, i) =>
-				interpolate(i, [0, 50, 100], [0, 1, 0], {
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				}),
-			)
-			.filter((i) => i > 0),
+		volume: new Array(58).fill(true).map((_, i) =>
+			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			}),
+		),
 		toneFrequency: 1,
 		audioStartFrame: 100,
 		audioStreamIndex: 0,
