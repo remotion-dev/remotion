@@ -329,10 +329,46 @@ test('halftone() rejects dotSize below range', () => {
 	expect(() => halftone({dotSize: 0})).toThrow('"dotSize" must be >= 1');
 });
 
-test('halftone() rejects empty color strings', () => {
-	expect(() => halftone({color: ''})).toThrow(
-		'"color" must be a non-empty string, but got ""',
+test('halftone() rejects empty dotColor strings', () => {
+	expect(() => halftone({dotColor: ''})).toThrow(
+		'"dotColor" must be a non-empty string, but got ""',
 	);
+});
+
+test('halftone() rejects color outside the enum', () => {
+	expect(() =>
+		halftone({
+			colorMode: 'cmyk' as Exclude<
+				Parameters<typeof halftone>[0],
+				undefined
+			>['colorMode'],
+		}),
+	).toThrow('"colorMode" must be "solid" or "source"');
+});
+
+test('halftone() rejects the renamed color option', () => {
+	expect(() =>
+		halftone({
+			color: 'black',
+		} as Parameters<typeof halftone>[0]),
+	).toThrow('"color" has been renamed to "dotColor"');
+});
+
+test('halftone() ignores undefined legacy color option', () => {
+	expect(() =>
+		halftone({
+			color: undefined,
+		} as Parameters<typeof halftone>[0]),
+	).not.toThrow();
+});
+
+test('halftone() rejects dotColor for source color mode', () => {
+	expect(() =>
+		halftone({
+			colorMode: 'source',
+			dotColor: 'black',
+		} as Parameters<typeof halftone>[0]),
+	).toThrow('"dotColor" can only be set when "colorMode" is "solid"');
 });
 
 test('invert() accepts default params', () => {

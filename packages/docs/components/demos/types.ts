@@ -74,6 +74,10 @@ import {ZoomInOutDocsDemo} from './ZoomInOutDemo';
 export type Option = {
 	name: string;
 	optional: 'no' | 'default-enabled' | 'default-disabled';
+	showIf?: {
+		option: string;
+		value: string | number | boolean | null;
+	};
 } & (
 	| {
 			type: 'numeric';
@@ -1912,10 +1916,21 @@ export const effectsHalftoneDemo: DemoType = {
 			optional: 'no',
 		},
 		{
-			name: 'color',
-			type: 'color',
-			default: '#0b84f3',
+			name: 'colorMode',
+			type: 'enum',
+			values: ['solid', 'source'],
+			default: 'solid',
 			optional: 'no',
+		},
+		{
+			name: 'dotColor',
+			type: 'color',
+			default: '#ff0000',
+			optional: 'no',
+			showIf: {
+				option: 'colorMode',
+				value: 'solid',
+			},
 		},
 		{
 			name: 'invert',

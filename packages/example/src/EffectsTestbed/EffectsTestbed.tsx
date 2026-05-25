@@ -192,7 +192,24 @@ export const EffectsTestbed: React.FC = () => {
 								shape: 'circle',
 								dotSize: 12,
 								dotSpacing: 12,
-								color: '#000',
+								dotColor: '#000',
+							}),
+						]}
+					/>
+				</Tile>
+				<Tile title="halftone source" subtitle="preserves sampled colors">
+					<Video
+						src={SAMPLE_VIDEO}
+						style={tileVideoStyle}
+						muted
+						loop
+						objectFit="cover"
+						effects={[
+							halftone({
+								shape: 'circle',
+								dotSize: 12,
+								dotSpacing: 12,
+								colorMode: 'source',
 							}),
 						]}
 					/>
