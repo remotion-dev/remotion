@@ -11,6 +11,7 @@ import {
 	bookFlipPresentationDemo,
 	circleDemo,
 	clockWipePresentationDemo,
+	crossZoomPresentationDemo,
 	crosswarpPresentationDemo,
 	cubePresentationDemo,
 	customPresentationDemo,
@@ -112,6 +113,7 @@ const demos: DemoType[] = [
 	dissolvePresentationDemo,
 	ripplePresentationDemo,
 	crosswarpPresentationDemo,
+	crossZoomPresentationDemo,
 	swapPresentationDemo,
 ];
 
