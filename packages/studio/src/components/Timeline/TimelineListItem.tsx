@@ -284,7 +284,7 @@ export const TimelineListItem: React.FC<{
 		return {
 			paddingLeft: getTimelineRowLeftChromeWidth(nestedDepth),
 			paddingRight: 8,
-			paddingBottom: 4,
+			marginTop: -6,
 			overflow: 'hidden',
 			minHeight: 0,
 		};

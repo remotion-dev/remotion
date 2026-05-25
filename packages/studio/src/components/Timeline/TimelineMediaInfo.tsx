@@ -8,7 +8,7 @@ const containerStyle: React.CSSProperties = {
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	color: VERY_LIGHT_TEXT,
 	fontSize: 12,
-	lineHeight: 1.1,
+	lineHeight: 1,
 	overflow: 'hidden',
 	whiteSpace: 'nowrap',
 	textOverflow: 'ellipsis',
@@ -21,6 +21,7 @@ const lineStyle: React.CSSProperties = {
 	textOverflow: 'ellipsis',
 	minWidth: 0,
 	fontSize: 12,
+	paddingTop: 3,
 };
 
 export const TimelineMediaInfo: React.FC<{
