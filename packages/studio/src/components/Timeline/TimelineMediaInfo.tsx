@@ -170,7 +170,9 @@ export const TimelineMediaInfo: React.FC<{
 		}
 
 		const parts: string[] = [];
-		parts.push(metadata.format);
+		if (metadata.format) {
+			parts.push(metadata.format);
+		}
 
 		if (type === 'video' && metadata.videoCodec) {
 			parts.push(metadata.videoCodec);
