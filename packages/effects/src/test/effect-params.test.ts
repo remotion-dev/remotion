@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {barrelDistortion} from '../barrel-distortion/index.js';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
+import {contrast} from '../contrast.js';
 import {grayscale} from '../grayscale.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
@@ -21,6 +22,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(brightness().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/brightness',
+	);
+	expect(contrast().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/contrast',
 	);
 	expect(grayscale().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/grayscale',
@@ -222,6 +226,33 @@ test('brightness() amount produces distinct effect keys', () => {
 	const brighter = brightness({amount: 0.4});
 	expect(
 		new Set([darker.effectKey, neutral.effectKey, brighter.effectKey]).size,
+	).toBe(3);
+});
+
+test('contrast() accepts default params', () => {
+	expect(() => contrast()).not.toThrow();
+});
+
+test('contrast() accepts increased contrast', () => {
+	expect(() => contrast({amount: 2})).not.toThrow();
+});
+
+test('contrast() rejects non-finite amount', () => {
+	expect(() => contrast({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('contrast() rejects amount below range', () => {
+	expect(() => contrast({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('contrast() amount produces distinct effect keys', () => {
+	const flat = contrast({amount: 0});
+	const neutral = contrast({amount: 1});
+	const boosted = contrast({amount: 2});
+	expect(
+		new Set([flat.effectKey, neutral.effectKey, boosted.effectKey]).size,
 	).toBe(3);
 });
 

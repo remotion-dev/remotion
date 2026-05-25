@@ -25,6 +25,13 @@ const categories: {
 				description: 'Brightness adjustment effect',
 			},
 			{
+				link: '/docs/effects/contrast',
+				preview: '/img/effects-contrast-preview.jpg',
+				alt: 'contrast effect preview',
+				name: 'contrast()',
+				description: 'Contrast adjustment effect',
+			},
+			{
 				link: '/docs/effects/grayscale',
 				preview: '/img/effects-grayscale-preview.jpg',
 				alt: 'grayscale effect preview',

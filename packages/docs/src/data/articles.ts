@@ -1746,6 +1746,15 @@ export const articles = [
 		slug: 'effects/brightness',
 	},
 	{
+		id: 'effects/contrast',
+		title: 'contrast()',
+		relativePath: 'docs/effects/contrast.mdx',
+		compId: 'articles-docs-effects-contrast',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/contrast',
+	},
+	{
 		id: 'effects/grayscale',
 		title: 'grayscale()',
 		relativePath: 'docs/effects/grayscale.mdx',
