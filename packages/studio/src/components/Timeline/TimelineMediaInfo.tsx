@@ -29,7 +29,8 @@ export const TimelineMediaInfo: React.FC<{
 	readonly src: string;
 	readonly type: 'audio' | 'video' | 'image';
 }> = ({src, type}) => {
-	const metadata = useMediaMetadata(src);
+	// Images aren't supported by mediabunny, so don't even try.
+	const metadata = useMediaMetadata(type === 'image' ? null : src);
 	const fileName = useMemo(() => Internals.getAssetDisplayName(src), [src]);
 
 	const detailsLine = useMemo(() => {
