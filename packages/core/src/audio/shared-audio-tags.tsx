@@ -172,12 +172,13 @@ type NodeToResume = {
 	duration: number;
 };
 
-const shouldSaveForLater = (state: RemotionAudioContextState) => {
+const shouldSaveForLater = (
+	state: Exclude<RemotionAudioContextState, 'closed'>,
+) => {
 	if (
 		state === 'suspended' ||
 		state === 'running-to-suspended' ||
-		state === 'interrupted' ||
-		state === 'closed'
+		state === 'interrupted'
 	) {
 		return true;
 	}
@@ -251,6 +252,14 @@ export const SharedAudioContextProvider: React.FC<{
 			}
 
 			const currentState = ctxAndGain.getState();
+
+			if (currentState === 'closed') {
+				return {
+					type: 'not-started',
+					reason: 'audio context is closed',
+				};
+			}
+
 			const saveForLater = shouldSaveForLater(currentState);
 
 			if (duration > 0) {
