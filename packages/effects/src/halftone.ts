@@ -62,7 +62,7 @@ export const halftoneSchema = {
 	},
 	colorMode: {
 		type: 'enum',
-		default: 'solid',
+		default: 'solid' as const,
 		description: 'Color mode',
 		variants: {
 			solid: {
@@ -184,10 +184,7 @@ const resolve = (p: HalftoneParams): HalftoneResolved => ({
 	offsetY: p.offsetY ?? 0,
 	sampling: p.sampling ?? 'bilinear',
 	colorMode: p.colorMode ?? 'solid',
-	dotColor:
-		(p.colorMode ?? 'solid') === 'solid' && 'dotColor' in p
-			? (p.dotColor ?? 'red')
-			: 'red',
+	dotColor: 'dotColor' in p ? (p.dotColor ?? 'red') : 'red',
 	invert: p.invert ?? false,
 });
 
@@ -201,7 +198,7 @@ const validateHalftoneParams = (params: HalftoneParams): void => {
 	assertOptionalEnum(params.shape, 'shape', HALFTONE_SHAPES);
 	assertOptionalEnum(params.sampling, 'sampling', HALFTONE_SAMPLING);
 	assertOptionalEnum(params.colorMode, 'colorMode', HALFTONE_COLOR_MODES);
-	if ('color' in params) {
+	if ('color' in params && params.color !== undefined) {
 		throw new TypeError('"color" has been renamed to "dotColor"');
 	}
 

@@ -182,7 +182,7 @@ const findObjectProperty = (
 const printObjectPropertyValue = (prop: ObjectProperty) =>
 	recast
 		.print(prop.value)
-		.code.replace(/\s+/g, ' ')
+		.code.replace(/[\n\r\t]+/g, ' ')
 		.replace(/,(\s*[}\]])/g, '$1')
 		.trim();
 

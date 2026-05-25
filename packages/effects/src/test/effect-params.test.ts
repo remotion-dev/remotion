@@ -318,6 +318,14 @@ test('halftone() rejects the renamed color option', () => {
 	).toThrow('"color" has been renamed to "dotColor"');
 });
 
+test('halftone() ignores undefined legacy color option', () => {
+	expect(() =>
+		halftone({
+			color: undefined,
+		} as Parameters<typeof halftone>[0]),
+	).not.toThrow();
+});
+
 test('halftone() rejects dotColor for source color mode', () => {
 	expect(() =>
 		halftone({

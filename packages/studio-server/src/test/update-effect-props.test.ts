@@ -133,7 +133,7 @@ test('updateEffectProps throws when first arg is not an object literal', () => {
 
 test('updateEffectProps removes props from inactive enum variants', () => {
 	const input = buildInput(
-		'[tint({colorMode: "solid", dotColor: "red", opacity: 0.5})]',
+		'[tint({colorMode: "solid", dotColor: "red  blue", opacity: 0.5})]',
 	);
 	const {serialized, removedProps} = updateEffectPropsAst({
 		input,
@@ -164,5 +164,5 @@ test('updateEffectProps removes props from inactive enum variants', () => {
 	expect(serialized).toContain('colorMode: "source"');
 	expect(serialized).not.toContain('dotColor');
 	expect(serialized).toContain('opacity: 0.5');
-	expect(removedProps).toEqual([{key: 'dotColor', valueString: '"red"'}]);
+	expect(removedProps).toEqual([{key: 'dotColor', valueString: '"red  blue"'}]);
 });
