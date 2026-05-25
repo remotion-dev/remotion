@@ -18,6 +18,7 @@ import {
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {saveSequenceProp} from './save-sequence-prop';
+import {getTimelineRowLeftChromeWidth} from './timeline-row-layout';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
@@ -281,15 +282,13 @@ export const TimelineListItem: React.FC<{
 
 	const mediaInfoStyle: React.CSSProperties = useMemo(() => {
 		return {
-			flex: 1,
-			minHeight: 0,
-			display: 'flex',
-			paddingLeft: 8,
+			paddingLeft: getTimelineRowLeftChromeWidth(nestedDepth),
 			paddingRight: 8,
 			paddingBottom: 4,
 			overflow: 'hidden',
+			minHeight: 0,
 		};
-	}, []);
+	}, [nestedDepth]);
 
 	const mediaSrc =
 		sequence.type === 'audio' ||

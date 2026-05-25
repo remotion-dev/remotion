@@ -5,17 +5,14 @@ import {formatMediaDuration} from '../../helpers/format-media-duration';
 import {useMediaMetadata} from '../../helpers/use-media-metadata';
 
 const containerStyle: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	color: LIGHT_TEXT,
-	fontSize: 11,
-	lineHeight: '14px',
+	fontSize: 12,
+	lineHeight: 1.1,
 	overflow: 'hidden',
 	whiteSpace: 'nowrap',
 	textOverflow: 'ellipsis',
 	minWidth: 0,
-	flex: 1,
 };
 
 const lineStyle: React.CSSProperties = {
@@ -23,6 +20,7 @@ const lineStyle: React.CSSProperties = {
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	minWidth: 0,
+	fontSize: 12,
 };
 
 const fileNameStyle: React.CSSProperties = {
@@ -38,56 +36,29 @@ export const TimelineMediaInfo: React.FC<{
 	const metadata = useMediaMetadata(src);
 	const fileName = useMemo(() => Internals.getAssetDisplayName(src), [src]);
 
-	const subtitleLine = useMemo(() => {
-		if (!metadata) {
-			return null;
-		}
-
-		const parts: string[] = [];
-
-		if (type === 'image') {
-			parts.push(metadata.format);
-			if (metadata.width !== null && metadata.height !== null) {
-				parts.push(`${metadata.width}x${metadata.height}`);
-			}
-		} else if (type === 'video') {
-			parts.push(metadata.format);
-			if (metadata.videoCodec) {
-				parts.push(metadata.videoCodec);
-			}
-
-			if (metadata.audioCodec) {
-				parts.push(metadata.audioCodec);
-			}
-		} else {
-			parts.push(metadata.format);
-			if (metadata.audioCodec) {
-				parts.push(metadata.audioCodec);
-			}
-		}
-
-		return parts.join(' · ');
-	}, [metadata, type]);
-
 	const detailsLine = useMemo(() => {
 		if (!metadata) {
 			return null;
 		}
 
-		if (type === 'image') {
-			return null;
+		const parts: string[] = [];
+		parts.push(metadata.format);
+
+		if (type === 'video' && metadata.videoCodec) {
+			parts.push(metadata.videoCodec);
 		}
 
-		const parts: string[] = [];
-		if (
-			type === 'video' &&
-			metadata.width !== null &&
-			metadata.height !== null
-		) {
+		if (type !== 'image' && metadata.audioCodec) {
+			parts.push(metadata.audioCodec);
+		}
+
+		if (metadata.width !== null && metadata.height !== null) {
 			parts.push(`${metadata.width}x${metadata.height}`);
 		}
 
-		parts.push(formatMediaDuration(metadata.duration));
+		if (type !== 'image') {
+			parts.push(formatMediaDuration(metadata.duration));
+		}
 
 		return parts.join(' · ');
 	}, [metadata, type]);
@@ -97,11 +68,6 @@ export const TimelineMediaInfo: React.FC<{
 			<div style={fileNameStyle} title={fileName}>
 				{fileName}
 			</div>
-			{subtitleLine ? (
-				<div style={lineStyle} title={subtitleLine}>
-					{subtitleLine}
-				</div>
-			) : null}
 			{detailsLine ? (
 				<div style={lineStyle} title={detailsLine}>
 					{detailsLine}
