@@ -1,15 +1,15 @@
-import {mirror} from '@remotion/effects/mirror';
+import {saturation} from '@remotion/effects/saturation';
 import React from 'react';
 import {CanvasImage} from 'remotion';
 import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 
-export const EffectsMirrorPreview: React.FC = () => {
+export const EffectsSaturationPreview: React.FC = () => {
 	return (
 		<CanvasImage
 			src={EFFECTS_PREVIEW_IMAGE_SRC}
 			width={1280}
 			height={720}
-			effects={[mirror({direction: 'horizontal', position: 0.5})]}
+			effects={[saturation({amount: 1.8})]}
 		/>
 	);
 };

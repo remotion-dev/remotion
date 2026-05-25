@@ -1,4 +1,16 @@
 import type {LogLevel} from 'remotion';
+import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
+import {EffectsBlurPreview} from '../effects/effects-blur-preview';
+import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
+import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
+import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
+import {EffectsHuePreview} from '../effects/effects-hue-preview';
+import {EffectsInvertPreview} from '../effects/effects-invert-preview';
+import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
+import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
+import {EffectsScalePreview} from '../effects/effects-scale-preview';
+import {EffectsTintPreview} from '../effects/effects-tint-preview';
+import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {
 	ClockWipeDemo,
 	CubeDemo,
@@ -1386,6 +1398,162 @@ export const htmlInCanvasDemo2DBlur: DemoType = {
 	id: 'html-in-canvas-2d-blur',
 	autoPlay: true,
 	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const effectsBrightnessDemo: DemoType = {
+	comp: EffectsBrightnessPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-brightness',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const effectsGrayscaleDemo: DemoType = {
+	comp: EffectsGrayscalePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-grayscale',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const effectsHueDemo: DemoType = {
+	comp: EffectsHuePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-hue',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const effectsInvertDemo: DemoType = {
+	comp: EffectsInvertPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-invert',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const effectsSaturationDemo: DemoType = {
+	comp: EffectsSaturationPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-saturation',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const effectsTintDemo: DemoType = {
+	comp: EffectsTintPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-tint',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const effectsMirrorDemo: DemoType = {
+	comp: EffectsMirrorPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-mirror',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const effectsScaleDemo: DemoType = {
+	comp: EffectsScalePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-scale',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const effectsBarrelDistortionDemo: DemoType = {
+	comp: EffectsBarrelDistortionPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-barrel-distortion',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const effectsBlurDemo: DemoType = {
+	comp: EffectsBlurPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-blur',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const effectsWaveDemo: DemoType = {
+	comp: EffectsWavePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-wave',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const effectsHalftoneDemo: DemoType = {
+	comp: EffectsHalftonePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-halftone',
+	autoPlay: false,
+	controls: false,
 	logLevel: 'info',
 	options: [],
 };
