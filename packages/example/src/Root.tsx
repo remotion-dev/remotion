@@ -72,10 +72,10 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
-	LinearBlurTransitionDoc,
-	LinearBlurTransitionDocThumb,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
+	LinearBlurTransitionDoc,
+	LinearBlurTransitionDocThumb,
 	RippleTransitionDoc,
 	RippleTransitionDocThumb,
 	SwapTransitionDoc,
@@ -213,6 +213,7 @@ import {SmoothTextTransition} from './SmoothTextTransition';
 import {SpringSeason} from './SpringSeason';
 import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
+import {SubframeAudio} from './SubframeAudio';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
@@ -1583,6 +1584,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={180 * 30}
+				/>
+				<Composition
+					id="subframe-audio"
+					component={SubframeAudio}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
 				/>
 			</Folder>
 			<Folder name="three">
