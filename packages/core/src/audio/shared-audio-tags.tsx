@@ -384,7 +384,7 @@ export const SharedAudioContextProvider: React.FC<{
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {
 		return {
 			audioContext: ctxAndGain?.audioContext ?? null,
-			getAudioContextState: () => ctxAndGain?.audioContext?.state ?? null,
+			getAudioContextState: () => ctxAndGain?.getState() ?? null,
 			gainNode: ctxAndGain?.gainNode ?? null,
 			audioSyncAnchor,
 			audioSyncAnchorEmitter,
