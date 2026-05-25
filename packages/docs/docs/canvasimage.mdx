@@ -9,8 +9,9 @@ crumb: 'API'
 
 Renders a static image onto a [`<canvas>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/canvas) element.
 
-Use it when you want to apply Remotion [`effects`](/docs/effects/api) to a static image.  
-Use [`<Img>`](/docs/img) if you need a regular `<img>` tag without effects.
+Benefit: You can attach [`effects`](/docs/effects/api) to the image.  
+Drawback: Assets must support CORS.  
+Use [`<Img>`](/docs/img) if you want a component based on the regular `<img>` tag.
 
 ```tsx twoslash title="MyComp.tsx"
 import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
@@ -18,7 +19,7 @@ import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
-      <CanvasImage src={staticFile('image.png')} width={1920} height={1080} />
+      <CanvasImage src={staticFile('image.png')} />
     </AbsoluteFill>
   );
 };
@@ -52,7 +53,7 @@ Must be one of these values:
 
 ### `effects?`
 
-An array of Remotion effects to apply to the image after it has been drawn to the source canvas.
+An array of Remotion [effects](/docs/effects/api) to apply to the image after it has been drawn to the source canvas.
 
 ### `className?`
 
@@ -61,10 +62,6 @@ A class name to apply to the `<canvas>` element.
 ### `style?`
 
 Inline styles to apply to the `<canvas>` element.
-
-### `id?`
-
-An ID to apply to the `<canvas>` element.
 
 ### `onError?`
 
