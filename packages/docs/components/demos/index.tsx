@@ -3,7 +3,6 @@ import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
 import {Control} from './control';
-import styles from './styles.module.css';
 import type {DemoType} from './types';
 import {
 	animationMathDemo,
@@ -21,6 +20,7 @@ import {
 	effectsBarrelDistortionDemo,
 	effectsBlurDemo,
 	effectsBrightnessDemo,
+	effectsChromaticAberrationDemo,
 	effectsContrastDemo,
 	effectsGrayscaleDemo,
 	effectsHalftoneDemo,
@@ -72,6 +72,7 @@ import {
 	zoomBlurPresentationDemo,
 	zoomInOutPresentationDemo,
 } from './types';
+import styles from './styles.module.css';
 
 const container: React.CSSProperties = {
 	overflow: 'hidden',
@@ -99,6 +100,7 @@ const demos: DemoType[] = [
 	effectsUvTranslateDemo,
 	effectsBarrelDistortionDemo,
 	effectsBlurDemo,
+	effectsChromaticAberrationDemo,
 	effectsWaveDemo,
 	effectsHalftoneDemo,
 	arrowDemo,

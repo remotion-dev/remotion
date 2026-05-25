@@ -271,6 +271,7 @@ const sidebars: SidebarsConfig = {
 				'effects/barrel-distortion',
 				'effects/blur',
 				'effects/brightness',
+				'effects/chromatic-aberration',
 				'effects/contrast',
 				'effects/grayscale',
 				'effects/halftone',
