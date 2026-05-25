@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {FilmBurnTransitionPreview} from '../transitions/film-burn-preview';
+import {HtmlInCanvasDocsVideoFallback} from './HtmlInCanvasDocsVideoFallback';
 import {useHtmlInCanvasDocsDemoBranch} from './useHtmlInCanvasDocsDemoBranch';
 
 export const FilmBurnDocsDemo: React.FC = () => {
@@ -11,7 +12,9 @@ export const FilmBurnDocsDemo: React.FC = () => {
 	}
 
 	if (branch === 'fallback') {
-		return <AbsoluteFill style={{backgroundColor: '#000'}} />;
+		return (
+			<HtmlInCanvasDocsVideoFallback relativeSrc="img/film-burn-transition.mp4" />
+		);
 	}
 
 	return <FilmBurnTransitionPreview />;
