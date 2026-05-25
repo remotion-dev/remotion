@@ -148,7 +148,7 @@ test('updateEffectProps removes props from inactive enum variants', () => {
 					solid: {
 						dotColor: {
 							type: 'color',
-							default: 'black',
+							default: 'red',
 						},
 					},
 					source: {},

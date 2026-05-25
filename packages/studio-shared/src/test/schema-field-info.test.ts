@@ -24,7 +24,7 @@ const effect = {
 				solid: {
 					dotColor: {
 						type: 'color',
-						default: 'black',
+						default: 'red',
 					},
 				},
 				source: {},

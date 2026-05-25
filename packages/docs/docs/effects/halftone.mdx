@@ -6,7 +6,7 @@ sidebar_label: halftone()
 crumb: '@remotion/effects'
 ---
 
-# halftone()<AvailableFrom v="4.0.466" />
+# halftone()<AvailableFrom v="4.0.467" />
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
@@ -36,7 +36,7 @@ export const MyComp: React.FC = () => {
             dotSize: 18,
             dotSpacing: 20,
             rotation: 12,
-            dotColor: '#111827',
+            dotColor: 'red',
           }),
         ]}
       />
@@ -83,7 +83,7 @@ Texture sampling mode used when reading luminance from the source. Defaults to `
 
 Allowed values are `'bilinear'` and `'nearest'`.
 
-### `colorMode?`<AvailableFrom v="4.0.467" />
+### `colorMode?`
 
 Controls how dots are colored. Defaults to `'solid'`.
 
@@ -93,11 +93,9 @@ When set to `'solid'`, each dot uses `dotColor`. When set to `'source'`, each do
 
 If `colorMode` is `'source'`, don't pass `dotColor`.
 
-### `dotColor?`<AvailableFrom v="4.0.467" />
+### `dotColor?`
 
-Color of the dots when `colorMode` is `'solid'`. Defaults to `'black'`.
-
-Previously named `color`.
+Color of the dots when `colorMode` is `'solid'`. Defaults to `'red'`.
 
 ### `invert?`
 

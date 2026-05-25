@@ -68,7 +68,7 @@ export const halftoneSchema = {
 			solid: {
 				dotColor: {
 					type: 'color',
-					default: 'black',
+					default: 'red',
 					description: 'Dot color',
 				},
 			},
@@ -105,7 +105,7 @@ export type HalftoneParams = HalftoneCommonParams &
 	(
 		| {
 				readonly colorMode?: 'solid';
-				/** Dot color. Defaults to black. */
+				/** Dot color. Defaults to red. */
 				readonly dotColor?: string;
 		  }
 		| {
@@ -186,8 +186,8 @@ const resolve = (p: HalftoneParams): HalftoneResolved => ({
 	colorMode: p.colorMode ?? 'solid',
 	dotColor:
 		(p.colorMode ?? 'solid') === 'solid' && 'dotColor' in p
-			? (p.dotColor ?? 'black')
-			: 'black',
+			? (p.dotColor ?? 'red')
+			: 'red',
 	invert: p.invert ?? false,
 });
 

@@ -1892,7 +1892,7 @@ export const effectsHalftoneDemo: DemoType = {
 		{
 			name: 'dotColor',
 			type: 'color',
-			default: '#0b84f3',
+			default: '#ff0000',
 			optional: 'no',
 			showIf: {
 				option: 'colorMode',
