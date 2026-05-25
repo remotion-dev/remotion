@@ -26,7 +26,6 @@ type ScheduleAudioNode = (
 	node: AudioBufferSourceNode,
 	mediaTimestamp: number,
 	originalUnloopedMediaTimestamp: number,
-	currentTime: number,
 ) => ScheduleAudioNodeResult;
 
 export const audioIteratorManager = ({
@@ -127,7 +126,6 @@ export const audioIteratorManager = ({
 		playbackRate,
 		scheduleAudioNode,
 		logLevel,
-		currentTime,
 	}: {
 		buffer: AudioBuffer;
 		mediaTimestamp: number;
@@ -135,7 +133,6 @@ export const audioIteratorManager = ({
 		scheduleAudioNode: ScheduleAudioNode;
 		logLevel: LogLevel;
 		originalUnloopedMediaTimestamp: number;
-		currentTime: number;
 	}) => {
 		if (!audioBufferIterator) {
 			throw new Error('Audio buffer iterator not found');
@@ -154,7 +151,6 @@ export const audioIteratorManager = ({
 			node,
 			mediaTimestamp,
 			originalUnloopedMediaTimestamp,
-			currentTime,
 		);
 
 		if (started.type === 'not-started') {
@@ -183,13 +179,11 @@ export const audioIteratorManager = ({
 		playbackRate,
 		scheduleAudioNode,
 		logLevel,
-		currentTime,
 	}: {
 		buffer: BufferWithMediaTimestamp;
 		playbackRate: number;
 		scheduleAudioNode: ScheduleAudioNode;
 		logLevel: LogLevel;
-		currentTime: number;
 	}) => {
 		if (muted) {
 			return;
@@ -221,7 +215,6 @@ export const audioIteratorManager = ({
 			scheduleAudioNode,
 			logLevel,
 			originalUnloopedMediaTimestamp: buffer.buffer.timestamp,
-			currentTime,
 		});
 
 		drawDebugOverlay();
@@ -303,7 +296,6 @@ export const audioIteratorManager = ({
 					playbackRate,
 					scheduleAudioNode,
 					logLevel,
-					currentTime: getAudioContextCurrentTimeMockedInTest(),
 				});
 				proceedScheduling({
 					iterator,
