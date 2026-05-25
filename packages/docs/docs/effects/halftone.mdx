@@ -6,7 +6,7 @@ sidebar_label: halftone()
 crumb: '@remotion/effects'
 ---
 
-# halftone()<AvailableFrom v="4.0.466" />
+# halftone()<AvailableFrom v="4.0.467" />
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
@@ -36,7 +36,34 @@ export const MyComp: React.FC = () => {
             dotSize: 18,
             dotSpacing: 20,
             rotation: 12,
-            color: '#111827',
+            dotColor: 'red',
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+To preserve the original color of each sampled grid cell, set `colorMode` to `'source'`:
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {halftone} from '@remotion/effects/halftone';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          halftone({
+            shape: 'circle',
+            dotSize: 18,
+            dotSpacing: 20,
+            rotation: 12,
+            colorMode: 'source',
           }),
         ]}
       />
@@ -83,9 +110,19 @@ Texture sampling mode used when reading luminance from the source. Defaults to `
 
 Allowed values are `'bilinear'` and `'nearest'`.
 
-### `color?`
+### `colorMode?`
 
-Color of the dots. Defaults to `'black'`.
+Controls how dots are colored. Defaults to `'solid'`.
+
+Allowed values are `'solid'` and `'source'`.
+
+When set to `'solid'`, each dot uses `dotColor`. When set to `'source'`, each dot uses the sampled source color at the grid cell.
+
+If `colorMode` is `'source'`, don't pass `dotColor`.
+
+### `dotColor?`
+
+Color of the dots when `colorMode` is `'solid'`. Defaults to `'red'`.
 
 ### `invert?`
 

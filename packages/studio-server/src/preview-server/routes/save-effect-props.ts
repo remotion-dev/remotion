@@ -56,17 +56,24 @@ export const saveEffectPropsHandler: ApiHandler<
 		const parsedDefault =
 			defaultValue !== null ? JSON.parse(defaultValue) : null;
 
-		const {output, oldValueString, formatted, logLine, effectCallee} =
-			await updateEffectProps({
-				input: fileContents,
-				sequenceNodePath: sequenceNodePath.nodePath,
-				effectIndex,
-				update: {
-					key,
-					value: JSON.parse(value),
-					defaultValue: parsedDefault,
-				},
-			});
+		const {
+			output,
+			oldValueString,
+			formatted,
+			logLine,
+			effectCallee,
+			removedProps,
+		} = await updateEffectProps({
+			input: fileContents,
+			sequenceNodePath: sequenceNodePath.nodePath,
+			effectIndex,
+			update: {
+				key,
+				value: JSON.parse(value),
+				defaultValue: parsedDefault,
+			},
+			schema,
+		});
 
 		const defaultValueString =
 			parsedDefault !== null ? JSON.stringify(parsedDefault) : null;
@@ -75,6 +82,10 @@ export const saveEffectPropsHandler: ApiHandler<
 		const normalizedNew = normalizeQuotes(value);
 		const normalizedDefault =
 			defaultValueString !== null ? normalizeQuotes(defaultValueString) : null;
+		const normalizedRemovedProps = removedProps.map((prop) => ({
+			...prop,
+			valueString: normalizeQuotes(prop.valueString),
+		}));
 
 		const undoPropChange = formatEffectPropChange({
 			effectName: effectCallee,
@@ -83,7 +94,7 @@ export const saveEffectPropsHandler: ApiHandler<
 			newValueString: normalizedOld,
 			defaultValueString: normalizedDefault,
 			removedProps: [],
-			addedProps: [],
+			addedProps: normalizedRemovedProps,
 		});
 		const redoPropChange = formatEffectPropChange({
 			effectName: effectCallee,
@@ -91,7 +102,7 @@ export const saveEffectPropsHandler: ApiHandler<
 			oldValueString: normalizedOld,
 			newValueString: normalizedNew,
 			defaultValueString: normalizedDefault,
-			removedProps: [],
+			removedProps: normalizedRemovedProps,
 			addedProps: [],
 		});
 
@@ -122,7 +133,7 @@ export const saveEffectPropsHandler: ApiHandler<
 			defaultValueString,
 			formatted,
 			logLevel,
-			removedProps: [],
+			removedProps,
 			addedProps: [],
 		});
 

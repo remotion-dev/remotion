@@ -1,4 +1,7 @@
-import type {HalftoneShape} from '@remotion/effects/halftone';
+import type {
+	HalftoneColorMode,
+	HalftoneShape,
+} from '@remotion/effects/halftone';
 import {halftone} from '@remotion/effects/halftone';
 import React from 'react';
 import {CanvasImage} from 'remotion';
@@ -9,9 +12,15 @@ export const EffectsHalftonePreview: React.FC<{
 	readonly dotSize: number;
 	readonly dotSpacing: number;
 	readonly rotation: number;
-	readonly color: string;
+	readonly colorMode: HalftoneColorMode;
+	readonly dotColor: string;
 	readonly invert: boolean;
-}> = ({shape, dotSize, dotSpacing, rotation, color, invert}) => {
+}> = ({shape, dotSize, dotSpacing, rotation, colorMode, dotColor, invert}) => {
+	const colorParams =
+		colorMode === 'source'
+			? ({colorMode: 'source'} as const)
+			: ({colorMode: 'solid', dotColor} as const);
+
 	return (
 		<CanvasImage
 			src={EFFECTS_PREVIEW_IMAGE_SRC}
@@ -23,7 +32,7 @@ export const EffectsHalftonePreview: React.FC<{
 					dotSize,
 					dotSpacing,
 					rotation,
-					color,
+					...colorParams,
 					invert,
 				}),
 			]}

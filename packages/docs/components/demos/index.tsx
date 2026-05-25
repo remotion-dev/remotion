@@ -4,7 +4,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
 import {Control} from './control';
 import styles from './styles.module.css';
-import type {DemoType} from './types';
+import type {DemoType, Option} from './types';
 import {
 	animationMathDemo,
 	arrowDemo,
@@ -149,6 +149,17 @@ const demos: DemoType[] = [
 	swapPresentationDemo,
 ];
 
+const shouldShowOption = (
+	option: Option,
+	state: Record<string, unknown>,
+): boolean => {
+	if (!option.showIf) {
+		return true;
+	}
+
+	return state[option.showIf.option] === option.showIf.value;
+};
+
 export const Demo: React.FC<{
 	readonly type: string;
 }> = ({type}) => {
@@ -238,21 +249,23 @@ export const Demo: React.FC<{
 				loop
 			/>
 			<div className={styles.containerrow}>
-				{demo.options.map((option) => {
-					return (
-						<Control
-							key={option.name}
-							option={option}
-							value={state[option.name]}
-							setValue={(value) => {
-								setState((s) => ({
-									...s,
-									[option.name]: value,
-								}));
-							}}
-						/>
-					);
-				})}
+				{demo.options
+					.filter((option) => shouldShowOption(option, state))
+					.map((option) => {
+						return (
+							<Control
+								key={option.name}
+								option={option}
+								value={state[option.name]}
+								setValue={(value) => {
+									setState((s) => ({
+										...s,
+										[option.name]: value,
+									}));
+								}}
+							/>
+						);
+					})}
 			</div>
 		</div>
 	);
