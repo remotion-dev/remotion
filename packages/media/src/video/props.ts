@@ -8,6 +8,7 @@ import type {
 	VolumeProp,
 } from 'remotion';
 import type {MediaOnError} from '../on-error';
+import type {MediaRequestInit} from '../request-init';
 
 export type MediaErrorEvent = {
 	error: Error;
@@ -67,7 +68,12 @@ type OptionalVideoProps = {
 	debugOverlay: boolean;
 	headless: boolean;
 	onError: MediaOnError | undefined;
+	/**
+	 * @deprecated Use `requestInit={{credentials: ...}}` instead. If both are
+	 * passed, `requestInit.credentials` wins over this prop.
+	 */
 	credentials: RequestCredentials | undefined;
+	requestInit: MediaRequestInit | undefined;
 	objectFit: VideoObjectFit;
 	_experimentalInitiallyDrawCachedFrame: boolean;
 	effects: EffectsProp;

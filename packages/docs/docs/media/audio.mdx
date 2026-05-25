@@ -252,7 +252,11 @@ export const MyComposition = () => {
 };
 ```
 
-### `credentials?`<AvailableFrom v="4.0.437" />
+### ~~`credentials?`<AvailableFrom v="4.0.437" />~~
+
+:::note Deprecated
+Use [`requestInit`](#requestinit) instead.
+:::
 
 Controls the [`credentials`](https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials) option of the `fetch()` requests made to retrieve the audio data.
 
@@ -267,7 +271,28 @@ import {Audio} from '@remotion/media';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Audio credentials="include" src="https://example.com/protected-audio.mp3" />
+      <Audio requestInit={{credentials: 'include'}} src="https://example.com/protected-audio.mp3" />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `requestInit?`<AvailableFrom v="4.0.465" />
+
+Passes [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) options to the `fetch()` requests made to retrieve the audio data.
+
+Set `cache` to `"no-store"` if a CDN or browser cache returns invalid range request responses.
+The value is captured when the component mounts; later updates to the prop are ignored, so passing an inline object is safe.
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio requestInit={{cache: 'no-store'}} src="https://remotion.media/audio.mp3" />
     </AbsoluteFill>
   );
 };
