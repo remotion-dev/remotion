@@ -16,6 +16,7 @@ import {ArrowDemo} from './Arrow';
 import {BookFlipDocsDemo} from './BookFlipDemo';
 import {CircleDemo} from './Circle';
 import {CrosswarpDocsDemo} from './CrosswarpDemo';
+import {CrossZoomDocsDemo} from './CrossZoomDemo';
 import {DissolveDocsDemo} from './DissolveDemo';
 import {DreamyZoomDocsDemo} from './DreamyZoomDemo';
 import {EllipseDemo} from './Ellipse';
@@ -1026,6 +1027,19 @@ export const crosswarpPresentationDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'crosswarp',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const crossZoomPresentationDemo: DemoType = {
+	comp: CrossZoomDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'cross-zoom',
 	autoPlay: true,
 	controls: false,
 	logLevel: 'info',

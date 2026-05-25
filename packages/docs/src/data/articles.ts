@@ -6691,6 +6691,15 @@ export const articles = [
 		slug: 'transitions/presentations/clock-wipe',
 	},
 	{
+		id: 'transitions/presentations/cross-zoom',
+		title: 'crossZoom()',
+		relativePath: 'docs/transitions/presentations/cross-zoom.mdx',
+		compId: 'articles-docs-transitions-presentations-cross-zoom',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/cross-zoom',
+	},
+	{
 		id: 'transitions/presentations/crosswarp',
 		title: 'crosswarp()',
 		relativePath: 'docs/transitions/presentations/crosswarp.mdx',

@@ -21,6 +21,7 @@ const presentations = [
 	'dissolve',
 	'ripple',
 	'crosswarp',
+	'cross-zoom',
 	'swap',
 ];
 

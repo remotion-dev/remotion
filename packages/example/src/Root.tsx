@@ -50,6 +50,8 @@ import {
 import {
 	BookFlipTransitionDoc,
 	BookFlipTransitionDocThumb,
+	CrossZoomTransitionDoc,
+	CrossZoomTransitionDocThumb,
 	CrosswarpTransitionDoc,
 	CrosswarpTransitionDocThumb,
 	DissolveTransitionDoc,
@@ -1211,6 +1213,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="crosswarp-transition-doc-thumb"
 						component={CrosswarpTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="cross-zoom-transition-doc"
+						component={CrossZoomTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="cross-zoom-transition-doc-thumb"
+						component={CrossZoomTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}
