@@ -42,7 +42,7 @@ export const IfYouKnowReact: React.FC = () => {
 					<span className="text-brand">Compose</span> with code
 				</h2>
 				<p className="leading-relaxed font-brand">
-					Use React, a powerful frontend technology, to create sophisticated
+					Describe the result, then refine it with React to create sophisticated
 					videos with code.
 				</p>
 				<div className="h-4" />

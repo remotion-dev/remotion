@@ -120,7 +120,7 @@ const VideoAppsShowcase: React.FC = () => {
 
 	return (
 		<div ref={containerRef}>
-			<SectionTitle>Use Cases</SectionTitle>
+			<SectionTitle>Video apps and automations</SectionTitle>
 			<div
 				className={
 					'grid justify-center grid-flow-col grid-rows-1 gap-2.5 justify-self-center mb-4 w-[90vw] md:w-auto -mt-4'
@@ -279,7 +279,8 @@ const VideoAppsShowcase: React.FC = () => {
 						fontFamily: 'GTPlanar',
 					}}
 				>
-					For more examples see our{' '}
+					From one-off videos to products that generate thousands of
+					personalized renders. For more examples see our{' '}
 					<a href="/showcase" className="bluelink">
 						Showcase page
 					</a>
