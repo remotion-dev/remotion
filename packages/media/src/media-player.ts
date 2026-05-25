@@ -1,20 +1,20 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import type {
+	EffectChainState,
 	EffectDefinitionAndStack,
 	LogLevel,
+	ScheduleAudioNodeResult,
 	useBufferState,
 } from 'remotion';
-import type {EffectChainState} from 'remotion';
 import {Internals} from 'remotion';
-import type {ScheduleAudioNodeResult} from 'remotion';
 import {
 	audioIteratorManager,
 	type AudioIteratorManager,
 } from './audio-iterator-manager';
 import {
 	getDurationOfNode,
-	getOffset,
 	getScheduledTime,
+	getTrimStartForAudioNode,
 } from './audio/get-scheduled-time';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getDurationOrCompute} from './get-duration-or-compute';
@@ -696,6 +696,7 @@ export class MediaPlayer {
 		const timeInSeconds = globalTime - this.sequenceOffset;
 
 		const localTime = this.getTrimmedTime(timeInSeconds);
+
 		if (localTime === null) {
 			return null;
 		}
@@ -720,6 +721,7 @@ export class MediaPlayer {
 			mediaTimestamp,
 			this.sharedAudioContext.audioContext.currentTime,
 		);
+		const combinedPlaybackRate = this.playbackRate * this.globalPlaybackRate;
 		if (targetTime === null) {
 			return {
 				type: 'not-started',
@@ -734,10 +736,11 @@ export class MediaPlayer {
 		const sequenceStartTime = this.getStartTime();
 		const loopSegmentMediaEndTimestamp = this.getLoopSegmentMediaEndTimestamp();
 
-		const offset = getOffset({
+		const offset = getTrimStartForAudioNode({
 			mediaTimestamp,
 			targetTime,
 			sequenceStartTime,
+			combinedPlaybackRate,
 		});
 
 		const duration = getDurationOfNode({
