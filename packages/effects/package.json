@@ -92,6 +92,11 @@
 			"module": "./dist/esm/tint.mjs",
 			"import": "./dist/esm/tint.mjs"
 		},
+		"./translate": {
+			"types": "./dist/translate.d.ts",
+			"module": "./dist/esm/translate.mjs",
+			"import": "./dist/esm/translate.mjs"
+		},
 		"./wave": {
 			"types": "./dist/wave.d.ts",
 			"module": "./dist/esm/wave.mjs",
@@ -136,6 +141,9 @@
 			],
 			"tint": [
 				"dist/tint.d.ts"
+			],
+			"translate": [
+				"dist/translate.d.ts"
 			],
 			"wave": [
 				"dist/wave.d.ts"

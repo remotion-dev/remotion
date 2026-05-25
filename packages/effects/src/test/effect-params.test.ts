@@ -11,6 +11,7 @@ import {mirror} from '../mirror.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {tint} from '../tint.js';
+import {uvTranslate, xyTranslate} from '../translate.js';
 import {wave} from '../wave/index.js';
 
 test('@remotion/effects expose documentation links', () => {
@@ -49,6 +50,12 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(tint({color: '#fff'}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/tint',
+	);
+	expect(uvTranslate().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/uv-translate',
+	);
+	expect(xyTranslate().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/xy-translate',
 	);
 	expect(wave().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/wave',
@@ -451,4 +458,50 @@ test('scale() axis flags produce distinct effect keys', () => {
 		neither.effectKey,
 	];
 	expect(new Set(keys).size).toBe(keys.length);
+});
+
+test('xyTranslate() accepts default params', () => {
+	expect(() => xyTranslate()).not.toThrow();
+});
+
+test('xyTranslate() rejects non-finite offsets', () => {
+	expect(() => xyTranslate({x: Number.NaN})).toThrow(
+		'"x" must be a finite number',
+	);
+	expect(() => xyTranslate({y: Number.NaN})).toThrow(
+		'"y" must be a finite number',
+	);
+});
+
+test('xyTranslate() offsets produce distinct effect keys', () => {
+	const centered = xyTranslate();
+	const shiftedX = xyTranslate({x: 10});
+	const shiftedY = xyTranslate({y: 10});
+
+	expect(
+		new Set([centered.effectKey, shiftedX.effectKey, shiftedY.effectKey]).size,
+	).toBe(3);
+});
+
+test('uvTranslate() accepts default params', () => {
+	expect(() => uvTranslate()).not.toThrow();
+});
+
+test('uvTranslate() rejects non-finite offsets', () => {
+	expect(() => uvTranslate({u: Number.NaN})).toThrow(
+		'"u" must be a finite number',
+	);
+	expect(() => uvTranslate({v: Number.NaN})).toThrow(
+		'"v" must be a finite number',
+	);
+});
+
+test('uvTranslate() offsets produce distinct effect keys', () => {
+	const centered = uvTranslate();
+	const shiftedU = uvTranslate({u: 0.1});
+	const shiftedV = uvTranslate({v: 0.1});
+
+	expect(
+		new Set([centered.effectKey, shiftedU.effectKey, shiftedV.effectKey]).size,
+	).toBe(3);
 });

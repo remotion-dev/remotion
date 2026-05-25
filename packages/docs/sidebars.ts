@@ -280,7 +280,9 @@ const sidebars: SidebarsConfig = {
 				'effects/saturation',
 				'effects/scale',
 				'effects/tint',
+				'effects/uv-translate',
 				'effects/wave',
+				'effects/xy-translate',
 			],
 		},
 		{

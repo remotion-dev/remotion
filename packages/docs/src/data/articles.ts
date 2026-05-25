@@ -1836,6 +1836,15 @@ export const articles = [
 		slug: 'effects/tint',
 	},
 	{
+		id: 'effects/uv-translate',
+		title: 'uvTranslate()',
+		relativePath: 'docs/effects/uv-translate.mdx',
+		compId: 'articles-docs-effects-uv-translate',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/uv-translate',
+	},
+	{
 		id: 'effects/wave',
 		title: 'wave()',
 		relativePath: 'docs/effects/wave.mdx',
@@ -1843,6 +1852,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/wave',
+	},
+	{
+		id: 'effects/xy-translate',
+		title: 'xyTranslate()',
+		relativePath: 'docs/effects/xy-translate.mdx',
+		compId: 'articles-docs-effects-xy-translate',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/xy-translate',
 	},
 	{
 		id: 'electron',

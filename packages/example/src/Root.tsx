@@ -56,8 +56,6 @@ import {
 	CrosswarpTransitionDocThumb,
 	DissolveTransitionDoc,
 	DissolveTransitionDocThumb,
-	FilmBurnTransitionDoc,
-	FilmBurnTransitionDocThumb,
 	EffectsBlurPreview,
 	EffectsBrightnessPreview,
 	EffectsContrastPreview,
@@ -67,7 +65,11 @@ import {
 	EffectsInvertPreview,
 	EffectsSaturationPreview,
 	EffectsTintPreview,
+	EffectsUvTranslatePreview,
 	EffectsWavePreview,
+	EffectsXyTranslatePreview,
+	FilmBurnTransitionDoc,
+	FilmBurnTransitionDocThumb,
 	HtmlInCanvasComplexText,
 	HtmlInCanvasComposeAsyncBitmap,
 	HtmlInCanvasComposeWebGL,
@@ -1177,6 +1179,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="html-in-canvas-effects-scale-preview"
 						component={EffectsWavePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-xy-translate-preview"
+						component={EffectsXyTranslatePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-uv-translate-preview"
+						component={EffectsUvTranslatePreview}
 						fps={30}
 						height={720}
 						width={1080}
