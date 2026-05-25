@@ -1,20 +1,21 @@
-import {wave} from '@remotion/effects/wave';
+import {halftone} from '@remotion/effects/halftone';
 import React from 'react';
 import {CanvasImage} from 'remotion';
 import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 
-export const EffectsWavePreview: React.FC = () => {
+export const EffectsHalftonePreview: React.FC = () => {
 	return (
 		<CanvasImage
 			src={EFFECTS_PREVIEW_IMAGE_SRC}
 			width={1280}
 			height={720}
 			effects={[
-				wave({
-					phase: 1.2,
-					amplitude: 50,
-					wavelength: 200,
-					direction: 'horizontal',
+				halftone({
+					shape: 'circle',
+					dotSize: 8,
+					dotSpacing: 7,
+					rotation: 12,
+					color: '#0b84f3',
 				}),
 			]}
 		/>
