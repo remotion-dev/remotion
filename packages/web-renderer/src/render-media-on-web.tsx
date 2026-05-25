@@ -1,6 +1,6 @@
 import {BufferTarget, StreamTarget} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
-import {Internals, type LogLevel} from 'remotion';
+import {Internals, type LogLevel, type TRenderAsset} from 'remotion';
 import {VERSION} from 'remotion/version';
 import type {z} from 'zod';
 import type {$ZodObject} from 'zod/v4/core';
@@ -484,6 +484,40 @@ const internalRenderMediaOnWeb = async <
 			};
 		};
 
+		const pendingAudioAssets = new Map<number, TRenderAsset[]>();
+		const queueAudioAssets = (assets: TRenderAsset[]) => {
+			for (const asset of assets) {
+				if (asset.type !== 'inline-audio') {
+					continue;
+				}
+
+				const existing = pendingAudioAssets.get(asset.frame) ?? [];
+				pendingAudioAssets.set(asset.frame, [...existing, asset]);
+			}
+		};
+
+		const encodeAudioForFrame = async (frameToEncode: number) => {
+			if (muted || audioSampleSource === null) {
+				return;
+			}
+
+			const audioCombineStart = performance.now();
+			const timestamp = Math.round(
+				((frameToEncode - realFrameRange[0]) / resolved.fps) * 1_000_000,
+			);
+			const assets = pendingAudioAssets.get(frameToEncode) ?? [];
+			pendingAudioAssets.delete(frameToEncode);
+			const audio = onlyInlineAudio({
+				assets,
+				fps: resolved.fps,
+				timestamp,
+				sampleRate,
+			});
+			internalState.addAudioMixingTime(performance.now() - audioCombineStart);
+
+			await addAudioSample(audio, audioSampleSource.audioSampleSource);
+		};
+
 		for (let frame = realFrameRange[0]; frame <= realFrameRange[1]; frame++) {
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
@@ -574,7 +608,6 @@ const internalRenderMediaOnWeb = async <
 
 			throttledOnProgress?.(getProgressPayload());
 
-			const audioCombineStart = performance.now();
 			const assets = collectAssets.current!.collectAssets();
 			if (onArtifact) {
 				await artifactsHandler.handle({
@@ -584,15 +617,11 @@ const internalRenderMediaOnWeb = async <
 					onArtifact,
 				});
 			}
+			queueAudioAssets(assets);
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
-
-			const audio = muted
-				? null
-				: onlyInlineAudio({assets, fps: resolved.fps, timestamp, sampleRate});
-			internalState.addAudioMixingTime(performance.now() - audioCombineStart);
 
 			const addSampleStart = performance.now();
 			const encodingPromises: Promise<void>[] = [];
@@ -605,10 +634,8 @@ const internalRenderMediaOnWeb = async <
 				);
 			}
 
-			if (audio && audioSampleSource) {
-				encodingPromises.push(
-					addAudioSample(audio, audioSampleSource.audioSampleSource),
-				);
+			if (frame > realFrameRange[0]) {
+				encodingPromises.push(encodeAudioForFrame(frame - 1));
 			}
 
 			await Promise.all(encodingPromises);
@@ -625,6 +652,32 @@ const internalRenderMediaOnWeb = async <
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 		}
+
+		if (
+			!muted &&
+			audioSampleSource !== null &&
+			realFrameRange[1] + 1 < resolved.durationInFrames
+		) {
+			timeUpdater.current?.update(realFrameRange[1] + 1);
+
+			await waitForReady({
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+				scope: delayRenderScope,
+				signal,
+				apiName: 'renderMediaOnWeb',
+				keepalive,
+				internalState,
+			});
+			checkForError(errorHolder);
+
+			queueAudioAssets(collectAssets.current!.collectAssets());
+		}
+
+		const addFinalAudioSampleStart = performance.now();
+		await encodeAudioForFrame(realFrameRange[1]);
+		internalState.addAddSampleTime(
+			performance.now() - addFinalAudioSampleStart,
+		);
 
 		// Call progress one final time to ensure final state is reported
 		onProgress?.(getProgressPayload());

@@ -61,6 +61,7 @@ import {scalePrecomposeFixture} from './fixtures/scale-precompose';
 import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
+import {subframeAudio} from './fixtures/subframe-audio';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
@@ -127,6 +128,7 @@ export const Root: React.FC = () => {
 			</Folder>
 			<Composition {...threeDTransformOpacity} />
 			<Composition {...backgroundColor} />
+			<Composition {...subframeAudio} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
 				<Composition {...backfaceVisibilityMask} />

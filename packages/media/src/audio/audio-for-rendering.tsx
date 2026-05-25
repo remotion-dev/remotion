@@ -11,11 +11,64 @@ import {
 } from 'remotion';
 import {useMaxMediaCacheSize} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
+import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {callOnErrorAndResolve} from '../on-error';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {AudioProps} from './props';
+
+const NUMBER_OF_CHANNELS = 2;
+
+const isAlmostZero = (value: number) => {
+	return Math.abs(value) < 0.0000001;
+};
+
+const roundSamples = (seconds: number) => {
+	return Math.round(seconds * getTargetSampleRate());
+};
+
+const padAudioToFullFrame = ({
+	audio,
+	fps,
+	padStartInSeconds,
+	padEndInSeconds,
+}: {
+	audio: PcmS16AudioData;
+	fps: number;
+	padStartInSeconds: number;
+	padEndInSeconds: number;
+}): PcmS16AudioData => {
+	if (isAlmostZero(padStartInSeconds) && isAlmostZero(padEndInSeconds)) {
+		return audio;
+	}
+
+	const expectedFrames = Math.round(getTargetSampleRate() / fps);
+	const target = new Int16Array(expectedFrames * NUMBER_OF_CHANNELS);
+	const offset = Math.min(
+		Math.max(0, roundSamples(padStartInSeconds)),
+		expectedFrames,
+	);
+	const requestedEndPadding = Math.max(0, roundSamples(padEndInSeconds));
+	const maxFramesToCopy = Math.max(
+		0,
+		expectedFrames - offset - requestedEndPadding,
+	);
+	const framesToCopy = Math.min(audio.numberOfFrames, maxFramesToCopy);
+
+	target.set(
+		audio.data.subarray(0, framesToCopy * NUMBER_OF_CHANNELS),
+		offset * NUMBER_OF_CHANNELS,
+	);
+
+	return {
+		data: target,
+		numberOfFrames: expectedFrames,
+		timestamp: audio.timestamp - padStartInSeconds * 1_000_000,
+		durationInMicroSeconds:
+			(expectedFrames / getTargetSampleRate()) * 1_000_000,
+	};
+};
 
 export const AudioForRendering: React.FC<AudioProps> = ({
 	volume: volumeProp,
@@ -89,9 +142,6 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const audioEnabled = Internals.useAudioEnabled();
 
 	useLayoutEffect(() => {
-		const timestamp = frame / fps;
-		const durationInSeconds = 1 / fps;
-
 		const shouldRenderAudio = (() => {
 			if (!audioEnabled) {
 				return false;
@@ -117,96 +167,121 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
 
-		extractFrameViaBroadcastChannel({
-			src,
-			timeInSeconds: timestamp,
-			durationInSeconds,
-			playbackRate: playbackRate ?? 1,
-			logLevel,
-			includeAudio: shouldRenderAudio,
-			includeVideo: false,
-			isClientSideRendering: environment.isClientSideRendering,
-			loop: loop ?? false,
-			audioStreamIndex: audioStreamIndex ?? null,
-			trimAfter,
-			trimBefore,
-			fps,
-			maxCacheSize,
-			credentials,
-			requestInit: initialRequestInit,
-		})
-			.then((result) => {
-				const handleError = (
-					error: Error,
-					clientSideError: Error,
-					fallbackMessage: string,
-				) => {
-					const [action, errorToUse] = callOnErrorAndResolve({
-						onError,
-						error,
-						disallowFallback: disallowFallbackToHtml5Audio ?? false,
-						isClientSideRendering: environment.isClientSideRendering,
-						clientSideError,
-					});
-					if (action === 'fail') {
-						cancelRender(errorToUse);
-					}
+		const sequenceStartFrame =
+			(sequenceContext?.cumulatedFrom ?? 0) +
+			(sequenceContext?.relativeFrom ?? 0);
+		const sequenceEndFrame =
+			sequenceStartFrame + (sequenceContext?.durationInFrames ?? Infinity);
+		const extractAndRegister = async ({
+			sourceStartFrame,
+			durationInFrames,
+			frameToRegister,
+			padStartInSeconds,
+			padEndInSeconds,
+			volumeFrame,
+		}: {
+			sourceStartFrame: number;
+			durationInFrames: number;
+			frameToRegister: number;
+			padStartInSeconds: number;
+			padEndInSeconds: number;
+			volumeFrame: number;
+		}) => {
+			if (
+				durationInFrames <= 0 ||
+				(durationInFrames / fps) * getTargetSampleRate() < 1
+			) {
+				return;
+			}
 
-					Internals.Log.warn(
-						{logLevel, tag: '@remotion/media'},
-						fallbackMessage,
-					);
+			const result = await extractFrameViaBroadcastChannel({
+				src,
+				timeInSeconds: sourceStartFrame / fps,
+				durationInSeconds: durationInFrames / fps,
+				playbackRate: playbackRate ?? 1,
+				logLevel,
+				includeAudio: shouldRenderAudio,
+				includeVideo: false,
+				isClientSideRendering: environment.isClientSideRendering,
+				loop: loop ?? false,
+				audioStreamIndex: audioStreamIndex ?? null,
+				trimAfter,
+				trimBefore,
+				fps,
+				maxCacheSize,
+				credentials,
+				requestInit: initialRequestInit,
+			});
 
-					setReplaceWithHtml5Audio(true);
-				};
-
-				if (result.type === 'unknown-container-format') {
-					handleError(
-						new Error(`Unknown container format ${src}.`),
-						new Error(
-							`Cannot render audio "${src}": Unknown container format. See supported formats: https://www.remotion.dev/docs/mediabunny/formats`,
-						),
-						`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
-					);
-					return;
+			const handleError = (
+				error: Error,
+				clientSideError: Error,
+				fallbackMessage: string,
+			) => {
+				const [action, errorToUse] = callOnErrorAndResolve({
+					onError,
+					error,
+					disallowFallback: disallowFallbackToHtml5Audio ?? false,
+					isClientSideRendering: environment.isClientSideRendering,
+					clientSideError,
+				});
+				if (action === 'fail') {
+					cancelRender(errorToUse);
 				}
 
-				if (result.type === 'cannot-decode') {
-					handleError(
-						new Error(`Cannot decode ${src}.`),
-						new Error(
-							`Cannot render audio "${src}": The audio could not be decoded by the browser.`,
-						),
-						`Cannot decode ${src}, falling back to <Html5Audio>`,
-					);
-					return;
-				}
+				Internals.Log.warn({logLevel, tag: '@remotion/media'}, fallbackMessage);
 
-				if (result.type === 'cannot-decode-alpha') {
-					throw new Error(
-						`Cannot decode alpha component for ${src}, and 'disallowFallbackToHtml5Audio' was set. But this should never happen, since you used the <Audio> tag. Please report this as a bug.`,
-					);
-				}
+				setReplaceWithHtml5Audio(true);
+			};
 
-				if (result.type === 'network-error') {
-					handleError(
-						new Error(`Network error fetching ${src}.`),
-						new Error(
-							`Cannot render audio "${src}": Network error while fetching the audio (possibly CORS).`,
-						),
-						`Network error fetching ${src}, falling back to <Html5Audio>`,
-					);
-					return;
-				}
+			if (result.type === 'unknown-container-format') {
+				handleError(
+					new Error(`Unknown container format ${src}.`),
+					new Error(
+						`Cannot render audio "${src}": Unknown container format. See supported formats: https://www.remotion.dev/docs/mediabunny/formats`,
+					),
+					`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
+				);
+				return;
+			}
 
-				const {audio, durationInSeconds: assetDurationInSeconds} = result;
+			if (result.type === 'cannot-decode') {
+				handleError(
+					new Error(`Cannot decode ${src}.`),
+					new Error(
+						`Cannot render audio "${src}": The audio could not be decoded by the browser.`,
+					),
+					`Cannot decode ${src}, falling back to <Html5Audio>`,
+				);
+				return;
+			}
 
+			if (result.type === 'cannot-decode-alpha') {
+				throw new Error(
+					`Cannot decode alpha component for ${src}, and 'disallowFallbackToHtml5Audio' was set. But this should never happen, since you used the <Audio> tag. Please report this as a bug.`,
+				);
+			}
+
+			if (result.type === 'network-error') {
+				handleError(
+					new Error(`Network error fetching ${src}.`),
+					new Error(
+						`Cannot render audio "${src}": Network error while fetching the audio (possibly CORS).`,
+					),
+					`Network error fetching ${src}, falling back to <Html5Audio>`,
+				);
+				return;
+			}
+
+			const {audio, durationInSeconds: assetDurationInSeconds} = result;
+
+			if (audio) {
 				const volumePropsFrame = frameForVolumeProp({
 					behavior: loopVolumeCurveBehavior ?? 'repeat',
 					loop: loop ?? false,
 					assetDurationInSeconds: assetDurationInSeconds ?? 0,
 					fps,
-					frame,
+					frame: volumeFrame,
 					startsAt,
 				});
 				const volume = Internals.evaluateVolume({
@@ -217,22 +292,77 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 				Internals.warnAboutTooHighVolume(volume);
 
-				if (audio && volume > 0) {
-					applyVolume(audio.data, volume);
+				if (volume > 0) {
+					const paddedAudio = padAudioToFullFrame({
+						audio,
+						fps,
+						padStartInSeconds,
+						padEndInSeconds,
+					});
+					applyVolume(paddedAudio.data, volume);
 					registerRenderAsset({
 						type: 'inline-audio',
 						id,
 						audio: environment.isClientSideRendering
-							? audio.data
-							: Array.from(audio.data),
-						frame: absoluteFrame,
-						timestamp: audio.timestamp,
+							? paddedAudio.data
+							: Array.from(paddedAudio.data),
+						frame: frameToRegister,
+						timestamp: paddedAudio.timestamp,
 						duration:
-							(audio.numberOfFrames / getTargetSampleRate()) * 1_000_000,
+							(paddedAudio.numberOfFrames / getTargetSampleRate()) * 1_000_000,
 						toneFrequency: toneFrequency ?? 1,
 					});
 				}
+			}
+		};
 
+		const frameStart = absoluteFrame;
+		const frameEnd = absoluteFrame + 1;
+		const audibleStart = Math.max(frameStart, sequenceStartFrame);
+		const audibleEnd = Math.min(frameEnd, sequenceEndFrame);
+		const extractionTasks: Promise<void>[] = [];
+
+		if (audibleEnd > audibleStart) {
+			extractionTasks.push(
+				extractAndRegister({
+					sourceStartFrame: audibleStart - sequenceStartFrame,
+					durationInFrames: audibleEnd - audibleStart,
+					frameToRegister: absoluteFrame,
+					padStartInSeconds: (audibleStart - frameStart) / fps,
+					padEndInSeconds: (frameEnd - audibleEnd) / fps,
+					volumeFrame: audibleStart - sequenceStartFrame,
+				}),
+			);
+		}
+
+		const startsInPreviousFrame =
+			sequenceStartFrame % 1 !== 0 &&
+			absoluteFrame === Math.ceil(sequenceStartFrame);
+		if (startsInPreviousFrame) {
+			const previousFrameStart = absoluteFrame - 1;
+			const previousFrameEnd = absoluteFrame;
+			const previousAudibleStart = Math.max(
+				previousFrameStart,
+				sequenceStartFrame,
+			);
+			const previousAudibleEnd = Math.min(previousFrameEnd, sequenceEndFrame);
+			if (previousAudibleEnd > previousAudibleStart) {
+				extractionTasks.push(
+					extractAndRegister({
+						sourceStartFrame: previousAudibleStart - sequenceStartFrame,
+						durationInFrames: previousAudibleEnd - previousAudibleStart,
+						frameToRegister: previousFrameStart,
+						padStartInSeconds:
+							(previousAudibleStart - previousFrameStart) / fps,
+						padEndInSeconds: (previousFrameEnd - previousAudibleEnd) / fps,
+						volumeFrame: previousAudibleStart - sequenceStartFrame,
+					}),
+				);
+			}
+		}
+
+		Promise.all(extractionTasks)
+			.then(() => {
 				continueRender(newHandle);
 			})
 			.catch((error) => {
@@ -274,6 +404,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		onError,
 		credentials,
 		initialRequestInit,
+		sequenceContext?.cumulatedFrom,
+		sequenceContext?.relativeFrom,
+		sequenceContext?.durationInFrames,
 	]);
 
 	if (replaceWithHtml5Audio) {

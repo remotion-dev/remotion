@@ -4,6 +4,7 @@ import {staticFile} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import '../symbol-dispose';
+import {subframeAudio} from './fixtures/subframe-audio';
 
 const getAudioTrackFromBlob = async (blob: Blob): Promise<InputAudioTrack> => {
 	using input = new Input({
@@ -26,6 +27,43 @@ const getAudioCodecFromBlob = async (
 ): Promise<InputAudioTrack['codec']> => {
 	const track = await getAudioTrackFromBlob(blob);
 	return track.codec;
+};
+
+const getPcmS16SamplesFromWav = async (blob: Blob) => {
+	const buffer = await blob.arrayBuffer();
+	const view = new DataView(buffer);
+	let offset = 12;
+
+	while (offset < view.byteLength) {
+		const chunkId = String.fromCharCode(
+			view.getUint8(offset),
+			view.getUint8(offset + 1),
+			view.getUint8(offset + 2),
+			view.getUint8(offset + 3),
+		);
+		const chunkSize = view.getUint32(offset + 4, true);
+		if (chunkId === 'data') {
+			const dataOffset = offset + 8;
+			const samples = new Int16Array(chunkSize / Int16Array.BYTES_PER_ELEMENT);
+			for (let i = 0; i < samples.length; i++) {
+				samples[i] = view.getInt16(
+					dataOffset + i * Int16Array.BYTES_PER_ELEMENT,
+					true,
+				);
+			}
+
+			return samples;
+		}
+
+		offset += 8 + chunkSize + (chunkSize % 2);
+	}
+
+	throw new Error('No data chunk found in WAV file');
+};
+
+const rms = (samples: Int16Array) => {
+	const sum = samples.reduce((acc, sample) => acc + sample * sample, 0);
+	return Math.sqrt(sum / samples.length);
 };
 
 test(
@@ -57,6 +95,34 @@ test(
 		);
 	},
 );
+
+test('should render subframe audio starts in the previous frame', async () => {
+	const result = await renderMediaOnWeb({
+		licenseKey: 'free-license',
+		composition: {
+			...subframeAudio,
+			calculateMetadata: null,
+		},
+		container: 'wav',
+		frameRange: [0, 0],
+		outputTarget: 'arraybuffer',
+		sampleRate: 48000,
+	});
+
+	const blob = await result.getBlob();
+	const samples = await getPcmS16SamplesFromWav(blob);
+	const samplesPerFrame = 48000 / subframeAudio.fps;
+	const samplesPerHalfFrame = samplesPerFrame / 2;
+	const numberOfChannels = 2;
+	const firstHalf = samples.slice(0, samplesPerHalfFrame * numberOfChannels);
+	const secondHalf = samples.slice(
+		samplesPerHalfFrame * numberOfChannels,
+		samplesPerFrame * numberOfChannels,
+	);
+
+	expect(rms(firstHalf)).toBe(0);
+	expect(rms(secondHalf)).toBeGreaterThan(1000);
+});
 
 test('should be able to render 2 audios', async (t) => {
 	if (t.task.file.projectName === 'chromium') {
