@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {Audio} from '@remotion/media';
 import React from 'react';
 import {
 	Html5Audio,
@@ -181,11 +182,55 @@ test('Should calculate volumes correctly', async () => {
 	});
 });
 
-test('Should calculate startFrom correctly', async () => {
+test('Should calculate startFrom correctly (Html5Audio)', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Sequence from={1}>
 				<Html5Audio
+					trimBefore={100}
+					trimAfter={200}
+					src={
+						'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4'
+					}
+					volume={(f) =>
+						interpolate(f, [0, 50, 100], [0, 1, 0], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						})
+					}
+				/>
+			</Sequence>
+		);
+	});
+	expect(assetPositions.length).toBe(1);
+	expect(withoutId(assetPositions[0])).toEqual({
+		type: 'audio',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		// why duration of 58 and startInVideo of 2?
+		// 60 original duration
+		// minus 1 because of from={1}
+		// minus 1 because the first frame has volume 0 and does not get registered
+		duration: 58,
+		startInVideo: 2,
+		trimLeft: 101,
+		playbackRate: 1,
+		volume: new Array(58).fill(true).map((_, i) =>
+			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			}),
+		),
+		toneFrequency: 1,
+		audioStartFrame: 100,
+		audioStreamIndex: 0,
+	});
+});
+
+test('Should calculate startFrom correctly (@remotion/media)', async () => {
+	const assetPositions = await getPositions(() => {
+		return (
+			<Sequence from={1}>
+				<Audio
 					trimBefore={100}
 					trimAfter={200}
 					src={

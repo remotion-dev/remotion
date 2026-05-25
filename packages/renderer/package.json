@@ -42,6 +42,7 @@
 		"@types/ws": "8.5.10",
 		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@remotion/media": "workspace:*",
 		"eslint": "catalog:",
 		"@types/node": "catalog:"
 	},
