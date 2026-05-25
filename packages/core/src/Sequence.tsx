@@ -258,7 +258,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const env = useRemotionEnvironment();
 
-	const inheritedStack = (other as any)?.stack ?? null;
+	const inheritedStack = (other as {stack?: string}).stack ?? null;
 	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
 	// and if it changes, it would lead to-remounting of the sequence.
 	const stackRef = useRef<string | null>(null);

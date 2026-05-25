@@ -196,7 +196,7 @@ test('Sequence with layout="none" can register an externally assigned ref', () =
 				registeredSequences.push(sequence);
 			}}
 		>
-			<Sequence layout="none" ref={elementRef}>
+			<Sequence ref={elementRef} layout="none">
 				<div ref={elementRef}>Hello</div>
 			</Sequence>
 		</SequenceTestWrapper>,
