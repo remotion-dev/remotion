@@ -1,3 +1,8 @@
+---
+name: visual-mode
+description: Guidance for working on Remotion Studio Visual Mode, sequence identity, node paths, symbolicated stacks, override IDs, and hot reload behavior. Use when implementing or debugging visual editing of Sequences.
+---
+
 Visual Mode is a feature in Remotion Studio that allows one to visually edit Sequences.
 
 I've made the following observations:
