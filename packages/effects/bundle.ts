@@ -10,6 +10,7 @@ const effectEntrypoints = [
 	'src/barrel-distortion.ts',
 	'src/blur.ts',
 	'src/brightness.ts',
+	'src/contrast.ts',
 	'src/grayscale.ts',
 	'src/halftone.ts',
 	'src/hue.ts',

@@ -30,6 +30,7 @@ export {
 } from './film-burn-doc';
 export {EffectsBlurPreview} from './effects-blur-preview';
 export {EffectsBrightnessPreview} from './effects-brightness-preview';
+export {EffectsContrastPreview} from './effects-contrast-preview';
 export {EffectsGrayscalePreview} from './effects-grayscale-preview';
 export {EffectsHalftonePreview} from './effects-halftone-preview';
 export {EffectsHuePreview} from './effects-hue-preview';

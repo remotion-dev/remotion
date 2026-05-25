@@ -2,6 +2,7 @@ import type {LogLevel} from 'remotion';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
+import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
@@ -1438,6 +1439,29 @@ export const effectsBrightnessDemo: DemoType = {
 			max: 1,
 			step: 0.01,
 			default: 0.25,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsContrastDemo: DemoType = {
+	comp: EffectsContrastPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-contrast',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 5,
+			step: 0.1,
+			default: 1.5,
 			optional: 'no',
 		},
 	],

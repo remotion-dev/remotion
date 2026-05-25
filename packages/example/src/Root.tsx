@@ -60,6 +60,7 @@ import {
 	FilmBurnTransitionDocThumb,
 	EffectsBlurPreview,
 	EffectsBrightnessPreview,
+	EffectsContrastPreview,
 	EffectsGrayscalePreview,
 	EffectsHalftonePreview,
 	EffectsHuePreview,
@@ -1096,6 +1097,14 @@ export const Index: React.FC = () => {
 					<Composition
 						id="html-in-canvas-effects-brightness-preview"
 						component={EffectsBrightnessPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-contrast-preview"
+						component={EffectsContrastPreview}
 						fps={30}
 						height={720}
 						width={1080}
