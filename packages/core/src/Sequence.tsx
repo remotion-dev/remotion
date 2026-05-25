@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {
+	useCallback,
 	forwardRef,
 	useContext,
 	useEffect,
@@ -128,6 +129,23 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {layout = 'absolute-fill'} = other;
 
 	const [id] = useState(() => String(Math.random()));
+	const absoluteFillRef = useRef<HTMLDivElement>(null);
+	const setAbsoluteFillRef = useCallback(
+		(node: HTMLDivElement | null) => {
+			absoluteFillRef.current = node;
+			if (ref === null) {
+				return;
+			}
+
+			if (typeof ref === 'function') {
+				ref(node);
+				return;
+			}
+
+			ref.current = node;
+		},
+		[ref],
+	);
 	const parentSequence = useContext(SequenceContext);
 	const {rootId} = useTimelineContext();
 	const cumulatedFrom = parentSequence
@@ -246,6 +264,18 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const stackRef = useRef<string | null>(null);
 	stackRef.current = stack ?? inheritedStack;
 
+	const getElement = useMemo(() => {
+		if (layout === 'absolute-fill') {
+			return () => absoluteFillRef.current;
+		}
+
+		if (typeof ref === 'function' || ref === null) {
+			return () => null;
+		}
+
+		return () => ref.current;
+	}, [layout, ref]);
+
 	useEffect(() => {
 		if (!env.isStudio) {
 			return;
@@ -271,6 +301,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					showInTimeline,
 					src: isMedia.src,
 					getStack: () => stackRef.current,
+					getElement,
 				});
 			} else {
 				registerSequence({
@@ -293,6 +324,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					showInTimeline,
 					src: isMedia.data.src,
 					getStack: () => stackRef.current,
+					getElement,
 					startMediaFrom: isMedia.data.startMediaFrom,
 					volume: isMedia.data.volumes,
 				});
@@ -316,6 +348,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			nonce: nonce.get(),
 			loopDisplay,
 			getStack: () => stackRef.current,
+			getElement,
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
 			controls: controls ?? null,
@@ -345,6 +378,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalEffects,
 		isMedia,
 		resolvedDocumentationLink,
+		getElement,
 	]);
 
 	// Ceil to support floats
@@ -368,12 +402,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [height, styleIfThere, width]);
 
-	if (ref !== null && layout === 'none') {
-		throw new TypeError(
-			'It is not supported to pass both a `ref` and `layout="none"` to <Sequence />.',
-		);
-	}
-
 	if (hidden) {
 		return null;
 	}
@@ -384,7 +412,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				content
 			) : (
 				<AbsoluteFill
-					ref={ref}
+					ref={setAbsoluteFillRef}
 					style={defaultStyle}
 					className={other.className}
 				>

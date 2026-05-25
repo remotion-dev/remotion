@@ -167,3 +167,41 @@ test('Named Img components do not receive the default documentation link', () =>
 
 	expect(registeredSequences[0]?.documentationLink).toBe(null);
 });
+
+test('Sequence registers the absolute-fill element ref', () => {
+	const registeredSequences: TSequence[] = [];
+	const elementRef = React.createRef<HTMLDivElement>();
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence ref={elementRef}>Hello</Sequence>
+		</SequenceTestWrapper>,
+	);
+
+	expect(elementRef.current).not.toBe(null);
+	expect(registeredSequences[0]?.getElement?.()).toBe(elementRef.current);
+});
+
+test('Sequence with layout="none" can register an externally assigned ref', () => {
+	const registeredSequences: TSequence[] = [];
+	const elementRef = React.createRef<HTMLDivElement>();
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Sequence layout="none" ref={elementRef}>
+				<div ref={elementRef}>Hello</div>
+			</Sequence>
+		</SequenceTestWrapper>,
+	);
+
+	expect(elementRef.current).not.toBe(null);
+	expect(registeredSequences[0]?.getElement?.()).toBe(elementRef.current);
+});

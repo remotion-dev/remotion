@@ -113,6 +113,7 @@ export type TSequence = {
 	nonce: NonceHistory;
 	loopDisplay: LoopDisplay | undefined;
 	getStack: () => string | null;
+	getElement?: () => Element | null;
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
 	controls: SequenceControls | null;
