@@ -303,7 +303,7 @@ export const audioIteratorManager = ({
 					playbackRate,
 					scheduleAudioNode,
 					logLevel,
-					currentTime,
+					currentTime: getAudioContextCurrentTimeMockedInTest(),
 				});
 				proceedScheduling({
 					iterator,
