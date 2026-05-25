@@ -89,6 +89,10 @@ export type Option = {
 			default: string;
 			optional: 'no';
 	  }
+	| {
+			type: 'color';
+			default: string;
+	  }
 );
 
 export type DemoType = {
@@ -1412,7 +1416,17 @@ export const effectsBrightnessDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	options: [],
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: -1,
+			max: 1,
+			step: 0.01,
+			default: 0.25,
+			optional: 'no',
+		},
+	],
 };
 
 export const effectsGrayscaleDemo: DemoType = {
@@ -1425,7 +1439,17 @@ export const effectsGrayscaleDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	options: [],
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 1,
+			optional: 'no',
+		},
+	],
 };
 
 export const effectsHueDemo: DemoType = {
@@ -1438,7 +1462,17 @@ export const effectsHueDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	options: [],
+	options: [
+		{
+			name: 'degrees',
+			type: 'numeric',
+			min: 0,
+			max: 360,
+			step: 1,
+			default: 120,
+			optional: 'no',
+		},
+	],
 };
 
 export const effectsInvertDemo: DemoType = {
@@ -1451,7 +1485,17 @@ export const effectsInvertDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	options: [],
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 1,
+			optional: 'no',
+		},
+	],
 };
 
 export const effectsSaturationDemo: DemoType = {
@@ -1464,7 +1508,17 @@ export const effectsSaturationDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	options: [],
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 5,
+			step: 0.1,
+			default: 1.8,
+			optional: 'no',
+		},
+	],
 };
 
 export const effectsTintDemo: DemoType = {
@@ -1477,7 +1531,23 @@ export const effectsTintDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	options: [],
+	options: [
+		{
+			name: 'color',
+			type: 'color',
+			default: '#1ec8ff',
+			optional: 'no',
+		},
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.7,
+			optional: 'no',
+		},
+	],
 };
 
 export const effectsMirrorDemo: DemoType = {
@@ -1490,7 +1560,30 @@ export const effectsMirrorDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	options: [],
+	options: [
+		{
+			name: 'direction',
+			type: 'enum',
+			values: ['horizontal', 'vertical'],
+			default: 'horizontal',
+			optional: 'no',
+		},
+		{
+			name: 'position',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.5,
+			optional: 'no',
+		},
+		{
+			name: 'invert',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
+		},
+	],
 };
 
 export const effectsScaleDemo: DemoType = {
@@ -1503,7 +1596,29 @@ export const effectsScaleDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	options: [],
+	options: [
+		{
+			name: 'scale',
+			type: 'numeric',
+			min: 0.1,
+			max: 3,
+			step: 0.05,
+			default: 0.8,
+			optional: 'no',
+		},
+		{
+			name: 'horizontal',
+			type: 'boolean',
+			default: true,
+			optional: 'no',
+		},
+		{
+			name: 'vertical',
+			type: 'boolean',
+			default: true,
+			optional: 'no',
+		},
+	],
 };
 
 export const effectsBarrelDistortionDemo: DemoType = {
@@ -1516,7 +1631,17 @@ export const effectsBarrelDistortionDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	options: [],
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.28,
+			optional: 'no',
+		},
+	],
 };
 
 export const effectsBlurDemo: DemoType = {
@@ -1529,7 +1654,29 @@ export const effectsBlurDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	options: [],
+	options: [
+		{
+			name: 'radius',
+			type: 'numeric',
+			min: 0,
+			max: 100,
+			step: 1,
+			default: 40,
+			optional: 'no',
+		},
+		{
+			name: 'horizontal',
+			type: 'boolean',
+			default: true,
+			optional: 'no',
+		},
+		{
+			name: 'vertical',
+			type: 'boolean',
+			default: true,
+			optional: 'no',
+		},
+	],
 };
 
 export const effectsWaveDemo: DemoType = {
@@ -1542,7 +1689,42 @@ export const effectsWaveDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	options: [],
+	options: [
+		{
+			name: 'phase',
+			type: 'numeric',
+			min: 0,
+			max: 6.28,
+			step: 0.01,
+			default: 1.2,
+			optional: 'no',
+		},
+		{
+			name: 'amplitude',
+			type: 'numeric',
+			min: 0,
+			max: 200,
+			step: 1,
+			default: 50,
+			optional: 'no',
+		},
+		{
+			name: 'wavelength',
+			type: 'numeric',
+			min: 1,
+			max: 1000,
+			step: 1,
+			default: 200,
+			optional: 'no',
+		},
+		{
+			name: 'direction',
+			type: 'enum',
+			values: ['horizontal', 'vertical'],
+			default: 'horizontal',
+			optional: 'no',
+		},
+	],
 };
 
 export const effectsHalftoneDemo: DemoType = {
@@ -1555,7 +1737,54 @@ export const effectsHalftoneDemo: DemoType = {
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
-	options: [],
+	options: [
+		{
+			name: 'shape',
+			type: 'enum',
+			values: ['circle', 'square', 'line'],
+			default: 'circle',
+			optional: 'no',
+		},
+		{
+			name: 'dotSize',
+			type: 'numeric',
+			min: 1,
+			max: 50,
+			step: 1,
+			default: 8,
+			optional: 'no',
+		},
+		{
+			name: 'dotSpacing',
+			type: 'numeric',
+			min: 1,
+			max: 50,
+			step: 1,
+			default: 7,
+			optional: 'no',
+		},
+		{
+			name: 'rotation',
+			type: 'numeric',
+			min: -180,
+			max: 180,
+			step: 1,
+			default: 12,
+			optional: 'no',
+		},
+		{
+			name: 'color',
+			type: 'color',
+			default: '#0b84f3',
+			optional: 'no',
+		},
+		{
+			name: 'invert',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
+		},
+	],
 };
 
 export const htmlInCanvasDemoWebGL: DemoType = {
