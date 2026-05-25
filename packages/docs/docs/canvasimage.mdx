@@ -59,6 +59,10 @@ An array of Remotion [effects](/docs/effects/api) to apply to the image after it
 
 A class name to apply to the `<canvas>` element.
 
+### `id?`
+
+The HTML `id` attribute to apply to the `<canvas>` element.
+
 ### `style?`
 
 Inline styles to apply to the `<canvas>` element.
@@ -68,22 +72,22 @@ Inline styles to apply to the `<canvas>` element.
 Called when the image cannot be loaded, decoded, or drawn after all retries are exhausted.  
 If omitted, [`cancelRender()`](/docs/cancel-render) is called.
 
-### `pauseWhenLoading?`
+### `pauseWhenLoading?`<AvailableFrom v="4.0.467" />
 
 If `true`, the [Player](/docs/player) will pause playback while the image is loading. Default `false`.  
 Has no effect during rendering (rendering always waits via `delayRender()`).
 
-### `maxRetries?`
+### `maxRetries?`<AvailableFrom v="4.0.467" />
 
 The number of times to retry loading the image after a failure before giving up. Default `2`.  
 Retries use [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff): the first retry waits 1 second, the second 2 seconds, the third 4 seconds, and so on.
 
-### `delayRenderRetries?`
+### `delayRenderRetries?`<AvailableFrom v="4.0.467" />
 
 How many times [`delayRender()`](/docs/delay-render) may retry before the render times out.  
 Passed directly to the `retries` option of `delayRender()`.
 
-### `delayRenderTimeoutInMilliseconds?`
+### `delayRenderTimeoutInMilliseconds?`<AvailableFrom v="4.0.467" />
 
 The timeout in milliseconds for each [`delayRender()`](/docs/delay-render) call.  
 Passed directly to the `timeoutInMilliseconds` option of `delayRender()`.

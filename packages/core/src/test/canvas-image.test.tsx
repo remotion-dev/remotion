@@ -147,6 +147,7 @@ test('<CanvasImage> runs static images through an effect chain', async () => {
 	const definition: EffectDefinition<unknown> = {
 		type: 'test-effect',
 		label: 'Test effect',
+		documentationLink: null,
 		backend: '2d',
 		calculateKey: () => 'test-effect',
 		setup: () => ({}),
