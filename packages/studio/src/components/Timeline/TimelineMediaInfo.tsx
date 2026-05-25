@@ -21,6 +21,7 @@ const lineStyle: React.CSSProperties = {
 	textOverflow: 'ellipsis',
 	minWidth: 0,
 	fontSize: 12,
+	color: VERY_LIGHT_TEXT,
 	paddingTop: 3,
 };
 
