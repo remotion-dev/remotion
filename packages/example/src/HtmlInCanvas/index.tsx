@@ -24,10 +24,6 @@ export {
 	DissolveTransitionDocThumb,
 } from './dissolve-doc';
 export {HtmlInCanvasDocsDemo2DBlur} from './docs-demo-2d-blur';
-export {
-	FilmBurnTransitionDoc,
-	FilmBurnTransitionDocThumb,
-} from './film-burn-doc';
 export {EffectsBlurPreview} from './effects-blur-preview';
 export {EffectsBrightnessPreview} from './effects-brightness-preview';
 export {EffectsContrastPreview} from './effects-contrast-preview';
@@ -37,13 +33,19 @@ export {EffectsHuePreview} from './effects-hue-preview';
 export {EffectsInvertPreview} from './effects-invert-preview';
 export {EffectsSaturationPreview} from './effects-saturation-preview';
 export {EffectsTintPreview} from './effects-tint-preview';
+export {EffectsUvTranslatePreview} from './effects-uv-translate-preview';
 export {EffectsWavePreview} from './effects-wave-preview';
-export {HtmlInCanvasDocsMinimalWebGL} from './minimal-docs-webgl';
-export {HtmlInCanvasDocsMinimalWebGPU} from './minimal-docs-webgpu';
+export {EffectsXyTranslatePreview} from './effects-xy-translate-preview';
+export {
+	FilmBurnTransitionDoc,
+	FilmBurnTransitionDocThumb,
+} from './film-burn-doc';
 export {
 	LinearBlurTransitionDoc,
 	LinearBlurTransitionDocThumb,
 } from './linear-blur-doc';
+export {HtmlInCanvasDocsMinimalWebGL} from './minimal-docs-webgl';
+export {HtmlInCanvasDocsMinimalWebGPU} from './minimal-docs-webgpu';
 export {HtmlInCanvasPrivacy} from './privacy';
 export {HtmlInCanvasReactSvg} from './react-svg';
 export {RippleTransitionDoc, RippleTransitionDocThumb} from './ripple-doc';
