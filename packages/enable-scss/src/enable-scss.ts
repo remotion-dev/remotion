@@ -16,6 +16,7 @@ export const enableScss: WebpackOverrideFn = (currentConfiguration) => {
 							options: {
 								modules: {
 									localIdentName: '[name]__[local]__[hash:base64:5]', // Keeps class names readable
+									namedExport: false,
 								},
 							},
 						},

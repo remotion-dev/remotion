@@ -1,5 +1,6 @@
-import {EffectInternals} from '@remotion/effects';
 import {blur} from '@remotion/effects/blur';
+import {halftone} from '@remotion/effects/halftone';
+import {tint} from '@remotion/effects/tint';
 import {wave} from '@remotion/effects/wave';
 import {Gif} from '@remotion/gif';
 import {StudioInternals} from '@remotion/studio';
@@ -127,7 +128,7 @@ const StackedGif: React.FC = () => {
 			fit="contain"
 			style={tileGifStyle}
 			effects={[
-				EffectInternals.tint({color: '#ff5fa2', amount: 0.4}),
+				tint({color: '#ff5fa2', amount: 0.4}),
 				wave({
 					phase,
 					amplitude: 12,
@@ -169,7 +170,7 @@ const Comp: React.FC = () => {
 						src={GIF_SRC}
 						fit="contain"
 						style={tileGifStyle}
-						effects={[EffectInternals.tint({color: '#ff5fa2', amount: 0.6})]}
+						effects={[tint({color: '#ff5fa2', amount: 0.6})]}
 					/>
 				</Tile>
 				<Tile title="halftone" subtitle="circles, dotSize 12, on luminance">
@@ -178,7 +179,7 @@ const Comp: React.FC = () => {
 						fit="contain"
 						style={tileGifStyle}
 						effects={[
-							EffectInternals.halftone({
+							halftone({
 								shape: 'circle',
 								dotSize: 12,
 								dotSpacing: 12,

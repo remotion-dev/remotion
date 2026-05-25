@@ -17,6 +17,7 @@ test('Should calculate a basic timeline', () => {
 		sequences: [
 			{
 				displayName: 'Audio',
+				documentationLink: null,
 				duration: 100,
 				from: 0,
 				id: '0.1',
@@ -40,6 +41,7 @@ test('Should calculate a basic timeline', () => {
 			depth: 0,
 			sequence: {
 				displayName: 'Audio',
+				documentationLink: null,
 				duration: 100,
 				from: 0,
 				id: '0.1',
@@ -66,6 +68,7 @@ test('Should follow order of nesting', () => {
 		sequences: [
 			{
 				displayName: 'Audio',
+				documentationLink: null,
 				duration: 100,
 				from: 0,
 				id: '0.2',
@@ -83,6 +86,7 @@ test('Should follow order of nesting', () => {
 			},
 			{
 				displayName: 'Audio',
+				documentationLink: null,
 				duration: 100,
 				from: 0,
 				id: '0.1',
@@ -105,6 +109,7 @@ test('Should follow order of nesting', () => {
 			nodePathInfo: null,
 			sequence: {
 				displayName: 'Audio',
+				documentationLink: null,
 				duration: 100,
 				from: 0,
 				id: '0.1',
@@ -127,6 +132,7 @@ test('Should follow order of nesting', () => {
 			nodePathInfo: null,
 			sequence: {
 				displayName: 'Audio',
+				documentationLink: null,
 				duration: 100,
 				from: 0,
 				id: '0.2',
@@ -155,6 +161,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 			{
 				effects: [],
 				displayName: 'Loop',
+				documentationLink: null,
 				duration: 100,
 				from: 50,
 				id: 'loop',
@@ -175,6 +182,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 			},
 			{
 				displayName: 'video.mp4',
+				documentationLink: null,
 				duration: 100,
 				from: 0,
 				id: 'video',

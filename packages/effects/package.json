@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.465",
+	"version": "4.0.466",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -32,6 +32,11 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
+		"./barrel-distortion": {
+			"types": "./dist/barrel-distortion.d.ts",
+			"module": "./dist/esm/barrel-distortion.mjs",
+			"import": "./dist/esm/barrel-distortion.mjs"
+		},
 		"./blur": {
 			"types": "./dist/blur.d.ts",
 			"module": "./dist/esm/blur.mjs",
@@ -62,10 +67,25 @@
 			"module": "./dist/esm/invert.mjs",
 			"import": "./dist/esm/invert.mjs"
 		},
+		"./mirror": {
+			"types": "./dist/mirror.d.ts",
+			"module": "./dist/esm/mirror.mjs",
+			"import": "./dist/esm/mirror.mjs"
+		},
+		"./saturation": {
+			"types": "./dist/saturation.d.ts",
+			"module": "./dist/esm/saturation.mjs",
+			"import": "./dist/esm/saturation.mjs"
+		},
 		"./scale": {
 			"types": "./dist/scale.d.ts",
 			"module": "./dist/esm/scale.mjs",
 			"import": "./dist/esm/scale.mjs"
+		},
+		"./tint": {
+			"types": "./dist/tint.d.ts",
+			"module": "./dist/esm/tint.mjs",
+			"import": "./dist/esm/tint.mjs"
 		},
 		"./wave": {
 			"types": "./dist/wave.d.ts",
@@ -76,6 +96,9 @@
 	},
 	"typesVersions": {
 		">=1.0": {
+			"barrel-distortion": [
+				"dist/barrel-distortion.d.ts"
+			],
 			"blur": [
 				"dist/blur.d.ts"
 			],
@@ -94,8 +117,17 @@
 			"invert": [
 				"dist/invert.d.ts"
 			],
+			"mirror": [
+				"dist/mirror.d.ts"
+			],
+			"saturation": [
+				"dist/saturation.d.ts"
+			],
 			"scale": [
 				"dist/scale.d.ts"
+			],
+			"tint": [
+				"dist/tint.d.ts"
 			],
 			"wave": [
 				"dist/wave.d.ts"

@@ -17,12 +17,14 @@ import {BookFlipDocsDemo} from './BookFlipDemo';
 import {CircleDemo} from './Circle';
 import {CrosswarpDocsDemo} from './CrosswarpDemo';
 import {DissolveDocsDemo} from './DissolveDemo';
+import {DreamyZoomDocsDemo} from './DreamyZoomDemo';
 import {EllipseDemo} from './Ellipse';
 import {HeartDemo} from './Heart';
 import {HtmlInCanvasDocsDemo2DBlur} from './HtmlInCanvasDocsDemo2DBlur';
 import {HtmlInCanvasDocsDemoWebGL} from './HtmlInCanvasDocsDemoWebGL';
 import {HtmlInCanvasDocsDemoWebGPU} from './HtmlInCanvasDocsDemoWebGPU';
 import {LightLeakDemoComp} from './LightLeakDemo';
+import {LinearBlurDocsDemo} from './LinearBlurDemo';
 import {NoiseComp} from './NoiseDemo';
 import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
@@ -933,6 +935,32 @@ export const zoomBlurPresentationDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'zoom-blur',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const dreamyZoomPresentationDemo: DemoType = {
+	comp: DreamyZoomDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'dreamy-zoom',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const linearBlurPresentationDemo: DemoType = {
+	comp: LinearBlurDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'linear-blur',
 	autoPlay: true,
 	controls: false,
 	logLevel: 'info',

@@ -60,6 +60,8 @@ import {
 	EffectsHalftonePreview,
 	EffectsHuePreview,
 	EffectsInvertPreview,
+	EffectsSaturationPreview,
+	EffectsTintPreview,
 	EffectsWavePreview,
 	HtmlInCanvasComplexText,
 	HtmlInCanvasComposeAsyncBitmap,
@@ -70,6 +72,8 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
+	LinearBlurTransitionDoc,
+	LinearBlurTransitionDocThumb,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
 	RippleTransitionDoc,
@@ -205,6 +209,7 @@ import {
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {PrintProps} from './PrintProps';
 import {SfxExample} from './Sfx';
+import {CanvasImg} from './SimpleImg/CanvasImg';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {SpringSeason} from './SpringSeason';
 import {StarburstExample} from './Starburst';
@@ -538,6 +543,14 @@ export const Index: React.FC = () => {
 					durationInFrames={10}
 				/>
 				<Composition
+					id="canvas-img"
+					component={CanvasImg}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
+				/>
+				<Composition
 					id="missing-img"
 					component={MissingImg}
 					width={1080}
@@ -569,7 +582,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={10}
 				/>
-
 				<Composition
 					id="framer"
 					component={Framer}
@@ -1046,6 +1058,22 @@ export const Index: React.FC = () => {
 						durationInFrames={60}
 					/>
 					<Composition
+						id="linear-blur-transition-doc"
+						component={LinearBlurTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="linear-blur-transition-doc-thumb"
+						component={LinearBlurTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
 						id="html-in-canvas-effects-brightness-preview"
 						component={EffectsBrightnessPreview}
 						fps={30}
@@ -1088,6 +1116,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="html-in-canvas-effects-invert-preview"
 						component={EffectsInvertPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-saturation-preview"
+						component={EffectsSaturationPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-tint-preview"
+						component={EffectsTintPreview}
 						fps={30}
 						height={720}
 						width={1080}

@@ -69,6 +69,7 @@ export type RenderModalState = {
 	initialEnforceAudioTrack: boolean;
 	initialProResProfile: _InternalTypes['ProResProfile'] | null;
 	initialx264Preset: X264Preset;
+	initialGopSize: number | null;
 	initialPixelFormat: PixelFormat | null;
 	initialVideoBitrate: string | null;
 	initialAudioBitrate: string | null;

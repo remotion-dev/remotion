@@ -19,3 +19,7 @@ export type {
 	HtmlInCanvasShaderDraw,
 	HtmlInCanvasShaderDrawParams,
 } from './html-in-canvas-presentation.js';
+export {linearBlur} from './presentations/linear-blur.js';
+export type {LinearBlurProps} from './presentations/linear-blur.js';
+export {dreamyZoom} from './presentations/dreamy-zoom.js';
+export type {DreamyZoomProps} from './presentations/dreamy-zoom.js';

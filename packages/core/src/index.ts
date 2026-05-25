@@ -160,6 +160,12 @@ export {Artifact} from './Artifact.js';
 export {Audio, Html5Audio, RemotionAudioProps} from './audio/index.js';
 export type {LoopVolumeCurveBehavior} from './audio/use-audio-frame.js';
 export {cancelRender} from './cancel-render.js';
+/**
+ * @description Renders a static image to a `<canvas>` and applies Remotion effects.
+ * @see [Documentation](https://www.remotion.dev/docs/canvasimage)
+ */
+export {CanvasImage} from './canvas-image/index.js';
+export type {CanvasImageProps} from './canvas-image/index.js';
 export type {Codec} from './codec.js';
 export {
 	CalculateMetadataFunction,

@@ -9,6 +9,7 @@ const makeEffectWithValidation = () =>
 	createEffect<RequiredParams, null>({
 		type: 'test/required',
 		label: 'Required',
+		documentationLink: null,
 		backend: '2d',
 		calculateKey: (p) => `required-${p.value}`,
 		setup: () => null,

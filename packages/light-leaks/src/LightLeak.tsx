@@ -281,6 +281,7 @@ const LightLeakInner: React.FC<
 		<Sequence
 			durationInFrames={resolvedDuration}
 			name="<LightLeak>"
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/light-leaks/light-leak"
 			_experimentalControls={controls}
 			{...sequenceProps}
 			style={style}

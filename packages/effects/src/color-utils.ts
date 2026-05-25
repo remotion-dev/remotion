@@ -14,6 +14,14 @@ export const colorAmountSchema = {
 	description: 'Amount',
 } as const satisfies SequenceSchema['amount'];
 
+export const colorMultiplierSchema = {
+	type: 'number',
+	min: 0,
+	step: 0.01,
+	default: DEFAULT_AMOUNT,
+	description: 'Amount',
+} as const satisfies SequenceSchema['amount'];
+
 export const brightnessAmountSchema = {
 	type: 'number',
 	min: -1,
@@ -51,6 +59,14 @@ export const validateUnitInterval = (value: number, name: string): void => {
 	if (value > 1) {
 		throw new TypeError(
 			`"${name}" must be <= 1, but got ${JSON.stringify(value)}`,
+		);
+	}
+};
+
+export const validateNonNegative = (value: number, name: string): void => {
+	if (value < 0) {
+		throw new TypeError(
+			`"${name}" must be >= 0, but got ${JSON.stringify(value)}`,
 		);
 	}
 };

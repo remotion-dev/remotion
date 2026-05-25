@@ -23,7 +23,15 @@ export const enableTailwind: (
 					test: /\.css$/i,
 					use: [
 						require.resolve('style-loader'),
-						require.resolve('@remotion/bundler/css-loader'),
+						{
+							loader: require.resolve('css-loader'),
+							options: {
+								modules: {
+									auto: true,
+									namedExport: false,
+								},
+							},
+						},
 						require.resolve('@tailwindcss/webpack'),
 					],
 				},

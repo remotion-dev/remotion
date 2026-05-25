@@ -7,13 +7,17 @@ if (process.env.NODE_ENV !== 'production') {
 
 const effectEntrypoints = [
 	'src/index.ts',
+	'src/barrel-distortion.ts',
 	'src/blur.ts',
 	'src/brightness.ts',
 	'src/grayscale.ts',
 	'src/halftone.ts',
 	'src/hue.ts',
 	'src/invert.ts',
+	'src/mirror.ts',
+	'src/saturation.ts',
 	'src/scale.ts',
+	'src/tint.ts',
 	'src/wave.ts',
 ];
 

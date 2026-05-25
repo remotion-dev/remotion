@@ -70,6 +70,9 @@ class Semantic
 			path.join(process.cwd(), '..', 'lambda-php', 'composer.json'),
 			JSON.stringify(composerJsonJson, null, 2) + '\n',
 		);
+		execSync('php composer.phar update --lock --no-interaction --quiet', {
+			cwd: lambdaPhpDir,
+		});
 	});
 
 	test('Set the right version for composer.json in example', () => {
@@ -141,6 +144,7 @@ class Semantic
 				encodingBufferSize: null,
 				webhook: null,
 				x264Preset: null,
+				gopSize: null,
 				preferLossless: false,
 				indent: false,
 				forcePathStyle: false,

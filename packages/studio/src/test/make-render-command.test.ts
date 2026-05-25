@@ -22,6 +22,7 @@ const getDefaults = (): RenderDefaults => {
 		enforceAudioTrack: false,
 		proResProfile: null,
 		x264Preset: 'medium',
+		gopSize: null,
 		pixelFormat: 'yuv420p',
 		audioBitrate: null,
 		videoBitrate: null,
@@ -78,6 +79,7 @@ const getBaseInput = (): Parameters<
 		enforceAudioTrack: false,
 		proResProfile: null,
 		x264Preset: 'medium',
+		gopSize: null,
 		pixelFormat: 'yuv420p',
 		crf: null,
 		videoBitrate: null,
@@ -201,6 +203,15 @@ test('Should include custom bitrate and audio codec flags', () => {
 	expect(command).toContain("--video-bitrate='6M'");
 	expect(command).toContain("--audio-bitrate='256K'");
 	expect(command).toContain("--audio-codec='mp3'");
+});
+
+test('Should include GOP size when changed', () => {
+	const command = makeReadOnlyStudioRenderCommand({
+		...getBaseInput(),
+		gopSize: 239,
+	});
+
+	expect(command).toContain("--gop='239'");
 });
 
 test('Should include advanced flags and env variables', () => {

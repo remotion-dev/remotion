@@ -2,7 +2,15 @@ import type {Codec} from '@remotion/renderer';
 import {useMemo, useState} from 'react';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
 
-type Section = 'general' | 'picture' | 'advanced' | 'data' | 'gif' | 'audio';
+type Section =
+	| 'general'
+	| 'data'
+	| 'picture'
+	| 'audio'
+	| 'gif'
+	| 'encoding'
+	| 'environment'
+	| 'advanced';
 
 export const useRenderModalSections = (
 	renderMode: RenderType,
@@ -12,23 +20,53 @@ export const useRenderModalSections = (
 
 	const shownTabs = useMemo((): Section[] => {
 		if (renderMode === 'audio') {
-			return ['general', 'data', 'audio', 'advanced'];
+			return [
+				'general',
+				'data',
+				'audio',
+				'encoding',
+				'environment',
+				'advanced',
+			];
 		}
 
 		if (renderMode === 'still') {
-			return ['general', 'data', 'picture', 'advanced'];
+			return ['general', 'data', 'picture', 'environment', 'advanced'];
 		}
 
 		if (renderMode === 'sequence') {
-			return ['general', 'data', 'picture', 'advanced'];
+			return [
+				'general',
+				'data',
+				'picture',
+				'encoding',
+				'environment',
+				'advanced',
+			];
 		}
 
 		if (renderMode === 'video') {
 			if (codec === 'gif') {
-				return ['general', 'data', 'picture', 'gif', 'advanced'];
+				return [
+					'general',
+					'data',
+					'picture',
+					'gif',
+					'encoding',
+					'environment',
+					'advanced',
+				];
 			}
 
-			return ['general', 'data', 'picture', 'audio', 'advanced'];
+			return [
+				'general',
+				'data',
+				'picture',
+				'audio',
+				'encoding',
+				'environment',
+				'advanced',
+			];
 		}
 
 		throw new TypeError('Unknown render mode');

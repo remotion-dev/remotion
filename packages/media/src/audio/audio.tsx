@@ -135,6 +135,11 @@ const AudioInner: React.FC<
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
 			name={name ?? '<Audio>'}
+			_remotionInternalDocumentationLink={
+				name === undefined
+					? 'https://www.remotion.dev/docs/media/audio'
+					: undefined
+			}
 			_experimentalControls={controls}
 			_remotionInternalLoopDisplay={loopDisplay}
 			showInTimeline={showInTimeline ?? true}

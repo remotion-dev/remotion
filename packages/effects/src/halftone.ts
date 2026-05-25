@@ -365,6 +365,7 @@ const parseColorRgba = (
 export const halftone = createEffect<HalftoneParams, HalftoneState>({
 	type: 'remotion/halftone',
 	label: 'Halftone',
+	documentationLink: 'https://www.remotion.dev/docs/effects/halftone',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);

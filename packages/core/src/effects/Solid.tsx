@@ -230,6 +230,9 @@ const SolidOuter = forwardRef<
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				durationInFrames={durationInFrames}
 				name={name ?? '<Solid>'}
+				_remotionInternalDocumentationLink={
+					name === undefined ? 'https://www.remotion.dev/docs/solid' : undefined
+				}
 				// 'stack' is in props
 				{...props}
 			>
