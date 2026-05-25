@@ -23,5 +23,7 @@ export {crossZoom} from './presentations/cross-zoom.js';
 export type {CrossZoomProps} from './presentations/cross-zoom.js';
 export {dreamyZoom} from './presentations/dreamy-zoom.js';
 export type {DreamyZoomProps} from './presentations/dreamy-zoom.js';
+export {filmBurn} from './presentations/film-burn.js';
+export type {FilmBurnProps} from './presentations/film-burn.js';
 export {linearBlur} from './presentations/linear-blur.js';
 export type {LinearBlurProps} from './presentations/linear-blur.js';

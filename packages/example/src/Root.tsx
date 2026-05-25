@@ -56,6 +56,8 @@ import {
 	CrosswarpTransitionDocThumb,
 	DissolveTransitionDoc,
 	DissolveTransitionDocThumb,
+	FilmBurnTransitionDoc,
+	FilmBurnTransitionDocThumb,
 	EffectsBlurPreview,
 	EffectsBrightnessPreview,
 	EffectsGrayscalePreview,
@@ -1054,6 +1056,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="zoom-blur-transition-doc-thumb"
 						component={ZoomBlurTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="film-burn-transition-doc"
+						component={FilmBurnTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="film-burn-transition-doc-thumb"
+						component={FilmBurnTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}

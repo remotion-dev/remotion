@@ -24,6 +24,10 @@ export {
 	DissolveTransitionDocThumb,
 } from './dissolve-doc';
 export {HtmlInCanvasDocsDemo2DBlur} from './docs-demo-2d-blur';
+export {
+	FilmBurnTransitionDoc,
+	FilmBurnTransitionDocThumb,
+} from './film-burn-doc';
 export {EffectsBlurPreview} from './effects-blur-preview';
 export {EffectsBrightnessPreview} from './effects-brightness-preview';
 export {EffectsGrayscalePreview} from './effects-grayscale-preview';

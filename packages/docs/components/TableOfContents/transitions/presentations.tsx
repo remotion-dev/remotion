@@ -12,6 +12,7 @@ import {CrosswarpTocPreview} from '../../transitions/crosswarp-toc-preview';
 import {CrossZoomTocPreview} from '../../transitions/cross-zoom-toc-preview';
 import {DissolveTocPreview} from '../../transitions/dissolve-toc-preview';
 import {DreamyZoomTocPreview} from '../../transitions/dreamy-zoom-toc-preview';
+import {FilmBurnTocPreview} from '../../transitions/film-burn-toc-preview';
 import {PresentationPreview} from '../../transitions/previews';
 import {RippleTocPreview} from '../../transitions/ripple-toc-preview';
 import {SwapTocPreview} from '../../transitions/swap-toc-preview';
@@ -148,6 +149,18 @@ export const Presentations: React.FC<{
 						</strong>
 						<HtmlInCanvasLabel />
 						<div>Zoom through a white flash with gentle rotation</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/film-burn">
+				<div style={row}>
+					<FilmBurnTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'filmBurn()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Burn through scenes with procedural glow and blur</div>
 					</div>
 				</div>
 			</TOCItem>
