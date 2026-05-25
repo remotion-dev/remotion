@@ -706,13 +706,15 @@ export class MediaPlayer {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		originalUnloopedMediaTimestamp: number,
-		currentTime: number,
 	): ScheduleAudioNodeResult => {
 		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
 		}
 
-		const targetTime = this.getTargetTime(mediaTimestamp, currentTime);
+		const targetTime = this.getTargetTime(
+			mediaTimestamp,
+			this.sharedAudioContext.audioContext.currentTime,
+		);
 		if (targetTime === null) {
 			return {
 				type: 'not-started',
@@ -720,7 +722,7 @@ export class MediaPlayer {
 					'no target for' +
 					mediaTimestamp.toFixed(3) +
 					',' +
-					currentTime.toFixed(3),
+					this.sharedAudioContext.audioContext.currentTime.toFixed(3),
 			};
 		}
 
@@ -743,14 +745,13 @@ export class MediaPlayer {
 		const scheduledTime = getScheduledTime({
 			mediaTimestamp,
 			targetTime,
-			currentTime,
 			sequenceStartTime,
+			currentTime: this.sharedAudioContext.audioContext.currentTime,
 		});
 
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,
 			mediaTimestamp,
-			currentTime,
 			scheduledTime,
 			duration,
 			offset,
