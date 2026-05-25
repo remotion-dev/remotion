@@ -6,13 +6,13 @@ import {useMediaMetadata} from '../../helpers/use-media-metadata';
 
 const containerStyle: React.CSSProperties = {
 	fontFamily: 'Arial, Helvetica, sans-serif',
-	color: VERY_LIGHT_TEXT,
 	fontSize: 12,
 	lineHeight: 1,
 	overflow: 'hidden',
 	whiteSpace: 'nowrap',
 	textOverflow: 'ellipsis',
 	minWidth: 0,
+	marginTop: 2,
 };
 
 const lineStyle: React.CSSProperties = {
@@ -22,7 +22,7 @@ const lineStyle: React.CSSProperties = {
 	minWidth: 0,
 	fontSize: 12,
 	color: VERY_LIGHT_TEXT,
-	paddingTop: 3,
+	lineHeight: 1.3,
 };
 
 export const TimelineMediaInfo: React.FC<{
