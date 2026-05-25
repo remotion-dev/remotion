@@ -205,20 +205,23 @@ test('Should calculate startFrom correctly', async () => {
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'audio',
 		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
-		// With the fix for nested negative Sequence offsets, the audio now correctly
-		// starts at comp frame 1 (matching <Sequence from={1}>).
-		// Previously it started at frame 2 because volume(0) = 0 caused the first
-		// frame to be skipped, and trimLeft was off by 1.
-		duration: 59,
-		startInVideo: 1,
-		trimLeft: 100,
+		// why duration of 58?
+		// 60 original duration
+		// minus 1 because of from={1}
+		// minus 1 because the first frame has volume 0 and does not get registered
+		duration: 58,
+		startInVideo: 2,
+		trimLeft: 101,
 		playbackRate: 1,
-		volume: new Array(59).fill(true).map((_, i) =>
-			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			}),
-		),
+		volume: new Array(59)
+			.fill(true)
+			.map((_, i) =>
+				interpolate(i, [0, 50, 100], [0, 1, 0], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				}),
+			)
+			.filter((i) => i > 0),
 		toneFrequency: 1,
 		audioStartFrame: 100,
 		audioStreamIndex: 0,
