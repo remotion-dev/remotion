@@ -58,7 +58,6 @@ export type ScheduleAudioNodeResult =
 export type ScheduleAudioNodeOptions = {
 	readonly node: AudioBufferSourceNode;
 	readonly mediaTimestamp: number;
-	readonly currentTime: number;
 	readonly scheduledTime: number;
 	readonly originalUnloopedMediaTimestamp: number;
 	readonly duration: number;
@@ -241,7 +240,6 @@ export const SharedAudioContextProvider: React.FC<{
 		return ({
 			node,
 			mediaTimestamp,
-			currentTime,
 			scheduledTime,
 			duration,
 			offset,
@@ -314,8 +312,7 @@ export const SharedAudioContextProvider: React.FC<{
 					: Math.abs(timeDiff).toFixed(2) +
 							(timeDiff < 0 ? ' delay' : ' ahead'),
 				'',
-				'current=' + currentTime.toFixed(4),
-				'actualcurrent=' + ctxAndGain.audioContext.currentTime.toFixed(4),
+				'current=' + ctxAndGain.audioContext.currentTime.toFixed(4),
 				'offset=' + offset.toFixed(4),
 				'latency=' + latency.toFixed(4),
 				'state=' + ctxAndGain.audioContext.state,

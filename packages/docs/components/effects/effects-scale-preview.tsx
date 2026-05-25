@@ -1,14 +1,19 @@
 import {scale} from '@remotion/effects/scale';
 import React from 'react';
-import {HtmlInCanvas, useVideoConfig} from 'remotion';
-import {EffectsPreviewImage} from './effects-preview-image';
+import {CanvasImage} from 'remotion';
+import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 
-export const EffectsScalePreview: React.FC = () => {
-	const {width, height} = useVideoConfig();
-
+export const EffectsScalePreview: React.FC<{
+	readonly scale: number;
+	readonly horizontal: boolean;
+	readonly vertical: boolean;
+}> = ({scale: scaleValue, horizontal, vertical}) => {
 	return (
-		<HtmlInCanvas width={width} height={height} effects={[scale({scale: 0.8})]}>
-			<EffectsPreviewImage />
-		</HtmlInCanvas>
+		<CanvasImage
+			src={EFFECTS_PREVIEW_IMAGE_SRC}
+			width={1280}
+			height={720}
+			effects={[scale({scale: scaleValue, horizontal, vertical})]}
+		/>
 	);
 };

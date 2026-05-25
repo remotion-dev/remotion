@@ -1,3 +1,8 @@
+---
+name: add-new-package
+description: Add a new package to the Remotion monorepo, including package scaffolding, monorepo registration, documentation, build scripts, tests, and release checklist updates. Use when creating a new @remotion package.
+---
+
 # Add a new Remotion package
 
 ## Steps

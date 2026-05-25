@@ -9,6 +9,7 @@ import {wipe} from '@remotion/transitions/wipe';
 import React from 'react';
 import {BookFlipTocPreview} from '../../transitions/book-flip-toc-preview';
 import {CrosswarpTocPreview} from '../../transitions/crosswarp-toc-preview';
+import {CrossZoomTocPreview} from '../../transitions/cross-zoom-toc-preview';
 import {DissolveTocPreview} from '../../transitions/dissolve-toc-preview';
 import {DreamyZoomTocPreview} from '../../transitions/dreamy-zoom-toc-preview';
 import {PresentationPreview} from '../../transitions/previews';
@@ -219,6 +220,18 @@ export const Presentations: React.FC<{
 						</strong>
 						<HtmlInCanvasLabel />
 						<div>Warp both scenes across the x-axis and blend them</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/cross-zoom">
+				<div style={row}>
+					<CrossZoomTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'crossZoom()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Zoom both scenes through a moving center and blur</div>
 					</div>
 				</div>
 			</TOCItem>

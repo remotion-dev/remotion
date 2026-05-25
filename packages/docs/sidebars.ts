@@ -802,6 +802,7 @@ const sidebars: SidebarsConfig = {
 						'transitions/presentations/dissolve',
 						'transitions/presentations/ripple',
 						'transitions/presentations/crosswarp',
+						'transitions/presentations/cross-zoom',
 						'transitions/presentations/swap',
 						'transitions/presentations/none',
 						{
@@ -1470,6 +1471,7 @@ const sidebars: SidebarsConfig = {
 				'troubleshooting/rosetta',
 				'troubleshooting/loading-root-component',
 				'troubleshooting/defaultprops-too-big',
+				'troubleshooting/cannot-save-default-props',
 				'troubleshooting/could-not-be-parsed-as-a-value-list',
 				'troubleshooting/broken-fast-refresh',
 				'troubleshooting/timed-out-page-function',

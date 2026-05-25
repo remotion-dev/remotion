@@ -1,5 +1,5 @@
 ---
-name: make-pr
+name: pr
 description: Open a pull request for the current feature
 ---
 

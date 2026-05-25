@@ -1,18 +1,17 @@
 import {barrelDistortion} from '@remotion/effects/barrel-distortion';
 import React from 'react';
-import {HtmlInCanvas, useVideoConfig} from 'remotion';
-import {EffectsPreviewImage} from './effects-preview-image';
+import {CanvasImage} from 'remotion';
+import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 
-export const EffectsBarrelDistortionPreview: React.FC = () => {
-	const {width, height} = useVideoConfig();
-
+export const EffectsBarrelDistortionPreview: React.FC<{
+	readonly amount: number;
+}> = ({amount}) => {
 	return (
-		<HtmlInCanvas
-			width={width}
-			height={height}
-			effects={[barrelDistortion({amount: 0.28})]}
-		>
-			<EffectsPreviewImage />
-		</HtmlInCanvas>
+		<CanvasImage
+			src={EFFECTS_PREVIEW_IMAGE_SRC}
+			width={1280}
+			height={720}
+			effects={[barrelDistortion({amount})]}
+		/>
 	);
 };

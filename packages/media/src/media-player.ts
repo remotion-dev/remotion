@@ -1,20 +1,20 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import type {
+	EffectChainState,
 	EffectDefinitionAndStack,
 	LogLevel,
+	ScheduleAudioNodeResult,
 	useBufferState,
 } from 'remotion';
-import type {EffectChainState} from 'remotion';
 import {Internals} from 'remotion';
-import type {ScheduleAudioNodeResult} from 'remotion';
 import {
 	audioIteratorManager,
 	type AudioIteratorManager,
 } from './audio-iterator-manager';
 import {
 	getDurationOfNode,
-	getTrimStartForAudioNode,
 	getScheduledTime,
+	getTrimStartForAudioNode,
 } from './audio/get-scheduled-time';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getDurationOrCompute} from './get-duration-or-compute';
@@ -707,13 +707,15 @@ export class MediaPlayer {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		originalUnloopedMediaTimestamp: number,
-		currentTime: number,
 	): ScheduleAudioNodeResult => {
 		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
 		}
 
-		const targetTime = this.getTargetTime(mediaTimestamp, currentTime);
+		const targetTime = this.getTargetTime(
+			mediaTimestamp,
+			this.sharedAudioContext.audioContext.currentTime,
+		);
 		const combinedPlaybackRate = this.playbackRate * this.globalPlaybackRate;
 		if (targetTime === null) {
 			return {
@@ -722,7 +724,7 @@ export class MediaPlayer {
 					'no target for' +
 					mediaTimestamp.toFixed(3) +
 					',' +
-					currentTime.toFixed(3),
+					this.sharedAudioContext.audioContext.currentTime.toFixed(3),
 			};
 		}
 
@@ -746,14 +748,13 @@ export class MediaPlayer {
 		const scheduledTime = getScheduledTime({
 			mediaTimestamp,
 			targetTime,
-			currentTime,
 			sequenceStartTime,
+			currentTime: this.sharedAudioContext.audioContext.currentTime,
 		});
 
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,
 			mediaTimestamp,
-			currentTime,
 			scheduledTime,
 			duration,
 			offset,

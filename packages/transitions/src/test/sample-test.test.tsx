@@ -4,6 +4,7 @@ import type React from 'react';
 import {renderToString} from 'react-dom/server';
 import {useCurrentFrame} from 'remotion';
 import {bookFlip} from '../presentations/book-flip';
+import {crossZoom} from '../presentations/cross-zoom';
 import {dreamyZoom} from '../presentations/dreamy-zoom';
 import {linearBlur} from '../presentations/linear-blur';
 
@@ -44,5 +45,11 @@ test('linearBlur() should return a presentation', () => {
 test('dreamyZoom() should return a presentation', () => {
 	const presentation = dreamyZoom({rotation: 8, scale: 1.4});
 	expect(presentation.props).toEqual({rotation: 8, scale: 1.4});
+	expect(typeof presentation.component).toBe('function');
+});
+
+test('crossZoom() should return a presentation', () => {
+	const presentation = crossZoom({strength: 0.8});
+	expect(presentation.props).toEqual({strength: 0.8});
 	expect(typeof presentation.component).toBe('function');
 });

@@ -145,6 +145,12 @@
 			"import": "./dist/esm/crosswarp.mjs",
 			"require": "./dist/presentations/crosswarp.js"
 		},
+		"./cross-zoom": {
+			"types": "./dist/presentations/cross-zoom.d.ts",
+			"module": "./dist/esm/cross-zoom.mjs",
+			"import": "./dist/esm/cross-zoom.mjs",
+			"require": "./dist/presentations/cross-zoom.js"
+		},
 		"./swap": {
 			"types": "./dist/presentations/swap.d.ts",
 			"module": "./dist/esm/swap.mjs",
@@ -199,6 +205,9 @@
 			],
 			"crosswarp": [
 				"dist/presentations/crosswarp.d.ts"
+			],
+			"cross-zoom": [
+				"dist/presentations/cross-zoom.d.ts"
 			],
 			"swap": [
 				"dist/presentations/swap.d.ts"
