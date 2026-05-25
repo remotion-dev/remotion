@@ -1,7 +1,9 @@
-import React, {useMemo} from 'react';
+import {getImageDimensions} from '@remotion/media-utils';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
-import {VERY_LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT, VERY_LIGHT_TEXT} from '../../helpers/colors';
 import {formatMediaDuration} from '../../helpers/format-media-duration';
+import {pushUrl} from '../../helpers/url-state';
 import {useMediaMetadata} from '../../helpers/use-media-metadata';
 
 const containerStyle: React.CSSProperties = {
@@ -25,6 +27,90 @@ const lineStyle: React.CSSProperties = {
 	lineHeight: 1.3,
 };
 
+type LinkInfo =
+	| {
+			kind: 'local';
+			assetPath: string;
+			title: string;
+	  }
+	| {
+			kind: 'remote';
+			href: string;
+			title: string;
+	  }
+	| null;
+
+const getLinkInfo = (src: string): LinkInfo => {
+	const staticBase =
+		typeof window === 'undefined' ? null : window.remotion_staticBase;
+
+	if (staticBase && src.startsWith(staticBase + '/')) {
+		const assetPath = src.slice(staticBase.length + 1);
+		return {
+			kind: 'local',
+			assetPath: decodeURIComponent(assetPath),
+			title: decodeURIComponent(assetPath),
+		};
+	}
+
+	if (
+		src.startsWith('http://') ||
+		src.startsWith('https://') ||
+		src.startsWith('//')
+	) {
+		try {
+			const url = new URL(src.startsWith('//') ? 'https:' + src : src);
+			return {kind: 'remote', href: src, title: url.hostname};
+		} catch {
+			return {kind: 'remote', href: src, title: src};
+		}
+	}
+
+	return null;
+};
+
+const useAssetLink = (src: string) => {
+	const {setCanvasContent} = React.useContext(Internals.CompositionSetters);
+	const [hovered, setHovered] = useState(false);
+
+	const linkInfo = useMemo(() => getLinkInfo(src), [src]);
+
+	const onClick = useCallback(
+		(e: React.MouseEvent) => {
+			if (!linkInfo) {
+				return;
+			}
+
+			e.preventDefault();
+			e.stopPropagation();
+
+			if (linkInfo.kind === 'local') {
+				setCanvasContent({type: 'asset', asset: linkInfo.assetPath});
+				pushUrl(`/assets/${linkInfo.assetPath}`);
+				return;
+			}
+
+			window.open(linkInfo.href, '_blank', 'noopener,noreferrer');
+		},
+		[linkInfo, setCanvasContent],
+	);
+
+	const onPointerEnter = useCallback(() => setHovered(true), []);
+	const onPointerLeave = useCallback(() => setHovered(false), []);
+
+	const fileNameStyle: React.CSSProperties = useMemo(
+		() => ({
+			...lineStyle,
+			color: linkInfo && hovered ? LIGHT_TEXT : VERY_LIGHT_TEXT,
+			cursor: linkInfo ? 'pointer' : undefined,
+			textDecoration: linkInfo && hovered ? 'underline' : 'none',
+		}),
+		[linkInfo, hovered],
+	);
+
+	return {linkInfo, onClick, onPointerEnter, onPointerLeave, fileNameStyle};
+};
+
 export const TimelineMediaInfo: React.FC<{
 	readonly src: string;
 	readonly type: 'audio' | 'video' | 'image';
@@ -33,7 +119,48 @@ export const TimelineMediaInfo: React.FC<{
 	const metadata = useMediaMetadata(type === 'image' ? null : src);
 	const fileName = useMemo(() => Internals.getAssetDisplayName(src), [src]);
 
+	const {linkInfo, onClick, onPointerEnter, onPointerLeave, fileNameStyle} =
+		useAssetLink(src);
+
+	const [imageDimensions, setImageDimensions] = useState<{
+		width: number;
+		height: number;
+	} | null>(null);
+
+	useEffect(() => {
+		if (type !== 'image') {
+			return;
+		}
+
+		let cancelled = false;
+		setImageDimensions(null);
+
+		getImageDimensions(src)
+			.then((dims) => {
+				if (cancelled) {
+					return;
+				}
+
+				setImageDimensions({width: dims.width, height: dims.height});
+			})
+			.catch(() => {
+				// Non-image or load failure — ignore silently.
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [src, type]);
+
 	const detailsLine = useMemo(() => {
+		if (type === 'image') {
+			if (!imageDimensions) {
+				return null;
+			}
+
+			return `${imageDimensions.width}x${imageDimensions.height}`;
+		}
+
 		if (!metadata) {
 			return null;
 		}
@@ -45,7 +172,7 @@ export const TimelineMediaInfo: React.FC<{
 			parts.push(metadata.videoCodec);
 		}
 
-		if (type !== 'image' && metadata.audioCodec) {
+		if (metadata.audioCodec) {
 			parts.push(metadata.audioCodec);
 		}
 
@@ -53,16 +180,20 @@ export const TimelineMediaInfo: React.FC<{
 			parts.push(`${metadata.width}x${metadata.height}`);
 		}
 
-		if (type !== 'image') {
-			parts.push(formatMediaDuration(metadata.duration));
-		}
+		parts.push(formatMediaDuration(metadata.duration));
 
 		return parts.join(' · ');
-	}, [metadata, type]);
+	}, [imageDimensions, metadata, type]);
 
 	return (
 		<div style={containerStyle}>
-			<div style={lineStyle} title={fileName}>
+			<div
+				style={fileNameStyle}
+				title={linkInfo ? linkInfo.title : fileName}
+				onClick={linkInfo ? onClick : undefined}
+				onPointerEnter={linkInfo ? onPointerEnter : undefined}
+				onPointerLeave={linkInfo ? onPointerLeave : undefined}
+			>
 				{fileName}
 			</div>
 			{detailsLine ? (

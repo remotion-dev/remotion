@@ -232,7 +232,7 @@ export const getExpandedTrackHeight = ({
 };
 
 export const TIMELINE_LAYER_HEIGHT_VIDEO = 75;
-export const TIMELINE_LAYER_HEIGHT_IMAGE = 50;
+export const TIMELINE_LAYER_HEIGHT_IMAGE = 58;
 export const TIMELINE_LAYER_HEIGHT_AUDIO = 58;
 export const TIMELINE_LAYER_HEIGHT_DEFAULT = 25;
 // The horizontal row inside a timeline list item (eye + arrow + label).
