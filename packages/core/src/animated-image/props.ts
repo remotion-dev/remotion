@@ -1,3 +1,4 @@
+import type {ImageFit} from '../calculate-image-fit.js';
 import type {EffectsProp} from '../effects/effect-types.js';
 import type {SequenceProps} from '../Sequence.js';
 
@@ -28,4 +29,4 @@ export type AnimatedImageProps = Omit<
 		readonly effects?: EffectsProp;
 	};
 
-export type AnimatedImageFillMode = 'contain' | 'cover' | 'fill';
+export type AnimatedImageFillMode = ImageFit;

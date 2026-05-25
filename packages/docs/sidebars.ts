@@ -144,6 +144,7 @@ const sidebars: SidebarsConfig = {
 				'artifact',
 				'calculate-metadata',
 				'cancel-render',
+				'canvasimage',
 				'composition',
 				'continue-render',
 				'delay-render',
