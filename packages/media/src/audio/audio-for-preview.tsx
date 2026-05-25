@@ -10,6 +10,7 @@ import {
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
 import type {FallbackHtml5AudioProps} from './props';
 
@@ -45,7 +46,7 @@ type NewAudioForPreviewProps = {
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
-	readonly requestInit: RequestInit | undefined;
+	readonly requestInit: MediaRequestInit | undefined;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 };
 
@@ -408,7 +409,7 @@ type InnerAudioProps = {
 	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
 	readonly onError?: MediaOnError;
 	readonly credentials?: RequestCredentials;
-	readonly requestInit?: RequestInit;
+	readonly requestInit?: MediaRequestInit;
 	readonly setMediaDurationInSeconds?: (durationInSeconds: number) => void;
 };
 

@@ -1,6 +1,10 @@
 import {expect, test} from 'vitest';
 import {getSinkCacheKey} from '../get-sink';
-import {resolveRequestInit} from '../request-init';
+import {
+	normalizeMediaRequestInit,
+	resolveRequestInit,
+	type MediaRequestInit,
+} from '../request-init';
 
 test('creates no RequestInit if no fetch options are set', () => {
 	expect(
@@ -25,8 +29,8 @@ test('uses requestInit in the sink cache key', () => {
 });
 
 test('structurally-equal requestInit objects produce the same cache key', () => {
-	const a: RequestInit = {cache: 'no-store'};
-	const b: RequestInit = {cache: 'no-store'};
+	const a: MediaRequestInit = {cache: 'no-store'};
+	const b: MediaRequestInit = {cache: 'no-store'};
 
 	expect(
 		getSinkCacheKey({
@@ -44,20 +48,17 @@ test('structurally-equal requestInit objects produce the same cache key', () => 
 });
 
 test('normalizes headers regardless of input shape and order', () => {
-	const headersObject: RequestInit = {
+	const headersObject: MediaRequestInit = {
 		headers: {Authorization: 'Bearer x', 'X-Other': 'y'},
 	};
-	const headersArray: RequestInit = {
+	const headersArray: MediaRequestInit = {
 		headers: [
 			['x-other', 'y'],
 			['authorization', 'Bearer x'],
 		],
 	};
-	const headersInstance: RequestInit = {
-		headers: new Headers({Authorization: 'Bearer x', 'X-Other': 'y'}),
-	};
 
-	const key = (requestInit: RequestInit) =>
+	const key = (requestInit: MediaRequestInit) =>
 		getSinkCacheKey({
 			src: 'https://example.com/video.mp4',
 			credentials: undefined,
@@ -65,7 +66,20 @@ test('normalizes headers regardless of input shape and order', () => {
 		});
 
 	expect(key(headersObject)).toBe(key(headersArray));
-	expect(key(headersObject)).toBe(key(headersInstance));
+});
+
+test('normalizes a Headers instance to a clone-safe requestInit', () => {
+	expect(
+		normalizeMediaRequestInit({
+			headers: new Headers({Authorization: 'Bearer x'}),
+		} as unknown as MediaRequestInit),
+	).toEqual({headers: [['authorization', 'Bearer x']]});
+});
+
+test('strips unsupported requestInit fields', () => {
+	expect(
+		normalizeMediaRequestInit({method: 'POST'} as unknown as MediaRequestInit),
+	).toBe(undefined);
 });
 
 test('requestInit.credentials wins over the deprecated credentials prop', () => {

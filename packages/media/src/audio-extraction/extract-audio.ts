@@ -16,6 +16,7 @@ import {
 	isNetworkError,
 	isUnsupportedConfigurationError,
 } from '../is-type-of-error';
+import type {MediaRequestInit} from '../request-init';
 
 type ExtractAudioReturnType = Awaited<ReturnType<typeof extractAudioInternal>>;
 
@@ -32,7 +33,7 @@ type ExtractAudioParams = {
 	fps: number;
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
-	requestInit?: RequestInit;
+	requestInit?: MediaRequestInit;
 };
 
 const extractAudioInternal = async ({
