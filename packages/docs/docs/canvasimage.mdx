@@ -65,8 +65,28 @@ Inline styles to apply to the `<canvas>` element.
 
 ### `onError?`
 
-Called when the image cannot be loaded, decoded, or drawn.  
+Called when the image cannot be loaded, decoded, or drawn after all retries are exhausted.  
 If omitted, [`cancelRender()`](/docs/cancel-render) is called.
+
+### `pauseWhenLoading?`
+
+If `true`, the [Player](/docs/player) will pause playback while the image is loading. Default `false`.  
+Has no effect during rendering (rendering always waits via `delayRender()`).
+
+### `maxRetries?`
+
+The number of times to retry loading the image after a failure before giving up. Default `2`.  
+Retries use [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff): the first retry waits 1 second, the second 2 seconds, the third 4 seconds, and so on.
+
+### `delayRenderRetries?`
+
+How many times [`delayRender()`](/docs/delay-render) may retry before the render times out.  
+Passed directly to the `retries` option of `delayRender()`.
+
+### `delayRenderTimeoutInMilliseconds?`
+
+The timeout in milliseconds for each [`delayRender()`](/docs/delay-render) call.  
+Passed directly to the `timeoutInMilliseconds` option of `delayRender()`.
 
 ### Inherited props
 

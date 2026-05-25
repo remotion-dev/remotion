@@ -23,4 +23,8 @@ export type CanvasImageProps = CanvasImageSequenceProps & {
 	readonly style?: React.CSSProperties;
 	readonly id?: string;
 	readonly onError?: (error: Error) => void;
+	readonly pauseWhenLoading?: boolean;
+	readonly maxRetries?: number;
+	readonly delayRenderRetries?: number;
+	readonly delayRenderTimeoutInMilliseconds?: number;
 };

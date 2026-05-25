@@ -1,4 +1,11 @@
-import {forwardRef, useCallback, useEffect, useMemo, useState} from 'react';
+import {
+	forwardRef,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {calculateImageFit} from '../calculate-image-fit.js';
 import type {SequenceControls} from '../CompositionManager.js';
 import type {EffectsProp} from '../effects/effect-types.js';
@@ -17,6 +24,8 @@ import {
 	type SequenceSchema,
 } from '../sequence-field-schema.js';
 import {Sequence} from '../Sequence.js';
+import {SequenceContext} from '../SequenceContext.js';
+import {useBufferState} from '../use-buffer-state.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {wrapInSchema} from '../wrap-in-schema.js';
 import type {CanvasImageProps} from './props.js';
@@ -128,9 +137,24 @@ const loadImage = ({
 	});
 };
 
+function exponentialBackoff(errorCount: number): number {
+	return 1000 * 2 ** (errorCount - 1);
+}
+
 type CanvasImageContentProps = Pick<
 	CanvasImageProps,
-	'className' | 'fit' | 'height' | 'id' | 'onError' | 'src' | 'style' | 'width'
+	| 'className'
+	| 'delayRenderRetries'
+	| 'delayRenderTimeoutInMilliseconds'
+	| 'fit'
+	| 'height'
+	| 'id'
+	| 'maxRetries'
+	| 'onError'
+	| 'pauseWhenLoading'
+	| 'src'
+	| 'style'
+	| 'width'
 > & {
 	readonly effects: EffectsProp;
 	readonly controls: SequenceControls | undefined;
@@ -152,10 +176,15 @@ const CanvasImageContent = forwardRef<
 			className,
 			style,
 			id,
+			pauseWhenLoading,
+			maxRetries = 2,
+			delayRenderRetries,
+			delayRenderTimeoutInMilliseconds,
 		},
 		ref,
 	) => {
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
+		const {delayPlayback} = useBufferState();
 		const [outputCanvas, setOutputCanvas] = useState<HTMLCanvasElement | null>(
 			null,
 		);
@@ -165,6 +194,7 @@ const CanvasImageContent = forwardRef<
 			effects,
 			overrideId: controls?.overrideId ?? null,
 		});
+		const sequenceContext = useContext(SequenceContext);
 
 		const sourceCanvas = useMemo(() => {
 			if (typeof document === 'undefined') {
@@ -192,84 +222,120 @@ const CanvasImageContent = forwardRef<
 				return;
 			}
 
+			const isPremounting = Boolean(sequenceContext?.premounting);
+			const isPostmounting = Boolean(sequenceContext?.postmounting);
+
 			const handle = delayRender(
 				`Rendering <CanvasImage> with src="${truncateSrcForLabel(actualSrc)}"`,
+				{
+					retries: delayRenderRetries ?? undefined,
+					timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+				},
 			);
+			const unblock =
+				pauseWhenLoading && !isPremounting && !isPostmounting
+					? delayPlayback().unblock
+					: () => undefined;
+
 			const controller = new AbortController();
 			let cancelled = false;
 			let continued = false;
+			let errorCount = 0;
+			let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
 			const continueRenderOnce = () => {
 				if (continued) {
 					return;
 				}
 
 				continued = true;
+				unblock();
 				continueRender(handle);
 			};
 
-			loadImage({src: actualSrc, signal: controller.signal})
-				.then((image) => {
-					if (cancelled) {
-						return;
-					}
+			const attemptLoad = () => {
+				loadImage({src: actualSrc, signal: controller.signal})
+					.then((image) => {
+						if (cancelled) {
+							return;
+						}
 
-					const canvasWidth = width ?? image.width;
-					const canvasHeight = height ?? image.height;
-					const sourceContext = sourceCanvas.getContext('2d', {
-						colorSpace: 'srgb',
-					});
+						const canvasWidth = width ?? image.width;
+						const canvasHeight = height ?? image.height;
+						const sourceContext = sourceCanvas.getContext('2d', {
+							colorSpace: 'srgb',
+						});
 
-					if (!sourceContext) {
-						throw new Error(
-							'Could not get 2D context for <CanvasImage> source canvas',
+						if (!sourceContext) {
+							throw new Error(
+								'Could not get 2D context for <CanvasImage> source canvas',
+							);
+						}
+
+						sourceCanvas.width = canvasWidth;
+						sourceCanvas.height = canvasHeight;
+						outputCanvas.width = canvasWidth;
+						outputCanvas.height = canvasHeight;
+
+						sourceContext.clearRect(0, 0, canvasWidth, canvasHeight);
+						sourceContext.drawImage(
+							image.element,
+							...calculateImageFit(
+								fit,
+								{width: image.width, height: image.height},
+								{width: canvasWidth, height: canvasHeight},
+							),
 						);
-					}
 
-					sourceCanvas.width = canvasWidth;
-					sourceCanvas.height = canvasHeight;
-					outputCanvas.width = canvasWidth;
-					outputCanvas.height = canvasHeight;
+						return runEffectChain({
+							state: chainState.get(canvasWidth, canvasHeight)!,
+							source: sourceCanvas,
+							effects: memoizedEffects,
+							output: outputCanvas,
+							width: canvasWidth,
+							height: canvasHeight,
+						});
+					})
+					.then((completed) => {
+						if (completed && !cancelled) {
+							continueRenderOnce();
+						}
+					})
+					.catch((err) => {
+						if ((err as Error).name === 'AbortError') {
+							continueRenderOnce();
+							return;
+						}
 
-					sourceContext.clearRect(0, 0, canvasWidth, canvasHeight);
-					sourceContext.drawImage(
-						image.element,
-						...calculateImageFit(
-							fit,
-							{width: image.width, height: image.height},
-							{width: canvasWidth, height: canvasHeight},
-						),
-					);
-
-					return runEffectChain({
-						state: chainState.get(canvasWidth, canvasHeight)!,
-						source: sourceCanvas,
-						effects: memoizedEffects,
-						output: outputCanvas,
-						width: canvasWidth,
-						height: canvasHeight,
+						errorCount++;
+						if (errorCount <= maxRetries) {
+							const backoff = exponentialBackoff(errorCount);
+							// eslint-disable-next-line no-console
+							console.warn(
+								`Could not load <CanvasImage> with src="${truncateSrcForLabel(actualSrc)}", retrying in ${backoff}ms`,
+							);
+							timeoutId = setTimeout(() => {
+								if (!cancelled) {
+									attemptLoad();
+								}
+							}, backoff);
+						} else if (onError) {
+							onError(err as Error);
+							continueRenderOnce();
+						} else {
+							cancelRender(err);
+						}
 					});
-				})
-				.then((completed) => {
-					if (completed && !cancelled) {
-						continueRenderOnce();
-					}
-				})
-				.catch((err) => {
-					if ((err as Error).name === 'AbortError') {
-						continueRenderOnce();
-						return;
-					}
+			};
 
-					if (onError) {
-						onError(err as Error);
-						continueRenderOnce();
-					} else {
-						cancelRender(err);
-					}
-				});
+			attemptLoad();
 
 			return () => {
 				cancelled = true;
+				if (timeoutId !== null) {
+					clearTimeout(timeoutId);
+				}
+
 				controller.abort();
 				continueRenderOnce();
 			};
@@ -278,12 +344,19 @@ const CanvasImageContent = forwardRef<
 			cancelRender,
 			chainState,
 			continueRender,
+			delayPlayback,
 			delayRender,
+			delayRenderRetries,
+			delayRenderTimeoutInMilliseconds,
 			fit,
 			height,
+			maxRetries,
 			memoizedEffects,
 			onError,
 			outputCanvas,
+			pauseWhenLoading,
+			sequenceContext?.postmounting,
+			sequenceContext?.premounting,
 			sourceCanvas,
 			width,
 		]);
@@ -320,6 +393,10 @@ const CanvasImageInner = forwardRef<
 			style,
 			id,
 			onError,
+			pauseWhenLoading,
+			maxRetries,
+			delayRenderRetries,
+			delayRenderTimeoutInMilliseconds,
 			durationInFrames,
 			from,
 			hidden,
@@ -361,6 +438,10 @@ const CanvasImageInner = forwardRef<
 					style={style}
 					id={id}
 					onError={onError}
+					pauseWhenLoading={pauseWhenLoading}
+					maxRetries={maxRetries}
+					delayRenderRetries={delayRenderRetries}
+					delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 				/>
 			</Sequence>
 		);
