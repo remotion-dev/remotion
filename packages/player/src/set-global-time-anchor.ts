@@ -29,6 +29,10 @@ export const setGlobalTimeAnchor = ({
 		return false;
 	}
 
+	if (shift === 0) {
+		return false;
+	}
+
 	Internals.Log.verbose(
 		{logLevel, tag: 'audio-scheduling'},
 		'Anchor ' +
