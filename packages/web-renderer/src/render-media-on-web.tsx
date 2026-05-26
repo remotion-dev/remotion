@@ -617,6 +617,7 @@ const internalRenderMediaOnWeb = async <
 					onArtifact,
 				});
 			}
+
 			queueAudioAssets(assets);
 
 			if (signal?.aborted) {
