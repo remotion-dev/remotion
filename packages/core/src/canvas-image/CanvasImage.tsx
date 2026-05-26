@@ -16,7 +16,6 @@ import {
 	useMemoizedEffects,
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import {truncateSrcForLabel} from '../Img.js';
 import {usePreload} from '../prefetch.js';
 import {
 	hiddenField,
@@ -25,6 +24,7 @@ import {
 } from '../sequence-field-schema.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
+import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 import {useBufferState} from '../use-buffer-state.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {wrapInSchema} from '../wrap-in-schema.js';

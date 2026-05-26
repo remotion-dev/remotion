@@ -41,6 +41,29 @@ export const MyComp: React.FC = () => {
 };
 ```
 
+### `effects?`<AvailableFrom v="4.0.468" />
+
+Apply [effects](/docs/effects/api) to the image.
+
+When `effects` is omitted or an empty array, `<Img>` renders a native `<img>` element. When at least one effect is passed, `<Img>` renders through [`<CanvasImage>`](/docs/canvasimage).
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, Img, staticFile} from 'remotion';
+import {blur} from '@remotion/effects/blur';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Img src={staticFile('hi.png')} effects={[blur({radius: 8})]} />
+    </AbsoluteFill>
+  );
+};
+```
+
+Because the element becomes a `<canvas>`, native image props that require an `<img>` element cannot be used with non-empty `effects`.
+
+The unsupported props include `ref`, `srcSet`, `sizes`, `loading`, `decoding`, `fetchPriority`, `useMap`, `crossOrigin`, `onLoad`, `onError`, `onImageFrame` and `alt`.
+
 ### `onError`
 
 To use the `<Img>` tag in a resilient way, handle the error that occurs when an image can not be loaded:
@@ -106,7 +129,7 @@ export const MyComp: React.FC = () => {
 
 ### Other props
 
-Remotion inherits the props of the regular `<img>` tag, like for example `style`.
+Remotion inherits the props of the regular `<img>` tag, like for example `style`. If [`effects`](#effects) is a non-empty array, only the props supported by [`<CanvasImage>`](/docs/canvasimage) are supported.
 
 ## GIFs
 

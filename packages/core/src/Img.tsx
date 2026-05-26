@@ -6,7 +6,10 @@ import React, {
 	useRef,
 } from 'react';
 import type {IsExact} from './audio/props.js';
+import {CanvasImage} from './canvas-image/index.js';
+import type {CanvasImageProps} from './canvas-image/props.js';
 import type {SequenceControls} from './CompositionManager.js';
+import type {EffectsProp} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
@@ -17,6 +20,7 @@ import {
 import type {SequenceProps} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
+import {truncateSrcForLabel} from './truncate-src-for-label.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -26,15 +30,7 @@ function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
 }
 
-// Data URLs like the ones from canvas.toDataURL() can be many megabytes, which makes the delayRender() label
-// unreadable and bloats log output
-export function truncateSrcForLabel(src: string): string {
-	if (src.startsWith('data:') && src.length > 100) {
-		return src.slice(0, 60) + '...[' + src.length + ' chars total]';
-	}
-
-	return src;
-}
+export {truncateSrcForLabel};
 
 type NativeImgProps = Omit<
 	React.DetailedHTMLProps<
@@ -51,6 +47,7 @@ export type ImgProps = NativeImgProps & {
 	readonly delayRenderTimeoutInMilliseconds?: number;
 	readonly onImageFrame?: (imageElement: HTMLImageElement) => void;
 	readonly src: string;
+	readonly effects?: EffectsProp;
 	readonly showInTimeline?: boolean;
 	readonly name?: string;
 	/**
@@ -66,7 +63,13 @@ type Expected = Omit<
 
 type ImgContentProps = Omit<
 	ImgProps,
-	'hidden' | 'name' | 'stack' | 'showInTimeline' | 'from' | 'durationInFrames'
+	| 'hidden'
+	| 'name'
+	| 'stack'
+	| 'showInTimeline'
+	| 'from'
+	| 'durationInFrames'
+	| 'effects'
 >;
 
 const ImgContent: React.FC<ImgContentProps> = ({
@@ -296,11 +299,11 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	);
 };
 
-const ImgInner: React.FC<
-	ImgProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
-	}
-> = ({
+type NativeImgInnerProps = Omit<ImgProps, 'effects'> & {
+	readonly _experimentalControls: SequenceControls | undefined;
+};
+
+const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	hidden,
 	name,
 	stack,
@@ -332,6 +335,145 @@ const ImgInner: React.FC<
 		>
 			<ImgContent src={src} {...props} />
 		</Sequence>
+	);
+};
+
+const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
+	CanvasImageProps & {
+		readonly _experimentalControls?: SequenceControls | undefined;
+	}
+>;
+
+const getPassedPropNames = (props: Record<string, unknown>) => {
+	return Object.keys(props).filter((key) => props[key] !== undefined);
+};
+
+const formatPropList = (props: string[]) => {
+	return props.map((prop) => `"${prop}"`).join(', ');
+};
+
+const validateCanvasImageFallbackProps = ({
+	props,
+	ref,
+	width,
+	height,
+}: {
+	readonly props: Record<string, unknown>;
+	readonly ref: React.Ref<HTMLImageElement> | undefined;
+	readonly width: ImgProps['width'];
+	readonly height: ImgProps['height'];
+}) => {
+	if (typeof width === 'string' || typeof height === 'string') {
+		throw new Error(
+			'The "width" and "height" props must be numbers on <Img> when effects are passed, because <Img> renders a <CanvasImage>. Use numeric props or CSS dimensions in "style".',
+		);
+	}
+
+	const conflictingProps = getPassedPropNames(props);
+	if (ref !== null && ref !== undefined) {
+		conflictingProps.unshift('ref');
+	}
+
+	if (conflictingProps.length === 0) {
+		return;
+	}
+
+	throw new Error(
+		`The ${formatPropList(conflictingProps)} prop${
+			conflictingProps.length === 1 ? '' : 's'
+		} cannot be used on <Img> when effects are passed, because <Img> renders a <CanvasImage> instead of a native <img>. Remove ${
+			conflictingProps.length === 1 ? 'this prop' : 'these props'
+		} or use <CanvasImage> directly.`,
+	);
+};
+
+const ImgInner: React.FC<
+	ImgProps & {
+		readonly _experimentalControls: SequenceControls | undefined;
+	}
+> = ({
+	effects = [],
+	ref,
+	hidden,
+	name,
+	stack,
+	showInTimeline,
+	src,
+	from,
+	durationInFrames,
+	_experimentalControls: controls,
+	width,
+	height,
+	className,
+	style,
+	id,
+	pauseWhenLoading,
+	maxRetries,
+	delayRenderRetries,
+	delayRenderTimeoutInMilliseconds,
+	...props
+}) => {
+	if (effects.length === 0) {
+		return (
+			<NativeImgInner
+				{...props}
+				ref={ref}
+				hidden={hidden}
+				name={name}
+				stack={stack}
+				showInTimeline={showInTimeline}
+				src={src}
+				from={from}
+				durationInFrames={durationInFrames}
+				_experimentalControls={controls}
+				width={width}
+				height={height}
+				className={className}
+				style={style}
+				id={id}
+				pauseWhenLoading={pauseWhenLoading}
+				maxRetries={maxRetries}
+				delayRenderRetries={delayRenderRetries}
+				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+			/>
+		);
+	}
+
+	if (!src) {
+		throw new Error('No "src" prop was passed to <Img>.');
+	}
+
+	validateCanvasImageFallbackProps({
+		props,
+		ref,
+		width,
+		height,
+	});
+
+	const canvasWidth = typeof width === 'number' ? width : undefined;
+	const canvasHeight = typeof height === 'number' ? height : undefined;
+
+	return (
+		<CanvasImageWithPrivateProps
+			src={src}
+			width={canvasWidth}
+			height={canvasHeight}
+			effects={effects}
+			className={className}
+			style={style}
+			id={id}
+			pauseWhenLoading={pauseWhenLoading}
+			maxRetries={maxRetries}
+			delayRenderRetries={delayRenderRetries}
+			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+			from={from}
+			durationInFrames={durationInFrames}
+			hidden={hidden}
+			name={name ?? '<Img>'}
+			showInTimeline={showInTimeline}
+			stack={stack}
+			_experimentalControls={controls ?? undefined}
+		/>
 	);
 };
 
