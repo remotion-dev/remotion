@@ -208,6 +208,7 @@ test('Img forwards canvas-compatible attributes when effects are passed', async 
 	const onClick = () => {
 		drawImageCalls.push(['clicked']);
 	};
+
 	const {container} = renderImg(
 		<Img
 			src={testImgUrl}
