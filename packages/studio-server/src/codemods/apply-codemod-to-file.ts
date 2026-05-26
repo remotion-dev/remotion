@@ -1,9 +1,9 @@
 import {existsSync, readFileSync} from 'node:fs';
-import path from 'node:path';
 import type {
 	RecastCodemod,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
+import {resolveFileInsideProject} from '../helpers/resolve-file-inside-project';
 import {checkIfTypeScriptFile} from '../preview-server/routes/can-update-default-props';
 import {formatOutput, parseAndApplyCodemod} from './duplicate-composition';
 
@@ -17,11 +17,11 @@ export const resolveFilePathFromSymbolicatedStack = (
 		);
 	}
 
-	const absolutePath = path.resolve(remotionRoot, stack.originalFileName);
-	const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-	if (fileRelativeToRoot.startsWith('..')) {
-		throw new Error('Cannot apply codemod to a file outside the project');
-	}
+	const {absolutePath} = resolveFileInsideProject({
+		remotionRoot,
+		fileName: stack.originalFileName,
+		action: 'apply codemod to',
+	});
 
 	if (!existsSync(absolutePath)) {
 		throw new Error(`File not found: ${stack.originalFileName}`);

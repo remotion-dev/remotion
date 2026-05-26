@@ -1,5 +1,4 @@
 import {readFileSync} from 'node:fs';
-import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	SaveEffectPropsRequest,
@@ -9,6 +8,7 @@ import {getAllSchemaKeys} from '@remotion/studio-shared';
 import {parseAst} from '../../codemods/parse-ast';
 import {updateEffectProps} from '../../codemods/update-effect-props/update-effect-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {
 	printUndoHint,
@@ -45,11 +45,11 @@ export const saveEffectPropsHandler: ApiHandler<
 			{indent: false, logLevel},
 			`[save-effect-props] Received request for fileName="${fileName}" effectIndex=${effectIndex} key="${key}"`,
 		);
-		const absolutePath = path.resolve(remotionRoot, fileName);
-		const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-		if (fileRelativeToRoot.startsWith('..')) {
-			throw new Error('Cannot modify a file outside the project');
-		}
+		const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+			remotionRoot,
+			fileName,
+			action: 'modify',
+		});
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 

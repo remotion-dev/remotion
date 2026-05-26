@@ -1,5 +1,4 @@
 import {readFileSync} from 'node:fs';
-import path from 'node:path';
 import type {
 	CallExpression,
 	Expression,
@@ -22,6 +21,7 @@ import type {
 } from 'remotion';
 import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import {JsxElementNotFoundAtLocationError} from '../jsx-element-not-found-at-location-error';
 import {computeEffectPropStatus} from './can-update-effect-props';
 
@@ -459,11 +459,11 @@ export const computeSequencePropsOnlyStatus = ({
 	keys: string[];
 	remotionRoot: string;
 }): {canUpdate: true; props: Record<string, CanUpdatePropStatus>} => {
-	const absolutePath = path.resolve(remotionRoot, fileName);
-	const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-	if (fileRelativeToRoot.startsWith('..')) {
-		throw new Error('Cannot read a file outside the project');
-	}
+	const {absolutePath} = resolveFileInsideProject({
+		remotionRoot,
+		fileName,
+		action: 'read',
+	});
 
 	const fileContents = readFileSync(absolutePath, 'utf-8');
 	const ast = parseAst(fileContents);
@@ -522,11 +522,11 @@ export const computeSequencePropsStatus = ({
 	effects: string[][];
 	remotionRoot: string;
 }): CanUpdateSequencePropsResponseTrue => {
-	const absolutePath = path.resolve(remotionRoot, fileName);
-	const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-	if (fileRelativeToRoot.startsWith('..')) {
-		throw new Error('Cannot read a file outside the project');
-	}
+	const {absolutePath} = resolveFileInsideProject({
+		remotionRoot,
+		fileName,
+		action: 'read',
+	});
 
 	const fileContents = readFileSync(absolutePath, 'utf-8');
 	return computeSequencePropsStatusFromContent({
@@ -553,11 +553,11 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 	logLevel: LogLevel;
 }): SubscribeToSequencePropsResponse => {
 	try {
-		const absolutePath = path.resolve(remotionRoot, fileName);
-		const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-		if (fileRelativeToRoot.startsWith('..')) {
-			throw new Error('Cannot read a file outside the project');
-		}
+		const {absolutePath} = resolveFileInsideProject({
+			remotionRoot,
+			fileName,
+			action: 'read',
+		});
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 		const ast = parseAst(fileContents);

@@ -1,5 +1,4 @@
 import {readFileSync} from 'node:fs';
-import path from 'node:path';
 import type {
 	CallExpression,
 	Expression,
@@ -19,6 +18,7 @@ import {
 	enumerateEffectArrayElements,
 	type EffectArrayElement,
 } from '../../codemods/update-effect-props/update-effect-props';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import {
 	extractStaticValue,
 	findJsxElementAtNodePath,
@@ -210,11 +210,11 @@ export const computeEffectPropsStatusesFromFile = ({
 	keysFor: (effect: SequenceSchema) => string[];
 	remotionRoot: string;
 }): CanUpdateEffectPropsResponse[] => {
-	const absolutePath = path.resolve(remotionRoot, fileName);
-	const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-	if (fileRelativeToRoot.startsWith('..')) {
-		throw new Error('Cannot read a file outside the project');
-	}
+	const {absolutePath} = resolveFileInsideProject({
+		remotionRoot,
+		fileName,
+		action: 'read',
+	});
 
 	const fileContents = readFileSync(absolutePath, 'utf-8');
 	return computeEffectPropsStatusesFromContent({

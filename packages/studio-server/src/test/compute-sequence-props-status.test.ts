@@ -45,6 +45,24 @@ test('canUpdateSequenceProps should flag computed props', () => {
 	});
 });
 
+test('computeSequencePropsStatus should explain why outside-project file reads were blocked', () => {
+	const remotionRoot = path.join(__dirname, 'snapshots');
+	const fileName = '../outside.tsx';
+	const absolutePath = path.resolve(remotionRoot, fileName);
+
+	expect(() =>
+		computeSequencePropsStatus({
+			fileName,
+			nodePath: [],
+			keys: [],
+			effects: [],
+			remotionRoot,
+		}),
+	).toThrow(
+		`Cannot read a file outside the project: "${fileName}" resolves to "${absolutePath}", but the project root is "${remotionRoot}".`,
+	);
+});
+
 test('computeSequencePropsStatus should detect static nested props', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
