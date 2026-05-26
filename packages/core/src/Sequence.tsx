@@ -4,9 +4,9 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
-import {useRef} from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
 import type {EffectDefinition} from './effects/effect-types.js';
@@ -202,10 +202,34 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}, [other._remotionInternalIsPostmounting, parentSequence?.postmounting]);
 
+	// `cumulatedNegativeFrom` answers: "How many frames of this media have
+	// already elapsed before the first visible frame of this sequence?"
+	//
+	// This is intentionally based on the effective sequence start, not on adding
+	// all negative `from` values. See the asset-calculation tests for:
+	// - "Should calculate startFrom correctly with negative offset (Html5Audio)"
+	// - "same as above, but with <Sequence from={0}> inbetween"
+	// - "same as above, but a positive child offset cancels part of the negative parent offset"
+	//
+	// In particular, <Sequence from={-20}><Sequence from={10}> should have a
+	// 10-frame pre-roll, because the positive child offset cancels part of the
+	// negative parent offset. But <Sequence from={10}><Sequence from={-5}>
+	// should still trim 5 frames from the media once the parent starts.
+	const currentSequenceStart = cumulatedFrom + from;
+	const parentSequenceStart = parentSequence
+		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
+		: 0;
+	const parentFirstFrame = parentSequence
+		? parentSequenceStart - parentSequence.cumulatedNegativeFrom
+		: 0;
+	const firstFrame = Math.max(0, parentFirstFrame, currentSequenceStart);
+	const cumulatedNegativeFrom = currentSequenceStart - firstFrame;
+
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
 			cumulatedFrom,
 			relativeFrom: from,
+			cumulatedNegativeFrom,
 			durationInFrames: actualDurationInFrames,
 			parentFrom: parentSequence?.relativeFrom ?? 0,
 			id,
@@ -228,6 +252,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		postmounting,
 		premountDisplay,
 		postmountDisplay,
+		cumulatedNegativeFrom,
 	]);
 
 	const timelineClipName = useMemo(() => {

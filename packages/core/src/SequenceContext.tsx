@@ -4,6 +4,7 @@ export const SequenceContext = createContext<SequenceContextType | null>(null);
 
 export type SequenceContextType = {
 	cumulatedFrom: number;
+	cumulatedNegativeFrom: number;
 	relativeFrom: number;
 	parentFrom: number;
 	durationInFrames: number;
