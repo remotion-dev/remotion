@@ -7376,6 +7376,15 @@ export const articles = [
 		slug: 'vercel/create-sandbox',
 	},
 	{
+		id: 'vercel/get-render-progress',
+		title: 'getRenderProgress()',
+		relativePath: 'docs/vercel/get-render-progress.mdx',
+		compId: 'articles-docs-vercel-get-render-progress',
+		crumb: '@remotion/vercel',
+		noAi: false,
+		slug: 'vercel/get-render-progress',
+	},
+	{
 		id: 'vercel-api',
 		title: '@remotion/vercel',
 		relativePath: 'docs/vercel/index.mdx',
