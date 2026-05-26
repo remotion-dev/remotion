@@ -219,6 +219,7 @@ import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {PrintProps} from './PrintProps';
 import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
+import {ImgEffects} from './SimpleImg/ImgEffects';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {SpringSeason} from './SpringSeason';
 import {StarburstExample} from './Starburst';
@@ -555,6 +556,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="canvas-img"
 					component={CanvasImg}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
+				/>
+				<Composition
+					id="img-effects"
+					component={ImgEffects}
 					width={1080}
 					height={1080}
 					fps={30}
