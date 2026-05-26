@@ -11,7 +11,7 @@ const creatorExamples = [
 		muxPlaybackId: '2E2ksNC9FIgnczmLZZQ4iJjDp760101pcLnyLeNal9MjA',
 	},
 	{
-		title: 'B-roll for stories',
+		title: 'B-roll',
 		description:
 			'Turn screenshots, headlines, product moments, and references into supporting visuals for your edit.',
 		slug: 'news-article-headline-highlight',
@@ -63,12 +63,8 @@ const CreatorExample: React.FC<{
 				<div className="text-xl font-bold fontbrand text-text">
 					{example.title}
 				</div>
-				<div className="text-muted text-sm fontbrand leading-relaxed mt-2 flex-1">
+				<div className="text-muted text-sm fontbrand leading-relaxed mt-2">
 					{example.description}
-				</div>
-				<div className="text-brand font-brand font-bold text-sm inline-flex flex-row items-center mt-4">
-					See prompt
-					<Arrow />
 				</div>
 			</div>
 		</a>

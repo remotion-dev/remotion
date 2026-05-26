@@ -5,7 +5,6 @@ import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
 import {CreatorShowcase} from './homepage/CreatorShowcase';
 import {Demo} from './homepage/Demo';
-import EditorStarterSection from './homepage/EditorStarterSection';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
 import {IfYouKnowReact} from './homepage/IfYouKnowReact';
 import type {ColorMode} from './homepage/layout/use-color-mode';
@@ -43,7 +42,11 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<br />
+						<br />
+						<br />
 						<CreatorShowcase />
+						<br />
+						<br />
 						<br />
 						<br />
 						<br />
@@ -64,10 +67,6 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<CommunityStats />
-						<br />
-						<br />
-						<br />
-						<EditorStarterSection />
 						<br />
 						<br />
 						<br />
