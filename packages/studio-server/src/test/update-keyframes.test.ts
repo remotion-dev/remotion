@@ -19,6 +19,17 @@ export const Example: React.FC = () => {
 };
 `;
 
+const colorInput = `import React from 'react';
+import {Solid, interpolateColors, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Solid color={interpolateColors(frame, [0, 100], ['red', 'blue'])} width={100} height={100} />
+\t);
+};
+`;
+
 const effectInput = `import {tint} from '@remotion/effects/tint';
 import {HtmlInCanvas} from '@remotion/html-in-canvas';
 import {interpolate, useCurrentFrame} from 'remotion';
@@ -84,6 +95,48 @@ test('updateSequenceKeyframes converts a static value to an interpolation', asyn
 
 	expect(oldValueStrings).toEqual(['0.5']);
 	expect(output).toContain('opacity: interpolate(frame, [0, 25], [0.5, 0.75])');
+});
+
+test('updateSequenceKeyframes adds a keyframe to an existing color interpolation', async () => {
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input: colorInput,
+		nodePath: lineColumnToNodePath(colorInput, getLine(colorInput, '<Solid')),
+		updates: [
+			{
+				key: 'color',
+				operation: {type: 'add', frame: 50, value: '#00ff00'},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual([
+		"interpolateColors(frame, [0, 100], ['red', 'blue'])",
+	]);
+	expect(output).toContain(
+		"color={interpolateColors(frame, [0, 50, 100], ['red', '#00ff00', 'blue'])}",
+	);
+});
+
+test('updateSequenceKeyframes converts a static string value to a color interpolation', async () => {
+	const input = colorInput.replace(
+		"interpolateColors(frame, [0, 100], ['red', 'blue'])",
+		"'red'",
+	);
+	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, '<Solid')),
+		updates: [
+			{
+				key: 'color',
+				operation: {type: 'add', frame: 50, value: 'blue'},
+			},
+		],
+	});
+
+	expect(oldValueStrings).toEqual(["'red'"]);
+	expect(output).toContain(
+		"color={interpolateColors(frame, [0, 50], ['red', 'blue'])}",
+	);
 });
 
 test('updateSequenceKeyframes collapses to a static value when one keyframe remains', async () => {
