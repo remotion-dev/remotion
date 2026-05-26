@@ -98,10 +98,6 @@ test('keyframe display offsets follow the parent sequence context', () => {
 			throw new Error(`Could not find track ${id}`);
 		}
 
-		if (track.keyframeDisplayOffset === undefined) {
-			throw new Error(`Track ${id} has no keyframe display offset`);
-		}
-
 		return track.keyframeDisplayOffset;
 	};
 
@@ -111,7 +107,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 	expect(getOffset('grandchild')).toBe(30);
 	expect(
 		timeline.find((t) => t.sequence.id === 'parent')?.keyframeDisplayOffset,
-	).toBeUndefined();
+	).toBe(0);
 
 	expect(
 		getTimelineKeyframes(

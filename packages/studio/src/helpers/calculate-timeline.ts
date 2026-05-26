@@ -99,9 +99,9 @@ export const calculateTimeline = ({
 			hash: actualHash,
 			cascadedStart,
 			cascadedDuration: sequence.duration,
-			...(hasKeyframeRows
-				? {keyframeDisplayOffset: cascadedStart - sequence.from}
-				: {}),
+			keyframeDisplayOffset: hasKeyframeRows
+				? cascadedStart - sequence.from
+				: 0,
 			nodePathInfo: nodePath
 				? {
 						sequenceSubscriptionKey: nodePath,

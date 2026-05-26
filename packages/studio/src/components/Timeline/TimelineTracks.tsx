@@ -59,7 +59,7 @@ const TimelineTracksInner: React.FC<{
 								<TimelineExpandedTrackKeyframes
 									sequence={track.sequence}
 									nodePathInfo={track.nodePathInfo}
-									keyframeDisplayOffset={track.keyframeDisplayOffset ?? 0}
+									keyframeDisplayOffset={track.keyframeDisplayOffset}
 								/>
 							) : null}
 						</div>
