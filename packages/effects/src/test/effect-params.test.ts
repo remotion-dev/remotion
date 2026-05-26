@@ -4,6 +4,7 @@ import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {contrast} from '../contrast.js';
+import {duotone} from '../duotone.js';
 import {grayscale} from '../grayscale.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
@@ -30,6 +31,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(contrast().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/contrast',
+	);
+	expect(duotone().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/duotone',
 	);
 	expect(grayscale().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/grayscale',
@@ -296,6 +300,63 @@ test('contrast() amount produces distinct effect keys', () => {
 	const boosted = contrast({amount: 2});
 	expect(
 		new Set([flat.effectKey, neutral.effectKey, boosted.effectKey]).size,
+	).toBe(3);
+});
+
+test('duotone() accepts default params', () => {
+	expect(() => duotone()).not.toThrow();
+});
+
+test('duotone() accepts valid params', () => {
+	expect(() =>
+		duotone({
+			darkColor: '#111111',
+			lightColor: '#eeeeee',
+			threshold: 0.4,
+		}),
+	).not.toThrow();
+});
+
+test('duotone() rejects empty darkColor strings', () => {
+	expect(() => duotone({darkColor: ''})).toThrow(
+		'"darkColor" must be a non-empty string, but got ""',
+	);
+});
+
+test('duotone() rejects empty lightColor strings', () => {
+	expect(() => duotone({lightColor: ''})).toThrow(
+		'"lightColor" must be a non-empty string, but got ""',
+	);
+});
+
+test('duotone() rejects non-finite threshold', () => {
+	expect(() => duotone({threshold: Number.NaN})).toThrow(
+		'"threshold" must be a finite number',
+	);
+});
+
+test('duotone() rejects threshold below range', () => {
+	expect(() => duotone({threshold: -0.1})).toThrow('"threshold" must be >= 0');
+});
+
+test('duotone() rejects threshold above range', () => {
+	expect(() => duotone({threshold: 1.1})).toThrow('"threshold" must be <= 1');
+});
+
+test('duotone() parameters produce distinct effect keys', () => {
+	const defaultDuotone = duotone();
+	const shiftedThreshold = duotone({threshold: 0.25});
+	const customColors = duotone({
+		darkColor: '#123456',
+		lightColor: '#abcdef',
+	});
+
+	expect(
+		new Set([
+			defaultDuotone.effectKey,
+			shiftedThreshold.effectKey,
+			customColors.effectKey,
+		]).size,
 	).toBe(3);
 });
 

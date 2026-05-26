@@ -1,7 +1,14 @@
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
-import {assertOptionalFiniteNumber} from './color-utils.js';
-import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	assertOptionalFiniteNumber,
+	parseColorRgba,
+	type ParsedColorRgba,
+} from './color-utils.js';
+import {
+	assertEffectParamsObject,
+	assertOptionalColor,
+} from './validate-effect-param.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 const HALFTONE_SHAPES = ['circle', 'square', 'line'] as const;
@@ -159,18 +166,6 @@ const assertOptionalBoolean = (value: unknown, name: string): void => {
 	if (typeof value !== 'boolean') {
 		throw new TypeError(
 			`"${name}" must be a boolean, but got ${JSON.stringify(value)}`,
-		);
-	}
-};
-
-const assertOptionalColor = (value: unknown, name: string): void => {
-	if (value === undefined) {
-		return;
-	}
-
-	if (typeof value !== 'string' || value.length === 0) {
-		throw new TypeError(
-			`"${name}" must be a non-empty string, but got ${JSON.stringify(value)}`,
 		);
 	}
 };
@@ -333,7 +328,7 @@ type HalftoneState = {
 	uUseSourceColor: WebGLUniformLocation | null;
 	colorCtx: CanvasRenderingContext2D;
 	cachedColorStr: string;
-	cachedColorRgba: [number, number, number, number];
+	cachedColorRgba: ParsedColorRgba;
 };
 
 const SHAPE_INDEX: Record<HalftoneShape, number> = {
@@ -383,17 +378,6 @@ const linkProgram = (
 	}
 
 	return program;
-};
-
-const parseColorRgba = (
-	ctx: CanvasRenderingContext2D,
-	color: string,
-): [number, number, number, number] => {
-	ctx.clearRect(0, 0, 1, 1);
-	ctx.fillStyle = color;
-	ctx.fillRect(0, 0, 1, 1);
-	const {data} = ctx.getImageData(0, 0, 1, 1);
-	return [data[0] / 255, data[1] / 255, data[2] / 255, data[3] / 255];
 };
 
 // Halftone effect (WebGL2). Converts luminance into a grid of dots, squares,
@@ -495,7 +479,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 			uUseSourceColor: gl.getUniformLocation(program, 'uUseSourceColor'),
 			colorCtx,
 			cachedColorStr: '',
-			cachedColorRgba: [0, 0, 0, 1] as [number, number, number, number],
+			cachedColorRgba: [0, 0, 0, 255],
 		};
 	},
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -508,6 +492,7 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		}
 
 		const [cr, cg, cb, ca] = state.cachedColorRgba;
+		const caNormalized = ca / 255;
 
 		const filter = r.sampling === 'nearest' ? gl.NEAREST : gl.LINEAR;
 
@@ -539,7 +524,14 @@ export const halftone = createEffect<HalftoneParams, HalftoneState>({
 		if (state.uRotation)
 			gl.uniform1f(state.uRotation, (r.rotation * Math.PI) / 180);
 		if (state.uOffset) gl.uniform2f(state.uOffset, r.offsetX, r.offsetY);
-		if (state.uColor) gl.uniform4f(state.uColor, cr * ca, cg * ca, cb * ca, ca);
+		if (state.uColor)
+			gl.uniform4f(
+				state.uColor,
+				(cr / 255) * caNormalized,
+				(cg / 255) * caNormalized,
+				(cb / 255) * caNormalized,
+				caNormalized,
+			);
 		if (state.uShape) gl.uniform1i(state.uShape, SHAPE_INDEX[r.shape]);
 		if (state.uShadeOutside)
 			gl.uniform1i(state.uShadeOutside, r.invert ? 1 : 0);

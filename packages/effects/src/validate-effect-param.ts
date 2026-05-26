@@ -27,3 +27,11 @@ export const assertRequiredColor = (value: unknown, name: string): void => {
 		);
 	}
 };
+
+export const assertOptionalColor = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	assertRequiredColor(value, name);
+};

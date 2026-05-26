@@ -57,6 +57,11 @@
 			"module": "./dist/esm/contrast.mjs",
 			"import": "./dist/esm/contrast.mjs"
 		},
+		"./duotone": {
+			"types": "./dist/duotone.d.ts",
+			"module": "./dist/esm/duotone.mjs",
+			"import": "./dist/esm/duotone.mjs"
+		},
 		"./halftone": {
 			"types": "./dist/halftone.d.ts",
 			"module": "./dist/esm/halftone.mjs",
@@ -125,6 +130,9 @@
 			],
 			"contrast": [
 				"dist/contrast.d.ts"
+			],
+			"duotone": [
+				"dist/duotone.d.ts"
 			],
 			"halftone": [
 				"dist/halftone.d.ts"

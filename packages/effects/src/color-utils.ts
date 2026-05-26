@@ -91,3 +91,16 @@ export const validateSignedUnitInterval = (
 export const clampColorChannel = (value: number): number => {
 	return Math.max(0, Math.min(255, value));
 };
+
+export type ParsedColorRgba = readonly [number, number, number, number];
+
+export const parseColorRgba = (
+	ctx: CanvasRenderingContext2D,
+	color: string,
+): ParsedColorRgba => {
+	ctx.clearRect(0, 0, 1, 1);
+	ctx.fillStyle = color;
+	ctx.fillRect(0, 0, 1, 1);
+	const {data} = ctx.getImageData(0, 0, 1, 1);
+	return [data[0], data[1], data[2], data[3]];
+};

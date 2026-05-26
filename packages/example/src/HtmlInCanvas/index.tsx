@@ -27,6 +27,7 @@ export {HtmlInCanvasDocsDemo2DBlur} from './docs-demo-2d-blur';
 export {EffectsBlurPreview} from './effects-blur-preview';
 export {EffectsBrightnessPreview} from './effects-brightness-preview';
 export {EffectsContrastPreview} from './effects-contrast-preview';
+export {EffectsDuotonePreview} from './effects-duotone-preview';
 export {EffectsGrayscalePreview} from './effects-grayscale-preview';
 export {EffectsHalftonePreview} from './effects-halftone-preview';
 export {EffectsHuePreview} from './effects-hue-preview';
