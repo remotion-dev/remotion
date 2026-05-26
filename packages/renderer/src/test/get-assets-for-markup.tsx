@@ -1,4 +1,3 @@
-import {GlobalRegistrator} from '@happy-dom/global-registrator';
 import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {
@@ -11,25 +10,6 @@ import React, {
 } from 'react';
 import type {CompositionManagerContext, TRenderAsset} from 'remotion';
 import {Internals} from 'remotion';
-
-if (typeof window === 'undefined') {
-	GlobalRegistrator.register();
-}
-(global.window as unknown as Record<string, unknown>).remotion_staticBase =
-	'/static-abcdef';
-(
-	global.window as unknown as Record<string, unknown>
-).remotion_delayRenderHandles = [];
-(global.window as unknown as Record<string, unknown>).remotion_callDelayRender =
-	() => {};
-(
-	global.window as unknown as Record<string, unknown>
-).remotion_delayRenderTimeouts = {};
-(global.window as unknown as Record<string, unknown>).remotion_attempt = 1;
-(
-	global.window as unknown as Record<string, unknown>
-).remotion_puppeteerTimeout = 30000;
-(global.window as unknown as Record<string, unknown>).remotion_isMainTab = true;
 
 // @ts-expect-error
 global.IS_REACT_ACT_ENVIRONMENT = true;
