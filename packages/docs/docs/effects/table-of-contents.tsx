@@ -166,6 +166,13 @@ const categories: {
 				description: 'Halftone dot grid effect',
 			},
 			{
+				link: '/docs/effects/halftone-gradient',
+				preview: '/img/effects-halftone-gradient-preview.jpg',
+				alt: 'halftone gradient effect preview',
+				name: 'halftoneGradient()',
+				description: 'Linear dot size gradient',
+			},
+			{
 				link: '/docs/starburst/starburst-effect',
 				preview: '/img/effects-starburst-preview.jpg',
 				alt: 'starburst effect preview',
