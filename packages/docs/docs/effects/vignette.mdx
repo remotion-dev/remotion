@@ -1,0 +1,103 @@
+---
+image: /generated/articles-docs-effects-vignette.png
+slug: /effects/vignette
+title: vignette()
+sidebar_label: vignette()
+crumb: '@remotion/effects'
+---
+
+# vignette()<AvailableFrom v="4.0.468" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A vignette effect that darkens, colors, or fades out the edges of canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+It respects the source alpha mask. Transparent regions stay transparent.
+
+## Preview
+
+<Demo type="effects-vignette" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {vignette} from '@remotion/effects/vignette';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          vignette({
+            amount: 0.75,
+            radius: 0.55,
+            feather: 0.35,
+            color: '#000000',
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties.
+
+### `amount?`
+
+Strength from `0` to `1`. Defaults to `0.5`.
+
+- `0` leaves the layer unchanged.
+- `1` applies the full vignette at the outer edges.
+
+### `radius?`
+
+Size of the unaffected center from `0` to `1`. Defaults to `0.65`.
+
+Higher values move the vignette closer to the outer edge.
+
+### `feather?`
+
+Softness of the transition from `0` to `1`. Defaults to `0.35`.
+
+Use `0` for a hard edge.
+
+### `roundness?`
+
+Shape from `0` to `1`. Defaults to `1`.
+
+- `0` makes the vignette more rectangular.
+- `1` makes the vignette elliptical.
+
+### `color?`
+
+The color blended into the edges when `mode` is `'color'`. Defaults to `'#000000'`.
+
+Accepts any CSS color string (for example `'#000000'`, `'black'`, or `'rgba(0, 0, 0, 0.8)'`).
+
+### `mode?`
+
+How the vignette is applied. Defaults to `'color'`.
+
+- `'color'` blends `color` into the edges while preserving the layer alpha.
+- `'alpha'` fades the edges transparent instead of adding color.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`vignette()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`tint()`](/docs/effects/tint)
+- [`glow()`](/docs/effects/glow)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/vignette.ts)

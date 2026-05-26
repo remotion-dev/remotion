@@ -80,6 +80,13 @@ const categories: {
 				name: 'tint()',
 				description: 'Color tint effect',
 			},
+			{
+				link: '/docs/effects/vignette',
+				preview: '/img/effects-vignette-preview.jpg',
+				alt: 'vignette effect preview',
+				name: 'vignette()',
+				description: 'Edge darkening or transparency effect',
+			},
 		],
 	},
 	{

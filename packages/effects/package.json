@@ -112,6 +112,11 @@
 			"module": "./dist/esm/translate.mjs",
 			"import": "./dist/esm/translate.mjs"
 		},
+		"./vignette": {
+			"types": "./dist/vignette.d.ts",
+			"module": "./dist/esm/vignette.mjs",
+			"import": "./dist/esm/vignette.mjs"
+		},
 		"./wave": {
 			"types": "./dist/wave.d.ts",
 			"module": "./dist/esm/wave.mjs",
@@ -168,6 +173,9 @@
 			],
 			"translate": [
 				"dist/translate.d.ts"
+			],
+			"vignette": [
+				"dist/vignette.d.ts"
 			],
 			"wave": [
 				"dist/wave.d.ts"
