@@ -1,5 +1,4 @@
 import {expect, test} from 'bun:test';
-import {Audio} from '@remotion/media';
 import React from 'react';
 import {
 	Html5Audio,
@@ -182,7 +181,7 @@ test('Should calculate volumes correctly', async () => {
 	});
 });
 
-test('Should calculate startFrom correctly (Html5Audio)', async () => {
+test.only('Should calculate startFrom correctly (Html5Audio)', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Sequence from={1}>
@@ -224,11 +223,11 @@ test('Should calculate startFrom correctly (Html5Audio)', async () => {
 	});
 });
 
-test('Should calculate startFrom correctly (@remotion/media)', async () => {
+test.only('Should calculate startFrom correctly with negative offset (Html5Audio)', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
-			<Sequence from={1}>
-				<Audio
+			<Sequence from={-10} durationInFrames={40}>
+				<Html5Audio
 					trimBefore={100}
 					trimAfter={200}
 					src={'https://remotion.media/video.mp4'}
@@ -246,16 +245,52 @@ test('Should calculate startFrom correctly (@remotion/media)', async () => {
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'audio',
 		src: 'https://remotion.media/video.mp4',
-		// why duration of 58 and startInVideo of 2?
-		// 60 original duration
-		// minus 1 because of from={1}
-		// minus 1 because the first frame has volume 0 and does not get registered
-		duration: 58,
-		startInVideo: 2,
-		trimLeft: 101,
+		duration: 30,
+		startInVideo: 0,
+		trimLeft: 110,
 		playbackRate: 1,
-		volume: new Array(58).fill(true).map((_, i) =>
-			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
+		volume: new Array(30).fill(true).map((_, i) =>
+			interpolate(i + 10, [0, 50, 100], [0, 1, 0], {
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			}),
+		),
+		toneFrequency: 1,
+		audioStartFrame: 100,
+		audioStreamIndex: 0,
+	});
+});
+
+test.only('same test as above, but with <Sequence from={0}> inbetween', async () => {
+	const assetPositions = await getPositions(() => {
+		return (
+			<Sequence from={-10} durationInFrames={40}>
+				<Sequence from={0} layout="none">
+					<Html5Audio
+						trimBefore={100}
+						trimAfter={200}
+						src={'https://remotion.media/video.mp4'}
+						volume={(f) =>
+							interpolate(f, [0, 50, 100], [0, 1, 0], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							})
+						}
+					/>
+				</Sequence>
+			</Sequence>
+		);
+	});
+	expect(assetPositions.length).toBe(1);
+	expect(withoutId(assetPositions[0])).toEqual({
+		type: 'audio',
+		src: 'https://remotion.media/video.mp4',
+		duration: 30,
+		startInVideo: 0,
+		trimLeft: 110,
+		playbackRate: 1,
+		volume: new Array(30).fill(true).map((_, i) =>
+			interpolate(i + 10, [0, 50, 100], [0, 1, 0], {
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
 			}),
