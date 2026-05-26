@@ -140,11 +140,11 @@ const getNumericValue = (node: Expression): number | null => {
 	return null;
 };
 
-const getInterpolateKeyframes = (
+const getInterpolationKeyframes = (
 	node: Expression,
 ): PropKeyframes | undefined => {
 	if (node.type === 'TSAsExpression') {
-		return getInterpolateKeyframes(node.expression as Expression);
+		return getInterpolationKeyframes(node.expression as Expression);
 	}
 
 	if (node.type !== 'CallExpression') {
@@ -154,7 +154,8 @@ const getInterpolateKeyframes = (
 	const callExpression = node as CallExpression;
 	if (
 		callExpression.callee.type !== 'Identifier' ||
-		callExpression.callee.name !== 'interpolate'
+		(callExpression.callee.name !== 'interpolate' &&
+			callExpression.callee.name !== 'interpolateColors')
 	) {
 		return undefined;
 	}
@@ -202,7 +203,7 @@ const getInterpolateKeyframes = (
 };
 
 export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
-	const keyframes = getInterpolateKeyframes(node);
+	const keyframes = getInterpolationKeyframes(node);
 	if (!keyframes) {
 		return {canUpdate: false, reason: 'computed'};
 	}

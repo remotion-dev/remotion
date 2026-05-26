@@ -5,7 +5,9 @@ import {
 	AbsoluteFill,
 	AnimatedImage,
 	interpolate,
+	interpolateColors,
 	Sequence,
+	Solid,
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
@@ -119,6 +121,19 @@ const KeyframedPropsTest: React.FC = () => {
 			</Sequence>
 			<Sequence from={30} name="effect keyframes should be shown at 30 and 90">
 				<ShiftedEffect />
+			</Sequence>
+			<Sequence
+				name="color keyframes should be shown at 0 and 100"
+				durationInFrames={120}
+			>
+				<Solid
+					width={180}
+					height={180}
+					color={interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00'])}
+					style={{
+						borderRadius: 24,
+					}}
+				/>
 			</Sequence>
 			<Sequence
 				from={30}

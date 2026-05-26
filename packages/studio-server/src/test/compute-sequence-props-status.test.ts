@@ -4,6 +4,7 @@ import path from 'node:path';
 import {parseAst} from '../codemods/parse-ast';
 import {
 	computeSequencePropsStatus,
+	computeSequencePropsStatusFromContent,
 	lineColumnToNodePath,
 } from '../preview-server/routes/can-update-sequence-props';
 
@@ -13,6 +14,16 @@ const getNodePath = (filePath: string, line: number) => {
 	const result = lineColumnToNodePath(ast, line);
 	if (!result) {
 		throw new Error(`No JSX element found at line ${line} in ${filePath}`);
+	}
+
+	return result;
+};
+
+const getNodePathFromContent = (content: string, line: number) => {
+	const ast = parseAst(content);
+	const result = lineColumnToNodePath(ast, line);
+	if (!result) {
+		throw new Error(`No JSX element found at line ${line}`);
 	}
 
 	return result;
@@ -42,6 +53,37 @@ test('canUpdateSequenceProps should flag computed props', () => {
 	expect(result.props.nonExistentProp).toEqual({
 		canUpdate: true,
 		codeValue: undefined,
+	});
+});
+
+test('computeSequencePropsStatus should return keyframes for interpolated color props', () => {
+	const input = `import React from 'react';
+import {Solid, interpolateColors, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Solid color={interpolateColors(frame, [0, 100], ['red', 'blue'])} width={100} height={100} />
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		keys: ['color'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.color).toEqual({
+		canUpdate: false,
+		reason: 'computed',
+		keyframes: [
+			{frame: 0, value: 'red'},
+			{frame: 100, value: 'blue'},
+		],
 	});
 });
 
