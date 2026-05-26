@@ -2,6 +2,7 @@ import type {LogLevel} from 'remotion';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
+import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
@@ -1784,6 +1785,38 @@ export const effectsBlurDemo: DemoType = {
 			name: 'vertical',
 			type: 'boolean',
 			default: true,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsChromaticAberrationDemo: DemoType = {
+	comp: EffectsChromaticAberrationPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-chromatic-aberration',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 100,
+			step: 1,
+			default: 12,
+			optional: 'no',
+		},
+		{
+			name: 'angle',
+			type: 'numeric',
+			min: 0,
+			max: 360,
+			step: 1,
+			default: 0,
 			optional: 'no',
 		},
 	],

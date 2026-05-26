@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {barrelDistortion} from '../barrel-distortion/index.js';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
+import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {contrast} from '../contrast.js';
 import {grayscale} from '../grayscale.js';
 import {halftone} from '../halftone.js';
@@ -20,6 +21,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(blur({radius: 1}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/blur',
+	);
+	expect(chromaticAberration().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/chromatic-aberration',
 	);
 	expect(brightness().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/brightness',
@@ -88,6 +92,38 @@ test('barrelDistortion() amount produces distinct effect keys', () => {
 	const none = barrelDistortion({amount: 0});
 	const strong = barrelDistortion({amount: 0.5});
 	expect(none.effectKey).not.toBe(strong.effectKey);
+});
+
+test('chromaticAberration() accepts default params', () => {
+	expect(() => chromaticAberration()).not.toThrow();
+});
+
+test('chromaticAberration() rejects non-finite amount', () => {
+	expect(() => chromaticAberration({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('chromaticAberration() rejects negative amount', () => {
+	expect(() => chromaticAberration({amount: -1})).toThrow(
+		'"amount" must be >= 0',
+	);
+});
+
+test('chromaticAberration() rejects non-finite angle', () => {
+	expect(() => chromaticAberration({angle: Number.NaN})).toThrow(
+		'"angle" must be a finite number',
+	);
+});
+
+test('chromaticAberration() parameters produce distinct effect keys', () => {
+	const none = chromaticAberration({amount: 0});
+	const shifted = chromaticAberration({amount: 8});
+	const angled = chromaticAberration({amount: 8, angle: 45});
+
+	expect(
+		new Set([none.effectKey, shifted.effectKey, angled.effectKey]).size,
+	).toBe(3);
 });
 
 test('tint() throws when color is not passed', () => {

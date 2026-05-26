@@ -1746,6 +1746,15 @@ export const articles = [
 		slug: 'effects/brightness',
 	},
 	{
+		id: 'effects/chromatic-aberration',
+		title: 'chromaticAberration()',
+		relativePath: 'docs/effects/chromatic-aberration.mdx',
+		compId: 'articles-docs-effects-chromatic-aberration',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/chromatic-aberration',
+	},
+	{
 		id: 'effects/contrast',
 		title: 'contrast()',
 		relativePath: 'docs/effects/contrast.mdx',

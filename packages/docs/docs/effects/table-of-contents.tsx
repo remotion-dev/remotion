@@ -112,6 +112,13 @@ const categories: {
 				description: 'Barrel distortion effect',
 			},
 			{
+				link: '/docs/effects/chromatic-aberration',
+				preview: '/img/effects-chromatic-aberration-preview.jpg',
+				alt: 'chromatic aberration effect preview',
+				name: 'chromaticAberration()',
+				description: 'RGB channel split effect',
+			},
+			{
 				link: '/docs/effects/blur',
 				preview: '/img/effects-blur-preview.jpg',
 				alt: 'blur effect preview',

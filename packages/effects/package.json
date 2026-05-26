@@ -42,6 +42,11 @@
 			"module": "./dist/esm/blur.mjs",
 			"import": "./dist/esm/blur.mjs"
 		},
+		"./chromatic-aberration": {
+			"types": "./dist/chromatic-aberration.d.ts",
+			"module": "./dist/esm/chromatic-aberration.mjs",
+			"import": "./dist/esm/chromatic-aberration.mjs"
+		},
 		"./brightness": {
 			"types": "./dist/brightness.d.ts",
 			"module": "./dist/esm/brightness.mjs",
@@ -111,6 +116,9 @@
 			],
 			"blur": [
 				"dist/blur.d.ts"
+			],
+			"chromatic-aberration": [
+				"dist/chromatic-aberration.d.ts"
 			],
 			"brightness": [
 				"dist/brightness.d.ts"
