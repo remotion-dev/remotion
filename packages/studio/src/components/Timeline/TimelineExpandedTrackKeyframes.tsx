@@ -42,12 +42,14 @@ const getNodeKeyframes = ({
 	node,
 	nodePath,
 	codeValues,
+	keyframeDisplayOffset,
 }: {
 	node: ReturnType<typeof flattenVisibleTreeNodes>[number]['node'];
 	nodePath: SequenceNodePathInfo['sequenceSubscriptionKey'];
 	codeValues: React.ContextType<
 		typeof Internals.VisualModeCodeValuesContext
 	>['codeValues'];
+	keyframeDisplayOffset: number;
 }): ReturnType<typeof getTimelineKeyframes> => {
 	if (node.kind !== 'field' || node.field === null) {
 		return [];
@@ -56,6 +58,7 @@ const getNodeKeyframes = ({
 	if (node.field.kind === 'sequence-field') {
 		return getTimelineKeyframes(
 			Internals.getCodeValuesCtx(codeValues, nodePath)?.[node.field.key],
+			keyframeDisplayOffset,
 		);
 	}
 
@@ -69,13 +72,15 @@ const getNodeKeyframes = ({
 		effectStatus.type === 'can-update-effect'
 			? effectStatus.props?.[node.field.key]
 			: null,
+		keyframeDisplayOffset,
 	);
 };
 
 const TimelineExpandedTrackKeyframesInner: React.FC<{
 	readonly sequence: TSequence;
 	readonly nodePathInfo: SequenceNodePathInfo;
-}> = ({nodePathInfo, sequence}) => {
+	readonly keyframeDisplayOffset: number;
+}> = ({nodePathInfo, sequence, keyframeDisplayOffset}) => {
 	const videoConfig = useVideoConfig();
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
@@ -117,10 +122,16 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 					node,
 					nodePath: nodePathInfo.sequenceSubscriptionKey,
 					codeValues,
+					keyframeDisplayOffset,
 				}),
 				key: JSON.stringify(node.nodePathInfo),
 			})),
-		[codeValues, flat, nodePathInfo.sequenceSubscriptionKey],
+		[
+			codeValues,
+			flat,
+			keyframeDisplayOffset,
+			nodePathInfo.sequenceSubscriptionKey,
+		],
 	);
 
 	return (
