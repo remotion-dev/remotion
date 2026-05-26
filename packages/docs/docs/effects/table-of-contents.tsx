@@ -39,6 +39,13 @@ const categories: {
 				description: 'Two-color threshold effect',
 			},
 			{
+				link: '/docs/effects/glow',
+				preview: '/img/effects-glow-preview.jpg',
+				alt: 'glow effect preview',
+				name: 'glow()',
+				description: 'Soft halo effect',
+			},
+			{
 				link: '/docs/effects/grayscale',
 				preview: '/img/effects-grayscale-preview.jpg',
 				alt: 'grayscale effect preview',

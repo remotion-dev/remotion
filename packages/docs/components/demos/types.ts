@@ -5,6 +5,7 @@ import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
+import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
@@ -1530,6 +1531,53 @@ export const effectsDuotoneDemo: DemoType = {
 			max: 1,
 			step: 0.01,
 			default: 0.18,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsGlowDemo: DemoType = {
+	comp: EffectsGlowPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-glow',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'radius',
+			type: 'numeric',
+			min: 0,
+			max: 100,
+			step: 1,
+			default: 28,
+			optional: 'no',
+		},
+		{
+			name: 'intensity',
+			type: 'numeric',
+			min: 0,
+			max: 5,
+			step: 0.1,
+			default: 1.8,
+			optional: 'no',
+		},
+		{
+			name: 'threshold',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.25,
+			optional: 'no',
+		},
+		{
+			name: 'color',
+			type: 'color',
+			default: '#00d8ff',
 			optional: 'no',
 		},
 	],

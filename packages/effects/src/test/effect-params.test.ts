@@ -5,6 +5,7 @@ import {brightness} from '../brightness.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {contrast} from '../contrast.js';
 import {duotone} from '../duotone.js';
+import {glow} from '../glow/index.js';
 import {grayscale} from '../grayscale.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
@@ -34,6 +35,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(duotone().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/duotone',
+	);
+	expect(glow().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/glow',
 	);
 	expect(grayscale().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/grayscale',
@@ -378,6 +382,73 @@ test('duotone() parameters produce distinct effect keys', () => {
 			customColors.effectKey,
 		]).size,
 	).toBe(3);
+});
+
+test('glow() accepts default params', () => {
+	expect(() => glow()).not.toThrow();
+});
+
+test('glow() accepts valid params', () => {
+	expect(() =>
+		glow({
+			radius: 30,
+			intensity: 1.5,
+			threshold: 0.4,
+			color: '#00ffff',
+		}),
+	).not.toThrow();
+});
+
+test('glow() rejects non-finite radius', () => {
+	expect(() => glow({radius: Number.NaN})).toThrow(
+		'"radius" must be a finite number',
+	);
+});
+
+test('glow() rejects negative radius', () => {
+	expect(() => glow({radius: -1})).toThrow('"radius" must be >= 0');
+});
+
+test('glow() rejects non-finite intensity', () => {
+	expect(() => glow({intensity: Number.NaN})).toThrow(
+		'"intensity" must be a finite number',
+	);
+});
+
+test('glow() rejects negative intensity', () => {
+	expect(() => glow({intensity: -0.1})).toThrow('"intensity" must be >= 0');
+});
+
+test('glow() rejects threshold below range', () => {
+	expect(() => glow({threshold: -0.1})).toThrow('"threshold" must be >= 0');
+});
+
+test('glow() rejects threshold above range', () => {
+	expect(() => glow({threshold: 1.1})).toThrow('"threshold" must be <= 1');
+});
+
+test('glow() rejects empty color strings', () => {
+	expect(() => glow({color: ''})).toThrow(
+		'"color" must be a non-empty string, but got ""',
+	);
+});
+
+test('glow() parameters produce distinct effect keys', () => {
+	const defaultGlow = glow();
+	const widerGlow = glow({radius: 40});
+	const strongerGlow = glow({intensity: 2});
+	const thresholdGlow = glow({threshold: 0.5});
+	const coloredGlow = glow({color: '#00ffff'});
+
+	expect(
+		new Set([
+			defaultGlow.effectKey,
+			widerGlow.effectKey,
+			strongerGlow.effectKey,
+			thresholdGlow.effectKey,
+			coloredGlow.effectKey,
+		]).size,
+	).toBe(5);
 });
 
 test('halftone() accepts default params', () => {
