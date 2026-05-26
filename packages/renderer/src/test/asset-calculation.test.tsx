@@ -239,7 +239,7 @@ const expected = {
 	toneFrequency: 1,
 	audioStartFrame: 10,
 	audioStreamIndex: 0,
-};
+} as const;
 
 test('Should calculate startFrom correctly with negative offset (Html5Audio)', async () => {
 	const assetPositions = await getPositions(() => {
