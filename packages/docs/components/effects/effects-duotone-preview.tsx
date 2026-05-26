@@ -13,6 +13,7 @@ export const EffectsDuotonePreview: React.FC<{
 			src={EFFECTS_PREVIEW_IMAGE_SRC}
 			width={1280}
 			height={720}
+			fit="cover"
 			effects={[duotone({darkColor, lightColor, threshold})]}
 		/>
 	);
