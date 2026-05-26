@@ -18,7 +18,6 @@ const effectEntrypoints = [
 	'src/halftone.ts',
 	'src/hue.ts',
 	'src/invert.ts',
-	'src/light-leak.ts',
 	'src/mirror.ts',
 	'src/saturation.ts',
 	'src/scale.ts',

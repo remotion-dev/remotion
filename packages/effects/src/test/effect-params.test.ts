@@ -10,7 +10,6 @@ import {grayscale} from '../grayscale.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
-import {lightLeak} from '../light-leak.js';
 import {mirror} from '../mirror.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
@@ -53,9 +52,6 @@ test('@remotion/effects expose documentation links', () => {
 	expect(invert().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/invert',
 	);
-	expect(lightLeak().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/light-leaks/light-leak-effect',
-	);
 	expect(mirror().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/mirror',
 	);
@@ -93,7 +89,6 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(halftone().definition.label).toBe('halftone()');
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
-	expect(lightLeak().definition.label).toBe('lightLeak()');
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
@@ -638,49 +633,6 @@ test('invert() amount produces distinct effect keys', () => {
 	const none = invert({amount: 0});
 	const full = invert({amount: 1});
 	expect(none.effectKey).not.toBe(full.effectKey);
-});
-
-test('lightLeak() accepts default params', () => {
-	expect(() => lightLeak()).not.toThrow();
-	expect(lightLeak().effectKey).toContain('light-leak-0-0-0.5');
-});
-
-test('lightLeak() rejects non-finite seed', () => {
-	expect(() => lightLeak({seed: Number.NaN})).toThrow(
-		'"seed" must be a finite number',
-	);
-});
-
-test('lightLeak() rejects hueShift below range', () => {
-	expect(() => lightLeak({hueShift: -1})).toThrow('"hueShift" must be >= 0');
-});
-
-test('lightLeak() rejects hueShift above range', () => {
-	expect(() => lightLeak({hueShift: 361})).toThrow('"hueShift" must be <= 360');
-});
-
-test('lightLeak() rejects progress below range', () => {
-	expect(() => lightLeak({progress: -0.1})).toThrow('"progress" must be >= 0');
-});
-
-test('lightLeak() rejects progress above range', () => {
-	expect(() => lightLeak({progress: 1.1})).toThrow('"progress" must be <= 1');
-});
-
-test('lightLeak() parameters produce distinct effect keys', () => {
-	const defaults = lightLeak();
-	const seeded = lightLeak({seed: 1});
-	const shifted = lightLeak({hueShift: 30});
-	const progressed = lightLeak({progress: 0.25});
-
-	expect(
-		new Set([
-			defaults.effectKey,
-			seeded.effectKey,
-			shifted.effectKey,
-			progressed.effectKey,
-		]).size,
-	).toBe(4);
 });
 
 test('mirror() accepts default params', () => {
