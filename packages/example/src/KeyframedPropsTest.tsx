@@ -4,11 +4,28 @@ import {Gif} from '@remotion/gif';
 import React from 'react';
 import {
 	AbsoluteFill,
+	AnimatedImage,
 	interpolate,
 	Sequence,
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
+
+const Shifted = () => {
+	const frame = useCurrentFrame();
+	return (
+		<Sequence style={{scale: interpolate(frame, [0, 60], [2, 4])}}>
+			<div
+				style={{
+					width: 180,
+					height: 180,
+					borderRadius: 24,
+					backgroundColor: '#0b84f3',
+				}}
+			/>
+		</Sequence>
+	);
+};
 
 const KeyframedPropsTest: React.FC = () => {
 	const frame = useCurrentFrame();
@@ -22,6 +39,7 @@ const KeyframedPropsTest: React.FC = () => {
 			}}
 		>
 			<Sequence
+				name="keyframes should be shown at 0 and 100"
 				durationInFrames={120}
 				style={{scale: interpolate(frame, [0, 100], [2, 4])}}
 			>
@@ -34,8 +52,26 @@ const KeyframedPropsTest: React.FC = () => {
 					}}
 				/>
 			</Sequence>
+			<Sequence from={30} name="keyframes should be shown at 30 and 60">
+				<Shifted />
+			</Sequence>
+			<Sequence
+				name="keyframes should be shown at 0 and 100 because relative to parent"
+				durationInFrames={120}
+				from={30}
+				style={{scale: interpolate(frame, [0, 100], [2, 4])}}
+			>
+				<div
+					style={{
+						width: 180,
+						height: 180,
+						borderRadius: 24,
+						backgroundColor: '#0b84f3',
+					}}
+				/>
+			</Sequence>
 			<Sequence durationInFrames={120}>
-				<Gif
+				<AnimatedImage
 					src={staticFile('giphy.gif')}
 					fit="contain"
 					style={{
