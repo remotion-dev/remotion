@@ -14,7 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     name: Lambda integration
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        shell: bash
+        run: |
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - uses: actions/setup-node@v6
         with:
           node-version: 25
@@ -37,7 +43,13 @@ jobs:
     runs-on: ubuntu-latest
     name: Next.js SSR build
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        shell: bash
+        run: |
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - uses: actions/setup-node@v6
         with:
           node-version: 25
@@ -56,7 +68,13 @@ jobs:
     runs-on: macos-latest
     name: Browser tests
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        shell: bash
+        run: |
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - uses: actions/setup-node@v6
         with:
           node-version: 25
@@ -78,7 +96,13 @@ jobs:
     runs-on: macos-latest
     name: Web renderer tests
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        shell: bash
+        run: |
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - uses: actions/setup-node@v6
         with:
           node-version: 25
@@ -95,7 +119,13 @@ jobs:
     runs-on: ubuntu-latest
     name: SSR + Monorepo checks
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        shell: bash
+        run: |
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - uses: actions/setup-node@v6
         with:
           node-version: 16
@@ -126,9 +156,13 @@ jobs:
     outputs:
       should_run: ${{ steps.check.outputs.should_run }}
     steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+      - name: Checkout
+        shell: bash
+        run: |
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch origin "+refs/heads/*:refs/remotes/origin/*" "+refs/tags/*:refs/tags/*" "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - uses: actions/setup-node@v6
         with:
           node-version: 25
@@ -167,7 +201,13 @@ jobs:
     env:
       BUN_INSTALL_CACHE_DIR: ${{ matrix.os == 'windows-latest' && 'D:\.bun\install\cache' || '' }}
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        shell: bash
+        run: |
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - uses: actions/setup-node@v6
         with:
           node-version: 25
@@ -191,7 +231,13 @@ jobs:
     runs-on: ubuntu-latest
     name: Linting + Formatting
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        shell: bash
+        run: |
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - uses: actions/setup-node@v6
         with:
           node-version: 25
@@ -221,7 +267,13 @@ jobs:
     env:
       BUN_INSTALL_CACHE_DIR: ${{ matrix.os == 'windows-latest' && 'D:\.bun\install\cache' || '' }}
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        shell: bash
+        run: |
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node_version }}
