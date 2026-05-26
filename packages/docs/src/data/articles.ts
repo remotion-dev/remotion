@@ -6097,6 +6097,15 @@ export const articles = [
 		slug: 'starburst/api',
 	},
 	{
+		id: 'starburst/starburst-effect',
+		title: 'starburst()',
+		relativePath: 'docs/starburst/starburst-effect.mdx',
+		compId: 'articles-docs-starburst-starburst-effect',
+		crumb: '@remotion/starburst',
+		noAi: false,
+		slug: 'starburst/starburst-effect',
+	},
+	{
 		id: 'starburst-component',
 		title: '<Starburst>',
 		relativePath: 'docs/starburst/starburst.mdx',

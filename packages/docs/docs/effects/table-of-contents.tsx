@@ -165,6 +165,13 @@ const categories: {
 				name: 'halftone()',
 				description: 'Halftone dot grid effect',
 			},
+			{
+				link: '/docs/starburst/starburst-effect',
+				preview: '/img/effects-starburst-preview.jpg',
+				alt: 'starburst effect preview',
+				name: 'starburst()',
+				description: 'Starburst ray effect',
+			},
 		],
 	},
 ];
