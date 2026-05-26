@@ -3420,6 +3420,15 @@ export const articles = [
 		slug: 'light-leaks/api',
 	},
 	{
+		id: 'light-leaks/light-leak-effect',
+		title: 'lightLeak()',
+		relativePath: 'docs/light-leaks/light-leak-effect.mdx',
+		compId: 'articles-docs-light-leaks-light-leak-effect',
+		crumb: '@remotion/light-leaks',
+		noAi: false,
+		slug: 'light-leaks/light-leak-effect',
+	},
+	{
 		id: 'light-leaks/light-leak',
 		title: '<LightLeak>',
 		relativePath: 'docs/light-leaks/light-leak.mdx',

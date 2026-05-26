@@ -6,6 +6,12 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
+				<TOCItem link="/docs/light-leaks/light-leak-effect">
+					<strong>
+						<code>lightLeak()</code>
+					</strong>
+					<div>Apply a light leak as a canvas effect</div>
+				</TOCItem>
 				<TOCItem link="/docs/light-leaks/light-leak">
 					<strong>{'<LightLeak>'}</strong>
 					<div>Render a light leak effect</div>

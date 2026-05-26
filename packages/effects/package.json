@@ -87,6 +87,11 @@
 			"module": "./dist/esm/invert.mjs",
 			"import": "./dist/esm/invert.mjs"
 		},
+		"./light-leak": {
+			"types": "./dist/light-leak.d.ts",
+			"module": "./dist/esm/light-leak.mjs",
+			"import": "./dist/esm/light-leak.mjs"
+		},
 		"./mirror": {
 			"types": "./dist/mirror.d.ts",
 			"module": "./dist/esm/mirror.mjs",
@@ -158,6 +163,9 @@
 			],
 			"invert": [
 				"dist/invert.d.ts"
+			],
+			"light-leak": [
+				"dist/light-leak.d.ts"
 			],
 			"mirror": [
 				"dist/mirror.d.ts"

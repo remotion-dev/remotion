@@ -10,6 +10,7 @@ import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
+import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
@@ -2146,6 +2147,47 @@ export const effectsStarburstDemo: DemoType = {
 			type: 'numeric',
 			default: 0,
 			min: -1,
+			max: 1,
+			step: 0.01,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsLightLeakDemo: DemoType = {
+	comp: EffectsLightLeakPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-light-leak',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'seed',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 100,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'hueShift',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 360,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'progress',
+			type: 'numeric',
+			default: 0.5,
+			min: 0,
 			max: 1,
 			step: 0.01,
 			optional: 'no',
