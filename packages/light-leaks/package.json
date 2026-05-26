@@ -10,6 +10,7 @@
 	},
 	"type": "module",
 	"scripts": {
+		"test": "bun test src/test",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",

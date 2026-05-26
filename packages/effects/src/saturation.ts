@@ -37,7 +37,7 @@ const validateSaturationParams = (params: SaturationParams): void => {
 
 export const saturation = createEffect<SaturationParams, null>({
 	type: 'remotion/saturation',
-	label: 'Saturation',
+	label: 'saturation()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/saturation',
 	backend: '2d',
 	calculateKey: (params) => {

@@ -1,5 +1,5 @@
-import fs from 'fs';
 import {expect, test} from '@playwright/test';
+import fs from 'fs';
 import {EXPANDED_SIDEBAR_STATE, lostNodePathE2eFile} from './constants.mts';
 import {
 	navigateToLostNodePathE2e,
@@ -30,6 +30,8 @@ const applyIssue7393Refactor = (content: string): string => {
 };
 
 const stackAttribution = (line: number) => `LostNodePathRepro.tsx:${line}`;
+const expandTintSectionName = /^Expand (?:Tint|tint\(\)) section$/;
+const collapseTintSectionName = /^Collapse (?:Tint|tint\(\)) section$/;
 
 test.use({storageState: EXPANDED_SIDEBAR_STATE});
 
@@ -70,7 +72,7 @@ test.describe('lost node path recovery', () => {
 		await expandEffects.click();
 
 		const expandTint = page.getByRole('button', {
-			name: 'Expand Tint section',
+			name: expandTintSectionName,
 		});
 		await expect(expandTint).toBeVisible({timeout: 10_000});
 		await expandTint.click();
@@ -82,7 +84,7 @@ test.describe('lost node path recovery', () => {
 			page.getByRole('button', {name: 'Collapse Effects section'}),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: 'Collapse Tint section'}),
+			page.getByRole('button', {name: collapseTintSectionName}),
 		).toBeVisible();
 
 		const logCountBefore = readStudioLogs().length;
@@ -126,7 +128,7 @@ test.describe('lost node path recovery', () => {
 			page.getByRole('button', {name: 'Collapse Effects section'}),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: 'Collapse Tint section'}),
+			page.getByRole('button', {name: collapseTintSectionName}),
 		).toBeVisible();
 	});
 });

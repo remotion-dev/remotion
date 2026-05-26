@@ -390,7 +390,7 @@ const linkProgram = (
 // color at each grid cell.
 export const halftone = createEffect<HalftoneParams, HalftoneState>({
 	type: 'remotion/halftone',
-	label: 'Halftone',
+	label: 'halftone()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/halftone',
 	backend: 'webgl2',
 	calculateKey: (params) => {
