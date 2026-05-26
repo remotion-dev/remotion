@@ -1,5 +1,5 @@
 import {StudioInternals} from '@remotion/studio';
-import React, {useEffect, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import {
 	AbsoluteFill,
 	OffthreadVideo,
@@ -63,39 +63,17 @@ const durationInFrames = cuts.reduce((acc, cut) => {
 const InstrumentedOffthreadVideo: React.FC<{
 	cut: Cut;
 }> = ({cut}) => {
-	useEffect(() => {
-		const startedAt = performance.now();
-		console.log(
-			'[issue-7562] video_wrapper_mount',
-			`id=${cut.id}`,
-			`from=${cut.from}`,
-			`startFrom=${cut.videoStartFromInSeconds}`,
-		);
-
-		return () => {
-			console.log(
-				'[issue-7562] video_wrapper_unmount',
-				`id=${cut.id}`,
-				`from=${cut.from}`,
-				`dt=${Math.round(performance.now() - startedAt)}`,
-			);
-		};
-	}, [cut]);
-
 	return (
 		<OffthreadVideo
 			pauseWhenBuffering
-			playbackRate={1}
 			src={src}
-			startFrom={Math.round(cut.videoStartFromInSeconds * fps)}
+			trimBefore={Math.round(cut.videoStartFromInSeconds * fps)}
 			style={{
 				height: '100%',
 				objectFit: 'cover',
 				objectPosition: getCropObjectPosition(cut),
 				width: '100%',
 			}}
-			toneMapped={false}
-			volume={() => 1}
 		/>
 	);
 };
