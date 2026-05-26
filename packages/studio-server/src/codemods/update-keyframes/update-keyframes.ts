@@ -1,0 +1,628 @@
+import type {
+	CallExpression,
+	Expression,
+	JSXAttribute,
+	JSXElement,
+	JSXExpressionContainer,
+	JSXFragment,
+	JSXSpreadAttribute,
+	ObjectExpression,
+	ObjectProperty,
+	StringLiteral,
+} from '@babel/types';
+import type {ExpressionKind, SpreadElementKind} from 'ast-types/lib/gen/kinds';
+import * as recast from 'recast';
+import type {SequenceNodePath} from 'remotion';
+import {
+	extractStaticValue,
+	findJsxElementAtNodePath,
+	isStaticValue,
+} from '../../preview-server/routes/can-update-sequence-props';
+import {formatFileContent} from '../format-file-content';
+import {parseAst, serializeAst} from '../parse-ast';
+import {
+	findEffectCallExpression,
+	findEffectsAttr,
+} from '../update-effect-props/update-effect-props';
+import {parseValueExpression} from '../update-nested-prop';
+
+const b = recast.types.builders;
+
+export type KeyframeOperation =
+	| {
+			type: 'add';
+			frame: number;
+			value: unknown;
+	  }
+	| {
+			type: 'remove';
+			frame: number;
+	  };
+
+export type SequenceKeyframeUpdate = {
+	key: string;
+	operation: KeyframeOperation;
+};
+
+export type EffectKeyframeUpdate = {
+	key: string;
+	operation: KeyframeOperation;
+};
+
+type WritableProp = {
+	expression: Expression;
+	setExpression: (expression: ExpressionKind) => void;
+};
+
+type InterpolateKeyframe = {
+	frame: number;
+	output: ExpressionKind;
+	value: unknown;
+};
+
+type InterpolateExpression = {
+	callee: ExpressionKind;
+	input: ExpressionKind | SpreadElementKind;
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	keyframes: InterpolateKeyframe[];
+};
+
+const getSupportedCallArgument = (
+	arg: CallExpression['arguments'][number] | undefined,
+): ExpressionKind | SpreadElementKind | null => {
+	if (
+		arg === undefined ||
+		arg.type === 'ArgumentPlaceholder' ||
+		arg.type === 'JSXNamespacedName'
+	) {
+		return null;
+	}
+
+	return arg as unknown as ExpressionKind | SpreadElementKind;
+};
+
+const getNumericValue = (node: Expression): number | null => {
+	if (node.type === 'NumericLiteral') {
+		return node.value;
+	}
+
+	if (
+		node.type === 'UnaryExpression' &&
+		(node.operator === '-' || node.operator === '+') &&
+		node.argument.type === 'NumericLiteral'
+	) {
+		return node.operator === '-' ? -node.argument.value : node.argument.value;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getNumericValue(node.expression as Expression);
+	}
+
+	return null;
+};
+
+const getInterpolateExpression = (
+	node: Expression,
+): InterpolateExpression | null => {
+	if (node.type === 'TSAsExpression') {
+		return getInterpolateExpression(node.expression as Expression);
+	}
+
+	if (
+		node.type !== 'CallExpression' ||
+		node.callee.type !== 'Identifier' ||
+		node.callee.name !== 'interpolate'
+	) {
+		return null;
+	}
+
+	const frameArg = getSupportedCallArgument(node.arguments[0]);
+	const inputArg = node.arguments[1];
+	const outputArg = node.arguments[2];
+	if (
+		!frameArg ||
+		!inputArg ||
+		!outputArg ||
+		inputArg.type !== 'ArrayExpression' ||
+		outputArg.type !== 'ArrayExpression' ||
+		inputArg.elements.length !== outputArg.elements.length
+	) {
+		return null;
+	}
+
+	const keyframes: InterpolateKeyframe[] = [];
+	for (let i = 0; i < inputArg.elements.length; i++) {
+		const inputElement = inputArg.elements[i];
+		const outputElement = outputArg.elements[i];
+		if (
+			!inputElement ||
+			!outputElement ||
+			inputElement.type === 'SpreadElement' ||
+			outputElement.type === 'SpreadElement'
+		) {
+			return null;
+		}
+
+		const frame = getNumericValue(inputElement);
+		if (frame === null || !isStaticValue(outputElement)) {
+			return null;
+		}
+
+		keyframes.push({
+			frame,
+			output: outputElement as ExpressionKind,
+			value: extractStaticValue(outputElement),
+		});
+	}
+
+	if (keyframes.length === 0) {
+		return null;
+	}
+
+	const extraArgs: (ExpressionKind | SpreadElementKind)[] = [];
+	for (const arg of node.arguments.slice(3)) {
+		const supportedArg = getSupportedCallArgument(arg);
+		if (!supportedArg) {
+			return null;
+		}
+
+		extraArgs.push(supportedArg);
+	}
+
+	return {
+		callee: node.callee as unknown as ExpressionKind,
+		input: frameArg,
+		extraArgs,
+		keyframes,
+	};
+};
+
+const createFrameExpression = (frame: number): ExpressionKind => {
+	return parseValueExpression(frame);
+};
+
+const createInterpolateExpression = ({
+	callee,
+	input,
+	extraArgs,
+	keyframes,
+}: {
+	callee: ExpressionKind;
+	input: ExpressionKind | SpreadElementKind;
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	keyframes: InterpolateKeyframe[];
+}): ExpressionKind => {
+	const sortedKeyframes = [...keyframes].sort(
+		(first, second) => first.frame - second.frame,
+	);
+	return b.callExpression(callee, [
+		input,
+		b.arrayExpression(
+			sortedKeyframes.map((keyframe) => createFrameExpression(keyframe.frame)),
+		),
+		b.arrayExpression(sortedKeyframes.map((keyframe) => keyframe.output)),
+		...extraArgs,
+	]) as ExpressionKind;
+};
+
+const addKeyframe = ({
+	expression,
+	frame,
+	value,
+}: {
+	expression: Expression;
+	frame: number;
+	value: unknown;
+}): ExpressionKind => {
+	const existing = getInterpolateExpression(expression);
+	const newOutput = parseValueExpression(value);
+
+	if (existing) {
+		const existingIndex = existing.keyframes.findIndex(
+			(keyframe) => keyframe.frame === frame,
+		);
+		const nextKeyframes =
+			existingIndex === -1
+				? [...existing.keyframes, {frame, output: newOutput, value}]
+				: existing.keyframes.map((keyframe, index) =>
+						index === existingIndex
+							? {frame, output: newOutput, value}
+							: keyframe,
+					);
+
+		return createInterpolateExpression({
+			callee: existing.callee,
+			input: existing.input,
+			extraArgs: existing.extraArgs,
+			keyframes: nextKeyframes,
+		});
+	}
+
+	if (!isStaticValue(expression)) {
+		throw new Error('Cannot add keyframe to computed expression');
+	}
+
+	if (frame === 0) {
+		throw new Error(
+			'Cannot add keyframe to static expression at frame 0 because interpolate requires two distinct frames',
+		);
+	}
+
+	const staticValue = extractStaticValue(expression);
+	const staticOutput = parseValueExpression(staticValue);
+	return createInterpolateExpression({
+		callee: b.identifier('interpolate'),
+		input: b.identifier('frame'),
+		extraArgs: [],
+		keyframes: [
+			{frame: 0, output: staticOutput, value: staticValue},
+			{frame, output: newOutput, value},
+		],
+	});
+};
+
+const removeKeyframe = ({
+	expression,
+	frame,
+}: {
+	expression: Expression;
+	frame: number;
+}): ExpressionKind => {
+	const existing = getInterpolateExpression(expression);
+	if (!existing) {
+		throw new Error('Cannot remove keyframe from non-interpolated expression');
+	}
+
+	const keyframeIndex = existing.keyframes.findIndex(
+		(keyframe) => keyframe.frame === frame,
+	);
+	if (keyframeIndex === -1) {
+		throw new Error(`Cannot remove keyframe at frame ${frame}: not found`);
+	}
+
+	const nextKeyframes = existing.keyframes.filter(
+		(_keyframe, index) => index !== keyframeIndex,
+	);
+	if (nextKeyframes.length === 1) {
+		return parseValueExpression(nextKeyframes[0].value);
+	}
+
+	return createInterpolateExpression({
+		callee: existing.callee,
+		input: existing.input,
+		extraArgs: existing.extraArgs,
+		keyframes: nextKeyframes,
+	});
+};
+
+const applyKeyframeOperation = ({
+	expression,
+	operation,
+}: {
+	expression: Expression;
+	operation: KeyframeOperation;
+}): ExpressionKind => {
+	if (operation.type === 'add') {
+		return addKeyframe({
+			expression,
+			frame: operation.frame,
+			value: operation.value,
+		});
+	}
+
+	return removeKeyframe({expression, frame: operation.frame});
+};
+
+const getExpressionFromJsxAttribute = (
+	attr: JSXAttribute,
+): Expression | null => {
+	if (!attr.value) {
+		return b.booleanLiteral(true) as Expression;
+	}
+
+	if (attr.value.type === 'StringLiteral') {
+		return attr.value as unknown as Expression;
+	}
+
+	if (attr.value.type !== 'JSXExpressionContainer') {
+		return null;
+	}
+
+	const {expression} = attr.value;
+	if (expression.type === 'JSXEmptyExpression') {
+		return null;
+	}
+
+	return expression as Expression;
+};
+
+const findJsxAttribute = (
+	attributes: (JSXAttribute | JSXSpreadAttribute)[],
+	name: string,
+): {attrIndex: number; attr: JSXAttribute | undefined} => {
+	const attrIndex = attributes.findIndex((candidate) => {
+		if (candidate.type === 'JSXSpreadAttribute') {
+			return false;
+		}
+
+		if (candidate.name.type === 'JSXNamespacedName') {
+			return false;
+		}
+
+		return candidate.name.name === name;
+	});
+
+	const foundAttr = attrIndex === -1 ? undefined : attributes[attrIndex];
+	return {
+		attrIndex,
+		attr:
+			foundAttr && foundAttr.type === 'JSXAttribute'
+				? (foundAttr as JSXAttribute)
+				: undefined,
+	};
+};
+
+const findObjectProperty = (
+	objExpr: ObjectExpression,
+	propertyName: string,
+): {propIndex: number; prop: ObjectProperty | undefined} => {
+	const propIndex = objExpr.properties.findIndex(
+		(prop) =>
+			prop.type === 'ObjectProperty' &&
+			((prop.key.type === 'Identifier' && prop.key.name === propertyName) ||
+				(prop.key.type === 'StringLiteral' && prop.key.value === propertyName)),
+	);
+
+	return {
+		propIndex,
+		prop:
+			propIndex === -1
+				? undefined
+				: (objExpr.properties[propIndex] as ObjectProperty),
+	};
+};
+
+const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {
+	if (!attr.value || attr.value.type !== 'JSXExpressionContainer') {
+		return null;
+	}
+
+	if (attr.value.expression.type !== 'ObjectExpression') {
+		return null;
+	}
+
+	return attr.value.expression as ObjectExpression;
+};
+
+const getSequenceWritableProp = ({
+	attributes,
+	key,
+}: {
+	attributes: (JSXAttribute | JSXSpreadAttribute)[];
+	key: string;
+}): WritableProp => {
+	const dotIndex = key.indexOf('.');
+	if (dotIndex === -1) {
+		const {attr: topLevelAttr} = findJsxAttribute(attributes, key);
+		if (!topLevelAttr) {
+			throw new Error(`Cannot update keyframes: "${key}" is not set`);
+		}
+
+		const expression = getExpressionFromJsxAttribute(topLevelAttr);
+		if (!expression) {
+			throw new Error(`Cannot update keyframes: "${key}" is computed`);
+		}
+
+		return {
+			expression,
+			setExpression: (nextExpression) => {
+				topLevelAttr.value = b.jsxExpressionContainer(nextExpression) as
+					| JSXElement
+					| JSXExpressionContainer
+					| JSXFragment
+					| StringLiteral
+					| null
+					| undefined;
+			},
+		};
+	}
+
+	const parentKey = key.slice(0, dotIndex);
+	const childKey = key.slice(dotIndex + 1);
+	const {attr: parentAttr} = findJsxAttribute(attributes, parentKey);
+	if (!parentAttr) {
+		throw new Error(`Cannot update keyframes: "${parentKey}" is not set`);
+	}
+
+	const objExpr = getObjectExpression(parentAttr);
+	if (!objExpr) {
+		throw new Error(`Cannot update keyframes: "${parentKey}" is computed`);
+	}
+
+	const {prop} = findObjectProperty(objExpr, childKey);
+	if (!prop) {
+		throw new Error(`Cannot update keyframes: "${key}" is not set`);
+	}
+
+	return {
+		expression: prop.value as Expression,
+		setExpression: (nextExpression) => {
+			prop.value = nextExpression as ObjectProperty['value'];
+		},
+	};
+};
+
+export const updateSequenceKeyframesAst = ({
+	input,
+	nodePath,
+	updates,
+}: {
+	input: string;
+	nodePath: SequenceNodePath;
+	updates: SequenceKeyframeUpdate[];
+}): {
+	serialized: string;
+	oldValueStrings: string[];
+	logLine: number;
+} => {
+	const ast = parseAst(input);
+	const node = findJsxElementAtNodePath(ast, nodePath);
+	if (!node) {
+		throw new Error(
+			'Could not find a JSX element at the specified location to update keyframes',
+		);
+	}
+
+	if (!node.attributes) {
+		node.attributes = [];
+	}
+
+	const oldValueStrings: string[] = [];
+	for (const update of updates) {
+		const prop = getSequenceWritableProp({
+			attributes: node.attributes,
+			key: update.key,
+		});
+		oldValueStrings.push(recast.print(prop.expression).code);
+		prop.setExpression(
+			applyKeyframeOperation({
+				expression: prop.expression,
+				operation: update.operation,
+			}),
+		);
+	}
+
+	return {
+		serialized: serializeAst(ast),
+		oldValueStrings,
+		logLine: node.loc?.start.line ?? 1,
+	};
+};
+
+export const updateSequenceKeyframes = async ({
+	input,
+	nodePath,
+	updates,
+	prettierConfigOverride,
+}: {
+	input: string;
+	nodePath: SequenceNodePath;
+	updates: SequenceKeyframeUpdate[];
+	prettierConfigOverride?: Record<string, unknown> | null;
+}): Promise<{
+	output: string;
+	formatted: boolean;
+	oldValueStrings: string[];
+	logLine: number;
+}> => {
+	const {serialized, oldValueStrings, logLine} = updateSequenceKeyframesAst({
+		input,
+		nodePath,
+		updates,
+	});
+	const {output, formatted} = await formatFileContent({
+		input: serialized,
+		prettierConfigOverride,
+	});
+
+	return {output, formatted, oldValueStrings, logLine};
+};
+
+export const updateEffectKeyframesAst = ({
+	input,
+	sequenceNodePath,
+	effectIndex,
+	updates,
+}: {
+	input: string;
+	sequenceNodePath: SequenceNodePath;
+	effectIndex: number;
+	updates: EffectKeyframeUpdate[];
+}): {
+	serialized: string;
+	oldValueStrings: string[];
+	logLine: number;
+	effectCallee: string;
+} => {
+	const ast = parseAst(input);
+	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
+	if (!jsx) {
+		throw new Error(
+			'Could not find a JSX element at the specified location to update effect keyframes',
+		);
+	}
+
+	const attr = findEffectsAttr(jsx.attributes ?? []);
+	if (!attr) {
+		throw new Error('Could not find effects on the target JSX element');
+	}
+
+	const found = findEffectCallExpression({attr, effectIndex});
+	if (found.kind === 'error') {
+		throw new Error(`Cannot update effect keyframe: ${found.reason}`);
+	}
+
+	const {call, callee: effectCallee} = found;
+	if (
+		call.arguments.length === 0 ||
+		call.arguments[0].type !== 'ObjectExpression'
+	) {
+		throw new Error('Cannot update effect keyframe: computed');
+	}
+
+	const objExpr = call.arguments[0] as ObjectExpression;
+	const oldValueStrings: string[] = [];
+	for (const update of updates) {
+		const {prop} = findObjectProperty(objExpr, update.key);
+		if (!prop) {
+			throw new Error(`Cannot update keyframes: "${update.key}" is not set`);
+		}
+
+		oldValueStrings.push(recast.print(prop.value).code);
+		prop.value = applyKeyframeOperation({
+			expression: prop.value as Expression,
+			operation: update.operation,
+		}) as ObjectProperty['value'];
+	}
+
+	return {
+		serialized: serializeAst(ast),
+		oldValueStrings,
+		logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
+		effectCallee,
+	};
+};
+
+export const updateEffectKeyframes = async ({
+	input,
+	sequenceNodePath,
+	effectIndex,
+	updates,
+	prettierConfigOverride,
+}: {
+	input: string;
+	sequenceNodePath: SequenceNodePath;
+	effectIndex: number;
+	updates: EffectKeyframeUpdate[];
+	prettierConfigOverride?: Record<string, unknown> | null;
+}): Promise<{
+	output: string;
+	formatted: boolean;
+	oldValueStrings: string[];
+	logLine: number;
+	effectCallee: string;
+}> => {
+	const {serialized, oldValueStrings, logLine, effectCallee} =
+		updateEffectKeyframesAst({
+			input,
+			sequenceNodePath,
+			effectIndex,
+			updates,
+		});
+	const {output, formatted} = await formatFileContent({
+		input: serialized,
+		prettierConfigOverride,
+	});
+
+	return {output, formatted, oldValueStrings, logLine, effectCallee};
+};
