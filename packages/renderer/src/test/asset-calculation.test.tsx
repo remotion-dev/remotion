@@ -223,7 +223,7 @@ test('Should calculate startFrom correctly (Html5Audio)', async () => {
 	});
 });
 
-const expected = {
+const expected: Omit<MediaAsset, 'id'> = {
 	type: 'audio',
 	src: 'https://remotion.media/video.mp4',
 	duration: 29,
@@ -281,4 +281,42 @@ test('same as above, but with <Sequence from={0}> inbetween', async () => {
 	});
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual(expected);
+});
+
+test('same as above, but a positive child offset cancels part of the negative parent offset', async () => {
+	const assetPositions = await getPositions(() => {
+		return (
+			<Sequence from={-20} durationInFrames={40}>
+				<Sequence from={10} layout="none">
+					<Html5Audio
+						src={'https://remotion.media/video.mp4'}
+						volume={(f) => {
+							return interpolate(f, [0, 50, 100], [0, 1, 0], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							});
+						}}
+					/>
+				</Sequence>
+			</Sequence>
+		);
+	});
+	expect(assetPositions.length).toBe(1);
+	expect(withoutId(assetPositions[0])).toEqual({
+		type: 'audio',
+		src: 'https://remotion.media/video.mp4',
+		duration: 19,
+		startInVideo: 1,
+		trimLeft: 11,
+		playbackRate: 1,
+		volume: new Array(19).fill(true).map((_, i) =>
+			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			}),
+		),
+		toneFrequency: 1,
+		audioStartFrame: 10,
+		audioStreamIndex: 0,
+	});
 });

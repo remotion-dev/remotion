@@ -4,9 +4,9 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
-import {useRef} from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
 import type {EffectDefinition} from './effects/effect-types.js';
@@ -202,9 +202,15 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}, [other._remotionInternalIsPostmounting, parentSequence?.postmounting]);
 
-	const cumulatedNegativeFrom = parentSequence
-		? parentSequence.cumulatedNegativeFrom + Math.min(0, from)
-		: Math.min(0, from);
+	const currentSequenceStart = cumulatedFrom + from;
+	const parentSequenceStart = parentSequence
+		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
+		: 0;
+	const parentFirstFrame = parentSequence
+		? parentSequenceStart - parentSequence.cumulatedNegativeFrom
+		: 0;
+	const firstFrame = Math.max(0, parentFirstFrame, currentSequenceStart);
+	const cumulatedNegativeFrom = currentSequenceStart - firstFrame;
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
