@@ -7,7 +7,7 @@ import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
-import {EffectsHalftoneGradientPreview} from '../effects/effects-halftone-gradient-preview';
+import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-linear-gradient-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
@@ -110,6 +110,13 @@ export type Option = {
 	| {
 			type: 'color';
 			default: string;
+	  }
+	| {
+			type: 'uv-coordinate';
+			min: number;
+			default: readonly [number, number];
+			max: number;
+			step: number;
 	  }
 );
 
@@ -2165,13 +2172,13 @@ export const effectsHalftoneDemo: DemoType = {
 	],
 };
 
-export const effectsHalftoneGradientDemo: DemoType = {
-	comp: EffectsHalftoneGradientPreview,
+export const effectsHalftoneLinearGradientDemo: DemoType = {
+	comp: EffectsHalftoneLinearGradientPreview,
 	compHeight: 720,
 	compWidth: 1280,
 	durationInFrames: 1,
 	fps: 30,
-	id: 'effects-halftone-gradient',
+	id: 'effects-halftone-linear-gradient',
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
@@ -2195,21 +2202,30 @@ export const effectsHalftoneGradientDemo: DemoType = {
 			optional: 'no',
 		},
 		{
+			name: 'firstStopPosition',
+			type: 'uv-coordinate',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: [0, 0.5],
+			optional: 'no',
+		},
+		{
+			name: 'secondStopPosition',
+			type: 'uv-coordinate',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: [1, 0.5],
+			optional: 'no',
+		},
+		{
 			name: 'gridSize',
 			type: 'numeric',
 			min: 1,
 			max: 80,
 			step: 1,
 			default: 24,
-			optional: 'no',
-		},
-		{
-			name: 'rotation',
-			type: 'numeric',
-			min: -180,
-			max: 180,
-			step: 1,
-			default: 0,
 			optional: 'no',
 		},
 		{
@@ -2222,7 +2238,7 @@ export const effectsHalftoneGradientDemo: DemoType = {
 		{
 			name: 'dotColor',
 			type: 'color',
-			default: '#ffffff',
+			default: '#0b84f3',
 			optional: 'no',
 			showIf: {
 				option: 'colorMode',

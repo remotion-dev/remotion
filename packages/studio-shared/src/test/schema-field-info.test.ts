@@ -30,6 +30,11 @@ const effect = {
 				source: {},
 			},
 		},
+		position: {
+			type: 'uv-coordinate',
+			default: [0, 0.5] as const,
+			description: 'Position',
+		},
 	},
 } satisfies EffectDefinition<unknown>;
 
@@ -64,7 +69,7 @@ test('getEffectFieldsToShow uses the active enum variant', () => {
 		getEffectDragOverrides: () => ({}),
 	});
 
-	expect(fields.map((field) => field.key)).toEqual(['colorMode']);
+	expect(fields.map((field) => field.key)).toEqual(['colorMode', 'position']);
 });
 
 test('getEffectFieldsToShow uses default enum variant if no code value exists', () => {
@@ -76,5 +81,9 @@ test('getEffectFieldsToShow uses default enum variant if no code value exists', 
 		getEffectDragOverrides: () => ({}),
 	});
 
-	expect(fields.map((field) => field.key)).toEqual(['colorMode', 'dotColor']);
+	expect(fields.map((field) => field.key)).toEqual([
+		'colorMode',
+		'dotColor',
+		'position',
+	]);
 });

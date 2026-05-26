@@ -43,6 +43,7 @@ const SUPPORTED_SCHEMA_TYPES = [
 	'boolean',
 	'rotation',
 	'translate',
+	'uv-coordinate',
 	'color',
 	'enum',
 	'hidden',

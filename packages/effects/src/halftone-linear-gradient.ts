@@ -12,15 +12,16 @@ import {
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
-const HALFTONE_GRADIENT_COLOR_MODES = ['solid', 'source'] as const;
+const HALFTONE_LINEAR_GRADIENT_COLOR_MODES = ['solid', 'source'] as const;
 
 const DEFAULT_FIRST_STOP_DOT_SIZE = 0;
 const DEFAULT_SECOND_STOP_DOT_SIZE = 40;
+const DEFAULT_FIRST_STOP_POSITION = [0, 0.5] as const;
+const DEFAULT_SECOND_STOP_POSITION = [1, 0.5] as const;
 const DEFAULT_GRID_SIZE = 24;
-const DEFAULT_ROTATION = 0;
 const DEFAULT_DOT_COLOR = 'black';
 
-export const halftoneGradientSchema = {
+export const halftoneLinearGradientSchema = {
 	firstStopDotSize: {
 		type: 'number',
 		min: 0,
@@ -37,6 +38,22 @@ export const halftoneGradientSchema = {
 		default: DEFAULT_SECOND_STOP_DOT_SIZE,
 		description: 'Second stop dot size',
 	},
+	firstStopPosition: {
+		type: 'uv-coordinate',
+		min: -1,
+		max: 2,
+		step: 0.01,
+		default: DEFAULT_FIRST_STOP_POSITION,
+		description: 'First stop position',
+	},
+	secondStopPosition: {
+		type: 'uv-coordinate',
+		min: -1,
+		max: 2,
+		step: 0.01,
+		default: DEFAULT_SECOND_STOP_POSITION,
+		description: 'Second stop position',
+	},
 	gridSize: {
 		type: 'number',
 		min: 1,
@@ -44,14 +61,6 @@ export const halftoneGradientSchema = {
 		step: 1,
 		default: DEFAULT_GRID_SIZE,
 		description: 'Grid size',
-	},
-	rotation: {
-		type: 'number',
-		min: -180,
-		max: 180,
-		step: 1,
-		default: DEFAULT_ROTATION,
-		description: 'Rotation',
 	},
 	colorMode: {
 		type: 'enum',
@@ -70,10 +79,12 @@ export const halftoneGradientSchema = {
 	},
 } as const satisfies SequenceSchema;
 
-export type HalftoneGradientColorMode =
-	(typeof HALFTONE_GRADIENT_COLOR_MODES)[number];
+export type HalftoneLinearGradientColorMode =
+	(typeof HALFTONE_LINEAR_GRADIENT_COLOR_MODES)[number];
 
-type HalftoneGradientCommonParams = {
+export type UvCoordinate = readonly [number, number];
+
+type HalftoneLinearGradientCommonParams = {
 	/**
 	 * Dot diameter at the first side of the gradient.
 	 */
@@ -83,16 +94,20 @@ type HalftoneGradientCommonParams = {
 	 */
 	readonly secondStopDotSize?: number;
 	/**
+	 * UV coordinate where the first dot size is reached.
+	 */
+	readonly firstStopPosition?: UvCoordinate;
+	/**
+	 * UV coordinate where the second dot size is reached.
+	 */
+	readonly secondStopPosition?: UvCoordinate;
+	/**
 	 * Distance between adjacent dot centers.
 	 */
 	readonly gridSize?: number;
-	/**
-	 * Rotation of the dot grid and the linear gradient in degrees.
-	 */
-	readonly rotation?: number;
 };
 
-export type HalftoneGradientParams = HalftoneGradientCommonParams &
+export type HalftoneLinearGradientParams = HalftoneLinearGradientCommonParams &
 	(
 		| {
 				readonly colorMode?: 'solid';
@@ -104,12 +119,13 @@ export type HalftoneGradientParams = HalftoneGradientCommonParams &
 		  }
 	);
 
-type HalftoneGradientResolved = {
+type HalftoneLinearGradientResolved = {
 	firstStopDotSize: number;
 	secondStopDotSize: number;
+	firstStopPosition: UvCoordinate;
+	secondStopPosition: UvCoordinate;
 	gridSize: number;
-	rotation: number;
-	colorMode: HalftoneGradientColorMode;
+	colorMode: HalftoneLinearGradientColorMode;
 	dotColor: string;
 };
 
@@ -138,11 +154,18 @@ const assertOptionalEnum = <T extends string>(
 	}
 };
 
-const resolve = (p: HalftoneGradientParams): HalftoneGradientResolved => ({
+const resolve = (
+	p: HalftoneLinearGradientParams,
+): HalftoneLinearGradientResolved => ({
 	firstStopDotSize: p.firstStopDotSize ?? DEFAULT_FIRST_STOP_DOT_SIZE,
 	secondStopDotSize: p.secondStopDotSize ?? DEFAULT_SECOND_STOP_DOT_SIZE,
+	firstStopPosition: [
+		...(p.firstStopPosition ?? DEFAULT_FIRST_STOP_POSITION),
+	] as UvCoordinate,
+	secondStopPosition: [
+		...(p.secondStopPosition ?? DEFAULT_SECOND_STOP_POSITION),
+	] as UvCoordinate,
 	gridSize: p.gridSize ?? DEFAULT_GRID_SIZE,
-	rotation: p.rotation ?? DEFAULT_ROTATION,
 	colorMode: p.colorMode ?? 'solid',
 	dotColor:
 		'dotColor' in p ? (p.dotColor ?? DEFAULT_DOT_COLOR) : DEFAULT_DOT_COLOR,
@@ -164,18 +187,33 @@ const validatePositive = (value: number, name: string): void => {
 	}
 };
 
-const validateHalftoneGradientParams = (
-	params: HalftoneGradientParams,
+const assertOptionalUvCoordinate = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (
+		!Array.isArray(value) ||
+		value.length !== 2 ||
+		value.some((item) => typeof item !== 'number' || !Number.isFinite(item))
+	) {
+		throw new TypeError(`"${name}" must be a [number, number] tuple`);
+	}
+};
+
+const validateHalftoneLinearGradientParams = (
+	params: HalftoneLinearGradientParams,
 ): void => {
-	assertEffectParamsObject(params, 'Halftone gradient');
+	assertEffectParamsObject(params, 'Halftone linear gradient');
 	assertOptionalFiniteNumber(params.firstStopDotSize, 'firstStopDotSize');
 	assertOptionalFiniteNumber(params.secondStopDotSize, 'secondStopDotSize');
+	assertOptionalUvCoordinate(params.firstStopPosition, 'firstStopPosition');
+	assertOptionalUvCoordinate(params.secondStopPosition, 'secondStopPosition');
 	assertOptionalFiniteNumber(params.gridSize, 'gridSize');
-	assertOptionalFiniteNumber(params.rotation, 'rotation');
 	assertOptionalEnum(
 		params.colorMode,
 		'colorMode',
-		HALFTONE_GRADIENT_COLOR_MODES,
+		HALFTONE_LINEAR_GRADIENT_COLOR_MODES,
 	);
 
 	if (params.colorMode === 'source' && 'dotColor' in params) {
@@ -202,7 +240,7 @@ const validateHalftoneGradientParams = (
 	}
 };
 
-const HALFTONE_GRADIENT_VS = /* glsl */ `#version 300 es
+const HALFTONE_LINEAR_GRADIENT_VS = /* glsl */ `#version 300 es
 in vec2 aPos;
 in vec2 aUv;
 out vec2 vUv;
@@ -212,7 +250,7 @@ void main() {
 }
 `;
 
-const HALFTONE_GRADIENT_FS = /* glsl */ `#version 300 es
+const HALFTONE_LINEAR_GRADIENT_FS = /* glsl */ `#version 300 es
 precision highp float;
 
 in vec2 vUv;
@@ -222,51 +260,34 @@ uniform sampler2D uSource;
 uniform vec2 uResolution;
 uniform float uFirstStopDotSize;
 uniform float uSecondStopDotSize;
+uniform vec2 uFirstStopPosition;
+uniform vec2 uSecondStopPosition;
 uniform float uGridSize;
-uniform float uRotation;
 uniform vec4 uColor;
 uniform bool uUseSourceColor;
 
-vec2 rotatePoint(vec2 point, float angle) {
-	float cosR = cos(angle);
-	float sinR = sin(angle);
-	return vec2(
-		point.x * cosR + point.y * sinR,
-		-point.x * sinR + point.y * cosR
-	);
-}
-
-vec2 unrotatePoint(vec2 point, float angle) {
-	float cosR = cos(angle);
-	float sinR = sin(angle);
-	return vec2(
-		point.x * cosR - point.y * sinR,
-		point.x * sinR + point.y * cosR
-	);
-}
-
-float gradientProgress(vec2 point, vec2 direction) {
-	float halfExtent = dot(abs(direction), uResolution * 0.5);
-	if (halfExtent <= 0.0) {
+float gradientProgress(vec2 uv) {
+	vec2 stopVector = uSecondStopPosition - uFirstStopPosition;
+	float stopDistance = dot(stopVector, stopVector);
+	if (stopDistance <= 0.0) {
 		return 0.0;
 	}
 
-	return clamp(dot(point, direction) / (halfExtent * 2.0) + 0.5, 0.0, 1.0);
+	return clamp(dot(uv - uFirstStopPosition, stopVector) / stopDistance, 0.0, 1.0);
 }
 
 void main() {
 	vec2 fragPos = vUv * uResolution;
 	vec2 center = uResolution * 0.5;
-	vec2 relative = fragPos - center;
+	vec2 gridPos = fragPos - center;
 
-	vec2 gridPos = rotatePoint(relative, uRotation);
 	float gridSize = max(uGridSize, 0.001);
 	vec2 cellIndex = floor(gridPos / gridSize + 0.5);
 	vec2 gridCenter = cellIndex * gridSize;
-	vec2 canvasCenter = center + unrotatePoint(gridCenter, uRotation);
+	vec2 canvasCenter = center + gridCenter;
 
-	vec2 direction = vec2(cos(uRotation), sin(uRotation));
-	float progress = gradientProgress(canvasCenter - center, direction);
+	vec2 centerUv = canvasCenter / uResolution;
+	float progress = gradientProgress(centerUv);
 	float dotSize = mix(uFirstStopDotSize, uSecondStopDotSize, progress);
 
 	if (dotSize <= 0.01) {
@@ -278,13 +299,13 @@ void main() {
 	float radius = dotSize * 0.5;
 	float coverage = 1.0 - smoothstep(radius - 0.75, radius + 0.75, length(diff));
 
-	vec2 sampleUv = clamp(canvasCenter / uResolution, vec2(0.0), vec2(1.0));
+	vec2 sampleUv = clamp(centerUv, vec2(0.0), vec2(1.0));
 	vec4 texColor = texture(uSource, sampleUv);
 	fragColor = (uUseSourceColor ? texColor : uColor) * coverage;
 }
 `;
 
-type HalftoneGradientState = {
+type HalftoneLinearGradientState = {
 	gl: WebGL2RenderingContext;
 	program: WebGLProgram;
 	vao: WebGLVertexArrayObject;
@@ -294,8 +315,9 @@ type HalftoneGradientState = {
 	uResolution: WebGLUniformLocation | null;
 	uFirstStopDotSize: WebGLUniformLocation | null;
 	uSecondStopDotSize: WebGLUniformLocation | null;
+	uFirstStopPosition: WebGLUniformLocation | null;
+	uSecondStopPosition: WebGLUniformLocation | null;
 	uGridSize: WebGLUniformLocation | null;
-	uRotation: WebGLUniformLocation | null;
 	uColor: WebGLUniformLocation | null;
 	uUseSourceColor: WebGLUniformLocation | null;
 	colorCtx: CanvasRenderingContext2D;
@@ -319,7 +341,7 @@ const compileShader = (
 		const log = gl.getShaderInfoLog(shader);
 		gl.deleteShader(shader);
 		throw new Error(
-			`Halftone gradient shader compile failed: ${log ?? '(no log)'}`,
+			`Halftone linear gradient shader compile failed: ${log ?? '(no log)'}`,
 		);
 	}
 
@@ -343,24 +365,25 @@ const linkProgram = (
 		const log = gl.getProgramInfoLog(program);
 		gl.deleteProgram(program);
 		throw new Error(
-			`Halftone gradient program link failed: ${log ?? '(no log)'}`,
+			`Halftone linear gradient program link failed: ${log ?? '(no log)'}`,
 		);
 	}
 
 	return program;
 };
 
-export const halftoneGradient = createEffect<
-	HalftoneGradientParams,
-	HalftoneGradientState
+export const halftoneLinearGradient = createEffect<
+	HalftoneLinearGradientParams,
+	HalftoneLinearGradientState
 >({
-	type: 'remotion/halftone-gradient',
-	label: 'halftoneGradient()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/halftone-gradient',
+	type: 'remotion/halftone-linear-gradient',
+	label: 'halftoneLinearGradient()',
+	documentationLink:
+		'https://www.remotion.dev/docs/effects/halftone-linear-gradient',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `halftone-gradient-${r.firstStopDotSize}-${r.secondStopDotSize}-${r.gridSize}-${r.rotation}-${r.colorMode}-${r.dotColor}`;
+		return `halftone-linear-gradient-${r.firstStopDotSize}-${r.secondStopDotSize}-${r.firstStopPosition.join(':')}-${r.secondStopPosition.join(':')}-${r.gridSize}-${r.colorMode}-${r.dotColor}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -369,13 +392,17 @@ export const halftoneGradient = createEffect<
 			preserveDrawingBuffer: true,
 		});
 		if (!gl) {
-			throw createWebGL2ContextError('halftone gradient effect');
+			throw createWebGL2ContextError('halftone linear gradient effect');
 		}
 
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-		const vs = compileShader(gl, gl.VERTEX_SHADER, HALFTONE_GRADIENT_VS);
-		const fs = compileShader(gl, gl.FRAGMENT_SHADER, HALFTONE_GRADIENT_FS);
+		const vs = compileShader(gl, gl.VERTEX_SHADER, HALFTONE_LINEAR_GRADIENT_VS);
+		const fs = compileShader(
+			gl,
+			gl.FRAGMENT_SHADER,
+			HALFTONE_LINEAR_GRADIENT_FS,
+		);
 		const program = linkProgram(gl, vs, fs);
 		gl.deleteShader(vs);
 		gl.deleteShader(fs);
@@ -438,8 +465,12 @@ export const halftoneGradient = createEffect<
 			uResolution: gl.getUniformLocation(program, 'uResolution'),
 			uFirstStopDotSize: gl.getUniformLocation(program, 'uFirstStopDotSize'),
 			uSecondStopDotSize: gl.getUniformLocation(program, 'uSecondStopDotSize'),
+			uFirstStopPosition: gl.getUniformLocation(program, 'uFirstStopPosition'),
+			uSecondStopPosition: gl.getUniformLocation(
+				program,
+				'uSecondStopPosition',
+			),
 			uGridSize: gl.getUniformLocation(program, 'uGridSize'),
-			uRotation: gl.getUniformLocation(program, 'uRotation'),
 			uColor: gl.getUniformLocation(program, 'uColor'),
 			uUseSourceColor: gl.getUniformLocation(program, 'uUseSourceColor'),
 			colorCtx,
@@ -484,9 +515,19 @@ export const halftoneGradient = createEffect<
 			gl.uniform1f(state.uFirstStopDotSize, r.firstStopDotSize);
 		if (state.uSecondStopDotSize)
 			gl.uniform1f(state.uSecondStopDotSize, r.secondStopDotSize);
+		if (state.uFirstStopPosition)
+			gl.uniform2f(
+				state.uFirstStopPosition,
+				r.firstStopPosition[0],
+				r.firstStopPosition[1],
+			);
+		if (state.uSecondStopPosition)
+			gl.uniform2f(
+				state.uSecondStopPosition,
+				r.secondStopPosition[0],
+				r.secondStopPosition[1],
+			);
 		if (state.uGridSize) gl.uniform1f(state.uGridSize, r.gridSize);
-		if (state.uRotation)
-			gl.uniform1f(state.uRotation, (r.rotation * Math.PI) / 180);
 		if (state.uColor)
 			gl.uniform4f(
 				state.uColor,
@@ -510,6 +551,6 @@ export const halftoneGradient = createEffect<
 		gl.deleteVertexArray(vao);
 		gl.deleteTexture(texture);
 	},
-	schema: halftoneGradientSchema,
-	validateParams: validateHalftoneGradientParams,
+	schema: halftoneLinearGradientSchema,
+	validateParams: validateHalftoneLinearGradientParams,
 });

@@ -1791,13 +1791,13 @@ export const articles = [
 		slug: 'effects/grayscale',
 	},
 	{
-		id: 'effects/halftone-gradient',
-		title: 'halftoneGradient()',
-		relativePath: 'docs/effects/halftone-gradient.mdx',
-		compId: 'articles-docs-effects-halftone-gradient',
+		id: 'effects/halftone-linear-gradient',
+		title: 'halftoneLinearGradient()',
+		relativePath: 'docs/effects/halftone-linear-gradient.mdx',
+		compId: 'articles-docs-effects-halftone-linear-gradient',
 		crumb: '@remotion/effects',
 		noAi: false,
-		slug: 'effects/halftone-gradient',
+		slug: 'effects/halftone-linear-gradient',
 	},
 	{
 		id: 'effects/halftone',

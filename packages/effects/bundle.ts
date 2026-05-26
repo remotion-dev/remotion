@@ -15,7 +15,7 @@ const effectEntrypoints = [
 	'src/duotone.ts',
 	'src/glow.ts',
 	'src/grayscale.ts',
-	'src/halftone-gradient.ts',
+	'src/halftone-linear-gradient.ts',
 	'src/halftone.ts',
 	'src/hue.ts',
 	'src/invert.ts',

@@ -1,5 +1,8 @@
-import type {HalftoneGradientColorMode} from '@remotion/effects/halftone-gradient';
-import {halftoneGradient} from '@remotion/effects/halftone-gradient';
+import type {
+	HalftoneLinearGradientColorMode,
+	UvCoordinate,
+} from '@remotion/effects/halftone-linear-gradient';
+import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import React from 'react';
 import {CanvasImage} from 'remotion';
 import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
@@ -9,18 +12,20 @@ const fullSize: React.CSSProperties = {
 	height: '100%',
 };
 
-export const EffectsHalftoneGradientPreview: React.FC<{
+export const EffectsHalftoneLinearGradientPreview: React.FC<{
 	readonly firstStopDotSize: number;
 	readonly secondStopDotSize: number;
+	readonly firstStopPosition: UvCoordinate;
+	readonly secondStopPosition: UvCoordinate;
 	readonly gridSize: number;
-	readonly rotation: number;
-	readonly colorMode: HalftoneGradientColorMode;
+	readonly colorMode: HalftoneLinearGradientColorMode;
 	readonly dotColor: string;
 }> = ({
 	firstStopDotSize,
 	secondStopDotSize,
+	firstStopPosition,
+	secondStopPosition,
 	gridSize,
-	rotation,
 	colorMode,
 	dotColor,
 }) => {
@@ -37,11 +42,12 @@ export const EffectsHalftoneGradientPreview: React.FC<{
 			fit="cover"
 			style={fullSize}
 			effects={[
-				halftoneGradient({
+				halftoneLinearGradient({
 					firstStopDotSize,
 					secondStopDotSize,
+					firstStopPosition,
+					secondStopPosition,
 					gridSize,
-					rotation,
 					...colorParams,
 				}),
 			]}

@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
-import styles from './styles.module.css';
 import type {Option} from './types';
+import styles from './styles.module.css';
 
 const left: React.CSSProperties = {
 	fontFamily: 'GTPlanar',
@@ -26,8 +26,10 @@ export const Control = ({
 	setValue,
 }: {
 	readonly option: Option;
-	readonly value: number | string | boolean;
-	readonly setValue: (value: number | string | boolean | null) => void;
+	readonly value: number | string | boolean | readonly [number, number];
+	readonly setValue: (
+		value: number | string | boolean | readonly [number, number] | null,
+	) => void;
 }) => {
 	const enabled = value !== null;
 
@@ -55,6 +57,22 @@ export const Control = ({
 		}),
 		[],
 	);
+
+	const uvValue = useMemo<readonly [number, number] | null>(() => {
+		if (option.type !== 'uv-coordinate') {
+			return null;
+		}
+
+		if (
+			Array.isArray(value) &&
+			value.length === 2 &&
+			value.every((item) => typeof item === 'number')
+		) {
+			return [value[0], value[1]];
+		}
+
+		return option.default;
+	}, [option, value]);
 
 	return (
 		<label style={labelStyle} className={styles.item}>
@@ -85,10 +103,45 @@ export const Control = ({
 					style={inputStyle}
 					onChange={(e) => setValue(Number(e.target.value))}
 				/>
+			) : option.type === 'uv-coordinate' && enabled ? (
+				<>
+					<input
+						type="range"
+						min={option.min}
+						max={option.max}
+						step={option.step}
+						value={(uvValue ?? option.default)[0]}
+						style={inputStyle}
+						onChange={(e) =>
+							setValue([
+								Number(e.target.value),
+								(uvValue ?? option.default)[1],
+							] as const)
+						}
+					/>
+					<input
+						type="range"
+						min={option.min}
+						max={option.max}
+						step={option.step}
+						value={(uvValue ?? option.default)[1]}
+						style={inputStyle}
+						onChange={(e) =>
+							setValue([
+								(uvValue ?? option.default)[0],
+								Number(e.target.value),
+							] as const)
+						}
+					/>
+				</>
 			) : null}
 			{option.type === 'numeric' ? (
 				<div style={right}>
 					<code>{value}</code>
+				</div>
+			) : option.type === 'uv-coordinate' ? (
+				<div style={right}>
+					<code>{`[${(uvValue ?? option.default)[0]}, ${(uvValue ?? option.default)[1]}]`}</code>
 				</div>
 			) : option.type === 'enum' ? (
 				<div>

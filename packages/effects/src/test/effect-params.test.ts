@@ -7,7 +7,7 @@ import {contrast} from '../contrast.js';
 import {duotone} from '../duotone.js';
 import {glow} from '../glow/index.js';
 import {grayscale} from '../grayscale.js';
-import {halftoneGradient} from '../halftone-gradient.js';
+import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
@@ -48,8 +48,8 @@ test('@remotion/effects expose documentation links', () => {
 	expect(halftone().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/halftone',
 	);
-	expect(halftoneGradient().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/halftone-gradient',
+	expect(halftoneLinearGradient().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/halftone-linear-gradient',
 	);
 	expect(hue().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/hue',
@@ -95,7 +95,9 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(grayscale().definition.label).toBe('grayscale()');
 	expect(halftone().definition.label).toBe('halftone()');
-	expect(halftoneGradient().definition.label).toBe('halftoneGradient()');
+	expect(halftoneLinearGradient().definition.label).toBe(
+		'halftoneLinearGradient()',
+	);
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
 	expect(mirror().definition.label).toBe('mirror()');
@@ -621,67 +623,85 @@ test('halftone() rejects dotColor for source color mode', () => {
 	).toThrow('"dotColor" can only be set when "colorMode" is "solid"');
 });
 
-test('halftoneGradient() accepts default params', () => {
-	expect(() => halftoneGradient()).not.toThrow();
+test('halftoneLinearGradient() accepts default params', () => {
+	expect(() => halftoneLinearGradient()).not.toThrow();
 });
 
-test('halftoneGradient() rejects first stop dot size below range', () => {
-	expect(() => halftoneGradient({firstStopDotSize: -1})).toThrow(
+test('halftoneLinearGradient() rejects first stop dot size below range', () => {
+	expect(() => halftoneLinearGradient({firstStopDotSize: -1})).toThrow(
 		'"firstStopDotSize" must be >= 0',
 	);
 });
 
-test('halftoneGradient() rejects second stop dot size below range', () => {
-	expect(() => halftoneGradient({secondStopDotSize: -1})).toThrow(
+test('halftoneLinearGradient() rejects second stop dot size below range', () => {
+	expect(() => halftoneLinearGradient({secondStopDotSize: -1})).toThrow(
 		'"secondStopDotSize" must be >= 0',
 	);
 });
 
-test('halftoneGradient() rejects non-positive grid size', () => {
-	expect(() => halftoneGradient({gridSize: 0})).toThrow(
+test('halftoneLinearGradient() rejects first stop position outside the tuple shape', () => {
+	expect(() =>
+		halftoneLinearGradient({
+			firstStopPosition: [0, 0.5, 1] as unknown as [number, number],
+		}),
+	).toThrow('"firstStopPosition" must be a [number, number] tuple');
+});
+
+test('halftoneLinearGradient() rejects second stop position outside the tuple shape', () => {
+	expect(() =>
+		halftoneLinearGradient({
+			secondStopPosition: [0, Number.NaN],
+		}),
+	).toThrow('"secondStopPosition" must be a [number, number] tuple');
+});
+
+test('halftoneLinearGradient() rejects non-positive grid size', () => {
+	expect(() => halftoneLinearGradient({gridSize: 0})).toThrow(
 		'"gridSize" must be greater than 0',
 	);
 });
 
-test('halftoneGradient() rejects color outside the enum', () => {
+test('halftoneLinearGradient() rejects color outside the enum', () => {
 	expect(() =>
-		halftoneGradient({
+		halftoneLinearGradient({
 			colorMode: 'cmyk' as Exclude<
-				Parameters<typeof halftoneGradient>[0],
+				Parameters<typeof halftoneLinearGradient>[0],
 				undefined
 			>['colorMode'],
 		}),
 	).toThrow('"colorMode" must be "solid" or "source"');
 });
 
-test('halftoneGradient() rejects empty dotColor strings', () => {
-	expect(() => halftoneGradient({dotColor: ''})).toThrow(
+test('halftoneLinearGradient() rejects empty dotColor strings', () => {
+	expect(() => halftoneLinearGradient({dotColor: ''})).toThrow(
 		'"dotColor" must be a non-empty string, but got ""',
 	);
 });
 
-test('halftoneGradient() rejects dotColor for source color mode', () => {
+test('halftoneLinearGradient() rejects dotColor for source color mode', () => {
 	expect(() =>
-		halftoneGradient({
+		halftoneLinearGradient({
 			colorMode: 'source',
 			dotColor: 'black',
-		} as Parameters<typeof halftoneGradient>[0]),
+		} as Parameters<typeof halftoneLinearGradient>[0]),
 	).toThrow('"dotColor" can only be set when "colorMode" is "solid"');
 });
 
-test('halftoneGradient() parameters produce distinct effect keys', () => {
-	const defaultGradient = halftoneGradient();
-	const shiftedFirstStop = halftoneGradient({firstStopDotSize: 8});
-	const shiftedSecondStop = halftoneGradient({secondStopDotSize: 20});
-	const rotated = halftoneGradient({rotation: 45});
-	const sourceColor = halftoneGradient({colorMode: 'source'});
+test('halftoneLinearGradient() parameters produce distinct effect keys', () => {
+	const defaultGradient = halftoneLinearGradient();
+	const shiftedFirstStop = halftoneLinearGradient({firstStopDotSize: 8});
+	const shiftedSecondStop = halftoneLinearGradient({secondStopDotSize: 20});
+	const shiftedFirstPosition = halftoneLinearGradient({
+		firstStopPosition: [0.2, 0.5],
+	});
+	const sourceColor = halftoneLinearGradient({colorMode: 'source'});
 
 	expect(
 		new Set([
 			defaultGradient.effectKey,
 			shiftedFirstStop.effectKey,
 			shiftedSecondStop.effectKey,
-			rotated.effectKey,
+			shiftedFirstPosition.effectKey,
 			sourceColor.effectKey,
 		]).size,
 	).toBe(5);

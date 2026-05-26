@@ -15,6 +15,7 @@ import {TimelineEnumField} from './TimelineEnumField';
 import {TimelineNumberField} from './TimelineNumberField';
 import {TimelineRotationField} from './TimelineRotationField';
 import {TimelineTranslateField} from './TimelineTranslateField';
+import {TimelineUvCoordinateField} from './TimelineUvCoordinateField';
 
 const unsupportedLabel: React.CSSProperties = {
 	color: 'rgba(255, 255, 255, 0.4)',
@@ -105,6 +106,21 @@ export const TimelineFieldValue: React.FC<{
 		return (
 			<span style={wrapperStyle}>
 				<TimelineTranslateField
+					field={field}
+					effectiveValue={effectiveValue}
+					propStatus={propStatus}
+					onSave={onSave}
+					onDragValueChange={onDragValueChange}
+					onDragEnd={onDragEnd}
+				/>
+			</span>
+		);
+	}
+
+	if (field.typeName === 'uv-coordinate') {
+		return (
+			<span style={wrapperStyle}>
+				<TimelineUvCoordinateField
 					field={field}
 					effectiveValue={effectiveValue}
 					propStatus={propStatus}
