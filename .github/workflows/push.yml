@@ -139,6 +139,8 @@ jobs:
           python-version: '3.11'
       - name: Check Ruby
         run: ruby --version
+      - name: Install Bundler
+        run: sudo gem install bundler
       - name: Check PHP
         run: php --version
       - run: pip install pylint boto3 pytest
