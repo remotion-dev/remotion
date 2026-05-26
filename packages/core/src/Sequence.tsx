@@ -133,6 +133,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
+	const cumulatedNegativeFrom = parentSequence
+		? parentSequence.cumulatedNegativeFrom +
+			Math.min(0, parentSequence?.relativeFrom ?? 0)
+		: 0;
 	const nonce = useNonce();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
@@ -206,6 +210,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		return {
 			cumulatedFrom,
 			relativeFrom: from,
+			cumulatedNegativeFrom,
 			durationInFrames: actualDurationInFrames,
 			parentFrom: parentSequence?.relativeFrom ?? 0,
 			id,
@@ -228,6 +233,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		postmounting,
 		premountDisplay,
 		postmountDisplay,
+		cumulatedNegativeFrom,
 	]);
 
 	const timelineClipName = useMemo(() => {

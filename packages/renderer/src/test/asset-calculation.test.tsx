@@ -228,15 +228,13 @@ test.only('Should calculate startFrom correctly with negative offset (Html5Audio
 		return (
 			<Sequence from={-10} durationInFrames={40}>
 				<Html5Audio
-					trimBefore={100}
-					trimAfter={200}
 					src={'https://remotion.media/video.mp4'}
-					volume={(f) =>
-						interpolate(f, [0, 50, 100], [0, 1, 0], {
+					volume={(f) => {
+						return interpolate(f, [0, 50, 100], [0, 1, 0], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-						})
-					}
+						});
+					}}
 				/>
 			</Sequence>
 		);
@@ -245,37 +243,35 @@ test.only('Should calculate startFrom correctly with negative offset (Html5Audio
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'audio',
 		src: 'https://remotion.media/video.mp4',
-		duration: 30,
-		startInVideo: 0,
-		trimLeft: 110,
+		duration: 29,
+		startInVideo: 1,
+		trimLeft: 11,
 		playbackRate: 1,
-		volume: new Array(30).fill(true).map((_, i) =>
-			interpolate(i + 10, [0, 50, 100], [0, 1, 0], {
+		volume: new Array(29).fill(true).map((_, i) =>
+			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
 			}),
 		),
 		toneFrequency: 1,
-		audioStartFrame: 100,
+		audioStartFrame: 10,
 		audioStreamIndex: 0,
 	});
 });
 
-test.only('same test as above, but with <Sequence from={0}> inbetween', async () => {
+test.only('same as above, but with <Sequence from={0}> inbetween', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Sequence from={-10} durationInFrames={40}>
 				<Sequence from={0} layout="none">
 					<Html5Audio
-						trimBefore={100}
-						trimAfter={200}
 						src={'https://remotion.media/video.mp4'}
-						volume={(f) =>
-							interpolate(f, [0, 50, 100], [0, 1, 0], {
+						volume={(f) => {
+							return interpolate(f, [0, 50, 100], [0, 1, 0], {
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
-							})
-						}
+							});
+						}}
 					/>
 				</Sequence>
 			</Sequence>
@@ -285,18 +281,18 @@ test.only('same test as above, but with <Sequence from={0}> inbetween', async ()
 	expect(withoutId(assetPositions[0])).toEqual({
 		type: 'audio',
 		src: 'https://remotion.media/video.mp4',
-		duration: 30,
-		startInVideo: 0,
-		trimLeft: 110,
+		duration: 29,
+		startInVideo: 1,
+		trimLeft: 11,
 		playbackRate: 1,
-		volume: new Array(30).fill(true).map((_, i) =>
-			interpolate(i + 10, [0, 50, 100], [0, 1, 0], {
+		volume: new Array(29).fill(true).map((_, i) =>
+			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
 			}),
 		),
 		toneFrequency: 1,
-		audioStartFrame: 100,
+		audioStartFrame: 10,
 		audioStreamIndex: 0,
 	});
 });
