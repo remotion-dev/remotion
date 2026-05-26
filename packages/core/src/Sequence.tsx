@@ -133,10 +133,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
-	const cumulatedNegativeFrom = parentSequence
-		? parentSequence.cumulatedNegativeFrom +
-			Math.min(0, parentSequence?.relativeFrom ?? 0)
-		: 0;
 	const nonce = useNonce();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
@@ -205,6 +201,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			Boolean(other._remotionInternalIsPostmounting)
 		);
 	}, [other._remotionInternalIsPostmounting, parentSequence?.postmounting]);
+
+	const cumulatedNegativeFrom = parentSequence
+		? parentSequence.cumulatedNegativeFrom + Math.min(0, from)
+		: Math.min(0, from);
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
