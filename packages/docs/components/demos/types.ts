@@ -1514,13 +1514,13 @@ export const effectsDuotoneDemo: DemoType = {
 		{
 			name: 'darkColor',
 			type: 'color',
-			default: '#001a33',
+			default: 'black',
 			optional: 'no',
 		},
 		{
 			name: 'lightColor',
 			type: 'color',
-			default: '#ffd166',
+			default: 'white',
 			optional: 'no',
 		},
 		{
@@ -1529,7 +1529,7 @@ export const effectsDuotoneDemo: DemoType = {
 			min: 0,
 			max: 1,
 			step: 0.01,
-			default: 0.5,
+			default: 0.18,
 			optional: 'no',
 		},
 	],
