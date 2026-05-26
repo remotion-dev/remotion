@@ -202,6 +202,19 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}, [other._remotionInternalIsPostmounting, parentSequence?.postmounting]);
 
+	// `cumulatedNegativeFrom` answers: "How many frames of this media have
+	// already elapsed before the first visible frame of this sequence?"
+	//
+	// This is intentionally based on the effective sequence start, not on adding
+	// all negative `from` values. See the asset-calculation tests for:
+	// - "Should calculate startFrom correctly with negative offset (Html5Audio)"
+	// - "same as above, but with <Sequence from={0}> inbetween"
+	// - "same as above, but a positive child offset cancels part of the negative parent offset"
+	//
+	// In particular, <Sequence from={-20}><Sequence from={10}> should have a
+	// 10-frame pre-roll, because the positive child offset cancels part of the
+	// negative parent offset. But <Sequence from={10}><Sequence from={-5}>
+	// should still trim 5 frames from the media once the parent starts.
 	const currentSequenceStart = cumulatedFrom + from;
 	const parentSequenceStart = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
