@@ -114,7 +114,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
 			toneFrequency: toneFrequency ?? 1,
-			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
+			audioStartFrame: Math.max(
+				0,
+				-(sequenceContext?.cumulatedNegativeFrom ?? 0),
+			),
 			audioStreamIndex: audioStreamIndex ?? 0,
 		});
 		return () => unregisterRenderAsset(id);
@@ -131,7 +134,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		props.playbackRate,
 		toneFrequency,
-		sequenceContext?.relativeFrom,
+		sequenceContext?.cumulatedNegativeFrom,
 		audioStreamIndex,
 	]);
 

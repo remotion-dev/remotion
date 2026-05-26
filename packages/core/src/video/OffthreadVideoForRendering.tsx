@@ -124,7 +124,10 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			mediaFrame: frame,
 			playbackRate,
 			toneFrequency,
-			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
+			audioStartFrame: Math.max(
+				0,
+				-(sequenceContext?.cumulatedNegativeFrom ?? 0),
+			),
 			audioStreamIndex,
 		});
 
@@ -140,7 +143,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		absoluteFrame,
 		playbackRate,
 		toneFrequency,
-		sequenceContext?.relativeFrom,
+		sequenceContext?.cumulatedNegativeFrom,
 		audioStreamIndex,
 	]);
 

@@ -181,7 +181,7 @@ test('Should calculate volumes correctly', async () => {
 	});
 });
 
-test.only('Should calculate startFrom correctly (Html5Audio)', async () => {
+test('Should calculate startFrom correctly (Html5Audio)', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Sequence from={1}>
@@ -223,7 +223,25 @@ test.only('Should calculate startFrom correctly (Html5Audio)', async () => {
 	});
 });
 
-test.only('Should calculate startFrom correctly with negative offset (Html5Audio)', async () => {
+const expected = {
+	type: 'audio',
+	src: 'https://remotion.media/video.mp4',
+	duration: 29,
+	startInVideo: 1,
+	trimLeft: 11,
+	playbackRate: 1,
+	volume: new Array(29).fill(true).map((_, i) =>
+		interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		}),
+	),
+	toneFrequency: 1,
+	audioStartFrame: 10,
+	audioStreamIndex: 0,
+};
+
+test('Should calculate startFrom correctly with negative offset (Html5Audio)', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Sequence from={-10} durationInFrames={40}>
@@ -240,26 +258,10 @@ test.only('Should calculate startFrom correctly with negative offset (Html5Audio
 		);
 	});
 	expect(assetPositions.length).toBe(1);
-	expect(withoutId(assetPositions[0])).toEqual({
-		type: 'audio',
-		src: 'https://remotion.media/video.mp4',
-		duration: 29,
-		startInVideo: 1,
-		trimLeft: 11,
-		playbackRate: 1,
-		volume: new Array(29).fill(true).map((_, i) =>
-			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			}),
-		),
-		toneFrequency: 1,
-		audioStartFrame: 10,
-		audioStreamIndex: 0,
-	});
+	expect(withoutId(assetPositions[0])).toEqual(expected);
 });
 
-test.only('same as above, but with <Sequence from={0}> inbetween', async () => {
+test('same as above, but with <Sequence from={0}> inbetween', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Sequence from={-10} durationInFrames={40}>
@@ -278,21 +280,5 @@ test.only('same as above, but with <Sequence from={0}> inbetween', async () => {
 		);
 	});
 	expect(assetPositions.length).toBe(1);
-	expect(withoutId(assetPositions[0])).toEqual({
-		type: 'audio',
-		src: 'https://remotion.media/video.mp4',
-		duration: 29,
-		startInVideo: 1,
-		trimLeft: 11,
-		playbackRate: 1,
-		volume: new Array(29).fill(true).map((_, i) =>
-			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			}),
-		),
-		toneFrequency: 1,
-		audioStartFrame: 10,
-		audioStreamIndex: 0,
-	});
+	expect(withoutId(assetPositions[0])).toEqual(expected);
 });
