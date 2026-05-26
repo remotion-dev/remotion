@@ -13,6 +13,7 @@ import {EffectsInvertPreview} from '../effects/effects-invert-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
+import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
@@ -2088,6 +2089,65 @@ export const effectsHalftoneDemo: DemoType = {
 			name: 'invert',
 			type: 'boolean',
 			default: false,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsStarburstDemo: DemoType = {
+	comp: EffectsStarburstPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-starburst',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'rays',
+			type: 'numeric',
+			default: 16,
+			min: 2,
+			max: 100,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'rotation',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 360,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'smoothness',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 1,
+			step: 0.01,
+			optional: 'no',
+		},
+		{
+			name: 'originOffsetX',
+			type: 'numeric',
+			default: 0,
+			min: -1,
+			max: 1,
+			step: 0.01,
+			optional: 'no',
+		},
+		{
+			name: 'originOffsetY',
+			type: 'numeric',
+			default: 0,
+			min: -1,
+			max: 1,
+			step: 0.01,
 			optional: 'no',
 		},
 	],

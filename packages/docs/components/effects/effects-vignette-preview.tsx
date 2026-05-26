@@ -11,6 +11,11 @@ const checkerboard: React.CSSProperties = {
 	backgroundPosition: '0 0, 0 20px, 20px -20px, -20px 0',
 };
 
+const fullSize: React.CSSProperties = {
+	width: '100%',
+	height: '100%',
+};
+
 export const EffectsVignettePreview: React.FC<{
 	readonly amount: number;
 	readonly radius: number;
@@ -26,6 +31,7 @@ export const EffectsVignettePreview: React.FC<{
 				width={1280}
 				height={720}
 				fit="cover"
+				style={fullSize}
 				effects={[
 					vignette({
 						amount,
