@@ -62,6 +62,11 @@
 			"module": "./dist/esm/duotone.mjs",
 			"import": "./dist/esm/duotone.mjs"
 		},
+		"./glow": {
+			"types": "./dist/glow.d.ts",
+			"module": "./dist/esm/glow.mjs",
+			"import": "./dist/esm/glow.mjs"
+		},
 		"./halftone": {
 			"types": "./dist/halftone.d.ts",
 			"module": "./dist/esm/halftone.mjs",
@@ -133,6 +138,9 @@
 			],
 			"duotone": [
 				"dist/duotone.d.ts"
+			],
+			"glow": [
+				"dist/glow.d.ts"
 			],
 			"halftone": [
 				"dist/halftone.d.ts"

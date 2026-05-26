@@ -274,6 +274,7 @@ const sidebars: SidebarsConfig = {
 				'effects/chromatic-aberration',
 				'effects/contrast',
 				'effects/duotone',
+				'effects/glow',
 				'effects/grayscale',
 				'effects/halftone',
 				'effects/hue',

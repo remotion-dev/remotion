@@ -13,6 +13,7 @@ const effectEntrypoints = [
 	'src/brightness.ts',
 	'src/contrast.ts',
 	'src/duotone.ts',
+	'src/glow.ts',
 	'src/grayscale.ts',
 	'src/halftone.ts',
 	'src/hue.ts',

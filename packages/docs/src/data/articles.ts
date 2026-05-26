@@ -1773,6 +1773,15 @@ export const articles = [
 		slug: 'effects/duotone',
 	},
 	{
+		id: 'effects/glow',
+		title: 'glow()',
+		relativePath: 'docs/effects/glow.mdx',
+		compId: 'articles-docs-effects-glow',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/glow',
+	},
+	{
 		id: 'effects/grayscale',
 		title: 'grayscale()',
 		relativePath: 'docs/effects/grayscale.mdx',
