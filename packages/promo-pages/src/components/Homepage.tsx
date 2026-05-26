@@ -3,6 +3,7 @@
 import React from 'react';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
+import {CreatorShowcase} from './homepage/CreatorShowcase';
 import {Demo} from './homepage/Demo';
 import EditorStarterSection from './homepage/EditorStarterSection';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
@@ -43,6 +44,12 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<VideoAppsShowcase />
+						<br />
+						<br />
+						<br />
+						<br />
+						<CreatorShowcase />
+						<br />
 						<br />
 						<br />
 						<Demo />
