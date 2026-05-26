@@ -35,24 +35,24 @@ const KeyframedPropsTest: React.FC = () => {
 				/>
 			</Sequence>
 			<Sequence durationInFrames={120}>
-				<Gif
-					src={staticFile('giphy.gif')}
-					fit="contain"
-					style={{
+				{React.createElement(Gif, {
+					src: staticFile('giphy.gif'),
+					fit: 'contain',
+					style: {
 						width: 360,
 						height: 200,
 						borderRadius: 24,
 						overflow: 'hidden',
-					}}
-					effects={[
+					},
+					effects: [
 						blur({
 							radius: interpolate(frame, [0, 60, 119], [0, 24, 4]),
 						}),
 						scale({
 							scale: 2.2,
 						}),
-					]}
-				/>
+					],
+				})}
 			</Sequence>
 		</AbsoluteFill>
 	);
