@@ -9,9 +9,9 @@ Use this skill when adding a new effect to `@remotion/effects`.
 
 ## 1. Pick the effect shape
 
-- Use a single file at `packages/effects/src/<effect-name>.ts` for simple 2D effects.
-- Use a folder at `packages/effects/src/<effect-name>/` plus a top-level re-export file when the effect needs WebGL shaders, runtime helpers, or multiple files.
-- Prefer the 2D backend for pixel-level color operations unless WebGL is needed for performance or sampling.
+- Prefer the WebGL2 backend for new effects. Use 2D only when WebGL cannot express the effect.
+- Use a single file at `packages/effects/src/<effect-name>.ts` for simple effects.
+- Use a folder at `packages/effects/src/<effect-name>/` plus a top-level re-export file when the effect needs multiple shaders, runtime helpers, or multiple files.
 - Follow naming already used by the package:
   - File/subpath: kebab-case (`chromatic-aberration`)
   - Function: camelCase (`chromaticAberration`)
@@ -23,7 +23,7 @@ Use this skill when adding a new effect to `@remotion/effects`.
 In the effect file:
 
 - Import `SequenceSchema` and `Internals` from `remotion`.
-- Use `const {createEffect} = Internals;`.
+- Use `const {createEffect, createWebGL2ContextError} = Internals;`.
 - Define defaults as `const` values.
 - Define a schema with `satisfies SequenceSchema`; these fields appear in Studio visual editing.
 - Export the params type.
@@ -31,19 +31,19 @@ In the effect file:
 - Validate params using helpers from:
   - `packages/effects/src/validate-effect-param.ts`
   - `packages/effects/src/color-utils.ts`
-- Throw explicit errors when a canvas context cannot be acquired.
+- Throw `createWebGL2ContextError('<effect name> effect')` if WebGL2 cannot be acquired.
 - Set `documentationLink` to `https://www.remotion.dev/docs/effects/<slug>`.
 - Include every resolved parameter in `calculateKey()`.
 
-For 2D effects, use this general structure:
+For WebGL2 effects, use this general structure:
 
 ```ts
 import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
-import {assertOptionalFiniteNumber} from './color-utils.js';
+import {assertOptionalFiniteNumber, validateUnitInterval} from './color-utils.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 
-const {createEffect} = Internals;
+const {createEffect, createWebGL2ContextError} = Internals;
 
 const DEFAULT_AMOUNT = 1 as const;
 
@@ -73,35 +73,110 @@ const resolve = (p: MyEffectParams): MyEffectResolved => ({
 const validateMyEffectParams = (params: MyEffectParams): void => {
 	assertEffectParamsObject(params, 'My effect');
 	assertOptionalFiniteNumber(params.amount, 'amount');
+	validateUnitInterval(params.amount ?? DEFAULT_AMOUNT, 'amount');
 };
 
-export const myEffect = createEffect<MyEffectParams, null>({
+type MyEffectState = {
+	readonly gl: WebGL2RenderingContext;
+	readonly program: WebGLProgram;
+	readonly vao: WebGLVertexArrayObject;
+	readonly vbo: WebGLBuffer;
+	readonly texture: WebGLTexture;
+	readonly uSource: WebGLUniformLocation | null;
+	readonly uAmount: WebGLUniformLocation | null;
+};
+
+const VERTEX_SHADER = /* glsl */ `#version 300 es
+in vec2 aPos;
+in vec2 aUv;
+out vec2 vUv;
+
+void main() {
+	vUv = aUv;
+	gl_Position = vec4(aPos, 0.0, 1.0);
+}
+`;
+
+const FRAGMENT_SHADER = /* glsl */ `#version 300 es
+precision highp float;
+
+in vec2 vUv;
+out vec4 fragColor;
+
+uniform sampler2D uSource;
+uniform float uAmount;
+
+void main() {
+	vec4 color = texture(uSource, vUv);
+	fragColor = vec4(color.rgb * uAmount, color.a);
+}
+`;
+
+// Follow existing helpers in halftone.ts or a runtime file for shader
+// compilation, program linking, fullscreen-quad setup, and texture setup.
+
+export const myEffect = createEffect<MyEffectParams, MyEffectState>({
 	type: 'remotion/my-effect',
 	label: 'My Effect',
 	documentationLink: 'https://www.remotion.dev/docs/effects/my-effect',
-	backend: '2d',
+	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `my-effect-${r.amount}`;
 	},
-	setup: () => null,
-	apply: ({source, target, width, height, params}) => {
-		const ctx = target.getContext('2d');
-		if (!ctx) {
-			throw new Error(
-				'Failed to acquire 2D context for my effect. The canvas may have been assigned a different context type.',
-			);
+	setup: (target) => {
+		const gl = target.getContext('webgl2', {
+			premultipliedAlpha: true,
+			alpha: true,
+			preserveDrawingBuffer: true,
+		});
+		if (!gl) {
+			throw createWebGL2ContextError('my effect effect');
 		}
 
-		const r = resolve(params);
-		ctx.clearRect(0, 0, width, height);
-		ctx.drawImage(source, 0, 0, width, height);
+		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+
+		return createMyEffectState(gl, VERTEX_SHADER, FRAGMENT_SHADER);
 	},
-	cleanup: () => undefined,
+	apply: ({source, width, height, params, state, flipSourceY}) => {
+		const r = resolve(params);
+
+		state.gl.viewport(0, 0, width, height);
+		state.gl.bindFramebuffer(state.gl.FRAMEBUFFER, null);
+		state.gl.activeTexture(state.gl.TEXTURE0);
+		state.gl.bindTexture(state.gl.TEXTURE_2D, state.texture);
+		state.gl.pixelStorei(state.gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+		state.gl.texImage2D(
+			state.gl.TEXTURE_2D,
+			0,
+			state.gl.RGBA,
+			state.gl.RGBA,
+			state.gl.UNSIGNED_BYTE,
+			source as TexImageSource,
+		);
+
+		state.gl.useProgram(state.program);
+		if (state.uSource) state.gl.uniform1i(state.uSource, 0);
+		if (state.uAmount) state.gl.uniform1f(state.uAmount, r.amount);
+		state.gl.bindVertexArray(state.vao);
+		state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, 4);
+	},
+	cleanup: ({gl, program, vao, vbo, texture}) => {
+		gl.deleteTexture(texture);
+		gl.deleteBuffer(vbo);
+		gl.deleteProgram(program);
+		gl.deleteVertexArray(vao);
+	},
 	schema: myEffectSchema,
 	validateParams: validateMyEffectParams,
 });
 ```
+
+Look at existing WebGL2 effects such as `halftone.ts`,
+`blur/blur-runtime.ts`, `chromatic-aberration/chromatic-aberration-runtime.ts`,
+and `wave/wave-runtime.ts` before adding new helpers. In the template above,
+`createMyEffectState()` stands for the shader compilation, program linking,
+fullscreen-quad, texture, and uniform-location setup used by those files.
 
 ## 3. Register package entry points
 
@@ -280,3 +355,5 @@ git status --short
 - Do not use a hand-written SVG for the effect TOC preview.
 - Preserve alpha unless the effect intentionally changes it.
 - For pixel math, be aware canvases store premultiplied alpha.
+- WebGL color math often needs to unpremultiply the sampled RGB before luminance
+  or threshold calculations, then premultiply the output RGB again.
