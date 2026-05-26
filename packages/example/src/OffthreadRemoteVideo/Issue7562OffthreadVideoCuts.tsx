@@ -9,63 +9,59 @@ import {
 } from 'remotion';
 
 const fps = 25;
-const src = 'https://remotion.media/BigBuckBunny.mp4#t=0,';
+const src =
+	'https://cdn.realoficial.com.br/shorts/01ks841xnddqfccpjxkaqp4jnk/01ks84dcvkkwak4pvfa82tr2b3_preview.mp4?v=20260522152242';
 const premountFor = 1.5 * fps;
 
 type Cut = {
 	id: string;
+	from: number;
 	durationInFrames: number;
 	videoStartFromInSeconds: number;
+	cropLeft: number;
+	cropTop: number;
+	cropRight: number;
+	cropBottom: number;
 };
 
 const cuts: Cut[] = [
-	{id: 'cut-00', durationInFrames: 49, videoStartFromInSeconds: 0},
-	{id: 'cut-01', durationInFrames: 236, videoStartFromInSeconds: 1.96},
-	{id: 'cut-02', durationInFrames: 29, videoStartFromInSeconds: 11.4},
-	{id: 'cut-03', durationInFrames: 20, videoStartFromInSeconds: 12.56},
-	{id: 'cut-04', durationInFrames: 29, videoStartFromInSeconds: 13.36},
-	{id: 'cut-05', durationInFrames: 45, videoStartFromInSeconds: 14.52},
-	{id: 'cut-06', durationInFrames: 138, videoStartFromInSeconds: 16.32},
-	{id: 'cut-07', durationInFrames: 77, videoStartFromInSeconds: 21.84},
-	{id: 'cut-08', durationInFrames: 165, videoStartFromInSeconds: 24.92},
-	{id: 'cut-09', durationInFrames: 20, videoStartFromInSeconds: 31.52},
-	{id: 'cut-10', durationInFrames: 267, videoStartFromInSeconds: 32.32},
-	{id: 'cut-11', durationInFrames: 52, videoStartFromInSeconds: 43},
-	{id: 'cut-12', durationInFrames: 48, videoStartFromInSeconds: 45.08},
-	{id: 'cut-13', durationInFrames: 57, videoStartFromInSeconds: 47},
-	{id: 'cut-14', durationInFrames: 43, videoStartFromInSeconds: 49.28},
-	{id: 'cut-15', durationInFrames: 61, videoStartFromInSeconds: 51},
-	{id: 'cut-16', durationInFrames: 75, videoStartFromInSeconds: 53.44},
-	{id: 'cut-17', durationInFrames: 9, videoStartFromInSeconds: 56.44},
-	{id: 'cut-18', durationInFrames: 399, videoStartFromInSeconds: 56.8},
-	{id: 'cut-19', durationInFrames: 1, videoStartFromInSeconds: 72.76},
-	{id: 'cut-20', durationInFrames: 461, videoStartFromInSeconds: 72.8},
+	{
+		id: 'eYYNflyP',
+		from: 0,
+		durationInFrames: 49,
+		videoStartFromInSeconds: 0,
+		cropLeft: 0.35,
+		cropTop: 0,
+		cropRight: 0.33,
+		cropBottom: 0,
+	},
+	{
+		id: 'dMcoqh8Z',
+		from: 49,
+		durationInFrames: 236,
+		videoStartFromInSeconds: 1.96,
+		cropLeft: 0.35,
+		cropTop: 0,
+		cropRight: 0.33,
+		cropBottom: 0,
+	},
 ];
 
-const cutsWithTimeline = cuts.reduce<
-	(Cut & {
-		from: number;
-	})[]
->((acc, cut) => {
-	const previous = acc[acc.length - 1];
-	const from = previous ? previous.from + previous.durationInFrames : 0;
+const getCropObjectPosition = (cut: Cut) => {
+	const horizontalCrop = cut.cropLeft + cut.cropRight;
+	const verticalCrop = cut.cropTop + cut.cropBottom;
+	const x = horizontalCrop === 0 ? 50 : (cut.cropLeft / horizontalCrop) * 100;
+	const y = verticalCrop === 0 ? 50 : (cut.cropTop / verticalCrop) * 100;
 
-	acc.push({
-		...cut,
-		from,
-	});
+	return `${x}% ${y}%`;
+};
 
-	return acc;
-}, []);
-
-const durationInFrames = cutsWithTimeline.reduce((acc, cut) => {
-	return acc + cut.durationInFrames;
+const durationInFrames = cuts.reduce((acc, cut) => {
+	return Math.max(acc, cut.from + cut.durationInFrames);
 }, 0);
 
 const InstrumentedOffthreadVideo: React.FC<{
-	cut: Cut & {
-		from: number;
-	};
+	cut: Cut;
 }> = ({cut}) => {
 	useEffect(() => {
 		const startedAt = performance.now();
@@ -88,8 +84,6 @@ const InstrumentedOffthreadVideo: React.FC<{
 
 	return (
 		<OffthreadVideo
-			crossOrigin="anonymous"
-			muted
 			pauseWhenBuffering
 			playbackRate={1}
 			src={src}
@@ -97,6 +91,7 @@ const InstrumentedOffthreadVideo: React.FC<{
 			style={{
 				height: '100%',
 				objectFit: 'cover',
+				objectPosition: getCropObjectPosition(cut),
 				width: '100%',
 			}}
 			toneMapped={false}
@@ -109,14 +104,14 @@ const Component: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
 	const activeCut = useMemo(() => {
-		return cutsWithTimeline.find((cut) => {
+		return cuts.find((cut) => {
 			return frame >= cut.from && frame < cut.from + cut.durationInFrames;
 		});
 	}, [frame]);
 
 	return (
 		<AbsoluteFill style={{backgroundColor: 'black'}}>
-			{cutsWithTimeline.map((cut) => (
+			{cuts.map((cut) => (
 				<Sequence
 					key={cut.id}
 					from={cut.from}
