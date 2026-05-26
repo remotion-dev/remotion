@@ -1,6 +1,5 @@
 import {blur} from '@remotion/effects/blur';
 import {scale} from '@remotion/effects/scale';
-import {Gif} from '@remotion/gif';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -52,7 +51,7 @@ const KeyframedPropsTest: React.FC = () => {
 					}}
 				/>
 			</Sequence>
-			<Sequence from={30} name="keyframes should be shown at 30 and 60">
+			<Sequence from={30} name="keyframes should be shown at 30 and 90">
 				<Shifted />
 			</Sequence>
 			<Sequence

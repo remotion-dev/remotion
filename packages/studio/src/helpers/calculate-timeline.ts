@@ -82,6 +82,8 @@ export const calculateTimeline = ({
 
 		const overrideId = sequence.controls?.overrideId ?? null;
 		const nodePath = overrideId ? overrideIdsToNodePaths[overrideId] : null;
+		const hasKeyframeRows =
+			sequence.controls !== null || sequence.effects.length > 0;
 
 		tracks.push({
 			sequence: {
@@ -97,6 +99,9 @@ export const calculateTimeline = ({
 			hash: actualHash,
 			cascadedStart,
 			cascadedDuration: sequence.duration,
+			...(hasKeyframeRows
+				? {keyframeDisplayOffset: cascadedStart - sequence.from}
+				: {}),
 			nodePathInfo: nodePath
 				? {
 						sequenceSubscriptionKey: nodePath,
