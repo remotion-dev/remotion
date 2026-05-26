@@ -1,4 +1,4 @@
-import {lightLeak} from '@remotion/effects/light-leak';
+import {lightLeak} from '@remotion/light-leaks';
 import React from 'react';
 import {CanvasImage} from 'remotion';
 import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
