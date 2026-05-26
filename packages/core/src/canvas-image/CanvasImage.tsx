@@ -28,7 +28,7 @@ import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 import {useBufferState} from '../use-buffer-state.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {wrapInSchema} from '../wrap-in-schema.js';
-import type {CanvasImageProps} from './props.js';
+import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
 const canvasImageSchema = {
 	fit: {
@@ -158,7 +158,7 @@ type CanvasImageContentProps = Pick<
 > & {
 	readonly effects: EffectsProp;
 	readonly controls: SequenceControls | undefined;
-};
+} & CanvasImageCanvasProps;
 
 const CanvasImageContent = forwardRef<
 	HTMLCanvasElement,
@@ -180,6 +180,7 @@ const CanvasImageContent = forwardRef<
 			maxRetries = 2,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
+			...canvasProps
 		},
 		ref,
 	) => {
@@ -363,6 +364,7 @@ const CanvasImageContent = forwardRef<
 
 		return (
 			<canvas
+				{...canvasProps}
 				ref={canvasRef}
 				width={width}
 				height={height}
@@ -404,6 +406,8 @@ const CanvasImageInner = forwardRef<
 			showInTimeline,
 			stack,
 			_experimentalControls: controls,
+			_remotionInternalDocumentationLink,
+			...canvasProps
 		},
 		ref,
 	) => {
@@ -421,6 +425,12 @@ const CanvasImageInner = forwardRef<
 				hidden={hidden}
 				showInTimeline={showInTimeline ?? true}
 				name={name ?? '<CanvasImage>'}
+				_remotionInternalDocumentationLink={
+					_remotionInternalDocumentationLink ??
+					(name === undefined
+						? 'https://www.remotion.dev/docs/canvasimage'
+						: undefined)
+				}
 				_experimentalControls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				_remotionInternalIsMedia={{type: 'image', src}}
@@ -442,6 +452,7 @@ const CanvasImageInner = forwardRef<
 					maxRetries={maxRetries}
 					delayRenderRetries={delayRenderRetries}
 					delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+					{...canvasProps}
 				/>
 			</Sequence>
 		);

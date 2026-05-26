@@ -13,18 +13,28 @@ type CanvasImageSequenceProps = Pick<
 	readonly stack?: string;
 };
 
-export type CanvasImageProps = CanvasImageSequenceProps & {
-	readonly src: string;
-	readonly width?: number;
-	readonly height?: number;
-	readonly fit?: ImageFit;
-	readonly effects?: EffectsProp;
-	readonly className?: string;
-	readonly style?: React.CSSProperties;
-	readonly id?: string;
-	readonly onError?: (error: Error) => void;
-	readonly pauseWhenLoading?: boolean;
-	readonly maxRetries?: number;
-	readonly delayRenderRetries?: number;
-	readonly delayRenderTimeoutInMilliseconds?: number;
-};
+export type CanvasImageCanvasProps = Omit<
+	React.CanvasHTMLAttributes<HTMLCanvasElement>,
+	'children' | 'height' | 'onError' | 'width'
+>;
+
+export type CanvasImageProps = CanvasImageSequenceProps &
+	CanvasImageCanvasProps & {
+		readonly src: string;
+		readonly width?: number;
+		readonly height?: number;
+		readonly fit?: ImageFit;
+		readonly effects?: EffectsProp;
+		readonly className?: string;
+		readonly style?: React.CSSProperties;
+		readonly id?: string;
+		readonly onError?: (error: Error) => void;
+		readonly pauseWhenLoading?: boolean;
+		readonly maxRetries?: number;
+		readonly delayRenderRetries?: number;
+		readonly delayRenderTimeoutInMilliseconds?: number;
+		/**
+		 * @deprecated For internal use only.
+		 */
+		readonly _remotionInternalDocumentationLink?: string;
+	};

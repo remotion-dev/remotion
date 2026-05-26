@@ -45,7 +45,7 @@ export const MyComp: React.FC = () => {
 
 Apply [effects](/docs/effects/api) to the image.
 
-When `effects` is omitted or an empty array, `<Img>` renders a native `<img>` element. When at least one effect is passed, `<Img>` renders through [`<CanvasImage>`](/docs/canvasimage).
+When `effects` is omitted or an empty array, `<Img>` renders a native `<img>` element. When at least one effect is passed, `<Img>` renders through [`<CanvasImage>`](/docs/canvasimage) and outputs a `<canvas>`.
 
 ```tsx twoslash title="MyComp.tsx"
 import {AbsoluteFill, Img, staticFile} from 'remotion';
@@ -63,6 +63,14 @@ export const MyComp: React.FC = () => {
 Because the element becomes a `<canvas>`, native image props that require an `<img>` element cannot be used with non-empty `effects`.
 
 The unsupported props include `ref`, `srcSet`, `sizes`, `loading`, `decoding`, `fetchPriority`, `useMap`, `crossOrigin`, `onLoad`, `onError`, `onImageFrame` and `alt`.
+
+Canvas-compatible props such as `aria-*`, `data-*`, `role`, `title`, `tabIndex` and pointer or mouse event handlers are forwarded to the underlying `<canvas>`.
+
+### `fit?`<AvailableFrom v="4.0.468" />
+
+Controls how the image is drawn into the canvas when [`effects`](#effects) is a non-empty array.
+
+Can be `"fill"`, `"contain"` or `"cover"`. Default: `"fill"`.
 
 ### `onError`
 

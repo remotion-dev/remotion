@@ -6,8 +6,12 @@ import React, {
 	useRef,
 } from 'react';
 import type {IsExact} from './audio/props.js';
+import type {ImageFit} from './calculate-image-fit.js';
 import {CanvasImage} from './canvas-image/index.js';
-import type {CanvasImageProps} from './canvas-image/props.js';
+import type {
+	CanvasImageCanvasProps,
+	CanvasImageProps,
+} from './canvas-image/props.js';
 import type {SequenceControls} from './CompositionManager.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
@@ -16,6 +20,7 @@ import {usePreload} from './prefetch.js';
 import {
 	hiddenField,
 	sequenceVisualStyleSchema,
+	type SequenceSchema,
 } from './sequence-field-schema.js';
 import type {SequenceProps} from './Sequence.js';
 import {Sequence} from './Sequence.js';
@@ -29,8 +34,6 @@ import {wrapInSchema} from './wrap-in-schema.js';
 function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
 }
-
-export {truncateSrcForLabel};
 
 type NativeImgProps = Omit<
 	React.DetailedHTMLProps<
@@ -48,6 +51,7 @@ export type ImgProps = NativeImgProps & {
 	readonly onImageFrame?: (imageElement: HTMLImageElement) => void;
 	readonly src: string;
 	readonly effects?: EffectsProp;
+	readonly fit?: ImageFit;
 	readonly showInTimeline?: boolean;
 	readonly name?: string;
 	/**
@@ -70,6 +74,7 @@ type ImgContentProps = Omit<
 	| 'from'
 	| 'durationInFrames'
 	| 'effects'
+	| 'fit'
 >;
 
 const ImgContent: React.FC<ImgContentProps> = ({
@@ -299,7 +304,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	);
 };
 
-type NativeImgInnerProps = Omit<ImgProps, 'effects'> & {
+type NativeImgInnerProps = Omit<ImgProps, 'effects' | 'fit'> & {
 	readonly _experimentalControls: SequenceControls | undefined;
 };
 
@@ -344,9 +349,25 @@ const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 	}
 >;
 
-const getPassedPropNames = (props: Record<string, unknown>) => {
-	return Object.keys(props).filter((key) => props[key] !== undefined);
-};
+const imgCanvasFallbackIncompatibleProps = new Set([
+	'alt',
+	'crossOrigin',
+	'decoding',
+	'fetchPriority',
+	'loading',
+	'onError',
+	'onImageFrame',
+	'onLoad',
+	'sizes',
+	'srcSet',
+	'useMap',
+]);
+
+const getIncompatiblePropNames = (props: Record<string, unknown>) =>
+	Object.keys(props).filter(
+		(key) =>
+			props[key] !== undefined && imgCanvasFallbackIncompatibleProps.has(key),
+	);
 
 const formatPropList = (props: string[]) => {
 	return props.map((prop) => `"${prop}"`).join(', ');
@@ -369,7 +390,7 @@ const validateCanvasImageFallbackProps = ({
 		);
 	}
 
-	const conflictingProps = getPassedPropNames(props);
+	const conflictingProps = getIncompatiblePropNames(props);
 	if (ref !== null && ref !== undefined) {
 		conflictingProps.unshift('ref');
 	}
@@ -381,9 +402,9 @@ const validateCanvasImageFallbackProps = ({
 	throw new Error(
 		`The ${formatPropList(conflictingProps)} prop${
 			conflictingProps.length === 1 ? '' : 's'
-		} cannot be used on <Img> when effects are passed, because <Img> renders a <CanvasImage> instead of a native <img>. Remove ${
+		} cannot be used on <Img> when effects are passed, because <Img> renders a <canvas> instead of a native <img>. Remove ${
 			conflictingProps.length === 1 ? 'this prop' : 'these props'
-		} or use <CanvasImage> directly.`,
+		}.`,
 	);
 };
 
@@ -404,6 +425,7 @@ const ImgInner: React.FC<
 	_experimentalControls: controls,
 	width,
 	height,
+	fit,
 	className,
 	style,
 	id,
@@ -452,12 +474,14 @@ const ImgInner: React.FC<
 
 	const canvasWidth = typeof width === 'number' ? width : undefined;
 	const canvasHeight = typeof height === 'number' ? height : undefined;
+	const canvasProps = props as CanvasImageCanvasProps;
 
 	return (
 		<CanvasImageWithPrivateProps
 			src={src}
 			width={canvasWidth}
 			height={canvasHeight}
+			fit={fit}
 			effects={effects}
 			className={className}
 			style={style}
@@ -472,15 +496,29 @@ const ImgInner: React.FC<
 			name={name ?? '<Img>'}
 			showInTimeline={showInTimeline}
 			stack={stack}
-			_experimentalControls={controls ?? undefined}
+			_remotionInternalDocumentationLink={
+				name === undefined ? 'https://www.remotion.dev/docs/img' : undefined
+			}
+			_experimentalControls={controls}
+			{...canvasProps}
 		/>
 	);
 };
 
 const imgSchema = {
+	fit: {
+		type: 'enum',
+		default: 'fill',
+		description: 'Fit',
+		variants: {
+			fill: {},
+			contain: {},
+			cover: {},
+		},
+	},
 	...sequenceVisualStyleSchema,
 	hidden: hiddenField,
-};
+} as const satisfies SequenceSchema;
 
 /*
  * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.

@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
-import {cleanup, render, waitFor} from '@testing-library/react';
+import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import React from 'react';
 import type {
 	EffectApplyParams,
@@ -202,6 +202,41 @@ test('Img throws when native image props conflict with effects', () => {
 	).toThrow(
 		'The "srcSet" prop cannot be used on <Img> when effects are passed',
 	);
+});
+
+test('Img forwards canvas-compatible attributes when effects are passed', async () => {
+	const onClick = () => {
+		drawImageCalls.push(['clicked']);
+	};
+	const {container} = renderImg(
+		<Img
+			src={testImgUrl}
+			width={100}
+			height={50}
+			effects={[makeEffect()]}
+			aria-label="Image with effects"
+			data-testid="img-effects-canvas"
+			role="img"
+			tabIndex={0}
+			title="Canvas image"
+			onClick={onClick}
+		/>,
+	);
+
+	const canvas = container.querySelector('canvas');
+
+	await waitFor(() => {
+		expect(canvas?.width).toBe(100);
+	});
+
+	expect(canvas?.getAttribute('aria-label')).toBe('Image with effects');
+	expect(canvas?.getAttribute('data-testid')).toBe('img-effects-canvas');
+	expect(canvas?.getAttribute('role')).toBe('img');
+	expect(canvas?.getAttribute('tabindex')).toBe('0');
+	expect(canvas?.getAttribute('title')).toBe('Canvas image');
+
+	fireEvent.click(canvas as HTMLCanvasElement);
+	expect(drawImageCalls.some((call) => call[0] === 'clicked')).toBe(true);
 });
 
 test('Img throws when a ref is passed together with effects', () => {
