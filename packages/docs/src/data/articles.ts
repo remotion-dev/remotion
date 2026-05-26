@@ -1872,6 +1872,15 @@ export const articles = [
 		slug: 'effects/uv-translate',
 	},
 	{
+		id: 'effects/vignette',
+		title: 'vignette()',
+		relativePath: 'docs/effects/vignette.mdx',
+		compId: 'articles-docs-effects-vignette',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/vignette',
+	},
+	{
 		id: 'effects/wave',
 		title: 'wave()',
 		relativePath: 'docs/effects/wave.mdx',

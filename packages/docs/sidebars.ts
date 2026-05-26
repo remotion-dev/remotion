@@ -284,6 +284,7 @@ const sidebars: SidebarsConfig = {
 				'effects/scale',
 				'effects/tint',
 				'effects/uv-translate',
+				'effects/vignette',
 				'effects/wave',
 				'effects/xy-translate',
 			],

@@ -257,11 +257,15 @@ export const EffectsMyEffectPreview: React.FC<{
 			src={EFFECTS_PREVIEW_IMAGE_SRC}
 			width={1280}
 			height={720}
+			fit="cover"
 			effects={[myEffect({amount})]}
 		/>
 	);
 };
 ```
+
+Use `fit="cover"` for docs effect previews so the shared preview image fills
+the 16:9 canvas and does not leave transparent bars.
 
 Register the demo:
 

@@ -23,6 +23,7 @@ const effectEntrypoints = [
 	'src/scale.ts',
 	'src/tint.ts',
 	'src/translate.ts',
+	'src/vignette.ts',
 	'src/wave.ts',
 ];
 

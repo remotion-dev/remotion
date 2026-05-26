@@ -18,6 +18,7 @@ import {
 	EffectsUvTranslatePreview,
 	EffectsXyTranslatePreview,
 } from '../effects/effects-translate-preview';
+import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {
 	ClockWipeDemo,
@@ -1835,6 +1836,73 @@ export const effectsBarrelDistortionDemo: DemoType = {
 			step: 0.01,
 			default: 0.28,
 			optional: 'no',
+		},
+	],
+};
+
+export const effectsVignetteDemo: DemoType = {
+	comp: EffectsVignettePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-vignette',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.75,
+			optional: 'no',
+		},
+		{
+			name: 'radius',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.55,
+			optional: 'no',
+		},
+		{
+			name: 'feather',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.35,
+			optional: 'no',
+		},
+		{
+			name: 'roundness',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 1,
+			optional: 'no',
+		},
+		{
+			name: 'mode',
+			type: 'enum',
+			values: ['color', 'alpha'],
+			default: 'color',
+			optional: 'no',
+		},
+		{
+			name: 'color',
+			type: 'color',
+			default: '#000000',
+			optional: 'no',
+			showIf: {
+				option: 'mode',
+				value: 'color',
+			},
 		},
 	],
 };
