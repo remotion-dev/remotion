@@ -33,7 +33,7 @@ const categories: {
 			},
 			{
 				link: '/docs/effects/duotone',
-				preview: '/img/effects-duotone-preview.svg',
+				preview: '/img/effects-duotone-preview.jpg',
 				alt: 'duotone effect preview',
 				name: 'duotone()',
 				description: 'Two-color threshold effect',
