@@ -4,6 +4,7 @@ import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
+import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
@@ -1494,6 +1495,41 @@ export const effectsGrayscaleDemo: DemoType = {
 			max: 1,
 			step: 0.01,
 			default: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsDuotoneDemo: DemoType = {
+	comp: EffectsDuotonePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-duotone',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'darkColor',
+			type: 'color',
+			default: '#001a33',
+			optional: 'no',
+		},
+		{
+			name: 'lightColor',
+			type: 'color',
+			default: '#ffd166',
+			optional: 'no',
+		},
+		{
+			name: 'threshold',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.5,
 			optional: 'no',
 		},
 	],

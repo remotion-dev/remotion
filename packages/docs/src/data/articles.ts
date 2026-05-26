@@ -1764,6 +1764,15 @@ export const articles = [
 		slug: 'effects/contrast',
 	},
 	{
+		id: 'effects/duotone',
+		title: 'duotone()',
+		relativePath: 'docs/effects/duotone.mdx',
+		compId: 'articles-docs-effects-duotone',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/duotone',
+	},
+	{
 		id: 'effects/grayscale',
 		title: 'grayscale()',
 		relativePath: 'docs/effects/grayscale.mdx',

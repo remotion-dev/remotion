@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200" role="img" aria-labelledby="title desc">
+	<title id="title">Duotone effect preview</title>
+	<desc id="desc">A stylized landscape reduced to dark blue and yellow tones.</desc>
+	<rect width="300" height="200" fill="#001a33" />
+	<path d="M0 118C45 88 79 103 116 73C151 44 193 41 300 69V0H0Z" fill="#ffd166" />
+	<path d="M0 150C56 118 91 129 133 103C180 74 220 92 300 82V200H0Z" fill="#ffd166" />
+	<circle cx="224" cy="47" r="24" fill="#001a33" />
+	<path d="M60 160L114 85L169 160Z" fill="#001a33" />
+	<path d="M129 160L196 65L264 160Z" fill="#001a33" />
+</svg>

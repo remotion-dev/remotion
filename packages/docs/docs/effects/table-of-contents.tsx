@@ -32,6 +32,13 @@ const categories: {
 				description: 'Contrast adjustment effect',
 			},
 			{
+				link: '/docs/effects/duotone',
+				preview: '/img/effects-duotone-preview.svg',
+				alt: 'duotone effect preview',
+				name: 'duotone()',
+				description: 'Two-color threshold effect',
+			},
+			{
 				link: '/docs/effects/grayscale',
 				preview: '/img/effects-grayscale-preview.jpg',
 				alt: 'grayscale effect preview',
