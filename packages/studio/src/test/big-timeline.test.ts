@@ -4,12 +4,22 @@ import {calculateTimeline} from '../helpers/calculate-timeline';
 
 const getStack = () => null;
 
+const withoutKeyframeDisplayOffset = <
+	T extends {keyframeDisplayOffset: number},
+>(
+	tracks: T[],
+) =>
+	tracks.map(({keyframeDisplayOffset, ...track}) => {
+		expect(keyframeDisplayOffset).toBe(0);
+		return track;
+	});
+
 test('Should calculate timeline as expected', () => {
 	const timeline = calculateTimeline({
 		sequences,
 		overrideIdsToNodePaths: {},
 	});
-	expect(timeline).toEqual([
+	expect(withoutKeyframeDisplayOffset(timeline)).toEqual([
 		{
 			nodePathInfo: null,
 			sequence: {

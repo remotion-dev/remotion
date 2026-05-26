@@ -17,6 +17,7 @@ export const getComputedStatusLabel = (
 
 export const getTimelineKeyframes = (
 	propStatus: CanUpdateSequencePropStatus | null | undefined,
+	keyframeDisplayOffset = 0,
 ): {frame: number; value: unknown}[] => {
 	if (!propStatus || propStatus.canUpdate) {
 		return [];
@@ -28,5 +29,13 @@ export const getTimelineKeyframes = (
 		);
 	}
 
-	return propStatus.keyframes ?? [];
+	const keyframes = propStatus.keyframes ?? [];
+	if (keyframeDisplayOffset === 0) {
+		return keyframes;
+	}
+
+	return keyframes.map((keyframe) => ({
+		...keyframe,
+		frame: keyframe.frame + keyframeDisplayOffset,
+	}));
 };

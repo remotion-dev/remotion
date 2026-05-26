@@ -3,6 +3,16 @@ import {calculateTimeline} from '../helpers/calculate-timeline';
 
 const getStack = () => null;
 
+const withoutKeyframeDisplayOffset = <
+	T extends {keyframeDisplayOffset: number},
+>(
+	tracks: T[],
+) =>
+	tracks.map(({keyframeDisplayOffset, ...track}) => {
+		expect(keyframeDisplayOffset).toBe(0);
+		return track;
+	});
+
 test('Should calculate timeline with no sequences', () => {
 	const calculated = calculateTimeline({
 		overrideIdsToNodePaths: {},
@@ -35,7 +45,7 @@ test('Should calculate a basic timeline', () => {
 			},
 		],
 	});
-	expect(calculated).toEqual([
+	expect(withoutKeyframeDisplayOffset(calculated)).toEqual([
 		{
 			nodePathInfo: null,
 			depth: 0,
@@ -104,7 +114,7 @@ test('Should follow order of nesting', () => {
 			},
 		],
 	});
-	expect(calculated).toEqual([
+	expect(withoutKeyframeDisplayOffset(calculated)).toEqual([
 		{
 			nodePathInfo: null,
 			sequence: {
