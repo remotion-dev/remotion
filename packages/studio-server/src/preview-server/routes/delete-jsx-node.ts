@@ -1,5 +1,4 @@
 import {readFileSync} from 'node:fs';
-import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	DeleteJsxNodeRequest,
@@ -7,6 +6,7 @@ import type {
 } from '@remotion/studio-shared';
 import {deleteJsxNode} from '../../codemods/delete-jsx-node';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {
@@ -25,11 +25,11 @@ export const deleteJsxNodeHandler: ApiHandler<
 			{indent: false, logLevel},
 			`[delete-jsx-node] Received request for fileName="${fileName}"`,
 		);
-		const absolutePath = path.resolve(remotionRoot, fileName);
-		const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-		if (fileRelativeToRoot.startsWith('..')) {
-			throw new Error('Cannot modify a file outside the project');
-		}
+		const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+			remotionRoot,
+			fileName,
+			action: 'modify',
+		});
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 

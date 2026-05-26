@@ -1,5 +1,4 @@
 import {readFileSync} from 'node:fs';
-import path from 'node:path';
 import type {File} from '@babel/types';
 import {RenderInternals} from '@remotion/renderer';
 import type {
@@ -10,6 +9,7 @@ import * as recast from 'recast';
 import {parseAst, serializeAst} from '../../codemods/parse-ast';
 import {applyCodemod} from '../../codemods/recast-mods';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {waitForLiveEventsListener} from '../live-events';
@@ -52,13 +52,11 @@ export const applyVisualControlHandler: ApiHandler<
 		{indent: false, logLevel},
 		`[apply-visual-control] Received request for ${fileName} with ${changes.length} changes`,
 	);
-	const absolutePath = path.resolve(remotionRoot, fileName);
-	const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-	if (fileRelativeToRoot.startsWith('..')) {
-		throw new Error(
-			'Cannot apply visual control change to a file outside the project',
-		);
-	}
+	const {absolutePath} = resolveFileInsideProject({
+		remotionRoot,
+		fileName,
+		action: 'apply visual control change to',
+	});
 
 	const fileContents = readFileSync(absolutePath, 'utf-8');
 	const ast = parseAst(fileContents);

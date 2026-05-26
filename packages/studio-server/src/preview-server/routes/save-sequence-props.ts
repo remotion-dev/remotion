@@ -1,5 +1,4 @@
 import {readFileSync} from 'node:fs';
-import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	SaveSequencePropsRequest,
@@ -9,6 +8,7 @@ import {getAllSchemaKeys} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 import {updateSequenceProps} from '../../codemods/update-sequence-props/update-sequence-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {
 	printUndoHint,
@@ -34,11 +34,11 @@ export const saveSequencePropsHandler: ApiHandler<
 			{indent: false, logLevel},
 			`[save-sequence-props] Received request for fileName="${fileName}" key="${key}"`,
 		);
-		const absolutePath = path.resolve(remotionRoot, fileName);
-		const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-		if (fileRelativeToRoot.startsWith('..')) {
-			throw new Error('Cannot modify a file outside the project');
-		}
+		const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+			remotionRoot,
+			fileName,
+			action: 'modify',
+		});
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 
