@@ -63,7 +63,7 @@ export const RealMP4Videos: React.FC = () => {
 					<span className={'text-brand'}>Scalable</span> rendering
 				</h2>
 				<p className="leading-relaxed">
-					Render personalized videos from data, events, or inputs. <br />
+					Render the video as .mp4 or other formats. <br />
 					Locally, on the server or serverless.
 				</p>{' '}
 				<div className="h-4" />

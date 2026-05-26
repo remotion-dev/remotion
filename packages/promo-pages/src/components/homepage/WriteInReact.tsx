@@ -11,7 +11,7 @@ export const WriteInReact: React.FC = () => {
 					textShadow: '0 5px 30px var(--background)',
 				}}
 			>
-				Create videos and video apps with React.
+				Make videos programmatically.
 			</h1>
 			<p
 				style={{
