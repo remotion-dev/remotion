@@ -59,7 +59,7 @@ const validateTintParams = (params: TintParams): void => {
 // backend; tinting respects the source's alpha mask.
 export const tint = createEffect<TintParams, null>({
 	type: 'remotion/tint',
-	label: 'Tint',
+	label: 'tint()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/tint',
 	backend: '2d',
 	calculateKey: (params) => {

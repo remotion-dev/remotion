@@ -14,3 +14,9 @@ test('starburst() accepts valid params', () => {
 		starburst({rays: 12, colors: ['#ff0000', '#00ff00']}),
 	).not.toThrow();
 });
+
+test('starburst() exposes its API name as the Studio label', () => {
+	expect(
+		starburst({rays: 12, colors: ['#ff0000', '#00ff00']}).definition.label,
+	).toBe('starburst()');
+});

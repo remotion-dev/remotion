@@ -70,6 +70,26 @@ test('@remotion/effects expose documentation links', () => {
 	);
 });
 
+test('@remotion/effects expose API names as Studio labels', () => {
+	expect(barrelDistortion().definition.label).toBe('barrelDistortion()');
+	expect(blur({radius: 1}).definition.label).toBe('blur()');
+	expect(chromaticAberration().definition.label).toBe('chromaticAberration()');
+	expect(brightness().definition.label).toBe('brightness()');
+	expect(contrast().definition.label).toBe('contrast()');
+	expect(duotone().definition.label).toBe('duotone()');
+	expect(grayscale().definition.label).toBe('grayscale()');
+	expect(halftone().definition.label).toBe('halftone()');
+	expect(hue().definition.label).toBe('hue()');
+	expect(invert().definition.label).toBe('invert()');
+	expect(mirror().definition.label).toBe('mirror()');
+	expect(saturation().definition.label).toBe('saturation()');
+	expect(scale({scale: 1}).definition.label).toBe('scale()');
+	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
+	expect(uvTranslate().definition.label).toBe('uvTranslate()');
+	expect(xyTranslate().definition.label).toBe('xyTranslate()');
+	expect(wave().definition.label).toBe('wave()');
+});
+
 test('barrelDistortion() accepts default params', () => {
 	expect(() => barrelDistortion()).not.toThrow();
 });
