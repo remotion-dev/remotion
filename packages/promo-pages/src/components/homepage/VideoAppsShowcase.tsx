@@ -279,8 +279,8 @@ const VideoAppsShowcase: React.FC = () => {
 						fontFamily: 'GTPlanar',
 					}}
 				>
-					From one-off videos to products that generate thousands of
-					personalized renders. For more examples see our{' '}
+					Build products and workflows that generate personalized videos at
+					scale. For more examples see our{' '}
 					<a href="/showcase" className="bluelink">
 						Showcase page
 					</a>

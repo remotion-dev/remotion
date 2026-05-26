@@ -43,13 +43,12 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<br />
-						<VideoAppsShowcase />
-						<br />
-						<br />
-						<br />
-						<br />
 						<CreatorShowcase />
 						<br />
+						<br />
+						<br />
+						<br />
+						<VideoAppsShowcase />
 						<br />
 						<br />
 						<Demo />

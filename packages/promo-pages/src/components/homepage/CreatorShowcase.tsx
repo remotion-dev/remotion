@@ -78,7 +78,7 @@ const CreatorExample: React.FC<{
 export const CreatorShowcase: React.FC = () => {
 	return (
 		<div>
-			<SectionTitle>For video creators</SectionTitle>
+			<SectionTitle>Create production assets</SectionTitle>
 			<div className="text-center text-muted fontbrand text-base mt-2 mb-6">
 				Prompt production assets, then iterate until they fit your edit.
 			</div>
