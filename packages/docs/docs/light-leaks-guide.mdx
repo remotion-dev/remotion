@@ -9,6 +9,8 @@ crumb: 'Techniques'
 
 The [`<LightLeak>`](/docs/light-leaks/light-leak) component from [`@remotion/light-leaks`](/docs/light-leaks/api) renders a WebGL-based light leak effect. The effect reveals during the first half of its duration and retracts during the second half.
 
+Use [`lightLeak()`](/docs/light-leaks/light-leak-effect) from [`@remotion/effects`](/docs/effects/api) to apply the same visual to canvas-based components with an `effects` array.
+
 <Demo type="light-leak" />
 
 ```tsx twoslash title="MyComp.tsx"
@@ -100,6 +102,7 @@ At the midpoint, the light leak covers most of the canvas, hiding the cut betwee
 ## See also
 
 - [`<LightLeak>` API reference](/docs/light-leaks/light-leak)
+- [`lightLeak()` effect](/docs/light-leaks/light-leak-effect)
 - [`@remotion/light-leaks`](/docs/light-leaks/api)
 - [`<TransitionSeries.Overlay>`](/docs/transitions/transitionseries#transitionseriesoverlay)
 - [Transitions](/docs/transitioning)

@@ -1,0 +1,87 @@
+---
+image: /generated/articles-docs-light-leaks-light-leak-effect.png
+slug: /light-leaks/light-leak-effect
+title: lightLeak()
+sidebar_label: lightLeak()
+crumb: '@remotion/light-leaks'
+---
+
+# lightLeak()<AvailableFrom v="4.0.468" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Applies a WebGL2-based light leak effect to canvas-based components such as [`<Video>`](/docs/media/video), [`<CanvasImage>`](/docs/canvasimage) and [`<Solid>`](/docs/solid).
+
+Use it when you want to add the light leak effect through an `effects` array instead of rendering the [`<LightLeak>`](/docs/light-leaks/light-leak) component.
+
+## Preview
+
+<Demo type="effects-light-leak" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {lightLeak} from '@remotion/effects/light-leak';
+import {CanvasImage, interpolate, staticFile, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const progress = interpolate(frame, [0, 30], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <CanvasImage
+      src={staticFile('image.png')}
+      width={1280}
+      height={720}
+      fit="cover"
+      effects={[
+        lightLeak({
+          seed: 3,
+          hueShift: 30,
+          progress,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties.
+
+### `seed?`
+
+Determines the shape of the light leak pattern. Different seeds produce different patterns. Default: `0`.
+
+### `hueShift?`
+
+Rotates the hue of the light leak in degrees (`0`-`360`).
+
+- `0` (default) yellow-to-orange
+- `120` shifts toward green
+- `240` shifts toward blue
+
+### `progress?`
+
+Controls the evolve/retract phase from `0` to `1`.
+
+Effects do not animate on their own. Drive `progress` with [`useCurrentFrame()`](/docs/use-current-frame), [`interpolate()`](/docs/interpolate), or input props. Defaults to `0.5` so the light leak is visible when the effect is first added.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`lightLeak()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/light-leaks`](/docs/light-leaks/api)
+- [`<LightLeak>`](/docs/light-leaks/light-leak)
+- [`@remotion/effects`](/docs/effects/api)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/light-leak.ts)

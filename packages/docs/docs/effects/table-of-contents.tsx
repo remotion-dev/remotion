@@ -172,6 +172,13 @@ const categories: {
 				name: 'starburst()',
 				description: 'Starburst ray effect',
 			},
+			{
+				link: '/docs/light-leaks/light-leak-effect',
+				preview: '/img/effects-light-leak-preview.jpg',
+				alt: 'light leak effect preview',
+				name: 'lightLeak()',
+				description: 'Light leak overlay effect',
+			},
 		],
 	},
 ];

@@ -427,7 +427,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'light-leaks/light-leaks-api',
 			},
-			items: ['light-leaks/light-leak'],
+			items: ['light-leaks/light-leak-effect', 'light-leaks/light-leak'],
 		},
 		{
 			type: 'category',
