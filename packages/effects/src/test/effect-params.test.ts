@@ -2,6 +2,9 @@ import {expect, test} from 'bun:test';
 import {barrelDistortion} from '../barrel-distortion/index.js';
 import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
+import {chromaticAberration} from '../chromatic-aberration/index.js';
+import {contrast} from '../contrast.js';
+import {duotone} from '../duotone.js';
 import {grayscale} from '../grayscale.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
@@ -10,6 +13,7 @@ import {mirror} from '../mirror.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {tint} from '../tint.js';
+import {uvTranslate, xyTranslate} from '../translate.js';
 import {wave} from '../wave/index.js';
 
 test('@remotion/effects expose documentation links', () => {
@@ -19,8 +23,17 @@ test('@remotion/effects expose documentation links', () => {
 	expect(blur({radius: 1}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/blur',
 	);
+	expect(chromaticAberration().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/chromatic-aberration',
+	);
 	expect(brightness().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/brightness',
+	);
+	expect(contrast().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/contrast',
+	);
+	expect(duotone().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/duotone',
 	);
 	expect(grayscale().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/grayscale',
@@ -45,6 +58,12 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(tint({color: '#fff'}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/tint',
+	);
+	expect(uvTranslate().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/uv-translate',
+	);
+	expect(xyTranslate().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/xy-translate',
 	);
 	expect(wave().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/wave',
@@ -77,6 +96,38 @@ test('barrelDistortion() amount produces distinct effect keys', () => {
 	const none = barrelDistortion({amount: 0});
 	const strong = barrelDistortion({amount: 0.5});
 	expect(none.effectKey).not.toBe(strong.effectKey);
+});
+
+test('chromaticAberration() accepts default params', () => {
+	expect(() => chromaticAberration()).not.toThrow();
+});
+
+test('chromaticAberration() rejects non-finite amount', () => {
+	expect(() => chromaticAberration({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('chromaticAberration() rejects negative amount', () => {
+	expect(() => chromaticAberration({amount: -1})).toThrow(
+		'"amount" must be >= 0',
+	);
+});
+
+test('chromaticAberration() rejects non-finite angle', () => {
+	expect(() => chromaticAberration({angle: Number.NaN})).toThrow(
+		'"angle" must be a finite number',
+	);
+});
+
+test('chromaticAberration() parameters produce distinct effect keys', () => {
+	const none = chromaticAberration({amount: 0});
+	const shifted = chromaticAberration({amount: 8});
+	const angled = chromaticAberration({amount: 8, angle: 45});
+
+	expect(
+		new Set([none.effectKey, shifted.effectKey, angled.effectKey]).size,
+	).toBe(3);
 });
 
 test('tint() throws when color is not passed', () => {
@@ -225,6 +276,90 @@ test('brightness() amount produces distinct effect keys', () => {
 	).toBe(3);
 });
 
+test('contrast() accepts default params', () => {
+	expect(() => contrast()).not.toThrow();
+});
+
+test('contrast() accepts increased contrast', () => {
+	expect(() => contrast({amount: 2})).not.toThrow();
+});
+
+test('contrast() rejects non-finite amount', () => {
+	expect(() => contrast({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('contrast() rejects amount below range', () => {
+	expect(() => contrast({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('contrast() amount produces distinct effect keys', () => {
+	const flat = contrast({amount: 0});
+	const neutral = contrast({amount: 1});
+	const boosted = contrast({amount: 2});
+	expect(
+		new Set([flat.effectKey, neutral.effectKey, boosted.effectKey]).size,
+	).toBe(3);
+});
+
+test('duotone() accepts default params', () => {
+	expect(() => duotone()).not.toThrow();
+});
+
+test('duotone() accepts valid params', () => {
+	expect(() =>
+		duotone({
+			darkColor: '#111111',
+			lightColor: '#eeeeee',
+			threshold: 0.4,
+		}),
+	).not.toThrow();
+});
+
+test('duotone() rejects empty darkColor strings', () => {
+	expect(() => duotone({darkColor: ''})).toThrow(
+		'"darkColor" must be a non-empty string, but got ""',
+	);
+});
+
+test('duotone() rejects empty lightColor strings', () => {
+	expect(() => duotone({lightColor: ''})).toThrow(
+		'"lightColor" must be a non-empty string, but got ""',
+	);
+});
+
+test('duotone() rejects non-finite threshold', () => {
+	expect(() => duotone({threshold: Number.NaN})).toThrow(
+		'"threshold" must be a finite number',
+	);
+});
+
+test('duotone() rejects threshold below range', () => {
+	expect(() => duotone({threshold: -0.1})).toThrow('"threshold" must be >= 0');
+});
+
+test('duotone() rejects threshold above range', () => {
+	expect(() => duotone({threshold: 1.1})).toThrow('"threshold" must be <= 1');
+});
+
+test('duotone() parameters produce distinct effect keys', () => {
+	const defaultDuotone = duotone();
+	const shiftedThreshold = duotone({threshold: 0.25});
+	const customColors = duotone({
+		darkColor: '#123456',
+		lightColor: '#abcdef',
+	});
+
+	expect(
+		new Set([
+			defaultDuotone.effectKey,
+			shiftedThreshold.effectKey,
+			customColors.effectKey,
+		]).size,
+	).toBe(3);
+});
+
 test('halftone() accepts default params', () => {
 	expect(() => halftone()).not.toThrow();
 });
@@ -255,10 +390,46 @@ test('halftone() rejects dotSize below range', () => {
 	expect(() => halftone({dotSize: 0})).toThrow('"dotSize" must be >= 1');
 });
 
-test('halftone() rejects empty color strings', () => {
-	expect(() => halftone({color: ''})).toThrow(
-		'"color" must be a non-empty string, but got ""',
+test('halftone() rejects empty dotColor strings', () => {
+	expect(() => halftone({dotColor: ''})).toThrow(
+		'"dotColor" must be a non-empty string, but got ""',
 	);
+});
+
+test('halftone() rejects color outside the enum', () => {
+	expect(() =>
+		halftone({
+			colorMode: 'cmyk' as Exclude<
+				Parameters<typeof halftone>[0],
+				undefined
+			>['colorMode'],
+		}),
+	).toThrow('"colorMode" must be "solid" or "source"');
+});
+
+test('halftone() rejects the renamed color option', () => {
+	expect(() =>
+		halftone({
+			color: 'black',
+		} as Parameters<typeof halftone>[0]),
+	).toThrow('"color" has been renamed to "dotColor"');
+});
+
+test('halftone() ignores undefined legacy color option', () => {
+	expect(() =>
+		halftone({
+			color: undefined,
+		} as Parameters<typeof halftone>[0]),
+	).not.toThrow();
+});
+
+test('halftone() rejects dotColor for source color mode', () => {
+	expect(() =>
+		halftone({
+			colorMode: 'source',
+			dotColor: 'black',
+		} as Parameters<typeof halftone>[0]),
+	).toThrow('"dotColor" can only be set when "colorMode" is "solid"');
 });
 
 test('invert() accepts default params', () => {
@@ -420,4 +591,50 @@ test('scale() axis flags produce distinct effect keys', () => {
 		neither.effectKey,
 	];
 	expect(new Set(keys).size).toBe(keys.length);
+});
+
+test('xyTranslate() accepts default params', () => {
+	expect(() => xyTranslate()).not.toThrow();
+});
+
+test('xyTranslate() rejects non-finite offsets', () => {
+	expect(() => xyTranslate({x: Number.NaN})).toThrow(
+		'"x" must be a finite number',
+	);
+	expect(() => xyTranslate({y: Number.NaN})).toThrow(
+		'"y" must be a finite number',
+	);
+});
+
+test('xyTranslate() offsets produce distinct effect keys', () => {
+	const centered = xyTranslate();
+	const shiftedX = xyTranslate({x: 10});
+	const shiftedY = xyTranslate({y: 10});
+
+	expect(
+		new Set([centered.effectKey, shiftedX.effectKey, shiftedY.effectKey]).size,
+	).toBe(3);
+});
+
+test('uvTranslate() accepts default params', () => {
+	expect(() => uvTranslate()).not.toThrow();
+});
+
+test('uvTranslate() rejects non-finite offsets', () => {
+	expect(() => uvTranslate({u: Number.NaN})).toThrow(
+		'"u" must be a finite number',
+	);
+	expect(() => uvTranslate({v: Number.NaN})).toThrow(
+		'"v" must be a finite number',
+	);
+});
+
+test('uvTranslate() offsets produce distinct effect keys', () => {
+	const centered = uvTranslate();
+	const shiftedU = uvTranslate({u: 0.1});
+	const shiftedV = uvTranslate({v: 0.1});
+
+	expect(
+		new Set([centered.effectKey, shiftedU.effectKey, shiftedV.effectKey]).size,
+	).toBe(3);
 });

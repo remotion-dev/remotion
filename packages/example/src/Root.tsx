@@ -50,19 +50,27 @@ import {
 import {
 	BookFlipTransitionDoc,
 	BookFlipTransitionDocThumb,
+	CrossZoomTransitionDoc,
+	CrossZoomTransitionDocThumb,
 	CrosswarpTransitionDoc,
 	CrosswarpTransitionDocThumb,
 	DissolveTransitionDoc,
 	DissolveTransitionDocThumb,
 	EffectsBlurPreview,
 	EffectsBrightnessPreview,
+	EffectsContrastPreview,
+	EffectsDuotonePreview,
 	EffectsGrayscalePreview,
 	EffectsHalftonePreview,
 	EffectsHuePreview,
 	EffectsInvertPreview,
 	EffectsSaturationPreview,
 	EffectsTintPreview,
+	EffectsUvTranslatePreview,
 	EffectsWavePreview,
+	EffectsXyTranslatePreview,
+	FilmBurnTransitionDoc,
+	FilmBurnTransitionDocThumb,
 	HtmlInCanvasComplexText,
 	HtmlInCanvasComposeAsyncBitmap,
 	HtmlInCanvasComposeWebGL,
@@ -72,10 +80,10 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
-	LinearBlurTransitionDoc,
-	LinearBlurTransitionDocThumb,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
+	LinearBlurTransitionDoc,
+	LinearBlurTransitionDocThumb,
 	RippleTransitionDoc,
 	RippleTransitionDocThumb,
 	SwapTransitionDoc,
@@ -214,6 +222,7 @@ import {SmoothTextTransition} from './SmoothTextTransition';
 import {SpringSeason} from './SpringSeason';
 import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
+import {SubframeAudio} from './SubframeAudio';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
@@ -1058,6 +1067,22 @@ export const Index: React.FC = () => {
 						durationInFrames={60}
 					/>
 					<Composition
+						id="film-burn-transition-doc"
+						component={FilmBurnTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="film-burn-transition-doc-thumb"
+						component={FilmBurnTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
 						id="linear-blur-transition-doc"
 						component={LinearBlurTransitionDoc}
 						fps={30}
@@ -1076,6 +1101,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="html-in-canvas-effects-brightness-preview"
 						component={EffectsBrightnessPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-contrast-preview"
+						component={EffectsContrastPreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-duotone-preview"
+						component={EffectsDuotonePreview}
 						fps={30}
 						height={720}
 						width={1080}
@@ -1154,6 +1195,22 @@ export const Index: React.FC = () => {
 						durationInFrames={1}
 					/>
 					<Composition
+						id="html-in-canvas-effects-xy-translate-preview"
+						component={EffectsXyTranslatePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-uv-translate-preview"
+						component={EffectsUvTranslatePreview}
+						fps={30}
+						height={720}
+						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
 						id="zoom-in-out-transition-doc"
 						component={ZoomInOutTransitionDoc}
 						fps={30}
@@ -1212,6 +1269,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="crosswarp-transition-doc-thumb"
 						component={CrosswarpTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="cross-zoom-transition-doc"
+						component={CrossZoomTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="cross-zoom-transition-doc-thumb"
+						component={CrossZoomTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}
@@ -1592,6 +1665,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={180 * 30}
+				/>
+				<Composition
+					id="subframe-audio"
+					component={SubframeAudio}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
 				/>
 			</Folder>
 			<Folder name="three">

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.466",
+	"version": "4.0.467",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -42,10 +42,25 @@
 			"module": "./dist/esm/blur.mjs",
 			"import": "./dist/esm/blur.mjs"
 		},
+		"./chromatic-aberration": {
+			"types": "./dist/chromatic-aberration.d.ts",
+			"module": "./dist/esm/chromatic-aberration.mjs",
+			"import": "./dist/esm/chromatic-aberration.mjs"
+		},
 		"./brightness": {
 			"types": "./dist/brightness.d.ts",
 			"module": "./dist/esm/brightness.mjs",
 			"import": "./dist/esm/brightness.mjs"
+		},
+		"./contrast": {
+			"types": "./dist/contrast.d.ts",
+			"module": "./dist/esm/contrast.mjs",
+			"import": "./dist/esm/contrast.mjs"
+		},
+		"./duotone": {
+			"types": "./dist/duotone.d.ts",
+			"module": "./dist/esm/duotone.mjs",
+			"import": "./dist/esm/duotone.mjs"
 		},
 		"./halftone": {
 			"types": "./dist/halftone.d.ts",
@@ -87,6 +102,11 @@
 			"module": "./dist/esm/tint.mjs",
 			"import": "./dist/esm/tint.mjs"
 		},
+		"./translate": {
+			"types": "./dist/translate.d.ts",
+			"module": "./dist/esm/translate.mjs",
+			"import": "./dist/esm/translate.mjs"
+		},
 		"./wave": {
 			"types": "./dist/wave.d.ts",
 			"module": "./dist/esm/wave.mjs",
@@ -102,8 +122,17 @@
 			"blur": [
 				"dist/blur.d.ts"
 			],
+			"chromatic-aberration": [
+				"dist/chromatic-aberration.d.ts"
+			],
 			"brightness": [
 				"dist/brightness.d.ts"
+			],
+			"contrast": [
+				"dist/contrast.d.ts"
+			],
+			"duotone": [
+				"dist/duotone.d.ts"
 			],
 			"halftone": [
 				"dist/halftone.d.ts"
@@ -128,6 +157,9 @@
 			],
 			"tint": [
 				"dist/tint.d.ts"
+			],
+			"translate": [
+				"dist/translate.d.ts"
 			],
 			"wave": [
 				"dist/wave.d.ts"

@@ -10,6 +10,7 @@ import {
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
 import type {FallbackHtml5AudioProps} from './props';
 
@@ -45,6 +46,7 @@ type NewAudioForPreviewProps = {
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
+	readonly requestInit: MediaRequestInit | undefined;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 };
 
@@ -67,6 +69,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	fallbackHtml5AudioProps,
 	onError,
 	credentials,
+	requestInit,
 	setMediaDurationInSeconds,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
@@ -74,6 +77,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
 	const initialTrimBeforeRef = useRef(trimBefore);
 	const initialTrimAfterRef = useRef(trimAfter);
+	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
 	const [shouldFallbackToNativeAudio, setShouldFallbackToNativeAudio] =
@@ -210,6 +214,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				playing: initialPlaying.current,
 				sequenceOffset: initialSequenceOffset.current,
 				credentials,
+				requestInit: initialRequestInit,
 				tagType: 'audio',
 				getEffects: () => [],
 				getEffectChainState: () => null,
@@ -348,6 +353,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		buffer,
 		onError,
 		credentials,
+		initialRequestInit,
 		setMediaDurationInSeconds,
 	]);
 
@@ -403,6 +409,7 @@ type InnerAudioProps = {
 	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
 	readonly onError?: MediaOnError;
 	readonly credentials?: RequestCredentials;
+	readonly requestInit?: MediaRequestInit;
 	readonly setMediaDurationInSeconds?: (durationInSeconds: number) => void;
 };
 
@@ -425,6 +432,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	fallbackHtml5AudioProps,
 	onError,
 	credentials,
+	requestInit,
 	setMediaDurationInSeconds,
 }) => {
 	const preloadedSrc = usePreload(src);
@@ -485,6 +493,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			toneFrequency={toneFrequency}
 			onError={onError}
 			credentials={credentials}
+			requestInit={requestInit}
 			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
 			setMediaDurationInSeconds={setMediaDurationInSeconds}
 		/>

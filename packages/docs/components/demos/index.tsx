@@ -3,8 +3,7 @@ import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
 import {Control} from './control';
-import styles from './styles.module.css';
-import type {DemoType} from './types';
+import type {DemoType, Option} from './types';
 import {
 	animationMathDemo,
 	arrowDemo,
@@ -12,13 +11,32 @@ import {
 	circleDemo,
 	clockWipePresentationDemo,
 	crosswarpPresentationDemo,
+	crossZoomPresentationDemo,
 	cubePresentationDemo,
 	customPresentationDemo,
 	customTimingDemo,
 	dissolvePresentationDemo,
 	dreamyZoomPresentationDemo,
+	effectsBarrelDistortionDemo,
+	effectsBlurDemo,
+	effectsBrightnessDemo,
+	effectsChromaticAberrationDemo,
+	effectsContrastDemo,
+	effectsDuotoneDemo,
+	effectsGrayscaleDemo,
+	effectsHalftoneDemo,
+	effectsHueDemo,
+	effectsInvertDemo,
+	effectsMirrorDemo,
+	effectsSaturationDemo,
+	effectsScaleDemo,
+	effectsTintDemo,
+	effectsUvTranslateDemo,
+	effectsWaveDemo,
+	effectsXyTranslateDemo,
 	ellipseDemo,
 	fadePresentationDemo,
+	filmBurnPresentationDemo,
 	flipPresentationDemo,
 	heartDemo,
 	htmlInCanvasDemo2DBlur,
@@ -55,6 +73,7 @@ import {
 	zoomBlurPresentationDemo,
 	zoomInOutPresentationDemo,
 } from './types';
+import styles from './styles.module.css';
 
 const container: React.CSSProperties = {
 	overflow: 'hidden',
@@ -69,6 +88,23 @@ const demos: DemoType[] = [
 	htmlInCanvasDemoWebGL,
 	htmlInCanvasDemoWebGPU,
 	noiseDemo,
+	effectsBrightnessDemo,
+	effectsContrastDemo,
+	effectsDuotoneDemo,
+	effectsGrayscaleDemo,
+	effectsHueDemo,
+	effectsInvertDemo,
+	effectsSaturationDemo,
+	effectsTintDemo,
+	effectsMirrorDemo,
+	effectsScaleDemo,
+	effectsXyTranslateDemo,
+	effectsUvTranslateDemo,
+	effectsBarrelDistortionDemo,
+	effectsBlurDemo,
+	effectsChromaticAberrationDemo,
+	effectsWaveDemo,
+	effectsHalftoneDemo,
 	arrowDemo,
 	triangleDemo,
 	rectDemo,
@@ -107,13 +143,26 @@ const demos: DemoType[] = [
 	bookFlipPresentationDemo,
 	zoomBlurPresentationDemo,
 	dreamyZoomPresentationDemo,
+	filmBurnPresentationDemo,
 	linearBlurPresentationDemo,
 	zoomInOutPresentationDemo,
 	dissolvePresentationDemo,
 	ripplePresentationDemo,
 	crosswarpPresentationDemo,
+	crossZoomPresentationDemo,
 	swapPresentationDemo,
 ];
+
+const shouldShowOption = (
+	option: Option,
+	state: Record<string, unknown>,
+): boolean => {
+	if (!option.showIf) {
+		return true;
+	}
+
+	return state[option.showIf.option] === option.showIf.value;
+};
 
 export const Demo: React.FC<{
 	readonly type: string;
@@ -204,21 +253,23 @@ export const Demo: React.FC<{
 				loop
 			/>
 			<div className={styles.containerrow}>
-				{demo.options.map((option) => {
-					return (
-						<Control
-							key={option.name}
-							option={option}
-							value={state[option.name]}
-							setValue={(value) => {
-								setState((s) => ({
-									...s,
-									[option.name]: value,
-								}));
-							}}
-						/>
-					);
-				})}
+				{demo.options
+					.filter((option) => shouldShowOption(option, state))
+					.map((option) => {
+						return (
+							<Control
+								key={option.name}
+								option={option}
+								value={state[option.name]}
+								setValue={(value) => {
+									setState((s) => ({
+										...s,
+										[option.name]: value,
+									}));
+								}}
+							/>
+						);
+					})}
 			</div>
 		</div>
 	);

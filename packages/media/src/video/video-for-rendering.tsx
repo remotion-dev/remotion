@@ -25,6 +25,7 @@ import {applyVolume} from '../convert-audiodata/apply-volume';
 import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import type {MediaRequestInit} from '../request-init';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {FallbackOffthreadVideoProps, VideoObjectFit} from './props';
 import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
@@ -52,6 +53,7 @@ type InnerVideoProps = {
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
 	readonly credentials: RequestCredentials | undefined;
+	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
 };
 
@@ -82,6 +84,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	headless,
 	onError,
 	credentials,
+	requestInit,
 	objectFit: objectFitProp,
 }) => {
 	if (!src) {
@@ -120,6 +123,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] = useState<
 		FallbackToOffthreadVideo | false
 	>(false);
+	const [initialRequestInit] = useState(requestInit);
 
 	const audioEnabled = Internals.useAudioEnabled();
 	const videoEnabled = Internals.useVideoEnabled();
@@ -188,6 +192,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			fps,
 			maxCacheSize,
 			credentials,
+			requestInit: initialRequestInit,
 		})
 			.then((result) => {
 				const handleError = (
@@ -389,6 +394,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		headless,
 		onError,
 		credentials,
+		initialRequestInit,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});

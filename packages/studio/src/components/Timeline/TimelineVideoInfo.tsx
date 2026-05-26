@@ -5,8 +5,8 @@ import {
 	extractFrames,
 	fillFrameWhereItFits,
 	fillWithCachedFrames,
-	getLoopDisplayWidth,
 	getAspectRatioFromCache,
+	getLoopDisplayWidth,
 	makeFrameDatabaseKey,
 	resizeVideoFrame,
 	shouldTileLoopDisplay,
@@ -15,14 +15,11 @@ import {
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {useVideoConfig} from 'remotion';
-import {
-	TIMELINE_LAYER_HEIGHT_AUDIO,
-	TIMELINE_LAYER_HEIGHT_IMAGE,
-} from '../../helpers/timeline-layout';
+import {TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT} from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
 import {getTimelineVideoInfoWidths} from './get-timeline-video-info-widths';
 
-const FILMSTRIP_HEIGHT = TIMELINE_LAYER_HEIGHT_IMAGE - 2;
+const FILMSTRIP_HEIGHT = 48;
 
 const outerStyle: React.CSSProperties = {
 	width: '100%',
@@ -315,7 +312,7 @@ export const TimelineVideoInfo: React.FC<{
 
 	const audioStyle: React.CSSProperties = useMemo(() => {
 		return {
-			height: TIMELINE_LAYER_HEIGHT_AUDIO,
+			height: TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT,
 			width: audioWidth,
 			position: 'relative',
 			marginLeft: premountWidth,

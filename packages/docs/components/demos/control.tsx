@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
-import type {Option} from './types';
 import styles from './styles.module.css';
+import type {Option} from './types';
 
 const left: React.CSSProperties = {
 	fontFamily: 'GTPlanar',
@@ -119,6 +119,12 @@ export const Control = ({
 				<input
 					onChange={(e) => setValue(e.target.value)}
 					style={textInputStyle}
+					value={value as string}
+				/>
+			) : option.type === 'color' ? (
+				<input
+					type="color"
+					onChange={(e) => setValue(e.target.value)}
 					value={value as string}
 				/>
 			) : null}

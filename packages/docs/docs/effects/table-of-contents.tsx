@@ -25,6 +25,20 @@ const categories: {
 				description: 'Brightness adjustment effect',
 			},
 			{
+				link: '/docs/effects/contrast',
+				preview: '/img/effects-contrast-preview.jpg',
+				alt: 'contrast effect preview',
+				name: 'contrast()',
+				description: 'Contrast adjustment effect',
+			},
+			{
+				link: '/docs/effects/duotone',
+				preview: '/img/effects-duotone-preview.jpg',
+				alt: 'duotone effect preview',
+				name: 'duotone()',
+				description: 'Two-color threshold effect',
+			},
+			{
 				link: '/docs/effects/grayscale',
 				preview: '/img/effects-grayscale-preview.jpg',
 				alt: 'grayscale effect preview',
@@ -78,6 +92,20 @@ const categories: {
 				name: 'scale()',
 				description: 'Scale transform effect',
 			},
+			{
+				link: '/docs/effects/xy-translate',
+				preview: '/img/effects-xy-translate-preview.jpg',
+				alt: 'XY translate effect preview',
+				name: 'xyTranslate()',
+				description: 'Pixel-based translate effect',
+			},
+			{
+				link: '/docs/effects/uv-translate',
+				preview: '/img/effects-uv-translate-preview.jpg',
+				alt: 'UV translate effect preview',
+				name: 'uvTranslate()',
+				description: 'UV-based translate effect',
+			},
 		],
 	},
 	{
@@ -89,6 +117,13 @@ const categories: {
 				alt: 'barrel distortion effect preview',
 				name: 'barrelDistortion()',
 				description: 'Barrel distortion effect',
+			},
+			{
+				link: '/docs/effects/chromatic-aberration',
+				preview: '/img/effects-chromatic-aberration-preview.jpg',
+				alt: 'chromatic aberration effect preview',
+				name: 'chromaticAberration()',
+				description: 'RGB channel split effect',
 			},
 			{
 				link: '/docs/effects/blur',

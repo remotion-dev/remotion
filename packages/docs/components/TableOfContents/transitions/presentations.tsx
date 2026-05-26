@@ -9,8 +9,10 @@ import {wipe} from '@remotion/transitions/wipe';
 import React from 'react';
 import {BookFlipTocPreview} from '../../transitions/book-flip-toc-preview';
 import {CrosswarpTocPreview} from '../../transitions/crosswarp-toc-preview';
+import {CrossZoomTocPreview} from '../../transitions/cross-zoom-toc-preview';
 import {DissolveTocPreview} from '../../transitions/dissolve-toc-preview';
 import {DreamyZoomTocPreview} from '../../transitions/dreamy-zoom-toc-preview';
+import {FilmBurnTocPreview} from '../../transitions/film-burn-toc-preview';
 import {PresentationPreview} from '../../transitions/previews';
 import {RippleTocPreview} from '../../transitions/ripple-toc-preview';
 import {SwapTocPreview} from '../../transitions/swap-toc-preview';
@@ -150,6 +152,18 @@ export const Presentations: React.FC<{
 					</div>
 				</div>
 			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/film-burn">
+				<div style={row}>
+					<FilmBurnTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'filmBurn()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Burn through scenes with procedural glow and blur</div>
+					</div>
+				</div>
+			</TOCItem>
 			<TOCItem link="/docs/transitions/presentations/linear-blur">
 				<div style={row}>
 					<LinearBlurTocPreview />
@@ -219,6 +233,18 @@ export const Presentations: React.FC<{
 						</strong>
 						<HtmlInCanvasLabel />
 						<div>Warp both scenes across the x-axis and blend them</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/cross-zoom">
+				<div style={row}>
+					<CrossZoomTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'crossZoom()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Zoom both scenes through a moving center and blur</div>
 					</div>
 				</div>
 			</TOCItem>

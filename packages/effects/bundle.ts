@@ -9,7 +9,10 @@ const effectEntrypoints = [
 	'src/index.ts',
 	'src/barrel-distortion.ts',
 	'src/blur.ts',
+	'src/chromatic-aberration.ts',
 	'src/brightness.ts',
+	'src/contrast.ts',
+	'src/duotone.ts',
 	'src/grayscale.ts',
 	'src/halftone.ts',
 	'src/hue.ts',
@@ -18,6 +21,7 @@ const effectEntrypoints = [
 	'src/saturation.ts',
 	'src/scale.ts',
 	'src/tint.ts',
+	'src/translate.ts',
 	'src/wave.ts',
 ];
 

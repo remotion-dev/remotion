@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/transitions"
 	},
 	"name": "@remotion/transitions",
-	"version": "4.0.466",
+	"version": "4.0.467",
 	"description": "Library for creating transitions in Remotion",
 	"main": "dist/esm/index.mjs",
 	"module": "dist/esm/index.js",
@@ -103,6 +103,12 @@
 			"import": "./dist/esm/dreamy-zoom.mjs",
 			"require": "./dist/presentations/dreamy-zoom.js"
 		},
+		"./film-burn": {
+			"types": "./dist/presentations/film-burn.d.ts",
+			"module": "./dist/esm/film-burn.mjs",
+			"import": "./dist/esm/film-burn.mjs",
+			"require": "./dist/presentations/film-burn.js"
+		},
 		"./linear-blur": {
 			"types": "./dist/presentations/linear-blur.d.ts",
 			"module": "./dist/esm/linear-blur.mjs",
@@ -145,6 +151,12 @@
 			"import": "./dist/esm/crosswarp.mjs",
 			"require": "./dist/presentations/crosswarp.js"
 		},
+		"./cross-zoom": {
+			"types": "./dist/presentations/cross-zoom.d.ts",
+			"module": "./dist/esm/cross-zoom.mjs",
+			"import": "./dist/esm/cross-zoom.mjs",
+			"require": "./dist/presentations/cross-zoom.js"
+		},
 		"./swap": {
 			"types": "./dist/presentations/swap.d.ts",
 			"module": "./dist/esm/swap.mjs",
@@ -185,6 +197,9 @@
 			"dreamy-zoom": [
 				"dist/presentations/dreamy-zoom.d.ts"
 			],
+			"film-burn": [
+				"dist/presentations/film-burn.d.ts"
+			],
 			"linear-blur": [
 				"dist/presentations/linear-blur.d.ts"
 			],
@@ -199,6 +214,9 @@
 			],
 			"crosswarp": [
 				"dist/presentations/crosswarp.d.ts"
+			],
+			"cross-zoom": [
+				"dist/presentations/cross-zoom.d.ts"
 			],
 			"swap": [
 				"dist/presentations/swap.d.ts"

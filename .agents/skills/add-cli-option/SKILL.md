@@ -1,3 +1,8 @@
+---
+name: add-cli-option
+description: Add a new Remotion CLI or config option by creating an AnyRemotionOption, registering CLI parsing, wiring config setters, and updating documentation. Use when adding or converting command-line flags or Remotion options.
+---
+
 # Add a new CLI option
 
 How to convert a hardcoded CLI flag into a proper `AnyRemotionOption`, or add a brand new one.
