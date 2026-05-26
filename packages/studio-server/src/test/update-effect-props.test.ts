@@ -15,6 +15,10 @@ const tintSchema = {
 		type: 'number',
 		default: 1,
 	},
+	position: {
+		type: 'uv-coordinate',
+		default: [0, 0.5],
+	},
 } as const;
 
 const buildInput = (
@@ -58,6 +62,19 @@ test('updateEffectProps adds a missing prop', () => {
 	expect(effectCallee).toBe('tint');
 	expect(serialized).toContain('opacity: 0.25');
 	expect(serialized).toContain('color: "red"');
+});
+
+test('updateEffectProps writes uv-coordinate tuples', () => {
+	const input = buildInput('[tint({color: "red"})]');
+	const {serialized} = updateEffectPropsAst({
+		input,
+		sequenceNodePath: lineColumnToNodePath(input, 6),
+		effectIndex: 0,
+		update: {key: 'position', value: [0.25, 0.75], defaultValue: null},
+		schema: tintSchema,
+	});
+
+	expect(serialized).toContain('position: [0.25,0.75]');
 });
 
 test('updateEffectProps removes a prop equal to default', () => {

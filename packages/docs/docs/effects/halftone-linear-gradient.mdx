@@ -1,12 +1,12 @@
 ---
-image: /generated/articles-docs-effects-halftone-gradient.png
-slug: /effects/halftone-gradient
-title: halftoneGradient()
-sidebar_label: halftoneGradient()
+image: /generated/articles-docs-effects-halftone-linear-gradient.png
+slug: /effects/halftone-linear-gradient
+title: halftoneLinearGradient()
+sidebar_label: halftoneLinearGradient()
 crumb: '@remotion/effects'
 ---
 
-# halftoneGradient()<AvailableFrom v="4.0.468" />
+# halftoneLinearGradient()<AvailableFrom v="4.0.468" />
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
@@ -16,14 +16,14 @@ Use it for dot-pattern wipes, overlays, and backgrounds on canvas-based componen
 
 ## Preview
 
-<Demo type="effects-halftone-gradient" />
+<Demo type="effects-halftone-linear-gradient" />
 
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
 import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
-import {halftoneGradient} from '@remotion/effects/halftone-gradient';
+import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 
 export const MyComp: React.FC = () => {
   return (
@@ -31,12 +31,13 @@ export const MyComp: React.FC = () => {
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
-          halftoneGradient({
+          halftoneLinearGradient({
             firstStopDotSize: 0,
             secondStopDotSize: 42,
+            firstStopPosition: [0, 0.5],
+            secondStopPosition: [1, 0.5],
             gridSize: 24,
-            rotation: 20,
-            dotColor: '#111111',
+            dotColor: '#0b84f3',
           }),
         ]}
       />
@@ -50,7 +51,7 @@ To use colors from the previous effect in the chain, set `colorMode` to `'source
 ```tsx twoslash title="MyComp.tsx"
 import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
-import {halftoneGradient} from '@remotion/effects/halftone-gradient';
+import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 
 export const MyComp: React.FC = () => {
   return (
@@ -58,11 +59,12 @@ export const MyComp: React.FC = () => {
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
-          halftoneGradient({
+          halftoneLinearGradient({
             firstStopDotSize: 8,
             secondStopDotSize: 44,
+            firstStopPosition: [0.2, 0],
+            secondStopPosition: [0.8, 1],
             gridSize: 24,
-            rotation: -25,
             colorMode: 'source',
           }),
         ]}
@@ -74,7 +76,7 @@ export const MyComp: React.FC = () => {
 
 ## API
 
-Pass an object with the following properties. You can also call `halftoneGradient()` without arguments.
+Pass an object with the following properties. You can also call `halftoneLinearGradient()` without arguments.
 
 ### `firstStopDotSize?`
 
@@ -88,13 +90,21 @@ Dot diameter in pixels on the opposite side of the gradient. Defaults to `40`. M
 
 Set both dot sizes to `0` for no coverage. Set both large enough to overlap neighboring cells for full coverage.
 
+### `firstStopPosition?`
+
+UV coordinate where `firstStopDotSize` is reached. Defaults to `[0, 0.5]`.
+
+Pass a `[number, number]` tuple.
+
+### `secondStopPosition?`
+
+UV coordinate where `secondStopDotSize` is reached. Defaults to `[1, 0.5]`.
+
+Pass a `[number, number]` tuple.
+
 ### `gridSize?`
 
 Distance between adjacent dot centers in pixels. Defaults to `24`. Must be greater than `0`.
-
-### `rotation?`
-
-Rotation of the dot grid and linear gradient in degrees. Defaults to `0`.
 
 ### `colorMode?`
 
@@ -116,11 +126,11 @@ When `true`, the effect is skipped. Defaults to `false`.
 
 ## Requirements
 
-`halftoneGradient()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+`halftoneLinearGradient()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
 
 ## See also
 
 - [`@remotion/effects`](/docs/effects/api)
 - [`halftone()`](/docs/effects/halftone)
 - [HTML-in-canvas guide](/docs/html-in-canvas)
-- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/halftone-gradient.ts)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/halftone-linear-gradient.ts)

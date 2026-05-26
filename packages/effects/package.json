@@ -72,10 +72,10 @@
 			"module": "./dist/esm/halftone.mjs",
 			"import": "./dist/esm/halftone.mjs"
 		},
-		"./halftone-gradient": {
-			"types": "./dist/halftone-gradient.d.ts",
-			"module": "./dist/esm/halftone-gradient.mjs",
-			"import": "./dist/esm/halftone-gradient.mjs"
+		"./halftone-linear-gradient": {
+			"types": "./dist/halftone-linear-gradient.d.ts",
+			"module": "./dist/esm/halftone-linear-gradient.mjs",
+			"import": "./dist/esm/halftone-linear-gradient.mjs"
 		},
 		"./grayscale": {
 			"types": "./dist/grayscale.d.ts",
@@ -155,8 +155,8 @@
 			"halftone": [
 				"dist/halftone.d.ts"
 			],
-			"halftone-gradient": [
-				"dist/halftone-gradient.d.ts"
+			"halftone-linear-gradient": [
+				"dist/halftone-linear-gradient.d.ts"
 			],
 			"grayscale": [
 				"dist/grayscale.d.ts"

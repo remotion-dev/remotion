@@ -166,10 +166,10 @@ const categories: {
 				description: 'Halftone dot grid effect',
 			},
 			{
-				link: '/docs/effects/halftone-gradient',
-				preview: '/img/effects-halftone-gradient-preview.jpg',
-				alt: 'halftone gradient effect preview',
-				name: 'halftoneGradient()',
+				link: '/docs/effects/halftone-linear-gradient',
+				preview: '/img/effects-halftone-linear-gradient-preview.jpg',
+				alt: 'halftone linear gradient effect preview',
+				name: 'halftoneLinearGradient()',
 				description: 'Linear dot size gradient',
 			},
 			{
