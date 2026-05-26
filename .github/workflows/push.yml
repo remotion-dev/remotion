@@ -140,7 +140,7 @@ jobs:
       - name: Check Ruby
         run: ruby --version
       - name: Install Bundler
-        run: sudo gem install bundler
+        run: sudo gem install bundler -v 2.1.4 && bundle _2.1.4_ --version
       - name: Check PHP
         run: php --version
       - run: pip install pylint boto3 pytest
