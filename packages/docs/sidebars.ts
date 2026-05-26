@@ -277,6 +277,7 @@ const sidebars: SidebarsConfig = {
 				'effects/glow',
 				'effects/grayscale',
 				'effects/halftone',
+				'effects/halftone-gradient',
 				'effects/hue',
 				'effects/invert',
 				'effects/mirror',

@@ -7,6 +7,7 @@ import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
+import {EffectsHalftoneGradientPreview} from '../effects/effects-halftone-gradient-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
@@ -2091,6 +2092,73 @@ export const effectsHalftoneDemo: DemoType = {
 			type: 'boolean',
 			default: false,
 			optional: 'no',
+		},
+	],
+};
+
+export const effectsHalftoneGradientDemo: DemoType = {
+	comp: EffectsHalftoneGradientPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-halftone-gradient',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'firstStopDotSize',
+			type: 'numeric',
+			min: 0,
+			max: 80,
+			step: 1,
+			default: 0,
+			optional: 'no',
+		},
+		{
+			name: 'secondStopDotSize',
+			type: 'numeric',
+			min: 0,
+			max: 80,
+			step: 1,
+			default: 40,
+			optional: 'no',
+		},
+		{
+			name: 'gridSize',
+			type: 'numeric',
+			min: 1,
+			max: 80,
+			step: 1,
+			default: 24,
+			optional: 'no',
+		},
+		{
+			name: 'rotation',
+			type: 'numeric',
+			min: -180,
+			max: 180,
+			step: 1,
+			default: 0,
+			optional: 'no',
+		},
+		{
+			name: 'colorMode',
+			type: 'enum',
+			values: ['solid', 'source'],
+			default: 'solid',
+			optional: 'no',
+		},
+		{
+			name: 'dotColor',
+			type: 'color',
+			default: '#ffffff',
+			optional: 'no',
+			showIf: {
+				option: 'colorMode',
+				value: 'solid',
+			},
 		},
 	],
 };

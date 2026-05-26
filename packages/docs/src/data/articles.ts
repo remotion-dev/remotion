@@ -1791,6 +1791,15 @@ export const articles = [
 		slug: 'effects/grayscale',
 	},
 	{
+		id: 'effects/halftone-gradient',
+		title: 'halftoneGradient()',
+		relativePath: 'docs/effects/halftone-gradient.mdx',
+		compId: 'articles-docs-effects-halftone-gradient',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/halftone-gradient',
+	},
+	{
 		id: 'effects/halftone',
 		title: 'halftone()',
 		relativePath: 'docs/effects/halftone.mdx',
