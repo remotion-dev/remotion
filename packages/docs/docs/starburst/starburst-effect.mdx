@@ -14,6 +14,8 @@ Renders a WebGL2-based retro starburst ray pattern as an effect for canvas-based
 
 Use it when you want to apply starburst rays through an `effects` array instead of rendering the [`<Starburst>`](/docs/starburst/starburst) component.
 
+`starburst()` replaces the underlying pixels instead of blending over them. It is usually the first effect in a chain, or applied to a [`<Solid>`](/docs/solid) background before other effects.
+
 ## Preview
 
 <Demo type="effects-starburst" />
