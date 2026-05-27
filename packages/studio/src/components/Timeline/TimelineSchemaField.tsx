@@ -45,15 +45,11 @@ export const TimelineNonEditableStatus: React.FC<{
 		return null;
 	}
 
-	if (propStatus.reason === 'computed') {
+	if (propStatus.reason === 'computed' || propStatus.reason === 'keyframed') {
 		return (
 			<span style={unsupportedLabel}>{getComputedStatusLabel(propStatus)}</span>
 		);
 	}
-
-	throw new Error(
-		`Unsupported prop status: ${propStatus.reason satisfies never}`,
-	);
 };
 
 export const TimelineFieldValue: React.FC<{

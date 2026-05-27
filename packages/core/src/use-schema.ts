@@ -29,13 +29,22 @@ export type CanUpdateSequencePropStatusClamping = {
 	right: ExtrapolateType;
 };
 
-export type CanUpdateSequencePropStatusFalse = {
+export type CanUpdateSequencePropStatusComputed = {
 	canUpdate: false;
 	reason: 'computed';
-	keyframes?: CanUpdateSequencePropStatusKeyframe[];
-	easing?: CanUpdateSequencePropStatusEasing[];
-	clamping?: CanUpdateSequencePropStatusClamping;
 };
+
+export type CanUpdateSequencePropStatusKeyframed = {
+	canUpdate: false;
+	reason: 'keyframed';
+	keyframes: CanUpdateSequencePropStatusKeyframe[];
+	easing: CanUpdateSequencePropStatusEasing[];
+	clamping: CanUpdateSequencePropStatusClamping;
+};
+
+export type CanUpdateSequencePropStatusFalse =
+	| CanUpdateSequencePropStatusComputed
+	| CanUpdateSequencePropStatusKeyframed;
 
 export type CanUpdateSequencePropStatus =
 	| CanUpdateSequencePropStatusTrue
