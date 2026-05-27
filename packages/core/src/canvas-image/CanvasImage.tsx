@@ -30,7 +30,7 @@ import {useDelayRender} from '../use-delay-render.js';
 import {wrapInSchema} from '../wrap-in-schema.js';
 import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
-const canvasImageSchema = {
+export const canvasImageSchema = {
 	fit: {
 		type: 'enum',
 		default: 'fill',

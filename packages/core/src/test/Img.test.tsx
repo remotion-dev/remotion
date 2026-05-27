@@ -6,7 +6,7 @@ import type {
 	EffectDefinition,
 	EffectDescriptor,
 } from '../effects/effect-types.js';
-import {Img} from '../Img.js';
+import {Img, imgSchema} from '../Img.js';
 import type {RemotionEnvironment} from '../remotion-environment-context.js';
 import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
@@ -190,6 +190,10 @@ test('Img with effects renders through the canvas image path', async () => {
 	expect(applyCalls[0].height).toBe(50);
 });
 
+test('<Img> schema does not expose fit', () => {
+	expect(Object.keys(imgSchema)).not.toContain('fit');
+});
+
 test('Img throws when native image props conflict with effects', () => {
 	expect(() =>
 		renderImg(
@@ -238,6 +242,24 @@ test('Img forwards canvas-compatible attributes when effects are passed', async 
 
 	fireEvent.click(canvas as HTMLCanvasElement);
 	expect(drawImageCalls.some((call) => call[0] === 'clicked')).toBe(true);
+});
+
+test('Img forwards objectFit to the canvas backend when effects are passed', async () => {
+	renderImg(
+		<Img
+			src={testImgUrl}
+			width={100}
+			height={100}
+			style={{objectFit: 'contain'}}
+			effects={[makeEffect()]}
+		/>,
+	);
+
+	await waitFor(() => {
+		expect(drawImageCalls.length).toBeGreaterThanOrEqual(1);
+	});
+
+	expect(drawImageCalls[0].slice(1)).toEqual([0, 0, 200, 100, 0, 25, 100, 50]);
 });
 
 test('Img throws when a ref is passed together with effects', () => {

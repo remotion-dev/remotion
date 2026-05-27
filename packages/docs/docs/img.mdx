@@ -65,12 +65,7 @@ Because the element becomes a `<canvas>`, native image props that require an `<i
 The unsupported props include `ref`, `srcSet`, `sizes`, `loading`, `decoding`, `fetchPriority`, `useMap`, `crossOrigin`, `onLoad`, `onError`, `onImageFrame` and `alt`.
 
 Canvas-compatible props such as `aria-*`, `data-*`, `role`, `title`, `tabIndex` and pointer or mouse event handlers are forwarded to the underlying `<canvas>`.
-
-### `fit?`<AvailableFrom v="4.0.468" />
-
-Controls how the image is drawn into the canvas when [`effects`](#effects) is a non-empty array.
-
-Can be `"fill"`, `"contain"` or `"cover"`. Default: `"fill"`.
+When [`effects`](#effects) is a non-empty array, `style.objectFit` controls how the image is drawn into the canvas. Supported values are `"fill"`, `"contain"` and `"cover"`.
 
 ### `onError`
 

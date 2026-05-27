@@ -51,7 +51,6 @@ export type ImgProps = NativeImgProps & {
 	readonly onImageFrame?: (imageElement: HTMLImageElement) => void;
 	readonly src: string;
 	readonly effects?: EffectsProp;
-	readonly fit?: ImageFit;
 	readonly showInTimeline?: boolean;
 	readonly name?: string;
 	/**
@@ -74,7 +73,6 @@ type ImgContentProps = Omit<
 	| 'from'
 	| 'durationInFrames'
 	| 'effects'
-	| 'fit'
 >;
 
 const ImgContent: React.FC<ImgContentProps> = ({
@@ -304,7 +302,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	);
 };
 
-type NativeImgInnerProps = Omit<ImgProps, 'effects' | 'fit'> & {
+type NativeImgInnerProps = Omit<ImgProps, 'effects'> & {
 	readonly _experimentalControls: SequenceControls | undefined;
 };
 
@@ -348,6 +346,11 @@ const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 		readonly _experimentalControls?: SequenceControls | undefined;
 	}
 >;
+
+export const imgSchema = {
+	...sequenceVisualStyleSchema,
+	hidden: hiddenField,
+} as const satisfies SequenceSchema;
 
 const imgCanvasFallbackIncompatibleProps = new Set([
 	'alt',
@@ -408,6 +411,22 @@ const validateCanvasImageFallbackProps = ({
 	);
 };
 
+const getFitFromObjectFit = (
+	style: React.CSSProperties | undefined,
+): ImageFit | undefined => {
+	const objectFit = style?.objectFit;
+
+	if (
+		objectFit === 'fill' ||
+		objectFit === 'contain' ||
+		objectFit === 'cover'
+	) {
+		return objectFit;
+	}
+
+	return undefined;
+};
+
 const ImgInner: React.FC<
 	ImgProps & {
 		readonly _experimentalControls: SequenceControls | undefined;
@@ -425,7 +444,6 @@ const ImgInner: React.FC<
 	_experimentalControls: controls,
 	width,
 	height,
-	fit,
 	className,
 	style,
 	id,
@@ -475,13 +493,14 @@ const ImgInner: React.FC<
 	const canvasWidth = typeof width === 'number' ? width : undefined;
 	const canvasHeight = typeof height === 'number' ? height : undefined;
 	const canvasProps = props as CanvasImageCanvasProps;
+	const canvasFit = getFitFromObjectFit(style) ?? 'fill';
 
 	return (
 		<CanvasImageWithPrivateProps
 			src={src}
 			width={canvasWidth}
 			height={canvasHeight}
-			fit={fit}
+			fit={canvasFit}
 			effects={effects}
 			className={className}
 			style={style}
@@ -504,21 +523,6 @@ const ImgInner: React.FC<
 		/>
 	);
 };
-
-const imgSchema = {
-	fit: {
-		type: 'enum',
-		default: 'fill',
-		description: 'Fit',
-		variants: {
-			fill: {},
-			contain: {},
-			cover: {},
-		},
-	},
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
-} as const satisfies SequenceSchema;
 
 /*
  * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
