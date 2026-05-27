@@ -97,6 +97,11 @@
 			"module": "./dist/esm/mirror.mjs",
 			"import": "./dist/esm/mirror.mjs"
 		},
+		"./noise": {
+			"types": "./dist/noise.d.ts",
+			"module": "./dist/esm/noise.mjs",
+			"import": "./dist/esm/noise.mjs"
+		},
 		"./saturation": {
 			"types": "./dist/saturation.d.ts",
 			"module": "./dist/esm/saturation.mjs",
@@ -174,6 +179,9 @@
 			],
 			"mirror": [
 				"dist/mirror.d.ts"
+			],
+			"noise": [
+				"dist/noise.d.ts"
 			],
 			"saturation": [
 				"dist/saturation.d.ts"

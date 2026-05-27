@@ -1845,6 +1845,15 @@ export const articles = [
 		slug: 'effects/mirror',
 	},
 	{
+		id: 'effects/noise',
+		title: 'noise()',
+		relativePath: 'docs/effects/noise.mdx',
+		compId: 'articles-docs-effects-noise',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/noise',
+	},
+	{
 		id: 'effects/saturation',
 		title: 'saturation()',
 		relativePath: 'docs/effects/saturation.mdx',

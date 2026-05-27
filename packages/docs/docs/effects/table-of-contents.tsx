@@ -173,6 +173,13 @@ const categories: {
 				description: 'Linear dot size gradient',
 			},
 			{
+				link: '/docs/effects/noise',
+				preview: '/img/effects-noise-preview.jpg',
+				alt: 'noise effect preview',
+				name: 'noise()',
+				description: 'Procedural grain effect',
+			},
+			{
 				link: '/docs/starburst/starburst-effect',
 				preview: '/img/effects-starburst-preview.jpg',
 				alt: 'starburst effect preview',
