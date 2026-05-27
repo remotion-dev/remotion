@@ -23,6 +23,7 @@ const effectEntrypoints = [
 	'src/saturation.ts',
 	'src/scale.ts',
 	'src/shine.ts',
+	'src/speckle.ts',
 	'src/tint.ts',
 	'src/translate.ts',
 	'src/vignette.ts',

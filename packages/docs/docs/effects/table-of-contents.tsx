@@ -193,6 +193,13 @@ const categories: {
 				name: 'shine()',
 				description: 'Glossy light sweep effect',
 			},
+			{
+				link: '/docs/effects/speckle',
+				preview: '/img/effects-speckle-preview.jpg',
+				alt: 'speckle effect preview',
+				name: 'speckle()',
+				description: 'Random alpha-hole effect',
+			},
 		],
 	},
 ];

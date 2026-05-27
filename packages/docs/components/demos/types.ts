@@ -16,6 +16,7 @@ import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
+import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
@@ -1756,6 +1757,47 @@ export const effectsShineDemo: DemoType = {
 			max: 1,
 			step: 0.01,
 			default: 0.4,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsSpeckleDemo: DemoType = {
+	comp: EffectsSpecklePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-speckle',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'density',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.14,
+			optional: 'no',
+		},
+		{
+			name: 'size',
+			type: 'numeric',
+			min: 0,
+			max: 50,
+			step: 0.1,
+			default: 4,
+			optional: 'no',
+		},
+		{
+			name: 'randomness',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 1,
 			optional: 'no',
 		},
 	],
