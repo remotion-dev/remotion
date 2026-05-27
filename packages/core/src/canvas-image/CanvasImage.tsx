@@ -427,9 +427,7 @@ const CanvasImageInner = forwardRef<
 				name={name ?? '<CanvasImage>'}
 				_remotionInternalDocumentationLink={
 					_remotionInternalDocumentationLink ??
-					(name === undefined
-						? 'https://www.remotion.dev/docs/canvasimage'
-						: undefined)
+					'https://www.remotion.dev/docs/canvasimage'
 				}
 				_experimentalControls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
