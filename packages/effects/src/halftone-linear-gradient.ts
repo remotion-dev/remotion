@@ -287,7 +287,9 @@ void main() {
 	vec2 canvasCenter = center + gridCenter;
 
 	vec2 centerUv = canvasCenter / uResolution;
-	float progress = gradientProgress(centerUv);
+	// Flip Y so that (0,0) is top-left, matching CSS/canvas coordinate conventions.
+	vec2 gradientUv = vec2(centerUv.x, 1.0 - centerUv.y);
+	float progress = gradientProgress(gradientUv);
 	float dotSize = mix(uFirstStopDotSize, uSecondStopDotSize, progress);
 
 	if (dotSize <= 0.01) {
