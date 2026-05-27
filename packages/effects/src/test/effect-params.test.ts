@@ -12,6 +12,7 @@ import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
 import {mirror} from '../mirror.js';
+import {noise} from '../noise.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {shine} from '../shine.js';
@@ -60,6 +61,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(mirror().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/mirror',
 	);
+	expect(noise().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/noise',
+	);
 	expect(saturation().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/saturation',
 	);
@@ -101,6 +105,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
 	expect(mirror().definition.label).toBe('mirror()');
+	expect(noise().definition.label).toBe('noise()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
 	expect(shine().definition.label).toBe('shine()');
@@ -773,6 +778,52 @@ test('mirror() parameters produce distinct effect keys', () => {
 			vertical.effectKey,
 			shifted.effectKey,
 			inverted.effectKey,
+		]).size,
+	).toBe(4);
+});
+
+test('noise() accepts default params', () => {
+	expect(() => noise()).not.toThrow();
+});
+
+test('noise() rejects non-finite amount', () => {
+	expect(() => noise({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('noise() rejects amount below range', () => {
+	expect(() => noise({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('noise() rejects amount above range', () => {
+	expect(() => noise({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('noise() rejects non-finite seed', () => {
+	expect(() => noise({seed: Number.NaN})).toThrow(
+		'"seed" must be a finite number',
+	);
+});
+
+test('noise() rejects non-boolean premultiply', () => {
+	expect(() => noise({premultiply: 'yes' as unknown as boolean})).toThrow(
+		'"premultiply" must be a boolean',
+	);
+});
+
+test('noise() parameters produce distinct effect keys', () => {
+	const subtle = noise({amount: 0.1});
+	const strong = noise({amount: 0.3});
+	const seeded = noise({amount: 0.3, seed: 1});
+	const premultiplied = noise({amount: 0.3, premultiply: true});
+
+	expect(
+		new Set([
+			subtle.effectKey,
+			strong.effectKey,
+			seeded.effectKey,
+			premultiplied.effectKey,
 		]).size,
 	).toBe(4);
 });

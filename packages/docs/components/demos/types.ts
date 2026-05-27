@@ -13,6 +13,7 @@ import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
+import {EffectsNoisePreview} from '../effects/effects-noise-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
@@ -1914,6 +1915,44 @@ export const effectsBarrelDistortionDemo: DemoType = {
 			max: 1,
 			step: 0.01,
 			default: 0.28,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsNoiseDemo: DemoType = {
+	comp: EffectsNoisePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-noise',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.25,
+			optional: 'no',
+		},
+		{
+			name: 'seed',
+			type: 'numeric',
+			min: 0,
+			max: 100,
+			step: 1,
+			default: 0,
+			optional: 'no',
+		},
+		{
+			name: 'premultiply',
+			type: 'boolean',
+			default: false,
 			optional: 'no',
 		},
 	],
