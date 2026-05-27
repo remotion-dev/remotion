@@ -33,6 +33,7 @@ export {EffectsHalftonePreview} from './effects-halftone-preview';
 export {EffectsHuePreview} from './effects-hue-preview';
 export {EffectsInvertPreview} from './effects-invert-preview';
 export {EffectsSaturationPreview} from './effects-saturation-preview';
+export {EffectsShinePreview} from './effects-shine-preview';
 export {EffectsTintPreview} from './effects-tint-preview';
 export {EffectsUvTranslatePreview} from './effects-uv-translate-preview';
 export {EffectsWavePreview} from './effects-wave-preview';
