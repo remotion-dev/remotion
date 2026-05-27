@@ -1,5 +1,6 @@
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {getEffectiveVisualModeValue} from './get-effective-visual-mode-value.js';
+import type {ExtrapolateType} from './interpolate.js';
 import type {
 	SequenceFieldSchema,
 	SequenceSchema,
@@ -19,10 +20,21 @@ export type CanUpdateSequencePropStatusKeyframe = {
 	value: unknown;
 };
 
+export type CanUpdateSequencePropStatusEasing =
+	| 'linear'
+	| [number, number, number, number];
+
+export type CanUpdateSequencePropStatusClamping = {
+	left: ExtrapolateType;
+	right: ExtrapolateType;
+};
+
 export type CanUpdateSequencePropStatusFalse = {
 	canUpdate: false;
 	reason: 'computed';
 	keyframes?: CanUpdateSequencePropStatusKeyframe[];
+	easing?: CanUpdateSequencePropStatusEasing[];
+	clamping?: CanUpdateSequencePropStatusClamping;
 };
 
 export type CanUpdateSequencePropStatus =
