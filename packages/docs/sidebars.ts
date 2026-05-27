@@ -282,8 +282,10 @@ const sidebars: SidebarsConfig = {
 				'effects/mirror',
 				'effects/saturation',
 				'effects/scale',
+				'effects/shine',
 				'effects/tint',
 				'effects/uv-translate',
+				'effects/vignette',
 				'effects/wave',
 				'effects/xy-translate',
 			],
@@ -426,7 +428,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'light-leaks/light-leaks-api',
 			},
-			items: ['light-leaks/light-leak'],
+			items: ['light-leaks/light-leak-effect', 'light-leaks/light-leak'],
 		},
 		{
 			type: 'category',
@@ -703,7 +705,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'starburst/starburst-api',
 			},
-			items: ['starburst/starburst-component'],
+			items: ['starburst/starburst-effect', 'starburst/starburst-component'],
 		},
 		{
 			type: 'category',

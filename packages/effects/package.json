@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.467",
+	"version": "4.0.468",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -102,6 +102,11 @@
 			"module": "./dist/esm/scale.mjs",
 			"import": "./dist/esm/scale.mjs"
 		},
+		"./shine": {
+			"types": "./dist/shine.d.ts",
+			"module": "./dist/esm/shine.mjs",
+			"import": "./dist/esm/shine.mjs"
+		},
 		"./tint": {
 			"types": "./dist/tint.d.ts",
 			"module": "./dist/esm/tint.mjs",
@@ -111,6 +116,11 @@
 			"types": "./dist/translate.d.ts",
 			"module": "./dist/esm/translate.mjs",
 			"import": "./dist/esm/translate.mjs"
+		},
+		"./vignette": {
+			"types": "./dist/vignette.d.ts",
+			"module": "./dist/esm/vignette.mjs",
+			"import": "./dist/esm/vignette.mjs"
 		},
 		"./wave": {
 			"types": "./dist/wave.d.ts",
@@ -163,11 +173,17 @@
 			"scale": [
 				"dist/scale.d.ts"
 			],
+			"shine": [
+				"dist/shine.d.ts"
+			],
 			"tint": [
 				"dist/tint.d.ts"
 			],
 			"translate": [
 				"dist/translate.d.ts"
+			],
+			"vignette": [
+				"dist/vignette.d.ts"
 			],
 			"wave": [
 				"dist/wave.d.ts"

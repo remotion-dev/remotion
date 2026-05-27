@@ -2,9 +2,9 @@ import {blur} from '@remotion/effects/blur';
 import {halftone} from '@remotion/effects/halftone';
 import {tint} from '@remotion/effects/tint';
 import {wave} from '@remotion/effects/wave';
-import {LightLeakInternals} from '@remotion/light-leaks';
+import {lightLeak} from '@remotion/light-leaks';
 import {Video} from '@remotion/media';
-import {StarburstInternals} from '@remotion/starburst';
+import {starburst} from '@remotion/starburst';
 import React from 'react';
 import {AbsoluteFill, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 
@@ -111,7 +111,7 @@ const AnimatedLightLeakSolid: React.FC = () => {
 			color="#ff5fa2"
 			style={tileVideoStyle}
 			effects={[
-				LightLeakInternals.lightLeak({
+				lightLeak({
 					seed: 1,
 					hueShift: 30,
 					progress,
@@ -133,7 +133,7 @@ const AnimatedStackVideo: React.FC = () => {
 			loop
 			objectFit="cover"
 			effects={[
-				StarburstInternals.starburst({
+				starburst({
 					colors: ['#ff5fa2', '#ff0000'],
 					rays: 12,
 				}),

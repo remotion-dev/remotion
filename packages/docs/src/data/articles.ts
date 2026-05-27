@@ -1854,6 +1854,15 @@ export const articles = [
 		slug: 'effects/scale',
 	},
 	{
+		id: 'effects/shine',
+		title: 'shine()',
+		relativePath: 'docs/effects/shine.mdx',
+		compId: 'articles-docs-effects-shine',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/shine',
+	},
+	{
 		id: 'effects/tint',
 		title: 'tint()',
 		relativePath: 'docs/effects/tint.mdx',
@@ -1870,6 +1879,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/uv-translate',
+	},
+	{
+		id: 'effects/vignette',
+		title: 'vignette()',
+		relativePath: 'docs/effects/vignette.mdx',
+		compId: 'articles-docs-effects-vignette',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/vignette',
 	},
 	{
 		id: 'effects/wave',
@@ -3409,6 +3427,15 @@ export const articles = [
 		crumb: null,
 		noAi: false,
 		slug: 'light-leaks/api',
+	},
+	{
+		id: 'light-leaks/light-leak-effect',
+		title: 'lightLeak()',
+		relativePath: 'docs/light-leaks/light-leak-effect.mdx',
+		compId: 'articles-docs-light-leaks-light-leak-effect',
+		crumb: '@remotion/light-leaks',
+		noAi: false,
+		slug: 'light-leaks/light-leak-effect',
 	},
 	{
 		id: 'light-leaks/light-leak',
@@ -6086,6 +6113,15 @@ export const articles = [
 		crumb: 'API',
 		noAi: false,
 		slug: 'starburst/api',
+	},
+	{
+		id: 'starburst/starburst-effect',
+		title: 'starburst()',
+		relativePath: 'docs/starburst/starburst-effect.mdx',
+		compId: 'articles-docs-starburst-starburst-effect',
+		crumb: '@remotion/starburst',
+		noAi: false,
+		slug: 'starburst/starburst-effect',
 	},
 	{
 		id: 'starburst-component',

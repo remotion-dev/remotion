@@ -10,14 +10,18 @@ import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
+import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
+import {EffectsShinePreview} from '../effects/effects-shine-preview';
+import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
 	EffectsXyTranslatePreview,
 } from '../effects/effects-translate-preview';
+import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {
 	ClockWipeDemo,
@@ -1681,6 +1685,74 @@ export const effectsTintDemo: DemoType = {
 	],
 };
 
+export const effectsShineDemo: DemoType = {
+	comp: EffectsShinePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-shine',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'progress',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.5,
+			optional: 'no',
+		},
+		{
+			name: 'angle',
+			type: 'numeric',
+			min: -180,
+			max: 180,
+			step: 1,
+			default: 30,
+			optional: 'no',
+		},
+		{
+			name: 'haloSigma',
+			type: 'numeric',
+			min: 1,
+			max: 500,
+			step: 1,
+			default: 200,
+			optional: 'no',
+		},
+		{
+			name: 'coreSigma',
+			type: 'numeric',
+			min: 1,
+			max: 500,
+			step: 1,
+			default: 65,
+			optional: 'no',
+		},
+		{
+			name: 'haloIntensity',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.3,
+			optional: 'no',
+		},
+		{
+			name: 'coreIntensity',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.4,
+			optional: 'no',
+		},
+	],
+};
+
 export const effectsMirrorDemo: DemoType = {
 	comp: EffectsMirrorPreview,
 	compHeight: 720,
@@ -1835,6 +1907,73 @@ export const effectsBarrelDistortionDemo: DemoType = {
 			step: 0.01,
 			default: 0.28,
 			optional: 'no',
+		},
+	],
+};
+
+export const effectsVignetteDemo: DemoType = {
+	comp: EffectsVignettePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-vignette',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.75,
+			optional: 'no',
+		},
+		{
+			name: 'radius',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.55,
+			optional: 'no',
+		},
+		{
+			name: 'feather',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.35,
+			optional: 'no',
+		},
+		{
+			name: 'roundness',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 1,
+			optional: 'no',
+		},
+		{
+			name: 'mode',
+			type: 'enum',
+			values: ['color', 'alpha'],
+			default: 'color',
+			optional: 'no',
+		},
+		{
+			name: 'color',
+			type: 'color',
+			default: '#000000',
+			optional: 'no',
+			showIf: {
+				option: 'mode',
+				value: 'color',
+			},
 		},
 	],
 };
@@ -2020,6 +2159,106 @@ export const effectsHalftoneDemo: DemoType = {
 			name: 'invert',
 			type: 'boolean',
 			default: false,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsStarburstDemo: DemoType = {
+	comp: EffectsStarburstPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-starburst',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'rays',
+			type: 'numeric',
+			default: 16,
+			min: 2,
+			max: 100,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'rotation',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 360,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'smoothness',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 1,
+			step: 0.01,
+			optional: 'no',
+		},
+		{
+			name: 'originOffsetX',
+			type: 'numeric',
+			default: 0,
+			min: -1,
+			max: 1,
+			step: 0.01,
+			optional: 'no',
+		},
+		{
+			name: 'originOffsetY',
+			type: 'numeric',
+			default: 0,
+			min: -1,
+			max: 1,
+			step: 0.01,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsLightLeakDemo: DemoType = {
+	comp: EffectsLightLeakPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-light-leak',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'seed',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 100,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'hueShift',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 360,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'progress',
+			type: 'numeric',
+			default: 0.5,
+			min: 0,
+			max: 1,
+			step: 0.01,
 			optional: 'no',
 		},
 	],

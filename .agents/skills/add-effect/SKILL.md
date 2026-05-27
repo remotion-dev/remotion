@@ -257,11 +257,15 @@ export const EffectsMyEffectPreview: React.FC<{
 			src={EFFECTS_PREVIEW_IMAGE_SRC}
 			width={1280}
 			height={720}
+			fit="cover"
 			effects={[myEffect({amount})]}
 		/>
 	);
 };
 ```
+
+Use `fit="cover"` for docs effect previews so the shared preview image fills
+the 16:9 canvas and does not leave transparent bars.
 
 Register the demo:
 
@@ -291,7 +295,7 @@ const Root: React.FC = () => {
 		<Composition
 			id="effects-my-effect-preview"
 			component={EffectsMyEffectPreview}
-			width={1080}
+			width={1280}
 			height={720}
 			fps={30}
 			durationInFrames={1}
@@ -305,10 +309,15 @@ const Root: React.FC = () => {
 registerRoot(Root);
 ```
 
+Use the same `width` and `height` as the preview component's `CanvasImage`.
+If the preview component uses the shared docs preview image, keep
+`fit="cover"` on `CanvasImage`. Rendering a 16:9 preview component into a
+different aspect ratio can leave black bars in the generated TOC image.
+
 Then render from `packages/docs`:
 
 ```bash
-npx --no-install --package @remotion/cli remotion still src/remotion/effects-preview-entry.tsx effects-my-effect-preview static/img/effects-my-effect-preview.jpg --overwrite --image-format=jpeg
+bunx remotion still src/remotion/effects-preview-entry.tsx effects-my-effect-preview static/img/effects-my-effect-preview.jpg --overwrite --image-format=jpeg
 ```
 
 Add the rendered image to `packages/docs/static/img/`, reference it from `table-of-contents.tsx`, and delete the temporary entry point before committing.

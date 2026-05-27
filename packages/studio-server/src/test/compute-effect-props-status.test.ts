@@ -79,11 +79,13 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 
 	expect(result.props.amount).toEqual({
 		canUpdate: false,
-		reason: 'computed',
+		reason: 'keyframed',
 		keyframes: [
 			{frame: 0, value: 0.2},
 			{frame: 100, value: 0.8},
 		],
+		easing: ['linear'],
+		clamping: {left: 'extend', right: 'extend'},
 	});
 });
 

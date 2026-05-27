@@ -13,8 +13,10 @@ import {invert} from '../invert.js';
 import {mirror} from '../mirror.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
+import {shine} from '../shine.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
+import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
 
 test('@remotion/effects expose documentation links', () => {
@@ -60,11 +62,17 @@ test('@remotion/effects expose documentation links', () => {
 	expect(scale({scale: 1}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/scale',
 	);
+	expect(shine().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/shine',
+	);
 	expect(tint({color: '#fff'}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/tint',
 	);
 	expect(uvTranslate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/uv-translate',
+	);
+	expect(vignette().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/vignette',
 	);
 	expect(xyTranslate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/xy-translate',
@@ -88,8 +96,10 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
+	expect(shine().definition.label).toBe('shine()');
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
 	expect(uvTranslate().definition.label).toBe('uvTranslate()');
+	expect(vignette().definition.label).toBe('vignette()');
 	expect(xyTranslate().definition.label).toBe('xyTranslate()');
 	expect(wave().definition.label).toBe('wave()');
 });
@@ -451,6 +461,89 @@ test('glow() parameters produce distinct effect keys', () => {
 	).toBe(5);
 });
 
+test('vignette() accepts default params', () => {
+	expect(() => vignette()).not.toThrow();
+});
+
+test('vignette() accepts valid color mode params', () => {
+	expect(() =>
+		vignette({
+			amount: 0.8,
+			radius: 0.5,
+			feather: 0.25,
+			roundness: 0.9,
+			color: '#221144',
+			mode: 'color',
+		}),
+	).not.toThrow();
+});
+
+test('vignette() accepts valid alpha mode params', () => {
+	expect(() =>
+		vignette({
+			amount: 0.8,
+			mode: 'alpha',
+		}),
+	).not.toThrow();
+});
+
+test('vignette() rejects non-finite amount', () => {
+	expect(() => vignette({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('vignette() rejects radius below range', () => {
+	expect(() => vignette({radius: -0.1})).toThrow('"radius" must be >= 0');
+});
+
+test('vignette() rejects feather above range', () => {
+	expect(() => vignette({feather: 1.1})).toThrow('"feather" must be <= 1');
+});
+
+test('vignette() rejects roundness above range', () => {
+	expect(() => vignette({roundness: 1.1})).toThrow('"roundness" must be <= 1');
+});
+
+test('vignette() rejects empty color strings', () => {
+	expect(() => vignette({color: ''})).toThrow(
+		'"color" must be a non-empty string, but got ""',
+	);
+});
+
+test('vignette() rejects mode outside the enum', () => {
+	expect(() =>
+		vignette({
+			mode: 'mask' as Exclude<
+				Parameters<typeof vignette>[0],
+				undefined
+			>['mode'],
+		}),
+	).toThrow('"mode" must be "color" or "alpha"');
+});
+
+test('vignette() parameters produce distinct effect keys', () => {
+	const defaultVignette = vignette();
+	const strongerVignette = vignette({amount: 0.8});
+	const widerVignette = vignette({radius: 0.4});
+	const sharperVignette = vignette({feather: 0.1});
+	const rectangularVignette = vignette({roundness: 0});
+	const coloredVignette = vignette({color: '#0000ff'});
+	const alphaVignette = vignette({mode: 'alpha'});
+
+	expect(
+		new Set([
+			defaultVignette.effectKey,
+			strongerVignette.effectKey,
+			widerVignette.effectKey,
+			sharperVignette.effectKey,
+			rectangularVignette.effectKey,
+			coloredVignette.effectKey,
+			alphaVignette.effectKey,
+		]).size,
+	).toBe(7);
+});
+
 test('halftone() accepts default params', () => {
 	expect(() => halftone()).not.toThrow();
 });
@@ -682,6 +775,75 @@ test('scale() axis flags produce distinct effect keys', () => {
 		neither.effectKey,
 	];
 	expect(new Set(keys).size).toBe(keys.length);
+});
+
+test('shine() accepts default params', () => {
+	expect(() => shine()).not.toThrow();
+});
+
+test('shine() accepts valid params', () => {
+	expect(() =>
+		shine({
+			progress: 0.25,
+			angle: 45,
+			haloSigma: 160,
+			coreSigma: 48,
+			haloIntensity: 0.4,
+			coreIntensity: 0.6,
+		}),
+	).not.toThrow();
+});
+
+test('shine() rejects progress below range', () => {
+	expect(() => shine({progress: -0.1})).toThrow('"progress" must be >= 0');
+});
+
+test('shine() rejects progress above range', () => {
+	expect(() => shine({progress: 1.1})).toThrow('"progress" must be <= 1');
+});
+
+test('shine() rejects non-positive haloSigma', () => {
+	expect(() => shine({haloSigma: 0})).toThrow(
+		'"haloSigma" must be greater than 0',
+	);
+});
+
+test('shine() rejects non-positive coreSigma', () => {
+	expect(() => shine({coreSigma: 0})).toThrow(
+		'"coreSigma" must be greater than 0',
+	);
+});
+
+test('shine() rejects haloIntensity above range', () => {
+	expect(() => shine({haloIntensity: 1.1})).toThrow(
+		'"haloIntensity" must be <= 1',
+	);
+});
+
+test('shine() rejects coreIntensity below range', () => {
+	expect(() => shine({coreIntensity: -0.1})).toThrow(
+		'"coreIntensity" must be >= 0',
+	);
+});
+
+test('shine() parameters produce distinct effect keys', () => {
+	const defaultShine = shine();
+	const advanced = shine({progress: 0.75});
+	const angled = shine({angle: 75});
+	const wider = shine({haloSigma: 250});
+	const sharper = shine({coreSigma: 40});
+	const brighter = shine({coreIntensity: 0.8});
+
+	expect(
+		new Set([
+			defaultShine.effectKey,
+			advanced.effectKey,
+			angled.effectKey,
+			wider.effectKey,
+			sharper.effectKey,
+			brighter.effectKey,
+		]).size,
+	).toBe(6);
 });
 
 test('xyTranslate() accepts default params', () => {
