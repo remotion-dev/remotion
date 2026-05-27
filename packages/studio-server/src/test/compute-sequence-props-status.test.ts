@@ -84,6 +84,8 @@ export const Example: React.FC = () => {
 			{frame: 0, value: 'red'},
 			{frame: 100, value: 'blue'},
 		],
+		easing: ['linear'],
+		clamping: {left: 'extend', right: 'extend'},
 	});
 });
 
@@ -231,5 +233,79 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 			{frame: 0, value: 2},
 			{frame: 100, value: 4},
 		],
+		easing: ['linear'],
+		clamping: {left: 'extend', right: 'extend'},
+	});
+});
+
+test('computeSequencePropsStatus should parse easing arrays and clamping', () => {
+	const input = `import React from 'react';
+import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 50, 100], [1, 2, 3], {
+\t\t\teasing: [Easing.bezier(0.1, 0.2, 0.3, 0.4), Easing.linear],
+\t\t\textrapolateLeft: 'clamp',
+\t\t\textrapolateRight: 'identity',
+\t\t})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		canUpdate: false,
+		reason: 'computed',
+		keyframes: [
+			{frame: 0, value: 1},
+			{frame: 50, value: 2},
+			{frame: 100, value: 3},
+		],
+		easing: [[0.1, 0.2, 0.3, 0.4], 'linear'],
+		clamping: {
+			left: 'clamp',
+			right: 'identity',
+		},
+	});
+});
+
+test('computeSequencePropsStatus should bail on unsupported easing expressions', () => {
+	const input = `import React from 'react';
+import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {
+\t\t\teasing: Easing.inOut(Easing.linear),
+\t\t})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		canUpdate: false,
+		reason: 'computed',
 	});
 });
