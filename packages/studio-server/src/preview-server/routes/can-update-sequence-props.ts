@@ -28,9 +28,10 @@ import {computeEffectPropStatus} from './can-update-effect-props';
 
 type CanUpdatePropStatus = CanUpdateSequencePropStatus;
 type ComputedPropStatus = Extract<CanUpdatePropStatus, {canUpdate: false}>;
-type PropKeyframes = NonNullable<ComputedPropStatus['keyframes']>;
-type PropEasing = NonNullable<ComputedPropStatus['easing']>;
-type PropClamping = NonNullable<ComputedPropStatus['clamping']>;
+type KeyframedPropStatus = Extract<ComputedPropStatus, {reason: 'keyframed'}>;
+type PropKeyframes = KeyframedPropStatus['keyframes'];
+type PropEasing = KeyframedPropStatus['easing'];
+type PropClamping = KeyframedPropStatus['clamping'];
 
 export const isStaticValue = (node: Expression): boolean => {
 	switch (node.type) {
@@ -441,7 +442,7 @@ export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
 
 	return {
 		canUpdate: false,
-		reason: 'computed',
+		reason: 'keyframed',
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,
