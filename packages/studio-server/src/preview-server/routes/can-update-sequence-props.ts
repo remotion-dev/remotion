@@ -16,6 +16,7 @@ import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
+	ExtrapolateType,
 	LogLevel,
 	SequenceNodePath,
 } from 'remotion';
@@ -28,6 +29,8 @@ import {computeEffectPropStatus} from './can-update-effect-props';
 type CanUpdatePropStatus = CanUpdateSequencePropStatus;
 type ComputedPropStatus = Extract<CanUpdatePropStatus, {canUpdate: false}>;
 type PropKeyframes = NonNullable<ComputedPropStatus['keyframes']>;
+type PropEasing = NonNullable<ComputedPropStatus['easing']>;
+type PropClamping = NonNullable<ComputedPropStatus['clamping']>;
 
 export const isStaticValue = (node: Expression): boolean => {
 	switch (node.type) {
@@ -140,9 +143,213 @@ const getNumericValue = (node: Expression): number | null => {
 	return null;
 };
 
+const getExtrapolateType = (node: Expression): ExtrapolateType | null => {
+	if (node.type === 'StringLiteral') {
+		if (
+			node.value === 'extend' ||
+			node.value === 'identity' ||
+			node.value === 'clamp' ||
+			node.value === 'wrap'
+		) {
+			return node.value;
+		}
+
+		return null;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getExtrapolateType(node.expression as Expression);
+	}
+
+	return null;
+};
+
+const getKeyframeEasing = (node: Expression): PropEasing[number] | null => {
+	if (node.type === 'TSAsExpression') {
+		return getKeyframeEasing(node.expression as Expression);
+	}
+
+	if (
+		node.type === 'MemberExpression' &&
+		node.object.type === 'Identifier' &&
+		node.object.name === 'Easing' &&
+		node.property.type === 'Identifier' &&
+		node.property.name === 'linear' &&
+		node.computed === false
+	) {
+		return 'linear';
+	}
+
+	if (
+		node.type !== 'CallExpression' ||
+		node.callee.type !== 'MemberExpression' ||
+		node.callee.object.type !== 'Identifier' ||
+		node.callee.object.name !== 'Easing' ||
+		node.callee.property.type !== 'Identifier' ||
+		node.callee.property.name !== 'bezier' ||
+		node.callee.computed
+	) {
+		return null;
+	}
+
+	if (node.arguments.length !== 4) {
+		return null;
+	}
+
+	const values = node.arguments.map((arg) => {
+		if (
+			arg.type === 'ArgumentPlaceholder' ||
+			arg.type === 'JSXNamespacedName' ||
+			arg.type === 'SpreadElement'
+		) {
+			return null;
+		}
+
+		return getNumericValue(arg as Expression);
+	});
+
+	if (values.some((v) => v === null)) {
+		return null;
+	}
+
+	return values as [number, number, number, number];
+};
+
+const getKeyframeEasingArray = ({
+	easingNode,
+	segments,
+}: {
+	easingNode: Expression;
+	segments: number;
+}): PropEasing | null => {
+	if (segments === 0) {
+		return [];
+	}
+
+	if (easingNode.type === 'TSAsExpression') {
+		return getKeyframeEasingArray({
+			easingNode: easingNode.expression as Expression,
+			segments,
+		});
+	}
+
+	if (easingNode.type === 'ArrayExpression') {
+		if (easingNode.elements.length !== segments) {
+			return null;
+		}
+
+		const parsed = easingNode.elements.map((element) => {
+			if (!element || element.type === 'SpreadElement') {
+				return null;
+			}
+
+			return getKeyframeEasing(element);
+		});
+
+		if (parsed.some((value) => value === null)) {
+			return null;
+		}
+
+		return parsed as PropEasing;
+	}
+
+	const easing = getKeyframeEasing(easingNode);
+	if (!easing) {
+		return null;
+	}
+
+	return new Array(segments).fill(easing) as PropEasing;
+};
+
+const getInterpolationMetadata = (
+	callExpression: CallExpression,
+	keyframeCount: number,
+): {easing: PropEasing; clamping: PropClamping} | null => {
+	const segments = Math.max(0, keyframeCount - 1);
+	const defaultClamping: PropClamping = {
+		left: 'extend',
+		right: 'extend',
+	};
+	const defaults = {
+		easing: new Array(segments).fill('linear') as PropEasing,
+		clamping: defaultClamping,
+	};
+
+	if (
+		callExpression.callee.type !== 'Identifier' ||
+		callExpression.callee.name !== 'interpolate'
+	) {
+		return defaults;
+	}
+
+	const optionsArg = callExpression.arguments[3];
+	if (!optionsArg) {
+		return defaults;
+	}
+
+	if (optionsArg.type !== 'ObjectExpression') {
+		return null;
+	}
+
+	let easing = defaults.easing;
+	let clamping: PropClamping = defaults.clamping;
+
+	for (const property of optionsArg.properties) {
+		if (property.type !== 'ObjectProperty' || property.computed) {
+			return null;
+		}
+
+		const key =
+			property.key.type === 'Identifier'
+				? property.key.name
+				: property.key.type === 'StringLiteral'
+					? property.key.value
+					: null;
+
+		if (!key) {
+			return null;
+		}
+
+		const value = property.value as Expression;
+
+		if (key === 'easing') {
+			const parsedEasing = getKeyframeEasingArray({
+				easingNode: value,
+				segments,
+			});
+			if (!parsedEasing) {
+				return null;
+			}
+
+			easing = parsedEasing;
+			continue;
+		}
+
+		if (key === 'extrapolateLeft' || key === 'extrapolateRight') {
+			const extrapolateType = getExtrapolateType(value);
+			if (!extrapolateType) {
+				return null;
+			}
+
+			clamping =
+				key === 'extrapolateLeft'
+					? {...clamping, left: extrapolateType}
+					: {...clamping, right: extrapolateType};
+		}
+	}
+
+	return {easing, clamping};
+};
+
 const getInterpolationKeyframes = (
 	node: Expression,
-): PropKeyframes | undefined => {
+):
+	| {
+			keyframes: PropKeyframes;
+			easing: PropEasing;
+			clamping: PropClamping;
+	  }
+	| undefined => {
 	if (node.type === 'TSAsExpression') {
 		return getInterpolationKeyframes(node.expression as Expression);
 	}
@@ -199,19 +406,34 @@ const getInterpolationKeyframes = (
 		});
 	}
 
-	return keyframes.length > 0 ? keyframes : undefined;
+	if (keyframes.length === 0) {
+		return undefined;
+	}
+
+	const metadata = getInterpolationMetadata(callExpression, keyframes.length);
+	if (!metadata) {
+		return undefined;
+	}
+
+	return {
+		keyframes,
+		easing: metadata.easing,
+		clamping: metadata.clamping,
+	};
 };
 
 export const getComputedStatus = (node: Expression): CanUpdatePropStatus => {
-	const keyframes = getInterpolationKeyframes(node);
-	if (!keyframes) {
+	const interpolation = getInterpolationKeyframes(node);
+	if (!interpolation) {
 		return {canUpdate: false, reason: 'computed'};
 	}
 
 	return {
 		canUpdate: false,
 		reason: 'computed',
-		keyframes,
+		keyframes: interpolation.keyframes,
+		easing: interpolation.easing,
+		clamping: interpolation.clamping,
 	};
 };
 
