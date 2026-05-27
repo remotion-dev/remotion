@@ -19,8 +19,8 @@ export const WriteInReact: React.FC = () => {
 				}}
 				className="font-medium text-center text-lg"
 			>
-				Create real MP4 videos with React. <br />
-				Use coding agents, build apps and render in bulk.
+				Use code, data, and AI agents to generate real MP4 videos. <br />
+				Build once, customize endlessly, and render at scale.
 			</p>
 			<br />
 			<div>

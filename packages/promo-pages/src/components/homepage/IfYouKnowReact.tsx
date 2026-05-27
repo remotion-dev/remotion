@@ -42,8 +42,8 @@ export const IfYouKnowReact: React.FC = () => {
 					<span className="text-brand">Compose</span> with code
 				</h2>
 				<p className="leading-relaxed font-brand">
-					Use React, a powerful frontend technology, to create sophisticated
-					videos with code.
+					Use React to create sophisticated videos with code. Start from
+					scratch, a template, or an AI-assisted draft, then refine every frame.
 				</p>
 				<div className="h-4" />
 				<a
