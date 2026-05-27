@@ -266,20 +266,31 @@ const getInterpolationMetadata = (
 	keyframeCount: number,
 ): {easing: PropEasing; clamping: PropClamping} | null => {
 	const segments = Math.max(0, keyframeCount - 1);
-	const defaultClamping: PropClamping = {
-		left: 'extend',
-		right: 'extend',
-	};
+	if (callExpression.callee.type !== 'Identifier') {
+		return null;
+	}
+
+	const defaultClamping: PropClamping =
+		callExpression.callee.name === 'interpolateColors'
+			? {
+					left: 'clamp',
+					right: 'clamp',
+				}
+			: {
+					left: 'extend',
+					right: 'extend',
+				};
 	const defaults = {
 		easing: new Array(segments).fill('linear') as PropEasing,
 		clamping: defaultClamping,
 	};
 
-	if (
-		callExpression.callee.type !== 'Identifier' ||
-		callExpression.callee.name !== 'interpolate'
-	) {
+	if (callExpression.callee.name === 'interpolateColors') {
 		return defaults;
+	}
+
+	if (callExpression.callee.name !== 'interpolate') {
+		return null;
 	}
 
 	const optionsArg = callExpression.arguments[3];
