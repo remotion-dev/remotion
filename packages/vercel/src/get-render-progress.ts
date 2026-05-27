@@ -1,6 +1,22 @@
 import {Sandbox} from '@vercel/sandbox';
 import type {RenderProgress} from './types';
 
+const isStoppedOrExpiredSandboxError = (error: unknown) => {
+	if (typeof error === 'object' && error !== null && 'code' in error) {
+		return error.code === 'sandbox_stopped';
+	}
+
+	if (!(error instanceof Error)) {
+		return false;
+	}
+
+	return (
+		error.message.includes('sandbox_stopped') ||
+		error.message.includes('Sandbox has stopped execution') ||
+		error.message.includes('no longer available')
+	);
+};
+
 const getCommandError = async (
 	command: Awaited<ReturnType<Sandbox['getCommand']>>,
 ) => {
@@ -9,18 +25,6 @@ const getCommandError = async (
 	const output = [stderr, stdout].filter(Boolean).join(' ');
 
 	return output || `Render command exited with code ${command.exitCode}.`;
-};
-
-const stopSandboxOnTerminalProgress = async ({
-	progress,
-	sandbox,
-}: {
-	progress: RenderProgress;
-	sandbox: Sandbox;
-}) => {
-	if (progress.stage === 'done' || progress.stage === 'error') {
-		await sandbox.stop().catch(() => undefined);
-	}
 };
 
 export async function getRenderProgress({
@@ -41,6 +45,10 @@ export async function getRenderProgress({
 	try {
 		command = await sandbox.getCommand(cmdId);
 	} catch (err) {
+		if (isStoppedOrExpiredSandboxError(err)) {
+			return {stage: 'expired'};
+		}
+
 		return {
 			stage: 'error',
 			message: (err as Error).message,
@@ -48,7 +56,20 @@ export async function getRenderProgress({
 		};
 	}
 
-	const buffer = await sandbox.readFileToBuffer({path: 'progress.json'});
+	let buffer: Buffer | null;
+	try {
+		buffer = await sandbox.readFileToBuffer({path: 'progress.json'});
+	} catch (err) {
+		if (isStoppedOrExpiredSandboxError(err)) {
+			return {stage: 'expired'};
+		}
+
+		return {
+			stage: 'error',
+			message: (err as Error).message,
+			overallProgress: 1,
+		};
+	}
 
 	if (!buffer) {
 		if (command.exitCode === null) {
@@ -56,7 +77,6 @@ export async function getRenderProgress({
 		}
 
 		const message = await getCommandError(command);
-		await sandbox.stop().catch(() => undefined);
 		return {stage: 'error', message, overallProgress: 1};
 	}
 
@@ -73,11 +93,8 @@ export async function getRenderProgress({
 
 	if (command.exitCode !== null && command.exitCode !== 0) {
 		const message = await getCommandError(command);
-		await sandbox.stop().catch(() => undefined);
 		return {stage: 'error', message, overallProgress: 1};
 	}
-
-	await stopSandboxOnTerminalProgress({progress, sandbox});
 
 	return progress;
 }

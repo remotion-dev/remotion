@@ -55,7 +55,8 @@ Terminal stages are:
 - `error`: The render failed.
 - `expired`: The sandbox no longer exists.
 
-When `done` or `error` is returned, the sandbox is stopped to release resources.
+When `done` or `error` is returned, remove the stored render handle in your app.
+The sandbox is left alive until its configured timeout so a refreshed page can still read the terminal progress.
 
 ## See also
 

@@ -14,6 +14,49 @@ type StoredHandle = {
 
 type RenderHandle = Pick<StoredHandle, "sandboxId" | "cmdId">;
 
+const isObject = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === "object" && value !== null;
+};
+
+const isRenderProgress = (value: unknown): value is RenderProgress => {
+  if (!isObject(value) || typeof value.stage !== "string") {
+    return false;
+  }
+
+  return [
+    "starting",
+    "opening-browser",
+    "selecting-composition",
+    "render-progress",
+    "uploading",
+    "done",
+    "error",
+    "expired",
+  ].includes(value.stage);
+};
+
+const parseProgressResponse = (value: unknown): RenderProgress => {
+  if (isRenderProgress(value)) {
+    return value;
+  }
+
+  if (isObject(value) && value.code === "sandbox_stopped") {
+    return { stage: "expired" };
+  }
+
+  if (isObject(value) && isObject(value.error)) {
+    if (value.error.code === "sandbox_stopped") {
+      return { stage: "expired" };
+    }
+
+    if (typeof value.error.message === "string") {
+      throw new Error(value.error.message);
+    }
+  }
+
+  throw new Error("Received an invalid render progress response");
+};
+
 export type State =
   | {
       status: "init";
@@ -126,7 +169,7 @@ export const useRendering = (
             throw new Error("Failed to check render progress");
           }
 
-          const progress = (await response.json()) as RenderProgress;
+          const progress = parseProgressResponse(await response.json());
 
           switch (progress.stage) {
             case "done":
