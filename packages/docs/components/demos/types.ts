@@ -2135,8 +2135,8 @@ export const effectsHalftoneLinearGradientDemo: DemoType = {
 		{
 			name: 'firstStopPosition',
 			type: 'uv-coordinate',
-			min: 0,
-			max: 1,
+			min: -1,
+			max: 2,
 			step: 0.01,
 			default: [0, 0.5],
 			optional: 'no',
@@ -2144,8 +2144,8 @@ export const effectsHalftoneLinearGradientDemo: DemoType = {
 		{
 			name: 'secondStopPosition',
 			type: 'uv-coordinate',
-			min: 0,
-			max: 1,
+			min: -1,
+			max: 2,
 			step: 0.01,
 			default: [1, 0.5],
 			optional: 'no',

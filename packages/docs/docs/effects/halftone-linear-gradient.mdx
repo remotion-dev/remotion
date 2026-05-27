@@ -94,7 +94,9 @@ Set both dot sizes to `0` for no coverage. Set both large enough to overlap neig
 
 UV coordinate where `firstStopDotSize` is reached. Defaults to `[0, 0.5]`.
 
-Pass a `[number, number]` tuple.
+Pass a `[number, number]` tuple where `[0, 0]` is top-left and `[1, 1]` is bottom-right.
+
+The accepted range is `[-1, 2]` for each coordinate. Values outside `[0, 1]` place the stop outside the visible area.
 
 ### `secondStopPosition?`
 

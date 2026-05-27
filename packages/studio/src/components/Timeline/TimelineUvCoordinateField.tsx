@@ -67,11 +67,6 @@ export const TimelineUvCoordinateField: React.FC<{
 		[effectiveValue],
 	);
 
-	const makeTuple = useCallback(
-		(x: number, y: number): [number, number] => [x, y],
-		[],
-	);
-
 	const step =
 		field.fieldSchema.type === 'uv-coordinate'
 			? (field.fieldSchema.step ?? 0.01)
@@ -102,15 +97,15 @@ export const TimelineUvCoordinateField: React.FC<{
 		(newVal: number) => {
 			setDragX(newVal);
 			const currentY = dragY ?? codeY;
-			onDragValueChange(makeTuple(newVal, currentY));
+			onDragValueChange([newVal, currentY]);
 		},
-		[onDragValueChange, dragY, codeY, makeTuple],
+		[onDragValueChange, dragY, codeY],
 	);
 
 	const onXChangeEnd = useCallback(
 		(newVal: number) => {
 			const currentY = dragY ?? codeY;
-			const newTuple = makeTuple(newVal, currentY);
+			const newTuple: [number, number] = [newVal, currentY];
 			if (
 				propStatus.canUpdate &&
 				!tuplesEqual(propStatus.codeValue, newTuple)
@@ -124,7 +119,7 @@ export const TimelineUvCoordinateField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[dragY, codeY, makeTuple, propStatus, onSave, onDragEnd],
+		[dragY, codeY, propStatus, onSave, onDragEnd],
 	);
 
 	const onXTextChange = useCallback(
@@ -133,7 +128,7 @@ export const TimelineUvCoordinateField: React.FC<{
 				const parsed = Number(newVal);
 				if (!Number.isNaN(parsed)) {
 					const currentY = dragY ?? codeY;
-					const newTuple = makeTuple(parsed, currentY);
+					const newTuple: [number, number] = [parsed, currentY];
 					if (!tuplesEqual(propStatus.codeValue, newTuple)) {
 						setDragX(parsed);
 						onSave(newTuple).finally(() => {
@@ -143,22 +138,22 @@ export const TimelineUvCoordinateField: React.FC<{
 				}
 			}
 		},
-		[propStatus, dragY, codeY, makeTuple, onSave],
+		[propStatus, dragY, codeY, onSave],
 	);
 
 	const onYChange = useCallback(
 		(newVal: number) => {
 			setDragY(newVal);
 			const currentX = dragX ?? codeX;
-			onDragValueChange(makeTuple(currentX, newVal));
+			onDragValueChange([currentX, newVal]);
 		},
-		[onDragValueChange, dragX, codeX, makeTuple],
+		[onDragValueChange, dragX, codeX],
 	);
 
 	const onYChangeEnd = useCallback(
 		(newVal: number) => {
 			const currentX = dragX ?? codeX;
-			const newTuple = makeTuple(currentX, newVal);
+			const newTuple: [number, number] = [currentX, newVal];
 			if (
 				propStatus.canUpdate &&
 				!tuplesEqual(propStatus.codeValue, newTuple)
@@ -172,7 +167,7 @@ export const TimelineUvCoordinateField: React.FC<{
 				onDragEnd();
 			}
 		},
-		[dragX, codeX, makeTuple, propStatus, onSave, onDragEnd],
+		[dragX, codeX, propStatus, onSave, onDragEnd],
 	);
 
 	const onYTextChange = useCallback(
@@ -181,7 +176,7 @@ export const TimelineUvCoordinateField: React.FC<{
 				const parsed = Number(newVal);
 				if (!Number.isNaN(parsed)) {
 					const currentX = dragX ?? codeX;
-					const newTuple = makeTuple(currentX, parsed);
+					const newTuple: [number, number] = [currentX, parsed];
 					if (!tuplesEqual(propStatus.codeValue, newTuple)) {
 						setDragY(parsed);
 						onSave(newTuple).finally(() => {
@@ -191,7 +186,7 @@ export const TimelineUvCoordinateField: React.FC<{
 				}
 			}
 		},
-		[propStatus, onSave, dragX, codeX, makeTuple],
+		[propStatus, onSave, dragX, codeX],
 	);
 
 	return (
