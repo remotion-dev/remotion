@@ -1,0 +1,100 @@
+---
+image: /generated/articles-docs-effects-drop-shadow.png
+slug: /effects/drop-shadow
+title: dropShadow()
+sidebar_label: dropShadow()
+crumb: '@remotion/effects'
+---
+
+# dropShadow()<AvailableFrom v="4.0.469" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds a blurred shadow behind canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+Use it to lift an element from the background while preserving its alpha shape.
+
+## Preview
+
+<Demo type="effects-drop-shadow" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, HtmlInCanvas} from 'remotion';
+import {dropShadow} from '@remotion/effects/drop-shadow';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <HtmlInCanvas
+        width={1280}
+        height={720}
+        effects={[
+          dropShadow({
+            radius: 24,
+            offsetX: 16,
+            offsetY: 16,
+            opacity: 0.6,
+            color: '#000000',
+          }),
+        ]}
+      >
+        <div
+          style={{
+            backgroundColor: 'white',
+            borderRadius: 32,
+            fontSize: 72,
+            padding: 80,
+          }}
+        >
+          Hello
+        </div>
+      </HtmlInCanvas>
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `dropShadow()` without arguments.
+
+### `radius?`
+
+Blur radius of the shadow in pixels. Defaults to `12`. Must be at least `0`.
+
+### `offsetX?`
+
+Horizontal shadow offset in pixels. Defaults to `8`.
+
+Use positive values to move the shadow to the right and negative values to move it to the left.
+
+### `offsetY?`
+
+Vertical shadow offset in pixels. Defaults to `8`.
+
+Use positive values to move the shadow down and negative values to move it up.
+
+### `opacity?`
+
+Opacity of the shadow from `0` to `1`. Defaults to `0.5`.
+
+### `color?`
+
+Color of the shadow. Defaults to black.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`dropShadow()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`glow()`](/docs/effects/glow)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/drop-shadow/index.ts)

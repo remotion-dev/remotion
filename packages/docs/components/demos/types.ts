@@ -4,6 +4,7 @@ import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
+import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
@@ -1544,6 +1545,62 @@ export const effectsDuotoneDemo: DemoType = {
 			max: 1,
 			step: 0.01,
 			default: 0.18,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsDropShadowDemo: DemoType = {
+	comp: EffectsDropShadowPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-drop-shadow',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'radius',
+			type: 'numeric',
+			min: 0,
+			max: 100,
+			step: 1,
+			default: 24,
+			optional: 'no',
+		},
+		{
+			name: 'offsetX',
+			type: 'numeric',
+			min: -100,
+			max: 100,
+			step: 1,
+			default: 28,
+			optional: 'no',
+		},
+		{
+			name: 'offsetY',
+			type: 'numeric',
+			min: -100,
+			max: 100,
+			step: 1,
+			default: 28,
+			optional: 'no',
+		},
+		{
+			name: 'opacity',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.65,
+			optional: 'no',
+		},
+		{
+			name: 'color',
+			type: 'color',
+			default: '#000000',
 			optional: 'no',
 		},
 	],

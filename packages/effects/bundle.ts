@@ -12,6 +12,7 @@ const effectEntrypoints = [
 	'src/chromatic-aberration.ts',
 	'src/brightness.ts',
 	'src/contrast.ts',
+	'src/drop-shadow.ts',
 	'src/duotone.ts',
 	'src/glow.ts',
 	'src/grayscale.ts',
