@@ -445,6 +445,167 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			name: 'Jim Raptis',
 		},
 	},
+	{
+	  title: "Statistic reveal ad with count-up animation for LinkedIn in Remotion",
+	  type: "mux_video",
+	  muxId: "esQxuMaI5agq9uIx9n1SmJzLIC00deBbdvZOoVKCLoBs",
+	  description: "A statistic reveal ad rendered with Remotion at LinkedIn feed 1200x627. The number counts up via interpolate, supporting copy enters on a staggered Sequence, and the layout adapts from vertical defaults via calculateMetadata.",
+	  height: 626,
+	  width: 1200,
+	  submittedOn: new Date("05-27-2026"),
+	  links: [
+	    {
+	      type: "website",
+	      url: "https://www.adsights.ai/frameworks/ads-framework",
+	    },
+	    {
+	      type: "tutorial",
+	      url: "https://www.adsights.ai/frameworks/ads-framework/setup",
+	    },
+	  ],
+	  author: {
+	    url: "https://www.adsights.ai",
+	    name: "AdSights",
+	  },
+	},
+	{
+	  title: "Comparison ad with side-by-side checkmark reveals animated in Remotion",
+	  type: "mux_video",
+	  muxId: "1YdLsHFRLYzhITGnghBHW4PU01WGsGpQE7zl1aFRnr2I",
+	  description: "A comparison ad rendered with Remotion. Two columns reveal in sequence via Sequence, checkmark and cross marks animate with spring scale, and a typed brand-token schema controls the divider, accent, and copy colors across both sides.",
+	  height: 1080,
+	  width: 1080,
+	  submittedOn: new Date("05-27-2026"),
+	  links: [
+	    {
+	      type: "website",
+	      url: "https://www.adsights.ai/frameworks/ads-framework",
+	    },
+	    {
+	      type: "tutorial",
+	      url: "https://www.adsights.ai/frameworks/ads-framework/setup",
+	    },
+	  ],
+	  author: {
+	    url: "https://www.adsights.ai",
+	    name: "AdSights",
+	  },
+	},
+	{
+	  title: "Sale promo ad with starburst motion and animated price reveal in Remotion",
+	  type: "mux_video",
+	  muxId: "ky2xp01FZBIDw7cYK019eWg6wjJJpEAm0102oN010202g9aZ1o",
+	  description: "A sale promo ad rendered with Remotion for Instagram and Facebook feeds. Combines a starburst SVG driven by spring scale, a price reveal animated on a delayed Sequence, and brand tokens controlling the promo color palette and typography.",
+	  height: 1080,
+	  width: 1080,
+	  submittedOn: new Date("05-27-2026"),
+	  links: [
+	    {
+	      type: "website",
+	      url: "https://www.adsights.ai/frameworks/ads-framework",
+	    },
+	    {
+	      type: "tutorial",
+	      url: "https://www.adsights.ai/frameworks/ads-framework/setup",
+	    },
+	  ],
+	  author: {
+	    url: "https://www.adsights.ai",
+	    name: "AdSights",
+	  },
+	},
+	{
+	  title: "Testimonial quote ad with typography animations built in Remotion",
+	  type: "mux_video",
+	  muxId: "KtFv7aBX00L02I4hpytnYVgmGH1j02PEtKbVdz01i01tS302k",
+	  description: "A testimonial quote ad rendered with Remotion for square social feeds. Uses a FitHeadline primitive for layout-aware typography, frame-perfect entrance animations via interpolate, and brand tokens piping a color theme through the AdFrame primitive.",
+	  height: 1080,
+	  width: 1080,
+	  submittedOn: new Date("05-27-2026"),
+	  links: [
+	    {
+	      type: "website",
+	      url: "https://www.adsights.ai/frameworks/ads-framework",
+	    },
+	    {
+	      type: "tutorial",
+	      url: "https://www.adsights.ai/frameworks/ads-framework/setup",
+	    },
+	  ],
+	  author: {
+	    url: "https://www.adsights.ai",
+	    name: "AdSights",
+	  },
+	},
+	{
+	  title: "Product showcase ad rendered programmatically for social feeds with Remotion",
+	  type: "mux_video",
+	  muxId: "00g1FmR8bi001VON01eHMPoAviGPncampx9Q0000y1tGy5ZM",
+	  description: "A product showcase ad rendered with Remotion. Demonstrates calculateMetadata for per-format layout, a deterministic seeded RNG for reproducible motion, and a typed brand-token schema feeding fonts and colors into the composition.",
+	  height: 1080,
+	  width: 1080,
+	  submittedOn: new Date("05-27-2026"),
+	  links: [
+	    {
+	      type: "website",
+	      url: "https://www.adsights.ai/frameworks/ads-framework",
+	    },
+	    {
+	      type: "tutorial",
+	      url: "https://www.adsights.ai/frameworks/ads-framework/setup",
+	    },
+	  ],
+	  author: {
+	    url: "https://www.adsights.ai",
+	    name: "AdSights",
+	  },
+	},
+	{
+	  title: "Numbered listicle ad with staggered item entrance for Stories in Remotion",
+	  type: "mux_video",
+	  muxId: "x9dC2XiDNL9ir3bVdDdmKofP01wGxx02zNWVNUqJhbjuI",
+	  description: "A numbered listicle ad rendered with Remotion at 1080x1920 for Instagram and Facebook Stories. Each item enters on a staggered Sequence, the AdFrame primitive provides the background, and the format registry handles safe-area for Story chrome.",
+	  height: 1920,
+	  width: 1080,
+	  submittedOn: new Date("05-27-2026"),
+	  links: [
+	    {
+	      type: "website",
+	      url: "https://www.adsights.ai/frameworks/ads-framework",
+	    },
+	    {
+	      type: "tutorial",
+	      url: "https://www.adsights.ai/frameworks/ads-framework/setup",
+	    },
+	  ],
+	  author: {
+	    url: "https://www.adsights.ai",
+	    name: "AdSights",
+	  },
+	},
+	{
+	  title: "Before-and-after vertical ad with split-screen transitions in Remotion",
+	  type: "mux_video",
+	  muxId: "r00x9tap02mpewipT00TGRbw8gkJmhjuoEvQjzZpSsKDFs",
+	  description: "A before-and-after concept rendered with Remotion at 1080x1920. Two halves animate via spring interpolation with a synchronized reveal, sharing a safe-area inset from a format registry so platform chrome never clips the headline.",
+	  height: 1920,
+	  width: 1080,
+	  submittedOn: new Date("05-27-2026"),
+	  links: [
+	    {
+	      type: "website",
+	      url: "https://www.adsights.ai/frameworks/ads-framework",
+	    },
+	    {
+	      type: "tutorial",
+	      url: "https://www.adsights.ai/frameworks/ads-framework/setup",
+	    },
+	  ],
+	  author: {
+	    url: "https://www.adsights.ai",
+	    name: "AdSights",
+	  },
+	},
 	/*
   {
 		title: 'Clippulse - Animated social media videos',
