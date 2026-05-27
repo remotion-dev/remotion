@@ -285,6 +285,7 @@ const sidebars: SidebarsConfig = {
 				'effects/saturation',
 				'effects/scale',
 				'effects/shine',
+				'effects/speckle',
 				'effects/tint',
 				'effects/uv-translate',
 				'effects/vignette',

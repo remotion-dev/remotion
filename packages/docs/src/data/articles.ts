@@ -1881,6 +1881,15 @@ export const articles = [
 		slug: 'effects/shine',
 	},
 	{
+		id: 'effects/speckle',
+		title: 'speckle()',
+		relativePath: 'docs/effects/speckle.mdx',
+		compId: 'articles-docs-effects-speckle',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/speckle',
+	},
+	{
 		id: 'effects/tint',
 		title: 'tint()',
 		relativePath: 'docs/effects/tint.mdx',

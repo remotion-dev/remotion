@@ -16,6 +16,7 @@ import {noise} from '../noise.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {shine} from '../shine.js';
+import {speckle} from '../speckle.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {vignette} from '../vignette.js';
@@ -73,6 +74,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(shine().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shine',
 	);
+	expect(speckle().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/speckle',
+	);
 	expect(tint({color: '#fff'}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/tint',
 	);
@@ -109,6 +113,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
 	expect(shine().definition.label).toBe('shine()');
+	expect(speckle().definition.label).toBe('speckle()');
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
 	expect(uvTranslate().definition.label).toBe('uvTranslate()');
 	expect(vignette().definition.label).toBe('vignette()');
@@ -986,6 +991,56 @@ test('shine() parameters produce distinct effect keys', () => {
 			brighter.effectKey,
 		]).size,
 	).toBe(6);
+});
+
+test('speckle() accepts default params', () => {
+	expect(() => speckle()).not.toThrow();
+});
+
+test('speckle() accepts valid params', () => {
+	expect(() =>
+		speckle({
+			density: 0.2,
+			size: 6,
+			randomness: 0.5,
+		}),
+	).not.toThrow();
+});
+
+test('speckle() rejects non-finite density', () => {
+	expect(() => speckle({density: Number.NaN})).toThrow(
+		'"density" must be a finite number',
+	);
+});
+
+test('speckle() rejects density above range', () => {
+	expect(() => speckle({density: 1.1})).toThrow('"density" must be <= 1');
+});
+
+test('speckle() rejects negative size', () => {
+	expect(() => speckle({size: -0.1})).toThrow('"size" must be >= 0');
+});
+
+test('speckle() rejects randomness below range', () => {
+	expect(() => speckle({randomness: -0.1})).toThrow(
+		'"randomness" must be >= 0',
+	);
+});
+
+test('speckle() parameters produce distinct effect keys', () => {
+	const defaultSpeckle = speckle();
+	const denser = speckle({density: 0.2});
+	const larger = speckle({size: 8});
+	const steadier = speckle({randomness: 0.25});
+
+	expect(
+		new Set([
+			defaultSpeckle.effectKey,
+			denser.effectKey,
+			larger.effectKey,
+			steadier.effectKey,
+		]).size,
+	).toBe(4);
 });
 
 test('xyTranslate() accepts default params', () => {
