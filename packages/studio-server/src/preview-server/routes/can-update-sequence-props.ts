@@ -291,8 +291,8 @@ const getInterpolationMetadata = (
 		return null;
 	}
 
-	let easing = defaults.easing;
-	let clamping: PropClamping = defaults.clamping;
+	let {easing} = defaults;
+	let {clamping}: {clamping: PropClamping} = defaults;
 
 	for (const property of optionsArg.properties) {
 		if (property.type !== 'ObjectProperty' || property.computed) {
