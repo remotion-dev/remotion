@@ -65,6 +65,7 @@ import {
 	EffectsHuePreview,
 	EffectsInvertPreview,
 	EffectsSaturationPreview,
+	EffectsShinePreview,
 	EffectsTintPreview,
 	EffectsUvTranslatePreview,
 	EffectsWavePreview,
@@ -1170,6 +1171,14 @@ export const Index: React.FC = () => {
 						fps={30}
 						height={720}
 						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-shine-preview"
+						component={EffectsShinePreview}
+						fps={30}
+						height={720}
+						width={1280}
 						durationInFrames={1}
 					/>
 					<Composition

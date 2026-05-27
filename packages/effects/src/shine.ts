@@ -151,20 +151,7 @@ void main() {
 }
 `;
 
-	assertEffectParamsObject(params, 'Shine');
-	assertOptionalFiniteNumber(params.progress, 'progress');
-	assertOptionalFiniteNumber(params.angle, 'angle');
-	assertOptionalFiniteNumber(params.haloSigma, 'haloSigma');
-	assertOptionalFiniteNumber(params.coreSigma, 'coreSigma');
-	assertOptionalFiniteNumber(params.haloIntensity, 'haloIntensity');
-	assertOptionalFiniteNumber(params.coreIntensity, 'coreIntensity');
-
-	const r = resolve(params);
-	validateUnitInterval(r.progress, 'progress');
-	validatePositive(r.haloSigma, 'haloSigma');
-	validatePositive(r.coreSigma, 'coreSigma');
-	validateUnitInterval(r.haloIntensity, 'haloIntensity');
-	validateUnitInterval(r.coreIntensity, 'coreIntensity');
+const SHINE_FS = /* glsl */ `#version 300 es
 precision highp float;
 
 in vec2 vUv;
