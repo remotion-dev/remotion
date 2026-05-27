@@ -257,14 +257,16 @@ const addKeyframe = ({
 		throw new Error('Cannot add keyframe to computed expression');
 	}
 
-	if (frame === 0) {
-		throw new Error(
-			'Cannot add keyframe to static expression at frame 0 because interpolate requires two distinct frames',
-		);
-	}
-
 	const staticValue = extractStaticValue(expression);
 	const staticOutput = parseValueExpression(staticValue);
+	const keyframes: InterpolateKeyframe[] =
+		frame === 0
+			? [{frame, output: newOutput, value}]
+			: [
+					{frame: 0, output: staticOutput, value: staticValue},
+					{frame, output: newOutput, value},
+				];
+
 	return createInterpolateExpression({
 		callee: getInterpolationCalleeForValues({
 			staticValue,
@@ -272,10 +274,7 @@ const addKeyframe = ({
 		}),
 		input: b.identifier('frame'),
 		extraArgs: [],
-		keyframes: [
-			{frame: 0, output: staticOutput, value: staticValue},
-			{frame, output: newOutput, value},
-		],
+		keyframes,
 	});
 };
 
@@ -301,9 +300,6 @@ const removeKeyframe = ({
 	const nextKeyframes = existing.keyframes.filter(
 		(_keyframe, index) => index !== keyframeIndex,
 	);
-	if (nextKeyframes.length === 1) {
-		return parseValueExpression(nextKeyframes[0].value);
-	}
 
 	return createInterpolateExpression({
 		callee: existing.callee,

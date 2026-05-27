@@ -29,10 +29,29 @@ test('Must be the same length', () => {
 	}, /inputRange \(2\) and outputRange \(3\) must have the same length/);
 });
 
-test('Must pass at least 2 elements for input range', () => {
+test('Must pass at least 1 element for input range', () => {
 	expectToThrow(() => {
-		interpolate(1, [0], [9]);
-	}, /inputRange must have at least 2 elements/);
+		interpolate(1, [], []);
+	}, /inputRange must have at least 1 element/);
+});
+
+test('Can interpolate a single keyframe', () => {
+	expect(interpolate(-10, [20], [9])).toBe(9);
+	expect(interpolate(20, [20], [9])).toBe(9);
+	expect(interpolate(30, [20], [9])).toBe(9);
+	expect(
+		interpolate(30, [20], [9], {
+			extrapolateRight: 'identity',
+		}),
+	).toBe(9);
+});
+
+test('Easing array with one keyframe accepts no entries', () => {
+	expect(
+		interpolate(0.5, [0], [1], {
+			easing: [],
+		}),
+	).toBe(1);
 });
 
 test('Input range must be strictly monotonically non-decreasing', () => {
