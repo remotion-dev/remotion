@@ -193,6 +193,7 @@ import {Issue7568} from './AudioTesting/Issue7568';
 import {BrowserTest} from './BrowserTest';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
+import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -1997,6 +1998,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="effects-testbed"
 					component={EffectsTestbed}
+					width={1920}
+					height={1920}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="halftone-gradient"
+					component={HalftoneGradient}
 					width={1920}
 					height={1920}
 					fps={30}
