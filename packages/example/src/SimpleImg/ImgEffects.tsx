@@ -32,7 +32,6 @@ export const ImgEffects = (): React.ReactNode => {
 					src={staticFile('1.jpg')}
 					width={450}
 					height={720}
-					fit="cover"
 					style={imageStyle}
 					effects={[tint({color: '#38bdf8', amount: 0.45})]}
 					aria-label="Tinted image"
@@ -43,7 +42,6 @@ export const ImgEffects = (): React.ReactNode => {
 					src={staticFile('1.jpg')}
 					width={450}
 					height={720}
-					fit="cover"
 					style={imageStyle}
 					effects={[
 						blur({radius: 6}),
