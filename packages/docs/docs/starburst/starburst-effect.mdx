@@ -39,6 +39,7 @@ export const MyComp: React.FC = () => {
             colors: ['#ffdd00', '#ff8800', '#ff4400'],
             rotation: 15,
             smoothness: 0.1,
+            origin: [0.5, 0.5],
           }),
         ]}
       />
@@ -67,13 +68,9 @@ Rotates the starburst pattern in degrees. Defaults to `0`.
 
 Controls the softness of the ray edges. `0` gives hard edges, `1` gives very soft edges. Default: `0`.
 
-### `originOffsetX?`
+### `origin?`
 
-Shifts the origin of the starburst pattern horizontally. `-1` moves the origin to the left edge, `1` to the right edge. Default: `0` (centered).
-
-### `originOffsetY?`
-
-Shifts the origin of the starburst pattern vertically. `-1` moves the origin to the top edge, `1` to the bottom edge. Default: `0` (centered).
+UV coordinate of the starburst origin. `[0, 0]` is the top-left corner, `[1, 1]` is the bottom-right corner. Default: `[0.5, 0.5]`.
 
 ### `disabled?`
 
