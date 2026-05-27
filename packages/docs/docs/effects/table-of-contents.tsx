@@ -167,7 +167,7 @@ const categories: {
 			},
 			{
 				link: '/docs/effects/halftone-linear-gradient',
-				preview: '/img/effects-halftone-linear-gradient-preview.jpg',
+				preview: '/img/effects-halftone-linear-gradient-preview.png',
 				alt: 'halftone linear gradient effect preview',
 				name: 'halftoneLinearGradient()',
 				description: 'Linear dot size gradient',
