@@ -43,9 +43,9 @@ export const ParameterizeAndEdit: React.FC = () => {
 					Edit <span className="text-brand">dynamically</span>
 				</h2>
 				<p className="leading-relaxed">
-					Turn templates into video-generating apps.
+					Parameterize your video by passing data.
 					<br />
-					Parameterize videos with data, user input, or APIs.
+					Or embed it into your app and build an interface around it.
 				</p>
 				<div className="h-4" />
 				<div className="leading-6">
