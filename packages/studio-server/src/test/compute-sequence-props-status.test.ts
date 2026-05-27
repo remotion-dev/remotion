@@ -85,7 +85,7 @@ export const Example: React.FC = () => {
 			{frame: 100, value: 'blue'},
 		],
 		easing: ['linear'],
-		clamping: {left: 'extend', right: 'extend'},
+		clamping: {left: 'clamp', right: 'clamp'},
 	});
 });
 
