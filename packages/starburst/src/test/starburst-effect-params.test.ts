@@ -35,6 +35,24 @@ test('starburst() does not expose the removed vignette control', () => {
 	).toBe(false);
 });
 
+test('starburst() exposes origin as a UV coordinate control', () => {
+	const {schema} = starburst({
+		rays: 12,
+		colors: ['#ff0000', '#00ff00'],
+	}).definition;
+
+	expect('originOffsetX' in schema).toBe(false);
+	expect('originOffsetY' in schema).toBe(false);
+	expect(schema.origin).toEqual({
+		type: 'uv-coordinate',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: [0.5, 0.5],
+		description: 'Origin',
+	});
+});
+
 test('starburst() parameters produce distinct effect keys', () => {
 	const defaultStarburst = starburst({
 		rays: 12,
@@ -54,6 +72,11 @@ test('starburst() parameters produce distinct effect keys', () => {
 		colors: ['#ff0000', '#00ff00'],
 		smoothness: 0.5,
 	});
+	const shiftedOrigin = starburst({
+		rays: 12,
+		colors: ['#ff0000', '#00ff00'],
+		origin: [0.25, 0.75],
+	});
 
 	expect(
 		new Set([
@@ -61,6 +84,35 @@ test('starburst() parameters produce distinct effect keys', () => {
 			moreRays.effectKey,
 			rotated.effectKey,
 			smoother.effectKey,
+			shiftedOrigin.effectKey,
 		]).size,
-	).toBe(4);
+	).toBe(5);
+});
+
+test('starburst() defaults origin to the center UV coordinate', () => {
+	expect(starburst({rays: 12, colors: ['#ff0000', '#00ff00']}).effectKey).toBe(
+		starburst({
+			rays: 12,
+			colors: ['#ff0000', '#00ff00'],
+			origin: [0.5, 0.5],
+		}).effectKey,
+	);
+});
+
+test('starburst() validates origin as a UV coordinate', () => {
+	expect(() =>
+		starburst({
+			rays: 12,
+			colors: ['#ff0000', '#00ff00'],
+			origin: [0.5, Number.NaN],
+		}),
+	).toThrow('"origin" must be a [number, number] tuple');
+
+	expect(() =>
+		starburst({
+			rays: 12,
+			colors: ['#ff0000', '#00ff00'],
+			origin: [1.1, 0.5],
+		}),
+	).toThrow('"origin" must contain coordinates between 0 and 1');
 });
