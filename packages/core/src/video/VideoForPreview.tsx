@@ -179,6 +179,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 					? 'https://www.remotion.dev/docs/offthreadvideo'
 					: 'https://www.remotion.dev/docs/html5-video'
 				: null,
+		refForOutline: videoRef,
 	});
 
 	// putting playback before useVolume

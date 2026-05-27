@@ -80,6 +80,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 				postmountDisplay: null,
 				loopDisplay: undefined,
 				documentationLink: null,
+				refForOutline: null,
 			}),
 		{
 			wrapper,

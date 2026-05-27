@@ -2,7 +2,9 @@ import React, {
 	forwardRef,
 	useCallback,
 	useEffect,
+	useImperativeHandle,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
@@ -67,7 +69,7 @@ const solidSchema = {
 const SolidInner: React.FC<
 	InnerSolidProps & {
 		readonly overrideId: string | null;
-		readonly ref?: React.Ref<HTMLCanvasElement>;
+		readonly reference: React.Ref<HTMLCanvasElement>;
 	}
 > = ({
 	color,
@@ -77,7 +79,7 @@ const SolidInner: React.FC<
 	className,
 	style,
 	overrideId,
-	ref,
+	reference,
 }) => {
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
@@ -107,13 +109,13 @@ const SolidInner: React.FC<
 		(canvas: HTMLCanvasElement | null) => {
 			setOutputCanvas(canvas);
 
-			if (typeof ref === 'function') {
-				ref(canvas);
-			} else if (ref) {
-				ref.current = canvas;
+			if (typeof reference === 'function') {
+				reference(canvas);
+			} else if (reference) {
+				reference.current = canvas;
 			}
 		},
-		[ref],
+		[reference],
 	);
 
 	// Fill source and run effect chain on every frame / color change.
@@ -220,6 +222,11 @@ const SolidOuter = forwardRef<
 
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
+		const actualRef = useRef<HTMLCanvasElement | null>(null);
+		useImperativeHandle(ref, () => {
+			return actualRef.current as HTMLCanvasElement;
+		}, []);
+
 		return (
 			<Sequence
 				layout="none"
@@ -230,6 +237,7 @@ const SolidOuter = forwardRef<
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				durationInFrames={durationInFrames}
 				name={name ?? '<Solid>'}
+				_remotionInternalRefForOutline={actualRef}
 				_remotionInternalDocumentationLink={
 					name === undefined ? 'https://www.remotion.dev/docs/solid' : undefined
 				}
@@ -237,7 +245,7 @@ const SolidOuter = forwardRef<
 				{...props}
 			>
 				<SolidInner
-					ref={ref}
+					reference={actualRef}
 					overrideId={controls?.overrideId ?? null}
 					color={color}
 					height={height}

@@ -142,6 +142,7 @@ export const useMediaInTimeline = ({
 	postmountDisplay,
 	loopDisplay,
 	documentationLink,
+	refForOutline,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -156,6 +157,7 @@ export const useMediaInTimeline = ({
 	postmountDisplay: number | null;
 	loopDisplay: LoopDisplay | undefined;
 	documentationLink: string | null;
+	refForOutline: React.RefObject<HTMLElement | null> | null;
 }) => {
 	const parentSequence = useContext(SequenceContext);
 	const startsAt = useMediaStartsAt();
@@ -215,6 +217,7 @@ export const useMediaInTimeline = ({
 			postmountDisplay,
 			controls: null,
 			effects: [],
+			refForOutline,
 		});
 
 		return () => {
@@ -242,5 +245,6 @@ export const useMediaInTimeline = ({
 		rootId,
 		finalDisplayName,
 		isStudio,
+		refForOutline,
 	]);
 };
