@@ -163,7 +163,6 @@ export const useRendering = (
             return;
           }
 
-          clearStoredHandle();
           stopPolling();
           setState({
             status: "error",
