@@ -127,7 +127,7 @@ void main() {
 			if (chance <= uDensity) {
 				vec2 randomOffset = (hash22(cell + 11.7) - 0.5) * uRandomness;
 				vec2 center = (cell + 0.5 + randomOffset) * cellSize;
-				float sizeVariation = mix(1.0, 0.35 + hash21(cell + 29.43) * 0.9, uRandomness);
+				float sizeVariation = mix(1.0, 0.35 + hash21(cell + 29.43) * 0.65, uRandomness);
 				float radius = uSize * 0.5 * sizeVariation;
 				float edge = min(1.0, max(radius * 0.5, 0.35));
 				float coverage = 1.0 - smoothstep(radius - edge, radius + edge, length(fragPos - center));
