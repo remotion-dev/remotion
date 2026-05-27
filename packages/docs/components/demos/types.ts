@@ -14,6 +14,7 @@ import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
+import {EffectsShinePreview} from '../effects/effects-shine-preview';
 import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
@@ -1679,6 +1680,74 @@ export const effectsTintDemo: DemoType = {
 			max: 1,
 			step: 0.01,
 			default: 0.7,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsShineDemo: DemoType = {
+	comp: EffectsShinePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-shine',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'progress',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.5,
+			optional: 'no',
+		},
+		{
+			name: 'angle',
+			type: 'numeric',
+			min: -180,
+			max: 180,
+			step: 1,
+			default: 30,
+			optional: 'no',
+		},
+		{
+			name: 'haloSigma',
+			type: 'numeric',
+			min: 1,
+			max: 500,
+			step: 1,
+			default: 200,
+			optional: 'no',
+		},
+		{
+			name: 'coreSigma',
+			type: 'numeric',
+			min: 1,
+			max: 500,
+			step: 1,
+			default: 65,
+			optional: 'no',
+		},
+		{
+			name: 'haloIntensity',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.3,
+			optional: 'no',
+		},
+		{
+			name: 'coreIntensity',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.4,
 			optional: 'no',
 		},
 	],

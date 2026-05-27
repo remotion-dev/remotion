@@ -46,6 +46,13 @@ const categories: {
 				description: 'Soft halo effect',
 			},
 			{
+				link: '/docs/effects/shine',
+				preview: '/img/effects-shine-preview.jpg',
+				alt: 'shine effect preview',
+				name: 'shine()',
+				description: 'Glossy light sweep effect',
+			},
+			{
 				link: '/docs/effects/grayscale',
 				preview: '/img/effects-grayscale-preview.jpg',
 				alt: 'grayscale effect preview',

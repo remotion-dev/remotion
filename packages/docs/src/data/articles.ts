@@ -1854,6 +1854,15 @@ export const articles = [
 		slug: 'effects/scale',
 	},
 	{
+		id: 'effects/shine',
+		title: 'shine()',
+		relativePath: 'docs/effects/shine.mdx',
+		compId: 'articles-docs-effects-shine',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/shine',
+	},
+	{
 		id: 'effects/tint',
 		title: 'tint()',
 		relativePath: 'docs/effects/tint.mdx',
