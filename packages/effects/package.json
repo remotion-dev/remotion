@@ -102,6 +102,11 @@
 			"module": "./dist/esm/scale.mjs",
 			"import": "./dist/esm/scale.mjs"
 		},
+		"./shine": {
+			"types": "./dist/shine.d.ts",
+			"module": "./dist/esm/shine.mjs",
+			"import": "./dist/esm/shine.mjs"
+		},
 		"./tint": {
 			"types": "./dist/tint.d.ts",
 			"module": "./dist/esm/tint.mjs",
@@ -167,6 +172,9 @@
 			],
 			"scale": [
 				"dist/scale.d.ts"
+			],
+			"shine": [
+				"dist/shine.d.ts"
 			],
 			"tint": [
 				"dist/tint.d.ts"

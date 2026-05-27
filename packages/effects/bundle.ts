@@ -21,6 +21,7 @@ const effectEntrypoints = [
 	'src/mirror.ts',
 	'src/saturation.ts',
 	'src/scale.ts',
+	'src/shine.ts',
 	'src/tint.ts',
 	'src/translate.ts',
 	'src/vignette.ts',

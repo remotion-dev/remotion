@@ -13,6 +13,7 @@ import {invert} from '../invert.js';
 import {mirror} from '../mirror.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
+import {shine} from '../shine.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {vignette} from '../vignette.js';
@@ -61,6 +62,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(scale({scale: 1}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/scale',
 	);
+	expect(shine().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/shine',
+	);
 	expect(tint({color: '#fff'}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/tint',
 	);
@@ -92,6 +96,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
+	expect(shine().definition.label).toBe('shine()');
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
 	expect(uvTranslate().definition.label).toBe('uvTranslate()');
 	expect(vignette().definition.label).toBe('vignette()');
@@ -770,6 +775,75 @@ test('scale() axis flags produce distinct effect keys', () => {
 		neither.effectKey,
 	];
 	expect(new Set(keys).size).toBe(keys.length);
+});
+
+test('shine() accepts default params', () => {
+	expect(() => shine()).not.toThrow();
+});
+
+test('shine() accepts valid params', () => {
+	expect(() =>
+		shine({
+			progress: 0.25,
+			angle: 45,
+			haloSigma: 160,
+			coreSigma: 48,
+			haloIntensity: 0.4,
+			coreIntensity: 0.6,
+		}),
+	).not.toThrow();
+});
+
+test('shine() rejects progress below range', () => {
+	expect(() => shine({progress: -0.1})).toThrow('"progress" must be >= 0');
+});
+
+test('shine() rejects progress above range', () => {
+	expect(() => shine({progress: 1.1})).toThrow('"progress" must be <= 1');
+});
+
+test('shine() rejects non-positive haloSigma', () => {
+	expect(() => shine({haloSigma: 0})).toThrow(
+		'"haloSigma" must be greater than 0',
+	);
+});
+
+test('shine() rejects non-positive coreSigma', () => {
+	expect(() => shine({coreSigma: 0})).toThrow(
+		'"coreSigma" must be greater than 0',
+	);
+});
+
+test('shine() rejects haloIntensity above range', () => {
+	expect(() => shine({haloIntensity: 1.1})).toThrow(
+		'"haloIntensity" must be <= 1',
+	);
+});
+
+test('shine() rejects coreIntensity below range', () => {
+	expect(() => shine({coreIntensity: -0.1})).toThrow(
+		'"coreIntensity" must be >= 0',
+	);
+});
+
+test('shine() parameters produce distinct effect keys', () => {
+	const defaultShine = shine();
+	const advanced = shine({progress: 0.75});
+	const angled = shine({angle: 75});
+	const wider = shine({haloSigma: 250});
+	const sharper = shine({coreSigma: 40});
+	const brighter = shine({coreIntensity: 0.8});
+
+	expect(
+		new Set([
+			defaultShine.effectKey,
+			advanced.effectKey,
+			angled.effectKey,
+			wider.effectKey,
+			sharper.effectKey,
+			brighter.effectKey,
+		]).size,
+	).toBe(6);
 });
 
 test('xyTranslate() accepts default params', () => {

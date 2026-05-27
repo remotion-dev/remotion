@@ -282,6 +282,7 @@ const sidebars: SidebarsConfig = {
 				'effects/mirror',
 				'effects/saturation',
 				'effects/scale',
+				'effects/shine',
 				'effects/tint',
 				'effects/uv-translate',
 				'effects/vignette',
