@@ -1,9 +1,11 @@
 import {expect, onTestFinished} from 'vitest';
 import {page} from 'vitest/browser';
+// eslint-disable-next-line no-restricted-imports
 import type {
 	EffectDefinitionAndStack,
 	EffectDescriptor,
 } from '../../../core/src/effects/effect-types.js';
+// eslint-disable-next-line no-restricted-imports
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
