@@ -346,6 +346,7 @@ const innerStitchFramesToVideo = async (
 
 		return Promise.resolve(file);
 	}
+
 	const resolvedHardwareAcceleration = resolveHardwareAcceleration({
 		codec,
 		hardwareAcceleration,

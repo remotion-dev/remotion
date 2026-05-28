@@ -89,7 +89,6 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
 
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
-	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const resolvedHardwareAcceleration = resolveHardwareAcceleration({
 		codec,
