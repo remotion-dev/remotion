@@ -117,6 +117,7 @@ export const TimelineStack: React.FC<{
 			textOverflow: 'ellipsis',
 			overflow: 'hidden',
 			flexShrink: 100000,
+			minWidth: 0,
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 		};
@@ -130,6 +131,7 @@ export const TimelineStack: React.FC<{
 			flex: 1,
 			flexDirection: 'row',
 			minWidth: 0,
+			overflow: 'hidden',
 		};
 	}, []);
 
@@ -144,6 +146,7 @@ export const TimelineStack: React.FC<{
 			whiteSpace: 'nowrap',
 			textOverflow: 'ellipsis',
 			overflow: 'hidden',
+			minWidth: 0,
 			lineHeight: 1.2,
 			color: selected
 				? TIMELINE_SELECTED_LABEL_TEXT
