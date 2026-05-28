@@ -21,6 +21,8 @@ const unsupportedLabel: React.CSSProperties = {
 	color: 'rgba(255, 255, 255, 0.4)',
 	fontSize: 12,
 	fontStyle: 'italic',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const notEditableBackground: React.CSSProperties = {
