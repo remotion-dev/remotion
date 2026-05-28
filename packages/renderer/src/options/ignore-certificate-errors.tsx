@@ -18,7 +18,7 @@ export const ignoreCertificateErrorsOption = {
 		'https://www.remotion.dev/docs/chromium-flags#--ignore-certificate-errors',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {
 				source: 'cli',
 				value: Boolean(commandLine[cliFlag]),
