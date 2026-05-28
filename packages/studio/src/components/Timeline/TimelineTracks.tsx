@@ -19,7 +19,6 @@ import {TimelineTimePadding} from './TimelineTimeIndicators';
 const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
 	paddingRight: TIMELINE_PADDING,
-	paddingTop: 1,
 };
 
 const timelineContent: React.CSSProperties = {

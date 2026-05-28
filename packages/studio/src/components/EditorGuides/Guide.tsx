@@ -114,7 +114,7 @@ const GuideComp: React.FC<{
 	}, [guide.id, setGuidesList]);
 
 	return (
-		<ContextMenu values={values}>
+		<ContextMenu values={values} onOpen={null}>
 			<div
 				style={guideStyle}
 				onMouseDown={onMouseDown}

@@ -235,6 +235,7 @@ export const TimelineEffectGroupRow: React.FC<{
 			selected={selection.selected}
 			selectable={selection.selectable}
 			onSelect={selection.onSelect}
+			showSelectedBackground
 		>
 			<span
 				onPointerEnter={() => setLabelHovered(true)}
@@ -253,7 +254,7 @@ export const TimelineEffectGroupRow: React.FC<{
 	return previewConnected ? (
 		<ContextMenu
 			values={contextMenuValues}
-			onOpen={selection.selectable ? selection.onSelect : undefined}
+			onOpen={selection.selectable ? selection.onSelect : null}
 		>
 			{row}
 		</ContextMenu>

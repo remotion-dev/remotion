@@ -24,21 +24,21 @@ export const TimelineRowChrome: React.FC<{
 	readonly eye: React.ReactNode;
 	readonly arrow: React.ReactNode;
 	readonly children: React.ReactNode;
-	readonly style?: React.CSSProperties;
-	readonly selected?: boolean;
-	readonly selectable?: boolean;
-	readonly onSelect?: () => void;
-	readonly showSelectedBackground?: boolean;
+	readonly style: React.CSSProperties;
+	readonly selected: boolean;
+	readonly selectable: boolean;
+	readonly onSelect: () => void;
+	readonly showSelectedBackground: boolean;
 }> = ({
 	depth,
 	eye,
 	arrow,
 	children,
 	style,
-	selected = false,
-	selectable = false,
+	selected,
+	selectable,
 	onSelect,
-	showSelectedBackground = true,
+	showSelectedBackground,
 }) => {
 	const rowStyle = useMemo(
 		(): React.CSSProperties => ({
@@ -57,7 +57,7 @@ export const TimelineRowChrome: React.FC<{
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button === 0) {
-				onSelect?.();
+				onSelect();
 			}
 		},
 		[onSelect],

@@ -600,7 +600,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 		<div style={style} onPointerDown={onPointerDown}>
 			<div style={inner} className={VERTICAL_SCROLLBAR_CLASSNAME} />
 			{inFrame !== null && (
-				<ContextMenu values={inContextMenu}>
+				<ContextMenu values={inContextMenu} onOpen={null}>
 					<TimelineInOutPointerHandle
 						type="in"
 						atFrame={inFrame}
@@ -609,7 +609,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 				</ContextMenu>
 			)}
 			{outFrame !== null && (
-				<ContextMenu values={outContextMenu}>
+				<ContextMenu values={outContextMenu} onOpen={null}>
 					<TimelineInOutPointerHandle
 						type="out"
 						dragging={inOutDragging.dragging === 'out'}

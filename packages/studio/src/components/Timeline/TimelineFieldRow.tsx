@@ -219,6 +219,7 @@ export const TimelineFieldRow: React.FC<{
 			selected={selection.selected}
 			selectable={selection.selectable}
 			onSelect={selection.onSelect}
+			showSelectedBackground
 		>
 			<div style={labelRowStyle}>
 				<span style={fieldNameStyle}>{field.description ?? field.key}</span>
