@@ -1,6 +1,8 @@
 import {Sandbox} from '@vercel/sandbox';
 import type {RenderProgress} from './types';
 
+const PROGRESS_FILE = '/vercel/sandbox/progress.json';
+
 const isStoppedOrExpiredSandboxError = (error: unknown) => {
 	if (typeof error === 'object' && error !== null && 'code' in error) {
 		return error.code === 'sandbox_stopped';
@@ -58,7 +60,7 @@ export async function getRenderProgress({
 
 	let buffer: Buffer | null;
 	try {
-		buffer = await sandbox.readFileToBuffer({path: 'progress.json'});
+		buffer = await sandbox.readFileToBuffer({path: PROGRESS_FILE});
 	} catch (err) {
 		if (isStoppedOrExpiredSandboxError(err)) {
 			return {stage: 'expired'};

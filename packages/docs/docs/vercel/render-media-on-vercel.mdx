@@ -95,7 +95,7 @@ Use [`getRenderProgress()`](/docs/vercel/get-render-progress) to poll the return
 
 Uploads the rendered video from inside the sandbox to Vercel Blob.
 
-This option is required when [`detached: true`](#detached), because the route that started the render returns before the video exists.
+This option is only available when [`detached: true`](#detached), and required in that mode because the route that started the render returns before the video exists.
 
 ### `detachedSandboxTimeoutInMilliseconds?`<AvailableFrom v="4.0.469" />
 

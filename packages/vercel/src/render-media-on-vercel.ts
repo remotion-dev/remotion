@@ -67,7 +67,6 @@ type RenderMediaOnVercelBaseOptions = {
 
 type RenderMediaOnVercelRegularOptions = RenderMediaOnVercelBaseOptions & {
 	detached?: false;
-	vercelBlob?: VercelBlobUploadOptions;
 };
 
 type RenderMediaOnVercelDetachedOptions = RenderMediaOnVercelBaseOptions & {
@@ -84,57 +83,61 @@ type RenderMediaOnVercelFunction = {
 	): Promise<{sandboxFilePath: string; contentType: string}>;
 };
 
-const internalRenderMediaOnVercel = async ({
-	sandbox,
-	compositionId,
-	inputProps,
-	onProgress,
-	outputFile = '/tmp/video.mp4',
-	codec = 'h264',
-	crf,
-	imageFormat,
-	pixelFormat,
-	envVariables = {},
-	frameRange,
-	everyNthFrame = 1,
-	proResProfile,
-	chromiumOptions = {},
-	scale = 1,
-	preferLossless = false,
-	enforceAudioTrack = false,
-	disallowParallelEncoding = false,
-	concurrency,
-	metadata,
-	licenseKey,
-	videoBitrate,
-	audioBitrate,
-	encodingMaxRate,
-	encodingBufferSize,
-	muted = false,
-	numberOfGifLoops,
-	x264Preset,
-	gopSize,
-	colorSpace = 'default',
-	jpegQuality = 80,
-	audioCodec,
-	logLevel = 'info',
-	timeoutInMilliseconds = 30000,
-	forSeamlessAacConcatenation = false,
-	separateAudioTo,
-	hardwareAcceleration = 'disable',
-	offthreadVideoCacheSizeInBytes,
-	mediaCacheSizeInBytes,
-	offthreadVideoThreads,
-	sampleRate,
-	detached = false,
-	vercelBlob,
-	detachedSandboxTimeoutInMilliseconds = DEFAULT_DETACHED_SANDBOX_TIMEOUT,
-}:
-	| RenderMediaOnVercelRegularOptions
-	| RenderMediaOnVercelDetachedOptions): Promise<
+const internalRenderMediaOnVercel = async (
+	options:
+		| RenderMediaOnVercelRegularOptions
+		| RenderMediaOnVercelDetachedOptions,
+): Promise<
 	| {sandboxFilePath: string; contentType: string}
 	| {sandboxId: string; cmdId: string; outputFile: string}
 > => {
+	const {
+		sandbox,
+		compositionId,
+		inputProps,
+		onProgress,
+		outputFile = '/tmp/video.mp4',
+		codec = 'h264',
+		crf,
+		imageFormat,
+		pixelFormat,
+		envVariables = {},
+		frameRange,
+		everyNthFrame = 1,
+		proResProfile,
+		chromiumOptions = {},
+		scale = 1,
+		preferLossless = false,
+		enforceAudioTrack = false,
+		disallowParallelEncoding = false,
+		concurrency,
+		metadata,
+		licenseKey,
+		videoBitrate,
+		audioBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
+		muted = false,
+		numberOfGifLoops,
+		x264Preset,
+		gopSize,
+		colorSpace = 'default',
+		jpegQuality = 80,
+		audioCodec,
+		logLevel = 'info',
+		timeoutInMilliseconds = 30000,
+		forSeamlessAacConcatenation = false,
+		separateAudioTo,
+		hardwareAcceleration = 'disable',
+		offthreadVideoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
+		offthreadVideoThreads,
+		sampleRate,
+		detached = false,
+		detachedSandboxTimeoutInMilliseconds = DEFAULT_DETACHED_SANDBOX_TIMEOUT,
+	} = options;
+	const vercelBlob = options.detached ? options.vercelBlob : undefined;
+
 	if (detached && !vercelBlob) {
 		throw new Error(
 			'The vercelBlob option is required when detached is set to true.',
