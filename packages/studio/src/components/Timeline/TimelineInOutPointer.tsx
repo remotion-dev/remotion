@@ -10,6 +10,7 @@ const areaHighlight: React.CSSProperties = {
 	height: '100%',
 	bottom: 0,
 	top: 0,
+	pointerEvents: 'none',
 };
 
 export const inMarkerAreaRef = createRef<HTMLDivElement>();

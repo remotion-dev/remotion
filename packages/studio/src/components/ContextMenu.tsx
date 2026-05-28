@@ -126,6 +126,11 @@ export const ContextMenu: React.FC<{
 		setOpened({type: 'not-open'});
 	}, []);
 
+	// Prevent deselection of a selected item
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		e.stopPropagation();
+	}, []);
+
 	return (
 		<>
 			<div ref={ref} onContextMenu={() => false} style={style}>
@@ -136,7 +141,7 @@ export const ContextMenu: React.FC<{
 						<div style={fullScreenOverlay}>
 							<div style={outerPortal} className="css-reset">
 								<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
-									<div style={portalStyle}>
+									<div style={portalStyle} onPointerDown={onPointerDown}>
 										<MenuContent
 											onNextMenu={noop}
 											onPreviousMenu={noop}
