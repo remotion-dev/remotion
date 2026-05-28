@@ -41,7 +41,7 @@ export const getTimelineColor = (selected: boolean, subcategory: boolean) => {
 		: 'rgba(255, 255, 255, 0.8)';
 };
 
-export const getTimelineSelectedTrackHighlightStyle = (): CSSProperties => ({
+export const TIMELINE_SELECTED_TRACK_HIGHLIGHT_STYLE: CSSProperties = {
 	backgroundColor: TIMELINE_SELECTED_BACKGROUND,
 	bottom: 0,
 	left: -TIMELINE_PADDING,
@@ -49,7 +49,7 @@ export const getTimelineSelectedTrackHighlightStyle = (): CSSProperties => ({
 	position: 'absolute',
 	right: -TIMELINE_PADDING,
 	top: 0,
-});
+};
 
 export const SELECTION_ENABLED = true;
 
@@ -214,6 +214,33 @@ export const useTimelineRowSelection = (
 	return {
 		onSelect,
 		selectable: canSelect && selectionItem !== null,
+		selected,
+	};
+};
+
+export const useTimelineKeyframeSelection = (
+	nodePathInfo: SequenceNodePathInfo,
+	frame: number,
+) => {
+	const {canSelect, isSelected, selectItem} = useTimelineSelection();
+	const selectionItem = useMemo(
+		(): TimelineSelection => ({
+			type: 'keyframe',
+			nodePathInfo,
+			frame,
+		}),
+		[nodePathInfo, frame],
+	);
+
+	const selected = isSelected(selectionItem);
+
+	const onSelect = useCallback(() => {
+		selectItem(selectionItem);
+	}, [selectItem, selectionItem]);
+
+	return {
+		onSelect,
+		selectable: canSelect,
 		selected,
 	};
 };
