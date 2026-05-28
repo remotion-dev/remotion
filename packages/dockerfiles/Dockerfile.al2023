@@ -1,6 +1,8 @@
 FROM amazonlinux:2023
 
 WORKDIR /usr/app
+# util-linux provides setpriv, which is used to kill child processes after render.
+# Ubuntu and Debian base images already include setpriv; Amazon Linux 2023 does not.
 RUN yum install git tar gzip unzip util-linux -y
 RUN yum install nodejs -y
 RUN curl -fsSL https://bun.com/install | bash && ln -s /root/.bun/bin/bun /usr/local/bin/bun
