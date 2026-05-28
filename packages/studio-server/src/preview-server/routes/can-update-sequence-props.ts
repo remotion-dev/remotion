@@ -683,38 +683,6 @@ const computeSequenceOnlyPropsRecord = ({
 	return filteredProps;
 };
 
-export const computeSequencePropsOnlyStatus = ({
-	fileName,
-	nodePath,
-	keys,
-	remotionRoot,
-}: {
-	fileName: string;
-	nodePath: SequenceNodePath;
-	keys: string[];
-	remotionRoot: string;
-}): {canUpdate: true; props: Record<string, CanUpdatePropStatus>} => {
-	const {absolutePath} = resolveFileInsideProject({
-		remotionRoot,
-		fileName,
-		action: 'read',
-	});
-
-	const fileContents = readFileSync(absolutePath, 'utf-8');
-	const ast = parseAst(fileContents);
-	const jsxElement = findJsxElementAtNodePath(ast, nodePath);
-	if (!jsxElement) {
-		throw new Error(
-			'Cannot compute sequence props: Could not find a JSX element at the specified location',
-		);
-	}
-
-	return {
-		canUpdate: true as const,
-		props: computeSequenceOnlyPropsRecord({jsxElement, keys}),
-	};
-};
-
 export const computeSequencePropsStatusFromContent = ({
 	fileContents,
 	nodePath,

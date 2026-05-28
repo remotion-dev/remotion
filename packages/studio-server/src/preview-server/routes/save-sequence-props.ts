@@ -16,7 +16,7 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {computeSequencePropsOnlyStatus} from './can-update-sequence-props';
+import {computeSequencePropsStatusFromContent} from './can-update-sequence-props';
 import {formatPropChange} from './log-updates/format-prop-change';
 import {logUpdate, normalizeQuotes} from './log-updates/log-update';
 import {withSavePropsLock} from './save-props-mutex';
@@ -118,12 +118,15 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		printUndoHint(logLevel);
 
-		const newStatus = computeSequencePropsOnlyStatus({
-			fileName,
+		const newStatus = computeSequencePropsStatusFromContent({
+			fileContents: output,
 			keys: getAllSchemaKeys(schema),
 			nodePath: nodePath.nodePath,
-			remotionRoot,
+			effects: [],
 		});
 
-		return newStatus;
+		return {
+			canUpdate: true,
+			props: newStatus.props,
+		};
 	});
