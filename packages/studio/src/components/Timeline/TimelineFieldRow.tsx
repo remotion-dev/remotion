@@ -2,11 +2,12 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatusTrue,
 	SequencePropsSubscriptionKey,
+	SequenceSchema,
 } from 'remotion';
-import type {SequenceSchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -22,6 +23,10 @@ import {
 	TimelineFieldValue,
 	TimelineNonEditableStatus,
 } from './TimelineSchemaField';
+import {
+	TIMELINE_SELECTED_TEXT,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
@@ -153,11 +158,13 @@ export const TimelineFieldRow: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly schema: SequenceSchema;
-}> = ({field, validatedLocation, rowDepth, nodePath, schema}) => {
+}> = ({field, validatedLocation, rowDepth, nodePath, nodePathInfo, schema}) => {
 	const {codeValues: visualModeCodeValues} = useContext(
 		Internals.VisualModeCodeValuesContext,
 	);
+	const selection = useTimelineRowSelection(nodePathInfo);
 
 	const codeValuesForOverride = Internals.getCodeValuesCtx(
 		visualModeCodeValues,
@@ -177,6 +184,14 @@ export const TimelineFieldRow: React.FC<{
 		[rowDepth],
 	);
 
+	const fieldNameStyle = useMemo(
+		(): React.CSSProperties => ({
+			...fieldName,
+			color: selection.selected ? TIMELINE_SELECTED_TEXT : fieldName.color,
+		}),
+		[selection.selected],
+	);
+
 	if (codeValue === null) {
 		return null;
 	}
@@ -187,9 +202,12 @@ export const TimelineFieldRow: React.FC<{
 			eye={<TimelineLayerEyeSpacer />}
 			arrow={<TimelineExpandArrowSpacer />}
 			style={style}
+			selected={selection.selected}
+			selectable={selection.selectable}
+			onSelect={selection.onSelect}
 		>
 			<div style={labelRowStyle}>
-				<span style={fieldName}>{field.description ?? field.key}</span>
+				<span style={fieldNameStyle}>{field.description ?? field.key}</span>
 			</div>
 			{codeValue.canUpdate ? (
 				<Value

@@ -1,5 +1,5 @@
 import React, {useContext, useMemo} from 'react';
-import {Internals, type TSequence, useVideoConfig} from 'remotion';
+import {Internals, useVideoConfig, type TSequence} from 'remotion';
 import {LIGHT_TEXT, TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -13,6 +13,11 @@ import {
 } from '../../helpers/timeline-layout';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getTimelineKeyframes} from './get-timeline-keyframes';
+import {
+	TIMELINE_SELECTED_BACKGROUND,
+	useTimelineSelection,
+	type TimelineSelection,
+} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const row: React.CSSProperties = {
@@ -85,6 +90,7 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
+	const {canSelect, isSelected, selectItem} = useTimelineSelection();
 
 	const tree = useMemo(
 		() =>
@@ -125,6 +131,7 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 					keyframeDisplayOffset,
 				}),
 				key: JSON.stringify(node.nodePathInfo),
+				rowNodePathInfo: node.nodePathInfo,
 			})),
 		[
 			codeValues,
@@ -141,30 +148,49 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 			}}
 		>
 			<div style={{...section, height: expandedHeight}}>
-				{rows.map(({height, keyframes, key}, i) => {
+				{rows.map(({height, keyframes, key, rowNodePathInfo}, i) => {
 					return (
 						<React.Fragment key={key}>
 							{i > 0 ? <div style={separator} /> : null}
 							<div style={{...row, height}}>
 								{timelineWidth === null
 									? null
-									: keyframes.map((keyframe) => (
-											<div
-												key={String(keyframe.frame)}
-												style={{
-													...diamondBase,
-													left:
-														getXPositionOfItemInTimelineImperatively(
-															keyframe.frame,
-															videoConfig.durationInFrames,
-															timelineWidth,
-														) - TIMELINE_PADDING,
-													top: height / 2,
-													transform: 'translate(-50%, -50%) rotate(45deg)',
-												}}
-												title={`Keyframe at frame ${keyframe.frame}`}
-											/>
-										))}
+									: keyframes.map((keyframe) => {
+											const selectionItem: TimelineSelection = {
+												type: 'keyframe',
+												nodePathInfo: rowNodePathInfo,
+												frame: keyframe.frame,
+											};
+											const selected = isSelected(selectionItem);
+
+											return (
+												<button
+													key={String(keyframe.frame)}
+													type="button"
+													style={{
+														...diamondBase,
+														backgroundColor: selected
+															? TIMELINE_SELECTED_BACKGROUND
+															: LIGHT_TEXT,
+														border: 'none',
+														cursor: canSelect ? 'pointer' : 'default',
+														left:
+															getXPositionOfItemInTimelineImperatively(
+																keyframe.frame,
+																videoConfig.durationInFrames,
+																timelineWidth,
+															) - TIMELINE_PADDING,
+														padding: 0,
+														pointerEvents: 'auto',
+														top: height / 2,
+														transform: 'translate(-50%, -50%) rotate(45deg)',
+													}}
+													title={`Keyframe at frame ${keyframe.frame}`}
+													aria-label={`Select keyframe at frame ${keyframe.frame}`}
+													onClick={() => selectItem(selectionItem)}
+												/>
+											);
+										})}
 							</div>
 						</React.Fragment>
 					);

@@ -17,6 +17,10 @@ import {saveEffectProp} from './save-effect-prop';
 import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
+import {
+	TIMELINE_SELECTED_TEXT,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
@@ -52,6 +56,7 @@ export const TimelineEffectGroupRow: React.FC<{
 	const previewConnected = previewServerState.type === 'connected';
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const selection = useTimelineRowSelection(nodePathInfo);
 
 	const effectStatus = useMemo(
 		() =>
@@ -182,11 +187,12 @@ export const TimelineEffectGroupRow: React.FC<{
 		const hoverEffect = labelHovered && documentationLink !== null;
 		return {
 			...rowLabel,
+			color: selection.selected ? TIMELINE_SELECTED_TEXT : rowLabel.color,
 			textDecoration: hoverEffect ? 'underline' : 'none',
 			textUnderlineOffset: 2,
 			cursor: hoverEffect ? 'pointer' : undefined,
 		};
-	}, [documentationLink, labelHovered]);
+	}, [documentationLink, labelHovered, selection.selected]);
 
 	const onClickLabel = useCallback(() => {
 		if (documentationLink === null) {
@@ -219,6 +225,9 @@ export const TimelineEffectGroupRow: React.FC<{
 				/>
 			}
 			style={rowStyle}
+			selected={selection.selected}
+			selectable={selection.selectable}
+			onSelect={selection.onSelect}
 		>
 			<span
 				onPointerEnter={() => setLabelHovered(true)}

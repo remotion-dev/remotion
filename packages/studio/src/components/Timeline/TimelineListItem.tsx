@@ -27,6 +27,7 @@ import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
+import {useTimelineRowSelection} from './TimelineSelection';
 import {TimelineStack} from './TimelineStack';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 
@@ -43,6 +44,7 @@ export const TimelineListItem: React.FC<{
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const selection = useTimelineRowSelection(nodePathInfo);
 
 	const originalLocation = useResolveStackAndReactToChange(sequence.getStack);
 
@@ -337,11 +339,15 @@ export const TimelineListItem: React.FC<{
 					)
 				}
 				style={inner}
+				selected={selection.selected}
+				selectable={selection.selectable}
+				onSelect={selection.onSelect}
 			>
 				<TimelineStack
 					sequence={sequence}
 					isCompact={isCompact}
 					originalLocation={originalLocation}
+					selected={selection.selected}
 				/>
 			</TimelineRowChrome>
 			{mediaSrc ? (

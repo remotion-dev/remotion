@@ -4,6 +4,7 @@ import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
@@ -14,6 +15,10 @@ import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
+import {
+	TIMELINE_SELECTED_TEXT,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
@@ -215,7 +220,9 @@ export const TimelineEffectFieldRow: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
-}> = ({field, validatedLocation, rowDepth, nodePath}) => {
+	readonly nodePathInfo: SequenceNodePathInfo;
+}> = ({field, validatedLocation, rowDepth, nodePath, nodePathInfo}) => {
+	const selection = useTimelineRowSelection(nodePathInfo);
 	const style = useMemo(() => {
 		return {
 			...fieldRowBase,
@@ -228,15 +235,26 @@ export const TimelineEffectFieldRow: React.FC<{
 		[rowDepth],
 	);
 
+	const fieldNameStyle = useMemo(
+		(): React.CSSProperties => ({
+			...fieldName,
+			color: selection.selected ? TIMELINE_SELECTED_TEXT : fieldName.color,
+		}),
+		[selection.selected],
+	);
+
 	return (
 		<TimelineRowChrome
 			depth={rowDepth}
 			eye={<TimelineLayerEyeSpacer />}
 			arrow={<TimelineExpandArrowSpacer />}
 			style={style}
+			selected={selection.selected}
+			selectable={selection.selectable}
+			onSelect={selection.onSelect}
 		>
 			<div style={labelRowStyle}>
-				<span style={fieldName}>{field.description ?? field.key}</span>
+				<span style={fieldNameStyle}>{field.description ?? field.key}</span>
 			</div>
 			<Value
 				field={field}

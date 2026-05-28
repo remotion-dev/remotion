@@ -19,7 +19,8 @@ export const TimelineStack: React.FC<{
 	readonly isCompact: boolean;
 	readonly sequence: TSequence;
 	readonly originalLocation: OriginalPosition | null;
-}> = ({isCompact, sequence, originalLocation}) => {
+	readonly selected: boolean;
+}> = ({isCompact, sequence, originalLocation, selected}) => {
 	const [stackHovered, setStackHovered] = useState(false);
 	const [titleHovered, setTitleHovered] = useState(false);
 	const [opening, setOpening] = useState(false);
@@ -98,11 +99,13 @@ export const TimelineStack: React.FC<{
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			fontSize: 12,
-			color: opening
-				? VERY_LIGHT_TEXT
-				: stackHovered && stackHoverable
-					? LIGHT_TEXT
-					: VERY_LIGHT_TEXT,
+			color: selected
+				? 'black'
+				: opening
+					? VERY_LIGHT_TEXT
+					: stackHovered && stackHoverable
+						? LIGHT_TEXT
+						: VERY_LIGHT_TEXT,
 			marginLeft: 5,
 			cursor: stackHoverable ? 'pointer' : undefined,
 			display: 'flex',
@@ -115,7 +118,7 @@ export const TimelineStack: React.FC<{
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 		};
-	}, [opening, stackHovered, stackHoverable]);
+	}, [opening, selected, stackHovered, stackHoverable]);
 
 	const titleStyle: React.CSSProperties = useMemo(() => {
 		const hoverEffect = titleHovered && titleHoverable;
@@ -125,14 +128,18 @@ export const TimelineStack: React.FC<{
 			textOverflow: 'ellipsis',
 			overflow: 'hidden',
 			lineHeight: 1.2,
-			color: opening && isCompact ? VERY_LIGHT_TEXT : LIGHT_COLOR,
+			color: selected
+				? 'black'
+				: opening && isCompact
+					? VERY_LIGHT_TEXT
+					: LIGHT_COLOR,
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 			textDecoration: hoverEffect ? 'underline' : 'none',
 			textUnderlineOffset: 2,
 			cursor: hoverEffect ? 'pointer' : undefined,
 		};
-	}, [titleHoverable, isCompact, opening, titleHovered]);
+	}, [titleHoverable, isCompact, opening, selected, titleHovered]);
 
 	const text =
 		sequence.displayName.length > 1000
