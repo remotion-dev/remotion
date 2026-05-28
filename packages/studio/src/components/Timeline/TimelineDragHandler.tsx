@@ -40,7 +40,9 @@ import {
 	inPointerHandle,
 	outPointerHandle,
 } from './TimelineInOutPointerHandle';
+import {TIMELINE_TOP_DRAG} from './TimelineSelection';
 import {redrawTimelineSliderFast} from './TimelineSlider';
+import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const inner: React.CSSProperties = {
@@ -82,6 +84,7 @@ export const TimelineDragHandler: React.FC = () => {
 		return {
 			...container,
 			width: 100 * zoom + '%',
+			...(TIMELINE_TOP_DRAG ? {height: TIMELINE_TIME_INDICATOR_HEIGHT} : {}),
 		};
 	}, [canvasContent, zoomMap]);
 

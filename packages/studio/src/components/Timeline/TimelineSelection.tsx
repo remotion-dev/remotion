@@ -52,6 +52,7 @@ export const TIMELINE_SELECTED_TRACK_HIGHLIGHT_STYLE: CSSProperties = {
 };
 
 export const SELECTION_ENABLED = false;
+export const TIMELINE_TOP_DRAG = true;
 
 export type TimelineSelection =
 	| {
