@@ -55,7 +55,7 @@ export const TimelineExpandedRow: React.FC<{
 	const labelStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...rowLabel,
-			...getTimelineSelectedLabelStyle(selection.selected),
+			...getTimelineSelectedLabelStyle(selection.selected, true),
 			alignSelf: 'stretch',
 			alignItems: 'center',
 			color: selection.selected ? TIMELINE_SELECTED_LABEL_TEXT : rowLabel.color,
@@ -106,6 +106,7 @@ export const TimelineExpandedRow: React.FC<{
 				onSelect={selection.onSelect}
 				showSelectedBackground
 				containsSelection={false}
+				outerHeight={null}
 			>
 				<span style={labelStyle}>{node.label}</span>
 			</TimelineRowChrome>
@@ -156,6 +157,7 @@ export const TimelineExpandedRow: React.FC<{
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={false}
+			outerHeight={null}
 		>
 			<span style={labelStyle}>{node.label}</span>
 		</TimelineRowChrome>

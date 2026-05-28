@@ -1,4 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
+import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {Padder} from './Padder';
 import {
 	TIMELINE_ROW_BASE_PADDING,
@@ -30,6 +31,10 @@ export const TimelineRowChrome: React.FC<{
 	readonly onSelect: () => void;
 	readonly showSelectedBackground: boolean;
 	readonly containsSelection: boolean;
+	// When set, the chrome is wrapped in an outer container of this height with a
+	// bottom track separator. The background highlight and click target span the
+	// outer (used by sequence rows whose layer is taller than the chrome row).
+	readonly outerHeight: number | null;
 }> = ({
 	depth,
 	eye,
@@ -41,42 +46,88 @@ export const TimelineRowChrome: React.FC<{
 	onSelect,
 	showSelectedBackground,
 	containsSelection,
+	outerHeight,
 }) => {
-	const rowStyle = useMemo(
-		(): React.CSSProperties => ({
-			...rowBase,
-			...style,
-			backgroundColor:
-				showSelectedBackground && (selected || containsSelection)
-					? TIMELINE_SELECTED_BACKGROUND
-					: undefined,
-		}),
-		[selected, containsSelection, showSelectedBackground, style],
-	);
-
 	const indentWidth = getTimelineRowIndentWidth(depth);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button === 0) {
+				e.stopPropagation();
 				onSelect();
 			}
 		},
 		[onSelect],
 	);
 
-	return (
-		<div
-			style={rowStyle}
-			onPointerDown={selectable ? onPointerDown : undefined}
-			onContextMenu={selectable ? onSelect : undefined}
-		>
+	const onContextMenu = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			e.stopPropagation();
+			onSelect();
+		},
+		[onSelect],
+	);
+
+	const highlightBackground =
+		showSelectedBackground && (selected || containsSelection)
+			? TIMELINE_SELECTED_BACKGROUND
+			: undefined;
+
+	const innerRowStyle = useMemo(
+		(): React.CSSProperties => ({
+			...rowBase,
+			...style,
+			backgroundColor:
+				outerHeight === undefined ? highlightBackground : undefined,
+		}),
+		[style, outerHeight, highlightBackground],
+	);
+
+	const outerStyle = useMemo((): React.CSSProperties | undefined => {
+		if (outerHeight === null) {
+			return undefined;
+		}
+
+		return {
+			height: outerHeight,
+			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
+			display: 'flex',
+			flexDirection: 'column',
+			justifyContent: 'center',
+			backgroundColor: highlightBackground,
+		};
+	}, [outerHeight, highlightBackground]);
+
+	const chrome = (
+		<>
 			<div style={chromeColumnStyle}>
 				{eye}
 				{indentWidth > 0 ? <Padder depth={depth} /> : null}
 				{arrow}
 			</div>
 			{children}
+		</>
+	);
+
+	if (outerStyle) {
+		return (
+			<div
+				style={outerStyle}
+				onPointerDown={selectable ? onPointerDown : undefined}
+				onContextMenu={selectable ? onContextMenu : undefined}
+			>
+				<div style={innerRowStyle}>{chrome}</div>
+			</div>
+		);
+	}
+
+	return (
+		<div
+			onPointerDown={selectable ? onPointerDown : undefined}
+			onContextMenu={selectable ? onContextMenu : undefined}
+			style={innerRowStyle}
+		>
+			{chrome}
 		</div>
 	);
 };

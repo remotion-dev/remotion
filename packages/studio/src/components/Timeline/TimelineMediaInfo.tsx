@@ -94,6 +94,8 @@ const useAssetLink = (src: string) => {
 			overflow: 'hidden',
 			whiteSpace: 'pre',
 			textOverflow: 'ellipsis',
+			userSelect: 'none',
+			WebkitUserSelect: 'none',
 		}),
 		[linkInfo, hovered],
 	);

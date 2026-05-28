@@ -84,6 +84,7 @@ export const TimelineLayerEye: React.FC<{
 				return;
 			}
 
+			e.stopPropagation();
 			layerPointedDown = hidden ? 'enable' : 'disable';
 			onInvoked(layerPointedDown);
 			window.addEventListener(

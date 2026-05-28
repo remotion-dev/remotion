@@ -183,6 +183,7 @@ export const TimelineFieldRow: React.FC<{
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={false}
+			outerHeight={null}
 		>
 			<TimelineFieldLabel
 				rowDepth={rowDepth}

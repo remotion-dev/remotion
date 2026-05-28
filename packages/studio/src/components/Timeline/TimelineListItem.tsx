@@ -2,7 +2,6 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getTimelineLayerHeight,
@@ -275,23 +274,9 @@ export const TimelineListItem: React.FC<{
 		],
 	);
 
-	const outer: React.CSSProperties = useMemo(() => {
-		return {
-			height:
-				getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
-			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
-			display: 'flex',
-			flexDirection: 'column',
-		};
-	}, [sequence.type]);
-
-	const onSelectPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
-			if (e.button === 0) {
-				onSelect();
-			}
-		},
-		[onSelect],
+	const outerHeight = useMemo(
+		() => getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
+		[sequence.type],
 	);
 
 	const inner: React.CSSProperties = useMemo(() => {
@@ -325,57 +310,52 @@ export const TimelineListItem: React.FC<{
 		codeHiddenStatus.canUpdate;
 
 	const trackRow = (
-		<div
-			style={outer}
-			onPointerDown={selectable ? onSelectPointerDown : undefined}
-			onContextMenu={selectable ? onSelect : undefined}
+		<TimelineRowChrome
+			depth={nestedDepth}
+			eye={
+				canToggleVisibility ? (
+					<TimelineLayerEye
+						type={sequence.type === 'audio' ? 'speaker' : 'eye'}
+						hidden={isItemHidden}
+						onInvoked={onToggleVisibility}
+					/>
+				) : (
+					<TimelineLayerEyeSpacer />
+				)
+			}
+			arrow={
+				hasExpandableContent ? (
+					<TimelineExpandArrowButton
+						isExpanded={isExpanded}
+						onClick={onToggleExpand}
+						label="track properties"
+						disabled={!previewConnected || nodePathInfo === null}
+					/>
+				) : (
+					<TimelineExpandArrowSpacer />
+				)
+			}
+			style={inner}
+			selected={selected}
+			selectable={selectable}
+			onSelect={onSelect}
+			showSelectedBackground
+			containsSelection={containsSelection}
+			outerHeight={outerHeight}
 		>
-			<TimelineRowChrome
-				depth={nestedDepth}
-				eye={
-					canToggleVisibility ? (
-						<TimelineLayerEye
-							type={sequence.type === 'audio' ? 'speaker' : 'eye'}
-							hidden={isItemHidden}
-							onInvoked={onToggleVisibility}
-						/>
-					) : (
-						<TimelineLayerEyeSpacer />
-					)
-				}
-				arrow={
-					hasExpandableContent ? (
-						<TimelineExpandArrowButton
-							isExpanded={isExpanded}
-							onClick={onToggleExpand}
-							label="track properties"
-							disabled={!previewConnected || nodePathInfo === null}
-						/>
-					) : (
-						<TimelineExpandArrowSpacer />
-					)
-				}
-				style={inner}
-				selected={selected}
-				selectable={false}
-				onSelect={onSelect}
-				showSelectedBackground
-				containsSelection={containsSelection}
-			>
-				<div style={labelContainerStyle}>
-					<TimelineItemName
-						sequence={sequence}
-						selected={selected}
-						containsSelection={containsSelection}
-					/>
-					{mediaSrc ? <TimelineMediaInfo src={mediaSrc} /> : null}
-					<TimelineItemStack
-						isCompact={isCompact}
-						originalLocation={originalLocation}
-					/>
-				</div>
-			</TimelineRowChrome>
-		</div>
+			<div style={labelContainerStyle}>
+				<TimelineItemName
+					sequence={sequence}
+					selected={selected}
+					containsSelection={containsSelection}
+				/>
+				{mediaSrc ? <TimelineMediaInfo src={mediaSrc} /> : null}
+				<TimelineItemStack
+					isCompact={isCompact}
+					originalLocation={originalLocation}
+				/>
+			</div>
+		</TimelineRowChrome>
 	);
 
 	return (

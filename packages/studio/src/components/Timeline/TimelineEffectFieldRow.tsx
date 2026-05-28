@@ -230,6 +230,7 @@ export const TimelineEffectFieldRow: React.FC<{
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={false}
+			outerHeight={null}
 		>
 			<TimelineFieldLabel
 				rowDepth={rowDepth}

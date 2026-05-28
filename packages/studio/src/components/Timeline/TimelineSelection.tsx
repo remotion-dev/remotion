@@ -20,12 +20,25 @@ export const TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING = 2;
 
 export const getTimelineSelectedLabelStyle = (
 	selected: boolean,
+	subcategory: boolean,
 ): CSSProperties => {
 	return {
 		paddingLeft: TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING,
 		paddingRight: TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING,
-		...(selected ? {backgroundColor: TIMELINE_SELECTED_LABEL_BACKGROUND} : {}),
+		...(selected
+			? {
+					backgroundColor: subcategory
+						? 'rgba(255, 255, 255, 0.1)'
+						: TIMELINE_SELECTED_LABEL_BACKGROUND,
+				}
+			: {}),
 	};
+};
+
+export const getTimelineColor = (selected: boolean, subcategory: boolean) => {
+	return selected && !subcategory
+		? TIMELINE_SELECTED_LABEL_TEXT
+		: 'rgba(255, 255, 255, 0.8)';
 };
 
 export const getTimelineSelectedTrackHighlightStyle = (): CSSProperties => ({
@@ -56,6 +69,7 @@ type TimelineSelectionContextValue = {
 	readonly isSelected: (item: TimelineSelection) => boolean;
 	readonly selectItem: (item: TimelineSelection) => void;
 	readonly containsSelection: (nodePathInfo: SequenceNodePathInfo) => boolean;
+	readonly clearSelection: () => void;
 };
 
 const TimelineSelectionContext = createContext<TimelineSelectionContextValue>({
@@ -63,6 +77,7 @@ const TimelineSelectionContext = createContext<TimelineSelectionContextValue>({
 	isSelected: () => false,
 	selectItem: () => undefined,
 	containsSelection: () => false,
+	clearSelection: () => undefined,
 });
 
 const getTimelineSelectionKey = (item: TimelineSelection): string => {
@@ -113,6 +128,10 @@ export const TimelineSelectionProvider: React.FC<{
 		[canSelect],
 	);
 
+	const clearSelection = useCallback(() => {
+		setSelectedItem(null);
+	}, []);
+
 	const containsSelection = useCallback(
 		(nodePathInfo: SequenceNodePathInfo) => {
 			if (selectedItem === null) {
@@ -156,8 +175,9 @@ export const TimelineSelectionProvider: React.FC<{
 			isSelected,
 			selectItem,
 			containsSelection,
+			clearSelection,
 		}),
-		[canSelect, isSelected, selectItem, containsSelection],
+		[canSelect, isSelected, selectItem, containsSelection, clearSelection],
 	);
 
 	return (

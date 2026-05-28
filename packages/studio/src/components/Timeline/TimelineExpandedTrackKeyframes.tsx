@@ -193,6 +193,7 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 													aria-label={`Select keyframe at frame ${keyframe.frame}`}
 													onPointerDown={(e) => {
 														if (e.button === 0) {
+															e.stopPropagation();
 															selectItem(selectionItem);
 														}
 													}}

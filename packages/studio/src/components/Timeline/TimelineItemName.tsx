@@ -42,7 +42,7 @@ export const TimelineItemName: React.FC<{
 		return {
 			alignItems: 'center',
 			alignSelf: 'stretch',
-			...getTimelineSelectedLabelStyle(selected),
+			...getTimelineSelectedLabelStyle(selected, false),
 			display: 'inline-flex',
 			fontSize: 12,
 			whiteSpace: 'nowrap',

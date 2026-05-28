@@ -187,7 +187,7 @@ export const TimelineEffectGroupRow: React.FC<{
 		const hoverEffect = labelHovered && documentationLink !== null;
 		return {
 			...rowLabel,
-			...getTimelineSelectedLabelStyle(selection.selected),
+			...getTimelineSelectedLabelStyle(selection.selected, true),
 			alignSelf: 'stretch',
 			alignItems: 'center',
 			color: selection.selected ? TIMELINE_SELECTED_LABEL_TEXT : rowLabel.color,
@@ -237,6 +237,7 @@ export const TimelineEffectGroupRow: React.FC<{
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={false}
+			outerHeight={null}
 		>
 			<span
 				onPointerEnter={() => setLabelHovered(true)}

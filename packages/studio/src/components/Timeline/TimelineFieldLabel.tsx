@@ -1,8 +1,8 @@
 import React, {useMemo} from 'react';
 import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
 import {
+	getTimelineColor,
 	getTimelineSelectedLabelStyle,
-	TIMELINE_SELECTED_LABEL_TEXT,
 } from './TimelineSelection';
 
 const fieldNameBase: React.CSSProperties = {
@@ -24,7 +24,7 @@ export const TimelineFieldLabel: React.FC<{
 	const labelRowStyle = useMemo(
 		(): React.CSSProperties => ({
 			...getTimelineFieldLabelRowStyle(rowDepth),
-			...getTimelineSelectedLabelStyle(selected),
+			...getTimelineSelectedLabelStyle(selected, true),
 			alignSelf: 'stretch',
 		}),
 		[rowDepth, selected],
@@ -33,7 +33,7 @@ export const TimelineFieldLabel: React.FC<{
 	const fieldNameStyle = useMemo(
 		(): React.CSSProperties => ({
 			...fieldNameBase,
-			color: selected ? TIMELINE_SELECTED_LABEL_TEXT : fieldNameBase.color,
+			color: getTimelineColor(selected, true),
 		}),
 		[selected],
 	);
