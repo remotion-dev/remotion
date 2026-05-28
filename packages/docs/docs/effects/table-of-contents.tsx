@@ -40,7 +40,7 @@ const categories: {
 			},
 			{
 				link: '/docs/effects/drop-shadow',
-				preview: '/img/effects-drop-shadow-preview.jpg',
+				preview: '/img/effects-drop-shadow-preview.png',
 				alt: 'drop shadow effect preview',
 				name: 'dropShadow()',
 				description: 'Blurred alpha shadow effect',

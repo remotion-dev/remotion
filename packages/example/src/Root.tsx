@@ -59,6 +59,7 @@ import {
 	EffectsBlurPreview,
 	EffectsBrightnessPreview,
 	EffectsContrastPreview,
+	EffectsDropShadowPreview,
 	EffectsDuotonePreview,
 	EffectsGrayscalePreview,
 	EffectsHalftonePreview,
@@ -1133,6 +1134,14 @@ export const Index: React.FC = () => {
 						fps={30}
 						height={720}
 						width={1080}
+						durationInFrames={1}
+					/>
+					<Composition
+						id="html-in-canvas-effects-drop-shadow-preview"
+						component={EffectsDropShadowPreview}
+						fps={30}
+						height={720}
+						width={1280}
 						durationInFrames={1}
 					/>
 					<Composition
