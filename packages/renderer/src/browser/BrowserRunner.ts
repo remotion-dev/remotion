@@ -128,6 +128,19 @@ export const makeBrowserRunner = async ({
 						);
 						proc.kill('SIGKILL');
 					}
+
+					// Best-effort: kill any remaining child processes that may have been
+					// missed by the process group kill (e.g. if setpriv is not available
+					// in Docker containers). Without this, children become zombies (PPID 1)
+					// after the parent exits.
+					try {
+						childProcess.execSync(
+							`pkill -9 -P ${proc.pid} 2>/dev/null || true`,
+							{timeout: 2000},
+						);
+					} catch {
+						// Ignore — pkill may not be available or process may already be gone
+					}
 				}
 			} catch (error) {
 				throw new Error(

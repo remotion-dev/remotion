@@ -1,7 +1,7 @@
 FROM ubuntu:24.04
 
 RUN apt-get update
-RUN apt-get install git curl make unzip -y
+RUN apt-get install git curl make unzip util-linux -y
 RUN curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n | bash -s 20
 RUN curl -fsSL https://bun.com/install | bash && ln -s /root/.bun/bin/bun /usr/local/bin/bun
 WORKDIR /usr/app
