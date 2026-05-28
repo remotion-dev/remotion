@@ -42,6 +42,7 @@ const Home: NextPage = () => {
             controls
             autoPlay
             loop
+            initiallyMuted
           />
         </div>
         <section className="flex flex-col gap-4">
