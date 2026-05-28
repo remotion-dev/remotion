@@ -279,34 +279,22 @@ Register the demo:
 
 Use the `docs-demo` skill for demo details.
 
-## 7. Render the table-of-contents preview image
+## 7. Add and render the table-of-contents preview composition
 
-The TOC card should use a rendered image from the same preview component, not a hand-written SVG.
+The TOC card must come from a real Remotion composition in `packages/docs`, not a hand-written asset.
 
-Create a temporary Remotion entry point for the still render and delete it before committing:
+Add a `Still` to `packages/docs/src/remotion/Root.tsx` under the `effect-previews` folder:
 
 ```tsx
-import React from 'react';
-import {Composition, registerRoot} from 'remotion';
-import {EffectsMyEffectPreview} from '../../components/effects/effects-my-effect-preview';
-
-const Root: React.FC = () => {
-	return (
-		<Composition
-			id="effects-my-effect-preview"
-			component={EffectsMyEffectPreview}
-			width={1280}
-			height={720}
-			fps={30}
-			durationInFrames={1}
-			defaultProps={{
-				amount: 1,
-			}}
-		/>
-	);
-};
-
-registerRoot(Root);
+<Still
+	id="effects-my-effect-preview"
+	component={EffectsMyEffectPreview}
+	width={1280}
+	height={720}
+	defaultProps={{
+		amount: 1,
+	}}
+/>
 ```
 
 Use the same `width` and `height` as the preview component's `CanvasImage`.
@@ -317,10 +305,13 @@ different aspect ratio can leave black bars in the generated TOC image.
 Then render from `packages/docs`:
 
 ```bash
-bunx remotion still src/remotion/effects-preview-entry.tsx effects-my-effect-preview static/img/effects-my-effect-preview.jpg --overwrite --image-format=jpeg
+bunx remotion still src/remotion/entry.ts effects-my-effect-preview static/img/effects-my-effect-preview.jpg --overwrite --image-format=jpeg
 ```
 
-Add the rendered image to `packages/docs/static/img/`, reference it from `table-of-contents.tsx`, and delete the temporary entry point before committing.
+Commit both:
+
+- The composition entry in `packages/docs/src/remotion/Root.tsx`
+- The rendered image in `packages/docs/static/img/`
 
 ## 8. Generate docs card
 
