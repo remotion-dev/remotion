@@ -12,6 +12,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {TimelineKeyframeKeybindings} from './TimelineKeyframeKeybindings';
 
 export const TIMELINE_SELECTED_BACKGROUND = '#3B3F42';
 export const TIMELINE_SELECTED_LABEL_BACKGROUND = '#B0B0B0';
@@ -51,8 +52,8 @@ export const TIMELINE_SELECTED_TRACK_HIGHLIGHT_STYLE: CSSProperties = {
 	top: 0,
 };
 
-export const SELECTION_ENABLED = false;
-export const TIMELINE_TOP_DRAG = false;
+export const SELECTION_ENABLED = true;
+export const TIMELINE_TOP_DRAG = true;
 
 export type TimelineSelection =
 	| {
@@ -67,6 +68,7 @@ export type TimelineSelection =
 
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
+	readonly selectedItem: TimelineSelection | null;
 	readonly isSelected: (item: TimelineSelection) => boolean;
 	readonly selectItem: (item: TimelineSelection) => void;
 	readonly containsSelection: (nodePathInfo: SequenceNodePathInfo) => boolean;
@@ -75,6 +77,7 @@ type TimelineSelectionContextValue = {
 
 const TimelineSelectionContext = createContext<TimelineSelectionContextValue>({
 	canSelect: false,
+	selectedItem: null,
 	isSelected: () => false,
 	selectItem: () => undefined,
 	containsSelection: () => false,
@@ -173,17 +176,26 @@ export const TimelineSelectionProvider: React.FC<{
 	const value = useMemo(
 		(): TimelineSelectionContextValue => ({
 			canSelect,
+			selectedItem,
 			isSelected,
 			selectItem,
 			containsSelection,
 			clearSelection,
 		}),
-		[canSelect, isSelected, selectItem, containsSelection, clearSelection],
+		[
+			canSelect,
+			selectedItem,
+			isSelected,
+			selectItem,
+			containsSelection,
+			clearSelection,
+		],
 	);
 
 	return (
 		<TimelineSelectionContext.Provider value={value}>
 			{children}
+			<TimelineKeyframeKeybindings />
 		</TimelineSelectionContext.Provider>
 	);
 };

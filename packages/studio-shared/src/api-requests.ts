@@ -248,6 +248,11 @@ export type UnsubscribeFromSequencePropsRequest = {
 	effectKeys: string[][];
 };
 
+export type KeyframeRemoveOperation = {
+	type: 'remove';
+	frame: number;
+};
+
 export type SaveSequencePropsRequest = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -256,6 +261,7 @@ export type SaveSequencePropsRequest = {
 	defaultValue: string | null;
 	schema: SequenceSchema;
 	clientId: string;
+	keyframeOperation?: KeyframeRemoveOperation;
 };
 
 export type SaveSequencePropsResponse =
@@ -277,6 +283,7 @@ export type SaveEffectPropsRequest = {
 	defaultValue: string | null;
 	schema: SequenceSchema;
 	clientId: string;
+	keyframeOperation?: KeyframeRemoveOperation;
 };
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
