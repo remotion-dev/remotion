@@ -12,9 +12,8 @@ import {SELECTION_ENABLED} from './TimelineSelection';
 import {getOriginalSourceAttribution} from './TimelineStack/source-attribution';
 
 export const TimelineItemStack: React.FC<{
-	readonly isCompact: boolean;
 	readonly originalLocation: OriginalPosition | null;
-}> = ({isCompact, originalLocation}) => {
+}> = ({originalLocation}) => {
 	const [hovered, setHovered] = useState(false);
 	const [opening, setOpening] = useState(false);
 
@@ -45,8 +44,7 @@ export const TimelineItemStack: React.FC<{
 	const canOpenInGitHub = Boolean(
 		window.remotion_gitSource && originalLocation,
 	);
-	const hoverable =
-		!SELECTION_ENABLED && !isCompact && (canOpenInEditor || canOpenInGitHub);
+	const hoverable = !SELECTION_ENABLED && (canOpenInEditor || canOpenInGitHub);
 
 	const onClick = useCallback(() => {
 		if (!originalLocation) {
@@ -90,7 +88,7 @@ export const TimelineItemStack: React.FC<{
 		};
 	}, [opening, hovered, hoverable]);
 
-	if (isCompact || !originalLocation) {
+	if (!originalLocation) {
 		return null;
 	}
 

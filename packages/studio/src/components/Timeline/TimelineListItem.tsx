@@ -51,9 +51,8 @@ const labelContainerStyle: React.CSSProperties = {
 export const TimelineListItem: React.FC<{
 	readonly sequence: TSequence;
 	readonly nestedDepth: number;
-	readonly isCompact: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
-}> = ({nestedDepth, sequence, isCompact, nodePathInfo}) => {
+}> = ({nestedDepth, sequence, nodePathInfo}) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
@@ -442,10 +441,7 @@ export const TimelineListItem: React.FC<{
 					containsSelection={containsSelection}
 				/>
 				{mediaSrc ? <TimelineMediaInfo src={mediaSrc} /> : null}
-				<TimelineItemStack
-					isCompact={isCompact}
-					originalLocation={originalLocation}
-				/>
+				<TimelineItemStack originalLocation={originalLocation} />
 			</div>
 		</TimelineRowChrome>
 	);
