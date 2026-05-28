@@ -35,6 +35,7 @@ export const TimelineRowChrome: React.FC<{
 	// bottom track separator. The background highlight and click target span the
 	// outer (used by sequence rows whose layer is taller than the chrome row).
 	readonly outerHeight: number | null;
+	readonly onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }> = ({
 	depth,
 	eye,
@@ -47,6 +48,7 @@ export const TimelineRowChrome: React.FC<{
 	showSelectedBackground,
 	containsSelection,
 	outerHeight,
+	onDoubleClick,
 }) => {
 	const indentWidth = getTimelineRowIndentWidth(depth);
 
@@ -115,6 +117,7 @@ export const TimelineRowChrome: React.FC<{
 				style={outerStyle}
 				onPointerDown={selectable ? onPointerDown : undefined}
 				onContextMenu={selectable ? onContextMenu : undefined}
+				onDoubleClick={onDoubleClick}
 			>
 				<div style={innerRowStyle}>{chrome}</div>
 			</div>
@@ -125,6 +128,7 @@ export const TimelineRowChrome: React.FC<{
 		<div
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onContextMenu={selectable ? onContextMenu : undefined}
+			onDoubleClick={onDoubleClick}
 			style={innerRowStyle}
 		>
 			{chrome}

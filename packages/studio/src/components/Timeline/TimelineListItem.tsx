@@ -4,7 +4,6 @@ import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {openOriginalPositionInEditor} from '../../helpers/open-in-editor';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -33,11 +32,12 @@ import {
 } from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
+	SELECTION_ENABLED,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
-import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
+import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
 
 const labelContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
@@ -66,7 +66,8 @@ export const TimelineListItem: React.FC<{
 		useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 
-	const originalLocation = useResolveStackAndReactToChange(sequence.getStack);
+	const {canOpenInEditor, openInEditor, originalLocation} =
+		useOpenSequenceInEditor(sequence);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -155,9 +156,6 @@ export const TimelineListItem: React.FC<{
 		}
 	}, [nodePath, validatedLocation?.source, nodePathInfo]);
 
-	const showInEditorDisabled =
-		!window.remotion_editorName || !previewConnected || !originalLocation;
-
 	const mediaSrc =
 		sequence.type === 'audio' ||
 		sequence.type === 'video' ||
@@ -176,7 +174,7 @@ export const TimelineListItem: React.FC<{
 		}
 
 		const editorName = window.remotion_editorName;
-		const documentationLink = sequence.documentationLink;
+		const {documentationLink} = sequence;
 
 		return [
 			editorName
@@ -186,17 +184,9 @@ export const TimelineListItem: React.FC<{
 						keyHint: null,
 						label: `Show in ${editorName}`,
 						leftItem: null,
-						disabled: showInEditorDisabled,
-						onClick: async () => {
-							if (showInEditorDisabled || !originalLocation) {
-								return;
-							}
-
-							try {
-								await openOriginalPositionInEditor(originalLocation);
-							} catch (err) {
-								showNotification((err as Error).message, 2000);
-							}
+						disabled: !canOpenInEditor,
+						onClick: () => {
+							openInEditor();
 						},
 						quickSwitcherLabel: null,
 						subMenu: null,
@@ -284,11 +274,11 @@ export const TimelineListItem: React.FC<{
 		duplicateDisabled,
 		onDeleteSequenceFromSource,
 		onDuplicateSequenceFromSource,
-		originalLocation,
+		canOpenInEditor,
+		openInEditor,
 		previewConnected,
-		sequence.documentationLink,
+		sequence,
 		setCanvasContent,
-		showInEditorDisabled,
 	]);
 
 	const isExpanded =
@@ -301,6 +291,18 @@ export const TimelineListItem: React.FC<{
 
 		toggleTrack(nodePathInfo);
 	}, [nodePathInfo, toggleTrack]);
+
+	const onShowInEditorDoubleClick = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (!SELECTION_ENABLED || !canOpenInEditor) {
+				return;
+			}
+
+			e.stopPropagation();
+			openInEditor();
+		},
+		[canOpenInEditor, openInEditor],
+	);
 
 	const codeValuesForOverride = useMemo(() => {
 		return nodePath
@@ -427,6 +429,11 @@ export const TimelineListItem: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={outerHeight}
+			onDoubleClick={
+				SELECTION_ENABLED && canOpenInEditor
+					? onShowInEditorDoubleClick
+					: undefined
+			}
 		>
 			<div style={labelContainerStyle}>
 				<TimelineSequenceName
