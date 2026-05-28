@@ -46,7 +46,10 @@ const TimelineTrackUnmemoized: React.FC<{
 				{showRowHighlight ? (
 					<div style={TIMELINE_SELECTED_TRACK_HIGHLIGHT_STYLE} />
 				) : null}
-				<TimelineSequence s={track.sequence} />
+				<TimelineSequence
+					s={track.sequence}
+					nodePathInfo={track.nodePathInfo}
+				/>
 			</div>
 			{showExpandedKeyframes && track.nodePathInfo ? (
 				<TimelineExpandedTrackKeyframes

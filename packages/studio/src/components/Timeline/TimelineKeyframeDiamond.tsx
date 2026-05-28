@@ -1,13 +1,10 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {useVideoConfig} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
-import {
-	TIMELINE_SELECTED_LABEL_BACKGROUND,
-	useTimelineKeyframeSelection,
-} from './TimelineSelection';
+import {useTimelineKeyframeSelection} from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const diamondBase: React.CSSProperties = {
@@ -39,9 +36,8 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 
 		return {
 			...diamondBase,
-			backgroundColor: selected
-				? TIMELINE_SELECTED_LABEL_BACKGROUND
-				: LIGHT_TEXT,
+			backgroundColor: LIGHT_TEXT,
+			outline: selected ? '2px solid ' + BLUE : 'none',
 			border: 'none',
 			cursor: 'default',
 			left:
