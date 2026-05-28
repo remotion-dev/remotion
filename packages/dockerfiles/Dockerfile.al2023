@@ -1,6 +1,7 @@
 FROM amazonlinux:2023
 
 WORKDIR /usr/app
+# util-linux is needed for setpriv; Ubuntu and Debian base images already include it, but Amazon Linux 2023 does not.
 RUN yum install git tar gzip unzip util-linux -y
 RUN yum install nodejs -y
 RUN curl -fsSL https://bun.com/install | bash && ln -s /root/.bun/bin/bun /usr/local/bin/bun
