@@ -176,7 +176,9 @@ interpolate(frame, [0, 10, 40, 100], [0, 0.2, 0.6, 1], {
 });
 ```
 
-#### Per-segment easing (array)<AvailableFrom v="4.0.462" /> {#per-segment-easing-array}
+#### Per-segment easing (array) {#per-segment-easing-array}
+
+<AvailableFrom v="4.0.462" />
 
 You can pass an array of easing functions with **one entry per segment** between consecutive keyframes. Its length must be `inputRange.length - 1` (the same as `outputRange.length - 1`). The first easing applies between the first and second keyframe, the second easing between the second and third, and so on.
 For a single keyframe, pass an empty array.
