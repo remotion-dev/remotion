@@ -145,6 +145,8 @@ export const AudioWaveform: React.FC<{
 	const waveformWorker = useRef<Worker | null>(null);
 	const hasTransferredCanvas = useRef(false);
 	const latestRequestId = useRef(0);
+	const shouldRenderVolumeOverlay =
+		doesVolumeChange && typeof volume === 'string';
 
 	useEffect(() => {
 		if (canUseWorkerPath) {
@@ -318,6 +320,10 @@ export const AudioWaveform: React.FC<{
 	]);
 
 	useEffect(() => {
+		if (!shouldRenderVolumeOverlay) {
+			return;
+		}
+
 		const {current: volumeCanvasElement} = volumeCanvas;
 		const {current: containerElement} = containerRef;
 		if (!volumeCanvasElement || !containerElement) {
@@ -334,10 +340,6 @@ export const AudioWaveform: React.FC<{
 		volumeCanvasElement.height = h;
 
 		context.clearRect(0, 0, visualizationWidth, h);
-		if (!doesVolumeChange || typeof volume === 'number') {
-			return;
-		}
-
 		const volumes = volume.split(',').map((v) => Number(v));
 		context.beginPath();
 		context.moveTo(0, h);
@@ -352,7 +354,7 @@ export const AudioWaveform: React.FC<{
 		});
 		context.strokeStyle = LIGHT_TRANSPARENT;
 		context.stroke();
-	}, [visualizationWidth, volume, doesVolumeChange]);
+	}, [shouldRenderVolumeOverlay, visualizationWidth, volume]);
 
 	if (error) {
 		// eslint-disable-next-line no-console
@@ -377,7 +379,9 @@ export const AudioWaveform: React.FC<{
 				ref={waveformCanvas}
 				style={waveformCanvasStyle}
 			/>
-			<canvas ref={volumeCanvas} style={volumeCanvasStyle} />
+			{shouldRenderVolumeOverlay ? (
+				<canvas ref={volumeCanvas} style={volumeCanvasStyle} />
+			) : null}
 		</div>
 	);
 };
