@@ -41,9 +41,12 @@ const valueColumnStyle: React.CSSProperties = {
 };
 
 const fieldName: React.CSSProperties = {
-	fontSize: 12,
 	color: 'rgba(255, 255, 255, 0.8)',
+	fontSize: 12,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
 	userSelect: 'none',
+	whiteSpace: 'nowrap',
 };
 
 const Value: React.FC<{

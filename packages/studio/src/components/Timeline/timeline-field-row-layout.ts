@@ -6,9 +6,11 @@ export const getTimelineFieldLabelRowStyle = (
 ): React.CSSProperties => {
 	return {
 		flex: `0 0 ${getTimelineFieldLabelFlexBasis(depth)}`,
+		alignItems: 'center',
 		display: 'flex',
 		flexDirection: 'row',
-		alignItems: 'center',
 		gap: 6,
+		minWidth: 0,
+		overflow: 'hidden',
 	};
 };
