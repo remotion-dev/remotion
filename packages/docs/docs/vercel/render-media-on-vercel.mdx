@@ -83,13 +83,13 @@ Choose a suitable codec for your output media. Refer to the [Encoding guide](/do
 
 The output file path inside the sandbox. Default: `"/tmp/video.mp4"`.
 
-### `detached?`<AvailableFrom v="4.0.468" />
+### `detached?`<AvailableFrom v="4.0.469" />
 
 When set to `true`, starts the render and returns `{sandboxId, cmdId, outputFile}` without waiting for it to finish.
 
 Use [`getRenderProgress()`](/docs/vercel/get-render-progress) to poll the returned IDs.
 
-### `vercelBlob?`<AvailableFrom v="4.0.468" />
+### `vercelBlob?`<AvailableFrom v="4.0.469" />
 
 <TsType type="VercelBlobUploadOptions" source="@remotion/vercel" href="/docs/vercel/types#vercelblobuploadoptions" />
 
@@ -97,7 +97,7 @@ Uploads the rendered video from inside the sandbox to Vercel Blob.
 
 This option is required when [`detached: true`](#detached), because the route that started the render returns before the video exists.
 
-### `detachedSandboxTimeoutInMilliseconds?`<AvailableFrom v="4.0.468" />
+### `detachedSandboxTimeoutInMilliseconds?`<AvailableFrom v="4.0.469" />
 
 Extends the sandbox lifetime before returning from a detached render. Default: `1800000` (30 minutes).
 
