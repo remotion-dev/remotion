@@ -14,7 +14,7 @@ export const keyboardShortcutsOption = {
 	docLink: 'https://www.remotion.dev/docs/config#setkeyboardshortcutsenabled',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			keyboardShortcutsEnabled = commandLine[cliFlag] === false;
 			return {
 				value: keyboardShortcutsEnabled,
