@@ -1,16 +1,10 @@
+import {
+	Internals,
+	type EffectDefinitionAndStack,
+	type EffectDescriptor,
+} from 'remotion';
 import {expect, onTestFinished} from 'vitest';
 import {page} from 'vitest/browser';
-// eslint-disable-next-line no-restricted-imports
-import type {
-	EffectDefinitionAndStack,
-	EffectDescriptor,
-} from '../../../core/src/effects/effect-types.js';
-// eslint-disable-next-line no-restricted-imports
-import {
-	cleanupEffectChainState,
-	createEffectChainState,
-	runEffectChain,
-} from '../../../core/src/effects/run-effect-chain.js';
 
 export const testImage = async ({
 	blob,
@@ -110,9 +104,9 @@ export const renderEffectChainToBlob = async ({
 	output.width = width;
 	output.height = height;
 
-	const state = createEffectChainState(width, height);
+	const state = Internals.createEffectChainState(width, height);
 	try {
-		const completed = await runEffectChain({
+		const completed = await Internals.runEffectChain({
 			state,
 			source,
 			effects,
@@ -125,7 +119,7 @@ export const renderEffectChainToBlob = async ({
 			throw new Error('Effect chain was cancelled');
 		}
 	} finally {
-		cleanupEffectChainState(state);
+		Internals.cleanupEffectChainState(state);
 	}
 
 	const blob = await new Promise<Blob>((resolve, reject) => {
