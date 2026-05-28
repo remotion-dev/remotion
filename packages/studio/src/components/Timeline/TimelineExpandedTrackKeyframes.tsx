@@ -1,6 +1,6 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals, useVideoConfig, type TSequence} from 'remotion';
-import {LIGHT_TEXT, TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
@@ -25,13 +25,8 @@ const row: React.CSSProperties = {
 	position: 'relative',
 };
 
-const separator: React.CSSProperties = {
-	height: 1,
-	backgroundColor: TIMELINE_TRACK_SEPARATOR,
-};
-
-const section: React.CSSProperties = {
-	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
+const rowSeparator: React.CSSProperties = {
+	height: TIMELINE_ITEM_BORDER_BOTTOM,
 };
 
 const diamondBase: React.CSSProperties = {
@@ -148,7 +143,7 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 				height: expandedHeight + TIMELINE_ITEM_BORDER_BOTTOM,
 			}}
 		>
-			<div style={{...section, height: expandedHeight}}>
+			<div style={{height: expandedHeight}}>
 				{rows.map(({height, keyframes, key, rowNodePathInfo}, i) => {
 					const rowSelected = isSelected({
 						type: 'row',
@@ -157,7 +152,7 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 
 					return (
 						<React.Fragment key={key}>
-							{i > 0 ? <div style={separator} /> : null}
+							{i > 0 ? <div style={rowSeparator} /> : null}
 							<div style={{...row, height}}>
 								{rowSelected ? (
 									<div style={getTimelineSelectedTrackHighlightStyle()} />
