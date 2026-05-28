@@ -2,6 +2,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {LIGHT_TEXT, VERY_LIGHT_TEXT} from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
+import {SELECTION_ENABLED} from './TimelineSelection';
 
 const lineStyle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
@@ -26,7 +27,9 @@ type LinkInfo =
 	  }
 	| null;
 
-const getLinkInfo = (src: string): LinkInfo => {
+export type TimelineAssetLinkInfo = Exclude<LinkInfo, null>;
+
+export const getTimelineAssetLinkInfo = (src: string): LinkInfo => {
 	const staticBase =
 		typeof window === 'undefined' ? null : window.remotion_staticBase;
 
@@ -55,11 +58,27 @@ const getLinkInfo = (src: string): LinkInfo => {
 	return null;
 };
 
+export const openTimelineAssetLink = (
+	linkInfo: TimelineAssetLinkInfo,
+	setCanvasContent: React.ContextType<
+		typeof Internals.CompositionSetters
+	>['setCanvasContent'],
+) => {
+	if (linkInfo.kind === 'local') {
+		setCanvasContent({type: 'asset', asset: linkInfo.assetPath});
+		pushUrl(`/assets/${linkInfo.assetPath}`);
+		return;
+	}
+
+	window.open(linkInfo.href, '_blank', 'noopener,noreferrer');
+};
+
 const useAssetLink = (src: string) => {
 	const {setCanvasContent} = React.useContext(Internals.CompositionSetters);
 	const [hovered, setHovered] = useState(false);
 
-	const linkInfo = useMemo(() => getLinkInfo(src), [src]);
+	const linkInfo = useMemo(() => getTimelineAssetLinkInfo(src), [src]);
+	const interactive = !SELECTION_ENABLED && linkInfo !== null;
 
 	const onClick = useCallback(
 		(e: React.MouseEvent) => {
@@ -70,13 +89,7 @@ const useAssetLink = (src: string) => {
 			e.preventDefault();
 			e.stopPropagation();
 
-			if (linkInfo.kind === 'local') {
-				setCanvasContent({type: 'asset', asset: linkInfo.assetPath});
-				pushUrl(`/assets/${linkInfo.assetPath}`);
-				return;
-			}
-
-			window.open(linkInfo.href, '_blank', 'noopener,noreferrer');
+			openTimelineAssetLink(linkInfo, setCanvasContent);
 		},
 		[linkInfo, setCanvasContent],
 	);
@@ -87,8 +100,8 @@ const useAssetLink = (src: string) => {
 	const fileNameStyle: React.CSSProperties = useMemo(
 		() => ({
 			...lineStyle,
-			color: linkInfo && hovered ? LIGHT_TEXT : VERY_LIGHT_TEXT,
-			cursor: linkInfo ? 'pointer' : undefined,
+			color: interactive && hovered ? LIGHT_TEXT : VERY_LIGHT_TEXT,
+			cursor: interactive ? 'pointer' : undefined,
 			textDecoration: 'none',
 			display: 'inline-block',
 			overflow: 'hidden',
@@ -97,28 +110,40 @@ const useAssetLink = (src: string) => {
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 		}),
-		[linkInfo, hovered],
+		[interactive, hovered],
 	);
 
-	return {linkInfo, onClick, onPointerEnter, onPointerLeave, fileNameStyle};
+	return {
+		linkInfo,
+		interactive,
+		onClick,
+		onPointerEnter,
+		onPointerLeave,
+		fileNameStyle,
+	};
 };
 
 export const TimelineMediaInfo: React.FC<{
 	readonly src: string;
 }> = ({src}) => {
-	// Images aren't supported by mediabunny, so don't even try.
 	const fileName = useMemo(() => Internals.getAssetDisplayName(src), [src]);
 
-	const {linkInfo, onClick, onPointerEnter, onPointerLeave, fileNameStyle} =
-		useAssetLink(src);
+	const {
+		linkInfo,
+		interactive,
+		onClick,
+		onPointerEnter,
+		onPointerLeave,
+		fileNameStyle,
+	} = useAssetLink(src);
 
 	return (
 		<div
 			style={fileNameStyle}
 			title={linkInfo ? linkInfo.title : fileName}
-			onClick={linkInfo ? onClick : undefined}
-			onPointerEnter={linkInfo ? onPointerEnter : undefined}
-			onPointerLeave={linkInfo ? onPointerLeave : undefined}
+			onClick={interactive ? onClick : undefined}
+			onPointerEnter={interactive ? onPointerEnter : undefined}
+			onPointerLeave={interactive ? onPointerLeave : undefined}
 		>
 			{fileName}
 		</div>

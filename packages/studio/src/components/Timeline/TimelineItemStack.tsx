@@ -8,6 +8,7 @@ import {openOriginalPositionInEditor} from '../../helpers/open-in-editor';
 import {Spacing} from '../layout';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {Spinner} from '../Spinner';
+import {SELECTION_ENABLED} from './TimelineSelection';
 import {getOriginalSourceAttribution} from './TimelineStack/source-attribution';
 
 export const TimelineItemStack: React.FC<{
@@ -44,7 +45,8 @@ export const TimelineItemStack: React.FC<{
 	const canOpenInGitHub = Boolean(
 		window.remotion_gitSource && originalLocation,
 	);
-	const hoverable = !isCompact && (canOpenInEditor || canOpenInGitHub);
+	const hoverable =
+		!SELECTION_ENABLED && !isCompact && (canOpenInEditor || canOpenInGitHub);
 
 	const onClick = useCallback(() => {
 		if (!originalLocation) {

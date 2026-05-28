@@ -1,8 +1,10 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {openOriginalPositionInEditor} from '../../helpers/open-in-editor';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -24,7 +26,11 @@ import {
 import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineItemStack} from './TimelineItemStack';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
-import {TimelineMediaInfo} from './TimelineMediaInfo';
+import {
+	TimelineMediaInfo,
+	getTimelineAssetLinkInfo,
+	openTimelineAssetLink,
+} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	useTimelineRowContainsSelection,
@@ -55,6 +61,7 @@ export const TimelineListItem: React.FC<{
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const {onSelect, selectable, selected} =
 		useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
@@ -148,14 +155,94 @@ export const TimelineListItem: React.FC<{
 		}
 	}, [nodePath, validatedLocation?.source, nodePathInfo]);
 
+	const showInEditorDisabled =
+		!window.remotion_editorName || !previewConnected || !originalLocation;
+
+	const mediaSrc =
+		sequence.type === 'audio' ||
+		sequence.type === 'video' ||
+		sequence.type === 'image'
+			? sequence.src
+			: null;
+
+	const assetLinkInfo = useMemo(
+		() => (mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null),
+		[mediaSrc],
+	);
+
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
 		if (!previewConnected) {
 			return [];
 		}
 
+		const editorName = window.remotion_editorName;
+		const documentationLink = sequence.documentationLink;
+
 		return [
+			editorName
+				? {
+						type: 'item' as const,
+						id: 'show-in-editor',
+						keyHint: null,
+						label: `Show in ${editorName}`,
+						leftItem: null,
+						disabled: showInEditorDisabled,
+						onClick: async () => {
+							if (showInEditorDisabled || !originalLocation) {
+								return;
+							}
+
+							try {
+								await openOriginalPositionInEditor(originalLocation);
+							} catch (err) {
+								showNotification((err as Error).message, 2000);
+							}
+						},
+						quickSwitcherLabel: null,
+						subMenu: null,
+						value: 'show-in-editor',
+					}
+				: null,
+			documentationLink
+				? {
+						type: 'item' as const,
+						id: 'open-component-docs',
+						keyHint: null,
+						label: 'Open component docs',
+						leftItem: null,
+						disabled: false,
+						onClick: () => {
+							window.open(documentationLink, '_blank', 'noopener,noreferrer');
+						},
+						quickSwitcherLabel: null,
+						subMenu: null,
+						value: 'open-component-docs',
+					}
+				: null,
+			assetLinkInfo
+				? {
+						type: 'item' as const,
+						id: 'show-asset',
+						keyHint: null,
+						label: 'Show asset',
+						leftItem: null,
+						disabled: false,
+						onClick: () => {
+							openTimelineAssetLink(assetLinkInfo, setCanvasContent);
+						},
+						quickSwitcherLabel: null,
+						subMenu: null,
+						value: 'show-asset',
+					}
+				: null,
+			documentationLink
+				? {
+						type: 'divider' as const,
+						id: 'open-component-docs-divider',
+					}
+				: null,
 			{
-				type: 'item',
+				type: 'item' as const,
 				id: 'duplicate-sequence',
 				keyHint: null,
 				label: 'Duplicate',
@@ -173,7 +260,7 @@ export const TimelineListItem: React.FC<{
 				value: 'duplicate-sequence',
 			},
 			{
-				type: 'item',
+				type: 'item' as const,
 				id: 'delete-sequence',
 				keyHint: null,
 				label: 'Delete',
@@ -190,13 +277,18 @@ export const TimelineListItem: React.FC<{
 				subMenu: null,
 				value: 'delete-sequence',
 			},
-		];
+		].filter(NoReactInternals.truthy);
 	}, [
+		assetLinkInfo,
 		deleteDisabled,
 		duplicateDisabled,
 		onDeleteSequenceFromSource,
 		onDuplicateSequenceFromSource,
+		originalLocation,
 		previewConnected,
+		sequence.documentationLink,
+		setCanvasContent,
+		showInEditorDisabled,
 	]);
 
 	const isExpanded =
@@ -289,13 +381,6 @@ export const TimelineListItem: React.FC<{
 			flexShrink: 0,
 		};
 	}, []);
-
-	const mediaSrc =
-		sequence.type === 'audio' ||
-		sequence.type === 'video' ||
-		sequence.type === 'image'
-			? sequence.src
-			: null;
 
 	const hasExpandableContent =
 		Boolean(sequence.controls) || sequence.effects.length > 0;

@@ -3,6 +3,7 @@ import type {TSequence} from 'remotion';
 import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
+	SELECTION_ENABLED,
 	TIMELINE_SELECTED_LABEL_BACKGROUND,
 } from './TimelineSelection';
 
@@ -23,7 +24,7 @@ export const TimelineSequenceName: React.FC<{
 }> = ({sequence, selected, containsSelection}) => {
 	const [hovered, setHovered] = useState(false);
 	const {documentationLink} = sequence;
-	const hoverable = documentationLink !== null;
+	const hoverable = !SELECTION_ENABLED && documentationLink !== null;
 
 	const onClick = useCallback(() => {
 		if (documentationLink === null) {
