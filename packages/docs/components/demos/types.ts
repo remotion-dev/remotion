@@ -18,6 +18,7 @@ import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
+import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
@@ -2046,6 +2047,62 @@ export const effectsNoiseDemo: DemoType = {
 			min: 0,
 			max: 100,
 			step: 1,
+			default: 0,
+			optional: 'no',
+		},
+		{
+			name: 'premultiply',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsScanlinesDemo: DemoType = {
+	comp: EffectsScanlinesPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-scanlines',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'amount',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.28,
+			optional: 'no',
+		},
+		{
+			name: 'spacing',
+			type: 'numeric',
+			min: 0.1,
+			max: 40,
+			step: 0.1,
+			default: 4,
+			optional: 'no',
+		},
+		{
+			name: 'thickness',
+			type: 'numeric',
+			min: 0,
+			max: 20,
+			step: 0.1,
+			default: 1,
+			optional: 'no',
+		},
+		{
+			name: 'offset',
+			type: 'numeric',
+			min: -40,
+			max: 40,
+			step: 0.1,
 			default: 0,
 			optional: 'no',
 		},

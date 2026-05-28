@@ -284,6 +284,7 @@ const sidebars: SidebarsConfig = {
 				'effects/invert',
 				'effects/mirror',
 				'effects/noise',
+				'effects/scanlines',
 				'effects/saturation',
 				'effects/scale',
 				'effects/shine',

@@ -194,6 +194,13 @@ const categories: {
 				description: 'Procedural grain effect',
 			},
 			{
+				link: '/docs/effects/scanlines',
+				preview: '/img/effects-scanlines-preview.png',
+				alt: 'scanlines effect preview',
+				name: 'scanlines()',
+				description: 'Additive horizontal scanlines',
+			},
+			{
 				link: '/docs/starburst/starburst-effect',
 				preview: '/img/effects-starburst-preview.png',
 				alt: 'starburst effect preview',

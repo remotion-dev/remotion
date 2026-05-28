@@ -21,6 +21,7 @@ import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-prev
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
+import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
 import {EffectsShinePreview} from '../../components/effects/effects-shine-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../../components/effects/effects-starburst-preview';
@@ -298,6 +299,19 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={{
 						amount: 0.25,
 						seed: 0,
+						premultiply: false,
+					}}
+				/>
+				<Still
+					id="effects-scanlines-preview"
+					component={EffectsScanlinesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 0.28,
+						spacing: 4,
+						thickness: 1,
+						offset: 0,
 						premultiply: false,
 					}}
 				/>
