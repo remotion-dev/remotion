@@ -4,6 +4,7 @@ import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
+import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
@@ -11,7 +12,6 @@ import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-linear-gradient-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
-import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
@@ -2084,7 +2084,7 @@ export const effectsVignetteDemo: DemoType = {
 			min: 0,
 			max: 1,
 			step: 0.01,
-			default: 0.55,
+			default: 0.68,
 			optional: 'no',
 		},
 		{
@@ -2295,7 +2295,7 @@ export const effectsHalftoneDemo: DemoType = {
 		{
 			name: 'dotColor',
 			type: 'color',
-			default: '#ff0000',
+			default: '#0B84F3',
 			optional: 'no',
 			showIf: {
 				option: 'colorMode',

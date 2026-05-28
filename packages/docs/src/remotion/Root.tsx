@@ -181,7 +181,7 @@ export const RemotionRoot: React.FC = () => {
 					height={720}
 					defaultProps={{
 						amount: 0.75,
-						radius: 0.55,
+						radius: 0.68,
 						feather: 0.35,
 						roundness: 1,
 						mode: 'color',
@@ -260,7 +260,7 @@ export const RemotionRoot: React.FC = () => {
 						dotSpacing: 7,
 						rotation: 12,
 						colorMode: 'solid',
-						dotColor: '#ff0000',
+						dotColor: '#0B84F3',
 						invert: false,
 					}}
 				/>

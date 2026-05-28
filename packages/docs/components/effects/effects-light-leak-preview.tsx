@@ -1,25 +1,18 @@
 import {lightLeak} from '@remotion/light-leaks';
 import React from 'react';
-import {CanvasImage} from 'remotion';
-import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
-
-const fullSize: React.CSSProperties = {
-	width: '100%',
-	height: '100%',
-};
+import {Solid, useVideoConfig} from 'remotion';
 
 export const EffectsLightLeakPreview: React.FC<{
 	readonly seed: number;
 	readonly hueShift: number;
 	readonly progress: number;
 }> = ({seed, hueShift, progress}) => {
+	const {width, height} = useVideoConfig();
+
 	return (
-		<CanvasImage
-			src={EFFECTS_PREVIEW_IMAGE_SRC}
-			width={1280}
-			height={720}
-			fit="cover"
-			style={fullSize}
+		<Solid
+			width={width}
+			height={height}
 			effects={[
 				lightLeak({
 					seed,
