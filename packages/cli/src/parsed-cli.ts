@@ -93,7 +93,7 @@ export type CommandLineOptions = {
 	[ignoreCertificateErrorsOption.cliFlag]: TypeOfOption<
 		typeof ignoreCertificateErrorsOption
 	>;
-	[darkModeOption.cliFlag]: TypeOfOption<typeof darkModeOption>;
+	[darkModeOption.cliFlag]: TypeOfOption<typeof darkModeOption> | null;
 	[disableWebSecurityOption.cliFlag]: TypeOfOption<
 		typeof disableWebSecurityOption
 	>;
