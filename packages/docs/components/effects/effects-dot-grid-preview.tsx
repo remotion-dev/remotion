@@ -1,4 +1,4 @@
-import {inverseDotGrid} from '@remotion/effects/inverse-dot-grid';
+import {dotGrid} from '@remotion/effects/dot-grid';
 import React from 'react';
 import {CanvasImage} from 'remotion';
 import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
@@ -8,7 +8,7 @@ const fullSize: React.CSSProperties = {
 	height: '100%',
 };
 
-export const EffectsInverseDotGridPreview: React.FC<{
+export const EffectsDotGridPreview: React.FC<{
 	readonly dotSize: number;
 	readonly gridSize: number;
 	readonly invert: boolean;
@@ -21,7 +21,7 @@ export const EffectsInverseDotGridPreview: React.FC<{
 			fit="cover"
 			style={fullSize}
 			effects={[
-				inverseDotGrid({
+				dotGrid({
 					dotSize,
 					gridSize,
 					invert,

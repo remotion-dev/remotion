@@ -18,7 +18,7 @@ const effectEntrypoints = [
 	'src/halftone-linear-gradient.ts',
 	'src/halftone.ts',
 	'src/hue.ts',
-	'src/inverse-dot-grid.ts',
+	'src/dot-grid.ts',
 	'src/invert.ts',
 	'src/mirror.ts',
 	'src/noise.ts',

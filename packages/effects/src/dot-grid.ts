@@ -12,7 +12,7 @@ const DEFAULT_DOT_SIZE = 16 as const;
 const DEFAULT_GRID_SIZE = 20 as const;
 const DEFAULT_INVERT = false as const;
 
-export const inverseDotGridSchema = {
+export const dotGridSchema = {
 	dotSize: {
 		type: 'number',
 		min: 0,
@@ -36,19 +36,19 @@ export const inverseDotGridSchema = {
 	},
 } as const satisfies SequenceSchema;
 
-export type InverseDotGridParams = {
+export type DotGridParams = {
 	readonly dotSize?: number;
 	readonly gridSize?: number;
 	readonly invert?: boolean;
 };
 
-type InverseDotGridResolved = {
+type DotGridResolved = {
 	dotSize: number;
 	gridSize: number;
 	invert: boolean;
 };
 
-const resolve = (p: InverseDotGridParams): InverseDotGridResolved => ({
+const resolve = (p: DotGridParams): DotGridResolved => ({
 	dotSize: p.dotSize ?? DEFAULT_DOT_SIZE,
 	gridSize: p.gridSize ?? DEFAULT_GRID_SIZE,
 	invert: p.invert ?? DEFAULT_INVERT,
@@ -74,8 +74,8 @@ const validatePositive = (value: number, name: string): void => {
 	}
 };
 
-const validateInverseDotGridParams = (params: InverseDotGridParams): void => {
-	assertEffectParamsObject(params, 'Inverse dot grid');
+const validateDotGridParams = (params: DotGridParams): void => {
+	assertEffectParamsObject(params, 'Dot grid');
 	assertOptionalFiniteNumber(params.dotSize, 'dotSize');
 	assertOptionalFiniteNumber(params.gridSize, 'gridSize');
 	assertOptionalBoolean(params.invert, 'invert');
@@ -89,7 +89,7 @@ const validateInverseDotGridParams = (params: InverseDotGridParams): void => {
 	}
 };
 
-const INVERSE_DOT_GRID_VS = /* glsl */ `#version 300 es
+const DOT_GRID_VS = /* glsl */ `#version 300 es
 in vec2 aPos;
 in vec2 aUv;
 out vec2 vUv;
@@ -100,7 +100,7 @@ void main() {
 }
 `;
 
-const INVERSE_DOT_GRID_FS = /* glsl */ `#version 300 es
+const DOT_GRID_FS = /* glsl */ `#version 300 es
 precision highp float;
 
 in vec2 vUv;
@@ -133,7 +133,7 @@ void main() {
 }
 `;
 
-type InverseDotGridState = {
+type DotGridState = {
 	gl: WebGL2RenderingContext;
 	program: WebGLProgram;
 	vao: WebGLVertexArrayObject;
@@ -161,9 +161,7 @@ const compileShader = (
 	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 		const log = gl.getShaderInfoLog(shader);
 		gl.deleteShader(shader);
-		throw new Error(
-			`Inverse dot grid shader compile failed: ${log ?? '(no log)'}`,
-		);
+		throw new Error(`Dot grid shader compile failed: ${log ?? '(no log)'}`);
 	}
 
 	return shader;
@@ -185,25 +183,20 @@ const linkProgram = (
 	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 		const log = gl.getProgramInfoLog(program);
 		gl.deleteProgram(program);
-		throw new Error(
-			`Inverse dot grid program link failed: ${log ?? '(no log)'}`,
-		);
+		throw new Error(`Dot grid program link failed: ${log ?? '(no log)'}`);
 	}
 
 	return program;
 };
 
-export const inverseDotGrid = createEffect<
-	InverseDotGridParams,
-	InverseDotGridState
->({
-	type: 'remotion/inverse-dot-grid',
-	label: 'inverseDotGrid()',
-	documentationLink: 'https://www.remotion.dev/docs/effects/inverse-dot-grid',
+export const dotGrid = createEffect<DotGridParams, DotGridState>({
+	type: 'remotion/dot-grid',
+	label: 'dotGrid()',
+	documentationLink: 'https://www.remotion.dev/docs/effects/dot-grid',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `inverse-dot-grid-${r.dotSize}-${r.gridSize}-${r.invert ? 1 : 0}`;
+		return `dot-grid-${r.dotSize}-${r.gridSize}-${r.invert ? 1 : 0}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -212,13 +205,13 @@ export const inverseDotGrid = createEffect<
 			preserveDrawingBuffer: true,
 		});
 		if (!gl) {
-			throw createWebGL2ContextError('inverse dot grid effect');
+			throw createWebGL2ContextError('dot grid effect');
 		}
 
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-		const vs = compileShader(gl, gl.VERTEX_SHADER, INVERSE_DOT_GRID_VS);
-		const fs = compileShader(gl, gl.FRAGMENT_SHADER, INVERSE_DOT_GRID_FS);
+		const vs = compileShader(gl, gl.VERTEX_SHADER, DOT_GRID_VS);
+		const fs = compileShader(gl, gl.FRAGMENT_SHADER, DOT_GRID_FS);
 		const program = linkProgram(gl, vs, fs);
 		gl.deleteShader(vs);
 		gl.deleteShader(fs);
@@ -317,6 +310,6 @@ export const inverseDotGrid = createEffect<
 		gl.deleteVertexArray(vao);
 		gl.deleteTexture(texture);
 	},
-	schema: inverseDotGridSchema,
-	validateParams: validateInverseDotGridParams,
+	schema: dotGridSchema,
+	validateParams: validateDotGridParams,
 });

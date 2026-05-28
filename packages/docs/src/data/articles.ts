@@ -1764,6 +1764,15 @@ export const articles = [
 		slug: 'effects/contrast',
 	},
 	{
+		id: 'effects/dot-grid',
+		title: 'dotGrid()',
+		relativePath: 'docs/effects/dot-grid.mdx',
+		compId: 'articles-docs-effects-dot-grid',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/dot-grid',
+	},
+	{
 		id: 'effects/duotone',
 		title: 'duotone()',
 		relativePath: 'docs/effects/duotone.mdx',
@@ -1825,15 +1834,6 @@ export const articles = [
 		crumb: null,
 		noAi: false,
 		slug: 'effects/api',
-	},
-	{
-		id: 'effects/inverse-dot-grid',
-		title: 'inverseDotGrid()',
-		relativePath: 'docs/effects/inverse-dot-grid.mdx',
-		compId: 'articles-docs-effects-inverse-dot-grid',
-		crumb: '@remotion/effects',
-		noAi: false,
-		slug: 'effects/inverse-dot-grid',
 	},
 	{
 		id: 'effects/invert',

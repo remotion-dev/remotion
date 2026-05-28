@@ -1,12 +1,12 @@
 ---
-image: /generated/articles-docs-effects-inverse-dot-grid.png
-slug: /effects/inverse-dot-grid
-title: inverseDotGrid()
-sidebar_label: inverseDotGrid()
+image: /generated/articles-docs-effects-dot-grid.png
+slug: /effects/dot-grid
+title: dotGrid()
+sidebar_label: dotGrid()
 crumb: '@remotion/effects'
 ---
 
-# inverseDotGrid()<AvailableFrom v="4.0.469" />
+# dotGrid()<AvailableFrom v="4.0.469" />
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
@@ -16,14 +16,14 @@ Use it for dotted masks on [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/d
 
 ## Preview
 
-<Demo type="effects-inverse-dot-grid" />
+<Demo type="effects-dot-grid" />
 
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
 import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
-import {inverseDotGrid} from '@remotion/effects/inverse-dot-grid';
+import {dotGrid} from '@remotion/effects/dot-grid';
 
 export const MyComp: React.FC = () => {
   return (
@@ -31,7 +31,7 @@ export const MyComp: React.FC = () => {
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
-          inverseDotGrid({
+          dotGrid({
             dotSize: 16,
             gridSize: 20,
           }),
@@ -47,7 +47,7 @@ To cut transparent dots out of the source instead, set `invert` to `true`:
 ```tsx twoslash title="MyComp.tsx"
 import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
-import {inverseDotGrid} from '@remotion/effects/inverse-dot-grid';
+import {dotGrid} from '@remotion/effects/dot-grid';
 
 export const MyComp: React.FC = () => {
   return (
@@ -55,7 +55,7 @@ export const MyComp: React.FC = () => {
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
-          inverseDotGrid({
+          dotGrid({
             dotSize: 10,
             gridSize: 24,
             invert: true,
@@ -69,7 +69,7 @@ export const MyComp: React.FC = () => {
 
 ## API
 
-Pass an object with the following properties. You can also call `inverseDotGrid()` without arguments.
+Pass an object with the following properties. You can also call `dotGrid()` without arguments.
 
 ### `dotSize?`
 
@@ -89,7 +89,7 @@ When `true`, the effect is skipped. Defaults to `false`.
 
 ## Requirements
 
-`inverseDotGrid()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+`dotGrid()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
 
 ## See also
 
@@ -97,4 +97,4 @@ When `true`, the effect is skipped. Defaults to `false`.
 - [`halftone()`](/docs/effects/halftone)
 - [`halftoneLinearGradient()`](/docs/effects/halftone-linear-gradient)
 - [HTML-in-canvas guide](/docs/html-in-canvas)
-- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/inverse-dot-grid.ts)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/dot-grid.ts)

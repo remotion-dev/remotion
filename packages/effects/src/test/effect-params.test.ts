@@ -4,13 +4,13 @@ import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {contrast} from '../contrast.js';
+import {dotGrid} from '../dot-grid.js';
 import {duotone} from '../duotone.js';
 import {glow} from '../glow/index.js';
 import {grayscale} from '../grayscale.js';
 import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
-import {inverseDotGrid} from '../inverse-dot-grid.js';
 import {invert} from '../invert.js';
 import {mirror} from '../mirror.js';
 import {noise} from '../noise.js';
@@ -60,8 +60,8 @@ test('@remotion/effects expose documentation links', () => {
 	expect(invert().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/invert',
 	);
-	expect(inverseDotGrid().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/effects/inverse-dot-grid',
+	expect(dotGrid().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/dot-grid',
 	);
 	expect(mirror().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/mirror',
@@ -112,7 +112,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	);
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
-	expect(inverseDotGrid().definition.label).toBe('inverseDotGrid()');
+	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(noise().definition.label).toBe('noise()');
 	expect(saturation().definition.label).toBe('saturation()');
@@ -722,37 +722,37 @@ test('halftoneLinearGradient() parameters produce distinct effect keys', () => {
 	).toBe(5);
 });
 
-test('inverseDotGrid() accepts default params', () => {
-	expect(() => inverseDotGrid()).not.toThrow();
+test('dotGrid() accepts default params', () => {
+	expect(() => dotGrid()).not.toThrow();
 });
 
-test('inverseDotGrid() rejects non-finite dot size', () => {
-	expect(() => inverseDotGrid({dotSize: Number.NaN})).toThrow(
+test('dotGrid() rejects non-finite dot size', () => {
+	expect(() => dotGrid({dotSize: Number.NaN})).toThrow(
 		'"dotSize" must be a finite number',
 	);
 });
 
-test('inverseDotGrid() rejects dot size below range', () => {
-	expect(() => inverseDotGrid({dotSize: -1})).toThrow('"dotSize" must be >= 0');
+test('dotGrid() rejects dot size below range', () => {
+	expect(() => dotGrid({dotSize: -1})).toThrow('"dotSize" must be >= 0');
 });
 
-test('inverseDotGrid() rejects non-positive grid size', () => {
-	expect(() => inverseDotGrid({gridSize: 0})).toThrow(
+test('dotGrid() rejects non-positive grid size', () => {
+	expect(() => dotGrid({gridSize: 0})).toThrow(
 		'"gridSize" must be greater than 0',
 	);
 });
 
-test('inverseDotGrid() rejects non-boolean invert', () => {
-	expect(() => inverseDotGrid({invert: 'yes' as unknown as boolean})).toThrow(
+test('dotGrid() rejects non-boolean invert', () => {
+	expect(() => dotGrid({invert: 'yes' as unknown as boolean})).toThrow(
 		'"invert" must be a boolean',
 	);
 });
 
-test('inverseDotGrid() parameters produce distinct effect keys', () => {
-	const defaultGrid = inverseDotGrid();
-	const largerDots = inverseDotGrid({dotSize: 24});
-	const widerGrid = inverseDotGrid({gridSize: 32});
-	const inverted = inverseDotGrid({invert: true});
+test('dotGrid() parameters produce distinct effect keys', () => {
+	const defaultGrid = dotGrid();
+	const largerDots = dotGrid({dotSize: 24});
+	const widerGrid = dotGrid({gridSize: 32});
+	const inverted = dotGrid({invert: true});
 
 	expect(
 		new Set([

@@ -10,7 +10,7 @@ import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-linear-gradient-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
-import {EffectsInverseDotGridPreview} from '../effects/effects-inverse-dot-grid-preview';
+import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
@@ -2330,13 +2330,13 @@ export const effectsHalftoneLinearGradientDemo: DemoType = {
 	],
 };
 
-export const effectsInverseDotGridDemo: DemoType = {
-	comp: EffectsInverseDotGridPreview,
+export const effectsDotGridDemo: DemoType = {
+	comp: EffectsDotGridPreview,
 	compHeight: 720,
 	compWidth: 1280,
 	durationInFrames: 1,
 	fps: 30,
-	id: 'effects-inverse-dot-grid',
+	id: 'effects-dot-grid',
 	autoPlay: false,
 	controls: false,
 	logLevel: 'info',
