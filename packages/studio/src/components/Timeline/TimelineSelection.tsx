@@ -14,6 +14,8 @@ export const TIMELINE_SELECTED_BACKGROUND = 'rgba(255, 255, 255, 0.1)';
 export const TIMELINE_SELECTED_LABEL_BACKGROUND = '#B0B0B0';
 export const TIMELINE_SELECTED_LABEL_TEXT = 'black';
 
+export const SELECTION_ENABLED = false;
+
 export type TimelineSelection =
 	| {
 			readonly type: 'row';
@@ -51,6 +53,7 @@ export const TimelineSelectionProvider: React.FC<{
 }> = ({children}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canSelect =
+		SELECTION_ENABLED &&
 		previewServerState.type === 'connected' &&
 		!window.remotion_isReadOnlyStudio;
 	const [selectedItem, setSelectedItem] = useState<TimelineSelection | null>(
