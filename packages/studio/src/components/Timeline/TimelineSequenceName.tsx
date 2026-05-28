@@ -52,9 +52,9 @@ export const TimelineSequenceName: React.FC<{
 			WebkitUserSelect: 'none',
 			textDecoration: hoverEffect ? 'underline' : 'none',
 			cursor: hoverEffect ? 'pointer' : undefined,
-			outline:
+			boxShadow:
 				containsSelection && !selected
-					? `2px solid ${TIMELINE_SELECTED_LABEL_BACKGROUND}`
+					? `inset 0 0 0 2px ${TIMELINE_SELECTED_LABEL_BACKGROUND}`
 					: undefined,
 		};
 	}, [hovered, hoverable, selected, containsSelection]);
