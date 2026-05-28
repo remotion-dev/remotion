@@ -94,6 +94,10 @@ export type SequencePropsWithoutDuration = {
 				type: 'image';
 				src: string;
 		  };
+	/**
+	 * @deprecated For internal use only.
+	 */
+	readonly _remotionInternalRefForOutline?: React.RefObject<HTMLElement | null> | null;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -121,6 +125,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
+		_remotionInternalRefForOutline: refForOutline,
 		...other
 	},
 	ref,
@@ -296,6 +301,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					showInTimeline,
 					src: isMedia.src,
 					getStack: () => stackRef.current,
+					refForOutline: refForOutline ?? null,
 				});
 			} else {
 				registerSequence({
@@ -320,6 +326,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					getStack: () => stackRef.current,
 					startMediaFrom: isMedia.data.startMediaFrom,
 					volume: isMedia.data.volumes,
+					refForOutline: refForOutline ?? null,
 				});
 			}
 
@@ -345,6 +352,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			postmountDisplay: postmountDisplay ?? null,
 			controls: controls ?? null,
 			effects: _remotionInternalEffects ?? [],
+			refForOutline: refForOutline ?? null,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -370,6 +378,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalEffects,
 		isMedia,
 		resolvedDocumentationLink,
+		refForOutline,
 	]);
 
 	// Ceil to support floats
