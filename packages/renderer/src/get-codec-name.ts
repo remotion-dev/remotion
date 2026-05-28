@@ -98,6 +98,15 @@ export const getCodecName = ({
 			return {encoderName: 'h264_videotoolbox', hardwareAccelerated: true};
 		}
 
+		// NVENC for Linux/Windows
+		if (
+			preferredHwAcceleration &&
+			(process.platform === 'linux' || process.platform === 'win32') &&
+			!unsupportedQualityOption
+		) {
+			return {encoderName: 'h264_nvenc', hardwareAccelerated: true};
+		}
+
 		warnAboutDisabledHardwareAcceleration();
 
 		return {encoderName: 'libx264', hardwareAccelerated: false};
@@ -110,6 +119,15 @@ export const getCodecName = ({
 			!unsupportedQualityOption
 		) {
 			return {encoderName: 'hevc_videotoolbox', hardwareAccelerated: true};
+		}
+
+		// NVENC for Linux/Windows
+		if (
+			preferredHwAcceleration &&
+			(process.platform === 'linux' || process.platform === 'win32') &&
+			!unsupportedQualityOption
+		) {
+			return {encoderName: 'hevc_nvenc', hardwareAccelerated: true};
 		}
 
 		warnAboutDisabledHardwareAcceleration();
