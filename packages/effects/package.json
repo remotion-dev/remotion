@@ -97,6 +97,11 @@
 			"module": "./dist/esm/invert.mjs",
 			"import": "./dist/esm/invert.mjs"
 		},
+		"./dot-grid": {
+			"types": "./dist/dot-grid.d.ts",
+			"module": "./dist/esm/dot-grid.mjs",
+			"import": "./dist/esm/dot-grid.mjs"
+		},
 		"./mirror": {
 			"types": "./dist/mirror.d.ts",
 			"module": "./dist/esm/mirror.mjs",
@@ -121,6 +126,11 @@
 			"types": "./dist/shine.d.ts",
 			"module": "./dist/esm/shine.mjs",
 			"import": "./dist/esm/shine.mjs"
+		},
+		"./speckle": {
+			"types": "./dist/speckle.d.ts",
+			"module": "./dist/esm/speckle.mjs",
+			"import": "./dist/esm/speckle.mjs"
 		},
 		"./tint": {
 			"types": "./dist/tint.d.ts",
@@ -185,6 +195,9 @@
 			"invert": [
 				"dist/invert.d.ts"
 			],
+			"dot-grid": [
+				"dist/dot-grid.d.ts"
+			],
 			"mirror": [
 				"dist/mirror.d.ts"
 			],
@@ -199,6 +212,9 @@
 			],
 			"shine": [
 				"dist/shine.d.ts"
+			],
+			"speckle": [
+				"dist/speckle.d.ts"
 			],
 			"tint": [
 				"dist/tint.d.ts"

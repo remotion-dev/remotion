@@ -103,8 +103,8 @@ function checkValidInputRange(arr: readonly number[]) {
 }
 
 function checkInfiniteRange(name: string, arr: readonly number[]) {
-	if (arr.length < 2) {
-		throw new Error(name + ' must have at least 2 elements');
+	if (arr.length < 1) {
+		throw new Error(name + ' must have at least 1 element');
 	}
 
 	for (const element of arr) {
@@ -212,6 +212,10 @@ export function interpolate(
 
 	if (typeof input !== 'number') {
 		throw new TypeError('Cannot interpolate an input which is not a number');
+	}
+
+	if (inputRange.length === 1) {
+		return outputRange[0];
 	}
 
 	const range = findRange(input, inputRange);

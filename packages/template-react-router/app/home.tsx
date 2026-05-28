@@ -42,6 +42,7 @@ export default function Index() {
             controls
             autoPlay
             loop
+            initiallyMuted
           />
         </div>
         <RenderControls

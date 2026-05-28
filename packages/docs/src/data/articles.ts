@@ -1773,6 +1773,15 @@ export const articles = [
 		slug: 'effects/drop-shadow',
 	},
 	{
+		id: 'effects/dot-grid',
+		title: 'dotGrid()',
+		relativePath: 'docs/effects/dot-grid.mdx',
+		compId: 'articles-docs-effects-dot-grid',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/dot-grid',
+	},
+	{
 		id: 'effects/duotone',
 		title: 'duotone()',
 		relativePath: 'docs/effects/duotone.mdx',
@@ -1888,6 +1897,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/shine',
+	},
+	{
+		id: 'effects/speckle',
+		title: 'speckle()',
+		relativePath: 'docs/effects/speckle.mdx',
+		compId: 'articles-docs-effects-speckle',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/speckle',
 	},
 	{
 		id: 'effects/tint',

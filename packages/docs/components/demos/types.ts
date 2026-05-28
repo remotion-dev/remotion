@@ -11,6 +11,7 @@ import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-linear-gradient-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
+import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
@@ -18,6 +19,7 @@ import {EffectsNoisePreview} from '../effects/effects-noise-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
+import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
@@ -1819,6 +1821,47 @@ export const effectsShineDemo: DemoType = {
 	],
 };
 
+export const effectsSpeckleDemo: DemoType = {
+	comp: EffectsSpecklePreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-speckle',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'density',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 0.14,
+			optional: 'no',
+		},
+		{
+			name: 'size',
+			type: 'numeric',
+			min: 0,
+			max: 50,
+			step: 0.1,
+			default: 4,
+			optional: 'no',
+		},
+		{
+			name: 'randomness',
+			type: 'numeric',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			default: 1,
+			optional: 'no',
+		},
+	],
+};
+
 export const effectsMirrorDemo: DemoType = {
 	comp: EffectsMirrorPreview,
 	compHeight: 720,
@@ -2340,6 +2383,44 @@ export const effectsHalftoneLinearGradientDemo: DemoType = {
 				option: 'colorMode',
 				value: 'solid',
 			},
+		},
+	],
+};
+
+export const effectsDotGridDemo: DemoType = {
+	comp: EffectsDotGridPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-dot-grid',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'dotSize',
+			type: 'numeric',
+			min: 0,
+			max: 80,
+			step: 1,
+			default: 16,
+			optional: 'no',
+		},
+		{
+			name: 'gridSize',
+			type: 'numeric',
+			min: 1,
+			max: 80,
+			step: 1,
+			default: 20,
+			optional: 'no',
+		},
+		{
+			name: 'invert',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
 		},
 	],
 };

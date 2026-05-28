@@ -4,6 +4,7 @@ import {blur} from '../blur/index.js';
 import {brightness} from '../brightness.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {contrast} from '../contrast.js';
+import {dotGrid} from '../dot-grid.js';
 import {dropShadow} from '../drop-shadow/index.js';
 import {duotone} from '../duotone.js';
 import {glow} from '../glow/index.js';
@@ -17,6 +18,7 @@ import {noise} from '../noise.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {shine} from '../shine.js';
+import {speckle} from '../speckle.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
 import {vignette} from '../vignette.js';
@@ -62,6 +64,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(invert().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/invert',
 	);
+	expect(dotGrid().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/dot-grid',
+	);
 	expect(mirror().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/mirror',
 	);
@@ -76,6 +81,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(shine().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shine',
+	);
+	expect(speckle().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/speckle',
 	);
 	expect(tint({color: '#fff'}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/tint',
@@ -109,11 +117,13 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	);
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
+	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(noise().definition.label).toBe('noise()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
 	expect(shine().definition.label).toBe('shine()');
+	expect(speckle().definition.label).toBe('speckle()');
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
 	expect(uvTranslate().definition.label).toBe('uvTranslate()');
 	expect(vignette().definition.label).toBe('vignette()');
@@ -789,6 +799,48 @@ test('halftoneLinearGradient() parameters produce distinct effect keys', () => {
 	).toBe(5);
 });
 
+test('dotGrid() accepts default params', () => {
+	expect(() => dotGrid()).not.toThrow();
+});
+
+test('dotGrid() rejects non-finite dot size', () => {
+	expect(() => dotGrid({dotSize: Number.NaN})).toThrow(
+		'"dotSize" must be a finite number',
+	);
+});
+
+test('dotGrid() rejects dot size below range', () => {
+	expect(() => dotGrid({dotSize: -1})).toThrow('"dotSize" must be >= 0');
+});
+
+test('dotGrid() rejects non-positive grid size', () => {
+	expect(() => dotGrid({gridSize: 0})).toThrow(
+		'"gridSize" must be greater than 0',
+	);
+});
+
+test('dotGrid() rejects non-boolean invert', () => {
+	expect(() => dotGrid({invert: 'yes' as unknown as boolean})).toThrow(
+		'"invert" must be a boolean',
+	);
+});
+
+test('dotGrid() parameters produce distinct effect keys', () => {
+	const defaultGrid = dotGrid();
+	const largerDots = dotGrid({dotSize: 24});
+	const widerGrid = dotGrid({gridSize: 32});
+	const inverted = dotGrid({invert: true});
+
+	expect(
+		new Set([
+			defaultGrid.effectKey,
+			largerDots.effectKey,
+			widerGrid.effectKey,
+			inverted.effectKey,
+		]).size,
+	).toBe(4);
+});
+
 test('invert() accepts default params', () => {
 	expect(() => invert()).not.toThrow();
 });
@@ -1063,6 +1115,56 @@ test('shine() parameters produce distinct effect keys', () => {
 			brighter.effectKey,
 		]).size,
 	).toBe(6);
+});
+
+test('speckle() accepts default params', () => {
+	expect(() => speckle()).not.toThrow();
+});
+
+test('speckle() accepts valid params', () => {
+	expect(() =>
+		speckle({
+			density: 0.2,
+			size: 6,
+			randomness: 0.5,
+		}),
+	).not.toThrow();
+});
+
+test('speckle() rejects non-finite density', () => {
+	expect(() => speckle({density: Number.NaN})).toThrow(
+		'"density" must be a finite number',
+	);
+});
+
+test('speckle() rejects density above range', () => {
+	expect(() => speckle({density: 1.1})).toThrow('"density" must be <= 1');
+});
+
+test('speckle() rejects negative size', () => {
+	expect(() => speckle({size: -0.1})).toThrow('"size" must be >= 0');
+});
+
+test('speckle() rejects randomness below range', () => {
+	expect(() => speckle({randomness: -0.1})).toThrow(
+		'"randomness" must be >= 0',
+	);
+});
+
+test('speckle() parameters produce distinct effect keys', () => {
+	const defaultSpeckle = speckle();
+	const denser = speckle({density: 0.2});
+	const larger = speckle({size: 8});
+	const steadier = speckle({randomness: 0.25});
+
+	expect(
+		new Set([
+			defaultSpeckle.effectKey,
+			denser.effectKey,
+			larger.effectKey,
+			steadier.effectKey,
+		]).size,
+	).toBe(4);
 });
 
 test('xyTranslate() accepts default params', () => {
