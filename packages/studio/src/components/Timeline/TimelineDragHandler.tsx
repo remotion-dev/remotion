@@ -12,7 +12,11 @@ import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import {scrollableRef, sliderAreaRef} from './timeline-refs';
+import {
+	scrollableRef,
+	sliderAreaRef,
+	timelineVerticalScroll,
+} from './timeline-refs';
 import {
 	canScrollTimelineIntoDirection,
 	getFrameFromX,
@@ -44,6 +48,7 @@ const style: React.CSSProperties = {
 	height: '100%',
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
+	position: 'absolute',
 };
 
 const getClientXWithScroll = (x: number) => {
@@ -296,8 +301,31 @@ const TimelineDragHandlerInner: React.FC = () => {
 		};
 	}, [dragging.dragging, onPointerMoveScrubbing, onPointerUpScrubbing]);
 
+	const ref = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const currentRef = ref.current;
+		if (!currentRef) {
+			return;
+		}
+
+		const {current} = timelineVerticalScroll;
+		if (!current) {
+			return;
+		}
+
+		const onScroll = () => {
+			currentRef.style.top = current.scrollTop + 'px';
+		};
+
+		current.addEventListener('scroll', onScroll);
+		return () => {
+			current.removeEventListener('scroll', onScroll);
+		};
+	}, []);
+
 	return (
-		<div style={style} onPointerDown={onPointerDown}>
+		<div ref={ref} style={style} onPointerDown={onPointerDown}>
 			<div style={inner} className={VERTICAL_SCROLLBAR_CLASSNAME} />
 		</div>
 	);

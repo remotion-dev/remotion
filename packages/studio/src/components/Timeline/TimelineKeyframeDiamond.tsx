@@ -14,7 +14,6 @@ const diamondBase: React.CSSProperties = {
 	backgroundColor: LIGHT_TEXT,
 	borderRadius: 1,
 	boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.4)',
-	pointerEvents: 'none',
 };
 
 const TimelineKeyframeDiamondUnmemoized: React.FC<{
@@ -39,7 +38,7 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			backgroundColor: LIGHT_TEXT,
 			outline: selected ? '2px solid ' + BLUE : 'none',
 			border: 'none',
-			cursor: 'default',
+			cursor: 'pointer',
 			left:
 				getXPositionOfItemInTimelineImperatively(
 					frame,
