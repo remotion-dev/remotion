@@ -1,0 +1,87 @@
+import React, {useCallback, useContext, useMemo} from 'react';
+import {useVideoConfig} from 'remotion';
+import {LIGHT_TEXT} from '../../helpers/colors';
+import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {
+	TIMELINE_SELECTED_LABEL_BACKGROUND,
+	useTimelineKeyframeSelection,
+} from './TimelineSelection';
+import {TimelineWidthContext} from './TimelineWidthProvider';
+
+const diamondBase: React.CSSProperties = {
+	position: 'absolute',
+	width: 8,
+	height: 8,
+	backgroundColor: LIGHT_TEXT,
+	borderRadius: 1,
+	boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.4)',
+	pointerEvents: 'none',
+};
+
+const TimelineKeyframeDiamondUnmemoized: React.FC<{
+	readonly frame: number;
+	readonly rowHeight: number;
+	readonly nodePathInfo: SequenceNodePathInfo;
+}> = ({frame, rowHeight, nodePathInfo}) => {
+	const videoConfig = useVideoConfig();
+	const timelineWidth = useContext(TimelineWidthContext);
+	const {selected, onSelect, selectable} = useTimelineKeyframeSelection(
+		nodePathInfo,
+		frame,
+	);
+
+	const style = useMemo((): React.CSSProperties | null => {
+		if (timelineWidth === null) {
+			return null;
+		}
+
+		return {
+			...diamondBase,
+			backgroundColor: selected
+				? TIMELINE_SELECTED_LABEL_BACKGROUND
+				: LIGHT_TEXT,
+			border: 'none',
+			cursor: 'default',
+			left:
+				getXPositionOfItemInTimelineImperatively(
+					frame,
+					videoConfig.durationInFrames,
+					timelineWidth,
+				) - TIMELINE_PADDING,
+			padding: 0,
+			pointerEvents: 'auto',
+			top: rowHeight / 2,
+			transform: 'translate(-50%, -50%) rotate(45deg)',
+		};
+	}, [frame, rowHeight, selected, timelineWidth, videoConfig.durationInFrames]);
+
+	const onPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLButtonElement>) => {
+			if (e.button === 0) {
+				e.stopPropagation();
+				onSelect();
+			}
+		},
+		[onSelect],
+	);
+
+	if (style === null) {
+		return null;
+	}
+
+	return (
+		<button
+			type="button"
+			style={style}
+			title={`Keyframe at frame ${frame}`}
+			aria-label={`Select keyframe at frame ${frame}`}
+			onPointerDown={selectable ? onPointerDown : undefined}
+		/>
+	);
+};
+
+export const TimelineKeyframeDiamond = React.memo(
+	TimelineKeyframeDiamondUnmemoized,
+);

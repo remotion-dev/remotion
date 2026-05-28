@@ -1,20 +1,9 @@
-import React, {useContext, useMemo} from 'react';
-import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import React, {useMemo} from 'react';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
-import {
-	getTimelineLayerHeight,
-	TIMELINE_ITEM_BORDER_BOTTOM,
-	TIMELINE_PADDING,
-} from '../../helpers/timeline-layout';
-import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
+import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
-import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
-import {
-	getTimelineSelectedTrackHighlightStyle,
-	useTimelineSelection,
-} from './TimelineSelection';
-import {TimelineSequence} from './TimelineSequence';
 import {TimelineTimePadding} from './TimelineTimeIndicators';
+import {TimelineTrack} from './TimelineTrack';
 
 const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
@@ -29,11 +18,6 @@ const TimelineTracksInner: React.FC<{
 	readonly timeline: TrackWithHash[];
 	readonly hasBeenCut: boolean;
 }> = ({timeline, hasBeenCut}) => {
-	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
-	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const previewServerConnected = previewServerState.type === 'connected';
-	const {isSelected} = useTimelineSelection();
-
 	const timelineStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...timelineContent,
@@ -45,37 +29,9 @@ const TimelineTracksInner: React.FC<{
 		<div style={timelineStyle}>
 			<div style={content}>
 				<TimelineTimePadding />
-				{timeline.map((track) => {
-					const isExpanded =
-						track.nodePathInfo !== null && getIsExpanded(track.nodePathInfo);
-					const rowSelected =
-						track.nodePathInfo !== null &&
-						isSelected({type: 'row', nodePathInfo: track.nodePathInfo});
-
-					return (
-						<div key={track.sequence.id}>
-							<div
-								style={{
-									height: getTimelineLayerHeight(track.sequence.type),
-									marginBottom: TIMELINE_ITEM_BORDER_BOTTOM,
-									position: 'relative',
-								}}
-							>
-								{rowSelected ? (
-									<div style={getTimelineSelectedTrackHighlightStyle()} />
-								) : null}
-								<TimelineSequence s={track.sequence} />
-							</div>
-							{isExpanded && track.nodePathInfo && previewServerConnected ? (
-								<TimelineExpandedTrackKeyframes
-									sequence={track.sequence}
-									nodePathInfo={track.nodePathInfo}
-									keyframeDisplayOffset={track.keyframeDisplayOffset}
-								/>
-							) : null}
-						</div>
-					);
-				})}
+				{timeline.map((track) => (
+					<TimelineTrack key={track.sequence.id} track={track} />
+				))}
 			</div>
 			{hasBeenCut ? <MaxTimelineTracksReached /> : null}
 		</div>

@@ -1,21 +1,8 @@
-import {getImageDimensions} from '@remotion/media-utils';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {LIGHT_TEXT, VERY_LIGHT_TEXT} from '../../helpers/colors';
-import {formatMediaDuration} from '../../helpers/format-media-duration';
 import {pushUrl} from '../../helpers/url-state';
-import {useMediaMetadata} from '../../helpers/use-media-metadata';
-
-const containerStyle: React.CSSProperties = {
-	fontFamily: 'Arial, Helvetica, sans-serif',
-	fontSize: 12,
-	lineHeight: 1,
-	overflow: 'hidden',
-	whiteSpace: 'nowrap',
-	textOverflow: 'ellipsis',
-	minWidth: 0,
-	marginTop: 2,
-};
+import {SELECTION_ENABLED} from './TimelineSelection';
 
 const lineStyle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
@@ -24,7 +11,7 @@ const lineStyle: React.CSSProperties = {
 	minWidth: 0,
 	fontSize: 12,
 	color: VERY_LIGHT_TEXT,
-	lineHeight: 1.3,
+	display: 'inline-block',
 };
 
 type LinkInfo =
@@ -40,7 +27,9 @@ type LinkInfo =
 	  }
 	| null;
 
-const getLinkInfo = (src: string): LinkInfo => {
+export type TimelineAssetLinkInfo = Exclude<LinkInfo, null>;
+
+export const getTimelineAssetLinkInfo = (src: string): LinkInfo => {
 	const staticBase =
 		typeof window === 'undefined' ? null : window.remotion_staticBase;
 
@@ -69,11 +58,27 @@ const getLinkInfo = (src: string): LinkInfo => {
 	return null;
 };
 
+export const openTimelineAssetLink = (
+	linkInfo: TimelineAssetLinkInfo,
+	setCanvasContent: React.ContextType<
+		typeof Internals.CompositionSetters
+	>['setCanvasContent'],
+) => {
+	if (linkInfo.kind === 'local') {
+		setCanvasContent({type: 'asset', asset: linkInfo.assetPath});
+		pushUrl(`/assets/${linkInfo.assetPath}`);
+		return;
+	}
+
+	window.open(linkInfo.href, '_blank', 'noopener,noreferrer');
+};
+
 const useAssetLink = (src: string) => {
 	const {setCanvasContent} = React.useContext(Internals.CompositionSetters);
 	const [hovered, setHovered] = useState(false);
 
-	const linkInfo = useMemo(() => getLinkInfo(src), [src]);
+	const linkInfo = useMemo(() => getTimelineAssetLinkInfo(src), [src]);
+	const interactive = !SELECTION_ENABLED && linkInfo !== null;
 
 	const onClick = useCallback(
 		(e: React.MouseEvent) => {
@@ -84,13 +89,7 @@ const useAssetLink = (src: string) => {
 			e.preventDefault();
 			e.stopPropagation();
 
-			if (linkInfo.kind === 'local') {
-				setCanvasContent({type: 'asset', asset: linkInfo.assetPath});
-				pushUrl(`/assets/${linkInfo.assetPath}`);
-				return;
-			}
-
-			window.open(linkInfo.href, '_blank', 'noopener,noreferrer');
+			openTimelineAssetLink(linkInfo, setCanvasContent);
 		},
 		[linkInfo, setCanvasContent],
 	);
@@ -101,112 +100,52 @@ const useAssetLink = (src: string) => {
 	const fileNameStyle: React.CSSProperties = useMemo(
 		() => ({
 			...lineStyle,
-			color: linkInfo && hovered ? LIGHT_TEXT : VERY_LIGHT_TEXT,
-			cursor: linkInfo ? 'pointer' : undefined,
+			color: interactive && hovered ? LIGHT_TEXT : VERY_LIGHT_TEXT,
+			cursor: interactive ? 'pointer' : undefined,
 			textDecoration: 'none',
 			display: 'inline-block',
 			overflow: 'hidden',
 			whiteSpace: 'pre',
 			textOverflow: 'ellipsis',
+			userSelect: 'none',
+			WebkitUserSelect: 'none',
 		}),
-		[linkInfo, hovered],
+		[interactive, hovered],
 	);
 
-	return {linkInfo, onClick, onPointerEnter, onPointerLeave, fileNameStyle};
+	return {
+		linkInfo,
+		interactive,
+		onClick,
+		onPointerEnter,
+		onPointerLeave,
+		fileNameStyle,
+	};
 };
 
 export const TimelineMediaInfo: React.FC<{
 	readonly src: string;
-	readonly type: 'audio' | 'video' | 'image';
-}> = ({src, type}) => {
-	// Images aren't supported by mediabunny, so don't even try.
-	const metadata = useMediaMetadata(type === 'image' ? null : src);
+}> = ({src}) => {
 	const fileName = useMemo(() => Internals.getAssetDisplayName(src), [src]);
 
-	const {linkInfo, onClick, onPointerEnter, onPointerLeave, fileNameStyle} =
-		useAssetLink(src);
-
-	const [imageDimensions, setImageDimensions] = useState<{
-		width: number;
-		height: number;
-	} | null>(null);
-
-	useEffect(() => {
-		if (type !== 'image') {
-			return;
-		}
-
-		let cancelled = false;
-		setImageDimensions(null);
-
-		getImageDimensions(src)
-			.then((dims) => {
-				if (cancelled) {
-					return;
-				}
-
-				setImageDimensions({width: dims.width, height: dims.height});
-			})
-			.catch(() => {
-				// Non-image or load failure — ignore silently.
-			});
-
-		return () => {
-			cancelled = true;
-		};
-	}, [src, type]);
-
-	const detailsLine = useMemo(() => {
-		if (type === 'image') {
-			if (!imageDimensions) {
-				return null;
-			}
-
-			return `${imageDimensions.width}x${imageDimensions.height}`;
-		}
-
-		if (!metadata) {
-			return null;
-		}
-
-		const parts: string[] = [];
-		if (metadata.format) {
-			parts.push(metadata.format);
-		}
-
-		if (type === 'video' && metadata.videoCodec) {
-			parts.push(metadata.videoCodec);
-		}
-
-		if (metadata.audioCodec) {
-			parts.push(metadata.audioCodec);
-		}
-
-		if (metadata.width !== null && metadata.height !== null) {
-			parts.push(`${metadata.width}x${metadata.height}`);
-		}
-
-		parts.push(formatMediaDuration(metadata.duration));
-
-		return parts.join(' · ');
-	}, [imageDimensions, metadata, type]);
+	const {
+		linkInfo,
+		interactive,
+		onClick,
+		onPointerEnter,
+		onPointerLeave,
+		fileNameStyle,
+	} = useAssetLink(src);
 
 	return (
-		<div style={containerStyle}>
-			<div
-				style={fileNameStyle}
-				title={linkInfo ? linkInfo.title : fileName}
-				onClick={linkInfo ? onClick : undefined}
-				onPointerEnter={linkInfo ? onPointerEnter : undefined}
-				onPointerLeave={linkInfo ? onPointerLeave : undefined}
-			>
-				{fileName}
-			</div>
-			{detailsLine ? (
-				<div style={lineStyle} title={detailsLine}>
-					{detailsLine}
-				</div>
-			) : null}
+		<div
+			style={fileNameStyle}
+			title={linkInfo ? linkInfo.title : fileName}
+			onClick={interactive ? onClick : undefined}
+			onPointerEnter={interactive ? onPointerEnter : undefined}
+			onPointerLeave={interactive ? onPointerLeave : undefined}
+		>
+			{fileName}
 		</div>
 	);
 };

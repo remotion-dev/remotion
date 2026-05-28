@@ -34,12 +34,15 @@ const canUseAudioWaveformWorker = () => {
 	return 'transferControlToOffscreen' in HTMLCanvasElement.prototype;
 };
 
-const container: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	position: 'absolute',
-	inset: 0,
+const getContainerStyle = (height: number): React.CSSProperties => {
+	return {
+		display: 'flex',
+		flexDirection: 'row',
+		alignItems: 'center',
+		position: 'relative',
+		width: '100%',
+		height,
+	};
 };
 
 const errorMessage: React.CSSProperties = {
@@ -113,6 +116,7 @@ const drawLoopedWaveform = ({
 
 export const AudioWaveform: React.FC<{
 	readonly src: string;
+	readonly height: number;
 	readonly visualizationWidth: number;
 	readonly startFrom: number;
 	readonly durationInFrames: number;
@@ -122,6 +126,7 @@ export const AudioWaveform: React.FC<{
 	readonly loopDisplay: LoopDisplay | undefined;
 }> = ({
 	src,
+	height,
 	startFrom,
 	durationInFrames,
 	visualizationWidth,
@@ -139,7 +144,6 @@ export const AudioWaveform: React.FC<{
 		throw new Error('Expected video config');
 	}
 
-	const containerRef = useRef<HTMLDivElement>(null);
 	const waveformCanvas = useRef<HTMLCanvasElement>(null);
 	const volumeCanvas = useRef<HTMLCanvasElement>(null);
 	const waveformWorker = useRef<Worker | null>(null);
@@ -248,12 +252,11 @@ export const AudioWaveform: React.FC<{
 
 	useEffect(() => {
 		const {current: canvasElement} = waveformCanvas;
-		const {current: containerElement} = containerRef;
-		if (!canvasElement || !containerElement) {
+		if (!canvasElement) {
 			return;
 		}
 
-		const h = containerElement.clientHeight;
+		const h = height;
 		const w = Math.ceil(visualizationWidth);
 
 		const vol = typeof volume === 'number' ? volume : 1;
@@ -308,6 +311,7 @@ export const AudioWaveform: React.FC<{
 	}, [
 		canUseWorkerPath,
 		durationInFrames,
+		height,
 		loopDisplay,
 		playbackRate,
 		portionPeaks,
@@ -325,12 +329,11 @@ export const AudioWaveform: React.FC<{
 		}
 
 		const {current: volumeCanvasElement} = volumeCanvas;
-		const {current: containerElement} = containerRef;
-		if (!volumeCanvasElement || !containerElement) {
+		if (!volumeCanvasElement) {
 			return;
 		}
 
-		const h = containerElement.clientHeight;
+		const h = height;
 		const context = volumeCanvasElement.getContext('2d');
 		if (!context) {
 			return;
@@ -354,13 +357,13 @@ export const AudioWaveform: React.FC<{
 		});
 		context.strokeStyle = LIGHT_TRANSPARENT;
 		context.stroke();
-	}, [shouldRenderVolumeOverlay, visualizationWidth, volume]);
+	}, [height, shouldRenderVolumeOverlay, visualizationWidth, volume]);
 
 	if (error) {
 		// eslint-disable-next-line no-console
 		console.error(error);
 		return (
-			<div style={container}>
+			<div style={getContainerStyle(height)}>
 				<div style={errorMessage}>
 					No waveform available. Audio might not support CORS.
 				</div>
@@ -373,7 +376,7 @@ export const AudioWaveform: React.FC<{
 	}
 
 	return (
-		<div ref={containerRef} style={container}>
+		<div style={getContainerStyle(height)}>
 			<canvas
 				key={waveformCanvasKey}
 				ref={waveformCanvas}
