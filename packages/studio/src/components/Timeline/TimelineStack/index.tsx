@@ -13,13 +13,18 @@ import {openOriginalPositionInEditor} from '../../../helpers/open-in-editor';
 import {Spacing} from '../../layout';
 import {showNotification} from '../../Notifications/NotificationCenter';
 import {Spinner} from '../../Spinner';
+import {
+	getTimelineSelectedLabelStyle,
+	TIMELINE_SELECTED_LABEL_TEXT,
+} from '../TimelineSelection';
 import {getOriginalSourceAttribution} from './source-attribution';
 
 export const TimelineStack: React.FC<{
 	readonly isCompact: boolean;
 	readonly sequence: TSequence;
 	readonly originalLocation: OriginalPosition | null;
-}> = ({isCompact, sequence, originalLocation}) => {
+	readonly selected: boolean;
+}> = ({isCompact, sequence, originalLocation, selected}) => {
 	const [stackHovered, setStackHovered] = useState(false);
 	const [titleHovered, setTitleHovered] = useState(false);
 	const [opening, setOpening] = useState(false);
@@ -117,22 +122,41 @@ export const TimelineStack: React.FC<{
 		};
 	}, [opening, stackHovered, stackHoverable]);
 
+	const labelContainerStyle: React.CSSProperties = useMemo(() => {
+		return {
+			alignItems: 'center',
+			alignSelf: 'stretch',
+			display: 'flex',
+			flex: 1,
+			flexDirection: 'row',
+			minWidth: 0,
+		};
+	}, []);
+
 	const titleStyle: React.CSSProperties = useMemo(() => {
 		const hoverEffect = titleHovered && titleHoverable;
 		return {
+			alignItems: 'center',
+			alignSelf: 'stretch',
+			...getTimelineSelectedLabelStyle(selected),
+			display: 'flex',
 			fontSize: 12,
 			whiteSpace: 'nowrap',
 			textOverflow: 'ellipsis',
 			overflow: 'hidden',
 			lineHeight: 1.2,
-			color: opening && isCompact ? VERY_LIGHT_TEXT : LIGHT_COLOR,
+			color: selected
+				? TIMELINE_SELECTED_LABEL_TEXT
+				: opening && isCompact
+					? VERY_LIGHT_TEXT
+					: LIGHT_COLOR,
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 			textDecoration: hoverEffect ? 'underline' : 'none',
 			textUnderlineOffset: 2,
 			cursor: hoverEffect ? 'pointer' : undefined,
 		};
-	}, [titleHoverable, isCompact, opening, titleHovered]);
+	}, [titleHoverable, isCompact, opening, selected, titleHovered]);
 
 	const text =
 		sequence.displayName.length > 1000
@@ -140,7 +164,7 @@ export const TimelineStack: React.FC<{
 			: sequence.displayName;
 
 	return (
-		<>
+		<div style={labelContainerStyle}>
 			<div
 				onPointerEnter={onTitlePointerEnter}
 				onPointerLeave={onTitlePointerLeave}
@@ -170,6 +194,6 @@ export const TimelineStack: React.FC<{
 					<Spinner duration={0.5} size={12} />
 				</>
 			) : null}
-		</>
+		</div>
 	);
 };

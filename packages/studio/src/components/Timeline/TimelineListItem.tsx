@@ -27,6 +27,10 @@ import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
+import {
+	TIMELINE_SELECTED_BACKGROUND,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 import {TimelineStack} from './TimelineStack';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 
@@ -43,6 +47,8 @@ export const TimelineListItem: React.FC<{
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const {onSelect, selectable, selected} =
+		useTimelineRowSelection(nodePathInfo);
 
 	const originalLocation = useResolveStackAndReactToChange(sequence.getStack);
 
@@ -261,13 +267,23 @@ export const TimelineListItem: React.FC<{
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
+			backgroundColor: selected ? TIMELINE_SELECTED_BACKGROUND : undefined,
 			height:
 				getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
 			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 			display: 'flex',
 			flexDirection: 'column',
 		};
-	}, [sequence.type]);
+	}, [selected, sequence.type]);
+
+	const onSelectPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (e.button === 0) {
+				onSelect();
+			}
+		},
+		[onSelect],
+	);
 
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
@@ -310,7 +326,11 @@ export const TimelineListItem: React.FC<{
 		codeHiddenStatus.canUpdate;
 
 	const trackRow = (
-		<div style={outer}>
+		<div
+			style={outer}
+			onPointerDown={selectable ? onSelectPointerDown : undefined}
+			onContextMenu={selectable ? onSelect : undefined}
+		>
 			<TimelineRowChrome
 				depth={nestedDepth}
 				eye={
@@ -337,11 +357,16 @@ export const TimelineListItem: React.FC<{
 					)
 				}
 				style={inner}
+				selected={selected}
+				selectable={false}
+				onSelect={onSelect}
+				showSelectedBackground={false}
 			>
 				<TimelineStack
 					sequence={sequence}
 					isCompact={isCompact}
 					originalLocation={originalLocation}
+					selected={selected}
 				/>
 			</TimelineRowChrome>
 			{mediaSrc ? (
@@ -358,7 +383,12 @@ export const TimelineListItem: React.FC<{
 	return (
 		<>
 			{previewConnected ? (
-				<ContextMenu values={contextMenuValues}>{trackRow}</ContextMenu>
+				<ContextMenu
+					values={contextMenuValues}
+					onOpen={selectable ? onSelect : null}
+				>
+					{trackRow}
+				</ContextMenu>
 			) : (
 				trackRow
 			)}
