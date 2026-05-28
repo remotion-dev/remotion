@@ -20,7 +20,7 @@ import {TimelineFieldRow} from './TimelineFieldRow';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
-	TIMELINE_SELECTED_LABEL_BACKGROUND,
+	getTimelineSelectedLabelStyle,
 	TIMELINE_SELECTED_LABEL_TEXT,
 	useTimelineRowSelection,
 } from './TimelineSelection';
@@ -55,11 +55,9 @@ export const TimelineExpandedRow: React.FC<{
 	const labelStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...rowLabel,
+			...getTimelineSelectedLabelStyle(selection.selected),
 			alignSelf: 'stretch',
 			alignItems: 'center',
-			backgroundColor: selection.selected
-				? TIMELINE_SELECTED_LABEL_BACKGROUND
-				: undefined,
 			color: selection.selected ? TIMELINE_SELECTED_LABEL_TEXT : rowLabel.color,
 			display: 'flex',
 			flex: 1,

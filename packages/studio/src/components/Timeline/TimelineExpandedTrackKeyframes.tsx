@@ -14,6 +14,7 @@ import {
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getTimelineKeyframes} from './get-timeline-keyframes';
 import {
+	getTimelineSelectedTrackHighlightStyle,
 	TIMELINE_SELECTED_LABEL_BACKGROUND,
 	useTimelineSelection,
 	type TimelineSelection,
@@ -149,10 +150,18 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 		>
 			<div style={{...section, height: expandedHeight}}>
 				{rows.map(({height, keyframes, key, rowNodePathInfo}, i) => {
+					const rowSelected = isSelected({
+						type: 'row',
+						nodePathInfo: rowNodePathInfo,
+					});
+
 					return (
 						<React.Fragment key={key}>
 							{i > 0 ? <div style={separator} /> : null}
 							<div style={{...row, height}}>
+								{rowSelected ? (
+									<div style={getTimelineSelectedTrackHighlightStyle()} />
+								) : null}
 								{timelineWidth === null
 									? null
 									: keyframes.map((keyframe) => {

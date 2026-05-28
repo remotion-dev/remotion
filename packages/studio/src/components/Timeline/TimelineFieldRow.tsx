@@ -24,7 +24,7 @@ import {
 	TimelineNonEditableStatus,
 } from './TimelineSchemaField';
 import {
-	TIMELINE_SELECTED_LABEL_BACKGROUND,
+	getTimelineSelectedLabelStyle,
 	TIMELINE_SELECTED_LABEL_TEXT,
 	useTimelineRowSelection,
 } from './TimelineSelection';
@@ -190,10 +190,8 @@ export const TimelineFieldRow: React.FC<{
 	const labelRowStyle = useMemo(
 		(): React.CSSProperties => ({
 			...getTimelineFieldLabelRowStyle(rowDepth),
+			...getTimelineSelectedLabelStyle(selection.selected),
 			alignSelf: 'stretch',
-			backgroundColor: selection.selected
-				? TIMELINE_SELECTED_LABEL_BACKGROUND
-				: undefined,
 		}),
 		[rowDepth, selection.selected],
 	);

@@ -28,6 +28,7 @@ export const TimelineRowChrome: React.FC<{
 	readonly selected?: boolean;
 	readonly selectable?: boolean;
 	readonly onSelect?: () => void;
+	readonly showSelectedBackground?: boolean;
 }> = ({
 	depth,
 	eye,
@@ -37,14 +38,18 @@ export const TimelineRowChrome: React.FC<{
 	selected = false,
 	selectable = false,
 	onSelect,
+	showSelectedBackground = true,
 }) => {
 	const rowStyle = useMemo(
 		(): React.CSSProperties => ({
 			...rowBase,
 			...style,
-			backgroundColor: selected ? TIMELINE_SELECTED_BACKGROUND : undefined,
+			backgroundColor:
+				selected && showSelectedBackground
+					? TIMELINE_SELECTED_BACKGROUND
+					: undefined,
 		}),
-		[selected, style],
+		[selected, showSelectedBackground, style],
 	);
 
 	const indentWidth = getTimelineRowIndentWidth(depth);

@@ -27,7 +27,10 @@ import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
-import {useTimelineRowSelection} from './TimelineSelection';
+import {
+	TIMELINE_SELECTED_BACKGROUND,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 import {TimelineStack} from './TimelineStack';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 
@@ -263,13 +266,25 @@ export const TimelineListItem: React.FC<{
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
+			backgroundColor: selection.selected
+				? TIMELINE_SELECTED_BACKGROUND
+				: undefined,
 			height:
 				getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
 			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 			display: 'flex',
 			flexDirection: 'column',
 		};
-	}, [sequence.type]);
+	}, [selection.selected, sequence.type]);
+
+	const onSelectPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (e.button === 0) {
+				selection.onSelect();
+			}
+		},
+		[selection.onSelect],
+	);
 
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
@@ -312,7 +327,11 @@ export const TimelineListItem: React.FC<{
 		codeHiddenStatus.canUpdate;
 
 	const trackRow = (
-		<div style={outer}>
+		<div
+			style={outer}
+			onPointerDown={selection.selectable ? onSelectPointerDown : undefined}
+			onContextMenu={selection.selectable ? selection.onSelect : undefined}
+		>
 			<TimelineRowChrome
 				depth={nestedDepth}
 				eye={
@@ -340,8 +359,8 @@ export const TimelineListItem: React.FC<{
 				}
 				style={inner}
 				selected={selection.selected}
-				selectable={selection.selectable}
-				onSelect={selection.onSelect}
+				selectable={false}
+				showSelectedBackground={false}
 			>
 				<TimelineStack
 					sequence={sequence}

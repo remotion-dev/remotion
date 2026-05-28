@@ -5,14 +5,44 @@ import React, {
 	useEffect,
 	useMemo,
 	useState,
+	type CSSProperties,
 } from 'react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 
 export const TIMELINE_SELECTED_BACKGROUND = 'rgba(255, 255, 255, 0.1)';
 export const TIMELINE_SELECTED_LABEL_BACKGROUND = '#B0B0B0';
 export const TIMELINE_SELECTED_LABEL_TEXT = 'black';
+export const TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING = 2;
+
+export const getTimelineSelectedLabelStyle = (
+	selected: boolean,
+): CSSProperties => {
+	if (!selected) {
+		return {};
+	}
+
+	const padding = TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING;
+	return {
+		backgroundColor: TIMELINE_SELECTED_LABEL_BACKGROUND,
+		marginLeft: -padding,
+		marginRight: -padding,
+		paddingLeft: padding,
+		paddingRight: padding,
+	};
+};
+
+export const getTimelineSelectedTrackHighlightStyle = (): CSSProperties => ({
+	backgroundColor: TIMELINE_SELECTED_BACKGROUND,
+	bottom: 0,
+	left: -TIMELINE_PADDING,
+	pointerEvents: 'none',
+	position: 'absolute',
+	right: -TIMELINE_PADDING,
+	top: 0,
+});
 
 export const SELECTION_ENABLED = false;
 

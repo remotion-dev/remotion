@@ -14,7 +14,7 @@ import {Spacing} from '../../layout';
 import {showNotification} from '../../Notifications/NotificationCenter';
 import {Spinner} from '../../Spinner';
 import {
-	TIMELINE_SELECTED_LABEL_BACKGROUND,
+	getTimelineSelectedLabelStyle,
 	TIMELINE_SELECTED_LABEL_TEXT,
 } from '../TimelineSelection';
 import {getOriginalSourceAttribution} from './source-attribution';
@@ -138,9 +138,7 @@ export const TimelineStack: React.FC<{
 		return {
 			alignItems: 'center',
 			alignSelf: 'stretch',
-			backgroundColor: selected
-				? TIMELINE_SELECTED_LABEL_BACKGROUND
-				: undefined,
+			...getTimelineSelectedLabelStyle(selected),
 			display: 'flex',
 			fontSize: 12,
 			whiteSpace: 'nowrap',
