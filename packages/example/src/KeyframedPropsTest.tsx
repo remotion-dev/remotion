@@ -100,7 +100,6 @@ const KeyframedPropsTest: React.FC = () => {
 				name="keyframes should be shown at 0 and 100"
 				durationInFrames={120}
 				style={{scale: interpolate(frame, [0, 100], [2, 4])}}
-				hidden
 			>
 				<div
 					style={{
@@ -111,14 +110,10 @@ const KeyframedPropsTest: React.FC = () => {
 					}}
 				/>
 			</Sequence>
-			<Sequence from={30} name="keyframes should be shown at 30 and 90" hidden>
+			<Sequence from={30} name="keyframes should be shown at 30 and 90">
 				<Shifted />
 			</Sequence>
-			<Sequence
-				from={30}
-				name="nested keyframes should be shown at 50 and 110"
-				hidden
-			>
+			<Sequence from={30} name="nested keyframes should be shown at 50 and 110">
 				<NestedShifted />
 			</Sequence>
 			<Sequence from={30}>
