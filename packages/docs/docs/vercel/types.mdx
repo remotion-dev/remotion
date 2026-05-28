@@ -53,6 +53,24 @@ Used as the `onProgress` callback type for [`renderMediaOnVercel()`](/docs/verce
 
 See [`RenderMediaOnProgress`](/docs/renderer/types#rendermediaonprogress) in `@remotion/renderer`.
 
+## `RenderProgress`<AvailableFrom v="4.0.468" />
+
+```ts twoslash
+import type {RenderProgress} from '@remotion/vercel';
+//                ^?
+```
+
+A discriminated union (on `stage`) returned by [`getRenderProgress()`](/docs/vercel/get-render-progress).
+
+- `{stage: 'starting', overallProgress: number}` - The sandbox command started, but no progress file exists yet.
+- `{stage: 'opening-browser', overallProgress: number}` - The browser is being opened.
+- `{stage: 'selecting-composition', overallProgress: number}` - The composition is being selected.
+- `{stage: 'render-progress', progress: RenderMediaProgress, overallProgress: number}` - The render is in progress.
+- `{stage: 'uploading', overallProgress: number}` - The rendered video is being uploaded to Vercel Blob.
+- `{stage: 'done', url: string, size: number, contentType: string, overallProgress: number}` - The render finished and was uploaded.
+- `{stage: 'error', message: string, overallProgress: number}` - The render failed.
+- `{stage: 'expired'}` - The sandbox no longer exists.
+
 ## `RenderStillOnVercelProgress`
 
 ```ts twoslash
@@ -77,3 +95,24 @@ import type {VercelBlobAccess} from '@remotion/vercel';
 ```
 
 Either `"public"` or `"private"`. Used as the `access` parameter for [`uploadToVercelBlob()`](/docs/vercel/upload-to-vercel-blob).
+
+## `VercelBlobUploadOptions`<AvailableFrom v="4.0.468" />
+
+```ts twoslash
+import type {VercelBlobUploadOptions} from '@remotion/vercel';
+//                ^?
+```
+
+Used by [`renderMediaOnVercel({detached: true})`](/docs/vercel/render-media-on-vercel#detached) to upload the render from inside the sandbox.
+
+### `blobToken`
+
+A Vercel Blob read-write token.
+
+### `access`
+
+Either `"public"` or `"private"`.
+
+### `blobPath?`
+
+The path where the file should be stored in Vercel Blob. Default: A random path under `renders/`.

@@ -13,53 +13,14 @@ import type {
 	ProResProfile,
 	RenderMediaOnVercelProgress,
 	SandboxRenderMediaMessage,
+	VercelBlobUploadOptions,
 	VideoImageFormat,
 	X264Preset,
 } from './types';
 
-export async function renderMediaOnVercel({
-	sandbox,
-	compositionId,
-	inputProps,
-	onProgress,
-	outputFile = '/tmp/video.mp4',
-	codec = 'h264',
-	crf,
-	imageFormat,
-	pixelFormat,
-	envVariables = {},
-	frameRange,
-	everyNthFrame = 1,
-	proResProfile,
-	chromiumOptions = {},
-	scale = 1,
-	preferLossless = false,
-	enforceAudioTrack = false,
-	disallowParallelEncoding = false,
-	concurrency,
-	metadata,
-	licenseKey,
-	videoBitrate,
-	audioBitrate,
-	encodingMaxRate,
-	encodingBufferSize,
-	muted = false,
-	numberOfGifLoops,
-	x264Preset,
-	gopSize,
-	colorSpace = 'default',
-	jpegQuality = 80,
-	audioCodec,
-	logLevel = 'info',
-	timeoutInMilliseconds = 30000,
-	forSeamlessAacConcatenation = false,
-	separateAudioTo,
-	hardwareAcceleration = 'disable',
-	offthreadVideoCacheSizeInBytes,
-	mediaCacheSizeInBytes,
-	offthreadVideoThreads,
-	sampleRate,
-}: {
+const DEFAULT_DETACHED_SANDBOX_TIMEOUT = 30 * 60 * 1000;
+
+type RenderMediaOnVercelBaseOptions = {
 	sandbox: Sandbox;
 	compositionId: string;
 	inputProps: Record<string, unknown>;
@@ -101,7 +62,85 @@ export async function renderMediaOnVercel({
 	mediaCacheSizeInBytes?: number | null;
 	offthreadVideoThreads?: number | null;
 	sampleRate?: number;
-}): Promise<{sandboxFilePath: string; contentType: string}> {
+	detachedSandboxTimeoutInMilliseconds?: number;
+};
+
+type RenderMediaOnVercelRegularOptions = RenderMediaOnVercelBaseOptions & {
+	detached?: false;
+	vercelBlob?: VercelBlobUploadOptions;
+};
+
+type RenderMediaOnVercelDetachedOptions = RenderMediaOnVercelBaseOptions & {
+	detached: true;
+	vercelBlob: VercelBlobUploadOptions;
+};
+
+type RenderMediaOnVercelFunction = {
+	(
+		options: RenderMediaOnVercelDetachedOptions,
+	): Promise<{sandboxId: string; cmdId: string; outputFile: string}>;
+	(
+		options: RenderMediaOnVercelRegularOptions,
+	): Promise<{sandboxFilePath: string; contentType: string}>;
+};
+
+const internalRenderMediaOnVercel = async ({
+	sandbox,
+	compositionId,
+	inputProps,
+	onProgress,
+	outputFile = '/tmp/video.mp4',
+	codec = 'h264',
+	crf,
+	imageFormat,
+	pixelFormat,
+	envVariables = {},
+	frameRange,
+	everyNthFrame = 1,
+	proResProfile,
+	chromiumOptions = {},
+	scale = 1,
+	preferLossless = false,
+	enforceAudioTrack = false,
+	disallowParallelEncoding = false,
+	concurrency,
+	metadata,
+	licenseKey,
+	videoBitrate,
+	audioBitrate,
+	encodingMaxRate,
+	encodingBufferSize,
+	muted = false,
+	numberOfGifLoops,
+	x264Preset,
+	gopSize,
+	colorSpace = 'default',
+	jpegQuality = 80,
+	audioCodec,
+	logLevel = 'info',
+	timeoutInMilliseconds = 30000,
+	forSeamlessAacConcatenation = false,
+	separateAudioTo,
+	hardwareAcceleration = 'disable',
+	offthreadVideoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
+	offthreadVideoThreads,
+	sampleRate,
+	detached = false,
+	vercelBlob,
+	detachedSandboxTimeoutInMilliseconds = DEFAULT_DETACHED_SANDBOX_TIMEOUT,
+}:
+	| RenderMediaOnVercelRegularOptions
+	| RenderMediaOnVercelDetachedOptions): Promise<
+	| {sandboxFilePath: string; contentType: string}
+	| {sandboxId: string; cmdId: string; outputFile: string}
+> => {
+	if (detached && !vercelBlob) {
+		throw new Error(
+			'The vercelBlob option is required when detached is set to true.',
+		);
+	}
+
 	const serveUrl = `/vercel/sandbox/${REMOTION_SANDBOX_BUNDLE_DIR}`;
 
 	const renderConfig = {
@@ -149,13 +188,30 @@ export async function renderMediaOnVercel({
 		binariesDirectory: null,
 		repro: false,
 		sampleRate: sampleRate ?? 48000,
+		vercelBlob: vercelBlob
+			? {
+					blobPath: vercelBlob.blobPath ?? null,
+					access: vercelBlob.access,
+				}
+			: null,
 	};
 
 	const renderCmd = await sandbox.runCommand({
 		cmd: 'node',
 		args: ['render-video.mjs', JSON.stringify(renderConfig)],
 		detached: true,
+		env: vercelBlob ? {BLOB_READ_WRITE_TOKEN: vercelBlob.blobToken} : undefined,
 	});
+
+	if (detached) {
+		await sandbox.extendTimeout(detachedSandboxTimeoutInMilliseconds);
+
+		return {
+			sandboxId: sandbox.sandboxId,
+			cmdId: renderCmd.cmdId,
+			outputFile,
+		};
+	}
 
 	let contentType: string = 'application/octet-stream';
 
@@ -186,4 +242,7 @@ export async function renderMediaOnVercel({
 	}
 
 	return {sandboxFilePath: outputFile, contentType};
-}
+};
+
+export const renderMediaOnVercel =
+	internalRenderMediaOnVercel as RenderMediaOnVercelFunction;

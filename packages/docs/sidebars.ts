@@ -843,6 +843,7 @@ const sidebars: SidebarsConfig = {
 				'vercel/create-sandbox',
 				'vercel/add-bundle-to-sandbox',
 				'vercel/render-media-on-vercel',
+				'vercel/get-render-progress',
 				'vercel/render-still-on-vercel',
 				'vercel/upload-to-vercel-blob',
 				'vercel/vercel-types',
