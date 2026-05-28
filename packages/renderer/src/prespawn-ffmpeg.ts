@@ -18,6 +18,7 @@ import {
 	DEFAULT_PIXEL_FORMAT,
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
+import {resolveHardwareAcceleration} from './probe-encoder';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 
@@ -88,6 +89,18 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
 
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
+	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
+
+	const resolvedHardwareAcceleration = resolveHardwareAcceleration({
+		codec,
+		hardwareAcceleration: options.hardwareAcceleration,
+		binariesDirectory: options.binariesDirectory,
+		indent: options.indent,
+		logLevel: options.logLevel,
+		crf: options.crf,
+		encodingMaxRate: options.encodingMaxRate,
+		encodingBufferSize: options.encodingBufferSize,
+	});
 
 	const ffmpegArgs = [
 		['-r', options.fps],
@@ -111,7 +124,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			encodingMaxRate: options.encodingMaxRate,
 			encodingBufferSize: options.encodingBufferSize,
 			colorSpace: options.colorSpace,
-			hardwareAcceleration: options.hardwareAcceleration,
+			hardwareAcceleration: resolvedHardwareAcceleration,
 			indent: options.indent,
 			logLevel: options.logLevel,
 		}),
