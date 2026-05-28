@@ -556,7 +556,9 @@
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@typescript/native-preview": "catalog:",
+        "@vitest/browser-playwright": "catalog:",
         "eslint": "catalog:",
+        "vitest": "catalog:",
       },
     },
     "packages/elevenlabs": {

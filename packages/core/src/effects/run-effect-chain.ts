@@ -8,7 +8,10 @@ import {getGpuDevice} from './gpu-device.js';
 
 export type EffectChainState = {
 	pool: CanvasPool;
-	setupCache: WeakMap<EffectDefinition<unknown, unknown>, unknown>;
+	setupCache: WeakMap<
+		EffectDefinition<unknown, unknown>,
+		WeakMap<HTMLCanvasElement, unknown>
+	>;
 	cleanupRegistry: Array<{
 		definition: EffectDefinition<unknown, unknown>;
 		state: unknown;
@@ -39,12 +42,18 @@ const ensureSetup = <S>(
 	target: HTMLCanvasElement,
 ): S => {
 	const widened = def as EffectDefinition<unknown, unknown>;
-	if (state.setupCache.has(widened)) {
-		return state.setupCache.get(widened) as S;
+	let cacheForDefinition = state.setupCache.get(widened);
+	if (!cacheForDefinition) {
+		cacheForDefinition = new WeakMap<HTMLCanvasElement, unknown>();
+		state.setupCache.set(widened, cacheForDefinition);
+	}
+
+	if (cacheForDefinition.has(target)) {
+		return cacheForDefinition.get(target) as S;
 	}
 
 	const setupState = def.setup(target);
-	state.setupCache.set(widened, setupState);
+	cacheForDefinition.set(target, setupState);
 	state.cleanupRegistry.push({definition: widened, state: setupState});
 	return setupState;
 };
@@ -117,7 +126,9 @@ export const runEffectChain = async ({
 		return false;
 	}
 
-	// Raw component sources are 2D frame canvases (Gif, WrappedCanvas.canvas, …).
+	// Canvas sources are DOM-oriented. Flip them when uploading into WebGL so
+	// texture coordinates match clip-space output. `ImageBitmap` bridges below
+	// opt out because they are already oriented for upload.
 	let flipWebGLSourceY = true;
 
 	for (let runIndex = 0; runIndex < runs.length; runIndex++) {
@@ -141,7 +152,10 @@ export const runEffectChain = async ({
 			});
 
 			if (run.backend === 'webgl2') {
-				flipWebGLSourceY = false;
+				// Same-backend ping-pong passes feed the previous WebGL canvas back
+				// through `texImage2D()`. That source is still a DOM canvas, so the
+				// next upload also needs to be flipped.
+				flipWebGLSourceY = true;
 				state.pool.assertContextNotLost(dst);
 			}
 
