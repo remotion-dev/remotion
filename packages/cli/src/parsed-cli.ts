@@ -221,6 +221,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[bundleCacheOption.cliFlag]: null,
 		[allowHtmlInCanvasOption.cliFlag]: null,
 		[experimentalClientSideRenderingOption.cliFlag]: null,
+		[darkModeOption.cliFlag]: null,
 		[mutedOption.cliFlag]: null,
 	},
 }) as CommandLineOptions & {

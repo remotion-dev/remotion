@@ -23,3 +23,18 @@ test('getChromiumOpenGlRenderer, override Puppeter Config - angle value', () => 
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toEqual('angle');
 });
+
+test('getChromiumDarkMode respects the config file if the CLI flag is absent', () => {
+	Config.setChromiumDarkMode(true);
+	expect(
+		BrowserSafeApis.options.darkModeOption.getValue({
+			commandLine: {'dark-mode': null},
+		}).value,
+	).toEqual(true);
+	expect(
+		BrowserSafeApis.options.darkModeOption.getValue({
+			commandLine: {'dark-mode': false},
+		}).value,
+	).toEqual(false);
+	Config.setChromiumDarkMode(false);
+});
