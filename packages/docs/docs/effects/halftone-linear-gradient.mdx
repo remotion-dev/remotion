@@ -114,7 +114,7 @@ Controls how dots are colored. Defaults to `'solid'`.
 
 Allowed values are `'solid'` and `'source'`.
 
-When set to `'solid'`, each dot uses `dotColor`. When set to `'source'`, each dot uses the sampled source color at the grid cell.
+When set to `'solid'`, each dot uses `dotColor` and is composited over the previous effect in the chain. When set to `'source'`, each dot uses the sampled source color at the grid cell.
 
 If `colorMode` is `'source'`, don't pass `dotColor`.
 
