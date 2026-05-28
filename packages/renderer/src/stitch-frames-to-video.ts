@@ -35,12 +35,12 @@ import {
 	DEFAULT_PIXEL_FORMAT,
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
+import {resolveHardwareAcceleration} from './probe-encoder';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {getShouldRenderAudio} from './render-has-audio';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
-
 type InternalStitchFramesToVideoOptions = {
 	audioBitrate: string | null;
 	videoBitrate: string | null;
@@ -346,6 +346,16 @@ const innerStitchFramesToVideo = async (
 
 		return Promise.resolve(file);
 	}
+	const resolvedHardwareAcceleration = resolveHardwareAcceleration({
+		codec,
+		hardwareAcceleration,
+		binariesDirectory,
+		indent: indent ?? false,
+		logLevel,
+		crf,
+		encodingMaxRate: maxRate,
+		encodingBufferSize: bufferSize,
+	});
 
 	const ffmpegArgs = [
 		...(preEncodedFileLocation
@@ -376,7 +386,7 @@ const innerStitchFramesToVideo = async (
 			x264Preset,
 			gopSize,
 			colorSpace,
-			hardwareAcceleration,
+			hardwareAcceleration: resolvedHardwareAcceleration,
 			indent,
 			logLevel,
 		}),
