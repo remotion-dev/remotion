@@ -18,7 +18,8 @@ import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
-	TIMELINE_SELECTED_TEXT,
+	TIMELINE_SELECTED_LABEL_BACKGROUND,
+	TIMELINE_SELECTED_LABEL_TEXT,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 
@@ -178,7 +179,6 @@ export const TimelineEffectGroupRow: React.FC<{
 	const rowStyle = useMemo(
 		(): React.CSSProperties => ({
 			height: TREE_GROUP_ROW_HEIGHT,
-			paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 		}),
 		[],
 	);
@@ -187,7 +187,16 @@ export const TimelineEffectGroupRow: React.FC<{
 		const hoverEffect = labelHovered && documentationLink !== null;
 		return {
 			...rowLabel,
-			color: selection.selected ? TIMELINE_SELECTED_TEXT : rowLabel.color,
+			alignSelf: 'stretch',
+			alignItems: 'center',
+			backgroundColor: selection.selected
+				? TIMELINE_SELECTED_LABEL_BACKGROUND
+				: undefined,
+			color: selection.selected ? TIMELINE_SELECTED_LABEL_TEXT : rowLabel.color,
+			display: 'flex',
+			flex: 1,
+			minWidth: 0,
+			paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 			textDecoration: hoverEffect ? 'underline' : 'none',
 			textUnderlineOffset: 2,
 			cursor: hoverEffect ? 'pointer' : undefined,
@@ -244,7 +253,12 @@ export const TimelineEffectGroupRow: React.FC<{
 	);
 
 	return previewConnected ? (
-		<ContextMenu values={contextMenuValues}>{row}</ContextMenu>
+		<ContextMenu
+			values={contextMenuValues}
+			onOpen={selection.selectable ? selection.onSelect : undefined}
+		>
+			{row}
+		</ContextMenu>
 	) : (
 		row
 	);

@@ -13,6 +13,10 @@ import {openOriginalPositionInEditor} from '../../../helpers/open-in-editor';
 import {Spacing} from '../../layout';
 import {showNotification} from '../../Notifications/NotificationCenter';
 import {Spinner} from '../../Spinner';
+import {
+	TIMELINE_SELECTED_LABEL_BACKGROUND,
+	TIMELINE_SELECTED_LABEL_TEXT,
+} from '../TimelineSelection';
 import {getOriginalSourceAttribution} from './source-attribution';
 
 export const TimelineStack: React.FC<{
@@ -99,13 +103,11 @@ export const TimelineStack: React.FC<{
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			fontSize: 12,
-			color: selected
-				? 'black'
-				: opening
-					? VERY_LIGHT_TEXT
-					: stackHovered && stackHoverable
-						? LIGHT_TEXT
-						: VERY_LIGHT_TEXT,
+			color: opening
+				? VERY_LIGHT_TEXT
+				: stackHovered && stackHoverable
+					? LIGHT_TEXT
+					: VERY_LIGHT_TEXT,
 			marginLeft: 5,
 			cursor: stackHoverable ? 'pointer' : undefined,
 			display: 'flex',
@@ -118,18 +120,35 @@ export const TimelineStack: React.FC<{
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 		};
-	}, [opening, selected, stackHovered, stackHoverable]);
+	}, [opening, stackHovered, stackHoverable]);
+
+	const labelContainerStyle: React.CSSProperties = useMemo(() => {
+		return {
+			alignItems: 'center',
+			alignSelf: 'stretch',
+			display: 'flex',
+			flex: 1,
+			flexDirection: 'row',
+			minWidth: 0,
+		};
+	}, []);
 
 	const titleStyle: React.CSSProperties = useMemo(() => {
 		const hoverEffect = titleHovered && titleHoverable;
 		return {
+			alignItems: 'center',
+			alignSelf: 'stretch',
+			backgroundColor: selected
+				? TIMELINE_SELECTED_LABEL_BACKGROUND
+				: undefined,
+			display: 'flex',
 			fontSize: 12,
 			whiteSpace: 'nowrap',
 			textOverflow: 'ellipsis',
 			overflow: 'hidden',
 			lineHeight: 1.2,
 			color: selected
-				? 'black'
+				? TIMELINE_SELECTED_LABEL_TEXT
 				: opening && isCompact
 					? VERY_LIGHT_TEXT
 					: LIGHT_COLOR,
@@ -147,7 +166,7 @@ export const TimelineStack: React.FC<{
 			: sequence.displayName;
 
 	return (
-		<>
+		<div style={labelContainerStyle}>
 			<div
 				onPointerEnter={onTitlePointerEnter}
 				onPointerLeave={onTitlePointerLeave}
@@ -177,6 +196,6 @@ export const TimelineStack: React.FC<{
 					<Spinner duration={0.5} size={12} />
 				</>
 			) : null}
-		</>
+		</div>
 	);
 };

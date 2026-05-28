@@ -364,7 +364,12 @@ export const TimelineListItem: React.FC<{
 	return (
 		<>
 			{previewConnected ? (
-				<ContextMenu values={contextMenuValues}>{trackRow}</ContextMenu>
+				<ContextMenu
+					values={contextMenuValues}
+					onOpen={selection.selectable ? selection.onSelect : undefined}
+				>
+					{trackRow}
+				</ContextMenu>
 			) : (
 				trackRow
 			)}

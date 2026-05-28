@@ -20,7 +20,8 @@ import {TimelineFieldRow} from './TimelineFieldRow';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
-	TIMELINE_SELECTED_TEXT,
+	TIMELINE_SELECTED_LABEL_BACKGROUND,
+	TIMELINE_SELECTED_LABEL_TEXT,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 
@@ -54,7 +55,16 @@ export const TimelineExpandedRow: React.FC<{
 	const labelStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...rowLabel,
-			color: selection.selected ? TIMELINE_SELECTED_TEXT : rowLabel.color,
+			alignSelf: 'stretch',
+			alignItems: 'center',
+			backgroundColor: selection.selected
+				? TIMELINE_SELECTED_LABEL_BACKGROUND
+				: undefined,
+			color: selection.selected ? TIMELINE_SELECTED_LABEL_TEXT : rowLabel.color,
+			display: 'flex',
+			flex: 1,
+			minWidth: 0,
+			paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 		}),
 		[selection.selected],
 	);
@@ -92,7 +102,6 @@ export const TimelineExpandedRow: React.FC<{
 				}
 				style={{
 					height: TREE_GROUP_ROW_HEIGHT,
-					paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 				}}
 				selected={selection.selected}
 				selectable={selection.selectable}
@@ -141,7 +150,6 @@ export const TimelineExpandedRow: React.FC<{
 			arrow={<TimelineExpandArrowSpacer />}
 			style={{
 				height: getTreeRowHeight(node),
-				paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 			}}
 			selected={selection.selected}
 			selectable={selection.selectable}

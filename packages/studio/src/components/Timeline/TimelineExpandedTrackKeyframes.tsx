@@ -14,7 +14,7 @@ import {
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getTimelineKeyframes} from './get-timeline-keyframes';
 import {
-	TIMELINE_SELECTED_BACKGROUND,
+	TIMELINE_SELECTED_LABEL_BACKGROUND,
 	useTimelineSelection,
 	type TimelineSelection,
 } from './TimelineSelection';
@@ -90,7 +90,7 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
-	const {canSelect, isSelected, selectItem} = useTimelineSelection();
+	const {isSelected, selectItem} = useTimelineSelection();
 
 	const tree = useMemo(
 		() =>
@@ -170,10 +170,10 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 													style={{
 														...diamondBase,
 														backgroundColor: selected
-															? TIMELINE_SELECTED_BACKGROUND
+															? TIMELINE_SELECTED_LABEL_BACKGROUND
 															: LIGHT_TEXT,
 														border: 'none',
-														cursor: canSelect ? 'pointer' : 'default',
+														cursor: 'default',
 														left:
 															getXPositionOfItemInTimelineImperatively(
 																keyframe.frame,
@@ -187,7 +187,11 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 													}}
 													title={`Keyframe at frame ${keyframe.frame}`}
 													aria-label={`Select keyframe at frame ${keyframe.frame}`}
-													onClick={() => selectItem(selectionItem)}
+													onPointerDown={(e) => {
+														if (e.button === 0) {
+															selectItem(selectionItem);
+														}
+													}}
 												/>
 											);
 										})}

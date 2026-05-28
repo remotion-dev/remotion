@@ -24,11 +24,19 @@ import {
 	TimelineNonEditableStatus,
 } from './TimelineSchemaField';
 import {
-	TIMELINE_SELECTED_TEXT,
+	TIMELINE_SELECTED_LABEL_BACKGROUND,
+	TIMELINE_SELECTED_LABEL_TEXT,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 
-const fieldRowBase: React.CSSProperties = {
+const fieldRowBase: React.CSSProperties = {};
+
+const valueColumnStyle: React.CSSProperties = {
+	alignItems: 'center',
+	alignSelf: 'stretch',
+	display: 'flex',
+	flex: 1,
+	minWidth: 0,
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
@@ -180,14 +188,22 @@ export const TimelineFieldRow: React.FC<{
 	}, [field.rowHeight]);
 
 	const labelRowStyle = useMemo(
-		() => getTimelineFieldLabelRowStyle(rowDepth),
-		[rowDepth],
+		(): React.CSSProperties => ({
+			...getTimelineFieldLabelRowStyle(rowDepth),
+			alignSelf: 'stretch',
+			backgroundColor: selection.selected
+				? TIMELINE_SELECTED_LABEL_BACKGROUND
+				: undefined,
+		}),
+		[rowDepth, selection.selected],
 	);
 
 	const fieldNameStyle = useMemo(
 		(): React.CSSProperties => ({
 			...fieldName,
-			color: selection.selected ? TIMELINE_SELECTED_TEXT : fieldName.color,
+			color: selection.selected
+				? TIMELINE_SELECTED_LABEL_TEXT
+				: fieldName.color,
 		}),
 		[selection.selected],
 	);
@@ -210,15 +226,19 @@ export const TimelineFieldRow: React.FC<{
 				<span style={fieldNameStyle}>{field.description ?? field.key}</span>
 			</div>
 			{codeValue.canUpdate ? (
-				<Value
-					field={field}
-					nodePath={nodePath}
-					validatedLocation={validatedLocation}
-					schema={schema}
-					codeValue={codeValue}
-				/>
+				<div style={valueColumnStyle}>
+					<Value
+						field={field}
+						nodePath={nodePath}
+						validatedLocation={validatedLocation}
+						schema={schema}
+						codeValue={codeValue}
+					/>
+				</div>
 			) : (
-				<TimelineNonEditableStatus propStatus={codeValue} />
+				<div style={valueColumnStyle}>
+					<TimelineNonEditableStatus propStatus={codeValue} />
+				</div>
 			)}
 		</TimelineRowChrome>
 	);

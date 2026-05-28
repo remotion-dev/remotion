@@ -1,17 +1,22 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {Padder} from './Padder';
 import {
 	TIMELINE_ROW_BASE_PADDING,
 	getTimelineRowIndentWidth,
 } from './timeline-row-layout';
-import {
-	TIMELINE_SELECTED_BACKGROUND,
-	TIMELINE_SELECTED_TEXT,
-} from './TimelineSelection';
+import {TIMELINE_SELECTED_BACKGROUND} from './TimelineSelection';
 
 const rowBase: React.CSSProperties = {
+	alignItems: 'stretch',
 	display: 'flex',
+};
+
+const chromeColumnStyle: React.CSSProperties = {
 	alignItems: 'center',
+	alignSelf: 'stretch',
+	display: 'flex',
+	flexShrink: 0,
+	paddingLeft: TIMELINE_ROW_BASE_PADDING,
 };
 
 export const TimelineRowChrome: React.FC<{
@@ -36,22 +41,34 @@ export const TimelineRowChrome: React.FC<{
 	const rowStyle = useMemo(
 		(): React.CSSProperties => ({
 			...rowBase,
-			paddingLeft: TIMELINE_ROW_BASE_PADDING,
 			...style,
 			backgroundColor: selected ? TIMELINE_SELECTED_BACKGROUND : undefined,
-			color: selected ? TIMELINE_SELECTED_TEXT : style?.color,
-			cursor: selectable ? 'pointer' : style?.cursor,
 		}),
-		[selectable, selected, style],
+		[selected, style],
 	);
 
 	const indentWidth = getTimelineRowIndentWidth(depth);
 
+	const onPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (e.button === 0) {
+				onSelect?.();
+			}
+		},
+		[onSelect],
+	);
+
 	return (
-		<div style={rowStyle} onClick={selectable ? onSelect : undefined}>
-			{eye}
-			{indentWidth > 0 ? <Padder depth={depth} /> : null}
-			{arrow}
+		<div
+			style={rowStyle}
+			onPointerDown={selectable ? onPointerDown : undefined}
+			onContextMenu={selectable ? onSelect : undefined}
+		>
+			<div style={chromeColumnStyle}>
+				{eye}
+				{indentWidth > 0 ? <Padder depth={depth} /> : null}
+				{arrow}
+			</div>
 			{children}
 		</div>
 	);
