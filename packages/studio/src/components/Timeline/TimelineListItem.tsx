@@ -22,7 +22,6 @@ import {
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
-import {TimelineItemName} from './TimelineItemName';
 import {TimelineItemStack} from './TimelineItemStack';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineMediaInfo} from './TimelineMediaInfo';
@@ -31,6 +30,7 @@ import {
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
+import {TimelineSequenceName} from './TimelineSequenceName';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 
 const labelContainerStyle: React.CSSProperties = {
@@ -344,7 +344,7 @@ export const TimelineListItem: React.FC<{
 			outerHeight={outerHeight}
 		>
 			<div style={labelContainerStyle}>
-				<TimelineItemName
+				<TimelineSequenceName
 					sequence={sequence}
 					selected={selected}
 					containsSelection={containsSelection}

@@ -1,10 +1,9 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
-import {LIGHT_COLOR} from '../../helpers/colors';
 import {
+	getTimelineColor,
 	getTimelineSelectedLabelStyle,
 	TIMELINE_SELECTED_LABEL_BACKGROUND,
-	TIMELINE_SELECTED_LABEL_TEXT,
 } from './TimelineSelection';
 
 const MAX_DISPLAY_NAME_LENGTH = 1000;
@@ -17,7 +16,7 @@ const getTruncatedDisplayName = (displayName: string): string => {
 	return displayName;
 };
 
-export const TimelineItemName: React.FC<{
+export const TimelineSequenceName: React.FC<{
 	readonly sequence: TSequence;
 	readonly selected: boolean;
 	readonly containsSelection: boolean;
@@ -48,7 +47,7 @@ export const TimelineItemName: React.FC<{
 			whiteSpace: 'nowrap',
 			textOverflow: 'ellipsis',
 			overflow: 'hidden',
-			color: selected ? TIMELINE_SELECTED_LABEL_TEXT : LIGHT_COLOR,
+			color: getTimelineColor(selected, false),
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 			textDecoration: hoverEffect ? 'underline' : 'none',

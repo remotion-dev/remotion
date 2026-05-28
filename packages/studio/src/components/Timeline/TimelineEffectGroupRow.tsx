@@ -18,8 +18,8 @@ import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
+	getTimelineColor,
 	getTimelineSelectedLabelStyle,
-	TIMELINE_SELECTED_LABEL_TEXT,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 
@@ -190,7 +190,7 @@ export const TimelineEffectGroupRow: React.FC<{
 			...getTimelineSelectedLabelStyle(selection.selected, true),
 			alignSelf: 'stretch',
 			alignItems: 'center',
-			color: selection.selected ? TIMELINE_SELECTED_LABEL_TEXT : rowLabel.color,
+			color: getTimelineColor(selection.selected, true),
 			display: 'flex',
 			flex: 1,
 			minWidth: 0,
