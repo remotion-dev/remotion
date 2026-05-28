@@ -32,7 +32,7 @@ const TimelineTracksInner: React.FC<{
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewServerConnected = previewServerState.type === 'connected';
-	const {isSelected} = useTimelineSelection();
+	const {isSelected, containsSelection} = useTimelineSelection();
 
 	const timelineStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -50,7 +50,8 @@ const TimelineTracksInner: React.FC<{
 						track.nodePathInfo !== null && getIsExpanded(track.nodePathInfo);
 					const rowSelected =
 						track.nodePathInfo !== null &&
-						isSelected({type: 'row', nodePathInfo: track.nodePathInfo});
+						(isSelected({type: 'row', nodePathInfo: track.nodePathInfo}) ||
+							containsSelection(track.nodePathInfo));
 
 					return (
 						<div key={track.sequence.id}>

@@ -360,6 +360,7 @@ export const TimelineListItem: React.FC<{
 				selectable={false}
 				onSelect={onSelect}
 				showSelectedBackground
+				containsSelection={containsSelection}
 			>
 				<div style={labelContainerStyle}>
 					<TimelineItemName

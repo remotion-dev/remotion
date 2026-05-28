@@ -105,6 +105,7 @@ export const TimelineExpandedRow: React.FC<{
 				selectable={selection.selectable}
 				onSelect={selection.onSelect}
 				showSelectedBackground
+				containsSelection={false}
 			>
 				<span style={labelStyle}>{node.label}</span>
 			</TimelineRowChrome>
@@ -154,6 +155,7 @@ export const TimelineExpandedRow: React.FC<{
 			selectable={selection.selectable}
 			onSelect={selection.onSelect}
 			showSelectedBackground
+			containsSelection={false}
 		>
 			<span style={labelStyle}>{node.label}</span>
 		</TimelineRowChrome>

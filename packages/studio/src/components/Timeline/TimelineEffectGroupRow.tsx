@@ -236,6 +236,7 @@ export const TimelineEffectGroupRow: React.FC<{
 			selectable={selection.selectable}
 			onSelect={selection.onSelect}
 			showSelectedBackground
+			containsSelection={false}
 		>
 			<span
 				onPointerEnter={() => setLabelHovered(true)}
