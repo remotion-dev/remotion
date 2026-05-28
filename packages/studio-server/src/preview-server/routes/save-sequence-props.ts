@@ -5,7 +5,6 @@ import type {
 	SaveSequencePropsResponse,
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
-import type {CanUpdateSequencePropStatus} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {updateSequenceProps} from '../../codemods/update-sequence-props/update-sequence-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
@@ -17,62 +16,10 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {computeSequencePropsOnlyStatus} from './can-update-sequence-props';
+import {computeSequencePropsStatusFromContent} from './can-update-sequence-props';
 import {formatPropChange} from './log-updates/format-prop-change';
 import {logUpdate, normalizeQuotes} from './log-updates/log-update';
 import {withSavePropsLock} from './save-props-mutex';
-
-type KeyframedStatus = Extract<
-	CanUpdateSequencePropStatus,
-	{canUpdate: false; reason: 'keyframed'}
->;
-
-const getLegacyComputedKeyframes = (
-	status: CanUpdateSequencePropStatus,
-): KeyframedStatus['keyframes'] | null => {
-	if (status.canUpdate || status.reason !== 'computed') {
-		return null;
-	}
-
-	const keyframes = (status as unknown as {keyframes?: unknown}).keyframes;
-	if (!Array.isArray(keyframes)) {
-		return null;
-	}
-
-	if (
-		!keyframes.every(
-			(keyframe) =>
-				typeof keyframe === 'object' &&
-				keyframe !== null &&
-				'frame' in keyframe &&
-				typeof keyframe.frame === 'number' &&
-				'value' in keyframe,
-		)
-	) {
-		return null;
-	}
-
-	return keyframes as KeyframedStatus['keyframes'];
-};
-
-const normalizePropStatus = (
-	status: CanUpdateSequencePropStatus,
-): CanUpdateSequencePropStatus => {
-	const keyframes = getLegacyComputedKeyframes(status);
-	if (!keyframes) {
-		return status;
-	}
-
-	return {
-		canUpdate: false,
-		reason: 'keyframed',
-		keyframes,
-		easing: new Array(Math.max(0, keyframes.length - 1)).fill(
-			'linear',
-		) as KeyframedStatus['easing'],
-		clamping: {left: 'extend', right: 'extend'},
-	};
-};
 
 export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
@@ -171,20 +118,15 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		printUndoHint(logLevel);
 
-		const newStatus = computeSequencePropsOnlyStatus({
-			fileName,
+		const newStatus = computeSequencePropsStatusFromContent({
+			fileContents: output,
 			keys: getAllSchemaKeys(schema),
 			nodePath: nodePath.nodePath,
-			remotionRoot,
+			effects: [],
 		});
-
-		const normalizedProps: Record<string, CanUpdateSequencePropStatus> = {};
-		for (const [propKey, propStatus] of Object.entries(newStatus.props)) {
-			normalizedProps[propKey] = normalizePropStatus(propStatus);
-		}
 
 		return {
 			canUpdate: true,
-			props: normalizedProps,
+			props: newStatus.props,
 		};
 	});
