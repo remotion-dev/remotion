@@ -4,6 +4,7 @@ import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
@@ -14,8 +15,20 @@ import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
+import {
+	getTimelineSelectedLabelStyle,
+	TIMELINE_SELECTED_LABEL_TEXT,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 
-const fieldRowBase: React.CSSProperties = {
+const fieldRowBase: React.CSSProperties = {};
+
+const valueColumnStyle: React.CSSProperties = {
+	alignItems: 'center',
+	alignSelf: 'stretch',
+	display: 'flex',
+	flex: 1,
+	minWidth: 0,
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
@@ -215,7 +228,9 @@ export const TimelineEffectFieldRow: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly rowDepth: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
-}> = ({field, validatedLocation, rowDepth, nodePath}) => {
+	readonly nodePathInfo: SequenceNodePathInfo;
+}> = ({field, validatedLocation, rowDepth, nodePath, nodePathInfo}) => {
+	const selection = useTimelineRowSelection(nodePathInfo);
 	const style = useMemo(() => {
 		return {
 			...fieldRowBase,
@@ -224,8 +239,22 @@ export const TimelineEffectFieldRow: React.FC<{
 	}, [field.rowHeight]);
 
 	const labelRowStyle = useMemo(
-		() => getTimelineFieldLabelRowStyle(rowDepth),
-		[rowDepth],
+		(): React.CSSProperties => ({
+			...getTimelineFieldLabelRowStyle(rowDepth),
+			...getTimelineSelectedLabelStyle(selection.selected),
+			alignSelf: 'stretch',
+		}),
+		[rowDepth, selection.selected],
+	);
+
+	const fieldNameStyle = useMemo(
+		(): React.CSSProperties => ({
+			...fieldName,
+			color: selection.selected
+				? TIMELINE_SELECTED_LABEL_TEXT
+				: fieldName.color,
+		}),
+		[selection.selected],
 	);
 
 	return (
@@ -234,15 +263,21 @@ export const TimelineEffectFieldRow: React.FC<{
 			eye={<TimelineLayerEyeSpacer />}
 			arrow={<TimelineExpandArrowSpacer />}
 			style={style}
+			selected={selection.selected}
+			selectable={selection.selectable}
+			onSelect={selection.onSelect}
+			showSelectedBackground
 		>
 			<div style={labelRowStyle}>
-				<span style={fieldName}>{field.description ?? field.key}</span>
+				<span style={fieldNameStyle}>{field.description ?? field.key}</span>
 			</div>
-			<Value
-				field={field}
-				nodePath={nodePath}
-				validatedLocation={validatedLocation}
-			/>
+			<div style={valueColumnStyle}>
+				<Value
+					field={field}
+					nodePath={nodePath}
+					validatedLocation={validatedLocation}
+				/>
+			</div>
 		</TimelineRowChrome>
 	);
 };

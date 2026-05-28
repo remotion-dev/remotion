@@ -9,13 +9,16 @@ import {
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
+import {
+	getTimelineSelectedTrackHighlightStyle,
+	useTimelineSelection,
+} from './TimelineSelection';
 import {TimelineSequence} from './TimelineSequence';
 import {TimelineTimePadding} from './TimelineTimeIndicators';
 
 const content: React.CSSProperties = {
 	paddingLeft: TIMELINE_PADDING,
 	paddingRight: TIMELINE_PADDING,
-	paddingTop: 1,
 };
 
 const timelineContent: React.CSSProperties = {
@@ -29,6 +32,7 @@ const TimelineTracksInner: React.FC<{
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewServerConnected = previewServerState.type === 'connected';
+	const {isSelected} = useTimelineSelection();
 
 	const timelineStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -44,6 +48,9 @@ const TimelineTracksInner: React.FC<{
 				{timeline.map((track) => {
 					const isExpanded =
 						track.nodePathInfo !== null && getIsExpanded(track.nodePathInfo);
+					const rowSelected =
+						track.nodePathInfo !== null &&
+						isSelected({type: 'row', nodePathInfo: track.nodePathInfo});
 
 					return (
 						<div key={track.sequence.id}>
@@ -51,8 +58,12 @@ const TimelineTracksInner: React.FC<{
 								style={{
 									height: getTimelineLayerHeight(track.sequence.type),
 									marginBottom: TIMELINE_ITEM_BORDER_BOTTOM,
+									position: 'relative',
 								}}
 							>
+								{rowSelected ? (
+									<div style={getTimelineSelectedTrackHighlightStyle()} />
+								) : null}
 								<TimelineSequence s={track.sequence} />
 							</div>
 							{isExpanded && track.nodePathInfo && previewServerConnected ? (

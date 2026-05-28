@@ -1,4 +1,3 @@
-import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
 import React, {createContext, useCallback, useMemo, useState} from 'react';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
@@ -8,13 +7,7 @@ import {
 	persistBooleanMap,
 	toggleBooleanMapKey,
 } from '../helpers/persist-boolean-map';
-
-const nodePathInfoToExpandedKey = (info: SequenceNodePathInfo): string =>
-	[
-		stringifySequenceExpandedRowKey(info.sequenceSubscriptionKey),
-		info.auxiliaryKeys.join('.'),
-		info.index,
-	].join('.');
+import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
 
 const SESSION_STORAGE_KEY = 'remotion.editor.expandedTracks';
 
@@ -61,7 +54,7 @@ export const ExpandedTracksProvider: React.FC<{
 
 	const toggleTrack = useCallback((nodePathInfo: SequenceNodePathInfo) => {
 		setExpandedTracks((prev) => {
-			const key = nodePathInfoToExpandedKey(nodePathInfo);
+			const key = timelineNodePathInfoToKey(nodePathInfo);
 			const next = toggleBooleanMapKey(prev, key);
 			persistBooleanMap(SESSION_STORAGE_KEY, next);
 			return next;
@@ -93,7 +86,7 @@ export const ExpandedTracksProvider: React.FC<{
 	const getterValue = useMemo(
 		(): ExpandedTracksGetterContextValue => ({
 			getIsExpanded: (nodePathInfo) =>
-				expandedTracks[nodePathInfoToExpandedKey(nodePathInfo)] ?? false,
+				expandedTracks[timelineNodePathInfoToKey(nodePathInfo)] ?? false,
 		}),
 		[expandedTracks],
 	);

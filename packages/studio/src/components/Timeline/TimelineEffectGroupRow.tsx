@@ -17,6 +17,11 @@ import {saveEffectProp} from './save-effect-prop';
 import {TimelineExpandArrowButton} from './TimelineExpandArrowButton';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
+import {
+	getTimelineSelectedLabelStyle,
+	TIMELINE_SELECTED_LABEL_TEXT,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
@@ -52,6 +57,7 @@ export const TimelineEffectGroupRow: React.FC<{
 	const previewConnected = previewServerState.type === 'connected';
 	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
+	const selection = useTimelineRowSelection(nodePathInfo);
 
 	const effectStatus = useMemo(
 		() =>
@@ -173,7 +179,6 @@ export const TimelineEffectGroupRow: React.FC<{
 	const rowStyle = useMemo(
 		(): React.CSSProperties => ({
 			height: TREE_GROUP_ROW_HEIGHT,
-			paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 		}),
 		[],
 	);
@@ -182,11 +187,19 @@ export const TimelineEffectGroupRow: React.FC<{
 		const hoverEffect = labelHovered && documentationLink !== null;
 		return {
 			...rowLabel,
+			...getTimelineSelectedLabelStyle(selection.selected),
+			alignSelf: 'stretch',
+			alignItems: 'center',
+			color: selection.selected ? TIMELINE_SELECTED_LABEL_TEXT : rowLabel.color,
+			display: 'flex',
+			flex: 1,
+			minWidth: 0,
+			paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 			textDecoration: hoverEffect ? 'underline' : 'none',
 			textUnderlineOffset: 2,
 			cursor: hoverEffect ? 'pointer' : undefined,
 		};
-	}, [documentationLink, labelHovered]);
+	}, [documentationLink, labelHovered, selection.selected]);
 
 	const onClickLabel = useCallback(() => {
 		if (documentationLink === null) {
@@ -219,6 +232,10 @@ export const TimelineEffectGroupRow: React.FC<{
 				/>
 			}
 			style={rowStyle}
+			selected={selection.selected}
+			selectable={selection.selectable}
+			onSelect={selection.onSelect}
+			showSelectedBackground
 		>
 			<span
 				onPointerEnter={() => setLabelHovered(true)}
@@ -235,7 +252,12 @@ export const TimelineEffectGroupRow: React.FC<{
 	);
 
 	return previewConnected ? (
-		<ContextMenu values={contextMenuValues}>{row}</ContextMenu>
+		<ContextMenu
+			values={contextMenuValues}
+			onOpen={selection.selectable ? selection.onSelect : null}
+		>
+			{row}
+		</ContextMenu>
 	) : (
 		row
 	);

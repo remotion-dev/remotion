@@ -24,8 +24,8 @@ const expandedSectionBase: React.CSSProperties = {
 };
 
 const separator: React.CSSProperties = {
-	height: 1,
-	backgroundColor: TIMELINE_TRACK_SEPARATOR,
+	height: 0,
+	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 };
 
 export const TimelineExpandedSection: React.FC<{
