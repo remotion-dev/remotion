@@ -140,7 +140,7 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 	return (
 		<div
 			style={{
-				height: expandedHeight + TIMELINE_ITEM_BORDER_BOTTOM,
+				height: expandedHeight,
 			}}
 		>
 			<div style={{height: expandedHeight}}>

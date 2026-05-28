@@ -13,7 +13,7 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 
-export const TIMELINE_SELECTED_BACKGROUND = 'rgba(255, 255, 255, 0.1)';
+export const TIMELINE_SELECTED_BACKGROUND = '#3B3F42';
 export const TIMELINE_SELECTED_LABEL_BACKGROUND = '#B0B0B0';
 export const TIMELINE_SELECTED_LABEL_TEXT = 'black';
 export const TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING = 2;
