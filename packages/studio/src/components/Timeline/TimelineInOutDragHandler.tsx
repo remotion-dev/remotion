@@ -12,7 +12,6 @@ import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,
 } from '../../state/in-out';
-import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {ContextMenu} from '../ContextMenu';
 import {
@@ -31,52 +30,19 @@ import {
 } from './TimelineInOutPointerHandle';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
-const container: React.CSSProperties = {
-	userSelect: 'none',
-	WebkitUserSelect: 'none',
-	position: 'absolute',
-	height: '100%',
-	top: 0,
-};
-
-const style: React.CSSProperties = {
-	width: '100%',
-	height: '100%',
-	userSelect: 'none',
-	WebkitUserSelect: 'none',
-};
-
 const getClientXWithScroll = (x: number) => {
 	return x + (scrollableRef.current?.scrollLeft as number);
 };
 
 export const TimelineInOutDragHandler: React.FC = () => {
 	const video = Internals.useUnsafeVideoConfig();
-
-	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const {canvasContent} = useContext(Internals.CompositionManager);
-
-	const containerStyle: React.CSSProperties = useMemo(() => {
-		if (!canvasContent || canvasContent.type !== 'composition') {
-			return {};
-		}
-
-		const zoom = zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
-		return {
-			...container,
-			width: 100 * zoom + '%',
-		};
-	}, [canvasContent, zoomMap]);
 
 	if (!canvasContent || canvasContent.type !== 'composition') {
 		return null;
 	}
 
-	return (
-		<div style={containerStyle}>
-			{video ? <TimelineInOutDragHandlerInnerMemo /> : null}
-		</div>
-	);
+	return video ? <TimelineInOutDragHandlerInnerMemo /> : null;
 };
 
 const TimelineInOutDragHandlerInner: React.FC = () => {
@@ -124,7 +90,7 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 
-	const onPointerDown = useCallback(
+	const onInPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button !== 0) {
 				return;
@@ -138,39 +104,58 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 				return;
 			}
 
+			if (inFrame === null) {
+				throw new Error('expected in frame');
+			}
+
+			e.stopPropagation();
+
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
 
-			if ((e.target as Node) === inPointerHandle.current) {
-				if (inFrame === null) {
-					throw new Error('expected outframe');
-				}
+			const inMarker = get(inFrame);
+			const outMarker = outFrame === null ? Infinity : get(outFrame - 1);
+			forceSpecificCursor('ew-resize');
+			setInOutDragging({
+				dragging: 'in',
+				initialOffset: getClientXWithScroll(e.clientX),
+				boundaries: [-Infinity, outMarker - inMarker],
+			});
+		},
+		[isHighestContext, videoConfig, inFrame, get, outFrame],
+	);
 
-				const inMarker = get(inFrame);
-				const outMarker = outFrame === null ? Infinity : get(outFrame - 1);
-				forceSpecificCursor('ew-resize');
-				setInOutDragging({
-					dragging: 'in',
-					initialOffset: getClientXWithScroll(e.clientX),
-					boundaries: [-Infinity, outMarker - inMarker],
-				});
+	const onOutPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (e.button !== 0) {
 				return;
 			}
 
-			if ((e.target as Node) === outPointerHandle.current) {
-				if (outFrame === null) {
-					throw new Error('expected outframe');
-				}
-
-				const outMarker = get(outFrame);
-				const inMarker = inFrame === null ? -Infinity : get(inFrame + 1);
-				forceSpecificCursor('ew-resize');
-				setInOutDragging({
-					dragging: 'out',
-					initialOffset: getClientXWithScroll(e.clientX),
-					boundaries: [inMarker - outMarker, Infinity],
-				});
+			if (!isHighestContext) {
+				return;
 			}
+
+			if (!videoConfig) {
+				return;
+			}
+
+			if (outFrame === null) {
+				throw new Error('expected out frame');
+			}
+
+			e.stopPropagation();
+
+			document.body.style.userSelect = 'none';
+			document.body.style.webkitUserSelect = 'none';
+
+			const outMarker = get(outFrame);
+			const inMarker = inFrame === null ? -Infinity : get(inFrame + 1);
+			forceSpecificCursor('ew-resize');
+			setInOutDragging({
+				dragging: 'out',
+				initialOffset: getClientXWithScroll(e.clientX),
+				boundaries: [inMarker - outMarker, Infinity],
+			});
 		},
 		[isHighestContext, videoConfig, inFrame, get, outFrame],
 	);
@@ -378,13 +363,14 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 	}, [setInAndOutFrames, videoConfig.id]);
 
 	return (
-		<div style={style} onPointerDown={onPointerDown}>
+		<>
 			{inFrame !== null && (
 				<ContextMenu values={inContextMenu} onOpen={null}>
 					<TimelineInOutPointerHandle
 						type="in"
 						atFrame={inFrame}
 						dragging={inOutDragging.dragging === 'in'}
+						onPointerDown={onInPointerDown}
 					/>
 				</ContextMenu>
 			)}
@@ -394,10 +380,11 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 						type="out"
 						dragging={inOutDragging.dragging === 'out'}
 						atFrame={outFrame}
+						onPointerDown={onOutPointerDown}
 					/>
 				</ContextMenu>
 			)}
-		</div>
+		</>
 	);
 };
 
