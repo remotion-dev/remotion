@@ -279,6 +279,7 @@ const sidebars: SidebarsConfig = {
 				'effects/halftone',
 				'effects/halftone-linear-gradient',
 				'effects/hue',
+				'effects/dot-grid',
 				'effects/invert',
 				'effects/mirror',
 				'effects/noise',

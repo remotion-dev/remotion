@@ -173,6 +173,13 @@ const categories: {
 				description: 'Linear dot size gradient',
 			},
 			{
+				link: '/docs/effects/dot-grid',
+				preview: '/img/effects-dot-grid-preview.png',
+				alt: 'dot grid effect preview',
+				name: 'dotGrid()',
+				description: 'Source-color dot mask effect',
+			},
+			{
 				link: '/docs/effects/noise',
 				preview: '/img/effects-noise-preview.jpg',
 				alt: 'noise effect preview',

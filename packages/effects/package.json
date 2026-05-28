@@ -92,6 +92,11 @@
 			"module": "./dist/esm/invert.mjs",
 			"import": "./dist/esm/invert.mjs"
 		},
+		"./dot-grid": {
+			"types": "./dist/dot-grid.d.ts",
+			"module": "./dist/esm/dot-grid.mjs",
+			"import": "./dist/esm/dot-grid.mjs"
+		},
 		"./mirror": {
 			"types": "./dist/mirror.d.ts",
 			"module": "./dist/esm/mirror.mjs",
@@ -181,6 +186,9 @@
 			],
 			"invert": [
 				"dist/invert.d.ts"
+			],
+			"dot-grid": [
+				"dist/dot-grid.d.ts"
 			],
 			"mirror": [
 				"dist/mirror.d.ts"
