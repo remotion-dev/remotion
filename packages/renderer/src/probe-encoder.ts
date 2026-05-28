@@ -1,10 +1,13 @@
-import {execSync} from 'node:child_process';
+import {execFileSync} from 'node:child_process';
 import path from 'path';
+import type {Codec} from './codec';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {getExplicitEnv} from './compositor/get-explicit-env';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
+import {getCodecName} from './get-codec-name';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
+import type {HardwareAccelerationOption} from './options/hardware-acceleration';
 
 /**
  * Probes FFmpeg to check if a specific encoder is available.
@@ -31,7 +34,7 @@ export const probeEncoderAvailability = ({
 		makeFileExecutableIfItIsNot(executablePath);
 
 		const cwd = path.dirname(executablePath);
-		const result = execSync(`"${executablePath}" -encoders`, {
+		const result = execFileSync(executablePath, ['-encoders'], {
 			encoding: 'utf-8',
 			env: getExplicitEnv(cwd),
 			stdio: ['pipe', 'pipe', 'pipe'],
@@ -56,10 +59,6 @@ export const probeEncoderAvailability = ({
 		return false;
 	}
 };
-
-import type {Codec} from './codec';
-import {getCodecName} from './get-codec-name';
-import type {HardwareAccelerationOption} from './options/hardware-acceleration';
 
 /**
  * Resolves the effective hardware acceleration setting by probing FFmpeg

@@ -56,7 +56,7 @@ await renderMedia({
 
 ### In the CLI
 
-Use the [`--hardware-acceleration`](/docs/cli/render#--hardware-acceleration) option in the `npx remotion studio` command.
+Use the [`--hardware-acceleration`](/docs/cli/render#--hardware-acceleration) option in the `npx remotion render` command.
 
 ```bash
 npx remotion render MyComp --codec prores --hardware-acceleration if-possible
@@ -86,9 +86,11 @@ To use hardware-accelerated encoding on Linux and Windows, you need:
 
 - An NVIDIA GPU (GeForce, Quadro, or Tesla)
 - NVIDIA drivers installed (version 525+ recommended)
-- FFmpeg compiled with NVENC support (the Remotion-bundled FFmpeg includes it)
+- FFmpeg compiled with `h264_nvenc` or `hevc_nvenc` encoder support
 
-No additional configuration is needed. Set `--hardware-acceleration if-possible` and Remotion will automatically use NVENC if available.
+The FFmpeg binary bundled with Remotion does not include NVENC support. To use NVENC, point Remotion to an FFmpeg build that includes it using [`--binaries-directory`](/docs/cli/render#--binaries-directory) or [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory).
+
+Set `--hardware-acceleration if-possible` and Remotion will use NVENC if the configured FFmpeg build supports it.
 
 Note that NVENC encoding is only available for H.264 and H.265 codecs. Other codecs will fall back to software encoding.
 
@@ -110,6 +112,7 @@ If the render is using hardware acceleration, you will see a log message like th
 ```
 Encoder: prores_videotoolbox, hardware accelerated: true
 Encoder: h264_nvenc, hardware accelerated: true
+```
 
 Don't rely on the exact wording of the log message to determine if hardware acceleration is being used.
 

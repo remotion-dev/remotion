@@ -88,7 +88,7 @@ describe('getCodecName - macOS VideoToolbox (existing behavior)', () => {
 	});
 });
 
-describe('getCodecName - NVENC on Linux (NEW - will fail)', () => {
+describe('getCodecName - NVENC on Linux', () => {
 	afterEach(restorePlatform);
 
 	test('h264 + linux + hwaccel:if-possible + no CRF', () => {
@@ -124,7 +124,7 @@ describe('getCodecName - NVENC on Linux (NEW - will fail)', () => {
 	});
 });
 
-describe('getCodecName - NVENC on Windows (NEW - will fail)', () => {
+describe('getCodecName - NVENC on Windows', () => {
 	afterEach(restorePlatform);
 
 	test('h264 + win32 + hwaccel:if-possible + no CRF', () => {
