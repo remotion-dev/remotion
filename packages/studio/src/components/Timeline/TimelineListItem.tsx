@@ -18,21 +18,30 @@ import {
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {saveSequenceProp} from './save-sequence-prop';
-import {getTimelineRowLeftChromeWidth} from './timeline-row-layout';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
+import {TimelineItemName} from './TimelineItemName';
+import {TimelineItemStack} from './TimelineItemStack';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
-	TIMELINE_SELECTED_BACKGROUND,
+	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
-import {TimelineStack} from './TimelineStack';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
+
+const labelContainerStyle: React.CSSProperties = {
+	alignItems: 'center',
+	alignSelf: 'stretch',
+	display: 'flex',
+	flexDirection: 'row',
+	minWidth: 0,
+	gap: 4,
+};
 
 export const TimelineListItem: React.FC<{
 	readonly sequence: TSequence;
@@ -49,6 +58,7 @@ export const TimelineListItem: React.FC<{
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const {onSelect, selectable, selected} =
 		useTimelineRowSelection(nodePathInfo);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 
 	const originalLocation = useResolveStackAndReactToChange(sequence.getStack);
 
@@ -267,14 +277,13 @@ export const TimelineListItem: React.FC<{
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
-			backgroundColor: selected ? TIMELINE_SELECTED_BACKGROUND : undefined,
 			height:
 				getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
 			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 			display: 'flex',
 			flexDirection: 'column',
 		};
-	}, [selected, sequence.type]);
+	}, [sequence.type]);
 
 	const onSelectPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -295,16 +304,6 @@ export const TimelineListItem: React.FC<{
 			flexShrink: 0,
 		};
 	}, []);
-
-	const mediaInfoStyle: React.CSSProperties = useMemo(() => {
-		return {
-			paddingLeft: getTimelineRowLeftChromeWidth(nestedDepth),
-			paddingRight: 8,
-			marginTop: -6,
-			overflow: 'hidden',
-			minHeight: 0,
-		};
-	}, [nestedDepth]);
 
 	const mediaSrc =
 		sequence.type === 'audio' ||
@@ -360,20 +359,21 @@ export const TimelineListItem: React.FC<{
 				selected={selected}
 				selectable={false}
 				onSelect={onSelect}
-				showSelectedBackground={false}
+				showSelectedBackground
 			>
-				<TimelineStack
-					sequence={sequence}
-					isCompact={isCompact}
-					originalLocation={originalLocation}
-					selected={selected}
-				/>
-			</TimelineRowChrome>
-			{mediaSrc ? (
-				<div style={mediaInfoStyle}>
-					<TimelineMediaInfo src={mediaSrc} />
+				<div style={labelContainerStyle}>
+					<TimelineItemName
+						sequence={sequence}
+						selected={selected}
+						containsSelection={containsSelection}
+					/>
+					{mediaSrc ? <TimelineMediaInfo src={mediaSrc} /> : null}
+					<TimelineItemStack
+						isCompact={isCompact}
+						originalLocation={originalLocation}
+					/>
 				</div>
-			) : null}
+			</TimelineRowChrome>
 		</div>
 	);
 

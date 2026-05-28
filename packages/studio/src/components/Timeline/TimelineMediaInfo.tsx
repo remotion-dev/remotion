@@ -3,17 +3,6 @@ import {Internals} from 'remotion';
 import {LIGHT_TEXT, VERY_LIGHT_TEXT} from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
 
-const containerStyle: React.CSSProperties = {
-	fontFamily: 'Arial, Helvetica, sans-serif',
-	fontSize: 12,
-	lineHeight: 1,
-	overflow: 'hidden',
-	whiteSpace: 'nowrap',
-	textOverflow: 'ellipsis',
-	minWidth: 0,
-	marginTop: 2,
-};
-
 const lineStyle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 	overflow: 'hidden',
@@ -21,8 +10,7 @@ const lineStyle: React.CSSProperties = {
 	minWidth: 0,
 	fontSize: 12,
 	color: VERY_LIGHT_TEXT,
-	lineHeight: 1.3,
-	paddingLeft: 2, // to compensate for selection padding
+	display: 'inline-block',
 };
 
 type LinkInfo =
@@ -123,16 +111,14 @@ export const TimelineMediaInfo: React.FC<{
 		useAssetLink(src);
 
 	return (
-		<div style={containerStyle}>
-			<div
-				style={fileNameStyle}
-				title={linkInfo ? linkInfo.title : fileName}
-				onClick={linkInfo ? onClick : undefined}
-				onPointerEnter={linkInfo ? onPointerEnter : undefined}
-				onPointerLeave={linkInfo ? onPointerLeave : undefined}
-			>
-				{fileName}
-			</div>
+		<div
+			style={fileNameStyle}
+			title={linkInfo ? linkInfo.title : fileName}
+			onClick={linkInfo ? onClick : undefined}
+			onPointerEnter={linkInfo ? onPointerEnter : undefined}
+			onPointerLeave={linkInfo ? onPointerLeave : undefined}
+		>
+			{fileName}
 		</div>
 	);
 };

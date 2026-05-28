@@ -13,8 +13,8 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
-import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {saveSequenceProp} from './save-sequence-prop';
+import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
@@ -26,15 +26,6 @@ import {
 import {useTimelineRowSelection} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {};
-
-const valueColumnStyle: React.CSSProperties = {
-	alignItems: 'center',
-	alignSelf: 'stretch',
-	display: 'flex',
-	flex: 1,
-	minWidth: 0,
-	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
-};
 
 const Value: React.FC<{
 	readonly field: SchemaFieldInfo;
@@ -198,7 +189,7 @@ export const TimelineFieldRow: React.FC<{
 				label={field.description ?? field.key}
 			/>
 			{codeValue.canUpdate ? (
-				<div style={valueColumnStyle}>
+				<div style={timelineFieldValueColumnStyle}>
 					<Value
 						field={field}
 						nodePath={nodePath}
@@ -208,7 +199,7 @@ export const TimelineFieldRow: React.FC<{
 					/>
 				</div>
 			) : (
-				<div style={valueColumnStyle}>
+				<div style={timelineFieldValueColumnStyle}>
 					<TimelineNonEditableStatus propStatus={codeValue} />
 				</div>
 			)}

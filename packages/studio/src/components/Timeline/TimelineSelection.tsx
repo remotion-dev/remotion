@@ -1,3 +1,4 @@
+import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
 import React, {
 	createContext,
 	useCallback,
@@ -54,12 +55,14 @@ type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
 	readonly isSelected: (item: TimelineSelection) => boolean;
 	readonly selectItem: (item: TimelineSelection) => void;
+	readonly containsSelection: (nodePathInfo: SequenceNodePathInfo) => boolean;
 };
 
 const TimelineSelectionContext = createContext<TimelineSelectionContextValue>({
 	canSelect: false,
 	isSelected: () => false,
 	selectItem: () => undefined,
+	containsSelection: () => false,
 });
 
 const getTimelineSelectionKey = (item: TimelineSelection): string => {
@@ -110,13 +113,51 @@ export const TimelineSelectionProvider: React.FC<{
 		[canSelect],
 	);
 
+	const containsSelection = useCallback(
+		(nodePathInfo: SequenceNodePathInfo) => {
+			if (selectedItem === null) {
+				return false;
+			}
+
+			const selectedNodePath = selectedItem.nodePathInfo;
+
+			if (
+				stringifySequenceExpandedRowKey(
+					selectedNodePath.sequenceSubscriptionKey,
+				) !==
+				stringifySequenceExpandedRowKey(nodePathInfo.sequenceSubscriptionKey)
+			) {
+				return false;
+			}
+
+			if (selectedNodePath.index !== nodePathInfo.index) {
+				return false;
+			}
+
+			// Selection must be strictly deeper than this node (i.e. a descendant),
+			// not the same row.
+			if (
+				selectedNodePath.auxiliaryKeys.length <=
+				nodePathInfo.auxiliaryKeys.length
+			) {
+				return false;
+			}
+
+			return nodePathInfo.auxiliaryKeys.every(
+				(key, i) => selectedNodePath.auxiliaryKeys[i] === key,
+			);
+		},
+		[selectedItem],
+	);
+
 	const value = useMemo(
 		(): TimelineSelectionContextValue => ({
 			canSelect,
 			isSelected,
 			selectItem,
+			containsSelection,
 		}),
-		[canSelect, isSelected, selectItem],
+		[canSelect, isSelected, selectItem, containsSelection],
 	);
 
 	return (
@@ -155,4 +196,15 @@ export const useTimelineRowSelection = (
 		selectable: canSelect && selectionItem !== null,
 		selected,
 	};
+};
+
+export const useTimelineRowContainsSelection = (
+	nodePathInfo: SequenceNodePathInfo | null,
+): boolean => {
+	const {containsSelection} = useTimelineSelection();
+	if (nodePathInfo === null) {
+		return false;
+	}
+
+	return containsSelection(nodePathInfo);
 };

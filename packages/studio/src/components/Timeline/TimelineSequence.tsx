@@ -6,7 +6,10 @@ import {
 	SEQUENCE_BORDER_WIDTH,
 	getTimelineSequenceLayout,
 } from '../../helpers/get-timeline-sequence-layout';
-import {getTimelineLayerHeight} from '../../helpers/timeline-layout';
+import {
+	getTimelineLayerHeight,
+	TIMELINE_LAYER_HEIGHT_AUDIO,
+} from '../../helpers/timeline-layout';
 import {useMaxMediaDuration} from '../../helpers/use-max-media-duration';
 import {AudioWaveform} from '../AudioWaveform';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
@@ -212,6 +215,7 @@ const TimelineSequenceInner: React.FC<{
 			{s.type === 'audio' ? (
 				<AudioWaveform
 					src={s.src}
+					height={TIMELINE_LAYER_HEIGHT_AUDIO}
 					doesVolumeChange={s.doesVolumeChange}
 					visualizationWidth={width}
 					startFrom={s.startMediaFrom}

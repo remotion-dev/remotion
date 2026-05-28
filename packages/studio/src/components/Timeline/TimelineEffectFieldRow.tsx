@@ -6,10 +6,10 @@ import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-sou
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
-import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {enqueueSavePropChange} from './save-prop-queue';
+import {timelineFieldValueColumnStyle} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
@@ -18,15 +18,6 @@ import {TimelineFieldValue, UnsupportedStatus} from './TimelineSchemaField';
 import {useTimelineRowSelection} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {};
-
-const valueColumnStyle: React.CSSProperties = {
-	alignItems: 'center',
-	alignSelf: 'stretch',
-	display: 'flex',
-	flex: 1,
-	minWidth: 0,
-	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
-};
 
 const Value: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
@@ -244,7 +235,7 @@ export const TimelineEffectFieldRow: React.FC<{
 				selected={selection.selected}
 				label={field.description ?? field.key}
 			/>
-			<div style={valueColumnStyle}>
+			<div style={timelineFieldValueColumnStyle}>
 				<Value
 					field={field}
 					nodePath={nodePath}

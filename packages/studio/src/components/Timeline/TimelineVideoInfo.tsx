@@ -314,7 +314,6 @@ export const TimelineVideoInfo: React.FC<{
 
 	const audioStyle: React.CSSProperties = useMemo(() => {
 		return {
-			height: TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT,
 			width: audioWidth,
 			position: 'relative',
 			marginLeft: premountWidth,
@@ -327,6 +326,7 @@ export const TimelineVideoInfo: React.FC<{
 			<div style={audioStyle}>
 				<AudioWaveform
 					src={src}
+					height={TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT}
 					visualizationWidth={audioWidth}
 					startFrom={trimBefore}
 					durationInFrames={durationInFrames}
