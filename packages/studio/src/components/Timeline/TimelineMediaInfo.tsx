@@ -1,10 +1,7 @@
-import {getImageDimensions} from '@remotion/media-utils';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {LIGHT_TEXT, VERY_LIGHT_TEXT} from '../../helpers/colors';
-import {formatMediaDuration} from '../../helpers/format-media-duration';
 import {pushUrl} from '../../helpers/url-state';
-import {useMediaMetadata} from '../../helpers/use-media-metadata';
 
 const containerStyle: React.CSSProperties = {
 	fontFamily: 'Arial, Helvetica, sans-serif',
@@ -25,6 +22,7 @@ const lineStyle: React.CSSProperties = {
 	fontSize: 12,
 	color: VERY_LIGHT_TEXT,
 	lineHeight: 1.3,
+	paddingLeft: 2, // to compensate for selection padding
 };
 
 type LinkInfo =
@@ -117,79 +115,12 @@ const useAssetLink = (src: string) => {
 
 export const TimelineMediaInfo: React.FC<{
 	readonly src: string;
-	readonly type: 'audio' | 'video' | 'image';
-}> = ({src, type}) => {
+}> = ({src}) => {
 	// Images aren't supported by mediabunny, so don't even try.
-	const metadata = useMediaMetadata(type === 'image' ? null : src);
 	const fileName = useMemo(() => Internals.getAssetDisplayName(src), [src]);
 
 	const {linkInfo, onClick, onPointerEnter, onPointerLeave, fileNameStyle} =
 		useAssetLink(src);
-
-	const [imageDimensions, setImageDimensions] = useState<{
-		width: number;
-		height: number;
-	} | null>(null);
-
-	useEffect(() => {
-		if (type !== 'image') {
-			return;
-		}
-
-		let cancelled = false;
-		setImageDimensions(null);
-
-		getImageDimensions(src)
-			.then((dims) => {
-				if (cancelled) {
-					return;
-				}
-
-				setImageDimensions({width: dims.width, height: dims.height});
-			})
-			.catch(() => {
-				// Non-image or load failure — ignore silently.
-			});
-
-		return () => {
-			cancelled = true;
-		};
-	}, [src, type]);
-
-	const detailsLine = useMemo(() => {
-		if (type === 'image') {
-			if (!imageDimensions) {
-				return null;
-			}
-
-			return `${imageDimensions.width}x${imageDimensions.height}`;
-		}
-
-		if (!metadata) {
-			return null;
-		}
-
-		const parts: string[] = [];
-		if (metadata.format) {
-			parts.push(metadata.format);
-		}
-
-		if (type === 'video' && metadata.videoCodec) {
-			parts.push(metadata.videoCodec);
-		}
-
-		if (metadata.audioCodec) {
-			parts.push(metadata.audioCodec);
-		}
-
-		if (metadata.width !== null && metadata.height !== null) {
-			parts.push(`${metadata.width}x${metadata.height}`);
-		}
-
-		parts.push(formatMediaDuration(metadata.duration));
-
-		return parts.join(' · ');
-	}, [imageDimensions, metadata, type]);
 
 	return (
 		<div style={containerStyle}>
@@ -202,11 +133,6 @@ export const TimelineMediaInfo: React.FC<{
 			>
 				{fileName}
 			</div>
-			{detailsLine ? (
-				<div style={lineStyle} title={detailsLine}>
-					{detailsLine}
-				</div>
-			) : null}
 		</div>
 	);
 };

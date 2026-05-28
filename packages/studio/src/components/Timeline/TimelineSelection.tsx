@@ -20,17 +20,10 @@ export const TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING = 2;
 export const getTimelineSelectedLabelStyle = (
 	selected: boolean,
 ): CSSProperties => {
-	if (!selected) {
-		return {};
-	}
-
-	const padding = TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING;
 	return {
-		backgroundColor: TIMELINE_SELECTED_LABEL_BACKGROUND,
-		marginLeft: -padding,
-		marginRight: -padding,
-		paddingLeft: padding,
-		paddingRight: padding,
+		paddingLeft: TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING,
+		paddingRight: TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING,
+		...(selected ? {backgroundColor: TIMELINE_SELECTED_LABEL_BACKGROUND} : {}),
 	};
 };
 
@@ -44,7 +37,7 @@ export const getTimelineSelectedTrackHighlightStyle = (): CSSProperties => ({
 	top: 0,
 });
 
-export const SELECTION_ENABLED = false;
+export const SELECTION_ENABLED = true;
 
 export type TimelineSelection =
 	| {

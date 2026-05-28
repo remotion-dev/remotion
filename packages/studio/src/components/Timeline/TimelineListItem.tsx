@@ -371,10 +371,7 @@ export const TimelineListItem: React.FC<{
 			</TimelineRowChrome>
 			{mediaSrc ? (
 				<div style={mediaInfoStyle}>
-					<TimelineMediaInfo
-						src={mediaSrc}
-						type={sequence.type as 'audio' | 'video' | 'image'}
-					/>
+					<TimelineMediaInfo src={mediaSrc} />
 				</div>
 			) : null}
 		</div>
