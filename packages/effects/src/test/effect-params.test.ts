@@ -5,6 +5,7 @@ import {brightness} from '../brightness.js';
 import {chromaticAberration} from '../chromatic-aberration/index.js';
 import {contrast} from '../contrast.js';
 import {dotGrid} from '../dot-grid.js';
+import {dropShadow} from '../drop-shadow/index.js';
 import {duotone} from '../duotone.js';
 import {glow} from '../glow/index.js';
 import {grayscale} from '../grayscale.js';
@@ -41,6 +42,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(duotone().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/duotone',
+	);
+	expect(dropShadow().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/drop-shadow',
 	);
 	expect(glow().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/glow',
@@ -105,6 +109,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(brightness().definition.label).toBe('brightness()');
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(duotone().definition.label).toBe('duotone()');
+	expect(dropShadow().definition.label).toBe('dropShadow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
 	expect(halftone().definition.label).toBe('halftone()');
 	expect(halftoneLinearGradient().definition.label).toBe(
@@ -414,6 +419,78 @@ test('duotone() parameters produce distinct effect keys', () => {
 			customColors.effectKey,
 		]).size,
 	).toBe(3);
+});
+
+test('dropShadow() accepts default params', () => {
+	expect(() => dropShadow()).not.toThrow();
+});
+
+test('dropShadow() accepts valid params', () => {
+	expect(() =>
+		dropShadow({
+			radius: 24,
+			offsetX: -12,
+			offsetY: 16,
+			opacity: 0.75,
+			color: '#112233',
+		}),
+	).not.toThrow();
+});
+
+test('dropShadow() rejects non-finite radius', () => {
+	expect(() => dropShadow({radius: Number.NaN})).toThrow(
+		'"radius" must be a finite number',
+	);
+});
+
+test('dropShadow() rejects negative radius', () => {
+	expect(() => dropShadow({radius: -1})).toThrow('"radius" must be >= 0');
+});
+
+test('dropShadow() rejects non-finite offsetX', () => {
+	expect(() => dropShadow({offsetX: Number.NaN})).toThrow(
+		'"offsetX" must be a finite number',
+	);
+});
+
+test('dropShadow() rejects non-finite offsetY', () => {
+	expect(() => dropShadow({offsetY: Number.NaN})).toThrow(
+		'"offsetY" must be a finite number',
+	);
+});
+
+test('dropShadow() rejects opacity below range', () => {
+	expect(() => dropShadow({opacity: -0.1})).toThrow('"opacity" must be >= 0');
+});
+
+test('dropShadow() rejects opacity above range', () => {
+	expect(() => dropShadow({opacity: 1.1})).toThrow('"opacity" must be <= 1');
+});
+
+test('dropShadow() rejects empty color strings', () => {
+	expect(() => dropShadow({color: ''})).toThrow(
+		'"color" must be a non-empty string, but got ""',
+	);
+});
+
+test('dropShadow() parameters produce distinct effect keys', () => {
+	const defaultShadow = dropShadow();
+	const widerShadow = dropShadow({radius: 24});
+	const shiftedX = dropShadow({offsetX: 12});
+	const shiftedY = dropShadow({offsetY: 12});
+	const transparentShadow = dropShadow({opacity: 0.25});
+	const coloredShadow = dropShadow({color: '#112233'});
+
+	expect(
+		new Set([
+			defaultShadow.effectKey,
+			widerShadow.effectKey,
+			shiftedX.effectKey,
+			shiftedY.effectKey,
+			transparentShadow.effectKey,
+			coloredShadow.effectKey,
+		]).size,
+	).toBe(6);
 });
 
 test('glow() accepts default params', () => {

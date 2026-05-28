@@ -1764,6 +1764,15 @@ export const articles = [
 		slug: 'effects/contrast',
 	},
 	{
+		id: 'effects/drop-shadow',
+		title: 'dropShadow()',
+		relativePath: 'docs/effects/drop-shadow.mdx',
+		compId: 'articles-docs-effects-drop-shadow',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/drop-shadow',
+	},
+	{
 		id: 'effects/dot-grid',
 		title: 'dotGrid()',
 		relativePath: 'docs/effects/dot-grid.mdx',

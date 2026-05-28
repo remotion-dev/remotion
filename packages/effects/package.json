@@ -57,6 +57,11 @@
 			"module": "./dist/esm/contrast.mjs",
 			"import": "./dist/esm/contrast.mjs"
 		},
+		"./drop-shadow": {
+			"types": "./dist/drop-shadow.d.ts",
+			"module": "./dist/esm/drop-shadow.mjs",
+			"import": "./dist/esm/drop-shadow.mjs"
+		},
 		"./duotone": {
 			"types": "./dist/duotone.d.ts",
 			"module": "./dist/esm/duotone.mjs",
@@ -165,6 +170,9 @@
 			],
 			"contrast": [
 				"dist/contrast.d.ts"
+			],
+			"drop-shadow": [
+				"dist/drop-shadow.d.ts"
 			],
 			"duotone": [
 				"dist/duotone.d.ts"

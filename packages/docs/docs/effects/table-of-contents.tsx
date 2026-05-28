@@ -39,6 +39,13 @@ const categories: {
 				description: 'Two-color threshold effect',
 			},
 			{
+				link: '/docs/effects/drop-shadow',
+				preview: '/img/effects-drop-shadow-preview.png',
+				alt: 'drop shadow effect preview',
+				name: 'dropShadow()',
+				description: 'Blurred alpha shadow effect',
+			},
+			{
 				link: '/docs/effects/glow',
 				preview: '/img/effects-glow-preview.jpg',
 				alt: 'glow effect preview',
