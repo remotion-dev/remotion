@@ -1,9 +1,9 @@
-import {wave} from '@remotion/effects/wave';
+import {glow} from '@remotion/effects/glow';
 import React from 'react';
 import {HtmlInCanvas, useVideoConfig} from 'remotion';
 import {EffectsPreviewImage} from './effects-preview-image';
 
-export const EffectsWavePreview: React.FC = () => {
+export const EffectsGlowPreview: React.FC = () => {
 	const {width, height} = useVideoConfig();
 
 	return (
@@ -11,10 +11,11 @@ export const EffectsWavePreview: React.FC = () => {
 			width={width}
 			height={height}
 			effects={[
-				wave({
-					amplitude: 24,
-					wavelength: 220,
-					phase: 0.9,
+				glow({
+					radius: 24,
+					intensity: 1.5,
+					threshold: 0.35,
+					color: '#00d8ff',
 				}),
 			]}
 		>

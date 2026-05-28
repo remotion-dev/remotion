@@ -1,9 +1,9 @@
-import {wave} from '@remotion/effects/wave';
+import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
 import React from 'react';
 import {HtmlInCanvas, useVideoConfig} from 'remotion';
 import {EffectsPreviewImage} from './effects-preview-image';
 
-export const EffectsWavePreview: React.FC = () => {
+export const EffectsChromaticAberrationPreview: React.FC = () => {
 	const {width, height} = useVideoConfig();
 
 	return (
@@ -11,10 +11,9 @@ export const EffectsWavePreview: React.FC = () => {
 			width={width}
 			height={height}
 			effects={[
-				wave({
-					amplitude: 24,
-					wavelength: 220,
-					phase: 0.9,
+				chromaticAberration({
+					amount: 8,
+					angle: 0,
 				}),
 			]}
 		>

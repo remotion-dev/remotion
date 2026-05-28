@@ -1,9 +1,9 @@
-import {wave} from '@remotion/effects/wave';
+import {lightLeak} from '@remotion/light-leaks';
 import React from 'react';
 import {HtmlInCanvas, useVideoConfig} from 'remotion';
 import {EffectsPreviewImage} from './effects-preview-image';
 
-export const EffectsWavePreview: React.FC = () => {
+export const EffectsLightLeakPreview: React.FC = () => {
 	const {width, height} = useVideoConfig();
 
 	return (
@@ -11,10 +11,10 @@ export const EffectsWavePreview: React.FC = () => {
 			width={width}
 			height={height}
 			effects={[
-				wave({
-					amplitude: 24,
-					wavelength: 220,
-					phase: 0.9,
+				lightLeak({
+					seed: 3,
+					hueShift: 30,
+					progress: 0.5,
 				}),
 			]}
 		>

@@ -1,9 +1,9 @@
-import {wave} from '@remotion/effects/wave';
+import {barrelDistortion} from '@remotion/effects/barrel-distortion';
 import React from 'react';
 import {HtmlInCanvas, useVideoConfig} from 'remotion';
 import {EffectsPreviewImage} from './effects-preview-image';
 
-export const EffectsWavePreview: React.FC = () => {
+export const EffectsBarrelDistortionPreview: React.FC = () => {
 	const {width, height} = useVideoConfig();
 
 	return (
@@ -11,10 +11,8 @@ export const EffectsWavePreview: React.FC = () => {
 			width={width}
 			height={height}
 			effects={[
-				wave({
-					amplitude: 24,
-					wavelength: 220,
-					phase: 0.9,
+				barrelDistortion({
+					amount: 0.25,
 				}),
 			]}
 		>
