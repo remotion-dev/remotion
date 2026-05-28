@@ -37,6 +37,20 @@ export type RenderMediaOnVercelProgress =
 			overallProgress: number;
 	  };
 
+export type RenderProgress =
+	| {stage: 'starting'; overallProgress: number}
+	| RenderMediaOnVercelProgress
+	| {stage: 'uploading'; overallProgress: number}
+	| {
+			stage: 'done';
+			url: string;
+			size: number;
+			contentType: string;
+			overallProgress: number;
+	  }
+	| {stage: 'error'; message: string; overallProgress: number}
+	| {stage: 'expired'};
+
 export type RenderStillOnVercelProgress =
 	| {stage: 'opening-browser'; overallProgress: number}
 	| {stage: 'selecting-composition'; overallProgress: number};
@@ -48,16 +62,24 @@ export type {
 
 export type VercelBlobAccess = 'public' | 'private';
 
+export type VercelBlobUploadOptions = {
+	blobToken: string;
+	access: VercelBlobAccess;
+	blobPath?: string;
+};
+
 export type SandboxRenderMediaMessage =
-	| {stage: 'opening-browser'; overallProgress: number}
-	| {stage: 'selecting-composition'; overallProgress: number}
-	| {
-			stage: 'render-progress';
-			progress: RenderMediaProgress;
-			overallProgress: number;
-	  }
+	| RenderMediaOnVercelProgress
 	| {stage: 'render-complete'; overallProgress: number}
-	| {stage: 'done'; size: number; contentType: string; overallProgress: number};
+	| {stage: 'uploading'; overallProgress: number}
+	| {
+			stage: 'done';
+			size: number;
+			contentType: string;
+			overallProgress: number;
+			url?: string;
+	  }
+	| {stage: 'error'; message: string; overallProgress: number};
 
 export type SandboxRenderStillMessage =
 	| {type: 'opening-browser'}
