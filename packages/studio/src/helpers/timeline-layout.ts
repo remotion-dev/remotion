@@ -243,7 +243,7 @@ export const getExpandedTrackHeight = ({
 
 export const TIMELINE_LAYER_FILMSTRIP_HEIGHT = 26;
 // The waveform stripe rendered underneath the filmstrip in TimelineVideoInfo.
-export const TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT = 25;
+export const TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT = 17;
 export const TIMELINE_LAYER_HEIGHT_VIDEO =
 	2 + TIMELINE_LAYER_FILMSTRIP_HEIGHT + TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT;
 
