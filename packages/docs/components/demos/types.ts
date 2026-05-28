@@ -2076,7 +2076,7 @@ export const effectsScanlinesDemo: DemoType = {
 			min: 0,
 			max: 1,
 			step: 0.01,
-			default: 0.28,
+			default: 0.6,
 			optional: 'no',
 		},
 		{
@@ -2085,7 +2085,7 @@ export const effectsScanlinesDemo: DemoType = {
 			min: 0.1,
 			max: 40,
 			step: 0.1,
-			default: 4,
+			default: 8,
 			optional: 'no',
 		},
 		{
@@ -2094,7 +2094,7 @@ export const effectsScanlinesDemo: DemoType = {
 			min: 0,
 			max: 20,
 			step: 0.1,
-			default: 1,
+			default: 2,
 			optional: 'no',
 		},
 		{

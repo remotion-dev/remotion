@@ -308,9 +308,9 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{
-						amount: 0.28,
-						spacing: 4,
-						thickness: 1,
+						amount: 0.6,
+						spacing: 8,
+						thickness: 2,
 						offset: 0,
 						premultiply: false,
 					}}
