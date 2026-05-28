@@ -282,6 +282,7 @@ Use the `docs-demo` skill for demo details.
 ## 7. Add and render the table-of-contents preview composition
 
 The TOC card must come from a real Remotion composition in `packages/docs`, not a hand-written asset.
+Always render preview assets as PNG files.
 
 Add a `Still` to `packages/docs/src/remotion/Root.tsx` under the `effect-previews` folder:
 
@@ -305,7 +306,7 @@ different aspect ratio can leave black bars in the generated TOC image.
 Then render from `packages/docs`:
 
 ```bash
-bunx remotion still src/remotion/entry.ts effects-my-effect-preview static/img/effects-my-effect-preview.jpg --overwrite --image-format=jpeg
+bunx remotion still src/remotion/entry.ts effects-my-effect-preview static/img/effects-my-effect-preview.png --overwrite --image-format=png
 ```
 
 Commit both:
