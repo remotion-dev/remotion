@@ -1,7 +1,8 @@
 FROM amazonlinux:2023
 
 WORKDIR /usr/app
-RUN yum install git tar gzip unzip -y
+# util-linux is needed for setpriv
+RUN yum install git tar gzip unzip util-linux -y
 RUN yum install nodejs -y
 RUN curl -fsSL https://bun.com/install | bash && ln -s /root/.bun/bin/bun /usr/local/bin/bun
 
