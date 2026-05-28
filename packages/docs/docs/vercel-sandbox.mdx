@@ -63,6 +63,61 @@ The Sandbox is heavy, containing Chrome and FFmpeg and takes a few seconds to st
 The timeout limit for Vercel Sandbox is 45 minutes on the Hobby plan, and 5 hours on the Pro and Enterprise plans.  
 For concurrency, the limit is 10 simultaneous renders on Hobby, and 2000 on Pro and Enterprise.
 
+Vercel functions can run for up to 800 seconds.
+For longer renders, use [`renderMediaOnVercel({detached: true})`](/docs/vercel/render-media-on-vercel#detached) and poll with [`getRenderProgress()`](/docs/vercel/get-render-progress).
+
+## Detached render example (with shutdown)
+
+```ts title="app/api/render/start/route.ts"
+import {addBundleToSandbox, createSandbox, renderMediaOnVercel} from '@remotion/vercel';
+
+export async function POST() {
+  const sandbox = await createSandbox();
+  await addBundleToSandbox({
+    sandbox,
+    bundleDir: '/path/to/your/bundle',
+  });
+
+  const {sandboxId, cmdId} = await renderMediaOnVercel({
+    sandbox,
+    compositionId: 'MyComp',
+    inputProps: {title: 'Hello World'},
+    detached: true,
+    vercelBlob: {
+      blobToken: process.env.BLOB_READ_WRITE_TOKEN!,
+      access: 'public',
+    },
+  });
+
+  return Response.json({sandboxId, cmdId});
+}
+```
+
+```ts title="app/api/render/progress/route.ts"
+import {getRenderProgress} from '@remotion/vercel';
+import {Sandbox} from '@vercel/sandbox';
+
+export async function GET(req: Request) {
+	const url = new URL(req.url);
+	const sandboxId = url.searchParams.get('sandboxId');
+	const cmdId = url.searchParams.get('cmdId');
+
+	if (!sandboxId || !cmdId) {
+		return Response.json({error: 'Missing sandboxId or cmdId'}, {status: 400});
+	}
+
+	const progress = await getRenderProgress({sandboxId, cmdId});
+
+	if (progress.stage === 'done' || progress.stage === 'error') {
+		await Sandbox.get({sandboxId})
+			.then((sandbox) => sandbox.stop())
+			.catch(() => undefined);
+	}
+
+	return Response.json(progress);
+}
+```
+
 For more details, see: [Vercel Sandbox pricing](https://vercel.com/docs/vercel-sandbox/pricing)
 
 ## Source Code
