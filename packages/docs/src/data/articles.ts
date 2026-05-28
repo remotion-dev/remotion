@@ -1827,6 +1827,15 @@ export const articles = [
 		slug: 'effects/api',
 	},
 	{
+		id: 'effects/inverse-dot-grid',
+		title: 'inverseDotGrid()',
+		relativePath: 'docs/effects/inverse-dot-grid.mdx',
+		compId: 'articles-docs-effects-inverse-dot-grid',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/inverse-dot-grid',
+	},
+	{
 		id: 'effects/invert',
 		title: 'invert()',
 		relativePath: 'docs/effects/invert.mdx',

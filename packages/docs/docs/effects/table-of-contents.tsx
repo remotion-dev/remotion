@@ -173,6 +173,13 @@ const categories: {
 				description: 'Linear dot size gradient',
 			},
 			{
+				link: '/docs/effects/inverse-dot-grid',
+				preview: '/img/effects-inverse-dot-grid-preview.jpg',
+				alt: 'inverse dot grid effect preview',
+				name: 'inverseDotGrid()',
+				description: 'Source-color dot mask effect',
+			},
+			{
 				link: '/docs/effects/noise',
 				preview: '/img/effects-noise-preview.jpg',
 				alt: 'noise effect preview',

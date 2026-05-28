@@ -10,6 +10,7 @@ import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-linear-gradient-preview';
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
+import {EffectsInverseDotGridPreview} from '../effects/effects-inverse-dot-grid-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
@@ -2325,6 +2326,44 @@ export const effectsHalftoneLinearGradientDemo: DemoType = {
 				option: 'colorMode',
 				value: 'solid',
 			},
+		},
+	],
+};
+
+export const effectsInverseDotGridDemo: DemoType = {
+	comp: EffectsInverseDotGridPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-inverse-dot-grid',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'dotSize',
+			type: 'numeric',
+			min: 0,
+			max: 80,
+			step: 1,
+			default: 16,
+			optional: 'no',
+		},
+		{
+			name: 'gridSize',
+			type: 'numeric',
+			min: 1,
+			max: 80,
+			step: 1,
+			default: 20,
+			optional: 'no',
+		},
+		{
+			name: 'invert',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
 		},
 	],
 };
