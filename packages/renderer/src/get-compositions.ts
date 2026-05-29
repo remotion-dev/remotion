@@ -264,10 +264,16 @@ const internalGetCompositionsRaw = async ({
 			.catch((err) => {
 				reject(err);
 			})
-			.finally(() => {
-				cleanup.forEach((c) => {
-					c();
-				});
+			.finally(async () => {
+				await Promise.all(
+					cleanup.map(async (c) => {
+						try {
+							await c();
+						} catch (err) {
+							Log.error({indent, logLevel}, 'Cleanup error:', err);
+						}
+					}),
+				);
 			});
 	});
 };

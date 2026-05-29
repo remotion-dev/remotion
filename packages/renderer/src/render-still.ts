@@ -461,12 +461,16 @@ const internalRenderStillRaw = (
 					});
 			})
 			.catch((err) => reject(err))
-			.finally(() => {
-				cleanup.forEach((c) => {
-					c().catch((err) => {
-						Log.error(options, 'Cleanup error:', err);
-					});
-				});
+			.finally(async () => {
+				await Promise.all(
+					cleanup.map(async (c) => {
+						try {
+							await c();
+						} catch (err) {
+							Log.error(options, 'Cleanup error:', err);
+						}
+					}),
+				);
 			});
 	});
 

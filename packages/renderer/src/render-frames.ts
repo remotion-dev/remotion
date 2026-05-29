@@ -651,21 +651,29 @@ const internalRenderFramesRaw = ({
 				return resolve(res);
 			})
 			.catch((err) => reject(err))
-			.finally(() => {
+			.finally(async () => {
 				// If browser instance was passed in, we close all the pages
 				// we opened.
 				// If new browser was opened, then closing the browser as a cleanup.
 
 				if (puppeteerInstance) {
-					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
-						if (isTargetClosedErr(err)) {
-							return;
-						}
+					await Promise.all(
+						openedPages.map((p) =>
+							p.close().catch((err) => {
+								if (isTargetClosedErr(err)) {
+									return;
+								}
 
-						Log.error({indent, logLevel}, 'Unable to close browser tab', err);
-					});
+								Log.error(
+									{indent, logLevel},
+									'Unable to close browser tab',
+									err,
+								);
+							}),
+						),
+					);
 				} else {
-					Promise.resolve(browserInstance)
+					await Promise.resolve(browserInstance)
 						.then((instance) => {
 							return instance.close({silent: true});
 						})
@@ -678,9 +686,15 @@ const internalRenderFramesRaw = ({
 						});
 				}
 
-				cleanup.forEach((c) => {
-					c();
-				});
+				await Promise.all(
+					cleanup.map(async (c) => {
+						try {
+							await c();
+						} catch (err) {
+							Log.error({indent, logLevel}, 'Cleanup error:', err);
+						}
+					}),
+				);
 				// Don't clear download dir because it might be used by stitchFramesToVideo
 			});
 	});

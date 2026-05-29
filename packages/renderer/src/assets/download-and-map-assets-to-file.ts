@@ -445,8 +445,8 @@ export const attachDownloadListenerToEmitter = (
 		return Promise.resolve();
 	});
 
-	return () => {
-		cleanup.forEach((c) => c());
+	return async () => {
+		await Promise.all(cleanup.map((c) => c()));
 	};
 };
 

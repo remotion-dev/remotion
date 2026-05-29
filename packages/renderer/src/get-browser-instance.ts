@@ -50,9 +50,7 @@ export const getPageAndCleanupFn = async ({
 		return {
 			page,
 			cleanupPage: () => {
-				// Close puppeteer page and don't wait for it to finish.
-				// Keep browser open.
-				page.close().catch((err) => {
+				return page.close().catch((err) => {
 					if (!(err as Error).message.includes('Target closed')) {
 						Log.error(
 							{indent, logLevel},
@@ -61,7 +59,6 @@ export const getPageAndCleanupFn = async ({
 						);
 					}
 				});
-				return Promise.resolve();
 			},
 		};
 	}
@@ -89,8 +86,7 @@ export const getPageAndCleanupFn = async ({
 	return {
 		page: browserPage,
 		cleanupPage: () => {
-			// Close whole browser that was just created and don't wait for it to finish.
-			browserInstance.close({silent: true}).catch((err) => {
+			return browserInstance.close({silent: true}).catch((err) => {
 				if (!(err as Error).message.includes('Target closed')) {
 					Log.error(
 						{indent, logLevel},
@@ -99,7 +95,6 @@ export const getPageAndCleanupFn = async ({
 					);
 				}
 			});
-			return Promise.resolve();
 		},
 	};
 };
