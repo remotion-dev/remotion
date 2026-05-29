@@ -68,18 +68,11 @@ export type TimelineSelection =
 			readonly frame: number;
 	  };
 
-export type SelectItemOptions = {
-	readonly additive?: boolean;
-};
-
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly isSelected: (item: TimelineSelection) => boolean;
-	readonly selectItem: (
-		item: TimelineSelection,
-		options?: SelectItemOptions,
-	) => void;
+	readonly selectItem: (item: TimelineSelection) => void;
 	readonly containsSelection: (nodePathInfo: SequenceNodePathInfo) => boolean;
 	readonly clearSelection: () => void;
 };
@@ -100,21 +93,6 @@ const getTimelineSelectionKey = (item: TimelineSelection): string => {
 	}
 
 	return `${rowKey}.keyframe.${item.frame}`;
-};
-
-const assertSameType = (items: readonly TimelineSelection[]): void => {
-	if (items.length <= 1) {
-		return;
-	}
-
-	const firstType = items[0].type;
-	for (const item of items) {
-		if (item.type !== firstType) {
-			throw new Error(
-				`Timeline selection contains items of mixed types: expected all "${firstType}" but found "${item.type}".`,
-			);
-		}
-	}
 };
 
 const nodePathDescendsFrom = (
@@ -173,40 +151,12 @@ export const TimelineSelectionProvider: React.FC<{
 	);
 
 	const selectItem = useCallback(
-		(item: TimelineSelection, options?: SelectItemOptions) => {
+		(item: TimelineSelection) => {
 			if (!canSelect) {
 				return;
 			}
 
-			const additive = options?.additive ?? false;
-
-			setSelectedItems((prev) => {
-				if (!additive) {
-					return [item];
-				}
-
-				const itemKey = getTimelineSelectionKey(item);
-				const existingIndex = prev.findIndex(
-					(existing) => getTimelineSelectionKey(existing) === itemKey,
-				);
-
-				if (existingIndex !== -1) {
-					// Toggle off when already selected.
-					const without = prev.slice();
-					without.splice(existingIndex, 1);
-					return without;
-				}
-
-				// Mixed types are not allowed; replace selection when adding a
-				// differently-typed item.
-				if (prev.length > 0 && prev[0].type !== item.type) {
-					return [item];
-				}
-
-				const next = [...prev, item];
-				assertSameType(next);
-				return next;
-			});
+			setSelectedItems([item]);
 		},
 		[canSelect],
 	);
@@ -267,16 +217,13 @@ export const useTimelineRowSelection = (
 
 	const selected = selectionItem === null ? false : isSelected(selectionItem);
 
-	const onSelect = useCallback(
-		(options?: SelectItemOptions) => {
-			if (selectionItem === null) {
-				return;
-			}
+	const onSelect = useCallback(() => {
+		if (selectionItem === null) {
+			return;
+		}
 
-			selectItem(selectionItem, options);
-		},
-		[selectItem, selectionItem],
-	);
+		selectItem(selectionItem);
+	}, [selectItem, selectionItem]);
 
 	return {
 		onSelect,
@@ -301,12 +248,9 @@ export const useTimelineKeyframeSelection = (
 
 	const selected = isSelected(selectionItem);
 
-	const onSelect = useCallback(
-		(options?: SelectItemOptions) => {
-			selectItem(selectionItem, options);
-		},
-		[selectItem, selectionItem],
-	);
+	const onSelect = useCallback(() => {
+		selectItem(selectionItem);
+	}, [selectItem, selectionItem]);
 
 	return {
 		onSelect,
