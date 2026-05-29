@@ -66,7 +66,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button === 0) {
 				e.stopPropagation();
-				onSelect({additive: e.shiftKey || e.metaKey || e.ctrlKey});
+				onSelect();
 			}
 		},
 		[onSelect],
