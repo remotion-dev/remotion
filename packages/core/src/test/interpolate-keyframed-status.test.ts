@@ -7,6 +7,7 @@ test('interpolates linear numeric keyframes', () => {
 		status: {
 			canUpdate: false,
 			reason: 'keyframed',
+			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
 				{frame: 60, value: 100},
@@ -24,6 +25,7 @@ test('clamps when extrapolation is clamp', () => {
 		status: {
 			canUpdate: false,
 			reason: 'keyframed',
+			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
 				{frame: 60, value: 100},
@@ -41,6 +43,7 @@ test('returns single keyframe value', () => {
 		status: {
 			canUpdate: false,
 			reason: 'keyframed',
+			interpolationFunction: 'interpolate',
 			keyframes: [{frame: 0, value: 7}],
 			easing: [],
 			clamping: {left: 'extend', right: 'extend'},
@@ -55,6 +58,7 @@ test('interpolates colors', () => {
 		status: {
 			canUpdate: false,
 			reason: 'keyframed',
+			interpolationFunction: 'interpolateColors',
 			keyframes: [
 				{frame: 0, value: '#000000'},
 				{frame: 60, value: '#ffffff'},
@@ -73,6 +77,7 @@ test('uses bezier easing', () => {
 		status: {
 			canUpdate: false,
 			reason: 'keyframed',
+			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
 				{frame: 60, value: 100},

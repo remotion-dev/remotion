@@ -30,6 +30,10 @@ export type CanUpdateSequencePropStatusClamping = {
 	right: ExtrapolateType;
 };
 
+export type CanUpdateSequencePropStatusInterpolationFunction =
+	| 'interpolate'
+	| 'interpolateColors';
+
 export type CanUpdateSequencePropStatusComputed = {
 	canUpdate: false;
 	reason: 'computed';
@@ -38,6 +42,7 @@ export type CanUpdateSequencePropStatusComputed = {
 export type CanUpdateSequencePropStatusKeyframed = {
 	canUpdate: false;
 	reason: 'keyframed';
+	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;

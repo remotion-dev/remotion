@@ -80,6 +80,7 @@ export const Example: React.FC = () => {
 	expect(result.props.color).toEqual({
 		canUpdate: false,
 		reason: 'keyframed',
+		interpolationFunction: 'interpolateColors',
 		keyframes: [
 			{frame: 0, value: 'red'},
 			{frame: 100, value: 'blue'},
@@ -229,6 +230,7 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 	expect(result.props['style.scale']).toEqual({
 		canUpdate: false,
 		reason: 'keyframed',
+		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 2},
 			{frame: 100, value: 4},
@@ -267,6 +269,7 @@ export const Example: React.FC = () => {
 	expect(result.props['style.scale']).toEqual({
 		canUpdate: false,
 		reason: 'keyframed',
+		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 1},
 			{frame: 50, value: 2},
