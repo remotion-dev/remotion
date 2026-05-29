@@ -4,7 +4,6 @@ import React from 'react';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
-import EditorStarterSection from './homepage/EditorStarterSection';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
 import {IfYouKnowReact} from './homepage/IfYouKnowReact';
 import type {ColorMode} from './homepage/layout/use-color-mode';
@@ -14,7 +13,9 @@ import {ParameterizeAndEdit} from './homepage/ParameterizeAndEdit';
 import {Pricing} from './homepage/Pricing';
 import {RealMP4Videos} from './homepage/RealMp4Videos';
 import TrustedByBanner from './homepage/TrustedByBanner';
-import VideoAppsShowcase from './homepage/VideoAppsShowcase';
+import VideoAppsShowcase, {
+	BuiltWithRemotionShowcase,
+} from './homepage/VideoAppsShowcase';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
 
@@ -49,6 +50,10 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<br />
+						<BuiltWithRemotionShowcase />
+						<br />
+						<br />
+						<br />
 						<SectionTitle>Pricing</SectionTitle>
 						<Pricing />
 						<TrustedByBanner />
@@ -58,10 +63,6 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<CommunityStats />
-						<br />
-						<br />
-						<br />
-						<EditorStarterSection />
 						<br />
 						<br />
 						<br />

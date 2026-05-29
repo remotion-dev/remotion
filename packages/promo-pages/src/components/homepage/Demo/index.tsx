@@ -109,7 +109,7 @@ export const Demo: React.FC = () => {
 	}, []);
 
 	return (
-		<div>
+		<div id="demo">
 			<br />
 			<br />
 			<SectionTitle>Demo</SectionTitle>

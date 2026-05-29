@@ -1,5 +1,6 @@
 import React, {useRef, useState} from 'react';
 import {IsMutedIcon, NotMutedIcon, PausedIcon, PlayingIcon} from './Demo/icons';
+import {BlueButton, ClearButton} from './layout/Button';
 import {MuxVideo} from './MuxVideo';
 import {SectionTitle} from './VideoAppsTitle';
 
@@ -8,6 +9,30 @@ const tabs = [
 	'Captions',
 	'Screencast',
 	'Year in review',
+];
+
+const entrypoints = [
+	{
+		title: 'Customize with data',
+		description:
+			'Turn one video into many by changing text, images, colors, and data.',
+		link: '/docs/passing-props',
+		buttonText: 'See how it works',
+	},
+	{
+		title: 'Preview interactively',
+		description:
+			'Use Remotion Player to let users preview and customize videos inside React apps.',
+		link: '/player',
+		buttonText: 'Remotion Player',
+	},
+	{
+		title: 'Render at scale',
+		description:
+			'Render many videos locally, on servers, or serverlessly with Remotion Lambda.',
+		link: '/lambda',
+		buttonText: 'Remotion Lambda',
+	},
 ];
 
 const videoApps = [
@@ -61,7 +86,106 @@ const icon: React.CSSProperties = {
 	marginLeft: 10,
 };
 
+const Arrow: React.FC = () => (
+	<svg style={icon} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+		<path
+			fill="currentColor"
+			d="M438.6 278.6l-160 160C272.4 444.9 264.2 448 256 448s-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L338.8 288H32C14.33 288 .0016 273.7 .0016 256S14.33 224 32 224h306.8l-105.4-105.4c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l160 160C451.1 245.9 451.1 266.1 438.6 278.6z"
+		/>
+	</svg>
+);
+
+const EntryPointCard: React.FC<{
+	readonly title: string;
+	readonly description: string;
+	readonly link: string;
+	readonly buttonText: string;
+}> = ({title, description, link, buttonText}) => {
+	return (
+		<div className="card p-5 flex h-full flex-col text-left">
+			<dt className="text-lg font-bold fontbrand text-text">{title}</dt>
+			<dd className="text-muted text-sm fontbrand leading-relaxed mt-2 flex-1 m-0">
+				{description}
+			</dd>
+			<a
+				href={link}
+				className="no-underline text-brand font-brand font-bold text-sm inline-flex flex-row items-center mt-4"
+			>
+				{buttonText}
+				<Arrow />
+			</a>
+		</div>
+	);
+};
+
 const VideoAppsShowcase: React.FC = () => {
+	return (
+		<div>
+			<SectionTitle>Create video apps and automations</SectionTitle>
+			<div className="text-center text-muted fontbrand text-base mt-2 mb-6">
+				Build React apps that preview, customize, and render videos from user
+				input, APIs, or datasets.
+			</div>
+			<div className="card flex p-0 overflow-hidden mb-6">
+				<div className="flex-1 flex flex-col lg:flex-row justify-center">
+					<div className="w-full lg:w-[380px] lg:max-w-[380px] aspect-video lg:aspect-square relative overflow-hidden bg-[#eee]">
+						<MuxVideo
+							muxId="YIvIidbcAc7009B00Wr7gIbGyq67YGNlytGvMXwdsLRtc"
+							className="absolute left-0 top-0 w-full h-full object-cover object-top rounded-sm rounded-tr-none rounded-br-none"
+							loop
+							autoPlay
+							playsInline
+							muted
+						/>
+					</div>
+					<div className="p-6 flex-1 flex flex-col justify-center">
+						<div className="text-3xl font-bold fontbrand mt-0">
+							Build your own video editor
+						</div>
+						<div className="text-muted mt-3 text-base fontbrand leading-relaxed">
+							Start with Editor Starter: an optional React and TypeScript
+							template with a timeline, interactive canvas, asset uploads, and
+							rendering.
+						</div>
+						<div className="h-5" />
+						<div className="flex gap-2 items-center flex-wrap">
+							<a
+								href="https://www.remotion.pro/editor-starter?ref=remotion.dev"
+								target="_blank"
+								className="no-underline"
+							>
+								<BlueButton size="sm" loading={false}>
+									Purchase
+								</BlueButton>
+							</a>
+							<a
+								href="https://editor-starter.remotion.dev?ref=remotion.dev"
+								target="_blank"
+								className="no-underline"
+							>
+								<ClearButton size="sm" loading={false}>
+									Demo
+								</ClearButton>
+							</a>
+							<a href="/docs/editor-starter" className="no-underline">
+								<ClearButton size="sm" loading={false}>
+									Docs
+								</ClearButton>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<dl className="grid grid-cols-1 gap-4 lg:grid-cols-3 mb-8">
+				{entrypoints.map((entrypoint) => (
+					<EntryPointCard key={entrypoint.link} {...entrypoint} />
+				))}
+			</dl>
+		</div>
+	);
+};
+
+export const BuiltWithRemotionShowcase: React.FC = () => {
 	const [activeTab, setActiveTab] = useState(0);
 	const [isMuted, setIsMuted] = useState(true);
 	const [isPlaying, setIsPlaying] = useState(false);
@@ -120,7 +244,9 @@ const VideoAppsShowcase: React.FC = () => {
 
 	return (
 		<div ref={containerRef}>
-			<SectionTitle>Use Cases</SectionTitle>
+			<h3 className="text-center text-3xl font-bold fontbrand mt-0 mb-6">
+				Built with Remotion
+			</h3>
 			<div
 				className={
 					'grid justify-center grid-flow-col grid-rows-1 gap-2.5 justify-self-center mb-4 w-[90vw] md:w-auto -mt-4'
@@ -253,16 +379,7 @@ const VideoAppsShowcase: React.FC = () => {
 							href={videoApps[activeTab].link}
 						>
 							{videoApps[activeTab].buttonText}
-							<svg
-								style={icon}
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 448 512"
-							>
-								<path
-									fill="currentColor"
-									d="M438.6 278.6l-160 160C272.4 444.9 264.2 448 256 448s-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L338.8 288H32C14.33 288 .0016 273.7 .0016 256S14.33 224 32 224h306.8l-105.4-105.4c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l160 160C451.1 245.9 451.1 266.1 438.6 278.6z"
-								/>
-							</svg>
+							<Arrow />
 						</a>
 					</div>
 				</div>
@@ -279,7 +396,7 @@ const VideoAppsShowcase: React.FC = () => {
 						fontFamily: 'GTPlanar',
 					}}
 				>
-					For more examples see our{' '}
+					For more examples of products and workflows, see our{' '}
 					<a href="/showcase" className="bluelink">
 						Showcase page
 					</a>
