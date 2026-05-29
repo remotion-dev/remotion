@@ -14,6 +14,7 @@ import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
+import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
@@ -2110,6 +2111,54 @@ export const effectsScanlinesDemo: DemoType = {
 			name: 'premultiply',
 			type: 'boolean',
 			default: false,
+			optional: 'no',
+		},
+	],
+};
+
+export const effectsLinesDemo: DemoType = {
+	comp: EffectsLinesPreview,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 1,
+	fps: 30,
+	id: 'effects-lines',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'direction',
+			type: 'enum',
+			values: ['horizontal', 'vertical'],
+			default: 'horizontal',
+			optional: 'no',
+		},
+		{
+			name: 'thickness',
+			type: 'numeric',
+			min: 0.1,
+			max: 400,
+			step: 0.1,
+			default: 40,
+			optional: 'no',
+		},
+		{
+			name: 'angle',
+			type: 'numeric',
+			min: -180,
+			max: 180,
+			step: 1,
+			default: 20,
+			optional: 'no',
+		},
+		{
+			name: 'offset',
+			type: 'numeric',
+			min: -400,
+			max: 400,
+			step: 1,
+			default: 0,
 			optional: 'no',
 		},
 	],

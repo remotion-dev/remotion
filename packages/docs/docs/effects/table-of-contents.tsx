@@ -194,6 +194,13 @@ const categories: {
 				description: 'Light leak overlay effect',
 			},
 			{
+				link: '/docs/effects/lines',
+				preview: '/img/effects-lines-preview.png',
+				alt: 'lines effect preview',
+				name: 'lines()',
+				description: 'Alternating line overlay effect',
+			},
+			{
 				link: '/docs/effects/noise',
 				preview: '/img/effects-noise-preview.png',
 				alt: 'noise effect preview',
