@@ -1,11 +1,13 @@
 import {readFileSync} from 'node:fs';
 import {RenderInternals} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/renderer';
 import type {
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
+import {updateSequenceKeyframes} from '../../codemods/update-keyframes/update-keyframes';
 import {updateSequenceProps} from '../../codemods/update-sequence-props/update-sequence-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
@@ -21,11 +23,125 @@ import {formatPropChange} from './log-updates/format-prop-change';
 import {logUpdate, normalizeQuotes} from './log-updates/log-update';
 import {withSavePropsLock} from './save-props-mutex';
 
+const removeSequenceKeyframe = async ({
+	absolutePath,
+	clientId,
+	fileContents,
+	fileRelativeToRoot,
+	key,
+	keyframeOperation,
+	logLevel,
+	nodePath,
+	remotionRoot,
+	schema,
+}: {
+	absolutePath: string;
+	clientId: string;
+	fileContents: string;
+	fileRelativeToRoot: string;
+	key: string;
+	keyframeOperation: {type: 'remove'; frame: number};
+	logLevel: LogLevel;
+	nodePath: SaveSequencePropsRequest['nodePath'];
+	remotionRoot: string;
+	schema: SaveSequencePropsRequest['schema'];
+}): Promise<SaveSequencePropsResponse> => {
+	const {output, oldValueStrings, newValueStrings, formatted, logLine} =
+		await updateSequenceKeyframes({
+			input: fileContents,
+			nodePath: nodePath.nodePath,
+			updates: [
+				{
+					key,
+					operation: {
+						type: 'remove',
+						frame: keyframeOperation.frame,
+					},
+				},
+			],
+		});
+
+	const oldValueString = oldValueStrings[0];
+	const newValueString = newValueStrings[0];
+	const normalizedOld = normalizeQuotes(oldValueString);
+	const normalizedNew = normalizeQuotes(newValueString);
+
+	const undoPropChange = formatPropChange({
+		key,
+		oldValueString: normalizedNew,
+		newValueString: normalizedOld,
+		defaultValueString: null,
+		removedProps: [],
+		addedProps: [],
+	});
+	const redoPropChange = formatPropChange({
+		key,
+		oldValueString: normalizedOld,
+		newValueString: normalizedNew,
+		defaultValueString: null,
+		removedProps: [],
+		addedProps: [],
+	});
+
+	pushToUndoStack({
+		filePath: absolutePath,
+		oldContents: fileContents,
+		logLevel,
+		remotionRoot,
+		logLine,
+		description: {
+			undoMessage: `↩️  ${undoPropChange}`,
+			redoMessage: `↪️  ${redoPropChange}`,
+		},
+		entryType: 'sequence-props',
+		suppressHmrOnFileRestore: true,
+	});
+	suppressUndoStackInvalidation(absolutePath);
+	suppressBundlerUpdateForFile(absolutePath);
+	writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+
+	logUpdate({
+		fileRelativeToRoot,
+		line: logLine,
+		key,
+		oldValueString,
+		newValueString,
+		defaultValueString: null,
+		formatted,
+		logLevel,
+		removedProps: [],
+		addedProps: [],
+	});
+
+	printUndoHint(logLevel);
+
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		keys: getAllSchemaKeys(schema),
+		nodePath: nodePath.nodePath,
+		effects: [],
+	});
+
+	return {
+		canUpdate: true,
+		props: status.props,
+	};
+};
+
 export const saveSequencePropsHandler: ApiHandler<
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse
 > = ({
-	input: {fileName, nodePath, key, value, defaultValue, schema, clientId},
+	input: {
+		fileName,
+		nodePath,
+		key,
+		value,
+		defaultValue,
+		schema,
+		clientId,
+		keyframeOperation,
+	},
 	remotionRoot,
 	logLevel,
 }) =>
@@ -41,6 +157,21 @@ export const saveSequencePropsHandler: ApiHandler<
 		});
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
+
+		if (keyframeOperation?.type === 'remove') {
+			return removeSequenceKeyframe({
+				absolutePath,
+				clientId,
+				fileContents,
+				fileRelativeToRoot,
+				key,
+				keyframeOperation,
+				logLevel,
+				nodePath,
+				remotionRoot,
+				schema,
+			});
+		}
 
 		const {output, oldValueStrings, formatted, logLine, removedProps} =
 			await updateSequenceProps({
