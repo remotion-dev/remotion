@@ -16,6 +16,7 @@ import {SubscribeToNodePaths} from './SubscribeToNodePaths';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineHeightContainer} from './TimelineHeightContainer';
+import {TimelineInOutDragHandler} from './TimelineInOutDragHandler';
 import {TimelineInOutPointer} from './TimelineInOutPointer';
 import {TimelineList} from './TimelineList';
 import {TimelinePinchZoom} from './TimelinePinchZoom';
@@ -128,10 +129,11 @@ const TimelineInner: React.FC = () => {
 								<SplitterElement type="anti-flexer" sticky={null}>
 									<TimelineScrollable>
 										<TimelineTracks timeline={shown} hasBeenCut={hasBeenCut} />
-										<TimelineInOutPointer />
 										<TimelinePlayCursorSyncer />
-										<TimelineDragHandler />
+										<TimelineInOutPointer />
 										<TimelineTimeIndicators />
+										<TimelineDragHandler />
+										<TimelineInOutDragHandler />
 										<TimelineSlider />
 									</TimelineScrollable>
 								</SplitterElement>

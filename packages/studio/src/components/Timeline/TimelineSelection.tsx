@@ -12,6 +12,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
 export const TIMELINE_SELECTED_BACKGROUND = '#3B3F42';
 export const TIMELINE_SELECTED_LABEL_BACKGROUND = '#B0B0B0';
@@ -41,17 +42,20 @@ export const getTimelineColor = (selected: boolean, subcategory: boolean) => {
 		: 'rgba(255, 255, 255, 0.8)';
 };
 
-export const TIMELINE_SELECTED_TRACK_HIGHLIGHT_STYLE: CSSProperties = {
+export const getTimelineSelectedTrackHighlightStyle = (
+	timelineWidth: number,
+): CSSProperties => ({
 	backgroundColor: TIMELINE_SELECTED_BACKGROUND,
 	bottom: 0,
 	left: -TIMELINE_PADDING,
 	pointerEvents: 'none',
 	position: 'absolute',
-	right: -TIMELINE_PADDING,
 	top: 0,
-};
+	width: timelineWidth,
+});
 
 export const SELECTION_ENABLED = false;
+export const TIMELINE_TOP_DRAG = false;
 
 export type TimelineSelection =
 	| {
@@ -66,6 +70,7 @@ export type TimelineSelection =
 
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
+	readonly selectedItem: TimelineSelection | null;
 	readonly isSelected: (item: TimelineSelection) => boolean;
 	readonly selectItem: (item: TimelineSelection) => void;
 	readonly containsSelection: (nodePathInfo: SequenceNodePathInfo) => boolean;
@@ -74,6 +79,7 @@ type TimelineSelectionContextValue = {
 
 const TimelineSelectionContext = createContext<TimelineSelectionContextValue>({
 	canSelect: false,
+	selectedItem: null,
 	isSelected: () => false,
 	selectItem: () => undefined,
 	containsSelection: () => false,
@@ -172,17 +178,26 @@ export const TimelineSelectionProvider: React.FC<{
 	const value = useMemo(
 		(): TimelineSelectionContextValue => ({
 			canSelect,
+			selectedItem,
 			isSelected,
 			selectItem,
 			containsSelection,
 			clearSelection,
 		}),
-		[canSelect, isSelected, selectItem, containsSelection, clearSelection],
+		[
+			canSelect,
+			selectedItem,
+			isSelected,
+			selectItem,
+			containsSelection,
+			clearSelection,
+		],
 	);
 
 	return (
 		<TimelineSelectionContext.Provider value={value}>
 			{children}
+			<TimelineDeleteKeybindings />
 		</TimelineSelectionContext.Provider>
 	);
 };

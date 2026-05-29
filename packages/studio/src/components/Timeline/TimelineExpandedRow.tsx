@@ -70,6 +70,7 @@ export const TimelineExpandedRow: React.FC<{
 	if (node.kind === 'group') {
 		if (node.effectInfo) {
 			return (
+				// A single effect
 				<TimelineEffectGroupRow
 					label={node.label}
 					nodePathInfo={node.nodePathInfo}

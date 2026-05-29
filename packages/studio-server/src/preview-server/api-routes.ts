@@ -5,7 +5,9 @@ import {applyCodemodHandler} from './routes/apply-codemod';
 import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {handleCancelRender} from './routes/cancel-render';
 import {deleteEffectHandler} from './routes/delete-effect';
+import {deleteEffectKeyframeHandler} from './routes/delete-effect-keyframe';
 import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
+import {deleteSequenceKeyframeHandler} from './routes/delete-sequence-keyframe';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {handleInstallPackage} from './routes/install-dependency';
@@ -47,6 +49,8 @@ export const allApiRoutes: {
 	'/api/unsubscribe-from-sequence-props': unsubscribeFromSequenceProps,
 	'/api/save-sequence-props': saveSequencePropsHandler,
 	'/api/save-effect-props': saveEffectPropsHandler,
+	'/api/delete-sequence-keyframe': deleteSequenceKeyframeHandler,
+	'/api/delete-effect-keyframe': deleteEffectKeyframeHandler,
 	'/api/delete-effect': deleteEffectHandler,
 	'/api/delete-jsx-node': deleteJsxNodeHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,

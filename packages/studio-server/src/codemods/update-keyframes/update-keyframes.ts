@@ -477,6 +477,7 @@ export const updateSequenceKeyframesAst = ({
 }): {
 	serialized: string;
 	oldValueStrings: string[];
+	newValueStrings: string[];
 	logLine: number;
 } => {
 	const ast = parseAst(input);
@@ -492,23 +493,25 @@ export const updateSequenceKeyframesAst = ({
 	}
 
 	const oldValueStrings: string[] = [];
+	const newValueStrings: string[] = [];
 	for (const update of updates) {
 		const prop = getSequenceWritableProp({
 			attributes: node.attributes,
 			key: update.key,
 		});
 		oldValueStrings.push(recast.print(prop.expression).code);
-		prop.setExpression(
-			applyKeyframeOperation({
-				expression: prop.expression,
-				operation: update.operation,
-			}),
-		);
+		const nextExpression = applyKeyframeOperation({
+			expression: prop.expression,
+			operation: update.operation,
+		});
+		newValueStrings.push(recast.print(nextExpression).code);
+		prop.setExpression(nextExpression);
 	}
 
 	return {
 		serialized: serializeAst(ast),
 		oldValueStrings,
+		newValueStrings,
 		logLine: node.loc?.start.line ?? 1,
 	};
 };
@@ -527,19 +530,21 @@ export const updateSequenceKeyframes = async ({
 	output: string;
 	formatted: boolean;
 	oldValueStrings: string[];
+	newValueStrings: string[];
 	logLine: number;
 }> => {
-	const {serialized, oldValueStrings, logLine} = updateSequenceKeyframesAst({
-		input,
-		nodePath,
-		updates,
-	});
+	const {serialized, oldValueStrings, newValueStrings, logLine} =
+		updateSequenceKeyframesAst({
+			input,
+			nodePath,
+			updates,
+		});
 	const {output, formatted} = await formatFileContent({
 		input: serialized,
 		prettierConfigOverride,
 	});
 
-	return {output, formatted, oldValueStrings, logLine};
+	return {output, formatted, oldValueStrings, newValueStrings, logLine};
 };
 
 export const updateEffectKeyframesAst = ({
@@ -555,6 +560,7 @@ export const updateEffectKeyframesAst = ({
 }): {
 	serialized: string;
 	oldValueStrings: string[];
+	newValueStrings: string[];
 	logLine: number;
 	effectCallee: string;
 } => {
@@ -586,6 +592,7 @@ export const updateEffectKeyframesAst = ({
 
 	const objExpr = call.arguments[0] as ObjectExpression;
 	const oldValueStrings: string[] = [];
+	const newValueStrings: string[] = [];
 	for (const update of updates) {
 		const {prop} = findObjectProperty(objExpr, update.key);
 		if (!prop) {
@@ -593,15 +600,18 @@ export const updateEffectKeyframesAst = ({
 		}
 
 		oldValueStrings.push(recast.print(prop.value).code);
-		prop.value = applyKeyframeOperation({
+		const nextExpression = applyKeyframeOperation({
 			expression: prop.value as Expression,
 			operation: update.operation,
-		}) as ObjectProperty['value'];
+		});
+		newValueStrings.push(recast.print(nextExpression).code);
+		prop.value = nextExpression as ObjectProperty['value'];
 	}
 
 	return {
 		serialized: serializeAst(ast),
 		oldValueStrings,
+		newValueStrings,
 		logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
 		effectCallee,
 	};
@@ -623,10 +633,11 @@ export const updateEffectKeyframes = async ({
 	output: string;
 	formatted: boolean;
 	oldValueStrings: string[];
+	newValueStrings: string[];
 	logLine: number;
 	effectCallee: string;
 }> => {
-	const {serialized, oldValueStrings, logLine, effectCallee} =
+	const {serialized, oldValueStrings, newValueStrings, logLine, effectCallee} =
 		updateEffectKeyframesAst({
 			input,
 			sequenceNodePath,
@@ -638,5 +649,12 @@ export const updateEffectKeyframes = async ({
 		prettierConfigOverride,
 	});
 
-	return {output, formatted, oldValueStrings, logLine, effectCallee};
+	return {
+		output,
+		formatted,
+		oldValueStrings,
+		newValueStrings,
+		logLine,
+		effectCallee,
+	};
 };

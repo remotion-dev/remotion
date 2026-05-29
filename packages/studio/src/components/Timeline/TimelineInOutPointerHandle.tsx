@@ -21,13 +21,14 @@ type Props = {
 	readonly dragging: boolean;
 	readonly type: 'in' | 'out';
 	readonly atFrame: number;
+	readonly onPointerDown?: (e: React.PointerEvent<HTMLDivElement>) => void;
 };
 
 const InnerTimelineInOutPointerHandle: React.FC<
 	Props & {
 		readonly timelineWidth: number;
 	}
-> = ({atFrame, dragging, timelineWidth, type}) => {
+> = ({atFrame, dragging, onPointerDown, timelineWidth, type}) => {
 	const videoConfig = useVideoConfig();
 
 	const style: React.CSSProperties = useMemo(() => {
@@ -41,6 +42,7 @@ const InnerTimelineInOutPointerHandle: React.FC<
 				videoConfig.durationInFrames,
 				timelineWidth,
 			)}px)`,
+			top: 0,
 		};
 	}, [atFrame, dragging, timelineWidth, videoConfig.durationInFrames]);
 
@@ -48,12 +50,14 @@ const InnerTimelineInOutPointerHandle: React.FC<
 		<div
 			ref={type === 'in' ? inPointerHandle : outPointerHandle}
 			style={style}
+			onPointerDown={onPointerDown}
 		/>
 	);
 };
 
 export const TimelineInOutPointerHandle: React.FC<Props> = ({
 	dragging,
+	onPointerDown,
 	type,
 	atFrame,
 }) => {
@@ -69,6 +73,7 @@ export const TimelineInOutPointerHandle: React.FC<Props> = ({
 		<InnerTimelineInOutPointerHandle
 			atFrame={atFrame}
 			dragging={dragging}
+			onPointerDown={onPointerDown}
 			timelineWidth={timelineWidth}
 			type={type}
 		/>
