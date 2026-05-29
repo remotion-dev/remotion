@@ -172,12 +172,8 @@ export const TimelineSequenceFieldRow: React.FC<{
 		};
 	}, [field.rowHeight]);
 
-	if (codeValue === null) {
-		return null;
-	}
-
 	const isNonDefault = useMemo(() => {
-		if (!codeValue.canUpdate) {
+		if (!codeValue || !codeValue.canUpdate) {
 			return false;
 		}
 
@@ -190,11 +186,16 @@ export const TimelineSequenceFieldRow: React.FC<{
 
 	const canReset =
 		previewServerState.type === 'connected' &&
+		codeValue !== null &&
 		codeValue.canUpdate &&
 		isNonDefault;
 
 	const onReset = useCallback(() => {
-		if (!canReset || previewServerState.type !== 'connected') {
+		if (
+			!canReset ||
+			previewServerState.type !== 'connected' ||
+			codeValue === null
+		) {
 			return;
 		}
 
@@ -222,6 +223,7 @@ export const TimelineSequenceFieldRow: React.FC<{
 		schema,
 		setCodeValues,
 		validatedLocation.source,
+		codeValue,
 	]);
 
 	const contextMenuValues = useMemo((): ComboboxValue[] => {
@@ -240,6 +242,10 @@ export const TimelineSequenceFieldRow: React.FC<{
 			},
 		];
 	}, [onReset]);
+
+	if (codeValue === null) {
+		return null;
+	}
 
 	const row = (
 		<TimelineRowChrome
