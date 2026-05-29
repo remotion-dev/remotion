@@ -47,7 +47,11 @@ import {
 	timeValueRef,
 } from './EditorProps.js';
 import {createEffect} from './effects/create-effect.js';
-import {runEffectChain} from './effects/run-effect-chain.js';
+import {
+	cleanupEffectChainState,
+	createEffectChainState,
+	runEffectChain,
+} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
 import {
 	getCodeValuesCtx,
@@ -356,6 +360,8 @@ export const Internals = {
 	getEffectiveVisualModeValue,
 	CompositionRenderErrorContext,
 	useEffectChainState,
+	createEffectChainState,
+	cleanupEffectChainState,
 	runEffectChain,
 	useMemoizedEffects,
 	useMemoizedEffectDefinitions,
