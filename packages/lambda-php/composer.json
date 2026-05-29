@@ -1,7 +1,7 @@
 {
   "name": "remotion/lambda",
   "type": "library",
-  "version": "4.0.468",
+  "version": "4.0.469",
   "description": "A PHP library for working with Remotion Lambda",
   "license": "proprietary",
   "autoload": {

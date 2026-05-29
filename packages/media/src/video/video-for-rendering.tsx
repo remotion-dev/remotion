@@ -6,6 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import type {
+	EffectDefinitionAndStack,
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	OnVideoFrame,
@@ -55,6 +56,7 @@ type InnerVideoProps = {
 	readonly credentials: RequestCredentials | undefined;
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
+	readonly effects: EffectDefinitionAndStack<unknown>[];
 };
 
 type FallbackToOffthreadVideo = {
@@ -86,6 +88,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	credentials,
 	requestInit,
 	objectFit: objectFitProp,
+	effects,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -129,6 +132,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	const videoEnabled = Internals.useVideoEnabled();
 
 	const maxCacheSize = useMaxMediaCacheSize(logLevel);
+	const effectChainState = Internals.useEffectChainState();
 
 	const [error, setError] = useState<Error | null>(null);
 
@@ -194,7 +198,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			credentials,
 			requestInit: initialRequestInit,
 		})
-			.then((result) => {
+			.then(async (result) => {
 				const handleError = (
 					err: Error,
 					clientSideError: Error,
@@ -297,7 +301,27 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						context.canvas.height = imageBitmap.height;
 
 						context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
+
 						context.drawImage(imageBitmap, 0, 0);
+
+						if (effects.length > 0) {
+							const completed = await Internals.runEffectChain({
+								state: effectChainState.get(
+									imageBitmap.width,
+									imageBitmap.height,
+								)!,
+								source: context.canvas,
+								effects,
+								output: context.canvas,
+								width: imageBitmap.width,
+								height: imageBitmap.height,
+							});
+
+							if (!completed) {
+								imageBitmap.close();
+								return;
+							}
+						}
 					}
 
 					imageBitmap.close();
@@ -394,6 +418,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		headless,
 		onError,
 		credentials,
+		effectChainState,
+		effects,
 		initialRequestInit,
 	]);
 

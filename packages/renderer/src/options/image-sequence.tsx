@@ -20,7 +20,7 @@ export const imageSequenceOption = {
 	ssrName: null,
 	docLink: 'https://www.remotion.dev/docs/config#setimagesequence',
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {
 				source: 'cli',
 				value: Boolean(commandLine[cliFlag]),

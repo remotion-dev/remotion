@@ -1,209 +1,31 @@
-import React, {useContext, useMemo} from 'react';
-import {Internals, useVideoConfig, type TSequence} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
-import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
+import React from 'react';
+import type {TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {
-	buildTimelineTree,
-	flattenVisibleTreeNodes,
-	getExpandedTrackHeight,
-	getTreeRowHeight,
-	TIMELINE_ITEM_BORDER_BOTTOM,
-	TIMELINE_PADDING,
-} from '../../helpers/timeline-layout';
-import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
-import {getTimelineKeyframes} from './get-timeline-keyframes';
-import {
-	getTimelineSelectedTrackHighlightStyle,
-	TIMELINE_SELECTED_LABEL_BACKGROUND,
-	useTimelineSelection,
-	type TimelineSelection,
-} from './TimelineSelection';
-import {TimelineWidthContext} from './TimelineWidthProvider';
-
-const row: React.CSSProperties = {
-	position: 'relative',
-};
-
-const rowSeparator: React.CSSProperties = {
-	height: TIMELINE_ITEM_BORDER_BOTTOM,
-};
-
-const diamondBase: React.CSSProperties = {
-	position: 'absolute',
-	width: 8,
-	height: 8,
-	backgroundColor: LIGHT_TEXT,
-	borderRadius: 1,
-	boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.4)',
-	pointerEvents: 'none',
-};
-
-const getNodeKeyframes = ({
-	node,
-	nodePath,
-	codeValues,
-	keyframeDisplayOffset,
-}: {
-	node: ReturnType<typeof flattenVisibleTreeNodes>[number]['node'];
-	nodePath: SequenceNodePathInfo['sequenceSubscriptionKey'];
-	codeValues: React.ContextType<
-		typeof Internals.VisualModeCodeValuesContext
-	>['codeValues'];
-	keyframeDisplayOffset: number;
-}): ReturnType<typeof getTimelineKeyframes> => {
-	if (node.kind !== 'field' || node.field === null) {
-		return [];
-	}
-
-	if (node.field.kind === 'sequence-field') {
-		return getTimelineKeyframes(
-			Internals.getCodeValuesCtx(codeValues, nodePath)?.[node.field.key],
-			keyframeDisplayOffset,
-		);
-	}
-
-	const effectStatus = Internals.getEffectCodeValuesCtx({
-		codeValues,
-		nodePath,
-		effectIndex: node.field.effectIndex,
-	});
-
-	return getTimelineKeyframes(
-		effectStatus.type === 'can-update-effect'
-			? effectStatus.props?.[node.field.key]
-			: null,
-		keyframeDisplayOffset,
-	);
-};
+import {TimelineExpandedKeyframeRow} from './TimelineExpandedKeyframeRow';
+import {useExpandedTrackKeyframeRows} from './use-expanded-track-keyframe-rows';
 
 const TimelineExpandedTrackKeyframesInner: React.FC<{
 	readonly sequence: TSequence;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
 }> = ({nodePathInfo, sequence, keyframeDisplayOffset}) => {
-	const videoConfig = useVideoConfig();
-	const timelineWidth = useContext(TimelineWidthContext);
-	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
-	const {codeValues} = useContext(Internals.VisualModeCodeValuesContext);
-	const {isSelected, selectItem} = useTimelineSelection();
-
-	const tree = useMemo(
-		() =>
-			buildTimelineTree({
-				sequence,
-				nodePathInfo,
-				getDragOverrides: () => ({}),
-				getEffectDragOverrides: () => ({}),
-				codeValues,
-			}),
-		[codeValues, nodePathInfo, sequence],
-	);
-
-	const flat = useMemo(
-		() => flattenVisibleTreeNodes({nodes: tree, getIsExpanded}),
-		[tree, getIsExpanded],
-	);
-
-	const expandedHeight = useMemo(
-		() =>
-			getExpandedTrackHeight({
-				sequence,
-				nodePathInfo,
-				getIsExpanded,
-				codeValues,
-			}),
-		[codeValues, getIsExpanded, nodePathInfo, sequence],
-	);
-
-	const rows = useMemo(
-		() =>
-			flat.map(({node}) => ({
-				height: getTreeRowHeight(node),
-				keyframes: getNodeKeyframes({
-					node,
-					nodePath: nodePathInfo.sequenceSubscriptionKey,
-					codeValues,
-					keyframeDisplayOffset,
-				}),
-				key: JSON.stringify(node.nodePathInfo),
-				rowNodePathInfo: node.nodePathInfo,
-			})),
-		[
-			codeValues,
-			flat,
-			keyframeDisplayOffset,
-			nodePathInfo.sequenceSubscriptionKey,
-		],
-	);
+	const {rows, expandedHeight} = useExpandedTrackKeyframeRows({
+		sequence,
+		nodePathInfo,
+		keyframeDisplayOffset,
+	});
 
 	return (
-		<div
-			style={{
-				height: expandedHeight + TIMELINE_ITEM_BORDER_BOTTOM,
-			}}
-		>
-			<div style={{height: expandedHeight}}>
-				{rows.map(({height, keyframes, key, rowNodePathInfo}, i) => {
-					const rowSelected = isSelected({
-						type: 'row',
-						nodePathInfo: rowNodePathInfo,
-					});
-
-					return (
-						<React.Fragment key={key}>
-							{i > 0 ? <div style={rowSeparator} /> : null}
-							<div style={{...row, height}}>
-								{rowSelected ? (
-									<div style={getTimelineSelectedTrackHighlightStyle()} />
-								) : null}
-								{timelineWidth === null
-									? null
-									: keyframes.map((keyframe) => {
-											const selectionItem: TimelineSelection = {
-												type: 'keyframe',
-												nodePathInfo: rowNodePathInfo,
-												frame: keyframe.frame,
-											};
-											const selected = isSelected(selectionItem);
-
-											return (
-												<button
-													key={String(keyframe.frame)}
-													type="button"
-													style={{
-														...diamondBase,
-														backgroundColor: selected
-															? TIMELINE_SELECTED_LABEL_BACKGROUND
-															: LIGHT_TEXT,
-														border: 'none',
-														cursor: 'default',
-														left:
-															getXPositionOfItemInTimelineImperatively(
-																keyframe.frame,
-																videoConfig.durationInFrames,
-																timelineWidth,
-															) - TIMELINE_PADDING,
-														padding: 0,
-														pointerEvents: 'auto',
-														top: height / 2,
-														transform: 'translate(-50%, -50%) rotate(45deg)',
-													}}
-													title={`Keyframe at frame ${keyframe.frame}`}
-													aria-label={`Select keyframe at frame ${keyframe.frame}`}
-													onPointerDown={(e) => {
-														if (e.button === 0) {
-															selectItem(selectionItem);
-														}
-													}}
-												/>
-											);
-										})}
-							</div>
-						</React.Fragment>
-					);
-				})}
-			</div>
+		<div style={{height: expandedHeight}}>
+			{rows.map((row, index) => (
+				<TimelineExpandedKeyframeRow
+					key={row.rowKey}
+					height={row.height}
+					keyframes={row.keyframes}
+					nodePathInfo={row.nodePathInfo}
+					showSeparator={index > 0}
+				/>
+			))}
 		</div>
 	);
 };

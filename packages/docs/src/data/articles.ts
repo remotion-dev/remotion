@@ -1890,6 +1890,15 @@ export const articles = [
 		slug: 'effects/scale',
 	},
 	{
+		id: 'effects/scanlines',
+		title: 'scanlines()',
+		relativePath: 'docs/effects/scanlines.mdx',
+		compId: 'articles-docs-effects-scanlines',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/scanlines',
+	},
+	{
 		id: 'effects/shine',
 		title: 'shine()',
 		relativePath: 'docs/effects/shine.mdx',
@@ -7428,6 +7437,15 @@ export const articles = [
 		crumb: '@remotion/vercel',
 		noAi: false,
 		slug: 'vercel/create-sandbox',
+	},
+	{
+		id: 'vercel/get-render-progress',
+		title: 'getRenderProgress()',
+		relativePath: 'docs/vercel/get-render-progress.mdx',
+		compId: 'articles-docs-vercel-get-render-progress',
+		crumb: '@remotion/vercel',
+		noAi: false,
+		slug: 'vercel/get-render-progress',
 	},
 	{
 		id: 'vercel-api',

@@ -1,8 +1,8 @@
-import {PlayerInternals} from '@remotion/player';
-import React, {useRef} from 'react';
+import React, {useCallback} from 'react';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {TimelineListItem} from './TimelineListItem';
+import {useTimelineSelection} from './TimelineSelection';
 import {TimelineTimePadding} from './TimelineTimeIndicators';
 
 const container: React.CSSProperties = {
@@ -13,16 +13,24 @@ const container: React.CSSProperties = {
 export const TimelineList: React.FC<{
 	readonly timeline: TrackWithHash[];
 }> = ({timeline}) => {
-	const ref = useRef<HTMLDivElement>(null);
-	const size = PlayerInternals.useElementSize(ref, {
-		shouldApplyCssTransforms: false,
-		triggerOnWindowResize: false,
-	});
+	const {clearSelection} = useTimelineSelection();
 
-	const isCompact = size ? size.width < 250 : false;
+	// Selection-triggering click handlers in children call e.stopPropagation(),
+	// so any pointerdown that bubbles up here is by definition on empty space
+	// and should clear the current selection.
+	const onPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (e.button !== 0) {
+				return;
+			}
+
+			clearSelection();
+		},
+		[clearSelection],
+	);
 
 	return (
-		<div ref={ref} style={container}>
+		<div style={container} onPointerDown={onPointerDown}>
 			<TimelineTimePadding />
 			{timeline.map((track) => {
 				return (
@@ -31,7 +39,6 @@ export const TimelineList: React.FC<{
 							key={track.sequence.id}
 							nestedDepth={track.depth}
 							sequence={track.sequence}
-							isCompact={isCompact}
 							nodePathInfo={track.nodePathInfo}
 						/>
 					</div>

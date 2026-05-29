@@ -17,6 +17,7 @@ import {mirror} from '../mirror.js';
 import {noise} from '../noise.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
+import {scanlines} from '../scanlines.js';
 import {shine} from '../shine.js';
 import {speckle} from '../speckle.js';
 import {tint} from '../tint.js';
@@ -76,6 +77,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(saturation().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/saturation',
 	);
+	expect(scanlines().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/scanlines',
+	);
 	expect(scale({scale: 1}).definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/scale',
 	);
@@ -121,6 +125,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(noise().definition.label).toBe('noise()');
 	expect(saturation().definition.label).toBe('saturation()');
+	expect(scanlines().definition.label).toBe('scanlines()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
 	expect(shine().definition.label).toBe('shine()');
 	expect(speckle().definition.label).toBe('speckle()');
@@ -983,6 +988,72 @@ test('saturation() amount produces distinct effect keys', () => {
 		new Set([desaturated.effectKey, neutral.effectKey, oversaturated.effectKey])
 			.size,
 	).toBe(3);
+});
+
+test('scanlines() accepts default params', () => {
+	expect(() => scanlines()).not.toThrow();
+});
+
+test('scanlines() rejects non-finite amount', () => {
+	expect(() => scanlines({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('scanlines() rejects amount below range', () => {
+	expect(() => scanlines({amount: -0.1})).toThrow('"amount" must be >= 0');
+});
+
+test('scanlines() rejects amount above range', () => {
+	expect(() => scanlines({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('scanlines() rejects non-finite spacing', () => {
+	expect(() => scanlines({spacing: Number.NaN})).toThrow(
+		'"spacing" must be a finite number',
+	);
+});
+
+test('scanlines() rejects non-positive spacing', () => {
+	expect(() => scanlines({spacing: 0})).toThrow(
+		'"spacing" must be greater than 0',
+	);
+});
+
+test('scanlines() rejects negative thickness', () => {
+	expect(() => scanlines({thickness: -1})).toThrow('"thickness" must be >= 0');
+});
+
+test('scanlines() rejects non-finite offset', () => {
+	expect(() => scanlines({offset: Number.NaN})).toThrow(
+		'"offset" must be a finite number',
+	);
+});
+
+test('scanlines() rejects non-boolean premultiply', () => {
+	expect(() => scanlines({premultiply: 'yes' as unknown as boolean})).toThrow(
+		'"premultiply" must be a boolean',
+	);
+});
+
+test('scanlines() parameters produce distinct effect keys', () => {
+	const subtle = scanlines({amount: 0.1});
+	const strong = scanlines({amount: 0.3});
+	const dense = scanlines({spacing: 2});
+	const thick = scanlines({thickness: 2});
+	const shifted = scanlines({offset: 1});
+	const premultiplied = scanlines({premultiply: true});
+
+	expect(
+		new Set([
+			subtle.effectKey,
+			strong.effectKey,
+			dense.effectKey,
+			thick.effectKey,
+			shifted.effectKey,
+			premultiplied.effectKey,
+		]).size,
+	).toBe(6);
 });
 
 test('hue() accepts default params', () => {

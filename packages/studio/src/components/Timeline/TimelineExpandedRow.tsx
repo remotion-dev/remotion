@@ -20,8 +20,8 @@ import {TimelineFieldRow} from './TimelineFieldRow';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
+	getTimelineColor,
 	getTimelineSelectedLabelStyle,
-	TIMELINE_SELECTED_LABEL_TEXT,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 
@@ -55,10 +55,10 @@ export const TimelineExpandedRow: React.FC<{
 	const labelStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...rowLabel,
-			...getTimelineSelectedLabelStyle(selection.selected),
+			...getTimelineSelectedLabelStyle(selection.selected, true),
 			alignSelf: 'stretch',
 			alignItems: 'center',
-			color: selection.selected ? TIMELINE_SELECTED_LABEL_TEXT : rowLabel.color,
+			color: getTimelineColor(selection.selected, true),
 			display: 'flex',
 			flex: 1,
 			minWidth: 0,
@@ -85,6 +85,7 @@ export const TimelineExpandedRow: React.FC<{
 			);
 		}
 
+		// Group like "Effects"
 		const isExpanded = getIsExpanded(node.nodePathInfo);
 		return (
 			<TimelineRowChrome
@@ -105,6 +106,8 @@ export const TimelineExpandedRow: React.FC<{
 				selectable={selection.selectable}
 				onSelect={selection.onSelect}
 				showSelectedBackground
+				containsSelection={false}
+				outerHeight={null}
 			>
 				<span style={labelStyle}>{node.label}</span>
 			</TimelineRowChrome>
@@ -154,6 +157,8 @@ export const TimelineExpandedRow: React.FC<{
 			selectable={selection.selectable}
 			onSelect={selection.onSelect}
 			showSelectedBackground
+			containsSelection={false}
+			outerHeight={null}
 		>
 			<span style={labelStyle}>{node.label}</span>
 		</TimelineRowChrome>

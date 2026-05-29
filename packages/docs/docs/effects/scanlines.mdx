@@ -1,0 +1,96 @@
+---
+image: /generated/articles-docs-effects-scanlines.png
+slug: /effects/scanlines
+title: scanlines()
+sidebar_label: scanlines()
+crumb: '@remotion/effects'
+---
+
+# scanlines()<AvailableFrom v="4.0.469" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds horizontal scanlines to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+The effect is additive and preserves the source alpha mask. Transparent regions stay transparent.
+
+## Preview
+
+<Demo type="effects-scanlines" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {scanlines} from '@remotion/effects/scanlines';
+import {Video} from '@remotion/media';
+import {AbsoluteFill, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          scanlines({
+            amount: 0.25,
+            spacing: 4,
+            thickness: 1,
+            offset: frame * 0.5,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `scanlines()` without arguments.
+
+### `amount?`
+
+Strength from `0` to `1`. Defaults to `0.15`.
+
+Use `0` to leave the layer unchanged.
+
+### `spacing?`
+
+Distance between scanlines in pixels. Defaults to `4`.
+
+A lower value creates denser scanlines. A higher value creates wider gaps.
+
+### `thickness?`
+
+Height of each scanline in pixels. Defaults to `1`.
+
+A value greater than `spacing` is clamped to the spacing.
+
+### `offset?`
+
+Vertical offset in pixels. Defaults to `0`.
+
+Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to scroll the scanlines.
+
+### `premultiply?`
+
+Whether the scanline contribution is multiplied with the input colors before being added. Defaults to `false`.
+
+Set to `true` for a subtler effect that follows the source brightness more closely.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`scanlines()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`noise()`](/docs/effects/noise)
+- [`speckle()`](/docs/effects/speckle)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/scanlines.ts)
