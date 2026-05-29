@@ -1,5 +1,11 @@
-import type {ExtrapolateType, InterpolateOptions} from 'remotion';
-import {interpolate, interpolateColors} from 'remotion';
+import {
+	assertValidInterpolateEasingOption,
+	interpolate,
+	interpolateColors,
+	type EasingFunction,
+	type ExtrapolateType,
+	type InterpolateOptions,
+} from 'remotion';
 import type {
 	CSSPropertiesKey,
 	CSSPropertiesValue,
@@ -7,6 +13,12 @@ import type {
 	UnitNumberAndFunction,
 } from '../../type';
 import {breakDownValueIntoUnitNumberAndFunctions} from './utils';
+
+type InterpolateStylesResolvedOptions = {
+	easing: EasingFunction;
+	extrapolateLeft: ExtrapolateType;
+	extrapolateRight: ExtrapolateType;
+};
 
 const interpolatedPropertyPart = ({
 	inputValue,
@@ -23,7 +35,7 @@ const interpolatedPropertyPart = ({
 	finalStylePropertyPart: UnitNumberAndFunction;
 	initialStyleProperty: CSSPropertiesValue;
 	finalStyleProperty: CSSPropertiesValue;
-	options: Required<InterpolateOptions>;
+	options: InterpolateStylesResolvedOptions;
 }): string | number => {
 	if (finalStylePropertyPart === undefined) {
 		throw new TypeError(
@@ -129,7 +141,7 @@ const interpolateProperty = ({
 	inputRange: number[];
 	initialStyleProperty: CSSPropertiesValue;
 	finalStyleProperty: CSSPropertiesValue;
-	options: Required<InterpolateOptions>;
+	options: InterpolateStylesResolvedOptions;
 }) => {
 	if (
 		typeof initialStyleProperty !== typeof finalStyleProperty &&
@@ -180,7 +192,7 @@ const interpolateStylesFunction = ({
 	inputRange: number[];
 	initialStyle: Style;
 	finalStyle: Style;
-	options: Required<InterpolateOptions>;
+	options: InterpolateStylesResolvedOptions;
 }): Style => {
 	const [startingValue, endingValue] = inputRange;
 	return Object.keys(initialStyle).reduce((acc, key) => {
@@ -305,7 +317,15 @@ export const interpolateStyles = (
 	const initialStyle = outputStylesRange[startIndex];
 	const finalStyle = outputStylesRange[endIndex];
 
-	const easing = options?.easing ?? ((num: number): number => num);
+	assertValidInterpolateEasingOption(options?.easing, inputRange.length);
+
+	const easingOption = options?.easing;
+	const segmentEasing: EasingFunction =
+		easingOption === undefined
+			? (num: number): number => num
+			: typeof easingOption === 'function'
+				? easingOption
+				: easingOption[startIndex];
 
 	const extrapolateLeft: ExtrapolateType = options?.extrapolateLeft ?? 'extend';
 	const extrapolateRight: ExtrapolateType =
@@ -317,7 +337,7 @@ export const interpolateStyles = (
 		initialStyle,
 		finalStyle,
 		options: {
-			easing,
+			easing: segmentEasing,
 			extrapolateLeft,
 			extrapolateRight,
 		},

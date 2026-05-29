@@ -1,9 +1,9 @@
 import fs, {readFileSync, writeFileSync} from 'node:fs';
 
 export type FileChangeEvent =
-	| {type: 'created'; content: string}
+	| {type: 'created'; content: string; originatorClientId: string | undefined}
 	| {type: 'deleted'}
-	| {type: 'changed'; content: string};
+	| {type: 'changed'; content: string; originatorClientId: string | undefined};
 
 type OnChange = (event: FileChangeEvent) => void;
 
@@ -32,7 +32,11 @@ export type FileWatcherRegistry = {
 		exists: boolean;
 		unwatch: () => void;
 	};
-	writeFileAndNotifyFileWatchers: (file: string, content: string) => void;
+	writeFileAndNotifyFileWatchers: (
+		file: string,
+		content: string,
+		originatorClientId: string | undefined,
+	) => void;
 };
 
 export const createFileWatcherRegistry = (): FileWatcherRegistry => {
@@ -84,7 +88,11 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 			if (existenceOnly) {
 				if (!shared.existedBefore && existsNow) {
 					shared.existedBefore = true;
-					event = {type: 'created', content: ''};
+					event = {
+						type: 'created',
+						content: '',
+						originatorClientId: undefined,
+					};
 				} else if (shared.existedBefore && !existsNow) {
 					shared.existedBefore = false;
 					event = {type: 'deleted'};
@@ -93,7 +101,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 				const content = readFileSync(file, 'utf-8');
 				shared.existedBefore = true;
 				shared.lastKnownContent = content;
-				event = {type: 'created', content};
+				event = {type: 'created', content, originatorClientId: undefined};
 			} else if (shared.existedBefore && !existsNow) {
 				shared.existedBefore = false;
 				shared.lastKnownContent = null;
@@ -113,7 +121,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 				}
 
 				shared.lastKnownContent = content;
-				event = {type: 'changed', content};
+				event = {type: 'changed', content, originatorClientId: undefined};
 			}
 
 			if (!event) {
@@ -140,7 +148,11 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		};
 	};
 
-	const _writeFileAndNotifyFileWatchers = (file: string, content: string) => {
+	const _writeFileAndNotifyFileWatchers = (
+		file: string,
+		content: string,
+		originatorClientId: string | undefined,
+	) => {
 		writeFileSync(file, content);
 
 		const shared = sharedWatchers.get(getRegistryKey(file, false));
@@ -152,7 +164,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		shared.existedBefore = true;
 
 		for (const subscriber of shared.subscribers) {
-			subscriber({type: 'changed', content});
+			subscriber({type: 'changed', content, originatorClientId});
 		}
 	};
 
@@ -195,10 +207,14 @@ export const installFileWatcher: FileWatcherRegistry['installFileWatcher'] = (
 };
 
 export const writeFileAndNotifyFileWatchers: FileWatcherRegistry['writeFileAndNotifyFileWatchers'] =
-	(file, content) => {
+	(file, content, originatorClientId) => {
 		if (!currentRegistry) {
 			return;
 		}
 
-		getFileWatcherRegistry().writeFileAndNotifyFileWatchers(file, content);
+		getFileWatcherRegistry().writeFileAndNotifyFileWatchers(
+			file,
+			content,
+			originatorClientId,
+		);
 	};

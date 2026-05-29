@@ -3,7 +3,7 @@ import React from 'react';
 import type {AnyZodObject} from './any-zod-type.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {DownloadBehavior} from './download-behavior.js';
-import type {EffectDefinitionAndStack} from './effects/effect-types.js';
+import type {EffectDefinition} from './effects/effect-types.js';
 import type {NonceHistory} from './nonce.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import type {SequenceSchema} from './sequence-field-schema.js';
@@ -106,16 +106,18 @@ export type TSequence = {
 	duration: number;
 	id: string;
 	displayName: string;
+	documentationLink: string | null;
 	parent: string | null;
 	rootId: string;
 	showInTimeline: boolean;
 	nonce: NonceHistory;
 	loopDisplay: LoopDisplay | undefined;
-	stack: string | null;
+	getStack: () => string | null;
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
 	controls: SequenceControls | null;
-	effects: EffectDefinitionAndStack<unknown>[];
+	refForOutline: React.RefObject<HTMLElement | null> | null;
+	effects: readonly EffectDefinition<unknown>[];
 } & EnhancedTSequenceData;
 
 export type AudioOrVideoAsset = {

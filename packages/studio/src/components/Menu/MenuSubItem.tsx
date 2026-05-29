@@ -19,9 +19,9 @@ import {
 import {SubMenuComponent} from './SubMenu';
 
 const container: React.CSSProperties = {
-	paddingTop: 8,
-	paddingBottom: 8,
-	paddingLeft: 12,
+	paddingTop: 4,
+	paddingBottom: 4,
+	paddingLeft: 8,
 	paddingRight: 8,
 	cursor: 'default',
 };
@@ -41,8 +41,8 @@ const keyHintCss: React.CSSProperties = {
 };
 
 const leftSpace: React.CSSProperties = {
-	width: 24,
-	marginLeft: -6,
+	width: 20,
+	marginLeft: -2,
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',

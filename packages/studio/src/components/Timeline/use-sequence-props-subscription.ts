@@ -1,26 +1,48 @@
-import {useContext, useEffect, useMemo} from 'react';
+import {
+	getAllSchemaKeys,
+	stringifySequenceSubscriptionKey,
+} from '@remotion/studio-shared';
+import {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
-import type {SequenceSchema} from 'remotion';
+import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {acquireSequencePropsSubscription} from './sequence-props-subscription-store';
 
 export const useSequencePropsSubscription = ({
 	originalLocation,
 	overrideId,
 	schema,
+	effects,
 }: {
 	overrideId: string;
 	schema: SequenceSchema;
+	effects: SequenceSchema[];
 	originalLocation: OriginalPosition | null;
 }) => {
 	const {setCodeValues} = useContext(Internals.VisualModeSettersContext);
 	const {setOverrideIdToNodePath} = useContext(
 		Internals.OverrideIdsToNodePathsSettersContext,
 	);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+	const {migrateExpandedTracksForSubscriptionKey} = useContext(
+		ExpandedTracksSetterContext,
+	);
 
 	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
+	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
+	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
+	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
+
+	const effectsSignature = useMemo(
+		() =>
+			effects.map((effect) => getAllSchemaKeys(effect).join('\0')).join('\0\0'),
+		[effects],
+	);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -53,11 +75,15 @@ export const useSequencePropsSubscription = ({
 			return;
 		}
 
+		const nodePathAtResubscribe =
+			overrideIdToNodePathMappingsRef.current[overrideId] ?? null;
+
 		const {release} = acquireSequencePropsSubscription({
 			fileName: locationSource,
 			line: locationLine,
 			column: locationColumn,
 			schema,
+			effects,
 			clientId,
 			applyOnce: (result) => {
 				if (!result.success) {
@@ -71,7 +97,27 @@ export const useSequencePropsSubscription = ({
 					return;
 				}
 
-				setOverrideIdToNodePath(overrideId, result.nodePath);
+				const newNodePath = result.nodePath;
+				const newNodePathKey = stringifySequenceSubscriptionKey(newNodePath);
+				const previousNodePath =
+					previousNodePathRef.current ?? nodePathAtResubscribe;
+				const previousNodePathKey = previousNodePath
+					? stringifySequenceSubscriptionKey(previousNodePath)
+					: null;
+
+				if (previousNodePathKey === newNodePathKey) {
+					return;
+				}
+
+				if (previousNodePath) {
+					migrateExpandedTracksForSubscriptionKey(
+						previousNodePath,
+						newNodePath,
+					);
+				}
+
+				previousNodePathRef.current = newNodePath;
+				setOverrideIdToNodePath(overrideId, newNodePath);
 			},
 		});
 
@@ -80,9 +126,12 @@ export const useSequencePropsSubscription = ({
 		};
 	}, [
 		clientId,
+		effects,
+		effectsSignature,
 		locationColumn,
 		locationLine,
 		locationSource,
+		migrateExpandedTracksForSubscriptionKey,
 		overrideId,
 		schema,
 		setCodeValues,

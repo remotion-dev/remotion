@@ -125,8 +125,11 @@ const InnerRecordingView: React.FC<{
 
   const selectScreenWithoutAudio = useCallback(async () => {
     setVideoDevice(prefix, "display-without-audio");
+    if (recordAudio && !mediaStream.audioDevice) {
+      return;
+    }
     setShowPicker(false);
-  }, [prefix, setVideoDevice]);
+  }, [mediaStream.audioDevice, prefix, recordAudio, setVideoDevice]);
   const selectScreenWithAudio = useCallback(async () => {
     setVideoDevice(prefix, "display-with-audio");
     setShowPicker(false);
@@ -341,13 +344,11 @@ const InnerRecordingView: React.FC<{
             onPickVideo={onPickVideo}
             onPickAudio={onPickAudio}
             canSelectAudio={recordAudio}
-            canSelectScreen={prefix !== WEBCAM_PREFIX}
             onPickScreenWithoutAudio={selectScreenWithoutAudio}
             onPickScreenWithAudio={selectScreenWithAudio}
             selectedAudioDevice={mediaStream.audioDevice}
             selectedVideoDevice={mediaStream.videoDevice}
             clear={clear}
-            canClear={prefix !== WEBCAM_PREFIX}
           />
         ) : null}
         {canShowResolutionLimiter ? (

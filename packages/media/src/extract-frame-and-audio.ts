@@ -1,6 +1,7 @@
 import type {LogLevel} from 'remotion';
 import {extractAudio} from './audio-extraction/extract-audio';
 import {isNetworkError} from './is-type-of-error';
+import type {MediaRequestInit} from './request-init';
 import {extractFrame} from './video-extraction/extract-frame';
 import type {ExtractFrameViaBroadcastChannelResult} from './video-extraction/extract-frame-via-broadcast-channel';
 import {rotateFrame} from './video-extraction/rotate-frame';
@@ -20,6 +21,7 @@ export const extractFrameAndAudio = async ({
 	fps,
 	maxCacheSize,
 	credentials,
+	requestInit,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -35,6 +37,7 @@ export const extractFrameAndAudio = async ({
 	fps: number;
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
+	requestInit?: MediaRequestInit;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	try {
 		const [video, audio] = await Promise.all([
@@ -50,6 +53,7 @@ export const extractFrameAndAudio = async ({
 						fps,
 						maxCacheSize,
 						credentials,
+						requestInit,
 					})
 				: null,
 			includeAudio
@@ -66,6 +70,7 @@ export const extractFrameAndAudio = async ({
 						trimBefore,
 						maxCacheSize,
 						credentials,
+						requestInit,
 					})
 				: null,
 		]);

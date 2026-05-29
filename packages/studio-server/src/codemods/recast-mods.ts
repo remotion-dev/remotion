@@ -10,6 +10,7 @@ import type {
 	JSXAttribute,
 	JSXElement,
 	JSXFragment,
+	NullLiteral,
 	ReturnStatement,
 	Statement,
 	VariableDeclaration,
@@ -127,10 +128,93 @@ const mapReturnStatement = (
 		return statement;
 	}
 
+	const replacement = transformLoneJsxElement(
+		statement.argument,
+		transformation,
+		changesMade,
+	);
+	if (replacement !== null) {
+		return {...statement, argument: replacement};
+	}
+
 	return {
 		...statement,
 		argument: mapAll(statement.argument, transformation, changesMade),
 	};
+};
+
+const nullLiteral = (): NullLiteral => ({type: 'NullLiteral'});
+
+// When a node was originally parenthesized (e.g. the `<JSX/>` inside
+// `return (<JSX/>)`), Babel records `extra.parenthesized` on it. If we move
+// such a node into a JSXFragment without clearing that hint, recast prints
+// stray `(` / `)` characters around it as JSX text. Clear the hint so the
+// node prints cleanly in its new context.
+const stripParenthesizedExtra = <T extends {extra?: unknown}>(node: T): T => {
+	if (!node.extra) {
+		return node;
+	}
+
+	const {
+		parenthesized: _p,
+		parenStart: _ps,
+		...rest
+	} = node.extra as {
+		parenthesized?: boolean;
+		parenStart?: number;
+	};
+	return {...node, extra: rest};
+};
+
+const wrapInJsxFragment = (children: JSXElement[]): JSXFragment => ({
+	type: 'JSXFragment',
+	openingFragment: {type: 'JSXOpeningFragment'},
+	closingFragment: {type: 'JSXClosingFragment'},
+	children: children.map(stripParenthesizedExtra),
+});
+
+// When a <Composition> JSX element appears in a position where it cannot
+// simply be removed from a parent's children list (e.g. as the sole return
+// value of a wrapper component or as the concise body of an arrow function),
+// we still want delete/rename/duplicate codemods to work. This helper detects
+// that case and produces a structurally-valid replacement expression.
+const transformLoneJsxElement = (
+	expression: Expression,
+	transformation: RecastCodemod,
+	changesMade: Change[],
+): Expression | null => {
+	if (expression.type !== 'JSXElement') {
+		return null;
+	}
+
+	const compId = getCompositionIdFromJSXElement(expression);
+	if (compId === null) {
+		return null;
+	}
+
+	const isMatch =
+		(transformation.type === 'delete-composition' &&
+			compId === transformation.idToDelete) ||
+		(transformation.type === 'rename-composition' &&
+			compId === transformation.idToRename) ||
+		(transformation.type === 'duplicate-composition' &&
+			compId === transformation.idToDuplicate);
+
+	if (!isMatch) {
+		return null;
+	}
+
+	const transformed = mapJsxChild(expression, transformation, changesMade);
+
+	if (transformed.length === 0) {
+		return nullLiteral();
+	}
+
+	if (transformed.length === 1) {
+		return transformed[0];
+	}
+
+	return wrapInJsxFragment(transformed);
 };
 
 const mapJsxElementOrFragment = <T extends JSXFragment | JSXElement>(
@@ -230,6 +314,23 @@ const mapRecognizedType = <T extends RecognizedType>(
 		expression.type === 'ArrowFunctionExpression' ||
 		expression.type === 'FunctionExpression'
 	) {
+		if (
+			expression.type === 'ArrowFunctionExpression' &&
+			expression.body.type === 'JSXElement'
+		) {
+			const replacement = transformLoneJsxElement(
+				expression.body,
+				transformation,
+				changesMade,
+			);
+			if (replacement !== null) {
+				return {
+					...expression,
+					body: replacement,
+				};
+			}
+		}
+
 		return {
 			...expression,
 			body: mapAll(expression.body, transformation, changesMade),

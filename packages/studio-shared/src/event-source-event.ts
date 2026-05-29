@@ -1,5 +1,8 @@
 import type {StaticFile} from 'remotion';
-import type {SequenceNodePath, CanUpdateSequencePropsResponse} from 'remotion';
+import type {
+	CanUpdateSequencePropsResponse,
+	SequencePropsSubscriptionKey,
+} from 'remotion';
 import type {CanUpdateDefaultPropsResponse} from './api-requests';
 import type {HotMiddlewareMessage} from './hot-middleware';
 import type {CompletedClientRender, RenderJob} from './render-job';
@@ -51,8 +54,14 @@ export type EventSourceEvent =
 	| {
 			type: 'sequence-props-updated';
 			fileName: string;
-			nodePath: SequenceNodePath;
+			nodePath: SequencePropsSubscriptionKey;
 			result: CanUpdateSequencePropsResponse;
+	  }
+	| {
+			type: 'lost-node-path';
+			fileName: string;
+			line: number;
+			column: number;
 	  }
 	| {
 			type: 'default-props-updatable-changed';

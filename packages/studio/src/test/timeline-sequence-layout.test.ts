@@ -1,6 +1,9 @@
 import {expect, test} from 'bun:test';
 import type {VideoConfig} from 'remotion';
-import {getTimelineSequenceLayout} from '../helpers/get-timeline-sequence-layout';
+import {
+	SEQUENCE_BORDER_WIDTH,
+	getTimelineSequenceLayout,
+} from '../helpers/get-timeline-sequence-layout';
 
 const makeVideoConfig = (durationInFrames: number): VideoConfig => ({
 	durationInFrames,
@@ -44,8 +47,8 @@ test('Should test timeline sequence layout without max media duration', () => {
 		marginLeft: 1154.4991419797689,
 		premountWidth: null,
 		postmountWidth: null,
-		width: 226.70398302023122,
-		naturalWidth: 226.70398302023122,
+		width: 227.2746696944674,
+		naturalWidth: 227.2746696944674,
 	});
 });
 test('Should test timeline sequence layout with max media duration', () => {
@@ -117,7 +120,7 @@ test('naturalWidth === width when segment fits within timeline', () => {
 	expect(result.naturalWidth).toBe(result.width);
 });
 
-test('one-frame segments have zero width', () => {
+test('one-frame segments have a one-frame width', () => {
 	const result = getTimelineSequenceLayout({
 		durationInFrames: 1,
 		startFrom: 0,
@@ -129,8 +132,35 @@ test('one-frame segments have zero width', () => {
 		windowWidth: 1000,
 	});
 
-	expect(result.width).toBe(0);
-	expect(result.naturalWidth).toBe(0);
+	expect(result.width).toBe(2.237458193979933);
+	expect(result.naturalWidth).toBe(2.237458193979933);
+});
+
+test('adjacent sequences have no visual gap', () => {
+	const first = getTimelineSequenceLayout({
+		durationInFrames: 23.5,
+		startFrom: 0,
+		startFromMedia: 0,
+		maxMediaDuration: null,
+		premountDisplay: null,
+		postmountDisplay: null,
+		video: makeVideoConfig(120),
+		windowWidth: 1000,
+	});
+	const second = getTimelineSequenceLayout({
+		durationInFrames: 20,
+		startFrom: 23.5,
+		startFromMedia: 0,
+		maxMediaDuration: null,
+		premountDisplay: null,
+		postmountDisplay: null,
+		video: makeVideoConfig(120),
+		windowWidth: 1000,
+	});
+
+	expect(first.marginLeft + first.width + SEQUENCE_BORDER_WIDTH).toBe(
+		second.marginLeft,
+	);
 });
 
 test('media trimmed past its duration has zero width', () => {

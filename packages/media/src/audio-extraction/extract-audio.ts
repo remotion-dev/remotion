@@ -16,6 +16,7 @@ import {
 	isNetworkError,
 	isUnsupportedConfigurationError,
 } from '../is-type-of-error';
+import type {MediaRequestInit} from '../request-init';
 
 type ExtractAudioReturnType = Awaited<ReturnType<typeof extractAudioInternal>>;
 
@@ -32,6 +33,7 @@ type ExtractAudioParams = {
 	fps: number;
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
+	requestInit?: MediaRequestInit;
 };
 
 const extractAudioInternal = async ({
@@ -47,6 +49,7 @@ const extractAudioInternal = async ({
 	fps,
 	maxCacheSize,
 	credentials,
+	requestInit,
 }: ExtractAudioParams): Promise<
 	| {
 			data: PcmS16AudioData | null;
@@ -57,7 +60,7 @@ const extractAudioInternal = async ({
 	| 'network-error'
 > => {
 	const {getAudio, actualMatroskaTimestamps, isMatroska, getDuration} =
-		await getSink(src, logLevel, credentials);
+		await getSink(src, logLevel, credentials, requestInit);
 
 	let mediaDurationInSeconds: number | null = null;
 	if (loop) {

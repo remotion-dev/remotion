@@ -319,6 +319,63 @@ export const CompanyPricing: React.FC = () => {
 			/>
 			<div style={{height: 30}} />
 
+			{/* Remotion for Automators Section */}
+			<SectionCheckbox
+				checked={automatorsSelected}
+				onChange={setAutomatorsSelected}
+				title="Remotion for Automators"
+				subtitle="Build video creation tools - $0.01 per render, $100/mo minimum"
+			/>
+			<div
+				className={cn(
+					'grid ease-out',
+					automatorsSelected
+						? 'grid-rows-[1fr] opacity-100'
+						: 'grid-rows-[0fr] opacity-0',
+				)}
+				style={{
+					transition: automatorsSelected
+						? 'grid-template-rows 150ms ease-out, opacity 150ms ease-out 75ms'
+						: 'opacity 150ms ease-out, grid-template-rows 150ms ease-out 75ms',
+				}}
+				inert={!automatorsSelected}
+			>
+				<div className="overflow-hidden">
+					<p className="text-sm text-muted fontbrand pt-3 pb-1">
+						Intended for companies launching applications and systems; such as
+						video editors, prompt-to-video apps, embedding the Remotion Player,
+						or any other automated video creation. A $100/mo Minimum Spend
+						applies. Developers working on automation projects do not require a
+						Seat.
+					</p>
+					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
+						<div className="flex-1 min-w-0">
+							<PricingSlider
+								value={cloudRenders}
+								onChange={setCloudRenders}
+								min={1000}
+								max={100000}
+								step={1000}
+								aria-label="Number of renders"
+							/>
+						</div>
+
+						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-right tabular-nums">
+							{new Intl.NumberFormat('en-US').format(cloudRenders)} Renders
+						</div>
+
+						<div className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap tabular-nums">
+							$
+							{new Intl.NumberFormat('en-US', {
+								maximumFractionDigits: 0,
+							}).format(Math.ceil(cloudRenders / 1000) * RENDER_UNIT_PRICE)}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div className="h-6" />
+
 			{/* Remotion for Creators Section */}
 			<SectionCheckbox
 				checked={creatorsSelected}
@@ -366,62 +423,6 @@ export const CompanyPricing: React.FC = () => {
 							{new Intl.NumberFormat('en-US', {
 								maximumFractionDigits: 0,
 							}).format(SEAT_PRICE * devSeatCount)}
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div className="h-6" />
-
-			{/* Remotion for Automators Section */}
-			<SectionCheckbox
-				checked={automatorsSelected}
-				onChange={setAutomatorsSelected}
-				title="Remotion for Automators"
-				subtitle="Build video creation tools - $0.01 per render, $100/mo minimum"
-			/>
-			<div
-				className={cn(
-					'grid ease-out',
-					automatorsSelected
-						? 'grid-rows-[1fr] opacity-100'
-						: 'grid-rows-[0fr] opacity-0',
-				)}
-				style={{
-					transition: automatorsSelected
-						? 'grid-template-rows 150ms ease-out, opacity 150ms ease-out 75ms'
-						: 'opacity 150ms ease-out, grid-template-rows 150ms ease-out 75ms',
-				}}
-				inert={!automatorsSelected}
-			>
-				<div className="overflow-hidden">
-					<p className="text-sm text-muted fontbrand pt-3 pb-1">
-						Intended for companies launching SaaS applications; such as video
-						editors and prompt-to-video apps, and automated high-volume video
-						creation. A $100/mo Minimum Spend applies. Developers working on
-						automation projects do not require a Seat.
-					</p>
-					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
-						<div className="flex-1 min-w-0">
-							<PricingSlider
-								value={cloudRenders}
-								onChange={setCloudRenders}
-								min={1000}
-								max={100000}
-								step={1000}
-								aria-label="Number of renders"
-							/>
-						</div>
-
-						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-right tabular-nums">
-							{new Intl.NumberFormat('en-US').format(cloudRenders)} Renders
-						</div>
-
-						<div className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap tabular-nums">
-							$
-							{new Intl.NumberFormat('en-US', {
-								maximumFractionDigits: 0,
-							}).format(Math.ceil(cloudRenders / 1000) * RENDER_UNIT_PRICE)}
 						</div>
 					</div>
 				</div>

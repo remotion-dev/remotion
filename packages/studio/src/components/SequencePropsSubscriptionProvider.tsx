@@ -4,7 +4,7 @@ import type {
 	OverrideIdToNodePaths,
 	OverrideToNodePathGetters,
 	OverrideToNodeSetters,
-	SequenceNodePath,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
 
 export const SequencePropsSubscriptionProvider: React.FC<{
@@ -14,7 +14,7 @@ export const SequencePropsSubscriptionProvider: React.FC<{
 		useState<OverrideIdToNodePaths>({});
 
 	const setOverrideIdToNodePath = useCallback(
-		(overrideId: string, state: SequenceNodePath) => {
+		(overrideId: string, state: SequencePropsSubscriptionKey) => {
 			setOverrideIdToNodePathMap((prev) => {
 				const existing = prev[overrideId];
 				if (existing && existing === state) {

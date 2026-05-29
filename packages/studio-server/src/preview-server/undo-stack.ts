@@ -20,8 +20,13 @@ type UndoEntryType =
 	| 'visual-control'
 	| 'default-props'
 	| 'sequence-props'
+	| 'effect-props'
+	| 'delete-effect'
 	| 'delete-jsx-node'
-	| 'duplicate-jsx-node';
+	| 'duplicate-jsx-node'
+	| 'delete-composition'
+	| 'rename-composition'
+	| 'duplicate-composition';
 
 type UndoEntry = {
 	filePath: string;
@@ -35,8 +40,13 @@ type UndoEntry = {
 	| {entryType: 'visual-control'}
 	| {entryType: 'default-props'}
 	| {entryType: 'sequence-props'}
+	| {entryType: 'effect-props'}
+	| {entryType: 'delete-effect'}
 	| {entryType: 'delete-jsx-node'}
 	| {entryType: 'duplicate-jsx-node'}
+	| {entryType: 'delete-composition'}
+	| {entryType: 'rename-composition'}
+	| {entryType: 'duplicate-composition'}
 );
 
 const MAX_ENTRIES = 100;
@@ -305,7 +315,7 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 		suppressBundlerUpdateForFile(entry.filePath);
 	}
 
-	writeFileAndNotifyFileWatchers(entry.filePath, entry.oldContents);
+	writeFileAndNotifyFileWatchers(entry.filePath, entry.oldContents, undefined);
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: storedLogLevel},
@@ -345,7 +355,7 @@ export function popRedo(): {success: true} | {success: false; reason: string} {
 		suppressBundlerUpdateForFile(entry.filePath);
 	}
 
-	writeFileAndNotifyFileWatchers(entry.filePath, entry.oldContents);
+	writeFileAndNotifyFileWatchers(entry.filePath, entry.oldContents, undefined);
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: storedLogLevel},

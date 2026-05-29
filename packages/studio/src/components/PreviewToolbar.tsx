@@ -24,14 +24,12 @@ import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 
-const TOOLBAR_HEIGHT = 56;
+const TOOLBAR_HEIGHT = 50;
 
 const container: React.CSSProperties = {
 	display: 'flex',
 	justifyContent: 'center',
 	borderTop: '1px solid rgba(0, 0, 0, 0.5)',
-	paddingTop: 2,
-	paddingBottom: 2,
 	alignItems: 'center',
 	flexDirection: 'row',
 	background: BACKGROUND,
@@ -68,7 +66,7 @@ const scrollIndicatorRight: React.CSSProperties = {
 
 const sideContainer: React.CSSProperties = {
 	width: 300,
-	height: 38,
+	height: 36,
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',

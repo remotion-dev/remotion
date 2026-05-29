@@ -7,7 +7,16 @@ import {none} from '@remotion/transitions/none';
 import {slide} from '@remotion/transitions/slide';
 import {wipe} from '@remotion/transitions/wipe';
 import React from 'react';
+import {BookFlipTocPreview} from '../../transitions/book-flip-toc-preview';
+import {CrosswarpTocPreview} from '../../transitions/crosswarp-toc-preview';
+import {CrossZoomTocPreview} from '../../transitions/cross-zoom-toc-preview';
+import {DissolveTocPreview} from '../../transitions/dissolve-toc-preview';
+import {DreamyZoomTocPreview} from '../../transitions/dreamy-zoom-toc-preview';
+import {FilmBurnTocPreview} from '../../transitions/film-burn-toc-preview';
 import {PresentationPreview} from '../../transitions/previews';
+import {RippleTocPreview} from '../../transitions/ripple-toc-preview';
+import {SwapTocPreview} from '../../transitions/swap-toc-preview';
+import {LinearBlurTocPreview} from '../../transitions/linear-blur-toc-preview';
 import {ZoomBlurTocPreview} from '../../transitions/zoom-blur-toc-preview';
 import {ZoomInOutTocPreview} from '../../transitions/zoom-in-out-toc-preview';
 import {Grid} from '../Grid';
@@ -131,6 +140,54 @@ export const Presentations: React.FC<{
 					</div>
 				</div>
 			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/dreamy-zoom">
+				<div style={row}>
+					<DreamyZoomTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'dreamyZoom()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Zoom through a white flash with gentle rotation</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/film-burn">
+				<div style={row}>
+					<FilmBurnTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'filmBurn()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Burn through scenes with procedural glow and blur</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/linear-blur">
+				<div style={row}>
+					<LinearBlurTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'linearBlur()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Blend scenes with a directional multi-sample blur</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/book-flip">
+				<div style={row}>
+					<BookFlipTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'bookFlip()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Turn the scenes like a shaded book page</div>
+					</div>
+				</div>
+			</TOCItem>
 			<TOCItem link="/docs/transitions/presentations/zoom-in-out">
 				<div style={row}>
 					<ZoomInOutTocPreview />
@@ -140,6 +197,66 @@ export const Presentations: React.FC<{
 						</strong>
 						<HtmlInCanvasLabel />
 						<div>Zoom one scene in, crossfade, zoom the next out</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/dissolve">
+				<div style={row}>
+					<DissolveTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'dissolve()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Burn through the previous scene with a glowing edge</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/ripple">
+				<div style={row}>
+					<RippleTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'ripple()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Ripple the outgoing scene with a sinusoidal wave</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/crosswarp">
+				<div style={row}>
+					<CrosswarpTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'crosswarp()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Warp both scenes across the x-axis and blend them</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/cross-zoom">
+				<div style={row}>
+					<CrossZoomTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'crossZoom()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Zoom both scenes through a moving center and blur</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/swap">
+				<div style={row}>
+					<SwapTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'swap()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Swap scenes with perspective and reflections</div>
 					</div>
 				</div>
 			</TOCItem>

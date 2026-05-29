@@ -14,7 +14,7 @@ export const ipv4Option = {
 	docLink: 'https://www.remotion.dev/docs/cli/studio',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {
 				value: commandLine[cliFlag] as boolean,
 				source: 'cli',

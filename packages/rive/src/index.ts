@@ -1,1 +1,5 @@
-export {RemotionRiveCanvas, RiveCanvasRef} from './RemotionRiveCanvas.js';
+export {
+	RemotionRiveCanvas,
+	RemotionRiveCanvasProps,
+	RiveCanvasRef,
+} from './RemotionRiveCanvas.js';

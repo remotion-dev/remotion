@@ -5,6 +5,7 @@ import type {
 	VolumeProp,
 } from 'remotion';
 import type {MediaOnError} from '../on-error';
+import type {MediaRequestInit} from '../request-init';
 
 export type FallbackHtml5AudioProps = {
 	crossOrigin?: '' | 'anonymous' | 'use-credentials' | undefined;
@@ -12,6 +13,7 @@ export type FallbackHtml5AudioProps = {
 	useWebAudioApi?: boolean;
 	acceptableTimeShiftInSeconds?: number;
 	pauseWhenBuffering?: boolean;
+	preservePitch?: boolean;
 };
 
 export type AudioProps = {
@@ -37,8 +39,13 @@ export type AudioProps = {
 	delayRenderRetries?: number;
 	delayRenderTimeoutInMilliseconds?: number;
 	onError?: MediaOnError;
+	/**
+	 * @deprecated Use `requestInit={{credentials: ...}}` instead. If both are
+	 * passed, `requestInit.credentials` wins over this prop.
+	 */
 	credentials?: RequestCredentials;
+	requestInit?: MediaRequestInit;
 } & Pick<
 	SequenceProps,
-	'from' | 'durationInFrames' | 'name' | 'showInTimeline'
+	'from' | 'durationInFrames' | 'name' | 'showInTimeline' | 'hidden'
 >;

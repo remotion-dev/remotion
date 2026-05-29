@@ -68,6 +68,13 @@ Using the Node.JS APIs requires you to set up a server yourself and manage certa
 
 This is a big effort overall and is only recommended for teams who are committed to using Remotion and want the most flexibility.
 
+## Render duration
+
+Vercel functions can run for up to 800 seconds.
+For longer Vercel Sandbox renders, start [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel) with `detached: true` and poll it with [`getRenderProgress()`](/docs/vercel/get-render-progress).
+
+The sandbox can keep rendering after the function has returned, up to the maximum Vercel Sandbox timeout of your plan.
+
 ## Feature set
 
 Remotion Lambda currently has the following features that Cloud Run does not have:
@@ -75,12 +82,12 @@ Remotion Lambda currently has the following features that Cloud Run does not hav
 - Distributed rendering
 - Webhooks
 - Apple Emoji
-- Polling progress
 - Cost estimation
 - Renders with expiration date
 - Rendering from PHP, Go and Python
 
-Rendering with Vercel Sandbox or the Node.JS APIs does not come with these features either, but you may build them based on top of the low-level APIs that are provided.
+Vercel Sandbox supports polling progress for detached renders.
+Rendering with Vercel Sandbox or the Node.JS APIs does not come with the other features, but you may build them based on top of the low-level APIs that are provided.
 
 `AV1` output is not available on Remotion Lambda or Linux ARM64 GNU because those runtimes ship only the essential codecs to stay lean.
 

@@ -31,6 +31,21 @@ export type TranslateFieldSchema = {
 	description?: string;
 };
 
+export type UvCoordinateFieldSchema = {
+	type: 'uv-coordinate';
+	min?: number;
+	max?: number;
+	step?: number;
+	default: readonly [number, number] | undefined;
+	description?: string;
+};
+
+export type ColorFieldSchema = {
+	type: 'color';
+	default: string | undefined;
+	description?: string;
+};
+
 export type EnumFieldSchema = {
 	type: 'enum';
 	default: string;
@@ -43,6 +58,8 @@ export type VisibleFieldSchema =
 	| BooleanFieldSchema
 	| RotationFieldSchema
 	| TranslateFieldSchema
+	| UvCoordinateFieldSchema
+	| ColorFieldSchema
 	| EnumFieldSchema;
 
 export type SequenceFieldSchema = VisibleFieldSchema | HiddenFieldSchema;
@@ -54,7 +71,7 @@ export type SchemaKeysRecord<S extends SequenceSchema> = Record<
 	unknown
 >;
 
-export const sequenceStyleSchema = {
+export const sequenceVisualStyleSchema = {
 	'style.translate': {
 		type: 'translate',
 		step: 1,
@@ -83,6 +100,9 @@ export const sequenceStyleSchema = {
 		default: 1,
 		description: 'Opacity',
 	},
+} as const satisfies SequenceSchema;
+
+export const sequencePremountSchema = {
 	premountFor: {
 		type: 'number',
 		default: 0,
@@ -101,7 +121,19 @@ export const sequenceStyleSchema = {
 	},
 } as const satisfies SequenceSchema;
 
+export const sequenceStyleSchema = {
+	...sequenceVisualStyleSchema,
+	...sequencePremountSchema,
+} as const satisfies SequenceSchema;
+
+export const hiddenField: SequenceFieldSchema = {
+	type: 'boolean',
+	default: false,
+	description: 'Hidden',
+};
+
 export const sequenceSchema = {
+	hidden: hiddenField,
 	layout: {
 		type: 'enum',
 		default: 'absolute-fill',

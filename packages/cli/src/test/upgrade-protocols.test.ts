@@ -7,6 +7,7 @@ import {
 	isCatalogProtocol,
 	updateCatalogEntry,
 } from '../catalog-utils';
+import {getPackagesToUpgrade} from '../upgrade';
 
 let tmpDir: string;
 
@@ -112,6 +113,35 @@ test('partitions packages into normal and catalog groups', () => {
 	);
 	expect(unknownResult.normalPackages).toEqual([
 		{pkg: '@remotion/core', version: '4.0.15'},
+	]);
+});
+
+test('includes Remotion and extra packages that only exist in pnpm catalog entries', () => {
+	const result = getPackagesToUpgrade({
+		depsWithVersions: {
+			dependencies: {},
+			devDependencies: {},
+			optionalDependencies: {},
+			peerDependencies: {},
+		},
+		catalogEntries: {
+			remotion: '4.0.460',
+			'@remotion/player': '4.0.460',
+			mediabunny: '1.44.0',
+			react: '19.0.0',
+		},
+		targetVersion: '4.0.462',
+		extraPackageVersions: {
+			mediabunny: '1.45.0',
+			zod: '4.3.6',
+		},
+	});
+
+	expect(result.normalPackages).toEqual([]);
+	expect(result.catalogPackages).toEqual([
+		{pkg: 'remotion', version: '4.0.462'},
+		{pkg: '@remotion/player', version: '4.0.462'},
+		{pkg: 'mediabunny', version: '1.45.0'},
 	]);
 });
 

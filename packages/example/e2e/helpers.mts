@@ -1,14 +1,9 @@
+import fs from 'fs';
 import {expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
-import fs from 'fs';
 import {LOGS_FILE, STUDIO_URL} from './constants.mts';
 
 export async function navigateToSchemaTest(page: Page): Promise<void> {
-	await page.goto(STUDIO_URL);
-	const schemaFolder = page.getByTitle('Schema');
-	await schemaFolder.click({timeout: 15_000});
-
-	// Wait for the default-props subscription to resolve so that saves work
 	const subscriptionPromise = page.waitForResponse(
 		(resp) =>
 			resp.url().includes('/api/subscribe-to-default-props') &&
@@ -16,22 +11,25 @@ export async function navigateToSchemaTest(page: Page): Promise<void> {
 		{timeout: 15_000},
 	);
 
-	const schemaTestLink = page.getByText('schema-test', {exact: true}).first();
-	await schemaTestLink.click({timeout: 10_000});
-	await expect(page).toHaveURL(/schema-test/, {timeout: 10_000});
+	await page.goto(`${STUDIO_URL}/schema-test`);
+	await expect(page).toHaveURL(/schema-test/, {timeout: 15_000});
 
 	await subscriptionPromise;
 }
 
 export async function navigateToVisualControls(page: Page): Promise<void> {
-	await page.goto(STUDIO_URL);
-	const folder = page.getByTitle('visual-controls');
-	await folder.click({timeout: 15_000});
-	const compositionLink = page.locator(
-		'a.__remotion-composition[data-compname="visual-controls"]',
-	);
-	await compositionLink.click({timeout: 10_000});
+	await page.goto(`${STUDIO_URL}/visual-controls`);
 	await expect(page).toHaveURL(/visual-controls/, {timeout: 10_000});
+}
+
+export async function navigateToLostNodePathE2e(page: Page): Promise<void> {
+	await page.goto(`${STUDIO_URL}/lost-node-path-e2e`);
+	await expect(page).toHaveURL(/lost-node-path-e2e/, {timeout: 15_000});
+
+	await page.waitForFunction(
+		() => !document.body.innerText.includes('Loading...'),
+		{timeout: 30_000},
+	);
 }
 
 export async function openVisualControlsPanel(page: Page): Promise<void> {

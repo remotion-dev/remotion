@@ -1,4 +1,5 @@
 import type {Backend} from './effect-types.js';
+import {createWebGL2ContextError} from './webgl2-context-error.js';
 
 // A pair of scratch canvases for ping-ponging within a same-backend run.
 type CanvasPair = readonly [HTMLCanvasElement, HTMLCanvasElement];
@@ -69,7 +70,7 @@ export class CanvasPool {
 					preserveDrawingBuffer: true,
 				});
 				if (!ctx) {
-					throw new Error('Failed to acquire WebGL2 context for canvas effect');
+					throw createWebGL2ContextError('canvas effect');
 				}
 
 				canvas.addEventListener('webglcontextlost', (e) => {

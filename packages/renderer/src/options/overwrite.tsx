@@ -24,7 +24,7 @@ export const overwriteOption = {
 	docLink: 'https://www.remotion.dev/docs/config#setoverwriteoutput',
 	type: false as boolean,
 	getValue: ({commandLine}, defaultValue: boolean) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			validate(commandLine[cliFlag]);
 
 			return {

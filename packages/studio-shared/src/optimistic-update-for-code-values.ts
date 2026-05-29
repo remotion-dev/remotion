@@ -39,5 +39,6 @@ export const optimisticUpdateForCodeValues = ({
 	return {
 		canUpdate: true,
 		props,
+		effects: previous.effects,
 	};
 };

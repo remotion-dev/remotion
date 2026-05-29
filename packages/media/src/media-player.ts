@@ -1,29 +1,31 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import type {
+	EffectChainState,
 	EffectDefinitionAndStack,
 	LogLevel,
+	ScheduleAudioNodeResult,
 	useBufferState,
 } from 'remotion';
-import type {EffectChainState} from 'remotion';
 import {Internals} from 'remotion';
-import type {ScheduleAudioNodeResult} from 'remotion';
 import {
 	audioIteratorManager,
 	type AudioIteratorManager,
 } from './audio-iterator-manager';
 import {
 	getDurationOfNode,
-	getOffset,
 	getScheduledTime,
+	getTrimStartForAudioNode,
 } from './audio/get-scheduled-time';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
-import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import {getDurationOrCompute} from './get-duration-or-compute';
 import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
 import {resolveAudioTrack} from './helpers/resolve-audio-track';
 import {isNetworkError} from './is-type-of-error';
 import type {Nonce, NonceManager} from './nonce-manager';
 import {makeNonceManager} from './nonce-manager';
+import {PremountAwareDelayPlayback} from './premount-aware-delay-playback';
+import type {MediaRequestInit} from './request-init';
+import {resolveRequestInit} from './request-init';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
@@ -79,14 +81,9 @@ export class MediaPlayer {
 		height: number,
 	) => EffectChainState | null;
 
-	private getCurrentFrame: () => number;
-
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
-	private bufferState: ReturnType<typeof useBufferState>;
-
-	private isPremounting: boolean;
-	private isPostmounting: boolean;
+	private premountAwareDelayPlayback: PremountAwareDelayPlayback;
 	private seekPromiseChain: Promise<unknown> = Promise.resolve();
 
 	constructor({
@@ -110,10 +107,10 @@ export class MediaPlayer {
 		playing,
 		sequenceOffset,
 		credentials,
+		requestInit,
 		tagType,
 		getEffects,
 		getEffectChainState,
-		getCurrentFrame,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -135,13 +132,13 @@ export class MediaPlayer {
 		playing: boolean;
 		sequenceOffset: number;
 		credentials: RequestCredentials | undefined;
+		requestInit: MediaRequestInit | undefined;
 		tagType: 'audio' | 'video';
 		getEffects: () => EffectDefinitionAndStack<unknown>[];
 		getEffectChainState: (
 			width: number,
 			height: number,
 		) => EffectChainState | null;
-		getCurrentFrame: () => number;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -155,20 +152,23 @@ export class MediaPlayer {
 		this.audioStreamIndex = audioStreamIndex;
 		this.fps = fps;
 		this.debugOverlay = debugOverlay;
-		this.bufferState = bufferState;
-		this.isPremounting = isPremounting;
-		this.isPostmounting = isPostmounting;
+		this.premountAwareDelayPlayback = new PremountAwareDelayPlayback({
+			bufferState,
+			isPremounting,
+			isPostmounting,
+		});
 		this.sequenceDurationInFrames = durationInFrames;
 		this.nonceManager = makeNonceManager();
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
 		this.sequenceOffset = sequenceOffset;
+		const resolvedRequestInit = resolveRequestInit({credentials, requestInit});
 		this.input = new Input({
 			source: new UrlSource(
 				this.src,
-				credentials
+				resolvedRequestInit
 					? {
-							requestInit: {credentials},
+							requestInit: resolvedRequestInit,
 						}
 					: undefined,
 			),
@@ -177,7 +177,6 @@ export class MediaPlayer {
 		this.tagType = tagType;
 		this.getEffects = getEffects;
 		this.getEffectChainState = getEffectChainState;
-		this.getCurrentFrame = getCurrentFrame;
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
@@ -338,7 +337,6 @@ export class MediaPlayer {
 					getIsLooping: () => this.loop,
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
-					getCurrentFrame: this.getCurrentFrame,
 				});
 			}
 
@@ -519,23 +517,9 @@ export class MediaPlayer {
 		this.drawDebugOverlay();
 	}
 
-	private delayPlaybackHandleIfNotPremounting =
-		(): DelayPlaybackIfNotPremounting => {
-			if (this.isPremounting || this.isPostmounting) {
-				return {
-					unblock: () => {},
-					[Symbol.dispose]: () => {},
-				};
-			}
-
-			const {unblock} = this.bufferState.delayPlayback();
-			return {
-				unblock,
-				[Symbol.dispose]: () => {
-					unblock();
-				},
-			};
-		};
+	private delayPlaybackHandleIfNotPremounting = () => {
+		return this.premountAwareDelayPlayback.createHandle();
+	};
 
 	public pause(): void {
 		if (!this.playing) {
@@ -636,11 +620,11 @@ export class MediaPlayer {
 	}
 
 	public setIsPremounting(isPremounting: boolean): void {
-		this.isPremounting = isPremounting;
+		this.premountAwareDelayPlayback.setIsPremounting(isPremounting);
 	}
 
 	public setIsPostmounting(isPostmounting: boolean): void {
-		this.isPostmounting = isPostmounting;
+		this.premountAwareDelayPlayback.setIsPostmounting(isPostmounting);
 	}
 
 	public async setLoop(
@@ -712,6 +696,7 @@ export class MediaPlayer {
 		const timeInSeconds = globalTime - this.sequenceOffset;
 
 		const localTime = this.getTrimmedTime(timeInSeconds);
+
 		if (localTime === null) {
 			return null;
 		}
@@ -727,13 +712,16 @@ export class MediaPlayer {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		originalUnloopedMediaTimestamp: number,
-		currentTime: number,
 	): ScheduleAudioNodeResult => {
 		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
 		}
 
-		const targetTime = this.getTargetTime(mediaTimestamp, currentTime);
+		const targetTime = this.getTargetTime(
+			mediaTimestamp,
+			this.sharedAudioContext.audioContext.currentTime,
+		);
+		const combinedPlaybackRate = this.playbackRate * this.globalPlaybackRate;
 		if (targetTime === null) {
 			return {
 				type: 'not-started',
@@ -741,17 +729,18 @@ export class MediaPlayer {
 					'no target for' +
 					mediaTimestamp.toFixed(3) +
 					',' +
-					currentTime.toFixed(3),
+					this.sharedAudioContext.audioContext.currentTime.toFixed(3),
 			};
 		}
 
 		const sequenceStartTime = this.getStartTime();
 		const loopSegmentMediaEndTimestamp = this.getLoopSegmentMediaEndTimestamp();
 
-		const offset = getOffset({
+		const offset = getTrimStartForAudioNode({
 			mediaTimestamp,
 			targetTime,
 			sequenceStartTime,
+			combinedPlaybackRate,
 		});
 
 		const duration = getDurationOfNode({
@@ -764,14 +753,13 @@ export class MediaPlayer {
 		const scheduledTime = getScheduledTime({
 			mediaTimestamp,
 			targetTime,
-			currentTime,
 			sequenceStartTime,
+			currentTime: this.sharedAudioContext.audioContext.currentTime,
 		});
 
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,
 			mediaTimestamp,
-			currentTime,
 			scheduledTime,
 			duration,
 			offset,
@@ -783,6 +771,10 @@ export class MediaPlayer {
 		callback: null | ((frame: CanvasImageSource) => void),
 	) {
 		this.onVideoFrameCallback = callback;
+	}
+
+	public async redrawVideoEffects(): Promise<void> {
+		await this.videoIteratorManager?.redrawCurrentFrame();
 	}
 
 	private drawDebugOverlay = () => {
