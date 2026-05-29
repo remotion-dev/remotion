@@ -23,14 +23,17 @@ export const TimelineKeyframedValue: React.FC<{
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const jsxFrame = timelinePosition - keyframeDisplayOffset;
 
-	const computedValue = useMemo(
-		() =>
-			Internals.interpolateKeyframedStatus({
-				frame: jsxFrame,
-				status: propStatus,
-			}),
-		[jsxFrame, propStatus],
-	);
+	const computedValue = useMemo(() => {
+		const raw = Internals.interpolateKeyframedStatus({
+			frame: jsxFrame,
+			status: propStatus,
+		});
+		if (typeof raw === 'number') {
+			return Math.round(raw * 100) / 100;
+		}
+
+		return raw;
+	}, [jsxFrame, propStatus]);
 
 	const fakeStatus: CanUpdateSequencePropStatusTrue = useMemo(
 		() => ({
