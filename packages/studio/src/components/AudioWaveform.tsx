@@ -242,6 +242,7 @@ export const AudioWaveform: React.FC<{
 			if (!workerFailed) {
 				worker.postMessage({type: 'dispose'});
 			}
+
 			worker.terminate();
 			waveformWorker.current = null;
 			hasTransferredCanvas.current = false;
