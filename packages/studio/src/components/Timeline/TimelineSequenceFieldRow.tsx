@@ -184,17 +184,17 @@ export const TimelineSequenceFieldRow: React.FC<{
 		);
 	}, [codeValue, field.fieldSchema.default]);
 
-	const canReset =
+	const canPerformReset =
 		previewServerState.type === 'connected' &&
 		codeValue !== null &&
-		codeValue.canUpdate &&
-		isNonDefault;
+		codeValue.canUpdate;
 
 	const onReset = useCallback(() => {
 		if (
-			!canReset ||
+			!canPerformReset ||
 			previewServerState.type !== 'connected' ||
-			codeValue === null
+			codeValue === null ||
+			!isNonDefault
 		) {
 			return;
 		}
@@ -215,9 +215,10 @@ export const TimelineSequenceFieldRow: React.FC<{
 			clientId: previewServerState.clientId,
 		});
 	}, [
-		canReset,
+		canPerformReset,
 		field.fieldSchema.default,
 		field.key,
+		isNonDefault,
 		nodePath,
 		previewServerState,
 		schema,
@@ -234,14 +235,14 @@ export const TimelineSequenceFieldRow: React.FC<{
 				keyHint: null,
 				label: 'Reset',
 				leftItem: null,
-				disabled: false,
+				disabled: !canPerformReset,
 				onClick: onReset,
 				quickSwitcherLabel: null,
 				subMenu: null,
 				value: 'reset-sequence-field',
 			},
 		];
-	}, [onReset]);
+	}, [canPerformReset, onReset]);
 
 	if (codeValue === null) {
 		return null;
@@ -283,14 +284,12 @@ export const TimelineSequenceFieldRow: React.FC<{
 		</TimelineRowChrome>
 	);
 
-	return canReset ? (
+	return (
 		<ContextMenu
 			values={contextMenuValues}
 			onOpen={selection.selectable ? selection.onSelect : null}
 		>
 			{row}
 		</ContextMenu>
-	) : (
-		row
 	);
 };

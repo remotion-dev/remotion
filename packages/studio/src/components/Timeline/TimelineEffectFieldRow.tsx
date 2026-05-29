@@ -253,14 +253,17 @@ export const TimelineEffectFieldRow: React.FC<{
 		);
 	}, [field.fieldSchema.default, propStatus]);
 
-	const canReset =
+	const canPerformReset =
 		previewServerState.type === 'connected' &&
 		propStatus !== null &&
-		propStatus.canUpdate &&
-		isNonDefault;
+		propStatus.canUpdate;
 
 	const onReset = useCallback(() => {
-		if (!canReset || previewServerState.type !== 'connected') {
+		if (
+			!canPerformReset ||
+			previewServerState.type !== 'connected' ||
+			!isNonDefault
+		) {
 			return;
 		}
 
@@ -281,11 +284,12 @@ export const TimelineEffectFieldRow: React.FC<{
 			clientId: previewServerState.clientId,
 		});
 	}, [
-		canReset,
+		canPerformReset,
 		field.effectIndex,
 		field.effectSchema,
 		field.fieldSchema.default,
 		field.key,
+		isNonDefault,
 		nodePath,
 		previewServerState,
 		setCodeValues,
@@ -300,14 +304,14 @@ export const TimelineEffectFieldRow: React.FC<{
 				keyHint: null,
 				label: 'Reset',
 				leftItem: null,
-				disabled: false,
+				disabled: !canPerformReset,
 				onClick: onReset,
 				quickSwitcherLabel: null,
 				subMenu: null,
 				value: 'reset-effect-field',
 			},
 		];
-	}, [onReset]);
+	}, [canPerformReset, onReset]);
 
 	const row = (
 		<TimelineRowChrome
@@ -337,14 +341,12 @@ export const TimelineEffectFieldRow: React.FC<{
 		</TimelineRowChrome>
 	);
 
-	return canReset ? (
+	return (
 		<ContextMenu
 			values={contextMenuValues}
 			onOpen={selection.selectable ? selection.onSelect : null}
 		>
 			{row}
 		</ContextMenu>
-	) : (
-		row
 	);
 };
