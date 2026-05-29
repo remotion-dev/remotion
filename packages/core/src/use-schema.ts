@@ -34,17 +34,15 @@ export type CanUpdateSequencePropStatusComputed = {
 	reason: 'computed';
 };
 
-export type CanUpdateSequencePropStatusKeyframed = {
-	canUpdate: false;
-	reason: 'keyframed';
-	keyframes: CanUpdateSequencePropStatusKeyframe[];
-	easing: CanUpdateSequencePropStatusEasing[];
-	clamping: CanUpdateSequencePropStatusClamping;
-};
-
 export type CanUpdateSequencePropStatusFalse =
 	| CanUpdateSequencePropStatusComputed
-	| CanUpdateSequencePropStatusKeyframed;
+	| {
+			canUpdate: false;
+			reason: 'keyframed';
+			keyframes: CanUpdateSequencePropStatusKeyframe[];
+			easing: CanUpdateSequencePropStatusEasing[];
+			clamping: CanUpdateSequencePropStatusClamping;
+	  };
 
 export type CanUpdateSequencePropStatus =
 	| CanUpdateSequencePropStatusTrue
