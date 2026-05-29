@@ -17,6 +17,7 @@ import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../../components/effects/effects-invert-preview';
 import {EffectsLightLeakPreview} from '../../components/effects/effects-light-leak-preview';
+import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
@@ -313,6 +314,19 @@ export const RemotionRoot: React.FC = () => {
 						thickness: 2,
 						offset: 0,
 						premultiply: false,
+					}}
+				/>
+				<Still
+					id="effects-lines-preview"
+					component={EffectsLinesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						direction: 'horizontal',
+						thickness: 40,
+						gap: 0,
+						angle: 20,
+						offset: 0,
 					}}
 				/>
 				<Still

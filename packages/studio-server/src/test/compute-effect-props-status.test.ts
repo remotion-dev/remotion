@@ -80,6 +80,7 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 	expect(result.props.amount).toEqual({
 		canUpdate: false,
 		reason: 'keyframed',
+		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 0.2},
 			{frame: 100, value: 0.8},

@@ -26,9 +26,9 @@ import {TimelineExpandedSection} from './TimelineExpandedSection';
 import {TimelineItemStack} from './TimelineItemStack';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {
-	TimelineMediaInfo,
 	getTimelineAssetLinkInfo,
 	openTimelineAssetLink,
+	TimelineMediaInfo,
 } from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
@@ -52,7 +52,8 @@ export const TimelineListItem: React.FC<{
 	readonly sequence: TSequence;
 	readonly nestedDepth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
-}> = ({nestedDepth, sequence, nodePathInfo}) => {
+	readonly keyframeDisplayOffset: number;
+}> = ({nestedDepth, sequence, nodePathInfo, keyframeDisplayOffset}) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
@@ -468,6 +469,7 @@ export const TimelineListItem: React.FC<{
 					validatedLocation={validatedLocation}
 					nodePathInfo={nodePathInfo}
 					nestedDepth={nestedDepth}
+					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
 			) : null}
 		</>

@@ -13,6 +13,7 @@ import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
+import {lines} from '../lines.js';
 import {mirror} from '../mirror.js';
 import {noise} from '../noise.js';
 import {saturation} from '../saturation.js';
@@ -64,6 +65,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(invert().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/invert',
+	);
+	expect(lines().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/lines',
 	);
 	expect(dotGrid().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/dot-grid',
@@ -121,6 +125,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	);
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
+	expect(lines().definition.label).toBe('lines()');
 	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
 	expect(noise().definition.label).toBe('noise()');
@@ -1054,6 +1059,87 @@ test('scanlines() parameters produce distinct effect keys', () => {
 			premultiplied.effectKey,
 		]).size,
 	).toBe(6);
+});
+
+test('lines() accepts default params', () => {
+	expect(() => lines()).not.toThrow();
+});
+
+test('lines() accepts custom colors', () => {
+	expect(() => lines({colors: ['#dff4ff', 'transparent']})).not.toThrow();
+});
+
+test('lines() rejects invalid colors', () => {
+	expect(() => lines({colors: ['#dff4ff']})).toThrow(
+		'"colors" must be an array with at least 2 colors',
+	);
+	expect(() => lines({colors: ['#dff4ff', '' as unknown as string]})).toThrow(
+		'"colors[1]" must be a non-empty string',
+	);
+});
+
+test('lines() rejects invalid direction', () => {
+	expect(() =>
+		lines({direction: 'diagonal' as unknown as 'horizontal'}),
+	).toThrow('"direction" must be "horizontal" or "vertical"');
+});
+
+test('lines() rejects non-finite thickness', () => {
+	expect(() => lines({thickness: Number.NaN})).toThrow(
+		'"thickness" must be a finite number',
+	);
+});
+
+test('lines() rejects non-positive thickness', () => {
+	expect(() => lines({thickness: 0})).toThrow(
+		'"thickness" must be greater than 0',
+	);
+});
+
+test('lines() rejects non-finite gap', () => {
+	expect(() => lines({gap: Number.NaN})).toThrow(
+		'"gap" must be a finite number',
+	);
+});
+
+test('lines() rejects negative gap', () => {
+	expect(() => lines({gap: -1})).toThrow(
+		'"gap" must be greater than or equal to 0',
+	);
+});
+
+test('lines() rejects non-finite angle', () => {
+	expect(() => lines({angle: Number.NaN})).toThrow(
+		'"angle" must be a finite number',
+	);
+});
+
+test('lines() rejects non-finite offset', () => {
+	expect(() => lines({offset: Number.NaN})).toThrow(
+		'"offset" must be a finite number',
+	);
+});
+
+test('lines() parameters produce distinct effect keys', () => {
+	const defaultLines = lines();
+	const colored = lines({colors: ['#ffffff', 'transparent']});
+	const vertical = lines({direction: 'vertical'});
+	const thin = lines({thickness: 20});
+	const gapped = lines({gap: 24});
+	const angled = lines({angle: 45});
+	const shifted = lines({offset: 10});
+
+	expect(
+		new Set([
+			defaultLines.effectKey,
+			colored.effectKey,
+			vertical.effectKey,
+			thin.effectKey,
+			gapped.effectKey,
+			angled.effectKey,
+			shifted.effectKey,
+		]).size,
+	).toBe(7);
 });
 
 test('hue() accepts default params', () => {

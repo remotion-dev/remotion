@@ -282,6 +282,7 @@ const sidebars: SidebarsConfig = {
 				'effects/hue',
 				'effects/dot-grid',
 				'effects/invert',
+				'effects/lines',
 				'effects/mirror',
 				'effects/noise',
 				'effects/saturation',
