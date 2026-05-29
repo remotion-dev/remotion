@@ -49,6 +49,8 @@ export const linesSchema = {
 	},
 	angle: {
 		type: 'number',
+		min: -180,
+		max: 180,
 		step: 1,
 		default: DEFAULT_ANGLE,
 		description: 'Angle',

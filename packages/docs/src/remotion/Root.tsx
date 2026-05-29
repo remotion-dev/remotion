@@ -324,6 +324,7 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={{
 						direction: 'horizontal',
 						thickness: 40,
+						gap: 0,
 						angle: 20,
 						offset: 0,
 					}}
