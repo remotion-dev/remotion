@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.468",
+	"version": "4.0.469",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -117,6 +117,11 @@
 			"module": "./dist/esm/saturation.mjs",
 			"import": "./dist/esm/saturation.mjs"
 		},
+		"./scanlines": {
+			"types": "./dist/scanlines.d.ts",
+			"module": "./dist/esm/scanlines.mjs",
+			"import": "./dist/esm/scanlines.mjs"
+		},
 		"./scale": {
 			"types": "./dist/scale.d.ts",
 			"module": "./dist/esm/scale.mjs",
@@ -206,6 +211,9 @@
 			],
 			"saturation": [
 				"dist/saturation.d.ts"
+			],
+			"scanlines": [
+				"dist/scanlines.d.ts"
 			],
 			"scale": [
 				"dist/scale.d.ts"

@@ -598,7 +598,7 @@ export class Page extends EventEmitter {
 	}
 
 	async setAutoDarkModeOverride(): Promise<void> {
-		const result = await this.#client.send('Emulation.setEmulatedMedia', {
+		await this.#client.send('Emulation.setEmulatedMedia', {
 			media: 'screen',
 			features: [
 				{
@@ -607,7 +607,6 @@ export class Page extends EventEmitter {
 				},
 			],
 		});
-		console.log(result);
 	}
 
 	evaluate<T extends EvaluateFn>(

@@ -1,11 +1,12 @@
-import {useMemo, useState} from 'react';
-import React from 'react';
+import React, {useMemo, useState} from 'react';
 import {
+	Internals,
+	Sequence,
+	useRemotionEnvironment,
 	useVideoConfig,
 	type SequenceControls,
 	type SequenceSchema,
 } from 'remotion';
-import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
 import type {InnerVideoProps, VideoProps} from './props';
 import {VideoForPreview} from './video-for-preview';
@@ -133,6 +134,7 @@ const InnerVideo: React.FC<
 				credentials={credentials}
 				requestInit={requestInit}
 				objectFit={objectFit}
+				effects={effects}
 			/>
 		);
 	}
