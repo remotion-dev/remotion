@@ -261,6 +261,39 @@ test('initialVolume out of range should give errors', () => {
 	}).toThrow(/'initialVolume' must be between 0 and 1 but got '2' instead/);
 });
 
+test('sampleRate should be okay', () => {
+	render(
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+			controls
+			showVolumeControls
+			sampleRate={44100}
+		/>,
+	);
+	expect(true).toBe(true);
+});
+
+test('invalid sampleRate should give errors', () => {
+	expect(() => {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				fps={30}
+				durationInFrames={500}
+				component={HelloWorld}
+				controls
+				showVolumeControls
+				sampleRate={0}
+			/>,
+		);
+	}).toThrow(/'sampleRate' must be a positive integer but got '0' instead/);
+});
+
 test('passing in <Composition /> instance should not be possible', () => {
 	expect(() => {
 		render(

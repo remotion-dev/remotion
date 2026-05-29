@@ -4,10 +4,12 @@ import React, {
 	createRef,
 	useCallback,
 	useContext,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
+import {CompositionManager} from '../CompositionManagerContext.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {Log} from '../log.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
@@ -193,12 +195,26 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly audioEnabled: boolean;
-}> = ({children, audioLatencyHint, audioEnabled}) => {
+	readonly previewSampleRate?: number;
+}> = ({children, audioLatencyHint, audioEnabled, previewSampleRate}) => {
 	const logLevel = useLogLevel();
+	const {currentCompositionMetadata} = useContext(CompositionManager);
+	const sampleRate =
+		previewSampleRate ?? currentCompositionMetadata?.defaultSampleRate ?? 48000;
+
+	useEffect(() => {
+		if (typeof window === 'undefined') {
+			return;
+		}
+
+		window.remotion_sampleRate = sampleRate;
+	}, [sampleRate]);
+
 	const ctxAndGain = useSingletonAudioContext({
 		logLevel,
 		latencyHint: audioLatencyHint,
 		audioEnabled,
+		sampleRate,
 	});
 	const audioContextIsPlayingEventually = useRef(false);
 	const isResuming = useRef<Promise<void> | null>(null);

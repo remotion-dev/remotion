@@ -251,6 +251,7 @@ const renderContent = (Root: React.FC) => {
 					logLevel={window.remotion_logLevel ?? 'info'}
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
+					previewSampleRate={window.remotion_sampleRate ?? 48000}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
 						<Root />
@@ -278,6 +279,7 @@ const renderContent = (Root: React.FC) => {
 					logLevel={window.remotion_logLevel ?? 'info'}
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
+					previewSampleRate={window.remotion_sampleRate ?? 48000}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
 						<Root />

@@ -33,10 +33,12 @@ export const useSingletonAudioContext = ({
 	logLevel,
 	latencyHint,
 	audioEnabled,
+	sampleRate,
 }: {
 	logLevel: LogLevel;
 	latencyHint: AudioContextLatencyCategory;
 	audioEnabled: boolean;
+	sampleRate: number;
 }) => {
 	const env = useRemotionEnvironment();
 
@@ -59,7 +61,7 @@ export const useSingletonAudioContext = ({
 			// By default, this can end up being 44100Hz.
 			// Playing a 48000Hz file in a 44100Hz context, such as https://remotion.media/video.mp4 in a @remotion/media tag
 			// we observe some issues that seem to go away when we set the sample rate to 48000 with Sony LinkBuds Bluetooth headphones.
-			sampleRate: 48000,
+			sampleRate,
 		});
 
 		const gainNode = audioContext.createGain();
@@ -119,7 +121,7 @@ export const useSingletonAudioContext = ({
 			resume,
 			suspend,
 		};
-	}, [logLevel, latencyHint, env.isRendering, audioEnabled]);
+	}, [logLevel, latencyHint, env.isRendering, audioEnabled, sampleRate]);
 
 	return context;
 };

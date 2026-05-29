@@ -122,6 +122,7 @@ const {
 	runsOption,
 	noOpenOption,
 	sampleRateOption,
+	previewSampleRateOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -640,6 +641,11 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setSampleRate: (sampleRate: number) => void;
 		/**
+		 * Set the audio sample rate for preview playback.
+		 * Default: Uses Config.setSampleRate() / --sample-rate value, then 48000.
+		 */
+		setPreviewSampleRate: (sampleRate: number) => void;
+		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
 		Bundling: void;
@@ -793,6 +799,7 @@ export const Config: FlatConfig = {
 	setBenchmarkRuns: runsOption.setConfig,
 	setBenchmarkConcurrencies: benchmarkConcurrenciesOption.setConfig,
 	setSampleRate: sampleRateOption.setConfig,
+	setPreviewSampleRate: previewSampleRateOption.setConfig,
 };
 
 export const ConfigInternals = {
