@@ -40,6 +40,7 @@ export const TimelineList: React.FC<{
 							nestedDepth={track.depth}
 							sequence={track.sequence}
 							nodePathInfo={track.nodePathInfo}
+							keyframeDisplayOffset={track.keyframeDisplayOffset}
 						/>
 					</div>
 				);
