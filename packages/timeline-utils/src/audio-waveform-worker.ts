@@ -148,6 +148,8 @@ self.addEventListener(
 			return;
 		}
 
-		renderWaveform(message);
+		void renderWaveform(message).catch((error) => {
+			postError(message.requestId, error);
+		});
 	},
 );
