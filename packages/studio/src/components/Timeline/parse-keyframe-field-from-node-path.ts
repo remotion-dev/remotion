@@ -11,6 +11,7 @@ export const parseKeyframeFieldFromNodePath = (
 			readonly fieldKey: string;
 	  }
 	| null => {
+	// Sequence control field: ['controls', fieldKey]
 	if (auxiliaryKeys[0] === 'controls' && auxiliaryKeys.length >= 2) {
 		return {
 			type: 'sequence',
@@ -18,15 +19,16 @@ export const parseKeyframeFieldFromNodePath = (
 		};
 	}
 
-	if (
-		auxiliaryKeys[0] === 'effects' &&
-		auxiliaryKeys.length >= 3 &&
-		auxiliaryKeys[1] !== undefined &&
-		auxiliaryKeys[2] !== undefined
-	) {
+	// Effect field: ['effects', effectIndex, fieldKey]
+	if (auxiliaryKeys[0] === 'effects' && auxiliaryKeys.length >= 3) {
+		const effectIndex = Number(auxiliaryKeys[1]);
+		if (!Number.isInteger(effectIndex) || effectIndex < 0) {
+			return null;
+		}
+
 		return {
 			type: 'effect',
-			effectIndex: Number(auxiliaryKeys[1]),
+			effectIndex,
 			fieldKey: auxiliaryKeys[2],
 		};
 	}
