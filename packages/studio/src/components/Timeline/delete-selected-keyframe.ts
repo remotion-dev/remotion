@@ -1,34 +1,12 @@
-import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import type {OverrideIdToNodePaths, TSequence} from 'remotion';
-import {calculateTimeline} from '../../helpers/calculate-timeline';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {callApi} from '../call-api';
+import {
+	callDeleteEffectKeyframe,
+	callDeleteSequenceKeyframe,
+} from './call-delete-keyframe';
+import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
-import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetCodeValues} from './save-sequence-prop';
-
-const findTrackForNodePathInfo = ({
-	sequences,
-	overrideIdsToNodePaths,
-	nodePathInfo,
-}: {
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	nodePathInfo: SequenceNodePathInfo;
-}) => {
-	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
-	return tracks.find(
-		(candidate) =>
-			candidate.nodePathInfo !== null &&
-			stringifySequenceSubscriptionKey(
-				candidate.nodePathInfo.sequenceSubscriptionKey,
-			) ===
-				stringifySequenceSubscriptionKey(
-					nodePathInfo.sequenceSubscriptionKey,
-				) &&
-			candidate.nodePathInfo.index === nodePathInfo.index,
-	);
-};
 
 export const deleteSelectedKeyframe = ({
 	nodePathInfo,
@@ -70,47 +48,25 @@ export const deleteSelectedKeyframe = ({
 			return null;
 		}
 
-		return enqueueSavePropChange({
+		return callDeleteEffectKeyframe({
+			fileName,
 			nodePath,
+			effectIndex: field.effectIndex,
+			fieldKey: field.fieldKey,
+			sourceFrame,
+			schema: effect.schema,
 			setCodeValues,
-			applyOptimistic: (prev) => prev,
-			apiCall: () =>
-				callApi('/api/save-effect-props', {
-					fileName,
-					sequenceNodePath: nodePath,
-					effectIndex: field.effectIndex,
-					key: field.fieldKey,
-					value: '',
-					defaultValue: null,
-					schema: effect.schema,
-					clientId,
-					keyframeOperation: {
-						type: 'remove',
-						frame: sourceFrame,
-					},
-				}),
-			errorLabel: 'Could not delete keyframe',
+			clientId,
 		});
 	}
 
-	return enqueueSavePropChange({
+	return callDeleteSequenceKeyframe({
+		fileName,
 		nodePath,
+		fieldKey: field.fieldKey,
+		sourceFrame,
+		schema: sequence.controls.schema,
 		setCodeValues,
-		applyOptimistic: (prev) => prev,
-		apiCall: () =>
-			callApi('/api/save-sequence-props', {
-				fileName,
-				nodePath,
-				key: field.fieldKey,
-				value: '',
-				defaultValue: null,
-				schema: sequence.controls!.schema,
-				clientId,
-				keyframeOperation: {
-					type: 'remove',
-					frame: sourceFrame,
-				},
-			}),
-		errorLabel: 'Could not delete keyframe',
+		clientId,
 	});
 };

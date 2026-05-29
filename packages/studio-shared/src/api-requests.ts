@@ -248,11 +248,6 @@ export type UnsubscribeFromSequencePropsRequest = {
 	effectKeys: string[][];
 };
 
-export type KeyframeRemoveOperation = {
-	type: 'remove';
-	frame: number;
-};
-
 export type SaveSequencePropsRequest = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -261,7 +256,6 @@ export type SaveSequencePropsRequest = {
 	defaultValue: string | null;
 	schema: SequenceSchema;
 	clientId: string;
-	keyframeOperation?: KeyframeRemoveOperation;
 };
 
 export type SaveSequencePropsResponse =
@@ -283,10 +277,32 @@ export type SaveEffectPropsRequest = {
 	defaultValue: string | null;
 	schema: SequenceSchema;
 	clientId: string;
-	keyframeOperation?: KeyframeRemoveOperation;
 };
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
+
+export type DeleteSequenceKeyframeRequest = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	key: string;
+	frame: number;
+	schema: SequenceSchema;
+	clientId: string;
+};
+
+export type DeleteSequenceKeyframeResponse = SaveSequencePropsResponse;
+
+export type DeleteEffectKeyframeRequest = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+	key: string;
+	frame: number;
+	schema: SequenceSchema;
+	clientId: string;
+};
+
+export type DeleteEffectKeyframeResponse = SaveEffectPropsResponse;
 
 export type DeleteEffectRequest = {
 	fileName: string;
@@ -420,6 +436,14 @@ export type ApiRoutes = {
 	'/api/save-effect-props': ReqAndRes<
 		SaveEffectPropsRequest,
 		SaveEffectPropsResponse
+	>;
+	'/api/delete-sequence-keyframe': ReqAndRes<
+		DeleteSequenceKeyframeRequest,
+		DeleteSequenceKeyframeResponse
+	>;
+	'/api/delete-effect-keyframe': ReqAndRes<
+		DeleteEffectKeyframeRequest,
+		DeleteEffectKeyframeResponse
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/delete-jsx-node': ReqAndRes<

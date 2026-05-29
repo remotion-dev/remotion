@@ -1,12 +1,12 @@
 import {readFileSync} from 'node:fs';
 import {RenderInternals} from '@remotion/renderer';
 import type {
-	SaveEffectPropsRequest,
-	SaveEffectPropsResponse,
+	DeleteEffectKeyframeRequest,
+	DeleteEffectKeyframeResponse,
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
 import {parseAst} from '../../codemods/parse-ast';
-import {updateEffectProps} from '../../codemods/update-effect-props/update-effect-props';
+import {updateEffectKeyframes} from '../../codemods/update-keyframes/update-keyframes';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -23,17 +23,16 @@ import {logEffectUpdate} from './log-updates/log-effect-update';
 import {normalizeQuotes} from './log-updates/log-update';
 import {withSavePropsLock} from './save-props-mutex';
 
-export const saveEffectPropsHandler: ApiHandler<
-	SaveEffectPropsRequest,
-	SaveEffectPropsResponse
+export const deleteEffectKeyframeHandler: ApiHandler<
+	DeleteEffectKeyframeRequest,
+	DeleteEffectKeyframeResponse
 > = ({
 	input: {
 		fileName,
 		sequenceNodePath,
 		effectIndex,
 		key,
-		value,
-		defaultValue,
+		frame,
 		schema,
 		clientId,
 	},
@@ -43,7 +42,7 @@ export const saveEffectPropsHandler: ApiHandler<
 	withSavePropsLock(async () => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
-			`[save-effect-props] Received request for fileName="${fileName}" effectIndex=${effectIndex} key="${key}"`,
+			`[delete-effect-keyframe] Received request for fileName="${fileName}" effectIndex=${effectIndex} key="${key}" frame=${frame}`,
 		);
 		const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 			remotionRoot,
@@ -53,56 +52,49 @@ export const saveEffectPropsHandler: ApiHandler<
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 
-		const parsedDefault =
-			defaultValue !== null ? JSON.parse(defaultValue) : null;
-
 		const {
 			output,
-			oldValueString,
+			oldValueStrings,
+			newValueStrings,
 			formatted,
 			logLine,
 			effectCallee,
-			removedProps,
-		} = await updateEffectProps({
+		} = await updateEffectKeyframes({
 			input: fileContents,
 			sequenceNodePath: sequenceNodePath.nodePath,
 			effectIndex,
-			update: {
-				key,
-				value: JSON.parse(value),
-				defaultValue: parsedDefault,
-			},
-			schema,
+			updates: [
+				{
+					key,
+					operation: {
+						type: 'remove',
+						frame,
+					},
+				},
+			],
 		});
 
-		const defaultValueString =
-			parsedDefault !== null ? JSON.stringify(parsedDefault) : null;
-
+		const oldValueString = oldValueStrings[0];
+		const newValueString = newValueStrings[0];
 		const normalizedOld = normalizeQuotes(oldValueString);
-		const normalizedNew = normalizeQuotes(value);
-		const normalizedDefault =
-			defaultValueString !== null ? normalizeQuotes(defaultValueString) : null;
-		const normalizedRemovedProps = removedProps.map((prop) => ({
-			...prop,
-			valueString: normalizeQuotes(prop.valueString),
-		}));
+		const normalizedNew = normalizeQuotes(newValueString);
 
 		const undoPropChange = formatEffectPropChange({
 			effectName: effectCallee,
 			key,
 			oldValueString: normalizedNew,
 			newValueString: normalizedOld,
-			defaultValueString: normalizedDefault,
+			defaultValueString: null,
 			removedProps: [],
-			addedProps: normalizedRemovedProps,
+			addedProps: [],
 		});
 		const redoPropChange = formatEffectPropChange({
 			effectName: effectCallee,
 			key,
 			oldValueString: normalizedOld,
 			newValueString: normalizedNew,
-			defaultValueString: normalizedDefault,
-			removedProps: normalizedRemovedProps,
+			defaultValueString: null,
+			removedProps: [],
 			addedProps: [],
 		});
 
@@ -129,11 +121,11 @@ export const saveEffectPropsHandler: ApiHandler<
 			effectName: effectCallee,
 			propKey: key,
 			oldValueString,
-			newValueString: value,
-			defaultValueString,
+			newValueString,
+			defaultValueString: null,
 			formatted,
 			logLevel,
-			removedProps,
+			removedProps: [],
 			addedProps: [],
 		});
 

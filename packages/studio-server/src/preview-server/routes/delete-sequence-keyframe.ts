@@ -1,12 +1,11 @@
 import {readFileSync} from 'node:fs';
 import {RenderInternals} from '@remotion/renderer';
 import type {
-	SaveSequencePropsRequest,
-	SaveSequencePropsResponse,
+	DeleteSequenceKeyframeRequest,
+	DeleteSequenceKeyframeResponse,
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
-import {NoReactInternals} from 'remotion/no-react';
-import {updateSequenceProps} from '../../codemods/update-sequence-props/update-sequence-props';
+import {updateSequenceKeyframes} from '../../codemods/update-keyframes/update-keyframes';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -21,18 +20,18 @@ import {formatPropChange} from './log-updates/format-prop-change';
 import {logUpdate, normalizeQuotes} from './log-updates/log-update';
 import {withSavePropsLock} from './save-props-mutex';
 
-export const saveSequencePropsHandler: ApiHandler<
-	SaveSequencePropsRequest,
-	SaveSequencePropsResponse
+export const deleteSequenceKeyframeHandler: ApiHandler<
+	DeleteSequenceKeyframeRequest,
+	DeleteSequenceKeyframeResponse
 > = ({
-	input: {fileName, nodePath, key, value, defaultValue, schema, clientId},
+	input: {fileName, nodePath, key, frame, schema, clientId},
 	remotionRoot,
 	logLevel,
 }) =>
 	withSavePropsLock(async () => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
-			`[save-sequence-props] Received request for fileName="${fileName}" key="${key}"`,
+			`[delete-sequence-keyframe] Received request for fileName="${fileName}" key="${key}" frame=${frame}`,
 		);
 		const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 			remotionRoot,
@@ -42,47 +41,40 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 
-		const {output, oldValueStrings, formatted, logLine, removedProps} =
-			await updateSequenceProps({
+		const {output, oldValueStrings, newValueStrings, formatted, logLine} =
+			await updateSequenceKeyframes({
 				input: fileContents,
 				nodePath: nodePath.nodePath,
 				updates: [
 					{
 						key,
-						value: JSON.parse(value),
-						defaultValue:
-							defaultValue !== null ? JSON.parse(defaultValue) : null,
+						operation: {
+							type: 'remove',
+							frame,
+						},
 					},
 				],
-				schema: NoReactInternals.sequenceSchema,
 			});
+
 		const oldValueString = oldValueStrings[0];
-
-		const newValueString = JSON.stringify(JSON.parse(value));
-		const parsedDefault =
-			defaultValue !== null ? JSON.parse(defaultValue) : null;
-		const defaultValueString =
-			parsedDefault !== null ? JSON.stringify(parsedDefault) : null;
-
+		const newValueString = newValueStrings[0];
 		const normalizedOld = normalizeQuotes(oldValueString);
 		const normalizedNew = normalizeQuotes(newValueString);
-		const normalizedDefault =
-			defaultValueString !== null ? normalizeQuotes(defaultValueString) : null;
 
 		const undoPropChange = formatPropChange({
 			key,
 			oldValueString: normalizedNew,
 			newValueString: normalizedOld,
-			defaultValueString: normalizedDefault,
+			defaultValueString: null,
 			removedProps: [],
-			addedProps: removedProps,
+			addedProps: [],
 		});
 		const redoPropChange = formatPropChange({
 			key,
 			oldValueString: normalizedOld,
 			newValueString: normalizedNew,
-			defaultValueString: normalizedDefault,
-			removedProps,
+			defaultValueString: null,
+			removedProps: [],
 			addedProps: [],
 		});
 
@@ -109,16 +101,16 @@ export const saveSequencePropsHandler: ApiHandler<
 			key,
 			oldValueString,
 			newValueString,
-			defaultValueString,
+			defaultValueString: null,
 			formatted,
 			logLevel,
-			removedProps,
+			removedProps: [],
 			addedProps: [],
 		});
 
 		printUndoHint(logLevel);
 
-		const newStatus = computeSequencePropsStatusFromContent({
+		const status = computeSequencePropsStatusFromContent({
 			fileContents: output,
 			keys: getAllSchemaKeys(schema),
 			nodePath: nodePath.nodePath,
@@ -127,6 +119,6 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		return {
 			canUpdate: true,
-			props: newStatus.props,
+			props: status.props,
 		};
 	});

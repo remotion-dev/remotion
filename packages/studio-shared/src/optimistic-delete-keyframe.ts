@@ -1,0 +1,118 @@
+import {
+	type CanUpdateSequencePropsResponse,
+	type CanUpdateSequencePropStatus,
+} from 'remotion';
+
+const removeKeyframeFromPropStatus = ({
+	status,
+	frame,
+}: {
+	status: CanUpdateSequencePropStatus;
+	frame: number;
+}): CanUpdateSequencePropStatus => {
+	if (status.canUpdate) {
+		return status;
+	}
+
+	if (status.reason !== 'keyframed') {
+		return status;
+	}
+
+	const index = status.keyframes.findIndex((kf) => kf.frame === frame);
+	if (index === -1) {
+		return status;
+	}
+
+	const keyframes = status.keyframes.filter((_, i) => i !== index);
+
+	// Easing holds one segment per gap between consecutive keyframes
+	// (keyframes.length - 1 entries). Drop the segment adjacent to the removed
+	// keyframe so the invariant keeps holding until the server responds.
+	const easing = [...status.easing];
+	if (easing.length > 0) {
+		const easingIndexToRemove = index === 0 ? 0 : index - 1;
+		easing.splice(easingIndexToRemove, 1);
+	}
+
+	return {
+		...status,
+		keyframes,
+		easing,
+	};
+};
+
+export const optimisticDeleteSequenceKeyframe = ({
+	previous,
+	fieldKey,
+	frame,
+}: {
+	previous: CanUpdateSequencePropsResponse;
+	fieldKey: string;
+	frame: number;
+}): CanUpdateSequencePropsResponse => {
+	if (!previous.canUpdate) {
+		return previous;
+	}
+
+	const status = previous.props[fieldKey];
+	if (!status) {
+		return previous;
+	}
+
+	return {
+		...previous,
+		props: {
+			...previous.props,
+			[fieldKey]: removeKeyframeFromPropStatus({status, frame}),
+		},
+	};
+};
+
+export const optimisticDeleteEffectKeyframe = ({
+	previous,
+	effectIndex,
+	fieldKey,
+	frame,
+}: {
+	previous: CanUpdateSequencePropsResponse;
+	effectIndex: number;
+	fieldKey: string;
+	frame: number;
+}): CanUpdateSequencePropsResponse => {
+	if (!previous.canUpdate) {
+		return previous;
+	}
+
+	const targetIndex = previous.effects.findIndex(
+		(e) => e.effectIndex === effectIndex,
+	);
+	if (targetIndex === -1) {
+		return previous;
+	}
+
+	const target = previous.effects[targetIndex];
+	if (!target.canUpdate) {
+		return previous;
+	}
+
+	const status = target.props[fieldKey];
+	if (!status) {
+		return previous;
+	}
+
+	const updatedEffect = {
+		...target,
+		props: {
+			...target.props,
+			[fieldKey]: removeKeyframeFromPropStatus({status, frame}),
+		},
+	};
+
+	const effects = [...previous.effects];
+	effects[targetIndex] = updatedEffect;
+
+	return {
+		...previous,
+		effects,
+	};
+};

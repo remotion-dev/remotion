@@ -1,4 +1,5 @@
-import React, {useContext, useEffect} from 'react';
+import type React from 'react';
+import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
@@ -24,7 +25,7 @@ export const TimelineKeyframeKeybindings: React.FC = () => {
 			return;
 		}
 
-		const clientId = previewServerState.clientId;
+		const {clientId} = previewServerState;
 		const currentSelection = selectedItem;
 		const backspace = keybindings.registerKeybinding({
 			event: 'keydown',

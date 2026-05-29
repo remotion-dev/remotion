@@ -16,6 +16,10 @@ export {
 	CopyStillToClipboardRequest,
 	DeleteEffectRequest,
 	DeleteEffectResponse,
+	DeleteEffectKeyframeRequest,
+	DeleteEffectKeyframeResponse,
+	DeleteSequenceKeyframeRequest,
+	DeleteSequenceKeyframeResponse,
 	DeleteJsxNodeRequest,
 	DeleteJsxNodeResponse,
 	DuplicateJsxNodeRequest,
@@ -121,6 +125,10 @@ export {
 export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 
 export type {VisualControlChange} from './codemods';
+export {
+	optimisticDeleteEffectKeyframe,
+	optimisticDeleteSequenceKeyframe,
+} from './optimistic-delete-keyframe';
 export {optimisticUpdateForCodeValues} from './optimistic-update-for-code-values';
 export {optimisticUpdateForEffectCodeValues} from './optimistic-update-for-effect-code-values';
 export {stringifySequenceSubscriptionKey} from './stringify-sequence-subscription-key';
