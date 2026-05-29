@@ -112,49 +112,51 @@ export const Demo: React.FC = () => {
 		<div>
 			<br />
 			<br />
-			<SectionTitle>Demo</SectionTitle>
-			<div style={{height: 140, position: 'relative'}}>
-				<DragAndDropNudge />
-				<ThemeNudge />
-			</div>
-			<div style={playerWrapper}>
-				<Player
-					ref={ref}
-					component={HomepageVideoComp}
-					compositionWidth={640}
-					compositionHeight={360}
-					durationInFrames={120}
-					fps={30}
-					autoPlay
-					controls={isFullscreen}
-					clickToPlay={false}
-					style={style}
-					initiallyMuted
-					inputProps={props}
-					acknowledgeRemotionLicense
-					numberOfSharedAudioTags={0}
-					loop
-				/>
-				<PlayerControls playerRef={ref} durationInFrames={120} fps={30}>
-					<RenderButton
-						onError={onError}
-						renderData={
-							data
-								? {
-										cardOrder,
-										emojiIndex,
-										location: data.location as Location,
-										theme: colorMode,
-										trending: data.trending as RemoteData,
-									}
-								: null
-						}
-						playerRef={ref}
+			<SectionTitle>Interactive demo</SectionTitle>
+			<div className="max-w-[760px] mx-auto">
+				<div style={{height: 105, position: 'relative'}}>
+					<DragAndDropNudge />
+					<ThemeNudge />
+				</div>
+				<div style={playerWrapper}>
+					<Player
+						ref={ref}
+						component={HomepageVideoComp}
+						compositionWidth={640}
+						compositionHeight={360}
+						durationInFrames={120}
+						fps={30}
+						autoPlay
+						controls={isFullscreen}
+						clickToPlay={false}
+						style={style}
+						initiallyMuted
+						inputProps={props}
+						acknowledgeRemotionLicense
+						numberOfSharedAudioTags={0}
+						loop
 					/>
-				</PlayerControls>
+					<PlayerControls playerRef={ref} durationInFrames={120} fps={30}>
+						<RenderButton
+							onError={onError}
+							renderData={
+								data
+									? {
+											cardOrder,
+											emojiIndex,
+											location: data.location as Location,
+											theme: colorMode,
+											trending: data.trending as RemoteData,
+										}
+									: null
+							}
+							playerRef={ref}
+						/>
+					</PlayerControls>
+				</div>
+				{error ? <DemoError /> : null}
+				<DownloadNudge />
 			</div>
-			{error ? <DemoError /> : null}
-			<DownloadNudge />
 		</div>
 	);
 };
