@@ -16,7 +16,7 @@ import {
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {computeSequencePropsStatusFromContent} from './can-update-sequence-props';
-import {logUpdate, normalizeQuotes} from './log-updates/log-update';
+import {logUpdate} from './log-updates/log-update';
 import {withSavePropsLock} from './save-props-mutex';
 
 export const deleteSequenceKeyframeHandler: ApiHandler<
@@ -57,8 +57,6 @@ export const deleteSequenceKeyframeHandler: ApiHandler<
 
 		const oldValueString = oldValueStrings[0];
 		const newValueString = newValueStrings[0];
-		const normalizedOld = normalizeQuotes(oldValueString);
-		const normalizedNew = normalizeQuotes(newValueString);
 
 		const undoPropChange = `${key} keyframe restored at frame ${frame}`;
 		const redoPropChange = `${key} keyframe deleted at frame ${frame}`;
