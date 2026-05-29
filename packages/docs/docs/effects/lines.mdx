@@ -37,6 +37,7 @@ export const MyComp: React.FC = () => {
             colors: ['#dff4ff', 'transparent'],
             direction: 'horizontal',
             thickness: 40,
+            spacing: 64,
             angle: 20,
             offset: frame * 2,
           }),
@@ -64,6 +65,14 @@ Direction of the unrotated lines. Either `'horizontal'` or `'vertical'`. Default
 ### `thickness?`
 
 Thickness of each stripe in pixels. Defaults to `40`.
+
+### `spacing?`
+
+Distance between line starts in pixels. Must be greater than or equal to `thickness`.
+
+Defaults to `thickness`.
+
+When `spacing` is larger than `thickness`, the extra area remains transparent.
 
 ### `angle?`
 

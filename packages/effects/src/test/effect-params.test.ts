@@ -1096,6 +1096,22 @@ test('lines() rejects non-positive thickness', () => {
 	);
 });
 
+test('lines() rejects non-finite spacing', () => {
+	expect(() => lines({spacing: Number.NaN})).toThrow(
+		'"spacing" must be a finite number',
+	);
+});
+
+test('lines() rejects non-positive spacing', () => {
+	expect(() => lines({spacing: 0})).toThrow('"spacing" must be greater than 0');
+});
+
+test('lines() rejects spacing less than thickness', () => {
+	expect(() => lines({thickness: 20, spacing: 10})).toThrow(
+		'"spacing" must be greater than or equal to "thickness"',
+	);
+});
+
 test('lines() rejects non-finite angle', () => {
 	expect(() => lines({angle: Number.NaN})).toThrow(
 		'"angle" must be a finite number',
@@ -1113,6 +1129,7 @@ test('lines() parameters produce distinct effect keys', () => {
 	const colored = lines({colors: ['#ffffff', 'transparent']});
 	const vertical = lines({direction: 'vertical'});
 	const thin = lines({thickness: 20});
+	const sparse = lines({spacing: 80});
 	const angled = lines({angle: 45});
 	const shifted = lines({offset: 10});
 
@@ -1122,10 +1139,11 @@ test('lines() parameters produce distinct effect keys', () => {
 			colored.effectKey,
 			vertical.effectKey,
 			thin.effectKey,
+			sparse.effectKey,
 			angled.effectKey,
 			shifted.effectKey,
 		]).size,
-	).toBe(6);
+	).toBe(7);
 });
 
 test('hue() accepts default params', () => {

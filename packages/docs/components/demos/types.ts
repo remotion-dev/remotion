@@ -2144,6 +2144,15 @@ export const effectsLinesDemo: DemoType = {
 			optional: 'no',
 		},
 		{
+			name: 'spacing',
+			type: 'numeric',
+			min: 0.1,
+			max: 400,
+			step: 0.1,
+			default: 40,
+			optional: 'no',
+		},
+		{
 			name: 'angle',
 			type: 'numeric',
 			min: -180,

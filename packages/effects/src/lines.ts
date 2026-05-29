@@ -17,6 +17,7 @@ const LINE_DIRECTIONS = ['horizontal', 'vertical'] as const;
 const DEFAULT_COLORS = ['#dff4ff', 'transparent'] as const;
 const DEFAULT_DIRECTION = 'horizontal' as const;
 const DEFAULT_THICKNESS = 40 as const;
+const DEFAULT_SPACING = 40 as const;
 const DEFAULT_ANGLE = 0 as const;
 const DEFAULT_OFFSET = 0 as const;
 
@@ -37,6 +38,14 @@ export const linesSchema = {
 		step: 0.1,
 		default: DEFAULT_THICKNESS,
 		description: 'Thickness',
+	},
+	spacing: {
+		type: 'number',
+		min: 0.1,
+		max: 400,
+		step: 0.1,
+		default: DEFAULT_SPACING,
+		description: 'Spacing',
 	},
 	angle: {
 		type: 'number',
@@ -61,6 +70,8 @@ export type LinesParams = {
 	readonly direction?: LinesDirection;
 	/** Thickness of each stripe in pixels. Defaults to `40`. */
 	readonly thickness?: number;
+	/** Distance between line starts in pixels. Defaults to `thickness`. */
+	readonly spacing?: number;
 	/** Rotates the line pattern in degrees. Defaults to `0`. */
 	readonly angle?: number;
 	/** Offset in pixels. Animate this value to scroll the lines. Defaults to `0`. */
@@ -71,6 +82,7 @@ type LinesResolved = {
 	colors: readonly string[];
 	direction: LinesDirection;
 	thickness: number;
+	spacing: number;
 	angle: number;
 	offset: number;
 };
@@ -90,6 +102,7 @@ type LinesState = {
 		readonly uNumColors: WebGLUniformLocation | null;
 		readonly uDirection: WebGLUniformLocation | null;
 		readonly uThickness: WebGLUniformLocation | null;
+		readonly uSpacing: WebGLUniformLocation | null;
 		readonly uAngle: WebGLUniformLocation | null;
 		readonly uOffset: WebGLUniformLocation | null;
 	};
@@ -97,13 +110,18 @@ type LinesState = {
 	palettePixelData: Uint8Array;
 };
 
-const resolve = (p: LinesParams): LinesResolved => ({
-	colors: p.colors ?? DEFAULT_COLORS,
-	direction: p.direction ?? DEFAULT_DIRECTION,
-	thickness: p.thickness ?? DEFAULT_THICKNESS,
-	angle: p.angle ?? DEFAULT_ANGLE,
-	offset: p.offset ?? DEFAULT_OFFSET,
-});
+const resolve = (p: LinesParams): LinesResolved => {
+	const thickness = p.thickness ?? DEFAULT_THICKNESS;
+
+	return {
+		colors: p.colors ?? DEFAULT_COLORS,
+		direction: p.direction ?? DEFAULT_DIRECTION,
+		thickness,
+		spacing: p.spacing ?? thickness,
+		angle: p.angle ?? DEFAULT_ANGLE,
+		offset: p.offset ?? DEFAULT_OFFSET,
+	};
+};
 
 const formatEnum = (variants: readonly string[]): string => {
 	if (variants.length === 2) {
@@ -120,6 +138,17 @@ const validatePositive = (value: number, name: string): void => {
 	if (value <= 0) {
 		throw new TypeError(
 			`"${name}" must be greater than 0, but got ${JSON.stringify(value)}`,
+		);
+	}
+};
+
+const validateSpacingGteThickness = (
+	spacing: number,
+	thickness: number,
+): void => {
+	if (spacing < thickness) {
+		throw new TypeError(
+			`"spacing" must be greater than or equal to "thickness", but got spacing=${JSON.stringify(spacing)} and thickness=${JSON.stringify(thickness)}`,
 		);
 	}
 };
@@ -160,11 +189,14 @@ const validateLinesParams = (params: LinesParams): void => {
 	validateColors(params.colors);
 	validateDirection(params.direction);
 	assertOptionalFiniteNumber(params.thickness, 'thickness');
+	assertOptionalFiniteNumber(params.spacing, 'spacing');
 	assertOptionalFiniteNumber(params.angle, 'angle');
 	assertOptionalFiniteNumber(params.offset, 'offset');
 
-	const {thickness} = resolve(params);
+	const {thickness, spacing} = resolve(params);
 	validatePositive(thickness, 'thickness');
+	validatePositive(spacing, 'spacing');
+	validateSpacingGteThickness(spacing, thickness);
 };
 
 const LINES_VS = /* glsl */ `#version 300 es
@@ -190,16 +222,18 @@ uniform vec2 uResolution;
 uniform float uNumColors;
 uniform int uDirection;
 uniform float uThickness;
+uniform float uSpacing;
 uniform float uAngle;
 uniform float uOffset;
 
 void main() {
 	vec4 texColor = texture(uSource, vUv);
 	float thickness = max(uThickness, 0.001);
-	float cycle = thickness * uNumColors;
-	vec2 centered = vUv * uResolution - uResolution * 0.5;
-	float s = sin(uAngle);
-	float c = cos(uAngle);
+float spacing = max(uSpacing, 0.001);
+float cycle = spacing * uNumColors;
+vec2 centered = vUv * uResolution - uResolution * 0.5;
+float s = sin(uAngle);
+float c = cos(uAngle);
 	vec2 rotated = vec2(
 		centered.x * c - centered.y * s,
 		centered.x * s + centered.y * c
@@ -210,7 +244,13 @@ void main() {
 		position += cycle;
 	}
 
-	float colorIndex = floor(position / thickness);
+	float colorIndex = floor(position / spacing);
+	float inStripe = mod(position, spacing);
+	if (inStripe > thickness) {
+		fragColor = texColor;
+		return;
+	}
+
 	float texCoord = (colorIndex + 0.5) / uNumColors;
 	vec4 lineColor = texture(uPalette, vec2(texCoord, 0.5));
 	float lineAlpha = lineColor.a;
@@ -362,6 +402,7 @@ const setupLines = (target: HTMLCanvasElement): LinesState => {
 			uNumColors: gl.getUniformLocation(program, 'uNumColors'),
 			uDirection: gl.getUniformLocation(program, 'uDirection'),
 			uThickness: gl.getUniformLocation(program, 'uThickness'),
+			uSpacing: gl.getUniformLocation(program, 'uSpacing'),
 			uAngle: gl.getUniformLocation(program, 'uAngle'),
 			uOffset: gl.getUniformLocation(program, 'uOffset'),
 		},
@@ -405,7 +446,7 @@ export const lines = createEffect<LinesParams, LinesState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `lines-${r.colors.join('|')}-${r.direction}-${r.thickness}-${r.angle}-${r.offset}`;
+		return `lines-${r.colors.join('|')}-${r.direction}-${r.thickness}-${r.spacing}-${r.angle}-${r.offset}`;
 	},
 	setup: (target) => setupLines(target),
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -458,6 +499,7 @@ export const lines = createEffect<LinesParams, LinesState>({
 		if (uniforms.uDirection)
 			gl.uniform1i(uniforms.uDirection, r.direction === 'horizontal' ? 0 : 1);
 		if (uniforms.uThickness) gl.uniform1f(uniforms.uThickness, r.thickness);
+		if (uniforms.uSpacing) gl.uniform1f(uniforms.uSpacing, r.spacing);
 		if (uniforms.uAngle)
 			gl.uniform1f(uniforms.uAngle, (r.angle * Math.PI) / 180);
 		if (uniforms.uOffset) gl.uniform1f(uniforms.uOffset, r.offset);
